@@ -1,0 +1,44 @@
+{
+  "name": "gro",
+  "version": "0.1.0",
+  "description": "tools for web",
+  "license": "MIT",
+  "homepage": "https://github.com/ryanatkn/gro#readme",
+  "scripts": {
+    "start": "echo :D"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanatkn/gro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ryanatkn/gro/issues"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Ryan Atkinson",
+    "email": "ryanatkn@gmail.com",
+    "url": "https://ryanatkn.com"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "type": "module",
+  "prettier": {
+    "useTabs": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "overrides": [
+      {
+        "files": "*.json",
+        "options": {
+          "useTabs": false
+        }
+      }
+    ]
+  },
+  "devDependencies": {
+    "prettier": "^1.18.2"
+  }
+}
