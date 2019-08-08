@@ -1,6 +1,6 @@
 # gro
 
-> tools for web
+> opinionated tools for web development
 
 ```ts
 // work in progress
