@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "description": "opinionated tools for web development",
   "bin": {
-    "gro": "bin.js"
+    "gro": "build/bin/gro.js"
   },
   "license": "MIT",
   "homepage": "https://github.com/ryanatkn/gro#readme",
   "scripts": {
-    "start": "echo :D"
+    "build": "tsc",
+    "dev": "tsc -w",
+    "clean": "rm -rf build"
   },
   "repository": {
     "type": "git",
@@ -27,12 +29,26 @@
     "node": ">=12"
   },
   "type": "module",
-  "devDependencies": {},
   "dependencies": {
-    "polka": "^0.5.2",
+    "dotenv": "^8.0.0",
+    "fs-extra": "^8.1.0",
+    "kleur": "^3.0.3",
     "prettier": "^1.18.2",
+    "rollup": "^1.19.4",
+    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.1.1",
+    "rollup-plugin-typescript": "^1.0.1",
     "sade": "^1.6.1",
-    "sirv": "^0.4.2"
+    "svelte": "^3.7.1",
+    "tslib": "^1.10.0",
+    "typescript": "^3.5.3"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1",
+    "@types/fs-extra": "^8.0.0",
+    "@types/node": "^12.7.1",
+    "@types/prettier": "^1.18.1"
   },
   "prettier": {
     "useTabs": true,
