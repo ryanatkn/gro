@@ -50,9 +50,11 @@ export const run = async (opts: DevActionOpts): Promise<void> => {
 const resolveInputFiles = (dir: string, fileNames: string[]): string[] => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {
-		console.log('NONE', join(dir, DEFAULT_INPUT_NAME));
-		if (existsSync(join(dir, DEFAULT_INPUT_NAME))) {
+		const defaultInputPath = join(dir, DEFAULT_INPUT_NAME);
+		if (existsSync(defaultInputPath)) {
 			fileNames = [DEFAULT_INPUT_NAME];
+		} else {
+			throw Error(`Default input file not found: ${defaultInputPath}`);
 		}
 	}
 	const inputFiles = fileNames.map(f => join(dir, f));
