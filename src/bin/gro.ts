@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
-// first set up the env
+// install source maps
+import * as sourceMapSupport from 'source-map-support';
+sourceMapSupport.install({
+	handleUncaughtExceptions: false,
+});
+
+// set up the env
 import * as dotenv from 'dotenv';
 dotenv.config();
 if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';

@@ -52,7 +52,7 @@
     // "esModuleInterop": false, // Emit '__importStar' and '__importDefault' helpers for runtime babel ecosystem compatibility and enable '--allowSyntheticDefaultImports' for typesystem compatibility.
     // "maxNodeModuleJsDepth": 0, // The maximum dependency depth to search under node_modules and load JavaScript files. Only applicable with --allowJs.
     // "preserveSymlinks": false, // Do not resolve the real path of symlinks.
-    "resolveJsonModule": true // Include modules imported with '.json' extension.
+    "resolveJsonModule": true, // Include modules imported with '.json' extension.
 
     // Emit options
     // "declaration": false, // Generates corresponding '.d.ts' file.
@@ -71,7 +71,7 @@
     // "removeComments": false, // Remove all comments except copy-right header comments beginning with //!
 
     // Source map options
-    // "sourceMap": false, // Generates corresponding '.map' file.
+    "sourceMap": true // Generates corresponding '.map' file.
     // "sourceRoot": "", // Specify the location where debugger should locate TypeScript files instead of source locations.
     // "mapRoot": "", // Specify the location where debugger should locate map files instead of generated locations.
     // "inlineSourceMap": true, // Emit a single file with source maps instead of having a separate file.
