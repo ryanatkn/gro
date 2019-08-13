@@ -16,7 +16,13 @@ import * as sade from 'sade';
 import {readFileSync} from 'fs';
 import {join} from 'path';
 
+import {handleError, handleUnhandledRejection} from '../project/scriptUtils';
 import {DevActionOpts} from './actions/dev';
+
+// handle uncaught errors
+process
+	.on('uncaughtException', handleError)
+	.on('unhandledRejection', handleUnhandledRejection);
 
 // This is gross, but it's needed because the TypeScript `rootDir` is `./src`,
 // and `package.json` is above it at the repo root,

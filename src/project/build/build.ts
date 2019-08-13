@@ -13,7 +13,7 @@ import * as typescriptPlugin from 'rollup-plugin-typescript';
 import {resolve, join} from 'path';
 import {magenta} from 'kleur';
 
-import {handleScriptError, rainbow} from '../scriptUtils';
+import {rainbow} from '../scriptUtils';
 import {logger, LogLevel, Logger} from '../logger';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
 
@@ -60,17 +60,15 @@ export const build = async (opts: InitialBuildOptions): Promise<void> => {
 
 	trace('build options', options);
 
-	return runBuild(options, log)
-		.then(() => {
-			console.log(
-				[
-					rainbow('~~~~~~~~~~~~~'),
-					rainbow('~❤~ built ~❤~'),
-					rainbow('~~~~~~~~~~~~~'),
-				].join('\n'),
-			);
-		})
-		.catch(handleScriptError);
+	await runBuild(options, log);
+
+	console.log(
+		[
+			rainbow('~~~~~~~~~~~~~'),
+			rainbow('~❤~ built ~❤~'),
+			rainbow('~~~~~~~~~~~~~'),
+		].join('\n'),
+	);
 };
 
 const runBuild = async (options: BuildOptions, log: Logger): Promise<void> => {
