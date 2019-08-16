@@ -1,0 +1,131 @@
+import {
+	createServer,
+	Server,
+	ServerOptions,
+	RequestListener,
+	ServerResponse,
+	IncomingMessage,
+} from 'http';
+import {ListenOptions} from 'net';
+import {cyan, yellow, gray} from 'kleur';
+import {resolve} from 'path';
+
+import {logger, LogLevel} from '../project/logger';
+import {stripAfter} from '../utils/str';
+import {loadFile, getMimeType, File} from '../utils/file';
+
+export interface DevServer {
+	server: Server;
+	start(): Promise<void>;
+}
+
+export interface DevServerOptions {
+	host: string;
+	port: number;
+	dir: string;
+}
+export type RequiredDevServerOptions = never;
+export type InitialDevServerOptions = PartialExcept<
+	DevServerOptions,
+	RequiredDevServerOptions
+>;
+const DEFAULT_HOST = 'localhost'; // or 0.0.0.0?
+const DEFAULT_PORT = 8999;
+export const defaultDevServerOptions = (
+	opts: InitialDevServerOptions,
+): DevServerOptions => ({
+	host: DEFAULT_HOST,
+	port: DEFAULT_PORT,
+	...opts,
+	dir: resolve(opts.dir || '.'),
+});
+
+export const createDevServer = (opts: InitialDevServerOptions): DevServer => {
+	const options = defaultDevServerOptions(opts);
+	const {host, port, dir} = options;
+
+	const log = logger(LogLevel.Trace, [cyan('[devServer]')]);
+	const {trace} = log;
+
+	const serverOptions: ServerOptions = {
+		// IncomingMessage?: typeof IncomingMessage;
+		// ServerResponse?: typeof ServerResponse;
+	};
+	const requestListener: RequestListener = async (req, res) => {
+		if (!req.url) return;
+		const url = parseUrl(req.url);
+		const localPath = toLocalPath(dir, url);
+		trace('serving', gray(req.url), '→', gray(localPath));
+
+		const file = await loadFile(localPath);
+		if (!file) {
+			trace(`${yellow('404')} ${localPath}`);
+			return send404FileNotFound(req, res, localPath);
+		}
+		trace(`${yellow('200')} ${localPath}`);
+		return send200FileFound(req, res, file);
+	};
+	const server = createServer(serverOptions, requestListener);
+	const listen = server.listen.bind(server);
+	server.listen = () => {
+		throw Error(`Use devServer.start() instead of devServer.server.listen()`);
+	};
+
+	return {
+		server,
+		start: async () => {
+			return new Promise(resolve => {
+				const listenOptions: ListenOptions = {
+					port,
+					host,
+					// backlog?: number;
+					// path?: string;
+					// exclusive?: boolean;
+					// readableAll?: boolean;
+					// writableAll?: boolean;
+					// ipv6Only?: boolean;
+				};
+				listen(listenOptions, () => {
+					trace('listening', listenOptions);
+					resolve();
+				});
+			});
+		},
+	};
+};
+
+const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
+
+const toLocalPath = (dir: string, url: string): string => {
+	const relativeUrl = url[0] === '/' ? '.' + url : url;
+	const relativePath = relativeUrl.endsWith('/')
+		? relativeUrl + 'index.html' // maybe handle others, like `.htm`?
+		: relativeUrl;
+	return resolve(dir, relativePath);
+};
+
+const send404FileNotFound = (
+	req: IncomingMessage,
+	res: ServerResponse,
+	path: string,
+) => {
+	const headers = {
+		'Content-Type': 'text/plain',
+	};
+	res.writeHead(404, headers);
+	res.end(`404 not found: ${req.url} -> ${path}`);
+};
+
+const send200FileFound = (
+	_req: IncomingMessage,
+	res: ServerResponse,
+	file: File,
+) => {
+	const headers = {
+		'Content-Type': getMimeType(file),
+		'Content-Length': file.stats.size,
+		'Last-Modified': file.stats.mtime.toUTCString(),
+	};
+	res.writeHead(200, headers);
+	res.end(file.data);
+};

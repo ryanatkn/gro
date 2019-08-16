@@ -19,6 +19,18 @@ export const stripEnd = (source: string, stripped: string): string => {
 	return source.slice(0, -stripped.length);
 };
 
+export const stripAfter = (source: string, stripped: string): string => {
+	const idx = source.indexOf(stripped);
+	if (idx === -1) return source;
+	return source.slice(0, idx);
+};
+
+export const stripBefore = (source: string, stripped: string): string => {
+	const idx = source.indexOf(stripped);
+	if (idx === -1) return source;
+	return source.slice(idx);
+};
+
 export const ensureStart = (source: string, ensured: string): string => {
 	if (source.startsWith(ensured)) return source;
 	return ensured + source;

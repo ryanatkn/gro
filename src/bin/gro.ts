@@ -17,7 +17,8 @@ import {readFileSync} from 'fs';
 import {join} from 'path';
 
 import {handleError, handleUnhandledRejection} from '../project/scriptUtils';
-import {DevActionOpts} from './actions/dev';
+import {InitialDevActionOptions} from './actions/dev';
+import {omitUndefined} from '../utils/obj';
 
 // handle uncaught errors
 process
@@ -49,13 +50,16 @@ sade('gro')
 	.option('-H, --host', 'Hostname for the server')
 	.option('-p, --port', 'Port number for the server')
 	.option('-d, --dir', 'Directory for the app source')
-	.option('-o, --out', 'Directory for the build output')
+	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
+	.option('-s, --serve', 'Serve the directory')
 	.action(async (opts: any) => {
 		const dev = await import('./actions/dev');
-		const options: DevActionOpts = {
-			host: env.HOST,
-			port: env.PORT,
+		const options: InitialDevActionOptions = {
+			...omitUndefined({
+				host: env.HOST,
+				port: env.PORT,
+			}),
 			...opts,
 		};
 		await dev.run(options);

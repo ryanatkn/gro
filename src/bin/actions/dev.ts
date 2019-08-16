@@ -4,38 +4,61 @@ import {blue} from 'kleur';
 
 import {build} from '../../project/build/build';
 import {logger, LogLevel} from '../../project/logger';
-
-const DEFAULT_HOST = 'localhost';
-const DEFAULT_PORT = 8999;
-const DEFAULT_INPUT_NAME = 'index.ts';
+import {createDevServer} from '../../devServer/devServer';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue('[bin/actions/dev]')]);
 const {info} = log;
 
-export interface DevActionOpts {
+export interface DevActionOptions {
 	_: string[];
-	host?: string;
-	port?: number;
-	dir?: string;
-	out?: string;
-	watch?: boolean;
+	host: string;
+	port: number;
+	dir: string;
+	outputDir: string;
+	watch: boolean;
+	serve: boolean;
 }
-
-export const run = async (opts: DevActionOpts): Promise<void> => {
-	info('opts', opts);
-	const host = opts.host || DEFAULT_HOST;
-	const port = opts.port || DEFAULT_PORT;
+export type RequiredDevActionOptions = '_';
+export type InitialDevActionOptions = PartialExcept<
+	DevActionOptions,
+	RequiredDevActionOptions
+>;
+const DEFAULT_HOST = '0.0.0.0'; // 'localhost'; why is 0.0.0.0 needed here but not for sirv?
+const DEFAULT_PORT = 8999;
+const DEFAULT_INPUT_NAME = 'index.ts';
+export const defaultDevActionOptions = (
+	opts: InitialDevActionOptions,
+): DevActionOptions => {
 	const dir = resolve(opts.dir || '.');
-	const outputDir = opts.out ? resolve(opts.out) : dir;
-	const watch = opts.watch || false;
-	const inputFiles = resolveInputFiles(dir, opts._);
+	return {
+		host: DEFAULT_HOST,
+		port: DEFAULT_PORT,
+		watch: false,
+		serve: true,
+		...opts,
+		dir,
+		outputDir: opts.outputDir ? resolve(opts.outputDir) : dir,
+	};
+};
+
+export const run = async (opts: InitialDevActionOptions): Promise<void> => {
+	info('opts', opts);
+	const options = defaultDevActionOptions(opts);
+	const {_, host, port, dir, outputDir, watch, serve} = options;
 	info('dir', dir);
+	const inputFiles = resolveInputFiles(dir, _);
 	info('inputFiles', inputFiles);
 	info('outputDir', outputDir);
 
+	if (serve) {
+		const devServer = createDevServer({host, port, dir});
+		info(`serving ${dir} on ${host}:${port}`);
+		await devServer.start();
+	}
+
 	if (inputFiles.length) {
-		build({
+		await build({
 			dev: process.env.NODE_ENV !== 'production',
 			inputFiles,
 			outputDir,

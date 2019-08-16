@@ -1,6 +1,11 @@
 declare module 'sade';
 declare module 'rollup-plugin-typescript';
 
+// TODO upstream this?
+declare module 'mime/lite' {
+	export * from 'mime';
+}
+
 type OmitStrict<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 // these were thrown together quickly - is there a better way to do this?
