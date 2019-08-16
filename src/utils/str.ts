@@ -40,3 +40,10 @@ export const ensureEnd = (source: string, ensured: string): string => {
 	if (source.endsWith(ensured)) return source;
 	return source + ensured;
 };
+
+export const deindent = (str: string): string =>
+	str
+		.split('\n')
+		.filter(Boolean)
+		.map(s => s.trim())
+		.join('\n');

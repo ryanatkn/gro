@@ -52,7 +52,6 @@ sade('gro')
 	.option('-d, --dir', 'Directory for the app source')
 	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
-	.option('-s, --serve', 'Serve the directory')
 	.action(async (opts: any) => {
 		const dev = await import('./actions/dev');
 		const options: InitialDevActionOptions = {

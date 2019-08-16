@@ -2,7 +2,7 @@ import {resolve, join} from 'path';
 import {existsSync} from 'fs';
 import {blue} from 'kleur';
 
-import {build} from '../../project/build/build';
+import {createBuild} from '../../project/build/build';
 import {logger, LogLevel} from '../../project/logger';
 import {createDevServer} from '../../devServer/devServer';
 
@@ -17,7 +17,6 @@ export interface DevActionOptions {
 	dir: string;
 	outputDir: string;
 	watch: boolean;
-	serve: boolean;
 }
 export type RequiredDevActionOptions = '_';
 export type InitialDevActionOptions = PartialExcept<
@@ -35,7 +34,6 @@ export const defaultDevActionOptions = (
 		host: DEFAULT_HOST,
 		port: DEFAULT_PORT,
 		watch: false,
-		serve: true,
 		...opts,
 		dir,
 		outputDir: opts.outputDir ? resolve(opts.outputDir) : dir,
@@ -45,20 +43,18 @@ export const defaultDevActionOptions = (
 export const run = async (opts: InitialDevActionOptions): Promise<void> => {
 	info('opts', opts);
 	const options = defaultDevActionOptions(opts);
-	const {_, host, port, dir, outputDir, watch, serve} = options;
+	const {_, host, port, dir, outputDir, watch} = options;
 	info('dir', dir);
 	const inputFiles = resolveInputFiles(dir, _);
 	info('inputFiles', inputFiles);
 	info('outputDir', outputDir);
 
-	if (serve) {
-		const devServer = createDevServer({host, port, dir});
-		info(`serving ${dir} on ${host}:${port}`);
-		await devServer.start();
-	}
+	const devServer = createDevServer({host, port, dir});
+	info(`serving ${dir} on ${host}:${port}`);
+	await devServer.start();
 
 	if (inputFiles.length) {
-		await build({
+		const build = createBuild({
 			dev: process.env.NODE_ENV !== 'production',
 			inputFiles,
 			outputDir,
@@ -67,7 +63,10 @@ export const run = async (opts: InitialDevActionOptions): Promise<void> => {
 			port,
 			// logLevel: LogLevel;
 		});
+		await build.promise;
 	}
+
+	// ...
 };
 
 const resolveInputFiles = (dir: string, fileNames: string[]): string[] => {
@@ -76,8 +75,6 @@ const resolveInputFiles = (dir: string, fileNames: string[]): string[] => {
 		const defaultInputPath = join(dir, DEFAULT_INPUT_NAME);
 		if (existsSync(defaultInputPath)) {
 			fileNames = [DEFAULT_INPUT_NAME];
-		} else {
-			throw Error(`Default input file not found: ${defaultInputPath}`);
 		}
 	}
 	const inputFiles = fileNames.map(f => join(dir, f));

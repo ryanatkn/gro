@@ -16,6 +16,7 @@ import {magenta} from 'kleur';
 import {rainbow} from '../scriptUtils';
 import {logger, LogLevel, Logger} from '../logger';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
+import {deindent} from '../../utils/str';
 
 // TODO These modules require `esModuleInterop` to work correctly.
 // Rather than doing that and forcing `allowSyntheticDefaultImports`,
@@ -51,7 +52,11 @@ export const defaultBuildOptions = (
 	...initialOptions,
 });
 
-export const build = async (opts: InitialBuildOptions): Promise<void> => {
+interface Build {
+	promise: Promise<void>;
+}
+
+export const createBuild = (opts: InitialBuildOptions): Build => {
 	const options = defaultBuildOptions(opts);
 	const {logLevel} = options;
 
@@ -60,15 +65,9 @@ export const build = async (opts: InitialBuildOptions): Promise<void> => {
 
 	trace('build options', options);
 
-	await runBuild(options, log);
+	const promise = runBuild(options, log);
 
-	console.log(
-		[
-			rainbow('~~~~~~~~~~~~~'),
-			rainbow('~❤~ built ~❤~'),
-			rainbow('~~~~~~~~~~~~~'),
-		].join('\n'),
-	);
+	return {promise};
 };
 
 const runBuild = async (options: BuildOptions, log: Logger): Promise<void> => {
@@ -86,7 +85,16 @@ const runBuild = async (options: BuildOptions, log: Logger): Promise<void> => {
 		// build the js
 		info('building');
 		await runRollupBuild(options, log);
-		info('completed build');
+		info(
+			'\n' +
+				rainbow(
+					deindent(`
+						~~~~~~~~~~~~~~~~~
+						~~❤~~ built ~~❤~~
+						~~~~~~~~~~~~~~~~~
+				`),
+				),
+		);
 	}
 };
 
