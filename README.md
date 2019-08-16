@@ -1,4 +1,4 @@
-# gro
+# gro :chestnut:
 
 > opinionated tools for web development
 
