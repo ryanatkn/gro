@@ -13,7 +13,7 @@ if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
 const {env, argv} = process;
 
 import * as sade from 'sade';
-import {readFileSync} from 'fs';
+import {readJsonSync} from 'fs-extra';
 import {join} from 'path';
 
 import {handleError, handleUnhandledRejection} from '../project/scriptUtils';
@@ -25,12 +25,10 @@ process
 	.on('uncaughtException', handleError)
 	.on('unhandledRejection', handleUnhandledRejection);
 
-// This is gross, but it's needed because the TypeScript `rootDir` is `./src`,
+// This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
 // and `package.json` is above it at the repo root,
 // so it can't be imported or required normally.
-const pkg = JSON.parse(
-	readFileSync(join(__dirname, '../../package.json'), 'utf8'),
-);
+const pkg = readJsonSync(join(__dirname, '../../package.json'));
 
 /*
 
