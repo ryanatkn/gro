@@ -5,6 +5,7 @@ import {
 	RollupWatchOptions,
 	RollupOutput,
 	RollupBuild,
+	ExistingRawSourceMap,
 } from 'rollup';
 import * as resolvePluginFIXME from 'rollup-plugin-node-resolve';
 import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
@@ -17,6 +18,9 @@ import {rainbow} from '../scriptUtils';
 import {logger, LogLevel, Logger} from '../logger';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
 import {deindent} from '../../utils/str';
+import {plainCssPlugin} from './rollup-plugin-plain-css';
+import {outputCssPlugin} from './rollup-plugin-output-css';
+import {createCssCache, CssBuild} from './cssCache';
 
 // TODO These modules require `esModuleInterop` to work correctly.
 // Rather than doing that and forcing `allowSyntheticDefaultImports`,
@@ -98,23 +102,34 @@ const runBuild = async (options: BuildOptions, log: Logger): Promise<void> => {
 	}
 };
 
+interface GroCssBuild extends CssBuild {
+	map: ExistingRawSourceMap | undefined;
+}
+
 const createInputOptions = (
 	inputFile: string,
 	{dev, logLevel}: BuildOptions,
 	{trace}: Logger,
 ): InputOptions => {
+	const cssCache = createCssCache<GroCssBuild>({logLevel});
+	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.css'); // TODO path
+
 	const inputOptions: InputOptions = {
 		// — core input options
 		// external,
 		input: inputFile, // required
 		plugins: [
-			// TODO a lot of these plugins have deps that need to be refactored
-			// the rollup `emitFile` API should be helpful when it lands
-			// https://github.com/rollup/rollup/issues/2938
-			diagnosticsPlugin({
+			diagnosticsPlugin({logLevel}),
+			typescriptPlugin(),
+			plainCssPlugin({
+				addCssBuild: addPlainCssBuild,
 				logLevel,
 			}),
-			typescriptPlugin(),
+			outputCssPlugin({
+				getCssBundles: cssCache.getCssBundles,
+				sourcemap: dev,
+				logLevel,
+			}),
 			resolvePlugin(),
 			commonjsPlugin(),
 			dev ? null : terserPlugin.terser(),
