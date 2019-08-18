@@ -292,7 +292,7 @@ const runRollupWatcher = async (
 	options: BuildOptions,
 	log: Logger,
 ): Promise<void> => {
-	const {info} = log;
+	const {info, error} = log;
 	return new Promise((_resolve, reject) => {
 		const watchOptions = options.inputFiles.map(f =>
 			createWatchOptions(f, options, log),
@@ -306,14 +306,16 @@ const runRollupWatcher = async (
 				case 'START': // the watcher is (re)starting
 				case 'BUNDLE_START': // building an individual bundle
 				case 'BUNDLE_END': // finished building a bundle
+					break;
 				case 'END': // finished building all bundles
+					info(rainbow('~~end~~'), '\n\n');
 					break;
 				case 'ERROR': // encountered an error while bundling
-					console.log('error', event);
+					error('error', event);
 					reject(`Error: ${event.message}`);
 					break;
 				case 'FATAL': // encountered an unrecoverable error
-					console.log('fatal', event);
+					error('fatal', event);
 					reject(`Fatal error: ${event.message}`);
 					break;
 				default:
