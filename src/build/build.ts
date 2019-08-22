@@ -11,13 +11,13 @@ import * as resolvePluginFIXME from 'rollup-plugin-node-resolve';
 import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
 import * as terserPlugin from 'rollup-plugin-terser';
 import * as typescriptPlugin from 'rollup-plugin-typescript';
-import {resolve, join} from 'path';
+import {resolve} from 'path';
 import {magenta} from 'kleur';
 
-import {rainbow} from '../scriptUtils';
-import {logger, LogLevel, Logger} from '../logger';
+import {rainbow} from '../utils/node';
+import {logger, LogLevel, Logger} from '../utils/logger';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
-import {deindent} from '../../utils/str';
+import {deindent} from '../utils/str';
 import {plainCssPlugin} from './rollup-plugin-plain-css';
 import {outputCssPlugin} from './rollup-plugin-output-css';
 import {createCssCache, CssBuild} from './cssCache';

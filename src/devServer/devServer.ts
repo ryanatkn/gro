@@ -10,7 +10,7 @@ import {ListenOptions} from 'net';
 import {cyan, yellow, gray} from 'kleur';
 import {resolve} from 'path';
 
-import {logger, LogLevel} from '../project/logger';
+import {logger, LogLevel} from '../utils/logger';
 import {stripAfter} from '../utils/str';
 import {loadFile, getMimeType, File} from '../utils/file';
 

@@ -1,6 +1,6 @@
 import {green} from 'kleur';
 
-import {LogLevel, logger, fmtVal} from '../logger';
+import {LogLevel, logger, fmtVal} from '../utils/logger';
 import {toRootPath} from '../paths';
 
 export interface CssBuild {
@@ -25,9 +25,9 @@ export interface Options {
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (initialOptions: InitialOptions): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
-	...initialOptions,
+	...opts,
 });
 
 export const createCssCache = <T extends CssBuild = CssBuild>(

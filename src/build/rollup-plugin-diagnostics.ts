@@ -1,9 +1,9 @@
 import {Plugin} from 'rollup';
 import {gray} from 'kleur';
 
-import {LogLevel, logger, fmtVal, fmtMs} from '../logger';
-import {timeTracker} from '../scriptUtils';
-import {omitUndefined} from '../../utils/obj';
+import {LogLevel, logger, fmtVal, fmtMs} from '../utils/logger';
+import {timeTracker} from '../utils/node';
+import {omitUndefined} from '../utils/obj';
 import {toRootPath} from '../paths';
 
 export interface PluginOptions {
@@ -43,8 +43,8 @@ export const diagnosticsPlugin = (opts: InitialPluginOptions = {}): Plugin => {
 			info(tag('buildEnd'));
 		},
 		// footer() {}
-		generateBundle(_outputOptions, _bundle, isWrite) {
-			info(tag('generateBundle'), {isWrite});
+		generateBundle(_outputOptions, bundle, isWrite) {
+			info(tag('generateBundle'), {isWrite, bundle});
 		},
 		// intro() {}
 		load(id) {

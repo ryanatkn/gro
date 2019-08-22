@@ -4,7 +4,7 @@ import {blue} from 'kleur';
 import {dirname, join, relative} from 'path';
 import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
 
-import {LogLevel, logger, Logger} from '../logger';
+import {LogLevel, logger, Logger} from '../utils/logger';
 import {CssBuild, CssBundle} from './cssCache';
 
 interface CssBuildWithSourceMap extends CssBuild {
@@ -22,13 +22,11 @@ export type InitialPluginOptions = PartialExcept<
 	PluginOptions,
 	RequiredPluginOptions
 >;
-export const initOptions = (
-	initialOptions: InitialPluginOptions,
-): PluginOptions => ({
+export const initOptions = (opts: InitialPluginOptions): PluginOptions => ({
 	toFinalCss,
 	sourcemap: false,
 	logLevel: LogLevel.Info,
-	...initialOptions,
+	...opts,
 });
 
 export const name = 'output-css';
@@ -68,7 +66,8 @@ export const outputCssPlugin = (opts: InitialPluginOptions): Plugin => {
 					if (!code) continue;
 					cssStrings.push(code);
 
-					// add css source map
+					// add css sourcemap to later merge
+					// TODO avoid work if there's a single sourcemap
 					// TODO do we we ever want a warning/error if `build.map` is undefined?
 					if (sourcemap && build.map && build.map.sourcesContent) {
 						const sourcesLength = sources.length;

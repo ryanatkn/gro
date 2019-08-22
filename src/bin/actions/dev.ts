@@ -1,6 +1,6 @@
 import {blue, magenta} from 'kleur';
 
-import {logger, LogLevel} from '../../project/logger';
+import {logger, LogLevel} from '../../utils/logger';
 import * as buildAction from './build';
 import * as serveAction from './serve';
 

@@ -16,7 +16,7 @@ import * as sade from 'sade';
 import {readJsonSync} from 'fs-extra';
 import {join} from 'path';
 
-import {handleError, handleUnhandledRejection} from '../project/scriptUtils';
+import {handleError, handleUnhandledRejection} from '../utils/node';
 import {InitialDevActionOptions} from './actions/dev';
 import {InitialBuildActionOptions} from './actions/build';
 import {InitialServeActionOptions} from './actions/serve';

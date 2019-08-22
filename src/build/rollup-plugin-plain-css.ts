@@ -2,7 +2,7 @@ import {Plugin} from 'rollup';
 import {green} from 'kleur';
 import {createFilter} from 'rollup-pluginutils';
 
-import {LogLevel, logger} from '../logger';
+import {LogLevel, logger} from '../utils/logger';
 import {CssBuild} from './cssCache';
 
 export interface PluginOptions {
@@ -16,13 +16,11 @@ export type InitialPluginOptions = PartialExcept<
 	PluginOptions,
 	RequiredPluginOptions
 >;
-export const initOptions = (
-	initialOptions: InitialPluginOptions,
-): PluginOptions => ({
+export const initOptions = (opts: InitialPluginOptions): PluginOptions => ({
 	include: ['**/*.css'],
 	exclude: undefined,
 	logLevel: LogLevel.Info,
-	...initialOptions,
+	...opts,
 });
 
 export const name = 'plain-css';
