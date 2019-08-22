@@ -34,8 +34,6 @@ export interface BuildOptions {
 	inputFiles: string[];
 	outputDir: string;
 	watch: boolean;
-	host: string;
-	port: number;
 	logLevel: LogLevel;
 }
 export type RequiredBuildOptions = never;
@@ -44,16 +42,14 @@ export type InitialBuildOptions = PartialExcept<
 	RequiredBuildOptions
 >;
 export const defaultBuildOptions = (
-	initialOptions: InitialBuildOptions,
+	opts: InitialBuildOptions,
 ): BuildOptions => ({
 	dev: true,
 	inputFiles: [resolve('index.ts')],
 	outputDir: process.cwd(),
 	watch: true,
-	host: 'localhost', // '0.0.0.0'?
-	port: 8999,
 	logLevel: LogLevel.Trace, // TODO this should be info
-	...initialOptions,
+	...opts,
 });
 
 interface Build {
