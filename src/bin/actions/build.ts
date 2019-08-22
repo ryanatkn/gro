@@ -7,7 +7,7 @@ import {logger, LogLevel} from '../../utils/logger';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue(`[bin/actions/${magenta('build')}]`)]);
-const {info} = log;
+const {info, warn} = log;
 
 export interface BuildActionOptions {
 	_: string[];
@@ -20,7 +20,7 @@ export type InitialBuildActionOptions = PartialExcept<
 	BuildActionOptions,
 	RequiredBuildActionOptions
 >;
-const DEFAULT_INPUT_NAME = 'index.ts';
+const DEFAULT_INPUT_NAMES = ['index.ts', 'src/index.ts'];
 export const defaultBuildActionOptions = (
 	opts: InitialBuildActionOptions,
 ): BuildActionOptions => {
@@ -49,6 +49,8 @@ export const run = async (opts: InitialBuildActionOptions): Promise<void> => {
 			// logLevel: LogLevel;
 		});
 		await build.promise;
+	} else {
+		warn('no input files to build');
 	}
 
 	// ...
@@ -57,9 +59,12 @@ export const run = async (opts: InitialBuildActionOptions): Promise<void> => {
 const resolveInputFiles = (dir: string, fileNames: string[]): string[] => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {
-		const defaultInputPath = join(dir, DEFAULT_INPUT_NAME);
-		if (existsSync(defaultInputPath)) {
-			fileNames = [DEFAULT_INPUT_NAME];
+		for (const name of DEFAULT_INPUT_NAMES) {
+			const path = join(dir, name);
+			if (existsSync(path)) {
+				fileNames = [name];
+				break;
+			}
 		}
 	}
 	const inputFiles = fileNames.map(f => join(dir, f));
