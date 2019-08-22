@@ -18,6 +18,8 @@ import {join} from 'path';
 
 import {handleError, handleUnhandledRejection} from '../project/scriptUtils';
 import {InitialDevActionOptions} from './actions/dev';
+import {InitialBuildActionOptions} from './actions/build';
+import {InitialServeActionOptions} from './actions/serve';
 import {omitUndefined} from '../utils/obj';
 
 // handle uncaught errors
@@ -51,7 +53,7 @@ sade('gro')
 	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
 	.action(async (opts: any) => {
-		const dev = await import('./actions/dev');
+		const action = await import('./actions/dev');
 		const options: InitialDevActionOptions = {
 			...omitUndefined({
 				host: env.HOST,
@@ -59,7 +61,37 @@ sade('gro')
 			}),
 			...opts,
 		};
-		await dev.run(options);
+		await action.run(options);
+	})
+
+	.command('build')
+	.describe('Builds the code')
+	.option('-d, --dir', 'Directory for the app source')
+	.option('-o, --outputDir', 'Directory for the build output')
+	.option('-w, --watch', 'Watch for changes and rebuild')
+	.action(async (opts: any) => {
+		const action = await import('./actions/build');
+		const options: InitialBuildActionOptions = {
+			...opts,
+		};
+		await action.run(options);
+	})
+
+	.command('serve')
+	.describe('Start development server')
+	.option('-d, --dir', 'Directory for the app source')
+	.option('-H, --host', 'Hostname for the server')
+	.option('-p, --port', 'Port number for the server')
+	.action(async (opts: any) => {
+		const action = await import('./actions/serve');
+		const options: InitialServeActionOptions = {
+			...omitUndefined({
+				host: env.HOST,
+				port: env.PORT,
+			}),
+			...opts,
+		};
+		await action.run(options);
 	})
 
 	// gro!
