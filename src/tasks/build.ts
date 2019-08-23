@@ -14,6 +14,7 @@ export interface Options {
 	dir: string;
 	outputDir: string;
 	watch: boolean;
+	production: boolean;
 }
 export type RequiredOptions = '_';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -22,6 +23,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const dir = resolve(opts.dir || '.');
 	return {
 		watch: false,
+		production: process.env.NODE_ENV === 'production',
 		...opts,
 		dir,
 		outputDir: opts.outputDir ? resolve(opts.outputDir) : dir,
@@ -31,13 +33,13 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
-	const {_, dir, outputDir, watch} = options;
+	const {_, dir, outputDir, watch, production} = options;
 	const inputFiles = resolveInputFiles(dir, _);
 	info('inputFiles', inputFiles);
 
 	if (inputFiles.length) {
 		const build = createBuild({
-			dev: process.env.NODE_ENV !== 'production',
+			dev: !production,
 			inputFiles,
 			outputDir,
 			watch,

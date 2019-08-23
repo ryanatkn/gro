@@ -52,7 +52,9 @@ sade('gro')
 	.option('-d, --dir', 'Directory for the app source')
 	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
+	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
+		if (opts.production) env.NODE_ENV = 'production';
 		const action = await import('../tasks/dev');
 		const options: InitialDevActionOptions = {
 			...omitUndefined({
@@ -69,7 +71,9 @@ sade('gro')
 	.option('-d, --dir', 'Directory for the app source')
 	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
+	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
+		if (opts.production) env.NODE_ENV = 'production';
 		const action = await import('../tasks/build');
 		const options: InitialBuildActionOptions = {
 			...opts,
