@@ -17,9 +17,9 @@ import {readJsonSync} from 'fs-extra';
 import {join} from 'path';
 
 import {handleError, handleUnhandledRejection} from '../utils/node';
-import {InitialOptions as InitialDevActionOptions} from './actions/dev';
-import {InitialOptions as InitialBuildActionOptions} from './actions/build';
-import {InitialOptions as InitialServeActionOptions} from './actions/serve';
+import {InitialOptions as InitialDevActionOptions} from '../tasks/dev';
+import {InitialOptions as InitialBuildActionOptions} from '../tasks/build';
+import {InitialOptions as InitialServeActionOptions} from '../tasks/serve';
 import {omitUndefined} from '../utils/obj';
 
 // handle uncaught errors
@@ -53,7 +53,7 @@ sade('gro')
 	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
 	.action(async (opts: any) => {
-		const action = await import('./actions/dev');
+		const action = await import('../tasks/dev');
 		const options: InitialDevActionOptions = {
 			...omitUndefined({
 				host: env.HOST,
@@ -70,7 +70,7 @@ sade('gro')
 	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
 	.action(async (opts: any) => {
-		const action = await import('./actions/build');
+		const action = await import('../tasks/build');
 		const options: InitialBuildActionOptions = {
 			...opts,
 		};
@@ -83,7 +83,7 @@ sade('gro')
 	.option('-H, --host', 'Hostname for the server')
 	.option('-p, --port', 'Port number for the server')
 	.action(async (opts: any) => {
-		const action = await import('./actions/serve');
+		const action = await import('../tasks/serve');
 		const options: InitialServeActionOptions = {
 			...omitUndefined({
 				host: env.HOST,

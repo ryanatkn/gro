@@ -1,11 +1,11 @@
 import {resolve} from 'path';
 import {blue, magenta} from 'kleur';
 
-import {logger, LogLevel} from '../../utils/logger';
-import {createDevServer} from '../../devServer/devServer';
+import {logger, LogLevel} from '../utils/logger';
+import {createDevServer} from '../devServer/devServer';
 
 // TODO LogLevel from env vars and cli args
-const log = logger(LogLevel.Trace, [blue(`[bin/actions/${magenta('serve')}]`)]);
+const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('serve')}]`)]);
 const {info} = log;
 
 export interface Options {

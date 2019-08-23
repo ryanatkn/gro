@@ -2,11 +2,11 @@ import {resolve, join} from 'path';
 import {existsSync} from 'fs';
 import {blue, magenta} from 'kleur';
 
-import {createBuild} from '../../build/build';
-import {logger, LogLevel} from '../../utils/logger';
+import {createBuild} from '../build/build';
+import {logger, LogLevel} from '../utils/logger';
 
 // TODO LogLevel from env vars and cli args
-const log = logger(LogLevel.Trace, [blue(`[bin/actions/${magenta('build')}]`)]);
+const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('build')}]`)]);
 const {info, warn} = log;
 
 export interface Options {

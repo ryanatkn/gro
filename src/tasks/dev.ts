@@ -1,11 +1,11 @@
 import {blue, magenta} from 'kleur';
 
-import {logger, LogLevel} from '../../utils/logger';
+import {logger, LogLevel} from '../utils/logger';
 import * as buildAction from './build';
 import * as serveAction from './serve';
 
 // TODO LogLevel from env vars and cli args
-const log = logger(LogLevel.Trace, [blue(`[bin/actions/${magenta('dev')}]`)]);
+const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('dev')}]`)]);
 const {info} = log;
 
 export type Options = buildAction.Options & serveAction.Options;
