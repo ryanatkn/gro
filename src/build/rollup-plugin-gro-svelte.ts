@@ -37,9 +37,12 @@ export type SvelteCompilation = OmitStrict<
 > & {
 	js: {
 		code: string;
-		map: string | {mappings: ''} | ExistingRawSourceMap | undefined;
+		map: ExistingRawSourceMap | undefined;
 	};
-	css: CssBuildWithSourceMap;
+	css: {
+		code: string;
+		map: ExistingRawSourceMap | undefined;
+	};
 	stats: Stats;
 };
 
@@ -174,7 +177,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 			let cssId = replaceExt(id, '.css');
 			trace('add css import', toRootPath(cssId));
-			addCssBuild(cssId, css);
+			addCssBuild(cssId, {id: cssId, ...css});
 
 			// save the compilation so other plugins can use it
 			const compilation: GroSvelteCompilation = {
