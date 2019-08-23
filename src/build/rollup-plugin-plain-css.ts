@@ -14,7 +14,7 @@ export interface Options {
 export type RequiredOptions = 'addCssBuild';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	include: ['**/*.css'],
+	include: '**/*.css',
 	exclude: undefined,
 	logLevel: LogLevel.Info,
 	...opts,
