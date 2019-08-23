@@ -26,7 +26,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 	const {addCssBuild, include, exclude, logLevel} = initOptions(opts);
 
 	const log = logger(logLevel, [green(`[${name}]`)]);
-	const {info} = log;
+	const {info, error} = log;
 
 	const filter = createFilter(include, exclude);
 
@@ -36,13 +36,8 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 			if (!filter(id)) return;
 			info(`transform id`, id);
 
-			// TODO new emit api? this and `return ''` below short-circuit rollup's pipeline!
 			const updatedCache = addCssBuild(id, {id, code});
-
-			// TODO understand this - might never occur
-			if (!updatedCache) {
-				throw Error(`Hmm...didn't expect this cache miss. TODO understand!`);
-			}
+			if (!updatedCache) error('Unexpected css cache update failure');
 
 			return '';
 		},
