@@ -44,7 +44,7 @@
     "sade": "^1.6.1",
     "source-map-support": "^0.5.13",
     "sourcemap-codec": "^1.4.6",
-    "svelte": "^3.7.1",
+    "svelte": "^3.9.1",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3"
   },

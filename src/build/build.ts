@@ -21,6 +21,7 @@ import {deindent} from '../utils/str';
 import {plainCssPlugin} from './rollup-plugin-plain-css';
 import {outputCssPlugin} from './rollup-plugin-output-css';
 import {createCssCache, CssBuild} from './cssCache';
+import {groSveltePlugin} from './rollup-plugin-gro-svelte';
 
 // TODO These modules require `esModuleInterop` to work correctly.
 // Rather than doing that and forcing `allowSyntheticDefaultImports`,
@@ -105,10 +106,19 @@ interface GroCssBuild extends CssBuild {
 const createInputOptions = (
 	inputFile: string,
 	{dev, logLevel}: BuildOptions,
-	{trace}: Logger,
+	_log: Logger,
 ): InputOptions => {
 	const cssCache = createCssCache<GroCssBuild>({logLevel});
-	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.css'); // TODO path
+	// TODO combine into one - mainly need to fix sourcemaps (maybe just append the unmapped css? can that be done automatically in the bundling plugin?)
+	// TODO make configurable with `gro.config.ts`
+	const addUnmappedCssBuild = cssCache.addCssBuild.bind(
+		null,
+		'styles.unmapped.css',
+	); // TODO path from options
+	const addSvelteCssBuild = cssCache.addCssBuild.bind(
+		null,
+		'styles.svelte.css',
+	); // TODO path from options
 
 	const inputOptions: InputOptions = {
 		// — core input options
@@ -116,9 +126,15 @@ const createInputOptions = (
 		input: inputFile, // required
 		plugins: [
 			diagnosticsPlugin({logLevel}),
+			groSveltePlugin({
+				dev,
+				addCssBuild: addSvelteCssBuild,
+				logLevel,
+				// preprocessor: [sveltePreprocessTypescript({logLevel})],
+			}),
 			typescriptPlugin(),
 			plainCssPlugin({
-				addCssBuild: addPlainCssBuild,
+				addCssBuild: addUnmappedCssBuild,
 				logLevel,
 			}),
 			outputCssPlugin({
@@ -154,7 +170,7 @@ const createInputOptions = (
 		// experimentalTopLevelAwait,
 		// perf
 	};
-	trace('inputOptions', inputOptions);
+	// trace('inputOptions', inputOptions);
 	return inputOptions;
 };
 
@@ -164,8 +180,8 @@ const createOutputOptions = (
 ): OutputOptions => {
 	const outputOptions: OutputOptions = {
 		// — core output options
-		// dir: outputDir,
-		file: join(outputDir, 'bundle.js'), // TODO this is temporarily hardcoded
+		dir: outputDir,
+		// file,
 		format: 'esm', // required
 		// globals,
 		name: 'app',

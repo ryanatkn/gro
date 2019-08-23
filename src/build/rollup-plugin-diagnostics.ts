@@ -44,7 +44,7 @@ export const diagnosticsPlugin = (opts: InitialPluginOptions = {}): Plugin => {
 		},
 		// footer() {}
 		generateBundle(_outputOptions, bundle, isWrite) {
-			info(tag('generateBundle'), {isWrite, bundle});
+			info(tag('generateBundle'), {isWrite, bundles: Object.keys(bundle)});
 		},
 		// intro() {}
 		load(id) {
