@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+// handle uncaught errors
+import {attachProcessErrorHandlers} from '../utils/process';
+attachProcessErrorHandlers();
+
 // install source maps
 import * as sourceMapSupport from 'source-map-support';
 sourceMapSupport.install({
@@ -7,25 +11,18 @@ sourceMapSupport.install({
 });
 
 // set up the env
-import * as dotenv from 'dotenv';
-dotenv.config();
-if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
+import {setupEnv} from '../env/env';
+setupEnv();
 const {env, argv} = process;
 
 import * as sade from 'sade';
 import {readJsonSync} from 'fs-extra';
 import {join} from 'path';
 
-import {handleError, handleUnhandledRejection} from '../utils/node';
 import {InitialOptions as InitialDevActionOptions} from '../tasks/dev';
 import {InitialOptions as InitialBuildActionOptions} from '../tasks/build';
 import {InitialOptions as InitialServeActionOptions} from '../tasks/serve';
 import {omitUndefined} from '../utils/obj';
-
-// handle uncaught errors
-process
-	.on('uncaughtException', handleError)
-	.on('unhandledRejection', handleUnhandledRejection);
 
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
 // and `package.json` is above it at the repo root,
