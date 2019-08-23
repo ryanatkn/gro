@@ -1,19 +1,15 @@
-import {Plugin, ExistingRawSourceMap} from 'rollup';
+import {Plugin} from 'rollup';
 import {outputFile} from 'fs-extra';
-import {blue} from 'kleur';
+import {blue, gray} from 'kleur';
 import {dirname, join, relative} from 'path';
 import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
 
 import {LogLevel, logger, Logger} from '../utils/logger';
-import {CssBuild, CssBundle} from './cssCache';
-
-interface CssBuildWithSourceMap extends CssBuild {
-	map: ExistingRawSourceMap | undefined;
-}
+import {GroCssBuild, GroCssBundle} from './types';
 
 export interface Options {
-	getCssBundles(): Map<string, CssBundle<CssBuildWithSourceMap>>;
-	toFinalCss(build: CssBuild, log: Logger): string;
+	getCssBundles(): Map<string, GroCssBundle>;
+	toFinalCss(build: GroCssBuild, log: Logger): string;
 	sourcemap: boolean; // TODO consider per-bundle options
 	logLevel: LogLevel;
 }
@@ -29,10 +25,10 @@ export const initOptions = (opts: InitialOptions): Options => ({
 export const name = 'output-css';
 
 export const outputCssPlugin = (opts: InitialOptions): Plugin => {
-	const {sourcemap, getCssBundles, logLevel, toFinalCss} = initOptions(opts);
+	const {getCssBundles, toFinalCss, sourcemap, logLevel} = initOptions(opts);
 
 	const log = logger(logLevel, [blue(`[${name}]`)]);
-	const {info} = log;
+	const {info, trace} = log;
 
 	return {
 		name,
@@ -47,8 +43,12 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 			// write each changed bundle to disk
 			for (const bundle of getCssBundles().values()) {
 				const {bundleName, buildsById, changedIds} = bundle;
-				if (!changedIds.size) continue;
+				if (!changedIds.size) {
+					trace(`no changes detected, skipping bundle ${gray(bundleName)}`);
+					continue;
+				}
 
+				// TODO try to avoid doing work for the sourcemap and `toFinalCss` by caching stuff that hasn't changed
 				info('generating css bundle', blue(bundleName));
 				info('changes', Array.from(changedIds)); // TODO trace when !watch
 				changedIds.clear();
@@ -57,8 +57,14 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 				const sources: string[] = [];
 				const sourcesContent: string[] = [];
 
+				// sort the css builds, so the cascade works according to import order
+				const builds = Array.from(buildsById.values()).sort((a, b) =>
+					a.sortIndex > b.sortIndex ? 1 : -1,
+				);
+
+				// create the final css and sourcemap
 				let cssStrings: string[] = [];
-				for (const build of buildsById.values()) {
+				for (const build of builds) {
 					const code = toFinalCss(build, log);
 					if (!code) continue;
 					cssStrings.push(code);
@@ -116,4 +122,4 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 	};
 };
 
-const toFinalCss = ({code}: CssBuild, _log: Logger): string => code;
+const toFinalCss = ({code}: GroCssBuild, _log: Logger): string => code;

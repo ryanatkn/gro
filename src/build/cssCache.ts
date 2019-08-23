@@ -17,7 +17,7 @@ export type CssBundle<T extends CssBuild = CssBuild> = {
 export interface CssCache<T extends CssBuild = CssBuild> {
 	getCssBundles(): Map<string, CssBundle<T>>;
 	getCssBuild(bundleName: string, id: string): T | undefined;
-	addCssBuild(bundleName: string, id: string, build: T): boolean;
+	addCssBuild(bundleName: string, build: T): boolean;
 }
 
 export interface Options {
@@ -47,7 +47,8 @@ export const createCssCache = <T extends CssBuild = CssBuild>(
 			if (!bundle) return undefined;
 			return bundle.buildsById.get(id);
 		},
-		addCssBuild: (bundleName, id, build): boolean => {
+		addCssBuild: (bundleName, build): boolean => {
+			const {id} = build;
 			let bundle = bundles.get(bundleName);
 			if (bundle) {
 				const cachedBuild = bundle.buildsById.get(id);

@@ -5,7 +5,6 @@ import {
 	RollupWatchOptions,
 	RollupOutput,
 	RollupBuild,
-	ExistingRawSourceMap,
 } from 'rollup';
 import * as resolvePluginFIXME from 'rollup-plugin-node-resolve';
 import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
@@ -20,8 +19,9 @@ import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
 import {deindent} from '../utils/str';
 import {plainCssPlugin} from './rollup-plugin-plain-css';
 import {outputCssPlugin} from './rollup-plugin-output-css';
-import {createCssCache, CssBuild} from './cssCache';
+import {createCssCache} from './cssCache';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte';
+import {GroCssBuild} from './types';
 
 // TODO These modules require `esModuleInterop` to work correctly.
 // Rather than doing that and forcing `allowSyntheticDefaultImports`,
@@ -94,10 +94,6 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 	}
 };
 
-interface GroCssBuild extends CssBuild {
-	map: ExistingRawSourceMap | undefined;
-}
-
 const createInputOptions = (
 	inputFile: string,
 	{dev, logLevel}: Options,
@@ -106,14 +102,7 @@ const createInputOptions = (
 	const cssCache = createCssCache<GroCssBuild>({logLevel});
 	// TODO combine into one - mainly need to fix sourcemaps (maybe just append the unmapped css? can that be done automatically in the bundling plugin?)
 	// TODO make configurable with `gro.config.ts`
-	const addUnmappedCssBuild = cssCache.addCssBuild.bind(
-		null,
-		'styles.unmapped.css',
-	); // TODO path from options
-	const addSvelteCssBuild = cssCache.addCssBuild.bind(
-		null,
-		'styles.svelte.css',
-	); // TODO path from options
+	const addCssBuild = cssCache.addCssBuild.bind(null, 'styles.css');
 
 	const inputOptions: InputOptions = {
 		// — core input options
@@ -123,15 +112,12 @@ const createInputOptions = (
 			diagnosticsPlugin({logLevel}),
 			groSveltePlugin({
 				dev,
-				addCssBuild: addSvelteCssBuild,
+				addCssBuild,
 				logLevel,
 				// preprocessor: [sveltePreprocessTypescript({logLevel})],
 			}),
 			typescriptPlugin(),
-			plainCssPlugin({
-				addCssBuild: addUnmappedCssBuild,
-				logLevel,
-			}),
+			plainCssPlugin({addCssBuild, logLevel}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,
 				sourcemap: dev,

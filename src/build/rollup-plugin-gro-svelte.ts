@@ -13,14 +13,10 @@ import {magenta, yellow} from 'kleur';
 import {extractFilename, replaceExt} from '../utils/node';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logger';
 import {toRootPath} from '../paths';
-import {CssBuild} from './cssCache';
+import {GroCssBuild} from './types';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
-
-interface CssBuildWithSourceMap extends CssBuild {
-	map: ExistingRawSourceMap | undefined;
-}
 
 // TODO type could be improved, not sure how tho
 interface Stats {
@@ -55,7 +51,7 @@ export type GroSvelteCompilation = SvelteCompilation & {
 
 export interface Options {
 	dev: boolean;
-	addCssBuild(id: string, css: CssBuildWithSourceMap): boolean;
+	addCssBuild(build: GroCssBuild): boolean;
 	include: string | RegExp | (string | RegExp)[] | null | undefined;
 	exclude: string | RegExp | (string | RegExp)[] | null | undefined;
 	preprocessor: PreprocessorGroup | PreprocessorGroup[] | undefined;
@@ -177,7 +173,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 			let cssId = replaceExt(id, '.css');
 			trace('add css import', toRootPath(cssId));
-			addCssBuild(cssId, {id: cssId, ...css});
+			addCssBuild({id: cssId, sourceId: id, sortIndex: -1, ...css});
 
 			// save the compilation so other plugins can use it
 			const compilation: GroSvelteCompilation = {
