@@ -19,29 +19,24 @@ export interface DevServer {
 	start(): Promise<void>;
 }
 
-export interface DevServerOptions {
+export interface Options {
 	host: string;
 	port: number;
 	dir: string;
 }
-export type RequiredDevServerOptions = never;
-export type InitialDevServerOptions = PartialExcept<
-	DevServerOptions,
-	RequiredDevServerOptions
->;
+export type RequiredOptions = never;
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_HOST = 'localhost'; // or 0.0.0.0?
 const DEFAULT_PORT = 8999;
-export const defaultDevServerOptions = (
-	opts: InitialDevServerOptions,
-): DevServerOptions => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
 	port: DEFAULT_PORT,
 	...opts,
 	dir: resolve(opts.dir || '.'),
 });
 
-export const createDevServer = (opts: InitialDevServerOptions): DevServer => {
-	const options = defaultDevServerOptions(opts);
+export const createDevServer = (opts: InitialOptions): DevServer => {
+	const options = initOptions(opts);
 	const {host, port, dir} = options;
 
 	const log = logger(LogLevel.Trace, [cyan('[devServer]')]);

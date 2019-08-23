@@ -8,21 +8,16 @@ import {createDevServer} from '../../devServer/devServer';
 const log = logger(LogLevel.Trace, [blue(`[bin/actions/${magenta('serve')}]`)]);
 const {info} = log;
 
-export interface ServeActionOptions {
+export interface Options {
 	dir: string;
 	host: string;
 	port: number;
 }
-export type RequiredServeActionOptions = never;
-export type InitialServeActionOptions = PartialExcept<
-	ServeActionOptions,
-	RequiredServeActionOptions
->;
+export type RequiredOptions = never;
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_HOST = '0.0.0.0'; // 'localhost'; why is 0.0.0.0 needed here but not for sirv?
 const DEFAULT_PORT = 8999;
-export const defaultServeActionOptions = (
-	opts: InitialServeActionOptions,
-): ServeActionOptions => {
+export const initOptions = (opts: InitialOptions): Options => {
 	const dir = resolve(opts.dir || '.');
 	return {
 		host: DEFAULT_HOST,
@@ -32,8 +27,8 @@ export const defaultServeActionOptions = (
 	};
 };
 
-export const run = async (opts: InitialServeActionOptions): Promise<void> => {
-	const options = defaultServeActionOptions(opts);
+export const run = async (opts: InitialOptions): Promise<void> => {
+	const options = initOptions(opts);
 	info('options', options);
 	const {host, port, dir} = options;
 

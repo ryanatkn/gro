@@ -30,21 +30,16 @@ import {groSveltePlugin} from './rollup-plugin-gro-svelte';
 const resolvePlugin: typeof resolvePluginFIXME.default = resolvePluginFIXME as any;
 const commonjsPlugin: typeof commonjsPluginFIXME.default = commonjsPluginFIXME as any;
 
-export interface BuildOptions {
+export interface Options {
 	dev: boolean;
 	inputFiles: string[];
 	outputDir: string;
 	watch: boolean;
 	logLevel: LogLevel;
 }
-export type RequiredBuildOptions = never;
-export type InitialBuildOptions = PartialExcept<
-	BuildOptions,
-	RequiredBuildOptions
->;
-export const defaultBuildOptions = (
-	opts: InitialBuildOptions,
-): BuildOptions => ({
+export type RequiredOptions = never;
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
 	inputFiles: [resolve('index.ts')],
 	outputDir: process.cwd(),
@@ -57,8 +52,8 @@ interface Build {
 	promise: Promise<void>;
 }
 
-export const createBuild = (opts: InitialBuildOptions): Build => {
-	const options = defaultBuildOptions(opts);
+export const createBuild = (opts: InitialOptions): Build => {
+	const options = initOptions(opts);
 	const {logLevel} = options;
 
 	const log = logger(logLevel, [magenta('[build]')]);
@@ -71,7 +66,7 @@ export const createBuild = (opts: InitialBuildOptions): Build => {
 	return {promise};
 };
 
-const runBuild = async (options: BuildOptions, log: Logger): Promise<void> => {
+const runBuild = async (options: Options, log: Logger): Promise<void> => {
 	const {info} = log;
 
 	info(`building for ${options.dev ? 'development' : 'production'}`);
@@ -105,7 +100,7 @@ interface GroCssBuild extends CssBuild {
 
 const createInputOptions = (
 	inputFile: string,
-	{dev, logLevel}: BuildOptions,
+	{dev, logLevel}: Options,
 	_log: Logger,
 ): InputOptions => {
 	const cssCache = createCssCache<GroCssBuild>({logLevel});
@@ -175,7 +170,7 @@ const createInputOptions = (
 };
 
 const createOutputOptions = (
-	{outputDir}: BuildOptions,
+	{outputDir}: Options,
 	{trace}: Logger,
 ): OutputOptions => {
 	const outputOptions: OutputOptions = {
@@ -221,7 +216,7 @@ const createOutputOptions = (
 
 const createWatchOptions = (
 	inputFile: string,
-	options: BuildOptions,
+	options: Options,
 	log: Logger,
 ): RollupWatchOptions => {
 	const watchOptions: RollupWatchOptions = {
@@ -243,7 +238,7 @@ interface BuildResult {
 }
 
 const runRollupBuild = async (
-	options: BuildOptions,
+	options: Options,
 	log: Logger,
 ): Promise<BuildResult[]> => {
 	// We're running builds sequentially,
@@ -301,7 +296,7 @@ const runRollupBuild = async (
 };
 
 const runRollupWatcher = async (
-	options: BuildOptions,
+	options: Options,
 	log: Logger,
 ): Promise<void> => {
 	const {info, error} = log;

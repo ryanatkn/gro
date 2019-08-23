@@ -17,9 +17,9 @@ import {readJsonSync} from 'fs-extra';
 import {join} from 'path';
 
 import {handleError, handleUnhandledRejection} from '../utils/node';
-import {InitialDevActionOptions} from './actions/dev';
-import {InitialBuildActionOptions} from './actions/build';
-import {InitialServeActionOptions} from './actions/serve';
+import {InitialOptions as InitialDevActionOptions} from './actions/dev';
+import {InitialOptions as InitialBuildActionOptions} from './actions/build';
+import {InitialOptions as InitialServeActionOptions} from './actions/serve';
 import {omitUndefined} from '../utils/obj';
 
 // handle uncaught errors

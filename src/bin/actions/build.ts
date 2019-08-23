@@ -9,21 +9,16 @@ import {logger, LogLevel} from '../../utils/logger';
 const log = logger(LogLevel.Trace, [blue(`[bin/actions/${magenta('build')}]`)]);
 const {info, warn} = log;
 
-export interface BuildActionOptions {
+export interface Options {
 	_: string[];
 	dir: string;
 	outputDir: string;
 	watch: boolean;
 }
-export type RequiredBuildActionOptions = '_';
-export type InitialBuildActionOptions = PartialExcept<
-	BuildActionOptions,
-	RequiredBuildActionOptions
->;
+export type RequiredOptions = '_';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_INPUT_NAMES = ['index.ts', 'src/index.ts'];
-export const defaultBuildActionOptions = (
-	opts: InitialBuildActionOptions,
-): BuildActionOptions => {
+export const initOptions = (opts: InitialOptions): Options => {
 	const dir = resolve(opts.dir || '.');
 	return {
 		watch: false,
@@ -33,8 +28,8 @@ export const defaultBuildActionOptions = (
 	};
 };
 
-export const run = async (opts: InitialBuildActionOptions): Promise<void> => {
-	const options = defaultBuildActionOptions(opts);
+export const run = async (opts: InitialOptions): Promise<void> => {
+	const options = initOptions(opts);
 	info('options', options);
 	const {_, dir, outputDir, watch} = options;
 	const inputFiles = resolveInputFiles(dir, _);

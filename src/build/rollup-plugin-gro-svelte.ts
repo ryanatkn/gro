@@ -13,7 +13,6 @@ import {magenta, yellow} from 'kleur';
 import {extractFilename, replaceExt} from '../utils/node';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logger';
 import {toRootPath} from '../paths';
-import {omitUndefined} from '../utils/obj';
 import {CssBuild} from './cssCache';
 
 // TODO support `package.json` "svelte" field
@@ -51,7 +50,7 @@ export type GroSvelteCompilation = SvelteCompilation & {
 	originalCode: string;
 };
 
-export interface PluginOptions {
+export interface Options {
 	dev: boolean;
 	addCssBuild(id: string, css: CssBuildWithSourceMap): boolean;
 	include: string | RegExp | (string | RegExp)[] | null | undefined;
@@ -75,14 +74,9 @@ export interface PluginOptions {
 		log: Logger,
 	): void;
 }
-export type RequiredPluginOptions = 'dev' | 'addCssBuild';
-export type InitialPluginOptions = PartialExcept<
-	PluginOptions,
-	RequiredPluginOptions
->;
-export const defaultPluginOptions = (
-	initialOptions: InitialPluginOptions,
-): PluginOptions => ({
+export type RequiredOptions = 'dev' | 'addCssBuild';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (initialOptions: InitialOptions): Options => ({
 	include: '**/*.svelte',
 	exclude: undefined,
 	preprocessor: undefined,
@@ -91,7 +85,7 @@ export const defaultPluginOptions = (
 	logLevel: LogLevel.Info,
 	onwarn: handleWarn,
 	onstats: handleStats,
-	...omitUndefined(initialOptions),
+	...initialOptions,
 });
 
 const baseCompileOptions: CompileOptions = {
@@ -117,9 +111,7 @@ export interface GroSveltePlugin extends Plugin {
 
 export const name = 'gro-svelte';
 
-export const groSveltePlugin = (
-	opts: InitialPluginOptions,
-): GroSveltePlugin => {
+export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 	const {
 		dev,
 		addCssBuild,
@@ -131,7 +123,7 @@ export const groSveltePlugin = (
 		logLevel,
 		onwarn,
 		onstats,
-	} = defaultPluginOptions(opts);
+	} = initOptions(opts);
 
 	const log = logger(logLevel, [magenta(`[${name}]`)]);
 	const {trace} = log;

@@ -11,18 +11,15 @@ interface CssBuildWithSourceMap extends CssBuild {
 	map: ExistingRawSourceMap | undefined;
 }
 
-export interface PluginOptions {
+export interface Options {
 	getCssBundles(): Map<string, CssBundle<CssBuildWithSourceMap>>;
 	toFinalCss(build: CssBuild, log: Logger): string;
 	sourcemap: boolean; // TODO consider per-bundle options
 	logLevel: LogLevel;
 }
-export type RequiredPluginOptions = 'getCssBundles';
-export type InitialPluginOptions = PartialExcept<
-	PluginOptions,
-	RequiredPluginOptions
->;
-export const initOptions = (opts: InitialPluginOptions): PluginOptions => ({
+export type RequiredOptions = 'getCssBundles';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (opts: InitialOptions): Options => ({
 	toFinalCss,
 	sourcemap: false,
 	logLevel: LogLevel.Info,
@@ -31,7 +28,7 @@ export const initOptions = (opts: InitialPluginOptions): PluginOptions => ({
 
 export const name = 'output-css';
 
-export const outputCssPlugin = (opts: InitialPluginOptions): Plugin => {
+export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 	const {sourcemap, getCssBundles, logLevel, toFinalCss} = initOptions(opts);
 
 	const log = logger(logLevel, [blue(`[${name}]`)]);

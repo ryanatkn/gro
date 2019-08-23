@@ -3,30 +3,24 @@ import {gray} from 'kleur';
 
 import {LogLevel, logger, fmtVal, fmtMs} from '../utils/logger';
 import {timeTracker} from '../utils/node';
-import {omitUndefined} from '../utils/obj';
 import {toRootPath} from '../paths';
 
-export interface PluginOptions {
+export interface Options {
 	logLevel: LogLevel;
 }
-export type RequiredPluginOptions = never;
-export type InitialPluginOptions = PartialExcept<
-	PluginOptions,
-	RequiredPluginOptions
->;
-export const defaultPluginOptions = (
-	initialOptions: InitialPluginOptions,
-): PluginOptions => ({
+export type RequiredOptions = never;
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (initialOptions: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
-	...omitUndefined(initialOptions),
+	...initialOptions,
 });
 
 const name = 'diagnostics';
 
 const tag = (s: string) => s; // maybe color this
 
-export const diagnosticsPlugin = (opts: InitialPluginOptions = {}): Plugin => {
-	const {logLevel} = defaultPluginOptions(opts);
+export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
+	const {logLevel} = initOptions(opts);
 
 	const {trace, info} = logger(logLevel, [gray(`[${name}]`)]);
 

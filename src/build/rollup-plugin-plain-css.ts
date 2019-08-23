@@ -5,18 +5,15 @@ import {createFilter} from 'rollup-pluginutils';
 import {LogLevel, logger} from '../utils/logger';
 import {CssBuild} from './cssCache';
 
-export interface PluginOptions {
+export interface Options {
 	addCssBuild(id: string, css: CssBuild): boolean;
 	include: string | RegExp | (string | RegExp)[] | null | undefined;
 	exclude: string | RegExp | (string | RegExp)[] | null | undefined;
 	logLevel: LogLevel;
 }
-export type RequiredPluginOptions = 'addCssBuild';
-export type InitialPluginOptions = PartialExcept<
-	PluginOptions,
-	RequiredPluginOptions
->;
-export const initOptions = (opts: InitialPluginOptions): PluginOptions => ({
+export type RequiredOptions = 'addCssBuild';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (opts: InitialOptions): Options => ({
 	include: ['**/*.css'],
 	exclude: undefined,
 	logLevel: LogLevel.Info,
@@ -25,7 +22,7 @@ export const initOptions = (opts: InitialPluginOptions): PluginOptions => ({
 
 export const name = 'plain-css';
 
-export const plainCssPlugin = (opts: InitialPluginOptions): Plugin => {
+export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 	const {addCssBuild, include, exclude, logLevel} = initOptions(opts);
 
 	const log = logger(logLevel, [green(`[${name}]`)]);
