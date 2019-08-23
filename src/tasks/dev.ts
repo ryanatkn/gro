@@ -16,8 +16,8 @@ export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	// TODO types are a mess
 	const options = {
+		watch: true,
 		...opts,
-		watch: opts.watch === undefined ? true : opts.watch,
 	};
 	return buildAction.initOptions(serveAction.initOptions(
 		options,
