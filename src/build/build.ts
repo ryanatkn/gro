@@ -22,6 +22,7 @@ import {outputCssPlugin} from './rollup-plugin-output-css';
 import {createCssCache} from './cssCache';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte';
 import {GroCssBuild} from './types';
+import {sveltePreprocessTypescript} from './svelte-preprocess-typescript';
 
 // TODO These modules require `esModuleInterop` to work correctly.
 // Rather than doing that and forcing `allowSyntheticDefaultImports`,
@@ -114,7 +115,7 @@ const createInputOptions = (
 				dev,
 				addCssBuild,
 				logLevel,
-				// preprocessor: [sveltePreprocessTypescript({logLevel})],
+				preprocessor: [sveltePreprocessTypescript({logLevel})],
 			}),
 			typescriptPlugin(),
 			plainCssPlugin({addCssBuild, logLevel}),

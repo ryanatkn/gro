@@ -8,7 +8,7 @@ import {
 	ExistingRawSourceMap,
 } from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
-import {magenta, yellow} from 'kleur';
+import {magenta, yellow, gray, red} from 'kleur';
 
 import {extractFilename, replaceExt} from '../utils/node';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logger';
@@ -125,7 +125,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 	} = initOptions(opts);
 
 	const log = logger(logLevel, [magenta(`[${name}]`)]);
-	const {trace} = log;
+	const {error, trace} = log;
 
 	const getCompilation = (id: string): GroSvelteCompilation | undefined =>
 		compilations.get(id);
@@ -141,28 +141,31 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 			let preprocessedCode = code;
 
-			// TODO use these?
-			// let finalDependencies = [];
+			// TODO see rollup-plugin-svelte for how to track deps
+			// let dependencies = [];
 			if (preprocessor) {
 				trace('preprocess', toRootPath(id));
 				const preprocessed = await svelte.preprocess(code, preprocessor, {
 					filename: id,
 				});
 				preprocessedCode = preprocessed.code;
-				// finalDependencies = preprocessed.dependencies;
+				// dependencies = preprocessed.dependencies;
 			}
 
 			trace('compile', toRootPath(id));
-			const svelteCompilation: SvelteCompilation = svelte.compile(
-				preprocessedCode,
-				{
+			let svelteCompilation: SvelteCompilation;
+			try {
+				svelteCompilation = svelte.compile(preprocessedCode, {
 					...baseCompileOptions,
 					dev,
 					...compileOptions,
 					filename: id,
 					name: extractFilename(id),
-				},
-			);
+				});
+			} catch (err) {
+				error(red('Failed to compile Svelte'), gray(toRootPath(id)));
+				throw err;
+			}
 			const {js, css, warnings, stats} = svelteCompilation;
 
 			for (const warning of warnings) {
