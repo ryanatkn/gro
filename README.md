@@ -20,6 +20,7 @@ I want a web dev tool that:
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
 tech:
+[`svelte`](https://github.com/sveltejs/svelte),
 [`rollup`](https://github.com/rollup/rollup),
 [`typescript`](https://github.com/microsoft/TypeScript),
 [`prettier`](https://github.com/prettier/prettier),
