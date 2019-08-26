@@ -8,9 +8,21 @@
 
 ## motivation
 
+I'm making `gro` to learn and explore while building some webapps.
+Its scope is huge - it's an unabashed monotool,
+so if an app I'm making needs something reusable
+that doesn't obviously deserve its own repo,
+`gro` eats it up.
+I'm also feeding a bad case of the NIHs
+so it's got stacks of reinvented wheels, some with a twist,
+and I have starry-eyed plans for cool features that may never materialize.
+
+I don't encourage anyone to use `gro`, because there are
+many mature tools with large communities solving similar problems.
+
 I want a web dev tool that:
 
-- shares my opinions
+- solves my particular problems with my opinionated solutions
 - has batteries included but minimal dependencies
 - hides complexity but exposes it when needed
 - works for many use cases like static sites, SPAs, webapp servers, etc
