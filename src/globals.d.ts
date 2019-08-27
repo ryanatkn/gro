@@ -1,5 +1,4 @@
 declare module 'sade';
-declare module 'rollup-plugin-typescript';
 
 // TODO upstream this?
 declare module 'mime/lite' {

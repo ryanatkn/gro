@@ -9,7 +9,6 @@ import {
 import * as resolvePluginFIXME from 'rollup-plugin-node-resolve';
 import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
 import * as terserPlugin from 'rollup-plugin-terser';
-import * as typescriptPlugin from 'rollup-plugin-typescript';
 import {resolve} from 'path';
 import {magenta} from 'kleur';
 
@@ -20,6 +19,7 @@ import {deindent} from '../utils/str';
 import {plainCssPlugin} from './rollup-plugin-plain-css';
 import {outputCssPlugin} from './rollup-plugin-output-css';
 import {createCssCache} from './cssCache';
+import {groTypescriptPlugin} from './rollup-plugin-gro-typescript';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte';
 import {GroCssBuild} from './types';
 import {sveltePreprocessTypescript} from './svelte-preprocess-typescript';
@@ -117,7 +117,7 @@ const createInputOptions = (
 				logLevel,
 				preprocessor: [sveltePreprocessTypescript({logLevel})],
 			}),
-			typescriptPlugin(),
+			groTypescriptPlugin({logLevel}),
 			plainCssPlugin({addCssBuild, logLevel}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,
@@ -127,7 +127,7 @@ const createInputOptions = (
 			resolvePlugin(),
 			commonjsPlugin(),
 			dev ? null : terserPlugin.terser(),
-		],
+		].filter(Boolean) as rollup.Plugin[], // TODO this type assertion didn't used to be needed, but after briefly looking I can't find when the type changed - including the filter just for correctness
 
 		// — advanced input options
 		// cache,
