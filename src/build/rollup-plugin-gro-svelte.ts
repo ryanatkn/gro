@@ -1,12 +1,7 @@
 import * as svelte from 'svelte/compiler';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import {CompileOptions} from 'svelte/types/compiler/interfaces';
-import {
-	Plugin,
-	PluginContext,
-	RollupWarning,
-	ExistingRawSourceMap,
-} from 'rollup';
+import {CompileOptions, Warning} from 'svelte/types/compiler/interfaces';
+import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, yellow, gray, red} from 'kleur';
 
@@ -58,20 +53,8 @@ export interface Options {
 	compileOptions: CompileOptions;
 	compilations: Map<string, GroSvelteCompilation>;
 	logLevel: LogLevel;
-	onwarn(
-		id: string,
-		warning: RollupWarning | string,
-		warn: (id: string, warning: RollupWarning | string, ...args: any[]) => void,
-		pluginContext: PluginContext,
-		log: Logger,
-	): void;
-	onstats(
-		id: string,
-		stats: Stats,
-		handleStats: (id: string, stats: Stats, ...args: any[]) => void,
-		pluginContext: PluginContext,
-		log: Logger,
-	): void;
+	onwarn: typeof handleWarn;
+	onstats: typeof handleStats;
 }
 export type RequiredOptions = 'dev' | 'addCssBuild';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -136,15 +119,15 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		name,
 		getCompilation,
 		async transform(code, id) {
-			if (!filter(id)) return;
-			trace('transform', toRootPath(id));
+			if (!filter(id)) return null;
+			trace('transform', gray(toRootPath(id)));
 
 			let preprocessedCode = code;
 
 			// TODO see rollup-plugin-svelte for how to track deps
 			// let dependencies = [];
 			if (preprocessor) {
-				trace('preprocess', toRootPath(id));
+				trace('preprocess', gray(toRootPath(id)));
 				const preprocessed = await svelte.preprocess(code, preprocessor, {
 					filename: id,
 				});
@@ -152,7 +135,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 				// dependencies = preprocessed.dependencies;
 			}
 
-			trace('compile', toRootPath(id));
+			trace('compile', gray(toRootPath(id)));
 			let svelteCompilation: SvelteCompilation;
 			try {
 				svelteCompilation = svelte.compile(preprocessedCode, {
@@ -175,8 +158,13 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			onstats(id, stats, handleStats, this, log);
 
 			let cssId = replaceExt(id, '.css');
-			trace('add css import', toRootPath(cssId));
-			addCssBuild({id: cssId, sourceId: id, sortIndex: -1, ...css});
+			trace('add css import', gray(toRootPath(cssId)));
+			addCssBuild({
+				id: cssId,
+				sourceId: id,
+				sortIndex: -1,
+				...css,
+			});
 
 			// save the compilation so other plugins can use it
 			const compilation: GroSvelteCompilation = {
@@ -201,8 +189,8 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 const handleWarn = (
 	id: string,
-	warning: RollupWarning | string,
-	_handleWarn: (id: string, warning: RollupWarning | string) => void,
+	warning: Warning,
+	_handleWarn: (id: string, warning: Warning, ...args: any[]) => void,
 	_pluginContext: PluginContext,
 	{warn}: Logger,
 ): void => {
@@ -216,7 +204,7 @@ const handleWarn = (
 const handleStats = (
 	id: string,
 	stats: Stats,
-	_handleStats: (id: string, stats: Stats) => void,
+	_handleStats: (id: string, stats: Stats, ...args: any[]) => void,
 	_pluginContext: PluginContext,
 	{info}: Logger,
 ): void => {
