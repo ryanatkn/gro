@@ -24,7 +24,8 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 
 	const {trace, info} = logger(logLevel, [gray(`[${name}]`)]);
 
-	const elapsedTotal = timeTracker(); // TODO combine with svelte timings
+	const elapsedTotal = timeTracker();
+	let started = false;
 
 	// TODO consider returning 2 plugins, one to be put first and one to go last to track timings
 	return {
@@ -32,6 +33,12 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 		// banner() {}
 		buildStart() {
 			info(tag('buildStart'));
+			if (started) {
+				elapsedTotal(); // reset the clock
+			} else {
+				info(fmtVal('startupTime', fmtMs(elapsedTotal())));
+				started = true;
+			}
 		},
 		buildEnd() {
 			info(tag('buildEnd'));
