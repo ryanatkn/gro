@@ -19,6 +19,7 @@ import {deindent} from '../utils/str';
 import {plainCssPlugin} from './rollup-plugin-plain-css';
 import {outputCssPlugin} from './rollup-plugin-output-css';
 import {createCssCache} from './cssCache';
+import {groJsonPlugin} from './rollup-plugin-gro-json';
 import {groTypescriptPlugin} from './rollup-plugin-gro-typescript';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte';
 import {GroCssBuild} from './types';
@@ -111,6 +112,7 @@ const createInputOptions = (
 		input: inputFile, // required
 		plugins: [
 			diagnosticsPlugin({logLevel}),
+			groJsonPlugin({compact: !dev, logLevel}),
 			groSveltePlugin({
 				dev,
 				addCssBuild,
