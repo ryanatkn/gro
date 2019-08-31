@@ -37,12 +37,12 @@
     "rollup": "^1.20.2",
     "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.1.1",
     "rollup-pluginutils": "^2.8.1",
     "sade": "^1.6.1",
     "source-map-support": "^0.5.13",
     "sourcemap-codec": "^1.4.6",
     "svelte": "^3.9.1",
+    "terser": "^4.2.1",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3"
   },
