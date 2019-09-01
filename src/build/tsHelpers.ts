@@ -3,6 +3,7 @@ import {black, bgRed} from 'kleur';
 import {dirname} from 'path';
 
 import {Logger} from '../utils/logger';
+import {cwd} from '../utils/node';
 
 // confusingly, TypeScript doesn't seem to be a good type for this
 export interface TsConfig {
@@ -21,7 +22,7 @@ export interface TsConfig {
 export const loadTsconfig = (
 	log: Logger,
 	tsconfigPath?: string,
-	basePath = tsconfigPath ? dirname(tsconfigPath) : process.cwd(),
+	basePath = tsconfigPath ? dirname(tsconfigPath) : cwd,
 ): TsConfig => {
 	if (!tsconfigPath) {
 		const searchPath = tsconfigPath || basePath;

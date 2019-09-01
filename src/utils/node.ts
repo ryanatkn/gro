@@ -1,14 +1,14 @@
-import * as kleur from 'kleur';
+import {red, yellow, green, cyan, blue, magenta} from 'kleur';
 import {realpathSync} from 'fs';
 import {resolve, extname, basename} from 'path';
 
 import {round} from '../utils/math';
 
-const colors = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta'] as const;
+export const colors = [red, yellow, green, cyan, blue, magenta];
 export const rainbow = (str: string): string =>
 	str
 		.split('')
-		.map((char, i) => kleur[colors[i % colors.length]](char))
+		.map((char, i) => colors[i % colors.length](char))
 		.join('');
 
 export const cwd = realpathSync(process.cwd());
@@ -21,14 +21,14 @@ export const replaceExt = (path: string, ext: string): string =>
 export const hasExt = (path: string, exts: string[]): boolean =>
 	exts.some(ext => extname(path) === ext);
 
-export const extractFilename = (path: string): string =>
+export const getPathName = (path: string): string =>
 	replaceExt(basename(path), '');
 
 export const timeTracker = (decimals = 2) => {
 	let start = process.hrtime.bigint();
 	return (reset = true): number => {
 		const end = process.hrtime.bigint();
-		const elapsed = round(Number(end - start) / 1000000, decimals);
+		const elapsed = round(Number(end - start) / 1_000_000, decimals);
 		if (reset) start = process.hrtime.bigint();
 		return elapsed;
 	};

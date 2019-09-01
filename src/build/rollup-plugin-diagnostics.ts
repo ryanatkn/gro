@@ -24,7 +24,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 
 	const {trace, info} = logger(logLevel, [gray(`[${name}]`)]);
 
-	const elapsedTotal = timeTracker();
+	const getElapsed = timeTracker();
 	let started = false;
 
 	// TODO consider returning 2 plugins, one to be put first and one to go last to track timings
@@ -34,9 +34,9 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 		buildStart() {
 			info(tag('buildStart'));
 			if (started) {
-				elapsedTotal(); // reset the clock
+				getElapsed(); // reset the clock
 			} else {
-				info(fmtVal('startupTime', fmtMs(elapsedTotal())));
+				info(fmtVal('startupTime', fmtMs(getElapsed())));
 				started = true;
 			}
 		},
@@ -104,7 +104,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 				// how should that work?
 				// ideally the state is contained here in the diagnostics plugin
 				// could track what module is logging via the keyed tags.
-				fmtVal('totalElapsed', fmtMs(elapsedTotal())),
+				fmtVal('totalElapsed', fmtMs(getElapsed())),
 			);
 		},
 	};

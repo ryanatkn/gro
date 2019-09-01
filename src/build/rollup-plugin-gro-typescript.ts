@@ -69,7 +69,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 		async transform(code, id) {
 			if (!filter(id)) return null;
 
-			const elapsed = timeTracker();
+			const getElapsed = timeTracker();
 
 			trace('transpile', gray(toRootPath(id)));
 			let transpileOutput: ts.TranspileOutput;
@@ -92,7 +92,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 			}
 
 			// TODO improve this - see usage elsewhere too
-			const transpileElapsed = elapsed();
+			const transpileElapsed = getElapsed();
 			const stats: Stats = {
 				timings: {
 					total: transpileElapsed,

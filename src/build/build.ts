@@ -11,7 +11,7 @@ import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
 import {resolve} from 'path';
 import {magenta} from 'kleur';
 
-import {rainbow} from '../utils/node';
+import {rainbow, cwd} from '../utils/node';
 import {logger, LogLevel, Logger} from '../utils/logger';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
 import {deindent} from '../utils/str';
@@ -44,7 +44,7 @@ export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
 	inputFiles: [resolve('index.ts')],
-	outputDir: process.cwd(),
+	outputDir: cwd,
 	watch: true,
 	logLevel: LogLevel.Trace, // TODO this should be info
 	...opts,
