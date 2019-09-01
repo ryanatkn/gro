@@ -2,7 +2,7 @@ import {Plugin} from 'rollup';
 import {gray} from 'kleur';
 
 import {LogLevel, logger, fmtVal, fmtMs} from '../utils/logger';
-import {timeTracker} from '../utils/node';
+import {timeTracker} from '../utils/timeUtils';
 import {toRootPath} from '../paths';
 
 export interface Options {

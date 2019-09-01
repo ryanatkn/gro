@@ -3,7 +3,7 @@ import {black, bgRed} from 'kleur';
 import {dirname} from 'path';
 
 import {Logger} from '../utils/logger';
-import {cwd} from '../utils/node';
+import {cwd} from '../utils/pathUtils';
 
 // confusingly, TypeScript doesn't seem to be a good type for this
 export interface TsConfig {

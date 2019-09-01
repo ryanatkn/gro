@@ -3,7 +3,7 @@ import {Plugin, PluginContext} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, gray, red} from 'kleur';
 
-import {timeTracker} from '../utils/node';
+import {timeTracker} from '../utils/timeUtils';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logger';
 import {toRootPath} from '../paths';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers';

@@ -11,7 +11,7 @@ import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
 import {resolve} from 'path';
 import {magenta} from 'kleur';
 
-import {rainbow, cwd} from '../utils/node';
+import {rainbow, cwd} from '../utils/pathUtils';
 import {logger, LogLevel, Logger} from '../utils/logger';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
 import {deindent} from '../utils/str';

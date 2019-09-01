@@ -1,7 +1,7 @@
 import {join} from 'path';
 import {gray} from 'kleur';
 
-import {resolvePath} from './utils/node';
+import {resolvePath} from './utils/pathUtils';
 import {logger, LogLevel} from './utils/logger';
 
 const {info} = logger(LogLevel.Info, [gray('[paths]')]); // TODO log level from env var? param?

@@ -6,7 +6,7 @@ import {existsSync} from 'fs';
 
 import {LogLevel, logger} from '../utils/logger';
 import {GroCssBuild} from './types';
-import {hasExt} from '../utils/node';
+import {hasExt} from '../utils/pathUtils';
 
 export interface Options {
 	addCssBuild(build: GroCssBuild): boolean;
