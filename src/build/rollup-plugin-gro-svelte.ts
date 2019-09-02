@@ -5,7 +5,7 @@ import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, yellow, gray, red} from 'kleur';
 
-import {getPathName, replaceExt} from '../utils/pathUtils';
+import {getPathStem, replaceExt} from '../utils/pathUtils';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logger';
 import {toRootPath} from '../paths';
 import {GroCssBuild} from './types';
@@ -143,7 +143,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 					dev,
 					...compileOptions,
 					filename: id,
-					name: getPathName(id),
+					name: getPathStem(id),
 				});
 			} catch (err) {
 				error(red('Failed to compile Svelte'), gray(toRootPath(id)));
