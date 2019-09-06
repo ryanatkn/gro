@@ -1,4 +1,4 @@
-import {round} from './math';
+import {round} from './mathUtils';
 
 export const timeTracker = (decimals = 2) => {
 	let start = process.hrtime.bigint();

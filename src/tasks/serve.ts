@@ -1,7 +1,7 @@
 import {resolve} from 'path';
 import {blue, magenta} from 'kleur';
 
-import {logger, LogLevel} from '../utils/logger';
+import {logger, LogLevel} from '../utils/logUtils';
 import {createDevServer} from '../devServer/devServer';
 
 // TODO LogLevel from env vars and cli args

@@ -13,8 +13,10 @@ export const cwd = realpathSync(process.cwd());
 export const resolvePath = (relativePath: string): string =>
 	resolve(cwd, relativePath);
 
-export const replaceExt = (path: string, ext: string): string =>
-	path.slice(0, -extname(path).length) + ext;
+export const replaceExt = (path: string, ext: string): string => {
+	const extension = extname(path);
+	return extension.length ? path.slice(0, -extension.length) + ext : path + ext;
+};
 
 export const hasExt = (path: string, exts: string[]): boolean =>
 	exts.some(ext => extname(path) === ext);

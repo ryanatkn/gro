@@ -12,18 +12,12 @@ export const mapRecord = <T, K extends string | number, U>(
 	return result;
 };
 
-export const omit = <
-	T extends Partial<Record<K, any>>,
-	K extends string | number
->(
+export const omit = <T extends Record<K, any>, K extends string | number>(
 	obj: T,
 	keys: K[],
 ): OmitStrict<T, K> => {
 	const result = {} as T;
 	for (const key in obj) {
-		// TODO type isn't perfect, but eh.
-		// I think you have to trade off ergonomics at the callsite
-		// and explicitly pass the key param? or mabye I'm missing something
 		if (!keys.includes(key as any)) {
 			result[key] = obj[key];
 		}
@@ -31,27 +25,27 @@ export const omit = <
 	return result;
 };
 
-export const omitUndefined = <
-	T extends Partial<Record<K, any>>,
-	K extends string | number
->(
+export const pickBy = <T extends Record<K, any>, K extends string | number>(
 	obj: T,
-): T => {
-	const result = {} as T;
+	shouldPick: (value: any, key: K) => boolean,
+): Partial<T> => {
+	const result = {} as Partial<T>;
 	for (const key in obj) {
 		const value = obj[key];
-		if (value !== undefined) {
+		if (shouldPick(value, key as any)) {
 			result[key] = value;
 		}
 	}
 	return result;
 };
 
+// `omitUndefined` is a commonly used form of `pickBy`
+export const omitUndefined = <T extends Record<string | number, any>>(
+	obj: T,
+): Partial<T> => pickBy(obj, v => v !== undefined);
+
 // A more explicit form of `{putThisFirst: obj.putThisFirst, ...obj}`
-export const reorder = <
-	T extends Partial<Record<K, any>>,
-	K extends string | number
->(
+export const reorder = <T extends Record<K, any>, K extends string | number>(
 	obj: T,
 	keys: K[],
 ): T => {

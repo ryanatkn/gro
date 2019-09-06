@@ -6,7 +6,7 @@ import {createFilter} from 'rollup-pluginutils';
 import {magenta, yellow, gray, red} from 'kleur';
 
 import {getPathStem, replaceExt} from '../utils/pathUtils';
-import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logger';
+import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils';
 import {toRootPath} from '../paths';
 import {GroCssBuild} from './types';
 

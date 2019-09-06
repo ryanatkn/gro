@@ -12,9 +12,9 @@ import {resolve} from 'path';
 import {magenta} from 'kleur';
 
 import {rainbow, cwd} from '../utils/pathUtils';
-import {logger, LogLevel, Logger} from '../utils/logger';
+import {logger, LogLevel, Logger} from '../utils/logUtils';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
-import {deindent} from '../utils/str';
+import {deindent} from '../utils/stringUtils';
 import {plainCssPlugin} from './rollup-plugin-plain-css';
 import {outputCssPlugin} from './rollup-plugin-output-css';
 import {createCssCache} from './cssCache';

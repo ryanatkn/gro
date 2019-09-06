@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import {black, bgRed} from 'kleur';
 import {dirname} from 'path';
 
-import {Logger} from '../utils/logger';
+import {Logger} from '../utils/logUtils';
 import {cwd} from '../utils/pathUtils';
 
 // confusingly, TypeScript doesn't seem to be a good type for this

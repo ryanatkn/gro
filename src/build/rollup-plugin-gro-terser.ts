@@ -3,7 +3,7 @@ import {Plugin} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, gray} from 'kleur';
 
-import {logger, LogLevel} from '../utils/logger';
+import {logger, LogLevel} from '../utils/logUtils';
 import {toRootPath} from '../paths';
 
 // TODO speed up with workers

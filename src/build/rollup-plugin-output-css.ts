@@ -4,7 +4,7 @@ import {blue, gray} from 'kleur';
 import {dirname, join, relative} from 'path';
 import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
 
-import {LogLevel, logger, Logger} from '../utils/logger';
+import {LogLevel, logger, Logger} from '../utils/logUtils';
 import {GroCssBuild, GroCssBundle} from './types';
 
 export interface Options {

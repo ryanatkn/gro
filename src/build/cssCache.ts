@@ -1,6 +1,6 @@
 import {green} from 'kleur';
 
-import {LogLevel, logger, fmtVal} from '../utils/logger';
+import {LogLevel, logger, fmtVal} from '../utils/logUtils';
 import {toRootPath} from '../paths';
 
 export interface CssBuild {

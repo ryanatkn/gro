@@ -2,7 +2,7 @@ import {Plugin} from 'rollup';
 import {createFilter, dataToEsm} from 'rollup-pluginutils';
 import {magenta, gray} from 'kleur';
 
-import {logger, LogLevel} from '../utils/logger';
+import {logger, LogLevel} from '../utils/logUtils';
 import {toRootPath} from '../paths';
 
 // TODO support parsing from a string (faster than parsing JS)

@@ -4,7 +4,7 @@ import {createFilter} from 'rollup-pluginutils';
 import {dirname, resolve} from 'path';
 import {existsSync} from 'fs';
 
-import {LogLevel, logger} from '../utils/logger';
+import {LogLevel, logger} from '../utils/logUtils';
 import {GroCssBuild} from './types';
 import {hasExt} from '../utils/pathUtils';
 

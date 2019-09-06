@@ -10,9 +10,9 @@ import {ListenOptions} from 'net';
 import {cyan, yellow, gray} from 'kleur';
 import {resolve} from 'path';
 
-import {logger, LogLevel} from '../utils/logger';
-import {stripAfter} from '../utils/str';
-import {loadFile, getMimeType, File} from '../utils/file';
+import {logger, LogLevel} from '../utils/logUtils';
+import {stripAfter} from '../utils/stringUtils';
+import {loadFile, getMimeType, File} from '../utils/fileUtils';
 
 export interface DevServer {
 	server: Server;

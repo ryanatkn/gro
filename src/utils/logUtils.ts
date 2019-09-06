@@ -1,7 +1,7 @@
 import {red, yellow, gray, black, bgYellow, bgRed, white} from 'kleur';
 
-import {noop} from '../utils/fn';
-import {round} from '../utils/math';
+import {noop} from '../utils/functionUtils';
+import {round} from '../utils/mathUtils';
 
 export type Log = (...args: any[]) => void;
 

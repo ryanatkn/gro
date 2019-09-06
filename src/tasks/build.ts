@@ -3,7 +3,7 @@ import {existsSync} from 'fs';
 import {blue, magenta} from 'kleur';
 
 import {createBuild} from '../build/build';
-import {logger, LogLevel} from '../utils/logger';
+import {logger, LogLevel} from '../utils/logUtils';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('build')}]`)]);
