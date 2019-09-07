@@ -2,6 +2,7 @@ import {green} from 'kleur';
 
 import {LogLevel, logger, fmtVal} from '../utils/logUtils';
 import {toRootPath} from '../paths';
+import {omitUndefined} from '../utils/objectUtils';
 
 export interface CssBuild {
 	id: string;
@@ -27,7 +28,7 @@ export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
-	...opts,
+	...omitUndefined(opts),
 });
 
 export const createCssCache = <T extends CssBuild = CssBuild>(

@@ -7,12 +7,13 @@ import {existsSync} from 'fs';
 import {LogLevel, logger} from '../utils/logUtils';
 import {GroCssBuild} from './types';
 import {hasExt} from '../utils/pathUtils';
+import {omitUndefined} from '../utils/objectUtils';
 
 export interface Options {
 	addCssBuild(build: GroCssBuild): boolean;
 	exts: string[]; // see comments below at `indexById` for why this exists
-	include: string | RegExp | (string | RegExp)[] | null | undefined;
-	exclude: string | RegExp | (string | RegExp)[] | null | undefined;
+	include: string | RegExp | (string | RegExp)[] | null;
+	exclude: string | RegExp | (string | RegExp)[] | null;
 	logLevel: LogLevel;
 }
 export type RequiredOptions = 'addCssBuild';
@@ -25,9 +26,9 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		exts,
 		include: opts.include || exts.map(ext => `**/*${ext}`),
-		exclude: undefined,
+		exclude: null,
 		logLevel: LogLevel.Info,
-		...opts,
+		...omitUndefined(opts),
 	};
 };
 

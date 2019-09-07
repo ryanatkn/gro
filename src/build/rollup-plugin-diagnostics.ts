@@ -4,15 +4,16 @@ import {gray} from 'kleur';
 import {LogLevel, logger, fmtVal, fmtMs} from '../utils/logUtils';
 import {timeTracker} from '../utils/timeUtils';
 import {toRootPath} from '../paths';
+import {omitUndefined} from '../utils/objectUtils';
 
 export interface Options {
 	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (initialOptions: InitialOptions): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
-	...initialOptions,
+	...omitUndefined(opts),
 });
 
 const name = 'diagnostics';

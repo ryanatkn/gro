@@ -4,9 +4,12 @@ import {blue, magenta} from 'kleur';
 
 import {createBuild} from '../build/build';
 import {logger, LogLevel} from '../utils/logUtils';
+import {omitUndefined} from '../utils/objectUtils';
 
-// TODO LogLevel from env vars and cli args
-const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('build')}]`)]);
+// TODO get LogLevel from env vars and cli args - make it an option
+const logLevel = LogLevel.Trace;
+
+const log = logger(logLevel, [blue(`[tasks/${magenta('build')}]`)]);
 const {info, warn} = log;
 
 export interface Options {
@@ -24,7 +27,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		watch: false,
 		production: process.env.NODE_ENV === 'production',
-		...opts,
+		...omitUndefined(opts),
 		dir,
 		outputDir: opts.outputDir ? resolve(opts.outputDir) : dir,
 	};
@@ -43,7 +46,7 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 			inputFiles,
 			outputDir,
 			watch,
-			// logLevel: LogLevel;
+			logLevel,
 		});
 		await build.promise;
 	} else {

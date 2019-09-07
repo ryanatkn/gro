@@ -5,6 +5,7 @@ import {magenta, gray} from 'kleur';
 
 import {logger, LogLevel} from '../utils/logUtils';
 import {toRootPath} from '../paths';
+import {omitUndefined} from '../utils/objectUtils';
 
 // TODO speed up with workers
 // TODO this runs twice with build but not watch
@@ -12,19 +13,19 @@ import {toRootPath} from '../paths';
 // without any negative consequences to avoid doing double the work?
 
 export interface Options {
-	include: string | RegExp | (string | RegExp)[] | null | undefined;
-	exclude: string | RegExp | (string | RegExp)[] | null | undefined;
+	include: string | RegExp | (string | RegExp)[] | null;
+	exclude: string | RegExp | (string | RegExp)[] | null;
 	minifyOptions: MinifyOptions;
 	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (initialOptions: InitialOptions): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	include: null,
 	exclude: null,
 	minifyOptions: {sourceMap: false},
 	logLevel: LogLevel.Info,
-	...initialOptions,
+	...omitUndefined(opts),
 });
 
 export const name = 'gro-terser';

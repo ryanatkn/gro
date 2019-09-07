@@ -4,13 +4,14 @@ import {magenta, gray} from 'kleur';
 
 import {logger, LogLevel} from '../utils/logUtils';
 import {toRootPath} from '../paths';
+import {omitUndefined} from '../utils/objectUtils';
 
 // TODO support parsing from a string (faster than parsing JS)
 // TODO support lazy-loading
 
 export interface Options {
-	include: string | RegExp | (string | RegExp)[] | null | undefined;
-	exclude: string | RegExp | (string | RegExp)[] | null | undefined;
+	include: string | RegExp | (string | RegExp)[] | null;
+	exclude: string | RegExp | (string | RegExp)[] | null;
 	compact: boolean;
 	indent: string;
 	namedExports: boolean;
@@ -19,7 +20,7 @@ export interface Options {
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (initialOptions: InitialOptions): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	include: '**/*.json',
 	exclude: null,
 	compact: false,
@@ -27,7 +28,7 @@ export const initOptions = (initialOptions: InitialOptions): Options => ({
 	namedExports: true,
 	preferConst: true,
 	logLevel: LogLevel.Info,
-	...initialOptions,
+	...omitUndefined(opts),
 });
 
 export const name = 'gro-json';

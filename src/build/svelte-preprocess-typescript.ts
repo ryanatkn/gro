@@ -5,6 +5,7 @@ import {magenta, gray, red} from 'kleur';
 import {LogLevel, logger, Logger} from '../utils/logUtils';
 import {loadTsconfig} from './tsHelpers';
 import {toRootPath} from '../paths';
+import {omitUndefined} from '../utils/objectUtils';
 
 /*
 
@@ -21,11 +22,11 @@ export interface Options {
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (initialOptions: InitialOptions): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	langs: ['ts'],
 	tsconfigPath: undefined,
 	logLevel: LogLevel.Info,
-	...initialOptions,
+	...omitUndefined(opts),
 });
 
 const name = 'svelte-preprocess-typescript';

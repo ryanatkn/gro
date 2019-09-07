@@ -3,6 +3,7 @@ import {blue, magenta} from 'kleur';
 import {logger, LogLevel} from '../utils/logUtils';
 import * as buildAction from './build';
 import * as serveAction from './serve';
+import {omitUndefined} from '../utils/objectUtils';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('dev')}]`)]);
@@ -17,7 +18,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	// TODO types are a mess
 	const options = {
 		watch: true,
-		...opts,
+		...omitUndefined(opts),
 	};
 	return buildAction.initOptions(serveAction.initOptions(
 		options,

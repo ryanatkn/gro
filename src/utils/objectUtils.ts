@@ -42,7 +42,7 @@ export const pickBy = <T extends Record<K, any>, K extends string | number>(
 // `omitUndefined` is a commonly used form of `pickBy`
 export const omitUndefined = <T extends Record<string | number, any>>(
 	obj: T,
-): Partial<T> => pickBy(obj, v => v !== undefined);
+): T => pickBy(obj, v => v !== undefined) as T;
 
 // A more explicit form of `{putThisFirst: obj.putThisFirst, ...obj}`
 export const reorder = <T extends Record<K, any>, K extends string | number>(

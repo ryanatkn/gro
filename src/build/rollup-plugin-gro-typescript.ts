@@ -7,6 +7,7 @@ import {timeTracker} from '../utils/timeUtils';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils';
 import {toRootPath} from '../paths';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers';
+import {omitUndefined} from '../utils/objectUtils';
 
 // TODO parallelize with workers?
 
@@ -19,8 +20,8 @@ interface Stats {
 }
 
 export interface Options {
-	include: string | RegExp | (string | RegExp)[] | null | undefined;
-	exclude: string | RegExp | (string | RegExp)[] | null | undefined;
+	include: string | RegExp | (string | RegExp)[] | null;
+	exclude: string | RegExp | (string | RegExp)[] | null;
 	tsconfigPath: string | undefined;
 	basePath: string | undefined;
 	reportDiagnostics: boolean;
@@ -30,7 +31,7 @@ export interface Options {
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (initialOptions: InitialOptions): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	include: ['*.ts+(|x)', '**/*.ts+(|x)'],
 	exclude: ['*.d.ts', '**/*.d.ts'],
 	tsconfigPath: undefined,
@@ -39,7 +40,7 @@ export const initOptions = (initialOptions: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
 	ondiagnostics: handleDiagnostics,
 	onstats: handleStats,
-	...initialOptions,
+	...omitUndefined(opts),
 });
 
 export const name = 'gro-typescript';

@@ -13,6 +13,7 @@ import {resolve} from 'path';
 import {logger, LogLevel} from '../utils/logUtils';
 import {stripAfter} from '../utils/stringUtils';
 import {loadFile, getMimeType, File} from '../utils/fileUtils';
+import {omitUndefined} from '../utils/objectUtils';
 
 export interface DevServer {
 	server: Server;
@@ -31,7 +32,7 @@ const DEFAULT_PORT = 8999;
 export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
 	port: DEFAULT_PORT,
-	...opts,
+	...omitUndefined(opts),
 	dir: resolve(opts.dir || '.'),
 });
 

@@ -6,6 +6,7 @@ import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
 
 import {LogLevel, logger, Logger} from '../utils/logUtils';
 import {GroCssBuild, GroCssBundle} from './types';
+import {omitUndefined} from '../utils/objectUtils';
 
 export interface Options {
 	getCssBundles(): Map<string, GroCssBundle>;
@@ -19,7 +20,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	toFinalCss,
 	sourcemap: false,
 	logLevel: LogLevel.Info,
-	...opts,
+	...omitUndefined(opts),
 });
 
 export const name = 'output-css';

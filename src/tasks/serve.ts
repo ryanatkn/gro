@@ -3,6 +3,7 @@ import {blue, magenta} from 'kleur';
 
 import {logger, LogLevel} from '../utils/logUtils';
 import {createDevServer} from '../devServer/devServer';
+import {omitUndefined} from '../utils/objectUtils';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('serve')}]`)]);
@@ -22,7 +23,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		host: DEFAULT_HOST,
 		port: DEFAULT_PORT,
-		...opts,
+		...omitUndefined(opts),
 		dir,
 	};
 };

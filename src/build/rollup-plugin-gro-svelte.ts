@@ -9,6 +9,7 @@ import {getPathStem, replaceExt} from '../utils/pathUtils';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils';
 import {toRootPath} from '../paths';
 import {GroCssBuild} from './types';
+import {omitUndefined} from '../utils/objectUtils';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
@@ -47,9 +48,9 @@ export type GroSvelteCompilation = SvelteCompilation & {
 export interface Options {
 	dev: boolean;
 	addCssBuild(build: GroCssBuild): boolean;
-	include: string | RegExp | (string | RegExp)[] | null | undefined;
-	exclude: string | RegExp | (string | RegExp)[] | null | undefined;
-	preprocessor: PreprocessorGroup | PreprocessorGroup[] | undefined;
+	include: string | RegExp | (string | RegExp)[] | null;
+	exclude: string | RegExp | (string | RegExp)[] | null;
+	preprocessor: PreprocessorGroup | PreprocessorGroup[] | null;
 	compileOptions: CompileOptions;
 	compilations: Map<string, GroSvelteCompilation>;
 	logLevel: LogLevel;
@@ -58,16 +59,16 @@ export interface Options {
 }
 export type RequiredOptions = 'dev' | 'addCssBuild';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (initialOptions: InitialOptions): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	include: '**/*.svelte',
-	exclude: undefined,
-	preprocessor: undefined,
+	exclude: null,
+	preprocessor: null,
 	compileOptions: {},
 	compilations: new Map<string, GroSvelteCompilation>(),
 	logLevel: LogLevel.Info,
 	onwarn: handleWarn,
 	onstats: handleStats,
-	...initialOptions,
+	...omitUndefined(opts),
 });
 
 const baseCompileOptions: CompileOptions = {

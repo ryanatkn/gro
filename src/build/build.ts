@@ -24,6 +24,7 @@ import {groTypescriptPlugin} from './rollup-plugin-gro-typescript';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte';
 import {GroCssBuild} from './types';
 import {sveltePreprocessTypescript} from './svelte-preprocess-typescript';
+import {omitUndefined} from '../utils/objectUtils';
 
 // TODO These modules require `esModuleInterop` to work correctly.
 // Rather than doing that and forcing `allowSyntheticDefaultImports`,
@@ -46,8 +47,8 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	inputFiles: [resolve('index.ts')],
 	outputDir: cwd,
 	watch: true,
-	logLevel: LogLevel.Trace, // TODO this should be info
-	...opts,
+	logLevel: LogLevel.Info,
+	...omitUndefined(opts),
 });
 
 interface Build {
