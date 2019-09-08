@@ -5,7 +5,7 @@ export const timeTracker = (decimals = 2) => {
 	return (reset = true): number => {
 		const end = process.hrtime.bigint();
 		const elapsed = round(Number(end - start) / 1_000_000, decimals);
-		if (reset) start = process.hrtime.bigint();
+		if (reset) start = end;
 		return elapsed;
 	};
 };
