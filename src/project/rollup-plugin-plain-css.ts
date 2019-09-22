@@ -4,10 +4,10 @@ import {createFilter} from 'rollup-pluginutils';
 import {dirname, resolve} from 'path';
 import {existsSync} from 'fs';
 
-import {LogLevel, logger} from '../utils/logUtils';
-import {GroCssBuild} from './types';
-import {hasExt} from '../utils/pathUtils';
-import {omitUndefined} from '../utils/objectUtils';
+import {LogLevel, logger} from '../utils/logUtils.js';
+import {GroCssBuild} from './types.js';
+import {hasExt} from '../utils/pathUtils.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 export interface Options {
 	addCssBuild(build: GroCssBuild): boolean;

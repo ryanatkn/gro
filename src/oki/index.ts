@@ -1,2 +1,2 @@
-export * from './TestContext';
-export * from './assertions';
+export * from './TestContext.js';
+export * from './assertions.js';

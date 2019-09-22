@@ -1,7 +1,7 @@
 import {blue, magenta} from 'kleur';
 
-import {clean} from '../project/clean';
-import {logger, LogLevel} from '../utils/logUtils';
+import {clean} from '../project/clean.js';
+import {logger, LogLevel} from '../utils/logUtils.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;

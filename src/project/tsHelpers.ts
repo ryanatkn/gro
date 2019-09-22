@@ -2,8 +2,8 @@ import * as ts from 'typescript';
 import {black, bgRed} from 'kleur';
 import {dirname} from 'path';
 
-import {Logger} from '../utils/logUtils';
-import {cwd} from '../utils/pathUtils';
+import {Logger} from '../utils/logUtils.js';
+import {cwd} from '../utils/pathUtils.js';
 
 // confusingly, TypeScript doesn't seem to be a good type for this
 export interface TsConfig {

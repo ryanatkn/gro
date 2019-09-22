@@ -1,9 +1,9 @@
 import {green} from 'kleur';
 
-import {LogLevel, logger} from '../utils/logUtils';
-import {omitUndefined} from '../utils/objectUtils';
-import {FileData} from './fileData';
-import {toRootPath} from '../paths';
+import {LogLevel, logger} from '../utils/logUtils.js';
+import {omitUndefined} from '../utils/objectUtils.js';
+import {FileData} from './fileData.js';
+import {toRootPath} from '../paths.js';
 
 export interface FileCache {
 	readonly byId: Map<string, FileData>;

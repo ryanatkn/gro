@@ -3,9 +3,9 @@ import {Plugin} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, gray} from 'kleur';
 
-import {logger, LogLevel} from '../utils/logUtils';
-import {toRootPath} from '../paths';
-import {omitUndefined} from '../utils/objectUtils';
+import {logger, LogLevel} from '../utils/logUtils.js';
+import {toRootPath} from '../paths.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // TODO speed up with workers
 // TODO this runs twice with build but not watch

@@ -1,14 +1,14 @@
 import {green, red, bgGreen, black, yellow, gray, cyan} from 'kleur';
 
-import {TestContext, TOTAL_TIMING, TestInstance} from '../TestContext';
-import {logNewline, fmtMs, fmtValue, fmtStr} from '../../utils/logUtils';
-import {toSourcePath} from '../../paths';
+import {TestContext, TOTAL_TIMING, TestInstance} from '../TestContext.js';
+import {logNewline, fmtMs, fmtValue, fmtStr} from '../../utils/logUtils.js';
+import {toSourcePath} from '../../paths.js';
 import {
 	AssertionError,
 	AssertionOperator,
 	FailedAssertion,
-} from '../assertions';
-import {UnreachableError, ErrorClass} from '../../utils/errorUtils';
+} from '../assertions.js';
+import {UnreachableError, ErrorClass} from '../../utils/errorUtils.js';
 
 export const reportIntro = (ctx: TestContext): void => {
 	logNewline();

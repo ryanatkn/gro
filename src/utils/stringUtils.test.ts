@@ -1,4 +1,4 @@
-import {test} from '../oki';
+import {test} from '../oki/index.js';
 import {
 	plural,
 	truncate,
@@ -9,7 +9,7 @@ import {
 	ensureStart,
 	ensureEnd,
 	deindent,
-} from './stringUtils';
+} from './stringUtils.js';
 
 test('truncate()', t => {
 	t.is(truncate('foobarbaz', 5), 'fo...');

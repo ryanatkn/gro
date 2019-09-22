@@ -1,7 +1,7 @@
 import {red, yellow} from 'kleur';
 
-import {logger, LogLevel} from './logUtils';
-import {truncate} from './stringUtils';
+import {logger, LogLevel} from './logUtils.js';
+import {truncate} from './stringUtils.js';
 
 export const attachProcessErrorHandlers = () => {
 	process

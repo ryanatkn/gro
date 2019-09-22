@@ -10,10 +10,10 @@ import {ListenOptions} from 'net';
 import {cyan, yellow, gray} from 'kleur';
 import {resolve} from 'path';
 
-import {logger, LogLevel} from '../utils/logUtils';
-import {stripAfter} from '../utils/stringUtils';
-import {loadFile, getMimeType, File} from '../utils/fileUtils';
-import {omitUndefined} from '../utils/objectUtils';
+import {logger, LogLevel} from '../utils/logUtils.js';
+import {stripAfter} from '../utils/stringUtils.js';
+import {loadFile, getMimeType, File} from '../utils/fileUtils.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 export interface DevServer {
 	server: Server;

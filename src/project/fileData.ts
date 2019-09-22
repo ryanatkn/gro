@@ -4,7 +4,7 @@ import {
 	toSourcePath,
 	toSourceId,
 	toBasePath,
-} from '../paths';
+} from '../paths.js';
 
 export interface FileData {
 	// `id` is synonymous with `buildId` or `absoluteBuildPath` in this case

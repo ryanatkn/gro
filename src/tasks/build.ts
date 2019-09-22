@@ -2,9 +2,9 @@ import {resolve, join} from 'path';
 import {existsSync} from 'fs';
 import {blue, magenta} from 'kleur';
 
-import {createBuild} from '../project/build';
-import {logger, LogLevel} from '../utils/logUtils';
-import {omitUndefined} from '../utils/objectUtils';
+import {createBuild} from '../project/build.js';
+import {logger, LogLevel} from '../utils/logUtils.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;

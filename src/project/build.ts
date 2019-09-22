@@ -11,20 +11,20 @@ import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
 import {resolve} from 'path';
 import {magenta} from 'kleur';
 
-import {rainbow, cwd} from '../utils/pathUtils';
-import {logger, LogLevel, Logger} from '../utils/logUtils';
-import {diagnosticsPlugin} from './rollup-plugin-diagnostics';
-import {deindent} from '../utils/stringUtils';
-import {plainCssPlugin} from './rollup-plugin-plain-css';
-import {outputCssPlugin} from './rollup-plugin-output-css';
-import {createCssCache} from './cssCache';
-import {groJsonPlugin} from './rollup-plugin-gro-json';
-import {groTerserPlugin} from './rollup-plugin-gro-terser';
-import {groTypescriptPlugin} from './rollup-plugin-gro-typescript';
-import {groSveltePlugin} from './rollup-plugin-gro-svelte';
-import {GroCssBuild} from './types';
-import {sveltePreprocessTypescript} from './svelte-preprocess-typescript';
-import {omitUndefined} from '../utils/objectUtils';
+import {rainbow, cwd} from '../utils/pathUtils.js';
+import {logger, LogLevel, Logger} from '../utils/logUtils.js';
+import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
+import {deindent} from '../utils/stringUtils.js';
+import {plainCssPlugin} from './rollup-plugin-plain-css.js';
+import {outputCssPlugin} from './rollup-plugin-output-css.js';
+import {createCssCache} from './cssCache.js';
+import {groJsonPlugin} from './rollup-plugin-gro-json.js';
+import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
+import {groTypescriptPlugin} from './rollup-plugin-gro-typescript.js';
+import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
+import {GroCssBuild} from './types.js';
+import {sveltePreprocessTypescript} from './svelte-preprocess-typescript.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // TODO These modules require `esModuleInterop` to work correctly.
 // Rather than doing that and forcing `allowSyntheticDefaultImports`,

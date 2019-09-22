@@ -2,9 +2,9 @@ import {resolve, join} from 'path';
 import {blue, magenta} from 'kleur';
 import {existsSync} from 'fs';
 
-import {NodeTestContext} from '../oki/node/NodeTestContext';
-import {logger, LogLevel} from '../utils/logUtils';
-import {omitUndefined} from '../utils/objectUtils';
+import {NodeTestContext} from '../oki/node/NodeTestContext.js';
+import {logger, LogLevel} from '../utils/logUtils.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 import {toPathParts, normalizeToId, toBasePath, toBuildId} from '../paths';
 
 // TODO get LogLevel from env vars and cli args - make it an option

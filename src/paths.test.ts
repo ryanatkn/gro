@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 
-import {test} from './oki';
+import {test} from './oki/index.js';
 import {
 	normalizeToId,
 	toRootPath,
@@ -15,7 +15,7 @@ import {
 	toSourceExt,
 	toBuildExt,
 	toPathParts,
-} from './paths';
+} from './paths.js';
 
 test('toRootPath()', t => {
 	t.is(toRootPath(resolve('foo/bar')), 'foo/bar');

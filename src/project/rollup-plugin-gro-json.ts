@@ -2,9 +2,9 @@ import {Plugin} from 'rollup';
 import {createFilter, dataToEsm} from 'rollup-pluginutils';
 import {magenta, gray} from 'kleur';
 
-import {logger, LogLevel} from '../utils/logUtils';
-import {toRootPath} from '../paths';
-import {omitUndefined} from '../utils/objectUtils';
+import {logger, LogLevel} from '../utils/logUtils.js';
+import {toRootPath} from '../paths.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // TODO support parsing from a string (faster than parsing JS)
 // TODO support lazy-loading

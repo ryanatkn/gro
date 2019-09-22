@@ -1,5 +1,5 @@
-import {test} from '../oki';
-import {AssertionError, AssertionOperator} from './assertions';
+import {test} from '../oki/index.js';
+import {AssertionError, AssertionOperator} from './assertions.js';
 
 test('assertions', t => {
 	test('fail()', () => {

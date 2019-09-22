@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // handle uncaught errors
-import {attachProcessErrorHandlers} from '../utils/processUtils';
+import {attachProcessErrorHandlers} from '../utils/processUtils.js';
 attachProcessErrorHandlers();
 
 // install source maps
@@ -19,10 +19,10 @@ import * as sade from 'sade';
 import {readJsonSync} from 'fs-extra';
 import {join} from 'path';
 
-import {InitialOptions as InitialDevActionOptions} from '../tasks/dev';
-import {InitialOptions as InitialBuildActionOptions} from '../tasks/build';
-import {InitialOptions as InitialServeActionOptions} from '../tasks/serve';
-import {omitUndefined} from '../utils/objectUtils';
+import {InitialOptions as InitialDevActionOptions} from '../tasks/dev.js';
+import {InitialOptions as InitialBuildActionOptions} from '../tasks/build.js';
+import {InitialOptions as InitialServeActionOptions} from '../tasks/serve.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
 // and `package.json` is above it at the repo root,

@@ -1,9 +1,9 @@
 import {resolve} from 'path';
 import {blue, magenta} from 'kleur';
 
-import {logger, LogLevel} from '../utils/logUtils';
-import {createDevServer} from '../devServer/devServer';
-import {omitUndefined} from '../utils/objectUtils';
+import {logger, LogLevel} from '../utils/logUtils.js';
+import {createDevServer} from '../devServer/devServer.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('serve')}]`)]);

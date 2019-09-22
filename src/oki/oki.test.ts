@@ -1,5 +1,5 @@
-import {test} from './index';
-import {wait} from '../utils/asyncUtils';
+import {test} from './index.js';
+import {wait} from '../utils/asyncUtils.js';
 
 test('test()', t => {
 	test('is', () => {

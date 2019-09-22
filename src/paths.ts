@@ -1,9 +1,9 @@
 import {join, sep} from 'path';
 import {gray} from 'kleur';
 
-import {resolvePath, replaceExt} from './utils/pathUtils';
-import {logger, LogLevel} from './utils/logUtils';
-import {stripStart} from './utils/stringUtils';
+import {resolvePath, replaceExt} from './utils/pathUtils.js';
+import {logger, LogLevel} from './utils/logUtils.js';
+import {stripStart} from './utils/stringUtils.js';
 
 /*
 

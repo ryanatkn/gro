@@ -1,4 +1,4 @@
-import {arraysEqual} from './arrayUtils';
+import {arraysEqual} from './arrayUtils.js';
 
 // TODO gives false negatives for values that don't compare with `>`
 // TODO speed this up? benchmark!

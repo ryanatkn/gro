@@ -1,5 +1,5 @@
-import {test} from '../oki';
-import {mix, round} from './mathUtils';
+import {test} from '../oki/index.js';
+import {mix, round} from './mathUtils.js';
 
 test('mix()', t => {
 	test('mixes two numbers', () => {

@@ -7,10 +7,10 @@ import {
 	Options as TestContextOptions,
 	RequiredOptions as TestContextRequiredOptions,
 	initOptions as initTestContextOptions,
-} from '../TestContext';
-import * as report from './report';
-import {toFileData, FileStats} from '../../project/fileData';
-import {basePathToBuildId} from '../../paths';
+} from '../TestContext.js';
+import * as report from './report.js';
+import {toFileData, FileStats} from '../../project/fileData.js';
+import {basePathToBuildId} from '../../paths.js';
 
 // TODO probably rewrite this to implement a `TestHost` and change classes to pojos
 

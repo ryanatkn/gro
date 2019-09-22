@@ -1,11 +1,11 @@
 import {cyan} from 'kleur';
 
-import {LogLevel, Logger, logger} from '../utils/logUtils';
-import {AsyncState} from '../utils/asyncUtils';
-import {omitUndefined} from '../utils/objectUtils';
-import {assertionsThatThrow, AssertionsThatThrow} from './assertions';
-import {createFileCache} from '../project/fileCache';
-import {Timings} from '../utils/timeUtils';
+import {LogLevel, Logger, logger} from '../utils/logUtils.js';
+import {AsyncState} from '../utils/asyncUtils.js';
+import {omitUndefined} from '../utils/objectUtils.js';
+import {assertionsThatThrow, AssertionsThatThrow} from './assertions.js';
+import {createFileCache} from '../project/fileCache.js';
+import {Timings} from '../utils/timeUtils.js';
 
 export type TestInstanceContext = AssertionsThatThrow & {
 	log: Logger;

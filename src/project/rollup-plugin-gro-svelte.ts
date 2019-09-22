@@ -5,11 +5,11 @@ import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, yellow, gray, red} from 'kleur';
 
-import {getPathStem, replaceExt} from '../utils/pathUtils';
-import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils';
-import {toRootPath} from '../paths';
-import {GroCssBuild} from './types';
-import {omitUndefined} from '../utils/objectUtils';
+import {getPathStem, replaceExt} from '../utils/pathUtils.js';
+import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils.js';
+import {toRootPath} from '../paths.js';
+import {GroCssBuild} from './types.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190

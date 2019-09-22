@@ -4,9 +4,9 @@ import {blue, gray} from 'kleur';
 import {dirname, join, relative} from 'path';
 import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
 
-import {LogLevel, logger, Logger} from '../utils/logUtils';
-import {GroCssBuild, GroCssBundle} from './types';
-import {omitUndefined} from '../utils/objectUtils';
+import {LogLevel, logger, Logger} from '../utils/logUtils.js';
+import {GroCssBuild, GroCssBundle} from './types.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 export interface Options {
 	getCssBundles(): Map<string, GroCssBundle>;

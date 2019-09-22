@@ -1,8 +1,8 @@
 import {green} from 'kleur';
 
-import {LogLevel, logger, fmtVal} from '../utils/logUtils';
-import {toRootPath} from '../paths';
-import {omitUndefined} from '../utils/objectUtils';
+import {LogLevel, logger, fmtVal} from '../utils/logUtils.js';
+import {toRootPath} from '../paths.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 export interface CssBuild {
 	id: string;

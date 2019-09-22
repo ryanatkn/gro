@@ -3,11 +3,11 @@ import {Plugin, PluginContext} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, gray, red} from 'kleur';
 
-import {createStopwatch} from '../utils/timeUtils';
-import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils';
-import {toRootPath} from '../paths';
-import {loadTsconfig, logTsDiagnostics} from './tsHelpers';
-import {omitUndefined} from '../utils/objectUtils';
+import {createStopwatch} from '../utils/timeUtils.js';
+import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils.js';
+import {toRootPath} from '../paths.js';
+import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
+import {omitUndefined} from '../utils/objectUtils.js';
 
 // TODO parallelize with workers?
 

@@ -1,6 +1,6 @@
 import {ExistingRawSourceMap} from 'rollup';
 
-import {CssBuild, CssBundle} from './cssCache';
+import {CssBuild, CssBundle} from './cssCache.js';
 
 export interface GroCssBuild extends CssBuild {
 	sourceId: string; // for Svelte files, the `.svelte` version instead of `.css`

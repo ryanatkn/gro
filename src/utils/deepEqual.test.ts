@@ -1,5 +1,5 @@
-import {test} from '../oki';
-import {deepEqual} from '../utils/deepEqual';
+import {test} from '../oki/index.js';
+import {deepEqual} from '../utils/deepEqual.js';
 
 test('deepEqual()', t => {
 	const symbol = Symbol();
