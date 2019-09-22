@@ -61,7 +61,9 @@ export const reportSummary = (ctx: TestContext): void => {
 			info(red(`${failCount} test${failCount === 1 ? '' : 's'} failed`));
 		}
 		info(gray('🕒'), fmtMs(ctx.timings.get(TOTAL_TIMING), 1));
-		if (!failCount) {
+		if (failCount) {
+			info(gray('not oki :|'));
+		} else {
 			info(bgGreen(black(' oki :) ')));
 		}
 	}
