@@ -98,7 +98,7 @@ export const reportAssertionError = (
 
 	switch (assertion.operator) {
 		case AssertionOperator.fail:
-			log.plain(assertion.reason);
+			log.plain(assertion.message);
 			break;
 		case AssertionOperator.throws:
 			const logArgs: any[] = [];

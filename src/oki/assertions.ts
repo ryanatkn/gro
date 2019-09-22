@@ -39,8 +39,8 @@ export const notEqual = (actual: any, expected: any): AssertionNotEqual => {
 		: {ok: true, operator: AssertionOperator.notEqual, actual, expected};
 };
 
-export const fail = (reason: string): FailedAssertionFail => {
-	return {ok: false, operator: AssertionOperator.fail, reason};
+export const fail = (message: string): FailedAssertionFail => {
+	return {ok: false, operator: AssertionOperator.fail, message};
 };
 
 export const throws = (
@@ -250,7 +250,7 @@ export type FailedAssertionNotEqual = {
 export type FailedAssertionFail = {
 	ok: false;
 	operator: AssertionOperator.fail;
-	reason: string;
+	message: string;
 };
 export type FailedAssertionThrows = {
 	ok: false;

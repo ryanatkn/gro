@@ -67,11 +67,11 @@ test('api', (t: {
 	isNot(actual: any, expected: any); // !Object.is
 	equal(actual: any, expected: any); // deeply equal
 	notEqual(actual: any, expected: any); // !deeply equal
-	fail(reason: string); // throws an error
+	fail(message: string); // throws an error
 	// expects `cb` to throw an error that matches optional `matcher`
 	throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
 	log: {trace; info; warn; error; plain}; // Logger instance
 }) => {
-	t.ok(':)');
+	t.ok('oki :)');
 });
 ```

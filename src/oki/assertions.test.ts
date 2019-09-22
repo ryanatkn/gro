@@ -3,9 +3,9 @@ import {AssertionError, AssertionOperator} from './assertions';
 
 test('assertions', t => {
 	test('fail', t => {
-		const reason = 'bc';
+		const message = 'not oki';
 		try {
-			t.fail(reason);
+			t.fail(message);
 		} catch (err) {
 			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.fail) {
