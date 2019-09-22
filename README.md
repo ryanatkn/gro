@@ -29,6 +29,19 @@ I want a web dev tool that:
 - provides solutions for things like auth, data fetching and storage, etc
 - explores ideas like AOT compilation, codegen, data-driven development, etc
 
+## usage
+
+```bash
+gro --help
+gro dev
+```
+
+## contents
+
+- [oki](src/oki/README.md) testing library
+- other [docs](src/docs)
+  - [options](src/docs/options.md)
+
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
 tech:
