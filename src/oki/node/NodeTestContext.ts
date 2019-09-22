@@ -9,7 +9,7 @@ import {
 	initOptions as initTestContextOptions,
 } from '../TestContext';
 import * as report from './report';
-import {toFileData, FileStats} from '../../build/fileData';
+import {toFileData, FileStats} from '../../project/fileData';
 import {basePathToBuildId} from '../../paths';
 
 // TODO probably rewrite this to implement a `TestHost` and change classes to pojos

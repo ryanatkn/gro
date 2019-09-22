@@ -4,7 +4,7 @@ import {LogLevel, Logger, logger} from '../utils/logUtils';
 import {AsyncState} from '../utils/asyncUtils';
 import {omitUndefined} from '../utils/objectUtils';
 import {assertionsThatThrow, AssertionsThatThrow} from './assertions';
-import {createFileCache} from '../build/fileCache';
+import {createFileCache} from '../project/fileCache';
 import {Timings} from '../utils/timeUtils';
 
 export type TestInstanceContext = AssertionsThatThrow & {

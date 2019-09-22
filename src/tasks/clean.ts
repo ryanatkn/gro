@@ -1,6 +1,6 @@
 import {blue, magenta} from 'kleur';
 
-import {clean} from '../build/clean';
+import {clean} from '../project/clean';
 import {logger, LogLevel} from '../utils/logUtils';
 
 // TODO get LogLevel from env vars and cli args - make it an option

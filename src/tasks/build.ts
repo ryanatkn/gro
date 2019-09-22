@@ -2,7 +2,7 @@ import {resolve, join} from 'path';
 import {existsSync} from 'fs';
 import {blue, magenta} from 'kleur';
 
-import {createBuild} from '../build/build';
+import {createBuild} from '../project/build';
 import {logger, LogLevel} from '../utils/logUtils';
 import {omitUndefined} from '../utils/objectUtils';
 
