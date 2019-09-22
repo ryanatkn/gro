@@ -64,7 +64,7 @@ sade('gro')
 	})
 
 	.command('build')
-	.describe('Builds the code')
+	.describe('Build the code')
 	.option('-d, --dir', 'Directory for the app source')
 	.option('-o, --outputDir', 'Directory for the build output')
 	.option('-w, --watch', 'Watch for changes and rebuild')
@@ -90,6 +90,28 @@ sade('gro')
 				host: env.HOST,
 				port: env.PORT,
 			}),
+			...opts,
+		};
+		await action.run(options);
+	})
+
+	.command('test')
+	.describe('Run tests')
+	.option('-d, --dir', 'Directory for the app source')
+	.option('-w, --watch', 'Watch for changes and re-run tests')
+	.action(async (opts: any) => {
+		const action = await import('../tasks/test');
+		const options: InitialBuildActionOptions = {
+			...opts,
+		};
+		await action.run(options);
+	})
+
+	.command('clean')
+	.describe('Remove build and temp files')
+	.action(async (opts: any) => {
+		const action = await import('../tasks/clean');
+		const options: InitialBuildActionOptions = {
 			...opts,
 		};
 		await action.run(options);

@@ -3,7 +3,7 @@ import {Plugin, PluginContext} from 'rollup';
 import {createFilter} from 'rollup-pluginutils';
 import {magenta, gray, red} from 'kleur';
 
-import {timeTracker} from '../utils/timeUtils';
+import {createStopwatch} from '../utils/timeUtils';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils';
 import {toRootPath} from '../paths';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers';
@@ -70,7 +70,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 		async transform(code, id) {
 			if (!filter(id)) return null;
 
-			const getElapsed = timeTracker();
+			const stopwatch = createStopwatch();
 
 			trace('transpile', gray(toRootPath(id)));
 			let transpileOutput: ts.TranspileOutput;
@@ -93,7 +93,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 			}
 
 			// TODO improve this - see usage elsewhere too
-			const transpileElapsed = getElapsed();
+			const transpileElapsed = stopwatch();
 			const stats: Stats = {
 				timings: {
 					total: transpileElapsed,

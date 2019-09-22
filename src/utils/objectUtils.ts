@@ -1,3 +1,5 @@
+import {deepEqual} from './deepEqual';
+
 // Iterated keys in `for..in` are always returned as strings,
 // so to prevent usage errors the key type of `mapFn` is always a string.
 // Symbols are not enumerable as keys, so they're excluded.
@@ -40,6 +42,8 @@ export const pickBy = <T extends Record<K, any>, K extends string | number>(
 };
 
 // `omitUndefined` is a commonly used form of `pickBy`
+// See this issue for why it's used so much:
+// https://github.com/Microsoft/TypeScript/issues/13195
 export const omitUndefined = <T extends Record<string | number, any>>(
 	obj: T,
 ): T => pickBy(obj, v => v !== undefined) as T;
@@ -55,4 +59,14 @@ export const reorder = <T extends Record<K, any>, K extends string | number>(
 	// a `Set` to track what's already been added
 	for (const k in obj) result[k] = obj[k];
 	return result;
+};
+
+export const objectsEqual = (a: object, b: object): boolean => {
+	const aKeys = Object.keys(a);
+	if (aKeys.length !== Object.keys(b).length) return false;
+	for (const key of aKeys) {
+		if (!(key in b)) return false;
+		if (!deepEqual((a as any)[key], (b as any)[key])) return false;
+	}
+	return true;
 };

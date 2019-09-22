@@ -2,7 +2,7 @@ import {Plugin} from 'rollup';
 import {gray} from 'kleur';
 
 import {LogLevel, logger, fmtVal, fmtMs} from '../utils/logUtils';
-import {timeTracker} from '../utils/timeUtils';
+import {createStopwatch} from '../utils/timeUtils';
 import {toRootPath} from '../paths';
 import {omitUndefined} from '../utils/objectUtils';
 
@@ -25,7 +25,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 
 	const {trace, info} = logger(logLevel, [gray(`[${name}]`)]);
 
-	const getElapsed = timeTracker();
+	const stopwatch = createStopwatch();
 	let started = false;
 
 	// TODO consider returning 2 plugins, one to be put first and one to go last to track timings
@@ -35,9 +35,9 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 		buildStart() {
 			info(tag('buildStart'));
 			if (started) {
-				getElapsed(); // reset the clock
+				stopwatch(true); // reset the clock
 			} else {
-				info(fmtVal('startupTime', fmtMs(getElapsed())));
+				info(fmtVal('startupTime', fmtMs(stopwatch(true))));
 				started = true;
 			}
 		},
@@ -105,7 +105,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 				// how should that work?
 				// ideally the state is contained here in the diagnostics plugin
 				// could track what module is logging via the keyed tags.
-				fmtVal('totalElapsed', fmtMs(getElapsed())),
+				fmtVal('totalElapsed', fmtMs(stopwatch())),
 			);
 		},
 	};

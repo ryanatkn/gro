@@ -1,11 +1,51 @@
 import {round} from './mathUtils';
 
-export const timeTracker = (decimals = 2) => {
+export interface Stopwatch {
+	(reset?: boolean): number;
+}
+
+export const createStopwatch = (decimals = 2): Stopwatch => {
 	let start = process.hrtime.bigint();
-	return (reset = true): number => {
+	return (reset = false) => {
 		const end = process.hrtime.bigint();
 		const elapsed = round(Number(end - start) / 1_000_000, decimals);
 		if (reset) start = end;
 		return elapsed;
 	};
 };
+
+export class Timings {
+	private readonly timings = new Map<any, number>();
+	private readonly stopwatches = new Map<any, Stopwatch>();
+
+	constructor(public readonly decimals?: number) {}
+
+	start(key: any, replace = false, decimals = this.decimals): void {
+		if (!replace && this.stopwatches.has(key)) {
+			throw Error(`Timing key is already in use: ${key}`);
+		}
+		this.stopwatches.set(key, createStopwatch(decimals));
+	}
+	stop(key: any): number {
+		const stopwatch = this.stopwatches.get(key);
+		if (!stopwatch) {
+			throw Error(`Unknown timing key cannot be stopped: ${key}`);
+		}
+		this.stopwatches.delete(key);
+		const timing = stopwatch();
+		this.timings.set(key, timing);
+		return timing;
+	}
+	get(key: any): number {
+		const timing = this.timings.get(key);
+		if (timing === undefined) {
+			throw new Error(`Timing key not found: ${key}`);
+		}
+		return timing;
+	}
+	// clear(): void {
+	// 	this.stopwatches.clear();
+	// 	this.timings.clear();
+	// }
+	// toJSON() {} ?????
+}

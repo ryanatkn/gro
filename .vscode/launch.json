@@ -1,0 +1,18 @@
+{
+  // sudo ln -s "$(which node)" /usr/local/bin/node
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "test",
+      "program": "${workspaceFolder}/build/bin/gro.js",
+      "args": ["test"],
+      "outFiles": ["${workspaceRoot}/build/**/*.js"], // enables breakpoints in TS source
+      "env": {
+        // "NODE_ENV": "production"
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}

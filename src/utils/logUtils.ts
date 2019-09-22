@@ -1,4 +1,4 @@
-import {red, yellow, gray, black, bgYellow, bgRed, white} from 'kleur';
+import {red, yellow, gray, black, bgYellow, bgRed, white, green} from 'kleur';
 
 import {noop} from '../utils/functionUtils';
 import {round} from '../utils/mathUtils';
@@ -13,6 +13,7 @@ export type Logger = {
 	info: Log;
 	warn: Log;
 	error: Log;
+	plain: Log;
 	config: LoggerConfig;
 	clone(configPartial?: Partial<LoggerConfig>): Logger;
 };
@@ -36,14 +37,17 @@ export const logger = (
 	suffixes: any[] = [],
 ): Logger => {
 	const config = {level, prefixes, suffixes};
-	const log = (levelPrefixes: any[], levelSuffixes: any[] = []) => (
-		...args: any[]
-	) => {
+	const log = (
+		levelPrefixes: any[],
+		levelSuffixes: any[] = [],
+		bakedPrefixes = prefixes,
+		bakedSuffixes = suffixes,
+	) => (...args: any[]) => {
 		console.log(
 			...levelPrefixes,
-			...prefixes,
+			...bakedPrefixes,
 			...args,
-			...suffixes,
+			...bakedSuffixes,
 			...levelSuffixes,
 		);
 	};
@@ -61,16 +65,19 @@ export const logger = (
 		error:
 			LogLevel.Error >= level
 				? log(
-						[red('➤'), black(bgRed(' ✖✖ error ✖✖ ')), red('➤')],
-						['\n ', black(bgRed(' ✖✖✖ '))],
+						[red('➤'), black(bgRed(' 🞩 error 🞩 ')), red('\n➤')],
+						['\n ', black(bgRed(' 🞩🞩 '))],
 				  )
 				: noop,
+		plain: log([], [], [], []),
 		clone(configPartial?: Partial<LoggerConfig>): Logger {
 			const cfg: LoggerConfig = {...config, ...configPartial};
 			return logger(cfg.level, cfg.prefixes, cfg.suffixes);
 		},
 	};
 };
+
+export const logNewline = () => console.log('\n');
 
 export const fmtVal = (key: string, val: string | number): string =>
 	gray(`${key}(`) + val + gray(')');
@@ -81,4 +88,15 @@ export const fmtMs = (ms: number, decimals = 1): string => {
 
 export const fmtCauses = (solutions: string[]): string => {
 	return '\n	Possible causes:' + solutions.map(s => `\n		• ${s}`).join('');
+};
+
+export const fmtStr = (s: string): string => green(`'${s}'`);
+
+export const fmtValue = (value: unknown): unknown => {
+	switch (typeof value) {
+		case 'string':
+			return fmtStr(value);
+		default:
+			return value;
+	}
 };

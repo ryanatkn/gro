@@ -12,6 +12,7 @@ This is slightly unfortunate, but it's a side-effect of the way
 TypeScript makes optional properties, like those in `Partial<Options>`,
 accept `undefined` as values in addition
 to making the property existence optional.
+See [this issue](https://github.com/Microsoft/TypeScript/issues/13195) for more.
 
 Example:
 

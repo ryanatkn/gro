@@ -47,3 +47,8 @@ export const deindent = (str: string): string =>
 		.filter(Boolean)
 		.map(s => s.trim())
 		.join('\n');
+
+export const plural = (
+	count: number | undefined | null,
+	suffix = 's',
+): string => (count === 1 ? '' : suffix);
