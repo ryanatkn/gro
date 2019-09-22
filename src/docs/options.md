@@ -13,6 +13,7 @@ TypeScript makes optional properties, like those in `Partial<Options>`,
 accept `undefined` as values in addition
 to making the property existence optional.
 See [this issue](https://github.com/Microsoft/TypeScript/issues/13195) for more.
+The best workaround is probably `null`.
 
 Example:
 
@@ -30,4 +31,14 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	b: null,
 	...omitUndefined(opts),
 });
+export const createThing = (opts: InitialOptions) => {
+	const options = initOptions(opts);
+	// ...
+};
+export class Thing {
+	readonly options: Options; // optionally store the reference
+	constructor(opts: InitialOptions) {
+		this.options = initOptions(opts);
+	}
+}
 ```
