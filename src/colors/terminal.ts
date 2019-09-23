@@ -5,25 +5,25 @@ import kleur from 'kleur';
 // see https://nodejs.org/api/esm.html
 
 // colors
-export const black = kleur.black;
 export const red = kleur.red;
-export const green = kleur.green;
 export const yellow = kleur.yellow;
+export const green = kleur.green;
+export const cyan = kleur.cyan;
 export const blue = kleur.blue;
 export const magenta = kleur.magenta;
-export const cyan = kleur.cyan;
 export const white = kleur.white;
 export const gray = kleur.gray;
+export const black = kleur.black;
 
 // backgrounds
-export const bgBlack = kleur.bgBlack;
 export const bgRed = kleur.bgRed;
-export const bgGreen = kleur.bgGreen;
 export const bgYellow = kleur.bgYellow;
+export const bgGreen = kleur.bgGreen;
+export const bgCyan = kleur.bgCyan;
 export const bgBlue = kleur.bgBlue;
 export const bgMagenta = kleur.bgMagenta;
-export const bgCyan = kleur.bgCyan;
 export const bgWhite = kleur.bgWhite;
+export const bgBlack = kleur.bgBlack;
 
 // modifiers
 export const reset = kleur.reset;
