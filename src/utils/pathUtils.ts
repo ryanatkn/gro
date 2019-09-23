@@ -1,15 +1,8 @@
-import {red, yellow, green, cyan, blue, magenta} from 'kleur';
-import {realpathSync} from 'fs';
-import {resolve, extname, basename, sep} from 'path';
+import fs from 'fs-extra';
+import * as fp from 'path';
+const {resolve, extname, basename, sep} = fp; // TODO esm
 
-export const colors = [red, yellow, green, cyan, blue, magenta];
-export const rainbow = (str: string): string =>
-	str
-		.split('')
-		.map((char, i) => colors[i % colors.length](char))
-		.join('');
-
-export const cwd = realpathSync(process.cwd()) + sep;
+export const cwd = fs.realpathSync(process.cwd()) + sep;
 
 export const resolvePath = (relativePath: string): string =>
 	resolve(cwd, relativePath);

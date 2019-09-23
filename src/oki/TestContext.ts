@@ -1,5 +1,4 @@
-import {cyan} from 'kleur';
-
+import {cyan} from '../colors/terminal.js';
 import {LogLevel, Logger, logger} from '../utils/logUtils.js';
 import {AsyncState} from '../utils/asyncUtils.js';
 import {omitUndefined} from '../utils/objectUtils.js';

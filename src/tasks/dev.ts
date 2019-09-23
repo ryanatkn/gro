@@ -1,5 +1,4 @@
-import {blue, magenta} from 'kleur';
-
+import {blue, magenta} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/logUtils.js';
 import * as buildAction from './build.js';
 import * as serveAction from './serve.js';

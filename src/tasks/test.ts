@@ -1,11 +1,11 @@
-import {resolve, join} from 'path';
-import {blue, magenta} from 'kleur';
-import {existsSync} from 'fs';
+import * as fp from 'path';
+import fs from 'fs-extra';
 
+import {blue, magenta} from '../colors/terminal.js';
 import {NodeTestContext} from '../oki/node/NodeTestContext.js';
 import {logger, LogLevel} from '../utils/logUtils.js';
 import {omitUndefined} from '../utils/objectUtils.js';
-import {toPathParts, normalizeToId, toBasePath, toBuildId} from '../paths';
+import {toPathParts, normalizeToId, toBasePath, toBuildId} from '../paths.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;
@@ -25,7 +25,7 @@ export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	watch: false,
 	...omitUndefined(opts),
-	dir: resolve(opts.dir || DEFAULT_DIR),
+	dir: fp.resolve(opts.dir || DEFAULT_DIR),
 });
 
 export const run = async (opts: InitialOptions): Promise<void> => {
@@ -53,9 +53,9 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 };
 
 const checkPaths = (dir: string, rawPaths: string[]): string[] => {
-	const paths = rawPaths.map(f => join(dir, f));
+	const paths = rawPaths.map(f => fp.join(dir, f));
 	for (const path of paths) {
-		if (!existsSync(path)) {
+		if (!fs.existsSync(path)) {
 			throw Error(`Path not found: ${path}`);
 		}
 	}

@@ -1,5 +1,4 @@
-import {blue, magenta} from 'kleur';
-
+import {blue, magenta} from '../colors/terminal.js';
 import {clean} from '../project/clean.js';
 import {logger, LogLevel} from '../utils/logUtils.js';
 

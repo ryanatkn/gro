@@ -1,7 +1,7 @@
-import {gray} from 'kleur';
-import * as CheapWatchFIXME from 'cheap-watch';
-import {Stats} from 'fs';
+import CheapWatch from 'cheap-watch';
+import fs from 'fs-extra';
 
+import {gray} from '../../colors/terminal.js';
 import {
 	TestContext,
 	Options as TestContextOptions,
@@ -13,11 +13,6 @@ import {toFileData, FileStats} from '../../project/fileData.js';
 import {basePathToBuildId} from '../../paths.js';
 
 // TODO probably rewrite this to implement a `TestHost` and change classes to pojos
-
-// TODO bleh I don't wanna use synthetic imports :X
-// is this fixed with `--experimental-modules`?
-type CheapWatch = CheapWatchFIXME.default;
-const CheapWatch: typeof CheapWatchFIXME.default = CheapWatchFIXME as any;
 
 export interface Options extends TestContextOptions {
 	filter(p: {path: string; stats: FileStats}): boolean;
@@ -83,11 +78,11 @@ export class NodeTestContext extends TestContext<Options, InitialOptions> {
 
 interface CheapWatchPathAddedEvent {
 	path: string;
-	stats: Stats;
+	stats: fs.Stats;
 	isNew: boolean;
 }
 
 interface CheapWatchPathRemovedEvent {
 	path: string;
-	stats: Stats;
+	stats: fs.Stats;
 }

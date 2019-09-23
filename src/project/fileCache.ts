@@ -1,5 +1,4 @@
-import {green} from 'kleur';
-
+import {green} from '../colors/terminal.js';
 import {LogLevel, logger} from '../utils/logUtils.js';
 import {omitUndefined} from '../utils/objectUtils.js';
 import {FileData} from './fileData.js';

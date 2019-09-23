@@ -1,5 +1,12 @@
-import {green, red, bgGreen, black, yellow, gray, cyan} from 'kleur';
-
+import {
+	green,
+	red,
+	bgGreen,
+	black,
+	yellow,
+	gray,
+	cyan,
+} from '../../colors/terminal.js';
 import {TestContext, TOTAL_TIMING, TestInstance} from '../TestContext.js';
 import {logNewline, fmtMs, fmtValue, fmtStr} from '../../utils/logUtils.js';
 import {toSourcePath} from '../../paths.js';

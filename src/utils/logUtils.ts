@@ -1,7 +1,15 @@
-import {red, yellow, gray, black, bgYellow, bgRed, white, green} from 'kleur';
-
 import {noop} from '../utils/functionUtils.js';
 import {round} from '../utils/mathUtils.js';
+import {
+	red,
+	yellow,
+	gray,
+	black,
+	bgYellow,
+	bgRed,
+	white,
+	green,
+} from '../colors/terminal.js';
 
 export type Log = (...args: any[]) => void;
 

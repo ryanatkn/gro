@@ -1,9 +1,10 @@
 import {Plugin} from 'rollup';
-import {green} from 'kleur';
-import {createFilter} from 'rollup-pluginutils';
-import {dirname, resolve} from 'path';
-import {existsSync} from 'fs';
+import * as fp from 'path';
+import * as fs from 'fs';
+import rollupPluginutils from 'rollup-pluginutils';
+const {createFilter} = rollupPluginutils; // TODO esm
 
+import {green} from '../colors/terminal.js';
 import {LogLevel, logger} from '../utils/logUtils.js';
 import {GroCssBuild} from './types.js';
 import {hasExt} from '../utils/pathUtils.js';
@@ -66,9 +67,9 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 			// Originally this used `this.resolve`,
 			// but it goes into an infinite loop when an importee doesn't exist,
 			// despite using `{skipSelf: true}`. So we manually resolve the id.
-			const resolvedId = resolve(dirname(importer), importee);
+			const resolvedId = fp.resolve(fp.dirname(importer), importee);
 			if (sortIndexById.has(resolvedId)) return resolvedId; // this doesn't account for import order changing while in watch mode
-			if (!existsSync(resolvedId)) return null; // allow node imports like `normalize.css`
+			if (!fs.existsSync(resolvedId)) return null; // allow node imports like `normalize.css`
 			sortIndexById.set(resolvedId, currentSortIndex);
 			currentSortIndex++;
 			return resolvedId;

@@ -1,23 +1,23 @@
-import * as mime from 'mime/lite';
-import {readFile, stat, Stats} from 'fs-extra';
+import mime from 'mime/lite.js';
+import fs from 'fs-extra';
 
 export interface File {
 	readonly path: string;
 	data: Buffer;
-	stats: Stats;
+	stats: fs.Stats;
 	mimeType?: string; // gets cached via `getMimeType`
 }
 
 export const loadFile = async (path: string): Promise<File | null> => {
-	let stats: Stats;
+	let stats: fs.Stats;
 	try {
-		stats = await stat(path);
+		stats = await fs.stat(path);
 	} catch (err) {
 		return null;
 	}
 	let data: Buffer;
 	try {
-		data = await readFile(path); // unlikely to error after stat, but just in case
+		data = await fs.readFile(path); // unlikely to error after stat, but just in case
 	} catch (err) {
 		return null;
 	}

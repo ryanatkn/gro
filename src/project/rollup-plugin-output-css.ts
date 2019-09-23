@@ -1,9 +1,10 @@
 import {Plugin} from 'rollup';
-import {outputFile} from 'fs-extra';
-import {blue, gray} from 'kleur';
-import {dirname, join, relative} from 'path';
-import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
+import fs from 'fs-extra';
+import * as fp from 'path';
+import sourcemapCodec from 'sourcemap-codec';
+const {decode, encode} = sourcemapCodec; // TODO esm
 
+import {blue, gray} from '../colors/terminal.js';
 import {LogLevel, logger, Logger} from '../utils/logUtils.js';
 import {GroCssBuild, GroCssBundle} from './types.js';
 import {omitUndefined} from '../utils/objectUtils.js';
@@ -39,7 +40,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 			info('generateBundle');
 
 			// TODO chunks!
-			const outputDir = outputOptions.dir || dirname(outputOptions.file!);
+			const outputDir = outputOptions.dir || fp.dirname(outputOptions.file!);
 
 			// write each changed bundle to disk
 			for (const bundle of getCssBundles().values()) {
@@ -54,7 +55,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 				info('changes', Array.from(changedIds)); // TODO trace when !watch
 				changedIds.clear();
 
-				const mappings: SourceMapSegment[][] = [];
+				const mappings: sourcemapCodec.SourceMapSegment[][] = [];
 				const sources: string[] = [];
 				const sourcesContent: string[] = [];
 
@@ -90,7 +91,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 				}
 				const css = cssStrings.join('\n');
 
-				const dest = join(outputDir, bundleName);
+				const dest = fp.join(outputDir, bundleName);
 
 				if (sources.length) {
 					const sourcemapDest = dest + '.map';
@@ -100,7 +101,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 						{
 							version: 3,
 							file: bundleName,
-							sources: sources.map(s => relative(outputDir, s)),
+							sources: sources.map(s => fp.relative(outputDir, s)),
 							sourcesContent,
 							names: [],
 							mappings: encode(mappings),
@@ -111,12 +112,12 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 
 					info('writing css bundle and sourcemap', dest);
 					await Promise.all([
-						outputFile(dest, finalCss),
-						outputFile(sourcemapDest, cssSourcemap),
+						fs.outputFile(dest, finalCss),
+						fs.outputFile(sourcemapDest, cssSourcemap),
 					]);
 				} else {
 					info('writing css bundle', dest);
-					await outputFile(dest, css);
+					await fs.outputFile(dest, css);
 				}
 			}
 		},

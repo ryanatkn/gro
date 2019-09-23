@@ -1,7 +1,7 @@
 declare module 'sade';
 
 // TODO upstream this?
-declare module 'mime/lite' {
+declare module 'mime/lite.js' {
 	export * from 'mime';
 }
 

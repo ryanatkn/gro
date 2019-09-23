@@ -1,10 +1,11 @@
-import * as svelte from 'svelte/compiler';
+import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions, Warning} from 'svelte/types/compiler/interfaces';
 import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
-import {createFilter} from 'rollup-pluginutils';
-import {magenta, yellow, gray, red} from 'kleur';
+import rollupPluginutils from 'rollup-pluginutils';
+const {createFilter} = rollupPluginutils; // TODO esm
 
+import {magenta, yellow, gray, red} from '../colors/terminal.js';
 import {getPathStem, replaceExt} from '../utils/pathUtils.js';
 import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils.js';
 import {toRootPath} from '../paths.js';

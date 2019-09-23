@@ -1,7 +1,7 @@
-import * as ts from 'typescript';
-import {black, bgRed} from 'kleur';
-import {dirname} from 'path';
+import ts from 'typescript';
+import * as fp from 'path';
 
+import {black, bgRed} from '../colors/terminal.js';
 import {Logger} from '../utils/logUtils.js';
 import {cwd} from '../utils/pathUtils.js';
 
@@ -22,7 +22,7 @@ export interface TsConfig {
 export const loadTsconfig = (
 	log: Logger,
 	tsconfigPath?: string,
-	basePath = tsconfigPath ? dirname(tsconfigPath) : cwd,
+	basePath = tsconfigPath ? fp.dirname(tsconfigPath) : cwd,
 ): TsConfig => {
 	if (!tsconfigPath) {
 		const searchPath = tsconfigPath || basePath;

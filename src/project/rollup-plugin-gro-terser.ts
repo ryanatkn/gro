@@ -1,8 +1,9 @@
-import {minify, MinifyOptions} from 'terser';
+import * as terser from 'terser';
 import {Plugin} from 'rollup';
-import {createFilter} from 'rollup-pluginutils';
-import {magenta, gray} from 'kleur';
+import rollupPluginutils from 'rollup-pluginutils';
+const {createFilter} = rollupPluginutils; // TODO esm
 
+import {magenta, gray} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/logUtils.js';
 import {toRootPath} from '../paths.js';
 import {omitUndefined} from '../utils/objectUtils.js';
@@ -15,7 +16,7 @@ import {omitUndefined} from '../utils/objectUtils.js';
 export interface Options {
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
-	minifyOptions: MinifyOptions;
+	minifyOptions: terser.MinifyOptions;
 	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
@@ -45,7 +46,7 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 
 			info('terser', gray(toRootPath(chunk.fileName)));
 
-			const minified = minify(code, {
+			const minified = terser.minify(code, {
 				module: ['es', 'esm'].includes(outputOptions.format!),
 				...minifyOptions,
 			});

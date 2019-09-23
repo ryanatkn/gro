@@ -1,15 +1,16 @@
 import {
-	createServer,
 	Server,
 	ServerOptions,
 	RequestListener,
 	ServerResponse,
 	IncomingMessage,
 } from 'http';
+import * as http from 'http'; // TODO esm
+const {createServer} = http; // TODO esm
 import {ListenOptions} from 'net';
-import {cyan, yellow, gray} from 'kleur';
-import {resolve} from 'path';
+import * as fp from 'path';
 
+import {cyan, yellow, gray} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/logUtils.js';
 import {stripAfter} from '../utils/stringUtils.js';
 import {loadFile, getMimeType, File} from '../utils/fileUtils.js';
@@ -33,7 +34,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
 	port: DEFAULT_PORT,
 	...omitUndefined(opts),
-	dir: resolve(opts.dir || '.'),
+	dir: fp.resolve(opts.dir || '.'),
 });
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
@@ -97,7 +98,7 @@ const toLocalPath = (dir: string, url: string): string => {
 	const relativePath = relativeUrl.endsWith('/')
 		? relativeUrl + 'index.html' // maybe handle others, like `.htm`?
 		: relativeUrl;
-	return resolve(dir, relativePath);
+	return fp.resolve(dir, relativePath);
 };
 
 const send404FileNotFound = (

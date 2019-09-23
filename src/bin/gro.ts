@@ -1,23 +1,25 @@
-#!/usr/bin/env node
+#!/bin/sh
+':'; //# comment; exec /usr/bin/env node --experimental-modules "$0" "$@"
 
 // handle uncaught errors
 import {attachProcessErrorHandlers} from '../utils/processUtils.js';
 attachProcessErrorHandlers();
 
 // install source maps
-import * as sourceMapSupport from 'source-map-support';
+import sourceMapSupport from 'source-map-support';
 sourceMapSupport.install({
 	handleUncaughtExceptions: false,
 });
 
 // set up the env
-import {setupEnv} from '../env/env';
+import {setupEnv} from '../env/env.js';
 setupEnv();
 const {env, argv} = process;
 
-import * as sade from 'sade';
-import {readJsonSync} from 'fs-extra';
-import {join} from 'path';
+import sade from 'sade';
+import fs from 'fs-extra';
+import * as fp from 'path';
+import {fileURLToPath} from 'url';
 
 import {InitialOptions as InitialDevActionOptions} from '../tasks/dev.js';
 import {InitialOptions as InitialBuildActionOptions} from '../tasks/build.js';
@@ -27,7 +29,9 @@ import {omitUndefined} from '../utils/objectUtils.js';
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
 // and `package.json` is above it at the repo root,
 // so it can't be imported or required normally.
-const pkg = readJsonSync(join(__dirname, '../../package.json'));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = fp.dirname(__filename);
+const pkg = fs.readJsonSync(fp.join(__dirname, '../../package.json'));
 
 /*
 
@@ -52,7 +56,7 @@ sade('gro')
 	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
-		const action = await import('../tasks/dev');
+		const action = await import('../tasks/dev.js');
 		const options: InitialDevActionOptions = {
 			...omitUndefined({
 				host: env.HOST,
@@ -71,7 +75,7 @@ sade('gro')
 	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
-		const action = await import('../tasks/build');
+		const action = await import('../tasks/build.js');
 		const options: InitialBuildActionOptions = {
 			...opts,
 		};
@@ -84,7 +88,7 @@ sade('gro')
 	.option('-H, --host', 'Hostname for the server')
 	.option('-p, --port', 'Port number for the server')
 	.action(async (opts: any) => {
-		const action = await import('../tasks/serve');
+		const action = await import('../tasks/serve.js');
 		const options: InitialServeActionOptions = {
 			...omitUndefined({
 				host: env.HOST,
@@ -100,7 +104,7 @@ sade('gro')
 	.option('-d, --dir', 'Directory for the app source')
 	.option('-w, --watch', 'Watch for changes and re-run tests')
 	.action(async (opts: any) => {
-		const action = await import('../tasks/test');
+		const action = await import('../tasks/test.js');
 		const options: InitialBuildActionOptions = {
 			...opts,
 		};
@@ -110,7 +114,7 @@ sade('gro')
 	.command('clean')
 	.describe('Remove build and temp files')
 	.action(async (opts: any) => {
-		const action = await import('../tasks/clean');
+		const action = await import('../tasks/clean.js');
 		const options: InitialBuildActionOptions = {
 			...opts,
 		};

@@ -2,6 +2,7 @@
   "name": "@ryanatkn/gro",
   "version": "0.0.0",
   "description": "opinionated tools for web development",
+  "type": "module",
   "bin": {
     "gro": "build/bin/gro.js"
   },
@@ -29,7 +30,6 @@
   "engines": {
     "node": ">=12"
   },
-  "type": "module",
   "dependencies": {
     "cheap-watch": "^1.0.2",
     "fs-extra": "^8.1.0",

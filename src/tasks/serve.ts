@@ -1,6 +1,6 @@
-import {resolve} from 'path';
-import {blue, magenta} from 'kleur';
+import * as fp from 'path';
 
+import {blue, magenta} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/logUtils.js';
 import {createDevServer} from '../devServer/devServer.js';
 import {omitUndefined} from '../utils/objectUtils.js';
@@ -19,7 +19,7 @@ export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_HOST = '0.0.0.0'; // 'localhost'; why is 0.0.0.0 needed here but not for sirv?
 const DEFAULT_PORT = 8999;
 export const initOptions = (opts: InitialOptions): Options => {
-	const dir = resolve(opts.dir || '.');
+	const dir = fp.resolve(opts.dir || '.');
 	return {
 		host: DEFAULT_HOST,
 		port: DEFAULT_PORT,

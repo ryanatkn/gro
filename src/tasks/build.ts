@@ -1,7 +1,7 @@
-import {resolve, join} from 'path';
-import {existsSync} from 'fs';
-import {blue, magenta} from 'kleur';
+import * as fp from 'path';
+import fs from 'fs-extra';
 
+import {blue, magenta} from '../colors/terminal.js';
 import {createBuild} from '../project/build.js';
 import {logger, LogLevel} from '../utils/logUtils.js';
 import {omitUndefined} from '../utils/objectUtils.js';
@@ -23,13 +23,13 @@ export type RequiredOptions = '_';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_INPUT_NAMES = ['index.ts', 'src/index.ts'];
 export const initOptions = (opts: InitialOptions): Options => {
-	const dir = resolve(opts.dir || '.');
+	const dir = fp.resolve(opts.dir || '.');
 	return {
 		watch: false,
 		production: process.env.NODE_ENV === 'production',
 		...omitUndefined(opts),
 		dir,
-		outputDir: opts.outputDir ? resolve(opts.outputDir) : dir,
+		outputDir: opts.outputDir ? fp.resolve(opts.outputDir) : dir,
 	};
 };
 
@@ -60,16 +60,16 @@ const resolveInputFiles = (dir: string, fileNames: string[]): string[] => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {
 		for (const name of DEFAULT_INPUT_NAMES) {
-			const path = join(dir, name);
-			if (existsSync(path)) {
+			const path = fp.join(dir, name);
+			if (fs.existsSync(path)) {
 				fileNames = [name];
 				break;
 			}
 		}
 	}
-	const inputFiles = fileNames.map(f => join(dir, f));
+	const inputFiles = fileNames.map(f => fp.join(dir, f));
 	for (const file of inputFiles) {
-		if (!existsSync(file)) {
+		if (!fs.existsSync(file)) {
 			throw Error(`Input file not found: ${file}`);
 		}
 	}

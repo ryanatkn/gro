@@ -1,5 +1,4 @@
-import {red, yellow} from 'kleur';
-
+import {red, yellow} from '../colors/terminal.js';
 import {logger, LogLevel} from './logUtils.js';
 import {truncate} from './stringUtils.js';
 

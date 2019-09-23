@@ -1,6 +1,6 @@
 import {Plugin} from 'rollup';
-import {gray} from 'kleur';
 
+import {gray} from '../colors/terminal.js';
 import {LogLevel, logger, fmtVal, fmtMs} from '../utils/logUtils.js';
 import {createStopwatch} from '../utils/timeUtils.js';
 import {toRootPath} from '../paths.js';

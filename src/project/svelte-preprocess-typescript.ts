@@ -1,7 +1,7 @@
-import * as ts from 'typescript';
+import ts from 'typescript';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import {magenta, gray, red} from 'kleur';
 
+import {magenta, gray, red} from '../colors/terminal.js';
 import {LogLevel, logger, Logger} from '../utils/logUtils.js';
 import {loadTsconfig} from './tsHelpers.js';
 import {toRootPath} from '../paths.js';

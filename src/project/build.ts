@@ -1,17 +1,15 @@
-import * as rollup from 'rollup';
-import {
+import rollup, {
 	OutputOptions,
 	InputOptions,
 	RollupWatchOptions,
 	RollupOutput,
 	RollupBuild,
 } from 'rollup';
-import * as resolvePluginFIXME from 'rollup-plugin-node-resolve';
-import * as commonjsPluginFIXME from 'rollup-plugin-commonjs';
-import {resolve} from 'path';
-import {magenta} from 'kleur';
+import resolvePlugin from 'rollup-plugin-node-resolve';
+import commonjsPlugin from 'rollup-plugin-commonjs';
+import * as fp from 'path';
 
-import {rainbow, cwd} from '../utils/pathUtils.js';
+import {magenta, rainbow} from '../colors/terminal.js';
 import {logger, LogLevel, Logger} from '../utils/logUtils.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/stringUtils.js';
@@ -26,13 +24,6 @@ import {GroCssBuild} from './types.js';
 import {sveltePreprocessTypescript} from './svelte-preprocess-typescript.js';
 import {omitUndefined} from '../utils/objectUtils.js';
 
-// TODO These modules require `esModuleInterop` to work correctly.
-// Rather than doing that and forcing `allowSyntheticDefaultImports`,
-// I'm opting to just fix the module types after importing for now.
-// This can probably be sorted out cleanly when `ts-node` supports ES modules.
-const resolvePlugin: typeof resolvePluginFIXME.default = resolvePluginFIXME as any;
-const commonjsPlugin: typeof commonjsPluginFIXME.default = commonjsPluginFIXME as any;
-
 export interface Options {
 	dev: boolean;
 	inputFiles: string[];
@@ -44,8 +35,8 @@ export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
-	inputFiles: [resolve('index.ts')],
-	outputDir: cwd,
+	inputFiles: [fp.resolve('index.ts')],
+	outputDir: fp.resolve('dist/'),
 	watch: true,
 	logLevel: LogLevel.Info,
 	...omitUndefined(opts),

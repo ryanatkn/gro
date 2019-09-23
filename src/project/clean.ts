@@ -1,7 +1,7 @@
-import {emptyDir} from 'fs-extra';
+import fs from 'fs-extra';
 
 import {paths} from '../paths.js';
 
 export const clean = async () => {
-	await emptyDir(paths.build);
+	await fs.emptyDir(paths.build);
 };
