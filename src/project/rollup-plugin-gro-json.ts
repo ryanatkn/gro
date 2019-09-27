@@ -3,9 +3,9 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter, dataToEsm} = rollupPluginutils; // TODO esm
 
 import {magenta, gray} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/logUtils.js';
+import {logger, LogLevel} from '../utils/log.js';
 import {toRootPath} from '../paths.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 // TODO support parsing from a string (faster than parsing JS)
 // TODO support lazy-loading

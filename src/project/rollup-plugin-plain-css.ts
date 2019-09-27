@@ -5,10 +5,10 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
 import {green} from '../colors/terminal.js';
-import {LogLevel, logger} from '../utils/logUtils.js';
+import {LogLevel, logger} from '../utils/log.js';
 import {GroCssBuild} from './types.js';
-import {hasExt} from '../utils/pathUtils.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {hasExt} from '../utils/path.js';
+import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
 	addCssBuild(build: GroCssBuild): boolean;

@@ -1,5 +1,5 @@
-import {noop} from '../utils/functionUtils.js';
-import {round} from '../utils/mathUtils.js';
+import {noop} from '../utils/function.js';
+import {round} from '../utils/math.js';
 import {
 	red,
 	yellow,

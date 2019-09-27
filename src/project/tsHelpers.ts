@@ -2,7 +2,7 @@ import ts from 'typescript';
 import * as fp from 'path';
 
 import {black, bgRed} from '../colors/terminal.js';
-import {Logger} from '../utils/logUtils.js';
+import {Logger} from '../utils/log.js';
 
 // confusingly, TypeScript doesn't seem to be a good type for this
 export interface TsConfig {

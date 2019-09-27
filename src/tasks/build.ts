@@ -3,8 +3,8 @@ import fs from 'fs-extra';
 
 import {blue, magenta} from '../colors/terminal.js';
 import {createBuild} from '../project/build.js';
-import {logger, LogLevel} from '../utils/logUtils.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {logger, LogLevel} from '../utils/log.js';
+import {omitUndefined} from '../utils/object.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;

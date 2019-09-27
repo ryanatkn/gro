@@ -1,6 +1,6 @@
 import {green} from '../colors/terminal.js';
-import {LogLevel, logger} from '../utils/logUtils.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {LogLevel, logger} from '../utils/log.js';
+import {omitUndefined} from '../utils/object.js';
 import {FileData} from './fileData.js';
 import {toRootPath} from '../paths.js';
 

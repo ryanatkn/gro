@@ -3,8 +3,8 @@ import fs from 'fs-extra';
 
 import {blue, magenta} from '../colors/terminal.js';
 import {NodeTestContext} from '../oki/node/NodeTestContext.js';
-import {logger, LogLevel} from '../utils/logUtils.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {logger, LogLevel} from '../utils/log.js';
+import {omitUndefined} from '../utils/object.js';
 import {toPathParts, normalizeToId, toBasePath, toBuildId} from '../paths.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option

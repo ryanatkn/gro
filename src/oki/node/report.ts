@@ -8,14 +8,14 @@ import {
 	cyan,
 } from '../../colors/terminal.js';
 import {TestContext, TOTAL_TIMING, TestInstance} from '../TestContext.js';
-import {logNewline, fmtMs, fmtValue, fmtStr} from '../../utils/logUtils.js';
+import {logNewline, fmtMs, fmtValue, fmtStr} from '../../utils/log.js';
 import {toSourcePath} from '../../paths.js';
 import {
 	AssertionError,
 	AssertionOperator,
 	FailedAssertion,
 } from '../assertions.js';
-import {UnreachableError, ErrorClass} from '../../utils/errorUtils.js';
+import {UnreachableError, ErrorClass} from '../../utils/error.js';
 
 export const reportIntro = (ctx: TestContext): void => {
 	logNewline();

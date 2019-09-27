@@ -1,10 +1,10 @@
 import {cyan} from '../colors/terminal.js';
-import {LogLevel, Logger, logger} from '../utils/logUtils.js';
-import {AsyncState} from '../utils/asyncUtils.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {LogLevel, Logger, logger} from '../utils/log.js';
+import {AsyncState} from '../utils/async.js';
+import {omitUndefined} from '../utils/object.js';
 import {assertionsThatThrow, AssertionsThatThrow} from './assertions.js';
 import {createFileCache} from '../project/fileCache.js';
-import {Timings} from '../utils/timeUtils.js';
+import {Timings} from '../utils/time.js';
 import {createGlobalRef} from '../globals.js';
 
 const currentTestContext = createGlobalRef<TestContext>('currentTestContext');

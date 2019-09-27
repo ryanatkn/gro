@@ -5,9 +5,9 @@ import sourcemapCodec from 'sourcemap-codec';
 const {decode, encode} = sourcemapCodec; // TODO esm
 
 import {blue, gray} from '../colors/terminal.js';
-import {LogLevel, logger, Logger} from '../utils/logUtils.js';
+import {LogLevel, logger, Logger} from '../utils/log.js';
 import {GroCssBuild, GroCssBundle} from './types.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
 	getCssBundles(): Map<string, GroCssBundle>;

@@ -9,7 +9,7 @@ import {
 	ensureStart,
 	ensureEnd,
 	deindent,
-} from './stringUtils.js';
+} from './string.js';
 
 test('truncate()', t => {
 	t.is(truncate('foobarbaz', 5), 'fo...');

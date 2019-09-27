@@ -11,10 +11,10 @@ import {ListenOptions} from 'net';
 import * as fp from 'path';
 
 import {cyan, yellow, gray} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/logUtils.js';
-import {stripAfter} from '../utils/stringUtils.js';
-import {loadFile, getMimeType, File} from '../utils/fileUtils.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {logger, LogLevel} from '../utils/log.js';
+import {stripAfter} from '../utils/string.js';
+import {loadFile, getMimeType, File} from '../utils/file.js';
+import {omitUndefined} from '../utils/object.js';
 
 export interface DevServer {
 	server: Server;

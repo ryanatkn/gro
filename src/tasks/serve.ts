@@ -1,9 +1,9 @@
 import * as fp from 'path';
 
 import {blue, magenta} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/logUtils.js';
+import {logger, LogLevel} from '../utils/log.js';
 import {createDevServer} from '../devServer/devServer.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('serve')}]`)]);

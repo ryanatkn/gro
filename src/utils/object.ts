@@ -5,7 +5,7 @@ import {deepEqual} from './deepEqual.js';
 // Symbols are not enumerable as keys, so they're excluded.
 export const mapRecord = <T, K extends string | number, U>(
 	obj: Record<K, T>,
-	mapFn: (t: T, key: string) => U,
+	mapFn: (value: T, key: string) => U,
 ): Record<K, U> => {
 	const result = {} as Record<K, U>;
 	for (const key in obj) {

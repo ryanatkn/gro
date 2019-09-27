@@ -1,10 +1,10 @@
 import {Plugin} from 'rollup';
 
 import {gray} from '../colors/terminal.js';
-import {LogLevel, logger, fmtVal, fmtMs} from '../utils/logUtils.js';
-import {createStopwatch} from '../utils/timeUtils.js';
+import {LogLevel, logger, fmtVal, fmtMs} from '../utils/log.js';
+import {createStopwatch} from '../utils/time.js';
 import {toRootPath} from '../paths.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
 	logLevel: LogLevel;

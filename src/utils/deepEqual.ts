@@ -1,8 +1,8 @@
-import {UnreachableError} from './errorUtils.js';
-import {arraysEqual} from './arrayUtils.js';
-import {objectsEqual} from './objectUtils.js';
-import {mapsEqual} from './mapUtils.js';
-import {setsEqual} from './setUtils.js';
+import {UnreachableError} from './error.js';
+import {arraysEqual} from './array.js';
+import {objectsEqual} from './object.js';
+import {mapsEqual} from './map.js';
+import {setsEqual} from './set.js';
 
 // This is NOT a comprehensive `deepEqual`,
 // but I don't want to take on the bulk

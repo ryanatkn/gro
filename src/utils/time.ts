@@ -1,9 +1,10 @@
-import {round} from './mathUtils.js';
+import {round} from './math.js';
 
 export interface Stopwatch {
 	(reset?: boolean): number;
 }
 
+// tracks elapsed time in milliseconds
 export const createStopwatch = (decimals = 2): Stopwatch => {
 	let start = process.hrtime.bigint();
 	return (reset = false) => {

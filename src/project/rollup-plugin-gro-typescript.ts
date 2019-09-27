@@ -4,11 +4,11 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta, gray, red} from '../colors/terminal.js';
-import {createStopwatch} from '../utils/timeUtils.js';
-import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils.js';
+import {createStopwatch} from '../utils/time.js';
+import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/log.js';
 import {toRootPath} from '../paths.js';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 // TODO parallelize with workers?
 

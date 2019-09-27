@@ -1,7 +1,7 @@
 import {green} from '../colors/terminal.js';
-import {LogLevel, logger, fmtVal} from '../utils/logUtils.js';
+import {LogLevel, logger, fmtVal} from '../utils/log.js';
 import {toRootPath} from '../paths.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 export interface CssBuild {
 	id: string;

@@ -6,11 +6,11 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta, yellow, gray, red} from '../colors/terminal.js';
-import {getPathStem, replaceExt} from '../utils/pathUtils.js';
-import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/logUtils.js';
+import {getPathStem, replaceExt} from '../utils/path.js';
+import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/log.js';
 import {toRootPath} from '../paths.js';
 import {GroCssBuild} from './types.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190

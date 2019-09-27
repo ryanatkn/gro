@@ -2,9 +2,9 @@ import * as fp from 'path';
 const {sep, join} = fp; // TODO esm
 
 import {gray} from './colors/terminal.js';
-import {replaceExt} from './utils/pathUtils.js';
-import {logger, LogLevel} from './utils/logUtils.js';
-import {stripStart} from './utils/stringUtils.js';
+import {replaceExt} from './utils/path.js';
+import {logger, LogLevel} from './utils/log.js';
+import {stripStart} from './utils/string.js';
 
 /*
 

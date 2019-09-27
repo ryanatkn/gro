@@ -10,9 +10,9 @@ import commonjsPlugin from 'rollup-plugin-commonjs';
 import * as fp from 'path';
 
 import {magenta, rainbow} from '../colors/terminal.js';
-import {logger, LogLevel, Logger} from '../utils/logUtils.js';
+import {logger, LogLevel, Logger} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
-import {deindent} from '../utils/stringUtils.js';
+import {deindent} from '../utils/string.js';
 import {plainCssPlugin} from './rollup-plugin-plain-css.js';
 import {outputCssPlugin} from './rollup-plugin-output-css.js';
 import {createCssCache} from './cssCache.js';
@@ -22,7 +22,7 @@ import {groTypescriptPlugin} from './rollup-plugin-gro-typescript.js';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import {GroCssBuild} from './types.js';
 import {sveltePreprocessTypescript} from './svelte-preprocess-typescript.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
 	dev: boolean;

@@ -2,7 +2,7 @@
 ':'; //# comment; exec /usr/bin/env node --experimental-modules "$0" "$@"
 
 // handle uncaught errors
-import {attachProcessErrorHandlers} from '../utils/processUtils.js';
+import {attachProcessErrorHandlers} from '../utils/process.js';
 attachProcessErrorHandlers();
 
 // install source maps
@@ -24,7 +24,7 @@ import {fileURLToPath} from 'url';
 import {InitialOptions as InitialDevActionOptions} from '../tasks/dev.js';
 import {InitialOptions as InitialBuildActionOptions} from '../tasks/build.js';
 import {InitialOptions as InitialServeActionOptions} from '../tasks/serve.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
 // and `package.json` is above it at the repo root,

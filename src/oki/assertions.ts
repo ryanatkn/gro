@@ -1,5 +1,5 @@
 import {deepEqual} from '../utils/deepEqual.js';
-import {ErrorClass} from '../utils/errorUtils.js';
+import {ErrorClass} from '../utils/error.js';
 
 // TODO typescript 3.7 `asserts` ?
 

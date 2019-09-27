@@ -1,6 +1,6 @@
 import {red, yellow} from '../colors/terminal.js';
-import {logger, LogLevel} from './logUtils.js';
-import {truncate} from './stringUtils.js';
+import {logger, LogLevel} from './log.js';
+import {truncate} from './string.js';
 
 export const attachProcessErrorHandlers = () => {
 	process

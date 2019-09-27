@@ -4,9 +4,9 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta, gray} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/logUtils.js';
+import {logger, LogLevel} from '../utils/log.js';
 import {toRootPath} from '../paths.js';
-import {omitUndefined} from '../utils/objectUtils.js';
+import {omitUndefined} from '../utils/object.js';
 
 // TODO speed up with workers
 // TODO this runs twice with build but not watch
