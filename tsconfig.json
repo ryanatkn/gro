@@ -1,6 +1,6 @@
 {
   "include": ["src/**/*"],
-  "exclude": ["node_modules/*"],
+  "exclude": [],
   // "files": [], // A list of relative or absolute file paths to include.
   // "extends": "", // A string containing a path to another configuration file to inherit from.
   // "references": [], // An array of objects `{"path": "./to/dirOrConfig"}` that specifies projects to reference.
@@ -55,9 +55,9 @@
     "resolveJsonModule": true, // Include modules imported with '.json' extension.
 
     // Emit options
-    // "declaration": false, // Generates corresponding '.d.ts' file.
+    "declaration": true, // Generates corresponding '.d.ts' file.
     // "declarationDir": "./", // Output directory for generated declaration files.
-    // "declarationMap": false, // Generates a sourcemap for each corresponding '.d.ts' file.
+    "declarationMap": true, // Generates a sourcemap for each corresponding '.d.ts' file.
     // "emitBOM": false, // Emit a UTF-8 Byte Order Mark (BOM) in the beginning of output files.
     // "emitDeclarationOnly": false, // Only emit ‘.d.ts’ declaration files.
     // "importHelpers": false, // Import emit helpers from 'tslib'.

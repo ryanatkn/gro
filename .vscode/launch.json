@@ -6,9 +6,10 @@
       "type": "node",
       "request": "launch",
       "name": "test",
-      "program": "${workspaceFolder}/build/bin/gro.js",
+      "program": "${workspaceFolder}/dist/bin/gro.js",
       "args": ["test"],
-      "outFiles": ["${workspaceRoot}/build/**/*.js"], // enables breakpoints in TS source
+      "runtimeArgs": ["--experimental-modules"],
+      "outFiles": ["${workspaceRoot}/dist/**/*.js"], // enables breakpoints in TS source
       "env": {
         // "NODE_ENV": "production"
         "NODE_ENV": "development"

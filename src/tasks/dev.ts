@@ -13,10 +13,12 @@ export type RequiredOptions =
 	| buildAction.RequiredOptions
 	| serveAction.RequiredOptions;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+const DEFAULT_SERVE_DIR = 'dist/';
 export const initOptions = (opts: InitialOptions): Options => {
 	// TODO types are a mess
 	const options = {
 		watch: true,
+		dir: DEFAULT_SERVE_DIR,
 		...omitUndefined(opts),
 	};
 	return buildAction.initOptions(serveAction.initOptions(

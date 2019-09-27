@@ -2,13 +2,13 @@ import * as fp from 'path';
 const {sep, join} = fp; // TODO esm
 
 import {gray} from './colors/terminal.js';
-import {resolvePath, replaceExt} from './utils/pathUtils.js';
+import {replaceExt} from './utils/pathUtils.js';
 import {logger, LogLevel} from './utils/logUtils.js';
 import {stripStart} from './utils/stringUtils.js';
 
 /*
 
-A path `id` is an absolute path to the build or source directory.
+A path `id` is an absolute path to the source/build/dist directory.
 It's the same nomenclature that Rollup uses.
 
 A `basePath` is the format used by `CheapWatch`.
@@ -26,17 +26,20 @@ const {info} = logger(LogLevel.Info, [gray('[paths]')]); // TODO log level from 
 // TODO pass these to `createPaths` and override from gro config
 export const SOURCE_DIR = 'src' + sep;
 export const BUILD_DIR = 'build' + sep;
+export const DIST_DIR = 'dist' + sep;
 
 export const RELATIVE_DIR_START = '.' + sep;
 
 const createPaths = () => {
-	const root = resolvePath('./') + sep;
+	const root = process.cwd() + sep;
 	const source = join(root, SOURCE_DIR);
 	const build = join(root, BUILD_DIR);
+	const dist = join(root, DIST_DIR);
 	return {
 		root,
 		source,
 		build,
+		dist,
 	};
 };
 
@@ -46,13 +49,14 @@ info(paths);
 export const isId = (id: string): boolean => id.startsWith(paths.root);
 export const isSourceId = (id: string): boolean => id.startsWith(paths.source);
 export const isBuildId = (id: string): boolean => id.startsWith(paths.build);
+export const isDistId = (id: string): boolean => id.startsWith(paths.dist);
 
 export const toRootPath = (id: string): string => stripStart(id, paths.root);
 
 // '/home/me/app/build/foo/bar/baz.js' -> 'foo/bar/baz.js'
 // '/home/me/app/src/foo/bar/baz.ts' -> 'foo/bar/baz.ts'
 export const toBasePath = (id: string): string =>
-	stripStart(stripStart(id, paths.build), paths.source);
+	stripStart(stripStart(stripStart(id, paths.build), paths.source), paths.dist);
 
 // '/home/me/app/build/foo/bar/baz.js' -> 'src/foo/bar/baz.ts'
 export const toSourcePath = (id: string): string =>
@@ -64,7 +68,17 @@ export const toSourcePath = (id: string): string =>
 export const toBuildPath = (id: string): string =>
 	isBuildId(id)
 		? stripStart(id, paths.root)
-		: toBuildExt(join(BUILD_DIR, toBasePath(id)));
+		: isDistId(id)
+		? join(BUILD_DIR, toBasePath(id))
+		: toCompiledExt(join(BUILD_DIR, toBasePath(id)));
+
+// '/home/me/app/src/foo/bar/baz.ts' -> 'dist/foo/bar/baz.js'
+export const toDistPath = (id: string): string =>
+	isDistId(id)
+		? stripStart(id, paths.root)
+		: isBuildId(id)
+		? join(DIST_DIR, toBasePath(id))
+		: toCompiledExt(join(DIST_DIR, toBasePath(id)));
 
 // '/home/me/app/build/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
 export const toSourceId = (id: string): string =>
@@ -74,6 +88,10 @@ export const toSourceId = (id: string): string =>
 export const toBuildId = (id: string): string =>
 	isBuildId(id) ? id : join(paths.root, toBuildPath(id));
 
+// '/home/me/app/src/foo/bar/baz.ts' -> '/home/me/app/dist/foo/bar/baz.js'
+export const toDistId = (id: string): string =>
+	isDistId(id) ? id : join(paths.root, toDistPath(id));
+
 // 'foo/bar/baz.ts' -> '/home/me/app/build/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string): string =>
 	join(paths.source, basePath);
@@ -82,6 +100,10 @@ export const basePathToSourceId = (basePath: string): string =>
 export const basePathToBuildId = (basePath: string): string =>
 	join(paths.build, basePath);
 
+// 'foo/bar/baz.js' -> '/home/me/app/dist/foo/bar/baz.js'
+export const basePathToDistId = (basePath: string): string =>
+	join(paths.dist, basePath);
+
 // converts various path types to an absolute id,
 // inferring build/source directory if needed
 export const normalizeToId = (rawPath: string): string => {
@@ -89,7 +111,11 @@ export const normalizeToId = (rawPath: string): string => {
 		return rawPath;
 	}
 	let path = stripStart(rawPath, RELATIVE_DIR_START);
-	if (path.startsWith(BUILD_DIR) || path.startsWith(SOURCE_DIR)) {
+	if (
+		path.startsWith(SOURCE_DIR) ||
+		path.startsWith(BUILD_DIR) ||
+		path.startsWith(DIST_DIR)
+	) {
 		return join(paths.root, path);
 	}
 	// is a base path, so we need to use heuristics
@@ -98,8 +124,8 @@ export const normalizeToId = (rawPath: string): string => {
 		// inferred to be a basePath off SOURCE_DIR
 		return basePathToSourceId(path);
 	} else {
-		// inferred to be basePath off BUILD_DIR
-		return basePathToBuildId(path);
+		// inferred to be basePath off DIST_DIR
+		return basePathToDistId(path);
 	}
 };
 
@@ -112,9 +138,10 @@ export const hasSourceExt = (path: string): boolean =>
 	SOURCE_EXTS.some(ext => path.endsWith(ext));
 
 export const toSourceExt = (path: string): string =>
-	path.endsWith(JS_EXT) ? replaceExt(path, TS_EXT) : path; // TODO? how does this work with `.svelte`?
+	path.endsWith(JS_EXT) ? replaceExt(path, TS_EXT) : path; // TODO? how does this work with `.svelte`? do we need more metadata?
 
-export const toBuildExt = (path: string): string =>
+// compiled includes both build and dist
+export const toCompiledExt = (path: string): string =>
 	hasSourceExt(path) ? replaceExt(path, JS_EXT) : path;
 
 // Designed for the `cheap-watch` API. See notes above.

@@ -4,7 +4,7 @@
   "description": "opinionated tools for web development",
   "type": "module",
   "bin": {
-    "gro": "build/bin/gro.js"
+    "gro": "./dist/bin/gro.js"
   },
   "license": "MIT",
   "homepage": "https://github.com/ryanatkn/gro#readme",
@@ -12,7 +12,9 @@
     "build": "tsc",
     "dev": "tsc -w",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf build"
+    "clean": "rm -rf ./build/ ./dist/",
+    "dist": "rm -rf ./dist/ && cp -r ./build/ ./dist/",
+    "rebuild": "npm run clean && npm run build && npm run dist && npm link"
   },
   "repository": {
     "type": "git",

@@ -5,6 +5,21 @@ import {omitUndefined} from '../utils/objectUtils.js';
 import {assertionsThatThrow, AssertionsThatThrow} from './assertions.js';
 import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/timeUtils.js';
+import {createGlobalRef} from '../globals.js';
+
+const currentTestContext = createGlobalRef<TestContext>('currentTestContext');
+
+export const test = (
+	message: string,
+	cb: TestInstanceCallback,
+): TestInstance => {
+	if (!currentTestContext.exists()) {
+		throw Error(
+			`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,
+		);
+	}
+	return currentTestContext.get().test(message, cb);
+};
 
 export type TestInstanceContext = AssertionsThatThrow & {
 	log: Logger;
@@ -214,19 +229,14 @@ export abstract class TestContext<
 	}
 
 	private onRunStart(): void {
-		if (TestContext.currentTestContext !== undefined) {
-			throw Error(
-				`A static currentTestContext has already been set. Are multiple TestContexts running in parallel, or was one not cleaned up?`,
-			);
-		}
-		TestContext.currentTestContext = this; // track this `TestContext` instance so `test` knows how to register
+		currentTestContext.set(this); // track this `TestContext` instance so `test` knows how to register
 		this.report.reportIntro(this);
 		this.timings.start(TOTAL_TIMING);
 	}
 	private onRunEnd(): void {
 		this.timings.stop(TOTAL_TIMING);
 		this.report.reportSummary(this);
-		TestContext.currentTestContext = undefined;
+		currentTestContext.delete(this);
 	}
 	private onFileBegin(fileId: string): void {
 		this.report.reportFileBegin(this, fileId);
@@ -245,19 +255,8 @@ export abstract class TestContext<
 
 	// These are used to assiciate module-level `test(...)` calls in test files
 	// with their importing TestContext and file id.
-	static currentTestContext: TestContext | undefined;
 	currentFileId: string | undefined;
 	currentTestInstance: TestInstance | undefined;
-
-	static test(message: string, cb: TestInstanceCallback): TestInstance {
-		const {currentTestContext} = TestContext;
-		if (!currentTestContext) {
-			throw Error(
-				`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,
-			);
-		}
-		return currentTestContext.test(message, cb);
-	}
 
 	// This function registers (but doesn't run) a test instance.
 	// It may be called when a module is imported, (no `parent`)
@@ -300,8 +299,6 @@ export abstract class TestContext<
 		this.currentFileId = undefined;
 	}
 }
-
-export const test = TestContext.test;
 
 const createTestStats = (tests: TestInstance[]): TestStats => {
 	let passCount = 0;

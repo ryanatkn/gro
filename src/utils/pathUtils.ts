@@ -1,11 +1,5 @@
-import fs from 'fs-extra';
 import * as fp from 'path';
-const {resolve, extname, basename, sep} = fp; // TODO esm
-
-export const cwd = fs.realpathSync(process.cwd()) + sep;
-
-export const resolvePath = (relativePath: string): string =>
-	resolve(cwd, relativePath);
+const {extname, basename} = fp; // TODO esm
 
 export const replaceExt = (path: string, ext: string): string => {
 	const extension = extname(path);
