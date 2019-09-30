@@ -17,5 +17,5 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
 
-	await clean();
+	await clean({logLevel});
 };
