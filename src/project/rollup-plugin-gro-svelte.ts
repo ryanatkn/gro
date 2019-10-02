@@ -5,9 +5,10 @@ import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
 import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
-import {magenta, yellow, gray, red} from '../colors/terminal.js';
+import {magenta, yellow, red} from '../colors/terminal.js';
 import {getPathStem, replaceExt} from '../utils/path.js';
-import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/log.js';
+import {LogLevel, logger, Logger} from '../utils/log.js';
+import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
 import {toRootPath} from '../paths.js';
 import {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
@@ -122,14 +123,14 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		getCompilation,
 		async transform(code, id) {
 			if (!filter(id)) return null;
-			trace('transform', gray(toRootPath(id)));
+			trace('transform', fmtPath(id));
 
 			let preprocessedCode = code;
 
 			// TODO see rollup-plugin-svelte for how to track deps
 			// let dependencies = [];
 			if (preprocessor) {
-				trace('preprocess', gray(toRootPath(id)));
+				trace('preprocess', fmtPath(id));
 				const preprocessed = await svelte.preprocess(code, preprocessor, {
 					filename: id,
 				});
@@ -137,7 +138,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 				// dependencies = preprocessed.dependencies;
 			}
 
-			trace('compile', gray(toRootPath(id)));
+			trace('compile', fmtPath(id));
 			let svelteCompilation: SvelteCompilation;
 			try {
 				svelteCompilation = svelte.compile(preprocessedCode, {
@@ -148,7 +149,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 					name: getPathStem(id),
 				});
 			} catch (err) {
-				error(red('Failed to compile Svelte'), gray(toRootPath(id)));
+				error(red('Failed to compile Svelte'), fmtPath(id));
 				throw err;
 			}
 			const {js, css, warnings, stats} = svelteCompilation;
@@ -160,7 +161,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			onstats(id, stats, handleStats, this, log);
 
 			let cssId = replaceExt(id, '.css');
-			trace('add css import', gray(toRootPath(cssId)));
+			trace('add css import', fmtPath(cssId));
 			addCssBuild({
 				id: cssId,
 				sourceId: id,

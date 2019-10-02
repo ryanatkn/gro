@@ -1,9 +1,10 @@
 import fs from 'fs-extra';
 
-import {paths, toRootPath} from '../paths.js';
+import {paths} from '../paths.js';
 import {LogLevel, logger} from '../utils/log.js';
-import {magenta, gray} from '../colors/terminal.js';
+import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
+import {fmtPath} from '../utils/fmt.js';
 
 export interface Options {
 	logLevel: LogLevel;
@@ -22,11 +23,11 @@ export const clean = async (opts: InitialOptions = {}) => {
 	const {info} = log;
 
 	if (fs.existsSync(paths.build)) {
-		info('emptying', gray(toRootPath(paths.build)));
+		info('emptying', fmtPath(paths.build));
 		await fs.emptyDir(paths.build);
 	}
 	if (fs.existsSync(paths.dist)) {
-		info('emptying', gray(toRootPath(paths.dist)));
+		info('emptying', fmtPath(paths.dist));
 		await fs.emptyDir(paths.dist);
 	}
 };

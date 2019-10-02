@@ -2,9 +2,9 @@ import {Plugin} from 'rollup';
 import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter, dataToEsm} = rollupPluginutils; // TODO esm
 
-import {magenta, gray} from '../colors/terminal.js';
+import {magenta} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/log.js';
-import {toRootPath} from '../paths.js';
+import {fmtPath} from '../utils/fmt.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO support parsing from a string (faster than parsing JS)
@@ -55,7 +55,7 @@ export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
 		async transform(code, id) {
 			if (!filter(id)) return null;
 
-			trace('transform json', gray(toRootPath(id)));
+			trace('transform json', fmtPath(id));
 
 			return {
 				code: dataToEsm(JSON.parse(code), {

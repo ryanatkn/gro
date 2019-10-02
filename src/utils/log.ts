@@ -1,15 +1,5 @@
 import {noop} from '../utils/function.js';
-import {round} from '../utils/math.js';
-import {
-	red,
-	yellow,
-	gray,
-	black,
-	bgYellow,
-	bgRed,
-	white,
-	green,
-} from '../colors/terminal.js';
+import {red, yellow, gray, black, bgYellow, bgRed} from '../colors/terminal.js';
 
 export type Log = (...args: any[]) => void;
 
@@ -86,25 +76,3 @@ export const logger = (
 };
 
 export const logNewline = () => console.log('\n');
-
-export const fmtVal = (key: string, val: string | number): string =>
-	gray(`${key}(`) + val + gray(')');
-
-export const fmtMs = (ms: number, decimals = 1): string => {
-	return white(round(ms, decimals).toFixed(decimals)) + gray('ms');
-};
-
-export const fmtCauses = (solutions: string[]): string => {
-	return '\n	Possible causes:' + solutions.map(s => `\n		• ${s}`).join('');
-};
-
-export const fmtStr = (s: string): string => green(`'${s}'`);
-
-export const fmtValue = (value: unknown): unknown => {
-	switch (typeof value) {
-		case 'string':
-			return fmtStr(value);
-		default:
-			return value;
-	}
-};

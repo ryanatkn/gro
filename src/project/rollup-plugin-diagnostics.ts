@@ -1,9 +1,9 @@
 import {Plugin} from 'rollup';
 
 import {gray} from '../colors/terminal.js';
-import {LogLevel, logger, fmtVal, fmtMs} from '../utils/log.js';
+import {LogLevel, logger} from '../utils/log.js';
+import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
-import {toRootPath} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
@@ -50,7 +50,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 		},
 		// intro() {}
 		load(id) {
-			trace(tag('load'), gray(toRootPath(id)));
+			trace(tag('load'), fmtPath(id));
 			return null;
 		},
 		options(_o) {
@@ -67,7 +67,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 				tag('renderChunk'),
 				chunk.name,
 				chunk.fileName,
-				chunk.facadeModuleId && gray(toRootPath(chunk.facadeModuleId)),
+				chunk.facadeModuleId && fmtPath(chunk.facadeModuleId),
 			);
 			return null;
 		},
@@ -81,7 +81,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 			trace(
 				tag('resolveId'),
 				gray(importee),
-				(importer && gray('<- ' + toRootPath(importer))) || '',
+				(importer && '<- ' + fmtPath(importer)) || '',
 			);
 			return null;
 		},
@@ -89,7 +89,7 @@ export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
 		transform(code, id) {
 			trace(
 				tag('transform'),
-				gray(toRootPath(id)),
+				fmtPath(id),
 				fmtVal('len', (code && code.length) || 0),
 			);
 			return null;

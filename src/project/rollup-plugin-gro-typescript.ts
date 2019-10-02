@@ -3,9 +3,10 @@ import {Plugin, PluginContext} from 'rollup';
 import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
-import {magenta, gray, red} from '../colors/terminal.js';
+import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
-import {LogLevel, logger, fmtVal, fmtMs, Logger} from '../utils/log.js';
+import {LogLevel, logger, Logger} from '../utils/log.js';
+import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
 import {toRootPath} from '../paths.js';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
@@ -73,7 +74,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 
 			const stopwatch = createStopwatch();
 
-			trace('transpile', gray(toRootPath(id)));
+			trace('transpile', fmtPath(id));
 			let transpileOutput: ts.TranspileOutput;
 			try {
 				transpileOutput = ts.transpileModule(code, {
@@ -84,7 +85,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 					// renamedDependencies?: Map<string>;
 				});
 			} catch (err) {
-				error(red('Failed to transpile TypeScript'), gray(toRootPath(id)));
+				error(red('Failed to transpile TypeScript'), fmtPath(id));
 				throw err;
 			}
 			const {outputText, sourceMapText, diagnostics} = transpileOutput;

@@ -1,6 +1,6 @@
 import {green} from '../colors/terminal.js';
-import {LogLevel, logger, fmtVal} from '../utils/log.js';
-import {toRootPath} from '../paths.js';
+import {LogLevel, logger} from '../utils/log.js';
+import {fmtVal, fmtPath} from '../utils/fmt.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface CssBuild {
@@ -61,7 +61,7 @@ export const createCssCache = <T extends CssBuild = CssBuild>(
 				bundles.set(bundleName, bundle);
 			}
 
-			info(fmtVal('caching', toRootPath(id)), fmtVal('bundle', bundleName));
+			info(fmtVal('caching', fmtPath(id)), fmtVal('bundle', bundleName));
 			bundle.buildsById.set(id, build);
 			bundle.changedIds.add(id);
 

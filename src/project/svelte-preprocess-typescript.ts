@@ -1,10 +1,10 @@
 import ts from 'typescript';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 
-import {magenta, gray, red} from '../colors/terminal.js';
+import {magenta, red} from '../colors/terminal.js';
 import {LogLevel, logger, Logger} from '../utils/log.js';
 import {loadTsconfig} from './tsHelpers.js';
-import {toRootPath} from '../paths.js';
+import {fmtPath} from '../utils/fmt.js';
 import {omitUndefined} from '../utils/object.js';
 
 /*
@@ -44,7 +44,7 @@ export const sveltePreprocessTypescript = (
 	return {
 		script({content, attributes, filename}) {
 			if (!langs.includes(attributes.lang as any)) return null as any; // type is wrong
-			info('transpiling', gray(toRootPath(filename || '')));
+			info('transpiling', fmtPath(filename || ''));
 			const transpileOptions: ts.TranspileOptions = {
 				compilerOptions: tsconfig.compilerOptions,
 				fileName: filename,
@@ -57,10 +57,7 @@ export const sveltePreprocessTypescript = (
 			try {
 				transpileOutput = ts.transpileModule(content, transpileOptions);
 			} catch (err) {
-				error(
-					red('Failed to transpile TypeScript'),
-					gray(toRootPath(filename || '')),
-				);
+				error(red('Failed to transpile TypeScript'), fmtPath(filename || ''));
 				throw err;
 			}
 			// TODO sourcemap - does Svelte need to add support for preprocessor sourcemaps?

@@ -18,7 +18,8 @@ import {
 	GenResult,
 	GEN_FILE_PATTERN,
 } from '../gen/gen.js';
-import {paths, toRootPath} from '../paths.js';
+import {paths} from '../paths.js';
+import {fmtPath} from '../utils/fmt.js';
 
 export interface Options {
 	logLevel: LogLevel;
@@ -63,7 +64,7 @@ export const gen = async (opts: InitialOptions = {}) => {
 	const genCtx: GenContext = {};
 	for (const [path, stats] of watcher.paths) {
 		if (stats.isDirectory()) continue;
-		info('gen', gray(toRootPath(path)));
+		info('gen', fmtPath(path));
 		const buildId = fp.join(dir, path);
 		const mod: GenModule = await import(buildId);
 		const rawGenResult = await mod.gen(genCtx);
@@ -83,9 +84,9 @@ const writeGenResult = async (
 		files.map(file => {
 			info(
 				'writing',
-				gray(toRootPath(file.id)),
+				fmtPath(file.id),
 				'generated from',
-				gray(toRootPath(originFileId)),
+				fmtPath(originFileId),
 			);
 			return fs.writeFile(file.id, file.contents, 'utf8');
 		}),

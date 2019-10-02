@@ -2,7 +2,7 @@ import {green} from '../colors/terminal.js';
 import {LogLevel, logger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
 import {FileData} from './fileData.js';
-import {toRootPath} from '../paths.js';
+import {fmtPath} from '../utils/fmt.js';
 
 export interface FileCache {
 	readonly byId: Map<string, FileData>;
@@ -32,11 +32,11 @@ export const createFileCache = (opts: InitialOptions = {}): FileCache => {
 		byId,
 		get: id => byId.get(id),
 		set: file => {
-			info('set', green(toRootPath(file.id)));
+			info('set', fmtPath(file.id));
 			byId.set(file.id, file);
 		},
 		update: (id, partial): FileData => {
-			info('update', green(toRootPath(id)), partial);
+			info('update', fmtPath(id), partial);
 			const current = byId.get(id);
 			if (!current) {
 				throw Error(`Cannot update fileCache with unknown id: ${id}`);

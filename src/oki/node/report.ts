@@ -8,7 +8,8 @@ import {
 	cyan,
 } from '../../colors/terminal.js';
 import {TestContext, TOTAL_TIMING, TestInstance} from '../TestContext.js';
-import {logNewline, fmtMs, fmtValue, fmtStr} from '../../utils/log.js';
+import {logNewline} from '../../utils/log.js';
+import {fmtMs, fmtValue, fmtStr} from '../../utils/fmt.js';
 import {toSourcePath} from '../../paths.js';
 import {
 	AssertionError,
