@@ -20,14 +20,18 @@ and I have starry-eyed plans for cool features that may never materialize.
 I don't encourage anyone to use `gro`, because there are
 many mature tools with large communities solving similar problems.
 
-I want a web dev tool that:
+I want a web dev monotool that:
 
+- makes me happy
 - solves my particular problems with my opinionated solutions
+- meets my current definitions of _simple_, _fast_, and _smooth_ (low friction)
 - has batteries included but minimal dependencies
 - hides complexity but exposes it when needed
 - works for many use cases like static sites, SPAs, webapp servers, etc
 - provides solutions for things like auth, data fetching and storage, etc
-- explores ideas like AOT compilation, codegen, data-driven development, etc
+- explores ideas like AOT compilation, codegen, data-driven development, etc,
+  pushing complexity towards the tool and away from the runtime and dev
+- helps me create and maintain great web things that prioritize UX
 
 ## usage
 
