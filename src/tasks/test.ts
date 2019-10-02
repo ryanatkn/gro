@@ -5,7 +5,7 @@ import {blue, magenta} from '../colors/terminal.js';
 import {NodeTestContext} from '../oki/node/NodeTestContext.js';
 import {logger, LogLevel} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
-import {toPathParts, normalizeToId, toBasePath, toBuildId} from '../paths.js';
+import {toPathParts, toInferredId, toBasePath, toBuildId} from '../paths.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;
@@ -34,7 +34,7 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	const {_: rawPaths, dir, watch} = options;
 
 	const basePaths = rawPaths.map(path =>
-		toBasePath(toBuildId(normalizeToId(path))),
+		toBasePath(toBuildId(toInferredId(path))),
 	);
 	checkPaths(dir, basePaths);
 

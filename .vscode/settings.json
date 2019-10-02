@@ -5,8 +5,10 @@
     "**/.DS_Store": true
   },
   "files.watcherExclude": {
-    "**/.git/**": true,
-    "**/node_modules/**": true
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
   },
   "search.exclude": {
     "**/node_modules": true

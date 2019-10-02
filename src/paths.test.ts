@@ -3,7 +3,7 @@ const {resolve} = fp; // TODO esm
 
 import {test} from './oki/index.js';
 import {
-	normalizeToId,
+	toInferredId,
 	toRootPath,
 	toBasePath,
 	basePathToSourceId,
@@ -196,95 +196,86 @@ test('basePathToDistId()', t => {
 	});
 });
 
-test('normalizeToId()', t => {
+test('toInferredId()', t => {
 	test('basePath with ts extension', () => {
-		t.is(normalizeToId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
+		t.is(toInferredId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 	});
 	test('basePath with js extension', () => {
-		t.is(normalizeToId('foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
+		t.is(toInferredId('foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
 	});
 	test('relative basePath with ts extension', () => {
-		t.is(normalizeToId('./foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
+		t.is(toInferredId('./foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 	});
 	test('relative basePath with js extension', () => {
-		t.is(normalizeToId('./foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
+		t.is(toInferredId('./foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
 	});
 
 	test('sourcePath', () => {
-		t.is(normalizeToId('src/foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
+		t.is(toInferredId('src/foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 	});
 	test('relative sourcePath', () => {
-		t.is(normalizeToId('./src/foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
+		t.is(toInferredId('./src/foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 	});
 	test('sourcePath with js extension', () => {
-		t.is(normalizeToId('src/foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
+		t.is(toInferredId('src/foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
 	});
 
 	test('buildPath', () => {
-		t.is(
-			normalizeToId('build/foo/bar/baz.js'),
-			resolve('build/foo/bar/baz.js'),
-		);
+		t.is(toInferredId('build/foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
 	});
 	test('relative buildPath', () => {
 		t.is(
-			normalizeToId('./build/foo/bar/baz.js'),
+			toInferredId('./build/foo/bar/baz.js'),
 			resolve('build/foo/bar/baz.js'),
 		);
 	});
 	test('buildPath with ts extension', () => {
-		t.is(
-			normalizeToId('build/foo/bar/baz.ts'),
-			resolve('build/foo/bar/baz.ts'),
-		);
+		t.is(toInferredId('build/foo/bar/baz.ts'), resolve('build/foo/bar/baz.ts'));
 	});
 
 	test('distPath', () => {
-		t.is(normalizeToId('dist/foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
+		t.is(toInferredId('dist/foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
 	});
 	test('relative distPath', () => {
-		t.is(
-			normalizeToId('./dist/foo/bar/baz.js'),
-			resolve('dist/foo/bar/baz.js'),
-		);
+		t.is(toInferredId('./dist/foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
 	});
 	test('distPath with ts extension', () => {
-		t.is(normalizeToId('dist/foo/bar/baz.ts'), resolve('dist/foo/bar/baz.ts'));
+		t.is(toInferredId('dist/foo/bar/baz.ts'), resolve('dist/foo/bar/baz.ts'));
 	});
 
 	test('sourceId', () => {
 		t.is(
-			normalizeToId(resolve('src/foo/bar/baz.ts')),
+			toInferredId(resolve('src/foo/bar/baz.ts')),
 			resolve('src/foo/bar/baz.ts'),
 		);
 	});
 	test('sourceId with js extension', () => {
 		t.is(
-			normalizeToId(resolve('src/foo/bar/baz.js')),
+			toInferredId(resolve('src/foo/bar/baz.js')),
 			resolve('src/foo/bar/baz.js'),
 		);
 	});
 	test('buildId', () => {
 		t.is(
-			normalizeToId(resolve('build/foo/bar/baz.js')),
+			toInferredId(resolve('build/foo/bar/baz.js')),
 			resolve('build/foo/bar/baz.js'),
 		);
 	});
 	test('buildId with ts extension', () => {
 		t.is(
-			normalizeToId(resolve('build/foo/bar/baz.ts')),
+			toInferredId(resolve('build/foo/bar/baz.ts')),
 			resolve('build/foo/bar/baz.ts'),
 		);
 	});
 	test('distId', () => {
 		t.is(
-			normalizeToId(resolve('dist/foo/bar/baz.js')),
+			toInferredId(resolve('dist/foo/bar/baz.js')),
 			resolve('dist/foo/bar/baz.js'),
 		);
 	});
 	test('distId with ts extension', () => {
 		t.is(
-			normalizeToId(resolve('dist/foo/bar/baz.ts')),
+			toInferredId(resolve('dist/foo/bar/baz.ts')),
 			resolve('dist/foo/bar/baz.ts'),
 		);
 	});

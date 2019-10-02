@@ -24,6 +24,9 @@ import {fileURLToPath} from 'url';
 import {InitialOptions as InitialDevActionOptions} from '../tasks/dev.js';
 import {InitialOptions as InitialBuildActionOptions} from '../tasks/build.js';
 import {InitialOptions as InitialServeActionOptions} from '../tasks/serve.js';
+import {InitialOptions as InitialTestActionOptions} from '../tasks/test.js';
+import {InitialOptions as InitialCleanActionOptions} from '../tasks/clean.js';
+import {InitialOptions as InitialGenActionOptions} from '../tasks/gen.js';
 import {omitUndefined} from '../utils/object.js';
 
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
@@ -81,6 +84,18 @@ sade('gro')
 		await action.run(options);
 	})
 
+	.command('gen')
+	.describe('Run code generation scripts')
+	.option('-P, --production', 'Set NODE_ENV to production')
+	.action(async (opts: any) => {
+		if (opts.production) env.NODE_ENV = 'production';
+		const action = await import('../tasks/gen.js');
+		const options: InitialGenActionOptions = {
+			...opts,
+		};
+		await action.run(options);
+	})
+
 	.command('serve')
 	.describe('Start development server')
 	.option('-d, --dir', 'Directory for the app source') // TODO probably change this to be the `_` params
@@ -104,7 +119,7 @@ sade('gro')
 	.option('-w, --watch', 'Watch for changes and re-run tests')
 	.action(async (opts: any) => {
 		const action = await import('../tasks/test.js');
-		const options: InitialBuildActionOptions = {
+		const options: InitialTestActionOptions = {
 			...opts,
 		};
 		await action.run(options);
@@ -114,7 +129,7 @@ sade('gro')
 	.describe('Remove build and temp files')
 	.action(async (opts: any) => {
 		const action = await import('../tasks/clean.js');
-		const options: InitialBuildActionOptions = {
+		const options: InitialCleanActionOptions = {
 			...opts,
 		};
 		await action.run(options);

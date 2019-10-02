@@ -1,13 +1,21 @@
+// TODO looks like Edge is the only reason this is needed -
+// eventually remove and replace usage with `globalThis`.
+// Doesn't look for `global` because we expect the Node environment to work
+const globalRoot: {
+	gro: Map<any, any>;
+} = (typeof globalThis !== 'undefined'
+	? globalThis
+	: typeof self !== 'undefined'
+	? self
+	: window) as any;
+
 // Cache a global map so we get the same instance
 // regardless of any duplicate module imports.
 // This was motivated by the global test registration
 // process that broke when `gro` self-tested,
 // using the `dist` directory for the test runner context
 // and `build` directory for the imported tests.
-declare module globalThis {
-	export let gro: Map<any, any>;
-}
-export const gro = globalThis.gro || (globalThis.gro = new Map());
+export const gro = globalRoot.gro || (globalRoot.gro = new Map());
 
 export interface GlobalRef<T> {
 	exists(): boolean;

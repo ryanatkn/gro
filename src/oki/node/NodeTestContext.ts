@@ -1,5 +1,4 @@
 import CheapWatch from 'cheap-watch';
-import fs from 'fs-extra';
 
 import {gray} from '../../colors/terminal.js';
 import {
@@ -11,19 +10,25 @@ import {
 import * as report from './report.js';
 import {toFileData, FileStats} from '../../project/fileData.js';
 import {basePathToBuildId} from '../../paths.js';
+import {
+	DEBOUNCE_DEFAULT,
+	CheapWatchPathAddedEvent,
+	CheapWatchPathRemovedEvent,
+} from '../../project/watch.js';
+
+export const DEFAULT_TEST_FILE_MATCHER = /.+\.test\.js$/;
 
 // TODO probably rewrite this to implement a `TestHost` and change classes to pojos
-
 export interface Options extends TestContextOptions {
-	filter(p: {path: string; stats: FileStats}): boolean;
+	filter(p: {path: string; stats: FileStats}): boolean; // TODO should filter be on the `TestContext`?
 	debounce: number;
 }
 export type RequiredOptions = TestContextRequiredOptions;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	filter: ({path, stats}) =>
-		stats.isDirectory() ? true : path.endsWith('.test.js'),
-	debounce: 10,
+		stats.isDirectory() || DEFAULT_TEST_FILE_MATCHER.test(path),
+	debounce: DEBOUNCE_DEFAULT,
 	...initTestContextOptions(opts),
 });
 
@@ -58,14 +63,12 @@ export class NodeTestContext extends TestContext<Options, InitialOptions> {
 	};
 
 	async start() {
-		const {
-			watcher,
-			files,
-			options: {filter},
-		} = this;
+		const {watcher, files} = this;
 		await watcher.init();
 		for (const [path, stats] of watcher.paths) {
-			if (!stats.isDirectory() && filter({path, stats})) {
+			// TODO need to filter if CheapWatch usage changes to include all files
+			// && filter({path, stats})
+			if (!stats.isDirectory()) {
 				files.set(toFileData(basePathToBuildId(path), stats));
 			}
 		}
@@ -74,15 +77,4 @@ export class NodeTestContext extends TestContext<Options, InitialOptions> {
 	async stop() {
 		this.watcher.close();
 	}
-}
-
-interface CheapWatchPathAddedEvent {
-	path: string;
-	stats: fs.Stats;
-	isNew: boolean;
-}
-
-interface CheapWatchPathRemovedEvent {
-	path: string;
-	stats: fs.Stats;
 }

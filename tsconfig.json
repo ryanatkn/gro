@@ -60,7 +60,7 @@
     "declarationMap": true, // Generates a sourcemap for each corresponding '.d.ts' file.
     // "emitBOM": false, // Emit a UTF-8 Byte Order Mark (BOM) in the beginning of output files.
     // "emitDeclarationOnly": false, // Only emit ‘.d.ts’ declaration files.
-    // "importHelpers": false, // Import emit helpers from 'tslib'.
+    "importHelpers": true, // Import emit helpers from 'tslib'.
     // "newLine": "LF", // Use the specified end of line sequence to be used when emitting files: "crlf" (windows) or "lf" (unix).”
     // "noEmit": true, // Do not emit outputs.
     // "noEmitHelpers": false, // Do not generate custom helper functions like __extends in compiled output.

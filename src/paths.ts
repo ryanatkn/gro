@@ -106,7 +106,7 @@ export const basePathToDistId = (basePath: string): string =>
 
 // converts various path types to an absolute id,
 // inferring build/source directory if needed
-export const normalizeToId = (rawPath: string): string => {
+export const toInferredId = (rawPath: string): string => {
 	if (rawPath.startsWith(paths.root)) {
 		return rawPath;
 	}
@@ -124,8 +124,8 @@ export const normalizeToId = (rawPath: string): string => {
 		// inferred to be a basePath off SOURCE_DIR
 		return basePathToSourceId(path);
 	} else {
-		// inferred to be basePath off DIST_DIR
-		return basePathToDistId(path);
+		// inferred to be basePath off BUILD_DIR
+		return basePathToBuildId(path);
 	}
 };
 
