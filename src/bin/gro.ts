@@ -27,6 +27,7 @@ import {InitialOptions as InitialServeActionOptions} from '../tasks/serve.js';
 import {InitialOptions as InitialTestActionOptions} from '../tasks/test.js';
 import {InitialOptions as InitialCleanActionOptions} from '../tasks/clean.js';
 import {InitialOptions as InitialGenActionOptions} from '../tasks/gen.js';
+import {InitialOptions as InitialAssetsActionOptions} from '../tasks/assets.js';
 import {omitUndefined} from '../utils/object.js';
 
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
@@ -91,6 +92,18 @@ sade('gro')
 		if (opts.production) env.NODE_ENV = 'production';
 		const action = await import('../tasks/gen.js');
 		const options: InitialGenActionOptions = {
+			...opts,
+		};
+		await action.run(options);
+	})
+
+	.command('assets')
+	.describe('Copy assets to dist')
+	.option('-P, --production', 'Set NODE_ENV to production')
+	.action(async (opts: any) => {
+		if (opts.production) env.NODE_ENV = 'production';
+		const action = await import('../tasks/assets.js');
+		const options: InitialAssetsActionOptions = {
 			...opts,
 		};
 		await action.run(options);
