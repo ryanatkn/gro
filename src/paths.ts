@@ -24,9 +24,13 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 const {info} = logger(LogLevel.Info, [gray('[paths]')]); // TODO log level from env var? param?
 
 // TODO pass these to `createPaths` and override from gro config
-export const SOURCE_DIR = 'src' + sep;
-export const BUILD_DIR = 'build' + sep;
-export const DIST_DIR = 'dist' + sep;
+// TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
+export const SOURCE_DIR_NAME = 'src';
+export const BUILD_DIR_NAME = 'build';
+export const DIST_DIR_NAME = 'dist';
+export const SOURCE_DIR = SOURCE_DIR_NAME + sep;
+export const BUILD_DIR = BUILD_DIR_NAME + sep;
+export const DIST_DIR = DIST_DIR_NAME + sep;
 
 export const RELATIVE_DIR_START = '.' + sep;
 

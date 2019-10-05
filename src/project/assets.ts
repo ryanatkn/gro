@@ -1,5 +1,4 @@
 import fs from 'fs-extra';
-import * as fp from 'path';
 import CheapWatch from 'cheap-watch';
 
 import {LogLevel, logger, Logger} from '../utils/log.js';
@@ -11,14 +10,21 @@ import {
 	CheapWatchPathRemovedEvent,
 	DEBOUNCE_DEFAULT,
 } from './watch.js';
-import {paths, toDistId} from '../paths.js';
+import {
+	paths,
+	toDistId,
+	SOURCE_DIR_NAME,
+	BUILD_DIR_NAME,
+	SOURCE_DIR,
+	BUILD_DIR,
+} from '../paths.js';
 import {fmtPath} from '../utils/fmt.js';
 
 // TODO needs major refactoring
 // - how does it work with the build process instead of as a standalone script?
 // - how should imported assets be handled?
 
-export const ASSET_FILE_MATCHER = /.+\.(jpg|png)/;
+export const ASSET_FILE_MATCHER = /\.(jpg|png|html)$/;
 
 export interface Options {
 	logLevel: LogLevel;
@@ -37,11 +43,22 @@ export const assets = async (opts: InitialOptions = {}) => {
 	const {info, trace} = log;
 
 	// TODO refactor to use the same file & watch solution as  `NodeTestContext` and `project/gen.ts`
-	const dir = paths.source;
+	const dir = paths.root;
 	const filter: (p: {path: string; stats: FileStats}) => boolean = ({
 		path,
 		stats,
-	}) => stats.isDirectory() || ASSET_FILE_MATCHER.test(path);
+	}) => {
+		// TODO maybe make regexps for these?
+		const shouldWatch = stats.isDirectory()
+			? path.startsWith(SOURCE_DIR) ||
+			  path.startsWith(BUILD_DIR) ||
+			  path === SOURCE_DIR_NAME ||
+			  path === BUILD_DIR_NAME
+			: ASSET_FILE_MATCHER.test(path) &&
+			  (path.startsWith(SOURCE_DIR) || path.startsWith(BUILD_DIR));
+		trace('watch path?', path, shouldWatch);
+		return shouldWatch;
+	};
 	const watch = false;
 	const debounce = DEBOUNCE_DEFAULT;
 	const watcher = new CheapWatch({dir, filter, watch, debounce});
@@ -60,19 +77,16 @@ export const assets = async (opts: InitialOptions = {}) => {
 	const promises = [];
 	for (const [path, stats] of watcher.paths) {
 		if (stats.isDirectory()) continue;
-		const sourceId = fp.join(dir, path);
-		promises.push(copyAssetToDist(sourceId, log));
+		const id = dir + path;
+		promises.push(copyAssetToDist(id, log));
 	}
 	await Promise.all(promises);
 
 	info('assets copied!');
 };
 
-const copyAssetToDist = async (
-	sourceId: string,
-	{info}: Logger,
-): Promise<void> => {
-	const distId = toDistId(sourceId);
-	info('copying asset', fmtPath(sourceId), 'to', fmtPath(distId));
-	return fs.copy(sourceId, distId);
+const copyAssetToDist = async (id: string, {info}: Logger): Promise<void> => {
+	const distId = toDistId(id);
+	info('copying asset', fmtPath(id), 'to', fmtPath(distId));
+	return fs.copy(id, distId);
 };
