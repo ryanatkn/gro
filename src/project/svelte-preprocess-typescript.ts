@@ -10,7 +10,7 @@ import {omitUndefined} from '../utils/object.js';
 /*
 
 This preprocessor transpiles the script portion of Svelte files
-if the script tag has a `lang="ts"` attribute.
+if the script tag has a `lang="typescript"` attribute.
 No typechecking is performed - that's left for a separate build step.
 
 */
@@ -23,7 +23,7 @@ export interface Options {
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	langs: ['ts'],
+	langs: ['typescript'],
 	tsconfigPath: undefined,
 	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
