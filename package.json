@@ -9,8 +9,8 @@
   "license": "MIT",
   "homepage": "https://github.com/ryanatkn/gro#readme",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w",
+    "ts-build": "tsc",
+    "ts-watch": "tsc -w",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf ./build/ ./dist/",
     "dist": "rm -rf ./dist/ && cp -r ./build/ ./dist/",
