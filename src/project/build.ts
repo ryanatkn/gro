@@ -110,6 +110,9 @@ const createInputOptions = (
 				addCssBuild,
 				logLevel,
 				preprocessor: [sveltePreprocessTypescript({logLevel})],
+				compileOptions: {
+					immutable: true,
+				},
 			}),
 			groTypescriptPlugin({logLevel}),
 			plainCssPlugin({addCssBuild, logLevel}),
