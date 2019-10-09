@@ -24,21 +24,23 @@ import {fmtPath} from '../utils/fmt.js';
 // - how does it work with the build process instead of as a standalone script?
 // - how should imported assets be handled?
 
-export const ASSET_FILE_MATCHER = /\.(jpg|png|html)$/;
+export const DEFAULT_ASSET_MATCHER = /\.(jpg|png|ico|html)$/;
 
 export interface Options {
+	isAsset: (path: string) => boolean;
 	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
+	isAsset: path => DEFAULT_ASSET_MATCHER.test(path),
 	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
 export const assets = async (opts: InitialOptions = {}) => {
 	const options = initOptions(opts);
-	const {logLevel} = options;
+	const {isAsset, logLevel} = options;
 	const log = logger(logLevel, [magenta('[assets]')]);
 	const {info, trace} = log;
 
@@ -54,7 +56,7 @@ export const assets = async (opts: InitialOptions = {}) => {
 			  path.startsWith(BUILD_DIR) ||
 			  path === SOURCE_DIR_NAME ||
 			  path === BUILD_DIR_NAME
-			: ASSET_FILE_MATCHER.test(path) &&
+			: isAsset(path) &&
 			  (path.startsWith(SOURCE_DIR) || path.startsWith(BUILD_DIR));
 		trace('watch path?', path, shouldWatch);
 		return shouldWatch;
