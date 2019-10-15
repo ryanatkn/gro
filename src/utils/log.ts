@@ -75,4 +75,5 @@ export const logger = (
 	};
 };
 
+// TODO make this log.newLine. and make logger a class. and make console.log a param
 export const logNewline = () => console.log('\n');

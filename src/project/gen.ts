@@ -38,7 +38,7 @@ export const gen = async (opts: InitialOptions = {}) => {
 	const log = logger(logLevel, [magenta('[gen]')]);
 	const {info, trace} = log;
 
-	// TODO refactor to use the same file & watch solution as  `NodeTestContext`
+	// TODO refactor to use the same file & watch solution as  `NodeTestContext` and `project/assets.ts`
 	const dir = paths.build;
 	const filter: (p: {path: string; stats: FileStats}) => boolean = ({
 		path,

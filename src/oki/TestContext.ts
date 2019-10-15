@@ -110,6 +110,8 @@ export abstract class TestContext<
 	readonly tests: TestInstance[] = []; // flat array of tests in call order - fast alternative to traversing `testsByFileId`
 
 	stats: TestStats | undefined;
+	// TODO probably pass this in as an option
+	// what if we have a thing that's like a FileSelection, taking in Files and a filter, and caching to maps? or maybe just use a set of ids?
 	readonly files = createFileCache();
 	readonly timings = new Timings();
 
