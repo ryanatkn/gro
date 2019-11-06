@@ -1,17 +1,17 @@
 import {blue, magenta} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/log.js';
-import * as buildAction from './build.js';
-import * as serveAction from './serve.js';
+import * as buildTask from './build.js';
+import * as serveTask from './serve.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO LogLevel from env vars and cli args
 const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('dev')}]`)]);
 const {info} = log;
 
-export type Options = buildAction.Options & serveAction.Options;
+export type Options = buildTask.Options & serveTask.Options;
 export type RequiredOptions =
-	| buildAction.RequiredOptions
-	| serveAction.RequiredOptions;
+	| buildTask.RequiredOptions
+	| serveTask.RequiredOptions;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_SERVE_DIR = 'dist/';
 export const initOptions = (opts: InitialOptions): Options => {
@@ -21,7 +21,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		dir: DEFAULT_SERVE_DIR,
 		...omitUndefined(opts),
 	};
-	return buildAction.initOptions(serveAction.initOptions(
+	return buildTask.initOptions(serveTask.initOptions(
 		options,
 	) as Options) as Options;
 };
@@ -30,7 +30,7 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
 
-	await Promise.all([buildAction.run(options), serveAction.run(options)]);
+	await Promise.all([buildTask.run(options), serveTask.run(options)]);
 
 	// ...
 };

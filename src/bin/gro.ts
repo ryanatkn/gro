@@ -21,13 +21,13 @@ import fs from 'fs-extra';
 import * as fp from 'path';
 import {fileURLToPath} from 'url';
 
-import {InitialOptions as InitialDevActionOptions} from '../tasks/dev.js';
-import {InitialOptions as InitialBuildActionOptions} from '../tasks/build.js';
-import {InitialOptions as InitialServeActionOptions} from '../tasks/serve.js';
-import {InitialOptions as InitialTestActionOptions} from '../tasks/test.js';
-import {InitialOptions as InitialCleanActionOptions} from '../tasks/clean.js';
-import {InitialOptions as InitialGenActionOptions} from '../tasks/gen.js';
-import {InitialOptions as InitialAssetsActionOptions} from '../tasks/assets.js';
+import {InitialOptions as InitialDevTaskOptions} from '../tasks/dev.js';
+import {InitialOptions as InitialBuildTaskOptions} from '../tasks/build.js';
+import {InitialOptions as InitialServeTaskOptions} from '../tasks/serve.js';
+import {InitialOptions as InitialTestTaskOptions} from '../tasks/test.js';
+import {InitialOptions as InitialCleanTaskOptions} from '../tasks/clean.js';
+import {InitialOptions as InitialGenTaskOptions} from '../tasks/gen.js';
+import {InitialOptions as InitialAssetsTaskOptions} from '../tasks/assets.js';
 import {omitUndefined} from '../utils/object.js';
 
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
@@ -61,7 +61,7 @@ sade('gro')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
 		const action = await import('../tasks/dev.js');
-		const options: InitialDevActionOptions = {
+		const options: InitialDevTaskOptions = {
 			...omitUndefined({
 				host: env.HOST,
 				port: env.PORT,
@@ -79,7 +79,7 @@ sade('gro')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
 		const action = await import('../tasks/build.js');
-		const options: InitialBuildActionOptions = {
+		const options: InitialBuildTaskOptions = {
 			...opts,
 		};
 		await action.run(options);
@@ -91,7 +91,7 @@ sade('gro')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
 		const action = await import('../tasks/gen.js');
-		const options: InitialGenActionOptions = {
+		const options: InitialGenTaskOptions = {
 			...opts,
 		};
 		await action.run(options);
@@ -103,7 +103,7 @@ sade('gro')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
 		const action = await import('../tasks/assets.js');
-		const options: InitialAssetsActionOptions = {
+		const options: InitialAssetsTaskOptions = {
 			...opts,
 		};
 		await action.run(options);
@@ -116,7 +116,7 @@ sade('gro')
 	.option('-p, --port', 'Port number for the server')
 	.action(async (opts: any) => {
 		const action = await import('../tasks/serve.js');
-		const options: InitialServeActionOptions = {
+		const options: InitialServeTaskOptions = {
 			...omitUndefined({
 				host: env.HOST,
 				port: env.PORT,
@@ -132,7 +132,7 @@ sade('gro')
 	.option('-w, --watch', 'Watch for changes and re-run tests')
 	.action(async (opts: any) => {
 		const action = await import('../tasks/test.js');
-		const options: InitialTestActionOptions = {
+		const options: InitialTestTaskOptions = {
 			...opts,
 		};
 		await action.run(options);
@@ -142,7 +142,7 @@ sade('gro')
 	.describe('Remove build and temp files')
 	.action(async (opts: any) => {
 		const action = await import('../tasks/clean.js');
-		const options: InitialCleanActionOptions = {
+		const options: InitialCleanTaskOptions = {
 			...opts,
 		};
 		await action.run(options);
