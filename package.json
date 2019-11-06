@@ -50,7 +50,7 @@
     "prettier": "^1.18.2",
     "rollup": "^1.22.0",
     "svelte": "^3.12.1",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.2"
   },
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
@@ -61,7 +61,7 @@
     "prettier": "^1.18.2",
     "rollup": "^1.22.0",
     "svelte": "^3.12.1",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.2"
   },
   "prettier": {
     "useTabs": true,
