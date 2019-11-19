@@ -48,6 +48,7 @@ test('deepEqual()', t => {
 			new Map<string, any>([['a', 1], ['b', 2], ['c', [1, [2, 3]]]]),
 			new Map<string, any>([['c', [1, [2, 3]]], ['b', 2], ['a', 1]]),
 		],
+		['regexps', /a/, /a/],
 	];
 
 	equalValues.forEach(([message, a, b]) => {
@@ -120,6 +121,8 @@ test('!deepEqual()', t => {
 			new Map([['a', 1], ['b', 2], ['c', 3]]),
 			{a: 1, b: 2, c: 3},
 		],
+		['regexps with different sources', /a/, /b/],
+		['regexps with different flags', /a/, /a/g],
 	];
 
 	unequalValues.forEach(([message, a, b]) => {

@@ -3,6 +3,7 @@ import {arraysEqual} from './array.js';
 import {objectsEqual} from './object.js';
 import {mapsEqual} from './map.js';
 import {setsEqual} from './set.js';
+import {regexpsEqual} from './regexp.js';
 
 // This is NOT a comprehensive `deepEqual`,
 // but I don't want to take on the bulk
@@ -45,6 +46,10 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
 			if (a instanceof Map) {
 				if (!(b instanceof Map)) return false;
 				return mapsEqual(a, b);
+			}
+			if (a instanceof RegExp) {
+				if (!(b instanceof RegExp)) return false;
+				return regexpsEqual(a, b);
 			}
 
 			return objectsEqual(a as object, b as object);
