@@ -24,16 +24,16 @@ test('setsEqual', t => {
 	test('deep equal', () => {
 		t.ok(
 			setsEqual(
-				new Set(['a', 'b', [{a: 1, b: 2}]]),
-				new Set(['a', 'b', [{a: 1, b: 2}]]),
+				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 2])]),
+				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 2])]),
 			),
 		);
 	});
 	test('not deep equal', () => {
 		t.notOk(
 			setsEqual(
-				new Set(['a', 'b', [{a: 1, b: 2}]]),
-				new Set(['a', 'b', [{a: 1, b: 3}]]),
+				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 2])]),
+				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 3])]),
 			),
 		);
 	});

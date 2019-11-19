@@ -1,17 +1,18 @@
-import {arraysEqual} from './array.js';
+import {deepEqual} from './deepEqual.js';
 
-// TODO gives false negatives for values that don't compare with `>`
-// TODO speed this up? benchmark!
-export const setsEqual = (
-	a: Set<unknown>,
-	b: Set<unknown>,
-	comparator = compareSimpleValues,
-): boolean => {
+export const setsEqual = (a: Set<unknown>, b: Set<unknown>): boolean => {
 	if (a.size !== b.size) return false;
-	return arraysEqual(
-		Array.from(a.values()).sort(comparator),
-		Array.from(b.values()).sort(comparator),
-	);
+	let eq = false;
+	for (const aVal of a) {
+		if (b.has(aVal)) continue;
+		eq = false;
+		for (const bVal of b) {
+			if (deepEqual(aVal, bVal)) {
+				eq = true;
+				break;
+			}
+		}
+		if (!eq) return false;
+	}
+	return true;
 };
-
-const compareSimpleValues = (a: any, b: any) => (a > b ? 1 : -1);
