@@ -59,6 +59,7 @@ tech:
 
 > :rainbow::sparkles: did you know? `emoji` can be punctuation :snail: neat huh
 
-## license
+## license :bird:
 
-[MIT](license)
+[ISC](license)
+<sub>permissive <3 [learn more at Wikipedia](https://en.wikipedia.org/wiki/ISC_license)</sub>

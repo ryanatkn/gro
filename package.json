@@ -6,7 +6,7 @@
   "bin": {
     "gro": "./dist/bin/gro.js"
   },
-  "license": "MIT",
+  "license": "ISC",
   "homepage": "https://github.com/ryanatkn/gro#readme",
   "scripts": {
     "ts-build": "tsc",
