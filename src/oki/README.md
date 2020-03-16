@@ -32,12 +32,7 @@ test('something', t => {
 	t.ok('basic assertion');
 	t.is(NaN, NaN);
 	t.equal({deep: ['equality']}, {deep: ['equality']});
-
-	let nested_tests_run_after_parent_scope;
-	test('nested', () => {
-		t.ok(nested_tests_run_after_parent_scope);
-	});
-	nested_tests_run_after_parent_scope = true;
+	// for more, see the assertions api docs below
 
 	test('execution order', () => {
 		test('1', () => {
@@ -53,6 +48,13 @@ test('something', t => {
 	test('can return a promise', async () => {
 		await promise;
 	});
+
+	let nested_tests_run_after_parent_scope;
+	test('nested', () => {
+		t.ok(nested_tests_run_after_parent_scope);
+	});
+	nested_tests_run_after_parent_scope = true;
+	// TODO do we want to change this behavior? what are all of the tradeoffs?
 });
 ```
 
@@ -60,7 +62,7 @@ test('something', t => {
 
 ```ts
 import {test} from 'oki';
-test('api', (t: {
+test('assertions api', (t: {
 	ok(value: any); // truthy
 	notOk(value: any); // falsy
 	is(actual: any, expected: any); // Object.is
