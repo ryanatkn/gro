@@ -2,10 +2,6 @@
 
 > opinionated tools for web development
 
-```ts
-// work in progress
-```
-
 ## motivation
 
 `gro` is an opinionated monotool for making webapps.
