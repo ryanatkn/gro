@@ -12,8 +12,8 @@
 It includes:
 
 - a dev server
-- a testing library called `oki` - [src/oki/README.md](src/oki/README.md)
-- codegen by convention called `gen` - [src/gen/README.md](src/gen/README.md)
+- a testing library called `oki` - [src/oki/README.md](src/oki)
+- codegen by convention called `gen` - [src/gen/README.md](src/gen)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
 - bundling via [Rollup](https://github.com/rollup/rollup)
 - formatting via [Prettier](https://github.com/prettier/prettier)
@@ -46,13 +46,13 @@ gro dev # builds in watch mode and starts a dev server
 gro build # build once, defaulting to NODE_ENV=development
 ```
 
-Testing with `oki` - [src/oki/README.md](src/oki/README.md)
+Testing with `oki` - [src/oki/README.md](src/oki)
 
 ```bash
 gro test # run all tests for `*.test.*` files
 ```
 
-Codegen with `gen` - [src/gen/README.md](src/gen/README.md)
+Codegen with `gen` - [src/gen/README.md](src/gen)
 
 ```bash
 gro gen # runs codegen for all `*.gen.*` files
@@ -72,8 +72,8 @@ gro clean # remove all build artifacts
 
 ## docs
 
-- [`oki`](src/oki/README.md) testing library
-- [`gen`](src/gen/README.md) code generation
+- [`oki`](src/oki) testing library
+- [`gen`](src/gen) code generation
 - other [docs](src/docs)
   - [options](src/docs/options.md)
 
