@@ -31,10 +31,13 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	b: null,
 	...omitUndefined(opts),
 });
+
+// use in a plain function
 export const createThing = (opts: InitialOptions) => {
 	const options = initOptions(opts);
-	// ...
 };
+
+// use in a class
 export class Thing {
 	readonly options: Options; // optionally store the reference
 	constructor(opts: InitialOptions) {
