@@ -4,10 +4,14 @@
 
 ## motivation
 
-`oki` is a foundational part of the larger set of `gro` tools.
-I plan to deeply integrate it with build tooling
-and experiment with stuff like code generation.
+`oki` is a foundational part of the larger set of
+[`gro`](https://github.com/ryanatkn/gro) tools.
+The plan is to deeply integrate it with build tooling.
 I don't encourage anyone to use it but you're welcome to try!
+
+The `oki` modules are used by the command `gro test`.
+By convention, `gro test` looks for all files named `*.test.ts`
+and executes them inside an `oki` context.
 
 ## todo
 
