@@ -1,6 +1,6 @@
 # gen
 
-> code generation for `gro`
+> automated codegen by convention for `gro`
 
 ## motivation
 
