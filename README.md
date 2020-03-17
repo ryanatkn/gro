@@ -27,7 +27,7 @@ there are many mature tools with large communities solving similar problems.
 If you're interested in an even deeper take on these problems,
 see [Rome](https://github.com/facebookexperimental/rome).
 Unlike Rome, `gro` does not provide its own parser, compiler, formatter, etc —
-instead it uses existing industry-standard libraries
+instead `gro` uses existing industry-standard libraries
 that have few or zero dependencies
 and it focuses on exploring territory like codegen, AOT compilation,
 and [model-driven development](https://en.wikipedia.org/wiki/Model-driven_engineering).
