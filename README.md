@@ -12,8 +12,8 @@
 It includes:
 
 - a dev server
-- a testing library called `oki` - [src/oki](src/oki)
-- codegen by convention called `gen` - [src/gen](src/gen)
+- a testing library called `oki` - [`src/oki`](src/oki)
+- codegen by convention called `gen` - [`src/gen`](src/gen)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
 - bundling via [Rollup](https://github.com/rollup/rollup)
 - formatting via [Prettier](https://github.com/prettier/prettier)
@@ -46,13 +46,13 @@ gro dev # builds in watch mode and starts a dev server
 gro build # build once, defaulting to NODE_ENV=development
 ```
 
-Testing with `oki` - [src/oki](src/oki)
+Testing with `oki` - [`src/oki`](src/oki)
 
 ```bash
 gro test # run all tests for `*.test.*` files
 ```
 
-Codegen with `gen` - [src/gen](src/gen)
+Codegen with `gen` - [`src/gen`](src/gen)
 
 ```bash
 gro gen # runs codegen for all `*.gen.*` files
