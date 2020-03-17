@@ -5,7 +5,7 @@
 
 ## motivation
 
-`oki` is a foundational part of the larger set of
+`oki` is a testing library that's a foundational part of the larger set of
 [`gro`](https://github.com/ryanatkn/gro) tools.
 The plan is to deeply integrate it with build tooling.
 I don't encourage anyone to use it but you're welcome to try!
