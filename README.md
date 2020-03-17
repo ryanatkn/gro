@@ -49,7 +49,7 @@ gro build # build once, defaulting to NODE_ENV=development
 Testing with `oki` (docs at [`src/oki`](src/oki))
 
 ```bash
-gro test # run all tests for `*.test.*` files
+gro test # run all tests for `*.test.ts` files
 ```
 
 Codegen with `gen` (docs at [`src/gen`](src/gen))
