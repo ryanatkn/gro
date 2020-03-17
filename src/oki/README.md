@@ -1,6 +1,7 @@
 # oki
 
-> testing library
+> testing library for
+> [`gro`](https://github.com/ryanatkn/gro)
 
 ## motivation
 
