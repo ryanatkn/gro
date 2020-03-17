@@ -4,9 +4,13 @@ Options to a function or constructor are an incredibly common pattern,
 but their defaults and types are hard to get right.
 Every pattern has tradeoffs of complexity and consistency.
 
+For cases where all options are required, this documentation does not apply.
+If you need partials and defaults, below are the codebase's conventions.
+
 `gro` uses a simple consistent pattern that has one major (and weird) caveat:
-**if an option may be `undefined`, it must default to `undefined`**.
-Any values that are `undefined` are omitted when the options are initialized.
+**if an option can be `undefined`, it must default to `undefined`**.
+All values that are `undefined` are omitted when the options are initialized
+through use of the conventional `omitUndefined` helper.
 
 This is slightly unfortunate, but it's a side-effect of the way
 TypeScript makes optional properties, like those in `Partial<Options>`,
@@ -18,17 +22,26 @@ The best workaround is probably `null`.
 Example:
 
 ```ts
+import {omitUndefined} from '../utils/object.js';
+
 export interface Options {
 	a: boolean;
 	b: string | null;
+	c: number | undefined;
 }
-export type RequiredOptions = 'a';
+export type RequiredOptions = 'a'; // 'a' | 'otherRequiredOptionName'
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	// Required properties should not be included here,
 	// because their values will always be overwritten.
-	// a: true, // <--- don't include! is misleading
+	// a: true,
+
 	b: null,
+
+	// Because `c` can be `undefined`, it must default to `undefined`!
+	// See the notes above for more.
+	c: undefined,
+
 	...omitUndefined(opts),
 });
 
