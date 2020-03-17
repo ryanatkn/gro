@@ -15,7 +15,7 @@ It includes:
 - a testing library called `oki` - [src/oki/README.md](src/oki/README.md)
 - codegen by convention called `gen` - [src/gen/README.md](src/gen/README.md)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
-- bundling via [Rollup](github.com/rollup/rollup)
+- bundling via [Rollup](https://github.com/rollup/rollup)
 - formatting via [Prettier](https://github.com/prettier/prettier)
 - integrated UI development with
   [Svelte](https://github.com/sveltejs/svelte)
