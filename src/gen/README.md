@@ -1,6 +1,7 @@
 # gen
 
-> automated codegen by convention for `gro`
+> automated codegen by convention for
+> [`gro`](https://github.com/ryanatkn/gro)
 
 ## motivation
 
