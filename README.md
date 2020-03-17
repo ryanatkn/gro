@@ -8,41 +8,72 @@
 
 ## motivation
 
-I'm making `gro` to learn and explore while building some webapps.
-Its scope is huge - it's an unabashed monotool,
-so if an app I'm making needs something reusable
-that doesn't obviously deserve its own repo,
-`gro` eats it up.
-I'm also feeding a bad case of the NIHs
-so it's got stacks of reinvented wheels, some with a twist,
-and I have starry-eyed plans for cool features that may never materialize.
+`gro` is an opinionated monotool for making webapps.
+It includes:
 
-I don't encourage anyone to use `gro`, because there are
-many mature tools with large communities solving similar problems.
+- a dev server
+- a testing library called oki - <src/oki/README.md>
+- codegen by convention called gen - <src/gen/README.md>
+- fully integrated [TypeScript](https://github.com/microsoft/typescript)
+- bundling via [Rollup](github.com/rollup/rollup)
+- formatting via [Prettier](https://github.com/prettier/prettier)
+- integrated UI development with
+  [Svelte](https://github.com/sveltejs/svelte)
+- more to come, exploring what deeply integrated tools enable
+  in the realms of developer power and ergonomics and end user experience
 
-I want a web dev monotool that:
-
-- makes me happy
-- solves my particular problems with my opinionated solutions
-- meets my current definitions of _simple_, _fast_, and _smooth_ (low friction)
-- has batteries included but minimal dependencies
-- hides complexity but exposes it when needed
-- works for many use cases like static sites, SPAs, webapp servers, etc
-- provides solutions for things like auth, data fetching and storage, etc
-- explores ideas like AOT compilation, codegen, data-driven development, etc,
-  pushing complexity towards the tool and away from the runtime and dev
-- helps me create and maintain great web things that prioritize UX
+You should probably not use `gro` today —
+there are many mature tools with large communities solving similar problems.
+If you're interested in an even deeper take on these problems,
+see [Rome](https://github.com/facebookexperimental/rome).
+Unlike Rome, `gro` does not provide its own parser, compiler, formatter, etc —
+instead it uses existing industry-standard libraries
+that have few or zero dependencies
+and it focuses on exploring territory like codegen, AOT compilation,
+and [model-driven development](https://en.wikipedia.org/wiki/Model-driven_engineering).
 
 ## usage
 
 ```bash
-gro --help
-gro dev
+gro --help # outputs info with all commands
 ```
 
-## contents
+```bash
+gro dev # builds in watch mode and starts a dev server
+```
 
-- [oki](src/oki/README.md) testing library
+```bash
+gro build # build once, defaulting to NODE_ENV=development
+```
+
+Testing with `oki` - <src/oki/README.md>
+
+```bash
+gro test # run all tests for `*.test.*` files
+```
+
+Codegen with `gen` - <src/gen/README.md>
+
+```bash
+gro gen # runs codegen for all `*.gen.*` files
+```
+
+```bash
+gro serve # staticly serves the current directory (or a configured one)
+```
+
+```bash
+gro assets # builds static assets (TODO integrate with `gro dev`)
+```
+
+```bash
+gro clean # remove all build artifacts
+```
+
+## docs
+
+- [`oki`](src/oki/README.md) testing library
+- [`gen`](src/gen/README.md) code generation
 - other [docs](src/docs)
   - [options](src/docs/options.md)
 
