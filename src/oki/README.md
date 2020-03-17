@@ -26,7 +26,10 @@ and executes them inside an `oki` context.
 ## usage
 
 ```bash
-gro test # run all *.test.ts files
+# run all *.test.ts files
+gro test
+
+# run specific files
 gro test path/to/file.test.ts file2.test.ts
 ```
 
