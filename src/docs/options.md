@@ -4,8 +4,10 @@ Options to a function or constructor are an incredibly common pattern,
 but their defaults and types are hard to get right.
 Every pattern has tradeoffs of complexity and consistency.
 
-For cases where all options are required, this documentation does not apply.
-If you need partials and defaults, below are the codebase's conventions.
+For cases where all options are required,
+the options argument's type needs no special handling.
+However when you need partials and defaults,
+the codebase's conventions are documented below.
 
 `gro` uses a simple consistent pattern that has one major (and weird) caveat:
 **if an option can be `undefined`, it must default to `undefined`**.
