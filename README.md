@@ -7,8 +7,8 @@
 `gro` is an opinionated monotool for making webapps.
 It includes:
 
-- a dev server
-- a testing library called `oki` (docs at [`src/oki`](src/oki))
+- dev server
+- testing library called `oki` (docs at [`src/oki`](src/oki))
 - codegen by convention called `gen` (docs at [`src/gen`](src/gen))
 - task runner (TODO)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
