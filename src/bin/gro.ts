@@ -1,5 +1,5 @@
 #!/bin/sh
-':'; //# comment; exec /usr/bin/env node --experimental-modules "$0" "$@"
+':'; //# this is temporary code to use ESM in the CLI; exec /usr/bin/env node --experimental-modules "$0" "$@"
 
 // handle uncaught errors
 import {attachProcessErrorHandlers} from '../utils/process.js';
