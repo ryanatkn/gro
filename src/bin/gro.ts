@@ -12,8 +12,7 @@ sourceMapSupport.install({
 });
 
 // set up the env
-import {setupEnv} from '../env/env.js';
-setupEnv();
+if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
 const {env, argv} = process;
 
 import sade from 'sade';
