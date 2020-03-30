@@ -1,14 +1,14 @@
 # oki
 
 > testing library for
-> [`gro`](https://github.com/ryanatkn/gro)
+> [`gro`](https://github.com/feltcoop/gro)
 
 ## motivation
 
 `oki` is a testing library that's a foundational part of the larger set of
-[`gro`](https://github.com/ryanatkn/gro) tools.
+[`gro`](https://github.com/feltcoop/gro) tools.
 The plan is to deeply integrate it with build tooling.
-I don't encourage anyone to use it but you're welcome to try!
+We don't encourage anyone to use it but you're welcome to try!
 
 The `oki` modules are used by the command `gro test`.
 By convention, `gro test` looks for all files named `*.test.ts`

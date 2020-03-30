@@ -3,7 +3,7 @@ import {renderNoscriptSection, renderMetaTags} from '../html/index.js';
 
 export const gen: Gen = () => {
 	const title = 'gro';
-	const sourceCodeUrl = 'https://github.com/ryanatkn/gro';
+	const sourceCodeUrl = 'https://github.com/feltcoop/gro';
 	// TODO get the `sourceCodeUrl` from gen context param?
 	return `<!DOCTYPE html>
 <html lang="en">

@@ -1,5 +1,5 @@
 {
-  "name": "@ryanatkn/gro",
+  "name": "@feltcoop/gro",
   "version": "0.0.0",
   "description": "opinionated tools for web development",
   "type": "module",
@@ -7,7 +7,7 @@
     "gro": "./dist/bin/gro.js"
   },
   "license": "ISC",
-  "homepage": "https://github.com/ryanatkn/gro#readme",
+  "homepage": "https://github.com/feltcoop/gro#readme",
   "scripts": {
     "ts": "tsc -w",
     "ts:build": "tsc",
@@ -19,16 +19,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ryanatkn/gro.git"
+    "url": "git+https://github.com/feltcoop/gro.git"
   },
   "bugs": {
-    "url": "https://github.com/ryanatkn/gro/issues"
+    "url": "https://github.com/feltcoop/gro/issues"
   },
   "keywords": [],
   "author": {
-    "name": "Ryan Atkinson",
-    "email": "ryanatkn@gmail.com",
-    "url": "https://ryanatkn.com"
+    "name": "Felt.coop",
+    "email": "team@felt.social",
+    "url": "https://felt.social"
   },
   "engines": {
     "node": ">=12.16.0"
