@@ -61,7 +61,7 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 			}
 
 			return {
-				...minified,
+				...(minified as any), // TODO cast to any because of type mismatch caused by terser using source-map@0.6 - https://github.com/terser/terser/issues/385
 				code: minified.code, // this is weird, but without it `renderChunk` doesn't like the return value type, even with a `minified.code === undefined` check
 			};
 		},

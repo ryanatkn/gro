@@ -23,6 +23,7 @@ import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import {GroCssBuild} from './types.js';
 import {sveltePreprocessTypescript} from './svelte-preprocess-typescript.js';
 import {omitUndefined} from '../utils/object.js';
+import {UnreachableError} from '../utils/error.js';
 
 export interface Options {
 	dev: boolean;
@@ -303,14 +304,10 @@ const runRollupWatcher = async (
 					break;
 				case 'ERROR': // encountered an error while bundling
 					error('error', event);
-					reject(`Error: ${event.message}`);
-					break;
-				case 'FATAL': // encountered an unrecoverable error
-					error('fatal', event);
-					reject(`Fatal error: ${event.message}`);
+					reject(`Error: ${event.error.message}`);
 					break;
 				default:
-					throw Error(`Unknown rollup watch event code: ${event.code}`);
+					throw new UnreachableError(event);
 			}
 		});
 

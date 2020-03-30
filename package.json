@@ -35,33 +35,33 @@
   },
   "dependencies": {
     "cheap-watch": "^1.0.2",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.0.0",
     "kleur": "^3.0.3",
     "mime": "^2.4.4",
-    "rollup-plugin-commonjs": "^10.0.2",
+    "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-pluginutils": "^2.8.1",
-    "sade": "^1.6.1",
-    "source-map-support": "^0.5.13",
-    "sourcemap-codec": "^1.4.6",
-    "terser": "^4.2.1"
+    "rollup-pluginutils": "^2.8.2",
+    "sade": "^1.7.3",
+    "source-map-support": "^0.5.16",
+    "sourcemap-codec": "^1.4.8",
+    "terser": "^4.6.8"
   },
   "peerDependencies": {
-    "prettier": "^1.18.2",
-    "rollup": "^1.22.0",
-    "svelte": "^3.12.1",
-    "typescript": "^3.7.2"
+    "prettier": "^1.19.1",
+    "rollup": "^2.3.1",
+    "svelte": "^3.20.1",
+    "typescript": "^3.8.3"
   },
   "devDependencies": {
-    "@types/fs-extra": "^8.0.0",
+    "@types/fs-extra": "^8.1.0",
     "@types/mime": "^2.0.1",
-    "@types/node": "^12.7.2",
-    "@types/prettier": "^1.18.1",
-    "@types/source-map-support": "^0.5.0",
-    "prettier": "^1.18.2",
-    "rollup": "^1.22.0",
-    "svelte": "^3.12.1",
-    "typescript": "^3.7.2"
+    "@types/node": "^12.12.32",
+    "@types/prettier": "^1.19.1",
+    "@types/source-map-support": "^0.5.1",
+    "prettier": "^1.19.1",
+    "rollup": "^2.3.1",
+    "svelte": "^3.20.1",
+    "typescript": "^3.8.3"
   },
   "prettier": {
     "useTabs": true,
