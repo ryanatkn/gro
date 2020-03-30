@@ -7,10 +7,10 @@
 `gro` is an opinionated monotool for making webapps.
 It includes:
 
-- dev server
+- task runner (TODO)
 - testing library called `oki` (docs at [`src/oki`](src/oki))
 - codegen by convention called `gen` (docs at [`src/gen`](src/gen))
-- task runner (TODO)
+- dev server
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
 - bundling via [Rollup](https://github.com/rollup/rollup)
 - formatting via [Prettier](https://github.com/prettier/prettier)
