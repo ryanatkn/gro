@@ -1,4 +1,6 @@
-import rollup, {
+import {
+	rollup,
+	watch,
 	OutputOptions,
 	InputOptions,
 	RollupWatchOptions,
@@ -124,8 +126,10 @@ const createInputOptions = (
 			}),
 			resolvePlugin(),
 			commonjsPlugin(),
-			dev ? null : groTerserPlugin({logLevel, minifyOptions: {sourceMap: dev}}),
-		].filter(Boolean) as rollup.Plugin[], // TODO this type assertion didn't used to be needed, but after briefly looking I can't find when the type changed - including the filter just for correctness
+			...(dev
+				? []
+				: [groTerserPlugin({logLevel, minifyOptions: {sourceMap: dev}})]),
+		],
 
 		// — advanced input options
 		// cache,
@@ -234,7 +238,7 @@ const runRollupBuild = async (
 		const inputOptions = createInputOptions(inputFile, options, log);
 		const outputOptions = createOutputOptions(options, log);
 
-		const build = await rollup.rollup(inputOptions);
+		const build = await rollup(inputOptions);
 
 		const output = await build.generate(outputOptions);
 
@@ -290,7 +294,7 @@ const runRollupWatcher = async (
 			createWatchOptions(f, options, log),
 		);
 		// trace(('watchOptions'), watchOptions);
-		const watcher = rollup.watch(watchOptions);
+		const watcher = watch(watchOptions);
 
 		watcher.on('event', event => {
 			info(`rollup event: ${event.code}`);
