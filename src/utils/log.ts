@@ -23,10 +23,11 @@ export interface LoggerConfig {
 }
 
 export enum LogLevel {
-	Trace,
+	Trace = 1,
 	Info,
 	Warn,
 	Error,
+	Off,
 }
 
 export const logger = (
@@ -67,7 +68,7 @@ export const logger = (
 						['\n ', black(bgRed(' 🞩🞩 '))],
 				  )
 				: noop,
-		plain: log([], [], [], []),
+		plain: LogLevel.Trace >= level ? log([], [], [], []) : noop,
 		clone(configPartial?: Partial<LoggerConfig>): Logger {
 			const cfg: LoggerConfig = {...config, ...configPartial};
 			return logger(cfg.level, cfg.prefixes, cfg.suffixes);
