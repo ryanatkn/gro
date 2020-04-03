@@ -32,7 +32,7 @@ import {omitUndefined} from '../utils/object.js';
 export interface Options {
 	a: boolean;
 	b: string | null;
-	c: number | undefined;
+	c: number | undefined; // `undefined` needs special handling! see below
 }
 export type RequiredOptions = 'a'; // or `'a' | 'b'` or `never`
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
