@@ -9,7 +9,7 @@ import {omitUndefined} from '../utils/object.js';
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;
 
-const log = logger(logLevel, [blue(`[tasks/${magenta('build')}]`)]);
+const log = logger(logLevel, [blue(`[commands/${magenta('build')}]`)]);
 const {info, warn} = log;
 
 export interface Options {

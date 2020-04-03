@@ -20,14 +20,14 @@ import fs from 'fs-extra';
 import * as fp from 'path';
 import {fileURLToPath} from 'url';
 
-import {InitialOptions as InitialRunTaskOptions} from '../tasks/run.js';
-import {InitialOptions as InitialDevTaskOptions} from '../tasks/dev.js';
-import {InitialOptions as InitialBuildTaskOptions} from '../tasks/build.js';
-import {InitialOptions as InitialServeTaskOptions} from '../tasks/serve.js';
-import {InitialOptions as InitialTestTaskOptions} from '../tasks/test.js';
-import {InitialOptions as InitialCleanTaskOptions} from '../tasks/clean.js';
-import {InitialOptions as InitialGenTaskOptions} from '../tasks/gen.js';
-import {InitialOptions as InitialAssetsTaskOptions} from '../tasks/assets.js';
+import {InitialOptions as InitialRunTaskOptions} from '../commands/run.js';
+import {InitialOptions as InitialDevTaskOptions} from '../commands/dev.js';
+import {InitialOptions as InitialBuildTaskOptions} from '../commands/build.js';
+import {InitialOptions as InitialServeTaskOptions} from '../commands/serve.js';
+import {InitialOptions as InitialTestTaskOptions} from '../commands/test.js';
+import {InitialOptions as InitialCleanTaskOptions} from '../commands/clean.js';
+import {InitialOptions as InitialGenTaskOptions} from '../commands/gen.js';
+import {InitialOptions as InitialAssetsTaskOptions} from '../commands/assets.js';
 import {omitUndefined} from '../utils/object.js';
 
 // This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
@@ -39,7 +39,7 @@ const pkg = fs.readJsonSync(fp.join(__dirname, '../../package.json'));
 
 /*
 
-All actions are lazily required,
+All commands are lazily required,
 avoiding the typical loading/parsing/initializing of tons of unused JS.
 
 */
@@ -55,11 +55,11 @@ sade('gro')
 	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
-		const action = await import('../tasks/run.js');
+		const command = await import('../commands/run.js');
 		const options: InitialRunTaskOptions = {
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	.command('dev')
@@ -72,7 +72,7 @@ sade('gro')
 	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
-		const action = await import('../tasks/dev.js');
+		const command = await import('../commands/dev.js');
 		const options: InitialDevTaskOptions = {
 			...omitUndefined({
 				host: env.HOST,
@@ -80,7 +80,7 @@ sade('gro')
 			}),
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	.command('build')
@@ -90,11 +90,11 @@ sade('gro')
 	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
-		const action = await import('../tasks/build.js');
+		const command = await import('../commands/build.js');
 		const options: InitialBuildTaskOptions = {
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	.command('gen')
@@ -102,11 +102,11 @@ sade('gro')
 	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
-		const action = await import('../tasks/gen.js');
+		const command = await import('../commands/gen.js');
 		const options: InitialGenTaskOptions = {
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	.command('assets')
@@ -114,11 +114,11 @@ sade('gro')
 	.option('-P, --production', 'Set NODE_ENV to production')
 	.action(async (opts: any) => {
 		if (opts.production) env.NODE_ENV = 'production';
-		const action = await import('../tasks/assets.js');
+		const command = await import('../commands/assets.js');
 		const options: InitialAssetsTaskOptions = {
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	.command('serve')
@@ -127,7 +127,7 @@ sade('gro')
 	.option('-H, --host', 'Hostname for the server')
 	.option('-p, --port', 'Port number for the server')
 	.action(async (opts: any) => {
-		const action = await import('../tasks/serve.js');
+		const command = await import('../commands/serve.js');
 		const options: InitialServeTaskOptions = {
 			...omitUndefined({
 				host: env.HOST,
@@ -135,7 +135,7 @@ sade('gro')
 			}),
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	.command('test')
@@ -143,21 +143,21 @@ sade('gro')
 	.option('-d, --dir', 'Directory for the app source')
 	.option('-w, --watch', 'Watch for changes and re-run tests')
 	.action(async (opts: any) => {
-		const action = await import('../tasks/test.js');
+		const command = await import('../commands/test.js');
 		const options: InitialTestTaskOptions = {
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	.command('clean')
 	.describe('Remove build and temp files')
 	.action(async (opts: any) => {
-		const action = await import('../tasks/clean.js');
+		const command = await import('../commands/clean.js');
 		const options: InitialCleanTaskOptions = {
 			...opts,
 		};
-		await action.run(options);
+		await command.run(options);
 	})
 
 	// gro!

@@ -6,7 +6,7 @@ import {createDevServer} from '../devServer/devServer.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO LogLevel from env vars and cli args
-const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('serve')}]`)]);
+const log = logger(LogLevel.Trace, [blue(`[commands/${magenta('serve')}]`)]);
 const {info} = log;
 
 export interface Options {

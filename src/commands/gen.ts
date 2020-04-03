@@ -1,11 +1,11 @@
 import {blue, magenta} from '../colors/terminal.js';
-import {assets} from '../project/assets.js';
+import {gen} from '../project/gen.js';
 import {logger, LogLevel} from '../utils/log.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;
 
-const log = logger(logLevel, [blue(`[tasks/${magenta('assets')}]`)]);
+const log = logger(logLevel, [blue(`[commands/${magenta('gen')}]`)]);
 const {info} = log;
 
 export interface Options {}
@@ -17,5 +17,5 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
 
-	await assets({logLevel});
+	await gen({logLevel});
 };

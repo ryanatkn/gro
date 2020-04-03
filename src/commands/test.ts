@@ -10,7 +10,7 @@ import {toPathParts, toInferredId, toBasePath, toBuildId} from '../paths.js';
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;
 
-const log = logger(logLevel, [blue(`[tasks/${magenta('test')}]`)]);
+const log = logger(logLevel, [blue(`[commands/${magenta('test')}]`)]);
 const {info} = log;
 
 const DEFAULT_DIR = './build';

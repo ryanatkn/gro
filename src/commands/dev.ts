@@ -5,7 +5,7 @@ import * as serveTask from './serve.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO LogLevel from env vars and cli args
-const log = logger(LogLevel.Trace, [blue(`[tasks/${magenta('dev')}]`)]);
+const log = logger(LogLevel.Trace, [blue(`[commands/${magenta('dev')}]`)]);
 const {info} = log;
 
 export type Options = buildTask.Options & serveTask.Options;
@@ -21,9 +21,9 @@ export const initOptions = (opts: InitialOptions): Options => {
 		dir: DEFAULT_SERVE_DIR,
 		...omitUndefined(opts),
 	};
-	return buildTask.initOptions(serveTask.initOptions(
-		options,
-	) as Options) as Options;
+	return buildTask.initOptions(
+		serveTask.initOptions(options) as Options,
+	) as Options;
 };
 
 export const run = async (opts: InitialOptions): Promise<void> => {
