@@ -10,7 +10,8 @@ However when you need partials and defaults,
 the codebase's conventions are documented below.
 
 Gro uses a consistent options pattern that has one major (and weird) caveat:
-**if an option can be `undefined`, it must default to `undefined`**.
+**if an option can be `undefined`, it must default to `undefined`**
+to ensure type safety for callers.
 All values that are `undefined` are omitted when the options are initialized
 through use of the conventional `omitUndefined` helper.
 The best workaround is to design options interfaces
