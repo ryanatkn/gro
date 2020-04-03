@@ -2,7 +2,7 @@
 
 Options to a function or constructor are an incredibly common pattern,
 but their defaults and types are hard to get right.
-Every pattern has tradeoffs of complexity and consistency.
+Every pattern has tradeoffs of complexity, consistency, and type safety.
 
 For cases where all options are required,
 the options argument's type needs no special handling.
