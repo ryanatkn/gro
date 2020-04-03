@@ -1,6 +1,6 @@
-import {red, yellow} from '../colors/terminal.js';
+import {red} from '../colors/terminal.js';
 import {logger, LogLevel} from './log.js';
-import {truncate} from './string.js';
+import {fmtError} from './fmt.js';
 
 export const attachProcessErrorHandlers = () => {
 	process
@@ -8,13 +8,9 @@ export const attachProcessErrorHandlers = () => {
 		.on('unhandledRejection', handleUnhandledRejection);
 };
 
-const MAX_SCRIPT_ERROR_LOG_LENGTH = 1000;
-
 export const handleError = (err: Error, label = 'handleError'): void => {
 	const {error} = logger(LogLevel.Error, [red(`[${label}]`)]);
-	const msg = err.stack ? yellow(err.stack) : yellow(`Error: ${err.message}`);
-	const truncated = truncate(msg, MAX_SCRIPT_ERROR_LOG_LENGTH);
-	error(truncated);
+	error(fmtError(err));
 	process.exit(1);
 };
 

@@ -1,6 +1,7 @@
 import {round} from '../utils/math.js';
-import {gray, white, green} from '../colors/terminal.js';
+import {gray, white, green, yellow} from '../colors/terminal.js';
 import {toRootPath} from '../paths.js';
+import {truncate} from './string.js';
 
 export const fmtVal = (key: string, val: string | number): string =>
 	gray(`${key}(`) + val + gray(')');
@@ -21,3 +22,11 @@ export const fmtValue = (value: unknown): unknown => {
 };
 
 export const fmtPath = (p: string): string => gray(toRootPath(p));
+
+const MAX_ERROR_LOG_LENGTH = 1000;
+
+export const fmtError = (err: Error): string =>
+	truncate(
+		err.stack ? yellow(err.stack) : yellow(`Error: ${err.message}`),
+		MAX_ERROR_LOG_LENGTH,
+	);

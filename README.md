@@ -7,7 +7,8 @@
 `gro` is an opinionated monotool for making webapps.
 It includes:
 
-- task runner (TODO)
+- [task runner](src/run) that uses the filesystem convention `*.task.ts`
+  (docs at [`src/run`](src/run))
 - testing library called `oki` (docs at [`src/oki`](src/oki))
 - codegen by convention called `gen` (docs at [`src/gen`](src/gen))
 - dev server
@@ -33,6 +34,11 @@ and [model-driven development](https://en.wikipedia.org/wiki/Model-driven_engine
 
 ```bash
 gro --help # outputs info with all commands
+```
+
+```bash
+gro run # lists all available tasks with the pattern *.task.ts
+gro run some/task another # runs src/some/task.task.ts then src/another.task.ts
 ```
 
 ```bash
@@ -69,6 +75,7 @@ gro clean # remove all build artifacts
 
 ## docs
 
+- [`run`](src/run) task runner
 - [`oki`](src/oki) testing library
 - [`gen`](src/gen) code generation
 - other [docs](src/docs)

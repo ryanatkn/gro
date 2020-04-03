@@ -20,6 +20,7 @@ import fs from 'fs-extra';
 import * as fp from 'path';
 import {fileURLToPath} from 'url';
 
+import {InitialOptions as InitialRunTaskOptions} from '../tasks/run.js';
 import {InitialOptions as InitialDevTaskOptions} from '../tasks/dev.js';
 import {InitialOptions as InitialBuildTaskOptions} from '../tasks/build.js';
 import {InitialOptions as InitialServeTaskOptions} from '../tasks/serve.js';
@@ -48,6 +49,18 @@ sade('gro')
 
 	// TODO probably want this
 	//.option('-c, --config', 'Path to gro config', 'gro.config.js');
+
+	.command('run')
+	.describe('Run tasks')
+	.option('-P, --production', 'Set NODE_ENV to production')
+	.action(async (opts: any) => {
+		if (opts.production) env.NODE_ENV = 'production';
+		const action = await import('../tasks/run.js');
+		const options: InitialRunTaskOptions = {
+			...opts,
+		};
+		await action.run(options);
+	})
 
 	.command('dev')
 	.describe('Start development server')
