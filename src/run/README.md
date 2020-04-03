@@ -34,7 +34,8 @@ export const task: Task = {
 	run: async ({log}, data) => {
 		log.info('hi!');
 		await somethingAsync(data.isPassedFromTaskToTask);
-		return {...data, newData: 'can go here'};
+		// data.canBeMutated = 'if you dare';
+		return {...data, immutableData: 'can be forwarded like so'};
 	},
 };
 ```
