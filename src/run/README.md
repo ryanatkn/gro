@@ -6,6 +6,8 @@
 Gro's task runner uses conventions to make
 defining and discovering tasks simple and easy.
 
+Some highlights:
+
 - automatically discovers all `*.task.ts` files in your source directory
 - task definitions are just async functions in TypeScript modules,
   so chaining and composition are explicit in your code with one exception -
