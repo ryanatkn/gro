@@ -3,8 +3,8 @@
 > task runner for
 > [`gro`](https://github.com/feltcoop/gro)
 
-Gro's task runner uses conventions to make
-defining and discovering tasks simple and easy.
+Gro's task runner uses conventions to define and discover tasks.
+It prefers code over configuration.
 
 Some highlights:
 
