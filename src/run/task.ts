@@ -1,14 +1,17 @@
 import {Logger} from '../utils/log.js';
 
 export interface Task {
-	run: (ctx: TaskContext) => Promise<void>;
+	run: (ctx: TaskContext, data: TaskData) => Promise<TaskData | void>;
 }
 
 export interface TaskMeta {
 	task: Task;
-
 	name: string;
 	path: string;
+}
+
+export interface TaskData {
+	[key: string]: any;
 }
 
 export interface TaskContext {

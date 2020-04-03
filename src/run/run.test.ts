@@ -3,23 +3,28 @@ import {run} from './run.js';
 
 test('run()', async t => {
 	test('without any task names', async () => {
-		const result = await run({logLevel: 0, taskNames: []});
+		const result = await run({logLevel: 0, taskNames: []}, {test: 'data'});
 		t.ok(result.ok);
 		t.ok(result.taskNames.length > 0); // TODO convert to `t.gt`
 		t.is(result.loadResults.length, 0);
 		t.is(result.runResults.length, 0);
+		t.equal(result.data, {test: 'data'});
 	});
 
 	test('with task names', async () => {
-		const result = await run({
-			logLevel: 0,
-			taskNames: ['run/fixtures/testTask1', 'run/fixtures/testTask2'],
-		});
+		const result = await run(
+			{
+				logLevel: 0,
+				taskNames: ['run/fixtures/testTask1', 'run/fixtures/testTask2'],
+			},
+			{test: 'data'},
+		);
 		t.ok(result.ok);
 		t.ok(result.elapsed > 0);
 		t.is(result.taskNames.length, 2);
 		t.is(result.loadResults.length, 2);
 		t.is(result.runResults.length, 2);
+		t.equal(result.data, {test: 'data', foo: 2, bar: 'baz'});
 
 		test('missing task', async () => {
 			const result = await run({

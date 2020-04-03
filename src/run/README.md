@@ -12,6 +12,8 @@ Some highlights:
 - task definitions are just async functions in TypeScript modules,
   so chaining and composition are explicit in your code with one exception -
   `gro run` will execute multiple tasks serially, awaiting any async ones
+- passes a shared data object through each task
+  which can mutated or treated as immutable - be careful with mutation!
 - it's fast because it imports only the modules that your chosen tasks need
 
 ## Usage
@@ -29,9 +31,10 @@ Define a task:
 import {Task} from 'gro/run/task.js';
 
 export const task: Task = {
-	run: async ({log}) => {
+	run: async ({log}, data) => {
 		log.info('hi!');
-		await somethingAsync();
+		await somethingAsync(data.isPassedFromTaskToTask);
+		return {...data, newData: 'can go here'};
 	},
 };
 ```
@@ -51,3 +54,6 @@ $ gro run task1 task2 task3 # each is awaited before moving to the next
 ## Future improvements
 
 - [ ] integrate with the build process and watch mode
+- [ ] consider simplifying the task definition
+      to a single function and/or a default export,
+      and be open to use cases that use task metadata and the object syntax

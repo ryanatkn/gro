@@ -12,6 +12,7 @@ import {
 	toTaskPath,
 	TaskContext,
 	validateTaskModule,
+	TaskData,
 } from '../run/task.js';
 import {paths, toSourcePath} from '../paths.js';
 import {fmtPath, fmtMs, fmtError} from '../utils/fmt.js';
@@ -30,6 +31,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 
 export type RunResult = {
 	ok: boolean;
+	data: TaskData;
 	taskNames: string[];
 	loadResults: TaskLoadResult[];
 	runResults: TaskRunResult[];
@@ -52,11 +54,20 @@ export type TaskRunResult =
 			error: Error;
 	  };
 
-export const run = async (opts: InitialOptions): Promise<RunResult> => {
+export const run = async (
+	opts: InitialOptions,
+	initialData: TaskData = {},
+): Promise<RunResult> => {
 	const options = initOptions(opts);
 	const {logLevel, taskNames} = options;
 	const log = logger(logLevel, [magenta('[run]')]);
 	const {error, info} = log;
+
+	const ctx: TaskContext = {log};
+
+	// `data` is a shared object that's sent through each task.
+	// It can be mutated or treated as immutable. Be careful with mutation!
+	let data = initialData;
 
 	const loadResults: TaskLoadResult[] = [];
 	const runResults: TaskRunResult[] = [];
@@ -79,6 +90,7 @@ export const run = async (opts: InitialOptions): Promise<RunResult> => {
 		}
 		return {
 			ok: true,
+			data,
 			taskNames: tasks.map(t => t.name),
 			loadResults,
 			runResults,
@@ -112,6 +124,7 @@ export const run = async (opts: InitialOptions): Promise<RunResult> => {
 		info(yellow('Aborting. No tasks were run due to errors.'));
 		return {
 			ok: false,
+			data,
 			taskNames,
 			loadResults,
 			runResults,
@@ -122,10 +135,12 @@ export const run = async (opts: InitialOptions): Promise<RunResult> => {
 	// Run the loaded tasks.
 	for (const task of tasks) {
 		const taskStopwatch = createStopwatch();
-		const taskCtx: TaskContext = {log};
 		info(`→ ${cyan(task.name)}`);
 		try {
-			await task.task.run(taskCtx);
+			const nextData = await task.task.run(ctx, data);
+			if (nextData) {
+				data = nextData;
+			}
 			const elapsed = taskStopwatch();
 			runResults.push({ok: true, taskName: task.name, elapsed});
 			info(`✓ ${cyan(task.name)} 🕒 ${fmtMs(elapsed)}`);
@@ -138,6 +153,7 @@ export const run = async (opts: InitialOptions): Promise<RunResult> => {
 			runResults.push({ok: false, taskName: task.name, reason, error: err});
 			return {
 				ok: false,
+				data,
 				taskNames,
 				loadResults,
 				runResults,
@@ -149,7 +165,7 @@ export const run = async (opts: InitialOptions): Promise<RunResult> => {
 	const elapsed = mainStopwatch();
 	info(`🕒 ${fmtMs(elapsed)}`);
 
-	return {ok: true, taskNames, loadResults, runResults, elapsed};
+	return {ok: true, data, taskNames, loadResults, runResults, elapsed};
 };
 
 const loadTask = async (dir: string, path: string): Promise<TaskMeta> => {
