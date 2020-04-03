@@ -11,12 +11,12 @@ Some highlights:
 - automatically discovers all `*.task.ts` files in your source directory
 - task definitions are just async functions in TypeScript modules,
   so chaining and composition are explicit in your code with one exception -
-  `gro run` will execute multiple tasks serially, awaiting any async ones
+  `gro run` executes multiple tasks serially, awaiting any async ones
 - passes a shared data object through each task
-  which can mutated or treated as immutable - be careful with mutation!
+  which can mutated or kept immutable - be careful with mutation!
 - it's fast because it imports only the modules that your chosen tasks need
 
-## Usage
+## usage
 
 To show all available tasks:
 
@@ -51,9 +51,10 @@ To run a series of tasks:
 $ gro run task1 task2 task3 # each is awaited before moving to the next
 ```
 
-## Future improvements
+## future improvements
 
 - [ ] integrate with the build process and watch mode
-- [ ] consider simplifying the task definition
-      to a single function and/or a default export,
-      and be open to use cases that use task metadata and the object syntax
+- [ ] consider simplifying the task definition -
+      it could be a single function if the object syntax
+      ends up not being useful for task metadata,
+      and it could be changed to be a default export
