@@ -4,7 +4,7 @@
 
 ## motivation
 
-`gro` is an opinionated monotool for making webapps.
+Gro is an opinionated monotool for making webapps.
 It includes:
 
 - [task runner](src/run) that uses the filesystem convention `*.task.ts`
@@ -20,12 +20,12 @@ It includes:
 - more to come, exploring what deeply integrated tools enable
   in the realms of developer power and ergonomics and end user experience
 
-You should probably not use `gro` today —
+You should probably not use Gro today —
 there are many mature tools with large communities solving similar problems.
 If you're interested in an even deeper take on these problems,
 see [Rome](https://github.com/facebookexperimental/rome).
-Unlike Rome, `gro` does not provide its own parser, compiler, formatter, etc —
-instead `gro` uses existing industry-standard libraries
+Unlike Rome, Gro does not provide its own parser, compiler, formatter, etc —
+instead Gro uses existing industry-standard libraries
 that have few or zero dependencies
 and it focuses on exploring territory like codegen, AOT compilation,
 and [model-driven development](https://en.wikipedia.org/wiki/Model-driven_engineering).

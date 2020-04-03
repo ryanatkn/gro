@@ -12,7 +12,7 @@ const globalRoot: {
 // Cache a global map so we get the same instance
 // regardless of any duplicate module imports.
 // This was motivated by the global test registration
-// process that broke when `gro` self-tested,
+// process that broke when Gro self-tested,
 // using the `dist` directory for the test runner context
 // and `build` directory for the imported tests.
 export const gro = globalRoot.gro || (globalRoot.gro = new Map());

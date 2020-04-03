@@ -1,7 +1,7 @@
 # gen
 
 > automated codegen by convention for
-> [`gro`](https://github.com/feltcoop/gro)
+> [Gro](https://github.com/feltcoop/gro)
 
 ## motivation
 
@@ -34,7 +34,7 @@ with the simplest possible developer affordances.
 Inspirations include Lisp macros and
 [Svelte](https://github.com/sveltejs/svelte), a compiler for building UIs.
 Svelte is the UI library integrated in
-[`gro`](https://github.com/feltcoop/gro), `gen`'s parent project.
+the parent project [Gro](https://github.com/feltcoop/gro).
 
 **Be aware** — this is a sharp tool!
 It adds a layer of indirection between the code you write and run.

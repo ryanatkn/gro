@@ -1,7 +1,7 @@
 # run
 
 > task runner for
-> [`gro`](https://github.com/feltcoop/gro)
+> [Gro](https://github.com/feltcoop/gro)
 
 Gro's task runner uses conventions to define and discover tasks.
 It prefers code over configuration.
