@@ -31,7 +31,7 @@ export interface Options {
 	b: string | null;
 	c: number | undefined;
 }
-export type RequiredOptions = 'a'; // 'a' | 'otherRequiredOptionName'
+export type RequiredOptions = 'a'; // or `'a' | 'b'` or `never`
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	// Required properties should not be included here,
