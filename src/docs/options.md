@@ -38,12 +38,27 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	// because their values will always be overwritten.
 	// a: true,
 
+	// Preferring `null` over `undefined` bypasses this whole mess.
 	b: null,
 
 	// Because `c` can be `undefined`, it must default to `undefined`!
-	// See the notes above for more.
 	c: undefined,
 
+	// We always omit `undefined` values from the initial options
+	// so callers can be assured type safety.
+	// TypeScript allows `undefined` to be passed for optional properties
+	// (https://github.com/Microsoft/TypeScript/issues/13195),
+	// and that means you can pass `undefined` without TypeScript complaining
+	// and override non-`undefined` defaults, causing errors!
+	// Omitting `undefined` here means that callers can never override
+	// a non-`undefined` default with `undefined`,
+	// which is an unfortunate tradeoff in that it forces any value
+	// that can be `undefined` to default to `undefined`,
+	// but it's the best middle ground we've found so far.
+	// It protects the caller at the cost
+	// of complicating a module's internals.
+	// This is a lot of documentation for a deceptively simple pattern,
+	// but standardizing the conventions is a big win.
 	...omitUndefined(opts),
 });
 
