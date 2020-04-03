@@ -27,6 +27,7 @@ Define a task:
 ```ts
 // src/some/thing.task.ts
 import {Task} from 'gro/run/task.js';
+
 export const task: Task = {
 	run: async ({log}) => {
 		log.info('hi!');
