@@ -26,11 +26,14 @@ and executes them inside an `oki` context.
 ## usage
 
 ```bash
-# run all *.test.ts files
+# test all *.test.ts files
 gro test
 
-# run specific files
-gro test path/to/file.test.ts file2.test.ts
+# test a specific file
+gro test path/to/file.test.ts # looks for src/path/to/file.test.ts
+
+# test multiple files
+gro test file1.test.ts file2.test.ts
 ```
 
 ```ts
