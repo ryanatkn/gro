@@ -186,7 +186,7 @@ Outputs `src/thing.ts`:
 
 ```ts
 import {Thing} from './types';
-export const isThing = (t: any): t is Thing => t?.field === fieldValue;
+export const isThing = (t: any): t is Thing => t?.field === 1;
 ```
 
 and `src/types.ts`:
