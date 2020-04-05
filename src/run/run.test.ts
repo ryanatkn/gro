@@ -3,7 +3,10 @@ import {run} from './run.js';
 
 test('run()', async t => {
 	test('without any task names', async () => {
-		const result = await run({logLevel: 0, taskNames: []}, {test: 'data'});
+		const result = await run(
+			{logLevel: 0, taskNames: [], argv: {}},
+			{test: 'data'},
+		);
 		t.ok(result.ok);
 		t.ok(result.taskNames.length > 0); // TODO convert to `t.gt`
 		t.is(result.loadResults.length, 0);
@@ -16,6 +19,7 @@ test('run()', async t => {
 			{
 				logLevel: 0,
 				taskNames: ['run/fixtures/testTask1', 'run/fixtures/testTask2'],
+				argv: {flag: true},
 			},
 			{test: 'data'},
 		);
@@ -24,7 +28,12 @@ test('run()', async t => {
 		t.is(result.taskNames.length, 2);
 		t.is(result.loadResults.length, 2);
 		t.is(result.runResults.length, 2);
-		t.equal(result.data, {test: 'data', foo: 2, bar: 'baz'});
+		t.equal(result.data, {
+			test: 'data',
+			foo: 2,
+			bar: 'baz',
+			argv: {flag: true}, // gets forwarded by 'run/fixtures/testTask1'
+		});
 
 		test('missing task', async () => {
 			const result = await run({
@@ -34,6 +43,7 @@ test('run()', async t => {
 					'run/fixtures/MISSING_TASK',
 					'run/fixtures/testTask2',
 				],
+				argv: {},
 			});
 			t.notOk(result.ok);
 			t.is(result.loadResults.length, 3);
@@ -51,6 +61,7 @@ test('run()', async t => {
 					'run/fixtures/testInvalidTask',
 					'run/fixtures/testTask2',
 				],
+				argv: {},
 			});
 			t.notOk(result.ok);
 			t.is(result.loadResults.length, 3);
@@ -68,6 +79,7 @@ test('run()', async t => {
 					'run/fixtures/testFailingTask',
 					'run/fixtures/testTask2',
 				],
+				argv: {},
 			});
 			t.notOk(result.ok);
 			t.is(result.loadResults.length, 3);

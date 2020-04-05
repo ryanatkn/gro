@@ -17,12 +17,14 @@ import {
 import {paths, toSourcePath} from '../paths.js';
 import {fmtPath, fmtMs, fmtError} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
+import {Argv} from '../bin/types.js';
 
 export interface Options {
 	logLevel: LogLevel;
 	taskNames: string[];
+	argv: Argv;
 }
-export type RequiredOptions = 'taskNames';
+export type RequiredOptions = 'taskNames' | 'argv';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
@@ -59,11 +61,11 @@ export const run = async (
 	initialData: TaskData = {},
 ): Promise<RunResult> => {
 	const options = initOptions(opts);
-	const {logLevel, taskNames} = options;
+	const {logLevel, taskNames, argv} = options;
 	const log = logger(logLevel, [magenta('[run]')]);
 	const {error, info} = log;
 
-	const ctx: TaskContext = {log};
+	const ctx: TaskContext = {log, argv};
 
 	// `data` is a shared object that's sent through each task.
 	// It can be mutated or treated as immutable. Be careful with mutation!

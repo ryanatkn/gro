@@ -4,9 +4,9 @@ export const task: Task = {
 	run: async ({log: {info}}, data) => {
 		info('test task 2!');
 		return {
-			...data,
-			foo: data.foo + 1,
-			bar: 'baz',
+			...data, // forward everything
+			foo: data.foo + 1, // use the property added by testTask1
+			bar: 'baz', // add a new property
 		};
 	},
 };

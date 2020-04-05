@@ -1,4 +1,5 @@
 import {Logger} from '../utils/log.js';
+import {Argv} from '../bin/types.js';
 
 export interface Task {
 	run: (ctx: TaskContext, data: TaskData) => Promise<TaskData | void>;
@@ -16,6 +17,7 @@ export interface TaskData {
 
 export interface TaskContext {
 	log: Logger;
+	argv: Argv;
 }
 
 export interface TaskModule {
