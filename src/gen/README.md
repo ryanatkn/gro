@@ -49,20 +49,6 @@ Inspirations include Lisp macros and
 Svelte is the UI library integrated in
 the parent project [Gro](https://github.com/feltcoop/gro).
 
-## todo
-
-- [x] basic functionality
-- [ ] in dev mode, add a configurable header with the origin file path
-      when possible (e.g. JSON doesn't support comments)
-- [ ] format output with Prettier (optionally not for speed)
-- [ ] watch mode and build integration
-- [ ] support generating non-text files
-- [ ] look into leveraging
-      [`io-ts-codegen`](https://github.com/gcanti/io-ts-codegen)
-      or something similar to output TypeScript from JSON Schema
-      (this probably belongs in user code, not `gro gen` itself)
-- [ ] source maps
-
 ## usage
 
 The `gro gen` command looks for any files with `.gen.`
@@ -204,3 +190,17 @@ and `src/data/thing.json`:
 	"field": 1
 }
 ```
+
+## todo
+
+- [x] basic functionality
+- [ ] in dev mode, add a configurable header with the origin file path
+      when possible (e.g. JSON doesn't support comments)
+- [ ] format output with Prettier (optionally not for speed)
+- [ ] watch mode and build integration
+- [ ] support generating non-text files
+- [ ] look into leveraging
+      [`io-ts-codegen`](https://github.com/gcanti/io-ts-codegen)
+      or something similar to output TypeScript from JSON Schema
+      (this probably belongs in user code, not `gro gen` itself)
+- [ ] source maps
