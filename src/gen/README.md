@@ -13,13 +13,19 @@ especially around performance and flexibility.
 As developers, automating our work is a natural and indispensable power,
 and `gro gen` brings automation deeper into our code authoring workflows.
 
-By convention, `gro gen` looks for any TypeScript files
-with `.gen.` in the file name,
-and it outputs a file stripped of `.gen.`.
-The contents of the written file are returned as a string from
-a `gen` function that's exported in the source `.gen.` file.
-More flexibility is available when needed,
-including custom file names and multiple output files.
+By convention, `gro gen` looks through `src/`
+for any TypeScript files with `.gen.` in the file name,
+and it outputs a file stripped of `.gen.` to the same directory.
+The `*.gen.*` origin files export a `gen` function
+that returns the contents of the output file.
+More flexibility is available when needed
+including custom file names, custom output directories,
+and multiple output files.
+
+Normally you'll want to commit generated files to git,
+but you can always gitignore a specific pattern like `*.ignore.*`
+and name the output files accordingly.
+We may want to smooth out this use case in the future.
 
 The implications of integrating codegen into our code authoring are deep.
 One benefit is that it allows us to have a single source of truth for data
@@ -29,31 +35,28 @@ without compromising any of our code's runtime characteristics.
 We can also generate types, validators, tests,
 and more by introspecting our data at buildtime.
 The goal is to leverage automation to increase the power we wield over our code
-with the simplest possible developer affordances.
+with a straightforward developer experience.
+
+**Be aware** — this is a sharp tool!
+It adds a layer of indirection between the code you write and run.
+Also, you could introduce security vulnerabilities
+if you fail to escape certain inputs.
+Importantly, there is no support for source maps right now.
+Source maps could be added at some point, at least in many cases.
 
 Inspirations include Lisp macros and
 [Svelte](https://github.com/sveltejs/svelte), a compiler for building UIs.
 Svelte is the UI library integrated in
 the parent project [Gro](https://github.com/feltcoop/gro).
 
-**Be aware** — this is a sharp tool!
-It adds a layer of indirection between the code you write and run.
-Importantly, there is no support for source maps right now.
-Source maps could be added at some point, at least in many cases.
-
 ## todo
 
 - [x] basic functionality
-- [ ] By default, should output files be written to
-      the same directory as the source file?
-      Currently the output is written to the `build/` directory and
-      is therefore not committed to source control.
-      Maybe the convention should be to commit generated files,
-      except in cases where the generated code is extremely large?
-- [ ] in dev mode, add a header with the source file path
+- [ ] in dev mode, add a configurable header with the origin file path
       when possible (e.g. JSON doesn't support comments)
-- [ ] format output with Prettier
+- [ ] format output with Prettier (optionally not for speed)
 - [ ] watch mode and build integration
+- [ ] support generating non-text files
 - [ ] look into leveraging
       [`io-ts-codegen`](https://github.com/gcanti/io-ts-codegen)
       or something similar to output TypeScript from JSON Schema
@@ -67,19 +70,19 @@ in the file name and tries to call an exported `gen`
 function to generate one or more output files.
 
 ```bash
-gro gen
+gro gen # runs codegen for all *.gen.* files in src/
 ```
 
 > in the following examples,
 > note that importing the `Gen` type is optional,
 > but it makes for a better DX
 
-### generate JS
+### generate TypeScript
 
 Given `src/script.gen.ts`:
 
 ```ts
-import {Gen} from 'gro';
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
 	const message = 'generated!';
@@ -87,33 +90,36 @@ export const gen: Gen = () => {
 };
 ```
 
-Outputs `build/script.js`:
+Outputs `src/script.ts`:
 
-```js
+```ts
 console.log('generated!');
 ```
 
-### generate a file with an arbitrary extension
+### generate other filetypes
 
+Files with any extension can be generated without configuration.
+If the origin file name ends with the pattern `.gen.*.ts`,
+the default output file name is stripped of its trailing `.ts`.
 Given `src/markup.gen.html.ts`:
 
 ```ts
-import {Gen} from 'gro';
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
 	const body = 'hi';
 	return `
-<!DOCTYPE html>
-<html>
-  <body>
-    ${body}
-  </body>
-</html>
-`;
+		<!DOCTYPE html>
+		<html>
+			<body>
+				${body}
+			</body>
+		</html>
+	`;
 };
 ```
 
-Outputs `build/markup.html`:
+Outputs `src/markup.html`:
 
 ```html
 <!DOCTYPE html>
@@ -124,60 +130,74 @@ Outputs `build/markup.html`:
 </html>
 ```
 
-### output alongside the source file
+### generate a custom file name or write to a different directory
 
-Use the flag `outputToSource` to write the files to
-the source file's directory instead of the build directory.
-
-Given `src/data.gen.json.ts`:
+The `gen` function can return an object with custom configuration.
+Given `src/somewhere/originalName.gen.ts`:
 
 ```ts
-import {Gen} from 'gro';
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
-	const data = true;
+	const message = 'output path can be relative and name can be anything';
 	return {
-		content: `{"data": ${data}}`,
-		outputToSource: true,
+		contents: `console.log('${message}')`,
+		fileName: '../elsewhere/otherName.ts',
 	};
 };
 ```
 
-Outputs `src/data.json`:
-
-```json
-{"data": true}
-```
-
-### generate multiple arbitrary files
-
-Given `src/multi.gen.ts`:
+Outputs `src/elsewhere/otherName.ts`:
 
 ```ts
-import {Gen} from 'gro';
+console.log('output path can be relative and name can be anything');
+```
+
+### generate multiple custom files
+
+The `gen` function can also return an array of files.
+Given `src/thing.gen.ts`:
+
+```ts
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
 	const fieldValue = 1;
 	return [
 		{
-			contents: `export interface Data { field: ${typeof fieldValue} }`,
-			fileName: 'types.ts',
-			outputToSource: true,
+			contents: `
+				import {Thing} from './types';
+				export const isThing = (t: any): t is Thing => t?.field === ${fieldValue};
+			`,
 		},
-		{contents: `{"field": ${fieldValue}}`, fileName: 'data.json'},
+		{
+			contents: `export interface Thing { field: ${typeof fieldValue} }`,
+			fileName: 'types.ts',
+		},
+		{
+			contents: `{"field": ${fieldValue}}`,
+			fileName: 'data/thing.json',
+		},
 	];
 };
 ```
 
-Outputs both `src/types.ts`:
+Outputs `src/thing.ts`:
 
 ```ts
-export interface Data {
+import {Thing} from './types';
+export const isThing = (t: any): t is Thing => t?.field === fieldValue;
+```
+
+and `src/types.ts`:
+
+```ts
+export interface Thing {
 	field: number;
 }
 ```
 
-and `build/data.json`:
+and `src/data/thing.json`:
 
 ```json
 {

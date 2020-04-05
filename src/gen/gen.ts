@@ -1,11 +1,6 @@
 import * as fp from 'path';
 
-import {
-	hasSourceExt,
-	toSourceExt,
-	basePathToSourceId,
-	toBasePath,
-} from '../paths.js';
+import {isSourceId} from '../paths.js';
 
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
@@ -37,14 +32,15 @@ export interface RawGenFile {
 	// Defaults to file name without the `.gen`, and can be a relative path.
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
 	fileName?: string;
-	// If true, is generated to the source directory instead of build.
-	outputToSource?: boolean;
 }
 
 export const toGenResult = (
 	originFileId: string,
 	rawResult: RawGenResult,
 ): GenResult => {
+	if (!isSourceId(originFileId)) {
+		throw Error(`originFileId must be a source id: ${originFileId}`);
+	}
 	return {
 		originFileId,
 		files: toGenFiles(originFileId, rawResult),
@@ -67,36 +63,20 @@ const toGenFiles = (
 };
 
 const toGenFile = (originFileId: string, rawGenFile: RawGenFile): GenFile => {
-	const {contents, fileName, outputToSource} = rawGenFile;
-	const id = toOutputFileId(originFileId, fileName, outputToSource);
+	const {contents, fileName} = rawGenFile;
+	const id = toOutputFileId(originFileId, fileName);
 	return {id, contents};
 };
 
-// This is a bit of a mess.. but it's a thoroughly tested mess.
 const toOutputFileId = (
 	originFileId: string,
 	rawFileName: string | undefined,
-	rawOutputToSource: boolean | undefined,
 ): string => {
-	const outputToSource =
-		rawOutputToSource === undefined
-			? rawFileName === undefined
-				? false
-				: hasSourceExt(rawFileName)
-			: rawOutputToSource;
-	const fileNameWithRawExt =
-		rawFileName === undefined
-			? toOutputFileName(fp.basename(originFileId))
-			: rawFileName;
-	const fileName =
-		outputToSource && rawFileName === undefined
-			? toSourceExt(fileNameWithRawExt)
-			: fileNameWithRawExt;
-	const dir = fp.dirname(
-		outputToSource
-			? basePathToSourceId(toBasePath(originFileId))
-			: originFileId,
-	);
+	if (rawFileName === '') {
+		throw Error(`Output file name cannot be an empty string`);
+	}
+	const fileName = rawFileName || toOutputFileName(fp.basename(originFileId));
+	const dir = fp.dirname(originFileId);
 	const outputFileId = fp.join(dir, fileName);
 	if (outputFileId === originFileId) {
 		throw Error('Gen origin and output file ids cannot be the same');
@@ -128,7 +108,8 @@ const toOutputFileName = (fileName: string): string => {
 	const hasDifferentExt = genPatternIndex === parts.length - 3;
 	const length = hasDifferentExt ? parts.length - 1 : parts.length;
 	for (let i = 0; i < length; i++) {
-		if (i === genPatternIndex) continue;
+		if (i === genPatternIndex) continue; // skip the `.gen.` pattern
+		if (i === length - 1 && parts[i] === '') continue; // allow empty extension
 		finalParts.push(parts[i]);
 	}
 	return finalParts.join(GEN_FILE_SEPARATOR);

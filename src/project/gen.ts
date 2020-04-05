@@ -18,7 +18,7 @@ import {
 	GenResult,
 	GEN_FILE_PATTERN,
 } from '../gen/gen.js';
-import {paths} from '../paths.js';
+import {paths, toSourceId} from '../paths.js';
 import {fmtPath} from '../utils/fmt.js';
 
 export interface Options {
@@ -68,7 +68,8 @@ export const gen = async (opts: InitialOptions = {}) => {
 		const buildId = fp.join(dir, path);
 		const mod: GenModule = await import(buildId);
 		const rawGenResult = await mod.gen(genCtx);
-		const result = toGenResult(buildId, rawGenResult);
+		const sourceId = toSourceId(buildId);
+		const result = toGenResult(sourceId, rawGenResult);
 		await writeGenResult(result, log);
 	}
 
@@ -80,6 +81,8 @@ const writeGenResult = async (
 	{info}: Logger,
 ): Promise<void> => {
 	const {originFileId, files} = result;
+
+	// TODO max concurrency?
 	await Promise.all(
 		files.map(file => {
 			info(
@@ -88,7 +91,7 @@ const writeGenResult = async (
 				'generated from',
 				fmtPath(originFileId),
 			);
-			return fs.writeFile(file.id, file.contents, 'utf8');
+			return fs.outputFile(file.id, file.contents, 'utf8');
 		}),
 	);
 };
