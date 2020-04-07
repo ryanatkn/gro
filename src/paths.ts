@@ -1,5 +1,4 @@
-import * as fp from 'path';
-const {sep, join} = fp; // TODO esm
+import {sep, join} from 'path';
 
 import {gray} from './colors/terminal.js';
 import {replaceExt} from './utils/path.js';
@@ -36,7 +35,7 @@ export const RELATIVE_DIR_START = '.' + sep;
 
 const createPaths = () => {
 	const root = process.cwd() + sep;
-	const source = join(root, SOURCE_DIR);
+	const source = join(root, SOURCE_DIR); // TODO should this be "src"? the helpers too?
 	const build = join(root, BUILD_DIR);
 	const dist = join(root, DIST_DIR);
 	return {

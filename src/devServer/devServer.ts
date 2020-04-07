@@ -5,8 +5,7 @@ import {
 	ServerResponse,
 	IncomingMessage,
 } from 'http';
-import * as http from 'http'; // TODO esm
-const {createServer} = http; // TODO esm
+import {createServer} from 'http';
 import {ListenOptions} from 'net';
 import * as fp from 'path';
 

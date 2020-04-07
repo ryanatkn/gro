@@ -1,8 +1,7 @@
 import {Plugin} from 'rollup';
 import fs from 'fs-extra';
 import * as fp from 'path';
-import sourcemapCodec from 'sourcemap-codec';
-const {decode, encode} = sourcemapCodec; // TODO esm
+import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
 
 import {blue, gray} from '../colors/terminal.js';
 import {LogLevel, logger, Logger} from '../utils/log.js';
@@ -55,7 +54,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 				info('changes', Array.from(changedIds)); // TODO trace when !watch
 				changedIds.clear();
 
-				const mappings: sourcemapCodec.SourceMapSegment[][] = [];
+				const mappings: SourceMapSegment[][] = [];
 				const sources: string[] = [];
 				const sourcesContent: string[] = [];
 

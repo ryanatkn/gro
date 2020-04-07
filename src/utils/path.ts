@@ -1,5 +1,4 @@
-import * as fp from 'path';
-const {extname, basename} = fp; // TODO esm
+import {extname, basename} from 'path';
 
 export const replaceExt = (path: string, ext: string): string => {
 	const extension = extname(path);

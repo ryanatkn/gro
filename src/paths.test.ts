@@ -1,5 +1,4 @@
-import * as fp from 'path';
-const {resolve} = fp; // TODO esm
+import {resolve} from 'path';
 
 import {test} from './oki/index.js';
 import {
