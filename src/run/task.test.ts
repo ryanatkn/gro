@@ -9,7 +9,7 @@ import {
 } from './task.js';
 import * as testTask1 from './fixtures/testTask1.task.js';
 import * as testTask2 from './fixtures/testTask2.task.js';
-import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.task.js';
+import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
 
 test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', t => {
 	t.ok(TASK_FILE_PATTERN.test('file' + TASK_FILE_SUFFIX));

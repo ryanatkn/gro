@@ -1,11 +1,18 @@
 import {test} from '../oki/index.js';
 import {run} from './run.js';
 import {paths} from '../paths.js';
+import {createNodeRunHost} from './nodeRunHost.js';
 
 test('run()', async t => {
 	test('without any task names', async () => {
 		const result = await run(
-			{logLevel: 0, dir: paths.source, taskNames: [], argv: {}},
+			{
+				logLevel: 0,
+				host: createNodeRunHost({logLevel: 0}),
+				dir: paths.source,
+				taskNames: [],
+				argv: {},
+			},
 			{test: 'data'},
 		);
 		t.ok(result.ok);
@@ -19,6 +26,7 @@ test('run()', async t => {
 		const result = await run(
 			{
 				logLevel: 0,
+				host: createNodeRunHost({logLevel: 0}),
 				dir: paths.source,
 				taskNames: ['run/fixtures/testTask1', 'run/fixtures/testTask2'],
 				argv: {flag: true},
@@ -40,6 +48,7 @@ test('run()', async t => {
 		test('missing task', async () => {
 			const result = await run({
 				logLevel: 0,
+				host: createNodeRunHost({logLevel: 0}),
 				dir: paths.source,
 				taskNames: [
 					'run/fixtures/testTask1',
@@ -59,6 +68,7 @@ test('run()', async t => {
 		test('invalid task', async () => {
 			const result = await run({
 				logLevel: 0,
+				host: createNodeRunHost({logLevel: 0}),
 				dir: paths.source,
 				taskNames: [
 					'run/fixtures/testTask1',
@@ -78,6 +88,7 @@ test('run()', async t => {
 		test('failing task', async () => {
 			const result = await run({
 				logLevel: 0,
+				host: createNodeRunHost({logLevel: 0}),
 				dir: paths.source,
 				taskNames: [
 					'run/fixtures/testTask1',

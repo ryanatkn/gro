@@ -1,0 +1,27 @@
+import {resolve} from 'path';
+
+import {test} from '../oki/index.js';
+import {createNodeRunHost} from './nodeRunHost.js';
+import {validateTaskModule} from './task.js';
+
+test('createNodeRunHost()', t => {
+	const host = createNodeRunHost({logLevel: 0});
+
+	test('host.findTasks()', async () => {
+		const taskSourceIds = await host.findTasks(resolve('src/run/fixtures'));
+		t.equal(taskSourceIds, [
+			resolve('src/run/fixtures/testFailingTask.task.ts'),
+			resolve('src/run/fixtures/testTask1.task.ts'),
+			resolve('src/run/fixtures/testTask2.task.ts'),
+		]);
+	});
+
+	test('host.loadTaskModule()', async () => {
+		const task = await host.loadTaskModule(
+			resolve('src/run/fixtures/testTask1.task.ts'),
+		);
+		t.is(task.id, resolve('src/run/fixtures/testTask1.task.ts'));
+		t.is(task.name, 'run/fixtures/testTask1');
+		t.ok(validateTaskModule(task.mod));
+	});
+});

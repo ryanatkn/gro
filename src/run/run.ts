@@ -1,36 +1,38 @@
-import * as fp from 'path';
-import CheapWatch from 'cheap-watch';
+import {join} from 'path';
 
-import {LogLevel, logger, Logger} from '../utils/log.js';
+import {LogLevel, logger} from '../utils/log.js';
 import {cyan, magenta, red, yellow} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
-import {FileStats} from '../project/fileData.js';
 import {
-	isTaskPath,
-	toTaskName,
 	TaskModuleMeta,
 	toTaskPath,
 	TaskContext,
-	validateTaskModule,
 	TaskData,
-} from '../run/task.js';
-import {toSourcePath, toBuildId, toSourceId} from '../paths.js';
-import {fmtPath, fmtMs, fmtError} from '../utils/fmt.js';
+	toTaskName,
+} from './task.js';
+import {fmtMs, fmtError} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
 import {Argv} from '../bin/types.js';
+import {toBasePath, isSourceId} from '../paths.js';
 
 export interface Options {
 	logLevel: LogLevel;
+	host: RunHost;
 	dir: string;
 	taskNames: string[];
 	argv: Argv;
 }
-export type RequiredOptions = 'dir' | 'taskNames' | 'argv';
+export type RequiredOptions = 'host' | 'dir' | 'taskNames' | 'argv';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
+
+export interface RunHost {
+	findTasks: (dir: string) => Promise<string[]>; // returns source ids
+	loadTaskModule: (sourceId: string) => Promise<TaskModuleMeta>;
+}
 
 export type RunResult = {
 	ok: boolean;
@@ -62,9 +64,14 @@ export const run = async (
 	initialData: TaskData = {},
 ): Promise<RunResult> => {
 	const options = initOptions(opts);
-	const {logLevel, dir, taskNames, argv} = options;
+	const {logLevel, host, dir, taskNames, argv} = options;
 	const log = logger(logLevel, [magenta('[run]')]);
 	const {error, info} = log;
+
+	// TODO is this right? or should we convert input paths to source ids?
+	if (!isSourceId(dir)) {
+		throw Error(`dir must be a source id: ${dir}`);
+	}
 
 	const ctx: TaskContext = {log, argv};
 
@@ -80,11 +87,12 @@ export const run = async (
 	// If no task names are provided,
 	// find all of the available ones and print them out.
 	if (!taskNames.length) {
-		const tasks = await findAllTasks(log, dir);
-		if (tasks.length) {
+		const taskSourceIds = await host.findTasks(dir);
+		const taskNames = taskSourceIds.map(id => toTaskName(toBasePath(id)));
+		if (taskNames.length) {
 			info(
 				'Available tasks:\n',
-				tasks.map(t => '\t\t' + cyan(t.name)).join('\n'),
+				taskNames.map(n => '\t\t' + cyan(n)).join('\n'),
 			);
 		} else {
 			info('No tasks found.');
@@ -92,7 +100,7 @@ export const run = async (
 		return {
 			ok: true,
 			data,
-			taskNames: tasks.map(t => t.name),
+			taskNames,
 			loadResults,
 			runResults,
 			elapsed: mainStopwatch(),
@@ -105,9 +113,10 @@ export const run = async (
 	let shouldRunTasks = true;
 	for (const taskName of taskNames) {
 		const path = toTaskPath(taskName);
+		const sourceId = join(dir, path);
 		let task;
 		try {
-			task = await loadTask(dir, path);
+			task = await host.loadTaskModule(sourceId);
 			loadResults.push({ok: true, taskName});
 		} catch (err) {
 			const reason = `Failed to load task "${taskName}".`;
@@ -167,52 +176,4 @@ export const run = async (
 	info(`🕒 ${fmtMs(elapsed)}`);
 
 	return {ok: true, data, taskNames, loadResults, runResults, elapsed};
-};
-
-const loadTask = async (dir: string, path: string): Promise<TaskModuleMeta> => {
-	const buildDir = toBuildId(dir);
-	const buildId = fp.join(buildDir, path);
-	const sourceId = toSourceId(buildId);
-	const mod = await import(buildId);
-	if (!validateTaskModule(mod)) {
-		throw Error(`Task module export is invalid: ${toSourcePath(buildId)}`);
-	}
-	return {
-		id: sourceId,
-		name: toTaskName(path),
-		mod,
-	};
-};
-
-const findAllTasks = async (
-	log: Logger,
-	dir: string,
-): Promise<TaskModuleMeta[]> => {
-	const results: TaskModuleMeta[] = [];
-
-	const buildDir = toBuildId(dir);
-
-	// TODO we're using CheapWatch to find all files, which works fine,
-	// but maybe we want a faster more specialized method.
-	const filter: (p: {path: string; stats: FileStats}) => boolean = ({
-		path,
-		stats,
-	}) => stats.isDirectory() || isTaskPath(path);
-	const watcher = new CheapWatch({dir: buildDir, filter, watch: false});
-
-	await watcher.init();
-	for (const [path, stats] of watcher.paths) {
-		if (stats.isDirectory()) continue;
-		log.trace('found task', fmtPath(path));
-		let task;
-		try {
-			task = await loadTask(dir, path);
-		} catch (err) {
-			log.warn(yellow('Skipping invalid task.'), yellow(err.message));
-			continue;
-		}
-		results.push(task);
-	}
-
-	return results;
 };
