@@ -2,6 +2,7 @@ import {blue, magenta} from '../colors/terminal.js';
 import {run as runTasks} from '../run/run.js';
 import {logger, LogLevel} from '../utils/log.js';
 import {Argv} from '../bin/types.js';
+import {paths} from '../paths.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;
@@ -23,5 +24,5 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	info('options', options);
 	const {_: taskNames, ...argv} = options;
 
-	await runTasks({logLevel, taskNames, argv});
+	await runTasks({logLevel, dir: paths.source, taskNames, argv});
 };

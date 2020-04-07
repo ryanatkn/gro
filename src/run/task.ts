@@ -5,10 +5,10 @@ export interface Task {
 	run: (ctx: TaskContext, data: TaskData) => Promise<TaskData | void>;
 }
 
-export interface TaskMeta {
-	task: Task;
+export interface TaskModuleMeta {
+	id: string;
 	name: string;
-	path: string;
+	mod: TaskModule;
 }
 
 export interface TaskData {
@@ -36,5 +36,5 @@ export const toTaskPath = (taskName: string): string =>
 export const toTaskName = (path: string): string =>
 	path.replace(TASK_FILE_PATTERN, '');
 
-export const validateTaskModule = (mod: any): mod is TaskModule =>
+export const validateTaskModule = (mod: Obj): mod is TaskModule =>
 	!!mod.task && typeof mod.task.run === 'function';

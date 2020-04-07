@@ -5,6 +5,10 @@ declare module 'mime/lite.js' {
 	export * from 'mime';
 }
 
+// Convenient global types - maybe import instead?
+
+type Obj<T = any> = {[key: string]: T};
+
 type OmitStrict<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 // these were thrown together quickly - is there a better way to do this?

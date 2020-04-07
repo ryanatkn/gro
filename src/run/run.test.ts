@@ -1,14 +1,15 @@
 import {test} from '../oki/index.js';
 import {run} from './run.js';
+import {paths} from '../paths.js';
 
 test('run()', async t => {
 	test('without any task names', async () => {
 		const result = await run(
-			{logLevel: 0, taskNames: [], argv: {}},
+			{logLevel: 0, dir: paths.source, taskNames: [], argv: {}},
 			{test: 'data'},
 		);
 		t.ok(result.ok);
-		t.ok(result.taskNames.length > 0); // TODO convert to `t.gt`
+		t.ok(result.taskNames.length); // TODO convert to `t.gt`
 		t.is(result.loadResults.length, 0);
 		t.is(result.runResults.length, 0);
 		t.equal(result.data, {test: 'data'});
@@ -18,6 +19,7 @@ test('run()', async t => {
 		const result = await run(
 			{
 				logLevel: 0,
+				dir: paths.source,
 				taskNames: ['run/fixtures/testTask1', 'run/fixtures/testTask2'],
 				argv: {flag: true},
 			},
@@ -38,6 +40,7 @@ test('run()', async t => {
 		test('missing task', async () => {
 			const result = await run({
 				logLevel: 0,
+				dir: paths.source,
 				taskNames: [
 					'run/fixtures/testTask1',
 					'run/fixtures/MISSING_TASK',
@@ -56,6 +59,7 @@ test('run()', async t => {
 		test('invalid task', async () => {
 			const result = await run({
 				logLevel: 0,
+				dir: paths.source,
 				taskNames: [
 					'run/fixtures/testTask1',
 					'run/fixtures/testInvalidTask',
@@ -74,6 +78,7 @@ test('run()', async t => {
 		test('failing task', async () => {
 			const result = await run({
 				logLevel: 0,
+				dir: paths.source,
 				taskNames: [
 					'run/fixtures/testTask1',
 					'run/fixtures/testFailingTask',

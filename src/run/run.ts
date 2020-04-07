@@ -8,23 +8,24 @@ import {FileStats} from '../project/fileData.js';
 import {
 	isTaskPath,
 	toTaskName,
-	TaskMeta,
+	TaskModuleMeta,
 	toTaskPath,
 	TaskContext,
 	validateTaskModule,
 	TaskData,
 } from '../run/task.js';
-import {paths, toSourcePath} from '../paths.js';
+import {toSourcePath, toBuildId, toSourceId} from '../paths.js';
 import {fmtPath, fmtMs, fmtError} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
 import {Argv} from '../bin/types.js';
 
 export interface Options {
 	logLevel: LogLevel;
+	dir: string;
 	taskNames: string[];
 	argv: Argv;
 }
-export type RequiredOptions = 'taskNames' | 'argv';
+export type RequiredOptions = 'dir' | 'taskNames' | 'argv';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	logLevel: LogLevel.Info,
@@ -61,7 +62,7 @@ export const run = async (
 	initialData: TaskData = {},
 ): Promise<RunResult> => {
 	const options = initOptions(opts);
-	const {logLevel, taskNames, argv} = options;
+	const {logLevel, dir, taskNames, argv} = options;
 	const log = logger(logLevel, [magenta('[run]')]);
 	const {error, info} = log;
 
@@ -73,8 +74,6 @@ export const run = async (
 
 	const loadResults: TaskLoadResult[] = [];
 	const runResults: TaskRunResult[] = [];
-
-	const dir = paths.build; //  the base directory where tasks are located
 
 	const mainStopwatch = createStopwatch();
 
@@ -102,7 +101,7 @@ export const run = async (
 
 	// First load all of the specified tasks,
 	// so any errors cause the command to exit before running anything.
-	const tasks: TaskMeta[] = [];
+	const tasks: TaskModuleMeta[] = [];
 	let shouldRunTasks = true;
 	for (const taskName of taskNames) {
 		const path = toTaskPath(taskName);
@@ -139,7 +138,7 @@ export const run = async (
 		const taskStopwatch = createStopwatch();
 		info(`→ ${cyan(task.name)}`);
 		try {
-			const nextData = await task.task.run(ctx, data);
+			const nextData = await task.mod.task.run(ctx, data);
 			if (nextData) {
 				data = nextData;
 			}
@@ -170,21 +169,28 @@ export const run = async (
 	return {ok: true, data, taskNames, loadResults, runResults, elapsed};
 };
 
-const loadTask = async (dir: string, path: string): Promise<TaskMeta> => {
-	const fullPath = fp.join(dir, path);
-	const mod = await import(fullPath);
+const loadTask = async (dir: string, path: string): Promise<TaskModuleMeta> => {
+	const buildDir = toBuildId(dir);
+	const buildId = fp.join(buildDir, path);
+	const sourceId = toSourceId(buildId);
+	const mod = await import(buildId);
 	if (!validateTaskModule(mod)) {
-		throw Error(`Task module export is invalid: ${toSourcePath(fullPath)}`);
+		throw Error(`Task module export is invalid: ${toSourcePath(buildId)}`);
 	}
 	return {
-		task: mod.task,
+		id: sourceId,
 		name: toTaskName(path),
-		path: fullPath,
+		mod,
 	};
 };
 
-const findAllTasks = async (log: Logger, dir: string): Promise<TaskMeta[]> => {
-	const results: TaskMeta[] = [];
+const findAllTasks = async (
+	log: Logger,
+	dir: string,
+): Promise<TaskModuleMeta[]> => {
+	const results: TaskModuleMeta[] = [];
+
+	const buildDir = toBuildId(dir);
 
 	// TODO we're using CheapWatch to find all files, which works fine,
 	// but maybe we want a faster more specialized method.
@@ -192,7 +198,7 @@ const findAllTasks = async (log: Logger, dir: string): Promise<TaskMeta[]> => {
 		path,
 		stats,
 	}) => stats.isDirectory() || isTaskPath(path);
-	const watcher = new CheapWatch({dir, filter, watch: false});
+	const watcher = new CheapWatch({dir: buildDir, filter, watch: false});
 
 	await watcher.init();
 	for (const [path, stats] of watcher.paths) {
