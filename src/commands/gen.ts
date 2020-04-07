@@ -1,6 +1,8 @@
 import {blue, magenta} from '../colors/terminal.js';
-import {gen} from '../project/gen.js';
+import {gen} from '../gen/gen.js';
+import {createNodeGenHost} from '../gen/nodeGenHost.js';
 import {logger, LogLevel} from '../utils/log.js';
+import {paths} from '../paths.js';
 
 // TODO get LogLevel from env vars and cli args - make it an option
 const logLevel = LogLevel.Trace;
@@ -16,6 +18,10 @@ export const initOptions = (opts: InitialOptions): Options => opts;
 export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
-
-	await gen({logLevel});
+	await gen({
+		host: createNodeGenHost({
+			logLevel: log.config.level,
+		}),
+		dir: paths.source,
+	});
 };

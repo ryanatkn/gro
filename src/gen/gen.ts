@@ -1,6 +1,9 @@
-import * as fp from 'path';
+import {join, basename, dirname} from 'path';
 
 import {isSourceId} from '../paths.js';
+import {LogLevel, logger} from '../utils/log.js';
+import {omitUndefined} from '../utils/object.js';
+import {magenta} from '../colors/terminal.js';
 
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
@@ -8,12 +11,13 @@ export const GEN_FILE_PATTERN =
 	GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN_FILE_SEPARATOR; // TODO regexp?
 
 export type GenResult = {
-	originFileId: string;
+	originId: string;
 	files: GenFile[];
 };
 export interface GenFile {
 	id: string;
 	contents: string;
+	originId: string;
 }
 
 export interface GenModule {
@@ -34,51 +38,99 @@ export interface RawGenFile {
 	fileName?: string;
 }
 
+export interface GenModuleMeta {
+	id: string;
+	mod: GenModule;
+}
+
+export interface GenHost {
+	loadModules: (dir: string) => Promise<GenModuleMeta[]>;
+	// `outputFile` has the same interface as `fs.writeFile`,
+	// but for now it's text-only and assumes utf8.
+	// TODO add support for typed arrays and buffers
+	outputFile: (file: GenFile) => Promise<void>;
+}
+
+export interface Options {
+	logLevel: LogLevel;
+	host: GenHost;
+	dir: string;
+}
+export type RequiredOptions = 'host' | 'dir';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (opts: InitialOptions): Options => ({
+	logLevel: LogLevel.Info,
+	...omitUndefined(opts),
+});
+
+// TODO test this
+export const gen = async (opts: InitialOptions): Promise<void> => {
+	const {logLevel, host, dir} = initOptions(opts);
+	const log = logger(logLevel, [magenta('[gen]')]);
+	const {info} = log;
+
+	// TODO is this right? or should we convert input paths to source ids?
+	if (!isSourceId(dir)) {
+		throw Error(`dir must be a source id: ${dir}`);
+	}
+
+	const modules = await host.loadModules(dir);
+
+	// TODO how should this work? do we want a single mutable state property?
+	// the first use case is probably going to be including the origin file id, whic
+	const genCtx: GenContext = {};
+
+	for (const {id, mod} of modules) {
+		const rawGenResult = await mod.gen(genCtx);
+		const {files} = toGenResult(id, rawGenResult);
+		await Promise.all(files.map(file => host.outputFile(file)));
+	}
+
+	info('gen!');
+};
+
 export const toGenResult = (
-	originFileId: string,
+	originId: string,
 	rawResult: RawGenResult,
 ): GenResult => {
-	if (!isSourceId(originFileId)) {
-		throw Error(`originFileId must be a source id: ${originFileId}`);
+	if (!isSourceId(originId)) {
+		throw Error(`originId must be a source id: ${originId}`);
 	}
 	return {
-		originFileId,
-		files: toGenFiles(originFileId, rawResult),
+		originId,
+		files: toGenFiles(originId, rawResult),
 	};
 };
 
-const toGenFiles = (
-	originFileId: string,
-	rawResult: RawGenResult,
-): GenFile[] => {
+const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
 	if (typeof rawResult === 'string') {
-		return [toGenFile(originFileId, {contents: rawResult})];
+		return [toGenFile(originId, {contents: rawResult})];
 	} else if (Array.isArray(rawResult)) {
-		const files = rawResult.map(f => toGenFile(originFileId, f));
+		const files = rawResult.map(f => toGenFile(originId, f));
 		validateGenFiles(files);
 		return files;
 	} else {
-		return [toGenFile(originFileId, rawResult)];
+		return [toGenFile(originId, rawResult)];
 	}
 };
 
-const toGenFile = (originFileId: string, rawGenFile: RawGenFile): GenFile => {
+const toGenFile = (originId: string, rawGenFile: RawGenFile): GenFile => {
 	const {contents, fileName} = rawGenFile;
-	const id = toOutputFileId(originFileId, fileName);
-	return {id, contents};
+	const id = toOutputFileId(originId, fileName);
+	return {id, contents, originId};
 };
 
 const toOutputFileId = (
-	originFileId: string,
+	originId: string,
 	rawFileName: string | undefined,
 ): string => {
 	if (rawFileName === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
-	const fileName = rawFileName || toOutputFileName(fp.basename(originFileId));
-	const dir = fp.dirname(originFileId);
-	const outputFileId = fp.join(dir, fileName);
-	if (outputFileId === originFileId) {
+	const fileName = rawFileName || toOutputFileName(basename(originId));
+	const dir = dirname(originId);
+	const outputFileId = join(dir, fileName);
+	if (outputFileId === originId) {
 		throw Error('Gen origin and output file ids cannot be the same');
 	}
 	return outputFileId;
@@ -124,3 +176,6 @@ const validateGenFiles = (files: GenFile[]) => {
 		ids.add(file.id);
 	}
 };
+
+export const validateGenModule = (mod: Obj): mod is GenModule =>
+	typeof mod.gen === 'function';

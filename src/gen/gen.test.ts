@@ -1,20 +1,25 @@
-import * as fp from 'path';
-const {resolve} = fp; // TODO esm
+import {resolve} from 'path';
 
 import {test} from '../oki/index.js';
-import {toGenResult} from './gen.js';
+import {toGenResult, validateGenModule} from './gen.js';
+import * as testGenHtml from './fixtures/testGenHtml.gen.html.js';
+import * as testGenTs from './fixtures/testGenTs.gen.js';
+import * as testGenMulti from './fixtures/testGenMulti.gen.js';
+import * as testInvalidGenModule from './fixtures/testInvalidGenModule.js';
+
+const originId = resolve('src/foo.gen.ts');
 
 test('toGenResult', t => {
 	test('plain string', () => {
-		t.equal(toGenResult(resolve('src/foo.gen.ts'), '/**/'), {
-			originFileId: resolve('src/foo.gen.ts'),
-			files: [{id: resolve('src/foo.ts'), contents: '/**/'}],
+		t.equal(toGenResult(originId, '/**/'), {
+			originId,
+			files: [{id: resolve('src/foo.ts'), contents: '/**/', originId}],
 		});
 	});
 	test('object with a contents string', () => {
-		t.equal(toGenResult(resolve('src/foo.gen.ts'), {contents: '/**/'}), {
-			originFileId: resolve('src/foo.gen.ts'),
-			files: [{id: resolve('src/foo.ts'), contents: '/**/'}],
+		t.equal(toGenResult(originId, {contents: '/**/'}), {
+			originId,
+			files: [{id: resolve('src/foo.ts'), contents: '/**/', originId}],
 		});
 	});
 	test('fail with an unresolved id', () => {
@@ -28,31 +33,31 @@ test('toGenResult', t => {
 	});
 	test('custom file name', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), {
+			toGenResult(originId, {
 				fileName: 'fooz.ts',
 				contents: '/**/',
 			}),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
-				files: [{id: resolve('src/fooz.ts'), contents: '/**/'}],
+				originId,
+				files: [{id: resolve('src/fooz.ts'), contents: '/**/', originId}],
 			},
 		);
 	});
 	test('custom file name that matches the default file name', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), {
+			toGenResult(originId, {
 				fileName: 'foo.ts',
 				contents: '/**/',
 			}),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
-				files: [{id: resolve('src/foo.ts'), contents: '/**/'}],
+				originId,
+				files: [{id: resolve('src/foo.ts'), contents: '/**/', originId}],
 			},
 		);
 	});
 	test('fail when custom file name explicitly matches the origin', () => {
 		t.throws(() => {
-			toGenResult(resolve('src/foo.gen.ts'), {
+			toGenResult(originId, {
 				fileName: 'foo.gen.ts',
 				contents: '/**/',
 			});
@@ -64,53 +69,81 @@ test('toGenResult', t => {
 		});
 	});
 	test('fail with an empty file name', () => {
-		t.throws(() =>
-			toGenResult(resolve('src/foo.gen.ts'), {fileName: '', contents: '/**/'}),
-		);
+		t.throws(() => toGenResult(originId, {fileName: '', contents: '/**/'}));
 	});
 	test('additional file name parts', () => {
 		t.equal(toGenResult(resolve('src/foo.bar.gen.ts'), {contents: '/**/'}), {
-			originFileId: resolve('src/foo.bar.gen.ts'),
-			files: [{id: resolve('src/foo.bar.ts'), contents: '/**/'}],
+			originId: resolve('src/foo.bar.gen.ts'),
+			files: [
+				{
+					id: resolve('src/foo.bar.ts'),
+					contents: '/**/',
+					originId: resolve('src/foo.bar.gen.ts'),
+				},
+			],
 		});
 	});
 	test('js', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), {
+			toGenResult(originId, {
 				fileName: 'foo.js',
 				contents: '/**/',
 			}),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
-				files: [{id: resolve('src/foo.js'), contents: '/**/'}],
+				originId,
+				files: [{id: resolve('src/foo.js'), contents: '/**/', originId}],
 			},
 		);
 	});
 	test('implicit custom file extension', () => {
 		t.equal(toGenResult(resolve('src/foo.gen.json.ts'), '[/**/]'), {
-			originFileId: resolve('src/foo.gen.json.ts'),
-			files: [{id: resolve('src/foo.json'), contents: '[/**/]'}],
+			originId: resolve('src/foo.gen.json.ts'),
+			files: [
+				{
+					id: resolve('src/foo.json'),
+					contents: '[/**/]',
+					originId: resolve('src/foo.gen.json.ts'),
+				},
+			],
 		});
 	});
 	test('implicit empty file extension', () => {
 		t.equal(toGenResult(resolve('src/foo.gen..ts'), '[/**/]'), {
-			originFileId: resolve('src/foo.gen..ts'),
-			files: [{id: resolve('src/foo'), contents: '[/**/]'}],
+			originId: resolve('src/foo.gen..ts'),
+			files: [
+				{
+					id: resolve('src/foo'),
+					contents: '[/**/]',
+					originId: resolve('src/foo.gen..ts'),
+				},
+			],
 		});
 	});
 	test('implicit custom file extension with additional file name parts', () => {
 		t.equal(
 			toGenResult(resolve('src/foo.bar.gen.json.ts'), {contents: '[/**/]'}),
 			{
-				originFileId: resolve('src/foo.bar.gen.json.ts'),
-				files: [{id: resolve('src/foo.bar.json'), contents: '[/**/]'}],
+				originId: resolve('src/foo.bar.gen.json.ts'),
+				files: [
+					{
+						id: resolve('src/foo.bar.json'),
+						contents: '[/**/]',
+						originId: resolve('src/foo.bar.gen.json.ts'),
+					},
+				],
 			},
 		);
 	});
 	test('implicit custom file extension with many dots in between', () => {
 		t.equal(toGenResult(resolve('src/foo...gen.ts'), '[/**/]'), {
-			originFileId: resolve('src/foo...gen.ts'),
-			files: [{id: resolve('src/foo...ts'), contents: '[/**/]'}],
+			originId: resolve('src/foo...gen.ts'),
+			files: [
+				{
+					id: resolve('src/foo...ts'),
+					contents: '[/**/]',
+					originId: resolve('src/foo...gen.ts'),
+				},
+			],
 		});
 	});
 	test('fail with two parts following the .gen. pattern in the file name', () => {
@@ -144,58 +177,58 @@ test('toGenResult', t => {
 	});
 	test('explicit custom file extension', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), {
+			toGenResult(originId, {
 				fileName: 'foo.json',
 				contents: '[/**/]',
 			}),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
-				files: [{id: resolve('src/foo.json'), contents: '[/**/]'}],
+				originId,
+				files: [{id: resolve('src/foo.json'), contents: '[/**/]', originId}],
 			},
 		);
 	});
 	test('explicit custom empty file extension', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), {
+			toGenResult(originId, {
 				fileName: 'foo',
 				contents: '[/**/]',
 			}),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
-				files: [{id: resolve('src/foo'), contents: '[/**/]'}],
+				originId,
+				files: [{id: resolve('src/foo'), contents: '[/**/]', originId}],
 			},
 		);
 	});
 	test('explicit custom file extension ending with a dot', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), {
+			toGenResult(originId, {
 				fileName: 'foo.',
 				contents: '[/**/]',
 			}),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
-				files: [{id: resolve('src/foo.'), contents: '[/**/]'}],
+				originId,
+				files: [{id: resolve('src/foo.'), contents: '[/**/]', originId}],
 			},
 		);
 	});
 	test('simple array of raw files', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), [
+			toGenResult(originId, [
 				{contents: '/*1*/'},
 				{fileName: 'foo2.ts', contents: '/*2*/'},
 			]),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
+				originId,
 				files: [
-					{id: resolve('src/foo.ts'), contents: '/*1*/'},
-					{id: resolve('src/foo2.ts'), contents: '/*2*/'},
+					{id: resolve('src/foo.ts'), contents: '/*1*/', originId},
+					{id: resolve('src/foo2.ts'), contents: '/*2*/', originId},
 				],
 			},
 		);
 	});
 	test('complex array of raw files', () => {
 		t.equal(
-			toGenResult(resolve('src/foo.gen.ts'), [
+			toGenResult(originId, [
 				{contents: '/*1*/'},
 				{fileName: 'foo2.ts', contents: '/*2*/'},
 				{fileName: 'foo3.ts', contents: '/*3*/'},
@@ -203,28 +236,25 @@ test('toGenResult', t => {
 				{fileName: 'foo5.json', contents: '[/*5*/]'},
 			]),
 			{
-				originFileId: resolve('src/foo.gen.ts'),
+				originId,
 				files: [
-					{id: resolve('src/foo.ts'), contents: '/*1*/'},
-					{id: resolve('src/foo2.ts'), contents: '/*2*/'},
-					{id: resolve('src/foo3.ts'), contents: '/*3*/'},
-					{id: resolve('src/foo4.ts'), contents: '/*4*/'},
-					{id: resolve('src/foo5.json'), contents: '[/*5*/]'},
+					{id: resolve('src/foo.ts'), contents: '/*1*/', originId},
+					{id: resolve('src/foo2.ts'), contents: '/*2*/', originId},
+					{id: resolve('src/foo3.ts'), contents: '/*3*/', originId},
+					{id: resolve('src/foo4.ts'), contents: '/*4*/', originId},
+					{id: resolve('src/foo5.json'), contents: '[/*5*/]', originId},
 				],
 			},
 		);
 	});
 	test('fail with duplicate names because of omissions', () => {
 		t.throws(() => {
-			toGenResult(resolve('src/foo.gen.ts'), [
-				{contents: '/*1*/'},
-				{contents: '/*2*/'},
-			]);
+			toGenResult(originId, [{contents: '/*1*/'}, {contents: '/*2*/'}]);
 		});
 	});
 	test('fail with duplicate explicit names', () => {
 		t.throws(() => {
-			toGenResult(resolve('src/foo.gen.ts'), [
+			toGenResult(originId, [
 				{fileName: 'foo.ts', contents: '/*1*/'},
 				{fileName: 'foo.ts', contents: '/*2*/'},
 			]);
@@ -232,10 +262,18 @@ test('toGenResult', t => {
 	});
 	test('fail with duplicate explicit and implicit names', () => {
 		t.throws(() => {
-			toGenResult(resolve('src/foo.gen.ts'), [
+			toGenResult(originId, [
 				{contents: '/*1*/'},
 				{fileName: 'foo.ts', contents: '/*2*/'},
 			]);
 		});
 	});
+});
+
+test('validateGenModule()', t => {
+	t.ok(validateGenModule(testGenHtml));
+	t.ok(validateGenModule(testGenTs));
+	t.ok(validateGenModule(testGenMulti));
+	t.notOk(validateGenModule(testInvalidGenModule));
+	t.notOk(validateGenModule({task: {run: {}}}));
 });
