@@ -3,21 +3,11 @@ import {join} from 'path';
 import CheapWatch from 'cheap-watch';
 
 import {LogLevel, logger} from '../utils/log.js';
-import {magenta, gray} from '../colors/terminal.js';
+import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {FileStats} from '../project/fileData.js';
-import {
-	CheapWatchPathAddedEvent,
-	CheapWatchPathRemovedEvent,
-	DEBOUNCE_DEFAULT,
-} from '../project/watch.js';
 import {fmtPath} from '../utils/fmt.js';
-import {
-	GenHost,
-	GEN_FILE_PATTERN,
-	validateGenModule,
-	GenModuleMeta,
-} from './gen.js';
+import {GenHost, GEN_FILE_PATTERN, validateGenModule} from './gen.js';
 import {toBuildId, toSourceId} from '../paths.js';
 
 export interface Options {
@@ -36,8 +26,9 @@ export const createNodeGenHost = (opts: InitialOptions): GenHost => {
 
 	return {
 		//TODO should usage of GEN_FILE_PATTERN be a helper?
-		loadModules: async dir => {
-			const modules: GenModuleMeta[] = [];
+		findGenModules: async dir => {
+			info(`finding all gens in ${fmtPath(dir)}`);
+			const sourceIds: string[] = [];
 
 			const buildDir = toBuildId(dir);
 
@@ -49,41 +40,27 @@ export const createNodeGenHost = (opts: InitialOptions): GenHost => {
 				stats.isDirectory() ||
 				(path.includes(GEN_FILE_PATTERN) && path.endsWith('.js')); // excludes sourcemap and other meta files
 			const watch = false;
-			const debounce = DEBOUNCE_DEFAULT;
-			const watcher = new CheapWatch({dir: buildDir, filter, watch, debounce});
-			const handlePathAdded = ({
-				path,
-				stats,
-				isNew,
-			}: CheapWatchPathAddedEvent) => {
-				trace('added', gray(path), {stats, isNew});
-				throw Error('watch is not yet implemented');
-			};
-			const handlePathRemoved = ({path, stats}: CheapWatchPathRemovedEvent) => {
-				trace('removed', gray(path), {stats});
-				throw Error('watch is not yet implemented');
-			};
-			watcher.on('+', handlePathAdded);
-			watcher.on('-', handlePathRemoved);
+			const watcher = new CheapWatch({dir: buildDir, filter, watch});
 
 			await watcher.init();
 			for (const [path, stats] of watcher.paths) {
 				if (stats.isDirectory()) continue;
-				info('gen', fmtPath(path));
-				const buildId = join(buildDir, path);
-				const sourceId = toSourceId(buildId);
-				const mod = await import(buildId);
-				if (!validateGenModule(mod)) {
-					throw Error(`Invalid gen module: ${buildId}`);
-				}
-				modules.push({id: sourceId, mod});
+				const sourceId = toSourceId(join(buildDir, path));
+				trace('found gen', fmtPath(sourceId));
+				sourceIds.push(sourceId);
 			}
-
-			// clean up - we're not using CheapWatch for its watching! weird I know
 			watcher.close();
 			watcher.removeAllListeners();
 
-			return modules;
+			return sourceIds;
+		},
+		loadGenModule: async sourceId => {
+			const buildId = toBuildId(sourceId);
+			const mod = await import(buildId);
+			if (!validateGenModule(mod)) {
+				throw Error(`Invalid gen module: ${buildId}`);
+			}
+			return {id: sourceId, mod};
 		},
 		outputFile: async file => {
 			info(

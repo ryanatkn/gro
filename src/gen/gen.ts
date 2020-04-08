@@ -3,7 +3,8 @@ import {join, basename, dirname} from 'path';
 import {isSourceId} from '../paths.js';
 import {LogLevel, logger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
-import {magenta} from '../colors/terminal.js';
+import {magenta, yellow, red} from '../colors/terminal.js';
+import {fmtPath} from '../utils/fmt.js';
 
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
@@ -44,7 +45,8 @@ export interface GenModuleMeta {
 }
 
 export interface GenHost {
-	loadModules: (dir: string) => Promise<GenModuleMeta[]>;
+	findGenModules: (dir: string) => Promise<string[]>; // returns source ids
+	loadGenModule: (sourceId: string) => Promise<GenModuleMeta>;
 	// `outputFile` has the same interface as `fs.writeFile`,
 	// but for now it's text-only and assumes utf8.
 	// TODO add support for typed arrays and buffers
@@ -67,20 +69,33 @@ export const initOptions = (opts: InitialOptions): Options => ({
 export const gen = async (opts: InitialOptions): Promise<void> => {
 	const {logLevel, host, dir} = initOptions(opts);
 	const log = logger(logLevel, [magenta('[gen]')]);
-	const {info} = log;
+	const {info, error} = log;
 
 	// TODO is this right? or should we convert input paths to source ids?
 	if (!isSourceId(dir)) {
 		throw Error(`dir must be a source id: ${dir}`);
 	}
 
-	const modules = await host.loadModules(dir);
+	const genSourceIds = await host.findGenModules(dir);
+	const genModules = (
+		await Promise.all(
+			genSourceIds.map(sourceId => {
+				try {
+					return host.loadGenModule(sourceId);
+				} catch (err) {
+					const reason = `Failed to load gen ${fmtPath(sourceId)}.`;
+					error(red(reason), yellow(err.message));
+					return null!; // `!` fills in for `.filter(Boolean)`
+				}
+			}),
+		)
+	).filter(Boolean);
 
 	// TODO how should this work? do we want a single mutable state property?
 	// the first use case is probably going to be including the origin file id, whic
 	const genCtx: GenContext = {};
 
-	for (const {id, mod} of modules) {
+	for (const {id, mod} of genModules) {
 		const rawGenResult = await mod.gen(genCtx);
 		const {files} = toGenResult(id, rawGenResult);
 		await Promise.all(files.map(file => host.outputFile(file)));
