@@ -27,7 +27,7 @@ $ gro run # looks through src/ for files matching *.task.ts and displays them
 Run a task:
 
 ```bash
-$ gro run some/thing --example flag # runs src/some/thing.task.ts
+$ gro run some/thing --example arg # runs src/some/thing.task.ts
 ```
 
 Define a task:
@@ -38,7 +38,7 @@ import {Task} from '@feltcoop/gro/run/task.js';
 
 export const task: Task = {
 	run: async ({log, argv}, data) => {
-		log.info('CLI flags', argv); // => {example: 'flag'}
+		log.info('CLI args', argv); // => {example: 'arg'}
 		await somethingAsync(data.isPassedFromTaskToTask);
 		// data.canBeMutated = 'if you dare';
 		return {...data, immutableData: 'can be forwarded like so'};
@@ -59,4 +59,4 @@ $ gro run task1 task2 task3 # each is awaited before moving to the next
       it could be a single function if the object syntax
       ends up not being useful for task metadata,
       and it could be changed to be a default export
-- [ ] consider a pattern for declaring and validating CLI flags
+- [ ] consider a pattern for declaring and validating CLI args
