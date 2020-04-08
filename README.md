@@ -80,6 +80,7 @@ gro clean # remove all build artifacts
 - [`gen`](src/gen) code generation
 - other [docs](src/docs)
   - [options](src/docs/options.md)
+  - [tasks](src/docs/tasks.md)
 
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
