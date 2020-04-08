@@ -1,14 +1,13 @@
 import fs from 'fs-extra';
 import {join} from 'path';
-import CheapWatch from 'cheap-watch';
 
 import {LogLevel, logger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
-import {FileStats} from '../project/fileData.js';
 import {fmtPath} from '../utils/fmt.js';
 import {GenHost, GEN_FILE_PATTERN, validateGenModule} from './gen.js';
 import {toBuildId, toSourceId} from '../paths.js';
+import {findFiles} from '../fs/nodeFs.js';
 
 export interface Options {
 	logLevel: LogLevel;
@@ -32,25 +31,16 @@ export const createNodeGenHost = (opts: InitialOptions): GenHost => {
 
 			const buildDir = toBuildId(dir);
 
-			// TODO refactor to use the same file & watch solution as  `NodeTestContext` and `project/assets.ts`
-			const filter: (p: {path: string; stats: FileStats}) => boolean = ({
-				path,
-				stats,
-			}) =>
-				stats.isDirectory() ||
-				(path.includes(GEN_FILE_PATTERN) && path.endsWith('.js')); // excludes sourcemap and other meta files
-			const watch = false;
-			const watcher = new CheapWatch({dir: buildDir, filter, watch});
-
-			await watcher.init();
-			for (const [path, stats] of watcher.paths) {
+			const paths = await findFiles(
+				buildDir,
+				({path}) => path.includes(GEN_FILE_PATTERN) && path.endsWith('.js'),
+			);
+			for (const [path, stats] of paths) {
 				if (stats.isDirectory()) continue;
 				const sourceId = toSourceId(join(buildDir, path));
 				trace('found gen', fmtPath(sourceId));
 				sourceIds.push(sourceId);
 			}
-			watcher.close();
-			watcher.removeAllListeners();
 
 			return sourceIds;
 		},

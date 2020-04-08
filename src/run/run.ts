@@ -109,6 +109,7 @@ export const run = async (
 
 	// First load all of the specified tasks,
 	// so any errors cause the command to exit before running anything.
+	// We don't want to run only some tasks in a series!
 	const tasks: TaskModuleMeta[] = [];
 	let shouldRunTasks = true;
 	for (const taskName of taskNames) {

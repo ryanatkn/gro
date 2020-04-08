@@ -1,11 +1,8 @@
 import {join} from 'path';
-import CheapWatch from 'cheap-watch';
 
 import {LogLevel, logger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
-import {FileStats} from '../project/fileData.js';
-import {DEBOUNCE_DEFAULT} from '../project/watch.js';
 import {fmtPath} from '../utils/fmt.js';
 import {RunHost} from './run.js';
 import {
@@ -15,6 +12,7 @@ import {
 	validateTaskModule,
 } from './task.js';
 import {toSourcePath, toBuildId, toSourceId, toBasePath} from '../paths.js';
+import {findFiles} from '../fs/nodeFs.js';
 
 export interface Options {
 	logLevel: LogLevel;
@@ -37,23 +35,13 @@ export const createNodeRunHost = (opts: InitialOptions): RunHost => {
 
 			const buildDir = toBuildId(dir);
 
-			const filter: (p: {path: string; stats: FileStats}) => boolean = ({
-				path,
-				stats,
-			}) => stats.isDirectory() || isTaskPath(path);
-			const watch = false;
-			const debounce = DEBOUNCE_DEFAULT;
-			const watcher = new CheapWatch({dir: buildDir, filter, watch, debounce});
-
-			await watcher.init();
-			for (const [path, stats] of watcher.paths) {
+			const paths = await findFiles(buildDir, ({path}) => isTaskPath(path));
+			for (const [path, stats] of paths) {
 				if (stats.isDirectory()) continue;
 				const sourceId = toSourceId(join(buildDir, path));
 				trace('found task', fmtPath(sourceId));
 				sourceIds.push(sourceId);
 			}
-			watcher.close();
-			watcher.removeAllListeners();
 
 			return sourceIds;
 		},
