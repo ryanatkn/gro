@@ -7,8 +7,10 @@ import {validateTaskModule} from './task.js';
 test('createNodeRunHost()', t => {
 	const host = createNodeRunHost({logLevel: 0});
 
-	test('host.findTasks()', async () => {
-		const taskSourceIds = await host.findTasks(resolve('src/run/fixtures'));
+	test('host.findTaskModules()', async () => {
+		const taskSourceIds = await host.findTaskModules(
+			resolve('src/run/fixtures'),
+		);
 		t.equal(taskSourceIds, [
 			resolve('src/run/fixtures/testFailingTask.task.ts'),
 			resolve('src/run/fixtures/testTask1.task.ts'),

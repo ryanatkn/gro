@@ -31,7 +31,7 @@ export const createNodeRunHost = (opts: InitialOptions): RunHost => {
 	const {info, trace} = logger(logLevel, [magenta('[run]')]);
 
 	return {
-		findTasks: async (dir: string): Promise<string[]> => {
+		findTaskModules: async (dir: string): Promise<string[]> => {
 			info(`finding all tasks in ${fmtPath(dir)}`);
 			const sourceIds: string[] = [];
 

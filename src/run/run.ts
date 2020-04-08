@@ -30,7 +30,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 });
 
 export interface RunHost {
-	findTasks: (dir: string) => Promise<string[]>; // returns source ids
+	findTaskModules: (dir: string) => Promise<string[]>; // returns source ids
 	loadTaskModule: (sourceId: string) => Promise<TaskModuleMeta>;
 }
 
@@ -87,7 +87,7 @@ export const run = async (
 	// If no task names are provided,
 	// find all of the available ones and print them out.
 	if (!taskNames.length) {
-		const taskSourceIds = await host.findTasks(dir);
+		const taskSourceIds = await host.findTaskModules(dir);
 		const taskNames = taskSourceIds.map(id => toTaskName(toBasePath(id)));
 		if (taskNames.length) {
 			info(
