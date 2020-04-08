@@ -28,7 +28,7 @@ export interface Gen {
 	(g: GenContext): RawGenResult | Promise<RawGenResult>;
 }
 export interface GenContext {
-	// ?
+	originId: string;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
 export type RawGenResult = string | RawGenFile | RawGenFile[];
@@ -93,9 +93,9 @@ export const gen = async (opts: InitialOptions): Promise<void> => {
 
 	// TODO how should this work? do we want a single mutable state property?
 	// the first use case is probably going to be including the origin file id, whic
-	const genCtx: GenContext = {};
 
 	for (const {id, mod} of genModules) {
+		const genCtx: GenContext = {originId: id};
 		const rawGenResult = await mod.gen(genCtx);
 		const {files} = toGenResult(id, rawGenResult);
 		await Promise.all(files.map(file => host.outputFile(file)));
