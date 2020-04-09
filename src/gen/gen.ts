@@ -151,7 +151,7 @@ const toOutputFileId = (
 	return outputFileId;
 };
 
-const toOutputFileName = (fileName: string): string => {
+export const toOutputFileName = (fileName: string): string => {
 	const parts = fileName.split(GEN_FILE_SEPARATOR);
 	const genPatternIndex = parts.indexOf(GEN_FILE_PATTERN_TEXT);
 	if (genPatternIndex === -1) {
