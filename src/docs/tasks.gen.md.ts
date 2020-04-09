@@ -20,7 +20,7 @@ export const gen: Gen = async ({originId}) => {
 	const taskSourceIds = await findTaskModules(paths.source);
 
 	// TODO render the footer with the originId
-	return `# Felt tasks
+	return `# Gro tasks
  
 ## all tasks
 
