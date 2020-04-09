@@ -198,6 +198,9 @@ and `src/data/thing.json`:
       when possible (e.g. JSON doesn't support comments)
 - [ ] format output with Prettier (optionally not for speed)
 - [ ] watch mode and build integration
+- [ ] support gen files authored in languages beyond TypeScript like
+      Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc
+      to generate html/markdown/etc
 - [ ] support generating non-text files
 - [ ] look into leveraging
       [`io-ts-codegen`](https://github.com/gcanti/io-ts-codegen)
