@@ -45,10 +45,12 @@ export const gen: Gen = async ({originId}) => {
 				toSourceId(relativePathPart),
 			) || './'})`,
 	);
-	const breadcrumbs = [...pathParts, outputFileName].join(' /\n');
+	const breadcrumbs = [...pathParts, outputFileName]
+		.map(line => `> <sub>${line}</sub>`)
+		.join(' <sub>/</sub> \n');
 
 	// TODO render the footer with the originId
-	return `# Gro tasks
+	return `# Tasks
 
 ${breadcrumbs}
 
