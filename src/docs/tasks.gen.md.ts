@@ -1,8 +1,14 @@
-import {dirname, relative} from 'path';
+import {dirname, relative, basename} from 'path';
 
 import {Gen} from '../gen/gen.js';
 import {createNodeRunHost} from '../run/nodeRunHost.js';
-import {paths, toBasePath, toBuildId, toSourceId} from '../paths.js';
+import {
+	paths,
+	toBasePath,
+	toBuildId,
+	toSourceId,
+	toRootPath,
+} from '../paths.js';
 import {toTaskName} from '../run/task.js';
 
 // This is the first simple implementation of Gro's automated docs.
@@ -35,6 +41,6 @@ ${taskSourceIds.reduce(
 )}
 [← back to docs](${relative(dirname(originId), toSourceId('docs')) || './'})
 
-\`gen: ${JSON.stringify({originId})}\`
+gen origin: [${toRootPath(originId)}](./${basename(originId)})
 `;
 };

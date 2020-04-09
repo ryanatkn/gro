@@ -8,4 +8,4 @@
 
 [← back to docs](./)
 
-`gen: {"originId":"/home/ryan/dev/gro/src/docs/tasks.gen.md.ts"}`
+gen origin: [src/docs/tasks.gen.md.ts](./tasks.gen.md.ts)
