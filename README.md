@@ -2,6 +2,15 @@
 
 > opinionated tools for web development
 
+## docs
+
+- [`run`](src/run) task runner
+- [`oki`](src/oki) testing library
+- [`gen`](src/gen) code generation
+- other [docs](src/docs)
+  - [options](src/docs/options.md)
+  - [tasks](src/docs/tasks.md)
+
 ## motivation
 
 Gro is an opinionated monotool for making webapps.
@@ -72,15 +81,6 @@ gro assets # builds static assets (TODO integrate with `gro dev`)
 ```bash
 gro clean # remove all build artifacts
 ```
-
-## docs
-
-- [`run`](src/run) task runner
-- [`oki`](src/oki) testing library
-- [`gen`](src/gen) code generation
-- other [docs](src/docs)
-  - [options](src/docs/options.md)
-  - [tasks](src/docs/tasks.md)
 
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
