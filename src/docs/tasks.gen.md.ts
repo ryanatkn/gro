@@ -33,6 +33,8 @@ ${taskSourceIds.reduce(
 		)})\n`,
 	'',
 )}
+[← back to docs](${relative(dirname(originId), toSourceId('docs')) || './'})
+
 \`gen: ${JSON.stringify({originId})}\`
 `;
 };
