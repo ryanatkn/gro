@@ -1,5 +1,6 @@
 # Tasks
 
+> <sub>[gro](/../..)</sub> <sub>/</sub> 
 > <sub>[docs](./)</sub> <sub>/</sub> 
 > <sub>tasks.md</sub>
 
@@ -15,6 +16,7 @@
 $ gro run some/task/name
 ```
 
+> <sub>[gro](/../..)</sub> <sub>/</sub> 
 > <sub>[docs](./)</sub> <sub>/</sub> 
 > <sub>tasks.md</sub>
 

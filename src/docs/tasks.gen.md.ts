@@ -28,6 +28,9 @@ export const gen: Gen = async ({originId}) => {
 	const {findTaskModules} = createNodeRunHost({logLevel: 0});
 	const taskSourceIds = await findTaskModules(paths.source);
 
+	// TODO need to get this from project config or something
+	const rootPath = last(toPathSegments(paths.root));
+
 	const originDir = dirname(originId);
 	const originBase = basename(originId);
 
@@ -38,6 +41,11 @@ export const gen: Gen = async ({originId}) => {
 	// TODO should this be passed in the context, like `defaultOutputFileName`?
 	const outputFileName = toOutputFileName(originBase);
 
+	// TODO this is GitHub-specific
+	const rootLink = `[${rootPath}](/../..)`;
+
+	// TODO do we want to use absolute paths instead of relative paths,
+	// because GitHub works with them and it simplifies the code?
 	const pathParts = toPathParts(relativeDir).map(
 		relativePathPart =>
 			`[${last(toPathSegments(relativePathPart))}](${relative(
@@ -45,7 +53,7 @@ export const gen: Gen = async ({originId}) => {
 				toSourceId(relativePathPart),
 			) || './'})`,
 	);
-	const breadcrumbs = [...pathParts, outputFileName]
+	const breadcrumbs = [rootLink, ...pathParts, outputFileName]
 		.map(line => `> <sub>${line}</sub>`)
 		.join(' <sub>/</sub> \n');
 
