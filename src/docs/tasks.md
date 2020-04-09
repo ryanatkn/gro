@@ -9,6 +9,12 @@
 - [run/fixtures/testTask1](../run/fixtures/testTask1.task.ts)
 - [run/fixtures/testTask2](../run/fixtures/testTask2.task.ts)
 
+## usage
+
+```bash
+$ gro run some/task/name
+```
+
 > <sub>[docs](./)</sub> <sub>/</sub> 
 > <sub>tasks.md</sub>
 
