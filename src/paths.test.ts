@@ -17,6 +17,7 @@ import {
 	toSourceExt,
 	toCompiledExt,
 	toPathParts,
+	toPathSegments,
 } from './paths.js';
 
 test('toRootPath()', t => {
@@ -302,10 +303,36 @@ test('toCompiledExt()', t => {
 	});
 });
 
+test('toPathSegments()', t => {
+	t.equal(toPathSegments('foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
+	test('leading dot', () => {
+		t.equal(toPathSegments('./foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
+	});
+	test('leading slash', () => {
+		t.equal(toPathSegments('/foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
+	});
+	test('trailing slash', () => {
+		t.equal(toPathSegments('foo/bar/baz/'), ['foo', 'bar', 'baz']);
+	});
+});
+
 test('toPathParts()', t => {
-	t.equal(toPathParts('./foo/bar/baz.ts'), [
-		'foo',
-		'foo/bar',
-		'foo/bar/baz.ts',
-	]);
+	t.equal(toPathParts('foo/bar/baz.ts'), ['foo', 'foo/bar', 'foo/bar/baz.ts']);
+	test('leading dot', () => {
+		t.equal(toPathParts('./foo/bar/baz.ts'), [
+			'foo',
+			'foo/bar',
+			'foo/bar/baz.ts',
+		]);
+	});
+	test('leading slash', () => {
+		t.equal(toPathParts('/foo/bar/baz.ts'), [
+			'/foo',
+			'/foo/bar',
+			'/foo/bar/baz.ts',
+		]);
+	});
+	test('trailing slash', () => {
+		t.equal(toPathParts('foo/bar/baz/'), ['foo', 'foo/bar', 'foo/bar/baz']);
+	});
 });

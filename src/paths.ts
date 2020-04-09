@@ -147,17 +147,21 @@ export const toSourceExt = (path: string): string =>
 export const toCompiledExt = (path: string): string =>
 	hasSourceExt(path) ? replaceExt(path, JS_EXT) : path;
 
-// Designed for the `cheap-watch` API. See notes above.
+// Gets the individual parts of a path, ignoring dots and separators.
+// toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
+export const toPathSegments = (path: string): string[] =>
+	path.split(sep).filter(s => s && s !== '.');
+
+// Designed for the `cheap-watch` API.
+// toPathParts('./foo/bar/baz.ts') => ['foo', 'foo/bar', 'foo/bar/baz.ts']
 export const toPathParts = (path: string): string[] => {
-	const parts = stripStart(path, '.')
-		.split(sep)
-		.filter(Boolean);
-	let currentPath: string | undefined;
-	return parts.map(part => {
-		if (currentPath === undefined) {
-			currentPath = part;
+	const segments = toPathSegments(path);
+	let currentPath = path[0] === sep ? sep : '';
+	return segments.map(segment => {
+		if (!currentPath || currentPath === sep) {
+			currentPath += segment;
 		} else {
-			currentPath += sep + part;
+			currentPath += sep + segment;
 		}
 		return currentPath;
 	});
