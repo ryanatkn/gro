@@ -1,6 +1,7 @@
 import {Task} from '../task.js';
 
 export const task: Task = {
+	description: 'a test task that forwards data',
 	run: async ({log: {info}}, data) => {
 		info('test task 2!');
 		return {

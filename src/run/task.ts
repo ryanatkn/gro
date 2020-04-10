@@ -3,6 +3,7 @@ import {Argv} from '../bin/types.js';
 
 export interface Task {
 	run: (ctx: TaskContext, data: TaskData) => Promise<TaskData | void>;
+	description?: string;
 }
 
 export interface TaskModuleMeta {

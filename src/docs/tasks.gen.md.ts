@@ -5,12 +5,10 @@ import {createNodeRunHost} from '../run/nodeRunHost.js';
 import {
 	paths,
 	toBasePath,
-	toBuildId,
 	toSourceId,
 	toPathParts,
 	toPathSegments,
 } from '../paths.js';
-import {toTaskName} from '../run/task.js';
 import {stripStart} from '../utils/string.js';
 import {last} from '../utils/array.js';
 
@@ -26,8 +24,9 @@ import {last} from '../utils/array.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({originId}) => {
-	const {findTaskModules} = createNodeRunHost({logLevel: 0});
+	const {findTaskModules, loadTaskModule} = createNodeRunHost({logLevel: 0});
 	const taskSourceIds = await findTaskModules(paths.source);
+	const tasks = await Promise.all(taskSourceIds.map(id => loadTaskModule(id)));
 
 	// TODO need to get this from project config or something
 	const rootPath = last(toPathSegments(paths.root));
@@ -56,7 +55,7 @@ export const gen: Gen = async ({originId}) => {
 	);
 	const breadcrumbs = [rootLink, ...pathParts, outputFileName]
 		.map(line => `> <sub>${line}</sub>`)
-		.join(' <sub>/</sub> \n');
+		.join(' <sub>/</sub>\n');
 
 	// TODO render the footer with the originId
 	return `# Tasks
@@ -65,13 +64,12 @@ ${breadcrumbs}
 
 ## all tasks
 
-${taskSourceIds.reduce(
-	(taskList, id) =>
+${tasks.reduce(
+	(taskList, task) =>
 		taskList +
-		`- [${toBasePath(toSourceId(toTaskName(toBuildId(id))))}](${relative(
-			originDir,
-			id,
-		)})\n`,
+		`- [${toBasePath(toSourceId(task.name))}](${relative(originDir, task.id)})${
+			task.mod.task.description ? ` - ${task.mod.task.description}` : ''
+		}\n`,
 	'',
 )}
 ## usage
