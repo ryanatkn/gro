@@ -1,7 +1,13 @@
-import {resolve} from 'path';
+import {resolve, join} from 'path';
 
 import {test} from '../oki/index.js';
-import {toGenResult, validateGenModule} from './gen.js';
+import {
+	toGenResult,
+	validateGenModule,
+	gen,
+	GenFile,
+	GenModuleMeta,
+} from './gen.js';
 import * as testGenHtml from './fixtures/testGenHtml.gen.html.js';
 import * as testGenTs from './fixtures/testGenTs.gen.js';
 import * as testGenMulti from './fixtures/testGenMulti.gen.js';
@@ -267,6 +273,83 @@ test('toGenResult', t => {
 				{fileName: 'foo.ts', contents: '/*2*/'},
 			]);
 		});
+	});
+});
+
+test('gen', async t => {
+	const dir = resolve('src/foo/bar');
+	const sourceIdA = join(dir, 'bazA.gen.ts');
+	const sourceIdB = join(dir, 'baz/B.gen.ts');
+	let fileA: undefined | GenFile;
+	let fileB: undefined | GenFile;
+	let outputA: undefined | GenFile;
+	let outputB: undefined | GenFile;
+	let modA: GenModuleMeta = {
+		id: sourceIdA,
+		mod: {
+			gen: async ctx => {
+				t.is(ctx.originId, sourceIdA);
+				if (fileA) t.fail('Already loaded fileA');
+				fileA = {
+					id: join(dir, 'outputA.ts'),
+					originId: sourceIdA,
+					contents: 'fileA',
+				};
+				return fileA.contents; // here we return the shorthand version
+			},
+		},
+	};
+	let modB: GenModuleMeta = {
+		id: sourceIdB,
+		mod: {
+			gen: async ctx => {
+				t.is(ctx.originId, sourceIdB);
+				if (fileB) t.fail('Already loaded fileB');
+				fileB = {
+					id: join(dir, 'outputB.ts'),
+					originId: sourceIdB,
+					contents: 'fileB',
+				};
+				return fileB;
+			},
+		},
+	};
+	await gen({
+		dir,
+		logLevel: 0,
+		host: {
+			findGenModules: async dir2 => {
+				t.is(dir, dir2);
+				return [sourceIdA, sourceIdB];
+			},
+			loadGenModule: async sourceId => {
+				if (sourceId === sourceIdA) {
+					return modA;
+				} else if (sourceId === sourceIdB) {
+					return modB;
+				} else {
+					t.fail(`Unknown sourceId ${sourceId}`);
+					throw Error(); // TODO `t.fail` should use TS `asserts` to handle control flow
+				}
+			},
+			outputFile: async file => {
+				if (file.originId === sourceIdA) {
+					outputA = file;
+				} else {
+					outputB = file;
+				}
+			},
+		},
+	});
+	t.equal(outputA, {
+		id: join(dir, 'bazA.ts'),
+		originId: sourceIdA,
+		contents: 'fileA',
+	});
+	t.equal(outputB, {
+		id: join(dir, 'baz/B.ts'),
+		originId: sourceIdB,
+		contents: 'fileB',
 	});
 });
 
