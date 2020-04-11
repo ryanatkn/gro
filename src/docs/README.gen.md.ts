@@ -29,11 +29,16 @@ export const gen: Gen = async ({originId}) => {
 	// TODO this is GitHub-specific
 	const rootLink = `[${rootPath}](/../..)`;
 
-	const docFiles = await findFiles(originDir, ({path}) => path.endsWith('.md'));
+	const docFiles = await findFiles(originDir);
 	const docPaths: string[] = [];
 	for (const [path, stats] of docFiles) {
-		if (stats.isDirectory()) continue;
-		if (path === outputFileName) continue;
+		if (
+			stats.isDirectory() ||
+			path === outputFileName ||
+			!path.endsWith('.md')
+		) {
+			continue;
+		}
 		docPaths.push(path);
 	}
 	const docs = docPaths;
