@@ -79,9 +79,6 @@ export const run = async (
 	// It can be mutated or treated as immutable. Be careful with mutation!
 	let data = initialData;
 
-	const loadResults: TaskLoadResult[] = [];
-	const runResults: TaskRunResult[] = [];
-
 	const mainStopwatch = createStopwatch();
 
 	// If no task names are provided,
@@ -101,8 +98,8 @@ export const run = async (
 			ok: true,
 			data,
 			taskNames,
-			loadResults,
-			runResults,
+			loadResults: [],
+			runResults: [],
 			elapsed: mainStopwatch(),
 		};
 	}
@@ -110,40 +107,42 @@ export const run = async (
 	// First load all of the specified tasks,
 	// so any errors cause the command to exit before running anything.
 	// We don't want to run only some tasks in a series!
-	const tasks: TaskModuleMeta[] = [];
-	let shouldRunTasks = true;
-	for (const taskName of taskNames) {
-		const path = toTaskPath(taskName);
-		const sourceId = join(dir, path);
-		let task;
-		try {
-			task = await host.loadTaskModule(sourceId);
-			loadResults.push({ok: true, taskName});
-		} catch (err) {
-			const reason = `Failed to load task "${taskName}".`;
-			error(red(reason), yellow(err.message));
-			loadResults.push({ok: false, taskName, reason, error: err});
-			shouldRunTasks = false;
-			continue;
-		}
-		tasks.push(task);
-	}
+	const loadedTasks = await Promise.all(
+		taskNames.map(
+			async (taskName): Promise<[TaskModuleMeta | null, TaskLoadResult]> => {
+				const path = toTaskPath(taskName);
+				const sourceId = join(dir, path);
+				try {
+					const task = await host.loadTaskModule(sourceId);
+					return [task, {ok: true, taskName}];
+				} catch (err) {
+					const reason = `Failed to load task "${taskName}".`;
+					error(red(reason), yellow(err.message));
+					return [null, {ok: false, taskName, reason, error: err}];
+				}
+			},
+		),
+	);
+	const loadResults = loadedTasks.map(([_, r]) => r);
 
 	// Abort if the cancellation flag was set.
 	// Postponing this check allows all errors to surface.
-	if (!shouldRunTasks) {
+	const failedToLoadAnyTasks = loadedTasks.find(([t]) => !t);
+	if (failedToLoadAnyTasks) {
 		info(yellow('Aborting. No tasks were run due to errors.'));
 		return {
 			ok: false,
 			data,
 			taskNames,
 			loadResults,
-			runResults,
+			runResults: [],
 			elapsed: mainStopwatch(),
 		};
 	}
 
-	// Run the loaded tasks.
+	// Run the loaded tasks in series.
+	const tasks = loadedTasks.map(([t]) => t!);
+	const runResults: TaskRunResult[] = [];
 	for (const task of tasks) {
 		const taskStopwatch = createStopwatch();
 		info(`→ ${cyan(task.name)}`);
