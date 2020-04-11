@@ -7,6 +7,7 @@ import {
 	gen,
 	GenFile,
 	GenModuleMeta,
+	RawGenFile,
 } from './gen.js';
 import * as testGenHtml from './fixtures/testGenHtml.gen.html.js';
 import * as testGenTs from './fixtures/testGenTs.gen.js';
@@ -277,79 +278,257 @@ test('toGenResult', t => {
 });
 
 test('gen', async t => {
-	const dir = resolve('src/foo/bar');
-	const sourceIdA = join(dir, 'bazA.gen.ts');
-	const sourceIdB = join(dir, 'baz/B.gen.ts');
-	let fileA: undefined | GenFile;
-	let fileB: undefined | GenFile;
-	let outputA: undefined | GenFile;
-	let outputB: undefined | GenFile;
-	let modA: GenModuleMeta = {
-		id: sourceIdA,
-		mod: {
-			gen: async ctx => {
-				t.is(ctx.originId, sourceIdA);
-				if (fileA) t.fail('Already loaded fileA');
-				fileA = {
-					id: join(dir, 'outputA.ts'),
-					originId: sourceIdA,
-					contents: 'fileA',
-				};
-				return fileA.contents; // here we return the shorthand version
+	test('basic behavior', async () => {
+		const dir = resolve('src/foo/bar');
+		const sourceIdA = join(dir, 'bazA.gen.ts');
+		const sourceIdB = join(dir, 'baz/B.gen.ts');
+		let fileA: undefined | RawGenFile;
+		let fileB1: undefined | RawGenFile;
+		let fileB2: undefined | RawGenFile;
+		let outputA: undefined | GenFile;
+		let outputB1: undefined | GenFile;
+		let outputB2: undefined | GenFile;
+		let modA: GenModuleMeta = {
+			id: sourceIdA,
+			mod: {
+				gen: async ctx => {
+					t.is(ctx.originId, sourceIdA);
+					if (fileA) throw Error('Already generated fileA');
+					fileA = {
+						fileName: 'bazA.ts',
+						contents: 'fileA',
+					};
+					return fileA.contents; // here we return the shorthand version
+				},
 			},
-		},
-	};
-	let modB: GenModuleMeta = {
-		id: sourceIdB,
-		mod: {
-			gen: async ctx => {
-				t.is(ctx.originId, sourceIdB);
-				if (fileB) t.fail('Already loaded fileB');
-				fileB = {
-					id: join(dir, 'outputB.ts'),
-					originId: sourceIdB,
-					contents: 'fileB',
-				};
-				return fileB;
+		};
+		let modB: GenModuleMeta = {
+			id: sourceIdB,
+			mod: {
+				gen: async ctx => {
+					t.is(ctx.originId, sourceIdB);
+					if (fileB1) throw Error('Already generated fileB1');
+					if (fileB2) throw Error('Already generated fileB2');
+					fileB1 = {
+						fileName: 'outputB1.ts',
+						contents: 'fileB1',
+					};
+					fileB2 = {
+						fileName: 'outputB2.ts',
+						contents: 'fileB2',
+					};
+					return [fileB1, fileB2];
+				},
 			},
-		},
-	};
-	await gen({
-		dir,
-		logLevel: 0,
-		host: {
-			findGenModules: async dir2 => {
-				t.is(dir, dir2);
-				return [sourceIdA, sourceIdB];
+		};
+		const results = await gen({
+			dir,
+			logLevel: 0,
+			host: {
+				findGenModules: async dir2 => {
+					t.is(dir, dir2);
+					return [sourceIdA, sourceIdB];
+				},
+				loadGenModule: async sourceId => {
+					if (sourceId === sourceIdA) {
+						return modA;
+					} else if (sourceId === sourceIdB) {
+						return modB;
+					} else {
+						throw Error(`Unknown sourceId ${sourceId}`);
+					}
+				},
+				outputFile: async file => {
+					if (file.originId === sourceIdA) {
+						outputA = file;
+					} else if (file.id.includes('B1')) {
+						outputB1 = file;
+					} else {
+						outputB2 = file;
+					}
+				},
 			},
-			loadGenModule: async sourceId => {
-				if (sourceId === sourceIdA) {
-					return modA;
-				} else if (sourceId === sourceIdB) {
-					return modB;
-				} else {
-					t.fail(`Unknown sourceId ${sourceId}`);
-					throw Error(); // TODO `t.fail` should use TS `asserts` to handle control flow
-				}
-			},
-			outputFile: async file => {
-				if (file.originId === sourceIdA) {
-					outputA = file;
-				} else {
-					outputB = file;
-				}
-			},
-		},
+		});
+		t.ok(results.ok);
+		t.is(results.count, 3);
+		t.is(results.results.length, 2);
+		t.ok(fileA); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
+		t.is(fileA?.contents, outputA?.contents);
+		t.ok(outputA?.id.endsWith(fileA?.fileName!));
+		t.equal(outputA, {
+			id: join(dir, 'bazA.ts'),
+			originId: sourceIdA,
+			contents: 'fileA',
+		});
+		t.ok(fileB1); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
+		t.is(fileB1?.contents, outputB1?.contents);
+		t.ok(outputB1?.id.endsWith(fileB1?.fileName!));
+		t.equal(outputB1, {
+			id: join(dir, 'baz/outputB1.ts'),
+			originId: sourceIdB,
+			contents: 'fileB1',
+		});
+		t.ok(fileB2); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
+		t.is(fileB2?.contents, outputB2?.contents);
+		t.ok(outputB2?.id.endsWith(fileB2?.fileName!));
+		t.equal(outputB2, {
+			id: join(dir, 'baz/outputB2.ts'),
+			originId: sourceIdB,
+			contents: 'fileB2',
+		});
 	});
-	t.equal(outputA, {
-		id: join(dir, 'bazA.ts'),
-		originId: sourceIdA,
-		contents: 'fileA',
+
+	test('invalid gen module', async () => {
+		const dir = resolve('src/foo/bar');
+		const sourceIdA = join(dir, 'baz/A.gen.ts');
+		const sourceIdB = join(dir, 'bazB.gen.ts');
+		let fileB: undefined | RawGenFile; // no fileA b/c it should never be generated
+		let outputA: undefined | GenFile;
+		let outputB: undefined | GenFile;
+		// This is the invalid gen module.
+		// It's ordered first to test that its failure doesn't cascade.
+		let modA: GenModuleMeta = {
+			id: sourceIdA,
+			mod: {
+				gen: {
+					gen: async () => {
+						throw Error('Should not be called');
+					},
+				} as any,
+			},
+		};
+		let modB: GenModuleMeta = {
+			id: sourceIdB,
+			mod: {
+				gen: async ctx => {
+					t.is(ctx.originId, sourceIdB);
+					if (fileB) throw Error('Already generated fileB');
+					fileB = {
+						fileName: 'bazB.ts',
+						contents: 'fileB',
+					};
+					return fileB;
+				},
+			},
+		};
+		const results = await gen({
+			dir,
+			logLevel: 0,
+			host: {
+				findGenModules: async dir2 => {
+					t.is(dir, dir2);
+					return [sourceIdA, sourceIdB];
+				},
+				loadGenModule: async sourceId => {
+					if (sourceId === sourceIdA) {
+						return modA;
+					} else if (sourceId === sourceIdB) {
+						return modB;
+					} else {
+						throw Error(`Unknown sourceId ${sourceId}`);
+					}
+				},
+				outputFile: async file => {
+					if (file.originId === sourceIdA) {
+						outputA = file;
+					} else {
+						outputB = file;
+					}
+				},
+			},
+		});
+		t.notOk(results.ok);
+		t.is(results.count, 1);
+		t.is(results.results.length, 2);
+		t.notOk(results.results[0].ok);
+		t.ok(results.results[1].ok);
+		t.is(outputA, undefined);
+		t.ok(fileB); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
+		t.is(fileB?.contents, outputB?.contents);
+		t.ok(outputB?.id.endsWith(fileB?.fileName!));
+		t.equal(outputB, {
+			id: join(dir, 'bazB.ts'),
+			originId: sourceIdB,
+			contents: 'fileB',
+		});
 	});
-	t.equal(outputB, {
-		id: join(dir, 'baz/B.ts'),
-		originId: sourceIdB,
-		contents: 'fileB',
+
+	test('failing gen function', async () => {
+		const dir = resolve('src/foo/bar');
+		const sourceIdA = join(dir, 'baz/A.gen.ts');
+		const sourceIdB = join(dir, 'bazB.gen.ts');
+		let fileB: undefined | RawGenFile; // no fileA because it's never generated
+		let outputA: undefined | GenFile;
+		let outputB: undefined | GenFile;
+		let genError; // this error should be passed through to the result
+		// This is the failing gen module.
+		// It's ordered first to test that its failure doesn't cascade.
+		let modA: GenModuleMeta = {
+			id: sourceIdA,
+			mod: {
+				gen: async () => {
+					genError = Error('This fails for testing');
+					throw genError;
+				},
+			},
+		};
+		let modB: GenModuleMeta = {
+			id: sourceIdB,
+			mod: {
+				gen: async ctx => {
+					t.is(ctx.originId, sourceIdB);
+					if (fileB) throw Error('Already generated fileB');
+					fileB = {
+						fileName: 'bazB.ts',
+						contents: 'fileB',
+					};
+					return fileB;
+				},
+			},
+		};
+
+		const results = await gen({
+			dir,
+			logLevel: 0,
+			host: {
+				findGenModules: async dir2 => {
+					t.is(dir, dir2);
+					return [sourceIdA, sourceIdB];
+				},
+				loadGenModule: async sourceId => {
+					if (sourceId === sourceIdA) {
+						return modA;
+					} else if (sourceId === sourceIdB) {
+						return modB;
+					} else {
+						throw Error(`Unknown sourceId ${sourceId}`);
+					}
+				},
+				outputFile: async file => {
+					if (file.originId === sourceIdA) {
+						outputA = file;
+					} else {
+						outputB = file;
+					}
+				},
+			},
+		});
+
+		t.notOk(results.ok);
+		t.is(results.count, 1);
+		t.is(results.results.length, 2);
+		t.notOk(results.results[0].ok);
+		t.is((results.results[0] as any).error, genError); // TODO with `asserts` can we get this to typecheck? or do we need an `if` guard?
+		t.ok(results.results[1].ok);
+		t.is(outputA, undefined);
+		t.ok(fileB); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
+		t.is(fileB?.contents, outputB?.contents);
+		t.ok(outputB?.id.endsWith(fileB?.fileName!));
+		t.equal(outputB, {
+			id: join(dir, 'bazB.ts'),
+			originId: sourceIdB,
+			contents: 'fileB',
+		});
 	});
 });
 

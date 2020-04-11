@@ -6,6 +6,8 @@ import {omitUndefined} from '../utils/object.js';
 import {magenta, yellow, red} from '../colors/terminal.js';
 import {fmtPath} from '../utils/fmt.js';
 
+// TODO consider splitting the primitive data/helpers/types
+// out of this module like how `task` is separated from `run`
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN =
@@ -65,8 +67,26 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	...omitUndefined(opts),
 });
 
-// TODO test this
-export const gen = async (opts: InitialOptions): Promise<void> => {
+export type GenResults = {
+	ok: boolean;
+	count: number;
+	// TODO track timings, both individual and aggregate
+	results: GenModuleResult[];
+};
+export type GenModuleResult = GenModuleResultSuccess | GenModuleResultFailure;
+export type GenModuleResultSuccess = {
+	ok: true;
+	id: string;
+	count: number;
+};
+export type GenModuleResultFailure = {
+	ok: false;
+	id: string;
+	reason: string;
+	error: Error;
+};
+
+export const gen = async (opts: InitialOptions): Promise<GenResults> => {
 	const {logLevel, host, dir} = initOptions(opts);
 	const log = logger(logLevel, [magenta('[gen]')]);
 	const {info, error} = log;
@@ -77,35 +97,58 @@ export const gen = async (opts: InitialOptions): Promise<void> => {
 	}
 
 	const genSourceIds = await host.findGenModules(dir);
-	const genModules = (
-		await Promise.all(
-			genSourceIds.map(async sourceId => {
+	const genModules = await Promise.all(
+		genSourceIds.map(
+			async (
+				sourceId,
+			): Promise<[GenModuleMeta, null] | [null, GenModuleResultFailure]> => {
+				// TODO consider trying to clean up this return type -
+				// it's typesafe and efficient, just a bit weird
 				try {
 					const genModule = await host.loadGenModule(sourceId);
 					if (!validateGenModule(genModule.mod)) {
 						throw Error(`Gen module is invalid: ${toBasePath(sourceId)}`);
 					}
-					return genModule;
+					return [genModule, null];
 				} catch (err) {
 					const reason = `Failed to load gen ${fmtPath(sourceId)}.`;
 					error(red(reason), yellow(err.message));
-					return null!; // `!` fills in for `.filter(Boolean)`
+					return [null, {ok: false, id: sourceId, error: err, reason}];
 				}
-			}),
-		)
-	).filter(Boolean);
+			},
+		),
+	);
 
-	// TODO how should this work? do we want a single mutable state property?
-	// the first use case is probably going to be including the origin file id, whic
+	const results = await Promise.all(
+		genModules.map(
+			async (result): Promise<GenModuleResult> => {
+				if (result[1]) return result[1];
+				const {id, mod} = result[0];
+				const genCtx: GenContext = {originId: id};
+				let rawGenResult;
+				try {
+					rawGenResult = await mod.gen(genCtx);
+				} catch (err) {
+					const reason = `Error generating ${fmtPath(id)}.`;
+					error(red(reason), yellow(err.message));
+					return {ok: false, id, error: err, reason};
+				}
+				const {files} = toGenResult(id, rawGenResult);
+				await Promise.all(files.map(file => host.outputFile(file)));
+				return {ok: true, id, count: files.length};
+			},
+		),
+	);
 
-	for (const {id, mod} of genModules) {
-		const genCtx: GenContext = {originId: id};
-		const rawGenResult = await mod.gen(genCtx);
-		const {files} = toGenResult(id, rawGenResult);
-		await Promise.all(files.map(file => host.outputFile(file)));
-	}
+	const count = results.reduce((count, r) => count + (r.ok ? r.count : 0), 0);
 
-	info('gen!');
+	info(`generated ${count} files`);
+
+	return {
+		ok: results.every(r => r.ok),
+		count,
+		results,
+	};
 };
 
 export const toGenResult = (
