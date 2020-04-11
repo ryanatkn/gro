@@ -5,7 +5,7 @@ import {LogLevel, logger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {fmtPath} from '../utils/fmt.js';
-import {GenHost, isGenPath, validateGenModule} from './gen.js';
+import {GenHost, isGenPath} from './gen.js';
 import {toBuildId, toSourceId} from '../paths.js';
 import {findFiles} from '../fs/nodeFs.js';
 
@@ -46,9 +46,6 @@ export const createNodeGenHost = (opts: InitialOptions): GenHost => {
 		loadGenModule: async sourceId => {
 			const buildId = toBuildId(sourceId);
 			const mod = await import(buildId);
-			if (!validateGenModule(mod)) {
-				throw Error(`Invalid gen module: ${buildId}`);
-			}
 			return {id: sourceId, mod};
 		},
 		outputFile: async file => {

@@ -1,6 +1,6 @@
 import {join, basename, dirname} from 'path';
 
-import {isSourceId} from '../paths.js';
+import {isSourceId, toBasePath} from '../paths.js';
 import {LogLevel, logger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
 import {magenta, yellow, red} from '../colors/terminal.js';
@@ -79,9 +79,13 @@ export const gen = async (opts: InitialOptions): Promise<void> => {
 	const genSourceIds = await host.findGenModules(dir);
 	const genModules = (
 		await Promise.all(
-			genSourceIds.map(sourceId => {
+			genSourceIds.map(async sourceId => {
 				try {
-					return host.loadGenModule(sourceId);
+					const genModule = await host.loadGenModule(sourceId);
+					if (!validateGenModule(genModule.mod)) {
+						throw Error(`Gen module is invalid: ${toBasePath(sourceId)}`);
+					}
+					return genModule;
 				} catch (err) {
 					const reason = `Failed to load gen ${fmtPath(sourceId)}.`;
 					error(red(reason), yellow(err.message));
