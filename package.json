@@ -30,6 +30,10 @@
     "email": "team@felt.social",
     "url": "https://felt.social"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "engines": {
     "node": ">=12.16.0"
   },
