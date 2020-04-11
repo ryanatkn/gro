@@ -5,7 +5,7 @@ import {LogLevel, logger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {fmtPath} from '../utils/fmt.js';
-import {GenHost, isGenFile, validateGenModule} from './gen.js';
+import {GenHost, isGenPath, validateGenModule} from './gen.js';
 import {toBuildId, toSourceId} from '../paths.js';
 import {findFiles} from '../fs/nodeFs.js';
 
@@ -32,7 +32,7 @@ export const createNodeGenHost = (opts: InitialOptions): GenHost => {
 
 			const paths = await findFiles(
 				buildDir,
-				({path}) => isGenFile(path) && path.endsWith('.js'),
+				({path}) => isGenPath(path) && path.endsWith('.js'),
 			);
 			for (const [path, stats] of paths) {
 				if (stats.isDirectory()) continue;
