@@ -35,10 +35,11 @@ export const createNodeRunHost = (opts: InitialOptions): RunHost => {
 
 			const buildDir = toBuildId(dir);
 
-			const paths = await findFiles(buildDir, ({path}) => isTaskPath(path));
+			const paths = await findFiles(buildDir);
 			for (const [path, stats] of paths) {
 				if (stats.isDirectory()) continue;
 				const sourceId = toSourceId(join(buildDir, path));
+				if (!isTaskPath(sourceId)) continue;
 				trace('found task', fmtPath(sourceId));
 				sourceIds.push(sourceId);
 			}
@@ -54,7 +55,7 @@ export const createNodeRunHost = (opts: InitialOptions): RunHost => {
 			}
 			return {
 				id: sourceId,
-				name: toTaskName(toBasePath(buildId)),
+				name: toTaskName(toBasePath(sourceId)),
 				mod,
 			};
 		},

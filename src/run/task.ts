@@ -25,8 +25,8 @@ export interface TaskModule {
 	task: Task;
 }
 
-export const TASK_FILE_PATTERN = /\.task\.js$/;
-export const TASK_FILE_SUFFIX = '.task.js';
+export const TASK_FILE_PATTERN = /\.task\.ts$/;
+export const TASK_FILE_SUFFIX = '.task.ts';
 
 export const isTaskPath = (path: string): boolean =>
 	TASK_FILE_PATTERN.test(path);

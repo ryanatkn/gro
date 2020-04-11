@@ -16,23 +16,24 @@ test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', t => {
 });
 
 test('isTaskPath()', t => {
-	t.ok(isTaskPath('foo.task.js'));
-	t.notOk(isTaskPath('foo.js'));
-	t.ok(isTaskPath('bar/baz/foo.task.js'));
-	t.notOk(isTaskPath('bar/baz/foo.js'));
+	t.ok(isTaskPath('foo.task.ts'));
+	t.notOk(isTaskPath('foo.ts'));
+	t.notOk(isTaskPath('foo.task.js'));
+	t.ok(isTaskPath('bar/baz/foo.task.ts'));
+	t.notOk(isTaskPath('bar/baz/foo.ts'));
 });
 
 test('toTaskPath()', t => {
-	t.is(toTaskPath('foo'), 'foo.task.js');
-	t.is(toTaskPath('bar/baz/foo'), 'bar/baz/foo.task.js');
+	t.is(toTaskPath('foo'), 'foo.task.ts');
+	t.is(toTaskPath('bar/baz/foo'), 'bar/baz/foo.task.ts');
 	test('performs no special checks', () => {
-		t.is(toTaskPath('bar/baz/foo.task.js'), 'bar/baz/foo.task.js.task.js');
+		t.is(toTaskPath('bar/baz/foo.task.ts'), 'bar/baz/foo.task.ts.task.ts');
 	});
 });
 
 test('toTaskName()', t => {
-	t.is(toTaskName('foo.task.js'), 'foo');
-	t.is(toTaskName('bar/baz/foo.task.js'), 'bar/baz/foo');
+	t.is(toTaskName('foo.task.ts'), 'foo');
+	t.is(toTaskName('bar/baz/foo.task.ts'), 'bar/baz/foo');
 });
 
 test('validateTaskModule()', t => {
