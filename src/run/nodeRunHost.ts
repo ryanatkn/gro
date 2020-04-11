@@ -5,13 +5,8 @@ import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {fmtPath} from '../utils/fmt.js';
 import {RunHost} from './run.js';
-import {
-	isTaskPath,
-	toTaskName,
-	TaskModuleMeta,
-	validateTaskModule,
-} from './task.js';
-import {toSourcePath, toBuildId, toSourceId, toBasePath} from '../paths.js';
+import {isTaskPath, toTaskName, TaskModuleMeta} from './task.js';
+import {toBuildId, toSourceId, toBasePath} from '../paths.js';
 import {findFiles} from '../fs/nodeFs.js';
 
 export interface Options {
@@ -50,9 +45,6 @@ export const createNodeRunHost = (opts: InitialOptions): RunHost => {
 			trace('loading task', fmtPath(sourceId));
 			const buildId = toBuildId(sourceId);
 			const mod = await import(buildId);
-			if (!validateTaskModule(mod)) {
-				throw Error(`Task module export is invalid: ${toSourcePath(buildId)}`);
-			}
 			return {
 				id: sourceId,
 				name: toTaskName(toBasePath(sourceId)),

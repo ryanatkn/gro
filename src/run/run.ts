@@ -9,6 +9,7 @@ import {
 	TaskContext,
 	TaskData,
 	toTaskName,
+	validateTaskModule,
 } from './task.js';
 import {fmtMs, fmtError} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
@@ -114,6 +115,9 @@ export const run = async (
 				const sourceId = join(dir, path);
 				try {
 					const task = await host.loadTaskModule(sourceId);
+					if (!validateTaskModule(task.mod)) {
+						throw Error(`Task module is invalid: ${toBasePath(sourceId)}`);
+					}
 					return [task, {ok: true, taskName}];
 				} catch (err) {
 					const reason = `Failed to load task "${taskName}".`;
