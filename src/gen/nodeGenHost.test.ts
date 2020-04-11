@@ -1,8 +1,10 @@
 import {resolve, join} from 'path';
+import fs from 'fs-extra';
 
 import {test} from '../oki/index.js';
 import {createNodeGenHost} from './nodeGenHost.js';
 import {validateGenModule} from './gen.js';
+import {paths} from '../paths.js';
 
 test('createNodeGenHost()', t => {
 	const host = createNodeGenHost({logLevel: 0});
@@ -22,5 +24,18 @@ test('createNodeGenHost()', t => {
 		const gen = await host.loadGenModule(id);
 		t.is(gen.id, id);
 		t.ok(validateGenModule(gen.mod));
+	});
+
+	test('host.outputFile()', async () => {
+		const tempId = join(paths.temp, 'testHostOutputFile.ts');
+		const contents = Math.random().toString();
+		await host.outputFile({
+			id: tempId,
+			originId: join(paths.temp, 'fakeOrigin.gen.ts'),
+			contents,
+		});
+		const fileOnDisk = await fs.readFile(tempId, 'utf8');
+		t.is(fileOnDisk, contents);
+		await fs.remove(tempId);
 	});
 });

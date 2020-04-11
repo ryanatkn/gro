@@ -43,6 +43,7 @@ const createPaths = () => {
 		source,
 		build,
 		dist,
+		temp: join(build, 'temp'), // can write anything here for e.g. testing
 	};
 };
 
