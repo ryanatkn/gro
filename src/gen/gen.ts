@@ -182,6 +182,9 @@ export const toOutputFileName = (fileName: string): string => {
 	return finalParts.join(GEN_FILE_SEPARATOR);
 };
 
+export const isGenFile = (path: string): boolean =>
+	path.includes(GEN_FILE_PATTERN);
+
 const validateGenFiles = (files: GenFile[]) => {
 	const ids = new Set();
 	for (const file of files) {

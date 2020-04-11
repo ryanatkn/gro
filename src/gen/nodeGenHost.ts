@@ -5,7 +5,7 @@ import {LogLevel, logger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {fmtPath} from '../utils/fmt.js';
-import {GenHost, GEN_FILE_PATTERN, validateGenModule} from './gen.js';
+import {GenHost, isGenFile, validateGenModule} from './gen.js';
 import {toBuildId, toSourceId} from '../paths.js';
 import {findFiles} from '../fs/nodeFs.js';
 
@@ -24,7 +24,6 @@ export const createNodeGenHost = (opts: InitialOptions): GenHost => {
 	const {info, trace} = logger(logLevel, [magenta('[gen]')]);
 
 	return {
-		//TODO should usage of GEN_FILE_PATTERN be a helper?
 		findGenModules: async dir => {
 			info(`finding all gens in ${fmtPath(dir)}`);
 			const sourceIds: string[] = [];
@@ -33,7 +32,7 @@ export const createNodeGenHost = (opts: InitialOptions): GenHost => {
 
 			const paths = await findFiles(
 				buildDir,
-				({path}) => path.includes(GEN_FILE_PATTERN) && path.endsWith('.js'),
+				({path}) => isGenFile(path) && path.endsWith('.js'),
 			);
 			for (const [path, stats] of paths) {
 				if (stats.isDirectory()) continue;
