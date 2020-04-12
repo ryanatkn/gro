@@ -5,6 +5,7 @@ import {LogLevel, logger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
 import {magenta, yellow, red} from '../colors/terminal.js';
 import {fmtPath} from '../utils/fmt.js';
+import {Timings} from '../utils/time.js';
 
 // TODO consider splitting the primitive data/helpers/types
 // out of this module like how `task` is separated from `run`
@@ -69,27 +70,32 @@ export const initOptions = (opts: InitialOptions): Options => ({
 
 export type GenResults = {
 	ok: boolean;
-	count: number;
-	// TODO track timings, both individual and aggregate
 	results: GenModuleResult[];
+	count: number;
+	elapsed: number;
 };
 export type GenModuleResult = GenModuleResultSuccess | GenModuleResultFailure;
 export type GenModuleResultSuccess = {
 	ok: true;
 	id: string;
 	count: number;
+	elapsed: number;
 };
 export type GenModuleResultFailure = {
 	ok: false;
 	id: string;
 	reason: string;
 	error: Error;
+	elapsed: number;
 };
 
 export const gen = async (opts: InitialOptions): Promise<GenResults> => {
 	const {logLevel, host, dir} = initOptions(opts);
 	const log = logger(logLevel, [magenta('[gen]')]);
-	const {info, error} = log;
+	const {error} = log;
+
+	const timings = new Timings();
+	timings.start();
 
 	// TODO is this right? or should we convert input paths to source ids?
 	if (!isSourceId(dir)) {
@@ -113,7 +119,10 @@ export const gen = async (opts: InitialOptions): Promise<GenResults> => {
 				} catch (err) {
 					const reason = `Failed to load gen ${fmtPath(sourceId)}.`;
 					error(red(reason), yellow(err.message));
-					return [null, {ok: false, id: sourceId, error: err, reason}];
+					return [
+						null,
+						{ok: false, id: sourceId, error: err, reason, elapsed: 0},
+					];
 				}
 			},
 		),
@@ -125,29 +134,27 @@ export const gen = async (opts: InitialOptions): Promise<GenResults> => {
 				if (result[1]) return result[1];
 				const {id, mod} = result[0];
 				const genCtx: GenContext = {originId: id};
+				timings.start(id);
 				let rawGenResult;
 				try {
 					rawGenResult = await mod.gen(genCtx);
 				} catch (err) {
 					const reason = `Error generating ${fmtPath(id)}.`;
 					error(red(reason), yellow(err.message));
-					return {ok: false, id, error: err, reason};
+					return {ok: false, id, error: err, reason, elapsed: timings.stop(id)};
 				}
 				const {files} = toGenResult(id, rawGenResult);
 				await Promise.all(files.map(file => host.outputFile(file)));
-				return {ok: true, id, count: files.length};
+				return {ok: true, id, count: files.length, elapsed: timings.stop(id)};
 			},
 		),
 	);
 
-	const count = results.reduce((count, r) => count + (r.ok ? r.count : 0), 0);
-
-	info(`generated ${count} files`);
-
 	return {
 		ok: results.every(r => r.ok),
-		count,
 		results,
+		count: results.reduce((count, r) => count + (r.ok ? r.count : 0), 0),
+		elapsed: timings.stop(),
 	};
 };
 
