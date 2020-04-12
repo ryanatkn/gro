@@ -1,4 +1,4 @@
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {randInt, randItem} from './random.js';
 
 // TODO maybe add to oki an assertion for `t.has` or `t.includes`?

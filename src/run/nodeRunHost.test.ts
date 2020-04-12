@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {createNodeRunHost} from './nodeRunHost.js';
 import {validateTaskModule} from './task.js';
 

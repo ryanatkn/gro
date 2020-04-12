@@ -1,6 +1,6 @@
 import {resolve, join} from 'path';
 
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {
 	toGenResult,
 	validateGenModule,

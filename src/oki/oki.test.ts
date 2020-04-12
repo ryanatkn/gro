@@ -1,4 +1,4 @@
-import {test} from './index.js';
+import {test} from './oki.js';
 import {wait} from '../utils/async.js';
 
 test('test()', t => {

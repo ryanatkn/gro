@@ -1,4 +1,4 @@
-import {test} from './oki/index.js';
+import {test} from './oki/oki.js';
 import {createGlobalRef} from './globals.js';
 
 test('createGlobalRef', t => {

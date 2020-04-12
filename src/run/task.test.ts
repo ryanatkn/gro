@@ -1,4 +1,4 @@
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {
 	TASK_FILE_PATTERN,
 	TASK_FILE_SUFFIX,

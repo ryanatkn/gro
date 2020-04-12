@@ -1,6 +1,6 @@
 import {resolve, join} from 'path';
 
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {run} from './run.js';
 import {paths, toBasePath} from '../paths.js';
 import {toTaskName} from './task.js';

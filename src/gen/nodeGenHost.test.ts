@@ -1,7 +1,7 @@
 import {resolve, join} from 'path';
 import fs from 'fs-extra';
 
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {createNodeGenHost} from './nodeGenHost.js';
 import {validateGenModule} from './gen.js';
 import {paths} from '../paths.js';

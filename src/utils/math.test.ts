@@ -1,4 +1,4 @@
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {mix, round} from './math.js';
 
 test('mix()', t => {

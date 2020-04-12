@@ -1,4 +1,4 @@
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {replaceExt, hasExt, getPathStem} from './path.js';
 
 test('replaceExt', t => {

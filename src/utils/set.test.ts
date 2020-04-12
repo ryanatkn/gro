@@ -1,4 +1,4 @@
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {setsEqual} from './set.js';
 
 test('setsEqual', t => {

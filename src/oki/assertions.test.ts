@@ -1,4 +1,4 @@
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {AssertionError, AssertionOperator} from './assertions.js';
 
 test('assertions', t => {

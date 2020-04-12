@@ -1,4 +1,4 @@
-import {test} from '../oki/index.js';
+import {test} from '../oki/oki.js';
 import {
 	mapRecord,
 	omit,
@@ -9,8 +9,14 @@ import {
 } from './object.js';
 
 test('mapRecord', t => {
-	t.equal(mapRecord({a: 1, b: 2}, (v, k) => v + k), {a: '1a', b: '2b'});
-	t.equal(mapRecord({}, (v, k) => v + k), {});
+	t.equal(
+		mapRecord({a: 1, b: 2}, (v, k) => v + k),
+		{a: '1a', b: '2b'},
+	);
+	t.equal(
+		mapRecord({}, (v, k) => v + k),
+		{},
+	);
 });
 
 test('omit', t => {
@@ -20,10 +26,22 @@ test('omit', t => {
 });
 
 test('pickBy', t => {
-	t.equal(pickBy({a: 1, b: 2}, v => v === 1), {a: 1});
-	t.equal(pickBy({a: 1, b: 2}, (_v, k) => k === 'a'), {a: 1});
-	t.equal(pickBy({a: 1, b: 2}, () => false), {});
-	t.equal(pickBy({a: 1, b: 2}, () => true), {a: 1, b: 2});
+	t.equal(
+		pickBy({a: 1, b: 2}, v => v === 1),
+		{a: 1},
+	);
+	t.equal(
+		pickBy({a: 1, b: 2}, (_v, k) => k === 'a'),
+		{a: 1},
+	);
+	t.equal(
+		pickBy({a: 1, b: 2}, () => false),
+		{},
+	);
+	t.equal(
+		pickBy({a: 1, b: 2}, () => true),
+		{a: 1, b: 2},
+	);
 });
 
 test('omitUndefined', t => {
