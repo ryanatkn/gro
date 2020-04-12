@@ -1,4 +1,4 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {
 	plural,
 	truncate,
@@ -11,7 +11,7 @@ import {
 	deindent,
 } from './string.js';
 
-test('truncate()', t => {
+test('truncate()', () => {
 	t.is(truncate('foobarbaz', 5), 'fo...');
 	test('no truncation needed', () => {
 		t.is(truncate('foobarbaz', 9), 'foobarbaz');
@@ -39,7 +39,7 @@ test('truncate()', t => {
 	});
 });
 
-test('stripStart()', t => {
+test('stripStart()', () => {
 	t.is(stripStart('foobar', 'foo'), 'bar');
 	test('single character', () => {
 		t.is(stripStart('foobar', 'f'), 'oobar');
@@ -58,7 +58,7 @@ test('stripStart()', t => {
 	});
 });
 
-test('stripEnd()', t => {
+test('stripEnd()', () => {
 	t.is(stripEnd('foobar', 'bar'), 'foo');
 	test('single character', () => {
 		t.is(stripEnd('foobar', 'r'), 'fooba');
@@ -77,7 +77,7 @@ test('stripEnd()', t => {
 	});
 });
 
-test('stripAfter()', t => {
+test('stripAfter()', () => {
 	t.is(stripAfter('foobar', 'oo'), 'f');
 	test('starting characters', () => {
 		t.is(stripAfter('foobar', 'foo'), '');
@@ -108,7 +108,7 @@ test('stripAfter()', t => {
 	});
 });
 
-test('stripBefore()', t => {
+test('stripBefore()', () => {
 	t.is(stripBefore('foobar', 'oo'), 'bar');
 	test('starting characters', () => {
 		t.is(stripBefore('foobar', 'foo'), 'bar');
@@ -139,7 +139,7 @@ test('stripBefore()', t => {
 	});
 });
 
-test('ensureStart()', t => {
+test('ensureStart()', () => {
 	t.is(ensureStart('foobar', 'food'), 'foodfoobar');
 	test('existing text', () => {
 		t.is(ensureStart('foobar', 'foo'), 'foobar');
@@ -170,7 +170,7 @@ test('ensureStart()', t => {
 	});
 });
 
-test('ensureEnd()', t => {
+test('ensureEnd()', () => {
 	t.is(ensureEnd('foobar', 'abar'), 'foobarabar');
 	test('existing text', () => {
 		t.is(ensureEnd('foobar', 'bar'), 'foobar');
@@ -201,7 +201,7 @@ test('ensureEnd()', t => {
 	});
 });
 
-test('deindent()', t => {
+test('deindent()', () => {
 	t.is(
 		deindent(`
       hello
@@ -225,7 +225,7 @@ world
 	});
 });
 
-test('plural()', t => {
+test('plural()', () => {
 	test('pluralizes 0', () => {
 		t.is(plural(0), 's');
 	});

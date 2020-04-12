@@ -1,7 +1,7 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {mapsEqual} from './map.js';
 
-test('mapsEqual', t => {
+test('mapsEqual', () => {
 	test('number keys', () => {
 		t.ok(
 			mapsEqual(

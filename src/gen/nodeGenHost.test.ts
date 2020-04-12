@@ -1,12 +1,12 @@
 import {resolve, join} from 'path';
 import fs from 'fs-extra';
 
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {createNodeGenHost} from './nodeGenHost.js';
 import {validateGenModule} from './gen.js';
 import {paths} from '../paths.js';
 
-test('createNodeGenHost()', t => {
+test('createNodeGenHost()', () => {
 	const host = createNodeGenHost({logLevel: 0});
 	const fixturesDir = resolve('src/gen/fixtures');
 

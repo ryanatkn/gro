@@ -1,7 +1,7 @@
-import {test} from './oki/oki.js';
+import {test, t} from './oki/oki.js';
 import {createGlobalRef} from './globals.js';
 
-test('createGlobalRef', t => {
+test('createGlobalRef', () => {
 	const value = {a: 1};
 	const ref = createGlobalRef<typeof value>('foo');
 	t.throws(() => ref.get());

@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 
-import {test} from './oki/oki.js';
+import {test, t} from './oki/oki.js';
 import {
 	toInferredId,
 	toRootPath,
@@ -20,11 +20,11 @@ import {
 	toPathSegments,
 } from './paths.js';
 
-test('toRootPath()', t => {
+test('toRootPath()', () => {
 	t.is(toRootPath(resolve('foo/bar')), 'foo/bar');
 });
 
-test('toBasePath()', t => {
+test('toBasePath()', () => {
 	test('sourceId', () => {
 		t.is(toBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
 	});
@@ -36,7 +36,7 @@ test('toBasePath()', t => {
 	});
 });
 
-test('toSourcePath()', t => {
+test('toSourcePath()', () => {
 	test('sourceId', () => {
 		t.is(toSourcePath(resolve('src/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
 	});
@@ -57,7 +57,7 @@ test('toSourcePath()', t => {
 	});
 });
 
-test('toBuildPath()', t => {
+test('toBuildPath()', () => {
 	test('sourceId', () => {
 		t.is(toBuildPath(resolve('src/foo/bar/baz.ts')), 'build/foo/bar/baz.js');
 	});
@@ -78,7 +78,7 @@ test('toBuildPath()', t => {
 	});
 });
 
-test('toDistPath()', t => {
+test('toDistPath()', () => {
 	test('sourceId', () => {
 		t.is(toDistPath(resolve('src/foo/bar/baz.ts')), 'dist/foo/bar/baz.js');
 	});
@@ -99,7 +99,7 @@ test('toDistPath()', t => {
 	});
 });
 
-test('toSourceId()', t => {
+test('toSourceId()', () => {
 	test('sourceId', () => {
 		t.is(
 			toSourceId(resolve('src/foo/bar/baz.ts')),
@@ -138,7 +138,7 @@ test('toSourceId()', t => {
 	});
 });
 
-test('toBuildId()', t => {
+test('toBuildId()', () => {
 	test('sourceId', () => {
 		t.is(
 			toBuildId(resolve('src/foo/bar/baz.ts')),
@@ -177,26 +177,26 @@ test('toBuildId()', t => {
 	});
 });
 
-test('basePathToSourceId()', t => {
+test('basePathToSourceId()', () => {
 	t.is(basePathToSourceId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 	test('does not change extension', () => {
 		t.is(basePathToSourceId('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
 	});
 });
-test('basePathToBuildId()', t => {
+test('basePathToBuildId()', () => {
 	t.is(basePathToBuildId('foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
 	test('does not change extension', () => {
 		t.is(basePathToBuildId('foo/bar/baz.ts'), resolve('build/foo/bar/baz.ts'));
 	});
 });
-test('basePathToDistId()', t => {
+test('basePathToDistId()', () => {
 	t.is(basePathToDistId('foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
 	test('does not change extension', () => {
 		t.is(basePathToDistId('foo/bar/baz.ts'), resolve('dist/foo/bar/baz.ts'));
 	});
 });
 
-test('toInferredId()', t => {
+test('toInferredId()', () => {
 	test('basePath with ts extension', () => {
 		t.is(toInferredId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 	});
@@ -281,7 +281,7 @@ test('toInferredId()', t => {
 	});
 });
 
-test('hasSourceExt()', t => {
+test('hasSourceExt()', () => {
 	test('typescript', () => {
 		t.ok(hasSourceExt('foo/bar/baz.ts'));
 	});
@@ -290,11 +290,11 @@ test('hasSourceExt()', t => {
 	});
 });
 
-test('toSourceExt()', t => {
+test('toSourceExt()', () => {
 	t.is(toSourceExt('foo/bar/baz.js'), 'foo/bar/baz.ts');
 });
 
-test('toCompiledExt()', t => {
+test('toCompiledExt()', () => {
 	test('typescript', () => {
 		t.is(toCompiledExt('foo/bar/baz.ts'), 'foo/bar/baz.js');
 	});
@@ -303,7 +303,7 @@ test('toCompiledExt()', t => {
 	});
 });
 
-test('toPathSegments()', t => {
+test('toPathSegments()', () => {
 	t.equal(toPathSegments('foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
 	test('leading dot', () => {
 		t.equal(toPathSegments('./foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
@@ -316,7 +316,7 @@ test('toPathSegments()', t => {
 	});
 });
 
-test('toPathParts()', t => {
+test('toPathParts()', () => {
 	t.equal(toPathParts('foo/bar/baz.ts'), ['foo', 'foo/bar', 'foo/bar/baz.ts']);
 	test('leading dot', () => {
 		t.equal(toPathParts('./foo/bar/baz.ts'), [

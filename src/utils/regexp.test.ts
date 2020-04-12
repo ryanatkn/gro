@@ -1,7 +1,7 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {regexpsEqual} from './regexp.js';
 
-test('regexpsEqual', t => {
+test('regexpsEqual', () => {
 	t.ok(regexpsEqual(new RegExp('a'), new RegExp('a')));
 	t.ok(regexpsEqual(new RegExp('a'), /a/));
 	t.ok(regexpsEqual(/a/, /a/));

@@ -1,14 +1,14 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 
 import {last, arraysEqual} from './array.js';
 
-test('last', t => {
+test('last', () => {
 	t.is(last([1, 2]), 2);
 	t.is(last([1]), 1);
 	t.is(last([]), undefined);
 });
 
-test('arraysEqual', t => {
+test('arraysEqual', () => {
 	t.ok(arraysEqual([1, 2, 3], [1, 2, 3]));
 	test('different order', () => {
 		t.notOk(arraysEqual([1, 2, 3], [1, 3, 2]));

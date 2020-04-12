@@ -38,53 +38,57 @@ gro test file1.test.ts file2.test.ts
 
 ```ts
 // file.test.ts
-import {test} from 'oki';
-test('something', t => {
-	t.ok('basic assertion');
-	t.is(NaN, NaN);
-	t.equal({deep: ['equality']}, {deep: ['equality']});
-	// for more, see the assertions api docs below
+import {test, t} from '@feltcoop/gro/oki.js';
+test('something', () => {
+  t.ok('basic assertion');
+  t.is(NaN, NaN);
+  t.equal({deep: ['equality']}, {deep: ['equality']});
+  // for more, see the assertions api docs below
 
-	test('execution order', () => {
-		test('1', () => {
-			test('2', () => {});
-			test('3', () => {
-				test('4', () => {});
-			});
-		});
-		test('5', () => {});
-		test('6', () => {});
-	});
+  test('execution order', () => {
+    test('1', () => {
+      test('2', () => {});
+      test('3', () => {
+        test('4', () => {});
+      });
+    });
+    test('5', () => {});
+    test('6', () => {});
+  });
 
-	test('can return a promise', async () => {
-		await promise;
-	});
+  test('can return a promise', async () => {
+    await promise;
+  });
 
-	let nested_tests_run_after_parent_scope;
-	test('nested', () => {
-		t.ok(nested_tests_run_after_parent_scope);
-	});
-	nested_tests_run_after_parent_scope = true;
-	// TODO do we want to change this behavior? what are all of the tradeoffs?
+  let nested_tests_run_after_parent_scope;
+  test('nested', () => {
+    t.ok(nested_tests_run_after_parent_scope);
+  });
+  nested_tests_run_after_parent_scope = true;
+  // TODO do we want to change this behavior? what are all of the tradeoffs?
 });
 ```
 
 ## api
 
 ```ts
-import {test} from 'oki';
-test('assertions api', (t: {
-	ok(value: any); // truthy
-	notOk(value: any); // falsy
-	is(actual: any, expected: any); // Object.is
-	isNot(actual: any, expected: any); // !Object.is
-	equal(actual: any, expected: any); // deeply equal
-	notEqual(actual: any, expected: any); // !deeply equal
-	fail(message: string); // throws an error
-	// expects `cb` to throw an error that matches optional `matcher`
-	throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
-	log: {trace; info; warn; error; plain}; // Logger instance
+import {test, t} from '@feltcoop/gro/oki.js';
+test('assertions api', ({
+  log: {trace; info; warn; error; plain}; // Logger instance
 }) => {
-	t.ok('oki :)');
+  t.ok('oki :)');
+  t.notOk(0);
 });
+typeof t; // => Assertions
+interface Assertions {
+  ok(value: any); // truthy
+  notOk(value: any); // falsy
+  is(actual: any, expected: any); // Object.is
+  isNot(actual: any, expected: any); // !Object.is
+  equal(actual: any, expected: any); // deeply equal
+  notEqual(actual: any, expected: any); // !deeply equal
+  // expects `cb` to throw an error that matches optional `matcher`
+  throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
+  Error(message: string); // Error class for intentional failures
+}
 ```

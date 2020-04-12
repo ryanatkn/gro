@@ -1,14 +1,14 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {AssertionError, AssertionOperator} from './assertions.js';
 
-test('assertions', t => {
+test('assertions', () => {
 	test('fail()', () => {
 		const message = 'not oki';
 		try {
-			t.fail(message);
+			throw new t.Error(message);
 		} catch (err) {
 			// can't use `instanceof` right now because gro is self-testing, has two copies of modules for runner/tests
-			if (err.constructor.name === AssertionError.name) {
+			if (err.constructor.name === t.Error.name) {
 				if (err.assertion.operator !== AssertionOperator.fail) {
 					throw Error(
 						`Expected error operator to be "${AssertionOperator.fail}"`,
@@ -19,7 +19,6 @@ test('assertions', t => {
 				throw Error('Expected error to be a AssertionError');
 			}
 		}
-		throw Error(`Expected an error`);
 	});
 
 	const failToThrow = (cb: () => void): AssertionError => {
@@ -29,15 +28,16 @@ test('assertions', t => {
 			// can't use `instanceof` right now because gro is self-testing, has two copies of modules for runner/tests
 			if (err.constructor.name === AssertionError.name) {
 				if (err.assertion.operator !== AssertionOperator.throws) {
-					t.fail(`Expected error operator to be "${AssertionOperator.throws}"`);
+					throw new t.Error(
+						`Expected error operator to be "${AssertionOperator.throws}"`,
+					);
 				}
 				return err; // success
 			} else {
-				t.fail('Expected error to be a AssertionError');
+				throw new t.Error('Expected error to be a AssertionError');
 			}
 		}
-		t.fail(`Expected an error`);
-		throw Error(); // TODO remove when TS 3.7 `asserts` lands
+		throw new t.Error(`Expected an error`);
 	};
 	test('throws() ✓', async () => {
 		t.throws(() => {
@@ -209,9 +209,9 @@ test('assertions', t => {
 
 const skip: typeof test = Function.prototype as any;
 
-skip('failed assertions', t => {
+skip('failed assertions', () => {
 	test('fail()', () => {
-		t.fail('this test failed because errror');
+		throw new t.Error('this test failed because errror');
 	});
 
 	const failToThrow = (cb: () => void): AssertionError => {
@@ -220,15 +220,16 @@ skip('failed assertions', t => {
 		} catch (err) {
 			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.throws) {
-					t.fail(`Expected error operator to be "${AssertionOperator.throws}"`);
+					throw new t.Error(
+						`Expected error operator to be "${AssertionOperator.throws}"`,
+					);
 				}
 				return err; // success
 			} else {
-				t.fail('Expected error to be a AssertionError');
+				throw new t.Error('Expected error to be a AssertionError');
 			}
 		}
-		t.fail(`Expected an error`);
-		throw Error(); // TODO remove when TS 3.7 `asserts` lands
+		throw new t.Error(`Expected an error`);
 	};
 	test('throws() ✓', async () => {
 		failToThrow(() => {

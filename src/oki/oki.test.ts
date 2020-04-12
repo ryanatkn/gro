@@ -1,7 +1,7 @@
-import {test} from './oki.js';
+import {test, t} from './oki.js';
 import {wait} from '../utils/async.js';
 
-test('test()', t => {
+test('test()', () => {
 	test('is', () => {
 		t.is(2 + 2, 4);
 	});

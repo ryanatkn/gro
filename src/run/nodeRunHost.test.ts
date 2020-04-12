@@ -1,10 +1,10 @@
 import {resolve} from 'path';
 
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {createNodeRunHost} from './nodeRunHost.js';
 import {validateTaskModule} from './task.js';
 
-test('createNodeRunHost()', t => {
+test('createNodeRunHost()', () => {
 	const host = createNodeRunHost({logLevel: 0});
 
 	test('host.findTaskModules()', async () => {

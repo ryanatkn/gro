@@ -1,52 +1,64 @@
 import {deepEqual} from '../utils/deepEqual.js';
 import {ErrorClass} from '../utils/error.js';
 
-// TODO typescript 3.7 `asserts` ?
-
-export const ok = (value: any): AssertionOk => {
-	return value
-		? {ok: true, operator: AssertionOperator.ok, value}
-		: {ok: false, operator: AssertionOperator.ok, value};
+export const ok: (value: any) => asserts value = value => {
+	if (!value) {
+		throw new AssertionError({operator: AssertionOperator.ok, value});
+	}
 };
 
-export const notOk = (value: any): AssertionNotOk => {
-	return value
-		? {ok: false, operator: AssertionOperator.notOk, value}
-		: {ok: true, operator: AssertionOperator.notOk, value};
+export const notOk = (
+	value: any,
+): asserts value is false | null | undefined | 0 | '' => {
+	if (value) {
+		throw new AssertionError({operator: AssertionOperator.notOk, value});
+	}
 };
 
-export const is = (actual: any, expected: any): AssertionIs => {
-	return Object.is(actual, expected)
-		? {ok: true, operator: AssertionOperator.is, actual, expected}
-		: {ok: false, operator: AssertionOperator.is, actual, expected};
+export const is = (actual: any, expected: any): void => {
+	if (!Object.is(actual, expected)) {
+		throw new AssertionError({
+			operator: AssertionOperator.is,
+			actual,
+			expected,
+		});
+	}
 };
 
-export const isNot = (actual: any, expected: any): AssertionIsNot => {
-	return Object.is(actual, expected)
-		? {ok: false, operator: AssertionOperator.isNot, actual, expected}
-		: {ok: true, operator: AssertionOperator.isNot, actual, expected};
+export const isNot = (actual: any, expected: any): void => {
+	if (Object.is(actual, expected)) {
+		throw new AssertionError({
+			operator: AssertionOperator.isNot,
+			actual,
+			expected,
+		});
+	}
 };
 
-export const equal = (actual: any, expected: any): AssertionEqual => {
-	return deepEqual(actual, expected)
-		? {ok: true, operator: AssertionOperator.equal, actual, expected}
-		: {ok: false, operator: AssertionOperator.equal, actual, expected};
+export const equal = (actual: any, expected: any): void => {
+	if (!deepEqual(actual, expected)) {
+		throw new AssertionError({
+			operator: AssertionOperator.equal,
+			actual,
+			expected,
+		});
+	}
 };
 
-export const notEqual = (actual: any, expected: any): AssertionNotEqual => {
-	return deepEqual(actual, expected)
-		? {ok: false, operator: AssertionOperator.notEqual, actual, expected}
-		: {ok: true, operator: AssertionOperator.notEqual, actual, expected};
-};
-
-export const fail = (message: string): FailedAssertionFail => {
-	return {ok: false, operator: AssertionOperator.fail, message};
+export const notEqual = (actual: any, expected: any): void => {
+	if (deepEqual(actual, expected)) {
+		throw new AssertionError({
+			operator: AssertionOperator.notEqual,
+			actual,
+			expected,
+		});
+	}
 };
 
 export const throws = (
 	cb: () => void,
 	matcher?: ErrorClass | RegExp | string,
-): AssertionThrows => {
+): void => {
 	try {
 		cb();
 	} catch (err) {
@@ -54,26 +66,19 @@ export const throws = (
 			throw new Error(`Bad!! Non-error value thrown: ${JSON.stringify(err)}`);
 		}
 		if (!matchError(matcher, err)) {
-			return {
-				ok: false,
+			throw new AssertionError({
 				operator: AssertionOperator.throws,
 				matcher,
 				thrown: err,
-			};
+			});
 		}
-		return {
-			ok: true,
-			operator: AssertionOperator.throws,
-			matcher,
-			thrown: err,
-		};
+		return;
 	}
-	return {
-		ok: false,
+	throw new AssertionError({
 		operator: AssertionOperator.throws,
 		matcher,
 		thrown: null,
-	};
+	});
 };
 
 export const matchError = (
@@ -91,48 +96,55 @@ export const matchError = (
 	return true;
 };
 
-export const assertions = {
-	ok,
-	notOk,
-	is,
-	isNot,
-	equal,
-	notEqual,
-	fail,
-	throws,
-};
-
-export type Assertions = typeof assertions;
-
-export type AssertionsThatThrow = {
-	[P in keyof Assertions]: (...args: Parameters<Assertions[P]>) => void;
-};
-
 export class AssertionError extends Error {
 	constructor(public readonly assertion: FailedAssertion) {
 		super(`Assertion failed: ${assertion.operator}`);
 	}
 }
 
-export const wrapAssertionToThrow = <T extends any[]>(
-	assertion: (...args: T) => Assertion,
-) => (...args: T): void => {
-	const result = assertion(...args);
-	if (!result.ok) {
-		throw new AssertionError(result);
+/*
+
+If TypeScript's ever supports saying "this will throw",
+like with `asserts` but guaranteed failure,
+we could replace this with `t.fail`.
+
+*/
+export class TestFailureError extends AssertionError {
+	constructor(message: string) {
+		super({operator: AssertionOperator.fail, message});
 	}
+}
+
+/*
+
+These need to be explicitly typed because of
+TypeScript's `asserts` constraints.
+See this error:
+	`Assertions require every name in the call target to be declared
+	with an explicit type annotation.ts(2775)`
+
+*/
+export const t: {
+	ok: typeof ok;
+	notOk: typeof notOk;
+	is: typeof is;
+	isNot: typeof isNot;
+	equal: typeof equal;
+	notEqual: typeof notEqual;
+	throws: typeof throws;
+	Error: typeof TestFailureError;
+} = {
+	ok,
+	notOk,
+	is,
+	isNot,
+	equal,
+	notEqual,
+	throws,
+	Error: TestFailureError,
 };
 
-export const wrapAssertionsToThrow = (a: Assertions): AssertionsThatThrow => {
-	const result: any = {};
-	for (const key in a) {
-		result[key] = wrapAssertionToThrow((a as any)[key]); // TODO type instead of casting?
-	}
-	return result;
-};
-export const assertionsThatThrow = wrapAssertionsToThrow(assertions);
-
-export type Assertion = PassedAssertion | FailedAssertion;
+export type Assertions = typeof t;
 
 export enum AssertionOperator {
 	ok = 'ok', // truthy
@@ -145,65 +157,6 @@ export enum AssertionOperator {
 	throws = 'throws', // expects `cb` to throw an error that matches optional `matcher`
 }
 
-export type AssertionOk = PassedAssertionOk | FailedAssertionOk;
-export type AssertionNotOk = PassedAssertionNotOk | FailedAssertionNotOk;
-export type AssertionIs = PassedAssertionIs | FailedAssertionIs;
-export type AssertionIsNot = PassedAssertionIsNot | FailedAssertionIsNot;
-export type AssertionEqual = PassedAssertionEqual | FailedAssertionEqual;
-export type AssertionThrows = PassedAssertionThrows | FailedAssertionThrows;
-export type AssertionNotEqual =
-	| PassedAssertionNotEqual
-	| FailedAssertionNotEqual;
-
-export type PassedAssertion =
-	| PassedAssertionOk
-	| PassedAssertionNotOk
-	| PassedAssertionIs
-	| PassedAssertionIsNot
-	| PassedAssertionEqual
-	| PassedAssertionNotEqual
-	| PassedAssertionThrows;
-export type PassedAssertionThrows = {
-	ok: true;
-	operator: AssertionOperator.throws;
-	matcher: ErrorClass | RegExp | string | undefined;
-	thrown: Error;
-};
-export type PassedAssertionOk = {
-	ok: true;
-	operator: AssertionOperator.ok;
-	value: any;
-};
-export type PassedAssertionNotOk = {
-	ok: true;
-	operator: AssertionOperator.notOk;
-	value: any;
-};
-export type PassedAssertionIs = {
-	ok: true;
-	operator: AssertionOperator.is;
-	expected: any;
-	actual: any;
-};
-export type PassedAssertionIsNot = {
-	ok: true;
-	operator: AssertionOperator.isNot;
-	expected: any;
-	actual: any;
-};
-export type PassedAssertionEqual = {
-	ok: true;
-	operator: AssertionOperator.equal;
-	expected: any;
-	actual: any;
-};
-export type PassedAssertionNotEqual = {
-	ok: true;
-	operator: AssertionOperator.notEqual;
-	expected: any;
-	actual: any;
-};
-
 export type FailedAssertion =
 	| FailedAssertionOk
 	| FailedAssertionNotOk
@@ -214,46 +167,38 @@ export type FailedAssertion =
 	| FailedAssertionFail
 	| FailedAssertionThrows;
 export type FailedAssertionOk = {
-	ok: false;
 	operator: AssertionOperator.ok;
 	value: any;
 };
 export type FailedAssertionNotOk = {
-	ok: false;
 	operator: AssertionOperator.notOk;
 	value: any;
 };
 export type FailedAssertionIs = {
-	ok: false;
 	operator: AssertionOperator.is;
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionIsNot = {
-	ok: false;
 	operator: AssertionOperator.isNot;
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionEqual = {
-	ok: false;
 	operator: AssertionOperator.equal;
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionNotEqual = {
-	ok: false;
 	operator: AssertionOperator.notEqual;
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionFail = {
-	ok: false;
 	operator: AssertionOperator.fail;
 	message: string;
 };
 export type FailedAssertionThrows = {
-	ok: false;
 	operator: AssertionOperator.throws;
 	matcher: ErrorClass | RegExp | string | undefined;
 	thrown: Error | null;

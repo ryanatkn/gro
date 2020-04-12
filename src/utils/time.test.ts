@@ -1,14 +1,14 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {createStopwatch, Timings} from './time.js';
 
-test('createStopwatch', t => {
+test('createStopwatch', () => {
 	const stopwatch = createStopwatch(4);
 	const elapsed = stopwatch();
 	t.is(typeof elapsed, 'number');
 	t.ok(elapsed.toString().split('.')[1].length <= 4);
 });
 
-test('Timings', t => {
+test('Timings', () => {
 	const timings = new Timings(4);
 	timings.start('foo');
 	t.throws(() => timings.start('foo'));

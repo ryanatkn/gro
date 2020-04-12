@@ -1,7 +1,7 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {mix, round} from './math.js';
 
-test('mix()', t => {
+test('mix()', () => {
 	test('mixes two numbers', () => {
 		t.is(mix(0, 10, 0.2), 2);
 	});
@@ -16,7 +16,7 @@ test('mix()', t => {
 	});
 });
 
-test('round()', t => {
+test('round()', () => {
 	test('rounds a number up to 3 decimals', () => {
 		t.is(round(0.0349, 3), 0.035);
 	});

@@ -2,17 +2,16 @@ import {cyan} from '../colors/terminal.js';
 import {LogLevel, Logger, logger} from '../utils/log.js';
 import {AsyncState} from '../utils/async.js';
 import {omitUndefined} from '../utils/object.js';
-import {assertionsThatThrow, AssertionsThatThrow} from './assertions.js';
 import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/time.js';
 import {createGlobalRef} from '../globals.js';
 
 const currentTestContext = createGlobalRef<TestContext>('currentTestContext');
 
-export const test = (
+export const test: (
 	message: string,
 	cb: TestInstanceCallback,
-): TestInstance => {
+) => TestInstance = (message, cb) => {
 	if (!currentTestContext.exists()) {
 		throw Error(
 			`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,
@@ -21,9 +20,9 @@ export const test = (
 	return currentTestContext.get().test(message, cb);
 };
 
-export type TestInstanceContext = AssertionsThatThrow & {
+export interface TestInstanceContext {
 	log: Logger;
-};
+}
 export interface TestInstanceCreator {
 	(message: string, cb: TestInstanceCallback): void;
 }
@@ -142,7 +141,6 @@ export abstract class TestContext<
 		this.reportListIndent = reportListIndent;
 		this.testInstanceContext = {
 			log: this.log,
-			...assertionsThatThrow,
 		};
 	}
 

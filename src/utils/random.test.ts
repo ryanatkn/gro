@@ -1,10 +1,10 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {randInt, randItem} from './random.js';
 
 // TODO maybe add to oki an assertion for `t.has` or `t.includes`?
 // TODO maybe track counts to ensure a roughly equal distribution? (with some statistical confidence interval so we don't get failing tests except in extreme cases)
 
-test('randInt', t => {
+test('randInt', () => {
 	test('0 to 1', () => {
 		const items = [0, 1];
 		const results = [];
@@ -46,7 +46,7 @@ test('randInt', t => {
 	});
 });
 
-test('randItem', t => {
+test('randItem', () => {
 	test('a and b', () => {
 		const items = ['a', 'b'];
 		const results = [];

@@ -1,7 +1,7 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {setsEqual} from './set.js';
 
-test('setsEqual', t => {
+test('setsEqual', () => {
 	t.ok(setsEqual(new Set([1, 2, 3]), new Set([1, 2, 3])));
 	test('different order with numbers', () => {
 		t.ok(setsEqual(new Set([1, 2, 3]), new Set([2, 3, 1])));

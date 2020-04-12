@@ -1,6 +1,6 @@
 import {resolve, join} from 'path';
 
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {
 	toGenResult,
 	validateGenModule,
@@ -16,7 +16,7 @@ import * as testInvalidGenModule from './fixtures/testInvalidGenModule.js';
 
 const originId = resolve('src/foo.gen.ts');
 
-test('toGenResult', t => {
+test('toGenResult', () => {
 	test('plain string', () => {
 		t.equal(toGenResult(originId, '/**/'), {
 			originId,
@@ -277,7 +277,7 @@ test('toGenResult', t => {
 	});
 });
 
-test('gen', async t => {
+test('gen', async () => {
 	test('basic behavior', async () => {
 		const dir = resolve('src/foo/bar');
 		const sourceIdA = join(dir, 'bazA.gen.ts');
@@ -352,25 +352,28 @@ test('gen', async t => {
 		t.ok(results.ok);
 		t.is(results.count, 3);
 		t.is(results.results.length, 2);
-		t.ok(fileA); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
-		t.is(fileA?.contents, outputA?.contents);
-		t.ok(outputA?.id.endsWith(fileA?.fileName!));
+		t.ok(fileA);
+		t.ok(outputA);
+		t.is(fileA.contents, outputA.contents);
+		t.ok(outputA.id.endsWith(fileA.fileName!));
 		t.equal(outputA, {
 			id: join(dir, 'bazA.ts'),
 			originId: sourceIdA,
 			contents: 'fileA',
 		});
-		t.ok(fileB1); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
-		t.is(fileB1?.contents, outputB1?.contents);
-		t.ok(outputB1?.id.endsWith(fileB1?.fileName!));
+		t.ok(fileB1);
+		t.ok(outputB1);
+		t.is(fileB1.contents, outputB1.contents);
+		t.ok(outputB1.id.endsWith(fileB1.fileName!));
 		t.equal(outputB1, {
 			id: join(dir, 'baz/outputB1.ts'),
 			originId: sourceIdB,
 			contents: 'fileB1',
 		});
-		t.ok(fileB2); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
-		t.is(fileB2?.contents, outputB2?.contents);
-		t.ok(outputB2?.id.endsWith(fileB2?.fileName!));
+		t.ok(fileB2);
+		t.ok(outputB2);
+		t.is(fileB2.contents, outputB2.contents);
+		t.ok(outputB2.id.endsWith(fileB2.fileName!));
 		t.equal(outputB2, {
 			id: join(dir, 'baz/outputB2.ts'),
 			originId: sourceIdB,
@@ -443,9 +446,10 @@ test('gen', async t => {
 		t.notOk(results.results[0].ok);
 		t.ok(results.results[1].ok);
 		t.is(outputA, undefined);
-		t.ok(fileB); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
-		t.is(fileB?.contents, outputB?.contents);
-		t.ok(outputB?.id.endsWith(fileB?.fileName!));
+		t.ok(fileB);
+		t.ok(outputB);
+		t.is(fileB.contents, outputB.contents);
+		t.ok(outputB.id.endsWith(fileB.fileName!));
 		t.equal(outputB, {
 			id: join(dir, 'bazB.ts'),
 			originId: sourceIdB,
@@ -517,13 +521,14 @@ test('gen', async t => {
 		t.notOk(results.ok);
 		t.is(results.count, 1);
 		t.is(results.results.length, 2);
-		t.notOk(results.results[0].ok);
-		t.is((results.results[0] as any).error, genError); // TODO with `asserts` can we get this to typecheck? or do we need an `if` guard?
+		t.ok(!results.results[0].ok); // TODO why does `notOk` assert fail to get inference here?
+		t.is(results.results[0].error, genError);
 		t.ok(results.results[1].ok);
 		t.is(outputA, undefined);
-		t.ok(fileB); // TODO use TypeScript `asserts` so we can remove the following `?`s and `!`s
-		t.is(fileB?.contents, outputB?.contents);
-		t.ok(outputB?.id.endsWith(fileB?.fileName!));
+		t.ok(fileB);
+		t.ok(outputB);
+		t.is(fileB.contents, outputB.contents);
+		t.ok(outputB.id.endsWith(fileB.fileName!));
 		t.equal(outputB, {
 			id: join(dir, 'bazB.ts'),
 			originId: sourceIdB,
@@ -532,7 +537,7 @@ test('gen', async t => {
 	});
 });
 
-test('validateGenModule()', t => {
+test('validateGenModule()', () => {
 	t.ok(validateGenModule(testGenHtml));
 	t.ok(validateGenModule(testGenTs));
 	t.ok(validateGenModule(testGenMulti));

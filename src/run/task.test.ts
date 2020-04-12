@@ -1,4 +1,4 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {
 	TASK_FILE_PATTERN,
 	TASK_FILE_SUFFIX,
@@ -11,11 +11,11 @@ import * as testTask1 from './fixtures/testTask1.task.js';
 import * as testTask2 from './fixtures/testTask2.task.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
 
-test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', t => {
+test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', () => {
 	t.ok(TASK_FILE_PATTERN.test('file' + TASK_FILE_SUFFIX));
 });
 
-test('isTaskPath()', t => {
+test('isTaskPath()', () => {
 	t.ok(isTaskPath('foo.task.ts'));
 	t.notOk(isTaskPath('foo.ts'));
 	t.notOk(isTaskPath('foo.task.js'));
@@ -23,7 +23,7 @@ test('isTaskPath()', t => {
 	t.notOk(isTaskPath('bar/baz/foo.ts'));
 });
 
-test('toTaskPath()', t => {
+test('toTaskPath()', () => {
 	t.is(toTaskPath('foo'), 'foo.task.ts');
 	t.is(toTaskPath('bar/baz/foo'), 'bar/baz/foo.task.ts');
 	test('performs no special checks', () => {
@@ -31,12 +31,12 @@ test('toTaskPath()', t => {
 	});
 });
 
-test('toTaskName()', t => {
+test('toTaskName()', () => {
 	t.is(toTaskName('foo.task.ts'), 'foo');
 	t.is(toTaskName('bar/baz/foo.task.ts'), 'bar/baz/foo');
 });
 
-test('validateTaskModule()', t => {
+test('validateTaskModule()', () => {
 	t.ok(validateTaskModule(testTask1));
 	t.ok(validateTaskModule(testTask2));
 	t.notOk(validateTaskModule(testInvalidTaskModule));

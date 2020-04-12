@@ -1,7 +1,7 @@
-import {test} from '../oki/oki.js';
+import {test, t} from '../oki/oki.js';
 import {deepEqual} from '../utils/deepEqual.js';
 
-test('deepEqual()', t => {
+test('deepEqual()', () => {
 	const symbol = Symbol();
 	const fn = () => {};
 	const equalValues: readonly [string, any, any][] = [
@@ -77,7 +77,7 @@ test('deepEqual()', t => {
 	});
 });
 
-test('!deepEqual()', t => {
+test('!deepEqual()', () => {
 	const unequalValues: readonly [string, any, any][] = [
 		['numbers with different signs', 1, -1],
 		['number and NaN', 0, NaN],
