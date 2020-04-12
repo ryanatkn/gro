@@ -1,5 +1,5 @@
 import {Gen} from '../gen.js';
-import {renderNoscriptSection, renderMetaTags} from '../html/index.js';
+import {renderNoscriptSection, renderMetaTags} from '../helpers/html.js';
 
 export const gen: Gen = () => {
 	const title = 'gro';
@@ -13,7 +13,6 @@ export const gen: Gen = () => {
 		<link rel="shortcut icon" href="/favicon.ico" />
 		<link rel="stylesheet" href="styles.css" />
 	</head>
-
 	<body>
 		<div id="root">
 			${renderNoscriptSection(sourceCodeUrl)}
