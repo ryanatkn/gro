@@ -27,16 +27,18 @@ but you can always gitignore a specific pattern like `*.ignore.*`
 and name the output files accordingly.
 We may want to smooth out this use case in the future.
 
-The implications of integrating codegen into our code authoring are deep.
+Integrating codegen into our development process
+is a simple idea with vast potential.
 It allows us to have a single source of truth for data
 that would otherwise be scattered throughout our codebases
 without compromising any of our code's runtime characteristics.
 We can generate documentation, types, validators, tests,
 and more by introspecting our data at buildtime,
 which speeds up development
-and helps us write code that's more robust and easier to understand.
+and helps us write code that's easier to understand and change.
 The goal is to leverage automation to increase the power we wield over our code
 with a straightforward developer experience.
+Ergonomics are key to unlocking codegen's full potential.
 
 **Be aware** — this is a sharp tool!
 It adds a layer of indirection between the code you write and run.
