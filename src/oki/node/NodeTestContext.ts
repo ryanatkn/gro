@@ -8,13 +8,13 @@ import {
 	initOptions as initTestContextOptions,
 } from '../TestContext.js';
 import * as report from './report.js';
-import {toFileData, FileStats} from '../../fs/fileData.js';
+import {toFileData, FileStats} from '../../files/fileData.js';
 import {basePathToBuildId} from '../../paths.js';
 import {
 	DEBOUNCE_DEFAULT,
 	CheapWatchPathAddedEvent,
 	CheapWatchPathRemovedEvent,
-} from '../../fs/nodeFs.js';
+} from '../../files/nodeFs.js';
 
 export const DEFAULT_TEST_FILE_MATCHER = /.+\.test\.js$/;
 

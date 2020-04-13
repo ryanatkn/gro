@@ -4,12 +4,12 @@ import CheapWatch from 'cheap-watch';
 import {LogLevel, logger, Logger} from '../utils/log.js';
 import {magenta, gray} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
-import {FileStats} from '../fs/fileData.js';
+import {FileStats} from '../files/fileData.js';
 import {
 	CheapWatchPathAddedEvent,
 	CheapWatchPathRemovedEvent,
 	DEBOUNCE_DEFAULT,
-} from '../fs/nodeFs.js';
+} from '../files/nodeFs.js';
 import {
 	paths,
 	toDistId,

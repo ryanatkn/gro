@@ -7,7 +7,7 @@ import {fmtPath} from '../utils/fmt.js';
 import {RunHost} from './run.js';
 import {isTaskPath, toTaskName, TaskModuleMeta} from './task.js';
 import {toBuildId, toSourceId, toBasePath} from '../paths.js';
-import {findFiles} from '../fs/nodeFs.js';
+import {findFiles} from '../files/nodeFs.js';
 
 export interface Options {
 	logLevel: LogLevel;

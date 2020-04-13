@@ -4,7 +4,7 @@ import {Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, toSourceId, toPathParts, toPathSegments} from '../paths.js';
 import {last} from '../utils/array.js';
 import {stripStart} from '../utils/string.js';
-import {findFiles} from '../fs/nodeFs.js';
+import {findFiles} from '../files/nodeFs.js';
 
 // This renders a simple index of a possibly nested directory of files.
 

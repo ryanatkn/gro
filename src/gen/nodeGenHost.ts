@@ -7,7 +7,7 @@ import {omitUndefined} from '../utils/object.js';
 import {fmtPath} from '../utils/fmt.js';
 import {GenHost, isGenPath} from './gen.js';
 import {toBuildId, toSourceId} from '../paths.js';
-import {findFiles} from '../fs/nodeFs.js';
+import {findFiles} from '../files/nodeFs.js';
 
 export interface Options {
 	logLevel: LogLevel;
