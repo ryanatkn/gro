@@ -76,7 +76,7 @@
     "svelteSortOrder": "scripts-markup-styles",
     "overrides": [
       {
-        "files": "*.{json,md}",
+        "files": "*.json",
         "options": {
           "useTabs": false
         }
