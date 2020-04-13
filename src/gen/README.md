@@ -30,10 +30,12 @@ We may want to smooth out this use case in the future.
 The implications of integrating codegen into our code authoring are deep.
 One benefit is that it allows us to have a single source of truth for data
 that would otherwise be scattered throughout our codebases
-across many types of files (like JSON, HTML, SQL, etc),
+across many types of files
 without compromising any of our code's runtime characteristics.
-We can also generate types, validators, tests,
-and more by introspecting our data at buildtime.
+We can generate documentation, types, validators, tests,
+and more by introspecting our data at buildtime,
+which speeds up development
+and helps us write code that's more robust and easier to understand.
 The goal is to leverage automation to increase the power we wield over our code
 with a straightforward developer experience.
 
