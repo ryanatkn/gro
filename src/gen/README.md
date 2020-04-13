@@ -9,7 +9,7 @@ The `gro gen` command allows us to enhance our projects
 with convention-based code generation (codegen) techniques.
 
 Why? Codegen can produce game-changing results for UX and DX,
-especially around performance and flexibility.
+especially around performance, flexibility, consistency, and development speed.
 As developers, automating our work is a natural and indispensable power,
 and `gro gen` brings automation deeper into our code authoring workflows.
 
@@ -194,16 +194,10 @@ and `src/data/thing.json`:
 ## todo
 
 - [x] basic functionality
-- [ ] in dev mode, add a configurable header with the origin file path
-      when possible (e.g. JSON doesn't support comments)
 - [ ] format output with Prettier (optionally not for speed)
 - [ ] watch mode and build integration
 - [ ] support gen files authored in languages beyond TypeScript like
       Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc
       to generate html/markdown/etc
 - [ ] support generating non-text files
-- [ ] look into leveraging
-      [`io-ts-codegen`](https://github.com/gcanti/io-ts-codegen)
-      or something similar to output TypeScript from JSON Schema
-      (this probably belongs in user code, not `gro gen` itself)
 - [ ] source maps
