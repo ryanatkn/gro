@@ -31,13 +31,8 @@ It includes:
 
 You should probably not use Gro today —
 there are many mature tools with large communities solving similar problems.
-If you're interested in an even deeper take on these problems,
-see [Rome](https://github.com/facebookexperimental/rome).
-Unlike Rome, Gro does not provide its own parser, compiler, formatter, etc —
-instead Gro uses existing industry-standard libraries
-that have few or zero dependencies
-and it focuses on exploring territory like codegen, AOT compilation,
-and [model-driven development](https://en.wikipedia.org/wiki/Model-driven_engineering).
+Gro integrates many tools into a single experience
+but for now it's unlikely to be the experience that fits your particular needs.
 
 ## usage
 
