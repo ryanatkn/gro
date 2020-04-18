@@ -1,4 +1,4 @@
-import * as fp from 'path';
+import {resolve, join} from 'path';
 import fs from 'fs-extra';
 
 import {blue, magenta} from '../colors/terminal.js';
@@ -25,7 +25,7 @@ export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	watch: false,
 	...omitUndefined(opts),
-	dir: fp.resolve(opts.dir || DEFAULT_DIR),
+	dir: resolve(opts.dir || DEFAULT_DIR),
 });
 
 export const run = async (opts: InitialOptions): Promise<void> => {
@@ -53,7 +53,7 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 };
 
 const checkPaths = (dir: string, rawPaths: string[]): string[] => {
-	const paths = rawPaths.map(f => fp.join(dir, f));
+	const paths = rawPaths.map(f => join(dir, f));
 	for (const path of paths) {
 		if (!fs.existsSync(path)) {
 			throw Error(`Path not found: ${path}`);

@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import * as fp from 'path';
+import {dirname} from 'path';
 
 import {black, bgRed} from '../colors/terminal.js';
 import {Logger} from '../utils/log.js';
@@ -21,7 +21,7 @@ export interface TsConfig {
 export const loadTsconfig = (
 	log: Logger,
 	tsconfigPath?: string,
-	basePath = tsconfigPath ? fp.dirname(tsconfigPath) : process.cwd(),
+	basePath = tsconfigPath ? dirname(tsconfigPath) : process.cwd(),
 ): TsConfig => {
 	if (!tsconfigPath) {
 		const searchPath = tsconfigPath || basePath;

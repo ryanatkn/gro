@@ -9,7 +9,7 @@ import {
 } from 'rollup';
 import resolvePlugin from 'rollup-plugin-node-resolve';
 import commonjsPlugin from 'rollup-plugin-commonjs';
-import * as fp from 'path';
+import {resolve} from 'path';
 
 import {magenta, rainbow} from '../colors/terminal.js';
 import {logger, LogLevel, Logger} from '../utils/log.js';
@@ -38,8 +38,8 @@ export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
-	inputFiles: [fp.resolve('index.ts')],
-	outputDir: fp.resolve('dist/'),
+	inputFiles: [resolve('index.ts')],
+	outputDir: resolve('dist/'),
 	watch: true,
 	logLevel: LogLevel.Info,
 	...omitUndefined(opts),

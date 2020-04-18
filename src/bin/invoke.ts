@@ -14,7 +14,7 @@ const {env, argv} = process;
 
 import sade from 'sade';
 import fs from 'fs-extra';
-import * as fp from 'path';
+import {dirname, join} from 'path';
 import {fileURLToPath} from 'url';
 
 import {InitialOptions as InitialRunTaskOptions} from '../commands/run.js';
@@ -31,8 +31,8 @@ import {omitUndefined} from '../utils/object.js';
 // and `package.json` is above it at the repo root,
 // so it can't be imported or required normally.
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = fp.dirname(__filename);
-const pkg = fs.readJsonSync(fp.join(__dirname, '../../package.json'));
+const __dirname = dirname(__filename);
+const pkg = fs.readJsonSync(join(__dirname, '../../package.json'));
 
 /*
 

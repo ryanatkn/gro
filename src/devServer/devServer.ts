@@ -8,7 +8,7 @@ import {
 	OutgoingHttpHeaders,
 } from 'http';
 import {ListenOptions} from 'net';
-import * as fp from 'path';
+import {resolve} from 'path';
 
 import {cyan, yellow, gray} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/log.js';
@@ -34,7 +34,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
 	port: DEFAULT_PORT,
 	...omitUndefined(opts),
-	dir: fp.resolve(opts.dir || '.'),
+	dir: resolve(opts.dir || '.'),
 });
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
@@ -98,7 +98,7 @@ const toLocalPath = (dir: string, url: string): string => {
 	const relativePath = relativeUrl.endsWith('/')
 		? relativeUrl + 'index.html' // maybe handle others, like `.htm`?
 		: relativeUrl;
-	return fp.resolve(dir, relativePath);
+	return resolve(dir, relativePath);
 };
 
 const send404FileNotFound = (

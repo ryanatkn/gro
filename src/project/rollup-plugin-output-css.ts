@@ -1,6 +1,6 @@
 import {Plugin} from 'rollup';
 import fs from 'fs-extra';
-import * as fp from 'path';
+import {dirname, join, relative} from 'path';
 import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
 
 import {blue, gray} from '../colors/terminal.js';
@@ -39,7 +39,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 			info('generateBundle');
 
 			// TODO chunks!
-			const outputDir = outputOptions.dir || fp.dirname(outputOptions.file!);
+			const outputDir = outputOptions.dir || dirname(outputOptions.file!);
 
 			// write each changed bundle to disk
 			for (const bundle of getCssBundles().values()) {
@@ -90,7 +90,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 				}
 				const css = cssStrings.join('\n');
 
-				const dest = fp.join(outputDir, bundleName);
+				const dest = join(outputDir, bundleName);
 
 				if (sources.length) {
 					const sourcemapDest = dest + '.map';
@@ -100,7 +100,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 						{
 							version: 3,
 							file: bundleName,
-							sources: sources.map(s => fp.relative(outputDir, s)),
+							sources: sources.map(s => relative(outputDir, s)),
 							sourcesContent,
 							names: [],
 							mappings: encode(mappings),

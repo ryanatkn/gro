@@ -1,4 +1,4 @@
-import * as fp from 'path';
+import {resolve} from 'path';
 import fs from 'fs-extra';
 
 import {blue, magenta} from '../colors/terminal.js';
@@ -27,7 +27,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		watch: false,
 		production: process.env.NODE_ENV === 'production',
 		...omitUndefined(opts),
-		outputDir: fp.resolve(opts.outputDir || DEFAULT_OUTPUT_DIR),
+		outputDir: resolve(opts.outputDir || DEFAULT_OUTPUT_DIR),
 	};
 };
 
@@ -58,14 +58,14 @@ const resolveInputFiles = (fileNames: string[]): string[] => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {
 		for (const name of DEFAULT_INPUT_NAMES) {
-			const path = fp.resolve(name);
+			const path = resolve(name);
 			if (fs.existsSync(path)) {
 				fileNames = [name];
 				break;
 			}
 		}
 	}
-	const inputFiles = fileNames.map(f => fp.resolve(f));
+	const inputFiles = fileNames.map(f => resolve(f));
 	for (const file of inputFiles) {
 		if (!fs.existsSync(file)) {
 			throw Error(`Input file not found: ${file}`);
