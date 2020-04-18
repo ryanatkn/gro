@@ -1,7 +1,7 @@
 import {Plugin} from 'rollup';
 import fs from 'fs-extra';
 import {dirname, join, relative} from 'path';
-import {decode, encode, SourceMapSegment} from 'sourcemap-codec';
+import sourcemapCodec from 'sourcemap-codec';
 
 import {blue, gray} from '../colors/terminal.js';
 import {LogLevel, logger, Logger} from '../utils/log.js';
@@ -54,7 +54,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 				info('changes', Array.from(changedIds)); // TODO trace when !watch
 				changedIds.clear();
 
-				const mappings: SourceMapSegment[][] = [];
+				const mappings: sourcemapCodec.SourceMapSegment[][] = [];
 				const sources: string[] = [];
 				const sourcesContent: string[] = [];
 
@@ -77,7 +77,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 						const sourcesLength = sources.length;
 						sources.push(build.map.sources[0]);
 						sourcesContent.push(build.map.sourcesContent[0]);
-						const decoded = decode(build.map.mappings);
+						const decoded = sourcemapCodec.decode(build.map.mappings);
 						if (sourcesLength > 0) {
 							for (const line of decoded) {
 								for (const segment of line) {
@@ -103,7 +103,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 							sources: sources.map(s => relative(outputDir, s)),
 							sourcesContent,
 							names: [],
-							mappings: encode(mappings),
+							mappings: sourcemapCodec.encode(mappings),
 						},
 						null,
 						2,
