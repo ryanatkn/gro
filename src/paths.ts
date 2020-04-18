@@ -1,8 +1,6 @@
 import {sep, join} from 'path';
 
-import {gray} from './colors/terminal.js';
 import {replaceExt} from './utils/path.js';
-import {logger, LogLevel} from './utils/log.js';
 import {stripStart} from './utils/string.js';
 
 /*
@@ -19,8 +17,6 @@ For path './foo/bar/baz.ts',
 the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 
 */
-
-const {info} = logger(LogLevel.Info, [gray('[paths]')]); // TODO log level from env var? param?
 
 // TODO pass these to `createPaths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
@@ -48,7 +44,6 @@ const createPaths = () => {
 };
 
 export const paths = createPaths();
-info(paths);
 
 export const isId = (id: string): boolean => id.startsWith(paths.root);
 export const isSourceId = (id: string): boolean => id.startsWith(paths.source);
