@@ -7,8 +7,7 @@ test('assertions', () => {
 		try {
 			throw new t.Error(message);
 		} catch (err) {
-			// can't use `instanceof` right now because gro is self-testing, has two copies of modules for runner/tests
-			if (err.constructor.name === t.Error.name) {
+			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.fail) {
 					throw Error(
 						`Expected error operator to be "${AssertionOperator.fail}"`,
@@ -25,8 +24,7 @@ test('assertions', () => {
 		try {
 			cb();
 		} catch (err) {
-			// can't use `instanceof` right now because gro is self-testing, has two copies of modules for runner/tests
-			if (err.constructor.name === AssertionError.name) {
+			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.throws) {
 					throw new t.Error(
 						`Expected error operator to be "${AssertionOperator.throws}"`,

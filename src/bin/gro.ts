@@ -1,164 +1,76 @@
 #!/bin/sh
 ':'; //# this is temporary code to use ESM in the CLI; exec /usr/bin/env node --experimental-modules "$0" "$@"
+// TODO change the above lines to `#!/usr/bin/env node`
+// when Node v14 LTS is ready, supposedly October 2020
 
-// handle uncaught errors
-import {attachProcessErrorHandlers} from '../utils/process.js';
-attachProcessErrorHandlers();
-
-// install source maps
-import sourceMapSupport from 'source-map-support';
-sourceMapSupport.install({
-	handleUncaughtExceptions: false,
-});
-
-// set up the env
-if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
-const {env, argv} = process;
-
-import sade from 'sade';
-import fs from 'fs-extra';
-import * as fp from 'path';
+import {existsSync, realpathSync} from 'fs';
+import {join, resolve} from 'path';
 import {fileURLToPath} from 'url';
-
-import {InitialOptions as InitialRunTaskOptions} from '../commands/run.js';
-import {InitialOptions as InitialDevTaskOptions} from '../commands/dev.js';
-import {InitialOptions as InitialBuildTaskOptions} from '../commands/build.js';
-import {InitialOptions as InitialServeTaskOptions} from '../commands/serve.js';
-import {InitialOptions as InitialTestTaskOptions} from '../commands/test.js';
-import {InitialOptions as InitialCleanTaskOptions} from '../commands/clean.js';
-import {InitialOptions as InitialGenTaskOptions} from '../commands/gen.js';
-import {InitialOptions as InitialAssetsTaskOptions} from '../commands/assets.js';
-import {omitUndefined} from '../utils/object.js';
-
-// This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
-// and `package.json` is above it at the repo root,
-// so it can't be imported or required normally.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = fp.dirname(__filename);
-const pkg = fs.readJsonSync(fp.join(__dirname, '../../package.json'));
 
 /*
 
-All commands are lazily required,
-avoiding the typical loading/parsing/initializing of tons of unused JS.
+This file is a loader for the Gro CLI.
+Its only purpose is to import the `invoke.js` script in the correct directory.
+It lets the global Gro CLI defer to a local installation
+of Gro if one is available,
+and it also provides special handling for the case
+where we're running Gro inside Gro's own repo for development.
+
+case 1:
+
+We're in a directory that has a local installation of Gro.
+Use the local version instead of the global.
+
+TODO This only finds the local version of Gro
+when the current working directory has `node_modules/.bin/gro`.
+Should being nested directories be supported? How?
+I couldn't find a way to do that with Node
+without using undocumented behavior like this does:
+https://github.com/sindresorhus/resolve-from
+Another option is to search recursively upwards,
+but we won't try to fix this until we have an immediate need
+and we're sure it's a good idea.
+
+case 2:
+
+We're running Gro inside the Gro repo itself.
+
+In this case, we use the build directory instead of dist.
+There's a paradox here for using Gro inside itself -
+ideally we use the dist directory because that's what's shipped,
+but the build directory has all of the tests,
+and loading two instances of its modules causes problems
+like `instanceof` checks failing.
+For now we'll just run from build and see if it causes any problems.
+There's probably a better design in here somewhere.
+
+case 3:
+
+Fall back to invoking Gro from wherever the binary is being executed.
+When using the global CLI, this uses the global Gro installation.
 
 */
 
-sade('gro')
-	.version(pkg.version)
+const main = (): Promise<void> => {
+	const groBinPath = resolve('node_modules/.bin/gro');
+	if (existsSync(groBinPath)) {
+		// case 1
+		// Prefer any locally installed version of Gro.
+		return import(join(realpathSync(groBinPath), '../invoke.js'));
+	} else {
+		// case 2
+		// If running Gro inside its own repo, require the local build.
+		// If the local build is not available,
+		// the global version can be used to build the project.
+		const filePath = fileURLToPath(import.meta.url);
+		// This detection is not airtight, but seems good enough.
+		if (existsSync('build/bin/gro.js') && existsSync('build/bin/invoke.js')) {
+			return import(join(filePath, '../../../build/bin/invoke.js'));
+		}
+		// case 3
+		// Fall back to the version associated with the running binary.
+		return import(join(filePath, '../invoke.js'));
+	}
+};
 
-	// TODO probably want this
-	//.option('-c, --config', 'Path to gro config', 'gro.config.js');
-
-	.command('run')
-	.describe('Run tasks')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/run.js');
-		const options: InitialRunTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	.command('dev')
-	.describe('Start development server')
-	.option('-H, --host', 'Hostname for the server')
-	.option('-p, --port', 'Port number for the server')
-	.option('-d, --dir', 'Directory to serve')
-	.option('-o, --outputDir', 'Directory for the build output')
-	.option('-w, --watch', 'Watch for changes and rebuild')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/dev.js');
-		const options: InitialDevTaskOptions = {
-			...omitUndefined({
-				host: env.HOST,
-				port: env.PORT,
-			}),
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	.command('build')
-	.describe('Build the code')
-	.option('-o, --outputDir', 'Directory for the build output')
-	.option('-w, --watch', 'Watch for changes and rebuild')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/build.js');
-		const options: InitialBuildTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	.command('gen')
-	.describe('Run code generation scripts')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/gen.js');
-		const options: InitialGenTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	.command('assets')
-	.describe('Copy assets to dist')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/assets.js');
-		const options: InitialAssetsTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	.command('serve')
-	.describe('Start development server')
-	.option('-d, --dir', 'Directory for the app source') // TODO probably change this to be the `_` params
-	.option('-H, --host', 'Hostname for the server')
-	.option('-p, --port', 'Port number for the server')
-	.action(async (opts: any) => {
-		const command = await import('../commands/serve.js');
-		const options: InitialServeTaskOptions = {
-			...omitUndefined({
-				host: env.HOST,
-				port: env.PORT,
-			}),
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	.command('test')
-	.describe('Run tests')
-	.option('-d, --dir', 'Directory for the app source')
-	.option('-w, --watch', 'Watch for changes and re-run tests')
-	.action(async (opts: any) => {
-		const command = await import('../commands/test.js');
-		const options: InitialTestTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	.command('clean')
-	.describe('Remove build and temp files')
-	.action(async (opts: any) => {
-		const command = await import('../commands/clean.js');
-		const options: InitialCleanTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	// gro!
-	.parse(argv);
+main();

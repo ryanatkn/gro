@@ -4,20 +4,34 @@ import {AsyncState} from '../utils/async.js';
 import {omitUndefined} from '../utils/object.js';
 import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/time.js';
-import {createGlobalRef} from '../globals.js';
 
-const currentTestContext = createGlobalRef<TestContext>('currentTestContext');
+// This global reference allows us to use the global `test` reference.
+let globalTestContext: TestContext | null = null;
+const setGlobalTestContext = (testContext: TestContext): void => {
+	if (globalTestContext) {
+		throw Error(`A global test context has already been set.`);
+	}
+	globalTestContext = testContext;
+};
+const unsetGlobalTestContext = (testContext: TestContext): void => {
+	if (globalTestContext !== testContext) {
+		throw Error(
+			`Trying to unset an inactive global test context: ${testContext} does not match the global ${globalTestContext}.`,
+		);
+	}
+	globalTestContext = null;
+};
 
 export const test: (
 	message: string,
 	cb: TestInstanceCallback,
 ) => TestInstance = (message, cb) => {
-	if (!currentTestContext.exists()) {
+	if (!globalTestContext) {
 		throw Error(
 			`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,
 		);
 	}
-	return currentTestContext.get().test(message, cb);
+	return globalTestContext.test(message, cb);
 };
 
 export interface TestInstanceContext {
@@ -167,6 +181,7 @@ export abstract class TestContext<
 	// TODO re-run?
 	runState = AsyncState.Initial;
 	async run(): Promise<void> {
+		setGlobalTestContext(this);
 		if (this.initState !== AsyncState.Success) {
 			throw Error(`TestContext is not inited`);
 		}
@@ -178,9 +193,11 @@ export abstract class TestContext<
 			await this.runTests();
 		} catch (err) {
 			this.runState = AsyncState.Failure;
+			unsetGlobalTestContext(this);
 			throw err;
 		}
 		this.runState = AsyncState.Success;
+		unsetGlobalTestContext(this);
 	}
 
 	private async runTests(): Promise<void> {
@@ -229,14 +246,12 @@ export abstract class TestContext<
 	}
 
 	private onRunStart(): void {
-		currentTestContext.set(this); // track this `TestContext` instance so `test` knows how to register
 		this.report.reportIntro(this);
 		this.timings.start(TOTAL_TIMING);
 	}
 	private onRunEnd(): void {
 		this.timings.stop(TOTAL_TIMING);
 		this.report.reportSummary(this);
-		currentTestContext.delete(this);
 	}
 	private onFileBegin(fileId: string): void {
 		this.report.reportFileBegin(this, fileId);
