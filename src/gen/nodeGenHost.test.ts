@@ -11,7 +11,7 @@ test('createNodeGenHost()', () => {
 	const fixturesDir = resolve('src/gen/fixtures');
 
 	test('host.findGenModules()', async () => {
-		const genSourceIds = await host.findGenModules(fixturesDir);
+		const genSourceIds = (await host.findGenModules(fixturesDir)).sort();
 		t.equal(genSourceIds, [
 			join(fixturesDir, 'testGenHtml.gen.html.ts'),
 			join(fixturesDir, 'testGenMulti.gen.ts'),
