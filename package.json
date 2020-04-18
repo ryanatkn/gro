@@ -41,7 +41,6 @@
     "cheap-watch": "^1.0.2",
     "fs-extra": "^9.0.0",
     "kleur": "^3.0.3",
-    "mime": "^2.4.4",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-pluginutils": "^2.8.2",
@@ -58,7 +57,6 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^8.1.0",
-    "@types/mime": "^2.0.1",
     "@types/node": "^12.12.32",
     "@types/prettier": "^1.19.1",
     "@types/source-map-support": "^0.5.1",

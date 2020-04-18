@@ -1,18 +1,19 @@
 import {
+	createServer,
 	Server,
 	ServerOptions,
 	RequestListener,
 	ServerResponse,
 	IncomingMessage,
+	OutgoingHttpHeaders,
 } from 'http';
-import {createServer} from 'http';
 import {ListenOptions} from 'net';
 import * as fp from 'path';
 
 import {cyan, yellow, gray} from '../colors/terminal.js';
 import {logger, LogLevel} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
-import {loadFile, getMimeType, File} from '../utils/file.js';
+import {loadFile, getMimeType, File} from '../files/nodeFile.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface DevServer {
@@ -105,7 +106,7 @@ const send404FileNotFound = (
 	res: ServerResponse,
 	path: string,
 ) => {
-	const headers = {
+	const headers: OutgoingHttpHeaders = {
 		'Content-Type': 'text/plain',
 	};
 	res.writeHead(404, headers);
@@ -117,11 +118,14 @@ const send200FileFound = (
 	res: ServerResponse,
 	file: File,
 ) => {
-	const headers = {
-		'Content-Type': getMimeType(file),
+	const headers: OutgoingHttpHeaders = {
 		'Content-Length': file.stats.size,
 		'Last-Modified': file.stats.mtime.toUTCString(),
 	};
+	// The http server throws an error if "Content-Type" is `undefined`,
+	// so add it only if we can detect one.
+	const mimeType = getMimeType(file);
+	if (mimeType) headers['Content-Type'] = mimeType;
 	res.writeHead(200, headers);
 	res.end(file.data);
 };

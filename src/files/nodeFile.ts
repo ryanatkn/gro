@@ -1,11 +1,13 @@
-import mime from 'mime/lite.js';
 import fs from 'fs-extra';
+import {extname} from 'path';
+
+import {getMimeTypeByExtension} from './mime.js';
 
 export interface File {
 	readonly path: string;
 	data: Buffer;
 	stats: fs.Stats;
-	mimeType?: string; // gets cached via `getMimeType`
+	mimeType?: string | null; // cached by `getMimeType`, `null` means unknown
 }
 
 export const loadFile = async (path: string): Promise<File | null> => {
@@ -24,8 +26,7 @@ export const loadFile = async (path: string): Promise<File | null> => {
 	return {path, data, stats};
 };
 
-export const getMimeType = (file: File): string =>
-	file.mimeType || (file.mimeType = toMimeType(file.path));
-
-export const toMimeType = (path: string): string =>
-	mime.getType(path) || 'text/plain';
+export const getMimeType = (file: File): string | null =>
+	file.mimeType === undefined
+		? (file.mimeType = getMimeTypeByExtension(extname(file.path).slice(1)))
+		: file.mimeType;

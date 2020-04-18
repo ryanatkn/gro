@@ -1,10 +1,5 @@
 declare module 'sade';
 
-// TODO upstream this?
-declare module 'mime/lite.js' {
-	export * from 'mime';
-}
-
 // Convenient global types - maybe import instead?
 
 type Obj<T = any> = {[key: string]: T};
