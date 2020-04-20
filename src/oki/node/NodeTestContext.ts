@@ -16,7 +16,14 @@ import {
 	CheapWatchPathRemovedEvent,
 } from '../../files/nodeFs.js';
 
-export const DEFAULT_TEST_FILE_MATCHER = /.+\.test\.js$/;
+export const TEST_FILE_MATCHER = /.+\.test\.js$/;
+export const isTestFile = (path: string): boolean =>
+	TEST_FILE_MATCHER.test(path);
+
+// Artifacts include typings and sourcemaps.
+export const TEST_ARTIFACT_MATCHER = /.+\.test\.(js\.map|d\.ts|d\.ts\.map)$/;
+export const isTestArtifact = (path: string): boolean =>
+	TEST_ARTIFACT_MATCHER.test(path);
 
 // TODO probably rewrite this to implement a `TestHost` and change classes to pojos
 export interface Options extends TestContextOptions {
@@ -26,8 +33,7 @@ export interface Options extends TestContextOptions {
 export type RequiredOptions = TestContextRequiredOptions;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	filter: ({path, stats}) =>
-		stats.isDirectory() || DEFAULT_TEST_FILE_MATCHER.test(path),
+	filter: ({path, stats}) => stats.isDirectory() || isTestFile(path),
 	debounce: DEBOUNCE_DEFAULT,
 	...initTestContextOptions(opts),
 });

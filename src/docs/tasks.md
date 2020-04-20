@@ -6,6 +6,7 @@
 
 ## all tasks
 
+- [project/dist](../project/dist.task.ts) - create and link the gro distribution
 - [run/fixtures/testFailingTask](../run/fixtures/testFailingTask.task.ts) - a test task for unhandled errors
 - [run/fixtures/testTask1](../run/fixtures/testTask1.task.ts) - a test task for basic task behavior
 - [run/fixtures/testTask2](../run/fixtures/testTask2.task.ts) - a test task that forwards data
