@@ -6,7 +6,6 @@ import {omitUndefined} from '../utils/object.js';
 import {
 	TaskModuleMeta,
 	toTaskPath,
-	TaskContext,
 	TaskData,
 	toTaskName,
 	validateTaskModule,
@@ -73,8 +72,6 @@ export const run = async (
 	if (!isSourceId(dir)) {
 		throw Error(`dir must be a source id: ${dir}`);
 	}
-
-	const ctx: TaskContext = {log, argv};
 
 	// `data` is a shared object that's sent through each task.
 	// It can be mutated or treated as immutable. Be careful with mutation!
@@ -151,7 +148,15 @@ export const run = async (
 		const taskStopwatch = createStopwatch();
 		info(`→ ${cyan(task.name)}`);
 		try {
-			const nextData = await task.mod.task.run(ctx, data);
+			const nextData = await task.mod.task.run(
+				{
+					argv,
+					log: log.clone({
+						prefixes: log.config.prefixes.concat(cyan(`[${task.name}]`)),
+					}),
+				},
+				data,
+			);
 			if (nextData) {
 				data = nextData;
 			}
