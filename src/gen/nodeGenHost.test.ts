@@ -1,5 +1,6 @@
 import {resolve, join} from 'path';
 import fs from 'fs-extra';
+const {readFile, remove} = fs; // TODO esm
 
 import {test, t} from '../oki/oki.js';
 import {createNodeGenHost} from './nodeGenHost.js';
@@ -34,8 +35,8 @@ test('createNodeGenHost()', () => {
 			originId: join(paths.temp, 'fakeOrigin.gen.ts'),
 			contents,
 		});
-		const fileOnDisk = await fs.readFile(tempId, 'utf8');
+		const fileOnDisk = await readFile(tempId, 'utf8');
 		t.is(fileOnDisk, contents);
-		await fs.remove(tempId);
+		await remove(tempId);
 	});
 });

@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+const {emptyDir, copy} = fs; // TODO esm
 import {promisify} from 'util';
 import {exec} from 'child_process';
 
@@ -13,10 +14,10 @@ export const task: Task = {
 	description: 'create and link the gro distribution',
 	run: async ({log: {info}}) => {
 		info('emptying');
-		await fs.emptyDir(paths.dist);
+		await emptyDir(paths.dist);
 
 		info('copying');
-		await fs.copy(paths.build, paths.dist, {
+		await copy(paths.build, paths.dist, {
 			filter: id => isDistFile(id),
 		});
 

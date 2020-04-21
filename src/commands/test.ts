@@ -1,5 +1,5 @@
 import {resolve, join} from 'path';
-import fs from 'fs-extra';
+import {existsSync} from 'fs';
 
 import {blue, magenta} from '../colors/terminal.js';
 import {NodeTestContext} from '../oki/node/NodeTestContext.js';
@@ -50,7 +50,7 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 const checkPaths = (dir: string, rawPaths: string[]): string[] => {
 	const paths = rawPaths.map(f => join(dir, f));
 	for (const path of paths) {
-		if (!fs.existsSync(path)) {
+		if (!existsSync(path)) {
 			throw Error(`Path not found: ${path}`);
 		}
 	}

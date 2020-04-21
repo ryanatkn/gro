@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+const {outputFile} = fs; // TODO esm
 import {join} from 'path';
 
 import {SystemLogger} from '../utils/log.js';
@@ -43,7 +44,7 @@ export const createNodeGenHost = (): GenHost => {
 				'generated from',
 				fmtPath(file.originId),
 			);
-			await fs.outputFile(file.id, file.contents);
+			await outputFile(file.id, file.contents);
 		},
 	};
 };

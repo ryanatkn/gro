@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+const {copy} = fs; // TODO esm
 import CheapWatch from 'cheap-watch';
 
 import {SystemLogger, Logger} from '../utils/log.js';
@@ -88,5 +89,5 @@ export const assets = async (opts: InitialOptions = {}) => {
 const copyAssetToDist = async (id: string, {info}: Logger): Promise<void> => {
 	const distId = toDistId(id);
 	info('copying asset', fmtPath(id), 'to', fmtPath(distId));
-	return fs.copy(id, distId);
+	return copy(id, distId);
 };

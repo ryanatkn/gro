@@ -1,5 +1,6 @@
 import {Plugin} from 'rollup';
 import fs from 'fs-extra';
+const {outputFile} = fs; // TODO esm
 import {dirname, join, relative} from 'path';
 import sourcemapCodec from 'sourcemap-codec';
 
@@ -109,12 +110,12 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 
 					info('writing css bundle and sourcemap', dest);
 					await Promise.all([
-						fs.outputFile(dest, finalCss),
-						fs.outputFile(sourcemapDest, cssSourcemap),
+						outputFile(dest, finalCss),
+						outputFile(sourcemapDest, cssSourcemap),
 					]);
 				} else {
 					info('writing css bundle', dest);
-					await fs.outputFile(dest, css);
+					await outputFile(dest, css);
 				}
 			}
 		},

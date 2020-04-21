@@ -1,4 +1,5 @@
-import fs from 'fs-extra';
+import fs, {Stats} from 'fs-extra';
+const {stat, readFile} = fs; // TODO esm
 import {extname} from 'path';
 
 import {getMimeTypeByExtension} from './mime.js';
@@ -6,20 +7,20 @@ import {getMimeTypeByExtension} from './mime.js';
 export interface File {
 	readonly path: string;
 	data: Buffer;
-	stats: fs.Stats;
+	stats: Stats;
 	mimeType?: string | null; // cached by `getMimeType`, `null` means unknown
 }
 
 export const loadFile = async (path: string): Promise<File | null> => {
-	let stats: fs.Stats;
+	let stats: Stats;
 	try {
-		stats = await fs.stat(path);
+		stats = await stat(path);
 	} catch (err) {
 		return null;
 	}
 	let data: Buffer;
 	try {
-		data = await fs.readFile(path); // unlikely to error after stat, but just in case
+		data = await readFile(path); // unlikely to error after stat, but just in case
 	} catch (err) {
 		return null;
 	}

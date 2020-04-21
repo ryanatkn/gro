@@ -1,5 +1,5 @@
 import {resolve} from 'path';
-import fs from 'fs-extra';
+import {existsSync} from 'fs';
 
 import {blue, magenta} from '../colors/terminal.js';
 import {createBuild} from '../project/build.js';
@@ -54,7 +54,7 @@ const resolveInputFiles = (fileNames: string[]): string[] => {
 	if (!fileNames.length) {
 		for (const name of DEFAULT_INPUT_NAMES) {
 			const path = resolve(name);
-			if (fs.existsSync(path)) {
+			if (existsSync(path)) {
 				fileNames = [name];
 				break;
 			}
@@ -62,7 +62,7 @@ const resolveInputFiles = (fileNames: string[]): string[] => {
 	}
 	const inputFiles = fileNames.map(f => resolve(f));
 	for (const file of inputFiles) {
-		if (!fs.existsSync(file)) {
+		if (!existsSync(file)) {
 			throw Error(`Input file not found: ${file}`);
 		}
 	}
