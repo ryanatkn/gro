@@ -23,7 +23,13 @@
   "bugs": {
     "url": "https://github.com/feltcoop/gro/issues"
   },
-  "keywords": [],
+  "keywords": [
+    "web",
+    "tools",
+    "bundlers",
+    "svelte",
+    "typescript"
+  ],
   "author": {
     "name": "Felt.coop",
     "email": "team@felt.social",
