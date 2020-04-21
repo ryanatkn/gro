@@ -26,6 +26,8 @@
   "keywords": [
     "web",
     "tools",
+    "codegen",
+    "tasks",
     "bundlers",
     "svelte",
     "typescript"
