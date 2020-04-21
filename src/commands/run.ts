@@ -1,14 +1,11 @@
 import {blue, magenta} from '../colors/terminal.js';
 import {run as runTasks} from '../run/run.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {Argv} from '../bin/types.js';
 import {paths} from '../paths.js';
 import {createNodeRunHost} from '../run/nodeRunHost.js';
 
-// TODO get LogLevel from env vars and cli args - make it an option
-const logLevel = LogLevel.Trace;
-
-const log = logger(logLevel, [blue(`[commands/${magenta('run')}]`)]);
+const log = new SystemLogger([blue(`[commands/${magenta('run')}]`)]);
 const {info} = log;
 
 // Options are done differently here than normal to accept arbitrary CLI flags.
@@ -26,8 +23,7 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	const {_: taskNames, ...argv} = options;
 
 	await runTasks({
-		logLevel,
-		host: createNodeRunHost({logLevel}),
+		host: createNodeRunHost(),
 		dir: paths.source, // TODO customize
 		taskNames,
 		argv,

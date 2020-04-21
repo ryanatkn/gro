@@ -12,7 +12,7 @@ import commonjsPlugin from 'rollup-plugin-commonjs';
 import {resolve} from 'path';
 
 import {magenta, rainbow} from '../colors/terminal.js';
-import {logger, LogLevel, Logger} from '../utils/log.js';
+import {SystemLogger, Logger} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/string.js';
 import {plainCssPlugin} from './rollup-plugin-plain-css.js';
@@ -32,7 +32,6 @@ export interface Options {
 	inputFiles: string[];
 	outputDir: string;
 	watch: boolean;
-	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -41,7 +40,6 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	inputFiles: [resolve('index.ts')],
 	outputDir: resolve('dist/'),
 	watch: true,
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
@@ -51,9 +49,8 @@ interface Build {
 
 export const createBuild = (opts: InitialOptions): Build => {
 	const options = initOptions(opts);
-	const {logLevel} = options;
 
-	const log = logger(logLevel, [magenta('[build]')]);
+	const log = new SystemLogger([magenta('[build]')]);
 	const {trace} = log;
 
 	trace('build options', options);
@@ -93,10 +90,10 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 
 const createInputOptions = (
 	inputFile: string,
-	{dev, logLevel}: Options,
+	{dev}: Options,
 	_log: Logger,
 ): InputOptions => {
-	const cssCache = createCssCache<GroCssBuild>({logLevel});
+	const cssCache = createCssCache<GroCssBuild>();
 	// TODO combine into one - mainly need to fix sourcemaps (maybe just append the unmapped css? can that be done automatically in the bundling plugin?)
 	// TODO make configurable with `gro.config.ts`
 	const addCssBuild = cssCache.addCssBuild.bind(null, 'styles.css');
@@ -106,29 +103,25 @@ const createInputOptions = (
 		// external,
 		input: inputFile, // required
 		plugins: [
-			diagnosticsPlugin({logLevel}),
-			groJsonPlugin({compact: !dev, logLevel}),
+			diagnosticsPlugin(),
+			groJsonPlugin({compact: !dev}),
 			groSveltePlugin({
 				dev,
 				addCssBuild,
-				logLevel,
-				preprocessor: [sveltePreprocessTypescript({logLevel})],
+				preprocessor: [sveltePreprocessTypescript()],
 				compileOptions: {
 					immutable: true,
 				},
 			}),
-			groTypescriptPlugin({logLevel}),
-			plainCssPlugin({addCssBuild, logLevel}),
+			groTypescriptPlugin(),
+			plainCssPlugin({addCssBuild}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,
 				sourcemap: dev,
-				logLevel,
 			}),
 			resolvePlugin(),
 			commonjsPlugin(),
-			...(dev
-				? []
-				: [groTerserPlugin({logLevel, minifyOptions: {sourceMap: dev}})]),
+			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: dev}})]),
 		],
 
 		// — advanced input options

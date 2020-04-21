@@ -3,14 +3,10 @@ import fs from 'fs-extra';
 
 import {blue, magenta} from '../colors/terminal.js';
 import {createBuild} from '../project/build.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
 
-// TODO get LogLevel from env vars and cli args - make it an option
-const logLevel = LogLevel.Trace;
-
-const log = logger(logLevel, [blue(`[commands/${magenta('build')}]`)]);
-const {info, warn} = log;
+const {info, warn} = new SystemLogger([blue(`[commands/${magenta('build')}]`)]);
 
 export interface Options {
 	_: string[];
@@ -44,7 +40,6 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 			inputFiles,
 			outputDir,
 			watch,
-			logLevel,
 		});
 		await build.promise;
 	} else {

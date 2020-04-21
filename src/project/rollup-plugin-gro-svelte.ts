@@ -7,7 +7,7 @@ const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta, yellow, red} from '../colors/terminal.js';
 import {getPathStem, replaceExt} from '../utils/path.js';
-import {LogLevel, logger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger} from '../utils/log.js';
 import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
 import {toRootPath} from '../paths.js';
 import {GroCssBuild} from './types.js';
@@ -55,7 +55,6 @@ export interface Options {
 	preprocessor: PreprocessorGroup | PreprocessorGroup[] | null;
 	compileOptions: CompileOptions;
 	compilations: Map<string, GroSvelteCompilation>;
-	logLevel: LogLevel;
 	onwarn: typeof handleWarn;
 	onstats: typeof handleStats;
 }
@@ -67,7 +66,6 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	preprocessor: null,
 	compileOptions: {},
 	compilations: new Map<string, GroSvelteCompilation>(),
-	logLevel: LogLevel.Info,
 	onwarn: handleWarn,
 	onstats: handleStats,
 	...omitUndefined(opts),
@@ -105,12 +103,11 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		preprocessor,
 		compileOptions,
 		compilations,
-		logLevel,
 		onwarn,
 		onstats,
 	} = initOptions(opts);
 
-	const log = logger(logLevel, [magenta(`[${name}]`)]);
+	const log = new SystemLogger([magenta(`[${name}]`)]);
 	const {error, trace} = log;
 
 	const getCompilation = (id: string): GroSvelteCompilation | undefined =>

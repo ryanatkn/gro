@@ -3,15 +3,11 @@ import fs from 'fs-extra';
 
 import {blue, magenta} from '../colors/terminal.js';
 import {NodeTestContext} from '../oki/node/NodeTestContext.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
 import {toPathParts, toInferredId, toBasePath, toBuildId} from '../paths.js';
 
-// TODO get LogLevel from env vars and cli args - make it an option
-const logLevel = LogLevel.Trace;
-
-const log = logger(logLevel, [blue(`[commands/${magenta('test')}]`)]);
-const {info} = log;
+const {info} = new SystemLogger([blue(`[commands/${magenta('test')}]`)]);
 
 const DEFAULT_DIR = './build';
 
@@ -44,7 +40,6 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 		dir,
 		filter: pathsAndDirs.size ? ({path}) => pathsAndDirs.has(path) : undefined,
 		watch,
-		logLevel,
 	});
 	await testContext.init();
 	await testContext.run();

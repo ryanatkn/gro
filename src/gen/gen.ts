@@ -1,7 +1,7 @@
 import {join, basename, dirname} from 'path';
 
 import {isSourceId, toBasePath} from '../paths.js';
-import {LogLevel, logger} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
 import {magenta, yellow, red} from '../colors/terminal.js';
 import {fmtPath} from '../utils/fmt.js';
@@ -57,14 +57,12 @@ export interface GenHost {
 }
 
 export interface Options {
-	logLevel: LogLevel;
 	host: GenHost;
 	dir: string;
 }
 export type RequiredOptions = 'host' | 'dir';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
@@ -90,8 +88,8 @@ export type GenModuleResultFailure = {
 };
 
 export const gen = async (opts: InitialOptions): Promise<GenResults> => {
-	const {logLevel, host, dir} = initOptions(opts);
-	const log = logger(logLevel, [magenta('[gen]')]);
+	const {host, dir} = initOptions(opts);
+	const log = new SystemLogger([magenta('[gen]')]);
 	const {error} = log;
 
 	const timings = new Timings();

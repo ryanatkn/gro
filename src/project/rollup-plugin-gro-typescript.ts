@@ -5,7 +5,7 @@ const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
-import {LogLevel, logger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger} from '../utils/log.js';
 import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
 import {toRootPath} from '../paths.js';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
@@ -27,7 +27,6 @@ export interface Options {
 	tsconfigPath: string | undefined;
 	basePath: string | undefined;
 	reportDiagnostics: boolean;
-	logLevel: LogLevel;
 	ondiagnostics: typeof handleDiagnostics;
 	onstats: typeof handleStats;
 }
@@ -39,7 +38,6 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	tsconfigPath: undefined,
 	basePath: undefined,
 	reportDiagnostics: true, // TODO check transpilation times where this is false
-	logLevel: LogLevel.Info,
 	ondiagnostics: handleDiagnostics,
 	onstats: handleStats,
 	...omitUndefined(opts),
@@ -54,12 +52,11 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 		tsconfigPath,
 		basePath,
 		reportDiagnostics,
-		logLevel,
 		ondiagnostics,
 		onstats,
 	} = initOptions(opts);
 
-	const log = logger(logLevel, [magenta(`[${name}]`)]);
+	const log = new SystemLogger([magenta(`[${name}]`)]);
 	const {error, trace} = log;
 
 	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);

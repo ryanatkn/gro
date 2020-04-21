@@ -1,5 +1,5 @@
 import {cyan} from '../colors/terminal.js';
-import {LogLevel, Logger, logger} from '../utils/log.js';
+import {Logger, LogLevel, SystemLogger} from '../utils/log.js';
 import {AsyncState} from '../utils/async.js';
 import {omitUndefined} from '../utils/object.js';
 import {createFileCache} from '../project/fileCache.js';
@@ -39,6 +39,16 @@ export interface TestInstanceContext {
 }
 export interface TestInstanceCreator {
 	(message: string, cb: TestInstanceCallback): void;
+}
+
+export class TestLogger extends Logger {
+	static level = LogLevel.Trace;
+	constructor(
+		prefixes: readonly any[] = [cyan('[oki]')],
+		suffixes?: readonly any[],
+	) {
+		super(prefixes, suffixes, TestLogger);
+	}
 }
 
 export interface TestInstance {
@@ -82,8 +92,7 @@ export const TOTAL_TIMING = 'total';
 export interface Options {
 	dir: string;
 	watch: boolean;
-	logLevel: LogLevel; // TODO should this be a logger instance instead?
-	logPrefix: string;
+	log: Logger;
 	reportFullStackTraces: boolean;
 	reportBaseIndent: string;
 	reportListIndent: string;
@@ -91,14 +100,12 @@ export interface Options {
 export type RequiredOptions = 'dir';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const logPrefix = opts.logPrefix === undefined ? '[oki]' : opts.logPrefix;
 	return {
 		// TODO use rollup-style globbing? probably, because of watch mode
 		// include: '**/*.test.*',
 		// exclude: null,
 		watch: false,
-		logLevel: LogLevel.Info,
-		logPrefix,
+		log: new TestLogger(),
 		reportFullStackTraces: false,
 		reportBaseIndent: '   ',
 		reportListIndent: '  ',
@@ -140,8 +147,7 @@ export abstract class TestContext<
 		const {
 			dir,
 			watch,
-			logLevel,
-			logPrefix,
+			log,
 			reportFullStackTraces,
 			reportBaseIndent,
 			reportListIndent,
@@ -149,13 +155,11 @@ export abstract class TestContext<
 		if (watch) throw Error(`Test watching is not yet supported`);
 		this.dir = dir;
 		this.watch = watch;
-		this.log = logger(logLevel, [cyan(logPrefix)]);
+		this.log = log;
 		this.reportFullStackTraces = reportFullStackTraces;
 		this.reportBaseIndent = reportBaseIndent;
 		this.reportListIndent = reportListIndent;
-		this.testInstanceContext = {
-			log: this.log,
-		};
+		this.testInstanceContext = {log};
 	}
 
 	initState = AsyncState.Initial;
@@ -181,7 +185,6 @@ export abstract class TestContext<
 	// TODO re-run?
 	runState = AsyncState.Initial;
 	async run(): Promise<void> {
-		setGlobalTestContext(this);
 		if (this.initState !== AsyncState.Success) {
 			throw Error(`TestContext is not inited`);
 		}
@@ -189,20 +192,19 @@ export abstract class TestContext<
 			throw Error(`TestContext was already run`);
 		}
 		this.runState = AsyncState.Pending;
+		this.onRunBegin();
 		try {
 			await this.runTests();
 		} catch (err) {
 			this.runState = AsyncState.Failure;
-			unsetGlobalTestContext(this);
+			this.onRunEnd();
 			throw err;
 		}
 		this.runState = AsyncState.Success;
-		unsetGlobalTestContext(this);
+		this.onRunEnd();
 	}
 
 	private async runTests(): Promise<void> {
-		this.onRunStart();
-
 		// TODO maybe track import timing separately? or hierarchically?
 		await this.importTests();
 
@@ -216,8 +218,6 @@ export abstract class TestContext<
 			this.onFileEnd(fileId);
 		}
 		this.stats = createTestStats(this.tests);
-
-		this.onRunEnd();
 	}
 
 	private async runTest(testInstance: TestInstance): Promise<void> {
@@ -245,13 +245,27 @@ export abstract class TestContext<
 		return {ok: true};
 	}
 
-	private onRunStart(): void {
-		this.report.reportIntro(this);
+	// While running tests, we turn off logging for all `Logger` instances.
+	// This property tracks the original value so we can reset it afterwards.
+	// TODO how can custom loggers easily have the same behavior?
+	private originalGlobalLogLevel = Logger.level;
+	private originalSystemLogLevel = SystemLogger.level;
+
+	private onRunBegin(): void {
+		setGlobalTestContext(this);
+		this.originalGlobalLogLevel = Logger.level;
+		this.originalSystemLogLevel = SystemLogger.level;
+		Logger.level = LogLevel.Off;
+		SystemLogger.level = LogLevel.Off;
 		this.timings.start(TOTAL_TIMING);
+		this.report.reportIntro(this);
 	}
 	private onRunEnd(): void {
+		Logger.level = this.originalGlobalLogLevel;
+		SystemLogger.level = this.originalSystemLogLevel;
 		this.timings.stop(TOTAL_TIMING);
 		this.report.reportSummary(this);
+		unsetGlobalTestContext(this);
 	}
 	private onFileBegin(fileId: string): void {
 		this.report.reportFileBegin(this, fileId);

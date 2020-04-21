@@ -3,7 +3,7 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter, dataToEsm} = rollupPluginutils; // TODO esm
 
 import {magenta} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {fmtPath} from '../utils/fmt.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -17,7 +17,6 @@ export interface Options {
 	indent: string;
 	namedExports: boolean;
 	preferConst: boolean;
-	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -28,7 +27,6 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	indent: '\t',
 	namedExports: true,
 	preferConst: true,
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
@@ -42,10 +40,9 @@ export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
 		indent,
 		namedExports,
 		preferConst,
-		logLevel,
 	} = initOptions(opts);
 
-	const log = logger(logLevel, [magenta(`[${name}]`)]);
+	const log = new SystemLogger([magenta(`[${name}]`)]);
 	const {trace} = log;
 
 	const filter = createFilter(include, exclude);

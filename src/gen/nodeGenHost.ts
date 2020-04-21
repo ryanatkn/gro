@@ -1,27 +1,15 @@
 import fs from 'fs-extra';
 import {join} from 'path';
 
-import {LogLevel, logger} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
-import {omitUndefined} from '../utils/object.js';
 import {fmtPath} from '../utils/fmt.js';
 import {GenHost, isGenPath} from './gen.js';
 import {toBuildId, toSourceId} from '../paths.js';
 import {findFiles} from '../files/nodeFs.js';
 
-export interface Options {
-	logLevel: LogLevel;
-}
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
-	logLevel: LogLevel.Info,
-	...omitUndefined(opts),
-});
-
-export const createNodeGenHost = (opts: InitialOptions): GenHost => {
-	const {logLevel} = initOptions(opts);
-	const {info, trace} = logger(logLevel, [magenta('[gen]')]);
+export const createNodeGenHost = (): GenHost => {
+	const {info, trace} = new SystemLogger([magenta('[gen]')]);
 
 	return {
 		findGenModules: async dir => {

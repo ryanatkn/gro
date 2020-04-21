@@ -9,7 +9,6 @@ test('run()', async () => {
 	test('without any task names', async () => {
 		const result = await run(
 			{
-				logLevel: 0,
 				host: {
 					findTaskModules: async dir => {
 						t.is(dir, paths.source);
@@ -36,7 +35,6 @@ test('run()', async () => {
 		const argv = {a: 1};
 		const result = await run(
 			{
-				logLevel: 0,
 				host: {
 					findTaskModules: async () => {
 						throw Error('should not be called');
@@ -82,7 +80,6 @@ test('run()', async () => {
 
 		test('missing task', async () => {
 			const result = await run({
-				logLevel: 0,
 				host: {
 					findTaskModules: async () => {
 						throw Error('should not be called');
@@ -118,7 +115,6 @@ test('run()', async () => {
 
 		test('invalid task', async () => {
 			const result = await run({
-				logLevel: 0,
 				host: {
 					findTaskModules: async () => {
 						throw Error('should not be called');
@@ -157,7 +153,6 @@ test('run()', async () => {
 
 		test('failing task', async () => {
 			const result = await run({
-				logLevel: 0,
 				host: {
 					findTaskModules: async () => {
 						throw Error('should not be called');

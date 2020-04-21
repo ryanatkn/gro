@@ -1,29 +1,16 @@
 import {Plugin} from 'rollup';
 
 import {gray} from '../colors/terminal.js';
-import {LogLevel, logger} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
-import {omitUndefined} from '../utils/object.js';
-
-export interface Options {
-	logLevel: LogLevel;
-}
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
-	logLevel: LogLevel.Info,
-	...omitUndefined(opts),
-});
 
 const name = 'diagnostics';
 
 const tag = (s: string) => s; // maybe color this
 
-export const diagnosticsPlugin = (opts: InitialOptions = {}): Plugin => {
-	const {logLevel} = initOptions(opts);
-
-	const {trace, info} = logger(logLevel, [gray(`[${name}]`)]);
+export const diagnosticsPlugin = (): Plugin => {
+	const {trace, info} = new SystemLogger([gray(`[${name}]`)]);
 
 	const stopwatch = createStopwatch();
 	let started = false;

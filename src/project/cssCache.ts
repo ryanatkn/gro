@@ -1,7 +1,6 @@
 import {green} from '../colors/terminal.js';
-import {LogLevel, logger} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {fmtVal, fmtPath} from '../utils/fmt.js';
-import {omitUndefined} from '../utils/object.js';
 
 export interface CssBuild {
 	id: string;
@@ -20,22 +19,10 @@ export interface CssCache<T extends CssBuild = CssBuild> {
 	addCssBuild(bundleName: string, build: T): boolean;
 }
 
-export interface Options {
-	logLevel: LogLevel;
-}
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
-	logLevel: LogLevel.Info,
-	...omitUndefined(opts),
-});
-
-export const createCssCache = <T extends CssBuild = CssBuild>(
-	opts: InitialOptions = {},
-): CssCache<T> => {
-	const {logLevel} = initOptions(opts);
-
-	const {info} = logger(logLevel, [green('[cssCache]')]);
+export const createCssCache = <
+	T extends CssBuild = CssBuild
+>(): CssCache<T> => {
+	const {info} = new SystemLogger([green('[cssCache]')]);
 
 	// `bundles` key is an output bundle file name
 	const bundles = new Map<string, CssBundle<T>>();

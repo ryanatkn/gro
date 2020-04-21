@@ -1,6 +1,6 @@
 import {join} from 'path';
 
-import {LogLevel, logger} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {cyan, magenta, red, yellow} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {
@@ -16,7 +16,6 @@ import {Argv} from '../bin/types.js';
 import {toBasePath, isSourceId} from '../paths.js';
 
 export interface Options {
-	logLevel: LogLevel;
 	host: RunHost;
 	dir: string;
 	taskNames: string[];
@@ -25,7 +24,6 @@ export interface Options {
 export type RequiredOptions = 'host' | 'dir' | 'taskNames' | 'argv';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
@@ -64,8 +62,8 @@ export const run = async (
 	initialData: TaskData = {},
 ): Promise<RunResult> => {
 	const options = initOptions(opts);
-	const {logLevel, host, dir, taskNames, argv} = options;
-	const log = logger(logLevel, [magenta('[run]')]);
+	const {host, dir, taskNames, argv} = options;
+	const log = new SystemLogger([magenta('[run]')]);
 	const {error, info} = log;
 
 	// TODO is this right? or should we convert input paths to source ids?
@@ -151,9 +149,11 @@ export const run = async (
 			const nextData = await task.mod.task.run(
 				{
 					argv,
-					log: log.clone({
-						prefixes: log.config.prefixes.concat(cyan(`[${task.name}]`)),
-					}),
+					log: new SystemLogger(
+						log.prefixes.concat(cyan(`[${task.name}]`)),
+						log.suffixes,
+						log.state,
+					),
 				},
 				data,
 			);

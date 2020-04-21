@@ -1,12 +1,10 @@
 import {blue, magenta} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import * as buildTask from './build.js';
 import * as serveTask from './serve.js';
 import {omitUndefined} from '../utils/object.js';
 
-// TODO LogLevel from env vars and cli args
-const log = logger(LogLevel.Trace, [blue(`[commands/${magenta('dev')}]`)]);
-const {info} = log;
+const {info} = new SystemLogger([blue(`[commands/${magenta('dev')}]`)]);
 
 export type Options = buildTask.Options & serveTask.Options;
 export type RequiredOptions =

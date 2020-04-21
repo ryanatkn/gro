@@ -4,7 +4,7 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {fmtPath} from '../utils/fmt.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -17,7 +17,6 @@ export interface Options {
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
 	minifyOptions: terser.MinifyOptions;
-	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -25,16 +24,15 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	include: null,
 	exclude: null,
 	minifyOptions: {sourceMap: false},
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
 export const name = 'gro-terser';
 
 export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
-	const {include, exclude, minifyOptions, logLevel} = initOptions(opts);
+	const {include, exclude, minifyOptions} = initOptions(opts);
 
-	const log = logger(logLevel, [magenta(`[${name}]`)]);
+	const log = new SystemLogger([magenta(`[${name}]`)]);
 	const {info, error} = log;
 
 	const filter = createFilter(include, exclude);

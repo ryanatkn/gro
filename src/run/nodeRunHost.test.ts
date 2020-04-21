@@ -5,7 +5,7 @@ import {createNodeRunHost} from './nodeRunHost.js';
 import {validateTaskModule} from './task.js';
 
 test('createNodeRunHost()', () => {
-	const host = createNodeRunHost({logLevel: 0});
+	const host = createNodeRunHost();
 
 	test('host.findTaskModules()', async () => {
 		const taskSourceIds = await host.findTaskModules(

@@ -1,5 +1,5 @@
 import {red} from '../colors/terminal.js';
-import {logger, LogLevel} from './log.js';
+import {SystemLogger} from './log.js';
 import {fmtError} from './fmt.js';
 
 export const attachProcessErrorHandlers = () => {
@@ -9,7 +9,7 @@ export const attachProcessErrorHandlers = () => {
 };
 
 export const handleError = (err: Error, label = 'handleError'): void => {
-	const {error} = logger(LogLevel.Error, [red(`[${label}]`)]);
+	const {error} = new SystemLogger([red(`[${label}]`)]);
 	error(fmtError(err));
 	process.exit(1);
 };

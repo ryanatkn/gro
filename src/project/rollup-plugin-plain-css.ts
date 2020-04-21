@@ -5,7 +5,7 @@ import rollupPluginutils from 'rollup-pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
 import {green} from '../colors/terminal.js';
-import {LogLevel, logger} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {GroCssBuild} from './types.js';
 import {hasExt} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
@@ -15,7 +15,6 @@ export interface Options {
 	exts: string[]; // see comments below at `indexById` for why this exists
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
-	logLevel: LogLevel;
 }
 export type RequiredOptions = 'addCssBuild';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -28,7 +27,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		exts,
 		include: opts.include || exts.map(ext => `**/*${ext}`),
 		exclude: null,
-		logLevel: LogLevel.Info,
 		...omitUndefined(opts),
 	};
 };
@@ -36,9 +34,9 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const name = 'plain-css';
 
 export const plainCssPlugin = (opts: InitialOptions): Plugin => {
-	const {addCssBuild, exts, include, exclude, logLevel} = initOptions(opts);
+	const {addCssBuild, exts, include, exclude} = initOptions(opts);
 
-	const log = logger(logLevel, [green(`[${name}]`)]);
+	const log = new SystemLogger([green(`[${name}]`)]);
 	const {info, error} = log;
 
 	const filter = createFilter(include, exclude);

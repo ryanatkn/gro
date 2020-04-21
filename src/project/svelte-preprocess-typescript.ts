@@ -2,7 +2,7 @@ import ts from 'typescript';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 
 import {magenta, red} from '../colors/terminal.js';
-import {LogLevel, logger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger} from '../utils/log.js';
 import {loadTsconfig} from './tsHelpers.js';
 import {fmtPath} from '../utils/fmt.js';
 import {omitUndefined} from '../utils/object.js';
@@ -18,14 +18,12 @@ No typechecking is performed - that's left for a separate build step.
 export interface Options {
 	langs: string[];
 	tsconfigPath: string | undefined;
-	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	langs: ['typescript'],
 	tsconfigPath: undefined,
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
@@ -34,9 +32,9 @@ const name = 'svelte-preprocess-typescript';
 export const sveltePreprocessTypescript = (
 	opts: InitialOptions = {},
 ): PreprocessorGroup => {
-	const {langs, tsconfigPath, logLevel} = initOptions(opts);
+	const {langs, tsconfigPath} = initOptions(opts);
 
-	const log = logger(logLevel, [magenta(`[${name}]`)]);
+	const log = new SystemLogger([magenta(`[${name}]`)]);
 	const {info, error} = log;
 
 	const tsconfig = loadTsconfig(log, tsconfigPath);

@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import CheapWatch from 'cheap-watch';
 
-import {LogLevel, logger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger} from '../utils/log.js';
 import {magenta, gray} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {FileStats} from '../files/fileData.js';
@@ -28,20 +28,18 @@ export const DEFAULT_ASSET_MATCHER = /\.(jpg|png|ico|html)$/;
 
 export interface Options {
 	isAsset: (path: string) => boolean;
-	logLevel: LogLevel;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	isAsset: path => DEFAULT_ASSET_MATCHER.test(path),
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
 export const assets = async (opts: InitialOptions = {}) => {
 	const options = initOptions(opts);
-	const {isAsset, logLevel} = options;
-	const log = logger(logLevel, [magenta('[assets]')]);
+	const {isAsset} = options;
+	const log = new SystemLogger([magenta('[assets]')]);
 	const {info, trace} = log;
 
 	// TODO refactor to use the same file & watch solution as  `NodeTestContext` and `project/gen.ts`

@@ -1,15 +1,11 @@
 import {blue, magenta, red, green, gray} from '../colors/terminal.js';
 import {gen} from '../gen/gen.js';
 import {createNodeGenHost} from '../gen/nodeGenHost.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {paths} from '../paths.js';
 import {fmtPath, fmtMs} from '../utils/fmt.js';
 
-// TODO get LogLevel from env vars and cli args - make it an option
-const logLevel = LogLevel.Trace;
-
-const log = logger(logLevel, [blue(`[commands/${magenta('gen')}]`)]);
-const {info} = log;
+const {info} = new SystemLogger([blue(`[commands/${magenta('gen')}]`)]);
 
 export interface Options {}
 export type RequiredOptions = never;
@@ -20,9 +16,7 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
 	const {results, count, elapsed} = await gen({
-		host: createNodeGenHost({
-			logLevel: log.config.level,
-		}),
+		host: createNodeGenHost(),
 		dir: paths.source,
 	});
 

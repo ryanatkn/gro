@@ -8,7 +8,6 @@ import {
 	cyan,
 } from '../../colors/terminal.js';
 import {TestContext, TOTAL_TIMING, TestInstance} from '../TestContext.js';
-import {logNewline} from '../../utils/log.js';
 import {fmtMs, fmtValue, fmtStr} from '../../utils/fmt.js';
 import {toSourcePath} from '../../paths.js';
 import {
@@ -19,7 +18,7 @@ import {
 import {UnreachableError, ErrorClass} from '../../utils/error.js';
 
 export const reportIntro = (ctx: TestContext): void => {
-	logNewline();
+	ctx.log.newline();
 	ctx.log.info('oki..?');
 };
 
@@ -60,7 +59,7 @@ export const reportSummary = (ctx: TestContext): void => {
 		throw Error(`Expected test context to have stats to report summary`);
 	}
 	const {passCount, failCount} = stats;
-	logNewline();
+	ctx.log.newline();
 	if (!passCount && !failCount) {
 		info(yellow(`No tests were found! Maybe check the filter?`));
 	} else {
@@ -75,11 +74,11 @@ export const reportSummary = (ctx: TestContext): void => {
 			info(bgGreen(black(' oki :) ')));
 		}
 	}
-	logNewline();
+	ctx.log.newline();
 };
 
 export const reportFileBegin = (ctx: TestContext, fileId: string): void => {
-	logNewline();
+	ctx.log.newline();
 	ctx.log.plain('📁', toSourcePath(fileId));
 };
 export const reportFileEnd = (ctx: TestContext, fileId: string): void => {

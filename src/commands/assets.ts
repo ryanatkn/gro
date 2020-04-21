@@ -1,12 +1,8 @@
 import {blue, magenta} from '../colors/terminal.js';
 import {assets} from '../project/assets.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 
-// TODO get LogLevel from env vars and cli args - make it an option
-const logLevel = LogLevel.Trace;
-
-const log = logger(logLevel, [blue(`[commands/${magenta('assets')}]`)]);
-const {info} = log;
+const {info} = new SystemLogger([blue(`[commands/${magenta('assets')}]`)]);
 
 export interface Options {}
 export type RequiredOptions = never;
@@ -17,5 +13,5 @@ export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
 
-	await assets({logLevel});
+	await assets();
 };

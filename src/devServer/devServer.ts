@@ -11,7 +11,7 @@ import {ListenOptions} from 'net';
 import {resolve} from 'path';
 
 import {cyan, yellow, gray} from '../colors/terminal.js';
-import {logger, LogLevel} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {loadFile, getMimeType, File} from '../files/nodeFile.js';
 import {omitUndefined} from '../utils/object.js';
@@ -41,8 +41,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
 	const {host, port, dir} = options;
 
-	const log = logger(LogLevel.Trace, [cyan('[devServer]')]);
-	const {trace} = log;
+	const {trace} = new SystemLogger([cyan('[devServer]')]);
 
 	const serverOptions: ServerOptions = {
 		// IncomingMessage?: typeof IncomingMessage;

@@ -323,7 +323,6 @@ test('gen', async () => {
 		};
 		const results = await gen({
 			dir,
-			logLevel: 0,
 			host: {
 				findGenModules: async dir2 => {
 					t.is(dir, dir2);
@@ -416,7 +415,6 @@ test('gen', async () => {
 		};
 		const results = await gen({
 			dir,
-			logLevel: 0,
 			host: {
 				findGenModules: async dir2 => {
 					t.is(dir, dir2);
@@ -493,7 +491,6 @@ test('gen', async () => {
 
 		const results = await gen({
 			dir,
-			logLevel: 0,
 			host: {
 				findGenModules: async dir2 => {
 					t.is(dir, dir2);

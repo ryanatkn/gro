@@ -4,7 +4,7 @@ import {dirname, join, relative} from 'path';
 import sourcemapCodec from 'sourcemap-codec';
 
 import {blue, gray} from '../colors/terminal.js';
-import {LogLevel, logger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger} from '../utils/log.js';
 import {GroCssBuild, GroCssBundle} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -12,23 +12,21 @@ export interface Options {
 	getCssBundles(): Map<string, GroCssBundle>;
 	toFinalCss(build: GroCssBuild, log: Logger): string;
 	sourcemap: boolean; // TODO consider per-bundle options
-	logLevel: LogLevel;
 }
 export type RequiredOptions = 'getCssBundles';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	toFinalCss,
 	sourcemap: false,
-	logLevel: LogLevel.Info,
 	...omitUndefined(opts),
 });
 
 export const name = 'output-css';
 
 export const outputCssPlugin = (opts: InitialOptions): Plugin => {
-	const {getCssBundles, toFinalCss, sourcemap, logLevel} = initOptions(opts);
+	const {getCssBundles, toFinalCss, sourcemap} = initOptions(opts);
 
-	const log = logger(logLevel, [blue(`[${name}]`)]);
+	const log = new SystemLogger([blue(`[${name}]`)]);
 	const {info, trace} = log;
 
 	return {

@@ -7,7 +7,7 @@ import {validateGenModule} from './gen.js';
 import {paths} from '../paths.js';
 
 test('createNodeGenHost()', () => {
-	const host = createNodeGenHost({logLevel: 0});
+	const host = createNodeGenHost();
 	const fixturesDir = resolve('src/gen/fixtures');
 
 	test('host.findGenModules()', async () => {

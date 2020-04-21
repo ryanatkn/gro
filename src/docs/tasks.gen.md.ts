@@ -24,7 +24,7 @@ import {last} from '../utils/array.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({originId}) => {
-	const {findTaskModules, loadTaskModule} = createNodeRunHost({logLevel: 0});
+	const {findTaskModules, loadTaskModule} = createNodeRunHost();
 	const taskSourceIds = await findTaskModules(paths.source);
 	const tasks = await Promise.all(taskSourceIds.map(id => loadTaskModule(id)));
 
