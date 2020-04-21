@@ -13,8 +13,8 @@
     "ts:build": "tsc",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf ./build/ ./dist/",
-    "devdist": "rm -rf ./dist/ && cp -r ./build/ ./dist/ && npm link",
-    "rebuild": "npm run clean && npm run ts:build && npm run devdist"
+    "dev:dist": "rm -rf ./dist/ && cp -r ./build/ ./dist/ && npm link",
+    "dev:build": "npm run clean && npm run ts:build && npm run dev:dist"
   },
   "repository": {
     "type": "git",
