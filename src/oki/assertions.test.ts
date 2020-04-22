@@ -102,19 +102,6 @@ test('assertions', () => {
 		t.throws(() => t.ok(null));
 	});
 
-	test('notOk() ✓', () => {
-		t.notOk(false);
-		t.notOk(0);
-		t.notOk('');
-		t.notOk(null);
-	});
-	test('notOk() 🞩', () => {
-		t.throws(() => t.notOk(true));
-		t.throws(() => t.notOk(1));
-		t.throws(() => t.notOk(' '));
-		t.throws(() => t.notOk({}));
-	});
-
 	test('is() ✓', () => {
 		t.is(0, 0);
 		t.is('hi', 'hi');
@@ -258,10 +245,6 @@ skip('failed assertions', () => {
 
 	test('ok()', () => {
 		t.ok(0);
-	});
-
-	test('notOk()', () => {
-		t.notOk(true);
 	});
 
 	test('is()', () => {

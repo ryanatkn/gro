@@ -106,27 +106,7 @@ export const reportAssertionError = (
 	);
 
 	switch (assertion.operator) {
-		case AssertionOperator.fail:
-			log.plain(assertion.message);
-			break;
-		case AssertionOperator.throws:
-			const logArgs: any[] = [];
-			if (assertion.thrown) {
-				if (assertion.matcher) {
-					logArgs.push(
-						formatUnmatchedErrorMessage(assertion.matcher, assertion.thrown),
-					);
-				}
-				logArgs.push(
-					'\n' + formatThrownError(assertion.thrown, reportFullStackTraces),
-				);
-			}
-			log.plain(...logArgs);
-			break;
 		case AssertionOperator.ok:
-			log.plain(fmtValue(assertion.value));
-			break;
-		case AssertionOperator.notOk:
 			log.plain(fmtValue(assertion.value));
 			break;
 		case AssertionOperator.is:
@@ -142,6 +122,23 @@ export const reportAssertionError = (
 			break;
 		case AssertionOperator.notEqual:
 			log.plain(fmtValue(assertion.expected));
+			break;
+		case AssertionOperator.throws:
+			const logArgs: any[] = [];
+			if (assertion.thrown) {
+				if (assertion.matcher) {
+					logArgs.push(
+						formatUnmatchedErrorMessage(assertion.matcher, assertion.thrown),
+					);
+				}
+				logArgs.push(
+					'\n' + formatThrownError(assertion.thrown, reportFullStackTraces),
+				);
+			}
+			log.plain(...logArgs);
+			break;
+		case AssertionOperator.fail:
+			log.plain(assertion.message);
 			break;
 		default:
 			throw new UnreachableError(assertion);

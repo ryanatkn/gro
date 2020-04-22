@@ -36,5 +36,5 @@ test('custom mime types', () => {
 	t.is(getMimeTypeByExtension('foo'), null);
 	t.is(getMimeTypeByExtension('bar'), null);
 	t.equal(getExtensionsByMimeType('test/type'), null);
-	t.notOk(removeMimeTypeExtension('bar'));
+	t.ok(!removeMimeTypeExtension('bar'));
 });

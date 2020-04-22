@@ -10,16 +10,16 @@ test('setsEqual', () => {
 		t.ok(setsEqual(new Set(['a', 'b', 'c']), new Set(['b', 'c', 'a'])));
 	});
 	test('empty', () => {
-		t.notOk(setsEqual(new Set([1, 2, 3]), new Set()));
+		t.ok(!setsEqual(new Set([1, 2, 3]), new Set()));
 	});
 	test('different value', () => {
-		t.notOk(setsEqual(new Set([1, 2, 3]), new Set([1, 2, 4])));
+		t.ok(!setsEqual(new Set([1, 2, 3]), new Set([1, 2, 4])));
 	});
 	test('more elements', () => {
-		t.notOk(setsEqual(new Set([1, 2, 3]), new Set([1, 2, 3, 4])));
+		t.ok(!setsEqual(new Set([1, 2, 3]), new Set([1, 2, 3, 4])));
 	});
 	test('fewer elements', () => {
-		t.notOk(setsEqual(new Set([1, 2, 3]), new Set([1, 2])));
+		t.ok(!setsEqual(new Set([1, 2, 3]), new Set([1, 2])));
 	});
 	test('deep equal', () => {
 		t.ok(
@@ -30,8 +30,8 @@ test('setsEqual', () => {
 		);
 	});
 	test('not deep equal', () => {
-		t.notOk(
-			setsEqual(
+		t.ok(
+			!setsEqual(
 				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 2])]),
 				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 3])]),
 			),

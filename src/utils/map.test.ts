@@ -35,8 +35,8 @@ test('mapsEqual', () => {
 		);
 	});
 	test('empty', () => {
-		t.notOk(
-			mapsEqual(
+		t.ok(
+			!mapsEqual(
 				new Map([
 					['a', 1],
 					['b', 2],
@@ -47,8 +47,8 @@ test('mapsEqual', () => {
 		);
 	});
 	test('different value', () => {
-		t.notOk(
-			mapsEqual(
+		t.ok(
+			!mapsEqual(
 				new Map([
 					[1, 'a'],
 					[2, 'b'],
@@ -63,8 +63,8 @@ test('mapsEqual', () => {
 		);
 	});
 	test('different key', () => {
-		t.notOk(
-			mapsEqual(
+		t.ok(
+			!mapsEqual(
 				new Map([
 					[1, 'a'],
 					[2, 'b'],
@@ -79,8 +79,8 @@ test('mapsEqual', () => {
 		);
 	});
 	test('more elements', () => {
-		t.notOk(
-			mapsEqual(
+		t.ok(
+			!mapsEqual(
 				new Map([
 					[1, 'a'],
 					[2, 'b'],
@@ -96,8 +96,8 @@ test('mapsEqual', () => {
 		);
 	});
 	test('fewer elements', () => {
-		t.notOk(
-			mapsEqual(
+		t.ok(
+			!mapsEqual(
 				new Map([
 					[1, 'a'],
 					[2, 'b'],
@@ -127,8 +127,8 @@ test('mapsEqual', () => {
 		);
 	});
 	test('not deep equal', () => {
-		t.notOk(
-			mapsEqual(
+		t.ok(
+			!mapsEqual(
 				new Map([
 					['a', [{a: 1, b: 2}]],
 					['b', {b: 2}],

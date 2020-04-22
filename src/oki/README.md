@@ -40,32 +40,32 @@ gro test file1.test.ts file2.test.ts
 // file.test.ts
 import {test, t} from '@feltcoop/gro/oki.js';
 test('something', () => {
-  t.ok('basic assertion');
-  t.is(NaN, NaN);
-  t.equal({deep: ['equality']}, {deep: ['equality']});
-  // for more, see the assertions api docs below
+	t.ok('basic assertion');
+	t.is(NaN, NaN);
+	t.equal({deep: ['equality']}, {deep: ['equality']});
+	// for more, see the assertions api docs below
 
-  test('execution order', () => {
-    test('1', () => {
-      test('2', () => {});
-      test('3', () => {
-        test('4', () => {});
-      });
-    });
-    test('5', () => {});
-    test('6', () => {});
-  });
+	test('execution order', () => {
+		test('1', () => {
+			test('2', () => {});
+			test('3', () => {
+				test('4', () => {});
+			});
+		});
+		test('5', () => {});
+		test('6', () => {});
+	});
 
-  test('can return a promise', async () => {
-    await promise;
-  });
+	test('can return a promise', async () => {
+		await promise;
+	});
 
-  let nested_tests_run_after_parent_scope;
-  test('nested', () => {
-    t.ok(nested_tests_run_after_parent_scope);
-  });
-  nested_tests_run_after_parent_scope = true;
-  // TODO do we want to change this behavior? what are all of the tradeoffs?
+	let nested_tests_run_after_parent_scope;
+	test('nested', () => {
+		t.ok(nested_tests_run_after_parent_scope);
+	});
+	nested_tests_run_after_parent_scope = true;
+	// TODO do we want to change this behavior? what are all of the tradeoffs?
 });
 ```
 
@@ -77,12 +77,12 @@ test('assertions api', ({
   log: {trace; info; warn; error; plain}; // Logger instance
 }) => {
   t.ok('oki :)');
-  t.notOk(0);
+  t.is(true, true);
+  t.equal({a: 1}, {a: 1});
 });
 typeof t; // => Assertions
 interface Assertions {
   ok(value: any); // truthy
-  notOk(value: any); // falsy
   is(actual: any, expected: any); // Object.is
   isNot(actual: any, expected: any); // !Object.is
   equal(actual: any, expected: any); // deeply equal

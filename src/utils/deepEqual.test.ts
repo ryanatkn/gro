@@ -170,10 +170,10 @@ test('!deepEqual()', () => {
 
 	unequalValues.forEach(([message, a, b]) => {
 		test(message, () => {
-			t.notOk(deepEqual(a, b));
+			t.ok(!deepEqual(a, b));
 		});
 		test(message + ' ↶', () => {
-			t.notOk(deepEqual(b, a));
+			t.ok(!deepEqual(b, a));
 		});
 	});
 });

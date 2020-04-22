@@ -11,16 +11,16 @@ test('last', () => {
 test('arraysEqual', () => {
 	t.ok(arraysEqual([1, 2, 3], [1, 2, 3]));
 	test('different order', () => {
-		t.notOk(arraysEqual([1, 2, 3], [1, 3, 2]));
+		t.ok(!arraysEqual([1, 2, 3], [1, 3, 2]));
 	});
 	test('one is empty', () => {
-		t.notOk(arraysEqual([1, 2, 3], []));
+		t.ok(!arraysEqual([1, 2, 3], []));
 	});
 	test('more elements', () => {
-		t.notOk(arraysEqual([1, 2, 3], [1, 2, 3, 4]));
+		t.ok(!arraysEqual([1, 2, 3], [1, 2, 3, 4]));
 	});
 	test('fewer elements', () => {
-		t.notOk(arraysEqual([1, 2, 3], [1, 2]));
+		t.ok(!arraysEqual([1, 2, 3], [1, 2]));
 	});
 	test('deep equal', () => {
 		t.ok(
@@ -31,8 +31,8 @@ test('arraysEqual', () => {
 		);
 	});
 	test('not deep equal', () => {
-		t.notOk(
-			arraysEqual(
+		t.ok(
+			!arraysEqual(
 				[1, {a: 2}, {a: {b: {c: 3, d: NaN}}}],
 				[1, {a: 2}, {a: {b: {c: 4, d: NaN}}}],
 			),

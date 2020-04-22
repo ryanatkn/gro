@@ -16,10 +16,10 @@ test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', () => {
 
 test('isTaskPath()', () => {
 	t.ok(isTaskPath('foo.task.ts'));
-	t.notOk(isTaskPath('foo.ts'));
-	t.notOk(isTaskPath('foo.task.js'));
+	t.ok(!isTaskPath('foo.ts'));
+	t.ok(!isTaskPath('foo.task.js'));
 	t.ok(isTaskPath('bar/baz/foo.task.ts'));
-	t.notOk(isTaskPath('bar/baz/foo.ts'));
+	t.ok(!isTaskPath('bar/baz/foo.ts'));
 });
 
 test('toTaskPath()', () => {
@@ -37,6 +37,6 @@ test('toTaskName()', () => {
 
 test('validateTaskModule()', () => {
 	t.ok(validateTaskModule(testTask));
-	t.notOk(validateTaskModule(testInvalidTaskModule));
-	t.notOk(validateTaskModule({task: {run: {}}}));
+	t.ok(!validateTaskModule(testInvalidTaskModule));
+	t.ok(!validateTaskModule({task: {run: {}}}));
 });

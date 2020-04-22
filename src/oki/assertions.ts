@@ -7,14 +7,6 @@ export const ok: (value: any) => asserts value = value => {
 	}
 };
 
-export const notOk = (
-	value: any,
-): asserts value is false | null | undefined | 0 | '' => {
-	if (value) {
-		throw new AssertionError({operator: AssertionOperator.notOk, value});
-	}
-};
-
 export const is = (actual: any, expected: any): void => {
 	if (!Object.is(actual, expected)) {
 		throw new AssertionError({
@@ -126,7 +118,6 @@ See this error:
 */
 export const t: {
 	ok: typeof ok;
-	notOk: typeof notOk;
 	is: typeof is;
 	isNot: typeof isNot;
 	equal: typeof equal;
@@ -135,7 +126,6 @@ export const t: {
 	Error: typeof TestFailureError;
 } = {
 	ok,
-	notOk,
 	is,
 	isNot,
 	equal,
@@ -148,18 +138,16 @@ export type Assertions = typeof t;
 
 export enum AssertionOperator {
 	ok = 'ok', // truthy
-	notOk = 'notOk', // falsy
 	is = 'is', // Object.is
 	isNot = 'isNot', // !Object.is
 	equal = 'equal', // deeply equal
 	notEqual = 'notEqual', // !deeply equal
-	fail = 'fail', // throws an error
 	throws = 'throws', // expects `cb` to throw an error that matches optional `matcher`
+	fail = 'fail', // throws an error
 }
 
 export type FailedAssertion =
 	| FailedAssertionOk
-	| FailedAssertionNotOk
 	| FailedAssertionIs
 	| FailedAssertionIsNot
 	| FailedAssertionEqual
@@ -168,10 +156,6 @@ export type FailedAssertion =
 	| FailedAssertionThrows;
 export type FailedAssertionOk = {
 	operator: AssertionOperator.ok;
-	value: any;
-};
-export type FailedAssertionNotOk = {
-	operator: AssertionOperator.notOk;
 	value: any;
 };
 export type FailedAssertionIs = {
@@ -194,12 +178,12 @@ export type FailedAssertionNotEqual = {
 	expected: any;
 	actual: any;
 };
-export type FailedAssertionFail = {
-	operator: AssertionOperator.fail;
-	message: string;
-};
 export type FailedAssertionThrows = {
 	operator: AssertionOperator.throws;
 	matcher: ErrorClass | RegExp | string | undefined;
 	thrown: Error | null;
+};
+export type FailedAssertionFail = {
+	operator: AssertionOperator.fail;
+	message: string;
 };

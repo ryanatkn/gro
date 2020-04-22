@@ -80,7 +80,7 @@ test('run()', async () => {
 				taskName: 'foo/MISSING_TASK',
 				args: {_: []},
 			});
-			t.notOk(result.ok);
+			t.ok(!result.ok);
 			t.ok(result.loadResult);
 			t.ok(!result.loadResult.ok);
 			t.is(result.loadResult.taskName, 'foo/MISSING_TASK');
@@ -111,7 +111,7 @@ test('run()', async () => {
 				taskName: 'foo/INVALID_TASK',
 				args: {_: []},
 			});
-			t.notOk(result.ok);
+			t.ok(!result.ok);
 			t.ok(result.loadResult);
 			t.ok(!result.loadResult.ok);
 			t.is(result.loadResult.taskName, 'foo/INVALID_TASK');
@@ -144,7 +144,7 @@ test('run()', async () => {
 				taskName: 'foo/FAILING_TASK',
 				args: {_: []},
 			});
-			t.notOk(result.ok);
+			t.ok(!result.ok);
 			t.ok(result.loadResult);
 			t.ok(result.loadResult.ok);
 			t.ok(result.runResult);

@@ -65,13 +65,13 @@ test('objectsEqual', () => {
 		t.ok(objectsEqual({a: 1, b: 2}, {b: 2, a: 1}));
 	});
 	test('one is empty', () => {
-		t.notOk(objectsEqual({a: 1, b: 2}, {}));
+		t.ok(!objectsEqual({a: 1, b: 2}, {}));
 	});
 	test('more elements', () => {
-		t.notOk(objectsEqual({a: 1}, {a: 1, b: 2}));
+		t.ok(!objectsEqual({a: 1}, {a: 1, b: 2}));
 	});
 	test('fewer elements', () => {
-		t.notOk(objectsEqual({a: 1, b: 2}, {a: 1}));
+		t.ok(!objectsEqual({a: 1, b: 2}, {a: 1}));
 	});
 	test('deep equal', () => {
 		t.ok(
@@ -82,8 +82,8 @@ test('objectsEqual', () => {
 		);
 	});
 	test('not deep equal', () => {
-		t.notOk(
-			objectsEqual(
+		t.ok(
+			!objectsEqual(
 				{a: {b: {c: 3, d: NaN}}, b: Infinity},
 				{b: -Infinity, a: {b: {c: 3, d: NaN}}},
 			),

@@ -438,10 +438,10 @@ test('gen', async () => {
 				},
 			},
 		});
-		t.notOk(results.ok);
+		t.ok(!results.ok);
 		t.is(results.count, 1);
 		t.is(results.results.length, 2);
-		t.notOk(results.results[0].ok);
+		t.ok(!results.results[0].ok);
 		t.ok(results.results[1].ok);
 		t.is(outputA, undefined);
 		t.ok(fileB);
@@ -515,10 +515,10 @@ test('gen', async () => {
 			},
 		});
 
-		t.notOk(results.ok);
+		t.ok(!results.ok);
 		t.is(results.count, 1);
 		t.is(results.results.length, 2);
-		t.ok(!results.results[0].ok); // TODO why does `notOk` assert fail to get inference here?
+		t.ok(!results.results[0].ok);
 		t.is(results.results[0].error, genError);
 		t.ok(results.results[1].ok);
 		t.is(outputA, undefined);
@@ -538,6 +538,6 @@ test('validateGenModule()', () => {
 	t.ok(validateGenModule(testGenHtml));
 	t.ok(validateGenModule(testGenTs));
 	t.ok(validateGenModule(testGenMulti));
-	t.notOk(validateGenModule(testInvalidGenModule));
-	t.notOk(validateGenModule({task: {run: {}}}));
+	t.ok(!validateGenModule(testInvalidGenModule));
+	t.ok(!validateGenModule({task: {run: {}}}));
 });

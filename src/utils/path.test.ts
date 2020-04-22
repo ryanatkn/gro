@@ -11,8 +11,8 @@ test('replaceExt', () => {
 test('hasExt', () => {
 	t.ok(hasExt('foo.ts', ['.ts']));
 	t.ok(hasExt('foo.svelte', ['.ts', '.svelte']));
-	t.notOk(hasExt('foo.js', ['.ts', '.svelte']));
-	t.notOk(hasExt('foo.js', ['js']));
+	t.ok(!hasExt('foo.js', ['.ts', '.svelte']));
+	t.ok(!hasExt('foo.js', ['js']));
 });
 
 test('getPathStem', () => {
