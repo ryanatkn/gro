@@ -7,76 +7,64 @@ import {toTaskName} from './task.js';
 
 test('run()', async () => {
 	test('without any task names', async () => {
-		const result = await run(
-			{
-				host: {
-					findTaskModules: async dir => {
-						t.is(dir, paths.source);
-						return [join(dir, 'foo/1.task.ts'), join(dir, 'foo/2.task.ts')];
-					},
-					loadTaskModule: async () => {
-						throw Error('should not be called');
-					},
+		let calledFindTaskModules = false;
+		const result = await run({
+			host: {
+				findTaskModules: async dir => {
+					calledFindTaskModules = true;
+					t.is(dir, paths.source);
+					return [join(dir, 'foo/bar.task.ts')];
 				},
-				dir: paths.source,
-				taskNames: [],
-				argv: {},
+				loadTaskModule: async () => {
+					throw Error('should not be called');
+				},
 			},
-			{test: 'data'},
-		);
+			dir: paths.source,
+			taskName: undefined,
+			args: {_: []},
+		});
+		t.ok(calledFindTaskModules);
 		t.ok(result.ok);
-		t.equal(result.taskNames, ['foo/1', 'foo/2']);
-		t.is(result.loadResults.length, 0);
-		t.is(result.runResults.length, 0);
-		t.equal(result.data, {test: 'data'});
+		t.equal(result.taskName, undefined);
+		t.is(result.loadResult, undefined);
+		t.is(result.runResult, undefined);
 	});
 
-	test('with task names', async () => {
-		const argv = {a: 1};
-		const result = await run(
-			{
-				host: {
-					findTaskModules: async () => {
-						throw Error('should not be called');
-					},
-					loadTaskModule: async sourceId => {
-						t.ok(
-							sourceId === resolve('src/foo/1.task.ts') ||
-								sourceId === resolve('src/foo/2.task.ts'),
-						);
-						return {
-							id: sourceId,
-							name: toTaskName(toBasePath(sourceId)),
-							mod: {
-								task: {
-									run: async (ctx, data) => {
-										t.is(ctx.argv, argv);
-										t.ok(ctx.log);
-										return sourceId === resolve('src/foo/1.task.ts')
-											? {a: 1, argv: ctx.argv}
-											: {...data, b: 2};
-									},
+	test('with task name', async () => {
+		const args = {_: [], a: 1};
+		const result = await run({
+			host: {
+				findTaskModules: async () => {
+					throw Error('should not be called');
+				},
+				loadTaskModule: async sourceId => {
+					t.is(sourceId, resolve('src/foo/bar.task.ts'));
+					return {
+						id: sourceId,
+						name: toTaskName(toBasePath(sourceId)),
+						mod: {
+							task: {
+								run: async ctx => {
+									t.is(ctx.args, args);
+									t.ok(ctx.log);
+									return 'return value';
 								},
 							},
-						};
-					},
+						},
+					};
 				},
-				dir: paths.source,
-				taskNames: ['foo/1', 'foo/2'],
-				argv,
 			},
-			{test: 'data'},
-		);
+			dir: paths.source,
+			taskName: 'foo/bar',
+			args,
+		});
 		t.ok(result.ok);
 		t.ok(result.elapsed > 0);
-		t.equal(result.taskNames, ['foo/1', 'foo/2']);
-		t.is(result.loadResults.length, 2);
-		t.is(result.runResults.length, 2);
-		t.equal(result.data, {
-			a: 1,
-			b: 2,
-			argv,
-		});
+		t.equal(result.taskName, 'foo/bar');
+		t.ok(result.loadResult?.ok);
+		t.ok(result.runResult?.ok);
+		t.is(result.runResult.taskName, 'foo/bar');
+		t.is(result.runResult.result, 'return value');
 
 		test('missing task', async () => {
 			const result = await run({
@@ -84,33 +72,21 @@ test('run()', async () => {
 					findTaskModules: async () => {
 						throw Error('should not be called');
 					},
-					loadTaskModule: async sourceId => {
-						if (sourceId.includes('foo/MISSING_TASK')) {
-							throw Error('testing missing module');
-						}
-						return {
-							id: sourceId,
-							name: toTaskName(toBasePath(sourceId)),
-							mod: {
-								task: {
-									run: async () => {
-										throw Error('should not be called');
-									},
-								},
-							},
-						};
+					loadTaskModule: async () => {
+						throw Error('testing missing module');
 					},
 				},
 				dir: paths.source,
-				taskNames: ['foo/1', 'foo/MISSING_TASK', 'foo/2'],
-				argv: {},
+				taskName: 'foo/MISSING_TASK',
+				args: {_: []},
 			});
 			t.notOk(result.ok);
-			t.is(result.loadResults.length, 3);
-			t.ok(result.loadResults[0].ok);
-			t.notOk(result.loadResults[1].ok);
-			t.ok(result.loadResults[2].ok);
-			t.is(result.runResults.length, 0);
+			t.ok(result.loadResult);
+			t.ok(!result.loadResult.ok);
+			t.is(result.loadResult.taskName, 'foo/MISSING_TASK');
+			t.ok(result.loadResult.error);
+			t.ok(result.loadResult.reason);
+			t.is(result.runResult, undefined);
 		});
 
 		test('invalid task', async () => {
@@ -123,32 +99,25 @@ test('run()', async () => {
 						return {
 							id: sourceId,
 							name: toTaskName(toBasePath(sourceId)),
-							mod: sourceId.includes('foo/INVALID_TASK')
-								? ({
-										run: async () => {
-											throw Error('should not be called');
-										},
-								  } as any)
-								: {
-										task: {
-											run: async () => {
-												throw Error('should not be called');
-											},
-										},
-								  },
+							mod: {
+								run: async () => {
+									throw Error('should not be called');
+								},
+							} as any,
 						};
 					},
 				},
 				dir: paths.source,
-				taskNames: ['foo/1', 'foo/INVALID_TASK', 'foo/2'],
-				argv: {},
+				taskName: 'foo/INVALID_TASK',
+				args: {_: []},
 			});
 			t.notOk(result.ok);
-			t.is(result.loadResults.length, 3);
-			t.ok(result.loadResults[0].ok);
-			t.notOk(result.loadResults[1].ok);
-			t.ok(result.loadResults[2].ok);
-			t.is(result.runResults.length, 0);
+			t.ok(result.loadResult);
+			t.ok(!result.loadResult.ok);
+			t.is(result.loadResult.taskName, 'foo/INVALID_TASK');
+			t.ok(result.loadResult.error);
+			t.ok(result.loadResult.reason);
+			t.is(result.runResult, undefined);
 		});
 
 		test('failing task', async () => {
@@ -163,32 +132,26 @@ test('run()', async () => {
 							name: toTaskName(toBasePath(sourceId)),
 							mod: {
 								task: {
-									run: sourceId.includes('foo/FAILING_TASK')
-										? async () => {
-												throw Error('testing failing task');
-										  }
-										: sourceId.includes('foo/1')
-										? async () => {}
-										: async () => {
-												throw Error('should not be called');
-										  },
+									run: async () => {
+										throw Error('testing failing task');
+									},
 								},
 							},
 						} as any;
 					},
 				},
 				dir: paths.source,
-				taskNames: ['foo/1', 'foo/FAILING_TASK', 'foo/2'],
-				argv: {},
+				taskName: 'foo/FAILING_TASK',
+				args: {_: []},
 			});
 			t.notOk(result.ok);
-			t.is(result.loadResults.length, 3);
-			t.ok(result.loadResults[0].ok);
-			t.ok(result.loadResults[1].ok);
-			t.ok(result.loadResults[2].ok);
-			t.is(result.runResults.length, 2);
-			t.ok(result.runResults[0].ok);
-			t.notOk(result.runResults[1].ok);
+			t.ok(result.loadResult);
+			t.ok(result.loadResult.ok);
+			t.ok(result.runResult);
+			t.ok(!result.runResult.ok);
+			t.is(result.runResult.taskName, 'foo/FAILING_TASK');
+			t.ok(result.runResult.error);
+			t.ok(result.runResult.reason);
 		});
 	});
 });

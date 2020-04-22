@@ -7,8 +7,7 @@ import {
 	toTaskName,
 	validateTaskModule,
 } from './task.js';
-import * as testTask1 from './fixtures/testTask1.task.js';
-import * as testTask2 from './fixtures/testTask2.task.js';
+import * as testTask from './fixtures/testTask.task.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
 
 test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', () => {
@@ -37,8 +36,7 @@ test('toTaskName()', () => {
 });
 
 test('validateTaskModule()', () => {
-	t.ok(validateTaskModule(testTask1));
-	t.ok(validateTaskModule(testTask2));
+	t.ok(validateTaskModule(testTask));
 	t.notOk(validateTaskModule(testInvalidTaskModule));
 	t.notOk(validateTaskModule({task: {run: {}}}));
 });

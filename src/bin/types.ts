@@ -1,3 +1,4 @@
-export interface Argv {
-	[key: string]: string | number | boolean;
+export interface Args {
+	_: string[];
+	[key: string]: string | number | boolean | string[];
 }

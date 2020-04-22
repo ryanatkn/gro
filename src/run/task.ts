@@ -1,8 +1,8 @@
 import {Logger} from '../utils/log.js';
-import {Argv} from '../bin/types.js';
+import {Args} from '../bin/types.js';
 
-export interface Task {
-	run: (ctx: TaskContext, data: TaskData) => Promise<TaskData | void>;
+export interface Task<T = unknown> {
+	run: (ctx: TaskContext) => Promise<T>;
 	description?: string;
 }
 
@@ -12,13 +12,9 @@ export interface TaskModuleMeta {
 	mod: TaskModule;
 }
 
-export interface TaskData {
-	[key: string]: any;
-}
-
 export interface TaskContext {
 	log: Logger;
-	argv: Argv;
+	args: Args;
 }
 
 export interface TaskModule {

@@ -13,17 +13,16 @@ test('createNodeRunHost()', () => {
 		);
 		t.equal(taskSourceIds, [
 			resolve('src/run/fixtures/testFailingTask.task.ts'),
-			resolve('src/run/fixtures/testTask1.task.ts'),
-			resolve('src/run/fixtures/testTask2.task.ts'),
+			resolve('src/run/fixtures/testTask.task.ts'),
 		]);
 	});
 
 	test('host.loadTaskModule()', async () => {
 		const task = await host.loadTaskModule(
-			resolve('src/run/fixtures/testTask1.task.ts'),
+			resolve('src/run/fixtures/testTask.task.ts'),
 		);
-		t.is(task.id, resolve('src/run/fixtures/testTask1.task.ts'));
-		t.is(task.name, 'run/fixtures/testTask1');
+		t.is(task.id, resolve('src/run/fixtures/testTask.task.ts'));
+		t.is(task.name, 'run/fixtures/testTask');
 		t.ok(validateTaskModule(task.mod));
 	});
 });

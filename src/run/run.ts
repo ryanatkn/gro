@@ -6,22 +6,21 @@ import {omitUndefined} from '../utils/object.js';
 import {
 	TaskModuleMeta,
 	toTaskPath,
-	TaskData,
 	toTaskName,
 	validateTaskModule,
 } from './task.js';
 import {fmtMs, fmtError} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
-import {Argv} from '../bin/types.js';
+import {Args} from '../bin/types.js';
 import {toBasePath, isSourceId} from '../paths.js';
 
 export interface Options {
 	host: RunHost;
 	dir: string;
-	taskNames: string[];
-	argv: Argv;
+	taskName: string | undefined;
+	args: Args;
 }
-export type RequiredOptions = 'host' | 'dir' | 'taskNames' | 'argv';
+export type RequiredOptions = 'host' | 'dir' | 'taskName' | 'args';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	...omitUndefined(opts),
@@ -34,35 +33,21 @@ export interface RunHost {
 
 export type RunResult = {
 	ok: boolean;
-	data: TaskData;
-	taskNames: string[];
-	loadResults: TaskLoadResult[];
-	runResults: TaskRunResult[];
+	taskName: string | undefined;
+	loadResult: TaskLoadResult | undefined;
+	runResult: TaskRunResult | undefined;
 	elapsed: number;
 };
 export type TaskLoadResult =
 	| {ok: true; taskName: string}
-	| {
-			ok: false;
-			taskName: string;
-			reason: string;
-			error: Error;
-	  };
+	| {ok: false; taskName: string; reason: string; error: Error};
 export type TaskRunResult =
-	| {ok: true; taskName: string; elapsed: number}
-	| {
-			ok: false;
-			taskName: string;
-			reason: string;
-			error: Error;
-	  };
+	| {ok: true; taskName: string; elapsed: number; result: unknown}
+	| {ok: false; taskName: string; reason: string; error: Error};
 
-export const run = async (
-	opts: InitialOptions,
-	initialData: TaskData = {},
-): Promise<RunResult> => {
+export const run = async (opts: InitialOptions): Promise<RunResult> => {
 	const options = initOptions(opts);
-	const {host, dir, taskNames, argv} = options;
+	const {host, dir, taskName, args} = options;
 	const log = new SystemLogger([magenta('[run]')]);
 	const {error, info} = log;
 
@@ -71,15 +56,11 @@ export const run = async (
 		throw Error(`dir must be a source id: ${dir}`);
 	}
 
-	// `data` is a shared object that's sent through each task.
-	// It can be mutated or treated as immutable. Be careful with mutation!
-	let data = initialData;
-
 	const mainStopwatch = createStopwatch();
 
 	// If no task names are provided,
 	// find all of the available ones and print them out.
-	if (!taskNames.length) {
+	if (!taskName) {
 		const taskSourceIds = await host.findTaskModules(dir);
 		const taskNames = taskSourceIds.map(id => toTaskName(toBasePath(id)));
 		if (taskNames.length) {
@@ -92,10 +73,9 @@ export const run = async (
 		}
 		return {
 			ok: true,
-			data,
-			taskNames,
-			loadResults: [],
-			runResults: [],
+			taskName: undefined,
+			loadResult: undefined,
+			runResult: undefined,
 			elapsed: mainStopwatch(),
 		};
 	}
@@ -103,86 +83,62 @@ export const run = async (
 	// First load all of the specified tasks,
 	// so any errors cause the command to exit before running anything.
 	// We don't want to run only some tasks in a series!
-	const loadedTasks = await Promise.all(
-		taskNames.map(
-			async (taskName): Promise<[TaskModuleMeta | null, TaskLoadResult]> => {
-				const path = toTaskPath(taskName);
-				const sourceId = join(dir, path);
-				try {
-					const task = await host.loadTaskModule(sourceId);
-					if (!validateTaskModule(task.mod)) {
-						throw Error(`Task module is invalid: ${toBasePath(sourceId)}`);
-					}
-					return [task, {ok: true, taskName}];
-				} catch (err) {
-					const reason = `Failed to load task "${taskName}".`;
-					error(red(reason), yellow(err.message));
-					return [null, {ok: false, taskName, reason, error: err}];
-				}
-			},
-		),
-	);
-	const loadResults = loadedTasks.map(([_, r]) => r);
-
-	// Abort if the cancellation flag was set.
-	// Postponing this check allows all errors to surface.
-	const failedToLoadAnyTasks = loadedTasks.find(([t]) => !t);
-	if (failedToLoadAnyTasks) {
-		info(yellow('Aborting. No tasks were run due to errors.'));
+	let task: TaskModuleMeta;
+	let loadResult: TaskLoadResult;
+	const path = toTaskPath(taskName);
+	const sourceId = join(dir, path);
+	try {
+		const rawTaskModule = await host.loadTaskModule(sourceId);
+		if (!validateTaskModule(rawTaskModule.mod)) {
+			throw Error(`Task module is invalid: ${toBasePath(sourceId)}`);
+		}
+		task = rawTaskModule;
+		loadResult = {ok: true, taskName};
+	} catch (err) {
+		const reason = `Failed to load task "${taskName}".`;
+		error(red(reason), yellow(err.message));
 		return {
 			ok: false,
-			data,
-			taskNames,
-			loadResults,
-			runResults: [],
+			taskName,
+			loadResult: {ok: false, taskName, reason, error: err},
+			runResult: undefined,
 			elapsed: mainStopwatch(),
 		};
 	}
 
 	// Run the loaded tasks in series.
-	const tasks = loadedTasks.map(([t]) => t!);
-	const runResults: TaskRunResult[] = [];
-	for (const task of tasks) {
-		const taskStopwatch = createStopwatch();
-		info(`→ ${cyan(task.name)}`);
-		try {
-			const nextData = await task.mod.task.run(
-				{
-					argv,
-					log: new SystemLogger(
-						log.prefixes.concat(cyan(`[${task.name}]`)),
-						log.suffixes,
-						log.state,
-					),
-				},
-				data,
-			);
-			if (nextData) {
-				data = nextData;
-			}
-			const elapsed = taskStopwatch();
-			runResults.push({ok: true, taskName: task.name, elapsed});
-			info(`✓ ${cyan(task.name)} 🕒 ${fmtMs(elapsed)}`);
-		} catch (err) {
-			const reason = `Unexpected error running task ${cyan(
-				task.name,
-			)}. Aborting.`;
-			info(red(reason));
-			info(fmtError(err));
-			runResults.push({ok: false, taskName: task.name, reason, error: err});
-			return {
-				ok: false,
-				data,
-				taskNames,
-				loadResults,
-				runResults,
-				elapsed: mainStopwatch(),
-			};
-		}
+	let runResult: TaskRunResult;
+	const taskStopwatch = createStopwatch();
+	info(`→ ${cyan(task.name)}`);
+	try {
+		const result = await task.mod.task.run({
+			args,
+			log: new SystemLogger(
+				log.prefixes.concat(cyan(`[${task.name}]`)),
+				log.suffixes,
+				log.state,
+			),
+		});
+		const elapsed = taskStopwatch();
+		runResult = {ok: true, taskName: task.name, elapsed, result};
+		info(`✓ ${cyan(task.name)} 🕒 ${fmtMs(elapsed)}`);
+	} catch (err) {
+		const reason = `Unexpected error running task ${cyan(
+			task.name,
+		)}. Aborting.`;
+		info(red(reason));
+		info(fmtError(err));
+		return {
+			ok: false,
+			taskName,
+			loadResult,
+			runResult: {ok: false, taskName: task.name, reason, error: err},
+			elapsed: mainStopwatch(),
+		};
 	}
 
 	const elapsed = mainStopwatch();
 	info(`🕒 ${fmtMs(elapsed)}`);
 
-	return {ok: true, data, taskNames, loadResults, runResults, elapsed};
+	return {ok: true, taskName, loadResult, runResult, elapsed};
 };
