@@ -42,7 +42,7 @@
     "src"
   ],
   "engines": {
-    "node": ">=12.16.0"
+    "node": ">=14.0.0"
   },
   "dependencies": {
     "cheap-watch": "^1.0.2",

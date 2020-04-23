@@ -1,7 +1,4 @@
-#!/bin/sh
-':'; //# this is temporary code to use ESM in the CLI; exec /usr/bin/env node --experimental-modules "$0" "$@"
-// TODO change the above lines to `#!/usr/bin/env node`
-// when Node v14 LTS is ready, supposedly October 2020
+#!/usr/bin/env node
 
 import {existsSync, realpathSync} from 'fs';
 import {join, resolve} from 'path';

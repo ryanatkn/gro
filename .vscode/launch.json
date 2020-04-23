@@ -8,7 +8,7 @@
       "name": "test",
       "program": "${workspaceFolder}/dist/cli/gro.js",
       "args": ["test"],
-      "runtimeArgs": ["--experimental-modules"],
+      "runtimeArgs": [],
       "outFiles": ["${workspaceRoot}/dist/**/*.js"], // enables breakpoints in TS source
       "env": {
         // "NODE_ENV": "production"
