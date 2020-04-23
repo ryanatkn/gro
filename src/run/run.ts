@@ -11,7 +11,7 @@ import {
 } from './task.js';
 import {fmtMs, fmtError} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
-import {Args} from '../bin/types.js';
+import {Args} from '../cli/types.js';
 import {toBasePath, isSourceId} from '../paths.js';
 
 export interface Options {

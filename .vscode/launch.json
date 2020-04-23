@@ -6,7 +6,7 @@
       "type": "node",
       "request": "launch",
       "name": "test",
-      "program": "${workspaceFolder}/dist/bin/gro.js",
+      "program": "${workspaceFolder}/dist/cli/gro.js",
       "args": ["test"],
       "runtimeArgs": ["--experimental-modules"],
       "outFiles": ["${workspaceRoot}/dist/**/*.js"], // enables breakpoints in TS source

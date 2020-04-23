@@ -64,11 +64,11 @@ const main = (): Promise<void> => {
 		// the global version can be used to build the project.
 		const filePath = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
-		if (existsSync('build/bin/gro.js') && existsSync('build/bin/invoke.js')) {
-			return import(join(filePath, '../../../build/bin/invoke.js'));
+		if (existsSync('build/cli/gro.js') && existsSync('build/cli/invoke.js')) {
+			return import(join(filePath, '../../../build/cli/invoke.js'));
 		}
 		// case 3
-		// Fall back to the version associated with the running binary.
+		// Fall back to the version associated with the running CLI.
 		return import(join(filePath, '../invoke.js'));
 	}
 };

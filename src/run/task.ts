@@ -1,5 +1,5 @@
 import {Logger} from '../utils/log.js';
-import {Args} from '../bin/types.js';
+import {Args} from '../cli/types.js';
 
 export interface Task<T = unknown> {
 	run: (ctx: TaskContext) => Promise<T>;

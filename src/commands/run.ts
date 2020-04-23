@@ -1,7 +1,7 @@
 import {blue, magenta} from '../colors/terminal.js';
 import {run as runTasks} from '../run/run.js';
 import {SystemLogger} from '../utils/log.js';
-import {Args} from '../bin/types.js';
+import {Args} from '../cli/types.js';
 import {paths} from '../paths.js';
 import {createNodeRunHost} from '../run/nodeRunHost.js';
 
