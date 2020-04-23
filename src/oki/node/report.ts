@@ -55,9 +55,7 @@ export const reportSummary = (ctx: TestContext): void => {
 		log: {info},
 		stats,
 	} = ctx;
-	if (!stats) {
-		throw Error(`Expected test context to have stats to report summary`);
-	}
+	if (!stats) return;
 	const {passCount, failCount} = stats;
 	ctx.log.newline();
 	if (!passCount && !failCount) {
