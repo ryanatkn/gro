@@ -74,22 +74,25 @@ test('something', () => {
 ```ts
 import {test, t} from '@feltcoop/gro/oki.js';
 test('assertions api', ({
-  log: {trace; info; warn; error; plain}; // Logger instance
+	log, // Logger instance: {trace, info, warn, error, plain}
 }) => {
-  t.ok('oki :)');
-  t.is(true, true);
-  t.equal({a: 1}, {a: 1});
+	t.ok('oki :)');
+	t.is(true, true);
+	t.equal({a: 1}, {a: 1});
+	t.throws(() => {
+		throw Error('we good');
+	});
 });
 typeof t; // => Assertions
 interface Assertions {
-  ok(value: any); // truthy
-  is(actual: any, expected: any); // Object.is
-  isNot(actual: any, expected: any); // !Object.is
-  equal(actual: any, expected: any); // deeply equal
-  notEqual(actual: any, expected: any); // !deeply equal
-  // expects `cb` to throw an error that matches optional `matcher`
-  throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
-  fail(message: string); // throws a TestAssertionError (t.Error)
-  Error(message: string); // the TestAssertionError class for intentional fails
+	ok(value: any); // truthy
+	is(actual: any, expected: any); // Object.is
+	isNot(actual: any, expected: any); // !Object.is
+	equal(actual: any, expected: any); // deeply equal
+	notEqual(actual: any, expected: any); // !deeply equal
+	// expects `cb` to throw an error that matches optional `matcher`
+	throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
+	fail(message: string); // throws a TestAssertionError (t.Error)
+	Error(message: string); // the TestAssertionError class for intentional fails
 }
 ```
