@@ -1,20 +1,20 @@
 import {green} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
-import {FileData} from '../files/fileData.js';
+import {PathData} from '../files/pathData.js';
 import {fmtPath} from '../utils/fmt.js';
 
 export interface FileCache {
-	readonly byId: Map<string, FileData>;
-	get(id: string): FileData | undefined;
-	set(file: FileData): void;
-	update(id: string, partial: Partial<FileData>): FileData;
+	readonly byId: Map<string, PathData>;
+	get(id: string): PathData | undefined;
+	set(file: PathData): void;
+	update(id: string, partial: Partial<PathData>): PathData;
 }
 
 export const createFileCache = (): FileCache => {
 	const {trace} = new SystemLogger([green('[fileCache]')]);
 
-	const byId = new Map<string, FileData>();
+	const byId = new Map<string, PathData>();
 
 	return {
 		byId,
@@ -23,7 +23,7 @@ export const createFileCache = (): FileCache => {
 			trace('set', fmtPath(file.id));
 			byId.set(file.id, file);
 		},
-		update: (id, partial): FileData => {
+		update: (id, partial): PathData => {
 			trace('update', fmtPath(id), partial);
 			const current = byId.get(id);
 			if (!current) {

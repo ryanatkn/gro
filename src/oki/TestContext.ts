@@ -4,16 +4,19 @@ import {AsyncState} from '../utils/async.js';
 import {omitUndefined} from '../utils/object.js';
 import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/time.js';
+import {TestModuleMeta, loadTestModule} from './testModule.js';
+import {LoadModuleResult} from '../files/loadModules.js';
 
-// This global reference allows us to use the global `test` reference.
+// This module-level reference allows test files
+// to import the module-level `test` function to register tests.
 let globalTestContext: TestContext | null = null;
-const setGlobalTestContext = (testContext: TestContext): void => {
+export const setGlobalTestContext = (testContext: TestContext): void => {
 	if (globalTestContext) {
 		throw Error(`A global test context has already been set.`);
 	}
 	globalTestContext = testContext;
 };
-const unsetGlobalTestContext = (testContext: TestContext): void => {
+export const unsetGlobalTestContext = (testContext: TestContext): void => {
 	if (globalTestContext !== testContext) {
 		throw Error(
 			`Trying to unset an inactive global test context: ${testContext} does not match the global ${globalTestContext}.`,
@@ -31,7 +34,7 @@ export const test: (
 			`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,
 		);
 	}
-	return globalTestContext.test(message, cb);
+	return globalTestContext.registerTest(message, cb);
 };
 
 export interface TestInstanceContext {
@@ -77,6 +80,11 @@ export interface TestStats {
 	failCount: number;
 }
 
+export interface TestRunResult {
+	timings: Timings<TestRunTimings>;
+}
+export type TestRunTimings = 'total';
+
 // TODO make these async?
 // TODO maybe trigger events instead of these callbacks?
 export interface TestReporter {
@@ -90,21 +98,16 @@ export interface TestReporter {
 export const TOTAL_TIMING = 'total';
 
 export interface Options {
-	dir: string;
-	watch: boolean;
 	log: Logger;
+	report: TestReporter;
 	reportFullStackTraces: boolean;
 	reportBaseIndent: string;
 	reportListIndent: string;
 }
-export type RequiredOptions = 'dir';
+export type RequiredOptions = 'report';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
-		// TODO use rollup-style globbing? probably, because of watch mode
-		// include: '**/*.test.*',
-		// exclude: null,
-		watch: false,
 		log: new TestLogger(),
 		reportFullStackTraces: false,
 		reportBaseIndent: '   ',
@@ -113,14 +116,10 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-export abstract class TestContext<
-	O extends Options = Options,
-	I extends InitialOptions = InitialOptions
-> {
-	readonly options: O;
-	readonly dir: string;
-	readonly watch: boolean;
+export class TestContext {
+	readonly options: Options;
 	readonly log: Logger;
+	readonly report: TestReporter;
 	readonly reportFullStackTraces: boolean;
 	readonly reportBaseIndent: string;
 	readonly reportListIndent: string;
@@ -135,59 +134,28 @@ export abstract class TestContext<
 	readonly files = createFileCache();
 	readonly timings = new Timings();
 
-	protected abstract readonly report: TestReporter;
-	protected abstract async importTestModule(id: string): Promise<object>;
-	private async importModule(id: string): Promise<object> {
-		const importedModule = await this.importTestModule(id);
-		return importedModule;
-	}
-
-	constructor(opts: I, initOpts: (o: I) => O) {
-		this.options = initOpts(opts);
+	constructor(opts: InitialOptions) {
+		this.options = initOptions(opts);
 		const {
-			dir,
-			watch,
 			log,
+			report,
 			reportFullStackTraces,
 			reportBaseIndent,
 			reportListIndent,
 		} = this.options;
-		if (watch) throw Error(`Test watching is not yet supported`);
-		this.dir = dir;
-		this.watch = watch;
 		this.log = log;
+		this.report = report;
 		this.reportFullStackTraces = reportFullStackTraces;
 		this.reportBaseIndent = reportBaseIndent;
 		this.reportListIndent = reportListIndent;
 		this.testInstanceContext = {log};
 	}
 
-	initState = AsyncState.Initial;
-	async init(): Promise<void> {
-		if (this.initState !== AsyncState.Initial) {
-			throw Error(`TestContext was already inited`);
-		}
-		this.initState = AsyncState.Pending;
-		try {
-			await this.start();
-		} catch (err) {
-			this.initState = AsyncState.Failure;
-			throw err;
-		}
-		this.initState = AsyncState.Success;
-	}
-
-	protected abstract async start(): Promise<void>;
-	// TODO call this when?
-	// TODO state machine seems useful here ... `close` makes no sense in many states
-	protected abstract async stop(): Promise<void>;
-
 	// TODO re-run?
 	runState = AsyncState.Initial;
-	async run(): Promise<void> {
-		if (this.initState !== AsyncState.Success) {
-			throw Error(`TestContext is not inited`);
-		}
+	async run(): Promise<TestRunResult> {
+		const timings = new Timings<TestRunTimings>();
+		timings.start('total');
 		if (this.runState !== AsyncState.Initial) {
 			throw Error(`TestContext was already run`);
 		}
@@ -202,12 +170,11 @@ export abstract class TestContext<
 		}
 		this.runState = AsyncState.Success;
 		this.onRunEnd();
+		timings.stop('total');
+		return {timings};
 	}
 
 	private async runTests(): Promise<void> {
-		// TODO maybe track import timing separately? or hierarchically?
-		await this.importTests();
-
 		// At this point `testsByFileId` has
 		// all top-level synchronously-added test instances.
 		for (const [fileId, testInstances] of this.testsByFileId) {
@@ -284,15 +251,16 @@ export abstract class TestContext<
 
 	// These are used to assiciate module-level `test(...)` calls in test files
 	// with their importing TestContext and file id.
-	currentFileId: string | undefined;
 	currentTestInstance: TestInstance | undefined;
+	// `null` means we're importing but haven't imported anything yet
+	currentFileId: string | null | undefined;
 
 	// This function registers (but doesn't run) a test instance.
 	// It may be called when a module is imported, (no `parent`)
 	// or when individual test instance callbacks are called. (has a `parent`).
-	test(message: string, cb: TestInstanceCallback): TestInstance {
+	registerTest(message: string, cb: TestInstanceCallback): TestInstance {
 		const {currentFileId, currentTestInstance: parent} = this;
-		if (currentFileId === undefined && !parent) {
+		if (!currentFileId && !parent) {
 			throw Error(`Current test context has no parent or current file id.`);
 		}
 		const fileId = parent ? parent.fileId : currentFileId!;
@@ -318,14 +286,40 @@ export abstract class TestContext<
 		return testInstance;
 	}
 
-	private async importTests(): Promise<void> {
-		// TODO parallelizing is tricky because of `currentFileId` - maybe just use sync `require`?
-		for (const file of this.files.byId.values()) {
-			if (file.stats.isDirectory()) continue;
-			this.currentFileId = file.id; // see how this is used for tracking above
-			await this.importModule(file.id);
+	/*
+
+	To import test files, first call `beginImporting`,
+	and when finished call its returned callback.
+	This design decouples the importing workflow
+	from the test context's internals.
+
+	Example:
+
+	const finishImporting = testContext.beginImporting();
+	// import everything
+	finishImporting();
+
+	*/
+	beginImporting() {
+		if (this.currentFileId !== undefined) {
+			throw Error(`Cannot begin importing - currentFieldId is already set.`);
 		}
-		this.currentFileId = undefined;
+		this.currentFileId = null; // indicates we're importing
+		setGlobalTestContext(this);
+		return () => {
+			unsetGlobalTestContext(this);
+			if (this.currentFileId === undefined) {
+				throw Error(`Cannot finish importing - currentFieldId is not set.`);
+			}
+			this.currentFileId = undefined;
+		};
+	}
+	async importModule(id: string): Promise<LoadModuleResult<TestModuleMeta>> {
+		if (this.currentFileId === undefined) {
+			throw Error(`Cannot import test module before calling "beginImporting".`);
+		}
+		this.currentFileId = id; // see how this is used for tracking above
+		return loadTestModule(id);
 	}
 }
 

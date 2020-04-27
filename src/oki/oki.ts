@@ -1,2 +1,2 @@
-export * from './TestContext.js';
-export * from './assertions.js';
+export {test} from './TestContext.js';
+export {t} from './assertions.js';

@@ -3,12 +3,12 @@ const {emptyDir, copy} = fs; // TODO esm
 import {promisify} from 'util';
 import {exec} from 'child_process';
 
-import {Task} from '../run/task.js';
+import {Task} from '../task/task.js';
 import {paths} from '../paths.js';
-import {isTestFile, isTestArtifact} from '../oki/node/NodeTestContext.js';
+import {isTestBuildFile, isTestBuildArtifact} from '../oki/testModule.js';
 
 export const isDistFile = (path: string): boolean =>
-	!isTestFile(path) && !isTestArtifact(path);
+	!isTestBuildFile(path) && !isTestBuildArtifact(path);
 
 export const task: Task = {
 	description: 'create and link the gro distribution',

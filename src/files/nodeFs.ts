@@ -1,16 +1,16 @@
 import CheapWatch from 'cheap-watch';
 
-import {FileStats} from './fileData.js';
+import {PathStats, PathFilter} from './pathData.js';
 
 export interface CheapWatchPathAddedEvent {
 	path: string;
-	stats: FileStats;
+	stats: PathStats;
 	isNew: boolean;
 }
 
 export interface CheapWatchPathRemovedEvent {
 	path: string;
-	stats: FileStats;
+	stats: PathStats;
 }
 
 export const DEBOUNCE_DEFAULT = 10;
@@ -19,12 +19,12 @@ export const DEBOUNCE_DEFAULT = 10;
 // or maybe change the name so it's not misleading?
 export const findFiles = async (
 	dir: string,
-	filter?: (file: {path: string; stats: FileStats}) => boolean,
-): Promise<Map<string, FileStats>> => {
+	filter?: PathFilter,
+): Promise<Map<string, PathStats>> => {
 	const watcher = new CheapWatch({
 		dir,
 		filter: filter
-			? (file: {path: string; stats: FileStats}) =>
+			? (file: {path: string; stats: PathStats}) =>
 					file.stats.isDirectory() || filter(file)
 			: undefined,
 		watch: false,

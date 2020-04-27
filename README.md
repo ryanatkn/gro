@@ -4,7 +4,7 @@
 
 ## docs
 
-- [`run`](src/run) task runner
+- [`task`](src/task) runner
 - [`oki`](src/oki) testing library
 - [`gen`](src/gen) code generation
 - other [docs](src/docs)
@@ -16,8 +16,8 @@
 Gro is an opinionated monotool for making webapps.
 It includes:
 
-- [task runner](src/run) that uses the filesystem convention `*.task.ts`
-  (docs at [`src/run`](src/run))
+- [task runner](src/task) that uses the filesystem convention `*.task.ts`
+  (docs at [`src/task`](src/task))
 - testing library called `oki` (docs at [`src/oki`](src/oki))
 - codegen by convention called `gen` (docs at [`src/gen`](src/gen))
 - dev server

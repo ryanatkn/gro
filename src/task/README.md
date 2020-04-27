@@ -29,7 +29,7 @@ Define a task:
 
 ```ts
 // src/some/thing.task.ts
-import {Task} from '@feltcoop/gro/run/task.js';
+import {Task} from '@feltcoop/gro/task/task.js';
 
 export const task: Task = {
 	run: async ({log, args}) => {

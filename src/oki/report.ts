@@ -6,16 +6,16 @@ import {
 	yellow,
 	gray,
 	cyan,
-} from '../../colors/terminal.js';
-import {TestContext, TOTAL_TIMING, TestInstance} from '../TestContext.js';
-import {fmtMs, fmtValue, fmtStr} from '../../utils/fmt.js';
-import {toSourcePath} from '../../paths.js';
+} from '../colors/terminal.js';
+import {TestContext, TOTAL_TIMING, TestInstance} from './TestContext.js';
+import {fmtMs, fmtValue, fmtStr, fmtError} from '../utils/fmt.js';
+import {toSourcePath} from '../paths.js';
 import {
 	AssertionError,
 	AssertionOperator,
 	FailedAssertion,
-} from '../assertions.js';
-import {UnreachableError, ErrorClass} from '../../utils/error.js';
+} from './assertions.js';
+import {UnreachableError, ErrorClass} from '../utils/error.js';
 
 export const reportIntro = (ctx: TestContext): void => {
 	ctx.log.newline();
@@ -59,7 +59,13 @@ export const reportSummary = (ctx: TestContext): void => {
 	const {passCount, failCount} = stats;
 	ctx.log.newline();
 	if (!passCount && !failCount) {
-		info(yellow(`No tests were found! Maybe check the filter?`));
+		info(
+			yellow(
+				`No tests were found!` +
+					` Is testContext.importModule being called?` +
+					` Maybe check the file filter?`,
+			),
+		);
 	} else {
 		info(green(`${passCount} test${passCount === 1 ? '' : 's'} passed`));
 		if (failCount) {
@@ -100,7 +106,8 @@ export const reportAssertionError = (
 		reportBaseIndent + reportListIndent.repeat(testInstance.depth),
 		red('🞩'),
 		testInstance.message,
-		red('\n!' + assertion.operator),
+		'\n',
+		formatFailedAssertion(assertion),
 	);
 
 	switch (assertion.operator) {
@@ -136,7 +143,7 @@ export const reportAssertionError = (
 			log.plain(...logArgs);
 			break;
 		case AssertionOperator.fail:
-			log.plain(assertion.message);
+			log.plain(fmtError(error));
 			break;
 		default:
 			throw new UnreachableError(assertion);
@@ -145,6 +152,17 @@ export const reportAssertionError = (
 		formatAssertionError(error, assertion, reportFullStackTraces),
 		'\n',
 	);
+};
+
+const formatFailedAssertion = (assertion: FailedAssertion): string => {
+	switch (assertion.operator) {
+		case AssertionOperator.fail: {
+			return red('fail asserted in test:');
+		}
+		default: {
+			return red('!' + assertion.operator);
+		}
+	}
 };
 
 const formatAssertionError = (

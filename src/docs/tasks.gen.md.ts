@@ -1,7 +1,6 @@
 import {dirname, relative, basename} from 'path';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
-import {createNodeRunHost} from '../run/nodeRunHost.js';
 import {
 	paths,
 	toBasePath,
@@ -11,6 +10,7 @@ import {
 } from '../paths.js';
 import {stripStart} from '../utils/string.js';
 import {last} from '../utils/array.js';
+import {loadTaskModules} from '../task/taskModule.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
@@ -24,9 +24,14 @@ import {last} from '../utils/array.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({originId}) => {
-	const {findTaskModules, loadTaskModule} = createNodeRunHost();
-	const taskSourceIds = await findTaskModules(paths.source);
-	const tasks = await Promise.all(taskSourceIds.map(id => loadTaskModule(id)));
+	const result = await loadTaskModules();
+	if (!result.ok) {
+		for (const reason of result.reasons) {
+			console.log(reason); // TODO logger as argument
+		}
+		throw new Error(result.type);
+	}
+	const tasks = result.modules;
 
 	// TODO need to get this from project config or something
 	const rootPath = last(toPathSegments(paths.root));

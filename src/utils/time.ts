@@ -15,25 +15,19 @@ export const createStopwatch = (decimals = 2): Stopwatch => {
 	};
 };
 
-const DEFAULT_KEY = Symbol();
-
-export class Timings {
-	private readonly timings = new Map<any, number>();
-	private readonly stopwatches = new Map<any, Stopwatch>();
+export class Timings<T extends string | number> {
+	private readonly timings = new Map<T, number>();
+	private readonly stopwatches = new Map<T, Stopwatch>();
 
 	constructor(public readonly decimals?: number) {}
 
-	start(
-		key: any = DEFAULT_KEY,
-		replace = false,
-		decimals = this.decimals,
-	): void {
+	start(key: T, replace = false, decimals = this.decimals): void {
 		if (!replace && this.stopwatches.has(key)) {
 			throw Error(`Timing key is already in use: ${key}`);
 		}
 		this.stopwatches.set(key, createStopwatch(decimals));
 	}
-	stop(key: any = DEFAULT_KEY): number {
+	stop(key: T): number {
 		const stopwatch = this.stopwatches.get(key);
 		if (!stopwatch) {
 			throw Error(`Unknown timing key cannot be stopped: ${key}`);
@@ -43,7 +37,7 @@ export class Timings {
 		this.timings.set(key, timing);
 		return timing;
 	}
-	get(key: any = DEFAULT_KEY): number {
+	get(key: T): number {
 		const timing = this.timings.get(key);
 		if (timing === undefined) {
 			throw new Error(`Timing key not found: ${key}`);

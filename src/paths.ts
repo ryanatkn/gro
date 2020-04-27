@@ -91,7 +91,7 @@ export const toBuildId = (id: string): string =>
 export const toDistId = (id: string): string =>
 	isDistId(id) ? id : join(paths.root, toDistPath(id));
 
-// 'foo/bar/baz.ts' -> '/home/me/app/build/foo/bar/baz.ts'
+// 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string): string =>
 	join(paths.source, basePath);
 
@@ -103,30 +103,8 @@ export const basePathToBuildId = (basePath: string): string =>
 export const basePathToDistId = (basePath: string): string =>
 	join(paths.dist, basePath);
 
-// converts various path types to an absolute id,
-// inferring build/source directory if needed
-export const toInferredId = (rawPath: string): string => {
-	if (rawPath.startsWith(paths.root)) {
-		return rawPath;
-	}
-	let path = stripStart(rawPath, RELATIVE_DIR_START);
-	if (
-		path.startsWith(SOURCE_DIR) ||
-		path.startsWith(BUILD_DIR) ||
-		path.startsWith(DIST_DIR)
-	) {
-		return join(paths.root, path);
-	}
-	// is a base path, so we need to use heuristics
-	// to determine if it's a build or source path
-	if (hasSourceExt(path)) {
-		// inferred to be a basePath off SOURCE_DIR
-		return basePathToSourceId(path);
-	} else {
-		// inferred to be basePath off BUILD_DIR
-		return basePathToBuildId(path);
-	}
-};
+export const stripRelativePath = (path: string): string =>
+	stripStart(path, RELATIVE_DIR_START);
 
 export const JS_EXT = '.js';
 export const TS_EXT = '.ts';

@@ -1,19 +1,19 @@
-import {resolve, join} from 'path';
-import {existsSync} from 'fs';
-
 import {blue, magenta} from '../colors/terminal.js';
-import {NodeTestContext} from '../oki/node/NodeTestContext.js';
+import {TestContext} from '../oki/TestContext.js';
 import {SystemLogger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
-import {toPathParts, toInferredId, toBasePath, toBuildId} from '../paths.js';
+import {resolveRawInputPaths} from '../files/inputPaths.js';
+import {findFiles} from '../files/nodeFs.js';
+import {loadModules} from '../files/loadModules.js';
+import {TEST_FILE_SUFFIX, isTestPath} from '../oki/testModule.js';
+import {fmtMs} from '../utils/fmt.js';
+import {Timings} from '../utils/time.js';
+import * as report from '../oki/report.js';
 
-const {info} = new SystemLogger([blue(`[commands/${magenta('test')}]`)]);
-
-const DEFAULT_DIR = './build';
+const {info, error} = new SystemLogger([blue(`[commands/${magenta('test')}]`)]);
 
 export interface Options {
 	_: string[]; // optional array of paths
-	dir: string;
 	watch: boolean;
 }
 export type RequiredOptions = '_';
@@ -21,48 +21,47 @@ export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	watch: false,
 	...omitUndefined(opts),
-	dir: resolve(opts.dir || DEFAULT_DIR),
 });
 
 export const run = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
 	info('options', options);
-	const {_: rawPaths, dir, watch} = options;
+	const {_: rawInputPaths} = options;
 
-	const basePaths = rawPaths.map(path =>
-		toBasePath(toBuildId(toInferredId(path))),
+	const timings = new Timings<'total'>();
+	timings.start('total');
+
+	const inputPaths = resolveRawInputPaths(rawInputPaths);
+
+	const testContext = new TestContext({report});
+
+	// The test context needs to link its imported modules
+	// to their execution context, so its API is a bit complex.
+	// See the comment on `TestContext.beginImporting` for more.
+	const finishImporting = testContext.beginImporting();
+	const result = await loadModules(
+		inputPaths,
+		[TEST_FILE_SUFFIX],
+		id => findFiles(id, file => isTestPath(file.path)),
+		id => testContext.importModule(id),
 	);
-	checkPaths(dir, basePaths);
-
-	const pathsAndDirs = toPathsAndDirs(basePaths);
-
-	const testContext = new NodeTestContext({
-		dir,
-		filter: pathsAndDirs.size ? ({path}) => pathsAndDirs.has(path) : undefined,
-		watch,
-	});
-	await testContext.init();
-	await testContext.run();
-
-	// ...
-};
-
-const checkPaths = (dir: string, rawPaths: string[]): string[] => {
-	const paths = rawPaths.map(f => join(dir, f));
-	for (const path of paths) {
-		if (!existsSync(path)) {
-			throw Error(`Path not found: ${path}`);
+	finishImporting();
+	if (!result.ok) {
+		for (const reason of result.reasons) {
+			error(reason);
 		}
+		return;
 	}
-	return paths;
-};
 
-const toPathsAndDirs = (rawPaths: string[]): Set<string> => {
-	const results = new Set<string>();
-	for (const rawPath of rawPaths) {
-		for (const path of toPathParts(rawPath)) {
-			results.add(path);
-		}
-	}
-	return results;
+	// The test modules register themselves with the testContext when imported,
+	// so we don't pass them as a parameter to run them.
+	// They're available as `result.modules` though.
+	const testRunResult = await testContext.run();
+
+	info(`${fmtMs(result.timings.get('map input paths'))} to map input paths`);
+	info(`${fmtMs(result.timings.get('find files'))} to find files`);
+	info(`${fmtMs(result.timings.get('load modules'))} to load modules`);
+	// TODO this gets duplicated by the oki reporter
+	info(`${fmtMs(testRunResult.timings.get('total'))} to run tests`);
+	info(`🕒 ${fmtMs(timings.stop('total'))}`);
 };

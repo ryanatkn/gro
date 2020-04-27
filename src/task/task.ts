@@ -6,19 +6,9 @@ export interface Task<T = unknown> {
 	description?: string;
 }
 
-export interface TaskModuleMeta {
-	id: string;
-	name: string;
-	mod: TaskModule;
-}
-
 export interface TaskContext {
 	log: Logger;
 	args: Args;
-}
-
-export interface TaskModule {
-	task: Task;
 }
 
 export const TASK_FILE_PATTERN = /\.task\.ts$/;
@@ -30,8 +20,5 @@ export const isTaskPath = (path: string): boolean =>
 export const toTaskPath = (taskName: string): string =>
 	taskName + TASK_FILE_SUFFIX;
 
-export const toTaskName = (path: string): string =>
-	path.replace(TASK_FILE_PATTERN, '');
-
-export const validateTaskModule = (mod: Obj): mod is TaskModule =>
-	!!mod.task && typeof mod.task.run === 'function';
+export const toTaskName = (basePath: string): string =>
+	basePath.replace(TASK_FILE_PATTERN, '');

@@ -89,8 +89,8 @@ export const matchError = (
 };
 
 export class AssertionError extends Error {
-	constructor(public readonly assertion: FailedAssertion) {
-		super(`Assertion failed: ${assertion.operator}`);
+	constructor(public readonly assertion: FailedAssertion, message?: string) {
+		super(message || `Assertion failed: ${assertion.operator}`);
 	}
 }
 
@@ -103,7 +103,7 @@ we could replace this with `t.fail`.
 */
 export class TestFailureError extends AssertionError {
 	constructor(message: string) {
-		super({operator: AssertionOperator.fail, message});
+		super({operator: AssertionOperator.fail, message}, message);
 	}
 }
 

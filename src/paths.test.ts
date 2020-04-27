@@ -2,7 +2,6 @@ import {resolve} from 'path';
 
 import {test, t} from './oki/oki.js';
 import {
-	toInferredId,
 	toRootPath,
 	toBasePath,
 	basePathToSourceId,
@@ -193,91 +192,6 @@ test('basePathToDistId()', () => {
 	t.is(basePathToDistId('foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
 	test('does not change extension', () => {
 		t.is(basePathToDistId('foo/bar/baz.ts'), resolve('dist/foo/bar/baz.ts'));
-	});
-});
-
-test('toInferredId()', () => {
-	test('basePath with ts extension', () => {
-		t.is(toInferredId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
-	});
-	test('basePath with js extension', () => {
-		t.is(toInferredId('foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
-	});
-	test('relative basePath with ts extension', () => {
-		t.is(toInferredId('./foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
-	});
-	test('relative basePath with js extension', () => {
-		t.is(toInferredId('./foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
-	});
-
-	test('sourcePath', () => {
-		t.is(toInferredId('src/foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
-	});
-	test('relative sourcePath', () => {
-		t.is(toInferredId('./src/foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
-	});
-	test('sourcePath with js extension', () => {
-		t.is(toInferredId('src/foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
-	});
-
-	test('buildPath', () => {
-		t.is(toInferredId('build/foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
-	});
-	test('relative buildPath', () => {
-		t.is(
-			toInferredId('./build/foo/bar/baz.js'),
-			resolve('build/foo/bar/baz.js'),
-		);
-	});
-	test('buildPath with ts extension', () => {
-		t.is(toInferredId('build/foo/bar/baz.ts'), resolve('build/foo/bar/baz.ts'));
-	});
-
-	test('distPath', () => {
-		t.is(toInferredId('dist/foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
-	});
-	test('relative distPath', () => {
-		t.is(toInferredId('./dist/foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
-	});
-	test('distPath with ts extension', () => {
-		t.is(toInferredId('dist/foo/bar/baz.ts'), resolve('dist/foo/bar/baz.ts'));
-	});
-
-	test('sourceId', () => {
-		t.is(
-			toInferredId(resolve('src/foo/bar/baz.ts')),
-			resolve('src/foo/bar/baz.ts'),
-		);
-	});
-	test('sourceId with js extension', () => {
-		t.is(
-			toInferredId(resolve('src/foo/bar/baz.js')),
-			resolve('src/foo/bar/baz.js'),
-		);
-	});
-	test('buildId', () => {
-		t.is(
-			toInferredId(resolve('build/foo/bar/baz.js')),
-			resolve('build/foo/bar/baz.js'),
-		);
-	});
-	test('buildId with ts extension', () => {
-		t.is(
-			toInferredId(resolve('build/foo/bar/baz.ts')),
-			resolve('build/foo/bar/baz.ts'),
-		);
-	});
-	test('distId', () => {
-		t.is(
-			toInferredId(resolve('dist/foo/bar/baz.js')),
-			resolve('dist/foo/bar/baz.js'),
-		);
-	});
-	test('distId with ts extension', () => {
-		t.is(
-			toInferredId(resolve('dist/foo/bar/baz.ts')),
-			resolve('dist/foo/bar/baz.ts'),
-		);
 	});
 });
 

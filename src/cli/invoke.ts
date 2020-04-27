@@ -138,7 +138,6 @@ sade('gro')
 
 	.command('test')
 	.describe('Run tests')
-	.option('-d, --dir', 'Directory for the app source')
 	.option('-w, --watch', 'Watch for changes and re-run tests')
 	.action(async (opts: any) => {
 		const command = await import('../commands/test.js');

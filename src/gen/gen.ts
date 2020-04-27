@@ -1,14 +1,17 @@
 import {join, basename, dirname} from 'path';
 
-import {isSourceId, toBasePath} from '../paths.js';
-import {SystemLogger} from '../utils/log.js';
-import {omitUndefined} from '../utils/object.js';
-import {magenta, yellow, red} from '../colors/terminal.js';
+import {isSourceId} from '../paths.js';
 import {fmtPath} from '../utils/fmt.js';
 import {Timings} from '../utils/time.js';
+import {
+	ModuleMeta,
+	loadModule,
+	LoadModuleResult,
+} from '../files/loadModules.js';
+import {red} from '../colors/terminal.js';
 
 // TODO consider splitting the primitive data/helpers/types
-// out of this module like how `task` is separated from `run`
+// out of this module like how `task` is separated from `runTask`
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN =
@@ -42,41 +45,21 @@ export interface RawGenFile {
 	fileName?: string;
 }
 
-export interface GenModuleMeta {
-	id: string;
-	mod: GenModule;
-}
-
-export interface GenHost {
-	findGenModules: (dir: string) => Promise<string[]>; // returns source ids
-	loadGenModule: (sourceId: string) => Promise<GenModuleMeta>;
-	// `outputFile` has the same interface as `fs.writeFile`,
-	// but for now it's text-only and assumes utf8.
-	// TODO add support for typed arrays and buffers
-	outputFile: (file: GenFile) => Promise<void>;
-}
-
-export interface Options {
-	host: GenHost;
-	dir: string;
-}
-export type RequiredOptions = 'host' | 'dir';
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
-	...omitUndefined(opts),
-});
+export interface GenModuleMeta extends ModuleMeta<GenModule> {}
 
 export type GenResults = {
-	ok: boolean;
 	results: GenModuleResult[];
-	count: number;
+	successes: GenModuleResultSuccess[];
+	failures: GenModuleResultFailure[];
+	inputCount: number;
+	outputCount: number;
 	elapsed: number;
 };
 export type GenModuleResult = GenModuleResultSuccess | GenModuleResultFailure;
 export type GenModuleResultSuccess = {
 	ok: true;
 	id: string;
-	count: number;
+	files: GenFile[];
 	elapsed: number;
 };
 export type GenModuleResultFailure = {
@@ -87,72 +70,48 @@ export type GenModuleResultFailure = {
 	elapsed: number;
 };
 
-export const gen = async (opts: InitialOptions): Promise<GenResults> => {
-	const {host, dir} = initOptions(opts);
-	const log = new SystemLogger([magenta('[gen]')]);
-	const {error} = log;
-
+export const gen = async (genModules: GenModuleMeta[]): Promise<GenResults> => {
+	let inputCount = 0;
+	let outputCount = 0;
 	const timings = new Timings();
-	timings.start();
-
-	// TODO is this right? or should we convert input paths to source ids?
-	if (!isSourceId(dir)) {
-		throw Error(`dir must be a source id: ${dir}`);
-	}
-
-	const genSourceIds = await host.findGenModules(dir);
-	const genModules = await Promise.all(
-		genSourceIds.map(
-			async (
-				sourceId,
-			): Promise<[GenModuleMeta, null] | [null, GenModuleResultFailure]> => {
-				// TODO consider trying to clean up this return type -
-				// it's typesafe and efficient, just a bit weird
-				try {
-					const genModule = await host.loadGenModule(sourceId);
-					if (!validateGenModule(genModule.mod)) {
-						throw Error(`Gen module is invalid: ${toBasePath(sourceId)}`);
-					}
-					return [genModule, null];
-				} catch (err) {
-					const reason = `Failed to load gen ${fmtPath(sourceId)}.`;
-					error(red(reason), yellow(err.message));
-					return [
-						null,
-						{ok: false, id: sourceId, error: err, reason, elapsed: 0},
-					];
-				}
-			},
-		),
-	);
-
+	timings.start('total');
 	const results = await Promise.all(
 		genModules.map(
-			async (result): Promise<GenModuleResult> => {
-				if (result[1]) return result[1];
-				const {id, mod} = result[0];
+			async ({id, mod}): Promise<GenModuleResult> => {
+				inputCount++;
 				const genCtx: GenContext = {originId: id};
 				timings.start(id);
 				let rawGenResult;
 				try {
 					rawGenResult = await mod.gen(genCtx);
 				} catch (err) {
-					const reason = `Error generating ${fmtPath(id)}.`;
-					error(red(reason), yellow(err.message));
-					return {ok: false, id, error: err, reason, elapsed: timings.stop(id)};
+					const reason = red(`Error generating ${fmtPath(id)}`);
+					return {
+						ok: false,
+						id,
+						error: err,
+						reason,
+						elapsed: timings.stop(id),
+					};
 				}
 				const {files} = toGenResult(id, rawGenResult);
-				await Promise.all(files.map(file => host.outputFile(file)));
-				return {ok: true, id, count: files.length, elapsed: timings.stop(id)};
+				outputCount += files.length;
+				return {
+					ok: true,
+					id,
+					files,
+					elapsed: timings.stop(id),
+				};
 			},
 		),
 	);
-
 	return {
-		ok: results.every(r => r.ok),
 		results,
-		count: results.reduce((count, r) => count + (r.ok ? r.count : 0), 0),
-		elapsed: timings.stop(),
+		successes: results.filter(r => r.ok) as GenModuleResultSuccess[],
+		failures: results.filter(r => !r.ok) as GenModuleResultFailure[],
+		inputCount,
+		outputCount,
+		elapsed: timings.stop('total'),
 	};
 };
 
@@ -249,3 +208,8 @@ const validateGenFiles = (files: GenFile[]) => {
 
 export const validateGenModule = (mod: Obj): mod is GenModule =>
 	typeof mod.gen === 'function';
+
+export const loadGenModule = (
+	id: string,
+): Promise<LoadModuleResult<GenModuleMeta>> =>
+	loadModule(id, validateGenModule);

@@ -9,7 +9,7 @@ test('createStopwatch', () => {
 });
 
 test('Timings', () => {
-	const timings = new Timings(4);
+	const timings = new Timings<'foo' | 'bar'>(4);
 	timings.start('foo');
 	t.throws(() => timings.start('foo'));
 	timings.stop('foo');
@@ -19,4 +19,7 @@ test('Timings', () => {
 	t.is(typeof elapsed, 'number');
 	t.throws(() => timings.get('bar'));
 	t.ok(elapsed.toString().split('.')[1].length <= 4);
+
+	// TODO TypeScript 3.9 @ts-expect-error
+	// timings.start('no');
 });

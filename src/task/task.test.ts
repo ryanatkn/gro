@@ -5,10 +5,7 @@ import {
 	isTaskPath,
 	toTaskPath,
 	toTaskName,
-	validateTaskModule,
 } from './task.js';
-import * as testTask from './fixtures/testTask.task.js';
-import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
 
 test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', () => {
 	t.ok(TASK_FILE_PATTERN.test('file' + TASK_FILE_SUFFIX));
@@ -33,10 +30,4 @@ test('toTaskPath()', () => {
 test('toTaskName()', () => {
 	t.is(toTaskName('foo.task.ts'), 'foo');
 	t.is(toTaskName('bar/baz/foo.task.ts'), 'bar/baz/foo');
-});
-
-test('validateTaskModule()', () => {
-	t.ok(validateTaskModule(testTask));
-	t.ok(!validateTaskModule(testInvalidTaskModule));
-	t.ok(!validateTaskModule({task: {run: {}}}));
 });

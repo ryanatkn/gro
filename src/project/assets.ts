@@ -5,7 +5,7 @@ import CheapWatch from 'cheap-watch';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {magenta, gray} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
-import {FileStats} from '../files/fileData.js';
+import {PathStats} from '../files/pathData.js';
 import {
 	CheapWatchPathAddedEvent,
 	CheapWatchPathRemovedEvent,
@@ -45,7 +45,7 @@ export const assets = async (opts: InitialOptions = {}) => {
 
 	// TODO refactor to use the same file & watch solution as  `NodeTestContext` and `project/gen.ts`
 	const dir = paths.root;
-	const filter: (p: {path: string; stats: FileStats}) => boolean = ({
+	const filter: (p: {path: string; stats: PathStats}) => boolean = ({
 		path,
 		stats,
 	}) => {
