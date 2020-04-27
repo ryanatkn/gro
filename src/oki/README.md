@@ -89,6 +89,7 @@ interface Assertions {
   notEqual(actual: any, expected: any); // !deeply equal
   // expects `cb` to throw an error that matches optional `matcher`
   throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
-  Error(message: string); // Error class for intentional failures
+  fail(message: string); // throws a TestAssertionError (t.Error)
+  Error(message: string); // the TestAssertionError class for intentional fails
 }
 ```

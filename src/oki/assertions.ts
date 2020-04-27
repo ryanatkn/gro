@@ -1,6 +1,12 @@
 import {deepEqual} from '../utils/deepEqual.js';
 import {ErrorClass} from '../utils/error.js';
 
+export class AssertionError extends Error {
+	constructor(public readonly assertion: FailedAssertion, message?: string) {
+		super(message || `Assertion failed: ${assertion.operator}`);
+	}
+}
+
 export const ok: (value: any) => asserts value = value => {
 	if (!value) {
 		throw new AssertionError({operator: AssertionOperator.ok, value});
@@ -88,19 +94,10 @@ export const matchError = (
 	return true;
 };
 
-export class AssertionError extends Error {
-	constructor(public readonly assertion: FailedAssertion, message?: string) {
-		super(message || `Assertion failed: ${assertion.operator}`);
-	}
-}
+export const fail = (message: string): never => {
+	throw new TestFailureError(message);
+};
 
-/*
-
-If TypeScript's ever supports saying "this will throw",
-like with `asserts` but guaranteed failure,
-we could replace this with `t.fail`.
-
-*/
 export class TestFailureError extends AssertionError {
 	constructor(message: string) {
 		super({operator: AssertionOperator.fail, message}, message);
@@ -123,6 +120,7 @@ export const t: {
 	equal: typeof equal;
 	notEqual: typeof notEqual;
 	throws: typeof throws;
+	fail: typeof fail;
 	Error: typeof TestFailureError;
 } = {
 	ok,
@@ -131,6 +129,7 @@ export const t: {
 	equal,
 	notEqual,
 	throws,
+	fail,
 	Error: TestFailureError,
 };
 

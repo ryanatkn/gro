@@ -5,7 +5,7 @@ test('assertions', () => {
 	test('fail()', () => {
 		const message = 'not oki';
 		try {
-			throw new t.Error(message);
+			t.fail(message);
 		} catch (err) {
 			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.fail) {
@@ -26,16 +26,14 @@ test('assertions', () => {
 		} catch (err) {
 			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.throws) {
-					throw new t.Error(
-						`Expected error operator to be "${AssertionOperator.throws}"`,
-					);
+					t.fail(`Expected error operator to be "${AssertionOperator.throws}"`);
 				}
 				return err; // success
 			} else {
-				throw new t.Error('Expected error to be a AssertionError');
+				t.fail('Expected error to be a AssertionError');
 			}
 		}
-		throw new t.Error(`Expected an error`);
+		t.fail(`Expected an error`);
 	};
 	test('throws() ✓', async () => {
 		t.throws(() => {
@@ -196,7 +194,7 @@ const skip: typeof test = Function.prototype as any;
 
 skip('failed assertions', () => {
 	test('fail()', () => {
-		throw new t.Error('this test failed because errror');
+		t.fail('this test failed because errror');
 	});
 
 	const failToThrow = (cb: () => void): AssertionError => {
@@ -205,16 +203,14 @@ skip('failed assertions', () => {
 		} catch (err) {
 			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.throws) {
-					throw new t.Error(
-						`Expected error operator to be "${AssertionOperator.throws}"`,
-					);
+					t.fail(`Expected error operator to be "${AssertionOperator.throws}"`);
 				}
 				return err; // success
 			} else {
-				throw new t.Error('Expected error to be a AssertionError');
+				t.fail('Expected error to be a AssertionError');
 			}
 		}
-		throw new t.Error(`Expected an error`);
+		t.fail(`Expected an error`);
 	};
 	test('throws() ✓', async () => {
 		failToThrow(() => {

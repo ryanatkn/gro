@@ -43,7 +43,7 @@ test('loadModule()', async () => {
 			t.is(result.mod, validatedMod);
 			t.is(result.mod, test1);
 		} else {
-			throw new t.Error('Should be invalid');
+			t.fail('Should be invalid');
 		}
 	});
 
@@ -55,7 +55,7 @@ test('loadModule()', async () => {
 			t.is(result.id, id);
 			t.ok(result.error instanceof Error);
 		} else {
-			throw new t.Error('Should fail to import');
+			t.fail('Should fail to import');
 		}
 	});
 });
@@ -130,7 +130,7 @@ test('loadModules()', async () => {
 				resolve('src/files/fixtures/failme2'),
 			]);
 		} else {
-			throw new t.Error('Expected to fail with unmappedInputPaths');
+			t.fail('Expected to fail with unmappedInputPaths');
 		}
 	});
 
@@ -154,7 +154,7 @@ test('loadModules()', async () => {
 				resolve('src/files/fixtures/bar2'),
 			]);
 		} else {
-			throw new t.Error('Expected to fail with inputDirectoriesWithNoFiles');
+			t.fail('Expected to fail with inputDirectoriesWithNoFiles');
 		}
 	});
 
@@ -192,16 +192,16 @@ test('loadModules()', async () => {
 				t.ok(failure1.mod);
 				t.is(failure1.validation, testValidation.name);
 			} else {
-				throw new t.Error('Expected to fail with invalid');
+				t.fail('Expected to fail with invalid');
 			}
 			if (failure2.type === 'importFailed') {
 				t.is(failure2.id, resolve('src/files/fixtures/bar2/test2.bar.ts'));
 				t.is(failure2.error, error);
 			} else {
-				throw new t.Error('Expected to fail with importFailed');
+				t.fail('Expected to fail with importFailed');
 			}
 		} else {
-			throw new t.Error('Expected to fail with loadModuleFailures');
+			t.fail('Expected to fail with loadModuleFailures');
 		}
 	});
 });
