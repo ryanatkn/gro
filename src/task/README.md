@@ -43,7 +43,7 @@ Define a task:
 
 ```ts
 // src/some/thing.task.ts
-import {Task} from '@feltcoop/gro/task/task.js';
+import {Task} from '@feltcoop/gro/dist/task/task.js';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -63,8 +63,8 @@ $ gro test
 
 ```ts
 // src/test.task.ts
-import {Task} from '@feltcoop/gro/task/task.js';
-import {task as testTask} from '@feltcoop/gro/test.task.js';
+import {Task} from '@feltcoop/gro/dist/task/task.js';
+import {task as testTask} from '@feltcoop/gro/dist/test.task.js';
 
 export const task: Task = {
 	run: async ({log, args}) => {
