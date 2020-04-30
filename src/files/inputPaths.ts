@@ -23,6 +23,7 @@ A raw input path can be:
 - a directory containing any number of files, e.g. `src/foo`
 - any of the above without the leading `src/` or with a leading `./`
 - any of the above with an absolute path to `src/`
+- any of the above but with Gro as the root directory
 
 The input path API lets the caller customize the allowable extensions.
 That means that the caller can look for `.test.` files but not `.gen.`,

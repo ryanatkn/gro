@@ -58,6 +58,9 @@ export const task: Task = {
 };
 ```
 
+> To learn more about the Gro CLI path conventions,
+> see [the `inputPaths` comments](../files/inputPaths.ts)
+
 Hook into one of [Gro's builtin tasks](../docs/tasks.md):
 
 ```bash
