@@ -2,6 +2,11 @@
 
 > opinionated tools for web development
 
+> _warning!_ You should probably not use Gro today —
+> there are many mature tools with large communities solving similar problems.
+> Gro integrates many tools into a single experience but
+> for now it's unlikely to be the experience that fits your particular needs.
+
 ## docs
 
 - [`task`](src/task) runner
@@ -28,11 +33,6 @@ It includes:
   [Svelte](https://github.com/sveltejs/svelte)
 - more to come, exploring what deeply integrated tools enable
   in the realms of developer power and ergonomics and end user experience
-
-You should probably not use Gro today —
-there are many mature tools with large communities solving similar problems.
-Gro integrates many tools into a single experience
-but for now it's unlikely to be the experience that fits your particular needs.
 
 ## usage
 
