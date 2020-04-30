@@ -12,7 +12,7 @@ and defers composition to the user.
 - task definitions are just async functions in TypeScript modules,
   so chaining and composition are explicit in your code
 - it's easy to hook into or override any of Gro's builtin tasks,
-  like [`test`](../oki/README.md) and [`gen`](../gen/README.md)
+  like [`test`](../oki) and [`gen`](../gen)
 - it's fast because it imports only the modules that your chosen tasks need
 
 The task runner's purpose is to provide an ergonomic interface

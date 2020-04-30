@@ -45,7 +45,7 @@ gro test # run one of Gro's tasks or `src/test.task.ts` if it exists
 ```
 
 Gro has a number of builtin tasks.
-To learn more [see the task docs](src/task/README.md)
+To learn more [see the task docs](src/task)
 and [the generated task index](src/docs/tasks.md).
 
 ```bash

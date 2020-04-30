@@ -4,7 +4,7 @@
 > <sub>[docs](./)</sub> <sub>/</sub>
 > <sub>tasks.md</sub>
 
-What is a task? See [`src/tasks/README.md`](../task/README.md).
+What is a task? See [`src/tasks/README.md`](../task).
 
 ## all tasks
 
