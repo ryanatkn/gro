@@ -3,15 +3,15 @@ const {emptyDir, copy} = fs; // TODO esm
 import {promisify} from 'util';
 import {exec} from 'child_process';
 
-import {Task} from '../task/task.js';
-import {paths} from '../paths.js';
-import {isTestBuildFile, isTestBuildArtifact} from '../oki/testModule.js';
+import {Task} from './task/task.js';
+import {paths} from './paths.js';
+import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
 
 export const task: Task = {
-	description: 'create and link the gro distribution',
+	description: 'create and link the distribution',
 	run: async ({log: {info}}) => {
 		info('emptying');
 		await emptyDir(paths.dist);

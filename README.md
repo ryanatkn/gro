@@ -37,13 +37,16 @@ but for now it's unlikely to be the experience that fits your particular needs.
 ## usage
 
 ```bash
-gro --help # outputs info with all commands
+gro # lists all available tasks with the pattern `*.task.ts`
+gro some/dir # lists all tasks inside `src/some/dir`
+gro some/file # runs `src/some/file.task.ts`
+gro some/file.task.ts # same as above
+gro test # run one of Gro's tasks or `src/test.task.ts` if it exists
 ```
 
-```bash
-gro run # lists all available tasks with the pattern *.task.ts
-gro run some/task another # runs src/some/task.task.ts then src/another.task.ts
-```
+Gro has a number of builtin tasks.
+To learn more [see the task docs](src/task/README.md)
+and [the generated task index](src/docs/tasks.md).
 
 ```bash
 gro dev # builds in watch mode and starts a dev server

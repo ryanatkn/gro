@@ -1,7 +1,7 @@
 import {SystemLogger} from '../utils/log.js';
 import {cyan, magenta, red} from '../colors/terminal.js';
 import {TaskModuleMeta} from './taskModule.js';
-import {Args} from '../cli/types.js';
+import {Args, Env} from '../cli/types.js';
 
 export type RunTaskResult =
 	| {
@@ -17,12 +17,14 @@ export type RunTaskResult =
 export const runTask = async (
 	task: TaskModuleMeta,
 	args: Args,
+	env: Env,
 ): Promise<RunTaskResult> => {
 	let output;
 	try {
 		output = await task.mod.task.run({
 			args,
-			log: new SystemLogger([magenta('[run]'), cyan(`[${task.name}]`)]),
+			env,
+			log: new SystemLogger([magenta(`[task:${cyan(task.name)}]`)]),
 		});
 	} catch (err) {
 		return {

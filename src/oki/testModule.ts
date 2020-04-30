@@ -1,8 +1,4 @@
-import {
-	ModuleMeta,
-	loadModule,
-	LoadModuleResult,
-} from '../files/loadModules.js';
+import {ModuleMeta, loadModule, LoadModuleResult} from '../files/modules.js';
 
 export interface TestModuleMeta extends ModuleMeta<TestModule> {}
 

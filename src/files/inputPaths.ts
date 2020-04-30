@@ -1,11 +1,12 @@
-import {join, sep} from 'path';
+import {join, sep, isAbsolute} from 'path';
 
 import {
 	basePathToSourceId,
 	stripRelativePath,
 	SOURCE_DIR,
-	isSourceId,
 	SOURCE_DIR_NAME,
+	replaceRootDir,
+	Paths,
 } from '../paths.js';
 import {stripStart} from '../utils/string.js';
 import {PathData, toPathData, PathStats} from './pathData.js';
@@ -30,19 +31,58 @@ or both, or neither, depending on its needs.
 In the future we may want to support globbing or regexps.
 
 */
-export const resolveRawInputPath = (rawInputPath: string): string => {
-	if (isSourceId(rawInputPath)) return rawInputPath;
+export const resolveRawInputPath = (
+	rawInputPath: string,
+	paths?: Paths,
+): string => {
+	if (isAbsolute(rawInputPath)) return rawInputPath;
 	const basePath = stripStart(
 		stripStart(stripRelativePath(rawInputPath), SOURCE_DIR),
 		SOURCE_DIR_NAME,
 	);
-	return basePathToSourceId(basePath);
+	return basePathToSourceId(basePath, paths);
 };
 
 export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
 	(rawInputPaths.length ? rawInputPaths : ['./']).map(p =>
 		resolveRawInputPath(p),
 	);
+
+/*
+
+Gets a list of possible source ids for each input path with `extensions`,
+duplicating each under `rootDirs`.
+This is first used to fall back to the Gro dir to search for tasks.
+It's the helper used in implementations of `getPossibleSourceIdsForInputPath` below.
+
+*/
+export const getPossibleSourceIds = (
+	inputPath: string,
+	extensions: string[],
+	rootDirs: string[] = [],
+	paths?: Paths,
+): string[] => {
+	const possibleSourceIds = [inputPath];
+	if (!inputPath.endsWith(sep)) {
+		for (const extension of extensions) {
+			if (!inputPath.endsWith(extension)) {
+				possibleSourceIds.push(inputPath + extension);
+			}
+		}
+	}
+	if (rootDirs.length) {
+		const ids = possibleSourceIds.slice(); // make a copy or infinitely loop!
+		for (const rootDir of rootDirs) {
+			if (inputPath.startsWith(rootDir)) continue; // avoid duplicates
+			for (const possibleSourceId of ids) {
+				possibleSourceIds.push(
+					replaceRootDir(possibleSourceId, rootDir, paths),
+				);
+			}
+		}
+	}
+	return possibleSourceIds;
+};
 
 /*
 
@@ -54,22 +94,21 @@ Parameterized by `pathExists` and `stat` so it's fs-agnostic.
 */
 export const loadSourcePathDataByInputPath = async (
 	inputPaths: string[],
-	extensions: string[],
 	pathExists: (path: string) => Promise<boolean>,
 	stat: (path: string | Buffer) => Promise<PathStats>,
+	getPossibleSourceIdsForInputPath?: (inputPath: string) => string[],
 ): Promise<{
 	sourceIdPathDataByInputPath: Map<string, PathData>;
 	unmappedInputPaths: string[];
 }> => {
-	const possibleSourceIdsByInputPath = getPossibleSourceIdsByInputPath(
-		inputPaths,
-		extensions,
-	);
 	const sourceIdPathDataByInputPath = new Map<string, PathData>();
 	const unmappedInputPaths: string[] = [];
-	for (const [inputPath, possibleSourceIds] of possibleSourceIdsByInputPath) {
+	for (const inputPath of inputPaths) {
 		let filePathData: PathData | null = null;
 		let dirPathData: PathData | null = null;
+		const possibleSourceIds = getPossibleSourceIdsForInputPath
+			? getPossibleSourceIdsForInputPath(inputPath)
+			: [inputPath];
 		for (const possibleSourceId of possibleSourceIds) {
 			if (!(await pathExists(possibleSourceId))) continue;
 			const stats = await stat(possibleSourceId);
@@ -95,6 +134,7 @@ export const loadSourcePathDataByInputPath = async (
 
 Finds all of the matching files for the given input paths.
 Parameterized by `findFiles` so it's fs-agnostic.
+De-dupes source ids.
 
 */
 export const loadSourceIdsByInputPath = async (
@@ -140,30 +180,4 @@ export const loadSourceIdsByInputPath = async (
 		}
 	}
 	return {sourceIdsByInputPath, inputDirectoriesWithNoFiles};
-};
-
-/*
-
-Gets a list of possible source ids for each input path with `extensions`.
-This might be removed if we switch to regexp or glob path matching.
-
-*/
-const getPossibleSourceIdsByInputPath = (
-	inputPaths: string[],
-	extensions: string[],
-): Map<string, string[]> => {
-	const possibleSourceIdsByInputPath = new Map<string, string[]>();
-
-	for (const inputPath of inputPaths) {
-		const possibleSourceIds = [inputPath];
-		if (!inputPath.endsWith(sep)) {
-			for (const extension of extensions) {
-				if (!inputPath.endsWith(extension)) {
-					possibleSourceIds.push(inputPath + extension);
-				}
-			}
-		}
-		possibleSourceIdsByInputPath.set(inputPath, possibleSourceIds);
-	}
-	return possibleSourceIdsByInputPath;
 };

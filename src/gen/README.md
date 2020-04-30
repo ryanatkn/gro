@@ -5,7 +5,7 @@
 
 ## motivation
 
-The `gro gen` command allows us to enhance our projects
+The `gro gen` task allows us to enhance our projects
 with convention-based code generation (codegen) techniques.
 
 Why? Codegen can produce game-changing results for UX and DX,
@@ -54,7 +54,7 @@ the parent project [Gro](https://github.com/feltcoop/gro).
 
 ## usage
 
-The `gro gen` command looks for any files with `.gen.`
+The `gro gen` task looks for any files with `.gen.`
 in the file name and tries to call an exported `gen`
 function to generate one or more output files.
 

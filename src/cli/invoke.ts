@@ -10,152 +10,156 @@ sourceMapSupport.install({
 
 // set up the env
 if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
-const {env, argv} = process;
 
-import sade from 'sade';
-import fs from 'fs-extra';
-const {readJsonSync} = fs; // TODO esm
-import {dirname, join} from 'path';
-import {fileURLToPath} from 'url';
+import mri from 'mri';
 
-import {InitialOptions as InitialRunTaskOptions} from '../commands/run.js';
-import {InitialOptions as InitialDevTaskOptions} from '../commands/dev.js';
-import {InitialOptions as InitialBuildTaskOptions} from '../commands/build.js';
-import {InitialOptions as InitialServeTaskOptions} from '../commands/serve.js';
-import {InitialOptions as InitialTestTaskOptions} from '../commands/test.js';
-import {InitialOptions as InitialCleanTaskOptions} from '../commands/clean.js';
-import {InitialOptions as InitialGenTaskOptions} from '../commands/gen.js';
-import {InitialOptions as InitialAssetsTaskOptions} from '../commands/assets.js';
-import {omitUndefined} from '../utils/object.js';
+// import {omitUndefined} from '../utils/object.js';
+import {Args} from './types.js';
+import {SystemLogger, Logger} from '../utils/log.js';
+import {green, blue, cyan, gray} from '../colors/terminal.js';
+import {runTask} from '../task/runTask.js';
+import {Timings} from '../utils/time.js';
+import {fmtMs, fmtError, fmtPath} from '../utils/fmt.js';
+import {
+	resolveRawInputPath,
+	getPossibleSourceIds,
+} from '../files/inputPaths.js';
+import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from '../task/task.js';
+import {
+	paths,
+	groPaths,
+	toBasePath,
+	replaceRootDir,
+	pathsFromId,
+	isSourceId,
+} from '../paths.js';
+import {findModules, loadModules} from '../files/modules.js';
+import {findFiles} from '../files/nodeFs.js';
+import {plural} from '../utils/string.js';
+import {loadTaskModule} from '../task/taskModule.js';
 
-// This is weird, but it's needed because the TypeScript `rootDir` is `./src`,
-// and `package.json` is above it at the repo root,
-// so it can't be imported or required normally.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const pkg = readJsonSync(join(__dirname, '../../package.json'));
+const main = async () => {
+	const argv: Args = mri(process.argv.slice(2));
+	const log = new SystemLogger([blue(`[${green('gro')}]`)]);
+	const {info, error} = log;
 
-/*
+	const {
+		_: [taskName, ..._],
+		...namedArgs
+	} = argv;
+	const args = {_, ...namedArgs};
 
-All commands are lazily required,
-avoiding the typical loading/parsing/initializing of tons of unused JS.
+	const timings = new Timings<'total' | 'run task'>();
+	timings.start('total');
 
-*/
+	// We search for tasks first in the current working directory,
+	// and fall back to searching Gro's directory. (if they're different)
+	const groDirIsCwd = paths.root === groPaths.root;
 
-sade('gro')
-	.version(pkg.version)
+	// Resolve the input path for the provided task name.
+	const inputPath = resolveRawInputPath(taskName || paths.source);
 
-	// TODO probably want this
-	//.option('-c, --config', 'Path to gro config', 'gro.config.js');
+	// Find the task or directory specified by the `inputPath`.
+	const findModulesResult = await findModules(
+		[inputPath],
+		id => findFiles(id, file => isTaskPath(file.path)),
+		inputPath =>
+			getPossibleSourceIds(inputPath, [TASK_FILE_SUFFIX], [groPaths.root]),
+	);
+	if (!findModulesResult.ok) {
+		for (const reason of findModulesResult.reasons) {
+			error(reason);
+		}
+		return;
+	}
+	const pathData = findModulesResult.sourceIdPathDataByInputPath.get(
+		inputPath,
+	)!;
 
-	.command('run')
-	.describe('Run tasks')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/run.js');
-		const options: InitialRunTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
+	// Was the inputPath a directory? If so print its tasks but don't run anything.
+	// It's surprising behavior to execute a task just by a directory!
+	// If no tasks were found, it errors and exits above.
+	if (pathData.isDirectory) {
+		// Is the directory in the cwd and it's different than the Gro directory?
+		// If so also search the Gro directory and print out any matches.
+		const isGroPath = isSourceId(pathData.id, groPaths);
+		if (!groDirIsCwd && !isGroPath) {
+			const groDirFindModulesResult = await findModules(
+				[replaceRootDir(inputPath, groPaths.root)],
+				id => findFiles(id, file => isTaskPath(file.path)),
+			);
+			// Ignore any errors - the directory may not exist or have any files!
+			if (groDirFindModulesResult.ok) {
+				printAvailableTasks(
+					log,
+					gray('gro/') + fmtPath(pathData.id),
+					groDirFindModulesResult.sourceIdsByInputPath,
+				);
+			}
+		}
+		printAvailableTasks(
+			log,
+			(isGroPath ? gray('gro/') : '') + fmtPath(pathData.id),
+			findModulesResult.sourceIdsByInputPath,
+		);
+		info(`🕒 ${fmtMs(timings.stop('total'))}`);
+		return;
+	}
 
-	.command('dev')
-	.describe('Start development server')
-	.option('-H, --host', 'Hostname for the server')
-	.option('-p, --port', 'Port number for the server')
-	.option('-d, --dir', 'Directory to serve')
-	.option('-o, --outputDir', 'Directory for the build output')
-	.option('-w, --watch', 'Watch for changes and rebuild')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/dev.js');
-		const options: InitialDevTaskOptions = {
-			...omitUndefined({
-				host: env.HOST,
-				port: env.PORT,
-			}),
-			...opts,
-		};
-		await command.run(options);
-	})
+	// Load the task.
+	const loadModulesResult = await loadModules(
+		findModulesResult,
+		loadTaskModule,
+	);
 
-	.command('build')
-	.describe('Build the code')
-	.option('-o, --outputDir', 'Directory for the build output')
-	.option('-w, --watch', 'Watch for changes and rebuild')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/build.js');
-		const options: InitialBuildTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
+	if (!loadModulesResult.ok) {
+		for (const reason of loadModulesResult.reasons) {
+			error(reason);
+		}
+		return;
+	}
 
-	.command('gen')
-	.describe('Run code generation scripts')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/gen.js');
-		const options: InitialGenTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
+	// Run the task!
+	const task = loadModulesResult.modules[0];
+	info(`→ ${cyan(task.name)}`);
+	timings.start('run task');
+	const result = await runTask(task, args, process.env);
+	timings.stop('run task');
+	info(`✓ ${cyan(task.name)}`);
 
-	.command('assets')
-	.describe('Copy assets to dist')
-	.option('-P, --production', 'Set NODE_ENV to production')
-	.action(async (opts: any) => {
-		if (opts.production) env.NODE_ENV = 'production';
-		const command = await import('../commands/assets.js');
-		const options: InitialAssetsTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
+	if (!result.ok) {
+		error(result.reason, '\n', fmtError(result.error));
+	}
 
-	.command('serve')
-	.describe('Start development server')
-	.option('-d, --dir', 'Directory for the app source') // TODO probably change this to be the `_` params
-	.option('-H, --host', 'Hostname for the server')
-	.option('-p, --port', 'Port number for the server')
-	.action(async (opts: any) => {
-		const command = await import('../commands/serve.js');
-		const options: InitialServeTaskOptions = {
-			...omitUndefined({
-				host: env.HOST,
-				port: env.PORT,
-			}),
-			...opts,
-		};
-		await command.run(options);
-	})
+	info(
+		`${fmtMs(
+			findModulesResult.timings.get('map input paths'),
+		)} to map input paths`,
+	);
+	info(`${fmtMs(findModulesResult.timings.get('find files'))} to find files`);
+	info(
+		`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
+	);
+	info(`${fmtMs(timings.get('run task'))} to run task`);
+	info(`🕒 ${fmtMs(timings.stop('total'))}`);
+};
 
-	.command('test')
-	.describe('Run tests')
-	.option('-w, --watch', 'Watch for changes and re-run tests')
-	.action(async (opts: any) => {
-		const command = await import('../commands/test.js');
-		const options: InitialTestTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
+const printAvailableTasks = (
+	{info}: Logger,
+	dirLabel: string,
+	sourceIdsByInputPath: Map<string, string[]>,
+) => {
+	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
+	if (sourceIds.length) {
+		info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
+		for (const sourceId of sourceIds) {
+			info(
+				'\t' + cyan(toTaskName(toBasePath(sourceId, pathsFromId(sourceId)))),
+			);
+		}
+	} else {
+		info(`No tasks found in ${dirLabel}.`);
+	}
+};
 
-	.command('clean')
-	.describe('Remove build and temp files')
-	.action(async (opts: any) => {
-		const command = await import('../commands/clean.js');
-		const options: InitialCleanTaskOptions = {
-			...opts,
-		};
-		await command.run(options);
-	})
-
-	// gro!
-	.parse(argv);
+main();

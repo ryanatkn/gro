@@ -1,4 +1,4 @@
-declare module 'sade';
+declare module 'mri';
 
 // Convenient global types - maybe import instead?
 

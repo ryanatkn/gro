@@ -21,7 +21,7 @@ export const fmtValue = (value: unknown): unknown => {
 	}
 };
 
-export const fmtPath = (p: string): string => gray(toRootPath(p));
+export const fmtPath = (p: string): string => gray(toRootPath(p) || './');
 
 const MAX_ERROR_LOG_LENGTH = 1000;
 

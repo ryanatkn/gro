@@ -3,11 +3,7 @@ import {join, basename, dirname} from 'path';
 import {isSourceId} from '../paths.js';
 import {fmtPath} from '../utils/fmt.js';
 import {Timings} from '../utils/time.js';
-import {
-	ModuleMeta,
-	loadModule,
-	LoadModuleResult,
-} from '../files/loadModules.js';
+import {ModuleMeta, loadModule, LoadModuleResult} from '../files/modules.js';
 import {red} from '../colors/terminal.js';
 
 // TODO consider splitting the primitive data/helpers/types

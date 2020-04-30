@@ -1,13 +1,13 @@
 import {toBasePath, paths} from '../paths.js';
 import {
 	ModuleMeta,
-	loadModules,
-	LoadModulesResult,
+	findAndLoadModules,
 	LoadModuleResult,
 	loadModule,
-} from '../files/loadModules.js';
+} from '../files/modules.js';
 import {Task, toTaskName, isTaskPath} from './task.js';
 import {findFiles} from '../files/nodeFs.js';
+import {getPossibleSourceIds} from '../files/inputPaths.js';
 
 export interface TaskModule {
 	task: Task;
@@ -34,10 +34,11 @@ export const loadTaskModule = async (
 export const loadTaskModules = (
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [],
-): Promise<LoadModulesResult<TaskModuleMeta>> =>
-	loadModules(
+	rootDirs: string[] = [],
+) =>
+	findAndLoadModules(
 		inputPaths,
-		extensions,
 		id => findFiles(id, file => isTaskPath(file.path)),
 		loadTaskModule,
+		inputPath => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);

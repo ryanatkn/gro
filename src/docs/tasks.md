@@ -4,9 +4,18 @@
 > <sub>[docs](./)</sub> <sub>/</sub>
 > <sub>tasks.md</sub>
 
+What is a task? See [`src/tasks/README.md`](../task/README.md).
+
 ## all tasks
 
-- [project/dist](../project/dist.task.ts) - create and link the gro distribution
+- [assets](../assets.task.ts) - Copy assets to dist
+- [build](../build.task.ts) - Build the code
+- [clean](../clean.task.ts) - Remove build and temp files
+- [dev](../dev.task.ts) - Start development server
+- [dist](../dist.task.ts) - create and link the distribution
+- [gen](../gen.task.ts) - Run code generation scripts
+- [serve](../serve.task.ts) - Start static file server
+- [test](../test.task.ts) - Run tests
 - [task/fixtures/testFailingTask](../task/fixtures/testFailingTask.task.ts) - a test task for unhandled errors
 - [task/fixtures/testTask](../task/fixtures/testTask.task.ts) - a test task for basic task behavior
 

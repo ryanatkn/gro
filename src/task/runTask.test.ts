@@ -15,6 +15,7 @@ test('runTask()', () => {
 				},
 			},
 			args,
+			process.env,
 		);
 		t.ok(result.ok);
 		t.is(result.output, args);
@@ -36,6 +37,7 @@ test('runTask()', () => {
 				},
 			},
 			{_: []},
+			process.env,
 		);
 		t.ok(!result.ok);
 		t.ok(result.reason);

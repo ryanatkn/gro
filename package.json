@@ -48,10 +48,10 @@
     "cheap-watch": "^1.0.2",
     "fs-extra": "^9.0.0",
     "kleur": "^3.0.3",
+    "mri": "^1.1.5",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-pluginutils": "^2.8.2",
-    "sade": "^1.7.3",
     "source-map-support": "^0.5.16",
     "sourcemap-codec": "^1.4.8",
     "terser": "^4.6.8"

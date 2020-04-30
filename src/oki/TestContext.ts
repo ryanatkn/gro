@@ -5,7 +5,7 @@ import {omitUndefined} from '../utils/object.js';
 import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/time.js';
 import {TestModuleMeta, loadTestModule} from './testModule.js';
-import {LoadModuleResult} from '../files/loadModules.js';
+import {LoadModuleResult} from '../files/modules.js';
 
 // This module-level reference allows test files
 // to import the module-level `test` function to register tests.

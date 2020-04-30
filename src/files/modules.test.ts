@@ -1,10 +1,11 @@
 import {resolve} from 'path';
 
 import {test, t} from '../oki/oki.js';
-import {loadModules, loadModule} from './loadModules.js';
+import {findAndLoadModules, loadModule} from './modules.js';
 import * as test1 from './fixtures/test1.foo.js';
 import * as test2 from './fixtures/test2.foo.js';
 import {findFiles} from './nodeFs.js';
+import {getPossibleSourceIds} from './inputPaths.js';
 
 test('loadModule()', async () => {
 	test('basic behavior', async () => {
@@ -60,16 +61,16 @@ test('loadModule()', async () => {
 	});
 });
 
-test('loadModules()', async () => {
+test('findAndLoadModules()', async () => {
 	test('with and without extension', async () => {
-		const result = await loadModules(
+		const result = await findAndLoadModules(
 			[
 				resolve('src/files/fixtures/test1'),
 				resolve('src/files/fixtures/test2.foo.ts'),
 			],
-			['.foo.ts'],
 			id => findFiles(id),
 			loadModule,
+			inputPath => getPossibleSourceIds(inputPath, ['.foo.ts']),
 		);
 		t.ok(result.ok);
 		t.is(result.modules.length, 2);
@@ -78,9 +79,8 @@ test('loadModules()', async () => {
 	});
 
 	test('directory', async () => {
-		const result = await loadModules(
+		const result = await findAndLoadModules(
 			[resolve('src/files/fixtures/')],
-			[],
 			id => findFiles(id, ({path}) => path.includes('.foo.')),
 			loadModule,
 		);
@@ -92,7 +92,7 @@ test('loadModules()', async () => {
 	});
 
 	test('duplicates', async () => {
-		const result = await loadModules(
+		const result = await findAndLoadModules(
 			[
 				resolve('src/files/fixtures/test1'),
 				resolve('src/files/fixtures/test1'),
@@ -102,25 +102,25 @@ test('loadModules()', async () => {
 				resolve('src/files/fixtures/test2.foo.ts'),
 				resolve('src/files/fixtures'),
 			],
-			['.foo.ts'],
 			id => findFiles(id, ({path}) => path.includes('.foo.')),
 			loadModule,
+			inputPath => getPossibleSourceIds(inputPath, ['.foo.ts']),
 		);
 		t.ok(result.ok);
 		t.is(result.modules.length, 2);
 	});
 
 	test('fail with unmappedInputPaths', async () => {
-		const result = await loadModules(
+		const result = await findAndLoadModules(
 			[
 				resolve('src/files/fixtures/bar1'),
 				resolve('src/files/fixtures/failme1'),
 				resolve('src/files/fixtures/bar2'),
 				resolve('src/files/fixtures/failme2'),
 			],
-			['.foo.ts'],
 			id => findFiles(id),
 			loadModule,
+			inputPath => getPossibleSourceIds(inputPath, ['.foo.ts']),
 		);
 		t.ok(!result.ok);
 		t.ok(result.reasons.length);
@@ -135,14 +135,13 @@ test('loadModules()', async () => {
 	});
 
 	test('fail with inputDirectoriesWithNoFiles', async () => {
-		const result = await loadModules(
+		const result = await findAndLoadModules(
 			[
 				resolve('src/files/fixtures/baz1'),
 				resolve('src/files/fixtures/bar1'),
 				resolve('src/files/fixtures/bar2'),
 				resolve('src/files/fixtures/baz2'),
 			],
-			[],
 			id => findFiles(id, ({path}) => !path.includes('.bar.')),
 			loadModule,
 		);
@@ -161,14 +160,13 @@ test('loadModules()', async () => {
 	test('fail with loadModuleFailures', async () => {
 		const testValidation = ((mod: Obj) => mod.bar !== 1) as any;
 		let error;
-		const result = await loadModules(
+		const result = await findAndLoadModules(
 			[
 				resolve('src/files/fixtures/baz1'),
 				resolve('src/files/fixtures/bar1'),
 				resolve('src/files/fixtures/bar2'),
 				resolve('src/files/fixtures/baz2'),
 			],
-			[],
 			id => findFiles(id),
 			async id => {
 				if (id.endsWith('test2.bar.ts')) {

@@ -1,4 +1,4 @@
-import {resolve, sep} from 'path';
+import {resolve, sep, join} from 'path';
 
 import {test, t} from '../oki/oki.js';
 import {
@@ -6,8 +6,10 @@ import {
 	resolveRawInputPaths,
 	loadSourcePathDataByInputPath,
 	loadSourceIdsByInputPath,
+	getPossibleSourceIds,
 } from './inputPaths.js';
 import {PathStats} from './pathData.js';
+import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
 
 test('resolveRawInputPath()', () => {
 	const target = resolve('src/foo/bar.ts');
@@ -51,15 +53,58 @@ test('resolveRawInputPaths()', () => {
 	});
 });
 
+test('getPossibleSourceIds()', () => {
+	test('in the gro directory', () => {
+		const inputPath = resolve('src/foo/bar');
+		t.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [
+			inputPath,
+			inputPath + '.baz.ts',
+		]);
+	});
+
+	test('does not repeat the extension', () => {
+		const inputPath = resolve('src/foo/bar.baz.ts');
+		t.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
+	});
+
+	test('does not repeat with the same root directory', () => {
+		const inputPath = resolve('src/foo/bar.baz.ts');
+		t.equal(
+			getPossibleSourceIds(inputPath, ['.baz.ts'], [paths.root, paths.root]),
+			[inputPath],
+		);
+	});
+
+	test('implied to be a directory by trailing slash', () => {
+		const inputPath = resolve('src/foo/bar') + sep;
+		t.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
+	});
+
+	test('in both another directory and gro', () => {
+		const fakeDir = resolve('../fake') + sep;
+		const fakePaths = createPaths(fakeDir);
+		const inputPath = join(fakeDir, 'src/foo/bar');
+		t.equal(
+			getPossibleSourceIds(inputPath, ['.baz.ts'], [groPaths.root], fakePaths),
+			[
+				inputPath,
+				inputPath + '.baz.ts',
+				replaceRootDir(inputPath, groPaths.root, fakePaths),
+				replaceRootDir(inputPath, groPaths.root, fakePaths) + '.baz.ts',
+			],
+		);
+	});
+});
+
 test('loadSourcePathDataByInputPath()', async () => {
 	const result = await loadSourcePathDataByInputPath(
 		['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
-		['.bar.ts'],
 		async path =>
 			path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
 		async path => ({
 			isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
 		}),
+		inputPath => getPossibleSourceIds(inputPath, ['.bar.ts']),
 	);
 	t.equal(result, {
 		sourceIdPathDataByInputPath: new Map([
