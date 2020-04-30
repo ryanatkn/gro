@@ -6,13 +6,17 @@
 A Gro task is just a function with some metadata.
 Gro prefers conventions and code over configuration,
 and its task runner leverages the filesystem as the API
-and defers composition to the user.
+and defers composition to the user in regular TypeScript modules.
 
-- automatically discovers all `*.task.ts` files in your source directory
-- task definitions are just async functions in TypeScript modules,
+- automatically discovers all `*.task.ts` files in your source directory,
+  so creating a new task is as simple as creating a new file -
+  no configuration needed!
+- task definitions are just objects with an async `run` function and some metadata,
   so chaining and composition are explicit in your code
+- on the command line, tasks replace the concept of commands,
+  and in code the task object's `run` function has access to CLI args
 - it's easy to hook into or override any of Gro's builtin tasks,
-  like [`test`](../oki) and [`gen`](../gen)
+  like [`gro test`](../oki) and [`gro gen`](../gen)
 - it's fast because it imports only the modules that your chosen tasks need
 
 The task runner's purpose is to provide an ergonomic interface
@@ -53,7 +57,7 @@ export const task: Task = {
 };
 ```
 
-Hook into one of Gro's builtin tasks:
+Hook into one of [Gro's builtin tasks](../docs/tasks.md):
 
 ```bash
 # This normally loads Gro's version of the test task at `gro/src/test.task.ts`,
@@ -76,9 +80,9 @@ export const task: Task = {
 };
 ```
 
-Note that when hooking into Gro's builtin tasks,
+Note that when hooking into [Gro's builtin tasks](../docs/tasks.md),
 like `test.task.ts` above, you don't have to call its version.
-This lets projects fully customize Gro's builtin tasks.
+This lets projects fully customize every task.
 
 ## future improvements
 
