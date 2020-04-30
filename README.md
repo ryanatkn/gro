@@ -2,9 +2,9 @@
 
 > opinionated tools for web development
 
-> _warning!_ You should probably not use Gro today —
+> **_warning!_** You should probably not use Gro today —
 > there are many mature tools with large communities solving similar problems.
-> Gro integrates many tools into a single experience but
+> Gro integrates several tools into a single experience but
 > for now it's unlikely to be the experience that fits your particular needs.
 
 ## docs
