@@ -8,12 +8,13 @@ Gro prefers conventions and code over configuration,
 and its task runner leverages the filesystem as the API
 and defers composition to the user in regular TypeScript modules.
 
-- automatically discovers all `*.task.ts` files in your source directory,
+- Gro automatically discovers all `*.task.ts` files in your source directory,
   so creating a new task is as simple as creating a new file -
   no configuration needed!
 - task definitions are just objects with an async `run` function and some metadata,
   so chaining and composition are explicit in your code
-- on the command line, tasks replace the concept of commands,
+- on the command line, tasks replace the concept of commands
+  so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args
 - it's easy to hook into or override any of Gro's builtin tasks,
   like [`gro test`](../oki) and [`gro gen`](../gen)
@@ -37,8 +38,8 @@ $ gro
 Run a task:
 
 ```bash
-# This runs `src/some/thing.task.ts`, or if it doesn't exist,
-# `gro/src/some/thing.task.ts`.
+# This runs `src/some/thing.task.ts`,
+# or if it doesn't exist, `gro/src/some/thing.task.ts`.
 # If neither exists, it will display an error.
 $ gro some/thing arg1 arg2 --arg3 example
 ```
