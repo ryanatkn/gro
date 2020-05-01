@@ -38,7 +38,8 @@ $ gro
 ### show tasks in a directory
 
 ```bash
-# Prints all `*.task.ts` files in `src/some/dir`.
+# Prints all `*.task.ts` files in `src/some/dir` and `gro/src/some/dir`.
+# If neither exists, it displays an error.
 $ gro some/dir
 ```
 
@@ -47,7 +48,7 @@ $ gro some/dir
 ```bash
 # This runs `src/some/file.task.ts`,
 # or if it doesn't exist, `gro/src/some/file.task.ts`.
-# If neither exists, it will display an error.
+# If neither exists, it displays an error.
 $ gro some/file arg1 arg2 --arg3 example
 ```
 
