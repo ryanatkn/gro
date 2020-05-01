@@ -27,7 +27,7 @@ while deferring to your code and facilitating buildtime development processes.
 
 ## usage
 
-Show all available tasks:
+### show all available tasks
 
 ```bash
 # This looks through `src/` in both the current working directory
@@ -35,7 +35,14 @@ Show all available tasks:
 $ gro
 ```
 
-Run a task:
+### show tasks in a directory
+
+```bash
+# Prints all `*.task.ts` files in `src/some/dir`.
+$ gro some/dir
+```
+
+### run a task
 
 ```bash
 # This runs `src/some/thing.task.ts`,
@@ -44,7 +51,7 @@ Run a task:
 $ gro some/thing arg1 arg2 --arg3 example
 ```
 
-Define a task:
+### define a task
 
 ```ts
 // src/some/thing.task.ts
@@ -61,7 +68,7 @@ export const task: Task = {
 > To learn more about the Gro CLI path conventions,
 > see [the `inputPaths` comments](../files/inputPaths.ts)
 
-Hook into one of [Gro's builtin tasks](../docs/tasks.md):
+### hook into one of [Gro's builtin tasks](../docs/tasks.md)
 
 ```bash
 # This normally loads Gro's version of the test task at `gro/src/test.task.ts`,
