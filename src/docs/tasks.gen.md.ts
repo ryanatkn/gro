@@ -63,7 +63,7 @@ export const gen: Gen = async ({originId}) => {
 		.join(' <sub>/</sub>\n');
 
 	// TODO render the footer with the originId
-	return `# Tasks
+	return `# tasks
 
 ${breadcrumbs}
 
@@ -82,7 +82,7 @@ ${tasks.reduce(
 ## usage
 
 \`\`\`bash
-$ gro run some/task/name
+$ gro some/task/name
 \`\`\`
 
 ${breadcrumbs}

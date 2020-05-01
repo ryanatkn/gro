@@ -59,7 +59,7 @@ export const gen: Gen = async ({originId}) => {
 		.join(' <sub>/</sub>\n');
 
 	// TODO render the footer with the originId
-	return `# Docs
+	return `# docs
 
 ${breadcrumbs}
 

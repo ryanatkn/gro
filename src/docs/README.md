@@ -1,4 +1,4 @@
-# Docs
+# docs
 
 > <sub>[gro](/../..)</sub> <sub>/</sub>
 > <sub>docs</sub> <sub>/</sub>

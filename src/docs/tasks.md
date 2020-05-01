@@ -1,4 +1,4 @@
-# Tasks
+# tasks
 
 > <sub>[gro](/../..)</sub> <sub>/</sub>
 > <sub>[docs](./)</sub> <sub>/</sub>
@@ -11,8 +11,8 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [assets](../assets.task.ts) - Copy assets to dist
 - [build](../build.task.ts) - Build the code
 - [clean](../clean.task.ts) - Remove build and temp files
-- [dev](../dev.task.ts) - Start development server
 - [dist](../dist.task.ts) - create and link the distribution
+- [dev](../dev.task.ts) - Start development server
 - [gen](../gen.task.ts) - Run code generation scripts
 - [serve](../serve.task.ts) - Start static file server
 - [test](../test.task.ts) - Run tests
@@ -22,7 +22,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 ## usage
 
 ```bash
-$ gro run some/task/name
+$ gro some/task/name
 ```
 
 > <sub>[gro](/../..)</sub> <sub>/</sub>
