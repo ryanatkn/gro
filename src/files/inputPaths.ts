@@ -170,6 +170,7 @@ export const loadSourceIdsByInputPath = async (
 				if (!hasFiles) {
 					inputDirectoriesWithNoFiles.push(inputPath);
 				}
+				// do callers ever need `inputDirectoriesWithDuplicateFiles`?
 			} else {
 				inputDirectoriesWithNoFiles.push(inputPath);
 			}

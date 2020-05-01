@@ -129,6 +129,17 @@ test('loadSourceIdsByInputPath()', async () => {
 			['a.ts', {isDirectory: () => false}],
 			['b.ts', {isDirectory: () => false}],
 		]),
+		// duplicate
+		'fake/': new Map([
+			['fake/test3', {isDirectory: () => true}],
+			['test3/a.ts', {isDirectory: () => false}],
+		]),
+		// duplicate and not
+		fake: new Map([
+			['fake/test3', {isDirectory: () => true}],
+			['test3/a.ts', {isDirectory: () => false}],
+			['test3/c.ts', {isDirectory: () => false}],
+		]),
 		'fake/nomatches': new Map([['fake/nomatches', {isDirectory: () => true}]]),
 	};
 	const result = await loadSourceIdsByInputPath(
@@ -136,6 +147,8 @@ test('loadSourceIdsByInputPath()', async () => {
 			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
 			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
 			['fake/test3', {id: 'fake/test3', isDirectory: true}],
+			['fake/', {id: 'fake/', isDirectory: true}],
+			['fake', {id: 'fake', isDirectory: true}],
 			['fake/nomatches', {id: 'fake/nomatches', isDirectory: true}],
 		]),
 		async id => testFiles[id],
@@ -145,6 +158,7 @@ test('loadSourceIdsByInputPath()', async () => {
 			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
 			['fake/test2', ['fake/test2.bar.ts']],
 			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],
+			['fake', ['fake/test3/c.ts']],
 		]),
 		inputDirectoriesWithNoFiles: ['fake/nomatches'],
 	});
