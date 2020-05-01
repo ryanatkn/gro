@@ -45,16 +45,16 @@ $ gro some/dir
 ### run a task
 
 ```bash
-# This runs `src/some/thing.task.ts`,
-# or if it doesn't exist, `gro/src/some/thing.task.ts`.
+# This runs `src/some/file.task.ts`,
+# or if it doesn't exist, `gro/src/some/file.task.ts`.
 # If neither exists, it will display an error.
-$ gro some/thing arg1 arg2 --arg3 example
+$ gro some/file arg1 arg2 --arg3 example
 ```
 
 ### define a task
 
 ```ts
-// src/some/thing.task.ts
+// src/some/file.task.ts
 import {Task} from '@feltcoop/gro/dist/task/task.js';
 
 export const task: Task = {
