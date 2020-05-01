@@ -178,6 +178,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 			return js;
 			// TODO why doesn't returning the ast work? it'd save a lot of work in rollup, right?
+			// try again? https://github.com/rollup/rollup/issues/1371#issuecomment-306002605
 			// return {
 			//   	...js,
 			//   ast,
