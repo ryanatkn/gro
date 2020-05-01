@@ -20,20 +20,23 @@ and executes them inside an `oki` context.
 - [ ] watch mode
 - [ ] better reporting (like diffing)
 - [ ] caching
-- [ ] better docs
 - [ ] run in browser
 
 ## usage
 
 ```bash
-# test all *.test.ts files
+# test all `*.test.ts` files in `src/`
 gro test
 
-# test a specific file
-gro test path/to/file.test.ts # looks for src/path/to/file.test.ts
+# test all `*.test.ts` files in a directory
+gro test some/dir
 
-# test multiple files
-gro test file1.test.ts file2.test.ts
+# test a specific file
+gro test some/file # looks for `src/some/file.test.ts`
+gro test some/file.test.ts # or specify the full file name
+
+# test multiple files and directories
+gro test some/file1 file2 some/dir1 dir2
 ```
 
 ```ts
@@ -65,7 +68,6 @@ test('something', () => {
 		t.ok(nested_tests_run_after_parent_scope);
 	});
 	nested_tests_run_after_parent_scope = true;
-	// TODO do we want to change this behavior? what are all of the tradeoffs?
 });
 ```
 
@@ -74,7 +76,7 @@ test('something', () => {
 ```ts
 import {test, t} from '@feltcoop/gro/dist/oki/oki.js';
 test('assertions api', ({
-	log, // Logger instance: {trace, info, warn, error, plain}
+	log, // `Logger` instance: {trace, info, warn, error, plain}
 }) => {
 	t.ok('oki :)');
 	t.is(true, true);
@@ -83,16 +85,16 @@ test('assertions api', ({
 		throw Error('we good');
 	});
 });
-typeof t; // => Assertions
+typeof t; // => `Assertions`
 interface Assertions {
 	ok(value: any); // truthy
-	is(actual: any, expected: any); // Object.is
-	isNot(actual: any, expected: any); // !Object.is
+	is(actual: any, expected: any); // `Object.is`
+	isNot(actual: any, expected: any); // `!Object.is`
 	equal(actual: any, expected: any); // deeply equal
 	notEqual(actual: any, expected: any); // !deeply equal
 	// expects `cb` to throw an error that matches optional `matcher`
 	throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
-	fail(message: string); // throws a TestAssertionError (t.Error)
-	Error(message: string); // the TestAssertionError class for intentional fails
+	fail(message: string); // throws a `TestAssertionError` (t.Error)
+	Error(message: string); // the `TestAssertionError` class for deliberate fails
 }
 ```
