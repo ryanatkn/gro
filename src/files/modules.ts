@@ -107,22 +107,16 @@ export const findAndLoadModules = async <
 		sourceId: string,
 	) => Promise<LoadModuleResult<ModuleMetaType>>,
 	getPossibleSourceIds?: (inputPath: string) => string[],
-	timings = new Timings<FindModulesTimings | LoadModulesTimings>(),
 ): Promise<LoadModulesResult<ModuleMetaType> | FindModulesFailure> => {
 	const findModulesResult = await findModules(
 		inputPaths,
 		findFiles,
 		getPossibleSourceIds,
-		timings as Timings<FindModulesTimings>, // is typesafe, but what's a better way?
 	);
 	if (!findModulesResult.ok) return findModulesResult;
 
 	// We now have a list of files! Load each file's module.
-	return loadModules(
-		findModulesResult,
-		loadModuleById,
-		timings as Timings<LoadModulesTimings>, // is typesafe, but what's a better way?
-	);
+	return loadModules(findModulesResult, loadModuleById);
 };
 
 /*
@@ -134,9 +128,9 @@ export const findModules = async (
 	inputPaths: string[],
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
 	getPossibleSourceIds?: (inputPath: string) => string[],
-	timings = new Timings<FindModulesTimings>(),
 ): Promise<FindModulesResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
+	const timings = new Timings<FindModulesTimings>();
 	timings.start('map input paths');
 	const {
 		sourceIdPathDataByInputPath,
@@ -201,11 +195,11 @@ export const loadModules = async <
 	loadModuleById: (
 		sourceId: string,
 	) => Promise<LoadModuleResult<ModuleMetaType>>,
-	timings = new Timings<LoadModulesTimings>(),
 ): Promise<LoadModulesResult<ModuleMetaType>> => {
 	// This is done serially because importing test files requires
 	// linking the current file with the module's initial execution.
 	// TODO parallelize!
+	const timings = new Timings<LoadModulesTimings>();
 	timings.start('load modules');
 	const modules: ModuleMetaType[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
