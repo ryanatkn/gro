@@ -80,7 +80,6 @@ export type LoadModulesResult<ModuleMetaType> =
 	| {
 			ok: true;
 			modules: ModuleMetaType[];
-			findModulesResult: FindModulesSuccess;
 			timings: Timings<LoadModulesTimings>;
 	  }
 	| {
@@ -90,34 +89,9 @@ export type LoadModulesResult<ModuleMetaType> =
 			reasons: string[];
 			// still return the modules and timings, deferring to the caller
 			modules: ModuleMetaType[];
-			findModulesResult: FindModulesSuccess;
 			timings: Timings<LoadModulesTimings>;
 	  };
 type LoadModulesTimings = 'load modules';
-
-// This just wraps `findModules` and `loadModules`.
-// TODO maybe remove this? it's slightly helpful right now...
-export const findAndLoadModules = async <
-	ModuleType,
-	ModuleMetaType extends ModuleMeta<ModuleType>
->(
-	inputPaths: string[],
-	findFiles: (id: string) => Promise<Map<string, PathStats>>,
-	loadModuleById: (
-		sourceId: string,
-	) => Promise<LoadModuleResult<ModuleMetaType>>,
-	getPossibleSourceIds?: (inputPath: string) => string[],
-): Promise<LoadModulesResult<ModuleMetaType> | FindModulesFailure> => {
-	const findModulesResult = await findModules(
-		inputPaths,
-		findFiles,
-		getPossibleSourceIds,
-	);
-	if (!findModulesResult.ok) return findModulesResult;
-
-	// We now have a list of files! Load each file's module.
-	return loadModules(findModulesResult, loadModuleById);
-};
 
 /*
 
@@ -187,24 +161,29 @@ export const findModules = async (
 		: {ok: true, sourceIdsByInputPath, sourceIdPathDataByInputPath, timings};
 };
 
+/*
+
+Load modules by source id.
+This runs serially because importing test files requires
+linking the current file with the module's initial execution.
+TODO parallelize..how? Separate functions? `loadModulesSerially`?
+
+*/
 export const loadModules = async <
 	ModuleType,
 	ModuleMetaType extends ModuleMeta<ModuleType>
 >(
-	findModulesResult: FindModulesSuccess,
+	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	loadModuleById: (
 		sourceId: string,
 	) => Promise<LoadModuleResult<ModuleMetaType>>,
 ): Promise<LoadModulesResult<ModuleMetaType>> => {
-	// This is done serially because importing test files requires
-	// linking the current file with the module's initial execution.
-	// TODO parallelize!
 	const timings = new Timings<LoadModulesTimings>();
 	timings.start('load modules');
 	const modules: ModuleMetaType[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
-	for (const [inputPath, sourceIds] of findModulesResult.sourceIdsByInputPath) {
+	for (const [inputPath, sourceIds] of sourceIdsByInputPath) {
 		for (const id of sourceIds) {
 			const result = await loadModuleById(id);
 			if (result.ok) {
@@ -247,8 +226,7 @@ export const loadModules = async <
 				loadModuleFailures,
 				reasons,
 				modules,
-				findModulesResult,
 				timings,
 		  }
-		: {ok: true, modules, findModulesResult, timings};
+		: {ok: true, modules, timings};
 };

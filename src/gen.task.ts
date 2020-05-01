@@ -12,7 +12,7 @@ import {
 import {findFiles} from './files/nodeFs.js';
 import {plural} from './utils/string.js';
 import {Timings} from './utils/time.js';
-import {findAndLoadModules} from './files/modules.js';
+import {findModules, loadModules} from './files/modules.js';
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
@@ -28,24 +28,33 @@ export const task: Task = {
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
 		// load all of the gen modules
-		const result = await findAndLoadModules(
+		const findModulesResult = await findModules(
 			inputPaths,
 			// TODO really we want a regexp here, but the API currently doesn't work that way -
 			// it precomputes the possible files instead of performing a broader search -
 			// maybe we just take regexps as params and search all files for now?
 			id => findFiles(id, file => isGenPath(file.path)),
-			loadGenModule,
 			inputPath => getPossibleSourceIds(inputPath, [GEN_FILE_PATTERN]),
 		);
-		if (!result.ok) {
-			for (const reason of result.reasons) {
+		if (!findModulesResult.ok) {
+			for (const reason of findModulesResult.reasons) {
+				error(reason);
+			}
+			return;
+		}
+		const loadModulesResult = await loadModules(
+			findModulesResult.sourceIdsByInputPath,
+			loadGenModule,
+		);
+		if (!loadModulesResult.ok) {
+			for (const reason of loadModulesResult.reasons) {
 				error(reason);
 			}
 			return;
 		}
 
 		// run `gen` on each of the modules
-		const genResults = await gen(result.modules);
+		const genResults = await gen(loadModulesResult.modules);
 
 		// write generated files to disk
 		timings.start('output results');
@@ -100,15 +109,13 @@ export const task: Task = {
 		}
 		info(
 			`${fmtMs(
-				result.findModulesResult.timings.get('map input paths'),
+				findModulesResult.timings.get('map input paths'),
 			)} to map input paths`,
 		);
+		info(`${fmtMs(findModulesResult.timings.get('find files'))} to find files`);
 		info(
-			`${fmtMs(
-				result.findModulesResult.timings.get('find files'),
-			)} to find files`,
+			`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
 		);
-		info(`${fmtMs(result.timings.get('load modules'))} to load modules`);
 		info(`${fmtMs(genResults.elapsed)} to generate code`);
 		info(`${fmtMs(timings.get('output results'))} to output results`);
 		info(`🕒 ${fmtMs(timings.stop('total'))}`);

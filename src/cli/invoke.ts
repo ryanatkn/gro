@@ -108,7 +108,7 @@ const main = async () => {
 
 	// Load the task.
 	const loadModulesResult = await loadModules(
-		findModulesResult,
+		findModulesResult.sourceIdsByInputPath,
 		loadTaskModule,
 	);
 

@@ -5,7 +5,7 @@ import {
 	getPossibleSourceIds,
 } from './files/inputPaths.js';
 import {findFiles} from './files/nodeFs.js';
-import {findAndLoadModules} from './files/modules.js';
+import {findModules, loadModules} from './files/modules.js';
 import {TEST_FILE_SUFFIX, isTestPath} from './oki/testModule.js';
 import {fmtMs} from './utils/fmt.js';
 import {Timings} from './utils/time.js';
@@ -23,19 +23,29 @@ export const task: Task = {
 
 		const testContext = new TestContext({report});
 
+		const findModulesResult = await findModules(
+			inputPaths,
+			id => findFiles(id, file => isTestPath(file.path)),
+			inputPath => getPossibleSourceIds(inputPath, [TEST_FILE_SUFFIX]),
+		);
+		if (!findModulesResult.ok) {
+			for (const reason of findModulesResult.reasons) {
+				error(reason);
+			}
+			return;
+		}
+
 		// The test context needs to link its imported modules
 		// to their execution context, so its API is a bit complex.
 		// See the comment on `TestContext.beginImporting` for more.
 		const finishImporting = testContext.beginImporting();
-		const result = await findAndLoadModules(
-			inputPaths,
-			id => findFiles(id, file => isTestPath(file.path)),
+		const loadModulesResult = await loadModules(
+			findModulesResult.sourceIdsByInputPath,
 			id => testContext.importModule(id),
-			inputPath => getPossibleSourceIds(inputPath, [TEST_FILE_SUFFIX]),
 		);
 		finishImporting();
-		if (!result.ok) {
-			for (const reason of result.reasons) {
+		if (!loadModulesResult.ok) {
+			for (const reason of loadModulesResult.reasons) {
 				error(reason);
 			}
 			return;
@@ -48,15 +58,13 @@ export const task: Task = {
 
 		info(
 			`${fmtMs(
-				result.findModulesResult.timings.get('map input paths'),
+				findModulesResult.timings.get('map input paths'),
 			)} to map input paths`,
 		);
+		info(`${fmtMs(findModulesResult.timings.get('find files'))} to find files`);
 		info(
-			`${fmtMs(
-				result.findModulesResult.timings.get('find files'),
-			)} to find files`,
+			`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
 		);
-		info(`${fmtMs(result.timings.get('load modules'))} to load modules`);
 		// TODO this gets duplicated by the oki reporter
 		info(`${fmtMs(testRunResult.timings.get('total'))} to run tests`);
 		info(`🕒 ${fmtMs(timings.stop('total'))}`);

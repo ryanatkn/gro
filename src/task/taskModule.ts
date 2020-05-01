@@ -1,9 +1,10 @@
 import {toBasePath, paths} from '../paths.js';
 import {
 	ModuleMeta,
-	findAndLoadModules,
 	LoadModuleResult,
 	loadModule,
+	loadModules,
+	findModules,
 } from '../files/modules.js';
 import {Task, toTaskName, isTaskPath} from './task.js';
 import {findFiles} from '../files/nodeFs.js';
@@ -31,14 +32,16 @@ export const loadTaskModule = async (
 	};
 };
 
-export const loadTaskModules = (
+export const loadTaskModules = async (
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [],
 	rootDirs: string[] = [],
-) =>
-	findAndLoadModules(
+) => {
+	const findModulesResult = await findModules(
 		inputPaths,
 		id => findFiles(id, file => isTaskPath(file.path)),
-		loadTaskModule,
 		inputPath => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);
+	if (!findModulesResult.ok) return findModulesResult;
+	return loadModules(findModulesResult.sourceIdsByInputPath, loadTaskModule);
+};
