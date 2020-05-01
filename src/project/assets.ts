@@ -1,7 +1,6 @@
-import fs from 'fs-extra';
-const {copy} = fs; // TODO esm
 import CheapWatch from 'cheap-watch';
 
+import {copy} from '../fs/nodeFs.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {magenta, gray} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';

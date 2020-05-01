@@ -1,6 +1,4 @@
-import fs from 'fs-extra';
-const {pathExists, stat} = fs; // TODO esm
-
+import {pathExists, stat} from './nodeFs.js';
 import {red} from '../colors/terminal.js';
 import {fmtPath, fmtError} from '../utils/fmt.js';
 import {

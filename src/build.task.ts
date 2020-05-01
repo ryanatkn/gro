@@ -1,6 +1,6 @@
 import {resolve} from 'path';
-import {existsSync} from 'fs';
 
+import {pathExists} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 
@@ -10,7 +10,7 @@ const DEFAULT_INPUT_NAMES = ['src/index.ts'];
 export const task: Task = {
 	description: 'Build the code',
 	run: async ({log: {info, warn}, args}): Promise<void> => {
-		const inputFiles = resolveInputFiles(args._);
+		const inputFiles = await resolveInputFiles(args._);
 		info('inputFiles', inputFiles);
 
 		const dev: boolean = process.env.NODE_ENV !== 'production';
@@ -34,12 +34,12 @@ export const task: Task = {
 };
 
 // TODO use `resolveRawInputPaths`? consider the virtual fs
-const resolveInputFiles = (fileNames: string[]): string[] => {
+const resolveInputFiles = async (fileNames: string[]): Promise<string[]> => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {
 		for (const name of DEFAULT_INPUT_NAMES) {
 			const path = resolve(name);
-			if (existsSync(path)) {
+			if (await pathExists(path)) {
 				fileNames = [name];
 				break;
 			}
@@ -47,7 +47,7 @@ const resolveInputFiles = (fileNames: string[]): string[] => {
 	}
 	const inputFiles = fileNames.map(f => resolve(f));
 	for (const file of inputFiles) {
-		if (!existsSync(file)) {
+		if (!(await pathExists(file))) {
 			throw Error(`Input file not found: ${file}`);
 		}
 	}

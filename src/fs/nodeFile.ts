@@ -1,7 +1,6 @@
-import fs, {Stats} from 'fs-extra';
-const {stat, readFile} = fs; // TODO esm
 import {extname} from 'path';
 
+import {stat, readFile, Stats} from './nodeFs.js';
 import {getMimeTypeByExtension} from './mime.js';
 
 export interface File {

@@ -1,6 +1,4 @@
-import fs from 'fs-extra';
-const {outputFile} = fs; // TODO esm
-
+import {outputFile} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {red, green, gray} from './colors/terminal.js';
 import {gen, isGenPath, loadGenModule, GEN_FILE_PATTERN} from './gen/gen.js';

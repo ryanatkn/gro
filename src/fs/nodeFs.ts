@@ -1,4 +1,5 @@
 import CheapWatch from 'cheap-watch';
+import fsExtra from 'fs-extra';
 
 import {PathStats, PathFilter} from './pathData.js';
 
@@ -34,3 +35,25 @@ export const findFiles = async (
 	watcher.close();
 	return watcher.paths;
 };
+
+/*
+
+Re-export the functions we use from `fs-extra`.
+The reason is twofold.
+
+1. `fs-extra` doesn't support named imports yet.
+https://github.com/jprichardson/node-fs-extra/issues/746
+
+2. We want to minimize our code's reliance
+to the Node platform when the cost and friction are low.
+Eventually we'll want our code to run on other platforms, like Deno,
+and this practice will make future interop or migration more feasible.
+
+*/
+export const pathExists = fsExtra.pathExists;
+export const stat = fsExtra.stat;
+export type Stats = fsExtra.Stats;
+export const readFile = fsExtra.readFile;
+export const outputFile = fsExtra.outputFile;
+export const emptyDir = fsExtra.emptyDir;
+export const copy = fsExtra.copy;

@@ -1,9 +1,8 @@
 import {Plugin} from 'rollup';
-import fs from 'fs-extra';
-const {outputFile} = fs; // TODO esm
 import {dirname, join, relative} from 'path';
 import sourcemapCodec from 'sourcemap-codec';
 
+import {outputFile} from '../fs/nodeFs.js';
 import {blue, gray} from '../colors/terminal.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {GroCssBuild, GroCssBundle} from './types.js';

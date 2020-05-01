@@ -1,8 +1,7 @@
-import fs from 'fs-extra';
-const {emptyDir, copy} = fs; // TODO esm
 import {promisify} from 'util';
 import {exec} from 'child_process';
 
+import {emptyDir, copy} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {paths} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
