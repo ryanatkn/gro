@@ -10,10 +10,10 @@ and defers composition to the user in regular TypeScript modules.
 
 - Gro automatically discovers all `*.task.ts` files in your source directory,
   so creating a new task is as simple as creating a new file -
-  no configuration needed!
+  no configuration or scaffolding commands needed!
 - task definitions are just objects with an async `run` function and some metadata,
-  so chaining and composition are explicit in your code
-- on the command line, tasks replace the concept of commands
+  so composing tasks is explicit in your code, just like any other module
+- on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args
 - it's easy to hook into or override any of Gro's builtin tasks,
