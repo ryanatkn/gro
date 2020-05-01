@@ -5,14 +5,11 @@ import {Task} from './task/task.js';
 import {red, green, gray} from './colors/terminal.js';
 import {gen, isGenPath, loadGenModule, GEN_FILE_PATTERN} from './gen/gen.js';
 import {fmtPath, fmtMs, fmtError} from './utils/fmt.js';
-import {
-	resolveRawInputPaths,
-	getPossibleSourceIds,
-} from './files/inputPaths.js';
-import {findFiles} from './files/nodeFs.js';
+import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPaths.js';
+import {findFiles} from './fs/nodeFs.js';
 import {plural} from './utils/string.js';
 import {Timings} from './utils/time.js';
-import {findModules, loadModules} from './files/modules.js';
+import {findModules, loadModules} from './fs/modules.js';
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors

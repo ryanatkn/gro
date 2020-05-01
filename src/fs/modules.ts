@@ -6,7 +6,7 @@ import {fmtPath, fmtError} from '../utils/fmt.js';
 import {
 	loadSourcePathDataByInputPath,
 	loadSourceIdsByInputPath,
-} from '../files/inputPaths.js';
+} from '../fs/inputPaths.js';
 import {Timings} from '../utils/time.js';
 import {PathStats, PathData} from './pathData.js';
 import {toBuildId, isSourceId, groPaths} from '../paths.js';
@@ -95,7 +95,7 @@ type LoadModulesTimings = 'load modules';
 
 /*
 
-Loads modules from input paths. (see `src/files/inputPaths.ts` for more)
+Loads modules from input paths. (see `src/fs/inputPaths.ts` for more)
 
 */
 export const findModules = async (

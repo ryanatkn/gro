@@ -1,4 +1,4 @@
-import {ModuleMeta, loadModule, LoadModuleResult} from '../files/modules.js';
+import {ModuleMeta, loadModule, LoadModuleResult} from '../fs/modules.js';
 
 export interface TestModuleMeta extends ModuleMeta<TestModule> {}
 

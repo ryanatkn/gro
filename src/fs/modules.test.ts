@@ -10,7 +10,7 @@ import {getPossibleSourceIds} from './inputPaths.js';
 
 test('loadModule()', async () => {
 	test('basic behavior', async () => {
-		const id = resolve('src/files/fixtures/test1.foo.js');
+		const id = resolve('src/fs/fixtures/test1.foo.js');
 		let validatedMod;
 		const result = await loadModule(id, ((mod: any) => {
 			validatedMod = mod;
@@ -23,7 +23,7 @@ test('loadModule()', async () => {
 	});
 
 	test('without validation', async () => {
-		const id = resolve('src/files/fixtures/test1.foo.js');
+		const id = resolve('src/fs/fixtures/test1.foo.js');
 		const result = await loadModule(id);
 		t.ok(result.ok);
 		t.is(result.mod.id, id);
@@ -31,7 +31,7 @@ test('loadModule()', async () => {
 	});
 
 	test('fails validation', async () => {
-		const id = resolve('src/files/fixtures/test1.foo.js');
+		const id = resolve('src/fs/fixtures/test1.foo.js');
 		let validatedMod;
 		const testValidation = (mod: Obj) => {
 			validatedMod = mod;
@@ -64,9 +64,9 @@ test('loadModule()', async () => {
 
 test('findModules()', async () => {
 	test('with and without extension', async () => {
-		const path1 = resolve('src/files/fixtures/test1');
-		const id1 = resolve('src/files/fixtures/test1.foo.ts');
-		const id2 = resolve('src/files/fixtures/test2.foo.ts');
+		const path1 = resolve('src/fs/fixtures/test1');
+		const id1 = resolve('src/fs/fixtures/test1.foo.ts');
+		const id2 = resolve('src/fs/fixtures/test2.foo.ts');
 		const result = await findModules(
 			[path1, id2],
 			id => findFiles(id),
@@ -90,7 +90,7 @@ test('findModules()', async () => {
 	});
 
 	test('directory', async () => {
-		const id = resolve('src/files/fixtures/');
+		const id = resolve('src/fs/fixtures/');
 		const result = await findModules([id], id =>
 			findFiles(id, ({path}) => path.includes('.foo.')),
 		);
@@ -108,10 +108,10 @@ test('findModules()', async () => {
 	test('fail with unmappedInputPaths', async () => {
 		const result = await findModules(
 			[
-				resolve('src/files/fixtures/bar1'),
-				resolve('src/files/fixtures/failme1'),
-				resolve('src/files/fixtures/bar2'),
-				resolve('src/files/fixtures/failme2'),
+				resolve('src/fs/fixtures/bar1'),
+				resolve('src/fs/fixtures/failme1'),
+				resolve('src/fs/fixtures/bar2'),
+				resolve('src/fs/fixtures/failme2'),
 			],
 			id => findFiles(id),
 			inputPath => getPossibleSourceIds(inputPath, ['.foo.ts']),
@@ -120,8 +120,8 @@ test('findModules()', async () => {
 		t.ok(result.reasons.length);
 		if (result.type === 'unmappedInputPaths') {
 			t.equal(result.unmappedInputPaths, [
-				resolve('src/files/fixtures/failme1'),
-				resolve('src/files/fixtures/failme2'),
+				resolve('src/fs/fixtures/failme1'),
+				resolve('src/fs/fixtures/failme2'),
 			]);
 		} else {
 			t.fail('Expected to fail with unmappedInputPaths');
@@ -131,10 +131,10 @@ test('findModules()', async () => {
 	test('fail with inputDirectoriesWithNoFiles', async () => {
 		const result = await findModules(
 			[
-				resolve('src/files/fixtures/baz1'),
-				resolve('src/files/fixtures/bar1'),
-				resolve('src/files/fixtures/bar2'),
-				resolve('src/files/fixtures/baz2'),
+				resolve('src/fs/fixtures/baz1'),
+				resolve('src/fs/fixtures/bar1'),
+				resolve('src/fs/fixtures/bar2'),
+				resolve('src/fs/fixtures/baz2'),
 			],
 			id => findFiles(id, ({path}) => !path.includes('.bar.')),
 		);
@@ -142,8 +142,8 @@ test('findModules()', async () => {
 		t.ok(result.reasons.length);
 		if (result.type === 'inputDirectoriesWithNoFiles') {
 			t.equal(result.inputDirectoriesWithNoFiles, [
-				resolve('src/files/fixtures/bar1'),
-				resolve('src/files/fixtures/bar2'),
+				resolve('src/fs/fixtures/bar1'),
+				resolve('src/fs/fixtures/bar2'),
 			]);
 		} else {
 			t.fail('Expected to fail with inputDirectoriesWithNoFiles');
@@ -153,10 +153,10 @@ test('findModules()', async () => {
 
 test('loadModules()', () => {
 	test('fail with loadModuleFailures', async () => {
-		const pathBar1 = resolve('src/files/fixtures/bar1');
-		const pathBar2 = resolve('src/files/fixtures/bar2');
-		const pathBaz1 = resolve('src/files/fixtures/baz1');
-		const pathBaz2 = resolve('src/files/fixtures/baz2');
+		const pathBar1 = resolve('src/fs/fixtures/bar1');
+		const pathBar2 = resolve('src/fs/fixtures/bar2');
+		const pathBaz1 = resolve('src/fs/fixtures/baz1');
+		const pathBaz2 = resolve('src/fs/fixtures/baz2');
 		const idBar1 = join(pathBar1, 'test1.bar.ts');
 		const idBar2 = join(pathBar2, 'test2.bar.ts');
 		const idBaz1 = join(pathBaz1, 'test1.baz.ts');

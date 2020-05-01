@@ -1,7 +1,7 @@
 import {green} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
-import {PathData} from '../files/pathData.js';
+import {PathData} from '../fs/pathData.js';
 import {fmtPath} from '../utils/fmt.js';
 
 export interface FileCache {

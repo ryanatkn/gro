@@ -13,7 +13,7 @@ import {resolve} from 'path';
 import {cyan, yellow, gray} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
-import {loadFile, getMimeType, File} from '../files/nodeFile.js';
+import {loadFile, getMimeType, File} from '../fs/nodeFile.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface DevServer {

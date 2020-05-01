@@ -5,10 +5,10 @@ import {
 	loadModule,
 	loadModules,
 	findModules,
-} from '../files/modules.js';
+} from '../fs/modules.js';
 import {Task, toTaskName, isTaskPath} from './task.js';
-import {findFiles} from '../files/nodeFs.js';
-import {getPossibleSourceIds} from '../files/inputPaths.js';
+import {findFiles} from '../fs/nodeFs.js';
+import {getPossibleSourceIds} from '../fs/inputPaths.js';
 
 export interface TaskModule {
 	task: Task;

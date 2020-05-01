@@ -20,10 +20,7 @@ import {green, blue, cyan, gray} from '../colors/terminal.js';
 import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
 import {fmtMs, fmtError, fmtPath} from '../utils/fmt.js';
-import {
-	resolveRawInputPath,
-	getPossibleSourceIds,
-} from '../files/inputPaths.js';
+import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPaths.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from '../task/task.js';
 import {
 	paths,
@@ -33,8 +30,8 @@ import {
 	pathsFromId,
 	isSourceId,
 } from '../paths.js';
-import {findModules, loadModules} from '../files/modules.js';
-import {findFiles} from '../files/nodeFs.js';
+import {findModules, loadModules} from '../fs/modules.js';
+import {findFiles} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from '../task/taskModule.js';
 
