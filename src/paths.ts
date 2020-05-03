@@ -52,9 +52,9 @@ export const createPaths = (root: string): Paths => {
 };
 
 export const paths = createPaths(process.cwd() + sep);
-export const groPaths = createPaths(
-	join(fileURLToPath(import.meta.url), '../../'),
-);
+const groDir = join(fileURLToPath(import.meta.url), '../../');
+export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
+
 export const pathsFromId = (id: string): Paths =>
 	isSourceId(id, groPaths) ? groPaths : paths;
 
