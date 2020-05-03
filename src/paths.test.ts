@@ -2,6 +2,8 @@ import {resolve} from 'path';
 
 import {test, t} from './oki/oki.js';
 import {
+	paths,
+	groPaths,
 	toRootPath,
 	toBasePath,
 	basePathToSourceId,
@@ -18,6 +20,10 @@ import {
 	toPathParts,
 	toPathSegments,
 } from './paths.js';
+
+test('paths object has the same identity as the groPaths object', () => {
+	t.is(paths, groPaths);
+});
 
 test('toRootPath()', () => {
 	t.is(toRootPath(resolve('foo/bar')), 'foo/bar');
