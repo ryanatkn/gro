@@ -7,7 +7,7 @@ import {
 } from '../fs/inputPaths.js';
 import {Timings} from '../utils/time.js';
 import {PathStats, PathData} from './pathData.js';
-import {toBuildId, isSourceId, groPaths} from '../paths.js';
+import {toImportId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
 
 /*
@@ -36,10 +36,7 @@ export const loadModule = async <T>(
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
 	let mod;
 	try {
-		// If needed, pass through `groPaths` to allow importing Gro modules.
-		mod = await import(
-			toBuildId(id, isSourceId(id, groPaths) ? groPaths : undefined)
-		);
+		mod = await import(toImportId(id));
 	} catch (err) {
 		return {ok: false, type: 'importFailed', id, error: err};
 	}

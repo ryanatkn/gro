@@ -1,7 +1,8 @@
-import {resolve} from 'path';
+import {resolve, join, sep} from 'path';
 
 import {test, t} from './oki/oki.js';
 import {
+	createPaths,
 	paths,
 	groPaths,
 	toRootPath,
@@ -19,7 +20,15 @@ import {
 	toCompiledExt,
 	toPathParts,
 	toPathSegments,
+	toImportId,
 } from './paths.js';
+
+test('createPaths()', () => {
+	const root = resolve('../fake');
+	const p = createPaths(root);
+	t.is(p.root, join(root, sep));
+	t.is(p.source, join(root, 'src/'));
+});
 
 test('paths object has the same identity as the groPaths object', () => {
 	t.is(paths, groPaths);
@@ -255,4 +264,8 @@ test('toPathParts()', () => {
 	test('trailing slash', () => {
 		t.equal(toPathParts('foo/bar/baz/'), ['foo', 'foo/bar', 'foo/bar/baz']);
 	});
+});
+
+test('toImportId()', () => {
+	t.is(toImportId(resolve('src/foo/bar.ts')), resolve('build/foo/bar.js'));
 });

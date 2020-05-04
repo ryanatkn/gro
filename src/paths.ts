@@ -39,6 +39,7 @@ export interface Paths {
 }
 
 export const createPaths = (root: string): Paths => {
+	if (!root.endsWith(sep)) root = root + sep;
 	const source = join(root, SOURCE_DIR); // TODO should this be "src"? the helpers too?
 	const build = join(root, BUILD_DIR);
 	const dist = join(root, DIST_DIR);
@@ -52,7 +53,8 @@ export const createPaths = (root: string): Paths => {
 };
 
 export const paths = createPaths(process.cwd() + sep);
-const groDir = join(fileURLToPath(import.meta.url), '../../');
+export const groImportDir = join(fileURLToPath(import.meta.url), '../');
+export const groDir = join(groImportDir, '../');
 export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
 
 export const pathsFromId = (id: string): Paths =>
@@ -164,3 +166,12 @@ export const replaceRootDir = (
 	rootDir: string,
 	p = paths,
 ): string => join(rootDir, toRootPath(id, p));
+
+// Converts a source id into an id that can be imported.
+// When importing Gro paths, this correctly chooses the build or dist dir.
+export const toImportId = (id: string): string => {
+	const p = pathsFromId(id);
+	return p === groPaths
+		? toCompiledExt(join(groImportDir, toBasePath(id, p)))
+		: toBuildId(id, p);
+};
