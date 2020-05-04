@@ -1,18 +1,9 @@
-import {deepEqual} from './deepEqual.js';
-
+// Two sets containing deeply equal objects, but different references,
+// are considered not equal to each other.
 export const setsEqual = (a: Set<unknown>, b: Set<unknown>): boolean => {
 	if (a.size !== b.size) return false;
-	let eq = false;
 	for (const aVal of a) {
-		if (b.has(aVal)) continue;
-		eq = false;
-		for (const bVal of b) {
-			if (deepEqual(aVal, bVal)) {
-				eq = true;
-				break;
-			}
-		}
-		if (!eq) return false;
+		if (!b.has(aVal)) return false;
 	}
 	return true;
 };

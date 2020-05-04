@@ -30,13 +30,13 @@ test('deepEqual()', () => {
 		],
 		[
 			'sets',
-			new Set(['a', 'b', null, [1, 2, 3], 1, 2, 3]),
-			new Set(['a', 'b', null, [1, 2, 3], 1, 2, 3]),
+			new Set(['a', 'b', null, Array, 1, 2, 3]),
+			new Set(['a', 'b', null, Array, 1, 2, 3]),
 		],
 		[
 			'sets with shuffled order',
-			new Set(['a', 'b', null, [1, 2, 3], 1, 2, 3]),
-			new Set(['b', 'a', null, 3, 2, 1, [1, 2, 3]]),
+			new Set(['a', 'b', null, Array, 1, 2, 3]),
+			new Set(['b', 'a', null, 3, 2, 1, Array]),
 		],
 		[
 			'maps',

@@ -22,19 +22,10 @@ test('setsEqual', () => {
 		t.ok(!setsEqual(new Set([1, 2, 3]), new Set([1, 2])));
 	});
 	test('deep equal', () => {
-		t.ok(
-			setsEqual(
-				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 2])]),
-				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 2])]),
-			),
-		);
+		const obj = {c: 1};
+		t.ok(setsEqual(new Set(['a', obj]), new Set(['a', obj])));
 	});
 	test('not deep equal', () => {
-		t.ok(
-			!setsEqual(
-				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 2])]),
-				new Set(['a', 'b', [{a: 1, b: 2}], new Set([1, 3])]),
-			),
-		);
+		t.ok(!setsEqual(new Set(['a', {c: 1}]), new Set(['a', {c: 1}])));
 	});
 });
