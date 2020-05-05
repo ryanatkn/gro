@@ -2,10 +2,6 @@ import {resolve, join} from 'path';
 
 import {test, t} from '../oki/oki.js';
 import {toGenResult, validateGenModule, GenModuleMeta, gen} from './gen.js';
-import * as testGenHtml from './fixtures/testGenHtml.gen.html.js';
-import * as testGenTs from './fixtures/testGenTs.gen.js';
-import * as testGenMulti from './fixtures/testGenMulti.gen.js';
-import * as testInvalidGenModule from './fixtures/testInvalidGenModule.js';
 
 const originId = resolve('src/foo.gen.ts');
 
@@ -435,9 +431,10 @@ test('gen', async () => {
 });
 
 test('validateGenModule()', () => {
-	t.ok(validateGenModule(testGenHtml));
-	t.ok(validateGenModule(testGenTs));
-	t.ok(validateGenModule(testGenMulti));
-	t.ok(!validateGenModule(testInvalidGenModule));
-	t.ok(!validateGenModule({task: {run: {}}}));
+	t.ok(validateGenModule({gen: () => {}}));
+
+	test('invalid module', () => {
+		t.ok(!validateGenModule({gen: {}}));
+		t.ok(!validateGenModule({task: {run: {}}}));
+	});
 });
