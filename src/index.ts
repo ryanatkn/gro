@@ -1,4 +1,4 @@
-import './globalTypes.js';
+import './globalTypes.js'; // makes global types available to user code
 
 export {test, t} from './oki/oki.js';
 
