@@ -1,10 +1,6 @@
 import {join, basename, dirname} from 'path';
 
 import {isSourceId} from '../paths.js';
-import {fmtPath} from '../utils/fmt.js';
-import {Timings} from '../utils/time.js';
-import {ModuleMeta, loadModule, LoadModuleResult} from '../fs/modules.js';
-import {red} from '../colors/terminal.js';
 
 // TODO consider splitting the primitive data/helpers/types
 // out of this module like how `task` is separated from `runTask`
@@ -12,6 +8,9 @@ export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN =
 	GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN_FILE_SEPARATOR; // TODO regexp?
+
+export const isGenPath = (path: string): boolean =>
+	path.includes(GEN_FILE_PATTERN);
 
 export type GenResult = {
 	originId: string;
@@ -23,9 +22,6 @@ export interface GenFile {
 	originId: string;
 }
 
-export interface GenModule {
-	gen: Gen;
-}
 export interface Gen {
 	(g: GenContext): RawGenResult | Promise<RawGenResult>;
 }
@@ -40,8 +36,6 @@ export interface RawGenFile {
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
 	fileName?: string;
 }
-
-export interface GenModuleMeta extends ModuleMeta<GenModule> {}
 
 export type GenResults = {
 	results: GenModuleResult[];
@@ -64,51 +58,6 @@ export type GenModuleResultFailure = {
 	reason: string;
 	error: Error;
 	elapsed: number;
-};
-
-export const gen = async (genModules: GenModuleMeta[]): Promise<GenResults> => {
-	let inputCount = 0;
-	let outputCount = 0;
-	const timings = new Timings();
-	timings.start('total');
-	const results = await Promise.all(
-		genModules.map(
-			async ({id, mod}): Promise<GenModuleResult> => {
-				inputCount++;
-				const genCtx: GenContext = {originId: id};
-				timings.start(id);
-				let rawGenResult;
-				try {
-					rawGenResult = await mod.gen(genCtx);
-				} catch (err) {
-					const reason = red(`Error generating ${fmtPath(id)}`);
-					return {
-						ok: false,
-						id,
-						error: err,
-						reason,
-						elapsed: timings.stop(id),
-					};
-				}
-				const {files} = toGenResult(id, rawGenResult);
-				outputCount += files.length;
-				return {
-					ok: true,
-					id,
-					files,
-					elapsed: timings.stop(id),
-				};
-			},
-		),
-	);
-	return {
-		results,
-		successes: results.filter(r => r.ok) as GenModuleResultSuccess[],
-		failures: results.filter(r => !r.ok) as GenModuleResultFailure[],
-		inputCount,
-		outputCount,
-		elapsed: timings.stop('total'),
-	};
 };
 
 export const toGenResult = (
@@ -189,9 +138,6 @@ export const toOutputFileName = (fileName: string): string => {
 	return finalParts.join(GEN_FILE_SEPARATOR);
 };
 
-export const isGenPath = (path: string): boolean =>
-	path.includes(GEN_FILE_PATTERN);
-
 const validateGenFiles = (files: GenFile[]) => {
 	const ids = new Set();
 	for (const file of files) {
@@ -201,11 +147,3 @@ const validateGenFiles = (files: GenFile[]) => {
 		ids.add(file.id);
 	}
 };
-
-export const validateGenModule = (mod: Obj): mod is GenModule =>
-	typeof mod.gen === 'function';
-
-export const loadGenModule = (
-	id: string,
-): Promise<LoadModuleResult<GenModuleMeta>> =>
-	loadModule(id, validateGenModule);

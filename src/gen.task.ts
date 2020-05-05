@@ -1,7 +1,9 @@
 import {outputFile} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {red, green, gray} from './colors/terminal.js';
-import {gen, isGenPath, loadGenModule, GEN_FILE_PATTERN} from './gen/gen.js';
+import {isGenPath, GEN_FILE_PATTERN} from './gen/gen.js';
+import {runGen} from './gen/runGen.js';
+import {loadGenModule} from './gen/genModule.js';
 import {fmtPath, fmtMs, fmtError} from './utils/fmt.js';
 import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPaths.js';
 import {findFiles} from './fs/nodeFs.js';
@@ -49,7 +51,7 @@ export const task: Task = {
 		}
 
 		// run `gen` on each of the modules
-		const genResults = await gen(loadModulesResult.modules);
+		const genResults = await runGen(loadModulesResult.modules);
 
 		// write generated files to disk
 		timings.start('output results');
