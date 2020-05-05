@@ -59,7 +59,7 @@ $ gro some/file arg1 arg2 --arg3 example
 
 ```ts
 // src/some/file.task.ts
-import {Task} from '@feltcoop/gro/dist/task/task.js';
+import {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -79,7 +79,7 @@ $ gro test
 
 ```ts
 // src/test.task.ts
-import {Task} from '@feltcoop/gro/dist/task/task.js';
+import {Task} from '@feltcoop/gro';
 import {task as testTask} from '@feltcoop/gro/dist/test.task.js';
 
 export const task: Task = {

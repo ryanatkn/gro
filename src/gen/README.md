@@ -71,7 +71,7 @@ gro gen # runs codegen for all *.gen.* files in src/
 Given `src/script.gen.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro/dist/gen/gen.js';
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
 	const message = 'generated!';
@@ -93,7 +93,7 @@ the default output file name is stripped of its trailing `.ts`.
 Given `src/markup.gen.html.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro/dist/gen/gen.js';
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
 	const body = 'hi';
@@ -125,7 +125,7 @@ The `gen` function can return an object with custom configuration.
 Given `src/somewhere/originalName.gen.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro/dist/gen/gen.js';
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
@@ -148,7 +148,7 @@ The `gen` function can also return an array of files.
 Given `src/thing.gen.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro/dist/gen/gen.js';
+import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
 	const fieldValue = 1;
@@ -174,7 +174,7 @@ export const gen: Gen = () => {
 Outputs `src/thing.ts`:
 
 ```ts
-import {Thing} from './types';
+import {Thing} from './types.js';
 export const isThing = (t: any): t is Thing => t?.field === 1;
 ```
 

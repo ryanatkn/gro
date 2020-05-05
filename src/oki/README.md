@@ -41,7 +41,7 @@ gro test some/file1 file2 some/dir1 dir2
 
 ```ts
 // file.test.ts
-import {test, t} from '@feltcoop/gro/dist/oki/oki.js';
+import {test, t} from '@feltcoop/gro';
 test('something', () => {
 	t.ok('basic assertion');
 	t.is(NaN, NaN);
@@ -74,7 +74,7 @@ test('something', () => {
 ## api
 
 ```ts
-import {test, t} from '@feltcoop/gro/dist/oki/oki.js';
+import {test, t} from '@feltcoop/gro';
 test('assertions api', ({
 	log, // `Logger` instance: {trace, info, warn, error, plain}
 }) => {
