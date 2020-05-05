@@ -113,7 +113,7 @@ See this error:
 	with an explicit type annotation.ts(2775)`
 
 */
-export const t: {
+export type Assertions = {
 	ok: typeof ok;
 	is: typeof is;
 	isNot: typeof isNot;
@@ -122,7 +122,8 @@ export const t: {
 	throws: typeof throws;
 	fail: typeof fail;
 	Error: typeof TestFailureError;
-} = {
+};
+export const t: Assertions = {
 	ok,
 	is,
 	isNot,
@@ -132,8 +133,6 @@ export const t: {
 	fail,
 	Error: TestFailureError,
 };
-
-export type Assertions = typeof t;
 
 export enum AssertionOperator {
 	ok = 'ok', // truthy
