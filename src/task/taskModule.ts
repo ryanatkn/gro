@@ -6,7 +6,7 @@ import {
 	loadModules,
 	findModules,
 } from '../fs/modules.js';
-import {Task, toTaskName, isTaskPath} from './task.js';
+import {Task, toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
 import {findFiles} from '../fs/nodeFs.js';
 import {getPossibleSourceIds} from '../fs/inputPaths.js';
 
@@ -34,7 +34,7 @@ export const loadTaskModule = async (
 
 export const loadTaskModules = async (
 	inputPaths: string[] = [paths.source],
-	extensions: string[] = [],
+	extensions: string[] = [TASK_FILE_SUFFIX],
 	rootDirs: string[] = [],
 ) => {
 	const findModulesResult = await findModules(

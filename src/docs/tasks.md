@@ -16,8 +16,6 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [gen](../gen.task.ts) - Run code generation scripts
 - [serve](../serve.task.ts) - Start static file server
 - [test](../test.task.ts) - Run tests
-- [task/fixtures/testFailingTask](../task/fixtures/testFailingTask.task.ts) - a test task for unhandled errors
-- [task/fixtures/testTask](../task/fixtures/testTask.task.ts) - a test task for basic task behavior
 
 ## usage
 
