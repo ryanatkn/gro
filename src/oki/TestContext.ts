@@ -7,6 +7,18 @@ import {Timings} from '../utils/time.js';
 import {TestModuleMeta, loadTestModule} from './testModule.js';
 import {LoadModuleResult} from '../fs/modules.js';
 
+export const test: (
+	message: string,
+	cb: TestInstanceCallback,
+) => TestInstance = (message, cb) => {
+	if (!globalTestContext) {
+		throw Error(
+			`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,
+		);
+	}
+	return globalTestContext.registerTest(message, cb);
+};
+
 // This module-level reference allows test files
 // to import the module-level `test` function to register tests.
 let globalTestContext: TestContext | null = null;
@@ -23,18 +35,6 @@ export const unsetGlobalTestContext = (testContext: TestContext): void => {
 		);
 	}
 	globalTestContext = null;
-};
-
-export const test: (
-	message: string,
-	cb: TestInstanceCallback,
-) => TestInstance = (message, cb) => {
-	if (!globalTestContext) {
-		throw Error(
-			`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,
-		);
-	}
-	return globalTestContext.registerTest(message, cb);
 };
 
 export interface TestInstanceContext {
