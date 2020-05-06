@@ -6,14 +6,13 @@ import {fmtPath} from '../utils/fmt.js';
 
 export const clean = async () => {
 	const log = new SystemLogger([magenta('[clean]')]);
-	const {info} = log;
 
 	if (await pathExists(paths.build)) {
-		info('emptying', fmtPath(paths.build));
+		log.info('emptying', fmtPath(paths.build));
 		await emptyDir(paths.build);
 	}
 	if (await pathExists(paths.dist)) {
-		info('emptying', fmtPath(paths.dist));
+		log.info('emptying', fmtPath(paths.dist));
 		await emptyDir(paths.dist);
 	}
 };

@@ -29,11 +29,7 @@ test('Logger', () => {
 	test('prefixes and suffixes', () => {
 		const log = new Logger(['p1', 'p2'], ['s1', 's2'], loggerState);
 
-		// Verify the main logging functions are bound to the logger instance.
-		// Other functions on the logger do not have this constraint.
-		const {error, warn, info, trace} = log;
-
-		error('foo', 36);
+		log.error('foo', 36);
 		t.equal(loggedArgs, [
 			'error_p1',
 			'error_p2',
@@ -48,7 +44,7 @@ test('Logger', () => {
 		]);
 		loggedArgs = undefined;
 
-		warn('foo', 36);
+		log.warn('foo', 36);
 		t.equal(loggedArgs, [
 			'warn_p1',
 			'warn_p2',
@@ -63,7 +59,7 @@ test('Logger', () => {
 		]);
 		loggedArgs = undefined;
 
-		info('foo', 36);
+		log.info('foo', 36);
 		t.equal(loggedArgs, [
 			'info_p1',
 			'info_p2',
@@ -78,7 +74,7 @@ test('Logger', () => {
 		]);
 		loggedArgs = undefined;
 
-		trace('foo', 36);
+		log.trace('foo', 36);
 		t.equal(loggedArgs, [
 			'trace_p1',
 			'trace_p2',

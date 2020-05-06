@@ -12,7 +12,7 @@ export interface FileCache {
 }
 
 export const createFileCache = (): FileCache => {
-	const {trace} = new SystemLogger([green('[fileCache]')]);
+	const log = new SystemLogger([green('[fileCache]')]);
 
 	const byId = new Map<string, PathData>();
 
@@ -20,11 +20,11 @@ export const createFileCache = (): FileCache => {
 		byId,
 		get: id => byId.get(id),
 		set: file => {
-			trace('set', fmtPath(file.id));
+			log.trace('set', fmtPath(file.id));
 			byId.set(file.id, file);
 		},
 		update: (id, partial): PathData => {
-			trace('update', fmtPath(id), partial);
+			log.trace('update', fmtPath(id), partial);
 			const current = byId.get(id);
 			if (!current) {
 				throw Error(`Cannot update fileCache with unknown id: ${id}`);

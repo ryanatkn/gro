@@ -9,9 +9,9 @@ const DEFAULT_INPUT_NAMES = ['src/index.ts'];
 
 export const task: Task = {
 	description: 'Build the code',
-	run: async ({log: {info, warn}, args}): Promise<void> => {
+	run: async ({log, args}): Promise<void> => {
 		const inputFiles = await resolveInputFiles(args._);
-		info('inputFiles', inputFiles);
+		log.info('inputFiles', inputFiles);
 
 		const dev: boolean = process.env.NODE_ENV !== 'production';
 		const watch: boolean = (args.watch as any) || false;
@@ -26,7 +26,7 @@ export const task: Task = {
 			});
 			await build.promise;
 		} else {
-			warn('no input files to build');
+			log.warn('no input files to build');
 		}
 
 		// ...

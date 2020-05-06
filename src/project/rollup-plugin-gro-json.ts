@@ -43,7 +43,6 @@ export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
 	} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
-	const {trace} = log;
 
 	const filter = createFilter(include, exclude);
 
@@ -52,7 +51,7 @@ export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
 		async transform(code, id) {
 			if (!filter(id)) return null;
 
-			trace('transform json', fmtPath(id));
+			log.trace('transform json', fmtPath(id));
 
 			return {
 				code: dataToEsm(JSON.parse(code), {

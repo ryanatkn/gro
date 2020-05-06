@@ -35,14 +35,13 @@ export const sveltePreprocessTypescript = (
 	const {langs, tsconfigPath} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
-	const {info, error} = log;
 
 	const tsconfig = loadTsconfig(log, tsconfigPath);
 
 	return {
 		script({content, attributes, filename}) {
 			if (!langs.includes(attributes.lang as any)) return null as any; // type is wrong
-			info('transpiling', fmtPath(filename || ''));
+			log.info('transpiling', fmtPath(filename || ''));
 			const transpileOptions: ts.TranspileOptions = {
 				compilerOptions: tsconfig.compilerOptions,
 				fileName: filename,
@@ -55,7 +54,10 @@ export const sveltePreprocessTypescript = (
 			try {
 				transpileOutput = ts.transpileModule(content, transpileOptions);
 			} catch (err) {
-				error(red('Failed to transpile TypeScript'), fmtPath(filename || ''));
+				log.error(
+					red('Failed to transpile TypeScript'),
+					fmtPath(filename || ''),
+				);
 				throw err;
 			}
 			// TODO sourcemap - does Svelte need to add support for preprocessor sourcemaps?

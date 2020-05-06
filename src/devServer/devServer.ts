@@ -41,7 +41,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
 	const {host, port, dir} = options;
 
-	const {trace} = new SystemLogger([cyan('[devServer]')]);
+	const log = new SystemLogger([cyan('[devServer]')]);
 
 	const serverOptions: ServerOptions = {
 		// IncomingMessage?: typeof IncomingMessage;
@@ -51,14 +51,14 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 		if (!req.url) return;
 		const url = parseUrl(req.url);
 		const localPath = toLocalPath(dir, url);
-		trace('serving', gray(req.url), '→', gray(localPath));
+		log.trace('serving', gray(req.url), '→', gray(localPath));
 
 		const file = await loadFile(localPath);
 		if (!file) {
-			trace(`${yellow('404')} ${localPath}`);
+			log.trace(`${yellow('404')} ${localPath}`);
 			return send404FileNotFound(req, res, localPath);
 		}
-		trace(`${yellow('200')} ${localPath}`);
+		log.trace(`${yellow('200')} ${localPath}`);
 		return send200FileFound(req, res, file);
 	};
 	const server = createServer(serverOptions, requestListener);
@@ -82,7 +82,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 					// ipv6Only?: boolean;
 				};
 				listen(listenOptions, () => {
-					trace('listening', listenOptions);
+					log.trace('listening', listenOptions);
 					resolve();
 				});
 			});

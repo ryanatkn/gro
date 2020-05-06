@@ -33,7 +33,6 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 	const {include, exclude, minifyOptions} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
-	const {info, error} = log;
 
 	const filter = createFilter(include, exclude);
 
@@ -42,7 +41,7 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 		renderChunk(code, chunk, outputOptions) {
 			if (!filter(chunk.fileName)) return null;
 
-			info('terser', fmtPath(chunk.fileName));
+			log.info('terser', fmtPath(chunk.fileName));
 
 			const minified = terser.minify(code, {
 				module: ['es', 'esm'].includes(outputOptions.format!),
@@ -50,7 +49,7 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 			});
 
 			if (minified.error) {
-				error(minified.error); // TODO format
+				log.error(minified.error); // TODO format
 				throw minified.error;
 			}
 

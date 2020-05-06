@@ -27,14 +27,13 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 	const {getCssBundles, toFinalCss, sourcemap} = initOptions(opts);
 
 	const log = new SystemLogger([blue(`[${name}]`)]);
-	const {info, trace} = log;
 
 	return {
 		name,
 		async generateBundle(outputOptions, _bundle, isWrite) {
 			if (!isWrite) return;
 
-			info('generateBundle');
+			log.info('generateBundle');
 
 			// TODO chunks!
 			const outputDir = outputOptions.dir || dirname(outputOptions.file!);
@@ -43,13 +42,13 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 			for (const bundle of getCssBundles().values()) {
 				const {bundleName, buildsById, changedIds} = bundle;
 				if (!changedIds.size) {
-					trace(`no changes detected, skipping bundle ${gray(bundleName)}`);
+					log.trace(`no changes detected, skipping bundle ${gray(bundleName)}`);
 					continue;
 				}
 
 				// TODO try to avoid doing work for the sourcemap and `toFinalCss` by caching stuff that hasn't changed
-				info('generating css bundle', blue(bundleName));
-				info('changes', Array.from(changedIds)); // TODO trace when !watch
+				log.info('generating css bundle', blue(bundleName));
+				log.info('changes', Array.from(changedIds)); // TODO trace when !watch
 				changedIds.clear();
 
 				const mappings: sourcemapCodec.SourceMapSegment[][] = [];
@@ -107,13 +106,13 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 						2,
 					);
 
-					info('writing css bundle and sourcemap', dest);
+					log.info('writing css bundle and sourcemap', dest);
 					await Promise.all([
 						outputFile(dest, finalCss),
 						outputFile(sourcemapDest, cssSourcemap),
 					]);
 				} else {
-					info('writing css bundle', dest);
+					log.info('writing css bundle', dest);
 					await outputFile(dest, css);
 				}
 			}

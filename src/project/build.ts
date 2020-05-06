@@ -51,9 +51,8 @@ export const createBuild = (opts: InitialOptions): Build => {
 	const options = initOptions(opts);
 
 	const log = new SystemLogger([magenta('[build]')]);
-	const {trace} = log;
 
-	trace('build options', options);
+	log.trace('build options', options);
 
 	const promise = runBuild(options, log);
 
@@ -61,21 +60,19 @@ export const createBuild = (opts: InitialOptions): Build => {
 };
 
 const runBuild = async (options: Options, log: Logger): Promise<void> => {
-	const {info} = log;
-
-	info(`building for ${options.dev ? 'development' : 'production'}`);
+	log.info(`building for ${options.dev ? 'development' : 'production'}`);
 
 	// run rollup
 	if (options.watch) {
 		// run the watcher
-		info('building and watching');
+		log.info('building and watching');
 		await runRollupWatcher(options, log);
-		info('stopped watching');
+		log.info('stopped watching');
 	} else {
 		// build the js
-		info('building');
+		log.info('building');
 		await runRollupBuild(options, log);
-		info(
+		log.info(
 			'\n' +
 				rainbow(
 					deindent(`
@@ -153,7 +150,7 @@ const createInputOptions = (
 
 const createOutputOptions = (
 	{outputDir}: Options,
-	{trace}: Logger,
+	log: Logger,
 ): OutputOptions => {
 	const outputOptions: OutputOptions = {
 		// — core output options
@@ -192,7 +189,7 @@ const createOutputOptions = (
 		// preferConst,
 		// strict
 	};
-	trace('outputOptions', outputOptions);
+	log.trace('outputOptions', outputOptions);
 	return outputOptions;
 };
 
@@ -281,7 +278,6 @@ const runRollupWatcher = async (
 	options: Options,
 	log: Logger,
 ): Promise<void> => {
-	const {info, error} = log;
 	return new Promise((_resolve, reject) => {
 		const watchOptions = options.inputFiles.map(f =>
 			createWatchOptions(f, options, log),
@@ -290,17 +286,17 @@ const runRollupWatcher = async (
 		const watcher = watch(watchOptions);
 
 		watcher.on('event', event => {
-			info(`rollup event: ${event.code}`);
+			log.info(`rollup event: ${event.code}`);
 			switch (event.code) {
 				case 'START': // the watcher is (re)starting
 				case 'BUNDLE_START': // building an individual bundle
 				case 'BUNDLE_END': // finished building a bundle
 					break;
 				case 'END': // finished building all bundles
-					info(rainbow('~~end~~'), '\n\n');
+					log.info(rainbow('~~end~~'), '\n\n');
 					break;
 				case 'ERROR': // encountered an error while bundling
-					error('error', event);
+					log.error('error', event);
 					reject(`Error: ${event.error.message}`);
 					break;
 				default:

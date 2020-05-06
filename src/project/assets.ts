@@ -40,7 +40,6 @@ export const assets = async (opts: InitialOptions = {}) => {
 	const options = initOptions(opts);
 	const {isAsset} = options;
 	const log = new SystemLogger([magenta('[assets]')]);
-	const {info, trace} = log;
 
 	// TODO refactor to use the same file & watch solution as  `NodeTestContext` and `project/gen.ts`
 	const dir = paths.root;
@@ -56,18 +55,18 @@ export const assets = async (opts: InitialOptions = {}) => {
 			  path === BUILD_DIR_NAME
 			: isAsset(path) &&
 			  (path.startsWith(SOURCE_DIR) || path.startsWith(BUILD_DIR));
-		trace('watch path?', path, shouldWatch);
+		log.trace('watch path?', path, shouldWatch);
 		return shouldWatch;
 	};
 	const watch = false;
 	const debounce = DEBOUNCE_DEFAULT;
 	const watcher = new CheapWatch({dir, filter, watch, debounce});
 	const handlePathAdded = ({path, stats, isNew}: CheapWatchPathAddedEvent) => {
-		trace('added', gray(path), {stats, isNew});
+		log.trace('added', gray(path), {stats, isNew});
 		throw Error('watch is not yet implemented');
 	};
 	const handlePathRemoved = ({path, stats}: CheapWatchPathRemovedEvent) => {
-		trace('removed', gray(path), {stats});
+		log.trace('removed', gray(path), {stats});
 		throw Error('watch is not yet implemented');
 	};
 	watcher.on('+', handlePathAdded);
@@ -82,11 +81,11 @@ export const assets = async (opts: InitialOptions = {}) => {
 	}
 	await Promise.all(promises);
 
-	info('assets copied!');
+	log.info('assets copied!');
 };
 
-const copyAssetToDist = async (id: string, {info}: Logger): Promise<void> => {
+const copyAssetToDist = async (id: string, log: Logger): Promise<void> => {
 	const distId = toDistId(id);
-	info('copying asset', fmtPath(id), 'to', fmtPath(distId));
+	log.info('copying asset', fmtPath(id), 'to', fmtPath(distId));
 	return copy(id, distId);
 };

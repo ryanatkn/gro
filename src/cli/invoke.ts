@@ -38,7 +38,6 @@ import {loadTaskModule} from '../task/taskModule.js';
 const main = async () => {
 	const argv: Args = mri(process.argv.slice(2));
 	const log = new SystemLogger([blue(`[${green('gro')}]`)]);
-	const {info, error} = log;
 
 	const {
 		_: [taskName, ..._],
@@ -65,7 +64,7 @@ const main = async () => {
 	);
 	if (!findModulesResult.ok) {
 		for (const reason of findModulesResult.reasons) {
-			error(reason);
+			log.error(reason);
 		}
 		return;
 	}
@@ -99,7 +98,7 @@ const main = async () => {
 			(isGroPath ? gray('gro/') : '') + fmtPath(pathData.id),
 			findModulesResult.sourceIdsByInputPath,
 		);
-		info(`🕒 ${fmtMs(timings.stop('total'))}`);
+		log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 		return;
 	}
 
@@ -111,51 +110,55 @@ const main = async () => {
 
 	if (!loadModulesResult.ok) {
 		for (const reason of loadModulesResult.reasons) {
-			error(reason);
+			log.error(reason);
 		}
 		return;
 	}
 
 	// Run the task!
 	const task = loadModulesResult.modules[0];
-	info(`→ ${cyan(task.name)}`);
+	log.info(`→ ${cyan(task.name)}`);
 	timings.start('run task');
 	const result = await runTask(task, args, process.env);
 	timings.stop('run task');
-	info(`✓ ${cyan(task.name)}`);
+	log.info(`✓ ${cyan(task.name)}`);
 
 	if (!result.ok) {
-		error(result.reason, '\n', fmtError(result.error));
+		log.error(result.reason, '\n', fmtError(result.error));
 	}
 
-	info(
+	log.info(
 		`${fmtMs(
 			findModulesResult.timings.get('map input paths'),
 		)} to map input paths`,
 	);
-	info(`${fmtMs(findModulesResult.timings.get('find files'))} to find files`);
-	info(
+	log.info(
+		`${fmtMs(findModulesResult.timings.get('find files'))} to find files`,
+	);
+	log.info(
 		`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
 	);
-	info(`${fmtMs(timings.get('run task'))} to run task`);
-	info(`🕒 ${fmtMs(timings.stop('total'))}`);
+	log.info(`${fmtMs(timings.get('run task'))} to run task`);
+	log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 };
 
 const printAvailableTasks = (
-	{info}: Logger,
+	log: Logger,
 	dirLabel: string,
 	sourceIdsByInputPath: Map<string, string[]>,
 ) => {
 	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
 	if (sourceIds.length) {
-		info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
+		log.info(
+			`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`,
+		);
 		for (const sourceId of sourceIds) {
-			info(
+			log.info(
 				'\t' + cyan(toTaskName(toBasePath(sourceId, pathsFromId(sourceId)))),
 			);
 		}
 	} else {
-		info(`No tasks found in ${dirLabel}.`);
+		log.info(`No tasks found in ${dirLabel}.`);
 	}
 };
 

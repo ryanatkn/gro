@@ -10,7 +10,7 @@ const name = 'diagnostics';
 const tag = (s: string) => s; // maybe color this
 
 export const diagnosticsPlugin = (): Plugin => {
-	const {trace, info} = new SystemLogger([gray(`[${name}]`)]);
+	const log = new SystemLogger([gray(`[${name}]`)]);
 
 	const stopwatch = createStopwatch();
 	let started = false;
@@ -20,24 +20,24 @@ export const diagnosticsPlugin = (): Plugin => {
 		name,
 		// banner() {}
 		buildStart() {
-			info(tag('buildStart'));
+			log.info(tag('buildStart'));
 			if (started) {
 				stopwatch(true); // reset the clock
 			} else {
-				info(fmtVal('startupTime', fmtMs(stopwatch(true))));
+				log.info(fmtVal('startupTime', fmtMs(stopwatch(true))));
 				started = true;
 			}
 		},
 		buildEnd() {
-			info(tag('buildEnd'));
+			log.info(tag('buildEnd'));
 		},
 		// footer() {}
 		generateBundle(_outputOptions, bundle, isWrite) {
-			info(tag('generateBundle'), {isWrite, bundles: Object.keys(bundle)});
+			log.info(tag('generateBundle'), {isWrite, bundles: Object.keys(bundle)});
 		},
 		// intro() {}
 		load(id) {
-			trace(tag('load'), fmtPath(id));
+			log.trace(tag('load'), fmtPath(id));
 			return null;
 		},
 		options(_o) {
@@ -50,7 +50,7 @@ export const diagnosticsPlugin = (): Plugin => {
 		// },
 		// outro() {}
 		renderChunk(_code, chunk, _options) {
-			info(
+			log.info(
 				tag('renderChunk'),
 				chunk.name,
 				chunk.fileName,
@@ -60,12 +60,12 @@ export const diagnosticsPlugin = (): Plugin => {
 		},
 		// renderError(_error) {}
 		renderStart() {
-			info(tag('renderStart'));
+			log.info(tag('renderStart'));
 		},
 		// resolveDynamicImport(_specifier, _importer) {}
 		// resolveFileUrl(_asset) {}
 		resolveId(importee, importer) {
-			trace(
+			log.trace(
 				tag('resolveId'),
 				gray(importee),
 				(importer && '<- ' + fmtPath(importer)) || '',
@@ -74,7 +74,7 @@ export const diagnosticsPlugin = (): Plugin => {
 		},
 		// resolveImportMeta(_property, _asset) {}
 		transform(code, id) {
-			trace(
+			log.trace(
 				tag('transform'),
 				fmtPath(id),
 				fmtVal('len', (code && code.length) || 0),
@@ -82,10 +82,10 @@ export const diagnosticsPlugin = (): Plugin => {
 			return null;
 		},
 		watchChange(id) {
-			trace(tag('watchChange'), gray(id));
+			log.trace(tag('watchChange'), gray(id));
 		},
 		writeBundle(_bundle) {
-			info(
+			log.info(
 				tag('writeBundle'),
 				// TODO
 				// print # of errors/warnings (maybe duplicate printing them here too)

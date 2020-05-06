@@ -10,7 +10,7 @@ import * as report from './oki/report.js';
 
 export const task: Task = {
 	description: 'Run tests',
-	run: async ({log: {info, error}, args}): Promise<void> => {
+	run: async ({log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 
 		const timings = new Timings<'total'>();
@@ -27,7 +27,7 @@ export const task: Task = {
 		);
 		if (!findModulesResult.ok) {
 			for (const reason of findModulesResult.reasons) {
-				error(reason);
+				log.error(reason);
 			}
 			return;
 		}
@@ -43,7 +43,7 @@ export const task: Task = {
 		finishImporting();
 		if (!loadModulesResult.ok) {
 			for (const reason of loadModulesResult.reasons) {
-				error(reason);
+				log.error(reason);
 			}
 			return;
 		}
@@ -53,17 +53,19 @@ export const task: Task = {
 		// They're available as `result.modules` though.
 		const testRunResult = await testContext.run();
 
-		info(
+		log.info(
 			`${fmtMs(
 				findModulesResult.timings.get('map input paths'),
 			)} to map input paths`,
 		);
-		info(`${fmtMs(findModulesResult.timings.get('find files'))} to find files`);
-		info(
+		log.info(
+			`${fmtMs(findModulesResult.timings.get('find files'))} to find files`,
+		);
+		log.info(
 			`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
 		);
 		// TODO this gets duplicated by the oki reporter
-		info(`${fmtMs(testRunResult.timings.get('total'))} to run tests`);
-		info(`🕒 ${fmtMs(timings.stop('total'))}`);
+		log.info(`${fmtMs(testRunResult.timings.get('total'))} to run tests`);
+		log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 	},
 };

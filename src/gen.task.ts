@@ -15,7 +15,7 @@ import {findModules, loadModules} from './fs/modules.js';
 // if there's any validation or import errors
 export const task: Task = {
 	description: 'Run code generation scripts',
-	run: async ({log: {info, error}, args}): Promise<void> => {
+	run: async ({log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 
 		const timings = new Timings<'total' | 'output results'>();
@@ -35,7 +35,7 @@ export const task: Task = {
 		);
 		if (!findModulesResult.ok) {
 			for (const reason of findModulesResult.reasons) {
-				error(reason);
+				log.error(reason);
 			}
 			return;
 		}
@@ -45,7 +45,7 @@ export const task: Task = {
 		);
 		if (!loadModulesResult.ok) {
 			for (const reason of loadModulesResult.reasons) {
-				error(reason);
+				log.error(reason);
 			}
 			return;
 		}
@@ -57,14 +57,14 @@ export const task: Task = {
 		timings.start('output results');
 		if (genResults.failures.length) {
 			for (const result of genResults.failures) {
-				error(result.reason, '\n', fmtError(result.error));
+				log.error(result.reason, '\n', fmtError(result.error));
 			}
 		}
 		await Promise.all(
 			genResults.successes
 				.map(result =>
 					result.files.map(file => {
-						info(
+						log.info(
 							'writing',
 							fmtPath(file.id),
 							'generated from',
@@ -85,8 +85,8 @@ export const task: Task = {
 				result.id,
 			)}`;
 		}
-		info(logResult);
-		info(
+		log.info(logResult);
+		log.info(
 			green(
 				`generated ${genResults.outputCount} file${plural(
 					genResults.outputCount,
@@ -96,7 +96,7 @@ export const task: Task = {
 			),
 		);
 		if (genResults.failures.length) {
-			info(
+			log.info(
 				red(
 					`${genResults.failures.length} file${plural(
 						genResults.failures.length,
@@ -104,17 +104,19 @@ export const task: Task = {
 				),
 			);
 		}
-		info(
+		log.info(
 			`${fmtMs(
 				findModulesResult.timings.get('map input paths'),
 			)} to map input paths`,
 		);
-		info(`${fmtMs(findModulesResult.timings.get('find files'))} to find files`);
-		info(
+		log.info(
+			`${fmtMs(findModulesResult.timings.get('find files'))} to find files`,
+		);
+		log.info(
 			`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
 		);
-		info(`${fmtMs(genResults.elapsed)} to generate code`);
-		info(`${fmtMs(timings.get('output results'))} to output results`);
-		info(`🕒 ${fmtMs(timings.stop('total'))}`);
+		log.info(`${fmtMs(genResults.elapsed)} to generate code`);
+		log.info(`${fmtMs(timings.get('output results'))} to output results`);
+		log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 	},
 };

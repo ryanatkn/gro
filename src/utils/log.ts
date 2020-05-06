@@ -49,7 +49,7 @@ export class Logger {
 		public readonly state: LoggerState = Logger,
 	) {}
 
-	readonly error = (...args: any[]): void => {
+	error(...args: any[]): void {
 		if (this.state.level < LogLevel.Error) return;
 		this.state.log(
 			...this.state.error.prefixes,
@@ -58,9 +58,9 @@ export class Logger {
 			...this.suffixes,
 			...this.state.error.suffixes,
 		);
-	};
+	}
 
-	readonly warn = (...args: any[]): void => {
+	warn(...args: any[]): void {
 		if (this.state.level < LogLevel.Warn) return;
 		this.state.log(
 			...this.state.warn.prefixes,
@@ -69,9 +69,9 @@ export class Logger {
 			...this.suffixes,
 			...this.state.warn.suffixes,
 		);
-	};
+	}
 
-	readonly info = (...args: any[]): void => {
+	info(...args: any[]): void {
 		if (this.state.level < LogLevel.Info) return;
 		this.state.log(
 			...this.state.info.prefixes,
@@ -80,9 +80,9 @@ export class Logger {
 			...this.suffixes,
 			...this.state.info.suffixes,
 		);
-	};
+	}
 
-	readonly trace = (...args: any[]): void => {
+	trace(...args: any[]): void {
 		if (this.state.level < LogLevel.Trace) return;
 		this.state.log(
 			...this.state.trace.prefixes,
@@ -91,7 +91,7 @@ export class Logger {
 			...this.suffixes,
 			...this.state.trace.suffixes,
 		);
-	};
+	}
 
 	plain(...args: any[]): void {
 		this.state.log(...args);

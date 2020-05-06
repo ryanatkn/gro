@@ -37,7 +37,6 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 	const {addCssBuild, exts, include, exclude} = initOptions(opts);
 
 	const log = new SystemLogger([green(`[${name}]`)]);
-	const {info, error} = log;
 
 	const filter = createFilter(include, exclude);
 
@@ -74,7 +73,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 		},
 		async transform(code, id) {
 			if (!filter(id)) return;
-			info(`transform id`, id);
+			log.info(`transform id`, id);
 
 			const updatedCache = addCssBuild({
 				id,
@@ -83,7 +82,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 				code,
 				map: undefined,
 			});
-			if (!updatedCache) error('Unexpected css cache update failure');
+			if (!updatedCache) log.error('Unexpected css cache update failure');
 
 			return '';
 		},

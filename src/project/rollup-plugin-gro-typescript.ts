@@ -57,7 +57,6 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 	} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
-	const {error, trace} = log;
 
 	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
 	const {compilerOptions} = tsconfig;
@@ -71,7 +70,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 
 			const stopwatch = createStopwatch();
 
-			trace('transpile', fmtPath(id));
+			log.trace('transpile', fmtPath(id));
 			let transpileOutput: ts.TranspileOutput;
 			try {
 				transpileOutput = ts.transpileModule(code, {
@@ -82,7 +81,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 					// renamedDependencies?: Map<string>;
 				});
 			} catch (err) {
-				error(red('Failed to transpile TypeScript'), fmtPath(id));
+				log.error(red('Failed to transpile TypeScript'), fmtPath(id));
 				throw err;
 			}
 			const {outputText, sourceMapText, diagnostics} = transpileOutput;
@@ -128,9 +127,9 @@ const handleStats = (
 	stats: Stats,
 	_handleStats: (id: string, stats: Stats, ...args: any[]) => void,
 	_pluginContext: PluginContext,
-	{info}: Logger,
+	log: Logger,
 ): void => {
-	info(
+	log.info(
 		fmtVal('stats', toRootPath(id)),
 		...[
 			// fmtVal('total', fmtMs(stats.timings.total)),

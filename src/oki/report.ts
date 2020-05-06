@@ -51,15 +51,12 @@ export const reportResult = (
 };
 
 export const reportSummary = (ctx: TestContext): void => {
-	const {
-		log: {info},
-		stats,
-	} = ctx;
+	const {log, stats} = ctx;
 	if (!stats) return;
 	const {passCount, failCount} = stats;
 	ctx.log.newline();
 	if (!passCount && !failCount) {
-		info(
+		log.info(
 			yellow(
 				`No tests were found!` +
 					` Is testContext.importModule being called?` +
@@ -67,15 +64,15 @@ export const reportSummary = (ctx: TestContext): void => {
 			),
 		);
 	} else {
-		info(green(`${passCount} test${passCount === 1 ? '' : 's'} passed`));
+		log.info(green(`${passCount} test${passCount === 1 ? '' : 's'} passed`));
 		if (failCount) {
-			info(red(`${failCount} test${failCount === 1 ? '' : 's'} failed`));
+			log.info(red(`${failCount} test${failCount === 1 ? '' : 's'} failed`));
 		}
-		info(gray('🕒'), fmtMs(ctx.timings.get(TOTAL_TIMING), 1));
+		log.info(gray('🕒'), fmtMs(ctx.timings.get(TOTAL_TIMING), 1));
 		if (failCount) {
-			info(gray('not oki :|'));
+			log.info(gray('not oki :|'));
 		} else {
-			info(bgGreen(black(' oki :) ')));
+			log.info(bgGreen(black(' oki :) ')));
 		}
 	}
 	ctx.log.newline();

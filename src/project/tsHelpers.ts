@@ -53,7 +53,7 @@ export const loadTsconfig = (
 
 export const logTsDiagnostics = (
 	diagnostics: ReadonlyArray<ts.Diagnostic>,
-	{error}: Logger,
+	log: Logger,
 ): void => {
 	const count = diagnostics.length;
 	if (!count) return;
@@ -61,7 +61,9 @@ export const logTsDiagnostics = (
 		diagnostics,
 		createFormatDiagnosticsHost(),
 	);
-	error(black(bgRed(` ${count} item${count === 1 ? '' : 's'}`)) + '\n' + msg);
+	log.error(
+		black(bgRed(` ${count} item${count === 1 ? '' : 's'}`)) + '\n' + msg,
+	);
 };
 
 const createFormatDiagnosticsHost = (): ts.FormatDiagnosticsHost => {

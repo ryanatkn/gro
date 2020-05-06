@@ -9,8 +9,8 @@ export const attachProcessErrorHandlers = () => {
 };
 
 export const handleError = (err: Error, label = 'handleError'): void => {
-	const {error} = new SystemLogger([red(`[${label}]`)]);
-	error(fmtError(err));
+	const log = new SystemLogger([red(`[${label}]`)]);
+	log.error(fmtError(err));
 	process.exit(1);
 };
 

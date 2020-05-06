@@ -108,7 +108,6 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 	} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
-	const {error, trace} = log;
 
 	const getCompilation = (id: string): GroSvelteCompilation | undefined =>
 		compilations.get(id);
@@ -120,14 +119,14 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		getCompilation,
 		async transform(code, id) {
 			if (!filter(id)) return null;
-			trace('transform', fmtPath(id));
+			log.trace('transform', fmtPath(id));
 
 			let preprocessedCode = code;
 
 			// TODO see rollup-plugin-svelte for how to track deps
 			// let dependencies = [];
 			if (preprocessor) {
-				trace('preprocess', fmtPath(id));
+				log.trace('preprocess', fmtPath(id));
 				const preprocessed = await svelte.preprocess(code, preprocessor, {
 					filename: id,
 				});
@@ -135,7 +134,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 				// dependencies = preprocessed.dependencies;
 			}
 
-			trace('compile', fmtPath(id));
+			log.trace('compile', fmtPath(id));
 			let svelteCompilation: SvelteCompilation;
 			try {
 				svelteCompilation = svelte.compile(preprocessedCode, {
@@ -146,7 +145,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 					name: getPathStem(id),
 				});
 			} catch (err) {
-				error(red('Failed to compile Svelte'), fmtPath(id));
+				log.error(red('Failed to compile Svelte'), fmtPath(id));
 				throw err;
 			}
 			const {js, css, warnings, stats} = svelteCompilation;
@@ -158,7 +157,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			onstats(id, stats, handleStats, this, log);
 
 			let cssId = replaceExt(id, '.css');
-			trace('add css import', fmtPath(cssId));
+			log.trace('add css import', fmtPath(cssId));
 			addCssBuild({
 				id: cssId,
 				sourceId: id,
@@ -193,13 +192,13 @@ const handleWarn = (
 	warning: Warning,
 	_handleWarn: (id: string, warning: Warning, ...args: any[]) => void,
 	_pluginContext: PluginContext,
-	{warn}: Logger,
+	log: Logger,
 ): void => {
 	const warnArgs: any[] = [id, warning];
 	if (typeof warning !== 'string' && warning.frame) {
 		warnArgs.push('\n' + warning.frame, '\n', yellow(warning.message));
 	}
-	warn(...warnArgs);
+	log.warn(...warnArgs);
 };
 
 const handleStats = (
@@ -207,9 +206,9 @@ const handleStats = (
 	stats: Stats,
 	_handleStats: (id: string, stats: Stats, ...args: any[]) => void,
 	_pluginContext: PluginContext,
-	{info}: Logger,
+	log: Logger,
 ): void => {
-	info(
+	log.info(
 		fmtVal('stats', toRootPath(id)),
 		...[
 			fmtVal('total', fmtMs(stats.timings.total)),

@@ -12,16 +12,16 @@ export const isDistFile = (path: string): boolean =>
 
 export const task: Task = {
 	description: 'create and link the distribution',
-	run: async ({log: {info}}) => {
-		info(`emptying ${fmtPath(paths.dist)}`);
+	run: async ({log}) => {
+		log.info(`emptying ${fmtPath(paths.dist)}`);
 		await emptyDir(paths.dist);
 
-		info('copying build');
+		log.info('copying build');
 		await copy(paths.build, paths.dist, {
 			filter: id => isDistFile(id),
 		});
 
-		info('linking');
+		log.info('linking');
 		const {stdout, stderr} = await promisify(exec)('npm link');
 		if (stdout) console.log(stdout);
 		if (stderr) console.error(stderr);
