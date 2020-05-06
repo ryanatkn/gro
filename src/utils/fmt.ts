@@ -25,8 +25,13 @@ export const fmtPath = (p: string): string => gray(toRootPath(p) || './');
 
 const MAX_ERROR_LOG_LENGTH = 1000;
 
+// Because throwing errors and rejecting promises isn't typesafe,
+// don't assume the arg is an `Error` and try to return something useful.
 export const fmtError = (err: Error): string =>
 	truncate(
-		err.stack ? yellow(err.stack) : yellow(`Error: ${err.message}`),
+		yellow(
+			(err && (err.stack || (err.message && `Error: ${err.message}`))) ||
+				`Unknown error: ${err}`,
+		),
 		MAX_ERROR_LOG_LENGTH,
 	);
