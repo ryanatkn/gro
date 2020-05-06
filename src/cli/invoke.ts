@@ -28,7 +28,7 @@ import {
 	toBasePath,
 	replaceRootDir,
 	pathsFromId,
-	isSourceId,
+	isId,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles} from '../fs/nodeFs.js';
@@ -78,7 +78,7 @@ const main = async () => {
 	if (pathData.isDirectory) {
 		// Is the directory in the cwd and it's different than the Gro directory?
 		// If so also search the Gro directory and print out any matches.
-		const isGroPath = isSourceId(pathData.id, groPaths);
+		const isGroPath = isId(pathData.id, groPaths);
 		if (!groDirIsCwd && !isGroPath) {
 			const groDirFindModulesResult = await findModules(
 				[replaceRootDir(inputPath, groPaths.root)],
