@@ -6,7 +6,7 @@ import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {findFiles} from './nodeFs.js';
-import {getPossibleSourceIds} from './inputPaths.js';
+import {getPossibleSourceIds} from './inputPath.js';
 
 test('loadModule()', async () => {
 	test('basic behavior', async () => {

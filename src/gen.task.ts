@@ -5,7 +5,7 @@ import {isGenPath, GEN_FILE_PATTERN} from './gen/gen.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule} from './gen/genModule.js';
 import {fmtPath, fmtMs, fmtError} from './utils/fmt.js';
-import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPaths.js';
+import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
 import {plural} from './utils/string.js';
 import {Timings} from './utils/time.js';

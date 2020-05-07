@@ -44,7 +44,7 @@ $ gro some/dir
 ```
 
 > To learn more about the Gro CLI path conventions,
-> see [the `inputPaths` comments](../fs/inputPaths.ts)
+> see [the `inputPaths` comments](../fs/inputPath.ts)
 
 ### run a task
 

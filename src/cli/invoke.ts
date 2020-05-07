@@ -19,7 +19,7 @@ import {green, blue, cyan} from '../colors/terminal.js';
 import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
 import {fmtMs, fmtError, fmtPath, fmtPathOrGroPath} from '../utils/fmt.js';
-import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPaths.js';
+import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from '../task/task.js';
 import {
 	paths,
@@ -45,7 +45,7 @@ When the CLI is invoked,
 it first searches for tasks in the current working directory
 using the first CLI arg a.k.a. "taskName",
 and falls back to searching Gro's directory, if the two are different.
-See `src/fs/inputPaths.ts` for info about what "taskName" can refer to.
+See `src/fs/inputPath.ts` for info about what "taskName" can refer to.
 If it matches a directory, all of the tasks within it are printed out,
 both in the current working directory and Gro.
 

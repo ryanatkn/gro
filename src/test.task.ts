@@ -1,6 +1,6 @@
 import {Task} from './task/task.js';
 import {TestContext} from './oki/TestContext.js';
-import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPaths.js';
+import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
 import {findModules, loadModules} from './fs/modules.js';
 import {TEST_FILE_SUFFIX, isTestPath} from './oki/testModule.js';

@@ -7,7 +7,7 @@ import {
 	loadSourcePathDataByInputPath,
 	loadSourceIdsByInputPath,
 	getPossibleSourceIds,
-} from './inputPaths.js';
+} from './inputPath.js';
 import {PathStats} from './pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
 
