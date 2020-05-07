@@ -21,12 +21,32 @@ test('resolveRawInputPath()', () => {
 	t.isNot(resolveRawInputPath('bar.ts'), target);
 
 	test('source directory', () => {
-		const targetDir = resolve('src/') + '/'; // inferred as directory
+		const targetDir = resolve('src') + '/'; // inferred as directory
 		t.is(resolveRawInputPath('src'), targetDir);
 		t.is(resolveRawInputPath('src/'), targetDir);
 		t.is(resolveRawInputPath('./src'), targetDir);
 		t.is(resolveRawInputPath('./src/'), targetDir);
+		t.is(resolveRawInputPath('./srcTest'), targetDir + 'srcTest');
+		t.is(resolveRawInputPath('srcTest'), targetDir + 'srcTest');
 		t.isNot(resolveRawInputPath('build'), targetDir);
+	});
+
+	test('forced gro directory', () => {
+		const fakeDir = resolve('../fake') + sep;
+		const fakePaths = createPaths(fakeDir);
+		const groTarget = resolve('src/foo/bar.ts');
+		t.is(resolveRawInputPath('gro/foo/bar.ts'), groTarget);
+		t.is(
+			resolveRawInputPath('foo/bar.ts', fakePaths),
+			join(fakeDir, 'src/foo/bar.ts'),
+		);
+		t.is(
+			resolveRawInputPath('gro/foo/bar.ts', fakePaths),
+			join(fakeDir, 'src/gro/foo/bar.ts'),
+		);
+		t.is(resolveRawInputPath('foo/bar.ts'), groTarget);
+		t.is(resolveRawInputPath('foo/bar.ts', groPaths), groTarget);
+		t.is(resolveRawInputPath('gro'), resolve('src') + sep);
 	});
 
 	test('directories', () => {

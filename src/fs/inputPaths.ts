@@ -7,6 +7,8 @@ import {
 	SOURCE_DIR_NAME,
 	replaceRootDir,
 	Paths,
+	groDirBasename,
+	groPaths,
 } from '../paths.js';
 import {stripStart} from '../utils/string.js';
 import {PathData, toPathData, PathStats} from './pathData.js';
@@ -18,12 +20,12 @@ enhanced with Gro's conventions like `.test.`, `.task.`, and `.gen.`.
 
 A raw input path can be:
 
-- a direct fully qualified file, e.g. `src/foo/bar.test.ts`
+- a relative path to a file, e.g. `src/foo/bar.test.ts`
 - a file without an extension, e.g. `src/foo/bar` if `extensions` is `.test.ts`
 - a directory containing any number of files, e.g. `src/foo`
 - any of the above without the leading `src/` or with a leading `./`
-- any of the above with an absolute path to `src/`
-- any of the above but with Gro as the root directory
+- any of the above but leading with `gro/` to ignore the local directory
+- an absolute path to a file or directory in the current directory or Gro's
 
 The input path API lets the caller customize the allowable extensions.
 That means that the caller can look for `.test.` files but not `.gen.`,
@@ -37,10 +39,22 @@ export const resolveRawInputPath = (
 	paths?: Paths,
 ): string => {
 	if (isAbsolute(rawInputPath)) return rawInputPath;
-	const basePath = stripStart(
-		stripStart(stripRelativePath(rawInputPath), SOURCE_DIR),
-		SOURCE_DIR_NAME,
-	);
+	// Allow prefix `./` and just remove it if it's there.
+	let basePath = stripRelativePath(rawInputPath);
+	if (!paths) {
+		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
+		if (basePath.startsWith(groDirBasename)) {
+			paths = groPaths;
+			basePath = stripStart(basePath, groDirBasename);
+		} else if (basePath + sep === groDirBasename) {
+			paths = groPaths;
+			basePath = '';
+		}
+	}
+	// Handle `src` by itself without conflicting with `srcFoo` names.
+	if (basePath === SOURCE_DIR_NAME) basePath = '';
+	// Allow prefix `src/` and just remove it if it's there.
+	basePath = stripStart(basePath, SOURCE_DIR);
 	return basePathToSourceId(basePath, paths);
 };
 
