@@ -1,4 +1,4 @@
-import {toBasePath, paths} from '../paths.js';
+import {toBasePath, paths, pathsFromId} from '../paths.js';
 import {
 	ModuleMeta,
 	LoadModuleResult,
@@ -28,7 +28,7 @@ export const loadTaskModule = async (
 	if (!result.ok) return result;
 	return {
 		...result,
-		mod: {...result.mod, name: toTaskName(toBasePath(id))},
+		mod: {...result.mod, name: toTaskName(toBasePath(id, pathsFromId(id)))},
 	};
 };
 

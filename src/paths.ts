@@ -1,4 +1,4 @@
-import {sep, join} from 'path';
+import {sep, join, basename} from 'path';
 import {fileURLToPath} from 'url';
 
 import {replaceExt} from './utils/path.js';
@@ -55,10 +55,11 @@ export const createPaths = (root: string): Paths => {
 export const paths = createPaths(process.cwd() + sep);
 export const groImportDir = join(fileURLToPath(import.meta.url), '../');
 export const groDir = join(groImportDir, '../');
+export const groDirBasename = basename(groDir) + sep;
 export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
 
 export const pathsFromId = (id: string): Paths =>
-	isSourceId(id, groPaths) ? groPaths : paths;
+	isId(id, groPaths) ? groPaths : paths;
 
 export const isId = (id: string, p = paths): boolean => id.startsWith(p.root);
 export const isSourceId = (id: string, p = paths): boolean =>

@@ -1,6 +1,12 @@
 import {round} from '../utils/math.js';
 import {gray, white, green, yellow} from '../colors/terminal.js';
-import {toRootPath} from '../paths.js';
+import {
+	paths,
+	toRootPath,
+	groDirBasename,
+	pathsFromId,
+	groPaths,
+} from '../paths.js';
 import {truncate} from './string.js';
 
 export const fmtVal = (key: string, val: string | number): string =>
@@ -21,7 +27,17 @@ export const fmtValue = (value: unknown): unknown => {
 	}
 };
 
-export const fmtPath = (p: string): string => gray(toRootPath(p) || './');
+export const fmtPath = (path: string, p = paths): string =>
+	gray(toRootPath(path, p) || './');
+
+export const fmtPathOrGroPath = (path: string, fromPaths = paths): string => {
+	const inferredPaths = pathsFromId(path);
+	if (fromPaths === groPaths || inferredPaths === fromPaths) {
+		return fmtPath(path, inferredPaths);
+	} else {
+		return gray(groDirBasename) + fmtPath(path, groPaths);
+	}
+};
 
 const MAX_ERROR_LOG_LENGTH = 1000;
 

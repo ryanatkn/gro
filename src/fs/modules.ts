@@ -1,13 +1,13 @@
 import {pathExists, stat} from './nodeFs.js';
 import {red} from '../colors/terminal.js';
-import {fmtPath, fmtError} from '../utils/fmt.js';
+import {fmtPath, fmtError, fmtPathOrGroPath} from '../utils/fmt.js';
 import {
 	loadSourcePathDataByInputPath,
 	loadSourceIdsByInputPath,
 } from '../fs/inputPaths.js';
 import {Timings} from '../utils/time.js';
 import {PathStats, PathData} from './pathData.js';
-import {toImportId} from '../paths.js';
+import {toImportId, pathsFromId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
 
 /*
@@ -121,8 +121,9 @@ export const findModules = async (
 			unmappedInputPaths,
 			reasons: unmappedInputPaths.map(inputPath =>
 				red(
-					`Input path ${fmtPath(
+					`Input path ${fmtPathOrGroPath(
 						inputPath,
+						pathsFromId(inputPath),
 					)} cannot be mapped to a file or directory.`,
 				),
 			),
@@ -149,7 +150,10 @@ export const findModules = async (
 				inputDirectoriesWithNoFiles,
 				reasons: inputDirectoriesWithNoFiles.map(inputPath =>
 					red(
-						`Input directory ${fmtPath(inputPath)} contains no matching files.`,
+						`Input directory ${fmtPathOrGroPath(
+							inputPath,
+							pathsFromId(inputPath),
+						)} contains no matching files.`,
 					),
 				),
 		  }
@@ -191,6 +195,7 @@ export const loadModules = async <
 							red(
 								`Module import ${fmtPath(id)} failed from input ${fmtPath(
 									inputPath,
+									pathsFromId(inputPath),
 								)}: ${fmtError(result.error)}`,
 							),
 						);
