@@ -36,18 +36,18 @@ In the future we may want to support globbing or regexps.
 */
 export const resolveRawInputPath = (
 	rawInputPath: string,
-	paths?: Paths,
+	fromPaths?: Paths,
 ): string => {
 	if (isAbsolute(rawInputPath)) return rawInputPath;
 	// Allow prefix `./` and just remove it if it's there.
 	let basePath = stripRelativePath(rawInputPath);
-	if (!paths) {
+	if (!fromPaths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 		if (basePath.startsWith(groDirBasename)) {
-			paths = groPaths;
+			fromPaths = groPaths;
 			basePath = stripStart(basePath, groDirBasename);
 		} else if (basePath + sep === groDirBasename) {
-			paths = groPaths;
+			fromPaths = groPaths;
 			basePath = '';
 		}
 	}
@@ -55,7 +55,7 @@ export const resolveRawInputPath = (
 	if (basePath === SOURCE_DIR_NAME) basePath = '';
 	// Allow prefix `src/` and just remove it if it's there.
 	basePath = stripStart(basePath, SOURCE_DIR);
-	return basePathToSourceId(basePath, paths);
+	return basePathToSourceId(basePath, fromPaths);
 };
 
 export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
