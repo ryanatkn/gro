@@ -15,7 +15,7 @@ import mri from 'mri';
 
 import {Args} from './types.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {green, blue, cyan} from '../colors/terminal.js';
+import {green, blue, cyan, red} from '../colors/terminal.js';
 import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
 import {fmtMs, fmtError, fmtPath, fmtPathOrGroPath} from '../utils/fmt.js';
@@ -99,8 +99,10 @@ const main = async () => {
 				const task = loadModulesResult.modules[0];
 				log.info(`→ ${cyan(task.name)}`);
 				const result = await runTask(task, args, process.env);
-				log.info(`✓ ${cyan(task.name)}`);
-				if (!result.ok) {
+				if (result.ok) {
+					log.info(`✓ ${cyan(task.name)}`);
+				} else {
+					log.info(`${red('🞩')} ${cyan(task.name)}`);
 					log.error(result.reason, '\n', fmtError(result.error));
 				}
 			} else {
