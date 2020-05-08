@@ -151,7 +151,7 @@ export const findModules = async (
 				reasons: inputDirectoriesWithNoFiles.map(inputPath =>
 					red(
 						`Input directory ${fmtPathOrGroPath(
-							inputPath,
+							sourceIdPathDataByInputPath.get(inputPath)!.id,
 							pathsFromId(inputPath),
 						)} contains no matching files.`,
 					),
