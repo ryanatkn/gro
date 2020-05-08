@@ -51,3 +51,6 @@ export const fmtError = (err: Error): string =>
 		),
 		MAX_ERROR_LOG_LENGTH,
 	);
+
+export const fmtSubTiming = (key: string | number, timing: number): string =>
+	`${fmtMs(timing)} ${gray('←')} ${gray(key)}`;

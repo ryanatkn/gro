@@ -15,7 +15,7 @@ export const createStopwatch = (decimals = 2): Stopwatch => {
 	};
 };
 
-export class Timings<T extends string | number> {
+export class Timings<T extends string | number = string | number> {
 	private readonly timings = new Map<T, number>();
 	private readonly stopwatches = new Map<T, Stopwatch>();
 
@@ -44,6 +44,18 @@ export class Timings<T extends string | number> {
 		}
 		return timing;
 	}
+	getAll(): IterableIterator<[T, number]> {
+		return this.timings.entries();
+	}
+
+	// Merges other timings into this one,
+	// adding together values with identical keys.
+	merge(timings: Timings<T>): void {
+		for (const [key, timing] of timings.getAll()) {
+			this.timings.set(key, (this.timings.get(key) || 0) + timing);
+		}
+	}
+
 	// clear(): void {
 	// 	this.stopwatches.clear();
 	// 	this.timings.clear();

@@ -4,7 +4,7 @@ import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
 import {findModules, loadModules} from './fs/modules.js';
 import {TEST_FILE_SUFFIX, isTestPath} from './oki/testModule.js';
-import {fmtMs} from './utils/fmt.js';
+import {fmtMs, fmtSubTiming} from './utils/fmt.js';
 import {Timings} from './utils/time.js';
 import * as report from './oki/report.js';
 
@@ -15,6 +15,7 @@ export const task: Task = {
 
 		const timings = new Timings<'total'>();
 		timings.start('total');
+		const subTimings = new Timings();
 
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
@@ -31,6 +32,7 @@ export const task: Task = {
 			}
 			return;
 		}
+		subTimings.merge(findModulesResult.timings);
 
 		// The test context needs to link its imported modules
 		// to their execution context, so its API is a bit complex.
@@ -47,25 +49,17 @@ export const task: Task = {
 			}
 			return;
 		}
+		subTimings.merge(loadModulesResult.timings);
 
 		// The test modules register themselves with the testContext when imported,
 		// so we don't pass them as a parameter to run them.
 		// They're available as `result.modules` though.
 		const testRunResult = await testContext.run();
+		subTimings.merge(testRunResult.timings);
 
-		log.info(
-			`${fmtMs(
-				findModulesResult.timings.get('map input paths'),
-			)} to map input paths`,
-		);
-		log.info(
-			`${fmtMs(findModulesResult.timings.get('find files'))} to find files`,
-		);
-		log.info(
-			`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
-		);
-		// TODO this gets duplicated by the oki reporter
-		log.info(`${fmtMs(testRunResult.timings.get('total'))} to run tests`);
+		for (const [key, timing] of subTimings.getAll()) {
+			log.trace(fmtSubTiming(key, timing));
+		}
 		log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 	},
 };

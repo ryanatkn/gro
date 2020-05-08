@@ -4,7 +4,7 @@ import {red, green, gray} from './colors/terminal.js';
 import {isGenPath, GEN_FILE_PATTERN} from './gen/gen.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule} from './gen/genModule.js';
-import {fmtPath, fmtMs, fmtError} from './utils/fmt.js';
+import {fmtPath, fmtMs, fmtError, fmtSubTiming} from './utils/fmt.js';
 import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
 import {plural} from './utils/string.js';
@@ -20,6 +20,7 @@ export const task: Task = {
 
 		const timings = new Timings<'total' | 'output results'>();
 		timings.start('total');
+		const subTimings = new Timings();
 
 		// resolve the input paths relative to src/
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
@@ -39,6 +40,7 @@ export const task: Task = {
 			}
 			return;
 		}
+		subTimings.merge(findModulesResult.timings);
 		const loadModulesResult = await loadModules(
 			findModulesResult.sourceIdsByInputPath,
 			loadGenModule,
@@ -49,12 +51,15 @@ export const task: Task = {
 			}
 			return;
 		}
+		subTimings.merge(loadModulesResult.timings);
 
 		// run `gen` on each of the modules
+		subTimings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
 		const genResults = await runGen(loadModulesResult.modules);
+		subTimings.stop('generate code');
 
 		// write generated files to disk
-		timings.start('output results');
+		subTimings.start('output results');
 		if (genResults.failures.length) {
 			for (const result of genResults.failures) {
 				log.error(result.reason, '\n', fmtError(result.error));
@@ -75,7 +80,7 @@ export const task: Task = {
 				)
 				.flat(),
 		);
-		timings.stop('output results');
+		subTimings.stop('output results');
 
 		let logResult = '';
 		for (const result of genResults.results) {
@@ -104,19 +109,9 @@ export const task: Task = {
 				),
 			);
 		}
-		log.info(
-			`${fmtMs(
-				findModulesResult.timings.get('map input paths'),
-			)} to map input paths`,
-		);
-		log.info(
-			`${fmtMs(findModulesResult.timings.get('find files'))} to find files`,
-		);
-		log.info(
-			`${fmtMs(loadModulesResult.timings.get('load modules'))} to load modules`,
-		);
-		log.info(`${fmtMs(genResults.elapsed)} to generate code`);
-		log.info(`${fmtMs(timings.get('output results'))} to output results`);
+		for (const [key, timing] of subTimings.getAll()) {
+			log.trace(fmtSubTiming(key, timing));
+		}
 		log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 	},
 };

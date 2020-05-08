@@ -20,6 +20,20 @@ test('Timings', () => {
 	t.throws(() => timings.get('bar'));
 	t.ok(elapsed.toString().split('.')[1].length <= 4);
 
+	test('merge timings', () => {
+		const a = new Timings(10);
+		const b = new Timings(10);
+		a.start('test');
+		const aTiming = a.stop('test');
+		t.ok(aTiming);
+		b.start('test');
+		const bTiming = b.stop('test');
+		t.ok(bTiming);
+		a.merge(b);
+		t.is(a.get('test'), aTiming + bTiming);
+		t.is(b.get('test'), bTiming);
+	});
+
 	// TODO TypeScript 3.9 @ts-expect-error
 	// timings.start('no');
 });

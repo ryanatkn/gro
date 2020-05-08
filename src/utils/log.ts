@@ -123,7 +123,7 @@ export class Logger {
 		suffixes: [],
 	};
 	static trace: LogLevelDefaults = {
-		prefixes: [gray('-')],
+		prefixes: [gray('—')],
 		suffixes: [],
 	};
 }

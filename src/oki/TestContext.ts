@@ -50,7 +50,7 @@ export interface TestStats {
 export interface TestRunResult {
 	timings: Timings<TestRunTimings>;
 }
-export type TestRunTimings = 'total';
+export type TestRunTimings = 'run tests';
 
 // TODO make these async?
 // TODO maybe trigger events instead of these callbacks?
@@ -122,7 +122,7 @@ export class TestContext {
 	runState = AsyncState.Initial;
 	async run(): Promise<TestRunResult> {
 		const timings = new Timings<TestRunTimings>();
-		timings.start('total');
+		timings.start('run tests');
 		if (this.runState !== AsyncState.Initial) {
 			throw Error(`TestContext was already run`);
 		}
@@ -137,7 +137,7 @@ export class TestContext {
 		}
 		this.runState = AsyncState.Success;
 		this.onRunEnd();
-		timings.stop('total');
+		timings.stop('run tests');
 		return {timings};
 	}
 

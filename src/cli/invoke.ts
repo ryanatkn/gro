@@ -18,7 +18,13 @@ import {SystemLogger, Logger} from '../utils/log.js';
 import {green, blue, cyan, red} from '../colors/terminal.js';
 import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
-import {fmtMs, fmtError, fmtPath, fmtPathOrGroPath} from '../utils/fmt.js';
+import {
+	fmtMs,
+	fmtError,
+	fmtPath,
+	fmtPathOrGroPath,
+	fmtSubTiming,
+} from '../utils/fmt.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from '../task/task.js';
 import {
@@ -69,6 +75,7 @@ const main = async () => {
 
 	const timings = new Timings<'total'>();
 	timings.start('total');
+	const subTimings = new Timings();
 
 	// Resolve the input path for the provided task name.
 	const inputPath = resolveRawInputPath(taskName || paths.source);
@@ -83,6 +90,7 @@ const main = async () => {
 	);
 
 	if (findModulesResult.ok) {
+		subTimings.merge(findModulesResult.timings);
 		// Found a match either in the current working directory or Gro's directory.
 		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(
 			inputPath,
@@ -94,11 +102,14 @@ const main = async () => {
 				loadTaskModule,
 			);
 			if (loadModulesResult.ok) {
+				subTimings.merge(loadModulesResult.timings);
 				// Run the task!
 				// `pathData` is not a directory, so there's a single task module here.
 				const task = loadModulesResult.modules[0];
 				log.info(`→ ${cyan(task.name)}`);
+				subTimings.start('run task');
 				const result = await runTask(task, args, process.env);
+				subTimings.stop('run task');
 				if (result.ok) {
 					log.info(`✓ ${cyan(task.name)}`);
 				} else {
@@ -136,6 +147,7 @@ const main = async () => {
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (groDirFindModulesResult.ok) {
+					subTimings.merge(groDirFindModulesResult.timings);
 					const groPathData = groDirFindModulesResult.sourceIdPathDataByInputPath.get(
 						groDirInputPath,
 					)!;
@@ -174,6 +186,7 @@ const main = async () => {
 				findFiles(id, file => isTaskPath(file.path)),
 			);
 			if (groDirFindModulesResult.ok) {
+				subTimings.merge(groDirFindModulesResult.timings);
 				const groPathData = groDirFindModulesResult.sourceIdPathDataByInputPath.get(
 					groDirInputPath,
 				)!;
@@ -194,6 +207,9 @@ const main = async () => {
 		printErrorReasons(log, findModulesResult.reasons);
 	}
 
+	for (const [key, timing] of subTimings.getAll()) {
+		log.trace(fmtSubTiming(key, timing));
+	}
 	log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 };
 
