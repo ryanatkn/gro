@@ -5,7 +5,7 @@ import {emptyDir, copy} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {paths} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
-import {fmtPath} from './utils/fmt.js';
+import {printPath} from './utils/print.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
@@ -13,7 +13,7 @@ export const isDistFile = (path: string): boolean =>
 export const task: Task = {
 	description: 'create and link the distribution',
 	run: async ({log}) => {
-		log.info(`emptying ${fmtPath(paths.dist)}`);
+		log.info(`emptying ${printPath(paths.dist)}`);
 		await emptyDir(paths.dist);
 
 		log.info('copying build');

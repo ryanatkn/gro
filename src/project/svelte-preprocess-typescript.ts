@@ -4,7 +4,7 @@ import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {magenta, red} from '../colors/terminal.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {loadTsconfig} from './tsHelpers.js';
-import {fmtPath} from '../utils/fmt.js';
+import {printPath} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';
 
 /*
@@ -41,7 +41,7 @@ export const sveltePreprocessTypescript = (
 	return {
 		script({content, attributes, filename}) {
 			if (!langs.includes(attributes.lang as any)) return null as any; // type is wrong
-			log.info('transpiling', fmtPath(filename || ''));
+			log.info('transpiling', printPath(filename || ''));
 			const transpileOptions: ts.TranspileOptions = {
 				compilerOptions: tsconfig.compilerOptions,
 				fileName: filename,
@@ -56,7 +56,7 @@ export const sveltePreprocessTypescript = (
 			} catch (err) {
 				log.error(
 					red('Failed to transpile TypeScript'),
-					fmtPath(filename || ''),
+					printPath(filename || ''),
 				);
 				throw err;
 			}

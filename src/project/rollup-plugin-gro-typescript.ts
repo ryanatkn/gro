@@ -6,7 +6,7 @@ const {createFilter} = rollupPluginutils; // TODO esm
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {fmtKeyValue, fmtMs, fmtPath} from '../utils/fmt.js';
+import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath} from '../paths.js';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
@@ -70,7 +70,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 
 			const stopwatch = createStopwatch();
 
-			log.trace('transpile', fmtPath(id));
+			log.trace('transpile', printPath(id));
 			let transpileOutput: ts.TranspileOutput;
 			try {
 				transpileOutput = ts.transpileModule(code, {
@@ -81,7 +81,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 					// renamedDependencies?: Map<string>;
 				});
 			} catch (err) {
-				log.error(red('Failed to transpile TypeScript'), fmtPath(id));
+				log.error(red('Failed to transpile TypeScript'), printPath(id));
 				throw err;
 			}
 			const {outputText, sourceMapText, diagnostics} = transpileOutput;
@@ -130,11 +130,11 @@ const handleStats = (
 	log: Logger,
 ): void => {
 	log.info(
-		fmtKeyValue('stats', toRootPath(id)),
+		printKeyValue('stats', toRootPath(id)),
 		...[
-			// fmtVal('total', fmtMs(stats.timings.total)),
+			// printKeyValue('total', printMs(stats.timings.total)),
 			stats.timings.transpile &&
-				fmtKeyValue('transpile', fmtMs(stats.timings.transpile.total)),
+				printKeyValue('transpile', printMs(stats.timings.transpile.total)),
 		].filter(Boolean),
 	);
 };

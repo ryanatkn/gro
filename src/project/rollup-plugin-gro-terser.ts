@@ -5,7 +5,7 @@ const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {fmtPath} from '../utils/fmt.js';
+import {printPath} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO speed up with workers
@@ -41,7 +41,7 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 		renderChunk(code, chunk, outputOptions) {
 			if (!filter(chunk.fileName)) return null;
 
-			log.info('terser', fmtPath(chunk.fileName));
+			log.info('terser', printPath(chunk.fileName));
 
 			const minified = terser.minify(code, {
 				module: ['es', 'esm'].includes(outputOptions.format!),

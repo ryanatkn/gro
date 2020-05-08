@@ -8,7 +8,7 @@ import {
 	cyan,
 } from '../colors/terminal.js';
 import {TestContext, TOTAL_TIMING, TestInstance} from './TestContext.js';
-import {fmtMs, fmtValue, fmtStr, fmtError} from '../utils/fmt.js';
+import {printMs, printValue, printStr, printError} from '../utils/print.js';
 import {toSourcePath} from '../paths.js';
 import {
 	AssertionError,
@@ -68,7 +68,7 @@ export const reportSummary = (ctx: TestContext): void => {
 		if (failCount) {
 			log.info(red(`${failCount} test${failCount === 1 ? '' : 's'} failed`));
 		}
-		log.info(gray('🕒'), fmtMs(ctx.timings.get(TOTAL_TIMING), 1));
+		log.info(gray('🕒'), printMs(ctx.timings.get(TOTAL_TIMING), 1));
 		if (failCount) {
 			log.info(gray('not oki :|'));
 		} else {
@@ -86,7 +86,7 @@ export const reportFileEnd = (ctx: TestContext, fileId: string): void => {
 	ctx.log.plain(
 		ctx.reportBaseIndent,
 		gray('🕒'),
-		fmtMs(ctx.timings.get(fileId), 1),
+		printMs(ctx.timings.get(fileId), 1),
 	);
 	// TODO log fail count?
 };
@@ -109,21 +109,21 @@ export const reportAssertionError = (
 
 	switch (assertion.operator) {
 		case AssertionOperator.ok:
-			log.plain(fmtValue(assertion.value));
+			log.plain(printValue(assertion.value));
 			break;
 		case AssertionOperator.is:
-			log.plain(fmtValue(assertion.actual));
-			log.plain(fmtValue(assertion.expected));
+			log.plain(printValue(assertion.actual));
+			log.plain(printValue(assertion.expected));
 			break;
 		case AssertionOperator.isNot:
-			log.plain(fmtValue(assertion.expected));
+			log.plain(printValue(assertion.expected));
 			break;
 		case AssertionOperator.equal:
-			log.plain(fmtValue(assertion.actual));
-			log.plain(fmtValue(assertion.expected));
+			log.plain(printValue(assertion.actual));
+			log.plain(printValue(assertion.expected));
 			break;
 		case AssertionOperator.notEqual:
-			log.plain(fmtValue(assertion.expected));
+			log.plain(printValue(assertion.expected));
 			break;
 		case AssertionOperator.throws:
 			const logArgs: any[] = [];
@@ -140,7 +140,7 @@ export const reportAssertionError = (
 			log.plain(...logArgs);
 			break;
 		case AssertionOperator.fail:
-			log.plain(fmtError(error));
+			log.plain(printError(error));
 			break;
 		default:
 			throw new UnreachableError(assertion);
@@ -222,13 +222,13 @@ const formatUnmatchedErrorMessage = (
 		strs.push(
 			formatMatcher(matcher),
 			'is not a substring of error message',
-			fmtStr(error.message),
+			printStr(error.message),
 		);
 	} else if (matcher instanceof RegExp) {
 		strs.push(
 			formatMatcher(matcher),
 			'does not match error message',
-			fmtStr(error.message),
+			printStr(error.message),
 		);
 	} else {
 		strs.push(
@@ -242,7 +242,7 @@ const formatUnmatchedErrorMessage = (
 
 const formatMatcher = (matcher: string | RegExp | ErrorClass): string => {
 	if (typeof matcher === 'string') {
-		return fmtStr(matcher);
+		return printStr(matcher);
 	} else if (matcher instanceof RegExp) {
 		return green(matcher.toString()); // default is red, but that's reserved for errors
 	} else {

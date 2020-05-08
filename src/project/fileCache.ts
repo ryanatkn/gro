@@ -2,7 +2,7 @@ import {green} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';
 import {PathData} from '../fs/pathData.js';
-import {fmtPath} from '../utils/fmt.js';
+import {printPath} from '../utils/print.js';
 
 export interface FileCache {
 	readonly byId: Map<string, PathData>;
@@ -20,11 +20,11 @@ export const createFileCache = (): FileCache => {
 		byId,
 		get: id => byId.get(id),
 		set: file => {
-			log.trace('set', fmtPath(file.id));
+			log.trace('set', printPath(file.id));
 			byId.set(file.id, file);
 		},
 		update: (id, partial): PathData => {
-			log.trace('update', fmtPath(id), partial);
+			log.trace('update', printPath(id), partial);
 			const current = byId.get(id);
 			if (!current) {
 				throw Error(`Cannot update fileCache with unknown id: ${id}`);

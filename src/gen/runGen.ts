@@ -7,7 +7,7 @@ import {
 	GenModuleResultSuccess,
 	GenModuleResultFailure,
 } from './gen.js';
-import {fmtPath} from '../utils/fmt.js';
+import {printPath} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {red} from '../colors/terminal.js';
 
@@ -28,7 +28,7 @@ export const runGen = async (
 				try {
 					rawGenResult = await mod.gen(genCtx);
 				} catch (err) {
-					const reason = red(`Error generating ${fmtPath(id)}`);
+					const reason = red(`Error generating ${printPath(id)}`);
 					return {
 						ok: false,
 						id,

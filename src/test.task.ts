@@ -4,7 +4,7 @@ import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
 import {findModules, loadModules} from './fs/modules.js';
 import {TEST_FILE_SUFFIX, isTestPath} from './oki/testModule.js';
-import {fmtMs, fmtSubTiming} from './utils/fmt.js';
+import {printMs, printSubTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import * as report from './oki/report.js';
 
@@ -58,8 +58,8 @@ export const task: Task = {
 		subTimings.merge(testRunResult.timings);
 
 		for (const [key, timing] of subTimings.getAll()) {
-			log.trace(fmtSubTiming(key, timing));
+			log.trace(printSubTiming(key, timing));
 		}
-		log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
+		log.info(`🕒 ${printMs(timings.stop('total'))}`);
 	},
 };

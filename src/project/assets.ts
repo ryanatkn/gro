@@ -18,7 +18,7 @@ import {
 	SOURCE_DIR,
 	BUILD_DIR,
 } from '../paths.js';
-import {fmtPath} from '../utils/fmt.js';
+import {printPath} from '../utils/print.js';
 
 // TODO needs major refactoring
 // - how does it work with the build process instead of as a standalone script?
@@ -86,6 +86,6 @@ export const assets = async (opts: InitialOptions = {}) => {
 
 const copyAssetToDist = async (id: string, log: Logger): Promise<void> => {
 	const distId = toDistId(id);
-	log.info('copying asset', fmtPath(id), 'to', fmtPath(distId));
+	log.info('copying asset', printPath(id), 'to', printPath(distId));
 	return copy(id, distId);
 };

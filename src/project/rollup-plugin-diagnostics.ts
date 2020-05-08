@@ -2,7 +2,7 @@ import {Plugin} from 'rollup';
 
 import {gray} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {fmtKeyValue, fmtMs, fmtPath} from '../utils/fmt.js';
+import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {createStopwatch} from '../utils/time.js';
 
 const name = 'diagnostics';
@@ -24,7 +24,7 @@ export const diagnosticsPlugin = (): Plugin => {
 			if (started) {
 				stopwatch(true); // reset the clock
 			} else {
-				log.info(fmtKeyValue('startupTime', fmtMs(stopwatch(true))));
+				log.info(printKeyValue('startupTime', printMs(stopwatch(true))));
 				started = true;
 			}
 		},
@@ -37,7 +37,7 @@ export const diagnosticsPlugin = (): Plugin => {
 		},
 		// intro() {}
 		load(id) {
-			log.trace(tag('load'), fmtPath(id));
+			log.trace(tag('load'), printPath(id));
 			return null;
 		},
 		options(_o) {
@@ -54,7 +54,7 @@ export const diagnosticsPlugin = (): Plugin => {
 				tag('renderChunk'),
 				chunk.name,
 				chunk.fileName,
-				chunk.facadeModuleId && fmtPath(chunk.facadeModuleId),
+				chunk.facadeModuleId && printPath(chunk.facadeModuleId),
 			);
 			return null;
 		},
@@ -68,7 +68,7 @@ export const diagnosticsPlugin = (): Plugin => {
 			log.trace(
 				tag('resolveId'),
 				gray(importee),
-				(importer && '<- ' + fmtPath(importer)) || '',
+				(importer && '<- ' + printPath(importer)) || '',
 			);
 			return null;
 		},
@@ -76,8 +76,8 @@ export const diagnosticsPlugin = (): Plugin => {
 		transform(code, id) {
 			log.trace(
 				tag('transform'),
-				fmtPath(id),
-				fmtKeyValue('len', (code && code.length) || 0),
+				printPath(id),
+				printKeyValue('len', (code && code.length) || 0),
 			);
 			return null;
 		},
@@ -92,7 +92,7 @@ export const diagnosticsPlugin = (): Plugin => {
 				// how should that work?
 				// ideally the state is contained here in the diagnostics plugin
 				// could track what module is logging via the keyed tags.
-				fmtKeyValue('totalElapsed', fmtMs(stopwatch())),
+				printKeyValue('totalElapsed', printMs(stopwatch())),
 			);
 		},
 	};

@@ -8,7 +8,7 @@ const {createFilter} = rollupPluginutils; // TODO esm
 import {magenta, yellow, red} from '../colors/terminal.js';
 import {getPathStem, replaceExt} from '../utils/path.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {fmtKeyValue, fmtMs, fmtPath} from '../utils/fmt.js';
+import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath} from '../paths.js';
 import {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
@@ -119,14 +119,14 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		getCompilation,
 		async transform(code, id) {
 			if (!filter(id)) return null;
-			log.trace('transform', fmtPath(id));
+			log.trace('transform', printPath(id));
 
 			let preprocessedCode = code;
 
 			// TODO see rollup-plugin-svelte for how to track deps
 			// let dependencies = [];
 			if (preprocessor) {
-				log.trace('preprocess', fmtPath(id));
+				log.trace('preprocess', printPath(id));
 				const preprocessed = await svelte.preprocess(code, preprocessor, {
 					filename: id,
 				});
@@ -134,7 +134,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 				// dependencies = preprocessed.dependencies;
 			}
 
-			log.trace('compile', fmtPath(id));
+			log.trace('compile', printPath(id));
 			let svelteCompilation: SvelteCompilation;
 			try {
 				svelteCompilation = svelte.compile(preprocessedCode, {
@@ -145,7 +145,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 					name: getPathStem(id),
 				});
 			} catch (err) {
-				log.error(red('Failed to compile Svelte'), fmtPath(id));
+				log.error(red('Failed to compile Svelte'), printPath(id));
 				throw err;
 			}
 			const {js, css, warnings, stats} = svelteCompilation;
@@ -157,7 +157,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			onstats(id, stats, handleStats, this, log);
 
 			let cssId = replaceExt(id, '.css');
-			log.trace('add css import', fmtPath(cssId));
+			log.trace('add css import', printPath(cssId));
 			addCssBuild({
 				id: cssId,
 				sourceId: id,
@@ -209,13 +209,16 @@ const handleStats = (
 	log: Logger,
 ): void => {
 	log.info(
-		fmtKeyValue('stats', toRootPath(id)),
+		printKeyValue('stats', toRootPath(id)),
 		...[
-			fmtKeyValue('total', fmtMs(stats.timings.total)),
+			printKeyValue('total', printMs(stats.timings.total)),
 			stats.timings.parse &&
-				fmtKeyValue('parse', fmtMs(stats.timings.parse.total)),
+				printKeyValue('parse', printMs(stats.timings.parse.total)),
 			stats.timings['create component'] &&
-				fmtKeyValue('create', fmtMs(stats.timings['create component'].total)),
+				printKeyValue(
+					'create',
+					printMs(stats.timings['create component'].total),
+				),
 		].filter(Boolean),
 	);
 };

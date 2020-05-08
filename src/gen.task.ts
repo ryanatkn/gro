@@ -4,7 +4,7 @@ import {red, green, gray} from './colors/terminal.js';
 import {isGenPath, GEN_FILE_PATTERN} from './gen/gen.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule} from './gen/genModule.js';
-import {fmtPath, fmtMs, fmtError, fmtSubTiming} from './utils/fmt.js';
+import {printPath, printMs, printError, printSubTiming} from './utils/print.js';
 import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
 import {plural} from './utils/string.js';
@@ -62,7 +62,7 @@ export const task: Task = {
 		subTimings.start('output results');
 		if (genResults.failures.length) {
 			for (const result of genResults.failures) {
-				log.error(result.reason, '\n', fmtError(result.error));
+				log.error(result.reason, '\n', printError(result.error));
 			}
 		}
 		await Promise.all(
@@ -71,9 +71,9 @@ export const task: Task = {
 					result.files.map(file => {
 						log.info(
 							'writing',
-							fmtPath(file.id),
+							printPath(file.id),
 							'generated from',
-							fmtPath(file.originId),
+							printPath(file.originId),
 						);
 						return outputFile(file.id, file.contents);
 					}),
@@ -86,7 +86,7 @@ export const task: Task = {
 		for (const result of genResults.results) {
 			logResult += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${gray('in')} ${fmtMs(result.elapsed)} ${gray('←')} ${fmtPath(
+			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${printPath(
 				result.id,
 			)}`;
 		}
@@ -110,8 +110,8 @@ export const task: Task = {
 			);
 		}
 		for (const [key, timing] of subTimings.getAll()) {
-			log.trace(fmtSubTiming(key, timing));
+			log.trace(printSubTiming(key, timing));
 		}
-		log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
+		log.info(`🕒 ${printMs(timings.stop('total'))}`);
 	},
 };

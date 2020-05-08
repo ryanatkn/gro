@@ -1,6 +1,6 @@
 import {pathExists, stat} from './nodeFs.js';
 import {red} from '../colors/terminal.js';
-import {fmtPath, fmtError, fmtPathOrGroPath} from '../utils/fmt.js';
+import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
 import {
 	loadSourcePathDataByInputPath,
 	loadSourceIdsByInputPath,
@@ -121,7 +121,7 @@ export const findModules = async (
 			unmappedInputPaths,
 			reasons: unmappedInputPaths.map(inputPath =>
 				red(
-					`Input path ${fmtPathOrGroPath(
+					`Input path ${printPathOrGroPath(
 						inputPath,
 						pathsFromId(inputPath),
 					)} cannot be mapped to a file or directory.`,
@@ -150,7 +150,7 @@ export const findModules = async (
 				inputDirectoriesWithNoFiles,
 				reasons: inputDirectoriesWithNoFiles.map(inputPath =>
 					red(
-						`Input directory ${fmtPathOrGroPath(
+						`Input directory ${printPathOrGroPath(
 							sourceIdPathDataByInputPath.get(inputPath)!.id,
 							pathsFromId(inputPath),
 						)} contains no matching files.`,
@@ -193,10 +193,10 @@ export const loadModules = async <
 					case 'importFailed': {
 						reasons.push(
 							red(
-								`Module import ${fmtPath(id)} failed from input ${fmtPath(
+								`Module import ${printPath(id)} failed from input ${printPath(
 									inputPath,
 									pathsFromId(inputPath),
-								)}: ${fmtError(result.error)}`,
+								)}: ${printError(result.error)}`,
 							),
 						);
 						break;
@@ -204,7 +204,7 @@ export const loadModules = async <
 					case 'invalid': {
 						reasons.push(
 							red(
-								`Module ${fmtPath(id)} failed validation '${
+								`Module ${printPath(id)} failed validation '${
 									result.validation
 								}'.`,
 							),

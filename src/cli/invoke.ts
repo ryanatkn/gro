@@ -19,12 +19,12 @@ import {green, blue, cyan, red} from '../colors/terminal.js';
 import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
 import {
-	fmtMs,
-	fmtError,
-	fmtPath,
-	fmtPathOrGroPath,
-	fmtSubTiming,
-} from '../utils/fmt.js';
+	printMs,
+	printError,
+	printPath,
+	printPathOrGroPath,
+	printSubTiming,
+} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from '../task/task.js';
 import {
@@ -114,7 +114,7 @@ const main = async () => {
 					log.info(`✓ ${cyan(task.name)}`);
 				} else {
 					log.info(`${red('🞩')} ${cyan(task.name)}`);
-					log.error(result.reason, '\n', fmtError(result.error));
+					log.error(result.reason, '\n', printError(result.error));
 				}
 			} else {
 				logErrorReasons(log, loadModulesResult.reasons);
@@ -125,14 +125,14 @@ const main = async () => {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				logAvailableTasks(
 					log,
-					fmtPath(pathData.id),
+					printPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
 				);
 			} else if (isId(pathData.id, groPaths)) {
 				// Does the Gro directory contain the matching files? Log them.
 				logAvailableTasks(
 					log,
-					fmtPathOrGroPath(pathData.id),
+					printPathOrGroPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
 				);
 			} else {
@@ -154,14 +154,14 @@ const main = async () => {
 					// First log the Gro matches.
 					logAvailableTasks(
 						log,
-						fmtPathOrGroPath(groPathData.id),
+						printPathOrGroPath(groPathData.id),
 						groDirFindModulesResult.sourceIdsByInputPath,
 					);
 				}
 				// Then log the current working directory matches.
 				logAvailableTasks(
 					log,
-					fmtPath(pathData.id),
+					printPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
 				);
 			}
@@ -193,7 +193,7 @@ const main = async () => {
 				// Log the Gro matches.
 				logAvailableTasks(
 					log,
-					fmtPathOrGroPath(groPathData.id),
+					printPathOrGroPath(groPathData.id),
 					groDirFindModulesResult.sourceIdsByInputPath,
 				);
 			} else {
@@ -208,9 +208,9 @@ const main = async () => {
 	}
 
 	for (const [key, timing] of subTimings.getAll()) {
-		log.trace(fmtSubTiming(key, timing));
+		log.trace(printSubTiming(key, timing));
 	}
-	log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
+	log.info(`🕒 ${printMs(timings.stop('total'))}`);
 };
 
 const logAvailableTasks = (
