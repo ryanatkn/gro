@@ -7,7 +7,7 @@ import {
 	RollupOutput,
 	RollupBuild,
 } from 'rollup';
-import resolvePlugin from 'rollup-plugin-node-resolve';
+import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from 'rollup-plugin-commonjs';
 import {resolve} from 'path';
 

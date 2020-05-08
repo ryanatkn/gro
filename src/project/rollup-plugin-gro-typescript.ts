@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import {Plugin, PluginContext} from 'rollup';
-import rollupPluginutils from 'rollup-pluginutils';
+import rollupPluginutils from '@rollup/pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
 import {magenta, red} from '../colors/terminal.js';
