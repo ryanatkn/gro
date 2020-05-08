@@ -1,6 +1,6 @@
 import {green} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {fmtVal, fmtPath} from '../utils/fmt.js';
+import {fmtKeyValue, fmtPath} from '../utils/fmt.js';
 
 export interface CssBuild {
 	id: string;
@@ -48,7 +48,10 @@ export const createCssCache = <
 				bundles.set(bundleName, bundle);
 			}
 
-			log.info(fmtVal('caching', fmtPath(id)), fmtVal('bundle', bundleName));
+			log.info(
+				fmtKeyValue('caching', fmtPath(id)),
+				fmtKeyValue('bundle', bundleName),
+			);
 			bundle.buildsById.set(id, build);
 			bundle.changedIds.add(id);
 

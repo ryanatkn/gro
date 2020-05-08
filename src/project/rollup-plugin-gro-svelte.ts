@@ -8,7 +8,7 @@ const {createFilter} = rollupPluginutils; // TODO esm
 import {magenta, yellow, red} from '../colors/terminal.js';
 import {getPathStem, replaceExt} from '../utils/path.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
+import {fmtKeyValue, fmtMs, fmtPath} from '../utils/fmt.js';
 import {toRootPath} from '../paths.js';
 import {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
@@ -209,12 +209,13 @@ const handleStats = (
 	log: Logger,
 ): void => {
 	log.info(
-		fmtVal('stats', toRootPath(id)),
+		fmtKeyValue('stats', toRootPath(id)),
 		...[
-			fmtVal('total', fmtMs(stats.timings.total)),
-			stats.timings.parse && fmtVal('parse', fmtMs(stats.timings.parse.total)),
+			fmtKeyValue('total', fmtMs(stats.timings.total)),
+			stats.timings.parse &&
+				fmtKeyValue('parse', fmtMs(stats.timings.parse.total)),
 			stats.timings['create component'] &&
-				fmtVal('create', fmtMs(stats.timings['create component'].total)),
+				fmtKeyValue('create', fmtMs(stats.timings['create component'].total)),
 		].filter(Boolean),
 	);
 };

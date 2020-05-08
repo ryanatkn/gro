@@ -2,7 +2,7 @@ import {Plugin} from 'rollup';
 
 import {gray} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
+import {fmtKeyValue, fmtMs, fmtPath} from '../utils/fmt.js';
 import {createStopwatch} from '../utils/time.js';
 
 const name = 'diagnostics';
@@ -24,7 +24,7 @@ export const diagnosticsPlugin = (): Plugin => {
 			if (started) {
 				stopwatch(true); // reset the clock
 			} else {
-				log.info(fmtVal('startupTime', fmtMs(stopwatch(true))));
+				log.info(fmtKeyValue('startupTime', fmtMs(stopwatch(true))));
 				started = true;
 			}
 		},
@@ -77,7 +77,7 @@ export const diagnosticsPlugin = (): Plugin => {
 			log.trace(
 				tag('transform'),
 				fmtPath(id),
-				fmtVal('len', (code && code.length) || 0),
+				fmtKeyValue('len', (code && code.length) || 0),
 			);
 			return null;
 		},
@@ -92,7 +92,7 @@ export const diagnosticsPlugin = (): Plugin => {
 				// how should that work?
 				// ideally the state is contained here in the diagnostics plugin
 				// could track what module is logging via the keyed tags.
-				fmtVal('totalElapsed', fmtMs(stopwatch())),
+				fmtKeyValue('totalElapsed', fmtMs(stopwatch())),
 			);
 		},
 	};

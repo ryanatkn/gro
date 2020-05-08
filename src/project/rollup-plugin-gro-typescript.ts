@@ -6,7 +6,7 @@ const {createFilter} = rollupPluginutils; // TODO esm
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {fmtVal, fmtMs, fmtPath} from '../utils/fmt.js';
+import {fmtKeyValue, fmtMs, fmtPath} from '../utils/fmt.js';
 import {toRootPath} from '../paths.js';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
@@ -130,11 +130,11 @@ const handleStats = (
 	log: Logger,
 ): void => {
 	log.info(
-		fmtVal('stats', toRootPath(id)),
+		fmtKeyValue('stats', toRootPath(id)),
 		...[
 			// fmtVal('total', fmtMs(stats.timings.total)),
 			stats.timings.transpile &&
-				fmtVal('transpile', fmtMs(stats.timings.transpile.total)),
+				fmtKeyValue('transpile', fmtMs(stats.timings.transpile.total)),
 		].filter(Boolean),
 	);
 };

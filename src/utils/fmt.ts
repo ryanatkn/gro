@@ -9,7 +9,7 @@ import {
 } from '../paths.js';
 import {truncate} from './string.js';
 
-export const fmtVal = (key: string, val: string | number): string =>
+export const fmtKeyValue = (key: string, val: string | number): string =>
 	gray(`${key}(`) + val + gray(')');
 
 export const fmtMs = (ms: number, decimals = 1): string =>
