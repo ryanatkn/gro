@@ -88,7 +88,7 @@ export const diagnosticsPlugin = (): Plugin => {
 			log.info(
 				tag('writeBundle'),
 				// TODO
-				// print # of errors/warnings (maybe duplicate printing them here too)
+				// log # of errors/warnings (maybe duplicate logging them here too)
 				// how should that work?
 				// ideally the state is contained here in the diagnostics plugin
 				// could track what module is logging via the keyed tags.

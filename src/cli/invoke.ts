@@ -52,7 +52,7 @@ it first searches for tasks in the current working directory
 using the first CLI arg a.k.a. "taskName",
 and falls back to searching Gro's directory, if the two are different.
 See `src/fs/inputPath.ts` for info about what "taskName" can refer to.
-If it matches a directory, all of the tasks within it are printed out,
+If it matches a directory, all of the tasks within it are logged,
 both in the current working directory and Gro.
 
 This code is particularly hairy because
@@ -117,20 +117,20 @@ const main = async () => {
 					log.error(result.reason, '\n', fmtError(result.error));
 				}
 			} else {
-				printErrorReasons(log, loadModulesResult.reasons);
+				logErrorReasons(log, loadModulesResult.reasons);
 			}
 		} else {
-			// The input path matches a directory. Print the tasks but don't run them.
+			// The input path matches a directory. Log the tasks but don't run them.
 			if (paths === groPaths) {
-				// Is the Gro directory the same as the cwd? Print the matching files.
-				printAvailableTasks(
+				// Is the Gro directory the same as the cwd? Log the matching files.
+				logAvailableTasks(
 					log,
 					fmtPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
 				);
 			} else if (isId(pathData.id, groPaths)) {
-				// Does the Gro directory contain the matching files? Print them.
-				printAvailableTasks(
+				// Does the Gro directory contain the matching files? Log them.
+				logAvailableTasks(
 					log,
 					fmtPathOrGroPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
@@ -139,7 +139,7 @@ const main = async () => {
 				// The Gro directory is not the same as the cwd
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
-				// and print everything out.
+				// and log everything out.
 				const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
 				const groDirFindModulesResult = await findModules(
 					[groDirInputPath],
@@ -151,15 +151,15 @@ const main = async () => {
 					const groPathData = groDirFindModulesResult.sourceIdPathDataByInputPath.get(
 						groDirInputPath,
 					)!;
-					// First print the Gro matches.
-					printAvailableTasks(
+					// First log the Gro matches.
+					logAvailableTasks(
 						log,
 						fmtPathOrGroPath(groPathData.id),
 						groDirFindModulesResult.sourceIdsByInputPath,
 					);
 				}
-				// Then print the current working directory matches.
-				printAvailableTasks(
+				// Then log the current working directory matches.
+				logAvailableTasks(
 					log,
 					fmtPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
@@ -176,8 +176,8 @@ const main = async () => {
 				groPaths,
 			)
 		) {
-			// If the directory is inside Gro, just print the errors.
-			printErrorReasons(log, findModulesResult.reasons);
+			// If the directory is inside Gro, just log the errors.
+			logErrorReasons(log, findModulesResult.reasons);
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
@@ -190,21 +190,21 @@ const main = async () => {
 				const groPathData = groDirFindModulesResult.sourceIdPathDataByInputPath.get(
 					groDirInputPath,
 				)!;
-				// Print the Gro matches.
-				printAvailableTasks(
+				// Log the Gro matches.
+				logAvailableTasks(
 					log,
 					fmtPathOrGroPath(groPathData.id),
 					groDirFindModulesResult.sourceIdsByInputPath,
 				);
 			} else {
-				// Print the original errors, not the Gro-specific ones.
-				printErrorReasons(log, findModulesResult.reasons);
+				// Log the original errors, not the Gro-specific ones.
+				logErrorReasons(log, findModulesResult.reasons);
 			}
 		}
 	} else {
-		// Some other find modules result failure happened, so print it out.
+		// Some other find modules result failure happened, so log it out.
 		// (currently, just "unmappedInputPaths")
-		printErrorReasons(log, findModulesResult.reasons);
+		logErrorReasons(log, findModulesResult.reasons);
 	}
 
 	for (const [key, timing] of subTimings.getAll()) {
@@ -213,7 +213,7 @@ const main = async () => {
 	log.info(`🕒 ${fmtMs(timings.stop('total'))}`);
 };
 
-const printAvailableTasks = (
+const logAvailableTasks = (
 	log: Logger,
 	dirLabel: string,
 	sourceIdsByInputPath: Map<string, string[]>,
@@ -233,7 +233,7 @@ const printAvailableTasks = (
 	}
 };
 
-const printErrorReasons = (log: Logger, reasons: string[]): void => {
+const logErrorReasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {
 		log.error(reason);
 	}

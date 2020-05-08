@@ -31,14 +31,14 @@ while deferring to your code and facilitating buildtime development processes.
 
 ```bash
 # This looks through `src/` in both the current working directory
-# and Gro's source for all files matching `*.task.ts` and prints them out.
+# and Gro's source for all files matching `*.task.ts` and logs them out.
 $ gro
 ```
 
 ### show tasks in a directory
 
 ```bash
-# Prints all `*.task.ts` files in `src/some/dir` and `gro/src/some/dir`.
+# Logs all `*.task.ts` files in `src/some/dir` and `gro/src/some/dir`.
 # If neither exists, it displays an error.
 $ gro some/dir
 ```
