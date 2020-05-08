@@ -8,6 +8,8 @@
 > Gro integrates several tools into a single experience but
 > for now it's unlikely to be the experience that fits your particular needs.
 > Many other mature tools with large communities solve similar problems.
+> All that said, you might find some interesting or useful things here!
+> Feel free to open issues for questions or discussion.
 
 ## docs
 
