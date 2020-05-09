@@ -1,11 +1,9 @@
-import {promisify} from 'util';
-import {exec} from 'child_process';
-
 import {emptyDir, copy} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {paths} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
-import {printPath} from './utils/print.js';
+import {printPath, printKeyValue} from './utils/print.js';
+import {spawnProcess} from './utils/process.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
@@ -22,8 +20,9 @@ export const task: Task = {
 		});
 
 		log.info('linking');
-		const {stdout, stderr} = await promisify(exec)('npm link');
-		if (stdout) console.log(stdout);
-		if (stderr) console.error(stderr);
+		const linkResult = await spawnProcess('npm', ['link']);
+		if (!linkResult.ok) {
+			throw Error(`Failed to link ${printKeyValue('code', linkResult.code)}`);
+		}
 	},
 };
