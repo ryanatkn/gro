@@ -86,7 +86,7 @@ gro clean # remove all build artifacts
 
 ## develop
 
-```
+```bash
 npm run bootstrap # builds and links `gro`, needed only once
 gro test # make sure everything looks good - same as `npm test`
 
