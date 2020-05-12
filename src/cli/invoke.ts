@@ -15,7 +15,7 @@ import mri from 'mri';
 
 import {Args} from './types.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {green, blue, cyan, red} from '../colors/terminal.js';
+import {green, blue, cyan, red, gray} from '../colors/terminal.js';
 import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
 import {
@@ -106,7 +106,11 @@ const main = async () => {
 				// Run the task!
 				// `pathData` is not a directory, so there's a single task module here.
 				const task = loadModulesResult.modules[0];
-				log.info(`→ ${cyan(task.name)}`);
+				log.info(
+					`→ ${cyan(task.name)} ${(task.mod.task.description &&
+						gray(task.mod.task.description)) ||
+						''}`,
+				);
 				subTimings.start('run task');
 				const result = await runTask(task, args, process.env);
 				subTimings.stop('run task');
