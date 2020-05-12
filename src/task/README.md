@@ -100,3 +100,25 @@ This lets projects fully customize every task.
 
 - [ ] watch mode
 - [ ] consider a pattern for declaring and validating CLI args
+
+## why?
+
+Gro usage on the command line (`gro <task_or_directory> [...flags]`)
+looks a lot like using `node`.
+What makes Gro different?
+
+- The `.task.` file name convention signals to Gro that your application
+  contains task modules that conform to some interface.
+  This allows them to be discoverable and puts generic handles on them,
+  enabling various verbs (e.g. "run") and
+  structured metadata (e.g. "description").
+- Tasks can be imported, inspected, combined, and manipulated in code.
+  Task modules do not have any side effects when imported,
+  while Node scripts just execute when imported -
+  their primary purpose is to cause side effects.
+- Module resolution is different,
+  and not just by enabling the optional `.task.ts` extension.
+  When a task name or directory is given to Gro's `findModules`,
+  it first searches the current directory and falls back to the Gro directory.
+  This allows your code to use Gro's builtin tasks or override them,
+  and you can make your own tasks using the same conventions that Gro provides.
