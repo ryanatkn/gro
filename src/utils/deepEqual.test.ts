@@ -40,28 +40,15 @@ test('deepEqual()', () => {
 		],
 		[
 			'maps',
-			new Map<string, any>([
-				['a', 1],
-				['b', 2],
-				['c', [1, [2, 3]]],
+			new Map<string[], any>([
+				[['a'], 1],
+				[['b'], 2],
+				[['c'], [1, [2, 3]]],
 			]),
-			new Map<string, any>([
-				['a', 1],
-				['b', 2],
-				['c', [1, [2, 3]]],
-			]),
-		],
-		[
-			'maps with shuffled order',
-			new Map<string, any>([
-				['a', 1],
-				['b', 2],
-				['c', [1, [2, 3]]],
-			]),
-			new Map<string, any>([
-				['c', [1, [2, 3]]],
-				['b', 2],
-				['a', 1],
+			new Map<string[], any>([
+				[['a'], 1],
+				[['b'], 2],
+				[['c'], [1, [2, 3]]],
 			]),
 		],
 		['regexps', /a/, /a/],
