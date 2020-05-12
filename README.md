@@ -20,7 +20,7 @@
   - [options](src/docs/options.md)
   - [tasks](src/docs/tasks.md)
 
-## motivation
+## about
 
 Gro is an opinionated monotool for making webapps.
 It includes:
@@ -30,11 +30,11 @@ It includes:
 - testing library called `oki` (docs at [`src/oki`](src/oki))
 - codegen by convention called `gen` (docs at [`src/gen`](src/gen))
 - dev server
+- integrated UI development with
+  [Svelte](https://github.com/sveltejs/svelte)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
 - bundling via [Rollup](https://github.com/rollup/rollup)
 - formatting via [Prettier](https://github.com/prettier/prettier)
-- integrated UI development with
-  [Svelte](https://github.com/sveltejs/svelte)
 - more to come, exploring what deeply integrated tools enable
   in the realms of developer power and ergonomics and end user experience
 
