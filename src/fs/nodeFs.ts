@@ -2,6 +2,7 @@ import CheapWatch from 'cheap-watch';
 import fsExtra from 'fs-extra';
 
 import {PathStats, PathFilter} from './pathData.js';
+import {sortMapByKey, compareSimpleMapEntries} from '../utils/map.js';
 
 export interface CheapWatchPathAddedEvent {
 	path: string;
@@ -21,6 +22,8 @@ export const DEBOUNCE_DEFAULT = 10;
 export const findFiles = async (
 	dir: string,
 	filter?: PathFilter,
+	// pass `null` to speed things up at the risk of rare misorderings
+	sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
 ): Promise<Map<string, PathStats>> => {
 	const watcher = new CheapWatch({
 		dir,
@@ -33,7 +36,7 @@ export const findFiles = async (
 	});
 	await watcher.init();
 	watcher.close();
-	return watcher.paths;
+	return sort ? sortMapByKey(watcher.paths, sort) : watcher.paths;
 };
 
 /*

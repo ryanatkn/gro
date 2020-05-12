@@ -90,7 +90,7 @@ type LoadModulesTimings = 'load modules';
 
 /*
 
-Loads modules from input paths. (see `src/fs/inputPath.ts` for more)
+Finds modules from input paths. (see `src/fs/inputPath.ts` for more)
 
 */
 export const findModules = async (

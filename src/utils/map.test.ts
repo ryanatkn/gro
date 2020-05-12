@@ -1,5 +1,5 @@
 import {test, t} from '../oki/oki.js';
-import {mapsEqual} from './map.js';
+import {mapsEqual, sortMapByKey} from './map.js';
 
 test('mapsEqual()', () => {
 	test('number keys', () => {
@@ -140,6 +140,45 @@ test('mapsEqual()', () => {
 					['c', {c: 444444444444444}],
 				]),
 			),
+		);
+	});
+});
+
+test('sortMapByKey()', () => {
+	t.equal(
+		sortMapByKey(
+			new Map([
+				['d', 1],
+				['a', 1],
+				['c', 1],
+				['b', 1],
+			]),
+		),
+		new Map([
+			['a', 1],
+			['b', 1],
+			['c', 1],
+			['d', 1],
+		]),
+	);
+
+	test('custom comparator', () => {
+		t.equal(
+			sortMapByKey(
+				new Map([
+					['d', 1],
+					['a', 1],
+					['c', 1],
+					['b', 1],
+				]),
+				(a, b) => (a[0] > b[0] ? -1 : 1),
+			),
+			new Map([
+				['d', 1],
+				['c', 1],
+				['b', 1],
+				['a', 1],
+			]),
 		);
 	});
 });
