@@ -87,7 +87,7 @@ gro clean # remove all build artifacts
 ## develop
 
 ```bash
-npm run bootstrap # builds and links `gro`, needed only once
+npm run bootstrap # builds and links `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
 # development
@@ -95,7 +95,7 @@ gro project/dev # build in watch mode
 gro project/dist # update the `gro` binary
 
 # release
-gro project/build
+gro project/build # builds for release and updates the `gro` binary
 ```
 
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
