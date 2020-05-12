@@ -1,28 +1,21 @@
-import {emptyDir, copy} from './fs/nodeFs.js';
+import {copy} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {paths} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
-import {printPath, printKeyValue} from './utils/print.js';
-import {spawnProcess} from './utils/process.js';
+import {printPath} from './utils/print.js';
+import {cleanDist} from './project/clean.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
 
 export const task: Task = {
-	description: 'create and link the distribution',
+	description: 'create the distribution',
 	run: async ({log}) => {
-		log.info(`emptying ${printPath(paths.dist)}`);
-		await emptyDir(paths.dist);
+		await cleanDist(log);
 
-		log.info('copying build');
+		log.info(`copying ${printPath(paths.build)} to ${printPath(paths.dist)}`);
 		await copy(paths.build, paths.dist, {
 			filter: id => isDistFile(id),
 		});
-
-		log.info('linking');
-		const linkResult = await spawnProcess('npm', ['link']);
-		if (!linkResult.ok) {
-			throw Error(`Failed to link ${printKeyValue('code', linkResult.code)}`);
-		}
 	},
 };

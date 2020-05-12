@@ -84,6 +84,20 @@ gro assets # builds static assets (TODO integrate with `gro dev`)
 gro clean # remove all build artifacts
 ```
 
+## develop
+
+```
+npm run bootstrap # builds and links `gro`, needed only once
+gro test # make sure everything looks good - same as `npm test`
+
+# development
+gro project/dev # build in watch mode
+gro project/dist # update the `gro` binary
+
+# release
+gro project/build
+```
+
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
 tech:

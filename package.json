@@ -10,12 +10,9 @@
   "license": "ISC",
   "homepage": "https://github.com/feltcoop/gro#readme",
   "scripts": {
-    "ts": "tsc -w",
-    "ts:build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "clean": "rm -rf ./build/ ./dist/",
-    "dev:dist": "rm -rf ./dist/ && cp -r ./build/ ./dist/ && npm link",
-    "dev:build": "npm run clean && npm run ts:build && npm run dev:dist"
+    "start": "gro",
+    "test": "gro test",
+    "bootstrap": "rm -rf build/ dist/ && tsc && cp -r build/ dist/ && npm link"
   },
   "repository": {
     "type": "git",
