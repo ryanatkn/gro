@@ -1,15 +1,10 @@
-import CheapWatch from 'cheap-watch';
+import {join} from 'path';
 
 import {copy} from '../fs/nodeFs.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {magenta, gray} from '../colors/terminal.js';
+import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
-import {PathStats} from '../fs/pathData.js';
-import {
-	CheapWatchPathAddedEvent,
-	CheapWatchPathRemovedEvent,
-	DEBOUNCE_DEFAULT,
-} from '../fs/nodeFs.js';
+import {findFiles} from '../fs/nodeFs.js';
 import {
 	paths,
 	toDistId,
@@ -41,47 +36,35 @@ export const assets = async (opts: InitialOptions = {}) => {
 	const {isAsset} = options;
 	const log = new SystemLogger([magenta('[assets]')]);
 
-	// TODO refactor to use the same file & watch solution as  `NodeTestContext` and `project/gen.ts`
+	// Start in the root dir because assets can be in either `src/` or `build/`.
 	const dir = paths.root;
-	const filter: (p: {path: string; stats: PathStats}) => boolean = ({
-		path,
-		stats,
-	}) => {
-		// TODO maybe make regexps for these?
-		const shouldWatch = stats.isDirectory()
-			? path.startsWith(SOURCE_DIR) ||
-			  path.startsWith(BUILD_DIR) ||
-			  path === SOURCE_DIR_NAME ||
-			  path === BUILD_DIR_NAME
-			: isAsset(path) &&
-			  (path.startsWith(SOURCE_DIR) || path.startsWith(BUILD_DIR));
-		log.trace('watch path?', path, shouldWatch);
-		return shouldWatch;
-	};
-	const watch = false;
-	const debounce = DEBOUNCE_DEFAULT;
-	const watcher = new CheapWatch({dir, filter, watch, debounce});
-	const handlePathAdded = ({path, stats, isNew}: CheapWatchPathAddedEvent) => {
-		log.trace('added', gray(path), {stats, isNew});
-		throw Error('watch is not yet implemented');
-	};
-	const handlePathRemoved = ({path, stats}: CheapWatchPathRemovedEvent) => {
-		log.trace('removed', gray(path), {stats});
-		throw Error('watch is not yet implemented');
-	};
-	watcher.on('+', handlePathAdded);
-	watcher.on('-', handlePathRemoved);
 
-	await watcher.init();
+	const files = await findFiles(
+		dir,
+		({path, stats}) => {
+			// TODO maybe make regexps for these?
+			const shouldWatch = stats.isDirectory()
+				? path.startsWith(SOURCE_DIR) ||
+				  path.startsWith(BUILD_DIR) ||
+				  path === SOURCE_DIR_NAME ||
+				  path === BUILD_DIR_NAME
+				: isAsset(path) &&
+				  (path.startsWith(SOURCE_DIR) || path.startsWith(BUILD_DIR));
+			return shouldWatch;
+		},
+		null,
+	);
+
 	const promises = [];
-	for (const [path, stats] of watcher.paths) {
+	for (const [path, stats] of files) {
 		if (stats.isDirectory()) continue;
-		const id = dir + path;
+		const id = join(dir, path);
 		promises.push(copyAssetToDist(id, log));
 	}
-	await Promise.all(promises);
-
-	log.info('assets copied!');
+	if (promises.length) {
+		await Promise.all(promises);
+		log.info('assets copied!');
+	}
 };
 
 const copyAssetToDist = async (id: string, log: Logger): Promise<void> => {
