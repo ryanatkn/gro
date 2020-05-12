@@ -5,7 +5,7 @@ import * as serveTask from './serve.task.js';
 const DEFAULT_SERVE_DIR = 'dist/';
 
 export const task: Task = {
-	description: 'Start development server',
+	description: 'start development server',
 	run: async (ctx): Promise<void> => {
 		// TODO fix these
 		ctx.args.watch = true; // TODO always?

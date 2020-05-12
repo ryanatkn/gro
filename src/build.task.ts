@@ -8,7 +8,7 @@ const DEFAULT_OUTPUT_DIR = 'dist/';
 const DEFAULT_INPUT_NAMES = ['src/index.ts'];
 
 export const task: Task = {
-	description: 'Build the code',
+	description: 'build the project',
 	run: async ({log, args}): Promise<void> => {
 		const inputFiles = await resolveInputFiles(args._);
 		log.info('inputFiles', inputFiles);

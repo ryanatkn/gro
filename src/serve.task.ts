@@ -8,7 +8,7 @@ const DEFAULT_PORT = 8999;
 const DEFAULT_DIR = './';
 
 export const task: Task = {
-	description: 'Start static file server',
+	description: 'start static file server',
 	run: async ({log, args, env}): Promise<void> => {
 		// TODO also take these from args
 		const host: string = env.HOST || DEFAULT_HOST;

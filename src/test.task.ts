@@ -9,7 +9,7 @@ import {Timings} from './utils/time.js';
 import * as report from './oki/report.js';
 
 export const task: Task = {
-	description: 'Run tests',
+	description: 'run tests',
 	run: async ({log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 

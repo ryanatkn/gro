@@ -14,7 +14,7 @@ import {findModules, loadModules} from './fs/modules.js';
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
 export const task: Task = {
-	description: 'Run code generation scripts',
+	description: 'run code generation scripts',
 	run: async ({log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 
