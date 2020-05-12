@@ -71,7 +71,7 @@ export type FindModulesFailure =
 	  };
 type FindModulesTimings = 'map input paths' | 'find files';
 
-export type LoadModulesResult<ModuleMetaType> =
+export type LoadModulesResult<ModuleMetaType extends ModuleMeta> =
 	| {
 			ok: true;
 			modules: ModuleMetaType[];
