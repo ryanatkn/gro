@@ -125,6 +125,7 @@ What makes Gro different?
     and you can make your own tasks using the same conventions that Gro uses.
     Gro reserves no special behavior for its own commands -
     `gro test` and all the rest are just tasks that all follow the same rules.
+    (see its task at [`src/test.task.ts`](../test.task.ts))
   - When a directory is given to Gro,
     it prints all of the tasks found inside it,
     both relative to the current working directory and Gro's directory.
