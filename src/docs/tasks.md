@@ -8,17 +8,17 @@ What is a task? See [`src/tasks/README.md`](../task).
 
 ## all tasks
 
-- [assets](../assets.task.ts) - Copy assets to dist
-- [build](../build.task.ts) - Build the code
-- [clean](../clean.task.ts) - Remove build and temp files
-- [dev](../dev.task.ts) - Start development server
+- [assets](../assets.task.ts) - copy assets to dist
+- [build](../build.task.ts) - build the project
+- [clean](../clean.task.ts) - remove build and temp files
+- [dev](../dev.task.ts) - start development server
 - [dist](../dist.task.ts) - create the distribution
-- [gen](../gen.task.ts) - Run code generation scripts
+- [gen](../gen.task.ts) - run code generation scripts
 - [project/build](../project/build.task.ts) - build, create, and link the distribution
 - [project/dev](../project/dev.task.ts) - build typescript in watch mode for development
 - [project/dist](../project/dist.task.ts) - create and link the distribution
-- [serve](../serve.task.ts) - Start static file server
-- [test](../test.task.ts) - Run tests
+- [serve](../serve.task.ts) - start static file server
+- [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
 
 ## usage
