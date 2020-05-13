@@ -5,6 +5,7 @@
 > <sub>README.md</sub>
 
 - [options](options.md)
+- [publish](publish.md)
 - [tasks](tasks.md)
 
 > <sub>[gro](/../..)</sub> <sub>/</sub>

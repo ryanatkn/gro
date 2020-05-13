@@ -12,7 +12,8 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "bootstrap": "rm -rf build/ dist/ && tsc && cp -r build/ dist/ && npm link"
+    "bootstrap": "rm -rf build/ dist/ && tsc && cp -r build/ dist/ && npm link",
+    "preversion": "gro test"
   },
   "repository": {
     "type": "git",
@@ -24,9 +25,9 @@
   "keywords": [
     "web",
     "tools",
-    "codegen",
     "tasks",
     "bundlers",
+    "codegen",
     "svelte",
     "typescript"
   ],
