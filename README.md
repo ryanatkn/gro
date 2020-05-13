@@ -3,7 +3,7 @@
 > opinionated tools for web development
 
 > **_warning!_** You should not use Gro today
-> unless you really know what you're doing.
+> unless you're willing to take ownership of the code.
 > Expect undocumented breaking changes.
 > Gro integrates several tools into a single experience but
 > for now it's unlikely to be the experience that fits your particular needs.
@@ -74,14 +74,6 @@ gro gen # runs codegen for all `*.gen.*` files
 
 ```bash
 gro serve # staticly serves the current directory (or a configured one)
-```
-
-```bash
-gro assets # builds static assets (TODO integrate with `gro dev`)
-```
-
-```bash
-gro clean # remove all build artifacts
 ```
 
 ## develop
