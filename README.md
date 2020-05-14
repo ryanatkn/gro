@@ -71,10 +71,16 @@ Codegen with `gen` (docs at [`src/gen`](src/gen))
 
 ```bash
 gro gen # runs codegen for all `*.gen.*` files
+gro gen --check # errors if any generated files are new or different
 ```
 
 ```bash
 gro serve # staticly serves the current directory (or a configured one)
+```
+
+```bash
+gro check # typechecks, runs tests, and ensures generated files are current
+gro typecheck # just the typechecking
 ```
 
 ## develop
