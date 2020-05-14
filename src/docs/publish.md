@@ -14,7 +14,8 @@ npm login # and follow the instructions
 
 To publish a new version of Gro,
 first bump the version.
-Tests will first run via the `"preversion"` npm script.
+The npm script `"preversion"` will make sure
+everything typechecks and all tests pass.
 
 ```bash
 npm version <major|minor|patch>

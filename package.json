@@ -13,7 +13,7 @@
     "start": "gro",
     "test": "gro test",
     "bootstrap": "rm -rf build/ dist/ && tsc && cp -r build/ dist/ && npm link",
-    "preversion": "gro test"
+    "preversion": "gro check"
   },
   "repository": {
     "type": "git",
