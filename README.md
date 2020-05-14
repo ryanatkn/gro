@@ -18,6 +18,7 @@
 - [`gen`](src/gen) code generation
 - other [docs](src/docs)
   - [options](src/docs/options.md)
+  - [publish](src/docs/publish.md)
   - [tasks](src/docs/tasks.md)
 
 ## about
