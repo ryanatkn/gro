@@ -10,7 +10,7 @@ If you're not already logged into npm in your terminal:
 npm login # and follow the instructions
 ```
 
-## publish to npm
+## bump the version and tag the commit
 
 To publish a new version of Gro,
 first bump the version.
@@ -20,6 +20,8 @@ everything typechecks and all tests pass.
 ```bash
 npm version <major|minor|patch>
 ```
+
+## publish to npm
 
 Then publish the new version.
 Because Gro is a scoped package, `@feltcoop/gro`,
