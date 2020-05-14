@@ -3,7 +3,7 @@ import {Task, TaskError} from './task/task.js';
 import {red, green, gray} from './colors/terminal.js';
 import {isGenPath, GEN_FILE_PATTERN} from './gen/gen.js';
 import {runGen} from './gen/runGen.js';
-import {loadGenModule} from './gen/genModule.js';
+import {loadGenModule, checkGenModules} from './gen/genModule.js';
 import {printPath, printMs, printError, printSubTiming} from './utils/print.js';
 import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
@@ -17,6 +17,7 @@ export const task: Task = {
 	description: 'run code generation scripts',
 	run: async ({log, args}): Promise<void> => {
 		const rawInputPaths = args._;
+		const check = !!args.check; // TODO args declaration and validation
 
 		const timings = new Timings<'total' | 'output results'>();
 		timings.start('total');
@@ -58,29 +59,57 @@ export const task: Task = {
 		const genResults = await runGen(loadModulesResult.modules);
 		subTimings.stop('generate code');
 
-		// write generated files to disk
-		subTimings.start('output results');
-		if (genResults.failures.length) {
-			for (const result of genResults.failures) {
-				log.error(result.reason, '\n', printError(result.error));
+		const failCount = genResults.failures.length;
+		if (check) {
+			// check if any files changed, and if so, throw errors,
+			// but if there are gen failures, skip the check and defer to their errors
+			if (!failCount) {
+				log.info('checking generated files for changes');
+				subTimings.start('check results for changes');
+				const checkGenModulesResults = await checkGenModules(genResults);
+				subTimings.stop('check results for changes');
+
+				let hasUnexpectedChanges = false;
+				for (const result of checkGenModulesResults) {
+					if (!result.hasChanged) continue;
+					hasUnexpectedChanges = true;
+					log.error(
+						red(
+							`Generated file ${printPath(result.file.id)} via ${printPath(
+								result.file.originId,
+							)} ${result.isNew ? 'is new' : 'has changed'}.`,
+						),
+					);
+				}
+				if (hasUnexpectedChanges) {
+					throw new TaskError(
+						'Failed gen check. Some generated files have unexpectedly changed.' +
+							' Run `gro gen` and try again.',
+					);
+				}
+				log.info('check passed, no files have changed');
 			}
+		} else {
+			// write generated files to disk
+			log.info('writing generated files to disk');
+			subTimings.start('output results');
+			await Promise.all(
+				genResults.successes
+					.map(result =>
+						result.files.map(file => {
+							log.info(
+								'writing',
+								printPath(file.id),
+								'generated from',
+								printPath(file.originId),
+							);
+							return outputFile(file.id, file.contents);
+						}),
+					)
+					.flat(),
+			);
+			subTimings.stop('output results');
 		}
-		await Promise.all(
-			genResults.successes
-				.map(result =>
-					result.files.map(file => {
-						log.info(
-							'writing',
-							printPath(file.id),
-							'generated from',
-							printPath(file.originId),
-						);
-						return outputFile(file.id, file.contents);
-					}),
-				)
-				.flat(),
-		);
-		subTimings.stop('output results');
 
 		let logResult = '';
 		for (const result of genResults.results) {
@@ -105,11 +134,12 @@ export const task: Task = {
 		}
 		log.info(`🕒 ${printMs(timings.stop('total'))}`);
 
-		if (genResults.failures.length) {
+		if (failCount) {
+			for (const result of genResults.failures) {
+				log.error(result.reason, '\n', printError(result.error));
+			}
 			throw new TaskError(
-				`Failed to generate ${genResults.failures.length} file${plural(
-					genResults.failures.length,
-				)}.`,
+				`Failed to generate ${failCount} file${plural(failCount)}.`,
 			);
 		}
 	},

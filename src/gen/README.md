@@ -194,6 +194,31 @@ and `src/data/thing.json`:
 }
 ```
 
+## check that generated files have not changed
+
+It's often helpful to check if any generated files are new or have changed.
+We don't want to forget to regenerate files before committing or publishing!
+The `check` CLI argument can be passed to perform this check
+instead of writing files to disk.
+
+```bash
+gro gen --check # exits with error code 1 if anything is new or different
+```
+
+or in code:
+
+```ts
+import {Task} from '@feltcoop/gro';
+import {task as genTask} from '@feltcoop/gro/dist/gen.task.js';
+
+export const task: Task = {
+	run: async ctx => {
+		// this throws a `TaskError` if anything is new or different
+		await genTask.run({...ctx, args: {...ctx.args, check: true}});
+	},
+};
+```
+
 ## todo
 
 - [x] basic functionality
