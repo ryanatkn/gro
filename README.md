@@ -91,10 +91,10 @@ gro test # make sure everything looks good - same as `npm test`
 
 # development
 gro project/dev # build in watch mode
-gro project/dist # update the `gro` binary
+gro project/dist # update the `gro` CLI
 
 # release
-gro project/build # builds for release and updates the `gro` binary
+gro project/build # builds for release and updates the `gro` CLI
 ```
 
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>

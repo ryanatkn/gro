@@ -43,7 +43,7 @@ There's probably a better design in here somewhere.
 
 case 3:
 
-Fall back to invoking Gro from wherever the binary is being executed.
+Fall back to invoking Gro from wherever the CLI is being executed.
 When using the global CLI, this uses the global Gro installation.
 
 */
