@@ -20,13 +20,17 @@ import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
 import {
 	printMs,
-	printError,
 	printPath,
 	printPathOrGroPath,
 	printSubTiming,
 } from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
-import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from '../task/task.js';
+import {
+	TASK_FILE_SUFFIX,
+	isTaskPath,
+	toTaskName,
+	TaskError,
+} from '../task/task.js';
 import {
 	paths,
 	groPaths,
@@ -118,10 +122,16 @@ const main = async () => {
 					log.info(`✓ ${cyan(task.name)}`);
 				} else {
 					log.info(`${red('🞩')} ${cyan(task.name)}`);
-					log.error(result.reason, '\n', printError(result.error));
+					logErrorReasons(log, [result.reason]);
+					if (result.error instanceof TaskError) {
+						process.exit(1);
+					} else {
+						throw result.error;
+					}
 				}
 			} else {
 				logErrorReasons(log, loadModulesResult.reasons);
+				process.exit(1);
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
@@ -182,6 +192,7 @@ const main = async () => {
 		) {
 			// If the directory is inside Gro, just log the errors.
 			logErrorReasons(log, findModulesResult.reasons);
+			process.exit(1);
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
@@ -203,12 +214,14 @@ const main = async () => {
 			} else {
 				// Log the original errors, not the Gro-specific ones.
 				logErrorReasons(log, findModulesResult.reasons);
+				process.exit(1);
 			}
 		}
 	} else {
 		// Some other find modules result failure happened, so log it out.
 		// (currently, just "unmappedInputPaths")
 		logErrorReasons(log, findModulesResult.reasons);
+		process.exit(1);
 	}
 
 	for (const [key, timing] of subTimings.getAll()) {

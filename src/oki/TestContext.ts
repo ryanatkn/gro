@@ -48,6 +48,7 @@ export interface TestStats {
 }
 
 export interface TestRunResult {
+	stats: TestStats;
 	timings: Timings<TestRunTimings>;
 }
 export type TestRunTimings = 'run tests';
@@ -138,7 +139,7 @@ export class TestContext {
 		this.runState = AsyncState.Success;
 		this.onRunEnd();
 		timings.stop('run tests');
-		return {timings};
+		return {stats: this.stats!, timings};
 	}
 
 	private async runTests(): Promise<void> {

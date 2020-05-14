@@ -23,3 +23,8 @@ export const toTaskPath = (taskName: string): string =>
 
 export const toTaskName = (basePath: string): string =>
 	basePath.replace(TASK_FILE_PATTERN, '');
+
+// This is used by tasks to signal a known failure.
+// It's useful for cleaning up logging because
+// we usually don't need their stack trace.
+export class TaskError extends Error {}

@@ -2,6 +2,7 @@ import {SystemLogger} from '../utils/log.js';
 import {cyan, magenta, red} from '../colors/terminal.js';
 import {TaskModuleMeta} from './taskModule.js';
 import {Args, Env} from '../cli/types.js';
+import {TaskError} from './task.js';
 
 export type RunTaskResult =
 	| {
@@ -30,7 +31,9 @@ export const runTask = async (
 		return {
 			ok: false,
 			reason: red(
-				`Unexpected error running task ${cyan(task.name)}. Aborting.`,
+				err instanceof TaskError
+					? err.message
+					: `Unexpected error running task ${cyan(task.name)}. Aborting.`,
 			),
 			error: err,
 		};

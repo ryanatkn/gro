@@ -1,4 +1,4 @@
-import {Task} from '../task/task.js';
+import {Task, TaskError} from '../task/task.js';
 import {printKeyValue} from '../utils/print.js';
 import {spawnProcess} from '../utils/process.js';
 import {task as distTask} from '../dist.task.js';
@@ -13,7 +13,9 @@ export const task: Task = {
 		log.info('linking');
 		const linkResult = await spawnProcess('npm', ['link']);
 		if (!linkResult.ok) {
-			throw Error(`Failed to link ${printKeyValue('code', linkResult.code)}`);
+			throw new TaskError(
+				`Failed to link. ${printKeyValue('code', linkResult.code)}`,
+			);
 		}
 	},
 };

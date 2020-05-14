@@ -1,4 +1,4 @@
-import {Task} from './task/task.js';
+import {Task, TaskError} from './task/task.js';
 import {TestContext} from './oki/TestContext.js';
 import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
 import {findFiles} from './fs/nodeFs.js';
@@ -7,6 +7,7 @@ import {TEST_FILE_SUFFIX, isTestPath} from './oki/testModule.js';
 import {printMs, printSubTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import * as report from './oki/report.js';
+import {plural} from './utils/string.js';
 
 export const task: Task = {
 	description: 'run tests',
@@ -30,7 +31,7 @@ export const task: Task = {
 			for (const reason of findModulesResult.reasons) {
 				log.error(reason);
 			}
-			return;
+			throw new TaskError('Failed to find modules.');
 		}
 		subTimings.merge(findModulesResult.timings);
 
@@ -47,7 +48,7 @@ export const task: Task = {
 			for (const reason of loadModulesResult.reasons) {
 				log.error(reason);
 			}
-			return;
+			throw new TaskError('Failed to load modules.');
 		}
 		subTimings.merge(loadModulesResult.timings);
 
@@ -61,5 +62,13 @@ export const task: Task = {
 			log.trace(printSubTiming(key, timing));
 		}
 		log.info(`🕒 ${printMs(timings.stop('total'))}`);
+
+		if (testRunResult.stats.failCount) {
+			throw new TaskError(
+				`Failed ${testRunResult.stats.failCount} test${plural(
+					testRunResult.stats.failCount,
+				)}.`,
+			);
+		}
 	},
 };

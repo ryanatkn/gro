@@ -1,5 +1,5 @@
 import {outputFile} from './fs/nodeFs.js';
-import {Task} from './task/task.js';
+import {Task, TaskError} from './task/task.js';
 import {red, green, gray} from './colors/terminal.js';
 import {isGenPath, GEN_FILE_PATTERN} from './gen/gen.js';
 import {runGen} from './gen/runGen.js';
@@ -38,7 +38,7 @@ export const task: Task = {
 			for (const reason of findModulesResult.reasons) {
 				log.error(reason);
 			}
-			return;
+			throw new TaskError('Failed to find modules.');
 		}
 		subTimings.merge(findModulesResult.timings);
 		const loadModulesResult = await loadModules(
@@ -49,7 +49,7 @@ export const task: Task = {
 			for (const reason of loadModulesResult.reasons) {
 				log.error(reason);
 			}
-			return;
+			throw new TaskError('Failed to load modules.');
 		}
 		subTimings.merge(loadModulesResult.timings);
 
@@ -100,18 +100,17 @@ export const task: Task = {
 				)}`,
 			),
 		);
-		if (genResults.failures.length) {
-			log.info(
-				red(
-					`${genResults.failures.length} file${plural(
-						genResults.failures.length,
-					)} failed to generate`,
-				),
-			);
-		}
 		for (const [key, timing] of subTimings.getAll()) {
 			log.trace(printSubTiming(key, timing));
 		}
 		log.info(`🕒 ${printMs(timings.stop('total'))}`);
+
+		if (genResults.failures.length) {
+			throw new TaskError(
+				`Failed to generate ${genResults.failures.length} file${plural(
+					genResults.failures.length,
+				)}.`,
+			);
+		}
 	},
 };

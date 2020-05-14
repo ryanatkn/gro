@@ -96,6 +96,27 @@ Note that when hooking into [Gro's builtin tasks](../docs/tasks.md),
 like `test.task.ts` above, you don't have to call its version.
 This lets projects fully customize every task.
 
+### throwing errors
+
+If a task encounters an error, it should throw rather than exiting the process.
+This defers control to the caller, like your own parent tasks.
+Often, errors that tasks encounter do not need a stack trace,
+and we don't want the added noise to be logged.
+To suppress logging the stack trace for an error,
+throw a `TaskError`.
+
+```ts
+import {Task, TaskError} from '@feltcoop/gro';
+
+export const task: Task = {
+	run: async () => {
+		if (someErrorCondition) {
+			throw new TaskError('We hit a known error - ignore the stack trace!');
+		}
+	},
+};
+```
+
 ## future improvements
 
 - [ ] watch mode
