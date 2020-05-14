@@ -16,6 +16,10 @@ To publish a new version of Gro,
 first bump the version.
 The npm script `"preversion"` will make sure
 everything typechecks and all tests pass.
+This creates a new commit with the version tag,
+which is then used by both
+[npm](https://www.npmjs.com/package/@feltcoop/gro?activeTab=versions) and
+[GitHub's releases](https://github.com/feltcoop/gro/releases).
 
 ```bash
 npm version <major|minor|patch>
@@ -29,4 +33,10 @@ we need to specify that it's public not private.
 
 ```bash
 npm publish --access public
+```
+
+And finally push the tagged commit to sync on GitHub.
+
+```bash
+git push origin --tags
 ```
