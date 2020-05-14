@@ -194,12 +194,12 @@ and `src/data/thing.json`:
 }
 ```
 
-## check that generated files have not changed
+### check that generated files have not changed
 
 It's often helpful to check if any generated files are new or have changed.
 We don't want to forget to regenerate files before committing or publishing!
 The `check` CLI argument can be passed to perform this check
-instead of writing files to disk.
+instead of writing the generated files to disk.
 
 ```bash
 gro gen --check # exits with error code 1 if anything is new or different
@@ -218,6 +218,9 @@ export const task: Task = {
 	},
 };
 ```
+
+Gro uses this in [`check.task.ts`](../check.task.ts)
+which is called in the npm `"preversion"` script.
 
 ## todo
 
