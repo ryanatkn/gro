@@ -14,14 +14,6 @@ The `oki` modules are used by the task `gro test`.
 By convention, `gro test` looks for all files named `*.test.ts`
 and executes them inside an `oki` context.
 
-## todo
-
-- [x] basics
-- [ ] watch mode
-- [ ] better reporting (like diffing)
-- [ ] caching
-- [ ] run in browser
-
 ## usage
 
 ```bash
@@ -98,3 +90,11 @@ interface Assertions {
 	Error(message: string); // the `TestAssertionError` class for deliberate fails
 }
 ```
+
+## todo
+
+- [x] basics
+- [ ] watch mode
+- [ ] better reporting (like diffing)
+- [ ] caching
+- [ ] run in browser

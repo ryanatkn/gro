@@ -6,7 +6,7 @@
 > unless you're willing to take ownership of the code.
 > Expect undocumented breaking changes.
 > Gro integrates several tools into a single experience but
-> for now it's unlikely to be the experience that fits your particular needs.
+> for now it probably doesn't suit your needs.
 > Many other mature tools with large communities solve similar problems.
 > All that said, you might find some interesting or useful things here!
 > Feel free to open issues for questions or discussion.
