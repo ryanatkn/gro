@@ -220,7 +220,7 @@ export const task: Task = {
 ```
 
 Gro uses this in [`check.task.ts`](../check.task.ts)
-which is called in the npm `"preversion"` script.
+which is called in the npm [`"preversion"`](../../package.json) script.
 
 ## todo
 
