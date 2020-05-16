@@ -4,19 +4,6 @@ import fsExtra from 'fs-extra';
 import {PathStats, PathFilter} from './pathData.js';
 import {sortMapByKey, compareSimpleMapEntries} from '../utils/map.js';
 
-export interface CheapWatchPathAddedEvent {
-	path: string;
-	stats: PathStats;
-	isNew: boolean;
-}
-
-export interface CheapWatchPathRemovedEvent {
-	path: string;
-	stats: PathStats;
-}
-
-export const DEBOUNCE_DEFAULT = 10;
-
 // TODO should this API be changed to only include files and not directories?
 // or maybe change the name so it's not misleading?
 export const findFiles = async (
@@ -32,7 +19,6 @@ export const findFiles = async (
 					file.stats.isDirectory() || filter(file)
 			: undefined,
 		watch: false,
-		debounce: DEBOUNCE_DEFAULT,
 	});
 	await watcher.init();
 	watcher.close();
@@ -59,4 +45,6 @@ export type Stats = fsExtra.Stats;
 export const readFile = fsExtra.readFile;
 export const outputFile = fsExtra.outputFile;
 export const emptyDir = fsExtra.emptyDir;
+export const ensureDir = fsExtra.ensureDir;
 export const copy = fsExtra.copy;
+export const remove = fsExtra.remove;
