@@ -44,6 +44,8 @@ test('createObtainable()', () => {
 		thing = undefined;
 		isReleased = false;
 		const [thing4, release4] = obtainThing();
+		t.ok(thing4);
+		t.is(thing4, thing);
 		t.isNot(thing4, originalThing);
 		t.ok(!isReleased);
 		release4();
