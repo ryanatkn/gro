@@ -1,8 +1,7 @@
 /*
 
-This is a higher order function that
-counts the number of obtained references to a thing
-and calls `release` when the count drops to zero.
+This is a higher order function that tracks obtained references to a thing
+and calls `release` when all obtainers have released their references.
 
 It allows decoupled consumers to use things with a lifecycle
 without disrupting each other when they're done with the thing.
@@ -16,13 +15,14 @@ export const createObtainable = <T>(
 	obtain: () => T,
 	release: (obtainable: T) => void,
 ): (() => [T, () => Promise<void>]) => {
-	let count = 0;
 	let obtainable: T | undefined;
+	const obtainedRefs = new Set<symbol>();
 	let resolve: () => void;
 	let promise: Promise<void>;
-	const releaseObtainable = (): Promise<void> => {
-		count--;
-		if (count > 0) return promise;
+	const releaseObtainable = (obtainedRef: symbol): Promise<void> => {
+		if (!obtainedRefs.has(obtainedRef)) return promise; // makes releasing idempotent per obtained call
+		obtainedRefs.delete(obtainedRef);
+		if (obtainedRefs.size > 0) return promise; // there are other open obtainers
 		const releasedResource = obtainable;
 		obtainable = undefined; // reset before releasing just in case release re-obtains
 		release(releasedResource!);
@@ -30,7 +30,8 @@ export const createObtainable = <T>(
 		return promise;
 	};
 	return () => {
-		count++;
+		const obtainedRef = Symbol();
+		obtainedRefs.add(obtainedRef);
 		if (obtainable === undefined) {
 			obtainable = obtain();
 			promise = new Promise<void>(r => (resolve = r));
@@ -40,6 +41,6 @@ export const createObtainable = <T>(
 				throw Error('Obtainable value cannot be undefined - use null instead.');
 			}
 		}
-		return [obtainable, releaseObtainable];
+		return [obtainable, () => releaseObtainable(obtainedRef)];
 	};
 };

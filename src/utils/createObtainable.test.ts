@@ -25,7 +25,7 @@ test('createObtainable()', () => {
 		const [thing2, release2] = obtainThing();
 		t.is(thing2, thing);
 		t.ok(!isReleased);
-		t.is(release1, release2); // release function refs should be the same
+		t.isNot(release1, release2); // release function refs should not be the same
 
 		const [thing3, release3] = obtainThing();
 		t.is(thing3, thing);
@@ -36,6 +36,9 @@ test('createObtainable()', () => {
 		t.ok(releasePromise2 instanceof Promise);
 
 		const releasePromise3 = release3();
+		release3(); // call release additional times to make sure it's idempotent
+		release3();
+		release3();
 		t.ok(!isReleased);
 		t.is(releasePromise3, releasePromise2);
 
