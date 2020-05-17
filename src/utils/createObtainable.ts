@@ -23,9 +23,9 @@ export const createObtainable = <T>(
 		if (!obtainedRefs.has(obtainedRef)) return promise; // makes releasing idempotent per obtainer
 		obtainedRefs.delete(obtainedRef);
 		if (obtainedRefs.size > 0) return promise; // there are other open obtainers
-		const releasedResource = obtainable;
+		const finalValue = obtainable;
 		obtainable = undefined; // reset before releasing just in case release re-obtains
-		if (teardownObtainableValue) teardownObtainableValue(releasedResource!);
+		if (teardownObtainableValue) teardownObtainableValue(finalValue!);
 		resolve();
 		return promise;
 	};
