@@ -11,6 +11,9 @@ The motivating use case was reusing a database connection across multiple tasks.
 
 See the tests for usage examples - ./createObtainable.test.ts
 
+A future improvement could have `release` always return a promise
+that resolves when the obtainable is fully released.
+
 */
 export const createObtainable = <T>(
 	obtain: () => T,
