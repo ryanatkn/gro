@@ -20,7 +20,7 @@ export const createObtainable = <T>(
 	let resolve: () => void;
 	let promise: Promise<void>;
 	const releaseObtainable = (obtainedRef: symbol): Promise<void> => {
-		if (!obtainedRefs.has(obtainedRef)) return promise; // makes releasing idempotent per obtained call
+		if (!obtainedRefs.has(obtainedRef)) return promise; // makes releasing idempotent per obtainer
 		obtainedRefs.delete(obtainedRef);
 		if (obtainedRefs.size > 0) return promise; // there are other open obtainers
 		const releasedResource = obtainable;
