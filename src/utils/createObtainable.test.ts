@@ -3,7 +3,7 @@ import {test, t} from '../oki/oki.js';
 import {createObtainable} from './createObtainable.js';
 
 test('createObtainable()', () => {
-	test('release out of order', () => {
+	test('release out of order', async () => {
 		let thing: Symbol | undefined;
 		let isReleased = false;
 		const obtainThing = createObtainable(
@@ -31,14 +31,18 @@ test('createObtainable()', () => {
 		t.is(thing3, thing);
 		t.ok(!isReleased);
 
-		release2();
+		const releasePromise2 = release2();
 		t.ok(!isReleased);
+		t.ok(releasePromise2 instanceof Promise);
 
-		release3();
+		const releasePromise3 = release3();
 		t.ok(!isReleased);
+		t.is(releasePromise3, releasePromise2);
 
-		release1();
+		const releasePromise1 = release1();
 		t.ok(isReleased);
+		t.is(releasePromise1, releasePromise2);
+		await releasePromise1; // this will hang if never resolved
 
 		const originalThing = thing;
 		thing = undefined;
@@ -48,8 +52,11 @@ test('createObtainable()', () => {
 		t.is(thing4, thing);
 		t.isNot(thing4, originalThing);
 		t.ok(!isReleased);
-		release4();
+		const releasePromise4 = release4();
 		t.ok(isReleased);
+		t.ok(releasePromise4 instanceof Promise);
+		t.isNot(releasePromise4, releasePromise1);
+		await releasePromise4; // this will hang if never resolved
 	});
 
 	// This is a complicated corner case that probably should not happen

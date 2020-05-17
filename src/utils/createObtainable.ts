@@ -18,20 +18,25 @@ that resolves when the obtainable is fully released.
 export const createObtainable = <T>(
 	obtain: () => T,
 	release: (obtainable: T) => void,
-): (() => [T, () => void]) => {
+): (() => [T, () => Promise<void>]) => {
 	let count = 0;
 	let obtainable: T | undefined;
-	const releaseObtainable = () => {
+	let resolve: () => void;
+	let promise: Promise<void>;
+	const releaseObtainable = (): Promise<void> => {
 		count--;
-		if (count > 0) return;
+		if (count > 0) return promise;
 		const releasedResource = obtainable;
 		obtainable = undefined; // reset before releasing just in case release re-obtains
 		release(releasedResource!);
+		resolve();
+		return promise;
 	};
 	return () => {
 		count++;
 		if (obtainable === undefined) {
 			obtainable = obtain();
+			promise = new Promise<void>(r => (resolve = r));
 			if (obtainable === undefined) {
 				// this prevents `obtain` from being called multiple times,
 				// which would cause bugs if it has side effects
