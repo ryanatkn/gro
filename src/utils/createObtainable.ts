@@ -12,8 +12,8 @@ See the tests for usage examples - ./createObtainable.test.ts
 
 */
 export const createObtainable = <T>(
-	obtain: () => T,
-	release: (obtainable: T) => void,
+	createObtainableValue: () => T,
+	teardownObtainableValue?: (obtainable: T) => void,
 ): (() => [T, () => Promise<void>]) => {
 	let obtainable: T | undefined;
 	const obtainedRefs = new Set<symbol>();
@@ -25,7 +25,7 @@ export const createObtainable = <T>(
 		if (obtainedRefs.size > 0) return promise; // there are other open obtainers
 		const releasedResource = obtainable;
 		obtainable = undefined; // reset before releasing just in case release re-obtains
-		release(releasedResource!);
+		if (teardownObtainableValue) teardownObtainableValue(releasedResource!);
 		resolve();
 		return promise;
 	};
@@ -33,7 +33,7 @@ export const createObtainable = <T>(
 		const obtainedRef = Symbol();
 		obtainedRefs.add(obtainedRef);
 		if (obtainable === undefined) {
-			obtainable = obtain();
+			obtainable = createObtainableValue();
 			promise = new Promise<void>(r => (resolve = r));
 			if (obtainable === undefined) {
 				// this prevents `obtain` from being called multiple times,
