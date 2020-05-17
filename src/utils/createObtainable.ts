@@ -13,19 +13,19 @@ See the tests for usage examples - ./createObtainable.test.ts
 */
 export const createObtainable = <T>(
 	createObtainableValue: () => T,
-	teardownObtainableValue?: (obtainable: T) => void,
+	teardownObtainableValue?: (obtainable: T) => unknown,
 ): (() => [T, () => Promise<void>]) => {
 	let obtainable: T | undefined;
 	const obtainedRefs = new Set<symbol>();
 	let resolve: () => void;
 	let promise: Promise<void>;
-	const releaseObtainable = (obtainedRef: symbol): Promise<void> => {
+	const releaseObtainable = async (obtainedRef: symbol): Promise<void> => {
 		if (!obtainedRefs.has(obtainedRef)) return promise; // makes releasing idempotent per obtainer
 		obtainedRefs.delete(obtainedRef);
 		if (obtainedRefs.size > 0) return promise; // there are other open obtainers
 		const finalValue = obtainable;
 		obtainable = undefined; // reset before releasing just in case release re-obtains
-		if (teardownObtainableValue) teardownObtainableValue(finalValue!);
+		if (teardownObtainableValue) await teardownObtainableValue(finalValue!);
 		resolve();
 		return promise;
 	};
