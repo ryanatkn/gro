@@ -1,5 +1,9 @@
 # Gro changelog
 
+## unpublished
+
+- rename `utils/random.ts` functions, expanding "rand" prefix to "random"
+
 ## 0.1.2
 
 - add `utils/createObtainable.ts` for decoupled lifecycle management
