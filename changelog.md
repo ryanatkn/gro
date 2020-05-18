@@ -6,6 +6,7 @@
 
 ## 0.1.2
 
+- upgrade TypeScript dep
 - add `utils/createObtainable.ts` for decoupled lifecycle management
 
 ## 0.1.1
