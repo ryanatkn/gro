@@ -1,7 +1,8 @@
 # Gro changelog
 
-## unpublished
+## 0.1.3
 
+- upgrade TypeScript minor version
 - rename `utils/random.ts` functions, expanding "rand" prefix to "random"
 
 ## 0.1.2
