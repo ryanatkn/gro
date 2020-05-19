@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.1.4
+
+- ensure the project has been built when invoking tasks
+  ([#5](https://github.com/feltcoop/gro/pull/5))
+
 ## 0.1.3
 
 - upgrade TypeScript minor version
