@@ -1,5 +1,5 @@
 // handle uncaught errors
-import {attachProcessErrorHandlers} from '../utils/process.js';
+import {attachProcessErrorHandlers, spawnProcess} from '../utils/process.js';
 attachProcessErrorHandlers();
 
 // install source maps
@@ -40,7 +40,7 @@ import {
 	isId,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
-import {findFiles} from '../fs/nodeFs.js';
+import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from '../task/taskModule.js';
 
@@ -101,6 +101,17 @@ const main = async () => {
 		)!; // this is null safe because result is ok
 		if (!pathData.isDirectory) {
 			// The input path matches a file, so load and run it.
+
+			// First ensure that the project has been built.
+			// This is useful for initial project setup and CI.
+			if (!(await pathExists(paths.build))) {
+				log.info('Building the project for initial setup.');
+				subTimings.start('build project');
+				await spawnProcess('node_modules/.bin/tsc');
+				subTimings.stop('build project');
+			}
+
+			// Load and run the task.
 			const loadModulesResult = await loadModules(
 				findModulesResult.sourceIdsByInputPath,
 				loadTaskModule,
