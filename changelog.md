@@ -1,5 +1,12 @@
 # Gro changelog
 
+## 0.1.5
+
+- add `gro format` and `gro format --check` and format generated code
+  ([#8](https://github.com/feltcoop/gro/pull/8))
+- add `prettier` and `prettier-plugin-svelte` as peer dependencies and upgrade to Prettier 2
+  ([#8](https://github.com/feltcoop/gro/pull/8))
+
 ## 0.1.4
 
 - ensure the project has been built when invoking tasks
