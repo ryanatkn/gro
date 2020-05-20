@@ -10,9 +10,7 @@ export const task: Task = {
 
 		const formatResult = await spawnProcess('node_modules/.bin/prettier', [
 			check ? '--check' : '--write',
-			// TODO make configurable but shared for other purposes.
-			// We probably want a conventional `src/gro.config.ts` or something.
-			`${paths.source}**/*.{ts,js,json,svelte,html,md}`,
+			`${paths.source}**/*.{ts,js,json,svelte,html,css,md,yml}`,
 		]);
 
 		if (!formatResult.ok) {

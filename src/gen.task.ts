@@ -10,6 +10,7 @@ import {findFiles} from './fs/nodeFs.js';
 import {plural} from './utils/string.js';
 import {Timings} from './utils/time.js';
 import {findModules, loadModules} from './fs/modules.js';
+import {formatFile} from './project/formatFile.js';
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
@@ -56,7 +57,7 @@ export const task: Task = {
 
 		// run `gen` on each of the modules
 		subTimings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(loadModulesResult.modules);
+		const genResults = await runGen(loadModulesResult.modules, formatFile);
 		subTimings.stop('generate code');
 
 		const failCount = genResults.failures.length;

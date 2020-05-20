@@ -60,7 +60,9 @@ test('gen', async () => {
 			},
 		};
 		const genModulesByInputPath = [modA, modB, modC];
-		const genResults = await runGen(genModulesByInputPath);
+		const genResults = await runGen(genModulesByInputPath, (id, contents) =>
+			id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
+		);
 		t.is(genResults.inputCount, 3);
 		t.is(genResults.outputCount, 4);
 		t.is(genResults.successes.length, 3);
@@ -86,7 +88,7 @@ test('gen', async () => {
 		t.ok(fileB);
 		t.equal(resultB.files, [
 			{
-				contents: fileB.contents,
+				contents: `${fileB.contents}/*FORMATTED*/`,
 				id: join(modB.id, '../', fileB.fileName),
 				originId: modB.id,
 			},

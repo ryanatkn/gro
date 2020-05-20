@@ -11,7 +11,10 @@ import {printPath} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {red} from '../colors/terminal.js';
 
-export const runGen = async (genModules: GenModuleMeta[]): Promise<GenResults> => {
+export const runGen = async (
+	genModules: GenModuleMeta[],
+	formatFile?: (id: string, contents: string) => string,
+): Promise<GenResults> => {
 	let inputCount = 0;
 	let outputCount = 0;
 	const timings = new Timings();
@@ -22,6 +25,8 @@ export const runGen = async (genModules: GenModuleMeta[]): Promise<GenResults> =
 				inputCount++;
 				const genCtx: GenContext = {originId: id};
 				timings.start(id);
+
+				// Perform code generation by calling `gen` on the module.
 				let rawGenResult;
 				try {
 					rawGenResult = await mod.gen(genCtx);
@@ -35,7 +40,18 @@ export const runGen = async (genModules: GenModuleMeta[]): Promise<GenResults> =
 						elapsed: timings.stop(id),
 					};
 				}
-				const {files} = toGenResult(id, rawGenResult);
+
+				// Convert the module's return value to a normalized form.
+				const genResult = toGenResult(id, rawGenResult);
+
+				// Format the files if needed.
+				const files = formatFile
+					? genResult.files.map((file) => ({
+							...file,
+							contents: formatFile(file.id, file.contents),
+					  }))
+					: genResult.files;
+
 				outputCount += files.length;
 				return {
 					ok: true,
