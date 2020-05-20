@@ -12,7 +12,7 @@ export const task: Task = {
 			check ? '--check' : '--write',
 			// TODO make configurable but shared for other purposes.
 			// We probably want a conventional `src/gro.config.ts` or something.
-			`${paths.source}**/*.{ts,svelte,html,md,json}`,
+			`${paths.source}**/*.{ts,js,json,svelte,html,md}`,
 		]);
 
 		if (!formatResult.ok) {
