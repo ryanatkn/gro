@@ -34,10 +34,7 @@ or both, or neither, depending on its needs.
 In the future we may want to support globbing or regexps.
 
 */
-export const resolveRawInputPath = (
-	rawInputPath: string,
-	fromPaths?: Paths,
-): string => {
+export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
 	if (isAbsolute(rawInputPath)) return rawInputPath;
 	// Allow prefix `./` and just remove it if it's there.
 	let basePath = stripRelativePath(rawInputPath);
@@ -59,9 +56,7 @@ export const resolveRawInputPath = (
 };
 
 export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
-	(rawInputPaths.length ? rawInputPaths : ['./']).map(p =>
-		resolveRawInputPath(p),
-	);
+	(rawInputPaths.length ? rawInputPaths : ['./']).map((p) => resolveRawInputPath(p));
 
 /*
 
@@ -90,9 +85,7 @@ export const getPossibleSourceIds = (
 		for (const rootDir of rootDirs) {
 			if (inputPath.startsWith(rootDir)) continue; // avoid duplicates
 			for (const possibleSourceId of ids) {
-				possibleSourceIds.push(
-					replaceRootDir(possibleSourceId, rootDir, paths),
-				);
+				possibleSourceIds.push(replaceRootDir(possibleSourceId, rootDir, paths));
 			}
 		}
 	}

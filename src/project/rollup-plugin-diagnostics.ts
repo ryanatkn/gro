@@ -65,20 +65,12 @@ export const diagnosticsPlugin = (): Plugin => {
 		// resolveDynamicImport(_specifier, _importer) {}
 		// resolveFileUrl(_asset) {}
 		resolveId(importee, importer) {
-			log.trace(
-				tag('resolveId'),
-				gray(importee),
-				(importer && '<- ' + printPath(importer)) || '',
-			);
+			log.trace(tag('resolveId'), gray(importee), (importer && '<- ' + printPath(importer)) || '');
 			return null;
 		},
 		// resolveImportMeta(_property, _asset) {}
 		transform(code, id) {
-			log.trace(
-				tag('transform'),
-				printPath(id),
-				printKeyValue('len', (code && code.length) || 0),
-			);
+			log.trace(tag('transform'), printPath(id), printKeyValue('len', (code && code.length) || 0));
 			return null;
 		},
 		watchChange(id) {

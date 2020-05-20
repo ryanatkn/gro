@@ -1,8 +1,4 @@
-export const truncate = (
-	str: string,
-	maxLength: number,
-	suffix = '...',
-): string => {
+export const truncate = (str: string, maxLength: number, suffix = '...'): string => {
 	if (maxLength <= 0 || maxLength < suffix.length) return '';
 	if (str.length > maxLength) {
 		return str.slice(0, maxLength - suffix.length) + suffix;
@@ -53,10 +49,8 @@ export const deindent = (str: string): string =>
 	str
 		.split('\n')
 		.filter(Boolean)
-		.map(s => s.trim())
+		.map((s) => s.trim())
 		.join('\n');
 
-export const plural = (
-	count: number | undefined | null,
-	suffix = 's',
-): string => (count === 1 ? '' : suffix);
+export const plural = (count: number | undefined | null, suffix = 's'): string =>
+	count === 1 ? '' : suffix;

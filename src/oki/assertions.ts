@@ -7,7 +7,7 @@ export class AssertionError extends Error {
 	}
 }
 
-export const ok: (value: any) => asserts value = value => {
+export const ok: (value: any) => asserts value = (value) => {
 	if (!value) {
 		throw new AssertionError({operator: AssertionOperator.ok, value});
 	}
@@ -53,10 +53,7 @@ export const notEqual = (actual: any, expected: any): void => {
 	}
 };
 
-export const throws = (
-	cb: () => void,
-	matcher?: ErrorClass | RegExp | string,
-): void => {
+export const throws = (cb: () => void, matcher?: ErrorClass | RegExp | string): void => {
 	try {
 		cb();
 	} catch (err) {

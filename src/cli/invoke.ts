@@ -18,27 +18,10 @@ import {SystemLogger, Logger} from '../utils/log.js';
 import {green, blue, cyan, red, gray} from '../colors/terminal.js';
 import {runTask} from '../task/runTask.js';
 import {Timings} from '../utils/time.js';
-import {
-	printMs,
-	printPath,
-	printPathOrGroPath,
-	printSubTiming,
-} from '../utils/print.js';
+import {printMs, printPath, printPathOrGroPath, printSubTiming} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
-import {
-	TASK_FILE_SUFFIX,
-	isTaskPath,
-	toTaskName,
-	TaskError,
-} from '../task/task.js';
-import {
-	paths,
-	groPaths,
-	toBasePath,
-	replaceRootDir,
-	pathsFromId,
-	isId,
-} from '../paths.js';
+import {TASK_FILE_SUFFIX, isTaskPath, toTaskName, TaskError} from '../task/task.js';
+import {paths, groPaths, toBasePath, replaceRootDir, pathsFromId, isId} from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
@@ -88,17 +71,14 @@ const main = async () => {
 	// Fall back to searching the Gro directory as well.
 	const findModulesResult = await findModules(
 		[inputPath],
-		id => findFiles(id, file => isTaskPath(file.path)),
-		inputPath =>
-			getPossibleSourceIds(inputPath, [TASK_FILE_SUFFIX], [groPaths.root]),
+		(id) => findFiles(id, (file) => isTaskPath(file.path)),
+		(inputPath) => getPossibleSourceIds(inputPath, [TASK_FILE_SUFFIX], [groPaths.root]),
 	);
 
 	if (findModulesResult.ok) {
 		subTimings.merge(findModulesResult.timings);
 		// Found a match either in the current working directory or Gro's directory.
-		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(
-			inputPath,
-		)!; // this is null safe because result is ok
+		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
 		if (!pathData.isDirectory) {
 			// The input path matches a file, so load and run it.
 
@@ -122,9 +102,9 @@ const main = async () => {
 				// `pathData` is not a directory, so there's a single task module here.
 				const task = loadModulesResult.modules[0];
 				log.info(
-					`→ ${cyan(task.name)} ${(task.mod.task.description &&
-						gray(task.mod.task.description)) ||
-						''}`,
+					`→ ${cyan(task.name)} ${
+						(task.mod.task.description && gray(task.mod.task.description)) || ''
+					}`,
 				);
 				subTimings.start('run task');
 				const result = await runTask(task, args, process.env);
@@ -148,11 +128,7 @@ const main = async () => {
 			// The input path matches a directory. Log the tasks but don't run them.
 			if (paths === groPaths) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
-				logAvailableTasks(
-					log,
-					printPath(pathData.id),
-					findModulesResult.sourceIdsByInputPath,
-				);
+				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
 			} else if (isId(pathData.id, groPaths)) {
 				// Does the Gro directory contain the matching files? Log them.
 				logAvailableTasks(
@@ -166,9 +142,8 @@ const main = async () => {
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
 				const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
-				const groDirFindModulesResult = await findModules(
-					[groDirInputPath],
-					id => findFiles(id, file => isTaskPath(file.path)),
+				const groDirFindModulesResult = await findModules([groDirInputPath], (id) =>
+					findFiles(id, (file) => isTaskPath(file.path)),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (groDirFindModulesResult.ok) {
@@ -184,11 +159,7 @@ const main = async () => {
 					);
 				}
 				// Then log the current working directory matches.
-				logAvailableTasks(
-					log,
-					printPath(pathData.id),
-					findModulesResult.sourceIdsByInputPath,
-				);
+				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
 			}
 		}
 	} else if (findModulesResult.type === 'inputDirectoriesWithNoFiles') {
@@ -208,8 +179,8 @@ const main = async () => {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
 			const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
-			const groDirFindModulesResult = await findModules([groDirInputPath], id =>
-				findFiles(id, file => isTaskPath(file.path)),
+			const groDirFindModulesResult = await findModules([groDirInputPath], (id) =>
+				findFiles(id, (file) => isTaskPath(file.path)),
 			);
 			if (groDirFindModulesResult.ok) {
 				subTimings.merge(groDirFindModulesResult.timings);
@@ -248,13 +219,9 @@ const logAvailableTasks = (
 ): void => {
 	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
 	if (sourceIds.length) {
-		log.info(
-			`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`,
-		);
+		log.info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
 		for (const sourceId of sourceIds) {
-			log.info(
-				'\t' + cyan(toTaskName(toBasePath(sourceId, pathsFromId(sourceId)))),
-			);
+			log.info('\t' + cyan(toTaskName(toBasePath(sourceId, pathsFromId(sourceId)))));
 		}
 	} else {
 		log.info(`No tasks found in ${dirLabel}.`);

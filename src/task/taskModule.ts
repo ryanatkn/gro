@@ -1,11 +1,5 @@
 import {toBasePath, paths, pathsFromId} from '../paths.js';
-import {
-	ModuleMeta,
-	LoadModuleResult,
-	loadModule,
-	loadModules,
-	findModules,
-} from '../fs/modules.js';
+import {ModuleMeta, LoadModuleResult, loadModule, loadModules, findModules} from '../fs/modules.js';
 import {Task, toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
 import {findFiles} from '../fs/nodeFs.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
@@ -21,9 +15,7 @@ export interface TaskModuleMeta extends ModuleMeta<TaskModule> {
 export const validateTaskModule = (mod: Obj): mod is TaskModule =>
 	!!mod.task && typeof mod.task.run === 'function';
 
-export const loadTaskModule = async (
-	id: string,
-): Promise<LoadModuleResult<TaskModuleMeta>> => {
+export const loadTaskModule = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {
 	const result = await loadModule(id, validateTaskModule);
 	if (!result.ok) return result;
 	return {
@@ -39,8 +31,8 @@ export const loadTaskModules = async (
 ) => {
 	const findModulesResult = await findModules(
 		inputPaths,
-		id => findFiles(id, file => isTaskPath(file.path)),
-		inputPath => getPossibleSourceIds(inputPath, extensions, rootDirs),
+		(id) => findFiles(id, (file) => isTaskPath(file.path)),
+		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);
 	if (!findModulesResult.ok) return findModulesResult;
 	return loadModules(findModulesResult.sourceIdsByInputPath, loadTaskModule);

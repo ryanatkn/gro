@@ -24,8 +24,8 @@ export const task: Task = {
 
 		const findModulesResult = await findModules(
 			inputPaths,
-			id => findFiles(id, file => isTestPath(file.path)),
-			inputPath => getPossibleSourceIds(inputPath, [TEST_FILE_SUFFIX]),
+			(id) => findFiles(id, (file) => isTestPath(file.path)),
+			(inputPath) => getPossibleSourceIds(inputPath, [TEST_FILE_SUFFIX]),
 		);
 		if (!findModulesResult.ok) {
 			for (const reason of findModulesResult.reasons) {
@@ -39,9 +39,8 @@ export const task: Task = {
 		// to their execution context, so its API is a bit complex.
 		// See the comment on `TestContext.beginImporting` for more.
 		const finishImporting = testContext.beginImporting();
-		const loadModulesResult = await loadModules(
-			findModulesResult.sourceIdsByInputPath,
-			id => testContext.importModule(id),
+		const loadModulesResult = await loadModules(findModulesResult.sourceIdsByInputPath, (id) =>
+			testContext.importModule(id),
 		);
 		finishImporting();
 		if (!loadModulesResult.ok) {
@@ -65,9 +64,7 @@ export const task: Task = {
 
 		if (testRunResult.stats.failCount) {
 			throw new TaskError(
-				`Failed ${testRunResult.stats.failCount} test${plural(
-					testRunResult.stats.failCount,
-				)}.`,
+				`Failed ${testRunResult.stats.failCount} test${plural(testRunResult.stats.failCount)}.`,
 			);
 		}
 	},

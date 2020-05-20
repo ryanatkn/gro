@@ -28,10 +28,7 @@ export const getExtensionsByMimeType = (mimeType: string): string[] | null =>
 	extensionsByMimeType.get(mimeType) || null;
 
 // Overrides anything that might already be cached.
-export const addMimeTypeExtension = (
-	mimeType: string,
-	extension: string,
-): void => {
+export const addMimeTypeExtension = (mimeType: string, extension: string): void => {
 	const existingMimeType = mimeTypeByExtension.get(extension);
 	if (existingMimeType === mimeType) return;
 	if (existingMimeType) removeMimeTypeExtension(extension);
@@ -46,9 +43,7 @@ export const addMimeTypeExtension = (
 export const removeMimeTypeExtension = (extension: string): boolean => {
 	const mimeType = mimeTypeByExtension.get(extension);
 	if (!mimeType) return false;
-	const newExts = extensionsByMimeType
-		.get(mimeType)!
-		.filter(e => e !== extension);
+	const newExts = extensionsByMimeType.get(mimeType)!.filter((e) => e !== extension);
 	if (newExts.length) {
 		extensionsByMimeType.set(mimeType, newExts);
 	} else {

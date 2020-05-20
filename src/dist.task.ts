@@ -11,14 +11,14 @@ export const isDistFile = (path: string): boolean =>
 
 export const task: Task = {
 	description: 'create the distribution',
-	run: async ctx => {
+	run: async (ctx) => {
 		const {log} = ctx;
 
 		await cleanDist(log);
 
 		log.info(`copying ${printPath(paths.build)} to ${printPath(paths.dist)}`);
 		await copy(paths.build, paths.dist, {
-			filter: id => isDistFile(id),
+			filter: (id) => isDistFile(id),
 		});
 
 		await assetsTask.run(ctx);

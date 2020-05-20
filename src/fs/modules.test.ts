@@ -69,8 +69,8 @@ test('findModules()', async () => {
 		const id2 = resolve('src/fs/fixtures/test2.foo.ts');
 		const result = await findModules(
 			[path1, id2],
-			id => findFiles(id),
-			inputPath => getPossibleSourceIds(inputPath, ['.foo.ts']),
+			(id) => findFiles(id),
+			(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
 		);
 		t.ok(result.ok);
 		t.equal(
@@ -91,7 +91,7 @@ test('findModules()', async () => {
 
 	test('directory', async () => {
 		const id = resolve('src/fs/fixtures/');
-		const result = await findModules([id], id =>
+		const result = await findModules([id], (id) =>
 			findFiles(id, ({path}) => path.includes('.foo.')),
 		);
 		t.ok(result.ok);
@@ -99,10 +99,7 @@ test('findModules()', async () => {
 			result.sourceIdsByInputPath,
 			new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 		);
-		t.equal(
-			result.sourceIdPathDataByInputPath,
-			new Map([[id, {id, isDirectory: true}]]),
-		);
+		t.equal(result.sourceIdPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
 	});
 
 	test('fail with unmappedInputPaths', async () => {
@@ -113,8 +110,8 @@ test('findModules()', async () => {
 				resolve('src/fs/fixtures/bar2'),
 				resolve('src/fs/fixtures/failme2'),
 			],
-			id => findFiles(id),
-			inputPath => getPossibleSourceIds(inputPath, ['.foo.ts']),
+			(id) => findFiles(id),
+			(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
 		);
 		t.ok(!result.ok);
 		t.ok(result.reasons.length);
@@ -136,7 +133,7 @@ test('findModules()', async () => {
 				resolve('src/fs/fixtures/bar2'),
 				resolve('src/fs/fixtures/baz2'),
 			],
-			id => findFiles(id, ({path}) => !path.includes('.bar.')),
+			(id) => findFiles(id, ({path}) => !path.includes('.bar.')),
 		);
 		t.ok(!result.ok);
 		t.ok(result.reasons.length);
@@ -168,7 +165,7 @@ test('loadModules()', () => {
 				[pathBar1, [idBar1, idBar2]],
 				[pathBaz1, [idBaz1, idBaz2]],
 			]),
-			async id => {
+			async (id) => {
 				if (id === idBar2) {
 					return {
 						ok: false,

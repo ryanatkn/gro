@@ -75,6 +75,11 @@ gro gen --check # errors if any generated files are new or different
 ```
 
 ```bash
+gro format # formats all of the source files using Prettier
+gro format --check # checks that all source files are formatted
+```
+
+```bash
 gro serve # staticly serves the current directory (or a configured one)
 ```
 

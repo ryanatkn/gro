@@ -5,7 +5,7 @@ import {task as distTask} from '../dist.task.js';
 
 export const task: Task = {
 	description: 'create and link the distribution',
-	run: async ctx => {
+	run: async (ctx) => {
 		const {log} = ctx;
 
 		await distTask.run(ctx);
@@ -13,9 +13,7 @@ export const task: Task = {
 		log.info('linking');
 		const linkResult = await spawnProcess('npm', ['link']);
 		if (!linkResult.ok) {
-			throw new TaskError(
-				`Failed to link. ${printKeyValue('code', linkResult.code)}`,
-			);
+			throw new TaskError(`Failed to link. ${printKeyValue('code', linkResult.code)}`);
 		}
 	},
 };

@@ -44,9 +44,8 @@ export const pickBy = <T extends Record<K, any>, K extends string | number>(
 // `omitUndefined` is a commonly used form of `pickBy`
 // See this issue for why it's used so much:
 // https://github.com/Microsoft/TypeScript/issues/13195
-export const omitUndefined = <T extends Record<string | number, any>>(
-	obj: T,
-): T => pickBy(obj, v => v !== undefined) as T;
+export const omitUndefined = <T extends Record<string | number, any>>(obj: T): T =>
+	pickBy(obj, (v) => v !== undefined) as T;
 
 // A more explicit form of `{putThisFirst: obj.putThisFirst, ...obj}`
 export const reorder = <T extends Record<K, any>, K extends string | number>(

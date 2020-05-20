@@ -115,79 +115,43 @@ test('toDistPath()', () => {
 
 test('toSourceId()', () => {
 	test('sourceId', () => {
-		t.is(
-			toSourceId(resolve('src/foo/bar/baz.ts')),
-			resolve('src/foo/bar/baz.ts'),
-		);
+		t.is(toSourceId(resolve('src/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
 	});
 	test('sourceId with js extension', () => {
-		t.is(
-			toSourceId(resolve('src/foo/bar/baz.js')),
-			resolve('src/foo/bar/baz.js'),
-		);
+		t.is(toSourceId(resolve('src/foo/bar/baz.js')), resolve('src/foo/bar/baz.js'));
 	});
 	test('buildId', () => {
-		t.is(
-			toSourceId(resolve('build/foo/bar/baz.js')),
-			resolve('src/foo/bar/baz.ts'),
-		);
+		t.is(toSourceId(resolve('build/foo/bar/baz.js')), resolve('src/foo/bar/baz.ts'));
 	});
 	test('buildId with ts extension', () => {
-		t.is(
-			toSourceId(resolve('build/foo/bar/baz.ts')),
-			resolve('src/foo/bar/baz.ts'),
-		);
+		t.is(toSourceId(resolve('build/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
 	});
 	test('distId', () => {
-		t.is(
-			toSourceId(resolve('dist/foo/bar/baz.js')),
-			resolve('src/foo/bar/baz.ts'),
-		);
+		t.is(toSourceId(resolve('dist/foo/bar/baz.js')), resolve('src/foo/bar/baz.ts'));
 	});
 	test('distId with ts extension', () => {
-		t.is(
-			toSourceId(resolve('dist/foo/bar/baz.ts')),
-			resolve('src/foo/bar/baz.ts'),
-		);
+		t.is(toSourceId(resolve('dist/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
 	});
 });
 
 test('toBuildId()', () => {
 	test('sourceId', () => {
-		t.is(
-			toBuildId(resolve('src/foo/bar/baz.ts')),
-			resolve('build/foo/bar/baz.js'),
-		);
+		t.is(toBuildId(resolve('src/foo/bar/baz.ts')), resolve('build/foo/bar/baz.js'));
 	});
 	test('sourceId with js extension', () => {
-		t.is(
-			toBuildId(resolve('src/foo/bar/baz.js')),
-			resolve('build/foo/bar/baz.js'),
-		);
+		t.is(toBuildId(resolve('src/foo/bar/baz.js')), resolve('build/foo/bar/baz.js'));
 	});
 	test('buildId', () => {
-		t.is(
-			toBuildId(resolve('build/foo/bar/baz.js')),
-			resolve('build/foo/bar/baz.js'),
-		);
+		t.is(toBuildId(resolve('build/foo/bar/baz.js')), resolve('build/foo/bar/baz.js'));
 	});
 	test('buildId with ts extension', () => {
-		t.is(
-			toBuildId(resolve('build/foo/bar/baz.ts')),
-			resolve('build/foo/bar/baz.ts'),
-		);
+		t.is(toBuildId(resolve('build/foo/bar/baz.ts')), resolve('build/foo/bar/baz.ts'));
 	});
 	test('distId', () => {
-		t.is(
-			toBuildId(resolve('build/foo/bar/baz.js')),
-			resolve('build/foo/bar/baz.js'),
-		);
+		t.is(toBuildId(resolve('build/foo/bar/baz.js')), resolve('build/foo/bar/baz.js'));
 	});
 	test('distId with ts extension', () => {
-		t.is(
-			toBuildId(resolve('build/foo/bar/baz.ts')),
-			resolve('build/foo/bar/baz.ts'),
-		);
+		t.is(toBuildId(resolve('build/foo/bar/baz.ts')), resolve('build/foo/bar/baz.ts'));
 	});
 });
 
@@ -248,18 +212,10 @@ test('toPathSegments()', () => {
 test('toPathParts()', () => {
 	t.equal(toPathParts('foo/bar/baz.ts'), ['foo', 'foo/bar', 'foo/bar/baz.ts']);
 	test('leading dot', () => {
-		t.equal(toPathParts('./foo/bar/baz.ts'), [
-			'foo',
-			'foo/bar',
-			'foo/bar/baz.ts',
-		]);
+		t.equal(toPathParts('./foo/bar/baz.ts'), ['foo', 'foo/bar', 'foo/bar/baz.ts']);
 	});
 	test('leading slash', () => {
-		t.equal(toPathParts('/foo/bar/baz.ts'), [
-			'/foo',
-			'/foo/bar',
-			'/foo/bar/baz.ts',
-		]);
+		t.equal(toPathParts('/foo/bar/baz.ts'), ['/foo', '/foo/bar', '/foo/bar/baz.ts']);
 	});
 	test('trailing slash', () => {
 		t.equal(toPathParts('foo/bar/baz/'), ['foo', 'foo/bar', 'foo/bar/baz']);

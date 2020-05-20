@@ -15,7 +15,7 @@ test('gen', async () => {
 		let modA: GenModuleMeta = {
 			id: sourceIdA,
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, sourceIdA);
 					if (fileA) throw Error('Already generated fileA');
 					fileA = {
@@ -29,7 +29,7 @@ test('gen', async () => {
 		let modB: GenModuleMeta = {
 			id: join(sourceIdBC, 'modB.gen.ts'),
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, modB.id);
 					if (fileB) throw Error('Already generated fileB');
 					fileB = {
@@ -43,7 +43,7 @@ test('gen', async () => {
 		let modC: GenModuleMeta = {
 			id: join(sourceIdBC, 'modC.gen.ts'),
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, modC.id);
 					if (fileC1) throw Error('Already generated fileC1');
 					if (fileC2) throw Error('Already generated fileC2');
@@ -128,7 +128,7 @@ test('gen', async () => {
 		let modB: GenModuleMeta = {
 			id: join(sourceIdB, 'modB.gen.ts'),
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, modB.id);
 					if (fileB) throw Error('Already generated fileB');
 					fileB = {

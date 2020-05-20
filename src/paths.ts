@@ -58,19 +58,14 @@ export const groDir = join(groImportDir, '../');
 export const groDirBasename = basename(groDir) + sep;
 export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
 
-export const pathsFromId = (id: string): Paths =>
-	isId(id, groPaths) ? groPaths : paths;
+export const pathsFromId = (id: string): Paths => (isId(id, groPaths) ? groPaths : paths);
 
 export const isId = (id: string, p = paths): boolean => id.startsWith(p.root);
-export const isSourceId = (id: string, p = paths): boolean =>
-	id.startsWith(p.source);
-export const isBuildId = (id: string, p = paths): boolean =>
-	id.startsWith(p.build);
-export const isDistId = (id: string, p = paths): boolean =>
-	id.startsWith(p.dist);
+export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.source);
+export const isBuildId = (id: string, p = paths): boolean => id.startsWith(p.build);
+export const isDistId = (id: string, p = paths): boolean => id.startsWith(p.dist);
 
-export const toRootPath = (id: string, p = paths): string =>
-	stripStart(id, p.root);
+export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
 
 // '/home/me/app/build/foo/bar/baz.js' -> 'foo/bar/baz.js'
 // '/home/me/app/src/foo/bar/baz.ts' -> 'foo/bar/baz.ts'
@@ -79,9 +74,7 @@ export const toBasePath = (id: string, p = paths): string =>
 
 // '/home/me/app/build/foo/bar/baz.js' -> 'src/foo/bar/baz.ts'
 export const toSourcePath = (id: string, p = paths): string =>
-	isSourceId(id, p)
-		? stripStart(id, p.root)
-		: toSourceExt(join(SOURCE_DIR, toBasePath(id, p)));
+	isSourceId(id, p) ? stripStart(id, p.root) : toSourceExt(join(SOURCE_DIR, toBasePath(id, p)));
 
 // '/home/me/app/src/foo/bar/baz.ts' -> 'build/foo/bar/baz.js'
 export const toBuildPath = (id: string, p = paths): string =>
@@ -112,19 +105,15 @@ export const toDistId = (id: string, p = paths): string =>
 	isDistId(id, p) ? id : join(p.root, toDistPath(id, p));
 
 // 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
-export const basePathToSourceId = (basePath: string, p = paths): string =>
-	join(p.source, basePath);
+export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
 
 // 'foo/bar/baz.js' -> '/home/me/app/build/foo/bar/baz.js'
-export const basePathToBuildId = (basePath: string, p = paths): string =>
-	join(p.build, basePath);
+export const basePathToBuildId = (basePath: string, p = paths): string => join(p.build, basePath);
 
 // 'foo/bar/baz.js' -> '/home/me/app/dist/foo/bar/baz.js'
-export const basePathToDistId = (basePath: string, p = paths): string =>
-	join(p.dist, basePath);
+export const basePathToDistId = (basePath: string, p = paths): string => join(p.dist, basePath);
 
-export const stripRelativePath = (path: string): string =>
-	stripStart(path, RELATIVE_DIR_START);
+export const stripRelativePath = (path: string): string => stripStart(path, RELATIVE_DIR_START);
 
 export const JS_EXT = '.js';
 export const TS_EXT = '.ts';
@@ -132,7 +121,7 @@ export const SVELTE_EXT = '.svelte';
 export const SOURCE_EXTS = [TS_EXT, SVELTE_EXT];
 
 export const hasSourceExt = (path: string): boolean =>
-	SOURCE_EXTS.some(ext => path.endsWith(ext));
+	SOURCE_EXTS.some((ext) => path.endsWith(ext));
 
 export const toSourceExt = (path: string): string =>
 	path.endsWith(JS_EXT) ? replaceExt(path, TS_EXT) : path; // TODO? how does this work with `.svelte`? do we need more metadata?
@@ -144,14 +133,14 @@ export const toCompiledExt = (path: string): string =>
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
 export const toPathSegments = (path: string): string[] =>
-	path.split(sep).filter(s => s && s !== '.');
+	path.split(sep).filter((s) => s && s !== '.');
 
 // Designed for the `cheap-watch` API.
 // toPathParts('./foo/bar/baz.ts') => ['foo', 'foo/bar', 'foo/bar/baz.ts']
 export const toPathParts = (path: string): string[] => {
 	const segments = toPathSegments(path);
 	let currentPath = path[0] === sep ? sep : '';
-	return segments.map(segment => {
+	return segments.map((segment) => {
 		if (!currentPath || currentPath === sep) {
 			currentPath += segment;
 		} else {
@@ -162,17 +151,12 @@ export const toPathParts = (path: string): string[] => {
 };
 
 // Can be used to map a source id from e.g. the cwd to gro's.
-export const replaceRootDir = (
-	id: string,
-	rootDir: string,
-	p = paths,
-): string => join(rootDir, toRootPath(id, p));
+export const replaceRootDir = (id: string, rootDir: string, p = paths): string =>
+	join(rootDir, toRootPath(id, p));
 
 // Converts a source id into an id that can be imported.
 // When importing Gro paths, this correctly chooses the build or dist dir.
 export const toImportId = (id: string): string => {
 	const p = pathsFromId(id);
-	return p === groPaths
-		? toCompiledExt(join(groImportDir, toBasePath(id, p)))
-		: toBuildId(id, p);
+	return p === groPaths ? toCompiledExt(join(groImportDir, toBasePath(id, p))) : toBuildId(id, p);
 };

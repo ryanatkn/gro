@@ -34,7 +34,7 @@ export const createObtainable = <T>(
 		obtainedRefs.add(obtainedRef);
 		if (obtainable === undefined) {
 			obtainable = createObtainableValue();
-			promise = new Promise<void>(r => (resolve = r));
+			promise = new Promise<void>((r) => (resolve = r));
 			if (obtainable === undefined) {
 				// this prevents `obtain` from being called multiple times,
 				// which would cause bugs if it has side effects

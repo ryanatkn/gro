@@ -45,7 +45,7 @@ const resolveInputFiles = async (fileNames: string[]): Promise<string[]> => {
 			}
 		}
 	}
-	const inputFiles = fileNames.map(f => resolve(f));
+	const inputFiles = fileNames.map((f) => resolve(f));
 	for (const file of inputFiles) {
 		if (!(await pathExists(file))) {
 			throw Error(`Input file not found: ${file}`);

@@ -9,9 +9,7 @@ test('assertions', () => {
 		} catch (err) {
 			if (err instanceof AssertionError) {
 				if (err.assertion.operator !== AssertionOperator.fail) {
-					throw Error(
-						`Expected error operator to be "${AssertionOperator.fail}"`,
-					);
+					throw Error(`Expected error operator to be "${AssertionOperator.fail}"`);
 				}
 				return;
 			} else {

@@ -111,11 +111,7 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 const handleDiagnostics = (
 	_id: string,
 	diagnostics: ts.Diagnostic[],
-	_handleDiagnostics: (
-		id: string,
-		diagnostics: ts.Diagnostic[],
-		...args: any[]
-	) => void,
+	_handleDiagnostics: (id: string, diagnostics: ts.Diagnostic[], ...args: any[]) => void,
 	_pluginContext: PluginContext,
 	log: Logger,
 ): void => {
@@ -133,8 +129,7 @@ const handleStats = (
 		printKeyValue('stats', toRootPath(id)),
 		...[
 			// printKeyValue('total', printMs(stats.timings.total)),
-			stats.timings.transpile &&
-				printKeyValue('transpile', printMs(stats.timings.transpile.total)),
+			stats.timings.transpile && printKeyValue('transpile', printMs(stats.timings.transpile.total)),
 		].filter(Boolean),
 	);
 };

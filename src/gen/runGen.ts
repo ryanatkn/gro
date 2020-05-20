@@ -11,9 +11,7 @@ import {printPath} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {red} from '../colors/terminal.js';
 
-export const runGen = async (
-	genModules: GenModuleMeta[],
-): Promise<GenResults> => {
+export const runGen = async (genModules: GenModuleMeta[]): Promise<GenResults> => {
 	let inputCount = 0;
 	let outputCount = 0;
 	const timings = new Timings();
@@ -50,8 +48,8 @@ export const runGen = async (
 	);
 	return {
 		results,
-		successes: results.filter(r => r.ok) as GenModuleResultSuccess[],
-		failures: results.filter(r => !r.ok) as GenModuleResultFailure[],
+		successes: results.filter((r) => r.ok) as GenModuleResultSuccess[],
+		failures: results.filter((r) => !r.ok) as GenModuleResultFailure[],
 		inputCount,
 		outputCount,
 		elapsed: timings.stop('total'),

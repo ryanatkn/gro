@@ -38,10 +38,7 @@ export const loadTsconfig = (
 	if (!config) throw Error(`Unable to read tsconfig from ${tsconfigPath}`);
 
 	const rawCompilerOptions = config.compilerOptions;
-	const convertResult = ts.convertCompilerOptionsFromJson(
-		rawCompilerOptions,
-		basePath,
-	);
+	const convertResult = ts.convertCompilerOptionsFromJson(rawCompilerOptions, basePath);
 	if (convertResult.errors) logTsDiagnostics(convertResult.errors, log);
 
 	return {
@@ -51,19 +48,11 @@ export const loadTsconfig = (
 	};
 };
 
-export const logTsDiagnostics = (
-	diagnostics: ReadonlyArray<ts.Diagnostic>,
-	log: Logger,
-): void => {
+export const logTsDiagnostics = (diagnostics: ReadonlyArray<ts.Diagnostic>, log: Logger): void => {
 	const count = diagnostics.length;
 	if (!count) return;
-	const msg = ts.formatDiagnosticsWithColorAndContext(
-		diagnostics,
-		createFormatDiagnosticsHost(),
-	);
-	log.error(
-		black(bgRed(` ${count} item${count === 1 ? '' : 's'}`)) + '\n' + msg,
-	);
+	const msg = ts.formatDiagnosticsWithColorAndContext(diagnostics, createFormatDiagnosticsHost());
+	log.error(black(bgRed(` ${count} item${count === 1 ? '' : 's'}`)) + '\n' + msg);
 };
 
 const createFormatDiagnosticsHost = (): ts.FormatDiagnosticsHost => {

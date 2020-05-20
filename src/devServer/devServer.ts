@@ -70,7 +70,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	return {
 		server,
 		start: async () => {
-			return new Promise(resolve => {
+			return new Promise((resolve) => {
 				const listenOptions: ListenOptions = {
 					port,
 					host,
@@ -100,11 +100,7 @@ const toLocalPath = (dir: string, url: string): string => {
 	return resolve(dir, relativePath);
 };
 
-const send404FileNotFound = (
-	req: IncomingMessage,
-	res: ServerResponse,
-	path: string,
-) => {
+const send404FileNotFound = (req: IncomingMessage, res: ServerResponse, path: string) => {
 	const headers: OutgoingHttpHeaders = {
 		'Content-Type': 'text/plain',
 	};
@@ -112,11 +108,7 @@ const send404FileNotFound = (
 	res.end(`404 not found: ${req.url} -> ${path}`);
 };
 
-const send200FileFound = (
-	_req: IncomingMessage,
-	res: ServerResponse,
-	file: File,
-) => {
+const send200FileFound = (_req: IncomingMessage, res: ServerResponse, file: File) => {
 	const headers: OutgoingHttpHeaders = {
 		'Content-Length': file.stats.size,
 		'Last-Modified': file.stats.mtime.toUTCString(),

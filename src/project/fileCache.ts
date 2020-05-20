@@ -18,8 +18,8 @@ export const createFileCache = (): FileCache => {
 
 	return {
 		byId,
-		get: id => byId.get(id),
-		set: file => {
+		get: (id) => byId.get(id),
+		set: (file) => {
 			log.trace('set', printPath(file.id));
 			byId.set(file.id, file);
 		},

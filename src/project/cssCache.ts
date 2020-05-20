@@ -19,9 +19,7 @@ export interface CssCache<T extends CssBuild = CssBuild> {
 	addCssBuild(bundleName: string, build: T): boolean;
 }
 
-export const createCssCache = <
-	T extends CssBuild = CssBuild
->(): CssCache<T> => {
+export const createCssCache = <T extends CssBuild = CssBuild>(): CssCache<T> => {
 	const log = new SystemLogger([green('[cssCache]')]);
 
 	// `bundles` key is an output bundle file name
@@ -48,10 +46,7 @@ export const createCssCache = <
 				bundles.set(bundleName, bundle);
 			}
 
-			log.info(
-				printKeyValue('caching', printPath(id)),
-				printKeyValue('bundle', bundleName),
-			);
+			log.info(printKeyValue('caching', printPath(id)), printKeyValue('bundle', bundleName));
 			bundle.buildsById.set(id, build);
 			bundle.changedIds.add(id);
 

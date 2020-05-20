@@ -15,8 +15,7 @@ export const findFiles = async (
 	const watcher = new CheapWatch({
 		dir,
 		filter: filter
-			? (file: {path: string; stats: PathStats}) =>
-					file.stats.isDirectory() || filter(file)
+			? (file: {path: string; stats: PathStats}) => file.stats.isDirectory() || filter(file)
 			: undefined,
 		watch: false,
 	});

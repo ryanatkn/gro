@@ -15,14 +15,11 @@ export interface TaskContext {
 export const TASK_FILE_PATTERN = /\.task\.ts$/;
 export const TASK_FILE_SUFFIX = '.task.ts';
 
-export const isTaskPath = (path: string): boolean =>
-	TASK_FILE_PATTERN.test(path);
+export const isTaskPath = (path: string): boolean => TASK_FILE_PATTERN.test(path);
 
-export const toTaskPath = (taskName: string): string =>
-	taskName + TASK_FILE_SUFFIX;
+export const toTaskPath = (taskName: string): string => taskName + TASK_FILE_SUFFIX;
 
-export const toTaskName = (basePath: string): string =>
-	basePath.replace(TASK_FILE_PATTERN, '');
+export const toTaskName = (basePath: string): string => basePath.replace(TASK_FILE_PATTERN, '');
 
 // This is used by tasks to signal a known failure.
 // It's useful for cleaning up logging because

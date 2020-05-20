@@ -16,11 +16,7 @@ test('deepEqual()', () => {
 		['functions', fn, fn],
 		['arrays', [1, 'a'], [1, 'a']],
 		['empty arrays', [], []],
-		[
-			'nested arrays',
-			[1, [[[[1, 'd'], 'c'], 'b'], 'a']],
-			[1, [[[[1, 'd'], 'c'], 'b'], 'a']],
-		],
+		['nested arrays', [1, [[[[1, 'd'], 'c'], 'b'], 'a']], [1, [[[[1, 'd'], 'c'], 'b'], 'a']]],
 		['objects', {a: 1, b: 2}, {a: 1, b: 2}],
 		['objects with shuffled keys', {a: 1, b: 2}, {b: 2, a: 1}],
 		[
@@ -28,11 +24,7 @@ test('deepEqual()', () => {
 			{a: 1, b: {c: {d: {e: 1, f: {g: {h1: 1, h2: 2}, i: 1}}}, j: 1}},
 			{a: 1, b: {c: {d: {e: 1, f: {g: {h2: 2, h1: 1}, i: 1}}}, j: 1}},
 		],
-		[
-			'sets',
-			new Set(['a', 'b', null, Array, 1, 2, 3]),
-			new Set(['a', 'b', null, Array, 1, 2, 3]),
-		],
+		['sets', new Set(['a', 'b', null, Array, 1, 2, 3]), new Set(['a', 'b', null, Array, 1, 2, 3])],
 		[
 			'sets with shuffled order',
 			new Set(['a', 'b', null, Array, 1, 2, 3]),
@@ -79,11 +71,7 @@ test('!deepEqual()', () => {
 		['empty array and array with undefined', [], [undefined]],
 		['arrays with differently sorted elements', [1, 'a'], ['a', 1]],
 		['arrays with different types', [1, 2, 3], [1, '2', 3]],
-		[
-			'nested arrays',
-			[1, [[[[1, 'd'], 'c'], 'b'], 'a']],
-			[1, [[[[1, 'D'], 'c'], 'b'], 'a']],
-		],
+		['nested arrays', [1, [[[[1, 'd'], 'c'], 'b'], 'a']], [1, [[[[1, 'D'], 'c'], 'b'], 'a']]],
 		['objects with different key counts', {a: 1}, {a: 1, b: 2}],
 		['objects with differently named keys', {a: 1, b: 2}, {a: 1, c: 2}],
 		['objects with different values', {a: 1, b: 2}, {a: 1, b: 3}],
@@ -94,16 +82,8 @@ test('!deepEqual()', () => {
 			{a: 1, b: {c: {d: {e: 1, f: {g: {h1: 1, h2: 2}, i: 1}}}, j: 1}},
 			{a: 1, b: {c: {d: {e: 1, f: {g: {h2: 3, h1: 1}, i: 1}}}, j: 1}},
 		],
-		[
-			'sets with different values',
-			new Set(['a', 'b', null, 1]),
-			new Set(['a', 'b', null, '1']),
-		],
-		[
-			'sets with equivalent arrays',
-			new Set(['a', 'b', 'c', 'd']),
-			['a', 'b', 'c', 'd'],
-		],
+		['sets with different values', new Set(['a', 'b', null, 1]), new Set(['a', 'b', null, '1'])],
+		['sets with equivalent arrays', new Set(['a', 'b', 'c', 'd']), ['a', 'b', 'c', 'd']],
 		[
 			'maps with different values',
 			new Map([

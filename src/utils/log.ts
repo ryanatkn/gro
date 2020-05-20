@@ -111,11 +111,7 @@ export class Logger {
 		suffixes: ['\n ', black(bgRed(' 🞩🞩 '))],
 	};
 	static warn: LogLevelDefaults = {
-		prefixes: [
-			yellow('➤'),
-			black(bgYellow(' ⚑ warning ⚑ ')),
-			'\n' + yellow('➤'),
-		],
+		prefixes: [yellow('➤'), black(bgYellow(' ⚑ warning ⚑ ')), '\n' + yellow('➤')],
 		suffixes: ['\n ', black(bgYellow(' ⚑ '))],
 	};
 	static info: LogLevelDefaults = {

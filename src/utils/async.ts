@@ -5,5 +5,4 @@ export enum AsyncState {
 	Failure,
 }
 
-export const wait = (duration = 0) =>
-	new Promise(resolve => setTimeout(resolve, duration));
+export const wait = (duration = 0) => new Promise((resolve) => setTimeout(resolve, duration));
