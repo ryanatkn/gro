@@ -31,12 +31,11 @@ export const runGen = async (
 				try {
 					rawGenResult = await mod.gen(genCtx);
 				} catch (err) {
-					const reason = red(`Error generating ${printPath(id)}`);
 					return {
 						ok: false,
 						id,
 						error: err,
-						reason,
+						reason: red(`Error generating ${printPath(id)}`),
 						elapsed: timings.stop(id),
 					};
 				}
@@ -45,12 +44,25 @@ export const runGen = async (
 				const genResult = toGenResult(id, rawGenResult);
 
 				// Format the files if needed.
-				const files = formatFile
-					? genResult.files.map((file) => ({
-							...file,
-							contents: formatFile(file.id, file.contents),
-					  }))
-					: genResult.files;
+				let files;
+				if (formatFile) {
+					files = [];
+					for (const file of genResult.files) {
+						try {
+							files.push({...file, contents: formatFile(file.id, file.contents)});
+						} catch (err) {
+							return {
+								ok: false,
+								id,
+								error: err,
+								reason: red(`Error formatting ${printPath(file.id)}`),
+								elapsed: timings.stop(id),
+							};
+						}
+					}
+				} else {
+					files = genResult.files;
+				}
 
 				outputCount += files.length;
 				return {
