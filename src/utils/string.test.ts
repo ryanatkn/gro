@@ -12,7 +12,7 @@ import {
 } from './string.js';
 
 test('truncate()', () => {
-	t.is(truncate('foobarbaz', 5), 'fo...');
+	t.is(!truncate('foobarbaz', 5), 'fo...');
 	test('no truncation needed', () => {
 		t.is(truncate('foobarbaz', 9), 'foobarbaz');
 	});
