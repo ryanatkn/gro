@@ -6,7 +6,7 @@ import {Json} from '../utils/json.js';
 
 /*
 
-This is a single entrypoint for getting the `packge.json` of both the current project and Gro.
+This is a single entrypoint for getting the `package.json` of both the current project and Gro.
 It's helpful because Node's ES modules do not yet support json files without a flag,
 and in the future we should be able to easily auto-generate types for them.
 
