@@ -3,110 +3,110 @@ import {test, t} from '../oki/oki.js';
 import {createObtainable} from './createObtainable.js';
 
 test('createObtainable()', () => {
-	test('release out of order', async () => {
+	test('unobtain out of order', async () => {
 		let thing: Symbol | undefined;
-		let isReleased = false;
+		let isUnobtained = false;
 		const obtainThing = createObtainable(
 			() => {
 				t.is(thing, undefined);
 				thing = Symbol();
 				return thing;
 			},
-			(thingReleased) => {
-				isReleased = true;
-				t.is(thingReleased, thing);
+			(thingUnobtained) => {
+				isUnobtained = true;
+				t.is(thingUnobtained, thing);
 			},
 		);
 
-		const [thing1, release1] = obtainThing();
+		const [thing1, unobtain1] = obtainThing();
 		t.is(thing1, thing);
-		t.ok(!isReleased);
+		t.ok(!isUnobtained);
 
-		const [thing2, release2] = obtainThing();
+		const [thing2, unobtain2] = obtainThing();
 		t.is(thing2, thing);
-		t.ok(!isReleased);
-		t.isNot(release1, release2); // release function refs should not be the same
+		t.ok(!isUnobtained);
+		t.isNot(unobtain1, unobtain2); // unobtain function refs should not be the same
 
-		const [thing3, release3] = obtainThing();
+		const [thing3, unobtain3] = obtainThing();
 		t.is(thing3, thing);
-		t.ok(!isReleased);
+		t.ok(!isUnobtained);
 
-		const releasePromise2 = release2();
-		t.ok(!isReleased);
-		t.ok(releasePromise2 instanceof Promise);
+		const unobtainPromise2 = unobtain2();
+		t.ok(!isUnobtained);
+		t.ok(unobtainPromise2 instanceof Promise);
 
-		const releasePromise3 = release3();
-		release3(); // call release additional times to make sure it's idempotent
-		release3();
-		release3();
-		t.ok(!isReleased);
-		t.ok(releasePromise3 instanceof Promise);
+		const unobtainPromise3 = unobtain3();
+		unobtain3(); // call unobtain additional times to make sure it's idempotent
+		unobtain3();
+		unobtain3();
+		t.ok(!isUnobtained);
+		t.ok(unobtainPromise3 instanceof Promise);
 
-		const releasePromise1 = release1();
-		t.ok(isReleased);
-		t.ok(releasePromise1 instanceof Promise);
-		await releasePromise1; // this will hang if never resolved
+		const unobtainPromise1 = unobtain1();
+		t.ok(isUnobtained);
+		t.ok(unobtainPromise1 instanceof Promise);
+		await unobtainPromise1; // this will hang if never resolved
 
 		const originalThing = thing;
 		thing = undefined;
-		isReleased = false;
-		const [thing4, release4] = obtainThing();
+		isUnobtained = false;
+		const [thing4, unobtain4] = obtainThing();
 		t.ok(thing4);
 		t.is(thing4, thing);
 		t.isNot(thing4, originalThing);
-		t.ok(!isReleased);
-		const releasePromise4 = release4();
-		t.ok(isReleased);
-		t.ok(releasePromise4 instanceof Promise);
-		t.isNot(releasePromise4, releasePromise1);
-		await releasePromise4; // this will hang if never resolved
+		t.ok(!isUnobtained);
+		const unobtainPromise4 = unobtain4();
+		t.ok(isUnobtained);
+		t.ok(unobtainPromise4 instanceof Promise);
+		t.isNot(unobtainPromise4, unobtainPromise1);
+		await unobtainPromise4; // this will hang if never resolved
 	});
 
 	// This is a complicated corner case that probably should not happen
 	// because it would normally cause a stack overflow in user code,
 	// but we're covering it just in case.
-	test('obtain is called during release', () => {
-		let shouldObtainDuringRelease = true;
+	test('obtain is called during unobtain', () => {
+		let shouldObtainDuringUnobtain = true;
 		let thing: Symbol | undefined;
-		let isReleased = false;
+		let isUnobtained = false;
 		const obtainThing = createObtainable(
 			() => {
 				t.is(thing, undefined);
-				isReleased = false;
+				isUnobtained = false;
 				thing = Symbol();
 				return thing;
 			},
-			(thingReleased) => {
-				isReleased = true;
-				t.is(thingReleased, thing);
+			(thingUnobtained) => {
+				isUnobtained = true;
+				t.is(thingUnobtained, thing);
 				thing = undefined;
 
-				if (!shouldObtainDuringRelease) return; // prevent stack overflow
-				shouldObtainDuringRelease = false;
-				const [thing3, release3] = obtainThing();
+				if (!shouldObtainDuringUnobtain) return; // prevent stack overflow
+				shouldObtainDuringUnobtain = false;
+				const [thing3, unobtain3] = obtainThing();
 				t.ok(thing3);
 				t.is(thing3, thing);
-				t.isNot(thing3, thingReleased);
-				t.ok(!isReleased);
-				release3();
-				t.ok(isReleased);
+				t.isNot(thing3, thingUnobtained);
+				t.ok(!isUnobtained);
+				unobtain3();
+				t.ok(isUnobtained);
 				t.is(thing, undefined);
 			},
 		);
 
-		const [thing1, release1] = obtainThing();
+		const [thing1, unobtain1] = obtainThing();
 		t.is(thing1, thing);
-		t.ok(!isReleased);
+		t.ok(!isUnobtained);
 
-		const [thing2, release2] = obtainThing();
+		const [thing2, unobtain2] = obtainThing();
 		t.is(thing2, thing);
-		t.ok(!isReleased);
+		t.ok(!isUnobtained);
 
-		release2();
-		t.ok(!isReleased);
+		unobtain2();
+		t.ok(!isUnobtained);
 
-		release1();
-		t.ok(isReleased);
+		unobtain1();
+		t.ok(isUnobtained);
 	});
 
 	test('cannot obtain undefined', () => {

@@ -1,7 +1,7 @@
 /*
 
 This is a higher order function that tracks obtained references to a thing
-and calls `release` when all obtainers have released their references.
+and calls `teardownObtainableValue` when all obtainers have let go of their references.
 
 It allows decoupled consumers to use things with a lifecycle
 without disrupting each other when they're done with the thing.
@@ -19,12 +19,12 @@ export const createObtainable = <T>(
 	const obtainedRefs = new Set<symbol>();
 	let resolve: () => void;
 	let promise: Promise<void>;
-	const releaseObtainable = async (obtainedRef: symbol): Promise<void> => {
-		if (!obtainedRefs.has(obtainedRef)) return promise; // makes releasing idempotent per obtainer
+	const unobtain = async (obtainedRef: symbol): Promise<void> => {
+		if (!obtainedRefs.has(obtainedRef)) return promise; // makes unobtaining idempotent per obtainer
 		obtainedRefs.delete(obtainedRef);
 		if (obtainedRefs.size > 0) return promise; // there are other open obtainers
 		const finalValue = obtainable;
-		obtainable = undefined; // reset before releasing just in case release re-obtains
+		obtainable = undefined; // reset before unobtaining just in case unobtain re-obtains
 		if (teardownObtainableValue) await teardownObtainableValue(finalValue!);
 		resolve();
 		return promise;
@@ -41,6 +41,6 @@ export const createObtainable = <T>(
 				throw Error('Obtainable value cannot be undefined - use null instead.');
 			}
 		}
-		return [obtainable, () => releaseObtainable(obtainedRef)];
+		return [obtainable, () => unobtain(obtainedRef)];
 	};
 };
