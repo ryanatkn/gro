@@ -5,9 +5,7 @@ import {SystemLogger} from './log.js';
 import {printError} from './print.js';
 
 export const attachProcessErrorHandlers = () => {
-	process
-		.on('uncaughtException', handleError)
-		.on('unhandledRejection', handleUnhandledRejection);
+	process.on('uncaughtException', handleError).on('unhandledRejection', handleUnhandledRejection);
 };
 
 export const handleError = (err: Error, label = 'handleError'): void => {
@@ -31,9 +29,9 @@ export const spawnProcess = (
 	args: readonly string[] = [],
 	options?: SpawnOptions,
 ): Promise<{ok: true} | {ok: false; code: number}> =>
-	new Promise(resolve => {
+	new Promise((resolve) => {
 		const childProcess = spawn(command, args, {stdio: 'inherit', ...options});
-		childProcess.on('close', code => {
+		childProcess.on('close', (code) => {
 			resolve(code ? {ok: false, code} : {ok: true});
 		});
 	});

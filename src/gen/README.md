@@ -212,7 +212,7 @@ import {Task} from '@feltcoop/gro';
 import {task as genTask} from '@feltcoop/gro/dist/gen.task.js';
 
 export const task: Task = {
-	run: async ctx => {
+	run: async (ctx) => {
 		// this throws a `TaskError` if anything is new or different
 		await genTask.run({...ctx, args: {...ctx.args, check: true}});
 	},
@@ -225,7 +225,7 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 ## todo
 
 - [x] basic functionality
-- [ ] format output with Prettier (optionally not for speed)
+- [x] format output with Prettier
 - [ ] watch mode and build integration
 - [ ] support gen files authored in languages beyond TypeScript like
       Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc

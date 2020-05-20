@@ -33,14 +33,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 export const name = 'gro-json';
 
 export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
-	const {
-		include,
-		exclude,
-		compact,
-		indent,
-		namedExports,
-		preferConst,
-	} = initOptions(opts);
+	const {include, exclude, compact, indent, namedExports, preferConst} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
 

@@ -10,10 +10,7 @@ import {setGlobalTestContext, unsetGlobalTestContext} from './test.js';
 
 export class TestLogger extends Logger {
 	static level = LogLevel.Trace;
-	constructor(
-		prefixes: readonly any[] = [cyan('[oki]')],
-		suffixes?: readonly any[],
-	) {
+	constructor(prefixes: readonly any[] = [cyan('[oki]')], suffixes?: readonly any[]) {
 		super(prefixes, suffixes, TestLogger);
 	}
 }
@@ -104,13 +101,7 @@ export class TestContext {
 
 	constructor(opts: InitialOptions) {
 		this.options = initOptions(opts);
-		const {
-			log,
-			report,
-			reportFullStackTraces,
-			reportBaseIndent,
-			reportListIndent,
-		} = this.options;
+		const {log, report, reportFullStackTraces, reportBaseIndent, reportListIndent} = this.options;
 		this.log = log;
 		this.report = report;
 		this.reportFullStackTraces = reportFullStackTraces;
@@ -166,9 +157,7 @@ export class TestContext {
 		}
 	}
 
-	private async callTestInstance(
-		testInstance: TestInstance,
-	): Promise<TestResult> {
+	private async callTestInstance(testInstance: TestInstance): Promise<TestResult> {
 		try {
 			const prevTestInstance = this.currentTestInstance;
 			this.currentTestInstance = testInstance;

@@ -1,13 +1,6 @@
-import {
-	TestContext,
-	TestInstance,
-	TestInstanceCallback,
-} from './TestContext.js';
+import {TestContext, TestInstance, TestInstanceCallback} from './TestContext.js';
 
-export const test = (
-	message: string,
-	cb: TestInstanceCallback,
-): TestInstance => {
+export const test = (message: string, cb: TestInstanceCallback): TestInstance => {
 	if (!globalTestContext) {
 		throw Error(
 			`Cannot register test instance without a current test context. Was a test file mistakenly imported?`,

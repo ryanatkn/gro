@@ -1,12 +1,5 @@
 import {test, t} from '../oki/oki.js';
-import {
-	mapRecord,
-	omit,
-	pickBy,
-	omitUndefined,
-	reorder,
-	objectsEqual,
-} from './object.js';
+import {mapRecord, omit, pickBy, omitUndefined, reorder, objectsEqual} from './object.js';
 
 test('mapRecord', () => {
 	t.equal(
@@ -27,7 +20,7 @@ test('omit', () => {
 
 test('pickBy', () => {
 	t.equal(
-		pickBy({a: 1, b: 2}, v => v === 1),
+		pickBy({a: 1, b: 2}, (v) => v === 1),
 		{a: 1},
 	);
 	t.equal(
@@ -75,18 +68,12 @@ test('objectsEqual', () => {
 	});
 	test('deep equal', () => {
 		t.ok(
-			objectsEqual(
-				{a: {b: {c: 3, d: NaN}}, b: Infinity},
-				{b: Infinity, a: {b: {c: 3, d: NaN}}},
-			),
+			objectsEqual({a: {b: {c: 3, d: NaN}}, b: Infinity}, {b: Infinity, a: {b: {c: 3, d: NaN}}}),
 		);
 	});
 	test('not deep equal', () => {
 		t.ok(
-			!objectsEqual(
-				{a: {b: {c: 3, d: NaN}}, b: Infinity},
-				{b: -Infinity, a: {b: {c: 3, d: NaN}}},
-			),
+			!objectsEqual({a: {b: {c: 3, d: NaN}}, b: Infinity}, {b: -Infinity, a: {b: {c: 3, d: NaN}}}),
 		);
 	});
 });

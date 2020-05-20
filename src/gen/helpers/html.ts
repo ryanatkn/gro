@@ -1,6 +1,4 @@
-export const renderNoscriptSection = (
-	sourceCodeUrl: string,
-): string => `<noscript>
+export const renderNoscriptSection = (sourceCodeUrl: string): string => `<noscript>
 <section style="display: flex; justify-content: center;">
 	<div style="max-width: 300px; padding-right: 10px;">
 		<p>

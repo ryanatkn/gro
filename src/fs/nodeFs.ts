@@ -15,8 +15,7 @@ export const findFiles = async (
 	const watcher = new CheapWatch({
 		dir,
 		filter: filter
-			? (file: {path: string; stats: PathStats}) =>
-					file.stats.isDirectory() || filter(file)
+			? (file: {path: string; stats: PathStats}) => file.stats.isDirectory() || filter(file)
 			: undefined,
 		watch: false,
 	});
@@ -43,6 +42,7 @@ export const pathExists = fsExtra.pathExists;
 export const stat = fsExtra.stat;
 export type Stats = fsExtra.Stats;
 export const readFile = fsExtra.readFile;
+export const readJsonSync = fsExtra.readJsonSync;
 export const outputFile = fsExtra.outputFile;
 export const emptyDir = fsExtra.emptyDir;
 export const ensureDir = fsExtra.ensureDir;

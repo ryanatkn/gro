@@ -29,9 +29,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 
 const name = 'svelte-preprocess-typescript';
 
-export const sveltePreprocessTypescript = (
-	opts: InitialOptions = {},
-): PreprocessorGroup => {
+export const sveltePreprocessTypescript = (opts: InitialOptions = {}): PreprocessorGroup => {
 	const {langs, tsconfigPath} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
@@ -54,10 +52,7 @@ export const sveltePreprocessTypescript = (
 			try {
 				transpileOutput = ts.transpileModule(content, transpileOptions);
 			} catch (err) {
-				log.error(
-					red('Failed to transpile TypeScript'),
-					printPath(filename || ''),
-				);
+				log.error(red('Failed to transpile TypeScript'), printPath(filename || ''));
 				throw err;
 			}
 			// TODO sourcemap - does Svelte need to add support for preprocessor sourcemaps?
@@ -69,16 +64,14 @@ export const sveltePreprocessTypescript = (
 };
 
 // These have the suffix `ForTranspile` to emphasize there's no typechecking.
-const customTransformersForTranspile = (
-	log: Logger,
-): ts.CustomTransformers => ({
+const customTransformersForTranspile = (log: Logger): ts.CustomTransformers => ({
 	before: [importTransformerForTranspile(log)],
 });
 
 const importTransformerForTranspile: (
 	_log: Logger,
-) => ts.TransformerFactory<ts.SourceFile> = () => context => {
-	const visit: ts.Visitor = node => {
+) => ts.TransformerFactory<ts.SourceFile> = () => (context) => {
+	const visit: ts.Visitor = (node) => {
 		if (ts.isImportDeclaration(node)) {
 			// TODO this preserves all imports, but I don't fully understand how it works,
 			// or if it should be done differently
@@ -92,7 +85,7 @@ const importTransformerForTranspile: (
 			// console.log('VISIT result', result);
 			return result;
 		}
-		return ts.visitEachChild(node, child => visit(child), context);
+		return ts.visitEachChild(node, (child) => visit(child), context);
 	};
-	return node => ts.visitNode(node, visit);
+	return (node) => ts.visitNode(node, visit);
 };

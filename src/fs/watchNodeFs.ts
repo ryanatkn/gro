@@ -55,8 +55,7 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 	const watcher = new CheapWatch({
 		dir,
 		filter: filter
-			? (file: {path: string; stats: PathStats}) =>
-					file.stats.isDirectory() || filter(file)
+			? (file: {path: string; stats: PathStats}) => file.stats.isDirectory() || filter(file)
 			: undefined,
 		watch: true,
 		debounce,

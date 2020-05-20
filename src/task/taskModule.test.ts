@@ -1,11 +1,7 @@
 import {resolve} from 'path';
 
 import {test, t} from '../oki/oki.js';
-import {
-	validateTaskModule,
-	loadTaskModule,
-	loadTaskModules,
-} from './taskModule.js';
+import {validateTaskModule, loadTaskModule, loadTaskModules} from './taskModule.js';
 import * as actualTestTaskModule from '../test.task.js';
 import * as testTaskModule from './fixtures/testTaskModule.taskFixture.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
@@ -55,10 +51,7 @@ test('loadTaskModule()', () => {
 });
 
 test('loadTaskModules()', async () => {
-	const result = await loadTaskModules([
-		resolve('src/test'),
-		resolve('src/test.task.ts'),
-	]);
+	const result = await loadTaskModules([resolve('src/test'), resolve('src/test.task.ts')]);
 	t.ok(result.ok);
 	t.is(result.modules.length, 1);
 	t.is(result.modules[0].mod, actualTestTaskModule);

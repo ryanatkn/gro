@@ -26,6 +26,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm run bootstrap
-      - run: npm test
+      - run: gro check
         env:
           CI: true

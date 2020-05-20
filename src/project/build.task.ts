@@ -8,7 +8,7 @@ import {cleanBuild} from './clean.js';
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
-	run: async ctx => {
+	run: async (ctx) => {
 		const {log} = ctx;
 
 		await cleanBuild(log);

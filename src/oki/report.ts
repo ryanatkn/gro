@@ -1,20 +1,8 @@
-import {
-	green,
-	red,
-	bgGreen,
-	black,
-	yellow,
-	gray,
-	cyan,
-} from '../colors/terminal.js';
+import {green, red, bgGreen, black, yellow, gray, cyan} from '../colors/terminal.js';
 import {TestContext, TOTAL_TIMING, TestInstance} from './TestContext.js';
 import {printMs, printValue, printStr, printError} from '../utils/print.js';
 import {toSourcePath} from '../paths.js';
-import {
-	AssertionError,
-	AssertionOperator,
-	FailedAssertion,
-} from './assertions.js';
+import {AssertionError, AssertionOperator, FailedAssertion} from './assertions.js';
 import {UnreachableError, ErrorClass} from '../utils/error.js';
 
 export const reportIntro = (ctx: TestContext): void => {
@@ -22,10 +10,7 @@ export const reportIntro = (ctx: TestContext): void => {
 	ctx.log.info('oki..?');
 };
 
-export const reportResult = (
-	ctx: TestContext,
-	testInstance: TestInstance,
-): void => {
+export const reportResult = (ctx: TestContext, testInstance: TestInstance): void => {
 	const {log, reportBaseIndent, reportListIndent} = ctx;
 	const result = testInstance.result!;
 	if (result.ok) {
@@ -83,11 +68,7 @@ export const reportFileBegin = (ctx: TestContext, fileId: string): void => {
 	ctx.log.plain('📁', toSourcePath(fileId));
 };
 export const reportFileEnd = (ctx: TestContext, fileId: string): void => {
-	ctx.log.plain(
-		ctx.reportBaseIndent,
-		gray('🕒'),
-		printMs(ctx.timings.get(fileId), 1),
-	);
+	ctx.log.plain(ctx.reportBaseIndent, gray('🕒'), printMs(ctx.timings.get(fileId), 1));
 	// TODO log fail count?
 };
 
@@ -129,13 +110,9 @@ export const reportAssertionError = (
 			const logArgs: any[] = [];
 			if (assertion.thrown) {
 				if (assertion.matcher) {
-					logArgs.push(
-						formatUnmatchedErrorMessage(assertion.matcher, assertion.thrown),
-					);
+					logArgs.push(formatUnmatchedErrorMessage(assertion.matcher, assertion.thrown));
 				}
-				logArgs.push(
-					'\n' + formatThrownError(assertion.thrown, reportFullStackTraces),
-				);
+				logArgs.push('\n' + formatThrownError(assertion.thrown, reportFullStackTraces));
 			}
 			log.plain(...logArgs);
 			break;
@@ -145,10 +122,7 @@ export const reportAssertionError = (
 		default:
 			throw new UnreachableError(assertion);
 	}
-	log.plain(
-		formatAssertionError(error, assertion, reportFullStackTraces),
-		'\n',
-	);
+	log.plain(formatAssertionError(error, assertion, reportFullStackTraces), '\n');
 };
 
 const formatFailedAssertion = (assertion: FailedAssertion): string => {
@@ -175,9 +149,7 @@ const formatAssertionError = (
 			// This is error-prone but much nicer to work with.
 			let parts = stack.split('\n').slice(2);
 			parts = parts.slice(0, parts.findIndex(shouldIgnoreAssertionErrorLine));
-			return gray(
-				`AssertionError: !${assertion.operator}\n` + parts.join('\n'),
-			);
+			return gray(`AssertionError: !${assertion.operator}\n` + parts.join('\n'));
 		} else {
 			return gray(stack);
 		}
@@ -188,13 +160,9 @@ const formatAssertionError = (
 
 // TODO this is very brittle
 const IGNORED_ERROR_LINE_PARTIAL = TestContext.name + '.';
-const shouldIgnoreAssertionErrorLine = (s: string) =>
-	s.includes(IGNORED_ERROR_LINE_PARTIAL);
+const shouldIgnoreAssertionErrorLine = (s: string) => s.includes(IGNORED_ERROR_LINE_PARTIAL);
 
-const formatThrownError = (
-	error: Error,
-	reportFullStackTraces: boolean,
-): string => {
+const formatThrownError = (error: Error, reportFullStackTraces: boolean): string => {
 	const {stack} = error;
 	if (stack) {
 		if (reportFullStackTraces) return gray(stack);
@@ -210,8 +178,7 @@ const formatThrownError = (
 
 // TODO this is very brittle
 const MATCH_IGNORED_ERROR_LINE = /at exports.throws .+oki\/assertions\..+/;
-const shouldIgnoreThrownErrorLine = (s: string) =>
-	MATCH_IGNORED_ERROR_LINE.test(s);
+const shouldIgnoreThrownErrorLine = (s: string) => MATCH_IGNORED_ERROR_LINE.test(s);
 
 const formatUnmatchedErrorMessage = (
 	matcher: string | RegExp | ErrorClass,
@@ -225,17 +192,9 @@ const formatUnmatchedErrorMessage = (
 			printStr(error.message),
 		);
 	} else if (matcher instanceof RegExp) {
-		strs.push(
-			formatMatcher(matcher),
-			'does not match error message',
-			printStr(error.message),
-		);
+		strs.push(formatMatcher(matcher), 'does not match error message', printStr(error.message));
 	} else {
-		strs.push(
-			formatMatcher(matcher),
-			'is not a superclass of thrown',
-			cyan(error.name),
-		);
+		strs.push(formatMatcher(matcher), 'is not a superclass of thrown', cyan(error.name));
 	}
 	return strs.join(' ');
 };

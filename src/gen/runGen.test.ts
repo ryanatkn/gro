@@ -15,7 +15,7 @@ test('gen', async () => {
 		let modA: GenModuleMeta = {
 			id: sourceIdA,
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, sourceIdA);
 					if (fileA) throw Error('Already generated fileA');
 					fileA = {
@@ -29,7 +29,7 @@ test('gen', async () => {
 		let modB: GenModuleMeta = {
 			id: join(sourceIdBC, 'modB.gen.ts'),
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, modB.id);
 					if (fileB) throw Error('Already generated fileB');
 					fileB = {
@@ -43,7 +43,7 @@ test('gen', async () => {
 		let modC: GenModuleMeta = {
 			id: join(sourceIdBC, 'modC.gen.ts'),
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, modC.id);
 					if (fileC1) throw Error('Already generated fileC1');
 					if (fileC2) throw Error('Already generated fileC2');
@@ -60,7 +60,9 @@ test('gen', async () => {
 			},
 		};
 		const genModulesByInputPath = [modA, modB, modC];
-		const genResults = await runGen(genModulesByInputPath);
+		const genResults = await runGen(genModulesByInputPath, (id, contents) =>
+			id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
+		);
 		t.is(genResults.inputCount, 3);
 		t.is(genResults.outputCount, 4);
 		t.is(genResults.successes.length, 3);
@@ -86,7 +88,7 @@ test('gen', async () => {
 		t.ok(fileB);
 		t.equal(resultB.files, [
 			{
-				contents: fileB.contents,
+				contents: `${fileB.contents}/*FORMATTED*/`,
 				id: join(modB.id, '../', fileB.fileName),
 				originId: modB.id,
 			},
@@ -128,7 +130,7 @@ test('gen', async () => {
 		let modB: GenModuleMeta = {
 			id: join(sourceIdB, 'modB.gen.ts'),
 			mod: {
-				gen: async ctx => {
+				gen: async (ctx) => {
 					t.is(ctx.originId, modB.id);
 					if (fileB) throw Error('Already generated fileB');
 					fileB = {

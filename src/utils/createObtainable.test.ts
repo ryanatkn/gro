@@ -12,7 +12,7 @@ test('createObtainable()', () => {
 				thing = Symbol();
 				return thing;
 			},
-			thingReleased => {
+			(thingReleased) => {
 				isReleased = true;
 				t.is(thingReleased, thing);
 			},
@@ -76,7 +76,7 @@ test('createObtainable()', () => {
 				thing = Symbol();
 				return thing;
 			},
-			thingReleased => {
+			(thingReleased) => {
 				isReleased = true;
 				t.is(thingReleased, thing);
 				thing = undefined;

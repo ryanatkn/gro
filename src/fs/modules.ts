@@ -1,10 +1,7 @@
 import {pathExists, stat} from './nodeFs.js';
 import {red} from '../colors/terminal.js';
 import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
-import {
-	loadSourcePathDataByInputPath,
-	loadSourceIdsByInputPath,
-} from '../fs/inputPath.js';
+import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import {Timings} from '../utils/time.js';
 import {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId} from '../paths.js';
@@ -101,10 +98,7 @@ export const findModules = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
 	timings.start('map input paths');
-	const {
-		sourceIdPathDataByInputPath,
-		unmappedInputPaths,
-	} = await loadSourcePathDataByInputPath(
+	const {sourceIdPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
 		inputPaths,
 		pathExists,
 		stat,
@@ -119,7 +113,7 @@ export const findModules = async (
 			type: 'unmappedInputPaths',
 			sourceIdPathDataByInputPath,
 			unmappedInputPaths,
-			reasons: unmappedInputPaths.map(inputPath =>
+			reasons: unmappedInputPaths.map((inputPath) =>
 				red(
 					`Input path ${printPathOrGroPath(
 						inputPath,
@@ -135,9 +129,7 @@ export const findModules = async (
 	const {
 		sourceIdsByInputPath,
 		inputDirectoriesWithNoFiles,
-	} = await loadSourceIdsByInputPath(sourceIdPathDataByInputPath, id =>
-		findFiles(id),
-	);
+	} = await loadSourceIdsByInputPath(sourceIdPathDataByInputPath, (id) => findFiles(id));
 	timings.stop('find files');
 
 	// Error if any input path has no files. (means we have an empty directory)
@@ -148,7 +140,7 @@ export const findModules = async (
 				sourceIdPathDataByInputPath,
 				sourceIdsByInputPath,
 				inputDirectoriesWithNoFiles,
-				reasons: inputDirectoriesWithNoFiles.map(inputPath =>
+				reasons: inputDirectoriesWithNoFiles.map((inputPath) =>
 					red(
 						`Input directory ${printPathOrGroPath(
 							sourceIdPathDataByInputPath.get(inputPath)!.id,
@@ -168,14 +160,9 @@ linking the current file with the module's initial execution.
 TODO parallelize..how? Separate functions? `loadModulesSerially`?
 
 */
-export const loadModules = async <
-	ModuleType,
-	ModuleMetaType extends ModuleMeta<ModuleType>
->(
+export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<ModuleType>>(
 	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
-	loadModuleById: (
-		sourceId: string,
-	) => Promise<LoadModuleResult<ModuleMetaType>>,
+	loadModuleById: (sourceId: string) => Promise<LoadModuleResult<ModuleMetaType>>,
 ): Promise<LoadModulesResult<ModuleMetaType>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	timings.start('load modules');
@@ -202,13 +189,7 @@ export const loadModules = async <
 						break;
 					}
 					case 'invalid': {
-						reasons.push(
-							red(
-								`Module ${printPath(id)} failed validation '${
-									result.validation
-								}'.`,
-							),
-						);
+						reasons.push(red(`Module ${printPath(id)} failed validation '${result.validation}'.`));
 						break;
 					}
 					default:

@@ -10,6 +10,7 @@ import {findFiles} from './fs/nodeFs.js';
 import {plural} from './utils/string.js';
 import {Timings} from './utils/time.js';
 import {findModules, loadModules} from './fs/modules.js';
+import {formatFile} from './project/formatFile.js';
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
@@ -32,8 +33,8 @@ export const task: Task = {
 			// TODO really we want a regexp here, but the API currently doesn't work that way -
 			// it precomputes the possible files instead of performing a broader search -
 			// maybe we just take regexps as params and search all files for now?
-			id => findFiles(id, file => isGenPath(file.path)),
-			inputPath => getPossibleSourceIds(inputPath, [GEN_FILE_PATTERN]),
+			(id) => findFiles(id, (file) => isGenPath(file.path)),
+			(inputPath) => getPossibleSourceIds(inputPath, [GEN_FILE_PATTERN]),
 		);
 		if (!findModulesResult.ok) {
 			for (const reason of findModulesResult.reasons) {
@@ -56,7 +57,7 @@ export const task: Task = {
 
 		// run `gen` on each of the modules
 		subTimings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(loadModulesResult.modules);
+		const genResults = await runGen(loadModulesResult.modules, formatFile);
 		subTimings.stop('generate code');
 
 		const failCount = genResults.failures.length;
@@ -75,9 +76,9 @@ export const task: Task = {
 					hasUnexpectedChanges = true;
 					log.error(
 						red(
-							`Generated file ${printPath(result.file.id)} via ${printPath(
-								result.file.originId,
-							)} ${result.isNew ? 'is new' : 'has changed'}.`,
+							`Generated file ${printPath(result.file.id)} via ${printPath(result.file.originId)} ${
+								result.isNew ? 'is new' : 'has changed'
+							}.`,
 						),
 					);
 				}
@@ -95,14 +96,9 @@ export const task: Task = {
 			subTimings.start('output results');
 			await Promise.all(
 				genResults.successes
-					.map(result =>
-						result.files.map(file => {
-							log.info(
-								'writing',
-								printPath(file.id),
-								'generated from',
-								printPath(file.originId),
-							);
+					.map((result) =>
+						result.files.map((file) => {
+							log.info('writing', printPath(file.id), 'generated from', printPath(file.originId));
 							return outputFile(file.id, file.contents);
 						}),
 					)
@@ -115,18 +111,14 @@ export const task: Task = {
 		for (const result of genResults.results) {
 			logResult += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${printPath(
-				result.id,
-			)}`;
+			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${printPath(result.id)}`;
 		}
 		log.info(logResult);
 		log.info(
 			green(
-				`generated ${genResults.outputCount} file${plural(
-					genResults.outputCount,
-				)} from ${genResults.successes.length} input file${plural(
-					genResults.successes.length,
-				)}`,
+				`generated ${genResults.outputCount} file${plural(genResults.outputCount)} from ${
+					genResults.successes.length
+				} input file${plural(genResults.successes.length)}`,
 			),
 		);
 		for (const [key, timing] of subTimings.getAll()) {
@@ -138,9 +130,7 @@ export const task: Task = {
 			for (const result of genResults.failures) {
 				log.error(result.reason, '\n', printError(result.error));
 			}
-			throw new TaskError(
-				`Failed to generate ${failCount} file${plural(failCount)}.`,
-			);
+			throw new TaskError(`Failed to generate ${failCount} file${plural(failCount)}.`);
 		}
 	},
 };

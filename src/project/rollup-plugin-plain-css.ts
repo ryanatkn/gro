@@ -25,7 +25,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const exts = opts.exts || ['.css'];
 	return {
 		exts,
-		include: opts.include || exts.map(ext => `**/*${ext}`),
+		include: opts.include || exts.map((ext) => `**/*${ext}`),
 		exclude: null,
 		...omitUndefined(opts),
 	};

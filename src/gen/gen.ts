@@ -6,11 +6,9 @@ import {isSourceId} from '../paths.js';
 // out of this module like how `task` is separated from `runTask`
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
-export const GEN_FILE_PATTERN =
-	GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN_FILE_SEPARATOR; // TODO regexp?
+export const GEN_FILE_PATTERN = GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN_FILE_SEPARATOR; // TODO regexp?
 
-export const isGenPath = (path: string): boolean =>
-	path.includes(GEN_FILE_PATTERN);
+export const isGenPath = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
 
 export type GenResult = {
 	originId: string;
@@ -60,10 +58,7 @@ export type GenModuleResultFailure = {
 	elapsed: number;
 };
 
-export const toGenResult = (
-	originId: string,
-	rawResult: RawGenResult,
-): GenResult => {
+export const toGenResult = (originId: string, rawResult: RawGenResult): GenResult => {
 	if (!isSourceId(originId)) {
 		throw Error(`originId must be a source id: ${originId}`);
 	}
@@ -77,7 +72,7 @@ const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
 	if (typeof rawResult === 'string') {
 		return [toGenFile(originId, {contents: rawResult})];
 	} else if (Array.isArray(rawResult)) {
-		const files = rawResult.map(f => toGenFile(originId, f));
+		const files = rawResult.map((f) => toGenFile(originId, f));
 		validateGenFiles(files);
 		return files;
 	} else {
@@ -91,10 +86,7 @@ const toGenFile = (originId: string, rawGenFile: RawGenFile): GenFile => {
 	return {id, contents, originId};
 };
 
-const toOutputFileId = (
-	originId: string,
-	rawFileName: string | undefined,
-): string => {
+const toOutputFileId = (originId: string, rawFileName: string | undefined): string => {
 	if (rawFileName === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
@@ -111,9 +103,7 @@ export const toOutputFileName = (fileName: string): string => {
 	const parts = fileName.split(GEN_FILE_SEPARATOR);
 	const genPatternIndex = parts.indexOf(GEN_FILE_PATTERN_TEXT);
 	if (genPatternIndex === -1) {
-		throw Error(
-			`Invalid gen file name - '${GEN_FILE_PATTERN_TEXT}' not found in '${fileName}'`,
-		);
+		throw Error(`Invalid gen file name - '${GEN_FILE_PATTERN_TEXT}' not found in '${fileName}'`);
 	}
 	if (genPatternIndex !== parts.lastIndexOf(GEN_FILE_PATTERN_TEXT)) {
 		throw Error(

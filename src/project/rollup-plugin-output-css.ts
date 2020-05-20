@@ -91,13 +91,12 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 
 				if (sources.length) {
 					const sourcemapDest = dest + '.map';
-					const finalCss =
-						css + `\n/*# sourceMappingURL=${bundleName}.map */\n`;
+					const finalCss = css + `\n/*# sourceMappingURL=${bundleName}.map */\n`;
 					const cssSourcemap = JSON.stringify(
 						{
 							version: 3,
 							file: bundleName,
-							sources: sources.map(s => relative(outputDir, s)),
+							sources: sources.map((s) => relative(outputDir, s)),
 							sourcesContent,
 							names: [],
 							mappings: sourcemapCodec.encode(mappings),
@@ -107,10 +106,7 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 					);
 
 					log.info('writing css bundle and sourcemap', dest);
-					await Promise.all([
-						outputFile(dest, finalCss),
-						outputFile(sourcemapDest, cssSourcemap),
-					]);
+					await Promise.all([outputFile(dest, finalCss), outputFile(sourcemapDest, cssSourcemap)]);
 				} else {
 					log.info('writing css bundle', dest);
 					await outputFile(dest, css);

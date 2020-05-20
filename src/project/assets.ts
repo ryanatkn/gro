@@ -5,14 +5,7 @@ import {SystemLogger, Logger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {findFiles} from '../fs/nodeFs.js';
-import {
-	paths,
-	toDistId,
-	SOURCE_DIR_NAME,
-	BUILD_DIR_NAME,
-	SOURCE_DIR,
-	BUILD_DIR,
-} from '../paths.js';
+import {paths, toDistId, SOURCE_DIR_NAME, BUILD_DIR_NAME, SOURCE_DIR, BUILD_DIR} from '../paths.js';
 import {printPath} from '../utils/print.js';
 
 // TODO needs major refactoring
@@ -27,7 +20,7 @@ export interface Options {
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	isAsset: path => DEFAULT_ASSET_MATCHER.test(path),
+	isAsset: (path) => DEFAULT_ASSET_MATCHER.test(path),
 	...omitUndefined(opts),
 });
 
@@ -48,8 +41,7 @@ export const assets = async (opts: InitialOptions = {}) => {
 				  path.startsWith(BUILD_DIR) ||
 				  path === SOURCE_DIR_NAME ||
 				  path === BUILD_DIR_NAME
-				: isAsset(path) &&
-				  (path.startsWith(SOURCE_DIR) || path.startsWith(BUILD_DIR));
+				: isAsset(path) && (path.startsWith(SOURCE_DIR) || path.startsWith(BUILD_DIR));
 			return shouldWatch;
 		},
 		null,

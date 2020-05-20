@@ -1,13 +1,7 @@
 import {dirname, relative, basename} from 'path';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
-import {
-	paths,
-	toBasePath,
-	toSourceId,
-	toPathParts,
-	toPathSegments,
-} from '../paths.js';
+import {paths, toBasePath, toSourceId, toPathParts, toPathSegments} from '../paths.js';
 import {stripStart} from '../utils/string.js';
 import {last} from '../utils/array.js';
 import {loadTaskModules} from '../task/taskModule.js';
@@ -52,14 +46,13 @@ export const gen: Gen = async ({originId}) => {
 	// TODO do we want to use absolute paths instead of relative paths,
 	// because GitHub works with them and it simplifies the code?
 	const pathParts = toPathParts(relativeDir).map(
-		relativePathPart =>
-			`[${last(toPathSegments(relativePathPart))}](${relative(
-				originDir,
-				toSourceId(relativePathPart),
-			) || './'})`,
+		(relativePathPart) =>
+			`[${last(toPathSegments(relativePathPart))}](${
+				relative(originDir, toSourceId(relativePathPart)) || './'
+			})`,
 	);
 	const breadcrumbs = [rootLink, ...pathParts, outputFileName]
-		.map(line => `> <sub>${line}</sub>`)
+		.map((line) => `> <sub>${line}</sub>`)
 		.join(' <sub>/</sub>\n');
 
 	// TODO render the footer with the originId

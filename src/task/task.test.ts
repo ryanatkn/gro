@@ -1,11 +1,5 @@
 import {test, t} from '../oki/oki.js';
-import {
-	TASK_FILE_PATTERN,
-	TASK_FILE_SUFFIX,
-	isTaskPath,
-	toTaskPath,
-	toTaskName,
-} from './task.js';
+import {TASK_FILE_PATTERN, TASK_FILE_SUFFIX, isTaskPath, toTaskPath, toTaskName} from './task.js';
 
 test('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', () => {
 	t.ok(TASK_FILE_PATTERN.test('file' + TASK_FILE_SUFFIX));

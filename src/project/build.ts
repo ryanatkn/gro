@@ -85,11 +85,7 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 	}
 };
 
-const createInputOptions = (
-	inputFile: string,
-	{dev}: Options,
-	_log: Logger,
-): InputOptions => {
+const createInputOptions = (inputFile: string, {dev}: Options, _log: Logger): InputOptions => {
 	const cssCache = createCssCache<GroCssBuild>();
 	// TODO combine into one - mainly need to fix sourcemaps (maybe just append the unmapped css? can that be done automatically in the bundling plugin?)
 	// TODO make configurable with `gro.config.ts`
@@ -148,10 +144,7 @@ const createInputOptions = (
 	return inputOptions;
 };
 
-const createOutputOptions = (
-	{outputDir}: Options,
-	log: Logger,
-): OutputOptions => {
+const createOutputOptions = ({outputDir}: Options, log: Logger): OutputOptions => {
 	const outputOptions: OutputOptions = {
 		// — core output options
 		dir: outputDir,
@@ -216,10 +209,7 @@ interface BuildResult {
 	output: RollupOutput;
 }
 
-const runRollupBuild = async (
-	options: Options,
-	log: Logger,
-): Promise<BuildResult[]> => {
+const runRollupBuild = async (options: Options, log: Logger): Promise<BuildResult[]> => {
 	// We're running builds sequentially,
 	// because doing them in parallel makes the logs incomprehensible.
 	// Maybe make parallel an option?
@@ -274,18 +264,13 @@ const runRollupBuild = async (
 	return results;
 };
 
-const runRollupWatcher = async (
-	options: Options,
-	log: Logger,
-): Promise<void> => {
+const runRollupWatcher = async (options: Options, log: Logger): Promise<void> => {
 	return new Promise((_resolve, reject) => {
-		const watchOptions = options.inputFiles.map(f =>
-			createWatchOptions(f, options, log),
-		);
+		const watchOptions = options.inputFiles.map((f) => createWatchOptions(f, options, log));
 		// trace(('watchOptions'), watchOptions);
 		const watcher = watch(watchOptions);
 
-		watcher.on('event', event => {
+		watcher.on('event', (event) => {
 			log.info(`rollup event: ${event.code}`);
 			switch (event.code) {
 				case 'START': // the watcher is (re)starting

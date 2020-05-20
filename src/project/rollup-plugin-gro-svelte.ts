@@ -109,8 +109,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
 
-	const getCompilation = (id: string): GroSvelteCompilation | undefined =>
-		compilations.get(id);
+	const getCompilation = (id: string): GroSvelteCompilation | undefined => compilations.get(id);
 
 	const filter = createFilter(include, exclude);
 
@@ -212,13 +211,9 @@ const handleStats = (
 		printKeyValue('stats', toRootPath(id)),
 		...[
 			printKeyValue('total', printMs(stats.timings.total)),
-			stats.timings.parse &&
-				printKeyValue('parse', printMs(stats.timings.parse.total)),
+			stats.timings.parse && printKeyValue('parse', printMs(stats.timings.parse.total)),
 			stats.timings['create component'] &&
-				printKeyValue(
-					'create',
-					printMs(stats.timings['create component'].total),
-				),
+				printKeyValue('create', printMs(stats.timings['create component'].total)),
 		].filter(Boolean),
 	);
 };

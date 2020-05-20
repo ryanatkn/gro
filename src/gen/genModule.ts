@@ -8,12 +8,9 @@ export interface GenModule {
 
 export interface GenModuleMeta extends ModuleMeta<GenModule> {}
 
-export const validateGenModule = (mod: Obj): mod is GenModule =>
-	typeof mod.gen === 'function';
+export const validateGenModule = (mod: Obj): mod is GenModule => typeof mod.gen === 'function';
 
-export const loadGenModule = (
-	id: string,
-): Promise<LoadModuleResult<GenModuleMeta>> =>
+export const loadGenModule = (id: string): Promise<LoadModuleResult<GenModuleMeta>> =>
 	loadModule(id, validateGenModule);
 
 export type CheckGenModuleResult =
@@ -30,19 +27,13 @@ export type CheckGenModuleResult =
 			hasChanged: true;
 	  };
 
-export const checkGenModules = async (
-	genResults: GenResults,
-): Promise<CheckGenModuleResult[]> => {
+export const checkGenModules = async (genResults: GenResults): Promise<CheckGenModuleResult[]> => {
 	return Promise.all(
-		genResults.successes
-			.map(result => result.files.map(file => checkGenModule(file)))
-			.flat(),
+		genResults.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat(),
 	);
 };
 
-export const checkGenModule = async (
-	file: GenFile,
-): Promise<CheckGenModuleResult> => {
+export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResult> => {
 	if (!(await pathExists(file.id))) {
 		return {
 			file,

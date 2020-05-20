@@ -116,19 +116,16 @@ test('toGenResult', () => {
 		});
 	});
 	test('implicit custom file extension with additional file name parts', () => {
-		t.equal(
-			toGenResult(resolve('src/foo.bar.gen.json.ts'), {contents: '[/**/]'}),
-			{
-				originId: resolve('src/foo.bar.gen.json.ts'),
-				files: [
-					{
-						id: resolve('src/foo.bar.json'),
-						contents: '[/**/]',
-						originId: resolve('src/foo.bar.gen.json.ts'),
-					},
-				],
-			},
-		);
+		t.equal(toGenResult(resolve('src/foo.bar.gen.json.ts'), {contents: '[/**/]'}), {
+			originId: resolve('src/foo.bar.gen.json.ts'),
+			files: [
+				{
+					id: resolve('src/foo.bar.json'),
+					contents: '[/**/]',
+					originId: resolve('src/foo.bar.gen.json.ts'),
+				},
+			],
+		});
 	});
 	test('implicit custom file extension with many dots in between', () => {
 		t.equal(toGenResult(resolve('src/foo...gen.ts'), '[/**/]'), {
@@ -209,10 +206,7 @@ test('toGenResult', () => {
 	});
 	test('simple array of raw files', () => {
 		t.equal(
-			toGenResult(originId, [
-				{contents: '/*1*/'},
-				{fileName: 'foo2.ts', contents: '/*2*/'},
-			]),
+			toGenResult(originId, [{contents: '/*1*/'}, {fileName: 'foo2.ts', contents: '/*2*/'}]),
 			{
 				originId,
 				files: [
@@ -258,10 +252,7 @@ test('toGenResult', () => {
 	});
 	test('fail with duplicate explicit and implicit names', () => {
 		t.throws(() => {
-			toGenResult(originId, [
-				{contents: '/*1*/'},
-				{fileName: 'foo.ts', contents: '/*2*/'},
-			]);
+			toGenResult(originId, [{contents: '/*1*/'}, {fileName: 'foo.ts', contents: '/*2*/'}]);
 		});
 	});
 });
