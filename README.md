@@ -80,6 +80,10 @@ gro format --check # checks that all source files are formatted
 ```
 
 ```bash
+gro clean # deletes all build artifacts from the filesystem
+```
+
+```bash
 gro serve # staticly serves the current directory (or a configured one)
 ```
 
