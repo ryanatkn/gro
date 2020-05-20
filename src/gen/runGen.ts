@@ -55,7 +55,7 @@ export const runGen = async (
 								ok: false,
 								id,
 								error: err,
-								reason: red(`Error formatting ${printPath(file.id)}`),
+								reason: red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
 								elapsed: timings.stop(id),
 							};
 						}
