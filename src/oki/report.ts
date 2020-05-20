@@ -85,7 +85,7 @@ export const reportAssertionError = (
 		red('🞩'),
 		testInstance.message,
 		'\n',
-		formatFailedAssertion(assertion),
+		printFailedAssertion(assertion),
 	);
 
 	switch (assertion.operator) {
@@ -110,9 +110,9 @@ export const reportAssertionError = (
 			const logArgs: any[] = [];
 			if (assertion.thrown) {
 				if (assertion.matcher) {
-					logArgs.push(formatUnmatchedErrorMessage(assertion.matcher, assertion.thrown));
+					logArgs.push(printUnmatchedErrorMessage(assertion.matcher, assertion.thrown));
 				}
-				logArgs.push('\n' + formatThrownError(assertion.thrown, reportFullStackTraces));
+				logArgs.push('\n' + printThrownError(assertion.thrown, reportFullStackTraces));
 			}
 			log.plain(...logArgs);
 			break;
@@ -122,10 +122,10 @@ export const reportAssertionError = (
 		default:
 			throw new UnreachableError(assertion);
 	}
-	log.plain(formatAssertionError(error, assertion, reportFullStackTraces), '\n');
+	log.plain(printAssertionError(error, assertion, reportFullStackTraces), '\n');
 };
 
-const formatFailedAssertion = (assertion: FailedAssertion): string => {
+const printFailedAssertion = (assertion: FailedAssertion): string => {
 	switch (assertion.operator) {
 		case AssertionOperator.fail: {
 			return red('fail asserted in test:');
@@ -136,7 +136,7 @@ const formatFailedAssertion = (assertion: FailedAssertion): string => {
 	}
 };
 
-const formatAssertionError = (
+const printAssertionError = (
 	error: Error,
 	assertion: FailedAssertion,
 	reportFullStackTraces: boolean,
@@ -162,7 +162,7 @@ const formatAssertionError = (
 const IGNORED_ERROR_LINE_PARTIAL = TestContext.name + '.';
 const shouldIgnoreAssertionErrorLine = (s: string) => s.includes(IGNORED_ERROR_LINE_PARTIAL);
 
-const formatThrownError = (error: Error, reportFullStackTraces: boolean): string => {
+const printThrownError = (error: Error, reportFullStackTraces: boolean): string => {
 	const {stack} = error;
 	if (stack) {
 		if (reportFullStackTraces) return gray(stack);
@@ -180,26 +180,26 @@ const formatThrownError = (error: Error, reportFullStackTraces: boolean): string
 const MATCH_IGNORED_ERROR_LINE = /at exports.throws .+oki\/assertions\..+/;
 const shouldIgnoreThrownErrorLine = (s: string) => MATCH_IGNORED_ERROR_LINE.test(s);
 
-const formatUnmatchedErrorMessage = (
+const printUnmatchedErrorMessage = (
 	matcher: string | RegExp | ErrorClass,
 	error: Error,
 ): string => {
 	const strs: string[] = [];
 	if (typeof matcher === 'string') {
 		strs.push(
-			formatMatcher(matcher),
+			printMatcher(matcher),
 			'is not a substring of error message',
 			printStr(error.message),
 		);
 	} else if (matcher instanceof RegExp) {
-		strs.push(formatMatcher(matcher), 'does not match error message', printStr(error.message));
+		strs.push(printMatcher(matcher), 'does not match error message', printStr(error.message));
 	} else {
-		strs.push(formatMatcher(matcher), 'is not a superclass of thrown', cyan(error.name));
+		strs.push(printMatcher(matcher), 'is not a superclass of thrown', cyan(error.name));
 	}
 	return strs.join(' ');
 };
 
-const formatMatcher = (matcher: string | RegExp | ErrorClass): string => {
+const printMatcher = (matcher: string | RegExp | ErrorClass): string => {
 	if (typeof matcher === 'string') {
 		return printStr(matcher);
 	} else if (matcher instanceof RegExp) {
