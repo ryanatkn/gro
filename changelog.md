@@ -1,6 +1,6 @@
 # Gro changelog
 
-## unreleased
+## 0.1.6
 
 - change `gro clean` to delete directories instead of emptying them
 
