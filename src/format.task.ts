@@ -11,6 +11,7 @@ export const task: Task = {
 		const formatResult = await spawnProcess('node_modules/.bin/prettier', [
 			check ? '--check' : '--write',
 			`${paths.source}**/*.{ts,js,json,svelte,html,css,md,yml}`,
+			`${paths.root}*.{ts,js,md}`,
 		]);
 
 		if (!formatResult.ok) {
