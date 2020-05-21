@@ -20,6 +20,12 @@ export const task: Task = {
 		const rawInputPaths = args._;
 		const check = !!args.check; // TODO args declaration and validation
 
+		// In most cases, running `gro gen <inputPaths...>` and finding no files to generate
+		// should cause an error and exit the process early with a nonzero exit code.
+		// However this makes `gro gen` non-composable when a project has no generated code.
+		// The `okIfNone` flag makes the gen task exit quietly when no gen files are found.
+		const okIfNone = !!args.okIfNone;
+
 		const timings = new Timings<'total' | 'output results'>();
 		timings.start('total');
 		const subTimings = new Timings();
@@ -37,10 +43,19 @@ export const task: Task = {
 			(inputPath) => getPossibleSourceIds(inputPath, [GEN_FILE_PATTERN]),
 		);
 		if (!findModulesResult.ok) {
-			for (const reason of findModulesResult.reasons) {
-				log.error(reason);
+			if (okIfNone && findModulesResult.type === 'inputDirectoriesWithNoFiles') {
+				log.info(
+					`No gen files found and that's ok: ${findModulesResult.inputDirectoriesWithNoFiles
+						.map((d) => printPath(d))
+						.join(' ')}`,
+				);
+				return;
+			} else {
+				for (const reason of findModulesResult.reasons) {
+					log.error(reason);
+				}
+				throw new TaskError('Failed to find modules.');
 			}
-			throw new TaskError('Failed to find modules.');
 		}
 		subTimings.merge(findModulesResult.timings);
 		const loadModulesResult = await loadModules(

@@ -16,7 +16,7 @@ export const task: Task = {
 		await testTask.run(ctx);
 
 		log.info('checking that generated files have not changed');
-		await genTask.run({...ctx, args: {...ctx.args, check: true}});
+		await genTask.run({...ctx, args: {...ctx.args, check: true, okIfNone: true}});
 
 		log.info('checking that all files are formatted correctly');
 		await formatTask.run({...ctx, args: {...ctx.args, check: true}});
