@@ -1,5 +1,9 @@
 # Gro changelog
 
+## 0.1.6
+
+- change `gro clean` to delete directories instead of emptying them
+
 ## 0.1.5
 
 - add `gro format` and `gro format --check` and format generated code
