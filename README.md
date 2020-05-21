@@ -51,7 +51,7 @@ You'll also want to install Gro globally to add its CLI to your system PATH:
 
 ```bash
 npm i -g @feltcoop/gro
-gro # should work - defers to the project's locally installed version of Gro
+gro # should print some stuff - defers to the project's locally installed version of Gro
 ```
 
 ## usage
