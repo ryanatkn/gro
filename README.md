@@ -39,6 +39,21 @@ It includes:
 - more to come, exploring what deeply integrated tools enable
   in the realms of developer power and ergonomics and end user experience
 
+## install
+
+Normally you'll want to install Gro as a dev dependency:
+
+```bash
+npm i -D @feltcoop/gro
+```
+
+You'll also want to install Gro globally to add its CLI to your system PATH:
+
+```bash
+npm i -g @feltcoop/gro
+gro # should print some stuff - defers to the project's locally installed version of Gro
+```
+
 ## usage
 
 ```bash
