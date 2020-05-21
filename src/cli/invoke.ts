@@ -93,9 +93,9 @@ const main = async () => {
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
 			if (!(await pathExists(toImportId(pathData.id)))) {
-				log.info('Building the project for initial setup.');
+				log.info('Task file not found in build directory. Compiling TypeScript...');
 				subTimings.start('build project');
-				await spawnProcess('node_modules/.bin/tsc');
+				await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
 				subTimings.stop('build project');
 			}
 
