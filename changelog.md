@@ -1,8 +1,14 @@
 # Gro changelog
 
+## 0.1.7
+
+- compile TypeScript if an invoked task cannot be found in `build/`
+  ([#12](https://github.com/feltcoop/gro/pull/12))
+
 ## 0.1.6
 
 - change `gro clean` to delete directories instead of emptying them
+  ([#11](https://github.com/feltcoop/gro/pull/11))
 
 ## 0.1.5
 
