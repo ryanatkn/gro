@@ -21,7 +21,15 @@ import {Timings} from '../utils/time.js';
 import {printMs, printPath, printPathOrGroPath, printSubTiming} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName, TaskError} from '../task/task.js';
-import {paths, groPaths, toBasePath, replaceRootDir, pathsFromId, isId} from '../paths.js';
+import {
+	paths,
+	groPaths,
+	toBasePath,
+	replaceRootDir,
+	pathsFromId,
+	isId,
+	toImportId,
+} from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
@@ -84,10 +92,10 @@ const main = async () => {
 
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
-			if (!(await pathExists(paths.build))) {
-				log.info('Building the project for initial setup.');
+			if (!(await pathExists(toImportId(pathData.id)))) {
+				log.info('Task file not found in build directory. Compiling TypeScript...');
 				subTimings.start('build project');
-				await spawnProcess('node_modules/.bin/tsc');
+				await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
 				subTimings.stop('build project');
 			}
 
