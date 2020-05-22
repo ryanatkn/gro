@@ -28,11 +28,9 @@ npm version <major|minor|patch>
 ## publish to npm
 
 Then publish the new version.
-Because Gro is a scoped package, `@feltcoop/gro`,
-we need to specify that it's public not private.
 
 ```bash
-npm publish --access public
+npm publish
 ```
 
 And finally push the tagged commit to sync on GitHub.
