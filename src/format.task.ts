@@ -3,6 +3,8 @@ import {spawnProcess} from './utils/process.js';
 import {printKeyValue} from './utils/print.js';
 import {paths} from './paths.js';
 
+const FORMATTED_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
+
 export const task: Task = {
 	description: 'format source files',
 	run: async ({args}) => {
@@ -10,8 +12,8 @@ export const task: Task = {
 
 		const formatResult = await spawnProcess('node_modules/.bin/prettier', [
 			check ? '--check' : '--write',
-			`${paths.source}**/*.{ts,js,json,svelte,html,css,md,yml}`,
-			`${paths.root}*.{ts,js,md}`,
+			`${paths.source}**/*.{${FORMATTED_EXTENSIONS}}`,
+			`${paths.root}*.{${FORMATTED_EXTENSIONS}}`,
 		]);
 
 		if (!formatResult.ok) {
