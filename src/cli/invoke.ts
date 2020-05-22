@@ -34,6 +34,7 @@ import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from '../task/taskModule.js';
+import {PathData} from '../fs/pathData.js';
 
 /*
 
@@ -92,7 +93,7 @@ const main = async () => {
 
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
-			if (!(await pathExists(paths.build)) || !(await pathExists(toImportId(pathData.id)))) {
+			if (await shouldBuildProject(pathData)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
 				subTimings.start('build project');
 				await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
@@ -241,5 +242,14 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 		log.error(reason);
 	}
 };
+
+// This is a best-effort heuristic that detects if
+// we should compile a project's TypeScript when invoking a task.
+// Properly detecting this is too expensive and would impact startup time significantly.
+// Generally speaking, the user is expected to be running `gro dev` or `gro build`.
+const shouldBuildProject = async (pathData: PathData): Promise<boolean> =>
+	paths === groPaths || isId(pathData.id, paths)
+		? !(await pathExists(toImportId(pathData.id)))
+		: !(await pathExists(paths.build));
 
 main(); // see `attachProcessErrorHandlers` above for why we don't catch here
