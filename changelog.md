@@ -4,7 +4,7 @@
 
 - compile TypeScript if an invoked task cannot be found in `build/`
   ([#12](https://github.com/feltcoop/gro/pull/12))
-- add optional `okIfNone` arg to `gro gen` to suppress errors when no gen files are found
+- change the check task to look for stale generated files only if the project contains gen files
   ([#13](https://github.com/feltcoop/gro/pull/13))
 
 ## 0.1.6

@@ -1,15 +1,13 @@
 import {outputFile} from './fs/nodeFs.js';
 import {Task, TaskError} from './task/task.js';
 import {red, green, gray} from './colors/terminal.js';
-import {isGenPath, GEN_FILE_PATTERN} from './gen/gen.js';
 import {runGen} from './gen/runGen.js';
-import {loadGenModule, checkGenModules} from './gen/genModule.js';
+import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {printPath, printMs, printError, printSubTiming} from './utils/print.js';
-import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
-import {findFiles} from './fs/nodeFs.js';
+import {resolveRawInputPaths} from './fs/inputPath.js';
 import {plural} from './utils/string.js';
 import {Timings} from './utils/time.js';
-import {findModules, loadModules} from './fs/modules.js';
+import {loadModules} from './fs/modules.js';
 import {formatFile} from './project/formatFile.js';
 
 // TODO test - especially making sure nothing gets genned
@@ -20,12 +18,6 @@ export const task: Task = {
 		const rawInputPaths = args._;
 		const check = !!args.check; // TODO args declaration and validation
 
-		// In most cases, running `gro gen <inputPaths...>` and finding no files to generate
-		// should cause an error and exit the process early with a nonzero exit code.
-		// However this makes `gro gen` non-composable when a project has no generated code.
-		// The `okIfNone` flag makes the gen task exit quietly when no gen files are found.
-		const okIfNone = !!args.okIfNone;
-
 		const timings = new Timings<'total' | 'output results'>();
 		timings.start('total');
 		const subTimings = new Timings();
@@ -34,28 +26,12 @@ export const task: Task = {
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
 		// load all of the gen modules
-		const findModulesResult = await findModules(
-			inputPaths,
-			// TODO really we want a regexp here, but the API currently doesn't work that way -
-			// it precomputes the possible files instead of performing a broader search -
-			// maybe we just take regexps as params and search all files for now?
-			(id) => findFiles(id, (file) => isGenPath(file.path)),
-			(inputPath) => getPossibleSourceIds(inputPath, [GEN_FILE_PATTERN]),
-		);
+		const findModulesResult = await findGenModules(inputPaths);
 		if (!findModulesResult.ok) {
-			if (okIfNone && findModulesResult.type === 'inputDirectoriesWithNoFiles') {
-				log.info(
-					`No gen files found and that's ok: ${findModulesResult.inputDirectoriesWithNoFiles
-						.map((d) => printPath(d))
-						.join(' ')}`,
-				);
-				return;
-			} else {
-				for (const reason of findModulesResult.reasons) {
-					log.error(reason);
-				}
-				throw new TaskError('Failed to find modules.');
+			for (const reason of findModulesResult.reasons) {
+				log.error(reason);
 			}
+			throw new TaskError('Failed to find gen modules.');
 		}
 		subTimings.merge(findModulesResult.timings);
 		const loadModulesResult = await loadModules(
@@ -66,7 +42,7 @@ export const task: Task = {
 			for (const reason of loadModulesResult.reasons) {
 				log.error(reason);
 			}
-			throw new TaskError('Failed to load modules.');
+			throw new TaskError('Failed to load gen modules.');
 		}
 		subTimings.merge(loadModulesResult.timings);
 
