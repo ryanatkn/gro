@@ -6,6 +6,8 @@
   ([#12](https://github.com/feltcoop/gro/pull/12))
 - change the check task to look for stale generated files only if the project contains gen files
   ([#13](https://github.com/feltcoop/gro/pull/13))
+- format files in the root directory, not just `src/`
+  ([#15](https://github.com/feltcoop/gro/pull/15))
 
 ## 0.1.6
 
