@@ -3,7 +3,7 @@
 ## 0.1.8
 
 - fix unbuilt project detection when invoking builtin Gro tasks
-  ([#12](https://github.com/feltcoop/gro/pull/16))
+  ([#16](https://github.com/feltcoop/gro/pull/16))
 
 ## 0.1.7
 
