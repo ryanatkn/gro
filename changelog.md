@@ -4,7 +4,7 @@
 
 - compile TypeScript if an invoked task cannot be found in `build/`
   ([#12](https://github.com/feltcoop/gro/pull/12))
-- format certain files in the root directory
+- format files in the root directory, not just `src/`
   ([#15](https://github.com/feltcoop/gro/pull/15))
 
 ## 0.1.6
