@@ -1,6 +1,8 @@
-import {ModuleMeta, loadModule, LoadModuleResult} from '../fs/modules.js';
-import {Gen, GenResults, GenFile} from './gen.js';
-import {pathExists, readFile} from '../fs/nodeFs.js';
+import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
+import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
+import {pathExists, readFile, findFiles} from '../fs/nodeFs.js';
+import {getPossibleSourceIds} from '../fs/inputPath.js';
+import {paths} from '../paths.js';
 
 export interface GenModule {
 	gen: Gen;
@@ -50,3 +52,14 @@ export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResul
 		hasChanged: file.contents !== existingContents,
 	};
 };
+
+export const findGenModules = (
+	inputPaths: string[] = [paths.source],
+	extensions: string[] = [GEN_FILE_PATTERN],
+	rootDirs: string[] = [],
+) =>
+	findModules(
+		inputPaths,
+		(id) => findFiles(id, (file) => isGenPath(file.path)),
+		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
+	);

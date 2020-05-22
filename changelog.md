@@ -4,6 +4,8 @@
 
 - compile TypeScript if an invoked task cannot be found in `build/`
   ([#12](https://github.com/feltcoop/gro/pull/12))
+- change the check task to look for stale generated files only if the project contains gen files
+  ([#13](https://github.com/feltcoop/gro/pull/13))
 
 ## 0.1.6
 
