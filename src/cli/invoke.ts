@@ -27,7 +27,7 @@ import {
 	toBasePath,
 	replaceRootDir,
 	pathsFromId,
-	isId,
+	isGroId,
 	toImportId,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
@@ -138,7 +138,7 @@ const main = async () => {
 			if (paths === groPaths) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
-			} else if (isId(pathData.id, groPaths)) {
+			} else if (isGroId(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
 				logAvailableTasks(
 					log,
@@ -175,11 +175,8 @@ const main = async () => {
 		// The input path matched a directory, but it contains no matching files.
 		if (
 			paths === groPaths ||
-			isId(
-				// this is null safe because of the failure type
-				findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!.id,
-				groPaths,
-			)
+			// this is null safe because of the failure type
+			isGroId(findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!.id)
 		) {
 			// If the directory is inside Gro, just log the errors.
 			logErrorReasons(log, findModulesResult.reasons);
@@ -248,8 +245,8 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // Properly detecting this is too expensive and would impact startup time significantly.
 // Generally speaking, the user is expected to be running `gro dev` or `gro build`.
 const shouldBuildProject = async (pathData: PathData): Promise<boolean> =>
-	paths === groPaths || isId(pathData.id, paths)
-		? !(await pathExists(toImportId(pathData.id)))
-		: !(await pathExists(paths.build));
+	paths !== groPaths && isGroId(pathData.id)
+		? !(await pathExists(paths.build))
+		: !(await pathExists(toImportId(pathData.id)));
 
 main(); // see `attachProcessErrorHandlers` above for why we don't catch here

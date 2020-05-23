@@ -58,9 +58,9 @@ export const groDir = join(groImportDir, '../');
 export const groDirBasename = basename(groDir) + sep;
 export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
 
-export const pathsFromId = (id: string): Paths => (isId(id, groPaths) ? groPaths : paths);
+export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : paths);
+export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
 
-export const isId = (id: string, p = paths): boolean => id.startsWith(p.root);
 export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.source);
 export const isBuildId = (id: string, p = paths): boolean => id.startsWith(p.build);
 export const isDistId = (id: string, p = paths): boolean => id.startsWith(p.dist);
