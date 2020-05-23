@@ -83,10 +83,10 @@ import {Task} from '@feltcoop/gro';
 import {task as testTask} from '@feltcoop/gro/dist/test.task.js';
 
 export const task: Task = {
-	run: async ({log, args}) => {
+	run: async (ctx) => {
 		await doSomethingFirst();
 		// This wraps Gro's `test` task, but it doesn't have to!
-		await testTask.run({log, args: {...args, modifyTheArgs: true}});
+		await testTask.run({...ctx, args: {...ctx.args, modifyTheArgs: true}});
 		await andAfterIfYouWant();
 	},
 };
