@@ -5,6 +5,7 @@ import {
 	createPaths,
 	paths,
 	groPaths,
+	isGroId,
 	toRootPath,
 	toBasePath,
 	basePathToSourceId,
@@ -31,7 +32,12 @@ test('createPaths()', () => {
 });
 
 test('paths object has the same identity as the groPaths object', () => {
-	t.is(paths, groPaths);
+	t.is(paths, groPaths); // because we're testing inside the Gro project
+});
+
+test('isGroId()', () => {
+	t.ok(isGroId(resolve(paths.source)));
+	t.ok(!isGroId(resolve('../fake/src')));
 });
 
 test('toRootPath()', () => {
