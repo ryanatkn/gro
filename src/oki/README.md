@@ -10,7 +10,7 @@
 The plan is to deeply integrate it with build tooling.
 We don't encourage anyone to use it but you're welcome to try!
 
-The `oki` modules are used by the task `gro test`.
+The `oki` modules are used by the task [`gro test`](../test.task.ts).
 By convention, `gro test` looks for all files named `*.test.ts`
 and executes them inside an `oki` context.
 
