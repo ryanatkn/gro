@@ -1,6 +1,6 @@
 # Gro changelog
 
-## 0.1.9
+## 0.1.10
 
 - change the check task to run tests only if some exist
   ([#18](https://github.com/feltcoop/gro/pull/18))
