@@ -85,6 +85,81 @@ test('assertions', () => {
 		});
 	});
 
+	const failToReject = async (cb: () => Promise<void>): Promise<AssertionError> => {
+		try {
+			await cb();
+		} catch (err) {
+			if (err instanceof AssertionError) {
+				if (err.assertion.operator !== AssertionOperator.rejects) {
+					t.fail(`Expected error operator to be "${AssertionOperator.rejects}"`);
+				}
+				return err; // success
+			} else {
+				t.fail('Expected error to be a AssertionError');
+			}
+		}
+		t.fail(`Expected an error`);
+	};
+	test('rejects() ✓', async () => {
+		await t.rejects(async () => {
+			throw Error();
+		});
+	});
+	test('rejects() 🞩', async () => {
+		await failToReject(async () => {
+			await t.rejects(async () => {});
+		});
+	});
+	test('rejects() a promise ✓', async () => {
+		await t.rejects(new Promise((_, reject) => reject()));
+	});
+	test('rejects() a promise 🞩', async () => {
+		await failToReject(async () => {
+			await t.rejects(new Promise((resolve) => resolve()));
+		});
+	});
+	test('rejects() with a string matcher ✓', async () => {
+		const thrownError = new Error('~~~match this error message~~~');
+		await t.rejects(async () => {
+			throw thrownError;
+		}, 'match this error message');
+	});
+	test('rejects() with a string matcher 🞩', async () => {
+		await failToReject(async () => {
+			await t.rejects(async () => {
+				throw Error('foo');
+			}, 'food');
+		});
+	});
+	test('rejects() with a RegExp matcher ✓', async () => {
+		const thrownError = new Error('match me with a regexp');
+		await t.rejects(async () => {
+			throw thrownError;
+		}, /witH.+ReGeX/i);
+	});
+	test('rejects() with a RegExp matcher 🞩', async () => {
+		await failToReject(async () => {
+			await t.rejects(async () => {
+				throw Error('foo');
+			}, /food/);
+		});
+	});
+	test('rejects() with an ErrorClass matcher ✓', async () => {
+		class SomeError extends Error {}
+		const thrownError = new SomeError();
+		await t.rejects(async () => {
+			throw thrownError;
+		}, SomeError);
+	});
+	test('rejects() with an ErrorClass matcher 🞩', async () => {
+		class SomeError extends Error {}
+		await failToReject(async () => {
+			await t.rejects(async () => {
+				throw Error();
+			}, SomeError);
+		});
+	});
+
 	test('ok() ✓', () => {
 		t.ok(true);
 		t.ok(1);
@@ -185,102 +260,5 @@ test('assertions', () => {
 		t.throws(() => t.notEqual([1, 'a', [1, 'a']], [1, 'a', [1, 'a']]));
 		t.throws(() => t.notEqual(NaN, NaN));
 		t.throws(() => t.notEqual(-Infinity, -Infinity));
-	});
-});
-
-const skip: typeof test = Function.prototype as any;
-
-skip('failed assertions', () => {
-	test('fail()', () => {
-		t.fail('this test failed because errror');
-	});
-
-	const failToThrow = (cb: () => void): AssertionError => {
-		try {
-			cb();
-		} catch (err) {
-			if (err instanceof AssertionError) {
-				if (err.assertion.operator !== AssertionOperator.throws) {
-					t.fail(`Expected error operator to be "${AssertionOperator.throws}"`);
-				}
-				return err; // success
-			} else {
-				t.fail('Expected error to be a AssertionError');
-			}
-		}
-		t.fail(`Expected an error`);
-	};
-	test('throws() ✓', async () => {
-		failToThrow(() => {
-			t.throws(() => {
-				throw Error();
-			});
-		});
-	});
-	test('throws() 🞩', () => {
-		t.throws(() => {});
-	});
-	test('throws() an error unmatched by Error class', () => {
-		class SomeError extends Error {}
-		t.throws(() => {
-			throw Error();
-		}, SomeError);
-	});
-	test('throws() an error unmatched by regexp', () => {
-		t.throws(() => {
-			throw Error('foo');
-		}, /food/);
-	});
-	test('throws() an error unmatched by message substring', () => {
-		t.throws(() => {
-			throw Error('foo');
-		}, 'food');
-	});
-
-	test('ok()', () => {
-		t.ok(0);
-	});
-
-	test('is()', () => {
-		t.is(0, 1);
-	});
-
-	test('isNot()', () => {
-		t.isNot(0, 0);
-	});
-
-	test('equal() with numbers', () => {
-		t.equal(0, 1);
-	});
-	test('equal() with bigints', () => {
-		t.equal(BigInt(40000000000), BigInt(40000000001));
-	});
-	test('equal() with strings', () => {
-		t.equal('hello', 'hell');
-	});
-	test('equal() with booleans', () => {
-		t.equal(true, false);
-	});
-	test('equal() with null and undefined', () => {
-		t.equal(null, undefined);
-	});
-	test('equal() with symbols', () => {
-		t.equal(Symbol(), Symbol());
-	});
-	test('equal() with objects', () => {
-		t.equal({a: 1, b: {c: {d: 2}}}, {a: 1, b: {c: {d: 3}}});
-	});
-	test('equal() with functions', () => {
-		function fn() {
-			return 'hello world';
-		}
-		t.equal(fn, () => 'hello world');
-	});
-
-	test('notEqual() with numbers', () => {
-		t.notEqual(0, 0);
-	});
-	test('notEqual() with objects', () => {
-		t.notEqual({a: 1, b: {c: {d: 3}}}, {a: 1, b: {c: {d: 3}}});
 	});
 });

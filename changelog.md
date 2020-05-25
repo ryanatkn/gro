@@ -2,6 +2,8 @@
 
 ## 0.1.10
 
+- add async `rejects` assertion
+  ([#19](https://github.com/feltcoop/gro/pull/19))
 - change the check task to run tests only if some exist
   ([#18](https://github.com/feltcoop/gro/pull/18))
 
