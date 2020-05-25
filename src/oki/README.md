@@ -84,8 +84,16 @@ interface Assertions {
 	isNot(actual: any, expected: any); // `!Object.is`
 	equal(actual: any, expected: any); // deeply equal
 	notEqual(actual: any, expected: any); // !deeply equal
-	// expects `cb` to throw an error that matches optional `matcher`
-	throws(cb: () => void, matcher?: ErrorClass | RegExp | string);
+	throws(
+		// expects `cb` to throw an error that matches optional `matcher`
+		cb: () => void,
+		matcher?: ErrorClass | RegExp | string,
+	);
+	rejects(
+		// expects `cbOrPromise` to throw an error that matches optional `matcher`
+		cbOrPromise: Promise<any> | (() => Promise<void>),
+		matcher?: ErrorClass | RegExp | string,
+	);
 	fail(message: string); // throws a `TestAssertionError` (t.Error)
 	Error(message: string); // the `TestAssertionError` class for deliberate fails
 }

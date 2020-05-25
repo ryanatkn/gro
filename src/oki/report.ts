@@ -107,12 +107,13 @@ export const reportAssertionError = (
 			log.plain(printValue(assertion.expected));
 			break;
 		case AssertionOperator.throws:
+		case AssertionOperator.rejects:
 			const logArgs: any[] = [];
-			if (assertion.thrown) {
+			if (assertion.error) {
 				if (assertion.matcher) {
-					logArgs.push(printUnmatchedErrorMessage(assertion.matcher, assertion.thrown));
+					logArgs.push(printUnmatchedErrorMessage(assertion.matcher, assertion.error));
 				}
-				logArgs.push('\n' + printThrownError(assertion.thrown, reportFullStackTraces));
+				logArgs.push('\n' + printThrownError(assertion.error, reportFullStackTraces));
 			}
 			log.plain(...logArgs);
 			break;
@@ -194,7 +195,7 @@ const printUnmatchedErrorMessage = (
 	} else if (matcher instanceof RegExp) {
 		strs.push(printMatcher(matcher), 'does not match error message', printStr(error.message));
 	} else {
-		strs.push(printMatcher(matcher), 'is not a superclass of thrown', cyan(error.name));
+		strs.push(printMatcher(matcher), 'is not a superclass of error', cyan(error.name));
 	}
 	return strs.join(' ');
 };
