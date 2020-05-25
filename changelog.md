@@ -2,6 +2,11 @@
 
 ## 0.1.9
 
+- change the check task to run tests only if some exist
+  ([#18](https://github.com/feltcoop/gro/pull/18))
+
+## 0.1.9
+
 - actually fix unbuilt project detection when invoking builtin Gro tasks
   ([#17](https://github.com/feltcoop/gro/pull/17))
 

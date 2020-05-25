@@ -1,9 +1,8 @@
 import {Task, TaskError} from './task/task.js';
 import {TestContext} from './oki/TestContext.js';
-import {resolveRawInputPaths, getPossibleSourceIds} from './fs/inputPath.js';
-import {findFiles} from './fs/nodeFs.js';
-import {findModules, loadModules} from './fs/modules.js';
-import {TEST_FILE_SUFFIX, isTestPath} from './oki/testModule.js';
+import {resolveRawInputPaths} from './fs/inputPath.js';
+import {loadModules} from './fs/modules.js';
+import {findTestModules} from './oki/testModule.js';
 import {printMs, printSubTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import * as report from './oki/report.js';
@@ -22,11 +21,7 @@ export const task: Task = {
 
 		const testContext = new TestContext({report});
 
-		const findModulesResult = await findModules(
-			inputPaths,
-			(id) => findFiles(id, (file) => isTestPath(file.path)),
-			(inputPath) => getPossibleSourceIds(inputPath, [TEST_FILE_SUFFIX]),
-		);
+		const findModulesResult = await findTestModules(inputPaths);
 		if (!findModulesResult.ok) {
 			for (const reason of findModulesResult.reasons) {
 				log.error(reason);
