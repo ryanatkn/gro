@@ -1,5 +1,9 @@
 # Gro changelog
 
+## 0.1.11
+
+- fix `terser` import
+
 ## 0.1.10
 
 - add async `rejects` assertion

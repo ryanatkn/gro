@@ -1,4 +1,4 @@
-import * as terser from 'terser';
+import terser from 'terser';
 import {Plugin} from 'rollup';
 import rollupPluginutils from '@rollup/pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
