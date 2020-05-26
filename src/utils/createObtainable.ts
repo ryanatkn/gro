@@ -1,3 +1,5 @@
+export type Unobtain = () => Promise<void>;
+
 /*
 
 This is a higher order function that tracks obtained references to a thing
@@ -15,7 +17,7 @@ See the tests for usage examples - ./createObtainable.test.ts
 export const createObtainable = <T>(
 	createObtainableValue: () => T,
 	teardownObtainableValue?: (obtainable: T) => unknown,
-): (() => [T, () => Promise<void>]) => {
+): (() => [T, Unobtain]) => {
 	let obtainable: T | undefined;
 	const obtainedRefs = new Set<symbol>();
 	let resolve: () => void;

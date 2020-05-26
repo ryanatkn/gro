@@ -3,6 +3,7 @@
 ## 0.1.11
 
 - fix `terser` import
+- export `Unobtain` type from `utils/createObtainable.ts`
 
 ## 0.1.10
 
