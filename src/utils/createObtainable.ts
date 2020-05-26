@@ -5,6 +5,7 @@ and calls `teardownObtainableValue` when all obtainers have let go of their refe
 
 It allows decoupled consumers to use things with a lifecycle
 without disrupting each other when they're done with the thing.
+It can also be used to create lazily instantiated references.
 
 The motivating use case was reusing a database connection across multiple tasks.
 
