@@ -73,7 +73,7 @@ export const task: Task = {
 
 Because Gro tasks are just functions,
 you can directly import them from within other tasks and run them.
-Usually though you'll want to use the `invokeTask` helper
+However, we recommend using the `invokeTask` helper
 for its automatic logging and diagnostics.
 
 The `invokeTask` helper uses Gro's task resolution rules
