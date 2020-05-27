@@ -87,17 +87,17 @@ because you don't need to rely on the task override rules to get desired behavio
 but the logging and diagnostics it provides are nice to have.
 
 ```bash
-gro some/task
+gro some/file
 ```
 
 ```ts
-// src/some/task.task.ts
+// src/some/file.task.ts
 import {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
-		// runs `src/other/task.task.ts`
-		await invokeTask('other/task', {...args, optionally: 'extendTheArgs'});
+		// runs `src/other/file.task.ts`
+		await invokeTask('other/file', {...args, optionally: 'extendTheArgs'});
 	},
 };
 ```
