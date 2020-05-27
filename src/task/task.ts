@@ -1,15 +1,15 @@
 import {Logger} from '../utils/log.js';
-import {Args, Env} from '../cli/types.js';
+import {Args} from '../cli/types.js';
 
-export interface Task<T = unknown> {
-	run: (ctx: TaskContext) => Promise<T>;
+export interface Task {
+	run: (ctx: TaskContext) => Promise<unknown>;
 	description?: string;
 }
 
 export interface TaskContext {
 	log: Logger;
 	args: Args;
-	env: Env;
+	invokeTask: (taskName: string, args?: Args) => Promise<void>;
 }
 
 export const TASK_FILE_PATTERN = /\.task\.ts$/;

@@ -15,9 +15,38 @@ test('runTask()', () => {
 				},
 			},
 			args,
-			process.env,
+			async () => {},
 		);
 		t.ok(result.ok);
+		t.is(result.output, args);
+	});
+
+	test('invokes a sub task', async () => {
+		const args = {a: 1, _: []};
+		let invokedTaskName;
+		let invokedArgs;
+		const result = await runTask(
+			{
+				name: 'testTask',
+				id: 'foo/testTask',
+				mod: {
+					task: {
+						run: async ({args, invokeTask}) => {
+							invokeTask('bar/testTask', args);
+							return args;
+						},
+					},
+				},
+			},
+			args,
+			async (invokingTaskName, invokingArgs) => {
+				invokedTaskName = invokingTaskName;
+				invokedArgs = invokingArgs;
+			},
+		);
+		t.ok(result.ok);
+		t.is(invokedTaskName, 'bar/testTask');
+		t.is(invokedArgs, args);
 		t.is(result.output, args);
 	});
 
@@ -37,7 +66,7 @@ test('runTask()', () => {
 				},
 			},
 			{_: []},
-			process.env,
+			async () => {},
 		);
 		t.ok(!result.ok);
 		t.ok(result.reason);

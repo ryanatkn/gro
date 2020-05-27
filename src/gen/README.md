@@ -209,12 +209,11 @@ or in code:
 
 ```ts
 import {Task} from '@feltcoop/gro';
-import {task as genTask} from '@feltcoop/gro/dist/gen.task.js';
 
 export const task: Task = {
-	run: async (ctx) => {
+	run: async ({args, invokeTask}) => {
 		// this throws a `TaskError` if anything is new or different
-		await genTask.run({...ctx, args: {...ctx.args, check: true}});
+		await invokeTask('gen', {...args, check: true});
 	},
 };
 ```

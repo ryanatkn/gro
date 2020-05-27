@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.1.12
+
+- add the `invokeTask` helper for task composition
+  ([#20](https://github.com/feltcoop/gro/pull/20))
+
 ## 0.1.11
 
 - fix `terser` import

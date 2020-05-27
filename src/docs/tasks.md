@@ -17,6 +17,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [project/build](../project/build.task.ts) - build, create, and link the distribution
 - [project/dev](../project/dev.task.ts) - build typescript in watch mode for development
 - [project/dist](../project/dist.task.ts) - create and link the distribution
+- [project/link](../project/link.task.ts) - link the distribution
 - [serve](../serve.task.ts) - start static file server
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files

@@ -69,6 +69,39 @@ export const task: Task = {
 };
 ```
 
+### run a task inside another task
+
+Because Gro tasks are just functions,
+you can directly import them from within other tasks and run them.
+Usually though you'll want to use the `invokeTask` helper
+for its automatic logging and diagnostics.
+
+The `invokeTask` helper uses Gro's task resolution rules
+to allow user code to override builtin tasks.
+For example, Gro's `check.task.ts` calls `invokeTask('test')`
+so that it calls your `src/test.task.ts` if it exists
+and falls back to `gro/src/test.task.ts` if not.
+
+It's less important to use `invokeTask` over explicit imports in user code
+because you don't need to rely on the task override rules to get desired behavior,
+but the logging and diagnostics it provides are nice to have.
+
+```bash
+gro some/task
+```
+
+```ts
+// src/some/task.task.ts
+import {Task} from '@feltcoop/gro';
+
+export const task: Task = {
+	run: async ({args, invokeTask}) => {
+		// runs `src/other/task.task.ts`
+		await invokeTask('other/task', {...args, optionally: 'extendTheArgs'});
+	},
+};
+```
+
 ### hook into one of [Gro's builtin tasks](../docs/tasks.md)
 
 ```bash
@@ -80,13 +113,12 @@ $ gro test
 ```ts
 // src/test.task.ts
 import {Task} from '@feltcoop/gro';
-import {task as testTask} from '@feltcoop/gro/dist/test.task.js';
 
 export const task: Task = {
-	run: async (ctx) => {
+	run: async ({args, invokeTask}) => {
 		await doSomethingFirst();
 		// This wraps Gro's `test` task, but it doesn't have to!
-		await testTask.run({...ctx, args: {...ctx.args, modifyTheArgs: true}});
+		await invokeTask('test', {...args, optionally: 'extendTheArgs'});
 		await andAfterIfYouWant();
 	},
 };
