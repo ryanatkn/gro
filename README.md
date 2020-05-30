@@ -103,7 +103,7 @@ gro serve # staticly serves the current directory (or a configured one)
 ```
 
 ```bash
-gro --version # or `-v` - print the Gro version
+gro --version # or `-v` prints the Gro version
 ```
 
 ```bash
