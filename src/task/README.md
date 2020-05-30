@@ -33,14 +33,16 @@ while deferring to your code and facilitating buildtime development processes.
 # This looks through `src/` in both the current working directory
 # and Gro's source for all files matching `*.task.ts` and logs them out.
 $ gro
+$ gro src # same as above
 ```
 
 ### show tasks in a directory
 
 ```bash
 # Logs all `*.task.ts` files in `src/some/dir` and `gro/src/some/dir`.
-# If neither exists, it displays an error.
+# If no tasks are found, it displays an error.
 $ gro some/dir
+$ gro src/some/dir # same as above
 ```
 
 > To learn more about the Gro CLI path conventions,
