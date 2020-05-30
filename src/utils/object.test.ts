@@ -41,7 +41,7 @@ test('omitUndefined', () => {
 	t.equal(omitUndefined({a: 1, b: undefined, c: undefined}), {a: 1});
 	t.equal(omitUndefined({a: undefined, b: 2, c: undefined}), {b: 2});
 	t.equal(omitUndefined({a: 1, b: 2}), {a: 1, b: 2});
-	t.equal(omitUndefined({a: undefined, b: undefined}), {});
+	t.equal(omitUndefined({a: undefined, b: undefined}), {} as any);
 	t.equal(omitUndefined({}), {});
 });
 
