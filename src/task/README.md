@@ -53,6 +53,11 @@ $ gro some/dir
 # or if it doesn't exist, `gro/src/some/file.task.ts`.
 # If neither exists, it displays an error.
 $ gro some/file arg1 arg2 --arg3 example
+
+# This runs `gro/src/some/file.task.ts` directly
+# without checking the current working directory,
+# and displays an error if it doesn't exist.
+$ gro gro/some/file
 ```
 
 ### define a task
