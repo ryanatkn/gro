@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.1.13
+
+- change assertions `t.is` and `t.equal` to use a shared generic type for extra safety
+  ([#22](https://github.com/feltcoop/gro/pull/22))
+
 ## 0.1.12
 
 - add the `invokeTask` helper for task composition
