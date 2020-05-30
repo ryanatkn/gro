@@ -9,10 +9,10 @@ const DEFAULT_DIR = './';
 
 export const task: Task = {
 	description: 'start static file server',
-	run: async ({log, args, env}): Promise<void> => {
+	run: async ({log, args}): Promise<void> => {
 		// TODO also take these from args
-		const host: string = env.HOST || DEFAULT_HOST;
-		const port: number = Number(env.PORT) || DEFAULT_PORT;
+		const host: string = process.env.HOST || DEFAULT_HOST;
+		const port: number = Number(process.env.PORT) || DEFAULT_PORT;
 		const dir: string = resolve((args.dir as any) || DEFAULT_DIR);
 
 		const devServer = createDevServer({host, port, dir});
