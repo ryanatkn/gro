@@ -4,7 +4,7 @@
 
 > **_warning!_** You should not use Gro today
 > unless you're willing to take ownership of the code.
-> Expect undocumented breaking changes.
+> Expect bugs, missing features, and undocumented breaking changes.
 > Gro integrates several tools into a single experience but
 > for now it probably doesn't suit your needs.
 > Many other mature tools with large communities solve similar problems.
@@ -32,7 +32,7 @@ It includes:
 - codegen by convention called `gen` (docs at [`src/gen`](src/gen))
 - dev server
 - integrated UI development with
-  [Svelte](https://github.com/sveltejs/svelte)
+  [Svelte](https://github.com/sveltejs/svelte) (particularly rough right now)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
 - bundling via [Rollup](https://github.com/rollup/rollup)
 - formatting via [Prettier](https://github.com/prettier/prettier)
