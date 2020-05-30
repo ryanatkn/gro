@@ -101,8 +101,11 @@ import {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
-		// runs `src/other/file.task.ts`
+		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`
 		await invokeTask('other/file', {...args, optionally: 'extendTheArgs'});
+
+		// runs `gro/src/other/file.task.ts` directly
+		await invokeTask('gro/other/file');
 	},
 };
 ```
@@ -123,7 +126,7 @@ export const task: Task = {
 	run: async ({args, invokeTask}) => {
 		await doSomethingFirst();
 		// This wraps Gro's `test` task, but it doesn't have to!
-		await invokeTask('test', {...args, optionally: 'extendTheArgs'});
+		await invokeTask('gro/test', {...args, optionally: 'extendTheArgs'});
 		await andAfterIfYouWant();
 	},
 };
