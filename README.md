@@ -103,6 +103,10 @@ gro serve # staticly serves the current directory (or a configured one)
 ```
 
 ```bash
+gro --version # or `-v` - print the Gro version
+```
+
+```bash
 gro check # typechecks, runs tests, and ensures generated files are current
 gro typecheck # just the typechecking
 ```

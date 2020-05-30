@@ -4,6 +4,8 @@
 
 - add the `invokeTask` helper for task composition
   ([#20](https://github.com/feltcoop/gro/pull/20))
+- add CLI flags to print the Gro version with `--version` or `-v`
+  ([#21](https://github.com/feltcoop/gro/pull/21))
 
 ## 0.1.11
 

@@ -22,6 +22,7 @@ import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {PathData} from '../fs/pathData.js';
+import {getGroPackageJson} from '../project/pkg.js';
 
 /*
 
@@ -45,6 +46,13 @@ The comments describe each condition.
 
 export const invokeTask = async (taskName: string, args: Args): Promise<void> => {
 	const log = new SystemLogger([`${gray('[')}${magenta(taskName)}${gray(']')}`]);
+
+	// Check if the caller just wants to see the version.
+	if (!taskName && (args.version || args.v)) {
+		const groPackageJson = await getGroPackageJson();
+		log.info(`${gray('v')}${cyan(groPackageJson.version as string)}`);
+		return;
+	}
 
 	const timings = new Timings<'total'>();
 	timings.start('total');
