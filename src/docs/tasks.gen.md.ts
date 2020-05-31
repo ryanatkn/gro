@@ -51,11 +51,7 @@ export const gen: Gen = async ({originId}) => {
 				relative(originDir, toSourceId(relativePathPart)) || './'
 			})`,
 	);
-	const breadcrumbs =
-		'> ' +
-		[rootLink, ...pathParts, outputFileName]
-			.map((line) => `<sub>${line}</sub>`)
-			.join(' <sub>/</sub>\n');
+	const breadcrumbs = '> <sub>' + [rootLink, ...pathParts, outputFileName].join(' / ') + '</sub>';
 
 	// TODO render the footer with the originId
 	return `# tasks
