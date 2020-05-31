@@ -49,9 +49,11 @@ export const gen: Gen = async ({originId}) => {
 					relative(originDir, toSourceId(relativePathPart)) || './'
 			  })`,
 	);
-	const breadcrumbs = [rootLink, ...pathParts, outputFileName]
-		.map((line) => `> <sub>${line}</sub>`)
-		.join(' <sub>/</sub>\n');
+	const breadcrumbs =
+		'> ' +
+		[rootLink, ...pathParts, outputFileName]
+			.map((line) => `<sub>${line}</sub>`)
+			.join(' <sub>/</sub>\n');
 
 	// TODO render the footer with the originId
 	return `# docs
