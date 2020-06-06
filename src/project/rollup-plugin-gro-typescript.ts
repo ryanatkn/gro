@@ -70,7 +70,9 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 			// TypeScript doesn't allow importing `.ts` files right now.
 			// See https://github.com/microsoft/TypeScript/issues/38149
 			// This ensures that `.js` files are imported correctly from TypeScript.
-			if (importer && importee.endsWith('.js')) {
+			// Note that detection of the relative `importee` does not strictly follow conventions
+			// by allowing dot-free relative paths - this is an acceptable limitation for now.
+			if (importer && importee.endsWith('.js') && importee.startsWith('.')) {
 				const resolvedPath = resolve(importer, '../', importee);
 				if (isSourceId(resolvedPath)) {
 					return toSourceExt(resolvedPath);

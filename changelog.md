@@ -1,10 +1,16 @@
 # Gro changelog
 
+## 0.1.14
+
+- correctly fix `.js` module resolution where
+  [#24](https://github.com/feltcoop/gro/pull/24) failed
+  ([#25](https://github.com/feltcoop/gro/pull/25))
+
 ## 0.1.13
 
 - change assertions `t.is` and `t.equal` to use a shared generic type for extra safety
   ([#22](https://github.com/feltcoop/gro/pull/22))
-- fix .js module resolution in the Rollup TypeScript plugin
+- fix `.js` module resolution in the Rollup TypeScript plugin
   ([#24](https://github.com/feltcoop/gro/pull/24))
 
 ## 0.1.12
