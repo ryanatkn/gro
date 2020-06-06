@@ -13,7 +13,7 @@ export const ok: (value: any) => asserts value = (value) => {
 	}
 };
 
-export const is = (actual: any, expected: any): void => {
+export const is = <T>(actual: T, expected: T): void => {
 	if (!Object.is(actual, expected)) {
 		throw new AssertionError({operator: AssertionOperator.is, actual, expected});
 	}
@@ -25,7 +25,7 @@ export const isNot = (actual: any, expected: any): void => {
 	}
 };
 
-export const equal = (actual: any, expected: any): void => {
+export const equal = <T>(actual: T, expected: T): void => {
 	if (!deepEqual(actual, expected)) {
 		throw new AssertionError({operator: AssertionOperator.equal, actual, expected});
 	}
