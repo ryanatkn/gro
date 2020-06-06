@@ -4,6 +4,8 @@
 
 - change assertions `t.is` and `t.equal` to use a shared generic type for extra safety
   ([#22](https://github.com/feltcoop/gro/pull/22))
+- fix .js module resolution in the Rollup TypeScript plugin
+  ([#24](https://github.com/feltcoop/gro/pull/24))
 
 ## 0.1.12
 

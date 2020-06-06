@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import {Plugin, PluginContext} from 'rollup';
+import {resolve} from 'path';
 import rollupPluginutils from '@rollup/pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
 
@@ -7,7 +8,7 @@ import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
-import {toRootPath} from '../paths.js';
+import {toRootPath, isSourceId, toSourceExt} from '../paths.js';
 import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -65,6 +66,18 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 
 	return {
 		name,
+		resolveId(importee, importer) {
+			// TypeScript doesn't allow importing `.ts` files right now.
+			// See https://github.com/microsoft/TypeScript/issues/38149
+			// This ensures that `.js` files are imported correctly from TypeScript.
+			if (importer && importee.endsWith('.js')) {
+				const resolvedPath = resolve(importer, '../', importee);
+				if (isSourceId(resolvedPath)) {
+					return toSourceExt(resolvedPath);
+				}
+			}
+			return null;
+		},
 		async transform(code, id) {
 			if (!filter(id)) return null;
 
