@@ -1,8 +1,8 @@
 # Gro changelog
 
-## 0.1.15
+## 0.2.0
 
-- upgrade `kleur` dep and remove color wrappers
+- **breaking:** upgrade `kleur` dep and remove color wrappers
   [#26](https://github.com/feltcoop/gro/pull/26)
 
 ## 0.1.14
