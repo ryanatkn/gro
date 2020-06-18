@@ -1,8 +1,8 @@
 import {join} from 'path';
+import {magenta} from 'kleur/colors';
 
 import {copy} from '../fs/nodeFs.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {magenta} from '../colors/terminal.js';
 import {omitUndefined} from '../utils/object.js';
 import {findFiles} from '../fs/nodeFs.js';
 import {paths, toDistId, SOURCE_DIR_NAME, BUILD_DIR_NAME, SOURCE_DIR, BUILD_DIR} from '../paths.js';

@@ -1,3 +1,5 @@
+import {red} from 'kleur/colors';
+
 import {GenModuleMeta} from './genModule.js';
 import {
 	GenResults,
@@ -9,7 +11,6 @@ import {
 } from './gen.js';
 import {printPath} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
-import {red} from '../colors/terminal.js';
 
 export const runGen = async (
 	genModules: GenModuleMeta[],

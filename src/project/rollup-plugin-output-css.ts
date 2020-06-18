@@ -1,9 +1,9 @@
 import {Plugin} from 'rollup';
 import {dirname, join, relative} from 'path';
 import sourcemapCodec from 'sourcemap-codec';
+import {blue, gray} from 'kleur/colors';
 
 import {outputFile} from '../fs/nodeFs.js';
-import {blue, gray} from '../colors/terminal.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {GroCssBuild, GroCssBundle} from './types.js';
 import {omitUndefined} from '../utils/object.js';

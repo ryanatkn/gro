@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.0
+
+- **breaking:** upgrade `kleur` dep and remove color wrappers
+  [#26](https://github.com/feltcoop/gro/pull/26)
+
 ## 0.1.14
 
 - correctly fix `.js` module resolution where

@@ -1,5 +1,6 @@
+import {cyan, magenta, red, gray} from 'kleur/colors';
+
 import {SystemLogger} from '../utils/log.js';
-import {cyan, magenta, red, gray} from '../colors/terminal.js';
 import {TaskModuleMeta} from './taskModule.js';
 import {Args} from '../cli/types.js';
 import {TaskError} from './task.js';

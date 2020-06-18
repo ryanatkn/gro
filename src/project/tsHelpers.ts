@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import {dirname} from 'path';
+import {black, bgRed} from 'kleur/colors';
 
-import {black, bgRed} from '../colors/terminal.js';
 import {Logger} from '../utils/log.js';
 
 // confusingly, TypeScript doesn't seem to be a good type for this

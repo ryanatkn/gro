@@ -52,7 +52,7 @@
     "@types/source-map-support": "^0.5.1",
     "cheap-watch": "^1.0.2",
     "fs-extra": "^9.0.0",
-    "kleur": "^3.0.3",
+    "kleur": "^4.0.0",
     "mri": "^1.1.5",
     "rollup-plugin-commonjs": "^10.1.0",
     "source-map-support": "^0.5.16",

@@ -1,5 +1,6 @@
+import {red} from 'kleur/colors';
+
 import {pathExists, stat} from './nodeFs.js';
-import {red} from '../colors/terminal.js';
 import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import {Timings} from '../utils/time.js';

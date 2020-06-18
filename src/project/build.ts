@@ -10,8 +10,9 @@ import {
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from 'rollup-plugin-commonjs';
 import {resolve} from 'path';
+import {magenta} from 'kleur/colors';
 
-import {magenta, rainbow} from '../colors/terminal.js';
+import {rainbow} from '../colors/terminal.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/string.js';
