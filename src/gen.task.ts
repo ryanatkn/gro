@@ -1,6 +1,7 @@
+import {red, green, gray} from 'kleur/colors';
+
 import {outputFile} from './fs/nodeFs.js';
 import {Task, TaskError} from './task/task.js';
-import {red, green, gray} from './colors/terminal.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {printPath, printMs, printError, printSubTiming} from './utils/print.js';

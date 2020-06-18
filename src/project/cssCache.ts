@@ -1,4 +1,5 @@
-import {green} from '../colors/terminal.js';
+import {green} from 'kleur/colors';
+
 import {SystemLogger} from '../utils/log.js';
 import {printKeyValue, printPath} from '../utils/print.js';
 

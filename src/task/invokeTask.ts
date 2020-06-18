@@ -1,8 +1,8 @@
-import {spawnProcess} from '../utils/process.js';
+import {magenta, cyan, red, gray} from 'kleur/colors';
 
+import {spawnProcess} from '../utils/process.js';
 import {Args} from '../cli/types';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {magenta, cyan, red, gray} from '../colors/terminal.js';
 import {runTask} from './runTask.js';
 import {Timings} from '../utils/time.js';
 import {printMs, printPath, printPathOrGroPath, printSubTiming} from '../utils/print.js';

@@ -1,4 +1,5 @@
-import {green, red, bgGreen, black, yellow, gray, cyan} from '../colors/terminal.js';
+import {green, red, bgGreen, black, yellow, gray, cyan} from 'kleur/colors';
+
 import {TestContext, TOTAL_TIMING, TestInstance} from './TestContext.js';
 import {printMs, printValue, printStr, printError} from '../utils/print.js';
 import {toSourcePath} from '../paths.js';
