@@ -26,8 +26,7 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
 			if (a === null) return b === null;
 			if (b === null) return a === null;
 
-			// TODO what other types should be supported?
-			// maybe look for array-like w/ length and assume indexing works?
+			// TODO might want to duck-type Array-likes to speed up e.g. typed array checking
 
 			if (a instanceof Array) {
 				if (!(b instanceof Array)) return false;

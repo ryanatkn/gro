@@ -17,6 +17,7 @@ test('deepEqual()', () => {
 		['arrays', [1, 'a'], [1, 'a']],
 		['empty arrays', [], []],
 		['nested arrays', [1, [[[[1, 'd'], 'c'], 'b'], 'a']], [1, [[[[1, 'd'], 'c'], 'b'], 'a']]],
+		['typed arrays', new Uint8Array([1, 2, 3]), new Uint8Array([1, 2, 3])],
 		['objects', {a: 1, b: 2}, {a: 1, b: 2}],
 		['objects with shuffled keys', {a: 1, b: 2}, {b: 2, a: 1}],
 		[
@@ -72,6 +73,11 @@ test('!deepEqual()', () => {
 		['arrays with differently sorted elements', [1, 'a'], ['a', 1]],
 		['arrays with different types', [1, 2, 3], [1, '2', 3]],
 		['nested arrays', [1, [[[[1, 'd'], 'c'], 'b'], 'a']], [1, [[[[1, 'D'], 'c'], 'b'], 'a']]],
+		[
+			'typed arrays with differently sorted elements',
+			new Uint8Array([1, 2, 3]),
+			new Uint8Array([1, 3, 2]),
+		],
 		['objects with different key counts', {a: 1}, {a: 1, b: 2}],
 		['objects with differently named keys', {a: 1, b: 2}, {a: 1, c: 2}],
 		['objects with different values', {a: 1, b: 2}, {a: 1, b: 3}],
