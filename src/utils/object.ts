@@ -1,4 +1,4 @@
-import {deepEqual} from './deepEqual.js';
+export {objectsEqual} from './deepEqual.js';
 
 // Iterated keys in `for..in` are always returned as strings,
 // so to prevent usage errors the key type of `mapFn` is always a string.
@@ -58,14 +58,4 @@ export const reorder = <T extends Record<K, any>, K extends string | number>(
 	// a `Set` to track what's already been added
 	for (const k in obj) result[k] = obj[k];
 	return result;
-};
-
-export const objectsEqual = (a: object, b: object): boolean => {
-	const aKeys = Object.keys(a);
-	if (aKeys.length !== Object.keys(b).length) return false;
-	for (const key of aKeys) {
-		if (!(key in b)) return false;
-		if (!deepEqual((a as any)[key], (b as any)[key])) return false;
-	}
-	return true;
 };

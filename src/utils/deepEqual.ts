@@ -1,9 +1,4 @@
 import {UnreachableError} from './error.js';
-import {arraysEqual} from './array.js';
-import {objectsEqual} from './object.js';
-import {mapsEqual} from './map.js';
-import {setsEqual} from './set.js';
-import {regexpsEqual} from './regexp.js';
 
 export const deepEqual = (a: unknown, b: unknown): boolean => {
 	if (Object.is(a, b)) return true;
@@ -50,3 +45,39 @@ export const deepEqual = (a: unknown, b: unknown): boolean => {
 			throw new UnreachableError(aType);
 	}
 };
+
+export const objectsEqual = (a: object, b: object): boolean => {
+	const aKeys = Object.keys(a);
+	if (aKeys.length !== Object.keys(b).length) return false;
+	for (const key of aKeys) {
+		if (!(key in b)) return false;
+		if (!deepEqual((a as any)[key], (b as any)[key])) return false;
+	}
+	return true;
+};
+
+export const arraysEqual = (a: Array<any>, b: Array<any>): boolean => {
+	if (a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) {
+		if (!deepEqual(a[i], b[i])) return false;
+	}
+	return true;
+};
+
+// Two sets containing deeply equal objects, but different references,
+// are considered not equal to each other.
+export const setsEqual = (a: Set<unknown>, b: Set<unknown>): boolean => {
+	if (a.size !== b.size) return false;
+	for (const aVal of a) {
+		if (!b.has(aVal)) return false;
+	}
+	return true;
+};
+
+export const mapsEqual = (a: Map<any, any>, b: Map<any, any>): boolean => {
+	if (a.size !== b.size) return false;
+	return arraysEqual([...a], [...b]);
+};
+
+export const regexpsEqual = (a: RegExp, b: RegExp): boolean =>
+	a.source === b.source && a.flags === b.flags;
