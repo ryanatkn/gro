@@ -5,12 +5,6 @@ import {mapsEqual} from './map.js';
 import {setsEqual} from './set.js';
 import {regexpsEqual} from './regexp.js';
 
-// This is NOT a comprehensive `deepEqual`,
-// but I don't want to take on the bulk
-// of a 2000 line `loadsh` function or the 10 deps of `deep-equal`.
-
-// TODO benchmark!
-
 export const deepEqual = (a: unknown, b: unknown): boolean => {
 	if (Object.is(a, b)) return true;
 

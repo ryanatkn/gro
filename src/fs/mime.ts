@@ -57,6 +57,8 @@ export const removeMimeTypeExtension = (extension: string): boolean => {
 	const types: [string, string[]][] = [
 		// Since 'application/octet-stream' is the default, we don't include it.
 		['application/json', ['json']],
+		['application/schema+json', ['json']],
+		['application/schema-instance+json', ['json']],
 		['application/ld+json', ['jsonld']],
 		['application/xml', ['xml']],
 		['application/xhtml+xml', ['xhtml']],
@@ -101,7 +103,9 @@ export const removeMimeTypeExtension = (extension: string): boolean => {
 		['image/tiff', ['tif', 'tiff']],
 		['image/webp', ['webp']],
 	];
-	for (const [mimeType, extensions] of types) {
+	// Iterate in reverse order so the first declaration of each extension supercedes later ones.
+	for (let i = types.length - 1; i >= 0; i--) {
+		const [mimeType, extensions] = types[i];
 		for (const extension of extensions) {
 			addMimeTypeExtension(mimeType, extension);
 		}

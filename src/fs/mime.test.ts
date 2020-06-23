@@ -12,11 +12,13 @@ test('extToMimeType()', () => {
 	t.is(getMimeTypeByExtension('log'), 'text/plain');
 	t.is(getMimeTypeByExtension('js'), 'text/javascript');
 	t.is(getMimeTypeByExtension('mjs'), 'text/javascript');
+	t.is(getMimeTypeByExtension('json'), 'application/json');
 	t.is(getMimeTypeByExtension('fakeext'), null);
 });
 
 test('mimeTypeToExts()', () => {
 	t.equal(getExtensionsByMimeType('text/plain'), ['txt', 'log']);
+	t.equal(getExtensionsByMimeType('application/json'), ['json']);
 	t.equal(getExtensionsByMimeType('text/javascript'), ['js', 'mjs']);
 	t.equal(getExtensionsByMimeType('fake/test-type'), null);
 });
