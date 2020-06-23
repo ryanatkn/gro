@@ -56,10 +56,20 @@ export const objectsEqual = (a: object, b: object): boolean => {
 	return true;
 };
 
-export const arraysEqual = (a: Array<any>, b: Array<any>): boolean => {
+export const arraysEqual = (a: Array<unknown>, b: Array<unknown>): boolean => {
 	if (a.length !== b.length) return false;
 	for (let i = 0; i < a.length; i++) {
 		if (!deepEqual(a[i], b[i])) return false;
+	}
+	return true;
+};
+
+// Two maps containing deeply equal object keys, but different references,
+// are considered not equal to each other.
+export const mapsEqual = (a: Map<unknown, unknown>, b: Map<unknown, unknown>): boolean => {
+	if (a.size !== b.size) return false;
+	for (const [key, aValue] of a) {
+		if (!b.has(key) || !deepEqual(aValue, b.get(key))) return false;
 	}
 	return true;
 };
@@ -68,15 +78,10 @@ export const arraysEqual = (a: Array<any>, b: Array<any>): boolean => {
 // are considered not equal to each other.
 export const setsEqual = (a: Set<unknown>, b: Set<unknown>): boolean => {
 	if (a.size !== b.size) return false;
-	for (const aVal of a) {
-		if (!b.has(aVal)) return false;
+	for (const aValue of a) {
+		if (!b.has(aValue)) return false;
 	}
 	return true;
-};
-
-export const mapsEqual = (a: Map<any, any>, b: Map<any, any>): boolean => {
-	if (a.size !== b.size) return false;
-	return arraysEqual([...a], [...b]);
 };
 
 export const regexpsEqual = (a: RegExp, b: RegExp): boolean =>

@@ -20,7 +20,7 @@ test('mapsEqual()', () => {
 	});
 	test('different order', () => {
 		t.ok(
-			!mapsEqual(
+			mapsEqual(
 				new Map([
 					['a', 1],
 					['b', 2],
@@ -78,6 +78,22 @@ test('mapsEqual()', () => {
 			),
 		);
 	});
+	test('undefined values with different keys', () => {
+		t.ok(
+			!mapsEqual(
+				new Map([
+					[1, undefined],
+					[2, undefined],
+					[3, undefined],
+				]),
+				new Map([
+					[1, undefined],
+					[2, undefined],
+					[4, undefined],
+				]),
+			),
+		);
+	});
 	test('more elements', () => {
 		t.ok(
 			!mapsEqual(
@@ -114,14 +130,14 @@ test('mapsEqual()', () => {
 		t.ok(
 			mapsEqual(
 				new Map([
-					[['a'], [{a: 1, b: 2}]],
-					[['b'], {b: 2}],
-					[['c'], {c: 3}],
+					['a', [{a: 1, b: 2}]],
+					['b', {b: 2}],
+					['c', {c: [3]}],
 				]),
 				new Map([
-					[['a'], [{a: 1, b: 2}]],
-					[['b'], {b: 2}],
-					[['c'], {c: 3}],
+					['a', [{a: 1, b: 2}]],
+					['b', {b: 2}],
+					['c', {c: [3]}],
 				]),
 			),
 		);

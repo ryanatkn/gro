@@ -33,15 +33,15 @@ test('deepEqual()', () => {
 		],
 		[
 			'maps',
-			new Map<string[], any>([
-				[['a'], 1],
-				[['b'], 2],
-				[['c'], [1, [2, 3]]],
+			new Map<string, any>([
+				['a', 1],
+				['b', 2],
+				['c', [1, [2, 3]]],
 			]),
-			new Map<string[], any>([
-				[['a'], 1],
-				[['b'], 2],
-				[['c'], [1, [2, 3]]],
+			new Map<string, any>([
+				['a', 1],
+				['b', 2],
+				['c', [1, [2, 3]]],
 			]),
 		],
 		['regexps', /a/, /a/],
