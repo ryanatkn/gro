@@ -2,7 +2,7 @@ import CheapWatch from 'cheap-watch';
 import fsExtra from 'fs-extra';
 
 import {PathStats, PathFilter} from './pathData.js';
-import {sortMapByKey, compareSimpleMapEntries} from '../utils/map.js';
+import {sortMap, compareSimpleMapEntries} from '../utils/map.js';
 
 // TODO should this API be changed to only include files and not directories?
 // or maybe change the name so it's not misleading?
@@ -21,7 +21,7 @@ export const findFiles = async (
 	});
 	await watcher.init();
 	watcher.close();
-	return sort ? sortMapByKey(watcher.paths, sort) : watcher.paths;
+	return sort ? sortMap(watcher.paths, sort) : watcher.paths;
 };
 
 /*
