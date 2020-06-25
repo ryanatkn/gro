@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.1
+
+- add type helpers `Branded` and `Flavored` for nominal-ish typing
+  ([#23](https://github.com/feltcoop/gro/pull/23))
+
 ## 0.2.0
 
 - **breaking:** upgrade `kleur` dep and remove color wrappers

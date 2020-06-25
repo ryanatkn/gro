@@ -23,3 +23,36 @@ declare type PartialOnly<T, K extends keyof T> = {[P in K]?: T[P]} &
 declare type PartialValues<T> = {
 	[P in keyof T]: Partial<T[P]>;
 };
+
+/*
+
+The `Flavored` and `Branded` type helpers add varying degrees of nominal typing to other types.
+This is especially useful with primitives like strings and numbers.
+
+```ts
+type PhoneNumber = Branded<string, 'PhoneNumber'>;
+const phone1: PhoneNumber = 'foo'; // error!
+const phone2: PhoneNumber = 'foo' as PhoneNumber; // ok
+```
+
+`Flavored` is a looser form of `Branded` that trades safety for ergonomics.
+With `Flavored` you don't need to cast unflavored types:
+
+```ts
+type Email = Flavored<string, 'Email'>;
+const email1: Email = 'foo'; // ok
+type Address = Flavored<string, 'Address'>;
+const email2: Email = 'foo' as Address; // error!
+```
+
+*/
+declare type Branded<TValue, TName> = TValue & Brand<TName>;
+declare type Flavored<TValue, TName> = TValue & Flavor<TName>;
+declare interface Brand<T> {
+	readonly [BrandedSymbol]: T;
+}
+declare interface Flavor<T> {
+	readonly [FlavoredSymbol]?: T;
+}
+declare const BrandedSymbol: unique symbol;
+declare const FlavoredSymbol: unique symbol;
