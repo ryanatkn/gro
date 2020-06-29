@@ -3,8 +3,8 @@ import {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
 import rollupPluginutils from '@rollup/pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
-import {magenta, red} from 'kleur/colors';
 
+import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';

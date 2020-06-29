@@ -1,5 +1,4 @@
-import {red, yellow, gray, black, bgYellow, bgRed} from 'kleur/colors';
-
+import {red, yellow, gray, black, bgYellow, bgRed} from '../colors/terminal.js';
 import {EMPTY_ARRAY} from './array.js';
 
 // TODO track warnings/errors (or anything above a certain threshold)

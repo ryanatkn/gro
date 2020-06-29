@@ -2,8 +2,8 @@ import terser from 'terser';
 import {Plugin} from 'rollup';
 import rollupPluginutils from '@rollup/pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
-import {magenta} from 'kleur/colors';
 
+import {magenta} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';

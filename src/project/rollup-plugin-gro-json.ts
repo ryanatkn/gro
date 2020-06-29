@@ -1,8 +1,8 @@
 import {Plugin} from 'rollup';
 import rollupPluginutils from '@rollup/pluginutils';
 const {createFilter, dataToEsm} = rollupPluginutils; // TODO esm
-import {magenta} from 'kleur/colors';
 
+import {magenta} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';

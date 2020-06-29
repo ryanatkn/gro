@@ -1,5 +1,4 @@
-import {magenta, cyan, red, gray} from 'kleur/colors';
-
+import {magenta, cyan, red, gray} from '../colors/terminal.js';
 import {spawnProcess} from '../utils/process.js';
 import {Args} from '../cli/types';
 import {SystemLogger, Logger} from '../utils/log.js';
