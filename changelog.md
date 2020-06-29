@@ -1,5 +1,11 @@
 # Gro changelog
 
+## 0.2.3
+
+- fix external module type declarations by merging
+  `src/project/globalTypes.d.ts` into `src/globalTypes.ts`
+  ([#28](https://github.com/feltcoop/gro/pull/28))
+
 ## 0.2.2
 
 - export `kleur/colors` from `src/colors/terminal.js`
