@@ -1,5 +1,4 @@
-import {gray, white, green, yellow} from 'kleur/colors';
-
+import {gray, white, green, yellow} from '../colors/terminal.js';
 import {round} from '../utils/math.js';
 import {paths, toRootPath, groDirBasename, pathsFromId, groPaths} from '../paths.js';
 import {truncate} from './string.js';

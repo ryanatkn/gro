@@ -1,6 +1,6 @@
 import {spawn, SpawnOptions} from 'child_process';
-import {red} from 'kleur/colors';
 
+import {red} from '../colors/terminal.js';
 import {SystemLogger} from './log.js';
 import {printError} from './print.js';
 

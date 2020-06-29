@@ -4,8 +4,8 @@ import {CompileOptions, Warning} from 'svelte/types/compiler/interfaces';
 import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
 import rollupPluginutils from '@rollup/pluginutils';
 const {createFilter} = rollupPluginutils; // TODO esm
-import {magenta, yellow, red} from 'kleur/colors';
 
+import {magenta, yellow, red} from '../colors/terminal.js';
 import {getPathStem, replaceExt} from '../utils/path.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';

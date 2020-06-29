@@ -1,6 +1,6 @@
 import {join} from 'path';
-import {magenta} from 'kleur/colors';
 
+import {magenta} from '../colors/terminal.js';
 import {copy} from '../fs/nodeFs.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {omitUndefined} from '../utils/object.js';

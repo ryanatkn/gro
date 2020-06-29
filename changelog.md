@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.2
+
+- export `kleur/colors` from `src/colors/terminal.js`
+  ([#27](https://github.com/feltcoop/gro/pull/27))
+
 ## 0.2.1
 
 - add type helpers `Branded` and `Flavored` for nominal-ish typing
