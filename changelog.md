@@ -2,7 +2,7 @@
 
 ## 0.2.3
 
-- fix external module declarations by merging
+- fix external module type declarations by merging
   `src/project/globalTypes.d.ts` into `src/globalTypes.ts`
   ([#28](https://github.com/feltcoop/gro/pull/28))
 
