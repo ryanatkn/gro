@@ -22,7 +22,7 @@ export interface ModuleMeta<ModuleType = Obj> {
 	mod: ModuleType;
 }
 
-export type LoadModuleResult<T> = {ok: true; mod: T} | LoadModuleFailure;
+export type LoadModuleResult<T> = Result<{mod: T}, LoadModuleFailure>;
 export type LoadModuleFailure =
 	| {ok: false; type: 'importFailed'; id: string; error: Error}
 	| {ok: false; type: 'invalid'; id: string; mod: Obj; validation: string};
@@ -43,46 +43,42 @@ export const loadModule = async <T>(
 	return {ok: true, mod: {id, mod}};
 };
 
-export type FindModulesResult = FindModulesSuccess | FindModulesFailure;
-export type FindModulesSuccess = {
-	ok: true;
-	sourceIdsByInputPath: Map<string, string[]>;
-	sourceIdPathDataByInputPath: Map<string, PathData>;
-	timings: Timings<FindModulesTimings>;
-};
-export type FindModulesFailure =
+export type FindModulesResult = Result<
+	{
+		sourceIdsByInputPath: Map<string, string[]>;
+		sourceIdPathDataByInputPath: Map<string, PathData>;
+		timings: Timings<FindModulesTimings>;
+	},
 	| {
-			ok: false;
 			type: 'unmappedInputPaths';
 			sourceIdPathDataByInputPath: Map<string, PathData>;
 			unmappedInputPaths: string[];
 			reasons: string[];
 	  }
 	| {
-			ok: false;
 			type: 'inputDirectoriesWithNoFiles';
 			sourceIdsByInputPath: Map<string, string[]>;
 			sourceIdPathDataByInputPath: Map<string, PathData>;
 			inputDirectoriesWithNoFiles: string[];
 			reasons: string[];
-	  };
+	  }
+>;
 type FindModulesTimings = 'map input paths' | 'find files';
 
-export type LoadModulesResult<ModuleMetaType extends ModuleMeta> =
-	| {
-			ok: true;
-			modules: ModuleMetaType[];
-			timings: Timings<LoadModulesTimings>;
-	  }
-	| {
-			ok: false;
-			type: 'loadModuleFailures';
-			loadModuleFailures: LoadModuleFailure[];
-			reasons: string[];
-			// still return the modules and timings, deferring to the caller
-			modules: ModuleMetaType[];
-			timings: Timings<LoadModulesTimings>;
-	  };
+export type LoadModulesResult<ModuleMetaType extends ModuleMeta> = Result<
+	{
+		modules: ModuleMetaType[];
+		timings: Timings<LoadModulesTimings>;
+	},
+	{
+		type: 'loadModuleFailures';
+		loadModuleFailures: LoadModuleFailure[];
+		reasons: string[];
+		// still return the modules and timings, deferring to the caller
+		modules: ModuleMetaType[];
+		timings: Timings<LoadModulesTimings>;
+	}
+>;
 type LoadModulesTimings = 'load modules';
 
 /*
