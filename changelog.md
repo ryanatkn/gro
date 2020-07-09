@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.4
+
+- add `Result` type helper to `src/globalTypes.ts`
+  ([#29](https://github.com/feltcoop/gro/pull/29))
+
 ## 0.2.3
 
 - fix external module type declarations by merging

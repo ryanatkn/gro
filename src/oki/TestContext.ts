@@ -31,14 +31,10 @@ export interface TestInstanceContext {
 	log: Logger;
 }
 
-export type TestResult = TestResultSuccess | TestResultFailure;
-export type TestResultSuccess = {
-	ok: true;
-};
-export type TestResultFailure = {
-	ok: false;
-	error: Error; // is an `AssertionError` or some runtime error
-};
+export type TestResult = Result<
+	{},
+	{error: Error} // is an `AssertionError` or some runtime error
+>;
 export interface TestStats {
 	passCount: number;
 	failCount: number;

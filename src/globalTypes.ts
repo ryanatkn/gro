@@ -24,6 +24,8 @@ declare type PartialValues<T> = {
 	[P in keyof T]: Partial<T[P]>;
 };
 
+declare type Result<TValue = {}, TError = {}> = ({ok: true} & TValue) | ({ok: false} & TError);
+
 /*
 
 The `Flavored` and `Branded` type helpers add varying degrees of nominal typing to other types.
