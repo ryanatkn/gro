@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.5
+
+- add `randomFloat` utility
+  ([#30](https://github.com/feltcoop/gro/pull/30))
+
 ## 0.2.4
 
 - add `Result` type helper to `src/globalTypes.ts`

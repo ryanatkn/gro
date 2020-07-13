@@ -1,5 +1,15 @@
 import {test, t} from '../oki/oki.js';
-import {randomInt, randomItem} from './random.js';
+import {randomFloat, randomInt, randomItem} from './random.js';
+
+test('randomFloat()', () => {
+	test('-5.5 to 7', () => {
+		for (let i = 0; i < 20; i++) {
+			const result = randomFloat(-5.5, 7);
+			t.ok(result >= -5.5);
+			t.ok(result < 7);
+		}
+	});
+});
 
 test('randomInt()', () => {
 	test('0 to 1', () => {
