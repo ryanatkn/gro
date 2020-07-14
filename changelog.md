@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.6
+
+- add `uuid` utilities
+  ([#31](https://github.com/feltcoop/gro/pull/31))
+
 ## 0.2.5
 
 - add `randomFloat` utility
