@@ -1,7 +1,6 @@
 import terser from 'terser';
 import {Plugin} from 'rollup';
-import rollupPluginutils from '@rollup/pluginutils';
-const {createFilter} = rollupPluginutils; // TODO esm
+import {createFilter} from '@rollup/pluginutils';
 
 import {magenta} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';

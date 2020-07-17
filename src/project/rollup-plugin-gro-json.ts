@@ -1,6 +1,5 @@
 import {Plugin} from 'rollup';
-import rollupPluginutils from '@rollup/pluginutils';
-const {createFilter, dataToEsm} = rollupPluginutils; // TODO esm
+import {createFilter, dataToEsm} from '@rollup/pluginutils';
 
 import {magenta} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';

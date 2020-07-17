@@ -1,8 +1,7 @@
 import {Plugin} from 'rollup';
 import {resolve, dirname} from 'path';
 import {existsSync} from 'fs';
-import rollupPluginutils from '@rollup/pluginutils';
-const {createFilter} = rollupPluginutils; // TODO esm
+import {createFilter} from '@rollup/pluginutils';
 
 import {green} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';

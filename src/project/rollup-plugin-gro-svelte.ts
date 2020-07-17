@@ -2,8 +2,7 @@ import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions, Warning} from 'svelte/types/compiler/interfaces';
 import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
-import rollupPluginutils from '@rollup/pluginutils';
-const {createFilter} = rollupPluginutils; // TODO esm
+import {createFilter} from '@rollup/pluginutils';
 
 import {magenta, yellow, red} from '../colors/terminal.js';
 import {getPathStem, replaceExt} from '../utils/path.js';

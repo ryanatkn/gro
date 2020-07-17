@@ -1,8 +1,7 @@
 import ts from 'typescript';
 import {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
-import rollupPluginutils from '@rollup/pluginutils';
-const {createFilter} = rollupPluginutils; // TODO esm
+import {createFilter} from '@rollup/pluginutils';
 
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
