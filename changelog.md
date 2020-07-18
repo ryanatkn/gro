@@ -3,7 +3,7 @@
 ## 0.2.7
 
 - enable sourcemaps for build in development mode
-  ([#32](https://github.com/feltcoop/gro/pull/32))
+  ([#33](https://github.com/feltcoop/gro/pull/33))
 
 ## 0.2.6
 
