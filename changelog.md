@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.7
+
+- enable sourcemaps for build in development mode
+  ([#33](https://github.com/feltcoop/gro/pull/33))
+
 ## 0.2.6
 
 - add `uuid` utilities

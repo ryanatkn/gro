@@ -145,7 +145,7 @@ const createInputOptions = (inputFile: string, {dev}: Options, _log: Logger): In
 	return inputOptions;
 };
 
-const createOutputOptions = ({outputDir}: Options, log: Logger): OutputOptions => {
+const createOutputOptions = ({outputDir, dev}: Options, log: Logger): OutputOptions => {
 	const outputOptions: OutputOptions = {
 		// — core output options
 		dir: outputDir,
@@ -166,7 +166,7 @@ const createOutputOptions = ({outputDir}: Options, log: Logger): OutputOptions =
 		// intro,
 		// outro,
 		// paths,
-		// sourcemap,
+		sourcemap: dev,
 		// sourcemapExcludeSources,
 		// sourcemapFile,
 		// sourcemapPathTransform,
