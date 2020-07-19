@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.8
+
+- upgrade peer dependencies
+  ([#34](https://github.com/feltcoop/gro/pull/34))
+
 ## 0.2.7
 
 - enable sourcemaps for build in development mode
