@@ -48,33 +48,33 @@
     "@lukeed/uuid": "^1.0.1",
     "@rollup/plugin-node-resolve": "^7.1.3",
     "@rollup/pluginutils": "^3.1.0",
-    "@types/fs-extra": "^8.1.0",
-    "@types/node": "^12.12.38",
-    "@types/source-map-support": "^0.5.1",
+    "@types/fs-extra": "^9.0.1",
+    "@types/node": "^12.12.50",
+    "@types/source-map-support": "^0.5.2",
     "cheap-watch": "^1.0.2",
-    "fs-extra": "^9.0.0",
-    "kleur": "^4.0.0",
-    "mri": "^1.1.5",
+    "fs-extra": "^9.0.1",
+    "kleur": "^4.0.2",
+    "mri": "^1.1.6",
     "rollup-plugin-commonjs": "^10.1.0",
     "source-map-support": "^0.5.16",
     "sourcemap-codec": "^1.4.8",
-    "terser": "^4.6.13"
+    "terser": "^4.8.0"
   },
   "peerDependencies": {
-    "rollup": "^2.8.2",
-    "svelte": "^3.22.2",
-    "typescript": "^3.9.2",
+    "rollup": "^2.22.1",
+    "svelte": "^3.24.0",
+    "typescript": "^3.9.7",
     "prettier": "^2.0.5",
     "prettier-plugin-svelte": "^1.1.0"
   },
   "devDependencies": {
-    "@types/prettier": "^1.19.1",
+    "@types/prettier": "^2.0.2",
     "prettier": "^2.0.5",
     "prettier-plugin-svelte": "^1.1.0",
-    "rollup": "^2.8.2",
-    "svelte": "^3.22.2",
+    "rollup": "^2.22.1",
+    "svelte": "^3.24.0",
     "tslib": "^2.0.0",
-    "typescript": "^3.9.2"
+    "typescript": "^3.9.7"
   },
   "prettier": {
     "useTabs": true,
