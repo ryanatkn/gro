@@ -18,7 +18,7 @@ import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/string.js';
 import {plainCssPlugin} from './rollup-plugin-plain-css.js';
 import {outputCssPlugin} from './rollup-plugin-output-css.js';
-import {createCssCache} from './cssCache.js';
+import {createCssCache, CssCache} from './cssCache.js';
 import {groJsonPlugin} from './rollup-plugin-gro-json.js';
 import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
 import {groTypescriptPlugin} from './rollup-plugin-gro-typescript.js';
@@ -27,12 +27,17 @@ import {GroCssBuild} from './types.js';
 import {sveltePreprocessTypescript} from './svelte-preprocess-typescript.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
+import {identity} from '../utils/function.js';
 
 export interface Options {
 	dev: boolean;
 	inputFiles: string[];
 	outputDir: string;
 	watch: boolean;
+	mapInputOptions: MapInputOptions;
+	mapOutputOptions: MapOutputOptions;
+	mapWatchOptions: MapWatchOptions;
+	cssCache: CssCache<GroCssBuild>;
 }
 export type RequiredOptions = never;
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -41,12 +46,19 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	inputFiles: [resolve('index.ts')],
 	outputDir: resolve('dist/'),
 	watch: true,
+	mapInputOptions: identity,
+	mapOutputOptions: identity,
+	mapWatchOptions: identity,
+	cssCache: opts.cssCache || createCssCache(),
 	...omitUndefined(opts),
 });
 
 interface Build {
 	promise: Promise<void>;
 }
+export type MapInputOptions = (o: InputOptions, b: Options) => InputOptions;
+export type MapOutputOptions = (o: OutputOptions, b: Options) => OutputOptions;
+export type MapWatchOptions = (o: RollupWatchOptions, b: Options) => RollupWatchOptions;
 
 export const createBuild = (opts: InitialOptions): Build => {
 	const options = initOptions(opts);
@@ -86,13 +98,14 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 	}
 };
 
-const createInputOptions = (inputFile: string, {dev}: Options, _log: Logger): InputOptions => {
-	const cssCache = createCssCache<GroCssBuild>();
-	// TODO combine into one - mainly need to fix sourcemaps (maybe just append the unmapped css? can that be done automatically in the bundling plugin?)
-	// TODO make configurable with `gro.config.ts`
-	const addCssBuild = cssCache.addCssBuild.bind(null, 'styles.css');
+const createInputOptions = (inputFile: string, options: Options, _log: Logger): InputOptions => {
+	const {dev, cssCache} = options;
 
-	const inputOptions: InputOptions = {
+	// TODO make this extensible - how? should bundles be combined for production builds?
+	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
+	const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
+
+	const unmappedInputOptions: InputOptions = {
 		// — core input options
 		// external,
 		input: inputFile, // required
@@ -101,14 +114,14 @@ const createInputOptions = (inputFile: string, {dev}: Options, _log: Logger): In
 			groJsonPlugin({compact: !dev}),
 			groSveltePlugin({
 				dev,
-				addCssBuild,
+				addCssBuild: addSvelteCssBuild,
 				preprocessor: [sveltePreprocessTypescript()],
 				compileOptions: {
 					immutable: true,
 				},
 			}),
 			groTypescriptPlugin(),
-			plainCssPlugin({addCssBuild}),
+			plainCssPlugin({addCssBuild: addPlainCssBuild}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,
 				sourcemap: dev,
@@ -141,14 +154,15 @@ const createInputOptions = (inputFile: string, {dev}: Options, _log: Logger): In
 		// experimentalTopLevelAwait,
 		// perf
 	};
-	// trace('inputOptions', inputOptions);
+	const inputOptions = options.mapInputOptions(unmappedInputOptions, options);
+	// log.trace('inputOptions', inputOptions);
 	return inputOptions;
 };
 
-const createOutputOptions = ({outputDir, dev}: Options, log: Logger): OutputOptions => {
-	const outputOptions: OutputOptions = {
+const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
+	const unmappedOutputOptions: OutputOptions = {
 		// — core output options
-		dir: outputDir,
+		dir: options.outputDir,
 		// file,
 		format: 'esm', // required
 		// globals,
@@ -166,7 +180,7 @@ const createOutputOptions = ({outputDir, dev}: Options, log: Logger): OutputOpti
 		// intro,
 		// outro,
 		// paths,
-		sourcemap: dev,
+		sourcemap: options.dev,
 		// sourcemapExcludeSources,
 		// sourcemapFile,
 		// sourcemapPathTransform,
@@ -183,6 +197,7 @@ const createOutputOptions = ({outputDir, dev}: Options, log: Logger): OutputOpti
 		// preferConst,
 		// strict
 	};
+	const outputOptions = options.mapOutputOptions(unmappedOutputOptions, options);
 	log.trace('outputOptions', outputOptions);
 	return outputOptions;
 };
@@ -192,7 +207,7 @@ const createWatchOptions = (
 	options: Options,
 	log: Logger,
 ): RollupWatchOptions => {
-	const watchOptions: RollupWatchOptions = {
+	const unmappedWatchOptions: RollupWatchOptions = {
 		...createInputOptions(inputFile, options, log),
 		output: createOutputOptions(options, log),
 		watch: {
@@ -202,6 +217,8 @@ const createWatchOptions = (
 			// include,
 		},
 	};
+	const watchOptions = options.mapWatchOptions(unmappedWatchOptions, options);
+	// log.trace('watchOptions', watchOptions);
 	return watchOptions;
 };
 

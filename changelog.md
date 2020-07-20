@@ -2,6 +2,8 @@
 
 ## 0.2.8
 
+- make Rollup build extensible
+  ([#35](https://github.com/feltcoop/gro/pull/35))
 - upgrade peer dependencies
   ([#34](https://github.com/feltcoop/gro/pull/34))
 
