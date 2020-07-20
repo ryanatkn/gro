@@ -15,7 +15,7 @@ export type CssBundle<T extends CssBuild = CssBuild> = {
 
 export interface CssCache<T extends CssBuild = CssBuild> {
 	getCssBundles(): Map<string, CssBundle<T>>;
-	getCssBuild(bundleName: string, id: string): T | undefined;
+	getCssBuild(bundleName: string, id: string): T;
 	addCssBuild(bundleName: string, build: T): boolean;
 }
 
@@ -29,10 +29,12 @@ export const createCssCache = <T extends CssBuild = CssBuild>(): CssCache<T> => 
 		getCssBundles: () => bundles,
 		getCssBuild: (bundleName, id) => {
 			const bundle = bundles.get(bundleName);
-			if (!bundle) return undefined;
-			return bundle.buildsById.get(id);
+			if (!bundle) throw Error(`Expected to find CSS bundle name '${bundleName}'`);
+			const cssBuild = bundle.buildsById.get(id);
+			if (!cssBuild) throw Error(`Expected to find CSS build with id '${id}' for '${bundleName}'`);
+			return cssBuild;
 		},
-		addCssBuild: (bundleName, build): boolean => {
+		addCssBuild: (bundleName, build) => {
 			const {id} = build;
 			let bundle = bundles.get(bundleName);
 			if (bundle) {
