@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.10
+
+- run the clean task at the beginning of the check task
+  ([#37](https://github.com/feltcoop/gro/pull/37))
+
 ## 0.2.9
 
 - sort CSS builds to make output deterministic
