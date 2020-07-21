@@ -10,6 +10,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [build](../build.task.ts) - build the project
 - [check](../check.task.ts) - check that everything is ready to commit
 - [clean](../clean.task.ts) - remove build and temp files
+- [deploy](../deploy.task.ts) - deploy to gh-pages
 - [dev](../dev.task.ts) - start development server
 - [dist](../dist.task.ts) - create the distribution
 - [format](../format.task.ts) - format source files
