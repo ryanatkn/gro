@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.11
+
+- change the deploy task to delete `dist/` when done to avoid git worktree issues
+  ([#40](https://github.com/feltcoop/gro/pull/40))
+
 ## 0.2.10
 
 - add a default `gro deploy` task for gh-pages
