@@ -1,4 +1,5 @@
 import {Task} from './task/task.js';
+import {spawnProcess} from './utils/process.js';
 
 const DEFAULT_SERVE_DIR = 'dist/';
 
@@ -16,7 +17,11 @@ export const task: Task = {
 		// .option('-w, --watch', 'Watch for changes and rebuild')
 		// .option('-P, --production', 'Set NODE_ENV to production')
 
-		await Promise.all([invokeTask('build'), invokeTask('serve')]);
+		await Promise.all([
+			invokeTask('build'),
+			spawnProcess('node_modules/.bin/tsc', ['-w']),
+			invokeTask('serve'),
+		]);
 
 		// ...
 	},
