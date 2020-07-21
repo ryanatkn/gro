@@ -13,6 +13,7 @@ const initialFile = 'package.json';
 const TEMP_PREFIX = '__TEMP__';
 
 // TODO support other kinds of deployments
+// TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
 export const task: Task = {
 	description: 'deploy to gh-pages',
