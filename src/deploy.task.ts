@@ -63,5 +63,11 @@ export const task: Task = {
 		await spawnProcess('git', ['push', 'origin', deploymentBranch], {
 			cwd: paths.dist,
 		});
+
+		// Clean up the worktree so it doesn't interfere with development.
+		// TODO maybe add a flag to preserve these files?
+		// or maybe just create a separate `deploy` dir to avoid problems?
+		await spawnProcess('git', ['worktree', 'remove', distDirName]);
+		await spawnProcess('git', ['worktree', 'prune']);
 	},
 };
