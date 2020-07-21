@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.9
+
+- sort CSS builds to make output deterministic
+  ([#36](https://github.com/feltcoop/gro/pull/36))
+
 ## 0.2.8
 
 - make Rollup build extensible
