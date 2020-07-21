@@ -21,6 +21,7 @@ export const task: Task = {
 		process.env.NODE_ENV = 'production';
 
 		// Set up the deployment branch if necessary.
+		// If the `deploymentBranch` already exists, this is a no-op.
 		await spawnProcess(
 			`git checkout --orphan ${deploymentBranch} && ` +
 				`cp ${initialFile} ${TEMP_PREFIX}${initialFile} && ` +
