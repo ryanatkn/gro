@@ -44,7 +44,7 @@ The comments describe each condition.
 */
 
 export const invokeTask = async (taskName: string, args: Args): Promise<void> => {
-	const log = new SystemLogger([`${gray('[')}${magenta(taskName)}${gray(']')}`]);
+	const log = new SystemLogger([`${gray('[')}${magenta(taskName || 'gro')}${gray(']')}`]);
 
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {

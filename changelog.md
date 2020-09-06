@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.12
+
+- fix log message when listing all tasks
+  ([#41](https://github.com/feltcoop/gro/pull/41))
+
 ## 0.2.11
 
 - change the deploy task to delete `dist/` when done to avoid git worktree issues
