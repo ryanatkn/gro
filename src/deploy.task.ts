@@ -4,8 +4,12 @@ import {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 import {copy, pathExists} from './fs/nodeFs.js';
 import {paths} from './paths.js';
+import {printError, printPath} from './utils/print.js';
 
-// TODO customize?
+// TODO how should this be done?
+process.env.NODE_ENV = 'production';
+
+// TODO customize
 const distDirName = basename(paths.dist);
 const deploymentBranch = 'gh-pages';
 const deploymentStaticContentDir = join(paths.source, 'project/gh-pages/');
@@ -17,9 +21,8 @@ const TEMP_PREFIX = '__TEMP__';
 
 export const task: Task = {
 	description: 'deploy to gh-pages',
-	run: async ({invokeTask}): Promise<void> => {
-		// TODO how should this be done?
-		process.env.NODE_ENV = 'production';
+	run: async ({invokeTask, args, log}): Promise<void> => {
+		const {dry} = args;
 
 		// Set up the deployment branch if necessary.
 		// If the `deploymentBranch` already exists, this is a no-op.
@@ -34,9 +37,15 @@ export const task: Task = {
 			{shell: true},
 		);
 
+		const cleanGitWorktree = async (force = false): Promise<void> => {
+			const removeCommand = ['worktree', 'remove', distDirName];
+			if (force) removeCommand.push('--force');
+			await spawnProcess('git', removeCommand);
+			await spawnProcess('git', ['worktree', 'prune']);
+		};
+
 		// Clean up any existing worktree.
-		await spawnProcess('git', ['worktree', 'remove', distDirName]);
-		await spawnProcess('git', ['worktree', 'prune']);
+		await cleanGitWorktree();
 
 		// Get ready to build from scratch.
 		await invokeTask('clean');
@@ -44,30 +53,43 @@ export const task: Task = {
 		// Set up the deployment worktree in the dist directory.
 		await spawnProcess('git', ['worktree', 'add', distDirName, deploymentBranch]);
 
-		// Run the build.
-		await invokeTask('build');
+		try {
+			// Run the build.
+			await invokeTask('build');
 
-		// Copy everything from `src/project/gh-pages`. (like `CNAME` for GitHub custom domains)
-		// If any files conflict, throw an error!
-		// That should be part of the build process.
-		if (await pathExists(deploymentStaticContentDir)) {
-			await copy(deploymentStaticContentDir, paths.dist);
+			// Copy everything from `src/project/gh-pages`. (like `CNAME` for GitHub custom domains)
+			// If any files conflict, throw an error!
+			// That should be part of the build process.
+			if (await pathExists(deploymentStaticContentDir)) {
+				await copy(deploymentStaticContentDir, paths.dist);
+			}
+			await copy(initialFile, join(paths.dist, initialFile));
+		} catch (err) {
+			log.error('Build failed:', printError(err));
+			if (dry) {
+				log.info('Dry deploy failed! Files are available in', printPath(distDirName));
+			} else {
+				await cleanGitWorktree(true);
+			}
+			throw Error(`Deploy aborted due to build failure. See the error above.`);
 		}
-		await copy(initialFile, join(paths.dist, initialFile));
 
 		// At this point, `dist/` is ready to be committed and deployed!
-		await spawnProcess('git', ['add', '.'], {cwd: paths.dist});
-		await spawnProcess('git', ['commit', '-m', 'deployment'], {
-			cwd: paths.dist,
-		});
-		await spawnProcess('git', ['push', 'origin', deploymentBranch], {
-			cwd: paths.dist,
-		});
+		if (dry) {
+			log.info('Dry deploy complete! Files are available in', printPath(distDirName));
+		} else {
+			await spawnProcess('git', ['add', '.'], {cwd: paths.dist});
+			await spawnProcess('git', ['commit', '-m', 'deployment'], {
+				cwd: paths.dist,
+			});
+			await spawnProcess('git', ['push', 'origin', deploymentBranch], {
+				cwd: paths.dist,
+			});
 
-		// Clean up the worktree so it doesn't interfere with development.
-		// TODO maybe add a flag to preserve these files?
-		// or maybe just create a separate `deploy` dir to avoid problems?
-		await spawnProcess('git', ['worktree', 'remove', distDirName]);
-		await spawnProcess('git', ['worktree', 'prune']);
+			// Clean up the worktree so it doesn't interfere with development.
+			// TODO maybe add a flag to preserve these files instead of overloading `dry`?
+			// or maybe just create a separate `deploy` dir to avoid problems?
+			await cleanGitWorktree();
+		}
 	},
 };

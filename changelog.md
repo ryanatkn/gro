@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.2.13
+
+- handle build errors in the deploy task and add the `--dry` deploy flag
+  ([#42](https://github.com/feltcoop/gro/pull/42))
+
 ## 0.2.12
 
 - fix log message when listing all tasks
