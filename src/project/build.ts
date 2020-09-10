@@ -8,7 +8,7 @@ import {
 	RollupBuild,
 } from 'rollup';
 import resolvePlugin from '@rollup/plugin-node-resolve';
-import commonjsPlugin from 'rollup-plugin-commonjs';
+import commonjsPlugin from '@rollup/plugin-commonjs';
 import {resolve} from 'path';
 
 import {magenta} from '../colors/terminal.js';
