@@ -1,16 +1,13 @@
-import terser from 'terser';
+import * as terser from 'terser';
 import {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
 import {magenta} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {printPath} from '../utils/print.js';
+import {printPath, printError} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO speed up with workers
-// TODO this runs twice with build but not watch
-// can it be moved from `renderChunk` to `generateBundle`
-// without any negative consequences to avoid doing double the work?
 
 export interface Options {
 	include: string | RegExp | (string | RegExp)[] | null;
@@ -37,29 +34,22 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 
 	return {
 		name,
-		renderChunk(code, chunk, outputOptions) {
+		async renderChunk(code, chunk, outputOptions) {
 			if (!filter(chunk.fileName)) return null;
 
 			log.info('terser', printPath(chunk.fileName));
 
-			const minified = terser.minify(code, {
-				module: ['es', 'esm'].includes(outputOptions.format!),
-				...minifyOptions,
-			});
+			try {
+				const minifiedResult = await terser.minify(code, {
+					module: ['es', 'esm'].includes(outputOptions.format!),
+					...minifyOptions,
+				});
 
-			if (minified.error) {
-				log.error(minified.error); // TODO format
-				throw minified.error;
+				return minifiedResult as any; // TODO type?
+			} catch (err) {
+				log.error(printError(err)); // TODO code frame?
+				throw err;
 			}
-
-			if (minified.code === undefined) {
-				throw Error('Minified code result is undefined');
-			}
-
-			return {
-				...(minified as any), // TODO cast to any because of type mismatch caused by terser using source-map@0.6 - https://github.com/terser/terser/issues/385
-				code: minified.code, // this is weird, but without it `renderChunk` doesn't like the return value type, even with a `minified.code === undefined` check
-			};
 		},
 	};
 };
