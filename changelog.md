@@ -1,11 +1,12 @@
 # Gro changelog
 
-## 0.2.13
+## 0.3.0
 
 - handle build errors in the deploy task and add the `--dry` deploy flag
   ([#42](https://github.com/feltcoop/gro/pull/42))
-- update some dependencies
-  ([#43](https://github.com/feltcoop/gro/pull/43))
+- update dependencies
+  ([#43](https://github.com/feltcoop/gro/pull/43),
+  [#44](https://github.com/feltcoop/gro/pull/44))
 
 ## 0.2.12
 
