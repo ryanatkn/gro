@@ -4,6 +4,8 @@
 
 - handle build errors in the deploy task and add the `--dry` deploy flag
   ([#42](https://github.com/feltcoop/gro/pull/42))
+- update some dependencies
+  ([#43](https://github.com/feltcoop/gro/pull/43))
 
 ## 0.2.12
 
