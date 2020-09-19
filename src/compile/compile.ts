@@ -8,7 +8,7 @@ import {printMs, printPath, printSubTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
-import {paths, toBuildId} from '../paths.js';
+import {paths, toBuildId, toCompiledExtension} from '../paths.js';
 import {red} from '../colors/terminal.js';
 
 export const compile = async (log: Logger): Promise<void> => {
@@ -72,7 +72,7 @@ export const compile = async (log: Logger): Promise<void> => {
 			}
 
 			results.set(path, output.code);
-			results.set(`${path}.map`, output.map!);
+			results.set(`${toCompiledExtension(path)}.map`, output.map!);
 		}),
 	);
 	timingToCompile();
