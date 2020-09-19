@@ -1,6 +1,6 @@
 import {cyan} from '../colors/terminal.js';
 import {Logger, LogLevel, SystemLogger} from '../utils/log.js';
-import {AsyncStatus} from '../utils/async.js';
+import type {AsyncStatus} from '../utils/async.js';
 import {omitUndefined} from '../utils/object.js';
 import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/time.js';
