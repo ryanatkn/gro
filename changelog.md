@@ -12,6 +12,8 @@
   ([#48](https://github.com/feltcoop/gro/pull/48))
 - convert `AssertionOperator` from an enum to a union of string types
   ([#49](https://github.com/feltcoop/gro/pull/49))
+- rename `AsyncState` to `AsyncStatus` and convert it from an enum to a union of string types
+  ([#50](https://github.com/feltcoop/gro/pull/50))
 
 ## 0.3.0
 

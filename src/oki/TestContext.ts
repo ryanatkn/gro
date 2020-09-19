@@ -1,6 +1,6 @@
 import {cyan} from '../colors/terminal.js';
 import {Logger, LogLevel, SystemLogger} from '../utils/log.js';
-import {AsyncState} from '../utils/async.js';
+import {AsyncStatus} from '../utils/async.js';
 import {omitUndefined} from '../utils/object.js';
 import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/time.js';
@@ -107,23 +107,23 @@ export class TestContext {
 	}
 
 	// TODO re-run?
-	runState = AsyncState.Initial;
+	runState: AsyncStatus = 'initial';
 	async run(): Promise<TestRunResult> {
 		const timings = new Timings<TestRunTimings>();
 		const timingToRunTests = timings.start('run tests');
-		if (this.runState !== AsyncState.Initial) {
+		if (this.runState !== 'initial') {
 			throw Error(`TestContext was already run`);
 		}
-		this.runState = AsyncState.Pending;
+		this.runState = 'pending';
 		this.onRunBegin();
 		try {
 			await this.runTests();
 		} catch (err) {
-			this.runState = AsyncState.Failure;
+			this.runState = 'failure';
 			this.onRunEnd();
 			throw err;
 		}
-		this.runState = AsyncState.Success;
+		this.runState = 'success';
 		this.onRunEnd();
 		timingToRunTests();
 		return {stats: this.stats!, timings};
