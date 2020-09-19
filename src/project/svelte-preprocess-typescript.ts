@@ -19,8 +19,7 @@ export interface Options {
 	langs: string[];
 	tsconfigPath: string | undefined;
 }
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	langs: ['typescript'],
 	tsconfigPath: undefined,

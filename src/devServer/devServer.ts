@@ -26,8 +26,7 @@ export interface Options {
 	port: number;
 	dir: string;
 }
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type InitialOptions = Partial<Options>;
 const DEFAULT_HOST = 'localhost'; // or 0.0.0.0?
 const DEFAULT_PORT = 8999;
 export const initOptions = (opts: InitialOptions): Options => ({

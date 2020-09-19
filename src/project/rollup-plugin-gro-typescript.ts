@@ -30,8 +30,7 @@ export interface Options {
 	ondiagnostics: typeof handleDiagnostics;
 	onstats: typeof handleStats;
 }
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	include: ['*.ts+(|x)', '**/*.ts+(|x)'],
 	exclude: ['*.d.ts', '**/*.d.ts'],

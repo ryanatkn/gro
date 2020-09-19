@@ -14,8 +14,7 @@ export interface Options {
 	exclude: string | RegExp | (string | RegExp)[] | null;
 	minifyOptions: terser.MinifyOptions;
 }
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	include: null,
 	exclude: null,

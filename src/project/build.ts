@@ -39,8 +39,7 @@ export interface Options {
 	mapWatchOptions: MapWatchOptions;
 	cssCache: CssCache<GroCssBuild>;
 }
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
 	inputFiles: [resolve('index.ts')],

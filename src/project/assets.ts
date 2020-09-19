@@ -17,8 +17,7 @@ export const DEFAULT_ASSET_MATCHER = /\.(jpg|png|ico|html)$/;
 export interface Options {
 	isAsset: (path: string) => boolean;
 }
-export type RequiredOptions = never;
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	isAsset: (path) => DEFAULT_ASSET_MATCHER.test(path),
 	...omitUndefined(opts),
