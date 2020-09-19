@@ -21,10 +21,10 @@ import {outputCssPlugin} from './rollup-plugin-output-css.js';
 import {createCssCache, CssCache} from './cssCache.js';
 import {groJsonPlugin} from './rollup-plugin-gro-json.js';
 import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
-import {groTypescriptPlugin} from './rollup-plugin-gro-typescript.js';
+import {groSwcPlugin} from './rollup-plugin-gro-swc.js';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import {GroCssBuild} from './types.js';
-import {sveltePreprocessTypescript} from './svelte-preprocess-typescript.js';
+import {sveltePreprocessSwc} from './svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {identity} from '../utils/function.js';
@@ -114,12 +114,12 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 			groSveltePlugin({
 				dev,
 				addCssBuild: addSvelteCssBuild,
-				preprocessor: [sveltePreprocessTypescript()],
+				preprocessor: [sveltePreprocessSwc()],
 				compileOptions: {
 					immutable: true,
 				},
 			}),
-			groTypescriptPlugin(),
+			groSwcPlugin(),
 			plainCssPlugin({addCssBuild: addPlainCssBuild}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,

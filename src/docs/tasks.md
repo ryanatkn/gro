@@ -16,6 +16,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
 - [project/build](../project/build.task.ts) - build, create, and link the distribution
+- [project/compilerBenchmark](../project/compilerBenchmark.task.ts) - benchmark compilation with different libraries
 - [project/dev](../project/dev.task.ts) - build typescript in watch mode for development
 - [project/dist](../project/dist.task.ts) - create and link the distribution
 - [project/link](../project/link.task.ts) - link the distribution
