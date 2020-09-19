@@ -6,7 +6,7 @@
   ([#45](https://github.com/feltcoop/gro/pull/45))
 - add the `compile` task and use `swc` for non-watchmode builds
   ([#46](https://github.com/feltcoop/gro/pull/46))
-- add stop function return value to timings api
+- add stop function return value to `Timing#start`
   ([#47](https://github.com/feltcoop/gro/pull/47))
 
 ## 0.3.0
