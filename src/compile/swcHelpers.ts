@@ -1,5 +1,8 @@
 import swc from '@swc/core';
 import {ScriptTarget} from 'typescript';
+import {dirname, relative} from 'path';
+
+import {toBuildId, toSourceId} from '../paths.js';
 
 const DEFAULT_TARGET = 'es2019'; // TODO?
 
@@ -31,14 +34,14 @@ export const toSwcCompilerTarget = (target: ScriptTarget | undefined): swc.JscTa
 export const mergeSwcOptions = (
 	options: swc.Options,
 	target: swc.JscTarget,
-	filename?: string,
+	path?: string,
 ): swc.Options => ({
 	...options,
 	jsc: {
 		...options.jsc,
 		target,
 	},
-	filename,
+	filename: path ? pathToSwcFilename(path) : undefined,
 });
 
 export const getDefaultSwcOptions = (): swc.Options => ({
@@ -49,3 +52,6 @@ export const getDefaultSwcOptions = (): swc.Options => ({
 		loose: true, // TODO?
 	},
 });
+
+const pathToSwcFilename = (path: string): string =>
+	relative(dirname(toBuildId(path)), toSourceId(path));

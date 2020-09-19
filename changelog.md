@@ -4,6 +4,8 @@
 
 - add `swc` dependency along with a Rollup plugin and Svelte preprocessor
   ([#45](https://github.com/feltcoop/gro/pull/45))
+- add the `compile` task and use `swc` for non-watchmode builds
+  ([#46](https://github.com/feltcoop/gro/pull/46))
 
 ## 0.3.0
 

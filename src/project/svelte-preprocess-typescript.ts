@@ -3,7 +3,7 @@ import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 
 import {magenta, red} from '../colors/terminal.js';
 import {SystemLogger, Logger} from '../utils/log.js';
-import {loadTsconfig} from './tsHelpers.js';
+import {loadTsconfig} from '../compile/tsHelpers.js';
 import {printPath} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';
 

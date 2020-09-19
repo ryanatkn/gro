@@ -3,7 +3,7 @@ import ts from 'typescript';
 import {join} from 'path';
 
 import {Task} from '../task/task.js';
-import {loadTsconfig} from './tsHelpers.js';
+import {loadTsconfig} from '../compile/tsHelpers.js';
 import {findFiles, readFile, outputFile} from '../fs/nodeFs.js';
 import {paths} from '../paths.js';
 import {printMs} from '../utils/print.js';
@@ -61,7 +61,7 @@ export const task: Task = {
 
 		const testFile = 'utils/json.ts';
 		const writeTestFile = async (suffix: string, contents: string, map = false) => {
-			await outputFile(`src/${testFile}.${suffix}.js${map ? '.map' : ''}`, contents, 'utf8');
+			await outputFile(`src/${testFile}.${suffix}.js${map ? '.map' : ''}`, contents);
 		};
 		const startBenchmark = (name: string) => {
 			log.info(name, '...');
