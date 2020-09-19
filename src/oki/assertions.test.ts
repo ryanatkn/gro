@@ -1,5 +1,5 @@
 import {test, t} from '../oki/oki.js';
-import {AssertionError, AssertionOperator} from './assertions.js';
+import {AssertionError} from './assertions.js';
 
 test('assertions', () => {
 	test('fail()', () => {
@@ -8,8 +8,8 @@ test('assertions', () => {
 			t.fail(message);
 		} catch (err) {
 			if (err instanceof AssertionError) {
-				if (err.assertion.operator !== AssertionOperator.fail) {
-					throw Error(`Expected error operator to be "${AssertionOperator.fail}"`);
+				if (err.assertion.operator !== 'fail') {
+					throw Error(`Expected error operator to be "${'fail'}"`);
 				}
 				return;
 			} else {
@@ -23,8 +23,8 @@ test('assertions', () => {
 			cb();
 		} catch (err) {
 			if (err instanceof AssertionError) {
-				if (err.assertion.operator !== AssertionOperator.throws) {
-					t.fail(`Expected error operator to be "${AssertionOperator.throws}"`);
+				if (err.assertion.operator !== 'throws') {
+					t.fail(`Expected error operator to be "${'throws'}"`);
 				}
 				return err; // success
 			} else {
@@ -90,8 +90,8 @@ test('assertions', () => {
 			await cb();
 		} catch (err) {
 			if (err instanceof AssertionError) {
-				if (err.assertion.operator !== AssertionOperator.rejects) {
-					t.fail(`Expected error operator to be "${AssertionOperator.rejects}"`);
+				if (err.assertion.operator !== 'rejects') {
+					t.fail(`Expected error operator to be "${'rejects'}"`);
 				}
 				return err; // success
 			} else {

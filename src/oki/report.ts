@@ -2,7 +2,7 @@ import {green, red, bgGreen, black, yellow, gray, cyan} from '../colors/terminal
 import {TestContext, TOTAL_TIMING, TestInstance} from './TestContext.js';
 import {printMs, printValue, printStr, printError} from '../utils/print.js';
 import {toSourcePath} from '../paths.js';
-import {AssertionError, AssertionOperator, FailedAssertion} from './assertions.js';
+import {AssertionError, FailedAssertion} from './assertions.js';
 import {UnreachableError, ErrorClass} from '../utils/error.js';
 
 export const reportIntro = (ctx: TestContext): void => {
@@ -89,25 +89,25 @@ export const reportAssertionError = (
 	);
 
 	switch (assertion.operator) {
-		case AssertionOperator.ok:
+		case 'ok':
 			log.plain(printValue(assertion.value));
 			break;
-		case AssertionOperator.is:
+		case 'is':
 			log.plain(printValue(assertion.actual));
 			log.plain(printValue(assertion.expected));
 			break;
-		case AssertionOperator.isNot:
+		case 'isNot':
 			log.plain(printValue(assertion.expected));
 			break;
-		case AssertionOperator.equal:
+		case 'equal':
 			log.plain(printValue(assertion.actual));
 			log.plain(printValue(assertion.expected));
 			break;
-		case AssertionOperator.notEqual:
+		case 'notEqual':
 			log.plain(printValue(assertion.expected));
 			break;
-		case AssertionOperator.throws:
-		case AssertionOperator.rejects:
+		case 'throws':
+		case 'rejects':
 			const logArgs: any[] = [];
 			if (assertion.error) {
 				if (assertion.matcher) {
@@ -117,7 +117,7 @@ export const reportAssertionError = (
 			}
 			log.plain(...logArgs);
 			break;
-		case AssertionOperator.fail:
+		case 'fail':
 			log.plain(printError(error));
 			break;
 		default:
@@ -128,7 +128,7 @@ export const reportAssertionError = (
 
 const printFailedAssertion = (assertion: FailedAssertion): string => {
 	switch (assertion.operator) {
-		case AssertionOperator.fail: {
+		case 'fail': {
 			return red('fail asserted in test:');
 		}
 		default: {

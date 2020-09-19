@@ -10,6 +10,8 @@
   ([#47](https://github.com/feltcoop/gro/pull/47))
 - rename identifiers from "ext" to "extension" to follow newer convention
   ([#48](https://github.com/feltcoop/gro/pull/48))
+- convert `AssertionOperator` from an enum to a union of string types
+  ([#49](https://github.com/feltcoop/gro/pull/49))
 
 ## 0.3.0
 
