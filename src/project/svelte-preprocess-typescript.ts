@@ -9,6 +9,9 @@ import {omitUndefined} from '../utils/object.js';
 
 /*
 
+This module is no longer used, see `./svelte-preprocess-swc.ts`.
+It may be used in the future for generating type mappings in production.
+
 This preprocessor transpiles the script portion of Svelte files
 if the script tag has a `lang="typescript"` attribute.
 No typechecking is performed - that's left for a separate build step.
@@ -38,7 +41,7 @@ export const sveltePreprocessTypescript = (opts: InitialOptions = {}): Preproces
 	return {
 		script({content, attributes, filename}) {
 			if (!langs.includes(attributes.lang as any)) return null as any; // type is wrong
-			log.info('transpiling', printPath(filename || ''));
+			// log.info('transpiling', printPath(filename || ''));
 			const transpileOptions: ts.TranspileOptions = {
 				compilerOptions: tsconfig.compilerOptions,
 				fileName: filename,

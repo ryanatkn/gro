@@ -1,21 +1,16 @@
-import ts from 'typescript';
+import swc from '@swc/core';
 import {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 
+import {getDefaultSwcOptions, mergeSwcOptions, toSwcCompilerTarget} from './swcHelpers.js';
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath, isSourceId, toSourceExt} from '../paths.js';
-import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
+import {loadTsconfig} from './tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
-
-/*
-
-This is not currently being used, but it may be needed for type mappings in production buiilds.
-
-*/
 
 // TODO parallelize with workers?
 
@@ -30,41 +25,32 @@ interface Stats {
 export interface Options {
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
+	swcOptions: swc.Options;
 	tsconfigPath: string | undefined;
 	basePath: string | undefined;
-	reportDiagnostics: boolean;
-	ondiagnostics: typeof handleDiagnostics;
 	onstats: typeof handleStats;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	include: ['*.ts+(|x)', '**/*.ts+(|x)'],
 	exclude: ['*.d.ts', '**/*.d.ts'],
+	swcOptions: getDefaultSwcOptions(),
 	tsconfigPath: undefined,
 	basePath: undefined,
-	reportDiagnostics: true, // TODO check transpilation times where this is false
-	ondiagnostics: handleDiagnostics,
 	onstats: handleStats,
 	...omitUndefined(opts),
 });
 
-export const name = 'gro-typescript';
+export const name = 'gro-swc';
 
-export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
-	const {
-		include,
-		exclude,
-		tsconfigPath,
-		basePath,
-		reportDiagnostics,
-		ondiagnostics,
-		onstats,
-	} = initOptions(opts);
+export const groSwcPlugin = (opts: InitialOptions = {}): Plugin => {
+	const {include, exclude, swcOptions, tsconfigPath, basePath, onstats} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
 
 	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
 	const {compilerOptions} = tsconfig;
+	const target = toSwcCompilerTarget(compilerOptions && compilerOptions.target);
 
 	const filter = createFilter(include, exclude);
 
@@ -90,26 +76,18 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 			const stopwatch = createStopwatch();
 
 			log.trace('transpile', printPath(id));
-			let transpileOutput: ts.TranspileOutput;
+			let output: swc.Output;
 			try {
-				transpileOutput = ts.transpileModule(code, {
-					compilerOptions,
-					fileName: id,
-					reportDiagnostics,
-					// moduleName?: string;
-					// renamedDependencies?: Map<string>;
-				});
+				const filename = id; // TODO convert to relative path?
+				// TODO keep this async, right?
+				const finalSwcOptions = mergeSwcOptions(swcOptions, target, filename);
+				output = await swc.transform(code, finalSwcOptions);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(id));
 				throw err;
 			}
-			const {outputText, sourceMapText, diagnostics} = transpileOutput;
 
-			if (diagnostics) {
-				ondiagnostics(id, diagnostics, handleDiagnostics, this, log);
-			}
-
-			// TODO improve this - see usage elsewhere too
+			// TODO improve this - see usage elsewhere too - it's only written this way to match Svelte's format
 			const transpileElapsed = stopwatch();
 			const stats: Stats = {
 				timings: {
@@ -119,22 +97,10 @@ export const groTypescriptPlugin = (opts: InitialOptions = {}): Plugin => {
 			};
 			onstats(id, stats, handleStats, this, log);
 
-			return {
-				code: outputText,
-				map: sourceMapText ? JSON.parse(sourceMapText) : null,
-			};
+			// TODO does map need parsing like the TypeScript version? JSON.parse(sourceMapText) : null,
+			return output;
 		},
 	};
-};
-
-const handleDiagnostics = (
-	_id: string,
-	diagnostics: ts.Diagnostic[],
-	_handleDiagnostics: (id: string, diagnostics: ts.Diagnostic[], ...args: any[]) => void,
-	_pluginContext: PluginContext,
-	log: Logger,
-): void => {
-	logTsDiagnostics(diagnostics, log);
 };
 
 const handleStats = (

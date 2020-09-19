@@ -4,6 +4,7 @@ import fsExtra from 'fs-extra';
 import {PathStats, PathFilter} from './pathData.js';
 import {sortMap, compareSimpleMapEntries} from '../utils/map.js';
 
+// This uses `CheapWatch` which probably isn't the fastest, but it works fine for now.
 // TODO should this API be changed to only include files and not directories?
 // or maybe change the name so it's not misleading?
 export const findFiles = async (
