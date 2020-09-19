@@ -66,7 +66,6 @@ export const compile = async (log: Logger): Promise<void> => {
 
 			let output: swc.Output;
 			try {
-				// TODO maybe use the async version so we can preprocess in parallel?
 				output = await swc.transform(code, finalSwcOptions);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(path));
