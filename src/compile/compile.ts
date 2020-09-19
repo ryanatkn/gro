@@ -6,7 +6,7 @@ import {toSwcCompilerTarget, mergeSwcOptions, getDefaultSwcOptions} from './swcH
 import {spawnProcess} from '../utils/process.js';
 import {printMs, printPath, printSubTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
-import {Timings} from '../utils/time.js';
+import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
 import {paths, toBuildId} from '../paths.js';
 import {red} from '../colors/terminal.js';
@@ -14,14 +14,13 @@ import {red} from '../colors/terminal.js';
 export const compile = async (log: Logger): Promise<void> => {
 	log.info('compiling...');
 
-	const timings = new Timings<'total'>();
-	timings.start('total');
-	const subTimings = new Timings();
+	const totalTiming = createStopwatch();
+	const timings = new Timings();
 	const logTimings = () => {
-		for (const [key, timing] of subTimings.getAll()) {
+		for (const [key, timing] of timings.getAll()) {
 			log.trace(printSubTiming(key, timing));
 		}
-		log.info(`🕒 compiled in ${printMs(timings.stop('total'))}`);
+		log.info(`🕒 compiled in ${printMs(totalTiming())}`);
 	};
 
 	if (process.env.NODE_ENV === 'production') {
@@ -31,10 +30,10 @@ export const compile = async (log: Logger): Promise<void> => {
 	}
 
 	// load all files into memory
-	subTimings.start('find files');
+	const stopTimingToFindFiles = timings.start('find files');
 	const statsByPath = await findFiles(paths.source, ({path}) => path.endsWith('.ts'), null);
-	subTimings.stop('find files');
-	subTimings.start('read files');
+	stopTimingToFindFiles();
+	const timingToReadFiles = timings.start('read files');
 	const codeByPath = new Map<string, string>();
 	await Promise.all(
 		Array.from(statsByPath.entries()).map(async ([path, stats]) => {
@@ -44,14 +43,14 @@ export const compile = async (log: Logger): Promise<void> => {
 			codeByPath.set(path, contents);
 		}),
 	);
-	subTimings.stop('read files');
+	timingToReadFiles();
 
 	// load the options
 	const tsconfigPath = undefined; // TODO parameterized options?
 	const basePath = undefined; // TODO parameterized options?
-	subTimings.start('load tsconfig');
+	const timingToLoadTsconfig = timings.start('load tsconfig');
 	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
-	subTimings.stop('load tsconfig');
+	timingToLoadTsconfig();
 	const {compilerOptions} = tsconfig;
 	const target = toSwcCompilerTarget(compilerOptions && compilerOptions.target);
 	const swcOptions = getDefaultSwcOptions(); // TODO parameterized options?
@@ -59,7 +58,7 @@ export const compile = async (log: Logger): Promise<void> => {
 	const results = new Map<string, string>();
 
 	// compile everything
-	subTimings.start('compile');
+	const timingToCompile = timings.start('compile');
 	await Promise.all(
 		Array.from(codeByPath.entries()).map(async ([path, code]) => {
 			const finalSwcOptions = mergeSwcOptions(swcOptions, target, path);
@@ -76,14 +75,14 @@ export const compile = async (log: Logger): Promise<void> => {
 			results.set(`${path}.map`, output.map!);
 		}),
 	);
-	subTimings.stop('compile');
+	timingToCompile();
 
 	// output the compiled files
-	subTimings.start('write to disk');
+	const timingToWriteToDisk = timings.start('write to disk');
 	await Promise.all(
 		Array.from(results.entries()).map(([path, contents]) => outputFile(toBuildId(path), contents)),
 	);
-	subTimings.stop('write to disk');
+	timingToWriteToDisk();
 
 	logTimings();
 };

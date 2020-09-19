@@ -4,7 +4,7 @@ import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {findTestModules} from './oki/testModule.js';
 import {printMs, printSubTiming} from './utils/print.js';
-import {Timings} from './utils/time.js';
+import {createStopwatch, Timings} from './utils/time.js';
 import * as report from './oki/report.js';
 import {plural} from './utils/string.js';
 
@@ -13,9 +13,8 @@ export const task: Task = {
 	run: async ({log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 
-		const timings = new Timings<'total'>();
-		timings.start('total');
-		const subTimings = new Timings();
+		const totalTiming = createStopwatch();
+		const timings = new Timings();
 
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
@@ -28,7 +27,7 @@ export const task: Task = {
 			}
 			throw new TaskError('Failed to find modules.');
 		}
-		subTimings.merge(findModulesResult.timings);
+		timings.merge(findModulesResult.timings);
 
 		// The test context needs to link its imported modules
 		// to their execution context, so its API is a bit complex.
@@ -44,18 +43,18 @@ export const task: Task = {
 			}
 			throw new TaskError('Failed to load modules.');
 		}
-		subTimings.merge(loadModulesResult.timings);
+		timings.merge(loadModulesResult.timings);
 
 		// The test modules register themselves with the testContext when imported,
 		// so we don't pass them as a parameter to run them.
 		// They're available as `result.modules` though.
 		const testRunResult = await testContext.run();
-		subTimings.merge(testRunResult.timings);
+		timings.merge(testRunResult.timings);
 
-		for (const [key, timing] of subTimings.getAll()) {
+		for (const [key, timing] of timings.getAll()) {
 			log.trace(printSubTiming(key, timing));
 		}
-		log.info(`🕒 ${printMs(timings.stop('total'))}`);
+		log.info(`🕒 ${printMs(totalTiming())}`);
 
 		if (testRunResult.stats.failCount) {
 			throw new TaskError(

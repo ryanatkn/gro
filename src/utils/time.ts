@@ -21,11 +21,12 @@ export class Timings<T extends string | number = string | number> {
 
 	constructor(public readonly decimals?: number) {}
 
-	start(key: T, replace = false, decimals = this.decimals): void {
+	start(key: T, replace = false, decimals = this.decimals): () => number {
 		if (!replace && this.stopwatches.has(key)) {
 			throw Error(`Timing key is already in use: ${key}`);
 		}
 		this.stopwatches.set(key, createStopwatch(decimals));
+		return () => this.stop(key);
 	}
 	stop(key: T): number {
 		const stopwatch = this.stopwatches.get(key);

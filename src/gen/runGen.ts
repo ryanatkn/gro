@@ -18,7 +18,7 @@ export const runGen = async (
 	let inputCount = 0;
 	let outputCount = 0;
 	const timings = new Timings();
-	timings.start('total');
+	const timingForTotal = timings.start('total');
 	const results = await Promise.all(
 		genModules.map(
 			async ({id, mod}): Promise<GenModuleResult> => {
@@ -80,6 +80,6 @@ export const runGen = async (
 		failures: results.filter((r) => !r.ok) as GenModuleResultFailure[],
 		inputCount,
 		outputCount,
-		elapsed: timings.stop('total'),
+		elapsed: timingForTotal(),
 	};
 };

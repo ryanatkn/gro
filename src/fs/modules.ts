@@ -93,14 +93,14 @@ export const findModules = async (
 ): Promise<FindModulesResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
-	timings.start('map input paths');
+	const timingToMapInputPaths = timings.start('map input paths');
 	const {sourceIdPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
 		inputPaths,
 		pathExists,
 		stat,
 		getPossibleSourceIds,
 	);
-	timings.stop('map input paths');
+	timingToMapInputPaths();
 
 	// Error if any input path could not be mapped.
 	if (unmappedInputPaths.length) {
@@ -121,12 +121,12 @@ export const findModules = async (
 	}
 
 	// Find all of the files for any directories.
-	timings.start('find files');
+	const timingToFindFiles = timings.start('find files');
 	const {
 		sourceIdsByInputPath,
 		inputDirectoriesWithNoFiles,
 	} = await loadSourceIdsByInputPath(sourceIdPathDataByInputPath, (id) => findFiles(id));
-	timings.stop('find files');
+	timingToFindFiles();
 
 	// Error if any input path has no files. (means we have an empty directory)
 	return inputDirectoriesWithNoFiles.length
@@ -161,7 +161,7 @@ export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<
 	loadModuleById: (sourceId: string) => Promise<LoadModuleResult<ModuleMetaType>>,
 ): Promise<LoadModulesResult<ModuleMetaType>> => {
 	const timings = new Timings<LoadModulesTimings>();
-	timings.start('load modules');
+	const timingToLoadModules = timings.start('load modules');
 	const modules: ModuleMetaType[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
@@ -194,7 +194,7 @@ export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<
 			}
 		}
 	}
-	timings.stop('load modules');
+	timingToLoadModules();
 
 	return loadModuleFailures.length
 		? {

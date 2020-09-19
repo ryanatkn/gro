@@ -110,7 +110,7 @@ export class TestContext {
 	runState = AsyncState.Initial;
 	async run(): Promise<TestRunResult> {
 		const timings = new Timings<TestRunTimings>();
-		timings.start('run tests');
+		const timingToRunTests = timings.start('run tests');
 		if (this.runState !== AsyncState.Initial) {
 			throw Error(`TestContext was already run`);
 		}
@@ -125,7 +125,7 @@ export class TestContext {
 		}
 		this.runState = AsyncState.Success;
 		this.onRunEnd();
-		timings.stop('run tests');
+		timingToRunTests();
 		return {stats: this.stats!, timings};
 	}
 
