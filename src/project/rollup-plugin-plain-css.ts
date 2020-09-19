@@ -6,25 +6,25 @@ import {createFilter} from '@rollup/pluginutils';
 import {green} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {GroCssBuild} from './types.js';
-import {hasExt} from '../utils/path.js';
+import {hasExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
 	addCssBuild(build: GroCssBuild): boolean;
-	exts: string[]; // see comments below at `indexById` for why this exists
+	extensions: string[]; // see comments below at `sortIndexById` for why this exists
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
 }
 export type RequiredOptions = 'addCssBuild';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
-	if (opts.include && !opts.exts) {
-		throw Error(`The 'exts' option must be provided along with 'include'`);
+	if (opts.include && !opts.extensions) {
+		throw Error(`The 'extensions' option must be provided along with 'include'`);
 	}
-	const exts = opts.exts || ['.css'];
+	const extensions = opts.extensions || ['.css'];
 	return {
-		exts,
-		include: opts.include || exts.map((ext) => `**/*${ext}`),
+		extensions,
+		include: opts.include || extensions.map((ext) => `**/*${ext}`),
 		exclude: null,
 		...omitUndefined(opts),
 	};
@@ -33,7 +33,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const name = 'plain-css';
 
 export const plainCssPlugin = (opts: InitialOptions): Plugin => {
-	const {addCssBuild, exts, include, exclude} = initOptions(opts);
+	const {addCssBuild, extensions, include, exclude} = initOptions(opts);
 
 	const log = new SystemLogger([green(`[${name}]`)]);
 
@@ -47,7 +47,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 	const getSortIndex = (id: string): number => {
 		// Plain css is always appended to avoid messing up sourcemaps.
 		// Any css id that isn't plain css won't be cached, returning -1 here.
-		// See `indexById` above for why this exists.
+		// See `sortIndexById` above for why this exists.
 		const index = sortIndexById.get(id);
 		if (index === undefined) return -1;
 		return index;
@@ -58,8 +58,8 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 		// see comments above for what this is doing
 		resolveId(importee, importer) {
 			// This is a hack that ignores `include`, but the whole thing is a hack.
-			// See the above comments at `indexById` for the explanation.
-			if (!hasExt(importee, exts) || !importer) return null;
+			// See the above comments at `sortIndexById` for the explanation.
+			if (!hasExtension(importee, extensions) || !importer) return null;
 			// Originally this used `this.resolve`,
 			// but it goes into an infinite loop when an importee doesn't exist,
 			// despite using `{skipSelf: true}`. So we manually resolve the id.

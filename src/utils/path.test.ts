@@ -1,18 +1,18 @@
 import {test, t} from '../oki/oki.js';
-import {replaceExt, hasExt, getPathStem} from './path.js';
+import {replaceExtension, hasExtension, getPathStem} from './path.js';
 
-test('replaceExt', () => {
-	t.is(replaceExt('foo.ts', '.js'), 'foo.js');
-	t.is(replaceExt('foo.ts', ''), 'foo');
-	t.is(replaceExt('foo.ts', 'js'), 'foojs');
-	t.is(replaceExt('foo', '.js'), 'foo.js');
+test('replaceExtension', () => {
+	t.is(replaceExtension('foo.ts', '.js'), 'foo.js');
+	t.is(replaceExtension('foo.ts', ''), 'foo');
+	t.is(replaceExtension('foo.ts', 'js'), 'foojs');
+	t.is(replaceExtension('foo', '.js'), 'foo.js');
 });
 
-test('hasExt', () => {
-	t.ok(hasExt('foo.ts', ['.ts']));
-	t.ok(hasExt('foo.svelte', ['.ts', '.svelte']));
-	t.ok(!hasExt('foo.js', ['.ts', '.svelte']));
-	t.ok(!hasExt('foo.js', ['js']));
+test('hasExtension', () => {
+	t.ok(hasExtension('foo.ts', ['.ts']));
+	t.ok(hasExtension('foo.svelte', ['.ts', '.svelte']));
+	t.ok(!hasExtension('foo.js', ['.ts', '.svelte']));
+	t.ok(!hasExtension('foo.js', ['js']));
 });
 
 test('getPathStem', () => {

@@ -1,11 +1,11 @@
 import {extname, basename} from 'path';
 
-export const replaceExt = (path: string, ext: string): string => {
+export const replaceExtension = (path: string, newExtension: string): string => {
 	const extension = extname(path);
-	return extension.length ? path.slice(0, -extension.length) + ext : path + ext;
+	return extension.length ? path.slice(0, -extension.length) + newExtension : path + newExtension;
 };
 
-export const hasExt = (path: string, exts: string[]): boolean =>
-	exts.some((ext) => extname(path) === ext);
+export const hasExtension = (path: string, extensions: string[]): boolean =>
+	extensions.some((e) => extname(path) === e);
 
-export const getPathStem = (path: string): string => replaceExt(basename(path), '');
+export const getPathStem = (path: string): string => replaceExtension(basename(path), '');

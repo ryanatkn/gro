@@ -7,7 +7,7 @@ import {
 	removeMimeTypeExtension,
 } from './mime.js';
 
-test('extToMimeType()', () => {
+test('getMimeTypeByExtension()', () => {
 	t.is(getMimeTypeByExtension('txt'), 'text/plain');
 	t.is(getMimeTypeByExtension('log'), 'text/plain');
 	t.is(getMimeTypeByExtension('js'), 'text/javascript');
@@ -16,7 +16,7 @@ test('extToMimeType()', () => {
 	t.is(getMimeTypeByExtension('fakeext'), null);
 });
 
-test('mimeTypeToExts()', () => {
+test('getExtensionsByMimeType()', () => {
 	t.equal(getExtensionsByMimeType('text/plain'), ['txt', 'log']);
 	t.equal(getExtensionsByMimeType('application/json'), ['json']);
 	t.equal(getExtensionsByMimeType('text/javascript'), ['js', 'mjs']);

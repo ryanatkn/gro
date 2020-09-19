@@ -1,7 +1,7 @@
 import {sep, join, basename} from 'path';
 import {fileURLToPath} from 'url';
 
-import {replaceExt} from './utils/path.js';
+import {replaceExtension} from './utils/path.js';
 import {stripStart} from './utils/string.js';
 
 /*
@@ -74,7 +74,9 @@ export const toBasePath = (id: string, p = paths): string =>
 
 // '/home/me/app/build/foo/bar/baz.js' -> 'src/foo/bar/baz.ts'
 export const toSourcePath = (id: string, p = paths): string =>
-	isSourceId(id, p) ? stripStart(id, p.root) : toSourceExt(join(SOURCE_DIR, toBasePath(id, p)));
+	isSourceId(id, p)
+		? stripStart(id, p.root)
+		: toSourceExtension(join(SOURCE_DIR, toBasePath(id, p)));
 
 // '/home/me/app/src/foo/bar/baz.ts' -> 'build/foo/bar/baz.js'
 export const toBuildPath = (id: string, p = paths): string =>
@@ -82,7 +84,7 @@ export const toBuildPath = (id: string, p = paths): string =>
 		? stripStart(id, p.root)
 		: isDistId(id, p)
 		? join(BUILD_DIR, toBasePath(id, p))
-		: toCompiledExt(join(BUILD_DIR, toBasePath(id, p)));
+		: toCompiledExtension(join(BUILD_DIR, toBasePath(id, p)));
 
 // '/home/me/app/src/foo/bar/baz.ts' -> 'dist/foo/bar/baz.js'
 export const toDistPath = (id: string, p = paths): string =>
@@ -90,7 +92,7 @@ export const toDistPath = (id: string, p = paths): string =>
 		? stripStart(id, p.root)
 		: isBuildId(id, p)
 		? join(DIST_DIR, toBasePath(id, p))
-		: toCompiledExt(join(DIST_DIR, toBasePath(id, p)));
+		: toCompiledExtension(join(DIST_DIR, toBasePath(id, p)));
 
 // '/home/me/app/build/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
 export const toSourceId = (id: string, p = paths): string =>
@@ -115,20 +117,20 @@ export const basePathToDistId = (basePath: string, p = paths): string => join(p.
 
 export const stripRelativePath = (path: string): string => stripStart(path, RELATIVE_DIR_START);
 
-export const JS_EXT = '.js';
-export const TS_EXT = '.ts';
-export const SVELTE_EXT = '.svelte';
-export const SOURCE_EXTS = [TS_EXT, SVELTE_EXT];
+export const JS_EXTENSION = '.js';
+export const TS_EXTENSION = '.ts';
+export const SVELTE_EXTENSION = '.svelte';
+export const SOURCE_EXTENSIONS = [TS_EXTENSION, SVELTE_EXTENSION];
 
-export const hasSourceExt = (path: string): boolean =>
-	SOURCE_EXTS.some((ext) => path.endsWith(ext));
+export const hasSourceExtension = (path: string): boolean =>
+	SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
 
-export const toSourceExt = (path: string): string =>
-	path.endsWith(JS_EXT) ? replaceExt(path, TS_EXT) : path; // TODO? how does this work with `.svelte`? do we need more metadata?
+export const toSourceExtension = (path: string): string =>
+	path.endsWith(JS_EXTENSION) ? replaceExtension(path, TS_EXTENSION) : path; // TODO? how does this work with `.svelte`? do we need more metadata?
 
 // compiled includes both build and dist
-export const toCompiledExt = (path: string): string =>
-	hasSourceExt(path) ? replaceExt(path, JS_EXT) : path;
+export const toCompiledExtension = (path: string): string =>
+	hasSourceExtension(path) ? replaceExtension(path, JS_EXTENSION) : path;
 
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
@@ -158,5 +160,7 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 // When importing Gro paths, this correctly chooses the build or dist dir.
 export const toImportId = (id: string): string => {
 	const p = pathsFromId(id);
-	return p === groPaths ? toCompiledExt(join(groImportDir, toBasePath(id, p))) : toBuildId(id, p);
+	return p === groPaths
+		? toCompiledExtension(join(groImportDir, toBasePath(id, p)))
+		: toBuildId(id, p);
 };

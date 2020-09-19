@@ -43,9 +43,9 @@ export const addMimeTypeExtension = (mimeType: string, extension: string): void 
 export const removeMimeTypeExtension = (extension: string): boolean => {
 	const mimeType = mimeTypeByExtension.get(extension);
 	if (!mimeType) return false;
-	const newExts = extensionsByMimeType.get(mimeType)!.filter((e) => e !== extension);
-	if (newExts.length) {
-		extensionsByMimeType.set(mimeType, newExts);
+	const newExtensions = extensionsByMimeType.get(mimeType)!.filter((e) => e !== extension);
+	if (newExtensions.length) {
+		extensionsByMimeType.set(mimeType, newExtensions);
 	} else {
 		extensionsByMimeType.delete(mimeType);
 	}
