@@ -1,7 +1,7 @@
 import prettier from 'prettier';
 import {extname} from 'path';
 
-import {getPackageJson} from './pkg.js';
+import {getPackageJson} from '../project/pkg.js';
 
 export const formatFile = (id: string, contents: string): string => {
 	const parser = inferParser(id);

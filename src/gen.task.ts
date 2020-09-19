@@ -8,7 +8,7 @@ import {resolveRawInputPaths} from './fs/inputPath.js';
 import {plural} from './utils/string.js';
 import {createStopwatch, Timings} from './utils/time.js';
 import {loadModules} from './fs/modules.js';
-import {formatFile} from './project/formatFile.js';
+import {formatFile} from './compile/formatFile.js';
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
