@@ -9,31 +9,31 @@ export class AssertionError extends Error {
 
 export const ok: (value: any) => asserts value = (value) => {
 	if (!value) {
-		throw new AssertionError({operator: AssertionOperator.ok, value});
+		throw new AssertionError({operator: 'ok', value});
 	}
 };
 
 export const is = <T>(actual: T, expected: T): void => {
 	if (!Object.is(actual, expected)) {
-		throw new AssertionError({operator: AssertionOperator.is, actual, expected});
+		throw new AssertionError({operator: 'is', actual, expected});
 	}
 };
 
 export const isNot = (actual: any, expected: any): void => {
 	if (Object.is(actual, expected)) {
-		throw new AssertionError({operator: AssertionOperator.isNot, actual, expected});
+		throw new AssertionError({operator: 'isNot', actual, expected});
 	}
 };
 
 export const equal = <T>(actual: T, expected: T): void => {
 	if (!deepEqual(actual, expected)) {
-		throw new AssertionError({operator: AssertionOperator.equal, actual, expected});
+		throw new AssertionError({operator: 'equal', actual, expected});
 	}
 };
 
 export const notEqual = (actual: any, expected: any): void => {
 	if (deepEqual(actual, expected)) {
-		throw new AssertionError({operator: AssertionOperator.notEqual, actual, expected});
+		throw new AssertionError({operator: 'notEqual', actual, expected});
 	}
 };
 
@@ -42,11 +42,11 @@ export const throws = (cb: () => void, matcher?: ErrorClass | RegExp | string): 
 		cb();
 	} catch (error) {
 		if (matcher !== undefined && !matchError(matcher, error)) {
-			throw new AssertionError({operator: AssertionOperator.throws, matcher, error});
+			throw new AssertionError({operator: 'throws', matcher, error});
 		}
 		return;
 	}
-	throw new AssertionError({operator: AssertionOperator.throws, matcher, error: null});
+	throw new AssertionError({operator: 'throws', matcher, error: null});
 };
 
 export const rejects = async (
@@ -58,11 +58,11 @@ export const rejects = async (
 		await promise;
 	} catch (error) {
 		if (matcher !== undefined && !matchError(matcher, error)) {
-			throw new AssertionError({operator: AssertionOperator.rejects, matcher, error});
+			throw new AssertionError({operator: 'rejects', matcher, error});
 		}
 		return;
 	}
-	throw new AssertionError({operator: AssertionOperator.rejects, matcher, error: null});
+	throw new AssertionError({operator: 'rejects', matcher, error: null});
 };
 
 export const matchError = (matcher: ErrorClass | RegExp | string, error: Error): boolean => {
@@ -80,7 +80,7 @@ export const fail = (message: string): never => {
 
 export class TestFailureError extends AssertionError {
 	constructor(message: string) {
-		super({operator: AssertionOperator.fail, message}, message);
+		super({operator: 'fail', message}, message);
 	}
 }
 
@@ -116,16 +116,15 @@ export const t: Assertions = {
 	Error: TestFailureError,
 };
 
-export enum AssertionOperator {
-	ok = 'ok', // truthy
-	is = 'is', // Object.is
-	isNot = 'isNot', // !Object.is
-	equal = 'equal', // deeply equal
-	notEqual = 'notEqual', // !deeply equal
-	throws = 'throws', // expects `cb` to throw an error that matches optional `matcher`
-	rejects = 'rejects', // expects `cbOrPromise` to throw an error that matches optional `matcher`
-	fail = 'fail', // throws an error
-}
+export type AssertionOperator =
+	| 'ok' // truthy
+	| 'is' // Object.is
+	| 'isNot' // !Object.is
+	| 'equal' // deeply equal
+	| 'notEqual' // !deeply equal
+	| 'throws' // expects `cb` to throw an error that matches optional `matcher`
+	| 'rejects' // expects `cbOrPromise` to throw an error that matches optional `matcher`
+	| 'fail'; // throws an error
 
 export type FailedAssertion =
 	| FailedAssertionOk
@@ -137,40 +136,40 @@ export type FailedAssertion =
 	| FailedAssertionRejects
 	| FailedAssertionFail;
 export type FailedAssertionOk = {
-	operator: AssertionOperator.ok;
+	operator: 'ok';
 	value: any;
 };
 export type FailedAssertionIs = {
-	operator: AssertionOperator.is;
+	operator: 'is';
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionIsNot = {
-	operator: AssertionOperator.isNot;
+	operator: 'isNot';
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionEqual = {
-	operator: AssertionOperator.equal;
+	operator: 'equal';
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionNotEqual = {
-	operator: AssertionOperator.notEqual;
+	operator: 'notEqual';
 	expected: any;
 	actual: any;
 };
 export type FailedAssertionThrows = {
-	operator: AssertionOperator.throws;
+	operator: 'throws';
 	matcher: ErrorClass | RegExp | string | undefined;
 	error: Error | null;
 };
 export type FailedAssertionRejects = {
-	operator: AssertionOperator.rejects;
+	operator: 'rejects';
 	matcher: ErrorClass | RegExp | string | undefined;
 	error: Error | null;
 };
 export type FailedAssertionFail = {
-	operator: AssertionOperator.fail;
+	operator: 'fail';
 	message: string;
 };
