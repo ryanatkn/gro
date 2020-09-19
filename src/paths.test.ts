@@ -16,9 +16,9 @@ import {
 	toDistPath,
 	toSourceId,
 	toBuildId,
-	hasSourceExt,
-	toSourceExt,
-	toCompiledExt,
+	hasSourceExtension,
+	toSourceExtension,
+	toCompiledExtension,
 	toPathParts,
 	toPathSegments,
 	toImportId,
@@ -180,25 +180,25 @@ test('basePathToDistId()', () => {
 	});
 });
 
-test('hasSourceExt()', () => {
+test('hasSourceExtension()', () => {
 	test('typescript', () => {
-		t.ok(hasSourceExt('foo/bar/baz.ts'));
+		t.ok(hasSourceExtension('foo/bar/baz.ts'));
 	});
 	test('svelte', () => {
-		t.ok(hasSourceExt('foo/bar/baz.svelte'));
+		t.ok(hasSourceExtension('foo/bar/baz.svelte'));
 	});
 });
 
-test('toSourceExt()', () => {
-	t.is(toSourceExt('foo/bar/baz.js'), 'foo/bar/baz.ts');
+test('toSourceExtension()', () => {
+	t.is(toSourceExtension('foo/bar/baz.js'), 'foo/bar/baz.ts');
 });
 
-test('toCompiledExt()', () => {
+test('toCompiledExtension()', () => {
 	test('typescript', () => {
-		t.is(toCompiledExt('foo/bar/baz.ts'), 'foo/bar/baz.js');
+		t.is(toCompiledExtension('foo/bar/baz.ts'), 'foo/bar/baz.js');
 	});
 	test('svelte', () => {
-		t.is(toCompiledExt('foo/bar/baz.svelte'), 'foo/bar/baz.js');
+		t.is(toCompiledExtension('foo/bar/baz.svelte'), 'foo/bar/baz.js');
 	});
 });
 

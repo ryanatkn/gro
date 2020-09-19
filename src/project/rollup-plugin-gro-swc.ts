@@ -8,7 +8,7 @@ import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
-import {toRootPath, isSourceId, toSourceExt} from '../paths.js';
+import {toRootPath, isSourceId, toSourceExtension} from '../paths.js';
 import {loadTsconfig} from '../compile/tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -63,7 +63,7 @@ export const groSwcPlugin = (opts: InitialOptions = {}): Plugin => {
 			if (importer && importee.endsWith('.js') && importee.startsWith('.')) {
 				const resolvedPath = resolve(importer, '../', importee);
 				if (isSourceId(resolvedPath)) {
-					return toSourceExt(resolvedPath);
+					return toSourceExtension(resolvedPath);
 				}
 			}
 			return null;

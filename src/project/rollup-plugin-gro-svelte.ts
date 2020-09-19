@@ -5,7 +5,7 @@ import {Plugin, PluginContext, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
 import {magenta, yellow, red} from '../colors/terminal.js';
-import {getPathStem, replaceExt} from '../utils/path.js';
+import {getPathStem, replaceExtension} from '../utils/path.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath} from '../paths.js';
@@ -154,7 +154,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 			onstats(id, stats, handleStats, this, log);
 
-			let cssId = replaceExt(id, '.css');
+			let cssId = replaceExtension(id, '.css');
 			log.trace('add css import', printPath(cssId));
 			addCssBuild({
 				id: cssId,

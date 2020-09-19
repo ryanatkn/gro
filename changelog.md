@@ -8,6 +8,8 @@
   ([#46](https://github.com/feltcoop/gro/pull/46))
 - add stop function return value to `Timings#start`
   ([#47](https://github.com/feltcoop/gro/pull/47))
+- rename identifiers from "ext" to "extension" to follow newer convention
+  ([#48](https://github.com/feltcoop/gro/pull/48))
 
 ## 0.3.0
 
