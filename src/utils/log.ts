@@ -143,7 +143,7 @@ interface LogLevelDefaults {
 /*
 
 The `SystemLogger` is distinct from the `Logger`
-to cleanly separate Gro's logging from user logging.
+to cleanly separate Gro's logging from user logging, decoupling their log levels.
 Gro internally uses `SystemLogger`, not `Logger` directly.
 This allows user code to simply import and use `Logger`.
 `SystemLogger` is still made available to user code,

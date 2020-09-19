@@ -27,11 +27,7 @@ export interface WatcherInitCallback {
 export interface WatcherChangeCallback {
 	(change: WatcherChange, path: string, stats: PathStats): void;
 }
-export enum WatcherChange {
-	Create,
-	Update,
-	Delete,
-}
+export type WatcherChange = 'create' | 'update' | 'delete';
 
 const DEBOUNCE_DEFAULT = 10;
 
@@ -61,10 +57,10 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 		debounce,
 	});
 	watcher.on('+', ({path, stats, isNew}) => {
-		onChange(isNew ? WatcherChange.Create : WatcherChange.Update, path, stats);
+		onChange(isNew ? 'create' : 'update', path, stats);
 	});
 	watcher.on('-', ({path, stats}) => {
-		onChange(WatcherChange.Delete, path, stats);
+		onChange('delete', path, stats);
 	});
 	const init = watcher.init();
 	init.then(() => onInit(watcher.paths));
