@@ -3,7 +3,7 @@ import {compile} from '../compile/compile.js';
 import {Args} from '../cli/types';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {runTask} from './runTask.js';
-import {Timings} from '../utils/time.js';
+import {createStopwatch, Timings} from '../utils/time.js';
 import {printMs, printPath, printPathOrGroPath, printSubTiming} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName, TaskError} from './task.js';
@@ -53,9 +53,8 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 		return;
 	}
 
-	const timings = new Timings<'total'>();
-	timings.start('total');
-	const subTimings = new Timings();
+	const totalTiming = createStopwatch();
+	const timings = new Timings();
 
 	// Resolve the input path for the provided task name.
 	const inputPath = resolveRawInputPath(taskName || paths.source);
@@ -69,7 +68,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 	);
 
 	if (findModulesResult.ok) {
-		subTimings.merge(findModulesResult.timings);
+		timings.merge(findModulesResult.timings);
 		// Found a match either in the current working directory or Gro's directory.
 		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
 		if (!pathData.isDirectory) {
@@ -79,9 +78,9 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 			// This is useful for initial project setup and CI.
 			if (await shouldBuildProject(pathData)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
-				subTimings.start('build project');
+				const timingToBuildProject = timings.start('build project');
 				await compile(log);
-				subTimings.stop('build project');
+				timingToBuildProject();
 			}
 
 			// Load and run the task.
@@ -90,7 +89,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				loadTaskModule,
 			);
 			if (loadModulesResult.ok) {
-				subTimings.merge(loadModulesResult.timings);
+				timings.merge(loadModulesResult.timings);
 				// Run the task!
 				// `pathData` is not a directory, so there's a single task module here.
 				const task = loadModulesResult.modules[0];
@@ -99,9 +98,9 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 						(task.mod.task.description && gray(task.mod.task.description)) || ''
 					}`,
 				);
-				subTimings.start('run task');
+				const timingToRunTask = timings.start('run task');
 				const result = await runTask(task, args, invokeTask);
-				subTimings.stop('run task');
+				timingToRunTask();
 				if (result.ok) {
 					log.info(`✓ ${cyan(task.name)}`);
 				} else {
@@ -140,7 +139,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (groDirFindModulesResult.ok) {
-					subTimings.merge(groDirFindModulesResult.timings);
+					timings.merge(groDirFindModulesResult.timings);
 					const groPathData = groDirFindModulesResult.sourceIdPathDataByInputPath.get(
 						groDirInputPath,
 					)!;
@@ -173,7 +172,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				findFiles(id, (file) => isTaskPath(file.path)),
 			);
 			if (groDirFindModulesResult.ok) {
-				subTimings.merge(groDirFindModulesResult.timings);
+				timings.merge(groDirFindModulesResult.timings);
 				const groPathData = groDirFindModulesResult.sourceIdPathDataByInputPath.get(
 					groDirInputPath,
 				)!;
@@ -196,10 +195,10 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 		process.exit(1);
 	}
 
-	for (const [key, timing] of subTimings.getAll()) {
+	for (const [key, timing] of timings.getAll()) {
 		log.trace(printSubTiming(key, timing));
 	}
-	log.info(`🕒 ${printMs(timings.stop('total'))}`);
+	log.info(`🕒 ${printMs(totalTiming())}`);
 };
 
 const logAvailableTasks = (

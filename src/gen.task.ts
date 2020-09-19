@@ -6,7 +6,7 @@ import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js
 import {printPath, printMs, printError, printSubTiming} from './utils/print.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {plural} from './utils/string.js';
-import {Timings} from './utils/time.js';
+import {createStopwatch, Timings} from './utils/time.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './project/formatFile.js';
 
@@ -18,9 +18,8 @@ export const task: Task = {
 		const rawInputPaths = args._;
 		const check = !!args.check; // TODO args declaration and validation
 
-		const timings = new Timings<'total' | 'output results'>();
-		timings.start('total');
-		const subTimings = new Timings();
+		const totalTiming = createStopwatch();
+		const timings = new Timings();
 
 		// resolve the input paths relative to src/
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
@@ -33,7 +32,7 @@ export const task: Task = {
 			}
 			throw new TaskError('Failed to find gen modules.');
 		}
-		subTimings.merge(findModulesResult.timings);
+		timings.merge(findModulesResult.timings);
 		const loadModulesResult = await loadModules(
 			findModulesResult.sourceIdsByInputPath,
 			loadGenModule,
@@ -44,12 +43,12 @@ export const task: Task = {
 			}
 			throw new TaskError('Failed to load gen modules.');
 		}
-		subTimings.merge(loadModulesResult.timings);
+		timings.merge(loadModulesResult.timings);
 
 		// run `gen` on each of the modules
-		subTimings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
+		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
 		const genResults = await runGen(loadModulesResult.modules, formatFile);
-		subTimings.stop('generate code');
+		stopTimingToGenerateCode();
 
 		const failCount = genResults.failures.length;
 		if (check) {
@@ -57,9 +56,9 @@ export const task: Task = {
 			// but if there are gen failures, skip the check and defer to their errors
 			if (!failCount) {
 				log.info('checking generated files for changes');
-				subTimings.start('check results for changes');
+				const stopTimingToCheckResults = timings.start('check results for changes');
 				const checkGenModulesResults = await checkGenModules(genResults);
-				subTimings.stop('check results for changes');
+				stopTimingToCheckResults();
 
 				let hasUnexpectedChanges = false;
 				for (const result of checkGenModulesResults) {
@@ -84,7 +83,7 @@ export const task: Task = {
 		} else {
 			// write generated files to disk
 			log.info('writing generated files to disk');
-			subTimings.start('output results');
+			const stopTimingToOutputResults = timings.start('output results');
 			await Promise.all(
 				genResults.successes
 					.map((result) =>
@@ -95,7 +94,7 @@ export const task: Task = {
 					)
 					.flat(),
 			);
-			subTimings.stop('output results');
+			stopTimingToOutputResults();
 		}
 
 		let logResult = '';
@@ -112,10 +111,10 @@ export const task: Task = {
 				} input file${plural(genResults.successes.length)}`,
 			),
 		);
-		for (const [key, timing] of subTimings.getAll()) {
+		for (const [key, timing] of timings.getAll()) {
 			log.trace(printSubTiming(key, timing));
 		}
-		log.info(`🕒 ${printMs(timings.stop('total'))}`);
+		log.info(`🕒 ${printMs(totalTiming())}`);
 
 		if (failCount) {
 			for (const result of genResults.failures) {
