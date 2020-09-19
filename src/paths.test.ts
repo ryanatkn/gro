@@ -22,6 +22,7 @@ import {
 	toPathParts,
 	toPathSegments,
 	toImportId,
+	toSourceMapPath,
 } from './paths.js';
 
 test('createPaths()', () => {
@@ -200,6 +201,12 @@ test('toCompiledExtension()', () => {
 	test('svelte', () => {
 		t.is(toCompiledExtension('foo/bar/baz.svelte'), 'foo/bar/baz.js');
 	});
+});
+
+test('toSourceMapPath()', () => {
+	t.is(toSourceMapPath('foo.ts'), 'foo.js.map');
+	t.is(toSourceMapPath('foo.svelte'), 'foo.js.map');
+	t.is(toSourceMapPath('foo.js'), 'foo.js.map');
 });
 
 test('toPathSegments()', () => {

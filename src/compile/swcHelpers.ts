@@ -1,6 +1,6 @@
 import swc from '@swc/core';
 import {ScriptTarget} from 'typescript';
-import {dirname, relative} from 'path';
+import {dirname, relative, basename} from 'path';
 
 import {toBuildId, toSourceId} from '../paths.js';
 
@@ -55,3 +55,6 @@ export const getDefaultSwcOptions = (): swc.Options => ({
 
 const pathToSwcFilename = (path: string): string =>
 	relative(dirname(toBuildId(path)), toSourceId(path));
+
+export const addSourceMapFooter = (code: string, sourceMapPath: string): string =>
+	`${code}\n//# sourceMappingURL=${basename(sourceMapPath)}`;

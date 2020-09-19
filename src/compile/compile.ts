@@ -2,13 +2,18 @@ import swc from '@swc/core';
 import {join} from 'path';
 
 import {loadTsconfig} from './tsHelpers.js';
-import {toSwcCompilerTarget, mergeSwcOptions, getDefaultSwcOptions} from './swcHelpers.js';
+import {
+	toSwcCompilerTarget,
+	mergeSwcOptions,
+	getDefaultSwcOptions,
+	addSourceMapFooter,
+} from './swcHelpers.js';
 import {spawnProcess} from '../utils/process.js';
 import {printMs, printPath, printSubTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
-import {paths, toBuildId, toCompiledExtension} from '../paths.js';
+import {paths, toBuildId, toSourceMapPath} from '../paths.js';
 import {red} from '../colors/terminal.js';
 
 export const compile = async (log: Logger): Promise<void> => {
@@ -71,8 +76,9 @@ export const compile = async (log: Logger): Promise<void> => {
 				throw err;
 			}
 
-			results.set(path, output.code);
-			results.set(`${toCompiledExtension(path)}.map`, output.map!);
+			const sourceMapPath = toSourceMapPath(path);
+			results.set(path, addSourceMapFooter(output.code, sourceMapPath));
+			results.set(sourceMapPath, output.map!);
 		}),
 	);
 	timingToCompile();

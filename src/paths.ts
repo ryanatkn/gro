@@ -121,6 +121,7 @@ export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
 export const SVELTE_EXTENSION = '.svelte';
 export const SOURCE_EXTENSIONS = [TS_EXTENSION, SVELTE_EXTENSION];
+export const SOURCE_MAP_EXTENSION = '.map';
 
 export const hasSourceExtension = (path: string): boolean =>
 	SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
@@ -131,6 +132,9 @@ export const toSourceExtension = (path: string): string =>
 // compiled includes both build and dist
 export const toCompiledExtension = (path: string): string =>
 	hasSourceExtension(path) ? replaceExtension(path, JS_EXTENSION) : path;
+
+export const toSourceMapPath = (path: string): string =>
+	`${toCompiledExtension(path)}${SOURCE_MAP_EXTENSION}`;
 
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
