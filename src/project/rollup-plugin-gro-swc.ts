@@ -12,8 +12,6 @@ import {toRootPath, isSourceId, toSourceExt} from '../paths.js';
 import {loadTsconfig} from './tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 
-// TODO parallelize with workers?
-
 // TODO improve along with Svelte compile stats
 interface Stats {
 	timings: {
@@ -97,7 +95,6 @@ export const groSwcPlugin = (opts: InitialOptions = {}): Plugin => {
 			};
 			onstats(id, stats, handleStats, this, log);
 
-			// TODO does map need parsing like the TypeScript version? JSON.parse(sourceMapText) : null,
 			return output;
 		},
 	};
