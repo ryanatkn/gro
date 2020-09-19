@@ -3,7 +3,7 @@ import {outputFile} from './fs/nodeFs.js';
 import {Task, TaskError} from './task/task.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
-import {printPath, printMs, printError, printSubTiming} from './utils/print.js';
+import {printPath, printMs, printError, printTiming} from './utils/print.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {plural} from './utils/string.js';
 import {createStopwatch, Timings} from './utils/time.js';
@@ -112,7 +112,7 @@ export const task: Task = {
 			),
 		);
 		for (const [key, timing] of timings.getAll()) {
-			log.trace(printSubTiming(key, timing));
+			log.trace(printTiming(key, timing));
 		}
 		log.info(`🕒 ${printMs(totalTiming())}`);
 

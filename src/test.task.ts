@@ -3,7 +3,7 @@ import {TestContext} from './oki/TestContext.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {findTestModules} from './oki/testModule.js';
-import {printMs, printSubTiming} from './utils/print.js';
+import {printMs, printTiming} from './utils/print.js';
 import {createStopwatch, Timings} from './utils/time.js';
 import * as report from './oki/report.js';
 import {plural} from './utils/string.js';
@@ -52,7 +52,7 @@ export const task: Task = {
 		timings.merge(testRunResult.timings);
 
 		for (const [key, timing] of timings.getAll()) {
-			log.trace(printSubTiming(key, timing));
+			log.trace(printTiming(key, timing));
 		}
 		log.info(`🕒 ${printMs(totalTiming())}`);
 

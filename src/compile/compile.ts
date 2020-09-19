@@ -9,7 +9,7 @@ import {
 	addSourceMapFooter,
 } from './swcHelpers.js';
 import {spawnProcess} from '../utils/process.js';
-import {printMs, printPath, printSubTiming} from '../utils/print.js';
+import {printMs, printPath, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
@@ -23,7 +23,7 @@ export const compile = async (log: Logger): Promise<void> => {
 	const timings = new Timings();
 	const logTimings = () => {
 		for (const [key, timing] of timings.getAll()) {
-			log.trace(printSubTiming(key, timing));
+			log.trace(printTiming(key, timing));
 		}
 		log.info(`🕒 compiled in ${printMs(totalTiming())}`);
 	};

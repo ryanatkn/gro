@@ -44,5 +44,5 @@ export const printError = (err: Error): string =>
 		MAX_ERROR_LOG_LENGTH,
 	);
 
-export const printSubTiming = (key: string | number, timing: number): string =>
+export const printTiming = (key: string | number, timing: number): string =>
 	`${printMs(timing)} ${gray('←')} ${gray(key)}`;
