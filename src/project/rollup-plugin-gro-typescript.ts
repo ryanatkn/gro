@@ -8,7 +8,7 @@ import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath, isSourceId, toSourceExt} from '../paths.js';
-import {loadTsconfig, logTsDiagnostics} from './tsHelpers.js';
+import {loadTsconfig, logTsDiagnostics} from '../compile/tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 
 /*

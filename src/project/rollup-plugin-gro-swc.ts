@@ -3,13 +3,13 @@ import {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 
-import {getDefaultSwcOptions, mergeSwcOptions, toSwcCompilerTarget} from './swcHelpers.js';
+import {getDefaultSwcOptions, mergeSwcOptions, toSwcCompilerTarget} from '../compile/swcHelpers.js';
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath, isSourceId, toSourceExt} from '../paths.js';
-import {loadTsconfig} from './tsHelpers.js';
+import {loadTsconfig} from '../compile/tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO improve along with Svelte compile stats
@@ -76,9 +76,8 @@ export const groSwcPlugin = (opts: InitialOptions = {}): Plugin => {
 			log.trace('transpile', printPath(id));
 			let output: swc.Output;
 			try {
-				const filename = id; // TODO convert to relative path?
 				// TODO keep this async, right?
-				const finalSwcOptions = mergeSwcOptions(swcOptions, target, filename);
+				const finalSwcOptions = mergeSwcOptions(swcOptions, target, id);
 				output = await swc.transform(code, finalSwcOptions);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(id));
