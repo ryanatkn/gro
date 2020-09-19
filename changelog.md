@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.4.0
+
+- add `swc` dependency along with a Rollup plugin and Svelte preprocessor
+  ([#45](https://github.com/feltcoop/gro/pull/45))
+
 ## 0.3.0
 
 - handle build errors in the deploy task and add the `--dry` deploy flag
