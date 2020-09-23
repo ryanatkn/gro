@@ -21,7 +21,7 @@ import {magenta, red} from '../colors/terminal.js';
 import {printPath} from '../utils/print.js';
 import {CompiledOutput, CompileFile} from './compileFile.js';
 
-// TODO ?? PathData ? look at its usage to unify, also `nodeFile.ts` with `loadFile` and `File`
+// TODO look at unifying `PathInfo` with `PathData`, also `nodeFile.ts` with `loadFile` and `File`
 type PathInfo = FilePathInfo | DirectoryPathInfo;
 interface FilePathInfo {
 	id: string;
@@ -93,7 +93,7 @@ export class CachingCompiler {
 
 		const [statsBySourcePath, statsByBuildPath] = await Promise.all([
 			this.watcher.init(),
-			findFiles(this.buildDir, undefined, null), // TODO gross
+			findFiles(this.buildDir, undefined, null),
 		]);
 
 		const statsBySourceId = new Map<string, PathStats>();
@@ -102,7 +102,7 @@ export class CachingCompiler {
 		}
 		const buildIds = Array.from(statsByBuildPath.keys()).map((p) => basePathToBuildId(p));
 
-		// this pattern helps us more easily parallelize work
+		// This pattern helps us more easily parallelize work.
 		const promises: Promise<void>[] = [];
 
 		// Clean up the build directory, removing any files that can't be mapped back to source files.
@@ -119,11 +119,10 @@ export class CachingCompiler {
 		await Promise.all(promises);
 		promises.length = 0;
 
-		// compile the source files and update the build directory's files and directories
+		// Compile the source files and update the build directory's files and directories.
 		for (const [id, stats] of statsBySourceId) {
 			promises.push(this.compileSourceId(id, stats.isDirectory()));
 		}
-		// promises.push(this.compileSourceId('/home/ryan/dev/gro/src/z.ts', false));
 
 		await Promise.all(promises);
 
@@ -135,13 +134,6 @@ export class CachingCompiler {
 		// so we can flush them here to get up to speed.
 		await this.flushEnqueuedWatcherChanges();
 	}
-
-	// TODO similarly to the flushing enqueued changes,
-	// we may need to defer queries with a "compile lock" against the cache until any current processing is complete,
-	// at least for particular files,
-	// otherwise you may see bad mutated values while it's reading or writing to disk in `compileSourceId`.
-	// could it be as simple as `await currentCompilations`?
-	// or can we set `contents` to be `string | null` and be done with it?
 
 	private onWatcherChange = async (
 		change: WatcherChange,
@@ -168,18 +160,20 @@ export class CachingCompiler {
 		}
 	};
 
-	// TODO I thought source maps were NOT being checked for contents but they seem to be? (edit one in build)
-
-	// TODO could save in a map or set each id being compiled, and cancel compilation if a new one comes in
-	// store a global counter that increments each compile call, and store that in a map by id
+	// TODO similarly to the flushing enqueued changes,
+	// we may need to defer queries with a "compile lock" against the cache until any current processing is complete,
+	// at least for particular files,
+	// otherwise you may see bad mutated values while it's reading or writing to disk in `compileSourceId`.
+	// could it be as simple as `await currentCompilations`?
+	// or can we set `contents` to be `string | null` and be done with it?
+	// We could save each id being compiled in a map or set, and cancel compilation if a new one comes in,
+	// or store a global counter that increments each compile call, and store that in a map by id
 	// during compilation, after each async call check if the original id in the function closure is still current,
 	// and if not abort early
 
 	private async compileSourceId(id: string, isDirectory: boolean) {
-		if (!isDirectory && !id.endsWith(TS_EXTENSION)) return; // TODO svelte, markdown etc - pluggable compiler hooks!
+		if (!isDirectory && !id.endsWith(TS_EXTENSION)) return; // TODO svelte, markdown etc - defer to the `compileFile` prop
 
-		// console.log('-------------------------------------------');
-		// console.log(id);
 		const {pathInfoBySourceId, pathInfoByBuildId, log} = this;
 
 		// We're not trusting 'create' vs 'update' from our file watcher.
@@ -192,11 +186,6 @@ export class CachingCompiler {
 				? {id, isDirectory: true}
 				: {id, isDirectory: false, contents: null};
 			pathInfoBySourceId.set(id, sourcePathInfo);
-			// if (isDirectory) {
-			// 	console.log('sourceNotInCache directory');
-			// } else {
-			// 	console.log('sourceNotInCache file READ DISK src/');
-			// }
 		}
 		const buildId = toBuildId(id);
 		let buildPathInfo = pathInfoByBuildId.get(buildId);
@@ -215,21 +204,14 @@ export class CachingCompiler {
 						contents: (await pathExists(buildId)) ? await readFile(buildId, 'utf8') : null,
 				  };
 			pathInfoByBuildId.set(buildId, buildPathInfo);
-			// if (isDirectory) {
-			// 	console.log('buildNotInCache directory');
-			// } else {
-			// 	console.log('buildNotInCache READ DISK build/');
-			// }
 		}
 		if (isDirectory) {
-			// handle a new or updated directory and exit early!!!
-			// console.log('EXIT EARLY dir!');
+			// Handle a new or updated directory and exit early!
 			if (buildNotInCache) {
 				// TODO can we get away without this? seems a bit excessive
-				// console.log('NEW dir');
+				// given the filesystem APIs automatically create necessary directories
 				await ensureDir(buildId);
 			}
-			// console.log('-------------------------------------------');
 			return;
 		}
 
@@ -239,7 +221,7 @@ export class CachingCompiler {
 
 		const buildSourceMapId = buildId + SOURCE_MAP_EXTENSION;
 
-		// handle a new or updated file
+		// Handle a new or updated file
 		const sourceContents = await readFile(id, 'utf8');
 		if (sourcePathInfo.contents !== sourceContents) {
 			sourcePathInfo.contents = sourceContents;
@@ -249,12 +231,8 @@ export class CachingCompiler {
 			// We're going to assume that if the source map exists, it's in sync,
 			// in the same way that we're assuming that the build file is in sync
 			// when the cached source file hasn't changed.
-			// (TODO I'm beginning to think we want "dirty" flag checking - this could be flagged at startup,
-			// or whenever the `sourceMap` option changes at runtime)
 			if (!this.sourceMap || (await pathExists(buildSourceMapId))) {
-				// console.log('EXIT EARLY no change to source!  ' + id);
-				// console.log('-------------------------------------------');
-				// TODO what about pending compilations? hmmm........................ I think that'd be a bug, we'd need to track the current compilations and throw away work that's not the most recent
+				// TODO what about pending compilations? I think that'd be a bug, we'd need to track the current compilations and throw away work that's not the most recent
 				return;
 			}
 		}
@@ -274,13 +252,11 @@ export class CachingCompiler {
 
 		const promises: Promise<void>[] = [];
 
-		// compare the compiled code with the cache
+		// Compare the compiled code with the cache
 		if (buildPathInfo.contents !== output.code) {
 			log.trace('writing compiled file to disk', printPath(buildId));
 			buildPathInfo.contents = output.code;
 			promises.push(outputFile(buildId, buildPathInfo.contents));
-		} else {
-			// console.log('contents have NOT CHANGED! must have been cached in build directory');
 		}
 
 		// Even if output code has not changed,
@@ -301,7 +277,6 @@ export class CachingCompiler {
 				| FilePathInfo
 				| undefined;
 			if (!buildPathSourceMapInfo) {
-				// console.log('new source map!');
 				buildPathSourceMapInfo = {
 					id: buildSourceMapId,
 					isDirectory: false,
@@ -314,15 +289,11 @@ export class CachingCompiler {
 					(await pathExists(buildSourceMapId)) &&
 					(await readFile(buildSourceMapId, 'utf8')) === output.map
 				) {
-					// console.log('but not writing to disk because already there!');
 					shouldOutputSourceMap = false;
 				}
 			} else if (buildPathSourceMapInfo.contents === output.map) {
-				// probably can't happen but w/e
-				// console.log('source map unchanged!');
 				shouldOutputSourceMap = false;
 			} else {
-				// console.log('update source map!');
 				buildPathSourceMapInfo.contents = output.map;
 			}
 			if (shouldOutputSourceMap) {
@@ -332,8 +303,6 @@ export class CachingCompiler {
 		}
 
 		await Promise.all(promises);
-
-		// console.log('-------------------------------------------');
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
