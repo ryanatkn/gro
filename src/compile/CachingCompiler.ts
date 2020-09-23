@@ -18,7 +18,7 @@ import type {AsyncStatus} from '../utils/async.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
-import {printPath} from '../utils/print.js';
+import {printError, printPath} from '../utils/print.js';
 import {CompiledOutput, CompileFile} from './compileFile.js';
 
 // TODO look at unifying `PathInfo` with `PathData`, also `nodeFile.ts` with `loadFile` and `File`
@@ -246,8 +246,8 @@ export class CachingCompiler {
 			// Can we share code or at least interfaces with gen files? That's compilation!
 			output = await this.compileFile(id, sourceContents);
 		} catch (err) {
-			log.error(red('Failed to transpile TypeScript'), printPath(id));
-			throw err;
+			log.error(red('compileFile failed for'), printPath(id), printError(err));
+			return;
 		}
 
 		const promises: Promise<void>[] = [];
