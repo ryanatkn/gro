@@ -34,6 +34,7 @@ It includes:
 - integrated UI development with
   [Svelte](https://github.com/sveltejs/svelte) (particularly rough right now)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
+  using [swc](https://github.com/swc-project/swc) in dev mode
 - bundling via [Rollup](https://github.com/rollup/rollup)
 - formatting via [Prettier](https://github.com/prettier/prettier)
 - more to come, exploring what deeply integrated tools enable
