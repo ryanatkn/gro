@@ -3,6 +3,8 @@ import {resolve} from 'path';
 import {pathExists} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
+import {getDefaultSwcOptions, toSwcCompilerTarget} from './compile/swcHelpers.js';
+import {loadTsconfig} from './compile/tsHelpers.js';
 
 const DEFAULT_OUTPUT_DIR = 'dist/';
 const DEFAULT_INPUT_NAMES = ['src/index.ts'];
@@ -21,15 +23,24 @@ export const task: Task = {
 		const mapOutputOptions = args.mapOutputOptions as any;
 		const mapWatchOptions = args.mapWatchOptions as any;
 
+		const tsconfigPath = undefined; // TODO parameterized options?
+		const basePath = undefined; // TODO parameterized options?
+		const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
+		const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
+		const sourceMap = tsconfig.compilerOptions?.sourceMap ?? process.env.NODE_ENV === 'development';
+		const swcOptions = getDefaultSwcOptions(target, sourceMap);
+
 		if (inputFiles.length) {
 			const build = createBuild({
 				dev,
+				sourceMap,
 				inputFiles,
 				outputDir,
 				watch,
 				mapInputOptions,
 				mapOutputOptions,
 				mapWatchOptions,
+				swcOptions,
 			});
 			await build.promise;
 		} else {
@@ -40,7 +51,7 @@ export const task: Task = {
 	},
 };
 
-// TODO use `resolveRawInputPaths`? consider the virtual fs
+// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `CachingCompiler` probably
 const resolveInputFiles = async (fileNames: string[]): Promise<string[]> => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {

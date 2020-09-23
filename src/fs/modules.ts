@@ -15,6 +15,8 @@ This has significant performance consequences and is friendly to future changes.
 Currently the implementations only use the filesystem,
 but eventually we'll have an in-memory virtual filesystem for dev watch mode.
 
+TODO now that `CachingCompiler` is here, integrate it further
+
 */
 
 export interface ModuleMeta<ModuleType = Obj> {

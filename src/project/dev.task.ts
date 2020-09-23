@@ -1,11 +1,22 @@
 import {Task} from '../task/task.js';
-import {spawnProcess} from '../utils/process.js';
-import {cleanBuild} from './clean.js';
+import {CachingCompiler} from '../compile/CachingCompiler.js';
+import {printTiming} from '../utils/print.js';
+import {Timings} from '../utils/time.js';
+import {createCompileFile} from '../compile/compileFile.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
 	run: async ({log}) => {
-		await cleanBuild(log);
-		await spawnProcess('node_modules/.bin/tsc', ['-w']);
+		const timings = new Timings();
+
+		const compiler = new CachingCompiler({compileFile: createCompileFile(log)});
+
+		const timingToInitCachingCompiler = timings.start('init caching compiler');
+		await compiler.init();
+		timingToInitCachingCompiler();
+
+		for (const [key, timing] of timings.getAll()) {
+			log.trace(printTiming(key, timing));
+		}
 	},
 };

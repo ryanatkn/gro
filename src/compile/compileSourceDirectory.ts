@@ -1,13 +1,5 @@
-import swc from '@swc/core';
 import {join} from 'path';
 
-import {loadTsconfig} from './tsHelpers.js';
-import {
-	toSwcCompilerTarget,
-	mergeSwcOptions,
-	getDefaultSwcOptions,
-	addSourceMapFooter,
-} from './swcHelpers.js';
 import {spawnProcess} from '../utils/process.js';
 import {printMs, printPath, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
@@ -15,8 +7,9 @@ import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
 import {paths, toBuildId, toSourceMapPath} from '../paths.js';
 import {red} from '../colors/terminal.js';
+import {CompiledOutput, createCompileFile} from './compileFile.js';
 
-export const compile = async (log: Logger): Promise<void> => {
+export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	log.info('compiling...');
 
 	const totalTiming = createStopwatch();
@@ -39,46 +32,41 @@ export const compile = async (log: Logger): Promise<void> => {
 	const statsByPath = await findFiles(paths.source, ({path}) => path.endsWith('.ts'), null);
 	stopTimingToFindFiles();
 	const timingToReadFiles = timings.start('read files');
-	const codeByPath = new Map<string, string>();
+	const codeBySourceId = new Map<string, string>();
 	await Promise.all(
 		Array.from(statsByPath.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
-			const contents = await readFile(join(paths.source, path), 'utf8');
-			// console.log('file', path, contents.length);
-			codeByPath.set(path, contents);
+			const id = join(paths.source, path);
+			const contents = await readFile(id, 'utf8');
+			codeBySourceId.set(id, contents);
 		}),
 	);
 	timingToReadFiles();
 
-	// load the options
-	const tsconfigPath = undefined; // TODO parameterized options?
-	const basePath = undefined; // TODO parameterized options?
-	const timingToLoadTsconfig = timings.start('load tsconfig');
-	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
-	timingToLoadTsconfig();
-	const {compilerOptions} = tsconfig;
-	const target = toSwcCompilerTarget(compilerOptions && compilerOptions.target);
-	const swcOptions = getDefaultSwcOptions(); // TODO parameterized options?
-
 	const results = new Map<string, string>();
+
+	const timingToSetupCompiler = timings.start('setup compiler');
+	const compileFile = createCompileFile(log);
+	timingToSetupCompiler();
 
 	// compile everything
 	const timingToCompile = timings.start('compile');
 	await Promise.all(
-		Array.from(codeByPath.entries()).map(async ([path, code]) => {
-			const finalSwcOptions = mergeSwcOptions(swcOptions, target, path);
-
-			let output: swc.Output;
+		Array.from(codeBySourceId.entries()).map(async ([id, code]) => {
+			let output: CompiledOutput;
 			try {
-				output = await swc.transform(code, finalSwcOptions);
+				output = await compileFile(id, code);
 			} catch (err) {
-				log.error(red('Failed to transpile TypeScript'), printPath(path));
+				log.error(red('Failed to transpile TypeScript'), printPath(id));
 				throw err;
 			}
 
-			const sourceMapPath = toSourceMapPath(path);
-			results.set(path, addSourceMapFooter(output.code, sourceMapPath));
-			results.set(sourceMapPath, output.map!);
+			results.set(id, output.code);
+			if (output.map !== undefined) {
+				// TODO see `GenFile` interface when we add Svelte support,
+				// we should unify things here that works for both source map files and Svelte files like css
+				results.set(toSourceMapPath(id), output.map!);
+			}
 		}),
 	);
 	timingToCompile();
@@ -86,7 +74,7 @@ export const compile = async (log: Logger): Promise<void> => {
 	// output the compiled files
 	const timingToWriteToDisk = timings.start('write to disk');
 	await Promise.all(
-		Array.from(results.entries()).map(([path, contents]) => outputFile(toBuildId(path), contents)),
+		Array.from(results.entries()).map(([id, contents]) => outputFile(toBuildId(id), contents)),
 	);
 	timingToWriteToDisk();
 

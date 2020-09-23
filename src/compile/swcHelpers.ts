@@ -1,5 +1,5 @@
 import swc from '@swc/core';
-import {ScriptTarget} from 'typescript';
+import type {ScriptTarget} from 'typescript';
 import {dirname, relative, basename} from 'path';
 
 import {toBuildId, toSourceId} from '../paths.js';
@@ -31,30 +31,26 @@ export const toSwcCompilerTarget = (target: ScriptTarget | undefined): swc.JscTa
 	}
 };
 
-export const mergeSwcOptions = (
-	options: swc.Options,
-	target: swc.JscTarget,
-	path?: string,
-): swc.Options => ({
+export const mergeSwcOptions = (options: swc.Options, sourcePath: string): swc.Options => ({
 	...options,
-	jsc: {
-		...options.jsc,
-		target,
-	},
-	filename: path ? pathToSwcFilename(path) : undefined,
+	filename: sourcePath ? sourcePathToSwcFilename(sourcePath) : undefined,
 });
 
-export const getDefaultSwcOptions = (): swc.Options => ({
-	sourceMaps: true,
+export const getDefaultSwcOptions = (
+	target: swc.JscTarget = DEFAULT_TARGET,
+	sourceMap = true, // sticking with the naming convention of TypeScript and some other libs
+): swc.Options => ({
+	sourceMaps: sourceMap,
 	jsc: {
 		parser: {syntax: 'typescript', tsx: false, decorators: false, dynamicImport: true},
+		target,
 		externalHelpers: true,
 		loose: true, // TODO?
 	},
 });
 
-const pathToSwcFilename = (path: string): string =>
-	relative(dirname(toBuildId(path)), toSourceId(path));
+const sourcePathToSwcFilename = (sourcePath: string): string =>
+	relative(dirname(toBuildId(sourcePath)), toSourceId(sourcePath));
 
 export const addSourceMapFooter = (code: string, sourceMapPath: string): string =>
-	`${code}\n//# sourceMappingURL=${basename(sourceMapPath)}`;
+	`${code}//# sourceMappingURL=${basename(sourceMapPath)}`;

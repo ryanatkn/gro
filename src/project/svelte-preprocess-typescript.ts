@@ -21,22 +21,24 @@ No typechecking is performed - that's left for a separate build step.
 export interface Options {
 	langs: string[];
 	tsconfigPath: string | undefined;
+	basePath: string | undefined;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	langs: ['typescript'],
 	tsconfigPath: undefined,
+	basePath: undefined,
 	...omitUndefined(opts),
 });
 
 const name = 'svelte-preprocess-typescript';
 
 export const sveltePreprocessTypescript = (opts: InitialOptions = {}): PreprocessorGroup => {
-	const {langs, tsconfigPath} = initOptions(opts);
+	const {langs, tsconfigPath, basePath} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
 
-	const tsconfig = loadTsconfig(log, tsconfigPath);
+	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
 
 	return {
 		script({content, attributes, filename}) {

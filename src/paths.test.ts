@@ -139,6 +139,14 @@ test('toSourceId()', () => {
 	test('distId with ts extension', () => {
 		t.is(toSourceId(resolve('dist/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
 	});
+	test('directory sourceId', () => {
+		t.is(toSourceId(resolve('src/foo/bar')), resolve('src/foo/bar/'));
+		t.is(toSourceId(resolve('src/foo/bar') + '/'), resolve('src/foo/bar') + '/');
+	});
+	test('directory buildId', () => {
+		t.is(toSourceId(resolve('build/foo/bar')), resolve('src/foo/bar'));
+		t.is(toSourceId(resolve('build/foo/bar') + '/'), resolve('src/foo/bar') + '/');
+	});
 });
 
 test('toBuildId()', () => {
@@ -159,6 +167,14 @@ test('toBuildId()', () => {
 	});
 	test('distId with ts extension', () => {
 		t.is(toBuildId(resolve('build/foo/bar/baz.ts')), resolve('build/foo/bar/baz.ts'));
+	});
+	test('directory sourceId', () => {
+		t.is(toBuildId(resolve('src/foo/bar')), resolve('build/foo/bar/'));
+		t.is(toBuildId(resolve('src/foo/bar') + '/'), resolve('build/foo/bar') + '/');
+	});
+	test('directory buildId', () => {
+		t.is(toBuildId(resolve('build/foo/bar')), resolve('build/foo/bar'));
+		t.is(toBuildId(resolve('build/foo/bar') + '/'), resolve('build/foo/bar') + '/');
 	});
 });
 
