@@ -180,8 +180,7 @@ export class CachingCompiler {
 		// I think things are still efficient despite the slightly more complicated code.
 		// The flags `sourceNotInCache` and `buildNotInCache` handle those conditions.
 		let sourcePathInfo = pathInfoBySourceId.get(id);
-		let sourceNotInCache = !sourcePathInfo;
-		if (sourceNotInCache) {
+		if (!sourcePathInfo) {
 			sourcePathInfo = isDirectory
 				? {id, isDirectory: true}
 				: {id, isDirectory: false, contents: null};
@@ -189,8 +188,7 @@ export class CachingCompiler {
 		}
 		const buildId = toBuildId(id);
 		let buildPathInfo = pathInfoByBuildId.get(buildId);
-		let buildNotInCache = !buildPathInfo;
-		if (buildNotInCache) {
+		if (!buildPathInfo) {
 			// Read from disk and cache if it's a file.
 			// We can't defer populating the cache from disk because
 			// we exit early before getting to the `buildPathInfo.contents` comparison below
@@ -206,12 +204,9 @@ export class CachingCompiler {
 			pathInfoByBuildId.set(buildId, buildPathInfo);
 		}
 		if (isDirectory) {
-			// Handle a new or updated directory and exit early!
-			if (buildNotInCache) {
-				// TODO can we get away without this? seems a bit excessive
-				// given the filesystem APIs automatically create necessary directories
-				await ensureDir(buildId);
-			}
+			// Since `fs-extra` handles the creation of directories,
+			// we can just exit early without ensuring that it exists.
+			// We may want to ensure the directory exists but it seems like unnecessary overhead.
 			return;
 		}
 
@@ -223,9 +218,7 @@ export class CachingCompiler {
 
 		// Handle a new or updated file
 		const sourceContents = await readFile(id, 'utf8');
-		if (sourcePathInfo.contents !== sourceContents) {
-			sourcePathInfo.contents = sourceContents;
-		} else {
+		if (sourcePathInfo.contents === sourceContents) {
 			// Source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source map is missing because the `sourceMap` option was off?
 			// We're going to assume that if the source map exists, it's in sync,
@@ -236,14 +229,11 @@ export class CachingCompiler {
 				return;
 			}
 		}
+		sourcePathInfo.contents = sourceContents;
 
 		// compile!
 		let output: CompiledOutput;
 		try {
-			// TODO doesn't handle multiple files for e.g. Svelte,
-			// and we're going to have to check each file against the compilation
-			// to avoid writing to disk like Svelte's CSS.
-			// Can we share code or at least interfaces with gen files? That's compilation!
 			output = await this.compileFile(id, sourceContents);
 		} catch (err) {
 			log.error(red('compileFile failed for'), printPath(id), printError(err));
