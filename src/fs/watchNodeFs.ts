@@ -5,23 +5,14 @@ import {omitUndefined} from '../utils/object.js';
 
 /*
 
-`watchNodeFs` is Gro's low level interface
-for watching changes on the Node filesystem.
-For now, user code should use this for any filesystem watching needs,
-but eventually its usage will be supplanted by a higher level interface
-for watching a virtual filesystem
-that provides automatic in-memory caching and platform independence.
-`watchNodeFs` will be used by the higher level interface.
+`watchNodeFs` is Gro's low level interface for watching changes on the Node filesystem.
+`CachingCompiler` is a high level interface that should be preferred when possible.
 
 */
 
 export interface WatchNodeFs {
-	init: Promise<void>;
-	dispose: () => void;
-}
-
-export interface WatcherInitCallback {
-	(paths: Map<string, PathStats>): void;
+	init: () => Promise<Map<string, PathStats>>;
+	destroy: () => void;
 }
 
 export interface WatcherChangeCallback {
@@ -29,16 +20,15 @@ export interface WatcherChangeCallback {
 }
 export type WatcherChange = 'create' | 'update' | 'delete';
 
-const DEBOUNCE_DEFAULT = 10;
+export const DEBOUNCE_DEFAULT = 10;
 
 export interface Options {
 	dir: string;
-	onInit: WatcherInitCallback;
 	onChange: WatcherChangeCallback;
 	filter: PathFilter | null;
 	debounce: number;
 }
-export type RequiredOptions = 'dir' | 'onInit' | 'onChange';
+export type RequiredOptions = 'dir' | 'onChange';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	debounce: DEBOUNCE_DEFAULT,
@@ -47,7 +37,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 });
 
 export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
-	const {dir, onChange, onInit, filter, debounce} = initOptions(opts);
+	const {dir, onChange, filter, debounce} = initOptions(opts);
 	const watcher = new CheapWatch({
 		dir,
 		filter: filter
@@ -62,7 +52,11 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 	watcher.on('-', ({path, stats}) => {
 		onChange('delete', path, stats);
 	});
-	const init = watcher.init();
-	init.then(() => onInit(watcher.paths));
-	return {init, dispose: () => watcher.close()};
+	return {
+		init: async () => {
+			await watcher.init();
+			return watcher.paths;
+		},
+		destroy: () => watcher.close(),
+	};
 };

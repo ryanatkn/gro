@@ -1,11 +1,12 @@
 import {Task} from './task/task.js';
-import {spawnProcess} from './utils/process.js';
+import {CachingCompiler} from './compile/CachingCompiler.js';
+import {createCompileFile} from './compile/compileFile.js';
 
 const DEFAULT_SERVE_DIR = 'dist/';
 
 export const task: Task = {
 	description: 'start development server',
-	run: async ({args, invokeTask}): Promise<void> => {
+	run: async ({args, log, invokeTask}): Promise<void> => {
 		// TODO fix these
 		args.watch = true; // TODO always?
 		args.dir = args.dir || DEFAULT_SERVE_DIR;
@@ -17,11 +18,9 @@ export const task: Task = {
 		// .option('-w, --watch', 'Watch for changes and rebuild')
 		// .option('-P, --production', 'Set NODE_ENV to production')
 
-		await Promise.all([
-			invokeTask('build'),
-			spawnProcess('node_modules/.bin/tsc', ['-w']),
-			invokeTask('serve'),
-		]);
+		const compiler = new CachingCompiler({compileFile: createCompileFile(log)});
+
+		await Promise.all([invokeTask('build'), compiler.init(), invokeTask('serve')]);
 
 		// ...
 	},

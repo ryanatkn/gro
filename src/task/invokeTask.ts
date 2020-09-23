@@ -1,5 +1,5 @@
 import {magenta, cyan, red, gray} from '../colors/terminal.js';
-import {compile} from '../compile/compile.js';
+import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
 import {Args} from '../cli/types';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {runTask} from './runTask.js';
@@ -79,7 +79,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 			if (await shouldBuildProject(pathData)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
 				const timingToBuildProject = timings.start('build project');
-				await compile(log);
+				await compileSourceDirectory(log);
 				timingToBuildProject();
 			}
 

@@ -1,7 +1,7 @@
 import {sep, join, basename} from 'path';
 import {fileURLToPath} from 'url';
 
-import {replaceExtension} from './utils/path.js';
+import {hasExtension, replaceExtension} from './utils/path.js';
 import {stripStart} from './utils/string.js';
 
 /*
@@ -123,8 +123,7 @@ export const SVELTE_EXTENSION = '.svelte';
 export const SOURCE_EXTENSIONS = [TS_EXTENSION, SVELTE_EXTENSION];
 export const SOURCE_MAP_EXTENSION = '.map';
 
-export const hasSourceExtension = (path: string): boolean =>
-	SOURCE_EXTENSIONS.some((ext) => path.endsWith(ext));
+export const hasSourceExtension = (path: string): boolean => hasExtension(path, SOURCE_EXTENSIONS);
 
 export const toSourceExtension = (path: string): string =>
 	path.endsWith(JS_EXTENSION) ? replaceExtension(path, TS_EXTENSION) : path; // TODO? how does this work with `.svelte`? do we need more metadata?
@@ -133,8 +132,17 @@ export const toSourceExtension = (path: string): string =>
 export const toCompiledExtension = (path: string): string =>
 	hasSourceExtension(path) ? replaceExtension(path, JS_EXTENSION) : path;
 
+// TODO need better integration with this
+export const toSvelteExtension = (path: string): string =>
+	path.endsWith(JS_EXTENSION) ? replaceExtension(path, SVELTE_EXTENSION) : path;
+
 export const toSourceMapPath = (path: string): string =>
 	`${toCompiledExtension(path)}${SOURCE_MAP_EXTENSION}`;
+
+// This differs from `toSourceId` by handling `.map` files, so it's not two-way.
+// There might be a cleaner design in here somewhere.
+export const fromSourceMappedBuildIdToSourceId = (id: string): string =>
+	toSourceId(id.endsWith(SOURCE_MAP_EXTENSION) ? replaceExtension(id, '') : id);
 
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']

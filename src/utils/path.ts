@@ -6,6 +6,6 @@ export const replaceExtension = (path: string, newExtension: string): string => 
 };
 
 export const hasExtension = (path: string, extensions: string[]): boolean =>
-	extensions.some((e) => extname(path) === e);
+	extensions.includes(extname(path));
 
 export const getPathStem = (path: string): string => replaceExtension(basename(path), '');

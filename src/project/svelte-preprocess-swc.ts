@@ -1,10 +1,9 @@
 import swc from '@swc/core';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 
-import {toSwcCompilerTarget, mergeSwcOptions, getDefaultSwcOptions} from '../compile/swcHelpers.js';
+import {mergeSwcOptions} from '../compile/swcHelpers.js';
 import {magenta, red} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {loadTsconfig} from '../compile/tsHelpers.js';
 import {printPath} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -22,29 +21,21 @@ TODO use swc's JS parser options if it's not TypeScript for downtranspilation
 
 export interface Options {
 	swcOptions: swc.Options;
-	tsconfigPath: string | undefined;
-	basePath: string | undefined;
 	langs: string[];
 }
-export type InitialOptions = Partial<Options>;
+export type RequiredOptions = 'swcOptions';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	swcOptions: getDefaultSwcOptions(),
-	tsconfigPath: undefined,
-	basePath: undefined,
 	langs: ['typescript', 'ts'],
 	...omitUndefined(opts),
 });
 
 const name = 'svelte-preprocess-swc';
 
-export const sveltePreprocessSwc = (opts: InitialOptions = {}): PreprocessorGroup => {
-	const {swcOptions, langs, tsconfigPath, basePath} = initOptions(opts);
+export const sveltePreprocessSwc = (opts: InitialOptions): PreprocessorGroup => {
+	const {swcOptions, langs} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
-
-	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
-	const {compilerOptions} = tsconfig;
-	const target = toSwcCompilerTarget(compilerOptions && compilerOptions.target);
 
 	return {
 		script({content, attributes, filename}) {
@@ -53,7 +44,7 @@ export const sveltePreprocessSwc = (opts: InitialOptions = {}): PreprocessorGrou
 				return null as any; // type is wrong
 			}
 			log.info('transpiling with swc', printPath(filename || ''));
-			const finalSwcOptions = mergeSwcOptions(swcOptions, target, filename);
+			const finalSwcOptions = filename ? mergeSwcOptions(swcOptions, filename) : swcOptions;
 			let output: swc.Output;
 			try {
 				// TODO maybe use the async version so we can preprocess in parallel?

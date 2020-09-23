@@ -3,13 +3,12 @@ import {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 
-import {getDefaultSwcOptions, mergeSwcOptions, toSwcCompilerTarget} from '../compile/swcHelpers.js';
+import {mergeSwcOptions} from '../compile/swcHelpers.js';
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath, isSourceId, toSourceExtension} from '../paths.js';
-import {loadTsconfig} from '../compile/tsHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 
 // TODO improve along with Svelte compile stats
@@ -21,34 +20,26 @@ interface Stats {
 }
 
 export interface Options {
+	swcOptions: swc.Options;
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
-	swcOptions: swc.Options;
-	tsconfigPath: string | undefined;
-	basePath: string | undefined;
 	onstats: typeof handleStats;
 }
-export type InitialOptions = Partial<Options>;
+export type RequiredOptions = 'swcOptions';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	include: ['*.ts+(|x)', '**/*.ts+(|x)'],
 	exclude: ['*.d.ts', '**/*.d.ts'],
-	swcOptions: getDefaultSwcOptions(),
-	tsconfigPath: undefined,
-	basePath: undefined,
 	onstats: handleStats,
 	...omitUndefined(opts),
 });
 
 export const name = 'gro-swc';
 
-export const groSwcPlugin = (opts: InitialOptions = {}): Plugin => {
-	const {include, exclude, swcOptions, tsconfigPath, basePath, onstats} = initOptions(opts);
+export const groSwcPlugin = (opts: InitialOptions): Plugin => {
+	const {include, exclude, swcOptions, onstats} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
-
-	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
-	const {compilerOptions} = tsconfig;
-	const target = toSwcCompilerTarget(compilerOptions && compilerOptions.target);
 
 	const filter = createFilter(include, exclude);
 
@@ -77,7 +68,7 @@ export const groSwcPlugin = (opts: InitialOptions = {}): Plugin => {
 			let output: swc.Output;
 			try {
 				// TODO keep this async, right?
-				const finalSwcOptions = mergeSwcOptions(swcOptions, target, id);
+				const finalSwcOptions = mergeSwcOptions(swcOptions, id);
 				output = await swc.transform(code, finalSwcOptions);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(id));

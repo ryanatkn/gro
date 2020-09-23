@@ -10,6 +10,7 @@ import {
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
 import {resolve} from 'path';
+import swc from '@swc/core';
 
 import {magenta} from '../colors/terminal.js';
 import {rainbow} from '../colors/terminal.js';
@@ -30,7 +31,9 @@ import {UnreachableError} from '../utils/error.js';
 import {identity} from '../utils/function.js';
 
 export interface Options {
+	swcOptions: swc.Options;
 	dev: boolean;
+	sourceMap: boolean;
 	inputFiles: string[];
 	outputDir: string;
 	watch: boolean;
@@ -39,9 +42,11 @@ export interface Options {
 	mapWatchOptions: MapWatchOptions;
 	cssCache: CssCache<GroCssBuild>;
 }
-export type InitialOptions = Partial<Options>;
+export type RequiredOptions = 'swcOptions';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
+	sourceMap: opts.dev ?? true,
 	inputFiles: [resolve('index.ts')],
 	outputDir: resolve('dist/'),
 	watch: true,
@@ -98,7 +103,7 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 };
 
 const createInputOptions = (inputFile: string, options: Options, _log: Logger): InputOptions => {
-	const {dev, cssCache} = options;
+	const {dev, sourceMap, cssCache, swcOptions} = options;
 
 	// TODO make this extensible - how? should bundles be combined for production builds?
 	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
@@ -114,20 +119,20 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 			groSveltePlugin({
 				dev,
 				addCssBuild: addSvelteCssBuild,
-				preprocessor: [sveltePreprocessSwc()],
+				preprocessor: [sveltePreprocessSwc({swcOptions})],
 				compileOptions: {
 					immutable: true,
 				},
 			}),
-			groSwcPlugin(),
+			groSwcPlugin({swcOptions}),
 			plainCssPlugin({addCssBuild: addPlainCssBuild}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,
-				sourcemap: dev,
+				sourcemap: sourceMap,
 			}),
 			resolvePlugin(),
 			commonjsPlugin(),
-			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: dev}})]),
+			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourceMap}})]),
 		],
 
 		// — advanced input options
@@ -179,7 +184,7 @@ const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
 		// intro,
 		// outro,
 		// paths,
-		sourcemap: options.dev,
+		sourcemap: options.sourceMap,
 		// sourcemapExcludeSources,
 		// sourcemapFile,
 		// sourcemapPathTransform,

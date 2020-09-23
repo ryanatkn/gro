@@ -6,6 +6,8 @@
   ([#45](https://github.com/feltcoop/gro/pull/45))
 - add the `compile` task and use `swc` for non-watchmode builds
   ([#46](https://github.com/feltcoop/gro/pull/46))
+- add `CachingCompiler` which uses `swc` to replace `tsc` watchmode
+  ([#51](https://github.com/feltcoop/gro/pull/51))
 - add stop function return value to `Timings#start`
   ([#47](https://github.com/feltcoop/gro/pull/47))
 - rename identifiers from "ext" to "extension" to follow newer convention
