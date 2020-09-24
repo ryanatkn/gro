@@ -26,7 +26,7 @@ import {
 	TS_EXTENSION,
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
-import {getPathStem, replaceExtension} from '../utils/path.js';
+import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface CompileFile {
@@ -87,6 +87,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 	const {
 		log,
 		dev,
+		sourceMap,
 		swcOptions,
 		svelteCompileOptions,
 		sveltePreprocessor,
@@ -145,7 +146,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 					dev,
 					...svelteCompileOptions,
 					filename: id,
-					name: getPathStem(id),
+					// name: getPathStem(id), // TODO this causes warnings with Sapper routes
 				});
 				const {js, css, warnings, stats} = output;
 
@@ -158,7 +159,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
 
 				const files: CompiledFile[] = [{id: jsBuildId, contents: js.code}];
-				if (js.map) {
+				if (sourceMap && js.map) {
 					files.push({
 						id: jsBuildId + SOURCE_MAP_EXTENSION,
 						contents: JSON.stringify(js.map), // TODO ??? do we want to also store the object version?
@@ -167,7 +168,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				}
 				if (css.code) {
 					files.push({id: cssBuildId, contents: css.code});
-					if (css.map) {
+					if (sourceMap && css.map) {
 						files.push({
 							id: cssBuildId + SOURCE_MAP_EXTENSION,
 							contents: JSON.stringify(css.map), // TODO ??? do we want to also store the object version?
