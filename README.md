@@ -146,4 +146,4 @@ tech:
 
 ## license :bird:
 
-[MIT](license)
+[MIT](LICENSE)
