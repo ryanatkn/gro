@@ -221,22 +221,12 @@ export class CachingCompiler {
 	}
 }
 
-// This assumes that if we find any source maps, the rest are there.
-// Seems like a safe assumption. The check is really needed when toggling source maps on and off.
+// The check is needed to handle source maps being toggled on and off.
+// It assumes that if we find any source maps, the rest are there.
 const sourceMapsAreBuilt = async (compilation: CachedCompilation): Promise<boolean> => {
 	const sourceMapFile = compilation.files.find((f) => f.sourceMapOf);
 	if (!sourceMapFile) return true;
 	return pathExists(sourceMapFile.id);
-	// This code checks all source maps. I think it's unnececessary.
-	// let missing = false;
-	// await Promise.all(
-	// 	compilation.files.map(async (f) => {
-	// 		if (f.sourceMapOf && !(await pathExists(f.sourceMapOf))) {
-	// 			missing = true;
-	// 		}
-	// 	}),
-	// );
-	// return !missing;
 };
 
 // This uses `Array#find` because the arrays are expected to be small,
