@@ -54,21 +54,21 @@ export interface Options {
 	svelteCompileOptions: CompileOptions;
 	sveltePreprocessor: PreprocessorGroup | PreprocessorGroup[] | null;
 	onwarn: typeof handleWarn; // TODO currently just used for Svelte.. hmm
-	onstats: typeof handleStats; // TODO currently just used for Svelte.. hmm
+	onstats: typeof handleStats | null; // TODO currently just used for Svelte.. hmm
 }
 export type RequiredOptions = 'dev' | 'log';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const tsconfig = opts.tsconfig || loadTsconfig(opts.log);
 	const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
-	const sourceMap = opts.sourceMap ?? tsconfig.compilerOptions?.sourceMap ?? opts.dev; // TODO I think Svelte just enables these in in "dev" so...
+	const sourceMap = opts.sourceMap ?? tsconfig.compilerOptions?.sourceMap ?? opts.dev;
 	const swcOptions = opts.swcOptions || getDefaultSwcOptions(target, sourceMap);
 	const svelteCompileOptions: CompileOptions = opts.svelteCompileOptions || {};
 	const sveltePreprocessor: PreprocessorGroup | PreprocessorGroup[] | null =
 		opts.sveltePreprocessor || sveltePreprocessSwc({swcOptions});
 	return {
 		onwarn: handleWarn,
-		onstats: handleStats,
+		onstats: null,
 		...omitUndefined(opts),
 		tsconfig,
 		swcOptions,
@@ -130,7 +130,6 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				// TODO see rollup-plugin-svelte for how to track deps
 				// let dependencies = [];
 				if (sveltePreprocessor) {
-					// log.trace('preprocess', printPath(id));
 					const preprocessed = await svelte.preprocess(contents, sveltePreprocessor, {
 						filename: id,
 					});
@@ -140,7 +139,6 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 					preprocessedCode = contents;
 				}
 
-				// log.trace('compile', printPath(id));
 				const output: SvelteCompilation = svelte.compile(preprocessedCode, {
 					...baseSvelteCompileOptions,
 					dev,
@@ -153,7 +151,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				for (const warning of warnings) {
 					onwarn(id, warning, handleWarn, log);
 				}
-				onstats(id, stats, handleStats, log);
+				if (onstats) onstats(id, stats, handleStats, log);
 
 				const jsBuildId = toBuildId(id);
 				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
@@ -162,7 +160,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				if (sourceMap && js.map) {
 					files.push({
 						id: jsBuildId + SOURCE_MAP_EXTENSION,
-						contents: JSON.stringify(js.map), // TODO ??? do we want to also store the object version?
+						contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
 						sourceMapOf: jsBuildId,
 					});
 				}
@@ -171,7 +169,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 					if (sourceMap && css.map) {
 						files.push({
 							id: cssBuildId + SOURCE_MAP_EXTENSION,
-							contents: JSON.stringify(css.map), // TODO ??? do we want to also store the object version?
+							contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
 							sourceMapOf: cssBuildId,
 						});
 					}
