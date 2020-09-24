@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.4.1
+
+- add Svelte compilation to the unbundled compilation strategies
+  ([#52](https://github.com/feltcoop/gro/pull/52))
+
 ## 0.4.0
 
 - add `swc` dependency along with a Rollup plugin and Svelte preprocessor
