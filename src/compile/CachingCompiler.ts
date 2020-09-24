@@ -229,14 +229,16 @@ const sourceMapsAreBuilt = async (compilation: CachedCompilation): Promise<boole
 	return pathExists(sourceMapFile.id);
 };
 
-// This uses `Array#find` because the arrays are expected to be small,
-// because we're currently only using it for individual file compilations,
-// but that assumption might change and cause this code to be slow.
+// Given `newFiles` and `oldFiles`, updates everything on disk,
+// deleting files that no longer exist, writing new ones, and updating existing ones.
 const syncFilesToDisk = async (
 	newFiles: CompiledFile[],
 	oldFiles: CompiledFile[],
 	log: Logger,
 ): Promise<void> => {
+	// This uses `Array#find` because the arrays are expected to be small,
+	// because we're currently only using it for individual file compilations,
+	// but that assumption might change and cause this code to be slow.
 	await Promise.all([
 		...oldFiles.map((oldFile) => {
 			if (!newFiles.find((f) => f.id === oldFile.id)) {
@@ -252,13 +254,13 @@ const syncFilesToDisk = async (
 					!(await pathExists(newFile.id)) ||
 					(await readFile(newFile.id, 'utf8')) !== newFile.contents
 				) {
-					log.trace('writing new file to disk', printPath(newFile.id));
+					log.trace('creating file on disk', printPath(newFile.id));
 					await outputFile(newFile.id, newFile.contents);
 				}
 			} else if (oldFile.contents === newFile.contents) {
 				return; // nothing changed, no need to update
 			} else {
-				log.trace('writing changed file to disk', printPath(newFile.id));
+				log.trace('updating file on disk', printPath(newFile.id));
 				await outputFile(newFile.id, newFile.contents);
 			}
 		}),
