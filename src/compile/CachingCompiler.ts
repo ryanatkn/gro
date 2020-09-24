@@ -4,10 +4,10 @@ import {
 	basePathToBuildId,
 	basePathToSourceId,
 	fromSourceMappedBuildIdToSourceId,
+	hasSourceExtension,
 	paths,
 	toSourceId,
 	toSvelteExtension,
-	TS_EXTENSION,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {PathStats} from '../fs/pathData.js';
@@ -162,8 +162,7 @@ export class CachingCompiler {
 
 	private async compileSourceId(id: string, isDirectory: boolean) {
 		if (isDirectory) return; // TODO is this right? no behavior? the `fs-extra` methods handle missing directories
-		if (!isDirectory && !id.endsWith(TS_EXTENSION)) return; // TODO svelte, markdown etc - defer to the `compileFile` prop
-
+		if (!hasSourceExtension(id)) return; // TODO markdown etc - defer to the `compileFile` prop
 		const {compilations, log} = this;
 
 		const sourceContents = await readFile(id, 'utf8');
@@ -266,7 +265,6 @@ const syncFilesToDisk = async (
 					log.trace('writing new file to disk', printPath(newFile.id));
 					await outputFile(newFile.id, newFile.contents);
 				}
-				// else the cache was cold, but now it's warm
 			} else if (oldFile.contents === newFile.contents) {
 				return; // nothing changed, no need to update
 			} else {

@@ -4,7 +4,7 @@ import {printKeyValue, printPath} from '../utils/print.js';
 
 export interface CssBuild {
 	id: string;
-	code: string;
+	code: string | null;
 }
 
 export type CssBundle<T extends CssBuild = CssBuild> = {

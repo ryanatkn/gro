@@ -5,7 +5,7 @@ import {printMs, printPath, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
-import {paths, toBuildId} from '../paths.js';
+import {hasSourceExtension, paths, toBuildId} from '../paths.js';
 import {red} from '../colors/terminal.js';
 import {CompileResult, createCompileFile} from './compileFile.js';
 
@@ -29,7 +29,7 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 
 	// load all files into memory
 	const stopTimingToFindFiles = timings.start('find files');
-	const statsByPath = await findFiles(paths.source, ({path}) => path.endsWith('.ts'), null);
+	const statsByPath = await findFiles(paths.source, ({path}) => hasSourceExtension(path), null);
 	stopTimingToFindFiles();
 	const timingToReadFiles = timings.start('read files');
 	const codeBySourceId = new Map<string, string>();

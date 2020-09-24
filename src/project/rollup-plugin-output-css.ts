@@ -116,4 +116,4 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 	};
 };
 
-const toFinalCss = ({code}: GroCssBuild, _log: Logger): string => code;
+const toFinalCss = ({code}: GroCssBuild, _log: Logger): string => code || '';

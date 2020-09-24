@@ -120,9 +120,11 @@ export const stripRelativePath = (path: string): string => stripStart(path, RELA
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
 export const SVELTE_EXTENSION = '.svelte';
+export const CSS_EXTENSION = '.css';
 export const SOURCE_EXTENSIONS = [TS_EXTENSION, SVELTE_EXTENSION];
 export const SOURCE_MAP_EXTENSION = '.map';
 
+// TODO probably change this to use a regexp (benchmark?)
 export const hasSourceExtension = (path: string): boolean => hasExtension(path, SOURCE_EXTENSIONS);
 
 export const toSourceExtension = (path: string): string =>
@@ -133,8 +135,7 @@ export const toCompiledExtension = (path: string): string =>
 	hasSourceExtension(path) ? replaceExtension(path, JS_EXTENSION) : path;
 
 // TODO need better integration with this
-export const toSvelteExtension = (path: string): string =>
-	path.endsWith(JS_EXTENSION) ? replaceExtension(path, SVELTE_EXTENSION) : path;
+export const toSvelteExtension = (path: string): string => replaceExtension(path, SVELTE_EXTENSION);
 
 // This differs from `toSourceId` by handling `.map` files, so it's not two-way.
 // There might be a cleaner design in here somewhere.
