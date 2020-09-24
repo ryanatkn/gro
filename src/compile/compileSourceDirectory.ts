@@ -12,6 +12,9 @@ import {CompileResult, createCompileFile} from './compileFile.js';
 export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	log.info('compiling...');
 
+	// TODO how to do this?
+	const dev = process.env.NODE_ENV === 'development';
+
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
 	const logTimings = () => {
@@ -21,7 +24,7 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 		log.info(`🕒 compiled in ${printMs(totalTiming())}`);
 	};
 
-	if (process.env.NODE_ENV === 'production') {
+	if (!dev) {
 		await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
 		logTimings();
 		return;
@@ -46,7 +49,7 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	const results = new Map<string, string>();
 
 	const timingToSetupCompiler = timings.start('setup compiler');
-	const compileFile = createCompileFile(log);
+	const compileFile = createCompileFile({dev, log});
 	timingToSetupCompiler();
 
 	// compile everything

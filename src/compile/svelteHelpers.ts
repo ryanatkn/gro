@@ -58,8 +58,8 @@ export const handleWarn = (
 	id: string,
 	warning: Warning,
 	_handleWarn: (id: string, warning: Warning, ...args: any[]) => void,
-	_pluginContext: PluginContext,
 	log: Logger,
+	_pluginContext?: PluginContext,
 ): void => {
 	const warnArgs: any[] = [id, warning];
 	if (typeof warning !== 'string' && warning.frame) {
@@ -72,8 +72,8 @@ export const handleStats = (
 	id: string,
 	stats: SvelteCompileStats,
 	_handleStats: (id: string, stats: SvelteCompileStats, ...args: any[]) => void,
-	_pluginContext: PluginContext,
 	log: Logger,
+	_pluginContext?: PluginContext,
 ): void => {
 	log.info(
 		printKeyValue('stats', toRootPath(id)),

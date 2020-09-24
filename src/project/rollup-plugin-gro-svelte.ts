@@ -113,10 +113,10 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			const {js, css, warnings, stats} = svelteCompilation;
 
 			for (const warning of warnings) {
-				onwarn(id, warning, handleWarn, this, log);
+				onwarn(id, warning, handleWarn, log, this);
 			}
 
-			onstats(id, stats, handleStats, this, log);
+			onstats(id, stats, handleStats, log, this);
 
 			let cssId = replaceExtension(id, '.css');
 			log.trace('add css import', printPath(cssId));

@@ -4,14 +4,19 @@ import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions} from 'svelte/types/compiler/interfaces';
 
-import {loadTsconfig} from './tsHelpers.js';
+import {loadTsconfig, TsConfig} from './tsHelpers.js';
 import {
 	toSwcCompilerTarget,
 	mergeSwcOptions,
 	getDefaultSwcOptions,
 	addSourceMapFooter,
 } from './swcHelpers.js';
-import {baseSvelteCompileOptions, SvelteCompilation} from './svelteHelpers.js';
+import {
+	baseSvelteCompileOptions,
+	handleStats,
+	handleWarn,
+	SvelteCompilation,
+} from './svelteHelpers.js';
 import {Logger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
@@ -22,6 +27,7 @@ import {
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {getPathStem, replaceExtension} from '../utils/path.js';
+import {omitUndefined} from '../utils/object.js';
 
 export interface CompileFile {
 	(id: string, contents: string, extension?: string): Promise<CompileResult>;
@@ -39,21 +45,54 @@ export interface CompiledFile {
 	sourceMapOf?: string; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
 
+export interface Options {
+	dev: boolean;
+	log: Logger;
+	sourceMap: boolean;
+	tsconfig: TsConfig;
+	swcOptions: swc.Options;
+	svelteCompileOptions: CompileOptions;
+	sveltePreprocessor: PreprocessorGroup | PreprocessorGroup[] | null;
+	onwarn: typeof handleWarn; // TODO currently just used for Svelte.. hmm
+	onstats: typeof handleStats; // TODO currently just used for Svelte.. hmm
+}
+export type RequiredOptions = 'dev' | 'log';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (opts: InitialOptions): Options => {
+	const tsconfig = opts.tsconfig || loadTsconfig(opts.log);
+	const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
+	const sourceMap = opts.sourceMap ?? tsconfig.compilerOptions?.sourceMap ?? opts.dev; // TODO I think Svelte just enables these in in "dev" so...
+	const swcOptions = opts.swcOptions || getDefaultSwcOptions(target, sourceMap);
+	const svelteCompileOptions: CompileOptions = opts.svelteCompileOptions || {};
+	const sveltePreprocessor: PreprocessorGroup | PreprocessorGroup[] | null =
+		opts.sveltePreprocessor || sveltePreprocessSwc({swcOptions});
+	return {
+		onwarn: handleWarn,
+		onstats: handleStats,
+		...omitUndefined(opts),
+		tsconfig,
+		swcOptions,
+		sourceMap,
+		svelteCompileOptions,
+		sveltePreprocessor,
+	};
+};
+
 // TODO maybe make this optionally synchronous, so not `async` and not using promises when not needeD?
 // TODO how should options be handled? and additional file type compilations?
 // should `swcOptions` be passed in instead? Required or optional?
 // Or is this the friendliest way to do it,
 // so consumers can instantiate the `CachingCompiler` without any options?
-export const createCompileFile = (log: Logger): CompileFile => {
-	const dev = process.env.NODE_ENV === 'development'; // TODO
-	// load the TypeScript and swc options
-	// TODO somehow parameterize these
-	const tsconfigPath = undefined;
-	const basePath = undefined;
-	const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
-	const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
-	const sourceMap = tsconfig.compilerOptions?.sourceMap ?? dev;
-	const swcOptions = getDefaultSwcOptions(target, sourceMap);
+export const createCompileFile = (opts: InitialOptions): CompileFile => {
+	const {
+		log,
+		dev,
+		swcOptions,
+		svelteCompileOptions,
+		sveltePreprocessor,
+		onwarn,
+		onstats,
+	} = initOptions(opts);
 
 	const compileFile: CompileFile = async (
 		id: string,
@@ -85,15 +124,6 @@ export const createCompileFile = (log: Logger): CompileFile => {
 			// Need to rework the caching compiler API to handle multiple output files.
 			// We should also unify this API with `GenFile` and the rest.
 			case SVELTE_EXTENSION: {
-				// TODO options
-				const svelteOptions: CompileOptions = {};
-				const sveltePreprocessor:
-					| PreprocessorGroup
-					| PreprocessorGroup[]
-					| null = sveltePreprocessSwc({
-					swcOptions,
-				});
-
 				let preprocessedCode: string;
 
 				// TODO see rollup-plugin-svelte for how to track deps
@@ -113,15 +143,16 @@ export const createCompileFile = (log: Logger): CompileFile => {
 				const output: SvelteCompilation = svelte.compile(preprocessedCode, {
 					...baseSvelteCompileOptions,
 					dev,
-					...svelteOptions,
+					...svelteCompileOptions,
 					filename: id,
 					name: getPathStem(id),
 				});
-				const {js, css /*, warnings, stats*/} = output;
+				const {js, css, warnings, stats} = output;
 
-				// for (const warning of warnings) {
-				// 	onwarn(id, warning, handleWarn, this, log);
-				// }
+				for (const warning of warnings) {
+					onwarn(id, warning, handleWarn, log);
+				}
+				onstats(id, stats, handleStats, log);
 
 				const jsBuildId = toBuildId(id);
 				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
