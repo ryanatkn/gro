@@ -77,7 +77,7 @@ export const handleStats = (
 	log: Logger,
 	_pluginContext?: PluginContext,
 ): void => {
-	log.info(
+	log.trace(
 		printKeyValue('stats', toRootPath(id)),
 		...[
 			printKeyValue('total', printMs(stats.timings.total)),
