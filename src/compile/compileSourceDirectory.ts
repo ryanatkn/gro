@@ -1,7 +1,7 @@
 import {join} from 'path';
 
 import {spawnProcess} from '../utils/process.js';
-import {printMs, printPath, printTiming} from '../utils/print.js';
+import {printError, printMs, printPath, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
@@ -56,15 +56,16 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	const timingToCompile = timings.start('compile');
 	await Promise.all(
 		Array.from(codeBySourceId.entries()).map(async ([id, code]) => {
-			let result: CompileResult;
+			let result: CompileResult | null = null;
 			try {
 				result = await compileFile(id, code);
 			} catch (err) {
-				log.error(red('Failed to transpile TypeScript'), printPath(id));
-				throw err;
+				log.error(red('Failed to transpile TypeScript'), printPath(id), printError(err));
 			}
-			for (const file of result.files) {
-				results.set(file.id, file.contents);
+			if (result) {
+				for (const file of result.files) {
+					results.set(file.id, file.contents);
+				}
 			}
 		}),
 	);
