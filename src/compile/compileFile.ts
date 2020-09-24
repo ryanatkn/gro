@@ -79,10 +79,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 // TODO maybe make this optionally synchronous, so not `async` and not using promises when not needeD?
-// TODO how should options be handled? and additional file type compilations?
-// should `swcOptions` be passed in instead? Required or optional?
-// Or is this the friendliest way to do it,
-// so consumers can instantiate the `CachingCompiler` without any options?
 export const createCompileFile = (opts: InitialOptions): CompileFile => {
 	const {
 		log,
@@ -121,9 +117,6 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				}
 				return {files};
 			}
-			// TODO Svelte, see `src/build/rollup-plugin-gro-svelte.ts`
-			// Need to rework the caching compiler API to handle multiple output files.
-			// We should also unify this API with `GenFile` and the rest.
 			case SVELTE_EXTENSION: {
 				let preprocessedCode: string;
 
