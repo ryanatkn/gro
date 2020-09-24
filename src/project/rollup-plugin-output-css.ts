@@ -10,7 +10,7 @@ import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
 	getCssBundles(): Map<string, GroCssBundle>;
-	toFinalCss(build: GroCssBuild, log: Logger): string;
+	toFinalCss(build: GroCssBuild, log: Logger): string | null;
 	sourcemap: boolean; // TODO consider per-bundle options
 }
 export type RequiredOptions = 'getCssBundles';
@@ -116,4 +116,4 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 	};
 };
 
-const toFinalCss = ({code}: GroCssBuild, _log: Logger): string => code || '';
+const toFinalCss = ({code}: GroCssBuild, _log: Logger): string | null => code;
