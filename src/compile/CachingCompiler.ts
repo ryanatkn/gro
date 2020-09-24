@@ -13,7 +13,7 @@ import {
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {PathStats} from '../fs/pathData.js';
-import {findFiles, readFile, remove, ensureDir, outputFile, pathExists} from '../fs/nodeFs.js';
+import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import type {AsyncStatus} from '../utils/async.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
