@@ -136,9 +136,6 @@ export const toCompiledExtension = (path: string): string =>
 export const toSvelteExtension = (path: string): string =>
 	path.endsWith(JS_EXTENSION) ? replaceExtension(path, SVELTE_EXTENSION) : path;
 
-export const toSourceMapPath = (path: string): string =>
-	`${toCompiledExtension(path)}${SOURCE_MAP_EXTENSION}`;
-
 // This differs from `toSourceId` by handling `.map` files, so it's not two-way.
 // There might be a cleaner design in here somewhere.
 export const fromSourceMappedBuildIdToSourceId = (id: string): string =>

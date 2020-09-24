@@ -5,9 +5,9 @@ import {printMs, printPath, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
-import {paths, toBuildId, toSourceMapPath} from '../paths.js';
+import {paths, toBuildId} from '../paths.js';
 import {red} from '../colors/terminal.js';
-import {CompiledOutput, createCompileFile} from './compileFile.js';
+import {CompileResult, createCompileFile} from './compileFile.js';
 
 export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	log.info('compiling...');
@@ -53,19 +53,15 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	const timingToCompile = timings.start('compile');
 	await Promise.all(
 		Array.from(codeBySourceId.entries()).map(async ([id, code]) => {
-			let output: CompiledOutput;
+			let result: CompileResult;
 			try {
-				output = await compileFile(id, code);
+				result = await compileFile(id, code);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(id));
 				throw err;
 			}
-
-			results.set(id, output.code);
-			if (output.map !== undefined) {
-				// TODO see `GenFile` interface when we add Svelte support,
-				// we should unify things here that works for both source map files and Svelte files like css
-				results.set(toSourceMapPath(id), output.map!);
+			for (const file of result.files) {
+				results.set(file.id, file.contents);
 			}
 		}),
 	);
