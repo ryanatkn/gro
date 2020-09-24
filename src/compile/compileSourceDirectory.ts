@@ -1,16 +1,19 @@
 import {join} from 'path';
 
 import {spawnProcess} from '../utils/process.js';
-import {printMs, printPath, printTiming} from '../utils/print.js';
+import {printError, printMs, printPath, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
-import {paths, toBuildId, toSourceMapPath} from '../paths.js';
+import {hasSourceExtension, paths, toBuildId} from '../paths.js';
 import {red} from '../colors/terminal.js';
-import {CompiledOutput, createCompileFile} from './compileFile.js';
+import {CompileResult, createCompileFile} from './compileFile.js';
 
 export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	log.info('compiling...');
+
+	// TODO how to do this?
+	const dev = process.env.NODE_ENV === 'development';
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
@@ -21,7 +24,7 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 		log.info(`🕒 compiled in ${printMs(totalTiming())}`);
 	};
 
-	if (process.env.NODE_ENV === 'production') {
+	if (!dev) {
 		await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
 		logTimings();
 		return;
@@ -29,7 +32,7 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 
 	// load all files into memory
 	const stopTimingToFindFiles = timings.start('find files');
-	const statsByPath = await findFiles(paths.source, ({path}) => path.endsWith('.ts'), null);
+	const statsByPath = await findFiles(paths.source, ({path}) => hasSourceExtension(path), null);
 	stopTimingToFindFiles();
 	const timingToReadFiles = timings.start('read files');
 	const codeBySourceId = new Map<string, string>();
@@ -46,26 +49,23 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	const results = new Map<string, string>();
 
 	const timingToSetupCompiler = timings.start('setup compiler');
-	const compileFile = createCompileFile(log);
+	const compileFile = createCompileFile({dev, log});
 	timingToSetupCompiler();
 
 	// compile everything
 	const timingToCompile = timings.start('compile');
 	await Promise.all(
 		Array.from(codeBySourceId.entries()).map(async ([id, code]) => {
-			let output: CompiledOutput;
+			let result: CompileResult | null = null;
 			try {
-				output = await compileFile(id, code);
+				result = await compileFile(id, code);
 			} catch (err) {
-				log.error(red('Failed to transpile TypeScript'), printPath(id));
-				throw err;
+				log.error(red('Failed to transpile TypeScript'), printPath(id), printError(err));
 			}
-
-			results.set(id, output.code);
-			if (output.map !== undefined) {
-				// TODO see `GenFile` interface when we add Svelte support,
-				// we should unify things here that works for both source map files and Svelte files like css
-				results.set(toSourceMapPath(id), output.map!);
+			if (result) {
+				for (const file of result.files) {
+					results.set(file.id, file.contents);
+				}
 			}
 		}),
 	);

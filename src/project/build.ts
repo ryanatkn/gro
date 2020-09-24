@@ -120,9 +120,7 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 				dev,
 				addCssBuild: addSvelteCssBuild,
 				preprocessor: [sveltePreprocessSwc({swcOptions})],
-				compileOptions: {
-					immutable: true,
-				},
+				compileOptions: {},
 			}),
 			groSwcPlugin({swcOptions}),
 			plainCssPlugin({addCssBuild: addPlainCssBuild}),

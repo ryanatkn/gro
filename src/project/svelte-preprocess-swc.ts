@@ -43,7 +43,7 @@ export const sveltePreprocessSwc = (opts: InitialOptions): PreprocessorGroup => 
 			if (lang && !langs.includes(lang as string)) {
 				return null as any; // type is wrong
 			}
-			log.info('transpiling with swc', printPath(filename || ''));
+			// log.trace('transpiling with swc', printPath(filename || ''));
 			const finalSwcOptions = filename ? mergeSwcOptions(swcOptions, filename) : swcOptions;
 			let output: swc.Output;
 			try {

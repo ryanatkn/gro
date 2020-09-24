@@ -4,12 +4,10 @@ import {
 	basePathToBuildId,
 	basePathToSourceId,
 	fromSourceMappedBuildIdToSourceId,
+	hasSourceExtension,
 	paths,
-	SOURCE_MAP_EXTENSION,
-	toBuildId,
 	toSourceId,
 	toSvelteExtension,
-	TS_EXTENSION,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {PathStats} from '../fs/pathData.js';
@@ -19,22 +17,14 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {CompiledOutput, CompileFile} from './compileFile.js';
+import {CompileResult, CompiledFile, CompileFile} from './compileFile.js';
+import {extname} from 'path';
 
-// TODO look at unifying `PathInfo` with `PathData`, also `nodeFile.ts` with `loadFile` and `File`
-type PathInfo = FilePathInfo | DirectoryPathInfo;
-interface FilePathInfo {
-	id: string;
-	isDirectory: false;
-	// can be `null` during the file's compilation process
-	// TODO is this type the best way to handle this issue?
-	// happens on initialization, and maybe on errors?
-	// or do we keep previous values on errors?
-	contents: string | null;
-}
-interface DirectoryPathInfo {
-	id: string;
-	isDirectory: true;
+interface CachedCompilation {
+	sourceId: string;
+	sourceExtension: string;
+	sourceContents: string;
+	files: CompiledFile[];
 }
 
 interface Options {
@@ -64,8 +54,7 @@ export class CachingCompiler {
 	readonly log: Logger;
 	readonly sourceDir: string;
 	readonly buildDir: string;
-	readonly pathInfoByBuildId: Map<string, PathInfo> = new Map();
-	readonly pathInfoBySourceId: Map<string, PathInfo> = new Map();
+	readonly compilations: Map<string, CachedCompilation> = new Map();
 
 	initStatus: AsyncStatus = 'initial';
 
@@ -172,137 +161,56 @@ export class CachingCompiler {
 	// and if not abort early
 
 	private async compileSourceId(id: string, isDirectory: boolean) {
-		if (!isDirectory && !id.endsWith(TS_EXTENSION)) return; // TODO svelte, markdown etc - defer to the `compileFile` prop
+		if (isDirectory) return; // TODO is this right? no behavior? the `fs-extra` methods handle missing directories
+		if (!hasSourceExtension(id)) return; // TODO markdown etc - defer to the `compileFile` prop
+		const {compilations, log} = this;
 
-		const {pathInfoBySourceId, pathInfoByBuildId, log} = this;
-
-		// We're not trusting 'create' vs 'update' from our file watcher.
-		// I think things are still efficient despite the slightly more complicated code.
-		// The flags `sourceNotInCache` and `buildNotInCache` handle those conditions.
-		let sourcePathInfo = pathInfoBySourceId.get(id);
-		if (!sourcePathInfo) {
-			sourcePathInfo = isDirectory
-				? {id, isDirectory: true}
-				: {id, isDirectory: false, contents: null};
-			pathInfoBySourceId.set(id, sourcePathInfo);
-		}
-		const buildId = toBuildId(id);
-		let buildPathInfo = pathInfoByBuildId.get(buildId);
-		if (!buildPathInfo) {
-			// Read from disk and cache if it's a file.
-			// We can't defer populating the cache from disk because
-			// we exit early before getting to the `buildPathInfo.contents` comparison below
-			// if the source file has not changed.
-			// However we could parallelize this with reading the `sourceContents` from disk below.
-			buildPathInfo = isDirectory
-				? {id: buildId, isDirectory: true}
-				: {
-						id: buildId,
-						isDirectory: false,
-						contents: (await pathExists(buildId)) ? await readFile(buildId, 'utf8') : null,
-				  };
-			pathInfoByBuildId.set(buildId, buildPathInfo);
-		}
-		if (isDirectory) {
-			// Since `fs-extra` handles the creation of directories,
-			// we can just exit early without ensuring that it exists.
-			// We may want to ensure the directory exists but it seems like unnecessary overhead.
-			return;
-		}
-
-		// TypeScript workaround - by this point we're exited for directories
-		sourcePathInfo = sourcePathInfo as FilePathInfo;
-		buildPathInfo = buildPathInfo as FilePathInfo;
-
-		const buildSourceMapId = buildId + SOURCE_MAP_EXTENSION;
-
-		// Handle a new or updated file
 		const sourceContents = await readFile(id, 'utf8');
-		if (sourcePathInfo.contents === sourceContents) {
-			// Source code hasn't changed, do nothing and exit early!
-			// But wait, what if the source map is missing because the `sourceMap` option was off?
-			// We're going to assume that if the source map exists, it's in sync,
-			// in the same way that we're assuming that the build file is in sync
+
+		let compilation = compilations.get(id);
+		if (!compilation) {
+			// Memory cache is cold.
+			compilation = {sourceId: id, sourceExtension: extname(id), sourceContents, files: []};
+			compilations.set(id, compilation);
+		} else if (compilation.sourceContents === sourceContents) {
+			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
+			// But wait, what if the source maps are missing because the `sourceMap` option was off
+			// the last time the files were built?
+			// We're going to assume that if the source maps exist, they're in sync,
+			// in the same way that we're assuming that the build file is in sync if it exists
 			// when the cached source file hasn't changed.
-			if (!this.sourceMap || (await pathExists(buildSourceMapId))) {
+			if (!this.sourceMap || (await sourceMapsAreBuilt(compilation))) {
 				// TODO what about pending compilations? I think that'd be a bug, we'd need to track the current compilations and throw away work that's not the most recent
 				return;
 			}
+		} else {
+			// Memory cache is warm, but contents have changed.
+			compilation.sourceContents = sourceContents;
 		}
-		sourcePathInfo.contents = sourceContents;
 
-		// compile!
-		let output: CompiledOutput;
+		// Compile this one file, which may turn into one or many.
+		let result: CompileResult;
 		try {
-			output = await this.compileFile(id, sourceContents);
+			result = await this.compileFile(id, sourceContents, compilation?.sourceExtension);
 		} catch (err) {
 			log.error(red('compileFile failed for'), printPath(id), printError(err));
 			return;
 		}
 
-		const promises: Promise<void>[] = [];
+		// Update the cache.
+		const oldFiles = compilation.files;
+		compilation.files = result.files;
 
-		// Compare the compiled code with the cache
-		if (buildPathInfo.contents !== output.code) {
-			log.trace('writing compiled file to disk', printPath(buildId));
-			buildPathInfo.contents = output.code;
-			promises.push(outputFile(buildId, buildPathInfo.contents));
-		}
-
-		// Even if output code has not changed,
-		// we still want to check the source map because it involves tricky corner cases.
-		// Without this, there could be stale or missing source maps in the cache
-		// when toggling source maps on and off.
-
-		// `output.map === undefined` when `sourceMap === false`
-		if (output.map === undefined) {
-			const deletedSourceMap = pathInfoByBuildId.delete(buildSourceMapId);
-			if (deletedSourceMap) {
-				log.trace('deleting source map on disk', printPath(buildSourceMapId));
-				promises.push(remove(buildSourceMapId));
-			}
-		} else {
-			let shouldOutputSourceMap = true;
-			let buildPathSourceMapInfo = pathInfoByBuildId.get(buildSourceMapId) as
-				| FilePathInfo
-				| undefined;
-			if (!buildPathSourceMapInfo) {
-				buildPathSourceMapInfo = {
-					id: buildSourceMapId,
-					isDirectory: false,
-					contents: output.map,
-				};
-				pathInfoByBuildId.set(buildSourceMapId, buildPathSourceMapInfo);
-				// TODO can we avoid this check through inference?
-				// if the source map `pathExists` and we didn't `outputFile` for the build contents above, we could skip `readFile` I think
-				if (
-					(await pathExists(buildSourceMapId)) &&
-					(await readFile(buildSourceMapId, 'utf8')) === output.map
-				) {
-					shouldOutputSourceMap = false;
-				}
-			} else if (buildPathSourceMapInfo.contents === output.map) {
-				shouldOutputSourceMap = false;
-			} else {
-				buildPathSourceMapInfo.contents = output.map;
-			}
-			if (shouldOutputSourceMap) {
-				log.trace('writing source map to disk', printPath(buildSourceMapId));
-				promises.push(outputFile(buildSourceMapId, buildPathSourceMapInfo.contents));
-			}
-		}
-
-		await Promise.all(promises);
+		// Write to disk.
+		await syncFilesToDisk(compilation.files, oldFiles, log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
 		this.log.trace('destroying file', printPath(id));
-		this.pathInfoBySourceId.delete(id);
-		const buildId = toBuildId(id);
-		this.pathInfoByBuildId.delete(buildId);
-		const sourceMapBuildId = buildId + SOURCE_MAP_EXTENSION;
-		const deletedSourceMap = this.pathInfoByBuildId.delete(sourceMapBuildId);
-		await Promise.all([remove(buildId), deletedSourceMap ? remove(sourceMapBuildId) : null]);
+		const compilation = this.compilations.get(id);
+		if (!compilation) throw Error(`Cannot destroy missing compilation ${id}`);
+		this.compilations.delete(id);
+		await syncFilesToDisk([], compilation.files, this.log);
 	}
 
 	enqueuedWatcherChanges: [change: WatcherChange, path: string, stats: PathStats][] = [];
@@ -312,3 +220,49 @@ export class CachingCompiler {
 		}
 	}
 }
+
+// The check is needed to handle source maps being toggled on and off.
+// It assumes that if we find any source maps, the rest are there.
+const sourceMapsAreBuilt = async (compilation: CachedCompilation): Promise<boolean> => {
+	const sourceMapFile = compilation.files.find((f) => f.sourceMapOf);
+	if (!sourceMapFile) return true;
+	return pathExists(sourceMapFile.id);
+};
+
+// Given `newFiles` and `oldFiles`, updates everything on disk,
+// deleting files that no longer exist, writing new ones, and updating existing ones.
+const syncFilesToDisk = async (
+	newFiles: CompiledFile[],
+	oldFiles: CompiledFile[],
+	log: Logger,
+): Promise<void> => {
+	// This uses `Array#find` because the arrays are expected to be small,
+	// because we're currently only using it for individual file compilations,
+	// but that assumption might change and cause this code to be slow.
+	await Promise.all([
+		...oldFiles.map((oldFile) => {
+			if (!newFiles.find((f) => f.id === oldFile.id)) {
+				log.trace('deleting file on disk', printPath(oldFile.id));
+				return remove(oldFile.id);
+			}
+			return undefined;
+		}),
+		...newFiles.map(async (newFile) => {
+			const oldFile = oldFiles.find((f) => f.id === newFile.id);
+			if (!oldFile) {
+				if (
+					!(await pathExists(newFile.id)) ||
+					(await readFile(newFile.id, 'utf8')) !== newFile.contents
+				) {
+					log.trace('creating file on disk', printPath(newFile.id));
+					await outputFile(newFile.id, newFile.contents);
+				}
+			} else if (oldFile.contents === newFile.contents) {
+				return; // nothing changed, no need to update
+			} else {
+				log.trace('updating file on disk', printPath(newFile.id));
+				await outputFile(newFile.id, newFile.contents);
+			}
+		}),
+	]);
+};

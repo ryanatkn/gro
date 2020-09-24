@@ -18,7 +18,10 @@ export const task: Task = {
 		// .option('-w, --watch', 'Watch for changes and rebuild')
 		// .option('-P, --production', 'Set NODE_ENV to production')
 
-		const compiler = new CachingCompiler({compileFile: createCompileFile(log)});
+		// TODO how to do this?
+		const dev = process.env.NODE_ENV === 'development';
+
+		const compiler = new CachingCompiler({compileFile: createCompileFile({dev, log})});
 
 		await Promise.all([invokeTask('build'), compiler.init(), invokeTask('serve')]);
 
