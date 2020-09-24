@@ -32,7 +32,7 @@ export type SvelteCompilation = OmitStrict<
 };
 
 // Commented-out values are the same as the defaults.
-export const baseCompileOptions: CompileOptions = {
+export const baseSvelteCompileOptions: CompileOptions = {
 	// filename: undefined, // `string` used for debugging hints and sourcemaps. Your bundler plugin will set it automatically.
 	// name: 'Component', // `string` that sets the name of the resulting JavaScript class (though the compiler will rename it if it would otherwise conflict with other variables in scope). It will normally be inferred from `filename`.
 	// format: 'esm', // If "esm", creates a JavaScript module (with import and export). If "cjs", creates a CommonJS module (with require and module.exports), which is useful in some server-side rendering situations or for testing.

@@ -11,7 +11,7 @@ import {
 	getDefaultSwcOptions,
 	addSourceMapFooter,
 } from './swcHelpers.js';
-import {baseCompileOptions, SvelteCompilation} from './svelteHelpers.js';
+import {baseSvelteCompileOptions, SvelteCompilation} from './svelteHelpers.js';
 import {Logger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
@@ -86,8 +86,11 @@ export const createCompileFile = (log: Logger): CompileFile => {
 			// We should also unify this API with `GenFile` and the rest.
 			case SVELTE_EXTENSION: {
 				// TODO options
-				const compileOptions: CompileOptions = {};
-				const preprocessor: PreprocessorGroup | PreprocessorGroup[] | null = sveltePreprocessSwc({
+				const svelteOptions: CompileOptions = {};
+				const sveltePreprocessor:
+					| PreprocessorGroup
+					| PreprocessorGroup[]
+					| null = sveltePreprocessSwc({
 					swcOptions,
 				});
 
@@ -95,9 +98,9 @@ export const createCompileFile = (log: Logger): CompileFile => {
 
 				// TODO see rollup-plugin-svelte for how to track deps
 				// let dependencies = [];
-				if (preprocessor) {
+				if (sveltePreprocessor) {
 					// log.trace('preprocess', printPath(id));
-					const preprocessed = await svelte.preprocess(contents, preprocessor, {
+					const preprocessed = await svelte.preprocess(contents, sveltePreprocessor, {
 						filename: id,
 					});
 					preprocessedCode = preprocessed.code;
@@ -108,9 +111,9 @@ export const createCompileFile = (log: Logger): CompileFile => {
 
 				// log.trace('compile', printPath(id));
 				const output: SvelteCompilation = svelte.compile(preprocessedCode, {
-					...baseCompileOptions,
+					...baseSvelteCompileOptions,
 					dev,
-					...compileOptions,
+					...svelteOptions,
 					filename: id,
 					name: getPathStem(id),
 				});

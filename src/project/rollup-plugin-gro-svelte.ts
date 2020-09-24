@@ -12,7 +12,7 @@ import {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import {
 	SvelteCompilation,
-	baseCompileOptions,
+	baseSvelteCompileOptions,
 	handleWarn,
 	handleStats,
 } from '../compile/svelteHelpers.js';
@@ -100,7 +100,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			let svelteCompilation: SvelteCompilation;
 			try {
 				svelteCompilation = svelte.compile(preprocessedCode, {
-					...baseCompileOptions,
+					...baseSvelteCompileOptions,
 					dev,
 					...compileOptions,
 					filename: id,
