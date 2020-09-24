@@ -4,7 +4,7 @@ import {CompileOptions, Warning} from 'svelte/types/compiler/interfaces';
 
 import {Logger} from '../utils/log.js';
 import {yellow} from '../colors/terminal.js';
-import {printKeyValue, printMs} from '../utils/print.js';
+import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath} from '../paths.js';
 
 // TODO type could be improved, not sure how tho
@@ -61,9 +61,11 @@ export const handleWarn = (
 	log: Logger,
 	_pluginContext?: PluginContext,
 ): void => {
-	const warnArgs: any[] = [id, warning];
-	if (typeof warning !== 'string' && warning.frame) {
+	const warnArgs: any[] = [printPath(id)];
+	if (warning.frame) {
 		warnArgs.push('\n' + warning.frame, '\n', yellow(warning.message));
+	} else {
+		warnArgs.push(warning);
 	}
 	log.warn(...warnArgs);
 };
