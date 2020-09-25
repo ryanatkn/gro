@@ -6,7 +6,6 @@ import {
 	basePathToBuildId,
 	basePathToSourceId,
 	fromSourceMappedBuildIdToSourceId,
-	hasSourceExtension,
 	paths,
 	toSourceId,
 	toSvelteExtension,
@@ -14,7 +13,7 @@ import {
 import {omitUndefined} from '../utils/object.js';
 import {PathStats} from '../fs/pathData.js';
 import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
-import {loadFile} from './nodeFile.js'; // TODO probably don't use this
+import {loadFile} from './nodeFile.js'; // TODO remove this when Buffer handling is done
 import type {AsyncStatus} from '../utils/async.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
@@ -31,21 +30,23 @@ interface CachedCompilation {
 
 interface Options {
 	compiler: Compiler;
+	include: RegExp; // TODO maybe use Rollup pluginutils here, instead of a plain regexp?
 	sourceMap: boolean;
-	log: Logger;
 	sourceDir: string;
 	buildDir: string;
 	debounce: number;
+	log: Logger;
 }
 type RequiredOptions = 'compiler';
 type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const initOptions = (opts: InitialOptions): Options => ({
 	sourceMap: true,
-	log: new SystemLogger([magenta('[FileCache]')]),
 	sourceDir: paths.source,
 	buildDir: paths.build,
 	debounce: DEBOUNCE_DEFAULT,
 	...omitUndefined(opts),
+	include: opts.include || /\.(ts|js|svelte|css|html)$/,
+	log: opts.log || new SystemLogger([magenta('[FileCache]')]),
 });
 
 export class FileCache {
@@ -56,13 +57,17 @@ export class FileCache {
 	readonly log: Logger;
 	readonly sourceDir: string;
 	readonly buildDir: string;
+	readonly include: RegExp;
+
+	// TODO change to `files`?
 	readonly compilations: Map<string, CachedCompilation> = new Map();
 
 	initStatus: AsyncStatus = 'initial';
 
 	constructor(opts: InitialOptions) {
-		const {compiler, sourceMap, log, sourceDir, buildDir, debounce} = initOptions(opts);
+		const {compiler, include, sourceMap, sourceDir, buildDir, debounce, log} = initOptions(opts);
 		this.compiler = compiler;
+		this.include = include;
 		this.sourceMap = sourceMap;
 		this.log = log;
 		this.sourceDir = sourceDir;
@@ -117,7 +122,7 @@ export class FileCache {
 
 		// Compile the source files and update the build directory's files and directories.
 		for (const [id, stats] of statsBySourceId) {
-			promises.push(this.compileSourceId(id, stats.isDirectory()));
+			if (stats.isDirectory()) promises.push(this.compileSourceId(id));
 		}
 
 		await Promise.all(promises);
@@ -144,11 +149,21 @@ export class FileCache {
 		switch (change) {
 			case 'create':
 			case 'update': {
-				this.compileSourceId(id, stats.isDirectory());
+				if (stats.isDirectory()) {
+					// We could ensure the directory, but it's usually wasted work,
+					// and `fs-extra` takes care of adding missing directories when writing to disk.
+				} else {
+					await this.compileSourceId(id);
+				}
 				break;
 			}
 			case 'delete': {
-				this.destroySourceId(id);
+				if (stats.isDirectory()) {
+					// Although we don't pre-emptively create build directories above, we do delete them.
+					await remove(basePathToBuildId(path));
+				} else {
+					await this.destroySourceId(id);
+				}
 				break;
 			}
 			default:
@@ -167,9 +182,8 @@ export class FileCache {
 	// during compilation, after each async call check if the original id in the function closure is still current,
 	// and if not abort early
 
-	private async compileSourceId(id: string, isDirectory: boolean) {
-		if (isDirectory) return; // TODO is this right? no behavior? the `fs-extra` methods handle missing directories
-		if (!hasSourceExtension(id)) return; // TODO markdown etc - defer to the `compiler` prop
+	private async compileSourceId(id: string) {
+		if (!this.include.test(id)) return;
 		const {compilations, log} = this;
 
 		const sourceContents = await readFile(id, 'utf8');
@@ -213,9 +227,9 @@ export class FileCache {
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
-		this.log.trace('destroying file', printPath(id));
 		const compilation = this.compilations.get(id);
-		if (!compilation) throw Error(`Cannot destroy missing compilation ${id}`);
+		if (!compilation) return; // TODO file is ignored or there's a deeper issue - maybe add logging? or should we track handled files?
+		this.log.trace('destroying file', printPath(id));
 		this.compilations.delete(id);
 		await syncFilesToDisk([], compilation.files, this.log);
 	}

@@ -172,7 +172,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 				return {files};
 			}
 			default: {
-				return {files: [{id, contents}]};
+				return {files: [{id: toBuildId(id), contents}]};
 			}
 		}
 	};
