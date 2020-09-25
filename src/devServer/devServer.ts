@@ -11,7 +11,7 @@ import {ListenOptions} from 'net';
 import {resolve} from 'path';
 
 import {cyan, yellow, gray} from '../colors/terminal.js';
-import {SystemLogger} from '../utils/log.js';
+import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {getMimeType, File} from '../fs/nodeFile.js';
 import {omitUndefined} from '../utils/object.js';
@@ -27,6 +27,7 @@ export interface Options {
 	host: string;
 	port: number;
 	dir: string;
+	log: Logger;
 }
 export type RequiredOptions = 'fileCache';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
@@ -37,33 +38,18 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	port: DEFAULT_PORT,
 	...omitUndefined(opts),
 	dir: resolve(opts.dir || '.'),
+	log: opts.log || new SystemLogger([cyan('[devServer]')]),
 });
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
-	const {fileCache, host, port, dir} = options;
-
-	const log = new SystemLogger([cyan('[devServer]')]);
+	const {fileCache, host, port, dir, log} = options;
 
 	const serverOptions: ServerOptions = {
 		// IncomingMessage?: typeof IncomingMessage;
 		// ServerResponse?: typeof ServerResponse;
 	};
-	const requestListener: RequestListener = async (req, res) => {
-		if (!req.url) return;
-		const url = parseUrl(req.url);
-		const localPath = toLocalPath(dir, url);
-		log.trace('serving', gray(req.url), '→', gray(localPath));
-
-		const file = await fileCache.loadFile(localPath);
-		if (!file) {
-			log.trace(`${yellow('404')} ${localPath}`);
-			return send404FileNotFound(req, res, localPath);
-		}
-		log.trace(`${yellow('200')} ${localPath}`);
-		return send200FileFound(req, res, file);
-	};
-	const server = createServer(serverOptions, requestListener);
+	const server = createServer(serverOptions, createRequestListener(fileCache, dir, log));
 	const listen = server.listen.bind(server);
 	server.listen = () => {
 		throw Error(`Use devServer.start() instead of devServer.server.listen()`);
@@ -121,4 +107,22 @@ const send200FileFound = (_req: IncomingMessage, res: ServerResponse, file: File
 	if (mimeType) headers['Content-Type'] = mimeType;
 	res.writeHead(200, headers);
 	res.end(file.data);
+};
+
+const createRequestListener = (fileCache: FileCache, dir: string, log: Logger): RequestListener => {
+	const requestListener: RequestListener = async (req, res) => {
+		if (!req.url) return;
+		const url = parseUrl(req.url);
+		const localPath = toLocalPath(dir, url);
+		log.trace('serving', gray(req.url), '→', gray(localPath));
+
+		const file = await fileCache.loadFile(localPath);
+		if (!file) {
+			log.trace(`${yellow('404')} ${localPath}`);
+			return send404FileNotFound(req, res, localPath);
+		}
+		log.trace(`${yellow('200')} ${localPath}`);
+		return send200FileFound(req, res, file);
+	};
+	return requestListener;
 };
