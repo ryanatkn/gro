@@ -9,6 +9,5 @@ export const task: Task = {
 		if (!typecheckResult.ok) {
 			throw new TaskError(`Failed to typecheck. ${printKeyValue('code', typecheckResult.code)}`);
 		}
-		console.log('hey lol');
 	},
 };
