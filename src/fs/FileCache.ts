@@ -301,20 +301,20 @@ const syncFilesToDisk = async (
 		}),
 		...newFiles.map(async (newFile) => {
 			const oldFile = oldFiles.find((f) => f.id === newFile.id);
+			let shouldOutputNewFile = false;
 			if (!oldFile) {
-				if (
-					!(await pathExists(newFile.id)) ||
-					(await readFile(newFile.id, 'utf8')) !== newFile.contents
-				) {
+				if (!(await pathExists(newFile.id))) {
 					log.trace('creating file on disk', printPath(newFile.id));
-					await outputFile(newFile.id, newFile.contents);
-				}
-			} else if (oldFile.contents === newFile.contents) {
-				return; // nothing changed, no need to update
-			} else {
+					shouldOutputNewFile = true;
+				} else if (newFile.contents !== (await readFile(newFile.id, 'utf8'))) {
+					log.trace('updating stale file on disk', printPath(newFile.id));
+					shouldOutputNewFile = true;
+				} // else the file on disk is already updated
+			} else if (newFile.contents !== oldFile.contents) {
 				log.trace('updating file on disk', printPath(newFile.id));
-				await outputFile(newFile.id, newFile.contents);
-			}
+				shouldOutputNewFile = true;
+			} // else nothing changed, no need to update
+			if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
 		}),
 	]);
 };
