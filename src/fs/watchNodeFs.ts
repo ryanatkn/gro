@@ -57,6 +57,9 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 			await watcher.init();
 			return watcher.paths;
 		},
-		destroy: () => watcher.close(),
+		destroy: () => {
+			watcher.close();
+			watcher.removeAllListeners();
+		},
 	};
 };

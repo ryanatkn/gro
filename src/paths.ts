@@ -65,6 +65,7 @@ export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.so
 export const isBuildId = (id: string, p = paths): boolean => id.startsWith(p.build);
 export const isDistId = (id: string, p = paths): boolean => id.startsWith(p.dist);
 
+// '/home/me/app/src/foo/bar/baz.ts' -> 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
 
 // '/home/me/app/build/foo/bar/baz.js' -> 'foo/bar/baz.js'

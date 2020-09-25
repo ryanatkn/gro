@@ -1,3 +1,5 @@
+import {extname} from 'path';
+
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import {
@@ -18,7 +20,6 @@ import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
 import {CompileResult, CompiledFile, CompileFile} from './compileFile.js';
-import {extname} from 'path';
 
 interface CachedCompilation {
 	sourceId: string;
