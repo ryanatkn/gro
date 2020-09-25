@@ -13,8 +13,9 @@ import {resolve} from 'path';
 import {cyan, yellow, gray} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
-import {loadFile, getMimeType, File} from '../fs/nodeFile.js';
+import {getMimeType, File} from '../fs/nodeFile.js';
 import {omitUndefined} from '../utils/object.js';
+import {FileCache} from '../fs/FileCache.js';
 
 export interface DevServer {
 	server: Server;
@@ -22,11 +23,13 @@ export interface DevServer {
 }
 
 export interface Options {
+	fileCache: FileCache;
 	host: string;
 	port: number;
 	dir: string;
 }
-export type InitialOptions = Partial<Options>;
+export type RequiredOptions = 'fileCache';
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_HOST = 'localhost'; // or 0.0.0.0?
 const DEFAULT_PORT = 8999;
 export const initOptions = (opts: InitialOptions): Options => ({
@@ -38,7 +41,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
-	const {host, port, dir} = options;
+	const {fileCache, host, port, dir} = options;
 
 	const log = new SystemLogger([cyan('[devServer]')]);
 
@@ -52,7 +55,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 		const localPath = toLocalPath(dir, url);
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
-		const file = await loadFile(localPath);
+		const file = await fileCache.loadFile(localPath);
 		if (!file) {
 			log.trace(`${yellow('404')} ${localPath}`);
 			return send404FileNotFound(req, res, localPath);

@@ -51,7 +51,7 @@ export const task: Task = {
 	},
 };
 
-// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `CachingCompiler` probably
+// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `FileCache` probably
 const resolveInputFiles = async (fileNames: string[]): Promise<string[]> => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {

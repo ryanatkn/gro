@@ -1,8 +1,8 @@
 import {Task} from '../task/task.js';
-import {CachingCompiler} from '../compile/CachingCompiler.js';
+import {FileCache} from '../fs/FileCache.js';
 import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
-import {createCompileFile} from '../compile/compileFile.js';
+import {createCompiler} from '../compile/compiler.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
@@ -11,11 +11,11 @@ export const task: Task = {
 		const dev = process.env.NODE_ENV === 'development';
 
 		const timings = new Timings();
-		const compiler = new CachingCompiler({compileFile: createCompileFile({dev, log})});
+		const fileCache = new FileCache({compiler: createCompiler({dev, log})});
 
-		const timingToInitCachingCompiler = timings.start('init caching compiler');
-		await compiler.init();
-		timingToInitCachingCompiler();
+		const timingToInitFileCache = timings.start('init file cache');
+		await fileCache.init();
+		timingToInitFileCache();
 
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));

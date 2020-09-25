@@ -14,12 +14,13 @@ import {
 import {omitUndefined} from '../utils/object.js';
 import {PathStats} from '../fs/pathData.js';
 import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
+import {loadFile} from './nodeFile.js'; // TODO probably don't use this
 import type {AsyncStatus} from '../utils/async.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {CompileResult, CompiledFile, CompileFile} from './compileFile.js';
+import {CompileResult, CompiledFile, Compiler} from '../compile/compiler.js';
 
 interface CachedCompilation {
 	sourceId: string;
@@ -29,28 +30,28 @@ interface CachedCompilation {
 }
 
 interface Options {
-	compileFile: CompileFile;
+	compiler: Compiler;
 	sourceMap: boolean;
 	log: Logger;
 	sourceDir: string;
 	buildDir: string;
 	debounce: number;
 }
-type RequiredOptions = 'compileFile';
+type RequiredOptions = 'compiler';
 type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const initOptions = (opts: InitialOptions): Options => ({
 	sourceMap: true,
-	log: new SystemLogger([magenta('[CachingCompiler]')]),
+	log: new SystemLogger([magenta('[FileCache]')]),
 	sourceDir: paths.source,
 	buildDir: paths.build,
 	debounce: DEBOUNCE_DEFAULT,
 	...omitUndefined(opts),
 });
 
-export class CachingCompiler {
+export class FileCache {
 	protected readonly watcher: WatchNodeFs;
 
-	readonly compileFile: CompileFile;
+	readonly compiler: Compiler;
 	readonly sourceMap: boolean;
 	readonly log: Logger;
 	readonly sourceDir: string;
@@ -60,8 +61,8 @@ export class CachingCompiler {
 	initStatus: AsyncStatus = 'initial';
 
 	constructor(opts: InitialOptions) {
-		const {compileFile, sourceMap, log, sourceDir, buildDir, debounce} = initOptions(opts);
-		this.compileFile = compileFile;
+		const {compiler, sourceMap, log, sourceDir, buildDir, debounce} = initOptions(opts);
+		this.compiler = compiler;
 		this.sourceMap = sourceMap;
 		this.log = log;
 		this.sourceDir = sourceDir;
@@ -72,6 +73,11 @@ export class CachingCompiler {
 			onChange: this.onWatcherChange,
 		});
 	}
+
+	// TODO this needs to read from the cache first
+	// should it handle source ids?
+	// do we need a separate query method that takes relative paths?
+	loadFile = loadFile;
 
 	destroy(): void {
 		this.watcher.destroy();
@@ -163,7 +169,7 @@ export class CachingCompiler {
 
 	private async compileSourceId(id: string, isDirectory: boolean) {
 		if (isDirectory) return; // TODO is this right? no behavior? the `fs-extra` methods handle missing directories
-		if (!hasSourceExtension(id)) return; // TODO markdown etc - defer to the `compileFile` prop
+		if (!hasSourceExtension(id)) return; // TODO markdown etc - defer to the `compiler` prop
 		const {compilations, log} = this;
 
 		const sourceContents = await readFile(id, 'utf8');
@@ -192,9 +198,9 @@ export class CachingCompiler {
 		// Compile this one file, which may turn into one or many.
 		let result: CompileResult;
 		try {
-			result = await this.compileFile(id, sourceContents, compilation?.sourceExtension);
+			result = await this.compiler.compile(id, sourceContents, compilation?.sourceExtension);
 		} catch (err) {
-			log.error(red('compileFile failed for'), printPath(id), printError(err));
+			log.error(red('compiler failed for'), printPath(id), printError(err));
 			return;
 		}
 

@@ -1,6 +1,7 @@
 import {Task} from './task/task.js';
-import {CachingCompiler} from './compile/CachingCompiler.js';
-import {createCompileFile} from './compile/compileFile.js';
+import {FileCache} from './fs/FileCache.js';
+import {createCompiler} from './compile/compiler.js';
+import {createDevServer} from './devServer/devServer.js';
 
 const DEFAULT_SERVE_DIR = 'dist/';
 
@@ -21,9 +22,11 @@ export const task: Task = {
 		// TODO how to do this?
 		const dev = process.env.NODE_ENV === 'development';
 
-		const compiler = new CachingCompiler({compileFile: createCompileFile({dev, log})});
+		const fileCache = new FileCache({compiler: createCompiler({dev, log})});
 
-		await Promise.all([invokeTask('build'), compiler.init(), invokeTask('serve')]);
+		const devServer = createDevServer({fileCache});
+
+		await Promise.all([invokeTask('build'), fileCache.init(), devServer.start()]);
 
 		// ...
 	},

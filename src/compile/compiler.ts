@@ -29,9 +29,11 @@ import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 
-export interface CompileFile {
-	(id: string, contents: string, extension?: string): Promise<CompileResult>;
+export interface Compiler {
+	// TODO maybe make `compile` optionally synchronous, depending on the kind of file? (Svelte is sync, swc allows async or sync)
+	compile(id: string, contents: string, extension?: string): Promise<CompileResult>;
 }
+
 export interface CompileResult {
 	// TODO might need to be a union with a type, like `extension: '.svelte'` with additional properties.
 	// Svelte compilation properties include `ast`, `warnings`, `vars`, and `stats`
@@ -42,6 +44,7 @@ export interface CompileResult {
 export interface CompiledFile {
 	id: string;
 	contents: string;
+	// sourceId?: string; // TODO ?
 	sourceMapOf?: string; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
 
@@ -78,8 +81,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-// TODO maybe make this optionally synchronous, so not `async` and not using promises when not needeD?
-export const createCompileFile = (opts: InitialOptions): CompileFile => {
+export const createCompiler = (opts: InitialOptions): Compiler => {
 	const {
 		log,
 		dev,
@@ -91,7 +93,7 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 		onstats,
 	} = initOptions(opts);
 
-	const compileFile: CompileFile = async (
+	const compile: Compiler['compile'] = async (
 		id: string,
 		contents: string,
 		extension = extname(id),
@@ -174,5 +176,5 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 			}
 		}
 	};
-	return compileFile;
+	return {compile};
 };

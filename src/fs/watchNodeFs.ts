@@ -6,7 +6,7 @@ import {omitUndefined} from '../utils/object.js';
 /*
 
 `watchNodeFs` is Gro's low level interface for watching changes on the Node filesystem.
-`CachingCompiler` is a high level interface that should be preferred when possible.
+`FileCache` is a high level interface that should be preferred when possible.
 
 */
 

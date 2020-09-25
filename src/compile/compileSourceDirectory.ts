@@ -7,7 +7,7 @@ import {createStopwatch, Timings} from '../utils/time.js';
 import {findFiles, outputFile, readFile} from '../fs/nodeFs.js';
 import {hasSourceExtension, paths, toBuildId} from '../paths.js';
 import {red} from '../colors/terminal.js';
-import {CompileResult, createCompileFile} from './compileFile.js';
+import {CompileResult, createCompiler} from './compiler.js';
 
 export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	log.info('compiling...');
@@ -49,7 +49,7 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 	const results = new Map<string, string>();
 
 	const timingToSetupCompiler = timings.start('setup compiler');
-	const compileFile = createCompileFile({dev, log});
+	const compiler = createCompiler({dev, log});
 	timingToSetupCompiler();
 
 	// compile everything
@@ -58,7 +58,7 @@ export const compileSourceDirectory = async (log: Logger): Promise<void> => {
 		Array.from(codeBySourceId.entries()).map(async ([id, code]) => {
 			let result: CompileResult | null = null;
 			try {
-				result = await compileFile(id, code);
+				result = await compiler.compile(id, code);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(id), printError(err));
 			}
