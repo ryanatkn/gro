@@ -20,6 +20,7 @@ import {
 import {Logger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
+	JS_EXTENSION,
 	SOURCE_MAP_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildId,
@@ -43,6 +44,7 @@ export interface CompileResult {
 // TODO name? so close to `CompileFile` - maybe that should be renamed `FileCompiler`?
 export interface CompiledFile {
 	id: string;
+	extension: string;
 	contents: string;
 	// sourceId?: string; // TODO ?
 	sourceMapOf?: string; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
@@ -107,12 +109,14 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 				const files: CompiledFile[] = [
 					{
 						id: buildId,
+						extension: JS_EXTENSION,
 						contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
 					},
 				];
 				if (output.map) {
 					files.push({
 						id: sourceMapBuildId,
+						extension: SOURCE_MAP_EXTENSION,
 						contents: output.map,
 						sourceMapOf: buildId,
 					});
@@ -151,19 +155,21 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 				const jsBuildId = toBuildId(id);
 				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
 
-				const files: CompiledFile[] = [{id: jsBuildId, contents: js.code}];
+				const files: CompiledFile[] = [{id: jsBuildId, extension: JS_EXTENSION, contents: js.code}];
 				if (sourceMap && js.map) {
 					files.push({
 						id: jsBuildId + SOURCE_MAP_EXTENSION,
+						extension: SOURCE_MAP_EXTENSION,
 						contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
 						sourceMapOf: jsBuildId,
 					});
 				}
 				if (css.code) {
-					files.push({id: cssBuildId, contents: css.code});
+					files.push({id: cssBuildId, extension: CSS_EXTENSION, contents: css.code});
 					if (sourceMap && css.map) {
 						files.push({
 							id: cssBuildId + SOURCE_MAP_EXTENSION,
+							extension: SOURCE_MAP_EXTENSION,
 							contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
 							sourceMapOf: cssBuildId,
 						});
@@ -172,7 +178,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 				return {files};
 			}
 			default: {
-				return {files: [{id: toBuildId(id), contents}]};
+				return {files: [{id: toBuildId(id), extension: extname(id), contents}]};
 			}
 		}
 	};

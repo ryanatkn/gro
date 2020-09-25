@@ -1,4 +1,5 @@
 import {extname} from 'path';
+import {stat, Stats} from './nodeFs.js';
 
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
@@ -13,24 +14,30 @@ import {
 import {omitUndefined} from '../utils/object.js';
 import {PathStats} from '../fs/pathData.js';
 import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
-import {loadFile} from './nodeFile.js'; // TODO remove this when Buffer handling is done
 import type {AsyncStatus} from '../utils/async.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
 import {CompileResult, CompiledFile, Compiler} from '../compile/compiler.js';
+import {getMimeTypeByExtension} from './mime.js';
 
-interface CachedCompilation {
-	sourceId: string;
-	sourceExtension: string;
-	sourceContents: string;
-	files: CompiledFile[];
+export interface SourceFile {
+	id: string;
+	extension: string;
+	contents: string;
+	compiledFiles: CompiledSourceFile[];
+}
+
+export interface CompiledSourceFile extends CompiledFile {
+	stats: Stats | undefined; // `undefined` for lazy loading
+	buffer: Buffer | undefined; // TODO how to handle this?
+	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 }
 
 interface Options {
 	compiler: Compiler;
-	include: RegExp; // TODO maybe use Rollup pluginutils here, instead of a plain regexp?
+	include: RegExp; // TODO maybe use Rollup pluginutils `createFilter` instead of a plain regexp
 	sourceMap: boolean;
 	sourceDir: string;
 	buildDir: string;
@@ -59,8 +66,7 @@ export class FileCache {
 	readonly buildDir: string;
 	readonly include: RegExp;
 
-	// TODO change to `files`?
-	readonly compilations: Map<string, CachedCompilation> = new Map();
+	readonly sourceFiles: Map<string, SourceFile> = new Map();
 
 	initStatus: AsyncStatus = 'initial';
 
@@ -79,10 +85,27 @@ export class FileCache {
 		});
 	}
 
-	// TODO this needs to read from the cache first
-	// should it handle source ids?
-	// do we need a separate query method that takes relative paths?
-	loadFile = loadFile;
+	// async getSourceFile(id: string): Promise<SourceFile | null> {
+	// 	const sourceFile = this.sourceFiles.get(id);
+	// 	if (!sourceFile) return null;
+	// 	// TODO support lazy loading for some files - how? via a regexp?
+	// 	return sourceFile;
+	// }
+
+	// TODO support lazy loading for some files - how? via a regexp?
+	// this will probably need to be async when that's added
+	getCompiledFile(id: string): CompiledSourceFile | null {
+		for (const sourceFile of this.sourceFiles.values()) {
+			for (const compiledFile of sourceFile.compiledFiles) {
+				if (compiledFile.id === id) return compiledFile;
+			}
+		}
+		return null;
+		// TODO cache compiled files for faster lookup
+		// const compiledFile = this.compiledFiles.get(id);
+		// if (!compiledFile) return null;
+		// return compiledFile;
+	}
 
 	destroy(): void {
 		this.watcher.destroy();
@@ -122,7 +145,7 @@ export class FileCache {
 
 		// Compile the source files and update the build directory's files and directories.
 		for (const [id, stats] of statsBySourceId) {
-			if (stats.isDirectory()) promises.push(this.compileSourceId(id));
+			if (!stats.isDirectory()) promises.push(this.compileSourceId(id));
 		}
 
 		await Promise.all(promises);
@@ -184,54 +207,59 @@ export class FileCache {
 
 	private async compileSourceId(id: string) {
 		if (!this.include.test(id)) return;
-		const {compilations, log} = this;
+		const {sourceFiles, log} = this;
 
 		const sourceContents = await readFile(id, 'utf8');
 
-		let compilation = compilations.get(id);
-		if (!compilation) {
+		let sourceFile = sourceFiles.get(id);
+		if (!sourceFile) {
 			// Memory cache is cold.
-			compilation = {sourceId: id, sourceExtension: extname(id), sourceContents, files: []};
-			compilations.set(id, compilation);
-		} else if (compilation.sourceContents === sourceContents) {
+			sourceFile = {id: id, extension: extname(id), contents: sourceContents, compiledFiles: []};
+			sourceFiles.set(id, sourceFile);
+		} else if (sourceFile.contents === sourceContents) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
 			// the last time the files were built?
 			// We're going to assume that if the source maps exist, they're in sync,
 			// in the same way that we're assuming that the build file is in sync if it exists
 			// when the cached source file hasn't changed.
-			if (!this.sourceMap || (await sourceMapsAreBuilt(compilation))) {
+			if (!this.sourceMap || (await sourceMapsAreBuilt(sourceFile))) {
 				// TODO what about pending compilations? I think that'd be a bug, we'd need to track the current compilations and throw away work that's not the most recent
 				return;
 			}
 		} else {
 			// Memory cache is warm, but contents have changed.
-			compilation.sourceContents = sourceContents;
+			sourceFile.contents = sourceContents;
 		}
 
 		// Compile this one file, which may turn into one or many.
 		let result: CompileResult;
 		try {
-			result = await this.compiler.compile(id, sourceContents, compilation?.sourceExtension);
+			result = await this.compiler.compile(id, sourceContents, sourceFile.extension);
 		} catch (err) {
 			log.error(red('compiler failed for'), printPath(id), printError(err));
 			return;
 		}
 
 		// Update the cache.
-		const oldFiles = compilation.files;
-		compilation.files = result.files;
+		const oldFiles = sourceFile.compiledFiles;
+		sourceFile.compiledFiles = result.files.map((file) => ({
+			...file,
+			mimeType: undefined,
+			buffer: undefined,
+			stats: undefined,
+		}));
 
 		// Write to disk.
-		await syncFilesToDisk(compilation.files, oldFiles, log);
+		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
-		const compilation = this.compilations.get(id);
-		if (!compilation) return; // TODO file is ignored or there's a deeper issue - maybe add logging? or should we track handled files?
+		const sourceFile = this.sourceFiles.get(id);
+		if (!sourceFile) return; // TODO file is ignored or there's a deeper issue - maybe add logging? or should we track handled files?
 		this.log.trace('destroying file', printPath(id));
-		this.compilations.delete(id);
-		await syncFilesToDisk([], compilation.files, this.log);
+		this.sourceFiles.delete(id);
+		await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
 	}
 
 	enqueuedWatcherChanges: [change: WatcherChange, path: string, stats: PathStats][] = [];
@@ -244,8 +272,8 @@ export class FileCache {
 
 // The check is needed to handle source maps being toggled on and off.
 // It assumes that if we find any source maps, the rest are there.
-const sourceMapsAreBuilt = async (compilation: CachedCompilation): Promise<boolean> => {
-	const sourceMapFile = compilation.files.find((f) => f.sourceMapOf);
+const sourceMapsAreBuilt = async (sourceFile: SourceFile): Promise<boolean> => {
+	const sourceMapFile = sourceFile.compiledFiles.find((f) => f.sourceMapOf);
 	if (!sourceMapFile) return true;
 	return pathExists(sourceMapFile.id);
 };
@@ -287,3 +315,20 @@ const syncFilesToDisk = async (
 		}),
 	]);
 };
+
+export const getFileMimeType = (file: CompiledSourceFile): string | null =>
+	file.mimeType !== undefined
+		? file.mimeType
+		: (file.mimeType = getMimeTypeByExtension(file.extension.substring(1)));
+
+export const getFileBuffer = (file: CompiledSourceFile): Buffer =>
+	file.buffer !== undefined ? file.buffer : (file.buffer = Buffer.from(file.contents));
+
+// Stats are currently lazily loaded. Should they be?
+export const getFileStats = (file: CompiledSourceFile): Stats | Promise<Stats> =>
+	file.stats !== undefined
+		? file.stats
+		: stat(file.id).then((stats) => {
+				file.stats = stats;
+				return stats;
+		  }); // TODO catch?
