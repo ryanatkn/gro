@@ -17,8 +17,13 @@ export const task: Task = {
 		const port: number | undefined = Number(process.env.PORT) || undefined;
 		const dir: string | undefined = args.dir ? resolve(args.dir as string) : undefined;
 
+		// TODO this is inefficient for just serving files in a directory
+		// maybe we want a `lazy` flag?
 		const fileCache: FileCache =
 			(args.fileCache as any) || new FileCache({compiler: createCompiler({dev: true, log})});
+		if (fileCache.initStatus === 'initial') {
+			await fileCache.init();
+		}
 
 		const devServer = createDevServer({fileCache, host, port, dir});
 		log.info(`serving ${dir} on ${host}:${port}`);

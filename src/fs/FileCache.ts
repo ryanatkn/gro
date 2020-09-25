@@ -49,7 +49,7 @@ const initOptions = (opts: InitialOptions): Options => ({
 });
 
 export class FileCache {
-	protected readonly watcher: WatchNodeFs;
+	readonly watcher: WatchNodeFs;
 
 	readonly compiler: Compiler;
 	readonly sourceMap: boolean;
