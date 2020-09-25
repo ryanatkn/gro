@@ -35,9 +35,12 @@ export interface CompiledSourceFile extends CompiledFile {
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 }
 
+const DEFAULT_INCLUDE_MATCHER = /\.(ts|js|svelte|css|html)$/;
+const DEFAULT_INCLUDE_CALLBACK = (id: string): boolean => DEFAULT_INCLUDE_MATCHER.test(id);
+
 interface Options {
 	compiler: Compiler;
-	include: RegExp; // TODO maybe use Rollup pluginutils `createFilter` instead of a plain regexp
+	include: (id: string) => boolean;
 	sourceMap: boolean;
 	sourceDir: string;
 	buildDir: string;
@@ -52,7 +55,7 @@ const initOptions = (opts: InitialOptions): Options => ({
 	buildDir: paths.build,
 	debounce: DEBOUNCE_DEFAULT,
 	...omitUndefined(opts),
-	include: opts.include || /\.(ts|js|svelte|css|html)$/,
+	include: opts.include || DEFAULT_INCLUDE_CALLBACK,
 	log: opts.log || new SystemLogger([magenta('[FileCache]')]),
 });
 
@@ -64,7 +67,7 @@ export class FileCache {
 	readonly log: Logger;
 	readonly sourceDir: string;
 	readonly buildDir: string;
-	readonly include: RegExp;
+	readonly include: (id: string) => boolean;
 
 	readonly sourceFiles: Map<string, SourceFile> = new Map();
 
@@ -206,7 +209,7 @@ export class FileCache {
 	// and if not abort early
 
 	private async compileSourceId(id: string) {
-		if (!this.include.test(id)) return;
+		if (!this.include(id)) return;
 		const {sourceFiles, log} = this;
 
 		const sourceContents = await readFile(id, 'utf8');
