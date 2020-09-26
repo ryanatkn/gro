@@ -83,42 +83,6 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	};
 };
 
-const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
-
-const toLocalPath = (dir: string, url: string): string => {
-	const relativeUrl = url[0] === '/' ? '.' + url : url;
-	const relativePath = relativeUrl.endsWith('/')
-		? relativeUrl + 'index.html' // maybe handle others, like `.htm`?
-		: relativeUrl;
-	return resolve(dir, relativePath);
-};
-
-const send404FileNotFound = (req: IncomingMessage, res: ServerResponse, path: string) => {
-	const headers: OutgoingHttpHeaders = {
-		'Content-Type': 'text/plain',
-	};
-	res.writeHead(404, headers);
-	res.end(`404 not found: ${req.url} -> ${path}`);
-};
-
-const send200FileFound = async (
-	_req: IncomingMessage,
-	res: ServerResponse,
-	file: CompiledSourceFile,
-) => {
-	const stats = await getFileStats(file);
-	const mimeType = getFileMimeType(file);
-	let contentType = mimeType || '';
-	if (file.encoding === 'utf8') contentType += '; charset=utf-8';
-	const headers: OutgoingHttpHeaders = {
-		'Content-Type': contentType,
-		'Content-Length': stats.size,
-		'Last-Modified': stats.mtime.toUTCString(),
-	};
-	res.writeHead(200, headers);
-	res.end(getFileBuffer(file));
-};
-
 const createRequestListener = (fileCache: FileCache, dir: string, log: Logger): RequestListener => {
 	const requestListener: RequestListener = (req, res) => {
 		if (!req.url) return;
@@ -129,10 +93,41 @@ const createRequestListener = (fileCache: FileCache, dir: string, log: Logger): 
 		const file = fileCache.getCompiledFile(localPath);
 		if (!file) {
 			log.trace(`${yellow('404')} ${localPath}`);
-			return send404FileNotFound(req, res, localPath);
+			return send404(req, res, localPath);
 		}
 		log.trace(`${yellow('200')} ${localPath}`);
-		return send200FileFound(req, res, file);
+		return send200(req, res, file);
 	};
 	return requestListener;
+};
+
+const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
+
+const toLocalPath = (dir: string, url: string): string => {
+	const relativeUrl = url[0] === '/' ? '.' + url : url;
+	const relativePath = relativeUrl.endsWith('/')
+		? relativeUrl + 'index.html' // maybe handle others, like `.htm`?
+		: relativeUrl;
+	return resolve(dir, relativePath);
+};
+
+const send404 = (req: IncomingMessage, res: ServerResponse, path: string) => {
+	const headers: OutgoingHttpHeaders = {
+		'Content-Type': 'text/plain',
+	};
+	res.writeHead(404, headers);
+	res.end(`404 not found: ${req.url} -> ${path}`);
+};
+
+const send200 = async (_req: IncomingMessage, res: ServerResponse, file: CompiledSourceFile) => {
+	const stats = await getFileStats(file);
+	const mimeType = getFileMimeType(file);
+	const headers: OutgoingHttpHeaders = {
+		'Content-Type':
+			mimeType === null ? '' : file.encoding === 'utf8' ? `${mimeType}; charset=utf-8` : mimeType,
+		'Content-Length': stats.size,
+		'Last-Modified': stats.mtime.toUTCString(),
+	};
+	res.writeHead(200, headers);
+	res.end(getFileBuffer(file));
 };
