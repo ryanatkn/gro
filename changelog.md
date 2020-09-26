@@ -2,7 +2,7 @@
 
 ## 0.5.0
 
-- add `FileCache` to replace `CachingCompiler` with additional filesystem capabilities
+- add `Filer` to replace `CachingCompiler` with additional filesystem capabilities
   ([#53](https://github.com/feltcoop/gro/pull/53))
 - add Svelte compilation to the unbundled compilation strategies
   ([#52](https://github.com/feltcoop/gro/pull/52))

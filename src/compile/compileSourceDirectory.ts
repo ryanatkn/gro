@@ -4,7 +4,7 @@ import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {TS_EXTENSION} from '../paths.js';
 import {createCompiler} from './compiler.js';
-import {FileCache} from '../fs/FileCache.js';
+import {Filer} from '../fs/Filer.js';
 
 export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise<void> => {
 	log.info('compiling...');
@@ -27,19 +27,19 @@ export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise
 		include = (id: string) => !id.endsWith(TS_EXTENSION);
 	}
 
-	const timingToCreateFileCache = timings.start('create file cache');
-	const fileCache = new FileCache({
+	const timingToCreateFiler = timings.start('create filer');
+	const filer = new Filer({
 		compiler: createCompiler({dev, log}),
 		watch: false,
 		include,
 	});
-	timingToCreateFileCache();
+	timingToCreateFiler();
 
-	const timingToInitFileCache = timings.start('init file cache');
-	await fileCache.init();
-	timingToInitFileCache();
+	const timingToInitFiler = timings.start('init filer');
+	await filer.init();
+	timingToInitFiler();
 
-	fileCache.destroy();
+	filer.destroy();
 
 	logTimings();
 };

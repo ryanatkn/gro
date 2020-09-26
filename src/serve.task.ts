@@ -2,7 +2,7 @@ import {resolve} from 'path';
 
 import {Task} from './task/task.js';
 import {createDevServer} from './devServer/devServer.js';
-import {FileCache} from './fs/FileCache.js';
+import {Filer} from './fs/Filer.js';
 import {createCompiler} from './compile/compiler.js';
 
 export const task: Task = {
@@ -19,11 +19,11 @@ export const task: Task = {
 
 		// TODO this is inefficient for just serving files in a directory
 		// maybe we want a `lazy` flag?
-		const fileCache: FileCache =
-			(args.fileCache as any) || new FileCache({compiler: createCompiler({dev: true, log})});
-		await fileCache.init();
+		const filer: Filer =
+			(args.filer as any) || new Filer({compiler: createCompiler({dev: true, log})});
+		await filer.init();
 
-		const devServer = createDevServer({fileCache, host, port, dir});
+		const devServer = createDevServer({filer, host, port, dir});
 		log.info(`serving ${dir} on ${host}:${port}`);
 		await devServer.start();
 

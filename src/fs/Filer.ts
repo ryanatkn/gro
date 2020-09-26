@@ -72,10 +72,10 @@ const initOptions = (opts: InitialOptions): Options => ({
 	watch: true,
 	...omitUndefined(opts),
 	include: opts.include || (() => true),
-	log: opts.log || new SystemLogger([magenta('[FileCache]')]),
+	log: opts.log || new SystemLogger([magenta('[filer]')]),
 });
 
-export class FileCache {
+export class Filer {
 	private readonly watcher: WatchNodeFs;
 
 	private readonly compiler: Compiler;

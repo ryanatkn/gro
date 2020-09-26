@@ -15,12 +15,12 @@ import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
 import {
-	FileCache,
+	Filer,
 	CompiledSourceFile,
 	getFileMimeType,
 	getFileBuffer,
 	getFileStats,
-} from '../fs/FileCache.js';
+} from '../fs/Filer.js';
 
 export interface DevServer {
 	server: Server;
@@ -28,13 +28,13 @@ export interface DevServer {
 }
 
 export interface Options {
-	fileCache: FileCache;
+	filer: Filer;
 	host: string;
 	port: number;
 	dir: string;
 	log: Logger;
 }
-export type RequiredOptions = 'fileCache';
+export type RequiredOptions = 'filer';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_HOST = 'localhost'; // or 0.0.0.0?
 const DEFAULT_PORT = 8999;
@@ -48,13 +48,13 @@ export const initOptions = (opts: InitialOptions): Options => ({
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
-	const {fileCache, host, port, dir, log} = options;
+	const {filer, host, port, dir, log} = options;
 
 	const serverOptions: ServerOptions = {
 		// IncomingMessage?: typeof IncomingMessage;
 		// ServerResponse?: typeof ServerResponse;
 	};
-	const server = createServer(serverOptions, createRequestListener(fileCache, dir, log));
+	const server = createServer(serverOptions, createRequestListener(filer, dir, log));
 	const listen = server.listen.bind(server);
 	server.listen = () => {
 		throw Error(`Use devServer.start() instead of devServer.server.listen()`);
@@ -83,14 +83,14 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	};
 };
 
-const createRequestListener = (fileCache: FileCache, dir: string, log: Logger): RequestListener => {
+const createRequestListener = (filer: Filer, dir: string, log: Logger): RequestListener => {
 	const requestListener: RequestListener = (req, res) => {
 		if (!req.url) return;
 		const url = parseUrl(req.url);
 		const localPath = toLocalPath(dir, url);
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
-		const file = fileCache.getCompiledFile(localPath);
+		const file = filer.getCompiledFile(localPath);
 		if (!file) {
 			log.trace(`${yellow('404')} ${localPath}`);
 			return send404(req, res, localPath);

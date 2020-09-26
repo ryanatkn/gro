@@ -1,5 +1,5 @@
 import {Task} from '../task/task.js';
-import {FileCache} from '../fs/FileCache.js';
+import {Filer} from '../fs/Filer.js';
 import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {createCompiler} from '../compile/compiler.js';
@@ -11,11 +11,11 @@ export const task: Task = {
 		const dev = process.env.NODE_ENV === 'development';
 
 		const timings = new Timings();
-		const fileCache = new FileCache({compiler: createCompiler({dev, log})});
+		const filer = new Filer({compiler: createCompiler({dev, log})});
 
-		const timingToInitFileCache = timings.start('init file cache');
-		await fileCache.init();
-		timingToInitFileCache();
+		const timingToInitFiler = timings.start('init filer');
+		await filer.init();
+		timingToInitFiler();
 
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));
