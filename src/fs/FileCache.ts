@@ -1,5 +1,5 @@
 import {extname} from 'path';
-import {stat, Stats} from './nodeFs.js';
+import {ensureDir, stat, Stats} from './nodeFs.js';
 
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
@@ -19,24 +19,44 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {CompileResult, CompiledFile, Compiler} from '../compile/compiler.js';
+import {
+	CompileResult,
+	CompiledFile,
+	Compiler,
+	CompiledTextFile,
+	CompiledBinaryFile,
+} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
+import {Encoding, inferEncoding} from './encoding.js';
 
-export interface SourceFile {
+export type SourceFile = SourceTextFile | SourceBinaryFile;
+interface BaseSourceFile {
 	id: string;
 	extension: string;
-	contents: string;
 	compiledFiles: CompiledSourceFile[];
 }
-
-export interface CompiledSourceFile extends CompiledFile {
-	stats: Stats | undefined; // `undefined` for lazy loading
-	buffer: Buffer | undefined; // TODO how to handle this?
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
+export interface SourceTextFile extends BaseSourceFile {
+	encoding: 'utf8';
+	contents: string;
+	buffer: Buffer | undefined; // lazily loaded, see `getFileBuffer`
+}
+export interface SourceBinaryFile extends BaseSourceFile {
+	encoding: null;
+	contents: Buffer;
+	buffer: Buffer;
 }
 
-const DEFAULT_INCLUDE_MATCHER = /\.(ts|js|svelte|css|html)$/;
-const DEFAULT_INCLUDE_CALLBACK = (id: string): boolean => DEFAULT_INCLUDE_MATCHER.test(id);
+export type CompiledSourceFile = CompiledSourceTextFile | CompiledSourceBinaryFile;
+export interface CompiledSourceTextFile extends CompiledTextFile {
+	stats: Stats | undefined; // `undefined` for lazy loading
+	buffer: Buffer | undefined; // `undefined` for lazy loading
+	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
+}
+export interface CompiledSourceBinaryFile extends CompiledBinaryFile {
+	stats: Stats | undefined; // `undefined` for lazy loading
+	buffer: Buffer;
+	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
+}
 
 interface Options {
 	compiler: Compiler;
@@ -45,6 +65,7 @@ interface Options {
 	sourceDir: string;
 	buildDir: string;
 	debounce: number;
+	watch: boolean;
 	log: Logger;
 }
 type RequiredOptions = 'compiler';
@@ -54,46 +75,41 @@ const initOptions = (opts: InitialOptions): Options => ({
 	sourceDir: paths.source,
 	buildDir: paths.build,
 	debounce: DEBOUNCE_DEFAULT,
+	watch: true,
 	...omitUndefined(opts),
-	include: opts.include || DEFAULT_INCLUDE_CALLBACK,
+	include: opts.include || (() => true),
 	log: opts.log || new SystemLogger([magenta('[FileCache]')]),
 });
 
 export class FileCache {
-	readonly watcher: WatchNodeFs;
+	private readonly watcher: WatchNodeFs;
 
-	readonly compiler: Compiler;
-	readonly sourceMap: boolean;
-	readonly log: Logger;
-	readonly sourceDir: string;
-	readonly buildDir: string;
-	readonly include: (id: string) => boolean;
+	private readonly compiler: Compiler;
+	private readonly sourceMap: boolean;
+	private readonly log: Logger;
+	private readonly buildDir: string;
+	private readonly include: (id: string) => boolean;
 
-	readonly sourceFiles: Map<string, SourceFile> = new Map();
+	private readonly sourceFiles: Map<string, SourceFile> = new Map();
 
-	initStatus: AsyncStatus = 'initial';
+	private initStatus: AsyncStatus = 'initial';
 
 	constructor(opts: InitialOptions) {
-		const {compiler, include, sourceMap, sourceDir, buildDir, debounce, log} = initOptions(opts);
+		const {compiler, include, sourceMap, sourceDir, buildDir, debounce, watch, log} = initOptions(
+			opts,
+		);
 		this.compiler = compiler;
 		this.include = include;
 		this.sourceMap = sourceMap;
 		this.log = log;
-		this.sourceDir = sourceDir;
 		this.buildDir = buildDir;
 		this.watcher = watchNodeFs({
 			dir: sourceDir,
 			debounce,
+			watch,
 			onChange: this.onWatcherChange,
 		});
 	}
-
-	// async getSourceFile(id: string): Promise<SourceFile | null> {
-	// 	const sourceFile = this.sourceFiles.get(id);
-	// 	if (!sourceFile) return null;
-	// 	// TODO support lazy loading for some files - how? via a regexp?
-	// 	return sourceFile;
-	// }
 
 	// TODO support lazy loading for some files - how? via a regexp?
 	// this will probably need to be async when that's added
@@ -114,9 +130,15 @@ export class FileCache {
 		this.watcher.destroy();
 	}
 
+	private initializing: Promise<void> | null = null;
+
 	async init(): Promise<void> {
-		if (this.initStatus !== 'initial') throw Error(`init cannot be called twice`);
+		if (this.initializing) return this.initializing;
+		let finishInitializing: () => void;
+		this.initializing = new Promise((r) => (finishInitializing = r));
 		this.initStatus = 'pending';
+
+		await ensureDir(this.buildDir);
 
 		const [statsBySourcePath, statsByBuildPath] = await Promise.all([
 			this.watcher.init(),
@@ -155,11 +177,13 @@ export class FileCache {
 
 		this.initStatus = 'success';
 
-		// For efficiency, we initialize the watcher at the beginning of `init`,
-		// but this means watcher events may arrive before we finish initialization.
+		// We initialize the watcher at the beginning of `init`,
+		// but this means watcher events may arrive before finishing.
 		// Those should be enqueued until the `initStatus` is 'success',
 		// so we can flush them here to get up to speed.
 		await this.flushEnqueuedWatcherChanges();
+
+		finishInitializing!();
 	}
 
 	private onWatcherChange = async (
@@ -208,18 +232,51 @@ export class FileCache {
 	// during compilation, after each async call check if the original id in the function closure is still current,
 	// and if not abort early
 
-	private async compileSourceId(id: string) {
+	private async compileSourceId(id: string): Promise<void> {
 		if (!this.include(id)) return;
 		const {sourceFiles, log} = this;
 
-		const sourceContents = await readFile(id, 'utf8');
-
 		let sourceFile = sourceFiles.get(id);
+
+		let extension: string;
+		let encoding: Encoding;
+		if (sourceFile) {
+			extension = sourceFile.extension;
+			encoding = sourceFile.encoding;
+		} else {
+			extension = extname(id);
+			encoding = inferEncoding(extension);
+		}
+		const sourceContents = await loadFile(encoding, id);
+
 		if (!sourceFile) {
 			// Memory cache is cold.
-			sourceFile = {id: id, extension: extname(id), contents: sourceContents, compiledFiles: []};
+			switch (encoding) {
+				case 'utf8':
+					sourceFile = {
+						id,
+						extension,
+						encoding,
+						contents: sourceContents as string,
+						buffer: undefined,
+						compiledFiles: [],
+					};
+					break;
+				case null:
+					sourceFile = {
+						id,
+						extension,
+						encoding,
+						contents: sourceContents as Buffer,
+						buffer: sourceContents as Buffer,
+						compiledFiles: [],
+					};
+					break;
+				default:
+					throw new UnreachableError(encoding);
+			}
 			sourceFiles.set(id, sourceFile);
-		} else if (sourceFile.contents === sourceContents) {
+		} else if (compareContents(encoding, sourceFile.contents, sourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
 			// the last time the files were built?
@@ -246,12 +303,16 @@ export class FileCache {
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;
-		sourceFile.compiledFiles = result.files.map((file) => ({
-			...file,
-			mimeType: undefined,
-			buffer: undefined,
-			stats: undefined,
-		}));
+		sourceFile.compiledFiles = result.files.map((file) => {
+			switch (file.encoding) {
+				case 'utf8':
+					return {...file, stats: undefined, mimeType: undefined, buffer: undefined};
+				case null:
+					return {...file, stats: undefined, mimeType: undefined, buffer: file.contents};
+				default:
+					throw new UnreachableError(file);
+			}
+		});
 
 		// Write to disk.
 		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, log);
@@ -276,7 +337,9 @@ export class FileCache {
 // The check is needed to handle source maps being toggled on and off.
 // It assumes that if we find any source maps, the rest are there.
 const sourceMapsAreBuilt = async (sourceFile: SourceFile): Promise<boolean> => {
-	const sourceMapFile = sourceFile.compiledFiles.find((f) => f.sourceMapOf);
+	const sourceMapFile = sourceFile.compiledFiles.find((f) =>
+		f.encoding === 'utf8' ? f.sourceMapOf : false,
+	);
 	if (!sourceMapFile) return true;
 	return pathExists(sourceMapFile.id);
 };
@@ -306,9 +369,14 @@ const syncFilesToDisk = async (
 				if (!(await pathExists(newFile.id))) {
 					log.trace('creating file on disk', printPath(newFile.id));
 					shouldOutputNewFile = true;
-				} else if (newFile.contents !== (await readFile(newFile.id, 'utf8'))) {
-					log.trace('updating stale file on disk', printPath(newFile.id));
-					shouldOutputNewFile = true;
+				} else {
+					// TODO Can this be optimized for things like unchanged images?
+					// Maybe support symlinks or referencing the source file as the compiled file?
+					const existingCotents = await loadFile(newFile.encoding, newFile.id);
+					if (!compareContents(newFile.encoding, newFile.contents, existingCotents)) {
+						log.trace('updating stale file on disk', printPath(newFile.id));
+						shouldOutputNewFile = true;
+					}
 				} // else the file on disk is already updated
 			} else if (newFile.contents !== oldFile.contents) {
 				log.trace('updating file on disk', printPath(newFile.id));
@@ -335,3 +403,17 @@ export const getFileStats = (file: CompiledSourceFile): Stats | Promise<Stats> =
 				file.stats = stats;
 				return stats;
 		  }); // TODO catch?
+
+const compareContents = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
+	switch (encoding) {
+		case 'utf8':
+			return a === b;
+		case null:
+			return (a as Buffer).equals(b as Buffer);
+		default:
+			throw new UnreachableError(encoding);
+	}
+};
+
+const loadFile = (encoding: Encoding, id: string): Promise<string | Buffer> =>
+	encoding === null ? readFile(id) : readFile(id, encoding);

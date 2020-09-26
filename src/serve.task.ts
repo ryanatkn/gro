@@ -21,9 +21,7 @@ export const task: Task = {
 		// maybe we want a `lazy` flag?
 		const fileCache: FileCache =
 			(args.fileCache as any) || new FileCache({compiler: createCompiler({dev: true, log})});
-		if (fileCache.initStatus === 'initial') {
-			await fileCache.init();
-		}
+		await fileCache.init();
 
 		const devServer = createDevServer({fileCache, host, port, dir});
 		log.info(`serving ${dir} on ${host}:${port}`);
