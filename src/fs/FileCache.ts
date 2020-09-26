@@ -90,6 +90,7 @@ export class FileCache {
 	private readonly include: (id: string) => boolean;
 
 	private readonly sourceFiles: Map<string, SourceFile> = new Map();
+	private readonly compiledFiles: Map<string, CompiledSourceFile> = new Map();
 
 	private initStatus: AsyncStatus = 'initial';
 
@@ -113,16 +114,7 @@ export class FileCache {
 	// TODO support lazy loading for some files - how? via a regexp?
 	// this will probably need to be async when that's added
 	getCompiledFile(id: string): CompiledSourceFile | null {
-		for (const sourceFile of this.sourceFiles.values()) {
-			for (const compiledFile of sourceFile.compiledFiles) {
-				if (compiledFile.id === id) return compiledFile;
-			}
-		}
-		return null;
-		// TODO cache compiled files for faster lookup
-		// const compiledFile = this.compiledFiles.get(id);
-		// if (!compiledFile) return null;
-		// return compiledFile;
+		return this.compiledFiles.get(id) || null;
 	}
 
 	destroy(): void {
@@ -313,6 +305,8 @@ export class FileCache {
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;
+		// TODO maybe merge the interfaces for the `CompiledFile` and `CompiledSourceFile`,
+		// won't need to do this inefficient copying or change the shape of objects
 		sourceFile.compiledFiles = result.files.map((file) => {
 			switch (file.encoding) {
 				case 'utf8':
@@ -326,6 +320,7 @@ export class FileCache {
 
 		// Write to disk.
 		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, log);
+		await syncFilesToMemoryCache(this.compiledFiles, sourceFile.compiledFiles, oldFiles, log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -334,6 +329,7 @@ export class FileCache {
 		this.log.trace('destroying file', printPath(id));
 		this.sourceFiles.delete(id);
 		await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
+		await syncFilesToMemoryCache(this.compiledFiles, [], sourceFile.compiledFiles, this.log);
 	}
 
 	enqueuedWatcherChanges: [change: WatcherChange, path: string, stats: PathStats][] = [];
@@ -394,6 +390,29 @@ const syncFilesToDisk = async (
 			if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
 		}),
 	]);
+};
+
+// Given `newFiles` and `oldFiles`, updates the memory cache,
+// deleting files that no longer exist and setting the new ones, replacing any old ones.
+const syncFilesToMemoryCache = async (
+	compiledFiles: Map<string, CompiledSourceFile>,
+	newFiles: CompiledSourceFile[],
+	oldFiles: CompiledSourceFile[],
+	_log: Logger,
+): Promise<void> => {
+	// This uses `Array#find` because the arrays are expected to be small,
+	// because we're currently only using it for individual file compilations,
+	// but that assumption might change and cause this code to be slow.
+	for (const oldFile of oldFiles) {
+		if (!newFiles.find((f) => f.id === oldFile.id)) {
+			// log.trace('deleting file from memory', printPath(oldFile.id));
+			compiledFiles.delete(oldFile.id);
+		}
+	}
+	for (const newFile of newFiles) {
+		// log.trace('setting file in memory cache', printPath(newFile.id));
+		compiledFiles.set(newFile.id, newFile);
+	}
 };
 
 export const getFileMimeType = (file: CompiledSourceFile): string | null =>
