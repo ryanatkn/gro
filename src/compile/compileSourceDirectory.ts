@@ -6,11 +6,8 @@ import {TS_EXTENSION} from '../paths.js';
 import {createCompiler} from './compiler.js';
 import {FileCache} from '../fs/FileCache.js';
 
-export const compileSourceDirectory = async (log: Logger): Promise<void> => {
+export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise<void> => {
 	log.info('compiling...');
-
-	// TODO how to do this?
-	const dev = process.env.NODE_ENV === 'development';
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
