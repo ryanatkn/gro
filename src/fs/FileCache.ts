@@ -21,7 +21,6 @@ import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
 import {
 	CompileResult,
-	CompiledFile,
 	Compiler,
 	CompiledTextFile,
 	CompiledBinaryFile,
@@ -381,9 +380,7 @@ const syncFilesToDisk = async (
 					log.trace('creating file on disk', printPath(newFile.id));
 					shouldOutputNewFile = true;
 				} else {
-					// TODO Can this be optimized for things like unchanged images?
-					// Maybe support symlinks or referencing the source file as the compiled file?
-					// Should we stat the file for fast detection?
+					// TODO optimize - content hash cache?
 					const existingCotents = await loadContents(newFile.encoding, newFile.id);
 					if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
 						log.trace('updating stale file on disk', printPath(newFile.id));
