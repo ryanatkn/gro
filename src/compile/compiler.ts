@@ -52,7 +52,7 @@ export interface BaseCompiledFile {
 export interface CompiledTextFile extends BaseCompiledFile {
 	encoding: 'utf8';
 	contents: string;
-	sourceMapOf?: string; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
 export interface CompiledBinaryFile extends BaseCompiledFile {
 	encoding: null;
@@ -121,6 +121,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 						extension: JS_EXTENSION,
 						encoding: 'utf8',
 						contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
+						sourceMapOf: null,
 					},
 				];
 				if (output.map) {
@@ -167,7 +168,13 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
 
 				const files: CompiledFile[] = [
-					{id: jsBuildId, extension: JS_EXTENSION, encoding: 'utf8', contents: js.code},
+					{
+						id: jsBuildId,
+						extension: JS_EXTENSION,
+						encoding: 'utf8',
+						contents: js.code,
+						sourceMapOf: null,
+					},
 				];
 				if (sourceMap && js.map) {
 					files.push({
@@ -184,6 +191,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 						extension: CSS_EXTENSION,
 						encoding: 'utf8',
 						contents: css.code,
+						sourceMapOf: null,
 					});
 					if (sourceMap && css.map) {
 						files.push({
@@ -210,6 +218,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 							extension,
 							encoding,
 							contents: contents as string,
+							sourceMapOf: null,
 						};
 						break;
 					case null:

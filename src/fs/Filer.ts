@@ -41,15 +41,24 @@ export interface SourceBinaryFile extends BaseSourceFile {
 }
 
 export type CompiledSourceFile = CompiledSourceTextFile | CompiledSourceBinaryFile;
-export interface CompiledSourceTextFile extends CompiledTextFile {
+export interface BaseCompiledSourceFile {
+	id: string;
+	extension: string;
 	stats: Stats | undefined; // `undefined` for lazy loading
+	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 	buffer: Buffer | undefined; // `undefined` for lazy loading
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 }
-export interface CompiledSourceBinaryFile extends CompiledBinaryFile {
-	stats: Stats | undefined; // `undefined` for lazy loading
+export interface CompiledSourceTextFile extends BaseCompiledSourceFile {
+	compiledFile: CompiledTextFile;
+	encoding: 'utf8';
+	contents: string;
+	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+}
+export interface CompiledSourceBinaryFile extends BaseCompiledSourceFile {
+	compiledFile: CompiledBinaryFile;
+	encoding: null;
+	contents: Buffer;
 	buffer: Buffer;
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 }
 
 interface Options {
@@ -312,14 +321,33 @@ export class Filer {
 		const oldFiles = sourceFile.compiledFiles;
 		// TODO maybe merge the interfaces for the `CompiledFile` and `CompiledSourceFile`,
 		// won't need to do this inefficient copying or change the shape of objects
-		sourceFile.compiledFiles = result.files.map((file) => {
-			switch (file.encoding) {
+		sourceFile.compiledFiles = result.files.map((compiledFile) => {
+			switch (compiledFile.encoding) {
 				case 'utf8':
-					return {...file, stats: undefined, mimeType: undefined, buffer: undefined};
+					return {
+						id: compiledFile.id,
+						extension: compiledFile.extension,
+						encoding: compiledFile.encoding,
+						contents: compiledFile.contents,
+						sourceMapOf: compiledFile.sourceMapOf,
+						compiledFile,
+						stats: undefined,
+						mimeType: undefined,
+						buffer: undefined,
+					};
 				case null:
-					return {...file, stats: undefined, mimeType: undefined, buffer: file.contents};
+					return {
+						id: compiledFile.id,
+						extension: compiledFile.extension,
+						encoding: compiledFile.encoding,
+						contents: compiledFile.contents,
+						compiledFile,
+						stats: undefined,
+						mimeType: undefined,
+						buffer: compiledFile.contents,
+					};
 				default:
-					throw new UnreachableError(file);
+					throw new UnreachableError(compiledFile);
 			}
 		});
 
