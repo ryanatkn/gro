@@ -107,14 +107,14 @@ const send200FileFound = async (
 	file: CompiledSourceFile,
 ) => {
 	const stats = await getFileStats(file);
+	const mimeType = getFileMimeType(file);
+	let contentType = mimeType || '';
+	if (file.encoding === 'utf8') contentType += '; charset=utf-8';
 	const headers: OutgoingHttpHeaders = {
+		'Content-Type': contentType,
 		'Content-Length': stats.size,
 		'Last-Modified': stats.mtime.toUTCString(),
 	};
-	// The http server throws an error if "Content-Type" is `undefined`,
-	// so add it only if we can detect one.
-	const mimeType = getFileMimeType(file);
-	if (mimeType) headers['Content-Type'] = mimeType;
 	res.writeHead(200, headers);
 	res.end(getFileBuffer(file));
 };
