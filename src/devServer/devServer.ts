@@ -14,13 +14,7 @@ import {cyan, yellow, gray} from '../colors/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
-import {
-	Filer,
-	CompiledSourceFile,
-	getFileMimeType,
-	getFileBuffer,
-	getFileStats,
-} from '../fs/Filer.js';
+import {Filer, CompiledFile, getFileMimeType, getFileBuffer, getFileStats} from '../fs/Filer.js';
 
 export interface DevServer {
 	server: Server;
@@ -119,7 +113,7 @@ const send404 = (req: IncomingMessage, res: ServerResponse, path: string) => {
 	res.end(`404 not found: ${req.url} -> ${path}`);
 };
 
-const send200 = async (_req: IncomingMessage, res: ServerResponse, file: CompiledSourceFile) => {
+const send200 = async (_req: IncomingMessage, res: ServerResponse, file: CompiledFile) => {
 	const stats = await getFileStats(file);
 	const mimeType = getFileMimeType(file);
 	const headers: OutgoingHttpHeaders = {

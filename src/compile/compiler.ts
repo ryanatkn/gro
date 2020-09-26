@@ -38,23 +38,22 @@ export interface Compiler {
 }
 
 export interface CompileResult {
-	// TODO might need to be a union with a type, like `extension: '.svelte'` with additional properties.
-	// Svelte compilation properties include `ast`, `warnings`, `vars`, and `stats`
-	files: CompiledFile[];
+	compilations: Compilation[];
 }
 
-// TODO name? so close to `CompileFile` - maybe that should be renamed `FileCompiler`?
-export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
-export interface BaseCompiledFile {
+export type Compilation = TextCompilation | BinaryCompilation;
+export interface BaseCompilation {
 	id: string;
 	extension: string;
 }
-export interface CompiledTextFile extends BaseCompiledFile {
+// TODO might need to be a union with a type, like `extension: '.svelte'` with additional properties.
+// Svelte compilation properties include `ast`, `warnings`, `vars`, and `stats`
+export interface TextCompilation extends BaseCompilation {
 	encoding: 'utf8';
 	contents: string;
-	sourceMapOf?: string; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
-export interface CompiledBinaryFile extends BaseCompiledFile {
+export interface BinaryCompilation extends BaseCompilation {
 	encoding: null;
 	contents: Buffer;
 }
@@ -115,16 +114,17 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 				const output = await swc.transform(contents as string, finalSwcOptions);
 				const buildId = toBuildId(id);
 				const sourceMapBuildId = buildId + SOURCE_MAP_EXTENSION;
-				const files: CompiledFile[] = [
+				const compilations: Compilation[] = [
 					{
 						id: buildId,
 						extension: JS_EXTENSION,
 						encoding: 'utf8',
 						contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
+						sourceMapOf: null,
 					},
 				];
 				if (output.map) {
-					files.push({
+					compilations.push({
 						id: sourceMapBuildId,
 						extension: SOURCE_MAP_EXTENSION,
 						encoding: 'utf8',
@@ -132,7 +132,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 						sourceMapOf: buildId,
 					});
 				}
-				return {files};
+				return {compilations};
 			}
 			case SVELTE_EXTENSION: {
 				let preprocessedCode: string;
@@ -166,11 +166,17 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 				const jsBuildId = toBuildId(id);
 				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
 
-				const files: CompiledFile[] = [
-					{id: jsBuildId, extension: JS_EXTENSION, encoding: 'utf8', contents: js.code},
+				const compilations: Compilation[] = [
+					{
+						id: jsBuildId,
+						extension: JS_EXTENSION,
+						encoding: 'utf8',
+						contents: js.code,
+						sourceMapOf: null,
+					},
 				];
 				if (sourceMap && js.map) {
-					files.push({
+					compilations.push({
 						id: jsBuildId + SOURCE_MAP_EXTENSION,
 						extension: SOURCE_MAP_EXTENSION,
 						encoding: 'utf8',
@@ -179,14 +185,15 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 					});
 				}
 				if (css.code) {
-					files.push({
+					compilations.push({
 						id: cssBuildId,
 						extension: CSS_EXTENSION,
 						encoding: 'utf8',
 						contents: css.code,
+						sourceMapOf: null,
 					});
 					if (sourceMap && css.map) {
-						files.push({
+						compilations.push({
 							id: cssBuildId + SOURCE_MAP_EXTENSION,
 							extension: SOURCE_MAP_EXTENSION,
 							encoding: 'utf8',
@@ -195,13 +202,13 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 						});
 					}
 				}
-				return {files};
+				return {compilations};
 			}
 			default: {
 				const buildId = toBuildId(id);
 				const extension = extname(id);
 				const encoding = inferEncoding(extension);
-				let file: CompiledFile;
+				let file: Compilation;
 				// TODO simplify this code if we add no additional proeprties - we may add stuff for source maps, though
 				switch (encoding) {
 					case 'utf8':
@@ -210,6 +217,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 							extension,
 							encoding,
 							contents: contents as string,
+							sourceMapOf: null,
 						};
 						break;
 					case null:
@@ -223,7 +231,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 					default:
 						throw new UnreachableError(encoding);
 				}
-				return {files: [file]};
+				return {compilations: [file]};
 			}
 		}
 	};

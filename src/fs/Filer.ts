@@ -19,7 +19,7 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {Compiler, CompiledTextFile, CompiledBinaryFile} from '../compile/compiler.js';
+import {Compiler, TextCompilation, BinaryCompilation} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 
@@ -27,7 +27,7 @@ export type SourceFile = SourceTextFile | SourceBinaryFile;
 interface BaseSourceFile {
 	id: string;
 	extension: string;
-	compiledFiles: CompiledSourceFile[];
+	compiledFiles: CompiledFile[];
 }
 export interface SourceTextFile extends BaseSourceFile {
 	encoding: 'utf8';
@@ -40,16 +40,27 @@ export interface SourceBinaryFile extends BaseSourceFile {
 	buffer: Buffer;
 }
 
-export type CompiledSourceFile = CompiledSourceTextFile | CompiledSourceBinaryFile;
-export interface CompiledSourceTextFile extends CompiledTextFile {
+export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
+export interface BaseCompiledFile {
+	id: string;
+	extension: string;
 	stats: Stats | undefined; // `undefined` for lazy loading
+	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 	buffer: Buffer | undefined; // `undefined` for lazy loading
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 }
-export interface CompiledSourceBinaryFile extends CompiledBinaryFile {
-	stats: Stats | undefined; // `undefined` for lazy loading
+export interface CompiledTextFile extends BaseCompiledFile {
+	// sourceFile: SourceTextFile; // TODO add this reference?
+	compilation: TextCompilation;
+	encoding: 'utf8';
+	contents: string;
+	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+}
+export interface CompiledBinaryFile extends BaseCompiledFile {
+	// sourceFile: SourceBinaryFile; // TODO add this reference?
+	compilation: BinaryCompilation;
+	encoding: null;
+	contents: Buffer;
 	buffer: Buffer;
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 }
 
 interface Options {
@@ -85,7 +96,7 @@ export class Filer {
 	private readonly include: (id: string) => boolean;
 
 	private readonly sourceFiles: Map<string, SourceFile> = new Map();
-	private readonly compiledFiles: Map<string, CompiledSourceFile> = new Map();
+	private readonly compiledFiles: Map<string, CompiledFile> = new Map();
 
 	private initStatus: AsyncStatus = 'initial';
 
@@ -108,7 +119,7 @@ export class Filer {
 
 	// TODO support lazy loading for some files - how? via a regexp?
 	// this will probably need to be async when that's added
-	getCompiledFile(id: string): CompiledSourceFile | null {
+	getCompiledFile(id: string): CompiledFile | null {
 		return this.compiledFiles.get(id) || null;
 	}
 
@@ -310,18 +321,37 @@ export class Filer {
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;
-		// TODO maybe merge the interfaces for the `CompiledFile` and `CompiledSourceFile`,
-		// won't need to do this inefficient copying or change the shape of objects
-		sourceFile.compiledFiles = result.files.map((file) => {
-			switch (file.encoding) {
-				case 'utf8':
-					return {...file, stats: undefined, mimeType: undefined, buffer: undefined};
-				case null:
-					return {...file, stats: undefined, mimeType: undefined, buffer: file.contents};
-				default:
-					throw new UnreachableError(file);
-			}
-		});
+		sourceFile.compiledFiles = result.compilations.map(
+			(compilation): CompiledFile => {
+				switch (compilation.encoding) {
+					case 'utf8':
+						return {
+							id: compilation.id,
+							extension: compilation.extension,
+							encoding: compilation.encoding,
+							contents: compilation.contents,
+							sourceMapOf: compilation.sourceMapOf,
+							compilation,
+							stats: undefined,
+							mimeType: undefined, // TODO copy from old file?
+							buffer: undefined,
+						};
+					case null:
+						return {
+							id: compilation.id,
+							extension: compilation.extension,
+							encoding: compilation.encoding,
+							contents: compilation.contents,
+							compilation,
+							stats: undefined,
+							mimeType: undefined, // TODO copy from old file?
+							buffer: compilation.contents,
+						};
+					default:
+						throw new UnreachableError(compilation);
+				}
+			},
+		);
 
 		// Write to disk.
 		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
@@ -358,8 +388,8 @@ const sourceMapsAreBuilt = async (sourceFile: SourceFile): Promise<boolean> => {
 // Given `newFiles` and `oldFiles`, updates everything on disk,
 // deleting files that no longer exist, writing new ones, and updating existing ones.
 const syncFilesToDisk = async (
-	newFiles: CompiledSourceFile[],
-	oldFiles: CompiledSourceFile[],
+	newFiles: CompiledFile[],
+	oldFiles: CompiledFile[],
 	log: Logger,
 ): Promise<void> => {
 	// This uses `Array#find` because the arrays are expected to be small,
@@ -400,9 +430,9 @@ const syncFilesToDisk = async (
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
 const syncFilesToMemoryCache = async (
-	compiledFiles: Map<string, CompiledSourceFile>,
-	newFiles: CompiledSourceFile[],
-	oldFiles: CompiledSourceFile[],
+	compiledFiles: Map<string, CompiledFile>,
+	newFiles: CompiledFile[],
+	oldFiles: CompiledFile[],
 	_log: Logger,
 ): Promise<void> => {
 	// This uses `Array#find` because the arrays are expected to be small,
@@ -420,16 +450,16 @@ const syncFilesToMemoryCache = async (
 	}
 };
 
-export const getFileMimeType = (file: CompiledSourceFile): string | null =>
+export const getFileMimeType = (file: CompiledFile): string | null =>
 	file.mimeType !== undefined
 		? file.mimeType
 		: (file.mimeType = getMimeTypeByExtension(file.extension.substring(1)));
 
-export const getFileBuffer = (file: CompiledSourceFile): Buffer =>
+export const getFileBuffer = (file: CompiledFile): Buffer =>
 	file.buffer !== undefined ? file.buffer : (file.buffer = Buffer.from(file.contents));
 
 // Stats are currently lazily loaded. Should they be?
-export const getFileStats = (file: CompiledSourceFile): Stats | Promise<Stats> =>
+export const getFileStats = (file: CompiledFile): Stats | Promise<Stats> =>
 	file.stats !== undefined
 		? file.stats
 		: stat(file.id).then((stats) => {
