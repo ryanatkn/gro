@@ -276,7 +276,7 @@ export class FileCache {
 					throw new UnreachableError(encoding);
 			}
 			sourceFiles.set(id, sourceFile);
-		} else if (compareContents(encoding, sourceFile.contents, sourceContents)) {
+		} else if (areContentsEqual(encoding, sourceFile.contents, sourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
 			// the last time the files were built?
@@ -372,12 +372,13 @@ const syncFilesToDisk = async (
 				} else {
 					// TODO Can this be optimized for things like unchanged images?
 					// Maybe support symlinks or referencing the source file as the compiled file?
+					// Should we stat the file for fast detection?
 					const existingCotents = await loadFile(newFile.encoding, newFile.id);
-					if (!compareContents(newFile.encoding, newFile.contents, existingCotents)) {
+					if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
 						log.trace('updating stale file on disk', printPath(newFile.id));
 						shouldOutputNewFile = true;
-					}
-				} // else the file on disk is already updated
+					} // else the file on disk is already updated
+				}
 			} else if (newFile.contents !== oldFile.contents) {
 				log.trace('updating file on disk', printPath(newFile.id));
 				shouldOutputNewFile = true;
@@ -404,7 +405,7 @@ export const getFileStats = (file: CompiledSourceFile): Stats | Promise<Stats> =
 				return stats;
 		  }); // TODO catch?
 
-const compareContents = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
+const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
 		case 'utf8':
 			return a === b;
