@@ -7,11 +7,8 @@ import {createCompiler} from '../compile/compiler.js';
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
 	run: async ({log}) => {
-		// TODO how to do this?
-		const dev = process.env.NODE_ENV === 'development';
-
 		const timings = new Timings();
-		const filer = new Filer({compiler: createCompiler({dev, log})});
+		const filer = new Filer({compiler: createCompiler({dev: true, log})});
 
 		const timingToInitFiler = timings.start('init filer');
 		await filer.init();
