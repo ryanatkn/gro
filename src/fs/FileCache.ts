@@ -19,12 +19,7 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {
-	CompileResult,
-	Compiler,
-	CompiledTextFile,
-	CompiledBinaryFile,
-} from '../compile/compiler.js';
+import {Compiler, CompiledTextFile, CompiledBinaryFile} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 
@@ -212,22 +207,39 @@ export class FileCache {
 		}
 	};
 
-	// TODO similarly to the flushing enqueued changes,
-	// we may need to defer queries with a "compile lock" against the cache until any current processing is complete,
-	// at least for particular files,
-	// otherwise you may see bad mutated values while it's reading or writing to disk in `compileSourceId`.
-	// could it be as simple as `await currentCompilations`?
-	// or can we set `contents` to be `string | null` and be done with it?
-	// We could save each id being compiled in a map or set, and cancel compilation if a new one comes in,
-	// or store a global counter that increments each compile call, and store that in a map by id
-	// during compilation, after each async call check if the original id in the function closure is still current,
-	// and if not abort early
+	// These sets of ids are used to avoid concurrent compilations for any given source file.
+	private pendingCompilations: Set<string> = new Set();
+	private enqueuedCompilations: Set<string> = new Set();
 
+	// This wrapper function protects against race conditions
+	// that could occur with concurrent compilations.
+	// If a file is currently being compiled, it enqueues the file id,
+	// and when the current compilation finishes,
+	// it removes the item from the queue and recompiles the file.
+	// The queue stores at most one compilation per file,
+	// and this is safe given that compiling accepts no parameters.
 	private async compileSourceId(id: string): Promise<void> {
 		if (!this.include(id)) return;
-		const {sourceFiles, log} = this;
+		if (this.pendingCompilations.has(id)) {
+			this.enqueuedCompilations.add(id);
+			return;
+		}
+		this.pendingCompilations.add(id);
+		try {
+			await this._compileSourceId(id);
+		} catch (err) {
+			this.log.error(red('failed to compile'), printPath(id), printError(err));
+		}
+		this.pendingCompilations.delete(id);
+		if (this.enqueuedCompilations.delete(id)) {
+			// Something changed during the compilation for this file, so recurse.
+			// TODO do we need to detect cycles? if we run into any, probably
+			await this.compileSourceId(id);
+		}
+	}
 
-		let sourceFile = sourceFiles.get(id);
+	private async _compileSourceId(id: string): Promise<void> {
+		let sourceFile = this.sourceFiles.get(id);
 
 		let extension: string;
 		let encoding: Encoding;
@@ -266,7 +278,7 @@ export class FileCache {
 				default:
 					throw new UnreachableError(encoding);
 			}
-			sourceFiles.set(id, sourceFile);
+			this.sourceFiles.set(id, sourceFile);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -275,7 +287,6 @@ export class FileCache {
 			// in the same way that we're assuming that the build file is in sync if it exists
 			// when the cached source file hasn't changed.
 			if (!this.sourceMap || (await sourceMapsAreBuilt(sourceFile))) {
-				// TODO what about pending compilations? I think that'd be a bug, we'd need to track the current compilations and throw away work that's not the most recent
 				return;
 			}
 		} else {
@@ -295,13 +306,7 @@ export class FileCache {
 		}
 
 		// Compile this one file, which may turn into one or many.
-		let result: CompileResult;
-		try {
-			result = await this.compiler.compile(id, newSourceContents, sourceFile.extension);
-		} catch (err) {
-			log.error(red('compiler failed for'), printPath(id), printError(err));
-			return;
-		}
+		const result = await this.compiler.compile(id, newSourceContents, sourceFile.extension);
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;
@@ -319,8 +324,8 @@ export class FileCache {
 		});
 
 		// Write to disk.
-		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, log);
-		await syncFilesToMemoryCache(this.compiledFiles, sourceFile.compiledFiles, oldFiles, log);
+		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
+		await syncFilesToMemoryCache(this.compiledFiles, sourceFile.compiledFiles, oldFiles, this.log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -332,7 +337,7 @@ export class FileCache {
 		await syncFilesToMemoryCache(this.compiledFiles, [], sourceFile.compiledFiles, this.log);
 	}
 
-	enqueuedWatcherChanges: [change: WatcherChange, path: string, stats: PathStats][] = [];
+	private enqueuedWatcherChanges: [change: WatcherChange, path: string, stats: PathStats][] = [];
 	private async flushEnqueuedWatcherChanges(): Promise<void> {
 		for (const change of this.enqueuedWatcherChanges) {
 			await this.onWatcherChange(...change);
