@@ -388,7 +388,7 @@ const syncFilesToDisk = async (
 						shouldOutputNewFile = true;
 					} // else the file on disk is already updated
 				}
-			} else if (newFile.contents !== oldFile.contents) {
+			} else if (!areContentsEqual(newFile.encoding, newFile.contents, oldFile.contents)) {
 				log.trace('updating file on disk', printPath(newFile.id));
 				shouldOutputNewFile = true;
 			} // else nothing changed, no need to update
