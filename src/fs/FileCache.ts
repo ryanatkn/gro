@@ -38,7 +38,7 @@ interface BaseSourceFile {
 export interface SourceTextFile extends BaseSourceFile {
 	encoding: 'utf8';
 	contents: string;
-	buffer: Buffer | undefined; // lazily loaded, see `getFileBuffer`
+	buffer: Buffer | undefined;
 }
 export interface SourceBinaryFile extends BaseSourceFile {
 	encoding: null;
@@ -289,7 +289,18 @@ export class FileCache {
 			}
 		} else {
 			// Memory cache is warm, but contents have changed.
-			sourceFile.contents = sourceContents;
+			switch (encoding) {
+				case 'utf8':
+					sourceFile.contents = sourceContents;
+					sourceFile.buffer = undefined;
+					break;
+				case null:
+					sourceFile.contents = sourceContents;
+					sourceFile.buffer = sourceContents as Buffer;
+					break;
+				default:
+					throw new UnreachableError(encoding);
+			}
 		}
 
 		// Compile this one file, which may turn into one or many.
