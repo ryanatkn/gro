@@ -6,7 +6,7 @@ import {omitUndefined} from '../utils/object.js';
 /*
 
 `watchNodeFs` is Gro's low level interface for watching changes on the Node filesystem.
-`CachingCompiler` is a high level interface that should be preferred when possible.
+`Filer` is a high level interface that should be preferred when possible.
 
 */
 
@@ -27,31 +27,35 @@ export interface Options {
 	onChange: WatcherChangeCallback;
 	filter: PathFilter | null;
 	debounce: number;
+	watch: boolean;
 }
 export type RequiredOptions = 'dir' | 'onChange';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	debounce: DEBOUNCE_DEFAULT,
 	filter: null,
+	watch: true,
 	...omitUndefined(opts),
 });
 
 export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
-	const {dir, onChange, filter, debounce} = initOptions(opts);
+	const {dir, onChange, filter, debounce, watch} = initOptions(opts);
 	const watcher = new CheapWatch({
 		dir,
 		filter: filter
 			? (file: {path: string; stats: PathStats}) => file.stats.isDirectory() || filter(file)
 			: undefined,
-		watch: true,
+		watch,
 		debounce,
 	});
-	watcher.on('+', ({path, stats, isNew}) => {
-		onChange(isNew ? 'create' : 'update', path, stats);
-	});
-	watcher.on('-', ({path, stats}) => {
-		onChange('delete', path, stats);
-	});
+	if (watch) {
+		watcher.on('+', ({path, stats, isNew}) => {
+			onChange(isNew ? 'create' : 'update', path, stats);
+		});
+		watcher.on('-', ({path, stats}) => {
+			onChange('delete', path, stats);
+		});
+	}
 	return {
 		init: async () => {
 			await watcher.init();

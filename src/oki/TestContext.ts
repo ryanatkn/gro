@@ -2,7 +2,6 @@ import {cyan} from '../colors/terminal.js';
 import {Logger, LogLevel, SystemLogger} from '../utils/log.js';
 import type {AsyncStatus} from '../utils/async.js';
 import {omitUndefined} from '../utils/object.js';
-import {createFileCache} from '../project/fileCache.js';
 import {Timings} from '../utils/time.js';
 import {TestModuleMeta, loadTestModule} from './testModule.js';
 import {LoadModuleResult} from '../fs/modules.js';
@@ -90,9 +89,6 @@ export class TestContext {
 	readonly tests: TestInstance[] = []; // flat array of tests in call order - fast alternative to traversing `testsByFileId`
 
 	stats: TestStats | undefined;
-	// TODO probably pass this in as an option
-	// what if we have a thing that's like a FileSelection, taking in Files and a filter, and caching to maps? or maybe just use a set of ids?
-	readonly files = createFileCache();
 	readonly timings = new Timings();
 
 	constructor(opts: InitialOptions) {

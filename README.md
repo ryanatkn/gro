@@ -75,11 +75,11 @@ To learn more [see the task docs](src/task)
 and [the generated task index](src/docs/tasks.md).
 
 ```bash
-gro dev # builds in watch mode and starts a dev server
+gro dev # starts the dev server in watch mode
 ```
 
 ```bash
-gro build # build once, defaulting to NODE_ENV=development
+gro build # builds everything for production
 ```
 
 Testing with `oki` (docs at [`src/oki`](src/oki))

@@ -1,21 +1,18 @@
 import {Task} from '../task/task.js';
-import {CachingCompiler} from '../compile/CachingCompiler.js';
+import {Filer} from '../fs/Filer.js';
 import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
-import {createCompileFile} from '../compile/compileFile.js';
+import {createCompiler} from '../compile/compiler.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
 	run: async ({log}) => {
-		// TODO how to do this?
-		const dev = process.env.NODE_ENV === 'development';
-
 		const timings = new Timings();
-		const compiler = new CachingCompiler({compileFile: createCompileFile({dev, log})});
+		const filer = new Filer({compiler: createCompiler({dev: true, log})});
 
-		const timingToInitCachingCompiler = timings.start('init caching compiler');
-		await compiler.init();
-		timingToInitCachingCompiler();
+		const timingToInitFiler = timings.start('init filer');
+		await filer.init();
+		timingToInitFiler();
 
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));

@@ -6,6 +6,9 @@ import {createBuild} from './project/build.js';
 import {getDefaultSwcOptions, toSwcCompilerTarget} from './compile/swcHelpers.js';
 import {loadTsconfig} from './compile/tsHelpers.js';
 
+// TODO how should this be done? do we want to allow development builds with Rollup?
+process.env.NODE_ENV = 'production';
+
 const DEFAULT_OUTPUT_DIR = 'dist/';
 const DEFAULT_INPUT_NAMES = ['src/index.ts'];
 
@@ -51,7 +54,7 @@ export const task: Task = {
 	},
 };
 
-// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `CachingCompiler` probably
+// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
 const resolveInputFiles = async (fileNames: string[]): Promise<string[]> => {
 	// if no file names are provided, add a default if it exists
 	if (!fileNames.length) {

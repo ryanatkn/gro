@@ -20,6 +20,7 @@ import {
 import {Logger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
+	JS_EXTENSION,
 	SOURCE_MAP_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildId,
@@ -28,10 +29,14 @@ import {
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
+import {inferEncoding} from '../fs/encoding.js';
+import {UnreachableError} from '../utils/error.js';
 
-export interface CompileFile {
-	(id: string, contents: string, extension?: string): Promise<CompileResult>;
+export interface Compiler {
+	// TODO maybe make `compile` optionally synchronous, depending on the kind of file? (Svelte is sync, swc allows async or sync)
+	compile(id: string, contents: string | Buffer, extension?: string): Promise<CompileResult>;
 }
+
 export interface CompileResult {
 	// TODO might need to be a union with a type, like `extension: '.svelte'` with additional properties.
 	// Svelte compilation properties include `ast`, `warnings`, `vars`, and `stats`
@@ -39,10 +44,19 @@ export interface CompileResult {
 }
 
 // TODO name? so close to `CompileFile` - maybe that should be renamed `FileCompiler`?
-export interface CompiledFile {
+export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
+export interface BaseCompiledFile {
 	id: string;
+	extension: string;
+}
+export interface CompiledTextFile extends BaseCompiledFile {
+	encoding: 'utf8';
 	contents: string;
 	sourceMapOf?: string; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+}
+export interface CompiledBinaryFile extends BaseCompiledFile {
+	encoding: null;
+	contents: Buffer;
 }
 
 export interface Options {
@@ -78,8 +92,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-// TODO maybe make this optionally synchronous, so not `async` and not using promises when not needeD?
-export const createCompileFile = (opts: InitialOptions): CompileFile => {
+export const createCompiler = (opts: InitialOptions): Compiler => {
 	const {
 		log,
 		dev,
@@ -91,26 +104,30 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 		onstats,
 	} = initOptions(opts);
 
-	const compileFile: CompileFile = async (
+	const compile: Compiler['compile'] = async (
 		id: string,
-		contents: string,
+		contents: string | Buffer,
 		extension = extname(id),
 	): Promise<CompileResult> => {
 		switch (extension) {
 			case TS_EXTENSION: {
 				const finalSwcOptions = mergeSwcOptions(swcOptions, id);
-				const output = await swc.transform(contents, finalSwcOptions);
+				const output = await swc.transform(contents as string, finalSwcOptions);
 				const buildId = toBuildId(id);
 				const sourceMapBuildId = buildId + SOURCE_MAP_EXTENSION;
 				const files: CompiledFile[] = [
 					{
 						id: buildId,
+						extension: JS_EXTENSION,
+						encoding: 'utf8',
 						contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
 					},
 				];
 				if (output.map) {
 					files.push({
 						id: sourceMapBuildId,
+						extension: SOURCE_MAP_EXTENSION,
+						encoding: 'utf8',
 						contents: output.map,
 						sourceMapOf: buildId,
 					});
@@ -123,13 +140,13 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				// TODO see rollup-plugin-svelte for how to track deps
 				// let dependencies = [];
 				if (sveltePreprocessor) {
-					const preprocessed = await svelte.preprocess(contents, sveltePreprocessor, {
+					const preprocessed = await svelte.preprocess(contents as string, sveltePreprocessor, {
 						filename: id,
 					});
 					preprocessedCode = preprocessed.code;
 					// dependencies = preprocessed.dependencies; // TODO
 				} else {
-					preprocessedCode = contents;
+					preprocessedCode = contents as string;
 				}
 
 				const output: SvelteCompilation = svelte.compile(preprocessedCode, {
@@ -149,19 +166,30 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				const jsBuildId = toBuildId(id);
 				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
 
-				const files: CompiledFile[] = [{id: jsBuildId, contents: js.code}];
+				const files: CompiledFile[] = [
+					{id: jsBuildId, extension: JS_EXTENSION, encoding: 'utf8', contents: js.code},
+				];
 				if (sourceMap && js.map) {
 					files.push({
 						id: jsBuildId + SOURCE_MAP_EXTENSION,
+						extension: SOURCE_MAP_EXTENSION,
+						encoding: 'utf8',
 						contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
 						sourceMapOf: jsBuildId,
 					});
 				}
 				if (css.code) {
-					files.push({id: cssBuildId, contents: css.code});
+					files.push({
+						id: cssBuildId,
+						extension: CSS_EXTENSION,
+						encoding: 'utf8',
+						contents: css.code,
+					});
 					if (sourceMap && css.map) {
 						files.push({
 							id: cssBuildId + SOURCE_MAP_EXTENSION,
+							extension: SOURCE_MAP_EXTENSION,
+							encoding: 'utf8',
 							contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
 							sourceMapOf: cssBuildId,
 						});
@@ -170,9 +198,34 @@ export const createCompileFile = (opts: InitialOptions): CompileFile => {
 				return {files};
 			}
 			default: {
-				return {files: [{id, contents}]};
+				const buildId = toBuildId(id);
+				const extension = extname(id);
+				const encoding = inferEncoding(extension);
+				let file: CompiledFile;
+				// TODO simplify this code if we add no additional proeprties - we may add stuff for source maps, though
+				switch (encoding) {
+					case 'utf8':
+						file = {
+							id: buildId,
+							extension,
+							encoding,
+							contents: contents as string,
+						};
+						break;
+					case null:
+						file = {
+							id: buildId,
+							extension,
+							encoding,
+							contents: contents as Buffer,
+						};
+						break;
+					default:
+						throw new UnreachableError(encoding);
+				}
+				return {files: [file]};
 			}
 		}
 	};
-	return compileFile;
+	return {compile};
 };

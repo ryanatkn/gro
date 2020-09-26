@@ -79,7 +79,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 			if (await shouldBuildProject(pathData)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
 				const timingToBuildProject = timings.start('build project');
-				await compileSourceDirectory(log);
+				await compileSourceDirectory(true, log);
 				timingToBuildProject();
 			}
 
