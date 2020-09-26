@@ -247,7 +247,7 @@ export class FileCache {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		const sourceContents = await loadFile(encoding, id);
+		const sourceContents = await loadContents(encoding, id);
 
 		if (!sourceFile) {
 			// Memory cache is cold.
@@ -373,7 +373,7 @@ const syncFilesToDisk = async (
 					// TODO Can this be optimized for things like unchanged images?
 					// Maybe support symlinks or referencing the source file as the compiled file?
 					// Should we stat the file for fast detection?
-					const existingCotents = await loadFile(newFile.encoding, newFile.id);
+					const existingCotents = await loadContents(newFile.encoding, newFile.id);
 					if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
 						log.trace('updating stale file on disk', printPath(newFile.id));
 						shouldOutputNewFile = true;
@@ -416,5 +416,5 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 	}
 };
 
-const loadFile = (encoding: Encoding, id: string): Promise<string | Buffer> =>
+const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
 	encoding === null ? readFile(id) : readFile(id, encoding);
