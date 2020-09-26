@@ -358,8 +358,8 @@ const sourceMapsAreBuilt = async (sourceFile: SourceFile): Promise<boolean> => {
 // Given `newFiles` and `oldFiles`, updates everything on disk,
 // deleting files that no longer exist, writing new ones, and updating existing ones.
 const syncFilesToDisk = async (
-	newFiles: CompiledFile[],
-	oldFiles: CompiledFile[],
+	newFiles: CompiledSourceFile[],
+	oldFiles: CompiledSourceFile[],
 	log: Logger,
 ): Promise<void> => {
 	// This uses `Array#find` because the arrays are expected to be small,
