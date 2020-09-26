@@ -247,7 +247,7 @@ export class FileCache {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		const sourceContents = await loadContents(encoding, id);
+		const newSourceContents = await loadContents(encoding, id);
 
 		if (!sourceFile) {
 			// Memory cache is cold.
@@ -257,7 +257,7 @@ export class FileCache {
 						id,
 						extension,
 						encoding,
-						contents: sourceContents as string,
+						contents: newSourceContents as string,
 						buffer: undefined,
 						compiledFiles: [],
 					};
@@ -267,8 +267,8 @@ export class FileCache {
 						id,
 						extension,
 						encoding,
-						contents: sourceContents as Buffer,
-						buffer: sourceContents as Buffer,
+						contents: newSourceContents as Buffer,
+						buffer: newSourceContents as Buffer,
 						compiledFiles: [],
 					};
 					break;
@@ -276,7 +276,7 @@ export class FileCache {
 					throw new UnreachableError(encoding);
 			}
 			sourceFiles.set(id, sourceFile);
-		} else if (areContentsEqual(encoding, sourceFile.contents, sourceContents)) {
+		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
 			// the last time the files were built?
@@ -291,12 +291,12 @@ export class FileCache {
 			// Memory cache is warm, but contents have changed.
 			switch (encoding) {
 				case 'utf8':
-					sourceFile.contents = sourceContents;
+					sourceFile.contents = newSourceContents;
 					sourceFile.buffer = undefined;
 					break;
 				case null:
-					sourceFile.contents = sourceContents;
-					sourceFile.buffer = sourceContents as Buffer;
+					sourceFile.contents = newSourceContents;
+					sourceFile.buffer = newSourceContents as Buffer;
 					break;
 				default:
 					throw new UnreachableError(encoding);
@@ -306,7 +306,7 @@ export class FileCache {
 		// Compile this one file, which may turn into one or many.
 		let result: CompileResult;
 		try {
-			result = await this.compiler.compile(id, sourceContents, sourceFile.extension);
+			result = await this.compiler.compile(id, newSourceContents, sourceFile.extension);
 		} catch (err) {
 			log.error(red('compiler failed for'), printPath(id), printError(err));
 			return;
