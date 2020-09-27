@@ -483,9 +483,6 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
 	encoding === null ? readFile(id) : readFile(id, encoding);
 
-// TODO delete - this does NOT support type narrowing!
-// const postprocess = <T extends Compilation>(compilation: T): T['contents'] => {
-
 // TODO this is rough! needs to be majorly refactored, made pluggable, maybe extracted
 // the API is minimal right now, but may need to return the entire CompiledFile
 function postprocess(compilation: TextCompilation): string;
