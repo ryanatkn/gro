@@ -321,7 +321,6 @@ export class Filer {
 		const result = await this.compiler.compile(id, newSourceContents, sourceFile.extension);
 
 		// Update the cache.
-		// TODO mutate the existing compiledFiles? what about diffing and sending diffs to sync instead of the files?
 		const oldFiles = sourceFile.compiledFiles;
 		sourceFile.compiledFiles = result.compilations.map(
 			(compilation): CompiledFile => {
