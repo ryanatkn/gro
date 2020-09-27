@@ -183,20 +183,16 @@ export class Filer {
 		finishInitializing!();
 	}
 
-	private onWatcherChange = async (
-		change: WatcherChange,
-		path: string,
-		stats: PathStats,
-	): Promise<void> => {
+	private onWatcherChange = async (change: WatcherChange): Promise<void> => {
 		if (this.initStatus !== 'success') {
-			this.enqueuedWatcherChanges.push([change, path, stats]);
+			this.enqueuedWatcherChanges.push(change);
 			return;
 		}
-		const id = basePathToSourceId(path);
-		switch (change) {
+		const id = basePathToSourceId(change.path);
+		switch (change.type) {
 			case 'create':
 			case 'update': {
-				if (stats.isDirectory()) {
+				if (change.stats.isDirectory()) {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
@@ -205,16 +201,16 @@ export class Filer {
 				break;
 			}
 			case 'delete': {
-				if (stats.isDirectory()) {
+				if (change.stats.isDirectory()) {
 					// Although we don't pre-emptively create build directories above, we do delete them.
-					await remove(basePathToBuildId(path));
+					await remove(basePathToBuildId(change.path));
 				} else {
 					await this.destroySourceId(id);
 				}
 				break;
 			}
 			default:
-				throw new UnreachableError(change);
+				throw new UnreachableError(change.type);
 		}
 	};
 
@@ -367,10 +363,10 @@ export class Filer {
 		await syncFilesToMemoryCache(this.compiledFiles, [], sourceFile.compiledFiles, this.log);
 	}
 
-	private enqueuedWatcherChanges: [change: WatcherChange, path: string, stats: PathStats][] = [];
+	private enqueuedWatcherChanges: WatcherChange[] = [];
 	private async flushEnqueuedWatcherChanges(): Promise<void> {
 		for (const change of this.enqueuedWatcherChanges) {
-			await this.onWatcherChange(...change);
+			await this.onWatcherChange(change);
 		}
 	}
 }

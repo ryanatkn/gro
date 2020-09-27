@@ -15,10 +15,15 @@ export interface WatchNodeFs {
 	destroy: () => void;
 }
 
-export interface WatcherChangeCallback {
-	(change: WatcherChange, path: string, stats: PathStats): void;
+export interface WatcherChange {
+	type: WatcherChangeType;
+	path: string;
+	stats: PathStats;
 }
-export type WatcherChange = 'create' | 'update' | 'delete';
+export type WatcherChangeType = 'create' | 'update' | 'delete';
+export interface WatcherChangeCallback {
+	(change: WatcherChange): void;
+}
 
 export const DEBOUNCE_DEFAULT = 10;
 
@@ -50,10 +55,10 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 	});
 	if (watch) {
 		watcher.on('+', ({path, stats, isNew}) => {
-			onChange(isNew ? 'create' : 'update', path, stats);
+			onChange({type: isNew ? 'create' : 'update', path, stats});
 		});
 		watcher.on('-', ({path, stats}) => {
-			onChange('delete', path, stats);
+			onChange({type: 'delete', path, stats});
 		});
 	}
 	return {
