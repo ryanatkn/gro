@@ -1,13 +1,16 @@
 import {extname} from 'path';
-import {ensureDir, stat, Stats} from './nodeFs.js';
+import lexer from 'es-module-lexer';
 
+import {ensureDir, stat, Stats} from './nodeFs.js';
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import {
 	basePathToBuildId,
 	basePathToSourceId,
 	fromSourceMappedBuildIdToSourceId,
+	JS_EXTENSION,
 	paths,
+	SVELTE_EXTENSION,
 	toSourceId,
 	toSvelteExtension,
 } from '../paths.js';
@@ -19,9 +22,10 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {Compiler, TextCompilation, BinaryCompilation} from '../compile/compiler.js';
+import {Compiler, TextCompilation, BinaryCompilation, Compilation} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
+import {replaceExtension} from '../utils/path.js';
 
 export type SourceFile = SourceTextFile | SourceBinaryFile;
 interface BaseSourceFile {
@@ -140,6 +144,7 @@ export class Filer {
 		const [statsBySourcePath, statsByBuildPath] = await Promise.all([
 			this.watcher.init(),
 			findFiles(this.buildDir, undefined, null),
+			lexer.init,
 		]);
 
 		const statsBySourceId = new Map<string, PathStats>();
@@ -325,7 +330,7 @@ export class Filer {
 							id: compilation.id,
 							extension: compilation.extension,
 							encoding: compilation.encoding,
-							contents: compilation.contents,
+							contents: postprocess(compilation),
 							sourceMapOf: compilation.sourceMapOf,
 							compilation,
 							stats: undefined,
@@ -337,7 +342,7 @@ export class Filer {
 							id: compilation.id,
 							extension: compilation.extension,
 							encoding: compilation.encoding,
-							contents: compilation.contents,
+							contents: postprocess(compilation),
 							compilation,
 							stats: undefined,
 							mimeType: undefined, // TODO copy from old file?
@@ -476,3 +481,31 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 
 const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
 	encoding === null ? readFile(id) : readFile(id, encoding);
+
+// TODO this needs some major refactoring and redesigning
+function postprocess(compilation: TextCompilation): string;
+function postprocess(compilation: BinaryCompilation): Buffer;
+function postprocess(compilation: Compilation) {
+	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
+		let result = '';
+		let index = 0;
+		const {contents} = compilation;
+		// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
+		const [imports] = lexer.parse(contents);
+		for (const {s, e, d} of imports) {
+			const start = d > -1 ? s + 1 : s;
+			const end = d > -1 ? e - 1 : e;
+			const moduleName = contents.substring(start, end);
+			if (moduleName.endsWith(SVELTE_EXTENSION)) {
+				result += contents.substring(index, start) + replaceExtension(moduleName, JS_EXTENSION);
+				index = end;
+			}
+		}
+		if (index > 0) {
+			return result + contents.substring(index);
+		} else {
+			return contents;
+		}
+	}
+	return compilation.contents;
+}
