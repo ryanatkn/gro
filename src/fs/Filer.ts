@@ -487,7 +487,7 @@ function postprocess(compilation: TextCompilation): string;
 function postprocess(compilation: BinaryCompilation): Buffer;
 function postprocess(compilation: Compilation) {
 	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
-		const result: string[] = [];
+		let result = '';
 		let index = 0;
 		const {contents} = compilation;
 		// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
@@ -497,13 +497,12 @@ function postprocess(compilation: Compilation) {
 			const end = d > -1 ? e - 1 : e;
 			const moduleName = contents.substring(start, end);
 			if (moduleName.endsWith(SVELTE_EXTENSION)) {
-				result.push(contents.substring(index, start) + replaceExtension(moduleName, JS_EXTENSION));
+				result += contents.substring(index, start) + replaceExtension(moduleName, JS_EXTENSION);
 				index = end;
 			}
 		}
 		if (index > 0) {
-			result.push(contents.substring(index));
-			return result.join('');
+			return result + contents.substring(index);
 		} else {
 			return contents;
 		}
