@@ -1,13 +1,16 @@
 import {extname} from 'path';
-import {ensureDir, stat, Stats} from './nodeFs.js';
+import lexer from 'es-module-lexer';
 
+import {ensureDir, stat, Stats} from './nodeFs.js';
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import {
 	basePathToBuildId,
 	basePathToSourceId,
 	fromSourceMappedBuildIdToSourceId,
+	JS_EXTENSION,
 	paths,
+	SVELTE_EXTENSION,
 	toSourceId,
 	toSvelteExtension,
 } from '../paths.js';
@@ -19,9 +22,10 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {Compiler, TextCompilation, BinaryCompilation} from '../compile/compiler.js';
+import {Compiler, TextCompilation, BinaryCompilation, Compilation} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
+import {replaceExtension} from '../utils/path.js';
 
 export type SourceFile = SourceTextFile | SourceBinaryFile;
 interface BaseSourceFile {
@@ -140,6 +144,7 @@ export class Filer {
 		const [statsBySourcePath, statsByBuildPath] = await Promise.all([
 			this.watcher.init(),
 			findFiles(this.buildDir, undefined, null),
+			lexer.init,
 		]);
 
 		const statsBySourceId = new Map<string, PathStats>();
@@ -316,6 +321,7 @@ export class Filer {
 		const result = await this.compiler.compile(id, newSourceContents, sourceFile.extension);
 
 		// Update the cache.
+		// TODO mutate the existing compiledFiles? what about diffing and sending diffs to sync instead of the files?
 		const oldFiles = sourceFile.compiledFiles;
 		sourceFile.compiledFiles = result.compilations.map(
 			(compilation): CompiledFile => {
@@ -325,7 +331,7 @@ export class Filer {
 							id: compilation.id,
 							extension: compilation.extension,
 							encoding: compilation.encoding,
-							contents: compilation.contents,
+							contents: postprocess(compilation),
 							sourceMapOf: compilation.sourceMapOf,
 							compilation,
 							stats: undefined,
@@ -337,7 +343,7 @@ export class Filer {
 							id: compilation.id,
 							extension: compilation.extension,
 							encoding: compilation.encoding,
-							contents: compilation.contents,
+							contents: postprocess(compilation),
 							compilation,
 							stats: undefined,
 							mimeType: undefined, // TODO copy from old file?
@@ -476,3 +482,42 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 
 const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
 	encoding === null ? readFile(id) : readFile(id, encoding);
+
+// TODO delete - this does NOT support type narrowing!
+// const postprocess = <T extends Compilation>(compilation: T): T['contents'] => {
+
+// TODO this is rough! needs to be majorly refactored, maybe extracted
+// the API is minimal right now, but may need to return the entire CompiledFile
+function postprocess(compilation: TextCompilation): string;
+function postprocess(compilation: BinaryCompilation): Buffer;
+function postprocess(compilation: Compilation) {
+	if (compilation.encoding === 'utf8') {
+		if (compilation.extension === JS_EXTENSION) {
+			return rewriteSvelteImports(compilation.contents, compilation.id);
+		}
+	}
+	return compilation.contents;
+}
+
+// TODO probably extract this into a pluggable module (not hardcoded to `preprocess`)
+// This must not change lines, or souce maps will need to be updated.
+const rewriteSvelteImports = (code: string, id: string): string => {
+	const result: string[] = [];
+	// TODO handle exports
+	// TODO what should we pass as the second arg to parse? the id? nothing?
+	const [imports] = lexer.parse(code, id);
+	let index = 0;
+	for (const {s, e} of imports) {
+		const moduleName = code.substring(s, e);
+		if (moduleName.endsWith(SVELTE_EXTENSION)) {
+			result.push(code.substring(index, s) + replaceExtension(moduleName, JS_EXTENSION));
+			index = e;
+		}
+	}
+	if (index > 0) {
+		result.push(code.substring(index));
+		return result.join('');
+	} else {
+		return code;
+	}
+};
