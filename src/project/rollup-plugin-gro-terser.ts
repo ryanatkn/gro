@@ -39,12 +39,17 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 			log.info('terser', printPath(chunk.fileName));
 
 			try {
-				const minifiedResult = await terser.minify(code, {
+				const result = await terser.minify(code, {
 					module: format === 'es',
 					...minifyOptions,
 				});
 
-				return minifiedResult as any; // TODO type?
+				if (result.code === undefined) {
+					throw Error(`terser returned undefined for ${chunk.fileName}`);
+				}
+
+				log.trace('minified size', code.length, '→', result.code.length);
+				return result as any;
 			} catch (err) {
 				log.error(printError(err)); // TODO code frame?
 				throw err;
