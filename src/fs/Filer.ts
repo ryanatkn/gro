@@ -486,38 +486,32 @@ const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> 
 // TODO delete - this does NOT support type narrowing!
 // const postprocess = <T extends Compilation>(compilation: T): T['contents'] => {
 
-// TODO this is rough! needs to be majorly refactored, maybe extracted
+// TODO this is rough! needs to be majorly refactored, made pluggable, maybe extracted
 // the API is minimal right now, but may need to return the entire CompiledFile
 function postprocess(compilation: TextCompilation): string;
 function postprocess(compilation: BinaryCompilation): Buffer;
 function postprocess(compilation: Compilation) {
-	if (compilation.encoding === 'utf8') {
-		if (compilation.extension === JS_EXTENSION) {
-			return rewriteSvelteImports(compilation.contents, compilation.id);
+	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
+		const result: string[] = [];
+		let index = 0;
+		const {contents} = compilation;
+		// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
+		const [imports] = lexer.parse(contents);
+		for (const {s, e, d} of imports) {
+			const start = d > -1 ? s + 1 : s;
+			const end = d > -1 ? e - 1 : e;
+			const moduleName = contents.substring(start, end);
+			if (moduleName.endsWith(SVELTE_EXTENSION)) {
+				result.push(contents.substring(index, start) + replaceExtension(moduleName, JS_EXTENSION));
+				index = end;
+			}
+		}
+		if (index > 0) {
+			result.push(contents.substring(index));
+			return result.join('');
+		} else {
+			return contents;
 		}
 	}
 	return compilation.contents;
 }
-
-// TODO probably extract this into a pluggable module (not hardcoded to `preprocess`)
-// This must not change lines, or souce maps will need to be updated.
-const rewriteSvelteImports = (code: string, id: string): string => {
-	const result: string[] = [];
-	// TODO handle exports
-	// TODO what should we pass as the second arg to parse? the id? nothing?
-	const [imports] = lexer.parse(code, id);
-	let index = 0;
-	for (const {s, e} of imports) {
-		const moduleName = code.substring(s, e);
-		if (moduleName.endsWith(SVELTE_EXTENSION)) {
-			result.push(code.substring(index, s) + replaceExtension(moduleName, JS_EXTENSION));
-			index = e;
-		}
-	}
-	if (index > 0) {
-		result.push(code.substring(index));
-		return result.join('');
-	} else {
-		return code;
-	}
-};
