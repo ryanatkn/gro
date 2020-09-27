@@ -33,14 +33,14 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 
 	return {
 		name,
-		async renderChunk(code, chunk, outputOptions) {
+		async renderChunk(code, chunk, {format}) {
 			if (!filter(chunk.fileName)) return null;
 
 			log.info('terser', printPath(chunk.fileName));
 
 			try {
 				const minifiedResult = await terser.minify(code, {
-					module: ['es', 'esm'].includes(outputOptions.format!),
+					module: format === 'es',
 					...minifyOptions,
 				});
 
