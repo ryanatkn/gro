@@ -483,8 +483,7 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
 	encoding === null ? readFile(id) : readFile(id, encoding);
 
-// TODO this is rough! needs to be majorly refactored, made pluggable, maybe extracted
-// the API is minimal right now, but may need to return the entire CompiledFile
+// TODO this needs some major refactoring and redesigning
 function postprocess(compilation: TextCompilation): string;
 function postprocess(compilation: BinaryCompilation): Buffer;
 function postprocess(compilation: Compilation) {
