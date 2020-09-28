@@ -146,4 +146,4 @@ tech:
 
 ## license :bird:
 
-[MIT](LICENSE)
+[MIT](LICENSE) Copyright (c) 2020 Felt.coop <team@felt.coop> (https://felt.coop)
