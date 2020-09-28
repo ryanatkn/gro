@@ -27,31 +27,25 @@ import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
 
-export type SourceFile = SourceTextFile | SourceBinaryFile;
-interface BaseSourceFile {
-	id: string;
-	extension: string;
+// TODO so this is a bit inconsistent - we extend the `CompilationSource` types for source files,
+// but not for compiled files - one or the other should be the pattern
+export type SourceFile = TextSourceFile | BinarySourceFile;
+interface BaseSourceFile extends BaseFile {
 	compiledFiles: CompiledFile[];
 }
-export interface SourceTextFile extends BaseSourceFile {
+export interface TextSourceFile extends BaseSourceFile {
 	encoding: 'utf8';
 	contents: string;
-	buffer: Buffer | undefined;
 }
-export interface SourceBinaryFile extends BaseSourceFile {
+export interface BinarySourceFile extends BaseSourceFile {
 	encoding: null;
 	contents: Buffer;
+	compiledFiles: CompiledFile[];
 	buffer: Buffer;
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
-export interface BaseCompiledFile {
-	id: string;
-	extension: string;
-	stats: Stats | undefined; // `undefined` for lazy loading
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
-	buffer: Buffer | undefined; // `undefined` for lazy loading
-}
+export interface BaseCompiledFile extends BaseFile {}
 export interface CompiledTextFile extends BaseCompiledFile {
 	// sourceFile: SourceTextFile; // TODO add this reference?
 	compilation: TextCompilation;
@@ -65,6 +59,16 @@ export interface CompiledBinaryFile extends BaseCompiledFile {
 	encoding: null;
 	contents: Buffer;
 	buffer: Buffer;
+}
+
+interface BaseFile {
+	id: string;
+	extension: string;
+	encoding: Encoding;
+	contents: string | Buffer;
+	stats: Stats | undefined; // `undefined` for lazy loading
+	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
+	buffer: Buffer | undefined; // `undefined` for lazy loading
 }
 
 interface Options {
@@ -273,8 +277,10 @@ export class Filer {
 						extension,
 						encoding,
 						contents: newSourceContents as string,
-						buffer: undefined,
 						compiledFiles: [],
+						stats: undefined,
+						mimeType: undefined,
+						buffer: undefined,
 					};
 					break;
 				case null:
@@ -283,8 +289,10 @@ export class Filer {
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
-						buffer: newSourceContents as Buffer,
 						compiledFiles: [],
+						stats: undefined,
+						mimeType: undefined,
+						buffer: newSourceContents as Buffer,
 					};
 					break;
 				default:
@@ -318,12 +326,7 @@ export class Filer {
 		}
 
 		// Compile this one file, which may turn into one or many.
-		const result = await this.compiler.compile(
-			id,
-			newSourceContents,
-			sourceFile.extension,
-			sourceFile.encoding,
-		);
+		const result = await this.compiler.compile(sourceFile);
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;

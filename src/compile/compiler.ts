@@ -1,4 +1,3 @@
-import {extname} from 'path';
 import swc from '@swc/core';
 import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
@@ -29,17 +28,11 @@ import {
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
-import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {UnreachableError} from '../utils/error.js';
 
 export interface Compiler {
 	// TODO maybe make `compile` optionally synchronous, depending on the kind of file? (Svelte is sync, swc allows async or sync)
-	compile(
-		id: string,
-		contents: string | Buffer,
-		extension?: string,
-		encoding?: Encoding,
-	): Promise<CompileResult>;
+	compile(source: CompilationSource): Promise<CompileResult>;
 }
 
 export interface CompileResult {
@@ -59,6 +52,20 @@ export interface TextCompilation extends BaseCompilation {
 	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
 export interface BinaryCompilation extends BaseCompilation {
+	encoding: null;
+	contents: Buffer;
+}
+
+export type CompilationSource = TextCompilationSource | BinaryCompilationSource;
+interface BaseCompilationSource {
+	id: string;
+	extension: string;
+}
+export interface TextCompilationSource extends BaseCompilationSource {
+	encoding: 'utf8';
+	contents: string;
+}
+export interface BinaryCompilationSource extends BaseCompilationSource {
 	encoding: null;
 	contents: Buffer;
 }
@@ -109,135 +116,147 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 	} = initOptions(opts);
 
 	const compile: Compiler['compile'] = async (
-		id: string,
-		contents: string | Buffer,
-		extension = extname(id),
-		encoding = inferEncoding(extension),
+		source: CompilationSource,
 	): Promise<CompileResult> => {
-		switch (extension) {
-			case TS_EXTENSION: {
-				const finalSwcOptions = mergeSwcOptions(swcOptions, id);
-				const output = await swc.transform(contents as string, finalSwcOptions);
-				const buildId = toBuildId(id);
-				const sourceMapBuildId = buildId + SOURCE_MAP_EXTENSION;
-				const compilations: Compilation[] = [
-					{
-						id: buildId,
-						extension: JS_EXTENSION,
-						encoding: encoding as 'utf8',
-						contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
-						sourceMapOf: null,
-					},
-				];
-				if (output.map) {
-					compilations.push({
-						id: sourceMapBuildId,
-						extension: SOURCE_MAP_EXTENSION,
-						encoding: encoding as 'utf8',
-						contents: output.map,
-						sourceMapOf: buildId,
-					});
-				}
-				return {compilations};
-			}
-			case SVELTE_EXTENSION: {
-				let preprocessedCode: string;
+		const {id} = source;
+		switch (source.encoding) {
+			case 'utf8': {
+				switch (source.extension) {
+					case TS_EXTENSION: {
+						const finalSwcOptions = mergeSwcOptions(swcOptions, id);
+						const output = await swc.transform(source.contents, finalSwcOptions);
+						const buildId = toBuildId(id);
+						const sourceMapBuildId = buildId + SOURCE_MAP_EXTENSION;
+						const compilations: Compilation[] = [
+							{
+								id: buildId,
+								extension: JS_EXTENSION,
+								encoding: source.encoding,
+								contents: output.map
+									? addSourceMapFooter(output.code, sourceMapBuildId)
+									: output.code,
+								sourceMapOf: null,
+							},
+						];
+						if (output.map) {
+							compilations.push({
+								id: sourceMapBuildId,
+								extension: SOURCE_MAP_EXTENSION,
+								encoding: source.encoding,
+								contents: output.map,
+								sourceMapOf: buildId,
+							});
+						}
+						return {compilations};
+					}
+					case SVELTE_EXTENSION: {
+						let preprocessedCode: string;
 
-				// TODO see rollup-plugin-svelte for how to track deps
-				// let dependencies = [];
-				if (sveltePreprocessor) {
-					const preprocessed = await svelte.preprocess(contents as string, sveltePreprocessor, {
-						filename: id,
-					});
-					preprocessedCode = preprocessed.code;
-					// dependencies = preprocessed.dependencies; // TODO
-				} else {
-					preprocessedCode = contents as string;
-				}
+						// TODO see rollup-plugin-svelte for how to track deps
+						// let dependencies = [];
+						if (sveltePreprocessor) {
+							const preprocessed = await svelte.preprocess(source.contents, sveltePreprocessor, {
+								filename: id,
+							});
+							preprocessedCode = preprocessed.code;
+							// dependencies = preprocessed.dependencies; // TODO
+						} else {
+							preprocessedCode = source.contents as string;
+						}
 
-				const output: SvelteCompilation = svelte.compile(preprocessedCode, {
-					...baseSvelteCompileOptions,
-					dev,
-					...svelteCompileOptions,
-					filename: id,
-					// name: getPathStem(id), // TODO this causes warnings with Sapper routes
-				});
-				const {js, css, warnings, stats} = output;
-
-				for (const warning of warnings) {
-					onwarn(id, warning, handleWarn, log);
-				}
-				if (onstats) onstats(id, stats, handleStats, log);
-
-				const jsBuildId = toBuildId(id);
-				const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
-
-				const compilations: Compilation[] = [
-					{
-						id: jsBuildId,
-						extension: JS_EXTENSION,
-						encoding: encoding as 'utf8',
-						contents: js.code,
-						sourceMapOf: null,
-					},
-				];
-				if (sourceMap && js.map) {
-					compilations.push({
-						id: jsBuildId + SOURCE_MAP_EXTENSION,
-						extension: SOURCE_MAP_EXTENSION,
-						encoding: encoding as 'utf8',
-						contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
-						sourceMapOf: jsBuildId,
-					});
-				}
-				if (css.code) {
-					compilations.push({
-						id: cssBuildId,
-						extension: CSS_EXTENSION,
-						encoding: encoding as 'utf8',
-						contents: css.code,
-						sourceMapOf: null,
-					});
-					if (sourceMap && css.map) {
-						compilations.push({
-							id: cssBuildId + SOURCE_MAP_EXTENSION,
-							extension: SOURCE_MAP_EXTENSION,
-							encoding: encoding as 'utf8',
-							contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
-							sourceMapOf: cssBuildId,
+						const output: SvelteCompilation = svelte.compile(preprocessedCode, {
+							...baseSvelteCompileOptions,
+							dev,
+							...svelteCompileOptions,
+							filename: id,
+							// name: getPathStem(id), // TODO this causes warnings with Sapper routes
 						});
+						const {js, css, warnings, stats} = output;
+
+						for (const warning of warnings) {
+							onwarn(id, warning, handleWarn, log);
+						}
+						if (onstats) onstats(id, stats, handleStats, log);
+
+						const jsBuildId = toBuildId(id);
+						const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
+
+						const compilations: Compilation[] = [
+							{
+								id: jsBuildId,
+								extension: JS_EXTENSION,
+								encoding: source.encoding as 'utf8',
+								contents: js.code,
+								sourceMapOf: null,
+							},
+						];
+						if (sourceMap && js.map) {
+							compilations.push({
+								id: jsBuildId + SOURCE_MAP_EXTENSION,
+								extension: SOURCE_MAP_EXTENSION,
+								encoding: source.encoding as 'utf8',
+								contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
+								sourceMapOf: jsBuildId,
+							});
+						}
+						if (css.code) {
+							compilations.push({
+								id: cssBuildId,
+								extension: CSS_EXTENSION,
+								encoding: source.encoding as 'utf8',
+								contents: css.code,
+								sourceMapOf: null,
+							});
+							if (sourceMap && css.map) {
+								compilations.push({
+									id: cssBuildId + SOURCE_MAP_EXTENSION,
+									extension: SOURCE_MAP_EXTENSION,
+									encoding: source.encoding as 'utf8',
+									contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
+									sourceMapOf: cssBuildId,
+								});
+							}
+						}
+						return {compilations};
 					}
 				}
-				return {compilations};
+				break;
 			}
-			default: {
-				const buildId = toBuildId(id);
-				let file: Compilation;
-				// TODO simplify this code if we add no additional proeprties - we may add stuff for source maps, though
-				switch (encoding) {
-					case 'utf8':
-						file = {
-							id: buildId,
-							extension,
-							encoding,
-							contents: contents as string,
-							sourceMapOf: null,
-						};
-						break;
-					case null:
-						file = {
-							id: buildId,
-							extension,
-							encoding,
-							contents: contents as Buffer,
-						};
-						break;
-					default:
-						throw new UnreachableError(encoding);
-				}
-				return {compilations: [file]};
+			case null: {
+				// TODO make this pluggable (a good use case is generating image thumbnails)
+				break;
 			}
+			default:
+				throw new UnreachableError(source);
 		}
+
+		// No compiler found, so pass through the file without modification.
+		const buildId = toBuildId(id);
+		let file: Compilation;
+		// TODO simplify this code if we add no additional proeprties - we may add stuff for source maps, though
+		switch (source.encoding) {
+			case 'utf8':
+				file = {
+					id: buildId,
+					extension: source.extension,
+					encoding: source.encoding,
+					contents: source.contents,
+					sourceMapOf: null,
+				};
+				break;
+			case null:
+				file = {
+					id: buildId,
+					extension: source.extension,
+					encoding: source.encoding,
+					contents: source.contents,
+				};
+				break;
+			default:
+				throw new UnreachableError(source);
+		}
+		return {compilations: [file]};
 	};
+
 	return {compile};
 };
