@@ -27,8 +27,6 @@ import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
 
-// TODO so this is a bit inconsistent - we extend the `CompilationSource` types for source files,
-// but not for compiled files - one or the other should be the pattern
 export type SourceFile = TextSourceFile | BinarySourceFile;
 interface BaseSourceFile extends BaseFile {
 	compiledFiles: CompiledFile[];
