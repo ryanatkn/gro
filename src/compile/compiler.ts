@@ -29,12 +29,17 @@ import {
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
-import {inferEncoding} from '../fs/encoding.js';
+import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {UnreachableError} from '../utils/error.js';
 
 export interface Compiler {
 	// TODO maybe make `compile` optionally synchronous, depending on the kind of file? (Svelte is sync, swc allows async or sync)
-	compile(id: string, contents: string | Buffer, extension?: string): Promise<CompileResult>;
+	compile(
+		id: string,
+		contents: string | Buffer,
+		extension?: string,
+		encoding?: Encoding,
+	): Promise<CompileResult>;
 }
 
 export interface CompileResult {
@@ -107,6 +112,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 		id: string,
 		contents: string | Buffer,
 		extension = extname(id),
+		encoding = inferEncoding(extension),
 	): Promise<CompileResult> => {
 		switch (extension) {
 			case TS_EXTENSION: {
@@ -118,7 +124,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 					{
 						id: buildId,
 						extension: JS_EXTENSION,
-						encoding: 'utf8',
+						encoding: encoding as 'utf8',
 						contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
 						sourceMapOf: null,
 					},
@@ -127,7 +133,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 					compilations.push({
 						id: sourceMapBuildId,
 						extension: SOURCE_MAP_EXTENSION,
-						encoding: 'utf8',
+						encoding: encoding as 'utf8',
 						contents: output.map,
 						sourceMapOf: buildId,
 					});
@@ -170,7 +176,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 					{
 						id: jsBuildId,
 						extension: JS_EXTENSION,
-						encoding: 'utf8',
+						encoding: encoding as 'utf8',
 						contents: js.code,
 						sourceMapOf: null,
 					},
@@ -179,7 +185,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 					compilations.push({
 						id: jsBuildId + SOURCE_MAP_EXTENSION,
 						extension: SOURCE_MAP_EXTENSION,
-						encoding: 'utf8',
+						encoding: encoding as 'utf8',
 						contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
 						sourceMapOf: jsBuildId,
 					});
@@ -188,7 +194,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 					compilations.push({
 						id: cssBuildId,
 						extension: CSS_EXTENSION,
-						encoding: 'utf8',
+						encoding: encoding as 'utf8',
 						contents: css.code,
 						sourceMapOf: null,
 					});
@@ -196,7 +202,7 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 						compilations.push({
 							id: cssBuildId + SOURCE_MAP_EXTENSION,
 							extension: SOURCE_MAP_EXTENSION,
-							encoding: 'utf8',
+							encoding: encoding as 'utf8',
 							contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
 							sourceMapOf: cssBuildId,
 						});
@@ -206,8 +212,6 @@ export const createCompiler = (opts: InitialOptions): Compiler => {
 			}
 			default: {
 				const buildId = toBuildId(id);
-				const extension = extname(id);
-				const encoding = inferEncoding(extension);
 				let file: Compilation;
 				// TODO simplify this code if we add no additional proeprties - we may add stuff for source maps, though
 				switch (encoding) {

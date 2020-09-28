@@ -318,7 +318,12 @@ export class Filer {
 		}
 
 		// Compile this one file, which may turn into one or many.
-		const result = await this.compiler.compile(id, newSourceContents, sourceFile.extension);
+		const result = await this.compiler.compile(
+			id,
+			newSourceContents,
+			sourceFile.extension,
+			sourceFile.encoding,
+		);
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;
