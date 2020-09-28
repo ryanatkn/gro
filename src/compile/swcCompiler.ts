@@ -40,18 +40,22 @@ export const createSwcCompiler = (opts: InitialOptions): SwcCompiler => {
 	const {swcOptions} = initOptions(opts);
 
 	const compile: SwcCompiler['compile'] = async (source: CompilationSource) => {
-		if (source.encoding !== 'utf8') throw Error('swc only handles utf8 encoding');
-		if (source.extension !== TS_EXTENSION) throw Error(`swc only handles ${TS_EXTENSION} files`);
-		const {id} = source;
+		if (source.encoding !== 'utf8') {
+			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
+		}
+		if (source.extension !== TS_EXTENSION) {
+			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
+		}
+		const {id, encoding, contents} = source;
 		const finalSwcOptions = mergeSwcOptions(swcOptions, id);
-		const output = await swc.transform(source.contents, finalSwcOptions);
+		const output = await swc.transform(contents, finalSwcOptions);
 		const buildId = toBuildId(id);
 		const sourceMapBuildId = buildId + SOURCE_MAP_EXTENSION;
 		const compilations: TextCompilation[] = [
 			{
 				id: buildId,
 				extension: JS_EXTENSION,
-				encoding: source.encoding,
+				encoding,
 				contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
 				sourceMapOf: null,
 			},
@@ -60,7 +64,7 @@ export const createSwcCompiler = (opts: InitialOptions): SwcCompiler => {
 			compilations.push({
 				id: sourceMapBuildId,
 				extension: SOURCE_MAP_EXTENSION,
-				encoding: source.encoding,
+				encoding,
 				contents: output.map,
 				sourceMapOf: buildId,
 			});

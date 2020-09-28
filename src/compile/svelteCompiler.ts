@@ -71,22 +71,25 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 	} = initOptions(opts);
 
 	const compile: SvelteCompiler['compile'] = async (source: TextCompilationSource) => {
-		if (source.encoding !== 'utf8') throw Error('swc only handles utf8 encoding');
-		if (source.extension !== SVELTE_EXTENSION)
-			throw Error(`svelte only handles ${SVELTE_EXTENSION} files`);
-		const {id} = source;
+		if (source.encoding !== 'utf8') {
+			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
+		}
+		if (source.extension !== SVELTE_EXTENSION) {
+			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
+		}
+		const {id, encoding, contents} = source;
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps
 		// let dependencies = [];
 		if (sveltePreprocessor) {
-			const preprocessed = await svelte.preprocess(source.contents, sveltePreprocessor, {
+			const preprocessed = await svelte.preprocess(contents, sveltePreprocessor, {
 				filename: id,
 			});
 			preprocessedCode = preprocessed.code;
 			// dependencies = preprocessed.dependencies; // TODO
 		} else {
-			preprocessedCode = source.contents as string;
+			preprocessedCode = contents;
 		}
 
 		const output: SvelteCompilation = svelte.compile(preprocessedCode, {
@@ -110,7 +113,7 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 			{
 				id: jsBuildId,
 				extension: JS_EXTENSION,
-				encoding: source.encoding as 'utf8',
+				encoding,
 				contents: js.code,
 				sourceMapOf: null,
 			},
@@ -119,7 +122,7 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 			compilations.push({
 				id: jsBuildId + SOURCE_MAP_EXTENSION,
 				extension: SOURCE_MAP_EXTENSION,
-				encoding: source.encoding as 'utf8',
+				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
 				sourceMapOf: jsBuildId,
 			});
@@ -128,7 +131,7 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 			compilations.push({
 				id: cssBuildId,
 				extension: CSS_EXTENSION,
-				encoding: source.encoding as 'utf8',
+				encoding,
 				contents: css.code,
 				sourceMapOf: null,
 			});
@@ -136,7 +139,7 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 				compilations.push({
 					id: cssBuildId + SOURCE_MAP_EXTENSION,
 					extension: SOURCE_MAP_EXTENSION,
-					encoding: source.encoding as 'utf8',
+					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
 					sourceMapOf: cssBuildId,
 				});
