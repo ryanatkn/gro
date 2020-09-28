@@ -3,7 +3,7 @@ import {resolve} from 'path';
 import {Task} from './task/task.js';
 import {createDevServer} from './devServer/devServer.js';
 import {Filer} from './fs/Filer.js';
-import {createCompiler} from './compile/compiler.js';
+import {createDefaultCompiler} from './compile/defaultCompiler.js';
 
 export const task: Task = {
 	description: 'start static file server',
@@ -19,8 +19,7 @@ export const task: Task = {
 
 		// TODO this is inefficient for just serving files in a directory
 		// maybe we want a `lazy` flag?
-		const filer: Filer =
-			(args.filer as any) || new Filer({compiler: createCompiler({dev: true, log})});
+		const filer = new Filer({compiler: createDefaultCompiler()});
 		await filer.init();
 
 		const devServer = createDevServer({filer, host, port, dir});

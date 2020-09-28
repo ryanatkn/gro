@@ -3,8 +3,8 @@ import {printMs, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {TS_EXTENSION} from '../paths.js';
-import {createCompiler} from './compiler.js';
 import {Filer} from '../fs/Filer.js';
+import {createDefaultCompiler} from './defaultCompiler.js';
 
 export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise<void> => {
 	log.info('compiling...');
@@ -29,7 +29,7 @@ export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise
 
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
-		compiler: createCompiler({dev, log}),
+		compiler: createDefaultCompiler({dev, log}, {dev, log}),
 		watch: false,
 		include,
 	});
