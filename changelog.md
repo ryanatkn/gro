@@ -6,7 +6,7 @@
   ([#54](https://github.com/feltcoop/gro/pull/54))
 - add Svelte compilation to the unbundled compilation strategies
   ([#52](https://github.com/feltcoop/gro/pull/52))
-- make `createCompiler` pluggable allowing users to provide a compiler for every file
+- make `createCompiler` pluggable allowing users to select a compiler for each file
   ([#57](https://github.com/feltcoop/gro/pull/57))
 
 ## 0.4.0
