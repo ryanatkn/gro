@@ -22,13 +22,7 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {
-	Compiler,
-	TextCompilation,
-	BinaryCompilation,
-	Compilation,
-	createCompiler,
-} from '../compile/compiler.js';
+import {Compiler, TextCompilation, BinaryCompilation, Compilation} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
@@ -81,7 +75,7 @@ export interface BaseFile {
 }
 
 interface Options {
-	compiler: Compiler;
+	compiler: Compiler | null;
 	include: (id: string) => boolean;
 	sourceMap: boolean;
 	sourceDir: string;
@@ -91,18 +85,17 @@ interface Options {
 	watch: boolean;
 	log: Logger;
 }
-type RequiredOptions = never;
-type InitialOptions = PartialExcept<Options, RequiredOptions>;
+type InitialOptions = Partial<Options>;
 const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([magenta('[filer]')]);
 	return {
+		compiler: null,
 		sourceMap: true,
 		sourceDir: paths.source,
 		buildDir: paths.build,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
 		...omitUndefined(opts),
-		compiler: opts.compiler || createCompiler(),
 		include: opts.include || (() => true),
 		log,
 		servedDirs: (opts.servedDirs || [paths.build]).map((d) => resolve(d)),
@@ -112,7 +105,7 @@ const initOptions = (opts: InitialOptions): Options => {
 export class Filer {
 	private readonly watcher: WatchNodeFs;
 
-	private readonly compiler: Compiler;
+	private readonly compiler: Compiler | null;
 	private readonly sourceMap: boolean;
 	private readonly log: Logger;
 	private readonly buildDir: string;
@@ -271,7 +264,7 @@ export class Filer {
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
 	private async compileSourceId(id: string): Promise<void> {
-		if (!this.include(id)) return;
+		if (this.compiler === null || !this.include(id)) return;
 		if (this.pendingCompilations.has(id)) {
 			this.enqueuedCompilations.add(id);
 			return;
@@ -302,7 +295,7 @@ export class Filer {
 		}
 
 		// Compile this one file, which may turn into one or many.
-		const result = await this.compiler.compile(sourceFile);
+		const result = await this.compiler!.compile(sourceFile);
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;
