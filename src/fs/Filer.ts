@@ -344,14 +344,15 @@ export class Filer {
 				return;
 			}
 		} else {
+			// TODO maybe don't mutate, and always create new objects?
 			// Memory cache is warm, but contents have changed.
+			sourceFile.contents = newSourceContents;
+			sourceFile.stats = undefined;
 			switch (encoding) {
 				case 'utf8':
-					sourceFile.contents = newSourceContents;
 					sourceFile.buffer = undefined;
 					break;
 				case null:
-					sourceFile.contents = newSourceContents;
 					sourceFile.buffer = newSourceContents as Buffer;
 					break;
 				default:
