@@ -204,7 +204,13 @@ export class Filer {
 
 		// Compile the source files and update the build directory's files and directories.
 		for (const [id, stats] of statsBySourceId) {
-			if (!stats.isDirectory()) promises.push(this.compileSourceId(id));
+			if (!stats.isDirectory()) {
+				promises.push(
+					this.updateSourceFile(id).then((updated) =>
+						updated ? this.compileSourceId(id) : undefined,
+					),
+				);
+			}
 		}
 
 		await Promise.all(promises);
@@ -233,7 +239,9 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					await this.compileSourceId(id);
+					if (await this.updateSourceFile(id)) {
+						await this.compileSourceId(id);
+					}
 				}
 				break;
 			}
@@ -278,14 +286,70 @@ export class Filer {
 		if (this.enqueuedCompilations.delete(id)) {
 			// Something changed during the compilation for this file, so recurse.
 			// TODO do we need to detect cycles? if we run into any, probably
-			await this.compileSourceId(id);
+			if (await this.updateSourceFile(id)) {
+				await this.compileSourceId(id);
+			}
 		}
 	}
 
 	private async _compileSourceId(id: string): Promise<void> {
 		let sourceFile = this.files.get(id);
-		if (sourceFile && sourceFile.type !== 'source') {
+		if (!sourceFile) {
+			throw Error(`Cannot find source file ${id}`);
+		}
+		if (sourceFile.type !== 'source') {
 			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
+		}
+
+		// Compile this one file, which may turn into one or many.
+		const result = await this.compiler.compile(sourceFile);
+
+		// Update the cache.
+		const oldFiles = sourceFile.compiledFiles;
+		sourceFile.compiledFiles = result.compilations.map(
+			(compilation): CompiledFile => {
+				switch (compilation.encoding) {
+					case 'utf8':
+						return {
+							type: 'compiled',
+							id: compilation.id,
+							extension: compilation.extension,
+							encoding: compilation.encoding,
+							contents: postprocess(compilation),
+							sourceMapOf: compilation.sourceMapOf,
+							compilation,
+							stats: undefined,
+							mimeType: undefined, // TODO copy from old file?
+							buffer: undefined,
+						};
+					case null:
+						return {
+							type: 'compiled',
+							id: compilation.id,
+							extension: compilation.extension,
+							encoding: compilation.encoding,
+							contents: postprocess(compilation),
+							compilation,
+							stats: undefined,
+							mimeType: undefined, // TODO copy from old file?
+							buffer: compilation.contents,
+						};
+					default:
+						throw new UnreachableError(compilation);
+				}
+			},
+		);
+
+		// Write to disk.
+		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
+		await syncCompiledFilesToMemoryCache(this.files, sourceFile.compiledFiles, oldFiles, this.log);
+	}
+
+	// Returns a boolean indicating if the source file changed.
+	private async updateSourceFile(id: string): Promise<boolean> {
+		let sourceFile = this.files.get(id);
+		if (sourceFile && sourceFile.type !== 'source') {
+			throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
 		}
 
 		let extension: string;
@@ -341,7 +405,7 @@ export class Filer {
 			// when the cached source file hasn't changed.
 			// TODO remove this check once we diff compiler options
 			if (!this.sourceMap || (await sourceMapsAreBuilt(sourceFile))) {
-				return;
+				return false;
 			}
 		} else {
 			// TODO maybe don't mutate, and always create new objects?
@@ -359,49 +423,7 @@ export class Filer {
 					throw new UnreachableError(encoding);
 			}
 		}
-
-		// Compile this one file, which may turn into one or many.
-		const result = await this.compiler.compile(sourceFile);
-
-		// Update the cache.
-		const oldFiles = sourceFile.compiledFiles;
-		sourceFile.compiledFiles = result.compilations.map(
-			(compilation): CompiledFile => {
-				switch (compilation.encoding) {
-					case 'utf8':
-						return {
-							type: 'compiled',
-							id: compilation.id,
-							extension: compilation.extension,
-							encoding: compilation.encoding,
-							contents: postprocess(compilation),
-							sourceMapOf: compilation.sourceMapOf,
-							compilation,
-							stats: undefined,
-							mimeType: undefined, // TODO copy from old file?
-							buffer: undefined,
-						};
-					case null:
-						return {
-							type: 'compiled',
-							id: compilation.id,
-							extension: compilation.extension,
-							encoding: compilation.encoding,
-							contents: postprocess(compilation),
-							compilation,
-							stats: undefined,
-							mimeType: undefined, // TODO copy from old file?
-							buffer: compilation.contents,
-						};
-					default:
-						throw new UnreachableError(compilation);
-				}
-			},
-		);
-
-		// Write to disk.
-		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
-		await syncCompiledFilesToMemoryCache(this.files, sourceFile.compiledFiles, oldFiles, this.log);
+		return true;
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
