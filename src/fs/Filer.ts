@@ -33,8 +33,11 @@ import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
 
+export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
+
 export type SourceFile = TextSourceFile | BinarySourceFile;
 interface BaseSourceFile extends BaseFile {
+	type: 'source';
 	compiledFiles: CompiledFile[];
 }
 export interface TextSourceFile extends BaseSourceFile {
@@ -49,7 +52,9 @@ export interface BinarySourceFile extends BaseSourceFile {
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
-export interface BaseCompiledFile extends BaseFile {}
+export interface BaseCompiledFile extends BaseFile {
+	type: 'compiled';
+}
 export interface CompiledTextFile extends BaseCompiledFile {
 	// sourceFile: SourceTextFile; // TODO add this reference?
 	compilation: TextCompilation;
@@ -113,10 +118,8 @@ export class Filer {
 	private readonly buildDir: string;
 	private readonly include: (id: string) => boolean;
 
-	private readonly sourceFiles: Map<string, SourceFile> = new Map();
-	private readonly compiledFiles: Map<string, CompiledFile> = new Map();
+	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly servedDirs: string[];
-	private readonly servedFiles: Map<string, BaseFile> = new Map(); // TODO directories?
 
 	private initStatus: AsyncStatus = 'initial';
 
@@ -146,43 +149,11 @@ export class Filer {
 		});
 	}
 
-	// TODO support lazy loading for some files - how? via a regexp?
-	// this will probably need to be async when that's added
-	getCompiledFile(id: string): CompiledFile | null {
-		return this.compiledFiles.get(id) || null;
-	}
-
-	// is `requestByPath` better wording than `findByPath`,
-	// if this is its serving functionality?
-	// is `serveDirs` the right name? `exposeDirs`, `queryDirs`? `publicDirs`?
+	// Searches for a file matching `path`, limited to the directories that are served.
 	findByPath(path: string): BaseFile | null {
-		// TODO we need to walk through the serve directories one by one,
-		// construct an id from the path to the serve directory,
-		// and check if there's a compiled or source file there.
-		// But compiled vs source shouldn't be the question, should it?
-		// So does `getCompiledFile` need to be changed to `findById`,
-		// and it takes a second arg which is the id of the serve directory,
-		// so the data structure of files, compiled and source, is a map of maps.
-		// OR we could have these maps by path, so no need to construct an id
-		// OR we could have a single map, and a way to construct each of the possible ids
-		// Also should the Filter or devServer be responsible for searching for `index.html`?
-		// If the devServer, it needs to learn that the path it wants is a directory.
-		// And if the filer, we need directory information that we're not currently keeping.
-		// Either way, we need to refactor to include directory information.
-		// There's a problem with resolving index.html externally in the devServer.
-		// If serveDir1 has a directory with a name that matches the find request,
-		// it should probably match before the index.html of serveDir2, right?
-		// It seems surprising to not match serve dir 1. Wait that's not really an issue,
-		// because the idea of finding an extensionless file name is pretty rare.
-		// So should the index.html logic be external? Only executed on a fallback
-		// if the path is a directory? But then it needs to query the data for a path?
-		// So if the return value is a directory, it'll add index.html?
-		// This way other external systems could ask for index.js and stuff.
-		// This makes sense - the `Filer` does not conform to HTTP patterns, it's more generic.
 		for (const servedDir of this.servedDirs) {
 			const id = join(servedDir, path);
-			const file = this.servedFiles.get(id);
-			// const file = this.files.get(servedDir)!.get(id); // TODO consider this pattern, where we have a map of maps (easier to clean up? but more complexity and slightly worse perf?)
+			const file = this.files.get(id);
 			if (file) return file;
 		}
 		return null;
@@ -312,7 +283,10 @@ export class Filer {
 	}
 
 	private async _compileSourceId(id: string): Promise<void> {
-		let sourceFile = this.sourceFiles.get(id);
+		let sourceFile = this.files.get(id);
+		if (sourceFile && sourceFile.type !== 'source') {
+			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
+		}
 
 		let extension: string;
 		let encoding: Encoding;
@@ -330,6 +304,7 @@ export class Filer {
 			switch (encoding) {
 				case 'utf8':
 					sourceFile = {
+						type: 'source',
 						id,
 						extension,
 						encoding,
@@ -342,6 +317,7 @@ export class Filer {
 					break;
 				case null:
 					sourceFile = {
+						type: 'source',
 						id,
 						extension,
 						encoding,
@@ -355,7 +331,7 @@ export class Filer {
 				default:
 					throw new UnreachableError(encoding);
 			}
-			this.sourceFiles.set(id, sourceFile);
+			this.files.set(id, sourceFile);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -393,6 +369,7 @@ export class Filer {
 				switch (compilation.encoding) {
 					case 'utf8':
 						return {
+							type: 'compiled',
 							id: compilation.id,
 							extension: compilation.extension,
 							encoding: compilation.encoding,
@@ -405,6 +382,7 @@ export class Filer {
 						};
 					case null:
 						return {
+							type: 'compiled',
 							id: compilation.id,
 							extension: compilation.extension,
 							encoding: compilation.encoding,
@@ -422,16 +400,16 @@ export class Filer {
 
 		// Write to disk.
 		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
-		await syncFilesToMemoryCache(this.compiledFiles, sourceFile.compiledFiles, oldFiles, this.log);
+		await syncCompiledFilesToMemoryCache(this.files, sourceFile.compiledFiles, oldFiles, this.log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
-		const sourceFile = this.sourceFiles.get(id);
-		if (!sourceFile) return; // TODO file is ignored or there's a deeper issue - maybe add logging? or should we track handled files?
+		const sourceFile = this.files.get(id);
+		if (!sourceFile || sourceFile.type !== 'source') return; // ignore compiled files (maybe throw an error if the file isn't found, should not happen)
 		this.log.trace('destroying file', printPath(id));
-		this.sourceFiles.delete(id);
+		this.files.delete(id);
 		await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
-		await syncFilesToMemoryCache(this.compiledFiles, [], sourceFile.compiledFiles, this.log);
+		await syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
 	}
 
 	private enqueuedWatcherChanges: WatcherChange[] = [];
@@ -496,8 +474,8 @@ const syncFilesToDisk = async (
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
-const syncFilesToMemoryCache = async (
-	compiledFiles: Map<string, CompiledFile>,
+const syncCompiledFilesToMemoryCache = async (
+	files: Map<string, BaseFile>,
 	newFiles: CompiledFile[],
 	oldFiles: CompiledFile[],
 	_log: Logger,
@@ -508,12 +486,12 @@ const syncFilesToMemoryCache = async (
 	for (const oldFile of oldFiles) {
 		if (!newFiles.find((f) => f.id === oldFile.id)) {
 			// log.trace('deleting file from memory', printPath(oldFile.id));
-			compiledFiles.delete(oldFile.id);
+			files.delete(oldFile.id);
 		}
 	}
 	for (const newFile of newFiles) {
 		// log.trace('setting file in memory cache', printPath(newFile.id));
-		compiledFiles.set(newFile.id, newFile);
+		files.set(newFile.id, newFile);
 	}
 };
 

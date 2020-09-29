@@ -111,7 +111,7 @@ const toLocalPath = (url: string): string => {
 
 const send404 = (req: IncomingMessage, res: ServerResponse, path: string) => {
 	const headers: OutgoingHttpHeaders = {
-		'Content-Type': 'text/plain',
+		'Content-Type': 'text/plain; charset=utf-8',
 	};
 	res.writeHead(404, headers);
 	res.end(`404 not found: ${req.url} -> ${path}`);
