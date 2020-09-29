@@ -1,4 +1,4 @@
-import {toBuildId} from '../paths.js';
+import {basePathToBuildId, toBasePath} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 
@@ -67,7 +67,7 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 
 const createNoopCompiler = (): Compiler => {
 	const compile: Compiler['compile'] = (source: CompilationSource) => {
-		const buildId = toBuildId(source.id);
+		const buildId = basePathToBuildId(toBasePath(source.id)); // TODO this needs to be parameterized - where, at `compile` or when creating the compiler?
 		let file: Compilation;
 		switch (source.encoding) {
 			case 'utf8':
