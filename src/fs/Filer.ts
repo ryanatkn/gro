@@ -41,8 +41,8 @@ export interface TextSourceFile extends BaseSourceFile {
 export interface BinarySourceFile extends BaseSourceFile {
 	encoding: null;
 	contents: Buffer;
-	compiledFiles: CompiledFile[];
 	buffer: Buffer;
+	compiledFiles: CompiledFile[];
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
@@ -69,9 +69,9 @@ export interface BaseFile {
 	extension: string;
 	encoding: Encoding;
 	contents: string | Buffer;
+	buffer: Buffer | undefined; // `undefined` for lazy loading
 	stats: Stats | undefined; // `undefined` for lazy loading
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
-	buffer: Buffer | undefined; // `undefined` for lazy loading
 }
 
 interface Options {
@@ -312,7 +312,7 @@ export class Filer {
 							sourceMapOf: compilation.sourceMapOf,
 							compilation,
 							stats: undefined,
-							mimeType: undefined, // TODO copy from old file?
+							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
 							buffer: undefined,
 						};
 					case null:
@@ -324,7 +324,7 @@ export class Filer {
 							contents: postprocess(compilation),
 							compilation,
 							stats: undefined,
-							mimeType: undefined, // TODO copy from old file?
+							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
 							buffer: compilation.contents,
 						};
 					default:
@@ -356,11 +356,12 @@ export class Filer {
 		}
 		const newSourceContents = await loadContents(encoding, id);
 
+		let newSourceFile: SourceFile;
 		if (!sourceFile) {
 			// Memory cache is cold.
 			switch (encoding) {
 				case 'utf8':
-					sourceFile = {
+					newSourceFile = {
 						type: 'source',
 						id,
 						extension,
@@ -373,7 +374,7 @@ export class Filer {
 					};
 					break;
 				case null:
-					sourceFile = {
+					newSourceFile = {
 						type: 'source',
 						id,
 						extension,
@@ -388,7 +389,6 @@ export class Filer {
 				default:
 					throw new UnreachableError(encoding);
 			}
-			this.files.set(id, sourceFile);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -400,22 +400,31 @@ export class Filer {
 			if (!this.sourceMap || (await sourceMapsAreBuilt(sourceFile))) {
 				return false;
 			}
+			newSourceFile = sourceFile;
 		} else {
-			// TODO maybe don't mutate, and always create new objects?
 			// Memory cache is warm, but contents have changed.
-			sourceFile.contents = newSourceContents;
-			sourceFile.stats = undefined;
-			switch (encoding) {
+			switch (sourceFile.encoding) {
 				case 'utf8':
-					sourceFile.buffer = undefined;
+					newSourceFile = {
+						...sourceFile,
+						contents: newSourceContents as string,
+						stats: undefined,
+						buffer: undefined,
+					};
 					break;
 				case null:
-					sourceFile.buffer = newSourceContents as Buffer;
+					newSourceFile = {
+						...sourceFile,
+						contents: newSourceContents as Buffer,
+						stats: undefined,
+						buffer: newSourceContents as Buffer,
+					};
 					break;
 				default:
-					throw new UnreachableError(encoding);
+					throw new UnreachableError(sourceFile);
 			}
 		}
+		this.files.set(id, newSourceFile);
 		return true;
 	}
 
