@@ -83,12 +83,14 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		if (!req.url) return;
 		const url = parseUrl(req.url);
 		const localPath = toLocalPath(url);
-		console.log('url, localPath', url, localPath);
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
 		let file = filer.findByPath(localPath);
-		// if (file.isDirectory) {
-		// 	file = filer.findById(file.id + '/index.html'); // TODO trailing slash? path.join?
+		if (!file) {
+			file = filer.findByPath(localPath + '/index.html'); // TODO this is just temporary - the more correct code is below
+		}
+		// if (file?.type === 'directory') { // or `file?.isDirectory`
+		// 	file = filer.findById(file.id + '/index.html');
 		// }
 		if (!file) {
 			log.trace(`${yellow('404')} ${localPath}`);
