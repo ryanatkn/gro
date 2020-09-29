@@ -35,20 +35,15 @@ export interface Paths {
 	source: string;
 	build: string;
 	dist: string;
-	temp: string;
 }
 
 export const createPaths = (root: string): Paths => {
 	if (!root.endsWith(sep)) root = root + sep;
-	const source = join(root, SOURCE_DIR); // TODO should this be "src"? the helpers too?
-	const build = join(root, BUILD_DIR);
-	const dist = join(root, DIST_DIR);
 	return {
 		root,
-		source,
-		build,
-		dist,
-		temp: join(build, 'temp/'), // can write anything here for e.g. testing
+		source: join(root, SOURCE_DIR),
+		build: join(root, BUILD_DIR),
+		dist: join(root, DIST_DIR),
 	};
 };
 

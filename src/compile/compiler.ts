@@ -39,26 +39,26 @@ export interface BinaryCompilationSource extends BaseCompilationSource {
 	contents: Buffer;
 }
 
-export interface SelectCompiler {
+export interface GetCompiler {
 	(source: CompilationSource): Compiler | null;
 }
 
 export interface Options {
-	selectCompiler: SelectCompiler;
+	getCompiler: GetCompiler;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
-		selectCompiler: selectNoopCompiler,
+		getCompiler: getNoopCompiler,
 		...omitUndefined(opts),
 	};
 };
 
 export const createCompiler = (opts: InitialOptions = {}): Compiler => {
-	const {selectCompiler} = initOptions(opts);
+	const {getCompiler} = initOptions(opts);
 
 	const compile: Compiler['compile'] = (source: CompilationSource) => {
-		const compiler = selectCompiler(source) || noopCompiler;
+		const compiler = getCompiler(source) || noopCompiler;
 		return compiler.compile(source);
 	};
 
@@ -95,4 +95,4 @@ const createNoopCompiler = (): Compiler => {
 	return {compile};
 };
 export const noopCompiler = createNoopCompiler();
-export const selectNoopCompiler: SelectCompiler = () => noopCompiler;
+export const getNoopCompiler: GetCompiler = () => noopCompiler;

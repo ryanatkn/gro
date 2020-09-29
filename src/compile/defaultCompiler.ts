@@ -31,10 +31,10 @@ export const createDefaultCompiler = (
 	}
 	const svelteCompiler = createSvelteCompiler(svelteCompilerOptions);
 
-	if (!compilerOptions.selectCompiler) {
+	if (!compilerOptions.getCompiler) {
 		compilerOptions = {
 			...compilerOptions,
-			selectCompiler: (source: CompilationSource) => {
+			getCompiler: (source: CompilationSource) => {
 				switch (source.extension) {
 					case TS_EXTENSION:
 						return swcCompiler;

@@ -1,4 +1,4 @@
-import {extname} from 'path';
+import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 
 import {ensureDir, stat, Stats} from './nodeFs.js';
@@ -22,7 +22,13 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {Compiler, TextCompilation, BinaryCompilation, Compilation} from '../compile/compiler.js';
+import {
+	Compiler,
+	TextCompilation,
+	BinaryCompilation,
+	Compilation,
+	createCompiler,
+} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
@@ -59,7 +65,7 @@ export interface CompiledBinaryFile extends BaseCompiledFile {
 	buffer: Buffer;
 }
 
-interface BaseFile {
+export interface BaseFile {
 	id: string;
 	extension: string;
 	encoding: Encoding;
@@ -75,22 +81,28 @@ interface Options {
 	sourceMap: boolean;
 	sourceDir: string;
 	buildDir: string;
+	servedDirs: string[];
 	debounce: number;
 	watch: boolean;
 	log: Logger;
 }
-type RequiredOptions = 'compiler';
+type RequiredOptions = never;
 type InitialOptions = PartialExcept<Options, RequiredOptions>;
-const initOptions = (opts: InitialOptions): Options => ({
-	sourceMap: true,
-	sourceDir: paths.source,
-	buildDir: paths.build,
-	debounce: DEBOUNCE_DEFAULT,
-	watch: true,
-	...omitUndefined(opts),
-	include: opts.include || (() => true),
-	log: opts.log || new SystemLogger([magenta('[filer]')]),
-});
+const initOptions = (opts: InitialOptions): Options => {
+	const log = opts.log || new SystemLogger([magenta('[filer]')]);
+	return {
+		sourceMap: true,
+		sourceDir: paths.source,
+		buildDir: paths.build,
+		debounce: DEBOUNCE_DEFAULT,
+		watch: true,
+		...omitUndefined(opts),
+		compiler: opts.compiler || createCompiler(),
+		include: opts.include || (() => true),
+		log,
+		servedDirs: (opts.servedDirs || [paths.build]).map((d) => resolve(d)),
+	};
+};
 
 export class Filer {
 	private readonly watcher: WatchNodeFs;
@@ -103,18 +115,29 @@ export class Filer {
 
 	private readonly sourceFiles: Map<string, SourceFile> = new Map();
 	private readonly compiledFiles: Map<string, CompiledFile> = new Map();
+	private readonly servedDirs: string[];
+	private readonly servedFiles: Map<string, BaseFile> = new Map(); // TODO directories?
 
 	private initStatus: AsyncStatus = 'initial';
 
 	constructor(opts: InitialOptions) {
-		const {compiler, include, sourceMap, sourceDir, buildDir, debounce, watch, log} = initOptions(
-			opts,
-		);
+		const {
+			compiler,
+			include,
+			sourceMap,
+			sourceDir,
+			buildDir,
+			servedDirs,
+			debounce,
+			watch,
+			log,
+		} = initOptions(opts);
 		this.compiler = compiler;
 		this.include = include;
 		this.sourceMap = sourceMap;
 		this.log = log;
 		this.buildDir = buildDir;
+		this.servedDirs = servedDirs;
 		this.watcher = watchNodeFs({
 			dir: sourceDir,
 			debounce,
@@ -127,6 +150,42 @@ export class Filer {
 	// this will probably need to be async when that's added
 	getCompiledFile(id: string): CompiledFile | null {
 		return this.compiledFiles.get(id) || null;
+	}
+
+	// is `requestByPath` better wording than `findByPath`,
+	// if this is its serving functionality?
+	// is `serveDirs` the right name? `exposeDirs`, `queryDirs`? `publicDirs`?
+	findByPath(path: string): BaseFile | null {
+		// TODO we need to walk through the serve directories one by one,
+		// construct an id from the path to the serve directory,
+		// and check if there's a compiled or source file there.
+		// But compiled vs source shouldn't be the question, should it?
+		// So does `getCompiledFile` need to be changed to `findById`,
+		// and it takes a second arg which is the id of the serve directory,
+		// so the data structure of files, compiled and source, is a map of maps.
+		// OR we could have these maps by path, so no need to construct an id
+		// OR we could have a single map, and a way to construct each of the possible ids
+		// Also should the Filter or devServer be responsible for searching for `index.html`?
+		// If the devServer, it needs to learn that the path it wants is a directory.
+		// And if the filer, we need directory information that we're not currently keeping.
+		// Either way, we need to refactor to include directory information.
+		// There's a problem with resolving index.html externally in the devServer.
+		// If serveDir1 has a directory with a name that matches the find request,
+		// it should probably match before the index.html of serveDir2, right?
+		// It seems surprising to not match serve dir 1. Wait that's not really an issue,
+		// because the idea of finding an extensionless file name is pretty rare.
+		// So should the index.html logic be external? Only executed on a fallback
+		// if the path is a directory? But then it needs to query the data for a path?
+		// So if the return value is a directory, it'll add index.html?
+		// This way other external systems could ask for index.js and stuff.
+		// This makes sense - the `Filer` does not conform to HTTP patterns, it's more generic.
+		for (const servedDir of this.servedDirs) {
+			const id = join(servedDir, path);
+			const file = this.servedFiles.get(id);
+			// const file = this.files.get(servedDir)!.get(id); // TODO consider this pattern, where we have a map of maps (easier to clean up? but more complexity and slightly worse perf?)
+			if (file) return file;
+		}
+		return null;
 	}
 
 	destroy(): void {
@@ -304,6 +363,7 @@ export class Filer {
 			// We're going to assume that if the source maps exist, they're in sync,
 			// in the same way that we're assuming that the build file is in sync if it exists
 			// when the cached source file hasn't changed.
+			// TODO remove this check once we diff compiler options
 			if (!this.sourceMap || (await sourceMapsAreBuilt(sourceFile))) {
 				return;
 			}
@@ -457,16 +517,16 @@ const syncFilesToMemoryCache = async (
 	}
 };
 
-export const getFileMimeType = (file: CompiledFile): string | null =>
+export const getFileMimeType = (file: BaseFile): string | null =>
 	file.mimeType !== undefined
 		? file.mimeType
 		: (file.mimeType = getMimeTypeByExtension(file.extension.substring(1)));
 
-export const getFileBuffer = (file: CompiledFile): Buffer =>
+export const getFileBuffer = (file: BaseFile): Buffer =>
 	file.buffer !== undefined ? file.buffer : (file.buffer = Buffer.from(file.contents));
 
 // Stats are currently lazily loaded. Should they be?
-export const getFileStats = (file: CompiledFile): Stats | Promise<Stats> =>
+export const getFileStats = (file: BaseFile): Stats | Promise<Stats> =>
 	file.stats !== undefined
 		? file.stats
 		: stat(file.id).then((stats) => {
