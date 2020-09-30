@@ -1,4 +1,4 @@
-import {resolve, extname, join} from 'path';
+import {resolve, extname, join, basename, dirname} from 'path';
 import lexer from 'es-module-lexer';
 
 import {ensureDir, stat, Stats} from './nodeFs.js';
@@ -11,6 +11,7 @@ import {
 	JS_EXTENSION,
 	paths,
 	SVELTE_EXTENSION,
+	toBasePath,
 	toSourceId,
 	toSvelteExtension,
 } from '../paths.js';
@@ -66,6 +67,8 @@ export interface CompiledBinaryFile extends BaseCompiledFile {
 
 export interface BaseFile {
 	id: string;
+	filename: string;
+	dir: string;
 	extension: string;
 	encoding: Encoding;
 	contents: string | Buffer;
@@ -252,92 +255,6 @@ export class Filer {
 		}
 	};
 
-	// These sets of ids are used to avoid concurrent compilations for any given source file.
-	private pendingCompilations: Set<string> = new Set();
-	private enqueuedCompilations: Set<string> = new Set();
-
-	// This wrapper function protects against race conditions
-	// that could occur with concurrent compilations.
-	// If a file is currently being compiled, it enqueues the file id,
-	// and when the current compilation finishes,
-	// it removes the item from the queue and recompiles the file.
-	// The queue stores at most one compilation per file,
-	// and this is safe given that compiling accepts no parameters.
-	private async compileSourceId(id: string): Promise<void> {
-		if (this.compiler === null || !this.include(id)) return;
-		if (this.pendingCompilations.has(id)) {
-			this.enqueuedCompilations.add(id);
-			return;
-		}
-		this.pendingCompilations.add(id);
-		try {
-			await this._compileSourceId(id);
-		} catch (err) {
-			this.log.error(red('failed to compile'), printPath(id), printError(err));
-		}
-		this.pendingCompilations.delete(id);
-		if (this.enqueuedCompilations.delete(id)) {
-			// Something changed during the compilation for this file, so recurse.
-			// TODO do we need to detect cycles? if we run into any, probably
-			if (await this.updateSourceFile(id)) {
-				await this.compileSourceId(id);
-			}
-		}
-	}
-
-	private async _compileSourceId(id: string): Promise<void> {
-		let sourceFile = this.files.get(id);
-		if (!sourceFile) {
-			throw Error(`Cannot find source file ${id}`);
-		}
-		if (sourceFile.type !== 'source') {
-			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
-		}
-
-		// Compile this one file, which may turn into one or many.
-		const result = await this.compiler!.compile(sourceFile);
-
-		// Update the cache.
-		const oldFiles = sourceFile.compiledFiles;
-		sourceFile.compiledFiles = result.compilations.map(
-			(compilation): CompiledFile => {
-				switch (compilation.encoding) {
-					case 'utf8':
-						return {
-							type: 'compiled',
-							id: compilation.id,
-							extension: compilation.extension,
-							encoding: compilation.encoding,
-							contents: postprocess(compilation),
-							sourceMapOf: compilation.sourceMapOf,
-							compilation,
-							stats: undefined,
-							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
-							buffer: undefined,
-						};
-					case null:
-						return {
-							type: 'compiled',
-							id: compilation.id,
-							extension: compilation.extension,
-							encoding: compilation.encoding,
-							contents: postprocess(compilation),
-							compilation,
-							stats: undefined,
-							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
-							buffer: compilation.contents,
-						};
-					default:
-						throw new UnreachableError(compilation);
-				}
-			},
-		);
-
-		// Write to disk.
-		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
-		await syncCompiledFilesToMemoryCache(this.files, sourceFile.compiledFiles, oldFiles, this.log);
-	}
-
 	// Returns a boolean indicating if the source file changed.
 	private async updateSourceFile(id: string): Promise<boolean> {
 		let sourceFile = this.files.get(id);
@@ -348,8 +265,8 @@ export class Filer {
 		let extension: string;
 		let encoding: Encoding;
 		if (sourceFile) {
-			extension = sourceFile.extension;
-			encoding = sourceFile.encoding;
+			extension = sourceFile.extension; // TODO these are only used for TypeScript
+			encoding = sourceFile.encoding; // TODO these are only used for TypeScript
 		} else {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
@@ -359,11 +276,15 @@ export class Filer {
 		let newSourceFile: SourceFile;
 		if (!sourceFile) {
 			// Memory cache is cold.
+			const filename = basename(id);
+			const dir = dirname(id) + '/';
 			switch (encoding) {
 				case 'utf8':
 					newSourceFile = {
 						type: 'source',
 						id,
+						filename,
+						dir,
 						extension,
 						encoding,
 						contents: newSourceContents as string,
@@ -377,6 +298,8 @@ export class Filer {
 					newSourceFile = {
 						type: 'source',
 						id,
+						filename,
+						dir,
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
@@ -426,6 +349,97 @@ export class Filer {
 		}
 		this.files.set(id, newSourceFile);
 		return true;
+	}
+
+	// These sets of ids are used to avoid concurrent compilations for any given source file.
+	private pendingCompilations: Set<string> = new Set();
+	private enqueuedCompilations: Set<string> = new Set();
+
+	// This wrapper function protects against race conditions
+	// that could occur with concurrent compilations.
+	// If a file is currently being compiled, it enqueues the file id,
+	// and when the current compilation finishes,
+	// it removes the item from the queue and recompiles the file.
+	// The queue stores at most one compilation per file,
+	// and this is safe given that compiling accepts no parameters.
+	private async compileSourceId(id: string): Promise<void> {
+		if (this.compiler === null || !this.include(id)) return;
+		if (this.pendingCompilations.has(id)) {
+			this.enqueuedCompilations.add(id);
+			return;
+		}
+		this.pendingCompilations.add(id);
+		try {
+			await this._compileSourceId(id);
+		} catch (err) {
+			this.log.error(red('failed to compile'), printPath(id), printError(err));
+		}
+		this.pendingCompilations.delete(id);
+		if (this.enqueuedCompilations.delete(id)) {
+			// Something changed during the compilation for this file, so recurse.
+			// TODO do we need to detect cycles? if we run into any, probably
+			if (await this.updateSourceFile(id)) {
+				await this.compileSourceId(id);
+			}
+		}
+	}
+
+	private async _compileSourceId(id: string): Promise<void> {
+		let sourceFile = this.files.get(id);
+		if (!sourceFile) {
+			throw Error(`Cannot find source file ${id}`);
+		}
+		if (sourceFile.type !== 'source') {
+			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
+		}
+
+		// Compile this one file, which may turn into one or many.
+		const outDir = join(this.buildDir, toBasePath(sourceFile.dir)); // TODO refactor this (cache? part of compilation instructions?)
+		const result = await this.compiler!.compile(sourceFile, outDir);
+
+		// Update the cache.
+		const oldFiles = sourceFile.compiledFiles;
+		sourceFile.compiledFiles = result.compilations.map(
+			(compilation): CompiledFile => {
+				switch (compilation.encoding) {
+					case 'utf8':
+						return {
+							type: 'compiled',
+							id: compilation.id,
+							filename: compilation.filename,
+							dir: compilation.dir,
+							extension: compilation.extension,
+							encoding: compilation.encoding,
+							contents: postprocess(compilation),
+							sourceMapOf: compilation.sourceMapOf,
+							compilation,
+							stats: undefined,
+							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
+							buffer: undefined,
+						};
+					case null:
+						return {
+							type: 'compiled',
+							id: compilation.id,
+							filename: compilation.filename,
+							dir: compilation.dir,
+							extension: compilation.extension,
+							encoding: compilation.encoding,
+							contents: postprocess(compilation),
+							compilation,
+							stats: undefined,
+							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
+							buffer: compilation.contents,
+						};
+					default:
+						throw new UnreachableError(compilation);
+				}
+			},
+		);
+
+		// Write to disk.
+		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
+		await syncCompiledFilesToMemoryCache(this.files, sourceFile.compiledFiles, oldFiles, this.log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {

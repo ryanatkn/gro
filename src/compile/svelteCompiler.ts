@@ -2,6 +2,7 @@ import swc from '@swc/core';
 import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions} from 'svelte/types/compiler/interfaces';
+import {join} from 'path';
 
 import {loadTsconfig, TsConfig} from './tsHelpers.js';
 import {toSwcCompilerTarget, getDefaultSwcOptions} from './swcHelpers.js';
@@ -12,13 +13,7 @@ import {
 	SvelteCompilation,
 } from './svelteHelpers.js';
 import {Logger} from '../utils/log.js';
-import {
-	CSS_EXTENSION,
-	JS_EXTENSION,
-	SOURCE_MAP_EXTENSION,
-	SVELTE_EXTENSION,
-	toBuildId,
-} from '../paths.js';
+import {CSS_EXTENSION, JS_EXTENSION, SOURCE_MAP_EXTENSION, SVELTE_EXTENSION} from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
@@ -70,7 +65,10 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 		onstats,
 	} = initOptions(opts);
 
-	const compile: SvelteCompiler['compile'] = async (source: TextCompilationSource) => {
+	const compile: SvelteCompiler['compile'] = async (
+		source: TextCompilationSource,
+		outDir: string,
+	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}
@@ -96,8 +94,7 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 			...baseSvelteCompileOptions,
 			dev,
 			...svelteCompileOptions,
-			filename: id,
-			// name: getPathStem(id), // TODO this causes warnings with Sapper routes
+			filename: id, // TODO should we be giving a different path?
 		});
 		const {js, css, warnings, stats} = output;
 
@@ -106,12 +103,16 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 		}
 		if (onstats) onstats(id, stats, handleStats, log);
 
-		const jsBuildId = toBuildId(id);
-		const cssBuildId = replaceExtension(jsBuildId, CSS_EXTENSION);
+		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
+		const cssFilename = replaceExtension(jsFilename, CSS_EXTENSION);
+		const jsId = join(outDir, jsFilename);
+		const cssId = replaceExtension(jsId, CSS_EXTENSION);
 
 		const compilations: TextCompilation[] = [
 			{
-				id: jsBuildId,
+				id: jsId,
+				filename: jsFilename,
+				dir: outDir,
 				extension: JS_EXTENSION,
 				encoding,
 				contents: js.code,
@@ -120,16 +121,20 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 		];
 		if (sourceMap && js.map) {
 			compilations.push({
-				id: jsBuildId + SOURCE_MAP_EXTENSION,
+				id: jsId + SOURCE_MAP_EXTENSION,
+				filename: jsFilename + SOURCE_MAP_EXTENSION,
+				dir: outDir,
 				extension: SOURCE_MAP_EXTENSION,
 				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
-				sourceMapOf: jsBuildId,
+				sourceMapOf: jsId,
 			});
 		}
 		if (css.code) {
 			compilations.push({
-				id: cssBuildId,
+				id: cssId,
+				filename: cssFilename,
+				dir: outDir,
 				extension: CSS_EXTENSION,
 				encoding,
 				contents: css.code,
@@ -137,11 +142,13 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 			});
 			if (sourceMap && css.map) {
 				compilations.push({
-					id: cssBuildId + SOURCE_MAP_EXTENSION,
+					id: cssId + SOURCE_MAP_EXTENSION,
+					filename: cssFilename + SOURCE_MAP_EXTENSION,
+					dir: outDir,
 					extension: SOURCE_MAP_EXTENSION,
 					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
-					sourceMapOf: cssBuildId,
+					sourceMapOf: cssId,
 				});
 			}
 		}
