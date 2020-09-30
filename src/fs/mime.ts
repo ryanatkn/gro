@@ -71,7 +71,7 @@ export const removeMimeTypeExtension = (extension: string): boolean => {
 		['text/plain', ['txt', 'log']],
 		['text/css', ['css']],
 		['text/html', ['html', 'htm']],
-		['text/javascript', ['js', 'mjs', 'cjs']],
+		['text/javascript', ['js', 'mjs']],
 		['text/csv', ['csv']],
 
 		['audio/wav', ['wav']],
