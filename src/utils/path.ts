@@ -5,7 +5,4 @@ export const replaceExtension = (path: string, newExtension: string): string => 
 	return extension.length ? path.slice(0, -extension.length) + newExtension : path + newExtension;
 };
 
-export const hasExtension = (path: string, extensions: string[]): boolean =>
-	extensions.includes(extname(path));
-
 export const getPathStem = (path: string): string => replaceExtension(basename(path), '');

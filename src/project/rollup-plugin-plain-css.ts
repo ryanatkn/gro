@@ -6,7 +6,6 @@ import {createFilter} from '@rollup/pluginutils';
 import {green} from '../colors/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {GroCssBuild} from './types.js';
-import {hasExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface Options {
@@ -59,7 +58,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 		resolveId(importee, importer) {
 			// This is a hack that ignores `include`, but the whole thing is a hack.
 			// See the above comments at `sortIndexById` for the explanation.
-			if (!hasExtension(importee, extensions) || !importer) return null;
+			if (!extensions.some((e) => importee.endsWith(e)) || !importer) return null;
 			// Originally this used `this.resolve`,
 			// but it goes into an infinite loop when an importee doesn't exist,
 			// despite using `{skipSelf: true}`. So we manually resolve the id.

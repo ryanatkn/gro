@@ -4,29 +4,23 @@ import lexer from 'es-module-lexer';
 import {ensureDir, stat, Stats} from './nodeFs.js';
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import {
-	basePathToBuildId,
-	basePathToSourceId,
-	fromSourceMappedBuildIdToSourceId,
-	JS_EXTENSION,
-	paths,
-	SVELTE_EXTENSION,
-	toBasePath,
-	toSourceId,
-	toSvelteExtension,
-} from '../paths.js';
+import {hasSourceExtension, JS_EXTENSION, SVELTE_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {PathStats} from '../fs/pathData.js';
 import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
-import type {AsyncStatus} from '../utils/async.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import {Compiler, TextCompilation, BinaryCompilation, Compilation} from '../compile/compiler.js';
+import type {
+	Compiler,
+	TextCompilation,
+	BinaryCompilation,
+	Compilation,
+} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
+import {stripStart} from '../utils/string.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -34,6 +28,7 @@ export type SourceFile = TextSourceFile | BinarySourceFile;
 interface BaseSourceFile extends BaseFile {
 	type: 'source';
 	compiledFiles: CompiledFile[];
+	watchedDir: WatchedDir;
 }
 export interface TextSourceFile extends BaseSourceFile {
 	encoding: 'utf8';
@@ -43,7 +38,6 @@ export interface BinarySourceFile extends BaseSourceFile {
 	encoding: null;
 	contents: Buffer;
 	buffer: Buffer;
-	compiledFiles: CompiledFile[];
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
@@ -77,72 +71,92 @@ export interface BaseFile {
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
 }
 
+// TODO name?
+export interface CompiledDir {
+	// TODO should this include the compiler? any other options?
+	// or do we specifically isolate everything else into a single bundle of things?
+	// what if the external compiler changes between runs, but the internal options and source file hash don't,
+	// so we get a false negative that re-compilation is needed once source hash caching is implemented?
+	sourceDir: string;
+	outDir: string;
+}
+
 interface Options {
 	compiler: Compiler | null;
 	include: (id: string) => boolean;
-	sourceMap: boolean;
-	sourceDir: string;
-	buildDir: string;
+	compiledDirs: CompiledDir[];
 	servedDirs: string[];
+	sourceMap: boolean;
 	debounce: number;
 	watch: boolean;
+	cleanOutputDirs: boolean;
 	log: Logger;
 }
 type InitialOptions = Partial<Options>;
 const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger([magenta('[filer]')]);
+	// TODO wait do we want these defaults? or does it need to be null or an empty array for JUST serving? (like in serve.task.ts)
+	// we could remove the import of `paths` if we remove this default, which seems nice.
+	// should `null` be a valid value for both `compiledDirs` and `servedDirs`?
+	// should `null` be equivalent to an empty array? hmm. if so, maybe we detect empty arrays and swap in `null`?
+	const compiledDirs = opts.compiledDirs
+		? opts.compiledDirs.map((d) => ({sourceDir: resolve(d.sourceDir), outDir: resolve(d.outDir)}))
+		: [];
+	// default to serving all of the compiled output files
+	const servedDirs = Array.from(new Set(opts.servedDirs || compiledDirs.map((d) => d.outDir)));
+	if (!compiledDirs.length && !servedDirs.length) {
+		throw Error('Filer created with no directories to compile or serve.');
+	}
+	const compiler = opts.compiler || null;
+	if (compiledDirs.length && !compiler) {
+		throw Error('Filer created with directories to compile but no compiler was provided.');
+	}
+	if (compiler && !compiledDirs.length) {
+		throw Error('Filer created with a compiler but no directories to compile.');
+	}
 	return {
-		compiler: null,
 		sourceMap: true,
-		sourceDir: paths.source,
-		buildDir: paths.build,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
+		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		include: opts.include || (() => true),
-		log,
-		servedDirs: (opts.servedDirs || [paths.build]).map((d) => resolve(d)),
+		log: opts.log || new SystemLogger([magenta('[filer]')]),
+		compiledDirs,
+		servedDirs,
+		compiler,
 	};
 };
 
 export class Filer {
-	private readonly watcher: WatchNodeFs;
-
 	private readonly compiler: Compiler | null;
 	private readonly sourceMap: boolean;
+	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
-	private readonly buildDir: string;
+	private readonly dirs: WatchedDir[];
+	private readonly servedDirs: string[];
 	private readonly include: (id: string) => boolean;
 
 	private readonly files: Map<string, FilerFile> = new Map();
-	private readonly servedDirs: string[];
-
-	private initStatus: AsyncStatus = 'initial';
 
 	constructor(opts: InitialOptions) {
 		const {
 			compiler,
 			include,
 			sourceMap,
-			sourceDir,
-			buildDir,
+			compiledDirs,
 			servedDirs,
 			debounce,
 			watch,
+			cleanOutputDirs,
 			log,
 		} = initOptions(opts);
 		this.compiler = compiler;
 		this.include = include;
 		this.sourceMap = sourceMap;
+		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
-		this.buildDir = buildDir;
+		this.dirs = createWatchedDirs(compiledDirs, servedDirs, watch, debounce, this.onWatcherChange);
 		this.servedDirs = servedDirs;
-		this.watcher = watchNodeFs({
-			dir: sourceDir,
-			debounce,
-			watch,
-			onChange: this.onWatcherChange,
-		});
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
@@ -156,7 +170,9 @@ export class Filer {
 	}
 
 	destroy(): void {
-		this.watcher.destroy();
+		for (const dir of this.dirs) {
+			dir.destroy();
+		}
 	}
 
 	private initializing: Promise<void> | null = null;
@@ -165,69 +181,43 @@ export class Filer {
 		if (this.initializing) return this.initializing;
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
-		this.initStatus = 'pending';
 
-		await ensureDir(this.buildDir);
+		await Promise.all([Promise.all(this.dirs.map((d) => d.init())), lexer.init]);
 
-		const [statsBySourcePath, statsByBuildPath] = await Promise.all([
-			this.watcher.init(),
-			findFiles(this.buildDir, undefined, null),
-			lexer.init,
-		]);
-
-		const statsBySourceId = new Map<string, PathStats>();
-		for (const [path, stats] of statsBySourcePath) {
-			statsBySourceId.set(basePathToSourceId(path), stats);
+		if (this.cleanOutputDirs) {
+			// Clean the output directories, removing any files that can't be mapped back to source files.
+			const outputDirs: string[] = this.dirs.map((d) => d.outDir!).filter(Boolean);
+			await Promise.all(
+				outputDirs.map(async (outputDir) => {
+					const files = await findFiles(outputDir, undefined, null);
+					await Promise.all(
+						Array.from(files.entries()).map(([path, stats]) => {
+							if (stats.isDirectory()) return;
+							const id = join(outputDir, path);
+							if (this.files.has(id)) return;
+							if (hasSourceExtension(id)) {
+								// TODO do we want this check?
+								throw Error(
+									'File in output directory has unexpected source extension.' +
+										' Output directories are expected to be fully owned by Gro and should not have source files.' +
+										` File is ${id} in outputDir ${outputDir}`,
+								);
+							}
+							return remove(id);
+						}),
+					);
+				}),
+			);
 		}
-		const buildIds = Array.from(statsByBuildPath.keys()).map((p) => basePathToBuildId(p));
-
-		// This pattern helps us more easily parallelize work.
-		const promises: Promise<void>[] = [];
-
-		// Clean up the build directory, removing any files that can't be mapped back to source files.
-		// This id helper makes it so `foo.js.map` files get deleted if source maps are turned off,
-		// unless there's a `foo.js.map` file in the source directory.
-		const fromBuildIdToSourceId = this.sourceMap ? fromSourceMappedBuildIdToSourceId : toSourceId;
-		for (const buildId of buildIds) {
-			const sourceId = fromBuildIdToSourceId(buildId);
-			if (statsBySourceId.has(sourceId)) continue;
-			const svelteSourceId = toSvelteExtension(sourceId);
-			if (statsBySourceId.has(svelteSourceId)) continue;
-			promises.push(remove(buildId));
-		}
-		await Promise.all(promises);
-		promises.length = 0;
-
-		// Compile the source files and update the build directory's files and directories.
-		for (const [id, stats] of statsBySourceId) {
-			if (!stats.isDirectory()) {
-				promises.push(
-					this.updateSourceFile(id).then((updated) =>
-						updated ? this.compileSourceId(id) : undefined,
-					),
-				);
-			}
-		}
-
-		await Promise.all(promises);
-
-		this.initStatus = 'success';
-
-		// We initialize the watcher at the beginning of `init`,
-		// but this means watcher events may arrive before finishing.
-		// Those should be enqueued until the `initStatus` is 'success',
-		// so we can flush them here to get up to speed.
-		await this.flushEnqueuedWatcherChanges();
 
 		finishInitializing!();
 	}
 
-	private onWatcherChange = async (change: WatcherChange): Promise<void> => {
-		if (this.initStatus !== 'success') {
-			this.enqueuedWatcherChanges.push(change);
-			return;
-		}
-		const id = basePathToSourceId(change.path);
+	private onWatcherChange: WatchedDirChangeCallback = async (
+		change: WatcherChange,
+		watchedDir: WatchedDir,
+	) => {
+		const id = join(watchedDir.dir, change.path);
 		switch (change.type) {
 			case 'create':
 			case 'update': {
@@ -235,16 +225,18 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					if (await this.updateSourceFile(id)) {
-						await this.compileSourceId(id);
+					if (await this.updateSourceFile(id, watchedDir)) {
+						await this.compileSourceId(id, watchedDir);
 					}
 				}
 				break;
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					// Although we don't pre-emptively create build directories above, we do delete them.
-					await remove(basePathToBuildId(change.path));
+					if (watchedDir.outDir !== null) {
+						// Although we don't pre-emptively create build directories above, we do delete them.
+						await remove(join(watchedDir.outDir, change.path));
+					}
 				} else {
 					await this.destroySourceId(id);
 				}
@@ -256,7 +248,7 @@ export class Filer {
 	};
 
 	// Returns a boolean indicating if the source file changed.
-	private async updateSourceFile(id: string): Promise<boolean> {
+	private async updateSourceFile(id: string, watchedDir: WatchedDir): Promise<boolean> {
 		let sourceFile = this.files.get(id);
 		if (sourceFile && sourceFile.type !== 'source') {
 			throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
@@ -265,8 +257,8 @@ export class Filer {
 		let extension: string;
 		let encoding: Encoding;
 		if (sourceFile) {
-			extension = sourceFile.extension; // TODO these are only used for TypeScript
-			encoding = sourceFile.encoding; // TODO these are only used for TypeScript
+			extension = sourceFile.extension;
+			encoding = sourceFile.encoding;
 		} else {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
@@ -276,8 +268,10 @@ export class Filer {
 		let newSourceFile: SourceFile;
 		if (!sourceFile) {
 			// Memory cache is cold.
+			// TODO add hash caching to avoid this work when not needed
+			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			const filename = basename(id);
-			const dir = dirname(id) + '/';
+			const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 			switch (encoding) {
 				case 'utf8':
 					newSourceFile = {
@@ -289,6 +283,7 @@ export class Filer {
 						encoding,
 						contents: newSourceContents as string,
 						compiledFiles: [],
+						watchedDir,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: undefined,
@@ -304,6 +299,7 @@ export class Filer {
 						encoding,
 						contents: newSourceContents as Buffer,
 						compiledFiles: [],
+						watchedDir,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: newSourceContents as Buffer,
@@ -362,8 +358,8 @@ export class Filer {
 	// it removes the item from the queue and recompiles the file.
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
-	private async compileSourceId(id: string): Promise<void> {
-		if (this.compiler === null || !this.include(id)) return;
+	private async compileSourceId(id: string, watchedDir: WatchedDir): Promise<void> {
+		if (watchedDir.outDir === null || !this.include(id)) return;
 		if (this.pendingCompilations.has(id)) {
 			this.enqueuedCompilations.add(id);
 			return;
@@ -378,8 +374,8 @@ export class Filer {
 		if (this.enqueuedCompilations.delete(id)) {
 			// Something changed during the compilation for this file, so recurse.
 			// TODO do we need to detect cycles? if we run into any, probably
-			if (await this.updateSourceFile(id)) {
-				await this.compileSourceId(id);
+			if (await this.updateSourceFile(id, watchedDir)) {
+				await this.compileSourceId(id, watchedDir);
 			}
 		}
 	}
@@ -392,9 +388,15 @@ export class Filer {
 		if (sourceFile.type !== 'source') {
 			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
 		}
+		if (sourceFile.watchedDir.outDir === null) {
+			throw Error(`Cannot compile file with a null watchedDir.outDir`); // TODO what a gross error message, can we rework this code?
+		}
 
 		// Compile this one file, which may turn into one or many.
-		const outDir = join(this.buildDir, toBasePath(sourceFile.dir)); // TODO refactor this (cache? part of compilation instructions?)
+		const outDir = join(
+			sourceFile.watchedDir.outDir,
+			stripStart(sourceFile.dir, sourceFile.watchedDir.dir),
+		); // TODO cache this as `sourceFile.outDir`? what about when there's no compilations?
 		const result = await this.compiler!.compile(sourceFile, outDir);
 
 		// Update the cache.
@@ -449,13 +451,6 @@ export class Filer {
 		this.files.delete(id);
 		await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
 		await syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
-	}
-
-	private enqueuedWatcherChanges: WatcherChange[] = [];
-	private async flushEnqueuedWatcherChanges(): Promise<void> {
-		for (const change of this.enqueuedWatcherChanges) {
-			await this.onWatcherChange(change);
-		}
 	}
 }
 
@@ -591,4 +586,80 @@ function postprocess(compilation: Compilation) {
 		}
 	}
 	return compilation.contents;
+}
+
+// Creates objects to load a directory's contents and sync filesystem changes in memory.
+// The order of objects in the returned array is meaningless.
+const createWatchedDirs = (
+	compiledDirs: CompiledDir[],
+	servedDirs: string[],
+	watch: boolean,
+	debounce: number,
+	onChange: WatchedDirChangeCallback,
+): WatchedDir[] => {
+	const dirs: WatchedDir[] = [];
+	for (const {sourceDir, outDir} of compiledDirs) {
+		// The `outDir` is automatically in the Filer's memory cache for compiled files,
+		// so no need to load it as a directory.
+		dirs.push(new WatchedDir(sourceDir, outDir, watch, debounce, onChange));
+	}
+	for (const servedDir of servedDirs) {
+		// If the `servedDir` is inside a compiled directory's `sourceDir` or `outDir`,
+		// it's already in the Filer's memory cache and does not need to be loaded as a directory.
+		if (
+			compiledDirs.find((c) => servedDir.startsWith(c.sourceDir) || servedDir.startsWith(c.outDir))
+		) {
+			continue;
+		}
+		dirs.push(new WatchedDir(servedDir, null, watch, debounce, onChange));
+	}
+	return dirs;
+};
+
+type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
+
+// There are two kinds of `WatchedDir`s, those created with an `outDir` and those without.
+// If there's an `outDir` the `dir` will be compiled to it and written to disk.
+// If `outDir` is null, the `dir` is only watched and nothing is written back to the filesystem.
+// TODO this design feels hacky but .. it works
+class WatchedDir {
+	watcher: WatchNodeFs;
+	dir: string;
+	outDir: string | null;
+	onChange: WatchedDirChangeCallback;
+
+	constructor(
+		dir: string,
+		outDir: string | null,
+		watch: boolean,
+		debounce: number,
+		onChange: WatchedDirChangeCallback,
+	) {
+		this.dir = dir;
+		this.outDir = outDir;
+		this.onChange = onChange;
+		this.watcher = watchNodeFs({
+			dir,
+			debounce,
+			watch,
+			onChange: (change) => onChange(change, this),
+		});
+	}
+
+	destroy() {
+		this.watcher.destroy();
+	}
+
+	async init(): Promise<void> {
+		// TODO is ensuring these here, or at all, correct?
+		await Promise.all([ensureDir(this.dir), this.outDir ? ensureDir(this.outDir) : null]);
+
+		const statsBySourcePath = await this.watcher.init();
+
+		await Promise.all(
+			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
+				stats.isDirectory() ? null : this.onChange({type: 'update', path, stats}, this),
+			),
+		);
+	}
 }
