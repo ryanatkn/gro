@@ -731,10 +731,12 @@ const createWatchedDirs = (
 		for (const servedDir of servedDirs) {
 			// If a `servedDir` is inside a compiled directory's `sourceDir` or `outDir`,
 			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
+			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 			if (
 				!compiledDirs.find(
 					(d) => servedDir.startsWith(d.sourceDir) || servedDir.startsWith(d.outDir),
-				)
+				) &&
+				!servedDirs.find((d) => d !== servedDir && servedDir.startsWith(d))
 			) {
 				dirs.push(createWatchedDir(servedDir, null, watch, debounce, onChange));
 			}
