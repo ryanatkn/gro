@@ -24,15 +24,11 @@ import {stripStart} from '../utils/string.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
-export type SourceFile =
-	| CompilableTextSourceFile
-	| CompilableBinarySourceFile
-	| NonCompilableTextSourceFile
-	| NonCompilableBinarySourceFile;
+export type SourceFile = CompilableSourceFile | NonCompilableSourceFile;
+export type CompilableSourceFile = CompilableTextSourceFile | CompilableBinarySourceFile;
+export type NonCompilableSourceFile = NonCompilableTextSourceFile | NonCompilableBinarySourceFile;
 interface BaseSourceFile extends BaseFile {
 	type: 'source';
-	compiledFiles: CompiledFile[];
-	watchedDir: WatchedDir;
 }
 export interface TextSourceFile extends BaseSourceFile {
 	encoding: 'utf8';
@@ -44,15 +40,23 @@ export interface BinarySourceFile extends BaseSourceFile {
 	buffer: Buffer;
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
+	watchedDir: CompilableWatchedDir;
+	compiledFiles: CompiledFile[];
 	outDir: string;
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
+	watchedDir: CompilableWatchedDir;
+	compiledFiles: CompiledFile[];
 	outDir: string;
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
+	watchedDir: NonCompilableWatchedDir;
+	compiledFiles: null;
 	outDir: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
+	watchedDir: NonCompilableWatchedDir;
+	compiledFiles: null;
 	outDir: null;
 }
 
@@ -212,13 +216,14 @@ export class Filer {
 							const id = join(outputDir, path);
 							if (this.files.has(id)) return;
 							if (hasSourceExtension(id)) {
-								// TODO do we want this check?
+								// TODO do we want this check? maybe perform it synchronously before any `remove` calls?
 								throw Error(
 									'File in output directory has unexpected source extension.' +
 										' Output directories are expected to be fully owned by Gro and should not have source files.' +
 										` File is ${id} in outputDir ${outputDir}`,
 								);
 							}
+							this.log.trace('deleting unknown compiled file', printPath(id));
 							return remove(id);
 						}),
 					);
@@ -288,44 +293,74 @@ export class Filer {
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			const filename = basename(id);
 			const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-			const outDir =
-				watchedDir.outDir === null
-					? null
-					: join(watchedDir.outDir, stripStart(dir, watchedDir.dir));
 			switch (encoding) {
 				case 'utf8':
-					newSourceFile = {
-						type: 'source',
-						id,
-						filename,
-						dir,
-						extension,
-						encoding,
-						contents: newSourceContents as string,
-						compiledFiles: [],
-						watchedDir,
-						outDir,
-						stats: undefined,
-						mimeType: undefined,
-						buffer: undefined,
-					};
+					newSourceFile =
+						watchedDir.outDir === null
+							? {
+									type: 'source',
+									id,
+									filename,
+									dir,
+									extension,
+									encoding,
+									contents: newSourceContents as string,
+									watchedDir,
+									compiledFiles: null,
+									outDir: null,
+									stats: undefined,
+									mimeType: undefined,
+									buffer: undefined,
+							  }
+							: {
+									type: 'source',
+									id,
+									filename,
+									dir,
+									extension,
+									encoding,
+									contents: newSourceContents as string,
+									watchedDir,
+									compiledFiles: [],
+									outDir: watchedDir.computeFileOutDir(dir),
+									stats: undefined,
+									mimeType: undefined,
+									buffer: undefined,
+							  };
 					break;
 				case null:
-					newSourceFile = {
-						type: 'source',
-						id,
-						filename,
-						dir,
-						extension,
-						encoding,
-						contents: newSourceContents as Buffer,
-						compiledFiles: [],
-						watchedDir,
-						outDir,
-						stats: undefined,
-						mimeType: undefined,
-						buffer: newSourceContents as Buffer,
-					};
+					newSourceFile =
+						watchedDir.outDir === null
+							? {
+									type: 'source',
+									id,
+									filename,
+									dir,
+									extension,
+									encoding,
+									contents: newSourceContents as Buffer,
+									watchedDir,
+									compiledFiles: null,
+									outDir: null,
+									stats: undefined,
+									mimeType: undefined,
+									buffer: newSourceContents as Buffer,
+							  }
+							: {
+									type: 'source',
+									id,
+									filename,
+									dir,
+									extension,
+									encoding,
+									contents: newSourceContents as Buffer,
+									watchedDir,
+									compiledFiles: [],
+									outDir: watchedDir.computeFileOutDir(dir),
+									stats: undefined,
+									mimeType: undefined,
+									buffer: newSourceContents as Buffer,
+							  };
 					break;
 				default:
 					throw new UnreachableError(encoding);
@@ -338,7 +373,10 @@ export class Filer {
 			// in the same way that we're assuming that the build file is in sync if it exists
 			// when the cached source file hasn't changed.
 			// TODO remove this check once we diff compiler options
-			if (!this.sourceMap || (await sourceMapsAreBuilt(sourceFile))) {
+			if (
+				!this.sourceMap ||
+				(sourceFile.compiledFiles !== null && (await sourceMapsAreBuilt(sourceFile)))
+			) {
 				return false;
 			}
 			newSourceFile = sourceFile;
@@ -467,14 +505,16 @@ export class Filer {
 		if (!sourceFile || sourceFile.type !== 'source') return; // ignore compiled files (maybe throw an error if the file isn't found, should not happen)
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
-		await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
-		await syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
+		if (sourceFile.compiledFiles !== null) {
+			await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
+			await syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
+		}
 	}
 }
 
 // The check is needed to handle source maps being toggled on and off.
 // It assumes that if we find any source maps, the rest are there.
-const sourceMapsAreBuilt = async (sourceFile: SourceFile): Promise<boolean> => {
+const sourceMapsAreBuilt = async (sourceFile: CompilableSourceFile): Promise<boolean> => {
 	const sourceMapFile = sourceFile.compiledFiles.find((f) =>
 		f.encoding === 'utf8' ? f.sourceMapOf : false,
 	);
@@ -619,7 +659,7 @@ const createWatchedDirs = (
 	for (const {sourceDir, outDir} of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
-		dirs.push(new WatchedDir(sourceDir, outDir, watch, debounce, onChange));
+		dirs.push(new CompilableWatchedDir(sourceDir, outDir, watch, debounce, onChange));
 	}
 	for (const servedDir of servedDirs) {
 		// If the `servedDir` is inside a compiled directory's `sourceDir` or `outDir`,
@@ -629,22 +669,22 @@ const createWatchedDirs = (
 		) {
 			continue;
 		}
-		dirs.push(new WatchedDir(servedDir, null, watch, debounce, onChange));
+		dirs.push(new NonCompilableWatchedDir(servedDir, null, watch, debounce, onChange));
 	}
 	return dirs;
 };
 
-type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
-
 // There are two kinds of `WatchedDir`s, those created with an `outDir` and those without.
 // If there's an `outDir` the `dir` will be compiled to it and written to disk.
 // If `outDir` is null, the `dir` is only watched and nothing is written back to the filesystem.
-// TODO this design feels hacky but .. it works
-class WatchedDir {
-	watcher: WatchNodeFs;
-	dir: string;
-	outDir: string | null;
-	onChange: WatchedDirChangeCallback;
+type WatchedDir = CompilableWatchedDir | NonCompilableWatchedDir;
+type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
+
+abstract class BaseWatchedDir {
+	readonly dir: string;
+	readonly outDir: string | null;
+	readonly watcher: WatchNodeFs;
+	readonly onChange: WatchedDirChangeCallback;
 
 	constructor(
 		dir: string,
@@ -660,7 +700,7 @@ class WatchedDir {
 			dir,
 			debounce,
 			watch,
-			onChange: (change) => onChange(change, this),
+			onChange: (change) => onChange(change, this as WatchedDir), // TODO is there a way to avoid this cast?
 		});
 	}
 
@@ -670,14 +710,50 @@ class WatchedDir {
 
 	async init(): Promise<void> {
 		// TODO is ensuring these here, or at all, correct?
-		await Promise.all([ensureDir(this.dir), this.outDir ? ensureDir(this.outDir) : null]);
+		await Promise.all([ensureDir(this.dir), this.outDir === null ? null : ensureDir(this.outDir)]);
 
 		const statsBySourcePath = await this.watcher.init();
 
 		await Promise.all(
-			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-				stats.isDirectory() ? null : this.onChange({type: 'update', path, stats}, this),
+			Array.from(statsBySourcePath.entries()).map(
+				([path, stats]) =>
+					stats.isDirectory()
+						? null
+						: this.onChange({type: 'update', path, stats}, this as WatchedDir), // TODO is there a way to avoid this cast?
 			),
 		);
+	}
+}
+
+class NonCompilableWatchedDir extends BaseWatchedDir {
+	readonly outDir = null;
+
+	constructor(
+		dir: string,
+		outDir: null,
+		watch: boolean,
+		debounce: number,
+		onChange: WatchedDirChangeCallback,
+	) {
+		super(dir, outDir, watch, debounce, onChange);
+	}
+}
+
+class CompilableWatchedDir extends BaseWatchedDir {
+	readonly outDir: string;
+
+	constructor(
+		dir: string,
+		outDir: string,
+		watch: boolean,
+		debounce: number,
+		onChange: WatchedDirChangeCallback,
+	) {
+		super(dir, outDir, watch, debounce, onChange);
+		this.outDir = outDir;
+	}
+
+	computeFileOutDir(dir: string): string {
+		return join(this.outDir, stripStart(dir, this.dir));
 	}
 }
