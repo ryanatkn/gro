@@ -2,7 +2,7 @@ import {spawnProcess} from '../utils/process.js';
 import {printMs, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
-import {TS_EXTENSION} from '../paths.js';
+import {paths, TS_EXTENSION} from '../paths.js';
 import {Filer} from '../fs/Filer.js';
 import {createDefaultCompiler} from './defaultCompiler.js';
 
@@ -30,6 +30,7 @@ export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
 		compiler: createDefaultCompiler({dev, log}, {dev, log}),
+		compiledDirs: [{sourceDir: paths.source, outDir: paths.build}],
 		watch: false,
 		include,
 	});

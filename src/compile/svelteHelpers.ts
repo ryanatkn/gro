@@ -5,7 +5,6 @@ import {CompileOptions, Warning} from 'svelte/types/compiler/interfaces';
 import {Logger} from '../utils/log.js';
 import {yellow} from '../colors/terminal.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
-import {toRootPath} from '../paths.js';
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {
@@ -78,7 +77,7 @@ export const handleStats = (
 	_pluginContext?: PluginContext,
 ): void => {
 	log.trace(
-		printKeyValue('stats', toRootPath(id)),
+		printKeyValue('stats', printPath(id)),
 		...[
 			printKeyValue('total', printMs(stats.timings.total)),
 			stats.timings.parse && printKeyValue('parse', printMs(stats.timings.parse.total)),

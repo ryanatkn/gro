@@ -1,4 +1,5 @@
 import swc from '@swc/core';
+import {join} from 'path';
 
 import {loadTsconfig, TsConfig} from './tsHelpers.js';
 import {
@@ -8,9 +9,10 @@ import {
 	addSourceMapFooter,
 } from './swcHelpers.js';
 import {Logger} from '../utils/log.js';
-import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildId, TS_EXTENSION} from '../paths.js';
+import {JS_EXTENSION, SOURCE_MAP_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {CompilationSource, Compiler, TextCompilation} from './compiler.js';
+import {replaceExtension} from '../utils/path.js';
 
 export interface Options {
 	dev: boolean;
@@ -46,14 +48,17 @@ export const createSwcCompiler = (opts: InitialOptions): SwcCompiler => {
 		if (source.extension !== TS_EXTENSION) {
 			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
-		const {id, encoding, contents} = source;
-		const finalSwcOptions = mergeSwcOptions(swcOptions, id);
+		const {id, encoding, contents, outDir} = source;
+		const finalSwcOptions = mergeSwcOptions(swcOptions, id); // TODO take a look at this id translation
 		const output = await swc.transform(contents, finalSwcOptions);
-		const buildId = toBuildId(id);
-		const sourceMapBuildId = buildId + SOURCE_MAP_EXTENSION;
+		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
+		const jsId = join(outDir, jsFilename);
+		const sourceMapBuildId = jsId + SOURCE_MAP_EXTENSION;
 		const compilations: TextCompilation[] = [
 			{
-				id: buildId,
+				id: jsId,
+				filename: jsFilename,
+				dir: outDir,
 				extension: JS_EXTENSION,
 				encoding,
 				contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
@@ -63,10 +68,12 @@ export const createSwcCompiler = (opts: InitialOptions): SwcCompiler => {
 		if (output.map) {
 			compilations.push({
 				id: sourceMapBuildId,
+				filename: jsFilename + SOURCE_MAP_EXTENSION,
+				dir: outDir,
 				extension: SOURCE_MAP_EXTENSION,
 				encoding,
 				contents: output.map,
-				sourceMapOf: buildId,
+				sourceMapOf: jsId,
 			});
 		}
 		return {compilations};

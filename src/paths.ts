@@ -1,7 +1,7 @@
 import {sep, join, basename} from 'path';
 import {fileURLToPath} from 'url';
 
-import {hasExtension, replaceExtension} from './utils/path.js';
+import {replaceExtension} from './utils/path.js';
 import {stripStart} from './utils/string.js';
 
 /*
@@ -35,20 +35,15 @@ export interface Paths {
 	source: string;
 	build: string;
 	dist: string;
-	temp: string;
 }
 
 export const createPaths = (root: string): Paths => {
 	if (!root.endsWith(sep)) root = root + sep;
-	const source = join(root, SOURCE_DIR); // TODO should this be "src"? the helpers too?
-	const build = join(root, BUILD_DIR);
-	const dist = join(root, DIST_DIR);
 	return {
 		root,
-		source,
-		build,
-		dist,
-		temp: join(build, 'temp/'), // can write anything here for e.g. testing
+		source: join(root, SOURCE_DIR),
+		build: join(root, BUILD_DIR),
+		dist: join(root, DIST_DIR),
 	};
 };
 
@@ -120,13 +115,16 @@ export const stripRelativePath = (path: string): string => stripStart(path, RELA
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
+export const TS_DEFS_EXTENSION = '.d.ts';
 export const SVELTE_EXTENSION = '.svelte';
 export const CSS_EXTENSION = '.css';
 export const SOURCE_EXTENSIONS = [TS_EXTENSION, SVELTE_EXTENSION];
 export const SOURCE_MAP_EXTENSION = '.map';
 
 // TODO probably change this to use a regexp (benchmark?)
-export const hasSourceExtension = (path: string): boolean => hasExtension(path, SOURCE_EXTENSIONS);
+export const hasSourceExtension = (path: string): boolean =>
+	path.endsWith(SVELTE_EXTENSION) ||
+	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_DEFS_EXTENSION));
 
 export const toSourceExtension = (path: string): string =>
 	path.endsWith(JS_EXTENSION) ? replaceExtension(path, TS_EXTENSION) : path; // TODO? how does this work with `.svelte`? do we need more metadata?

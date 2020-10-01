@@ -1,4 +1,5 @@
-import {toBuildId} from '../paths.js';
+import {join} from 'path';
+
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 
@@ -11,10 +12,6 @@ export interface CompileResult<T extends Compilation = Compilation> {
 }
 
 export type Compilation = TextCompilation | BinaryCompilation;
-export interface BaseCompilation {
-	id: string;
-	extension: string;
-}
 export interface TextCompilation extends BaseCompilation {
 	encoding: 'utf8';
 	contents: string;
@@ -24,12 +21,14 @@ export interface BinaryCompilation extends BaseCompilation {
 	encoding: null;
 	contents: Buffer;
 }
-
-export type CompilationSource = TextCompilationSource | BinaryCompilationSource;
-interface BaseCompilationSource {
+interface BaseCompilation {
 	id: string;
+	filename: string;
+	dir: string;
 	extension: string;
 }
+
+export type CompilationSource = TextCompilationSource | BinaryCompilationSource;
 export interface TextCompilationSource extends BaseCompilationSource {
 	encoding: 'utf8';
 	contents: string;
@@ -38,27 +37,34 @@ export interface BinaryCompilationSource extends BaseCompilationSource {
 	encoding: null;
 	contents: Buffer;
 }
+interface BaseCompilationSource {
+	id: string;
+	filename: string;
+	dir: string;
+	extension: string;
+	outDir: string;
+}
 
-export interface SelectCompiler {
+export interface GetCompiler {
 	(source: CompilationSource): Compiler | null;
 }
 
 export interface Options {
-	selectCompiler: SelectCompiler;
+	getCompiler: GetCompiler;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
-		selectCompiler: selectNoopCompiler,
+		getCompiler: getNoopCompiler,
 		...omitUndefined(opts),
 	};
 };
 
 export const createCompiler = (opts: InitialOptions = {}): Compiler => {
-	const {selectCompiler} = initOptions(opts);
+	const {getCompiler} = initOptions(opts);
 
 	const compile: Compiler['compile'] = (source: CompilationSource) => {
-		const compiler = selectCompiler(source) || noopCompiler;
+		const compiler = getCompiler(source) || noopCompiler;
 		return compiler.compile(source);
 	};
 
@@ -67,13 +73,16 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 
 const createNoopCompiler = (): Compiler => {
 	const compile: Compiler['compile'] = (source: CompilationSource) => {
-		const buildId = toBuildId(source.id);
+		const {filename, extension, outDir} = source;
+		const id = join(outDir, filename); // TODO this is broken, needs to account for dirs
 		let file: Compilation;
 		switch (source.encoding) {
 			case 'utf8':
 				file = {
-					id: buildId,
-					extension: source.extension,
+					id,
+					filename,
+					dir: outDir,
+					extension,
 					encoding: source.encoding,
 					contents: source.contents,
 					sourceMapOf: null,
@@ -81,8 +90,10 @@ const createNoopCompiler = (): Compiler => {
 				break;
 			case null:
 				file = {
-					id: buildId,
-					extension: source.extension,
+					id,
+					filename,
+					dir: outDir,
+					extension,
 					encoding: source.encoding,
 					contents: source.contents,
 				};
@@ -95,4 +106,4 @@ const createNoopCompiler = (): Compiler => {
 	return {compile};
 };
 export const noopCompiler = createNoopCompiler();
-export const selectNoopCompiler: SelectCompiler = () => noopCompiler;
+export const getNoopCompiler: GetCompiler = () => noopCompiler;
