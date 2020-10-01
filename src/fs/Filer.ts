@@ -77,6 +77,7 @@ export interface CompiledBinaryFile extends BaseCompiledFile {
 }
 interface BaseCompiledFile extends BaseFile {
 	type: 'compiled';
+	sourceFile: CompilableSourceFile;
 }
 
 export interface BaseFile {
@@ -368,7 +369,7 @@ export class Filer {
 	}
 
 	private async _compileSourceId(id: string): Promise<void> {
-		let sourceFile = this.files.get(id);
+		const sourceFile = this.files.get(id);
 		if (!sourceFile) {
 			throw Error(`Cannot find source file ${id}`);
 		}
@@ -379,17 +380,17 @@ export class Filer {
 			throw Error(`Cannot compile file with a null outDir`);
 		}
 
-		// Compile this one file, which may turn into one or many.
+		// Compile the source file.
 		const result = await this.compiler!.compile(sourceFile);
 
-		// Update the cache.
-		const oldFiles = sourceFile.compiledFiles;
-		sourceFile.compiledFiles = result.compilations.map(
+		// Update the cache and write to disk.
+		const newCompiledFiles = result.compilations.map(
 			(compilation): CompiledFile => {
 				switch (compilation.encoding) {
 					case 'utf8':
 						return {
 							type: 'compiled',
+							sourceFile,
 							id: compilation.id,
 							filename: compilation.filename,
 							dir: compilation.dir,
@@ -405,6 +406,7 @@ export class Filer {
 					case null:
 						return {
 							type: 'compiled',
+							sourceFile,
 							id: compilation.id,
 							filename: compilation.filename,
 							dir: compilation.dir,
@@ -421,10 +423,11 @@ export class Filer {
 				}
 			},
 		);
-
-		// Write to disk.
-		await syncFilesToDisk(sourceFile.compiledFiles, oldFiles, this.log);
-		await syncCompiledFilesToMemoryCache(this.files, sourceFile.compiledFiles, oldFiles, this.log);
+		const newSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
+		this.files.set(id, newSourceFile);
+		const oldCompiledFiles = sourceFile.compiledFiles;
+		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
+		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -433,8 +436,8 @@ export class Filer {
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.compiledFiles !== null) {
+			syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
 			await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
-			await syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
 		}
 	}
 }
@@ -493,12 +496,12 @@ const syncFilesToDisk = async (
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
-const syncCompiledFilesToMemoryCache = async (
+const syncCompiledFilesToMemoryCache = (
 	files: Map<string, BaseFile>,
 	newFiles: CompiledFile[],
 	oldFiles: CompiledFile[],
 	_log: Logger,
-): Promise<void> => {
+): void => {
 	// This uses `Array#find` because the arrays are expected to be small,
 	// because we're currently only using it for individual file compilations,
 	// but that assumption might change and cause this code to be slow.
@@ -510,6 +513,19 @@ const syncCompiledFilesToMemoryCache = async (
 	}
 	for (const newFile of newFiles) {
 		// log.trace('setting file in memory cache', printPath(newFile.id));
+		const oldFile = files.get(newFile.id) as CompiledFile | undefined;
+		if (oldFile !== undefined) {
+			// This check ensures that if the user provides multiple source directories
+			// the compiled output files do not conflict.
+			// There may be a better design warranted, but for now the goal is to support
+			// the flexibility of multiple source directories while avoiding surprising behavior.
+			if (newFile.sourceFile.id !== oldFile.sourceFile.id) {
+				throw Error(
+					'Two source files are trying to compile to the same output location: ' +
+						`${newFile.sourceFile.id} & ${oldFile.sourceFile.id}`,
+				);
+			}
+		}
 		files.set(newFile.id, newFile);
 	}
 };
@@ -663,6 +679,7 @@ const createWatchedDirs = (
 ): WatchedDir[] => {
 	const dirs: WatchedDir[] = [];
 	// TODO what about compiled directories inside others? should we only created WatchedDirs for the root-most directory?
+	// or maybe we should just run a validation routine to disallow nested compiledDirs?
 	for (const {sourceDir, outDir} of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
