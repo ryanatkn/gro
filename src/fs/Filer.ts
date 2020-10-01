@@ -27,7 +27,7 @@ export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/
 export type SourceFile = CompilableSourceFile | NonCompilableSourceFile;
 export type CompilableSourceFile = CompilableTextSourceFile | CompilableBinarySourceFile;
 export type NonCompilableSourceFile = NonCompilableTextSourceFile | NonCompilableBinarySourceFile;
-interface BaseSourceFile extends BaseFile {
+export interface BaseSourceFile extends BaseFile {
 	type: 'source';
 }
 export interface TextSourceFile extends BaseSourceFile {
@@ -101,7 +101,7 @@ export interface CompiledDir {
 	outDir: string;
 }
 
-interface Options {
+export interface Options {
 	compiler: Compiler | null;
 	include: (id: string) => boolean;
 	compiledDirs: CompiledDir[];
@@ -112,8 +112,8 @@ interface Options {
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
-type InitialOptions = Partial<Options>;
-const initOptions = (opts: InitialOptions): Options => {
+export type InitialOptions = Partial<Options>;
+export const initOptions = (opts: InitialOptions): Options => {
 	// TODO wait do we want these defaults? or does it need to be null or an empty array for JUST serving? (like in serve.task.ts)
 	// we could remove the import of `paths` if we remove this default, which seems nice.
 	// should `null` be a valid value for both `compiledDirs` and `servedDirs`?
@@ -665,7 +665,7 @@ const createWatchedDirs = (
 	for (const {sourceDir, outDir} of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
-		dirs.push(new CompilableWatchedDir(sourceDir, outDir, watch, debounce, onChange));
+		dirs.push(createWatchedDir(sourceDir, outDir, watch, debounce, onChange));
 	}
 	for (const servedDir of servedDirs) {
 		// If the `servedDir` is inside a compiled directory's `sourceDir` or `outDir`,
@@ -675,7 +675,7 @@ const createWatchedDirs = (
 		) {
 			continue;
 		}
-		dirs.push(new NonCompilableWatchedDir(servedDir, null, watch, debounce, onChange));
+		dirs.push(createWatchedDir(servedDir, null, watch, debounce, onChange));
 	}
 	return dirs;
 };
@@ -685,81 +685,68 @@ const createWatchedDirs = (
 // If `outDir` is null, the `dir` is only watched and nothing is written back to the filesystem.
 type WatchedDir = CompilableWatchedDir | NonCompilableWatchedDir;
 type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
+interface BaseWatchedDir {
+	dir: string;
+	watcher: WatchNodeFs;
+	onChange: WatchedDirChangeCallback;
+	destroy: () => void;
+	init: () => Promise<void>;
+}
+interface CompilableWatchedDir extends BaseWatchedDir {
+	outDir: string;
+	computeFileOutDir: (dir: string) => string;
+}
+interface NonCompilableWatchedDir extends BaseWatchedDir {
+	outDir: null;
+}
 
-abstract class BaseWatchedDir {
-	readonly dir: string;
-	readonly outDir: string | null;
-	readonly watcher: WatchNodeFs;
-	readonly onChange: WatchedDirChangeCallback;
+const createWatchedDir = (
+	dir: string,
+	outDir: string | null,
+	watch: boolean,
+	debounce: number,
+	onChange: WatchedDirChangeCallback,
+): WatchedDir => {
+	const watcher = watchNodeFs({
+		dir,
+		debounce,
+		watch,
+		onChange: (change) => onChange(change, watchedDir),
+	});
+	const destroy = () => {
+		watcher.destroy();
+	};
+	const init = async () => {
+		await Promise.all([ensureDir(dir), outDir === null ? null : ensureDir(outDir)]);
 
-	constructor(
-		dir: string,
-		outDir: string | null,
-		watch: boolean,
-		debounce: number,
-		onChange: WatchedDirChangeCallback,
-	) {
-		this.dir = dir;
-		this.outDir = outDir;
-		this.onChange = onChange;
-		this.watcher = watchNodeFs({
-			dir,
-			debounce,
-			watch,
-			onChange: (change) => onChange(change, this as WatchedDir), // TODO is there a way to avoid this cast?
-		});
-	}
-
-	destroy() {
-		this.watcher.destroy();
-	}
-
-	async init(): Promise<void> {
-		// TODO is ensuring these here, or at all, correct?
-		await Promise.all([ensureDir(this.dir), this.outDir === null ? null : ensureDir(this.outDir)]);
-
-		const statsBySourcePath = await this.watcher.init();
+		const statsBySourcePath = await watcher.init();
 
 		await Promise.all(
-			Array.from(statsBySourcePath.entries()).map(
-				([path, stats]) =>
-					stats.isDirectory()
-						? null
-						: this.onChange({type: 'update', path, stats}, this as WatchedDir), // TODO is there a way to avoid this cast?
+			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
+				stats.isDirectory() ? null : onChange({type: 'update', path, stats}, watchedDir),
 			),
 		);
-	}
-}
-
-class NonCompilableWatchedDir extends BaseWatchedDir {
-	readonly outDir = null;
-
-	constructor(
-		dir: string,
-		outDir: null,
-		watch: boolean,
-		debounce: number,
-		onChange: WatchedDirChangeCallback,
-	) {
-		super(dir, outDir, watch, debounce, onChange);
-	}
-}
-
-class CompilableWatchedDir extends BaseWatchedDir {
-	readonly outDir: string;
-
-	constructor(
-		dir: string,
-		outDir: string,
-		watch: boolean,
-		debounce: number,
-		onChange: WatchedDirChangeCallback,
-	) {
-		super(dir, outDir, watch, debounce, onChange);
-		this.outDir = outDir;
-	}
-
-	computeFileOutDir(dir: string): string {
-		return join(this.outDir, stripStart(dir, this.dir));
-	}
-}
+	};
+	const watchedDir: WatchedDir =
+		outDir === null
+			? {
+					dir,
+					outDir,
+					onChange,
+					watcher,
+					destroy,
+					init,
+			  }
+			: {
+					dir,
+					outDir,
+					onChange,
+					watcher,
+					destroy,
+					init,
+					computeFileOutDir: (fileDir: string): string => {
+						return join(outDir, stripStart(fileDir, dir));
+					},
+			  };
+	return watchedDir;
+};
