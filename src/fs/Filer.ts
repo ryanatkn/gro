@@ -62,14 +62,12 @@ export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
 export interface CompiledTextFile extends BaseCompiledFile {
-	// sourceFile: SourceTextFile; // TODO add this reference?
 	readonly compilation: TextCompilation;
 	readonly encoding: 'utf8';
 	readonly contents: string;
 	readonly sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
 export interface CompiledBinaryFile extends BaseCompiledFile {
-	// sourceFile: SourceBinaryFile; // TODO add this reference?
 	readonly compilation: BinaryCompilation;
 	readonly encoding: null;
 	readonly contents: Buffer;
