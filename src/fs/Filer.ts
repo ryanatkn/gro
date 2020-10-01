@@ -172,7 +172,13 @@ export class Filer {
 		this.sourceMap = sourceMap;
 		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
-		this.dirs = createWatchedDirs(compiledDirs, servedDirs, watch, debounce, this.onWatcherChange);
+		this.dirs = createWatchedDirs(
+			compiledDirs,
+			servedDirs,
+			watch,
+			debounce,
+			this.onWatchedDirChange,
+		);
 		this.servedDirs = servedDirs;
 	}
 
@@ -231,7 +237,7 @@ export class Filer {
 		finishInitializing!();
 	}
 
-	private onWatcherChange: WatchedDirChangeCallback = async (
+	private onWatchedDirChange: WatchedDirChangeCallback = async (
 		change: WatcherChange,
 		watchedDir: WatchedDir,
 	) => {
