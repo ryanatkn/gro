@@ -24,7 +24,11 @@ import {stripStart} from '../utils/string.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
-export type SourceFile = TextSourceFile | BinarySourceFile;
+export type SourceFile =
+	| CompilableTextSourceFile
+	| CompilableBinarySourceFile
+	| NonCompilableTextSourceFile
+	| NonCompilableBinarySourceFile;
 interface BaseSourceFile extends BaseFile {
 	type: 'source';
 	compiledFiles: CompiledFile[];
@@ -38,6 +42,18 @@ export interface BinarySourceFile extends BaseSourceFile {
 	encoding: null;
 	contents: Buffer;
 	buffer: Buffer;
+}
+export interface CompilableTextSourceFile extends TextSourceFile {
+	outDir: string;
+}
+export interface CompilableBinarySourceFile extends BinarySourceFile {
+	outDir: string;
+}
+export interface NonCompilableTextSourceFile extends TextSourceFile {
+	outDir: null;
+}
+export interface NonCompilableBinarySourceFile extends BinarySourceFile {
+	outDir: null;
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
@@ -272,6 +288,10 @@ export class Filer {
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			const filename = basename(id);
 			const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+			const outDir =
+				watchedDir.outDir === null
+					? null
+					: join(watchedDir.outDir, stripStart(dir, watchedDir.dir));
 			switch (encoding) {
 				case 'utf8':
 					newSourceFile = {
@@ -284,6 +304,7 @@ export class Filer {
 						contents: newSourceContents as string,
 						compiledFiles: [],
 						watchedDir,
+						outDir,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: undefined,
@@ -300,6 +321,7 @@ export class Filer {
 						contents: newSourceContents as Buffer,
 						compiledFiles: [],
 						watchedDir,
+						outDir,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: newSourceContents as Buffer,
@@ -388,16 +410,12 @@ export class Filer {
 		if (sourceFile.type !== 'source') {
 			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
 		}
-		if (sourceFile.watchedDir.outDir === null) {
-			throw Error(`Cannot compile file with a null watchedDir.outDir`); // TODO what a gross error message, can we rework this code?
+		if (sourceFile.outDir === null) {
+			throw Error(`Cannot compile file with a null outDir`);
 		}
 
 		// Compile this one file, which may turn into one or many.
-		const outDir = join(
-			sourceFile.watchedDir.outDir,
-			stripStart(sourceFile.dir, sourceFile.watchedDir.dir),
-		); // TODO cache this as `sourceFile.outDir`? what about when there's no compilations?
-		const result = await this.compiler!.compile(sourceFile, outDir);
+		const result = await this.compiler!.compile(sourceFile);
 
 		// Update the cache.
 		const oldFiles = sourceFile.compiledFiles;

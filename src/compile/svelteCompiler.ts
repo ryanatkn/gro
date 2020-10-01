@@ -65,17 +65,14 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 		onstats,
 	} = initOptions(opts);
 
-	const compile: SvelteCompiler['compile'] = async (
-		source: TextCompilationSource,
-		outDir: string,
-	) => {
+	const compile: SvelteCompiler['compile'] = async (source: TextCompilationSource) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
-		const {id, encoding, contents} = source;
+		const {id, encoding, contents, outDir} = source;
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps

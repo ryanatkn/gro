@@ -4,7 +4,7 @@ import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 
 export interface Compiler<T extends Compilation = Compilation> {
-	compile(source: CompilationSource, outDir: string): CompileResult<T> | Promise<CompileResult<T>>;
+	compile(source: CompilationSource): CompileResult<T> | Promise<CompileResult<T>>;
 }
 
 export interface CompileResult<T extends Compilation = Compilation> {
@@ -34,6 +34,7 @@ interface BaseCompilationSource {
 	filename: string;
 	dir: string;
 	extension: string;
+	outDir: string;
 }
 export interface TextCompilationSource extends BaseCompilationSource {
 	encoding: 'utf8';
@@ -45,7 +46,7 @@ export interface BinaryCompilationSource extends BaseCompilationSource {
 }
 
 export interface GetCompiler {
-	(source: CompilationSource, outDir: string): Compiler | null;
+	(source: CompilationSource): Compiler | null;
 }
 
 export interface Options {
@@ -62,17 +63,17 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	const {getCompiler} = initOptions(opts);
 
-	const compile: Compiler['compile'] = (source: CompilationSource, outDir: string) => {
-		const compiler = getCompiler(source, outDir) || noopCompiler;
-		return compiler.compile(source, outDir);
+	const compile: Compiler['compile'] = (source: CompilationSource) => {
+		const compiler = getCompiler(source) || noopCompiler;
+		return compiler.compile(source);
 	};
 
 	return {compile};
 };
 
 const createNoopCompiler = (): Compiler => {
-	const compile: Compiler['compile'] = (source: CompilationSource, outDir: string) => {
-		const {filename, extension} = source;
+	const compile: Compiler['compile'] = (source: CompilationSource) => {
+		const {filename, extension, outDir} = source;
 		const id = join(outDir, filename); // TODO this is broken, needs to account for dirs
 		let file: Compilation;
 		switch (source.encoding) {
