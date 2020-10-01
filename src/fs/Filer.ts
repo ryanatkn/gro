@@ -685,13 +685,6 @@ const createWatchedDirs = (
 // If `outDir` is null, the `dir` is only watched and nothing is written back to the filesystem.
 type WatchedDir = CompilableWatchedDir | NonCompilableWatchedDir;
 type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
-interface BaseWatchedDir {
-	dir: string;
-	watcher: WatchNodeFs;
-	onChange: WatchedDirChangeCallback;
-	destroy: () => void;
-	init: () => Promise<void>;
-}
 interface CompilableWatchedDir extends BaseWatchedDir {
 	outDir: string;
 	computeFileOutDir: (dir: string) => string;
@@ -699,7 +692,13 @@ interface CompilableWatchedDir extends BaseWatchedDir {
 interface NonCompilableWatchedDir extends BaseWatchedDir {
 	outDir: null;
 }
-
+interface BaseWatchedDir {
+	dir: string;
+	watcher: WatchNodeFs;
+	onChange: WatchedDirChangeCallback;
+	destroy: () => void;
+	init: () => Promise<void>;
+}
 const createWatchedDir = (
 	dir: string,
 	outDir: string | null,
@@ -718,9 +717,7 @@ const createWatchedDir = (
 	};
 	const init = async () => {
 		await Promise.all([ensureDir(dir), outDir === null ? null : ensureDir(outDir)]);
-
 		const statsBySourcePath = await watcher.init();
-
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
 				stats.isDirectory() ? null : onChange({type: 'update', path, stats}, watchedDir),
