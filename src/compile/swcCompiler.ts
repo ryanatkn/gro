@@ -49,7 +49,7 @@ export const createSwcCompiler = (opts: InitialOptions): SwcCompiler => {
 			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents, outDir} = source;
-		const finalSwcOptions = mergeSwcOptions(swcOptions, id); // TODO take a look at this id translation, it's wrong too
+		const finalSwcOptions = mergeSwcOptions(swcOptions, id); // TODO take a look at this id translation
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
 		const jsId = join(outDir, jsFilename);
