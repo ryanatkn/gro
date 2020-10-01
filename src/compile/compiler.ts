@@ -12,12 +12,6 @@ export interface CompileResult<T extends Compilation = Compilation> {
 }
 
 export type Compilation = TextCompilation | BinaryCompilation;
-export interface BaseCompilation {
-	id: string;
-	filename: string;
-	dir: string;
-	extension: string;
-}
 export interface TextCompilation extends BaseCompilation {
 	encoding: 'utf8';
 	contents: string;
@@ -27,15 +21,14 @@ export interface BinaryCompilation extends BaseCompilation {
 	encoding: null;
 	contents: Buffer;
 }
-
-export type CompilationSource = TextCompilationSource | BinaryCompilationSource;
-interface BaseCompilationSource {
+interface BaseCompilation {
 	id: string;
 	filename: string;
 	dir: string;
 	extension: string;
-	outDir: string;
 }
+
+export type CompilationSource = TextCompilationSource | BinaryCompilationSource;
 export interface TextCompilationSource extends BaseCompilationSource {
 	encoding: 'utf8';
 	contents: string;
@@ -43,6 +36,13 @@ export interface TextCompilationSource extends BaseCompilationSource {
 export interface BinaryCompilationSource extends BaseCompilationSource {
 	encoding: null;
 	contents: Buffer;
+}
+interface BaseCompilationSource {
+	id: string;
+	filename: string;
+	dir: string;
+	extension: string;
+	outDir: string;
 }
 
 export interface GetCompiler {

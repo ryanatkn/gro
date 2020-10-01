@@ -27,9 +27,6 @@ export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/
 export type SourceFile = CompilableSourceFile | NonCompilableSourceFile;
 export type CompilableSourceFile = CompilableTextSourceFile | CompilableBinarySourceFile;
 export type NonCompilableSourceFile = NonCompilableTextSourceFile | NonCompilableBinarySourceFile;
-export interface BaseSourceFile extends BaseFile {
-	type: 'source';
-}
 export interface TextSourceFile extends BaseSourceFile {
 	encoding: 'utf8';
 	contents: string;
@@ -38,6 +35,9 @@ export interface BinarySourceFile extends BaseSourceFile {
 	encoding: null;
 	contents: Buffer;
 	buffer: Buffer;
+}
+interface BaseSourceFile extends BaseFile {
+	type: 'source';
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
 	watchedDir: CompilableWatchedDir;
@@ -61,9 +61,6 @@ export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
-export interface BaseCompiledFile extends BaseFile {
-	type: 'compiled';
-}
 export interface CompiledTextFile extends BaseCompiledFile {
 	// sourceFile: SourceTextFile; // TODO add this reference?
 	compilation: TextCompilation;
@@ -77,6 +74,9 @@ export interface CompiledBinaryFile extends BaseCompiledFile {
 	encoding: null;
 	contents: Buffer;
 	buffer: Buffer;
+}
+interface BaseCompiledFile extends BaseFile {
+	type: 'compiled';
 }
 
 export interface BaseFile {
@@ -662,6 +662,7 @@ const createWatchedDirs = (
 	onChange: WatchedDirChangeCallback,
 ): WatchedDir[] => {
 	const dirs: WatchedDir[] = [];
+	// TODO what about compiled directories inside others? should we only created WatchedDirs for the root-most directory?
 	for (const {sourceDir, outDir} of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
