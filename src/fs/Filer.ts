@@ -123,7 +123,9 @@ export const initOptions = (opts: InitialOptions): Options => {
 		? opts.compiledDirs.map((d) => ({sourceDir: resolve(d.sourceDir), outDir: resolve(d.outDir)}))
 		: [];
 	// default to serving all of the compiled output files
-	const servedDirs = Array.from(new Set(opts.servedDirs || compiledDirs.map((d) => d.outDir)));
+	const servedDirs = Array.from(
+		new Set((opts.servedDirs || compiledDirs.map((d) => d.outDir)).map((d) => resolve(d))),
+	);
 	if (!compiledDirs.length && !servedDirs.length) {
 		throw Error('Filer created with no directories to compile or serve.');
 	}
