@@ -28,78 +28,77 @@ export type SourceFile = CompilableSourceFile | NonCompilableSourceFile;
 export type CompilableSourceFile = CompilableTextSourceFile | CompilableBinarySourceFile;
 export type NonCompilableSourceFile = NonCompilableTextSourceFile | NonCompilableBinarySourceFile;
 export interface TextSourceFile extends BaseSourceFile {
-	encoding: 'utf8';
-	contents: string;
+	readonly encoding: 'utf8';
+	readonly contents: string;
 }
 export interface BinarySourceFile extends BaseSourceFile {
-	encoding: null;
-	contents: Buffer;
-	buffer: Buffer;
+	readonly encoding: null;
+	readonly contents: Buffer;
+	readonly buffer: Buffer;
 }
 interface BaseSourceFile extends BaseFile {
-	type: 'source';
+	readonly type: 'source';
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
-	watchedDir: CompilableWatchedDir;
-	compiledFiles: CompiledFile[];
-	outDir: string;
+	readonly watchedDir: CompilableWatchedDir;
+	readonly compiledFiles: CompiledFile[];
+	readonly outDir: string;
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
-	watchedDir: CompilableWatchedDir;
-	compiledFiles: CompiledFile[];
-	outDir: string;
+	readonly watchedDir: CompilableWatchedDir;
+	readonly compiledFiles: CompiledFile[];
+	readonly outDir: string;
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
-	watchedDir: NonCompilableWatchedDir;
-	compiledFiles: null;
-	outDir: null;
+	readonly watchedDir: NonCompilableWatchedDir;
+	readonly compiledFiles: null;
+	readonly outDir: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
-	watchedDir: NonCompilableWatchedDir;
-	compiledFiles: null;
-	outDir: null;
+	readonly watchedDir: NonCompilableWatchedDir;
+	readonly compiledFiles: null;
+	readonly outDir: null;
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
 export interface CompiledTextFile extends BaseCompiledFile {
 	// sourceFile: SourceTextFile; // TODO add this reference?
-	compilation: TextCompilation;
-	encoding: 'utf8';
-	contents: string;
-	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+	readonly compilation: TextCompilation;
+	readonly encoding: 'utf8';
+	readonly contents: string;
+	readonly sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
 export interface CompiledBinaryFile extends BaseCompiledFile {
 	// sourceFile: SourceBinaryFile; // TODO add this reference?
-	compilation: BinaryCompilation;
-	encoding: null;
-	contents: Buffer;
-	buffer: Buffer;
+	readonly compilation: BinaryCompilation;
+	readonly encoding: null;
+	readonly contents: Buffer;
+	readonly buffer: Buffer;
 }
 interface BaseCompiledFile extends BaseFile {
-	type: 'compiled';
-	sourceFile: CompilableSourceFile;
+	readonly type: 'compiled';
+	readonly sourceFile: CompilableSourceFile;
 }
 
 export interface BaseFile {
-	id: string;
-	filename: string;
-	dir: string;
-	extension: string;
-	encoding: Encoding;
-	contents: string | Buffer;
-	buffer: Buffer | undefined; // `undefined` for lazy loading
-	stats: Stats | undefined; // `undefined` for lazy loading
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` for lazy loading
+	readonly id: string;
+	readonly filename: string;
+	readonly dir: string;
+	readonly extension: string;
+	readonly encoding: Encoding;
+	readonly contents: string | Buffer;
+	buffer: Buffer | undefined; // `undefined` and mutable for lazy loading
+	stats: Stats | undefined; // `undefined` and mutable for lazy loading
+	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
 
-// TODO name?
 export interface CompiledDir {
 	// TODO should this include the compiler? any other options?
 	// or do we specifically isolate everything else into a single bundle of things?
 	// what if the external compiler changes between runs, but the internal options and source file hash don't,
 	// so we get a false negative that re-compilation is needed once source hash caching is implemented?
-	sourceDir: string;
-	outDir: string;
+	readonly sourceDir: string;
+	readonly outDir: string;
 }
 
 export interface Options {
@@ -115,10 +114,6 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	// TODO wait do we want these defaults? or does it need to be null or an empty array for JUST serving? (like in serve.task.ts)
-	// we could remove the import of `paths` if we remove this default, which seems nice.
-	// should `null` be a valid value for both `compiledDirs` and `servedDirs`?
-	// should `null` be equivalent to an empty array? hmm. if so, maybe we detect empty arrays and swap in `null`?
 	const compiledDirs = opts.compiledDirs
 		? opts.compiledDirs.map((d) => ({sourceDir: resolve(d.sourceDir), outDir: resolve(d.outDir)}))
 		: [];
