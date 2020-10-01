@@ -291,80 +291,7 @@ export class Filer {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			const filename = basename(id);
-			const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-			switch (encoding) {
-				case 'utf8':
-					newSourceFile =
-						watchedDir.outDir === null
-							? {
-									type: 'source',
-									id,
-									filename,
-									dir,
-									extension,
-									encoding,
-									contents: newSourceContents as string,
-									watchedDir,
-									compiledFiles: null,
-									outDir: null,
-									stats: undefined,
-									mimeType: undefined,
-									buffer: undefined,
-							  }
-							: {
-									type: 'source',
-									id,
-									filename,
-									dir,
-									extension,
-									encoding,
-									contents: newSourceContents as string,
-									watchedDir,
-									compiledFiles: [],
-									outDir: watchedDir.computeFileOutDir(dir),
-									stats: undefined,
-									mimeType: undefined,
-									buffer: undefined,
-							  };
-					break;
-				case null:
-					newSourceFile =
-						watchedDir.outDir === null
-							? {
-									type: 'source',
-									id,
-									filename,
-									dir,
-									extension,
-									encoding,
-									contents: newSourceContents as Buffer,
-									watchedDir,
-									compiledFiles: null,
-									outDir: null,
-									stats: undefined,
-									mimeType: undefined,
-									buffer: newSourceContents as Buffer,
-							  }
-							: {
-									type: 'source',
-									id,
-									filename,
-									dir,
-									extension,
-									encoding,
-									contents: newSourceContents as Buffer,
-									watchedDir,
-									compiledFiles: [],
-									outDir: watchedDir.computeFileOutDir(dir),
-									stats: undefined,
-									mimeType: undefined,
-									buffer: newSourceContents as Buffer,
-							  };
-					break;
-				default:
-					throw new UnreachableError(encoding);
-			}
+			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, watchedDir);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -645,6 +572,85 @@ function postprocess(compilation: Compilation) {
 	}
 	return compilation.contents;
 }
+
+const createSourceFile = (
+	id: string,
+	encoding: Encoding,
+	extension: string,
+	newSourceContents: string | Buffer,
+	watchedDir: WatchedDir,
+): SourceFile => {
+	const filename = basename(id);
+	const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+	switch (encoding) {
+		case 'utf8':
+			return watchedDir.outDir === null
+				? {
+						type: 'source',
+						id,
+						filename,
+						dir,
+						extension,
+						encoding,
+						contents: newSourceContents as string,
+						watchedDir,
+						compiledFiles: null,
+						outDir: null,
+						stats: undefined,
+						mimeType: undefined,
+						buffer: undefined,
+				  }
+				: {
+						type: 'source',
+						id,
+						filename,
+						dir,
+						extension,
+						encoding,
+						contents: newSourceContents as string,
+						watchedDir,
+						compiledFiles: [],
+						outDir: watchedDir.computeFileOutDir(dir),
+						stats: undefined,
+						mimeType: undefined,
+						buffer: undefined,
+				  };
+		case null:
+			return watchedDir.outDir === null
+				? {
+						type: 'source',
+						id,
+						filename,
+						dir,
+						extension,
+						encoding,
+						contents: newSourceContents as Buffer,
+						watchedDir,
+						compiledFiles: null,
+						outDir: null,
+						stats: undefined,
+						mimeType: undefined,
+						buffer: newSourceContents as Buffer,
+				  }
+				: {
+						type: 'source',
+						id,
+						filename,
+						dir,
+						extension,
+						encoding,
+						contents: newSourceContents as Buffer,
+						watchedDir,
+						compiledFiles: [],
+						outDir: watchedDir.computeFileOutDir(dir),
+						stats: undefined,
+						mimeType: undefined,
+						buffer: newSourceContents as Buffer,
+				  };
+		default:
+			throw new UnreachableError(encoding);
+	}
+};
 
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
