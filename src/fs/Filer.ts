@@ -686,18 +686,18 @@ const createWatchedDirs = (
 type WatchedDir = CompilableWatchedDir | NonCompilableWatchedDir;
 type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
 interface CompilableWatchedDir extends BaseWatchedDir {
-	outDir: string;
-	computeFileOutDir: (dir: string) => string;
+	readonly outDir: string;
+	readonly computeFileOutDir: (dir: string) => string;
 }
 interface NonCompilableWatchedDir extends BaseWatchedDir {
-	outDir: null;
+	readonly outDir: null;
 }
 interface BaseWatchedDir {
-	dir: string;
-	watcher: WatchNodeFs;
-	onChange: WatchedDirChangeCallback;
-	destroy: () => void;
-	init: () => Promise<void>;
+	readonly dir: string;
+	readonly watcher: WatchNodeFs;
+	readonly onChange: WatchedDirChangeCallback;
+	readonly destroy: () => void;
+	readonly init: () => Promise<void>;
 }
 const createWatchedDir = (
 	dir: string,
