@@ -115,6 +115,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const compiledDirs = opts.compiledDirs
 		? opts.compiledDirs.map((d) => ({sourceDir: resolve(d.sourceDir), outDir: resolve(d.outDir)}))
 		: [];
+	validateCompiledDirs(compiledDirs);
 	// default to serving all of the compiled output files
 	const servedDirs = Array.from(
 		new Set((opts.servedDirs || compiledDirs.map((d) => d.outDir)).map((d) => resolve(d))),
@@ -266,9 +267,21 @@ export class Filer {
 
 	// Returns a boolean indicating if the source file changed.
 	private async updateSourceFile(id: string, watchedDir: WatchedDir): Promise<boolean> {
-		let sourceFile = this.files.get(id);
-		if (sourceFile && sourceFile.type !== 'source') {
-			throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
+		const sourceFile = this.files.get(id);
+		if (sourceFile) {
+			if (sourceFile.type !== 'source') {
+				throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
+			}
+			if (sourceFile.watchedDir !== watchedDir) {
+				// This can happen when there are overlapping watchers.
+				// We might be able to support this,
+				// but more thought needs to be given to the exact desired behavior.
+				// See `validateCompiledDirs` for more.
+				throw Error(
+					'Source file watchedDir unexpectedly changed: ' +
+						`${sourceFile.id} changed from ${sourceFile.watchedDir.dir} to ${watchedDir.dir}`,
+				);
+			}
 		}
 
 		let extension: string;
@@ -330,9 +343,9 @@ export class Filer {
 		return true;
 	}
 
-	// These sets of ids are used to avoid concurrent compilations for any given source file.
+	// These are used to avoid concurrent compilations for any given source file.
 	private pendingCompilations: Set<string> = new Set();
-	private enqueuedCompilations: Set<string> = new Set();
+	private enqueuedCompilations: Map<string, [string, WatchedDir]> = new Map();
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -344,7 +357,7 @@ export class Filer {
 	private async compileSourceId(id: string, watchedDir: WatchedDir): Promise<void> {
 		if (watchedDir.outDir === null || !this.include(id)) return;
 		if (this.pendingCompilations.has(id)) {
-			this.enqueuedCompilations.add(id);
+			this.enqueuedCompilations.set(id, [id, watchedDir]);
 			return;
 		}
 		this.pendingCompilations.add(id);
@@ -354,11 +367,13 @@ export class Filer {
 			this.log.error(red('failed to compile'), printPath(id), printError(err));
 		}
 		this.pendingCompilations.delete(id);
-		if (this.enqueuedCompilations.delete(id)) {
+		const enqueuedCompilation = this.enqueuedCompilations.get(id);
+		if (enqueuedCompilation !== undefined) {
+			this.enqueuedCompilations.delete(id);
 			// Something changed during the compilation for this file, so recurse.
 			// TODO do we need to detect cycles? if we run into any, probably
-			if (await this.updateSourceFile(id, watchedDir)) {
-				await this.compileSourceId(id, watchedDir);
+			if (await this.updateSourceFile(...enqueuedCompilation)) {
+				await this.compileSourceId(...enqueuedCompilation);
 			}
 		}
 	}
@@ -584,6 +599,38 @@ function postprocess(compilation: Compilation) {
 	return compilation.contents;
 }
 
+// TODO revisit these restrictions - the goal right now is to set limits
+// to avoid undefined behavior at the cost of flexibility
+const validateCompiledDirs = (compiledDirs: CompiledDir[]) => {
+	for (const compiledDir of compiledDirs) {
+		// Make sure no `outDir` is inside a `sourceDir`.
+		// In the current design, the entire source directory is watched, so in this case,
+		// compiled files would become source files and cause a more cryptic error.
+		const nestedOutDir = compiledDirs.find((d) => compiledDir.outDir.startsWith(d.sourceDir));
+		if (nestedOutDir) {
+			throw Error(
+				'Compiled outDir cannot be inside a sourceDir: ' +
+					`${compiledDir.outDir} is inside ${nestedOutDir.sourceDir}`,
+			);
+		}
+		// Make sure no `sourceDir` is inside another `sourceDir`.
+		// This could probably be fixed to allow the nested one's `outDir` to take precedence.
+		// The current implementation appears to work, if inefficiently,
+		// only throwing an error when it detects that a source file's `watchedDir` has changed.
+		// However there may be subtle bugs caused by source files changing their `watcherDir`,
+		// so for now we err on the side of caution and less complexity.
+		const nestedSourceDir = compiledDirs.find(
+			(d) => d !== compiledDir && compiledDir.sourceDir.startsWith(d.sourceDir),
+		);
+		if (nestedSourceDir) {
+			throw Error(
+				'Compiled sourceDir cannot be inside another sourceDir: ' +
+					`${compiledDir.sourceDir} is inside ${nestedSourceDir.sourceDir}`,
+			);
+		}
+	}
+};
+
 const createSourceFile = (
 	id: string,
 	encoding: Encoding,
@@ -680,15 +727,18 @@ const createWatchedDirs = (
 		// so no need to load it as a directory.
 		dirs.push(createWatchedDir(sourceDir, outDir, watch, debounce, onChange));
 	}
-	for (const servedDir of servedDirs) {
-		// If the `servedDir` is inside a compiled directory's `sourceDir` or `outDir`,
-		// it's already in the Filer's memory cache and does not need to be loaded as a directory.
-		if (
-			compiledDirs.find((c) => servedDir.startsWith(c.sourceDir) || servedDir.startsWith(c.outDir))
-		) {
-			continue;
+	if (watch) {
+		for (const servedDir of servedDirs) {
+			// If a `servedDir` is inside a compiled directory's `sourceDir` or `outDir`,
+			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
+			if (
+				!compiledDirs.find(
+					(d) => servedDir.startsWith(d.sourceDir) || servedDir.startsWith(d.outDir),
+				)
+			) {
+				dirs.push(createWatchedDir(servedDir, null, watch, debounce, onChange));
+			}
 		}
-		dirs.push(createWatchedDir(servedDir, null, watch, debounce, onChange));
 	}
 	return dirs;
 };
