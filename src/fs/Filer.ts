@@ -21,6 +21,7 @@ import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
 import {stripStart} from '../utils/string.js';
+import {BuildConfig} from '../project/buildConfig.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -101,6 +102,7 @@ export interface CompiledDir {
 
 export interface Options {
 	compiler: Compiler | null;
+	buildConfigs: BuildConfig[] | null;
 	include: (id: string) => boolean;
 	compiledDirs: CompiledDir[];
 	servedDirs: string[];
@@ -131,6 +133,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		throw Error('Filer created with a compiler but no directories to compile.');
 	}
 	return {
+		buildConfigs: null,
 		sourceMap: true,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
@@ -151,6 +154,7 @@ export class Filer {
 	private readonly log: Logger;
 	private readonly dirs: WatchedDir[];
 	private readonly servedDirs: string[];
+	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly include: (id: string) => boolean;
 
 	private readonly files: Map<string, FilerFile> = new Map();
@@ -162,6 +166,7 @@ export class Filer {
 			sourceMap,
 			compiledDirs,
 			servedDirs,
+			buildConfigs,
 			debounce,
 			watch,
 			cleanOutputDirs,
@@ -180,6 +185,7 @@ export class Filer {
 			this.onWatchedDirChange,
 		);
 		this.servedDirs = servedDirs;
+		this.buildConfigs = buildConfigs;
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
@@ -207,9 +213,13 @@ export class Filer {
 
 		await Promise.all([Promise.all(this.dirs.map((d) => d.init())), lexer.init]);
 
-		if (this.cleanOutputDirs) {
+		const {buildConfigs} = this;
+		if (this.cleanOutputDirs && buildConfigs !== null) {
 			// Clean the output directories, removing any files that can't be mapped back to source files.
-			const outputDirs: string[] = this.dirs.map((d) => d.outDir!).filter(Boolean);
+			const outputDirs: string[] = this.dirs
+				.map((d) => d.outDir!)
+				.filter(Boolean)
+				.flatMap((d) => buildConfigs.map((p) => join(d, p.name)));
 			await Promise.all(
 				outputDirs.map(async (outputDir) => {
 					const files = await findFiles(outputDir, undefined, null);
@@ -361,14 +371,16 @@ export class Filer {
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
 	private async compileSourceId(id: string, watchedDir: WatchedDir): Promise<void> {
-		if (watchedDir.outDir === null || !this.include(id)) return;
+		if (this.buildConfigs === null || watchedDir.outDir === null || !this.include(id)) {
+			return;
+		}
 		if (this.pendingCompilations.has(id)) {
 			this.enqueuedCompilations.set(id, [id, watchedDir]);
 			return;
 		}
 		this.pendingCompilations.add(id);
 		try {
-			await this._compileSourceId(id);
+			await this.compileSourceIdForBuildConfigs(id, this.buildConfigs);
 		} catch (err) {
 			this.log.error(red('failed to compile'), printPath(id), printError(err));
 		}
@@ -384,7 +396,16 @@ export class Filer {
 		}
 	}
 
-	private async _compileSourceId(id: string): Promise<void> {
+	private async compileSourceIdForBuildConfigs(
+		id: string,
+		buildConfigs: BuildConfig[],
+	): Promise<void> {
+		await Promise.all(
+			buildConfigs.map((buildConfig) => this.compileSourceIdForBuildConfig(id, buildConfig)),
+		);
+	}
+
+	private async compileSourceIdForBuildConfig(id: string, buildConfig: BuildConfig): Promise<void> {
 		const sourceFile = this.files.get(id);
 		if (!sourceFile) {
 			throw Error(`Cannot find source file ${id}`);
@@ -397,7 +418,7 @@ export class Filer {
 		}
 
 		// Compile the source file.
-		const result = await this.compiler!.compile(sourceFile);
+		const result = await this.compiler!.compile(sourceFile, buildConfig);
 
 		// Update the cache and write to disk.
 		const newCompiledFiles = result.compilations.map(

@@ -1,6 +1,6 @@
 import {join} from 'path';
 
-import {readJsonSync} from '../fs/nodeFs.js';
+import {readJson} from '../fs/nodeFs.js';
 import {paths, groPaths} from '../paths.js';
 import {Json} from '../utils/json.js';
 
@@ -17,19 +17,20 @@ type GroPackageJson = Obj<Json>; // TODO generate one day
 
 let packageJson: PackageJson | undefined;
 
-export const getPackageJson = (): PackageJson => {
-	if (!packageJson) {
-		packageJson = readJsonSync(join(paths.root, 'package.json'));
+export const getPackageJson = async (forceRefresh = false): Promise<PackageJson> => {
+	if (!packageJson || forceRefresh) {
+		packageJson = await readJson(join(paths.root, 'package.json'));
 	}
 	return packageJson!;
 };
 
 let groPackageJson: GroPackageJson | undefined;
 
-export const getGroPackageJson = (): GroPackageJson => {
-	if (!groPackageJson) {
-		groPackageJson =
-			paths === groPaths ? getPackageJson() : readJsonSync(join(groPaths.root, 'package.json'));
+export const getGroPackageJson = async (forceRefresh = false): Promise<GroPackageJson> => {
+	if (!groPackageJson || forceRefresh) {
+		groPackageJson = await (paths === groPaths
+			? getPackageJson(forceRefresh)
+			: readJson(join(groPaths.root, 'package.json')));
 	}
 	return groPackageJson!;
 };

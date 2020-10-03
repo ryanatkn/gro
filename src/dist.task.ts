@@ -14,7 +14,8 @@ export const task: Task = {
 		await cleanDist(log);
 
 		log.info(`copying ${printPath(paths.build)} to ${printPath(paths.dist)}`);
-		await copy(paths.build, paths.dist, {
+		// TODO TEMP HACK
+		await copy(paths.build + 'prod/node/', paths.dist, {
 			filter: (id) => isDistFile(id),
 		});
 

@@ -28,7 +28,7 @@ export const assets = async (opts: InitialOptions = {}) => {
 	const {isAsset} = options;
 	const log = new SystemLogger([magenta('[assets]')]);
 
-	// Start in the root dir because assets can be in either `src/` or `build/`.
+	// Start in the root dir because assets can be in either `src/` or `.gro/`.
 	const dir = paths.root;
 
 	const files = await findFiles(

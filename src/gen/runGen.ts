@@ -13,7 +13,7 @@ import {Timings} from '../utils/time.js';
 
 export const runGen = async (
 	genModules: GenModuleMeta[],
-	formatFile?: (id: string, contents: string) => string,
+	formatFile?: (id: string, contents: string) => Promise<string>,
 ): Promise<GenResults> => {
 	let inputCount = 0;
 	let outputCount = 0;
@@ -49,7 +49,7 @@ export const runGen = async (
 					files = [];
 					for (const file of genResult.files) {
 						try {
-							files.push({...file, contents: formatFile(file.id, file.contents)});
+							files.push({...file, contents: await formatFile(file.id, file.contents)});
 						} catch (err) {
 							return {
 								ok: false,

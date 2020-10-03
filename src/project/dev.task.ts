@@ -4,6 +4,7 @@ import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {createDefaultCompiler} from '../compile/defaultCompiler.js';
 import {paths} from '../paths.js';
+import {loadBuildConfigs} from './buildConfig.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
@@ -12,6 +13,7 @@ export const task: Task = {
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
 			compiledDirs: [{sourceDir: paths.source, outDir: paths.build}],
+			buildConfigs: await loadBuildConfigs(),
 		});
 
 		const timingToInitFiler = timings.start('init filer');

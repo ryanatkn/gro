@@ -18,6 +18,8 @@ import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
+import {BuildConfig} from '../project/buildConfig.js';
+import {UnreachableError} from '../utils/error.js';
 
 export interface Options {
 	dev: boolean;
@@ -65,14 +67,18 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 		onstats,
 	} = initOptions(opts);
 
-	const compile: SvelteCompiler['compile'] = async (source: TextCompilationSource) => {
+	const compile: SvelteCompiler['compile'] = async (
+		source: TextCompilationSource,
+		buildConfig: BuildConfig,
+	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
-		const {id, encoding, contents, outDir} = source;
+		const {id, encoding, contents} = source;
+		const outDir = join(source.outDir, buildConfig.name);
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps
@@ -90,6 +96,7 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 		const output: SvelteCompilation = svelte.compile(preprocessedCode, {
 			...baseSvelteCompileOptions,
 			dev,
+			generate: getGenerateOption(buildConfig), // allow `svelteCompileOptions` to override
 			...svelteCompileOptions,
 			filename: id, // TODO should we be giving a different path?
 		});
@@ -153,4 +160,15 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 	};
 
 	return {compile};
+};
+
+const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {
+	switch (buildConfig.platform) {
+		case 'browser':
+			return 'dom';
+		case 'node':
+			return 'ssr';
+		default:
+			throw new UnreachableError(buildConfig.platform);
+	}
 };

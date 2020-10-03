@@ -13,6 +13,7 @@ import {JS_EXTENSION, SOURCE_MAP_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {CompilationSource, Compiler, TextCompilation} from './compiler.js';
 import {replaceExtension} from '../utils/path.js';
+import {BuildConfig} from '../project/buildConfig.js';
 
 export interface Options {
 	dev: boolean;
@@ -41,14 +42,18 @@ type SwcCompiler = Compiler<TextCompilation>;
 export const createSwcCompiler = (opts: InitialOptions): SwcCompiler => {
 	const {swcOptions} = initOptions(opts);
 
-	const compile: SwcCompiler['compile'] = async (source: CompilationSource) => {
+	const compile: SwcCompiler['compile'] = async (
+		source: CompilationSource,
+		buildConfig: BuildConfig,
+	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== TS_EXTENSION) {
 			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
-		const {id, encoding, contents, outDir} = source;
+		const {id, encoding, contents} = source;
+		const outDir = join(source.outDir, buildConfig.name);
 		const finalSwcOptions = mergeSwcOptions(swcOptions, id); // TODO take a look at this id translation
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);

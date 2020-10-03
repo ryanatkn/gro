@@ -6,11 +6,11 @@ import {stripStart} from './utils/string.js';
 
 /*
 
-A path `id` is an absolute path to the source/build/dist directory.
+A path `id` is an absolute path to the source/.gro/dist directory.
 It's the same nomenclature that Rollup uses.
 
 A `basePath` is the format used by `CheapWatch`.
-It's a bare relative path without a source or build directory,
+It's a bare relative path without a source or .gro directory,
 e.g. 'foo/bar.ts'.
 
 `CheapWatch` also uses an array of `pathParts`.
@@ -22,7 +22,10 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 // TODO pass these to `createPaths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIR_NAME = 'src';
-export const BUILD_DIR_NAME = 'build';
+export const BUILD_DIR_NAME = '.gro'; // TODO name?
+export const META_DIR_NAME = '.gro'; // TODO name?
+export const CACHE_DIR_NAME = '.gro'; // TODO name?
+export const GRO_DIR_NAME = '.gro'; // TODO name? buildId -> compiledId?
 export const DIST_DIR_NAME = 'dist';
 export const SOURCE_DIR = SOURCE_DIR_NAME + sep;
 export const BUILD_DIR = BUILD_DIR_NAME + sep;
@@ -48,10 +51,20 @@ export const createPaths = (root: string): Paths => {
 };
 
 export const paths = createPaths(process.cwd() + sep);
-export const groImportDir = join(fileURLToPath(import.meta.url), '../');
-export const groDir = join(groImportDir, '../');
+console.log('paths', paths);
+export let groImportDir = join(fileURLToPath(import.meta.url), '../');
+console.log('import.meta.url', import.meta.url);
+export const groDir = join(
+	groImportDir,
+	// 	// TODO this is a terrible hack
+	join(groImportDir, '../').endsWith(BUILD_DIR) ? '../../' : '../',
+);
+console.log('groImportDir', groImportDir);
+console.log('groDir', groDir);
 export const groDirBasename = basename(groDir) + sep;
+console.log('groDirBasename', groDirBasename);
 export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
+console.log('groPaths', groPaths);
 
 export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : paths);
 export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
@@ -63,18 +76,18 @@ export const isDistId = (id: string, p = paths): boolean => id.startsWith(p.dist
 // '/home/me/app/src/foo/bar/baz.ts' -> 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
 
-// '/home/me/app/build/foo/bar/baz.js' -> 'foo/bar/baz.js'
+// '/home/me/app/.gro/foo/bar/baz.js' -> 'foo/bar/baz.js'
 // '/home/me/app/src/foo/bar/baz.ts' -> 'foo/bar/baz.ts'
 export const toBasePath = (id: string, p = paths): string =>
 	stripStart(stripStart(stripStart(id, p.build), p.source), p.dist);
 
-// '/home/me/app/build/foo/bar/baz.js' -> 'src/foo/bar/baz.ts'
+// '/home/me/app/.gro/foo/bar/baz.js' -> 'src/foo/bar/baz.ts'
 export const toSourcePath = (id: string, p = paths): string =>
 	isSourceId(id, p)
 		? stripStart(id, p.root)
 		: toSourceExtension(join(SOURCE_DIR, toBasePath(id, p)));
 
-// '/home/me/app/src/foo/bar/baz.ts' -> 'build/foo/bar/baz.js'
+// '/home/me/app/src/foo/bar/baz.ts' -> '.gro/foo/bar/baz.js'
 export const toBuildPath = (id: string, p = paths): string =>
 	isBuildId(id, p)
 		? stripStart(id, p.root)
@@ -90,11 +103,11 @@ export const toDistPath = (id: string, p = paths): string =>
 		? join(DIST_DIR, toBasePath(id, p))
 		: toCompiledExtension(join(DIST_DIR, toBasePath(id, p)));
 
-// '/home/me/app/build/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
+// '/home/me/app/.gro/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
 export const toSourceId = (id: string, p = paths): string =>
 	isSourceId(id, p) ? id : join(p.root, toSourcePath(id, p));
 
-// '/home/me/app/src/foo/bar/baz.ts' -> '/home/me/app/build/foo/bar/baz.js'
+// '/home/me/app/src/foo/bar/baz.ts' -> '/home/me/app/.gro/foo/bar/baz.js'
 export const toBuildId = (id: string, p = paths): string =>
 	isBuildId(id, p) ? id : join(p.root, toBuildPath(id, p));
 
@@ -105,7 +118,7 @@ export const toDistId = (id: string, p = paths): string =>
 // 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
 
-// 'foo/bar/baz.js' -> '/home/me/app/build/foo/bar/baz.js'
+// 'foo/bar/baz.js' -> '/home/me/app/.gro/foo/bar/baz.js'
 export const basePathToBuildId = (basePath: string, p = paths): string => join(p.build, basePath);
 
 // 'foo/bar/baz.js' -> '/home/me/app/dist/foo/bar/baz.js'
@@ -169,6 +182,7 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 // When importing Gro paths, this correctly chooses the build or dist dir.
 export const toImportId = (id: string): string => {
 	const p = pathsFromId(id);
+	console.log('p, p === groPaths', p, groPaths, p === groPaths);
 	return p === groPaths
 		? toCompiledExtension(join(groImportDir, toBasePath(id, p)))
 		: toBuildId(id, p);

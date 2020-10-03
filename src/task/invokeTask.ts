@@ -21,7 +21,8 @@ import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {PathData} from '../fs/pathData.js';
-import {getGroPackageJson} from '../project/pkg.js';
+import {getGroPackageJson} from '../project/packageJson.js';
+import {loadBuildConfigs} from '../project/buildConfig.js';
 
 /*
 
@@ -79,7 +80,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 			if (await shouldBuildProject(pathData)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
 				const timingToBuildProject = timings.start('build project');
-				await compileSourceDirectory(true, log);
+				await compileSourceDirectory(await loadBuildConfigs(), true, log);
 				timingToBuildProject();
 			}
 
@@ -227,7 +228,7 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // we should compile a project's TypeScript when invoking a task.
 // Properly detecting this is too expensive and would impact startup time significantly.
 // Generally speaking, the user is expected to be running `gro dev` or `gro build`.
-const shouldBuildProject = async (pathData: PathData): Promise<boolean> =>
-	paths !== groPaths && isGroId(pathData.id)
-		? !(await pathExists(paths.build))
-		: !(await pathExists(toImportId(pathData.id)));
+const shouldBuildProject = async (pathData: PathData): Promise<boolean> => {
+	const id = paths !== groPaths && isGroId(pathData.id) ? paths.build : toImportId(pathData.id);
+	return !(await pathExists(id));
+};

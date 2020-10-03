@@ -61,8 +61,10 @@ const main = (): Promise<void> => {
 		// the global version can be used to build the project.
 		const filePath = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
-		if (existsSync('build/cli/gro.js') && existsSync('build/cli/invoke.js')) {
-			return import(join(filePath, '../../../build/cli/invoke.js'));
+		console.log(`existsSync('.gro/prod/node/cli/gro.js')`, existsSync('.gro/prod/node/cli/gro.js'));
+		// TODO should we join the filePath or just import the path? ./.gro....
+		if (existsSync('.gro/prod/node/cli/gro.js') && existsSync('.gro/prod/node/cli/invoke.js')) {
+			return import(join(filePath, '../../../.gro/prod/node/cli/invoke.js'));
 		}
 		// case 3
 		// Fall back to the version associated with the running CLI.

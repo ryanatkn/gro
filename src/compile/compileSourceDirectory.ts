@@ -5,8 +5,13 @@ import {createStopwatch, Timings} from '../utils/time.js';
 import {paths, TS_EXTENSION} from '../paths.js';
 import {Filer} from '../fs/Filer.js';
 import {createDefaultCompiler} from './defaultCompiler.js';
+import {BuildConfig} from '../project/buildConfig.js';
 
-export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise<void> => {
+export const compileSourceDirectory = async (
+	buildConfigs: BuildConfig[],
+	dev: boolean,
+	log: Logger,
+): Promise<void> => {
 	log.info('compiling...');
 
 	const totalTiming = createStopwatch();
@@ -31,6 +36,7 @@ export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise
 	const filer = new Filer({
 		compiler: createDefaultCompiler({dev, log}, {dev, log}),
 		compiledDirs: [{sourceDir: paths.source, outDir: paths.build}],
+		buildConfigs,
 		watch: false,
 		include,
 	});
