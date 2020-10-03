@@ -1,4 +1,4 @@
-import {getPackageJson} from './packageJson.js';
+import {loadPackageJson} from './packageJson.js';
 
 // See `./buildConfig.md` for documentation.
 
@@ -12,7 +12,7 @@ export type PlatformTarget = 'node' | 'browser';
 const defaultBuildConfig: BuildConfig[] = [{name: 'browser', platform: 'browser'}];
 
 export const loadBuildConfigs = async (): Promise<BuildConfig[]> => {
-	const pkg = (await getPackageJson()) as any;
+	const pkg = (await loadPackageJson()) as any;
 	const buildConfigs: unknown = pkg.gro?.builds;
 	if (buildConfigs) {
 		return validateBuildConfigs(buildConfigs);

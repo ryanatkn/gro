@@ -21,7 +21,7 @@ import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {PathData} from '../fs/pathData.js';
-import {getGroPackageJson} from '../project/packageJson.js';
+import {loadGroPackageJson} from '../project/packageJson.js';
 import {loadBuildConfigs} from '../project/buildConfig.js';
 
 /*
@@ -49,7 +49,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {
-		const groPackageJson = await getGroPackageJson();
+		const groPackageJson = await loadGroPackageJson();
 		log.info(`${gray('v')}${cyan(groPackageJson.version as string)}`);
 		return;
 	}
