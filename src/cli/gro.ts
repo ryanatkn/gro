@@ -56,15 +56,15 @@ const main = (): Promise<void> => {
 		return import(join(realpathSync(groBinPath), '../invoke.js'));
 	} else {
 		// case 2
-		// If running Gro inside its own repo, require the local build.
+		// If running Gro inside its own repo, require the local development build.
 		// If the local build is not available,
 		// the global version can be used to build the project.
 		const filePath = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
-		console.log(`existsSync('.gro/prod/node/cli/gro.js')`, existsSync('.gro/prod/node/cli/gro.js'));
-		// TODO should we join the filePath or just import the path? ./.gro....
-		if (existsSync('.gro/prod/node/cli/gro.js') && existsSync('.gro/prod/node/cli/invoke.js')) {
-			return import(join(filePath, '../../../.gro/prod/node/cli/invoke.js'));
+		// TODO do we want to detect and import the dist instead? or development build for convenience?
+		// I think this currently doesn't allow us to test the production builds.
+		if (existsSync('.gro/dev/node/cli/gro.js') && existsSync('.gro/dev/node/cli/invoke.js')) {
+			return import(join(filePath, '../../../.gro/dev/node/cli/invoke.js'));
 		}
 		// case 3
 		// Fall back to the version associated with the running CLI.

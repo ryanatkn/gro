@@ -51,20 +51,14 @@ export const createPaths = (root: string): Paths => {
 };
 
 export const paths = createPaths(process.cwd() + sep);
-console.log('paths', paths);
 export let groImportDir = join(fileURLToPath(import.meta.url), '../');
-console.log('import.meta.url', import.meta.url);
 export const groDir = join(
 	groImportDir,
-	// 	// TODO this is a terrible hack
-	join(groImportDir, '../').endsWith(BUILD_DIR) ? '../../' : '../',
+	// TODO this is a pretty gnarly hack
+	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
 );
-console.log('groImportDir', groImportDir);
-console.log('groDir', groDir);
 export const groDirBasename = basename(groDir) + sep;
-console.log('groDirBasename', groDirBasename);
 export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
-console.log('groPaths', groPaths);
 
 export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : paths);
 export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
@@ -102,6 +96,14 @@ export const toDistPath = (id: string, p = paths): string =>
 		: isBuildId(id, p)
 		? join(DIST_DIR, toBasePath(id, p))
 		: toCompiledExtension(join(DIST_DIR, toBasePath(id, p)));
+
+export const toBuildsDir = (dev: boolean, p = paths): string => `${p.build}${dev ? 'dev' : 'prod'}`;
+export const toBuildDir = (
+	dev: boolean,
+	buildConfigName: string,
+	dirBasePath: string,
+	p = paths,
+): string => `${toBuildsDir(dev, p)}/${buildConfigName}/${dirBasePath}`;
 
 // '/home/me/app/.gro/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
 export const toSourceId = (id: string, p = paths): string =>
@@ -182,7 +184,6 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 // When importing Gro paths, this correctly chooses the build or dist dir.
 export const toImportId = (id: string): string => {
 	const p = pathsFromId(id);
-	console.log('p, p === groPaths', p, groPaths, p === groPaths);
 	return p === groPaths
 		? toCompiledExtension(join(groImportDir, toBasePath(id, p)))
 		: toBuildId(id, p);

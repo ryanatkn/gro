@@ -21,7 +21,7 @@ export const printValue = (value: unknown): unknown => {
 	}
 };
 
-export const printPath = (path: string, p = paths): string => gray(toRootPath(path, p) || './');
+export const printPath = (path: string, p = paths): string => gray(`./${toRootPath(path, p)}`);
 
 export const printPathOrGroPath = (path: string, fromPaths = paths): string => {
 	const inferredPaths = pathsFromId(path);

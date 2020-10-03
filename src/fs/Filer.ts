@@ -20,8 +20,8 @@ import type {
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
-import {stripStart} from '../utils/string.js';
 import {BuildConfig} from '../project/buildConfig.js';
+import {stripStart} from '../utils/string.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -39,26 +39,23 @@ export interface BinarySourceFile extends BaseSourceFile {
 }
 interface BaseSourceFile extends BaseFile {
 	readonly type: 'source';
+	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFile`? what about `basePath` too?
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
 	readonly watchedDir: CompilableWatchedDir;
 	readonly compiledFiles: CompiledFile[];
-	readonly outDir: string;
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
 	readonly watchedDir: CompilableWatchedDir;
 	readonly compiledFiles: CompiledFile[];
-	readonly outDir: string;
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
 	readonly watchedDir: NonCompilableWatchedDir;
 	readonly compiledFiles: null;
-	readonly outDir: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 	readonly watchedDir: NonCompilableWatchedDir;
 	readonly compiledFiles: null;
-	readonly outDir: null;
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
@@ -100,6 +97,11 @@ export interface CompiledDir {
 	readonly outDir: string;
 }
 
+// For now, the Filer only handles development builds.
+// Long term, it probably makes sense to integrate it with production builds as well.
+// This flag is currently hardcoded and used to highlight related code.
+const dev = true;
+
 export interface Options {
 	compiler: Compiler | null;
 	buildConfigs: BuildConfig[] | null;
@@ -137,7 +139,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		sourceMap: true,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
-		cleanOutputDirs: true,
+		cleanOutputDirs: false, // TODO true,
 		...omitUndefined(opts),
 		include: opts.include || (() => true),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
@@ -215,7 +217,13 @@ export class Filer {
 
 		const {buildConfigs} = this;
 		if (this.cleanOutputDirs && buildConfigs !== null) {
-			// Clean the output directories, removing any files that can't be mapped back to source files.
+			// Clean the dev output directories,
+			// removing any files that can't be mapped back to source files.
+			// For now, this does not handle production output.
+			// See the comments where `dev` is declared for more.
+			// const outputDirs: string[] = this.dirs.flatMap((d) =>
+			// 	buildConfigs.map((buildConfig) => toBuildDir(dev, buildConfig.name, '')),
+			// ); // outDir is already there but doesn't mean the full path
 			const outputDirs: string[] = this.dirs
 				.map((d) => d.outDir!)
 				.filter(Boolean)
@@ -267,6 +275,7 @@ export class Filer {
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
+					// TODO need to delete all directories for the builds
 					if (watchedDir.outDir !== null) {
 						// Although we don't pre-emptively create build directories above, we do delete them.
 						await remove(join(watchedDir.outDir, change.path));
@@ -408,17 +417,21 @@ export class Filer {
 	private async compileSourceIdForBuildConfig(id: string, buildConfig: BuildConfig): Promise<void> {
 		const sourceFile = this.files.get(id);
 		if (!sourceFile) {
-			throw Error(`Cannot find source file ${id}`);
+			throw Error(`Cannot find source file: ${id}`);
 		}
 		if (sourceFile.type !== 'source') {
 			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
 		}
-		if (sourceFile.outDir === null) {
-			throw Error(`Cannot compile file with a null outDir`);
+		if (sourceFile.compiledFiles === null) {
+			throw Error(`Cannot compile a non-compilable source file: ${id}`);
 		}
 
 		// Compile the source file.
-		const result = await this.compiler!.compile(sourceFile, buildConfig);
+		// TODO support production builds
+		// The Filer is designed to be able to be a long-lived process
+		// that can output builds for both development and production,
+		// but for now it's hardcoded to development, and production is entirely done by Rollup.
+		const result = await this.compiler!.compile(sourceFile, buildConfig, dev);
 
 		// Update the cache and write to disk.
 		const newCompiledFiles = result.compilations.map(
@@ -437,7 +450,7 @@ export class Filer {
 							sourceMapOf: compilation.sourceMapOf,
 							compilation,
 							stats: undefined,
-							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
+							mimeType: undefined,
 							buffer: undefined,
 						};
 					case null:
@@ -452,7 +465,7 @@ export class Filer {
 							contents: postprocess(compilation),
 							compilation,
 							stats: undefined,
-							mimeType: undefined, // TODO copy from old file? it's cheap enough to not be necessary, but what about other properties?
+							mimeType: undefined,
 							buffer: compilation.contents,
 						};
 					default:
@@ -463,6 +476,7 @@ export class Filer {
 		const newSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
 		this.files.set(id, newSourceFile);
 		const oldCompiledFiles = sourceFile.compiledFiles;
+		// TODO need to sync all files for the builds
 		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
 		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
 	}
@@ -667,6 +681,7 @@ const createSourceFile = (
 ): SourceFile => {
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+	const dirBasePath = stripStart(dir, watchedDir.dir + '/');
 	switch (encoding) {
 		case 'utf8':
 			return watchedDir.outDir === null
@@ -675,12 +690,12 @@ const createSourceFile = (
 						id,
 						filename,
 						dir,
+						dirBasePath,
 						extension,
 						encoding,
 						contents: newSourceContents as string,
 						watchedDir,
 						compiledFiles: null,
-						outDir: null,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: undefined,
@@ -690,12 +705,12 @@ const createSourceFile = (
 						id,
 						filename,
 						dir,
+						dirBasePath,
 						extension,
 						encoding,
 						contents: newSourceContents as string,
 						watchedDir,
 						compiledFiles: [],
-						outDir: watchedDir.computeFileOutDir(dir),
 						stats: undefined,
 						mimeType: undefined,
 						buffer: undefined,
@@ -707,12 +722,12 @@ const createSourceFile = (
 						id,
 						filename,
 						dir,
+						dirBasePath,
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
 						watchedDir,
 						compiledFiles: null,
-						outDir: null,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: newSourceContents as Buffer,
@@ -722,12 +737,12 @@ const createSourceFile = (
 						id,
 						filename,
 						dir,
+						dirBasePath,
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
 						watchedDir,
 						compiledFiles: [],
-						outDir: watchedDir.computeFileOutDir(dir),
 						stats: undefined,
 						mimeType: undefined,
 						buffer: newSourceContents as Buffer,
@@ -779,7 +794,6 @@ type WatchedDir = CompilableWatchedDir | NonCompilableWatchedDir;
 type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
 interface CompilableWatchedDir extends BaseWatchedDir {
 	readonly outDir: string;
-	readonly computeFileOutDir: (dir: string) => string;
 }
 interface NonCompilableWatchedDir extends BaseWatchedDir {
 	readonly outDir: null;
@@ -833,9 +847,6 @@ const createWatchedDir = (
 					watcher,
 					destroy,
 					init,
-					computeFileOutDir: (fileDir: string): string => {
-						return join(outDir, stripStart(fileDir, dir));
-					},
 			  };
 	return watchedDir;
 };

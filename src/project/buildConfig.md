@@ -1,18 +1,20 @@
 # build config
 
 Gro's build config is part of a system for compiling a source project
-to one or more output projects.
+to one or more output artifacts.
 It's designed for a variety of use cases:
 
-- support dev and prod builds to separate directories
-- support multiple output targets like legacy and modern Node and ES versions
-- support multiple platform targets like Node and browsers
+- support dev and prod builds that coexist on the filesystem
+- support multiple compilation targets like legacy/modern ES versions and mobile/desktop frontends
+- support multiple platform targets like Node and browsers, including server-side rendering
 - support multiple packages created from one codebase to be published separately
 
 To accomplish this, Gro has the `BuildConfig` type
 which defines some JSON metadata for each build.
 See [`./buildConfig.ts`](./buildConfig.ts) for the implementation.
+A project can add this data to its `package.json` under a `"gro"` field.
 
+Why put this in `package.json` and not a more powerful `gro.config.ts` file?
 A Gro project's build configs must be statically knowable before compilation,
 because there's a chicken and egg problem -
 if a config is defined in TypeScript,
@@ -56,7 +58,7 @@ Here's the fallback default for projects that do not define anything:
 ```
 
 Here's an example for a project that creates both server and client builds
-with a legacy client fallback:
+with a second client optimized for mobile browsers:
 
 ```jsonc
 {
@@ -68,11 +70,11 @@ with a legacy client fallback:
 				"platform": "node"
 			},
 			{
-				"name": "browser",
+				"name": "browser_desktop",
 				"platform": "browser"
 			},
 			{
-				"name": "browser_legacy",
+				"name": "browser_mobile",
 				"platform": "browser"
 			}
 		]

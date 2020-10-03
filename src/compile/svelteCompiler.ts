@@ -12,17 +12,23 @@ import {
 	handleWarn,
 	SvelteCompilation,
 } from './svelteHelpers.js';
-import {Logger} from '../utils/log.js';
-import {CSS_EXTENSION, JS_EXTENSION, SOURCE_MAP_EXTENSION, SVELTE_EXTENSION} from '../paths.js';
+import {Logger, SystemLogger} from '../utils/log.js';
+import {
+	CSS_EXTENSION,
+	JS_EXTENSION,
+	SOURCE_MAP_EXTENSION,
+	SVELTE_EXTENSION,
+	toBuildDir,
+} from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {BuildConfig} from '../project/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
+import {cyan} from '../colors/terminal.js';
 
 export interface Options {
-	dev: boolean;
 	log: Logger;
 	sourceMap: boolean;
 	tsconfig: TsConfig;
@@ -32,12 +38,12 @@ export interface Options {
 	onwarn: typeof handleWarn;
 	onstats: typeof handleStats | null;
 }
-export type RequiredOptions = 'dev' | 'log';
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const tsconfig = opts.tsconfig || loadTsconfig(opts.log);
+	const log = opts.log || new SystemLogger([cyan('[svelteCompiler]')]);
+	const tsconfig = opts.tsconfig || loadTsconfig(log);
 	const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
-	const sourceMap = opts.sourceMap ?? tsconfig.compilerOptions?.sourceMap ?? opts.dev;
+	const sourceMap = opts.sourceMap ?? tsconfig.compilerOptions?.sourceMap ?? true;
 	const swcOptions = opts.swcOptions || getDefaultSwcOptions(target, sourceMap);
 	const svelteCompileOptions: CompileOptions = opts.svelteCompileOptions || {};
 	const sveltePreprocessor: PreprocessorGroup | PreprocessorGroup[] | null =
@@ -46,6 +52,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		onwarn: handleWarn,
 		onstats: null,
 		...omitUndefined(opts),
+		log,
 		tsconfig,
 		swcOptions,
 		sourceMap,
@@ -56,20 +63,15 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 type SvelteCompiler = Compiler<TextCompilation>;
 
-export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
-	const {
-		log,
-		dev,
-		sourceMap,
-		svelteCompileOptions,
-		sveltePreprocessor,
-		onwarn,
-		onstats,
-	} = initOptions(opts);
+export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler => {
+	const {log, sourceMap, svelteCompileOptions, sveltePreprocessor, onwarn, onstats} = initOptions(
+		opts,
+	);
 
 	const compile: SvelteCompiler['compile'] = async (
 		source: TextCompilationSource,
 		buildConfig: BuildConfig,
+		dev: boolean,
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
@@ -78,7 +80,7 @@ export const createSvelteCompiler = (opts: InitialOptions): SvelteCompiler => {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = join(source.outDir, buildConfig.name);
+		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath);
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps

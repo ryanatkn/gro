@@ -10,28 +10,16 @@ import {
 	createSvelteCompiler,
 	InitialOptions as SvelteCompilerInitialOptions,
 } from './svelteCompiler.js';
-import {cyan} from '../colors/terminal.js';
-import {SystemLogger} from '../utils/log.js';
 
 export const createDefaultCompiler = (
 	swcCompilerOptions?: SwcCompilerInitialOptions,
 	svelteCompilerOptions?: SvelteCompilerInitialOptions,
-	compilerOptions: CompilerInitialOptions = {},
+	compilerOptions?: CompilerInitialOptions,
 ): Compiler => {
-	let log: SystemLogger | undefined;
-	const getLogger = () => log || (log = new SystemLogger([cyan('[compiler]')]));
-
-	if (!swcCompilerOptions) {
-		swcCompilerOptions = {dev: true, log: getLogger()};
-	}
 	const swcCompiler = createSwcCompiler(swcCompilerOptions);
-
-	if (!svelteCompilerOptions) {
-		svelteCompilerOptions = {dev: true, log: getLogger()};
-	}
 	const svelteCompiler = createSvelteCompiler(svelteCompilerOptions);
 
-	if (!compilerOptions.getCompiler) {
+	if (!compilerOptions?.getCompiler) {
 		compilerOptions = {
 			...compilerOptions,
 			getCompiler: (source: CompilationSource) => {
