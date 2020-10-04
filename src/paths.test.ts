@@ -9,8 +9,6 @@ import {
 	toRootPath,
 	toBasePath,
 	basePathToSourceId,
-	basePathToBuildId,
-	basePathToDistId,
 	toSourcePath,
 	toBuildPath,
 	toDistPath,
@@ -181,18 +179,6 @@ test('basePathToSourceId()', () => {
 	t.is(basePathToSourceId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 	test('does not change extension', () => {
 		t.is(basePathToSourceId('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
-	});
-});
-test('basePathToBuildId()', () => {
-	t.is(basePathToBuildId('foo/bar/baz.js'), resolve('.gro/foo/bar/baz.js'));
-	test('does not change extension', () => {
-		t.is(basePathToBuildId('foo/bar/baz.ts'), resolve('.gro/foo/bar/baz.ts'));
-	});
-});
-test('basePathToDistId()', () => {
-	t.is(basePathToDistId('foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
-	test('does not change extension', () => {
-		t.is(basePathToDistId('foo/bar/baz.ts'), resolve('dist/foo/bar/baz.ts'));
 	});
 });
 

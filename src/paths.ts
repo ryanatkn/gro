@@ -124,12 +124,6 @@ export const toDistId = (id: string, p = paths): string =>
 // 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
 
-// 'foo/bar/baz.js' -> '/home/me/app/.gro/foo/bar/baz.js'
-export const basePathToBuildId = (basePath: string, p = paths): string => join(p.build, basePath);
-
-// 'foo/bar/baz.js' -> '/home/me/app/dist/foo/bar/baz.js'
-export const basePathToDistId = (basePath: string, p = paths): string => join(p.dist, basePath);
-
 export const stripRelativePath = (path: string): string => stripStart(path, RELATIVE_DIR_START);
 
 export const JS_EXTENSION = '.js';
