@@ -114,3 +114,12 @@ If one build is found, its contents are put directly into `dist/` with no direct
 Like all builtin tasks, you can easily customize this behavior
 by creating `src/dist.task.ts` in your project and optionally
 [invoking the original task](../task#run-a-task-inside-another-task).
+
+## todo
+
+- As designed, the build system does not take into account for the fact
+  that Gro projects often have tasks that are designed to run in Node,
+  mixed in with whatever source code is in `src/`.
+  So far this hasn't been an issue - frontend code avoids importing these modules
+  and the build system, despite targeting the browser, doesn't break the Node modules,
+  but we'd like to figure out an ergonomic design that addresses this complexity.
