@@ -124,3 +124,4 @@ by creating `src/dist.task.ts` in your project and optionally
   So far this hasn't been an issue - frontend code avoids importing these modules
   and the build system, despite targeting the browser, doesn't break the Node modules,
   but we'd like to figure out an ergonomic design that addresses this complexity.
+- Use JSONSchema validation for the config to give users good error messages.
