@@ -1,4 +1,4 @@
-import {toBasePath, paths, pathsFromId} from '../paths.js';
+import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
 import {ModuleMeta, LoadModuleResult, loadModule, loadModules, findModules} from '../fs/modules.js';
 import {Task, toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
 import {findFiles} from '../fs/nodeFs.js';
@@ -20,7 +20,7 @@ export const loadTaskModule = async (id: string): Promise<LoadModuleResult<TaskM
 	if (!result.ok) return result;
 	return {
 		...result,
-		mod: {...result.mod, name: toTaskName(toBasePath(id, pathsFromId(id)))},
+		mod: {...result.mod, name: toTaskName(sourceIdToBasePath(id, pathsFromId(id)))},
 	};
 };
 

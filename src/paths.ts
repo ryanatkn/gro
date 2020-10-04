@@ -63,10 +63,12 @@ export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.so
 // '/home/me/app/src/foo/bar/baz.ts' -> 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
 
-// '/home/me/app/.gro/foo/bar/baz.js' -> 'foo/bar/baz.js'
 // '/home/me/app/src/foo/bar/baz.ts' -> 'foo/bar/baz.ts'
-export const toBasePath = (id: string, p = paths): string =>
-	stripStart(stripStart(stripStart(id, p.build), p.source), p.dist);
+export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
+	stripStart(sourceId, p.source);
+
+// 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
+export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
 
 export const toBuildsDir = (dev: boolean, buildDir = paths.build): string =>
 	`${ensureTrailingSlash(buildDir)}${dev ? 'dev' : 'prod'}`;
@@ -80,9 +82,6 @@ export const toBuildDir = (
 	dirBasePath = '',
 	buildDir = paths.build,
 ): string => `${toBuildsDir(dev, buildDir)}/${buildConfigName}/${dirBasePath}`;
-
-// 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
-export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';

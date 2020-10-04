@@ -10,7 +10,7 @@ import {TASK_FILE_SUFFIX, isTaskPath, toTaskName, TaskError} from './task.js';
 import {
 	paths,
 	groPaths,
-	toBasePath,
+	sourceIdToBasePath,
 	replaceRootDir,
 	pathsFromId,
 	isGroId,
@@ -212,7 +212,7 @@ const logAvailableTasks = (
 	if (sourceIds.length) {
 		log.info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
 		for (const sourceId of sourceIds) {
-			log.info('\t' + cyan(toTaskName(toBasePath(sourceId, pathsFromId(sourceId)))));
+			log.info('\t' + cyan(toTaskName(sourceIdToBasePath(sourceId, pathsFromId(sourceId)))));
 		}
 	} else {
 		log.info(`No tasks found in ${dirLabel}.`);

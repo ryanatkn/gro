@@ -7,7 +7,7 @@ import {
 	groPaths,
 	isGroId,
 	toRootPath,
-	toBasePath,
+	sourceIdToBasePath,
 	basePathToSourceId,
 	hasSourceExtension,
 	toPathParts,
@@ -35,15 +35,9 @@ test('toRootPath()', () => {
 	t.is(toRootPath(resolve('foo/bar')), 'foo/bar');
 });
 
-test('toBasePath()', () => {
+test('sourceIdToBasePath()', () => {
 	test('sourceId', () => {
-		t.is(toBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
-	});
-	test('buildId', () => {
-		t.is(toBasePath(resolve('.gro/foo/bar/baz.js')), 'foo/bar/baz.js');
-	});
-	test('distId', () => {
-		t.is(toBasePath(resolve('dist/foo/bar/baz.js')), 'foo/bar/baz.js');
+		t.is(sourceIdToBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
 	});
 });
 
