@@ -1,5 +1,3 @@
-import {join} from 'path';
-
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../project/buildConfig.js';
@@ -90,7 +88,7 @@ const createNoopCompiler = (): Compiler => {
 	) => {
 		const {filename, extension} = source;
 		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
-		const id = join(outDir, filename);
+		const id = `${outDir}${filename}`;
 		let file: Compilation;
 		switch (source.encoding) {
 			case 'utf8':

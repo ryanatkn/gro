@@ -2,7 +2,6 @@ import swc from '@swc/core';
 import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions} from 'svelte/types/compiler/interfaces';
-import {join} from 'path';
 
 import {loadTsconfig, TsConfig} from './tsHelpers.js';
 import {toSwcCompilerTarget, getDefaultSwcOptions} from './swcHelpers.js';
@@ -111,7 +110,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
 		const cssFilename = replaceExtension(jsFilename, CSS_EXTENSION);
-		const jsId = join(outDir, jsFilename);
+		const jsId = `${outDir}${jsFilename}`;
 		const cssId = replaceExtension(jsId, CSS_EXTENSION);
 
 		const compilations: TextCompilation[] = [

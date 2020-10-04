@@ -1,13 +1,8 @@
 import swc from '@swc/core';
-import {join} from 'path';
+import {relative} from 'path';
 
 import {loadTsconfig, TsConfig} from './tsHelpers.js';
-import {
-	toSwcCompilerTarget,
-	mergeSwcOptions,
-	getDefaultSwcOptions,
-	addSourceMapFooter,
-} from './swcHelpers.js';
+import {toSwcCompilerTarget, getDefaultSwcOptions, addSourceMapFooter} from './swcHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildDir, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
@@ -56,10 +51,10 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		}
 		const {id, encoding, contents} = source;
 		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
-		const finalSwcOptions = mergeSwcOptions(swcOptions, id); // TODO take a look at this id translation
+		const finalSwcOptions = {...swcOptions, filename: relative(outDir, id)};
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
-		const jsId = join(outDir, jsFilename);
+		const jsId = `${outDir}${jsFilename}`;
 		const sourceMapBuildId = jsId + SOURCE_MAP_EXTENSION;
 		const compilations: TextCompilation[] = [
 			{
