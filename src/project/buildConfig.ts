@@ -1,6 +1,6 @@
 import {loadPackageJson} from './packageJson.js';
 
-// See `./buildConfig.md` for documentation.
+// See `../docs/buildConfig.md` for documentation.
 
 export interface BuildConfig {
 	readonly name: string;

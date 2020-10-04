@@ -11,7 +11,7 @@ It's designed for a variety of use cases:
 
 To accomplish this, Gro has the `BuildConfig` type
 which defines some JSON metadata for each build.
-See [`./buildConfig.ts`](./buildConfig.ts) for the implementation.
+See [`../project/buildConfig.ts`](../project/buildConfig.ts) for the implementation.
 A project can add this data to its `package.json` under a `"gro"` field.
 
 Why put this in `package.json` and not a more powerful `gro.config.ts` file?
@@ -95,7 +95,7 @@ with a second client optimized for mobile browsers:
 
 ## additional options
 
-The build config has some options. Here's the [`BuildConfig`](./buildConfig.ts) type:
+The build config has some options. Here's the [`BuildConfig`](../project/buildConfig.ts) type:
 
 ```ts
 export interface BuildConfig {

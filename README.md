@@ -20,6 +20,7 @@
   - [options](src/docs/options.md)
   - [publish](src/docs/publish.md)
   - [tasks](src/docs/tasks.md)
+  - [build config](src/docs/buildConfig.md)
 
 ## about
 
