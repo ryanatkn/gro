@@ -82,22 +82,6 @@ export const toSourcePath = (id: string, p = paths): string =>
 		? stripStart(id, p.root)
 		: toSourceExtension(join(SOURCE_DIR, toBasePath(id, p)));
 
-// '/home/me/app/src/foo/bar/baz.ts' -> '.gro/foo/bar/baz.js'
-export const toBuildPath = (id: string, p = paths): string =>
-	isBuildId(id, p)
-		? stripStart(id, p.root)
-		: isDistId(id, p)
-		? join(BUILD_DIR, toBasePath(id, p))
-		: toCompiledExtension(join(BUILD_DIR, toBasePath(id, p)));
-
-// '/home/me/app/src/foo/bar/baz.ts' -> 'dist/foo/bar/baz.js'
-export const toDistPath = (id: string, p = paths): string =>
-	isDistId(id, p)
-		? stripStart(id, p.root)
-		: isBuildId(id, p)
-		? join(DIST_DIR, toBasePath(id, p))
-		: toCompiledExtension(join(DIST_DIR, toBasePath(id, p)));
-
 export const toBuildsDir = (dev: boolean, buildDir = paths.build): string =>
 	`${ensureTrailingSlash(buildDir)}${dev ? 'dev' : 'prod'}`;
 export const toBuildDir = (
@@ -113,10 +97,6 @@ const ensureTrailingSlash = (s: string): string => (s[s.length - 1] === '/' ? s 
 // '/home/me/app/.gro/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
 export const toSourceId = (id: string, p = paths): string =>
 	isSourceId(id, p) ? id : join(p.root, toSourcePath(id, p));
-
-// '/home/me/app/src/foo/bar/baz.ts' -> '/home/me/app/dist/foo/bar/baz.js'
-export const toDistId = (id: string, p = paths): string =>
-	isDistId(id, p) ? id : join(p.root, toDistPath(id, p));
 
 // 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);

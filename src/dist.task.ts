@@ -11,7 +11,7 @@ export const isDistFile = (path: string): boolean =>
 
 export const task: Task = {
 	description: 'create the distribution',
-	run: async ({log, invokeTask}) => {
+	run: async ({log}) => {
 		await cleanDist(log);
 
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
@@ -30,7 +30,5 @@ export const task: Task = {
 				return copy(buildDir, destDir, {filter: (id) => isDistFile(id)});
 			}),
 		);
-
-		await invokeTask('assets');
 	},
 };

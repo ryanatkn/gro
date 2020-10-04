@@ -6,7 +6,6 @@ What is a task? See [`src/tasks/README.md`](../task).
 
 ## all tasks
 
-- [assets](../assets.task.ts) - copy assets to dist
 - [build](../build.task.ts) - build the project
 - [check](../check.task.ts) - check that everything is ready to commit
 - [clean](../clean.task.ts) - remove build and temp files
