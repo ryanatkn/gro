@@ -22,7 +22,9 @@ we need to compile it to execute and read it,
 but to compile it we need the config - so we're stuck.
 This can be solved in other ways,
 like compiling to a temporary directory or using something like `ts-node`,
-but these solutions introduce overhead and complexity we'd rather avoid.
+but these solutions introduce overhead and complexity we'd rather avoid right now.
+This is subject to change, though -
+it seems likely we'll want to define the entire Gro config in a runnable `gro.config.ts`.
 
 So for now, Gro reads a single field from a project's `package.json`.
 Here's what a Node project may look like:
