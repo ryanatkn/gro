@@ -41,9 +41,13 @@ Here's what a Node project may look like:
 }
 ```
 
-The `"name"` field can be anything and maps to the build's directory name.
 The `"platform"` can currently be `"node"` or `"browser"` and
 is used by compilers for TypeScript and Svelte.
+When compiling for Node, the Svelte compiler outputs SSR components instead of the normal DOM ones.
+
+The `"name"` field can be anything and maps to the build's directory name.
+By defining `"name": "node",`, running `gro compile` or `gro build` creates builds
+in `.gro/dev/node/` and `.gro/prod/node/`, respectively.
 
 Here's what a frontend-only project may look like.
 It's also the fallback default for projects that do not define anything:
