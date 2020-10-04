@@ -13,7 +13,6 @@ import {
 	toBuildPath,
 	toDistPath,
 	toSourceId,
-	toBuildId,
 	hasSourceExtension,
 	toSourceExtension,
 	toCompiledExtension,
@@ -143,35 +142,6 @@ test('toSourceId()', () => {
 	test('directory buildId', () => {
 		t.is(toSourceId(resolve('.gro/foo/bar')), resolve('src/foo/bar'));
 		t.is(toSourceId(resolve('.gro/foo/bar') + '/'), resolve('src/foo/bar') + '/');
-	});
-});
-
-test('toBuildId()', () => {
-	test('sourceId', () => {
-		t.is(toBuildId(resolve('src/foo/bar/baz.ts')), resolve('.gro/foo/bar/baz.js'));
-	});
-	test('sourceId with js extension', () => {
-		t.is(toBuildId(resolve('src/foo/bar/baz.js')), resolve('.gro/foo/bar/baz.js'));
-	});
-	test('buildId', () => {
-		t.is(toBuildId(resolve('.gro/foo/bar/baz.js')), resolve('.gro/foo/bar/baz.js'));
-	});
-	test('buildId with ts extension', () => {
-		t.is(toBuildId(resolve('.gro/foo/bar/baz.ts')), resolve('.gro/foo/bar/baz.ts'));
-	});
-	test('distId', () => {
-		t.is(toBuildId(resolve('.gro/foo/bar/baz.js')), resolve('.gro/foo/bar/baz.js'));
-	});
-	test('distId with ts extension', () => {
-		t.is(toBuildId(resolve('.gro/foo/bar/baz.ts')), resolve('.gro/foo/bar/baz.ts'));
-	});
-	test('directory sourceId', () => {
-		t.is(toBuildId(resolve('src/foo/bar')), resolve('.gro/foo/bar/'));
-		t.is(toBuildId(resolve('src/foo/bar') + '/'), resolve('.gro/foo/bar') + '/');
-	});
-	test('directory buildId', () => {
-		t.is(toBuildId(resolve('.gro/foo/bar')), resolve('.gro/foo/bar'));
-		t.is(toBuildId(resolve('.gro/foo/bar') + '/'), resolve('.gro/foo/bar') + '/');
 	});
 });
 

@@ -114,10 +114,6 @@ const ensureTrailingSlash = (s: string): string => (s[s.length - 1] === '/' ? s 
 export const toSourceId = (id: string, p = paths): string =>
 	isSourceId(id, p) ? id : join(p.root, toSourcePath(id, p));
 
-// '/home/me/app/src/foo/bar/baz.ts' -> '/home/me/app/.gro/foo/bar/baz.js'
-export const toBuildId = (id: string, p = paths): string =>
-	isBuildId(id, p) ? id : join(p.root, toBuildPath(id, p));
-
 // '/home/me/app/src/foo/bar/baz.ts' -> '/home/me/app/dist/foo/bar/baz.js'
 export const toDistId = (id: string, p = paths): string =>
 	isDistId(id, p) ? id : join(p.root, toDistPath(id, p));
