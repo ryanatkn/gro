@@ -100,9 +100,6 @@ export const hasSourceExtension = (path: string): boolean =>
 	path.endsWith(SVELTE_EXTENSION) ||
 	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_DEFS_EXTENSION));
 
-export const toSourceExtension = (path: string): string =>
-	path.endsWith(JS_EXTENSION) ? replaceExtension(path, TS_EXTENSION) : path; // TODO? how does this work with `.svelte`? do we need more metadata?
-
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
 export const toPathSegments = (path: string): string[] =>

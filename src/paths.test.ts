@@ -10,7 +10,6 @@ import {
 	toBasePath,
 	basePathToSourceId,
 	hasSourceExtension,
-	toSourceExtension,
 	toPathParts,
 	toPathSegments,
 	toImportId,
@@ -62,10 +61,6 @@ test('hasSourceExtension()', () => {
 	test('svelte', () => {
 		t.ok(hasSourceExtension('foo/bar/baz.svelte'));
 	});
-});
-
-test('toSourceExtension()', () => {
-	t.is(toSourceExtension('foo/bar/baz.js'), 'foo/bar/baz.ts');
 });
 
 test('toPathSegments()', () => {

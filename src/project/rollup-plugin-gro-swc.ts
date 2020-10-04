@@ -7,8 +7,9 @@ import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
-import {toRootPath, isSourceId, toSourceExtension} from '../paths.js';
+import {toRootPath, isSourceId, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
+import {replaceExtension} from '../utils/path.js';
 
 // TODO improve along with Svelte compile stats
 interface Stats {
@@ -17,6 +18,8 @@ interface Stats {
 		transpile?: {total: number};
 	};
 }
+
+const MATCH_JS_IMPORT = /^\.?\.\/.*\.js$/;
 
 export interface Options {
 	swcOptions: swc.Options;
@@ -48,12 +51,10 @@ export const groSwcPlugin = (opts: InitialOptions): Plugin => {
 			// TypeScript doesn't allow importing `.ts` files right now.
 			// See https://github.com/microsoft/TypeScript/issues/38149
 			// This ensures that `.js` files are imported correctly from TypeScript.
-			// Note that detection of the relative `importee` does not strictly follow conventions
-			// by allowing dot-free relative paths - this is an acceptable limitation for now.
-			if (importer && importee.endsWith('.js') && importee.startsWith('.')) {
+			if (importer && MATCH_JS_IMPORT.test(importee)) {
 				const resolvedPath = resolve(importer, '../', importee);
 				if (isSourceId(resolvedPath)) {
-					return toSourceExtension(resolvedPath);
+					return replaceExtension(resolvedPath, TS_EXTENSION);
 				}
 			}
 			return null;
