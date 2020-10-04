@@ -13,10 +13,10 @@ export interface BuildConfig {
 export type PlatformTarget = 'node' | 'browser';
 
 export const loadBuildConfigsAt = (id: string): Promise<BuildConfig[]> =>
-	isGroId(id) ? loadGroBuildConfigs() : loadBuildConfigs();
+	isThisProjectGro || isGroId(id) ? loadGroBuildConfigs() : loadBuildConfigs();
 
 export const loadPrimaryBuildConfigAt = (id: string): Promise<BuildConfig> =>
-	isGroId(id) ? loadGroPrimaryBuildConfig() : loadPrimaryBuildConfig();
+	isThisProjectGro || isGroId(id) ? loadGroPrimaryBuildConfig() : loadPrimaryBuildConfig();
 
 const defaultBuildConfig: BuildConfig[] = [{name: 'browser', platform: 'browser'}];
 
@@ -26,7 +26,7 @@ const defaultBuildConfig: BuildConfig[] = [{name: 'browser', platform: 'browser'
 // 2) the first Node config, or if still no match,
 // 3) the first config in the array.
 let cachedBuildConfigs: BuildConfig[] | null = null;
-let cachedPrimaryConfig: BuildConfig | null = null;
+let cachedPrimaryBuildConfig: BuildConfig | null = null;
 export const loadBuildConfigs = async (forceRefresh = false): Promise<BuildConfig[]> => {
 	if (isThisProjectGro) return loadGroBuildConfigs(forceRefresh); // cheaply avoid duplicate work
 	if (cachedBuildConfigs && !forceRefresh) return cachedBuildConfigs;
@@ -36,47 +36,48 @@ export const loadBuildConfigs = async (forceRefresh = false): Promise<BuildConfi
 		? validateBuildConfigs(loadedBuildConfigs)
 		: defaultBuildConfig;
 	cachedBuildConfigs = validatedBuildConfigs;
+	cachedPrimaryBuildConfig = null;
 	return validatedBuildConfigs;
 };
 export const loadPrimaryBuildConfig = async (forceRefresh = false): Promise<BuildConfig> => {
-	if (cachedPrimaryConfig && !forceRefresh) return cachedPrimaryConfig;
+	if (isThisProjectGro) return loadGroPrimaryBuildConfig(forceRefresh); // cheaply avoid duplicate work
+	if (cachedPrimaryBuildConfig && !forceRefresh) return cachedPrimaryBuildConfig;
 	const buildConfigs = await loadBuildConfigs(forceRefresh);
 	const explicitPrimaryConfig = buildConfigs.find((c) => c.primary);
 	if (explicitPrimaryConfig) {
-		return (cachedPrimaryConfig = explicitPrimaryConfig);
+		return (cachedPrimaryBuildConfig = explicitPrimaryConfig);
 	}
 	const firstNodeConfig = buildConfigs.find((c) => c.platform === 'node');
 	if (firstNodeConfig) {
-		return (cachedPrimaryConfig = firstNodeConfig);
+		return (cachedPrimaryBuildConfig = firstNodeConfig);
 	}
-	return (cachedPrimaryConfig = buildConfigs[0]);
+	return (cachedPrimaryBuildConfig = buildConfigs[0]);
 };
 
 let cachedGroBuildConfigs: BuildConfig[] | null = null;
-let cachedGroPrimaryConfig: BuildConfig | null = null;
+let cachedGroPrimaryBuildConfig: BuildConfig | null = null;
 export const loadGroBuildConfigs = async (forceRefresh = false): Promise<BuildConfig[]> => {
 	if (cachedGroBuildConfigs && !forceRefresh) return cachedGroBuildConfigs;
 	const pkg: any = await loadGroPackageJson(forceRefresh); // TODO type, generate from JSON schema
+	cachedGroPrimaryBuildConfig = null;
 	return (cachedGroBuildConfigs = pkg.gro.builds);
 };
 export const loadGroPrimaryBuildConfig = async (forceRefresh = false): Promise<BuildConfig> => {
-	if (cachedGroPrimaryConfig && !forceRefresh) return cachedGroPrimaryConfig;
+	if (cachedGroPrimaryBuildConfig && !forceRefresh) return cachedGroPrimaryBuildConfig;
 	const buildConfigs = await loadGroBuildConfigs(forceRefresh);
-	return (cachedGroPrimaryConfig = buildConfigs.find((c) => c.primary)!);
+	return (cachedGroPrimaryBuildConfig = buildConfigs.find((c) => c.primary)!);
 };
 
 // TODO replace this with JSON schema validation (or most of it at least)
-const validateBuildConfigs = (buildConfigs: unknown): BuildConfig[] => {
+export const validateBuildConfigs = (buildConfigs: unknown): BuildConfig[] => {
 	if (!Array.isArray(buildConfigs)) {
 		throw Error('The field "gro.builds" in package.json must be an array');
 	}
 	if (!buildConfigs.length) {
 		throw Error('The field "gro.builds" in package.json must have at least one entry.');
 	}
-	if (buildConfigs.filter((c) => c.primary).length > 1) {
-		throw Error(`The field "gro.builds" in package.json cannot have multiple primary items.`);
-	}
 	const names = new Set<string>();
+	let primaryCount = 0;
 	for (const buildConfig of buildConfigs) {
 		if (
 			!buildConfig ||
@@ -95,6 +96,12 @@ const validateBuildConfigs = (buildConfigs: unknown): BuildConfig[] => {
 			);
 		}
 		names.add(buildConfig.name);
+		if (buildConfig.primary) {
+			primaryCount++;
+			if (primaryCount > 1) {
+				throw Error(`The field "gro.builds" in package.json cannot have multiple primary items.`);
+			}
+		}
 	}
 	return buildConfigs;
 };
