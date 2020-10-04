@@ -3,7 +3,6 @@ import {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 
-import {mergeSwcOptions} from '../compile/swcHelpers.js';
 import {magenta, red} from '../colors/terminal.js';
 import {createStopwatch} from '../utils/time.js';
 import {SystemLogger, Logger} from '../utils/log.js';
@@ -67,9 +66,9 @@ export const groSwcPlugin = (opts: InitialOptions): Plugin => {
 			log.trace('transpile', printPath(id));
 			let output: swc.Output;
 			try {
-				// TODO keep this async, right?
-				const finalSwcOptions = mergeSwcOptions(swcOptions, id);
-				output = await swc.transform(code, finalSwcOptions);
+				// TODO do we need to add `filename` to `swcOptions` for source maps?
+				// currently not seeing a difference in the output
+				output = await swc.transform(code, swcOptions);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(id));
 				throw err;
