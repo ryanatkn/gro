@@ -9,7 +9,6 @@ import {
 	toRootPath,
 	toBasePath,
 	basePathToSourceId,
-	toSourcePath,
 	hasSourceExtension,
 	toSourceExtension,
 	toPathParts,
@@ -46,27 +45,6 @@ test('toBasePath()', () => {
 	});
 	test('distId', () => {
 		t.is(toBasePath(resolve('dist/foo/bar/baz.js')), 'foo/bar/baz.js');
-	});
-});
-
-test('toSourcePath()', () => {
-	test('sourceId', () => {
-		t.is(toSourcePath(resolve('src/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
-	});
-	test('sourceId with js extension', () => {
-		t.is(toSourcePath(resolve('src/foo/bar/baz.js')), 'src/foo/bar/baz.js');
-	});
-	test('buildId', () => {
-		t.is(toSourcePath(resolve('.gro/foo/bar/baz.js')), 'src/foo/bar/baz.ts');
-	});
-	test('buildId with ts extension', () => {
-		t.is(toSourcePath(resolve('.gro/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
-	});
-	test('distId', () => {
-		t.is(toSourcePath(resolve('dist/foo/bar/baz.js')), 'src/foo/bar/baz.ts');
-	});
-	test('distId with ts extension', () => {
-		t.is(toSourcePath(resolve('dist/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
 	});
 });
 

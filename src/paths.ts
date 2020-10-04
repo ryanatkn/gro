@@ -70,12 +70,6 @@ export const toRootPath = (id: string, p = paths): string => stripStart(id, p.ro
 export const toBasePath = (id: string, p = paths): string =>
 	stripStart(stripStart(stripStart(id, p.build), p.source), p.dist);
 
-// '/home/me/app/.gro/foo/bar/baz.js' -> 'src/foo/bar/baz.ts'
-export const toSourcePath = (id: string, p = paths): string =>
-	isSourceId(id, p)
-		? stripStart(id, p.root)
-		: toSourceExtension(join(SOURCE_DIR, toBasePath(id, p)));
-
 export const toBuildsDir = (dev: boolean, buildDir = paths.build): string =>
 	`${ensureTrailingSlash(buildDir)}${dev ? 'dev' : 'prod'}`;
 // TODO this is only needed because of how we added `/` to all directories above
