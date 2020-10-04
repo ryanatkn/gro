@@ -41,6 +41,10 @@ Here's what a Node project may look like:
 }
 ```
 
+The `"name"` field can be anything and maps to the build's directory name.
+The `"platform"` can currently be `"node"` or `"browser"` and
+is used by compilers for TypeScript and Svelte.
+
 Here's what a frontend-only project may look like.
 It's also the fallback default for projects that do not define anything:
 
