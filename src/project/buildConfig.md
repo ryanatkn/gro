@@ -115,7 +115,7 @@ Like all builtin tasks, you can easily customize this behavior
 by creating `src/dist.task.ts` in your project and optionally
 [invoking the original task](../task#run-a-task-inside-another-task).
 
-## todo
+## TODO
 
 - As designed, the build system does not take into account for the fact
   that Gro projects often have tasks that are designed to run in Node,
