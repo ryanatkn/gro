@@ -102,6 +102,7 @@ export interface BuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
 	readonly dist?: boolean;
+	readonly primary?: boolean;
 }
 ```
 
@@ -115,6 +116,12 @@ Like all builtin tasks, you can easily customize this behavior
 by creating `src/dist.task.ts` in your project and optionally
 [invoking the original task](/src/task#run-a-task-inside-another-task).
 
+The optional `primary` flag tells Gro which build should be used
+for running tasks, tests, code generation, and other Node-related development concerns.
+If no `primary` flag exists on any build, Gro infers the primary build,
+looking for the first where `platform` is `'node'`,
+and if none is found, it chooses the first build in the array.
+
 ## todo
 
 - As designed, the build system does not account for the fact
@@ -124,4 +131,5 @@ by creating `src/dist.task.ts` in your project and optionally
   So far this hasn't been an issue - frontend code avoids importing these modules
   and the build system, despite targeting the browser, doesn't break the Node modules,
   but we'd like to figure out an ergonomic design that addresses this complexity.
+  There's a similar problem with tests - currently only the primary build's tests are executed.
 - Use JSONSchema validation for the config to give users good error messages.

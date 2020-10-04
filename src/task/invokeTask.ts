@@ -15,6 +15,7 @@ import {
 	pathsFromId,
 	isGroId,
 	toImportId,
+	toBuildDir,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles, pathExists} from '../fs/nodeFs.js';
@@ -22,7 +23,7 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {PathData} from '../fs/pathData.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
-import {loadBuildConfigs} from '../project/buildConfig.js';
+import {loadBuildConfigs, loadPrimaryBuildConfig} from '../project/buildConfig.js';
 
 /*
 
@@ -227,8 +228,13 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // This is a best-effort heuristic that detects if
 // we should compile a project's TypeScript when invoking a task.
 // Properly detecting this is too expensive and would impact startup time significantly.
-// Generally speaking, the user is expected to be running `gro dev` or `gro build`.
 const shouldBuildProject = async (pathData: PathData): Promise<boolean> => {
-	const id = paths !== groPaths && isGroId(pathData.id) ? paths.build : toImportId(pathData.id);
+	let id: string;
+	if (paths !== groPaths && isGroId(pathData.id)) {
+		const primaryBuildConfig = await loadPrimaryBuildConfig();
+		id = toBuildDir(true, primaryBuildConfig.name);
+	} else {
+		id = toImportId(pathData.id);
+	}
 	return !(await pathExists(id));
 };

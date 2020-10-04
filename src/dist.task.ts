@@ -23,7 +23,7 @@ export const task: Task = {
 			: buildConfigs;
 		await Promise.all(
 			buildConfigsForDist.map((buildConfig) => {
-				const buildDir = toBuildDir(dev, buildConfig.name, '');
+				const buildDir = toBuildDir(dev, buildConfig.name);
 				const destDir =
 					buildConfigsForDist.length === 1 ? paths.dist : `${paths.dist}${buildConfig.name}`;
 				log.info(`copying ${printPath(buildDir)} to ${printPath(destDir)}`);

@@ -102,7 +102,7 @@ export const toBuildsDir = (dev: boolean, buildDir = paths.build): string =>
 export const toBuildDir = (
 	dev: boolean,
 	buildConfigName: string,
-	dirBasePath: string,
+	dirBasePath = '',
 	buildDir = paths.build,
 ): string => `${toBuildsDir(dev, buildDir)}/${buildConfigName}/${dirBasePath}`;
 // TODO this is only needed because of how we added `/` to all directories above
