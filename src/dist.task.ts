@@ -14,11 +14,8 @@ export const task: Task = {
 	run: async ({log, invokeTask}) => {
 		await cleanDist(log);
 
-		// TODO this is a hacky heuristic to determine which builds should be copied to `./dist`.
-		// What's the better way to do this? Maybe an optional flag on each build?
-		// So if `dist: true` is on multiple builds, we keep the namespacing but otherwise elide it?
-		// Should users be given more granular control in the config,
-		// or should we encourage implementing custom `dist` tasks to do this instead?
+		// This reads the `dist` flag on the build configs to help construct the final dist directory.
+		// See the docs at `./project/buildConfig.md`.
 		const dev = process.env.NODE_ENV === 'development';
 		const buildConfigs = await loadBuildConfigs();
 		const buildConfigsForDist = buildConfigs.some((c) => c.dist)
