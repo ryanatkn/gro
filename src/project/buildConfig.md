@@ -108,7 +108,8 @@ export interface BuildConfig {
 The optional `dist` flag marks builds for inclusion in the root `dist/` directory
 by [the `gro dist` task](../dist.task.ts).
 If no `dist` flag is found on any builds, all builds are included.
-If multiple builds are found, the `dist` task copies their directories into `dist/`.
+If multiple builds are found, the `dist` task copies their directories,
+which are named `"name"`, into `dist/`.
 If one build is found, its contents are put directly into `dist/` with no directory namespacing.
 Like all builtin tasks, you can easily customize this behavior
 by creating `src/dist.task.ts` in your project and optionally
