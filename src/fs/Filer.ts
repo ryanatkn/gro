@@ -286,10 +286,12 @@ export class Filer {
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					// TODO need to delete all directories for the builds
-					if (sourceDir.outDir !== null) {
-						// Although we don't pre-emptively create build directories above, we do delete them.
-						await remove(join(sourceDir.outDir, change.path));
+					if (this.buildConfigs !== null && sourceDir.compilable) {
+						await Promise.all(
+							this.buildConfigs.map((buildConfig) =>
+								remove(toBuildDir(dev, buildConfig.name, change.path, sourceDir.outDir)),
+							),
+						);
 					}
 				} else {
 					await this.destroySourceId(id);
@@ -482,7 +484,6 @@ export class Filer {
 		const newSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
 		this.files.set(id, newSourceFile);
 		const oldCompiledFiles = sourceFile.compiledFiles;
-		// TODO need to sync all files for the builds
 		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
 		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
 	}
@@ -493,7 +494,6 @@ export class Filer {
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.compiledFiles !== null) {
-			// TODO need to destroy correctly !!!!!!
 			syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
 			await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
 		}
