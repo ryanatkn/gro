@@ -117,7 +117,7 @@ by creating `src/dist.task.ts` in your project and optionally
 
 ## TODO
 
-- As designed, the build system does not take into account for the fact
+- As designed, the build system does not account for the fact
   that Gro projects often have tasks that are designed to run in Node,
   mixed in with whatever source code is in `src/`.
   So far this hasn't been an issue - frontend code avoids importing these modules
