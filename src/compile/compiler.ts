@@ -48,6 +48,7 @@ interface BaseCompilationSource {
 	filename: string;
 	dir: string;
 	dirBasePath: string;
+	sourceDir: {outDir: string}; // TODO doesn't look right
 	extension: string;
 }
 
@@ -88,7 +89,7 @@ const createNoopCompiler = (): Compiler => {
 		dev: boolean,
 	) => {
 		const {filename, extension} = source;
-		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath);
+		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
 		const id = join(outDir, filename);
 		let file: Compilation;
 		switch (source.encoding) {

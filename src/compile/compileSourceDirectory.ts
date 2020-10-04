@@ -46,7 +46,7 @@ export const compileSourceDirectory = async (
 	await filer.init();
 	timingToInitFiler();
 
-	filer.destroy();
+	filer.close();
 
 	logTimings();
 };

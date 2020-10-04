@@ -42,19 +42,23 @@ interface BaseSourceFile extends BaseFile {
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFile`? what about `basePath` too?
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
-	readonly watchedDir: CompilableWatchedDir;
+	readonly compilable: true;
+	readonly sourceDir: CompilableSourceDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
-	readonly watchedDir: CompilableWatchedDir;
+	readonly compilable: true;
+	readonly sourceDir: CompilableSourceDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
-	readonly watchedDir: NonCompilableWatchedDir;
+	readonly compilable: false;
+	readonly sourceDir: NonCompilableSourceDir;
 	readonly compiledFiles: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
-	readonly watchedDir: NonCompilableWatchedDir;
+	readonly compilable: false;
+	readonly sourceDir: NonCompilableSourceDir;
 	readonly compiledFiles: null;
 }
 
@@ -154,7 +158,7 @@ export class Filer {
 	private readonly sourceMap: boolean;
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
-	private readonly dirs: WatchedDir[];
+	private readonly dirs: SourceDir[];
 	private readonly servedDirs: string[];
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly include: (id: string) => boolean;
@@ -179,13 +183,7 @@ export class Filer {
 		this.sourceMap = sourceMap;
 		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
-		this.dirs = createWatchedDirs(
-			compiledDirs,
-			servedDirs,
-			watch,
-			debounce,
-			this.onWatchedDirChange,
-		);
+		this.dirs = createSourceDirs(compiledDirs, servedDirs, watch, debounce, this.onSourceDirChange);
 		this.servedDirs = servedDirs;
 		this.buildConfigs = buildConfigs;
 	}
@@ -200,9 +198,9 @@ export class Filer {
 		return null;
 	}
 
-	destroy(): void {
+	close(): void {
 		for (const dir of this.dirs) {
-			dir.destroy();
+			dir.close();
 		}
 	}
 
@@ -255,11 +253,11 @@ export class Filer {
 		finishInitializing!();
 	}
 
-	private onWatchedDirChange: WatchedDirChangeCallback = async (
+	private onSourceDirChange: SourceDirChangeCallback = async (
 		change: WatcherChange,
-		watchedDir: WatchedDir,
+		sourceDir: SourceDir,
 	) => {
-		const id = join(watchedDir.dir, change.path);
+		const id = join(sourceDir.dir, change.path);
 		switch (change.type) {
 			case 'create':
 			case 'update': {
@@ -267,18 +265,18 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					if (await this.updateSourceFile(id, watchedDir)) {
-						await this.compileSourceId(id, watchedDir);
+					if (await this.updateSourceFile(id, sourceDir)) {
+						await this.compileSourceId(id, sourceDir);
 					}
 				}
 				break;
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					// TODO need to delete all directories for the builds
-					if (watchedDir.outDir !== null) {
+					// TODO need to delete all directories for the builds !!!!!!!!!!!!!!!!!!!!!!!!!!!
+					if (sourceDir.outDir !== null) {
 						// Although we don't pre-emptively create build directories above, we do delete them.
-						await remove(join(watchedDir.outDir, change.path));
+						await remove(join(sourceDir.outDir, change.path));
 					}
 				} else {
 					await this.destroySourceId(id);
@@ -291,20 +289,20 @@ export class Filer {
 	};
 
 	// Returns a boolean indicating if the source file changed.
-	private async updateSourceFile(id: string, watchedDir: WatchedDir): Promise<boolean> {
+	private async updateSourceFile(id: string, sourceDir: SourceDir): Promise<boolean> {
 		const sourceFile = this.files.get(id);
 		if (sourceFile) {
 			if (sourceFile.type !== 'source') {
 				throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
 			}
-			if (sourceFile.watchedDir !== watchedDir) {
+			if (sourceFile.sourceDir !== sourceDir) {
 				// This can happen when there are overlapping watchers.
 				// We might be able to support this,
 				// but more thought needs to be given to the exact desired behavior.
 				// See `validateCompiledDirs` for more.
 				throw Error(
-					'Source file watchedDir unexpectedly changed: ' +
-						`${sourceFile.id} changed from ${sourceFile.watchedDir.dir} to ${watchedDir.dir}`,
+					'Source file sourceDir unexpectedly changed: ' +
+						`${sourceFile.id} changed from ${sourceFile.sourceDir.dir} to ${sourceDir.dir}`,
 				);
 			}
 		}
@@ -325,7 +323,7 @@ export class Filer {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, watchedDir);
+			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, sourceDir);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -370,7 +368,7 @@ export class Filer {
 
 	// These are used to avoid concurrent compilations for any given source file.
 	private pendingCompilations: Set<string> = new Set();
-	private enqueuedCompilations: Map<string, [string, WatchedDir]> = new Map();
+	private enqueuedCompilations: Map<string, [string, SourceDir]> = new Map();
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -379,12 +377,12 @@ export class Filer {
 	// it removes the item from the queue and recompiles the file.
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
-	private async compileSourceId(id: string, watchedDir: WatchedDir): Promise<void> {
-		if (this.buildConfigs === null || watchedDir.outDir === null || !this.include(id)) {
+	private async compileSourceId(id: string, sourceDir: SourceDir): Promise<void> {
+		if (this.buildConfigs === null || sourceDir.compilable === false || !this.include(id)) {
 			return;
 		}
 		if (this.pendingCompilations.has(id)) {
-			this.enqueuedCompilations.set(id, [id, watchedDir]);
+			this.enqueuedCompilations.set(id, [id, sourceDir]);
 			return;
 		}
 		this.pendingCompilations.add(id);
@@ -422,7 +420,7 @@ export class Filer {
 		if (sourceFile.type !== 'source') {
 			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
 		}
-		if (sourceFile.compiledFiles === null) {
+		if (sourceFile.compilable === false) {
 			throw Error(`Cannot compile a non-compilable source file: ${id}`);
 		}
 
@@ -477,6 +475,7 @@ export class Filer {
 		this.files.set(id, newSourceFile);
 		const oldCompiledFiles = sourceFile.compiledFiles;
 		// TODO need to sync all files for the builds
+		// !!!!!!!!!!!!!!!!!!!!!
 		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
 		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
 	}
@@ -487,6 +486,7 @@ export class Filer {
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.compiledFiles !== null) {
+			// TODO need to destroy correctly
 			syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
 			await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
 		}
@@ -657,7 +657,7 @@ const validateCompiledDirs = (compiledDirs: CompiledDir[]) => {
 		// Make sure no `sourceDir` is inside another `sourceDir`.
 		// This could probably be fixed to allow the nested one's `outDir` to take precedence.
 		// The current implementation appears to work, if inefficiently,
-		// only throwing an error when it detects that a source file's `watchedDir` has changed.
+		// only throwing an error when it detects that a source file's `sourceDir` has changed.
 		// However there may be subtle bugs caused by source files changing their `watcherDir`,
 		// so for now we err on the side of caution and less complexity.
 		const nestedSourceDir = compiledDirs.find(
@@ -677,16 +677,17 @@ const createSourceFile = (
 	encoding: Encoding,
 	extension: string,
 	newSourceContents: string | Buffer,
-	watchedDir: WatchedDir,
+	sourceDir: SourceDir,
 ): SourceFile => {
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-	const dirBasePath = stripStart(dir, watchedDir.dir + '/');
+	const dirBasePath = stripStart(dir, sourceDir.dir + '/');
 	switch (encoding) {
 		case 'utf8':
-			return watchedDir.outDir === null
+			return sourceDir.compilable
 				? {
 						type: 'source',
+						compilable: true,
 						id,
 						filename,
 						dir,
@@ -694,14 +695,15 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as string,
-						watchedDir,
-						compiledFiles: null,
+						sourceDir,
+						compiledFiles: [],
 						stats: undefined,
 						mimeType: undefined,
 						buffer: undefined,
 				  }
 				: {
 						type: 'source',
+						compilable: false,
 						id,
 						filename,
 						dir,
@@ -709,16 +711,17 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as string,
-						watchedDir,
-						compiledFiles: [],
+						sourceDir,
+						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: undefined,
 				  };
 		case null:
-			return watchedDir.outDir === null
+			return sourceDir.compilable
 				? {
 						type: 'source',
+						compilable: true,
 						id,
 						filename,
 						dir,
@@ -726,14 +729,15 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
-						watchedDir,
-						compiledFiles: null,
+						sourceDir,
+						compiledFiles: [],
 						stats: undefined,
 						mimeType: undefined,
 						buffer: newSourceContents as Buffer,
 				  }
 				: {
 						type: 'source',
+						compilable: false,
 						id,
 						filename,
 						dir,
@@ -741,8 +745,8 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
-						watchedDir,
-						compiledFiles: [],
+						sourceDir,
+						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: newSourceContents as Buffer,
@@ -754,20 +758,20 @@ const createSourceFile = (
 
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
-const createWatchedDirs = (
+const createSourceDirs = (
 	compiledDirs: CompiledDir[],
 	servedDirs: string[],
 	watch: boolean,
 	debounce: number,
-	onChange: WatchedDirChangeCallback,
-): WatchedDir[] => {
-	const dirs: WatchedDir[] = [];
-	// TODO what about compiled directories inside others? should we only created WatchedDirs for the root-most directory?
+	onChange: SourceDirChangeCallback,
+): SourceDir[] => {
+	const dirs: SourceDir[] = [];
+	// TODO what about compiled directories inside others? should we only created SourceDirs for the root-most directory?
 	// or maybe we should just run a validation routine to disallow nested compiledDirs?
 	for (const {sourceDir, outDir} of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
-		dirs.push(createWatchedDir(sourceDir, outDir, watch, debounce, onChange));
+		dirs.push(createSourceDir(sourceDir, outDir, watch, debounce, onChange));
 	}
 	if (watch) {
 		for (const servedDir of servedDirs) {
@@ -780,73 +784,77 @@ const createWatchedDirs = (
 				) &&
 				!servedDirs.find((d) => d !== servedDir && servedDir.startsWith(d))
 			) {
-				dirs.push(createWatchedDir(servedDir, null, watch, debounce, onChange));
+				dirs.push(createSourceDir(servedDir, null, watch, debounce, onChange));
 			}
 		}
 	}
 	return dirs;
 };
 
-// There are two kinds of `WatchedDir`s, those created with an `outDir` and those without.
+// There are two kinds of `SourceDir`s, those created with an `outDir` and those without.
 // If there's an `outDir` the `dir` will be compiled to it and written to disk.
 // If `outDir` is null, the `dir` is only watched and nothing is written back to the filesystem.
-type WatchedDir = CompilableWatchedDir | NonCompilableWatchedDir;
-type WatchedDirChangeCallback = (change: WatcherChange, watchedDir: WatchedDir) => Promise<void>;
-interface CompilableWatchedDir extends BaseWatchedDir {
+type SourceDir = CompilableSourceDir | NonCompilableSourceDir;
+type SourceDirChangeCallback = (change: WatcherChange, sourceDir: SourceDir) => Promise<void>;
+interface CompilableSourceDir extends BaseSourceDir {
+	readonly compilable: true;
 	readonly outDir: string;
 }
-interface NonCompilableWatchedDir extends BaseWatchedDir {
+interface NonCompilableSourceDir extends BaseSourceDir {
+	readonly compilable: false;
 	readonly outDir: null;
 }
-interface BaseWatchedDir {
+interface BaseSourceDir {
 	readonly dir: string;
 	readonly watcher: WatchNodeFs;
-	readonly onChange: WatchedDirChangeCallback;
-	readonly destroy: () => void;
+	readonly onChange: SourceDirChangeCallback;
+	readonly close: () => void;
 	readonly init: () => Promise<void>;
 }
-const createWatchedDir = (
+const createSourceDir = (
 	dir: string,
 	outDir: string | null,
 	watch: boolean,
 	debounce: number,
-	onChange: WatchedDirChangeCallback,
-): WatchedDir => {
+	onChange: SourceDirChangeCallback,
+): SourceDir => {
 	const watcher = watchNodeFs({
 		dir,
 		debounce,
 		watch,
-		onChange: (change) => onChange(change, watchedDir),
+		onChange: (change) => onChange(change, sourceDir),
 	});
-	const destroy = () => {
-		watcher.destroy();
+	const close = () => {
+		watcher.close();
 	};
 	const init = async () => {
 		await Promise.all([ensureDir(dir), outDir === null ? null : ensureDir(outDir)]);
 		const statsBySourcePath = await watcher.init();
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-				stats.isDirectory() ? null : onChange({type: 'update', path, stats}, watchedDir),
+				stats.isDirectory() ? null : onChange({type: 'update', path, stats}, sourceDir),
 			),
 		);
 	};
-	const watchedDir: WatchedDir =
+	const sourceDir: SourceDir =
 		outDir === null
 			? {
+					compilable: false,
 					dir,
 					outDir,
 					onChange,
 					watcher,
-					destroy,
+					close,
 					init,
 			  }
 			: {
+					compilable: true,
 					dir,
 					outDir,
 					onChange,
 					watcher,
-					destroy,
+					close,
 					init,
 			  };
-	return watchedDir;
+	return sourceDir;
 };

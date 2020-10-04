@@ -80,7 +80,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath);
+		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps

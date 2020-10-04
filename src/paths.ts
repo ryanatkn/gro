@@ -97,13 +97,17 @@ export const toDistPath = (id: string, p = paths): string =>
 		? join(DIST_DIR, toBasePath(id, p))
 		: toCompiledExtension(join(DIST_DIR, toBasePath(id, p)));
 
-export const toBuildsDir = (dev: boolean, p = paths): string => `${p.build}${dev ? 'dev' : 'prod'}`;
+export const toBuildsDir = (dev: boolean, buildDir = paths.build): string =>
+	`${ensureTrailingSlash(buildDir)}${dev ? 'dev' : 'prod'}`;
 export const toBuildDir = (
 	dev: boolean,
 	buildConfigName: string,
 	dirBasePath: string,
-	p = paths,
-): string => `${toBuildsDir(dev, p)}/${buildConfigName}/${dirBasePath}`;
+	buildDir = paths.build,
+): string => `${toBuildsDir(dev, buildDir)}/${buildConfigName}/${dirBasePath}`;
+// TODO this is only needed because of how we added `/` to all directories above
+// fix those and remove this!
+const ensureTrailingSlash = (s: string): string => (s[s.length - 1] === '/' ? s : s + '/');
 
 // '/home/me/app/.gro/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
 export const toSourceId = (id: string, p = paths): string =>
