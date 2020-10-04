@@ -25,11 +25,11 @@ like compiling to a temporary directory or using something like `ts-node`,
 but these solutions introduce overhead and complexity we'd rather avoid.
 
 So for now, Gro reads a single field from a project's `package.json`.
-Here's Gro's own settings as a Node-only project:
+Here's what a Node project may look like:
 
 ```jsonc
 {
-	// gro/package.json
+	// some-node-project/package.json
 	"gro": {
 		"builds": [
 			{
@@ -41,11 +41,12 @@ Here's Gro's own settings as a Node-only project:
 }
 ```
 
-Here's the fallback default for projects that do not define anything:
+Here's what a frontend-only project may look like.
+It's also the fallback default for projects that do not define anything:
 
 ```jsonc
 {
-	// some-project/package.json
+	// some-frontend-project/package.json
 	"gro": {
 		"builds": [
 			{
@@ -62,7 +63,7 @@ with a second client optimized for mobile browsers:
 
 ```jsonc
 {
-	// some-project/package.json
+	// some-fullstack-project/package.json
 	"gro": {
 		"builds": [
 			{
