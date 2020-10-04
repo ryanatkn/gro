@@ -95,7 +95,7 @@ with a second client optimized for mobile browsers:
 
 ## Additional options
 
-The build config has some options. Here's the `BuildConfig` type:
+The build config has some options. Here's the [`BuildConfig`](./buildConfig.ts) type:
 
 ```ts
 export interface BuildConfig {
