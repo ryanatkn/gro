@@ -12,7 +12,7 @@ This preprocessor transpiles the script portion of Svelte files
 if the script tag has a `lang="typescript"` or `lang="ts"` attribute.
 No typechecking is performed - that's left for a separate build step.
 
-It uses swc for speeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeed.
+It uses swc for speeeed.
 
 TODO use swc's JS parser options if it's not TypeScript for downtranspilation
 
