@@ -119,7 +119,8 @@ by creating `src/dist.task.ts` in your project and optionally
 
 - As designed, the build system does not account for the fact
   that Gro projects often have tasks that are designed to run in Node,
-  mixed in with whatever source code is in `src/`.
+  mixed in with whatever source code is in `src/`,
+  which is a conceptual mismatch for projects that have only browser builds.
   So far this hasn't been an issue - frontend code avoids importing these modules
   and the build system, despite targeting the browser, doesn't break the Node modules,
   but we'd like to figure out an ergonomic design that addresses this complexity.
