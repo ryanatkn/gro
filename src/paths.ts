@@ -22,10 +22,7 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 // TODO pass these to `createPaths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIR_NAME = 'src';
-export const BUILD_DIR_NAME = '.gro'; // TODO name?
-export const META_DIR_NAME = '.gro'; // TODO name?
-export const CACHE_DIR_NAME = '.gro'; // TODO name?
-export const GRO_DIR_NAME = '.gro'; // TODO name? buildId -> compiledId?
+export const BUILD_DIR_NAME = '.gro';
 export const DIST_DIR_NAME = 'dist';
 export const SOURCE_DIR = SOURCE_DIR_NAME + sep;
 export const BUILD_DIR = BUILD_DIR_NAME + sep;
@@ -54,8 +51,7 @@ export const paths = createPaths(process.cwd() + sep);
 export let groImportDir = join(fileURLToPath(import.meta.url), '../');
 export const groDir = join(
 	groImportDir,
-	// TODO this is a pretty gnarly hack
-	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
+	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
 );
 export const groDirBasename = basename(groDir) + sep;
 export const isThisProjectGro = groDir === paths.root;
@@ -65,8 +61,6 @@ export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : path
 export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
 
 export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.source);
-export const isBuildId = (id: string, p = paths): boolean => id.startsWith(p.build);
-export const isDistId = (id: string, p = paths): boolean => id.startsWith(p.dist);
 
 // '/home/me/app/src/foo/bar/baz.ts' -> 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
@@ -84,15 +78,16 @@ export const toSourcePath = (id: string, p = paths): string =>
 
 export const toBuildsDir = (dev: boolean, buildDir = paths.build): string =>
 	`${ensureTrailingSlash(buildDir)}${dev ? 'dev' : 'prod'}`;
+// TODO this is only needed because of how we added `/` to all directories above
+// fix those and remove this!
+const ensureTrailingSlash = (s: string): string => (s[s.length - 1] === '/' ? s : s + '/');
+
 export const toBuildDir = (
 	dev: boolean,
 	buildConfigName: string,
 	dirBasePath = '',
 	buildDir = paths.build,
 ): string => `${toBuildsDir(dev, buildDir)}/${buildConfigName}/${dirBasePath}`;
-// TODO this is only needed because of how we added `/` to all directories above
-// fix those and remove this!
-const ensureTrailingSlash = (s: string): string => (s[s.length - 1] === '/' ? s : s + '/');
 
 // '/home/me/app/.gro/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
 export const toSourceId = (id: string, p = paths): string =>
@@ -108,7 +103,6 @@ export const TS_EXTENSION = '.ts';
 export const TS_DEFS_EXTENSION = '.d.ts';
 export const SVELTE_EXTENSION = '.svelte';
 export const CSS_EXTENSION = '.css';
-export const SOURCE_EXTENSIONS = [TS_EXTENSION, SVELTE_EXTENSION];
 export const SOURCE_MAP_EXTENSION = '.map';
 
 // TODO probably change this to use a regexp (benchmark?)
@@ -118,18 +112,6 @@ export const hasSourceExtension = (path: string): boolean =>
 
 export const toSourceExtension = (path: string): string =>
 	path.endsWith(JS_EXTENSION) ? replaceExtension(path, TS_EXTENSION) : path; // TODO? how does this work with `.svelte`? do we need more metadata?
-
-// compiled includes both build and dist
-export const toCompiledExtension = (path: string): string =>
-	hasSourceExtension(path) ? replaceExtension(path, JS_EXTENSION) : path;
-
-// TODO need better integration with this
-export const toSvelteExtension = (path: string): string => replaceExtension(path, SVELTE_EXTENSION);
-
-// This differs from `toSourceId` by handling `.map` files, so it's not two-way.
-// There might be a cleaner design in here somewhere.
-export const fromSourceMappedBuildIdToSourceId = (id: string): string =>
-	toSourceId(id.endsWith(SOURCE_MAP_EXTENSION) ? replaceExtension(id, '') : id);
 
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']

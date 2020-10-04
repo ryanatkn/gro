@@ -13,7 +13,6 @@ import {
 	toSourceId,
 	hasSourceExtension,
 	toSourceExtension,
-	toCompiledExtension,
 	toPathParts,
 	toPathSegments,
 	toImportId,
@@ -119,15 +118,6 @@ test('hasSourceExtension()', () => {
 
 test('toSourceExtension()', () => {
 	t.is(toSourceExtension('foo/bar/baz.js'), 'foo/bar/baz.ts');
-});
-
-test('toCompiledExtension()', () => {
-	test('typescript', () => {
-		t.is(toCompiledExtension('foo/bar/baz.ts'), 'foo/bar/baz.js');
-	});
-	test('svelte', () => {
-		t.is(toCompiledExtension('foo/bar/baz.svelte'), 'foo/bar/baz.js');
-	});
 });
 
 test('toPathSegments()', () => {
