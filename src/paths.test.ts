@@ -10,7 +10,6 @@ import {
 	toBasePath,
 	basePathToSourceId,
 	toSourcePath,
-	toSourceId,
 	hasSourceExtension,
 	toSourceExtension,
 	toPathParts,
@@ -68,35 +67,6 @@ test('toSourcePath()', () => {
 	});
 	test('distId with ts extension', () => {
 		t.is(toSourcePath(resolve('dist/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
-	});
-});
-
-test('toSourceId()', () => {
-	test('sourceId', () => {
-		t.is(toSourceId(resolve('src/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('sourceId with js extension', () => {
-		t.is(toSourceId(resolve('src/foo/bar/baz.js')), resolve('src/foo/bar/baz.js'));
-	});
-	test('buildId', () => {
-		t.is(toSourceId(resolve('.gro/foo/bar/baz.js')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('buildId with ts extension', () => {
-		t.is(toSourceId(resolve('.gro/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('distId', () => {
-		t.is(toSourceId(resolve('dist/foo/bar/baz.js')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('distId with ts extension', () => {
-		t.is(toSourceId(resolve('dist/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('directory sourceId', () => {
-		t.is(toSourceId(resolve('src/foo/bar')), resolve('src/foo/bar/'));
-		t.is(toSourceId(resolve('src/foo/bar') + '/'), resolve('src/foo/bar') + '/');
-	});
-	test('directory buildId', () => {
-		t.is(toSourceId(resolve('.gro/foo/bar')), resolve('src/foo/bar'));
-		t.is(toSourceId(resolve('.gro/foo/bar') + '/'), resolve('src/foo/bar') + '/');
 	});
 });
 

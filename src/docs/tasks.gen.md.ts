@@ -1,7 +1,7 @@
 import {dirname, relative, basename} from 'path';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
-import {paths, toBasePath, toSourceId, toPathParts, toPathSegments} from '../paths.js';
+import {paths, toPathParts, toPathSegments, basePathToSourceId} from '../paths.js';
 import {stripStart} from '../utils/string.js';
 import {last} from '../utils/array.js';
 import {loadTaskModules} from '../task/taskModule.js';
@@ -48,7 +48,7 @@ export const gen: Gen = async ({originId}) => {
 	const pathParts = toPathParts(relativeDir).map(
 		(relativePathPart) =>
 			`[${last(toPathSegments(relativePathPart))}](${
-				relative(originDir, toSourceId(relativePathPart)) || './'
+				relative(originDir, basePathToSourceId(relativePathPart)) || './'
 			})`,
 	);
 	const breadcrumbs = '> <sub>' + [rootLink, ...pathParts, outputFileName].join(' / ') + '</sub>';
@@ -65,7 +65,7 @@ What is a task? See [\`src/tasks/README.md\`](../task).
 ${tasks.reduce(
 	(taskList, task) =>
 		taskList +
-		`- [${toBasePath(toSourceId(task.name))}](${relative(originDir, task.id)})${
+		`- [${task.name}](${relative(originDir, task.id)})${
 			task.mod.task.description ? ` - ${task.mod.task.description}` : ''
 		}\n`,
 	'',

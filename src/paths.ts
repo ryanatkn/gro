@@ -89,10 +89,6 @@ export const toBuildDir = (
 	buildDir = paths.build,
 ): string => `${toBuildsDir(dev, buildDir)}/${buildConfigName}/${dirBasePath}`;
 
-// '/home/me/app/.gro/foo/bar/baz.js' -> '/home/me/app/src/foo/bar/baz.ts'
-export const toSourceId = (id: string, p = paths): string =>
-	isSourceId(id, p) ? id : join(p.root, toSourcePath(id, p));
-
 // 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
 

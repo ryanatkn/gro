@@ -1,7 +1,7 @@
 import {dirname, relative, basename} from 'path';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
-import {paths, toSourceId, toPathParts, toPathSegments} from '../paths.js';
+import {paths, basePathToSourceId, toPathParts, toPathSegments} from '../paths.js';
 import {last} from '../utils/array.js';
 import {stripStart} from '../utils/string.js';
 import {findFiles} from '../fs/nodeFs.js';
@@ -46,7 +46,7 @@ export const gen: Gen = async ({originId}) => {
 		isIndexFile && relativePathPart === relativeDir
 			? relativePathPart
 			: `[${last(toPathSegments(relativePathPart))}](${
-					relative(originDir, toSourceId(relativePathPart)) || './'
+					relative(originDir, basePathToSourceId(relativePathPart)) || './'
 			  })`,
 	);
 	const breadcrumbs = '> <sub>' + [rootLink, ...pathParts, outputFileName].join(' / ') + '</sub>';
