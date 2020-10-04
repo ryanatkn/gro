@@ -15,7 +15,7 @@ import {
 	pathsFromId,
 	isGroId,
 	toImportId,
-	toBuildDir,
+	isThisProjectGro,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles, pathExists} from '../fs/nodeFs.js';
@@ -23,7 +23,7 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {PathData} from '../fs/pathData.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
-import {loadBuildConfigs, loadPrimaryBuildConfig} from '../project/buildConfig.js';
+import {loadBuildConfigs, loadPrimaryBuildConfigAt} from '../project/buildConfig.js';
 
 /*
 
@@ -120,7 +120,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
-			if (paths === groPaths) {
+			if (isThisProjectGro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
 			} else if (isGroId(pathData.id)) {
@@ -159,7 +159,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 	} else if (findModulesResult.type === 'inputDirectoriesWithNoFiles') {
 		// The input path matched a directory, but it contains no matching files.
 		if (
-			paths === groPaths ||
+			isThisProjectGro ||
 			// this is null safe because of the failure type
 			isGroId(findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!.id)
 		) {
@@ -229,12 +229,10 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // we should compile a project's TypeScript when invoking a task.
 // Properly detecting this is too expensive and would impact startup time significantly.
 const shouldBuildProject = async (pathData: PathData): Promise<boolean> => {
-	let id: string;
 	if (paths !== groPaths && isGroId(pathData.id)) {
-		const primaryBuildConfig = await loadPrimaryBuildConfig();
-		id = toBuildDir(true, primaryBuildConfig.name);
-	} else {
-		id = toImportId(pathData.id);
+		return false; // don't try to compile Gro from outside of it
 	}
+	const primaryBuildConfig = await loadPrimaryBuildConfigAt(pathData.id);
+	const id = toImportId(pathData.id, true, primaryBuildConfig.name);
 	return !(await pathExists(id));
 };

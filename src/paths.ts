@@ -58,7 +58,8 @@ export const groDir = join(
 	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
 );
 export const groDirBasename = basename(groDir) + sep;
-export const groPaths = groDir === paths.root ? paths : createPaths(groDir);
+export const isThisProjectGro = groDir === paths.root;
+export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
 
 export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : paths);
 export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
@@ -180,9 +181,8 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 
 // Converts a source id into an id that can be imported.
 // When importing Gro paths, this correctly chooses the build or dist dir.
-export const toImportId = (id: string): string => {
+export const toImportId = (id: string, dev: boolean, buildConfigName: string): string => {
 	const p = pathsFromId(id);
-	return p === groPaths
-		? toCompiledExtension(join(groImportDir, toBasePath(id, p)))
-		: toBuildId(id, p);
+	const dirBasePath = replaceExtension(stripStart(id, p.source), JS_EXTENSION);
+	return toBuildDir(dev, buildConfigName, dirBasePath, p.build);
 };

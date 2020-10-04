@@ -1,4 +1,5 @@
-import {loadPackageJson} from './packageJson.js';
+import {isGroId, isThisProjectGro} from '../paths.js';
+import {loadGroPackageJson, loadPackageJson} from './packageJson.js';
 
 // See `../docs/buildConfig.md` for documentation.
 
@@ -11,12 +12,23 @@ export interface BuildConfig {
 
 export type PlatformTarget = 'node' | 'browser';
 
+export const loadBuildConfigsAt = (id: string): Promise<BuildConfig[]> =>
+	isGroId(id) ? loadGroBuildConfigs() : loadBuildConfigs();
+
+export const loadPrimaryBuildConfigAt = (id: string): Promise<BuildConfig> =>
+	isGroId(id) ? loadGroPrimaryBuildConfig() : loadPrimaryBuildConfig();
+
 const defaultBuildConfig: BuildConfig[] = [{name: 'browser', platform: 'browser'}];
 
+// The "primary" build config is the one that's used to run Node tasks.
+// The order of precendence is
+// 1) `"primary": true`, or if none exists,
+// 2) the first Node config, or if still no match,
+// 3) the first config in the array.
 let cachedBuildConfigs: BuildConfig[] | null = null;
 let cachedPrimaryConfig: BuildConfig | null = null;
-
 export const loadBuildConfigs = async (forceRefresh = false): Promise<BuildConfig[]> => {
+	if (isThisProjectGro) return loadGroBuildConfigs(forceRefresh); // cheaply avoid duplicate work
 	if (cachedBuildConfigs && !forceRefresh) return cachedBuildConfigs;
 	const pkg: any = await loadPackageJson(forceRefresh); // TODO type, generate from JSON schema
 	const loadedBuildConfigs: unknown = pkg.gro?.builds;
@@ -25,6 +37,32 @@ export const loadBuildConfigs = async (forceRefresh = false): Promise<BuildConfi
 		: defaultBuildConfig;
 	cachedBuildConfigs = validatedBuildConfigs;
 	return validatedBuildConfigs;
+};
+export const loadPrimaryBuildConfig = async (forceRefresh = false): Promise<BuildConfig> => {
+	if (cachedPrimaryConfig && !forceRefresh) return cachedPrimaryConfig;
+	const buildConfigs = await loadBuildConfigs(forceRefresh);
+	const explicitPrimaryConfig = buildConfigs.find((c) => c.primary);
+	if (explicitPrimaryConfig) {
+		return (cachedPrimaryConfig = explicitPrimaryConfig);
+	}
+	const firstNodeConfig = buildConfigs.find((c) => c.platform === 'node');
+	if (firstNodeConfig) {
+		return (cachedPrimaryConfig = firstNodeConfig);
+	}
+	return (cachedPrimaryConfig = buildConfigs[0]);
+};
+
+let cachedGroBuildConfigs: BuildConfig[] | null = null;
+let cachedGroPrimaryConfig: BuildConfig | null = null;
+export const loadGroBuildConfigs = async (forceRefresh = false): Promise<BuildConfig[]> => {
+	if (cachedGroBuildConfigs && !forceRefresh) return cachedGroBuildConfigs;
+	const pkg: any = await loadGroPackageJson(forceRefresh); // TODO type, generate from JSON schema
+	return (cachedGroBuildConfigs = pkg.gro.builds);
+};
+export const loadGroPrimaryBuildConfig = async (forceRefresh = false): Promise<BuildConfig> => {
+	if (cachedGroPrimaryConfig && !forceRefresh) return cachedGroPrimaryConfig;
+	const buildConfigs = await loadGroBuildConfigs(forceRefresh);
+	return (cachedGroPrimaryConfig = buildConfigs.find((c) => c.primary)!);
 };
 
 // TODO replace this with JSON schema validation (or most of it at least)
@@ -59,19 +97,4 @@ const validateBuildConfigs = (buildConfigs: unknown): BuildConfig[] => {
 		names.add(buildConfig.name);
 	}
 	return buildConfigs;
-};
-
-// The "primary" build config is the one that's used to run Node tasks.
-// The order of precendence is
-// 1) `"primary": true`, or if none exists,
-// 2) the first Node config, or if still no match,
-// 3) the first config in the array.
-export const loadPrimaryBuildConfig = async (forceRefresh = false): Promise<BuildConfig> => {
-	if (cachedPrimaryConfig && !forceRefresh) return cachedPrimaryConfig;
-	const buildConfigs = await loadBuildConfigs(forceRefresh);
-	const explicitPrimaryConfig = buildConfigs.find((c) => c.primary);
-	if (explicitPrimaryConfig) return (cachedPrimaryConfig = explicitPrimaryConfig);
-	const firstNodeConfig = buildConfigs.find((c) => c.platform === 'node');
-	if (firstNodeConfig) return (cachedPrimaryConfig = firstNodeConfig);
-	return (cachedPrimaryConfig = buildConfigs[0]);
 };

@@ -231,5 +231,6 @@ test('toPathParts()', () => {
 });
 
 test('toImportId()', () => {
-	t.is(toImportId(resolve('src/foo/bar.ts')), resolve('.gro/foo/bar.js'));
+	t.is(toImportId(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
+	t.is(toImportId(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
 });

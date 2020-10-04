@@ -1,7 +1,7 @@
 import {join} from 'path';
 
 import {readJson} from '../fs/nodeFs.js';
-import {paths, groPaths} from '../paths.js';
+import {paths, groPaths, isThisProjectGro} from '../paths.js';
 import {Json} from '../utils/json.js';
 
 /*
@@ -28,7 +28,7 @@ let groPackageJson: GroPackageJson | undefined;
 
 export const loadGroPackageJson = async (forceRefresh = false): Promise<GroPackageJson> => {
 	if (!groPackageJson || forceRefresh) {
-		groPackageJson = await (paths === groPaths
+		groPackageJson = await (isThisProjectGro
 			? loadPackageJson(forceRefresh)
 			: readJson(join(groPaths.root, 'package.json')));
 	}
