@@ -93,7 +93,7 @@ with a second client optimized for mobile browsers:
 }
 ```
 
-## Additional options
+## additional options
 
 The build config has some options. Here's the [`BuildConfig`](./buildConfig.ts) type:
 
@@ -115,7 +115,7 @@ Like all builtin tasks, you can easily customize this behavior
 by creating `src/dist.task.ts` in your project and optionally
 [invoking the original task](../task#run-a-task-inside-another-task).
 
-## TODO
+## todo
 
 - As designed, the build system does not account for the fact
   that Gro projects often have tasks and other modules designed to run in Node,
