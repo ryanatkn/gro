@@ -67,7 +67,7 @@ export interface CompiledTextFile extends BaseCompiledFile {
 	readonly compilation: TextCompilation;
 	readonly encoding: 'utf8';
 	readonly contents: string;
-	readonly sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+	readonly sourceMapOf: string | null; // TODO maybe prefer a union with an `isSourceMap` boolean flag?
 }
 export interface CompiledBinaryFile extends BaseCompiledFile {
 	readonly compilation: BinaryCompilation;
@@ -93,10 +93,6 @@ export interface BaseFile {
 }
 
 export interface CompiledDir {
-	// TODO should this include the compiler? any other options?
-	// or do we specifically isolate everything else into a single bundle of things?
-	// what if the external compiler changes between runs, but the internal options and source file hash don't,
-	// so we get a false negative that re-compilation is needed once source hash caching is implemented?
 	readonly sourceDir: string;
 	readonly outDir: string;
 }
@@ -687,8 +683,8 @@ const createSourceFile = (
 	sourceDir: SourceDir,
 ): SourceFile => {
 	const filename = basename(id);
-	const dir = dirname(id) + '/'; // TODO this is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-	const dirBasePath = stripStart(dir, sourceDir.dir + '/');
+	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+	const dirBasePath = stripStart(dir, sourceDir.dir + '/'); // TODO see above comment about `+ '/'`
 	switch (encoding) {
 		case 'utf8':
 			return sourceDir.compilable
@@ -773,8 +769,6 @@ const createSourceDirs = (
 	onChange: SourceDirChangeCallback,
 ): SourceDir[] => {
 	const dirs: SourceDir[] = [];
-	// TODO what about compiled directories inside others? should we only created SourceDirs for the root-most directory?
-	// or maybe we should just run a validation routine to disallow nested compiledDirs?
 	for (const {sourceDir, outDir} of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
