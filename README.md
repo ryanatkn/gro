@@ -17,10 +17,10 @@
 - [`oki`](src/oki) testing library
 - [`gen`](src/gen) code generation
 - other [docs](src/docs)
-  - [options](src/docs/options.md)
-  - [publish](src/docs/publish.md)
   - [tasks](src/docs/tasks.md)
   - [build config](src/docs/buildConfig.md)
+  - [publish](src/docs/publish.md)
+  - [options](src/docs/options.md)
 
 ## about
 
