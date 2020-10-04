@@ -28,8 +28,6 @@ export const SOURCE_DIR = SOURCE_DIR_NAME + sep;
 export const BUILD_DIR = BUILD_DIR_NAME + sep;
 export const DIST_DIR = DIST_DIR_NAME + sep;
 
-export const RELATIVE_DIR_START = '.' + sep;
-
 export interface Paths {
 	root: string;
 	source: string;
@@ -85,8 +83,6 @@ export const toBuildDir = (
 
 // 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
-
-export const stripRelativePath = (path: string): string => stripStart(path, RELATIVE_DIR_START);
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
