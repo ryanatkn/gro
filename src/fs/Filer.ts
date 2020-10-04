@@ -400,7 +400,7 @@ export class Filer {
 		}
 		this.pendingCompilations.add(id);
 		try {
-			await this.compileSourceIdForBuildConfigs(id, this.buildConfigs);
+			await this._compileSourceId(id);
 		} catch (err) {
 			this.log.error(red('failed to compile'), printPath(id), printError(err));
 		}
@@ -416,16 +416,7 @@ export class Filer {
 		}
 	}
 
-	private async compileSourceIdForBuildConfigs(
-		id: string,
-		buildConfigs: BuildConfig[],
-	): Promise<void> {
-		await Promise.all(
-			buildConfigs.map((buildConfig) => this.compileSourceIdForBuildConfig(id, buildConfig)),
-		);
-	}
-
-	private async compileSourceIdForBuildConfig(id: string, buildConfig: BuildConfig): Promise<void> {
+	private async _compileSourceId(id: string): Promise<void> {
 		const sourceFile = this.files.get(id);
 		if (!sourceFile) {
 			throw Error(`Cannot find source file: ${id}`);
@@ -442,47 +433,51 @@ export class Filer {
 		// The Filer is designed to be able to be a long-lived process
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
-		const result = await this.compiler!.compile(sourceFile, buildConfig, dev);
+		const results = await Promise.all(
+			this.buildConfigs!.map((buildConfig) => this.compiler!.compile(sourceFile, buildConfig, dev)),
+		);
 
 		// Update the cache and write to disk.
-		const newCompiledFiles = result.compilations.map(
-			(compilation): CompiledFile => {
-				switch (compilation.encoding) {
-					case 'utf8':
-						return {
-							type: 'compiled',
-							sourceFile,
-							id: compilation.id,
-							filename: compilation.filename,
-							dir: compilation.dir,
-							extension: compilation.extension,
-							encoding: compilation.encoding,
-							contents: postprocess(compilation),
-							sourceMapOf: compilation.sourceMapOf,
-							compilation,
-							stats: undefined,
-							mimeType: undefined,
-							buffer: undefined,
-						};
-					case null:
-						return {
-							type: 'compiled',
-							sourceFile,
-							id: compilation.id,
-							filename: compilation.filename,
-							dir: compilation.dir,
-							extension: compilation.extension,
-							encoding: compilation.encoding,
-							contents: postprocess(compilation),
-							compilation,
-							stats: undefined,
-							mimeType: undefined,
-							buffer: compilation.contents,
-						};
-					default:
-						throw new UnreachableError(compilation);
-				}
-			},
+		const newCompiledFiles = results.flatMap((result) =>
+			result.compilations.map(
+				(compilation): CompiledFile => {
+					switch (compilation.encoding) {
+						case 'utf8':
+							return {
+								type: 'compiled',
+								sourceFile,
+								id: compilation.id,
+								filename: compilation.filename,
+								dir: compilation.dir,
+								extension: compilation.extension,
+								encoding: compilation.encoding,
+								contents: postprocess(compilation),
+								sourceMapOf: compilation.sourceMapOf,
+								compilation,
+								stats: undefined,
+								mimeType: undefined,
+								buffer: undefined,
+							};
+						case null:
+							return {
+								type: 'compiled',
+								sourceFile,
+								id: compilation.id,
+								filename: compilation.filename,
+								dir: compilation.dir,
+								extension: compilation.extension,
+								encoding: compilation.encoding,
+								contents: postprocess(compilation),
+								compilation,
+								stats: undefined,
+								mimeType: undefined,
+								buffer: compilation.contents,
+							};
+						default:
+							throw new UnreachableError(compilation);
+					}
+				},
+			),
 		);
 		const newSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
 		this.files.set(id, newSourceFile);
