@@ -4,7 +4,7 @@ import lexer from 'es-module-lexer';
 import {ensureDir, stat, Stats} from './nodeFs.js';
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import {hasSourceExtension, JS_EXTENSION, SVELTE_EXTENSION} from '../paths.js';
+import {hasSourceExtension, JS_EXTENSION, SVELTE_EXTENSION, toBuildDir} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import {UnreachableError} from '../utils/error.js';
@@ -126,6 +126,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	validateCompiledDirs(compiledDirs);
 	// default to serving all of the compiled output files
 	const servedDirs = Array.from(
+		// TODO !!! needs to default to the actual directories via `toBuildDir`
 		new Set((opts.servedDirs || compiledDirs.map((d) => d.outDir)).map((d) => resolve(d))),
 	);
 	if (!compiledDirs.length && !servedDirs.length) {
@@ -143,7 +144,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		sourceMap: true,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
-		cleanOutputDirs: false, // TODO true,
+		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		include: opts.include || (() => true),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
@@ -219,13 +220,13 @@ export class Filer {
 			// removing any files that can't be mapped back to source files.
 			// For now, this does not handle production output.
 			// See the comments where `dev` is declared for more.
-			// const outputDirs: string[] = this.dirs.flatMap((d) =>
-			// 	buildConfigs.map((buildConfig) => toBuildDir(dev, buildConfig.name, '')),
-			// ); // outDir is already there but doesn't mean the full path
+			// (more accurately, it could handle prod, but not simultaneous to dev)
 			const outputDirs: string[] = this.dirs
 				.map((d) => d.outDir!)
 				.filter(Boolean)
-				.flatMap((d) => buildConfigs.map((p) => join(d, p.name)));
+				.flatMap((outDir) =>
+					buildConfigs.map((buildConfig) => toBuildDir(dev, buildConfig.name, '', outDir)),
+				);
 			await Promise.all(
 				outputDirs.map(async (outputDir) => {
 					const files = await findFiles(outputDir, undefined, null);
@@ -273,7 +274,7 @@ export class Filer {
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					// TODO need to delete all directories for the builds !!!!!!!!!!!!!!!!!!!!!!!!!!!
+					// TODO need to delete all directories for the builds
 					if (sourceDir.outDir !== null) {
 						// Although we don't pre-emptively create build directories above, we do delete them.
 						await remove(join(sourceDir.outDir, change.path));
@@ -475,7 +476,6 @@ export class Filer {
 		this.files.set(id, newSourceFile);
 		const oldCompiledFiles = sourceFile.compiledFiles;
 		// TODO need to sync all files for the builds
-		// !!!!!!!!!!!!!!!!!!!!!
 		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
 		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
 	}
@@ -486,7 +486,7 @@ export class Filer {
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.compiledFiles !== null) {
-			// TODO need to destroy correctly
+			// TODO need to destroy correctly !!!!!!
 			syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
 			await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
 		}
