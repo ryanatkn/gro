@@ -120,14 +120,26 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
+	const buildConfigs = opts.buildConfigs || null;
 	const compiledDirs = opts.compiledDirs
 		? opts.compiledDirs.map((d) => ({sourceDir: resolve(d.sourceDir), outDir: resolve(d.outDir)}))
 		: [];
 	validateCompiledDirs(compiledDirs);
 	// default to serving all of the compiled output files
 	const servedDirs = Array.from(
-		// TODO !!! needs to default to the actual directories via `toBuildDir`
-		new Set((opts.servedDirs || compiledDirs.map((d) => d.outDir)).map((d) => resolve(d))),
+		new Set(
+			(
+				opts.servedDirs ||
+				compiledDirs
+					.map((compiledDir) => {
+						if (buildConfigs === null) return null!;
+						const defaultServedBuildConfig =
+							buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0];
+						return toBuildDir(dev, defaultServedBuildConfig.name, '', compiledDir.outDir);
+					})
+					.filter(Boolean)
+			).map((d) => resolve(d)),
+		),
 	);
 	if (!compiledDirs.length && !servedDirs.length) {
 		throw Error('Filer created with no directories to compile or serve.');
@@ -140,7 +152,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		throw Error('Filer created with a compiler but no directories to compile.');
 	}
 	return {
-		buildConfigs: null,
 		sourceMap: true,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
@@ -148,6 +159,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		...omitUndefined(opts),
 		include: opts.include || (() => true),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
+		buildConfigs,
 		compiledDirs,
 		servedDirs,
 		compiler,
@@ -192,7 +204,7 @@ export class Filer {
 	// Searches for a file matching `path`, limited to the directories that are served.
 	findByPath(path: string): BaseFile | null {
 		for (const servedDir of this.servedDirs) {
-			const id = join(servedDir, path);
+			const id = `${servedDir}/${path}`;
 			const file = this.files.get(id);
 			if (file) return file;
 		}
