@@ -11,7 +11,7 @@ It's designed for a variety of use cases:
 
 To accomplish this, Gro has the `BuildConfig` type
 which defines some JSON metadata for each build.
-See [`../project/buildConfig.ts`](../project/buildConfig.ts) for the implementation.
+See [`src/project/buildConfig.ts`](/src/project/buildConfig.ts) for the implementation.
 A project can add this data to its `package.json` under a `"gro"` field.
 
 Why put this in `package.json` and not a more powerful `gro.config.ts` file?
@@ -95,7 +95,7 @@ with a second client optimized for mobile browsers:
 
 ## additional options
 
-The build config has some options. Here's the [`BuildConfig`](../project/buildConfig.ts) type:
+The build config has some options. Here's the [`BuildConfig`](/src/project/buildConfig.ts) type:
 
 ```ts
 export interface BuildConfig {
@@ -106,14 +106,14 @@ export interface BuildConfig {
 ```
 
 The optional `dist` flag marks builds for inclusion in the root `dist/` directory
-by [the `gro dist` task](../dist.task.ts).
+by [the `gro dist` task](/src/dist.task.ts).
 If no `dist` flag is found on any builds, all builds are included.
 If multiple builds are found, the `dist` task copies their directories,
 which are named according to the `"name"` build config field, into `dist/`.
 If one build is found, its contents are put directly into `dist/` with no directory namespacing.
 Like all builtin tasks, you can easily customize this behavior
 by creating `src/dist.task.ts` in your project and optionally
-[invoking the original task](../task#run-a-task-inside-another-task).
+[invoking the original task](/src/task#run-a-task-inside-another-task).
 
 ## todo
 
