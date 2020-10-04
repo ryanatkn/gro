@@ -5,6 +5,7 @@ import {loadPackageJson} from './packageJson.js';
 export interface BuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
+	readonly dist?: boolean;
 }
 
 export type PlatformTarget = 'node' | 'browser';

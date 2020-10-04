@@ -1,6 +1,6 @@
 import {copy} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
-import {paths, toBuildDir, toBuildsDir} from './paths.js';
+import {paths, toBuildDir} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
 import {printPath} from './utils/print.js';
 import {cleanDist} from './project/clean.js';
@@ -19,14 +19,20 @@ export const task: Task = {
 		// So if `dist: true` is on multiple builds, we keep the namespacing but otherwise elide it?
 		// Should users be given more granular control in the config,
 		// or should we encourage implementing custom `dist` tasks to do this instead?
-		const buildConfigs = await loadBuildConfigs();
 		const dev = process.env.NODE_ENV === 'development';
-		const buildDir =
-			buildConfigs.length === 1 ? toBuildDir(dev, buildConfigs[0].name, '') : toBuildsDir(dev);
-		log.info(`copying ${printPath(buildDir)} to ${printPath(paths.dist)}`);
-		await copy(buildDir, paths.dist, {
-			filter: (id) => isDistFile(id),
-		});
+		const buildConfigs = await loadBuildConfigs();
+		const buildConfigsForDist = buildConfigs.some((c) => c.dist)
+			? buildConfigs.filter((c) => c.dist)
+			: buildConfigs;
+		await Promise.all(
+			buildConfigsForDist.map((buildConfig) => {
+				const buildDir = toBuildDir(dev, buildConfig.name, '');
+				const destDir =
+					buildConfigsForDist.length === 1 ? paths.dist : `${paths.dist}${buildConfig.name}`;
+				log.info(`copying ${printPath(buildDir)} to ${printPath(destDir)}`);
+				return copy(buildDir, destDir, {filter: (id) => isDistFile(id)});
+			}),
+		);
 
 		await invokeTask('assets');
 	},

@@ -101,7 +101,8 @@
     "builds": [
       {
         "name": "node",
-        "platform": "node"
+        "platform": "node",
+        "dist": true
       }
     ]
   }

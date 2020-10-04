@@ -81,3 +81,25 @@ with a second client optimized for mobile browsers:
 	}
 }
 ```
+
+## Additional options
+
+The build config has some options. Here's the `BuildConfig` type:
+
+```ts
+export interface BuildConfig {
+	readonly name: string;
+	readonly platform: PlatformTarget;
+	readonly dist?: boolean;
+}
+```
+
+The optional `dist` flag marks builds for inclusion in the root `dist/` directory
+by the `dist` task, which you can run via `gro dist`,
+and whose code is at [`src/dist.task.ts`](../dist.task.ts).
+If no `dist` flag is found on any builds, all builds are included.
+If multiple builds are found, the `dist` task copies their directories into `dist/`.
+If one build is found, its contents are put directly into `dist/` with no directory namespacing.
+Like all builtin tasks, you can easily customize this behavior
+by creating `src/dist.task.ts` in your project and optionally
+[invoking the original task](../task#run-a-task-inside-another-task).
