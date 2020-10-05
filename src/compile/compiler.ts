@@ -1,12 +1,13 @@
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../project/buildConfig.js';
-import {toBuildDir} from '../paths.js';
+import {toBuildOutDir} from '../paths.js';
 
 export interface Compiler<T extends Compilation = Compilation> {
 	compile(
 		source: CompilationSource,
 		buildConfig: BuildConfig,
+		buildRootDir: string,
 		dev: boolean,
 	): CompileResult<T> | Promise<CompileResult<T>>;
 }
@@ -46,7 +47,6 @@ interface BaseCompilationSource {
 	filename: string;
 	dir: string;
 	dirBasePath: string;
-	sourceDir: {outDir: string}; // TODO doesn't look right
 	extension: string;
 }
 
@@ -71,10 +71,11 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	const compile: Compiler['compile'] = (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
+		buildRootDir: string,
 		dev: boolean,
 	) => {
 		const compiler = getCompiler(source, buildConfig) || noopCompiler;
-		return compiler.compile(source, buildConfig, dev);
+		return compiler.compile(source, buildConfig, buildRootDir, dev);
 	};
 
 	return {compile};
@@ -84,10 +85,11 @@ const createNoopCompiler = (): Compiler => {
 	const compile: Compiler['compile'] = (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
+		buildRootDir: string,
 		dev: boolean,
 	) => {
 		const {filename, extension} = source;
-		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
+		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
 		let file: Compilation;
 		switch (source.encoding) {

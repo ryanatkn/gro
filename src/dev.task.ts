@@ -10,7 +10,7 @@ export const task: Task = {
 	run: async (): Promise<void> => {
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
-			compiledDirs: [{sourceDir: paths.source, outDir: paths.build}],
+			compiledDirs: [paths.source],
 			buildConfigs: await loadBuildConfigs(),
 		});
 
