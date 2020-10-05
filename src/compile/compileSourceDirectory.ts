@@ -35,7 +35,7 @@ export const compileSourceDirectory = async (
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
 		compiler: createDefaultCompiler(),
-		compiledDirs: [{sourceDir: paths.source, outDir: paths.build}],
+		compiledDirs: [paths.source],
 		buildConfigs,
 		watch: false,
 		include,

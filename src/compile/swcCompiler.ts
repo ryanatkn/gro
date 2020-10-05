@@ -4,7 +4,7 @@ import {relative} from 'path';
 import {loadTsconfig, TsConfig} from './tsHelpers.js';
 import {toSwcCompilerTarget, getDefaultSwcOptions, addSourceMapFooter} from './swcHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildDir, TS_EXTENSION} from '../paths.js';
+import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutDir, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {CompilationSource, Compiler, TextCompilation} from './compiler.js';
 import {replaceExtension} from '../utils/path.js';
@@ -41,6 +41,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 	const compile: SwcCompiler['compile'] = async (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
+		buildRootDir: string,
 		dev: boolean,
 	) => {
 		if (source.encoding !== 'utf8') {
@@ -50,7 +51,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
+		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const finalSwcOptions = {...swcOptions, filename: relative(outDir, id)};
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);

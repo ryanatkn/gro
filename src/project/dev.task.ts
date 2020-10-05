@@ -12,7 +12,7 @@ export const task: Task = {
 		const timings = new Timings();
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
-			compiledDirs: [{sourceDir: paths.source, outDir: paths.build}],
+			compiledDirs: [paths.source],
 			buildConfigs: await loadBuildConfigs(),
 		});
 

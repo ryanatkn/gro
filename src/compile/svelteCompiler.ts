@@ -17,7 +17,7 @@ import {
 	JS_EXTENSION,
 	SOURCE_MAP_EXTENSION,
 	SVELTE_EXTENSION,
-	toBuildDir,
+	toBuildOutDir,
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
@@ -70,6 +70,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 	const compile: SvelteCompiler['compile'] = async (
 		source: TextCompilationSource,
 		buildConfig: BuildConfig,
+		buildRootDir: string,
 		dev: boolean,
 	) => {
 		if (source.encoding !== 'utf8') {
@@ -79,7 +80,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
+		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps

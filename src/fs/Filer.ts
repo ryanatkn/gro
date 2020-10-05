@@ -4,7 +4,13 @@ import lexer from 'es-module-lexer';
 import {ensureDir, stat, Stats} from './nodeFs.js';
 import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import {hasSourceExtension, JS_EXTENSION, SVELTE_EXTENSION, toBuildDir} from '../paths.js';
+import {
+	hasSourceExtension,
+	JS_EXTENSION,
+	paths,
+	SVELTE_EXTENSION,
+	toBuildOutDir,
+} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import {UnreachableError} from '../utils/error.js';
@@ -92,18 +98,14 @@ export interface BaseFile {
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
 
-export interface CompiledDir {
-	readonly sourceDir: string;
-	readonly outDir: string;
-}
-
 export interface Options {
 	dev: boolean;
 	compiler: Compiler | null;
 	buildConfigs: BuildConfig[] | null;
-	include: (id: string) => boolean;
-	compiledDirs: CompiledDir[];
+	buildRootDir: string;
+	compiledDirs: string[];
 	servedDirs: string[];
+	include: (id: string) => boolean;
 	sourceMap: boolean;
 	debounce: number;
 	watch: boolean;
@@ -114,23 +116,24 @@ export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const dev = opts.dev ?? true;
 	const buildConfigs = opts.buildConfigs || null;
-	const compiledDirs = opts.compiledDirs
-		? opts.compiledDirs.map((d) => ({sourceDir: resolve(d.sourceDir), outDir: resolve(d.outDir)}))
-		: [];
+	const buildRootDir = opts.buildRootDir || paths.build;
+	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
 	validateCompiledDirs(compiledDirs);
 	// default to serving all of the compiled output files
 	const servedDirs = Array.from(
 		new Set(
 			(
 				opts.servedDirs ||
-				compiledDirs
-					.map((compiledDir) => {
-						if (buildConfigs === null) return null!;
-						const defaultServedBuildConfig =
-							buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0];
-						return toBuildDir(dev, defaultServedBuildConfig.name, '', compiledDir.outDir);
-					})
-					.filter(Boolean)
+				(buildConfigs === null
+					? []
+					: [
+							toBuildOutDir(
+								dev,
+								(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
+								'',
+								buildRootDir,
+							),
+					  ])
 			).map((d) => resolve(d)),
 		),
 	);
@@ -153,22 +156,24 @@ export const initOptions = (opts: InitialOptions): Options => {
 		...omitUndefined(opts),
 		include: opts.include || (() => true),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
+		compiler,
 		buildConfigs,
+		buildRootDir,
 		compiledDirs,
 		servedDirs,
-		compiler,
 	};
 };
 
 export class Filer {
 	private readonly dev: boolean;
 	private readonly compiler: Compiler | null;
+	private readonly buildConfigs: BuildConfig[] | null;
+	private readonly buildRootDir: string;
+	private readonly servedDirs: string[];
 	private readonly sourceMap: boolean;
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
 	private readonly dirs: SourceDir[];
-	private readonly servedDirs: string[];
-	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly include: (id: string) => boolean;
 
 	private readonly files: Map<string, FilerFile> = new Map();
@@ -177,25 +182,27 @@ export class Filer {
 		const {
 			dev,
 			compiler,
-			include,
-			sourceMap,
+			buildConfigs,
+			buildRootDir,
 			compiledDirs,
 			servedDirs,
-			buildConfigs,
+			include,
+			sourceMap,
 			debounce,
 			watch,
 			cleanOutputDirs,
 			log,
 		} = initOptions(opts);
+		this.dev = dev;
 		this.compiler = compiler;
+		this.buildConfigs = buildConfigs;
+		this.buildRootDir = buildRootDir;
+		this.servedDirs = servedDirs;
 		this.include = include;
 		this.sourceMap = sourceMap;
 		this.cleanOutputDirs = cleanOutputDirs;
-		this.dev = dev;
 		this.log = log;
 		this.dirs = createSourceDirs(compiledDirs, servedDirs, watch, debounce, this.onSourceDirChange);
-		this.servedDirs = servedDirs;
-		this.buildConfigs = buildConfigs;
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
@@ -230,14 +237,11 @@ export class Filer {
 			// For now, this does not handle production output.
 			// See the comments where `dev` is declared for more.
 			// (more accurately, it could handle prod, but not simultaneous to dev)
-			const outputDirs: string[] = this.dirs
-				.map((d) => d.outDir!)
-				.filter(Boolean)
-				.flatMap((outDir) =>
-					buildConfigs.map((buildConfig) => toBuildDir(this.dev, buildConfig.name, '', outDir)),
-				);
+			const buildOutDirs: string[] = buildConfigs.map((buildConfig) =>
+				toBuildOutDir(this.dev, buildConfig.name, '', this.buildRootDir),
+			);
 			await Promise.all(
-				outputDirs.map(async (outputDir) => {
+				buildOutDirs.map(async (outputDir) => {
 					const files = await findFiles(outputDir, undefined, null);
 					await Promise.all(
 						Array.from(files.entries()).map(([path, stats]) => {
@@ -286,7 +290,7 @@ export class Filer {
 					if (this.buildConfigs !== null && sourceDir.compilable) {
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
-								remove(toBuildDir(this.dev, buildConfig.name, change.path, sourceDir.outDir)),
+								remove(toBuildOutDir(this.dev, buildConfig.name, change.path, this.buildRootDir)),
 							),
 						);
 					}
@@ -434,7 +438,7 @@ export class Filer {
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
 		const results = await Promise.all(
 			this.buildConfigs!.map((buildConfig) =>
-				this.compiler!.compile(sourceFile, buildConfig, this.dev),
+				this.compiler!.compile(sourceFile, buildConfig, this.buildRootDir, this.dev),
 			),
 		);
 
@@ -648,31 +652,20 @@ function postprocess(compilation: Compilation) {
 
 // TODO revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility
-const validateCompiledDirs = (compiledDirs: CompiledDir[]) => {
+const validateCompiledDirs = (compiledDirs: string[]) => {
 	for (const compiledDir of compiledDirs) {
-		// Make sure no `outDir` is inside a `sourceDir`.
-		// In the current design, the entire source directory is watched, so in this case,
-		// compiled files would become source files and cause a more cryptic error.
-		const nestedOutDir = compiledDirs.find((d) => compiledDir.outDir.startsWith(d.sourceDir));
-		if (nestedOutDir) {
-			throw Error(
-				'Compiled outDir cannot be inside a sourceDir: ' +
-					`${compiledDir.outDir} is inside ${nestedOutDir.sourceDir}`,
-			);
-		}
-		// Make sure no `sourceDir` is inside another `sourceDir`.
-		// This could probably be fixed to allow the nested one's `outDir` to take precedence.
-		// The current implementation appears to work, if inefficiently,
+		// Make sure no `compiledDir` is inside another `compiledDir`.
+		// This could be fixed and the current implementation appears to work, if inefficiently,
 		// only throwing an error when it detects that a source file's `sourceDir` has changed.
 		// However there may be subtle bugs caused by source files changing their `watcherDir`,
 		// so for now we err on the side of caution and less complexity.
-		const nestedSourceDir = compiledDirs.find(
-			(d) => d !== compiledDir && compiledDir.sourceDir.startsWith(d.sourceDir),
+		const nestedCompiledDir = compiledDirs.find(
+			(d) => d !== compiledDir && compiledDir.startsWith(d),
 		);
-		if (nestedSourceDir) {
+		if (nestedCompiledDir) {
 			throw Error(
-				'Compiled sourceDir cannot be inside another sourceDir: ' +
-					`${compiledDir.sourceDir} is inside ${nestedSourceDir.sourceDir}`,
+				'A compiledDir cannot be inside another compiledDir: ' +
+					`${compiledDir} is inside ${nestedCompiledDir}`,
 			);
 		}
 	}
@@ -765,17 +758,17 @@ const createSourceFile = (
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
 const createSourceDirs = (
-	compiledDirs: CompiledDir[],
+	compiledDirs: string[],
 	servedDirs: string[],
 	watch: boolean,
 	debounce: number,
 	onChange: SourceDirChangeCallback,
 ): SourceDir[] => {
 	const dirs: SourceDir[] = [];
-	for (const {sourceDir, outDir} of compiledDirs) {
+	for (const sourceDir of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
-		dirs.push(createSourceDir(sourceDir, outDir, watch, debounce, onChange));
+		dirs.push(createSourceDir(sourceDir, true, watch, debounce, onChange));
 	}
 	if (watch) {
 		for (const servedDir of servedDirs) {
@@ -783,12 +776,10 @@ const createSourceDirs = (
 			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 			if (
-				!compiledDirs.find(
-					(d) => servedDir.startsWith(d.sourceDir) || servedDir.startsWith(d.outDir),
-				) &&
+				!compiledDirs.find((d) => servedDir.startsWith(d)) &&
 				!servedDirs.find((d) => d !== servedDir && servedDir.startsWith(d))
 			) {
-				dirs.push(createSourceDir(servedDir, null, watch, debounce, onChange));
+				dirs.push(createSourceDir(servedDir, false, watch, debounce, onChange));
 			}
 		}
 	}
@@ -802,11 +793,9 @@ type SourceDir = CompilableSourceDir | NonCompilableSourceDir;
 type SourceDirChangeCallback = (change: WatcherChange, sourceDir: SourceDir) => Promise<void>;
 interface CompilableSourceDir extends BaseSourceDir {
 	readonly compilable: true;
-	readonly outDir: string;
 }
 interface NonCompilableSourceDir extends BaseSourceDir {
 	readonly compilable: false;
-	readonly outDir: null;
 }
 interface BaseSourceDir {
 	readonly dir: string;
@@ -817,7 +806,7 @@ interface BaseSourceDir {
 }
 const createSourceDir = (
 	dir: string,
-	outDir: string | null,
+	compilable: boolean,
 	watch: boolean,
 	debounce: number,
 	onChange: SourceDirChangeCallback,
@@ -832,7 +821,7 @@ const createSourceDir = (
 		watcher.close();
 	};
 	const init = async () => {
-		await Promise.all([ensureDir(dir), outDir === null ? null : ensureDir(outDir)]);
+		await ensureDir(dir);
 		const statsBySourcePath = await watcher.init();
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
@@ -840,25 +829,6 @@ const createSourceDir = (
 			),
 		);
 	};
-	const sourceDir: SourceDir =
-		outDir === null
-			? {
-					compilable: false,
-					dir,
-					outDir,
-					onChange,
-					watcher,
-					close,
-					init,
-			  }
-			: {
-					compilable: true,
-					dir,
-					outDir,
-					onChange,
-					watcher,
-					close,
-					init,
-			  };
+	const sourceDir: SourceDir = {compilable, dir, onChange, watcher, close, init};
 	return sourceDir;
 };

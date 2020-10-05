@@ -1,5 +1,5 @@
 import {pathExists, remove} from '../fs/nodeFs.js';
-import {paths, toBuildsDir} from '../paths.js';
+import {paths, toBuildsOutDir} from '../paths.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 
@@ -17,7 +17,7 @@ export const cleanBuild = async (log: SystemLogger) => {
 };
 
 export const cleanProductionBuild = async (log: SystemLogger) => {
-	const path = toBuildsDir(false);
+	const path = toBuildsOutDir(false);
 	if (await pathExists(path)) {
 		log.info('removing', printPath(path));
 		await remove(path);
