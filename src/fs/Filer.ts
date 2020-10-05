@@ -202,7 +202,14 @@ export class Filer {
 		this.sourceMap = sourceMap;
 		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
-		this.dirs = createSourceDirs(compiledDirs, servedDirs, watch, debounce, this.onSourceDirChange);
+		this.dirs = createSourceDirs(
+			compiledDirs,
+			servedDirs,
+			buildRootDir,
+			watch,
+			debounce,
+			this.onSourceDirChange,
+		);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
@@ -760,6 +767,7 @@ const createSourceFile = (
 const createSourceDirs = (
 	compiledDirs: string[],
 	servedDirs: string[],
+	buildRootDir: string,
 	watch: boolean,
 	debounce: number,
 	onChange: SourceDirChangeCallback,
@@ -772,12 +780,14 @@ const createSourceDirs = (
 	}
 	if (watch) {
 		for (const servedDir of servedDirs) {
-			// If a `servedDir` is inside a compiled directory's `sourceDir` or `outDir`,
+			// If a `servedDir` is inside a compiled directory,
 			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
+			// TODO what about `servedDirs` that are inside the `buildRootDir` but aren't compiled?
 			if (
 				!compiledDirs.find((d) => servedDir.startsWith(d)) &&
-				!servedDirs.find((d) => d !== servedDir && servedDir.startsWith(d))
+				!servedDirs.find((d) => d !== servedDir && servedDir.startsWith(d)) &&
+				!servedDir.startsWith(buildRootDir)
 			) {
 				dirs.push(createSourceDir(servedDir, false, watch, debounce, onChange));
 			}
@@ -786,9 +796,9 @@ const createSourceDirs = (
 	return dirs;
 };
 
-// There are two kinds of `SourceDir`s, those created with an `outDir` and those without.
-// If there's an `outDir` the `dir` will be compiled to it and written to disk.
-// If `outDir` is null, the `dir` is only watched and nothing is written back to the filesystem.
+// There are two kinds of `SourceDir`s, those that are compilable and those that are not.
+// Compilable source dirs are compiled and written to disk.
+// For non-compilable ones, the `dir` is only watched and nothing is written to the filesystem.
 type SourceDir = CompilableSourceDir | NonCompilableSourceDir;
 type SourceDirChangeCallback = (change: WatcherChange, sourceDir: SourceDir) => Promise<void>;
 interface CompilableSourceDir extends BaseSourceDir {
