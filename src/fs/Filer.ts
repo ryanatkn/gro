@@ -97,12 +97,8 @@ export interface CompiledDir {
 	readonly outDir: string;
 }
 
-// For now, the Filer only handles development builds.
-// Long term, it probably makes sense to integrate it with production builds as well.
-// This flag is currently hardcoded and used to highlight related code.
-const dev = true;
-
 export interface Options {
+	dev: boolean;
 	compiler: Compiler | null;
 	buildConfigs: BuildConfig[] | null;
 	include: (id: string) => boolean;
@@ -116,6 +112,7 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
+	const dev = opts.dev ?? true;
 	const buildConfigs = opts.buildConfigs || null;
 	const compiledDirs = opts.compiledDirs
 		? opts.compiledDirs.map((d) => ({sourceDir: resolve(d.sourceDir), outDir: resolve(d.outDir)}))
@@ -148,6 +145,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		throw Error('Filer created with a compiler but no directories to compile.');
 	}
 	return {
+		dev,
 		sourceMap: true,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
@@ -163,6 +161,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer {
+	private readonly dev: boolean;
 	private readonly compiler: Compiler | null;
 	private readonly sourceMap: boolean;
 	private readonly cleanOutputDirs: boolean;
@@ -176,6 +175,7 @@ export class Filer {
 
 	constructor(opts: InitialOptions) {
 		const {
+			dev,
 			compiler,
 			include,
 			sourceMap,
@@ -191,6 +191,7 @@ export class Filer {
 		this.include = include;
 		this.sourceMap = sourceMap;
 		this.cleanOutputDirs = cleanOutputDirs;
+		this.dev = dev;
 		this.log = log;
 		this.dirs = createSourceDirs(compiledDirs, servedDirs, watch, debounce, this.onSourceDirChange);
 		this.servedDirs = servedDirs;
@@ -233,7 +234,7 @@ export class Filer {
 				.map((d) => d.outDir!)
 				.filter(Boolean)
 				.flatMap((outDir) =>
-					buildConfigs.map((buildConfig) => toBuildDir(dev, buildConfig.name, '', outDir)),
+					buildConfigs.map((buildConfig) => toBuildDir(this.dev, buildConfig.name, '', outDir)),
 				);
 			await Promise.all(
 				outputDirs.map(async (outputDir) => {
@@ -285,7 +286,7 @@ export class Filer {
 					if (this.buildConfigs !== null && sourceDir.compilable) {
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
-								remove(toBuildDir(dev, buildConfig.name, change.path, sourceDir.outDir)),
+								remove(toBuildDir(this.dev, buildConfig.name, change.path, sourceDir.outDir)),
 							),
 						);
 					}
@@ -432,7 +433,9 @@ export class Filer {
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
 		const results = await Promise.all(
-			this.buildConfigs!.map((buildConfig) => this.compiler!.compile(sourceFile, buildConfig, dev)),
+			this.buildConfigs!.map((buildConfig) =>
+				this.compiler!.compile(sourceFile, buildConfig, this.dev),
+			),
 		);
 
 		// Update the cache and write to disk.
