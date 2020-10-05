@@ -100,7 +100,7 @@ The build config has some options. Here's the [`BuildConfig`](/src/project/build
 ```ts
 export interface BuildConfig {
 	readonly name: string;
-	readonly platform: PlatformTarget;
+	readonly platform: PlatformTarget; // 'node' | 'browser'
 	readonly dist?: boolean;
 	readonly primary?: boolean;
 }
