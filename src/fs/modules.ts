@@ -6,6 +6,7 @@ import {Timings} from '../utils/time.js';
 import {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
+import {BuildConfig, loadPrimaryBuildConfigAt} from '../project/buildConfig.js';
 
 /*
 
@@ -32,10 +33,15 @@ export type LoadModuleFailure =
 export const loadModule = async <T>(
 	id: string,
 	validate?: (mod: Obj) => mod is T,
+	dev = true,
+	buildConfig?: BuildConfig,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
+	if (!buildConfig) {
+		buildConfig = await loadPrimaryBuildConfigAt(id);
+	}
 	let mod;
 	try {
-		mod = await import(toImportId(id));
+		mod = await import(toImportId(id, dev, buildConfig.name));
 	} catch (err) {
 		return {ok: false, type: 'importFailed', id, error: err};
 	}

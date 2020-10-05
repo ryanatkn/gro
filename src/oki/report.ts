@@ -1,7 +1,7 @@
 import {green, red, bgGreen, black, yellow, gray, cyan} from '../colors/terminal.js';
 import {TestContext, TOTAL_TIMING, TestInstance} from './TestContext.js';
 import {printMs, printValue, printStr, printError} from '../utils/print.js';
-import {toSourcePath} from '../paths.js';
+import {toRootPath} from '../paths.js';
 import {AssertionError, FailedAssertion} from './assertions.js';
 import {UnreachableError, ErrorClass} from '../utils/error.js';
 
@@ -65,7 +65,7 @@ export const reportSummary = (ctx: TestContext): void => {
 
 export const reportFileBegin = (ctx: TestContext, fileId: string): void => {
 	ctx.log.newline();
-	ctx.log.plain('📁', toSourcePath(fileId));
+	ctx.log.plain('📁', toRootPath(fileId));
 };
 export const reportFileEnd = (ctx: TestContext, fileId: string): void => {
 	ctx.log.plain(ctx.reportBaseIndent, gray('🕒'), printMs(ctx.timings.get(fileId), 1));

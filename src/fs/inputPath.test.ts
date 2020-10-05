@@ -28,7 +28,7 @@ test('resolveRawInputPath()', () => {
 		t.is(resolveRawInputPath('./src/'), targetDir);
 		t.is(resolveRawInputPath('./srcTest'), targetDir + 'srcTest');
 		t.is(resolveRawInputPath('srcTest'), targetDir + 'srcTest');
-		t.isNot(resolveRawInputPath('build'), targetDir);
+		t.isNot(resolveRawInputPath('.gro'), targetDir);
 	});
 
 	test('forced gro directory', () => {

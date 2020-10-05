@@ -105,7 +105,7 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
 
 const toLocalPath = (url: string): string => {
-	const relativeUrl = url[0] === '/' ? '.' + url : url;
+	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
 	// This avoids making a second file query when we know the path is a directory.
 	const relativePath = relativeUrl.endsWith('/') ? relativeUrl + 'index.html' : relativeUrl;
 	return relativePath;

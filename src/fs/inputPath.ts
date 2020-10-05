@@ -2,7 +2,6 @@ import {join, sep, isAbsolute} from 'path';
 
 import {
 	basePathToSourceId,
-	stripRelativePath,
 	SOURCE_DIR,
 	SOURCE_DIR_NAME,
 	replaceRootDir,
@@ -37,7 +36,7 @@ In the future we may want to support globbing or regexps.
 export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
 	if (isAbsolute(rawInputPath)) return rawInputPath;
 	// Allow prefix `./` and just remove it if it's there.
-	let basePath = stripRelativePath(rawInputPath);
+	let basePath = stripStart(rawInputPath, './');
 	if (!fromPaths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 		if (basePath.startsWith(groDirBasename)) {

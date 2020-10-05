@@ -22,7 +22,7 @@ test('toGenResult', () => {
 		t.throws(() => toGenResult('src/foo.ts', {contents: '/**/'}));
 	});
 	test('fail with a build id', () => {
-		t.throws(() => toGenResult(resolve('build/foo.js'), {contents: '/**/'}));
+		t.throws(() => toGenResult(resolve('.gro/foo.js'), {contents: '/**/'}));
 	});
 	test('fail with an empty id', () => {
 		t.throws(() => toGenResult('', {contents: '/**/'}));

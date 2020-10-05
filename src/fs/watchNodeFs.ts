@@ -12,7 +12,7 @@ import {omitUndefined} from '../utils/object.js';
 
 export interface WatchNodeFs {
 	init: () => Promise<Map<string, PathStats>>;
-	destroy: () => void;
+	close: () => void;
 }
 
 export interface WatcherChange {
@@ -66,7 +66,7 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 			await watcher.init();
 			return watcher.paths;
 		},
-		destroy: () => {
+		close: () => {
 			watcher.close();
 			watcher.removeAllListeners();
 		},

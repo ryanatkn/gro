@@ -1,10 +1,14 @@
-import {join} from 'path';
-
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
+import {BuildConfig} from '../project/buildConfig.js';
+import {toBuildDir} from '../paths.js';
 
 export interface Compiler<T extends Compilation = Compilation> {
-	compile(source: CompilationSource): CompileResult<T> | Promise<CompileResult<T>>;
+	compile(
+		source: CompilationSource,
+		buildConfig: BuildConfig,
+		dev: boolean,
+	): CompileResult<T> | Promise<CompileResult<T>>;
 }
 
 export interface CompileResult<T extends Compilation = Compilation> {
@@ -41,12 +45,13 @@ interface BaseCompilationSource {
 	id: string;
 	filename: string;
 	dir: string;
+	dirBasePath: string;
+	sourceDir: {outDir: string}; // TODO doesn't look right
 	extension: string;
-	outDir: string;
 }
 
 export interface GetCompiler {
-	(source: CompilationSource): Compiler | null;
+	(source: CompilationSource, buildConfig: BuildConfig): Compiler | null;
 }
 
 export interface Options {
@@ -63,18 +68,27 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	const {getCompiler} = initOptions(opts);
 
-	const compile: Compiler['compile'] = (source: CompilationSource) => {
-		const compiler = getCompiler(source) || noopCompiler;
-		return compiler.compile(source);
+	const compile: Compiler['compile'] = (
+		source: CompilationSource,
+		buildConfig: BuildConfig,
+		dev: boolean,
+	) => {
+		const compiler = getCompiler(source, buildConfig) || noopCompiler;
+		return compiler.compile(source, buildConfig, dev);
 	};
 
 	return {compile};
 };
 
 const createNoopCompiler = (): Compiler => {
-	const compile: Compiler['compile'] = (source: CompilationSource) => {
-		const {filename, extension, outDir} = source;
-		const id = join(outDir, filename); // TODO this is broken, needs to account for dirs
+	const compile: Compiler['compile'] = (
+		source: CompilationSource,
+		buildConfig: BuildConfig,
+		dev: boolean,
+	) => {
+		const {filename, extension} = source;
+		const outDir = toBuildDir(dev, buildConfig.name, source.dirBasePath, source.sourceDir.outDir);
+		const id = `${outDir}${filename}`;
 		let file: Compilation;
 		switch (source.encoding) {
 			case 'utf8':

@@ -5,8 +5,14 @@ import {createStopwatch, Timings} from '../utils/time.js';
 import {paths, TS_EXTENSION} from '../paths.js';
 import {Filer} from '../fs/Filer.js';
 import {createDefaultCompiler} from './defaultCompiler.js';
+import {BuildConfig} from '../project/buildConfig.js';
+import {cleanProductionBuild} from '../project/clean.js';
 
-export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise<void> => {
+export const compileSourceDirectory = async (
+	buildConfigs: BuildConfig[],
+	dev: boolean,
+	log: Logger,
+): Promise<void> => {
 	log.info('compiling...');
 
 	const totalTiming = createStopwatch();
@@ -18,21 +24,22 @@ export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise
 		log.info(`🕒 compiled in ${printMs(totalTiming())}`);
 	};
 
-	let include: ((id: string) => boolean) | undefined = undefined;
+	let include: ((id: string) => boolean) | undefined = dev
+		? undefined
+		: (id) => !id.endsWith(TS_EXTENSION);
 
 	if (!dev) {
-		const timingToCompileWithTsc = timings.start('compile with tsc');
-		await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
-		timingToCompileWithTsc();
-		include = (id: string) => !id.endsWith(TS_EXTENSION);
+		await cleanProductionBuild(log);
 	}
 
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
-		compiler: createDefaultCompiler({dev, log}, {dev, log}),
+		compiler: createDefaultCompiler(),
 		compiledDirs: [{sourceDir: paths.source, outDir: paths.build}],
+		buildConfigs,
 		watch: false,
 		include,
+		dev,
 	});
 	timingToCreateFiler();
 
@@ -40,7 +47,14 @@ export const compileSourceDirectory = async (dev: boolean, log: Logger): Promise
 	await filer.init();
 	timingToInitFiler();
 
-	filer.destroy();
+	filer.close();
+
+	// tsc needs to be invoked after the Filer is done, or else the Filer deletes its output!
+	if (!dev) {
+		const timingToCompileWithTsc = timings.start('compile with tsc');
+		await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
+		timingToCompileWithTsc();
+	}
 
 	logTimings();
 };

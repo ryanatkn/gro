@@ -60,7 +60,7 @@ test('gen', async () => {
 			},
 		};
 		const genModulesByInputPath = [modA, modB, modC];
-		const genResults = await runGen(genModulesByInputPath, (id, contents) =>
+		const genResults = await runGen(genModulesByInputPath, async (id, contents) =>
 			id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
 		);
 		t.is(genResults.inputCount, 3);

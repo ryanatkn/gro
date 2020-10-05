@@ -7,18 +7,9 @@ import {
 	groPaths,
 	isGroId,
 	toRootPath,
-	toBasePath,
+	sourceIdToBasePath,
 	basePathToSourceId,
-	basePathToBuildId,
-	basePathToDistId,
-	toSourcePath,
-	toBuildPath,
-	toDistPath,
-	toSourceId,
-	toBuildId,
 	hasSourceExtension,
-	toSourceExtension,
-	toCompiledExtension,
 	toPathParts,
 	toPathSegments,
 	toImportId,
@@ -44,136 +35,9 @@ test('toRootPath()', () => {
 	t.is(toRootPath(resolve('foo/bar')), 'foo/bar');
 });
 
-test('toBasePath()', () => {
+test('sourceIdToBasePath()', () => {
 	test('sourceId', () => {
-		t.is(toBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
-	});
-	test('buildId', () => {
-		t.is(toBasePath(resolve('build/foo/bar/baz.js')), 'foo/bar/baz.js');
-	});
-	test('distId', () => {
-		t.is(toBasePath(resolve('dist/foo/bar/baz.js')), 'foo/bar/baz.js');
-	});
-});
-
-test('toSourcePath()', () => {
-	test('sourceId', () => {
-		t.is(toSourcePath(resolve('src/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
-	});
-	test('sourceId with js extension', () => {
-		t.is(toSourcePath(resolve('src/foo/bar/baz.js')), 'src/foo/bar/baz.js');
-	});
-	test('buildId', () => {
-		t.is(toSourcePath(resolve('build/foo/bar/baz.js')), 'src/foo/bar/baz.ts');
-	});
-	test('buildId with ts extension', () => {
-		t.is(toSourcePath(resolve('build/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
-	});
-	test('distId', () => {
-		t.is(toSourcePath(resolve('dist/foo/bar/baz.js')), 'src/foo/bar/baz.ts');
-	});
-	test('distId with ts extension', () => {
-		t.is(toSourcePath(resolve('dist/foo/bar/baz.ts')), 'src/foo/bar/baz.ts');
-	});
-});
-
-test('toBuildPath()', () => {
-	test('sourceId', () => {
-		t.is(toBuildPath(resolve('src/foo/bar/baz.ts')), 'build/foo/bar/baz.js');
-	});
-	test('sourceId with js extension', () => {
-		t.is(toBuildPath(resolve('src/foo/bar/baz.js')), 'build/foo/bar/baz.js');
-	});
-	test('buildId', () => {
-		t.is(toBuildPath(resolve('build/foo/bar/baz.js')), 'build/foo/bar/baz.js');
-	});
-	test('buildId with ts extension', () => {
-		t.is(toBuildPath(resolve('build/foo/bar/baz.ts')), 'build/foo/bar/baz.ts');
-	});
-	test('distId', () => {
-		t.is(toBuildPath(resolve('dist/foo/bar/baz.js')), 'build/foo/bar/baz.js');
-	});
-	test('distId with ts extension', () => {
-		t.is(toBuildPath(resolve('dist/foo/bar/baz.ts')), 'build/foo/bar/baz.ts');
-	});
-});
-
-test('toDistPath()', () => {
-	test('sourceId', () => {
-		t.is(toDistPath(resolve('src/foo/bar/baz.ts')), 'dist/foo/bar/baz.js');
-	});
-	test('sourceId with js extension', () => {
-		t.is(toDistPath(resolve('src/foo/bar/baz.js')), 'dist/foo/bar/baz.js');
-	});
-	test('buildId', () => {
-		t.is(toDistPath(resolve('build/foo/bar/baz.js')), 'dist/foo/bar/baz.js');
-	});
-	test('buildId with ts extension', () => {
-		t.is(toDistPath(resolve('build/foo/bar/baz.ts')), 'dist/foo/bar/baz.ts');
-	});
-	test('distId', () => {
-		t.is(toDistPath(resolve('dist/foo/bar/baz.js')), 'dist/foo/bar/baz.js');
-	});
-	test('distId with ts extension', () => {
-		t.is(toDistPath(resolve('dist/foo/bar/baz.ts')), 'dist/foo/bar/baz.ts');
-	});
-});
-
-test('toSourceId()', () => {
-	test('sourceId', () => {
-		t.is(toSourceId(resolve('src/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('sourceId with js extension', () => {
-		t.is(toSourceId(resolve('src/foo/bar/baz.js')), resolve('src/foo/bar/baz.js'));
-	});
-	test('buildId', () => {
-		t.is(toSourceId(resolve('build/foo/bar/baz.js')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('buildId with ts extension', () => {
-		t.is(toSourceId(resolve('build/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('distId', () => {
-		t.is(toSourceId(resolve('dist/foo/bar/baz.js')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('distId with ts extension', () => {
-		t.is(toSourceId(resolve('dist/foo/bar/baz.ts')), resolve('src/foo/bar/baz.ts'));
-	});
-	test('directory sourceId', () => {
-		t.is(toSourceId(resolve('src/foo/bar')), resolve('src/foo/bar/'));
-		t.is(toSourceId(resolve('src/foo/bar') + '/'), resolve('src/foo/bar') + '/');
-	});
-	test('directory buildId', () => {
-		t.is(toSourceId(resolve('build/foo/bar')), resolve('src/foo/bar'));
-		t.is(toSourceId(resolve('build/foo/bar') + '/'), resolve('src/foo/bar') + '/');
-	});
-});
-
-test('toBuildId()', () => {
-	test('sourceId', () => {
-		t.is(toBuildId(resolve('src/foo/bar/baz.ts')), resolve('build/foo/bar/baz.js'));
-	});
-	test('sourceId with js extension', () => {
-		t.is(toBuildId(resolve('src/foo/bar/baz.js')), resolve('build/foo/bar/baz.js'));
-	});
-	test('buildId', () => {
-		t.is(toBuildId(resolve('build/foo/bar/baz.js')), resolve('build/foo/bar/baz.js'));
-	});
-	test('buildId with ts extension', () => {
-		t.is(toBuildId(resolve('build/foo/bar/baz.ts')), resolve('build/foo/bar/baz.ts'));
-	});
-	test('distId', () => {
-		t.is(toBuildId(resolve('build/foo/bar/baz.js')), resolve('build/foo/bar/baz.js'));
-	});
-	test('distId with ts extension', () => {
-		t.is(toBuildId(resolve('build/foo/bar/baz.ts')), resolve('build/foo/bar/baz.ts'));
-	});
-	test('directory sourceId', () => {
-		t.is(toBuildId(resolve('src/foo/bar')), resolve('build/foo/bar/'));
-		t.is(toBuildId(resolve('src/foo/bar') + '/'), resolve('build/foo/bar') + '/');
-	});
-	test('directory buildId', () => {
-		t.is(toBuildId(resolve('build/foo/bar')), resolve('build/foo/bar'));
-		t.is(toBuildId(resolve('build/foo/bar') + '/'), resolve('build/foo/bar') + '/');
+		t.is(sourceIdToBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
 	});
 });
 
@@ -183,18 +47,6 @@ test('basePathToSourceId()', () => {
 		t.is(basePathToSourceId('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
 	});
 });
-test('basePathToBuildId()', () => {
-	t.is(basePathToBuildId('foo/bar/baz.js'), resolve('build/foo/bar/baz.js'));
-	test('does not change extension', () => {
-		t.is(basePathToBuildId('foo/bar/baz.ts'), resolve('build/foo/bar/baz.ts'));
-	});
-});
-test('basePathToDistId()', () => {
-	t.is(basePathToDistId('foo/bar/baz.js'), resolve('dist/foo/bar/baz.js'));
-	test('does not change extension', () => {
-		t.is(basePathToDistId('foo/bar/baz.ts'), resolve('dist/foo/bar/baz.ts'));
-	});
-});
 
 test('hasSourceExtension()', () => {
 	test('typescript', () => {
@@ -202,19 +54,6 @@ test('hasSourceExtension()', () => {
 	});
 	test('svelte', () => {
 		t.ok(hasSourceExtension('foo/bar/baz.svelte'));
-	});
-});
-
-test('toSourceExtension()', () => {
-	t.is(toSourceExtension('foo/bar/baz.js'), 'foo/bar/baz.ts');
-});
-
-test('toCompiledExtension()', () => {
-	test('typescript', () => {
-		t.is(toCompiledExtension('foo/bar/baz.ts'), 'foo/bar/baz.js');
-	});
-	test('svelte', () => {
-		t.is(toCompiledExtension('foo/bar/baz.svelte'), 'foo/bar/baz.js');
 	});
 });
 
@@ -245,5 +84,6 @@ test('toPathParts()', () => {
 });
 
 test('toImportId()', () => {
-	t.is(toImportId(resolve('src/foo/bar.ts')), resolve('build/foo/bar.js'));
+	t.is(toImportId(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
+	t.is(toImportId(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
 });

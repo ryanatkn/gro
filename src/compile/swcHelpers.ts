@@ -1,8 +1,6 @@
 import swc from '@swc/core';
 import type {ScriptTarget} from 'typescript';
-import {dirname, relative, basename} from 'path';
-
-import {toBuildId, toSourceId} from '../paths.js';
+import {basename} from 'path';
 
 const DEFAULT_TARGET = 'es2019'; // TODO?
 
@@ -31,11 +29,6 @@ export const toSwcCompilerTarget = (target: ScriptTarget | undefined): swc.JscTa
 	}
 };
 
-export const mergeSwcOptions = (options: swc.Options, sourcePath: string): swc.Options => ({
-	...options,
-	filename: sourcePath ? sourcePathToSwcFilename(sourcePath) : undefined,
-});
-
 export const getDefaultSwcOptions = (
 	target: swc.JscTarget = DEFAULT_TARGET,
 	sourceMap = true, // sticking with the naming convention of TypeScript and some other libs
@@ -48,9 +41,6 @@ export const getDefaultSwcOptions = (
 		loose: true, // TODO?
 	},
 });
-
-const sourcePathToSwcFilename = (sourcePath: string): string =>
-	relative(dirname(toBuildId(sourcePath)), toSourceId(sourcePath));
 
 export const addSourceMapFooter = (code: string, sourceMapPath: string): string =>
 	`${code}//# sourceMappingURL=${basename(sourceMapPath)}`;

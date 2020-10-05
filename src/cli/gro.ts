@@ -56,13 +56,19 @@ const main = (): Promise<void> => {
 		return import(join(realpathSync(groBinPath), '../invoke.js'));
 	} else {
 		// case 2
-		// If running Gro inside its own repo, require the local build.
+		// If running Gro inside its own repo, require the local development build.
 		// If the local build is not available,
 		// the global version can be used to build the project.
 		const filePath = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
-		if (existsSync('build/cli/gro.js') && existsSync('build/cli/invoke.js')) {
-			return import(join(filePath, '../../../build/cli/invoke.js'));
+		// TODO This currently only tests the production build if the dev one doesn't exist.
+		// The correct thing is probably to see which one was created most recently,
+		// but I don't think that's easy until we start caching metadata.
+		if (existsSync('.gro/dev/node/cli/gro.js') && existsSync('.gro/dev/node/cli/invoke.js')) {
+			return import(join(filePath, '../../../.gro/dev/node/cli/invoke.js'));
+		}
+		if (existsSync('.gro/prod/node/cli/gro.js') && existsSync('.gro/prod/node/cli/invoke.js')) {
+			return import(join(filePath, '../../../.gro/prod/node/cli/invoke.js'));
 		}
 		// case 3
 		// Fall back to the version associated with the running CLI.

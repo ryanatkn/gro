@@ -11,6 +11,8 @@
   ([#56](https://github.com/feltcoop/gro/pull/56))
 - make `createCompiler` pluggable allowing users to provide a compiler for each file
   ([#57](https://github.com/feltcoop/gro/pull/57))
+- change the `build/` directory to `.gro/` and support multiple builds
+  ([#59](https://github.com/feltcoop/gro/pull/59))
 
 ## 0.4.0
 

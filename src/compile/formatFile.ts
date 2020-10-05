@@ -1,12 +1,12 @@
 import prettier from 'prettier';
 import {extname} from 'path';
 
-import {getPackageJson} from '../project/pkg.js';
+import {loadPackageJson} from '../project/packageJson.js';
 
-export const formatFile = (id: string, contents: string): string => {
+export const formatFile = async (id: string, contents: string): Promise<string> => {
 	const parser = inferParser(id);
 	if (!parser) return contents;
-	const config = getPackageJson().prettier as Obj;
+	const config = (await loadPackageJson()).prettier as Obj;
 	return prettier.format(contents, {...config, parser});
 };
 
