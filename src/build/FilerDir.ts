@@ -2,6 +2,7 @@ import {ensureDir} from '../fs/nodeFs.js';
 import {watchNodeFs, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import {paths} from '../paths.js';
+import {Compiler} from '../compile/compiler.js';
 
 // Compiled filer dirs are compiled and written to disk.
 // For non-compilable dirs, the `dir` is only watched and nothing is written to the filesystem.
@@ -11,9 +12,11 @@ export type FilerDir = CompilableFilerDir | NonCompilableFilerDir;
 export type FilerDirChangeCallback = (change: WatcherChange, filerDir: FilerDir) => Promise<void>;
 export interface CompilableFilerDir extends BaseFilerDir {
 	readonly compilable: true;
+	readonly compiler: Compiler;
 }
 export interface NonCompilableFilerDir extends BaseFilerDir {
 	readonly compilable: false;
+	readonly compiler: null;
 }
 
 interface BaseFilerDir {
@@ -26,7 +29,7 @@ interface BaseFilerDir {
 
 export const createFilerDir = (
 	dir: string,
-	compilable: boolean,
+	compiler: Compiler | null,
 	watch: boolean,
 	debounce: number,
 	onChange: FilerDirChangeCallback,
@@ -51,6 +54,25 @@ export const createFilerDir = (
 			),
 		);
 	};
-	const filerDir: FilerDir = {compilable, dir, onChange, watcher, close, init};
+	const filerDir: FilerDir =
+		compiler === null
+			? {
+					compilable: false,
+					compiler: null,
+					dir,
+					onChange,
+					watcher,
+					close,
+					init,
+			  }
+			: {
+					compilable: true,
+					compiler,
+					dir,
+					onChange,
+					watcher,
+					close,
+					init,
+			  };
 	return filerDir;
 };

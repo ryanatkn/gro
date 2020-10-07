@@ -160,6 +160,9 @@ export const initOptions = (opts: InitialOptions): Options => {
 	if (!compiledDirs.length && !servedDirs.length) {
 		throw Error('Filer created with no directories to compile or serve.');
 	}
+	if (compiledDirs.length && buildConfigs === null) {
+		throw Error('Filer created with directories to compile but no build configs were provided.');
+	}
 	const compiler = opts.compiler || null;
 	if (compiledDirs.length && !compiler) {
 		throw Error('Filer created with directories to compile but no compiler was provided.');
@@ -186,7 +189,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 export class Filer {
 	private readonly dev: boolean;
-	private readonly compiler: Compiler | null;
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly buildRootDir: string;
 	private readonly servedDirs: ServedDir[];
@@ -214,7 +216,6 @@ export class Filer {
 			log,
 		} = initOptions(opts);
 		this.dev = dev;
-		this.compiler = compiler;
 		this.buildConfigs = buildConfigs;
 		this.buildRootDir = buildRootDir;
 		this.servedDirs = servedDirs;
@@ -225,6 +226,7 @@ export class Filer {
 		this.dirs = createFilerDirs(
 			compiledDirs,
 			servedDirs,
+			compiler,
 			buildRootDir,
 			watch,
 			debounce,
@@ -252,7 +254,7 @@ export class Filer {
 					// OR should this check be in `this.updateSourceId`? `return false` early if not dirty?
 					const filerDir = this.dirs.find((d) => d.dir === servedDir.dir)!; // TODO yeck
 					console.log('filerDir', filerDir);
-					if (await this.updateSourceFile(sourceId, filerDir)) {
+					if ((await this.updateSourceFile(sourceId, filerDir)) && filerDir.compilable) {
 						console.log('UPDATED', sourceId);
 						await this.compileSourceId(sourceId, filerDir);
 					}
@@ -338,7 +340,7 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					if (await this.updateSourceFile(id, filerDir)) {
+					if ((await this.updateSourceFile(id, filerDir)) && filerDir.compilable) {
 						await this.compileSourceId(id, filerDir);
 					}
 				}
@@ -447,7 +449,7 @@ export class Filer {
 
 	// These are used to avoid concurrent compilations for any given source file.
 	private pendingCompilations: Set<string> = new Set();
-	private enqueuedCompilations: Map<string, [string, FilerDir]> = new Map();
+	private enqueuedCompilations: Map<string, [string, CompilableFilerDir]> = new Map();
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -456,8 +458,8 @@ export class Filer {
 	// it removes the item from the queue and recompiles the file.
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
-	private async compileSourceId(id: string, filerDir: FilerDir): Promise<void> {
-		if (this.buildConfigs === null || filerDir.compilable === false || !this.include(id)) {
+	private async compileSourceId(id: string, filerDir: CompilableFilerDir): Promise<void> {
+		if (!this.include(id)) {
 			return;
 		}
 		if (this.pendingCompilations.has(id)) {
@@ -503,7 +505,7 @@ export class Filer {
 			// TODO yet another big hack
 			sourceFile.filerDir.dir === paths.externals
 				? [
-						await this.compiler!.compile(
+						await sourceFile.filerDir.compiler.compile(
 							sourceFile,
 							this.buildConfigs!.find((c) => c.platform === 'browser')!,
 							this.buildRootDir,
@@ -512,7 +514,12 @@ export class Filer {
 				  ]
 				: await Promise.all(
 						this.buildConfigs!.map((buildConfig) =>
-							this.compiler!.compile(sourceFile, buildConfig, this.buildRootDir, this.dev),
+							sourceFile.filerDir.compiler.compile(
+								sourceFile,
+								buildConfig,
+								this.buildRootDir,
+								this.dev,
+							),
 						),
 				  );
 
@@ -878,6 +885,7 @@ const createSourceFile = (
 const createFilerDirs = (
 	compiledDirs: string[],
 	servedDirs: ServedDir[],
+	compiler: Compiler | null,
 	buildRootDir: string,
 	watch: boolean,
 	debounce: number,
@@ -890,10 +898,10 @@ const createFilerDirs = (
 		if (compiledDir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
 			// TODO this is a hack to include externals - make this part of the configuration, probably
 			console.log('creating filer dir for compiled externals', compiledDir);
-			dirs.push(createFilerDir(compiledDir, true, false, debounce, onChange));
+			dirs.push(createFilerDir(compiledDir, compiler, false, debounce, onChange));
 		} else {
 			console.log('creating filer dir for compiledDir', compiledDir);
-			dirs.push(createFilerDir(compiledDir, true, watch, debounce, onChange));
+			dirs.push(createFilerDir(compiledDir, compiler, watch, debounce, onChange));
 		}
 	}
 	if (watch) {
@@ -909,10 +917,10 @@ const createFilerDirs = (
 				// TODO this is a hack to include externals - make this part of the configuration, probably
 				if (!servedDir.dir.startsWith(buildRootDir)) {
 					console.log('creating filer dir for servedDir', servedDir);
-					dirs.push(createFilerDir(servedDir.dir, false, watch, debounce, onChange));
+					dirs.push(createFilerDir(servedDir.dir, null, watch, debounce, onChange));
 				} else if (servedDir.dir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
 					console.log('creating source dir for served externals', servedDir);
-					dirs.push(createFilerDir(servedDir.dir, false, false, debounce, onChange));
+					dirs.push(createFilerDir(servedDir.dir, null, false, debounce, onChange));
 				}
 			}
 		}
