@@ -1,10 +1,17 @@
 import {resolve, extname, join, basename, dirname} from 'path';
 import lexer from 'es-module-lexer';
 
-import {ensureDir, stat, Stats} from './nodeFs.js';
-import {watchNodeFs, DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
-import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import {
+	FilerDir,
+	FilerDirChangeCallback,
+	createFilerDir,
+	CompilableFilerDir,
+	NonCompilableFilerDir,
+} from '../build/FilerDir.js';
+import {stat, Stats} from './nodeFs.js';
+import {DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
+import {
+	EXTERNALS_DIR,
 	hasSourceExtension,
 	JS_EXTENSION,
 	paths,
@@ -26,22 +33,32 @@ import type {
 import {getMimeTypeByExtension} from './mime.js';
 import {Encoding, inferEncoding} from './encoding.js';
 import {replaceExtension} from '../utils/path.js';
-import {BuildConfig} from '../project/buildConfig.js';
+import {BuildConfig} from '../build/buildConfig.js';
 import {stripStart} from '../utils/string.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
 export type SourceFile = CompilableSourceFile | NonCompilableSourceFile;
-export type CompilableSourceFile = CompilableTextSourceFile | CompilableBinarySourceFile;
+export type CompilableSourceFile =
+	| CompilableTextSourceFile
+	| CompilableBinarySourceFile
+	| CompilablePackageSourceFile;
 export type NonCompilableSourceFile = NonCompilableTextSourceFile | NonCompilableBinarySourceFile;
 export interface TextSourceFile extends BaseSourceFile {
+	readonly sourceType: 'text';
 	readonly encoding: 'utf8';
 	readonly contents: string;
 }
 export interface BinarySourceFile extends BaseSourceFile {
+	readonly sourceType: 'binary';
 	readonly encoding: null;
 	readonly contents: Buffer;
 	readonly buffer: Buffer;
+}
+export interface PackageSourceFile extends BaseSourceFile {
+	readonly sourceType: 'package';
+	readonly encoding: 'utf8';
+	readonly contents: string;
 }
 interface BaseSourceFile extends BaseFile {
 	readonly type: 'source';
@@ -49,22 +66,27 @@ interface BaseSourceFile extends BaseFile {
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: true;
-	readonly sourceDir: CompilableSourceDir;
+	readonly filerDir: CompilableFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: true;
-	readonly sourceDir: CompilableSourceDir;
+	readonly filerDir: CompilableFilerDir;
+	readonly compiledFiles: CompiledFile[];
+}
+export interface CompilablePackageSourceFile extends PackageSourceFile {
+	readonly compilable: true;
+	readonly filerDir: CompilableFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: false;
-	readonly sourceDir: NonCompilableSourceDir;
+	readonly filerDir: NonCompilableFilerDir;
 	readonly compiledFiles: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: false;
-	readonly sourceDir: NonCompilableSourceDir;
+	readonly filerDir: NonCompilableFilerDir;
 	readonly compiledFiles: null;
 }
 
@@ -104,7 +126,7 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	buildRootDir: string;
 	compiledDirs: string[];
-	servedDirs: string[];
+	servedDirs: ServedDir[];
 	include: (id: string) => boolean;
 	sourceMap: boolean;
 	debounce: number;
@@ -112,30 +134,28 @@ export interface Options {
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
-export type InitialOptions = Partial<Options>;
+export type InitialOptions = OmitStrict<Partial<Options>, 'servedDirs'> & {
+	servedDirs?: ServedDirPartial[];
+};
 export const initOptions = (opts: InitialOptions): Options => {
 	const dev = opts.dev ?? true;
 	const buildConfigs = opts.buildConfigs || null;
-	const buildRootDir = opts.buildRootDir || paths.build;
+	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
 	validateCompiledDirs(compiledDirs);
 	// default to serving all of the compiled output files
-	const servedDirs = Array.from(
-		new Set(
-			(
-				opts.servedDirs ||
-				(buildConfigs === null
-					? []
-					: [
-							toBuildOutDir(
-								dev,
-								(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
-								'',
-								buildRootDir,
-							),
-					  ])
-			).map((d) => resolve(d)),
-		),
+	const servedDirs = toServedDirs(
+		opts.servedDirs ||
+			(buildConfigs === null
+				? []
+				: [
+						toBuildOutDir(
+							dev,
+							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
+							'',
+							buildRootDir,
+						),
+				  ]),
 	);
 	if (!compiledDirs.length && !servedDirs.length) {
 		throw Error('Filer created with no directories to compile or serve.');
@@ -169,11 +189,11 @@ export class Filer {
 	private readonly compiler: Compiler | null;
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly buildRootDir: string;
-	private readonly servedDirs: string[];
+	private readonly servedDirs: ServedDir[];
 	private readonly sourceMap: boolean;
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
-	private readonly dirs: SourceDir[];
+	private readonly dirs: FilerDir[];
 	private readonly include: (id: string) => boolean;
 
 	private readonly files: Map<string, FilerFile> = new Map();
@@ -202,22 +222,54 @@ export class Filer {
 		this.sourceMap = sourceMap;
 		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
-		this.dirs = createSourceDirs(
+		this.dirs = createFilerDirs(
 			compiledDirs,
 			servedDirs,
 			buildRootDir,
 			watch,
 			debounce,
-			this.onSourceDirChange,
+			this.onDirChange,
 		);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
-	findByPath(path: string): BaseFile | null {
+	async findByPath(path: string): Promise<BaseFile | null> {
+		console.log('findByPath', path);
+		// TODO this could be optimized (and avoid rare but weird false positives)
+		// by making it detect "externals" at the beginning of the path and only search that served dir,
+		// but the problem there is then "externals" becomes a reserved directory
 		for (const servedDir of this.servedDirs) {
-			const id = `${servedDir}/${path}`;
+			const id = `${servedDir.servedAt}/${path}`;
+			console.log('findByPath checking at', id);
 			const file = this.files.get(id);
-			if (file) return file;
+			// TODO should this be a source or compiled file?
+			// `file.dirty`? `file.lazy`?
+			// if (file.type === 'source' && file.dirty) {
+			if (id.startsWith(paths.externals)) {
+				if (!file) {
+					const sourceId = replaceExtension(stripStart(path, `${EXTERNALS_DIR}/`), '');
+					console.log('external sourceId!', sourceId);
+					// OR should this check be in `this.updateSourceId`? `return false` early if not dirty?
+					const filerDir = this.dirs.find((d) => d.dir === servedDir.dir)!; // TODO yeck
+					console.log('filerDir', filerDir);
+					if (await this.updateSourceFile(sourceId, filerDir)) {
+						console.log('UPDATED', sourceId);
+						await this.compileSourceId(sourceId, filerDir);
+					}
+					const compiledFile = this.files.get(id);
+					if (!compiledFile) {
+						// TODO check dirty flag? here and above? what about lazy?
+						throw Error('Expected to compile file');
+					}
+					console.log('compiledFile', compiledFile.id);
+					return compiledFile;
+				} else {
+					return this.files.get(id)!;
+				}
+			}
+			if (file) {
+				return file;
+			}
 		}
 		return null;
 	}
@@ -274,11 +326,11 @@ export class Filer {
 		finishInitializing!();
 	}
 
-	private onSourceDirChange: SourceDirChangeCallback = async (
+	private onDirChange: FilerDirChangeCallback = async (
 		change: WatcherChange,
-		sourceDir: SourceDir,
+		filerDir: FilerDir,
 	) => {
-		const id = join(sourceDir.dir, change.path);
+		const id = join(filerDir.dir, change.path);
 		switch (change.type) {
 			case 'create':
 			case 'update': {
@@ -286,15 +338,15 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					if (await this.updateSourceFile(id, sourceDir)) {
-						await this.compileSourceId(id, sourceDir);
+					if (await this.updateSourceFile(id, filerDir)) {
+						await this.compileSourceId(id, filerDir);
 					}
 				}
 				break;
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					if (this.buildConfigs !== null && sourceDir.compilable) {
+					if (this.buildConfigs !== null && filerDir.compilable) {
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
 								remove(toBuildOutDir(this.dev, buildConfig.name, change.path, this.buildRootDir)),
@@ -312,20 +364,20 @@ export class Filer {
 	};
 
 	// Returns a boolean indicating if the source file changed.
-	private async updateSourceFile(id: string, sourceDir: SourceDir): Promise<boolean> {
+	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
 		const sourceFile = this.files.get(id);
 		if (sourceFile) {
 			if (sourceFile.type !== 'source') {
 				throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
 			}
-			if (sourceFile.sourceDir !== sourceDir) {
+			if (sourceFile.filerDir !== filerDir) {
 				// This can happen when there are overlapping watchers.
 				// We might be able to support this,
 				// but more thought needs to be given to the exact desired behavior.
 				// See `validateCompiledDirs` for more.
 				throw Error(
-					'Source file sourceDir unexpectedly changed: ' +
-						`${sourceFile.id} changed from ${sourceFile.sourceDir.dir} to ${sourceDir.dir}`,
+					'Source file filerDir unexpectedly changed: ' +
+						`${sourceFile.id} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
 				);
 			}
 		}
@@ -337,16 +389,20 @@ export class Filer {
 			encoding = sourceFile.encoding;
 		} else {
 			extension = extname(id);
-			encoding = inferEncoding(extension);
+			encoding = filerDir.dir === paths.externals ? 'utf8' : inferEncoding(extension); // TODO omg
 		}
-		const newSourceContents = await loadContents(encoding, id);
+		// TODO hack
+		const newSourceContents =
+			filerDir.dir === paths.externals
+				? 'TODO read package.json and put the version here, probably'
+				: await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
 		if (!sourceFile) {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, sourceDir);
+			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -391,7 +447,7 @@ export class Filer {
 
 	// These are used to avoid concurrent compilations for any given source file.
 	private pendingCompilations: Set<string> = new Set();
-	private enqueuedCompilations: Map<string, [string, SourceDir]> = new Map();
+	private enqueuedCompilations: Map<string, [string, FilerDir]> = new Map();
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -400,12 +456,12 @@ export class Filer {
 	// it removes the item from the queue and recompiles the file.
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
-	private async compileSourceId(id: string, sourceDir: SourceDir): Promise<void> {
-		if (this.buildConfigs === null || sourceDir.compilable === false || !this.include(id)) {
+	private async compileSourceId(id: string, filerDir: FilerDir): Promise<void> {
+		if (this.buildConfigs === null || filerDir.compilable === false || !this.include(id)) {
 			return;
 		}
 		if (this.pendingCompilations.has(id)) {
-			this.enqueuedCompilations.set(id, [id, sourceDir]);
+			this.enqueuedCompilations.set(id, [id, filerDir]);
 			return;
 		}
 		this.pendingCompilations.add(id);
@@ -443,11 +499,22 @@ export class Filer {
 		// The Filer is designed to be able to be a long-lived process
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
-		const results = await Promise.all(
-			this.buildConfigs!.map((buildConfig) =>
-				this.compiler!.compile(sourceFile, buildConfig, this.buildRootDir, this.dev),
-			),
-		);
+		const results =
+			// TODO yet another big hack
+			sourceFile.filerDir.dir === paths.externals
+				? [
+						await this.compiler!.compile(
+							sourceFile,
+							this.buildConfigs!.find((c) => c.platform === 'browser')!,
+							this.buildRootDir,
+							this.dev,
+						),
+				  ]
+				: await Promise.all(
+						this.buildConfigs!.map((buildConfig) =>
+							this.compiler!.compile(sourceFile, buildConfig, this.buildRootDir, this.dev),
+						),
+				  );
 
 		// Update the cache and write to disk.
 		const newCompiledFiles = results.flatMap((result) =>
@@ -643,8 +710,18 @@ function postprocess(compilation: Compilation) {
 			const start = d > -1 ? s + 1 : s;
 			const end = d > -1 ? e - 1 : e;
 			const moduleName = contents.substring(start, end);
+			let newModuleName = moduleName;
 			if (moduleName.endsWith(SVELTE_EXTENSION)) {
-				result += contents.substring(index, start) + replaceExtension(moduleName, JS_EXTENSION);
+				newModuleName = replaceExtension(moduleName, JS_EXTENSION);
+			}
+			if (compilation.buildConfig.platform === 'browser' && isExternalModule(moduleName)) {
+				newModuleName = `/${EXTERNALS_DIR}/${newModuleName}`;
+				if (!newModuleName.endsWith(JS_EXTENSION)) {
+					newModuleName += JS_EXTENSION;
+				}
+			}
+			if (newModuleName !== moduleName) {
+				result += contents.substring(index, start) + newModuleName;
 				index = end;
 			}
 		}
@@ -657,13 +734,16 @@ function postprocess(compilation: Compilation) {
 	return compilation.contents;
 }
 
+const INTERNAL_MODULE_MATCHER = /^\.?\.?\//;
+const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCHER.test(moduleName);
+
 // TODO revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility
 const validateCompiledDirs = (compiledDirs: string[]) => {
 	for (const compiledDir of compiledDirs) {
 		// Make sure no `compiledDir` is inside another `compiledDir`.
 		// This could be fixed and the current implementation appears to work, if inefficiently,
-		// only throwing an error when it detects that a source file's `sourceDir` has changed.
+		// only throwing an error when it detects that a source file's `filerDir` has changed.
 		// However there may be subtle bugs caused by source files changing their `watcherDir`,
 		// so for now we err on the side of caution and less complexity.
 		const nestedCompiledDir = compiledDirs.find(
@@ -683,16 +763,44 @@ const createSourceFile = (
 	encoding: Encoding,
 	extension: string,
 	newSourceContents: string | Buffer,
-	sourceDir: SourceDir,
+	filerDir: FilerDir,
 ): SourceFile => {
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-	const dirBasePath = stripStart(dir, sourceDir.dir + '/'); // TODO see above comment about `+ '/'`
+	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
+	// TODO this is a huge hack - does the filerDir need to be marked as external? how to make that extensible?
+	if (filerDir.dir === paths.externals) {
+		console.log('external id', id, filerDir);
+		if (!filerDir.compilable) {
+			throw Error(`Package sources must have a compilable filerDir: ${id}`);
+		}
+		if (encoding !== 'utf8') {
+			throw Error(`Package sources must have utf8 encoding, not '${encoding}': ${id}`);
+		}
+		return {
+			type: 'source',
+			sourceType: 'package',
+			compilable: true,
+			id,
+			filename,
+			dir,
+			dirBasePath,
+			extension,
+			encoding,
+			contents: newSourceContents as string,
+			filerDir: filerDir,
+			compiledFiles: [],
+			stats: undefined,
+			mimeType: undefined,
+			buffer: undefined,
+		};
+	}
 	switch (encoding) {
 		case 'utf8':
-			return sourceDir.compilable
+			return filerDir.compilable
 				? {
 						type: 'source',
+						sourceType: 'text',
 						compilable: true,
 						id,
 						filename,
@@ -701,7 +809,7 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as string,
-						sourceDir,
+						filerDir: filerDir,
 						compiledFiles: [],
 						stats: undefined,
 						mimeType: undefined,
@@ -709,6 +817,7 @@ const createSourceFile = (
 				  }
 				: {
 						type: 'source',
+						sourceType: 'text',
 						compilable: false,
 						id,
 						filename,
@@ -717,16 +826,17 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as string,
-						sourceDir,
+						filerDir: filerDir,
 						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
 						buffer: undefined,
 				  };
 		case null:
-			return sourceDir.compilable
+			return filerDir.compilable
 				? {
 						type: 'source',
+						sourceType: 'binary',
 						compilable: true,
 						id,
 						filename,
@@ -735,7 +845,7 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
-						sourceDir,
+						filerDir: filerDir,
 						compiledFiles: [],
 						stats: undefined,
 						mimeType: undefined,
@@ -743,6 +853,7 @@ const createSourceFile = (
 				  }
 				: {
 						type: 'source',
+						sourceType: 'binary',
 						compilable: false,
 						id,
 						filename,
@@ -751,7 +862,7 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
-						sourceDir,
+						filerDir: filerDir,
 						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
@@ -764,19 +875,26 @@ const createSourceFile = (
 
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
-const createSourceDirs = (
+const createFilerDirs = (
 	compiledDirs: string[],
-	servedDirs: string[],
+	servedDirs: ServedDir[],
 	buildRootDir: string,
 	watch: boolean,
 	debounce: number,
-	onChange: SourceDirChangeCallback,
-): SourceDir[] => {
-	const dirs: SourceDir[] = [];
-	for (const sourceDir of compiledDirs) {
+	onChange: FilerDirChangeCallback,
+): FilerDir[] => {
+	const dirs: FilerDir[] = [];
+	for (const compiledDir of compiledDirs) {
 		// The `outDir` is automatically in the Filer's memory cache for compiled files,
 		// so no need to load it as a directory.
-		dirs.push(createSourceDir(sourceDir, true, watch, debounce, onChange));
+		if (compiledDir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
+			// TODO this is a hack to include externals - make this part of the configuration, probably
+			console.log('creating filer dir for compiled externals', compiledDir);
+			dirs.push(createFilerDir(compiledDir, true, false, debounce, onChange));
+		} else {
+			console.log('creating filer dir for compiledDir', compiledDir);
+			dirs.push(createFilerDir(compiledDir, true, watch, debounce, onChange));
+		}
 	}
 	if (watch) {
 		for (const servedDir of servedDirs) {
@@ -785,60 +903,46 @@ const createSourceDirs = (
 			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 			// TODO what about `servedDirs` that are inside the `buildRootDir` but aren't compiled?
 			if (
-				!compiledDirs.find((d) => servedDir.startsWith(d)) &&
-				!servedDirs.find((d) => d !== servedDir && servedDir.startsWith(d)) &&
-				!servedDir.startsWith(buildRootDir)
+				!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
+				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir))
 			) {
-				dirs.push(createSourceDir(servedDir, false, watch, debounce, onChange));
+				// TODO this is a hack to include externals - make this part of the configuration, probably
+				if (!servedDir.dir.startsWith(buildRootDir)) {
+					console.log('creating filer dir for servedDir', servedDir);
+					dirs.push(createFilerDir(servedDir.dir, false, watch, debounce, onChange));
+				} else if (servedDir.dir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
+					console.log('creating source dir for served externals', servedDir);
+					dirs.push(createFilerDir(servedDir.dir, false, false, debounce, onChange));
+				}
 			}
 		}
 	}
 	return dirs;
 };
 
-// There are two kinds of `SourceDir`s, those that are compilable and those that are not.
-// Compilable source dirs are compiled and written to disk.
-// For non-compilable ones, the `dir` is only watched and nothing is written to the filesystem.
-type SourceDir = CompilableSourceDir | NonCompilableSourceDir;
-type SourceDirChangeCallback = (change: WatcherChange, sourceDir: SourceDir) => Promise<void>;
-interface CompilableSourceDir extends BaseSourceDir {
-	readonly compilable: true;
+interface ServedDir {
+	dir: string; // TODO rename? `source`, `sourceDir`, `path`
+	servedAt: string; // TODO rename?
 }
-interface NonCompilableSourceDir extends BaseSourceDir {
-	readonly compilable: false;
-}
-interface BaseSourceDir {
-	readonly dir: string;
-	readonly watcher: WatchNodeFs;
-	readonly onChange: SourceDirChangeCallback;
-	readonly close: () => void;
-	readonly init: () => Promise<void>;
-}
-const createSourceDir = (
-	dir: string,
-	compilable: boolean,
-	watch: boolean,
-	debounce: number,
-	onChange: SourceDirChangeCallback,
-): SourceDir => {
-	const watcher = watchNodeFs({
-		dir,
-		debounce,
-		watch,
-		onChange: (change) => onChange(change, sourceDir),
-	});
-	const close = () => {
-		watcher.close();
+type ServedDirPartial = string | PartialExcept<ServedDir, 'dir'>;
+const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
+	const dirs = partials.map((d) => toServedDir(d));
+	const uniqueDirs = new Set<string>();
+	for (const dir of dirs) {
+		// TODO instead of the error, should we allow multiple served paths for each input dir?
+		// This is mainly done to prevent duplicate work in watching the source directories.
+		if (uniqueDirs.has(dir.dir)) {
+			throw Error(`Duplicate servedDirs are not allowed: ${dir.dir}`);
+		}
+		uniqueDirs.add(dir.dir);
+	}
+	return dirs;
+};
+const toServedDir = (dir: ServedDirPartial): ServedDir => {
+	if (typeof dir === 'string') dir = {dir};
+	const resolvedDir = resolve(dir.dir);
+	return {
+		dir: resolvedDir,
+		servedAt: dir.servedAt ? resolve(dir.servedAt) : resolvedDir,
 	};
-	const init = async () => {
-		await ensureDir(dir);
-		const statsBySourcePath = await watcher.init();
-		await Promise.all(
-			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-				stats.isDirectory() ? null : onChange({type: 'update', path, stats}, sourceDir),
-			),
-		);
-	};
-	const sourceDir: SourceDir = {compilable, dir, onChange, watcher, close, init};
-	return sourceDir;
 };

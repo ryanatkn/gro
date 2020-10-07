@@ -1,6 +1,6 @@
 import {Task} from './task/task.js';
 import {compileSourceDirectory} from './compile/compileSourceDirectory.js';
-import {loadBuildConfigs} from './project/buildConfig.js';
+import {loadBuildConfigs} from './build/buildConfig.js';
 
 export const task: Task = {
 	description: 'compiles all files to the build directory',

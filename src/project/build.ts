@@ -110,7 +110,7 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 	const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
 
 	const unmappedInputOptions: InputOptions = {
-		// — core input options
+		// >> core input options
 		// external,
 		input: inputFile, // required
 		plugins: [
@@ -133,14 +133,13 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourceMap}})]),
 		],
 
-		// — advanced input options
+		// >> advanced input options
 		// cache,
-		// inlineDynamicImports,
-		// manualChunks,
 		// onwarn,
-		// preserveModules,
+		// preserveEntrySignatures,
+		// strictDeprecations,
 
-		// — danger zone
+		// >> danger zone
 		// acorn,
 		// acornInjectPlugins,
 		// context,
@@ -149,11 +148,8 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 		// shimMissingExports,
 		// treeshake,
 
-		// — experimental
-		// chunkGroupingSize,
+		// >> experimental
 		// experimentalCacheExpiry,
-		// experimentalOptimizeChunks,
-		// experimentalTopLevelAwait,
 		// perf
 	};
 	const inputOptions = options.mapInputOptions(unmappedInputOptions, options);
@@ -163,14 +159,15 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 
 const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
 	const unmappedOutputOptions: OutputOptions = {
-		// — core output options
+		// >> core output options
 		dir: options.outputDir,
 		// file,
 		format: 'esm', // required
 		// globals,
 		name: 'app',
+		// plugins,
 
-		// — advanced output options
+		// >> advanced output options
 		// assetFileNames,
 		// banner,
 		// chunkFileNames,
@@ -178,26 +175,33 @@ const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
 		// entryFileNames,
 		// extend,
 		// footer,
+		// hoistTransitiveImports,
+		// inlineDynamicImports,
 		// interop,
 		// intro,
+		// manualChunks,
+		// minifyInternalExports,
 		// outro,
 		// paths,
+		// preserveModules,
+		// preserveModulesRoot,
 		sourcemap: options.sourceMap,
 		// sourcemapExcludeSources,
 		// sourcemapFile,
 		// sourcemapPathTransform,
 
-		// — danger zone
+		// >> danger zone
 		// amd,
-		// dynamicImportFunction,
 		// esModule,
 		// exports,
+		// externalLiveBindings,
 		// freeze,
 		// indent,
 		// namespaceToStringTag,
 		// noConflict,
 		// preferConst,
-		// strict
+		// strict,
+		// systemNullSetters,
 	};
 	const outputOptions = options.mapOutputOptions(unmappedOutputOptions, options);
 	log.trace('outputOptions', outputOptions);
@@ -240,7 +244,9 @@ const runRollupBuild = async (options: Options, log: Logger): Promise<BuildResul
 
 		const build = await rollup(inputOptions);
 
-		const output = await build.generate(outputOptions);
+		const output = await build.write(outputOptions);
+
+		results.push({build, output});
 
 		// for (const chunkOrAsset of output.output) {
 		//   if (chunkOrAsset.isAsset) {
@@ -276,10 +282,6 @@ const runRollupBuild = async (options: Options, log: Logger): Promise<BuildResul
 		//     console.log('Chunk', chunkOrAsset.modules);
 		//   }
 		// }
-
-		await build.write(outputOptions); // don't care about the output of this - maybe refactor
-
-		results.push({build, output});
 	}
 	return results;
 };

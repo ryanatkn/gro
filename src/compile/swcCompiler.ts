@@ -8,7 +8,7 @@ import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutDir, TS_EXTENSION} from '.
 import {omitUndefined} from '../utils/object.js';
 import {CompilationSource, Compiler, TextCompilation} from './compiler.js';
 import {replaceExtension} from '../utils/path.js';
-import {BuildConfig} from '../project/buildConfig.js';
+import {BuildConfig} from '../build/buildConfig.js';
 import {cyan} from '../colors/terminal.js';
 
 export interface Options {
@@ -66,6 +66,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 				encoding,
 				contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
 				sourceMapOf: null,
+				buildConfig,
 			},
 		];
 		if (output.map) {
@@ -77,6 +78,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 				encoding,
 				contents: output.map,
 				sourceMapOf: jsId,
+				buildConfig,
 			});
 		}
 		return {compilations};

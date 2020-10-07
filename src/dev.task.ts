@@ -3,7 +3,7 @@ import {Filer} from './fs/Filer.js';
 import {createDevServer} from './devServer/devServer.js';
 import {createDefaultCompiler} from './compile/defaultCompiler.js';
 import {paths} from './paths.js';
-import {loadBuildConfigs} from './project/buildConfig.js';
+import {loadBuildConfigs} from './build/buildConfig.js';
 
 export const task: Task = {
 	description: 'start development server',

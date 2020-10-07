@@ -23,7 +23,7 @@ import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
-import {BuildConfig} from '../project/buildConfig.js';
+import {BuildConfig} from '../build/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
 
@@ -123,6 +123,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				encoding,
 				contents: js.code,
 				sourceMapOf: null,
+				buildConfig,
 			},
 		];
 		if (sourceMap && js.map) {
@@ -134,6 +135,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
 				sourceMapOf: jsId,
+				buildConfig,
 			});
 		}
 		if (css.code) {
@@ -145,6 +147,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				encoding,
 				contents: css.code,
 				sourceMapOf: null,
+				buildConfig,
 			});
 			if (sourceMap && css.map) {
 				compilations.push({
@@ -155,6 +158,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
 					sourceMapOf: cssId,
+					buildConfig,
 				});
 			}
 		}

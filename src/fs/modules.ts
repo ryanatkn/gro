@@ -6,7 +6,7 @@ import {Timings} from '../utils/time.js';
 import {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
-import {BuildConfig, loadPrimaryBuildConfigAt} from '../project/buildConfig.js';
+import {BuildConfig, loadPrimaryBuildConfigAt} from '../build/buildConfig.js';
 
 /*
 

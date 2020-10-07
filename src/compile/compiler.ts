@@ -1,6 +1,6 @@
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
-import {BuildConfig} from '../project/buildConfig.js';
+import {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
 
 export interface Compiler<T extends Compilation = Compilation> {
@@ -31,16 +31,27 @@ interface BaseCompilation {
 	filename: string;
 	dir: string;
 	extension: string;
+	buildConfig: BuildConfig;
 }
 
-export type CompilationSource = TextCompilationSource | BinaryCompilationSource;
+export type CompilationSource =
+	| TextCompilationSource
+	| BinaryCompilationSource
+	| PackageCompilationSource;
 export interface TextCompilationSource extends BaseCompilationSource {
+	sourceType: 'text';
 	encoding: 'utf8';
 	contents: string;
 }
 export interface BinaryCompilationSource extends BaseCompilationSource {
+	sourceType: 'binary';
 	encoding: null;
 	contents: Buffer;
+}
+export interface PackageCompilationSource extends BaseCompilationSource {
+	sourceType: 'package';
+	encoding: 'utf8';
+	contents: string;
 }
 interface BaseCompilationSource {
 	id: string;
@@ -102,6 +113,7 @@ const createNoopCompiler = (): Compiler => {
 					encoding: source.encoding,
 					contents: source.contents,
 					sourceMapOf: null,
+					buildConfig,
 				};
 				break;
 			case null:
@@ -112,6 +124,7 @@ const createNoopCompiler = (): Compiler => {
 					extension,
 					encoding: source.encoding,
 					contents: source.contents,
+					buildConfig,
 				};
 				break;
 			default:

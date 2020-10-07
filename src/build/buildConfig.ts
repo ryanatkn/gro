@@ -1,5 +1,5 @@
 import {isGroId, isThisProjectGro} from '../paths.js';
-import {loadGroPackageJson, loadPackageJson} from './packageJson.js';
+import {loadGroPackageJson, loadPackageJson} from '../project/packageJson.js';
 
 // See `../docs/buildConfig.md` for documentation.
 
