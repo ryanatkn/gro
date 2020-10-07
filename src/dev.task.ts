@@ -1,5 +1,5 @@
 import {Task} from './task/task.js';
-import {Filer} from './fs/Filer.js';
+import {Filer} from './build/Filer.js';
 import {createDevServer} from './devServer/devServer.js';
 import {createDefaultCompiler} from './compile/defaultCompiler.js';
 import {paths} from './paths.js';

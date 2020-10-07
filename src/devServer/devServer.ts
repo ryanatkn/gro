@@ -13,7 +13,7 @@ import {cyan, yellow, gray} from '../colors/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
-import {Filer, BaseFile, getFileMimeType, getFileBuffer, getFileStats} from '../fs/Filer.js';
+import {Filer, BaseFile, getFileMimeType, getFileBuffer, getFileStats} from '../build/Filer.js';
 
 export interface DevServer {
 	readonly server: Server;

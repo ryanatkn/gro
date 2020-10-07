@@ -8,7 +8,7 @@ import {
 	CompilableFilerDir,
 	NonCompilableFilerDir,
 } from '../build/FilerDir.js';
-import {stat, Stats} from './nodeFs.js';
+import {stat, Stats} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
 import {
 	EXTERNALS_DIR,
@@ -30,10 +30,10 @@ import type {
 	BinaryCompilation,
 	Compilation,
 } from '../compile/compiler.js';
-import {getMimeTypeByExtension} from './mime.js';
-import {Encoding, inferEncoding} from './encoding.js';
+import {getMimeTypeByExtension} from '../fs/mime.js';
+import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {replaceExtension} from '../utils/path.js';
-import {BuildConfig} from '../build/buildConfig.js';
+import {BuildConfig} from './buildConfig.js';
 import {stripStart} from '../utils/string.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?

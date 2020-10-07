@@ -1,5 +1,5 @@
 import {Task} from '../task/task.js';
-import {Filer} from '../fs/Filer.js';
+import {Filer} from '../build/Filer.js';
 import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {createDefaultCompiler} from '../compile/defaultCompiler.js';
