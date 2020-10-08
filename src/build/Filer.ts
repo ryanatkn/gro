@@ -379,8 +379,10 @@ export class Filer {
 
 	// Returns a boolean indicating if the source file changed.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
-		console.log('updateSourceFile id', id);
-		console.log('updateSourceFile filerDir', filerDir);
+		if (filerDir.type === 'packages') {
+			console.log('updateSourceFile id', id);
+			console.log('updateSourceFile filerDir', filerDir);
+		}
 		const sourceFile = this.files.get(id);
 		if (sourceFile) {
 			if (sourceFile.type !== 'source') {
@@ -403,9 +405,12 @@ export class Filer {
 		if (sourceFile) {
 			extension = sourceFile.extension;
 			encoding = sourceFile.encoding;
+		} else if (filerDir.type === 'packages') {
+			extension = '.js';
+			encoding = 'utf8';
 		} else {
 			extension = extname(id);
-			encoding = filerDir.type === 'packages' ? 'utf8' : inferEncoding(extension);
+			encoding = inferEncoding(extension);
 		}
 		// TODO hack
 		const newSourceContents =
@@ -419,6 +424,7 @@ export class Filer {
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
+			if (filerDir.type === 'packages') console.log('newSourceFile', newSourceFile);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -815,6 +821,8 @@ const validateCompiledDirs = (compiledDirs: string[], packageDirs: string[]) => 
 	}
 };
 
+// This code could be shortened a lot by collapsing the object declarations,
+// but as is it doesn't play nicely with the types, and it might be harder to reason about.
 const createSourceFile = (
 	id: string,
 	encoding: Encoding,
@@ -822,14 +830,14 @@ const createSourceFile = (
 	newSourceContents: string | Buffer,
 	filerDir: FilerDir,
 ): SourceFile => {
-	const filename = basename(id);
-	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 	if (filerDir.type === 'packages') {
-		console.log('packages id', id, filerDir);
 		if (encoding !== 'utf8') {
 			throw Error(`Package sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
+		console.log('packages id', id, filerDir);
+		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
+		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',
 			sourceType: 'package',
@@ -848,6 +856,9 @@ const createSourceFile = (
 			buffer: undefined,
 		};
 	}
+	const filename = basename(id);
+	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 	switch (encoding) {
 		case 'utf8':
 			return filerDir.compilable
