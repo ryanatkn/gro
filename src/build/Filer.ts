@@ -367,6 +367,8 @@ export class Filer {
 
 	// Returns a boolean indicating if the source file changed.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
+		console.log('updateSourceFile id', id);
+		console.log('updateSourceFile filerDir', filerDir);
 		const sourceFile = this.files.get(id);
 		if (sourceFile) {
 			if (sourceFile.type !== 'source') {
@@ -391,12 +393,13 @@ export class Filer {
 			encoding = sourceFile.encoding;
 		} else {
 			extension = extname(id);
-			encoding = id.startsWith(paths.externals) ? 'utf8' : inferEncoding(extension); // TODO omg
+			encoding = filerDir.dir === paths.externals ? 'utf8' : inferEncoding(extension); // TODO omg
 		}
 		// TODO hack
-		const newSourceContents = id.startsWith(paths.externals)
-			? 'TODO read package.json and put the version here, probably'
-			: await loadContents(encoding, id);
+		const newSourceContents =
+			filerDir.dir === paths.externals
+				? 'TODO read package.json and put the version here, probably'
+				: await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
 		if (!sourceFile) {
@@ -660,6 +663,22 @@ const syncCompiledFilesToMemoryCache = (
 			// the compiled output files do not conflict.
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
+			// console.log('newFile', {
+			// 	...newFile,
+			// 	sourceFile: newFile.sourceFile?.id,
+			// 	compilation: null,
+			// 	filerDir: null,
+			// 	contents: newFile.contents.slice(0, 100),
+			// 	compiledFiles: [],
+			// });
+			// console.log('oldFile', {
+			// 	...oldFile,
+			// 	sourceFile: oldFile.sourceFile?.id,
+			// 	compilation: null,
+			// 	filerDir: null,
+			// 	contents: oldFile.contents.slice(0, 100),
+			// 	compiledFiles: [],
+			// });
 			if (newFile.sourceFile.id !== oldFile.sourceFile.id) {
 				throw Error(
 					'Two source files are trying to compile to the same output location: ' +
@@ -794,7 +813,7 @@ const createSourceFile = (
 			extension,
 			encoding,
 			contents: newSourceContents as string,
-			filerDir: filerDir,
+			filerDir,
 			compiledFiles: [],
 			stats: undefined,
 			mimeType: undefined,
@@ -815,7 +834,7 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as string,
-						filerDir: filerDir,
+						filerDir,
 						compiledFiles: [],
 						stats: undefined,
 						mimeType: undefined,
@@ -832,7 +851,7 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as string,
-						filerDir: filerDir,
+						filerDir,
 						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
@@ -851,7 +870,7 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
-						filerDir: filerDir,
+						filerDir,
 						compiledFiles: [],
 						stats: undefined,
 						mimeType: undefined,
@@ -868,7 +887,7 @@ const createSourceFile = (
 						extension,
 						encoding,
 						contents: newSourceContents as Buffer,
-						filerDir: filerDir,
+						filerDir,
 						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
