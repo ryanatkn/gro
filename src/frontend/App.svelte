@@ -1,5 +1,6 @@
 <script>
 	console.log('app!!');
+	export let bar;
 </script>
 
-app!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+bar: {bar}
