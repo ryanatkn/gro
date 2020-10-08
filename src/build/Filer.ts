@@ -252,7 +252,11 @@ export class Filer {
 					const sourceId = replaceExtension(stripStart(path, `${EXTERNALS_DIR}/`), '');
 					console.log('external sourceId!', sourceId);
 					// OR should this check be in `this.updateSourceId`? `return false` early if not dirty?
-					const filerDir = this.dirs.find((d) => d.dir === servedDir.dir)!; // TODO yeck
+					// TODO yeck - could fail! if the served dir is subsumed by another `filerDir`.
+					// This points to a deeper issue of using the `FilerDir` for attached information -
+					// it's being ignored if it's inside another!
+					// Because `FilerDir`s are only about efficiently reading from the filesystem.
+					const filerDir = this.dirs.find((d) => d.dir === servedDir.dir)!;
 					console.log('filerDir', filerDir);
 					if ((await this.updateSourceFile(sourceId, filerDir)) && filerDir.compilable) {
 						console.log('UPDATED', sourceId);
@@ -936,7 +940,6 @@ const createFilerDirs = (
 			// If a `servedDir` is inside a compiled directory,
 			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
-			// TODO what about `servedDirs` that are inside the `buildRootDir` but aren't compiled?
 			if (
 				!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
 				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir))
