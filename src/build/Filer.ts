@@ -247,7 +247,7 @@ export class Filer {
 			// TODO should this be a source or compiled file?
 			// `file.dirty`? `file.lazy`?
 			// if (file.type === 'source' && file.dirty) {
-			if (id.startsWith(paths.externals)) {
+			if (id.startsWith(`${this.buildRootDir}${EXTERNALS_DIR}`)) {
 				if (!file) {
 					const sourceId = replaceExtension(stripStart(path, `${EXTERNALS_DIR}/`), '');
 					console.log('external sourceId!', sourceId);
@@ -393,11 +393,12 @@ export class Filer {
 			encoding = sourceFile.encoding;
 		} else {
 			extension = extname(id);
-			encoding = filerDir.dir === paths.externals ? 'utf8' : inferEncoding(extension); // TODO omg
+			encoding =
+				filerDir.dir === `${this.buildRootDir}${EXTERNALS_DIR}` ? 'utf8' : inferEncoding(extension); // TODO omg
 		}
 		// TODO hack
 		const newSourceContents =
-			filerDir.dir === paths.externals
+			filerDir.dir === `${this.buildRootDir}${EXTERNALS_DIR}`
 				? 'TODO read package.json and put the version here, probably'
 				: await loadContents(encoding, id);
 
@@ -406,7 +407,14 @@ export class Filer {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
+			newSourceFile = createSourceFile(
+				id,
+				encoding,
+				extension,
+				newSourceContents,
+				filerDir,
+				this.buildRootDir,
+			);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -505,7 +513,7 @@ export class Filer {
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
 		const results =
 			// TODO yet another big hack
-			sourceFile.filerDir.dir === paths.externals
+			sourceFile.filerDir.dir === `${this.buildRootDir}${EXTERNALS_DIR}`
 				? [
 						await sourceFile.filerDir.compiler.compile(
 							sourceFile,
@@ -789,12 +797,13 @@ const createSourceFile = (
 	extension: string,
 	newSourceContents: string | Buffer,
 	filerDir: FilerDir,
+	buildRootDir: string,
 ): SourceFile => {
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 	// TODO this is a huge hack - does the filerDir need to be marked as external? how to make that extensible?
-	if (filerDir.dir === paths.externals) {
+	if (filerDir.dir === `${buildRootDir}${EXTERNALS_DIR}`) {
 		console.log('external id', id, filerDir);
 		if (!filerDir.compilable) {
 			throw Error(`Package sources must have a compilable filerDir: ${id}`);
@@ -933,12 +942,12 @@ const createFilerDirs = (
 				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir))
 			) {
 				// TODO this is a hack to include externals - make this part of the configuration, probably
-				if (!servedDir.dir.startsWith(buildRootDir)) {
-					console.log('creating filer dir for servedDir', servedDir);
-					dirs.push(createFilerDir(servedDir.dir, null, watch, debounce, onChange));
-				} else if (servedDir.dir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
+				if (servedDir.dir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
 					console.log('creating source dir for served externals', servedDir);
 					dirs.push(createFilerDir(servedDir.dir, null, false, debounce, onChange));
+				} else if (!servedDir.dir.startsWith(buildRootDir)) {
+					console.log('creating filer dir for servedDir', servedDir);
+					dirs.push(createFilerDir(servedDir.dir, null, watch, debounce, onChange));
 				}
 			}
 		}
