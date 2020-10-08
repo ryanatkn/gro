@@ -36,7 +36,7 @@ import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {replaceExtension} from '../utils/path.js';
 import {BuildConfig} from './buildConfig.js';
-import {stripStart} from '../utils/string.js';
+import {stripEnd, stripStart} from '../utils/string.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -257,7 +257,9 @@ export class Filer {
 			// if (file.type === 'source' && file.dirty) {
 			if (id.startsWith(`${this.buildRootDir}${EXTERNALS_DIR}`)) {
 				if (!file) {
-					const sourceId = replaceExtension(stripStart(path, `${EXTERNALS_DIR}/`), '');
+					// TODO doesn't this fail for packages ending in `.js` like `pixi.js`?
+					// (this TODO is in 2 places)
+					const sourceId = stripEnd(stripStart(path, `${EXTERNALS_DIR}/`), JS_EXTENSION);
 					console.log('external sourceId!', sourceId);
 					// OR should this check be in `this.updateSourceId`? `return false` early if not dirty?
 					// TODO yeck - could fail! if the served dir is subsumed by another `filerDir`.
@@ -344,7 +346,13 @@ export class Filer {
 		change: WatcherChange,
 		filerDir: FilerDir,
 	) => {
-		const id = join(filerDir.dir, change.path);
+		// TODO doesn't this fail for packages ending in `.js` like `pixi.js`?
+		// (this TODO is in 2 places)
+		const id =
+			filerDir.type === 'packages'
+				? stripEnd(change.path, JS_EXTENSION)
+				: join(filerDir.dir, change.path);
+		if (filerDir.type === 'packages') console.log('change, id', change, id);
 		switch (change.type) {
 			case 'create':
 			case 'update': {
