@@ -11,3 +11,7 @@ export const app = new App({
 });
 
 (window as any).app = app;
+
+import('svelte/store').then((storeModule) => {
+	console.log('imported svelte/store', storeModule);
+});
