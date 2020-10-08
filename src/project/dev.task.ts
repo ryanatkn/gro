@@ -24,7 +24,8 @@ export const task: Task = {
 		);
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
-			compiledDirs: [paths.source, paths.externals],
+			compiledDirs: [paths.source],
+			packageDirs: [paths.externals],
 			servedDirs: [
 				// TODO does this API make sense? seems weird
 				`${buildOutDir}/frontend`,

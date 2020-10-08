@@ -7,6 +7,8 @@ import {
 	createFilerDir,
 	CompilableFilerDir,
 	NonCompilableFilerDir,
+	CompilableFilesFilerDir,
+	PackagesFilerDir,
 } from '../build/FilerDir.js';
 import {stat, Stats} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
@@ -66,17 +68,17 @@ interface BaseSourceFile extends BaseFile {
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: true;
-	readonly filerDir: CompilableFilerDir;
+	readonly filerDir: CompilableFilesFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: true;
-	readonly filerDir: CompilableFilerDir;
+	readonly filerDir: CompilableFilesFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface CompilablePackageSourceFile extends PackageSourceFile {
 	readonly compilable: true;
-	readonly filerDir: CompilableFilerDir;
+	readonly filerDir: PackagesFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
@@ -126,6 +128,7 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	buildRootDir: string;
 	compiledDirs: string[];
+	packageDirs: string[];
 	servedDirs: ServedDir[];
 	include: (id: string) => boolean;
 	sourceMap: boolean;
@@ -142,6 +145,10 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const buildConfigs = opts.buildConfigs || null;
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
+	// TODO do `packageDirs` need to be validated? at the same time as `compiledDirs`?
+	// maybe validate that packgeDirs are not inside compiled dirs?
+	const packageDirs = opts.packageDirs ? opts.packageDirs.map((d) => resolve(d)) : [];
+	const compiledDirCount = compiledDirs.length + packageDirs.length;
 	validateCompiledDirs(compiledDirs);
 	// default to serving all of the compiled output files
 	const servedDirs = toServedDirs(
@@ -157,17 +164,17 @@ export const initOptions = (opts: InitialOptions): Options => {
 						),
 				  ]),
 	);
-	if (!compiledDirs.length && !servedDirs.length) {
+	if (compiledDirCount === 0 && servedDirs.length === 0) {
 		throw Error('Filer created with no directories to compile or serve.');
 	}
-	if (compiledDirs.length && buildConfigs === null) {
+	if (compiledDirCount !== 0 && buildConfigs === null) {
 		throw Error('Filer created with directories to compile but no build configs were provided.');
 	}
 	const compiler = opts.compiler || null;
-	if (compiledDirs.length && !compiler) {
+	if (compiledDirCount !== 0 && !compiler) {
 		throw Error('Filer created with directories to compile but no compiler was provided.');
 	}
-	if (compiler && !compiledDirs.length) {
+	if (compiler && compiledDirCount === 0) {
 		throw Error('Filer created with a compiler but no directories to compile.');
 	}
 	return {
@@ -183,6 +190,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		buildConfigs,
 		buildRootDir,
 		compiledDirs,
+		packageDirs,
 		servedDirs,
 	};
 };
@@ -208,6 +216,7 @@ export class Filer {
 			buildRootDir,
 			compiledDirs,
 			servedDirs,
+			packageDirs,
 			include,
 			sourceMap,
 			debounce,
@@ -226,6 +235,7 @@ export class Filer {
 		this.dirs = createFilerDirs(
 			compiledDirs,
 			servedDirs,
+			packageDirs,
 			compiler,
 			buildRootDir,
 			watch,
@@ -397,12 +407,11 @@ export class Filer {
 			encoding = sourceFile.encoding;
 		} else {
 			extension = extname(id);
-			encoding =
-				filerDir.dir === `${this.buildRootDir}${EXTERNALS_DIR}` ? 'utf8' : inferEncoding(extension); // TODO omg
+			encoding = filerDir.type === 'packages' ? 'utf8' : inferEncoding(extension);
 		}
 		// TODO hack
 		const newSourceContents =
-			filerDir.dir === `${this.buildRootDir}${EXTERNALS_DIR}`
+			filerDir.type === 'packages'
 				? 'TODO read package.json and put the version here, probably'
 				: await loadContents(encoding, id);
 
@@ -411,14 +420,7 @@ export class Filer {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			newSourceFile = createSourceFile(
-				id,
-				encoding,
-				extension,
-				newSourceContents,
-				filerDir,
-				this.buildRootDir,
-			);
+			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
 		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -516,8 +518,8 @@ export class Filer {
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
 		const results =
-			// TODO yet another big hack
-			sourceFile.filerDir.dir === `${this.buildRootDir}${EXTERNALS_DIR}`
+			// TODO this is a hack - how to get the build config correctly?
+			sourceFile.sourceType === 'package'
 				? [
 						await sourceFile.filerDir.compiler.compile(
 							sourceFile,
@@ -801,17 +803,12 @@ const createSourceFile = (
 	extension: string,
 	newSourceContents: string | Buffer,
 	filerDir: FilerDir,
-	buildRootDir: string,
 ): SourceFile => {
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
-	// TODO this is a huge hack - does the filerDir need to be marked as external? how to make that extensible?
-	if (filerDir.dir === `${buildRootDir}${EXTERNALS_DIR}`) {
-		console.log('external id', id, filerDir);
-		if (!filerDir.compilable) {
-			throw Error(`Package sources must have a compilable filerDir: ${id}`);
-		}
+	if (filerDir.type === 'packages') {
+		console.log('packages id', id, filerDir);
 		if (encoding !== 'utf8') {
 			throw Error(`Package sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
@@ -916,6 +913,7 @@ const createSourceFile = (
 const createFilerDirs = (
 	compiledDirs: string[],
 	servedDirs: ServedDir[],
+	packageDirs: string[],
 	compiler: Compiler | null,
 	buildRootDir: string,
 	watch: boolean,
@@ -924,34 +922,27 @@ const createFilerDirs = (
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const compiledDir of compiledDirs) {
-		// The `outDir` is automatically in the Filer's memory cache for compiled files,
-		// so no need to load it as a directory.
-		if (compiledDir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
-			// TODO this is a hack to include externals - make this part of the configuration, probably
-			console.log('creating filer dir for compiled externals', compiledDir);
-			dirs.push(createFilerDir(compiledDir, compiler, false, debounce, onChange));
-		} else {
-			console.log('creating filer dir for compiledDir', compiledDir);
-			dirs.push(createFilerDir(compiledDir, compiler, watch, debounce, onChange));
-		}
+		console.log('creating filer dir for compiledDir', compiledDir);
+		dirs.push(createFilerDir(compiledDir, 'files', compiler, watch, debounce, onChange));
 	}
+	for (const packageDir of packageDirs) {
+		console.log('creating filer dir for packageDir', packageDir);
+		dirs.push(createFilerDir(packageDir, 'packages', compiler, false, debounce, onChange));
+	}
+	// TODO should these be ignored in watch mode, or might some code want to query the cache?
 	if (watch) {
 		for (const servedDir of servedDirs) {
-			// If a `servedDir` is inside a compiled directory,
+			// If a `servedDir` is inside a compiled or package directory,
 			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 			if (
 				!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
-				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir))
+				!packageDirs.find((d) => servedDir.dir.startsWith(d)) &&
+				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
+				!servedDir.dir.startsWith(buildRootDir)
 			) {
-				// TODO this is a hack to include externals - make this part of the configuration, probably
-				if (servedDir.dir.startsWith(`${buildRootDir}${EXTERNALS_DIR}`)) {
-					console.log('creating source dir for served externals', servedDir);
-					dirs.push(createFilerDir(servedDir.dir, null, false, debounce, onChange));
-				} else if (!servedDir.dir.startsWith(buildRootDir)) {
-					console.log('creating filer dir for servedDir', servedDir);
-					dirs.push(createFilerDir(servedDir.dir, null, watch, debounce, onChange));
-				}
+				console.log('creating filer dir for servedDir', servedDir);
+				dirs.push(createFilerDir(servedDir.dir, 'files', null, watch, debounce, onChange));
 			}
 		}
 	}
