@@ -146,7 +146,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
 	const packageDirs = opts.packageDirs ? opts.packageDirs.map((d) => resolve(d)) : [];
-	validateCompiledDirs(compiledDirs, packageDirs);
+	validateCompiledDirs(compiledDirs, packageDirs, buildRootDir);
 	const compiledDirCount = compiledDirs.length + packageDirs.length;
 	// default to serving all of the compiled output files
 	const servedDirs = toServedDirs(
@@ -197,6 +197,7 @@ export class Filer {
 	private readonly dev: boolean;
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly buildRootDir: string;
+	private readonly packageDirs: string[];
 	private readonly servedDirs: ServedDir[];
 	private readonly sourceMap: boolean;
 	private readonly cleanOutputDirs: boolean;
@@ -225,6 +226,7 @@ export class Filer {
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
 		this.buildRootDir = buildRootDir;
+		this.packageDirs = packageDirs;
 		this.servedDirs = servedDirs;
 		this.include = include;
 		this.sourceMap = sourceMap;
@@ -244,47 +246,41 @@ export class Filer {
 
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFile | null> {
-		console.log('findByPath', path);
+		console.log('\n\n[findByPath] path', path);
 		// TODO this could be optimized (and avoid rare but weird false positives)
 		// by making it detect "externals" at the beginning of the path and only search that served dir,
 		// but the problem there is then "externals" becomes a reserved directory
 		for (const servedDir of this.servedDirs) {
 			const id = `${servedDir.servedAt}/${path}`;
-			console.log('findByPath checking at', id);
+			console.log('[findByPath] checking at', id);
 			const file = this.files.get(id);
+			if (file !== undefined) {
+				return file;
+			}
 			// TODO should this be a source or compiled file?
 			// `file.dirty`? `file.lazy`?
 			// if (file.type === 'source' && file.dirty) {
-			if (id.startsWith(`${this.buildRootDir}${EXTERNALS_DIR}`)) {
-				if (!file) {
-					// TODO doesn't this fail for packages ending in `.js` like `pixi.js`?
-					// (this TODO is in 2 places)
-					const sourceId = stripEnd(stripStart(path, `${EXTERNALS_DIR}/`), JS_EXTENSION);
-					console.log('external sourceId!', sourceId);
-					// OR should this check be in `this.updateSourceId`? `return false` early if not dirty?
-					// TODO yeck - could fail! if the served dir is subsumed by another `filerDir`.
-					// This points to a deeper issue of using the `FilerDir` for attached information -
-					// it's being ignored if it's inside another!
-					// Because `FilerDir`s are only about efficiently reading from the filesystem.
-					const filerDir = this.dirs.find((d) => d.dir === servedDir.dir)!;
-					console.log('filerDir', filerDir);
-					if ((await this.updateSourceFile(sourceId, filerDir)) && filerDir.compilable) {
-						console.log('UPDATED', sourceId);
-						await this.compileSourceId(sourceId, filerDir);
-					}
-					const compiledFile = this.files.get(id);
-					if (!compiledFile) {
-						// TODO check dirty flag? here and above? what about lazy?
-						throw Error('Expected to compile file');
-					}
-					console.log('compiledFile', compiledFile.id);
-					return compiledFile;
-				} else {
-					return this.files.get(id)!;
+			// TODO can this be cleaned up?
+			const packageDir = this.packageDirs.find((d) => id.startsWith(d));
+			if (packageDir) {
+				console.log('[findByPath] found matching packageDir', packageDir);
+				const packageDirBasePath = stripStart(packageDir, this.buildRootDir);
+				console.log('[findByPath] external packageDirBasePath', packageDirBasePath);
+				const sourceId = stripEnd(stripStart(path, `${packageDirBasePath}/`), JS_EXTENSION);
+				console.log('[findByPath] external sourceId!', sourceId);
+				const filerDir = this.dirs.find((d) => d.dir === packageDir)!; // TODO maybe create a map of dirs by id?
+				console.log('[findByPath] filerDir', filerDir);
+				if ((await this.updateSourceFile(sourceId, filerDir)) && filerDir.compilable) {
+					console.log('[findByPath] UPDATED', sourceId);
+					await this.compileSourceId(sourceId, filerDir);
 				}
-			}
-			if (file) {
-				return file;
+				const compiledFile = this.files.get(id);
+				if (!compiledFile) {
+					// TODO check dirty flag? here and above? what about lazy?
+					throw Error('Expected to compile file');
+				}
+				console.log('[findByPath] compiledFile', compiledFile.id);
+				return compiledFile;
 			}
 		}
 		return null;
@@ -346,13 +342,11 @@ export class Filer {
 		change: WatcherChange,
 		filerDir: FilerDir,
 	) => {
-		// TODO doesn't this fail for packages ending in `.js` like `pixi.js`?
-		// (this TODO is in 2 places)
 		const id =
 			filerDir.type === 'packages'
 				? stripEnd(change.path, JS_EXTENSION)
 				: join(filerDir.dir, change.path);
-		if (filerDir.type === 'packages') console.log('change, id', change, id);
+		if (filerDir.type === 'packages') console.log('change.path, id', change.path, id);
 		switch (change.type) {
 			case 'create':
 			case 'update': {
@@ -392,7 +386,7 @@ export class Filer {
 			console.log('updateSourceFile filerDir', filerDir);
 		}
 		const sourceFile = this.files.get(id);
-		if (sourceFile) {
+		if (sourceFile !== undefined) {
 			if (sourceFile.type !== 'source') {
 				throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
 			}
@@ -410,11 +404,11 @@ export class Filer {
 
 		let extension: string;
 		let encoding: Encoding;
-		if (sourceFile) {
+		if (sourceFile !== undefined) {
 			extension = sourceFile.extension;
 			encoding = sourceFile.encoding;
 		} else if (filerDir.type === 'packages') {
-			extension = '.js';
+			extension = JS_EXTENSION;
 			encoding = 'utf8';
 		} else {
 			extension = extname(id);
@@ -427,7 +421,7 @@ export class Filer {
 				: await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
-		if (!sourceFile) {
+		if (sourceFile === undefined) {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
@@ -790,7 +784,11 @@ const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCH
 
 // TODO revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility
-const validateCompiledDirs = (compiledDirs: string[], packageDirs: string[]) => {
+const validateCompiledDirs = (
+	compiledDirs: string[],
+	packageDirs: string[],
+	buildRootDir: string,
+) => {
 	// Make sure no `compiledDir` or `packageDir` is inside another.
 	// This could be fixed but it has inefficiencies and possibly some subtle bugs.
 	for (const compiledDir of compiledDirs) {
@@ -812,6 +810,12 @@ const validateCompiledDirs = (compiledDirs: string[], packageDirs: string[]) => 
 		}
 	}
 	for (const packageDir of packageDirs) {
+		if (!packageDir.startsWith(buildRootDir)) {
+			throw Error(
+				'A packageDir must be located inside the buildRootDir:' +
+					` ${packageDir} is not in ${buildRootDir}`,
+			);
+		}
 		const nestedPackageDir = packageDirs.find((d) => d !== packageDir && packageDir.startsWith(d));
 		if (nestedPackageDir) {
 			throw Error(

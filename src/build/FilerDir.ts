@@ -1,7 +1,6 @@
 import {ensureDir} from '../fs/nodeFs.js';
 import {watchNodeFs, WatcherChange} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import {paths} from '../paths.js';
 import {Compiler} from '../compile/compiler.js';
 import {UnreachableError} from '../utils/error.js';
 
@@ -55,10 +54,8 @@ export const createFilerDir = (
 		watcher.close();
 	};
 	const init = async () => {
-		if (dir === paths.externals) console.log('init', dir);
 		await ensureDir(dir);
 		const statsBySourcePath = await watcher.init();
-		if (dir === paths.externals) console.log('statsBySourcePath', statsBySourcePath);
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
 				stats.isDirectory() ? null : onChange({type: 'update', path, stats}, filerDir),

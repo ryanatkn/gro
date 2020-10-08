@@ -130,7 +130,6 @@ const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFil
 		'Content-Length': stats.size,
 		'Last-Modified': stats.mtime.toUTCString(),
 	};
-	console.log('headers', headers, mimeType);
 	res.writeHead(200, headers);
 	res.end(getFileBuffer(file));
 };
