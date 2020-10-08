@@ -373,7 +373,7 @@ export class Filer {
 				throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
 			}
 			if (sourceFile.filerDir !== filerDir) {
-				// This can happen when there are overlapping watchers.
+				// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
 				// We might be able to support this,
 				// but more thought needs to be given to the exact desired behavior.
 				// See `validateCompiledDirs` for more.
@@ -391,13 +391,12 @@ export class Filer {
 			encoding = sourceFile.encoding;
 		} else {
 			extension = extname(id);
-			encoding = filerDir.dir === paths.externals ? 'utf8' : inferEncoding(extension); // TODO omg
+			encoding = id.startsWith(paths.externals) ? 'utf8' : inferEncoding(extension); // TODO omg
 		}
 		// TODO hack
-		const newSourceContents =
-			filerDir.dir === paths.externals
-				? 'TODO read package.json and put the version here, probably'
-				: await loadContents(encoding, id);
+		const newSourceContents = id.startsWith(paths.externals)
+			? 'TODO read package.json and put the version here, probably'
+			: await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
 		if (!sourceFile) {
@@ -751,7 +750,7 @@ const validateCompiledDirs = (compiledDirs: string[]) => {
 		// Make sure no `compiledDir` is inside another `compiledDir`.
 		// This could be fixed and the current implementation appears to work, if inefficiently,
 		// only throwing an error when it detects that a source file's `filerDir` has changed.
-		// However there may be subtle bugs caused by source files changing their `watcherDir`,
+		// However there may be subtle bugs caused by source files changing their `filerDir`,
 		// so for now we err on the side of caution and less complexity.
 		const nestedCompiledDir = compiledDirs.find(
 			(d) => d !== compiledDir && compiledDir.startsWith(d),

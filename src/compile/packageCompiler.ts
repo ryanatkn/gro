@@ -44,9 +44,13 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 		if (source.encoding !== 'utf8') {
 			throw Error(`Package compiler only handles utf8 encoding, not ${source.encoding}`);
 		}
+		console.log('compiling source', source);
 		// TODO what's the right way to get this? store on source?
 		// probably, all package sources should have an `outFile` or something
 		const id = `${buildRootDir}${EXTERNALS_DIR}/${source.id}.js`;
+		// const id = source.id.startsWith(buildRootDir) // TODO terrrrible hack
+		// 	? source.id
+		// 	: `${buildRootDir}${EXTERNALS_DIR}/${source.id}.js`;
 		const dir = dirname(id);
 		const filename = basename(id);
 		console.log('id', id);
