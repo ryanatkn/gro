@@ -145,11 +145,9 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const buildConfigs = opts.buildConfigs || null;
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
-	// TODO do `packageDirs` need to be validated? at the same time as `compiledDirs`?
-	// maybe validate that packgeDirs are not inside compiled dirs?
 	const packageDirs = opts.packageDirs ? opts.packageDirs.map((d) => resolve(d)) : [];
+	validateCompiledDirs(compiledDirs, packageDirs);
 	const compiledDirCount = compiledDirs.length + packageDirs.length;
-	validateCompiledDirs(compiledDirs);
 	// default to serving all of the compiled output files
 	const servedDirs = toServedDirs(
 		opts.servedDirs ||
@@ -778,13 +776,10 @@ const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCH
 
 // TODO revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility
-const validateCompiledDirs = (compiledDirs: string[]) => {
+const validateCompiledDirs = (compiledDirs: string[], packageDirs: string[]) => {
+	// Make sure no `compiledDir` or `packageDir` is inside another.
+	// This could be fixed but it has inefficiencies and possibly some subtle bugs.
 	for (const compiledDir of compiledDirs) {
-		// Make sure no `compiledDir` is inside another `compiledDir`.
-		// This could be fixed and the current implementation appears to work, if inefficiently,
-		// only throwing an error when it detects that a source file's `filerDir` has changed.
-		// However there may be subtle bugs caused by source files changing their `filerDir`,
-		// so for now we err on the side of caution and less complexity.
 		const nestedCompiledDir = compiledDirs.find(
 			(d) => d !== compiledDir && compiledDir.startsWith(d),
 		);
@@ -792,6 +787,29 @@ const validateCompiledDirs = (compiledDirs: string[]) => {
 			throw Error(
 				'A compiledDir cannot be inside another compiledDir: ' +
 					`${compiledDir} is inside ${nestedCompiledDir}`,
+			);
+		}
+		const nestedPackageDir = packageDirs.find((d) => compiledDir.startsWith(d));
+		if (nestedPackageDir) {
+			throw Error(
+				'A compiledDir cannot be inside a packageDir: ' +
+					`${compiledDir} is inside ${nestedPackageDir}`,
+			);
+		}
+	}
+	for (const packageDir of packageDirs) {
+		const nestedPackageDir = packageDirs.find((d) => d !== packageDir && packageDir.startsWith(d));
+		if (nestedPackageDir) {
+			throw Error(
+				'A packageDir cannot be inside another packageDir: ' +
+					`${packageDir} is inside ${nestedPackageDir}`,
+			);
+		}
+		const nestedCompiledDir = compiledDirs.find((d) => packageDir.startsWith(d));
+		if (nestedCompiledDir) {
+			throw Error(
+				'A packageDir cannot be inside a compiledDir: ' +
+					`${packageDir} is inside ${nestedCompiledDir}`,
 			);
 		}
 	}
