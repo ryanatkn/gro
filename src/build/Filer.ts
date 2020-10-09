@@ -44,7 +44,7 @@ export type SourceFile = CompilableSourceFile | NonCompilableSourceFile;
 export type CompilableSourceFile =
 	| CompilableTextSourceFile
 	| CompilableBinarySourceFile
-	| CompilablePackageSourceFile;
+	| CompilableExternalsSourceFile;
 export type NonCompilableSourceFile = NonCompilableTextSourceFile | NonCompilableBinarySourceFile;
 export interface TextSourceFile extends BaseSourceFile {
 	readonly sourceType: 'text';
@@ -57,8 +57,8 @@ export interface BinarySourceFile extends BaseSourceFile {
 	readonly contents: Buffer;
 	readonly buffer: Buffer;
 }
-export interface PackageSourceFile extends BaseSourceFile {
-	readonly sourceType: 'package';
+export interface ExternalsSourceFile extends BaseSourceFile {
+	readonly sourceType: 'externals';
 	readonly encoding: 'utf8';
 	readonly contents: string;
 }
@@ -76,7 +76,7 @@ export interface CompilableBinarySourceFile extends BinarySourceFile {
 	readonly filerDir: CompilableInternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
-export interface CompilablePackageSourceFile extends PackageSourceFile {
+export interface CompilableExternalsSourceFile extends ExternalsSourceFile {
 	readonly compilable: true;
 	readonly filerDir: ExternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
@@ -811,14 +811,14 @@ const createSourceFile = (
 ): SourceFile => {
 	if (filerDir.type === 'externals') {
 		if (encoding !== 'utf8') {
-			throw Error(`Package sources must have utf8 encoding, not '${encoding}': ${id}`);
+			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',
-			sourceType: 'package',
+			sourceType: 'externals',
 			compilable: true,
 			id,
 			filename,
@@ -935,7 +935,7 @@ const createFilerDirs = (
 	// TODO should these be ignored in watch mode, or might some code want to query the cache?
 	if (watch) {
 		for (const servedDir of servedDirs) {
-			// If a `servedDir` is inside a compiled or package directory,
+			// If a `servedDir` is inside a compiled or externals directory,
 			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 			if (

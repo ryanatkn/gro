@@ -40,7 +40,7 @@ interface BaseCompilation {
 export type CompilationSource =
 	| TextCompilationSource
 	| BinaryCompilationSource
-	| PackageCompilationSource;
+	| ExternalsCompilationSource;
 export interface TextCompilationSource extends BaseCompilationSource {
 	sourceType: 'text';
 	encoding: 'utf8';
@@ -51,8 +51,8 @@ export interface BinaryCompilationSource extends BaseCompilationSource {
 	encoding: null;
 	contents: Buffer;
 }
-export interface PackageCompilationSource extends BaseCompilationSource {
-	sourceType: 'package';
+export interface ExternalsCompilationSource extends BaseCompilationSource {
+	sourceType: 'externals';
 	encoding: 'utf8';
 	contents: string;
 }

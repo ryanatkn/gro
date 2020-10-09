@@ -11,26 +11,26 @@ import {
 	InitialOptions as SvelteCompilerInitialOptions,
 } from './svelteCompiler.js';
 import {
-	createPackageCompiler,
-	InitialOptions as PackageCompilerInitialOptions,
-} from './packageCompiler.js';
+	createExternalsCompiler,
+	InitialOptions as ExternalsCompilerInitialOptions,
+} from './externalsCompiler.js';
 
 export const createDefaultCompiler = (
 	swcCompilerOptions?: SwcCompilerInitialOptions,
 	svelteCompilerOptions?: SvelteCompilerInitialOptions,
-	packageCompilerOptions?: PackageCompilerInitialOptions,
+	externalsCompilerOptions?: ExternalsCompilerInitialOptions,
 	compilerOptions?: CompilerInitialOptions,
 ): Compiler => {
 	const swcCompiler = createSwcCompiler(swcCompilerOptions);
 	const svelteCompiler = createSvelteCompiler(svelteCompilerOptions);
-	const packageCompiler = createPackageCompiler(packageCompilerOptions);
+	const externalsCompiler = createExternalsCompiler(externalsCompilerOptions);
 
 	if (!compilerOptions?.getCompiler) {
 		compilerOptions = {
 			...compilerOptions,
 			getCompiler: (source: CompilationSource) => {
-				if (source.sourceType === 'package') {
-					return packageCompiler;
+				if (source.sourceType === 'externals') {
+					return externalsCompiler;
 				}
 				switch (source.extension) {
 					case TS_EXTENSION:

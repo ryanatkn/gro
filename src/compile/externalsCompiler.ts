@@ -3,7 +3,7 @@ import {basename, dirname} from 'path';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {EXTERNALS_DIR, JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, PackageCompilationSource, TextCompilation} from './compiler.js';
+import {Compiler, ExternalsCompilationSource, TextCompilation} from './compiler.js';
 import {cyan} from '../colors/terminal.js';
 import {buildExternalModule} from '../build/buildExternalModule.js';
 import {printPath} from '../utils/print.js';
@@ -15,7 +15,7 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger([cyan('[packageCompiler]')]);
+	const log = opts.log || new SystemLogger([cyan('[externalsCompiler]')]);
 	return {
 		sourceMap: false,
 		externalsBasePath: EXTERNALS_DIR,
@@ -24,28 +24,28 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type PackageCompiler = Compiler<PackageCompilationSource, TextCompilation>;
+type ExternalsCompiler = Compiler<ExternalsCompilationSource, TextCompilation>;
 
-export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompiler => {
+export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCompiler => {
 	const {sourceMap, externalsBasePath, log} = initOptions(opts);
 
 	if (sourceMap) {
-		log.warn('Source maps are not yet supported by the package compiler.');
+		log.warn('Source maps are not yet supported by the externals compiler.');
 	}
 
-	const compile: PackageCompiler['compile'] = async (source, buildConfig, buildRootDir, dev) => {
+	const compile: ExternalsCompiler['compile'] = async (source, buildConfig, buildRootDir, dev) => {
 		if (!dev) {
-			throw Error('The package compiler is currently not designed for production usage.');
+			throw Error('The externals compiler is currently not designed for production usage.');
 		}
 		if (source.encoding !== 'utf8') {
-			throw Error(`Package compiler only handles utf8 encoding, not ${source.encoding}`);
+			throw Error(`Externals compiler only handles utf8 encoding, not ${source.encoding}`);
 		}
 		// TODO should this be cached on the source?
 		const id = `${buildRootDir}${externalsBasePath}/${source.id}.js`;
 		const dir = dirname(id);
 		const filename = basename(id);
 
-		log.info(`Bundling package: ${source.id} → ${printPath(id)}`);
+		log.info(`Bundling externals: ${source.id} → ${printPath(id)}`);
 
 		let result;
 		try {
