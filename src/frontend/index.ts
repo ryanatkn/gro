@@ -4,11 +4,11 @@ import {bar} from './bar.js';
 
 // test fully qualified import
 import * as motion from 'svelte/motion/index.js';
-console.log('svelte motion', motion);
+console.log('imported svelte motion', motion);
 
 // test dynamic import
-import('svelte/store').then((storeModule) => {
-	console.log('imported svelte/store', storeModule);
+import('svelte/store').then((store) => {
+	console.log('imported svelte/store', store);
 });
 
 const root = document.getElementById('root');

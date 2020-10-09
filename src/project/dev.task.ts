@@ -25,17 +25,7 @@ export const task: Task = {
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
 			compiledDirs: [paths.source],
-			externalsDir: paths.externals,
-			servedDirs: [
-				// TODO does this API make sense? seems weird
-				`${buildOutDir}/frontend`,
-				{dir: paths.externals, servedAt: paths.build},
-			],
-			// dirs: [
-			// 	{dir: paths.source, compiled: true},
-			// 	{dir: `${buildOutDir}/frontend`, served: true},
-			// 	{dir: paths.externals, compiled: true, served: true, servedAt: paths.build},
-			// ],
+			servedDirs: [`${buildOutDir}/frontend`, {dir: paths.externals, servedAt: paths.build}],
 			buildConfigs,
 		});
 		timingToCreateFiler();

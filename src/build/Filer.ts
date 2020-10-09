@@ -248,13 +248,11 @@ export class Filer {
 
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFile | null> {
-		console.log('\n\n[findByPath] path', path);
 		// TODO this could be optimized (and avoid rare but weird false positives)
 		// by making it detect "externals" at the beginning of the path and only search that served dir,
 		// but the problem there is then "externals" becomes a reserved directory
 		for (const servedDir of this.servedDirs) {
 			const id = `${servedDir.servedAt}/${path}`;
-			console.log('[findByPath] checking at', id);
 			const file = this.files.get(id);
 			if (file !== undefined) {
 				return file;
@@ -264,14 +262,9 @@ export class Filer {
 			// if (file.type === 'source' && file.dirty) {
 			// TODO can this be cleaned up?
 			if (id.startsWith(this.externalsDir.dir)) {
-				console.log('[findByPath] found matching externalsDir', this.externalsDir);
 				const externalsDirBasePath = stripStart(this.externalsDir.dir, this.buildRootDir);
-				console.log('[findByPath] external externalsDirBasePath', externalsDirBasePath);
 				const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
-				console.log('[findByPath] external sourceId!', sourceId);
-				console.log('[findByPath] externalsDir', this.externalsDir);
 				if (await this.updateSourceFile(sourceId, this.externalsDir)) {
-					console.log('[findByPath] UPDATED', sourceId);
 					await this.compileSourceId(sourceId, this.externalsDir);
 				}
 				const compiledFile = this.files.get(id);
@@ -279,7 +272,6 @@ export class Filer {
 					// TODO check dirty flag? here and above? what about lazy?
 					throw Error('Expected to compile file');
 				}
-				console.log('[findByPath] compiledFile', compiledFile.id);
 				return compiledFile;
 			}
 		}
@@ -343,7 +335,6 @@ export class Filer {
 			filerDir.type === 'externals'
 				? stripEnd(change.path, JS_EXTENSION)
 				: join(filerDir.dir, change.path);
-		if (filerDir.type === 'externals') console.log('change.path, id', change.path, id);
 		switch (change.type) {
 			case 'init':
 			case 'create':
@@ -384,10 +375,6 @@ export class Filer {
 
 	// Returns a boolean indicating if the source file changed.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
-		if (filerDir.type === 'externals') {
-			console.log('updateSourceFile id', id);
-			console.log('updateSourceFile filerDir', filerDir);
-		}
 		const sourceFile = this.files.get(id);
 		if (sourceFile !== undefined) {
 			if (sourceFile.type !== 'source') {
@@ -429,7 +416,6 @@ export class Filer {
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
-			if (filerDir.type === 'externals') console.log('newSourceFile', newSourceFile);
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
@@ -690,22 +676,6 @@ const syncCompiledFilesToMemoryCache = (
 			// the compiled output files do not conflict.
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
-			// console.log('newFile', {
-			// 	...newFile,
-			// 	sourceFile: newFile.sourceFile?.id,
-			// 	compilation: null,
-			// 	filerDir: null,
-			// 	contents: newFile.contents.slice(0, 100),
-			// 	compiledFiles: [],
-			// });
-			// console.log('oldFile', {
-			// 	...oldFile,
-			// 	sourceFile: oldFile.sourceFile?.id,
-			// 	compilation: null,
-			// 	filerDir: null,
-			// 	contents: oldFile.contents.slice(0, 100),
-			// 	compiledFiles: [],
-			// });
 			if (newFile.sourceFile.id !== oldFile.sourceFile.id) {
 				throw Error(
 					'Two source files are trying to compile to the same output location: ' +
@@ -762,6 +732,7 @@ function postprocess(compilation: Compilation) {
 			const start = d > -1 ? s + 1 : s;
 			const end = d > -1 ? e - 1 : e;
 			const moduleName = contents.substring(start, end);
+			if (moduleName === 'import.meta') continue;
 			let newModuleName = moduleName;
 			if (moduleName.endsWith(SVELTE_EXTENSION)) {
 				newModuleName = replaceExtension(moduleName, JS_EXTENSION);
@@ -839,7 +810,6 @@ const createSourceFile = (
 		if (encoding !== 'utf8') {
 			throw Error(`Package sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
-		console.log('externals id', id, filerDir);
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
@@ -956,10 +926,8 @@ const createFilerDirs = (
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const compiledDir of compiledDirs) {
-		console.log('creating filer dir for compiledDir', compiledDir);
 		dirs.push(createFilerDir(compiledDir, 'files', compiler, watch, debounce, onChange));
 	}
-	console.log('creating filer dir for externalsDir', externalsDir);
 	dirs.push(createFilerDir(externalsDir, 'externals', compiler, false, debounce, onChange));
 	// TODO should these be ignored in watch mode, or might some code want to query the cache?
 	if (watch) {
@@ -973,7 +941,6 @@ const createFilerDirs = (
 				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 				!servedDir.dir.startsWith(buildRootDir)
 			) {
-				console.log('creating filer dir for servedDir', servedDir);
 				dirs.push(createFilerDir(servedDir.dir, 'files', null, watch, debounce, onChange));
 			}
 		}

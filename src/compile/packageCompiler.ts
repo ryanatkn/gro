@@ -11,6 +11,7 @@ import {printPath} from '../utils/print.js';
 
 export interface Options {
 	sourceMap: boolean;
+	externalsBasePath: string;
 	log: Logger;
 }
 export type InitialOptions = Partial<Options>;
@@ -18,6 +19,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[packageCompiler]')]);
 	return {
 		sourceMap: false,
+		externalsBasePath: EXTERNALS_DIR,
 		...omitUndefined(opts),
 		log,
 	};
@@ -26,7 +28,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 type PackageCompiler = Compiler<TextCompilation>;
 
 export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompiler => {
-	const {sourceMap, log} = initOptions(opts);
+	const {sourceMap, externalsBasePath, log} = initOptions(opts);
 
 	if (sourceMap) {
 		log.warn('Source maps are not yet supported by the package compiler.');
@@ -44,18 +46,11 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 		if (source.encoding !== 'utf8') {
 			throw Error(`Package compiler only handles utf8 encoding, not ${source.encoding}`);
 		}
-		console.log('[packageCompiler] compiling source', source.id);
 		// TODO what's the right way to get this? store on source?
 		// probably, all package sources should have an `outFile` or something
-		const id = `${buildRootDir}${EXTERNALS_DIR}/${source.id}.js`;
-		// const id = source.id.startsWith(buildRootDir) // TODO terrrrible hack
-		// 	? source.id
-		// 	: `${buildRootDir}${EXTERNALS_DIR}/${source.id}.js`;
+		const id = `${buildRootDir}${externalsBasePath}/${source.id}.js`;
 		const dir = dirname(id);
 		const filename = basename(id);
-		console.log('[packageCompiler] id', id);
-		console.log('[packageCompiler] dir', dir);
-		console.log('[packageCompiler] filename', filename);
 
 		log.info(`Bundling package: ${source.id} → ${printPath(id)}`);
 
