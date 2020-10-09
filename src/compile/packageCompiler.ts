@@ -3,8 +3,7 @@ import {basename, dirname} from 'path';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {EXTERNALS_DIR, JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {CompilationSource, Compiler, TextCompilation} from './compiler.js';
-import {BuildConfig} from '../build/buildConfig.js';
+import {Compiler, PackageCompilationSource, TextCompilation} from './compiler.js';
 import {cyan} from '../colors/terminal.js';
 import {buildExternalModule} from '../build/buildExternalModule.js';
 import {printPath} from '../utils/print.js';
@@ -25,7 +24,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type PackageCompiler = Compiler<TextCompilation>;
+type PackageCompiler = Compiler<PackageCompilationSource, TextCompilation>;
 
 export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompiler => {
 	const {sourceMap, externalsBasePath, log} = initOptions(opts);
@@ -34,20 +33,14 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 		log.warn('Source maps are not yet supported by the package compiler.');
 	}
 
-	const compile: PackageCompiler['compile'] = async (
-		source: CompilationSource,
-		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
-	) => {
+	const compile: PackageCompiler['compile'] = async (source, buildConfig, buildRootDir, dev) => {
 		if (!dev) {
 			throw Error('The package compiler is currently not designed for production usage.');
 		}
 		if (source.encoding !== 'utf8') {
 			throw Error(`Package compiler only handles utf8 encoding, not ${source.encoding}`);
 		}
-		// TODO what's the right way to get this? store on source?
-		// probably, all package sources should have an `outFile` or something
+		// TODO should this be cached on the source?
 		const id = `${buildRootDir}${externalsBasePath}/${source.id}.js`;
 		const dir = dirname(id);
 		const filename = basename(id);

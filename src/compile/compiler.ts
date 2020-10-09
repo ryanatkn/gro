@@ -3,13 +3,16 @@ import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
 
-export interface Compiler<T extends Compilation = Compilation> {
+export interface Compiler<
+	TSource extends CompilationSource = CompilationSource,
+	TResult extends Compilation = Compilation
+> {
 	compile(
-		source: CompilationSource,
+		source: TSource,
 		buildConfig: BuildConfig,
 		buildRootDir: string,
 		dev: boolean,
-	): CompileResult<T> | Promise<CompileResult<T>>;
+	): CompileResult<TResult> | Promise<CompileResult<TResult>>;
 }
 
 export interface CompileResult<T extends Compilation = Compilation> {
@@ -93,12 +96,7 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 };
 
 const createNoopCompiler = (): Compiler => {
-	const compile: Compiler['compile'] = (
-		source: CompilationSource,
-		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
-	) => {
+	const compile: Compiler['compile'] = (source, buildConfig, buildRootDir, dev) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
