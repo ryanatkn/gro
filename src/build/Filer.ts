@@ -308,7 +308,8 @@ export class Filer {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([Promise.all(this.dirs.map((d) => d.init())), lexer.init]);
+		await lexer.init; // must finish before dirs are initialized because it's used for compilation
+		await Promise.all(this.dirs.map((d) => d.init()));
 
 		const {buildConfigs} = this;
 		if (this.cleanOutputDirs && buildConfigs !== null) {
