@@ -279,15 +279,18 @@ export class Filer {
 			// if (file.type === 'source' && file.dirty) {
 			// TODO can this be cleaned up? could compare `path` to `externalsDir.dirBasePath`
 			// (new cached value, but technically does it need the `servedDir.servedAt`, not the `buildRootDir`?), move above the for loop
+			// or should serving the externals dir be a concern internal to the Filer,
+			// automatically configured, with external configuration ignored?
+			// In that case, we could make an `addServedDir` helper that throws if there are conflicts.
+			// I have some confusion around what the Filer knows about externals..
 			if (id.startsWith(this.externalsDir.dir)) {
-				const externalsDirBasePath = stripStart(this.externalsDir.dir, this.buildRootDir);
+				const externalsDirBasePath = stripStart(this.externalsDir.dir, `${servedDir.servedAt}/`);
 				const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
 				if (await this.updateSourceFile(sourceId, this.externalsDir)) {
 					await this.compileSourceId(sourceId, this.externalsDir);
 				}
 				const compiledFile = this.files.get(id);
 				if (!compiledFile) {
-					// TODO check dirty flag? here and above? what about lazy?
 					throw Error('Expected to compile file');
 				}
 				return compiledFile;
@@ -744,6 +747,10 @@ function postprocess(compilation: Compilation) {
 			}
 			if (compilation.buildConfig.platform === 'browser' && isExternalModule(moduleName)) {
 				newModuleName = `/${EXTERNALS_DIR}/${newModuleName}`;
+				// TODO we may need to remove this for imports like `pixi.js`,
+				// and then for externals that have `.js` files imported,
+				// the import path and file on disk will be `foo.js.js`,
+				// rather than trying to be clever about checking name resolution.
 				if (!newModuleName.endsWith(JS_EXTENSION)) {
 					newModuleName += JS_EXTENSION;
 				}
