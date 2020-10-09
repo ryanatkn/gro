@@ -424,7 +424,7 @@ export class Filer {
 		// TODO hack
 		const newSourceContents =
 			filerDir.type === 'externals'
-				? 'TODO read package.json and put the version here, probably'
+				? 'TODO maybe put the version from package.json here? or is that stored with the cached metadata?'
 				: await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
