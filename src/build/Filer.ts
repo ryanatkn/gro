@@ -199,12 +199,12 @@ export class Filer {
 	private readonly dev: boolean;
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly buildRootDir: string;
-	private readonly externalsDir: string;
 	private readonly servedDirs: ServedDir[];
 	private readonly sourceMap: boolean;
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
 	private readonly dirs: FilerDir[];
+	private readonly externalsDir: CompilableFilerDir;
 	private readonly include: (id: string) => boolean;
 
 	private readonly files: Map<string, FilerFile> = new Map();
@@ -228,7 +228,6 @@ export class Filer {
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
 		this.buildRootDir = buildRootDir;
-		this.externalsDir = externalsDir;
 		this.servedDirs = servedDirs;
 		this.include = include;
 		this.sourceMap = sourceMap;
@@ -244,6 +243,7 @@ export class Filer {
 			debounce,
 			this.onDirChange,
 		);
+		this.externalsDir = this.dirs.find((d) => d.dir === externalsDir) as CompilableFilerDir;
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
@@ -263,17 +263,16 @@ export class Filer {
 			// `file.dirty`? `file.lazy`?
 			// if (file.type === 'source' && file.dirty) {
 			// TODO can this be cleaned up?
-			if (id.startsWith(this.externalsDir)) {
+			if (id.startsWith(this.externalsDir.dir)) {
 				console.log('[findByPath] found matching externalsDir', this.externalsDir);
-				const externalsDirBasePath = stripStart(this.externalsDir, this.buildRootDir);
+				const externalsDirBasePath = stripStart(this.externalsDir.dir, this.buildRootDir);
 				console.log('[findByPath] external externalsDirBasePath', externalsDirBasePath);
 				const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
 				console.log('[findByPath] external sourceId!', sourceId);
-				const filerDir = this.dirs.find((d) => d.dir === this.externalsDir)!; // TODO maybe create a map of dirs by id?
-				console.log('[findByPath] filerDir', filerDir);
-				if ((await this.updateSourceFile(sourceId, filerDir)) && filerDir.compilable) {
+				console.log('[findByPath] externalsDir', this.externalsDir);
+				if (await this.updateSourceFile(sourceId, this.externalsDir)) {
 					console.log('[findByPath] UPDATED', sourceId);
-					await this.compileSourceId(sourceId, filerDir);
+					await this.compileSourceId(sourceId, this.externalsDir);
 				}
 				const compiledFile = this.files.get(id);
 				if (!compiledFile) {
@@ -433,7 +432,7 @@ export class Filer {
 			if (filerDir.type === 'externals') console.log('newSourceFile', newSourceFile);
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
-			// TODO this is a hack to avoid the comparison for externals because they're compiled lazily
+			// TODO hack to avoid the comparison for externals because they're compiled lazily
 			!(filerDir.type === 'externals' && sourceFile.compiledFiles?.length === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
