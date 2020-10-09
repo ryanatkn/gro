@@ -49,7 +49,7 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 
 		let result;
 		try {
-			result = await buildExternalModule(source.id, id, log);
+			result = await buildExternalModule(source.id, id);
 		} catch (err) {
 			log.error(`Failed to bundle external module: ${source.id} from ${id}`);
 			throw err;

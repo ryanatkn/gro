@@ -125,11 +125,12 @@ export interface BaseFile {
 export interface Options {
 	dev: boolean;
 	compiler: Compiler | null;
-	buildConfigs: BuildConfig[] | null;
-	buildRootDir: string;
 	compiledDirs: string[];
 	externalsDir: string;
 	servedDirs: ServedDir[];
+	buildConfigs: BuildConfig[] | null;
+	externalsBuildConfig: BuildConfig | null;
+	buildRootDir: string;
 	include: (id: string) => boolean;
 	sourceMap: boolean;
 	debounce: number;
@@ -143,6 +144,18 @@ export type InitialOptions = OmitStrict<Partial<Options>, 'servedDirs'> & {
 export const initOptions = (opts: InitialOptions): Options => {
 	const dev = opts.dev ?? true;
 	const buildConfigs = opts.buildConfigs || null;
+	if (buildConfigs?.length === 0) {
+		throw Error(
+			'Filer created with an empty array of buildConfigs.' +
+				' Omit the value or provide `null` if this was intended.',
+		);
+	}
+	const externalsBuildConfig =
+		buildConfigs === null
+			? null
+			: buildConfigs.find((c) => c.platform === 'browser') ||
+			  buildConfigs.find((c) => c.primary) ||
+			  buildConfigs[0];
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
 	const externalsDir = opts.externalsDir
@@ -187,33 +200,36 @@ export const initOptions = (opts: InitialOptions): Options => {
 		include: opts.include || (() => true),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
 		compiler,
-		buildConfigs,
-		buildRootDir,
 		compiledDirs,
 		externalsDir,
 		servedDirs,
+		buildConfigs,
+		externalsBuildConfig,
+		buildRootDir,
 	};
 };
 
 export class Filer {
-	private readonly dev: boolean;
-	private readonly buildConfigs: BuildConfig[] | null;
-	private readonly buildRootDir: string;
 	private readonly servedDirs: ServedDir[];
+	private readonly buildConfigs: BuildConfig[] | null;
+	private readonly externalsBuildConfig: BuildConfig | null;
+	private readonly buildRootDir: string;
+	private readonly dev: boolean;
 	private readonly sourceMap: boolean;
-	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
-	private readonly dirs: FilerDir[];
-	private readonly externalsDir: CompilableFilerDir;
+	private readonly cleanOutputDirs: boolean;
 	private readonly include: (id: string) => boolean;
 
 	private readonly files: Map<string, FilerFile> = new Map();
+	private readonly dirs: FilerDir[];
+	private readonly externalsDir: CompilableFilerDir;
 
 	constructor(opts: InitialOptions) {
 		const {
 			dev,
 			compiler,
 			buildConfigs,
+			externalsBuildConfig,
 			buildRootDir,
 			compiledDirs,
 			servedDirs,
@@ -227,6 +243,7 @@ export class Filer {
 		} = initOptions(opts);
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
+		this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
 		this.servedDirs = servedDirs;
 		this.include = include;
@@ -516,27 +533,13 @@ export class Filer {
 		// The Filer is designed to be able to be a long-lived process
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
-		const results =
-			// TODO this is a hack - how to get the build config correctly?
-			sourceFile.sourceType === 'package'
-				? [
-						await sourceFile.filerDir.compiler.compile(
-							sourceFile,
-							this.buildConfigs!.find((c) => c.platform === 'browser')!,
-							this.buildRootDir,
-							this.dev,
-						),
-				  ]
-				: await Promise.all(
-						this.buildConfigs!.map((buildConfig) =>
-							sourceFile.filerDir.compiler.compile(
-								sourceFile,
-								buildConfig,
-								this.buildRootDir,
-								this.dev,
-							),
-						),
-				  );
+		const buildConfigs: BuildConfig[] =
+			sourceFile.filerDir.type === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
+		const results = await Promise.all(
+			buildConfigs.map((buildConfig) =>
+				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this.buildRootDir, this.dev),
+			),
+		);
 
 		// Update the cache and write to disk.
 		const newCompiledFiles = results.flatMap((result) =>

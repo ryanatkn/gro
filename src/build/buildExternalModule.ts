@@ -2,16 +2,12 @@ import {rollup, OutputOptions, InputOptions, OutputChunk} from 'rollup';
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
 
-import {Logger} from '../utils/log.js';
 import {diagnosticsPlugin} from '../project/rollup-plugin-diagnostics.js';
 
 export const buildExternalModule = async (
 	originalImportPath: string,
 	externalFilePath: string,
-	log: Logger,
 ): Promise<OutputChunk> => {
-	log.info('bundling external', originalImportPath, '→', externalFilePath);
-
 	const inputOptions = createInputOptions(originalImportPath);
 	const outputOptions = createOutputOptions(externalFilePath, false);
 
