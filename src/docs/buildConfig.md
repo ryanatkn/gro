@@ -18,12 +18,12 @@ Why put this in `package.json` and not a more powerful `gro.config.ts` file?
 A Gro project's build configs must be statically knowable before compilation,
 because there's a chicken and egg problem -
 if a config is defined in TypeScript,
-we need to compile it to execute and read it,
+we need to compile it and its dependencies to run it to get the config,
 but to compile it we need the config - so we're stuck.
 This can be solved in other ways,
 like compiling to a temporary directory or using something like `ts-node`,
 but these solutions introduce overhead and complexity we'd rather avoid right now.
-This is subject to change, though -
+This is subject to change, however -
 it seems likely we'll want to define the entire Gro config in a runnable `gro.config.ts`.
 
 So for now, Gro reads a single field from a project's `package.json`.
@@ -48,7 +48,7 @@ is used by compilers for TypeScript and Svelte.
 When compiling for Node, the Svelte compiler outputs SSR components instead of the normal DOM ones.
 
 The `"name"` field can be anything and maps to the build's directory name.
-By defining `"name": "node",`, running `gro compile` or `gro build` creates builds
+By defining `"name": "node",`, running `gro compile`, `gro dev`, or `gro build` creates builds
 in `.gro/dev/node/` and `.gro/prod/node/`, respectively.
 
 Here's what a frontend-only project may look like.
