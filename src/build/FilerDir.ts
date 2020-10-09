@@ -5,10 +5,9 @@ import {Compiler} from '../compile/compiler.js';
 import {UnreachableError} from '../utils/error.js';
 import {PathStats} from '../fs/pathData.js';
 
-// Compiled filer dirs are compiled and written to disk.
+// Compiled filer dirs are watched, compiled, and written to disk.
 // For non-compilable dirs, the `dir` is only watched and nothing is written to the filesystem.
-// Served filer dirs expose their files to queries in the Filer.
-// A filer dir must be either compiled or served or both, because otherwise it does nothing!
+// Externals dirs require special handling - see the `Filer` for more.
 export type FilerDir = CompilableFilerDir | NonCompilableInternalsFilerDir;
 export type CompilableFilerDir = CompilableInternalsFilerDir | ExternalsFilerDir;
 export type FilerDirType = 'files' | 'externals';

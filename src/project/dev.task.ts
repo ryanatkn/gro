@@ -34,8 +34,6 @@ export const task: Task = {
 		await filer.init();
 		timingToInitFiler();
 
-		// TODO this could be done in parallel with initializing the filer,
-		// but we may want to see its timings instead
 		const timingToStartDevServer = timings.start('start dev server');
 		const devServer = createDevServer({filer});
 		await devServer.start();

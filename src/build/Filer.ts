@@ -277,7 +277,8 @@ export class Filer {
 			// TODO should this be a source or compiled file?
 			// `file.dirty`? `file.lazy`?
 			// if (file.type === 'source' && file.dirty) {
-			// TODO can this be cleaned up?
+			// TODO can this be cleaned up? could compare `path` to `externalsDir.dirBasePath`
+			// (new cached value, but technically does it need the `servedDir.servedAt`, not the `buildRootDir`?), move above the for loop
 			if (id.startsWith(this.externalsDir.dir)) {
 				const externalsDirBasePath = stripStart(this.externalsDir.dir, this.buildRootDir);
 				const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
@@ -933,20 +934,17 @@ const createFilerDirs = (
 		dirs.push(createFilerDir(compiledDir, 'files', compiler, watch, debounce, onChange));
 	}
 	dirs.push(createFilerDir(externalsDir, 'externals', compiler, false, debounce, onChange));
-	// TODO should these be ignored in watch mode, or might some code want to query the cache?
-	if (watch) {
-		for (const servedDir of servedDirs) {
-			// If a `servedDir` is inside a compiled or externals directory,
-			// it's already in the Filer's memory cache and does not need to be loaded as a directory.
-			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
-			if (
-				!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
-				!servedDir.dir.startsWith(externalsDir) &&
-				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
-				!servedDir.dir.startsWith(buildRootDir)
-			) {
-				dirs.push(createFilerDir(servedDir.dir, 'files', null, watch, debounce, onChange));
-			}
+	for (const servedDir of servedDirs) {
+		// If a `servedDir` is inside a compiled or externals directory,
+		// it's already in the Filer's memory cache and does not need to be loaded as a directory.
+		// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
+		if (
+			!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
+			!servedDir.dir.startsWith(externalsDir) &&
+			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
+			!servedDir.dir.startsWith(buildRootDir)
+		) {
+			dirs.push(createFilerDir(servedDir.dir, 'files', null, watch, debounce, onChange));
 		}
 	}
 	return dirs;
