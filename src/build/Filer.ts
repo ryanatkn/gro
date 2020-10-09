@@ -6,9 +6,9 @@ import {
 	FilerDirChangeCallback,
 	createFilerDir,
 	CompilableFilerDir,
-	NonCompilableFilerDir,
-	CompilableFilesFilerDir,
-	PackagesFilerDir,
+	NonCompilableInternalsFilerDir,
+	CompilableInternalsFilerDir,
+	ExternalsFilerDir,
 } from '../build/FilerDir.js';
 import {stat, Stats} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
@@ -68,27 +68,27 @@ interface BaseSourceFile extends BaseFile {
 }
 export interface CompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: true;
-	readonly filerDir: CompilableFilesFilerDir;
+	readonly filerDir: CompilableInternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: true;
-	readonly filerDir: CompilableFilesFilerDir;
+	readonly filerDir: CompilableInternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface CompilablePackageSourceFile extends PackageSourceFile {
 	readonly compilable: true;
-	readonly filerDir: PackagesFilerDir;
+	readonly filerDir: ExternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: false;
-	readonly filerDir: NonCompilableFilerDir;
+	readonly filerDir: NonCompilableInternalsFilerDir;
 	readonly compiledFiles: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: false;
-	readonly filerDir: NonCompilableFilerDir;
+	readonly filerDir: NonCompilableInternalsFilerDir;
 	readonly compiledFiles: null;
 }
 
@@ -128,7 +128,7 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	buildRootDir: string;
 	compiledDirs: string[];
-	packageDirs: string[];
+	externalsDir: string;
 	servedDirs: ServedDir[];
 	include: (id: string) => boolean;
 	sourceMap: boolean;
@@ -145,9 +145,11 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const buildConfigs = opts.buildConfigs || null;
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
-	const packageDirs = opts.packageDirs ? opts.packageDirs.map((d) => resolve(d)) : [];
-	validateCompiledDirs(compiledDirs, packageDirs, buildRootDir);
-	const compiledDirCount = compiledDirs.length + packageDirs.length;
+	const externalsDir = opts.externalsDir
+		? resolve(opts.externalsDir)
+		: `${buildRootDir}${EXTERNALS_DIR}`;
+	validateDirs(compiledDirs, externalsDir, buildRootDir);
+	const compiledDirCount = compiledDirs.length + externalsDir.length;
 	// default to serving all of the compiled output files
 	const servedDirs = toServedDirs(
 		opts.servedDirs ||
@@ -188,7 +190,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		buildConfigs,
 		buildRootDir,
 		compiledDirs,
-		packageDirs,
+		externalsDir,
 		servedDirs,
 	};
 };
@@ -197,7 +199,7 @@ export class Filer {
 	private readonly dev: boolean;
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly buildRootDir: string;
-	private readonly packageDirs: string[];
+	private readonly externalsDir: string;
 	private readonly servedDirs: ServedDir[];
 	private readonly sourceMap: boolean;
 	private readonly cleanOutputDirs: boolean;
@@ -215,7 +217,7 @@ export class Filer {
 			buildRootDir,
 			compiledDirs,
 			servedDirs,
-			packageDirs,
+			externalsDir,
 			include,
 			sourceMap,
 			debounce,
@@ -226,7 +228,7 @@ export class Filer {
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
 		this.buildRootDir = buildRootDir;
-		this.packageDirs = packageDirs;
+		this.externalsDir = externalsDir;
 		this.servedDirs = servedDirs;
 		this.include = include;
 		this.sourceMap = sourceMap;
@@ -235,7 +237,7 @@ export class Filer {
 		this.dirs = createFilerDirs(
 			compiledDirs,
 			servedDirs,
-			packageDirs,
+			externalsDir,
 			compiler,
 			buildRootDir,
 			watch,
@@ -261,14 +263,13 @@ export class Filer {
 			// `file.dirty`? `file.lazy`?
 			// if (file.type === 'source' && file.dirty) {
 			// TODO can this be cleaned up?
-			const packageDir = this.packageDirs.find((d) => id.startsWith(d));
-			if (packageDir) {
-				console.log('[findByPath] found matching packageDir', packageDir);
-				const packageDirBasePath = stripStart(packageDir, this.buildRootDir);
-				console.log('[findByPath] external packageDirBasePath', packageDirBasePath);
-				const sourceId = stripEnd(stripStart(path, `${packageDirBasePath}/`), JS_EXTENSION);
+			if (id.startsWith(this.externalsDir)) {
+				console.log('[findByPath] found matching externalsDir', this.externalsDir);
+				const externalsDirBasePath = stripStart(this.externalsDir, this.buildRootDir);
+				console.log('[findByPath] external externalsDirBasePath', externalsDirBasePath);
+				const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
 				console.log('[findByPath] external sourceId!', sourceId);
-				const filerDir = this.dirs.find((d) => d.dir === packageDir)!; // TODO maybe create a map of dirs by id?
+				const filerDir = this.dirs.find((d) => d.dir === this.externalsDir)!; // TODO maybe create a map of dirs by id?
 				console.log('[findByPath] filerDir', filerDir);
 				if ((await this.updateSourceFile(sourceId, filerDir)) && filerDir.compilable) {
 					console.log('[findByPath] UPDATED', sourceId);
@@ -340,10 +341,10 @@ export class Filer {
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
-			filerDir.type === 'packages'
+			filerDir.type === 'externals'
 				? stripEnd(change.path, JS_EXTENSION)
 				: join(filerDir.dir, change.path);
-		if (filerDir.type === 'packages') console.log('change.path, id', change.path, id);
+		if (filerDir.type === 'externals') console.log('change.path, id', change.path, id);
 		switch (change.type) {
 			case 'init':
 			case 'create':
@@ -356,7 +357,7 @@ export class Filer {
 						(await this.updateSourceFile(id, filerDir)) &&
 						filerDir.compilable &&
 						// TODO this should probably be a generic flag on the `filerDir` like `lazyCompile`
-						!(change.type === 'init' && filerDir.type === 'packages')
+						!(change.type === 'init' && filerDir.type === 'externals')
 					) {
 						await this.compileSourceId(id, filerDir);
 					}
@@ -384,7 +385,7 @@ export class Filer {
 
 	// Returns a boolean indicating if the source file changed.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
-		if (filerDir.type === 'packages') {
+		if (filerDir.type === 'externals') {
 			console.log('updateSourceFile id', id);
 			console.log('updateSourceFile filerDir', filerDir);
 		}
@@ -397,7 +398,7 @@ export class Filer {
 				// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
 				// We might be able to support this,
 				// but more thought needs to be given to the exact desired behavior.
-				// See `validateCompiledDirs` for more.
+				// See `validateDirs` for more.
 				throw Error(
 					'Source file filerDir unexpectedly changed: ' +
 						`${sourceFile.id} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
@@ -410,7 +411,7 @@ export class Filer {
 		if (sourceFile !== undefined) {
 			extension = sourceFile.extension;
 			encoding = sourceFile.encoding;
-		} else if (filerDir.type === 'packages') {
+		} else if (filerDir.type === 'externals') {
 			extension = JS_EXTENSION;
 			encoding = 'utf8';
 		} else {
@@ -419,7 +420,7 @@ export class Filer {
 		}
 		// TODO hack
 		const newSourceContents =
-			filerDir.type === 'packages'
+			filerDir.type === 'externals'
 				? 'TODO read package.json and put the version here, probably'
 				: await loadContents(encoding, id);
 
@@ -429,11 +430,11 @@ export class Filer {
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
-			if (filerDir.type === 'packages') console.log('newSourceFile', newSourceFile);
+			if (filerDir.type === 'externals') console.log('newSourceFile', newSourceFile);
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
-			// TODO this is a hack to avoid the comparison for packages because they're compiled lazily
-			!(filerDir.type === 'packages' && sourceFile.compiledFiles?.length === 0)
+			// TODO this is a hack to avoid the comparison for externals because they're compiled lazily
+			!(filerDir.type === 'externals' && sourceFile.compiledFiles?.length === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
@@ -789,15 +790,11 @@ function postprocess(compilation: Compilation) {
 const INTERNAL_MODULE_MATCHER = /^\.?\.?\//;
 const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCHER.test(moduleName);
 
-// TODO revisit these restrictions - the goal right now is to set limits
-// to avoid undefined behavior at the cost of flexibility
-const validateCompiledDirs = (
-	compiledDirs: string[],
-	packageDirs: string[],
-	buildRootDir: string,
-) => {
-	// Make sure no `compiledDir` or `packageDir` is inside another.
-	// This could be fixed but it has inefficiencies and possibly some subtle bugs.
+// TODO Revisit these restrictions - the goal right now is to set limits
+// to avoid undefined behavior at the cost of flexibility.
+// Some of these conditions like nested compiledDirs could be fixed
+// but there are inefficiencies and possibly some subtle bugs.
+const validateDirs = (compiledDirs: string[], externalsDir: string, buildRootDir: string) => {
 	for (const compiledDir of compiledDirs) {
 		const nestedCompiledDir = compiledDirs.find(
 			(d) => d !== compiledDir && compiledDir.startsWith(d),
@@ -808,35 +805,25 @@ const validateCompiledDirs = (
 					`${compiledDir} is inside ${nestedCompiledDir}`,
 			);
 		}
-		const nestedPackageDir = packageDirs.find((d) => compiledDir.startsWith(d));
-		if (nestedPackageDir) {
+		if (compiledDir.startsWith(externalsDir)) {
 			throw Error(
-				'A compiledDir cannot be inside a packageDir: ' +
-					`${compiledDir} is inside ${nestedPackageDir}`,
+				'A compiledDir cannot be inside the externalsDir: ' +
+					`${compiledDir} is inside ${externalsDir}`,
 			);
 		}
 	}
-	for (const packageDir of packageDirs) {
-		if (!packageDir.startsWith(buildRootDir)) {
-			throw Error(
-				'A packageDir must be located inside the buildRootDir:' +
-					` ${packageDir} is not in ${buildRootDir}`,
-			);
-		}
-		const nestedPackageDir = packageDirs.find((d) => d !== packageDir && packageDir.startsWith(d));
-		if (nestedPackageDir) {
-			throw Error(
-				'A packageDir cannot be inside another packageDir: ' +
-					`${packageDir} is inside ${nestedPackageDir}`,
-			);
-		}
-		const nestedCompiledDir = compiledDirs.find((d) => packageDir.startsWith(d));
-		if (nestedCompiledDir) {
-			throw Error(
-				'A packageDir cannot be inside a compiledDir: ' +
-					`${packageDir} is inside ${nestedCompiledDir}`,
-			);
-		}
+	if (!externalsDir.startsWith(buildRootDir)) {
+		throw Error(
+			'The externalsDir must be located inside the buildRootDir: ' +
+				`${externalsDir} is not inside ${buildRootDir}`,
+		);
+	}
+	const nestedCompiledDir = compiledDirs.find((d) => externalsDir.startsWith(d));
+	if (nestedCompiledDir) {
+		throw Error(
+			'The externalsDir cannot be inside a compiledDir: ' +
+				`${externalsDir} is inside ${nestedCompiledDir}`,
+		);
 	}
 };
 
@@ -849,11 +836,11 @@ const createSourceFile = (
 	newSourceContents: string | Buffer,
 	filerDir: FilerDir,
 ): SourceFile => {
-	if (filerDir.type === 'packages') {
+	if (filerDir.type === 'externals') {
 		if (encoding !== 'utf8') {
 			throw Error(`Package sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
-		console.log('packages id', id, filerDir);
+		console.log('externals id', id, filerDir);
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
@@ -961,7 +948,7 @@ const createSourceFile = (
 const createFilerDirs = (
 	compiledDirs: string[],
 	servedDirs: ServedDir[],
-	packageDirs: string[],
+	externalsDir: string,
 	compiler: Compiler | null,
 	buildRootDir: string,
 	watch: boolean,
@@ -973,10 +960,8 @@ const createFilerDirs = (
 		console.log('creating filer dir for compiledDir', compiledDir);
 		dirs.push(createFilerDir(compiledDir, 'files', compiler, watch, debounce, onChange));
 	}
-	for (const packageDir of packageDirs) {
-		console.log('creating filer dir for packageDir', packageDir);
-		dirs.push(createFilerDir(packageDir, 'packages', compiler, false, debounce, onChange));
-	}
+	console.log('creating filer dir for externalsDir', externalsDir);
+	dirs.push(createFilerDir(externalsDir, 'externals', compiler, false, debounce, onChange));
 	// TODO should these be ignored in watch mode, or might some code want to query the cache?
 	if (watch) {
 		for (const servedDir of servedDirs) {
@@ -985,7 +970,7 @@ const createFilerDirs = (
 			// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 			if (
 				!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
-				!packageDirs.find((d) => servedDir.dir.startsWith(d)) &&
+				!servedDir.dir.startsWith(externalsDir) &&
 				!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 				!servedDir.dir.startsWith(buildRootDir)
 			) {

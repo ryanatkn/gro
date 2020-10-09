@@ -18,7 +18,7 @@ export const task: Task = {
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
 			compiledDirs: [paths.source],
-			packageDirs: [paths.externals],
+			externalsDir: paths.externals,
 			servedDirs: [buildOutDirToServe, {dir: paths.externals, servedAt: paths.build}],
 			buildConfigs,
 		});

@@ -9,21 +9,21 @@ import {PathStats} from '../fs/pathData.js';
 // For non-compilable dirs, the `dir` is only watched and nothing is written to the filesystem.
 // Served filer dirs expose their files to queries in the Filer.
 // A filer dir must be either compiled or served or both, because otherwise it does nothing!
-export type FilerDir = CompilableFilerDir | NonCompilableFilerDir;
-export type CompilableFilerDir = CompilableFilesFilerDir | PackagesFilerDir;
-export type FilerDirType = 'files' | 'packages';
-export interface CompilableFilesFilerDir extends BaseFilerDir {
+export type FilerDir = CompilableFilerDir | NonCompilableInternalsFilerDir;
+export type CompilableFilerDir = CompilableInternalsFilerDir | ExternalsFilerDir;
+export type FilerDirType = 'files' | 'externals';
+export interface CompilableInternalsFilerDir extends BaseFilerDir {
 	readonly type: 'files';
 	readonly compilable: true;
 	readonly compiler: Compiler;
 }
-export interface NonCompilableFilerDir extends BaseFilerDir {
+export interface NonCompilableInternalsFilerDir extends BaseFilerDir {
 	readonly type: 'files';
 	readonly compilable: false;
 	readonly compiler: null;
 }
-export interface PackagesFilerDir extends BaseFilerDir {
-	readonly type: 'packages';
+export interface ExternalsFilerDir extends BaseFilerDir {
+	readonly type: 'externals';
 	readonly compilable: true;
 	readonly compiler: Compiler;
 }
@@ -98,12 +98,12 @@ export const createFilerDir = (
 			}
 			break;
 		}
-		case 'packages': {
+		case 'externals': {
 			if (compiler === null) {
 				throw Error(`A compiler is required for directories with type '${type}'.`);
 			} else {
 				filerDir = {
-					type: 'packages',
+					type: 'externals',
 					compilable: true,
 					compiler,
 					dir,
