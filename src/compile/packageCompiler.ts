@@ -44,7 +44,7 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 		if (source.encoding !== 'utf8') {
 			throw Error(`Package compiler only handles utf8 encoding, not ${source.encoding}`);
 		}
-		console.log('compiling source', source.id);
+		console.log('[packageCompiler] compiling source', source.id);
 		// TODO what's the right way to get this? store on source?
 		// probably, all package sources should have an `outFile` or something
 		const id = `${buildRootDir}${EXTERNALS_DIR}/${source.id}.js`;
@@ -53,9 +53,9 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 		// 	: `${buildRootDir}${EXTERNALS_DIR}/${source.id}.js`;
 		const dir = dirname(id);
 		const filename = basename(id);
-		console.log('id', id);
-		console.log('dir', dir);
-		console.log('filename', filename);
+		console.log('[packageCompiler] id', id);
+		console.log('[packageCompiler] dir', dir);
+		console.log('[packageCompiler] filename', filename);
 
 		log.info(`Bundling package: ${source.id} → ${printPath(id)}`);
 
@@ -65,6 +65,8 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 		} catch (err) {
 			log.error(`Failed to bundle external module: ${source.id} from ${id}`);
 			result = {code: ''};
+			// TODO probably return the previous compilations, or maybe allow returning `null`?
+			// return {compilations: source.compiledFiles.map((f) => f.compilation)};
 		}
 
 		const compilations: TextCompilation[] = [
