@@ -11,7 +11,7 @@ import {
 	PackagesFilerDir,
 } from '../build/FilerDir.js';
 import {stat, Stats} from '../fs/nodeFs.js';
-import {DEBOUNCE_DEFAULT, WatcherChange} from '../fs/watchNodeFs.js';
+import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
 import {
 	EXTERNALS_DIR,
 	hasSourceExtension,
@@ -338,23 +338,26 @@ export class Filer {
 		finishInitializing!();
 	}
 
-	private onDirChange: FilerDirChangeCallback = async (
-		change: WatcherChange,
-		filerDir: FilerDir,
-	) => {
+	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
 			filerDir.type === 'packages'
 				? stripEnd(change.path, JS_EXTENSION)
 				: join(filerDir.dir, change.path);
 		if (filerDir.type === 'packages') console.log('change.path, id', change.path, id);
 		switch (change.type) {
+			case 'init':
 			case 'create':
 			case 'update': {
 				if (change.stats.isDirectory()) {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					if ((await this.updateSourceFile(id, filerDir)) && filerDir.compilable) {
+					if (
+						(await this.updateSourceFile(id, filerDir)) &&
+						filerDir.compilable &&
+						// TODO this should probably be a generic flag on the `filerDir` like `lazyCompile`
+						!(change.type === 'init' && filerDir.type === 'packages')
+					) {
 						await this.compileSourceId(id, filerDir);
 					}
 				}
@@ -427,7 +430,11 @@ export class Filer {
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
 			if (filerDir.type === 'packages') console.log('newSourceFile', newSourceFile);
-		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
+		} else if (
+			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
+			// TODO this is a hack to avoid the comparison for packages because they're compiled lazily
+			!(filerDir.type === 'packages' && sourceFile.compiledFiles?.length === 0)
+		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			// But wait, what if the source maps are missing because the `sourceMap` option was off
 			// the last time the files were built?

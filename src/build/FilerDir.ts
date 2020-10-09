@@ -1,8 +1,9 @@
 import {ensureDir} from '../fs/nodeFs.js';
-import {watchNodeFs, WatcherChange} from '../fs/watchNodeFs.js';
+import {watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import {Compiler} from '../compile/compiler.js';
 import {UnreachableError} from '../utils/error.js';
+import {PathStats} from '../fs/pathData.js';
 
 // Compiled filer dirs are compiled and written to disk.
 // For non-compilable dirs, the `dir` is only watched and nothing is written to the filesystem.
@@ -10,7 +11,6 @@ import {UnreachableError} from '../utils/error.js';
 // A filer dir must be either compiled or served or both, because otherwise it does nothing!
 export type FilerDir = CompilableFilerDir | NonCompilableFilerDir;
 export type CompilableFilerDir = CompilableFilesFilerDir | PackagesFilerDir;
-export type FilerDirChangeCallback = (change: WatcherChange, filerDir: FilerDir) => Promise<void>;
 export type FilerDirType = 'files' | 'packages';
 export interface CompilableFilesFilerDir extends BaseFilerDir {
 	readonly type: 'files';
@@ -36,6 +36,14 @@ interface BaseFilerDir {
 	readonly init: () => Promise<void>;
 }
 
+export interface FilerDirChange {
+	type: FilerDirChangeType;
+	path: string;
+	stats: PathStats;
+}
+export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
+export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir) => Promise<void>;
+
 export const createFilerDir = (
 	dir: string,
 	type: FilerDirType,
@@ -58,7 +66,7 @@ export const createFilerDir = (
 		const statsBySourcePath = await watcher.init();
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-				stats.isDirectory() ? null : onChange({type: 'update', path, stats}, filerDir),
+				stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
 			),
 		);
 	};
