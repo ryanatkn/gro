@@ -64,9 +64,7 @@ export const createPackageCompiler = (opts: InitialOptions = {}): PackageCompile
 			result = await buildExternalModule(source.id, id, log);
 		} catch (err) {
 			log.error(`Failed to bundle external module: ${source.id} from ${id}`);
-			result = {code: ''};
-			// TODO probably return the previous compilations, or maybe allow returning `null`?
-			// return {compilations: source.compiledFiles.map((f) => f.compilation)};
+			throw err;
 		}
 
 		const compilations: TextCompilation[] = [
