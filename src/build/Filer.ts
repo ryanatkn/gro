@@ -446,7 +446,7 @@ export class Filer {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		// TODO hack
+		// TODO hacky - fix with disk caching
 		const newSourceContents =
 			filerDir.type === 'externals'
 				? 'TODO maybe put the version from package.json here? or is that stored with the cached metadata?'
