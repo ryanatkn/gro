@@ -770,14 +770,7 @@ function postprocess(compilation: Compilation, filer: Filer) {
 				compilation.buildConfig.platform === 'browser' &&
 				isExternalModule(moduleName)
 			) {
-				newModuleName = `/${filer.externalsDirBasePath}/${newModuleName}`;
-				// TODO we may need to remove this for imports like `pixi.js`,
-				// and then for externals that have `.js` files imported,
-				// the import path and file on disk will be `foo.js.js`,
-				// rather than trying to be clever about checking name resolution.
-				if (!newModuleName.endsWith(JS_EXTENSION)) {
-					newModuleName += JS_EXTENSION;
-				}
+				newModuleName = `/${filer.externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
 			}
 			if (newModuleName !== moduleName) {
 				result += contents.substring(index, start) + newModuleName;
