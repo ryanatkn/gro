@@ -437,6 +437,8 @@ export class Filer {
 			}
 		}
 
+		let shouldCompile = true; // this is the function's return value
+
 		let extension: string;
 		let encoding: Encoding;
 		if (sourceFile !== undefined) {
@@ -461,6 +463,15 @@ export class Filer {
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
+			// If the created source file has its compiled files hydrated,
+			// we can infer that it doesn't need to be compiled.
+			// TODO maybe make this more explicit with a `dirty` or `shouldCompile` flag?
+			// Right now compilers always return at least one compiled file,
+			// so it shouldn't be buggy, but it doesn't feel right.
+			if (newSourceFile.compilable && newSourceFile.compiledFiles.length !== 0) {
+				shouldCompile = false;
+				syncCompiledFilesToMemoryCache(this.files, newSourceFile.compiledFiles, [], this.log);
+			}
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
@@ -504,7 +515,7 @@ export class Filer {
 			}
 		}
 		this.files.set(id, newSourceFile);
-		return true;
+		return shouldCompile;
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
