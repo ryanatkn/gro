@@ -12,32 +12,19 @@ import {
 } from '../build/FilerDir.js';
 import {stat, Stats} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
-import {
-	EXTERNALS_DIR,
-	hasSourceExtension,
-	JS_EXTENSION,
-	paths,
-	SVELTE_EXTENSION,
-	toBuildOutDir,
-} from '../paths.js';
+import {EXTERNALS_DIR, hasSourceExtension, JS_EXTENSION, paths, toBuildOutDir} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import type {
-	Compiler,
-	TextCompilation,
-	BinaryCompilation,
-	Compilation,
-	CompileOptions,
-} from '../compile/compiler.js';
+import type {Compiler, TextCompilation, BinaryCompilation} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
-import {replaceExtension} from '../utils/path.js';
 import {BuildConfig} from './buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
+import {postprocess} from './postprocess.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -761,49 +748,6 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 
 const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
 	encoding === null ? readFile(id) : readFile(id, encoding);
-
-// TODO this needs some major refactoring and redesigning
-function postprocess(compilation: TextCompilation, options: CompileOptions): string;
-function postprocess(compilation: BinaryCompilation, options: CompileOptions): Buffer;
-function postprocess(compilation: Compilation, {externalsDirBasePath}: CompileOptions) {
-	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
-		let result = '';
-		let index = 0;
-		const {contents} = compilation;
-		// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
-		const [imports] = lexer.parse(contents);
-		for (const {s, e, d} of imports) {
-			const start = d > -1 ? s + 1 : s;
-			const end = d > -1 ? e - 1 : e;
-			const moduleName = contents.substring(start, end);
-			if (moduleName === 'import.meta') continue;
-			let newModuleName = moduleName;
-			if (moduleName.endsWith(SVELTE_EXTENSION)) {
-				newModuleName = replaceExtension(moduleName, JS_EXTENSION);
-			}
-			if (
-				externalsDirBasePath !== null &&
-				compilation.buildConfig.platform === 'browser' &&
-				isExternalModule(moduleName)
-			) {
-				newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
-			}
-			if (newModuleName !== moduleName) {
-				result += contents.substring(index, start) + newModuleName;
-				index = end;
-			}
-		}
-		if (index > 0) {
-			return result + contents.substring(index);
-		} else {
-			return contents;
-		}
-	}
-	return compilation.contents;
-}
-
-const INTERNAL_MODULE_MATCHER = /^\.?\.?\//;
-const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCHER.test(moduleName);
 
 // TODO Revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility.
