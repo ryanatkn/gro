@@ -1,7 +1,7 @@
 import {basename, dirname} from 'path';
 
 import {Logger, SystemLogger} from '../utils/log.js';
-import {EXTERNALS_DIR, JS_EXTENSION} from '../paths.js';
+import {JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, ExternalsCompilationSource, TextCompilation} from './compiler.js';
 import {cyan} from '../colors/terminal.js';
@@ -10,7 +10,6 @@ import {printPath} from '../utils/print.js';
 
 export interface Options {
 	sourceMap: boolean;
-	externalsBasePath: string;
 	log: Logger;
 }
 export type InitialOptions = Partial<Options>;
@@ -18,7 +17,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsCompiler]')]);
 	return {
 		sourceMap: false,
-		externalsBasePath: EXTERNALS_DIR,
 		...omitUndefined(opts),
 		log,
 	};
@@ -27,7 +25,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 type ExternalsCompiler = Compiler<ExternalsCompilationSource, TextCompilation>;
 
 export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCompiler => {
-	const {sourceMap, externalsBasePath, log} = initOptions(opts);
+	const {sourceMap, log} = initOptions(opts);
 
 	if (sourceMap) {
 		log.warn('Source maps are not yet supported by the externals compiler.');
@@ -41,7 +39,7 @@ export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCom
 			throw Error(`Externals compiler only handles utf8 encoding, not ${source.encoding}`);
 		}
 		// TODO should this be cached on the source?
-		const id = `${buildRootDir}${externalsBasePath}/${source.id}.js`;
+		const id = `${buildRootDir}${source.externalsDirBasePath}/${source.id}.js`;
 		const dir = dirname(id);
 		const filename = basename(id);
 

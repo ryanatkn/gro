@@ -55,6 +55,7 @@ export interface ExternalsCompilationSource extends BaseCompilationSource {
 	sourceType: 'externals';
 	encoding: 'utf8';
 	contents: string;
+	externalsDirBasePath: string;
 }
 interface BaseCompilationSource {
 	id: string;

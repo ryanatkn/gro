@@ -61,6 +61,7 @@ export interface ExternalsSourceFile extends BaseSourceFile {
 	readonly sourceType: 'externals';
 	readonly encoding: 'utf8';
 	readonly contents: string;
+	readonly externalsDirBasePath: string;
 }
 interface BaseSourceFile extends BaseFile {
 	readonly type: 'source';
@@ -454,7 +455,14 @@ export class Filer {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
+			newSourceFile = createSourceFile(
+				id,
+				encoding,
+				extension,
+				newSourceContents,
+				filerDir,
+				this.externalsDirBasePath,
+			);
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
@@ -843,6 +851,9 @@ const createSourceFile = (
 	extension: string,
 	newSourceContents: string | Buffer,
 	filerDir: FilerDir,
+	// TODO this is a hack. It's used to give the compiler access to this property.
+	// A possible fix would be to pass the `Filer` to `compile`.
+	externalsDirBasePath: string | null,
 ): SourceFile => {
 	if (filerDir.type === 'externals') {
 		if (encoding !== 'utf8') {
@@ -851,6 +862,9 @@ const createSourceFile = (
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
+		if (externalsDirBasePath === null) {
+			throw Error('Cannot create an externals source file without a base path.');
+		}
 		return {
 			type: 'source',
 			sourceType: 'externals',
@@ -859,6 +873,7 @@ const createSourceFile = (
 			filename,
 			dir,
 			dirBasePath,
+			externalsDirBasePath,
 			extension,
 			encoding,
 			contents: newSourceContents as string,
