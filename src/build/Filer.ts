@@ -287,7 +287,8 @@ export class Filer {
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
 			const id = `${this.externalsServedDir!.servedAt}/${path}`;
 			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
-			if (await this.updateSourceFile(sourceId, this.externalsDir!)) {
+			const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
+			if (shouldCompile) {
 				await this.compileSourceId(sourceId, this.externalsDir!);
 			}
 			const compiledFile = this.files.get(id);
@@ -385,8 +386,9 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
+					const shouldCompile = await this.updateSourceFile(id, filerDir);
 					if (
-						(await this.updateSourceFile(id, filerDir)) &&
+						shouldCompile &&
 						filerDir.compilable &&
 						// TODO this should probably be a generic flag on the `filerDir` like `lazyCompile`
 						!(change.type === 'init' && filerDir.type === 'externals')
@@ -415,7 +417,8 @@ export class Filer {
 		}
 	};
 
-	// Returns a boolean indicating if the source file changed.
+	// Returns a boolean indicating if the source file should be compiled.
+	// The source file may have been updated or created from a cold cache.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
 		const sourceFile = this.files.get(id);
 		if (sourceFile !== undefined) {
@@ -535,7 +538,8 @@ export class Filer {
 			this.enqueuedCompilations.delete(id);
 			// Something changed during the compilation for this file, so recurse.
 			// TODO do we need to detect cycles? if we run into any, probably
-			if (await this.updateSourceFile(...enqueuedCompilation)) {
+			const shouldCompile = await this.updateSourceFile(...enqueuedCompilation);
+			if (shouldCompile) {
 				await this.compileSourceId(...enqueuedCompilation);
 			}
 		}
