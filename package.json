@@ -104,6 +104,10 @@
         "platform": "node",
         "dist": true,
         "primary": true
+      },
+      {
+        "name": "browser",
+        "platform": "browser"
       }
     ]
   }

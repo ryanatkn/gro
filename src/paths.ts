@@ -1,4 +1,4 @@
-import {sep, join, basename} from 'path';
+import {join, basename} from 'path';
 import {fileURLToPath} from 'url';
 
 import {replaceExtension} from './utils/path.js';
@@ -24,34 +24,39 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 export const SOURCE_DIR_NAME = 'src';
 export const BUILD_DIR_NAME = '.gro';
 export const DIST_DIR_NAME = 'dist';
-export const SOURCE_DIR = SOURCE_DIR_NAME + sep;
-export const BUILD_DIR = BUILD_DIR_NAME + sep;
-export const DIST_DIR = DIST_DIR_NAME + sep;
+export const SOURCE_DIR = `${SOURCE_DIR_NAME}/`;
+export const BUILD_DIR = `${BUILD_DIR_NAME}/`;
+export const DIST_DIR = `${DIST_DIR_NAME}/`;
+
+export const EXTERNALS_DIR = 'externals';
 
 export interface Paths {
 	root: string;
 	source: string;
 	build: string;
 	dist: string;
+	externals: string;
 }
 
 export const createPaths = (root: string): Paths => {
-	if (!root.endsWith(sep)) root = root + sep;
+	root = ensureTrailingSlash(root);
+	const build = `${root}${BUILD_DIR}`;
 	return {
 		root,
-		source: join(root, SOURCE_DIR),
-		build: join(root, BUILD_DIR),
-		dist: join(root, DIST_DIR),
+		source: `${root}${SOURCE_DIR}`,
+		build,
+		dist: `${root}${DIST_DIR}`,
+		externals: `${build}${EXTERNALS_DIR}`,
 	};
 };
 
-export const paths = createPaths(process.cwd() + sep);
+export const paths = createPaths(`${process.cwd()}/`);
 export let groImportDir = join(fileURLToPath(import.meta.url), '../');
 export const groDir = join(
 	groImportDir,
 	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
 );
-export const groDirBasename = basename(groDir) + sep;
+export const groDirBasename = `${basename(groDir)}/`;
 export const isThisProjectGro = groDir === paths.root;
 export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
 
@@ -60,21 +65,23 @@ export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
 
 export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.source);
 
-// '/home/me/app/src/foo/bar/baz.ts' -> 'src/foo/bar/baz.ts'
+// '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
 
-// '/home/me/app/src/foo/bar/baz.ts' -> 'foo/bar/baz.ts'
+// '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
 export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 	stripStart(sourceId, p.source);
 
-// 'foo/bar/baz.ts' -> '/home/me/app/src/foo/bar/baz.ts'
+// 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
 
 export const toBuildsOutDir = (dev: boolean, buildRootDir = paths.build): string =>
 	`${ensureTrailingSlash(buildRootDir)}${dev ? 'dev' : 'prod'}`;
 // TODO this is only needed because of how we added `/` to all directories above
 // fix those and remove this!
-const ensureTrailingSlash = (s: string): string => (s[s.length - 1] === '/' ? s : s + '/');
+function ensureTrailingSlash(s: string): string {
+	return s[s.length - 1] === '/' ? s : s + '/';
+}
 
 export const toBuildOutDir = (
 	dev: boolean,
@@ -98,18 +105,18 @@ export const hasSourceExtension = (path: string): boolean =>
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
 export const toPathSegments = (path: string): string[] =>
-	path.split(sep).filter((s) => s && s !== '.');
+	path.split('/').filter((s) => s && s !== '.');
 
 // Designed for the `cheap-watch` API.
 // toPathParts('./foo/bar/baz.ts') => ['foo', 'foo/bar', 'foo/bar/baz.ts']
 export const toPathParts = (path: string): string[] => {
 	const segments = toPathSegments(path);
-	let currentPath = path[0] === sep ? sep : '';
+	let currentPath = path[0] === '/' ? '/' : '';
 	return segments.map((segment) => {
-		if (!currentPath || currentPath === sep) {
+		if (!currentPath || currentPath === '/') {
 			currentPath += segment;
 		} else {
-			currentPath += sep + segment;
+			currentPath += '/' + segment;
 		}
 		return currentPath;
 	});

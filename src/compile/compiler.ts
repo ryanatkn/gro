@@ -1,15 +1,18 @@
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
-import {BuildConfig} from '../project/buildConfig.js';
+import {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
+import type {Filer} from '../build/Filer.js';
 
-export interface Compiler<T extends Compilation = Compilation> {
+export interface Compiler<
+	TSource extends CompilationSource = CompilationSource,
+	TResult extends Compilation = Compilation
+> {
 	compile(
-		source: CompilationSource,
+		source: TSource,
 		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
-	): CompileResult<T> | Promise<CompileResult<T>>;
+		filer: Filer,
+	): CompileResult<TResult> | Promise<CompileResult<TResult>>;
 }
 
 export interface CompileResult<T extends Compilation = Compilation> {
@@ -31,16 +34,27 @@ interface BaseCompilation {
 	filename: string;
 	dir: string;
 	extension: string;
+	buildConfig: BuildConfig;
 }
 
-export type CompilationSource = TextCompilationSource | BinaryCompilationSource;
+export type CompilationSource =
+	| TextCompilationSource
+	| BinaryCompilationSource
+	| ExternalsCompilationSource;
 export interface TextCompilationSource extends BaseCompilationSource {
+	sourceType: 'text';
 	encoding: 'utf8';
 	contents: string;
 }
 export interface BinaryCompilationSource extends BaseCompilationSource {
+	sourceType: 'binary';
 	encoding: null;
 	contents: Buffer;
+}
+export interface ExternalsCompilationSource extends BaseCompilationSource {
+	sourceType: 'externals';
+	encoding: 'utf8';
+	contents: string;
 }
 interface BaseCompilationSource {
 	id: string;
@@ -71,23 +85,17 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	const compile: Compiler['compile'] = (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
+		filer: Filer,
 	) => {
 		const compiler = getCompiler(source, buildConfig) || noopCompiler;
-		return compiler.compile(source, buildConfig, buildRootDir, dev);
+		return compiler.compile(source, buildConfig, filer);
 	};
 
 	return {compile};
 };
 
 const createNoopCompiler = (): Compiler => {
-	const compile: Compiler['compile'] = (
-		source: CompilationSource,
-		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
-	) => {
+	const compile: Compiler['compile'] = (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
@@ -102,6 +110,7 @@ const createNoopCompiler = (): Compiler => {
 					encoding: source.encoding,
 					contents: source.contents,
 					sourceMapOf: null,
+					buildConfig,
 				};
 				break;
 			case null:
@@ -112,6 +121,7 @@ const createNoopCompiler = (): Compiler => {
 					extension,
 					encoding: source.encoding,
 					contents: source.contents,
+					buildConfig,
 				};
 				break;
 			default:

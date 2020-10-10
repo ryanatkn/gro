@@ -1,6 +1,6 @@
 import {Task} from './task/task.js';
 import {createDevServer} from './devServer/devServer.js';
-import {Filer} from './fs/Filer.js';
+import {Filer} from './build/Filer.js';
 import {printPath} from './utils/print.js';
 
 export const task: Task = {

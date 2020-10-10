@@ -13,7 +13,7 @@ import {cyan, yellow, gray} from '../colors/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
-import {Filer, BaseFile, getFileMimeType, getFileBuffer, getFileStats} from '../fs/Filer.js';
+import {Filer, BaseFile, getFileMimeType, getFileBuffer, getFileStats} from '../build/Filer.js';
 
 export interface DevServer {
 	readonly server: Server;
@@ -79,15 +79,16 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 };
 
 const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
-	const requestListener: RequestListener = (req, res) => {
+	const requestListener: RequestListener = async (req, res) => {
 		if (!req.url) return;
 		const url = parseUrl(req.url);
 		const localPath = toLocalPath(url);
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
-		let file = filer.findByPath(localPath);
+		let file = await filer.findByPath(localPath);
 		if (!file) {
-			file = filer.findByPath(localPath + '/index.html'); // TODO this is just temporary - the more correct code is below
+			// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
+			file = await filer.findByPath(`${localPath}/index.html`);
 		}
 		// if (file?.type === 'directory') { // or `file?.isDirectory`
 		// 	file = filer.findById(file.id + '/index.html');
@@ -107,7 +108,8 @@ const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
 const toLocalPath = (url: string): string => {
 	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
 	// This avoids making a second file query when we know the path is a directory.
-	const relativePath = relativeUrl.endsWith('/') ? relativeUrl + 'index.html' : relativeUrl;
+	const relativePath =
+		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
 	return relativePath;
 };
 
@@ -116,7 +118,7 @@ const send404 = (req: IncomingMessage, res: ServerResponse, path: string) => {
 		'Content-Type': 'text/plain; charset=utf-8',
 	};
 	res.writeHead(404, headers);
-	res.end(`404 not found: ${req.url} -> ${path}`);
+	res.end(`404 not found: ${req.url} → ${path}`);
 };
 
 const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFile) => {

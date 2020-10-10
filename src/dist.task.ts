@@ -4,7 +4,7 @@ import {paths, toBuildOutDir} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
 import {printPath} from './utils/print.js';
 import {cleanDist} from './project/clean.js';
-import {loadBuildConfigs} from './project/buildConfig.js';
+import {loadBuildConfigs} from './build/buildConfig.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);

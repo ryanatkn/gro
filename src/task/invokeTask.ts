@@ -23,7 +23,7 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {PathData} from '../fs/pathData.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
-import {loadBuildConfigs, loadPrimaryBuildConfigAt} from '../project/buildConfig.js';
+import {loadBuildConfigs, loadPrimaryBuildConfigAt} from '../build/buildConfig.js';
 
 /*
 

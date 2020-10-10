@@ -6,9 +6,8 @@ import {toSwcCompilerTarget, getDefaultSwcOptions, addSourceMapFooter} from './s
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutDir, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {CompilationSource, Compiler, TextCompilation} from './compiler.js';
+import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {replaceExtension} from '../utils/path.js';
-import {BuildConfig} from '../project/buildConfig.js';
 import {cyan} from '../colors/terminal.js';
 
 export interface Options {
@@ -33,17 +32,12 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type SwcCompiler = Compiler<TextCompilation>;
+type SwcCompiler = Compiler<TextCompilationSource, TextCompilation>;
 
 export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 	const {swcOptions} = initOptions(opts);
 
-	const compile: SwcCompiler['compile'] = async (
-		source: CompilationSource,
-		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
-	) => {
+	const compile: SwcCompiler['compile'] = async (source, buildConfig, {buildRootDir, dev}) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}
@@ -66,6 +60,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 				encoding,
 				contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
 				sourceMapOf: null,
+				buildConfig,
 			},
 		];
 		if (output.map) {
@@ -77,6 +72,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 				encoding,
 				contents: output.map,
 				sourceMapOf: jsId,
+				buildConfig,
 			});
 		}
 		return {compilations};

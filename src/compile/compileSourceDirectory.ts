@@ -3,9 +3,9 @@ import {printMs, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {paths, TS_EXTENSION} from '../paths.js';
-import {Filer} from '../fs/Filer.js';
+import {Filer} from '../build/Filer.js';
 import {createDefaultCompiler} from './defaultCompiler.js';
-import {BuildConfig} from '../project/buildConfig.js';
+import {BuildConfig} from '../build/buildConfig.js';
 import {cleanProductionBuild} from '../project/clean.js';
 
 export const compileSourceDirectory = async (
