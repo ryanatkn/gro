@@ -31,6 +31,7 @@ import type {
 	TextCompilation,
 	BinaryCompilation,
 	Compilation,
+	CompileOptions,
 } from '../compile/compiler.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
@@ -623,9 +624,9 @@ export class Filer {
 				},
 			),
 		);
+		const oldCompiledFiles = sourceFile.compiledFiles;
 		const newSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
 		this.files.set(id, newSourceFile);
-		const oldCompiledFiles = sourceFile.compiledFiles;
 		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
 		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
 	}
@@ -762,9 +763,9 @@ const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> 
 	encoding === null ? readFile(id) : readFile(id, encoding);
 
 // TODO this needs some major refactoring and redesigning
-function postprocess(compilation: TextCompilation, filer: Filer): string;
-function postprocess(compilation: BinaryCompilation, filer: Filer): Buffer;
-function postprocess(compilation: Compilation, filer: Filer) {
+function postprocess(compilation: TextCompilation, options: CompileOptions): string;
+function postprocess(compilation: BinaryCompilation, options: CompileOptions): Buffer;
+function postprocess(compilation: Compilation, {externalsDirBasePath}: CompileOptions) {
 	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
 		let result = '';
 		let index = 0;
@@ -781,11 +782,11 @@ function postprocess(compilation: Compilation, filer: Filer) {
 				newModuleName = replaceExtension(moduleName, JS_EXTENSION);
 			}
 			if (
-				filer.externalsDirBasePath !== null &&
+				externalsDirBasePath !== null &&
 				compilation.buildConfig.platform === 'browser' &&
 				isExternalModule(moduleName)
 			) {
-				newModuleName = `/${filer.externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
+				newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
 			}
 			if (newModuleName !== moduleName) {
 				result += contents.substring(index, start) + newModuleName;
