@@ -61,7 +61,6 @@ export interface ExternalsSourceFile extends BaseSourceFile {
 	readonly sourceType: 'externals';
 	readonly encoding: 'utf8';
 	readonly contents: string;
-	readonly externalsDirBasePath: string;
 }
 interface BaseSourceFile extends BaseFile {
 	readonly type: 'source';
@@ -216,10 +215,13 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer {
+	// TODO make more of these properties publicly readable or
+	// otherwise gettable from the compilers and postprocessors,
+	// like `sourceMap` instead of making it an option to each compiler
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly externalsBuildConfig: BuildConfig | null;
-	private readonly buildRootDir: string;
-	private readonly dev: boolean;
+	readonly buildRootDir: string;
+	readonly dev: boolean;
 	private readonly sourceMap: boolean;
 	private readonly log: Logger;
 	private readonly cleanOutputDirs: boolean;
@@ -455,14 +457,7 @@ export class Filer {
 			// Memory cache is cold.
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			newSourceFile = createSourceFile(
-				id,
-				encoding,
-				extension,
-				newSourceContents,
-				filerDir,
-				this.externalsDirBasePath,
-			);
+			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
@@ -567,7 +562,7 @@ export class Filer {
 			sourceFile.filerDir.type === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
 		const results = await Promise.all(
 			buildConfigs.map((buildConfig) =>
-				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this.buildRootDir, this.dev),
+				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this),
 			),
 		);
 
@@ -585,7 +580,7 @@ export class Filer {
 								dir: compilation.dir,
 								extension: compilation.extension,
 								encoding: compilation.encoding,
-								contents: postprocess(compilation, this.externalsDirBasePath),
+								contents: postprocess(compilation, this),
 								sourceMapOf: compilation.sourceMapOf,
 								compilation,
 								stats: undefined,
@@ -601,7 +596,7 @@ export class Filer {
 								dir: compilation.dir,
 								extension: compilation.extension,
 								encoding: compilation.encoding,
-								contents: postprocess(compilation, this.externalsDirBasePath),
+								contents: postprocess(compilation, this),
 								compilation,
 								stats: undefined,
 								mimeType: undefined,
@@ -752,9 +747,9 @@ const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> 
 	encoding === null ? readFile(id) : readFile(id, encoding);
 
 // TODO this needs some major refactoring and redesigning
-function postprocess(compilation: TextCompilation, externalsDirBasePath: string | null): string;
-function postprocess(compilation: BinaryCompilation, externalsDirBasePath: string | null): Buffer;
-function postprocess(compilation: Compilation, externalsDirBasePath: string | null) {
+function postprocess(compilation: TextCompilation, filer: Filer): string;
+function postprocess(compilation: BinaryCompilation, filer: Filer): Buffer;
+function postprocess(compilation: Compilation, filer: Filer) {
 	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
 		let result = '';
 		let index = 0;
@@ -771,11 +766,11 @@ function postprocess(compilation: Compilation, externalsDirBasePath: string | nu
 				newModuleName = replaceExtension(moduleName, JS_EXTENSION);
 			}
 			if (
-				externalsDirBasePath !== null &&
+				filer.externalsDirBasePath !== null &&
 				compilation.buildConfig.platform === 'browser' &&
 				isExternalModule(moduleName)
 			) {
-				newModuleName = `/${externalsDirBasePath}/${newModuleName}`;
+				newModuleName = `/${filer.externalsDirBasePath}/${newModuleName}`;
 				// TODO we may need to remove this for imports like `pixi.js`,
 				// and then for externals that have `.js` files imported,
 				// the import path and file on disk will be `foo.js.js`,
@@ -851,9 +846,6 @@ const createSourceFile = (
 	extension: string,
 	newSourceContents: string | Buffer,
 	filerDir: FilerDir,
-	// TODO this is a hack. It's used to give the compiler access to this property.
-	// A possible fix would be to pass the `Filer` to `compile`.
-	externalsDirBasePath: string | null,
 ): SourceFile => {
 	if (filerDir.type === 'externals') {
 		if (encoding !== 'utf8') {
@@ -862,9 +854,6 @@ const createSourceFile = (
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
-		if (externalsDirBasePath === null) {
-			throw Error('Cannot create an externals source file without a base path.');
-		}
 		return {
 			type: 'source',
 			sourceType: 'externals',
@@ -873,7 +862,6 @@ const createSourceFile = (
 			filename,
 			dir,
 			dirBasePath,
-			externalsDirBasePath,
 			extension,
 			encoding,
 			contents: newSourceContents as string,

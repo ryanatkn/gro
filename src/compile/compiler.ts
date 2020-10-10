@@ -2,6 +2,7 @@ import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
+import type {Filer} from '../build/Filer.js';
 
 export interface Compiler<
 	TSource extends CompilationSource = CompilationSource,
@@ -10,8 +11,7 @@ export interface Compiler<
 	compile(
 		source: TSource,
 		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
+		filer: Filer,
 	): CompileResult<TResult> | Promise<CompileResult<TResult>>;
 }
 
@@ -55,7 +55,6 @@ export interface ExternalsCompilationSource extends BaseCompilationSource {
 	sourceType: 'externals';
 	encoding: 'utf8';
 	contents: string;
-	externalsDirBasePath: string;
 }
 interface BaseCompilationSource {
 	id: string;
@@ -86,18 +85,17 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	const compile: Compiler['compile'] = (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
-		buildRootDir: string,
-		dev: boolean,
+		filer: Filer,
 	) => {
 		const compiler = getCompiler(source, buildConfig) || noopCompiler;
-		return compiler.compile(source, buildConfig, buildRootDir, dev);
+		return compiler.compile(source, buildConfig, filer);
 	};
 
 	return {compile};
 };
 
 const createNoopCompiler = (): Compiler => {
-	const compile: Compiler['compile'] = (source, buildConfig, buildRootDir, dev) => {
+	const compile: Compiler['compile'] = (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;

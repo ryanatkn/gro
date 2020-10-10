@@ -67,7 +67,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		opts,
 	);
 
-	const compile: SvelteCompiler['compile'] = async (source, buildConfig, buildRootDir, dev) => {
+	const compile: SvelteCompiler['compile'] = async (source, buildConfig, {buildRootDir, dev}) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}

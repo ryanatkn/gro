@@ -37,7 +37,7 @@ type SwcCompiler = Compiler<TextCompilationSource, TextCompilation>;
 export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 	const {swcOptions} = initOptions(opts);
 
-	const compile: SwcCompiler['compile'] = async (source, buildConfig, buildRootDir, dev) => {
+	const compile: SwcCompiler['compile'] = async (source, buildConfig, {buildRootDir, dev}) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}

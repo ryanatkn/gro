@@ -31,7 +31,11 @@ export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCom
 		log.warn('Source maps are not yet supported by the externals compiler.');
 	}
 
-	const compile: ExternalsCompiler['compile'] = async (source, buildConfig, buildRootDir, dev) => {
+	const compile: ExternalsCompiler['compile'] = async (
+		source,
+		buildConfig,
+		{buildRootDir, dev, externalsDirBasePath},
+	) => {
 		if (!dev) {
 			throw Error('The externals compiler is currently not designed for production usage.');
 		}
@@ -39,7 +43,7 @@ export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCom
 			throw Error(`Externals compiler only handles utf8 encoding, not ${source.encoding}`);
 		}
 		// TODO should this be cached on the source?
-		const id = `${buildRootDir}${source.externalsDirBasePath}/${source.id}.js`;
+		const id = `${buildRootDir}${externalsDirBasePath}/${source.id}.js`;
 		const dir = dirname(id);
 		const filename = basename(id);
 
