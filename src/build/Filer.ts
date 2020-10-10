@@ -126,7 +126,7 @@ export interface Options {
 	dev: boolean;
 	compiler: Compiler | null;
 	compiledDirs: string[];
-	externalsDir: string;
+	externalsDir: string | null;
 	servedDirs: ServedDir[];
 	buildConfigs: BuildConfig[] | null;
 	externalsBuildConfig: BuildConfig | null;
@@ -158,11 +158,14 @@ export const initOptions = (opts: InitialOptions): Options => {
 			  buildConfigs[0];
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
-	const externalsDir = opts.externalsDir
-		? resolve(opts.externalsDir)
-		: `${buildRootDir}${EXTERNALS_DIR}`;
+	const externalsDir =
+		externalsBuildConfig === null || opts.externalsDir === null
+			? null
+			: opts.externalsDir === undefined
+			? `${buildRootDir}${EXTERNALS_DIR}`
+			: resolve(opts.externalsDir);
 	validateDirs(compiledDirs, externalsDir, buildRootDir);
-	const compiledDirCount = compiledDirs.length + externalsDir.length;
+	const compiledDirCount = compiledDirs.length + (externalsDir === null ? 0 : 1);
 	// default to serving all of the compiled output files
 	const servedDirs = toServedDirs(
 		opts.servedDirs ||
@@ -176,6 +179,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 							buildRootDir,
 						),
 				  ]),
+		externalsDir,
+		buildRootDir,
 	);
 	if (compiledDirCount === 0 && servedDirs.length === 0) {
 		throw Error('Filer created with no directories to compile or serve.');
@@ -210,7 +215,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer {
-	private readonly servedDirs: ServedDir[];
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly externalsBuildConfig: BuildConfig | null;
 	private readonly buildRootDir: string;
@@ -222,7 +226,10 @@ export class Filer {
 
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
-	private readonly externalsDir: CompilableFilerDir;
+	private readonly externalsDir: CompilableFilerDir | null;
+	private readonly servedDirs: ServedDir[];
+	private readonly externalsServedDir: ServedDir | null;
+	readonly externalsDirBasePath: string | null;
 
 	constructor(opts: InitialOptions) {
 		const {
@@ -245,7 +252,6 @@ export class Filer {
 		this.buildConfigs = buildConfigs;
 		this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
-		this.servedDirs = servedDirs;
 		this.include = include;
 		this.sourceMap = sourceMap;
 		this.cleanOutputDirs = cleanOutputDirs;
@@ -260,40 +266,39 @@ export class Filer {
 			debounce,
 			this.onDirChange,
 		);
-		this.externalsDir = this.dirs.find((d) => d.dir === externalsDir) as CompilableFilerDir;
+		this.servedDirs = servedDirs;
+		this.externalsDir =
+			externalsDir === null
+				? null
+				: (this.dirs.find((d) => d.dir === externalsDir) as CompilableFilerDir);
+		this.externalsServedDir = servedDirs.find((d) => d.dir === externalsDir) || null;
+		this.externalsDirBasePath =
+			this.externalsDir === null || this.externalsServedDir === null
+				? null
+				: stripStart(this.externalsDir.dir, `${this.externalsServedDir.servedAt}/`);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFile | null> {
-		// TODO this could be optimized (and avoid rare but weird false positives)
-		// by making it detect "externals" at the beginning of the path and only search that served dir,
-		// but the problem there is then "externals" becomes a reserved directory
+		const {externalsDirBasePath} = this;
+		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
+			const id = `${this.externalsServedDir!.servedAt}/${path}`;
+			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
+			if (await this.updateSourceFile(sourceId, this.externalsDir!)) {
+				await this.compileSourceId(sourceId, this.externalsDir!);
+			}
+			const compiledFile = this.files.get(id);
+			if (!compiledFile) {
+				throw Error('Expected to compile file');
+			}
+			return compiledFile;
+		}
 		for (const servedDir of this.servedDirs) {
+			if (servedDir === this.externalsServedDir) continue;
 			const id = `${servedDir.servedAt}/${path}`;
 			const file = this.files.get(id);
 			if (file !== undefined) {
 				return file;
-			}
-			// TODO should this be a source or compiled file?
-			// `file.dirty`? `file.lazy`?
-			// if (file.type === 'source' && file.dirty) {
-			// TODO can this be cleaned up? could compare `path` to `externalsDir.dirBasePath`
-			// (new cached value, but technically does it need the `servedDir.servedAt`, not the `buildRootDir`?), move above the for loop
-			// or should serving the externals dir be a concern internal to the Filer,
-			// automatically configured, with external configuration ignored?
-			// In that case, we could make an `addServedDir` helper that throws if there are conflicts.
-			// I have some confusion around what the Filer knows about externals..
-			if (id.startsWith(this.externalsDir.dir)) {
-				const externalsDirBasePath = stripStart(this.externalsDir.dir, `${servedDir.servedAt}/`);
-				const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
-				if (await this.updateSourceFile(sourceId, this.externalsDir)) {
-					await this.compileSourceId(sourceId, this.externalsDir);
-				}
-				const compiledFile = this.files.get(id);
-				if (!compiledFile) {
-					throw Error('Expected to compile file');
-				}
-				return compiledFile;
 			}
 		}
 		return null;
@@ -346,6 +351,18 @@ export class Filer {
 						}),
 					);
 				}),
+			);
+		}
+
+		// Ensure that the externals directory does not conflict with another served directory.
+		// This check must wait until the above syncing completes.
+		// TODO we need to delete unknown dirs in the build directory above, not just files,
+		// otherwise this error does not get cleared if you delete the conflicting directory
+		if (this.externalsServedDir !== null && this.externalsDirBasePath !== null) {
+			await checkForConflictingExternalsDir(
+				this.servedDirs,
+				this.externalsServedDir,
+				this.externalsDirBasePath,
 			);
 		}
 
@@ -560,7 +577,7 @@ export class Filer {
 								dir: compilation.dir,
 								extension: compilation.extension,
 								encoding: compilation.encoding,
-								contents: postprocess(compilation),
+								contents: postprocess(compilation, this.externalsDirBasePath),
 								sourceMapOf: compilation.sourceMapOf,
 								compilation,
 								stats: undefined,
@@ -576,7 +593,7 @@ export class Filer {
 								dir: compilation.dir,
 								extension: compilation.extension,
 								encoding: compilation.encoding,
-								contents: postprocess(compilation),
+								contents: postprocess(compilation, this.externalsDirBasePath),
 								compilation,
 								stats: undefined,
 								mimeType: undefined,
@@ -727,9 +744,9 @@ const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> 
 	encoding === null ? readFile(id) : readFile(id, encoding);
 
 // TODO this needs some major refactoring and redesigning
-function postprocess(compilation: TextCompilation): string;
-function postprocess(compilation: BinaryCompilation): Buffer;
-function postprocess(compilation: Compilation) {
+function postprocess(compilation: TextCompilation, externalsDirBasePath: string | null): string;
+function postprocess(compilation: BinaryCompilation, externalsDirBasePath: string | null): Buffer;
+function postprocess(compilation: Compilation, externalsDirBasePath: string | null) {
 	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
 		let result = '';
 		let index = 0;
@@ -745,8 +762,12 @@ function postprocess(compilation: Compilation) {
 			if (moduleName.endsWith(SVELTE_EXTENSION)) {
 				newModuleName = replaceExtension(moduleName, JS_EXTENSION);
 			}
-			if (compilation.buildConfig.platform === 'browser' && isExternalModule(moduleName)) {
-				newModuleName = `/${EXTERNALS_DIR}/${newModuleName}`;
+			if (
+				externalsDirBasePath !== null &&
+				compilation.buildConfig.platform === 'browser' &&
+				isExternalModule(moduleName)
+			) {
+				newModuleName = `/${externalsDirBasePath}/${newModuleName}`;
 				// TODO we may need to remove this for imports like `pixi.js`,
 				// and then for externals that have `.js` files imported,
 				// the import path and file on disk will be `foo.js.js`,
@@ -776,7 +797,11 @@ const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCH
 // to avoid undefined behavior at the cost of flexibility.
 // Some of these conditions like nested compiledDirs could be fixed
 // but there are inefficiencies and possibly some subtle bugs.
-const validateDirs = (compiledDirs: string[], externalsDir: string, buildRootDir: string) => {
+const validateDirs = (
+	compiledDirs: string[],
+	externalsDir: string | null,
+	buildRootDir: string,
+) => {
 	for (const compiledDir of compiledDirs) {
 		const nestedCompiledDir = compiledDirs.find(
 			(d) => d !== compiledDir && compiledDir.startsWith(d),
@@ -787,20 +812,21 @@ const validateDirs = (compiledDirs: string[], externalsDir: string, buildRootDir
 					`${compiledDir} is inside ${nestedCompiledDir}`,
 			);
 		}
-		if (compiledDir.startsWith(externalsDir)) {
+		if (externalsDir !== null && compiledDir.startsWith(externalsDir)) {
 			throw Error(
 				'A compiledDir cannot be inside the externalsDir: ' +
 					`${compiledDir} is inside ${externalsDir}`,
 			);
 		}
 	}
-	if (!externalsDir.startsWith(buildRootDir)) {
+	if (externalsDir !== null && !externalsDir.startsWith(buildRootDir)) {
 		throw Error(
 			'The externalsDir must be located inside the buildRootDir: ' +
 				`${externalsDir} is not inside ${buildRootDir}`,
 		);
 	}
-	const nestedCompiledDir = compiledDirs.find((d) => externalsDir.startsWith(d));
+	const nestedCompiledDir =
+		externalsDir !== null && compiledDirs.find((d) => externalsDir.startsWith(d));
 	if (nestedCompiledDir) {
 		throw Error(
 			'The externalsDir cannot be inside a compiledDir: ' +
@@ -929,7 +955,7 @@ const createSourceFile = (
 const createFilerDirs = (
 	compiledDirs: string[],
 	servedDirs: ServedDir[],
-	externalsDir: string,
+	externalsDir: string | null,
 	compiler: Compiler | null,
 	buildRootDir: string,
 	watch: boolean,
@@ -940,14 +966,16 @@ const createFilerDirs = (
 	for (const compiledDir of compiledDirs) {
 		dirs.push(createFilerDir(compiledDir, 'files', compiler, watch, debounce, onChange));
 	}
-	dirs.push(createFilerDir(externalsDir, 'externals', compiler, false, debounce, onChange));
+	if (externalsDir !== null) {
+		dirs.push(createFilerDir(externalsDir, 'externals', compiler, false, debounce, onChange));
+	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a compiled or externals directory,
 		// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 		// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 		if (
 			!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
-			!servedDir.dir.startsWith(externalsDir) &&
+			!(externalsDir !== null && servedDir.dir.startsWith(externalsDir)) &&
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildRootDir)
 		) {
@@ -962,7 +990,11 @@ interface ServedDir {
 	servedAt: string; // TODO rename?
 }
 type ServedDirPartial = string | PartialExcept<ServedDir, 'dir'>;
-const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
+const toServedDirs = (
+	partials: ServedDirPartial[],
+	externalsDir: string | null,
+	buildRootDir: string,
+): ServedDir[] => {
 	const dirs = partials.map((d) => toServedDir(d));
 	const uniqueDirs = new Set<string>();
 	for (const dir of dirs) {
@@ -972,6 +1004,12 @@ const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
 			throw Error(`Duplicate servedDirs are not allowed: ${dir.dir}`);
 		}
 		uniqueDirs.add(dir.dir);
+	}
+	// Add the externals as a served directory, unless one is already found.
+	// This is mostly an ergonomic improvement, and the user can provide a custom one if needed.
+	// In the current design, externals should always be served.
+	if (externalsDir !== null && !dirs.find((d) => d.dir === externalsDir)) {
+		dirs.push(toServedDir({dir: externalsDir, servedAt: buildRootDir}));
 	}
 	return dirs;
 };
@@ -983,3 +1021,21 @@ const toServedDir = (dir: ServedDirPartial): ServedDir => {
 		servedAt: dir.servedAt ? resolve(dir.servedAt) : resolvedDir,
 	};
 };
+
+const checkForConflictingExternalsDir = (
+	servedDirs: ServedDir[],
+	externalsServedDir: ServedDir,
+	externalsDirBasePath: string,
+) =>
+	Promise.all(
+		servedDirs.map(async (servedDir) => {
+			if (servedDir === externalsServedDir) return;
+			if (await pathExists(`${servedDir.dir}/${externalsDirBasePath}`)) {
+				throw Error(
+					'A served directory contains a directory that conflicts with the externals directory.' +
+						' One of them must be renamed to avoid import ambiguity.' +
+						` ${servedDir.dir} contains ${externalsDirBasePath}`,
+				);
+			}
+		}),
+	);

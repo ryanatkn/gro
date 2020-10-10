@@ -25,7 +25,7 @@ export const task: Task = {
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
 			compiledDirs: [paths.source],
-			servedDirs: [`${buildOutDir}/frontend`, {dir: paths.externals, servedAt: paths.build}],
+			servedDirs: [`${buildOutDir}/frontend`],
 			buildConfigs,
 		});
 		timingToCreateFiler();
