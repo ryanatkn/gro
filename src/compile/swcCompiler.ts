@@ -1,8 +1,8 @@
 import swc from '@swc/core';
 import {relative} from 'path';
 
-import {loadTsconfig, TsConfig} from './tsHelpers.js';
-import {toSwcCompilerTarget, getDefaultSwcOptions, addSourceMapFooter} from './swcHelpers.js';
+import {EcmaScriptTarget} from './tsHelpers.js';
+import {getDefaultSwcOptions, addSourceMapFooter} from './swcHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutDir, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
@@ -12,32 +12,38 @@ import {cyan} from '../colors/terminal.js';
 
 export interface Options {
 	log: Logger;
-	sourceMap: boolean;
-	tsconfig: TsConfig;
-	swcOptions: swc.Options;
+	// TODO changes to this by consumers can break caching - how can the DX be improved?
+	createSwcOptions: CreateSwcOptions;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger([cyan('[swcCompiler]')]);
-	const tsconfig = opts.tsconfig || loadTsconfig(log);
-	const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
-	const sourceMap = opts.sourceMap ?? tsconfig.compilerOptions?.sourceMap ?? true;
-	const swcOptions = opts.swcOptions || getDefaultSwcOptions(target, sourceMap);
 	return {
+		createSwcOptions: createDefaultSwcOptions,
 		...omitUndefined(opts),
-		log,
-		tsconfig,
-		swcOptions,
-		sourceMap,
+		log: opts.log || new SystemLogger([cyan('[swcCompiler]')]),
 	};
 };
 
 type SwcCompiler = Compiler<TextCompilationSource, TextCompilation>;
 
 export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
-	const {swcOptions} = initOptions(opts);
+	const {createSwcOptions} = initOptions(opts);
 
-	const compile: SwcCompiler['compile'] = async (source, buildConfig, {buildRootDir, dev}) => {
+	const swcOptionsCache: Map<string, swc.Options> = new Map();
+	const getSwcOptions = (sourceMap: boolean, target: EcmaScriptTarget): swc.Options => {
+		const key = sourceMap + target;
+		const existingSwcOptions = swcOptionsCache.get(key);
+		if (existingSwcOptions !== undefined) return existingSwcOptions;
+		const newSwcOptions = createSwcOptions(sourceMap, target);
+		swcOptionsCache.set(key, newSwcOptions);
+		return newSwcOptions;
+	};
+
+	const compile: SwcCompiler['compile'] = async (
+		source,
+		buildConfig,
+		{buildRootDir, dev, sourceMap, target},
+	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}
@@ -46,6 +52,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		}
 		const {id, encoding, contents} = source;
 		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
+		const swcOptions = getSwcOptions(sourceMap, target);
 		const finalSwcOptions = {...swcOptions, filename: relative(outDir, id)};
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
@@ -80,3 +87,8 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 
 	return {compile};
 };
+
+type CreateSwcOptions = (sourceMap: boolean, target: EcmaScriptTarget) => swc.Options;
+
+const createDefaultSwcOptions: CreateSwcOptions = (sourceMap, target) =>
+	getDefaultSwcOptions(target, sourceMap);

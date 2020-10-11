@@ -25,6 +25,7 @@ import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig} from './buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
 import {postprocess} from './postprocess.js';
+import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -121,6 +122,7 @@ export interface Options {
 	buildRootDir: string;
 	include: (id: string) => boolean;
 	sourceMap: boolean;
+	target: EcmaScriptTarget;
 	debounce: number;
 	watch: boolean;
 	cleanOutputDirs: boolean;
@@ -186,12 +188,13 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		dev,
 		sourceMap: true,
+		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
-		include: opts.include || (() => true),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
+		include: opts.include || (() => true),
 		compiler,
 		compiledDirs,
 		externalsDir,
@@ -203,23 +206,22 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer {
-	// TODO make more of these properties publicly readable or
-	// otherwise gettable from the compilers and postprocessors,
-	// like `sourceMap` instead of making it an option to each compiler
-	private readonly buildConfigs: BuildConfig[] | null;
-	private readonly externalsBuildConfig: BuildConfig | null;
-	readonly buildRootDir: string;
-	readonly dev: boolean;
-	private readonly sourceMap: boolean;
-	private readonly log: Logger;
-	private readonly cleanOutputDirs: boolean;
-	private readonly include: (id: string) => boolean;
-
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly externalsDir: CompilableFilerDir | null;
 	private readonly servedDirs: ServedDir[];
 	private readonly externalsServedDir: ServedDir | null;
+	private readonly buildConfigs: BuildConfig[] | null;
+	private readonly externalsBuildConfig: BuildConfig | null;
+	private readonly cleanOutputDirs: boolean;
+	private readonly include: (id: string) => boolean;
+	private readonly log: Logger;
+
+	// public properties available to e.g. compilers and postprocessors
+	readonly buildRootDir: string;
+	readonly dev: boolean;
+	readonly sourceMap: boolean;
+	readonly target: EcmaScriptTarget;
 	readonly externalsDirBasePath: string | null;
 
 	constructor(opts: InitialOptions) {
@@ -234,6 +236,7 @@ export class Filer {
 			externalsDir,
 			include,
 			sourceMap,
+			target,
 			debounce,
 			watch,
 			cleanOutputDirs,
@@ -245,6 +248,7 @@ export class Filer {
 		this.buildRootDir = buildRootDir;
 		this.include = include;
 		this.sourceMap = sourceMap;
+		this.target = target;
 		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
 		this.dirs = createFilerDirs(

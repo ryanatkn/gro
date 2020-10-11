@@ -2,6 +2,7 @@ import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
+import {EcmaScriptTarget} from './tsHelpers.js';
 
 export interface Compiler<
 	TSource extends CompilationSource = CompilationSource,
@@ -18,7 +19,8 @@ export interface CompileResult<T extends Compilation = Compilation> {
 	compilations: T[];
 }
 export interface CompileOptions {
-	// TODO add source map, right? need to use it in the compilers
+	readonly sourceMap: boolean;
+	readonly target: EcmaScriptTarget;
 	readonly buildRootDir: string;
 	readonly dev: boolean;
 	readonly externalsDirBasePath: string | null;
@@ -99,8 +101,8 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	return {compile};
 };
 
-const createNoopCompiler = (): Compiler => {
-	const compile: Compiler['compile'] = (source, buildConfig, {buildRootDir, dev}) => {
+const noopCompiler: Compiler = {
+	compile: (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
@@ -133,8 +135,6 @@ const createNoopCompiler = (): Compiler => {
 				throw new UnreachableError(source);
 		}
 		return {compilations: [file]};
-	};
-	return {compile};
+	},
 };
-export const noopCompiler = createNoopCompiler();
-export const getNoopCompiler: GetCompiler = () => noopCompiler;
+const getNoopCompiler: GetCompiler = () => noopCompiler;

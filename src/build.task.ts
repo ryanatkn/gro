@@ -3,8 +3,8 @@ import {resolve} from 'path';
 import {pathExists} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
-import {getDefaultSwcOptions, toSwcCompilerTarget} from './compile/swcHelpers.js';
-import {loadTsconfig} from './compile/tsHelpers.js';
+import {getDefaultSwcOptions} from './compile/swcHelpers.js';
+import {loadTsconfig, toEcmaScriptTarget} from './compile/tsHelpers.js';
 
 // TODO how should this be done? do we want to allow development builds with Rollup?
 process.env.NODE_ENV = 'production';
@@ -29,7 +29,7 @@ export const task: Task = {
 		const tsconfigPath = undefined; // TODO parameterized options?
 		const basePath = undefined; // TODO parameterized options?
 		const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
-		const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
+		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
 		const sourceMap = tsconfig.compilerOptions?.sourceMap ?? process.env.NODE_ENV === 'development';
 		const swcOptions = getDefaultSwcOptions(target, sourceMap);
 

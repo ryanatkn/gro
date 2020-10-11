@@ -1,8 +1,38 @@
 import ts from 'typescript';
+import type {JscTarget} from '@swc/core';
 import {join, dirname, resolve} from 'path';
 
 import {black, bgRed} from '../colors/terminal.js';
 import {Logger} from '../utils/log.js';
+
+export type EcmaScriptTarget = JscTarget;
+
+export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2019';
+
+export const toEcmaScriptTarget = (target: ts.ScriptTarget | undefined): EcmaScriptTarget => {
+	switch (target) {
+		case 0: // ES3 = 0,
+			return 'es3';
+		case 1: // ES5 = 1,
+			return 'es5';
+		case 2: // ES2015 = 2,
+			return 'es2015';
+		case 3: // ES2016 = 3,
+			return 'es2016';
+		case 4: // ES2017 = 4,
+			return 'es2017';
+		case 5: // ES2018 = 5,
+			return 'es2018';
+		case 6: // ES2019 = 6,
+			return 'es2019';
+		// ES2020 = 7,
+		// ESNext = 99,
+		// JSON = 100,
+		// Latest = 99
+		default:
+			return DEFAULT_ECMA_SCRIPT_TARGET;
+	}
+};
 
 // confusingly, TypeScript doesn't seem to be a good type for this
 export interface TsConfig {

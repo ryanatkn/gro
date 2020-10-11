@@ -1,10 +1,9 @@
-import swc from '@swc/core';
 import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import {CompileOptions} from 'svelte/types/compiler/interfaces';
+import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 
-import {loadTsconfig, TsConfig} from './tsHelpers.js';
-import {toSwcCompilerTarget, getDefaultSwcOptions} from './swcHelpers.js';
+import {EcmaScriptTarget} from './tsHelpers.js';
+import {getDefaultSwcOptions} from './swcHelpers.js';
 import {
 	baseSvelteCompileOptions,
 	handleStats,
@@ -29,45 +28,49 @@ import {cyan} from '../colors/terminal.js';
 
 export interface Options {
 	log: Logger;
-	sourceMap: boolean;
-	tsconfig: TsConfig;
-	swcOptions: swc.Options;
-	svelteCompileOptions: CompileOptions;
-	sveltePreprocessor: PreprocessorGroup | PreprocessorGroup[] | null;
+	// TODO changes to this by consumers can break caching - how can the DX be improved?
+	createPreprocessor: CreatePreprocessor;
+	// TODO how to support options like this without screwing up caching?
+	// maybe compilers need a way to declare their options so they (or a hash) can be cached?
+	svelteCompileOptions: SvelteCompileOptions;
 	onwarn: typeof handleWarn;
 	onstats: typeof handleStats | null;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger([cyan('[svelteCompiler]')]);
-	const tsconfig = opts.tsconfig || loadTsconfig(log);
-	const target = toSwcCompilerTarget(tsconfig.compilerOptions?.target);
-	const sourceMap = opts.sourceMap ?? tsconfig.compilerOptions?.sourceMap ?? true;
-	const swcOptions = opts.swcOptions || getDefaultSwcOptions(target, sourceMap);
-	const svelteCompileOptions: CompileOptions = opts.svelteCompileOptions || {};
-	const sveltePreprocessor: PreprocessorGroup | PreprocessorGroup[] | null =
-		opts.sveltePreprocessor || sveltePreprocessSwc({swcOptions});
 	return {
 		onwarn: handleWarn,
 		onstats: null,
+		createPreprocessor: createDefaultPreprocessor,
 		...omitUndefined(opts),
-		log,
-		tsconfig,
-		swcOptions,
-		sourceMap,
-		svelteCompileOptions,
-		sveltePreprocessor,
+		log: opts.log || new SystemLogger([cyan('[svelteCompiler]')]),
+		svelteCompileOptions: opts.svelteCompileOptions || {},
 	};
 };
 
 type SvelteCompiler = Compiler<TextCompilationSource, TextCompilation>;
 
 export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler => {
-	const {log, sourceMap, svelteCompileOptions, sveltePreprocessor, onwarn, onstats} = initOptions(
-		opts,
-	);
+	const {log, createPreprocessor, svelteCompileOptions, onwarn, onstats} = initOptions(opts);
 
-	const compile: SvelteCompiler['compile'] = async (source, buildConfig, {buildRootDir, dev}) => {
+	const preprocessorCache: Map<string, PreprocessorGroup | PreprocessorGroup[] | null> = new Map();
+	const getPreprocessor = (
+		sourceMap: boolean,
+		target: EcmaScriptTarget,
+	): PreprocessorGroup | PreprocessorGroup[] | null => {
+		const key = sourceMap + target;
+		const existingPreprocessor = preprocessorCache.get(key);
+		if (existingPreprocessor !== undefined) return existingPreprocessor;
+		const newPreprocessor = createPreprocessor(sourceMap, target);
+		preprocessorCache.set(key, newPreprocessor);
+		return newPreprocessor;
+	};
+
+	const compile: SvelteCompiler['compile'] = async (
+		source,
+		buildConfig,
+		{buildRootDir, dev, sourceMap, target},
+	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
 		}
@@ -80,10 +83,9 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 
 		// TODO see rollup-plugin-svelte for how to track deps
 		// let dependencies = [];
-		if (sveltePreprocessor) {
-			const preprocessed = await svelte.preprocess(contents, sveltePreprocessor, {
-				filename: id,
-			});
+		const preprocessor = getPreprocessor(sourceMap, target);
+		if (preprocessor !== null) {
+			const preprocessed = await svelte.preprocess(contents, preprocessor, {filename: id});
 			preprocessedCode = preprocessed.code;
 			// dependencies = preprocessed.dependencies; // TODO
 		} else {
@@ -93,7 +95,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		const output: SvelteCompilation = svelte.compile(preprocessedCode, {
 			...baseSvelteCompileOptions,
 			dev,
-			generate: getGenerateOption(buildConfig), // allow `svelteCompileOptions` to override
+			generate: getGenerateOption(buildConfig),
 			...svelteCompileOptions,
 			filename: id, // TODO should we be giving a different path?
 		});
@@ -173,3 +175,11 @@ const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {
 			throw new UnreachableError(buildConfig.platform);
 	}
 };
+
+type CreatePreprocessor = (
+	sourceMap: boolean,
+	target: EcmaScriptTarget,
+) => PreprocessorGroup | PreprocessorGroup[] | null;
+
+const createDefaultPreprocessor: CreatePreprocessor = (sourceMap, target) =>
+	sveltePreprocessSwc({swcOptions: getDefaultSwcOptions(target, sourceMap)});

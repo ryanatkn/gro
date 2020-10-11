@@ -6,6 +6,7 @@ import {createDefaultCompiler} from '../compile/defaultCompiler.js';
 import {paths, toBuildOutDir} from '../paths.js';
 import {loadBuildConfigs} from '../build/buildConfig.js';
 import {createDevServer} from '../devServer/devServer.js';
+import {loadTsconfig, toEcmaScriptTarget} from '../compile/tsHelpers.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
@@ -15,6 +16,12 @@ export const task: Task = {
 		const timingToLoadConfig = timings.start('load build configs');
 		const buildConfigs = await loadBuildConfigs();
 		timingToLoadConfig();
+
+		const timingToLoadTsconfig = timings.start('load tsconfig');
+		const tsconfig = loadTsconfig(log);
+		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
+		const sourceMap = tsconfig.compilerOptions?.sourceMap ?? true;
+		timingToLoadTsconfig();
 
 		const timingToCreateFiler = timings.start('create filer');
 		const buildOutDir = toBuildOutDir(
@@ -27,6 +34,8 @@ export const task: Task = {
 			compiledDirs: [paths.source],
 			servedDirs: [`${buildOutDir}/frontend`],
 			buildConfigs,
+			sourceMap,
+			target,
 		});
 		timingToCreateFiler();
 
