@@ -397,7 +397,7 @@ export class Filer {
 	}
 
 	// If changes are detected in the build options, clear the cache and rebuild everything.
-	async initBuildOptions(): Promise<void> {
+	private async initBuildOptions(): Promise<void> {
 		const currentBuildOptions: CachedBuildOptions = {
 			sourceMap: this.sourceMap,
 			target: this.target,
