@@ -10,11 +10,27 @@ import {
 	CompilableInternalsFilerDir,
 	ExternalsFilerDir,
 } from '../build/FilerDir.js';
-import {stat, Stats} from '../fs/nodeFs.js';
+import {
+	findFiles,
+	readFile,
+	remove,
+	outputFile,
+	pathExists,
+	readJson,
+	stat,
+	Stats,
+	emptyDir,
+} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
-import {EXTERNALS_DIR, hasSourceExtension, JS_EXTENSION, paths, toBuildOutDir} from '../paths.js';
+import {
+	EXTERNALS_DIR,
+	hasSourceExtension,
+	JS_EXTENSION,
+	paths,
+	toBuildOutDir,
+	toBuildsOutDir,
+} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
@@ -26,6 +42,7 @@ import {BuildConfig} from './buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
 import {postprocess} from './postprocess.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
+import {deepEqual} from '../utils/deepEqual.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -110,6 +127,17 @@ export interface BaseFile {
 	stats: Stats | undefined; // `undefined` and mutable for lazy loading
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
+
+// These are the Filer's global build options that get cached to disk during initialization.
+// If the Filer detects any changes during initialization between the cached and current versions,
+// it clears the cached builds on disk and rebuilds everything from scratch.
+export interface CachedBuildOptions {
+	sourceMap: boolean;
+	target: EcmaScriptTarget;
+	externalsDirBasePath: string | null;
+	buildConfigs: BuildConfig[] | null;
+}
+const CACHED_BUILD_OPTIONS_PATH = 'cachedBuildOptions.json';
 
 export interface Options {
 	dev: boolean;
@@ -313,7 +341,10 @@ export class Filer {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await lexer.init; // must finish before dirs are initialized because it's used for compilation
+		await Promise.all([
+			this.initBuildOptions(),
+			lexer.init, // must finish before dirs are initialized because it's used for compilation
+		]);
 		await Promise.all(this.dirs.map((d) => d.init()));
 
 		const {buildConfigs} = this;
@@ -363,6 +394,27 @@ export class Filer {
 		}
 
 		finishInitializing!();
+	}
+
+	// If changes are detected in the build options, clear the cache and rebuild everything.
+	async initBuildOptions(): Promise<void> {
+		const currentBuildOptions: CachedBuildOptions = {
+			sourceMap: this.sourceMap,
+			target: this.target,
+			externalsDirBasePath: this.externalsDirBasePath,
+			buildConfigs: this.buildConfigs,
+		};
+		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_PATH}`;
+		const cachedBuildOptions = (await pathExists(cachedBuildOptionsId))
+			? ((await readJson(cachedBuildOptionsId)) as CachedBuildOptions)
+			: null;
+		if (!deepEqual(currentBuildOptions, cachedBuildOptions)) {
+			this.log.info('Build options have changed. Clearing the cache and rebuilding everything.');
+			await Promise.all([
+				outputFile(cachedBuildOptionsId, JSON.stringify(currentBuildOptions, null, 2)),
+				emptyDir(toBuildsOutDir(this.dev, this.buildRootDir)),
+			]);
+		}
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -470,18 +522,6 @@ export class Filer {
 			!(filerDir.type === 'externals' && sourceFile.compiledFiles?.length === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
-			// But wait, what if the source maps are missing because the `sourceMap` option was off
-			// the last time the files were built?
-			// We're going to assume that if the source maps exist, they're in sync,
-			// in the same way that we're assuming that the build file is in sync if it exists
-			// when the cached source file hasn't changed.
-			// TODO remove this check once we diff compiler options
-			if (
-				!this.sourceMap ||
-				(sourceFile.compiledFiles !== null && (await sourceMapsAreBuilt(sourceFile)))
-			) {
-				return false;
-			}
 			newSourceFile = sourceFile;
 		} else {
 			// Memory cache is warm, but contents have changed.
@@ -633,16 +673,6 @@ export class Filer {
 		}
 	}
 }
-
-// The check is needed to handle source maps being toggled on and off.
-// It assumes that if we find any source maps, the rest are there.
-const sourceMapsAreBuilt = async (sourceFile: CompilableSourceFile): Promise<boolean> => {
-	const sourceMapFile = sourceFile.compiledFiles.find((f) =>
-		f.encoding === 'utf8' ? f.sourceMapOf : false,
-	);
-	if (!sourceMapFile) return true;
-	return pathExists(sourceMapFile.id);
-};
 
 // Given `newFiles` and `oldFiles`, updates everything on disk,
 // deleting files that no longer exist, writing new ones, and updating existing ones.
