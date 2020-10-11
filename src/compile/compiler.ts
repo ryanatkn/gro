@@ -2,7 +2,7 @@ import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
-import type {Filer} from '../build/Filer.js';
+import {EcmaScriptTarget} from './tsHelpers.js';
 
 export interface Compiler<
 	TSource extends CompilationSource = CompilationSource,
@@ -11,12 +11,19 @@ export interface Compiler<
 	compile(
 		source: TSource,
 		buildConfig: BuildConfig,
-		filer: Filer,
+		options: CompileOptions,
 	): CompileResult<TResult> | Promise<CompileResult<TResult>>;
 }
 
 export interface CompileResult<T extends Compilation = Compilation> {
 	compilations: T[];
+}
+export interface CompileOptions {
+	readonly sourceMap: boolean;
+	readonly target: EcmaScriptTarget;
+	readonly buildRootDir: string;
+	readonly dev: boolean;
+	readonly externalsDirBasePath: string | null;
 }
 
 export type Compilation = TextCompilation | BinaryCompilation;
@@ -85,17 +92,17 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	const compile: Compiler['compile'] = (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
-		filer: Filer,
+		options: CompileOptions,
 	) => {
 		const compiler = getCompiler(source, buildConfig) || noopCompiler;
-		return compiler.compile(source, buildConfig, filer);
+		return compiler.compile(source, buildConfig, options);
 	};
 
 	return {compile};
 };
 
-const createNoopCompiler = (): Compiler => {
-	const compile: Compiler['compile'] = (source, buildConfig, {buildRootDir, dev}) => {
+const noopCompiler: Compiler = {
+	compile: (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
@@ -128,8 +135,6 @@ const createNoopCompiler = (): Compiler => {
 				throw new UnreachableError(source);
 		}
 		return {compilations: [file]};
-	};
-	return {compile};
+	},
 };
-export const noopCompiler = createNoopCompiler();
-export const getNoopCompiler: GetCompiler = () => noopCompiler;
+const getNoopCompiler: GetCompiler = () => noopCompiler;

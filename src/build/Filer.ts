@@ -10,33 +10,39 @@ import {
 	CompilableInternalsFilerDir,
 	ExternalsFilerDir,
 } from '../build/FilerDir.js';
-import {stat, Stats} from '../fs/nodeFs.js';
+import {
+	findFiles,
+	readFile,
+	remove,
+	outputFile,
+	pathExists,
+	readJson,
+	stat,
+	Stats,
+	emptyDir,
+} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
 import {
 	EXTERNALS_DIR,
 	hasSourceExtension,
 	JS_EXTENSION,
 	paths,
-	SVELTE_EXTENSION,
 	toBuildOutDir,
+	toBuildsOutDir,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {findFiles, readFile, remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import type {
-	Compiler,
-	TextCompilation,
-	BinaryCompilation,
-	Compilation,
-} from '../compile/compiler.js';
+import type {Compiler, TextCompilation, BinaryCompilation} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
-import {replaceExtension} from '../utils/path.js';
 import {BuildConfig} from './buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
+import {postprocess} from './postprocess.js';
+import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
+import {deepEqual} from '../utils/deepEqual.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -122,6 +128,17 @@ export interface BaseFile {
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
 
+// These are the Filer's global build options that get cached to disk during initialization.
+// If the Filer detects any changes during initialization between the cached and current versions,
+// it clears the cached builds on disk and rebuilds everything from scratch.
+export interface CachedBuildOptions {
+	sourceMap: boolean;
+	target: EcmaScriptTarget;
+	externalsDirBasePath: string | null;
+	buildConfigs: BuildConfig[] | null;
+}
+const CACHED_BUILD_OPTIONS_PATH = 'cachedBuildOptions.json';
+
 export interface Options {
 	dev: boolean;
 	compiler: Compiler | null;
@@ -133,6 +150,7 @@ export interface Options {
 	buildRootDir: string;
 	include: (id: string) => boolean;
 	sourceMap: boolean;
+	target: EcmaScriptTarget;
 	debounce: number;
 	watch: boolean;
 	cleanOutputDirs: boolean;
@@ -198,12 +216,13 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		dev,
 		sourceMap: true,
+		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
-		include: opts.include || (() => true),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
+		include: opts.include || (() => true),
 		compiler,
 		compiledDirs,
 		externalsDir,
@@ -215,23 +234,22 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer {
-	// TODO make more of these properties publicly readable or
-	// otherwise gettable from the compilers and postprocessors,
-	// like `sourceMap` instead of making it an option to each compiler
-	private readonly buildConfigs: BuildConfig[] | null;
-	private readonly externalsBuildConfig: BuildConfig | null;
-	readonly buildRootDir: string;
-	readonly dev: boolean;
-	private readonly sourceMap: boolean;
-	private readonly log: Logger;
-	private readonly cleanOutputDirs: boolean;
-	private readonly include: (id: string) => boolean;
-
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly externalsDir: CompilableFilerDir | null;
 	private readonly servedDirs: ServedDir[];
 	private readonly externalsServedDir: ServedDir | null;
+	private readonly buildConfigs: BuildConfig[] | null;
+	private readonly externalsBuildConfig: BuildConfig | null;
+	private readonly cleanOutputDirs: boolean;
+	private readonly include: (id: string) => boolean;
+	private readonly log: Logger;
+
+	// public properties available to e.g. compilers and postprocessors
+	readonly buildRootDir: string;
+	readonly dev: boolean;
+	readonly sourceMap: boolean;
+	readonly target: EcmaScriptTarget;
 	readonly externalsDirBasePath: string | null;
 
 	constructor(opts: InitialOptions) {
@@ -246,6 +264,7 @@ export class Filer {
 			externalsDir,
 			include,
 			sourceMap,
+			target,
 			debounce,
 			watch,
 			cleanOutputDirs,
@@ -257,6 +276,7 @@ export class Filer {
 		this.buildRootDir = buildRootDir;
 		this.include = include;
 		this.sourceMap = sourceMap;
+		this.target = target;
 		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
 		this.dirs = createFilerDirs(
@@ -287,7 +307,8 @@ export class Filer {
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
 			const id = `${this.externalsServedDir!.servedAt}/${path}`;
 			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
-			if (await this.updateSourceFile(sourceId, this.externalsDir!)) {
+			const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
+			if (shouldCompile) {
 				await this.compileSourceId(sourceId, this.externalsDir!);
 			}
 			const compiledFile = this.files.get(id);
@@ -320,7 +341,10 @@ export class Filer {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await lexer.init; // must finish before dirs are initialized because it's used for compilation
+		await Promise.all([
+			this.initBuildOptions(),
+			lexer.init, // must finish before dirs are initialized because it's used for compilation
+		]);
 		await Promise.all(this.dirs.map((d) => d.init()));
 
 		const {buildConfigs} = this;
@@ -372,6 +396,27 @@ export class Filer {
 		finishInitializing!();
 	}
 
+	// If changes are detected in the build options, clear the cache and rebuild everything.
+	private async initBuildOptions(): Promise<void> {
+		const currentBuildOptions: CachedBuildOptions = {
+			sourceMap: this.sourceMap,
+			target: this.target,
+			externalsDirBasePath: this.externalsDirBasePath,
+			buildConfigs: this.buildConfigs,
+		};
+		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_PATH}`;
+		const cachedBuildOptions = (await pathExists(cachedBuildOptionsId))
+			? ((await readJson(cachedBuildOptionsId)) as CachedBuildOptions)
+			: null;
+		if (!deepEqual(currentBuildOptions, cachedBuildOptions)) {
+			this.log.info('Build options have changed. Clearing the cache and rebuilding everything.');
+			await Promise.all([
+				outputFile(cachedBuildOptionsId, JSON.stringify(currentBuildOptions, null, 2)),
+				emptyDir(toBuildsOutDir(this.dev, this.buildRootDir)),
+			]);
+		}
+	}
+
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
 			filerDir.type === 'externals'
@@ -385,8 +430,9 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
+					const shouldCompile = await this.updateSourceFile(id, filerDir);
 					if (
-						(await this.updateSourceFile(id, filerDir)) &&
+						shouldCompile &&
 						filerDir.compilable &&
 						// TODO this should probably be a generic flag on the `filerDir` like `lazyCompile`
 						!(change.type === 'init' && filerDir.type === 'externals')
@@ -415,7 +461,8 @@ export class Filer {
 		}
 	};
 
-	// Returns a boolean indicating if the source file changed.
+	// Returns a boolean indicating if the source file should be compiled.
+	// The source file may have been updated or created from a cold cache.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
 		const sourceFile = this.files.get(id);
 		if (sourceFile !== undefined) {
@@ -433,6 +480,8 @@ export class Filer {
 				);
 			}
 		}
+
+		let shouldCompile = true; // this is the function's return value
 
 		let extension: string;
 		let encoding: Encoding;
@@ -458,24 +507,21 @@ export class Filer {
 			// TODO add hash caching to avoid this work when not needed
 			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
 			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
+			// If the created source file has its compiled files hydrated,
+			// we can infer that it doesn't need to be compiled.
+			// TODO maybe make this more explicit with a `dirty` or `shouldCompile` flag?
+			// Right now compilers always return at least one compiled file,
+			// so it shouldn't be buggy, but it doesn't feel right.
+			if (newSourceFile.compilable && newSourceFile.compiledFiles.length !== 0) {
+				shouldCompile = false;
+				syncCompiledFilesToMemoryCache(this.files, newSourceFile.compiledFiles, [], this.log);
+			}
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
 			!(filerDir.type === 'externals' && sourceFile.compiledFiles?.length === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
-			// But wait, what if the source maps are missing because the `sourceMap` option was off
-			// the last time the files were built?
-			// We're going to assume that if the source maps exist, they're in sync,
-			// in the same way that we're assuming that the build file is in sync if it exists
-			// when the cached source file hasn't changed.
-			// TODO remove this check once we diff compiler options
-			if (
-				!this.sourceMap ||
-				(sourceFile.compiledFiles !== null && (await sourceMapsAreBuilt(sourceFile)))
-			) {
-				return false;
-			}
 			newSourceFile = sourceFile;
 		} else {
 			// Memory cache is warm, but contents have changed.
@@ -501,7 +547,7 @@ export class Filer {
 			}
 		}
 		this.files.set(id, newSourceFile);
-		return true;
+		return shouldCompile;
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
@@ -535,7 +581,8 @@ export class Filer {
 			this.enqueuedCompilations.delete(id);
 			// Something changed during the compilation for this file, so recurse.
 			// TODO do we need to detect cycles? if we run into any, probably
-			if (await this.updateSourceFile(...enqueuedCompilation)) {
+			const shouldCompile = await this.updateSourceFile(...enqueuedCompilation);
+			if (shouldCompile) {
 				await this.compileSourceId(...enqueuedCompilation);
 			}
 		}
@@ -608,9 +655,9 @@ export class Filer {
 				},
 			),
 		);
+		const oldCompiledFiles = sourceFile.compiledFiles;
 		const newSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
 		this.files.set(id, newSourceFile);
-		const oldCompiledFiles = sourceFile.compiledFiles;
 		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
 		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
 	}
@@ -626,16 +673,6 @@ export class Filer {
 		}
 	}
 }
-
-// The check is needed to handle source maps being toggled on and off.
-// It assumes that if we find any source maps, the rest are there.
-const sourceMapsAreBuilt = async (sourceFile: CompilableSourceFile): Promise<boolean> => {
-	const sourceMapFile = sourceFile.compiledFiles.find((f) =>
-		f.encoding === 'utf8' ? f.sourceMapOf : false,
-	);
-	if (!sourceMapFile) return true;
-	return pathExists(sourceMapFile.id);
-};
 
 // Given `newFiles` and `oldFiles`, updates everything on disk,
 // deleting files that no longer exist, writing new ones, and updating existing ones.
@@ -745,49 +782,6 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 
 const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
 	encoding === null ? readFile(id) : readFile(id, encoding);
-
-// TODO this needs some major refactoring and redesigning
-function postprocess(compilation: TextCompilation, filer: Filer): string;
-function postprocess(compilation: BinaryCompilation, filer: Filer): Buffer;
-function postprocess(compilation: Compilation, filer: Filer) {
-	if (compilation.encoding === 'utf8' && compilation.extension === JS_EXTENSION) {
-		let result = '';
-		let index = 0;
-		const {contents} = compilation;
-		// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
-		const [imports] = lexer.parse(contents);
-		for (const {s, e, d} of imports) {
-			const start = d > -1 ? s + 1 : s;
-			const end = d > -1 ? e - 1 : e;
-			const moduleName = contents.substring(start, end);
-			if (moduleName === 'import.meta') continue;
-			let newModuleName = moduleName;
-			if (moduleName.endsWith(SVELTE_EXTENSION)) {
-				newModuleName = replaceExtension(moduleName, JS_EXTENSION);
-			}
-			if (
-				filer.externalsDirBasePath !== null &&
-				compilation.buildConfig.platform === 'browser' &&
-				isExternalModule(moduleName)
-			) {
-				newModuleName = `/${filer.externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
-			}
-			if (newModuleName !== moduleName) {
-				result += contents.substring(index, start) + newModuleName;
-				index = end;
-			}
-		}
-		if (index > 0) {
-			return result + contents.substring(index);
-		} else {
-			return contents;
-		}
-	}
-	return compilation.contents;
-}
-
-const INTERNAL_MODULE_MATCHER = /^\.?\.?\//;
-const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCHER.test(moduleName);
 
 // TODO Revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility.

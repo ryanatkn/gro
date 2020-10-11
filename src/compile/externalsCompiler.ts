@@ -9,14 +9,12 @@ import {buildExternalModule} from '../build/buildExternalModule.js';
 import {printPath} from '../utils/print.js';
 
 export interface Options {
-	sourceMap: boolean;
 	log: Logger;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsCompiler]')]);
 	return {
-		sourceMap: false,
 		...omitUndefined(opts),
 		log,
 	};
@@ -25,17 +23,16 @@ export const initOptions = (opts: InitialOptions): Options => {
 type ExternalsCompiler = Compiler<ExternalsCompilationSource, TextCompilation>;
 
 export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCompiler => {
-	const {sourceMap, log} = initOptions(opts);
-
-	if (sourceMap) {
-		log.warn('Source maps are not yet supported by the externals compiler.');
-	}
+	const {log} = initOptions(opts);
 
 	const compile: ExternalsCompiler['compile'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, externalsDirBasePath},
+		{buildRootDir, dev, externalsDirBasePath /*, sourceMap */},
 	) => {
+		// if (sourceMap) {
+		// 	log.warn('Source maps are not yet supported by the externals compiler.');
+		// }
 		if (!dev) {
 			throw Error('The externals compiler is currently not designed for production usage.');
 		}
