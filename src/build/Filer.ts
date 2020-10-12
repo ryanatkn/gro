@@ -546,6 +546,7 @@ export class Filer {
 			// Right now compilers always return at least one compiled file,
 			// so it shouldn't be buggy, but it doesn't feel right.
 			if (newSourceFile.compilable && newSourceFile.compiledFiles.length !== 0) {
+				this.files.set(id, newSourceFile);
 				syncCompiledFilesToMemoryCache(this.files, newSourceFile.compiledFiles, [], this.log);
 				return false;
 			}
