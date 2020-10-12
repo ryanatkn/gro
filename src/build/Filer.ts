@@ -313,24 +313,24 @@ export class Filer {
 
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFile | null> {
-		const {externalsDirBasePath} = this;
+		const {externalsDirBasePath, externalsServedDir, files} = this;
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
-			const id = `${this.externalsServedDir!.servedAt}/${path}`;
+			const id = `${externalsServedDir!.servedAt}/${path}`;
 			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
 			const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
 			if (shouldCompile) {
 				await this.compileSourceId(sourceId, this.externalsDir!);
 			}
-			const compiledFile = this.files.get(id);
+			const compiledFile = files.get(id);
 			if (!compiledFile) {
 				throw Error('Expected to compile file');
 			}
 			return compiledFile;
 		}
 		for (const servedDir of this.servedDirs) {
-			if (servedDir === this.externalsServedDir) continue;
+			if (servedDir === externalsServedDir) continue;
 			const id = `${servedDir.servedAt}/${path}`;
-			const file = this.files.get(id);
+			const file = files.get(id);
 			if (file !== undefined) {
 				return file;
 			}
