@@ -13,7 +13,13 @@ import {cyan, yellow, gray} from '../colors/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
-import {Filer, BaseFile, getFileMimeType, getFileBuffer, getFileStats} from '../build/Filer.js';
+import {
+	Filer,
+	BaseFile,
+	getFileMimeType,
+	getFileContentsBuffer,
+	getFileStats,
+} from '../build/Filer.js';
 
 export interface DevServer {
 	readonly server: Server;
@@ -131,5 +137,5 @@ const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFil
 		'Last-Modified': stats.mtime.toUTCString(),
 	};
 	res.writeHead(200, headers);
-	res.end(getFileBuffer(file));
+	res.end(getFileContentsBuffer(file));
 };
