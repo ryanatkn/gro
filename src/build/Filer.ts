@@ -314,7 +314,7 @@ export class Filer {
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFile | null> {
 		const {externalsDirBasePath, externalsServedDir, files} = this;
-		// TODO probably want to generalize this with a "lazy" flag on compiledDirs
+		// TODO probably want to generalize this with "lazy" and/or "dirty" flags on compiledDirs
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
 			const id = `${externalsServedDir!.servedAt}/${path}`;
 			const file = files.get(id);
