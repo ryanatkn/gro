@@ -314,25 +314,33 @@ export class Filer {
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFile | null> {
 		const {externalsDirBasePath, externalsServedDir, files} = this;
+		// TODO probably want to generalize this with a "lazy" flag on compiledDirs
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
 			const id = `${externalsServedDir!.servedAt}/${path}`;
+			const file = files.get(id);
+			if (file !== undefined) {
+				return file;
+			}
 			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
 			const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
 			if (shouldCompile) {
 				await this.compileSourceId(sourceId, this.externalsDir!);
 			}
 			const compiledFile = files.get(id);
-			if (!compiledFile) {
+			if (compiledFile === undefined) {
 				throw Error('Expected to compile file');
 			}
 			return compiledFile;
-		}
-		for (const servedDir of this.servedDirs) {
-			if (servedDir === externalsServedDir) continue;
-			const id = `${servedDir.servedAt}/${path}`;
-			const file = files.get(id);
-			if (file !== undefined) {
-				return file;
+		} else {
+			for (const servedDir of this.servedDirs) {
+				if (servedDir === externalsServedDir) {
+					continue;
+				}
+				const id = `${servedDir.servedAt}/${path}`;
+				const file = files.get(id);
+				if (file !== undefined) {
+					return file;
+				}
 			}
 		}
 		return null;
