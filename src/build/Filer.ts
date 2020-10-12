@@ -139,14 +139,14 @@ export interface CachedBuildOptions {
 	externalsDirBasePath: string | null;
 	buildConfigs: BuildConfig[] | null;
 }
-const CACHED_BUILD_OPTIONS_PATH = 'cachedBuildOptions.json';
+const CACHED_BUILD_OPTIONS_FILENAME = 'cachedBuildOptions.json';
 
 export interface CachedSourceInfo {
 	sourceId: string;
 	contentsHash: string;
 	compilations: {id: string; encoding: Encoding}[];
 }
-const CACHED_SOURCE_INFO_PATH = 'cachedSourceInfo';
+const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 
 export interface Options {
 	dev: boolean;
@@ -412,7 +412,7 @@ export class Filer {
 			externalsDirBasePath: this.externalsDirBasePath,
 			buildConfigs: this.buildConfigs,
 		};
-		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_PATH}`;
+		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_FILENAME}`;
 		const cachedBuildOptions = (await pathExists(cachedBuildOptionsId))
 			? ((await readJson(cachedBuildOptionsId)) as CachedBuildOptions)
 			: null;
@@ -421,13 +421,13 @@ export class Filer {
 			await Promise.all([
 				outputFile(cachedBuildOptionsId, JSON.stringify(currentBuildOptions, null, 2)),
 				emptyDir(toBuildsOutDir(this.dev, this.buildRootDir)),
-				emptyDir(`${this.buildRootDir}${CACHED_SOURCE_INFO_PATH}`),
+				emptyDir(`${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`),
 			]);
 		}
 	}
 
 	private async initCachedSourceInfo(): Promise<void> {
-		const cachedSourceInfoDir = `${this.buildRootDir}${CACHED_SOURCE_INFO_PATH}`;
+		const cachedSourceInfoDir = `${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`;
 		const files = await findFiles(cachedSourceInfoDir, undefined, null);
 		await Promise.all(
 			Array.from(files.entries()).map(async ([path, stats]) => {
@@ -794,7 +794,7 @@ const toCachedSourceInfoId = (
 		file.sourceType === 'externals'
 			? `${externalsDirBasePath}/${file.dirBasePath}`
 			: file.dirBasePath;
-	return `${buildRootDir}${CACHED_SOURCE_INFO_PATH}/${basePath}${file.filename}${JSON_EXTENSION}`;
+	return `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${basePath}${file.filename}${JSON_EXTENSION}`;
 };
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
