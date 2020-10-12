@@ -542,7 +542,7 @@ export class Filer {
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
-			!(filerDir.type === 'externals' && sourceFile.compiledFiles?.length === 0)
+			!(sourceFile.sourceType === 'externals' && sourceFile.compiledFiles.length === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			return false;
