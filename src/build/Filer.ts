@@ -524,7 +524,7 @@ export class Filer {
 		let newSourceFile: SourceFile;
 		if (sourceFile === undefined) {
 			// Memory cache is cold.
-			newSourceFile = createSourceFile(
+			newSourceFile = await createSourceFile(
 				id,
 				encoding,
 				extension,
@@ -905,14 +905,14 @@ const validateDirs = (
 
 // This code could be shortened a lot by collapsing the object declarations,
 // but as is it doesn't play nicely with the types, and it might be harder to reason about.
-const createSourceFile = (
+const createSourceFile = async (
 	id: string,
 	encoding: Encoding,
 	extension: string,
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	cachedSourceInfo: CachedSourceInfo | undefined,
-): SourceFile => {
+): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
 	let compiledFiles: CompiledFile[] = [];
@@ -924,12 +924,7 @@ const createSourceFile = (
 		}
 		contentsHash = toHash(contentsBuffer!);
 		if (contentsHash === cachedSourceInfo.contentsHash) {
-			compiledFiles = reconstructCompiledFiles(
-				cachedSourceInfo,
-				contents,
-				contentsBuffer!,
-				contentsHash,
-			);
+			compiledFiles = await reconstructCompiledFiles(cachedSourceInfo);
 		}
 	}
 	if (filerDir.type === 'externals') {
@@ -1043,56 +1038,54 @@ const createSourceFile = (
 	}
 };
 
-const reconstructCompiledFiles = (
-	cachedSourceInfo: CachedSourceInfo,
-	contents: string | Buffer,
-	contentsBuffer: Buffer,
-	contentsHash: string,
-): CompiledFile[] =>
-	cachedSourceInfo.compilations.map(
-		(compilation): CompiledFile => {
-			const {id} = compilation;
-			const filename = basename(id);
-			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-			const extension = extname(id);
-			switch (compilation.encoding) {
-				case 'utf8':
-					return {
-						type: 'compiled',
-						sourceFileId: cachedSourceInfo.sourceId,
-						id,
-						filename,
-						dir,
-						extension,
-						encoding: compilation.encoding,
-						contents: contents as string,
-						sourceMapOf: id.endsWith(SOURCE_MAP_EXTENSION)
-							? stripEnd(id, SOURCE_MAP_EXTENSION)
-							: null,
-						contentsBuffer,
-						contentsHash,
-						stats: undefined,
-						mimeType: undefined,
-					};
-				case null:
-					return {
-						type: 'compiled',
-						sourceFileId: cachedSourceInfo.sourceId,
-						id,
-						filename,
-						dir,
-						extension,
-						encoding: compilation.encoding,
-						contents: contents as Buffer,
-						contentsBuffer,
-						contentsHash,
-						stats: undefined,
-						mimeType: undefined,
-					};
-				default:
-					throw new UnreachableError(compilation.encoding);
-			}
-		},
+const reconstructCompiledFiles = (cachedSourceInfo: CachedSourceInfo): Promise<CompiledFile[]> =>
+	Promise.all(
+		cachedSourceInfo.compilations.map(
+			async (compilation): Promise<CompiledFile> => {
+				const {id} = compilation;
+				const filename = basename(id);
+				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+				const extension = extname(id);
+				const contents = await loadContents(compilation.encoding, id);
+				switch (compilation.encoding) {
+					case 'utf8':
+						return {
+							type: 'compiled',
+							sourceFileId: cachedSourceInfo.sourceId,
+							id,
+							filename,
+							dir,
+							extension,
+							encoding: compilation.encoding,
+							contents: contents as string,
+							sourceMapOf: id.endsWith(SOURCE_MAP_EXTENSION)
+								? stripEnd(id, SOURCE_MAP_EXTENSION)
+								: null,
+							contentsBuffer: undefined,
+							contentsHash: undefined,
+							stats: undefined,
+							mimeType: undefined,
+						};
+					case null:
+						return {
+							type: 'compiled',
+							sourceFileId: cachedSourceInfo.sourceId,
+							id,
+							filename,
+							dir,
+							extension,
+							encoding: compilation.encoding,
+							contents: contents as Buffer,
+							contentsBuffer: contents as Buffer,
+							contentsHash: undefined,
+							stats: undefined,
+							mimeType: undefined,
+						};
+					default:
+						throw new UnreachableError(compilation.encoding);
+				}
+			},
+		),
 	);
 
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
