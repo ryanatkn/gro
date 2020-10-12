@@ -501,8 +501,6 @@ export class Filer {
 			}
 		}
 
-		let shouldCompile = true; // this is the function's return value
-
 		let extension: string;
 		let encoding: Encoding;
 		if (sourceFile !== undefined) {
@@ -538,8 +536,8 @@ export class Filer {
 			// Right now compilers always return at least one compiled file,
 			// so it shouldn't be buggy, but it doesn't feel right.
 			if (newSourceFile.compilable && newSourceFile.compiledFiles.length !== 0) {
-				shouldCompile = false;
 				syncCompiledFilesToMemoryCache(this.files, newSourceFile.compiledFiles, [], this.log);
+				return false;
 			}
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
@@ -574,7 +572,7 @@ export class Filer {
 			}
 		}
 		this.files.set(id, newSourceFile);
-		return shouldCompile;
+		return filerDir.compilable;
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
