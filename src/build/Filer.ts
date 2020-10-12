@@ -1,5 +1,6 @@
 import {resolve, extname, join, basename, dirname} from 'path';
 import lexer from 'es-module-lexer';
+import {createHash} from 'crypto';
 
 import {
 	FilerDir,
@@ -25,8 +26,10 @@ import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
 import {
 	EXTERNALS_DIR,
 	hasSourceExtension,
+	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
+	SOURCE_MAP_EXTENSION,
 	toBuildOutDir,
 	toBuildsOutDir,
 } from '../paths.js';
@@ -35,7 +38,7 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import type {Compiler, TextCompilation, BinaryCompilation} from '../compile/compiler.js';
+import type {Compiler} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig} from './buildConfig.js';
@@ -61,7 +64,7 @@ export interface BinarySourceFile extends BaseSourceFile {
 	readonly sourceType: 'binary';
 	readonly encoding: null;
 	readonly contents: Buffer;
-	readonly buffer: Buffer;
+	readonly contentsBuffer: Buffer;
 }
 export interface ExternalsSourceFile extends BaseSourceFile {
 	readonly sourceType: 'externals';
@@ -100,20 +103,18 @@ export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
 export interface CompiledTextFile extends BaseCompiledFile {
-	readonly compilation: TextCompilation;
 	readonly encoding: 'utf8';
 	readonly contents: string;
 	readonly sourceMapOf: string | null; // TODO maybe prefer a union with an `isSourceMap` boolean flag?
 }
 export interface CompiledBinaryFile extends BaseCompiledFile {
-	readonly compilation: BinaryCompilation;
 	readonly encoding: null;
 	readonly contents: Buffer;
-	readonly buffer: Buffer;
+	readonly contentsBuffer: Buffer;
 }
 interface BaseCompiledFile extends BaseFile {
 	readonly type: 'compiled';
-	readonly sourceFile: CompilableSourceFile;
+	readonly sourceFileId: string;
 }
 
 export interface BaseFile {
@@ -123,7 +124,8 @@ export interface BaseFile {
 	readonly extension: string;
 	readonly encoding: Encoding;
 	readonly contents: string | Buffer;
-	buffer: Buffer | undefined; // `undefined` and mutable for lazy loading
+	contentsBuffer: Buffer | undefined; // `undefined` and mutable for lazy loading
+	contentsHash: string | undefined; // `undefined` and mutable for lazy loading
 	stats: Stats | undefined; // `undefined` and mutable for lazy loading
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
@@ -137,7 +139,14 @@ export interface CachedBuildOptions {
 	externalsDirBasePath: string | null;
 	buildConfigs: BuildConfig[] | null;
 }
-const CACHED_BUILD_OPTIONS_PATH = 'cachedBuildOptions.json';
+const CACHED_BUILD_OPTIONS_FILENAME = 'cachedBuildOptions.json';
+
+export interface CachedSourceInfo {
+	sourceId: string;
+	contentsHash: string;
+	compilations: {id: string; encoding: Encoding}[];
+}
+const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 
 export interface Options {
 	dev: boolean;
@@ -236,7 +245,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 export class Filer {
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
-	private readonly externalsDir: CompilableFilerDir | null;
+	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
+	private readonly externalsDir: ExternalsFilerDir | null;
 	private readonly servedDirs: ServedDir[];
 	private readonly externalsServedDir: ServedDir | null;
 	private readonly buildConfigs: BuildConfig[] | null;
@@ -293,7 +303,7 @@ export class Filer {
 		this.externalsDir =
 			externalsDir === null
 				? null
-				: (this.dirs.find((d) => d.dir === externalsDir) as CompilableFilerDir);
+				: (this.dirs.find((d) => d.dir === externalsDir) as ExternalsFilerDir);
 		this.externalsServedDir = servedDirs.find((d) => d.dir === externalsDir) || null;
 		this.externalsDirBasePath =
 			this.externalsDir === null || this.externalsServedDir === null
@@ -303,26 +313,32 @@ export class Filer {
 
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFile | null> {
-		const {externalsDirBasePath} = this;
+		const {externalsDirBasePath, externalsServedDir, files} = this;
+		// TODO probably want to generalize this with "lazy" and/or "dirty" flags on compiledDirs
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
-			const id = `${this.externalsServedDir!.servedAt}/${path}`;
+			const id = `${externalsServedDir!.servedAt}/${path}`;
+			const file = files.get(id);
+			if (file !== undefined) {
+				return file;
+			}
 			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
 			const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
 			if (shouldCompile) {
 				await this.compileSourceId(sourceId, this.externalsDir!);
 			}
-			const compiledFile = this.files.get(id);
-			if (!compiledFile) {
+			const compiledFile = files.get(id);
+			if (compiledFile === undefined) {
 				throw Error('Expected to compile file');
 			}
 			return compiledFile;
-		}
-		for (const servedDir of this.servedDirs) {
-			if (servedDir === this.externalsServedDir) continue;
-			const id = `${servedDir.servedAt}/${path}`;
-			const file = this.files.get(id);
-			if (file !== undefined) {
-				return file;
+		} else {
+			for (const servedDir of this.servedDirs) {
+				if (servedDir === externalsServedDir) continue;
+				const id = `${servedDir.servedAt}/${path}`;
+				const file = files.get(id);
+				if (file !== undefined) {
+					return file;
+				}
 			}
 		}
 		return null;
@@ -341,11 +357,9 @@ export class Filer {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([
-			this.initBuildOptions(),
-			lexer.init, // must finish before dirs are initialized because it's used for compilation
-		]);
-		await Promise.all(this.dirs.map((d) => d.init()));
+		await Promise.all([this.initBuildOptions(), lexer.init]);
+		await this.initCachedSourceInfo(); // must be after `initBuildOptions`
+		await Promise.all(this.dirs.map((dir) => dir.init())); // must be after `initCachedSourceInfo`
 
 		const {buildConfigs} = this;
 		if (this.cleanOutputDirs && buildConfigs !== null) {
@@ -359,6 +373,7 @@ export class Filer {
 			);
 			await Promise.all(
 				buildOutDirs.map(async (outputDir) => {
+					if (!(await pathExists(outputDir))) return;
 					const files = await findFiles(outputDir, undefined, null);
 					await Promise.all(
 						Array.from(files.entries()).map(([path, stats]) => {
@@ -404,7 +419,7 @@ export class Filer {
 			externalsDirBasePath: this.externalsDirBasePath,
 			buildConfigs: this.buildConfigs,
 		};
-		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_PATH}`;
+		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_FILENAME}`;
 		const cachedBuildOptions = (await pathExists(cachedBuildOptionsId))
 			? ((await readJson(cachedBuildOptionsId)) as CachedBuildOptions)
 			: null;
@@ -413,8 +428,21 @@ export class Filer {
 			await Promise.all([
 				outputFile(cachedBuildOptionsId, JSON.stringify(currentBuildOptions, null, 2)),
 				emptyDir(toBuildsOutDir(this.dev, this.buildRootDir)),
+				emptyDir(`${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`),
 			]);
 		}
+	}
+
+	private async initCachedSourceInfo(): Promise<void> {
+		const cachedSourceInfoDir = `${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`;
+		const files = await findFiles(cachedSourceInfoDir, undefined, null);
+		await Promise.all(
+			Array.from(files.entries()).map(async ([path, stats]) => {
+				if (stats.isDirectory()) return;
+				const info: CachedSourceInfo = await readJson(`${cachedSourceInfoDir}/${path}`);
+				this.cachedSourceInfo.set(info.sourceId, info);
+			}),
+		);
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -481,8 +509,6 @@ export class Filer {
 			}
 		}
 
-		let shouldCompile = true; // this is the function's return value
-
 		let extension: string;
 		let encoding: Encoding;
 		if (sourceFile !== undefined) {
@@ -495,34 +521,42 @@ export class Filer {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		// TODO hacky - fix with disk caching
 		const newSourceContents =
 			filerDir.type === 'externals'
-				? 'TODO maybe put the version from package.json here? or is that stored with the cached metadata?'
+				? // TODO it may require additional changes,
+				  // but the package.json version could be put here,
+				  // allowing externals to update at runtime
+				  ''
 				: await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
 		if (sourceFile === undefined) {
 			// Memory cache is cold.
-			// TODO add hash caching to avoid this work when not needed
-			// (base on source id hash comparison combined with compile options diffing like sourcemaps and ES target)
-			newSourceFile = createSourceFile(id, encoding, extension, newSourceContents, filerDir);
+			newSourceFile = await createSourceFile(
+				id,
+				encoding,
+				extension,
+				newSourceContents,
+				filerDir,
+				this.cachedSourceInfo.get(id),
+			);
 			// If the created source file has its compiled files hydrated,
 			// we can infer that it doesn't need to be compiled.
 			// TODO maybe make this more explicit with a `dirty` or `shouldCompile` flag?
 			// Right now compilers always return at least one compiled file,
 			// so it shouldn't be buggy, but it doesn't feel right.
 			if (newSourceFile.compilable && newSourceFile.compiledFiles.length !== 0) {
-				shouldCompile = false;
+				this.files.set(id, newSourceFile);
 				syncCompiledFilesToMemoryCache(this.files, newSourceFile.compiledFiles, [], this.log);
+				return false;
 			}
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
-			!(filerDir.type === 'externals' && sourceFile.compiledFiles?.length === 0)
+			!(sourceFile.sourceType === 'externals' && sourceFile.compiledFiles.length === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
-			newSourceFile = sourceFile;
+			return false;
 		} else {
 			// Memory cache is warm, but contents have changed.
 			switch (sourceFile.encoding) {
@@ -531,7 +565,8 @@ export class Filer {
 						...sourceFile,
 						contents: newSourceContents as string,
 						stats: undefined,
-						buffer: undefined,
+						contentsBuffer: undefined,
+						contentsHash: undefined,
 					};
 					break;
 				case null:
@@ -539,7 +574,8 @@ export class Filer {
 						...sourceFile,
 						contents: newSourceContents as Buffer,
 						stats: undefined,
-						buffer: newSourceContents as Buffer,
+						contentsBuffer: newSourceContents as Buffer,
+						contentsHash: undefined,
 					};
 					break;
 				default:
@@ -547,7 +583,7 @@ export class Filer {
 			}
 		}
 		this.files.set(id, newSourceFile);
-		return shouldCompile;
+		return filerDir.compilable;
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
@@ -562,9 +598,7 @@ export class Filer {
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
 	private async compileSourceId(id: string, filerDir: CompilableFilerDir): Promise<void> {
-		if (!this.include(id)) {
-			return;
-		}
+		if (!this.include(id)) return;
 		if (this.pendingCompilations.has(id)) {
 			this.enqueuedCompilations.set(id, [id, filerDir]);
 			return;
@@ -606,7 +640,7 @@ export class Filer {
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
 		const buildConfigs: BuildConfig[] =
-			sourceFile.filerDir.type === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
+			sourceFile.sourceType === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
 		const results = await Promise.all(
 			buildConfigs.map((buildConfig) =>
 				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this),
@@ -621,7 +655,7 @@ export class Filer {
 						case 'utf8':
 							return {
 								type: 'compiled',
-								sourceFile,
+								sourceFileId: sourceFile.id,
 								id: compilation.id,
 								filename: compilation.filename,
 								dir: compilation.dir,
@@ -629,25 +663,25 @@ export class Filer {
 								encoding: compilation.encoding,
 								contents: postprocess(compilation, this),
 								sourceMapOf: compilation.sourceMapOf,
-								compilation,
+								contentsBuffer: undefined,
+								contentsHash: undefined,
 								stats: undefined,
 								mimeType: undefined,
-								buffer: undefined,
 							};
 						case null:
 							return {
 								type: 'compiled',
-								sourceFile,
+								sourceFileId: sourceFile.id,
 								id: compilation.id,
 								filename: compilation.filename,
 								dir: compilation.dir,
 								extension: compilation.extension,
 								encoding: compilation.encoding,
 								contents: postprocess(compilation, this),
-								compilation,
+								contentsBuffer: compilation.contents,
+								contentsHash: undefined,
 								stats: undefined,
 								mimeType: undefined,
-								buffer: compilation.contents,
 							};
 						default:
 							throw new UnreachableError(compilation);
@@ -656,10 +690,13 @@ export class Filer {
 			),
 		);
 		const oldCompiledFiles = sourceFile.compiledFiles;
-		const newSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
+		const newSourceFile: CompilableSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
 		this.files.set(id, newSourceFile);
 		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
-		await syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log);
+		await Promise.all([
+			syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log),
+			this.updateCachedSourceInfo(newSourceFile),
+		]);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -667,10 +704,44 @@ export class Filer {
 		if (!sourceFile || sourceFile.type !== 'source') return; // ignore compiled files (maybe throw an error if the file isn't found, should not happen)
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
-		if (sourceFile.compiledFiles !== null) {
+		if (sourceFile.compilable) {
 			syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
-			await syncFilesToDisk([], sourceFile.compiledFiles, this.log);
+			await Promise.all([
+				syncFilesToDisk([], sourceFile.compiledFiles, this.log),
+				this.deleteCachedSourceInfo(sourceFile),
+			]);
 		}
+	}
+
+	private async updateCachedSourceInfo(file: CompilableSourceFile): Promise<void> {
+		const cachedSourceInfoId = toCachedSourceInfoId(
+			file,
+			this.buildRootDir,
+			this.externalsDirBasePath,
+		);
+		const cachedSourceInfo: CachedSourceInfo = {
+			sourceId: file.id,
+			contentsHash: getFileContentsHash(file),
+			compilations: file.compiledFiles.map((file) => ({id: file.id, encoding: file.encoding})),
+		};
+		// This is useful for debugging, but has false positives
+		// when source changes but output doesn't, like if comments get elided.
+		// if (
+		// 	(await pathExists(cachedSourceInfoId)) &&
+		// 	deepEqual(await readJson(cachedSourceInfoId), cachedSourceInfo)
+		// ) {
+		// 	console.log(
+		// 		'wasted compilation detected! unchanged file was compiled and identical source info written to disk: ' +
+		// 			cachedSourceInfoId,
+		// 	);
+		// }
+		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
+		await outputFile(cachedSourceInfoId, JSON.stringify(cachedSourceInfo, null, 2));
+	}
+
+	private deleteCachedSourceInfo(file: CompilableSourceFile): Promise<void> {
+		this.cachedSourceInfo.delete(file.id);
+		return remove(toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath));
 	}
 }
 
@@ -685,35 +756,54 @@ const syncFilesToDisk = async (
 	// because we're currently only using it for individual file compilations,
 	// but that assumption might change and cause this code to be slow.
 	await Promise.all([
-		...oldFiles.map((oldFile) => {
-			if (!newFiles.find((f) => f.id === oldFile.id)) {
-				log.trace('deleting file on disk', printPath(oldFile.id));
-				return remove(oldFile.id);
-			}
-			return undefined;
-		}),
-		...newFiles.map(async (newFile) => {
-			const oldFile = oldFiles.find((f) => f.id === newFile.id);
-			let shouldOutputNewFile = false;
-			if (!oldFile) {
-				if (!(await pathExists(newFile.id))) {
-					log.trace('creating file on disk', printPath(newFile.id));
-					shouldOutputNewFile = true;
-				} else {
-					// TODO optimize - content hash cache?
-					const existingCotents = await loadContents(newFile.encoding, newFile.id);
-					if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
-						log.trace('updating stale file on disk', printPath(newFile.id));
-						shouldOutputNewFile = true;
-					} // else the file on disk is already updated
+		Promise.all(
+			oldFiles.map((oldFile) => {
+				if (!newFiles.find((f) => f.id === oldFile.id)) {
+					log.trace('deleting build file on disk', printPath(oldFile.id));
+					return remove(oldFile.id);
 				}
-			} else if (!areContentsEqual(newFile.encoding, newFile.contents, oldFile.contents)) {
-				log.trace('updating file on disk', printPath(newFile.id));
-				shouldOutputNewFile = true;
-			} // else nothing changed, no need to update
-			if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
-		}),
+				return undefined;
+			}),
+		),
+		Promise.all(
+			newFiles.map(async (newFile) => {
+				const oldFile = oldFiles.find((f) => f.id === newFile.id);
+				let shouldOutputNewFile = false;
+				if (!oldFile) {
+					if (!(await pathExists(newFile.id))) {
+						log.trace('creating build file on disk', printPath(newFile.id));
+						shouldOutputNewFile = true;
+					} else {
+						const existingCotents = await loadContents(newFile.encoding, newFile.id);
+						if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
+							log.trace('updating stale build file on disk', printPath(newFile.id));
+							shouldOutputNewFile = true;
+						} // ...else the build file on disk already matches what's in memory.
+						// This can happen if the source file changed but this particular compiled file did not.
+						// Loading the usually-stale contents into memory to check before writing is inefficient,
+						// but it avoids unnecessary writing to disk and misleadingly updated file stats.
+					}
+				} else if (!areContentsEqual(newFile.encoding, newFile.contents, oldFile.contents)) {
+					log.trace('updating build file on disk', printPath(newFile.id));
+					shouldOutputNewFile = true;
+				} // ...else the build file on disk already matches what's in memory.
+				// This can happen if the source file changed but this particular compiled file did not.
+				if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
+			}),
+		),
 	]);
+};
+
+const toCachedSourceInfoId = (
+	file: CompilableSourceFile,
+	buildRootDir: string,
+	externalsDirBasePath: string | null,
+): string => {
+	const basePath =
+		file.sourceType === 'externals'
+			? `${externalsDirBasePath}/${file.dirBasePath}`
+			: file.dirBasePath;
+	return `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${basePath}${file.filename}${JSON_EXTENSION}`;
 };
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
@@ -741,10 +831,10 @@ const syncCompiledFilesToMemoryCache = (
 			// the compiled output files do not conflict.
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
-			if (newFile.sourceFile.id !== oldFile.sourceFile.id) {
+			if (newFile.sourceFileId !== oldFile.sourceFileId) {
 				throw Error(
 					'Two source files are trying to compile to the same output location: ' +
-						`${newFile.sourceFile.id} & ${oldFile.sourceFile.id}`,
+						`${newFile.sourceFileId} & ${oldFile.sourceFileId}`,
 				);
 			}
 		}
@@ -757,8 +847,10 @@ export const getFileMimeType = (file: BaseFile): string | null =>
 		? file.mimeType
 		: (file.mimeType = getMimeTypeByExtension(file.extension.substring(1)));
 
-export const getFileBuffer = (file: BaseFile): Buffer =>
-	file.buffer !== undefined ? file.buffer : (file.buffer = Buffer.from(file.contents));
+export const getFileContentsBuffer = (file: BaseFile): Buffer =>
+	file.contentsBuffer !== undefined
+		? file.contentsBuffer
+		: (file.contentsBuffer = Buffer.from(file.contents));
 
 // Stats are currently lazily loaded. Should they be?
 export const getFileStats = (file: BaseFile): Stats | Promise<Stats> =>
@@ -767,7 +859,14 @@ export const getFileStats = (file: BaseFile): Stats | Promise<Stats> =>
 		: stat(file.id).then((stats) => {
 				file.stats = stats;
 				return stats;
-		  }); // TODO catch?
+		  });
+
+export const getFileContentsHash = (file: BaseFile): string =>
+	file.contentsHash !== undefined
+		? file.contentsHash
+		: (file.contentsHash = toHash(getFileContentsBuffer(file)));
+
+const toHash = (buf: Buffer): string => createHash('sha256').update(buf).digest().toString('hex');
 
 const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
@@ -827,13 +926,28 @@ const validateDirs = (
 
 // This code could be shortened a lot by collapsing the object declarations,
 // but as is it doesn't play nicely with the types, and it might be harder to reason about.
-const createSourceFile = (
+const createSourceFile = async (
 	id: string,
 	encoding: Encoding,
 	extension: string,
-	newSourceContents: string | Buffer,
+	contents: string | Buffer,
 	filerDir: FilerDir,
-): SourceFile => {
+	cachedSourceInfo: CachedSourceInfo | undefined,
+): Promise<SourceFile> => {
+	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
+	let contentsHash: string | undefined = undefined;
+	let compiledFiles: CompiledFile[] = [];
+	if (filerDir.compilable && cachedSourceInfo !== undefined) {
+		if (encoding === 'utf8') {
+			contentsBuffer = Buffer.from(contents);
+		} else if (encoding !== null) {
+			throw new UnreachableError(encoding);
+		}
+		contentsHash = toHash(contentsBuffer!);
+		if (contentsHash === cachedSourceInfo.contentsHash) {
+			compiledFiles = await reconstructCompiledFiles(cachedSourceInfo);
+		}
+	}
 	if (filerDir.type === 'externals') {
 		if (encoding !== 'utf8') {
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
@@ -851,12 +965,13 @@ const createSourceFile = (
 			dirBasePath,
 			extension,
 			encoding,
-			contents: newSourceContents as string,
+			contents: contents as string,
+			contentsBuffer,
+			contentsHash,
 			filerDir,
-			compiledFiles: [],
+			compiledFiles,
 			stats: undefined,
 			mimeType: undefined,
-			buffer: undefined,
 		};
 	}
 	const filename = basename(id);
@@ -875,12 +990,13 @@ const createSourceFile = (
 						dirBasePath,
 						extension,
 						encoding,
-						contents: newSourceContents as string,
+						contents: contents as string,
+						contentsBuffer,
+						contentsHash,
 						filerDir,
-						compiledFiles: [],
+						compiledFiles,
 						stats: undefined,
 						mimeType: undefined,
-						buffer: undefined,
 				  }
 				: {
 						type: 'source',
@@ -892,12 +1008,13 @@ const createSourceFile = (
 						dirBasePath,
 						extension,
 						encoding,
-						contents: newSourceContents as string,
+						contents: contents as string,
+						contentsBuffer,
+						contentsHash,
 						filerDir,
 						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
-						buffer: undefined,
 				  };
 		case null:
 			return filerDir.compilable
@@ -911,12 +1028,13 @@ const createSourceFile = (
 						dirBasePath,
 						extension,
 						encoding,
-						contents: newSourceContents as Buffer,
+						contents: contents as Buffer,
+						contentsBuffer: contentsBuffer as Buffer,
+						contentsHash,
 						filerDir,
-						compiledFiles: [],
+						compiledFiles,
 						stats: undefined,
 						mimeType: undefined,
-						buffer: newSourceContents as Buffer,
 				  }
 				: {
 						type: 'source',
@@ -928,17 +1046,68 @@ const createSourceFile = (
 						dirBasePath,
 						extension,
 						encoding,
-						contents: newSourceContents as Buffer,
+						contents: contents as Buffer,
+						contentsBuffer: contentsBuffer as Buffer,
+						contentsHash,
 						filerDir,
 						compiledFiles: null,
 						stats: undefined,
 						mimeType: undefined,
-						buffer: newSourceContents as Buffer,
 				  };
 		default:
 			throw new UnreachableError(encoding);
 	}
 };
+
+const reconstructCompiledFiles = (cachedSourceInfo: CachedSourceInfo): Promise<CompiledFile[]> =>
+	Promise.all(
+		cachedSourceInfo.compilations.map(
+			async (compilation): Promise<CompiledFile> => {
+				const {id} = compilation;
+				const filename = basename(id);
+				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+				const extension = extname(id);
+				const contents = await loadContents(compilation.encoding, id);
+				switch (compilation.encoding) {
+					case 'utf8':
+						return {
+							type: 'compiled',
+							sourceFileId: cachedSourceInfo.sourceId,
+							id,
+							filename,
+							dir,
+							extension,
+							encoding: compilation.encoding,
+							contents: contents as string,
+							sourceMapOf: id.endsWith(SOURCE_MAP_EXTENSION)
+								? stripEnd(id, SOURCE_MAP_EXTENSION)
+								: null,
+							contentsBuffer: undefined,
+							contentsHash: undefined,
+							stats: undefined,
+							mimeType: undefined,
+						};
+					case null:
+						return {
+							type: 'compiled',
+							sourceFileId: cachedSourceInfo.sourceId,
+							id,
+							filename,
+							dir,
+							extension,
+							encoding: compilation.encoding,
+							contents: contents as Buffer,
+							contentsBuffer: contents as Buffer,
+							contentsHash: undefined,
+							stats: undefined,
+							mimeType: undefined,
+						};
+					default:
+						throw new UnreachableError(compilation.encoding);
+				}
+			},
+		),
+	);
 
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
@@ -1024,7 +1193,7 @@ const checkForConflictingExternalsDir = (
 				throw Error(
 					'A served directory contains a directory that conflicts with the externals directory.' +
 						' One of them must be renamed to avoid import ambiguity.' +
-						` ${servedDir.dir} contains ${externalsDirBasePath}`,
+						` ${servedDir.dir} contains "${externalsDirBasePath}"`,
 				);
 			}
 		}),

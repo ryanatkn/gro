@@ -95,6 +95,7 @@ export const TS_EXTENSION = '.ts';
 export const TS_DEFS_EXTENSION = '.d.ts';
 export const SVELTE_EXTENSION = '.svelte';
 export const CSS_EXTENSION = '.css';
+export const JSON_EXTENSION = '.json';
 export const SOURCE_MAP_EXTENSION = '.map';
 
 // TODO probably change this to use a regexp (benchmark?)
