@@ -910,8 +910,10 @@ const createSourceFile = (
 	let contentsHash: string | undefined = undefined;
 	let compiledFiles: CompiledFile[] = [];
 	if (filerDir.compilable && cachedSourceInfo !== undefined) {
-		if (encoding !== null) {
+		if (encoding === 'utf8') {
 			contentsBuffer = Buffer.from(contents);
+		} else if (encoding !== null) {
+			throw new UnreachableError(encoding);
 		}
 		contentsHash = toHash(contentsBuffer!);
 		if (contentsHash === cachedSourceInfo.contentsHash) {
