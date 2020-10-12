@@ -29,6 +29,7 @@ import {
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
+	SOURCE_MAP_EXTENSION,
 	toBuildOutDir,
 	toBuildsOutDir,
 } from '../paths.js';
@@ -1042,9 +1043,6 @@ const reconstructCompiledFiles = (
 	cachedSourceInfo.compilations.map(
 		(compilation): CompiledFile => {
 			const {id} = compilation;
-			// TODO this is copy/pasted from `createSourceFile`
-			// what's the right way to do this? helper used in both places?
-			// do externals need special handling?
 			const filename = basename(id);
 			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 			const extension = extname(id);
@@ -1053,23 +1051,25 @@ const reconstructCompiledFiles = (
 					return {
 						type: 'compiled',
 						sourceFileId: cachedSourceInfo.sourceId,
-						id: id,
+						id,
 						filename,
 						dir,
 						extension,
 						encoding: compilation.encoding,
-						contents,
-						sourceMapOf: null, // TODO fix !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! could infer, or store, or..?
+						contents: contents as string,
+						sourceMapOf: id.endsWith(SOURCE_MAP_EXTENSION)
+							? stripEnd(id, SOURCE_MAP_EXTENSION)
+							: null,
 						contentsBuffer,
 						contentsHash,
 						stats: undefined,
 						mimeType: undefined,
-					} as CompiledTextFile;
+					};
 				case null:
 					return {
 						type: 'compiled',
 						sourceFileId: cachedSourceInfo.sourceId,
-						id: id,
+						id,
 						filename,
 						dir,
 						extension,
