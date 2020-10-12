@@ -514,11 +514,7 @@ export class Filer {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		// TODO hacky - fix with disk caching
-		const newSourceContents =
-			filerDir.type === 'externals'
-				? 'TODO maybe put the version from package.json here? or is that stored with the cached metadata?'
-				: await loadContents(encoding, id);
+		const newSourceContents = filerDir.type === 'externals' ? '' : await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
 		if (sourceFile === undefined) {
@@ -716,16 +712,17 @@ export class Filer {
 			contentsHash: getFileContentsHash(file),
 			compilations: file.compiledFiles.map((file) => ({id: file.id, encoding: file.encoding})),
 		};
-		// TODO remove this (has false positives when source changes but output doesn't, like if comments get elided)
-		if (
-			(await pathExists(cachedSourceInfoId)) &&
-			deepEqual(await readJson(cachedSourceInfoId), cachedSourceInfo)
-		) {
-			console.log(
-				'wasted compilation detected! unchanged file was compiled and identical source info written to disk: ' +
-					cachedSourceInfoId,
-			);
-		}
+		// This is useful for debugging, but has false positives
+		// when source changes but output doesn't, like if comments get elided.
+		// if (
+		// 	(await pathExists(cachedSourceInfoId)) &&
+		// 	deepEqual(await readJson(cachedSourceInfoId), cachedSourceInfo)
+		// ) {
+		// 	console.log(
+		// 		'wasted compilation detected! unchanged file was compiled and identical source info written to disk: ' +
+		// 			cachedSourceInfoId,
+		// 	);
+		// }
 		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
 		await outputFile(cachedSourceInfoId, JSON.stringify(cachedSourceInfo, null, 2));
 	}
