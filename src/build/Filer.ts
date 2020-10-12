@@ -146,7 +146,7 @@ export interface CachedSourceInfo {
 	contentsHash: string;
 	compilations: {id: string; encoding: Encoding}[];
 }
-const CACHED_SOURCE_INFO_PATH = 'cachedSource';
+const CACHED_SOURCE_INFO_PATH = 'cachedSourceInfo';
 
 export interface Options {
 	dev: boolean;
@@ -351,8 +351,9 @@ export class Filer {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([this.initBuildOptions(), this.initCachedSourceInfo(), lexer.init]);
-		await Promise.all(this.dirs.map((d) => d.init())); // loads and compiles everything
+		await Promise.all([this.initBuildOptions(), lexer.init]);
+		await this.initCachedSourceInfo(); // must be after `initBuildOptions`
+		await Promise.all(this.dirs.map((dir) => dir.init())); // must be after `initCachedSourceInfo`
 
 		const {buildConfigs} = this;
 		if (this.cleanOutputDirs && buildConfigs !== null) {
@@ -631,7 +632,7 @@ export class Filer {
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
 		const buildConfigs: BuildConfig[] =
-			sourceFile.filerDir.type === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
+			sourceFile.sourceType === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
 		const results = await Promise.all(
 			buildConfigs.map((buildConfig) =>
 				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this),
@@ -705,7 +706,11 @@ export class Filer {
 	}
 
 	private async updateCachedSourceInfo(file: CompilableSourceFile): Promise<void> {
-		const cachedSourceInfoId = toCachedSourceInfoId(file, this.buildRootDir);
+		const cachedSourceInfoId = toCachedSourceInfoId(
+			file,
+			this.buildRootDir,
+			this.externalsDirBasePath,
+		);
 		const cachedSourceInfo: CachedSourceInfo = {
 			sourceId: file.id,
 			contentsHash: getFileContentsHash(file),
@@ -727,7 +732,7 @@ export class Filer {
 
 	private deleteCachedSourceInfo(file: CompilableSourceFile): Promise<void> {
 		this.cachedSourceInfo.delete(file.id);
-		return remove(toCachedSourceInfoId(file, this.buildRootDir));
+		return remove(toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath));
 	}
 }
 
@@ -780,8 +785,17 @@ const syncFilesToDisk = async (
 	]);
 };
 
-const toCachedSourceInfoId = (file: CompilableSourceFile, buildRootDir: string): string =>
-	`${buildRootDir}${CACHED_SOURCE_INFO_PATH}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
+const toCachedSourceInfoId = (
+	file: CompilableSourceFile,
+	buildRootDir: string,
+	externalsDirBasePath: string | null,
+): string => {
+	const basePath =
+		file.sourceType === 'externals'
+			? `${externalsDirBasePath}/${file.dirBasePath}`
+			: file.dirBasePath;
+	return `${buildRootDir}${CACHED_SOURCE_INFO_PATH}/${basePath}${file.filename}${JSON_EXTENSION}`;
+};
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
@@ -1170,7 +1184,7 @@ const checkForConflictingExternalsDir = (
 				throw Error(
 					'A served directory contains a directory that conflicts with the externals directory.' +
 						' One of them must be renamed to avoid import ambiguity.' +
-						` ${servedDir.dir} contains ${externalsDirBasePath}`,
+						` ${servedDir.dir} contains "${externalsDirBasePath}"`,
 				);
 			}
 		}),
