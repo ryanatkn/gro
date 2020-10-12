@@ -514,7 +514,13 @@ export class Filer {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		const newSourceContents = filerDir.type === 'externals' ? '' : await loadContents(encoding, id);
+		const newSourceContents =
+			filerDir.type === 'externals'
+				? // TODO it may require additional changes,
+				  // but the package.json version could be put here,
+				  // allowing externals to update at runtime
+				  ''
+				: await loadContents(encoding, id);
 
 		let newSourceFile: SourceFile;
 		if (sourceFile === undefined) {
