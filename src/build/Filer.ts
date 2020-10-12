@@ -333,9 +333,7 @@ export class Filer {
 			return compiledFile;
 		} else {
 			for (const servedDir of this.servedDirs) {
-				if (servedDir === externalsServedDir) {
-					continue;
-				}
+				if (servedDir === externalsServedDir) continue;
 				const id = `${servedDir.servedAt}/${path}`;
 				const file = files.get(id);
 				if (file !== undefined) {
@@ -375,6 +373,7 @@ export class Filer {
 			);
 			await Promise.all(
 				buildOutDirs.map(async (outputDir) => {
+					if (!(await pathExists(outputDir))) return;
 					const files = await findFiles(outputDir, undefined, null);
 					await Promise.all(
 						Array.from(files.entries()).map(([path, stats]) => {
@@ -598,9 +597,7 @@ export class Filer {
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
 	private async compileSourceId(id: string, filerDir: CompilableFilerDir): Promise<void> {
-		if (!this.include(id)) {
-			return;
-		}
+		if (!this.include(id)) return;
 		if (this.pendingCompilations.has(id)) {
 			this.enqueuedCompilations.set(id, [id, filerDir]);
 			return;
