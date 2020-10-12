@@ -744,35 +744,41 @@ const syncFilesToDisk = async (
 	// because we're currently only using it for individual file compilations,
 	// but that assumption might change and cause this code to be slow.
 	await Promise.all([
-		...oldFiles.map((oldFile) => {
-			if (!newFiles.find((f) => f.id === oldFile.id)) {
-				log.trace('deleting build file on disk', printPath(oldFile.id));
-				return remove(oldFile.id);
-			}
-			return undefined;
-		}),
-		...newFiles.map(async (newFile) => {
-			const oldFile = oldFiles.find((f) => f.id === newFile.id);
-			let shouldOutputNewFile = false;
-			if (!oldFile) {
-				if (!(await pathExists(newFile.id))) {
-					log.trace('creating build file on disk', printPath(newFile.id));
-					shouldOutputNewFile = true;
-				} else {
-					const existingCotents = await loadContents(newFile.encoding, newFile.id);
-					if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
-						log.trace('updating stale build file on disk', printPath(newFile.id));
-						shouldOutputNewFile = true;
-					} // ...else the build file on disk already matches what's in memory.
-					// This can happen if the source file changed but this particular compiled file did not.
+		Promise.all(
+			oldFiles.map((oldFile) => {
+				if (!newFiles.find((f) => f.id === oldFile.id)) {
+					log.trace('deleting build file on disk', printPath(oldFile.id));
+					return remove(oldFile.id);
 				}
-			} else if (!areContentsEqual(newFile.encoding, newFile.contents, oldFile.contents)) {
-				log.trace('updating build file on disk', printPath(newFile.id));
-				shouldOutputNewFile = true;
-			} // ...else the build file on disk already matches what's in memory.
-			// This can happen if the source file changed but this particular compiled file did not.
-			if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
-		}),
+				return undefined;
+			}),
+		),
+		Promise.all(
+			newFiles.map(async (newFile) => {
+				const oldFile = oldFiles.find((f) => f.id === newFile.id);
+				let shouldOutputNewFile = false;
+				if (!oldFile) {
+					if (!(await pathExists(newFile.id))) {
+						log.trace('creating build file on disk', printPath(newFile.id));
+						shouldOutputNewFile = true;
+					} else {
+						const existingCotents = await loadContents(newFile.encoding, newFile.id);
+						if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
+							log.trace('updating stale build file on disk', printPath(newFile.id));
+							shouldOutputNewFile = true;
+						} // ...else the build file on disk already matches what's in memory.
+						// This can happen if the source file changed but this particular compiled file did not.
+						// Loading the usually-stale contents into memory to check before writing is inefficient,
+						// but it avoids unnecessary writing to disk and misleadingly updated file stats.
+					}
+				} else if (!areContentsEqual(newFile.encoding, newFile.contents, oldFile.contents)) {
+					log.trace('updating build file on disk', printPath(newFile.id));
+					shouldOutputNewFile = true;
+				} // ...else the build file on disk already matches what's in memory.
+				// This can happen if the source file changed but this particular compiled file did not.
+				if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
+			}),
+		),
 	]);
 };
 
