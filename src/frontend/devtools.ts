@@ -1,3 +1,9 @@
 import {GroDevtools} from './GroDevtools.js';
 
-(globalThis as any).gro = new GroDevtools();
+declare global {
+	namespace globalThis {
+		var gro: GroDevtools;
+	}
+}
+
+globalThis.gro = new GroDevtools();
