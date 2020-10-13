@@ -12,7 +12,7 @@
 - add Svelte compilation to the unbundled compilation strategies
   ([#52](https://github.com/feltcoop/gro/pull/52)),
   ([#56](https://github.com/feltcoop/gro/pull/56)),
-  ([#64](https://github.com/feltcoop/gro/pull/64))
+  ([#65](https://github.com/feltcoop/gro/pull/65))
 - bundle external modules for the browser
   ([#61](https://github.com/feltcoop/gro/pull/61))
 - make `createCompiler` pluggable allowing users to provide a compiler for each file
