@@ -1,5 +1,7 @@
 # gro :chestnut:
 
+<img src="src/frontend/favicon.png" align="right" width="192" height="192">
+
 > opinionated tools for web development
 
 > **_warning!_** You should not use Gro today
