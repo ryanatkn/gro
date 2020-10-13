@@ -26,6 +26,7 @@ import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
 import {
 	EXTERNALS_DIR,
 	hasSourceExtension,
+	isThisProjectGro,
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
@@ -205,7 +206,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
 							'',
 							buildRootDir,
-						),
+						) + (isThisProjectGro ? '/frontend' : ''), // TODO hacky, remove when `gro.config.ts` is added
 				  ]),
 		externalsDir,
 		buildRootDir,

@@ -3,7 +3,7 @@ import {Filer} from '../build/Filer.js';
 import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {createDefaultCompiler} from '../compile/defaultCompiler.js';
-import {paths, toBuildOutDir} from '../paths.js';
+import {paths} from '../paths.js';
 import {loadBuildConfigs} from '../build/buildConfig.js';
 import {createDevServer} from '../devServer/devServer.js';
 import {loadTsconfig, toEcmaScriptTarget} from '../compile/tsHelpers.js';
@@ -24,15 +24,9 @@ export const task: Task = {
 		timingToLoadTsconfig();
 
 		const timingToCreateFiler = timings.start('create filer');
-		const buildOutDir = toBuildOutDir(
-			true,
-			buildConfigs.find((c) => c.platform === 'browser')!.name,
-			'',
-		);
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
 			compiledDirs: [paths.source],
-			servedDirs: [`${buildOutDir}/frontend`],
 			buildConfigs,
 			sourceMap,
 			target,
