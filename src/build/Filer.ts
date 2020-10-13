@@ -46,6 +46,7 @@ import {stripEnd, stripStart} from '../utils/string.js';
 import {postprocess} from './postprocess.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
 import {deepEqual} from '../utils/deepEqual.js';
+import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
 
@@ -247,7 +248,6 @@ export class Filer {
 	private readonly dirs: FilerDir[];
 	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
 	private readonly externalsDir: ExternalsFilerDir | null;
-	private readonly servedDirs: ServedDir[];
 	private readonly externalsServedDir: ServedDir | null;
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly externalsBuildConfig: BuildConfig | null;
@@ -261,6 +261,7 @@ export class Filer {
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget;
 	readonly externalsDirBasePath: string | null;
+	readonly servedDirs: readonly ServedDir[];
 
 	constructor(opts: InitialOptions) {
 		const {
@@ -661,7 +662,7 @@ export class Filer {
 								dir: compilation.dir,
 								extension: compilation.extension,
 								encoding: compilation.encoding,
-								contents: postprocess(compilation, this),
+								contents: postprocess(compilation, this, result, sourceFile),
 								sourceMapOf: compilation.sourceMapOf,
 								contentsBuffer: undefined,
 								contentsHash: undefined,
@@ -677,7 +678,7 @@ export class Filer {
 								dir: compilation.dir,
 								extension: compilation.extension,
 								encoding: compilation.encoding,
-								contents: postprocess(compilation, this),
+								contents: postprocess(compilation, this, result, sourceFile),
 								contentsBuffer: compilation.contents,
 								contentsHash: undefined,
 								stats: undefined,
@@ -1144,45 +1145,8 @@ const createFilerDirs = (
 	return dirs;
 };
 
-interface ServedDir {
-	dir: string; // TODO rename? `source`, `sourceDir`, `path`
-	servedAt: string; // TODO rename?
-}
-type ServedDirPartial = string | PartialExcept<ServedDir, 'dir'>;
-const toServedDirs = (
-	partials: ServedDirPartial[],
-	externalsDir: string | null,
-	buildRootDir: string,
-): ServedDir[] => {
-	const dirs = partials.map((d) => toServedDir(d));
-	const uniqueDirs = new Set<string>();
-	for (const dir of dirs) {
-		// TODO instead of the error, should we allow multiple served paths for each input dir?
-		// This is mainly done to prevent duplicate work in watching the source directories.
-		if (uniqueDirs.has(dir.dir)) {
-			throw Error(`Duplicate servedDirs are not allowed: ${dir.dir}`);
-		}
-		uniqueDirs.add(dir.dir);
-	}
-	// Add the externals as a served directory, unless one is already found.
-	// This is mostly an ergonomic improvement, and the user can provide a custom one if needed.
-	// In the current design, externals should always be served.
-	if (externalsDir !== null && !dirs.find((d) => d.dir === externalsDir)) {
-		dirs.push(toServedDir({dir: externalsDir, servedAt: buildRootDir}));
-	}
-	return dirs;
-};
-const toServedDir = (dir: ServedDirPartial): ServedDir => {
-	if (typeof dir === 'string') dir = {dir};
-	const resolvedDir = resolve(dir.dir);
-	return {
-		dir: resolvedDir,
-		servedAt: dir.servedAt ? resolve(dir.servedAt) : resolvedDir,
-	};
-};
-
 const checkForConflictingExternalsDir = (
-	servedDirs: ServedDir[],
+	servedDirs: readonly ServedDir[],
 	externalsServedDir: ServedDir,
 	externalsDirBasePath: string,
 ) =>

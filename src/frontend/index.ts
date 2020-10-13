@@ -1,3 +1,4 @@
+import './devtools.js';
 import App from './App.svelte';
 import './foo.js';
 import {bar} from './bar.js';

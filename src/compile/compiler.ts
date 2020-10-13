@@ -3,6 +3,7 @@ import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
 import {EcmaScriptTarget} from './tsHelpers.js';
+import {ServedDir} from '../build/ServedDir.js';
 
 export interface Compiler<
 	TSource extends CompilationSource = CompilationSource,
@@ -24,6 +25,7 @@ export interface CompileOptions {
 	readonly buildRootDir: string;
 	readonly dev: boolean;
 	readonly externalsDirBasePath: string | null;
+	readonly servedDirs: readonly ServedDir[];
 }
 
 export type Compilation = TextCompilation | BinaryCompilation;
