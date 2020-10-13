@@ -69,8 +69,12 @@ export function postprocess(
 			}
 		}
 
-		// Support Svelte CSS for development.
-		if (source.extension === SVELTE_EXTENSION && compilation.extension === JS_EXTENSION) {
+		// Support Svelte CSS for development in the browser.
+		if (
+			source.extension === SVELTE_EXTENSION &&
+			compilation.extension === JS_EXTENSION &&
+			compilation.buildConfig.platform === 'browser'
+		) {
 			const cssCompilation = result.compilations.find((c) => c.extension === CSS_EXTENSION);
 			if (cssCompilation !== undefined) {
 				let importPath: string | undefined;
