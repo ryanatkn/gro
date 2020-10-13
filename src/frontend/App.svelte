@@ -1,5 +1,13 @@
 <script>
 	export let bar;
+	console.log('enter App.svelte');
 </script>
 
-bar: {bar}
+<main>bar!: {bar}</main>
+
+<style>
+	main {
+		background: black;
+		color: darkgoldenrod;
+	}
+</style>
