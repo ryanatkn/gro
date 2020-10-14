@@ -19,7 +19,7 @@ Gro is an opinionated monotool for making webapps.
 It includes:
 
 - [unbundled development](/src/docs/unbundledDevelopment.md)
-  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers and libraries
+  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers/libraries,
   inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
