@@ -22,7 +22,7 @@ server side rendering (SSR) and static site generation (SSG),
 but today these are low priority.
 We recommend using [Sapper](https://github.com/sveltejs/sapper) for most websites.
 Gro is primarily intended for SPAs and Node projects,
-and it won't reach a stable 1.0 for quite a while.
+and **it won't reach a stable production-ready 1.0 for quite a while.**
 
 > SPAs without SSR are a niche use case - they're usually **not** what you want on the web!
 > But sometimes they're _exactly_ what you want, and Gro was purpose-built to support them.
