@@ -47,7 +47,7 @@ export const task: Task = {
 
 		// The test modules register themselves with the testContext when imported,
 		// so we don't pass them as a parameter to run them.
-		// They're available as `result.modules` though.
+		// They're available as `loadModulesResult.modules` though.
 		const testRunResult = await testContext.run();
 		timings.merge(testRunResult.timings);
 
