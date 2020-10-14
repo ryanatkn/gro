@@ -13,25 +13,13 @@
 > All that said, you might find some interesting or useful things here!
 > Feel free to open issues for questions or discussion.
 
-## docs
-
-- [unbundled development](/src/docs/unbundledDevelopment.md) for frontends, servers, and libraries
-- [`task`](/src/task) runner
-- [`oki`](/src/oki) testing library
-- [`gen`](/src/gen) code generation
-- other [docs](/src/docs)
-  - [tasks](/src/docs/tasks.md)
-  - [build config](/src/docs/buildConfig.md)
-  - [publish](/src/docs/publish.md)
-  - [options](/src/docs/options.md)
-
 ## about
 
 Gro is an opinionated monotool for making webapps.
 It includes:
 
 - [unbundled development](/src/docs/unbundledDevelopment.md)
-  for Node modules and [Svelte](https://github.com/sveltejs/svelte) UIs
+  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers and libraries
   inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
@@ -44,6 +32,18 @@ It includes:
 - formatting via [Prettier](https://github.com/prettier/prettier)
 - more to come, exploring what deeply integrated tools enable
   in the realms of developer power and ergonomics and end user experience
+
+## docs
+
+- [unbundled development](/src/docs/unbundledDevelopment.md) for frontends, servers, and libraries
+- [`task`](/src/task) runner
+- [`oki`](/src/oki) testing library
+- [`gen`](/src/gen) code generation
+- other [docs](/src/docs)
+  - [tasks](/src/docs/tasks.md)
+  - [build config](/src/docs/buildConfig.md)
+  - [publish](/src/docs/publish.md)
+  - [options](/src/docs/options.md)
 
 ## install
 
