@@ -23,7 +23,7 @@ It includes:
   inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
-  using the superfast [swc](https://github.com/swc-project/swc) in dev mode
+  using [swc](https://github.com/swc-project/swc) in dev mode for speed
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
 - testing library called `oki` (docs at [`src/oki`](/src/oki))
@@ -140,13 +140,12 @@ gro project/build # builds for release and updates the `gro` CLI
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
 tech:
-[`svelte`](https://github.com/sveltejs/svelte),
-[`rollup`](https://github.com/rollup/rollup),
-[`typescript`](https://github.com/microsoft/TypeScript),
-[`prettier`](https://github.com/prettier/prettier),
-[`node`](https://nodejs.org),
-[`github`](https://github.com),
-[`git`](https://git-scm.com/)
+[Svelte](https://github.com/sveltejs/svelte) ∙
+[Rollup](https://github.com/rollup/rollup) ∙
+[TypeScript](https://github.com/microsoft/TypeScript) ∙
+[swc](https://github.com/swc-project/swc) ∙
+[Prettier](https://github.com/prettier/prettier) ∙
+[Node](https://nodejs.org) & [more](package.json)
 
 > :rainbow::sparkles: did you know? `emoji` can be punctuation :snail: neat huh
 
