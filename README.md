@@ -22,13 +22,13 @@ It includes:
   for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers/libraries,
   inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
+- fully integrated [TypeScript](https://github.com/microsoft/typescript)
+  using the superfast [swc](https://github.com/swc-project/swc) in dev mode
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
 - testing library called `oki` (docs at [`src/oki`](/src/oki))
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
 - dev server with efficient caching and pluggable compilation
-- fully integrated [TypeScript](https://github.com/microsoft/typescript)
-  using the superfast [swc](https://github.com/swc-project/swc) in dev mode
 - formatting via [Prettier](https://github.com/prettier/prettier)
 - more to come, exploring what deeply integrated tools enable
   in the realms of developer power and ergonomics and end user experience
