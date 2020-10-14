@@ -48,7 +48,7 @@ Gro differs in some significant ways:
   In contrast, Gro compiles files on startup
   and bundles external modules when the browser requests them.
   This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge,
-  but Gro's strategy has advantages.
+  but Gro's strategy has advantages. We'll plan to do a more detailed analysis eventually.
   There are plans for Gro to support lazy compilation and other scale-friendly features,
   and some of Gro's design decisions may change before it reaches 1.0.
 - Gro does not yet support hot module reloading, though work is in progress.
