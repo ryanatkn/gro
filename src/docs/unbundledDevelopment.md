@@ -3,7 +3,8 @@
 Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
-Gro leverages ES modules during development to avoid the overhead and complexity of bundling.
+Gro leverages ES modules during development
+to avoid the unnecessary overhead and complexity of bundling.
 For production, it uses Rollup to produce efficient bundles.
 The result is the best of both worlds:
 fast iteration with straightforward builds during development,
