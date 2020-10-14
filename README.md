@@ -150,5 +150,4 @@ tech:
 
 ## license :bird:
 
-[ISC](license)
-<sub>permissive <3 [learn more at Wikipedia](https://en.wikipedia.org/wiki/ISC_license)</sub>
+[MIT](LICENSE) Copyright (c) 2020 Felt.coop team@felt.coop (<https://felt.coop>)
