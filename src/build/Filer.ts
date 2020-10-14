@@ -437,6 +437,7 @@ export class Filer {
 
 	private async initCachedSourceInfo(): Promise<void> {
 		const cachedSourceInfoDir = `${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`;
+		if (!(await pathExists(cachedSourceInfoDir))) return;
 		const files = await findFiles(cachedSourceInfoDir, undefined, null);
 		await Promise.all(
 			Array.from(files.entries()).map(async ([path, stats]) => {
