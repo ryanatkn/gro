@@ -1,8 +1,8 @@
 import {extname, basename} from 'path';
 
 export const replaceExtension = (path: string, newExtension: string): string => {
-	const extension = extname(path);
-	return extension.length ? path.slice(0, -extension.length) + newExtension : path + newExtension;
+	const {length} = extname(path);
+	return (length === 0 ? path : path.substring(0, path.length - length)) + newExtension;
 };
 
 export const getPathStem = (path: string): string => replaceExtension(basename(path), '');

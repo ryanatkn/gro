@@ -13,7 +13,7 @@ export const formatFile = async (id: string, contents: string): Promise<string> 
 // This is a lot faster than `prettier.getFileInfo`
 // because it doesn't have to look at the filesystem.
 const inferParser = (id: string): prettier.BuiltInParserName | null => {
-	const extension = extname(id).slice(1);
+	const extension = extname(id).substring(1);
 	switch (extension) {
 		case 'ts':
 		case 'js': {
