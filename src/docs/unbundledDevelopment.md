@@ -17,7 +17,7 @@ Today, Gro is aimed at three primary use cases:
 - single page Svelte applications that also have a server
 - Node modules, like libraries and standalone servers
 
-In the long run, Gro plans to add support for
+Eventually, Gro plans to support
 server side rendering (SSR) and static site generation (SSG),
 but today these are low priority.
 We recommend using [Sapper](https://github.com/sveltejs/sapper) for most websites.
