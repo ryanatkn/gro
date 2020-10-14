@@ -1,6 +1,6 @@
 # unbundled development
 
-Gro is designed to support development of both Node projects and
+Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 Gro leverages ES modules during development to avoid the overhead and complexity of bundling.
