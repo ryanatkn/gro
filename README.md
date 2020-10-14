@@ -60,11 +60,6 @@ npm i -g @feltcoop/gro
 gro # should print some stuff - defers to the project's locally installed version of Gro
 ```
 
-Gro currently makes its big dependencies like Rollup and TypeScript
-`peerDependencies`, deferring most versioning concerns to each app,
-so you'll have to install the ones you use yourself.
-See [package.json](package.json) for the full list.
-
 ## usage
 
 ```bash
@@ -146,8 +141,6 @@ tech:
 [swc](https://github.com/swc-project/swc) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [Node](https://nodejs.org) & [more](package.json)
-
-> :rainbow::sparkles: did you know? `emoji` can be punctuation :snail: neat huh
 
 ## license :bird:
 
