@@ -31,7 +31,7 @@ It includes:
 - dev server with efficient caching and pluggable compilation
 - formatting via [Prettier](https://github.com/prettier/prettier)
 - more to come, exploring what deeply integrated tools enable
-  in the realms of developer power and ergonomics and end user experience
+  in the realms of developer power+ergonomics and end user experience
 
 ## docs
 
