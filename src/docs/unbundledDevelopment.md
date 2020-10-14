@@ -13,7 +13,7 @@ and uncompromising efficiency for production.
 Today, Gro is aimed at three primary use cases:
 
 - single page applications (SPAs) with Svelte
-- single page Svelte appliations that also have a server
+- single page Svelte applications that also have a server
 - Node modules, like libraries and standalone servers
 
 > Gro is not yet 1.0! Some use cases are particularly rough right now.
@@ -42,7 +42,7 @@ which pioneered using ES modules to avoid the unnecessary overhead of bundling d
 Gro differs in some significant ways:
 
 - Snowpack is focused on frontend websites,
-  and Gro is designed to support both frontend and Node projects.
+  and Gro is designed to support frontends along with servers and Node libraries.
 - Snowpack compiles files on demand when requested by the browser
   and bundles external modules during a separate `snowpack install` step.
   In contrast, Gro compiles files on startup
