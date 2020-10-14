@@ -77,6 +77,9 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
+		if (buildConfig.platform !== 'browser') {
+			return {compilations: []}; // TODO support SSR! and make this configurable
+		}
 		const {id, encoding, contents} = source;
 		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		let preprocessedCode: string;
