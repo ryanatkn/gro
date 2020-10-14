@@ -60,3 +60,5 @@ Gro differs in some significant ways:
 - Gro uses [swc](https://github.com/swc-project/swc)
   instead of [esbuild](https://github.com/evanw/esbuild)
   because the former allows preserving unused imports, which is helpful for Svelte.
+
+<img src="src/frontend/favicon.png" align="center" width="512" height="512">
