@@ -1,4 +1,6 @@
-# gro :chestnut:
+# gro <img src="src/frontend/favicon.png" width="32" height="32">
+
+<img src="src/frontend/favicon.png" align="right" width="192" height="192">
 
 > opinionated tools for web development
 
