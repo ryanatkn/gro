@@ -30,7 +30,7 @@ Gro tries to provide good defaults and full control when you need it.
 Its philosophy is to offer sharp tools
 that prioritize efficiency and minimize dependencies.
 Sharp tools have a drawback, and aren't the best experience for all developers -
-they can hurt when held in certain ways!
+they can hurt when held in certain ways! Try not to get cut! :O
 
 Gro's development is still a work in progress, and production usage is discouraged,
 but please feel free to try it and share your feedback!
