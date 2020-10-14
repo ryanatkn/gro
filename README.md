@@ -134,13 +134,15 @@ gro project/build # builds for release and updates the `gro` CLI
 
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
-tech:
+Gro uses
 [Svelte](https://github.com/sveltejs/svelte) ∙
 [Rollup](https://github.com/rollup/rollup) ∙
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
 [swc](https://github.com/swc-project/swc) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [Node](https://nodejs.org) & [more](package.json)
+
+Gro's unbundled development was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
 
 ## license :bird:
 
