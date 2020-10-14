@@ -12,7 +12,7 @@ and uncompromising efficiency for production.
 
 Today, Gro is aimed at two primary use cases:
 
-- single page applications with Svelte
+- single page applications with Svelte that may or may not have a server
 - Node modules
 
 In the long run, Gro plans to add support for server side rendering and static site generation,
