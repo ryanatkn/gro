@@ -42,7 +42,7 @@ which pioneered using ES modules to avoid the unnecessary overhead of bundling d
 Gro differs in some significant ways:
 
 - Snowpack is focused on frontend websites,
-  and Gro is designed to support frontends along with servers and Node libraries.
+  and Gro is designed to support frontends along with servers and libraries.
 - Snowpack compiles files on demand when requested by the browser
   and bundles external modules during a separate `snowpack install` step.
   In contrast, Gro compiles files on startup
