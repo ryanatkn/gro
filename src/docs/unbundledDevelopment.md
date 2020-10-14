@@ -12,7 +12,7 @@ and uncompromising efficiency for production.
 
 Today, Gro is aimed at three primary use cases:
 
-- single page applications with Svelte
+- single page applications (SPAs) with Svelte
 - single page Svelte appliations that also have a server
 - Node modules, like libraries and standalone servers
 
