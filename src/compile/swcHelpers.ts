@@ -1,5 +1,4 @@
 import swc from '@swc/core';
-import {basename} from 'path';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from './tsHelpers.js';
 
@@ -15,6 +14,3 @@ export const getDefaultSwcOptions = (
 		loose: true, // TODO?
 	},
 });
-
-export const addSourceMapFooter = (code: string, sourceMapPath: string): string =>
-	`${code}//# sourceMappingURL=${basename(sourceMapPath)}`;

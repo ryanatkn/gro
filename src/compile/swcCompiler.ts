@@ -2,13 +2,14 @@ import swc from '@swc/core';
 import {relative} from 'path';
 
 import {EcmaScriptTarget} from './tsHelpers.js';
-import {getDefaultSwcOptions, addSourceMapFooter} from './swcHelpers.js';
+import {getDefaultSwcOptions} from './swcHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutDir, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
+import {addJsSourceMapFooter} from './helpers.js';
 
 export interface Options {
 	log: Logger;
@@ -57,7 +58,6 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
-		const sourceMapBuildId = jsId + SOURCE_MAP_EXTENSION;
 		const compilations: TextCompilation[] = [
 			{
 				id: jsId,
@@ -65,14 +65,16 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 				dir: outDir,
 				extension: JS_EXTENSION,
 				encoding,
-				contents: output.map ? addSourceMapFooter(output.code, sourceMapBuildId) : output.code,
+				contents: output.map
+					? addJsSourceMapFooter(output.code, jsFilename + SOURCE_MAP_EXTENSION)
+					: output.code,
 				sourceMapOf: null,
 				buildConfig,
 			},
 		];
 		if (output.map) {
 			compilations.push({
-				id: sourceMapBuildId,
+				id: jsId + SOURCE_MAP_EXTENSION,
 				filename: jsFilename + SOURCE_MAP_EXTENSION,
 				dir: outDir,
 				extension: SOURCE_MAP_EXTENSION,

@@ -25,6 +25,7 @@ import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {BuildConfig} from '../build/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
+import {addCssSourceMapFooter, addJsSourceMapFooter} from './helpers.js';
 
 export interface Options {
 	log: Logger;
@@ -113,6 +114,8 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		const cssFilename = replaceExtension(jsFilename, CSS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
 		const cssId = replaceExtension(jsId, CSS_EXTENSION);
+		const hasJsSourceMap = sourceMap && js.map !== undefined;
+		const hasCssSourceMap = sourceMap && css.map !== undefined;
 
 		const compilations: TextCompilation[] = [
 			{
@@ -121,12 +124,14 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				dir: outDir,
 				extension: JS_EXTENSION,
 				encoding,
-				contents: js.code,
+				contents: hasJsSourceMap
+					? addJsSourceMapFooter(js.code, jsFilename + SOURCE_MAP_EXTENSION)
+					: js.code,
 				sourceMapOf: null,
 				buildConfig,
 			},
 		];
-		if (sourceMap && js.map) {
+		if (hasJsSourceMap) {
 			compilations.push({
 				id: jsId + SOURCE_MAP_EXTENSION,
 				filename: jsFilename + SOURCE_MAP_EXTENSION,
@@ -145,11 +150,13 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				dir: outDir,
 				extension: CSS_EXTENSION,
 				encoding,
-				contents: css.code,
+				contents: hasCssSourceMap
+					? addCssSourceMapFooter(css.code, cssFilename + SOURCE_MAP_EXTENSION)
+					: css.code,
 				sourceMapOf: null,
 				buildConfig,
 			});
-			if (sourceMap && css.map) {
+			if (hasCssSourceMap) {
 				compilations.push({
 					id: cssId + SOURCE_MAP_EXTENSION,
 					filename: cssFilename + SOURCE_MAP_EXTENSION,
