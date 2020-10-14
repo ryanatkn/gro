@@ -62,5 +62,5 @@ Gro differs in some significant ways:
   because the former allows preserving unused imports, which is helpful for Svelte.
 
 <p align="center">
-  <img src="/src/frontend/favicon.png" width="512" height="512">
+  [<img src="/src/frontend/favicon.png" width="512" height="512">](https://github.com/feltcoop/gro)
 </p>
