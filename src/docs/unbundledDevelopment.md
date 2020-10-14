@@ -55,7 +55,7 @@ Gro differs in some significant ways:
 - Gro does not yet have a plugin system for things like PostCSS/SASS and UI frameworks besides Svelte.
   It has a pluggable compiler architecture that can probably support most of the ecosystem,
   but it's all a work in progress right now.
-  Adventurous developers can [define their own tasks](src/dev.task.ts)
+  Adventurous developers can [define their own tasks](/src/dev.task.ts)
   to extend Gro's development system. By default Gro supports TypeScript and Svelte.
   We're not fans of plugin ecosystems that primarily wrap other libraries,
   and instead we try to support the direct usage of Node APIs and libraries,

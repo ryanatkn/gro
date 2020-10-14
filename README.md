@@ -15,28 +15,28 @@
 
 ## docs
 
-- [`task`](src/task) runner
-- [`oki`](src/oki) testing library
-- [`gen`](src/gen) code generation
-- other [docs](src/docs)
-  - [tasks](src/docs/tasks.md)
-  - [build config](src/docs/buildConfig.md)
-  - [publish](src/docs/publish.md)
-  - [options](src/docs/options.md)
+- [`task`](/src/task) runner
+- [`oki`](/src/oki) testing library
+- [`gen`](/src/gen) code generation
+- other [docs](/src/docs)
+  - [tasks](/src/docs/tasks.md)
+  - [build config](/src/docs/buildConfig.md)
+  - [publish](/src/docs/publish.md)
+  - [options](/src/docs/options.md)
 
 ## about
 
 Gro is an opinionated monotool for making webapps.
 It includes:
 
-- [unbundled development](src/docs/unbundledDevelopment.md)
+- [unbundled development](/src/docs/unbundledDevelopment.md)
   for Node modules and [Svelte](https://github.com/sveltejs/svelte) UIs
   inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
-- [task runner](src/task) that uses the filesystem convention `*.task.ts`
-  (docs at [`src/task`](src/task))
-- testing library called `oki` (docs at [`src/oki`](src/oki))
-- codegen by convention called `gen` (docs at [`src/gen`](src/gen))
+- [task runner](/src/task) that uses the filesystem convention `*.task.ts`
+  (docs at [`src/task`](/src/task))
+- testing library called `oki` (docs at [`src/oki`](/src/oki))
+- codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
 - dev server with efficient caching and pluggable compilation
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
   using the superfast [swc](https://github.com/swc-project/swc) in dev mode
@@ -75,8 +75,8 @@ gro test # run one of Gro's tasks or `src/test.task.ts` if it exists
 ```
 
 Gro has a number of builtin tasks.
-To learn more [see the task docs](src/task)
-and [the generated task index](src/docs/tasks.md).
+To learn more [see the task docs](/src/task)
+and [the generated task index](/src/docs/tasks.md).
 
 ```bash
 gro dev # starts the dev server in watch mode
@@ -86,13 +86,13 @@ gro dev # starts the dev server in watch mode
 gro build # builds everything for production
 ```
 
-Testing with `oki` (docs at [`src/oki`](src/oki))
+Testing with `oki` (docs at [`src/oki`](/src/oki))
 
 ```bash
 gro test # run all tests for `*.test.ts` files
 ```
 
-Codegen with `gen` (docs at [`src/gen`](src/gen))
+Codegen with `gen` (docs at [`src/gen`](/src/gen))
 
 ```bash
 gro gen # runs codegen for all `*.gen.*` files
