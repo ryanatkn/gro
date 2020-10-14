@@ -15,6 +15,8 @@
 
 ## docs
 
+- [unbundled development](/src/docs/unbundledDevelopment.md) with TypeScript and Svelte,
+  and Rollup for bundling in production
 - [`task`](/src/task) runner
 - [`oki`](/src/oki) testing library
 - [`gen`](/src/gen) code generation
