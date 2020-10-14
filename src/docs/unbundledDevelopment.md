@@ -47,11 +47,12 @@ Gro differs in some significant ways:
   and bundles external modules during a separate `snowpack install` step.
   In contrast, Gro compiles files on startup
   and bundles external modules when the browser requests them.
-  This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge,
-  but Gro's strategy has advantages. We'll do a more detailed analysis eventually, hopefully.
+  This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge.
+  Gro's strategy has advantages, but its design is forced by current limitations and may change.
+  We'll do a more detailed analysis eventually, hopefully.
   There are plans for Gro to support lazy compilation and other scale-friendly features,
   and its caching system already speeds up heavy workloads.
-  Some of Gro's design decisions may change before it reaches 1.0.
+  Furthermore, the limitation that forces eager loading should be fixed before Gro reaches 1.0.
 - Gro does not yet support hot module reloading, though work is in progress.
 - Gro does not yet have a plugin system
   for things like PostCSS/SASS and UI frameworks besides Svelte.
