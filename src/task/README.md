@@ -161,7 +161,6 @@ export const task: Task = {
 
 ## future improvements
 
-- [ ] watch mode
 - [ ] consider a pattern for declaring and validating CLI args
 
 ## why?
