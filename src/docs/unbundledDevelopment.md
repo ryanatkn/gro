@@ -53,11 +53,13 @@ Gro differs in some significant ways:
   and its caching system already speeds up heavy workloads.
   Some of Gro's design decisions may change before it reaches 1.0.
 - Gro does not yet support hot module reloading, though work is in progress.
-- Gro does not yet have a plugin system for things like PostCSS/SASS and UI frameworks besides Svelte.
+- Gro does not yet have a plugin system
+  for things like PostCSS/SASS and UI frameworks besides Svelte.
   It has a pluggable compiler architecture that can probably support most of the ecosystem,
   but it's all a work in progress right now.
-  Adventurous developers can [define their own tasks](/src/dev.task.ts)
-  to extend Gro's development system. By default Gro supports TypeScript and Svelte.
+  Adventurous developers can define their own tasks
+  to extend [Gro's development system](/src/dev.task.ts).
+  By default Gro supports TypeScript and Svelte.
   We're not fans of plugin ecosystems that primarily wrap other libraries,
   and instead we try to support the direct usage of Node APIs and libraries,
   like with [tasks](/src/task).
