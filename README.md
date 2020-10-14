@@ -142,7 +142,9 @@ Gro uses
 [Prettier](https://github.com/prettier/prettier) ∙
 [Node](https://nodejs.org) & [more](package.json)
 
-Gro's unbundled development was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
+Gro's strategy of pairing unbundled ES modules during development
+with optimized bundles for production
+was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
 
 ## license :bird:
 
