@@ -3,17 +3,17 @@
 ## 0.5.0
 
 - add `Filer` to replace `CachingCompiler` with additional filesystem capabilities
-  ([#54](https://github.com/feltcoop/gro/pull/54)),
-  ([#55](https://github.com/feltcoop/gro/pull/55)),
-  ([#58](https://github.com/feltcoop/gro/pull/58)),
-  ([#60](https://github.com/feltcoop/gro/pull/60)),
-  ([#62](https://github.com/feltcoop/gro/pull/62)),
-  ([#63](https://github.com/feltcoop/gro/pull/63))
+  ([#54](https://github.com/feltcoop/gro/pull/54),
+  [#55](https://github.com/feltcoop/gro/pull/55),
+  [#58](https://github.com/feltcoop/gro/pull/58),
+  [#60](https://github.com/feltcoop/gro/pull/60),
+  [#62](https://github.com/feltcoop/gro/pull/62),
+  [#63](https://github.com/feltcoop/gro/pull/63))
 - add Svelte compilation to the unbundled compilation strategies
-  ([#52](https://github.com/feltcoop/gro/pull/52)),
-  ([#56](https://github.com/feltcoop/gro/pull/56)),
-  ([#65](https://github.com/feltcoop/gro/pull/65)),
-  ([#66](https://github.com/feltcoop/gro/pull/66))
+  ([#52](https://github.com/feltcoop/gro/pull/52),
+  [#56](https://github.com/feltcoop/gro/pull/56),
+  [#65](https://github.com/feltcoop/gro/pull/65),
+  [#66](https://github.com/feltcoop/gro/pull/66))
 - bundle external modules for the browser
   ([#61](https://github.com/feltcoop/gro/pull/61))
 - make `createCompiler` pluggable allowing users to provide a compiler for each file
@@ -114,7 +114,7 @@
 ## 0.2.0
 
 - **breaking:** upgrade `kleur` dep and remove color wrappers
-  [#26](https://github.com/feltcoop/gro/pull/26)
+  ([#26](https://github.com/feltcoop/gro/pull/26))
 
 ## 0.1.14
 
