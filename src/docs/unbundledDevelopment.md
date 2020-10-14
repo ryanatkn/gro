@@ -5,6 +5,7 @@ Gro is designed to be a most-in-one development tool for both Node projects and
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 Gro leverages ES modules during development
 to avoid the unnecessary overhead and complexity of bundling.
+Unlike Snowpack, it's designed for servers and libraries along with frontends.
 For production, it uses Rollup to produce efficient bundles.
 The result is the best of both worlds:
 fast iteration with straightforward builds during development,
@@ -18,7 +19,8 @@ Today, Gro is aimed at three primary use cases:
 
 > Gro is not yet 1.0! Some use cases are particularly rough right now.
 
-In the long run, Gro plans to add support for server side rendering and static site generation,
+In the long run, Gro plans to add support for
+server side rendering (SSR) and static site generation (SSG),
 but today these are low priority.
 We recommend using [Sapper](https://github.com/sveltejs/sapper) for most websites.
 Gro is primarily intended for SPAs and Node projects,
