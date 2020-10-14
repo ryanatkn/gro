@@ -50,7 +50,8 @@ Gro differs in some significant ways:
   This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge,
   but Gro's strategy has advantages. We'll do a more detailed analysis eventually, hopefully.
   There are plans for Gro to support lazy compilation and other scale-friendly features,
-  and some of Gro's design decisions may change before it reaches 1.0.
+  and its caching system already speeds up heavy workloads.
+  Some of Gro's design decisions may change before it reaches 1.0.
 - Gro does not yet support hot module reloading, though work is in progress.
 - Gro does not yet have a plugin system for things like PostCSS/SASS and UI frameworks besides Svelte.
   It has a pluggable compiler architecture that can probably support most of the ecosystem,
