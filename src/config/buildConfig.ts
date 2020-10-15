@@ -1,6 +1,6 @@
 import {GroConfig} from './config.js';
 
-// See `../docs/buildConfig.md` for documentation.
+// See `../docs/config.md` for documentation.
 
 export interface BuildConfig {
 	readonly name: string;
@@ -29,6 +29,9 @@ export const findPrimaryBuildConfig = (config: GroConfig): BuildConfig => {
 	}
 	return firstNodeBuildConfig || config.builds[0];
 };
+
+export const findDistBuildConfigs = (config: GroConfig): BuildConfig[] =>
+	config.builds.some((c) => c.dist) ? config.builds.filter((c) => c.dist) : config.builds;
 
 // TODO replace this with JSON schema validation (or most of it at least)
 export const validateBuildConfigs = (buildConfigs: unknown): BuildConfig[] => {
