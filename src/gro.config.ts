@@ -1,4 +1,4 @@
-import {GroConfig, CreateGroConfig} from './project/config.js';
+import {GroConfig, CreateGroConfig} from './config/config.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./project/gro.config.ts`.

@@ -22,7 +22,7 @@ import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
-import {BuildConfig} from '../build/buildConfig.js';
+import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
 import {addCssSourceMapFooter, addJsSourceMapFooter} from './helpers.js';

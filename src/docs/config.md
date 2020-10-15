@@ -1,6 +1,6 @@
-# build config
+# config
 
-Gro's build config is part of a system for compiling a source project
+Gro's config is part of a system for compiling a source project
 to one or more output artifacts.
 It's designed for a variety of use cases:
 
@@ -9,13 +9,13 @@ It's designed for a variety of use cases:
 - support multiple platform targets like Node and browsers, including server-side rendering
 - support multiple packages created from one codebase to be published separately
 
-To accomplish this, Gro has the `BuildConfig` type
+To accomplish this, Gro has the `GroConfig` type
 which defines some JSON metadata for each build.
 See [`src/project/buildConfig.ts`](/src/project/buildConfig.ts) for the implementation.
 A project can add this data to its `package.json` under a `"gro"` field.
 
 Why put this in `package.json` and not a more powerful `gro.config.ts` file?
-A Gro project's build configs must be statically knowable before compilation,
+A Gro project's configs must be statically knowable before compilation,
 because there's a chicken and egg problem -
 if a config is defined in TypeScript,
 we need to compile it and its dependencies to run it to get the config,
@@ -95,10 +95,10 @@ with a second client optimized for mobile browsers:
 
 ## additional options
 
-The build config has some options. Here's the [`BuildConfig`](/src/project/buildConfig.ts) type:
+The Gro config has some options. Here's the [`GroConfig`](/src/project/buildConfig.ts) type:
 
 ```ts
-export interface BuildConfig {
+export interface GroConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget; // 'node' | 'browser'
 	readonly dist?: boolean;

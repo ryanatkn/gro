@@ -42,7 +42,7 @@ It includes:
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs)
   - [tasks](/src/docs/tasks.md)
-  - [build config](/src/docs/buildConfig.md)
+  - [config](/src/docs/config.md)
   - [publish](/src/docs/publish.md)
   - [options](/src/docs/options.md)
 
