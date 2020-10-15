@@ -1,5 +1,4 @@
-import {isGroId, isThisProjectGro} from '../paths.js';
-import {loadGroPackageJson, loadPackageJson} from '../project/packageJson.js';
+import {GroConfig} from './config.js';
 
 // See `../docs/buildConfig.md` for documentation.
 
@@ -12,60 +11,23 @@ export interface BuildConfig {
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const loadBuildConfigsAt = (id: string): Promise<BuildConfig[]> =>
-	isThisProjectGro || isGroId(id) ? loadGroBuildConfigs() : loadBuildConfigs();
-
-export const loadPrimaryBuildConfigAt = (id: string): Promise<BuildConfig> =>
-	isThisProjectGro || isGroId(id) ? loadGroPrimaryBuildConfig() : loadPrimaryBuildConfig();
-
-const defaultBuildConfig: BuildConfig[] = [{name: 'browser', platform: 'browser'}];
-
 // The "primary" build config is the one that's used to run Node tasks.
-// The order of precendence is
-// 1) `"primary": true`, or if none exists,
-// 2) the first Node config, or if still no match,
-// 3) the first config in the array.
-let cachedBuildConfigs: BuildConfig[] | null = null;
-let cachedPrimaryBuildConfig: BuildConfig | null = null;
-export const loadBuildConfigs = async (forceRefresh = false): Promise<BuildConfig[]> => {
-	if (isThisProjectGro) return loadGroBuildConfigs(forceRefresh); // cheaply avoid duplicate work
-	if (cachedBuildConfigs && !forceRefresh) return cachedBuildConfigs;
-	const pkg: any = await loadPackageJson(forceRefresh); // TODO type, generate from JSON schema
-	const loadedBuildConfigs: unknown = pkg.gro?.builds;
-	const validatedBuildConfigs = loadedBuildConfigs
-		? validateBuildConfigs(loadedBuildConfigs)
-		: defaultBuildConfig;
-	cachedBuildConfigs = validatedBuildConfigs;
-	cachedPrimaryBuildConfig = null;
-	return validatedBuildConfigs;
-};
-export const loadPrimaryBuildConfig = async (forceRefresh = false): Promise<BuildConfig> => {
-	if (isThisProjectGro) return loadGroPrimaryBuildConfig(forceRefresh); // cheaply avoid duplicate work
-	if (cachedPrimaryBuildConfig && !forceRefresh) return cachedPrimaryBuildConfig;
-	const buildConfigs = await loadBuildConfigs(forceRefresh);
-	const explicitPrimaryConfig = buildConfigs.find((c) => c.primary);
-	if (explicitPrimaryConfig) {
-		return (cachedPrimaryBuildConfig = explicitPrimaryConfig);
+// The order of precendence is:
+// 1) the build config marked `"primary": true`,
+// 2) or if none exists, the first Node build config,
+// 3) or if still no match, the first build config
+// TODO we may need the concept of a primary config for each platform,
+// or something else that answers the question
+// "which config should we serve in the browser by default"?
+export const findPrimaryBuildConfig = (config: GroConfig): BuildConfig => {
+	let firstNodeBuildConfig;
+	for (const buildConfig of config.builds) {
+		if (buildConfig.primary) return buildConfig;
+		if (firstNodeBuildConfig === undefined && buildConfig.platform === 'node') {
+			firstNodeBuildConfig = buildConfig;
+		}
 	}
-	const firstNodeConfig = buildConfigs.find((c) => c.platform === 'node');
-	if (firstNodeConfig) {
-		return (cachedPrimaryBuildConfig = firstNodeConfig);
-	}
-	return (cachedPrimaryBuildConfig = buildConfigs[0]);
-};
-
-let cachedGroBuildConfigs: BuildConfig[] | null = null;
-let cachedGroPrimaryBuildConfig: BuildConfig | null = null;
-export const loadGroBuildConfigs = async (forceRefresh = false): Promise<BuildConfig[]> => {
-	if (cachedGroBuildConfigs && !forceRefresh) return cachedGroBuildConfigs;
-	const pkg: any = await loadGroPackageJson(forceRefresh); // TODO type, generate from JSON schema
-	cachedGroPrimaryBuildConfig = null;
-	return (cachedGroBuildConfigs = pkg.gro.builds);
-};
-export const loadGroPrimaryBuildConfig = async (forceRefresh = false): Promise<BuildConfig> => {
-	if (cachedGroPrimaryBuildConfig && !forceRefresh) return cachedGroPrimaryBuildConfig;
-	const buildConfigs = await loadGroBuildConfigs(forceRefresh);
-	return (cachedGroPrimaryBuildConfig = buildConfigs.find((c) => c.primary)!);
+	return firstNodeBuildConfig || config.builds[0];
 };
 
 // TODO replace this with JSON schema validation (or most of it at least)

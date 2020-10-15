@@ -73,7 +73,7 @@ export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 	stripStart(sourceId, p.source);
 
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
-export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
+export const basePathToSourceId = (basePath: string, p = paths): string => `${p.source}${basePath}`;
 
 export const toBuildsOutDir = (dev: boolean, buildRootDir = paths.build): string =>
 	`${ensureTrailingSlash(buildRootDir)}${dev ? 'dev' : 'prod'}`;
@@ -129,8 +129,8 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 
 // Converts a source id into an id that can be imported.
 // When importing Gro paths, this correctly chooses the build or dist dir.
-export const toImportId = (id: string, dev: boolean, buildConfigName: string): string => {
-	const p = pathsFromId(id);
-	const dirBasePath = replaceExtension(stripStart(id, p.source), JS_EXTENSION);
+export const toImportId = (sourceId: string, dev: boolean, buildConfigName: string): string => {
+	const p = pathsFromId(sourceId);
+	const dirBasePath = replaceExtension(stripStart(sourceId, p.source), JS_EXTENSION);
 	return toBuildOutDir(dev, buildConfigName, dirBasePath, p.build);
 };

@@ -4,19 +4,21 @@ import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {createDefaultCompiler} from '../compile/defaultCompiler.js';
 import {paths} from '../paths.js';
-import {loadBuildConfigs} from '../build/buildConfig.js';
 import {createDevServer} from '../devServer/devServer.js';
 import {loadTsconfig, toEcmaScriptTarget} from '../compile/tsHelpers.js';
+import {loadConfig} from '../config/config.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
 	run: async ({log}) => {
 		const timings = new Timings();
 
-		const timingToLoadConfig = timings.start('load build configs');
-		const buildConfigs = await loadBuildConfigs();
+		const timingToLoadConfig = timings.start('load config');
+		const config = await loadConfig();
 		timingToLoadConfig();
 
+		// TODO probably replace these with the Gro config values
+		// see the `src/dev.task.ts` for the same thing
 		const timingToLoadTsconfig = timings.start('load tsconfig');
 		const tsconfig = loadTsconfig(log);
 		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
@@ -27,7 +29,7 @@ export const task: Task = {
 		const filer = new Filer({
 			compiler: createDefaultCompiler(),
 			compiledDirs: [paths.source],
-			buildConfigs,
+			buildConfigs: config.builds,
 			sourceMap,
 			target,
 		});

@@ -1,47 +1,34 @@
 import {test, t} from '../oki/oki.js';
-import {paths} from '../paths.js';
-import {
-	loadBuildConfigs,
-	loadBuildConfigsAt,
-	loadPrimaryBuildConfigAt,
-	loadPrimaryBuildConfig,
-	loadGroBuildConfigs,
-	validateBuildConfigs,
-	loadGroPrimaryBuildConfig,
-} from './buildConfig.js';
+import {findPrimaryBuildConfig, validateBuildConfigs} from './buildConfig.js';
 
-test('loadBuildConfigs()', async () => {
-	const c1 = await loadBuildConfigs();
-	validateBuildConfigs(c1);
-	const c2 = await loadBuildConfigs();
-	t.is(c2, c1);
-	const c3 = await loadBuildConfigs(true);
-	t.isNot(c3, c1);
-	t.equal(c3, c1);
-
-	test('loadBuildConfigsAt()', async () => {
-		const c4 = await loadBuildConfigsAt(paths.source);
-		t.is(c4, c3);
+test('findPrimaryBuildConfig()', async () => {
+	test('find explicit primary config', () => {
+		const buildConfig = findPrimaryBuildConfig({
+			builds: [
+				{name: 'node', platform: 'node'},
+				{name: 'browser', platform: 'browser', primary: true},
+			],
+		});
+		t.is(buildConfig.name, 'browser');
 	});
-
-	test('loadPrimaryBuildConfigAt()', async () => {
-		const c4 = await loadPrimaryBuildConfigAt(paths.source);
-		t.is(c4, c3[0]);
+	test('find implicit primary config and prioritize Node', () => {
+		const buildConfig = findPrimaryBuildConfig({
+			builds: [
+				{name: 'browser', platform: 'browser'},
+				{name: 'node1', platform: 'node'},
+				{name: 'node2', platform: 'node'},
+			],
+		});
+		t.is(buildConfig.name, 'node1');
 	});
-
-	test('loadPrimaryBuildConfig()', async () => {
-		const c4 = await loadPrimaryBuildConfig();
-		t.is(c4, c3[0]);
-	});
-
-	test('loadGroBuildConfigs()', async () => {
-		const c4 = await loadGroBuildConfigs();
-		t.is(c4, c3);
-	});
-
-	test('loadGroPrimaryBuildConfig()', async () => {
-		const c4 = await loadGroPrimaryBuildConfig();
-		t.is(c4, c3[0]);
+	test('find implicit primary config without a Node one', () => {
+		const buildConfig = findPrimaryBuildConfig({
+			builds: [
+				{name: 'browser1', platform: 'browser'},
+				{name: 'browser2', platform: 'browser'},
+			],
+		});
+		t.is(buildConfig.name, 'browser1');
 	});
 });
 

@@ -1,6 +1,6 @@
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
-import {BuildConfig} from '../build/buildConfig.js';
+import {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutDir} from '../paths.js';
 import {EcmaScriptTarget} from './tsHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';

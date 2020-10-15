@@ -42,7 +42,7 @@ import {printError, printPath} from '../utils/print.js';
 import type {Compiler} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
-import {BuildConfig} from './buildConfig.js';
+import {BuildConfig} from '../config/buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
 import {postprocess} from './postprocess.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';

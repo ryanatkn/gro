@@ -21,9 +21,9 @@ import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
-import {PathData} from '../fs/pathData.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
-import {loadBuildConfigs, loadPrimaryBuildConfigAt} from '../build/buildConfig.js';
+import {GroConfig, loadConfig} from '../config/config.js';
+import {findPrimaryBuildConfig} from '../config/buildConfig.js';
 
 /*
 
@@ -78,10 +78,11 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
-			if (await shouldBuildProject(pathData)) {
+			const config = await loadConfig();
+			if (await shouldBuildProject(pathData.id, config)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
 				const timingToBuildProject = timings.start('build project');
-				await compileSourceDirectory(await loadBuildConfigs(), true, log);
+				await compileSourceDirectory(config, true, log);
 				timingToBuildProject();
 			}
 
@@ -228,11 +229,11 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // This is a best-effort heuristic that detects if
 // we should compile a project's TypeScript when invoking a task.
 // Properly detecting this is too expensive and would impact startup time significantly.
-const shouldBuildProject = async (pathData: PathData): Promise<boolean> => {
-	if (paths !== groPaths && isGroId(pathData.id)) {
+const shouldBuildProject = async (sourceId: string, config: GroConfig): Promise<boolean> => {
+	if (paths !== groPaths && isGroId(sourceId)) {
 		return false; // don't try to compile Gro from outside of it
 	}
-	const primaryBuildConfig = await loadPrimaryBuildConfigAt(pathData.id);
-	const id = toImportId(pathData.id, true, primaryBuildConfig.name);
-	return !(await pathExists(id));
+	const primaryBuildConfig = findPrimaryBuildConfig(config);
+	const importId = toImportId(sourceId, true, primaryBuildConfig.name);
+	return !(await pathExists(importId));
 };
