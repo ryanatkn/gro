@@ -1,9 +1,17 @@
-import {basePathToSourceId, isGroId, isThisProjectGro} from '../paths.js';
-import {BuildConfig} from './buildConfig.js';
+import {
+	basePathToSourceId,
+	isGroId,
+	isThisProjectGro,
+	JS_EXTENSION,
+	toBuildOutDir,
+} from '../paths.js';
+import {BuildConfig, findPrimaryBuildConfig} from './buildConfig.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
+import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
+import {replaceExtension} from '../utils/path.js';
 
 /*
 
@@ -23,10 +31,9 @@ This choice keeps things simple and flexible because:
 */
 
 const EXTERNAL_CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
-const EXTERNAL_FALLBACK_CONFIG_IMPORT_PATH = `./gro.config.default.js`;
+const FALLBACK_CONFIG_IMPORT_PATH = `./gro.config.default.js`;
 const INTERNAL_CONFIG_IMPORT_PATH = '../gro.config.js';
-
-const dev = process.env.NODE_ENV !== 'production'; // TODO what's the right way to do this?
+const BOOTSTRAP_BUILD_CONFIG: BuildConfig = {name: 'node', platform: 'node'};
 
 // See `./gro.config.ts` for documentation.
 export interface GroConfig {
@@ -95,10 +102,13 @@ and we'll deal with any bugs that come up.
 export const loadConfigAt = (id: string): Promise<GroConfig> =>
 	isGroId(id) ? loadInternalConfig() : loadConfig();
 
-export const loadConfig = async (): Promise<GroConfig> => {
+export const loadConfig = async (
+	buildConfig: BuildConfig = BOOTSTRAP_BUILD_CONFIG,
+): Promise<GroConfig> => {
 	if (isThisProjectGro) return loadInternalConfig();
 	if (cachedExternalConfig !== undefined) return cachedExternalConfig;
 
+	const dev = process.env.NODE_ENV !== 'production'; // TODO what's the right way to do this?
 	const log = new SystemLogger([magenta('[config]')]);
 	log.trace(`loading Gro config for ${dev ? 'development' : 'production'}`);
 	const options: GroConfigCreatorOptions = {log, dev};
@@ -108,21 +118,43 @@ export const loadConfig = async (): Promise<GroConfig> => {
 	let configModule: GroConfigModule;
 	let modulePath: string;
 	if (await pathExists(externalConfigSourceId)) {
-		configModule = await importTs(externalConfigSourceId);
+		// The project has a `gro.config.ts`, so import it.
+		// If it's not already built, we need to bootstrap the config and use it to compile everything.
 		modulePath = externalConfigSourceId;
+		const externalConfigBuildId = toBuildOutDir(
+			dev,
+			buildConfig.name,
+			replaceExtension(EXTERNAL_CONFIG_SOURCE_BASE_PATH, JS_EXTENSION),
+		);
+		if (await pathExists(externalConfigBuildId)) {
+			configModule = await import(externalConfigBuildId);
+		} else {
+			// We need to bootstrap the config.
+			configModule = await importTs(externalConfigSourceId, buildConfig);
+			const config = await toConfig(configModule, modulePath, options);
+			// Now that we have the bootstrapped config, use it to compile the project,
+			// and then call `loadConfig` again with the primary build config
+			// to load the proper config from disk, rather than the bootstrapped version.
+			// The bootstrapped version may have subtle differences
+			// because it does not use the project's expected compiler options.
+			// This is slower, but it should make bootstrapping bugs much more rare.
+			await compileSourceDirectory(config, dev, log);
+			return loadConfig(findPrimaryBuildConfig(config));
+		}
 	} else {
-		configModule = await import(EXTERNAL_FALLBACK_CONFIG_IMPORT_PATH);
-		modulePath = EXTERNAL_FALLBACK_CONFIG_IMPORT_PATH;
+		// The project does not have a `gro.config.ts`, so use Gro's fallback default.
+		configModule = await import(FALLBACK_CONFIG_IMPORT_PATH);
+		modulePath = FALLBACK_CONFIG_IMPORT_PATH;
 	}
 
 	cachedExternalConfig = await toConfig(configModule, modulePath, options);
-
 	return cachedExternalConfig;
 };
 
 export const loadInternalConfig = async (): Promise<GroConfig> => {
 	if (cachedInternalConfig !== undefined) return cachedInternalConfig;
 
+	const dev = process.env.NODE_ENV !== 'production'; // TODO what's the right way to do this?
 	const log = new SystemLogger([magenta('[config]')]);
 	log.trace(`loading Gro internal config for ${dev ? 'development' : 'production'}`);
 	const options: GroConfigCreatorOptions = {log, dev};

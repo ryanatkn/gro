@@ -37,10 +37,13 @@ Most can probably be worked around by splitting modules apart.
 See the GitHub issues to report any problems: https://github.com/feltcoop/gro/issues
 
 */
-export const importTs = async (sourceId: string, tempDir = randomTempDir()): Promise<any> => {
+export const importTs = async (
+	sourceId: string,
+	buildConfig: BuildConfig,
+	tempDir = randomTempDir(),
+): Promise<any> => {
 	await lexer.init;
 
-	const buildConfig: BuildConfig = {name: 'node', platform: 'node'};
 	const compileOptions: CompileOptions = {
 		buildRootDir: tempDir,
 		dev: true,
