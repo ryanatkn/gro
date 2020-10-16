@@ -12,6 +12,8 @@ import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
 import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
 import {replaceExtension} from '../utils/path.js';
+import internalConfig from '../gro.config.js';
+import fallbackConfig from './gro.config.default.js';
 
 /*
 
@@ -31,8 +33,8 @@ This choice keeps things simple and flexible because:
 */
 
 const EXTERNAL_CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
-const FALLBACK_CONFIG_IMPORT_PATH = `./gro.config.default.js`;
-const INTERNAL_CONFIG_IMPORT_PATH = '../gro.config.js';
+const FALLBACK_CONFIG_NAME = `gro/src/config/gro.config.default.js`; // TODO try dynamic import again? was really slow for some reason, ~10ms
+const INTERNAL_CONFIG_NAME = 'gro/src/gro.config.js'; // TODO try dynamic import again? was really slow for some reason, ~10ms
 const BOOTSTRAP_BUILD_CONFIG: BuildConfig = {name: 'node', platform: 'node'};
 
 // See `./gro.config.ts` for documentation.
@@ -117,6 +119,7 @@ export const loadConfig = async (
 
 	let configModule: GroConfigModule;
 	let modulePath: string;
+	let bootstrapping = false;
 	if (await pathExists(externalConfigSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
@@ -130,25 +133,33 @@ export const loadConfig = async (
 			configModule = await import(externalConfigBuildId);
 		} else {
 			// We need to bootstrap the config.
+			bootstrapping = true;
 			configModule = await importTs(externalConfigSourceId, buildConfig);
-			const config = await toConfig(configModule, modulePath, options);
-			// Now that we have the bootstrapped config, use it to compile the project,
-			// and then call `loadConfig` again with the primary build config
-			// to load the proper config from disk, rather than the bootstrapped version.
-			// The bootstrapped version may have subtle differences
-			// because it does not use the project's expected compiler options.
-			// This is slower, but it should make bootstrapping bugs much more rare.
-			await compileSourceDirectory(config, dev, log);
-			return loadConfig(findPrimaryBuildConfig(config));
 		}
 	} else {
 		// The project does not have a `gro.config.ts`, so use Gro's fallback default.
-		configModule = await import(FALLBACK_CONFIG_IMPORT_PATH);
-		modulePath = FALLBACK_CONFIG_IMPORT_PATH;
+		modulePath = FALLBACK_CONFIG_NAME;
+		configModule = {default: fallbackConfig};
 	}
 
-	cachedExternalConfig = await toConfig(configModule, modulePath, options);
-	return cachedExternalConfig;
+	const validated = validateConfigModule(configModule);
+	if (!validated.ok) {
+		throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
+	}
+	const config = await toConfig(configModule.default, modulePath, options);
+	if (bootstrapping) {
+		// Now that we have the bootstrapped config, use it to compile the project,
+		// and then call `loadConfig` again with the primary build config
+		// to load the proper config from disk, rather than the bootstrapped version.
+		// The bootstrapped version may have subtle differences
+		// because it does not use the project's expected compiler options.
+		// This is slower, but it should make bootstrapping bugs much more rare.
+		await compileSourceDirectory(config, dev, log);
+		return loadConfig(findPrimaryBuildConfig(config));
+	} else {
+		cachedExternalConfig = config;
+		return cachedExternalConfig;
+	}
 };
 
 export const loadInternalConfig = async (): Promise<GroConfig> => {
@@ -159,24 +170,16 @@ export const loadInternalConfig = async (): Promise<GroConfig> => {
 	log.trace(`loading Gro internal config for ${dev ? 'development' : 'production'}`);
 	const options: GroConfigCreatorOptions = {log, dev};
 
-	const configModule: GroConfigModule = await import(INTERNAL_CONFIG_IMPORT_PATH);
-
-	cachedInternalConfig = await toConfig(configModule, INTERNAL_CONFIG_IMPORT_PATH, options);
+	cachedInternalConfig = await toConfig(internalConfig, INTERNAL_CONFIG_NAME, options);
 
 	return cachedInternalConfig;
 };
 
 export const toConfig = async (
-	mod: GroConfigModule,
+	configOrCreator: GroConfig | GroConfigCreator,
 	path: string,
 	options: GroConfigCreatorOptions,
 ): Promise<GroConfig> => {
-	const validated = validateConfigModule(mod);
-	if (!validated.ok) {
-		throw Error(`Invalid Gro config module at '${path}': ${validated.reason}`);
-	}
-
-	const configOrCreator = mod.default;
 	const config =
 		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
 
