@@ -29,12 +29,6 @@ and **it won't reach a stable production-ready 1.0 for quite a while.**
 > SPAs without SSR are a niche use case - they're usually **not** what you want on the web!
 > But sometimes they're _exactly_ what you want, and Gro was purpose-built to support them.
 
-Gro tries to provide good defaults and full control when you need it.
-Its philosophy is to offer sharp tools
-that prioritize efficiency and minimize dependencies.
-Sharp tools have a drawback, and aren't the best experience for all developers -
-they can hurt when held in certain ways! Try not to get cut! :O
-
 Gro's development is still a work in progress, and production usage is discouraged,
 but please feel free to try it and share your feedback!
 
@@ -54,19 +48,19 @@ Gro differs in some significant ways:
   but it has a pluggable compiler architecture that can probably support a lot of things.
   Gro will have plugins eventually, but unlike Snowpack,
   we do not currently plan to develop an ecosystem that strays from core choices.
-  Instead, Gro's will likely evolve towards integrating more opinionated choices, not fewer.
-- Snowpack emphasizes composing tools via the CLI and through plugins.
+  Instead, Gro will likely evolve towards more opinionated choices, not fewer.
+- Snowpack emphasizes composing tools through the CLI and plugins.
   Gro emphasizes writing tasks in TypeScript to use libraries directly,
   but we'll probably do more to support CLI integrations.
 - Snowpack compiles files on demand when requested by the browser.
-  In contrast, Gro compiles files on startup and caches to disk to avoid most wasted work.
+  In contrast, Gro compiles files on startup.
   This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge.
-  Gro's strategy has advantages, but its design is forced by current limitations and may change.
-  Its current design fits the needs of Node libraries and servers.
+  Gro is designed for the needs of Node libraries and servers,
+  and it has some advantages along with its disadvantages.
   There are plans for Gro to support lazy compilation and other scale-friendly features,
   and its caching system already speeds up heavy workloads.
-  The limitation that forces eager loading will likely be fixed before Gro reaches 1.0
-  but it's likely to be a more complex DX than Snowpack.
+  The limitation that forces eager loading will likely be fixed before Gro reaches 1.0,
+  but Gro's DX will probably be more complex than Snowpack's.
 - Gro does not yet support hot module reloading, though work is in progress.
 - Gro uses [swc](https://github.com/swc-project/swc)
   instead of [esbuild](https://github.com/evanw/esbuild)
