@@ -26,7 +26,7 @@ We can deal with those issues as they come up.
 See the GitHub issues to report any problems: https://github.com/feltcoop/gro/issues
 
 */
-export const importTs = (sourceId: string, tempDir = randomTempDir()): Promise<unknown> => {
+export const importTs = (sourceId: string, tempDir = randomTempDir()): Promise<any> => {
 	console.log('import typescript...', sourceId);
 	console.log('tempDir', tempDir);
 	return import(sourceId);

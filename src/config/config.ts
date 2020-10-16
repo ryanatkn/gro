@@ -107,7 +107,7 @@ export const loadConfig = async (): Promise<GroConfig> => {
 	let configModule: GroConfigModule;
 	let modulePath: string;
 	if (await pathExists(externalConfigSourceId)) {
-		configModule = await importExternalConfigBySourceId(externalConfigSourceId);
+		configModule = await importTs(externalConfigSourceId);
 		modulePath = externalConfigSourceId;
 	} else {
 		configModule = await import(EXTERNAL_FALLBACK_CONFIG_IMPORT_PATH);
@@ -148,11 +148,6 @@ const toConfig = async (mod: GroConfigModule, path: string, log: Logger): Promis
 	}
 
 	return config;
-};
-
-const importExternalConfigBySourceId = async (configSourceId: string): Promise<GroConfigModule> => {
-	const configModule = await importTs(configSourceId);
-	return configModule as GroConfigModule;
 };
 
 const validateConfigModule = (configModule: any): Result<{}, {reason: string}> => {
