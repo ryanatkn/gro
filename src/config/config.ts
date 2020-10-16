@@ -26,7 +26,7 @@ const EXTERNAL_CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
 const EXTERNAL_FALLBACK_CONFIG_IMPORT_PATH = `./gro.config.default.js`;
 const INTERNAL_CONFIG_IMPORT_PATH = '../gro.config.js';
 
-const dev = process.env.NODE_ENV === 'development'; // TODO what's the right way to do this?
+const dev = process.env.NODE_ENV !== 'production'; // TODO what's the right way to do this?
 
 // See `./gro.config.ts` for documentation.
 export interface GroConfig {

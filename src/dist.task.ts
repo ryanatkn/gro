@@ -17,7 +17,7 @@ export const task: Task = {
 
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.
-		const dev = process.env.NODE_ENV === 'development';
+		const dev = process.env.NODE_ENV !== 'production';
 		const config = await loadConfig();
 		const buildConfigsForDist = findDistBuildConfigs(config);
 		await Promise.all(
