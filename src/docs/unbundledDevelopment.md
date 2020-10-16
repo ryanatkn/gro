@@ -43,18 +43,19 @@ Gro differs in some significant ways:
 - Snowpack is designed to be mostly agnostic to your technology choices
   and supports a wide plugin ecosystem to cater to many choices.
   Gro's goal is to provide an opinionated batteries-included experience
-  with a core set of technologies like Svelte and Prettier.
+  with a core set of technologies like
+  [Svelte](github.com/sveltejs/svelte) and [Prettier](github.com/prettier/prettier).
   Gro does not have a plugin system yet,
   but it has a pluggable compiler architecture that can probably support a lot of things.
   Gro will have plugins eventually, but unlike Snowpack,
   we do not currently plan to develop an ecosystem that strays from core choices.
-  Instead, Gro will likely evolve towards more opinionated choices, not fewer.
+  Instead, we expect Gro to evolve towards more opinionated choices, not fewer.
 - Snowpack is a frontend build tool that's focused on doing that one thing very well.
   Gro has a sprawling scope that includes
   a [task runner](../task), [testing library](../oki), tools for [code generation](../gen),
   and many utilities to fill in gaps for Node and the browser.
-  Gro also wraps libraries like `fs-extra` for a better interface to Node's filesystem
-  and it ships with Prettier to format code.
+  Gro also wraps libraries like [fs-extra](https://github.com/jprichardson/node-fs-extra)
+  for a better interface to Node's filesystem and it ships with Prettier to format code.
   Though much of their behavior overlaps, Snowpack and Gro are very different projects.
   > Despite its large scope, Gro tries to minimize its external dependencies.
   > Here's the dependency graphs on npm.anvaka.com for
@@ -62,7 +63,7 @@ Gro differs in some significant ways:
   > [Snowpack](https://npm.anvaka.com/#/view/2d/snowpack),
   > [Webpack](https://npm.anvaka.com/#/view/2d/webpack),
   > and [Parcel](https://npm.anvaka.com/#/view/2d/parcel),
-  > though these counts are not necessarily representative the average configured project.
+  > though these counts are not necessarily representative of the average configured project.
 - Snowpack emphasizes composing tools through the CLI and plugins.
   Gro emphasizes writing [tasks](./tasks.md) in TypeScript to use libraries directly,
   but we'll probably do more to support CLI integrations.
