@@ -18,7 +18,7 @@
 Gro is an opinionated monotool for making webapps.
 It includes:
 
-- [unbundled development](/src/docs/unbundledDevelopment.md)
+- (work in progress) [unbundled development](/src/docs/unbundledDevelopment.md)
   for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers/libraries,
   inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
@@ -30,6 +30,7 @@ It includes:
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
 - dev server with efficient caching and pluggable compilation
 - formatting via [Prettier](https://github.com/prettier/prettier)
+- utilities to fill in the gaps for Node and the browser
 - more to come, exploring what deeply integrated tools enable
   for developer power, ergonomics, and productivity
 
