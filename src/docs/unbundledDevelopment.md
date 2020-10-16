@@ -39,7 +39,7 @@ which pioneered using ES modules to avoid the unnecessary overhead of bundling d
 Gro differs in some significant ways:
 
 - Snowpack is focused on frontend websites,
-  and Gro is designed to support frontends along with servers and libraries.
+  while Gro is designed for servers and libraries alongside frontends.
 - Snowpack is designed to be mostly agnostic to your technology choices
   and supports a wide plugin ecosystem to cater to many choices.
   Gro's goal is to provide a fully integrated, focused, and opinionated experience
@@ -50,13 +50,12 @@ Gro differs in some significant ways:
   we do not currently plan to develop an ecosystem that strays from core choices.
   Instead, Gro will likely evolve towards more opinionated choices, not fewer.
 - Snowpack emphasizes composing tools through the CLI and plugins.
-  Gro emphasizes writing tasks in TypeScript to use libraries directly,
+  Gro emphasizes writing [tasks](./tasks.md) in TypeScript to use libraries directly,
   but we'll probably do more to support CLI integrations.
 - Snowpack compiles files on demand when requested by the browser.
   In contrast, Gro compiles files on startup.
   This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge.
-  Gro is designed for the needs of Node libraries and servers,
-  and it has some advantages along with its disadvantages.
+  Gro's design is due to the needs of Node libraries and servers.
   There are plans for Gro to support lazy compilation and other scale-friendly features,
   and its caching system already speeds up heavy workloads.
   The limitation that forces eager loading will likely be fixed before Gro reaches 1.0,
