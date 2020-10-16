@@ -78,7 +78,9 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
+			const timingToLoadConfig = timings.start('load config');
 			const config = await loadConfig();
+			timingToLoadConfig();
 			if (await shouldBuildProject(pathData.id, config)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
 				const timingToBuildProject = timings.start('build project');

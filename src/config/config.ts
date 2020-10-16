@@ -101,6 +101,7 @@ export const loadConfig = async (): Promise<GroConfig> => {
 
 	const log = new SystemLogger([magenta('[config]')]);
 	log.trace(`loading Gro config for ${dev ? 'development' : 'production'}`);
+	const options: GroConfigCreatorOptions = {log, dev};
 
 	const externalConfigSourceId = basePathToSourceId(EXTERNAL_CONFIG_SOURCE_BASE_PATH);
 
@@ -114,7 +115,7 @@ export const loadConfig = async (): Promise<GroConfig> => {
 		modulePath = EXTERNAL_FALLBACK_CONFIG_IMPORT_PATH;
 	}
 
-	cachedExternalConfig = await toConfig(configModule, modulePath, log);
+	cachedExternalConfig = await toConfig(configModule, modulePath, options);
 
 	return cachedExternalConfig;
 };
@@ -124,15 +125,20 @@ export const loadInternalConfig = async (): Promise<GroConfig> => {
 
 	const log = new SystemLogger([magenta('[config]')]);
 	log.trace(`loading Gro internal config for ${dev ? 'development' : 'production'}`);
+	const options: GroConfigCreatorOptions = {log, dev};
 
 	const configModule: GroConfigModule = await import(INTERNAL_CONFIG_IMPORT_PATH);
 
-	cachedInternalConfig = await toConfig(configModule, INTERNAL_CONFIG_IMPORT_PATH, log);
+	cachedInternalConfig = await toConfig(configModule, INTERNAL_CONFIG_IMPORT_PATH, options);
 
 	return cachedInternalConfig;
 };
 
-const toConfig = async (mod: GroConfigModule, path: string, log: Logger): Promise<GroConfig> => {
+export const toConfig = async (
+	mod: GroConfigModule,
+	path: string,
+	options: GroConfigCreatorOptions,
+): Promise<GroConfig> => {
 	const validated = validateConfigModule(mod);
 	if (!validated.ok) {
 		throw Error(`Invalid Gro config module at '${path}': ${validated.reason}`);
@@ -140,7 +146,7 @@ const toConfig = async (mod: GroConfigModule, path: string, log: Logger): Promis
 
 	const configOrCreator = mod.default;
 	const config =
-		typeof configOrCreator === 'function' ? await configOrCreator({log, dev}) : configOrCreator;
+		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
 
 	const validateResult = validateConfig(config);
 	if (!validateResult.ok) {
