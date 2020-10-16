@@ -6,7 +6,9 @@ Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 Gro leverages ES modules during development
 to avoid the unnecessary overhead and complexity of bundling.
 Unlike Snowpack, it's designed for servers and libraries along with frontends.
-For production, it uses Rollup to produce efficient bundles.
+See below for [a deeper comparison](#comparison-to-snowpack).
+
+For production, Gro uses Rollup to produce efficient bundles.
 The result is the best of both worlds:
 fast iteration with straightforward builds during development,
 and uncompromising efficiency for production.
@@ -44,32 +46,32 @@ Gro differs in some significant ways:
 
 - Snowpack is focused on frontend websites,
   and Gro is designed to support frontends along with servers and libraries.
-- Snowpack compiles files on demand when requested by the browser
-  and bundles external modules during a separate `snowpack install` step.
-  In contrast, Gro compiles files on startup
-  and bundles external modules when the browser requests them.
+- Snowpack is designed to be mostly agnostic to your technology choices
+  and supports a wide plugin ecosystem to cater to many choices.
+  Gro's goal is to provide a fully integrated, focused, and opinionated experience
+  with a core set of technologies like Svelte and TypeScript.
+  Gro does not have a plugin system yet,
+  but it has a pluggable compiler architecture that can probably support a lot of things.
+  Gro will have plugins eventually, but unlike Snowpack,
+  we do not currently plan to develop an ecosystem that strays from core choices.
+  Instead, Gro's will likely evolve towards integrating more opinionated choices, not fewer.
+- Snowpack emphasizes composing tools via the CLI and through plugins.
+  Gro emphasizes writing tasks in TypeScript to use libraries directly,
+  but we'll probably do more to support CLI integrations.
+- Snowpack compiles files on demand when requested by the browser.
+  In contrast, Gro compiles files on startup and caches to disk to avoid most wasted work.
   This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge.
   Gro's strategy has advantages, but its design is forced by current limitations and may change.
-  We'll do a more detailed analysis eventually, hopefully.
+  Its current design fits the needs of Node libraries and servers.
   There are plans for Gro to support lazy compilation and other scale-friendly features,
   and its caching system already speeds up heavy workloads.
-  Furthermore, the limitation that forces eager loading should be fixed before Gro reaches 1.0.
+  The limitation that forces eager loading will likely be fixed before Gro reaches 1.0
+  but it's likely to be a more complex DX than Snowpack.
 - Gro does not yet support hot module reloading, though work is in progress.
-- Gro does not yet have a plugin system
-  for things like PostCSS/SASS and UI frameworks besides Svelte.
-  It has a pluggable compiler architecture that can probably support most of the ecosystem,
-  but it's all a work in progress right now.
-  Adventurous developers can define their own tasks
-  to extend [Gro's development system](/src/dev.task.ts).
-  By default Gro supports TypeScript and Svelte.
-  We're not fans of plugin ecosystems that primarily wrap other libraries,
-  and instead we try to support the direct usage of Node APIs and libraries,
-  like with [tasks](/src/task).
-  Snowpack emphasizes composing tools via the CLI; we prefer TypeScript for most things,
-  but we'll probably do more to support CLI integrations.
 - Gro uses [swc](https://github.com/swc-project/swc)
   instead of [esbuild](https://github.com/evanw/esbuild)
-  because the former allows preserving unused imports, which is helpful for Svelte.
+  because the former allows preserving unused imports without additional processing,
+  which is helpful for Svelte.
 
 <p align="center">
   <a href="https://github.com/feltcoop/gro">
