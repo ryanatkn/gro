@@ -17,18 +17,19 @@ export const normalizeBuildConfigs = (
 	if (partials === undefined) partials = [];
 	const platforms: Set<string> = new Set();
 	const primaryPlatforms: Set<string> = new Set();
-	const hasDist = partials.some((b) => b.dist);
 
 	// If there is no Node config, add one.
 	if (!partials.some((p) => p.platform === 'node')) {
 		partials.push({name: 'node', platform: 'node', primary: true, dist: false});
 	}
 
+	const hasDist = partials.some((b) => b.dist);
+
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	let buildConfigs: BuildConfig[] = partials.map((buildConfig) => ({
 		primary: false,
 		...buildConfig,
-		dist: buildConfig.dist ?? !hasDist, // If no config is marked as `dist`, assume they all are.
+		dist: hasDist ? buildConfig.dist ?? false : true, // If no config is marked as `dist`, assume they all are.
 	}));
 
 	for (const buildConfig of buildConfigs) {

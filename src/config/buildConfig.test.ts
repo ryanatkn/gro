@@ -2,9 +2,52 @@ import {test, t} from '../oki/oki.js';
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 
 test('normalizeBuildConfigs()', async () => {
-	test('find explicit primary config', () => {
+	test('normalizes to a default config', () => {
 		const buildConfig = normalizeBuildConfigs(undefined);
-		// t.is(buildConfig.name, 'browser');
+		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+	});
+	test('normalizes a plain config', () => {
+		const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node'}]);
+		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+	});
+	test('ensures a node config', () => {
+		const buildConfig = normalizeBuildConfigs([
+			{name: 'browser', platform: 'browser', primary: true},
+		]);
+		t.equal(buildConfig, [
+			{name: 'browser', platform: 'browser', primary: true, dist: true},
+			{name: 'node', platform: 'node', primary: true, dist: true},
+		]);
+	});
+	test('ensures a primary config', () => {
+		const buildConfig = normalizeBuildConfigs([
+			{name: 'node1', platform: 'node', primary: false},
+			{name: 'node2', platform: 'node', primary: false},
+		]);
+		t.equal(buildConfig, [
+			{name: 'node1', platform: 'node', primary: true, dist: true},
+			{name: 'node2', platform: 'node', primary: false, dist: true},
+		]);
+	});
+	test('ensures a dist', () => {
+		const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node', dist: false}]);
+		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+	});
+	test('makes all dist when none is', () => {
+		const buildConfig = normalizeBuildConfigs([
+			{name: 'node1', platform: 'node', dist: false},
+			{name: 'node2', platform: 'node', dist: false},
+			{name: 'node3', platform: 'node', dist: false},
+			{name: 'browser1', platform: 'browser', dist: false},
+			{name: 'browser2', platform: 'browser', primary: true},
+		]);
+		t.equal(buildConfig, [
+			{name: 'node1', platform: 'node', primary: true, dist: true},
+			{name: 'node2', platform: 'node', primary: false, dist: true},
+			{name: 'node3', platform: 'node', primary: false, dist: true},
+			{name: 'browser1', platform: 'browser', primary: false, dist: true},
+			{name: 'browser2', platform: 'browser', primary: true, dist: true},
+		]);
 	});
 });
 
