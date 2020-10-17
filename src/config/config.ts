@@ -5,7 +5,12 @@ import {
 	JS_EXTENSION,
 	toBuildOutDir,
 } from '../paths.js';
-import {BuildConfig, findPrimaryBuildConfig} from './buildConfig.js';
+import {
+	BuildConfig,
+	normalizeBuildConfigs,
+	PartialBuildConfig,
+	validateBuildConfigs,
+} from './buildConfig.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {importTs} from '../fs/importTs.js';
@@ -35,24 +40,35 @@ This choice keeps things simple and flexible because:
 const EXTERNAL_CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
 const FALLBACK_CONFIG_NAME = `gro/src/config/gro.config.default.js`; // TODO try dynamic import again? was really slow for some reason, ~10ms
 const INTERNAL_CONFIG_NAME = 'gro/src/gro.config.js'; // TODO try dynamic import again? was really slow for some reason, ~10ms
-const BOOTSTRAP_BUILD_CONFIG: BuildConfig = {name: 'node', platform: 'node'};
+const BOOTSTRAP_BUILD_CONFIG: BuildConfig = {
+	name: 'node',
+	platform: 'node',
+	primary: true,
+	dist: false,
+};
 
 // See `./gro.config.ts` for documentation.
 export interface GroConfig {
-	builds: BuildConfig[];
+	readonly builds: BuildConfig[];
+	readonly primaryNodeBuildConfig: BuildConfig;
+	readonly primaryBrowserBuildConfig: BuildConfig | null;
+}
+
+export interface PartialGroConfig {
+	readonly builds?: PartialBuildConfig[];
 }
 
 export interface GroConfigModule {
-	default: GroConfig | GroConfigCreator;
+	readonly default: PartialGroConfig | GroConfigCreator;
 }
 
 export interface GroConfigCreator {
-	(options: GroConfigCreatorOptions): Promise<GroConfig>;
+	(options: GroConfigCreatorOptions): PartialGroConfig | Promise<PartialGroConfig>;
 }
 export interface GroConfigCreatorOptions {
 	// env: NodeJS.ProcessEnv; // TODO?
-	dev: boolean;
-	log: Logger;
+	readonly dev: boolean;
+	readonly log: Logger;
 }
 
 let cachedExternalConfig: GroConfig | undefined;
@@ -155,7 +171,7 @@ export const loadConfig = async (
 		// because it does not use the project's expected compiler options.
 		// This is slower, but it should make bootstrapping bugs much more rare.
 		await compileSourceDirectory(config, dev, log);
-		return loadConfig(findPrimaryBuildConfig(config));
+		return loadConfig(config.primaryNodeBuildConfig);
 	} else {
 		cachedExternalConfig = config;
 		return cachedExternalConfig;
@@ -176,7 +192,7 @@ export const loadInternalConfig = async (): Promise<GroConfig> => {
 };
 
 export const toConfig = async (
-	configOrCreator: GroConfig | GroConfigCreator,
+	configOrCreator: PartialGroConfig | GroConfigCreator,
 	path: string,
 	options: GroConfigCreatorOptions,
 ): Promise<GroConfig> => {
@@ -188,7 +204,7 @@ export const toConfig = async (
 		throw Error(`Invalid Gro config at '${path}': ${validateResult.reason}`);
 	}
 
-	return config;
+	return normalizeConfig(config);
 };
 
 const validateConfigModule = (configModule: any): Result<{}, {reason: string}> => {
@@ -198,9 +214,25 @@ const validateConfigModule = (configModule: any): Result<{}, {reason: string}> =
 	return {ok: true};
 };
 
-const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
-	if (!config.builds.length) {
-		return {ok: false, reason: `At least one build config must be provided.`};
-	}
+const validateConfig = (config: PartialGroConfig): Result<{}, {reason: string}> => {
+	const buildConfigsResult = validateBuildConfigs(config.builds);
+	if (!buildConfigsResult.ok) return buildConfigsResult;
 	return {ok: true};
+};
+
+const normalizeConfig = (config: PartialGroConfig): GroConfig => {
+	const buildConfigs = normalizeBuildConfigs(config.builds);
+	const primaryNodeBuildConfig = buildConfigs.find((b) => b.primary && b.platform === 'node');
+	const primaryBrowserBuildConfig =
+		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
+	if (primaryNodeBuildConfig === undefined) {
+		// `normalizeBuildConfigs` should handle this invariant, but check just in case.
+		throw Error('Expected to find a primary Node config.');
+	}
+	return {
+		...config,
+		builds: buildConfigs,
+		primaryNodeBuildConfig,
+		primaryBrowserBuildConfig,
+	};
 };

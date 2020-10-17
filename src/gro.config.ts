@@ -1,10 +1,10 @@
-import {GroConfig, GroConfigCreator} from './config/config.js';
+import {GroConfigCreator, PartialGroConfig} from './config/config.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
 const createConfig: GroConfigCreator = async () => {
-	const config: GroConfig = {
+	const config: PartialGroConfig = {
 		builds: [
 			{
 				name: 'node',

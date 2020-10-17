@@ -1,72 +1,99 @@
-import {GroConfig} from './config.js';
-
 // See `../docs/config.md` for documentation.
 
 export interface BuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
-	readonly dist?: boolean;
-	readonly primary?: boolean;
+	readonly dist: boolean;
+	readonly primary: boolean;
 }
+
+export type PartialBuildConfig = PartialExcept<BuildConfig, 'name' | 'platform'>;
 
 export type PlatformTarget = 'node' | 'browser';
 
-// The "primary" build config is the one that's used to run Node tasks.
-// The order of precendence is:
-// 1) the build config marked `"primary": true`,
-// 2) or if none exists, the first Node build config,
-// 3) or if still no match, the first build config
-// TODO we may need the concept of a primary config for each platform,
-// or something else that answers the question
-// "which config should we serve in the browser by default"?
-export const findPrimaryBuildConfig = (config: GroConfig): BuildConfig => {
-	let firstNodeBuildConfig;
-	for (const buildConfig of config.builds) {
-		if (buildConfig.primary) return buildConfig;
-		if (firstNodeBuildConfig === undefined && buildConfig.platform === 'node') {
-			firstNodeBuildConfig = buildConfig;
+export const normalizeBuildConfigs = (
+	partials: PartialBuildConfig[] | undefined,
+): BuildConfig[] => {
+	if (partials === undefined) partials = [];
+	const platforms: Set<string> = new Set();
+	const primaryPlatforms: Set<string> = new Set();
+	const hasDist = partials.some((b) => b.dist);
+
+	// If there is no Node config, add one.
+	if (!partials.some((p) => p.platform === 'node')) {
+		partials.push({name: 'node', platform: 'node', primary: true, dist: false});
+	}
+
+	// This array may be mutated inside this function, but the objects inside remain immutable.
+	let buildConfigs: BuildConfig[] = partials.map((buildConfig) => ({
+		primary: false,
+		...buildConfig,
+		dist: buildConfig.dist ?? !hasDist, // If no config is marked as `dist`, assume they all are.
+	}));
+
+	for (const buildConfig of buildConfigs) {
+		platforms.add(buildConfig.platform);
+		if (buildConfig.primary) primaryPlatforms.add(buildConfig.platform);
+	}
+
+	for (const platform of platforms) {
+		// If no config is marked as primary for a platform, choose the first one.
+		if (!primaryPlatforms.has(platform)) {
+			const firstIndexForPlatform = buildConfigs.findIndex((b) => b.platform === platform);
+			buildConfigs[firstIndexForPlatform] = {...buildConfigs[firstIndexForPlatform], primary: true};
 		}
 	}
-	return firstNodeBuildConfig || config.builds[0];
+
+	return buildConfigs;
 };
 
-export const findDistBuildConfigs = (config: GroConfig): BuildConfig[] =>
-	config.builds.some((c) => c.dist) ? config.builds.filter((c) => c.dist) : config.builds;
-
 // TODO replace this with JSON schema validation (or most of it at least)
-export const validateBuildConfigs = (buildConfigs: unknown): BuildConfig[] => {
+export const validateBuildConfigs = (
+	buildConfigs: PartialBuildConfig[] | undefined,
+): Result<{}, {reason: string}> => {
+	if (buildConfigs === undefined) return {ok: true};
 	if (!Array.isArray(buildConfigs)) {
-		throw Error('The field "gro.builds" in package.json must be an array');
+		return {
+			ok: false,
+			reason: 'The field "gro.builds" in package.json must be an array or undefined',
+		};
 	}
-	if (!buildConfigs.length) {
-		throw Error('The field "gro.builds" in package.json must have at least one entry.');
-	}
-	const names = new Set<string>();
-	let primaryCount = 0;
+	const names: Set<string> = new Set();
+	const primaryPlatforms: Set<PlatformTarget> = new Set();
 	for (const buildConfig of buildConfigs) {
 		if (
 			!buildConfig ||
 			!buildConfig.name ||
 			!(buildConfig.platform === 'node' || buildConfig.platform === 'browser')
 		) {
-			throw Error(
-				'The field "gro.builds" in package.json has an item' +
+			return {
+				ok: false,
+				reason:
+					'The field "gro.builds" in package.json has an item' +
 					` that does not match the BuildConfig interface: ${JSON.stringify(buildConfig)}`,
-			);
+			};
 		}
 		if (names.has(buildConfig.name)) {
-			throw Error(
-				'The field "gro.builds" in package.json cannot have items with duplicate names.' +
+			return {
+				ok: false,
+				reason:
+					'The field "gro.builds" in package.json cannot have items with duplicate names.' +
 					` The name '${buildConfig.name}' appears twice.`,
-			);
+			};
 		}
 		names.add(buildConfig.name);
+		// Disallow multiple primary configs for each platform.
 		if (buildConfig.primary) {
-			primaryCount++;
-			if (primaryCount > 1) {
-				throw Error(`The field "gro.builds" in package.json cannot have multiple primary items.`);
+			if (primaryPlatforms.has(buildConfig.platform)) {
+				return {
+					ok: false,
+					reason:
+						'The field "gro.builds" in package.json cannot have' +
+						` multiple primary items for platform "${buildConfig.platform}".`,
+				};
 			}
+			primaryPlatforms.add(buildConfig.platform);
 		}
 	}
-	return buildConfigs;
+	return {ok: true};
 };

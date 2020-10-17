@@ -6,7 +6,7 @@ import {Timings} from '../utils/time.js';
 import {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
-import {BuildConfig, findPrimaryBuildConfig} from '../config/buildConfig.js';
+import {BuildConfig} from '../config/buildConfig.js';
 import {loadConfigAt} from '../config/config.js';
 
 /*
@@ -38,7 +38,7 @@ export const loadModule = async <T>(
 	buildConfig?: BuildConfig,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
 	if (!buildConfig) {
-		buildConfig = findPrimaryBuildConfig(await loadConfigAt(id));
+		buildConfig = (await loadConfigAt(id)).primaryNodeBuildConfig;
 	}
 	let mod;
 	try {

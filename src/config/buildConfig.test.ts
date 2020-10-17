@@ -1,38 +1,15 @@
 import {test, t} from '../oki/oki.js';
-import {findPrimaryBuildConfig, validateBuildConfigs} from './buildConfig.js';
+import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 
-test('findPrimaryBuildConfig()', async () => {
+test('normalizeBuildConfigs()', async () => {
 	test('find explicit primary config', () => {
-		const buildConfig = findPrimaryBuildConfig({
-			builds: [
-				{name: 'node', platform: 'node'},
-				{name: 'browser', platform: 'browser', primary: true},
-			],
-		});
-		t.is(buildConfig.name, 'browser');
-	});
-	test('find implicit primary config and prioritize Node', () => {
-		const buildConfig = findPrimaryBuildConfig({
-			builds: [
-				{name: 'browser', platform: 'browser'},
-				{name: 'node1', platform: 'node'},
-				{name: 'node2', platform: 'node'},
-			],
-		});
-		t.is(buildConfig.name, 'node1');
-	});
-	test('find implicit primary config without a Node one', () => {
-		const buildConfig = findPrimaryBuildConfig({
-			builds: [
-				{name: 'browser1', platform: 'browser'},
-				{name: 'browser2', platform: 'browser'},
-			],
-		});
-		t.is(buildConfig.name, 'browser1');
+		const buildConfig = normalizeBuildConfigs(undefined);
+		// t.is(buildConfig.name, 'browser');
 	});
 });
 
 test('validateBuildConfigs', () => {
+	validateBuildConfigs(undefined);
 	validateBuildConfigs([{name: 'node', platform: 'node'}]);
 	validateBuildConfigs([
 		{name: 'node', platform: 'node', dist: true},
@@ -40,37 +17,58 @@ test('validateBuildConfigs', () => {
 		{name: 'browser', platform: 'browser'},
 		{name: 'browser2', platform: 'browser'},
 	]);
+	validateBuildConfigs([
+		{name: 'node', platform: 'node'},
+		{name: 'node2', platform: 'node', primary: true},
+		{name: 'browser', platform: 'browser'},
+		{name: 'browser2', platform: 'browser', primary: true},
+	]);
 
-	test('throws without an array', () => {
-		t.throws(() => validateBuildConfigs({name: 'node', platform: 'node'}));
+	test('fails without an array', () => {
+		t.ok(!validateBuildConfigs({name: 'node', platform: 'node'} as any).ok);
 	});
 
-	test('throws without an invalid name', () => {
-		t.throws(() => validateBuildConfigs([{platform: 'node'}]));
-		t.throws(() => validateBuildConfigs([{name: '', platform: 'node'}]));
+	test('fails with an invalid name', () => {
+		t.ok(!validateBuildConfigs([{platform: 'node'} as any]).ok);
+		t.ok(!validateBuildConfigs([{name: '', platform: 'node'}]).ok);
 	});
 
-	test('throws with duplicate names', () => {
-		t.throws(() =>
-			validateBuildConfigs([
+	test('fails with duplicate names', () => {
+		t.ok(
+			!validateBuildConfigs([
+				{name: 'node', platform: 'node'},
+				{name: 'node', platform: 'node'},
+			]).ok,
+		);
+		t.ok(
+			!validateBuildConfigs([
 				{name: 'node', platform: 'node'},
 				{name: 'node', platform: 'browser'},
-			]),
+			]).ok,
 		);
 	});
 
-	test('throws with two primary configs ', () => {
-		t.throws(() =>
-			validateBuildConfigs([
+	test('fails with multiple primary configs for the same platform ', () => {
+		t.ok(
+			!validateBuildConfigs([
 				{name: 'node', platform: 'node'},
 				{name: 'node2', platform: 'node', primary: true},
+				{name: 'browser', platform: 'browser', primary: true},
 				{name: 'node3', platform: 'node', primary: true},
-			]),
+			]).ok,
+		);
+		t.ok(
+			!validateBuildConfigs([
+				{name: 'node', platform: 'node'},
+				{name: 'browser1', platform: 'browser', primary: true},
+				{name: 'browser2', platform: 'browser'},
+				{name: 'browser3', platform: 'browser', primary: true},
+			]).ok,
 		);
 	});
 
-	test('throws with an invalid platform', () => {
-		t.throws(() => validateBuildConfigs([{name: 'node'}]));
-		t.throws(() => validateBuildConfigs([{name: 'node', platform: 'deno'}]));
+	test('fails with an invalid platform', () => {
+		t.ok(!validateBuildConfigs([{name: 'node'} as any]).ok);
+		t.ok(!validateBuildConfigs([{name: 'node', platform: 'deno'} as any]).ok);
 	});
 });

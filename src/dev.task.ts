@@ -5,19 +5,14 @@ import {createDefaultCompiler} from './compile/defaultCompiler.js';
 import {paths, toBuildOutDir} from './paths.js';
 import {loadTsconfig, toEcmaScriptTarget} from './compile/tsHelpers.js';
 import {loadConfig} from './config/config.js';
-import {findPrimaryBuildConfig} from './config/buildConfig.js';
 
 export const task: Task = {
 	description: 'start development server',
 	run: async ({log}): Promise<void> => {
 		const config = await loadConfig();
-		const primaryBuildConfig = await findPrimaryBuildConfig(config);
 		// TODO should this be `findServedBuildConfig`? or should this be a property on the config itself?
 		// maybe that gets added by a normalization step?
-		const buildConfigToServe =
-			primaryBuildConfig.platform === 'browser'
-				? primaryBuildConfig
-				: config.builds.find((c) => c.platform === 'browser') || primaryBuildConfig;
+		const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.primaryNodeBuildConfig;
 		const buildOutDirToServe = toBuildOutDir(true, buildConfigToServe.name, '');
 
 		// TODO probably replace these with the Gro config values

@@ -23,7 +23,6 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
 import {GroConfig, loadConfig} from '../config/config.js';
-import {findPrimaryBuildConfig} from '../config/buildConfig.js';
 
 /*
 
@@ -235,7 +234,6 @@ const shouldBuildProject = async (sourceId: string, config: GroConfig): Promise<
 	if (paths !== groPaths && isGroId(sourceId)) {
 		return false; // don't try to compile Gro from outside of it
 	}
-	const primaryBuildConfig = findPrimaryBuildConfig(config);
-	const importId = toImportId(sourceId, true, primaryBuildConfig.name);
+	const importId = toImportId(sourceId, true, config.primaryNodeBuildConfig.name);
 	return !(await pathExists(importId));
 };

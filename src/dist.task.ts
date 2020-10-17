@@ -5,7 +5,6 @@ import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
 import {printPath} from './utils/print.js';
 import {cleanDist} from './project/clean.js';
 import {loadConfig} from './config/config.js';
-import {findDistBuildConfigs} from './config/buildConfig.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
@@ -19,7 +18,7 @@ export const task: Task = {
 		// See the docs at `./docs/config.md`.
 		const dev = process.env.NODE_ENV !== 'production';
 		const config = await loadConfig();
-		const buildConfigsForDist = findDistBuildConfigs(config);
+		const buildConfigsForDist = config.builds.filter((b) => b.dist);
 		await Promise.all(
 			buildConfigsForDist.map((buildConfig) => {
 				const buildOutDir = toBuildOutDir(dev, buildConfig.name);
