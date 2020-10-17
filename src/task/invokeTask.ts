@@ -231,7 +231,7 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // we should compile a project's TypeScript when invoking a task.
 // Properly detecting this is too expensive and would impact startup time significantly.
 const shouldBuildProject = async (sourceId: string, config: GroConfig): Promise<boolean> => {
-	if (paths !== groPaths && isGroId(sourceId)) {
+	if (isGroId(sourceId) && !isThisProjectGro) {
 		return false; // don't try to compile Gro from outside of it
 	}
 	const importId = toImportId(sourceId, true, config.primaryNodeBuildConfig.name);
