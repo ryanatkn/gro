@@ -2,8 +2,12 @@ import {test, t} from '../oki/oki.js';
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 
 test('normalizeBuildConfigs()', async () => {
-	test('normalizes to a default config', () => {
+	test('normalizes undefined to a default config', () => {
 		const buildConfig = normalizeBuildConfigs(undefined);
+		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+	});
+	test('normalizes an empty array to a default config', () => {
+		const buildConfig = normalizeBuildConfigs([]);
 		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
 	});
 	test('normalizes a plain config', () => {
