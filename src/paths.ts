@@ -28,7 +28,7 @@ export const SOURCE_DIR = `${SOURCE_DIR_NAME}/`;
 export const BUILD_DIR = `${BUILD_DIR_NAME}/`;
 export const DIST_DIR = `${DIST_DIR_NAME}/`;
 
-export const EXTERNALS_DIR = 'externals';
+export const EXTERNALS_BUILD_DIR = 'externals';
 
 export interface Paths {
 	root: string;
@@ -46,7 +46,7 @@ export const createPaths = (root: string): Paths => {
 		source: `${root}${SOURCE_DIR}`,
 		build,
 		dist: `${root}${DIST_DIR}`,
-		externals: `${build}${EXTERNALS_DIR}`,
+		externals: `${build}${EXTERNALS_BUILD_DIR}`,
 	};
 };
 

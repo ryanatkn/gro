@@ -24,7 +24,7 @@ import {
 } from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
 import {
-	EXTERNALS_DIR,
+	EXTERNALS_BUILD_DIR,
 	hasSourceExtension,
 	isThisProjectGro,
 	JSON_EXTENSION,
@@ -138,7 +138,6 @@ export interface BaseFile {
 export interface CachedBuildOptions {
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
-	externalsDirBasePath: string | null;
 	buildConfigs: BuildConfig[] | null;
 }
 const CACHED_BUILD_OPTIONS_FILENAME = 'cachedBuildOptions.json';
@@ -191,7 +190,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		externalsBuildConfig === null || opts.externalsDir === null
 			? null
 			: opts.externalsDir === undefined
-			? `${buildRootDir}${EXTERNALS_DIR}`
+			? `${buildRootDir}${EXTERNALS_BUILD_DIR}`
 			: resolve(opts.externalsDir);
 	validateDirs(compiledDirs, externalsDir, buildRootDir);
 	const compiledDirCount = compiledDirs.length + (externalsDir === null ? 0 : 1);
@@ -418,7 +417,6 @@ export class Filer {
 		const currentBuildOptions: CachedBuildOptions = {
 			sourceMap: this.sourceMap,
 			target: this.target,
-			externalsDirBasePath: this.externalsDirBasePath,
 			buildConfigs: this.buildConfigs,
 		};
 		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_FILENAME}`;
