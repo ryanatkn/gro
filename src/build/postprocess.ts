@@ -41,7 +41,7 @@ export function postprocess(
 				compilation.buildConfig.platform === 'browser'
 					? isExternalBrowserModule
 					: isExternalNodeModule;
-			let result = '';
+			let transformedContents = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
 			const [imports] = lexer.parse(contents);
@@ -62,12 +62,12 @@ export function postprocess(
 					newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
 				}
 				if (newModuleName !== moduleName) {
-					result += contents.substring(index, start) + newModuleName;
+					transformedContents += contents.substring(index, start) + newModuleName;
 					index = end;
 				}
 			}
 			if (index > 0) {
-				contents = result + contents.substring(index);
+				contents = transformedContents + contents.substring(index);
 			}
 		}
 

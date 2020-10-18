@@ -5,6 +5,7 @@ export interface BuildConfig {
 	readonly platform: PlatformTarget;
 	readonly dist: boolean;
 	readonly primary: boolean;
+	readonly include: null | ((id: string) => boolean); // `null` means include everything
 }
 
 export type PartialBuildConfig = PartialExcept<BuildConfig, 'name' | 'platform'>;
@@ -27,6 +28,7 @@ export const normalizeBuildConfigs = (
 
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	let buildConfigs: BuildConfig[] = partials.map((buildConfig) => ({
+		include: null,
 		primary: false,
 		...buildConfig,
 		dist: hasDist ? buildConfig.dist ?? false : true, // If no config is marked as `dist`, assume they all are.

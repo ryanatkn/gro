@@ -81,26 +81,31 @@ export interface CompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: true;
 	readonly filerDir: CompilableInternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
+	readonly buildConfigs: BuildConfig[];
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: true;
 	readonly filerDir: CompilableInternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
+	readonly buildConfigs: BuildConfig[];
 }
 export interface CompilableExternalsSourceFile extends ExternalsSourceFile {
 	readonly compilable: true;
 	readonly filerDir: ExternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
+	readonly buildConfigs: BuildConfig[];
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: false;
 	readonly filerDir: NonCompilableInternalsFilerDir;
 	readonly compiledFiles: null;
+	readonly buildConfigs: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: false;
 	readonly filerDir: NonCompilableInternalsFilerDir;
 	readonly compiledFiles: null;
+	readonly buildConfigs: null;
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
@@ -158,7 +163,6 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	externalsBuildConfig: BuildConfig | null;
 	buildRootDir: string;
-	include: (id: string) => boolean;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
 	debounce: number;
@@ -232,7 +236,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
-		include: opts.include || (() => true),
 		compiler,
 		compiledDirs,
 		externalsDir,
@@ -252,7 +255,6 @@ export class Filer {
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly externalsBuildConfig: BuildConfig | null;
 	private readonly cleanOutputDirs: boolean;
-	private readonly include: (id: string) => boolean;
 	private readonly log: Logger;
 
 	// public properties available to e.g. compilers and postprocessors
@@ -273,7 +275,6 @@ export class Filer {
 			compiledDirs,
 			servedDirs,
 			externalsDir,
-			include,
 			sourceMap,
 			target,
 			debounce,
@@ -285,7 +286,6 @@ export class Filer {
 		this.buildConfigs = buildConfigs;
 		this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
-		this.include = include;
 		this.sourceMap = sourceMap;
 		this.target = target;
 		this.cleanOutputDirs = cleanOutputDirs;
@@ -540,6 +540,8 @@ export class Filer {
 				newSourceContents,
 				filerDir,
 				this.cachedSourceInfo.get(id),
+				this.buildConfigs,
+				this.externalsBuildConfig,
 			);
 			// If the created source file has its compiled files hydrated,
 			// we can infer that it doesn't need to be compiled.
@@ -599,7 +601,6 @@ export class Filer {
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
 	private async compileSourceId(id: string, filerDir: CompilableFilerDir): Promise<void> {
-		if (!this.include(id)) return;
 		if (this.pendingCompilations.has(id)) {
 			this.enqueuedCompilations.set(id, [id, filerDir]);
 			return;
@@ -640,10 +641,8 @@ export class Filer {
 		// The Filer is designed to be able to be a long-lived process
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
-		const buildConfigs: BuildConfig[] =
-			sourceFile.sourceType === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
 		const results = await Promise.all(
-			buildConfigs.map((buildConfig) =>
+			sourceFile.buildConfigs.map((buildConfig) =>
 				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this),
 			),
 		);
@@ -934,6 +933,8 @@ const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	cachedSourceInfo: CachedSourceInfo | undefined,
+	buildConfigs: BuildConfig[] | null,
+	externalsBuildConfig: BuildConfig | null,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
@@ -960,6 +961,7 @@ const createSourceFile = async (
 			type: 'source',
 			sourceType: 'externals',
 			compilable: true,
+			buildConfigs: [externalsBuildConfig!],
 			id,
 			filename,
 			dir,
@@ -984,6 +986,9 @@ const createSourceFile = async (
 				? {
 						type: 'source',
 						sourceType: 'text',
+						buildConfigs: buildConfigs!.filter(
+							(buildConfig) => buildConfig.include === null || buildConfig.include(id),
+						),
 						compilable: true,
 						id,
 						filename,
@@ -1002,6 +1007,7 @@ const createSourceFile = async (
 				: {
 						type: 'source',
 						sourceType: 'text',
+						buildConfigs: null,
 						compilable: false,
 						id,
 						filename,
@@ -1022,6 +1028,9 @@ const createSourceFile = async (
 				? {
 						type: 'source',
 						sourceType: 'binary',
+						buildConfigs: buildConfigs!.filter(
+							(buildConfig) => buildConfig.include === null || buildConfig.include(id),
+						),
 						compilable: true,
 						id,
 						filename,
@@ -1040,6 +1049,7 @@ const createSourceFile = async (
 				: {
 						type: 'source',
 						sourceType: 'binary',
+						buildConfigs: null,
 						compilable: false,
 						id,
 						filename,

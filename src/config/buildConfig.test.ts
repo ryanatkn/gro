@@ -4,23 +4,29 @@ import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 test('normalizeBuildConfigs()', async () => {
 	test('normalizes undefined to a default config', () => {
 		const buildConfig = normalizeBuildConfigs(undefined);
-		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+		t.equal(buildConfig, [
+			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
+		]);
 	});
 	test('normalizes an empty array to a default config', () => {
 		const buildConfig = normalizeBuildConfigs([]);
-		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+		t.equal(buildConfig, [
+			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
+		]);
 	});
 	test('normalizes a plain config', () => {
 		const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node'}]);
-		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+		t.equal(buildConfig, [
+			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
+		]);
 	});
 	test('ensures a node config', () => {
 		const buildConfig = normalizeBuildConfigs([
 			{name: 'browser', platform: 'browser', primary: true},
 		]);
 		t.equal(buildConfig, [
-			{name: 'browser', platform: 'browser', primary: true, dist: true},
-			{name: 'node', platform: 'node', primary: true, dist: true},
+			{name: 'browser', platform: 'browser', primary: true, dist: true, include: null},
+			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
 		]);
 	});
 	test('ensures a primary config', () => {
@@ -32,16 +38,18 @@ test('normalizeBuildConfigs()', async () => {
 			{name: 'browser3', platform: 'browser', primary: false, dist: true},
 		]);
 		t.equal(buildConfig, [
-			{name: 'node1', platform: 'node', primary: true, dist: false},
-			{name: 'node2', platform: 'node', primary: false, dist: false},
-			{name: 'browser1', platform: 'browser', primary: false, dist: false},
-			{name: 'browser2', platform: 'browser', primary: true, dist: false},
-			{name: 'browser3', platform: 'browser', primary: false, dist: true},
+			{name: 'node1', platform: 'node', primary: true, dist: false, include: null},
+			{name: 'node2', platform: 'node', primary: false, dist: false, include: null},
+			{name: 'browser1', platform: 'browser', primary: false, dist: false, include: null},
+			{name: 'browser2', platform: 'browser', primary: true, dist: false, include: null},
+			{name: 'browser3', platform: 'browser', primary: false, dist: true, include: null},
 		]);
 	});
 	test('ensures a dist', () => {
 		const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node', dist: false}]);
-		t.equal(buildConfig, [{name: 'node', platform: 'node', primary: true, dist: true}]);
+		t.equal(buildConfig, [
+			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
+		]);
 	});
 	test('makes all dist when none is', () => {
 		const buildConfig = normalizeBuildConfigs([
@@ -52,11 +60,11 @@ test('normalizeBuildConfigs()', async () => {
 			{name: 'browser2', platform: 'browser'},
 		]);
 		t.equal(buildConfig, [
-			{name: 'node1', platform: 'node', primary: true, dist: true},
-			{name: 'node2', platform: 'node', primary: false, dist: true},
-			{name: 'node3', platform: 'node', primary: false, dist: true},
-			{name: 'browser1', platform: 'browser', primary: true, dist: true},
-			{name: 'browser2', platform: 'browser', primary: false, dist: true},
+			{name: 'node1', platform: 'node', primary: true, dist: true, include: null},
+			{name: 'node2', platform: 'node', primary: false, dist: true, include: null},
+			{name: 'node3', platform: 'node', primary: false, dist: true, include: null},
+			{name: 'browser1', platform: 'browser', primary: true, dist: true, include: null},
+			{name: 'browser2', platform: 'browser', primary: false, dist: true, include: null},
 		]);
 	});
 });

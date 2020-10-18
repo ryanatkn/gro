@@ -45,6 +45,7 @@ const BOOTSTRAP_BUILD_CONFIG: BuildConfig = {
 	platform: 'node',
 	primary: true,
 	dist: false,
+	include: null,
 };
 
 // See `./gro.config.ts` for documentation.
