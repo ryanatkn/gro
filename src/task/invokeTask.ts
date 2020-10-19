@@ -232,7 +232,7 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // Properly detecting this is too expensive and would impact startup time significantly.
 const shouldBuildProject = async (sourceId: string, config: GroConfig): Promise<boolean> => {
 	if (isGroId(sourceId) && !isThisProjectGro) {
-		return false; // don't try to compile Gro from outside of it
+		return false; // don't try to compile Gro's own codebase from outside of it
 	}
 	const importId = toImportId(sourceId, true, config.primaryNodeBuildConfig.name);
 	return !(await pathExists(importId));
