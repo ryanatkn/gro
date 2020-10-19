@@ -29,19 +29,19 @@ test('normalizeBuildConfigs()', async () => {
 			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
 		]);
 	});
-	test('ensures a primary config', () => {
+	test('ensures a primary config for each platform', () => {
 		const buildConfig = normalizeBuildConfigs([
 			{name: 'node1', platform: 'node', primary: false},
 			{name: 'node2', platform: 'node', primary: false},
 			{name: 'browser1', platform: 'browser', primary: false},
-			{name: 'browser2', platform: 'browser', primary: true},
+			{name: 'browser2', platform: 'browser', primary: false},
 			{name: 'browser3', platform: 'browser', primary: false, dist: true},
 		]);
 		t.equal(buildConfig, [
 			{name: 'node1', platform: 'node', primary: true, dist: false, include: null},
 			{name: 'node2', platform: 'node', primary: false, dist: false, include: null},
-			{name: 'browser1', platform: 'browser', primary: false, dist: false, include: null},
-			{name: 'browser2', platform: 'browser', primary: true, dist: false, include: null},
+			{name: 'browser1', platform: 'browser', primary: true, dist: false, include: null},
+			{name: 'browser2', platform: 'browser', primary: false, dist: false, include: null},
 			{name: 'browser3', platform: 'browser', primary: false, dist: true, include: null},
 		]);
 	});
