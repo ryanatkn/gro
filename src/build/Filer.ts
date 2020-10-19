@@ -866,6 +866,8 @@ export const getFileContentsHash = (file: BaseFile): string =>
 		? file.contentsHash
 		: (file.contentsHash = toHash(getFileContentsBuffer(file)));
 
+// Note that this uses md5 and therefore is not cryptographically secure.
+// It's fine for now, but some use cases may need security.
 const toHash = (buf: Buffer): string => createHash('md5').update(buf).digest().toString('hex');
 
 const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
