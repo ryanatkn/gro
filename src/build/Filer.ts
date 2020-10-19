@@ -22,7 +22,6 @@ import {
 	Stats,
 	emptyDir,
 } from '../fs/nodeFs.js';
-import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
 import {
 	EXTERNALS_BUILD_DIR,
 	hasSourceExtension,
@@ -165,8 +164,8 @@ export interface Options {
 	buildRootDir: string;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
-	debounce: number;
 	watch: boolean;
+	watcherDebounce: number | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -231,8 +230,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 		dev,
 		sourceMap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
-		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
+		watcherDebounce: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
@@ -277,8 +276,8 @@ export class Filer {
 			externalsDir,
 			sourceMap,
 			target,
-			debounce,
 			watch,
+			watcherDebounce,
 			cleanOutputDirs,
 			log,
 		} = initOptions(opts);
@@ -296,9 +295,9 @@ export class Filer {
 			externalsDir,
 			compiler,
 			buildRootDir,
-			watch,
-			debounce,
 			this.onDirChange,
+			watch,
+			watcherDebounce,
 		);
 		this.servedDirs = servedDirs;
 		this.externalsDir =
@@ -1128,16 +1127,18 @@ const createFilerDirs = (
 	externalsDir: string | null,
 	compiler: Compiler | null,
 	buildRootDir: string,
-	watch: boolean,
-	debounce: number,
 	onChange: FilerDirChangeCallback,
+	watch: boolean,
+	watcherDebounce: number | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const compiledDir of compiledDirs) {
-		dirs.push(createFilerDir(compiledDir, 'files', compiler, watch, debounce, onChange));
+		dirs.push(createFilerDir(compiledDir, 'files', compiler, onChange, watch, watcherDebounce));
 	}
 	if (externalsDir !== null) {
-		dirs.push(createFilerDir(externalsDir, 'externals', compiler, false, debounce, onChange));
+		dirs.push(
+			createFilerDir(externalsDir, 'externals', compiler, onChange, false, watcherDebounce),
+		);
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a compiled or externals directory,
@@ -1149,7 +1150,7 @@ const createFilerDirs = (
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildRootDir)
 		) {
-			dirs.push(createFilerDir(servedDir.dir, 'files', null, watch, debounce, onChange));
+			dirs.push(createFilerDir(servedDir.dir, 'files', null, onChange, watch, watcherDebounce));
 		}
 	}
 	return dirs;
