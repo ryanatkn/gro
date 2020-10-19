@@ -24,6 +24,8 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
+import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
+import {loadConfig} from '../config/config.js';
 
 /*
 
@@ -81,10 +83,6 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 			if (await shouldBuildProject(pathData.id)) {
 				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 				// every time a task is invoked.
-				const [{compileSourceDirectory}, {loadConfig}] = await Promise.all([
-					import('../compile/compileSourceDirectory.js'),
-					import('../config/config.js'),
-				]);
 				log.info('Task file not found in build directory. Compiling TypeScript...');
 				const timingToLoadConfig = timings.start('load config');
 				const config = await loadConfig();
