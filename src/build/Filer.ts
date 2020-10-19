@@ -720,6 +720,7 @@ export class Filer {
 		);
 		const cachedSourceInfo: CachedSourceInfo = {
 			sourceId: file.id,
+			// TODO what if we used mtime instead? possible errors?
 			contentsHash: getFileContentsHash(file),
 			compilations: file.compiledFiles.map((file) => ({id: file.id, encoding: file.encoding})),
 		};
@@ -865,7 +866,7 @@ export const getFileContentsHash = (file: BaseFile): string =>
 		? file.contentsHash
 		: (file.contentsHash = toHash(getFileContentsBuffer(file)));
 
-const toHash = (buf: Buffer): string => createHash('sha256').update(buf).digest().toString('hex');
+const toHash = (buf: Buffer): string => createHash('md5').update(buf).digest().toString('hex');
 
 const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
