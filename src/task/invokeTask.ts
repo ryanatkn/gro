@@ -22,7 +22,8 @@ import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
-import {GroConfig, loadConfig} from '../config/config.js';
+import {loadConfig} from '../config/config.js';
+import {DEFAULT_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
 
 /*
 
@@ -77,11 +78,11 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
-			const timingToLoadConfig = timings.start('load config');
-			const config = await loadConfig();
-			timingToLoadConfig();
-			if (await shouldBuildProject(pathData.id, config)) {
+			if (await shouldBuildProject(pathData.id)) {
 				log.info('Task file not found in build directory. Compiling TypeScript...');
+				const timingToLoadConfig = timings.start('load config');
+				const config = await loadConfig();
+				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				await compileSourceDirectory(config, true, log);
 				timingToBuildProject();
@@ -230,10 +231,10 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // This is a best-effort heuristic that detects if
 // we should compile a project's TypeScript when invoking a task.
 // Properly detecting this is too expensive and would impact startup time significantly.
-const shouldBuildProject = async (sourceId: string, config: GroConfig): Promise<boolean> => {
+const shouldBuildProject = async (sourceId: string): Promise<boolean> => {
 	if (isGroId(sourceId) && !isThisProjectGro) {
 		return false; // don't try to compile Gro's own codebase from outside of it
 	}
-	const importId = toImportId(sourceId, true, config.primaryNodeBuildConfig.name);
+	const importId = toImportId(sourceId, true, DEFAULT_BUILD_CONFIG_NAME);
 	return !(await pathExists(importId));
 };

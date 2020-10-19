@@ -19,6 +19,7 @@ import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
 import {replaceExtension} from '../utils/path.js';
 import internalConfig from '../gro.config.js';
 import fallbackConfig from './gro.config.default.js';
+import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
 
 /*
 
@@ -40,13 +41,6 @@ This choice keeps things simple and flexible because:
 const EXTERNAL_CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
 const FALLBACK_CONFIG_NAME = `gro/src/config/gro.config.default.js`; // TODO try dynamic import again? was really slow for some reason, ~10ms
 const INTERNAL_CONFIG_NAME = 'gro/src/gro.config.js'; // TODO try dynamic import again? was really slow for some reason, ~10ms
-const BOOTSTRAP_BUILD_CONFIG: BuildConfig = {
-	name: 'node',
-	platform: 'node',
-	primary: true,
-	dist: false,
-	include: null,
-};
 
 // See `./gro.config.ts` for documentation.
 export interface GroConfig {
@@ -122,7 +116,7 @@ export const loadConfigAt = (id: string): Promise<GroConfig> =>
 	isGroId(id) ? loadInternalConfig() : loadConfig();
 
 export const loadConfig = async (
-	buildConfig: BuildConfig = BOOTSTRAP_BUILD_CONFIG,
+	buildConfig: BuildConfig = DEFAULT_BUILD_CONFIG,
 ): Promise<GroConfig> => {
 	if (isThisProjectGro) return loadInternalConfig();
 	if (cachedExternalConfig !== undefined) return cachedExternalConfig;
@@ -197,15 +191,17 @@ export const toConfig = async (
 	path: string,
 	options: GroConfigCreatorOptions,
 ): Promise<GroConfig> => {
-	const config =
+	const configPartial =
 		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
+
+	const config = normalizeConfig(configPartial);
 
 	const validateResult = validateConfig(config);
 	if (!validateResult.ok) {
 		throw Error(`Invalid Gro config at '${path}': ${validateResult.reason}`);
 	}
 
-	return normalizeConfig(config);
+	return config;
 };
 
 const validateConfigModule = (configModule: any): Result<{}, {reason: string}> => {
@@ -215,7 +211,7 @@ const validateConfigModule = (configModule: any): Result<{}, {reason: string}> =
 	return {ok: true};
 };
 
-const validateConfig = (config: PartialGroConfig): Result<{}, {reason: string}> => {
+const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
 	const buildConfigsResult = validateBuildConfigs(config.builds);
 	if (!buildConfigsResult.ok) return buildConfigsResult;
 	return {ok: true};
@@ -223,13 +219,9 @@ const validateConfig = (config: PartialGroConfig): Result<{}, {reason: string}> 
 
 const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 	const buildConfigs = normalizeBuildConfigs(config.builds);
-	const primaryNodeBuildConfig = buildConfigs.find((b) => b.primary && b.platform === 'node');
+	const primaryNodeBuildConfig = buildConfigs.find((b) => b.primary && b.platform === 'node')!;
 	const primaryBrowserBuildConfig =
 		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
-	if (primaryNodeBuildConfig === undefined) {
-		// `normalizeBuildConfigs` should handle this invariant, but check just in case.
-		throw Error('Expected to find a primary Node config.');
-	}
 	return {
 		...config,
 		builds: buildConfigs,

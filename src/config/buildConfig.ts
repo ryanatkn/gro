@@ -1,3 +1,5 @@
+import {DEFAULT_BUILD_CONFIG, DEFAULT_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
+
 // See `../docs/config.md` for documentation.
 
 export interface BuildConfig {
@@ -21,7 +23,7 @@ export const normalizeBuildConfigs = (
 
 	// If there is no Node config, add one.
 	if (!partials.some((p) => p.platform === 'node')) {
-		partials.push({name: 'node', platform: 'node', primary: true, dist: false});
+		partials.push(DEFAULT_BUILD_CONFIG);
 	}
 
 	const hasDist = partials.some((b) => b.dist);
@@ -51,14 +53,11 @@ export const normalizeBuildConfigs = (
 };
 
 // TODO replace this with JSON schema validation (or most of it at least)
-export const validateBuildConfigs = (
-	buildConfigs: PartialBuildConfig[] | undefined,
-): Result<{}, {reason: string}> => {
-	if (buildConfigs === undefined) return {ok: true};
+export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {reason: string}> => {
 	if (!Array.isArray(buildConfigs)) {
 		return {
 			ok: false,
-			reason: 'The field "gro.builds" in package.json must be an array or undefined',
+			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
 	const names: Set<string> = new Set();
@@ -72,7 +71,7 @@ export const validateBuildConfigs = (
 			return {
 				ok: false,
 				reason:
-					'The field "gro.builds" in package.json has an item' +
+					`The field 'gro.builds' in package.json has an item` +
 					` that does not match the BuildConfig interface: ${JSON.stringify(buildConfig)}`,
 			};
 		}
@@ -80,7 +79,7 @@ export const validateBuildConfigs = (
 			return {
 				ok: false,
 				reason:
-					'The field "gro.builds" in package.json cannot have items with duplicate names.' +
+					`The field 'gro.builds' in package.json cannot have items with duplicate names.` +
 					` The name '${buildConfig.name}' appears twice.`,
 			};
 		}
@@ -91,8 +90,16 @@ export const validateBuildConfigs = (
 				return {
 					ok: false,
 					reason:
-						'The field "gro.builds" in package.json cannot have' +
+						`The field 'gro.builds' in package.json cannot have` +
 						` multiple primary items for platform "${buildConfig.platform}".`,
+				};
+			}
+			if (buildConfig.platform === 'node' && buildConfig.name !== DEFAULT_BUILD_CONFIG_NAME) {
+				return {
+					ok: false,
+					reason:
+						`The field 'gro.builds' in package.json must name` +
+						` its primary Node config '${DEFAULT_BUILD_CONFIG_NAME}'`,
 				};
 			}
 			primaryPlatforms.add(buildConfig.platform);
