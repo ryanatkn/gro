@@ -1,10 +1,4 @@
-import {
-	basePathToSourceId,
-	isGroId,
-	isThisProjectGro,
-	JS_EXTENSION,
-	toBuildOutDir,
-} from '../paths.js';
+import {paths, isGroId, isThisProjectGro, toBuildOutDir, CONFIG_BUILD_BASE_PATH} from '../paths.js';
 import {
 	BuildConfig,
 	normalizeBuildConfigs,
@@ -16,7 +10,6 @@ import {magenta} from '../colors/terminal.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
 import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
-import {replaceExtension} from '../utils/path.js';
 import internalConfig from '../gro.config.js';
 import fallbackConfig from './gro.config.default.js';
 import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
@@ -38,7 +31,6 @@ This choice keeps things simple and flexible because:
 
 */
 
-const EXTERNAL_CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
 const FALLBACK_CONFIG_NAME = `gro/src/config/gro.config.default.js`; // TODO try dynamic import again? was really slow for some reason, ~10ms
 const INTERNAL_CONFIG_NAME = 'gro/src/gro.config.js'; // TODO try dynamic import again? was really slow for some reason, ~10ms
 
@@ -126,26 +118,22 @@ export const loadConfig = async (
 	log.trace(`loading Gro config for ${dev ? 'development' : 'production'}`);
 	const options: GroConfigCreatorOptions = {log, dev};
 
-	const externalConfigSourceId = basePathToSourceId(EXTERNAL_CONFIG_SOURCE_BASE_PATH);
+	const {configSourceId} = paths;
 
 	let configModule: GroConfigModule;
 	let modulePath: string;
 	let bootstrapping = false;
-	if (await pathExists(externalConfigSourceId)) {
+	if (await pathExists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
-		modulePath = externalConfigSourceId;
-		const externalConfigBuildId = toBuildOutDir(
-			dev,
-			buildConfig.name,
-			replaceExtension(EXTERNAL_CONFIG_SOURCE_BASE_PATH, JS_EXTENSION),
-		);
+		modulePath = configSourceId;
+		const externalConfigBuildId = toBuildOutDir(dev, buildConfig.name, CONFIG_BUILD_BASE_PATH);
 		if (await pathExists(externalConfigBuildId)) {
 			configModule = await import(externalConfigBuildId);
 		} else {
 			// We need to bootstrap the config.
 			bootstrapping = true;
-			configModule = await importTs(externalConfigSourceId, buildConfig);
+			configModule = await importTs(configSourceId, buildConfig);
 		}
 	} else {
 		// The project does not have a `gro.config.ts`, so use Gro's fallback default.

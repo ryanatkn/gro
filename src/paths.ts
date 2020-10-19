@@ -28,6 +28,9 @@ export const SOURCE_DIR = `${SOURCE_DIR_NAME}/`;
 export const BUILD_DIR = `${BUILD_DIR_NAME}/`;
 export const DIST_DIR = `${DIST_DIR_NAME}/`;
 
+export const CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
+export const CONFIG_BUILD_BASE_PATH = 'gro.config.js';
+
 export const EXTERNALS_BUILD_DIR = 'externals';
 
 export interface Paths {
@@ -36,29 +39,22 @@ export interface Paths {
 	build: string;
 	dist: string;
 	externals: string;
+	configSourceId: string;
 }
 
 export const createPaths = (root: string): Paths => {
 	root = ensureTrailingSlash(root);
+	const source = `${root}${SOURCE_DIR}`;
 	const build = `${root}${BUILD_DIR}`;
 	return {
 		root,
-		source: `${root}${SOURCE_DIR}`,
+		source,
 		build,
 		dist: `${root}${DIST_DIR}`,
 		externals: `${build}${EXTERNALS_BUILD_DIR}`,
+		configSourceId: `${source}${CONFIG_SOURCE_BASE_PATH}`,
 	};
 };
-
-export const paths = createPaths(`${process.cwd()}/`);
-export let groImportDir = join(fileURLToPath(import.meta.url), '../');
-export const groDir = join(
-	groImportDir,
-	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
-);
-export const groDirBasename = `${basename(groDir)}/`;
-export const isThisProjectGro = groDir === paths.root;
-export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
 
 export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : paths);
 export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
@@ -134,3 +130,13 @@ export const toImportId = (sourceId: string, dev: boolean, buildConfigName: stri
 	const dirBasePath = replaceExtension(stripStart(sourceId, p.source), JS_EXTENSION);
 	return toBuildOutDir(dev, buildConfigName, dirBasePath, p.build);
 };
+
+export let groImportDir = join(fileURLToPath(import.meta.url), '../');
+export const groDir = join(
+	groImportDir,
+	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
+);
+export const groDirBasename = `${basename(groDir)}/`;
+export const paths = createPaths(`${process.cwd()}/`);
+export const isThisProjectGro = groDir === paths.root;
+export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
