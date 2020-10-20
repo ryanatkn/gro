@@ -131,7 +131,11 @@ export const loadConfig = async (
 		if (await pathExists(externalConfigBuildId)) {
 			configModule = await import(externalConfigBuildId);
 		} else {
-			// We need to bootstrap the config.
+			// We need to bootstrap the config because it's not yet built.
+			// This is the lightest possible build process
+			// to compile the config from TypeScript to importable JavaScript.
+			// Importantly, the build config is typically the default, because it hasn't yet been loaded,
+			// so there could be subtle differences between the actual and bootstrapped configs.
 			bootstrapping = true;
 			configModule = await importTs(configSourceId, buildConfig);
 		}

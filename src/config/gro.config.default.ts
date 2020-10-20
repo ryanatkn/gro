@@ -7,13 +7,14 @@ import {GroConfigCreator, PartialGroConfig} from './config.js';
 
 const createConfig: GroConfigCreator = async () => {
 	const config: PartialGroConfig = {
+		// TODO include only tasks and such, and follow imports from entry points
 		builds: [
 			{name: 'browser', platform: 'browser', dist: true},
 			{
 				name: 'node',
 				platform: 'node',
 				include: createFilter(undefined, basePathToSourceId('**/*.svelte')),
-			}, // TODO include only tasks and such
+			},
 		],
 	};
 
