@@ -86,12 +86,13 @@ Problem! The build configs are defined in the thing we're importing!
 We're stuck in a circular dependency loop.
 Luckily there's a way out, though it's somewhat imperfect.
 
-When Gro runs its dev processes, it caches build configs at `.gro/cachedBuildOptions.json`,
-so we try to load that file if it exists.
-If we find the file, we use its build configs
-to translate the original TS id to the primary build's JS version, and then import it.
+The config may already be built in the cache directory.
+If it exists, we import the config file and instantiate the config with it.
+This config may be stale -
+if it is, the Filer will detect this case and clear its cache on initialization.
+(TODO but won't the config be stale? hmm. TODO!!)
 
-If the cached build options file doesn't exist, we're in an unbuilt project.
+If the cached config build file doesn't exist, we're in an unbuilt project.
 In this case, we perform a minimal compilation of the config file and its dependency tree to
 a temporary directory, then import the JS config file, and then delete the temporary directory.
 
@@ -170,7 +171,7 @@ export const loadInternalConfig = async (): Promise<GroConfig> => {
 
 	const dev = process.env.NODE_ENV !== 'production'; // TODO what's the right way to do this?
 	const log = new SystemLogger([magenta('[config]')]);
-	log.trace(`loading Gro internal config for ${dev ? 'development' : 'production'}`);
+	log.trace(`loading internal Gro config for ${dev ? 'development' : 'production'}`);
 	const options: GroConfigCreatorOptions = {log, dev};
 
 	cachedInternalConfig = await toConfig(internalConfig, INTERNAL_CONFIG_NAME, options);

@@ -6,7 +6,9 @@ import {basePathToSourceId} from './paths.js';
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
-const createConfig: GroConfigCreator = async () => {
+const createConfig: GroConfigCreator = async ({log}) => {
+	log.info('creating internal Gro confg');
+
 	const config: PartialGroConfig = {
 		builds: [
 			{
