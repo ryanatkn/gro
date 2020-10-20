@@ -25,35 +25,41 @@ test('normalizeBuildConfigs()', async () => {
 
 	test('ensures a node config', () => {
 		const buildConfig = normalizeBuildConfigs([
-			{name: 'browser', platform: 'browser', primary: true},
+			{name: 'browser', platform: 'browser', primary: true, dist: true},
 		]);
 		t.equal(buildConfig, [
 			{name: 'browser', platform: 'browser', primary: true, dist: true, include: null},
-			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
+			{name: 'node', platform: 'node', primary: true, dist: false, include: null},
+		]);
+	});
+
+	test('declares a single dist', () => {
+		const buildConfig = normalizeBuildConfigs([
+			{name: 'node1', platform: 'node'},
+			{name: 'node2', platform: 'node', dist: true},
+			{name: 'node3', platform: 'node', primary: true},
+		]);
+		t.equal(buildConfig, [
+			{name: 'node1', platform: 'node', primary: false, dist: false, include: null},
+			{name: 'node2', platform: 'node', primary: false, dist: true, include: null},
+			{name: 'node3', platform: 'node', primary: true, dist: false, include: null},
 		]);
 	});
 
 	test('ensures a primary config for each platform', () => {
 		const buildConfig = normalizeBuildConfigs([
-			{name: 'node1', platform: 'node', primary: false},
+			{name: 'node1', platform: 'node', primary: false, dist: true},
 			{name: 'node2', platform: 'node', primary: false},
 			{name: 'browser1', platform: 'browser', primary: false},
 			{name: 'browser2', platform: 'browser', primary: false},
-			{name: 'browser3', platform: 'browser', primary: false, dist: true},
+			{name: 'browser3', platform: 'browser', primary: false},
 		]);
 		t.equal(buildConfig, [
-			{name: 'node1', platform: 'node', primary: true, dist: false, include: null},
+			{name: 'node1', platform: 'node', primary: true, dist: true, include: null},
 			{name: 'node2', platform: 'node', primary: false, dist: false, include: null},
 			{name: 'browser1', platform: 'browser', primary: true, dist: false, include: null},
 			{name: 'browser2', platform: 'browser', primary: false, dist: false, include: null},
-			{name: 'browser3', platform: 'browser', primary: false, dist: true, include: null},
-		]);
-	});
-
-	test('ensures a dist', () => {
-		const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node', dist: false}]);
-		t.equal(buildConfig, [
-			{name: 'node', platform: 'node', primary: true, dist: true, include: null},
+			{name: 'browser3', platform: 'browser', primary: false, dist: false, include: null},
 		]);
 	});
 
