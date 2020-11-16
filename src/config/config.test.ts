@@ -1,6 +1,6 @@
 import {test, t} from '../oki/oki.js';
 import {paths} from '../paths.js';
-import {loadConfig, loadConfigAt, loadInternalConfig} from './config.js';
+import {loadConfig, loadConfigFor, loadInternalConfig} from './config.js';
 
 // TODO fix all of this with the new API
 test('loadConfig()', async () => {
@@ -9,7 +9,7 @@ test('loadConfig()', async () => {
 	t.is(c2, c1);
 
 	test('loadConfigAt()', async () => {
-		const c4 = await loadConfigAt(paths.source);
+		const c4 = await loadConfigFor(paths.source);
 		t.is(c4, c1);
 	});
 });

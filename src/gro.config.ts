@@ -7,7 +7,7 @@ import {basePathToSourceId} from './paths.js';
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
 const createConfig: GroConfigCreator = async ({log}) => {
-	log.info('creating internal Gro confg');
+	log.info('Creating internal Gro confg.');
 
 	const config: PartialGroConfig = {
 		builds: [
@@ -21,6 +21,8 @@ const createConfig: GroConfigCreator = async ({log}) => {
 			{
 				name: 'browser',
 				platform: 'browser',
+				// TODO this doesn't allow the frontend to import modules outside of its directory.
+				// We probably want to either define entrypoints or automatically include all transitive dependencies.
 				include: createFilter(basePathToSourceId('frontend/**/*')),
 			},
 		],

@@ -111,7 +111,7 @@ and we'll deal with any bugs that come up.
 
 */
 
-export const loadConfigAt = (id: string): Promise<GroConfig> =>
+export const loadConfigFor = (id: string): Promise<GroConfig> =>
 	isGroId(id) ? loadInternalConfig() : loadConfig();
 
 export const loadConfig = async (
