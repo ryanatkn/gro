@@ -1,6 +1,6 @@
 import {copy} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
-import {paths, toBuildOutDir} from './paths.js';
+import {paths, toBuildOutPath} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
 import {printPath} from './utils/print.js';
 import {cleanDist} from './project/clean.js';
@@ -21,7 +21,7 @@ export const task: Task = {
 		const buildConfigsForDist = config.builds.filter((b) => b.dist);
 		await Promise.all(
 			buildConfigsForDist.map((buildConfig) => {
-				const buildOutDir = toBuildOutDir(dev, buildConfig.name);
+				const buildOutDir = toBuildOutPath(dev, buildConfig.name);
 				const distOutDir =
 					buildConfigsForDist.length === 1 ? paths.dist : `${paths.dist}${buildConfig.name}`;
 				log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);

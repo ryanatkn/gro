@@ -1,7 +1,7 @@
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {toBuildOutDir} from '../paths.js';
+import {toBuildOutPath} from '../paths.js';
 import {EcmaScriptTarget} from './tsHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';
 
@@ -106,7 +106,7 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 const noopCompiler: Compiler = {
 	compile: (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
-		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
+		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
 		let file: Compilation;
 		switch (source.encoding) {

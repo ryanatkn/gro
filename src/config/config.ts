@@ -1,4 +1,10 @@
-import {paths, isGroId, isThisProjectGro, toBuildOutDir, CONFIG_BUILD_BASE_PATH} from '../paths.js';
+import {
+	paths,
+	isGroId,
+	isThisProjectGro,
+	toBuildOutPath,
+	CONFIG_BUILD_BASE_PATH,
+} from '../paths.js';
 import {
 	BuildConfig,
 	normalizeBuildConfigs,
@@ -128,7 +134,7 @@ export const loadConfig = async (
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
 		modulePath = configSourceId;
-		const externalConfigBuildId = toBuildOutDir(dev, buildConfig.name, CONFIG_BUILD_BASE_PATH);
+		const externalConfigBuildId = toBuildOutPath(dev, buildConfig.name, CONFIG_BUILD_BASE_PATH);
 		if (await pathExists(externalConfigBuildId)) {
 			configModule = await import(externalConfigBuildId);
 		} else {

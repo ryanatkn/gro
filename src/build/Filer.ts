@@ -30,7 +30,7 @@ import {
 	JS_EXTENSION,
 	paths,
 	SOURCE_MAP_EXTENSION,
-	toBuildOutDir,
+	toBuildOutPath,
 	toBuildsOutDir,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
@@ -192,7 +192,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 			(buildConfigs === null
 				? []
 				: [
-						toBuildOutDir(
+						toBuildOutPath(
 							dev,
 							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
 							'',
@@ -358,7 +358,7 @@ export class Filer {
 			// See the comments where `dev` is declared for more.
 			// (more accurately, it could handle prod, but not simultaneous to dev)
 			const buildOutDirs: string[] = buildConfigs.map((buildConfig) =>
-				toBuildOutDir(this.dev, buildConfig.name, '', this.buildRootDir),
+				toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir),
 			);
 			await Promise.all(
 				buildOutDirs.map(async (outputDir) => {
@@ -475,7 +475,7 @@ export class Filer {
 					if (this.buildConfigs !== null && filerDir.compilable) {
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
-								remove(toBuildOutDir(this.dev, buildConfig.name, change.path, this.buildRootDir)),
+								remove(toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildRootDir)),
 							),
 						);
 					}

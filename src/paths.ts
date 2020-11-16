@@ -79,12 +79,12 @@ function ensureTrailingSlash(s: string): string {
 	return s[s.length - 1] === '/' ? s : s + '/';
 }
 
-export const toBuildOutDir = (
+export const toBuildOutPath = (
 	dev: boolean,
 	buildConfigName: string,
-	dirBasePath = '',
+	basePath = '',
 	buildRootDir = paths.build,
-): string => `${toBuildsOutDir(dev, buildRootDir)}/${buildConfigName}/${dirBasePath}`;
+): string => `${toBuildsOutDir(dev, buildRootDir)}/${buildConfigName}/${basePath}`;
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
@@ -128,7 +128,7 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 export const toImportId = (sourceId: string, dev: boolean, buildConfigName: string): string => {
 	const p = pathsFromId(sourceId);
 	const dirBasePath = replaceExtension(stripStart(sourceId, p.source), JS_EXTENSION);
-	return toBuildOutDir(dev, buildConfigName, dirBasePath, p.build);
+	return toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
 };
 
 export let groImportDir = join(fileURLToPath(import.meta.url), '../');
