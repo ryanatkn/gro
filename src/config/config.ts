@@ -13,6 +13,8 @@ import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
 
 /*
 
+See `../docs/config.md` for documentation.
+
 The Gro config tells Gro how to build and manage a project.
 Dependent projects can optionally define one at `src/gro.config.ts`.
 If none is provided, the fallback is located at `gro/src/config/gro.config.default.ts`.
