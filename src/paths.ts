@@ -28,7 +28,10 @@ export const SOURCE_DIR = `${SOURCE_DIR_NAME}/`;
 export const BUILD_DIR = `${BUILD_DIR_NAME}/`;
 export const DIST_DIR = `${DIST_DIR_NAME}/`;
 
-export const EXTERNALS_DIR = 'externals';
+export const CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
+export const CONFIG_BUILD_BASE_PATH = 'gro.config.js';
+
+export const EXTERNALS_BUILD_DIR = 'externals';
 
 export interface Paths {
 	root: string;
@@ -36,29 +39,22 @@ export interface Paths {
 	build: string;
 	dist: string;
 	externals: string;
+	configSourceId: string;
 }
 
 export const createPaths = (root: string): Paths => {
 	root = ensureTrailingSlash(root);
+	const source = `${root}${SOURCE_DIR}`;
 	const build = `${root}${BUILD_DIR}`;
 	return {
 		root,
-		source: `${root}${SOURCE_DIR}`,
+		source,
 		build,
 		dist: `${root}${DIST_DIR}`,
-		externals: `${build}${EXTERNALS_DIR}`,
+		externals: `${build}${EXTERNALS_BUILD_DIR}`,
+		configSourceId: `${source}${CONFIG_SOURCE_BASE_PATH}`,
 	};
 };
-
-export const paths = createPaths(`${process.cwd()}/`);
-export let groImportDir = join(fileURLToPath(import.meta.url), '../');
-export const groDir = join(
-	groImportDir,
-	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
-);
-export const groDirBasename = `${basename(groDir)}/`;
-export const isThisProjectGro = groDir === paths.root;
-export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
 
 export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : paths);
 export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
@@ -73,7 +69,7 @@ export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 	stripStart(sourceId, p.source);
 
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
-export const basePathToSourceId = (basePath: string, p = paths): string => join(p.source, basePath);
+export const basePathToSourceId = (basePath: string, p = paths): string => `${p.source}${basePath}`;
 
 export const toBuildsOutDir = (dev: boolean, buildRootDir = paths.build): string =>
 	`${ensureTrailingSlash(buildRootDir)}${dev ? 'dev' : 'prod'}`;
@@ -83,12 +79,12 @@ function ensureTrailingSlash(s: string): string {
 	return s[s.length - 1] === '/' ? s : s + '/';
 }
 
-export const toBuildOutDir = (
+export const toBuildOutPath = (
 	dev: boolean,
 	buildConfigName: string,
-	dirBasePath = '',
+	basePath = '',
 	buildRootDir = paths.build,
-): string => `${toBuildsOutDir(dev, buildRootDir)}/${buildConfigName}/${dirBasePath}`;
+): string => `${toBuildsOutDir(dev, buildRootDir)}/${buildConfigName}/${basePath}`;
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
@@ -129,8 +125,18 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 
 // Converts a source id into an id that can be imported.
 // When importing Gro paths, this correctly chooses the build or dist dir.
-export const toImportId = (id: string, dev: boolean, buildConfigName: string): string => {
-	const p = pathsFromId(id);
-	const dirBasePath = replaceExtension(stripStart(id, p.source), JS_EXTENSION);
-	return toBuildOutDir(dev, buildConfigName, dirBasePath, p.build);
+export const toImportId = (sourceId: string, dev: boolean, buildConfigName: string): string => {
+	const p = pathsFromId(sourceId);
+	const dirBasePath = replaceExtension(stripStart(sourceId, p.source), JS_EXTENSION);
+	return toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
 };
+
+export let groImportDir = join(fileURLToPath(import.meta.url), '../');
+export const groDir = join(
+	groImportDir,
+	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
+);
+export const groDirBasename = `${basename(groDir)}/`;
+export const paths = createPaths(`${process.cwd()}/`);
+export const isThisProjectGro = groDir === paths.root;
+export const groPaths = isThisProjectGro ? paths : createPaths(groDir);

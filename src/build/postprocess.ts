@@ -12,9 +12,7 @@ import type {
 } from '../compile/compiler.js';
 import {replaceExtension} from '../utils/path.js';
 import {stripStart} from '../utils/string.js';
-
-const INTERNAL_MODULE_MATCHER = /^\.?\.?\//;
-const isExternalModule = (moduleName: string): boolean => !INTERNAL_MODULE_MATCHER.test(moduleName);
+import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js';
 
 export function postprocess(
 	compilation: TextCompilation,
@@ -39,7 +37,11 @@ export function postprocess(
 
 		// Map import paths to the compiled versions.
 		if (compilation.extension === JS_EXTENSION) {
-			let result = '';
+			const isExternalModule =
+				compilation.buildConfig.platform === 'browser'
+					? isExternalBrowserModule
+					: isExternalNodeModule;
+			let transformedContents = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
 			const [imports] = lexer.parse(contents);
@@ -60,12 +62,12 @@ export function postprocess(
 					newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
 				}
 				if (newModuleName !== moduleName) {
-					result += contents.substring(index, start) + newModuleName;
+					transformedContents += contents.substring(index, start) + newModuleName;
 					index = end;
 				}
 			}
 			if (index > 0) {
-				contents = result + contents.substring(index);
+				contents = transformedContents + contents.substring(index);
 			}
 		}
 

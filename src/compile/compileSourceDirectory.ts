@@ -2,18 +2,18 @@ import {spawnProcess} from '../utils/process.js';
 import {printMs, printTiming} from '../utils/print.js';
 import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
-import {paths, TS_EXTENSION} from '../paths.js';
+import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {createDefaultCompiler} from './defaultCompiler.js';
-import {BuildConfig} from '../build/buildConfig.js';
+import {GroConfig} from '../config/config.js';
 import {cleanProductionBuild} from '../project/clean.js';
 
 export const compileSourceDirectory = async (
-	buildConfigs: BuildConfig[],
+	config: GroConfig,
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {
-	log.info('compiling...');
+	log.info('compiling source directory');
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
@@ -24,10 +24,6 @@ export const compileSourceDirectory = async (
 		log.info(`🕒 compiled in ${printMs(totalTiming())}`);
 	};
 
-	let include: ((id: string) => boolean) | undefined = dev
-		? undefined
-		: (id) => !id.endsWith(TS_EXTENSION);
-
 	if (!dev) {
 		await cleanProductionBuild(log);
 	}
@@ -36,9 +32,8 @@ export const compileSourceDirectory = async (
 	const filer = new Filer({
 		compiler: createDefaultCompiler(),
 		compiledDirs: [paths.source],
-		buildConfigs,
+		buildConfigs: config.builds,
 		watch: false,
-		include,
 		dev,
 	});
 	timingToCreateFiler();

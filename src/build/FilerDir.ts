@@ -1,5 +1,5 @@
 import {ensureDir} from '../fs/nodeFs.js';
-import {watchNodeFs} from '../fs/watchNodeFs.js';
+import {DEBOUNCE_DEFAULT, watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import {Compiler} from '../compile/compiler.js';
 import {UnreachableError} from '../utils/error.js';
@@ -47,15 +47,15 @@ export const createFilerDir = (
 	dir: string,
 	type: FilerDirType,
 	compiler: Compiler | null,
-	watch: boolean,
-	debounce: number,
 	onChange: FilerDirChangeCallback,
+	watch: boolean,
+	watcherDebounce: number = DEBOUNCE_DEFAULT,
 ): FilerDir => {
 	const watcher = watchNodeFs({
 		dir,
-		debounce,
-		watch,
 		onChange: (change) => onChange(change, filerDir),
+		debounce: watcherDebounce,
+		watch,
 	});
 	const close = () => {
 		watcher.close();

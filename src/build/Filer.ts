@@ -20,19 +20,16 @@ import {
 	readJson,
 	stat,
 	Stats,
-	emptyDir,
 } from '../fs/nodeFs.js';
-import {DEBOUNCE_DEFAULT} from '../fs/watchNodeFs.js';
 import {
-	EXTERNALS_DIR,
+	EXTERNALS_BUILD_DIR,
 	hasSourceExtension,
 	isThisProjectGro,
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
 	SOURCE_MAP_EXTENSION,
-	toBuildOutDir,
-	toBuildsOutDir,
+	toBuildOutPath,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
@@ -42,11 +39,10 @@ import {printError, printPath} from '../utils/print.js';
 import type {Compiler} from '../compile/compiler.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
-import {BuildConfig} from './buildConfig.js';
+import {BuildConfig} from '../config/buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
 import {postprocess} from './postprocess.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
-import {deepEqual} from '../utils/deepEqual.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 
 export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
@@ -81,26 +77,31 @@ export interface CompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: true;
 	readonly filerDir: CompilableInternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
+	readonly buildConfigs: BuildConfig[];
 }
 export interface CompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: true;
 	readonly filerDir: CompilableInternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
+	readonly buildConfigs: BuildConfig[];
 }
 export interface CompilableExternalsSourceFile extends ExternalsSourceFile {
 	readonly compilable: true;
 	readonly filerDir: ExternalsFilerDir;
 	readonly compiledFiles: CompiledFile[];
+	readonly buildConfigs: BuildConfig[];
 }
 export interface NonCompilableTextSourceFile extends TextSourceFile {
 	readonly compilable: false;
 	readonly filerDir: NonCompilableInternalsFilerDir;
 	readonly compiledFiles: null;
+	readonly buildConfigs: null;
 }
 export interface NonCompilableBinarySourceFile extends BinarySourceFile {
 	readonly compilable: false;
 	readonly filerDir: NonCompilableInternalsFilerDir;
 	readonly compiledFiles: null;
+	readonly buildConfigs: null;
 }
 
 export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
@@ -132,17 +133,6 @@ export interface BaseFile {
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
 
-// These are the Filer's global build options that get cached to disk during initialization.
-// If the Filer detects any changes during initialization between the cached and current versions,
-// it clears the cached builds on disk and rebuilds everything from scratch.
-export interface CachedBuildOptions {
-	sourceMap: boolean;
-	target: EcmaScriptTarget;
-	externalsDirBasePath: string | null;
-	buildConfigs: BuildConfig[] | null;
-}
-const CACHED_BUILD_OPTIONS_FILENAME = 'cachedBuildOptions.json';
-
 export interface CachedSourceInfo {
 	sourceId: string;
 	contentsHash: string;
@@ -159,11 +149,10 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	externalsBuildConfig: BuildConfig | null;
 	buildRootDir: string;
-	include: (id: string) => boolean;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
-	debounce: number;
 	watch: boolean;
+	watcherDebounce: number | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -180,9 +169,10 @@ export const initOptions = (opts: InitialOptions): Options => {
 		);
 	}
 	const externalsBuildConfig =
-		buildConfigs === null
+		opts.externalsBuildConfig || buildConfigs === null
 			? null
-			: buildConfigs.find((c) => c.platform === 'browser') ||
+			: buildConfigs.find((c) => c.primary && c.platform === 'browser') ||
+			  buildConfigs.find((c) => c.primary && c.platform === 'node') ||
 			  buildConfigs.find((c) => c.primary) ||
 			  buildConfigs[0];
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
@@ -191,7 +181,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		externalsBuildConfig === null || opts.externalsDir === null
 			? null
 			: opts.externalsDir === undefined
-			? `${buildRootDir}${EXTERNALS_DIR}`
+			? `${buildRootDir}${EXTERNALS_BUILD_DIR}`
 			: resolve(opts.externalsDir);
 	validateDirs(compiledDirs, externalsDir, buildRootDir);
 	const compiledDirCount = compiledDirs.length + (externalsDir === null ? 0 : 1);
@@ -201,7 +191,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 			(buildConfigs === null
 				? []
 				: [
-						toBuildOutDir(
+						toBuildOutPath(
 							dev,
 							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
 							'',
@@ -228,12 +218,11 @@ export const initOptions = (opts: InitialOptions): Options => {
 		dev,
 		sourceMap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
-		debounce: DEBOUNCE_DEFAULT,
 		watch: true,
+		watcherDebounce: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
-		include: opts.include || (() => true),
 		compiler,
 		compiledDirs,
 		externalsDir,
@@ -253,7 +242,6 @@ export class Filer {
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly externalsBuildConfig: BuildConfig | null;
 	private readonly cleanOutputDirs: boolean;
-	private readonly include: (id: string) => boolean;
 	private readonly log: Logger;
 
 	// public properties available to e.g. compilers and postprocessors
@@ -274,11 +262,10 @@ export class Filer {
 			compiledDirs,
 			servedDirs,
 			externalsDir,
-			include,
 			sourceMap,
 			target,
-			debounce,
 			watch,
+			watcherDebounce,
 			cleanOutputDirs,
 			log,
 		} = initOptions(opts);
@@ -286,7 +273,6 @@ export class Filer {
 		this.buildConfigs = buildConfigs;
 		this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
-		this.include = include;
 		this.sourceMap = sourceMap;
 		this.target = target;
 		this.cleanOutputDirs = cleanOutputDirs;
@@ -297,9 +283,9 @@ export class Filer {
 			externalsDir,
 			compiler,
 			buildRootDir,
-			watch,
-			debounce,
 			this.onDirChange,
+			watch,
+			watcherDebounce,
 		);
 		this.servedDirs = servedDirs;
 		this.externalsDir =
@@ -359,8 +345,7 @@ export class Filer {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([this.initBuildOptions(), lexer.init]);
-		await this.initCachedSourceInfo(); // must be after `initBuildOptions`
+		await Promise.all([this.initCachedSourceInfo(), lexer.init]);
 		await Promise.all(this.dirs.map((dir) => dir.init())); // must be after `initCachedSourceInfo`
 
 		const {buildConfigs} = this;
@@ -371,7 +356,7 @@ export class Filer {
 			// See the comments where `dev` is declared for more.
 			// (more accurately, it could handle prod, but not simultaneous to dev)
 			const buildOutDirs: string[] = buildConfigs.map((buildConfig) =>
-				toBuildOutDir(this.dev, buildConfig.name, '', this.buildRootDir),
+				toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir),
 			);
 			await Promise.all(
 				buildOutDirs.map(async (outputDir) => {
@@ -411,28 +396,6 @@ export class Filer {
 		}
 
 		finishInitializing!();
-	}
-
-	// If changes are detected in the build options, clear the cache and rebuild everything.
-	private async initBuildOptions(): Promise<void> {
-		const currentBuildOptions: CachedBuildOptions = {
-			sourceMap: this.sourceMap,
-			target: this.target,
-			externalsDirBasePath: this.externalsDirBasePath,
-			buildConfigs: this.buildConfigs,
-		};
-		const cachedBuildOptionsId = `${this.buildRootDir}${CACHED_BUILD_OPTIONS_FILENAME}`;
-		const cachedBuildOptions = (await pathExists(cachedBuildOptionsId))
-			? ((await readJson(cachedBuildOptionsId)) as CachedBuildOptions)
-			: null;
-		if (!deepEqual(currentBuildOptions, cachedBuildOptions)) {
-			this.log.info('Build options have changed. Clearing the cache and rebuilding everything.');
-			await Promise.all([
-				outputFile(cachedBuildOptionsId, JSON.stringify(currentBuildOptions, null, 2)),
-				emptyDir(toBuildsOutDir(this.dev, this.buildRootDir)),
-				emptyDir(`${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`),
-			]);
-		}
 	}
 
 	private async initCachedSourceInfo(): Promise<void> {
@@ -478,7 +441,7 @@ export class Filer {
 					if (this.buildConfigs !== null && filerDir.compilable) {
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
-								remove(toBuildOutDir(this.dev, buildConfig.name, change.path, this.buildRootDir)),
+								remove(toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildRootDir)),
 							),
 						);
 					}
@@ -542,6 +505,8 @@ export class Filer {
 				newSourceContents,
 				filerDir,
 				this.cachedSourceInfo.get(id),
+				this.buildConfigs,
+				this.externalsBuildConfig,
 			);
 			// If the created source file has its compiled files hydrated,
 			// we can infer that it doesn't need to be compiled.
@@ -601,7 +566,6 @@ export class Filer {
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
 	private async compileSourceId(id: string, filerDir: CompilableFilerDir): Promise<void> {
-		if (!this.include(id)) return;
 		if (this.pendingCompilations.has(id)) {
 			this.enqueuedCompilations.set(id, [id, filerDir]);
 			return;
@@ -642,10 +606,8 @@ export class Filer {
 		// The Filer is designed to be able to be a long-lived process
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
-		const buildConfigs: BuildConfig[] =
-			sourceFile.sourceType === 'externals' ? [this.externalsBuildConfig!] : this.buildConfigs!;
 		const results = await Promise.all(
-			buildConfigs.map((buildConfig) =>
+			sourceFile.buildConfigs.map((buildConfig) =>
 				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this),
 			),
 		);
@@ -869,7 +831,9 @@ export const getFileContentsHash = (file: BaseFile): string =>
 		? file.contentsHash
 		: (file.contentsHash = toHash(getFileContentsBuffer(file)));
 
-const toHash = (buf: Buffer): string => createHash('sha256').update(buf).digest().toString('hex');
+// Note that this uses md5 and therefore is not cryptographically secure.
+// It's fine for now, but some use cases may need security.
+const toHash = (buf: Buffer): string => createHash('md5').update(buf).digest().toString('hex');
 
 const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
@@ -936,6 +900,8 @@ const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	cachedSourceInfo: CachedSourceInfo | undefined,
+	buildConfigs: BuildConfig[] | null,
+	externalsBuildConfig: BuildConfig | null,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
@@ -962,6 +928,7 @@ const createSourceFile = async (
 			type: 'source',
 			sourceType: 'externals',
 			compilable: true,
+			buildConfigs: [externalsBuildConfig!],
 			id,
 			filename,
 			dir,
@@ -986,6 +953,9 @@ const createSourceFile = async (
 				? {
 						type: 'source',
 						sourceType: 'text',
+						buildConfigs: buildConfigs!.filter(
+							(buildConfig) => buildConfig.include === null || buildConfig.include(id),
+						),
 						compilable: true,
 						id,
 						filename,
@@ -1004,6 +974,7 @@ const createSourceFile = async (
 				: {
 						type: 'source',
 						sourceType: 'text',
+						buildConfigs: null,
 						compilable: false,
 						id,
 						filename,
@@ -1024,6 +995,9 @@ const createSourceFile = async (
 				? {
 						type: 'source',
 						sourceType: 'binary',
+						buildConfigs: buildConfigs!.filter(
+							(buildConfig) => buildConfig.include === null || buildConfig.include(id),
+						),
 						compilable: true,
 						id,
 						filename,
@@ -1042,6 +1016,7 @@ const createSourceFile = async (
 				: {
 						type: 'source',
 						sourceType: 'binary',
+						buildConfigs: null,
 						compilable: false,
 						id,
 						filename,
@@ -1120,16 +1095,18 @@ const createFilerDirs = (
 	externalsDir: string | null,
 	compiler: Compiler | null,
 	buildRootDir: string,
-	watch: boolean,
-	debounce: number,
 	onChange: FilerDirChangeCallback,
+	watch: boolean,
+	watcherDebounce: number | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const compiledDir of compiledDirs) {
-		dirs.push(createFilerDir(compiledDir, 'files', compiler, watch, debounce, onChange));
+		dirs.push(createFilerDir(compiledDir, 'files', compiler, onChange, watch, watcherDebounce));
 	}
 	if (externalsDir !== null) {
-		dirs.push(createFilerDir(externalsDir, 'externals', compiler, false, debounce, onChange));
+		dirs.push(
+			createFilerDir(externalsDir, 'externals', compiler, onChange, false, watcherDebounce),
+		);
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a compiled or externals directory,
@@ -1141,7 +1118,7 @@ const createFilerDirs = (
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildRootDir)
 		) {
-			dirs.push(createFilerDir(servedDir.dir, 'files', null, watch, debounce, onChange));
+			dirs.push(createFilerDir(servedDir.dir, 'files', null, onChange, watch, watcherDebounce));
 		}
 	}
 	return dirs;

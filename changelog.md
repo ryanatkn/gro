@@ -2,6 +2,10 @@
 
 ## 0.5.0
 
+- change the `build/` directory to `.gro/` and support multiple builds
+  ([#59](https://github.com/feltcoop/gro/pull/59))
+- add support for a config file at `src/gro.config.ts` for custom builds
+  ([#67](https://github.com/feltcoop/gro/pull/67))
 - add `Filer` to replace `CachingCompiler` with additional filesystem capabilities
   ([#54](https://github.com/feltcoop/gro/pull/54),
   [#55](https://github.com/feltcoop/gro/pull/55),
@@ -18,8 +22,6 @@
   ([#61](https://github.com/feltcoop/gro/pull/61))
 - make `createCompiler` pluggable allowing users to provide a compiler for each file
   ([#57](https://github.com/feltcoop/gro/pull/57))
-- change the `build/` directory to `.gro/` and support multiple builds
-  ([#59](https://github.com/feltcoop/gro/pull/59))
 
 ## 0.4.0
 

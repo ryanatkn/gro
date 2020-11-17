@@ -19,6 +19,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [project/compilerBenchmark](../project/compilerBenchmark.task.ts) - benchmark compilation with different libraries
 - [project/dev](../project/dev.task.ts) - build typescript in watch mode for development
 - [project/dist](../project/dist.task.ts) - create and link the distribution
+- [project/echo](../project/echo.task.ts) - diagnostic task that logs CLI args
 - [project/link](../project/link.task.ts) - link the distribution
 - [serve](../serve.task.ts) - start static file server
 - [test](../test.task.ts) - run tests

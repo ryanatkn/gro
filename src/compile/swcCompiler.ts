@@ -4,7 +4,7 @@ import {relative} from 'path';
 import {EcmaScriptTarget} from './tsHelpers.js';
 import {getDefaultSwcOptions} from './swcHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutDir, TS_EXTENSION} from '../paths.js';
+import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {replaceExtension} from '../utils/path.js';
@@ -52,7 +52,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
+		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const swcOptions = getSwcOptions(sourceMap, target);
 		const finalSwcOptions = {...swcOptions, filename: relative(outDir, id)};
 		const output = await swc.transform(contents, finalSwcOptions);

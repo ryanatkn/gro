@@ -16,13 +16,13 @@ import {
 	JS_EXTENSION,
 	SOURCE_MAP_EXTENSION,
 	SVELTE_EXTENSION,
-	toBuildOutDir,
+	toBuildOutPath,
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
-import {BuildConfig} from '../build/buildConfig.js';
+import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
 import {addCssSourceMapFooter, addJsSourceMapFooter} from './helpers.js';
@@ -82,7 +82,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 			return {compilations: []}; // TODO support SSR! and make this configurable
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildOutDir(dev, buildConfig.name, source.dirBasePath, buildRootDir);
+		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps

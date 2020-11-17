@@ -1,5 +1,4 @@
 import {magenta, cyan, red, gray} from '../colors/terminal.js';
-import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
 import {Args} from '../cli/types';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {runTask} from './runTask.js';
@@ -21,9 +20,10 @@ import {findModules, loadModules} from '../fs/modules.js';
 import {findFiles, pathExists} from '../fs/nodeFs.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
-import {PathData} from '../fs/pathData.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
-import {loadBuildConfigs, loadPrimaryBuildConfigAt} from '../build/buildConfig.js';
+import {DEFAULT_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
+import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
+import {loadGroConfig} from '../config/config.js';
 
 /*
 
@@ -78,10 +78,15 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
-			if (await shouldBuildProject(pathData)) {
-				log.info('Task file not found in build directory. Compiling TypeScript...');
+			if (await shouldBuildProject(pathData.id)) {
+				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
+				// every time a task is invoked.
+				log.info('building project to run task');
+				const timingToLoadConfig = timings.start('load config');
+				const config = await loadGroConfig();
+				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
-				await compileSourceDirectory(await loadBuildConfigs(), true, log);
+				await compileSourceDirectory(config, true, log);
 				timingToBuildProject();
 			}
 
@@ -225,14 +230,14 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 	}
 };
 
-// This is a best-effort heuristic that detects if
+// This is a best-effort heuristic that quickly detects if
 // we should compile a project's TypeScript when invoking a task.
-// Properly detecting this is too expensive and would impact startup time significantly.
-const shouldBuildProject = async (pathData: PathData): Promise<boolean> => {
-	if (paths !== groPaths && isGroId(pathData.id)) {
-		return false; // don't try to compile Gro from outside of it
-	}
-	const primaryBuildConfig = await loadPrimaryBuildConfigAt(pathData.id);
-	const id = toImportId(pathData.id, true, primaryBuildConfig.name);
-	return !(await pathExists(id));
+// Properly detecting this is too expensive and would slow task startup time significantly.
+// Generally speaking, the developer is expected to be running `gro dev` to keep the build fresh.
+// TODO improve this, possibly using `mtime` with the Filer updating directory `mtime` on compile
+const shouldBuildProject = async (sourceId: string): Promise<boolean> => {
+	// don't try to compile Gro's own codebase from outside of it
+	if (isGroId(sourceId) && !isThisProjectGro) return false;
+	const buildId = toImportId(sourceId, true, DEFAULT_BUILD_CONFIG_NAME);
+	return !(await pathExists(buildId));
 };
