@@ -6,7 +6,7 @@ import {createDefaultCompiler} from '../compile/defaultCompiler.js';
 import {paths} from '../paths.js';
 import {createDevServer} from '../devServer/devServer.js';
 import {loadTsconfig, toEcmaScriptTarget} from '../compile/tsHelpers.js';
-import {loadConfig} from '../config/config.js';
+import {loadGroConfig} from '../config/config.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
@@ -14,7 +14,7 @@ export const task: Task = {
 		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig();
+		const config = await loadGroConfig();
 		timingToLoadConfig();
 
 		// TODO probably replace these with the Gro config values

@@ -13,7 +13,7 @@ export const compileSourceDirectory = async (
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {
-	log.info('Compiling source directory...');
+	log.info('compiling source directory');
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();

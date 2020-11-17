@@ -23,7 +23,7 @@ import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
 import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
-import {loadConfig} from '../config/config.js';
+import {loadGroConfig} from '../config/config.js';
 
 /*
 
@@ -81,9 +81,9 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 			if (await shouldBuildProject(pathData.id)) {
 				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 				// every time a task is invoked.
-				log.info('Building project to run task...');
+				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
-				const config = await loadConfig();
+				const config = await loadGroConfig();
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				await compileSourceDirectory(config, true, log);
@@ -234,6 +234,7 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // we should compile a project's TypeScript when invoking a task.
 // Properly detecting this is too expensive and would slow task startup time significantly.
 // Generally speaking, the developer is expected to be running `gro dev` to keep the build fresh.
+// TODO improve this, possibly using `mtime` with the Filer updating directory `mtime` on compile
 const shouldBuildProject = async (sourceId: string): Promise<boolean> => {
 	// don't try to compile Gro's own codebase from outside of it
 	if (isGroId(sourceId) && !isThisProjectGro) return false;

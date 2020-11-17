@@ -22,7 +22,6 @@ import {
 	Stats,
 } from '../fs/nodeFs.js';
 import {
-	CONFIG_SOURCE_BASE_PATH,
 	EXTERNALS_BUILD_DIR,
 	hasSourceExtension,
 	isThisProjectGro,
@@ -31,7 +30,6 @@ import {
 	paths,
 	SOURCE_MAP_EXTENSION,
 	toBuildOutPath,
-	toBuildsOutDir,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
@@ -346,8 +344,7 @@ export class Filer {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([this.initCache(), lexer.init]);
-		await this.initCachedSourceInfo(); // must be after `initCache`
+		await Promise.all([this.initCachedSourceInfo(), lexer.init]);
 		await Promise.all(this.dirs.map((dir) => dir.init())); // must be after `initCachedSourceInfo`
 
 		const {buildConfigs} = this;
@@ -398,38 +395,6 @@ export class Filer {
 		}
 
 		finishInitializing!();
-	}
-
-	// If changes are detected in the build options, clear the cache and rebuild everything.
-	private async initCache(): Promise<void> {
-		const cachedSourceInfoDir = `${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`;
-		const cachedConfigSourceInfoId = `${cachedSourceInfoDir}/${CONFIG_SOURCE_BASE_PATH}.json`;
-		if (!(await pathExists(cachedConfigSourceInfoId))) {
-			await this.clearCache();
-			return;
-		}
-		const cachedConfigSourceInfo: CachedSourceInfo = await readJson(cachedConfigSourceInfoId);
-		// TODO this work of loading and hashing the config gets duplicated after the Filer initializes.
-		// Consider loading everything into the Filer's memory first,
-		// then seeing if we need to clear the cache. This might speed up the common case.
-		const configSourceContents = await readFile(paths.configSourceId, 'utf8');
-		// TODO we also need to compare all of the config's dependencies,
-		// using the hash of internal files and package.json version for externals.
-		// (maybe introduce "cache key" as a concept that covers both?)
-		// This means we need to add dependencies to the `cachedSourceInfo`.
-		// (these dependencies can then also be used for gen!)
-		if (toHash(Buffer.from(configSourceContents)) !== cachedConfigSourceInfo.contentsHash) {
-			this.log.info('config has changed since the last Filer build');
-			await this.clearCache();
-		}
-	}
-
-	private async clearCache(): Promise<void> {
-		this.log.info('clearing the cache...');
-		await Promise.all([
-			remove(toBuildsOutDir(this.dev, this.buildRootDir)),
-			remove(`${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`),
-		]);
 	}
 
 	private async initCachedSourceInfo(): Promise<void> {

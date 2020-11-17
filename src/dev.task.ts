@@ -4,12 +4,12 @@ import {createDevServer} from './devServer/devServer.js';
 import {createDefaultCompiler} from './compile/defaultCompiler.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {loadTsconfig, toEcmaScriptTarget} from './compile/tsHelpers.js';
-import {loadConfig} from './config/config.js';
+import {loadGroConfig} from './config/config.js';
 
 export const task: Task = {
 	description: 'start development server',
 	run: async ({log}): Promise<void> => {
-		const config = await loadConfig();
+		const config = await loadGroConfig();
 		// TODO should this be `findServedBuildConfig`? or should this be a property on the config itself?
 		// maybe that gets added by a normalization step?
 		const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.primaryNodeBuildConfig;

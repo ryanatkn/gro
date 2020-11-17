@@ -4,7 +4,7 @@ import {paths, toBuildOutPath} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
 import {printPath} from './utils/print.js';
 import {cleanDist} from './project/clean.js';
-import {loadConfig} from './config/config.js';
+import {loadGroConfig} from './config/config.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
@@ -17,7 +17,7 @@ export const task: Task = {
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.
 		const dev = process.env.NODE_ENV !== 'production';
-		const config = await loadConfig();
+		const config = await loadGroConfig();
 		const buildConfigsForDist = config.builds.filter((b) => b.dist);
 		await Promise.all(
 			buildConfigsForDist.map((buildConfig) => {
