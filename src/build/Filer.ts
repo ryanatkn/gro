@@ -169,9 +169,10 @@ export const initOptions = (opts: InitialOptions): Options => {
 		);
 	}
 	const externalsBuildConfig =
-		buildConfigs === null
+		opts.externalsBuildConfig || buildConfigs === null
 			? null
-			: buildConfigs.find((c) => c.platform === 'browser') ||
+			: buildConfigs.find((c) => c.primary && c.platform === 'browser') ||
+			  buildConfigs.find((c) => c.primary && c.platform === 'node') ||
 			  buildConfigs.find((c) => c.primary) ||
 			  buildConfigs[0];
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
@@ -685,7 +686,6 @@ export class Filer {
 		);
 		const cachedSourceInfo: CachedSourceInfo = {
 			sourceId: file.id,
-			// TODO what if we used mtime instead? possible errors?
 			contentsHash: getFileContentsHash(file),
 			compilations: file.compiledFiles.map((file) => ({id: file.id, encoding: file.encoding})),
 		};

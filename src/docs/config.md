@@ -17,15 +17,17 @@ See [`src/config/config.ts`](/src/config/config.ts) for the config implementatio
 
 ## build config
 
-The `build` property of the Gro config has some optional properties.
-Here's the [`BuildConfig`](/src/config/buildConfig.ts) type:
+The `builds` property of the Gro config
+is an array of build configs that describe a project's outputs.
+Here's the [`PartialBuildConfig`](/src/config/buildConfig.ts) type:
 
 ```ts
-export interface BuildConfig {
+export interface PartialBuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget; // 'node' | 'browser'
 	readonly dist?: boolean;
 	readonly primary?: boolean;
+	readonly include?: null | ((id: string) => boolean);
 }
 ```
 
@@ -59,6 +61,9 @@ For browser builds, this is the build that's served by the development server.
 As mentioned above, the `primary` Node build is always named `"node"`.
 For other platforms, if no `primary` flag exists on any build,
 Gro marks the first build in the `builds` array as primary.
+
+The optional `include` property can be used to include or exclude a particular file.
+It's convenient to use the `createFilter` helper from `@rollup/pluginutils` here.
 
 ## examples
 

@@ -33,7 +33,6 @@ This choice keeps things simple and flexible because:
 const FALLBACK_CONFIG_NAME = 'gro/src/config/gro.config.default.ts';
 const FALLBACK_CONFIG_BUILD_BASE_PATH = 'config/gro.config.default.js';
 
-// See `./gro.config.ts` for documentation.
 export interface GroConfig {
 	readonly builds: BuildConfig[];
 	readonly primaryNodeBuildConfig: BuildConfig;
