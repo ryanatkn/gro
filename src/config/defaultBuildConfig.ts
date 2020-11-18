@@ -11,7 +11,7 @@ export const DEFAULT_BUILD_CONFIG: BuildConfig = {
 	name: DEFAULT_BUILD_CONFIG_NAME,
 	platform: 'node',
 	primary: true,
-	dist: false, // gets set to `true` along with all others if none are `true`
+	dist: false,
 	input: [paths.source],
 	include: null,
 };

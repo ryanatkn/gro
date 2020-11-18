@@ -40,7 +40,7 @@ export interface GroConfig {
 }
 
 export interface PartialGroConfig {
-	readonly builds?: PartialBuildConfig[];
+	readonly builds: PartialBuildConfig[];
 }
 
 export interface GroConfigModule {

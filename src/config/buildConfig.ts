@@ -1,7 +1,7 @@
 import {resolve} from 'path';
 
 import {ensureArray} from '../utils/array.js';
-import {DEFAULT_BUILD_CONFIG, DEFAULT_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
+import {DEFAULT_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
 
 // See `../docs/config.md` for documentation.
@@ -31,17 +31,9 @@ export interface PartialBuildConfig {
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const normalizeBuildConfigs = (
-	partials: PartialBuildConfig[] | undefined,
-): BuildConfig[] => {
-	if (partials === undefined) partials = [];
+export const normalizeBuildConfigs = (partials: PartialBuildConfig[]): BuildConfig[] => {
 	const platforms: Set<string> = new Set();
 	const primaryPlatforms: Set<string> = new Set();
-
-	// If there is no Node config, add one.
-	if (!partials.some((p) => p.platform === 'node')) {
-		partials.push(DEFAULT_BUILD_CONFIG);
-	}
 
 	const hasDist = partials.some((b) => b.dist);
 

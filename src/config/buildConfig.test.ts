@@ -7,20 +7,6 @@ import {paths} from '../paths.js';
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
 
 test('normalizeBuildConfigs()', async () => {
-	test('normalizes undefined to a default config', () => {
-		const buildConfig = normalizeBuildConfigs(undefined);
-		t.equal(buildConfig, [
-			{name: 'node', platform: 'node', input, primary: true, dist: true, include: null},
-		]);
-	});
-
-	test('normalizes an empty array to a default config', () => {
-		const buildConfig = normalizeBuildConfigs([]);
-		t.equal(buildConfig, [
-			{name: 'node', platform: 'node', input, primary: true, dist: true, include: null},
-		]);
-	});
-
 	test('normalizes a plain config', () => {
 		const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node', input: '.'}]);
 		t.equal(buildConfig, [
@@ -66,16 +52,6 @@ test('normalizeBuildConfigs()', async () => {
 				dist: true,
 				include: null,
 			},
-		]);
-	});
-
-	test('ensures a node config', () => {
-		const buildConfig = normalizeBuildConfigs([
-			{name: 'browser', platform: 'browser', input, primary: true, dist: true},
-		]);
-		t.equal(buildConfig, [
-			{name: 'browser', platform: 'browser', input, primary: true, dist: true, include: null},
-			{name: 'node', platform: 'node', input, primary: true, dist: false, include: null},
 		]);
 	});
 
