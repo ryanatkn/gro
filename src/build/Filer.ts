@@ -352,9 +352,6 @@ export class Filer {
 		if (this.cleanOutputDirs && buildConfigs !== null) {
 			// Clean the dev output directories,
 			// removing any files that can't be mapped back to source files.
-			// For now, this does not handle production output.
-			// See the comments where `dev` is declared for more.
-			// (more accurately, it could handle prod, but not simultaneous to dev)
 			const buildOutDirs: string[] = buildConfigs.map((buildConfig) =>
 				toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir),
 			);
@@ -602,7 +599,6 @@ export class Filer {
 		}
 
 		// Compile the source file.
-		// TODO support production builds
 		// The Filer is designed to be able to be a long-lived process
 		// that can output builds for both development and production,
 		// but for now it's hardcoded to development, and production is entirely done by Rollup.
@@ -891,8 +887,6 @@ const validateDirs = (
 	}
 };
 
-// This code could be shortened a lot by collapsing the object declarations,
-// but as is it doesn't play nicely with the types, and it might be harder to reason about.
 const createSourceFile = async (
 	id: string,
 	encoding: Encoding,
