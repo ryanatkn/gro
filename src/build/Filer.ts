@@ -5,7 +5,6 @@ import {
 	FilerDir,
 	FilerDirChangeCallback,
 	createFilerDir,
-	BuildableFilerDir,
 	ExternalsFilerDir,
 } from '../build/FilerDir.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
@@ -42,7 +41,13 @@ export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/com
 export interface CachedSourceInfo {
 	sourceId: string;
 	contentsHash: string;
-	compilations: {id: string; encoding: Encoding; locals: string[]; externals: string[]}[];
+	compilations: {
+		id: string;
+		encoding: Encoding;
+		buildConfigName: string;
+		locals: string[];
+		externals: string[];
+	}[];
 }
 const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 
@@ -213,23 +218,24 @@ export class Filer {
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFilerFile | null> {
 		const {externalsDirBasePath, externalsServedDir, files} = this;
-		// TODO probably want to generalize this with "lazy" and/or "dirty" flags on compiledDirs
+		// TODO we need to install externals and load this correctly - how? do we need a special path?
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
-			const id = `${externalsServedDir!.servedAt}/${path}`;
-			const file = files.get(id);
-			if (file !== undefined) {
-				return file;
-			}
-			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
-			const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
-			if (shouldCompile) {
-				await this.compileSourceId(sourceId, this.externalsDir!);
-			}
-			const compiledFile = files.get(id);
-			if (compiledFile === undefined) {
-				throw Error('Expected to compile file');
-			}
-			return compiledFile;
+			throw Error('TODO find external');
+			// const id = `${externalsServedDir!.servedAt}/${path}`;
+			// const file = files.get(id);
+			// if (file !== undefined) {
+			// 	return file;
+			// }
+			// const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
+			// const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
+			// if (shouldCompile) {
+			// 	await this.buildSourceFile(sourceId, this.externalsDir!);
+			// }
+			// const compiledFile = files.get(id);
+			// if (compiledFile === undefined) {
+			// 	throw Error('Expected to compile file');
+			// }
+			// return compiledFile;
 		} else {
 			for (const servedDir of this.servedDirs) {
 				if (servedDir === externalsServedDir) continue;
@@ -332,65 +338,79 @@ export class Filer {
 	// During initialization, after all files are loaded into memory,
 	// this is called to populate the `buildConfigs` property of all source files.
 	// It performs the initial compilation to be able to determine output dependencies.
-	initialCompiledSourceIds = new Set<string>();
 	private async initBuildConfigs(): Promise<void> {
-		this.externalsBuildConfig; // TODO REMOVE ME THIS IS JUST FOR TYPES
-		filterBuildConfigs; // TODO REMOVE ME THIS IS JUST FOR TYPES
 		if (this.buildConfigs === null) return;
-		const sourceFilesToCompile = new Set<BuildableSourceFile>();
-		for (const buildConfig of this.buildConfigs) {
-			// This traces the dependencies starting from each buildConfig input.
-			// It compiles each input source file and populates its `buildConfigs`,
-			// recursively until all dependencies have been handled.
-			buildConfig.input.map((buildConfigInput) => {
-				// TODO handle dirs and patterns
-				const sourceFile = this.files.get(buildConfigInput);
-				if (!sourceFile) throw Error('TODO do we need this check?');
-				if (sourceFile.type !== 'source') throw Error('TODO needed?');
-				if (!sourceFile.buildable) throw Error('TODO needed?');
-				sourceFile.buildConfigs.push(buildConfig);
-				sourceFilesToCompile.add(sourceFile);
-			});
-		}
-		// TODO track externals per build to match the flexibility of building local files
-		const externalDependencies = new Set<string>();
-		const localDependencies = new Set<string>(); // TODO or `initialCompiledSourceIds`?
 		await Promise.all(
-			Array.from(sourceFilesToCompile).map(async (sourceFile) => {
-				this.initialCompiledSourceIds.add(sourceFile.id);
-				await this.compileSourceId(sourceFile.id, sourceFile.filerDir);
-				// At this point, we need to compile the deps of the compiled files.
-				// Then, each of those needs to compile its deps, and so forth.
-				// TODO we need to look up the source files again, because they're NOT mutated.
-				// Maybe source files should be mutated as an optimization? hmm
-				const updatedSourceFile = this.files.get(sourceFile.id) as BuildableSourceFile;
-				await Promise.all(
-					updatedSourceFile.compiledFiles.map((compiledFile) => {
-						console.log('\n\ncompiledFile.id', compiledFile.id);
-						for (const externalDependency of compiledFile.externals) {
-							externalDependencies.add(externalDependency);
-						}
-						// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
-						// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
-						for (const localDependency of compiledFile.locals) {
-							// TODO this should short circuit if the source has already been added to the input set
-							const dependencyId = join(compiledFile.dir, localDependency);
-							console.log('dependencyId', dependencyId);
-							const dependencySourceId = this.mapBuildIdToSourceId(dependencyId);
-							console.log('dependencySourceId', dependencySourceId);
-							const dependencySourceFile = this.files.get(dependencySourceId);
-							if (!dependencySourceFile) {
-								// TODO remove this check
-								throw Error(`CHECKING unable to find dependencySourceId: ${dependencySourceId}`);
-							}
-							// this.compileBuildFile(dependencySourceFile);
-							// this.compileDependency(dependencySourceFile);
-						}
+			this.buildConfigs.map((buildConfig) =>
+				// This traces the dependencies starting from each buildConfig input.
+				// It compiles each input source file and populates its `buildConfigs`,
+				// recursively until all dependencies have been handled.
+				Promise.all(
+					buildConfig.input.map((buildConfigInput) => {
+						// TODO handle dirs and patterns
+						console.log('buildConfigInput', buildConfigInput);
+						const sourceFile = this.files.get(buildConfigInput);
+						// TODO these 3 checks are copy/pasted in 2 places - we can probably remove them and just cast
+						// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
+						if (!sourceFile) throw Error('TODO do we need this check?');
+						if (sourceFile.type !== 'source') throw Error('TODO needed?');
+						if (!sourceFile.buildable) throw Error('TODO needed?');
+						return this.initSourceFileForBuildConfig(sourceFile, buildConfig);
 					}),
-				);
-			}),
+				),
+			),
 		);
-		console.log('externals', externalDependencies);
+
+		// TODO I think this is where we run `esinstall` on these
+		console.log('externals', this.externalDependencies);
+		// but how to handle externals that are needed AFTER the Filer initializes?
+	}
+
+	externalDependencies = new Set<string>();
+
+	private async initSourceFileForBuildConfig(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		if (sourceFile.buildConfigs.includes(buildConfig)) return;
+		sourceFile.buildConfigs.push(buildConfig);
+
+		await this.buildSourceFile(sourceFile, buildConfig);
+
+		// TODO I think for now, we should make a set on the class instance,
+		// TODO track externals per build to match the flexibility of building local files
+
+		const promises: Promise<void>[] = [];
+
+		// At this point, we need to compile the deps of the compiled files.
+		// Then, each of those needs to compile its deps, and so forth.
+		for (const compiledFile of sourceFile.buildFiles) {
+			console.log('\n\ncompiledFile.id', compiledFile.id);
+			for (const externalDependency of compiledFile.externals) {
+				this.externalDependencies.add(externalDependency);
+			}
+			// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
+			// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
+			for (const localDependency of compiledFile.locals) {
+				// TODO this should short circuit if the source has already been added to the input set
+				const dependencyId = join(compiledFile.dir, localDependency);
+				console.log('dependencyId', dependencyId);
+				const dependencySourceId = this.mapBuildIdToSourceId(dependencyId);
+				console.log('dependencySourceId', dependencySourceId);
+				const dependencySourceFile = this.files.get(dependencySourceId);
+				// TODO these 3 checks are copy/pasted in 2 places - we can probably remove them and just cast
+				// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
+				if (!dependencySourceFile) throw Error('TODO do we need this check?');
+				if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
+				if (!dependencySourceFile.buildable) throw Error('TODO needed?');
+				if (!dependencySourceFile.buildConfigs.includes(buildConfig)) {
+					// TODO do we care about this micro-optimization?
+					promises.push(this.initSourceFileForBuildConfig(dependencySourceFile, buildConfig));
+				}
+			}
+		}
+
+		await Promise.all(promises);
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -414,7 +434,11 @@ export class Filer {
 						change.type !== 'init' &&
 						filerDir.buildable // only needed for types, doing this instead of casting for type safety
 					) {
-						await this.compileSourceId(id, filerDir);
+						await Promise.all(
+							this.buildConfigs!.map((buildConfig) =>
+								this.buildSourceFile(this.files.get(id) as BuildableSourceFile, buildConfig),
+							),
+						);
 					}
 				}
 				break;
@@ -478,31 +502,31 @@ export class Filer {
 				  ''
 				: await loadContents(encoding, id);
 
-		let newSourceFile: SourceFile;
 		if (sourceFile === undefined) {
 			// Memory cache is cold.
-			newSourceFile = await createSourceFile(
+			const newSourceFile = await createSourceFile(
 				id,
 				encoding,
 				extension,
 				newSourceContents,
 				filerDir,
 				this.cachedSourceInfo.get(id),
+				this.buildConfigs,
 			);
+			this.files.set(id, newSourceFile);
 			// If the created source file has its compiled files hydrated,
 			// we can infer that it doesn't need to be compiled.
 			// TODO maybe make this more explicit with a `dirty` or `shouldCompile` flag?
 			// Right now compilers always return at least one compiled file,
 			// so it shouldn't be buggy, but it doesn't feel right.
-			if (newSourceFile.buildable && newSourceFile.compiledFiles.length !== 0) {
-				this.files.set(id, newSourceFile);
-				syncBuildFilesToMemoryCache(this.files, newSourceFile.compiledFiles, [], this.log);
+			if (newSourceFile.buildable && newSourceFile.buildFiles.length !== 0) {
+				syncBuildFilesToMemoryCache(this.files, newSourceFile.buildFiles, [], this.log);
 				return false;
 			}
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
-			!(sourceFile.sourceType === 'externals' && sourceFile.compiledFiles.length === 0)
+			!(sourceFile.sourceType === 'externals' && sourceFile.buildFiles.length === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			return false;
@@ -510,34 +534,27 @@ export class Filer {
 			// Memory cache is warm, but contents have changed.
 			switch (sourceFile.encoding) {
 				case 'utf8':
-					newSourceFile = {
-						...sourceFile,
-						contents: newSourceContents as string,
-						stats: undefined,
-						contentsBuffer: undefined,
-						contentsHash: undefined,
-					};
+					sourceFile.contents = newSourceContents as string;
+					sourceFile.stats = undefined;
+					sourceFile.contentsBuffer = undefined;
+					sourceFile.contentsHash = undefined;
 					break;
 				case null:
-					newSourceFile = {
-						...sourceFile,
-						contents: newSourceContents as Buffer,
-						stats: undefined,
-						contentsBuffer: newSourceContents as Buffer,
-						contentsHash: undefined,
-					};
+					sourceFile.contents = newSourceContents as Buffer;
+					sourceFile.stats = undefined;
+					sourceFile.contentsBuffer = newSourceContents as Buffer;
+					sourceFile.contentsHash = undefined;
 					break;
 				default:
 					throw new UnreachableError(sourceFile);
 			}
 		}
-		this.files.set(id, newSourceFile);
 		return filerDir.buildable;
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
-	private pendingCompilations: Set<string> = new Set();
-	private enqueuedCompilations: Map<string, [string, BuildableFilerDir]> = new Map();
+	private pendingCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
+	private enqueuedCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -546,73 +563,56 @@ export class Filer {
 	// it removes the item from the queue and recompiles the file.
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
-	private async compileSourceId(id: string, filerDir: BuildableFilerDir): Promise<void> {
-		if (this.pendingCompilations.has(id)) {
-			this.enqueuedCompilations.set(id, [id, filerDir]);
+	private async buildSourceFile(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		const key = `${buildConfig.name}${sourceFile.id}`;
+		if (this.pendingCompilations.has(key)) {
+			this.enqueuedCompilations.add(key);
 			return;
 		}
-		this.pendingCompilations.add(id);
+		this.pendingCompilations.add(key);
 		try {
-			await this._compileSourceId(id);
+			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
-			this.log.error(red('failed to compile'), printPath(id), printError(err));
+			this.log.error(red('failed to compile'), printPath(sourceFile.id), printError(err));
 		}
-		this.pendingCompilations.delete(id);
-		const enqueuedCompilation = this.enqueuedCompilations.get(id);
-		if (enqueuedCompilation !== undefined) {
-			this.enqueuedCompilations.delete(id);
+		this.pendingCompilations.delete(key);
+		if (this.enqueuedCompilations.has(key)) {
+			this.enqueuedCompilations.delete(key);
 			// Something changed during the compilation for this file, so recurse.
 			// TODO do we need to detect cycles? if we run into any, probably
-			const shouldCompile = await this.updateSourceFile(...enqueuedCompilation);
+			const shouldCompile = await this.updateSourceFile(sourceFile.id, sourceFile.filerDir);
 			if (shouldCompile) {
-				await this.compileSourceId(...enqueuedCompilation);
+				await this.buildSourceFile(sourceFile, buildConfig);
 			}
 		}
 	}
 
-	private async _compileSourceId(id: string): Promise<void> {
-		const sourceFile = this.files.get(id);
-		if (!sourceFile) {
-			throw Error(`Cannot find source file: ${id}`);
-		}
-		if (sourceFile.type !== 'source') {
-			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
-		}
-		if (sourceFile.buildable === false) {
-			throw Error(`Cannot compile a non-buildable source file: ${id}`);
-		}
-
+	private async _buildSourceFile(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
 		// Compile the source file.
-		// The Filer is designed to be able to be a long-lived process
-		// that can output builds for both development and production,
-		// but for now it's hardcoded to development, and production is entirely done by Rollup.
-		const results = await Promise.all(
-			sourceFile.buildConfigs.map((buildConfig) =>
-				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this),
-			),
-		);
+		const result = await sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this);
+
+		// Update the array of build files.
+		const newBuildFiles: BuildFile[] = [];
+		for (const buildFile of sourceFile.buildFiles) {
+			if (buildFile.buildConfig !== buildConfig) newBuildFiles.push(buildFile);
+		}
+		for (const compilation of result.compilations) {
+			newBuildFiles.push(createBuildFile(compilation, this, result, sourceFile, buildConfig));
+		}
+		const oldBuildFiles = sourceFile.buildFiles;
+		sourceFile.buildFiles = newBuildFiles;
 
 		// Update the cache and write to disk.
-
-		// Postprocess should probably return the whole compilation, or just mutate it,
-		// OR the entire result with all of its compilations,
-		// adding the deps in a single lexer pass.
-		// Be sure to handle hydrated compiled files without wasted compiles to get the deps!
-		// Does that mean we need to store dependencies in the cachedSourceInfo compilations?
-		//
-		// Also should we extract a helper, `createBuildFiles`, or something?
-		const newBuildFiles = results.flatMap((result) =>
-			result.compilations.map((compilation) =>
-				createBuildFile(compilation, this, result, sourceFile),
-			),
-		);
-		const oldBuildFiles = sourceFile.compiledFiles;
-		const newSourceFile: BuildableSourceFile = {...sourceFile, compiledFiles: newBuildFiles};
-		this.files.set(id, newSourceFile);
 		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 		await Promise.all([
 			syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
-			this.updateCachedSourceInfo(newSourceFile),
+			this.updateCachedSourceInfo(sourceFile),
 		]);
 	}
 
@@ -622,9 +622,9 @@ export class Filer {
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.buildable) {
-			syncBuildFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
+			syncBuildFilesToMemoryCache(this.files, [], sourceFile.buildFiles, this.log);
 			await Promise.all([
-				syncFilesToDisk([], sourceFile.compiledFiles, this.log),
+				syncFilesToDisk([], sourceFile.buildFiles, this.log),
 				this.deleteCachedSourceInfo(sourceFile),
 			]);
 		}
@@ -639,9 +639,10 @@ export class Filer {
 		const cachedSourceInfo: CachedSourceInfo = {
 			sourceId: file.id,
 			contentsHash: getFileContentsHash(file),
-			compilations: file.compiledFiles.map((file) => ({
+			compilations: file.buildFiles.map((file) => ({
 				id: file.id,
 				encoding: file.encoding,
+				buildConfigName: file.buildConfig.name,
 				locals: file.locals,
 				externals: file.externals,
 			})),
@@ -670,8 +671,8 @@ export class Filer {
 // Given `newFiles` and `oldFiles`, updates everything on disk,
 // deleting files that no longer exist, writing new ones, and updating existing ones.
 const syncFilesToDisk = async (
-	newFiles: BuildFile[],
-	oldFiles: BuildFile[],
+	newFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[],
 	log: Logger,
 ): Promise<void> => {
 	// This uses `Array#find` because the arrays are expected to be small,
@@ -732,8 +733,8 @@ const toCachedSourceInfoId = (
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
 const syncBuildFilesToMemoryCache = (
 	files: Map<string, BaseFilerFile>,
-	newFiles: BuildFile[],
-	oldFiles: BuildFile[],
+	newFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[],
 	_log: Logger,
 ): void => {
 	// This uses `Array#find` because the arrays are expected to be small,

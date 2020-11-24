@@ -8,6 +8,7 @@ import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
 import {BuildableSourceFile} from './sourceFile.js';
 import {stripEnd} from '../utils/string.js';
+import {BuildConfig} from '../config/buildConfig.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
@@ -23,6 +24,7 @@ export interface BinaryBuildFile extends BaseBuildFile {
 interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
 	readonly sourceFileId: string;
+	readonly buildConfig: BuildConfig;
 	readonly locals: string[]; // TODO is this right? or maybe a set?
 	readonly externals: string[]; // TODO is this right? or maybe a set?
 }
@@ -32,6 +34,7 @@ export const createBuildFile = (
 	compileOptions: CompileOptions,
 	result: CompileResult<Compilation>,
 	sourceFile: BuildableSourceFile,
+	buildConfig: BuildConfig,
 ): BuildFile => {
 	const [contents, locals, externals] = postprocess(
 		compilation,
@@ -44,6 +47,7 @@ export const createBuildFile = (
 			return {
 				type: 'build',
 				sourceFileId: sourceFile.id,
+				buildConfig,
 				locals,
 				externals,
 				id: compilation.id,
@@ -62,6 +66,7 @@ export const createBuildFile = (
 			return {
 				type: 'build',
 				sourceFileId: sourceFile.id,
+				buildConfig,
 				locals,
 				externals,
 				id: compilation.id,
@@ -80,7 +85,10 @@ export const createBuildFile = (
 	}
 };
 
-export const reconstructBuildFiles = (cachedSourceInfo: CachedSourceInfo): Promise<BuildFile[]> =>
+export const reconstructBuildFiles = (
+	cachedSourceInfo: CachedSourceInfo,
+	buildConfigs: BuildConfig[],
+): Promise<BuildFile[]> =>
 	Promise.all(
 		cachedSourceInfo.compilations.map(
 			async (compilation): Promise<BuildFile> => {
@@ -89,11 +97,13 @@ export const reconstructBuildFiles = (cachedSourceInfo: CachedSourceInfo): Promi
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
 				const contents = await loadContents(compilation.encoding, id);
+				const buildConfig = buildConfigs.find((b) => b.name === compilation.buildConfigName)!;
 				switch (compilation.encoding) {
 					case 'utf8':
 						return {
 							type: 'build',
 							sourceFileId: cachedSourceInfo.sourceId,
+							buildConfig,
 							locals: compilation.locals,
 							externals: compilation.externals,
 							id,
@@ -114,6 +124,7 @@ export const reconstructBuildFiles = (cachedSourceInfo: CachedSourceInfo): Promi
 						return {
 							type: 'build',
 							sourceFileId: cachedSourceInfo.sourceId,
+							buildConfig,
 							locals: compilation.locals,
 							externals: compilation.externals,
 							id,

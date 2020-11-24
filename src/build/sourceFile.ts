@@ -23,18 +23,18 @@ export type NonBuildableSourceFile = NonBuildableTextSourceFile | NonBuildableBi
 export interface TextSourceFile extends BaseSourceFile {
 	readonly sourceType: 'text';
 	readonly encoding: 'utf8';
-	readonly contents: string;
+	contents: string;
 }
 export interface BinarySourceFile extends BaseSourceFile {
 	readonly sourceType: 'binary';
 	readonly encoding: null;
-	readonly contents: Buffer;
-	readonly contentsBuffer: Buffer;
+	contents: Buffer;
+	contentsBuffer: Buffer;
 }
 export interface ExternalsSourceFile extends BaseSourceFile {
 	readonly sourceType: 'externals';
 	readonly encoding: 'utf8';
-	readonly contents: string;
+	contents: string;
 }
 interface BaseSourceFile extends BaseFilerFile {
 	readonly type: 'source';
@@ -43,31 +43,31 @@ interface BaseSourceFile extends BaseFilerFile {
 export interface BuildableTextSourceFile extends TextSourceFile {
 	readonly buildable: true;
 	readonly filerDir: BuildableInternalsFilerDir;
-	readonly compiledFiles: BuildFile[];
+	buildFiles: readonly BuildFile[];
 	readonly buildConfigs: BuildConfig[];
 }
 export interface BuildableBinarySourceFile extends BinarySourceFile {
 	readonly buildable: true;
 	readonly filerDir: BuildableInternalsFilerDir;
-	readonly compiledFiles: BuildFile[];
+	buildFiles: readonly BuildFile[];
 	readonly buildConfigs: BuildConfig[];
 }
 export interface BuildableExternalsSourceFile extends ExternalsSourceFile {
 	readonly buildable: true;
 	readonly filerDir: ExternalsFilerDir;
-	readonly compiledFiles: BuildFile[];
+	buildFiles: readonly BuildFile[];
 	readonly buildConfigs: BuildConfig[];
 }
 export interface NonBuildableTextSourceFile extends TextSourceFile {
 	readonly buildable: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
-	readonly compiledFiles: null;
+	readonly buildFiles: null;
 	readonly buildConfigs: null;
 }
 export interface NonBuildableBinarySourceFile extends BinarySourceFile {
 	readonly buildable: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
-	readonly compiledFiles: null;
+	readonly buildFiles: null;
 	readonly buildConfigs: null;
 }
 
@@ -78,10 +78,11 @@ export const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	cachedSourceInfo: CachedSourceInfo | undefined,
+	buildConfigs: BuildConfig[] | null,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
-	let compiledFiles: BuildFile[] = [];
+	let buildFiles: BuildFile[] = [];
 	if (filerDir.buildable && cachedSourceInfo !== undefined) {
 		if (encoding === 'utf8') {
 			contentsBuffer = Buffer.from(contents);
@@ -90,7 +91,7 @@ export const createSourceFile = async (
 		}
 		contentsHash = toHash(contentsBuffer!);
 		if (contentsHash === cachedSourceInfo.contentsHash) {
-			compiledFiles = await reconstructBuildFiles(cachedSourceInfo);
+			buildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 		}
 	}
 	if (filerDir.type === 'externals') {
@@ -115,7 +116,7 @@ export const createSourceFile = async (
 			contentsBuffer,
 			contentsHash,
 			filerDir,
-			compiledFiles,
+			buildFiles,
 			stats: undefined,
 			mimeType: undefined,
 		};
@@ -141,7 +142,7 @@ export const createSourceFile = async (
 						contentsBuffer,
 						contentsHash,
 						filerDir,
-						compiledFiles,
+						buildFiles: buildFiles,
 						stats: undefined,
 						mimeType: undefined,
 				  }
@@ -160,7 +161,7 @@ export const createSourceFile = async (
 						contentsBuffer,
 						contentsHash,
 						filerDir,
-						compiledFiles: null,
+						buildFiles: null,
 						stats: undefined,
 						mimeType: undefined,
 				  };
@@ -181,7 +182,7 @@ export const createSourceFile = async (
 						contentsBuffer: contentsBuffer as Buffer,
 						contentsHash,
 						filerDir,
-						compiledFiles,
+						buildFiles,
 						stats: undefined,
 						mimeType: undefined,
 				  }
@@ -200,7 +201,7 @@ export const createSourceFile = async (
 						contentsBuffer: contentsBuffer as Buffer,
 						contentsHash,
 						filerDir,
-						compiledFiles: null,
+						buildFiles: null,
 						stats: undefined,
 						mimeType: undefined,
 				  };
