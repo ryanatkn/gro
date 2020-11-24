@@ -7,7 +7,8 @@ import {
 	FilerDir,
 } from '../build/FilerDir.js';
 import {BuildFile, reconstructBuildFiles} from './buildFile.js';
-import {BaseFilerFile, toHash} from './baseFilerFile.js';
+import {BaseFilerFile} from './baseFilerFile.js';
+import {toHash} from './utils.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {Encoding} from '../fs/encoding.js';
 import {CachedSourceInfo} from './Filer.js';
