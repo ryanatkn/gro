@@ -337,35 +337,36 @@ export class Filer {
 
 	// During initialization, after all files are loaded into memory,
 	// this is called to populate the `buildConfigs` property of all source files.
-	// It performs the initial compilation to be able to determine output dependencies.
+	// It traces the dependencies starting from each `buildConfig.input`,
+	// compiling each input source file and populating its `buildConfigs`,
+	// recursively until all dependencies have been handled.
 	private async initBuildConfigs(): Promise<void> {
 		if (this.buildConfigs === null) return;
-		await Promise.all(
-			this.buildConfigs.map((buildConfig) =>
-				// This traces the dependencies starting from each buildConfig input.
-				// It compiles each input source file and populates its `buildConfigs`,
-				// recursively until all dependencies have been handled.
-				Promise.all(
-					buildConfig.input.map((buildConfigInput) => {
-						// TODO handle dirs and patterns
-						console.log('buildConfigInput', buildConfigInput);
-						const sourceFile = this.files.get(buildConfigInput);
-						// TODO these 3 checks are copy/pasted in 2 places - we can probably remove them and just cast
-						// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
-						if (!sourceFile) throw Error('TODO do we need this check?');
-						if (sourceFile.type !== 'source') throw Error('TODO needed?');
-						if (!sourceFile.buildable) throw Error('TODO needed?');
-						return this.initSourceFileForBuildConfig(sourceFile, buildConfig);
-					}),
-				),
-			),
-		);
+
+		const promises: Promise<void>[] = [];
+
+		for (const buildConfig of this.buildConfigs) {
+			for (const buildConfigInput of buildConfig.input) {
+				// TODO handle dirs and patterns
+				console.log('buildConfigInput', buildConfigInput);
+				const sourceFile = this.files.get(buildConfigInput);
+				// TODO these 3 checks are copy/pasted in 2 places - we can probably remove them and just cast
+				// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
+				if (!sourceFile) throw Error('TODO do we need this check?');
+				if (sourceFile.type !== 'source') throw Error('TODO needed?');
+				if (!sourceFile.buildable) throw Error('TODO needed?');
+				promises.push(this.initSourceFileForBuildConfig(sourceFile, buildConfig));
+			}
+		}
+
+		await Promise.all(promises);
 
 		// TODO I think this is where we run `esinstall` on these
-		console.log('externals', this.externalDependencies);
 		// but how to handle externals that are needed AFTER the Filer initializes?
+		console.log('externals', this.externalDependencies);
 	}
 
+	// TODO track externals per build to match the flexibility of building local files
 	externalDependencies = new Set<string>();
 
 	private async initSourceFileForBuildConfig(
@@ -376,9 +377,6 @@ export class Filer {
 		sourceFile.buildConfigs.push(buildConfig);
 
 		await this.buildSourceFile(sourceFile, buildConfig);
-
-		// TODO I think for now, we should make a set on the class instance,
-		// TODO track externals per build to match the flexibility of building local files
 
 		const promises: Promise<void>[] = [];
 
