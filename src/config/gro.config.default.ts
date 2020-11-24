@@ -19,9 +19,8 @@ const createConfig: GroConfigCreator = async () => {
 			{
 				name: 'node',
 				platform: 'node',
-				// TODO should this be a pattern/filter for all tasks? add in other subexts like `gen` and `test` too?
-				// input: ['**/*.task.ts'],
-				// input: [createFilter('**/*.task.ts')],
+				// TODO should this be a pattern/filter for all tasks/tests/gen/etc? add in other subexts like `gen` and `test` too?
+				// input: [..., createFilter('**/*.{task,test,gen}*.ts')],
 				input: '.',
 				include: createFilter(undefined, basePathToSourceId('**/*.svelte')),
 			},

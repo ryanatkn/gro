@@ -99,7 +99,7 @@ test('toImportId()', () => {
 	t.is(toImportId(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
 	t.is(
 		toImportId(resolve('src/foo/bar.svelte'), true, 'baz'),
-		resolve('.gro/prod/baz/foo/bar.svelte.js'),
+		resolve('.gro/dev/baz/foo/bar.svelte.js'),
 	);
 });
 

@@ -9,13 +9,15 @@ import {paths} from '../paths.js';
 export interface BuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
-	readonly input: string[];
+	readonly input: BuildConfigInput[];
 	readonly dist: boolean;
 	readonly primary: boolean;
 	readonly include: null | ((id: string) => boolean); // `null` means include everything
 }
 
-// TODO choose one of these
+type BuildConfigInput = string | ((id: string) => boolean);
+
+// The partial was originally this calculated type, but it's a lot less readable.
 // export type PartialBuildConfig = PartialExcept<
 // 	OmitStrict<BuildConfig, 'input'> & {readonly input: string | string[]},
 // 	'name' | 'platform'
@@ -23,7 +25,7 @@ export interface BuildConfig {
 export interface PartialBuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
-	readonly input: string | string[];
+	readonly input: BuildConfigInput | BuildConfigInput[];
 	readonly dist?: boolean;
 	readonly primary?: boolean;
 	readonly include?: null | ((id: string) => boolean); // `null` means include everything
@@ -64,7 +66,7 @@ export const normalizeBuildConfigs = (partials: PartialBuildConfig[]): BuildConf
 };
 
 const normalizeBuildConfigInput = (input: PartialBuildConfig['input']): BuildConfig['input'] =>
-	ensureArray(input).map((v) => resolve(paths.source, v));
+	ensureArray(input).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
 export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {reason: string}> => {

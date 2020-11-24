@@ -15,14 +15,16 @@ test('normalizeBuildConfigs()', async () => {
 	});
 
 	test('normalizes inputs', () => {
-		const fooInput = join(paths.source, 'foo');
+		const inputPath = join(paths.source, 'foo');
+		const inputFilter = () => true;
 		const buildConfig = normalizeBuildConfigs([
 			{name: 'node', platform: 'node', input: '.'},
 			{name: 'node2', platform: 'node', input: paths.source},
 			{name: 'node3', platform: 'node', input},
 			{name: 'node4', platform: 'node', input: 'foo'},
-			{name: 'node5', platform: 'node', input: fooInput},
-			{name: 'node6', platform: 'node', input: [fooInput]},
+			{name: 'node5', platform: 'node', input: inputPath},
+			{name: 'node6', platform: 'node', input: inputFilter},
+			{name: 'node7', platform: 'node', input: [inputPath, inputFilter]},
 		]);
 		t.equal(buildConfig, [
 			{name: 'node', platform: 'node', input, primary: true, dist: true, include: null},
@@ -31,7 +33,7 @@ test('normalizeBuildConfigs()', async () => {
 			{
 				name: 'node4',
 				platform: 'node',
-				input: [fooInput],
+				input: [inputPath],
 				primary: false,
 				dist: true,
 				include: null,
@@ -39,7 +41,7 @@ test('normalizeBuildConfigs()', async () => {
 			{
 				name: 'node5',
 				platform: 'node',
-				input: [fooInput],
+				input: [inputPath],
 				primary: false,
 				dist: true,
 				include: null,
@@ -47,7 +49,15 @@ test('normalizeBuildConfigs()', async () => {
 			{
 				name: 'node6',
 				platform: 'node',
-				input: [fooInput],
+				input: [inputFilter],
+				primary: false,
+				dist: true,
+				include: null,
+			},
+			{
+				name: 'node7',
+				platform: 'node',
+				input: [inputPath, inputFilter],
 				primary: false,
 				dist: true,
 				include: null,

@@ -1,3 +1,5 @@
+import {createFilter} from '@rollup/pluginutils';
+
 import {GroConfigCreator, PartialGroConfig} from './config/config.js';
 
 // This is the config for the Gro project itself.
@@ -11,12 +13,12 @@ const createConfig: GroConfigCreator = async () => {
 				platform: 'node',
 				dist: true,
 				primary: true,
-				input: 'index.ts',
+				input: ['index.ts', createFilter('**/*.{task,test,gen}*.ts')],
 			},
 			{
 				name: 'browser',
 				platform: 'browser',
-				input: 'frontend/index.ts',
+				input: 'frontend/index.ts', // TODO should this be `frontend/`?
 			},
 		],
 	};

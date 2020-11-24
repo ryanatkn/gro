@@ -1,5 +1,6 @@
 import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
+import {createFilter} from '@rollup/pluginutils';
 
 import {
 	FilerDir,
@@ -345,17 +346,50 @@ export class Filer {
 
 		const promises: Promise<void>[] = [];
 
+		const filters: ((id: string) => boolean)[] = [];
+		const filterBuildConfigs: BuildConfig[] = [];
+
 		for (const buildConfig of this.buildConfigs) {
 			for (const buildConfigInput of buildConfig.input) {
-				// TODO handle dirs and patterns
-				console.log('buildConfigInput', buildConfigInput);
-				const sourceFile = this.files.get(buildConfigInput);
-				// TODO these 3 checks are copy/pasted in 2 places - we can probably remove them and just cast
+				if (typeof buildConfigInput === 'function') {
+					// Store the filter so they're processed in one go.
+					filters.push(buildConfigInput);
+					filterBuildConfigs.push(buildConfig);
+					continue;
+				}
+				const file = this.files.get(buildConfigInput);
+				if (!file) {
+					// Assume it's a directory.
+					// TODO this is hacky. maybe do error detection?
+					// TODO when Filer stores dirs, this needs to be changed
+					// TODO is creating the filter right? or do we want to check for `startsWith(dir + '/')`
+					filters.push(createFilter(buildConfigInput));
+					filterBuildConfigs.push(buildConfig);
+					continue;
+				}
+				// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
 				// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
-				if (!sourceFile) throw Error('TODO do we need this check?');
-				if (sourceFile.type !== 'source') throw Error('TODO needed?');
-				if (!sourceFile.buildable) throw Error('TODO needed?');
-				promises.push(this.initSourceFileForBuildConfig(sourceFile, buildConfig));
+				if (file.type !== 'source') throw Error('TODO needed?');
+				if (!file.buildable) throw Error('TODO needed?');
+				if (!file.buildConfigs.includes(buildConfig)) {
+					promises.push(this.initSourceFileForBuildConfig(file, buildConfig));
+				}
+			}
+		}
+
+		// Iterate through the files once and apply the filters.
+		for (const file of this.files.values()) {
+			for (let i = 0; i < filters.length; i++) {
+				if (filters[i](file.id)) {
+					// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
+					// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
+					if (file.type !== 'source') throw Error('TODO needed?');
+					if (!file.buildable) throw Error('TODO needed?');
+					const buildConfig = filterBuildConfigs[i];
+					if (!file.buildConfigs.includes(buildConfig)) {
+						promises.push(this.initSourceFileForBuildConfig(file, buildConfig));
+					}
+				}
 			}
 		}
 
@@ -373,8 +407,7 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.buildConfigs.includes(buildConfig)) return;
-		sourceFile.buildConfigs.push(buildConfig);
+		sourceFile.buildConfigs.push(buildConfig); // the caller is expected to check to avoid duplicates
 
 		await this.buildSourceFile(sourceFile, buildConfig);
 
@@ -396,13 +429,12 @@ export class Filer {
 				const dependencySourceId = this.mapBuildIdToSourceId(dependencyId);
 				console.log('dependencySourceId', dependencySourceId);
 				const dependencySourceFile = this.files.get(dependencySourceId);
-				// TODO these 3 checks are copy/pasted in 2 places - we can probably remove them and just cast
+				// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
 				// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
 				if (!dependencySourceFile) throw Error('TODO do we need this check?');
 				if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
 				if (!dependencySourceFile.buildable) throw Error('TODO needed?');
 				if (!dependencySourceFile.buildConfigs.includes(buildConfig)) {
-					// TODO do we care about this micro-optimization?
 					promises.push(this.initSourceFileForBuildConfig(dependencySourceFile, buildConfig));
 				}
 			}
@@ -814,28 +846,6 @@ const validateDirs = (
 				`${externalsDir} is inside ${nestedCompiledDir}`,
 		);
 	}
-};
-
-const filterBuildConfigs = (buildConfigs: BuildConfig[], id: string): BuildConfig[] => {
-	const filtered = buildConfigs.filter(
-		(buildConfig) =>
-			// TODO this fails to match transitive dependencies
-			matchesInput(buildConfig.input, id) &&
-			(buildConfig.include === null || buildConfig.include(id)), // TODO should we remove `include` altogether?
-	);
-	if (filtered.length) {
-		console.log('id', id, filtered);
-	} else {
-		console.log('no', id);
-	}
-	return filtered;
-};
-
-const matchesInput = (input: BuildConfig['input'], id: string): boolean => {
-	// TODO this is bugged for dirs because we're not adding a trailing slash
-	// it's also bugged for files because it needs to exactly match the string in that case.
-	// should `input` be a union type of file/dir/filter?
-	return input.some((i) => id.startsWith(i));
 };
 
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
