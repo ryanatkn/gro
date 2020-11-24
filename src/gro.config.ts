@@ -11,12 +11,12 @@ const createConfig: GroConfigCreator = async () => {
 				platform: 'node',
 				dist: true,
 				primary: true,
-				input: 'src/index.ts',
+				input: 'index.ts',
 			},
 			{
 				name: 'browser',
 				platform: 'browser',
-				input: 'src/frontend/index.ts',
+				input: 'frontend/index.ts',
 			},
 		],
 	};

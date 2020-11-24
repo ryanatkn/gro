@@ -13,6 +13,9 @@ import {
 	toPathParts,
 	toPathSegments,
 	toImportId,
+	toBuildExtension,
+	toSourceExtension,
+	toBuildBasePath,
 } from './paths.js';
 
 test('createPaths()', () => {
@@ -46,6 +49,14 @@ test('basePathToSourceId()', () => {
 	test('does not change extension', () => {
 		t.is(basePathToSourceId('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
 	});
+});
+
+// TODO !
+// test('toBuildsOutDir()', () => {});
+// test('toBuildOutPath()', () => {});
+
+test('toBuildBasePath()', () => {
+	t.is(toBuildBasePath(resolve('.gro/dev/buildName/foo/bar/baz.js')), 'foo/bar/baz.js');
 });
 
 test('hasSourceExtension()', () => {
@@ -86,4 +97,23 @@ test('toPathParts()', () => {
 test('toImportId()', () => {
 	t.is(toImportId(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
 	t.is(toImportId(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
+	t.is(
+		toImportId(resolve('src/foo/bar.svelte'), true, 'baz'),
+		resolve('.gro/prod/baz/foo/bar.svelte.js'),
+	);
+});
+
+test('toBuildExtension()', () => {
+	t.is(toBuildExtension('foo/bar.ts'), 'foo/bar.js');
+	t.is(toBuildExtension('foo/bar.svelte'), 'foo/bar.svelte.js');
+	t.is(toBuildExtension('foo/bar.css'), 'foo/bar.css');
+	t.is(toBuildExtension('foo/bar.png'), 'foo/bar.png');
+});
+
+test('toSourceExtension()', () => {
+	t.is(toSourceExtension('foo/bar.js'), 'foo/bar.ts');
+	t.is(toSourceExtension('foo/bar.svelte.js'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.svelte.css'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.css'), 'foo/bar.css');
+	t.is(toSourceExtension('foo/bar.png'), 'foo/bar.png');
 });

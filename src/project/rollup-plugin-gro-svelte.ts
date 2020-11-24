@@ -5,7 +5,7 @@ import {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
 import {magenta, red} from '../colors/terminal.js';
-import {getPathStem, replaceExtension} from '../utils/path.js';
+import {getPathStem} from '../utils/path.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import {GroCssBuild} from './types.js';
@@ -16,6 +16,7 @@ import {
 	handleWarn,
 	handleStats,
 } from '../compile/svelteHelpers.js';
+import {CSS_EXTENSION} from '../paths.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
@@ -118,7 +119,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 
 			onstats(id, stats, handleStats, log, this);
 
-			let cssId = replaceExtension(id, '.css');
+			const cssId = `${id}${CSS_EXTENSION}`;
 			log.trace('add css import', printPath(cssId));
 			addCssBuild({
 				id: cssId,

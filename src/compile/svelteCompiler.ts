@@ -19,7 +19,6 @@ import {
 	toBuildOutPath,
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
-import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {BuildConfig} from '../config/buildConfig.js';
@@ -110,10 +109,10 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		}
 		if (onstats) onstats(id, stats, handleStats, log);
 
-		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
-		const cssFilename = replaceExtension(jsFilename, CSS_EXTENSION);
+		const jsFilename = `${source.filename}${JS_EXTENSION}`;
+		const cssFilename = `${jsFilename}${CSS_EXTENSION}`;
 		const jsId = `${outDir}${jsFilename}`;
-		const cssId = replaceExtension(jsId, CSS_EXTENSION);
+		const cssId = `${outDir}${cssFilename}`;
 		const hasJsSourceMap = sourceMap && js.map !== undefined;
 		const hasCssSourceMap = sourceMap && css.map !== undefined;
 
