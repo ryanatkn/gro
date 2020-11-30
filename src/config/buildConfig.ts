@@ -12,7 +12,6 @@ export interface BuildConfig {
 	readonly input: BuildConfigInput[];
 	readonly dist: boolean;
 	readonly primary: boolean;
-	readonly include: null | ((id: string) => boolean); // `null` means include everything
 }
 
 type BuildConfigInput = string | ((id: string) => boolean);
@@ -28,7 +27,6 @@ export interface PartialBuildConfig {
 	readonly input: BuildConfigInput | BuildConfigInput[];
 	readonly dist?: boolean;
 	readonly primary?: boolean;
-	readonly include?: null | ((id: string) => boolean); // `null` means include everything
 }
 
 export type PlatformTarget = 'node' | 'browser';
@@ -46,7 +44,6 @@ export const normalizeBuildConfigs = (partials: PartialBuildConfig[]): BuildConf
 		input: normalizeBuildConfigInput(buildConfig.input),
 		dist: hasDist ? buildConfig.dist ?? false : true, // If no config is marked as `dist`, assume they all are.
 		primary: buildConfig.primary ?? false,
-		include: buildConfig.include ?? null,
 	}));
 
 	for (const buildConfig of buildConfigs) {

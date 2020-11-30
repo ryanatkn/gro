@@ -25,9 +25,9 @@ Here's the [`PartialBuildConfig`](/src/config/buildConfig.ts) type:
 export interface PartialBuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget; // 'node' | 'browser'
+	readonly input: BuildConfigInput | BuildConfigInput[];
 	readonly dist?: boolean;
 	readonly primary?: boolean;
-	readonly include?: null | ((id: string) => boolean);
 }
 ```
 
@@ -39,9 +39,16 @@ The `name` field can be anything and maps to the build's directory name.
 By defining `"name": "node",`, running `gro compile`, `gro dev`, or `gro build` creates builds
 in `.gro/dev/node/` and `.gro/prod/node/`, respectively.
 
-Importantly, **Gro always includes a hardcoded Node build named `"node"`**
-that it uses to compile your project and run things like tests, tasks, and codegen.
-Ideally this would be configurable, but doing so would slow Gro down in many cases.
+> Importantly, **Gro always includes a hardcoded Node build named `"node"`**
+> that it uses to compile your project and run things like tests, tasks, and codegen.
+> Ideally this would be configurable, but doing so would slow Gro down in many cases.
+
+The `input` field specifies the source code entry points for the build.
+Each input can be a file or directory path (absolute or relative to `src/`),
+or a filter function with the signature `(id: string) => boolean`.
+(it's convenient to use the
+[`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
+from `@rollup/pluginutils`)
 
 The optional `dist` flag marks builds for inclusion in the root `dist/` directory
 by [the `gro dist` task](/src/dist.task.ts).
@@ -61,9 +68,6 @@ For browser builds, this is the build that's served by the development server.
 As mentioned above, the `primary` Node build is always named `"node"`.
 For other platforms, if no `primary` flag exists on any build,
 Gro marks the first build in the `builds` array as primary.
-
-The optional `include` property can be used to include or exclude a particular file.
-It's convenient to use the `createFilter` helper from `@rollup/pluginutils` here.
 
 ## examples
 

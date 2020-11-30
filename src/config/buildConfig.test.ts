@@ -9,9 +9,7 @@ const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix 
 test('normalizeBuildConfigs()', async () => {
 	test('normalizes a plain config', () => {
 		const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node', input: '.'}]);
-		t.equal(buildConfig, [
-			{name: 'node', platform: 'node', input, primary: true, dist: true, include: null},
-		]);
+		t.equal(buildConfig, [{name: 'node', platform: 'node', input, primary: true, dist: true}]);
 	});
 
 	test('normalizes inputs', () => {
@@ -27,16 +25,15 @@ test('normalizeBuildConfigs()', async () => {
 			{name: 'node7', platform: 'node', input: [inputPath, inputFilter]},
 		]);
 		t.equal(buildConfig, [
-			{name: 'node', platform: 'node', input, primary: true, dist: true, include: null},
-			{name: 'node2', platform: 'node', input, primary: false, dist: true, include: null},
-			{name: 'node3', platform: 'node', input, primary: false, dist: true, include: null},
+			{name: 'node', platform: 'node', input, primary: true, dist: true},
+			{name: 'node2', platform: 'node', input, primary: false, dist: true},
+			{name: 'node3', platform: 'node', input, primary: false, dist: true},
 			{
 				name: 'node4',
 				platform: 'node',
 				input: [inputPath],
 				primary: false,
 				dist: true,
-				include: null,
 			},
 			{
 				name: 'node5',
@@ -44,7 +41,6 @@ test('normalizeBuildConfigs()', async () => {
 				input: [inputPath],
 				primary: false,
 				dist: true,
-				include: null,
 			},
 			{
 				name: 'node6',
@@ -52,7 +48,6 @@ test('normalizeBuildConfigs()', async () => {
 				input: [inputFilter],
 				primary: false,
 				dist: true,
-				include: null,
 			},
 			{
 				name: 'node7',
@@ -60,7 +55,6 @@ test('normalizeBuildConfigs()', async () => {
 				input: [inputPath, inputFilter],
 				primary: false,
 				dist: true,
-				include: null,
 			},
 		]);
 	});
@@ -72,9 +66,9 @@ test('normalizeBuildConfigs()', async () => {
 			{name: 'node3', platform: 'node', input, primary: true},
 		]);
 		t.equal(buildConfig, [
-			{name: 'node1', platform: 'node', input, primary: false, dist: false, include: null},
-			{name: 'node2', platform: 'node', input, primary: false, dist: true, include: null},
-			{name: 'node3', platform: 'node', input, primary: true, dist: false, include: null},
+			{name: 'node1', platform: 'node', input, primary: false, dist: false},
+			{name: 'node2', platform: 'node', input, primary: false, dist: true},
+			{name: 'node3', platform: 'node', input, primary: true, dist: false},
 		]);
 	});
 
@@ -87,11 +81,11 @@ test('normalizeBuildConfigs()', async () => {
 			{name: 'browser3', platform: 'browser', input, primary: false},
 		]);
 		t.equal(buildConfig, [
-			{name: 'node1', platform: 'node', input, primary: true, dist: true, include: null},
-			{name: 'node2', platform: 'node', input, primary: false, dist: false, include: null},
-			{name: 'browser1', platform: 'browser', input, primary: true, dist: false, include: null},
-			{name: 'browser2', platform: 'browser', input, primary: false, dist: false, include: null},
-			{name: 'browser3', platform: 'browser', input, primary: false, dist: false, include: null},
+			{name: 'node1', platform: 'node', input, primary: true, dist: true},
+			{name: 'node2', platform: 'node', input, primary: false, dist: false},
+			{name: 'browser1', platform: 'browser', input, primary: true, dist: false},
+			{name: 'browser2', platform: 'browser', input, primary: false, dist: false},
+			{name: 'browser3', platform: 'browser', input, primary: false, dist: false},
 		]);
 	});
 
@@ -104,11 +98,11 @@ test('normalizeBuildConfigs()', async () => {
 			{name: 'browser2', platform: 'browser', input},
 		]);
 		t.equal(buildConfig, [
-			{name: 'node1', platform: 'node', input, primary: true, dist: true, include: null},
-			{name: 'node2', platform: 'node', input, primary: false, dist: true, include: null},
-			{name: 'node3', platform: 'node', input, primary: false, dist: true, include: null},
-			{name: 'browser1', platform: 'browser', input, primary: true, dist: true, include: null},
-			{name: 'browser2', platform: 'browser', input, primary: false, dist: true, include: null},
+			{name: 'node1', platform: 'node', input, primary: true, dist: true},
+			{name: 'node2', platform: 'node', input, primary: false, dist: true},
+			{name: 'node3', platform: 'node', input, primary: false, dist: true},
+			{name: 'browser1', platform: 'browser', input, primary: true, dist: true},
+			{name: 'browser2', platform: 'browser', input, primary: false, dist: true},
 		]);
 	});
 

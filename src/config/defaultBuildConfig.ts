@@ -13,5 +13,4 @@ export const DEFAULT_BUILD_CONFIG: BuildConfig = {
 	primary: true,
 	dist: false,
 	input: [paths.source],
-	include: null,
 };
