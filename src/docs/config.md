@@ -79,7 +79,7 @@ import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
 
 const createConfig: GroConfigCreator = async () => {
 	return {
-		builds: [{name: 'node', platform: 'node'}],
+		builds: [{name: 'node', platform: 'node', input: 'index.ts'}],
 	};
 };
 
