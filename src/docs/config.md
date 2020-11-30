@@ -90,13 +90,14 @@ Here's what a frontend-only project with both desktop and mobile builds may look
 
 ```ts
 import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+import {createFilter} from '@rollup/pluginutils';
 
 const createConfig: GroConfigCreator = async () => {
 	return {
 		builds: [
 			{name: 'browser_mobile', platform: 'browser', dist: true},
 			{name: 'browser_desktop', platform: 'browser', dist: true, primary: true},
-			// {name: 'node', platform: 'node'}, // this is implicit to run tasks, tests, codegen, etc
+			{name: 'node', platform: 'node', input: [createFilter('**/*.{task,test,gen}*.ts')]},
 		],
 	};
 };
