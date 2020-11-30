@@ -95,9 +95,9 @@ import {createFilter} from '@rollup/pluginutils';
 const createConfig: GroConfigCreator = async () => {
 	return {
 		builds: [
-			{name: 'browser_mobile', platform: 'browser', dist: true},
-			{name: 'browser_desktop', platform: 'browser', dist: true, primary: true},
-			{name: 'node', platform: 'node', input: [createFilter('**/*.{task,test,gen}*.ts')]},
+			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', dist: true},
+			{name: 'browser_desktop', platform: 'browser', input: 'index.ts', dist: true, primary: true},
+			{name: 'node', platform: 'node', input: createFilter('**/*.{task,test,gen}*.ts')},
 		],
 	};
 };
