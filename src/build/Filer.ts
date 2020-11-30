@@ -377,13 +377,13 @@ export class Filer {
 			}
 		}
 
-		// Iterate through the files once and apply the filters.
+		// Iterate through the files once and apply the filters to all source files.
 		for (const file of this.files.values()) {
+			if (file.type !== 'source') continue;
 			for (let i = 0; i < filters.length; i++) {
 				if (filters[i](file.id)) {
 					// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
 					// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
-					if (file.type !== 'source') throw Error('TODO needed?');
 					if (!file.buildable) throw Error('TODO needed?');
 					const buildConfig = filterBuildConfigs[i];
 					if (!file.buildConfigs.includes(buildConfig)) {
@@ -413,21 +413,24 @@ export class Filer {
 
 		const promises: Promise<void>[] = [];
 
-		// At this point, we need to compile the deps of the compiled files.
-		// Then, each of those needs to compile its deps, and so forth.
+		// At this point, we need to compile the dependencies of the compiled files.
+		// Then, each of those needs to compile its dependencies, and so forth.
 		for (const compiledFile of sourceFile.buildFiles) {
-			console.log('\n\ncompiledFile.id', compiledFile.id);
-			for (const externalDependency of compiledFile.externals) {
-				this.externalDependencies.add(externalDependency);
+			// console.log('\n\ncompiledFile.id', compiledFile.id);
+			if (buildConfig.platform === 'browser') {
+				for (const externalDependency of compiledFile.externals) {
+					console.log('add external', externalDependency, compiledFile.id);
+					this.externalDependencies.add(externalDependency);
+				}
 			}
 			// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
 			// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
 			for (const localDependency of compiledFile.locals) {
 				// TODO this should short circuit if the source has already been added to the input set
 				const dependencyId = join(compiledFile.dir, localDependency);
-				console.log('dependencyId', dependencyId);
+				// console.log('dependencyId', dependencyId);
 				const dependencySourceId = this.mapBuildIdToSourceId(dependencyId);
-				console.log('dependencySourceId', dependencySourceId);
+				// console.log('dependencySourceId', dependencySourceId);
 				const dependencySourceFile = this.files.get(dependencySourceId);
 				// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
 				// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!

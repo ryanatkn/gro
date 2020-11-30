@@ -13,7 +13,7 @@ const createConfig: GroConfigCreator = async () => {
 				platform: 'node',
 				dist: true,
 				primary: true,
-				input: ['index.ts', createFilter('**/*.{task,test,gen}*.ts')],
+				input: ['index.ts', createFilter(['**/*.{task,test,gen}*.ts', '**/fixtures/**'])],
 			},
 			{
 				name: 'browser',
