@@ -44,7 +44,9 @@ The `platform` can currently be `"node"` or `"browser"` and
 is used by Gro's default compilers to customize the output.
 When compiling for the browser, dependencies in `node_modules/` are imported via Snowpack's
 [`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
-When compiling for Node, the Svelte compiler outputs SSR components instead of the normal DOM ones.
+When compiling for Node, the Svelte compiler outputs
+[SSR components](https://svelte.dev/docs#Server-side_component_API)
+instead of the normal DOM ones.
 
 The `input` field specifies the source code entry points for the build.
 Each input can be a file or directory path (absolute or relative to `src/`),
