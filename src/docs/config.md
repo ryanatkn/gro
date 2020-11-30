@@ -105,4 +105,6 @@ const createConfig: GroConfigCreator = async () => {
 export default createConfig;
 ```
 
-Here's [Gro's own internal config](/src/gro.config.ts).
+Here's [Gro's own internal config](/src/gro.config.ts) and
+here's [`the default config`](/src/config/gro.config.default.ts)
+that's used for projects that do not define one.
