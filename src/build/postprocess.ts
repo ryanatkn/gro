@@ -1,3 +1,4 @@
+import {join} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
 
@@ -50,7 +51,7 @@ export const postprocess = (
 				if (isExternal) {
 					(externals || (externals = [])).push(newModuleName);
 				} else {
-					(locals || (locals = [])).push(newModuleName);
+					(locals || (locals = [])).push(join(compilation.dir, newModuleName));
 				}
 				if (newModuleName !== moduleName) {
 					transformedContents += contents.substring(index, start) + newModuleName;

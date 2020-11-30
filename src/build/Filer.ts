@@ -348,7 +348,7 @@ export class Filer {
 		const filters: ((id: string) => boolean)[] = [];
 		const filterBuildConfigs: BuildConfig[] = [];
 
-		// Iterate through the build config inputs and look for their files.
+		// Iterate through the build config inputs and initialize their files.
 		for (const buildConfig of this.buildConfigs) {
 			for (const buildConfigInput of buildConfig.input) {
 				if (typeof buildConfigInput === 'function') {
@@ -425,11 +425,10 @@ export class Filer {
 			}
 			// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
 			// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
-			for (const localDependency of compiledFile.locals) {
+			for (const localDependencyId of compiledFile.locals) {
 				// TODO this should short circuit if the source has already been added to the input set
-				const dependencyId = join(compiledFile.dir, localDependency);
-				// console.log('dependencyId', dependencyId);
-				const dependencySourceId = this.mapBuildIdToSourceId(dependencyId);
+				// console.log('localDependencyId', localDependencyId);
+				const dependencySourceId = this.mapBuildIdToSourceId(localDependencyId);
 				// console.log('dependencySourceId', dependencySourceId);
 				const dependencySourceFile = this.files.get(dependencySourceId);
 				// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
