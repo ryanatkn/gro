@@ -179,25 +179,22 @@ test('loadModules()', () => {
 		);
 		t.ok(!result.ok);
 		t.ok(result.reasons.length);
-		if (result.type === 'loadModuleFailures') {
-			t.is(result.loadModuleFailures.length, 2);
-			const [failure1, failure2] = result.loadModuleFailures;
-			if (failure1.type === 'invalid') {
-				t.is(failure1.id, idBar1);
-				t.ok(failure1.mod);
-				t.is(failure1.validation, testValidation.name);
-			} else {
-				t.fail('Expected to fail with invalid');
-			}
-			if (failure2.type === 'importFailed') {
-				t.is(failure2.id, idBar2);
-				t.is(failure2.error, error);
-			} else {
-				t.fail('Expected to fail with importFailed');
-			}
-		} else {
+		if (result.type !== 'loadModuleFailures') {
 			t.fail('Expected to fail with loadModuleFailures');
 		}
+		t.is(result.loadModuleFailures.length, 2);
+		const [failure1, failure2] = result.loadModuleFailures;
+		if (failure1.type !== 'invalid') {
+			t.fail('Expected to fail with invalid');
+		}
+		t.is(failure1.id, idBar1);
+		t.ok(failure1.mod);
+		t.is(failure1.validation, testValidation.name);
+		if (failure2.type !== 'importFailed') {
+			t.fail('Expected to fail with importFailed');
+		}
+		t.is(failure2.id, idBar2);
+		t.is(failure2.error, error);
 		t.is(result.modules.length, 2);
 		t.is(result.modules[0].id, idBaz1);
 		t.is(result.modules[0].mod, modTestBaz1);

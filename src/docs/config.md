@@ -38,6 +38,7 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 
 > Importantly, **Gro requires a Node build named `"node"`**
 > that it uses to run things like tests, tasks, and codegen.
+> It must be the primary Node build.
 > Ideally this would be configurable, but doing so would slow Gro down in many cases.
 
 The `platform` can currently be `"node"` or `"browser"` and
