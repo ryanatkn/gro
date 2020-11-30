@@ -1,6 +1,5 @@
 import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
-import {createFilter} from '@rollup/pluginutils';
 
 import {
 	FilerDir,
@@ -349,21 +348,20 @@ export class Filer {
 		const filters: ((id: string) => boolean)[] = [];
 		const filterBuildConfigs: BuildConfig[] = [];
 
+		// Iterate through the build config inputs and look for their files.
 		for (const buildConfig of this.buildConfigs) {
 			for (const buildConfigInput of buildConfig.input) {
 				if (typeof buildConfigInput === 'function') {
-					// Store the filter so they're processed in one go.
 					filters.push(buildConfigInput);
 					filterBuildConfigs.push(buildConfig);
 					continue;
 				}
 				const file = this.files.get(buildConfigInput);
 				if (!file) {
-					// Assume it's a directory.
-					// TODO this is hacky. maybe do error detection?
-					// TODO when Filer stores dirs, this needs to be changed
-					// TODO is creating the filter right? or do we want to check for `startsWith(dir + '/')`
-					filters.push(createFilter(buildConfigInput));
+					// TODO This hackily assumes missing files are directories.
+					// Fix when the Filter stores directories.
+					// Could stat the directory and throw errors as an interim fix.
+					filters.push(createDirectoryFilter(buildConfigInput));
 					filterBuildConfigs.push(buildConfig);
 					continue;
 				}
@@ -378,16 +376,18 @@ export class Filer {
 		}
 
 		// Iterate through the files once and apply the filters to all source files.
-		for (const file of this.files.values()) {
-			if (file.type !== 'source') continue;
-			for (let i = 0; i < filters.length; i++) {
-				if (filters[i](file.id)) {
-					// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
-					// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
-					if (!file.buildable) throw Error('TODO needed?');
-					const buildConfig = filterBuildConfigs[i];
-					if (!file.buildConfigs.includes(buildConfig)) {
-						promises.push(this.initSourceFileForBuildConfig(file, buildConfig));
+		if (filters.length) {
+			for (const file of this.files.values()) {
+				if (file.type !== 'source') continue;
+				for (let i = 0; i < filters.length; i++) {
+					if (filters[i](file.id)) {
+						// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
+						// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
+						if (!file.buildable) throw Error('TODO needed?');
+						const buildConfig = filterBuildConfigs[i];
+						if (!file.buildConfigs.includes(buildConfig)) {
+							promises.push(this.initSourceFileForBuildConfig(file, buildConfig));
+						}
 					}
 				}
 			}
@@ -908,3 +908,8 @@ const checkForConflictingExternalsDir = (
 
 const defaultMapBuildIdToSourceId = (buildId: string): string =>
 	basePathToSourceId(toSourceExtension(toBuildBasePath(buildId)));
+
+const createDirectoryFilter = (dir: string): ((id: string) => boolean) => {
+	const dirWithTrailingSlash = dir + '/';
+	return (id) => id === dir || id.startsWith(dirWithTrailingSlash);
+};
