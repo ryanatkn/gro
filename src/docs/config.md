@@ -13,13 +13,14 @@ To accomplish this, Gro has an optional config file that lives at `$PROJECT/src/
 If a project does not define a config, Gro imports a default config from
 [`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts).
 
-See [`src/config/config.ts`](/src/config/config.ts) for the config implementation.
+See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
 
 ## build config
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`PartialBuildConfig`](/src/config/buildConfig.ts) type:
+Here's the [`PartialBuildConfig`](/src/config/buildConfig.ts) type,
+which is the user-facing version of the [`BuildConfig`](/src/config/buildConfig.ts):
 
 ```ts
 export interface PartialBuildConfig {
@@ -102,3 +103,5 @@ const createConfig: GroConfigCreator = async () => {
 
 export default createConfig;
 ```
+
+Here's [Gro's own internal config](/src/gro.config.ts).
