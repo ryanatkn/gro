@@ -32,7 +32,7 @@ import {stripEnd, stripStart} from '../utils/string.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {BuildableSourceFile, createSourceFile, SourceFile} from './sourceFile.js';
-import {BuildFile, createBuildFile} from './buildFile.js';
+import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 
@@ -673,6 +673,19 @@ export class Filer {
 			syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
 			this.updateCachedSourceInfo(sourceFile),
 		]);
+
+		// After building the source file, we need to handle any dependency changes for each build file.
+		// Dependencies may be added or removed,
+		// and their source files need to be updated with any build config changes.
+		// For example, the build config.
+		// When a dependency is removed for a build,
+		// if the dependency's source file is not an input to the build config,
+		// and they have 0 dependents after the build file is removed,
+		// they're removed for this build,
+		// meaning the memory cache is updated and the files are deleted from disk for the build config.
+		const [addedDependencies, removedDependencies] = diffDependencies(newBuildFiles, oldBuildFiles);
+		console.log('addedDependencies', addedDependencies);
+		console.log('removedDependencies', removedDependencies);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {

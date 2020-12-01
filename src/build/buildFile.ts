@@ -150,3 +150,80 @@ export const reconstructBuildFiles = (
 			},
 		),
 	);
+
+// Returns the dependency changes between two sets of build files.
+export const diffDependencies = (
+	newFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[],
+): [addedDependencies: Set<string> | null, removedDependencies: Set<string> | null] => {
+	let addedDependencies: Set<string> | null = null;
+	let removedDependencies: Set<string> | null = null;
+
+	// Aggregate all of the dependencies for each source file.
+	let newLocalDependencies: Set<string> | null = null;
+	let newExternalDependencies: Set<string> | null = null;
+	let oldLocalDependencies: Set<string> | null = null;
+	let oldExternalDependencies: Set<string> | null = null;
+	for (const newFile of newFiles) {
+		if (newFile.localDependencies !== null) {
+			for (const localDependency of newFile.localDependencies) {
+				(newLocalDependencies || (newLocalDependencies = new Set<string>())).add(localDependency);
+			}
+		}
+		if (newFile.externalDependencies !== null) {
+			for (const externalDependency of newFile.externalDependencies) {
+				(newExternalDependencies || (newExternalDependencies = new Set<string>())).add(
+					externalDependency,
+				);
+			}
+		}
+	}
+	for (const oldFile of oldFiles) {
+		if (oldFile.localDependencies !== null) {
+			for (const localDependency of oldFile.localDependencies) {
+				(oldLocalDependencies || (oldLocalDependencies = new Set<string>())).add(localDependency);
+			}
+		}
+		if (oldFile.externalDependencies !== null) {
+			for (const externalDependency of oldFile.externalDependencies) {
+				(oldExternalDependencies || (oldExternalDependencies = new Set<string>())).add(
+					externalDependency,
+				);
+			}
+		}
+	}
+
+	// Figure out which dependencies were added and removed.
+	if (newLocalDependencies !== null) {
+		for (const newLocalDependency of newLocalDependencies) {
+			if (oldLocalDependencies === null || !oldLocalDependencies.has(newLocalDependency)) {
+				(addedDependencies || (addedDependencies = new Set<string>())).add(newLocalDependency);
+			}
+		}
+	}
+	if (newExternalDependencies !== null) {
+		for (const newExternalDependency of newExternalDependencies) {
+			if (oldExternalDependencies === null || !oldExternalDependencies.has(newExternalDependency)) {
+				(addedDependencies || (addedDependencies = new Set<string>())).add(newExternalDependency);
+			}
+		}
+	}
+	if (oldLocalDependencies !== null) {
+		for (const oldLocalDependency of oldLocalDependencies) {
+			if (newLocalDependencies === null || !newLocalDependencies.has(oldLocalDependency)) {
+				(removedDependencies || (removedDependencies = new Set<string>())).add(oldLocalDependency);
+			}
+		}
+	}
+	if (oldExternalDependencies !== null) {
+		for (const oldExternalDependency of oldExternalDependencies) {
+			if (newExternalDependencies === null || !newExternalDependencies.has(oldExternalDependency)) {
+				(removedDependencies || (removedDependencies = new Set<string>())).add(
+					oldExternalDependency,
+				);
+			}
+		}
+	}
+
+	return [addedDependencies, removedDependencies];
+};
