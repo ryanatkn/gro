@@ -43,10 +43,10 @@ export interface CachedSourceInfo {
 	contentsHash: string;
 	compilations: {
 		id: string;
-		encoding: Encoding;
 		buildConfigName: string;
-		locals: string[];
-		externals: string[];
+		localDependencies: string[] | null;
+		externalDependencies: string[] | null;
+		encoding: Encoding;
 	}[];
 }
 const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
@@ -430,33 +430,35 @@ export class Filer {
 		// Then, each of those needs to compile its dependencies, and so forth.
 		for (const compiledFile of sourceFile.buildFiles) {
 			// console.log('\n\ncompiledFile.id', compiledFile.id);
-			if (buildConfig.platform === 'browser') {
-				for (const externalDependency of compiledFile.externals) {
+			if (buildConfig.platform === 'browser' && compiledFile.externalDependencies !== null) {
+				for (const externalDependency of compiledFile.externalDependencies) {
 					console.log('add external', externalDependency, compiledFile.id);
 					this.externalDependencies.add(externalDependency);
 				}
 			}
 			// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
 			// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
-			for (const localDependencyId of compiledFile.locals) {
-				// TODO this should short circuit if the source has already been added to the input set
-				// console.log('localDependencyId', localDependencyId);
-				const dependencySourceId = this.mapBuildIdToSourceId(localDependencyId);
-				// console.log('dependencySourceId', dependencySourceId);
-				const dependencySourceFile = this.files.get(dependencySourceId);
-				// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
-				// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
-				if (!dependencySourceFile) throw Error('TODO do we need this check?');
-				if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
-				if (!dependencySourceFile.buildable) throw Error('TODO needed?');
-				if (!dependencySourceFile.buildConfigs.has(buildConfig)) {
-					promises.push(
-						this.initSourceFileForBuildConfig(
-							dependencySourceFile,
-							buildConfig,
-							isInputToBuildConfig(sourceFile, buildConfig),
-						),
-					);
+			if (compiledFile.localDependencies !== null) {
+				for (const localDependencyId of compiledFile.localDependencies) {
+					// TODO this should short circuit if the source has already been added to the input set
+					// console.log('localDependencyId', localDependencyId);
+					const dependencySourceId = this.mapBuildIdToSourceId(localDependencyId);
+					// console.log('dependencySourceId', dependencySourceId);
+					const dependencySourceFile = this.files.get(dependencySourceId);
+					// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
+					// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
+					if (!dependencySourceFile) throw Error('TODO do we need this check?');
+					if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
+					if (!dependencySourceFile.buildable) throw Error('TODO needed?');
+					if (!dependencySourceFile.buildConfigs.has(buildConfig)) {
+						promises.push(
+							this.initSourceFileForBuildConfig(
+								dependencySourceFile,
+								buildConfig,
+								isInputToBuildConfig(sourceFile, buildConfig),
+							),
+						);
+					}
 				}
 			}
 		}
@@ -698,10 +700,10 @@ export class Filer {
 			contentsHash: getFileContentsHash(file),
 			compilations: file.buildFiles.map((file) => ({
 				id: file.id,
-				encoding: file.encoding,
 				buildConfigName: file.buildConfig.name,
-				locals: file.locals,
-				externals: file.externals,
+				localDependencies: file.localDependencies && Array.from(file.localDependencies),
+				externalDependencies: file.externalDependencies && Array.from(file.externalDependencies),
+				encoding: file.encoding,
 			})),
 		};
 		// This is useful for debugging, but has false positives

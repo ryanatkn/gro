@@ -25,8 +25,8 @@ interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
 	readonly sourceFileId: string;
 	readonly buildConfig: BuildConfig;
-	readonly locals: string[]; // TODO is this right? or maybe a set?
-	readonly externals: string[]; // TODO is this right? or maybe a set?
+	readonly localDependencies: Set<string> | null; // TODO is this right? or maybe a set?
+	readonly externalDependencies: Set<string> | null; // TODO is this right? or maybe a set?
 }
 
 export const createBuildFile = (
@@ -36,7 +36,7 @@ export const createBuildFile = (
 	sourceFile: BuildableSourceFile,
 	buildConfig: BuildConfig,
 ): BuildFile => {
-	const [contents, locals, externals] = postprocess(
+	const [contents, localDependencies, externalDependencies] = postprocess(
 		compilation,
 		compileOptions,
 		result,
@@ -48,8 +48,8 @@ export const createBuildFile = (
 				type: 'build',
 				sourceFileId: sourceFile.id,
 				buildConfig,
-				locals,
-				externals,
+				localDependencies,
+				externalDependencies,
 				id: compilation.id,
 				filename: compilation.filename,
 				dir: compilation.dir,
@@ -67,8 +67,8 @@ export const createBuildFile = (
 				type: 'build',
 				sourceFileId: sourceFile.id,
 				buildConfig,
-				locals,
-				externals,
+				localDependencies,
+				externalDependencies,
 				id: compilation.id,
 				filename: compilation.filename,
 				dir: compilation.dir,
@@ -92,25 +92,31 @@ export const reconstructBuildFiles = (
 	Promise.all(
 		cachedSourceInfo.compilations.map(
 			async (compilation): Promise<BuildFile> => {
-				const {id} = compilation;
+				const {
+					id,
+					buildConfigName,
+					externalDependencies,
+					localDependencies,
+					encoding,
+				} = compilation;
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
-				const contents = await loadContents(compilation.encoding, id);
-				const buildConfig = buildConfigs.find((b) => b.name === compilation.buildConfigName)!;
-				switch (compilation.encoding) {
+				const contents = await loadContents(encoding, id);
+				const buildConfig = buildConfigs.find((b) => b.name === buildConfigName)!;
+				switch (encoding) {
 					case 'utf8':
 						return {
 							type: 'build',
 							sourceFileId: cachedSourceInfo.sourceId,
 							buildConfig,
-							locals: compilation.locals,
-							externals: compilation.externals,
+							localDependencies: localDependencies && new Set(localDependencies),
+							externalDependencies: externalDependencies && new Set(externalDependencies),
 							id,
 							filename,
 							dir,
 							extension,
-							encoding: compilation.encoding,
+							encoding,
 							contents: contents as string,
 							sourceMapOf: id.endsWith(SOURCE_MAP_EXTENSION)
 								? stripEnd(id, SOURCE_MAP_EXTENSION)
@@ -125,13 +131,13 @@ export const reconstructBuildFiles = (
 							type: 'build',
 							sourceFileId: cachedSourceInfo.sourceId,
 							buildConfig,
-							locals: compilation.locals,
-							externals: compilation.externals,
+							localDependencies: localDependencies && new Set(localDependencies),
+							externalDependencies: externalDependencies && new Set(externalDependencies),
 							id,
 							filename,
 							dir,
 							extension,
-							encoding: compilation.encoding,
+							encoding,
 							contents: contents as Buffer,
 							contentsBuffer: contents as Buffer,
 							contentsHash: undefined,
@@ -139,7 +145,7 @@ export const reconstructBuildFiles = (
 							mimeType: undefined,
 						};
 					default:
-						throw new UnreachableError(compilation.encoding);
+						throw new UnreachableError(encoding);
 				}
 			},
 		),

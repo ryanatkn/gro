@@ -11,18 +11,21 @@ import type {
 } from '../compile/compiler.js';
 import {stripStart} from '../utils/string.js';
 import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js';
-import {EMPTY_ARRAY} from '../utils/array.js';
 
 export const postprocess = (
 	compilation: Compilation,
 	{externalsDirBasePath, servedDirs}: CompileOptions,
 	result: CompileResult<Compilation>,
 	source: CompilationSource,
-): [contents: Compilation['contents'], locals: string[], externals: string[]] => {
+): [
+	contents: Compilation['contents'],
+	localDependencies: Set<string> | null,
+	externalDependencies: Set<string> | null,
+] => {
 	if (compilation.encoding === 'utf8') {
 		let {contents} = compilation;
-		let locals: string[] | null = null;
-		let externals: string[] | null = null;
+		let localDependencies: Set<string> | null = null;
+		let externalDependencies: Set<string> | null = null;
 
 		// Map import paths to the compiled versions.
 		if (compilation.extension === JS_EXTENSION) {
@@ -46,12 +49,15 @@ export const postprocess = (
 					externalsDirBasePath !== null &&
 					compilation.buildConfig.platform === 'browser'
 				) {
+					// TODO it's weird that this is a fake absolute path while locals have real absolute paths
 					newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
 				}
 				if (isExternal) {
-					(externals || (externals = [])).push(newModuleName);
+					(externalDependencies || (externalDependencies = new Set())).add(newModuleName);
 				} else {
-					(locals || (locals = [])).push(join(compilation.dir, newModuleName));
+					(localDependencies || (localDependencies = new Set())).add(
+						join(compilation.dir, newModuleName),
+					);
 				}
 				if (newModuleName !== moduleName) {
 					transformedContents += contents.substring(index, start) + newModuleName;
@@ -83,10 +89,10 @@ export const postprocess = (
 				}
 			}
 		}
-		return [contents, locals || EMPTY_ARRAY, externals || EMPTY_ARRAY];
+		return [contents, localDependencies, externalDependencies];
 	} else {
 		// Handle other encodings like binary.
-		return [compilation.contents, EMPTY_ARRAY, EMPTY_ARRAY];
+		return [compilation.contents, null, null];
 	}
 };
 
