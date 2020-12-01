@@ -485,11 +485,12 @@ export class Filer {
 						change.type !== 'init' &&
 						filerDir.buildable // only needed for types, doing this instead of casting for type safety
 					) {
-						await Promise.all(
-							this.buildConfigs!.map((buildConfig) =>
-								this.buildSourceFile(this.files.get(id) as BuildableSourceFile, buildConfig),
-							),
-						);
+						const file = this.files.get(id) as BuildableSourceFile;
+						const promises: Promise<void>[] = [];
+						for (const buildConfig of file.buildConfigs) {
+							promises.push(this.buildSourceFile(file, buildConfig));
+						}
+						await Promise.all(promises);
 					}
 				}
 				break;
@@ -497,6 +498,11 @@ export class Filer {
 			case 'delete': {
 				if (change.stats.isDirectory()) {
 					if (this.buildConfigs !== null && filerDir.buildable) {
+						// TODO This is weird because we're blindly deleting
+						// the directory for all build configs,
+						// whether or not they apply for this id.
+						// It could be improved by tracking tracking dirs in the Filer
+						// and looking up the correct build configs.
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
 								remove(toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildRootDir)),
