@@ -9,7 +9,7 @@ import {paths} from '../paths.js';
 export interface BuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
-	readonly input: BuildConfigInput[];
+	readonly input: readonly BuildConfigInput[];
 	readonly dist: boolean;
 	readonly primary: boolean;
 }
