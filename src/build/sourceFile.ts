@@ -45,31 +45,36 @@ export interface BuildableTextSourceFile extends TextSourceFile {
 	readonly buildable: true;
 	readonly filerDir: BuildableInternalsFilerDir;
 	buildFiles: readonly BuildFile[];
-	readonly buildConfigs: BuildConfig[];
+	readonly buildConfigs: Set<BuildConfig>;
+	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 }
 export interface BuildableBinarySourceFile extends BinarySourceFile {
 	readonly buildable: true;
 	readonly filerDir: BuildableInternalsFilerDir;
 	buildFiles: readonly BuildFile[];
-	readonly buildConfigs: BuildConfig[];
+	readonly buildConfigs: Set<BuildConfig>;
+	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 }
 export interface BuildableExternalsSourceFile extends ExternalsSourceFile {
 	readonly buildable: true;
 	readonly filerDir: ExternalsFilerDir;
 	buildFiles: readonly BuildFile[];
-	readonly buildConfigs: BuildConfig[];
+	readonly buildConfigs: Set<BuildConfig>;
+	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 }
 export interface NonBuildableTextSourceFile extends TextSourceFile {
 	readonly buildable: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
 	readonly buildFiles: null;
 	readonly buildConfigs: null;
+	readonly isInputToBuildConfigs: null;
 }
 export interface NonBuildableBinarySourceFile extends BinarySourceFile {
 	readonly buildable: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
 	readonly buildFiles: null;
 	readonly buildConfigs: null;
+	readonly isInputToBuildConfigs: null;
 }
 
 export const createSourceFile = async (
@@ -106,7 +111,8 @@ export const createSourceFile = async (
 			type: 'source',
 			sourceType: 'externals',
 			buildable: true,
-			buildConfigs: [],
+			buildConfigs: new Set(),
+			isInputToBuildConfigs: null,
 			id,
 			filename,
 			dir,
@@ -131,7 +137,8 @@ export const createSourceFile = async (
 				? {
 						type: 'source',
 						sourceType: 'text',
-						buildConfigs: [],
+						buildConfigs: new Set(),
+						isInputToBuildConfigs: null,
 						buildable: true,
 						id,
 						filename,
@@ -143,7 +150,7 @@ export const createSourceFile = async (
 						contentsBuffer,
 						contentsHash,
 						filerDir,
-						buildFiles: buildFiles,
+						buildFiles,
 						stats: undefined,
 						mimeType: undefined,
 				  }
@@ -151,6 +158,7 @@ export const createSourceFile = async (
 						type: 'source',
 						sourceType: 'text',
 						buildConfigs: null,
+						isInputToBuildConfigs: null,
 						buildable: false,
 						id,
 						filename,
@@ -171,7 +179,8 @@ export const createSourceFile = async (
 				? {
 						type: 'source',
 						sourceType: 'binary',
-						buildConfigs: [],
+						buildConfigs: new Set(),
+						isInputToBuildConfigs: null,
 						buildable: true,
 						id,
 						filename,
@@ -191,6 +200,7 @@ export const createSourceFile = async (
 						type: 'source',
 						sourceType: 'binary',
 						buildConfigs: null,
+						isInputToBuildConfigs: null,
 						buildable: false,
 						id,
 						filename,

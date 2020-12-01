@@ -50,11 +50,12 @@ When compiling for Node, the Svelte compiler outputs
 instead of the normal DOM ones.
 
 The `input` field specifies the source code entry points for the build.
-Each input can be a file or directory path (absolute or relative to `src/`),
+Each input must be a file path (absolute or relative to `src/`),
 or a filter function with the signature `(id: string) => boolean`.
-(it's convenient to use the
+To define filters, it's convenient to use the
 [`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
-from `@rollup/pluginutils`)
+from `@rollup/pluginutils` and
+Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
 
 The optional `dist` flag marks builds for inclusion in the root `dist/` directory
 by [the `gro dist` task](/src/dist.task.ts).

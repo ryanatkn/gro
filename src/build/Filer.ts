@@ -350,27 +350,24 @@ export class Filer {
 
 		// Iterate through the build config inputs and initialize their files.
 		for (const buildConfig of this.buildConfigs) {
-			for (const buildConfigInput of buildConfig.input) {
-				if (typeof buildConfigInput === 'function') {
-					filters.push(buildConfigInput);
+			for (const input of buildConfig.input) {
+				if (typeof input === 'function') {
+					filters.push(input);
 					filterBuildConfigs.push(buildConfig);
 					continue;
 				}
-				const file = this.files.get(buildConfigInput);
+				const file = this.files.get(input);
 				if (!file) {
-					// TODO This hackily assumes missing files are directories.
-					// Fix when the Filter stores directories.
-					// Could stat the directory and throw errors as an interim fix.
-					filters.push(createDirectoryFilter(buildConfigInput));
-					filterBuildConfigs.push(buildConfig);
-					continue;
+					throw Error(`Build config '${buildConfig.name}' has unknown input '${input}'`);
 				}
-				// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
-				// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
-				if (file.type !== 'source') throw Error('TODO needed?');
-				if (!file.buildable) throw Error('TODO needed?');
-				if (!file.buildConfigs.includes(buildConfig)) {
-					promises.push(this.initSourceFileForBuildConfig(file, buildConfig));
+				if (file.type !== 'source') {
+					throw Error(`Build config '${buildConfig.name}' has non-source input '${input}'`);
+				}
+				if (!file.buildable) {
+					throw Error(`Build config '${buildConfig.name}' has non-buildable input '${input}'`);
+				}
+				if (!file.buildConfigs.has(buildConfig)) {
+					promises.push(this.initSourceFileForBuildConfig(file, buildConfig, true));
 				}
 			}
 		}
@@ -385,8 +382,8 @@ export class Filer {
 						// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
 						if (!file.buildable) throw Error('TODO needed?');
 						const buildConfig = filterBuildConfigs[i];
-						if (!file.buildConfigs.includes(buildConfig)) {
-							promises.push(this.initSourceFileForBuildConfig(file, buildConfig));
+						if (!file.buildConfigs.has(buildConfig)) {
+							promises.push(this.initSourceFileForBuildConfig(file, buildConfig, true));
 						}
 					}
 				}
@@ -406,8 +403,24 @@ export class Filer {
 	private async initSourceFileForBuildConfig(
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
+		isInput: boolean,
 	): Promise<void> {
-		sourceFile.buildConfigs.push(buildConfig); // the caller is expected to check to avoid duplicates
+		if (sourceFile.buildConfigs.has(buildConfig)) throw Error('TODO removeme');
+		// Add the build config. The caller is expected to check to avoid duplicates.
+		sourceFile.buildConfigs.add(buildConfig);
+		// Add the build config as an input if appropriate, initializing the set if needed.
+		// We need to determine `isInputToBuildConfig` independently of the caller,
+		// because the caller may not
+		if (isInput) {
+			if (sourceFile.isInputToBuildConfigs === null) {
+				// Cast to keep the `readonly` modifier outside of initialization.
+				(sourceFile as Writable<
+					BuildableSourceFile,
+					'isInputToBuildConfigs'
+				>).isInputToBuildConfigs = new Set();
+			}
+			sourceFile.isInputToBuildConfigs!.add(buildConfig);
+		}
 
 		await this.buildSourceFile(sourceFile, buildConfig);
 
@@ -436,8 +449,14 @@ export class Filer {
 				if (!dependencySourceFile) throw Error('TODO do we need this check?');
 				if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
 				if (!dependencySourceFile.buildable) throw Error('TODO needed?');
-				if (!dependencySourceFile.buildConfigs.includes(buildConfig)) {
-					promises.push(this.initSourceFileForBuildConfig(dependencySourceFile, buildConfig));
+				if (!dependencySourceFile.buildConfigs.has(buildConfig)) {
+					promises.push(
+						this.initSourceFileForBuildConfig(
+							dependencySourceFile,
+							buildConfig,
+							isInputToBuildConfig(sourceFile, buildConfig),
+						),
+					);
 				}
 			}
 		}
@@ -908,7 +927,14 @@ const checkForConflictingExternalsDir = (
 const defaultMapBuildIdToSourceId = (buildId: string): string =>
 	basePathToSourceId(toSourceExtension(toBuildBasePath(buildId)));
 
-const createDirectoryFilter = (dir: string): ((id: string) => boolean) => {
-	const dirWithTrailingSlash = dir + '/';
-	return (id) => id === dir || id.startsWith(dirWithTrailingSlash);
+const isInputToBuildConfig = (
+	sourceFile: BuildableSourceFile,
+	buildConfig: BuildConfig,
+): boolean => {
+	for (const input of buildConfig.input) {
+		if (typeof input === 'string' ? sourceFile.id === input : input(sourceFile.id)) {
+			return true;
+		}
+	}
+	return false;
 };
