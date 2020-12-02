@@ -112,8 +112,17 @@ test('toBuildExtension()', () => {
 
 test('toSourceExtension()', () => {
 	t.is(toSourceExtension('foo/bar.js'), 'foo/bar.ts');
+	t.is(toSourceExtension('foo/bar.js.map'), 'foo/bar.ts');
 	t.is(toSourceExtension('foo/bar.svelte.js'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.svelte.js.map'), 'foo/bar.svelte');
 	t.is(toSourceExtension('foo/bar.svelte.css'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.svelte.css.map'), 'foo/bar.svelte');
 	t.is(toSourceExtension('foo/bar.css'), 'foo/bar.css');
+	t.is(toSourceExtension('foo/bar.css.map'), 'foo/bar.css');
 	t.is(toSourceExtension('foo/bar.png'), 'foo/bar.png');
+	t.is(toSourceExtension('foo/bar.png.map'), 'foo/bar.png');
+	t.is(toSourceExtension('foo/bar/'), 'foo/bar/');
+	t.is(toSourceExtension('foo/bar'), 'foo/bar');
+	t.is(toSourceExtension('foo/'), 'foo/');
+	t.is(toSourceExtension('foo'), 'foo');
 });

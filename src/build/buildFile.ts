@@ -2,7 +2,7 @@ import {Compilation, CompileOptions, CompileResult} from '../compile/compiler.js
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import {CachedSourceInfo} from './Filer.js';
-import {SOURCE_MAP_EXTENSION} from '../paths.js';
+import {SOURCEMAP_EXTENSION} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
@@ -118,8 +118,8 @@ export const reconstructBuildFiles = (
 							extension,
 							encoding,
 							contents: contents as string,
-							sourceMapOf: id.endsWith(SOURCE_MAP_EXTENSION)
-								? stripEnd(id, SOURCE_MAP_EXTENSION)
+							sourceMapOf: id.endsWith(SOURCEMAP_EXTENSION)
+								? stripEnd(id, SOURCEMAP_EXTENSION)
 								: null,
 							contentsBuffer: undefined,
 							contentsHash: undefined,

@@ -147,6 +147,8 @@ Gro's strategy of pairing unbundled ES modules during development
 with optimized bundles for production
 was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
 
+Gro's buildtime antics were inspired by [Svelte](https://github.com/sveltejs/svelte).
+
 ## license :bird:
 
 [MIT](LICENSE)

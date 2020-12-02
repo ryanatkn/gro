@@ -104,10 +104,13 @@ export const TS_EXTENSION = '.ts';
 export const TS_DEFS_EXTENSION = '.d.ts';
 export const CSS_EXTENSION = '.css';
 export const SVELTE_EXTENSION = '.svelte';
-export const SVELTE_JS_BUILD_EXTENSION = '.svelte' + JS_EXTENSION;
-export const SVELTE_CSS_BUILD_EXTENSION = '.svelte' + CSS_EXTENSION;
+export const SVELTE_JS_BUILD_EXTENSION = '.svelte.js';
+export const SVELTE_CSS_BUILD_EXTENSION = '.svelte.css';
 export const JSON_EXTENSION = '.json';
-export const SOURCE_MAP_EXTENSION = '.map';
+export const SOURCEMAP_EXTENSION = '.map';
+export const JS_SOURCEMAP_EXTENSION = '.js.map';
+export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
+export const SVELTE_CSS_SOURCEMAP_EXTENSION = '.svelte.css.map';
 
 // TODO probably change this to use a regexp (benchmark?)
 export const hasSourceExtension = (path: string): boolean =>
@@ -146,6 +149,9 @@ export const toImportId = (sourceId: string, dev: boolean, buildConfigName: stri
 	return toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
 };
 
+// TODO This function loses information. It's also hardcodedd to Gro's default file types.
+// Maybe this points to a configurable system? Users can define their own extensions in Gro.
+// Maybe `extensionConfigs: FilerExtensionConfig[]`.
 export const toBuildExtension = (sourceId: string): string =>
 	sourceId.endsWith(TS_EXTENSION)
 		? replaceExtension(sourceId, JS_EXTENSION)
@@ -153,12 +159,74 @@ export const toBuildExtension = (sourceId: string): string =>
 		? sourceId + JS_EXTENSION
 		: sourceId;
 
-export const toSourceExtension = (buildId: string): string =>
-	buildId.endsWith(SVELTE_JS_BUILD_EXTENSION) || buildId.endsWith(SVELTE_CSS_BUILD_EXTENSION)
-		? replaceExtension(buildId, '')
-		: buildId.endsWith(JS_EXTENSION)
-		? replaceExtension(buildId, TS_EXTENSION)
-		: buildId;
+// This implementation is complicated but it's fast.
+export const toSourceExtension = (buildId: string): string => {
+	let len = buildId.length;
+	let i = len;
+	let extensionCount = 1;
+	let char: string | undefined;
+	let extension1: string | null = null;
+	let extension2: string | null = null;
+	let extension3: string | null = null;
+	while (true) {
+		i--;
+		if (i < 0) break;
+		char = buildId[i];
+		if (char === '/') break;
+		if (char === '.') {
+			const currentExtension = buildId.substring(i);
+			if (extensionCount === 1) {
+				extension1 = currentExtension;
+				extensionCount = 2;
+			} else if (extensionCount === 2) {
+				extension2 = currentExtension;
+				extensionCount = 3;
+			} else if (extensionCount === 3) {
+				extension3 = currentExtension;
+				extensionCount = 4;
+			} else {
+				// don't handle any more extensions
+				break;
+			}
+		}
+	}
+	switch (extension3) {
+		case SVELTE_JS_SOURCEMAP_EXTENSION:
+		case SVELTE_CSS_SOURCEMAP_EXTENSION: {
+			return buildId.substring(0, len - extension2!.length);
+		}
+		// case undefined:
+		// default:
+		// 	return buildId;
+		// 	break;
+	}
+	switch (extension2) {
+		case SVELTE_JS_BUILD_EXTENSION:
+		case SVELTE_CSS_BUILD_EXTENSION: {
+			return buildId.substring(0, len - extension1!.length);
+		}
+		case JS_SOURCEMAP_EXTENSION: {
+			return buildId.substring(0, len - extension2.length) + TS_EXTENSION;
+		}
+		// case undefined:
+		// default:
+		// 	return buildId;
+		// 	break;
+	}
+	switch (extension1) {
+		case SOURCEMAP_EXTENSION: {
+			return buildId.substring(0, len - extension1.length);
+		}
+		case JS_EXTENSION: {
+			return buildId.substring(0, len - extension1.length) + TS_EXTENSION;
+		}
+		// case undefined:
+		// default:
+		// 	return buildId;
+		// 	break;
+	}
+	return buildId;
+};
 
 export const groImportDir = join(fileURLToPath(import.meta.url), '../');
 export const groDir = join(
