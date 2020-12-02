@@ -37,45 +37,35 @@ export interface ExternalsSourceFile extends BaseSourceFile {
 	readonly encoding: 'utf8';
 	contents: string;
 }
-interface BaseSourceFile extends BaseFilerFile {
+export interface BaseSourceFile extends BaseFilerFile {
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
 }
-export interface BuildableTextSourceFile extends TextSourceFile {
+export interface BaseBuildableFile {
 	readonly buildable: true;
-	readonly filerDir: BuildableInternalsFilerDir;
+	readonly filerDir: FilerDir;
 	buildFiles: readonly BuildFile[];
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 }
-export interface BuildableBinarySourceFile extends BinarySourceFile {
-	readonly buildable: true;
+export interface BuildableTextSourceFile extends BaseBuildableFile, TextSourceFile {
 	readonly filerDir: BuildableInternalsFilerDir;
-	buildFiles: readonly BuildFile[];
-	readonly buildConfigs: Set<BuildConfig>;
-	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 }
-export interface BuildableExternalsSourceFile extends ExternalsSourceFile {
-	readonly buildable: true;
+export interface BuildableBinarySourceFile extends BaseBuildableFile, BinarySourceFile {
+	readonly filerDir: BuildableInternalsFilerDir;
+}
+export interface BuildableExternalsSourceFile extends BaseBuildableFile, ExternalsSourceFile {
 	readonly filerDir: ExternalsFilerDir;
-	buildFiles: readonly BuildFile[];
-	readonly buildConfigs: Set<BuildConfig>;
-	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 }
-export interface NonBuildableTextSourceFile extends TextSourceFile {
+export interface BaseNonBuildableFile {
 	readonly buildable: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
 	readonly buildFiles: null;
 	readonly buildConfigs: null;
 	readonly isInputToBuildConfigs: null;
 }
-export interface NonBuildableBinarySourceFile extends BinarySourceFile {
-	readonly buildable: false;
-	readonly filerDir: NonBuildableInternalsFilerDir;
-	readonly buildFiles: null;
-	readonly buildConfigs: null;
-	readonly isInputToBuildConfigs: null;
-}
+export interface NonBuildableTextSourceFile extends BaseNonBuildableFile, TextSourceFile {}
+export interface NonBuildableBinarySourceFile extends BaseNonBuildableFile, BinarySourceFile {}
 
 export const createSourceFile = async (
 	id: string,
