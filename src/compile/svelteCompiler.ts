@@ -107,7 +107,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		if (onstats) onstats(id, stats, handleStats, log);
 
 		const jsFilename = `${source.filename}${JS_EXTENSION}`;
-		const cssFilename = `${jsFilename}${CSS_EXTENSION}`;
+		const cssFilename = `${source.filename}${CSS_EXTENSION}`;
 		const jsId = `${outDir}${jsFilename}`;
 		const cssId = `${outDir}${cssFilename}`;
 		const hasJsSourceMap = sourceMap && js.map !== undefined;
