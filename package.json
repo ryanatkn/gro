@@ -13,7 +13,8 @@
     "start": "gro",
     "test": "gro test",
     "bootstrap": "rm -rf .gro/prod/node dist/ && tsc; cp -r .gro/prod/node/ dist/ && npm link",
-    "dev": "clear && rm -rf .gro && npm run bootstrap && gro project/dev",
+    "dev": "clear && rm -rf .gro && gro project/dev",
+    "redev": "clear && rm -rf .gro && npm run bootstrap && gro project/dev",
     "preversion": "npm run bootstrap && gro check && npm run bootstrap && gro project/build"
   },
   "repository": {
