@@ -431,18 +431,18 @@ export class Filer {
 
 		// At this point, we need to compile the dependencies of the compiled files.
 		// Then, each of those needs to compile its dependencies, and so forth.
-		for (const compiledFile of sourceFile.buildFiles) {
-			// console.log('\n\ncompiledFile.id', compiledFile.id);
-			if (buildConfig.platform === 'browser' && compiledFile.externalDependencies !== null) {
-				for (const externalDependency of compiledFile.externalDependencies) {
-					console.log('add external', externalDependency, compiledFile.id);
+		for (const buildFile of sourceFile.buildFiles) {
+			// console.log('\n\nbuildFile.id', buildFile.id);
+			if (buildConfig.platform === 'browser' && buildFile.externalDependencies !== null) {
+				for (const externalDependency of buildFile.externalDependencies) {
+					console.log('add external', externalDependency, buildFile.id);
 					this.externalDependencies.add(externalDependency);
 				}
 			}
 			// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
 			// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
-			if (compiledFile.localDependencies !== null) {
-				for (const localDependencyId of compiledFile.localDependencies) {
+			if (buildFile.localDependencies !== null) {
+				for (const localDependencyId of buildFile.localDependencies) {
 					// TODO this should short circuit if the source has already been added to the input set
 					// console.log('localDependencyId', localDependencyId);
 					const dependencySourceId = this.mapBuildIdToSourceId(localDependencyId);
