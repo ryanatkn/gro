@@ -41,6 +41,15 @@ export interface BaseSourceFile extends BaseFilerFile {
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
 }
+export interface BuildableTextSourceFile extends TextSourceFile, BaseBuildableFile {
+	readonly filerDir: BuildableInternalsFilerDir;
+}
+export interface BuildableBinarySourceFile extends BinarySourceFile, BaseBuildableFile {
+	readonly filerDir: BuildableInternalsFilerDir;
+}
+export interface BuildableExternalsSourceFile extends ExternalsSourceFile, BaseBuildableFile {
+	readonly filerDir: ExternalsFilerDir;
+}
 export interface BaseBuildableFile {
 	readonly buildable: true;
 	readonly filerDir: FilerDir;
@@ -48,15 +57,8 @@ export interface BaseBuildableFile {
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 }
-export interface BuildableTextSourceFile extends BaseBuildableFile, TextSourceFile {
-	readonly filerDir: BuildableInternalsFilerDir;
-}
-export interface BuildableBinarySourceFile extends BaseBuildableFile, BinarySourceFile {
-	readonly filerDir: BuildableInternalsFilerDir;
-}
-export interface BuildableExternalsSourceFile extends BaseBuildableFile, ExternalsSourceFile {
-	readonly filerDir: ExternalsFilerDir;
-}
+export interface NonBuildableTextSourceFile extends TextSourceFile, BaseNonBuildableFile {}
+export interface NonBuildableBinarySourceFile extends BinarySourceFile, BaseNonBuildableFile {}
 export interface BaseNonBuildableFile {
 	readonly buildable: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
@@ -64,8 +66,6 @@ export interface BaseNonBuildableFile {
 	readonly buildConfigs: null;
 	readonly isInputToBuildConfigs: null;
 }
-export interface NonBuildableTextSourceFile extends BaseNonBuildableFile, TextSourceFile {}
-export interface NonBuildableBinarySourceFile extends BaseNonBuildableFile, BinarySourceFile {}
 
 export const createSourceFile = async (
 	id: string,
