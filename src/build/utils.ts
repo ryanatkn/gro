@@ -8,11 +8,14 @@ import {paths} from '../paths.js';
 export const toHash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
-export const createDirectoryFilter = (
-	dir: string,
-	rootDir = paths.source,
-): ((id: string) => boolean) => {
+interface FilterDirectory {
+	(id: string): boolean;
+}
+
+export const createDirectoryFilter = (dir: string, rootDir = paths.source): FilterDirectory => {
 	dir = resolve(rootDir, dir);
 	const dirWithTrailingSlash = dir + '/';
-	return (id) => id === dir || id.startsWith(dirWithTrailingSlash);
+	const filterDirectory: FilterDirectory = (id) =>
+		id === dir || id.startsWith(dirWithTrailingSlash);
+	return filterDirectory;
 };
