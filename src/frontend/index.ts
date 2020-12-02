@@ -3,6 +3,7 @@ import App from './App.svelte';
 import './foo.js';
 import {bar} from './bar.js';
 import * as math from '../utils/math.js';
+// import '../build/includeme.js';
 
 console.log('math', math);
 

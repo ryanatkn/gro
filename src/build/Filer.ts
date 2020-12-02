@@ -482,10 +482,13 @@ export class Filer {
 		const oldBuildFiles = sourceFile.buildFiles;
 		const newBuildFiles: BuildFile[] = oldBuildFiles.filter((f) => f.buildConfig !== buildConfig);
 
+		// TODO remove from dependents
+
 		await Promise.all([
 			this.updateBuildFiles(sourceFile, newBuildFiles, oldBuildFiles),
-			this.deleteCachedSourceInfo(sourceFile),
+			this.updateCachedSourceInfo(sourceFile),
 		]);
+
 		// OLD CODE FROM `addBuildConfigToSourceFile`
 		// Add the build config as an input if appropriate, initializing the set if needed.
 		// We need to determine `isInputToBuildConfig` independently of the caller,
@@ -761,6 +764,7 @@ export class Filer {
 			this.updateCachedSourceInfo(sourceFile),
 		]);
 
+		// TODO parallelize with the above? after `updateCachedSourceInfo`? race conditions?
 		// After building the source file, we need to handle any dependency changes for each build file.
 		// Dependencies may be added or removed,
 		// and their source files need to be updated with any build config changes.
@@ -884,6 +888,7 @@ export class Filer {
 	}
 
 	private async updateCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
+		if (file.buildConfigs.size === 0) return this.deleteCachedSourceInfo(file);
 		const cachedSourceInfoId = toCachedSourceInfoId(
 			file,
 			this.buildRootDir,
