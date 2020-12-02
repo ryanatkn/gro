@@ -1,4 +1,5 @@
 import {createFilter} from '@rollup/pluginutils';
+import {createDirectoryFilter} from './build/utils.js';
 
 import {GroConfigCreator, PartialGroConfig} from './config/config.js';
 
@@ -18,7 +19,7 @@ const createConfig: GroConfigCreator = async () => {
 			{
 				name: 'browser',
 				platform: 'browser',
-				input: 'frontend/index.ts', // TODO should this be `frontend/`?
+				input: createDirectoryFilter('frontend'),
 			},
 		],
 	};
