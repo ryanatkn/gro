@@ -481,15 +481,11 @@ export class Filer {
 
 		const oldBuildFiles = sourceFile.buildFiles;
 		const newBuildFiles: BuildFile[] = oldBuildFiles.filter((f) => f.buildConfig !== buildConfig);
-		sourceFile.buildFiles = newBuildFiles;
 
-		// TODO I think we want a helper here, see other places these are called together
-		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 		await Promise.all([
-			syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
+			this.updateBuildFiles(sourceFile, newBuildFiles, oldBuildFiles),
 			this.deleteCachedSourceInfo(sourceFile),
 		]);
-
 		// OLD CODE FROM `addBuildConfigToSourceFile`
 		// Add the build config as an input if appropriate, initializing the set if needed.
 		// We need to determine `isInputToBuildConfig` independently of the caller,
@@ -695,6 +691,17 @@ export class Filer {
 		return filerDir.buildable;
 	}
 
+	// Updates the build files in the memory cache and writes to disk.
+	private async updateBuildFiles(
+		sourceFile: BuildableSourceFile,
+		newBuildFiles: readonly BuildFile[], // TODO should these be nullable?
+		oldBuildFiles: readonly BuildFile[], // TODO should these be nullable?
+	): Promise<void> {
+		sourceFile.buildFiles = newBuildFiles;
+		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
+		return syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
+	}
+
 	// These are used to avoid concurrent compilations for any given source file.
 	private pendingCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
 	private enqueuedCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
@@ -749,12 +756,8 @@ export class Filer {
 			newBuildFiles.push(createBuildFile(compilation, this, result, sourceFile, buildConfig));
 		}
 		const oldBuildFiles = sourceFile.buildFiles;
-		sourceFile.buildFiles = newBuildFiles;
-
-		// Update the cache and write to disk.
-		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 		await Promise.all([
-			syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
+			this.updateBuildFiles(sourceFile, newBuildFiles, oldBuildFiles),
 			this.updateCachedSourceInfo(sourceFile),
 		]);
 
@@ -873,11 +876,8 @@ export class Filer {
 		this.files.delete(id);
 		if (sourceFile.buildable) {
 			const oldBuildFiles = sourceFile.buildFiles;
-			const newBuildFiles: BuildFile[] = [];
-			sourceFile.buildFiles = newBuildFiles;
-			syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 			await Promise.all([
-				syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
+				this.updateBuildFiles(sourceFile, [], oldBuildFiles),
 				this.deleteCachedSourceInfo(sourceFile),
 			]);
 		}
