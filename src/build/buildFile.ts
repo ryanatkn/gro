@@ -21,7 +21,7 @@ export interface BinaryBuildFile extends BaseBuildFile {
 	readonly contents: Buffer;
 	readonly contentsBuffer: Buffer;
 }
-interface BaseBuildFile extends BaseFilerFile {
+export interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
 	readonly sourceFileId: string;
 	readonly buildConfig: BuildConfig;

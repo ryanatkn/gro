@@ -35,7 +35,7 @@ import {BuildableSourceFile, createSourceFile, SourceFile} from './sourceFile.js
 import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
-import './includeme.js';
+// import './includeme.js';
 
 export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/compiled directory?
 
@@ -368,7 +368,7 @@ export class Filer {
 					throw Error(`Build config '${buildConfig.name}' has non-buildable input '${input}'`);
 				}
 				if (!file.buildConfigs.has(buildConfig)) {
-					promises.push(this.initSourceFileForBuildConfig(file, buildConfig, true));
+					promises.push(this.addBuildConfigToSourceFile(file, buildConfig, true));
 				}
 			}
 		}
@@ -384,7 +384,7 @@ export class Filer {
 						if (!file.buildable) throw Error('TODO needed?');
 						const buildConfig = filterBuildConfigs[i];
 						if (!file.buildConfigs.has(buildConfig)) {
-							promises.push(this.initSourceFileForBuildConfig(file, buildConfig, true));
+							promises.push(this.addBuildConfigToSourceFile(file, buildConfig, true));
 						}
 					}
 				}
@@ -401,12 +401,14 @@ export class Filer {
 	// TODO track externals per build to match the flexibility of building local files
 	externalDependencies = new Set<string>();
 
-	private async initSourceFileForBuildConfig(
+	private async addBuildConfigToSourceFile(
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		if (sourceFile.buildConfigs.has(buildConfig)) throw Error('TODO removeme');
+		if (sourceFile.buildConfigs.has(buildConfig)) {
+			throw Error(`Expected to add buildConfig '${buildConfig.name}' to ${sourceFile.id}`);
+		}
 		// Add the build config. The caller is expected to check to avoid duplicates.
 		sourceFile.buildConfigs.add(buildConfig);
 		// Add the build config as an input if appropriate, initializing the set if needed.
@@ -453,10 +455,10 @@ export class Filer {
 					if (!dependencySourceFile.buildable) throw Error('TODO needed?');
 					if (!dependencySourceFile.buildConfigs.has(buildConfig)) {
 						promises.push(
-							this.initSourceFileForBuildConfig(
+							this.addBuildConfigToSourceFile(
 								dependencySourceFile,
 								buildConfig,
-								isInputToBuildConfig(sourceFile, buildConfig),
+								isInputToBuildConfig(dependencySourceFile, buildConfig),
 							),
 						);
 					}
@@ -465,6 +467,87 @@ export class Filer {
 		}
 
 		await Promise.all(promises);
+	}
+	private async removeBuildConfigFromSourceFile(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		if (isInputToBuildConfig(sourceFile, buildConfig)) throw Error('TODO removeme');
+		// Add the build config. The caller is expected to check to avoid duplicates.
+		const deleted = sourceFile.buildConfigs.delete(buildConfig);
+		if (!deleted) {
+			throw Error(`Expected to delete buildConfig '${buildConfig}' from ${sourceFile.id}`);
+		}
+
+		const oldBuildFiles = sourceFile.buildFiles;
+		const newBuildFiles: BuildFile[] = oldBuildFiles.filter((f) => f.buildConfig !== buildConfig);
+		sourceFile.buildFiles = newBuildFiles;
+
+		// TODO I think we want a helper here, see other places these are called together
+		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
+		await Promise.all([
+			syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
+			this.deleteCachedSourceInfo(sourceFile),
+		]);
+
+		// OLD CODE FROM `addBuildConfigToSourceFile`
+		// Add the build config as an input if appropriate, initializing the set if needed.
+		// We need to determine `isInputToBuildConfig` independently of the caller,
+		// because the caller may not
+
+		// if (isInputToBuildConfig(sourceFile, buildConfig)) {
+		// 	if (sourceFile.isInputToBuildConfigs === null) {
+		// 		// Cast to keep the `readonly` modifier outside of initialization.
+		// 		(sourceFile as Writable<
+		// 			BuildableSourceFile,
+		// 			'isInputToBuildConfigs'
+		// 		>).isInputToBuildConfigs = new Set();
+		// 	}
+		// 	sourceFile.isInputToBuildConfigs!.add(buildConfig);
+		// }
+
+		// await this.buildSourceFile(sourceFile, buildConfig);
+
+		// const promises: Promise<void>[] = [];
+
+		// // At this point, we need to compile the dependencies of the compiled files.
+		// // Then, each of those needs to compile its dependencies, and so forth.
+		// for (const compiledFile of sourceFile.buildFiles) {
+		// 	// console.log('\n\ncompiledFile.id', compiledFile.id);
+		// 	if (buildConfig.platform === 'browser' && compiledFile.externalDependencies !== null) {
+		// 		for (const externalDependency of compiledFile.externalDependencies) {
+		// 			console.log('add external', externalDependency, compiledFile.id);
+		// 			this.externalDependencies.add(externalDependency);
+		// 		}
+		// 	}
+		// 	// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
+		// 	// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
+		// 	if (compiledFile.localDependencies !== null) {
+		// 		for (const localDependencyId of compiledFile.localDependencies) {
+		// 			// TODO this should short circuit if the source has already been added to the input set
+		// 			// console.log('localDependencyId', localDependencyId);
+		// 			const dependencySourceId = this.mapBuildIdToSourceId(localDependencyId);
+		// 			// console.log('dependencySourceId', dependencySourceId);
+		// 			const dependencySourceFile = this.files.get(dependencySourceId);
+		// 			// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
+		// 			// These error conditions may be hit if the `filerDir` is not compilable, correct? give a good error message if that's the case!
+		// 			if (!dependencySourceFile) throw Error('TODO do we need this check?');
+		// 			if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
+		// 			if (!dependencySourceFile.buildable) throw Error('TODO needed?');
+		// 			if (!dependencySourceFile.buildConfigs.has(buildConfig)) {
+		// 				promises.push(
+		// 					this.addBuildConfigToSourceFile(
+		// 						dependencySourceFile,
+		// 						buildConfig,
+		// 						isInputToBuildConfig(dependencySourceFile, buildConfig),
+		// 					),
+		// 				);
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+		// await Promise.all(promises);
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -692,6 +775,7 @@ export class Filer {
 		const [addedDependencies, removedDependencies] = diffDependencies(newBuildFiles, oldBuildFiles);
 		addedDependencies && console.log('addedDependencies', addedDependencies);
 		removedDependencies && console.log('removedDependencies', removedDependencies);
+		let promises: Promise<void>[] | null = null;
 		let addedSourceFiles: Set<BuildableSourceFile> | null = null;
 		if (addedDependencies !== null) {
 			// TODO handle adding during initialization vs after a real compilation
@@ -719,6 +803,22 @@ export class Filer {
 		if (addedSourceFiles !== null) {
 			for (const addedSourceFile of addedSourceFiles) {
 				console.log('added source file', addedSourceFile);
+				if (addedSourceFile.buildConfigs.has(buildConfig)) {
+					console.log('source file DOES have build config');
+				} else {
+					// TODO what function should be called? the existing init one?
+					// this.updateSourceFile(addedSourceFile, buildConfig)
+					// or this.addSourceFileBuildConfig(addedSourceFile, buildConfig)
+					// or this.initFileBuildConfigs(addedSourceFile, buildConfig)
+					console.log('source file does NOT have build config');
+					(promises || (promises = [])).push(
+						this.addBuildConfigToSourceFile(
+							addedSourceFile,
+							buildConfig,
+							isInputToBuildConfig(addedSourceFile, buildConfig),
+						),
+					);
+				}
 			}
 		}
 		let removedSourceFiles: Set<BuildableSourceFile> | null = null;
@@ -742,8 +842,28 @@ export class Filer {
 		if (removedSourceFiles !== null) {
 			for (const removedSourceFile of removedSourceFiles) {
 				console.log('removed source file', removedSourceFile);
+				if (removedSourceFile.buildConfigs.has(buildConfig)) {
+					// removedSourceFile.buildConfigs.add(buildConfig);
+					// TODO update this
+					// this.updateSourceFile(removedSourceFile, buildConfig)
+					// or this.addSourceFileBuildConfig(removedSourceFile, buildConfig)
+					// or this.teardownFileBuildConfigs(removedSourceFile, buildConfig)
+					console.log('source file DOES have build config');
+					if (isInputToBuildConfig(removedSourceFile, buildConfig)) {
+						console.log('file is input, not removing');
+					} else {
+						console.log('file is not input, removing');
+						(promises || (promises = [])).push(
+							this.removeBuildConfigFromSourceFile(removedSourceFile, buildConfig),
+						);
+					}
+				} else {
+					console.log('source file does NOT have build config');
+					throw Error('TODO this is an error right? Or is there some condition it makes sense?');
+				}
 			}
 		}
+		if (promises !== null) await Promise.all(promises);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -752,9 +872,12 @@ export class Filer {
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.buildable) {
-			syncBuildFilesToMemoryCache(this.files, [], sourceFile.buildFiles, this.log);
+			const oldBuildFiles = sourceFile.buildFiles;
+			const newBuildFiles: BuildFile[] = [];
+			sourceFile.buildFiles = newBuildFiles;
+			syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 			await Promise.all([
-				syncFilesToDisk([], sourceFile.buildFiles, this.log),
+				syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
 				this.deleteCachedSourceInfo(sourceFile),
 			]);
 		}
