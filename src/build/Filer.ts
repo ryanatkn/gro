@@ -35,6 +35,7 @@ import {BuildableSourceFile, createSourceFile, SourceFile} from './sourceFile.js
 import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
+import './includeme.js';
 
 export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/compiled directory?
 
@@ -678,14 +679,71 @@ export class Filer {
 		// Dependencies may be added or removed,
 		// and their source files need to be updated with any build config changes.
 		// For example, the build config.
-		// When a dependency is removed for a build,
+		// When a dependency is added for this build,
+		// if the dependency's source file is not an input to the build config,
+		// and it has 1 dependent after the build file is added,
+		// they're added for this build,
+		// meaning the memory cache is updated and the files are compiled to disk for the build config.
+		// When a dependency is removed for this build,
 		// if the dependency's source file is not an input to the build config,
 		// and they have 0 dependents after the build file is removed,
 		// they're removed for this build,
 		// meaning the memory cache is updated and the files are deleted from disk for the build config.
 		const [addedDependencies, removedDependencies] = diffDependencies(newBuildFiles, oldBuildFiles);
-		console.log('addedDependencies', addedDependencies);
-		console.log('removedDependencies', removedDependencies);
+		addedDependencies && console.log('addedDependencies', addedDependencies);
+		removedDependencies && console.log('removedDependencies', removedDependencies);
+		let addedSourceFiles: Set<BuildableSourceFile> | null = null;
+		if (addedDependencies !== null) {
+			// TODO handle adding during initialization vs after a real compilation
+			// The added dependency might not exist!
+			// TODO I think there's a weird race condition here.
+			// What if it sees no build file, but there's a pending compilation?
+			// We could infer the source file id to check for its existence,
+			// but is that bulletproof?
+			// TODO but how can we retroactively initialize its source file build config then?
+			for (const addedDependencyBuildId of addedDependencies) {
+				const addedDependencySourceId = this.mapBuildIdToSourceId(addedDependencyBuildId);
+				const addedSourceFile = this.files.get(addedDependencySourceId);
+				if (addedSourceFile === undefined) continue;
+				if (addedSourceFile.type !== 'source') {
+					throw Error(
+						`Expected 'source' file but found '${addedSourceFile.type}': ${addedSourceFile.id}`,
+					);
+				}
+				if (!addedSourceFile.buildable) {
+					throw Error(`Expected source file to be buildable: ${addedSourceFile.id}`);
+				}
+				(addedSourceFiles || (addedSourceFiles = new Set())).add(addedSourceFile);
+			}
+		}
+		if (addedSourceFiles !== null) {
+			for (const addedSourceFile of addedSourceFiles) {
+				console.log('added source file', addedSourceFile);
+			}
+		}
+		let removedSourceFiles: Set<BuildableSourceFile> | null = null;
+		if (removedDependencies !== null) {
+			// TODO review all of these conditions, and race conditions with pending compilations (see above)
+			for (const removedDependencyBuildId of removedDependencies) {
+				const removedDependencySourceId = this.mapBuildIdToSourceId(removedDependencyBuildId);
+				const removedSourceFile = this.files.get(removedDependencySourceId);
+				if (removedSourceFile === undefined) continue;
+				if (removedSourceFile.type !== 'source') {
+					throw Error(
+						`Expected 'source' file but found '${removedSourceFile.type}': ${removedSourceFile.id}`,
+					);
+				}
+				if (!removedSourceFile.buildable) {
+					throw Error(`Expected source file to be buildable: ${removedSourceFile.id}`);
+				}
+				(removedSourceFiles || (removedSourceFiles = new Set())).add(removedSourceFile);
+			}
+		}
+		if (removedSourceFiles !== null) {
+			for (const removedSourceFile of removedSourceFiles) {
+				console.log('removed source file', removedSourceFile);
+			}
+		}
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
