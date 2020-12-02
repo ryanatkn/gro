@@ -160,6 +160,7 @@ export const toBuildExtension = (sourceId: string): string =>
 		: sourceId;
 
 // This implementation is complicated but it's fast.
+// TODO see `toBuildExtension` comments for discussion about making this generic and configurable
 export const toSourceExtension = (buildId: string): string => {
 	let len = buildId.length;
 	let i = len;
