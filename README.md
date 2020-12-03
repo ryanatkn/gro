@@ -68,7 +68,7 @@ gro # lists all available tasks with the pattern `*.task.ts`
 gro some/dir # lists all tasks inside `src/some/dir`
 gro some/file # runs `src/some/file.task.ts`
 gro some/file.task.ts # same as above
-gro test # run one of Gro's tasks or `src/test.task.ts` if it exists
+gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
 ```
 
 Gro has a number of builtin tasks.
