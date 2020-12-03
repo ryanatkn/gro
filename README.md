@@ -106,8 +106,8 @@ gro clean # deletes all build artifacts from the filesystem
 ```
 
 ```bash
-gro serve # staticly serves the current directory
-gro serve some/dir and/another/dir # staticly serves some directories
+gro serve # serves the current directory
+gro serve some/dir and/another/dir # serves some directories
 ```
 
 ```bash
