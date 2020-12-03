@@ -54,7 +54,7 @@ Normally you'll want to install Gro as a dev dependency:
 npm i -D @feltcoop/gro
 ```
 
-You'll also want to install Gro globally to add its CLI to your system PATH:
+It's handy to install globally too:
 
 ```bash
 npm i -g @feltcoop/gro
