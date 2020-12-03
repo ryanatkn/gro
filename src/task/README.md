@@ -178,8 +178,7 @@ What makes Gro different?
   Task modules do not have any side effects when imported,
   while Node scripts just execute when imported -
   their primary purpose is to cause side effects.
-- Module resolution is different,
-  and not just by making `.task.ts` optional.
+- Module resolution is different.
   - When a task name is given to Gro,
     it first searches the current working directory and
     falls back to searching the Gro directory.
@@ -193,3 +192,5 @@ What makes Gro different?
     both relative to the current working directory and Gro's directory.
     So when you run `gro src` or simply `gro`,
     it'll print all tasks available both in your project and Gro.
+  - The trailing `.task.ts` in the file path provided to `gro` is optional,
+    so for example, `gro foo/bar` is the same as `gro foo/bar.task.ts`.
