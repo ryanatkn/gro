@@ -8,10 +8,11 @@
 The `gro gen` task allows us to enhance our projects
 with convention-based code generation (codegen) techniques.
 
-Why? Codegen can produce game-changing results for UX and DX,
-especially around performance, flexibility, consistency, and development speed.
-As developers, automating our work is a natural and indispensable power,
-and `gro gen` brings automation deeper into our code authoring workflows.
+Why? Codegen can produce cool results and eternal pain.
+Used well, they can improve performance, flexibility, consistency, and development speed.
+As developers, automating our work is a natural thing to do,
+and whether or not it's a wise thing to do,
+`gro gen` can bring automation deeper into our code authoring workflows.
 
 By convention, `gro gen` looks through `src/`
 for any TypeScript files with `.gen.` in the file name,
