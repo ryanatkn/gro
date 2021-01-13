@@ -57,7 +57,7 @@ Gro differs in some significant ways:
   with a core set of technologies like
   [Svelte](https://github.com/sveltejs/svelte) and [Prettier](https://github.com/prettier/prettier).
   Gro does not have a plugin system yet,
-  but it has a pluggable compiler architecture that can probably support a lot of things.
+  but it has a pluggable build architecture that can probably support a lot of things.
   Gro will have plugins eventually, but unlike Snowpack,
   we do not currently plan to develop an ecosystem that strays from core choices.
   Instead, we expect Gro to evolve towards more opinionated choices, not fewer.
