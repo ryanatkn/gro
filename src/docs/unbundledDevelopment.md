@@ -5,7 +5,8 @@ Gro is designed to be a most-in-one development tool for both Node projects and
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 Gro leverages ES modules during development
 to avoid the unnecessary overhead and complexity of bundling.
-Unlike Snowpack, it's designed for servers and libraries along with frontends.
+Unlike Snowpack and similar tools like [wmr](https://github.com/preactjs/wmr),
+Gro is designed for servers and libraries, not just frontends.
 See below for [a deeper comparison](#comparison-to-snowpack).
 
 For production, Gro uses Rollup to produce efficient bundles.
@@ -40,6 +41,16 @@ Gro differs in some significant ways:
 
 - Snowpack is focused on frontend websites,
   while Gro is designed for servers and libraries alongside frontends.
+- Snowpack compiles files on demand when requested by the browser.
+  In contrast, Gro compiles files on startup and has no implicit dependency on web requests.
+  This is a complex set of tradeoffs - for large projects,
+  Snowpack has a significant edge along dimensions like startup time.
+  Gro's design makes sense for the needs of Node libraries and servers,
+  but it can be improved.
+  There are plans for Gro to support lazy compilation and other scale-friendly features,
+  and its caching system already speeds up heavy workloads,
+  The limitation that forces eager loading will likely be fixed before Gro reaches 1.0,
+  but Gro's DX will probably always be more complex than Snowpack's.
 - Snowpack is designed to be mostly agnostic to your technology choices
   and supports a wide plugin ecosystem to cater to many choices.
   Gro's goal is to provide an opinionated batteries-included experience
@@ -67,14 +78,6 @@ Gro differs in some significant ways:
 - Snowpack emphasizes composing tools through the CLI and plugins.
   Gro emphasizes writing [tasks](./tasks.md) in TypeScript to use libraries directly,
   but we'll probably do more to support CLI integrations.
-- Snowpack compiles files on demand when requested by the browser.
-  In contrast, Gro compiles files on startup.
-  This is a complex set of tradeoffs - for very large projects, Snowpack has a significant edge.
-  Gro's design is due to the needs of Node libraries and servers.
-  There are plans for Gro to support lazy compilation and other scale-friendly features,
-  and its caching system already speeds up heavy workloads.
-  The limitation that forces eager loading will likely be fixed before Gro reaches 1.0,
-  but Gro's DX will probably be more complex than Snowpack's.
 - Gro does not yet support hot module reloading, though work is in progress.
 - Gro uses [swc](https://github.com/swc-project/swc)
   instead of [esbuild](https://github.com/evanw/esbuild)
