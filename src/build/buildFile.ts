@@ -151,13 +151,23 @@ export const reconstructBuildFiles = (
 		),
 	);
 
+// TODO rename? move?
+interface DependencyInfo {
+	id: string;
+	external: boolean;
+}
+
 // Returns the dependency changes between two sets of build files.
+// Lazily instantiate the collections as an optimization -
+// this function is expected to return `null` most of the time.
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[],
-): [addedDependencies: Set<string> | null, removedDependencies: Set<string> | null] => {
-	let addedDependencies: Set<string> | null = null;
-	let removedDependencies: Set<string> | null = null;
+):
+	| null
+	| [addedDependencies: DependencyInfo[] | null, removedDependencies: DependencyInfo[] | null] => {
+	let addedDependencies: DependencyInfo[] | null = null;
+	let removedDependencies: DependencyInfo[] | null = null;
 
 	// Aggregate all of the dependencies for each source file.
 	let newLocalDependencies: Set<string> | null = null;
@@ -197,33 +207,45 @@ export const diffDependencies = (
 	if (newLocalDependencies !== null) {
 		for (const newLocalDependency of newLocalDependencies) {
 			if (oldLocalDependencies === null || !oldLocalDependencies.has(newLocalDependency)) {
-				(addedDependencies || (addedDependencies = new Set<string>())).add(newLocalDependency);
+				(addedDependencies || (addedDependencies = [])).push({
+					id: newLocalDependency,
+					external: false,
+				});
 			}
 		}
 	}
 	if (newExternalDependencies !== null) {
 		for (const newExternalDependency of newExternalDependencies) {
 			if (oldExternalDependencies === null || !oldExternalDependencies.has(newExternalDependency)) {
-				(addedDependencies || (addedDependencies = new Set<string>())).add(newExternalDependency);
+				(addedDependencies || (addedDependencies = [])).push({
+					id: newExternalDependency,
+					external: true,
+				});
 			}
 		}
 	}
 	if (oldLocalDependencies !== null) {
 		for (const oldLocalDependency of oldLocalDependencies) {
 			if (newLocalDependencies === null || !newLocalDependencies.has(oldLocalDependency)) {
-				(removedDependencies || (removedDependencies = new Set<string>())).add(oldLocalDependency);
+				(removedDependencies || (removedDependencies = [])).push({
+					id: oldLocalDependency,
+					external: false,
+				});
 			}
 		}
 	}
 	if (oldExternalDependencies !== null) {
 		for (const oldExternalDependency of oldExternalDependencies) {
 			if (newExternalDependencies === null || !newExternalDependencies.has(oldExternalDependency)) {
-				(removedDependencies || (removedDependencies = new Set<string>())).add(
-					oldExternalDependency,
-				);
+				(removedDependencies || (removedDependencies = [])).push({
+					id: oldExternalDependency,
+					external: true,
+				});
 			}
 		}
 	}
 
-	return [addedDependencies, removedDependencies];
+	return addedDependencies !== null || removedDependencies !== null
+		? [addedDependencies, removedDependencies]
+		: null;
 };

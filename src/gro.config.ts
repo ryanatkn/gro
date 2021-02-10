@@ -1,5 +1,5 @@
 import {createFilter} from '@rollup/pluginutils';
-import {createDirectoryFilter} from './build/utils.js';
+// import {createDirectoryFilter} from './build/utils.js';
 
 import {GroConfigCreator, PartialGroConfig} from './config/config.js';
 
@@ -16,11 +16,12 @@ const createConfig: GroConfigCreator = async () => {
 				primary: true,
 				input: ['index.ts', createFilter(['**/*.{task,test,gen}*.ts', '**/fixtures/**'])],
 			},
-			{
-				name: 'browser',
-				platform: 'browser',
-				input: createDirectoryFilter('frontend'),
-			},
+			// TODO
+			// {
+			// 	name: 'browser',
+			// 	platform: 'browser',
+			// 	input: createDirectoryFilter('frontend'),
+			// },
 		],
 	};
 
