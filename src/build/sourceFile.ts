@@ -56,6 +56,7 @@ export interface BaseBuildableFile {
 	buildFiles: readonly BuildFile[];
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
+	readonly dependents: Map<BuildConfig, Set<BuildableSourceFile>>; // `dependents` are other buildable source files that import or otherwise depend on this one
 }
 export interface NonBuildableTextSourceFile extends TextSourceFile, BaseNonBuildableFile {}
 export interface NonBuildableBinarySourceFile extends BinarySourceFile, BaseNonBuildableFile {}
@@ -65,6 +66,7 @@ export interface BaseNonBuildableFile {
 	readonly buildFiles: null;
 	readonly buildConfigs: null;
 	readonly isInputToBuildConfigs: null;
+	readonly dependents: null;
 }
 
 export const createSourceFile = async (
@@ -103,6 +105,7 @@ export const createSourceFile = async (
 			buildable: true,
 			buildConfigs: new Set(),
 			isInputToBuildConfigs: null,
+			dependents: new Map(),
 			id,
 			filename,
 			dir,
@@ -129,6 +132,7 @@ export const createSourceFile = async (
 						sourceType: 'text',
 						buildConfigs: new Set(),
 						isInputToBuildConfigs: null,
+						dependents: new Map(),
 						buildable: true,
 						id,
 						filename,
@@ -149,6 +153,7 @@ export const createSourceFile = async (
 						sourceType: 'text',
 						buildConfigs: null,
 						isInputToBuildConfigs: null,
+						dependents: null,
 						buildable: false,
 						id,
 						filename,
@@ -171,6 +176,7 @@ export const createSourceFile = async (
 						sourceType: 'binary',
 						buildConfigs: new Set(),
 						isInputToBuildConfigs: null,
+						dependents: new Map(),
 						buildable: true,
 						id,
 						filename,
@@ -191,6 +197,7 @@ export const createSourceFile = async (
 						sourceType: 'binary',
 						buildConfigs: null,
 						isInputToBuildConfigs: null,
+						dependents: null,
 						buildable: false,
 						id,
 						filename,
