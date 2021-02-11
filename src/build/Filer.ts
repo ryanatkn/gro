@@ -269,7 +269,7 @@ export class Filer {
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// This performs initial source file compilation, traces deps,
 		// and populates the `buildConfigs` property of all source files.
-		await this.initBuildConfigs();
+		await this.initBuilds();
 		console.log('buildConfigs', this.buildConfigs);
 
 		// TODO this needs to perform matching for each buildConfig against the file,
@@ -341,7 +341,7 @@ export class Filer {
 	// It traces the dependencies starting from each `buildConfig.input`,
 	// compiling each input source file and populating its `buildConfigs`,
 	// recursively until all dependencies have been handled.
-	private async initBuildConfigs(): Promise<void> {
+	private async initBuilds(): Promise<void> {
 		if (this.buildConfigs === null) return;
 
 		const promises: Promise<void>[] = [];
@@ -559,7 +559,7 @@ export class Filer {
 					const shouldCompile = await this.updateSourceFile(id, filerDir);
 					if (
 						shouldCompile &&
-						// When initializing, compilation is deferred to `initBuildConfigs`
+						// When initializing, compilation is deferred to `initBuilds`
 						// so that deps are determined in the correct order.
 						change.type !== 'init' &&
 						filerDir.buildable // only needed for types, doing this instead of casting for type safety
