@@ -899,8 +899,7 @@ export class Filer {
 					}
 				}
 				const addedSourceFile = this.findSourceFile(addedDependency.id);
-				if (addedSourceFile === undefined) throw Error('TODO error or continue?');
-				// if (addedSourceFile === undefined) continue;
+				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
 				if (!addedSourceFile.buildable) {
 					throw Error(`Expected source file to be buildable: ${addedSourceFile.id}`);
 				}
@@ -920,8 +919,7 @@ export class Filer {
 					}
 				}
 				const removedSourceFile = this.findSourceFile(removedDependency.id);
-				if (removedSourceFile === undefined) throw Error('TODO error or continue?');
-				// if (removedSourceFile === undefined) continue;
+				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				if (!removedSourceFile.buildable) {
 					throw Error(`Expected dependency source file to be buildable: ${removedSourceFile.id}`);
 				}
