@@ -470,6 +470,7 @@ export class Filer {
 	}
 
 	// Remove the build config. The caller is expected to check to avoid duplicates.
+	// aka `removeSourceFileFromBuild`
 	private async removeBuildConfigFromSourceFile(
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
@@ -693,17 +694,6 @@ export class Filer {
 		return filerDir.buildable;
 	}
 
-	// Updates the build files in the memory cache and writes to disk.
-	private async updateBuildFiles(
-		sourceFile: BuildableSourceFile,
-		newBuildFiles: readonly BuildFile[], // TODO should these be nullable?
-	): Promise<void> {
-		const oldBuildFiles = sourceFile.buildFiles;
-		sourceFile.buildFiles = newBuildFiles;
-		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
-		return syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
-	}
-
 	// These are used to avoid concurrent compilations for any given source file.
 	private pendingCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
 	private enqueuedCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
@@ -892,6 +882,17 @@ export class Filer {
 			}
 		}
 		if (promises !== null) await Promise.all(promises);
+	}
+
+	// Updates the build files in the memory cache and writes to disk.
+	private async updateBuildFiles(
+		sourceFile: BuildableSourceFile,
+		newBuildFiles: readonly BuildFile[], // TODO should these be nullable?
+	): Promise<void> {
+		const oldBuildFiles = sourceFile.buildFiles;
+		sourceFile.buildFiles = newBuildFiles;
+		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
+		return syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
