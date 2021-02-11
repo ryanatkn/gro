@@ -474,24 +474,19 @@ export class Filer {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		// TODO I think this check should be unnecessary, but might catch weird bugs while developing
-		if (isInputToBuildConfig(sourceFile, buildConfig)) throw Error('TODO removeme');
+		if (isInputToBuildConfig(sourceFile, buildConfig)) throw Error('TODO needed?');
 
 		const deleted = sourceFile.buildConfigs.delete(buildConfig);
 		if (!deleted) {
 			throw Error(`Expected to delete buildConfig '${buildConfig}' from ${sourceFile.id}`);
 		}
 
-		// TODO wait what? if it's an input to the build config,
-		// when would you ever remove it?
-		// we're expecting build configs and source file paths to be immutable!
-		// (so "moving" a file, which may change if it's selected to be an input,
-		// is actually modeled as the destruction of the old and creation of the new)
-		// Remove the build config as an input if it's there.
-		// sourceFile.isInputToBuildConfigs?.delete(buildConfig);
-
 		// TODO remove from dependents ????????
 		// if (sourceFile.dependents.size === 0) {
 		// }
+
+		await this.updateBuildFiles(sourceFile, [], buildConfig);
+		await this.updateCachedSourceInfo(sourceFile);
 
 		// TODO parallelize this with the above?
 		// doesn't this overlap with `updateBuildFiles`?
@@ -749,6 +744,7 @@ export class Filer {
 		newBuildFiles: readonly BuildFile[], // TODO should these be nullable?
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		// TODO extract into a helper?
 		const diffResult = this.diffDependencies(sourceFile, newBuildFiles, buildConfig);
 		const addedDependencySourceFiles = diffResult && diffResult[0];
 		const removedDependencySourceFiles = diffResult && diffResult[1];
