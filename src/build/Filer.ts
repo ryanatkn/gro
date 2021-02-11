@@ -482,8 +482,9 @@ export class Filer {
 			throw Error(`Expected to delete buildConfig '${buildConfig}' from ${sourceFile.id}`);
 		}
 
-		const oldBuildFiles = sourceFile.buildFiles;
-		const newBuildFiles: BuildFile[] = oldBuildFiles.filter((f) => f.buildConfig !== buildConfig);
+		const newBuildFiles: BuildFile[] = sourceFile.buildFiles.filter(
+			(f) => f.buildConfig !== buildConfig,
+		);
 
 		// TODO wait what? if it's an input to the build config,
 		// when would you ever remove it?
@@ -498,7 +499,7 @@ export class Filer {
 		// }
 
 		await Promise.all([
-			this.updateBuildFiles(sourceFile, newBuildFiles, oldBuildFiles),
+			this.updateBuildFiles(sourceFile, newBuildFiles), // TODO not sure about this, will it be circular?
 			this.updateCachedSourceInfo(sourceFile),
 		]);
 
@@ -696,8 +697,8 @@ export class Filer {
 	private async updateBuildFiles(
 		sourceFile: BuildableSourceFile,
 		newBuildFiles: readonly BuildFile[], // TODO should these be nullable?
-		oldBuildFiles: readonly BuildFile[], // TODO should these be nullable?
 	): Promise<void> {
+		const oldBuildFiles = sourceFile.buildFiles;
 		sourceFile.buildFiles = newBuildFiles;
 		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 		return syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
@@ -745,6 +746,8 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		console.log('build source file', sourceFile.id);
+
 		// Compile the source file.
 		const result = await sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this);
 
@@ -760,7 +763,7 @@ export class Filer {
 			newBuildFiles.push(createBuildFile(compilation, this, result, sourceFile, buildConfig));
 		}
 		await Promise.all([
-			this.updateBuildFiles(sourceFile, newBuildFiles, oldBuildFiles),
+			this.updateBuildFiles(sourceFile, newBuildFiles),
 			this.updateCachedSourceInfo(sourceFile),
 		]);
 
@@ -779,7 +782,7 @@ export class Filer {
 		// and it has 0 dependents after the build file is removed,
 		// they're removed for this build,
 		// meaning the memory cache is updated and the files are deleted from disk for the build config.
-		const diffResult = diffDependencies(newBuildFiles, oldBuildFiles);
+		const diffResult = diffDependencies(newBuildFiles, oldBuildFiles); // TODO maybe handle in `updateBuildFiles`?
 		const addedDependencies = diffResult && diffResult[0];
 		const removedDependencies = diffResult && diffResult[1];
 		addedDependencies &&
@@ -861,7 +864,7 @@ export class Filer {
 					);
 				}
 				if (!removedSourceFile.buildable) {
-					throw Error(`Expected source file to be buildable: ${removedSourceFile.id}`);
+					throw Error(`Expected dependency source file to be buildable: ${removedSourceFile.id}`);
 				}
 				(removedDependencySourceFiles || (removedDependencySourceFiles = new Set())).add(
 					removedSourceFile,
@@ -897,9 +900,8 @@ export class Filer {
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.buildable) {
-			const oldBuildFiles = sourceFile.buildFiles;
 			await Promise.all([
-				this.updateBuildFiles(sourceFile, [], oldBuildFiles),
+				this.updateBuildFiles(sourceFile, []),
 				this.deleteCachedSourceInfo(sourceFile),
 			]);
 		}

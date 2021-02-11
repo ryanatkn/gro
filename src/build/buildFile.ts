@@ -157,8 +157,10 @@ interface DependencyInfo {
 	external: boolean;
 }
 
+// TODO maybe this should take in cached aggregated data from the source file, not `oldBuildFiles`?
+
 // Returns the dependency changes between two sets of build files.
-// Lazily instantiate the collections as an optimization -
+// Lazily instantiate the collections as a small optimization -
 // this function is expected to return `null` most of the time.
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
@@ -177,28 +179,24 @@ export const diffDependencies = (
 	for (const newFile of newFiles) {
 		if (newFile.localDependencies !== null) {
 			for (const localDependency of newFile.localDependencies) {
-				(newLocalDependencies || (newLocalDependencies = new Set<string>())).add(localDependency);
+				(newLocalDependencies || (newLocalDependencies = new Set())).add(localDependency);
 			}
 		}
 		if (newFile.externalDependencies !== null) {
 			for (const externalDependency of newFile.externalDependencies) {
-				(newExternalDependencies || (newExternalDependencies = new Set<string>())).add(
-					externalDependency,
-				);
+				(newExternalDependencies || (newExternalDependencies = new Set())).add(externalDependency);
 			}
 		}
 	}
 	for (const oldFile of oldFiles) {
 		if (oldFile.localDependencies !== null) {
 			for (const localDependency of oldFile.localDependencies) {
-				(oldLocalDependencies || (oldLocalDependencies = new Set<string>())).add(localDependency);
+				(oldLocalDependencies || (oldLocalDependencies = new Set())).add(localDependency);
 			}
 		}
 		if (oldFile.externalDependencies !== null) {
 			for (const externalDependency of oldFile.externalDependencies) {
-				(oldExternalDependencies || (oldExternalDependencies = new Set<string>())).add(
-					externalDependency,
-				);
+				(oldExternalDependencies || (oldExternalDependencies = new Set())).add(externalDependency);
 			}
 		}
 	}
