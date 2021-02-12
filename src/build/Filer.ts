@@ -427,7 +427,10 @@ export class Filer {
 			sourceFile.isInputToBuildConfigs!.add(buildConfig);
 		}
 
-		await this.buildSourceFile(sourceFile, buildConfig);
+		// Build only if needed - build files may be hydrated from the cache.
+		if (sourceFile.buildFiles.find((f) => f.buildConfig === buildConfig) === undefined) {
+			await this.buildSourceFile(sourceFile, buildConfig);
+		}
 
 		const promises: Promise<void>[] = [];
 
