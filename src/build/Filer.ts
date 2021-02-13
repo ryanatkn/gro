@@ -773,13 +773,6 @@ export class Filer {
 		const addedDependencies = diffResult && diffResult[0];
 		const removedDependencies = diffResult && diffResult[1];
 		if (addedDependencies !== null) {
-			// TODO handle adding during initialization vs after a real compilation
-			// The added dependency might not exist!
-			// TODO I think there's a weird race condition here.
-			// What if it sees no build file, but there's a pending compilation?
-			// We could infer the source file id to check for its existence,
-			// but is that bulletproof?
-			// TODO but how can we retroactively initialize its source file build config then?
 			for (const addedDependency of addedDependencies) {
 				if (addedDependency.external) {
 					if (buildConfig.platform === 'node') {
@@ -799,7 +792,6 @@ export class Filer {
 			}
 		}
 		if (removedDependencies !== null) {
-			// TODO review all of these conditions, and race conditions with pending compilations (see above)
 			for (const removedDependency of removedDependencies) {
 				if (removedDependency.external) {
 					if (buildConfig.platform === 'node') {
@@ -848,6 +840,8 @@ export class Filer {
 		}
 	}
 
+	// TODO as an optimization, this should be debounced per file,
+	// because we're writing per build config.
 	private async updateCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
 		if (file.buildConfigs.size === 0) return this.deleteCachedSourceInfo(file);
 		const cachedSourceInfoId = toCachedSourceInfoId(
