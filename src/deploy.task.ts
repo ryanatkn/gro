@@ -32,7 +32,7 @@ export const task: Task = {
 				`git rm -rf . && ` +
 				`mv ${TEMP_PREFIX}${initialFile} ${initialFile} && ` +
 				`git add ${initialFile} && ` +
-				'git commit -m "setup" && git checkout master',
+				'git commit -m "setup" && git checkout main',
 			[],
 			{shell: true},
 		);
