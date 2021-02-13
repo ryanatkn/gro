@@ -270,7 +270,7 @@ export class Filer {
 		// This performs initial source file compilation, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
-		console.log('buildConfigs', this.buildConfigs);
+		// this.log.info('buildConfigs', this.buildConfigs);
 
 		// TODO this needs to perform matching for each buildConfig against the file,
 		// right now it just checks if the file exists at all, not specifically for that buildConfig
@@ -379,9 +379,9 @@ export class Filer {
 				if (file.type !== 'source') continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
-						// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
-						// These error conditions may be hit if the `filerDir` is not buildable, correct? give a good error message if that's the case!
-						if (!file.buildable) throw Error('TODO needed?');
+						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
+						// give a better error message if that's the case!
+						if (!file.buildable) throw Error(`Expected file to be buildable: ${file.id}`);
 						const buildConfig = filterBuildConfigs[i];
 						if (!file.buildConfigs.has(buildConfig)) {
 							promises.push(this.addSourceFileToBuild(file, buildConfig, true));
@@ -632,6 +632,7 @@ export class Filer {
 		if (this.enqueuedCompilations.has(key)) {
 			this.enqueuedCompilations.delete(key);
 			// Something changed during the compilation for this file, so recurse.
+			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
 			const shouldCompile = await this.updateSourceFile(sourceFile.id, sourceFile.filerDir);
 			if (shouldCompile) {
@@ -644,7 +645,7 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		console.log('build source file', sourceFile.id);
+		this.log.info('build source file', sourceFile.id);
 
 		// Compile the source file.
 		const result = await sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this);
@@ -699,7 +700,6 @@ export class Filer {
 		let promises: Promise<void>[] | null = null;
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
-				// TODO helper?
 				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
 					dependents = new Set();
@@ -707,11 +707,6 @@ export class Filer {
 				}
 				dependents.add(sourceFile);
 				if (!addedDependencySourceFile.buildConfigs.has(buildConfig)) {
-					// TODO what function should be called? the existing init one?
-					// this.updateSourceFile(addedSourceFile, buildConfig)
-					// or this.addSourceFileBuildConfig(addedSourceFile, buildConfig)
-					// or this.initFileBuildConfigs(addedSourceFile, buildConfig)
-					console.log('source file does NOT have build config', addedDependencySourceFile.id);
 					(promises || (promises = [])).push(
 						this.addSourceFileToBuild(
 							addedDependencySourceFile,
@@ -725,24 +720,19 @@ export class Filer {
 		if (removedDependencySourceFiles !== null) {
 			for (const removedDependencySourceFile of removedDependencySourceFiles) {
 				if (!removedDependencySourceFile.buildConfigs.has(buildConfig)) {
-					console.log('source file does NOT have build config');
-					throw Error('TODO this is an error right? Or is there some condition it makes sense?');
+					throw Error(
+						`Expected build config: ${buildConfig.name}:${removedDependencySourceFile.id}`,
+					);
 				}
-				// sourceFile.dependencies.delete(removedDependencySourceFile); // TODO ...uhh
-				// TODO helper?
 				let dependents = removedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
-					throw Error('TODO this is an error right?');
-					// not this right? --
-					// dependents = new Set();
-					// removedDependencySourceFile.dependents.set(buildConfig, dependents);
+					throw Error(`Expected dependents: ${buildConfig.name}:${removedDependencySourceFile.id}`);
 				}
 				dependents.delete(sourceFile);
 				if (
 					dependents.size === 0 &&
 					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
 				) {
-					console.log('file is not input, removing', removedDependencySourceFile.id);
 					(promises || (promises = [])).push(
 						this.removeSourceFileFromBuild(removedDependencySourceFile, buildConfig),
 					);
@@ -782,10 +772,6 @@ export class Filer {
 		const diffResult = diffDependencies(newBuildFiles, oldBuildFiles);
 		const addedDependencies = diffResult && diffResult[0];
 		const removedDependencies = diffResult && diffResult[1];
-		addedDependencies &&
-			console.log('addedDependencies', addedDependencies.map((d) => d.id).join(' '));
-		removedDependencies &&
-			console.log('removedDependencies', removedDependencies.map((d) => d.id).join(' '));
 		if (addedDependencies !== null) {
 			// TODO handle adding during initialization vs after a real compilation
 			// The added dependency might not exist!
