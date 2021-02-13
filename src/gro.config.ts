@@ -1,7 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
+// import {createDirectoryFilter} from './build/utils.js';
 
 import {GroConfigCreator, PartialGroConfig} from './config/config.js';
-import {basePathToSourceId} from './paths.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
@@ -14,15 +14,14 @@ const createConfig: GroConfigCreator = async () => {
 				platform: 'node',
 				dist: true,
 				primary: true,
-				include: createFilter(undefined, basePathToSourceId('frontend/**/*')),
+				input: ['index.ts', createFilter(['**/*.{task,test,gen}*.ts', '**/fixtures/**'])],
 			},
-			{
-				name: 'browser',
-				platform: 'browser',
-				// TODO this doesn't allow the frontend to import modules outside of its directory.
-				// We probably want to either define entrypoints or automatically include all transitive dependencies.
-				include: createFilter(basePathToSourceId('frontend/**/*')),
-			},
+			// TODO
+			// {
+			// 	name: 'browser',
+			// 	platform: 'browser',
+			// 	input: createDirectoryFilter('frontend'),
+			// },
 		],
 	};
 

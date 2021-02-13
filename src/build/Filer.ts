@@ -1,35 +1,24 @@
-import {resolve, extname, join, basename, dirname} from 'path';
+import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
-import {createHash} from 'crypto';
 
 import {
 	FilerDir,
 	FilerDirChangeCallback,
 	createFilerDir,
-	CompilableFilerDir,
-	NonCompilableInternalsFilerDir,
-	CompilableInternalsFilerDir,
 	ExternalsFilerDir,
 } from '../build/FilerDir.js';
+import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {
-	findFiles,
-	readFile,
-	remove,
-	outputFile,
-	pathExists,
-	readJson,
-	stat,
-	Stats,
-} from '../fs/nodeFs.js';
-import {
+	basePathToSourceId,
 	EXTERNALS_BUILD_DIR,
 	hasSourceExtension,
 	isThisProjectGro,
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
-	SOURCE_MAP_EXTENSION,
+	toBuildBasePath,
 	toBuildOutPath,
+	toSourceExtension,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
@@ -37,106 +26,29 @@ import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
 import type {Compiler} from '../compile/compiler.js';
-import {getMimeTypeByExtension} from '../fs/mime.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
-import {postprocess} from './postprocess.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
+import {BuildableSourceFile, createSourceFile, SourceFile} from './sourceFile.js';
+import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
+import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
+import {loadContents} from './load.js';
+// import './includeme.js';
 
-export type FilerFile = SourceFile | CompiledFile; // TODO or Directory? source/compiled directory?
-
-export type SourceFile = CompilableSourceFile | NonCompilableSourceFile;
-export type CompilableSourceFile =
-	| CompilableTextSourceFile
-	| CompilableBinarySourceFile
-	| CompilableExternalsSourceFile;
-export type NonCompilableSourceFile = NonCompilableTextSourceFile | NonCompilableBinarySourceFile;
-export interface TextSourceFile extends BaseSourceFile {
-	readonly sourceType: 'text';
-	readonly encoding: 'utf8';
-	readonly contents: string;
-}
-export interface BinarySourceFile extends BaseSourceFile {
-	readonly sourceType: 'binary';
-	readonly encoding: null;
-	readonly contents: Buffer;
-	readonly contentsBuffer: Buffer;
-}
-export interface ExternalsSourceFile extends BaseSourceFile {
-	readonly sourceType: 'externals';
-	readonly encoding: 'utf8';
-	readonly contents: string;
-}
-interface BaseSourceFile extends BaseFile {
-	readonly type: 'source';
-	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFile`? what about `basePath` too?
-}
-export interface CompilableTextSourceFile extends TextSourceFile {
-	readonly compilable: true;
-	readonly filerDir: CompilableInternalsFilerDir;
-	readonly compiledFiles: CompiledFile[];
-	readonly buildConfigs: BuildConfig[];
-}
-export interface CompilableBinarySourceFile extends BinarySourceFile {
-	readonly compilable: true;
-	readonly filerDir: CompilableInternalsFilerDir;
-	readonly compiledFiles: CompiledFile[];
-	readonly buildConfigs: BuildConfig[];
-}
-export interface CompilableExternalsSourceFile extends ExternalsSourceFile {
-	readonly compilable: true;
-	readonly filerDir: ExternalsFilerDir;
-	readonly compiledFiles: CompiledFile[];
-	readonly buildConfigs: BuildConfig[];
-}
-export interface NonCompilableTextSourceFile extends TextSourceFile {
-	readonly compilable: false;
-	readonly filerDir: NonCompilableInternalsFilerDir;
-	readonly compiledFiles: null;
-	readonly buildConfigs: null;
-}
-export interface NonCompilableBinarySourceFile extends BinarySourceFile {
-	readonly compilable: false;
-	readonly filerDir: NonCompilableInternalsFilerDir;
-	readonly compiledFiles: null;
-	readonly buildConfigs: null;
-}
-
-export type CompiledFile = CompiledTextFile | CompiledBinaryFile;
-export interface CompiledTextFile extends BaseCompiledFile {
-	readonly encoding: 'utf8';
-	readonly contents: string;
-	readonly sourceMapOf: string | null; // TODO maybe prefer a union with an `isSourceMap` boolean flag?
-}
-export interface CompiledBinaryFile extends BaseCompiledFile {
-	readonly encoding: null;
-	readonly contents: Buffer;
-	readonly contentsBuffer: Buffer;
-}
-interface BaseCompiledFile extends BaseFile {
-	readonly type: 'compiled';
-	readonly sourceFileId: string;
-}
-
-export interface BaseFile {
-	readonly id: string;
-	readonly filename: string;
-	readonly dir: string;
-	readonly extension: string;
-	readonly encoding: Encoding;
-	readonly contents: string | Buffer;
-	contentsBuffer: Buffer | undefined; // `undefined` and mutable for lazy loading
-	contentsHash: string | undefined; // `undefined` and mutable for lazy loading
-	stats: Stats | undefined; // `undefined` and mutable for lazy loading
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
-}
+export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/compiled directory?
 
 export interface CachedSourceInfo {
 	sourceId: string;
 	contentsHash: string;
-	compilations: {id: string; encoding: Encoding}[];
+	compilations: {
+		id: string;
+		buildConfigName: string;
+		localDependencies: string[] | null;
+		externalDependencies: string[] | null;
+		encoding: Encoding;
+	}[];
 }
 const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 
@@ -149,6 +61,7 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	externalsBuildConfig: BuildConfig | null;
 	buildRootDir: string;
+	mapBuildIdToSourceId: typeof defaultMapBuildIdToSourceId;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
 	watch: boolean;
@@ -216,6 +129,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	}
 	return {
 		dev,
+		mapBuildIdToSourceId: defaultMapBuildIdToSourceId,
 		sourceMap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
@@ -240,7 +154,8 @@ export class Filer {
 	private readonly externalsDir: ExternalsFilerDir | null;
 	private readonly externalsServedDir: ServedDir | null;
 	private readonly buildConfigs: BuildConfig[] | null;
-	private readonly externalsBuildConfig: BuildConfig | null;
+	// private readonly externalsBuildConfig: BuildConfig | null;
+	private readonly mapBuildIdToSourceId: typeof defaultMapBuildIdToSourceId;
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
 
@@ -257,8 +172,9 @@ export class Filer {
 			dev,
 			compiler,
 			buildConfigs,
-			externalsBuildConfig,
+			// externalsBuildConfig,
 			buildRootDir,
+			mapBuildIdToSourceId,
 			compiledDirs,
 			servedDirs,
 			externalsDir,
@@ -271,8 +187,9 @@ export class Filer {
 		} = initOptions(opts);
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
-		this.externalsBuildConfig = externalsBuildConfig;
+		// this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
+		this.mapBuildIdToSourceId = mapBuildIdToSourceId;
 		this.sourceMap = sourceMap;
 		this.target = target;
 		this.cleanOutputDirs = cleanOutputDirs;
@@ -300,25 +217,26 @@ export class Filer {
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
-	async findByPath(path: string): Promise<BaseFile | null> {
+	async findByPath(path: string): Promise<BaseFilerFile | null> {
 		const {externalsDirBasePath, externalsServedDir, files} = this;
-		// TODO probably want to generalize this with "lazy" and/or "dirty" flags on compiledDirs
+		// TODO we need to install externals and load this correctly - how? do we need a special path?
 		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
-			const id = `${externalsServedDir!.servedAt}/${path}`;
-			const file = files.get(id);
-			if (file !== undefined) {
-				return file;
-			}
-			const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
-			const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
-			if (shouldCompile) {
-				await this.compileSourceId(sourceId, this.externalsDir!);
-			}
-			const compiledFile = files.get(id);
-			if (compiledFile === undefined) {
-				throw Error('Expected to compile file');
-			}
-			return compiledFile;
+			throw Error('TODO find external');
+			// const id = `${externalsServedDir!.servedAt}/${path}`;
+			// const file = files.get(id);
+			// if (file !== undefined) {
+			// 	return file;
+			// }
+			// const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
+			// const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
+			// if (shouldCompile) {
+			// 	await this.buildSourceFile(sourceId, this.externalsDir!);
+			// }
+			// const compiledFile = files.get(id);
+			// if (compiledFile === undefined) {
+			// 	throw Error('Expected to compile file');
+			// }
+			// return compiledFile;
 		} else {
 			for (const servedDir of this.servedDirs) {
 				if (servedDir === externalsServedDir) continue;
@@ -346,41 +264,48 @@ export class Filer {
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
 		await Promise.all([this.initCachedSourceInfo(), lexer.init]);
-		await Promise.all(this.dirs.map((dir) => dir.init())); // must be after `initCachedSourceInfo`
+		// Initializing the dirs must be done after `this.initCachedSourceInfo`
+		// because it creates source files, which need `this.cachedSourceInfo` to be populated.
+		await Promise.all(this.dirs.map((dir) => dir.init()));
+		// This performs initial source file compilation, traces deps,
+		// and populates the `buildConfigs` property of all source files.
+		await this.initBuilds();
+		// this.log.info('buildConfigs', this.buildConfigs);
 
-		const {buildConfigs} = this;
-		if (this.cleanOutputDirs && buildConfigs !== null) {
-			// Clean the dev output directories,
-			// removing any files that can't be mapped back to source files.
-			// For now, this does not handle production output.
-			// See the comments where `dev` is declared for more.
-			// (more accurately, it could handle prod, but not simultaneous to dev)
-			const buildOutDirs: string[] = buildConfigs.map((buildConfig) =>
-				toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir),
-			);
-			await Promise.all(
-				buildOutDirs.map(async (outputDir) => {
-					if (!(await pathExists(outputDir))) return;
-					const files = await findFiles(outputDir, undefined, null);
-					await Promise.all(
-						Array.from(files.entries()).map(([path, stats]) => {
-							if (stats.isDirectory()) return;
-							const id = join(outputDir, path);
-							if (this.files.has(id)) return;
-							if (hasSourceExtension(id)) {
-								// TODO do we want this check? maybe perform it synchronously before any `remove` calls?
-								throw Error(
-									'File in output directory has unexpected source extension.' +
-										' Output directories are expected to be fully owned by Gro and should not have source files.' +
-										` File is ${id} in outputDir ${outputDir}`,
-								);
-							}
-							this.log.trace('deleting unknown compiled file', printPath(id));
-							return remove(id);
-						}),
-					);
-				}),
-			);
+		// TODO this needs to perform matching for each buildConfig against the file,
+		// right now it just checks if the file exists at all, not specifically for that buildConfig
+		if ((globalThis as any).THIS_IS_TEMPORARILY_DISABLED_SEE_ABOVE) {
+			const {buildConfigs} = this;
+			if (this.cleanOutputDirs && buildConfigs !== null) {
+				// Clean the dev output directories,
+				// removing any files that can't be mapped back to source files.
+				const buildOutDirs: string[] = buildConfigs.map((buildConfig) =>
+					toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir),
+				);
+				await Promise.all(
+					buildOutDirs.map(async (outputDir) => {
+						if (!(await pathExists(outputDir))) return;
+						const files = await findFiles(outputDir, undefined, null);
+						await Promise.all(
+							Array.from(files.entries()).map(([path, stats]) => {
+								if (stats.isDirectory()) return;
+								const id = join(outputDir, path);
+								if (this.files.has(id)) return;
+								if (hasSourceExtension(id)) {
+									// TODO do we want this check? maybe perform it synchronously before any `remove` calls?
+									throw Error(
+										'File in output directory has unexpected source extension.' +
+											' Output directories are expected to be fully owned by Gro and should not have source files.' +
+											` File is ${id} in outputDir ${outputDir}`,
+									);
+								}
+								this.log.trace('deleting unknown compiled file', printPath(id));
+								return remove(id);
+							}),
+						);
+					}),
+				);
+			}
 		}
 
 		// Ensure that the externals directory does not conflict with another served directory.
@@ -411,6 +336,131 @@ export class Filer {
 		);
 	}
 
+	// During initialization, after all files are loaded into memory,
+	// this is called to populate the `buildConfigs` property of all source files.
+	// It traces the dependencies starting from each `buildConfig.input`,
+	// compiling each input source file and populating its `buildConfigs`,
+	// recursively until all dependencies have been handled.
+	private async initBuilds(): Promise<void> {
+		if (this.buildConfigs === null) return;
+
+		const promises: Promise<void>[] = [];
+
+		const filters: ((id: string) => boolean)[] = [];
+		const filterBuildConfigs: BuildConfig[] = [];
+
+		// Iterate through the build config inputs and initialize their files.
+		for (const buildConfig of this.buildConfigs) {
+			for (const input of buildConfig.input) {
+				if (typeof input === 'function') {
+					filters.push(input);
+					filterBuildConfigs.push(buildConfig);
+					continue;
+				}
+				const file = this.files.get(input);
+				if (!file) {
+					throw Error(`Build config '${buildConfig.name}' has unknown input '${input}'`);
+				}
+				if (file.type !== 'source') {
+					throw Error(`Build config '${buildConfig.name}' has non-source input '${input}'`);
+				}
+				if (!file.buildable) {
+					throw Error(`Build config '${buildConfig.name}' has non-buildable input '${input}'`);
+				}
+				if (!file.buildConfigs.has(buildConfig)) {
+					promises.push(this.addSourceFileToBuild(file, buildConfig, true));
+				}
+			}
+		}
+
+		// Iterate through the files once and apply the filters to all source files.
+		if (filters.length) {
+			for (const file of this.files.values()) {
+				if (file.type !== 'source') continue;
+				for (let i = 0; i < filters.length; i++) {
+					if (filters[i](file.id)) {
+						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
+						// give a better error message if that's the case!
+						if (!file.buildable) throw Error(`Expected file to be buildable: ${file.id}`);
+						const buildConfig = filterBuildConfigs[i];
+						if (!file.buildConfigs.has(buildConfig)) {
+							promises.push(this.addSourceFileToBuild(file, buildConfig, true));
+						}
+					}
+				}
+			}
+		}
+
+		await Promise.all(promises);
+
+		// TODO I think this is where we run `esinstall` on these
+		// but how to handle externals that are needed AFTER the Filer initializes?
+		console.log('externals', this.externalDependencies);
+	}
+
+	// TODO track externals per build to match the flexibility of building local files
+	externalDependencies = new Set<string>();
+
+	// Adds a build config to a source file.
+	// The caller is expected to check to avoid duplicates.
+	private async addSourceFileToBuild(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+		isInput: boolean,
+	): Promise<void> {
+		if (sourceFile.buildConfigs.has(buildConfig)) {
+			throw Error(`Expected to add buildConfig for ${buildConfig.name}:${sourceFile.id}`);
+		}
+		// Add the build config. The caller is expected to check to avoid duplicates.
+		sourceFile.buildConfigs.add(buildConfig);
+		// Add the build config as an input if appropriate, initializing the set if needed.
+		// We need to determine `isInputToBuildConfig` independently of the caller,
+		// because the caller may not
+		if (isInput) {
+			if (sourceFile.isInputToBuildConfigs === null) {
+				// Cast to keep the `readonly` modifier outside of initialization.
+				(sourceFile as Writable<
+					BuildableSourceFile,
+					'isInputToBuildConfigs'
+				>).isInputToBuildConfigs = new Set();
+			}
+			sourceFile.isInputToBuildConfigs!.add(buildConfig);
+		}
+
+		// Build only if needed - build files may be hydrated from the cache.
+		if (!sourceFile.buildFiles.has(buildConfig)) {
+			await this.buildSourceFile(sourceFile, buildConfig);
+		} else {
+			await this.hydrateSourceFileFromCache(sourceFile, buildConfig);
+		}
+	}
+
+	// Removes a build config from a source file.
+	// The caller is expected to check to avoid duplicates.
+	private async removeSourceFileFromBuild(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
+			throw Error(
+				`Removing build configs from input files is not allowed: ${buildConfig}:${sourceFile.id}`,
+			);
+		}
+
+		await this.updateBuildFiles(sourceFile, [], buildConfig);
+
+		const deleted = sourceFile.buildConfigs.delete(buildConfig);
+		if (!deleted) {
+			throw Error(`Expected to delete buildConfig ${buildConfig}:${sourceFile.id}`);
+		}
+		const deletedBuildFiles = sourceFile.buildFiles.delete(buildConfig);
+		if (!deletedBuildFiles) {
+			throw Error(`Expected to delete build files ${buildConfig}:${sourceFile.id}`);
+		}
+
+		await this.updateCachedSourceInfo(sourceFile);
+	}
+
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
 			filerDir.type === 'externals'
@@ -427,18 +477,29 @@ export class Filer {
 					const shouldCompile = await this.updateSourceFile(id, filerDir);
 					if (
 						shouldCompile &&
-						filerDir.compilable &&
-						// TODO this should probably be a generic flag on the `filerDir` like `lazyCompile`
-						!(change.type === 'init' && filerDir.type === 'externals')
+						// When initializing, compilation is deferred to `initBuilds`
+						// so that deps are determined in the correct order.
+						change.type !== 'init' &&
+						filerDir.buildable // only needed for types, doing this instead of casting for type safety
 					) {
-						await this.compileSourceId(id, filerDir);
+						const file = this.files.get(id) as BuildableSourceFile;
+						const promises: Promise<void>[] = [];
+						for (const buildConfig of file.buildConfigs) {
+							promises.push(this.buildSourceFile(file, buildConfig));
+						}
+						await Promise.all(promises);
 					}
 				}
 				break;
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					if (this.buildConfigs !== null && filerDir.compilable) {
+					if (this.buildConfigs !== null && filerDir.buildable) {
+						// TODO This is weird because we're blindly deleting
+						// the directory for all build configs,
+						// whether or not they apply for this id.
+						// It could be improved by tracking tracking dirs in the Filer
+						// and looking up the correct build configs.
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
 								remove(toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildRootDir)),
@@ -495,10 +556,9 @@ export class Filer {
 				  ''
 				: await loadContents(encoding, id);
 
-		let newSourceFile: SourceFile;
 		if (sourceFile === undefined) {
 			// Memory cache is cold.
-			newSourceFile = await createSourceFile(
+			const newSourceFile = await createSourceFile(
 				id,
 				encoding,
 				extension,
@@ -506,22 +566,17 @@ export class Filer {
 				filerDir,
 				this.cachedSourceInfo.get(id),
 				this.buildConfigs,
-				this.externalsBuildConfig,
 			);
-			// If the created source file has its compiled files hydrated,
-			// we can infer that it doesn't need to be compiled.
-			// TODO maybe make this more explicit with a `dirty` or `shouldCompile` flag?
-			// Right now compilers always return at least one compiled file,
-			// so it shouldn't be buggy, but it doesn't feel right.
-			if (newSourceFile.compilable && newSourceFile.compiledFiles.length !== 0) {
-				this.files.set(id, newSourceFile);
-				syncCompiledFilesToMemoryCache(this.files, newSourceFile.compiledFiles, [], this.log);
+			this.files.set(id, newSourceFile);
+			// If the created source file has its build files hydrated from the cache,
+			// we assume it doesn't need to be compiled.
+			if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
 				return false;
 			}
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
-			!(sourceFile.sourceType === 'externals' && sourceFile.compiledFiles.length === 0)
+			!(sourceFile.sourceType === 'externals' && sourceFile.buildFiles.size === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			return false;
@@ -529,34 +584,27 @@ export class Filer {
 			// Memory cache is warm, but contents have changed.
 			switch (sourceFile.encoding) {
 				case 'utf8':
-					newSourceFile = {
-						...sourceFile,
-						contents: newSourceContents as string,
-						stats: undefined,
-						contentsBuffer: undefined,
-						contentsHash: undefined,
-					};
+					sourceFile.contents = newSourceContents as string;
+					sourceFile.stats = undefined;
+					sourceFile.contentsBuffer = undefined;
+					sourceFile.contentsHash = undefined;
 					break;
 				case null:
-					newSourceFile = {
-						...sourceFile,
-						contents: newSourceContents as Buffer,
-						stats: undefined,
-						contentsBuffer: newSourceContents as Buffer,
-						contentsHash: undefined,
-					};
+					sourceFile.contents = newSourceContents as Buffer;
+					sourceFile.stats = undefined;
+					sourceFile.contentsBuffer = newSourceContents as Buffer;
+					sourceFile.contentsHash = undefined;
 					break;
 				default:
 					throw new UnreachableError(sourceFile);
 			}
 		}
-		this.files.set(id, newSourceFile);
-		return filerDir.compilable;
+		return filerDir.buildable;
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
-	private pendingCompilations: Set<string> = new Set();
-	private enqueuedCompilations: Map<string, [string, CompilableFilerDir]> = new Map();
+	private pendingCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
+	private enqueuedCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -565,103 +613,218 @@ export class Filer {
 	// it removes the item from the queue and recompiles the file.
 	// The queue stores at most one compilation per file,
 	// and this is safe given that compiling accepts no parameters.
-	private async compileSourceId(id: string, filerDir: CompilableFilerDir): Promise<void> {
-		if (this.pendingCompilations.has(id)) {
-			this.enqueuedCompilations.set(id, [id, filerDir]);
+	private async buildSourceFile(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		const key = `${buildConfig.name}${sourceFile.id}`;
+		if (this.pendingCompilations.has(key)) {
+			this.enqueuedCompilations.add(key);
 			return;
 		}
-		this.pendingCompilations.add(id);
+		this.pendingCompilations.add(key);
 		try {
-			await this._compileSourceId(id);
+			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
-			this.log.error(red('failed to compile'), printPath(id), printError(err));
+			this.log.error(red('failed to compile'), printPath(sourceFile.id), printError(err));
 		}
-		this.pendingCompilations.delete(id);
-		const enqueuedCompilation = this.enqueuedCompilations.get(id);
-		if (enqueuedCompilation !== undefined) {
-			this.enqueuedCompilations.delete(id);
+		this.pendingCompilations.delete(key);
+		if (this.enqueuedCompilations.has(key)) {
+			this.enqueuedCompilations.delete(key);
 			// Something changed during the compilation for this file, so recurse.
+			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
-			const shouldCompile = await this.updateSourceFile(...enqueuedCompilation);
+			const shouldCompile = await this.updateSourceFile(sourceFile.id, sourceFile.filerDir);
 			if (shouldCompile) {
-				await this.compileSourceId(...enqueuedCompilation);
+				await this.buildSourceFile(sourceFile, buildConfig);
 			}
 		}
 	}
 
-	private async _compileSourceId(id: string): Promise<void> {
-		const sourceFile = this.files.get(id);
-		if (!sourceFile) {
-			throw Error(`Cannot find source file: ${id}`);
-		}
-		if (sourceFile.type !== 'source') {
-			throw Error(`Cannot compile file with type '${sourceFile.type}': ${id}`);
-		}
-		if (sourceFile.compilable === false) {
-			throw Error(`Cannot compile a non-compilable source file: ${id}`);
-		}
+	private async _buildSourceFile(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		this.log.info('build source file', sourceFile.id);
 
 		// Compile the source file.
-		// TODO support production builds
-		// The Filer is designed to be able to be a long-lived process
-		// that can output builds for both development and production,
-		// but for now it's hardcoded to development, and production is entirely done by Rollup.
-		const results = await Promise.all(
-			sourceFile.buildConfigs.map((buildConfig) =>
-				sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this),
-			),
+		const result = await sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this);
+
+		const newBuildFiles: readonly BuildFile[] = result.compilations.map((compilation) =>
+			createBuildFile(compilation, this, result, sourceFile, buildConfig),
 		);
 
-		// Update the cache and write to disk.
-		const newCompiledFiles = results.flatMap((result) =>
-			result.compilations.map(
-				(compilation): CompiledFile => {
-					switch (compilation.encoding) {
-						case 'utf8':
-							return {
-								type: 'compiled',
-								sourceFileId: sourceFile.id,
-								id: compilation.id,
-								filename: compilation.filename,
-								dir: compilation.dir,
-								extension: compilation.extension,
-								encoding: compilation.encoding,
-								contents: postprocess(compilation, this, result, sourceFile),
-								sourceMapOf: compilation.sourceMapOf,
-								contentsBuffer: undefined,
-								contentsHash: undefined,
-								stats: undefined,
-								mimeType: undefined,
-							};
-						case null:
-							return {
-								type: 'compiled',
-								sourceFileId: sourceFile.id,
-								id: compilation.id,
-								filename: compilation.filename,
-								dir: compilation.dir,
-								extension: compilation.extension,
-								encoding: compilation.encoding,
-								contents: postprocess(compilation, this, result, sourceFile),
-								contentsBuffer: compilation.contents,
-								contentsHash: undefined,
-								stats: undefined,
-								mimeType: undefined,
-							};
-						default:
-							throw new UnreachableError(compilation);
+		// Update the source file with the new build files.
+		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
+		await this.updateCachedSourceInfo(sourceFile);
+	}
+
+	// Updates the build files in the memory cache and writes to disk.
+	private async updateBuildFiles(
+		sourceFile: BuildableSourceFile,
+		newBuildFiles: readonly BuildFile[],
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
+		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
+		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
+		await this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig);
+		await syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
+	}
+
+	// This is like `updateBuildFiles` except
+	// it's called for source files when they're being hydrated from the cache.
+	// This is because the normal build process ending with `updateBuildFiles`
+	// is being short-circuited for efficiency, but parts of that process are still needed.
+	private async hydrateSourceFileFromCache(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		const buildFiles = sourceFile.buildFiles.get(buildConfig);
+		if (buildFiles === undefined) {
+			throw Error(`Expected to find build files when hydrating from cache.`);
+		}
+		syncBuildFilesToMemoryCache(this.files, buildFiles, null, this.log);
+		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
+	}
+
+	private async updateDependencies(
+		sourceFile: BuildableSourceFile,
+		newBuildFiles: readonly BuildFile[],
+		oldBuildFiles: readonly BuildFile[] | null,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		const diffResult = this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig);
+		const addedDependencySourceFiles = diffResult && diffResult[0];
+		const removedDependencySourceFiles = diffResult && diffResult[1];
+		let promises: Promise<void>[] | null = null;
+		if (addedDependencySourceFiles !== null) {
+			for (const addedDependencySourceFile of addedDependencySourceFiles) {
+				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
+				if (dependents === undefined) {
+					dependents = new Set();
+					addedDependencySourceFile.dependents.set(buildConfig, dependents);
+				}
+				dependents.add(sourceFile);
+				if (!addedDependencySourceFile.buildConfigs.has(buildConfig)) {
+					(promises || (promises = [])).push(
+						this.addSourceFileToBuild(
+							addedDependencySourceFile,
+							buildConfig,
+							isInputToBuildConfig(addedDependencySourceFile, buildConfig),
+						),
+					);
+				}
+			}
+		}
+		if (removedDependencySourceFiles !== null) {
+			for (const removedDependencySourceFile of removedDependencySourceFiles) {
+				if (!removedDependencySourceFile.buildConfigs.has(buildConfig)) {
+					throw Error(
+						`Expected build config: ${buildConfig.name}:${removedDependencySourceFile.id}`,
+					);
+				}
+				let dependents = removedDependencySourceFile.dependents.get(buildConfig);
+				if (dependents === undefined) {
+					throw Error(`Expected dependents: ${buildConfig.name}:${removedDependencySourceFile.id}`);
+				}
+				dependents.delete(sourceFile);
+				if (
+					dependents.size === 0 &&
+					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
+				) {
+					(promises || (promises = [])).push(
+						this.removeSourceFileFromBuild(removedDependencySourceFile, buildConfig),
+					);
+				}
+			}
+		}
+
+		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
+	}
+
+	diffDependencies(
+		newBuildFiles: readonly BuildFile[],
+		oldBuildFiles: readonly BuildFile[] | null,
+		buildConfig: BuildConfig,
+	):
+		| null
+		| [
+				addedDependencySourceFiles: Set<BuildableSourceFile> | null,
+				removedDependencySourceFiles: Set<BuildableSourceFile> | null,
+		  ] {
+		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
+		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
+
+		// After building the source file, we need to handle any dependency changes for each build file.
+		// Dependencies may be added or removed,
+		// and their source files need to be updated with any build config changes.
+		// When a dependency is added for this build,
+		// if the dependency's source file is not an input to the build config,
+		// and it has 1 dependent after the build file is added,
+		// they're added for this build,
+		// meaning the memory cache is updated and the files are compiled to disk for the build config.
+		// When a dependency is removed for this build,
+		// if the dependency's source file is not an input to the build config,
+		// and it has 0 dependents after the build file is removed,
+		// they're removed for this build,
+		// meaning the memory cache is updated and the files are deleted from disk for the build config.
+		const diffResult = diffDependencies(newBuildFiles, oldBuildFiles);
+		const addedDependencies = diffResult && diffResult[0];
+		const removedDependencies = diffResult && diffResult[1];
+		if (addedDependencies !== null) {
+			for (const addedDependency of addedDependencies) {
+				if (addedDependency.external) {
+					if (buildConfig.platform === 'node') {
+						continue;
+					} else {
+						throw Error(`TODO handle browser externals`);
 					}
-				},
-			),
-		);
-		const oldCompiledFiles = sourceFile.compiledFiles;
-		const newSourceFile: CompilableSourceFile = {...sourceFile, compiledFiles: newCompiledFiles};
-		this.files.set(id, newSourceFile);
-		syncCompiledFilesToMemoryCache(this.files, newCompiledFiles, oldCompiledFiles, this.log);
-		await Promise.all([
-			syncFilesToDisk(newCompiledFiles, oldCompiledFiles, this.log),
-			this.updateCachedSourceInfo(newSourceFile),
-		]);
+				}
+				const addedSourceFile = this.findSourceFile(addedDependency.id);
+				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
+				if (!addedSourceFile.buildable) {
+					throw Error(`Expected source file to be buildable: ${addedSourceFile.id}`);
+				}
+				(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
+					addedSourceFile,
+				);
+			}
+		}
+		if (removedDependencies !== null) {
+			for (const removedDependency of removedDependencies) {
+				if (removedDependency.external) {
+					if (buildConfig.platform === 'node') {
+						continue;
+					} else {
+						throw Error(`TODO handle browser externals`);
+					}
+				}
+				const removedSourceFile = this.findSourceFile(removedDependency.id);
+				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
+				if (!removedSourceFile.buildable) {
+					throw Error(`Expected dependency source file to be buildable: ${removedSourceFile.id}`);
+				}
+				(removedDependencySourceFiles || (removedDependencySourceFiles = new Set())).add(
+					removedSourceFile,
+				);
+			}
+		}
+
+		return addedDependencySourceFiles !== null || removedDependencySourceFiles !== null
+			? [addedDependencySourceFiles, removedDependencySourceFiles]
+			: null;
+	}
+
+	private findSourceFile(buildId: string): SourceFile | undefined {
+		const sourceId = this.mapBuildIdToSourceId(buildId);
+		const sourceFile = this.files.get(sourceId);
+		if (sourceFile !== undefined && sourceFile.type !== 'source') {
+			throw Error(
+				`Expected 'source' file but found '${sourceFile.type}': ${sourceId} via buildId '${buildId}'`,
+			);
+		}
+		return sourceFile;
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -669,16 +832,18 @@ export class Filer {
 		if (!sourceFile || sourceFile.type !== 'source') return; // ignore compiled files (maybe throw an error if the file isn't found, should not happen)
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
-		if (sourceFile.compilable) {
-			syncCompiledFilesToMemoryCache(this.files, [], sourceFile.compiledFiles, this.log);
-			await Promise.all([
-				syncFilesToDisk([], sourceFile.compiledFiles, this.log),
-				this.deleteCachedSourceInfo(sourceFile),
-			]);
+		if (sourceFile.buildable) {
+			if (this.buildConfigs !== null) {
+				await Promise.all(this.buildConfigs.map((b) => this.updateBuildFiles(sourceFile, [], b)));
+			}
+			await this.deleteCachedSourceInfo(sourceFile);
 		}
 	}
 
-	private async updateCachedSourceInfo(file: CompilableSourceFile): Promise<void> {
+	// TODO as an optimization, this should be debounced per file,
+	// because we're writing per build config.
+	private async updateCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
+		if (file.buildConfigs.size === 0) return this.deleteCachedSourceInfo(file);
 		const cachedSourceInfoId = toCachedSourceInfoId(
 			file,
 			this.buildRootDir,
@@ -687,7 +852,15 @@ export class Filer {
 		const cachedSourceInfo: CachedSourceInfo = {
 			sourceId: file.id,
 			contentsHash: getFileContentsHash(file),
-			compilations: file.compiledFiles.map((file) => ({id: file.id, encoding: file.encoding})),
+			compilations: Array.from(file.buildFiles.values()).flatMap((files) =>
+				files.map((file) => ({
+					id: file.id,
+					buildConfigName: file.buildConfig.name,
+					localDependencies: file.localDependencies && Array.from(file.localDependencies),
+					externalDependencies: file.externalDependencies && Array.from(file.externalDependencies),
+					encoding: file.encoding,
+				})),
+			),
 		};
 		// This is useful for debugging, but has false positives
 		// when source changes but output doesn't, like if comments get elided.
@@ -704,7 +877,7 @@ export class Filer {
 		await outputFile(cachedSourceInfoId, JSON.stringify(cachedSourceInfo, null, 2));
 	}
 
-	private deleteCachedSourceInfo(file: CompilableSourceFile): Promise<void> {
+	private deleteCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
 		this.cachedSourceInfo.delete(file.id);
 		return remove(toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath));
 	}
@@ -713,26 +886,28 @@ export class Filer {
 // Given `newFiles` and `oldFiles`, updates everything on disk,
 // deleting files that no longer exist, writing new ones, and updating existing ones.
 const syncFilesToDisk = async (
-	newFiles: CompiledFile[],
-	oldFiles: CompiledFile[],
+	newFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[] | null,
 	log: Logger,
 ): Promise<void> => {
 	// This uses `Array#find` because the arrays are expected to be small,
 	// because we're currently only using it for individual file compilations,
 	// but that assumption might change and cause this code to be slow.
 	await Promise.all([
-		Promise.all(
-			oldFiles.map((oldFile) => {
-				if (!newFiles.find((f) => f.id === oldFile.id)) {
-					log.trace('deleting build file on disk', printPath(oldFile.id));
-					return remove(oldFile.id);
-				}
-				return undefined;
-			}),
-		),
+		oldFiles === null
+			? null
+			: Promise.all(
+					oldFiles.map((oldFile) => {
+						if (!newFiles.find((f) => f.id === oldFile.id)) {
+							log.trace('deleting build file on disk', printPath(oldFile.id));
+							return remove(oldFile.id);
+						}
+						return undefined;
+					}),
+			  ),
 		Promise.all(
 			newFiles.map(async (newFile) => {
-				const oldFile = oldFiles.find((f) => f.id === newFile.id);
+				const oldFile = oldFiles?.find((f) => f.id === newFile.id);
 				let shouldOutputNewFile = false;
 				if (!oldFile) {
 					if (!(await pathExists(newFile.id))) {
@@ -760,7 +935,7 @@ const syncFilesToDisk = async (
 };
 
 const toCachedSourceInfoId = (
-	file: CompilableSourceFile,
+	file: BuildableSourceFile,
 	buildRootDir: string,
 	externalsDirBasePath: string | null,
 ): string => {
@@ -773,24 +948,28 @@ const toCachedSourceInfoId = (
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
-const syncCompiledFilesToMemoryCache = (
-	files: Map<string, BaseFile>,
-	newFiles: CompiledFile[],
-	oldFiles: CompiledFile[],
+const syncBuildFilesToMemoryCache = (
+	files: Map<string, BaseFilerFile>,
+	newFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[] | null,
 	_log: Logger,
 ): void => {
+	// Remove any deleted files.
 	// This uses `Array#find` because the arrays are expected to be small,
 	// because we're currently only using it for individual file compilations,
 	// but that assumption might change and cause this code to be slow.
-	for (const oldFile of oldFiles) {
-		if (!newFiles.find((f) => f.id === oldFile.id)) {
-			// log.trace('deleting file from memory', printPath(oldFile.id));
-			files.delete(oldFile.id);
+	if (oldFiles !== null) {
+		for (const oldFile of oldFiles) {
+			if (!newFiles.find((f) => f.id === oldFile.id)) {
+				// log.trace('deleting file from memory', printPath(oldFile.id));
+				files.delete(oldFile.id);
+			}
 		}
 	}
+	// Add or update any new or changed files.
 	for (const newFile of newFiles) {
 		// log.trace('setting file in memory cache', printPath(newFile.id));
-		const oldFile = files.get(newFile.id) as CompiledFile | undefined;
+		const oldFile = files.get(newFile.id) as BuildFile | undefined;
 		if (oldFile !== undefined) {
 			// This check ensures that if the user provides multiple source directories
 			// the compiled output files do not conflict.
@@ -807,34 +986,6 @@ const syncCompiledFilesToMemoryCache = (
 	}
 };
 
-export const getFileMimeType = (file: BaseFile): string | null =>
-	file.mimeType !== undefined
-		? file.mimeType
-		: (file.mimeType = getMimeTypeByExtension(file.extension.substring(1)));
-
-export const getFileContentsBuffer = (file: BaseFile): Buffer =>
-	file.contentsBuffer !== undefined
-		? file.contentsBuffer
-		: (file.contentsBuffer = Buffer.from(file.contents));
-
-// Stats are currently lazily loaded. Should they be?
-export const getFileStats = (file: BaseFile): Stats | Promise<Stats> =>
-	file.stats !== undefined
-		? file.stats
-		: stat(file.id).then((stats) => {
-				file.stats = stats;
-				return stats;
-		  });
-
-export const getFileContentsHash = (file: BaseFile): string =>
-	file.contentsHash !== undefined
-		? file.contentsHash
-		: (file.contentsHash = toHash(getFileContentsBuffer(file)));
-
-// Note that this uses md5 and therefore is not cryptographically secure.
-// It's fine for now, but some use cases may need security.
-const toHash = (buf: Buffer): string => createHash('md5').update(buf).digest().toString('hex');
-
 const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
 		case 'utf8':
@@ -845,9 +996,6 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 			throw new UnreachableError(encoding);
 	}
 };
-
-const loadContents = (encoding: Encoding, id: string): Promise<string | Buffer> =>
-	encoding === null ? readFile(id) : readFile(id, encoding);
 
 // TODO Revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility.
@@ -890,202 +1038,6 @@ const validateDirs = (
 		);
 	}
 };
-
-// This code could be shortened a lot by collapsing the object declarations,
-// but as is it doesn't play nicely with the types, and it might be harder to reason about.
-const createSourceFile = async (
-	id: string,
-	encoding: Encoding,
-	extension: string,
-	contents: string | Buffer,
-	filerDir: FilerDir,
-	cachedSourceInfo: CachedSourceInfo | undefined,
-	buildConfigs: BuildConfig[] | null,
-	externalsBuildConfig: BuildConfig | null,
-): Promise<SourceFile> => {
-	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
-	let contentsHash: string | undefined = undefined;
-	let compiledFiles: CompiledFile[] = [];
-	if (filerDir.compilable && cachedSourceInfo !== undefined) {
-		if (encoding === 'utf8') {
-			contentsBuffer = Buffer.from(contents);
-		} else if (encoding !== null) {
-			throw new UnreachableError(encoding);
-		}
-		contentsHash = toHash(contentsBuffer!);
-		if (contentsHash === cachedSourceInfo.contentsHash) {
-			compiledFiles = await reconstructCompiledFiles(cachedSourceInfo);
-		}
-	}
-	if (filerDir.type === 'externals') {
-		if (encoding !== 'utf8') {
-			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
-		}
-		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
-		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
-		return {
-			type: 'source',
-			sourceType: 'externals',
-			compilable: true,
-			buildConfigs: [externalsBuildConfig!],
-			id,
-			filename,
-			dir,
-			dirBasePath,
-			extension,
-			encoding,
-			contents: contents as string,
-			contentsBuffer,
-			contentsHash,
-			filerDir,
-			compiledFiles,
-			stats: undefined,
-			mimeType: undefined,
-		};
-	}
-	const filename = basename(id);
-	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
-	switch (encoding) {
-		case 'utf8':
-			return filerDir.compilable
-				? {
-						type: 'source',
-						sourceType: 'text',
-						buildConfigs: buildConfigs!.filter(
-							(buildConfig) => buildConfig.include === null || buildConfig.include(id),
-						),
-						compilable: true,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						contents: contents as string,
-						contentsBuffer,
-						contentsHash,
-						filerDir,
-						compiledFiles,
-						stats: undefined,
-						mimeType: undefined,
-				  }
-				: {
-						type: 'source',
-						sourceType: 'text',
-						buildConfigs: null,
-						compilable: false,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						contents: contents as string,
-						contentsBuffer,
-						contentsHash,
-						filerDir,
-						compiledFiles: null,
-						stats: undefined,
-						mimeType: undefined,
-				  };
-		case null:
-			return filerDir.compilable
-				? {
-						type: 'source',
-						sourceType: 'binary',
-						buildConfigs: buildConfigs!.filter(
-							(buildConfig) => buildConfig.include === null || buildConfig.include(id),
-						),
-						compilable: true,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						contents: contents as Buffer,
-						contentsBuffer: contentsBuffer as Buffer,
-						contentsHash,
-						filerDir,
-						compiledFiles,
-						stats: undefined,
-						mimeType: undefined,
-				  }
-				: {
-						type: 'source',
-						sourceType: 'binary',
-						buildConfigs: null,
-						compilable: false,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						contents: contents as Buffer,
-						contentsBuffer: contentsBuffer as Buffer,
-						contentsHash,
-						filerDir,
-						compiledFiles: null,
-						stats: undefined,
-						mimeType: undefined,
-				  };
-		default:
-			throw new UnreachableError(encoding);
-	}
-};
-
-const reconstructCompiledFiles = (cachedSourceInfo: CachedSourceInfo): Promise<CompiledFile[]> =>
-	Promise.all(
-		cachedSourceInfo.compilations.map(
-			async (compilation): Promise<CompiledFile> => {
-				const {id} = compilation;
-				const filename = basename(id);
-				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-				const extension = extname(id);
-				const contents = await loadContents(compilation.encoding, id);
-				switch (compilation.encoding) {
-					case 'utf8':
-						return {
-							type: 'compiled',
-							sourceFileId: cachedSourceInfo.sourceId,
-							id,
-							filename,
-							dir,
-							extension,
-							encoding: compilation.encoding,
-							contents: contents as string,
-							sourceMapOf: id.endsWith(SOURCE_MAP_EXTENSION)
-								? stripEnd(id, SOURCE_MAP_EXTENSION)
-								: null,
-							contentsBuffer: undefined,
-							contentsHash: undefined,
-							stats: undefined,
-							mimeType: undefined,
-						};
-					case null:
-						return {
-							type: 'compiled',
-							sourceFileId: cachedSourceInfo.sourceId,
-							id,
-							filename,
-							dir,
-							extension,
-							encoding: compilation.encoding,
-							contents: contents as Buffer,
-							contentsBuffer: contents as Buffer,
-							contentsHash: undefined,
-							stats: undefined,
-							mimeType: undefined,
-						};
-					default:
-						throw new UnreachableError(compilation.encoding);
-				}
-			},
-		),
-	);
 
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
@@ -1141,3 +1093,19 @@ const checkForConflictingExternalsDir = (
 			}
 		}),
 	);
+
+// TODO extract to utils and test
+const defaultMapBuildIdToSourceId = (buildId: string): string =>
+	basePathToSourceId(toSourceExtension(toBuildBasePath(buildId)));
+
+const isInputToBuildConfig = (
+	sourceFile: BuildableSourceFile,
+	buildConfig: BuildConfig,
+): boolean => {
+	for (const input of buildConfig.input) {
+		if (typeof input === 'string' ? sourceFile.id === input : input(sourceFile.id)) {
+			return true;
+		}
+	}
+	return false;
+};

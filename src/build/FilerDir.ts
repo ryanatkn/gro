@@ -6,24 +6,24 @@ import {UnreachableError} from '../utils/error.js';
 import {PathStats} from '../fs/pathData.js';
 
 // Compiled filer dirs are watched, compiled, and written to disk.
-// For non-compilable dirs, the `dir` is only watched and nothing is written to the filesystem.
+// For non-buildable dirs, the `dir` is only watched and nothing is written to the filesystem.
 // Externals dirs require special handling - see the `Filer` for more.
-export type FilerDir = CompilableFilerDir | NonCompilableInternalsFilerDir;
-export type CompilableFilerDir = CompilableInternalsFilerDir | ExternalsFilerDir;
+export type FilerDir = BuildableFilerDir | NonBuildableInternalsFilerDir;
+export type BuildableFilerDir = BuildableInternalsFilerDir | ExternalsFilerDir;
 export type FilerDirType = 'files' | 'externals';
-export interface CompilableInternalsFilerDir extends BaseFilerDir {
+export interface BuildableInternalsFilerDir extends BaseFilerDir {
 	readonly type: 'files';
-	readonly compilable: true;
+	readonly buildable: true;
 	readonly compiler: Compiler;
 }
-export interface NonCompilableInternalsFilerDir extends BaseFilerDir {
+export interface NonBuildableInternalsFilerDir extends BaseFilerDir {
 	readonly type: 'files';
-	readonly compilable: false;
+	readonly buildable: false;
 	readonly compiler: null;
 }
 export interface ExternalsFilerDir extends BaseFilerDir {
 	readonly type: 'externals';
-	readonly compilable: true;
+	readonly buildable: true;
 	readonly compiler: Compiler;
 }
 
@@ -75,7 +75,7 @@ export const createFilerDir = (
 			if (compiler === null) {
 				filerDir = {
 					type: 'files',
-					compilable: false,
+					buildable: false,
 					compiler: null,
 					dir,
 					onChange,
@@ -86,7 +86,7 @@ export const createFilerDir = (
 			} else {
 				filerDir = {
 					type: 'files',
-					compilable: true,
+					buildable: true,
 					compiler,
 					dir,
 					onChange,
@@ -103,7 +103,7 @@ export const createFilerDir = (
 			} else {
 				filerDir = {
 					type: 'externals',
-					compilable: true,
+					buildable: true,
 					compiler,
 					dir,
 					onChange,

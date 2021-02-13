@@ -9,7 +9,7 @@ The `gro gen` task allows us to enhance our projects
 with convention-based code generation (codegen) techniques.
 
 Why? Codegen can produce cool results and eternal pain.
-Used well, they can improve performance, flexibility, consistency, and development speed.
+Used well, codegen can improve performance, flexibility, consistency, and development speed.
 As developers, automating our work is a natural thing to do,
 and whether or not it's a wise thing to do,
 `gro gen` can bring automation deeper into our code authoring workflows.
@@ -20,8 +20,7 @@ and it outputs a file stripped of `.gen.` to the same directory.
 The `*.gen.*` origin files export a `gen` function
 that returns the contents of the output file.
 More flexibility is available when needed
-including custom file names, custom output directories,
-and multiple output files.
+including multiple custom output files.
 
 Normally you'll want to commit generated files to git,
 but you can always gitignore a specific pattern like `*.ignore.*`
@@ -226,6 +225,7 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 
 - [x] basic functionality
 - [x] format output with Prettier
+- [ ] assess libraries for generating types
 - [ ] watch mode and build integration
 - [ ] support gen files authored in languages beyond TypeScript like
       Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc

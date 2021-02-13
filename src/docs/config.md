@@ -13,35 +13,49 @@ To accomplish this, Gro has an optional config file that lives at `$PROJECT/src/
 If a project does not define a config, Gro imports a default config from
 [`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts).
 
-See [`src/config/config.ts`](/src/config/config.ts) for the config implementation.
+See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
 
 ## build config
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`PartialBuildConfig`](/src/config/buildConfig.ts) type:
+Here's the [`PartialBuildConfig`](/src/config/buildConfig.ts) type,
+which is the user-facing version of the [`BuildConfig`](/src/config/buildConfig.ts):
 
 ```ts
 export interface PartialBuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget; // 'node' | 'browser'
+	readonly input: BuildConfigInput | BuildConfigInput[];
 	readonly dist?: boolean;
 	readonly primary?: boolean;
-	readonly include?: null | ((id: string) => boolean);
 }
 ```
 
+The `name` field can be anything and maps to the build's output directory name.
+By defining `"name": "foo",`, running `gro dev`/`gro compile` or `gro build` creates builds
+in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
+
+> Importantly, **Gro requires a Node build named `"node"`**
+> that it uses to run things like tests, tasks, and codegen.
+> It must be the primary Node build.
+> Ideally this would be configurable, but doing so would slow Gro down in many cases.
+
 The `platform` can currently be `"node"` or `"browser"` and
-is used by compilers for TypeScript and Svelte.
-When compiling for Node, the Svelte compiler outputs SSR components instead of the normal DOM ones.
+is used by Gro's default compilers to customize the output.
+When compiling for the browser, dependencies in `node_modules/` are imported via Snowpack's
+[`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
+When compiling for Node, the Svelte compiler outputs
+[SSR components](https://svelte.dev/docs#Server-side_component_API)
+instead of the normal DOM ones.
 
-The `name` field can be anything and maps to the build's directory name.
-By defining `"name": "node",`, running `gro compile`, `gro dev`, or `gro build` creates builds
-in `.gro/dev/node/` and `.gro/prod/node/`, respectively.
-
-Importantly, **Gro always includes a hardcoded Node build named `"node"`**
-that it uses to compile your project and run things like tests, tasks, and codegen.
-Ideally this would be configurable, but doing so would slow Gro down in many cases.
+The `input` field specifies the source code entry points for the build.
+Each input must be a file path (absolute or relative to `src/`),
+or a filter function with the signature `(id: string) => boolean`.
+To define filters, it's convenient to use the
+[`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
+from `@rollup/pluginutils` and
+Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
 
 The optional `dist` flag marks builds for inclusion in the root `dist/` directory
 by [the `gro dist` task](/src/dist.task.ts).
@@ -62,9 +76,6 @@ As mentioned above, the `primary` Node build is always named `"node"`.
 For other platforms, if no `primary` flag exists on any build,
 Gro marks the first build in the `builds` array as primary.
 
-The optional `include` property can be used to include or exclude a particular file.
-It's convenient to use the `createFilter` helper from `@rollup/pluginutils` here.
-
 ## examples
 
 Here's a config for a simple Node project:
@@ -74,7 +85,7 @@ import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
 
 const createConfig: GroConfigCreator = async () => {
 	return {
-		builds: [{name: 'node', platform: 'node'}],
+		builds: [{name: 'node', platform: 'node', input: 'index.ts'}],
 	};
 };
 
@@ -85,16 +96,21 @@ Here's what a frontend-only project with both desktop and mobile builds may look
 
 ```ts
 import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+import {createFilter} from '@rollup/pluginutils';
 
 const createConfig: GroConfigCreator = async () => {
 	return {
 		builds: [
-			{name: 'browser_mobile', platform: 'browser', dist: true},
-			{name: 'browser_desktop', platform: 'browser', dist: true, primary: true},
-			// {name: 'node', platform: 'node'}, // this is implicit to run tasks, tests, codegen, etc
+			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', dist: true},
+			{name: 'browser_desktop', platform: 'browser', input: 'index.ts', dist: true, primary: true},
+			{name: 'node', platform: 'node', input: createFilter('**/*.{task,test,gen}*.ts')},
 		],
 	};
 };
 
 export default createConfig;
 ```
+
+Here's [Gro's own internal config](/src/gro.config.ts) and
+here's [the default config](/src/config/gro.config.default.ts)
+that's used for projects that do not define one.

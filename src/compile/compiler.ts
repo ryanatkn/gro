@@ -7,17 +7,17 @@ import {ServedDir} from '../build/ServedDir.js';
 
 export interface Compiler<
 	TSource extends CompilationSource = CompilationSource,
-	TResult extends Compilation = Compilation
+	TCompilation extends Compilation = Compilation
 > {
 	compile(
 		source: TSource,
 		buildConfig: BuildConfig,
 		options: CompileOptions,
-	): CompileResult<TResult> | Promise<CompileResult<TResult>>;
+	): CompileResult<TCompilation> | Promise<CompileResult<TCompilation>>;
 }
 
-export interface CompileResult<T extends Compilation = Compilation> {
-	compilations: T[];
+export interface CompileResult<TCompilation extends Compilation = Compilation> {
+	compilations: TCompilation[];
 }
 export interface CompileOptions {
 	readonly sourceMap: boolean;

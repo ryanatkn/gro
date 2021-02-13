@@ -26,7 +26,7 @@ This choice keeps things simple and flexible because:
 - a project's Gro config may share any amount of code and types bidirectionally
 	with the project's source code
 - the config itself is defined in TypeScript
-- isolating all compilable source code in `src/` avoids a lot of tooling complexity
+- isolating all buildable source code in `src/` avoids a lot of tooling complexity
 
 */
 
@@ -40,7 +40,7 @@ export interface GroConfig {
 }
 
 export interface PartialGroConfig {
-	readonly builds?: PartialBuildConfig[];
+	readonly builds: PartialBuildConfig[];
 }
 
 export interface GroConfigModule {

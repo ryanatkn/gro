@@ -14,12 +14,11 @@ import {Logger, SystemLogger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
-	SOURCE_MAP_EXTENSION,
+	SOURCEMAP_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildOutPath,
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
-import {replaceExtension} from '../utils/path.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {BuildConfig} from '../config/buildConfig.js';
@@ -78,9 +77,6 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
-		if (buildConfig.platform !== 'browser') {
-			return {compilations: []}; // TODO support SSR! and make this configurable
-		}
 		const {id, encoding, contents} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		let preprocessedCode: string;
@@ -110,10 +106,10 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		}
 		if (onstats) onstats(id, stats, handleStats, log);
 
-		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
-		const cssFilename = replaceExtension(jsFilename, CSS_EXTENSION);
+		const jsFilename = `${source.filename}${JS_EXTENSION}`;
+		const cssFilename = `${source.filename}${CSS_EXTENSION}`;
 		const jsId = `${outDir}${jsFilename}`;
-		const cssId = replaceExtension(jsId, CSS_EXTENSION);
+		const cssId = `${outDir}${cssFilename}`;
 		const hasJsSourceMap = sourceMap && js.map !== undefined;
 		const hasCssSourceMap = sourceMap && css.map !== undefined;
 
@@ -125,7 +121,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				extension: JS_EXTENSION,
 				encoding,
 				contents: hasJsSourceMap
-					? addJsSourceMapFooter(js.code, jsFilename + SOURCE_MAP_EXTENSION)
+					? addJsSourceMapFooter(js.code, jsFilename + SOURCEMAP_EXTENSION)
 					: js.code,
 				sourceMapOf: null,
 				buildConfig,
@@ -133,10 +129,10 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		];
 		if (hasJsSourceMap) {
 			compilations.push({
-				id: jsId + SOURCE_MAP_EXTENSION,
-				filename: jsFilename + SOURCE_MAP_EXTENSION,
+				id: jsId + SOURCEMAP_EXTENSION,
+				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
-				extension: SOURCE_MAP_EXTENSION,
+				extension: SOURCEMAP_EXTENSION,
 				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
 				sourceMapOf: jsId,
@@ -151,17 +147,17 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				extension: CSS_EXTENSION,
 				encoding,
 				contents: hasCssSourceMap
-					? addCssSourceMapFooter(css.code, cssFilename + SOURCE_MAP_EXTENSION)
+					? addCssSourceMapFooter(css.code, cssFilename + SOURCEMAP_EXTENSION)
 					: css.code,
 				sourceMapOf: null,
 				buildConfig,
 			});
 			if (hasCssSourceMap) {
 				compilations.push({
-					id: cssId + SOURCE_MAP_EXTENSION,
-					filename: cssFilename + SOURCE_MAP_EXTENSION,
+					id: cssId + SOURCEMAP_EXTENSION,
+					filename: cssFilename + SOURCEMAP_EXTENSION,
 					dir: outDir,
-					extension: SOURCE_MAP_EXTENSION,
+					extension: SOURCEMAP_EXTENSION,
 					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
 					sourceMapOf: cssId,

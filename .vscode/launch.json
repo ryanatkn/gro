@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "gro",
       "program": "${workspaceFolder}/dist/cli/gro.js",
-      "args": [],
+      "args": ["project/dev"],
       "runtimeArgs": [],
       "outFiles": ["${workspaceRoot}/dist/**/*.js"], // enables breakpoints in TS source
       "env": {

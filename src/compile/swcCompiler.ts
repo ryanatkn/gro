@@ -4,7 +4,7 @@ import {relative} from 'path';
 import {EcmaScriptTarget} from './tsHelpers.js';
 import {getDefaultSwcOptions} from './swcHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {JS_EXTENSION, SOURCE_MAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
+import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
 import {replaceExtension} from '../utils/path.js';
@@ -66,7 +66,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 				extension: JS_EXTENSION,
 				encoding,
 				contents: output.map
-					? addJsSourceMapFooter(output.code, jsFilename + SOURCE_MAP_EXTENSION)
+					? addJsSourceMapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
 				sourceMapOf: null,
 				buildConfig,
@@ -74,10 +74,10 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		];
 		if (output.map) {
 			compilations.push({
-				id: jsId + SOURCE_MAP_EXTENSION,
-				filename: jsFilename + SOURCE_MAP_EXTENSION,
+				id: jsId + SOURCEMAP_EXTENSION,
+				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
-				extension: SOURCE_MAP_EXTENSION,
+				extension: SOURCEMAP_EXTENSION,
 				encoding,
 				contents: output.map,
 				sourceMapOf: jsId,

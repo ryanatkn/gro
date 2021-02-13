@@ -24,6 +24,10 @@ declare type PartialValues<T> = {
 	[P in keyof T]: Partial<T[P]>;
 };
 
+type Writable<T, K extends keyof T = keyof T> = {
+	-readonly [P in K]: T[P];
+};
+
 declare type Result<TValue = {}, TError = {}> = ({ok: true} & TValue) | ({ok: false} & TError);
 
 /*

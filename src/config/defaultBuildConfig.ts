@@ -1,4 +1,5 @@
 import {BuildConfig} from './buildConfig.js';
+import {paths} from '../paths.js';
 
 // Gro currently enforces that the primary build config
 // for the Node platform has this value as its name.
@@ -10,6 +11,6 @@ export const DEFAULT_BUILD_CONFIG: BuildConfig = {
 	name: DEFAULT_BUILD_CONFIG_NAME,
 	platform: 'node',
 	primary: true,
-	dist: false, // gets set to `true` along with all others if none are `true`
-	include: null,
+	dist: false,
+	input: [paths.source],
 };

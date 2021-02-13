@@ -54,7 +54,7 @@ Normally you'll want to install Gro as a dev dependency:
 npm i -D @feltcoop/gro
 ```
 
-You'll also want to install Gro globally to add its CLI to your system PATH:
+It's handy to install globally too:
 
 ```bash
 npm i -g @feltcoop/gro
@@ -68,7 +68,7 @@ gro # lists all available tasks with the pattern `*.task.ts`
 gro some/dir # lists all tasks inside `src/some/dir`
 gro some/file # runs `src/some/file.task.ts`
 gro some/file.task.ts # same as above
-gro test # run one of Gro's tasks or `src/test.task.ts` if it exists
+gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
 ```
 
 Gro has a number of builtin tasks.
@@ -106,8 +106,8 @@ gro clean # deletes all build artifacts from the filesystem
 ```
 
 ```bash
-gro serve # staticly serves the current directory
-gro serve some/dir and/another/dir # staticly serves some directories
+gro serve # serves the current directory
+gro serve some/dir and/another/dir # serves some directories
 ```
 
 ```bash
@@ -146,6 +146,8 @@ Gro uses
 Gro's strategy of pairing unbundled ES modules during development
 with optimized bundles for production
 was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
+
+Gro's buildtime antics were inspired by [Svelte](https://github.com/sveltejs/svelte).
 
 ## license :bird:
 
