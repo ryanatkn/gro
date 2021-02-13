@@ -274,6 +274,10 @@ export class Filer {
 
 		// Clean the dev output directories,
 		// removing any files that can't be mapped back to source files.
+		// TODO so wait.. when updating the stale files,
+		// what if we looked at the cached source info, and diff deps?
+		// wouldn't that be a precise way of updating the cached source info,
+		// and detecting unknown files without this whole process?
 		if (this.cleanOutputDirs && this.buildConfigs !== null) {
 			await Promise.all(
 				this.buildConfigs.map(async (buildConfig) => {
@@ -281,7 +285,7 @@ export class Filer {
 					if (!(await pathExists(outputDir))) return;
 					const files = await findFiles(outputDir, undefined, null);
 					await Promise.all(
-						Array.from(files.entries()).map(([path, stats]) => {
+						Array.from(files.entries()).map(async ([path, stats]) => {
 							if (stats.isDirectory()) return;
 							const id = join(outputDir, path);
 							if (this.files.has(id)) return;
@@ -294,7 +298,15 @@ export class Filer {
 								);
 							}
 							this.log.trace('deleting unknown compiled file', printPath(id));
-							return remove(id);
+							const promises: Promise<void>[] = [remove(id)];
+							const sourceFile = this.findSourceFile(id);
+							if (sourceFile !== undefined) {
+								if (!sourceFile.buildable) {
+									throw Error(`Expected source file to be buildable: ${sourceFile.id}`);
+								}
+								promises.push(this.updateCachedSourceInfo(sourceFile));
+							}
+							await Promise.all(promises);
 						}),
 					);
 				}),
