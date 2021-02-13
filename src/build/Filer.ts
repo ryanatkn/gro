@@ -430,63 +430,9 @@ export class Filer {
 		// Build only if needed - build files may be hydrated from the cache.
 		if (!sourceFile.buildFiles.has(buildConfig)) {
 			await this.buildSourceFile(sourceFile, buildConfig);
+		} else {
+			await this.hydrateSourceFileFromCache(sourceFile, buildConfig);
 		}
-		const buildFiles = sourceFile.buildFiles.get(buildConfig);
-		if (buildFiles === undefined) {
-			throw Error(`Expected build files after building ${buildConfig.name}:${sourceFile.id}`);
-		}
-
-		const promises: Promise<void>[] = [];
-
-		// TODO wait do we need to do this? or ONLY if hydrated? yeah we needed to do that ...
-		// so is there just separate logic if hydrated or not?
-		// can we pull in the logic from the `update` function?
-
-		// At this point, we need to build the dependencies of the build files.
-		// Then, each of those needs to build its dependencies, and so forth.
-		for (const buildFile of buildFiles) {
-			// console.log('\n\nbuildFile.id', buildFile.id);
-			if (buildConfig.platform === 'browser' && buildFile.externalDependencies !== null) {
-				for (const externalDependency of buildFile.externalDependencies) {
-					console.log('add external', externalDependency, buildFile.id);
-					this.externalDependencies.add(externalDependency);
-				}
-			}
-			// TODO wait so we need to map the imported dependencies back from the build files to the source files? hmm
-			// do we expect these to always be relative paths, so we need to resolve them against the build file dir?
-			if (buildFile.localDependencies !== null) {
-				for (const localDependencyId of buildFile.localDependencies) {
-					// TODO this should short circuit if the source has already been added to the input set
-					// console.log('localDependencyId', localDependencyId);
-					const dependencySourceFile = this.findSourceFile(localDependencyId);
-					// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
-					// These error conditions may be hit if the `filerDir` is not buildable, correct? give a good error message if that's the case!
-					if (!dependencySourceFile) throw Error('TODO do we need this check?'); // TODO is this incorrectly erroring when the file import path just doesn't exist? or is this code path not hit in that case?
-					if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
-					if (!dependencySourceFile.buildable) throw Error('TODO needed?');
-					// TODO to do we need to call `this.updateDependencies` instead? or neither?
-					// dependencySourceFile.dependents.add(sourceFile);
-					// TODO helper?
-					let dependents = dependencySourceFile.dependents.get(buildConfig);
-					if (dependents === undefined) {
-						dependents = new Set();
-						dependencySourceFile.dependents.set(buildConfig, dependents);
-					}
-					dependents.add(sourceFile);
-					if (!dependencySourceFile.buildConfigs.has(buildConfig)) {
-						promises.push(
-							this.addSourceFileToBuild(
-								dependencySourceFile,
-								buildConfig,
-								isInputToBuildConfig(dependencySourceFile, buildConfig),
-							),
-						);
-					}
-				}
-			}
-		}
-
-		await Promise.all(promises);
 	}
 
 	// Removes a build config from a source file.
@@ -501,61 +447,18 @@ export class Filer {
 			);
 		}
 
+		await this.updateBuildFiles(sourceFile, [], buildConfig);
+
 		const deleted = sourceFile.buildConfigs.delete(buildConfig);
 		if (!deleted) {
 			throw Error(`Expected to delete buildConfig ${buildConfig}:${sourceFile.id}`);
 		}
+		const deletedBuildFiles = sourceFile.buildFiles.delete(buildConfig);
+		if (!deletedBuildFiles) {
+			throw Error(`Expected to delete build files ${buildConfig}:${sourceFile.id}`);
+		}
 
-		// TODO i think this is wrong - maybe we call some of its helpers directly?
-		await this.updateBuildFiles(sourceFile, [], buildConfig);
 		await this.updateCachedSourceInfo(sourceFile);
-
-		// TODO parallelize this with the above?
-		// doesn't this overlap with `updateBuildFiles`?
-		const promises: Promise<void>[] = [];
-
-		// When removing a build config from a source file,
-		// the source file's imports - its dependencies -
-		// may no longer be depended on by any other files with that build config.
-		// Those dangling dependencies need to be cleaned up both in memory and on disk.
-		const buildFiles = sourceFile.buildFiles.get(buildConfig);
-		sourceFile.buildFiles.delete(buildConfig);
-		if (buildFiles === undefined) {
-			throw Error(`Expected build files for buildConfig ${buildConfig}:${sourceFile.id}`);
-		}
-		for (const buildFile of buildFiles) {
-			// console.log('\n\nbuildFile.id', buildFile.id);
-			if (buildConfig.platform === 'browser' && buildFile.externalDependencies !== null) {
-				for (const externalDependency of buildFile.externalDependencies) {
-					console.log('TODO handle external', externalDependency, buildFile.id);
-					// TODO do we ever clean these up if the build config is removed?
-					// this.externalDependencies.remove(externalDependency);
-				}
-			}
-			// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
-			// do we expect these to always be relative paths, so we need to resolve them against the compiled file dir?
-			if (buildFile.localDependencies !== null) {
-				for (const localDependencyId of buildFile.localDependencies) {
-					// TODO this should short circuit if the source has already been added to the input set
-					// console.log('localDependencyId', localDependencyId);
-					const dependencySourceFile = this.findSourceFile(localDependencyId);
-					// TODO these 2 checks are copy/pasted in 3 places - we can probably remove them and just cast
-					// These error conditions may be hit if the `filerDir` is not buildable, correct? give a good error message if that's the case!
-					if (!dependencySourceFile) throw Error('TODO do we need this check?');
-					if (dependencySourceFile.type !== 'source') throw Error('TODO needed?');
-					if (!dependencySourceFile.buildable) throw Error('TODO needed?');
-					if (
-						// TODO is this check correct?
-						dependencySourceFile.buildConfigs.has(buildConfig) &&
-						!dependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
-					) {
-						promises.push(this.removeSourceFileFromBuild(dependencySourceFile, buildConfig));
-					}
-				}
-			}
-		}
-
-		await Promise.all(promises);
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -665,36 +568,9 @@ export class Filer {
 				this.buildConfigs,
 			);
 			this.files.set(id, newSourceFile);
-			// If the created source file has its compiled files hydrated,
-			// we can infer that it doesn't need to be compiled.
-			// TODO maybe make this more explicit with a `dirty` or `shouldCompile` flag?
-			// Right now compilers always return at least one compiled file,
-			// so it shouldn't be buggy, but it doesn't feel right.
+			// If the created source file has its build files hydrated from the cache,
+			// we assume it doesn't need to be compiled.
 			if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
-				// // TODO I think this may need some refactoring of `updateDependencies`
-				// // to match the pattern of `syncBuildFilesToMemoryCache`
-				// // await this.updateDependencies(); // OR just init dependents?
-				// if (this.buildConfigs !== null) {
-				// 	console.log('updating deps for', newSourceFile.id);
-				// 	await Promise.all(
-				// 		this.buildConfigs.map((buildConfig) =>
-				// 			// TODO make sure `updateDependencies` doesn't need to be split into two functions,
-				// 			// and we call only one of them here
-				// 			this.updateDependencies(newSourceFile, newSourceFile.buildFiles, buildConfig, []),
-				// 		),
-				// 	);
-				// }
-
-				// TODO wait is this even necessary?
-				// if (this.buildConfigs !== null) {
-				// 	for (const buildConfig of this.buildConfigs) {
-				// 		// TODO do these files exist yet?? I think this needs to be deferred
-				// 		this.initDependents(newSourceFile, buildConfig);
-				// 	}
-				// }
-				for (const buildFiles of newSourceFile.buildFiles.values()) {
-					syncBuildFilesToMemoryCache(this.files, buildFiles, null, this.log);
-				}
 				return false;
 			}
 		} else if (
@@ -791,10 +667,24 @@ export class Filer {
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
 		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
-		await Promise.all([
-			syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
-			this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig),
-		]);
+		await this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig);
+		await syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
+	}
+
+	// This is like `updateBuildFiles` except
+	// it's called for source files when they're being hydrated from the cache.
+	// This is because the normal build process ending with `updateBuildFiles`
+	// is being short-circuited for efficiency, but parts of that process are still needed.
+	private async hydrateSourceFileFromCache(
+		sourceFile: BuildableSourceFile,
+		buildConfig: BuildConfig,
+	): Promise<void> {
+		const buildFiles = sourceFile.buildFiles.get(buildConfig);
+		if (buildFiles === undefined) {
+			throw Error(`Expected to find build files when hydrating from cache.`);
+		}
+		syncBuildFilesToMemoryCache(this.files, buildFiles, null, this.log);
+		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
 	}
 
 	private async updateDependencies(
