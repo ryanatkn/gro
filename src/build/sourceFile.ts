@@ -53,7 +53,7 @@ export interface BuildableExternalsSourceFile extends ExternalsSourceFile, BaseB
 export interface BaseBuildableFile {
 	readonly buildable: true;
 	readonly filerDir: FilerDir;
-	buildFiles: readonly BuildFile[];
+	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 	readonly dependents: Map<BuildConfig, Set<BuildableSourceFile>>; // `dependents` are other buildable source files that import or otherwise depend on this one
@@ -80,7 +80,7 @@ export const createSourceFile = async (
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
-	let buildFiles: BuildFile[] = [];
+	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
 	if (filerDir.buildable && cachedSourceInfo !== undefined) {
 		if (encoding === 'utf8') {
 			contentsBuffer = Buffer.from(contents);
@@ -89,7 +89,7 @@ export const createSourceFile = async (
 		}
 		contentsHash = toHash(contentsBuffer!);
 		if (contentsHash === cachedSourceInfo.contentsHash) {
-			buildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
+			reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 		}
 	}
 	if (filerDir.type === 'externals') {
@@ -116,7 +116,7 @@ export const createSourceFile = async (
 			contentsBuffer,
 			contentsHash,
 			filerDir,
-			buildFiles,
+			buildFiles: reconstructedBuildFiles || new Map(),
 			stats: undefined,
 			mimeType: undefined,
 		};
@@ -144,7 +144,7 @@ export const createSourceFile = async (
 						contentsBuffer,
 						contentsHash,
 						filerDir,
-						buildFiles,
+						buildFiles: reconstructedBuildFiles || new Map(),
 						stats: undefined,
 						mimeType: undefined,
 				  }
@@ -188,7 +188,7 @@ export const createSourceFile = async (
 						contentsBuffer: contentsBuffer as Buffer,
 						contentsHash,
 						filerDir,
-						buildFiles,
+						buildFiles: reconstructedBuildFiles || new Map(),
 						stats: undefined,
 						mimeType: undefined,
 				  }

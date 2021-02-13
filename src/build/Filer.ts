@@ -409,7 +409,7 @@ export class Filer {
 		isInput: boolean,
 	): Promise<void> {
 		if (sourceFile.buildConfigs.has(buildConfig)) {
-			throw Error(`Expected to add buildConfig '${buildConfig.name}' to ${sourceFile.id}`);
+			throw Error(`Expected to add buildConfig for ${buildConfig.name}:${sourceFile.id}`);
 		}
 		// Add the build config. The caller is expected to check to avoid duplicates.
 		sourceFile.buildConfigs.add(buildConfig);
@@ -428,15 +428,23 @@ export class Filer {
 		}
 
 		// Build only if needed - build files may be hydrated from the cache.
-		if (sourceFile.buildFiles.find((f) => f.buildConfig === buildConfig) === undefined) {
+		if (!sourceFile.buildFiles.has(buildConfig)) {
 			await this.buildSourceFile(sourceFile, buildConfig);
+		}
+		const buildFiles = sourceFile.buildFiles.get(buildConfig);
+		if (buildFiles === undefined) {
+			throw Error(`Expected build files after building ${buildConfig.name}:${sourceFile.id}`);
 		}
 
 		const promises: Promise<void>[] = [];
 
+		// TODO wait do we need to do this? or ONLY if hydrated? yeah we needed to do that ...
+		// so is there just separate logic if hydrated or not?
+		// can we pull in the logic from the `update` function?
+
 		// At this point, we need to build the dependencies of the build files.
 		// Then, each of those needs to build its dependencies, and so forth.
-		for (const buildFile of sourceFile.buildFiles) {
+		for (const buildFile of buildFiles) {
 			// console.log('\n\nbuildFile.id', buildFile.id);
 			if (buildConfig.platform === 'browser' && buildFile.externalDependencies !== null) {
 				for (const externalDependency of buildFile.externalDependencies) {
@@ -488,18 +496,17 @@ export class Filer {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
-			throw Error(`Removing build configs from input files is not allowed: ${sourceFile.id}`);
+			throw Error(
+				`Removing build configs from input files is not allowed: ${buildConfig}:${sourceFile.id}`,
+			);
 		}
 
 		const deleted = sourceFile.buildConfigs.delete(buildConfig);
 		if (!deleted) {
-			throw Error(`Expected to delete buildConfig '${buildConfig}' from ${sourceFile.id}`);
+			throw Error(`Expected to delete buildConfig ${buildConfig}:${sourceFile.id}`);
 		}
 
-		// TODO remove from dependents ????????
-		// if (sourceFile.dependents.size === 0) {
-		// }
-
+		// TODO i think this is wrong - maybe we call some of its helpers directly?
 		await this.updateBuildFiles(sourceFile, [], buildConfig);
 		await this.updateCachedSourceInfo(sourceFile);
 
@@ -511,13 +518,18 @@ export class Filer {
 		// the source file's imports - its dependencies -
 		// may no longer be depended on by any other files with that build config.
 		// Those dangling dependencies need to be cleaned up both in memory and on disk.
-		for (const buildFile of sourceFile.buildFiles) {
+		const buildFiles = sourceFile.buildFiles.get(buildConfig);
+		sourceFile.buildFiles.delete(buildConfig);
+		if (buildFiles === undefined) {
+			throw Error(`Expected build files for buildConfig ${buildConfig}:${sourceFile.id}`);
+		}
+		for (const buildFile of buildFiles) {
 			// console.log('\n\nbuildFile.id', buildFile.id);
 			if (buildConfig.platform === 'browser' && buildFile.externalDependencies !== null) {
 				for (const externalDependency of buildFile.externalDependencies) {
-					console.log('add external', externalDependency, buildFile.id);
+					console.log('TODO handle external', externalDependency, buildFile.id);
 					// TODO do we ever clean these up if the build config is removed?
-					this.externalDependencies.add(externalDependency);
+					// this.externalDependencies.remove(externalDependency);
 				}
 			}
 			// TODO wait so we need to map the imported dependencies back from the compiled files to the source files? hmm
@@ -658,7 +670,7 @@ export class Filer {
 			// TODO maybe make this more explicit with a `dirty` or `shouldCompile` flag?
 			// Right now compilers always return at least one compiled file,
 			// so it shouldn't be buggy, but it doesn't feel right.
-			if (newSourceFile.buildable && newSourceFile.buildFiles.length !== 0) {
+			if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
 				// // TODO I think this may need some refactoring of `updateDependencies`
 				// // to match the pattern of `syncBuildFilesToMemoryCache`
 				// // await this.updateDependencies(); // OR just init dependents?
@@ -680,13 +692,15 @@ export class Filer {
 				// 		this.initDependents(newSourceFile, buildConfig);
 				// 	}
 				// }
-				syncBuildFilesToMemoryCache(this.files, newSourceFile.buildFiles, [], this.log);
+				for (const buildFiles of newSourceFile.buildFiles.values()) {
+					syncBuildFilesToMemoryCache(this.files, buildFiles, null, this.log);
+				}
 				return false;
 			}
 		} else if (
 			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
 			// TODO hack to avoid the comparison for externals because they're compiled lazily
-			!(sourceFile.sourceType === 'externals' && sourceFile.buildFiles.length === 0)
+			!(sourceFile.sourceType === 'externals' && sourceFile.buildFiles.size === 0)
 		) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			return false;
@@ -759,17 +773,11 @@ export class Filer {
 		// Compile the source file.
 		const result = await sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this);
 
+		const newBuildFiles: readonly BuildFile[] = result.compilations.map((compilation) =>
+			createBuildFile(compilation, this, result, sourceFile, buildConfig),
+		);
+
 		// Update the source file with the new build files.
-		const oldBuildFiles = sourceFile.buildFiles;
-		const newBuildFiles: BuildFile[] = [];
-		for (const oldBuildFile of oldBuildFiles) {
-			if (oldBuildFile.buildConfig !== buildConfig) {
-				newBuildFiles.push(oldBuildFile);
-			}
-		}
-		for (const compilation of result.compilations) {
-			newBuildFiles.push(createBuildFile(compilation, this, result, sourceFile, buildConfig));
-		}
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
 		await this.updateCachedSourceInfo(sourceFile);
 	}
@@ -777,22 +785,25 @@ export class Filer {
 	// Updates the build files in the memory cache and writes to disk.
 	private async updateBuildFiles(
 		sourceFile: BuildableSourceFile,
-		newBuildFiles: readonly BuildFile[], // TODO should these be nullable?
+		newBuildFiles: readonly BuildFile[],
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		await this.updateDependencies(sourceFile, newBuildFiles, buildConfig);
-		const oldBuildFiles = sourceFile.buildFiles;
-		sourceFile.buildFiles = newBuildFiles;
+		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
+		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
 		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
-		return syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
+		await Promise.all([
+			syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log),
+			this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig),
+		]);
 	}
 
 	private async updateDependencies(
 		sourceFile: BuildableSourceFile,
-		newBuildFiles: readonly BuildFile[], // TODO should these be nullable?
+		newBuildFiles: readonly BuildFile[],
+		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		const diffResult = this.diffDependencies(newBuildFiles, sourceFile.buildFiles, buildConfig);
+		const diffResult = this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig);
 		const addedDependencySourceFiles = diffResult && diffResult[0];
 		const removedDependencySourceFiles = diffResult && diffResult[1];
 		let promises: Promise<void>[] | null = null;
@@ -854,7 +865,7 @@ export class Filer {
 
 	diffDependencies(
 		newBuildFiles: readonly BuildFile[],
-		oldBuildFiles: readonly BuildFile[],
+		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	):
 		| null
@@ -971,13 +982,15 @@ export class Filer {
 		const cachedSourceInfo: CachedSourceInfo = {
 			sourceId: file.id,
 			contentsHash: getFileContentsHash(file),
-			compilations: file.buildFiles.map((file) => ({
-				id: file.id,
-				buildConfigName: file.buildConfig.name,
-				localDependencies: file.localDependencies && Array.from(file.localDependencies),
-				externalDependencies: file.externalDependencies && Array.from(file.externalDependencies),
-				encoding: file.encoding,
-			})),
+			compilations: Array.from(file.buildFiles.values()).flatMap((files) =>
+				files.map((file) => ({
+					id: file.id,
+					buildConfigName: file.buildConfig.name,
+					localDependencies: file.localDependencies && Array.from(file.localDependencies),
+					externalDependencies: file.externalDependencies && Array.from(file.externalDependencies),
+					encoding: file.encoding,
+				})),
+			),
 		};
 		// This is useful for debugging, but has false positives
 		// when source changes but output doesn't, like if comments get elided.
@@ -1004,25 +1017,27 @@ export class Filer {
 // deleting files that no longer exist, writing new ones, and updating existing ones.
 const syncFilesToDisk = async (
 	newFiles: readonly BuildFile[],
-	oldFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[] | null,
 	log: Logger,
 ): Promise<void> => {
 	// This uses `Array#find` because the arrays are expected to be small,
 	// because we're currently only using it for individual file compilations,
 	// but that assumption might change and cause this code to be slow.
 	await Promise.all([
-		Promise.all(
-			oldFiles.map((oldFile) => {
-				if (!newFiles.find((f) => f.id === oldFile.id)) {
-					log.trace('deleting build file on disk', printPath(oldFile.id));
-					return remove(oldFile.id);
-				}
-				return undefined;
-			}),
-		),
+		oldFiles === null
+			? null
+			: Promise.all(
+					oldFiles.map((oldFile) => {
+						if (!newFiles.find((f) => f.id === oldFile.id)) {
+							log.trace('deleting build file on disk', printPath(oldFile.id));
+							return remove(oldFile.id);
+						}
+						return undefined;
+					}),
+			  ),
 		Promise.all(
 			newFiles.map(async (newFile) => {
-				const oldFile = oldFiles.find((f) => f.id === newFile.id);
+				const oldFile = oldFiles?.find((f) => f.id === newFile.id);
 				let shouldOutputNewFile = false;
 				if (!oldFile) {
 					if (!(await pathExists(newFile.id))) {
@@ -1066,18 +1081,22 @@ const toCachedSourceInfoId = (
 const syncBuildFilesToMemoryCache = (
 	files: Map<string, BaseFilerFile>,
 	newFiles: readonly BuildFile[],
-	oldFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[] | null,
 	_log: Logger,
 ): void => {
+	// Remove any deleted files.
 	// This uses `Array#find` because the arrays are expected to be small,
 	// because we're currently only using it for individual file compilations,
 	// but that assumption might change and cause this code to be slow.
-	for (const oldFile of oldFiles) {
-		if (!newFiles.find((f) => f.id === oldFile.id)) {
-			// log.trace('deleting file from memory', printPath(oldFile.id));
-			files.delete(oldFile.id);
+	if (oldFiles !== null) {
+		for (const oldFile of oldFiles) {
+			if (!newFiles.find((f) => f.id === oldFile.id)) {
+				// log.trace('deleting file from memory', printPath(oldFile.id));
+				files.delete(oldFile.id);
+			}
 		}
 	}
+	// Add or update any new or changed files.
 	for (const newFile of newFiles) {
 		// log.trace('setting file in memory cache', printPath(newFile.id));
 		const oldFile = files.get(newFile.id) as BuildFile | undefined;

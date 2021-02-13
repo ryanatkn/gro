@@ -85,13 +85,14 @@ export const createBuildFile = (
 	}
 };
 
-export const reconstructBuildFiles = (
+export const reconstructBuildFiles = async (
 	cachedSourceInfo: CachedSourceInfo,
 	buildConfigs: BuildConfig[],
-): Promise<BuildFile[]> =>
-	Promise.all(
+): Promise<Map<BuildConfig, BuildFile[]>> => {
+	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
+	await Promise.all(
 		cachedSourceInfo.compilations.map(
-			async (compilation): Promise<BuildFile> => {
+			async (compilation): Promise<void> => {
 				const {
 					id,
 					buildConfigName,
@@ -103,10 +104,11 @@ export const reconstructBuildFiles = (
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
 				const contents = await loadContents(encoding, id);
-				const buildConfig = buildConfigs.find((b) => b.name === buildConfigName)!;
+				const buildConfig = buildConfigs.find((b) => b.name === buildConfigName)!; // is a bit awkward, but probably not inefficient enough to change
+				let buildFile: BuildFile;
 				switch (encoding) {
 					case 'utf8':
-						return {
+						buildFile = {
 							type: 'build',
 							sourceFileId: cachedSourceInfo.sourceId,
 							buildConfig,
@@ -126,8 +128,9 @@ export const reconstructBuildFiles = (
 							stats: undefined,
 							mimeType: undefined,
 						};
+						break;
 					case null:
-						return {
+						buildFile = {
 							type: 'build',
 							sourceFileId: cachedSourceInfo.sourceId,
 							buildConfig,
@@ -144,12 +147,29 @@ export const reconstructBuildFiles = (
 							stats: undefined,
 							mimeType: undefined,
 						};
+						break;
 					default:
 						throw new UnreachableError(encoding);
 				}
+				addBuildFile(buildFile, buildFiles, buildConfig);
 			},
 		),
 	);
+	return buildFiles;
+};
+
+const addBuildFile = (
+	buildFile: BuildFile,
+	buildFiles: Map<BuildConfig, BuildFile[]>,
+	buildConfig: BuildConfig,
+): void => {
+	let files = buildFiles.get(buildConfig);
+	if (files === undefined) {
+		files = [];
+		buildFiles.set(buildConfig, files);
+	}
+	files.push(buildFile);
+};
 
 // TODO rename? move?
 interface DependencyInfo {
@@ -164,7 +184,7 @@ interface DependencyInfo {
 // this function is expected to return `null` most of the time.
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
-	oldFiles: readonly BuildFile[],
+	oldFiles: readonly BuildFile[] | null,
 ):
 	| null
 	| [addedDependencies: DependencyInfo[] | null, removedDependencies: DependencyInfo[] | null] => {
@@ -188,15 +208,19 @@ export const diffDependencies = (
 			}
 		}
 	}
-	for (const oldFile of oldFiles) {
-		if (oldFile.localDependencies !== null) {
-			for (const localDependency of oldFile.localDependencies) {
-				(oldLocalDependencies || (oldLocalDependencies = new Set())).add(localDependency);
+	if (oldFiles !== null) {
+		for (const oldFile of oldFiles) {
+			if (oldFile.localDependencies !== null) {
+				for (const localDependency of oldFile.localDependencies) {
+					(oldLocalDependencies || (oldLocalDependencies = new Set())).add(localDependency);
+				}
 			}
-		}
-		if (oldFile.externalDependencies !== null) {
-			for (const externalDependency of oldFile.externalDependencies) {
-				(oldExternalDependencies || (oldExternalDependencies = new Set())).add(externalDependency);
+			if (oldFile.externalDependencies !== null) {
+				for (const externalDependency of oldFile.externalDependencies) {
+					(oldExternalDependencies || (oldExternalDependencies = new Set())).add(
+						externalDependency,
+					);
+				}
 			}
 		}
 	}
