@@ -154,7 +154,7 @@ export class Filer {
 	private readonly externalsDir: ExternalsFilerDir | null;
 	private readonly externalsServedDir: ServedDir | null;
 	private readonly buildConfigs: BuildConfig[] | null;
-	private readonly externalsBuildConfig: BuildConfig | null;
+	// private readonly externalsBuildConfig: BuildConfig | null;
 	private readonly mapBuildIdToSourceId: typeof defaultMapBuildIdToSourceId;
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
@@ -172,7 +172,7 @@ export class Filer {
 			dev,
 			compiler,
 			buildConfigs,
-			externalsBuildConfig,
+			// externalsBuildConfig,
 			buildRootDir,
 			mapBuildIdToSourceId,
 			compiledDirs,
@@ -187,7 +187,7 @@ export class Filer {
 		} = initOptions(opts);
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
-		this.externalsBuildConfig = externalsBuildConfig;
+		// this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
 		this.mapBuildIdToSourceId = mapBuildIdToSourceId;
 		this.sourceMap = sourceMap;
