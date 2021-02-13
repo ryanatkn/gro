@@ -274,10 +274,6 @@ export class Filer {
 
 		// Clean the dev output directories,
 		// removing any files that can't be mapped back to source files.
-		// TODO so wait.. when updating the stale files,
-		// what if we looked at the cached source info, and diff deps?
-		// wouldn't that be a precise way of updating the cached source info,
-		// and detecting unknown files without this whole process?
 		if (this.cleanOutputDirs && this.buildConfigs !== null) {
 			await Promise.all(
 				this.buildConfigs.map(async (buildConfig) => {
