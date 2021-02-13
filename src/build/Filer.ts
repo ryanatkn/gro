@@ -272,40 +272,33 @@ export class Filer {
 		await this.initBuilds();
 		// this.log.info('buildConfigs', this.buildConfigs);
 
-		// TODO this needs to perform matching for each buildConfig against the file,
-		// right now it just checks if the file exists at all, not specifically for that buildConfig
-		if ((globalThis as any).THIS_IS_TEMPORARILY_DISABLED_SEE_ABOVE) {
-			const {buildConfigs} = this;
-			if (this.cleanOutputDirs && buildConfigs !== null) {
-				// Clean the dev output directories,
-				// removing any files that can't be mapped back to source files.
-				const buildOutDirs: string[] = buildConfigs.map((buildConfig) =>
-					toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir),
-				);
-				await Promise.all(
-					buildOutDirs.map(async (outputDir) => {
-						if (!(await pathExists(outputDir))) return;
-						const files = await findFiles(outputDir, undefined, null);
-						await Promise.all(
-							Array.from(files.entries()).map(([path, stats]) => {
-								if (stats.isDirectory()) return;
-								const id = join(outputDir, path);
-								if (this.files.has(id)) return;
-								if (hasSourceExtension(id)) {
-									// TODO do we want this check? maybe perform it synchronously before any `remove` calls?
-									throw Error(
-										'File in output directory has unexpected source extension.' +
-											' Output directories are expected to be fully owned by Gro and should not have source files.' +
-											` File is ${id} in outputDir ${outputDir}`,
-									);
-								}
-								this.log.trace('deleting unknown compiled file', printPath(id));
-								return remove(id);
-							}),
-						);
-					}),
-				);
-			}
+		// Clean the dev output directories,
+		// removing any files that can't be mapped back to source files.
+		if (this.cleanOutputDirs && this.buildConfigs !== null) {
+			await Promise.all(
+				this.buildConfigs.map(async (buildConfig) => {
+					const outputDir = toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir);
+					if (!(await pathExists(outputDir))) return;
+					const files = await findFiles(outputDir, undefined, null);
+					await Promise.all(
+						Array.from(files.entries()).map(([path, stats]) => {
+							if (stats.isDirectory()) return;
+							const id = join(outputDir, path);
+							if (this.files.has(id)) return;
+							if (hasSourceExtension(id)) {
+								// TODO do we want this check? maybe perform it synchronously before any `remove` calls?
+								throw Error(
+									'File in output directory has unexpected source extension.' +
+										' Output directories are expected to be fully owned by Gro and should not have source files.' +
+										` File is ${id} in outputDir ${outputDir}`,
+								);
+							}
+							this.log.trace('deleting unknown compiled file', printPath(id));
+							return remove(id);
+						}),
+					);
+				}),
+			);
 		}
 
 		// Ensure that the externals directory does not conflict with another served directory.
