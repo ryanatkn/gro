@@ -39,7 +39,7 @@ import {loadContents} from './load.js';
 
 export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/compiled directory?
 
-export interface CachedSourceInfo {
+export interface CachedSourceInfoData {
 	sourceId: string;
 	contentsHash: string;
 	compilations: {
@@ -49,6 +49,10 @@ export interface CachedSourceInfo {
 		externalDependencies: string[] | null;
 		encoding: Encoding;
 	}[];
+}
+export interface CachedSourceInfo {
+	cacheId: string; // path to the cached JSON file on disk
+	data: CachedSourceInfoData; // the plain JSON written to disk
 }
 const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 
@@ -267,6 +271,11 @@ export class Filer {
 		// Initializing the dirs must be done after `this.initCachedSourceInfo`
 		// because it creates source files, which need `this.cachedSourceInfo` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
+
+		// Now that the cached source info and source files are loaded into memory,
+		// check if any source files have been deleted since the last run.
+		await this.cleanCachedSourceInfo();
+
 		// This performs initial source file compilation, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
@@ -331,10 +340,24 @@ export class Filer {
 		await Promise.all(
 			Array.from(files.entries()).map(async ([path, stats]) => {
 				if (stats.isDirectory()) return;
-				const info: CachedSourceInfo = await readJson(`${cachedSourceInfoDir}/${path}`);
-				this.cachedSourceInfo.set(info.sourceId, info);
+				const cacheId = `${cachedSourceInfoDir}/${path}`;
+				const data: CachedSourceInfoData = await readJson(cacheId);
+				this.cachedSourceInfo.set(data.sourceId, {cacheId, data});
 			}),
 		);
+	}
+
+	// Cached source info may be stale if any source files were moved or deleted
+	// since the last time the Filer ran.
+	// We can simply delete any cached info that doesn't map back to a source file.
+	private async cleanCachedSourceInfo(): Promise<void> {
+		let promises: Promise<void>[] | null = null;
+		for (const sourceId of this.cachedSourceInfo.keys()) {
+			if (!this.files.has(sourceId)) {
+				(promises || (promises = [])).push(this.deleteCachedSourceInfo(sourceId));
+			}
+		}
+		if (promises !== null) await Promise.all(promises);
 	}
 
 	// During initialization, after all files are loaded into memory,
@@ -837,20 +860,16 @@ export class Filer {
 			if (this.buildConfigs !== null) {
 				await Promise.all(this.buildConfigs.map((b) => this.updateBuildFiles(sourceFile, [], b)));
 			}
-			await this.deleteCachedSourceInfo(sourceFile);
+			await this.deleteCachedSourceInfo(sourceFile.id);
 		}
 	}
 
 	// TODO as an optimization, this should be debounced per file,
 	// because we're writing per build config.
 	private async updateCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
-		if (file.buildConfigs.size === 0) return this.deleteCachedSourceInfo(file);
-		const cachedSourceInfoId = toCachedSourceInfoId(
-			file,
-			this.buildRootDir,
-			this.externalsDirBasePath,
-		);
-		const cachedSourceInfo: CachedSourceInfo = {
+		if (file.buildConfigs.size === 0) return this.deleteCachedSourceInfo(file.id);
+		const cacheId = toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath);
+		const data: CachedSourceInfoData = {
 			sourceId: file.id,
 			contentsHash: getFileContentsHash(file),
 			compilations: Array.from(file.buildFiles.values()).flatMap((files) =>
@@ -863,24 +882,27 @@ export class Filer {
 				})),
 			),
 		};
+		const cachedSourceInfo: CachedSourceInfo = {cacheId, data};
 		// This is useful for debugging, but has false positives
 		// when source changes but output doesn't, like if comments get elided.
 		// if (
-		// 	(await pathExists(cachedSourceInfoId)) &&
-		// 	deepEqual(await readJson(cachedSourceInfoId), cachedSourceInfo)
+		// 	(await pathExists(cacheId)) &&
+		// 	deepEqual(await readJson(cacheId), cachedSourceInfo)
 		// ) {
 		// 	console.log(
 		// 		'wasted compilation detected! unchanged file was compiled and identical source info written to disk: ' +
-		// 			cachedSourceInfoId,
+		// 			cacheId,
 		// 	);
 		// }
 		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
-		await outputFile(cachedSourceInfoId, JSON.stringify(cachedSourceInfo, null, 2));
+		await outputFile(cacheId, JSON.stringify(data, null, 2));
 	}
 
-	private deleteCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
-		this.cachedSourceInfo.delete(file.id);
-		return remove(toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath));
+	private deleteCachedSourceInfo(sourceId: string): Promise<void> {
+		const info = this.cachedSourceInfo.get(sourceId);
+		if (info === undefined) throw Error(`Expected to find cached source info: ${sourceId}`);
+		this.cachedSourceInfo.delete(sourceId);
+		return remove(info.cacheId);
 	}
 }
 

@@ -91,7 +91,7 @@ export const reconstructBuildFiles = async (
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(
-		cachedSourceInfo.compilations.map(
+		cachedSourceInfo.data.compilations.map(
 			async (compilation): Promise<void> => {
 				const {
 					id,
@@ -110,7 +110,7 @@ export const reconstructBuildFiles = async (
 					case 'utf8':
 						buildFile = {
 							type: 'build',
-							sourceFileId: cachedSourceInfo.sourceId,
+							sourceFileId: cachedSourceInfo.data.sourceId,
 							buildConfig,
 							localDependencies: localDependencies && new Set(localDependencies),
 							externalDependencies: externalDependencies && new Set(externalDependencies),
@@ -132,7 +132,7 @@ export const reconstructBuildFiles = async (
 					case null:
 						buildFile = {
 							type: 'build',
-							sourceFileId: cachedSourceInfo.sourceId,
+							sourceFileId: cachedSourceInfo.data.sourceId,
 							buildConfig,
 							localDependencies: localDependencies && new Set(localDependencies),
 							externalDependencies: externalDependencies && new Set(externalDependencies),

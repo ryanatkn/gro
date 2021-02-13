@@ -88,7 +88,7 @@ export const createSourceFile = async (
 			throw new UnreachableError(encoding);
 		}
 		contentsHash = toHash(contentsBuffer!);
-		if (contentsHash === cachedSourceInfo.contentsHash) {
+		if (contentsHash === cachedSourceInfo.data.contentsHash) {
 			reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 		}
 	}
