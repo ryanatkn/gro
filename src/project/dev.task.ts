@@ -2,10 +2,10 @@ import {Task} from '../task/task.js';
 import {Filer} from '../build/Filer.js';
 import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
-import {createDefaultCompiler} from '../compile/defaultCompiler.js';
+import {createDefaultCompiler} from '../build/defaultBuilder.js';
 import {paths} from '../paths.js';
 import {createDevServer} from '../devServer/devServer.js';
-import {loadTsconfig, toEcmaScriptTarget} from '../compile/tsHelpers.js';
+import {loadTsconfig, toEcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {loadGroConfig} from '../config/config.js';
 
 export const task: Task = {

@@ -4,16 +4,16 @@ import {
 	Compiler,
 	createCompiler,
 	InitialOptions as CompilerInitialOptions,
-} from './compiler.js';
-import {createSwcCompiler, InitialOptions as SwcCompilerInitialOptions} from './swcCompiler.js';
+} from './builder.js';
+import {createSwcCompiler, InitialOptions as SwcCompilerInitialOptions} from './swcBuilder.js';
 import {
 	createSvelteCompiler,
 	InitialOptions as SvelteCompilerInitialOptions,
-} from './svelteCompiler.js';
+} from './svelteBuilder.js';
 import {
 	createExternalsCompiler,
 	InitialOptions as ExternalsCompilerInitialOptions,
-} from './externalsCompiler.js';
+} from './externalsBuilder.js';
 
 export const createDefaultCompiler = (
 	swcCompilerOptions?: SwcCompilerInitialOptions,

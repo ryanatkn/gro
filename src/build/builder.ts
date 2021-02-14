@@ -2,7 +2,7 @@ import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutPath} from '../paths.js';
-import {EcmaScriptTarget} from './tsHelpers.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';
 
 export interface Compiler<

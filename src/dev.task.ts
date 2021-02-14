@@ -1,9 +1,9 @@
 import {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {createDevServer} from './devServer/devServer.js';
-import {createDefaultCompiler} from './compile/defaultCompiler.js';
+import {createDefaultCompiler} from './build/defaultBuilder.js';
 import {paths, toBuildOutPath} from './paths.js';
-import {loadTsconfig, toEcmaScriptTarget} from './compile/tsHelpers.js';
+import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';
 import {loadGroConfig} from './config/config.js';
 
 export const task: Task = {

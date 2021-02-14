@@ -3,7 +3,7 @@ import {basename, dirname} from 'path';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, ExternalsCompilationSource, TextCompilation} from './compiler.js';
+import {Compiler, ExternalsCompilationSource, TextCompilation} from './builder.js';
 import {cyan} from '../colors/terminal.js';
 import {buildExternalModule} from '../build/buildExternalModule.js';
 import {printPath} from '../utils/print.js';

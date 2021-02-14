@@ -1,5 +1,5 @@
 import {Task} from './task/task.js';
-import {compileSourceDirectory} from './compile/compileSourceDirectory.js';
+import {compileSourceDirectory} from './build/buildSourceDirectory.js';
 import {loadGroConfig} from './config/config.js';
 
 export const task: Task = {

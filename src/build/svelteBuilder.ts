@@ -2,14 +2,14 @@ import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 
-import {EcmaScriptTarget} from './tsHelpers.js';
-import {getDefaultSwcOptions} from './swcHelpers.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {
 	baseSvelteCompileOptions,
 	handleStats,
 	handleWarn,
 	SvelteCompilation,
-} from './svelteHelpers.js';
+} from './svelteBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
@@ -20,11 +20,11 @@ import {
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
+import {Compiler, TextCompilation, TextCompilationSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
-import {addCssSourceMapFooter, addJsSourceMapFooter} from './helpers.js';
+import {addCssSourceMapFooter, addJsSourceMapFooter} from './buildHelpers.js';
 
 export interface Options {
 	log: Logger;

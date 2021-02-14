@@ -1,4 +1,4 @@
-import {Compilation, CompileOptions, CompileResult} from '../compile/compiler.js';
+import {Compilation, CompileOptions, CompileResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import {CachedSourceInfo} from './Filer.js';

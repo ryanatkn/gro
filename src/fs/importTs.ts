@@ -2,10 +2,10 @@ import lexer from 'es-module-lexer';
 
 import {paths, TS_EXTENSION} from '../paths.js';
 import {randomInt} from '../utils/random.js';
-import {createSwcCompiler} from '../compile/swcCompiler.js';
+import {createSwcCompiler} from '../build/swcBuilder.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {TextCompilationSource, CompileOptions} from '../compile/compiler.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
+import {TextCompilationSource, CompileOptions} from '../build/builder.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
 import {outputFile, readFile, remove} from './nodeFs.js';
 import {basename, dirname, join} from 'path';
 import {stripStart} from '../utils/string.js';

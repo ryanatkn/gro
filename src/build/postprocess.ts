@@ -3,12 +3,7 @@ import {join} from 'path';
 import lexer from 'es-module-lexer';
 
 import {CSS_EXTENSION, JS_EXTENSION, SVELTE_EXTENSION, toBuildExtension} from '../paths.js';
-import type {
-	Compilation,
-	CompileOptions,
-	CompileResult,
-	CompilationSource,
-} from '../compile/compiler.js';
+import type {Compilation, CompileOptions, CompileResult, CompilationSource} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js';
 

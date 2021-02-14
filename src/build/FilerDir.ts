@@ -1,7 +1,7 @@
 import {ensureDir} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT, watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import {Compiler} from '../compile/compiler.js';
+import {Compiler} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {PathStats} from '../fs/pathData.js';
 

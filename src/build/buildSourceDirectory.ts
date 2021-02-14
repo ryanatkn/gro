@@ -4,7 +4,7 @@ import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
-import {createDefaultCompiler} from './defaultCompiler.js';
+import {createDefaultCompiler} from './defaultBuilder.js';
 import {GroConfig} from '../config/config.js';
 import {cleanProductionBuild} from '../project/clean.js';
 

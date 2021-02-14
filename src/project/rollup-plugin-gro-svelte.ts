@@ -15,7 +15,7 @@ import {
 	baseSvelteCompileOptions,
 	handleWarn,
 	handleStats,
-} from '../compile/svelteHelpers.js';
+} from '../build/svelteBuildHelpers.js';
 import {CSS_EXTENSION} from '../paths.js';
 
 // TODO support `package.json` "svelte" field

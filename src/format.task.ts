@@ -1,6 +1,6 @@
 import {Task, TaskError} from './task/task.js';
 import {printKeyValue} from './utils/print.js';
-import {formatDirectory} from './compile/formatDirectory.js';
+import {formatDirectory} from './build/formatDirectory.js';
 import {paths} from './paths.js';
 
 export const task: Task = {

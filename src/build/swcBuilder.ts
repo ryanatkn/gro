@@ -1,15 +1,15 @@
 import swc from '@swc/core';
 import {relative} from 'path';
 
-import {EcmaScriptTarget} from './tsHelpers.js';
-import {getDefaultSwcOptions} from './swcHelpers.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
+import {Compiler, TextCompilation, TextCompilationSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
-import {addJsSourceMapFooter} from './helpers.js';
+import {addJsSourceMapFooter} from './buildHelpers.js';
 
 export interface Options {
 	log: Logger;
