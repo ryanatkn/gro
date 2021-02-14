@@ -4,7 +4,7 @@ import {paths, TS_EXTENSION} from '../paths.js';
 import {randomInt} from '../utils/random.js';
 import {createSwcCompiler} from '../build/swcBuilder.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {TextCompilationSource, CompileOptions} from '../build/builder.js';
+import {TextCompilationSource, BuildOptions} from '../build/builder.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
 import {outputFile, readFile, remove} from './nodeFs.js';
 import {basename, dirname, join} from 'path';
@@ -44,7 +44,7 @@ export const importTs = async (
 ): Promise<any> => {
 	await lexer.init;
 
-	const compileOptions: CompileOptions = {
+	const buildOptions: BuildOptions = {
 		buildRootDir: tempDir,
 		dev: true,
 		sourceMap: false,
@@ -53,7 +53,7 @@ export const importTs = async (
 		externalsDirBasePath: '',
 		servedDirs: [],
 	};
-	const buildId = await compileFileAndImports(sourceId, buildConfig, compileOptions);
+	const buildId = await compileFileAndImports(sourceId, buildConfig, buildOptions);
 	const mod = await import(buildId);
 	await remove(tempDir);
 	return mod;
@@ -62,7 +62,7 @@ export const importTs = async (
 const compileFileAndImports = async (
 	sourceId: string,
 	buildConfig: BuildConfig,
-	compileOptions: CompileOptions,
+	buildOptions: BuildOptions,
 ): Promise<any> => {
 	const dir = dirname(sourceId) + '/'; // TODO hack - see Filer for similar problem
 	const source: TextCompilationSource = {
@@ -78,7 +78,7 @@ const compileFileAndImports = async (
 	const compiler = createSwcCompiler();
 	const {
 		compilations: [compilation],
-	} = await compiler.compile(source, buildConfig, compileOptions);
+	} = await compiler.compile(source, buildConfig, buildOptions);
 
 	const deps = extractDeps(compilation.contents);
 	const internalDeps = deps.filter((dep) => !isExternalNodeModule(dep));
@@ -90,7 +90,7 @@ const compileFileAndImports = async (
 	await Promise.all([
 		outputFile(compilation.id, compilation.contents),
 		Promise.all(
-			internalDepSourceIds.map((id) => compileFileAndImports(id, buildConfig, compileOptions)),
+			internalDepSourceIds.map((id) => compileFileAndImports(id, buildConfig, buildOptions)),
 		),
 	]);
 

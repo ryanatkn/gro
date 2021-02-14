@@ -1,6 +1,6 @@
 import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import {CompileOptions} from 'svelte/types/compiler/interfaces';
+import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
@@ -34,7 +34,7 @@ export interface Options {
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
 	preprocessor: PreprocessorGroup | PreprocessorGroup[] | null;
-	compileOptions: CompileOptions;
+	compileOptions: SvelteCompileOptions;
 	compilations: Map<string, GroSvelteCompilation>;
 	onwarn: typeof handleWarn;
 	onstats: typeof handleStats;

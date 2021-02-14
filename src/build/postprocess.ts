@@ -3,13 +3,13 @@ import {join} from 'path';
 import lexer from 'es-module-lexer';
 
 import {CSS_EXTENSION, JS_EXTENSION, SVELTE_EXTENSION, toBuildExtension} from '../paths.js';
-import type {Compilation, CompileOptions, BuildResult, CompilationSource} from './builder.js';
+import type {Compilation, BuildOptions, BuildResult, CompilationSource} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js';
 
 export const postprocess = (
 	compilation: Compilation,
-	{externalsDirBasePath, servedDirs}: CompileOptions,
+	{externalsDirBasePath, servedDirs}: BuildOptions,
 	result: BuildResult<Compilation>,
 	source: CompilationSource,
 ): [

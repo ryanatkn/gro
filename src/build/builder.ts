@@ -12,14 +12,14 @@ export interface Compiler<
 	compile(
 		source: TSource,
 		buildConfig: BuildConfig,
-		options: CompileOptions,
+		options: BuildOptions,
 	): BuildResult<TCompilation> | Promise<BuildResult<TCompilation>>;
 }
 
 export interface BuildResult<TCompilation extends Compilation = Compilation> {
 	compilations: TCompilation[];
 }
-export interface CompileOptions {
+export interface BuildOptions {
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget;
 	readonly buildRootDir: string;
@@ -94,7 +94,7 @@ export const createCompiler = (opts: InitialOptions = {}): Compiler => {
 	const compile: Compiler['compile'] = (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
-		options: CompileOptions,
+		options: BuildOptions,
 	) => {
 		const compiler = getCompiler(source, buildConfig) || noopCompiler;
 		return compiler.compile(source, buildConfig, options);
