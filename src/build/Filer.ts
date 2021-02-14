@@ -20,7 +20,7 @@ import {
 	toBuildOutPath,
 	toSourceExtension,
 } from '../paths.js';
-import {omitUndefined} from '../utils/object.js';
+import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
@@ -32,7 +32,7 @@ import {stripEnd, stripStart} from '../utils/string.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {BuildableSourceFile, createSourceFile, SourceFile} from './sourceFile.js';
-import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
+import {BuildFile, createBuildFile, DependencyInfo, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 // import './includeme.js';
@@ -481,6 +481,8 @@ export class Filer {
 		if (!deletedBuildFiles) {
 			throw Error(`Expected to delete build files ${buildConfig}:${sourceFile.id}`);
 		}
+		sourceFile.dependencies.delete(buildConfig);
+		sourceFile.dependents.delete(buildConfig);
 
 		await this.updateCachedSourceInfo(sourceFile);
 	}
@@ -507,11 +509,15 @@ export class Filer {
 						filerDir.buildable // only needed for types, doing this instead of casting for type safety
 					) {
 						const file = this.files.get(id) as BuildableSourceFile;
-						const promises: Promise<void>[] = [];
-						for (const buildConfig of file.buildConfigs) {
-							promises.push(this.buildSourceFile(file, buildConfig));
+						if (change.type === 'create') {
+							await this.initSourceFile(file);
+						} else {
+							await Promise.all(
+								Array.from(file.buildConfigs).map((buildConfig) =>
+									this.buildSourceFile(file, buildConfig),
+								),
+							);
 						}
-						await Promise.all(promises);
 					}
 				}
 				break;
@@ -539,6 +545,37 @@ export class Filer {
 				throw new UnreachableError(change.type);
 		}
 	};
+
+	// Initialize a newly created source file's builds.
+	// It currently uses a slow brute force search to find dependents.
+	private async initSourceFile(file: BuildableSourceFile): Promise<void> {
+		if (this.buildConfigs === null) return; // TODO is this right?
+		let promises: Promise<void>[] | null = null;
+		let dependentBuildConfigs: Set<BuildConfig> | null = null;
+		// TODO could be sped up with some caching data structures
+		for (const f of this.files.values()) {
+			if (f.type !== 'source' || !f.buildable) continue;
+			for (const [buildConfig, dependencies] of f.dependencies) {
+				if (dependencies.has(file.id)) {
+					(dependentBuildConfigs || (dependentBuildConfigs = new Set())).add(buildConfig);
+				}
+			}
+		}
+		let inputBuildConfigs: Set<BuildConfig> | null = null;
+		for (const buildConfig of this.buildConfigs) {
+			if (isInputToBuildConfig(file, buildConfig)) {
+				(inputBuildConfigs || (inputBuildConfigs = new Set())).add(buildConfig);
+				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, true));
+			}
+		}
+		if (dependentBuildConfigs !== null) {
+			for (const buildConfig of dependentBuildConfigs) {
+				if (inputBuildConfigs?.has(buildConfig)) continue;
+				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, false));
+			}
+		}
+		if (promises !== null) await Promise.all(promises);
+	}
 
 	// Returns a boolean indicating if the source file should be compiled.
 	// The source file may have been updated or created from a cold cache.
@@ -718,10 +755,34 @@ export class Filer {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		const diffResult = this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig);
-		const addedDependencySourceFiles = diffResult && diffResult[0];
-		const removedDependencySourceFiles = diffResult && diffResult[1];
+		const {
+			addedDependencies,
+			removedDependencies,
+			addedDependencySourceFiles,
+			removedDependencySourceFiles,
+		} = this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig) || nulls;
 		let promises: Promise<void>[] | null = null;
+		if (addedDependencies !== null) {
+			for (const addedDependency of addedDependencies) {
+				if (addedDependency.external) continue; // TODO ?
+				let dependencies = sourceFile.dependencies.get(buildConfig);
+				if (dependencies === undefined) {
+					dependencies = new Set();
+					sourceFile.dependencies.set(buildConfig, dependencies);
+				}
+				dependencies.add(this.mapBuildIdToSourceId(addedDependency.id));
+			}
+		}
+		if (removedDependencies !== null) {
+			for (const removedDependency of removedDependencies) {
+				if (removedDependency.external) continue; // TODO ?
+				let dependencies = sourceFile.dependencies.get(buildConfig);
+				if (dependencies === undefined) {
+					throw Error(`Expected dependencies: ${buildConfig.name}:${sourceFile.id}`);
+				}
+				dependencies.delete(this.mapBuildIdToSourceId(removedDependency.id));
+			}
+		}
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
 				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
@@ -771,12 +832,12 @@ export class Filer {
 		newBuildFiles: readonly BuildFile[],
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
-	):
-		| null
-		| [
-				addedDependencySourceFiles: Set<BuildableSourceFile> | null,
-				removedDependencySourceFiles: Set<BuildableSourceFile> | null,
-		  ] {
+	): null | {
+		addedDependencies: DependencyInfo[] | null;
+		removedDependencies: DependencyInfo[] | null;
+		addedDependencySourceFiles: Set<BuildableSourceFile> | null;
+		removedDependencySourceFiles: Set<BuildableSourceFile> | null;
+	} {
 		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 
@@ -793,9 +854,8 @@ export class Filer {
 		// and it has 0 dependents after the build file is removed,
 		// they're removed for this build,
 		// meaning the memory cache is updated and the files are deleted from disk for the build config.
-		const diffResult = diffDependencies(newBuildFiles, oldBuildFiles);
-		const addedDependencies = diffResult && diffResult[0];
-		const removedDependencies = diffResult && diffResult[1];
+		const {addedDependencies, removedDependencies} =
+			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
 				if (addedDependency.external) {
@@ -835,8 +895,16 @@ export class Filer {
 			}
 		}
 
-		return addedDependencySourceFiles !== null || removedDependencySourceFiles !== null
-			? [addedDependencySourceFiles, removedDependencySourceFiles]
+		return addedDependencies !== null ||
+			removedDependencies !== null ||
+			addedDependencySourceFiles !== null ||
+			removedDependencySourceFiles !== null
+			? {
+					addedDependencies,
+					removedDependencies,
+					addedDependencySourceFiles,
+					removedDependencySourceFiles,
+			  }
 			: null;
 	}
 
@@ -898,9 +966,9 @@ export class Filer {
 		await outputFile(cacheId, JSON.stringify(data, null, 2));
 	}
 
-	private deleteCachedSourceInfo(sourceId: string): Promise<void> {
+	private async deleteCachedSourceInfo(sourceId: string): Promise<void> {
 		const info = this.cachedSourceInfo.get(sourceId);
-		if (info === undefined) throw Error(`Expected to find cached source info: ${sourceId}`);
+		if (info === undefined) return; // silently do nothing, which is fine because it's a cache
 		this.cachedSourceInfo.delete(sourceId);
 		return remove(info.cacheId);
 	}

@@ -172,7 +172,7 @@ const addBuildFile = (
 };
 
 // TODO rename? move?
-interface DependencyInfo {
+export interface DependencyInfo {
 	id: string;
 	external: boolean;
 }
@@ -185,9 +185,10 @@ interface DependencyInfo {
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
-):
-	| null
-	| [addedDependencies: DependencyInfo[] | null, removedDependencies: DependencyInfo[] | null] => {
+): {
+	addedDependencies: DependencyInfo[] | null;
+	removedDependencies: DependencyInfo[] | null;
+} | null => {
 	let addedDependencies: DependencyInfo[] | null = null;
 	let removedDependencies: DependencyInfo[] | null = null;
 
@@ -268,6 +269,6 @@ export const diffDependencies = (
 	}
 
 	return addedDependencies !== null || removedDependencies !== null
-		? [addedDependencies, removedDependencies]
+		? {addedDependencies, removedDependencies}
 		: null;
 };
