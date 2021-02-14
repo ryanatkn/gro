@@ -15,7 +15,7 @@ import {
 	InitialOptions as ExternalsCompilerInitialOptions,
 } from './externalsBuilder.js';
 
-export const createDefaultCompiler = (
+export const createDefaultBuilder = (
 	swcCompilerOptions?: SwcCompilerInitialOptions,
 	svelteCompilerOptions?: SvelteCompilerInitialOptions,
 	externalsCompilerOptions?: ExternalsCompilerInitialOptions,

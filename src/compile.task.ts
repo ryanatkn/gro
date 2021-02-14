@@ -1,5 +1,5 @@
 import {Task} from './task/task.js';
-import {compileSourceDirectory} from './build/buildSourceDirectory.js';
+import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import {loadGroConfig} from './config/config.js';
 
 export const task: Task = {
@@ -7,6 +7,6 @@ export const task: Task = {
 	run: async ({log}) => {
 		// TODO how to do this?
 		const dev = process.env.NODE_ENV !== 'production';
-		await compileSourceDirectory(await loadGroConfig(), dev, log);
+		await buildSourceDirectory(await loadGroConfig(), dev, log);
 	},
 };

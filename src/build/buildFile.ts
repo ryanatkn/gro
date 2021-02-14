@@ -1,4 +1,4 @@
-import {Compilation, CompileOptions, CompileResult} from './builder.js';
+import {Compilation, CompileOptions, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import {CachedSourceInfo} from './Filer.js';
@@ -32,7 +32,7 @@ export interface BaseBuildFile extends BaseFilerFile {
 export const createBuildFile = (
 	compilation: Compilation,
 	compileOptions: CompileOptions,
-	result: CompileResult<Compilation>,
+	result: BuildResult<Compilation>,
 	sourceFile: BuildableSourceFile,
 	buildConfig: BuildConfig,
 ): BuildFile => {

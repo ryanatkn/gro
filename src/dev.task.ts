@@ -1,7 +1,7 @@
 import {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {createDevServer} from './devServer/devServer.js';
-import {createDefaultCompiler} from './build/defaultBuilder.js';
+import {createDefaultBuilder} from './build/defaultBuilder.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';
 import {loadGroConfig} from './config/config.js';
@@ -22,7 +22,7 @@ export const task: Task = {
 		const sourceMap = tsconfig.compilerOptions?.sourceMap ?? true;
 
 		const filer = new Filer({
-			compiler: createDefaultCompiler(),
+			compiler: createDefaultBuilder(),
 			compiledDirs: [paths.source],
 			servedDirs: [buildOutDirToServe],
 			buildConfigs: config.builds,

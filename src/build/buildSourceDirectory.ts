@@ -4,11 +4,11 @@ import {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
-import {createDefaultCompiler} from './defaultBuilder.js';
+import {createDefaultBuilder} from './defaultBuilder.js';
 import {GroConfig} from '../config/config.js';
 import {cleanProductionBuild} from '../project/clean.js';
 
-export const compileSourceDirectory = async (
+export const buildSourceDirectory = async (
 	config: GroConfig,
 	dev: boolean,
 	log: Logger,
@@ -30,7 +30,7 @@ export const compileSourceDirectory = async (
 
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
-		compiler: createDefaultCompiler(),
+		compiler: createDefaultBuilder(),
 		compiledDirs: [paths.source],
 		buildConfigs: config.builds,
 		watch: false,

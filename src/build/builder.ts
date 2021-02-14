@@ -13,10 +13,10 @@ export interface Compiler<
 		source: TSource,
 		buildConfig: BuildConfig,
 		options: CompileOptions,
-	): CompileResult<TCompilation> | Promise<CompileResult<TCompilation>>;
+	): BuildResult<TCompilation> | Promise<BuildResult<TCompilation>>;
 }
 
-export interface CompileResult<TCompilation extends Compilation = Compilation> {
+export interface BuildResult<TCompilation extends Compilation = Compilation> {
 	compilations: TCompilation[];
 }
 export interface CompileOptions {

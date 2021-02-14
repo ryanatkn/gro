@@ -228,16 +228,16 @@ const createWatchOptions = (
 	return watchOptions;
 };
 
-interface BuildResult {
+interface RollupBuildResult {
 	build: RollupBuild;
 	output: RollupOutput;
 }
 
-const runRollupBuild = async (options: Options, log: Logger): Promise<BuildResult[]> => {
+const runRollupBuild = async (options: Options, log: Logger): Promise<RollupBuildResult[]> => {
 	// We're running builds sequentially,
 	// because doing them in parallel makes the logs incomprehensible.
 	// Maybe make parallel an option?
-	const results: BuildResult[] = [];
+	const results: RollupBuildResult[] = [];
 	for (const inputFile of options.inputFiles) {
 		const inputOptions = createInputOptions(inputFile, options, log);
 		const outputOptions = createOutputOptions(options, log);
