@@ -6,7 +6,7 @@ import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';
 
 export interface Builder<
-	TSource extends CompilationSource = CompilationSource,
+	TSource extends BuildSource = BuildSource,
 	TCompilation extends Compilation = Compilation
 > {
 	build(
@@ -46,26 +46,23 @@ interface BaseCompilation {
 	buildConfig: BuildConfig;
 }
 
-export type CompilationSource =
-	| TextCompilationSource
-	| BinaryCompilationSource
-	| ExternalsCompilationSource;
-export interface TextCompilationSource extends BaseCompilationSource {
+export type BuildSource = TextBuildSource | BinaryBuildSource | ExternalsBuildSource;
+export interface TextBuildSource extends BaseBuildSource {
 	sourceType: 'text';
 	encoding: 'utf8';
 	contents: string;
 }
-export interface BinaryCompilationSource extends BaseCompilationSource {
+export interface BinaryBuildSource extends BaseBuildSource {
 	sourceType: 'binary';
 	encoding: null;
 	contents: Buffer;
 }
-export interface ExternalsCompilationSource extends BaseCompilationSource {
+export interface ExternalsBuildSource extends BaseBuildSource {
 	sourceType: 'externals';
 	encoding: 'utf8';
 	contents: string;
 }
-interface BaseCompilationSource {
+interface BaseBuildSource {
 	id: string;
 	filename: string;
 	dir: string;
@@ -74,7 +71,7 @@ interface BaseCompilationSource {
 }
 
 export interface GetBuilder {
-	(source: CompilationSource, buildConfig: BuildConfig): Builder | null;
+	(source: BuildSource, buildConfig: BuildConfig): Builder | null;
 }
 
 export interface Options {
@@ -92,7 +89,7 @@ export const createBuilder = (opts: InitialOptions = {}): Builder => {
 	const {getBuilder} = initOptions(opts);
 
 	const build: Builder['build'] = (
-		source: CompilationSource,
+		source: BuildSource,
 		buildConfig: BuildConfig,
 		options: BuildOptions,
 	) => {

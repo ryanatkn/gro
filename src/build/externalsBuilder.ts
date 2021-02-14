@@ -3,7 +3,7 @@ import {basename, dirname} from 'path';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, ExternalsCompilationSource, TextCompilation} from './builder.js';
+import {Builder, ExternalsBuildSource, TextCompilation} from './builder.js';
 import {cyan} from '../colors/terminal.js';
 import {buildExternalModule} from '../build/buildExternalModule.js';
 import {printPath} from '../utils/print.js';
@@ -20,7 +20,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type ExternalsBuilder = Builder<ExternalsCompilationSource, TextCompilation>;
+type ExternalsBuilder = Builder<ExternalsBuildSource, TextCompilation>;
 
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {log} = initOptions(opts);

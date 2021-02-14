@@ -4,7 +4,7 @@ import {paths, TS_EXTENSION} from '../paths.js';
 import {randomInt} from '../utils/random.js';
 import {createSwcBuilder} from '../build/swcBuilder.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {TextCompilationSource, BuildOptions} from '../build/builder.js';
+import {TextBuildSource, BuildOptions} from '../build/builder.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
 import {outputFile, readFile, remove} from './nodeFs.js';
 import {basename, dirname, join} from 'path';
@@ -65,7 +65,7 @@ const compileFileAndImports = async (
 	buildOptions: BuildOptions,
 ): Promise<any> => {
 	const dir = dirname(sourceId) + '/'; // TODO hack - see Filer for similar problem
-	const source: TextCompilationSource = {
+	const source: TextBuildSource = {
 		sourceType: 'text',
 		encoding: 'utf8',
 		contents: await readFile(sourceId, 'utf8'),

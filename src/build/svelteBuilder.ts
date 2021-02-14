@@ -20,7 +20,7 @@ import {
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, TextCompilation, TextCompilationSource} from './builder.js';
+import {Builder, TextCompilation, TextBuildSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
@@ -48,7 +48,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type SvelteBuilder = Builder<TextCompilationSource, TextCompilation>;
+type SvelteBuilder = Builder<TextBuildSource, TextCompilation>;
 
 export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder => {
 	const {log, createPreprocessor, svelteCompileOptions, onwarn, onstats} = initOptions(opts);

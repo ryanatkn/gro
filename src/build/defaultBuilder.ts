@@ -1,6 +1,6 @@
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {
-	CompilationSource,
+	BuildSource,
 	Builder,
 	createBuilder,
 	InitialOptions as BuilderInitialOptions,
@@ -28,7 +28,7 @@ export const createDefaultBuilder = (
 	if (!builderOptions?.getBuilder) {
 		builderOptions = {
 			...builderOptions,
-			getBuilder: (source: CompilationSource) => {
+			getBuilder: (source: BuildSource) => {
 				if (source.sourceType === 'externals') {
 					return externalsBuilder;
 				}
