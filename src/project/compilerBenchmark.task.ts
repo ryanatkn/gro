@@ -3,7 +3,7 @@ import ts from 'typescript';
 import {join} from 'path';
 
 import {Task} from '../task/task.js';
-import {loadTsconfig} from '../compile/tsHelpers.js';
+import {loadTsconfig} from '../build/tsBuildHelpers.js';
 import {findFiles, readFile, outputFile} from '../fs/nodeFs.js';
 import {paths} from '../paths.js';
 import {printMs} from '../utils/print.js';

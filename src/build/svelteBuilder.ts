@@ -2,14 +2,14 @@ import svelte from 'svelte/compiler.js';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 
-import {EcmaScriptTarget} from './tsHelpers.js';
-import {getDefaultSwcOptions} from './swcHelpers.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {
 	baseSvelteCompileOptions,
 	handleStats,
 	handleWarn,
 	SvelteCompilation,
-} from './svelteHelpers.js';
+} from './svelteBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
@@ -20,11 +20,11 @@ import {
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
+import {Builder, TextBuild, TextBuildSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
-import {addCssSourceMapFooter, addJsSourceMapFooter} from './helpers.js';
+import {addCssSourceMapFooter, addJsSourceMapFooter} from './buildHelpers.js';
 
 export interface Options {
 	log: Logger;
@@ -43,14 +43,14 @@ export const initOptions = (opts: InitialOptions): Options => {
 		onstats: null,
 		createPreprocessor: createDefaultPreprocessor,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[svelteCompiler]')]),
+		log: opts.log || new SystemLogger([cyan('[svelteBuilder]')]),
 		svelteCompileOptions: opts.svelteCompileOptions || {},
 	};
 };
 
-type SvelteCompiler = Compiler<TextCompilationSource, TextCompilation>;
+type SvelteBuilder = Builder<TextBuildSource, TextBuild>;
 
-export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler => {
+export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder => {
 	const {log, createPreprocessor, svelteCompileOptions, onwarn, onstats} = initOptions(opts);
 
 	const preprocessorCache: Map<string, PreprocessorGroup | PreprocessorGroup[] | null> = new Map();
@@ -66,7 +66,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		return newPreprocessor;
 	};
 
-	const compile: SvelteCompiler['compile'] = async (
+	const build: SvelteBuilder['build'] = async (
 		source,
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target},
@@ -113,7 +113,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		const hasJsSourceMap = sourceMap && js.map !== undefined;
 		const hasCssSourceMap = sourceMap && css.map !== undefined;
 
-		const compilations: TextCompilation[] = [
+		const builds: TextBuild[] = [
 			{
 				id: jsId,
 				filename: jsFilename,
@@ -128,7 +128,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 			},
 		];
 		if (hasJsSourceMap) {
-			compilations.push({
+			builds.push({
 				id: jsId + SOURCEMAP_EXTENSION,
 				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
@@ -140,7 +140,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 			});
 		}
 		if (css.code) {
-			compilations.push({
+			builds.push({
 				id: cssId,
 				filename: cssFilename,
 				dir: outDir,
@@ -153,7 +153,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				buildConfig,
 			});
 			if (hasCssSourceMap) {
-				compilations.push({
+				builds.push({
 					id: cssId + SOURCEMAP_EXTENSION,
 					filename: cssFilename + SOURCEMAP_EXTENSION,
 					dir: outDir,
@@ -165,10 +165,10 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 				});
 			}
 		}
-		return {compilations};
+		return {builds};
 	};
 
-	return {compile};
+	return {build};
 };
 
 const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {

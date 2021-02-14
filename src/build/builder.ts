@@ -2,24 +2,21 @@ import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutPath} from '../paths.js';
-import {EcmaScriptTarget} from './tsHelpers.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';
 
-export interface Compiler<
-	TSource extends CompilationSource = CompilationSource,
-	TCompilation extends Compilation = Compilation
-> {
-	compile(
+export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
+	build(
 		source: TSource,
 		buildConfig: BuildConfig,
-		options: CompileOptions,
-	): CompileResult<TCompilation> | Promise<CompileResult<TCompilation>>;
+		options: BuildOptions,
+	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>;
 }
 
-export interface CompileResult<TCompilation extends Compilation = Compilation> {
-	compilations: TCompilation[];
+export interface BuildResult<TBuild extends Build = Build> {
+	builds: TBuild[];
 }
-export interface CompileOptions {
+export interface BuildOptions {
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget;
 	readonly buildRootDir: string;
@@ -28,17 +25,17 @@ export interface CompileOptions {
 	readonly servedDirs: readonly ServedDir[];
 }
 
-export type Compilation = TextCompilation | BinaryCompilation;
-export interface TextCompilation extends BaseCompilation {
+export type Build = TextBuild | BinaryBuild;
+export interface TextBuild extends BaseBuild {
 	encoding: 'utf8';
 	contents: string;
 	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
-export interface BinaryCompilation extends BaseCompilation {
+export interface BinaryBuild extends BaseBuild {
 	encoding: null;
 	contents: Buffer;
 }
-interface BaseCompilation {
+interface BaseBuild {
 	id: string;
 	filename: string;
 	dir: string;
@@ -46,26 +43,23 @@ interface BaseCompilation {
 	buildConfig: BuildConfig;
 }
 
-export type CompilationSource =
-	| TextCompilationSource
-	| BinaryCompilationSource
-	| ExternalsCompilationSource;
-export interface TextCompilationSource extends BaseCompilationSource {
+export type BuildSource = TextBuildSource | BinaryBuildSource | ExternalsBuildSource;
+export interface TextBuildSource extends BaseBuildSource {
 	sourceType: 'text';
 	encoding: 'utf8';
 	contents: string;
 }
-export interface BinaryCompilationSource extends BaseCompilationSource {
+export interface BinaryBuildSource extends BaseBuildSource {
 	sourceType: 'binary';
 	encoding: null;
 	contents: Buffer;
 }
-export interface ExternalsCompilationSource extends BaseCompilationSource {
+export interface ExternalsBuildSource extends BaseBuildSource {
 	sourceType: 'externals';
 	encoding: 'utf8';
 	contents: string;
 }
-interface BaseCompilationSource {
+interface BaseBuildSource {
 	id: string;
 	filename: string;
 	dir: string;
@@ -73,42 +67,42 @@ interface BaseCompilationSource {
 	extension: string;
 }
 
-export interface GetCompiler {
-	(source: CompilationSource, buildConfig: BuildConfig): Compiler | null;
+export interface GetBuilder {
+	(source: BuildSource, buildConfig: BuildConfig): Builder | null;
 }
 
 export interface Options {
-	getCompiler: GetCompiler;
+	getBuilder: GetBuilder;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
-		getCompiler: getNoopCompiler,
+		getBuilder: getNoopBuilder,
 		...omitUndefined(opts),
 	};
 };
 
-export const createCompiler = (opts: InitialOptions = {}): Compiler => {
-	const {getCompiler} = initOptions(opts);
+export const createBuilder = (opts: InitialOptions = {}): Builder => {
+	const {getBuilder} = initOptions(opts);
 
-	const compile: Compiler['compile'] = (
-		source: CompilationSource,
+	const build: Builder['build'] = (
+		source: BuildSource,
 		buildConfig: BuildConfig,
-		options: CompileOptions,
+		options: BuildOptions,
 	) => {
-		const compiler = getCompiler(source, buildConfig) || noopCompiler;
-		return compiler.compile(source, buildConfig, options);
+		const builder = getBuilder(source, buildConfig) || noopBuilder;
+		return builder.build(source, buildConfig, options);
 	};
 
-	return {compile};
+	return {build};
 };
 
-const noopCompiler: Compiler = {
-	compile: (source, buildConfig, {buildRootDir, dev}) => {
+const noopBuilder: Builder = {
+	build: (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
-		let file: Compilation;
+		let file: Build;
 		switch (source.encoding) {
 			case 'utf8':
 				file = {
@@ -136,7 +130,7 @@ const noopCompiler: Compiler = {
 			default:
 				throw new UnreachableError(source);
 		}
-		return {compilations: [file]};
+		return {builds: [file]};
 	},
 };
-const getNoopCompiler: GetCompiler = () => noopCompiler;
+const getNoopBuilder: GetBuilder = () => noopBuilder;

@@ -1,15 +1,15 @@
 import swc from '@swc/core';
 import {relative} from 'path';
 
-import {EcmaScriptTarget} from './tsHelpers.js';
-import {getDefaultSwcOptions} from './swcHelpers.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, TextCompilation, TextCompilationSource} from './compiler.js';
+import {Builder, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
-import {addJsSourceMapFooter} from './helpers.js';
+import {addJsSourceMapFooter} from './buildHelpers.js';
 
 export interface Options {
 	log: Logger;
@@ -21,13 +21,13 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		createSwcOptions: createDefaultSwcOptions,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[swcCompiler]')]),
+		log: opts.log || new SystemLogger([cyan('[swcBuilder]')]),
 	};
 };
 
-type SwcCompiler = Compiler<TextCompilationSource, TextCompilation>;
+type SwcBuilder = Builder<TextBuildSource, TextBuild>;
 
-export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
+export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 	const {createSwcOptions} = initOptions(opts);
 
 	const swcOptionsCache: Map<string, swc.Options> = new Map();
@@ -40,7 +40,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		return newSwcOptions;
 	};
 
-	const compile: SwcCompiler['compile'] = async (
+	const build: SwcBuilder['build'] = async (
 		source,
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target},
@@ -58,7 +58,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
-		const compilations: TextCompilation[] = [
+		const builds: TextBuild[] = [
 			{
 				id: jsId,
 				filename: jsFilename,
@@ -73,7 +73,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 			},
 		];
 		if (output.map) {
-			compilations.push({
+			builds.push({
 				id: jsId + SOURCEMAP_EXTENSION,
 				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
@@ -84,10 +84,10 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 				buildConfig,
 			});
 		}
-		return {compilations};
+		return {builds};
 	};
 
-	return {compile};
+	return {build};
 };
 
 type CreateSwcOptions = (sourceMap: boolean, target: EcmaScriptTarget) => swc.Options;

@@ -5,7 +5,7 @@ to one or more output artifacts.
 It's designed for a variety of use cases:
 
 - support dev and prod builds that coexist on the filesystem
-- support multiple compilation targets like legacy/modern ES versions and mobile/desktop frontends
+- support multiple build targets like legacy/modern ES versions and mobile/desktop frontends
 - support multiple platform targets like Node and browsers, including server-side rendering
 - support multiple packages created from one codebase to be published separately
 
@@ -42,7 +42,7 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 > Ideally this would be configurable, but doing so would slow Gro down in many cases.
 
 The `platform` can currently be `"node"` or `"browser"` and
-is used by Gro's default compilers to customize the output.
+is used by Gro's default builders to customize the output.
 When compiling for the browser, dependencies in `node_modules/` are imported via Snowpack's
 [`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
 When compiling for Node, the Svelte compiler outputs

@@ -1,6 +1,9 @@
 import type {ExistingRawSourceMap, PluginContext} from 'rollup';
 import type svelte from 'svelte/compiler.js';
-import {CompileOptions, Warning} from 'svelte/types/compiler/interfaces';
+import {
+	CompileOptions as SvelteCompileOptions,
+	Warning as SvelteWarning,
+} from 'svelte/types/compiler/interfaces';
 
 import {Logger} from '../utils/log.js';
 import {yellow} from '../colors/terminal.js';
@@ -31,7 +34,7 @@ export type SvelteCompilation = OmitStrict<
 };
 
 // Commented-out values are the same as the defaults.
-export const baseSvelteCompileOptions: CompileOptions = {
+export const baseSvelteCompileOptions: SvelteCompileOptions = {
 	// filename: undefined, // `string` used for debugging hints and sourcemaps. Your bundler plugin will set it automatically.
 	// name: 'Component', // `string` that sets the name of the resulting JavaScript class (though the compiler will rename it if it would otherwise conflict with other variables in scope). It will normally be inferred from `filename`.
 	// format: 'esm', // If "esm", creates a JavaScript module (with import and export). If "cjs", creates a CommonJS module (with require and module.exports), which is useful in some server-side rendering situations or for testing.
@@ -55,8 +58,8 @@ export const baseSvelteCompileOptions: CompileOptions = {
 // TODO make this more generic than tied to Svelte?
 export const handleWarn = (
 	id: string,
-	warning: Warning,
-	_handleWarn: (id: string, warning: Warning, ...args: any[]) => void,
+	warning: SvelteWarning,
+	_handleWarn: (id: string, warning: SvelteWarning, ...args: any[]) => void,
 	log: Logger,
 	_pluginContext?: PluginContext,
 ): void => {

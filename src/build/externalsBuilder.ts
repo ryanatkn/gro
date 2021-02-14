@@ -3,7 +3,7 @@ import {basename, dirname} from 'path';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, ExternalsCompilationSource, TextCompilation} from './compiler.js';
+import {Builder, ExternalsBuildSource, TextBuild} from './builder.js';
 import {cyan} from '../colors/terminal.js';
 import {buildExternalModule} from '../build/buildExternalModule.js';
 import {printPath} from '../utils/print.js';
@@ -13,31 +13,31 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger([cyan('[externalsCompiler]')]);
+	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
 	return {
 		...omitUndefined(opts),
 		log,
 	};
 };
 
-type ExternalsCompiler = Compiler<ExternalsCompilationSource, TextCompilation>;
+type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
 
-export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCompiler => {
+export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {log} = initOptions(opts);
 
-	const compile: ExternalsCompiler['compile'] = async (
+	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
 		{buildRootDir, dev, externalsDirBasePath /*, sourceMap */},
 	) => {
 		// if (sourceMap) {
-		// 	log.warn('Source maps are not yet supported by the externals compiler.');
+		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
 		if (!dev) {
-			throw Error('The externals compiler is currently not designed for production usage.');
+			throw Error('The externals builder is currently not designed for production usage.');
 		}
 		if (source.encoding !== 'utf8') {
-			throw Error(`Externals compiler only handles utf8 encoding, not ${source.encoding}`);
+			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
 		// TODO should this be cached on the source?
 		const id = `${buildRootDir}${externalsDirBasePath}/${source.id}.js`;
@@ -54,7 +54,7 @@ export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCom
 			throw err;
 		}
 
-		const compilations: TextCompilation[] = [
+		const builds: TextBuild[] = [
 			{
 				id,
 				filename,
@@ -67,8 +67,8 @@ export const createExternalsCompiler = (opts: InitialOptions = {}): ExternalsCom
 			},
 		];
 
-		return {compilations};
+		return {builds};
 	};
 
-	return {compile};
+	return {build};
 };

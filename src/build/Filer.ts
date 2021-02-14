@@ -25,11 +25,11 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import type {Compiler} from '../compile/compiler.js';
+import type {Builder} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
-import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from '../compile/tsHelpers.js';
+import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {BuildableSourceFile, createSourceFile, SourceFile} from './sourceFile.js';
 import {BuildFile, createBuildFile, DependencyInfo, diffDependencies} from './buildFile.js';
@@ -42,9 +42,9 @@ export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/com
 export interface CachedSourceInfoData {
 	sourceId: string;
 	contentsHash: string;
-	compilations: {
+	builds: {
 		id: string;
-		buildConfigName: string;
+		name: string;
 		localDependencies: string[] | null;
 		externalDependencies: string[] | null;
 		encoding: Encoding;
@@ -58,7 +58,7 @@ const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 
 export interface Options {
 	dev: boolean;
-	compiler: Compiler | null;
+	builder: Builder | null;
 	compiledDirs: string[];
 	externalsDir: string | null;
 	servedDirs: ServedDir[];
@@ -124,12 +124,12 @@ export const initOptions = (opts: InitialOptions): Options => {
 	if (compiledDirCount !== 0 && buildConfigs === null) {
 		throw Error('Filer created with directories to compile but no build configs were provided.');
 	}
-	const compiler = opts.compiler || null;
-	if (compiledDirCount !== 0 && !compiler) {
-		throw Error('Filer created with directories to compile but no compiler was provided.');
+	const builder = opts.builder || null;
+	if (compiledDirCount !== 0 && !builder) {
+		throw Error('Filer created with directories to compile but no builder was provided.');
 	}
-	if (compiler && compiledDirCount === 0) {
-		throw Error('Filer created with a compiler but no directories to compile.');
+	if (builder && compiledDirCount === 0) {
+		throw Error('Filer created with a builder but no directories to compile.');
 	}
 	return {
 		dev,
@@ -141,7 +141,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
-		compiler,
+		builder,
 		compiledDirs,
 		externalsDir,
 		servedDirs,
@@ -163,7 +163,7 @@ export class Filer {
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
 
-	// public properties available to e.g. compilers and postprocessors
+	// public properties available to e.g. builders and postprocessors
 	readonly buildRootDir: string;
 	readonly dev: boolean;
 	readonly sourceMap: boolean;
@@ -174,7 +174,7 @@ export class Filer {
 	constructor(opts: InitialOptions) {
 		const {
 			dev,
-			compiler,
+			builder,
 			buildConfigs,
 			// externalsBuildConfig,
 			buildRootDir,
@@ -202,7 +202,7 @@ export class Filer {
 			compiledDirs,
 			servedDirs,
 			externalsDir,
-			compiler,
+			builder,
 			buildRootDir,
 			this.onDirChange,
 			watch,
@@ -664,8 +664,8 @@ export class Filer {
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
-	private pendingCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
-	private enqueuedCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
+	private pendingCompilations = new Set<string>(); // value is `buildConfig.name + sourceFileId`
+	private enqueuedCompilations = new Set<string>(); // value is `buildConfig.name + sourceFileId`
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -709,9 +709,9 @@ export class Filer {
 		this.log.info('build source file', sourceFile.id);
 
 		// Compile the source file.
-		const result = await sourceFile.filerDir.compiler.compile(sourceFile, buildConfig, this);
+		const result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);
 
-		const newBuildFiles: readonly BuildFile[] = result.compilations.map((compilation) =>
+		const newBuildFiles: readonly BuildFile[] = result.builds.map((compilation) =>
 			createBuildFile(compilation, this, result, sourceFile, buildConfig),
 		);
 
@@ -940,10 +940,10 @@ export class Filer {
 		const data: CachedSourceInfoData = {
 			sourceId: file.id,
 			contentsHash: getFileContentsHash(file),
-			compilations: Array.from(file.buildFiles.values()).flatMap((files) =>
+			builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 				files.map((file) => ({
 					id: file.id,
-					buildConfigName: file.buildConfig.name,
+					name: file.buildConfig.name,
 					localDependencies: file.localDependencies && Array.from(file.localDependencies),
 					externalDependencies: file.externalDependencies && Array.from(file.externalDependencies),
 					encoding: file.encoding,
@@ -1136,7 +1136,7 @@ const createFilerDirs = (
 	compiledDirs: string[],
 	servedDirs: ServedDir[],
 	externalsDir: string | null,
-	compiler: Compiler | null,
+	builder: Builder | null,
 	buildRootDir: string,
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
@@ -1144,12 +1144,10 @@ const createFilerDirs = (
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const compiledDir of compiledDirs) {
-		dirs.push(createFilerDir(compiledDir, 'files', compiler, onChange, watch, watcherDebounce));
+		dirs.push(createFilerDir(compiledDir, 'files', builder, onChange, watch, watcherDebounce));
 	}
 	if (externalsDir !== null) {
-		dirs.push(
-			createFilerDir(externalsDir, 'externals', compiler, onChange, false, watcherDebounce),
-		);
+		dirs.push(createFilerDir(externalsDir, 'externals', builder, onChange, false, watcherDebounce));
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a compiled or externals directory,

@@ -22,7 +22,7 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
-import {compileSourceDirectory} from '../compile/compileSourceDirectory.js';
+import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
 import {loadGroConfig} from '../config/config.js';
 
 /*
@@ -86,7 +86,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				const config = await loadGroConfig();
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
-				await compileSourceDirectory(config, true, log);
+				await buildSourceDirectory(config, true, log);
 				timingToBuildProject();
 			}
 

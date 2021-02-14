@@ -5,7 +5,8 @@
 - change the `build/` directory to `.gro/` and support multiple builds
   ([#59](https://github.com/feltcoop/gro/pull/59))
 - add support for a config file at `src/gro.config.ts` for custom builds
-  ([#67](https://github.com/feltcoop/gro/pull/67))
+  ([#67](https://github.com/feltcoop/gro/pull/67)),
+  ([#68](https://github.com/feltcoop/gro/pull/68))
 - add `Filer` to replace `CachingCompiler` with additional filesystem capabilities
   ([#54](https://github.com/feltcoop/gro/pull/54),
   [#55](https://github.com/feltcoop/gro/pull/55),
@@ -20,8 +21,10 @@
   [#66](https://github.com/feltcoop/gro/pull/66))
 - bundle external modules for the browser
   ([#61](https://github.com/feltcoop/gro/pull/61))
-- make `createCompiler` pluggable allowing users to provide a compiler for each file
+- make `createBuilder` pluggable allowing users to provide a compiler for each file
   ([#57](https://github.com/feltcoop/gro/pull/57))
+- rename `compiler` to `builder`
+  ([#70](https://github.com/feltcoop/gro/pull/70))
 
 ## 0.4.0
 
