@@ -2,7 +2,7 @@ import lexer from 'es-module-lexer';
 
 import {paths, TS_EXTENSION} from '../paths.js';
 import {randomInt} from '../utils/random.js';
-import {createSwcCompiler} from '../build/swcBuilder.js';
+import {createSwcBuilder} from '../build/swcBuilder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {TextCompilationSource, BuildOptions} from '../build/builder.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
@@ -27,7 +27,7 @@ In this use case, the returned config includes `BuildConfig`s
 which are then used to properly compile the project according to its needs.
 
 Note that if the imported modules rely on non-standard behavior, they will fail to run as expected.
-For example, consider a project with a Gro config with a custom compiler
+For example, consider a project with a Gro config with a custom builder
 that injects globals and `import`s CSS files -
 because `importTs` performs a straight translation of TS to JS, this behavior will not work.
 
@@ -75,10 +75,10 @@ const compileFileAndImports = async (
 		dirBasePath: stripStart(dir, paths.source),
 		extension: TS_EXTENSION,
 	};
-	const compiler = createSwcCompiler();
+	const builder = createSwcBuilder();
 	const {
 		compilations: [compilation],
-	} = await compiler.compile(source, buildConfig, buildOptions);
+	} = await builder.build(source, buildConfig, buildOptions);
 
 	const deps = extractDeps(compilation.contents);
 	const internalDeps = deps.filter((dep) => !isExternalNodeModule(dep));

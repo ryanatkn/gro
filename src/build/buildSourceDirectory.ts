@@ -30,7 +30,7 @@ export const buildSourceDirectory = async (
 
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
-		compiler: createDefaultBuilder(),
+		builder: createDefaultBuilder(),
 		compiledDirs: [paths.source],
 		buildConfigs: config.builds,
 		watch: false,

@@ -1,42 +1,42 @@
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {
 	CompilationSource,
-	Compiler,
-	createCompiler,
-	InitialOptions as CompilerInitialOptions,
+	Builder,
+	createBuilder,
+	InitialOptions as BuilderInitialOptions,
 } from './builder.js';
-import {createSwcCompiler, InitialOptions as SwcCompilerInitialOptions} from './swcBuilder.js';
+import {createSwcBuilder, InitialOptions as SwcBuilderInitialOptions} from './swcBuilder.js';
 import {
-	createSvelteCompiler,
-	InitialOptions as SvelteCompilerInitialOptions,
+	createSvelteBuilder,
+	InitialOptions as SvelteBuilderInitialOptions,
 } from './svelteBuilder.js';
 import {
-	createExternalsCompiler,
-	InitialOptions as ExternalsCompilerInitialOptions,
+	createExternalsBuilder,
+	InitialOptions as ExternalsBuilderInitialOptions,
 } from './externalsBuilder.js';
 
 export const createDefaultBuilder = (
-	swcCompilerOptions?: SwcCompilerInitialOptions,
-	svelteCompilerOptions?: SvelteCompilerInitialOptions,
-	externalsCompilerOptions?: ExternalsCompilerInitialOptions,
-	compilerOptions?: CompilerInitialOptions,
-): Compiler => {
-	const swcCompiler = createSwcCompiler(swcCompilerOptions);
-	const svelteCompiler = createSvelteCompiler(svelteCompilerOptions);
-	const externalsCompiler = createExternalsCompiler(externalsCompilerOptions);
+	swcBuilderOptions?: SwcBuilderInitialOptions,
+	svelteBuilderOptions?: SvelteBuilderInitialOptions,
+	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
+	builderOptions?: BuilderInitialOptions,
+): Builder => {
+	const swcBuilder = createSwcBuilder(swcBuilderOptions);
+	const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
+	const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
 
-	if (!compilerOptions?.getCompiler) {
-		compilerOptions = {
-			...compilerOptions,
-			getCompiler: (source: CompilationSource) => {
+	if (!builderOptions?.getBuilder) {
+		builderOptions = {
+			...builderOptions,
+			getBuilder: (source: CompilationSource) => {
 				if (source.sourceType === 'externals') {
-					return externalsCompiler;
+					return externalsBuilder;
 				}
 				switch (source.extension) {
 					case TS_EXTENSION:
-						return swcCompiler;
+						return swcBuilder;
 					case SVELTE_EXTENSION:
-						return svelteCompiler;
+						return svelteBuilder;
 					default:
 						return null;
 				}
@@ -44,5 +44,5 @@ export const createDefaultBuilder = (
 		};
 	}
 
-	return createCompiler(compilerOptions);
+	return createBuilder(builderOptions);
 };

@@ -5,11 +5,11 @@ import {toBuildOutPath} from '../paths.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';
 
-export interface Compiler<
+export interface Builder<
 	TSource extends CompilationSource = CompilationSource,
 	TCompilation extends Compilation = Compilation
 > {
-	compile(
+	build(
 		source: TSource,
 		buildConfig: BuildConfig,
 		options: BuildOptions,
@@ -73,38 +73,38 @@ interface BaseCompilationSource {
 	extension: string;
 }
 
-export interface GetCompiler {
-	(source: CompilationSource, buildConfig: BuildConfig): Compiler | null;
+export interface GetBuilder {
+	(source: CompilationSource, buildConfig: BuildConfig): Builder | null;
 }
 
 export interface Options {
-	getCompiler: GetCompiler;
+	getBuilder: GetBuilder;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
-		getCompiler: getNoopCompiler,
+		getBuilder: getNoopBuilder,
 		...omitUndefined(opts),
 	};
 };
 
-export const createCompiler = (opts: InitialOptions = {}): Compiler => {
-	const {getCompiler} = initOptions(opts);
+export const createBuilder = (opts: InitialOptions = {}): Builder => {
+	const {getBuilder} = initOptions(opts);
 
-	const compile: Compiler['compile'] = (
+	const build: Builder['build'] = (
 		source: CompilationSource,
 		buildConfig: BuildConfig,
 		options: BuildOptions,
 	) => {
-		const compiler = getCompiler(source, buildConfig) || noopCompiler;
-		return compiler.compile(source, buildConfig, options);
+		const builder = getBuilder(source, buildConfig) || noopBuilder;
+		return builder.build(source, buildConfig, options);
 	};
 
-	return {compile};
+	return {build};
 };
 
-const noopCompiler: Compiler = {
-	compile: (source, buildConfig, {buildRootDir, dev}) => {
+const noopBuilder: Builder = {
+	build: (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
@@ -139,4 +139,4 @@ const noopCompiler: Compiler = {
 		return {compilations: [file]};
 	},
 };
-const getNoopCompiler: GetCompiler = () => noopCompiler;
+const getNoopBuilder: GetBuilder = () => noopBuilder;

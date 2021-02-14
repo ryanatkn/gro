@@ -20,7 +20,7 @@ import {
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, TextCompilation, TextCompilationSource} from './builder.js';
+import {Builder, TextCompilation, TextCompilationSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
@@ -43,14 +43,14 @@ export const initOptions = (opts: InitialOptions): Options => {
 		onstats: null,
 		createPreprocessor: createDefaultPreprocessor,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[svelteCompiler]')]),
+		log: opts.log || new SystemLogger([cyan('[svelteBuilder]')]),
 		svelteCompileOptions: opts.svelteCompileOptions || {},
 	};
 };
 
-type SvelteCompiler = Compiler<TextCompilationSource, TextCompilation>;
+type SvelteBuilder = Builder<TextCompilationSource, TextCompilation>;
 
-export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler => {
+export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder => {
 	const {log, createPreprocessor, svelteCompileOptions, onwarn, onstats} = initOptions(opts);
 
 	const preprocessorCache: Map<string, PreprocessorGroup | PreprocessorGroup[] | null> = new Map();
@@ -66,7 +66,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		return newPreprocessor;
 	};
 
-	const compile: SvelteCompiler['compile'] = async (
+	const build: SvelteBuilder['build'] = async (
 		source,
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target},
@@ -168,7 +168,7 @@ export const createSvelteCompiler = (opts: InitialOptions = {}): SvelteCompiler 
 		return {compilations};
 	};
 
-	return {compile};
+	return {build};
 };
 
 const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {

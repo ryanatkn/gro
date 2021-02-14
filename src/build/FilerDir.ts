@@ -1,7 +1,7 @@
 import {ensureDir} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT, watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import {Compiler} from './builder.js';
+import {Builder} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {PathStats} from '../fs/pathData.js';
 
@@ -14,17 +14,17 @@ export type FilerDirType = 'files' | 'externals';
 export interface BuildableInternalsFilerDir extends BaseFilerDir {
 	readonly type: 'files';
 	readonly buildable: true;
-	readonly compiler: Compiler;
+	readonly builder: Builder;
 }
 export interface NonBuildableInternalsFilerDir extends BaseFilerDir {
 	readonly type: 'files';
 	readonly buildable: false;
-	readonly compiler: null;
+	readonly builder: null;
 }
 export interface ExternalsFilerDir extends BaseFilerDir {
 	readonly type: 'externals';
 	readonly buildable: true;
-	readonly compiler: Compiler;
+	readonly builder: Builder;
 }
 
 interface BaseFilerDir {
@@ -46,7 +46,7 @@ export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir
 export const createFilerDir = (
 	dir: string,
 	type: FilerDirType,
-	compiler: Compiler | null,
+	builder: Builder | null,
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number = DEBOUNCE_DEFAULT,
@@ -72,11 +72,11 @@ export const createFilerDir = (
 	let filerDir: FilerDir;
 	switch (type) {
 		case 'files': {
-			if (compiler === null) {
+			if (builder === null) {
 				filerDir = {
 					type: 'files',
 					buildable: false,
-					compiler: null,
+					builder: null,
 					dir,
 					onChange,
 					watcher,
@@ -87,7 +87,7 @@ export const createFilerDir = (
 				filerDir = {
 					type: 'files',
 					buildable: true,
-					compiler,
+					builder,
 					dir,
 					onChange,
 					watcher,
@@ -98,13 +98,13 @@ export const createFilerDir = (
 			break;
 		}
 		case 'externals': {
-			if (compiler === null) {
-				throw Error(`A compiler is required for directories with type '${type}'.`);
+			if (builder === null) {
+				throw Error(`A builder is required for directories with type '${type}'.`);
 			} else {
 				filerDir = {
 					type: 'externals',
 					buildable: true,
-					compiler,
+					builder,
 					dir,
 					onChange,
 					watcher,

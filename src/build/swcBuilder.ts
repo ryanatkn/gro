@@ -6,7 +6,7 @@ import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Compiler, TextCompilation, TextCompilationSource} from './builder.js';
+import {Builder, TextCompilation, TextCompilationSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
 import {addJsSourceMapFooter} from './buildHelpers.js';
@@ -21,13 +21,13 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		createSwcOptions: createDefaultSwcOptions,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[swcCompiler]')]),
+		log: opts.log || new SystemLogger([cyan('[swcBuilder]')]),
 	};
 };
 
-type SwcCompiler = Compiler<TextCompilationSource, TextCompilation>;
+type SwcBuilder = Builder<TextCompilationSource, TextCompilation>;
 
-export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
+export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 	const {createSwcOptions} = initOptions(opts);
 
 	const swcOptionsCache: Map<string, swc.Options> = new Map();
@@ -40,7 +40,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		return newSwcOptions;
 	};
 
-	const compile: SwcCompiler['compile'] = async (
+	const build: SwcBuilder['build'] = async (
 		source,
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target},
@@ -87,7 +87,7 @@ export const createSwcCompiler = (opts: InitialOptions = {}): SwcCompiler => {
 		return {compilations};
 	};
 
-	return {compile};
+	return {build};
 };
 
 type CreateSwcOptions = (sourceMap: boolean, target: EcmaScriptTarget) => swc.Options;

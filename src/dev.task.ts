@@ -22,7 +22,7 @@ export const task: Task = {
 		const sourceMap = tsconfig.compilerOptions?.sourceMap ?? true;
 
 		const filer = new Filer({
-			compiler: createDefaultBuilder(),
+			builder: createDefaultBuilder(),
 			compiledDirs: [paths.source],
 			servedDirs: [buildOutDirToServe],
 			buildConfigs: config.builds,
