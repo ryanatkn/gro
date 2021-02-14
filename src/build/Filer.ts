@@ -42,9 +42,9 @@ export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/com
 export interface CachedSourceInfoData {
 	sourceId: string;
 	contentsHash: string;
-	compilations: {
+	builds: {
 		id: string;
-		buildConfigName: string;
+		name: string;
 		localDependencies: string[] | null;
 		externalDependencies: string[] | null;
 		encoding: Encoding;
@@ -664,8 +664,8 @@ export class Filer {
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
-	private pendingCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
-	private enqueuedCompilations = new Set<string>(); // value is `buildConfigName + sourceFileId`
+	private pendingCompilations = new Set<string>(); // value is `buildConfig.name + sourceFileId`
+	private enqueuedCompilations = new Set<string>(); // value is `buildConfig.name + sourceFileId`
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -711,7 +711,7 @@ export class Filer {
 		// Compile the source file.
 		const result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);
 
-		const newBuildFiles: readonly BuildFile[] = result.compilations.map((compilation) =>
+		const newBuildFiles: readonly BuildFile[] = result.builds.map((compilation) =>
 			createBuildFile(compilation, this, result, sourceFile, buildConfig),
 		);
 
@@ -940,10 +940,10 @@ export class Filer {
 		const data: CachedSourceInfoData = {
 			sourceId: file.id,
 			contentsHash: getFileContentsHash(file),
-			compilations: Array.from(file.buildFiles.values()).flatMap((files) =>
+			builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 				files.map((file) => ({
 					id: file.id,
-					buildConfigName: file.buildConfig.name,
+					name: file.buildConfig.name,
 					localDependencies: file.localDependencies && Array.from(file.localDependencies),
 					externalDependencies: file.externalDependencies && Array.from(file.externalDependencies),
 					encoding: file.encoding,

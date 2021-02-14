@@ -3,31 +3,29 @@ import {join} from 'path';
 import lexer from 'es-module-lexer';
 
 import {CSS_EXTENSION, JS_EXTENSION, SVELTE_EXTENSION, toBuildExtension} from '../paths.js';
-import type {Compilation, BuildOptions, BuildResult, BuildSource} from './builder.js';
+import type {Build, BuildOptions, BuildResult, BuildSource} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js';
 
 export const postprocess = (
-	compilation: Compilation,
+	build: Build,
 	{externalsDirBasePath, servedDirs}: BuildOptions,
-	result: BuildResult<Compilation>,
+	result: BuildResult<Build>,
 	source: BuildSource,
 ): [
-	contents: Compilation['contents'],
+	contents: Build['contents'],
 	localDependencies: Set<string> | null,
 	externalDependencies: Set<string> | null,
 ] => {
-	if (compilation.encoding === 'utf8') {
-		let {contents} = compilation;
+	if (build.encoding === 'utf8') {
+		let {contents} = build;
 		let localDependencies: Set<string> | null = null;
 		let externalDependencies: Set<string> | null = null;
 
 		// Map import paths to the compiled versions.
-		if (compilation.extension === JS_EXTENSION) {
+		if (build.extension === JS_EXTENSION) {
 			const isExternalModule =
-				compilation.buildConfig.platform === 'browser'
-					? isExternalBrowserModule
-					: isExternalNodeModule;
+				build.buildConfig.platform === 'browser' ? isExternalBrowserModule : isExternalNodeModule;
 			let transformedContents = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
@@ -42,7 +40,7 @@ export const postprocess = (
 				if (
 					isExternal &&
 					externalsDirBasePath !== null &&
-					compilation.buildConfig.platform === 'browser'
+					build.buildConfig.platform === 'browser'
 				) {
 					// TODO it's weird that this is a fake absolute path while locals have real absolute paths
 					newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
@@ -51,7 +49,7 @@ export const postprocess = (
 					(externalDependencies || (externalDependencies = new Set())).add(newModuleName);
 				} else {
 					(localDependencies || (localDependencies = new Set())).add(
-						join(compilation.dir, newModuleName),
+						join(build.dir, newModuleName),
 					);
 				}
 				if (newModuleName !== moduleName) {
@@ -67,10 +65,10 @@ export const postprocess = (
 		// Support Svelte CSS for development in the browser.
 		if (
 			source.extension === SVELTE_EXTENSION &&
-			compilation.extension === JS_EXTENSION &&
-			compilation.buildConfig.platform === 'browser'
+			build.extension === JS_EXTENSION &&
+			build.buildConfig.platform === 'browser'
 		) {
-			const cssCompilation = result.compilations.find((c) => c.extension === CSS_EXTENSION);
+			const cssCompilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
 			if (cssCompilation !== undefined) {
 				let importPath: string | undefined;
 				for (const servedDir of servedDirs) {
@@ -87,7 +85,7 @@ export const postprocess = (
 		return [contents, localDependencies, externalDependencies];
 	} else {
 		// Handle other encodings like binary.
-		return [compilation.contents, null, null];
+		return [build.contents, null, null];
 	}
 };
 

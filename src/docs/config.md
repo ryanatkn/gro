@@ -5,7 +5,7 @@ to one or more output artifacts.
 It's designed for a variety of use cases:
 
 - support dev and prod builds that coexist on the filesystem
-- support multiple compilation targets like legacy/modern ES versions and mobile/desktop frontends
+- support multiple build targets like legacy/modern ES versions and mobile/desktop frontends
 - support multiple platform targets like Node and browsers, including server-side rendering
 - support multiple packages created from one codebase to be published separately
 

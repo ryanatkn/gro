@@ -20,7 +20,7 @@ import {
 } from '../paths.js';
 import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, TextCompilation, TextBuildSource} from './builder.js';
+import {Builder, TextBuild, TextBuildSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
@@ -48,7 +48,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type SvelteBuilder = Builder<TextBuildSource, TextCompilation>;
+type SvelteBuilder = Builder<TextBuildSource, TextBuild>;
 
 export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder => {
 	const {log, createPreprocessor, svelteCompileOptions, onwarn, onstats} = initOptions(opts);
@@ -113,7 +113,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		const hasJsSourceMap = sourceMap && js.map !== undefined;
 		const hasCssSourceMap = sourceMap && css.map !== undefined;
 
-		const compilations: TextCompilation[] = [
+		const builds: TextBuild[] = [
 			{
 				id: jsId,
 				filename: jsFilename,
@@ -128,7 +128,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 			},
 		];
 		if (hasJsSourceMap) {
-			compilations.push({
+			builds.push({
 				id: jsId + SOURCEMAP_EXTENSION,
 				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
@@ -140,7 +140,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 			});
 		}
 		if (css.code) {
-			compilations.push({
+			builds.push({
 				id: cssId,
 				filename: cssFilename,
 				dir: outDir,
@@ -153,7 +153,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				buildConfig,
 			});
 			if (hasCssSourceMap) {
-				compilations.push({
+				builds.push({
 					id: cssId + SOURCEMAP_EXTENSION,
 					filename: cssFilename + SOURCEMAP_EXTENSION,
 					dir: outDir,
@@ -165,7 +165,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				});
 			}
 		}
-		return {compilations};
+		return {builds};
 	};
 
 	return {build};

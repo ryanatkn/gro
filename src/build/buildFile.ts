@@ -1,4 +1,4 @@
-import {Compilation, BuildOptions, BuildResult} from './builder.js';
+import {Build, BuildOptions, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import {CachedSourceInfo} from './Filer.js';
@@ -30,19 +30,19 @@ export interface BaseBuildFile extends BaseFilerFile {
 }
 
 export const createBuildFile = (
-	compilation: Compilation,
+	build: Build,
 	buildOptions: BuildOptions,
-	result: BuildResult<Compilation>,
+	result: BuildResult<Build>,
 	sourceFile: BuildableSourceFile,
 	buildConfig: BuildConfig,
 ): BuildFile => {
 	const [contents, localDependencies, externalDependencies] = postprocess(
-		compilation,
+		build,
 		buildOptions,
 		result,
 		sourceFile,
 	);
-	switch (compilation.encoding) {
+	switch (build.encoding) {
 		case 'utf8':
 			return {
 				type: 'build',
@@ -50,13 +50,13 @@ export const createBuildFile = (
 				buildConfig,
 				localDependencies,
 				externalDependencies,
-				id: compilation.id,
-				filename: compilation.filename,
-				dir: compilation.dir,
-				extension: compilation.extension,
-				encoding: compilation.encoding,
+				id: build.id,
+				filename: build.filename,
+				dir: build.dir,
+				extension: build.extension,
+				encoding: build.encoding,
 				contents: contents as string,
-				sourceMapOf: compilation.sourceMapOf,
+				sourceMapOf: build.sourceMapOf,
 				contentsBuffer: undefined,
 				contentsHash: undefined,
 				stats: undefined,
@@ -69,19 +69,19 @@ export const createBuildFile = (
 				buildConfig,
 				localDependencies,
 				externalDependencies,
-				id: compilation.id,
-				filename: compilation.filename,
-				dir: compilation.dir,
-				extension: compilation.extension,
-				encoding: compilation.encoding,
+				id: build.id,
+				filename: build.filename,
+				dir: build.dir,
+				extension: build.extension,
+				encoding: build.encoding,
 				contents: contents as Buffer,
-				contentsBuffer: compilation.contents,
+				contentsBuffer: build.contents,
 				contentsHash: undefined,
 				stats: undefined,
 				mimeType: undefined,
 			};
 		default:
-			throw new UnreachableError(compilation);
+			throw new UnreachableError(build);
 	}
 };
 
@@ -91,20 +91,14 @@ export const reconstructBuildFiles = async (
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(
-		cachedSourceInfo.data.compilations.map(
-			async (compilation): Promise<void> => {
-				const {
-					id,
-					buildConfigName,
-					externalDependencies,
-					localDependencies,
-					encoding,
-				} = compilation;
+		cachedSourceInfo.data.builds.map(
+			async (build): Promise<void> => {
+				const {id, name, externalDependencies, localDependencies, encoding} = build;
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
 				const contents = await loadContents(encoding, id);
-				const buildConfig = buildConfigs.find((b) => b.name === buildConfigName)!; // is a bit awkward, but probably not inefficient enough to change
+				const buildConfig = buildConfigs.find((b) => b.name === name)!; // is a bit awkward, but probably not inefficient enough to change
 				let buildFile: BuildFile;
 				switch (encoding) {
 					case 'utf8':

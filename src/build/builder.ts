@@ -5,19 +5,16 @@ import {toBuildOutPath} from '../paths.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';
 
-export interface Builder<
-	TSource extends BuildSource = BuildSource,
-	TCompilation extends Compilation = Compilation
-> {
+export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
 	build(
 		source: TSource,
 		buildConfig: BuildConfig,
 		options: BuildOptions,
-	): BuildResult<TCompilation> | Promise<BuildResult<TCompilation>>;
+	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>;
 }
 
-export interface BuildResult<TCompilation extends Compilation = Compilation> {
-	compilations: TCompilation[];
+export interface BuildResult<TBuild extends Build = Build> {
+	builds: TBuild[];
 }
 export interface BuildOptions {
 	readonly sourceMap: boolean;
@@ -28,17 +25,17 @@ export interface BuildOptions {
 	readonly servedDirs: readonly ServedDir[];
 }
 
-export type Compilation = TextCompilation | BinaryCompilation;
-export interface TextCompilation extends BaseCompilation {
+export type Build = TextBuild | BinaryBuild;
+export interface TextBuild extends BaseBuild {
 	encoding: 'utf8';
 	contents: string;
 	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
 }
-export interface BinaryCompilation extends BaseCompilation {
+export interface BinaryBuild extends BaseBuild {
 	encoding: null;
 	contents: Buffer;
 }
-interface BaseCompilation {
+interface BaseBuild {
 	id: string;
 	filename: string;
 	dir: string;
@@ -105,7 +102,7 @@ const noopBuilder: Builder = {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
 		const id = `${outDir}${filename}`;
-		let file: Compilation;
+		let file: Build;
 		switch (source.encoding) {
 			case 'utf8':
 				file = {
@@ -133,7 +130,7 @@ const noopBuilder: Builder = {
 			default:
 				throw new UnreachableError(source);
 		}
-		return {compilations: [file]};
+		return {builds: [file]};
 	},
 };
 const getNoopBuilder: GetBuilder = () => noopBuilder;

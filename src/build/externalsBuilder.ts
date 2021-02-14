@@ -3,7 +3,7 @@ import {basename, dirname} from 'path';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, ExternalsBuildSource, TextCompilation} from './builder.js';
+import {Builder, ExternalsBuildSource, TextBuild} from './builder.js';
 import {cyan} from '../colors/terminal.js';
 import {buildExternalModule} from '../build/buildExternalModule.js';
 import {printPath} from '../utils/print.js';
@@ -20,7 +20,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type ExternalsBuilder = Builder<ExternalsBuildSource, TextCompilation>;
+type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
 
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {log} = initOptions(opts);
@@ -54,7 +54,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			throw err;
 		}
 
-		const compilations: TextCompilation[] = [
+		const builds: TextBuild[] = [
 			{
 				id,
 				filename,
@@ -67,7 +67,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			},
 		];
 
-		return {compilations};
+		return {builds};
 	};
 
 	return {build};

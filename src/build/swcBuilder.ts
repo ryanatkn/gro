@@ -6,7 +6,7 @@ import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, TextCompilation, TextBuildSource} from './builder.js';
+import {Builder, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
 import {addJsSourceMapFooter} from './buildHelpers.js';
@@ -25,7 +25,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type SwcBuilder = Builder<TextBuildSource, TextCompilation>;
+type SwcBuilder = Builder<TextBuildSource, TextBuild>;
 
 export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 	const {createSwcOptions} = initOptions(opts);
@@ -58,7 +58,7 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 		const output = await swc.transform(contents, finalSwcOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
-		const compilations: TextCompilation[] = [
+		const builds: TextBuild[] = [
 			{
 				id: jsId,
 				filename: jsFilename,
@@ -73,7 +73,7 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 			},
 		];
 		if (output.map) {
-			compilations.push({
+			builds.push({
 				id: jsId + SOURCEMAP_EXTENSION,
 				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
@@ -84,7 +84,7 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 				buildConfig,
 			});
 		}
-		return {compilations};
+		return {builds};
 	};
 
 	return {build};

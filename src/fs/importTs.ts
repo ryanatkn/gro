@@ -77,10 +77,10 @@ const compileFileAndImports = async (
 	};
 	const builder = createSwcBuilder();
 	const {
-		compilations: [compilation],
+		builds: [build],
 	} = await builder.build(source, buildConfig, buildOptions);
 
-	const deps = extractDeps(compilation.contents);
+	const deps = extractDeps(build.contents);
 	const internalDeps = deps.filter((dep) => !isExternalNodeModule(dep));
 	const internalDepSourceIds = internalDeps.map((dep) =>
 		replaceExtension(join(dir, dep), TS_EXTENSION),
@@ -88,13 +88,13 @@ const compileFileAndImports = async (
 
 	// write the result and compile depdencies in parallel
 	await Promise.all([
-		outputFile(compilation.id, compilation.contents),
+		outputFile(build.id, build.contents),
 		Promise.all(
 			internalDepSourceIds.map((id) => compileFileAndImports(id, buildConfig, buildOptions)),
 		),
 	]);
 
-	return compilation.id;
+	return build.id;
 };
 
 const extractDeps = (contents: string): string[] => {
