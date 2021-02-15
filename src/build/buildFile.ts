@@ -94,10 +94,6 @@ export const reconstructBuildFiles = async (
 		cachedSourceInfo.data.builds.map(
 			async (build): Promise<void> => {
 				const {id, name, externalDependencies, localDependencies, encoding} = build;
-				if (id.includes('/externals/')) {
-					debugger;
-					console.log('recon id', id);
-				}
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);

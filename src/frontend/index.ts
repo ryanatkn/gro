@@ -1,6 +1,8 @@
 import './devtools.js';
 import App from './App.svelte';
-// // import '../build/failme.js';
+
+// // test a bad import
+// import '../build/failme.js';
 
 // test a bare internal import
 import './foo.js';
