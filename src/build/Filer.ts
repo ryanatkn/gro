@@ -29,7 +29,12 @@ import {BuildConfig} from '../config/buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
-import {BuildableSourceFile, createSourceFile, SourceFile} from './sourceFile.js';
+import {
+	BuildableExternalsSourceFile,
+	BuildableSourceFile,
+	createSourceFile,
+	SourceFile,
+} from './sourceFile.js';
 import {BuildFile, createBuildFile, DependencyInfo, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
@@ -111,7 +116,14 @@ export const initOptions = (opts: InitialOptions): Options => {
 							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
 							'',
 							buildRootDir,
-						) + (isThisProjectGro ? '/frontend' : ''), // TODO hacky, remove when `gro.config.ts` is added
+						),
+						// TODO do this correctly..
+						toBuildOutPath(
+							dev,
+							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
+							'',
+							buildRootDir,
+						) + '/frontend',
 				  ]),
 		externalsDir,
 		buildRootDir,
@@ -220,10 +232,13 @@ export class Filer {
 
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFilerFile | null> {
-		const {externalsServedDir, files} = this;
+		const {files} = this;
+		console.log('findByPath path', path);
 		for (const servedDir of this.servedDirs) {
-			if (servedDir === externalsServedDir) continue;
+			// if (servedDir === externalsServedDir) continue;
 			const id = `${servedDir.servedAt}/${path}`;
+			console.log('id?', id);
+			console.log('servedDir', servedDir);
 			const file = files.get(id);
 			if (file !== undefined) {
 				return file;
@@ -242,21 +257,26 @@ export class Filer {
 
 	async init(): Promise<void> {
 		if (this.initializing) return this.initializing;
+		console.log('initalizing..');
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
 		await Promise.all([this.initCachedSourceInfo(), lexer.init]);
+		console.log('inited cache');
 		// Initializing the dirs must be done after `this.initCachedSourceInfo`
 		// because it creates source files, which need `this.cachedSourceInfo` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
+		console.log('inited files');
 
 		// Now that the cached source info and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
 		await this.cleanCachedSourceInfo();
+		console.log('cleaned');
 
 		// This performs initial source file compilation, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
+		console.log('inited builds');
 		// this.log.info('buildConfigs', this.buildConfigs);
 
 		// Clean the dev output directories,
@@ -280,7 +300,7 @@ export class Filer {
 										` File is ${id} in outputDir ${outputDir}`,
 								);
 							}
-							this.log.trace('deleting unknown compiled file', printPath(id));
+							this.log.trace('deleting unknown build file', printPath(id));
 							const promises: Promise<void>[] = [remove(id)];
 							const sourceFile = this.findSourceFile(id);
 							if (sourceFile !== undefined) {
@@ -307,6 +327,7 @@ export class Filer {
 				this.externalsDirBasePath,
 			);
 		}
+		console.log('initalized!');
 
 		finishInitializing!();
 	}
@@ -403,7 +424,7 @@ export class Filer {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		if (sourceFile.filerDir.type === 'externals') {
+		if (sourceFile.sourceType === 'externals') {
 			console.log('IGNORING EXTERNALS in addSourceFileToBuild', sourceFile);
 			return;
 		}
@@ -440,7 +461,7 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.filerDir.type === 'externals') {
+		if (sourceFile.sourceType === 'externals') {
 			console.log('IGNORING EXTERNALS in addSourceFileToBuild', sourceFile);
 			return;
 		}
@@ -743,7 +764,7 @@ export class Filer {
 			console.log('TODO is this eneded?');
 			return;
 		}
-		const {
+		let {
 			addedDependencies,
 			removedDependencies,
 			addedDependencySourceFiles,
@@ -762,7 +783,8 @@ export class Filer {
 
 				// create external source files if needed
 				if (addedDependency.external && buildConfig.platform === 'browser') {
-					await this.addExternalDependency(sourceId);
+					const sourceFile = await this.addExternalDependency(sourceId);
+					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(sourceFile);
 				}
 			}
 		}
@@ -910,7 +932,7 @@ export class Filer {
 
 	private async destroySourceId(id: string): Promise<void> {
 		const sourceFile = this.files.get(id);
-		if (!sourceFile || sourceFile.type !== 'source') return; // ignore compiled files (maybe throw an error if the file isn't found, should not happen)
+		if (!sourceFile || sourceFile.type !== 'source') return; // ignore build files (maybe throw an error if the file isn't found, should not happen)
 		this.log.trace('destroying file', printPath(id));
 		this.files.delete(id);
 		if (sourceFile.buildable) {
@@ -922,19 +944,23 @@ export class Filer {
 	}
 
 	// TODO track externals per build to match the flexibility of building local files
-	externalDependencies = new Set<string>();
-	async addExternalDependency(id: string): Promise<void> {
+	// externalDependencies = new Set<string>();
+	async addExternalDependency(id: string): Promise<BuildableExternalsSourceFile> {
 		console.log('addExternalDependency id?', id);
-		if (this.files.has(id)) return;
+		// let sourceFile = this.files.get(id);
+		// if (sourceFile !== undefined) {
+		// 	debugger;
+		// 	return sourceFile as BuildableExternalsSourceFile; // TODO check this instead?
+		// }
 		console.log('addExternalDependency id YES', id);
-		this.externalDependencies.add(id);
+		// this.externalDependencies.add(id);
 		if (this.externalsDir === null) {
 			throw Error(`Expected an externalsDir to create an externals source file.`);
 		}
 		const shouldBuild = await this.updateSourceFile(id, this.externalsDir);
 		console.log('shouldBuild', shouldBuild);
+		const sourceFile = this.files.get(id);
 		if (shouldBuild) {
-			const sourceFile = this.files.get(id);
 			if (sourceFile === undefined || sourceFile.type !== 'source' || !sourceFile.buildable) {
 				throw Error(`Expected to find externals source file: ${id}`);
 			}
@@ -950,6 +976,7 @@ export class Filer {
 			}
 			await this.buildSourceFile(sourceFile, this.externalsBuildConfig);
 		}
+		return sourceFile as BuildableExternalsSourceFile; // TODO check this instead?
 	}
 	// async removeExternalDependency(id: string): Promise<void> {
 	// 	console.log('removeExternalDependency id (no-op? so we never clean them up?)', id);
@@ -1034,7 +1061,7 @@ const syncFilesToDisk = async (
 							log.trace('updating stale build file on disk', printPath(newFile.id));
 							shouldOutputNewFile = true;
 						} // ...else the build file on disk already matches what's in memory.
-						// This can happen if the source file changed but this particular compiled file did not.
+						// This can happen if the source file changed but this particular build file did not.
 						// Loading the usually-stale contents into memory to check before writing is inefficient,
 						// but it avoids unnecessary writing to disk and misleadingly updated file stats.
 					}
@@ -1042,7 +1069,7 @@ const syncFilesToDisk = async (
 					log.trace('updating build file on disk', printPath(newFile.id));
 					shouldOutputNewFile = true;
 				} // ...else the build file on disk already matches what's in memory.
-				// This can happen if the source file changed but this particular compiled file did not.
+				// This can happen if the source file changed but this particular build file did not.
 				if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
 			}),
 		),

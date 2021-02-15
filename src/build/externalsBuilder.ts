@@ -1,12 +1,11 @@
 import {basename, dirname, join} from 'path';
-import {install} from 'esinstall';
+import {ImportMap, install} from 'esinstall';
 
 import {Logger, SystemLogger} from '../utils/log.js';
 import {paths, JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {Builder, ExternalsBuildSource, TextBuild} from './builder.js';
 import {cyan} from '../colors/terminal.js';
-import {printPath} from '../utils/print.js';
 import {loadContents} from './load.js';
 
 export interface Options {
@@ -27,6 +26,8 @@ type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
 
 const encoding = 'utf8';
 
+let importMap: ImportMap | undefined = undefined;
+
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {log, externalsDir} = initOptions(opts);
 
@@ -44,35 +45,33 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		if (source.encoding !== encoding) {
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
-		// TODO should this be cached on the source?
-		const id = `${buildRootDir}${externalsDirBasePath}/${source.id}.js`;
-		const dir = dirname(id);
-		const filename = basename(id);
 
-		log.info(`Bundling externals: ${source.id} → ${printPath(id)}`);
+		let id: string;
+
+		log.info(`Bundling externals ${buildConfig.name}: ${source.id}`);
 
 		let contents: string;
 		try {
-			const result = await installExternal(source.id, {dest: externalsDir});
+			const result = await installExternal(source.id, {dest: externalsDir, importMap});
 			// const result = await install(specifiers, {dest: externalsDir});
+			importMap = result.importMap;
 			console.log('\n\n\nsource.id', source.id);
 			console.log('result.importMap', result.importMap);
 			console.log('result.stats', result.stats);
-			// TODO this `outputId` stuff is a hack, but it works for now i think
-			const outputId = join(externalsDir, result.importMap.imports[source.id]);
-			console.log('outputId', outputId);
-			contents = await loadContents(encoding, outputId); // TODO do we need to update the source file's data? might differ?
-			console.log('source.', source);
+			// TODO this `id` stuff is a hack, but it works for now i think
+			id = join(buildRootDir, externalsDirBasePath || '', result.importMap.imports[source.id]);
+			console.log('id', id);
+			contents = await loadContents(encoding, id); // TODO do we need to update the source file's data? might differ?
 		} catch (err) {
-			log.error(`Failed to bundle external module: ${source.id} from ${id}`);
+			log.error(`Failed to bundle external module: ${source.id}`);
 			throw err;
 		}
 
 		const builds: TextBuild[] = [
 			{
 				id,
-				filename,
-				dir,
+				filename: basename(id),
+				dir: dirname(id),
 				extension: JS_EXTENSION,
 				encoding,
 				contents,
@@ -108,11 +107,17 @@ const installExternal = async (
 	}
 	const oldInstalling = installing;
 	await installing;
-	if (oldInstalling !== installing) return installExternal(sourceId, options); // queued
+	if (oldInstalling !== installing) {
+		console.log('WAITING');
+		await new Promise((resolve) => setTimeout(resolve, 100)); // TODO hack
+		return installExternal(sourceId, options); // queued
+	}
 	specifiers.push(sourceId);
 	console.log('\n\n\n\n\ninstall!', sourceId, specifiers);
 	console.log('\nurl', import.meta.url);
 	installing = install(specifiers, options);
+	console.log('installing...');
 	const result = await installing;
+	console.log('installed!');
 	return result;
 };
