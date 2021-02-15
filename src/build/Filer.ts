@@ -12,7 +12,6 @@ import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.
 import {
 	EXTERNALS_BUILD_DIR,
 	hasSourceExtension,
-	isThisProjectGro,
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
@@ -113,21 +112,19 @@ export const initOptions = (opts: InitialOptions): Options => {
 				: [
 						toBuildOutPath(
 							dev,
-							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
+							(
+								buildConfigs.find((c) => c.platform === 'browser' && c.primary) ||
+								buildConfigs.find((c) => c.platform === 'browser') ||
+								buildConfigs.find((c) => c.primary)!
+							).name,
 							'',
 							buildRootDir,
 						),
-						// TODO do this correctly..
-						toBuildOutPath(
-							dev,
-							(buildConfigs.find((c) => c.platform === 'browser') || buildConfigs[0]).name,
-							'',
-							buildRootDir,
-						) + '/frontend',
 				  ]),
 		externalsDir,
 		buildRootDir,
 	);
+	console.log('servedDirs', servedDirs);
 	if (compiledDirCount === 0 && servedDirs.length === 0) {
 		throw Error('Filer created with no directories to compile or serve.');
 	}
@@ -233,17 +230,16 @@ export class Filer {
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFilerFile | null> {
 		const {files} = this;
-		console.log('findByPath path', path);
 		for (const servedDir of this.servedDirs) {
-			// if (servedDir === externalsServedDir) continue;
 			const id = `${servedDir.servedAt}/${path}`;
-			console.log('id?', id);
-			console.log('servedDir', servedDir);
+			this.log.trace(`findByPath: checking: ${id}`);
 			const file = files.get(id);
 			if (file !== undefined) {
+				this.log.trace(`findByPath: found: ${id}`);
 				return file;
 			}
 		}
+		this.log.trace(`findByPath: not found: ${path}`);
 		return null;
 	}
 
@@ -501,6 +497,23 @@ export class Filer {
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
 					const shouldBuild = await this.updateSourceFile(id, filerDir);
+					if (filerDir.type === 'externals' && change.type === 'init') {
+						// TODO hacky
+						// normally `hydrateSourceFileFromCache` is called on source files
+						// when they're added to a build on initialization,
+						// but externals are not added to build configs in the same way.
+						// Is this a mistake? Should they be passing through the same
+						// initialization code paths for each build config?
+						// Or do they only get associated with the special externals build config?
+						// problem is `this.externalsBuildConfig` doesn't look right ...
+						if (!this.externalsBuildConfig) throw Error('Expected an externals build config.');
+						const file = this.files.get(id);
+						if (file === undefined || file.type !== 'source' || !file.buildable) {
+							throw Error('Expected file to be a buildable source file.');
+						}
+						this.hydrateSourceFileFromCache(file, this.externalsBuildConfig);
+						return;
+					}
 					if (
 						shouldBuild &&
 						// When initializing, building is deferred to `initBuilds`
@@ -760,10 +773,7 @@ export class Filer {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.sourceType === 'externals') {
-			console.log('TODO is this eneded?');
-			return;
-		}
+		if (sourceFile.sourceType === 'externals') return;
 		let {
 			addedDependencies,
 			removedDependencies,

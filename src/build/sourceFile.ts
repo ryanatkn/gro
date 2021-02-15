@@ -92,6 +92,7 @@ export const createSourceFile = async (
 		}
 		contentsHash = toHash(contentsBuffer!);
 		if (contentsHash === cachedSourceInfo.data.contentsHash) {
+			if (filerDir.type === 'externals') console.log('reconstructing id', id);
 			reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 		}
 	}
