@@ -140,6 +140,7 @@ Gro uses
 [Rollup](https://github.com/rollup/rollup) ∙
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
 [swc](https://github.com/swc-project/swc) ∙
+[esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [Node](https://nodejs.org) & [more](package.json)
 

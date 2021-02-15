@@ -7,18 +7,16 @@ import {
 	createFilerDir,
 	ExternalsFilerDir,
 } from '../build/FilerDir.js';
+import {MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {
-	basePathToSourceId,
 	EXTERNALS_BUILD_DIR,
 	hasSourceExtension,
 	isThisProjectGro,
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
-	toBuildBasePath,
 	toBuildOutPath,
-	toSourceExtension,
 } from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
@@ -65,7 +63,7 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	externalsBuildConfig: BuildConfig | null;
 	buildRootDir: string;
-	mapBuildIdToSourceId: typeof defaultMapBuildIdToSourceId;
+	mapBuildIdToSourceId: MapBuildIdToSourceId;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
 	watch: boolean;
@@ -133,7 +131,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	}
 	return {
 		dev,
-		mapBuildIdToSourceId: defaultMapBuildIdToSourceId,
+		mapBuildIdToSourceId,
 		sourceMap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
@@ -158,8 +156,8 @@ export class Filer {
 	private readonly externalsDir: ExternalsFilerDir | null;
 	private readonly externalsServedDir: ServedDir | null;
 	private readonly buildConfigs: BuildConfig[] | null;
-	// private readonly externalsBuildConfig: BuildConfig | null;
-	private readonly mapBuildIdToSourceId: typeof defaultMapBuildIdToSourceId;
+	private readonly externalsBuildConfig: BuildConfig | null;
+	private readonly mapBuildIdToSourceId: MapBuildIdToSourceId;
 	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
 
@@ -176,7 +174,7 @@ export class Filer {
 			dev,
 			builder,
 			buildConfigs,
-			// externalsBuildConfig,
+			externalsBuildConfig,
 			buildRootDir,
 			mapBuildIdToSourceId,
 			compiledDirs,
@@ -191,7 +189,7 @@ export class Filer {
 		} = initOptions(opts);
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
-		// this.externalsBuildConfig = externalsBuildConfig;
+		this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
 		this.mapBuildIdToSourceId = mapBuildIdToSourceId;
 		this.sourceMap = sourceMap;
@@ -222,33 +220,13 @@ export class Filer {
 
 	// Searches for a file matching `path`, limited to the directories that are served.
 	async findByPath(path: string): Promise<BaseFilerFile | null> {
-		const {externalsDirBasePath, externalsServedDir, files} = this;
-		// TODO we need to install externals and load this correctly - how? do we need a special path?
-		if (externalsDirBasePath !== null && path.startsWith(externalsDirBasePath)) {
-			throw Error('TODO find external');
-			// const id = `${externalsServedDir!.servedAt}/${path}`;
-			// const file = files.get(id);
-			// if (file !== undefined) {
-			// 	return file;
-			// }
-			// const sourceId = stripEnd(stripStart(path, `${externalsDirBasePath}/`), JS_EXTENSION);
-			// const shouldCompile = await this.updateSourceFile(sourceId, this.externalsDir!);
-			// if (shouldCompile) {
-			// 	await this.buildSourceFile(sourceId, this.externalsDir!);
-			// }
-			// const compiledFile = files.get(id);
-			// if (compiledFile === undefined) {
-			// 	throw Error('Expected to compile file');
-			// }
-			// return compiledFile;
-		} else {
-			for (const servedDir of this.servedDirs) {
-				if (servedDir === externalsServedDir) continue;
-				const id = `${servedDir.servedAt}/${path}`;
-				const file = files.get(id);
-				if (file !== undefined) {
-					return file;
-				}
+		const {externalsServedDir, files} = this;
+		for (const servedDir of this.servedDirs) {
+			if (servedDir === externalsServedDir) continue;
+			const id = `${servedDir.servedAt}/${path}`;
+			const file = files.get(id);
+			if (file !== undefined) {
+				return file;
 			}
 		}
 		return null;
@@ -416,14 +394,7 @@ export class Filer {
 		}
 
 		await Promise.all(promises);
-
-		// TODO I think this is where we run `esinstall` on these
-		// but how to handle externals that are needed AFTER the Filer initializes?
-		console.log('externals', this.externalDependencies);
 	}
-
-	// TODO track externals per build to match the flexibility of building local files
-	externalDependencies = new Set<string>();
 
 	// Adds a build config to a source file.
 	// The caller is expected to check to avoid duplicates.
@@ -432,6 +403,10 @@ export class Filer {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
+		if (sourceFile.filerDir.type === 'externals') {
+			console.log('IGNORING EXTERNALS in addSourceFileToBuild', sourceFile);
+			return;
+		}
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(`Expected to add buildConfig for ${buildConfig.name}:${sourceFile.id}`);
 		}
@@ -465,6 +440,10 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		if (sourceFile.filerDir.type === 'externals') {
+			console.log('IGNORING EXTERNALS in addSourceFileToBuild', sourceFile);
+			return;
+		}
 		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
 			throw Error(
 				`Removing build configs from input files is not allowed: ${buildConfig}:${sourceFile.id}`,
@@ -500,15 +479,18 @@ export class Filer {
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					const shouldCompile = await this.updateSourceFile(id, filerDir);
+					const shouldBuild = await this.updateSourceFile(id, filerDir);
 					if (
-						shouldCompile &&
-						// When initializing, compilation is deferred to `initBuilds`
+						shouldBuild &&
+						// When initializing, building is deferred to `initBuilds`
 						// so that deps are determined in the correct order.
 						change.type !== 'init' &&
 						filerDir.buildable // only needed for types, doing this instead of casting for type safety
 					) {
-						const file = this.files.get(id) as BuildableSourceFile;
+						const file = this.files.get(id);
+						if (file === undefined || file.type !== 'source' || !file.buildable) {
+							throw Error(`Expected a buildable source file: ${id}`);
+						}
 						if (change.type === 'create') {
 							await this.initSourceFile(file);
 						} else {
@@ -627,6 +609,7 @@ export class Filer {
 				filerDir,
 				this.cachedSourceInfo.get(id),
 				this.buildConfigs,
+				this.externalsBuildConfig,
 			);
 			this.files.set(id, newSourceFile);
 			// If the created source file has its build files hydrated from the cache,
@@ -687,7 +670,8 @@ export class Filer {
 		try {
 			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
-			this.log.error(red('failed to compile'), printPath(sourceFile.id), printError(err));
+			debugger;
+			this.log.error(red('build failed'), printPath(sourceFile.id), printError(err));
 		}
 		this.pendingCompilations.delete(key);
 		if (this.enqueuedCompilations.has(key)) {
@@ -695,8 +679,8 @@ export class Filer {
 			// Something changed during the compilation for this file, so recurse.
 			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
-			const shouldCompile = await this.updateSourceFile(sourceFile.id, sourceFile.filerDir);
-			if (shouldCompile) {
+			const shouldBuild = await this.updateSourceFile(sourceFile.id, sourceFile.filerDir);
+			if (shouldBuild) {
 				await this.buildSourceFile(sourceFile, buildConfig);
 			}
 		}
@@ -755,36 +739,52 @@ export class Filer {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		if (sourceFile.sourceType === 'externals') {
+			console.log('TODO is this eneded?');
+			return;
+		}
 		const {
 			addedDependencies,
 			removedDependencies,
 			addedDependencySourceFiles,
 			removedDependencySourceFiles,
-		} = this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig) || nulls;
+		} = this.diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
 		let promises: Promise<void>[] | null = null;
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
-				if (addedDependency.external) continue; // TODO ?
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
 					dependencies = new Set();
 					sourceFile.dependencies.set(buildConfig, dependencies);
 				}
-				dependencies.add(this.mapBuildIdToSourceId(addedDependency.id));
+				const sourceId = this.mapBuildIdToSourceId(addedDependency.id, addedDependency.external);
+				dependencies.add(sourceId);
+
+				// create external source files if needed
+				if (addedDependency.external && buildConfig.platform === 'browser') {
+					await this.addExternalDependency(sourceId);
+				}
 			}
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
-				if (removedDependency.external) continue; // TODO ?
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
 					throw Error(`Expected dependencies: ${buildConfig.name}:${sourceFile.id}`);
 				}
-				dependencies.delete(this.mapBuildIdToSourceId(removedDependency.id));
+				dependencies.delete(
+					this.mapBuildIdToSourceId(removedDependency.id, removedDependency.external),
+				);
 			}
 		}
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
+				if (
+					addedDependencySourceFile.sourceType === 'externals' &&
+					buildConfig.platform !== 'browser'
+				) {
+					continue;
+				}
 				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
 					dependents = new Set();
@@ -804,6 +804,7 @@ export class Filer {
 		}
 		if (removedDependencySourceFiles !== null) {
 			for (const removedDependencySourceFile of removedDependencySourceFiles) {
+				if (removedDependencySourceFile.sourceType === 'externals') continue; // TODO clean these up ever?
 				if (!removedDependencySourceFile.buildConfigs.has(buildConfig)) {
 					throw Error(
 						`Expected build config: ${buildConfig.name}:${removedDependencySourceFile.id}`,
@@ -831,7 +832,6 @@ export class Filer {
 	diffDependencies(
 		newBuildFiles: readonly BuildFile[],
 		oldBuildFiles: readonly BuildFile[] | null,
-		buildConfig: BuildConfig,
 	): null | {
 		addedDependencies: DependencyInfo[] | null;
 		removedDependencies: DependencyInfo[] | null;
@@ -858,14 +858,7 @@ export class Filer {
 			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
-				if (addedDependency.external) {
-					if (buildConfig.platform === 'node') {
-						continue;
-					} else {
-						throw Error(`TODO handle browser externals`);
-					}
-				}
-				const addedSourceFile = this.findSourceFile(addedDependency.id);
+				let addedSourceFile = this.findSourceFile(addedDependency.id, addedDependency.external);
 				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
 				if (!addedSourceFile.buildable) {
 					throw Error(`Expected source file to be buildable: ${addedSourceFile.id}`);
@@ -877,14 +870,10 @@ export class Filer {
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
-				if (removedDependency.external) {
-					if (buildConfig.platform === 'node') {
-						continue;
-					} else {
-						throw Error(`TODO handle browser externals`);
-					}
-				}
-				const removedSourceFile = this.findSourceFile(removedDependency.id);
+				const removedSourceFile = this.findSourceFile(
+					removedDependency.id,
+					removedDependency.external,
+				);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				if (!removedSourceFile.buildable) {
 					throw Error(`Expected dependency source file to be buildable: ${removedSourceFile.id}`);
@@ -908,8 +897,8 @@ export class Filer {
 			: null;
 	}
 
-	private findSourceFile(buildId: string): SourceFile | undefined {
-		const sourceId = this.mapBuildIdToSourceId(buildId);
+	private findSourceFile(buildId: string, external = false): SourceFile | undefined {
+		const sourceId = this.mapBuildIdToSourceId(buildId, external);
 		const sourceFile = this.files.get(sourceId);
 		if (sourceFile !== undefined && sourceFile.type !== 'source') {
 			throw Error(
@@ -931,6 +920,41 @@ export class Filer {
 			await this.deleteCachedSourceInfo(sourceFile.id);
 		}
 	}
+
+	// TODO track externals per build to match the flexibility of building local files
+	externalDependencies = new Set<string>();
+	async addExternalDependency(id: string): Promise<void> {
+		console.log('addExternalDependency id?', id);
+		if (this.files.has(id)) return;
+		console.log('addExternalDependency id YES', id);
+		this.externalDependencies.add(id);
+		if (this.externalsDir === null) {
+			throw Error(`Expected an externalsDir to create an externals source file.`);
+		}
+		const shouldBuild = await this.updateSourceFile(id, this.externalsDir);
+		console.log('shouldBuild', shouldBuild);
+		if (shouldBuild) {
+			const sourceFile = this.files.get(id);
+			if (sourceFile === undefined || sourceFile.type !== 'source' || !sourceFile.buildable) {
+				throw Error(`Expected to find externals source file: ${id}`);
+			}
+			if (this.externalsBuildConfig === null) {
+				throw Error(`Expceted an externals build config to build source file: ${id}`);
+			}
+			// TODO remove this check
+			if (
+				sourceFile.buildConfigs.size !== 1 ||
+				!sourceFile.buildConfigs.has(this.externalsBuildConfig!)
+			) {
+				throw Error(`TODO removeme - bad source file build configs`);
+			}
+			await this.buildSourceFile(sourceFile, this.externalsBuildConfig);
+		}
+	}
+	// async removeExternalDependency(id: string): Promise<void> {
+	// 	console.log('removeExternalDependency id (no-op? so we never clean them up?)', id);
+	// 	// this.externalDependencies.add(id);
+	// }
 
 	// TODO as an optimization, this should be debounced per file,
 	// because we're writing per build config.
@@ -1182,10 +1206,6 @@ const checkForConflictingExternalsDir = (
 			}
 		}),
 	);
-
-// TODO extract to utils and test
-const defaultMapBuildIdToSourceId = (buildId: string): string =>
-	basePathToSourceId(toSourceExtension(toBuildBasePath(buildId)));
 
 const isInputToBuildConfig = (
 	sourceFile: BuildableSourceFile,
