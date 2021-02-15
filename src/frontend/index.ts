@@ -1,11 +1,13 @@
 // import './devtools.js';
 // import App from './App.svelte';
-// import './foo.js';
-// import {bar} from './bar.js';
+import './foo.js';
+import {bar} from './bar.js';
 import * as math from '../utils/math.js';
 // import '../build/includeme.js';
 
 console.log('math', math);
+
+console.log('bar', bar);
 
 // // test fully qualified import
 // import * as motion from 'svelte/motion/index.js';
