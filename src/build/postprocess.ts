@@ -39,7 +39,10 @@ export const postprocess = (
 				const isExternal = isExternalModule(moduleName);
 				if (isExternal && build.buildConfig.platform === 'browser') {
 					// TODO it's weird that this is a fake absolute path while locals have real absolute paths
-					newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
+					// TODO this gets even hackier with the `.endsWith`...
+					newModuleName = `/${externalsDirBasePath}/${newModuleName}${
+						newModuleName.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+					}`;
 				}
 				if (isExternal) {
 					(externalDependencies || (externalDependencies = new Set())).add(newModuleName);
