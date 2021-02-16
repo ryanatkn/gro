@@ -105,7 +105,6 @@ export const createSourceFile = async (
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
-		debugger;
 		return {
 			type: 'source',
 			sourceType: 'externals',

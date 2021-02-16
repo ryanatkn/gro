@@ -704,7 +704,6 @@ export class Filer {
 		try {
 			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
-			debugger;
 			this.log.error(red('build failed'), printPath(sourceFile.id), printError(err));
 		}
 		this.pendingCompilations.delete(key);
