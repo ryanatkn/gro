@@ -37,11 +37,7 @@ export const postprocess = (
 				if (moduleName === 'import.meta') continue;
 				let newModuleName = toBuildExtension(moduleName);
 				const isExternal = isExternalModule(moduleName);
-				if (
-					isExternal &&
-					externalsDirBasePath !== null &&
-					build.buildConfig.platform === 'browser'
-				) {
+				if (isExternal && build.buildConfig.platform === 'browser') {
 					// TODO it's weird that this is a fake absolute path while locals have real absolute paths
 					newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
 				}

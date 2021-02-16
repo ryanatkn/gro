@@ -175,7 +175,7 @@ export class Filer {
 	readonly dev: boolean;
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget;
-	readonly externalsDirBasePath: string | null;
+	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
 
 	constructor(opts: InitialOptions) {
@@ -223,7 +223,7 @@ export class Filer {
 		this.externalsServedDir = servedDirs.find((d) => d.dir === externalsDir) || null;
 		this.externalsDirBasePath =
 			this.externalsDir === null || this.externalsServedDir === null
-				? null
+				? ''
 				: stripStart(this.externalsDir.dir, `${this.externalsServedDir.servedAt}/`);
 	}
 
@@ -253,26 +253,26 @@ export class Filer {
 
 	async init(): Promise<void> {
 		if (this.initializing) return this.initializing;
-		console.log('initalizing..');
+		// this.log.trace('initalizing...');
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
 		await Promise.all([this.initCachedSourceInfo(), lexer.init]);
-		console.log('inited cache');
+		// this.log.trace('inited cache');
 		// Initializing the dirs must be done after `this.initCachedSourceInfo`
 		// because it creates source files, which need `this.cachedSourceInfo` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
-		console.log('inited files');
+		// this.log.trace('inited files');
 
 		// Now that the cached source info and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
 		await this.cleanCachedSourceInfo();
-		console.log('cleaned');
+		// this.log.trace('cleaned');
 
 		// This performs initial source file compilation, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
-		console.log('inited builds');
+		// this.log.trace('inited builds');
 		// this.log.info('buildConfigs', this.buildConfigs);
 
 		// Clean the dev output directories,
@@ -316,14 +316,14 @@ export class Filer {
 		// This check must wait until the above syncing completes.
 		// TODO we need to delete unknown dirs in the build directory above, not just files,
 		// otherwise this error does not get cleared if you delete the conflicting directory
-		if (this.externalsServedDir !== null && this.externalsDirBasePath !== null) {
+		if (this.externalsServedDir !== null) {
 			await checkForConflictingExternalsDir(
 				this.servedDirs,
 				this.externalsServedDir,
 				this.externalsDirBasePath,
 			);
 		}
-		console.log('initalized!');
+		// this.log.trace('initialized!');
 
 		finishInitializing!();
 	}
@@ -956,19 +956,11 @@ export class Filer {
 	// TODO track externals per build to match the flexibility of building local files
 	// externalDependencies = new Set<string>();
 	async addExternalDependency(id: string): Promise<BuildableExternalsSourceFile> {
-		console.log('addExternalDependency id?', id);
-		// let sourceFile = this.files.get(id);
-		// if (sourceFile !== undefined) {
-		// 	debugger;
-		// 	return sourceFile as BuildableExternalsSourceFile; // TODO check this instead?
-		// }
-		console.log('addExternalDependency id YES', id);
-		// this.externalDependencies.add(id);
+		this.log.trace('add external dependency', id);
 		if (this.externalsDir === null) {
 			throw Error(`Expected an externalsDir to create an externals source file.`);
 		}
 		const shouldBuild = await this.updateSourceFile(id, this.externalsDir);
-		console.log('shouldBuild', shouldBuild);
 		const sourceFile = this.files.get(id);
 		if (shouldBuild) {
 			if (sourceFile === undefined || sourceFile.type !== 'source' || !sourceFile.buildable) {
@@ -1089,7 +1081,7 @@ const syncFilesToDisk = async (
 const toCachedSourceInfoId = (
 	file: BuildableSourceFile,
 	buildRootDir: string,
-	externalsDirBasePath: string | null,
+	externalsDirBasePath: string,
 ): string => {
 	const basePath =
 		file.sourceType === 'externals'
