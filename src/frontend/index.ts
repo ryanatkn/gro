@@ -26,14 +26,14 @@ console.log('baz', baz);
 
 console.log('hey');
 
-// // test fully qualified external import
-// import * as motion from 'svelte/motion/index.js';
-// console.log('imported svelte motion', motion);
+// test fully qualified external import
+import * as motion from 'svelte/motion/index.js';
+console.log('imported svelte motion', motion);
 
-// // test dynamic import
-// import('svelte/store').then((store) => {
-// 	console.log('imported svelte/store', store);
-// });
+// test dynamic import
+import('svelte/store').then((store) => {
+	console.log('imported svelte/store', store);
+});
 
 const root = document.getElementById('root');
 if (!root) throw Error('Cannot find root element');
