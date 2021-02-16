@@ -1,5 +1,5 @@
 import {basename, dirname, join} from 'path';
-import {ImportMap, install} from 'esinstall';
+import {install} from 'esinstall';
 
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
@@ -40,8 +40,6 @@ type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
 
 const encoding = 'utf8';
 
-let importMap: ImportMap | undefined = undefined;
-
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {log} = initOptions(opts);
 
@@ -65,12 +63,14 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		const dest = `${dir}/temp${Math.random()}`;
 		let id: string;
 
+		if (source.id === '@feltcoop/gro/dist/frontend/devtools.js') {
+			console.log('source', source);
+		}
 		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
 
 		let contents: string;
 		try {
-			const result = await install([source.id], {dest, importMap});
-			importMap = result.importMap;
+			const result = await install([source.id], {dest});
 			const installedId = join(dest, result.importMap.imports[source.id]);
 			id = join(buildRootDir, externalsDirBasePath, result.importMap.imports[source.id]);
 			contents = await loadContents(encoding, installedId);
