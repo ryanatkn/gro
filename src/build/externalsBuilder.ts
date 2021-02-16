@@ -20,7 +20,7 @@ if those modules rely on shared module-level state.
 The correct solution probably involves just using `esinstall` correctly
 and shuffling a few things around.
 I was unable to get expected behavior using a shared `importMap`,
-but that's probably user error.
+so either I don't understand something or I'm holding it wrong.
 
 */
 

@@ -10,13 +10,13 @@ const createConfig: GroConfigCreator = async () => {
 			{
 				name: 'browser',
 				platform: 'browser',
-				input: 'index.ts',
+				input: ['index.ts', (id) => id.endsWith('.html') || id.endsWith('.css')],
 				dist: true,
 			},
 			{
 				name: 'node',
 				platform: 'node',
-				input: [createFilter('**/*.{task,test,gen}*.ts')],
+				input: [createFilter('**/*.{task,test,config,gen}*.ts')],
 			},
 		],
 	};
