@@ -71,10 +71,9 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		try {
 			const result = await install([source.id], {dest, importMap});
 			importMap = result.importMap;
-			// TODO this `id` stuff is a hack, but it works for now i think
 			const installedId = join(dest, result.importMap.imports[source.id]);
 			id = join(buildRootDir, externalsDirBasePath, result.importMap.imports[source.id]);
-			contents = await loadContents(encoding, installedId); // TODO do we need to update the source file's data? might differ?
+			contents = await loadContents(encoding, installedId);
 			await move(installedId, id);
 			await remove(dest);
 		} catch (err) {
