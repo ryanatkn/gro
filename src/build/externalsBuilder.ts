@@ -63,9 +63,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		const dest = `${dir}/temp${Math.random()}`;
 		let id: string;
 
-		if (source.id === '@feltcoop/gro/dist/frontend/devtools.js') {
-			console.log('source', source);
-		}
 		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
 
 		let contents: string;

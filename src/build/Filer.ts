@@ -124,7 +124,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		externalsDir,
 		buildRootDir,
 	);
-	console.log('servedDirs', servedDirs);
 	if (compiledDirCount === 0 && servedDirs.length === 0) {
 		throw Error('Filer created with no directories to compile or serve.');
 	}
@@ -420,10 +419,6 @@ export class Filer {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		if (sourceFile.sourceType === 'externals') {
-			console.log('IGNORING EXTERNALS in addSourceFileToBuild', sourceFile);
-			return;
-		}
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(`Expected to add buildConfig for ${buildConfig.name}:${sourceFile.id}`);
 		}
@@ -457,10 +452,6 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.sourceType === 'externals') {
-			console.log('IGNORING EXTERNALS in addSourceFileToBuild', sourceFile);
-			return;
-		}
 		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
 			throw Error(
 				`Removing build configs from input files is not allowed: ${buildConfig}:${sourceFile.id}`,
@@ -497,23 +488,6 @@ export class Filer {
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
 					const shouldBuild = await this.updateSourceFile(id, filerDir);
-					if (filerDir.type === 'externals' && change.type === 'init') {
-						// TODO hacky
-						// normally `hydrateSourceFileFromCache` is called on source files
-						// when they're added to a build on initialization,
-						// but externals are not added to build configs in the same way.
-						// Is this a mistake? Should they be passing through the same
-						// initialization code paths for each build config?
-						// Or do they only get associated with the special externals build config?
-						// problem is `this.externalsBuildConfig` doesn't look right ...
-						if (!this.externalsBuildConfig) throw Error('Expected an externals build config.');
-						const file = this.files.get(id);
-						if (file === undefined || file.type !== 'source' || !file.buildable) {
-							throw Error('Expected file to be a buildable source file.');
-						}
-						this.hydrateSourceFileFromCache(file, this.externalsBuildConfig);
-						return;
-					}
 					if (
 						shouldBuild &&
 						// When initializing, building is deferred to `initBuilds`
@@ -613,25 +587,26 @@ export class Filer {
 			}
 		}
 
+		const isExternal = filerDir.type === 'externals';
+
 		let extension: string;
 		let encoding: Encoding;
 		if (sourceFile !== undefined) {
 			extension = sourceFile.extension;
 			encoding = sourceFile.encoding;
-		} else if (filerDir.type === 'externals') {
+		} else if (isExternal) {
 			extension = JS_EXTENSION;
 			encoding = 'utf8';
 		} else {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		const newSourceContents =
-			filerDir.type === 'externals'
-				? // TODO it may require additional changes,
-				  // but the package.json version could be put here,
-				  // allowing externals to update at runtime
-				  ''
-				: await loadContents(encoding, id);
+		const newSourceContents = isExternal
+			? // TODO it may require additional changes,
+			  // but the package.json version could be put here,
+			  // allowing externals to update at runtime
+			  ''
+			: await loadContents(encoding, id);
 
 		if (sourceFile === undefined) {
 			// Memory cache is cold.
@@ -643,7 +618,6 @@ export class Filer {
 				filerDir,
 				this.cachedSourceInfo.get(id),
 				this.buildConfigs,
-				this.externalsBuildConfig,
 			);
 			this.files.set(id, newSourceFile);
 			// If the created source file has its build files hydrated from the cache,
@@ -651,11 +625,7 @@ export class Filer {
 			if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
 				return false;
 			}
-		} else if (
-			areContentsEqual(encoding, sourceFile.contents, newSourceContents) &&
-			// TODO hack to avoid the comparison for externals because they're compiled lazily
-			!(sourceFile.sourceType === 'externals' && sourceFile.buildFiles.size === 0)
-		) {
+		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
 			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 			return false;
 		} else {
@@ -791,8 +761,8 @@ export class Filer {
 				dependencies.add(sourceId);
 
 				// create external source files if needed
-				if (addedDependency.external && buildConfig.platform === 'browser') {
-					const sourceFile = await this.addExternalDependency(sourceId);
+				if (addedDependency.external && buildConfig === this.externalsBuildConfig) {
+					const sourceFile = await this.initExternalDependencySourceFile(sourceId);
 					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(sourceFile);
 				}
 			}
@@ -810,19 +780,18 @@ export class Filer {
 		}
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
-				if (
-					addedDependencySourceFile.sourceType === 'externals' &&
-					buildConfig.platform !== 'browser'
-				) {
-					continue;
-				}
+				const isExternal = addedDependencySourceFile.sourceType === 'externals';
+				if (isExternal && buildConfig !== this.externalsBuildConfig) continue;
 				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
 					dependents = new Set();
 					addedDependencySourceFile.dependents.set(buildConfig, dependents);
 				}
 				dependents.add(sourceFile);
-				if (!addedDependencySourceFile.buildConfigs.has(buildConfig)) {
+				if (
+					!addedDependencySourceFile.buildConfigs.has(buildConfig) &&
+					!(isExternal && addedDependencySourceFile.buildConfigs.size > 0)
+				) {
 					(promises || (promises = [])).push(
 						this.addSourceFileToBuild(
 							addedDependencySourceFile,
@@ -952,37 +921,16 @@ export class Filer {
 		}
 	}
 
-	// TODO track externals per build to match the flexibility of building local files
-	// externalDependencies = new Set<string>();
-	async addExternalDependency(id: string): Promise<BuildableExternalsSourceFile> {
-		this.log.trace('add external dependency', gray(id));
+	async initExternalDependencySourceFile(id: string): Promise<BuildableExternalsSourceFile> {
+		const sourceFile = this.files.get(id);
+		if (sourceFile !== undefined) return sourceFile as BuildableExternalsSourceFile;
+		this.log.trace('init external dependency', gray(id));
 		if (this.externalsDir === null) {
 			throw Error(`Expected an externalsDir to create an externals source file.`);
 		}
-		const shouldBuild = await this.updateSourceFile(id, this.externalsDir);
-		const sourceFile = this.files.get(id);
-		if (shouldBuild) {
-			if (sourceFile === undefined || sourceFile.type !== 'source' || !sourceFile.buildable) {
-				throw Error(`Expected to find externals source file: ${id}`);
-			}
-			if (this.externalsBuildConfig === null) {
-				throw Error(`Expceted an externals build config to build source file: ${id}`);
-			}
-			// TODO remove this check
-			if (
-				sourceFile.buildConfigs.size !== 1 ||
-				!sourceFile.buildConfigs.has(this.externalsBuildConfig!)
-			) {
-				throw Error(`TODO removeme - bad source file build configs`);
-			}
-			await this.buildSourceFile(sourceFile, this.externalsBuildConfig);
-		}
-		return sourceFile as BuildableExternalsSourceFile; // TODO check this instead?
+		await this.updateSourceFile(id, this.externalsDir);
+		return this.files.get(id) as BuildableExternalsSourceFile;
 	}
-	// async removeExternalDependency(id: string): Promise<void> {
-	// 	console.log('removeExternalDependency id (no-op? so we never clean them up?)', id);
-	// 	// this.externalDependencies.add(id);
-	// }
 
 	// TODO as an optimization, this should be debounced per file,
 	// because we're writing per build config.

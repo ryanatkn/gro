@@ -7,6 +7,7 @@ import {GroConfigCreator, PartialGroConfig} from './config/config.js';
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
 const createConfig: GroConfigCreator = async () => {
+	const assetPaths = ['html', 'css', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
 	const config: PartialGroConfig = {
 		builds: [
 			{
@@ -19,7 +20,7 @@ const createConfig: GroConfigCreator = async () => {
 			{
 				name: 'browser',
 				platform: 'browser',
-				input: ['frontend/index.ts', 'frontend/index.html'],
+				input: ['frontend/index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
 				// input: createDirectoryFilter('frontend'),
 			},
 		],

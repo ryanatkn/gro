@@ -79,7 +79,6 @@ export const createSourceFile = async (
 	filerDir: FilerDir,
 	cachedSourceInfo: CachedSourceInfo | undefined,
 	buildConfigs: BuildConfig[] | null,
-	externalsBuildConfig: BuildConfig | null,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
@@ -99,9 +98,6 @@ export const createSourceFile = async (
 		if (encoding !== 'utf8') {
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
-		if (externalsBuildConfig === null) {
-			throw Error(`Cannot create externals source file without a build config.`);
-		}
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
@@ -109,7 +105,7 @@ export const createSourceFile = async (
 			type: 'source',
 			sourceType: 'externals',
 			buildable: true,
-			buildConfigs: new Set([externalsBuildConfig]),
+			buildConfigs: new Set(),
 			isInputToBuildConfigs: null,
 			dependencies: new Map(),
 			dependents: new Map(),
