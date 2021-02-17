@@ -68,15 +68,19 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
 
+		// TODO add an external API for customizing the `install` params
+		// TODO where should `target` be customized?
+		// probably on each BuildConfig, and globally in gro.config.ts?
+		const target = 'es2019';
+		// TODO this is legacy stuff that we need to rethink when we handle CSS better
 		const cssCache = createCssCache();
 		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
 		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
-
 		const plugins: RollupPlugin[] = [
 			groSveltePlugin({
 				dev,
 				addCssBuild: addSvelteCssBuild,
-				preprocessor: createDefaultPreprocessor(sourceMap, 'es2019'),
+				preprocessor: createDefaultPreprocessor(sourceMap, target),
 				compileOptions: {},
 			}),
 		];
