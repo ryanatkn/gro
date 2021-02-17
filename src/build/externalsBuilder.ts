@@ -1,5 +1,6 @@
 import {basename, dirname, join} from 'path';
 import {install} from 'esinstall';
+import {Plugin as RollupPlugin} from 'rollup';
 
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
@@ -33,7 +34,6 @@ export interface Options {
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
-
 	return {
 		...omitUndefined(opts),
 		log,
@@ -73,13 +73,13 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		const cssCache = createCssCache();
 		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
 
-		const plugins = [
+		const plugins: RollupPlugin[] = [
 			groSveltePlugin({
 				dev,
 				addCssBuild: addSvelteCssBuild,
 				preprocessor: createDefaultPreprocessor(sourceMap, 'es2019'),
 				compileOptions: {},
-			}) as any, // TODO type ... incompatible with this version?
+			}),
 		];
 
 		let contents: string;
