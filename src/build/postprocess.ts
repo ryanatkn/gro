@@ -39,7 +39,7 @@ export const postprocess = (
 				const isExternal = isExternalModule(moduleName);
 				if (isExternal && build.buildConfig.platform === 'browser') {
 					// TODO it's weird that this is a fake absolute path while locals have real absolute paths
-					// TODO this gets even hackier with the `.endsWith`...
+					// TODO might want to use this `esinstall` helper: https://github.com/snowpackjs/snowpack/blob/a09bba81d01fa7b3769024f9bd5adf0d3fc4bafc/esinstall/src/util.ts#L161
 					newModuleName = `/${externalsDirBasePath}/${newModuleName}${
 						newModuleName.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 					}`;

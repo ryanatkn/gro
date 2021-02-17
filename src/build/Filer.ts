@@ -20,7 +20,7 @@ import {
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {magenta, red} from '../colors/terminal.js';
+import {gray, magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
 import type {Builder} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
@@ -955,7 +955,7 @@ export class Filer {
 	// TODO track externals per build to match the flexibility of building local files
 	// externalDependencies = new Set<string>();
 	async addExternalDependency(id: string): Promise<BuildableExternalsSourceFile> {
-		this.log.trace('add external dependency', id);
+		this.log.trace('add external dependency', gray(id));
 		if (this.externalsDir === null) {
 			throw Error(`Expected an externalsDir to create an externals source file.`);
 		}
