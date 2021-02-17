@@ -37,13 +37,12 @@ export const postprocess = (
 				if (moduleName === 'import.meta') continue;
 				let newModuleName = toBuildExtension(moduleName);
 				const isExternal = isExternalModule(moduleName);
-				if (
-					isExternal &&
-					externalsDirBasePath !== null &&
-					build.buildConfig.platform === 'browser'
-				) {
+				if (isExternal && build.buildConfig.platform === 'browser') {
 					// TODO it's weird that this is a fake absolute path while locals have real absolute paths
-					newModuleName = `/${externalsDirBasePath}/${newModuleName}${JS_EXTENSION}`;
+					// TODO might want to use this `esinstall` helper: https://github.com/snowpackjs/snowpack/blob/a09bba81d01fa7b3769024f9bd5adf0d3fc4bafc/esinstall/src/util.ts#L161
+					newModuleName = `/${externalsDirBasePath}/${newModuleName}${
+						newModuleName.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+					}`;
 				}
 				if (isExternal) {
 					(externalDependencies || (externalDependencies = new Set())).add(newModuleName);

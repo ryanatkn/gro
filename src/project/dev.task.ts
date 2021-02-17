@@ -3,7 +3,7 @@ import {Filer} from '../build/Filer.js';
 import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {createDefaultBuilder} from '../build/defaultBuilder.js';
-import {paths} from '../paths.js';
+import {paths, toBuildOutPath} from '../paths.js';
 import {createDevServer} from '../devServer/devServer.js';
 import {loadTsconfig, toEcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {loadGroConfig} from '../config/config.js';
@@ -29,6 +29,10 @@ export const task: Task = {
 		const filer = new Filer({
 			builder: createDefaultBuilder(),
 			compiledDirs: [paths.source],
+			servedDirs: [
+				toBuildOutPath(true, 'browser', 'frontend'),
+				toBuildOutPath(true, 'browser', ''),
+			],
 			buildConfigs: config.builds,
 			sourceMap,
 			target,

@@ -49,3 +49,4 @@ export const emptyDir = fsExtra.emptyDir;
 export const ensureDir = fsExtra.ensureDir;
 export const copy = fsExtra.copy;
 export const remove = fsExtra.remove;
+export const move = fsExtra.move;

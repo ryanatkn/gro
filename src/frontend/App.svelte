@@ -1,9 +1,9 @@
 <script>
-	export let bar;
+	export let name;
 	console.log('enter App.svelte');
 </script>
 
-<main>bar!: {bar}</main>
+<main>name: {name}</main>
 
 <style>
 	main {

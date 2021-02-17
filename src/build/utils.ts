@@ -1,7 +1,15 @@
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import {paths} from '../paths.js';
+import {
+	basePathToSourceId,
+	EXTERNALS_BUILD_DIR,
+	JS_EXTENSION,
+	paths,
+	toBuildBasePath,
+	toSourceExtension,
+} from '../paths.js';
+import {stripEnd, stripStart} from '../utils/string.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -19,3 +27,17 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 		id === dir || id.startsWith(dirWithTrailingSlash);
 	return filterDirectory;
 };
+
+export interface MapBuildIdToSourceId {
+	(buildId: string, external: boolean): string;
+}
+
+const EXTERNALS_ID_PREFIX = `/${EXTERNALS_BUILD_DIR}/`;
+const EXTERNALS_ID_SUFFIX = JS_EXTENSION;
+
+export const mapBuildIdToSourceId: MapBuildIdToSourceId = (buildId, external) =>
+	external
+		? buildId.startsWith(EXTERNALS_ID_PREFIX)
+			? stripEnd(stripStart(buildId, EXTERNALS_ID_PREFIX), EXTERNALS_ID_SUFFIX)
+			: buildId
+		: basePathToSourceId(toSourceExtension(toBuildBasePath(buildId)));

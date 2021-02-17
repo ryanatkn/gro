@@ -20,7 +20,8 @@
   [#65](https://github.com/feltcoop/gro/pull/65),
   [#66](https://github.com/feltcoop/gro/pull/66))
 - bundle external modules for the browser
-  ([#61](https://github.com/feltcoop/gro/pull/61))
+  ([#61](https://github.com/feltcoop/gro/pull/61),
+  [#71](https://github.com/feltcoop/gro/pull/71))
 - make `createBuilder` pluggable allowing users to provide a compiler for each file
   ([#57](https://github.com/feltcoop/gro/pull/57))
 - rename `compiler` to `builder`

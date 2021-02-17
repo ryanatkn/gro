@@ -21,7 +21,7 @@ export interface BuildOptions {
 	readonly target: EcmaScriptTarget;
 	readonly buildRootDir: string;
 	readonly dev: boolean;
-	readonly externalsDirBasePath: string | null;
+	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
 }
 
