@@ -62,15 +62,14 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
 
-		// TODO maybe hash the dest based on the build config? or tighter caching behavior, deleting stale stuff?
 		const dir = buildRootDir + externalsDirBasePath;
 		const dest = `${dir}/temp${Math.random()}`;
 		let id: string;
 
 		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
 
-		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
 		const cssCache = createCssCache();
+		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
 		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
 
 		const plugins: RollupPlugin[] = [
