@@ -3,9 +3,10 @@ import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {
 	baseSvelteCompileOptions,
+	createDefaultPreprocessor,
+	CreatePreprocessor,
 	handleStats,
 	handleWarn,
 	SvelteCompilation,
@@ -18,7 +19,6 @@ import {
 	SVELTE_EXTENSION,
 	toBuildOutPath,
 } from '../paths.js';
-import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
 import {Builder, TextBuild, TextBuildSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
@@ -181,11 +181,3 @@ const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {
 			throw new UnreachableError(buildConfig.platform);
 	}
 };
-
-type CreatePreprocessor = (
-	sourceMap: boolean,
-	target: EcmaScriptTarget,
-) => PreprocessorGroup | PreprocessorGroup[] | null;
-
-const createDefaultPreprocessor: CreatePreprocessor = (sourceMap, target) =>
-	sveltePreprocessSwc({swcOptions: getDefaultSwcOptions(target, sourceMap)});

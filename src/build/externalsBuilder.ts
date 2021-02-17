@@ -8,6 +8,9 @@ import {Builder, ExternalsBuildSource, TextBuild} from './builder.js';
 import {cyan, gray} from '../colors/terminal.js';
 import {loadContents} from './load.js';
 import {remove, move} from '../fs/nodeFs.js';
+import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
+import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
+import {createCssCache} from '../project/cssCache.js';
 
 /*
 
@@ -30,6 +33,7 @@ export interface Options {
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
+
 	return {
 		...omitUndefined(opts),
 		log,
@@ -46,11 +50,11 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, externalsDirBasePath /*, sourceMap */},
+		{buildRootDir, dev, externalsDirBasePath, sourceMap},
 	) => {
-		// if (sourceMap) {
-		// 	log.warn('Source maps are not yet supported by the externals builder.');
-		// }
+		if (sourceMap) {
+			log.warn('Source maps are not yet supported by the externals builder.');
+		}
 		if (!dev) {
 			throw Error('The externals builder is currently not designed for production usage.');
 		}
@@ -65,9 +69,22 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
 
+		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
+		const cssCache = createCssCache();
+		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
+
+		const plugins = [
+			groSveltePlugin({
+				dev,
+				addCssBuild: addSvelteCssBuild,
+				preprocessor: createDefaultPreprocessor(sourceMap, 'es2019'),
+				compileOptions: {},
+			}) as any, // TODO type ... incompatible with this version?
+		];
+
 		let contents: string;
 		try {
-			const result = await install([source.id], {dest});
+			const result = await install([source.id], {dest, rollup: {plugins}});
 			const installedId = join(dest, result.importMap.imports[source.id]);
 			id = join(buildRootDir, externalsDirBasePath, result.importMap.imports[source.id]);
 			contents = await loadContents(encoding, installedId);
