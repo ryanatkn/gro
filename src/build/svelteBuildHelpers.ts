@@ -4,10 +4,22 @@ import {
 	CompileOptions as SvelteCompileOptions,
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
+import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 
 import {Logger} from '../utils/log.js';
 import {yellow} from '../colors/terminal.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
+import {getDefaultSwcOptions} from './swcBuildHelpers.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
+
+export type CreatePreprocessor = (
+	sourceMap: boolean,
+	target: EcmaScriptTarget,
+) => PreprocessorGroup | PreprocessorGroup[] | null;
+
+export const createDefaultPreprocessor: CreatePreprocessor = (sourceMap, target) =>
+	sveltePreprocessSwc({swcOptions: getDefaultSwcOptions(target, sourceMap)});
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {

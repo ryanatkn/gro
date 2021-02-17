@@ -1,5 +1,6 @@
 import {basename, dirname, join} from 'path';
 import {install} from 'esinstall';
+import {Plugin as RollupPlugin} from 'rollup';
 
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
@@ -8,6 +9,9 @@ import {Builder, ExternalsBuildSource, TextBuild} from './builder.js';
 import {cyan, gray} from '../colors/terminal.js';
 import {loadContents} from './load.js';
 import {remove, move} from '../fs/nodeFs.js';
+import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
+import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
+import {createCssCache} from '../project/cssCache.js';
 
 /*
 
@@ -46,11 +50,11 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, externalsDirBasePath /*, sourceMap */},
+		{buildRootDir, dev, externalsDirBasePath, sourceMap},
 	) => {
-		// if (sourceMap) {
-		// 	log.warn('Source maps are not yet supported by the externals builder.');
-		// }
+		if (sourceMap) {
+			log.warn('Source maps are not yet supported by the externals builder.');
+		}
 		if (!dev) {
 			throw Error('The externals builder is currently not designed for production usage.');
 		}
@@ -58,16 +62,32 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
 
-		// TODO maybe hash the dest based on the build config? or tighter caching behavior, deleting stale stuff?
 		const dir = buildRootDir + externalsDirBasePath;
 		const dest = `${dir}/temp${Math.random()}`;
 		let id: string;
 
 		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
 
+		// TODO add an external API for customizing the `install` params
+		// TODO where should `target` be customized?
+		// probably on each BuildConfig, and globally in gro.config.ts?
+		const target = 'es2019';
+		// TODO this is legacy stuff that we need to rethink when we handle CSS better
+		const cssCache = createCssCache();
+		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
+		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
+		const plugins: RollupPlugin[] = [
+			groSveltePlugin({
+				dev,
+				addCssBuild: addSvelteCssBuild,
+				preprocessor: createDefaultPreprocessor(sourceMap, target),
+				compileOptions: {},
+			}),
+		];
+
 		let contents: string;
 		try {
-			const result = await install([source.id], {dest});
+			const result = await install([source.id], {dest, rollup: {plugins}});
 			const installedId = join(dest, result.importMap.imports[source.id]);
 			id = join(buildRootDir, externalsDirBasePath, result.importMap.imports[source.id]);
 			contents = await loadContents(encoding, installedId);
