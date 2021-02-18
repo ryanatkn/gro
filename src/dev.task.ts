@@ -23,7 +23,7 @@ export const task: Task = {
 
 		const filer = new Filer({
 			builder: createDefaultBuilder(),
-			compiledDirs: [paths.source],
+			sourceDirs: [paths.source],
 			servedDirs: [buildOutDirToServe],
 			buildConfigs: config.builds,
 			target,

@@ -5,7 +5,7 @@ import {Builder} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {PathStats} from '../fs/pathData.js';
 
-// Buildable filer dirs are watched, compiled, and written to disk.
+// Buildable filer dirs are watched, built, and written to disk.
 // For non-buildable dirs, the `dir` is only watched and nothing is written to the filesystem.
 // Externals dirs require special handling - see the `Filer` for more.
 export type FilerDir = BuildableFilerDir | NonBuildableInternalsFilerDir;

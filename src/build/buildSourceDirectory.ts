@@ -13,7 +13,7 @@ export const buildSourceDirectory = async (
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {
-	log.info('compiling source directory');
+	log.info('building source directory');
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
@@ -21,7 +21,7 @@ export const buildSourceDirectory = async (
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));
 		}
-		log.info(`🕒 compiled in ${printMs(totalTiming())}`);
+		log.info(`🕒 built in ${printMs(totalTiming())}`);
 	};
 
 	if (!dev) {
@@ -31,7 +31,7 @@ export const buildSourceDirectory = async (
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
 		builder: createDefaultBuilder(),
-		compiledDirs: [paths.source],
+		sourceDirs: [paths.source],
 		buildConfigs: config.builds,
 		watch: false,
 		dev,

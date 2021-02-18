@@ -22,7 +22,7 @@ export const postprocess = (
 		let localDependencies: Set<string> | null = null;
 		let externalDependencies: Set<string> | null = null;
 
-		// Map import paths to the compiled versions.
+		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
 			const isExternalModule =
 				build.buildConfig.platform === 'browser' ? isExternalBrowserModule : isExternalNodeModule;

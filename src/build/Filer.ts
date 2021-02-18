@@ -37,9 +37,8 @@ import {
 import {BuildFile, createBuildFile, DependencyInfo, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
-// import './includeme.js';
 
-export type FilerFile = SourceFile | BuildFile; // TODO or Directory? source/compiled directory?
+export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface CachedSourceInfoData {
 	sourceId: string;
@@ -61,7 +60,7 @@ const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 export interface Options {
 	dev: boolean;
 	builder: Builder | null;
-	compiledDirs: string[];
+	sourceDirs: string[];
 	externalsDir: string | null;
 	servedDirs: ServedDir[];
 	buildConfigs: BuildConfig[] | null;
@@ -95,21 +94,21 @@ export const initOptions = (opts: InitialOptions): Options => {
 			  buildConfigs.find((c) => c.primary) ||
 			  buildConfigs[0];
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
-	const compiledDirs = opts.compiledDirs ? opts.compiledDirs.map((d) => resolve(d)) : [];
+	const sourceDirs = opts.sourceDirs ? opts.sourceDirs.map((d) => resolve(d)) : [];
 	const externalsDir =
 		externalsBuildConfig === null || opts.externalsDir === null
 			? null
 			: opts.externalsDir === undefined
 			? `${buildRootDir}${EXTERNALS_BUILD_DIR}`
 			: resolve(opts.externalsDir);
-	validateDirs(compiledDirs, externalsDir, buildRootDir);
-	const compiledDirCount = compiledDirs.length + (externalsDir === null ? 0 : 1);
-	// default to serving all of the compiled output files
+	validateDirs(sourceDirs, externalsDir, buildRootDir);
+	const sourceDirCount = sourceDirs.length + (externalsDir === null ? 0 : 1);
 	const servedDirs = toServedDirs(
 		opts.servedDirs ||
 			(buildConfigs === null
 				? []
 				: [
+						// default to a best guess
 						toBuildOutPath(
 							dev,
 							(
@@ -124,18 +123,18 @@ export const initOptions = (opts: InitialOptions): Options => {
 		externalsDir,
 		buildRootDir,
 	);
-	if (compiledDirCount === 0 && servedDirs.length === 0) {
-		throw Error('Filer created with no directories to compile or serve.');
+	if (sourceDirCount === 0 && servedDirs.length === 0) {
+		throw Error('Filer created with no directories to build or serve.');
 	}
-	if (compiledDirCount !== 0 && buildConfigs === null) {
-		throw Error('Filer created with directories to compile but no build configs were provided.');
+	if (sourceDirCount !== 0 && buildConfigs === null) {
+		throw Error('Filer created with directories to build but no build configs were provided.');
 	}
 	const builder = opts.builder || null;
-	if (compiledDirCount !== 0 && !builder) {
-		throw Error('Filer created with directories to compile but no builder was provided.');
+	if (sourceDirCount !== 0 && !builder) {
+		throw Error('Filer created with directories to build but no builder was provided.');
 	}
-	if (builder && compiledDirCount === 0) {
-		throw Error('Filer created with a builder but no directories to compile.');
+	if (builder && sourceDirCount === 0) {
+		throw Error('Filer created with a builder but no directories to build.');
 	}
 	return {
 		dev,
@@ -148,7 +147,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
 		builder,
-		compiledDirs,
+		sourceDirs,
 		externalsDir,
 		servedDirs,
 		buildConfigs,
@@ -185,7 +184,7 @@ export class Filer {
 			externalsBuildConfig,
 			buildRootDir,
 			mapBuildIdToSourceId,
-			compiledDirs,
+			sourceDirs,
 			servedDirs,
 			externalsDir,
 			sourceMap,
@@ -205,7 +204,7 @@ export class Filer {
 		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
 		this.dirs = createFilerDirs(
-			compiledDirs,
+			sourceDirs,
 			servedDirs,
 			externalsDir,
 			builder,
@@ -357,7 +356,7 @@ export class Filer {
 	// During initialization, after all files are loaded into memory,
 	// this is called to populate the `buildConfigs` property of all source files.
 	// It traces the dependencies starting from each `buildConfig.input`,
-	// compiling each input source file and populating its `buildConfigs`,
+	// building each input source file and populating its `buildConfigs`,
 	// recursively until all dependencies have been handled.
 	private async initBuilds(): Promise<void> {
 		if (this.buildConfigs === null) return;
@@ -567,7 +566,7 @@ export class Filer {
 		if (promises !== null) await Promise.all(promises);
 	}
 
-	// Returns a boolean indicating if the source file should be compiled.
+	// Returns a boolean indicating if the source file should be built.
 	// The source file may have been updated or created from a cold cache.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
 		const sourceFile = this.files.get(id);
@@ -621,7 +620,7 @@ export class Filer {
 			);
 			this.files.set(id, newSourceFile);
 			// If the created source file has its build files hydrated from the cache,
-			// we assume it doesn't need to be compiled.
+			// we assume it doesn't need to be built.
 			if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
 				return false;
 			}
@@ -656,11 +655,11 @@ export class Filer {
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
-	// If a file is currently being compiled, it enqueues the file id,
+	// If a file is currently being build, it enqueues the file id,
 	// and when the current compilation finishes,
-	// it removes the item from the queue and recompiles the file.
+	// it removes the item from the queue and rebuilds the file.
 	// The queue stores at most one compilation per file,
-	// and this is safe given that compiling accepts no parameters.
+	// and this is safe given that building accepts no parameters.
 	private async buildSourceFile(
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
@@ -848,7 +847,7 @@ export class Filer {
 		// if the dependency's source file is not an input to the build config,
 		// and it has 1 dependent after the build file is added,
 		// they're added for this build,
-		// meaning the memory cache is updated and the files are compiled to disk for the build config.
+		// meaning the memory cache is updated and the files are built to disk for the build config.
 		// When a dependency is removed for this build,
 		// if the dependency's source file is not an input to the build config,
 		// and it has 0 dependents after the build file is removed,
@@ -958,7 +957,7 @@ export class Filer {
 		// 	deepEqual(await readJson(cacheId), cachedSourceInfo)
 		// ) {
 		// 	console.log(
-		// 		'wasted compilation detected! unchanged file was compiled and identical source info written to disk: ' +
+		// 		'wasted compilation detected! unchanged file was built and identical source info written to disk: ' +
 		// 			cacheId,
 		// 	);
 		// }
@@ -1063,12 +1062,12 @@ const syncBuildFilesToMemoryCache = (
 		const oldFile = files.get(newFile.id) as BuildFile | undefined;
 		if (oldFile !== undefined) {
 			// This check ensures that if the user provides multiple source directories
-			// the compiled output files do not conflict.
+			// the build output files do not conflict.
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
 			if (newFile.sourceFileId !== oldFile.sourceFileId) {
 				throw Error(
-					'Two source files are trying to compile to the same output location: ' +
+					'Two source files are trying to build to the same output location: ' +
 						`${newFile.sourceFileId} & ${oldFile.sourceFileId}`,
 				);
 			}
@@ -1090,27 +1089,21 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 
 // TODO Revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility.
-// Some of these conditions like nested compiledDirs could be fixed
+// Some of these conditions like nested sourceDirs could be fixed
 // but there are inefficiencies and possibly some subtle bugs.
-const validateDirs = (
-	compiledDirs: string[],
-	externalsDir: string | null,
-	buildRootDir: string,
-) => {
-	for (const compiledDir of compiledDirs) {
-		const nestedCompiledDir = compiledDirs.find(
-			(d) => d !== compiledDir && compiledDir.startsWith(d),
-		);
-		if (nestedCompiledDir) {
+const validateDirs = (sourceDirs: string[], externalsDir: string | null, buildRootDir: string) => {
+	for (const sourceDir of sourceDirs) {
+		const nestedSourceDir = sourceDirs.find((d) => d !== sourceDir && sourceDir.startsWith(d));
+		if (nestedSourceDir) {
 			throw Error(
-				'A compiledDir cannot be inside another compiledDir: ' +
-					`${compiledDir} is inside ${nestedCompiledDir}`,
+				'A sourceDir cannot be inside another sourceDir: ' +
+					`${sourceDir} is inside ${nestedSourceDir}`,
 			);
 		}
-		if (externalsDir !== null && compiledDir.startsWith(externalsDir)) {
+		if (externalsDir !== null && sourceDir.startsWith(externalsDir)) {
 			throw Error(
-				'A compiledDir cannot be inside the externalsDir: ' +
-					`${compiledDir} is inside ${externalsDir}`,
+				'A sourceDir cannot be inside the externalsDir: ' +
+					`${sourceDir} is inside ${externalsDir}`,
 			);
 		}
 	}
@@ -1120,12 +1113,12 @@ const validateDirs = (
 				`${externalsDir} is not inside ${buildRootDir}`,
 		);
 	}
-	const nestedCompiledDir =
-		externalsDir !== null && compiledDirs.find((d) => externalsDir.startsWith(d));
-	if (nestedCompiledDir) {
+	const nestedSourceDir =
+		externalsDir !== null && sourceDirs.find((d) => externalsDir.startsWith(d));
+	if (nestedSourceDir) {
 		throw Error(
-			'The externalsDir cannot be inside a compiledDir: ' +
-				`${externalsDir} is inside ${nestedCompiledDir}`,
+			'The externalsDir cannot be inside a sourceDir: ' +
+				`${externalsDir} is inside ${nestedSourceDir}`,
 		);
 	}
 };
@@ -1133,7 +1126,7 @@ const validateDirs = (
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
 const createFilerDirs = (
-	compiledDirs: string[],
+	sourceDirs: string[],
 	servedDirs: ServedDir[],
 	externalsDir: string | null,
 	builder: Builder | null,
@@ -1143,18 +1136,18 @@ const createFilerDirs = (
 	watcherDebounce: number | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
-	for (const compiledDir of compiledDirs) {
-		dirs.push(createFilerDir(compiledDir, 'files', builder, onChange, watch, watcherDebounce));
+	for (const sourceDir of sourceDirs) {
+		dirs.push(createFilerDir(sourceDir, 'files', builder, onChange, watch, watcherDebounce));
 	}
 	if (externalsDir !== null) {
 		dirs.push(createFilerDir(externalsDir, 'externals', builder, onChange, false, watcherDebounce));
 	}
 	for (const servedDir of servedDirs) {
-		// If a `servedDir` is inside a compiled or externals directory,
+		// If a `servedDir` is inside a source or externals directory,
 		// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 		// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 		if (
-			!compiledDirs.find((d) => servedDir.dir.startsWith(d)) &&
+			!sourceDirs.find((d) => servedDir.dir.startsWith(d)) &&
 			!(externalsDir !== null && servedDir.dir.startsWith(externalsDir)) &&
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildRootDir)
