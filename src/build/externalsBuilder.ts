@@ -50,7 +50,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, externalsDirBasePath, sourceMap},
+		{buildRootDir, dev, externalsDirBasePath, sourceMap, target},
 	) => {
 		if (sourceMap) {
 			log.warn('Source maps are not yet supported by the externals builder.');
@@ -69,9 +69,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
 
 		// TODO add an external API for customizing the `install` params
-		// TODO where should `target` be customized?
-		// probably on each BuildConfig, and globally in gro.config.ts?
-		const target = 'es2019';
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
 		const cssCache = createCssCache();
 		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');

@@ -18,7 +18,7 @@ export interface BuildResult<TBuild extends Build = Build> {
 }
 export interface BuildOptions {
 	readonly sourceMap: boolean;
-	readonly target: EcmaScriptTarget;
+	readonly target: EcmaScriptTarget; // TODO probably make this overrideable by each build config
 	readonly buildRootDir: string;
 	readonly dev: boolean;
 	readonly externalsDirBasePath: string;
