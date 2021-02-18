@@ -26,6 +26,8 @@
   ([#57](https://github.com/feltcoop/gro/pull/57))
 - rename `compiler` to `builder`
   ([#70](https://github.com/feltcoop/gro/pull/70))
+- replace deep equality helpers with `dequal`
+  ([#73](https://github.com/feltcoop/gro/pull/73))
 
 ## 0.4.0
 
