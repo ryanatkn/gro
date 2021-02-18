@@ -1,6 +1,16 @@
 import {deepEqual} from '../utils/deepEqual.js';
 import {ErrorClass} from '../utils/error.js';
 
+export type AssertionOperator =
+	| 'ok' // truthy
+	| 'is' // Object.is
+	| 'isNot' // !Object.is
+	| 'equal' // deeply equal
+	| 'notEqual' // !deeply equal
+	| 'throws' // expects `cb` to throw an error that matches optional `matcher`
+	| 'rejects' // expects `cbOrPromise` to throw an error that matches optional `matcher`
+	| 'fail'; // throws an error
+
 export class AssertionError extends Error {
 	constructor(public readonly assertion: FailedAssertion, message?: string) {
 		super(message || `Assertion failed: ${assertion.operator}`);
@@ -115,16 +125,6 @@ export const t: Assertions = {
 	fail,
 	Error: TestFailureError,
 };
-
-export type AssertionOperator =
-	| 'ok' // truthy
-	| 'is' // Object.is
-	| 'isNot' // !Object.is
-	| 'equal' // deeply equal
-	| 'notEqual' // !deeply equal
-	| 'throws' // expects `cb` to throw an error that matches optional `matcher`
-	| 'rejects' // expects `cbOrPromise` to throw an error that matches optional `matcher`
-	| 'fail'; // throws an error
 
 export type FailedAssertion =
 	| FailedAssertionOk
