@@ -25,6 +25,12 @@ between the CLI, build tools, and app code.
 It tries to dissolve walls that typically separate these domains
 while deferring to your code and facilitating buildtime development processes.
 
+## contents
+
+- [usage](#usage)
+- [future improvements](#future-improvements)
+- [why?](#why)
+
 ## usage
 
 ### show all available tasks
