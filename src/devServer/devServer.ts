@@ -9,7 +9,7 @@ import {
 } from 'http';
 import {ListenOptions} from 'net';
 
-import {cyan, yellow, gray} from '../colors/terminal.js';
+import {cyan, yellow, gray, red} from '../colors/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
@@ -100,10 +100,10 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		// 	file = filer.findById(file.id + '/index.html');
 		// }
 		if (!file) {
-			log.trace(`${yellow('404')} ${localPath}`);
+			log.trace(`${yellow('404')} ${red(localPath)}`);
 			return send404(req, res, localPath);
 		}
-		log.trace(`${yellow('200')} ${localPath}`);
+		log.trace(`${yellow('200')} ${gray(localPath)}`);
 		return send200(req, res, file);
 	};
 	return requestListener;
