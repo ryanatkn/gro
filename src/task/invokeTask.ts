@@ -1,6 +1,6 @@
 import {magenta, cyan, red, gray} from '../colors/terminal.js';
 import {Args} from '../cli/types';
-import {SystemLogger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger, configureLogLevel} from '../utils/log.js';
 import {runTask} from './runTask.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {printMs, printPath, printPathOrGroPath, printTiming} from '../utils/print.js';
@@ -84,6 +84,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				const config = await loadGroConfig();
+				configureLogLevel(config.logLevel);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				await buildSourceDirectory(config, true, log);

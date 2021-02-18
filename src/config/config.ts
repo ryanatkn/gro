@@ -5,11 +5,13 @@ import {
 	PartialBuildConfig,
 	validateBuildConfigs,
 } from './buildConfig.js';
-import {Logger, SystemLogger} from '../utils/log.js';
+import {Logger, LogLevel, SystemLogger} from '../utils/log.js';
 import {magenta} from '../colors/terminal.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
 import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from '../build/tsBuildHelpers.js';
+import {omitUndefined} from '../utils/object.js';
 
 /*
 
@@ -35,12 +37,18 @@ const FALLBACK_CONFIG_BUILD_BASE_PATH = 'config/gro.config.default.js';
 
 export interface GroConfig {
 	readonly builds: BuildConfig[];
+	readonly target: EcmaScriptTarget;
+	readonly sourceMap: boolean;
+	readonly logLevel: LogLevel;
 	readonly primaryNodeBuildConfig: BuildConfig;
 	readonly primaryBrowserBuildConfig: BuildConfig | null;
 }
 
 export interface PartialGroConfig {
 	readonly builds: PartialBuildConfig[];
+	readonly target?: EcmaScriptTarget;
+	readonly sourceMap?: boolean;
+	readonly logLevel?: LogLevel;
 }
 
 export interface GroConfigModule {
@@ -176,8 +184,11 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 	const primaryBrowserBuildConfig =
 		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
 	return {
-		...config,
+		sourceMap: process.env.NODE_ENV !== 'production', // TODO hmm where does this come from?
+		logLevel: LogLevel.Info,
+		...omitUndefined(config),
 		builds: buildConfigs,
+		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
 		primaryNodeBuildConfig,
 		primaryBrowserBuildConfig,
 	};

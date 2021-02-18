@@ -5,8 +5,8 @@ import {Timings} from '../utils/time.js';
 import {createDefaultBuilder} from '../build/defaultBuilder.js';
 import {paths, toBuildOutPath} from '../paths.js';
 import {createDevServer} from '../devServer/devServer.js';
-import {loadTsconfig, toEcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {loadGroConfig} from '../config/config.js';
+import {configureLogLevel} from '../utils/log.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
@@ -15,15 +15,8 @@ export const task: Task = {
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig();
+		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
-
-		// TODO probably replace these with the Gro config values
-		// see the `src/dev.task.ts` for the same thing
-		const timingToLoadTsconfig = timings.start('load tsconfig');
-		const tsconfig = loadTsconfig(log);
-		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
-		const sourceMap = tsconfig.compilerOptions?.sourceMap ?? true;
-		timingToLoadTsconfig();
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
@@ -34,8 +27,8 @@ export const task: Task = {
 				toBuildOutPath(true, 'browser', ''),
 			],
 			buildConfigs: config.builds,
-			sourceMap,
-			target,
+			target: config.target,
+			sourceMap: config.sourceMap,
 		});
 		timingToCreateFiler();
 

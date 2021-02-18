@@ -2,6 +2,7 @@ import {createFilter} from '@rollup/pluginutils';
 // import {createDirectoryFilter} from './build/utils.js';
 
 import {GroConfigCreator, PartialGroConfig} from './config/config.js';
+import {LogLevel} from './utils/log.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
@@ -24,8 +25,8 @@ const createConfig: GroConfigCreator = async () => {
 				// input: createDirectoryFilter('frontend'),
 			},
 		],
+		logLevel: LogLevel.Trace,
 	};
-
 	return config;
 };
 
