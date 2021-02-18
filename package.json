@@ -53,6 +53,7 @@
     "@rollup/pluginutils": "^4.0.0",
     "@swc/core": "^1.2.28",
     "cheap-watch": "^1.0.3",
+    "dequal": "^2.0.2",
     "es-module-lexer": "^0.3.25",
     "esinstall": "^1.0.5",
     "fs-extra": "^9.0.1",

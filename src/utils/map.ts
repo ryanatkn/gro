@@ -1,5 +1,3 @@
-export {mapsEqual} from './deepEqual.js';
-
 export const sortMap = <T extends Map<any, any>>(map: T, comparator = compareSimpleMapEntries): T =>
 	new Map([...map].sort(comparator)) as T;
 
