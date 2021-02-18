@@ -2,7 +2,8 @@
 
 Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
-Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
+Inspired by [Snowpack](https://github.com/pikapkg/snowpack)
+([www.snowpack.dev](https://www.snowpack.dev/)),
 Gro leverages ES modules during development
 to avoid the unnecessary overhead and complexity of bundling.
 Unlike Snowpack and similar tools like [wmr](https://github.com/preactjs/wmr),
