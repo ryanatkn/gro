@@ -101,7 +101,7 @@ export class Logger {
 		this.state.log('\n');
 	}
 
-	// These properties can be mutated at runtime
+	// These properties can be mutated at runtime (see `configureLog`)
 	// to affect all loggers instantiated with the default `state`.
 	// See the comment on `LoggerState` for more.
 	static level = LogLevel.Trace;
@@ -160,3 +160,16 @@ export class SystemLogger extends Logger {
 		super(prefixes, suffixes, state);
 	}
 }
+
+export const configureLogLevel = (
+	level: LogLevel,
+	configureMainLogger = true,
+	configureSystemLogger = true,
+): void => {
+	if (configureMainLogger) {
+		Logger.level = level;
+	}
+	if (configureSystemLogger) {
+		SystemLogger.level = level;
+	}
+};

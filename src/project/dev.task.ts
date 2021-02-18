@@ -6,6 +6,7 @@ import {createDefaultBuilder} from '../build/defaultBuilder.js';
 import {paths, toBuildOutPath} from '../paths.js';
 import {createDevServer} from '../devServer/devServer.js';
 import {loadGroConfig} from '../config/config.js';
+import {configureLogLevel} from '../utils/log.js';
 
 export const task: Task = {
 	description: 'build typescript in watch mode for development',
@@ -14,6 +15,7 @@ export const task: Task = {
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig();
+		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 
 		const timingToCreateFiler = timings.start('create filer');

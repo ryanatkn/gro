@@ -4,11 +4,13 @@ import {createDevServer} from './devServer/devServer.js';
 import {createDefaultBuilder} from './build/defaultBuilder.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {loadGroConfig} from './config/config.js';
+import {configureLogLevel} from './utils/log.js';
 
 export const task: Task = {
 	description: 'start development server',
 	run: async (): Promise<void> => {
 		const config = await loadGroConfig();
+		configureLogLevel(config.logLevel);
 		// TODO should this be `findServedBuildConfig`? or should this be a property on the config itself?
 		// maybe that gets added by a normalization step?
 		const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.primaryNodeBuildConfig;

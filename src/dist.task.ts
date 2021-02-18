@@ -5,6 +5,7 @@ import {isTestBuildFile, isTestBuildArtifact} from './oki/testModule.js';
 import {printPath} from './utils/print.js';
 import {cleanDist} from './project/clean.js';
 import {loadGroConfig} from './config/config.js';
+import {configureLogLevel} from './utils/log.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
@@ -18,6 +19,7 @@ export const task: Task = {
 		// See the docs at `./docs/config.md`.
 		const dev = process.env.NODE_ENV !== 'production';
 		const config = await loadGroConfig();
+		configureLogLevel(config.logLevel);
 		const buildConfigsForDist = config.builds.filter((b) => b.dist);
 		await Promise.all(
 			buildConfigsForDist.map((buildConfig) => {
