@@ -56,10 +56,9 @@ Gro differs in some significant ways:
   Gro's goal is to provide an opinionated batteries-included experience
   with a core set of technologies like
   [Svelte](https://github.com/sveltejs/svelte) and [Prettier](https://github.com/prettier/prettier).
-  Gro does not have a plugin system yet,
-  but it has a pluggable build architecture that can probably support a lot of things.
-  Gro will have plugins eventually, but unlike Snowpack,
-  we do not currently plan to develop an ecosystem that strays from core choices.
+  Gro has a pluggable build architecture that can support a lot of things,
+  and we'll support more powerful plugin functionality in the future,
+  but we don't plan to develop a plugin ecosystem like Snowpack.
   Instead, we expect Gro to evolve towards more opinionated choices, not fewer.
 - Snowpack is a frontend build tool that's focused on doing that one thing very well.
   Gro has a sprawling scope that includes
