@@ -3,6 +3,15 @@
 > task runner for
 > [Gro](https://github.com/feltcoop/gro)
 
+## contents
+
+- [what](#what)
+- [usage](#usage)
+- [future improvements](#future-improvements)
+- [why?](#why)
+
+## what
+
 A Gro task is just a function with some metadata.
 Gro prefers conventions and code over configuration,
 and its task runner leverages the filesystem as the API
@@ -24,12 +33,6 @@ The task runner's purpose is to provide an ergonomic interface
 between the CLI, build tools, and app code.
 It tries to dissolve walls that typically separate these domains
 while deferring to your code and facilitating buildtime development processes.
-
-## contents
-
-- [usage](#usage)
-- [future improvements](#future-improvements)
-- [why?](#why)
 
 ## usage
 
