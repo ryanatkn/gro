@@ -11,7 +11,7 @@ import {BaseFilerFile} from './baseFilerFile.js';
 import {toHash} from './utils.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {Encoding} from '../fs/encoding.js';
-import {CachedSourceInfo} from './Filer.js';
+import type {CachedSourceInfo, FilerFile} from './Filer.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
 
@@ -224,3 +224,20 @@ export const createSourceFile = async (
 			throw new UnreachableError(encoding);
 	}
 };
+
+export function assertBuildableExternalsSourceFile(
+	file: FilerFile | undefined | null,
+): asserts file is BuildableExternalsSourceFile {
+	if (file == null) {
+		throw Error(`Expected a file but got ${file}`);
+	}
+	if (file.type !== 'source') {
+		throw Error(`Expected a source file, but type is ${file.type}: ${file.id}`);
+	}
+	if (!file.buildable) {
+		throw Error(`Expected file to be buildable: ${file.id}`);
+	}
+	if (file.sourceType !== 'externals') {
+		throw Error(`Expected an externals file, but source type is ${file.sourceType}: ${file.id}`);
+	}
+}

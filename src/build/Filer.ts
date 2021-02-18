@@ -29,6 +29,7 @@ import {stripEnd, stripStart} from '../utils/string.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
+	assertBuildableExternalsSourceFile,
 	BuildableExternalsSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
@@ -919,16 +920,20 @@ export class Filer {
 			await this.deleteCachedSourceInfo(sourceFile.id);
 		}
 	}
-
 	async initExternalDependencySourceFile(id: string): Promise<BuildableExternalsSourceFile> {
 		const sourceFile = this.files.get(id);
-		if (sourceFile !== undefined) return sourceFile as BuildableExternalsSourceFile;
+		if (sourceFile !== undefined) {
+			assertBuildableExternalsSourceFile(sourceFile);
+			return sourceFile;
+		}
 		this.log.trace('init external dependency', gray(id));
 		if (this.externalsDir === null) {
 			throw Error(`Expected an externalsDir to create an externals source file.`);
 		}
 		await this.updateSourceFile(id, this.externalsDir);
-		return this.files.get(id) as BuildableExternalsSourceFile;
+		const newFile = this.files.get(id);
+		assertBuildableExternalsSourceFile(newFile);
+		return newFile;
 	}
 
 	// TODO as an optimization, this should be debounced per file,
