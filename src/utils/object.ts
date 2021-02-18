@@ -1,5 +1,3 @@
-export {objectsEqual} from './deepEqual.js';
-
 // Iterated keys in `for..in` are always returned as strings,
 // so to prevent usage errors the key type of `mapFn` is always a string.
 // Symbols are not enumerable as keys, so they're excluded.
