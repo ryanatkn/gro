@@ -10,6 +10,7 @@ import {magenta} from '../colors/terminal.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
 import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 
 /*
 
@@ -35,12 +36,16 @@ const FALLBACK_CONFIG_BUILD_BASE_PATH = 'config/gro.config.default.js';
 
 export interface GroConfig {
 	readonly builds: BuildConfig[];
+	readonly target: EcmaScriptTarget;
+	readonly sourceMap: boolean;
 	readonly primaryNodeBuildConfig: BuildConfig;
 	readonly primaryBrowserBuildConfig: BuildConfig | null;
 }
 
 export interface PartialGroConfig {
 	readonly builds: PartialBuildConfig[];
+	readonly target?: EcmaScriptTarget;
+	readonly sourceMap?: boolean;
 }
 
 export interface GroConfigModule {
@@ -178,6 +183,8 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 	return {
 		...config,
 		builds: buildConfigs,
+		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
+		sourceMap: process.env.NODE_ENV !== 'production', // TODO hmm where does this come from?
 		primaryNodeBuildConfig,
 		primaryBrowserBuildConfig,
 	};
