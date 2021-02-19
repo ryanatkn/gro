@@ -52,6 +52,7 @@ export const importTs = async (
 		// TODO these last two aren't needed, maybe the swc compiler's type should explicitly choose which options it uses?
 		externalsDirBasePath: '',
 		servedDirs: [],
+		state: {},
 	};
 	const buildId = await compileFileAndImports(sourceId, buildConfig, buildOptions);
 	const mod = await import(buildId);

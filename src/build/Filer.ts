@@ -22,7 +22,7 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import type {Builder} from './builder.js';
+import type {Builder, BuilderState} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
@@ -176,6 +176,7 @@ export class Filer {
 	readonly target: EcmaScriptTarget;
 	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
+	readonly state: BuilderState = {};
 
 	constructor(opts: InitialOptions) {
 		const {
@@ -394,7 +395,7 @@ export class Filer {
 		// Iterate through the files once and apply the filters to all source files.
 		if (filters.length) {
 			for (const file of this.files.values()) {
-				if (file.type !== 'source') continue;
+				if (file.type !== 'source' || file.sourceType === 'externals') continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
@@ -694,6 +695,9 @@ export class Filer {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		this.log.info('build source file', sourceFile.id);
+		if (sourceFile.id === 'import-map.json') {
+			debugger;
+		}
 
 		// Compile the source file.
 		const result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);

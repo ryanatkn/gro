@@ -23,7 +23,9 @@ export interface BuildOptions {
 	readonly dev: boolean;
 	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
+	readonly state: BuilderState;
 }
+export type BuilderState = Obj<any>;
 
 export type Build = TextBuild | BinaryBuild;
 export interface TextBuild extends BaseBuild {

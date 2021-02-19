@@ -33,7 +33,7 @@ export interface BinarySourceFile extends BaseSourceFile {
 	contentsBuffer: Buffer;
 }
 export interface ExternalsSourceFile extends BaseSourceFile {
-	readonly sourceType: 'externals';
+	readonly sourceType: 'externals'; // TODO `sourceType` doesn't really make sense to overlap with `externals`, does it?
 	readonly encoding: 'utf8';
 	contents: string;
 }
