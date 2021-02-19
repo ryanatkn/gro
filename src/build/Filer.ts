@@ -695,9 +695,6 @@ export class Filer {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		this.log.info('build source file', sourceFile.id);
-		if (sourceFile.id === 'import-map.json') {
-			debugger;
-		}
 
 		// Compile the source file.
 		const result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);
