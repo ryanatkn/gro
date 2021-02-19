@@ -185,7 +185,7 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
 	return {
 		sourceMap: process.env.NODE_ENV !== 'production', // TODO hmm where does this come from?
-		logLevel: LogLevel.Info,
+		logLevel: LogLevel.Trace,
 		...omitUndefined(config),
 		builds: buildConfigs,
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
