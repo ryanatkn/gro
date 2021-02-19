@@ -81,6 +81,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		];
 
 		let contents: string;
+		let commonDependencyIds: string[] | null = null;
 		try {
 			const result = await installExternal(
 				source.id,
@@ -88,10 +89,15 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				getExternalsBuilderState(state),
 				plugins,
 			);
-			console.log('externals built', source.id);
-			const installedId = join(dest, result.importMap.imports[source.id]);
-			id = join(buildRootDir, externalsDirBasePath, result.importMap.imports[source.id]);
-			contents = await loadContents(encoding, installedId);
+			// Since we're batching the external installation process,
+			// and it can return a number of common files,
+			// we need to add those common files as build files to exactly one of the built source files.
+			// It doesn't matter which one, so we just always pick the first source file in the data.
+			if (source.id === Object.keys(result.importMap.imports)[0]) {
+				commonDependencyIds = Object.keys(result.stats.common).map((path) => join(dest, path));
+			}
+			id = join(dest, result.importMap.imports[source.id]);
+			contents = await loadContents(encoding, id);
 		} catch (err) {
 			log.error(`Failed to bundle external module: ${source.id}`);
 			throw err;
@@ -108,6 +114,22 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				sourceMapOf: null,
 				buildConfig,
 			},
+			...(commonDependencyIds === null
+				? []
+				: await Promise.all(
+						commonDependencyIds.map(
+							async (commonDependencyId): Promise<TextBuild> => ({
+								id: commonDependencyId,
+								filename: basename(commonDependencyId),
+								dir: dirname(commonDependencyId),
+								extension: JS_EXTENSION,
+								encoding,
+								contents: await loadContents(encoding, commonDependencyId),
+								sourceMapOf: null,
+								buildConfig,
+							}),
+						),
+				  )),
 		];
 
 		return {builds};
