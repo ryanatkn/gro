@@ -88,6 +88,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				dest,
 				getExternalsBuilderState(state),
 				plugins,
+				log,
 			);
 			// Since we're batching the external installation process,
 			// and it can return a number of common files,
@@ -145,11 +146,13 @@ const installExternal = async (
 	dest: string,
 	state: ExternalsBuilderState,
 	plugins: RollupPlugin[],
+	log: Logger,
 ): Promise<InstallResult> => {
 	if (state.installing === null) {
-		state.installing = createDelayedPromise(() =>
-			installExternals(state.specifiers, dest, plugins),
-		);
+		state.installing = createDelayedPromise(() => {
+			log.info('installing externals', state.specifiers);
+			return installExternals(state.specifiers, dest, plugins);
+		});
 	}
 	if (state.specifiers.includes(sourceId)) return state.installing.promise;
 	state.specifiers.push(sourceId);
