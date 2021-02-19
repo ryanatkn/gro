@@ -190,29 +190,15 @@ const installExternals = async (
 	specifiers: string[],
 	dest: string,
 	plugins: RollupPlugin[],
-): Promise<InstallResult> => {
-	const result = await install(Array.from(specifiers), {dest, rollup: {plugins}});
-	console.log('result', result);
-	// const installedId = join(dest, result.importMap.imports[source.id]);
-	// id = join(buildRootDir, externalsDirBasePath, result.importMap.imports[source.id]);
-	// contents = await loadContents(encoding, installedId);
-	// await move(installedId, id);
-	// await remove(dest);
-	return result;
-};
+): Promise<InstallResult> => install(Array.from(specifiers), {dest, rollup: {plugins}});
 
 interface ExternalsBuilderState {
 	specifiers: string[];
-	timeout: NodeJS.Timeout | null;
 	installing: DelayedPromise<InstallResult> | null;
 }
 
 const EXTERNALS_BUILDER_STATE_KEY = 'externals';
 
-const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
-	let s: ExternalsBuilderState = state[EXTERNALS_BUILDER_STATE_KEY];
-	if (s === undefined) {
-		s = state[EXTERNALS_BUILDER_STATE_KEY] = {specifiers: [], timeout: null, installing: null};
-	}
-	return s;
-};
+const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderState =>
+	state[EXTERNALS_BUILDER_STATE_KEY] ||
+	(state[EXTERNALS_BUILDER_STATE_KEY] = {specifiers: [], installing: null});
