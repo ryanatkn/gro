@@ -36,6 +36,13 @@ while deferring to your code and facilitating buildtime development processes.
 
 ## usage
 
+Gro has complex rules to convert your input commands,
+the `foo` of `gro foo`, to its internal behavior.
+It tries to do the right thing. Read ahead for how it works.
+If something doesn't feel right, it might be a design flaw,
+or maybe it conflicts with another design choice.
+We welcome any discussion about its problems and possible improvements.
+
 ### show all available tasks
 
 ```bash
