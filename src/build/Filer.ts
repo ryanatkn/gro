@@ -57,7 +57,7 @@ export interface CachedSourceInfo {
 	readonly cacheId: string; // path to the cached JSON file on disk
 	readonly data: CachedSourceInfoData; // the plain JSON written to disk
 }
-const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
+const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`
 
 export interface Options {
 	dev: boolean;

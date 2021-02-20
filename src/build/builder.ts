@@ -51,17 +51,17 @@ interface BaseBuild {
 
 export type BuildSource = TextBuildSource | BinaryBuildSource | ExternalsBuildSource;
 export interface TextBuildSource extends BaseBuildSource {
-	sourceType: 'text';
+	sourceType: 'text'; // TODO I think we can replace this with `isExternal`
 	encoding: 'utf8';
 	contents: string;
 }
 export interface BinaryBuildSource extends BaseBuildSource {
-	sourceType: 'binary';
+	sourceType: 'binary'; // TODO I think we can replace this with `isExternal`
 	encoding: null;
 	contents: Buffer;
 }
 export interface ExternalsBuildSource extends BaseBuildSource {
-	sourceType: 'externals';
+	sourceType: 'externals'; // TODO I think we can replace this with `isExternal`
 	encoding: 'utf8';
 	contents: string;
 }
