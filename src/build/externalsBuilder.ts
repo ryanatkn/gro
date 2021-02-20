@@ -42,12 +42,10 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
 
-let importMap: ImportMap | undefined; // TODO don't want module-level state, but it's fine for now
 const encoding = 'utf8';
 
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {importMap: initialImportMap, log} = initOptions(opts);
-	importMap = initialImportMap;
 
 	const build: ExternalsBuilder['build'] = async (
 		source,
@@ -86,14 +84,16 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		let contents: string;
 		let commonDependencyIds: string[] | null = null;
 		try {
+			console.log('intalling');
 			const result = await installExternal(
 				source.id,
 				dest,
-				getExternalsBuilderState(state, importMap),
+				getExternalsBuilderState(state, initialImportMap),
 				plugins,
 				buildingSourceFiles,
 				log,
 			);
+			console.log('installed');
 			// Since we're batching the external installation process,
 			// and it can return a number of common files,
 			// we need to add those common files as build files to exactly one of the built source files.
@@ -145,10 +145,10 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 // TODO this is really hacky - it's working,
 // but it causes unnecessary delays building externals
-const DELAYED_PROMISE_DURATION = 250; // this should be larger than `IDLE_CHECK_INTERVAL`
+const DELAYED_PROMISE_DURATION = 250; // this needs to be larger than `IDLE_CHECK_INTERVAL`
 const IDLE_CHECK_INTERVAL = 100; // this needs to be smaller than `DELAYED_PROMISE_DURATION`
+const IDLE_TIME_LIMIT = parseInt((process.env as any).GRO_IDLE_TIME_LIMIT, 10) || 20000; // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
 // TODO wait what's the relationship between those two? check for errors?
-let resetterInterval: NodeJS.Timeout | undefined;
 
 const installExternal = async (
 	sourceId: string,
@@ -164,17 +164,27 @@ const installExternal = async (
 			log.info('installing externals', state.specifiers);
 			const result = await installExternals(state.specifiers, dest, plugins);
 			log.info('install result', result);
-			importMap = result.importMap;
+			state.importMap = result.importMap;
 			return result;
 		});
-		resetterInterval = setInterval(() => {
+		state.idleTimer = 0;
+		state.resetterInterval = setInterval(() => {
+			state.idleTimer += IDLE_CHECK_INTERVAL; // this is not a precise time value
+			if (state.idleTimer > IDLE_TIME_LIMIT) {
+				log.error(`installing externals timed out. this is a bug .. somewhere: ${sourceId}`);
+				clearInterval(state.resetterInterval!);
+				state.resetterInterval = null;
+				state.idleTimer = 0;
+				return;
+			}
 			state.installing!.reset();
 			if (buildingSourceFiles.size === 0) {
 				setTimeout(() => {
 					// check again in a moment just to be sure
 					if (buildingSourceFiles.size === 0) {
-						clearInterval(resetterInterval!);
-						resetterInterval = undefined;
+						clearInterval(state.resetterInterval!);
+						state.resetterInterval = null;
+						state.idleTimer = 0;
 					}
 				}, IDLE_CHECK_INTERVAL / 3); // TODO would cause a bug if this ever fires after the next interval
 			}
@@ -225,18 +235,28 @@ const installExternals = async (
 ): Promise<InstallResult> => install(Array.from(specifiers), {dest, rollup: {plugins}});
 
 interface ExternalsBuilderState {
+	importMap: ImportMap | undefined;
 	specifiers: string[];
 	installing: DelayedPromise<InstallResult> | null;
+	idleTimer: number;
+	resetterInterval: NodeJS.Timeout | null;
 }
 
 const EXTERNALS_BUILDER_STATE_KEY = 'externals';
 
 const getExternalsBuilderState = (
 	state: BuilderState,
-	importMap: ImportMap | undefined,
-): ExternalsBuilderState =>
-	state[EXTERNALS_BUILDER_STATE_KEY] ||
-	(state[EXTERNALS_BUILDER_STATE_KEY] = {
-		specifiers: importMap === undefined ? [] : Object.keys(importMap.imports),
+	initialImportMap?: ImportMap | undefined,
+): ExternalsBuilderState => {
+	let s: ExternalsBuilderState = state[EXTERNALS_BUILDER_STATE_KEY];
+	if (s !== undefined) return s; // note `initialImportMap` may not match `state.importMap`
+	s = {
+		importMap: initialImportMap,
+		specifiers: initialImportMap === undefined ? [] : Object.keys(initialImportMap.imports),
 		installing: null,
-	});
+		idleTimer: 0,
+		resetterInterval: null,
+	};
+	state[EXTERNALS_BUILDER_STATE_KEY] = s;
+	return s;
+};
