@@ -5,7 +5,7 @@ import {Plugin as RollupPlugin} from 'rollup';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, BuilderState, ExternalsBuildSource, TextBuild} from './builder.js';
+import {Builder, BuilderState, BuildOptions, ExternalsBuildSource, TextBuild} from './builder.js';
 import {cyan, gray} from '../colors/terminal.js';
 import {loadContents} from './load.js';
 import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
@@ -50,8 +50,17 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, externalsDirBasePath, sourceMap, target, state, buildingSourceFiles},
+		buildOptions: BuildOptions,
 	) => {
+		const {
+			buildRootDir,
+			dev,
+			externalsDirBasePath,
+			sourceMap,
+			target,
+			state,
+			buildingSourceFiles,
+		} = buildOptions;
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
