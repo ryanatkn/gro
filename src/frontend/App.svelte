@@ -13,21 +13,21 @@
 <main>name: {name}</main>
 
 <button on:click={() => (showFilerVisualizer1 = !showFilerVisualizer1)}>{#if showFilerVisualizer1}
-		hide filer visualizer 1
-	{:else}show filer visualizer 1{/if}</button>
+		hide server filer visualizer
+	{:else}show server filer visualizer{/if}</button>
 
 <button on:click={() => (showFilerVisualizer2 = !showFilerVisualizer2)}>{#if showFilerVisualizer2}
-		hide filer visualizer 2
-	{:else}show filer visualizer 2{/if}</button>
+		hide client example filer visualizer
+	{:else}show client example filer visualizer{/if}</button>
 
-{#if showFilerVisualizer2}
-	<div in:fade>
-		<FilerVisualizer />
-	</div>
-{/if}
 {#if showFilerVisualizer1}
 	<div in:fade>
-		<FilerVisualizer />
+		<FilerVisualizer name="server" />
+	</div>
+{/if}
+{#if showFilerVisualizer2}
+	<div in:fade>
+		<FilerVisualizer name="client example" />
 	</div>
 {/if}
 
