@@ -30,7 +30,6 @@ import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js'
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
 	assertBuildableExternalsSourceFile,
-	assertSourceFile,
 	BuildableExternalsSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
@@ -43,19 +42,20 @@ import {loadContents} from './load.js';
 export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface CachedSourceInfoData {
-	sourceId: string;
-	contentsHash: string;
-	builds: {
-		id: string;
-		name: string;
-		localDependencies: string[] | null;
-		externalDependencies: string[] | null;
-		encoding: Encoding;
+	readonly sourceId: string;
+	readonly sourceType: BuildableSourceFile['sourceType'];
+	readonly contentsHash: string;
+	readonly builds: {
+		readonly id: string;
+		readonly name: string;
+		readonly localDependencies: string[] | null;
+		readonly externalDependencies: string[] | null;
+		readonly encoding: Encoding;
 	}[];
 }
 export interface CachedSourceInfo {
-	cacheId: string; // path to the cached JSON file on disk
-	data: CachedSourceInfoData; // the plain JSON written to disk
+	readonly cacheId: string; // path to the cached JSON file on disk
+	readonly data: CachedSourceInfoData; // the plain JSON written to disk
 }
 const CACHED_SOURCE_INFO_DIR = 'cachedSourceInfo';
 
@@ -660,8 +660,8 @@ export class Filer {
 	}
 
 	// These are used to avoid concurrent compilations for any given source file.
-	private pendingCompilations = new Set<string>(); // value is `buildConfig.name + sourceFileId`
-	private enqueuedCompilations = new Set<string>(); // value is `buildConfig.name + sourceFileId`
+	private pendingCompilations = new Set<string>(); // value is `buildConfig.name + sourceId`
+	private enqueuedCompilations = new Set<string>(); // value is `buildConfig.name + sourceId`
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent compilations.
@@ -824,7 +824,6 @@ export class Filer {
 		}
 		if (removedDependencySourceFiles !== null) {
 			for (const removedDependencySourceFile of removedDependencySourceFiles) {
-				if (removedDependencySourceFile.sourceType === 'externals') continue; // TODO clean these up ever?
 				if (!removedDependencySourceFile.buildConfigs.has(buildConfig)) {
 					throw Error(
 						`Expected build config: ${printBuildConfig(buildConfig)}:${
@@ -842,6 +841,8 @@ export class Filer {
 				}
 				dependents.delete(sourceFile);
 				if (
+					// TODO hmm maybe do this bookkeeping but don't delete externals on disk?
+					// removedDependencySourceFile.sourceType !== 'externals' && // TODO clean these up ever?
 					dependents.size === 0 &&
 					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
 				) {
@@ -969,6 +970,7 @@ export class Filer {
 		const cacheId = toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath);
 		const data: CachedSourceInfoData = {
 			sourceId: file.id,
+			sourceType: file.sourceType,
 			contentsHash: getFileContentsHash(file),
 			builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 				files.map((file) => ({
@@ -1019,11 +1021,14 @@ const syncFilesToDisk = async (
 			? null
 			: Promise.all(
 					oldFiles.map((oldFile) => {
-						if (!newFiles.find((f) => f.id === oldFile.id)) {
+						if (
+							oldFile.sourceType !== 'externals' && // for now, just never delete externals
+							!newFiles.find((f) => f.id === oldFile.id)
+						) {
 							log.trace('deleting build file on disk', printPath(oldFile.id));
 							return remove(oldFile.id);
 						}
-						return undefined;
+						return null;
 					}),
 			  ),
 		Promise.all(
@@ -1097,17 +1102,13 @@ const syncBuildFilesToMemoryCache = (
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
 			// Externals are the exception: they may swap files around without us caring.
-			const newSourceFile = files.get(newFile.sourceFileId);
-			const oldSourceFile = files.get(oldFile.sourceFileId);
-			assertSourceFile(newSourceFile);
-			assertSourceFile(oldSourceFile);
 			if (
-				newSourceFile.id !== oldSourceFile.id &&
-				!(newSourceFile.sourceType === 'externals' && oldSourceFile.sourceType === 'externals')
+				oldFile.sourceId !== oldFile.sourceId &&
+				!(oldFile.sourceType === 'externals' && oldFile.sourceType === 'externals')
 			) {
 				throw Error(
 					'Two source files are trying to build to the same output location: ' +
-						`${newSourceFile.id} & ${oldSourceFile.id}`,
+						`${oldFile.sourceId} & ${oldFile.sourceId}`,
 				);
 			}
 		}

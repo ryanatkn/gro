@@ -23,7 +23,8 @@ export interface BinaryBuildFile extends BaseBuildFile {
 }
 export interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
-	readonly sourceFileId: string;
+	readonly sourceId: string;
+	readonly sourceType: BuildableSourceFile['sourceType'];
 	readonly buildConfig: BuildConfig;
 	readonly localDependencies: Set<string> | null; // TODO is this right? or maybe a set?
 	readonly externalDependencies: Set<string> | null; // TODO is this right? or maybe a set?
@@ -46,7 +47,8 @@ export const createBuildFile = (
 		case 'utf8':
 			return {
 				type: 'build',
-				sourceFileId: sourceFile.id,
+				sourceId: sourceFile.id,
+				sourceType: sourceFile.sourceType,
 				buildConfig,
 				localDependencies,
 				externalDependencies,
@@ -65,7 +67,8 @@ export const createBuildFile = (
 		case null:
 			return {
 				type: 'build',
-				sourceFileId: sourceFile.id,
+				sourceId: sourceFile.id,
+				sourceType: sourceFile.sourceType,
 				buildConfig,
 				localDependencies,
 				externalDependencies,
@@ -104,7 +107,8 @@ export const reconstructBuildFiles = async (
 					case 'utf8':
 						buildFile = {
 							type: 'build',
-							sourceFileId: cachedSourceInfo.data.sourceId,
+							sourceId: cachedSourceInfo.data.sourceId,
+							sourceType: cachedSourceInfo.data.sourceType,
 							buildConfig,
 							localDependencies: localDependencies && new Set(localDependencies),
 							externalDependencies: externalDependencies && new Set(externalDependencies),
@@ -126,7 +130,8 @@ export const reconstructBuildFiles = async (
 					case null:
 						buildFile = {
 							type: 'build',
-							sourceFileId: cachedSourceInfo.data.sourceId,
+							sourceId: cachedSourceInfo.data.sourceId,
+							sourceType: cachedSourceInfo.data.sourceType,
 							buildConfig,
 							localDependencies: localDependencies && new Set(localDependencies),
 							externalDependencies: externalDependencies && new Set(externalDependencies),
