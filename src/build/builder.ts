@@ -28,7 +28,7 @@ export interface BuildOptions {
 	readonly buildingSourceFiles: Set<string>;
 }
 export interface BuilderState {
-	[EXTERNALS_BUILD_DIR]: ExternalsBuilderState;
+	[EXTERNALS_BUILD_DIR]?: ExternalsBuilderState;
 }
 
 export type Build = TextBuild | BinaryBuild;
