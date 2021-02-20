@@ -1,6 +1,8 @@
 import './devtools.js';
 import App from './App.svelte';
 
+console.log('hey gro');
+
 // // test a bad import
 // import '../build/failme.js';
 
@@ -24,11 +26,13 @@ if (mix !== math.mix) throw Error('Expected same module');
 import {baz} from './baz.js';
 console.log('baz', baz);
 
-console.log('hey');
-
 // test fully qualified external import
 import * as motion from 'svelte/motion/index.js';
 console.log('imported svelte motion', motion);
+
+// test a transitive external import
+import {deepEqual} from '../utils/deepEqual.js';
+console.log('deepEqual', deepEqual({}, {}));
 
 // test dynamic import
 import('svelte/store').then((store) => {
