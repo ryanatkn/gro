@@ -13,7 +13,7 @@ See below for [a deeper comparison](#comparison-to-snowpack).
 For production, Gro uses Rollup to produce efficient bundles.
 The result is the best of both worlds:
 fast iteration with straightforward builds during development,
-and uncompromising efficiency for production.
+and uncompromising efficiency and flexibility for production.
 
 Today, Gro is aimed at three primary use cases:
 

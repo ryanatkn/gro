@@ -24,6 +24,7 @@ export interface BuildOptions {
 	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
 	readonly state: BuilderState;
+	readonly buildingSourceFiles: Set<string>;
 }
 export type BuilderState = Obj<any>;
 

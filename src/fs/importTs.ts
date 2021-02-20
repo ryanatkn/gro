@@ -53,6 +53,7 @@ export const importTs = async (
 		externalsDirBasePath: '',
 		servedDirs: [],
 		state: {},
+		buildingSourceFiles: new Set(),
 	};
 	const buildId = await compileFileAndImports(sourceId, buildConfig, buildOptions);
 	const mod = await import(buildId);

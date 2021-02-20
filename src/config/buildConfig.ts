@@ -3,6 +3,7 @@ import {resolve} from 'path';
 import {ensureArray} from '../utils/array.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
+import {blue} from '../colors/terminal.js';
 
 // See `../docs/config.md` for documentation.
 
@@ -93,7 +94,7 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 				ok: false,
 				reason:
 					`The field 'gro.builds' in package.json cannot have items with duplicate names.` +
-					` The name '${buildConfig.name}' appears twice.`,
+					` The name ${printBuildConfig(buildConfig)} appears twice.`,
 			};
 		}
 		names.add(buildConfig.name);
@@ -120,3 +121,5 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 	}
 	return {ok: true};
 };
+
+export const printBuildConfig = (buildConfig: BuildConfig): string => blue(buildConfig.name);

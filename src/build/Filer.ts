@@ -22,14 +22,15 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import type {Builder, BuilderState} from './builder.js';
+import type {Build, Builder, BuilderState, BuildResult} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
-import {BuildConfig} from '../config/buildConfig.js';
+import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {stripEnd, stripStart} from '../utils/string.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
 	assertBuildableExternalsSourceFile,
+	assertSourceFile,
 	BuildableExternalsSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
@@ -177,6 +178,7 @@ export class Filer {
 	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
 	readonly state: BuilderState = {};
+	readonly buildingSourceFiles: Set<string> = new Set();
 
 	constructor(opts: InitialOptions) {
 		const {
@@ -378,13 +380,17 @@ export class Filer {
 				}
 				const file = this.files.get(input);
 				if (!file) {
-					throw Error(`Build config '${buildConfig.name}' has unknown input '${input}'`);
+					throw Error(`Build config ${printBuildConfig(buildConfig)} has unknown input '${input}'`);
 				}
 				if (file.type !== 'source') {
-					throw Error(`Build config '${buildConfig.name}' has non-source input '${input}'`);
+					throw Error(
+						`Build config ${printBuildConfig(buildConfig)} has non-source input '${input}'`,
+					);
 				}
 				if (!file.buildable) {
-					throw Error(`Build config '${buildConfig.name}' has non-buildable input '${input}'`);
+					throw Error(
+						`Build config ${printBuildConfig(buildConfig)} has non-buildable input '${input}'`,
+					);
 				}
 				if (!file.buildConfigs.has(buildConfig)) {
 					promises.push(this.addSourceFileToBuild(file, buildConfig, true));
@@ -421,7 +427,9 @@ export class Filer {
 		isInput: boolean,
 	): Promise<void> {
 		if (sourceFile.buildConfigs.has(buildConfig)) {
-			throw Error(`Expected to add buildConfig for ${buildConfig.name}:${sourceFile.id}`);
+			throw Error(
+				`Expected to add buildConfig for ${printBuildConfig(buildConfig)}:${sourceFile.id}`,
+			);
 		}
 		// Add the build config. The caller is expected to check to avoid duplicates.
 		sourceFile.buildConfigs.add(buildConfig);
@@ -666,7 +674,7 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		const key = `${buildConfig.name}${sourceFile.id}`;
+		const key = `${printBuildConfig(buildConfig)}${sourceFile.id}`;
 		if (this.pendingCompilations.has(key)) {
 			this.enqueuedCompilations.add(key);
 			return;
@@ -696,12 +704,23 @@ export class Filer {
 	): Promise<void> {
 		this.log.info('build source file', sourceFile.id);
 
+		this.buildingSourceFiles.add(sourceFile.id);
+
 		// Compile the source file.
-		const result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);
+		let result: BuildResult<Build>;
+
+		try {
+			result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);
+		} catch (err) {
+			this.buildingSourceFiles.delete(sourceFile.id);
+			throw err;
+		}
 
 		const newBuildFiles: readonly BuildFile[] = result.builds.map((compilation) =>
 			createBuildFile(compilation, this, result, sourceFile, buildConfig),
 		);
+
+		this.buildingSourceFiles.delete(sourceFile.id);
 
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
@@ -772,7 +791,7 @@ export class Filer {
 			for (const removedDependency of removedDependencies) {
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
-					throw Error(`Expected dependencies: ${buildConfig.name}:${sourceFile.id}`);
+					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}:${sourceFile.id}`);
 				}
 				dependencies.delete(
 					this.mapBuildIdToSourceId(removedDependency.id, removedDependency.external),
@@ -808,12 +827,18 @@ export class Filer {
 				if (removedDependencySourceFile.sourceType === 'externals') continue; // TODO clean these up ever?
 				if (!removedDependencySourceFile.buildConfigs.has(buildConfig)) {
 					throw Error(
-						`Expected build config: ${buildConfig.name}:${removedDependencySourceFile.id}`,
+						`Expected build config: ${printBuildConfig(buildConfig)}:${
+							removedDependencySourceFile.id
+						}`,
 					);
 				}
 				let dependents = removedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
-					throw Error(`Expected dependents: ${buildConfig.name}:${removedDependencySourceFile.id}`);
+					throw Error(
+						`Expected dependents: ${printBuildConfig(buildConfig)}:${
+							removedDependencySourceFile.id
+						}`,
+					);
 				}
 				dependents.delete(sourceFile);
 				if (
@@ -1045,7 +1070,7 @@ const toCachedSourceInfoId = (
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
 const syncBuildFilesToMemoryCache = (
-	files: Map<string, BaseFilerFile>,
+	files: Map<string, FilerFile>,
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
 	_log: Logger,
@@ -1071,10 +1096,18 @@ const syncBuildFilesToMemoryCache = (
 			// the build output files do not conflict.
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
-			if (newFile.sourceFileId !== oldFile.sourceFileId) {
+			// Externals are the exception: they may swap files around without us caring.
+			const newSourceFile = files.get(newFile.sourceFileId);
+			const oldSourceFile = files.get(oldFile.sourceFileId);
+			assertSourceFile(newSourceFile);
+			assertSourceFile(oldSourceFile);
+			if (
+				newSourceFile.id !== oldSourceFile.id &&
+				!(newSourceFile.sourceType === 'externals' && oldSourceFile.sourceType === 'externals')
+			) {
 				throw Error(
 					'Two source files are trying to build to the same output location: ' +
-						`${newFile.sourceFileId} & ${oldFile.sourceFileId}`,
+						`${newSourceFile.id} & ${oldSourceFile.id}`,
 				);
 			}
 		}

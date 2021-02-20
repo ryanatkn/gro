@@ -1,5 +1,5 @@
 import {basename, dirname, join} from 'path';
-import {install, InstallResult} from 'esinstall';
+import {install, InstallResult, ImportMap} from 'esinstall';
 import {Plugin as RollupPlugin} from 'rollup';
 
 import {Logger, SystemLogger} from '../utils/log.js';
@@ -11,29 +11,30 @@ import {loadContents} from './load.js';
 import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
+import {printBuildConfig} from '../config/buildConfig.js';
 
 /*
 
-TODO this currently uses `esinstall` in a fairly hacky way.
-It bundles each external import in isolation,
-so each distinct import path will have its own bundle.
-This could cause bugs when importing multiple modules from the same project
-if those modules rely on shared module-level state.
+TODO this currently uses esinstall in a hacky way,
+using timeouts and polling state on intervals and other garbo. see below for more.
+it's maybe fine but might cause problems.
+it causes unnecessary delays building externals tho.
 
-The correct solution probably involves just using `esinstall` correctly
-and shuffling a few things around.
-I was unable to get expected behavior using a shared `importMap`,
-so either I don't understand something or I'm holding it wrong.
+the root of the problem is that esinstall doesn't like being thrown incessant instructions,
+seems to prefer us to be incremental instead, which is fine,
+but this isn't a great solution
 
 */
 
 export interface Options {
+	importMap: ImportMap | undefined;
 	log: Logger;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
 	return {
+		importMap: undefined,
 		...omitUndefined(opts),
 		log,
 	};
@@ -41,15 +42,17 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
 
+let importMap: ImportMap | undefined; // TODO don't want module-level state, but it's fine for now
 const encoding = 'utf8';
 
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
-	const {log} = initOptions(opts);
+	const {importMap: initialImportMap, log} = initOptions(opts);
+	importMap = initialImportMap;
 
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, externalsDirBasePath, sourceMap, target, state},
+		{buildRootDir, dev, externalsDirBasePath, sourceMap, target, state, buildingSourceFiles},
 	) => {
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -64,7 +67,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		const dest = buildRootDir + externalsDirBasePath;
 		let id: string;
 
-		log.info(`bundling externals ${buildConfig.name}: ${gray(source.id)}`);
+		log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
 		// TODO add an external API for customizing the `install` params
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
@@ -86,8 +89,9 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			const result = await installExternal(
 				source.id,
 				dest,
-				getExternalsBuilderState(state),
+				getExternalsBuilderState(state, importMap),
 				plugins,
+				buildingSourceFiles,
 				log,
 			);
 			// Since we're batching the external installation process,
@@ -139,20 +143,42 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	return {build};
 };
 
-const BATCH_INSTALL_TIMEOUT = 2000; // TODO this is so hacky
+// TODO this is really hacky - it's working,
+// but it causes unnecessary delays building externals
+const DELAYED_PROMISE_DURATION = 250; // this should be larger than `IDLE_CHECK_INTERVAL`
+const IDLE_CHECK_INTERVAL = 100; // this needs to be smaller than `DELAYED_PROMISE_DURATION`
+// TODO wait what's the relationship between those two? check for errors?
+let resetterInterval: NodeJS.Timeout | undefined;
 
 const installExternal = async (
 	sourceId: string,
 	dest: string,
 	state: ExternalsBuilderState,
 	plugins: RollupPlugin[],
+	buildingSourceFiles: Set<string>,
 	log: Logger,
 ): Promise<InstallResult> => {
+	buildingSourceFiles.delete(sourceId); // externals are hacky like this, because they'd cause it to hang!
 	if (state.installing === null) {
-		state.installing = createDelayedPromise(() => {
+		state.installing = createDelayedPromise(async () => {
 			log.info('installing externals', state.specifiers);
-			return installExternals(state.specifiers, dest, plugins);
+			const result = await installExternals(state.specifiers, dest, plugins);
+			log.info('install result', result);
+			importMap = result.importMap;
+			return result;
 		});
+		resetterInterval = setInterval(() => {
+			state.installing!.reset();
+			if (buildingSourceFiles.size === 0) {
+				setTimeout(() => {
+					// check again in a moment just to be sure
+					if (buildingSourceFiles.size === 0) {
+						clearInterval(resetterInterval!);
+						resetterInterval = undefined;
+					}
+				}, IDLE_CHECK_INTERVAL / 3); // TODO would cause a bug if this ever fires after the next interval
+			}
+		}, IDLE_CHECK_INTERVAL);
 	}
 	if (state.specifiers.includes(sourceId)) return state.installing.promise;
 	state.specifiers.push(sourceId);
@@ -160,9 +186,12 @@ const installExternal = async (
 	return state.installing.promise;
 };
 
-const createDelayedPromise = <T>(cb: () => Promise<T>): DelayedPromise<T> => {
+const createDelayedPromise = <T>(
+	cb: () => Promise<T>,
+	duration = DELAYED_PROMISE_DURATION,
+): DelayedPromise<T> => {
 	let resolve: any, reject: any;
-	const promise = new Promise<T>((r1, r2) => ((resolve = r1), (reject = r2)));
+	const promise = new Promise<T>((rs, rj) => ((resolve = rs), (reject = rj)));
 	let timeout: NodeJS.Timeout | null = null;
 	const delayed: DelayedPromise<T> = {
 		promise,
@@ -178,7 +207,7 @@ const createDelayedPromise = <T>(cb: () => Promise<T>): DelayedPromise<T> => {
 		if (timeout !== null) throw Error(`Expected timeout to be null`);
 		timeout = setTimeout(async () => {
 			cb().then(resolve, reject);
-		}, BATCH_INSTALL_TIMEOUT);
+		}, duration);
 	};
 	startTimeout();
 	return delayed;
@@ -202,6 +231,12 @@ interface ExternalsBuilderState {
 
 const EXTERNALS_BUILDER_STATE_KEY = 'externals';
 
-const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderState =>
+const getExternalsBuilderState = (
+	state: BuilderState,
+	importMap: ImportMap | undefined,
+): ExternalsBuilderState =>
 	state[EXTERNALS_BUILDER_STATE_KEY] ||
-	(state[EXTERNALS_BUILDER_STATE_KEY] = {specifiers: [], installing: null});
+	(state[EXTERNALS_BUILDER_STATE_KEY] = {
+		specifiers: importMap === undefined ? [] : Object.keys(importMap.imports),
+		installing: null,
+	});

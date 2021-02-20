@@ -20,7 +20,7 @@ export const task: Task = {
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
-			builder: createDefaultBuilder(),
+			builder: await createDefaultBuilder(),
 			sourceDirs: [paths.source],
 			servedDirs: [
 				toBuildOutPath(true, 'browser', 'frontend'),

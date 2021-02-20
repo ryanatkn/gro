@@ -225,15 +225,19 @@ export const createSourceFile = async (
 	}
 };
 
-export function assertBuildableExternalsSourceFile(
-	file: FilerFile | undefined | null,
-): asserts file is BuildableExternalsSourceFile {
+export function assertSourceFile(file: FilerFile | undefined | null): asserts file is SourceFile {
 	if (file == null) {
 		throw Error(`Expected a file but got ${file}`);
 	}
 	if (file.type !== 'source') {
 		throw Error(`Expected a source file, but type is ${file.type}: ${file.id}`);
 	}
+}
+
+export function assertBuildableExternalsSourceFile(
+	file: FilerFile | undefined | null,
+): asserts file is BuildableExternalsSourceFile {
+	assertSourceFile(file);
 	if (!file.buildable) {
 		throw Error(`Expected file to be buildable: ${file.id}`);
 	}
