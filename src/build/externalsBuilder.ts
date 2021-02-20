@@ -170,7 +170,7 @@ const installExternal = async (
 	buildingSourceFiles.delete(sourceId); // externals are hacky like this, because they'd cause it to hang!
 	if (state.installing === null) {
 		state.installing = createDelayedPromise(async () => {
-			log.info('installing externals', state.specifiers);
+			log.info('installing externals', state.specifiers); // TODO should these be like, `state.findSpecifiers()`?
 			const result = await installExternals(state.specifiers, dest, plugins);
 			log.info('install result', result);
 			state.importMap = result.importMap;
@@ -199,8 +199,8 @@ const installExternal = async (
 			}
 		}, IDLE_CHECK_INTERVAL);
 	}
-	if (state.specifiers.includes(sourceId)) return state.installing.promise;
-	state.specifiers.push(sourceId);
+	if (state.specifiers.has(sourceId)) return state.installing.promise;
+	state.specifiers.add(sourceId);
 	state.installing.reset();
 	return state.installing.promise;
 };
@@ -238,14 +238,14 @@ interface DelayedPromise<T> {
 }
 
 const installExternals = async (
-	specifiers: string[],
+	specifiers: Set<string>,
 	dest: string,
 	plugins: RollupPlugin[],
 ): Promise<InstallResult> => install(Array.from(specifiers), {dest, rollup: {plugins}});
 
 export interface ExternalsBuilderState {
 	importMap: ImportMap | undefined;
-	specifiers: string[];
+	specifiers: Set<string>;
 	installing: DelayedPromise<InstallResult> | null;
 	idleTimer: number;
 	resetterInterval: NodeJS.Timeout | null;
@@ -261,7 +261,9 @@ const getExternalsBuilderState = (
 	if (s !== undefined) return s; // note `initialImportMap` may not match `state.importMap`
 	s = {
 		importMap: initialImportMap,
-		specifiers: initialImportMap === undefined ? [] : Object.keys(initialImportMap.imports),
+		specifiers: new Set(
+			initialImportMap === undefined ? [] : Object.keys(initialImportMap.imports),
+		),
 		installing: null,
 		idleTimer: 0,
 		resetterInterval: null,

@@ -1,6 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import {GroConfigCreator, PartialGroConfig} from './config.js';
+import {LogLevel} from '../utils/log.js';
 
 // This is the default config that's used if the current project does not define one.
 
@@ -20,6 +21,7 @@ const createConfig: GroConfigCreator = async () => {
 				input: [createFilter('**/*.{task,test,config,gen}*.ts')],
 			},
 		],
+		logLevel: LogLevel.Trace,
 	};
 
 	return config;

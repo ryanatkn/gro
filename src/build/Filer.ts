@@ -165,6 +165,9 @@ export class Filer {
 	private readonly externalsDir: ExternalsFilerDir | null;
 	private readonly externalsServedDir: ServedDir | null;
 	private readonly buildConfigs: BuildConfig[] | null;
+	// TODO this `externalsBuildConfig` concept seems hacky,
+	// might be able to remove while keeping them unified across build configs
+	// (or should they be per build config?)
 	private readonly externalsBuildConfig: BuildConfig | null;
 	private readonly mapBuildIdToSourceId: MapBuildIdToSourceId;
 	private readonly cleanOutputDirs: boolean;
@@ -801,7 +804,13 @@ export class Filer {
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
 				const isExternal = addedDependencySourceFile.sourceType === 'externals';
-				if (isExternal && buildConfig !== this.externalsBuildConfig) continue;
+				if (isExternal) {
+					if (buildConfig !== this.externalsBuildConfig) continue;
+					// TODO this is getting added in externalsBuilder
+					// if (this.state.externals !== undefined) {
+					// 	this.state.externals.specifiers.add(addedDependencySourceFile.id);
+					// }
+				}
 				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
 					dependents = new Set();
@@ -840,10 +849,18 @@ export class Filer {
 					);
 				}
 				dependents.delete(sourceFile);
+				const isUnreferenced = dependents.size === 0;
+				const isExternal = removedDependencySourceFile.sourceType === 'externals';
+				if (isExternal) {
+					if (buildConfig !== this.externalsBuildConfig) continue;
+					if (isUnreferenced && this.state.externals !== undefined) {
+						this.state.externals.specifiers.delete(removedDependencySourceFile.id);
+					}
+				}
 				if (
 					// TODO hmm maybe do this bookkeeping but don't delete externals on disk?
 					// removedDependencySourceFile.sourceType !== 'externals' && // TODO clean these up ever?
-					dependents.size === 0 &&
+					isUnreferenced &&
 					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
 				) {
 					(promises || (promises = [])).push(
