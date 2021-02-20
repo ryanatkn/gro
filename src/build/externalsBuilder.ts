@@ -243,7 +243,7 @@ const installExternals = async (
 	plugins: RollupPlugin[],
 ): Promise<InstallResult> => install(Array.from(specifiers), {dest, rollup: {plugins}});
 
-interface ExternalsBuilderState {
+export interface ExternalsBuilderState {
 	importMap: ImportMap | undefined;
 	specifiers: string[];
 	installing: DelayedPromise<InstallResult> | null;
@@ -257,7 +257,7 @@ const getExternalsBuilderState = (
 	state: BuilderState,
 	initialImportMap?: ImportMap | undefined,
 ): ExternalsBuilderState => {
-	let s: ExternalsBuilderState = state[EXTERNALS_BUILDER_STATE_KEY];
+	let s = state[EXTERNALS_BUILDER_STATE_KEY];
 	if (s !== undefined) return s; // note `initialImportMap` may not match `state.importMap`
 	s = {
 		importMap: initialImportMap,

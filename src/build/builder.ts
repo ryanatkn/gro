@@ -1,9 +1,10 @@
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {toBuildOutPath} from '../paths.js';
+import {toBuildOutPath, EXTERNALS_BUILD_DIR} from '../paths.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from '../build/ServedDir.js';
+import type {ExternalsBuilderState} from './externalsBuilder.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
 	build(
@@ -26,7 +27,9 @@ export interface BuildOptions {
 	readonly state: BuilderState;
 	readonly buildingSourceFiles: Set<string>;
 }
-export type BuilderState = Obj<any>;
+export interface BuilderState {
+	[EXTERNALS_BUILD_DIR]: ExternalsBuilderState;
+}
 
 export type Build = TextBuild | BinaryBuild;
 export interface TextBuild extends BaseBuild {
