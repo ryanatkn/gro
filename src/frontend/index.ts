@@ -3,13 +3,13 @@ import App from './App.svelte';
 
 console.log('hey gro');
 
-// // test a bad import
+// // test bad import
 // import '../build/failme.js';
 
-// test a bare internal import
+// test bare internal import
 import './foo.js';
 
-// test an internal import with a simple export
+// test internal import with a simple export
 import {bar} from './bar.js';
 console.log('bar', bar);
 
@@ -22,7 +22,7 @@ import * as math from '../utils/math.js';
 console.log('math', math);
 if (mix !== math.mix) throw Error('Expected same module');
 
-// test an internal import that has an external import
+// test internal import that has an external import
 import {baz} from './baz.js';
 console.log('baz', baz);
 
@@ -30,7 +30,7 @@ console.log('baz', baz);
 import * as motion from 'svelte/motion/index.js';
 console.log('imported svelte motion', motion);
 
-// test a transitive external import
+// test transitive external import
 import {deepEqual} from '../utils/deepEqual.js';
 console.log('deepEqual', deepEqual({}, {}));
 
