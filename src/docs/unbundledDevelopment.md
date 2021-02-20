@@ -79,10 +79,6 @@ Gro differs in some significant ways:
   Gro emphasizes writing [tasks](./tasks.md) in TypeScript to use libraries directly,
   but we'll probably do more to support CLI integrations.
 - Gro does not yet support hot module reloading, though work is in progress.
-- Gro uses [swc](https://github.com/swc-project/swc)
-  instead of [esbuild](https://github.com/evanw/esbuild)
-  because the former allows preserving unused imports without additional processing,
-  which is helpful for Svelte.
 
 <p align="center">
   <a href="https://github.com/feltcoop/gro">
