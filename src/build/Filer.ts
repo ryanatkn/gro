@@ -272,6 +272,9 @@ export class Filer {
 
 		await Promise.all([this.initCachedSourceInfo(), lexer.init]);
 		// this.log.trace('inited cache');
+
+		// This initializes all files in the filer's directories, loading them into memory,
+		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initCachedSourceInfo`
 		// because it creates source files, which need `this.cachedSourceInfo` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
@@ -422,10 +425,13 @@ export class Filer {
 		}
 
 		// Build only if needed - build files may be hydrated from the cache.
-		if (!sourceFile.buildFiles.has(buildConfig)) {
-			await this.buildSourceFile(sourceFile, buildConfig);
-		} else {
+		const hasBuildConfig = sourceFile.buildFiles.has(buildConfig);
+		if (hasBuildConfig) {
 			await this.hydrateSourceFileFromCache(sourceFile, buildConfig);
+		}
+		if (!hasBuildConfig || sourceFile.dirty) {
+			await this.buildSourceFile(sourceFile, buildConfig);
+			sourceFile.dirty = false;
 		}
 	}
 
@@ -712,10 +718,6 @@ export class Filer {
 		// TODO we need to move build files from externals to other valid externals ones .. right?
 		// or does it not matter that we have a dangling source file?
 		// diffBuildFiles(this.files, newBuildFiles, oldBuildFiles, this.log);
-		if (sourceFile.id.endsWith('/frontend/index.ts')) {
-			console.log('sourceFile', sourceFile);
-			debugger;
-		}
 		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 		await this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig);
 		await syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);

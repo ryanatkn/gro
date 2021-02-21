@@ -52,6 +52,7 @@ export interface BuildableExternalsSourceFile extends ExternalsSourceFile, BaseB
 }
 export interface BaseBuildableFile {
 	readonly buildable: true;
+	dirty: boolean;
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
@@ -63,6 +64,7 @@ export interface NonBuildableTextSourceFile extends TextSourceFile, BaseNonBuild
 export interface NonBuildableBinarySourceFile extends BinarySourceFile, BaseNonBuildableFile {}
 export interface BaseNonBuildableFile {
 	readonly buildable: false;
+	readonly dirty: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
 	readonly buildFiles: null;
 	readonly buildConfigs: null;
@@ -83,16 +85,20 @@ export const createSourceFile = async (
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
 	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
+	let dirty = false;
 	if (filerDir.buildable && cachedSourceInfo !== undefined) {
+		// TODO why the cached source info guard here for `contentsBuffer` and `contentsHash`?
 		if (encoding === 'utf8') {
 			contentsBuffer = Buffer.from(contents);
 		} else if (encoding !== null) {
 			throw new UnreachableError(encoding);
 		}
 		contentsHash = toHash(contentsBuffer!);
-		if (contentsHash === cachedSourceInfo.data.contentsHash) {
-			reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
-		}
+
+		// TODO not sure if `dirty` flag is the best solution here,
+		// or if it should be more widely used?
+		dirty = contentsHash !== cachedSourceInfo.data.contentsHash;
+		reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 	}
 	if (filerDir.type === 'externals') {
 		if (encoding !== 'utf8') {
@@ -104,11 +110,12 @@ export const createSourceFile = async (
 		return {
 			type: 'source',
 			sourceType: 'externals',
-			buildable: true,
 			buildConfigs: new Set(),
 			isInputToBuildConfigs: null,
 			dependencies: new Map(),
 			dependents: new Map(),
+			buildable: true,
+			dirty,
 			id,
 			filename,
 			dir,
@@ -138,6 +145,7 @@ export const createSourceFile = async (
 						dependencies: new Map(),
 						dependents: new Map(),
 						buildable: true,
+						dirty,
 						id,
 						filename,
 						dir,
@@ -160,6 +168,7 @@ export const createSourceFile = async (
 						dependencies: null,
 						dependents: null,
 						buildable: false,
+						dirty: false,
 						id,
 						filename,
 						dir,
@@ -184,6 +193,7 @@ export const createSourceFile = async (
 						dependencies: new Map(),
 						dependents: new Map(),
 						buildable: true,
+						dirty,
 						id,
 						filename,
 						dir,
@@ -206,6 +216,7 @@ export const createSourceFile = async (
 						dependencies: null,
 						dependents: null,
 						buildable: false,
+						dirty: false,
 						id,
 						filename,
 						dir,
