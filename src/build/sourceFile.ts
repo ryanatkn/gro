@@ -1,4 +1,4 @@
-import {basename, dirname} from 'path';
+import {basename, dirname, join} from 'path';
 
 import {
 	NonBuildableInternalsFilerDir,
@@ -105,7 +105,7 @@ export const createSourceFile = async (
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
-		const dir = `${filerDir.dir}/${dirname(id)}/`; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+		const dir = join(filerDir.dir, dirname(id)); // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',
