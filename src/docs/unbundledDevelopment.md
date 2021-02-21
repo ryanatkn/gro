@@ -49,7 +49,7 @@ Gro differs in some significant ways:
   Gro's design makes sense for the needs of Node libraries and servers,
   but it can be improved.
   There are plans for Gro to support lazy compilation and other scale-friendly features,
-  and its caching system already speeds up heavy workloads,
+  and its caching system already speeds up heavy workloads.
   The limitation that forces eager loading will likely be fixed before Gro reaches 1.0,
   but Gro's DX will probably always be more complex than Snowpack's.
 - Snowpack is designed to be mostly agnostic to your technology choices
