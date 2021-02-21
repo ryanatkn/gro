@@ -467,7 +467,7 @@ export class Filer {
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
 			filerDir.type === 'externals'
-				? stripEnd(change.path, JS_EXTENSION)
+				? stripEnd(change.path, JS_EXTENSION) // TODO I think this breaks for some, look at esinstall (try pixi.js)
 				: join(filerDir.dir, change.path);
 		if (filerDir.type === 'externals') {
 			console.log('externals id', id);
@@ -725,7 +725,7 @@ export class Filer {
 		// TODO we need to move build files from externals to other valid externals ones .. right?
 		// or does it not matter that we have a dangling source file?
 		// diffBuildFiles(this.files, newBuildFiles, oldBuildFiles, this.log);
-		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
+		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles);
 		await this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig);
 		await syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
 	}
@@ -742,7 +742,7 @@ export class Filer {
 		if (buildFiles === undefined) {
 			throw Error(`Expected to find build files when hydrating from cache.`);
 		}
-		syncBuildFilesToMemoryCache(this.files, buildFiles, null, this.log);
+		syncBuildFilesToMemoryCache(this.files, buildFiles, null);
 		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
 		// TODO what if we diff here, like we're going to do with `updateBuildFiles`,
 		// and use that diffed set of files to do the automatic cleaning of the .gro directory in total?
@@ -1079,7 +1079,6 @@ const syncBuildFilesToMemoryCache = (
 	files: Map<string, FilerFile>,
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
-	_log: Logger,
 ): void => {
 	// Remove any deleted files.
 	// This uses `Array#find` because the arrays are expected to be small,
@@ -1087,9 +1086,7 @@ const syncBuildFilesToMemoryCache = (
 	// but that assumption might change and cause this code to be slow.
 	if (oldFiles !== null) {
 		for (const oldFile of oldFiles) {
-			// TODO ... && !oldFile.external
 			if (!newFiles.find((f) => f.id === oldFile.id)) {
-				// log.trace('deleting file from memory', printPath(oldFile.id));
 				files.delete(oldFile.id);
 			}
 		}
