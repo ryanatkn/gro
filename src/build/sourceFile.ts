@@ -51,26 +51,26 @@ export interface BuildableExternalsSourceFile extends ExternalsSourceFile, BaseB
 	readonly filerDir: ExternalsFilerDir;
 }
 export interface BaseBuildableFile {
-	readonly buildable: true;
-	dirty: boolean;
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 	readonly dependencies: Map<BuildConfig, Set<string>>; // `dependencies` are source file ids that this one imports or otherwise depends on (they may point to nonexistent files!)
 	readonly dependents: Map<BuildConfig, Set<BuildableSourceFile>>; // `dependents` are other buildable source files that import or otherwise depend on this one
+	readonly buildable: true;
+	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }
 export interface NonBuildableTextSourceFile extends TextSourceFile, BaseNonBuildableFile {}
 export interface NonBuildableBinarySourceFile extends BinarySourceFile, BaseNonBuildableFile {}
 export interface BaseNonBuildableFile {
-	readonly buildable: false;
-	readonly dirty: false;
 	readonly filerDir: NonBuildableInternalsFilerDir;
 	readonly buildFiles: null;
 	readonly buildConfigs: null;
 	readonly isInputToBuildConfigs: null;
 	readonly dependencies: null;
 	readonly dependents: null;
+	readonly buildable: false;
+	readonly dirty: false;
 }
 
 export const createSourceFile = async (
