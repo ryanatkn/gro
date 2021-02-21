@@ -68,7 +68,7 @@ const compileFileAndImports = async (
 ): Promise<any> => {
 	const dir = dirname(sourceId) + '/'; // TODO hack - see Filer for similar problem
 	const source: TextBuildSource = {
-		sourceType: 'text',
+		isExternal: false,
 		encoding: 'utf8',
 		contents: await readFile(sourceId, 'utf8'),
 		id: sourceId,

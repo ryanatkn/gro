@@ -53,7 +53,7 @@ export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface CachedSourceInfoData {
 	readonly sourceId: string;
-	readonly sourceType: BuildableSourceFile['sourceType'];
+	readonly isExternal: boolean;
 	readonly contentsHash: string;
 	readonly builds: {
 		readonly id: string;
@@ -378,7 +378,7 @@ export class Filer {
 		// Iterate through the files once and apply the filters to all source files.
 		if (filters.length) {
 			for (const file of this.files.values()) {
-				if (file.type !== 'source' || file.sourceType === 'externals') continue;
+				if (file.type !== 'source' || file.isExternal) continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
@@ -748,7 +748,7 @@ export class Filer {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.sourceType === 'externals') return;
+		if (sourceFile.isExternal) return;
 		let {
 			addedDependencies,
 			removedDependencies,
@@ -786,8 +786,7 @@ export class Filer {
 		}
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
-				const isExternal = addedDependencySourceFile.sourceType === 'externals';
-				if (isExternal) {
+				if (addedDependencySourceFile.isExternal) {
 					if (buildConfig !== this.externalsBuildConfig) continue;
 					// TODO this is getting added in externalsBuilder
 					// if (this.state.externals !== undefined) {
@@ -802,7 +801,7 @@ export class Filer {
 				dependents.add(sourceFile);
 				if (
 					!addedDependencySourceFile.buildConfigs.has(buildConfig) &&
-					!(isExternal && addedDependencySourceFile.buildConfigs.size > 0)
+					!(addedDependencySourceFile.isExternal && addedDependencySourceFile.buildConfigs.size > 0)
 				) {
 					(promises || (promises = [])).push(
 						this.addSourceFileToBuild(
@@ -833,8 +832,7 @@ export class Filer {
 				}
 				dependents.delete(sourceFile);
 				const isUnreferenced = dependents.size === 0;
-				const isExternal = removedDependencySourceFile.sourceType === 'externals';
-				if (isExternal) {
+				if (removedDependencySourceFile.isExternal) {
 					if (buildConfig !== this.externalsBuildConfig) continue;
 					if (isUnreferenced && this.state.externals !== undefined) {
 						this.state.externals.specifiers.delete(removedDependencySourceFile.id);
@@ -842,7 +840,7 @@ export class Filer {
 				}
 				if (
 					// TODO hmm maybe do this bookkeeping but don't delete externals on disk?
-					// removedDependencySourceFile.sourceType !== 'externals' && // TODO clean these up ever?
+					// !removedDependencySourceFile.isExternal && // TODO clean these up ever?
 					isUnreferenced &&
 					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
 				) {
@@ -970,7 +968,7 @@ export class Filer {
 		const cacheId = toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath);
 		const data: CachedSourceInfoData = {
 			sourceId: file.id,
-			sourceType: file.sourceType,
+			isExternal: file.isExternal,
 			contentsHash: getFileContentsHash(file),
 			builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 				files.map((file) => ({
@@ -1022,7 +1020,7 @@ const syncFilesToDisk = async (
 			: Promise.all(
 					oldFiles.map((oldFile) => {
 						if (
-							oldFile.sourceType !== 'externals' && // for now, just never delete externals
+							!oldFile.isExternal && // for now, just never delete externals
 							!newFiles.find((f) => f.id === oldFile.id)
 						) {
 							log.trace('deleting build file on disk', printPath(oldFile.id));
@@ -1065,10 +1063,9 @@ const toCachedSourceInfoId = (
 	buildRootDir: string,
 	externalsDirBasePath: string,
 ): string => {
-	const basePath =
-		file.sourceType === 'externals'
-			? `${externalsDirBasePath}/${file.dirBasePath}`
-			: file.dirBasePath;
+	const basePath = file.isExternal
+		? `${externalsDirBasePath}/${file.dirBasePath}`
+		: file.dirBasePath;
 	return `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${basePath}${file.filename}${JSON_EXTENSION}`;
 };
 
@@ -1086,7 +1083,7 @@ const syncBuildFilesToMemoryCache = (
 	// but that assumption might change and cause this code to be slow.
 	if (oldFiles !== null) {
 		for (const oldFile of oldFiles) {
-			// TODO ... && oldFile.sourceType !== 'externals'
+			// TODO ... && !oldFile.isExternal
 			if (!newFiles.find((f) => f.id === oldFile.id)) {
 				// log.trace('deleting file from memory', printPath(oldFile.id));
 				files.delete(oldFile.id);
@@ -1103,10 +1100,7 @@ const syncBuildFilesToMemoryCache = (
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
 			// Externals are the exception: they may swap files around without us caring.
-			if (
-				oldFile.sourceId !== oldFile.sourceId &&
-				!(oldFile.sourceType === 'externals' && oldFile.sourceType === 'externals')
-			) {
+			if (oldFile.sourceId !== oldFile.sourceId && !(oldFile.isExternal && oldFile.isExternal)) {
 				throw Error(
 					'Two source files are trying to build to the same output location: ' +
 						`${oldFile.sourceId} & ${oldFile.sourceId}`,
