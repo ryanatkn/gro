@@ -53,7 +53,7 @@ export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface CachedSourceInfoData {
 	readonly sourceId: string;
-	readonly isExternal: boolean;
+	readonly external: boolean;
 	readonly contentsHash: string;
 	readonly builds: {
 		readonly id: string;
@@ -378,7 +378,7 @@ export class Filer {
 		// Iterate through the files once and apply the filters to all source files.
 		if (filters.length) {
 			for (const file of this.files.values()) {
-				if (file.type !== 'source' || file.isExternal) continue;
+				if (file.type !== 'source' || file.external) continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
@@ -469,6 +469,9 @@ export class Filer {
 			filerDir.type === 'externals'
 				? stripEnd(change.path, JS_EXTENSION)
 				: join(filerDir.dir, change.path);
+		if (filerDir.type === 'externals') {
+			console.log('externals id', id);
+		}
 		switch (change.type) {
 			case 'init':
 			case 'create':
@@ -577,21 +580,21 @@ export class Filer {
 			}
 		}
 
-		const isExternal = filerDir.type === 'externals';
+		const external = filerDir.type === 'externals';
 
 		let extension: string;
 		let encoding: Encoding;
 		if (sourceFile !== undefined) {
 			extension = sourceFile.extension;
 			encoding = sourceFile.encoding;
-		} else if (isExternal) {
+		} else if (external) {
 			extension = JS_EXTENSION;
 			encoding = 'utf8';
 		} else {
 			extension = extname(id);
 			encoding = inferEncoding(extension);
 		}
-		const newSourceContents = isExternal
+		const newSourceContents = external
 			? // TODO it may require additional changes,
 			  // but the package.json version could be put here,
 			  // allowing externals to update at runtime
@@ -716,6 +719,9 @@ export class Filer {
 	): Promise<void> {
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
+		if (sourceFile.external) {
+			debugger;
+		}
 		// TODO we need to move build files from externals to other valid externals ones .. right?
 		// or does it not matter that we have a dangling source file?
 		// diffBuildFiles(this.files, newBuildFiles, oldBuildFiles, this.log);
@@ -748,7 +754,7 @@ export class Filer {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.isExternal) return;
+		if (sourceFile.external) return;
 		let {
 			addedDependencies,
 			removedDependencies,
@@ -786,7 +792,7 @@ export class Filer {
 		}
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
-				if (addedDependencySourceFile.isExternal) {
+				if (addedDependencySourceFile.external) {
 					if (buildConfig !== this.externalsBuildConfig) continue;
 					// TODO this is getting added in externalsBuilder
 					// if (this.state.externals !== undefined) {
@@ -801,7 +807,7 @@ export class Filer {
 				dependents.add(sourceFile);
 				if (
 					!addedDependencySourceFile.buildConfigs.has(buildConfig) &&
-					!(addedDependencySourceFile.isExternal && addedDependencySourceFile.buildConfigs.size > 0)
+					!(addedDependencySourceFile.external && addedDependencySourceFile.buildConfigs.size > 0)
 				) {
 					(promises || (promises = [])).push(
 						this.addSourceFileToBuild(
@@ -832,7 +838,7 @@ export class Filer {
 				}
 				dependents.delete(sourceFile);
 				const isUnreferenced = dependents.size === 0;
-				if (removedDependencySourceFile.isExternal) {
+				if (removedDependencySourceFile.external) {
 					if (buildConfig !== this.externalsBuildConfig) continue;
 					if (isUnreferenced && this.state.externals !== undefined) {
 						this.state.externals.specifiers.delete(removedDependencySourceFile.id);
@@ -840,7 +846,7 @@ export class Filer {
 				}
 				if (
 					// TODO hmm maybe do this bookkeeping but don't delete externals on disk?
-					// !removedDependencySourceFile.isExternal && // TODO clean these up ever?
+					// !removedDependencySourceFile.external && // TODO clean these up ever?
 					isUnreferenced &&
 					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
 				) {
@@ -968,7 +974,7 @@ export class Filer {
 		const cacheId = toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath);
 		const data: CachedSourceInfoData = {
 			sourceId: file.id,
-			isExternal: file.isExternal,
+			external: file.external,
 			contentsHash: getFileContentsHash(file),
 			builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 				files.map((file) => ({
@@ -1020,7 +1026,7 @@ const syncFilesToDisk = async (
 			: Promise.all(
 					oldFiles.map((oldFile) => {
 						if (
-							!oldFile.isExternal && // for now, just never delete externals
+							!oldFile.external && // for now, just never delete externals
 							!newFiles.find((f) => f.id === oldFile.id)
 						) {
 							log.trace('deleting build file on disk', printPath(oldFile.id));
@@ -1063,9 +1069,7 @@ const toCachedSourceInfoId = (
 	buildRootDir: string,
 	externalsDirBasePath: string,
 ): string => {
-	const basePath = file.isExternal
-		? `${externalsDirBasePath}/${file.dirBasePath}`
-		: file.dirBasePath;
+	const basePath = file.external ? `${externalsDirBasePath}/${file.dirBasePath}` : file.dirBasePath;
 	return `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${basePath}${file.filename}${JSON_EXTENSION}`;
 };
 
@@ -1083,7 +1087,7 @@ const syncBuildFilesToMemoryCache = (
 	// but that assumption might change and cause this code to be slow.
 	if (oldFiles !== null) {
 		for (const oldFile of oldFiles) {
-			// TODO ... && !oldFile.isExternal
+			// TODO ... && !oldFile.external
 			if (!newFiles.find((f) => f.id === oldFile.id)) {
 				// log.trace('deleting file from memory', printPath(oldFile.id));
 				files.delete(oldFile.id);
@@ -1100,7 +1104,7 @@ const syncBuildFilesToMemoryCache = (
 			// There may be a better design warranted, but for now the goal is to support
 			// the flexibility of multiple source directories while avoiding surprising behavior.
 			// Externals are the exception: they may swap files around without us caring.
-			if (oldFile.sourceId !== oldFile.sourceId && !(oldFile.isExternal && oldFile.isExternal)) {
+			if (oldFile.sourceId !== oldFile.sourceId && !(oldFile.external && oldFile.external)) {
 				throw Error(
 					'Two source files are trying to build to the same output location: ' +
 						`${oldFile.sourceId} & ${oldFile.sourceId}`,

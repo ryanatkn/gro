@@ -22,18 +22,18 @@ export type BuildableSourceFile =
 	| BuildableExternalsSourceFile;
 export type NonBuildableSourceFile = NonBuildableTextSourceFile | NonBuildableBinarySourceFile;
 export interface TextSourceFile extends BaseSourceFile {
-	readonly isExternal: false;
+	readonly external: false;
 	readonly encoding: 'utf8';
 	contents: string;
 }
 export interface BinarySourceFile extends BaseSourceFile {
-	readonly isExternal: false;
+	readonly external: false;
 	readonly encoding: null;
 	contents: Buffer;
 	contentsBuffer: Buffer;
 }
 export interface ExternalsSourceFile extends BaseSourceFile {
-	readonly isExternal: true;
+	readonly external: true;
 	readonly encoding: 'utf8';
 	contents: string;
 }
@@ -109,7 +109,7 @@ export const createSourceFile = async (
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',
-			isExternal: true,
+			external: true,
 			buildConfigs: new Set(),
 			isInputToBuildConfigs: null,
 			dependencies: new Map(),
@@ -139,7 +139,7 @@ export const createSourceFile = async (
 			return filerDir.buildable
 				? {
 						type: 'source',
-						isExternal: false,
+						external: false,
 						buildConfigs: new Set(),
 						isInputToBuildConfigs: null,
 						dependencies: new Map(),
@@ -162,7 +162,7 @@ export const createSourceFile = async (
 				  }
 				: {
 						type: 'source',
-						isExternal: false,
+						external: false,
 						buildConfigs: null,
 						isInputToBuildConfigs: null,
 						dependencies: null,
@@ -187,7 +187,7 @@ export const createSourceFile = async (
 			return filerDir.buildable
 				? {
 						type: 'source',
-						isExternal: false,
+						external: false,
 						buildConfigs: new Set(),
 						isInputToBuildConfigs: null,
 						dependencies: new Map(),
@@ -210,7 +210,7 @@ export const createSourceFile = async (
 				  }
 				: {
 						type: 'source',
-						isExternal: false,
+						external: false,
 						buildConfigs: null,
 						isInputToBuildConfigs: null,
 						dependencies: null,
@@ -252,7 +252,7 @@ export function assertBuildableExternalsSourceFile(
 	if (!file.buildable) {
 		throw Error(`Expected file to be buildable: ${file.id}`);
 	}
-	if (!file.isExternal) {
+	if (!file.external) {
 		throw Error(`Expected an external file: ${file.id}`);
 	}
 }

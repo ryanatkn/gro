@@ -51,17 +51,17 @@ interface BaseBuild {
 
 export type BuildSource = TextBuildSource | BinaryBuildSource | ExternalsBuildSource;
 export interface TextBuildSource extends BaseBuildSource {
-	isExternal: false;
+	external: false;
 	encoding: 'utf8';
 	contents: string;
 }
 export interface BinaryBuildSource extends BaseBuildSource {
-	isExternal: false;
+	external: false;
 	encoding: null;
 	contents: Buffer;
 }
 export interface ExternalsBuildSource extends BaseBuildSource {
-	isExternal: true;
+	external: true;
 	encoding: 'utf8';
 	contents: string;
 }

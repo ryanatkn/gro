@@ -39,7 +39,7 @@ export const createDefaultBuilder = async (
 		builderOptions = {
 			...builderOptions,
 			getBuilder: (source: BuildSource) => {
-				if (source.isExternal) {
+				if (source.external) {
 					return externalsBuilder;
 				}
 				switch (source.extension) {
