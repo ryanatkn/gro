@@ -429,9 +429,10 @@ export class Filer {
 		if (hasBuildConfig) {
 			await this.hydrateSourceFileFromCache(sourceFile, buildConfig);
 		}
-		if (!hasBuildConfig || sourceFile.dirty) {
+		const {dirty} = sourceFile;
+		if (!hasBuildConfig || dirty) {
 			await this.buildSourceFile(sourceFile, buildConfig);
-			sourceFile.dirty = false;
+			if (dirty) sourceFile.dirty = false;
 		}
 	}
 
