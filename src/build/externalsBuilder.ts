@@ -12,6 +12,7 @@ import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
 import {printBuildConfig} from '../config/buildConfig.js';
+import {EMPTY_ARRAY} from '../utils/array.js';
 
 /*
 
@@ -127,7 +128,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				buildConfig,
 			},
 			...(commonDependencyIds === null
-				? []
+				? EMPTY_ARRAY
 				: await Promise.all(
 						commonDependencyIds.map(
 							async (commonDependencyId): Promise<TextBuild> => ({
