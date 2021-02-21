@@ -42,10 +42,10 @@ import {loadContents} from './load.js';
 
 The `Filer` is at the heart of the build system.
 
-- The `Filer` wholly owns its `buildRootDir`, `./.gro` by default.
-	If any files or directories change inside it without going through the `Filer`,
-	it may go into a corrupted state.
-	Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
+The `Filer` wholly owns its `buildRootDir`, `./.gro` by default.
+If any files or directories change inside it without going through the `Filer`,
+it may go into a corrupted state.
+Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
 
 */
 
