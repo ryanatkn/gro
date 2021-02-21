@@ -93,7 +93,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		let contents: string;
 		let commonDependencyIds: string[] | null = null;
 		try {
-			console.log('intalling');
 			const result = await installExternal(
 				source.id,
 				dest,
@@ -102,7 +101,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				buildingSourceFiles,
 				log,
 			);
-			console.log('installed');
 			// Since we're batching the external installation process,
 			// and it can return a number of common files,
 			// we need to add those common files as build files to exactly one of the built source files.
