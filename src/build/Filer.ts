@@ -11,7 +11,6 @@ import {MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {
 	EXTERNALS_BUILD_DIR,
-	hasSourceExtension,
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
@@ -20,7 +19,7 @@ import {
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {gray, magenta, red} from '../colors/terminal.js';
+import {gray, magenta, red, blue} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
 import type {Build, Builder, BuilderState, BuildResult} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
@@ -38,6 +37,17 @@ import {
 import {BuildFile, createBuildFile, DependencyInfo, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
+
+/*
+
+The `Filer` is at the heart of the build system.
+
+- The `Filer` wholly owns its `buildRootDir`, `./.gro` by default.
+	If any files or directories change inside it without going through the `Filer`,
+	it may go into a corrupted state.
+	Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
+
+*/
 
 export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
@@ -170,7 +180,6 @@ export class Filer {
 	// (or should they be per build config?)
 	private readonly externalsBuildConfig: BuildConfig | null;
 	private readonly mapBuildIdToSourceId: MapBuildIdToSourceId;
-	private readonly cleanOutputDirs: boolean;
 	private readonly log: Logger;
 
 	// public properties available to e.g. builders and postprocessors
@@ -198,7 +207,6 @@ export class Filer {
 			target,
 			watch,
 			watcherDebounce,
-			cleanOutputDirs,
 			log,
 		} = initOptions(opts);
 		this.dev = dev;
@@ -208,7 +216,6 @@ export class Filer {
 		this.mapBuildIdToSourceId = mapBuildIdToSourceId;
 		this.sourceMap = sourceMap;
 		this.target = target;
-		this.cleanOutputDirs = cleanOutputDirs;
 		this.log = log;
 		this.dirs = createFilerDirs(
 			sourceDirs,
@@ -221,6 +228,7 @@ export class Filer {
 			watcherDebounce,
 		);
 		this.servedDirs = servedDirs;
+		log.trace('servedDirs', servedDirs);
 		this.externalsDir =
 			externalsDir === null
 				? null
@@ -258,7 +266,7 @@ export class Filer {
 
 	async init(): Promise<void> {
 		if (this.initializing) return this.initializing;
-		// this.log.trace('initalizing...');
+		this.log.trace(blue('init'));
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
@@ -279,43 +287,6 @@ export class Filer {
 		await this.initBuilds();
 		// this.log.trace('inited builds');
 		// this.log.info('buildConfigs', this.buildConfigs);
-
-		// Clean the dev output directories,
-		// removing any files that can't be mapped back to source files.
-		if (this.cleanOutputDirs && this.buildConfigs !== null) {
-			await Promise.all(
-				this.buildConfigs.map(async (buildConfig) => {
-					const outputDir = toBuildOutPath(this.dev, buildConfig.name, '', this.buildRootDir);
-					if (!(await pathExists(outputDir))) return;
-					const files = await findFiles(outputDir, undefined, null);
-					await Promise.all(
-						Array.from(files.entries()).map(async ([path, stats]) => {
-							if (stats.isDirectory()) return;
-							const id = join(outputDir, path);
-							if (this.files.has(id)) return;
-							if (hasSourceExtension(id)) {
-								// TODO do we want this check? maybe perform it synchronously before any `remove` calls?
-								throw Error(
-									'File in output directory has unexpected source extension.' +
-										' Output directories are expected to be fully owned by Gro and should not have source files.' +
-										` File is ${id} in outputDir ${outputDir}`,
-								);
-							}
-							this.log.trace('deleting unknown build file', printPath(id));
-							const promises: Promise<void>[] = [remove(id)];
-							const sourceFile = this.findSourceFile(id);
-							if (sourceFile !== undefined) {
-								if (!sourceFile.buildable) {
-									throw Error(`Expected source file to be buildable: ${sourceFile.id}`);
-								}
-								promises.push(this.updateCachedSourceInfo(sourceFile));
-							}
-							await Promise.all(promises);
-						}),
-					);
-				}),
-			);
-		}
 
 		// Ensure that the externals directory does not conflict with another served directory.
 		// This check must wait until the above syncing completes.
@@ -738,6 +709,13 @@ export class Filer {
 	): Promise<void> {
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
+		// TODO we need to move build files from externals to other valid externals ones .. right?
+		// or does it not matter that we have a dangling source file?
+		// diffBuildFiles(this.files, newBuildFiles, oldBuildFiles, this.log);
+		if (sourceFile.id.endsWith('/frontend/index.ts')) {
+			console.log('sourceFile', sourceFile);
+			debugger;
+		}
 		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles, this.log);
 		await this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig);
 		await syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
@@ -757,6 +735,8 @@ export class Filer {
 		}
 		syncBuildFilesToMemoryCache(this.files, buildFiles, null, this.log);
 		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
+		// TODO what if we diff here, like we're going to do with `updateBuildFiles`,
+		// and use that diffed set of files to do the automatic cleaning of the .gro directory in total?
 	}
 
 	private async updateDependencies(
@@ -1103,6 +1083,7 @@ const syncBuildFilesToMemoryCache = (
 	// but that assumption might change and cause this code to be slow.
 	if (oldFiles !== null) {
 		for (const oldFile of oldFiles) {
+			// TODO ... && oldFile.sourceType !== 'externals'
 			if (!newFiles.find((f) => f.id === oldFile.id)) {
 				// log.trace('deleting file from memory', printPath(oldFile.id));
 				files.delete(oldFile.id);

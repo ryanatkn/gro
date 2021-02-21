@@ -15,7 +15,7 @@ import {printBuildConfig} from '../config/buildConfig.js';
 
 /*
 
-TODO this currently uses esinstall in a hacky way,
+TODO this currently uses esinstall in a hacky way, (tbh this file is nightmare of unknown behavior)
 using timeouts and polling state on intervals and other garbo. see below for more.
 it's maybe fine but might cause problems.
 it causes unnecessary delays building externals tho.
