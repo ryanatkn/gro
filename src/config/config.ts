@@ -95,7 +95,7 @@ Caveats
 	that's not handled by the default TS->JS build.
 	This was previously solved by using the bootstrapped config to compile the project,
 	and then the compiled config was imported and created and returned,
-	but this duplicates compilation in the normal case where `invokeTask` loads the config,
+	but this duplicates building in the normal case where `invokeTask` loads the config,
 	and it fixes only a subset of issues caused by the config needing special build behavior.
 	Instead, we simply return the bootstrapped config and expect it to be correct.
 

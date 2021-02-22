@@ -6,7 +6,7 @@ import {getDefaultSwcOptions} from './swcBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, TextBuild, TextBuildSource} from './builder.js';
+import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
 import {addJsSourceMapFooter} from './buildHelpers.js';
@@ -84,7 +84,8 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 				buildConfig,
 			});
 		}
-		return {builds};
+		const result: BuildResult<TextBuild> = {builds};
+		return result;
 	};
 
 	return {build};
