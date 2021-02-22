@@ -34,7 +34,13 @@ import {
 	createSourceFile,
 	SourceFile,
 } from './sourceFile.js';
-import {BuildFile, createBuildFile, DependencyInfo, diffDependencies} from './buildFile.js';
+import {
+	BuildFile,
+	COMMON_SOURCE_ID,
+	createBuildFile,
+	DependencyInfo,
+	diffDependencies,
+} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 
@@ -285,7 +291,7 @@ export class Filer {
 		await this.cleanCachedSourceInfo();
 		// this.log.trace('cleaned');
 
-		// This performs initial source file compilation, traces deps,
+		// This performs initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
 		// this.log.trace('inited builds');
@@ -442,6 +448,7 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		this.log.trace(`removing source file from build: ${sourceFile.id}`);
 		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
 			throw Error(
 				`Removing build configs from input files is not allowed: ${buildConfig}:${sourceFile.id}`,
@@ -643,36 +650,36 @@ export class Filer {
 		return filerDir.buildable;
 	}
 
-	// These are used to avoid concurrent compilations for any given source file.
-	private pendingCompilations = new Set<string>(); // value is `buildConfig.name + sourceId`
-	private enqueuedCompilations = new Set<string>(); // value is `buildConfig.name + sourceId`
+	// These are used to avoid concurrent builds for any given source file.
+	private pendingBuilds = new Set<string>(); // value is `buildConfig.name + sourceId`
+	private enqueuedBuilds = new Set<string>(); // value is `buildConfig.name + sourceId`
 
 	// This wrapper function protects against race conditions
-	// that could occur with concurrent compilations.
+	// that could occur with concurrent builds.
 	// If a file is currently being build, it enqueues the file id,
-	// and when the current compilation finishes,
+	// and when the current build finishes,
 	// it removes the item from the queue and rebuilds the file.
-	// The queue stores at most one compilation per file,
+	// The queue stores at most one build per file,
 	// and this is safe given that building accepts no parameters.
 	private async buildSourceFile(
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		const key = `${printBuildConfig(buildConfig)}${sourceFile.id}`;
-		if (this.pendingCompilations.has(key)) {
-			this.enqueuedCompilations.add(key);
+		if (this.pendingBuilds.has(key)) {
+			this.enqueuedBuilds.add(key);
 			return;
 		}
-		this.pendingCompilations.add(key);
+		this.pendingBuilds.add(key);
 		try {
 			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
 			this.log.error(red('build failed'), printPath(sourceFile.id), printError(err));
 		}
-		this.pendingCompilations.delete(key);
-		if (this.enqueuedCompilations.has(key)) {
-			this.enqueuedCompilations.delete(key);
-			// Something changed during the compilation for this file, so recurse.
+		this.pendingBuilds.delete(key);
+		if (this.enqueuedBuilds.has(key)) {
+			this.enqueuedBuilds.delete(key);
+			// Something changed during the build for this file, so recurse.
 			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
 			const shouldBuild = await this.updateSourceFile(sourceFile.id, sourceFile.filerDir);
@@ -700,8 +707,8 @@ export class Filer {
 			throw err;
 		}
 
-		const newBuildFiles: readonly BuildFile[] = result.builds.map((compilation) =>
-			createBuildFile(compilation, this, result, sourceFile, buildConfig),
+		const newBuildFiles: readonly BuildFile[] = result.builds.map((build) =>
+			createBuildFile(build, this, result, sourceFile, buildConfig),
 		);
 
 		this.buildingSourceFiles.delete(sourceFile.id);
@@ -719,9 +726,27 @@ export class Filer {
 	): Promise<void> {
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
-		if (sourceFile.external) {
-			debugger;
-		}
+		// if (sourceFile.external && oldBuildFiles) {
+		// 	for (const oldBuildFile of oldBuildFiles) {
+		// 		if (oldBuildFile.dir === `${this.externalsDir!.dir}/common`) {
+		// 			debugger;
+		// 			console.log('UH OH', oldBuildFile.dir);
+		// 			const newBuildFile = newBuildFiles.find((f) => f.id === oldBuildFile.id);
+		// 			if (newBuildFile !== undefined) continue;
+		// 			console.log('NO NEW BUILD FILE ITS GONNA BE DELETED');
+		// 			console.log('this.state.externals', this.state.externals);
+		// 			setTimeout(() => {
+		// 				console.log('this.state.externals', this.state.externals);
+		// 			}, 3000);
+		// 			// TODO if this file is not also present in the new files,
+		// 			// then it needs to be removed from `oldBuildFiles` (for the later functions)
+		// 			// and added to another externals source file, if one is available, and all of its data needs to be updated too.
+		// 			// if one is not available, we can assume it was deleted.
+		// 			// but REALLY, we want to be synced with the output of the externals calls,
+		// 			// and diff what comes out, and delete commons files explicitly
+		// 		}
+		// 	}
+		// }
 		// TODO we need to move build files from externals to other valid externals ones .. right?
 		// or does it not matter that we have a dangling source file?
 		// diffBuildFiles(this.files, newBuildFiles, oldBuildFiles, this.log);
@@ -841,7 +866,11 @@ export class Filer {
 				if (removedDependencySourceFile.external) {
 					if (buildConfig !== this.externalsBuildConfig) continue;
 					if (isUnreferenced && this.state.externals !== undefined) {
+						// update specifiers
 						this.state.externals.specifiers.delete(removedDependencySourceFile.id);
+						// update importMap for externals
+						// TODO or set to undefined? or treat as immutable?
+						delete this.state.externals.importMap?.imports[removedDependencySourceFile.id];
 					}
 				}
 				if (
@@ -994,7 +1023,7 @@ export class Filer {
 		// 	deepEqual(await readJson(cacheId), cachedSourceInfo)
 		// ) {
 		// 	console.log(
-		// 		'wasted compilation detected! unchanged file was built and identical source info written to disk: ' +
+		// 		'wasted build detected! unchanged file was built and identical source info written to disk: ' +
 		// 			cacheId,
 		// 	);
 		// }
@@ -1018,7 +1047,7 @@ const syncFilesToDisk = async (
 	log: Logger,
 ): Promise<void> => {
 	// This uses `Array#find` because the arrays are expected to be small,
-	// because we're currently only using it for individual file compilations,
+	// because we're currently only using it for individual file builds,
 	// but that assumption might change and cause this code to be slow.
 	await Promise.all([
 		oldFiles === null
@@ -1026,10 +1055,13 @@ const syncFilesToDisk = async (
 			: Promise.all(
 					oldFiles.map((oldFile) => {
 						if (
-							!oldFile.external && // for now, just never delete externals
+							oldFile.sourceId !== COMMON_SOURCE_ID &&
 							!newFiles.find((f) => f.id === oldFile.id)
 						) {
 							log.trace('deleting build file on disk', printPath(oldFile.id));
+							if (oldFile.external) {
+								console.log('oldFile', oldFile.sourceId);
+							}
 							return remove(oldFile.id);
 						}
 						return null;
@@ -1082,7 +1114,7 @@ const syncBuildFilesToMemoryCache = (
 ): void => {
 	// Remove any deleted files.
 	// This uses `Array#find` because the arrays are expected to be small,
-	// because we're currently only using it for individual file compilations,
+	// because we're currently only using it for individual file builds,
 	// but that assumption might change and cause this code to be slow.
 	if (oldFiles !== null) {
 		for (const oldFile of oldFiles) {

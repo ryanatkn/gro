@@ -5,14 +5,21 @@ import {Plugin as RollupPlugin} from 'rollup';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, BuilderState, BuildOptions, ExternalsBuildSource, TextBuild} from './builder.js';
+import type {
+	Builder,
+	BuilderState,
+	BuildOptions,
+	BuildResult,
+	ExternalsBuildSource,
+	TextBuild,
+} from './builder.js';
 import {cyan, gray} from '../colors/terminal.js';
 import {loadContents} from './load.js';
 import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
 import {printBuildConfig} from '../config/buildConfig.js';
-import {EMPTY_ARRAY} from '../utils/array.js';
+import {createLock} from '../utils/lock.js';
 
 /*
 
@@ -48,11 +55,15 @@ const encoding = 'utf8';
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {importMap: initialImportMap, log} = initOptions(opts);
 
+	// TODO i dunno lol. this code is freakish
+	const lock = createLock<string>();
+
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
 		buildOptions: BuildOptions,
 	) => {
+		lock.tryToObtain(source.id);
 		const {
 			buildRootDir,
 			dev,
@@ -66,9 +77,11 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
 		if (!dev) {
+			lock.tryToRelease(source.id);
 			throw Error('The externals builder is currently not designed for production usage.');
 		}
 		if (source.encoding !== encoding) {
+			lock.tryToRelease(source.id);
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
 
@@ -102,17 +115,21 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				buildingSourceFiles,
 				log,
 			);
+			console.log('resolt', result);
 			// Since we're batching the external installation process,
 			// and it can return a number of common files,
 			// we need to add those common files as build files to exactly one of the built source files.
 			// It doesn't matter which one, so we just always pick the first source file in the data.
-			if (source.id === Object.keys(result.importMap.imports)[0]) {
+			if (lock.has(source.id)) {
+				console.log('creating commonDependencyIds!', source.id);
 				commonDependencyIds = Object.keys(result.stats.common).map((path) => join(dest, path));
 			}
 			id = join(dest, result.importMap.imports[source.id]);
+			console.log('id', id);
 			contents = await loadContents(encoding, id);
 		} catch (err) {
 			log.error(`Failed to bundle external module: ${source.id}`);
+			lock.tryToRelease(source.id);
 			throw err;
 		}
 
@@ -127,9 +144,13 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				sourceMapOf: null,
 				buildConfig,
 			},
-			...(commonDependencyIds === null
-				? EMPTY_ARRAY
-				: await Promise.all(
+		];
+
+		if (commonDependencyIds !== null) {
+			try {
+				console.log('commonDependencyIds:', source.id, commonDependencyIds);
+				builds.push(
+					...(await Promise.all(
 						commonDependencyIds.map(
 							async (commonDependencyId): Promise<TextBuild> => ({
 								id: commonDependencyId,
@@ -140,12 +161,28 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 								contents: await loadContents(encoding, commonDependencyId),
 								sourceMapOf: null,
 								buildConfig,
+								common: true,
 							}),
 						),
-				  )),
-		];
+					)),
+				);
+			} catch (err) {
+				log.error(`Failed to build common builds: ${commonDependencyIds.join(' ')}`);
+				lock.tryToRelease(source.id);
+				throw err;
+			}
+		}
 
-		return {builds};
+		lock.tryToRelease(source.id);
+
+		// TODO maybe we return "common" `Build`s here?
+		// the idea being that the `Filer` can handle them
+		// as a whole after each compile.
+		// Remember we can change the `Filer` API however we want to special case externals! or other needs
+		// functionality is first: model the data correctly and process it correctly.
+		// refactoring is a lot easier, and it's never too late to refactor! it never gets intractably hard
+		const result: BuildResult<TextBuild> = {builds};
+		return result;
 	};
 
 	return {build};
@@ -172,7 +209,9 @@ const installExternal = async (
 			log.info('installing externals', state.specifiers); // TODO should these be like, `state.findSpecifiers()`?
 			const result = await installExternals(state.specifiers, dest, plugins);
 			log.info('install result', result);
+			log.info('old importMap', state.importMap);
 			state.importMap = result.importMap;
+			state.installing = null;
 			return result;
 		});
 		state.idleTimer = 0;

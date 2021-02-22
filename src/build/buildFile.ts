@@ -30,6 +30,8 @@ export interface BaseBuildFile extends BaseFilerFile {
 	readonly externalDependencies: Set<string> | null; // TODO is this right? or maybe a set?
 }
 
+export const COMMON_SOURCE_ID = 'common'; // TODO revisit this along with `build.common`
+
 export const createBuildFile = (
 	build: Build,
 	buildOptions: BuildOptions,
@@ -47,10 +49,12 @@ export const createBuildFile = (
 		case 'utf8':
 			return {
 				type: 'build',
-				sourceId: sourceFile.id,
+				// TODO this is a hack, not sure about it -
+				// currently used to prevent common externals from being deleted
+				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
 				external: sourceFile.external,
 				buildConfig,
-				localDependencies,
+				localDependencies, // TODO should these dependencies be updated for ALL build files in externals as appropriate? are they?
 				externalDependencies,
 				id: build.id,
 				filename: build.filename,
@@ -67,7 +71,9 @@ export const createBuildFile = (
 		case null:
 			return {
 				type: 'build',
-				sourceId: sourceFile.id,
+				// TODO this is a hack, not sure about it -
+				// currently used to prevent common externals from being deleted
+				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
 				external: sourceFile.external,
 				buildConfig,
 				localDependencies,

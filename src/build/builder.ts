@@ -47,6 +47,7 @@ interface BaseBuild {
 	dir: string;
 	extension: string;
 	buildConfig: BuildConfig;
+	common?: boolean;
 }
 
 export type BuildSource = TextBuildSource | BinaryBuildSource | ExternalsBuildSource;
