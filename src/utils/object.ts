@@ -12,7 +12,7 @@ export const mapRecord = <T, K extends string | number, U>(
 	return result;
 };
 
-export const omit = <T extends Record<K, any>, K extends string | number>(
+export const omit = <T extends Record<K, any>, K extends keyof T>(
 	obj: T,
 	keys: K[],
 ): OmitStrict<T, K> => {
