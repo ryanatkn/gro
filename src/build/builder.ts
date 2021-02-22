@@ -136,7 +136,8 @@ const noopBuilder: Builder = {
 			default:
 				throw new UnreachableError(source);
 		}
-		return {builds: [file]};
+		const result: BuildResult = {builds: [file]};
+		return result;
 	},
 };
 const getNoopBuilder: GetBuilder = () => noopBuilder;
