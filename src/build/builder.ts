@@ -2,30 +2,34 @@ import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutPath, EXTERNALS_BUILD_DIR} from '../paths.js';
-import {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {ServedDir} from '../build/ServedDir.js';
 import type {ExternalsBuilderState} from './externalsBuilder.js';
+import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import {ServedDir} from './ServedDir.js';
+import {Logger} from '../utils/log.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
 	build(
 		source: TSource,
 		buildConfig: BuildConfig,
-		options: BuildOptions,
+		ctx: BuildContext,
 	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>;
 }
 
 export interface BuildResult<TBuild extends Build = Build> {
 	builds: TBuild[];
 }
-export interface BuildOptions {
-	readonly sourceMap: boolean;
-	readonly target: EcmaScriptTarget; // TODO probably make this overrideable by each build config
+
+export interface BuildContext {
+	readonly log: Logger;
 	readonly buildRootDir: string;
 	readonly dev: boolean;
+	readonly sourceMap: boolean;
+	readonly target: EcmaScriptTarget;
 	readonly servedDirs: readonly ServedDir[];
 	readonly state: BuilderState;
 	readonly buildingSourceFiles: Set<string>;
 }
+
 export interface BuilderState {
 	[EXTERNALS_BUILD_DIR]?: ExternalsBuilderState;
 }
@@ -94,10 +98,10 @@ export const createBuilder = (opts: InitialOptions = {}): Builder => {
 	const build: Builder['build'] = (
 		source: BuildSource,
 		buildConfig: BuildConfig,
-		options: BuildOptions,
+		ctx: BuildContext,
 	) => {
 		const builder = getBuilder(source, buildConfig) || noopBuilder;
-		return builder.build(source, buildConfig, options);
+		return builder.build(source, buildConfig, ctx);
 	};
 
 	return {build};

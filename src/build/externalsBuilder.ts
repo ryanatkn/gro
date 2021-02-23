@@ -8,8 +8,8 @@ import {omitUndefined} from '../utils/object.js';
 import type {
 	Builder,
 	BuilderState,
-	BuildOptions,
 	BuildResult,
+	BuildContext,
 	ExternalsBuildSource,
 	TextBuild,
 } from './builder.js';
@@ -20,7 +20,7 @@ import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {createLock} from '../utils/lock.js';
-import {pathExists, readJson} from '../fs/nodeFs.js';
+import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 
 /*
 
@@ -66,10 +66,9 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		buildOptions: BuildOptions,
+		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
 	) => {
 		lock.tryToObtain(source.id);
-		const {buildRootDir, dev, sourceMap, target, state, buildingSourceFiles} = buildOptions;
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
@@ -311,4 +310,33 @@ const getExternalsBuilderState = (
 	};
 	state[EXTERNALS_BUILDER_STATE_KEY] = s;
 	return s;
+};
+
+// TODO probably refactor this into callbacks/events/plugins or something
+export const handleRemovedDependencySourceFile = async (
+	id: string,
+	state: Exclude<BuilderState[typeof EXTERNALS_BUILD_DIR], undefined>,
+	buildConfig: BuildConfig,
+	ctx: BuildContext,
+): Promise<void> => {
+	// update specifiers
+	state.specifiers.delete(id);
+	// update importMap for externals
+	// TODO or set to undefined? or treat as immutable?
+	delete state.importMap?.imports[id];
+	if (state.importMap !== undefined) {
+		await updateImportMapOnDisk(state.importMap, buildConfig, ctx);
+	}
+};
+
+const updateImportMapOnDisk = async (
+	importMap: ImportMap,
+	buildConfig: BuildConfig,
+	{dev, buildRootDir, log}: BuildContext,
+): Promise<void> => {
+	const dest = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildRootDir);
+	const outPath = toImportMapPath(dest);
+	// TODO `outputJson`? hmm
+	log.trace(`writing import map to ${gray(outPath)}`);
+	await outputFile(outPath, JSON.stringify(importMap, null, 2));
 };

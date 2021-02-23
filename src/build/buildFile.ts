@@ -1,7 +1,7 @@
-import {Build, BuildOptions, BuildResult} from './builder.js';
+import type {Build, BuildContext, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
-import {CachedSourceInfo} from './Filer.js';
+import type {CachedSourceInfo} from './Filer.js';
 import {EXTERNALS_BUILD_DIR, SOURCEMAP_EXTENSION, toBuildOutPath} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
@@ -33,12 +33,12 @@ export const COMMON_SOURCE_ID = 'common'; // TODO revisit this along with `build
 
 export const createBuildFile = (
 	build: Build,
-	buildOptions: BuildOptions,
+	ctx: BuildContext,
 	result: BuildResult<Build>,
 	sourceFile: BuildableSourceFile,
 	buildConfig: BuildConfig,
 ): BuildFile => {
-	const {contents, dependencies} = postprocess(build, buildOptions, result, sourceFile);
+	const {contents, dependencies} = postprocess(build, ctx, result, sourceFile);
 	switch (build.encoding) {
 		case 'utf8':
 			return {

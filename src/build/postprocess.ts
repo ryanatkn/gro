@@ -10,7 +10,7 @@ import {
 	toBuildExtension,
 	toBuildOutPath,
 } from '../paths.js';
-import type {Build, BuildOptions, BuildResult, BuildSource} from './builder.js';
+import type {Build, BuildContext, BuildResult, BuildSource} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js';
 
@@ -18,7 +18,7 @@ import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js'
 
 export const postprocess = (
 	build: Build,
-	{servedDirs, buildRootDir, dev}: BuildOptions,
+	{servedDirs, buildRootDir, dev}: BuildContext,
 	result: BuildResult<Build>,
 	source: BuildSource,
 ): {contents: Build['contents']; dependencies: Set<string> | null} => {

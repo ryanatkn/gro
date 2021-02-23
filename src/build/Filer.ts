@@ -10,7 +10,7 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red, blue} from '../colors/terminal.js';
 import {printError, printPath} from '../utils/print.js';
-import type {Build, Builder, BuilderState, BuildResult} from './builder.js';
+import type {Build, BuildContext, Builder, BuilderState, BuildResult} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
@@ -31,6 +31,7 @@ import {
 } from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
+import {handleRemovedDependencySourceFile} from './externalsBuilder.js';
 
 /*
 
@@ -141,15 +142,17 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-export class Filer {
+export class Filer implements BuildContext {
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
 	private readonly buildConfigs: BuildConfig[] | null;
 	private readonly mapBuildIdToSourceId: MapBuildIdToSourceId;
-	private readonly log: Logger;
 
-	// public properties available to e.g. builders and postprocessors
+	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
+	// This pattern lets us pass around `this` filer
+	// without constantly destructuring and handling long argument lists.
+	readonly log: Logger;
 	readonly buildRootDir: string;
 	readonly dev: boolean;
 	readonly sourceMap: boolean;
@@ -815,11 +818,12 @@ export class Filer {
 				const isUnreferenced = dependents.size === 0;
 				if (removedDependencySourceFile.external) {
 					if (isUnreferenced && this.state.externals !== undefined) {
-						// update specifiers
-						this.state.externals.specifiers.delete(removedDependencySourceFile.id);
-						// update importMap for externals
-						// TODO or set to undefined? or treat as immutable?
-						delete this.state.externals.importMap?.imports[removedDependencySourceFile.id];
+						await handleRemovedDependencySourceFile(
+							removedDependencySourceFile.id,
+							this.state.externals,
+							buildConfig,
+							this,
+						);
 					}
 				}
 				if (
