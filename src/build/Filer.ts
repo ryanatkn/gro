@@ -4,18 +4,12 @@ import lexer from 'es-module-lexer';
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
-import {
-	EXTERNALS_BUILD_DIR,
-	JSON_EXTENSION,
-	JS_EXTENSION,
-	paths,
-	toBuildOutPath,
-} from '../paths.js';
+import {JSON_EXTENSION, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red, blue} from '../colors/terminal.js';
-import {printError} from '../utils/print.js';
+import {printError, printPath} from '../utils/print.js';
 import type {Build, Builder, BuilderState, BuildResult} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
@@ -279,7 +273,8 @@ export class Filer {
 	private async cleanCachedSourceInfo(): Promise<void> {
 		let promises: Promise<void>[] | null = null;
 		for (const sourceId of this.cachedSourceInfo.keys()) {
-			if (!this.files.has(sourceId)) {
+			if (!this.files.has(sourceId) && !isExternalSourceId(sourceId)) {
+				this.log.warn('deleting unknown cached source info', gray(sourceId));
 				(promises || (promises = [])).push(this.deleteCachedSourceInfo(sourceId));
 			}
 		}
@@ -515,6 +510,7 @@ export class Filer {
 	// Returns a boolean indicating if the source file should be built.
 	// The source file may have been updated or created from a cold cache.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
+		this.log.trace(`updating source file ${gray(id)}`);
 		const sourceFile = this.files.get(id);
 		if (sourceFile !== undefined) {
 			if (sourceFile.type !== 'source') {
@@ -974,6 +970,7 @@ export class Filer {
 		// 	);
 		// }
 		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
+		this.log.trace('outputting cached source info', gray(file.id), 'to', printPath(cacheId));
 		await outputFile(cacheId, JSON.stringify(data, null, 2));
 	}
 
@@ -1042,13 +1039,8 @@ const syncFilesToDisk = async (
 	]);
 };
 
-// TODO hacky, check with other code too, extract helpers
 const toCachedSourceInfoId = (file: BuildableSourceFile, buildRootDir: string): string =>
-	file.external
-		? `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${EXTERNALS_BUILD_DIR}/${file.id}${
-				file.id.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-		  }${JSON_EXTENSION}`
-		: `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
+	`${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.

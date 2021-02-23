@@ -104,7 +104,7 @@ export const createSourceFile = async (
 			throw Error(`Expected filer dir to be buildable: ${filerDir.dir} - ${id}`);
 		}
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
-		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIR, dirname(id)); // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIR, dirname(id)) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',
