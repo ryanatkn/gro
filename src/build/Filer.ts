@@ -1,12 +1,7 @@
 import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 
-import {
-	FilerDir,
-	FilerDirChangeCallback,
-	createFilerDir,
-	ExternalsFilerDir,
-} from '../build/FilerDir.js';
+import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {
@@ -24,7 +19,6 @@ import {printError, printPath} from '../utils/print.js';
 import type {Build, Builder, BuilderState, BuildResult} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
-import {stripEnd, stripStart} from '../utils/string.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
@@ -32,6 +26,7 @@ import {
 	BuildableExternalsSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
+	isExternalSourceId,
 	SourceFile,
 } from './sourceFile.js';
 import {
@@ -79,10 +74,8 @@ export interface Options {
 	dev: boolean;
 	builder: Builder | null;
 	sourceDirs: string[];
-	externalsDir: string | null;
 	servedDirs: ServedDir[];
 	buildConfigs: BuildConfig[] | null;
-	externalsBuildConfig: BuildConfig | null;
 	buildRootDir: string;
 	mapBuildIdToSourceId: MapBuildIdToSourceId;
 	sourceMap: boolean;
@@ -104,23 +97,9 @@ export const initOptions = (opts: InitialOptions): Options => {
 				' Omit the value or provide `null` if this was intended.',
 		);
 	}
-	const externalsBuildConfig =
-		opts.externalsBuildConfig || buildConfigs === null
-			? null
-			: buildConfigs.find((c) => c.primary && c.platform === 'browser') ||
-			  buildConfigs.find((c) => c.primary && c.platform === 'node') ||
-			  buildConfigs.find((c) => c.primary) ||
-			  buildConfigs[0];
 	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
 	const sourceDirs = opts.sourceDirs ? opts.sourceDirs.map((d) => resolve(d)) : [];
-	const externalsDir =
-		externalsBuildConfig === null || opts.externalsDir === null
-			? null
-			: opts.externalsDir === undefined
-			? `${buildRootDir}${EXTERNALS_BUILD_DIR}`
-			: resolve(opts.externalsDir);
-	validateDirs(sourceDirs, externalsDir, buildRootDir);
-	const sourceDirCount = sourceDirs.length + (externalsDir === null ? 0 : 1);
+	validateDirs(sourceDirs);
 	const servedDirs = toServedDirs(
 		opts.servedDirs ||
 			(buildConfigs === null
@@ -138,20 +117,18 @@ export const initOptions = (opts: InitialOptions): Options => {
 							buildRootDir,
 						),
 				  ]),
-		externalsDir,
-		buildRootDir,
 	);
-	if (sourceDirCount === 0 && servedDirs.length === 0) {
+	if (sourceDirs.length === 0 && servedDirs.length === 0) {
 		throw Error('Filer created with no directories to build or serve.');
 	}
-	if (sourceDirCount !== 0 && buildConfigs === null) {
+	if (sourceDirs.length !== 0 && buildConfigs === null) {
 		throw Error('Filer created with directories to build but no build configs were provided.');
 	}
 	const builder = opts.builder || null;
-	if (sourceDirCount !== 0 && !builder) {
+	if (sourceDirs.length !== 0 && !builder) {
 		throw Error('Filer created with directories to build but no builder was provided.');
 	}
-	if (builder && sourceDirCount === 0) {
+	if (builder && sourceDirs.length === 0) {
 		throw Error('Filer created with a builder but no directories to build.');
 	}
 	return {
@@ -166,10 +143,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
 		builder,
 		sourceDirs,
-		externalsDir,
 		servedDirs,
 		buildConfigs,
-		externalsBuildConfig,
 		buildRootDir,
 	};
 };
@@ -178,13 +153,7 @@ export class Filer {
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
-	private readonly externalsDir: ExternalsFilerDir | null;
-	private readonly externalsServedDir: ServedDir | null;
 	private readonly buildConfigs: BuildConfig[] | null;
-	// TODO this `externalsBuildConfig` concept seems hacky,
-	// might be able to remove while keeping them unified across build configs
-	// (or should they be per build config?)
-	private readonly externalsBuildConfig: BuildConfig | null;
 	private readonly mapBuildIdToSourceId: MapBuildIdToSourceId;
 	private readonly log: Logger;
 
@@ -193,7 +162,6 @@ export class Filer {
 	readonly dev: boolean;
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget;
-	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
 	readonly state: BuilderState = {};
 	readonly buildingSourceFiles: Set<string> = new Set();
@@ -203,12 +171,10 @@ export class Filer {
 			dev,
 			builder,
 			buildConfigs,
-			externalsBuildConfig,
 			buildRootDir,
 			mapBuildIdToSourceId,
 			sourceDirs,
 			servedDirs,
-			externalsDir,
 			sourceMap,
 			target,
 			watch,
@@ -217,7 +183,6 @@ export class Filer {
 		} = initOptions(opts);
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
-		this.externalsBuildConfig = externalsBuildConfig;
 		this.buildRootDir = buildRootDir;
 		this.mapBuildIdToSourceId = mapBuildIdToSourceId;
 		this.sourceMap = sourceMap;
@@ -226,7 +191,6 @@ export class Filer {
 		this.dirs = createFilerDirs(
 			sourceDirs,
 			servedDirs,
-			externalsDir,
 			builder,
 			buildRootDir,
 			this.onDirChange,
@@ -235,15 +199,6 @@ export class Filer {
 		);
 		this.servedDirs = servedDirs;
 		log.trace('servedDirs', servedDirs);
-		this.externalsDir =
-			externalsDir === null
-				? null
-				: (this.dirs.find((d) => d.dir === externalsDir) as ExternalsFilerDir);
-		this.externalsServedDir = servedDirs.find((d) => d.dir === externalsDir) || null;
-		this.externalsDirBasePath =
-			this.externalsDir === null || this.externalsServedDir === null
-				? ''
-				: stripStart(this.externalsDir.dir, `${this.externalsServedDir.servedAt}/`);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
@@ -297,17 +252,8 @@ export class Filer {
 		// this.log.trace('inited builds');
 		// this.log.info('buildConfigs', this.buildConfigs);
 
-		// Ensure that the externals directory does not conflict with another served directory.
-		// This check must wait until the above syncing completes.
-		// TODO we need to delete unknown dirs in the build directory above, not just files,
-		// otherwise this error does not get cleared if you delete the conflicting directory
-		if (this.externalsServedDir !== null) {
-			await checkForConflictingExternalsDir(
-				this.servedDirs,
-				this.externalsServedDir,
-				this.externalsDirBasePath,
-			);
-		}
+		// TODO check if `src/` has any conflicting dirs like `src/externals`
+
 		// this.log.trace('initialized!');
 
 		finishInitializing!();
@@ -472,13 +418,7 @@ export class Filer {
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
-		const id =
-			filerDir.type === 'externals'
-				? stripEnd(change.path, JS_EXTENSION) // TODO I think this breaks for some, look at esinstall (try pixi.js)
-				: join(filerDir.dir, change.path);
-		if (filerDir.type === 'externals') {
-			console.log('externals id', id);
-		}
+		const id = join(filerDir.dir, change.path);
 		switch (change.type) {
 			case 'init':
 			case 'create':
@@ -587,7 +527,7 @@ export class Filer {
 			}
 		}
 
-		const external = filerDir.type === 'externals';
+		const external = isExternalSourceId(id);
 
 		let extension: string;
 		let encoding: Encoding;
@@ -674,6 +614,7 @@ export class Filer {
 		try {
 			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
+			debugger;
 			this.log.error(red('build failed'), printPath(sourceFile.id), printError(err));
 		}
 		this.pendingBuilds.delete(key);
@@ -794,13 +735,19 @@ export class Filer {
 					dependencies = new Set();
 					sourceFile.dependencies.set(buildConfig, dependencies);
 				}
+				// TODO I'm not sure this is right
+				// '/externals/svelte/motion/index.js'
+				// to
+				// 'svelte/motion/index'
+				// test?
+				// maybe we do special casing to remove the `index` ? to prevent overlaps?
 				const sourceId = this.mapBuildIdToSourceId(addedDependency.id, addedDependency.external);
 				dependencies.add(sourceId);
 
 				// create external source files if needed
-				if (addedDependency.external && buildConfig === this.externalsBuildConfig) {
-					const sourceFile = await this.initExternalDependencySourceFile(sourceId);
-					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(sourceFile);
+				if (addedDependency.external && buildConfig.platform === 'browser') {
+					const file = await this.initExternalDependencySourceFile(sourceId, sourceFile.filerDir);
+					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(file);
 				}
 			}
 		}
@@ -817,8 +764,7 @@ export class Filer {
 		}
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
-				if (addedDependencySourceFile.external) {
-					if (buildConfig !== this.externalsBuildConfig) continue;
+				if (addedDependencySourceFile.external && buildConfig.platform === 'browser') {
 					// TODO this is getting added in externalsBuilder
 					// if (this.state.externals !== undefined) {
 					// 	this.state.externals.specifiers.add(addedDependencySourceFile.id);
@@ -830,10 +776,7 @@ export class Filer {
 					addedDependencySourceFile.dependents.set(buildConfig, dependents);
 				}
 				dependents.add(sourceFile);
-				if (
-					!addedDependencySourceFile.buildConfigs.has(buildConfig) &&
-					!(addedDependencySourceFile.external && addedDependencySourceFile.buildConfigs.size > 0)
-				) {
+				if (!addedDependencySourceFile.buildConfigs.has(buildConfig)) {
 					(promises || (promises = [])).push(
 						this.addSourceFileToBuild(
 							addedDependencySourceFile,
@@ -864,7 +807,6 @@ export class Filer {
 				dependents.delete(sourceFile);
 				const isUnreferenced = dependents.size === 0;
 				if (removedDependencySourceFile.external) {
-					if (buildConfig !== this.externalsBuildConfig) continue;
 					if (isUnreferenced && this.state.externals !== undefined) {
 						// update specifiers
 						this.state.externals.specifiers.delete(removedDependencySourceFile.id);
@@ -980,17 +922,20 @@ export class Filer {
 			await this.deleteCachedSourceInfo(sourceFile.id);
 		}
 	}
-	async initExternalDependencySourceFile(id: string): Promise<BuildableExternalsSourceFile> {
+
+	// TODO can we remove this thing completely, treating externals like all others?
+	async initExternalDependencySourceFile(
+		id: string,
+		filerDir: FilerDir,
+	): Promise<BuildableExternalsSourceFile> {
 		const sourceFile = this.files.get(id);
 		if (sourceFile !== undefined) {
 			assertBuildableExternalsSourceFile(sourceFile);
 			return sourceFile;
 		}
 		this.log.trace('init external dependency', gray(id));
-		if (this.externalsDir === null) {
-			throw Error(`Expected an externalsDir to create an externals source file.`);
-		}
-		await this.updateSourceFile(id, this.externalsDir);
+		debugger;
+		await this.updateSourceFile(id, filerDir);
 		const newFile = this.files.get(id);
 		assertBuildableExternalsSourceFile(newFile);
 		return newFile;
@@ -1000,7 +945,7 @@ export class Filer {
 	// because we're writing per build config.
 	private async updateCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
 		if (file.buildConfigs.size === 0) return this.deleteCachedSourceInfo(file.id);
-		const cacheId = toCachedSourceInfoId(file, this.buildRootDir, this.externalsDirBasePath);
+		const cacheId = toCachedSourceInfoId(file, this.buildRootDir);
 		const data: CachedSourceInfoData = {
 			sourceId: file.id,
 			external: file.external,
@@ -1096,14 +1041,13 @@ const syncFilesToDisk = async (
 	]);
 };
 
-const toCachedSourceInfoId = (
-	file: BuildableSourceFile,
-	buildRootDir: string,
-	externalsDirBasePath: string,
-): string => {
-	const basePath = file.external ? `${externalsDirBasePath}/${file.dirBasePath}` : file.dirBasePath;
-	return `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${basePath}${file.filename}${JSON_EXTENSION}`;
-};
+// TODO hacky, check with other code too, extract helpers
+const toCachedSourceInfoId = (file: BuildableSourceFile, buildRootDir: string): string =>
+	file.external
+		? `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${EXTERNALS_BUILD_DIR}/${file.id}${
+				file.id.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+		  }${JSON_EXTENSION}`
+		: `${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 // Given `newFiles` and `oldFiles`, updates the memory cache,
 // deleting files that no longer exist and setting the new ones, replacing any old ones.
@@ -1159,7 +1103,7 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 // to avoid undefined behavior at the cost of flexibility.
 // Some of these conditions like nested sourceDirs could be fixed
 // but there are inefficiencies and possibly some subtle bugs.
-const validateDirs = (sourceDirs: string[], externalsDir: string | null, buildRootDir: string) => {
+const validateDirs = (sourceDirs: string[]) => {
 	for (const sourceDir of sourceDirs) {
 		const nestedSourceDir = sourceDirs.find((d) => d !== sourceDir && sourceDir.startsWith(d));
 		if (nestedSourceDir) {
@@ -1168,26 +1112,6 @@ const validateDirs = (sourceDirs: string[], externalsDir: string | null, buildRo
 					`${sourceDir} is inside ${nestedSourceDir}`,
 			);
 		}
-		if (externalsDir !== null && sourceDir.startsWith(externalsDir)) {
-			throw Error(
-				'A sourceDir cannot be inside the externalsDir: ' +
-					`${sourceDir} is inside ${externalsDir}`,
-			);
-		}
-	}
-	if (externalsDir !== null && !externalsDir.startsWith(buildRootDir)) {
-		throw Error(
-			'The externalsDir must be located inside the buildRootDir: ' +
-				`${externalsDir} is not inside ${buildRootDir}`,
-		);
-	}
-	const nestedSourceDir =
-		externalsDir !== null && sourceDirs.find((d) => externalsDir.startsWith(d));
-	if (nestedSourceDir) {
-		throw Error(
-			'The externalsDir cannot be inside a sourceDir: ' +
-				`${externalsDir} is inside ${nestedSourceDir}`,
-		);
 	}
 };
 
@@ -1196,7 +1120,6 @@ const validateDirs = (sourceDirs: string[], externalsDir: string | null, buildRo
 const createFilerDirs = (
 	sourceDirs: string[],
 	servedDirs: ServedDir[],
-	externalsDir: string | null,
 	builder: Builder | null,
 	buildRootDir: string,
 	onChange: FilerDirChangeCallback,
@@ -1205,10 +1128,7 @@ const createFilerDirs = (
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {
-		dirs.push(createFilerDir(sourceDir, 'files', builder, onChange, watch, watcherDebounce));
-	}
-	if (externalsDir !== null) {
-		dirs.push(createFilerDir(externalsDir, 'externals', builder, onChange, false, watcherDebounce));
+		dirs.push(createFilerDir(sourceDir, builder, onChange, watch, watcherDebounce));
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a source or externals directory,
@@ -1216,33 +1136,14 @@ const createFilerDirs = (
 		// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 		if (
 			!sourceDirs.find((d) => servedDir.dir.startsWith(d)) &&
-			!(externalsDir !== null && servedDir.dir.startsWith(externalsDir)) &&
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildRootDir)
 		) {
-			dirs.push(createFilerDir(servedDir.dir, 'files', null, onChange, watch, watcherDebounce));
+			dirs.push(createFilerDir(servedDir.dir, null, onChange, watch, watcherDebounce));
 		}
 	}
 	return dirs;
 };
-
-const checkForConflictingExternalsDir = (
-	servedDirs: readonly ServedDir[],
-	externalsServedDir: ServedDir,
-	externalsDirBasePath: string,
-) =>
-	Promise.all(
-		servedDirs.map(async (servedDir) => {
-			if (servedDir === externalsServedDir) return;
-			if (await pathExists(`${servedDir.dir}/${externalsDirBasePath}`)) {
-				throw Error(
-					'A served directory contains a directory that conflicts with the externals directory.' +
-						' One of them must be renamed to avoid import ambiguity.' +
-						` ${servedDir.dir} contains "${externalsDirBasePath}"`,
-				);
-			}
-		}),
-	);
 
 const isInputToBuildConfig = (
 	sourceFile: BuildableSourceFile,

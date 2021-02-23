@@ -34,10 +34,14 @@ export interface MapBuildIdToSourceId {
 
 const EXTERNALS_ID_PREFIX = `/${EXTERNALS_BUILD_DIR}/`;
 const EXTERNALS_ID_SUFFIX = JS_EXTENSION;
+const EXTERNALS_INDEX_SUFFIX = ''; // TODO probably should use a regexp matcher combined with the JS suffix
 
 export const mapBuildIdToSourceId: MapBuildIdToSourceId = (buildId, external) =>
 	external
 		? buildId.startsWith(EXTERNALS_ID_PREFIX)
-			? stripEnd(stripStart(buildId, EXTERNALS_ID_PREFIX), EXTERNALS_ID_SUFFIX)
+			? stripEnd(
+					stripEnd(stripStart(buildId, EXTERNALS_ID_PREFIX), EXTERNALS_ID_SUFFIX),
+					EXTERNALS_INDEX_SUFFIX,
+			  )
 			: buildId
 		: basePathToSourceId(toSourceExtension(toBuildBasePath(buildId)));

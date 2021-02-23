@@ -3,7 +3,7 @@ import {install, InstallResult, ImportMap} from 'esinstall';
 import {Plugin as RollupPlugin} from 'rollup';
 
 import {Logger, SystemLogger} from '../utils/log.js';
-import {JS_EXTENSION} from '../paths.js';
+import {EXTERNALS_BUILD_DIR, JS_EXTENSION, toBuildOutPath} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {
 	Builder,
@@ -18,8 +18,9 @@ import {loadContents} from './load.js';
 import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
-import {printBuildConfig} from '../config/buildConfig.js';
+import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {createLock} from '../utils/lock.js';
+import {pathExists, readJson} from '../fs/nodeFs.js';
 
 /*
 
@@ -35,14 +36,14 @@ but this isn't a great solution
 */
 
 export interface Options {
-	importMap: ImportMap | undefined;
+	basePath: string;
 	log: Logger;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
 	return {
-		importMap: undefined,
+		basePath: EXTERNALS_BUILD_DIR,
 		...omitUndefined(opts),
 		log,
 	};
@@ -53,10 +54,14 @@ type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
 const encoding = 'utf8';
 
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
-	const {importMap: initialImportMap, log} = initOptions(opts);
+	const {basePath, log} = initOptions(opts);
 
 	// TODO i dunno lol. this code is freakish
 	const lock = createLock<string>();
+
+	// TODO what if all state was here, not on the filer? or is it good to put it there, so we can read it elsewhere?
+	// i kinda like that. one huge thing of mutable state! could be transformed with immutable data + events
+	const initialImportMap: Map<BuildConfig, ImportMap | undefined> = new Map();
 
 	const build: ExternalsBuilder['build'] = async (
 		source,
@@ -64,15 +69,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		buildOptions: BuildOptions,
 	) => {
 		lock.tryToObtain(source.id);
-		const {
-			buildRootDir,
-			dev,
-			externalsDirBasePath,
-			sourceMap,
-			target,
-			state,
-			buildingSourceFiles,
-		} = buildOptions;
+		const {buildRootDir, dev, sourceMap, target, state, buildingSourceFiles} = buildOptions;
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
@@ -85,10 +82,18 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
 
-		const dest = buildRootDir + externalsDirBasePath;
+		const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
 		let id: string;
 
 		log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
+
+		// TODO load the `import-map.json`
+		if (initialImportMap.get(buildConfig) === undefined && lock.has(source.id)) {
+			const initialImportMapPath = toImportMapPath(dest);
+			if (await pathExists(initialImportMapPath)) {
+				initialImportMap.set(buildConfig, await readJson(initialImportMapPath));
+			}
+		}
 
 		// TODO add an external API for customizing the `install` params
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
@@ -110,7 +115,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			const result = await installExternal(
 				source.id,
 				dest,
-				getExternalsBuilderState(state, initialImportMap),
+				getExternalsBuilderState(state, initialImportMap.get(buildConfig)),
 				plugins,
 				buildingSourceFiles,
 				log,
@@ -187,6 +192,8 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 	return {build};
 };
+
+const toImportMapPath = (dest: string): string => `${dest}/import-map.json`;
 
 // TODO this is really hacky - it's working,
 // but it causes unnecessary delays building externals

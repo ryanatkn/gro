@@ -1,7 +1,4 @@
-import {pathExists, readJson} from '../fs/nodeFs.js';
-import {ImportMap} from 'esinstall';
-
-import {paths, SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
+import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {
 	BuildSource,
 	Builder,
@@ -26,13 +23,6 @@ export const createDefaultBuilder = async (
 ): Promise<Builder> => {
 	const swcBuilder = createSwcBuilder(swcBuilderOptions);
 	const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
-
-	const importMapPath = `${paths.externals}/import-map.json`; // TODO where should this go?
-	const importMap: ImportMap | undefined =
-		externalsBuilderOptions?.importMap || (await pathExists(importMapPath))
-			? await readJson(importMapPath)
-			: undefined;
-	externalsBuilderOptions = {...externalsBuilderOptions, importMap};
 	const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
 
 	if (!builderOptions?.getBuilder) {

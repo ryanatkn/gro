@@ -2,14 +2,20 @@ import {join} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
 
-import {CSS_EXTENSION, JS_EXTENSION, SVELTE_EXTENSION, toBuildExtension} from '../paths.js';
+import {
+	CSS_EXTENSION,
+	EXTERNALS_BUILD_DIR,
+	JS_EXTENSION,
+	SVELTE_EXTENSION,
+	toBuildExtension,
+} from '../paths.js';
 import type {Build, BuildOptions, BuildResult, BuildSource} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {isExternalBrowserModule, isExternalNodeModule} from '../utils/module.js';
 
 export const postprocess = (
 	build: Build,
-	{externalsDirBasePath, servedDirs}: BuildOptions,
+	{servedDirs}: BuildOptions,
 	result: BuildResult<Build>,
 	source: BuildSource,
 ): [
@@ -40,7 +46,7 @@ export const postprocess = (
 				if (isExternal && build.buildConfig.platform === 'browser') {
 					// TODO it's weird that this is a fake absolute path while locals have real absolute paths
 					// TODO might want to use this `esinstall` helper: https://github.com/snowpackjs/snowpack/blob/a09bba81d01fa7b3769024f9bd5adf0d3fc4bafc/esinstall/src/util.ts#L161
-					newModuleName = `/${externalsDirBasePath}/${newModuleName}${
+					newModuleName = `/${EXTERNALS_BUILD_DIR}/${newModuleName}${
 						newModuleName.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 					}`;
 				}

@@ -38,7 +38,6 @@ export interface Paths {
 	source: string;
 	build: string;
 	dist: string;
-	externals: string;
 	configSourceId: string;
 }
 
@@ -51,7 +50,6 @@ export const createPaths = (root: string): Paths => {
 		source,
 		build,
 		dist: `${root}${DIST_DIR}`,
-		externals: `${build}${EXTERNALS_BUILD_DIR}`,
 		configSourceId: `${source}${CONFIG_SOURCE_BASE_PATH}`,
 	};
 };

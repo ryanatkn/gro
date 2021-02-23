@@ -7,11 +7,7 @@ export interface ServedDir {
 
 export type ServedDirPartial = string | PartialExcept<ServedDir, 'dir'>;
 
-export const toServedDirs = (
-	partials: ServedDirPartial[],
-	externalsDir: string | null,
-	buildRootDir: string,
-): ServedDir[] => {
+export const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
 	const dirs = partials.map((d) => toServedDir(d));
 	const uniqueDirs = new Set<string>();
 	for (const dir of dirs) {
@@ -21,12 +17,6 @@ export const toServedDirs = (
 			throw Error(`Duplicate servedDirs are not allowed: ${dir.dir}`);
 		}
 		uniqueDirs.add(dir.dir);
-	}
-	// Add the externals as a served directory, unless one is already found.
-	// This is mostly an ergonomic improvement, and the user can provide a custom one if needed.
-	// In the current design, externals should always be served.
-	if (externalsDir !== null && !dirs.find((d) => d.dir === externalsDir)) {
-		dirs.push(toServedDir({dir: externalsDir, servedAt: buildRootDir}));
 	}
 	return dirs;
 };

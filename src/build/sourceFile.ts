@@ -1,11 +1,6 @@
 import {basename, dirname, join} from 'path';
 
-import {
-	NonBuildableInternalsFilerDir,
-	BuildableInternalsFilerDir,
-	ExternalsFilerDir,
-	FilerDir,
-} from '../build/FilerDir.js';
+import {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/FilerDir.js';
 import {BuildFile, reconstructBuildFiles} from './buildFile.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import {toHash} from './utils.js';
@@ -42,13 +37,13 @@ export interface BaseSourceFile extends BaseFilerFile {
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
 }
 export interface BuildableTextSourceFile extends TextSourceFile, BaseBuildableFile {
-	readonly filerDir: BuildableInternalsFilerDir;
+	readonly filerDir: BuildableFilerDir;
 }
 export interface BuildableBinarySourceFile extends BinarySourceFile, BaseBuildableFile {
-	readonly filerDir: BuildableInternalsFilerDir;
+	readonly filerDir: BuildableFilerDir;
 }
 export interface BuildableExternalsSourceFile extends ExternalsSourceFile, BaseBuildableFile {
-	readonly filerDir: ExternalsFilerDir;
+	readonly filerDir: BuildableFilerDir;
 }
 export interface BaseBuildableFile {
 	readonly filerDir: FilerDir;
@@ -63,7 +58,7 @@ export interface BaseBuildableFile {
 export interface NonBuildableTextSourceFile extends TextSourceFile, BaseNonBuildableFile {}
 export interface NonBuildableBinarySourceFile extends BinarySourceFile, BaseNonBuildableFile {}
 export interface BaseNonBuildableFile {
-	readonly filerDir: NonBuildableInternalsFilerDir;
+	readonly filerDir: NonBuildableFilerDir;
 	readonly buildFiles: null;
 	readonly buildConfigs: null;
 	readonly isInputToBuildConfigs: null;
@@ -100,9 +95,12 @@ export const createSourceFile = async (
 		dirty = contentsHash !== cachedSourceInfo.data.contentsHash;
 		reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 	}
-	if (filerDir.type === 'externals') {
+	if (isExternalSourceId(id)) {
 		if (encoding !== 'utf8') {
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
+		}
+		if (!filerDir.buildable) {
+			throw Error(`Expected filer dir to be buildable: ${filerDir.dir} - ${id}`);
 		}
 		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
 		const dir = join(filerDir.dir, dirname(id)); // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
@@ -256,3 +254,7 @@ export function assertBuildableExternalsSourceFile(
 		throw Error(`Expected an external file: ${file.id}`);
 	}
 }
+
+// TODO do we have a helper like this already? is it right? does esinstall have something?
+export const isExternalSourceId = (id: string): boolean =>
+	!(id.startsWith('/') || id.startsWith('./'));

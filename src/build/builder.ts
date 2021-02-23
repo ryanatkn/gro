@@ -22,7 +22,6 @@ export interface BuildOptions {
 	readonly target: EcmaScriptTarget; // TODO probably make this overrideable by each build config
 	readonly buildRootDir: string;
 	readonly dev: boolean;
-	readonly externalsDirBasePath: string;
 	readonly servedDirs: readonly ServedDir[];
 	readonly state: BuilderState;
 	readonly buildingSourceFiles: Set<string>;
