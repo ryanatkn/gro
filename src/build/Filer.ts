@@ -11,7 +11,7 @@ import {
 	paths,
 	toBuildOutPath,
 } from '../paths.js';
-import {nulls, omitUndefined, undefineds} from '../utils/object.js';
+import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red, blue} from '../colors/terminal.js';
