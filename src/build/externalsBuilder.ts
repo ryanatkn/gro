@@ -120,17 +120,14 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				buildingSourceFiles,
 				log,
 			);
-			console.log('resolt', result);
 			// Since we're batching the external installation process,
 			// and it can return a number of common files,
 			// we need to add those common files as build files to exactly one of the built source files.
 			// It doesn't matter which one, so we just always pick the first source file in the data.
 			if (lock.has(source.id)) {
-				console.log('creating commonDependencyIds!', source.id);
 				commonDependencyIds = Object.keys(result.stats.common).map((path) => join(dest, path));
 			}
 			id = join(dest, result.importMap.imports[source.id]);
-			console.log('id', id);
 			contents = await loadContents(encoding, id);
 		} catch (err) {
 			log.error(`Failed to bundle external module: ${source.id}`);
@@ -153,7 +150,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 		if (commonDependencyIds !== null) {
 			try {
-				console.log('commonDependencyIds:', source.id, commonDependencyIds);
 				builds.push(
 					...(await Promise.all(
 						commonDependencyIds.map(

@@ -3,7 +3,7 @@ import {basename, dirname, join} from 'path';
 import {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/FilerDir.js';
 import {BuildFile, reconstructBuildFiles} from './buildFile.js';
 import {BaseFilerFile} from './baseFilerFile.js';
-import {toHash} from './utils.js';
+import {isBareImport, toHash} from './utils.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {Encoding} from '../fs/encoding.js';
 import type {CachedSourceInfo, FilerFile} from './Filer.js';
@@ -96,7 +96,7 @@ export const createSourceFile = async (
 		dirty = contentsHash !== cachedSourceInfo.data.contentsHash;
 		reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 	}
-	if (isExternalSourceId(id)) {
+	if (isBareImport(id)) {
 		if (encoding !== 'utf8') {
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
@@ -255,7 +255,3 @@ export function assertBuildableExternalsSourceFile(
 		throw Error(`Expected an external file: ${file.id}`);
 	}
 }
-
-// TODO do we have a helper like this already? is it right? does esinstall have something?
-export const isExternalSourceId = (id: string): boolean =>
-	!(id.startsWith('/') || id.startsWith('./'));

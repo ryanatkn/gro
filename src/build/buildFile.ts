@@ -2,7 +2,7 @@ import {Build, BuildOptions, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import {CachedSourceInfo} from './Filer.js';
-import {SOURCEMAP_EXTENSION} from '../paths.js';
+import {EXTERNALS_BUILD_DIR, SOURCEMAP_EXTENSION, toBuildOutPath} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
@@ -26,8 +26,7 @@ export interface BaseBuildFile extends BaseFilerFile {
 	readonly sourceId: string;
 	readonly external: boolean;
 	readonly buildConfig: BuildConfig;
-	readonly localDependencies: Set<string> | null; // TODO is this right? or maybe a set?
-	readonly externalDependencies: Set<string> | null; // TODO is this right? or maybe a set?
+	readonly dependencies: Set<string> | null;
 }
 
 export const COMMON_SOURCE_ID = 'common'; // TODO revisit this along with `build.common`
@@ -39,12 +38,7 @@ export const createBuildFile = (
 	sourceFile: BuildableSourceFile,
 	buildConfig: BuildConfig,
 ): BuildFile => {
-	const [contents, localDependencies, externalDependencies] = postprocess(
-		build,
-		buildOptions,
-		result,
-		sourceFile,
-	);
+	const {contents, dependencies} = postprocess(build, buildOptions, result, sourceFile);
 	switch (build.encoding) {
 		case 'utf8':
 			return {
@@ -54,8 +48,7 @@ export const createBuildFile = (
 				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
 				external: sourceFile.external,
 				buildConfig,
-				localDependencies, // TODO should these dependencies be updated for ALL build files in externals as appropriate? are they?
-				externalDependencies,
+				dependencies, // TODO should these dependencies be updated for ALL build files in externals as appropriate? are they?
 				id: build.id,
 				filename: build.filename,
 				dir: build.dir,
@@ -76,8 +69,7 @@ export const createBuildFile = (
 				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
 				external: sourceFile.external,
 				buildConfig,
-				localDependencies,
-				externalDependencies,
+				dependencies,
 				id: build.id,
 				filename: build.filename,
 				dir: build.dir,
@@ -102,7 +94,7 @@ export const reconstructBuildFiles = async (
 	await Promise.all(
 		cachedSourceInfo.data.builds.map(
 			async (build): Promise<void> => {
-				const {id, name, externalDependencies, localDependencies, encoding} = build;
+				const {id, name, dependencies, encoding} = build;
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
@@ -116,8 +108,7 @@ export const reconstructBuildFiles = async (
 							sourceId: cachedSourceInfo.data.sourceId,
 							external: cachedSourceInfo.data.external,
 							buildConfig,
-							localDependencies: localDependencies && new Set(localDependencies),
-							externalDependencies: externalDependencies && new Set(externalDependencies),
+							dependencies: dependencies && new Set(dependencies),
 							id,
 							filename,
 							dir,
@@ -139,8 +130,7 @@ export const reconstructBuildFiles = async (
 							sourceId: cachedSourceInfo.data.sourceId,
 							external: cachedSourceInfo.data.external,
 							buildConfig,
-							localDependencies: localDependencies && new Set(localDependencies),
-							externalDependencies: externalDependencies && new Set(externalDependencies),
+							dependencies: dependencies && new Set(dependencies),
 							id,
 							filename,
 							dir,
@@ -190,6 +180,9 @@ export interface DependencyInfo {
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
+	dev: boolean,
+	buildConfig: BuildConfig,
+	buildRootDir: string,
 ): {
 	addedDependencies: DependencyInfo[] | null;
 	removedDependencies: DependencyInfo[] | null;
@@ -198,76 +191,42 @@ export const diffDependencies = (
 	let removedDependencies: DependencyInfo[] | null = null;
 
 	// Aggregate all of the dependencies for each source file.
-	let newLocalDependencies: Set<string> | null = null;
-	let newExternalDependencies: Set<string> | null = null;
-	let oldLocalDependencies: Set<string> | null = null;
-	let oldExternalDependencies: Set<string> | null = null;
+	let newDependencies: Set<string> | null = null;
+	let oldDependencies: Set<string> | null = null;
 	for (const newFile of newFiles) {
-		if (newFile.localDependencies !== null) {
-			for (const localDependency of newFile.localDependencies) {
-				(newLocalDependencies || (newLocalDependencies = new Set())).add(localDependency);
-			}
-		}
-		if (newFile.externalDependencies !== null) {
-			for (const externalDependency of newFile.externalDependencies) {
-				(newExternalDependencies || (newExternalDependencies = new Set())).add(externalDependency);
+		if (newFile.dependencies !== null) {
+			for (const dependency of newFile.dependencies) {
+				(newDependencies || (newDependencies = new Set())).add(dependency);
 			}
 		}
 	}
 	if (oldFiles !== null) {
 		for (const oldFile of oldFiles) {
-			if (oldFile.localDependencies !== null) {
-				for (const localDependency of oldFile.localDependencies) {
-					(oldLocalDependencies || (oldLocalDependencies = new Set())).add(localDependency);
-				}
-			}
-			if (oldFile.externalDependencies !== null) {
-				for (const externalDependency of oldFile.externalDependencies) {
-					(oldExternalDependencies || (oldExternalDependencies = new Set())).add(
-						externalDependency,
-					);
+			if (oldFile.dependencies !== null) {
+				for (const dependency of oldFile.dependencies) {
+					(oldDependencies || (oldDependencies = new Set())).add(dependency);
 				}
 			}
 		}
 	}
 
 	// Figure out which dependencies were added and removed.
-	if (newLocalDependencies !== null) {
-		for (const newLocalDependency of newLocalDependencies) {
-			if (oldLocalDependencies === null || !oldLocalDependencies.has(newLocalDependency)) {
+	if (newDependencies !== null) {
+		for (const newDependency of newDependencies) {
+			if (oldDependencies === null || !oldDependencies.has(newDependency)) {
 				(addedDependencies || (addedDependencies = [])).push({
-					id: newLocalDependency,
-					external: false,
+					id: newDependency,
+					external: isExternalBuildId(newDependency, dev, buildConfig, buildRootDir),
 				});
 			}
 		}
 	}
-	if (newExternalDependencies !== null) {
-		for (const newExternalDependency of newExternalDependencies) {
-			if (oldExternalDependencies === null || !oldExternalDependencies.has(newExternalDependency)) {
-				(addedDependencies || (addedDependencies = [])).push({
-					id: newExternalDependency,
-					external: true,
-				});
-			}
-		}
-	}
-	if (oldLocalDependencies !== null) {
-		for (const oldLocalDependency of oldLocalDependencies) {
-			if (newLocalDependencies === null || !newLocalDependencies.has(oldLocalDependency)) {
+	if (oldDependencies !== null) {
+		for (const oldDependency of oldDependencies) {
+			if (newDependencies === null || !newDependencies.has(oldDependency)) {
 				(removedDependencies || (removedDependencies = [])).push({
-					id: oldLocalDependency,
-					external: false,
-				});
-			}
-		}
-	}
-	if (oldExternalDependencies !== null) {
-		for (const oldExternalDependency of oldExternalDependencies) {
-			if (newExternalDependencies === null || !newExternalDependencies.has(oldExternalDependency)) {
-				(removedDependencies || (removedDependencies = [])).push({
-					id: oldExternalDependency,
-					external: true,
+					id: oldDependency,
+					external: isExternalBuildId(oldDependency, dev, buildConfig, buildRootDir),
 				});
 			}
 		}
@@ -277,3 +236,14 @@ export const diffDependencies = (
 		? {addedDependencies, removedDependencies}
 		: null;
 };
+
+// Externals are Node imports referenced in browser builds.
+export const isExternalBuildId = (
+	id: string,
+	dev: boolean,
+	buildConfig: BuildConfig,
+	buildRootDir: string,
+): boolean =>
+	buildConfig.platform === 'browser'
+		? id.startsWith(toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildRootDir) + '/')
+		: false;

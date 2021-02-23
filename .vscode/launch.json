@@ -8,7 +8,10 @@
       "program": "${workspaceFolder}/dist/cli/gro.js",
       "args": ["project/dev"],
       "runtimeArgs": [],
-      "outFiles": ["${workspaceRoot}/.gro/dev/node/**/*.js"], // enables breakpoints in TS source
+      "outFiles": [
+        "${workspaceRoot}/.gro/dev/node/**/*.js",
+        "${workspaceRoot}/.gro/prod/node/**/*.js"
+      ], // enables breakpoints in TS source
       "env": {
         // "NODE_ENV": "production"
         "NODE_ENV": "development"

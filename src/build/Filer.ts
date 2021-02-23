@@ -2,7 +2,7 @@ import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
-import {MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
+import {isBareImport, MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {JSON_EXTENSION, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
@@ -20,7 +20,6 @@ import {
 	BuildableExternalsSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
-	isExternalSourceId,
 	SourceFile,
 } from './sourceFile.js';
 import {
@@ -53,8 +52,7 @@ export interface CachedSourceInfoData {
 	readonly builds: {
 		readonly id: string;
 		readonly name: string;
-		readonly localDependencies: string[] | null;
-		readonly externalDependencies: string[] | null;
+		readonly dependencies: string[] | null;
 		readonly encoding: Encoding;
 	}[];
 }
@@ -273,7 +271,7 @@ export class Filer {
 	private async cleanCachedSourceInfo(): Promise<void> {
 		let promises: Promise<void>[] | null = null;
 		for (const sourceId of this.cachedSourceInfo.keys()) {
-			if (!this.files.has(sourceId) && !isExternalSourceId(sourceId)) {
+			if (!this.files.has(sourceId) && !isBareImport(sourceId)) {
 				this.log.warn('deleting unknown cached source info', gray(sourceId));
 				(promises || (promises = [])).push(this.deleteCachedSourceInfo(sourceId));
 			}
@@ -528,7 +526,7 @@ export class Filer {
 			}
 		}
 
-		const external = sourceFile === undefined ? isExternalSourceId(id) : sourceFile.external;
+		const external = sourceFile === undefined ? isBareImport(id) : sourceFile.external;
 
 		let extension: string;
 		let encoding: Encoding;
@@ -670,8 +668,7 @@ export class Filer {
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
 		// if (sourceFile.external && oldBuildFiles) {
 		// 	for (const oldBuildFile of oldBuildFiles) {
-		// 		if (oldBuildFile.dir === `${this.externalsDir!.dir}/common`) {
-		// 			debugger;
+		// 		if (oldBuildFile.dir === `${sourceFile.filerDir.dir}/common`) {
 		// 			console.log('UH OH', oldBuildFile.dir);
 		// 			const newBuildFile = newBuildFiles.find((f) => f.id === oldBuildFile.id);
 		// 			if (newBuildFile !== undefined) continue;
@@ -727,26 +724,31 @@ export class Filer {
 			removedDependencies,
 			addedDependencySourceFiles,
 			removedDependencySourceFiles,
-		} = this.diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
+		} = this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig) || nulls;
 
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
+				// currently we don't track Node dependencies for non-browser builds
+				if (!addedDependency.external && isBareImport(addedDependency.id)) continue;
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
 					dependencies = new Set();
 					sourceFile.dependencies.set(buildConfig, dependencies);
 				}
-				const depdendencySourceId = this.mapBuildIdToSourceId(
+				const dependencySourceId = this.mapBuildIdToSourceId(
 					addedDependency.id,
 					addedDependency.external,
+					this.dev,
+					buildConfig,
+					this.buildRootDir,
 				);
-				dependencies.add(depdendencySourceId);
+				dependencies.add(dependencySourceId);
 
 				// create external source files if needed - they're not added to `addedDependencySourceFiles` by default
 				if (addedDependency.external && buildConfig.platform === 'browser') {
 					const file = await this.initExternalDependencySourceFile(
-						depdendencySourceId,
+						dependencySourceId,
 						sourceFile.filerDir,
 					);
 					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(file);
@@ -760,7 +762,13 @@ export class Filer {
 					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}: ${sourceFile.id}`);
 				}
 				dependencies.delete(
-					this.mapBuildIdToSourceId(removedDependency.id, removedDependency.external),
+					this.mapBuildIdToSourceId(
+						removedDependency.id,
+						removedDependency.external,
+						this.dev,
+						buildConfig,
+						this.buildRootDir,
+					),
 				);
 			}
 		}
@@ -832,6 +840,7 @@ export class Filer {
 	diffDependencies(
 		newBuildFiles: readonly BuildFile[],
 		oldBuildFiles: readonly BuildFile[] | null,
+		buildConfig: BuildConfig,
 	): null | {
 		addedDependencies: DependencyInfo[] | null;
 		removedDependencies: DependencyInfo[] | null;
@@ -855,10 +864,18 @@ export class Filer {
 		// they're removed for this build,
 		// meaning the memory cache is updated and the files are deleted from disk for the build config.
 		const {addedDependencies, removedDependencies} =
-			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
+			diffDependencies(newBuildFiles, oldBuildFiles, this.dev, buildConfig, this.buildRootDir) ||
+			nulls;
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
-				let addedSourceFile = this.findSourceFile(addedDependency.id, addedDependency.external);
+				// `external` will be false for Node imports in non-browser contexts -
+				// we create no source file for them
+				if (!addedDependency.external && isBareImport(addedDependency.id)) continue;
+				let addedSourceFile = this.findSourceFile(
+					addedDependency.id,
+					addedDependency.external,
+					buildConfig,
+				);
 				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
 				if (!addedSourceFile.buildable) {
 					throw Error(`Expected source file to be buildable: ${addedSourceFile.id}`);
@@ -873,6 +890,7 @@ export class Filer {
 				const removedSourceFile = this.findSourceFile(
 					removedDependency.id,
 					removedDependency.external,
+					buildConfig,
 				);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				if (!removedSourceFile.buildable) {
@@ -897,8 +915,18 @@ export class Filer {
 			: null;
 	}
 
-	private findSourceFile(buildId: string, external = false): SourceFile | undefined {
-		const sourceId = this.mapBuildIdToSourceId(buildId, external);
+	private findSourceFile(
+		buildId: string,
+		external: boolean,
+		buildConfig: BuildConfig,
+	): SourceFile | undefined {
+		const sourceId = this.mapBuildIdToSourceId(
+			buildId,
+			external,
+			this.dev,
+			buildConfig,
+			this.buildRootDir,
+		);
 		const sourceFile = this.files.get(sourceId);
 		if (sourceFile !== undefined && sourceFile.type !== 'source') {
 			throw Error(
@@ -951,8 +979,7 @@ export class Filer {
 				files.map((file) => ({
 					id: file.id,
 					name: file.buildConfig.name,
-					localDependencies: file.localDependencies && Array.from(file.localDependencies),
-					externalDependencies: file.externalDependencies && Array.from(file.externalDependencies),
+					dependencies: file.dependencies && Array.from(file.dependencies),
 					encoding: file.encoding,
 				})),
 			),
@@ -1002,9 +1029,6 @@ const syncFilesToDisk = async (
 							!newFiles.find((f) => f.id === oldFile.id)
 						) {
 							log.trace('deleting build file on disk', gray(oldFile.id));
-							if (oldFile.external) {
-								console.log('oldFile', oldFile.sourceId);
-							}
 							return remove(oldFile.id);
 						}
 						return null;
