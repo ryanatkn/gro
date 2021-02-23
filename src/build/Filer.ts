@@ -352,7 +352,7 @@ export class Filer implements BuildContext {
 		isInput: boolean,
 	): Promise<void> {
 		this.log.trace(
-			`adding source file to build ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
+			`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
 		);
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(
@@ -394,7 +394,7 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		this.log.trace(
-			`removing source file from build ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
+			`removing source file from build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
 		);
 		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
 			throw Error(
@@ -607,7 +607,7 @@ export class Filer implements BuildContext {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		const key = `${printBuildConfig(buildConfig)}${gray(sourceFile.id)}`;
+		const key = `${buildConfig.name}${sourceFile.id}`;
 		if (this.pendingBuilds.has(key)) {
 			this.enqueuedBuilds.add(key);
 			return;
@@ -1001,7 +1001,7 @@ export class Filer implements BuildContext {
 		// 	);
 		// }
 		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
-		this.log.trace('outputting cached source info', gray(file.id), 'to', printPath(cacheId));
+		this.log.trace('outputting cached source info', printPath(cacheId));
 		await outputFile(cacheId, JSON.stringify(data, null, 2));
 	}
 
