@@ -15,7 +15,7 @@ import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red, blue} from '../colors/terminal.js';
-import {printError, printPath} from '../utils/print.js';
+import {printError} from '../utils/print.js';
 import type {Build, Builder, BuilderState, BuildResult} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
@@ -355,9 +355,12 @@ export class Filer {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
+		this.log.trace(
+			`adding source file to build ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
+		);
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(
-				`Expected to add buildConfig for ${printBuildConfig(buildConfig)}:${sourceFile.id}`,
+				`Expected to add buildConfig for ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
 			);
 		}
 		// Add the build config. The caller is expected to check to avoid duplicates.
@@ -394,10 +397,12 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		this.log.trace(`removing source file from build: ${sourceFile.id}`);
+		this.log.trace(
+			`removing source file from build ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
+		);
 		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
 			throw Error(
-				`Removing build configs from input files is not allowed: ${buildConfig}:${sourceFile.id}`,
+				`Removing build configs from input files is not allowed: ${buildConfig}: ${sourceFile.id}`,
 			);
 		}
 
@@ -405,11 +410,11 @@ export class Filer {
 
 		const deleted = sourceFile.buildConfigs.delete(buildConfig);
 		if (!deleted) {
-			throw Error(`Expected to delete buildConfig ${buildConfig}:${sourceFile.id}`);
+			throw Error(`Expected to delete buildConfig ${buildConfig}: ${sourceFile.id}`);
 		}
 		const deletedBuildFiles = sourceFile.buildFiles.delete(buildConfig);
 		if (!deletedBuildFiles) {
-			throw Error(`Expected to delete build files ${buildConfig}:${sourceFile.id}`);
+			throw Error(`Expected to delete build files ${buildConfig}: ${sourceFile.id}`);
 		}
 		sourceFile.dependencies.delete(buildConfig);
 		sourceFile.dependents.delete(buildConfig);
@@ -522,7 +527,7 @@ export class Filer {
 				// See `validateDirs` for more.
 				throw Error(
 					'Source file filerDir unexpectedly changed: ' +
-						`${sourceFile.id} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+						`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
 				);
 			}
 		}
@@ -605,7 +610,7 @@ export class Filer {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		const key = `${printBuildConfig(buildConfig)}${sourceFile.id}`;
+		const key = `${printBuildConfig(buildConfig)}${gray(sourceFile.id)}`;
 		if (this.pendingBuilds.has(key)) {
 			this.enqueuedBuilds.add(key);
 			return;
@@ -614,8 +619,8 @@ export class Filer {
 		try {
 			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
-			debugger;
-			this.log.error(red('build failed'), printPath(sourceFile.id), printError(err));
+			this.log.error(red('build failed'), gray(sourceFile.id), printError(err));
+			// TODO probably want to track this failure data
 		}
 		this.pendingBuilds.delete(key);
 		if (this.enqueuedBuilds.has(key)) {
@@ -727,7 +732,8 @@ export class Filer {
 			addedDependencySourceFiles,
 			removedDependencySourceFiles,
 		} = this.diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
-		let promises: Promise<void>[] | null = null;
+
+		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
 				let dependencies = sourceFile.dependencies.get(buildConfig);
@@ -741,7 +747,7 @@ export class Filer {
 				);
 				dependencies.add(depdendencySourceId);
 
-				// create external source files if needed
+				// create external source files if needed - they're not added to `addedDependencySourceFiles` by default
 				if (addedDependency.external && buildConfig.platform === 'browser') {
 					const file = await this.initExternalDependencySourceFile(
 						depdendencySourceId,
@@ -755,21 +761,18 @@ export class Filer {
 			for (const removedDependency of removedDependencies) {
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
-					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}:${sourceFile.id}`);
+					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}: ${sourceFile.id}`);
 				}
 				dependencies.delete(
 					this.mapBuildIdToSourceId(removedDependency.id, removedDependency.external),
 				);
 			}
 		}
+
+		// this `promises` pattern makes it easy to write imperative code and parallelize at the end
+		let promises: Promise<void>[] | null = null;
 		if (addedDependencySourceFiles !== null) {
 			for (const addedDependencySourceFile of addedDependencySourceFiles) {
-				if (addedDependencySourceFile.external && buildConfig.platform === 'browser') {
-					// TODO this is getting added in externalsBuilder
-					// if (this.state.externals !== undefined) {
-					// 	this.state.externals.specifiers.add(addedDependencySourceFile.id);
-					// }
-				}
 				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
 					dependents = new Set();
@@ -791,7 +794,7 @@ export class Filer {
 			for (const removedDependencySourceFile of removedDependencySourceFiles) {
 				if (!removedDependencySourceFile.buildConfigs.has(buildConfig)) {
 					throw Error(
-						`Expected build config: ${printBuildConfig(buildConfig)}:${
+						`Expected build config: ${printBuildConfig(buildConfig)}: ${
 							removedDependencySourceFile.id
 						}`,
 					);
@@ -799,7 +802,7 @@ export class Filer {
 				let dependents = removedDependencySourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
 					throw Error(
-						`Expected dependents: ${printBuildConfig(buildConfig)}:${
+						`Expected dependents: ${printBuildConfig(buildConfig)}: ${
 							removedDependencySourceFile.id
 						}`,
 					);
@@ -827,7 +830,6 @@ export class Filer {
 				}
 			}
 		}
-
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
 	}
 
@@ -913,7 +915,7 @@ export class Filer {
 	private async destroySourceId(id: string): Promise<void> {
 		const sourceFile = this.files.get(id);
 		if (!sourceFile || sourceFile.type !== 'source') return; // ignore build files (maybe throw an error if the file isn't found, should not happen)
-		this.log.trace('destroying file', printPath(id));
+		this.log.trace('destroying file', gray(id));
 		this.files.delete(id);
 		if (sourceFile.buildable) {
 			if (this.buildConfigs !== null) {
@@ -1002,7 +1004,7 @@ const syncFilesToDisk = async (
 							oldFile.sourceId !== COMMON_SOURCE_ID &&
 							!newFiles.find((f) => f.id === oldFile.id)
 						) {
-							log.trace('deleting build file on disk', printPath(oldFile.id));
+							log.trace('deleting build file on disk', gray(oldFile.id));
 							if (oldFile.external) {
 								console.log('oldFile', oldFile.sourceId);
 							}
@@ -1017,12 +1019,12 @@ const syncFilesToDisk = async (
 				let shouldOutputNewFile = false;
 				if (!oldFile) {
 					if (!(await pathExists(newFile.id))) {
-						log.trace('creating build file on disk', printPath(newFile.id));
+						log.trace('creating build file on disk', gray(newFile.id));
 						shouldOutputNewFile = true;
 					} else {
 						const existingCotents = await loadContents(newFile.encoding, newFile.id);
 						if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
-							log.trace('updating stale build file on disk', printPath(newFile.id));
+							log.trace('updating stale build file on disk', gray(newFile.id));
 							shouldOutputNewFile = true;
 						} // ...else the build file on disk already matches what's in memory.
 						// This can happen if the source file changed but this particular build file did not.
@@ -1030,7 +1032,7 @@ const syncFilesToDisk = async (
 						// but it avoids unnecessary writing to disk and misleadingly updated file stats.
 					}
 				} else if (!areContentsEqual(newFile.encoding, newFile.contents, oldFile.contents)) {
-					log.trace('updating build file on disk', printPath(newFile.id));
+					log.trace('updating build file on disk', gray(newFile.id));
 					shouldOutputNewFile = true;
 				} // ...else the build file on disk already matches what's in memory.
 				// This can happen if the source file changed but this particular build file did not.
@@ -1068,7 +1070,7 @@ const syncBuildFilesToMemoryCache = (
 	}
 	// Add or update any new or changed files.
 	for (const newFile of newFiles) {
-		// log.trace('setting file in memory cache', printPath(newFile.id));
+		// log.trace('setting file in memory cache', gray(newFile.id));
 		const oldFile = files.get(newFile.id) as BuildFile | undefined;
 		if (oldFile !== undefined) {
 			// This check ensures that if the user provides multiple source directories
