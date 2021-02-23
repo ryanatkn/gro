@@ -735,18 +735,18 @@ export class Filer {
 					dependencies = new Set();
 					sourceFile.dependencies.set(buildConfig, dependencies);
 				}
-				// TODO I'm not sure this is right
-				// '/externals/svelte/motion/index.js'
-				// to
-				// 'svelte/motion/index'
-				// test?
-				// maybe we do special casing to remove the `index` ? to prevent overlaps?
-				const sourceId = this.mapBuildIdToSourceId(addedDependency.id, addedDependency.external);
-				dependencies.add(sourceId);
+				const depdendencySourceId = this.mapBuildIdToSourceId(
+					addedDependency.id,
+					addedDependency.external,
+				);
+				dependencies.add(depdendencySourceId);
 
 				// create external source files if needed
 				if (addedDependency.external && buildConfig.platform === 'browser') {
-					const file = await this.initExternalDependencySourceFile(sourceId, sourceFile.filerDir);
+					const file = await this.initExternalDependencySourceFile(
+						depdendencySourceId,
+						sourceFile.filerDir,
+					);
 					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(file);
 				}
 			}
@@ -934,7 +934,6 @@ export class Filer {
 			return sourceFile;
 		}
 		this.log.trace('init external dependency', gray(id));
-		debugger;
 		await this.updateSourceFile(id, filerDir);
 		const newFile = this.files.get(id);
 		assertBuildableExternalsSourceFile(newFile);
