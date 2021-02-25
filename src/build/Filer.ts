@@ -351,9 +351,10 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		this.log.trace(
-			`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
-		);
+		if (sourceFile.id[0] !== '/')
+			this.log.trace(
+				`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
+			);
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(
 				`Expected to add buildConfig for ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
@@ -376,6 +377,10 @@ export class Filer implements BuildContext {
 		}
 
 		// Build only if needed - build files may be hydrated from the cache.
+		if (sourceFile.id === 'common') {
+			console.log('sourceFile', sourceFile);
+			// debugger;
+		}
 		const hasBuildConfig = sourceFile.buildFiles.has(buildConfig);
 		if (hasBuildConfig) {
 			await this.hydrateSourceFileFromCache(sourceFile, buildConfig);
@@ -511,7 +516,7 @@ export class Filer implements BuildContext {
 	// Returns a boolean indicating if the source file should be built.
 	// The source file may have been updated or created from a cold cache.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
-		this.log.trace(`updating source file ${gray(id)}`);
+		if (id[0] !== '/') this.log.trace(`updating source file ${gray(id)}`);
 		const sourceFile = this.files.get(id);
 		if (sourceFile !== undefined) {
 			if (sourceFile.type !== 'source') {
@@ -562,6 +567,9 @@ export class Filer implements BuildContext {
 				this.cachedSourceInfo.get(id),
 				this.buildConfigs,
 			);
+			if (id === 'common') {
+				// debugger;
+			}
 			this.files.set(id, newSourceFile);
 			// If the created source file has its build files hydrated from the cache,
 			// we assume it doesn't need to be built.
@@ -665,10 +673,11 @@ export class Filer implements BuildContext {
 			// it'll read the above state and the importMap
 			// it's fragile so  .. treat it as such :) or refactor!
 			// TODO but what if bypassed? files not loaded? what about via the src cache?
+			// debugger;
 			await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
 		}
 		if (sourceFile.id === 'common') {
-			debugger;
+			// debugger;
 		}
 
 		// Update the source file with the new build files.
@@ -699,6 +708,7 @@ export class Filer implements BuildContext {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		if (sourceFile.id[0] !== '/') this.log.trace('hydrate', gray(sourceFile.id));
 		const buildFiles = sourceFile.buildFiles.get(buildConfig);
 		if (buildFiles === undefined) {
 			throw Error(`Expected to find build files when hydrating from cache.`);
@@ -715,7 +725,15 @@ export class Filer implements BuildContext {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.external) return;
+		if (
+			sourceFile.external ||
+			sourceFile.id === '/home/desk/dev/gro/.gro/dev/browser/externals/svelte/motion/index.js'
+		) {
+			// TODO dependencies:Map(0)
+			// it should have the common one!
+			// debugger;
+		}
+		// if (sourceFile.external) {return;}
 		let {
 			addedDependencies,
 			removedDependencies,
@@ -728,11 +746,6 @@ export class Filer implements BuildContext {
 			for (const addedDependency of addedDependencies) {
 				// currently we don't track Node dependencies for non-browser builds
 				if (!addedDependency.external && isBareImport(addedDependency.id)) continue;
-				let dependencies = sourceFile.dependencies.get(buildConfig);
-				if (dependencies === undefined) {
-					dependencies = new Set();
-					sourceFile.dependencies.set(buildConfig, dependencies);
-				}
 				const dependencySourceId = this.mapBuildIdToSourceId(
 					addedDependency.id,
 					addedDependency.external,
@@ -740,15 +753,40 @@ export class Filer implements BuildContext {
 					buildConfig,
 					this.buildRootDir,
 				);
+				if (dependencySourceId === sourceFile.id) {
+					this.log.trace('ignoring self dependency', gray(dependencySourceId));
+					continue; // ignore dependencies on self, happens with common externals
+				}
+				let dependencies = sourceFile.dependencies.get(buildConfig);
+				if (dependencies === undefined) {
+					dependencies = new Set();
+					sourceFile.dependencies.set(buildConfig, dependencies);
+				}
 				dependencies.add(dependencySourceId);
 
+				// TODO not sure about any of this
 				// create external source files if needed - they're not added to `addedDependencySourceFiles` by default
-				if (addedDependency.external && buildConfig.platform === 'browser') {
-					await this.initExternalDependencySourceFile(COMMON_SOURCE_ID, sourceFile.filerDir); // TODO yeah sure haha?
-					const file = await this.initExternalDependencySourceFile(
+				if (addedDependency.external) {
+					console.log('getOrCreateExternalSourceFile dependencySourceId', dependencySourceId);
+					if (!this.files.has(COMMON_SOURCE_ID)) {
+						// TODO really hacky!
+						// debugger;
+						// await this.getOrCreateExternalSourceFile(COMMON_SOURCE_ID, sourceFile.filerDir); // TODO yeah sure haha?
+					}
+					const file = await this.getOrCreateExternalSourceFile(
 						dependencySourceId,
 						sourceFile.filerDir,
 					);
+					// buildFiles[0].dependencies =>
+					// 0:"/home/desk/dev/gro/.gro/dev/browser/externals/common/index-a2db6faf.js"
+					// 1:"/home/desk/dev/gro/.gro/dev/browser/externals/common/index-e500eb25.js"
+					// 2:"/home/desk/dev/gro/.gro/dev/browser/externals/common/index-81654be7.js"
+					// TODO or handle all of this at the top of this function?
+					// handle build dependencies for externals only??
+					// const buildFiles = file.buildFiles.get(buildConfig);
+					// for (const buildFile of buildFiles) {
+					// 	if (buildFile.dependencies.has)
+					// }
 					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(file);
 				}
 			}
@@ -875,6 +913,9 @@ export class Filer implements BuildContext {
 					addedDependency.external,
 					buildConfig,
 				);
+				if (!addedSourceFile) {
+					console.log('not found addedDependency.id?', addedDependency.id);
+				}
 				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
 				if (!addedSourceFile.buildable) {
 					throw Error(`Expected source file to be buildable: ${addedSourceFile.id}`);
@@ -966,7 +1007,7 @@ export class Filer implements BuildContext {
 	}
 
 	// TODO can we remove this thing completely, treating externals like all others?
-	private async initExternalDependencySourceFile(
+	private async getOrCreateExternalSourceFile(
 		id: string,
 		filerDir: FilerDir,
 	): Promise<BuildableExternalsSourceFile> {

@@ -11,7 +11,7 @@ import {
 	toSourceExtension,
 } from '../paths.js';
 import {stripEnd, stripStart} from '../utils/string.js';
-import {isExternalBuildId} from './buildFile.js';
+import {COMMON_SOURCE_ID, isExternalBuildId} from './buildFile.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -41,7 +41,9 @@ export interface MapBuildIdToSourceId {
 }
 
 const EXTERNALS_ID_PREFIX = `${EXTERNALS_BUILD_DIR}/`;
+const COMMONS_ID_PREFIX = `${EXTERNALS_ID_PREFIX}${COMMON_SOURCE_ID}/`;
 
+// TODO has weird special cases, points to refactoring
 export const mapBuildIdToSourceId: MapBuildIdToSourceId = (
 	buildId,
 	external,
@@ -51,7 +53,9 @@ export const mapBuildIdToSourceId: MapBuildIdToSourceId = (
 ) => {
 	const basePath = toBuildBasePath(buildId, buildRootDir);
 	const sourceId = external
-		? isExternalBuildId(buildId, dev, buildConfig, buildRootDir)
+		? basePath.startsWith(COMMONS_ID_PREFIX)
+			? COMMON_SOURCE_ID
+			: isExternalBuildId(buildId, dev, buildConfig, buildRootDir)
 			? stripStart(stripEnd(basePath, JS_EXTENSION), EXTERNALS_ID_PREFIX)
 			: buildId
 		: basePathToSourceId(toSourceExtension(basePath));
