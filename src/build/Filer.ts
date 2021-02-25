@@ -683,9 +683,6 @@ export class Filer implements BuildContext {
 			// debugger;
 			await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
 		}
-		if (sourceFile.id === 'common') {
-			// debugger;
-		}
 
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);

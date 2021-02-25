@@ -22,6 +22,7 @@ import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {createLock} from '../utils/lock.js';
 import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {COMMON_SOURCE_ID} from './buildFile.js';
+import {wrap} from '../utils/async.js';
 
 /*
 
@@ -84,134 +85,132 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			return result;
 		}
 		lock.tryToObtain(source.id);
-		// if (sourceMap) {
-		// 	log.warn('Source maps are not yet supported by the externals builder.');
-		// }
-		if (!dev) {
-			lock.tryToRelease(source.id);
-			throw Error('The externals builder is currently not designed for production usage.');
-		}
-		if (source.encoding !== encoding) {
-			lock.tryToRelease(source.id);
-			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
-		}
+		return wrap(async (after) => {
+			after(() => lock.tryToRelease(source.id));
 
-		const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
-		let id: string;
+			// if (sourceMap) {
+			// 	log.warn('Source maps are not yet supported by the externals builder.');
+			// }
+			if (!dev) {
+				throw Error('The externals builder is currently not designed for production usage.');
+			}
+			if (source.encoding !== encoding) {
+				throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
+			}
 
-		log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
+			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+			let id: string;
 
-		// load the esinstall import-map.json if needed
-		if (!initialImportMap.has(buildConfig) && lock.has(source.id)) {
-			initialImportMap.set(buildConfig, await loadImportMapFromDisk(dest));
-		}
+			log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
-		const externalsBuilderState = getOrCreateExternalsBuilderState(
-			state,
-			// this is only the initial state, it's ignored if the externals builder state already exists
-			initialImportMap.get(buildConfig),
-		);
+			// load the esinstall import-map.json if needed
+			if (!initialImportMap.has(buildConfig) && lock.has(source.id)) {
+				initialImportMap.set(buildConfig, await loadImportMapFromDisk(dest));
+			}
 
-		// TODO add an external API for customizing the `install` params
-		// TODO this is legacy stuff that we need to rethink when we handle CSS better
-		const cssCache = createCssCache();
-		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
-		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
-		const plugins: RollupPlugin[] = [
-			groSveltePlugin({
-				dev,
-				addCssBuild: addSvelteCssBuild,
-				preprocessor: createDefaultPreprocessor(sourceMap, target),
-				compileOptions: {},
-			}),
-		];
-
-		let contents: string;
-		let commonDependencyIds: string[] | null = null;
-		try {
-			const result = await installExternal(
-				source.id,
-				dest,
-				externalsBuilderState,
-				plugins,
-				buildingSourceFiles,
-				log,
+			const externalsBuilderState = getOrCreateExternalsBuilderState(
+				state,
+				// this is only the initial state, it's ignored if the externals builder state already exists
+				initialImportMap.get(buildConfig),
 			);
-			// `state.importMap` is now updated
 
-			// Since we're batching the external installation process,
-			// and it can return a number of common files,
-			// we need to add those common files as build files to exactly one of the built source files.
-			// It doesn't matter which one, so we just always pick the first source file in the data.
-			if (lock.has(source.id)) {
-				log.trace('handling common dependencies with lock', gray(source.id));
-				// TODO ok so what if we didn't return these here, instead put them on the `state`
-				// that way the builder encapsulates this need
-				// but maybe it needs to request that a source file gets built, somehow? (the "common" one)
-				// is this a good use case for `dirty`? what's the API look like?
-				commonDependencyIds = Object.keys(result.stats.common).map((path) => join(dest, path));
-			}
-			id = join(dest, result.importMap.imports[source.id]);
-			contents = await loadContents(encoding, id);
-		} catch (err) {
-			log.error(`Failed to bundle external module: ${source.id}`);
-			lock.tryToRelease(source.id);
-			throw err;
-		}
+			// TODO add an external API for customizing the `install` params
+			// TODO this is legacy stuff that we need to rethink when we handle CSS better
+			const cssCache = createCssCache();
+			// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
+			const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
+			const plugins: RollupPlugin[] = [
+				groSveltePlugin({
+					dev,
+					addCssBuild: addSvelteCssBuild,
+					preprocessor: createDefaultPreprocessor(sourceMap, target),
+					compileOptions: {},
+				}),
+			];
 
-		const builds: TextBuild[] = [
-			{
-				id,
-				filename: basename(id),
-				dir: dirname(id),
-				extension: JS_EXTENSION,
-				encoding,
-				contents,
-				sourceMapOf: null,
-				buildConfig,
-			},
-		];
-
-		if (commonDependencyIds !== null) {
-			if (!lock.has(source.id)) {
-				throw Error(`Expected to have lock: ${source.id} - ${commonDependencyIds.length}`);
-			}
-			if (externalsBuilderState.pendingCommonBuilds !== null) {
-				throw Error('TODO ? expected null externals pending common build files');
-			}
+			let contents: string;
+			let commonDependencyIds: string[] | null = null;
 			try {
-				externalsBuilderState.pendingCommonBuilds = await Promise.all(
-					commonDependencyIds.map(
-						async (commonDependencyId): Promise<TextBuild> => ({
-							id: commonDependencyId,
-							filename: basename(commonDependencyId),
-							dir: dirname(commonDependencyId),
-							extension: JS_EXTENSION,
-							encoding,
-							contents: await loadContents(encoding, commonDependencyId),
-							sourceMapOf: null,
-							buildConfig,
-							common: true,
-						}),
-					),
+				const result = await installExternal(
+					source.id,
+					dest,
+					externalsBuilderState,
+					plugins,
+					buildingSourceFiles,
+					log,
 				);
+				// `state.importMap` is now updated
+
+				// Since we're batching the external installation process,
+				// and it can return a number of common files,
+				// we need to add those common files as build files to exactly one of the built source files.
+				// It doesn't matter which one, so we just always pick the first source file in the data.
+				if (lock.has(source.id)) {
+					log.trace('handling common dependencies with lock', gray(source.id));
+					// TODO ok so what if we didn't return these here, instead put them on the `state`
+					// that way the builder encapsulates this need
+					// but maybe it needs to request that a source file gets built, somehow? (the "common" one)
+					// is this a good use case for `dirty`? what's the API look like?
+					commonDependencyIds = Object.keys(result.stats.common).map((path) => join(dest, path));
+				}
+				id = join(dest, result.importMap.imports[source.id]);
+				contents = await loadContents(encoding, id);
 			} catch (err) {
-				log.error(`Failed to build common builds: ${commonDependencyIds.join(' ')}`);
-				lock.tryToRelease(source.id);
+				log.error(`Failed to bundle external module: ${source.id}`);
 				throw err;
 			}
-		}
 
-		lock.tryToRelease(source.id);
+			const builds: TextBuild[] = [
+				{
+					id,
+					filename: basename(id),
+					dir: dirname(id),
+					extension: JS_EXTENSION,
+					encoding,
+					contents,
+					sourceMapOf: null,
+					buildConfig,
+				},
+			];
 
-		// TODO maybe we return "common" `Build`s here?
-		// the idea being that the `Filer` can handle them
-		// as a whole after each compile.
-		// Remember we can change the `Filer` API however we want to special case externals! or other needs
-		// functionality is first: model the data correctly and process it correctly.
-		// refactoring is a lot easier, and it's never too late to refactor! it never gets intractably hard
-		const result: BuildResult<TextBuild> = {builds};
-		return result;
+			if (commonDependencyIds !== null) {
+				if (!lock.has(source.id)) {
+					throw Error(`Expected to have lock: ${source.id} - ${commonDependencyIds.length}`);
+				}
+				if (externalsBuilderState.pendingCommonBuilds !== null) {
+					log.error('Unexpected pendingCommongBuilds'); // would indicate a problem, but don't want to throw
+				}
+				try {
+					externalsBuilderState.pendingCommonBuilds = await Promise.all(
+						commonDependencyIds.map(
+							async (commonDependencyId): Promise<TextBuild> => ({
+								id: commonDependencyId,
+								filename: basename(commonDependencyId),
+								dir: dirname(commonDependencyId),
+								extension: JS_EXTENSION,
+								encoding,
+								contents: await loadContents(encoding, commonDependencyId),
+								sourceMapOf: null,
+								buildConfig,
+								common: true,
+							}),
+						),
+					);
+				} catch (err) {
+					log.error(`Failed to build common builds: ${commonDependencyIds.join(' ')}`);
+					throw err;
+				}
+			}
+
+			// TODO maybe we return "common" `Build`s here?
+			// the idea being that the `Filer` can handle them
+			// as a whole after each compile.
+			// Remember we can change the `Filer` API however we want to special case externals! or other needs
+			// functionality is first: model the data correctly and process it correctly.
+			// refactoring is a lot easier, and it's never too late to refactor! it never gets intractably hard
+			const result: BuildResult<TextBuild> = {builds};
+			return result;
+		});
 	};
 
 	return {build};
