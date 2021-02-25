@@ -725,15 +725,6 @@ export class Filer implements BuildContext {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (
-			sourceFile.external ||
-			sourceFile.id === '/home/desk/dev/gro/.gro/dev/browser/externals/svelte/motion/index.js'
-		) {
-			// TODO dependencies:Map(0)
-			// it should have the common one!
-			// debugger;
-		}
-		// if (sourceFile.external) {return;}
 		let {
 			addedDependencies,
 			removedDependencies,
@@ -744,6 +735,7 @@ export class Filer implements BuildContext {
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
+				console.log('addedDependency.id', addedDependency.id);
 				// currently we don't track Node dependencies for non-browser builds
 				if (!addedDependency.external && isBareImport(addedDependency.id)) continue;
 				const dependencySourceId = this.mapBuildIdToSourceId(
@@ -767,26 +759,11 @@ export class Filer implements BuildContext {
 				// TODO not sure about any of this
 				// create external source files if needed - they're not added to `addedDependencySourceFiles` by default
 				if (addedDependency.external) {
-					console.log('getOrCreateExternalSourceFile dependencySourceId', dependencySourceId);
-					if (!this.files.has(COMMON_SOURCE_ID)) {
-						// TODO really hacky!
-						// debugger;
-						// await this.getOrCreateExternalSourceFile(COMMON_SOURCE_ID, sourceFile.filerDir); // TODO yeah sure haha?
-					}
+					console.log('getting or creating dependencySourceId', dependencySourceId);
 					const file = await this.getOrCreateExternalSourceFile(
 						dependencySourceId,
 						sourceFile.filerDir,
 					);
-					// buildFiles[0].dependencies =>
-					// 0:"/home/desk/dev/gro/.gro/dev/browser/externals/common/index-a2db6faf.js"
-					// 1:"/home/desk/dev/gro/.gro/dev/browser/externals/common/index-e500eb25.js"
-					// 2:"/home/desk/dev/gro/.gro/dev/browser/externals/common/index-81654be7.js"
-					// TODO or handle all of this at the top of this function?
-					// handle build dependencies for externals only??
-					// const buildFiles = file.buildFiles.get(buildConfig);
-					// for (const buildFile of buildFiles) {
-					// 	if (buildFile.dependencies.has)
-					// }
 					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(file);
 				}
 			}
@@ -908,12 +885,13 @@ export class Filer implements BuildContext {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
 				if (!addedDependency.external && isBareImport(addedDependency.id)) continue;
-				let addedSourceFile = this.findSourceFile(
+				const addedSourceFile = this.findSourceFile(
 					addedDependency.id,
 					addedDependency.external,
 					buildConfig,
 				);
-				if (!addedSourceFile) {
+				if (addedSourceFile === undefined) {
+					// TODO hmm should we initialize certain kinds? we currently do that later..weirdly
 					console.log('not found addedDependency.id?', addedDependency.id);
 				}
 				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
@@ -1016,7 +994,7 @@ export class Filer implements BuildContext {
 			assertBuildableExternalsSourceFile(sourceFile);
 			return sourceFile;
 		}
-		this.log.trace('init external dependency', gray(id));
+		this.log.trace('creating external source file', gray(id));
 		await this.updateSourceFile(id, filerDir);
 		const newFile = this.files.get(id);
 		assertBuildableExternalsSourceFile(newFile);
