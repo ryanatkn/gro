@@ -2,7 +2,7 @@ import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
-import {isBareImport, MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
+import {MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {JSON_EXTENSION, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
@@ -17,6 +17,7 @@ import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js'
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
 	assertBuildableExternalsSourceFile,
+	assertBuildableSourceFile,
 	BuildableExternalsSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
@@ -32,6 +33,7 @@ import {
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {handleRemovedDependencySourceFile} from './externalsBuilder.js';
+import {isExternalBrowserModule} from '../utils/module.js';
 
 /*
 
@@ -41,6 +43,11 @@ The `Filer` wholly owns its `buildRootDir`, `./.gro` by default.
 If any files or directories change inside it without going through the `Filer`,
 it may go into a corrupted state.
 Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
+
+TODO
+
+- add tests (fully modularize as they're added, running tests for host interfaces both in memory and on the filesystem)
+- probably silence a lot of the logging (or add `debug` log level?) once tests are added
 
 */
 
@@ -274,7 +281,7 @@ export class Filer implements BuildContext {
 	private async cleanCachedSourceInfo(): Promise<void> {
 		let promises: Promise<void>[] | null = null;
 		for (const sourceId of this.cachedSourceInfo.keys()) {
-			if (!this.files.has(sourceId) && !isBareImport(sourceId)) {
+			if (!this.files.has(sourceId) && !isExternalBrowserModule(sourceId)) {
 				this.log.warn('deleting unknown cached source info', gray(sourceId));
 				(promises || (promises = [])).push(this.deleteCachedSourceInfo(sourceId));
 			}
@@ -534,7 +541,7 @@ export class Filer implements BuildContext {
 			}
 		}
 
-		const external = sourceFile === undefined ? isBareImport(id) : sourceFile.external;
+		const external = sourceFile === undefined ? isExternalBrowserModule(id) : sourceFile.external;
 
 		let extension: string;
 		let encoding: Encoding;
@@ -730,14 +737,14 @@ export class Filer implements BuildContext {
 			removedDependencies,
 			addedDependencySourceFiles,
 			removedDependencySourceFiles,
-		} = this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig) || nulls;
+		} =
+			(await this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig, sourceFile)) || nulls;
 
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
-				console.log('addedDependency.id', addedDependency.id);
 				// currently we don't track Node dependencies for non-browser builds
-				if (!addedDependency.external && isBareImport(addedDependency.id)) continue;
+				if (!addedDependency.external && isExternalBrowserModule(addedDependency.id)) continue;
 				const dependencySourceId = this.mapBuildIdToSourceId(
 					addedDependency.id,
 					addedDependency.external,
@@ -755,17 +762,6 @@ export class Filer implements BuildContext {
 					sourceFile.dependencies.set(buildConfig, dependencies);
 				}
 				dependencies.add(dependencySourceId);
-
-				// TODO not sure about any of this
-				// create external source files if needed - they're not added to `addedDependencySourceFiles` by default
-				if (addedDependency.external) {
-					console.log('getting or creating dependencySourceId', dependencySourceId);
-					const file = await this.getOrCreateExternalSourceFile(
-						dependencySourceId,
-						sourceFile.filerDir,
-					);
-					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(file);
-				}
 			}
 		}
 		if (removedDependencies !== null) {
@@ -851,16 +847,18 @@ export class Filer implements BuildContext {
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
 	}
 
-	private diffDependencies(
+	// Lazy-loads depdendency source files as needed, like externals.
+	private async diffDependencies(
 		newBuildFiles: readonly BuildFile[],
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
-	): null | {
+		sourceFile: BuildableSourceFile,
+	): Promise<null | {
 		addedDependencies: DependencyInfo[] | null;
 		removedDependencies: DependencyInfo[] | null;
 		addedDependencySourceFiles: Set<BuildableSourceFile> | null;
 		removedDependencySourceFiles: Set<BuildableSourceFile> | null;
-	} {
+	}> {
 		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 
@@ -884,20 +882,27 @@ export class Filer implements BuildContext {
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				if (!addedDependency.external && isBareImport(addedDependency.id)) continue;
-				const addedSourceFile = this.findSourceFile(
+				if (!addedDependency.external && isExternalBrowserModule(addedDependency.id)) continue;
+				const dependencySourceId = this.mapBuildIdToSourceId(
 					addedDependency.id,
 					addedDependency.external,
+					this.dev,
 					buildConfig,
+					this.buildRootDir,
 				);
-				if (addedSourceFile === undefined) {
-					// TODO hmm should we initialize certain kinds? we currently do that later..weirdly
-					console.log('not found addedDependency.id?', addedDependency.id);
+				let addedSourceFile = this.files.get(dependencySourceId);
+				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
+
+				// lazily create external source files if needed
+				if (addedSourceFile === undefined && addedDependency.external) {
+					console.log('getting or creating dependencySourceId', dependencySourceId);
+					addedSourceFile = await this.getOrCreateExternalSourceFile(
+						dependencySourceId,
+						sourceFile.filerDir,
+					);
+					console.log('created addedSourceFile', addedSourceFile.id);
 				}
 				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
-				if (!addedSourceFile.buildable) {
-					throw Error(`Expected source file to be buildable: ${addedSourceFile.id}`);
-				}
 				(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
 					addedSourceFile,
 				);
@@ -905,15 +910,16 @@ export class Filer implements BuildContext {
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
-				const removedSourceFile = this.findSourceFile(
+				const sourceId = this.mapBuildIdToSourceId(
 					removedDependency.id,
 					removedDependency.external,
+					this.dev,
 					buildConfig,
+					this.buildRootDir,
 				);
+				const removedSourceFile = this.files.get(sourceId);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
-				if (!removedSourceFile.buildable) {
-					throw Error(`Expected dependency source file to be buildable: ${removedSourceFile.id}`);
-				}
+				assertBuildableSourceFile(removedSourceFile);
 				(removedDependencySourceFiles || (removedDependencySourceFiles = new Set())).add(
 					removedSourceFile,
 				);
@@ -948,27 +954,6 @@ export class Filer implements BuildContext {
 		} else {
 			await this.addSourceFileToBuild(sourceFile, buildConfig, false);
 		}
-	}
-
-	private findSourceFile(
-		buildId: string,
-		external: boolean,
-		buildConfig: BuildConfig,
-	): SourceFile | undefined {
-		const sourceId = this.mapBuildIdToSourceId(
-			buildId,
-			external,
-			this.dev,
-			buildConfig,
-			this.buildRootDir,
-		);
-		const sourceFile = this.files.get(sourceId);
-		if (sourceFile !== undefined && sourceFile.type !== 'source') {
-			throw Error(
-				`Expected 'source' file but found '${sourceFile.type}': ${sourceId} via buildId '${buildId}'`,
-			);
-		}
-		return sourceFile;
 	}
 
 	private async destroySourceId(id: string): Promise<void> {

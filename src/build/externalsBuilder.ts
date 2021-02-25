@@ -101,16 +101,14 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 		log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
-		// TODO load the `import-map.json`
-		if (initialImportMap.get(buildConfig) === undefined && lock.has(source.id)) {
-			const initialImportMapPath = toImportMapPath(dest);
-			if (await pathExists(initialImportMapPath)) {
-				initialImportMap.set(buildConfig, await readJson(initialImportMapPath));
-			}
+		// load the esinstall import-map.json if needed
+		if (!initialImportMap.has(buildConfig) && lock.has(source.id)) {
+			initialImportMap.set(buildConfig, await loadImportMapFromDisk(dest));
 		}
 
-		const externalsBuilderState = getExternalsBuilderState(
+		const externalsBuilderState = getOrCreateExternalsBuilderState(
 			state,
+			// this is only the initial state, it's ignored if the externals builder state already exists
 			initialImportMap.get(buildConfig),
 		);
 
@@ -328,7 +326,7 @@ export interface ExternalsBuilderState {
 
 const EXTERNALS_BUILDER_STATE_KEY = 'externals';
 
-const getExternalsBuilderState = (
+const getOrCreateExternalsBuilderState = (
 	state: BuilderState,
 	initialImportMap?: ImportMap | undefined,
 ): ExternalsBuilderState => {
@@ -379,4 +377,13 @@ const updateImportMapOnDisk = async (
 	// TODO `outputJson`? hmm
 	log.trace(`writing import map to ${gray(outPath)}`);
 	await outputFile(outPath, JSON.stringify(importMap, null, 2));
+};
+
+const loadImportMapFromDisk = async (dest: string): Promise<ImportMap | undefined> => {
+	const initialImportMapPath = toImportMapPath(dest);
+	if (await pathExists(initialImportMapPath)) {
+		const importMap: ImportMap = await readJson(initialImportMapPath);
+		return importMap;
+	}
+	return undefined;
 };

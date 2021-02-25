@@ -3,13 +3,14 @@ import {basename, dirname, join} from 'path';
 import {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/FilerDir.js';
 import {BuildFile, reconstructBuildFiles} from './buildFile.js';
 import {BaseFilerFile} from './baseFilerFile.js';
-import {isBareImport, toHash} from './utils.js';
+import {toHash} from './utils.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {Encoding} from '../fs/encoding.js';
 import type {CachedSourceInfo, FilerFile} from './Filer.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
 import {EXTERNALS_BUILD_DIR} from '../paths.js';
+import {isExternalBrowserModule} from '../utils/module.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
 export type BuildableSourceFile =
@@ -96,7 +97,7 @@ export const createSourceFile = async (
 		dirty = contentsHash !== cachedSourceInfo.data.contentsHash;
 		reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 	}
-	if (isBareImport(id)) {
+	if (isExternalBrowserModule(id)) {
 		// externals
 		if (encoding !== 'utf8') {
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
@@ -245,13 +246,19 @@ export function assertSourceFile(file: FilerFile | undefined | null): asserts fi
 	}
 }
 
-export function assertBuildableExternalsSourceFile(
+export function assertBuildableSourceFile(
 	file: FilerFile | undefined | null,
-): asserts file is BuildableExternalsSourceFile {
+): asserts file is BuildableSourceFile {
 	assertSourceFile(file);
 	if (!file.buildable) {
 		throw Error(`Expected file to be buildable: ${file.id}`);
 	}
+}
+
+export function assertBuildableExternalsSourceFile(
+	file: FilerFile | undefined | null,
+): asserts file is BuildableExternalsSourceFile {
+	assertBuildableSourceFile(file);
 	if (!file.external) {
 		throw Error(`Expected an external file: ${file.id}`);
 	}

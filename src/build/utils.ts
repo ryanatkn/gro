@@ -61,6 +61,3 @@ export const mapBuildIdToSourceId: MapBuildIdToSourceId = (
 		: basePathToSourceId(toSourceExtension(basePath));
 	return sourceId;
 };
-
-// TODO do we have a helper like this already? is it right? does esinstall have something?
-export const isBareImport = (id: string): boolean => !(id.startsWith('/') || id.startsWith('./'));
