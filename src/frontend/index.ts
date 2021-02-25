@@ -33,8 +33,8 @@ import * as motion from 'svelte/motion/index.js';
 log('imported svelte motion', motion);
 
 // test transitive external import
-// import {deepEqual} from '../utils/deepEqual.js';
-// log('deepEqual', deepEqual({}, {}));
+import {deepEqual} from '../utils/deepEqual.js';
+log('deepEqual', deepEqual({}, {}));
 
 // test dynamic import
 import('svelte/store').then((store) => {

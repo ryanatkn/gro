@@ -9,7 +9,7 @@ import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red, blue} from '../colors/terminal.js';
-import {printError, printPath} from '../utils/print.js';
+import {printError} from '../utils/print.js';
 import type {Build, BuildContext, Builder, BuilderState, BuildResult} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
@@ -547,6 +547,7 @@ export class Filer implements BuildContext {
 			? // TODO it may require additional changes,
 			  // but the package.json version could be put here,
 			  // allowing externals to update at runtime
+			  // maybe also for the "common" files, this could be the importMap (stringified? or not?)
 			  ''
 			: await loadContents(encoding, id);
 
@@ -636,25 +637,39 @@ export class Filer implements BuildContext {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		this.log.info('build source file', sourceFile.id);
-
-		this.buildingSourceFiles.add(sourceFile.id);
+		this.log.info('build source file', gray(sourceFile.id));
 
 		// Compile the source file.
 		let result: BuildResult<Build>;
 
+		this.buildingSourceFiles.add(sourceFile.id); // track so we can see what the filer is doing
 		try {
 			result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);
 		} catch (err) {
 			this.buildingSourceFiles.delete(sourceFile.id);
 			throw err;
 		}
+		this.buildingSourceFiles.delete(sourceFile.id);
 
-		const newBuildFiles: readonly BuildFile[] = result.builds.map((build) =>
+		const newBuildFiles: BuildFile[] = result.builds.map((build) =>
 			createBuildFile(build, this, result, sourceFile, buildConfig),
 		);
 
-		this.buildingSourceFiles.delete(sourceFile.id);
+		// common externals need special handling
+		if (sourceFile.external && this.state.externals?.pendingCommonBuilds) {
+			const commonBuilds = this.state.externals.pendingCommonBuilds;
+			this.state.externals.pendingCommonBuilds = null; // acts as a lock
+			if (this.state.externals.commonBuilds !== null) throw Error('Expected no common builds');
+			this.state.externals.commonBuilds = commonBuilds;
+			// this fires off a build for the common source file.
+			// it'll read the above state and the importMap
+			// it's fragile so  .. treat it as such :) or refactor!
+			// TODO but what if bypassed? files not loaded? what about via the src cache?
+			await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
+		}
+		if (sourceFile.id === 'common') {
+			debugger;
+		}
 
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
@@ -664,37 +679,16 @@ export class Filer implements BuildContext {
 	// Updates the build files in the memory cache and writes to disk.
 	private async updateBuildFiles(
 		sourceFile: BuildableSourceFile,
-		newBuildFiles: readonly BuildFile[],
+		newBuildFiles: BuildFile[],
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		// TODO maybe do this in-memory updating before `updateCommonBuilds`? or does it not matter?
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
+		const changes = diffBuildFiles(newBuildFiles, oldBuildFiles);
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
-		// if (sourceFile.external && oldBuildFiles) {
-		// 	for (const oldBuildFile of oldBuildFiles) {
-		// 		if (oldBuildFile.dir === `${sourceFile.filerDir.dir}/common`) {
-		// 			console.log('UH OH', oldBuildFile.dir);
-		// 			const newBuildFile = newBuildFiles.find((f) => f.id === oldBuildFile.id);
-		// 			if (newBuildFile !== undefined) continue;
-		// 			console.log('NO NEW BUILD FILE ITS GONNA BE DELETED');
-		// 			console.log('this.state.externals', this.state.externals);
-		// 			setTimeout(() => {
-		// 				console.log('this.state.externals', this.state.externals);
-		// 			}, 3000);
-		// 			// TODO if this file is not also present in the new files,
-		// 			// then it needs to be removed from `oldBuildFiles` (for the later functions)
-		// 			// and added to another externals source file, if one is available, and all of its data needs to be updated too.
-		// 			// if one is not available, we can assume it was deleted.
-		// 			// but REALLY, we want to be synced with the output of the externals calls,
-		// 			// and diff what comes out, and delete commons files explicitly
-		// 		}
-		// 	}
-		// }
-		// TODO we need to move build files from externals to other valid externals ones .. right?
-		// or does it not matter that we have a dangling source file?
-		// diffBuildFiles(this.files, newBuildFiles, oldBuildFiles, this.log);
-		syncBuildFilesToMemoryCache(this.files, newBuildFiles, oldBuildFiles);
+		syncBuildFilesToMemoryCache(this.files, changes);
 		await this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig);
-		await syncFilesToDisk(newBuildFiles, oldBuildFiles, this.log);
+		await syncFilesToDisk(changes, this.log);
 	}
 
 	// This is like `updateBuildFiles` except
@@ -709,10 +703,10 @@ export class Filer implements BuildContext {
 		if (buildFiles === undefined) {
 			throw Error(`Expected to find build files when hydrating from cache.`);
 		}
-		syncBuildFilesToMemoryCache(this.files, buildFiles, null);
+		const changes = diffBuildFiles(buildFiles, null);
+		syncBuildFilesToMemoryCache(this.files, changes);
 		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
-		// TODO what if we diff here, like we're going to do with `updateBuildFiles`,
-		// and use that diffed set of files to do the automatic cleaning of the .gro directory in total?
+		// TODO use the diffed set of files to do the automatic cleaning of the .gro directory in total?
 	}
 
 	private async updateDependencies(
@@ -750,6 +744,7 @@ export class Filer implements BuildContext {
 
 				// create external source files if needed - they're not added to `addedDependencySourceFiles` by default
 				if (addedDependency.external && buildConfig.platform === 'browser') {
+					await this.initExternalDependencySourceFile(COMMON_SOURCE_ID, sourceFile.filerDir); // TODO yeah sure haha?
 					const file = await this.initExternalDependencySourceFile(
 						dependencySourceId,
 						sourceFile.filerDir,
@@ -841,7 +836,7 @@ export class Filer implements BuildContext {
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
 	}
 
-	diffDependencies(
+	private diffDependencies(
 		newBuildFiles: readonly BuildFile[],
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
@@ -919,6 +914,23 @@ export class Filer implements BuildContext {
 			: null;
 	}
 
+	// TODO probably needs a better name, maybe use it more other places?
+	private async updateExternalSourceFile(
+		id: string,
+		buildConfig: BuildConfig,
+		filerDir: FilerDir,
+	): Promise<void> {
+		await this.updateSourceFile(id, filerDir); // TODO maybe use the return value? what contents should it have? the list of common files?
+		const sourceFile = this.files.get(id);
+		// console.log('sourceFile', shouldBuild, sourceFile); // TODO we need to create this no? how?
+		assertBuildableExternalsSourceFile(sourceFile);
+		if (sourceFile.buildConfigs.has(buildConfig)) {
+			await this.buildSourceFile(sourceFile, buildConfig);
+		} else {
+			await this.addSourceFileToBuild(sourceFile, buildConfig, false);
+		}
+	}
+
 	private findSourceFile(
 		buildId: string,
 		external: boolean,
@@ -954,7 +966,7 @@ export class Filer implements BuildContext {
 	}
 
 	// TODO can we remove this thing completely, treating externals like all others?
-	async initExternalDependencySourceFile(
+	private async initExternalDependencySourceFile(
 		id: string,
 		filerDir: FilerDir,
 	): Promise<BuildableExternalsSourceFile> {
@@ -1001,7 +1013,7 @@ export class Filer implements BuildContext {
 		// 	);
 		// }
 		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
-		this.log.trace('outputting cached source info', printPath(cacheId));
+		this.log.trace('outputting cached source info', gray(cacheId));
 		await outputFile(cacheId, JSON.stringify(data, null, 2));
 	}
 
@@ -1013,100 +1025,108 @@ export class Filer implements BuildContext {
 	}
 }
 
-// Given `newFiles` and `oldFiles`, updates everything on disk,
-// deleting files that no longer exist, writing new ones, and updating existing ones.
-const syncFilesToDisk = async (
-	newFiles: readonly BuildFile[],
-	oldFiles: readonly BuildFile[] | null,
-	log: Logger,
-): Promise<void> => {
-	// This uses `Array#find` because the arrays are expected to be small,
-	// because we're currently only using it for individual file builds,
-	// but that assumption might change and cause this code to be slow.
-	await Promise.all([
-		oldFiles === null
-			? null
-			: Promise.all(
-					oldFiles.map((oldFile) => {
-						if (
-							oldFile.sourceId !== COMMON_SOURCE_ID &&
-							!newFiles.find((f) => f.id === oldFile.id)
-						) {
-							log.trace('deleting build file on disk', gray(oldFile.id));
-							return remove(oldFile.id);
-						}
-						return null;
-					}),
-			  ),
-		Promise.all(
-			newFiles.map(async (newFile) => {
-				const oldFile = oldFiles?.find((f) => f.id === newFile.id);
-				let shouldOutputNewFile = false;
-				if (!oldFile) {
-					if (!(await pathExists(newFile.id))) {
-						log.trace('creating build file on disk', gray(newFile.id));
-						shouldOutputNewFile = true;
-					} else {
-						const existingCotents = await loadContents(newFile.encoding, newFile.id);
-						if (!areContentsEqual(newFile.encoding, newFile.contents, existingCotents)) {
-							log.trace('updating stale build file on disk', gray(newFile.id));
-							shouldOutputNewFile = true;
-						} // ...else the build file on disk already matches what's in memory.
-						// This can happen if the source file changed but this particular build file did not.
-						// Loading the usually-stale contents into memory to check before writing is inefficient,
-						// but it avoids unnecessary writing to disk and misleadingly updated file stats.
-					}
-				} else if (!areContentsEqual(newFile.encoding, newFile.contents, oldFile.contents)) {
-					log.trace('updating build file on disk', gray(newFile.id));
+const syncFilesToDisk = async (changes: BuildFileChange[], log: Logger): Promise<void> => {
+	await Promise.all(
+		changes.map(async (change) => {
+			const {file} = change;
+			let shouldOutputNewFile = false;
+			if (change.type === 'added') {
+				if (!(await pathExists(file.id))) {
+					log.trace('creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
-				} // ...else the build file on disk already matches what's in memory.
-				// This can happen if the source file changed but this particular build file did not.
-				if (shouldOutputNewFile) await outputFile(newFile.id, newFile.contents);
-			}),
-		),
-	]);
+				} else {
+					const existingCotents = await loadContents(file.encoding, file.id);
+					if (!areContentsEqual(file.encoding, file.contents, existingCotents)) {
+						log.trace('updating stale build file on disk', gray(file.id));
+						shouldOutputNewFile = true;
+					} // ...else the build file on disk already matches what's in memory.
+					// This can happen if the source file changed but this particular build file did not.
+					// Loading the usually-stale contents into memory to check before writing is inefficient,
+					// but it avoids unnecessary writing to disk and misleadingly updated file stats.
+				}
+			} else if (change.type === 'updated') {
+				if (!areContentsEqual(file.encoding, file.contents, change.oldFile.contents)) {
+					log.trace('updating build file on disk', gray(file.id));
+					shouldOutputNewFile = true;
+				}
+			} else if (change.type === 'removed') {
+				// TODO this is handled upstream, but go find it
+				// oldFile.sourceId !== COMMON_SOURCE_ID
+				log.trace('deleting build file on disk', gray(file.id));
+				return remove(file.id);
+			} else {
+				throw new UnreachableError(change);
+			}
+			if (shouldOutputNewFile) {
+				await outputFile(file.id, file.contents);
+			}
+		}),
+	);
 };
 
 const toCachedSourceInfoId = (file: BuildableSourceFile, buildRootDir: string): string =>
 	`${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
-// Given `newFiles` and `oldFiles`, updates the memory cache,
-// deleting files that no longer exist and setting the new ones, replacing any old ones.
 const syncBuildFilesToMemoryCache = (
 	files: Map<string, FilerFile>,
+	changes: BuildFileChange[],
+): void => {
+	for (const change of changes) {
+		if (change.type === 'added' || change.type === 'updated') {
+			files.set(change.file.id, change.file);
+		} else if (change.type === 'removed') {
+			files.delete(change.file.id);
+		} else {
+			throw new UnreachableError(change);
+		}
+	}
+};
+
+// TODO hmm how does this fit in?
+type BuildFileChange =
+	| {
+			type: 'added';
+			file: BuildFile;
+	  }
+	| {
+			type: 'updated';
+			file: BuildFile;
+			oldFile: BuildFile;
+	  }
+	| {
+			type: 'removed';
+			file: BuildFile;
+	  };
+
+// Given `newFiles` and `oldFiles`, returns a description of changes.
+// This uses `Array#find` because the arrays are expected to be small,
+// because we're currently only using it for individual file builds,
+// but that assumption might change and cause this code to be slow.
+// TODO maybe change to sets?
+const diffBuildFiles = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
-): void => {
-	// Remove any deleted files.
-	// This uses `Array#find` because the arrays are expected to be small,
-	// because we're currently only using it for individual file builds,
-	// but that assumption might change and cause this code to be slow.
-	if (oldFiles !== null) {
+): BuildFileChange[] => {
+	let changes: BuildFileChange[];
+	if (oldFiles === null) {
+		changes = newFiles.map((file) => ({type: 'added', file}));
+	} else {
+		changes = [];
 		for (const oldFile of oldFiles) {
-			if (!newFiles.find((f) => f.id === oldFile.id)) {
-				files.delete(oldFile.id);
+			const newFile = newFiles.find((f) => f.id === oldFile.id);
+			if (newFile !== undefined) {
+				changes.push({type: 'updated', oldFile, file: newFile});
+			} else {
+				changes.push({type: 'removed', file: oldFile});
+			}
+		}
+		for (const newFile of newFiles) {
+			if (!oldFiles.some((f) => f.id === newFile.id)) {
+				changes.push({type: 'added', file: newFile});
 			}
 		}
 	}
-	// Add or update any new or changed files.
-	for (const newFile of newFiles) {
-		// log.trace('setting file in memory cache', gray(newFile.id));
-		const oldFile = files.get(newFile.id) as BuildFile | undefined;
-		if (oldFile !== undefined) {
-			// This check ensures that if the user provides multiple source directories
-			// the build output files do not conflict.
-			// There may be a better design warranted, but for now the goal is to support
-			// the flexibility of multiple source directories while avoiding surprising behavior.
-			// Externals are the exception: they may swap files around without us caring.
-			if (oldFile.sourceId !== oldFile.sourceId && !(oldFile.external && oldFile.external)) {
-				throw Error(
-					'Two source files are trying to build to the same output location: ' +
-						`${oldFile.sourceId} & ${oldFile.sourceId}`,
-				);
-			}
-		}
-		files.set(newFile.id, newFile);
-	}
+	return changes;
 };
 
 const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {

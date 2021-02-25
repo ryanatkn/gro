@@ -21,6 +21,7 @@ import {createCssCache} from '../project/cssCache.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {createLock} from '../utils/lock.js';
 import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
+import {COMMON_SOURCE_ID} from './buildFile.js';
 
 /*
 
@@ -68,6 +69,20 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
 	) => {
+		if (source.id === COMMON_SOURCE_ID) {
+			const {externals} = state;
+			if (externals === undefined) {
+				throw Error('Expected externals state to build common files');
+			}
+			const builds = externals.commonBuilds;
+			if (builds === null) {
+				throw Error('Expected builds to build common files');
+			}
+			externals.commonBuilds = null;
+			console.log('building commons source!!!', builds.length);
+			const result: BuildResult<TextBuild> = {builds};
+			return result;
+		}
 		lock.tryToObtain(source.id);
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -94,6 +109,11 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			}
 		}
 
+		const externalsBuilderState = getExternalsBuilderState(
+			state,
+			initialImportMap.get(buildConfig),
+		);
+
 		// TODO add an external API for customizing the `install` params
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
 		const cssCache = createCssCache();
@@ -114,16 +134,23 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			const result = await installExternal(
 				source.id,
 				dest,
-				getExternalsBuilderState(state, initialImportMap.get(buildConfig)),
+				externalsBuilderState,
 				plugins,
 				buildingSourceFiles,
 				log,
 			);
+			// `state.importMap` is now updated
+
 			// Since we're batching the external installation process,
 			// and it can return a number of common files,
 			// we need to add those common files as build files to exactly one of the built source files.
 			// It doesn't matter which one, so we just always pick the first source file in the data.
 			if (lock.has(source.id)) {
+				log.trace('handling common dependencies with lock', gray(source.id));
+				// TODO ok so what if we didn't return these here, instead put them on the `state`
+				// that way the builder encapsulates this need
+				// but maybe it needs to request that a source file gets built, somehow? (the "common" one)
+				// is this a good use case for `dirty`? what's the API look like?
 				commonDependencyIds = Object.keys(result.stats.common).map((path) => join(dest, path));
 			}
 			id = join(dest, result.importMap.imports[source.id]);
@@ -148,23 +175,27 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		];
 
 		if (commonDependencyIds !== null) {
+			if (!lock.has(source.id)) {
+				throw Error(`Expected to have lock: ${source.id} - ${commonDependencyIds.length}`);
+			}
+			if (externalsBuilderState.pendingCommonBuilds !== null) {
+				throw Error('TODO ? expected null externals pending common build files');
+			}
 			try {
-				builds.push(
-					...(await Promise.all(
-						commonDependencyIds.map(
-							async (commonDependencyId): Promise<TextBuild> => ({
-								id: commonDependencyId,
-								filename: basename(commonDependencyId),
-								dir: dirname(commonDependencyId),
-								extension: JS_EXTENSION,
-								encoding,
-								contents: await loadContents(encoding, commonDependencyId),
-								sourceMapOf: null,
-								buildConfig,
-								common: true,
-							}),
-						),
-					)),
+				externalsBuilderState.pendingCommonBuilds = await Promise.all(
+					commonDependencyIds.map(
+						async (commonDependencyId): Promise<TextBuild> => ({
+							id: commonDependencyId,
+							filename: basename(commonDependencyId),
+							dir: dirname(commonDependencyId),
+							extension: JS_EXTENSION,
+							encoding,
+							contents: await loadContents(encoding, commonDependencyId),
+							sourceMapOf: null,
+							buildConfig,
+							common: true,
+						}),
+					),
 				);
 			} catch (err) {
 				log.error(`Failed to build common builds: ${commonDependencyIds.join(' ')}`);
@@ -213,6 +244,7 @@ const installExternal = async (
 			log.info('install result', result);
 			log.info('old importMap', state.importMap);
 			state.importMap = result.importMap;
+			state.installStats = result.stats;
 			state.installing = null;
 			return result;
 		});
@@ -285,10 +317,13 @@ const installExternals = async (
 
 export interface ExternalsBuilderState {
 	importMap: ImportMap | undefined;
+	installStats: InstallResult['stats'] | undefined;
 	specifiers: Set<string>;
 	installing: DelayedPromise<InstallResult> | null;
 	idleTimer: number;
 	resetterInterval: NodeJS.Timeout | null;
+	commonBuilds: TextBuild[] | null;
+	pendingCommonBuilds: TextBuild[] | null;
 }
 
 const EXTERNALS_BUILDER_STATE_KEY = 'externals';
@@ -301,12 +336,15 @@ const getExternalsBuilderState = (
 	if (s !== undefined) return s; // note `initialImportMap` may not match `state.importMap`
 	s = {
 		importMap: initialImportMap,
+		installStats: undefined, // TODO get initial stats too? yes when/if needed
 		specifiers: new Set(
 			initialImportMap === undefined ? [] : Object.keys(initialImportMap.imports),
 		),
 		installing: null,
 		idleTimer: 0,
 		resetterInterval: null,
+		commonBuilds: null,
+		pendingCommonBuilds: null,
 	};
 	state[EXTERNALS_BUILDER_STATE_KEY] = s;
 	return s;
@@ -322,8 +360,10 @@ export const handleRemovedDependencySourceFile = async (
 	// update specifiers
 	state.specifiers.delete(id);
 	// update importMap for externals
-	// TODO or set to undefined? or treat as immutable?
+	// TODO or set to undefined? or treat as immutable? (maybe treat all keys of `BuilderState[key]` as immer-compatible data?)
 	delete state.importMap?.imports[id];
+	delete state.installStats?.direct[id];
+	delete state.installStats?.common[id];
 	if (state.importMap !== undefined) {
 		await updateImportMapOnDisk(state.importMap, buildConfig, ctx);
 	}

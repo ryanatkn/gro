@@ -97,6 +97,7 @@ export const createSourceFile = async (
 		reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
 	}
 	if (isBareImport(id)) {
+		// externals
 		if (encoding !== 'utf8') {
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
 		}
