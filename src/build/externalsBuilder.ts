@@ -23,6 +23,8 @@ import {createLock} from '../utils/lock.js';
 import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {COMMON_SOURCE_ID} from './buildFile.js';
 import {wrap} from '../utils/async.js';
+import {BuildableExternalsSourceFile} from './sourceFile.js';
+import {deepEqual} from '../utils/deepEqual.js';
 
 /*
 
@@ -61,25 +63,18 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	// TODO i dunno lol. this code is freakish
 	const lock = createLock<string>();
 
-	// TODO what if all state was here, not on the filer? or is it good to put it there, so we can read it elsewhere?
-	// i kinda like that. one huge thing of mutable state! could be transformed with immutable data + events
-	const initialImportMap: Map<BuildConfig, ImportMap | undefined> = new Map();
-
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
 	) => {
 		if (source.id === COMMON_SOURCE_ID) {
-			const {externals} = state;
-			if (externals === undefined) {
-				throw Error('Expected externals state to build common files');
-			}
-			const builds = externals.commonBuilds;
+			const buildState = getExternalsBuildState(state, buildConfig);
+			const builds = buildState.commonBuilds;
 			if (builds === null) {
 				throw Error('Expected builds to build common files');
 			}
-			externals.commonBuilds = null;
+			buildState.commonBuilds = null;
 			console.log('building commons source!!!', builds.length);
 			const result: BuildResult<TextBuild> = {builds};
 			return result;
@@ -103,16 +98,19 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 			log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
+			// TODO ok so the code that locks it needs to synchronously attach the promise for others to await?? maybe initialImportMap.get(buildConfig) is a promise by the first code to get here, any can await it, and it's set afterwards to the result?
 			// load the esinstall import-map.json if needed
-			if (!initialImportMap.has(buildConfig) && lock.has(source.id)) {
-				initialImportMap.set(buildConfig, await loadImportMapFromDisk(dest));
-			}
+			const builderState = initExternalsBuilderState(state);
 
-			const externalsBuilderState = getOrCreateExternalsBuilderState(
-				state,
-				// this is only the initial state, it's ignored if the externals builder state already exists
-				initialImportMap.get(buildConfig),
-			);
+			// if (!state.externals.buildStates.has(buildConfig) && lock.has(source.id)) {
+			// TODO uhh .. the lock?
+			// }
+
+			const buildState = initExternalsBuildState(builderState, buildConfig); // TODO should this be done later?
+			if (buildState.importMap === undefined && lock.has(source.id)) {
+				// TODO the lock .. hmm - could synchronously put `null` or something on the importMap to hackily grab it
+				buildState.importMap = await loadImportMapFromDisk(dest);
+			}
 
 			// TODO add an external API for customizing the `install` params
 			// TODO this is legacy stuff that we need to rethink when we handle CSS better
@@ -131,10 +129,10 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			let contents: string;
 			let commonDependencyIds: string[] | null = null;
 			try {
-				const result = await installExternal(
+				const installResult = await installExternal(
 					source.id,
 					dest,
-					externalsBuilderState,
+					buildState,
 					plugins,
 					buildingSourceFiles,
 					log,
@@ -151,9 +149,11 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 					// that way the builder encapsulates this need
 					// but maybe it needs to request that a source file gets built, somehow? (the "common" one)
 					// is this a good use case for `dirty`? what's the API look like?
-					commonDependencyIds = Object.keys(result.stats.common).map((path) => join(dest, path));
+					commonDependencyIds = Object.keys(installResult.stats.common).map((path) =>
+						join(dest, path),
+					);
 				}
-				id = join(dest, result.importMap.imports[source.id]);
+				id = join(dest, installResult.importMap.imports[source.id]);
 				contents = await loadContents(encoding, id);
 			} catch (err) {
 				log.error(`Failed to bundle external module: ${source.id}`);
@@ -177,11 +177,11 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				if (!lock.has(source.id)) {
 					throw Error(`Expected to have lock: ${source.id} - ${commonDependencyIds.length}`);
 				}
-				if (externalsBuilderState.pendingCommonBuilds !== null) {
+				if (buildState.pendingCommonBuilds !== null) {
 					log.error('Unexpected pendingCommongBuilds'); // would indicate a problem, but don't want to throw
 				}
 				try {
-					externalsBuilderState.pendingCommonBuilds = await Promise.all(
+					buildState.pendingCommonBuilds = await Promise.all(
 						commonDependencyIds.map(
 							async (commonDependencyId): Promise<TextBuild> => ({
 								id: commonDependencyId,
@@ -213,7 +213,30 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		});
 	};
 
-	return {build};
+	// TODO problem is `importMap` is different for each build config! but only 1 on state.
+	// TODO maybe refactor this into callbacks/events/plugins or something
+	const onRemove: ExternalsBuilder['onRemove'] = async (
+		sourceFile: BuildableExternalsSourceFile,
+		buildConfig: BuildConfig,
+		ctx: BuildContext,
+	): Promise<void> => {
+		debugger;
+		// TODO ok wait this state should exist right?
+		const buildState = getExternalsBuildState(ctx.state, buildConfig);
+		// update importMap for externals
+		// TODO or set to undefined? or treat as immutable? (maybe treat all keys of `BuilderState[key]` as immer-compatible data?)
+		// delete installResult.stats?.direct[sourceFile.id];
+		// delete installResult.stats?.common[sourceFile.id];
+		if (buildState.importMap !== undefined) {
+			delete buildState.importMap.imports[sourceFile.id];
+			await updateImportMapOnDisk(buildState.importMap, buildConfig, ctx);
+		} else {
+			console.log('TODO wait should we lazy load stuff here?');
+			console.log('TODO what about re-using normal machinery for build files for import-map.json?');
+		}
+	};
+
+	return {build, onRemove};
 };
 
 // TODO this is really hacky - it's working,
@@ -226,7 +249,7 @@ const IDLE_TIME_LIMIT = parseInt((process.env as any).GRO_IDLE_TIME_LIMIT, 10) |
 const installExternal = async (
 	sourceId: string,
 	dest: string,
-	state: ExternalsBuilderState,
+	state: ExternalsBuildState,
 	plugins: RollupPlugin[],
 	buildingSourceFiles: Set<string>,
 	log: Logger,
@@ -234,12 +257,17 @@ const installExternal = async (
 	buildingSourceFiles.delete(sourceId); // externals are hacky like this, because they'd cause it to hang!
 	if (state.installing === null) {
 		state.installing = createDelayedPromise(async () => {
-			log.info('installing externals', state.specifiers); // TODO should these be like, `state.findSpecifiers()`?
+			log.info('installing externals', state.specifiers);
 			const result = await installExternals(state.specifiers, dest, plugins);
 			log.info('install result', result);
-			log.info('old importMap', state.importMap);
+			log.info('old import map result', state.importMap);
 			state.importMap = result.importMap;
-			state.installStats = result.stats;
+			if (!deepEqual(state.specifiers, toSpecifiers(result.importMap))) {
+				debugger;
+				console.log('state.specifiers', state.specifiers);
+				console.log(' toSpecifiers(result.importMap)', toSpecifiers(result.importMap));
+				process.exit();
+			}
 			state.installing = null;
 			return result;
 		});
@@ -311,8 +339,13 @@ const installExternals = async (
 ): Promise<InstallResult> => install(Array.from(specifiers), {dest, rollup: {plugins}});
 
 export interface ExternalsBuilderState {
+	readonly buildStates: Map<BuildConfig, ExternalsBuildState>;
+}
+
+// extends `filer.state.externals`
+// TODO remove any of this that possibly can be removed via refactoring
+interface ExternalsBuildState {
 	importMap: ImportMap | undefined;
-	installStats: InstallResult['stats'] | undefined;
 	specifiers: Set<string>;
 	installing: DelayedPromise<InstallResult> | null;
 	idleTimer: number;
@@ -321,48 +354,65 @@ export interface ExternalsBuilderState {
 	pendingCommonBuilds: TextBuild[] | null;
 }
 
+// store the externals builder state here on the builder context `state` object
 const EXTERNALS_BUILDER_STATE_KEY = 'externals';
 
-const getOrCreateExternalsBuilderState = (
+// throws if it can't find it
+const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
+	let builderState = findExternalsBuilderState(state);
+	if (builderState === undefined) {
+		throw Error(`Expected builder state to exist: ${EXTERNALS_BUILDER_STATE_KEY}`);
+	}
+	return builderState;
+};
+
+// may find nothing!
+const findExternalsBuilderState = (state: BuilderState): ExternalsBuilderState | undefined =>
+	state[EXTERNALS_BUILDER_STATE_KEY];
+
+// this is a no-op if the state does not need to be inited
+const initExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
+	let builderState = findExternalsBuilderState(state);
+	if (builderState !== undefined) return builderState;
+	builderState = {buildStates: new Map()};
+	state[EXTERNALS_BUILDER_STATE_KEY] = builderState;
+	return builderState;
+};
+
+const getExternalsBuildState = (
 	state: BuilderState,
-	initialImportMap?: ImportMap | undefined,
-): ExternalsBuilderState => {
-	let s = state[EXTERNALS_BUILDER_STATE_KEY];
-	if (s !== undefined) return s; // note `initialImportMap` may not match `state.importMap`
-	s = {
-		importMap: initialImportMap,
-		installStats: undefined, // TODO get initial stats too? yes when/if needed
-		specifiers: new Set(
-			initialImportMap === undefined ? [] : Object.keys(initialImportMap.imports),
-		),
+	buildConfig: BuildConfig,
+): ExternalsBuildState => {
+	const builderState = getExternalsBuilderState(state);
+	const buildState = builderState.buildStates.get(buildConfig);
+	if (buildState === undefined) {
+		throw Error(`Expected build state to exist: ${buildConfig.name}`);
+	}
+	return buildState;
+};
+
+const initExternalsBuildState = (
+	builderState: ExternalsBuilderState,
+	buildConfig: BuildConfig,
+): ExternalsBuildState => {
+	let buildState = builderState.buildStates.get(buildConfig);
+	if (buildState !== undefined) return buildState;
+	buildState = {
+		importMap: undefined,
+		specifiers: new Set(),
+		// installStats: undefined, // TODO get initial stats too? yes when/if needed
+		// TODO this needs to be a map, or do we need it at all?
 		installing: null,
 		idleTimer: 0,
 		resetterInterval: null,
 		commonBuilds: null,
 		pendingCommonBuilds: null,
 	};
-	state[EXTERNALS_BUILDER_STATE_KEY] = s;
-	return s;
+	builderState.buildStates.set(buildConfig, buildState);
+	return buildState;
 };
 
-// TODO probably refactor this into callbacks/events/plugins or something
-export const handleRemovedExternalSourceFile = async (
-	id: string,
-	state: ExternalsBuilderState,
-	buildConfig: BuildConfig,
-	ctx: BuildContext,
-): Promise<void> => {
-	// update specifiers
-	state.specifiers.delete(id);
-	// update importMap for externals
-	// TODO or set to undefined? or treat as immutable? (maybe treat all keys of `BuilderState[key]` as immer-compatible data?)
-	delete state.importMap?.imports[id];
-	delete state.installStats?.direct[id];
-	delete state.installStats?.common[id];
-	if (state.importMap !== undefined) {
-		await updateImportMapOnDisk(state.importMap, buildConfig, ctx);
-	}
-};
+const toSpecifiers = (importMap: ImportMap): Set<string> => new Set(Object.keys(importMap.imports));
 
 const toImportMapPath = (dest: string): string => `${dest}/import-map.json`;
 

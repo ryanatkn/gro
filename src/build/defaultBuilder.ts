@@ -1,10 +1,6 @@
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
-import {
-	BuildSource,
-	Builder,
-	createBuilder,
-	InitialOptions as BuilderInitialOptions,
-} from './builder.js';
+import {BuildSource, Builder} from './builder.js';
+import {createLazyBuilder, InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
 import {createSwcBuilder, InitialOptions as SwcBuilderInitialOptions} from './swcBuilder.js';
 import {
 	createSvelteBuilder,
@@ -19,15 +15,15 @@ export const createDefaultBuilder = async (
 	swcBuilderOptions?: SwcBuilderInitialOptions,
 	svelteBuilderOptions?: SvelteBuilderInitialOptions,
 	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
-	builderOptions?: BuilderInitialOptions,
+	lazyBuilderOptions?: LazyBuilderInitialOptions,
 ): Promise<Builder> => {
 	const swcBuilder = createSwcBuilder(swcBuilderOptions);
 	const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
 	const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
 
-	if (!builderOptions?.getBuilder) {
-		builderOptions = {
-			...builderOptions,
+	if (!lazyBuilderOptions?.getBuilder) {
+		lazyBuilderOptions = {
+			...lazyBuilderOptions,
 			getBuilder: (source: BuildSource) => {
 				if (source.external) {
 					return externalsBuilder;
@@ -44,5 +40,5 @@ export const createDefaultBuilder = async (
 		};
 	}
 
-	return createBuilder(builderOptions);
+	return createLazyBuilder(lazyBuilderOptions);
 };

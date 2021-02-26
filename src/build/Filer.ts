@@ -32,7 +32,6 @@ import {
 } from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
-import {handleRemovedExternalSourceFile} from './externalsBuilder.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 
 /*
@@ -426,10 +425,13 @@ export class Filer implements BuildContext {
 		}
 		sourceFile.dependencies.delete(buildConfig);
 		sourceFile.dependents.delete(buildConfig);
-		// TODO wait should this be handled in `await this.updateBuildFiles` above?
-		if (sourceFile.external && this.state.externals !== undefined) {
-			debugger;
-			await handleRemovedExternalSourceFile(sourceFile.id, this.state.externals, buildConfig, this);
+		const {onRemove} = sourceFile.filerDir.builder;
+		if (onRemove) {
+			try {
+				await onRemove(sourceFile, buildConfig, this);
+			} catch (err) {
+				this.log.error('error while removing source file from builder', printError(err));
+			}
 		}
 
 		await this.updateCachedSourceInfo(sourceFile);
@@ -579,8 +581,9 @@ export class Filer implements BuildContext {
 				this.cachedSourceInfo.get(id),
 				this.buildConfigs,
 			);
-			if (id === 'common') {
-				// debugger;
+			if (id.includes('import-map.json')) {
+				console.log('TODO can this happen?', id);
+				process.exit();
 			}
 			this.files.set(id, newSourceFile);
 			// If the created source file has its build files hydrated from the cache,
@@ -677,21 +680,24 @@ export class Filer implements BuildContext {
 
 		// TODO hmm
 		// common externals need special handling
-		if (sourceFile.external && this.state.externals?.pendingCommonBuilds) {
-			const commonBuilds = this.state.externals.pendingCommonBuilds;
-			this.state.externals.pendingCommonBuilds = null; // acts as a lock
-			if (this.state.externals.commonBuilds !== null) {
-				this.log.error('expected no common builds'); // indicates a problem but we don't want to throw
+		if (sourceFile.external) {
+			const buildState = this.state.externals!.buildStates.get(buildConfig)!; // TODO we
+			if (buildState.pendingCommonBuilds) {
+				const commonBuilds = buildState.pendingCommonBuilds;
+				buildState.pendingCommonBuilds = null; // acts as a lock
+				if (buildState.commonBuilds !== null) {
+					this.log.error('expected no common builds'); // indicates a problem but we don't want to throw
+				}
+				buildState.commonBuilds = commonBuilds;
+				// this fires off a build for the common source file.
+				// it'll read the above state and the importMap
+				// it's fragile so  .. treat it as such :) or refactor!
+				// TODO but what if bypassed? files not loaded? what about via the src cache?
+				// debugger;
+				// TODO this always builds, discarding the update result ..
+				// what about caching? what about the `contents` using `import-map.json`?
+				await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
 			}
-			this.state.externals.commonBuilds = commonBuilds;
-			// this fires off a build for the common source file.
-			// it'll read the above state and the importMap
-			// it's fragile so  .. treat it as such :) or refactor!
-			// TODO but what if bypassed? files not loaded? what about via the src cache?
-			// debugger;
-			// TODO this always builds, discarding the update result ..
-			// what about caching? what about the `contents` using `import-map.json`?
-			await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
 		}
 
 		// Update the source file with the new build files.
