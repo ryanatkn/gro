@@ -10,7 +10,7 @@ import type {
 	BuilderState,
 	BuildResult,
 	BuildContext,
-	ExternalsBuildSource,
+	TextBuildSource,
 	TextBuild,
 } from './builder.js';
 import {cyan, gray} from '../colors/terminal.js';
@@ -53,7 +53,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-type ExternalsBuilder = Builder<ExternalsBuildSource, TextBuild>;
+type ExternalsBuilder = Builder<TextBuildSource, TextBuild>;
 
 const encoding = 'utf8';
 

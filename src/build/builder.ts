@@ -53,25 +53,18 @@ interface BaseBuild {
 	common?: boolean;
 }
 
-export type BuildSource = TextBuildSource | BinaryBuildSource | ExternalsBuildSource;
+export type BuildSource = TextBuildSource | BinaryBuildSource;
 export interface TextBuildSource extends BaseBuildSource {
-	external: false;
 	encoding: 'utf8';
 	contents: string;
 }
 export interface BinaryBuildSource extends BaseBuildSource {
-	external: false;
 	encoding: null;
 	contents: Buffer;
 }
-// TODO does this type do anything useful? delete if no
-export interface ExternalsBuildSource extends BaseBuildSource {
-	external: true;
-	encoding: 'utf8';
-	contents: string;
-}
 interface BaseBuildSource {
 	buildable: true;
+	external: boolean;
 	id: string;
 	filename: string;
 	dir: string;
