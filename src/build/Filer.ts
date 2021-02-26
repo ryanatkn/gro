@@ -670,17 +670,22 @@ export class Filer implements BuildContext {
 			createBuildFile(build, this, result, sourceFile, buildConfig),
 		);
 
+		// TODO hmm
 		// common externals need special handling
 		if (sourceFile.external && this.state.externals?.pendingCommonBuilds) {
 			const commonBuilds = this.state.externals.pendingCommonBuilds;
 			this.state.externals.pendingCommonBuilds = null; // acts as a lock
-			if (this.state.externals.commonBuilds !== null) throw Error('Expected no common builds');
+			if (this.state.externals.commonBuilds !== null) {
+				this.log.error('expected no common builds'); // indicates a problem but we don't want to throw
+			}
 			this.state.externals.commonBuilds = commonBuilds;
 			// this fires off a build for the common source file.
 			// it'll read the above state and the importMap
 			// it's fragile so  .. treat it as such :) or refactor!
 			// TODO but what if bypassed? files not loaded? what about via the src cache?
 			// debugger;
+			// TODO this always builds, discarding the update result ..
+			// what about caching? what about the `contents` using `import-map.json`?
 			await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
 		}
 

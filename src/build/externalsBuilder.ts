@@ -216,8 +216,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	return {build};
 };
 
-const toImportMapPath = (dest: string): string => `${dest}/import-map.json`;
-
 // TODO this is really hacky - it's working,
 // but it causes unnecessary delays building externals
 const DELAYED_PROMISE_DURATION = 250; // this needs to be larger than `IDLE_CHECK_INTERVAL`
@@ -366,6 +364,8 @@ export const handleRemovedDependencySourceFile = async (
 	}
 };
 
+const toImportMapPath = (dest: string): string => `${dest}/import-map.json`;
+
 const updateImportMapOnDisk = async (
 	importMap: ImportMap,
 	buildConfig: BuildConfig,
@@ -380,9 +380,7 @@ const updateImportMapOnDisk = async (
 
 const loadImportMapFromDisk = async (dest: string): Promise<ImportMap | undefined> => {
 	const initialImportMapPath = toImportMapPath(dest);
-	if (await pathExists(initialImportMapPath)) {
-		const importMap: ImportMap = await readJson(initialImportMapPath);
-		return importMap;
-	}
-	return undefined;
+	if (!(await pathExists(initialImportMapPath))) return undefined;
+	const importMap: ImportMap = await readJson(initialImportMapPath);
+	return importMap;
 };
