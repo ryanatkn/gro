@@ -13,6 +13,7 @@ export interface Builder<TSource extends BuildSource = BuildSource, TBuild exten
 		ctx: BuildContext,
 	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>; // TODO should this be forced async?
 	onRemove?(source: TSource, buildConfig: BuildConfig, ctx: BuildContext): Promise<void>;
+	init?(ctx: BuildContext, buildConfigs: readonly BuildConfig[]): Promise<void>;
 }
 
 export interface BuildResult<TBuild extends Build = Build> {
@@ -109,4 +110,5 @@ export const noopBuilder: Builder = {
 		return result;
 	},
 	// onRemove: not implemented because it's a no-op
+	// init: not implemented because it's a no-op
 };

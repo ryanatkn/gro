@@ -5,14 +5,22 @@ import {BuildConfig} from '../config/buildConfig.js';
 export interface GetBuilder {
 	(source: BuildSource, buildConfig: BuildConfig): Builder | null;
 }
+export interface GetBuilders {
+	(): Builder[];
+}
+const getNoopBuilder: GetBuilder = () => noopBuilder;
+const getNoopBuilders: GetBuilders = () => noopBuilders;
+const noopBuilders: Builder[] = [noopBuilder];
 
 export interface Options {
 	getBuilder: GetBuilder;
+	getBuilders: GetBuilders;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		getBuilder: getNoopBuilder,
+		getBuilders: getNoopBuilders,
 		...omitUndefined(opts),
 	};
 };
@@ -23,7 +31,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 // which usually includes more useful contextual information.
 // Because it proxies all calls, it implements all of `Builder`, hence `Required`.
 export const createLazyBuilder = (opts: InitialOptions = {}): Required<Builder> => {
-	const {getBuilder} = initOptions(opts);
+	const {getBuilder, getBuilders} = initOptions(opts);
 
 	const build: Builder['build'] = (
 		source: BuildSource,
@@ -44,7 +52,12 @@ export const createLazyBuilder = (opts: InitialOptions = {}): Required<Builder> 
 		await builder.onRemove(source, buildConfig, ctx);
 	};
 
-	return {build, onRemove};
-};
+	const init: Builder['init'] = async (ctx: BuildContext, buildConfigs: readonly BuildConfig[]) => {
+		for (const builder of getBuilders()) {
+			if (builder.init === undefined) continue;
+			await builder.init(ctx, buildConfigs);
+		}
+	};
 
-const getNoopBuilder: GetBuilder = () => noopBuilder;
+	return {build, onRemove, init};
+};

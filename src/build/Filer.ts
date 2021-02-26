@@ -152,7 +152,7 @@ export class Filer implements BuildContext {
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
-	private readonly buildConfigs: BuildConfig[] | null;
+	private readonly buildConfigs: readonly BuildConfig[] | null;
 	private readonly mapBuildIdToSourceId: MapBuildIdToSourceId;
 
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
@@ -162,7 +162,7 @@ export class Filer implements BuildContext {
 	readonly buildRootDir: string;
 	readonly dev: boolean;
 	readonly sourceMap: boolean;
-	readonly target: EcmaScriptTarget;
+	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
 	readonly servedDirs: readonly ServedDir[];
 	readonly state: BuilderState = {};
 	readonly buildingSourceFiles: Set<string> = new Set();
@@ -246,6 +246,17 @@ export class Filer implements BuildContext {
 		// check if any source files have been deleted since the last run.
 		await this.cleanCachedSourceInfo();
 		// this.log.trace('cleaned');
+
+		// This initializes the builders. Should be done before the builds are initialized.
+		// TODO does this belong in `dir.init`? or parallel with .. what?
+		if (this.buildConfigs !== null) {
+			for (const dir of this.dirs) {
+				if (!dir.buildable) continue;
+				if (dir.builder.init !== undefined) {
+					await dir.builder.init(this, this.buildConfigs);
+				}
+			}
+		}
 
 		// This performs initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
@@ -617,6 +628,7 @@ export class Filer implements BuildContext {
 	}
 
 	// These are used to avoid concurrent builds for any given source file.
+	// TODO maybe make these `Map<BuildConfig, Set<BuildableSourceFile>>`, initialize during `init` to avoid bookkeeping API overhead or speciality code
 	private pendingBuilds = new Set<string>(); // value is `buildConfig.name + sourceId`
 	private enqueuedBuilds = new Set<string>(); // value is `buildConfig.name + sourceId`
 
@@ -897,12 +909,12 @@ export class Filer implements BuildContext {
 
 				// lazily create external source files if needed
 				if (addedSourceFile === undefined && addedDependency.external) {
-					console.log('getting or creating dependencySourceId', dependencySourceId);
-					addedSourceFile = await this.getOrCreateExternalSourceFile(
+					console.log('creating external', dependencySourceId);
+					addedSourceFile = await this.createExternalSourceFile(
 						dependencySourceId,
 						sourceFile.filerDir,
 					);
-					console.log('created addedSourceFile', addedSourceFile.id);
+					console.log('created external', addedSourceFile.id);
 				}
 				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
 				(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
@@ -972,17 +984,14 @@ export class Filer implements BuildContext {
 	}
 
 	// TODO can we remove this thing completely, treating externals like all others?
-	private async getOrCreateExternalSourceFile(
+	private async createExternalSourceFile(
 		id: string,
 		filerDir: FilerDir,
 	): Promise<BuildableExternalsSourceFile> {
 		const sourceFile = this.files.get(id);
-		if (sourceFile !== undefined) {
-			assertBuildableExternalsSourceFile(sourceFile);
-			return sourceFile;
-		}
+		if (sourceFile !== undefined) throw Error(`Expected to create source file: ${id}`);
 		this.log.trace('creating external source file', gray(id));
-		await this.updateSourceFile(id, filerDir);
+		await this.updateSourceFile(id, filerDir); // TODO use the return value?
 		const newFile = this.files.get(id);
 		assertBuildableExternalsSourceFile(newFile);
 		return newFile;

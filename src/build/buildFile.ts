@@ -88,7 +88,7 @@ export const createBuildFile = (
 
 export const reconstructBuildFiles = async (
 	cachedSourceInfo: CachedSourceInfo,
-	buildConfigs: BuildConfig[],
+	buildConfigs: readonly BuildConfig[],
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(

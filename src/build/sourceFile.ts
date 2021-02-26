@@ -77,7 +77,7 @@ export const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	cachedSourceInfo: CachedSourceInfo | undefined,
-	buildConfigs: BuildConfig[] | null,
+	buildConfigs: readonly BuildConfig[] | null,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;

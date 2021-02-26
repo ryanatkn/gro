@@ -1,5 +1,5 @@
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
-import {BuildSource, Builder} from './builder.js';
+import {Builder} from './builder.js';
 import {createLazyBuilder, InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
 import {createSwcBuilder, InitialOptions as SwcBuilderInitialOptions} from './swcBuilder.js';
 import {
@@ -17,15 +17,18 @@ export const createDefaultBuilder = async (
 	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
 	lazyBuilderOptions?: LazyBuilderInitialOptions,
 ): Promise<Builder> => {
-	const swcBuilder = createSwcBuilder(swcBuilderOptions);
-	const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
-	const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
-
 	if (!lazyBuilderOptions?.getBuilder) {
+		const swcBuilder = createSwcBuilder(swcBuilderOptions);
+		const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
+		const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
+		const builders: Builder[] = [swcBuilder, svelteBuilder, externalsBuilder];
 		lazyBuilderOptions = {
 			...lazyBuilderOptions,
-			getBuilder: (source: BuildSource) => {
+			getBuilder: (source, buildConfig) => {
 				if (source.external) {
+					if (buildConfig.platform !== 'browser') {
+						throw Error('Expected browser for externals builder.');
+					}
 					return externalsBuilder;
 				}
 				switch (source.extension) {
@@ -37,6 +40,7 @@ export const createDefaultBuilder = async (
 						return null;
 				}
 			},
+			getBuilders: () => builders,
 		};
 	}
 

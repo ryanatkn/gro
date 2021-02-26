@@ -69,7 +69,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
 	) => {
 		if (source.id === COMMON_SOURCE_ID) {
-			const buildState = getExternalsBuildState(state, buildConfig);
+			const buildState = getExternalsBuildState(getExternalsBuilderState(state), buildConfig);
 			const builds = buildState.commonBuilds;
 			if (builds === null) {
 				throw Error('Expected builds to build common files');
@@ -94,23 +94,13 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			}
 
 			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+
 			let id: string;
 
 			log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
-			// TODO ok so the code that locks it needs to synchronously attach the promise for others to await?? maybe initialImportMap.get(buildConfig) is a promise by the first code to get here, any can await it, and it's set afterwards to the result?
-			// load the esinstall import-map.json if needed
-			const builderState = initExternalsBuilderState(state);
-
-			// if (!state.externals.buildStates.has(buildConfig) && lock.has(source.id)) {
-			// TODO uhh .. the lock?
-			// }
-
-			const buildState = initExternalsBuildState(builderState, buildConfig); // TODO should this be done later?
-			if (buildState.importMap === undefined && lock.has(source.id)) {
-				// TODO the lock .. hmm - could synchronously put `null` or something on the importMap to hackily grab it
-				buildState.importMap = await loadImportMapFromDisk(dest);
-			}
+			const builderState = getExternalsBuilderState(state);
+			const buildState = getExternalsBuildState(builderState, buildConfig);
 
 			// TODO add an external API for customizing the `install` params
 			// TODO this is legacy stuff that we need to rethink when we handle CSS better
@@ -222,7 +212,8 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	): Promise<void> => {
 		debugger;
 		// TODO ok wait this state should exist right?
-		const buildState = getExternalsBuildState(ctx.state, buildConfig);
+		const builderState = getExternalsBuilderState(ctx.state);
+		const buildState = getExternalsBuildState(builderState, buildConfig);
 		// update importMap for externals
 		// TODO or set to undefined? or treat as immutable? (maybe treat all keys of `BuilderState[key]` as immer-compatible data?)
 		// delete installResult.stats?.direct[sourceFile.id];
@@ -236,7 +227,29 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		}
 	};
 
-	return {build, onRemove};
+	const init: ExternalsBuilder['init'] = async (
+		{state, dev, buildRootDir}: BuildContext,
+		buildConfigs: BuildConfig[], // TODO should these be moved to the `BuildContext`?
+	): Promise<void> => {
+		// initialize the externals builder state, which is stored on the `BuildContext` (the filer)
+		const builderState = initExternalsBuilderState(state);
+		for (const buildConfig of buildConfigs) {
+			// by skipping `init` for non-browser platforms,
+			// trying to build for those platforms will throw an error, which is what we want
+			if (buildConfig.platform !== 'browser') continue;
+			const buildState = initExternalsBuildState(builderState, buildConfig);
+			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+			console.log('initializing, buildConfig.name, dest', buildConfig.name, dest);
+			const importMap = await loadImportMapFromDisk(dest);
+			if (importMap !== undefined) {
+				console.log('loaded importMap:', importMap);
+				buildState.importMap = importMap;
+				buildState.specifiers = toSpecifiers(importMap);
+			}
+		}
+	};
+
+	return {build, onRemove, init};
 };
 
 // TODO this is really hacky - it's working,
@@ -359,31 +372,27 @@ const EXTERNALS_BUILDER_STATE_KEY = 'externals';
 
 // throws if it can't find it
 const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
-	let builderState = findExternalsBuilderState(state);
+	const builderState = state[EXTERNALS_BUILDER_STATE_KEY];
 	if (builderState === undefined) {
 		throw Error(`Expected builder state to exist: ${EXTERNALS_BUILDER_STATE_KEY}`);
 	}
 	return builderState;
 };
 
-// may find nothing!
-const findExternalsBuilderState = (state: BuilderState): ExternalsBuilderState | undefined =>
-	state[EXTERNALS_BUILDER_STATE_KEY];
-
-// this is a no-op if the state does not need to be inited
+// this throws if the state already exists
 const initExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
-	let builderState = findExternalsBuilderState(state);
-	if (builderState !== undefined) return builderState;
+	let builderState = state[EXTERNALS_BUILDER_STATE_KEY];
+	if (builderState !== undefined) throw Error('Builder state already initialized');
 	builderState = {buildStates: new Map()};
 	state[EXTERNALS_BUILDER_STATE_KEY] = builderState;
 	return builderState;
 };
 
+// throws if it can't find it
 const getExternalsBuildState = (
-	state: BuilderState,
+	builderState: ExternalsBuilderState,
 	buildConfig: BuildConfig,
 ): ExternalsBuildState => {
-	const builderState = getExternalsBuilderState(state);
 	const buildState = builderState.buildStates.get(buildConfig);
 	if (buildState === undefined) {
 		throw Error(`Expected build state to exist: ${buildConfig.name}`);
@@ -391,12 +400,13 @@ const getExternalsBuildState = (
 	return buildState;
 };
 
+// this throws if the state already exists
 const initExternalsBuildState = (
 	builderState: ExternalsBuilderState,
 	buildConfig: BuildConfig,
 ): ExternalsBuildState => {
 	let buildState = builderState.buildStates.get(buildConfig);
-	if (buildState !== undefined) return buildState;
+	if (buildState !== undefined) throw Error('Build state already initialized');
 	buildState = {
 		importMap: undefined,
 		specifiers: new Set(),
@@ -424,15 +434,15 @@ const updateImportMapOnDisk = async (
 	{dev, buildRootDir, log}: BuildContext,
 ): Promise<void> => {
 	const dest = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildRootDir);
-	const outPath = toImportMapPath(dest);
+	const importMapPath = toImportMapPath(dest);
 	// TODO `outputJson`? hmm
-	log.trace(`writing import map to ${gray(outPath)}`);
-	await outputFile(outPath, JSON.stringify(importMap, null, 2));
+	log.trace(`writing import map to ${gray(importMapPath)}`);
+	await outputFile(importMapPath, JSON.stringify(importMap, null, 2));
 };
 
 const loadImportMapFromDisk = async (dest: string): Promise<ImportMap | undefined> => {
-	const initialImportMapPath = toImportMapPath(dest);
-	if (!(await pathExists(initialImportMapPath))) return undefined;
-	const importMap: ImportMap = await readJson(initialImportMapPath);
+	const importMapPath = toImportMapPath(dest);
+	if (!(await pathExists(importMapPath))) return undefined;
+	const importMap: ImportMap = await readJson(importMapPath);
 	return importMap;
 };
