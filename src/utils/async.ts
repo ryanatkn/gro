@@ -8,6 +8,8 @@ interface WrapAfter {
 interface WrapAfterCallback {
 	(): unknown | Promise<unknown>;
 }
+
+// TODO consider adding the value/err to the callback params?
 export const wrap = <T>(fn: (after: WrapAfter) => Promise<T>): Promise<T> => {
 	let cbs: WrapAfterCallback[] | null = null;
 	const after: WrapAfter = (cb) => {

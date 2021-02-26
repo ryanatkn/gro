@@ -67,21 +67,22 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		source,
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
-	) => {
-		if (source.id === COMMON_SOURCE_ID) {
-			const buildState = getExternalsBuildState(getExternalsBuilderState(state), buildConfig);
-			const builds = buildState.commonBuilds;
-			if (builds === null) {
-				throw Error('Expected builds to build common files');
-			}
-			buildState.commonBuilds = null;
-			console.log('building commons source!!!', builds.length);
-			const result: BuildResult<TextBuild> = {builds};
-			return result;
-		}
-		lock.tryToObtain(source.id);
-		return wrap(async (after) => {
+	) =>
+		wrap(async (after) => {
+			lock.tryToObtain(source.id);
 			after(() => lock.tryToRelease(source.id));
+
+			if (source.id === COMMON_SOURCE_ID) {
+				const buildState = getExternalsBuildState(getExternalsBuilderState(state), buildConfig);
+				const builds = buildState.commonBuilds;
+				if (builds === null) {
+					throw Error('Expected builds to build common files');
+				}
+				buildState.commonBuilds = null;
+				console.log('building commons source!!!', builds.length);
+				const result: BuildResult<TextBuild> = {builds};
+				return result;
+			}
 
 			// if (sourceMap) {
 			// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -201,7 +202,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			const result: BuildResult<TextBuild> = {builds};
 			return result;
 		});
-	};
 
 	// TODO problem is `importMap` is different for each build config! but only 1 on state.
 	// TODO maybe refactor this into callbacks/events/plugins or something
