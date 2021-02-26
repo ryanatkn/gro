@@ -346,9 +346,9 @@ const getOrCreateExternalsBuilderState = (
 };
 
 // TODO probably refactor this into callbacks/events/plugins or something
-export const handleRemovedDependencySourceFile = async (
+export const handleRemovedExternalSourceFile = async (
 	id: string,
-	state: Exclude<BuilderState[typeof EXTERNALS_BUILD_DIR], undefined>,
+	state: ExternalsBuilderState,
 	buildConfig: BuildConfig,
 	ctx: BuildContext,
 ): Promise<void> => {
@@ -366,6 +366,8 @@ export const handleRemovedDependencySourceFile = async (
 
 const toImportMapPath = (dest: string): string => `${dest}/import-map.json`;
 
+// Normally `esinstall` writes out the `import-map.json` file,
+// but whenever files are deleted we update it without going through `esinstall`.
 const updateImportMapOnDisk = async (
 	importMap: ImportMap,
 	buildConfig: BuildConfig,

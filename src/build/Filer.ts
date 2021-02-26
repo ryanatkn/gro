@@ -32,7 +32,7 @@ import {
 } from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
-import {handleRemovedDependencySourceFile} from './externalsBuilder.js';
+import {handleRemovedExternalSourceFile} from './externalsBuilder.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 
 /*
@@ -426,6 +426,11 @@ export class Filer implements BuildContext {
 		}
 		sourceFile.dependencies.delete(buildConfig);
 		sourceFile.dependents.delete(buildConfig);
+		// TODO wait should this be handled in `await this.updateBuildFiles` above?
+		if (sourceFile.external && this.state.externals !== undefined) {
+			debugger;
+			await handleRemovedExternalSourceFile(sourceFile.id, this.state.externals, buildConfig, this);
+		}
 
 		await this.updateCachedSourceInfo(sourceFile);
 	}
@@ -823,21 +828,10 @@ export class Filer implements BuildContext {
 					);
 				}
 				dependents.delete(sourceFile);
-				const isUnreferenced = dependents.size === 0;
-				if (removedDependencySourceFile.external) {
-					if (isUnreferenced && this.state.externals !== undefined) {
-						await handleRemovedDependencySourceFile(
-							removedDependencySourceFile.id,
-							this.state.externals,
-							buildConfig,
-							this,
-						);
-					}
-				}
 				if (
 					// TODO hmm maybe do this bookkeeping but don't delete externals on disk?
 					// !removedDependencySourceFile.external && // TODO clean these up ever?
-					isUnreferenced &&
+					dependents.size === 0 &&
 					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
 				) {
 					(promises || (promises = [])).push(
