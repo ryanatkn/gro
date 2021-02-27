@@ -551,7 +551,7 @@ export class Filer implements BuildContext {
 		const promise = wrap(async (after) => {
 			after(() => this.updatingSourceFiles.delete(id));
 
-			if (id[0] !== '/') this.log.trace(`updating source file ${gray(id)}`);
+			// this.log.trace(`updating source file ${gray(id)}`);
 			const sourceFile = this.files.get(id);
 			if (sourceFile !== undefined) {
 				if (sourceFile.type !== 'source') {
@@ -749,7 +749,7 @@ export class Filer implements BuildContext {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (sourceFile.id[0] !== '/') this.log.trace('hydrate', gray(sourceFile.id));
+		// this.log.trace('hydrate', gray(sourceFile.id));
 		const buildFiles = sourceFile.buildFiles.get(buildConfig);
 		if (buildFiles === undefined) {
 			throw Error(`Expected to find build files when hydrating from cache.`);
