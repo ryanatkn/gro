@@ -369,10 +369,9 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		if (sourceFile.id[0] !== '/')
-			this.log.trace(
-				`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
-			);
+		// this.log.trace(
+		// 	`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
+		// );
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(
 				`Expected to add buildConfig for ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
@@ -789,7 +788,6 @@ export class Filer implements BuildContext {
 					this.buildRootDir,
 				);
 				if (dependencySourceId === sourceFile.id) {
-					this.log.trace('ignoring self dependency', gray(dependencySourceId));
 					continue; // ignore dependencies on self, happens with common externals
 				}
 				let dependencies = sourceFile.dependencies.get(buildConfig);
@@ -998,7 +996,7 @@ export class Filer implements BuildContext {
 	): Promise<BuildableExternalsSourceFile> {
 		const sourceFile = this.files.get(id);
 		if (sourceFile !== undefined) throw Error(`Expected to create source file: ${id}`);
-		this.log.trace('creating external source file', gray(id));
+		// this.log.trace('creating external source file', gray(id));
 		await this.updateSourceFile(id, filerDir); // TODO use the return value?
 		const newFile = this.files.get(id);
 		assertBuildableExternalsSourceFile(newFile);

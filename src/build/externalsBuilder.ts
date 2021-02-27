@@ -78,7 +78,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 					throw Error('Expected builds to build common files');
 				}
 				buildState.commonBuilds = null;
-				console.log('building commons source!!!', builds.length);
 				const result: BuildResult<TextBuild> = {builds};
 				return result;
 			}
@@ -202,27 +201,17 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			return result;
 		});
 
-	// TODO problem is `importMap` is different for each build config! but only 1 on state.
-	// TODO maybe refactor this into callbacks/events/plugins or something
 	const onRemove: ExternalsBuilder['onRemove'] = async (
 		sourceFile: BuildableExternalsSourceFile,
 		buildConfig: BuildConfig,
 		ctx: BuildContext,
 	): Promise<void> => {
-		debugger;
-		// TODO ok wait this state should exist right?
 		const builderState = getExternalsBuilderState(ctx.state);
 		const buildState = getExternalsBuildState(builderState, buildConfig);
-		// update importMap for externals
-		// TODO or set to undefined? or treat as immutable? (maybe treat all keys of `BuilderState[key]` as immer-compatible data?)
-		// delete installResult.stats?.direct[sourceFile.id];
-		// delete installResult.stats?.common[sourceFile.id];
+		// mutate `importMap` with the removed source file
 		if (buildState.importMap !== undefined) {
 			delete buildState.importMap.imports[sourceFile.id];
 			await updateImportMapOnDisk(buildState.importMap, buildConfig, ctx);
-		} else {
-			console.log('TODO wait should we lazy load stuff here?');
-			console.log('TODO what about re-using normal machinery for build files for import-map.json?');
 		}
 	};
 
