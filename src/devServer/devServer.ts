@@ -150,8 +150,6 @@ const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFil
 				? `${mimeType}; charset=utf-8`
 				: mimeType,
 		'Content-Length': stats.size,
-		// TODO this works but not for source maps.
-		// not sure why. browser isn't returning the 'if-modified-since' header
 		ETag: toETag(file),
 
 		// TODO any of these helpful?
