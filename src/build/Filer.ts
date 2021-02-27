@@ -395,10 +395,6 @@ export class Filer implements BuildContext {
 		}
 
 		// Build only if needed - build files may be hydrated from the cache.
-		if (sourceFile.id === 'common') {
-			console.log('sourceFile', sourceFile);
-			// debugger;
-		}
 		const hasBuildConfig = sourceFile.buildFiles.has(buildConfig);
 		if (hasBuildConfig) {
 			await this.hydrateSourceFileFromCache(sourceFile, buildConfig);
@@ -667,6 +663,12 @@ export class Filer implements BuildContext {
 		this.pendingBuilds.delete(key);
 		if (this.enqueuedBuilds.has(key)) {
 			this.enqueuedBuilds.delete(key);
+			// TODO wait is this a source of inefficiency?
+			// should we check to see if it needs to be built again,
+			// or if we should just return the pending promise,
+			// like in `updateSourceFile`?
+			// maybe have an explicit `invalidate` semantics?
+
 			// Something changed during the build for this file, so recurse.
 			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
@@ -918,12 +920,10 @@ export class Filer implements BuildContext {
 
 				// lazily create external source files if needed
 				if (addedSourceFile === undefined && addedDependency.external) {
-					console.log('creating external', dependencySourceId);
 					addedSourceFile = await this.createExternalSourceFile(
 						dependencySourceId,
 						sourceFile.filerDir,
 					);
-					console.log('created external', addedSourceFile.id);
 				}
 				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
 				(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
@@ -970,7 +970,6 @@ export class Filer implements BuildContext {
 	): Promise<void> {
 		await this.updateSourceFile(id, filerDir); // TODO maybe use the return value? what contents should it have? the list of common files?
 		const sourceFile = this.files.get(id);
-		// console.log('sourceFile', shouldBuild, sourceFile); // TODO we need to create this no? how?
 		assertBuildableExternalsSourceFile(sourceFile);
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			await this.buildSourceFile(sourceFile, buildConfig);

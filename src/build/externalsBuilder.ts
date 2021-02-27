@@ -24,7 +24,6 @@ import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {COMMON_SOURCE_ID} from './buildFile.js';
 import {wrap} from '../utils/async.js';
 import {BuildableExternalsSourceFile} from './sourceFile.js';
-import {deepEqual} from '../utils/deepEqual.js';
 
 /*
 
@@ -273,14 +272,8 @@ const installExternal = async (
 			log.info('installing externals', state.specifiers);
 			const result = await installExternals(state.specifiers, dest, plugins);
 			log.info('install result', result);
-			log.info('old import map result', state.importMap);
+			// log.info('old import map result', state.importMap);
 			state.importMap = result.importMap;
-			if (!deepEqual(state.specifiers, toSpecifiers(result.importMap))) {
-				debugger;
-				console.log('state.specifiers', state.specifiers);
-				console.log(' toSpecifiers(result.importMap)', toSpecifiers(result.importMap));
-				process.exit();
-			}
 			state.installing = null;
 			return result;
 		});
