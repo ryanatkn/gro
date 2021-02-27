@@ -19,6 +19,7 @@ import {
 	getFileMimeType,
 	getFileContentsBuffer,
 	getFileStats,
+	getFileContentsHash,
 } from '../build/baseFilerFile.js';
 
 export interface DevServer {
@@ -101,7 +102,11 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		// }
 		if (!file) {
 			log.info(`${yellow('404')} ${red(localPath)}`);
-			return send404(req, res, localPath);
+			return send404(req, res);
+		}
+		if (req.headers['if-none-match'] === toETag(file)) {
+			log.info(`${yellow('304')} ${gray(localPath)}`);
+			return send304(res);
 		}
 		log.info(`${yellow('200')} ${gray(localPath)}`);
 		return send200(req, res, file);
@@ -119,12 +124,17 @@ const toLocalPath = (url: string): string => {
 	return relativePath;
 };
 
-const send404 = (req: IncomingMessage, res: ServerResponse, path: string) => {
+const send404 = (req: IncomingMessage, res: ServerResponse) => {
 	const headers: OutgoingHttpHeaders = {
 		'Content-Type': 'text/plain; charset=utf-8',
 	};
 	res.writeHead(404, headers);
-	res.end(`404 not found: ${req.url} → ${path}`);
+	res.end(`404 not found: ${req.url}`);
+};
+
+const send304 = (res: ServerResponse) => {
+	res.writeHead(304);
+	res.end();
 };
 
 const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFilerFile) => {
@@ -132,10 +142,21 @@ const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFil
 	const mimeType = getFileMimeType(file);
 	const headers: OutgoingHttpHeaders = {
 		'Content-Type':
-			mimeType === null ? '' : file.encoding === 'utf8' ? `${mimeType}; charset=utf-8` : mimeType,
+			mimeType === null
+				? 'application/octet-stream'
+				: file.encoding === 'utf8'
+				? `${mimeType}; charset=utf-8`
+				: mimeType,
 		'Content-Length': stats.size,
-		'Last-Modified': stats.mtime.toUTCString(),
+		ETag: toETag(file),
+		// TODO ?
+		'Cache-Control': 'must-revalidate',
+		// 'Cache-Control': 'no-cache',
+		// 'Cache-Control': 'max-age=31536000',
+		// 'Last-Modified': stats.mtime.toUTCString(),
 	};
 	res.writeHead(200, headers);
 	res.end(getFileContentsBuffer(file));
 };
+
+const toETag = (file: BaseFilerFile): string => `"${getFileContentsHash(file)}"`;
