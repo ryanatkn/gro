@@ -228,24 +228,23 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 	const init: ExternalsBuilder['init'] = async (
 		{state, dev, buildRootDir}: BuildContext,
-		buildConfigs: BuildConfig[], // TODO should these be moved to the `BuildContext`?
+		buildConfigs: BuildConfig[],
 	): Promise<void> => {
 		// initialize the externals builder state, which is stored on the `BuildContext` (the filer)
 		const builderState = initExternalsBuilderState(state);
-		for (const buildConfig of buildConfigs) {
-			// by skipping `init` for non-browser platforms,
-			// trying to build for those platforms will throw an error, which is what we want
-			if (buildConfig.platform !== 'browser') continue;
-			const buildState = initExternalsBuildState(builderState, buildConfig);
-			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
-			console.log('initializing, buildConfig.name, dest', buildConfig.name, dest);
-			const importMap = await loadImportMapFromDisk(dest);
-			if (importMap !== undefined) {
-				console.log('loaded importMap:', importMap);
-				buildState.importMap = importMap;
-				buildState.specifiers = toSpecifiers(importMap);
-			}
-		}
+		// mutate the build state with any available initial values
+		await Promise.all(
+			buildConfigs.map(async (buildConfig) => {
+				if (buildConfig.platform !== 'browser') return;
+				const buildState = initExternalsBuildState(builderState, buildConfig);
+				const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+				const importMap = await loadImportMapFromDisk(dest);
+				if (importMap !== undefined) {
+					buildState.importMap = importMap;
+					buildState.specifiers = toSpecifiers(importMap);
+				}
+			}),
+		);
 	};
 
 	return {build, onRemove, init};
