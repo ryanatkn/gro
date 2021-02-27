@@ -33,6 +33,7 @@ import {
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
+import {wrap} from '../utils/async.js';
 
 /*
 
@@ -538,93 +539,101 @@ export class Filer implements BuildContext {
 		if (promises !== null) await Promise.all(promises);
 	}
 
+	updatingSourceFiles: Map<string, Promise<boolean>> = new Map();
+
 	// Returns a boolean indicating if the source file should be built.
 	// The source file may have been updated or created from a cold cache.
+	// It batches calls together, but unlike `buildSourceFile`, it don't queue them,
+	// and instead just returns the pending promise.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
-		if (id[0] !== '/') this.log.trace(`updating source file ${gray(id)}`);
-		const sourceFile = this.files.get(id);
-		if (sourceFile !== undefined) {
-			if (sourceFile.type !== 'source') {
-				throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
+		const updating = this.updatingSourceFiles.get(id);
+		if (updating !== undefined) return updating;
+		const promise = wrap(async (after) => {
+			after(() => this.updatingSourceFiles.delete(id));
+
+			if (id[0] !== '/') this.log.trace(`updating source file ${gray(id)}`);
+			const sourceFile = this.files.get(id);
+			if (sourceFile !== undefined) {
+				if (sourceFile.type !== 'source') {
+					throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
+				}
+				if (sourceFile.filerDir !== filerDir) {
+					// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
+					// We might be able to support this,
+					// but more thought needs to be given to the exact desired behavior.
+					// See `validateDirs` for more.
+					throw Error(
+						'Source file filerDir unexpectedly changed: ' +
+							`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+					);
+				}
 			}
-			if (sourceFile.filerDir !== filerDir) {
-				// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
-				// We might be able to support this,
-				// but more thought needs to be given to the exact desired behavior.
-				// See `validateDirs` for more.
-				throw Error(
-					'Source file filerDir unexpectedly changed: ' +
-						`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+
+			const external = sourceFile === undefined ? isExternalBrowserModule(id) : sourceFile.external;
+
+			let extension: string;
+			let encoding: Encoding;
+			if (sourceFile !== undefined) {
+				extension = sourceFile.extension;
+				encoding = sourceFile.encoding;
+			} else if (external) {
+				extension = JS_EXTENSION;
+				encoding = 'utf8';
+			} else {
+				extension = extname(id);
+				encoding = inferEncoding(extension);
+			}
+			const newSourceContents = external
+				? // TODO it may require additional changes,
+				  // but the package.json version could be put here,
+				  // allowing externals to update at runtime
+				  // maybe also for the "common" files, this could be the importMap (stringified? or not?)
+				  ''
+				: await loadContents(encoding, id);
+
+			if (sourceFile === undefined) {
+				// Memory cache is cold.
+				const newSourceFile = await createSourceFile(
+					id,
+					encoding,
+					extension,
+					newSourceContents,
+					filerDir,
+					this.cachedSourceInfo.get(id),
+					this.buildConfigs,
 				);
-			}
-		}
-
-		const external = sourceFile === undefined ? isExternalBrowserModule(id) : sourceFile.external;
-
-		let extension: string;
-		let encoding: Encoding;
-		if (sourceFile !== undefined) {
-			extension = sourceFile.extension;
-			encoding = sourceFile.encoding;
-		} else if (external) {
-			extension = JS_EXTENSION;
-			encoding = 'utf8';
-		} else {
-			extension = extname(id);
-			encoding = inferEncoding(extension);
-		}
-		const newSourceContents = external
-			? // TODO it may require additional changes,
-			  // but the package.json version could be put here,
-			  // allowing externals to update at runtime
-			  // maybe also for the "common" files, this could be the importMap (stringified? or not?)
-			  ''
-			: await loadContents(encoding, id);
-
-		if (sourceFile === undefined) {
-			// Memory cache is cold.
-			const newSourceFile = await createSourceFile(
-				id,
-				encoding,
-				extension,
-				newSourceContents,
-				filerDir,
-				this.cachedSourceInfo.get(id),
-				this.buildConfigs,
-			);
-			if (id.includes('import-map.json')) {
-				console.log('TODO can this happen?', id);
-				process.exit();
-			}
-			this.files.set(id, newSourceFile);
-			// If the created source file has its build files hydrated from the cache,
-			// we assume it doesn't need to be built.
-			if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
+				this.files.set(id, newSourceFile);
+				// If the created source file has its build files hydrated from the cache,
+				// we assume it doesn't need to be built.
+				if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
+					return false;
+				}
+			} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
+				// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 				return false;
+			} else {
+				// Memory cache is warm, but contents have changed.
+				switch (sourceFile.encoding) {
+					case 'utf8':
+						sourceFile.contents = newSourceContents as string;
+						sourceFile.stats = undefined;
+						sourceFile.contentsBuffer = undefined;
+						sourceFile.contentsHash = undefined;
+						break;
+					case null:
+						sourceFile.contents = newSourceContents as Buffer;
+						sourceFile.stats = undefined;
+						sourceFile.contentsBuffer = newSourceContents as Buffer;
+						sourceFile.contentsHash = undefined;
+						break;
+					default:
+						throw new UnreachableError(sourceFile);
+				}
 			}
-		} else if (areContentsEqual(encoding, sourceFile.contents, newSourceContents)) {
-			// Memory cache is warm and source code hasn't changed, do nothing and exit early!
-			return false;
-		} else {
-			// Memory cache is warm, but contents have changed.
-			switch (sourceFile.encoding) {
-				case 'utf8':
-					sourceFile.contents = newSourceContents as string;
-					sourceFile.stats = undefined;
-					sourceFile.contentsBuffer = undefined;
-					sourceFile.contentsHash = undefined;
-					break;
-				case null:
-					sourceFile.contents = newSourceContents as Buffer;
-					sourceFile.stats = undefined;
-					sourceFile.contentsBuffer = newSourceContents as Buffer;
-					sourceFile.contentsHash = undefined;
-					break;
-				default:
-					throw new UnreachableError(sourceFile);
-			}
-		}
-		return filerDir.buildable;
+			return filerDir.buildable;
+		});
+		this.updatingSourceFiles.set(id, promise);
+		return promise;
 	}
 
 	// These are used to avoid concurrent builds for any given source file.
