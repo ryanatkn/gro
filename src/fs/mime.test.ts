@@ -18,7 +18,7 @@ test('getMimeTypeByExtension()', () => {
 
 test('getExtensionsByMimeType()', () => {
 	t.equal(getExtensionsByMimeType('text/plain'), ['txt', 'log']);
-	t.equal(getExtensionsByMimeType('application/json'), ['json']);
+	t.equal(getExtensionsByMimeType('application/json'), ['json', 'map']);
 	t.equal(getExtensionsByMimeType('text/javascript'), ['js', 'mjs']);
 	t.equal(getExtensionsByMimeType('fake/test-type'), null);
 });

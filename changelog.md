@@ -29,6 +29,8 @@
   ([#70](https://github.com/feltcoop/gro/pull/70))
 - replace deep equality helpers with `dequal`
   ([#73](https://github.com/feltcoop/gro/pull/73))
+- add server caching
+  ([#77](https://github.com/feltcoop/gro/pull/77))
 
 ## 0.4.0
 
