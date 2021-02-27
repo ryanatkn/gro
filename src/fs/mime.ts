@@ -56,7 +56,7 @@ export const removeMimeTypeExtension = (extension: string): boolean => {
 (() => {
 	const types: [string, string[]][] = [
 		// Since 'application/octet-stream' is the default, we don't include it.
-		['application/json', ['json']],
+		['application/json', ['json', 'map']],
 		['application/schema+json', ['json']],
 		['application/schema-instance+json', ['json']],
 		['application/ld+json', ['jsonld']],

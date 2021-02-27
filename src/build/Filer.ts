@@ -208,9 +208,10 @@ export class Filer implements BuildContext {
 		const {files} = this;
 		for (const servedDir of this.servedDirs) {
 			const id = `${servedDir.servedAt}/${path}`;
-			this.log.trace(`findByPath: checking: ${id}`);
 			const file = files.get(id);
-			if (file !== undefined) {
+			if (file === undefined) {
+				this.log.trace(`findByPath: miss: ${id}`);
+			} else {
 				this.log.trace(`findByPath: found: ${id}`);
 				return file;
 			}
@@ -1195,6 +1196,9 @@ const createFilerDirs = (
 		// it's already in the Filer's memory cache and does not need to be loaded as a directory.
 		// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
 		if (
+			// TODO I think these are bugged with trailing slashes -
+			// note the `servedDir.dir` of `servedDir.dir.startsWith` could also not have a trailing slash!
+			// so I think you add `{dir} + '/'` to both?
 			!sourceDirs.find((d) => servedDir.dir.startsWith(d)) &&
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildRootDir)

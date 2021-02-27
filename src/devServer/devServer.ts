@@ -37,7 +37,7 @@ export interface Options {
 }
 export type RequiredOptions = 'filer';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-const DEFAULT_HOST = 'localhost'; // or 0.0.0.0?
+const DEFAULT_HOST = 'localhost';
 const DEFAULT_PORT = 8999;
 export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
@@ -104,7 +104,9 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 			log.info(`${yellow('404')} ${red(localPath)}`);
 			return send404(req, res);
 		}
-		if (req.headers['if-none-match'] === toETag(file)) {
+		// console.log('req headers', gray(file.id), req.headers);
+		const etag = req.headers['if-none-match'];
+		if (etag && etag === toETag(file)) {
 			log.info(`${yellow('304')} ${gray(localPath)}`);
 			return send304(res);
 		}
@@ -148,13 +150,21 @@ const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFil
 				? `${mimeType}; charset=utf-8`
 				: mimeType,
 		'Content-Length': stats.size,
+		// TODO this works but not for source maps.
+		// not sure why. browser isn't returning the 'if-modified-since' header
 		ETag: toETag(file),
-		// TODO ?
-		'Cache-Control': 'must-revalidate',
-		// 'Cache-Control': 'no-cache',
-		// 'Cache-Control': 'max-age=31536000',
+
+		// TODO any of these helpful?
 		// 'Last-Modified': stats.mtime.toUTCString(),
+		// 'Cache-Control': 'no-cache,must-revalidate',
+		// 'Cache-Control': 'must-revalidate',
+
+		// TODO probably support various types of resource caching,
+		// especially if we output files with contents hashes.
+		// 'Cache-Control': 'immutable',
+		// 'Cache-Control': 'max-age=31536000',
 	};
+	// console.log('res headers', gray(file.id), headers);
 	res.writeHead(200, headers);
 	res.end(getFileContentsBuffer(file));
 };
