@@ -12,5 +12,8 @@ export const getDefaultSwcOptions = (
 		target,
 		externalHelpers: true,
 		loose: true, // TODO?
+		// TODO this doesn't preserve things like worthless statements separated by commas,
+		// and I'm not sure how to! maybe esbuild ..?
+		// transform: {optimizer: undefined},
 	},
 });

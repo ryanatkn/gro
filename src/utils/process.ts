@@ -1,6 +1,7 @@
 import {spawn, SpawnOptions} from 'child_process';
 
 import {red} from '../colors/terminal.js';
+import {TaskError} from '../task/task.js';
 import {SystemLogger} from './log.js';
 import {printError} from './print.js';
 
@@ -15,7 +16,9 @@ export const handleError = (err: Error, label = 'handleError'): void => {
 };
 
 const handleUnhandledRejection = (err: Error | any): void => {
-	if (err instanceof Error) {
+	if (err instanceof TaskError) {
+		handleError(err, 'TaskError');
+	} else if (err instanceof Error) {
 		handleError(err, 'unhandledRejection');
 	} else {
 		handleError(new Error(err), 'unhandledRejection');

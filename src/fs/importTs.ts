@@ -4,13 +4,15 @@ import {paths, TS_EXTENSION} from '../paths.js';
 import {randomInt} from '../utils/random.js';
 import {createSwcBuilder} from '../build/swcBuilder.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {TextBuildSource, BuildOptions} from '../build/builder.js';
+import type {BuildContext, TextBuildSource} from '../build/builder.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
 import {outputFile, readFile, remove} from './nodeFs.js';
 import {basename, dirname, join} from 'path';
 import {stripStart} from '../utils/string.js';
 import {isExternalNodeModule} from '../utils/module.js';
 import {replaceExtension} from '../utils/path.js';
+import {SystemLogger} from '../utils/log.js';
+import {cyan} from '../colors/terminal.js';
 
 /*
 
@@ -44,16 +46,18 @@ export const importTs = async (
 ): Promise<any> => {
 	await lexer.init;
 
-	const buildOptions: BuildOptions = {
+	const ctx: BuildContext = {
+		log: new SystemLogger([cyan('[importTs]')]),
 		buildRootDir: tempDir,
 		dev: true,
 		sourceMap: false,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		// TODO these last two aren't needed, maybe the swc compiler's type should explicitly choose which options it uses?
-		externalsDirBasePath: '',
 		servedDirs: [],
+		state: {},
+		buildingSourceFiles: new Set(),
 	};
-	const buildId = await compileFileAndImports(sourceId, buildConfig, buildOptions);
+	const buildId = await compileFileAndImports(sourceId, buildConfig, ctx);
 	const mod = await import(buildId);
 	await remove(tempDir);
 	return mod;
@@ -62,11 +66,12 @@ export const importTs = async (
 const compileFileAndImports = async (
 	sourceId: string,
 	buildConfig: BuildConfig,
-	buildOptions: BuildOptions,
+	ctx: BuildContext,
 ): Promise<any> => {
 	const dir = dirname(sourceId) + '/'; // TODO hack - see Filer for similar problem
 	const source: TextBuildSource = {
-		sourceType: 'text',
+		buildable: true,
+		external: false,
 		encoding: 'utf8',
 		contents: await readFile(sourceId, 'utf8'),
 		id: sourceId,
@@ -78,7 +83,7 @@ const compileFileAndImports = async (
 	const builder = createSwcBuilder();
 	const {
 		builds: [build],
-	} = await builder.build(source, buildConfig, buildOptions);
+	} = await builder.build(source, buildConfig, ctx);
 
 	const deps = extractDeps(build.contents);
 	const internalDeps = deps.filter((dep) => !isExternalNodeModule(dep));
@@ -89,9 +94,7 @@ const compileFileAndImports = async (
 	// write the result and compile depdencies in parallel
 	await Promise.all([
 		outputFile(build.id, build.contents),
-		Promise.all(
-			internalDepSourceIds.map((id) => compileFileAndImports(id, buildConfig, buildOptions)),
-		),
+		Promise.all(internalDepSourceIds.map((id) => compileFileAndImports(id, buildConfig, ctx))),
 	]);
 
 	return build.id;

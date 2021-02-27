@@ -1,28 +1,38 @@
-import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {toBuildOutPath} from '../paths.js';
+import {toBuildOutPath, EXTERNALS_BUILD_DIR} from '../paths.js';
+import type {ExternalsBuilderState} from './externalsBuilder.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {ServedDir} from '../build/ServedDir.js';
+import {ServedDir} from './ServedDir.js';
+import {Logger} from '../utils/log.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
 	build(
 		source: TSource,
 		buildConfig: BuildConfig,
-		options: BuildOptions,
-	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>;
+		ctx: BuildContext,
+	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>; // TODO should this be forced async?
+	onRemove?(source: TSource, buildConfig: BuildConfig, ctx: BuildContext): Promise<void>;
+	init?(ctx: BuildContext, buildConfigs: readonly BuildConfig[]): Promise<void>;
 }
 
 export interface BuildResult<TBuild extends Build = Build> {
 	builds: TBuild[];
 }
-export interface BuildOptions {
-	readonly sourceMap: boolean;
-	readonly target: EcmaScriptTarget; // TODO probably make this overrideable by each build config
+
+export interface BuildContext {
+	readonly log: Logger;
 	readonly buildRootDir: string;
 	readonly dev: boolean;
-	readonly externalsDirBasePath: string;
+	readonly sourceMap: boolean;
+	readonly target: EcmaScriptTarget;
 	readonly servedDirs: readonly ServedDir[];
+	readonly state: BuilderState;
+	readonly buildingSourceFiles: Set<string>;
+}
+
+export interface BuilderState {
+	[EXTERNALS_BUILD_DIR]?: ExternalsBuilderState;
 }
 
 export type Build = TextBuild | BinaryBuild;
@@ -41,25 +51,21 @@ interface BaseBuild {
 	dir: string;
 	extension: string;
 	buildConfig: BuildConfig;
+	common?: boolean;
 }
 
-export type BuildSource = TextBuildSource | BinaryBuildSource | ExternalsBuildSource;
+export type BuildSource = TextBuildSource | BinaryBuildSource;
 export interface TextBuildSource extends BaseBuildSource {
-	sourceType: 'text';
 	encoding: 'utf8';
 	contents: string;
 }
 export interface BinaryBuildSource extends BaseBuildSource {
-	sourceType: 'binary';
 	encoding: null;
 	contents: Buffer;
 }
-export interface ExternalsBuildSource extends BaseBuildSource {
-	sourceType: 'externals';
-	encoding: 'utf8';
-	contents: string;
-}
 interface BaseBuildSource {
+	buildable: true;
+	external: boolean;
 	id: string;
 	filename: string;
 	dir: string;
@@ -67,37 +73,7 @@ interface BaseBuildSource {
 	extension: string;
 }
 
-export interface GetBuilder {
-	(source: BuildSource, buildConfig: BuildConfig): Builder | null;
-}
-
-export interface Options {
-	getBuilder: GetBuilder;
-}
-export type InitialOptions = Partial<Options>;
-export const initOptions = (opts: InitialOptions): Options => {
-	return {
-		getBuilder: getNoopBuilder,
-		...omitUndefined(opts),
-	};
-};
-
-export const createBuilder = (opts: InitialOptions = {}): Builder => {
-	const {getBuilder} = initOptions(opts);
-
-	const build: Builder['build'] = (
-		source: BuildSource,
-		buildConfig: BuildConfig,
-		options: BuildOptions,
-	) => {
-		const builder = getBuilder(source, buildConfig) || noopBuilder;
-		return builder.build(source, buildConfig, options);
-	};
-
-	return {build};
-};
-
-const noopBuilder: Builder = {
+export const noopBuilder: Builder = {
 	build: (source, buildConfig, {buildRootDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
@@ -130,7 +106,9 @@ const noopBuilder: Builder = {
 			default:
 				throw new UnreachableError(source);
 		}
-		return {builds: [file]};
+		const result: BuildResult = {builds: [file]};
+		return result;
 	},
+	// onRemove: not implemented because it's a no-op
+	// init: not implemented because it's a no-op
 };
-const getNoopBuilder: GetBuilder = () => noopBuilder;

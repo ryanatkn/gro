@@ -10,12 +10,13 @@
       "runtimeArgs": [],
       "outFiles": [
         "${workspaceRoot}/.gro/dev/node/**/*.js",
-        "${workspaceRoot}/.gro/externals/**/*.js"
+        "${workspaceRoot}/.gro/prod/node/**/*.js"
       ], // enables breakpoints in TS source
       "env": {
         // "NODE_ENV": "production"
         "NODE_ENV": "development"
-      }
+      },
+      "skipFiles": ["${workspaceFolder}/node_modules/**/*.js", "<node_internals>/**/*.js"]
     }
   ]
 }

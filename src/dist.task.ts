@@ -6,6 +6,7 @@ import {printPath} from './utils/print.js';
 import {cleanDist} from './project/clean.js';
 import {loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
+import {printBuildConfig} from './config/buildConfig.js';
 
 export const isDistFile = (path: string): boolean =>
 	!isTestBuildFile(path) && !isTestBuildArtifact(path);
@@ -25,7 +26,9 @@ export const task: Task = {
 			buildConfigsForDist.map((buildConfig) => {
 				const buildOutDir = toBuildOutPath(dev, buildConfig.name);
 				const distOutDir =
-					buildConfigsForDist.length === 1 ? paths.dist : `${paths.dist}${buildConfig.name}`;
+					buildConfigsForDist.length === 1
+						? paths.dist
+						: `${paths.dist}${printBuildConfig(buildConfig)}`;
 				log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);
 				return copy(buildOutDir, distOutDir, {filter: (id) => isDistFile(id)});
 			}),

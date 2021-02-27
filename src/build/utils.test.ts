@@ -40,3 +40,21 @@ test('createDirectoryFilter()', () => {
 		t.ok(!filter(join(rootDir, 'fo/')));
 	});
 });
+
+// test('mapBuildIdToSourceId()', () => {
+// 	// TODO is trailing slash not there on build?? also, change this helper??
+// 	console.log('paths.build', paths.build);
+// 	t.is(mapBuildIdToSourceId(`${paths.build}/dev/externals/svelte/store.js`, true), 'svelte/store');
+// 	t.is(
+// 		mapBuildIdToSourceId(`${paths.build}/dev/externals/svelte/motion/index.js`, true),
+// 		'svelte/motion/index',
+// 	);
+// 	t.is(
+// 		mapBuildIdToSourceId(`${paths.build}/dev/externals/svelte/motion/index.js`, false),
+// 		paths.source + 'svelte/motion/index.ts',
+// 	);
+// 	t.is(
+// 		mapBuildIdToSourceId(`${paths.build}/dev/foo/index.js`, false),
+// 		`${paths.source}foo/index.ts`,
+// 	);
+// });

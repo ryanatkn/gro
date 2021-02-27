@@ -1,10 +1,6 @@
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
-import {
-	BuildSource,
-	Builder,
-	createBuilder,
-	InitialOptions as BuilderInitialOptions,
-} from './builder.js';
+import {Builder} from './builder.js';
+import {createLazyBuilder, InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
 import {createSwcBuilder, InitialOptions as SwcBuilderInitialOptions} from './swcBuilder.js';
 import {
 	createSvelteBuilder,
@@ -15,21 +11,24 @@ import {
 	InitialOptions as ExternalsBuilderInitialOptions,
 } from './externalsBuilder.js';
 
-export const createDefaultBuilder = (
+export const createDefaultBuilder = async (
 	swcBuilderOptions?: SwcBuilderInitialOptions,
 	svelteBuilderOptions?: SvelteBuilderInitialOptions,
 	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
-	builderOptions?: BuilderInitialOptions,
-): Builder => {
-	const swcBuilder = createSwcBuilder(swcBuilderOptions);
-	const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
-	const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
-
-	if (!builderOptions?.getBuilder) {
-		builderOptions = {
-			...builderOptions,
-			getBuilder: (source: BuildSource) => {
-				if (source.sourceType === 'externals') {
+	lazyBuilderOptions?: LazyBuilderInitialOptions,
+): Promise<Builder> => {
+	if (!lazyBuilderOptions?.getBuilder) {
+		const swcBuilder = createSwcBuilder(swcBuilderOptions);
+		const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
+		const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
+		const builders: Builder[] = [swcBuilder, svelteBuilder, externalsBuilder];
+		lazyBuilderOptions = {
+			...lazyBuilderOptions,
+			getBuilder: (source, buildConfig) => {
+				if (source.external) {
+					if (buildConfig.platform !== 'browser') {
+						throw Error('Expected browser for externals builder.');
+					}
 					return externalsBuilder;
 				}
 				switch (source.extension) {
@@ -41,8 +40,9 @@ export const createDefaultBuilder = (
 						return null;
 				}
 			},
+			getBuilders: () => builders,
 		};
 	}
 
-	return createBuilder(builderOptions);
+	return createLazyBuilder(lazyBuilderOptions);
 };

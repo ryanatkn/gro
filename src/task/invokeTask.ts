@@ -5,7 +5,7 @@ import {runTask} from './runTask.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {printMs, printPath, printPathOrGroPath, printTiming} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
-import {TASK_FILE_SUFFIX, isTaskPath, toTaskName, TaskError} from './task.js';
+import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
 import {
 	paths,
 	groPaths,
@@ -114,11 +114,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				} else {
 					log.info(`${red('🞩')} ${cyan(task.name)}`);
 					logErrorReasons(log, [result.reason]);
-					if (result.error instanceof TaskError) {
-						process.exit(1);
-					} else {
-						throw result.error;
-					}
+					throw result.error;
 				}
 			} else {
 				logErrorReasons(log, loadModulesResult.reasons);

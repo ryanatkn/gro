@@ -12,9 +12,12 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "bootstrap": "rm -rf .gro/prod/node dist/ && tsc; cp -r .gro/prod/node/ dist/ && npm link",
+    "bootstrap": "rm -rf .gro dist && tsc; cp -r .gro/prod/node/ dist/ && npm link",
+    "b": "npm run bootstrap",
     "dev": "clear && rm -rf .gro && gro project/dev",
-    "redev": "clear && rm -rf .gro && npm run bootstrap && gro project/dev",
+    "d": "npm run dev",
+    "redev": "clear && npm run bootstrap && gro project/dev",
+    "r": "npm run redev",
     "preversion": "npm run bootstrap && gro check && npm run bootstrap && gro project/build"
   },
   "repository": {

@@ -33,7 +33,9 @@ export const runTask = async (
 			reason: red(
 				err instanceof TaskError
 					? err.message
-					: `Unexpected error running task ${cyan(task.name)}. Aborting.`,
+					: `Unexpected error running task ${cyan(
+							task.name,
+					  )}. Aborting. \`gro clean\` can sometimes fix this.`,
 			),
 			error: err,
 		};

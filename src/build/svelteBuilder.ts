@@ -20,7 +20,7 @@ import {
 	toBuildOutPath,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import {Builder, TextBuild, TextBuildSource} from './builder.js';
+import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
@@ -165,7 +165,8 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				});
 			}
 		}
-		return {builds};
+		const result: BuildResult<TextBuild> = {builds};
+		return result;
 	};
 
 	return {build};

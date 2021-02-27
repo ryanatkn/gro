@@ -1,38 +1,44 @@
 import './devtools.js';
 import App from './App.svelte';
 
-// // test a bad import
+const log = console.log.bind(console);
+
+log('hey gro');
+
+// // test bad import
 // import '../build/failme.js';
 
-// test a bare internal import
+// test bare internal import
 import './foo.js';
 
-// test an internal import with a simple export
+// test internal import with a simple export
 import {bar} from './bar.js';
-console.log('bar', bar);
+log('bar', bar);
 
 // test internal import from parent directory
 import {mix} from '../utils/math.js';
-console.log('mix', mix);
+log('mix', mix);
 
 // test wildcard internal import
 import * as math from '../utils/math.js';
-console.log('math', math);
+log('math', math);
 if (mix !== math.mix) throw Error('Expected same module');
 
-// test an internal import that has an external import
+// test internal import that has an external import
 import {baz} from './baz.js';
-console.log('baz', baz);
-
-console.log('hey');
+log('baz', baz);
 
 // test fully qualified external import
 import * as motion from 'svelte/motion/index.js';
-console.log('imported svelte motion', motion);
+log('imported svelte motion', motion);
+
+// test transitive external import
+import {deepEqual} from '../utils/deepEqual.js';
+log('deepEqual', deepEqual({}, {}));
 
 // test dynamic import
 import('svelte/store').then((store) => {
-	console.log('imported svelte/store', store);
+	log('imported svelte/store', store);
 });
 
 const root = document.getElementById('root');

@@ -100,10 +100,10 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		// 	file = filer.findById(file.id + '/index.html');
 		// }
 		if (!file) {
-			log.trace(`${yellow('404')} ${red(localPath)}`);
+			log.info(`${yellow('404')} ${red(localPath)}`);
 			return send404(req, res, localPath);
 		}
-		log.trace(`${yellow('200')} ${gray(localPath)}`);
+		log.info(`${yellow('200')} ${gray(localPath)}`);
 		return send200(req, res, file);
 	};
 	return requestListener;
