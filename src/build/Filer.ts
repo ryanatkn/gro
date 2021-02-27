@@ -856,8 +856,6 @@ export class Filer implements BuildContext {
 				}
 				dependents.delete(sourceFile);
 				if (
-					// TODO hmm maybe do this bookkeeping but don't delete externals on disk?
-					// !removedDependencySourceFile.external && // TODO clean these up ever?
 					dependents.size === 0 &&
 					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
 				) {
