@@ -11,7 +11,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [clean](../clean.task.ts) - remove build and temp files
 - [compile](../compile.task.ts) - compiles all files to the build directory
 - [deploy](../deploy.task.ts) - deploy to gh-pages
-- [dev](../dev.task.ts) - build typescript in watch mode for development
+- [dev](../dev.task.ts) - start dev server
 - [dist](../dist.task.ts) - create the distribution
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
