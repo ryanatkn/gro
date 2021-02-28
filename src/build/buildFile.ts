@@ -187,6 +187,7 @@ export const diffDependencies = (
 	addedDependencies: DependencyInfo[] | null;
 	removedDependencies: DependencyInfo[] | null;
 } | null => {
+	if (newFiles === oldFiles) return null;
 	let addedDependencies: DependencyInfo[] | null = null;
 	let removedDependencies: DependencyInfo[] | null = null;
 

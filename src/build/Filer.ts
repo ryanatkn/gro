@@ -768,6 +768,7 @@ export class Filer implements BuildContext {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		if (newBuildFiles === oldBuildFiles) return;
 		let {
 			addedDependencies,
 			removedDependencies,
@@ -881,6 +882,7 @@ export class Filer implements BuildContext {
 		addedDependencySourceFiles: Set<BuildableSourceFile> | null;
 		removedDependencySourceFiles: Set<BuildableSourceFile> | null;
 	}> {
+		if (newBuildFiles === oldBuildFiles) return null;
 		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 
