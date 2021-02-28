@@ -1,6 +1,5 @@
 import {createHash} from 'crypto';
 import {resolve} from 'path';
-import {BuildConfig} from '../config/buildConfig.js';
 
 import {
 	basePathToSourceId,
@@ -11,7 +10,9 @@ import {
 	toSourceExtension,
 } from '../paths.js';
 import {stripEnd, stripStart} from '../utils/string.js';
+import {BuildContext} from './builder.js';
 import {COMMON_SOURCE_ID, isExternalBuildId} from './buildFile.js';
+import {BuildConfig} from '../config/buildConfig.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -31,25 +32,18 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 };
 
 export interface MapBuildIdToSourceId {
-	(
-		buildId: string,
-		external: boolean,
-		dev: boolean,
-		buildConfig: BuildConfig,
-		buildRootDir: string,
-	): string;
+	(buildId: string, external: boolean, buildConfig: BuildConfig, ctx: BuildContext): string;
 }
 
 const EXTERNALS_ID_PREFIX = `${EXTERNALS_BUILD_DIR}/`;
 const COMMONS_ID_PREFIX = `${EXTERNALS_ID_PREFIX}${COMMON_SOURCE_ID}/`;
 
-// TODO has weird special cases, points to refactoring
+// TODO has weird special cases, needs refactoring
 export const mapBuildIdToSourceId: MapBuildIdToSourceId = (
 	buildId,
 	external,
-	dev,
 	buildConfig,
-	buildRootDir,
+	{dev, buildRootDir},
 ) => {
 	const basePath = toBuildBasePath(buildId, buildRootDir);
 	const sourceId = external

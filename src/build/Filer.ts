@@ -166,7 +166,7 @@ export class Filer implements BuildContext {
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
 	readonly servedDirs: readonly ServedDir[];
 	readonly state: BuilderState = {};
-	readonly buildingSourceFiles: Set<string> = new Set();
+	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 
 	constructor(opts: InitialOptions) {
 		const {
@@ -778,9 +778,8 @@ export class Filer implements BuildContext {
 				const dependencySourceId = this.mapBuildIdToSourceId(
 					addedDependency.id,
 					addedDependency.external,
-					this.dev,
 					buildConfig,
-					this.buildRootDir,
+					this,
 				);
 				if (dependencySourceId === sourceFile.id) {
 					continue; // ignore dependencies on self, happens with common externals
@@ -803,9 +802,8 @@ export class Filer implements BuildContext {
 					this.mapBuildIdToSourceId(
 						removedDependency.id,
 						removedDependency.external,
-						this.dev,
 						buildConfig,
-						this.buildRootDir,
+						this,
 					),
 				);
 			}
@@ -903,9 +901,8 @@ export class Filer implements BuildContext {
 				const dependencySourceId = this.mapBuildIdToSourceId(
 					addedDependency.id,
 					addedDependency.external,
-					this.dev,
 					buildConfig,
-					this.buildRootDir,
+					this,
 				);
 				let addedSourceFile = this.files.get(dependencySourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
@@ -928,9 +925,8 @@ export class Filer implements BuildContext {
 				const sourceId = this.mapBuildIdToSourceId(
 					removedDependency.id,
 					removedDependency.external,
-					this.dev,
 					buildConfig,
-					this.buildRootDir,
+					this,
 				);
 				const removedSourceFile = this.files.get(sourceId);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
