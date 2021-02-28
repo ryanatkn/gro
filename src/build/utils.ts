@@ -5,14 +5,17 @@ import {
 	basePathToSourceId,
 	EXTERNALS_BUILD_DIR,
 	JS_EXTENSION,
+	// JS_EXTENSION,
 	paths,
 	toBuildBasePath,
 	toSourceExtension,
 } from '../paths.js';
-import {stripEnd, stripStart} from '../utils/string.js';
+// import {stripEnd, stripStart} from '../utils/string.js';
 import {BuildContext} from './builder.js';
-import {COMMON_SOURCE_ID, isExternalBuildId} from './buildFile.js';
+import {COMMON_SOURCE_ID} from './buildFile.js';
 import {BuildConfig} from '../config/buildConfig.js';
+import {isExternalBuildId} from './externalsBuildHelpers.js';
+import {stripEnd, stripStart} from '../utils/string.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -46,12 +49,33 @@ export const mapBuildIdToSourceId: MapBuildIdToSourceId = (
 	{dev, buildRootDir},
 ) => {
 	const basePath = toBuildBasePath(buildId, buildRootDir);
-	const sourceId = external
-		? basePath.startsWith(COMMONS_ID_PREFIX)
-			? COMMON_SOURCE_ID
-			: isExternalBuildId(buildId, dev, buildConfig, buildRootDir)
-			? stripStart(stripEnd(basePath, JS_EXTENSION), EXTERNALS_ID_PREFIX)
-			: buildId
-		: basePathToSourceId(toSourceExtension(basePath));
-	return sourceId;
+	if (external) {
+		if (!isExternalBuildId(buildId, dev, buildConfig, buildRootDir)) {
+			throw Error(
+				'TODO wait what? should/could this ever be true? see commented out section below - might be obsolete code',
+			);
+		}
+		// TODO connected with above
+		// const sourceId = basePath.startsWith(COMMONS_ID_PREFIX)
+		// 	? COMMON_SOURCE_ID
+		// 	: isExternalBuildId(buildId, dev, buildConfig, buildRootDir)
+		// 	? stripStart(stripEnd(basePath, JS_EXTENSION), EXTERNALS_ID_PREFIX)
+		// 	: buildId;
+		if (basePath.startsWith(COMMONS_ID_PREFIX)) {
+			return COMMON_SOURCE_ID;
+		} else {
+			// TODO this is hacky!
+			// oh so hacky
+			// maybe `validatePackageName` is appropriate?
+			// see https://github.com/snowpackjs/snowpack/blob/a09bba81d01fa7b3769024f9bd5adf0d3fc4bafc/esinstall/src/util.ts
+			// and https://github.com/npm/validate-npm-package-name
+			const withoutPrefix = stripStart(basePath, EXTERNALS_ID_PREFIX);
+			const stripSuffix = withoutPrefix.startsWith('@feltcoop/') ? '' : JS_EXTENSION;
+			const sourceId = stripEnd(withoutPrefix, stripSuffix);
+			console.log('sourceId', sourceId);
+			return sourceId;
+		}
+	} else {
+		return basePathToSourceId(toSourceExtension(basePath));
+	}
 };

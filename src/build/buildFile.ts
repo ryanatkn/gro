@@ -2,13 +2,14 @@ import type {Build, BuildContext, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import type {CachedSourceInfo} from './Filer.js';
-import {EXTERNALS_BUILD_DIR, SOURCEMAP_EXTENSION, toBuildOutPath} from '../paths.js';
+import {SOURCEMAP_EXTENSION} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
 import {BuildableSourceFile} from './sourceFile.js';
 import {stripEnd} from '../utils/string.js';
 import {BuildConfig} from '../config/buildConfig.js';
+import {isExternalBuildId} from './externalsBuildHelpers.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
@@ -237,14 +238,3 @@ export const diffDependencies = (
 		? {addedDependencies, removedDependencies}
 		: null;
 };
-
-// Externals are Node imports referenced in browser builds.
-export const isExternalBuildId = (
-	id: string,
-	dev: boolean,
-	buildConfig: BuildConfig,
-	buildRootDir: string,
-): boolean =>
-	buildConfig.platform === 'browser'
-		? id.startsWith(toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildRootDir) + '/')
-		: false;

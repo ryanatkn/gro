@@ -63,6 +63,7 @@ export const postprocess = (
 				}
 				(dependencies || (dependencies = new Set())).add(dependency);
 				if (newModuleName !== moduleName) {
+					console.log('newModuleName', newModuleName);
 					transformedContents += contents.substring(index, start) + newModuleName;
 					index = end;
 				}

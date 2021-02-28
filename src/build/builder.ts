@@ -1,7 +1,7 @@
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutPath, EXTERNALS_BUILD_DIR} from '../paths.js';
-import type {ExternalsBuilderState} from './externalsBuilder.js';
+import type {ExternalsBuilderState} from './externalsBuildHelpers.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from './ServedDir.js';
 import {Logger} from '../utils/log.js';
