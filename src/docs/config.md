@@ -115,8 +115,7 @@ Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
 
-Config files allow projects to define a [`PartialGroConfig`](/src/gro.config.ts)
-to customize things when conventions aren't enough:
+The [`PartialGroConfig`](/src/gro.config.ts) is the return value of config files:
 
 ```ts
 export interface PartialGroConfig {
