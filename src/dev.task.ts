@@ -1,6 +1,6 @@
 import {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
-import {createDevServer} from './devServer/devServer.js';
+import {createDevServer} from './server/server.js';
 import {createDefaultBuilder} from './build/defaultBuilder.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {loadGroConfig} from './config/config.js';
@@ -25,8 +25,8 @@ export const task: Task = {
 			sourceMap: config.sourceMap,
 		});
 
-		const devServer = createDevServer({filer});
+		const server = createDevServer({filer});
 
-		await Promise.all([filer.init(), devServer.start()]);
+		await Promise.all([filer.init(), server.start()]);
 	},
 };

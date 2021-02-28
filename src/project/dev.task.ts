@@ -4,7 +4,7 @@ import {printTiming} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import {createDefaultBuilder} from '../build/defaultBuilder.js';
 import {paths, toBuildOutPath} from '../paths.js';
-import {createDevServer} from '../devServer/devServer.js';
+import {createDevServer} from '../server/server.js';
 import {loadGroConfig} from '../config/config.js';
 import {configureLogLevel} from '../utils/log.js';
 
@@ -22,10 +22,7 @@ export const task: Task = {
 		const filer = new Filer({
 			builder: await createDefaultBuilder(),
 			sourceDirs: [paths.source],
-			servedDirs: [
-				toBuildOutPath(true, 'browser', 'frontend'),
-				toBuildOutPath(true, 'browser', ''),
-			],
+			servedDirs: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
 			buildConfigs: config.builds,
 			target: config.target,
 			sourceMap: config.sourceMap,
@@ -37,8 +34,8 @@ export const task: Task = {
 		timingToInitFiler();
 
 		const timingToStartDevServer = timings.start('start dev server');
-		const devServer = createDevServer({filer});
-		await devServer.start();
+		const server = createDevServer({filer});
+		await server.start();
 		timingToStartDevServer();
 
 		for (const [key, timing] of timings.getAll()) {

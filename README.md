@@ -1,6 +1,6 @@
-# gro <img src="src/frontend/favicon.png" width="32" height="32">
+# gro <img src="src/client/favicon.png" width="32" height="32">
 
-<img src="src/frontend/favicon.png" align="right" width="192" height="192">
+<img src="src/client/favicon.png" align="right" width="192" height="192">
 
 > opinionated tools for web development
 
@@ -36,7 +36,7 @@ It includes:
 
 ## docs
 
-- [unbundled development](/src/docs/unbundledDevelopment.md) for frontends, servers, and libraries
+- [unbundled development](/src/docs/unbundledDevelopment.md) for web frontends, servers, and libraries
 - [`task`](/src/task) runner
 - [`oki`](/src/oki) testing library
 - [`gen`](/src/gen) code generation
