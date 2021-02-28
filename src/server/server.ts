@@ -33,56 +33,86 @@ export interface Options {
 	filer: Filer;
 	host: string;
 	port: number;
+	portRetryDelay: number;
 	log: Logger;
 }
 export type RequiredOptions = 'filer';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_HOST = 'localhost';
 const DEFAULT_PORT = 8999;
+const DEFAULT_PORT_RETRY_DELAY = 333;
 export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
 	port: DEFAULT_PORT,
+	portRetryDelay: DEFAULT_PORT_RETRY_DELAY,
 	...omitUndefined(opts),
 	log: opts.log || new SystemLogger([cyan('[server]')]),
 });
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
-	const {filer, host, port, log} = options;
+	const {filer, host, port, portRetryDelay, log} = options;
 
+	let finalPort = port;
+
+	const nextPort = () => {
+		// hacky but w/e - these values are not final until `devServer.start` resolves
+		finalPort--;
+		listenOptions.port = finalPort;
+		(devServer as Writable<DevServer>).port = finalPort;
+	};
+
+	const listenOptions: ListenOptions = {
+		port,
+		host,
+		// backlog?: number;
+		// path?: string;
+		// exclusive?: boolean;
+		// readableAll?: boolean;
+		// writableAll?: boolean;
+		// ipv6Only?: boolean;
+	};
 	const serverOptions: ServerOptions = {
 		// IncomingMessage?: typeof IncomingMessage;
 		// ServerResponse?: typeof ServerResponse;
 	};
 	const server = createServer(serverOptions, createRequestListener(filer, log));
-	const listen = server.listen.bind(server);
-	server.listen = () => {
-		throw Error(`Use server.start() instead of server.server.listen()`);
-	};
+	let reject: (err: Error) => void;
+	server.on('error', (err) => {
+		if ((err as any).code === 'EADDRINUSE') {
+			log.trace(`port ${yellow(finalPort)} is busy, trying next`);
+			nextPort();
+			setTimeout(() => {
+				server.close();
+				server.listen(listenOptions); // original listener is still there
+			}, portRetryDelay);
+		} else {
+			reject(err);
+		}
+	});
 
-	return {
+	let started = false;
+
+	const devServer: DevServer = {
 		server,
 		host,
-		port,
+		port, // this value is not valid until `start` is complete
 		start: async () => {
-			return new Promise((resolve) => {
-				const listenOptions: ListenOptions = {
-					port,
-					host,
-					// backlog?: number;
-					// path?: string;
-					// exclusive?: boolean;
-					// readableAll?: boolean;
-					// writableAll?: boolean;
-					// ipv6Only?: boolean;
-				};
-				listen(listenOptions, () => {
-					log.trace('listening', listenOptions);
+			if (started) throw Error('Server already started');
+			started = true;
+
+			// this is weird but it works I think.
+			// the `on('error'` handler above does the catching
+			await new Promise<void>((resolve, _reject) => {
+				reject = _reject;
+				server.listen(listenOptions, () => {
+					log.trace('listening', listenOptions); // `port` is now its final value
 					resolve();
 				});
 			});
 		},
 	};
+	return devServer;
 };
 
 const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
