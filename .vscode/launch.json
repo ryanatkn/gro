@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "gro",
       "program": "${workspaceFolder}/dist/cli/gro.js",
-      "args": ["project/dev"],
+      "args": ["dev"],
       "runtimeArgs": [],
       "outFiles": [
         "${workspaceRoot}/.gro/dev/node/**/*.js",

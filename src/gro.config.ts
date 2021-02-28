@@ -2,6 +2,7 @@ import {createFilter} from '@rollup/pluginutils';
 
 // import {createDirectoryFilter} from './build/utils.js';
 import {GroConfigCreator, PartialGroConfig} from './config/config.js';
+import {toBuildOutPath} from './paths.js';
 import {LogLevel} from './utils/log.js';
 
 // This is the config for the Gro project itself.
@@ -26,6 +27,7 @@ const createConfig: GroConfigCreator = async () => {
 			},
 		],
 		logLevel: LogLevel.Trace,
+		servedDirs: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
 	};
 	return config;
 };

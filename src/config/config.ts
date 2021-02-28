@@ -12,6 +12,7 @@ import {pathExists} from '../fs/nodeFs.js';
 import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
+import type {ServedDirPartial} from '../build/ServedDir.js';
 
 /*
 
@@ -40,6 +41,7 @@ export interface GroConfig {
 	readonly target: EcmaScriptTarget;
 	readonly sourceMap: boolean;
 	readonly logLevel: LogLevel;
+	readonly servedDirs?: ServedDirPartial[];
 	readonly primaryNodeBuildConfig: BuildConfig;
 	readonly primaryBrowserBuildConfig: BuildConfig | null;
 }
@@ -49,6 +51,7 @@ export interface PartialGroConfig {
 	readonly target?: EcmaScriptTarget;
 	readonly sourceMap?: boolean;
 	readonly logLevel?: LogLevel;
+	readonly servedDirs?: ServedDirPartial[];
 }
 
 export interface GroConfigModule {
