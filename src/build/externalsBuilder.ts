@@ -92,10 +92,10 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		}
 
 		return wrap(async (after) => {
-			const obtained = lock.tryToObtain(source.id);
+			const obtained = lock.lock(source.id);
 			if (obtained) log.trace('externals lock obtained', gray(source.id));
 			after(() => {
-				const released = lock.tryToRelease(source.id);
+				const released = lock.unlock(source.id);
 				if (released) log.trace('externals lock released', gray(source.id));
 			});
 			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
