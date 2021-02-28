@@ -76,11 +76,13 @@ serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser
 An optional `servedAt` property can be paired with the directories passed to `serve`:
 
 ```ts
-serve: [
-	{dir: '/some/path', servedAt: '/some'},
-	'/a', // is the same as:
-	{dir: '/a'},
-];
+config = {
+	serve: [
+		{dir: '/some/path', servedAt: '/some'},
+		'/a', // is the same as:
+		{dir: '/a'},
+	],
+};
 ```
 
 ## build config
