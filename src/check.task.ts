@@ -5,7 +5,6 @@ import {findTestModules} from './oki/testModule.js';
 export const task: Task = {
 	description: 'check that everything is ready to commit',
 	run: async ({log, args, invokeTask}) => {
-		await invokeTask('clean');
 		await invokeTask('typecheck');
 
 		// Run tests only if the the project has some.
