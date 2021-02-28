@@ -10,7 +10,7 @@ import {configureLogLevel} from './utils/log.js';
 import {ServedDirPartial} from './build/ServedDir.js';
 
 export const task: Task = {
-	description: 'build typescript in watch mode for development',
+	description: 'start dev server',
 	run: async ({log}) => {
 		const timings = new Timings();
 
