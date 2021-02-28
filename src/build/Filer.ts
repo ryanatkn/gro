@@ -701,24 +701,17 @@ export class Filer implements BuildContext {
 			createBuildFile(build, this, result, sourceFile, buildConfig),
 		);
 
-		// TODO hmm
-		// common externals need special handling
+		// TODO this is a hack - common externals need special handling -
+		// it all stems from the fact that the system wasn't designed for M:N file builds, just 1:N,
+		// and it also hacks in lazy and virtual source files!
 		if (sourceFile.external) {
-			const buildState = this.state.externals!.buildStates.get(buildConfig)!; // TODO we
-			if (buildState.pendingCommonBuilds) {
-				const commonBuilds = buildState.pendingCommonBuilds;
-				buildState.pendingCommonBuilds = null; // acts as a lock
-				if (buildState.commonBuilds !== null) {
-					this.log.error('expected no common builds'); // indicates a problem but we don't want to throw
-				}
-				buildState.commonBuilds = commonBuilds;
+			const buildState = this.state.externals!.buildStates.get(buildConfig)!;
+			if (buildState.commonBuilds !== null) {
 				// this fires off a build for the common source file.
 				// it'll read the above state and the importMap
 				// it's fragile so  .. treat it as such :) or refactor!
-				// TODO but what if bypassed? files not loaded? what about via the src cache?
-				// debugger;
-				// TODO this always builds, discarding the update result ..
-				// what about caching? what about the `contents` using `import-map.json`?
+				// TODO are there race conditions here? commonBuilds might be grabbed in a tick?
+				this.log.trace(`force updating externals ${gray(COMMON_SOURCE_ID)}`);
 				await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
 			}
 		}
@@ -961,7 +954,7 @@ export class Filer implements BuildContext {
 			: null;
 	}
 
-	// TODO probably needs a better name, maybe use it more other places?
+	// // TODO probably needs a better name, maybe use it more other places?
 	private async updateExternalSourceFile(
 		id: string,
 		buildConfig: BuildConfig,
@@ -1035,7 +1028,7 @@ export class Filer implements BuildContext {
 		// 	);
 		// }
 		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
-		this.log.trace('outputting cached source info', gray(cacheId));
+		// this.log.trace('outputting cached source info', gray(cacheId));
 		await outputFile(cacheId, JSON.stringify(data, null, 2));
 	}
 
@@ -1054,7 +1047,7 @@ const syncFilesToDisk = async (changes: BuildFileChange[], log: Logger): Promise
 			let shouldOutputNewFile = false;
 			if (change.type === 'added') {
 				if (!(await pathExists(file.id))) {
-					log.trace('creating build file on disk', gray(file.id));
+					// log.trace('creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {
 					const existingCotents = await loadContents(file.encoding, file.id);

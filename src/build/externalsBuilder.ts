@@ -66,45 +66,43 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		source,
 		buildConfig,
 		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
-	) =>
-		wrap(async (after) => {
+	) => {
+		// if (sourceMap) {
+		// 	log.warn('Source maps are not yet supported by the externals builder.');
+		// }
+		if (!dev) {
+			throw Error('The externals builder is currently not designed for production usage.');
+		}
+		if (source.encoding !== encoding) {
+			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
+		}
+
+		const builderState = getExternalsBuilderState(state);
+		const buildState = getExternalsBuildState(builderState, buildConfig);
+
+		if (source.id === COMMON_SOURCE_ID) {
+			await buildState.installing?.promise; // wait for any pending installation to finish
+			const builds = buildState.commonBuilds;
+			if (builds === null) {
+				throw Error('Expected to find builds for common externals');
+			}
+			buildState.commonBuilds = null;
+			const result: BuildResult<TextBuild> = {builds};
+			return result;
+		}
+
+		return wrap(async (after) => {
 			const obtained = lock.tryToObtain(source.id);
 			if (obtained) log.trace('externals lock obtained', gray(source.id));
 			after(() => {
 				const released = lock.tryToRelease(source.id);
 				if (released) log.trace('externals lock released', gray(source.id));
 			});
-
-			if (source.id === COMMON_SOURCE_ID) {
-				const buildState = getExternalsBuildState(getExternalsBuilderState(state), buildConfig);
-				const builds = buildState.commonBuilds;
-				if (builds === null) {
-					debugger;
-					throw Error('Expected builds to build common files');
-				}
-				buildState.commonBuilds = null;
-				const result: BuildResult<TextBuild> = {builds};
-				return result;
-			}
-
-			// if (sourceMap) {
-			// 	log.warn('Source maps are not yet supported by the externals builder.');
-			// }
-			if (!dev) {
-				throw Error('The externals builder is currently not designed for production usage.');
-			}
-			if (source.encoding !== encoding) {
-				throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
-			}
-
 			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
 
 			let id: string;
 
 			log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
-
-			const builderState = getExternalsBuilderState(state);
-			const buildState = getExternalsBuildState(builderState, buildConfig);
 
 			// TODO add an external API for customizing the `install` params
 			// TODO this is legacy stuff that we need to rethink when we handle CSS better
@@ -121,32 +119,17 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			];
 
 			let contents: string;
-			let commonDependencyIds: string[] | null = null;
 			try {
 				const installResult = await installExternal(
 					source.id,
 					dest,
+					buildConfig,
 					buildState,
 					plugins,
 					buildingSourceFiles,
 					log,
 				);
 				// `state.importMap` is now updated
-
-				// Since we're batching the external installation process,
-				// and it can return a number of common files,
-				// we need to add those common files as build files to exactly one of the built source files.
-				// It doesn't matter which one, so we just always pick the first source file in the data.
-				if (lock.has(source.id)) {
-					log.trace('handling common dependencies with lock', gray(source.id));
-					// TODO ok so what if we didn't return these here, instead put them on the `state`
-					// that way the builder encapsulates this need
-					// but maybe it needs to request that a source file gets built, somehow? (the "common" one)
-					// is this a good use case for `dirty`? what's the API look like?
-					commonDependencyIds = Object.keys(installResult.stats.common).map((path) =>
-						join(dest, path),
-					);
-				}
 				id = join(dest, installResult.importMap.imports[source.id]);
 				contents = await loadContents(encoding, id);
 			} catch (err) {
@@ -167,37 +150,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				},
 			];
 
-			if (commonDependencyIds !== null) {
-				// TODO this is just a simple test
-				// if (!lock.has(source.id)) {
-				// 	throw Error(`Expected to have lock: ${source.id} - ${commonDependencyIds.length}`);
-				// }
-				if (buildState.pendingCommonBuilds !== null) {
-					log.error('Unexpected pendingCommongBuilds'); // would indicate a problem, but don't want to throw
-				}
-				try {
-					// log.trace('building common dependencies', commonDependencyIds);
-					buildState.pendingCommonBuilds = await Promise.all(
-						commonDependencyIds.map(
-							async (commonDependencyId): Promise<TextBuild> => ({
-								id: commonDependencyId,
-								filename: basename(commonDependencyId),
-								dir: dirname(commonDependencyId),
-								extension: JS_EXTENSION,
-								encoding,
-								contents: await loadContents(encoding, commonDependencyId),
-								sourceMapOf: null,
-								buildConfig,
-								common: true,
-							}),
-						),
-					);
-				} catch (err) {
-					log.error(`Failed to build common builds: ${commonDependencyIds.join(' ')}`);
-					throw err;
-				}
-			}
-
 			// TODO maybe we return "common" `Build`s here?
 			// the idea being that the `Filer` can handle them
 			// as a whole after each compile.
@@ -207,6 +159,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			const result: BuildResult<TextBuild> = {builds};
 			return result;
 		});
+	};
 
 	const onRemove: ExternalsBuilder['onRemove'] = async (
 		sourceFile: BuildableExternalsSourceFile,
@@ -256,6 +209,7 @@ const IDLE_TIME_LIMIT = parseInt((process.env as any).GRO_IDLE_TIME_LIMIT, 10) |
 const installExternal = async (
 	sourceId: string,
 	dest: string,
+	buildConfig: BuildConfig,
 	state: ExternalsBuildState,
 	plugins: RollupPlugin[],
 	buildingSourceFiles: Set<string>,
@@ -270,6 +224,10 @@ const installExternal = async (
 			// log.info('old import map result', state.importMap);
 			state.importMap = result.importMap;
 			state.installing = null;
+			if (state.commonBuilds !== null) {
+				log.error('unexpected commonBuilds'); // would indicate a problem, but don't want to throw
+			}
+			state.commonBuilds = await loadCommonBuilds(result, dest, buildConfig);
 			return result;
 		});
 		state.idleTimer = 0;
@@ -299,6 +257,32 @@ const installExternal = async (
 	state.specifiers.add(sourceId);
 	state.installing.reset();
 	return state.installing.promise;
+};
+
+const loadCommonBuilds = async (
+	installResult: InstallResult,
+	dest: string,
+	buildConfig: BuildConfig,
+): Promise<TextBuild[] | null> => {
+	const commonDependencyIds = Object.keys(installResult.stats.common).map((path) =>
+		join(dest, path),
+	);
+	// log.trace('building common dependencies', commonDependencyIds);
+	return Promise.all(
+		commonDependencyIds.map(
+			async (commonDependencyId): Promise<TextBuild> => ({
+				id: commonDependencyId,
+				filename: basename(commonDependencyId),
+				dir: dirname(commonDependencyId),
+				extension: JS_EXTENSION,
+				encoding,
+				contents: await loadContents(encoding, commonDependencyId),
+				sourceMapOf: null,
+				buildConfig,
+				common: true,
+			}),
+		),
+	);
 };
 
 const createDelayedPromise = <T>(
@@ -352,7 +336,6 @@ interface ExternalsBuildState {
 	idleTimer: number;
 	resetterInterval: NodeJS.Timeout | null;
 	commonBuilds: TextBuild[] | null;
-	pendingCommonBuilds: TextBuild[] | null;
 }
 
 // store the externals builder state here on the builder context `state` object
@@ -404,7 +387,6 @@ const initExternalsBuildState = (
 		idleTimer: 0,
 		resetterInterval: null,
 		commonBuilds: null,
-		pendingCommonBuilds: null,
 	};
 	builderState.buildStates.set(buildConfig, buildState);
 	return buildState;
