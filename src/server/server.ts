@@ -33,25 +33,22 @@ export interface Options {
 	filer: Filer;
 	host: string;
 	port: number;
-	portRetryDelay: number;
 	log: Logger;
 }
 export type RequiredOptions = 'filer';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 const DEFAULT_HOST = 'localhost';
 const DEFAULT_PORT = 8999;
-const DEFAULT_PORT_RETRY_DELAY = 333;
 export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
 	port: DEFAULT_PORT,
-	portRetryDelay: DEFAULT_PORT_RETRY_DELAY,
 	...omitUndefined(opts),
 	log: opts.log || new SystemLogger([cyan('[server]')]),
 });
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
-	const {filer, host, port, portRetryDelay, log} = options;
+	const {filer, host, port, log} = options;
 
 	let finalPort = port;
 
@@ -85,7 +82,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 			setTimeout(() => {
 				server.close();
 				server.listen(listenOptions); // original listener is still there
-			}, portRetryDelay);
+			}, 0);
 		} else {
 			reject(err);
 		}
