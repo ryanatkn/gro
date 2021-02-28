@@ -82,6 +82,6 @@ Gro differs in some significant ways:
 
 <p align="center">
   <a href="https://github.com/feltcoop/gro">
-    <img src="/src/frontend/favicon.png" width="192" height="192">
+    <img src="/src/client/favicon.png" width="192" height="192">
   </a>
 </p>

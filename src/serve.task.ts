@@ -1,5 +1,5 @@
 import {Task} from './task/task.js';
-import {createDevServer} from './devServer/devServer.js';
+import {createDevServer} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {printPath} from './utils/print.js';
 
@@ -20,11 +20,8 @@ export const task: Task = {
 		const filer = new Filer({servedDirs});
 		await filer.init();
 
-		const devServer = createDevServer({filer, host, port});
-		log.info(
-			`serving on ${devServer.host}:${devServer.port}`,
-			...servedDirs.map((d) => printPath(d)),
-		);
-		await devServer.start();
+		const server = createDevServer({filer, host, port});
+		log.info(`serving on ${server.host}:${server.port}`, ...servedDirs.map((d) => printPath(d)));
+		await server.start();
 	},
 };

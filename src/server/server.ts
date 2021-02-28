@@ -43,7 +43,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	host: DEFAULT_HOST,
 	port: DEFAULT_PORT,
 	...omitUndefined(opts),
-	log: opts.log || new SystemLogger([cyan('[devServer]')]),
+	log: opts.log || new SystemLogger([cyan('[server]')]),
 });
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
@@ -57,7 +57,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	const server = createServer(serverOptions, createRequestListener(filer, log));
 	const listen = server.listen.bind(server);
 	server.listen = () => {
-		throw Error(`Use devServer.start() instead of devServer.server.listen()`);
+		throw Error(`Use server.start() instead of server.server.listen()`);
 	};
 
 	return {

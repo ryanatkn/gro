@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
-// import {createDirectoryFilter} from './build/utils.js';
 
+// import {createDirectoryFilter} from './build/utils.js';
 import {GroConfigCreator, PartialGroConfig} from './config/config.js';
 import {LogLevel} from './utils/log.js';
 
@@ -21,8 +21,8 @@ const createConfig: GroConfigCreator = async () => {
 			{
 				name: 'browser',
 				platform: 'browser',
-				input: ['frontend/index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
-				// input: createDirectoryFilter('frontend'),
+				input: ['client/index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
+				// input: createDirectoryFilter('client'),
 			},
 		],
 		logLevel: LogLevel.Trace,
