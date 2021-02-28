@@ -41,7 +41,7 @@ export interface GroConfig {
 	readonly target: EcmaScriptTarget;
 	readonly sourceMap: boolean;
 	readonly logLevel: LogLevel;
-	readonly servedDirs?: ServedDirPartial[];
+	readonly serve?: ServedDirPartial[];
 	readonly primaryNodeBuildConfig: BuildConfig;
 	readonly primaryBrowserBuildConfig: BuildConfig | null;
 }
@@ -51,7 +51,7 @@ export interface PartialGroConfig {
 	readonly target?: EcmaScriptTarget;
 	readonly sourceMap?: boolean;
 	readonly logLevel?: LogLevel;
-	readonly servedDirs?: ServedDirPartial[];
+	readonly serve?: ServedDirPartial[];
 }
 
 export interface GroConfigModule {

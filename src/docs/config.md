@@ -113,4 +113,34 @@ export default createConfig;
 
 Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/config/gro.config.default.ts)
-that's used for projects that do not define one.
+that's used for projects that do not define one at `src/gro.config.ts`.
+
+Config files allow projects to define a [`PartialGroConfig`](/src/gro.config.ts)
+to customize things when conventions aren't enough:
+
+```ts
+export interface PartialGroConfig {
+	readonly builds: PartialBuildConfig[];
+	readonly target?: EcmaScriptTarget;
+	readonly sourceMap?: boolean;
+	readonly logLevel?: LogLevel;
+	readonly serve?: ServedDirPartial[];
+}
+```
+
+[Gro's internal config](/src/gro.config.ts) uses the `serve` property
+to serve the contents of both `src/` and `src/client/` off of the root directory.
+
+```ts
+serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
+```
+
+An optional `servedAt` property can be paired with the directories passed to `serve`:
+
+```ts
+serve: [
+	{dir: '/some/path', servedAt: '/some'},
+	'/a', // is the same as:
+	{dir: '/a'},
+];
+```

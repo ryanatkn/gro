@@ -23,7 +23,7 @@ export const task: Task = {
 		const filer = new Filer({
 			builder: await createDefaultBuilder(),
 			sourceDirs: [paths.source],
-			servedDirs: config.servedDirs || getDefaultServedDirs(config),
+			servedDirs: config.serve || getDefaultServedDirs(config),
 			buildConfigs: config.builds,
 			target: config.target,
 			sourceMap: config.sourceMap,
