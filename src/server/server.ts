@@ -56,7 +56,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	let finalPort = port;
 
 	const nextPort = () => {
-		// hacky but w/e
+		// hacky but w/e - these values are not final until `devServer.start` resolves
 		finalPort--;
 		listenOptions.port = finalPort;
 		(devServer as Writable<DevServer>).port = finalPort;
@@ -77,8 +77,9 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 		// ServerResponse?: typeof ServerResponse;
 	};
 	const server = createServer(serverOptions, createRequestListener(filer, log));
-	server.on('error', (e) => {
-		if ((e as any).code === 'EADDRINUSE') {
+	let reject: (err: Error) => void;
+	server.on('error', (err) => {
+		if ((err as any).code === 'EADDRINUSE') {
 			log.trace(`port ${yellow(finalPort)} is busy, trying next`);
 			nextPort();
 			setTimeout(() => {
@@ -86,7 +87,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 				server.listen(listenOptions); // original listener is still there
 			}, portRetryDelay);
 		} else {
-			throw e;
+			reject(err);
 		}
 	});
 
@@ -100,8 +101,10 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 			if (started) throw Error('Server already started');
 			started = true;
 
-			// hacky but w/e - the `on('error'` handler above does the catching
-			await new Promise<void>((resolve) => {
+			// this is weird but it works I think.
+			// the `on('error'` handler above does the catching
+			await new Promise<void>((resolve, _reject) => {
+				reject = _reject;
 				server.listen(listenOptions, () => {
 					log.trace('listening', listenOptions); // `port` is now its final value
 					resolve();
