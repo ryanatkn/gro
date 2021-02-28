@@ -15,6 +15,76 @@ If a project does not define a config, Gro imports a default config from
 
 See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
 
+## examples
+
+Here's a config for a simple Node project:
+
+```ts
+import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+
+const createConfig: GroConfigCreator = async () => {
+	return {
+		builds: [{name: 'node', platform: 'node', input: 'index.ts'}],
+	};
+};
+
+export default createConfig;
+```
+
+Here's what a frontend-only project with both desktop and mobile builds may look like:
+
+```ts
+import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+import {createFilter} from '@rollup/pluginutils';
+
+const createConfig: GroConfigCreator = async () => {
+	return {
+		builds: [
+			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', dist: true},
+			{name: 'browser_desktop', platform: 'browser', input: 'index.ts', dist: true, primary: true},
+			{name: 'node', platform: 'node', input: createFilter('**/*.{task,test,gen}*.ts')},
+		],
+	};
+};
+
+export default createConfig;
+```
+
+Here's [Gro's own internal config](/src/gro.config.ts) and
+here's [the default config](/src/config/gro.config.default.ts)
+that's used for projects that do not define one at `src/gro.config.ts`.
+
+The [`PartialGroConfig`](/src/gro.config.ts) is the return value of config files:
+
+```ts
+export interface PartialGroConfig {
+	readonly builds: PartialBuildConfig[];
+	readonly target?: EcmaScriptTarget;
+	readonly sourceMap?: boolean;
+	readonly logLevel?: LogLevel;
+	readonly serve?: ServedDirPartial[];
+}
+```
+
+[Gro's internal config](/src/gro.config.ts) uses the `serve` property
+to serve the contents of both `src/` and `src/client/` off of the root directory.
+
+```ts
+serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
+```
+
+An optional `servedAt` property can be paired with the directories passed to `serve`:
+
+```ts
+config = {
+	serve: [
+		{dir: '/some/path', servedAt: '/some'},
+		'/a', // is the same as:
+		{dir: '/a'},
+	],
+};
+```
+
 ## build config
 
 The `builds` property of the Gro config
@@ -75,42 +145,3 @@ For browser builds, this is the build that's served by the development server.
 As mentioned above, the `primary` Node build is always named `"node"`.
 For other platforms, if no `primary` flag exists on any build,
 Gro marks the first build in the `builds` array as primary.
-
-## examples
-
-Here's a config for a simple Node project:
-
-```ts
-import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
-
-const createConfig: GroConfigCreator = async () => {
-	return {
-		builds: [{name: 'node', platform: 'node', input: 'index.ts'}],
-	};
-};
-
-export default createConfig;
-```
-
-Here's what a frontend-only project with both desktop and mobile builds may look like:
-
-```ts
-import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
-import {createFilter} from '@rollup/pluginutils';
-
-const createConfig: GroConfigCreator = async () => {
-	return {
-		builds: [
-			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', dist: true},
-			{name: 'browser_desktop', platform: 'browser', input: 'index.ts', dist: true, primary: true},
-			{name: 'node', platform: 'node', input: createFilter('**/*.{task,test,gen}*.ts')},
-		],
-	};
-};
-
-export default createConfig;
-```
-
-Here's [Gro's own internal config](/src/gro.config.ts) and
-here's [the default config](/src/config/gro.config.default.ts)
-that's used for projects that do not define one.

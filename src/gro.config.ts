@@ -27,7 +27,7 @@ const createConfig: GroConfigCreator = async () => {
 			},
 		],
 		logLevel: LogLevel.Trace,
-		servedDirs: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
+		serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
 	};
 	return config;
 };
