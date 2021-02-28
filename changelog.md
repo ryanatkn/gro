@@ -6,7 +6,8 @@
   ([#59](https://github.com/feltcoop/gro/pull/59))
 - add support for a config file at `src/gro.config.ts` for custom builds
   ([#67](https://github.com/feltcoop/gro/pull/67),
-  [#68](https://github.com/feltcoop/gro/pull/68))
+  [#68](https://github.com/feltcoop/gro/pull/68),
+  [#82](https://github.com/feltcoop/gro/pull/82))
 - add `Filer` to replace `CachingCompiler` with additional filesystem capabilities
   ([#54](https://github.com/feltcoop/gro/pull/54),
   [#55](https://github.com/feltcoop/gro/pull/55),
