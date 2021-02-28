@@ -6,8 +6,12 @@ import {truncate} from './string.js';
 export const printKeyValue = (key: string, val: string | number): string =>
 	gray(`${key}(`) + val + gray(')');
 
-export const printMs = (ms: number, decimals = 1): string =>
-	white(round(ms, decimals).toFixed(decimals)) + gray('ms');
+export const printMs = (ms: number, decimals?: number | undefined): string => {
+	if (decimals === undefined) {
+		decimals = ms >= 10 ? 0 : ms < 0.1 ? 2 : 1;
+	}
+	return white(round(ms, decimals).toFixed(decimals)) + gray('ms');
+};
 export const printCauses = (solutions: string[]): string =>
 	'\n	Possible causes:' + solutions.map((s) => `\n		• ${s}`).join('');
 export const printStr = (s: string): string => green(`'${s}'`);
