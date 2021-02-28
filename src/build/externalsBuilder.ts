@@ -68,8 +68,12 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
 	) =>
 		wrap(async (after) => {
-			lock.tryToObtain(source.id);
-			after(() => lock.tryToRelease(source.id));
+			const obtained = source.id === 'common' && lock.tryToObtain(source.id);
+			if (obtained) log.trace('externals lock obtained', gray(source.id));
+			after(() => {
+				const released = lock.tryToRelease(source.id);
+				if (released) log.trace('externals lock released', gray(source.id));
+			});
 
 			if (source.id === COMMON_SOURCE_ID) {
 				const buildState = getExternalsBuildState(getExternalsBuilderState(state), buildConfig);
@@ -164,13 +168,15 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			];
 
 			if (commonDependencyIds !== null) {
-				if (!lock.has(source.id)) {
-					throw Error(`Expected to have lock: ${source.id} - ${commonDependencyIds.length}`);
-				}
+				// TODO this is just a simple test
+				// if (!lock.has(source.id)) {
+				// 	throw Error(`Expected to have lock: ${source.id} - ${commonDependencyIds.length}`);
+				// }
 				if (buildState.pendingCommonBuilds !== null) {
 					log.error('Unexpected pendingCommongBuilds'); // would indicate a problem, but don't want to throw
 				}
 				try {
+					// log.trace('building common dependencies', commonDependencyIds);
 					buildState.pendingCommonBuilds = await Promise.all(
 						commonDependencyIds.map(
 							async (commonDependencyId): Promise<TextBuild> => ({
