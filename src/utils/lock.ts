@@ -26,5 +26,5 @@ export const createLock = <TKey>(initialKey: TKey | null = null): Lock<TKey> => 
 		}
 		return false;
 	};
-	return {has, tryToObtain, tryToRelease, peek};
+	return {has, peek, tryToObtain, tryToRelease};
 };
