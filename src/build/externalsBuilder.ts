@@ -75,6 +75,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				const buildState = getExternalsBuildState(getExternalsBuilderState(state), buildConfig);
 				const builds = buildState.commonBuilds;
 				if (builds === null) {
+					debugger;
 					throw Error('Expected builds to build common files');
 				}
 				buildState.commonBuilds = null;
