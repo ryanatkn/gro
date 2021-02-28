@@ -954,7 +954,7 @@ export class Filer implements BuildContext {
 			: null;
 	}
 
-	// // TODO probably needs a better name, maybe use it more other places?
+	// TODO probably needs a better name, maybe use it more other places?
 	private async updateExternalSourceFile(
 		id: string,
 		buildConfig: BuildConfig,
