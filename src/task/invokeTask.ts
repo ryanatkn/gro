@@ -22,8 +22,6 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
-import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
-import {loadGroConfig} from '../config/config.js';
 
 /*
 
@@ -83,10 +81,12 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				// every time a task is invoked.
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
+				const {loadGroConfig} = await import('../config/config.js');
 				const config = await loadGroConfig();
 				configureLogLevel(config.logLevel);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
+				const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
 				await buildSourceDirectory(config, true, log);
 				timingToBuildProject();
 			}
