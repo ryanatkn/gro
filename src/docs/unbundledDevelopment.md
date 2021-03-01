@@ -61,11 +61,13 @@ Gro differs in some significant ways:
   Gro does still value flexibility and interoperability.
   It has a pluggable build architecture that can support a lot of things,
   with more powerful plugins in the future,
-  but we don't plan to develop a plugin ecosystem like Snowpack.
+  but it's not our priority to encourage a plugin ecosystem.
   Instead, we expect Gro to evolve towards more opinionated choices, not fewer,
-  with projects writing ad-hoc integrations using
-  tools directly, with Gro's help where it can.
-  (like [tasks](../task))
+  and some of those choices may be at odds with flexibility.
+  Projects using Gro should prefer to write ad-hoc integrations using tools directly,
+  with Gro's help where it can. (like [tasks](../task))
+  Your feedback and sharing use cases is always helpful -
+  much of this is likely to change.
 - Snowpack is a frontend build tool that's focused on doing that one thing very well.
   Gro has a sprawling scope that includes
   a [task runner](../task), [testing library](../oki), tools for [code generation](../gen),
