@@ -138,10 +138,11 @@ export const createDelayedPromise = <T>(
 // Externals are Node imports referenced in browser builds.
 export const isExternalBuildId = (
 	id: string,
-	dev: boolean,
 	buildConfig: BuildConfig,
-	buildRootDir: string,
+	ctx: BuildContext,
 ): boolean =>
 	buildConfig.platform === 'browser'
-		? id.startsWith(toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildRootDir) + '/')
+		? id.startsWith(
+				toBuildOutPath(ctx.dev, buildConfig.name, EXTERNALS_BUILD_DIR, ctx.buildRootDir) + '/',
+		  )
 		: false;

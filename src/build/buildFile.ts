@@ -181,9 +181,8 @@ export interface DependencyInfo {
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
-	dev: boolean,
 	buildConfig: BuildConfig,
-	buildRootDir: string,
+	ctx: BuildContext,
 ): {
 	addedDependencies: DependencyInfo[] | null;
 	removedDependencies: DependencyInfo[] | null;
@@ -218,7 +217,7 @@ export const diffDependencies = (
 			if (oldDependencies === null || !oldDependencies.has(newDependency)) {
 				(addedDependencies || (addedDependencies = [])).push({
 					id: newDependency,
-					external: isExternalBuildId(newDependency, dev, buildConfig, buildRootDir),
+					external: isExternalBuildId(newDependency, buildConfig, ctx),
 				});
 			}
 		}
@@ -228,7 +227,7 @@ export const diffDependencies = (
 			if (newDependencies === null || !newDependencies.has(oldDependency)) {
 				(removedDependencies || (removedDependencies = [])).push({
 					id: oldDependency,
-					external: isExternalBuildId(oldDependency, dev, buildConfig, buildRootDir),
+					external: isExternalBuildId(oldDependency, buildConfig, ctx),
 				});
 			}
 		}

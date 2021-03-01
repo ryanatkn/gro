@@ -889,8 +889,7 @@ export class Filer implements BuildContext {
 		// they're removed for this build,
 		// meaning the memory cache is updated and the files are deleted from disk for the build config.
 		const {addedDependencies, removedDependencies} =
-			diffDependencies(newBuildFiles, oldBuildFiles, this.dev, buildConfig, this.buildRootDir) ||
-			nulls;
+			diffDependencies(newBuildFiles, oldBuildFiles, buildConfig, this) || nulls;
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
