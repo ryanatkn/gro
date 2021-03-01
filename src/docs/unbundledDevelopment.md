@@ -65,9 +65,9 @@ Gro differs in some significant ways:
   Instead, we expect Gro to evolve towards more opinionated choices, not fewer,
   and some of those choices may be at odds with flexibility.
   Projects using Gro should prefer to write ad-hoc integrations using tools directly,
-  with Gro's help where it can. (like [tasks](../task))
+  with Gro's help where it can, like [tasks](../task).
   Your feedback and sharing use cases is always helpful -
-  much of this is likely to change.
+  we're still figuring things out.
 - Snowpack is a frontend build tool that's focused on doing that one thing very well.
   Gro has a sprawling scope that includes
   a [task runner](../task), [testing library](../oki), tools for [code generation](../gen),
