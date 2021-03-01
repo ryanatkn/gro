@@ -53,7 +53,7 @@ Gro differs in some significant ways:
   The limitation that forces eager loading will likely be fixed before Gro reaches 1.0,
   but Gro's DX will probably always be more complex than Snowpack's.
 - Snowpack is designed to be mostly agnostic to your technology choices
-  and supports a wide plugin ecosystem to cater to many choices.
+  and supports a wide plugin ecosystem.
   Gro's goal is to provide an opinionated batteries-included experience
   with a core set of technologies like
   [Svelte](https://github.com/sveltejs/svelte) and [Prettier](https://github.com/prettier/prettier).
