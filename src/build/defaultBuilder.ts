@@ -11,12 +11,12 @@ import {
 	InitialOptions as ExternalsBuilderInitialOptions,
 } from './externalsBuilder.js';
 
-export const createDefaultBuilder = async (
+export const createDefaultBuilder = (
 	swcBuilderOptions?: SwcBuilderInitialOptions,
 	svelteBuilderOptions?: SvelteBuilderInitialOptions,
 	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
 	lazyBuilderOptions?: LazyBuilderInitialOptions,
-): Promise<Builder> => {
+): Builder => {
 	if (!lazyBuilderOptions?.getBuilder) {
 		const swcBuilder = createSwcBuilder(swcBuilderOptions);
 		const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
