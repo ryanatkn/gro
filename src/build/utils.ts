@@ -39,11 +39,7 @@ const EXTERNALS_ID_PREFIX = `${EXTERNALS_BUILD_DIR}/`;
 const COMMONS_ID_PREFIX = `${EXTERNALS_ID_PREFIX}${COMMON_SOURCE_ID}/`;
 
 // TODO has weird special cases, needs refactoring
-export const mapBuildIdToSourceId: MapBuildIdToSourceId = (
-	buildId,
-	external,
-	buildRootDir: string,
-) => {
+export const mapBuildIdToSourceId: MapBuildIdToSourceId = (buildId, external, buildRootDir) => {
 	const basePath = toBuildBasePath(buildId, buildRootDir);
 	if (external) {
 		// 	? stripStart(stripEnd(basePath, JS_EXTENSION), EXTERNALS_ID_PREFIX)
