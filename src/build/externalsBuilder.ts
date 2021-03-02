@@ -171,6 +171,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	): Promise<void> => {
 		const builderState = getExternalsBuilderState(ctx.state);
 		const buildState = getExternalsBuildState(builderState, buildConfig);
+		buildState.specifiers.delete(sourceFile.id);
 		// mutate `importMap` with the removed source file
 		if (buildState.importMap !== undefined) {
 			delete buildState.importMap.imports[sourceFile.id];
