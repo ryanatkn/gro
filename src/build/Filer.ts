@@ -2,7 +2,7 @@ import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
-import {MapBuildIdToSourceId, mapBuildIdToSourceId} from './utils.js';
+import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {JSON_EXTENSION, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
@@ -30,13 +30,7 @@ import {
 	createSourceFile,
 	SourceFile,
 } from './sourceFile.js';
-import {
-	BuildFile,
-	COMMON_SOURCE_ID,
-	createBuildFile,
-	DependencyInfo,
-	diffDependencies,
-} from './buildFile.js';
+import {BuildFile, COMMON_SOURCE_ID, createBuildFile, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
@@ -84,7 +78,7 @@ export interface Options {
 	servedDirs: ServedDir[];
 	buildConfigs: BuildConfig[] | null;
 	buildRootDir: string;
-	mapBuildIdToSourceId: MapBuildIdToSourceId;
+	mapDependencyToSourceId: MapDependencyToSourceId;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
 	watch: boolean;
@@ -140,7 +134,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	}
 	return {
 		dev,
-		mapBuildIdToSourceId,
+		mapDependencyToSourceId,
 		sourceMap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
@@ -161,7 +155,7 @@ export class Filer implements BuildContext {
 	private readonly dirs: FilerDir[];
 	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
 	private readonly buildConfigs: readonly BuildConfig[] | null;
-	private readonly mapBuildIdToSourceId: MapBuildIdToSourceId;
+	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
 
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
 	// This pattern lets us pass around `this` filer
@@ -181,7 +175,7 @@ export class Filer implements BuildContext {
 			builder,
 			buildConfigs,
 			buildRootDir,
-			mapBuildIdToSourceId,
+			mapDependencyToSourceId,
 			sourceDirs,
 			servedDirs,
 			sourceMap,
@@ -193,7 +187,7 @@ export class Filer implements BuildContext {
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
 		this.buildRootDir = buildRootDir;
-		this.mapBuildIdToSourceId = mapBuildIdToSourceId;
+		this.mapDependencyToSourceId = mapDependencyToSourceId;
 		this.sourceMap = sourceMap;
 		this.target = target;
 		this.log = log;
@@ -774,19 +768,14 @@ export class Filer implements BuildContext {
 			removedDependencies,
 			addedDependencySourceFiles,
 			removedDependencySourceFiles,
-		} =
-			(await this.diffDependencies(newBuildFiles, oldBuildFiles, buildConfig, sourceFile)) || nulls;
+		} = (await this.diffDependencies(newBuildFiles, oldBuildFiles, sourceFile)) || nulls;
 
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
 				// currently we don't track Node dependencies for non-browser builds
-				if (!addedDependency.external && isExternalBrowserModule(addedDependency.id)) continue;
-				const dependencySourceId = this.mapBuildIdToSourceId(
-					addedDependency.id,
-					addedDependency.external,
-					this.buildRootDir,
-				);
+				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
+				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
 				if (dependencySourceId === sourceFile.id) {
 					continue; // ignore dependencies on self, happens with common externals
 				}
@@ -804,13 +793,7 @@ export class Filer implements BuildContext {
 				if (dependencies === undefined) {
 					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}: ${sourceFile.id}`);
 				}
-				dependencies.delete(
-					this.mapBuildIdToSourceId(
-						removedDependency.id,
-						removedDependency.external,
-						this.buildRootDir,
-					),
-				);
+				dependencies.delete(this.mapDependencyToSourceId(removedDependency, this.buildRootDir));
 			}
 		}
 
@@ -870,11 +853,10 @@ export class Filer implements BuildContext {
 	private async diffDependencies(
 		newBuildFiles: readonly BuildFile[],
 		oldBuildFiles: readonly BuildFile[] | null,
-		buildConfig: BuildConfig,
 		sourceFile: BuildableSourceFile,
 	): Promise<null | {
-		addedDependencies: DependencyInfo[] | null;
-		removedDependencies: DependencyInfo[] | null;
+		addedDependencies: BuildDependency[] | null;
+		removedDependencies: BuildDependency[] | null;
 		addedDependencySourceFiles: Set<BuildableSourceFile> | null;
 		removedDependencySourceFiles: Set<BuildableSourceFile> | null;
 	}> {
@@ -896,17 +878,13 @@ export class Filer implements BuildContext {
 		// they're removed for this build,
 		// meaning the memory cache is updated and the files are deleted from disk for the build config.
 		const {addedDependencies, removedDependencies} =
-			diffDependencies(newBuildFiles, oldBuildFiles, buildConfig, this) || nulls;
+			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				if (!addedDependency.external && isExternalBrowserModule(addedDependency.id)) continue;
-				const dependencySourceId = this.mapBuildIdToSourceId(
-					addedDependency.id,
-					addedDependency.external,
-					this.buildRootDir,
-				);
+				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
+				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
 				let addedSourceFile = this.files.get(dependencySourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
 
@@ -925,11 +903,7 @@ export class Filer implements BuildContext {
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
-				const sourceId = this.mapBuildIdToSourceId(
-					removedDependency.id,
-					removedDependency.external,
-					this.buildRootDir,
-				);
+				const sourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
 				const removedSourceFile = this.files.get(sourceId);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				assertBuildableSourceFile(removedSourceFile);

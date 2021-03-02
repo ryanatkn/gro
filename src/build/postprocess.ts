@@ -13,13 +13,14 @@ import {
 import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {getIsExternalModule} from '../utils/module.js';
+import {isExternalBuildId} from './externalsBuildHelpers.js';
 
 // TODO this is all hacky and should be refactored
 // make it pluggable like builders, maybe
 
 export const postprocess = (
 	build: Build,
-	{servedDirs, buildRootDir, dev}: BuildContext,
+	ctx: BuildContext,
 	result: BuildResult<Build>,
 	source: BuildSource,
 ): {
@@ -48,16 +49,17 @@ export const postprocess = (
 				const isExternalImport = isExternalModule(specifier);
 				if (isExternalImport) {
 					if (isBrowser) {
-						// TODO might want to use this `esinstall` helper: https://github.com/snowpackjs/snowpack/blob/a09bba81d01fa7b3769024f9bd5adf0d3fc4bafc/esinstall/src/util.ts#L161
-						// I'd prefer to add the `.js` always, but esinstall seems to force this
+						if (shouldModifyDotJs(mappedSpecifier)) {
+							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
+						}
 						mappedSpecifier = `/${EXTERNALS_BUILD_DIR}/${mappedSpecifier}${
 							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 						}`;
 						buildId = toBuildOutPath(
-							dev,
+							ctx.dev,
 							buildConfig.name,
 							mappedSpecifier.substring(1),
-							buildRootDir,
+							ctx.buildRootDir,
 						);
 					} else {
 						buildId = mappedSpecifier;
@@ -65,13 +67,13 @@ export const postprocess = (
 				} else {
 					buildId = join(build.dir, mappedSpecifier);
 				}
-				// TODO should this function be mapping dependencies, or can that be done after?
 				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
 				if (!dependenciesByBuildId.has(buildId)) {
 					dependenciesByBuildId.set(buildId, {
 						specifier,
 						mappedSpecifier,
 						buildId,
+						external: isExternalBuildId(buildId, buildConfig, ctx),
 					});
 				}
 				if (mappedSpecifier !== specifier) {
@@ -90,7 +92,7 @@ export const postprocess = (
 			const cssCompilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
 			if (cssCompilation !== undefined) {
 				let importPath: string | undefined;
-				for (const servedDir of servedDirs) {
+				for (const servedDir of ctx.servedDirs) {
 					if (cssCompilation.id.startsWith(servedDir.dir)) {
 						importPath = stripStart(cssCompilation.id, servedDir.servedAt);
 						break;
@@ -122,4 +124,19 @@ const injectSvelteCssImport = (contents: string, importPath: string): string => 
 		newlineIndex,
 	)}${injectedCssLoaderScript}${contents.substring(newlineIndex)}`;
 	return newContents;
+};
+
+// TODO tests as docs
+const shouldModifyDotJs = (sourceId: string): boolean => {
+	const maxSlashCount = sourceId[0] === '@' ? 1 : 0;
+	let slashCount = 0;
+	for (let i = 0; i < sourceId.length; i++) {
+		if (sourceId[i] === '/') {
+			slashCount++;
+			if (slashCount > maxSlashCount) {
+				return false;
+			}
+		}
+	}
+	return true;
 };

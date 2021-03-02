@@ -12,6 +12,7 @@ export interface BuildDependency {
 	specifier: string;
 	mappedSpecifier: string;
 	buildId: string;
+	external: boolean;
 }
 
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {

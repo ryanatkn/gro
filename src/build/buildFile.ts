@@ -9,7 +9,6 @@ import {loadContents} from './load.js';
 import {BuildableSourceFile} from './sourceFile.js';
 import {stripEnd} from '../utils/string.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {isExternalBuildId} from './externalsBuildHelpers.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
@@ -169,13 +168,6 @@ const addBuildFile = (
 	files.push(buildFile);
 };
 
-// TODO rename? move? see comments.. rethink
-export interface DependencyInfo {
-	id: string; // TODO rename to `buildId`? or remove? or redesign `DependencyInfo`? it's the same as `dependency.buildId` which is strange
-	dependency: BuildDependency; // TODO does this data structure make sense? we're decorating it .. strangely
-	external: boolean;
-}
-
 // TODO maybe this should take in cached aggregated data from the source file, not `oldBuildFiles`?
 
 // Returns the dependency changes between two sets of build files.
@@ -184,15 +176,13 @@ export interface DependencyInfo {
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
-	buildConfig: BuildConfig,
-	ctx: BuildContext,
 ): {
-	addedDependencies: DependencyInfo[] | null;
-	removedDependencies: DependencyInfo[] | null;
+	addedDependencies: BuildDependency[] | null;
+	removedDependencies: BuildDependency[] | null;
 } | null => {
 	if (newFiles === oldFiles) return null;
-	let addedDependencies: DependencyInfo[] | null = null;
-	let removedDependencies: DependencyInfo[] | null = null;
+	let addedDependencies: BuildDependency[] | null = null;
+	let removedDependencies: BuildDependency[] | null = null;
 
 	// Aggregate all of the dependencies for each source file.
 	let newDependencies: Map<string, BuildDependency> | null = null;
@@ -225,11 +215,7 @@ export const diffDependencies = (
 		for (const newDependency of newDependencies.values()) {
 			if (oldDependencies === null || !oldDependencies.has(newDependency.buildId)) {
 				if (addedDependencies === null) addedDependencies = [];
-				addedDependencies.push({
-					id: newDependency.buildId,
-					dependency: newDependency,
-					external: isExternalBuildId(newDependency.buildId, buildConfig, ctx),
-				});
+				addedDependencies.push(newDependency);
 			}
 		}
 	}
@@ -237,11 +223,7 @@ export const diffDependencies = (
 		for (const oldDependency of oldDependencies.values()) {
 			if (newDependencies === null || !newDependencies.has(oldDependency.buildId)) {
 				if (removedDependencies === null) removedDependencies = [];
-				removedDependencies.push({
-					id: oldDependency.buildId,
-					dependency: oldDependency,
-					external: isExternalBuildId(oldDependency.buildId, buildConfig, ctx),
-				});
+				removedDependencies.push(oldDependency);
 			}
 		}
 	}

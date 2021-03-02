@@ -228,7 +228,7 @@ const installExternal = async (
 			state.importMap = result.importMap;
 			state.installing = null;
 			if (state.commonBuilds !== null) {
-				log.error('unexpected commonBuilds'); // would indicate a problem, but don't want to throw
+				log.error('unexpected commonBuilds'); // indicates a problem, but don't want to throw
 			}
 			state.commonBuilds = await loadCommonBuilds(result, dest, buildConfig);
 			return result;
@@ -270,6 +270,7 @@ const loadCommonBuilds = async (
 	const commonDependencyIds = Object.keys(installResult.stats.common).map((path) =>
 		join(dest, path),
 	);
+	if (commonDependencyIds.length === 0) return null;
 	// log.trace('building common dependencies', commonDependencyIds);
 	return Promise.all(
 		commonDependencyIds.map(
