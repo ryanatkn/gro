@@ -756,6 +756,19 @@ export class Filer implements BuildContext {
 		// TODO use the diffed set of files to do the automatic cleaning of the .gro directory in total?
 	}
 
+	// After building the source file, we need to handle any dependency changes for each build file.
+	// Dependencies may be added or removed,
+	// and their source files need to be updated with any build config changes.
+	// When a dependency is added for this build,
+	// if the dependency's source file is not an input to the build config,
+	// and it has 1 dependent after the build file is added,
+	// they're added for this build,
+	// meaning the memory cache is updated and the files are built to disk for the build config.
+	// When a dependency is removed for this build,
+	// if the dependency's source file is not an input to the build config,
+	// and it has 0 dependents after the build file is removed,
+	// they're removed for this build,
+	// meaning the memory cache is updated and the files are deleted from disk for the build config.
 	private async updateDependencies(
 		sourceFile: BuildableSourceFile,
 		newBuildFiles: readonly BuildFile[],
@@ -763,37 +776,63 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		if (newBuildFiles === oldBuildFiles) return;
-		let {
-			addedDependencies,
-			removedDependencies,
-			addedDependencySourceFiles,
-			removedDependencySourceFiles,
-		} = (await this.diffDependencies(newBuildFiles, oldBuildFiles, sourceFile)) || nulls;
+
+		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
+		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
+
+		const {addedDependencies, removedDependencies} =
+			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
 
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
-				// currently we don't track Node dependencies for non-browser builds
+				// `external` will be false for Node imports in non-browser contexts -
+				// we create no source file for them
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
 				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
-				if (dependencySourceId === sourceFile.id) {
-					continue; // ignore dependencies on self, happens with common externals
+				let addedSourceFile = this.files.get(dependencySourceId);
+				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
+
+				// lazily create external source files if needed
+				if (addedSourceFile === undefined && addedDependency.external) {
+					addedSourceFile = await this.createExternalSourceFile(
+						dependencySourceId,
+						sourceFile.filerDir,
+					);
 				}
-				let dependencies = sourceFile.dependencies.get(buildConfig);
-				if (dependencies === undefined) {
-					dependencies = new Set();
-					sourceFile.dependencies.set(buildConfig, dependencies);
+				if (addedSourceFile !== undefined) {
+					// import might point to a nonexistent file
+					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
+						addedSourceFile,
+					);
 				}
-				dependencies.add(dependencySourceId);
+
+				if (dependencySourceId !== sourceFile.id) {
+					// ignore dependencies on self, happens with common externals
+					let dependencies = sourceFile.dependencies.get(buildConfig);
+					if (dependencies === undefined) {
+						dependencies = new Set();
+						sourceFile.dependencies.set(buildConfig, dependencies);
+					}
+					dependencies.add(dependencySourceId);
+				}
 			}
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
+				const sourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
+				const removedSourceFile = this.files.get(sourceId);
+				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
+				assertBuildableSourceFile(removedSourceFile);
+				(removedDependencySourceFiles || (removedDependencySourceFiles = new Set())).add(
+					removedSourceFile,
+				);
+
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
 					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}: ${sourceFile.id}`);
 				}
-				dependencies.delete(this.mapDependencyToSourceId(removedDependency, this.buildRootDir));
+				dependencies.delete(sourceId);
 			}
 		}
 
@@ -847,83 +886,6 @@ export class Filer implements BuildContext {
 			}
 		}
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
-	}
-
-	// Lazy-loads depdendency source files as needed, like externals.
-	private async diffDependencies(
-		newBuildFiles: readonly BuildFile[],
-		oldBuildFiles: readonly BuildFile[] | null,
-		sourceFile: BuildableSourceFile,
-	): Promise<null | {
-		addedDependencies: BuildDependency[] | null;
-		removedDependencies: BuildDependency[] | null;
-		addedDependencySourceFiles: Set<BuildableSourceFile> | null;
-		removedDependencySourceFiles: Set<BuildableSourceFile> | null;
-	}> {
-		if (newBuildFiles === oldBuildFiles) return null;
-		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
-		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
-
-		// After building the source file, we need to handle any dependency changes for each build file.
-		// Dependencies may be added or removed,
-		// and their source files need to be updated with any build config changes.
-		// When a dependency is added for this build,
-		// if the dependency's source file is not an input to the build config,
-		// and it has 1 dependent after the build file is added,
-		// they're added for this build,
-		// meaning the memory cache is updated and the files are built to disk for the build config.
-		// When a dependency is removed for this build,
-		// if the dependency's source file is not an input to the build config,
-		// and it has 0 dependents after the build file is removed,
-		// they're removed for this build,
-		// meaning the memory cache is updated and the files are deleted from disk for the build config.
-		const {addedDependencies, removedDependencies} =
-			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
-		if (addedDependencies !== null) {
-			for (const addedDependency of addedDependencies) {
-				// `external` will be false for Node imports in non-browser contexts -
-				// we create no source file for them
-				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
-				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
-				let addedSourceFile = this.files.get(dependencySourceId);
-				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
-
-				// lazily create external source files if needed
-				if (addedSourceFile === undefined && addedDependency.external) {
-					addedSourceFile = await this.createExternalSourceFile(
-						dependencySourceId,
-						sourceFile.filerDir,
-					);
-				}
-				if (addedSourceFile === undefined) continue; // import might point to a nonexistent file
-				(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
-					addedSourceFile,
-				);
-			}
-		}
-		if (removedDependencies !== null) {
-			for (const removedDependency of removedDependencies) {
-				const sourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
-				const removedSourceFile = this.files.get(sourceId);
-				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
-				assertBuildableSourceFile(removedSourceFile);
-				(removedDependencySourceFiles || (removedDependencySourceFiles = new Set())).add(
-					removedSourceFile,
-				);
-			}
-		}
-
-		return addedDependencies !== null ||
-			removedDependencies !== null ||
-			addedDependencySourceFiles !== null ||
-			removedDependencySourceFiles !== null
-			? {
-					addedDependencies,
-					removedDependencies,
-					addedDependencySourceFiles,
-					removedDependencySourceFiles,
-			  }
-			: null;
 	}
 
 	// TODO probably needs a better name, maybe use it more other places?
