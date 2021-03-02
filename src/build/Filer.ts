@@ -775,10 +775,7 @@ export class Filer implements BuildContext {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		// don't process dependencies for externals!
-		// we'd have to do postprocessing or mapping for the paths,
-		// and currently we have no reason to track externals' dependencies - esinstall handles it all
-		if (newBuildFiles === oldBuildFiles || sourceFile.external) return;
+		if (newBuildFiles === oldBuildFiles) return;
 
 		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
@@ -791,13 +788,18 @@ export class Filer implements BuildContext {
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
+				const addedExternalBrowserModule = isExternalBrowserModule(addedDependency.buildId);
+				if (!addedDependency.external && addedExternalBrowserModule) continue;
 				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
 
 				let addedSourceFile = this.files.get(dependencySourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
 				// lazily create external source files if needed
-				if (addedSourceFile === undefined && addedDependency.external) {
+				if (
+					addedSourceFile === undefined &&
+					addedDependency.external &&
+					!addedExternalBrowserModule // ignore imports internal to the externals
+				) {
 					addedSourceFile = await this.createExternalSourceFile(
 						dependencySourceId,
 						sourceFile.filerDir,
