@@ -29,8 +29,11 @@ const createConfig: GroConfigCreator = async () => {
 		],
 		logLevel: LogLevel.Trace,
 		serve: [
+			// first try to fulfill requests with files in `$PROJECT/src/client/` as if it were `/`
 			toBuildOutPath(true, BROWSER_BUILD_CONFIG_NAME, 'client'),
+			// then look for files in `$PROJECT/src/`
 			toBuildOutPath(true, BROWSER_BUILD_CONFIG_NAME, ''),
+			// then.. no file found
 		],
 	};
 	return config;
