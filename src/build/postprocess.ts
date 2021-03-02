@@ -77,7 +77,6 @@ export const postprocess = (
 					});
 				}
 				if (mappedSpecifier !== specifier) {
-					console.log('mappedSpecifier', mappedSpecifier);
 					transformedContents += contents.substring(index, start) + mappedSpecifier;
 					index = end;
 				}
