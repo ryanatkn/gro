@@ -10,7 +10,14 @@ import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {gray, magenta, red, blue} from '../colors/terminal.js';
 import {printError} from '../utils/print.js';
-import type {Build, BuildContext, Builder, BuilderState, BuildResult} from './builder.js';
+import type {
+	Build,
+	BuildContext,
+	BuildDependency,
+	Builder,
+	BuilderState,
+	BuildResult,
+} from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
@@ -60,7 +67,7 @@ export interface CachedSourceInfoData {
 	readonly builds: {
 		readonly id: string;
 		readonly name: string;
-		readonly dependencies: string[] | null;
+		readonly dependencies: BuildDependency[] | null;
 		readonly encoding: Encoding;
 	}[];
 }
@@ -1001,7 +1008,8 @@ export class Filer implements BuildContext {
 				files.map((file) => ({
 					id: file.id,
 					name: file.buildConfig.name,
-					dependencies: file.dependencies && Array.from(file.dependencies),
+					dependencies:
+						file.dependenciesByBuildId && Array.from(file.dependenciesByBuildId.values()),
 					encoding: file.encoding,
 				})),
 			),

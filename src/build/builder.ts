@@ -6,6 +6,14 @@ import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from './ServedDir.js';
 import {Logger} from '../utils/log.js';
 
+// TODO maybe move to `buildFile`? but then `postprocess` would have a dependency on the build file.
+// its imports make more sense as is.
+export interface BuildDependency {
+	specifier: string;
+	mappedSpecifier: string;
+	buildId: string;
+}
+
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
 	build(
 		source: TSource,

@@ -10,22 +10,26 @@ import {
 	toBuildExtension,
 	toBuildOutPath,
 } from '../paths.js';
-import type {Build, BuildContext, BuildResult, BuildSource} from './builder.js';
+import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {getIsExternalModule} from '../utils/module.js';
 
 // TODO this is all hacky and should be refactored
+// make it pluggable like builders, maybe
 
 export const postprocess = (
 	build: Build,
 	{servedDirs, buildRootDir, dev}: BuildContext,
 	result: BuildResult<Build>,
 	source: BuildSource,
-): {contents: Build['contents']; dependencies: Set<string> | null} => {
+): {
+	contents: Build['contents'];
+	dependenciesByBuildId: Map<string, BuildDependency> | null;
+} => {
 	if (build.encoding === 'utf8') {
 		let {contents, buildConfig} = build;
 		const isBrowser = buildConfig.platform === 'browser';
-		let dependencies: Set<string> | null = null;
+		let dependenciesByBuildId: Map<string, BuildDependency> | null = null;
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
@@ -37,34 +41,42 @@ export const postprocess = (
 			for (const {s, e, d} of imports) {
 				const start = d > -1 ? s + 1 : s;
 				const end = d > -1 ? e - 1 : e;
-				const moduleName = contents.substring(start, end);
-				if (moduleName === 'import.meta') continue;
-				let newModuleName = toBuildExtension(moduleName);
-				let dependency: string;
-				const isExternalImport = isExternalModule(moduleName);
+				const specifier = contents.substring(start, end);
+				if (specifier === 'import.meta') continue;
+				let mappedSpecifier = toBuildExtension(specifier);
+				let buildId: string;
+				const isExternalImport = isExternalModule(specifier);
 				if (isExternalImport) {
 					if (isBrowser) {
 						// TODO might want to use this `esinstall` helper: https://github.com/snowpackjs/snowpack/blob/a09bba81d01fa7b3769024f9bd5adf0d3fc4bafc/esinstall/src/util.ts#L161
 						// I'd prefer to add the `.js` always, but esinstall seems to force this
-						newModuleName = `/${EXTERNALS_BUILD_DIR}/${newModuleName}${
-							newModuleName.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+						mappedSpecifier = `/${EXTERNALS_BUILD_DIR}/${mappedSpecifier}${
+							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 						}`;
-						dependency = toBuildOutPath(
+						buildId = toBuildOutPath(
 							dev,
 							buildConfig.name,
-							newModuleName.substring(1),
+							mappedSpecifier.substring(1),
 							buildRootDir,
 						);
 					} else {
-						dependency = newModuleName;
+						buildId = mappedSpecifier;
 					}
 				} else {
-					dependency = join(build.dir, newModuleName);
+					buildId = join(build.dir, mappedSpecifier);
 				}
-				(dependencies || (dependencies = new Set())).add(dependency);
-				if (newModuleName !== moduleName) {
-					console.log('newModuleName', newModuleName);
-					transformedContents += contents.substring(index, start) + newModuleName;
+				// TODO should this function be mapping dependencies, or can that be done after?
+				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
+				if (!dependenciesByBuildId.has(buildId)) {
+					dependenciesByBuildId.set(buildId, {
+						specifier,
+						mappedSpecifier,
+						buildId,
+					});
+				}
+				if (mappedSpecifier !== specifier) {
+					console.log('mappedSpecifier', mappedSpecifier);
+					transformedContents += contents.substring(index, start) + mappedSpecifier;
 					index = end;
 				}
 			}
@@ -89,10 +101,10 @@ export const postprocess = (
 				}
 			}
 		}
-		return {contents, dependencies};
+		return {contents, dependenciesByBuildId};
 	} else {
 		// Handle other encodings like binary.
-		return {contents: build.contents, dependencies: null};
+		return {contents: build.contents, dependenciesByBuildId: null};
 	}
 };
 
