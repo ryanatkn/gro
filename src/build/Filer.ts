@@ -790,9 +790,9 @@ export class Filer implements BuildContext {
 				// we create no source file for them
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
 				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
+
 				let addedSourceFile = this.files.get(dependencySourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
-
 				// lazily create external source files if needed
 				if (addedSourceFile === undefined && addedDependency.external) {
 					addedSourceFile = await this.createExternalSourceFile(
@@ -800,15 +800,15 @@ export class Filer implements BuildContext {
 						sourceFile.filerDir,
 					);
 				}
+				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
-					// import might point to a nonexistent file
 					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
 						addedSourceFile,
 					);
 				}
 
+				// ignore dependencies on self - happens with common externals
 				if (dependencySourceId !== sourceFile.id) {
-					// ignore dependencies on self, happens with common externals
 					let dependencies = sourceFile.dependencies.get(buildConfig);
 					if (dependencies === undefined) {
 						dependencies = new Set();
