@@ -7,10 +7,10 @@
 > **_warning!_** You should not use Gro today
 > unless you're willing to take ownership of the code.
 > Expect bugs, missing features, and undocumented breaking changes.
-> Gro integrates several tools into a single experience but
-> for now it probably doesn't suit your needs.
-> Many other mature tools with large communities solve similar problems.
-> All that said, you might find some interesting or useful things here!
+> In fact don't expect any documentation.. or .. just don't expect anything.
+> Gro integrates several tools into a single experience but it's pre-alpha,
+> and there are many mature substitutes with large communities.
+> That said, you might find some interesting or useful things here!
 > Feel free to open issues for questions or discussion.
 
 ## about
