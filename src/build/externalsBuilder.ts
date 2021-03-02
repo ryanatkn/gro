@@ -205,7 +205,8 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 // TODO this is really hacky - it's working,
 // but it causes unnecessary delays building externals
-const IDLE_CHECK_INTERVAL = 100; // this needs to be smaller than `DELAYED_PROMISE_DURATION`
+const IDLE_CHECK_INTERVAL = 200; // needs to be smaller than `IDLE_CHECK_DELAY`
+const IDLE_CHECK_DELAY = 500; // needs to be larger than `IDLE_CHECK_INTERVAL`
 const IDLE_TIME_LIMIT = parseInt((process.env as any).GRO_IDLE_TIME_LIMIT, 10) || 20000; // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
 // TODO wait what's the relationship between those two? check for errors?
 
@@ -233,7 +234,7 @@ const installExternal = async (
 			}
 			state.commonBuilds = await loadCommonBuilds(result, dest, buildConfig);
 			return result;
-		});
+		}, IDLE_CHECK_DELAY);
 		state.idleTimer = 0;
 		state.resetterInterval = setInterval(() => {
 			state.idleTimer += IDLE_CHECK_INTERVAL; // this is not a precise time value
