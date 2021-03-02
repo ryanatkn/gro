@@ -775,7 +775,10 @@ export class Filer implements BuildContext {
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		if (newBuildFiles === oldBuildFiles) return;
+		// don't process dependencies for externals!
+		// we'd have to do postprocessing or mapping for the paths,
+		// and currently we have no reason to track externals' dependencies - esinstall handles it all
+		if (newBuildFiles === oldBuildFiles || sourceFile.external) return;
 
 		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
 		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
