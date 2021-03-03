@@ -175,6 +175,12 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		// mutate `importMap` with the removed source file
 		if (buildState.importMap !== undefined) {
 			delete buildState.importMap.imports[sourceFile.id];
+			// TODO problem with race condition on multiple of these being removed at once
+			// could detect a pending promise, and wrap with a new one, and ignore if already pending.
+			// (because it'll read the fresh state)
+			// promise is set to null if it's still equal when resolved
+			// ctx.buildingSourceFiles.size; // TODO wait til idle? hmm. because it might be written by an install! uhh.. who should win?
+			// buildState.updatingImportMap;
 			await updateImportMapOnDisk(buildState.importMap, buildConfig, ctx);
 		}
 	};

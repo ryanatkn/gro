@@ -789,7 +789,7 @@ export class Filer implements BuildContext {
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				// buildConfig.platform === 'browser'; // TODO hmm
+				// buildConfig.platform === 'browser'; // TODO may be `external` but not browser, is relying on the check against `buildId`, doesn't seem ideal
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
 				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
 
@@ -824,6 +824,7 @@ export class Filer implements BuildContext {
 				// ignore dependencies on self - happens with common externals
 				if (
 					dependencySourceId !== sourceFile.id
+					// TODO
 					// &&
 					// !(addedDependency.external && addedExternalBrowserModule)
 				) {
