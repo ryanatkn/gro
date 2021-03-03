@@ -779,29 +779,24 @@ export class Filer implements BuildContext {
 	): Promise<void> {
 		if (newBuildFiles === oldBuildFiles) return;
 
-		let addedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
-		let removedDependencySourceFiles: Set<BuildableSourceFile> | null = null;
-
 		const {addedDependencies, removedDependencies} =
 			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
+
+		let promises: Promise<void>[] | null = null;
 
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				const addedExternalBrowserModule = isExternalBrowserModule(addedDependency.buildId);
-				if (!addedDependency.external && addedExternalBrowserModule) continue;
+				// buildConfig.platform === 'browser'; // TODO hmm
+				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
 				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
 
 				let addedSourceFile = this.files.get(dependencySourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
 				// lazily create external source files if needed
-				if (
-					addedSourceFile === undefined &&
-					addedDependency.external &&
-					!addedExternalBrowserModule // ignore imports internal to the externals
-				) {
+				if (addedSourceFile === undefined && addedDependency.external) {
 					addedSourceFile = await this.createExternalSourceFile(
 						dependencySourceId,
 						sourceFile.filerDir,
@@ -809,13 +804,29 @@ export class Filer implements BuildContext {
 				}
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
-					(addedDependencySourceFiles || (addedDependencySourceFiles = new Set())).add(
-						addedSourceFile,
-					);
+					let dependents = addedSourceFile.dependents.get(buildConfig);
+					if (dependents === undefined) {
+						dependents = new Set();
+						addedSourceFile.dependents.set(buildConfig, dependents);
+					}
+					dependents.add(sourceFile);
+					if (!addedSourceFile.buildConfigs.has(buildConfig)) {
+						(promises || (promises = [])).push(
+							this.addSourceFileToBuild(
+								addedSourceFile,
+								buildConfig,
+								isInputToBuildConfig(addedSourceFile, buildConfig),
+							),
+						);
+					}
 				}
 
 				// ignore dependencies on self - happens with common externals
-				if (dependencySourceId !== sourceFile.id) {
+				if (
+					dependencySourceId !== sourceFile.id
+					// &&
+					// !(addedDependency.external && addedExternalBrowserModule)
+				) {
 					let dependencies = sourceFile.dependencies.get(buildConfig);
 					if (dependencies === undefined) {
 						dependencies = new Set();
@@ -831,63 +842,28 @@ export class Filer implements BuildContext {
 				const removedSourceFile = this.files.get(sourceId);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				assertBuildableSourceFile(removedSourceFile);
-				(removedDependencySourceFiles || (removedDependencySourceFiles = new Set())).add(
-					removedSourceFile,
-				);
 
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
 					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}: ${sourceFile.id}`);
 				}
 				dependencies.delete(sourceId);
-			}
-		}
 
-		// this `promises` pattern makes it easy to write imperative code and parallelize at the end
-		let promises: Promise<void>[] | null = null;
-		if (addedDependencySourceFiles !== null) {
-			for (const addedDependencySourceFile of addedDependencySourceFiles) {
-				let dependents = addedDependencySourceFile.dependents.get(buildConfig);
-				if (dependents === undefined) {
-					dependents = new Set();
-					addedDependencySourceFile.dependents.set(buildConfig, dependents);
-				}
-				dependents.add(sourceFile);
-				if (!addedDependencySourceFile.buildConfigs.has(buildConfig)) {
-					(promises || (promises = [])).push(
-						this.addSourceFileToBuild(
-							addedDependencySourceFile,
-							buildConfig,
-							isInputToBuildConfig(addedDependencySourceFile, buildConfig),
-						),
+				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
+					throw Error(
+						`Expected build config: ${printBuildConfig(buildConfig)}: ${removedSourceFile.id}`,
 					);
 				}
-			}
-		}
-		if (removedDependencySourceFiles !== null) {
-			for (const removedDependencySourceFile of removedDependencySourceFiles) {
-				if (!removedDependencySourceFile.buildConfigs.has(buildConfig)) {
-					throw Error(
-						`Expected build config: ${printBuildConfig(buildConfig)}: ${
-							removedDependencySourceFile.id
-						}`,
-					);
-				}
-				let dependents = removedDependencySourceFile.dependents.get(buildConfig);
+				let dependents = removedSourceFile.dependents.get(buildConfig);
 				if (dependents === undefined) {
 					throw Error(
-						`Expected dependents: ${printBuildConfig(buildConfig)}: ${
-							removedDependencySourceFile.id
-						}`,
+						`Expected dependents: ${printBuildConfig(buildConfig)}: ${removedSourceFile.id}`,
 					);
 				}
 				dependents.delete(sourceFile);
-				if (
-					dependents.size === 0 &&
-					!removedDependencySourceFile.isInputToBuildConfigs?.has(buildConfig)
-				) {
+				if (dependents.size === 0 && !removedSourceFile.isInputToBuildConfigs?.has(buildConfig)) {
 					(promises || (promises = [])).push(
-						this.removeSourceFileFromBuild(removedDependencySourceFile, buildConfig),
+						this.removeSourceFileFromBuild(removedSourceFile, buildConfig),
 					);
 				}
 			}
