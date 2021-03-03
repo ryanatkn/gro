@@ -733,8 +733,10 @@ export class Filer implements BuildContext {
 		const changes = diffBuildFiles(newBuildFiles, oldBuildFiles);
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
 		syncBuildFilesToMemoryCache(this.files, changes);
-		await this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig);
-		await syncFilesToDisk(changes, this.log);
+		await Promise.all([
+			syncBuildFilesToDisk(changes, this.log),
+			this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig),
+		]);
 	}
 
 	// This is like `updateBuildFiles` except
@@ -980,7 +982,7 @@ export class Filer implements BuildContext {
 	}
 }
 
-const syncFilesToDisk = async (changes: BuildFileChange[], log: Logger): Promise<void> => {
+const syncBuildFilesToDisk = async (changes: BuildFileChange[], log: Logger): Promise<void> => {
 	await Promise.all(
 		changes.map(async (change) => {
 			const {file} = change;
