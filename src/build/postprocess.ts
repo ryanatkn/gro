@@ -47,14 +47,16 @@ export const postprocess = (
 				let mappedSpecifier = toBuildExtension(specifier);
 				let buildId: string;
 				const isExternalImport = isExternalModule(specifier);
-				if (isExternalImport) {
+				// imports of externals are always externals, hence `|| source.external`
+				if (isExternalImport || source.external) {
 					if (isBrowser) {
-						if (shouldModifyDotJs(mappedSpecifier)) {
+						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
 							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
 						}
-						mappedSpecifier = `/${EXTERNALS_BUILD_DIR}/${mappedSpecifier}${
-							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-						}`;
+						mappedSpecifier = `/${join(
+							isExternalImport ? EXTERNALS_BUILD_DIR : source.dirBasePath,
+							mappedSpecifier,
+						)}${mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION}`;
 						buildId = toBuildOutPath(
 							ctx.dev,
 							buildConfig.name,
