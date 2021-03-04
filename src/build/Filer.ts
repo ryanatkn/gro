@@ -792,7 +792,6 @@ export class Filer implements BuildContext {
 				// buildConfig.platform === 'browser'; // TODO may be `external` but not browser, is relying on the check against `buildId`, doesn't seem ideal
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
 				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
-
 				let addedSourceFile = this.files.get(dependencySourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
 				// lazily create external source files if needed
@@ -872,7 +871,7 @@ export class Filer implements BuildContext {
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
 	}
 
-	// TODO probably needs a better name, maybe use it more other places?
+	// TODO probably needs a better name, maybe use it more other places, or delete it?
 	private async updateExternalSourceFile(
 		id: string,
 		buildConfig: BuildConfig,

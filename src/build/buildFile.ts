@@ -184,7 +184,7 @@ export const diffDependencies = (
 	let addedDependencies: BuildDependency[] | null = null;
 	let removedDependencies: BuildDependency[] | null = null;
 
-	// Aggregate all of the dependencies for each source file.
+	// Aggregate all of the dependencies for each source file. The map de-dupes by build id.
 	let newDependencies: Map<string, BuildDependency> | null = null;
 	let oldDependencies: Map<string, BuildDependency> | null = null;
 	for (const newFile of newFiles) {
