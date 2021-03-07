@@ -955,31 +955,27 @@ export class Filer implements BuildContext {
 		id: string,
 		filerDir: FilerDir,
 	): Promise<BuildableSourceFile> {
+		// this.log.trace('creating external source file', gray(id));
 		if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);
-		await this.updateSourceFile(id, filerDir); // TODO use the return value?
+		await this.updateSourceFile(id, filerDir);
 		const sourceFile = this.files.get(id);
 		assertBuildableSourceFile(sourceFile);
-		// if (sourceFile.buildFiles.size > 0) {
-		// 	await Promise.all(
-		// 		Array.from(sourceFile.buildFiles.keys()).map((buildConfig) =>
-		// 		// TODO this is weird because we're hydrating but not building.
-		// 		// and we're not adding to the build either
-		// 			this.hydrateSourceFileFromCache(sourceFile, buildConfig),
-		// 		),
-		// 	);
-		// }
+		// TODO why is this needed for the client to work in the browser?
+		// shouldn't it be taken care of through the normal externals update?
+		// it's duplicating the work of `addSourceFileToBuild`
+		if (sourceFile.buildFiles.size > 0) {
+			await Promise.all(
+				Array.from(sourceFile.buildFiles.keys()).map(
+					(buildConfig) => (
+						// TODO this is weird because we're hydrating but not building.
+						// and we're not adding to the build either
+						sourceFile.buildConfigs.add(buildConfig),
+						this.hydrateSourceFileFromCache(sourceFile, buildConfig)
+					),
+				),
+			);
+		}
 		return sourceFile;
-		// TODO tried this but no, because `initSourceFile` is not what we want,
-		// and we didn't awnt to special case hydration,
-		// but this does suggest we should refactor all of it.
-		// // TODO helper or something
-		// await this.onDirChange({type: 'create', path: id, stats: {isDirectory: () => false}}, filerDir);
-		// const file = this.files.get(id);
-		// assertBuildableSourceFile(file);
-		// console.log(red('created!'), id);
-		// // TODO hydrate? is the `initSourceFile` in the `onDirChange` actually what we want?s
-		// return file;
-		// this.log.trace('creating external source file', gray(id));
 	}
 
 	// TODO this could possibly be changed to explicitly call the build,
