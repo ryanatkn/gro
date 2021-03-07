@@ -8,7 +8,7 @@ Gro leverages ES modules during development
 to avoid the unnecessary overhead and complexity of bundling,
 streamlining frontend dev.
 Unlike Snowpack and similar tools,
-Gro is designed for servers and libraries, not just frontends.
+Gro is also designed for servers and libraries, not just frontends.
 See below for [a deeper comparison to Snowpack](#comparison-to-snowpack).
 
 For production, Gro uses Rollup to produce efficient bundles.
