@@ -189,9 +189,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				const importMap = await loadImportMapFromDisk(dest);
 				if (importMap !== undefined) {
 					buildState.importMap = importMap;
-					console.log('ASSIGNING SPECIFIRS', buildState.specifiers);
 					buildState.specifiers = toSpecifiers(importMap);
-					console.log('ASSIGNed SPECIFIRS', buildState.specifiers);
 				}
 			}),
 		);

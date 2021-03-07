@@ -760,6 +760,9 @@ export class Filer implements BuildContext {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
+		// TODO overlapping calls are a problem here! (warm startup)
+		// needs to collate based on sourceFile...... like `updateSourceFile`
+		// what about `updateBuildFiles`? that's called in multiple places too
 		// this.log.trace('hydrate', gray(sourceFile.id));
 		const buildFiles = sourceFile.buildFiles.get(buildConfig);
 		if (buildFiles === undefined) {
@@ -830,12 +833,21 @@ export class Filer implements BuildContext {
 				}
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
-					let dependents = addedSourceFile.dependents.get(buildConfig);
+					// update `dependents` of the added file
+					let dependentsMap = addedSourceFile.dependents.get(buildConfig);
+					if (dependentsMap === undefined) {
+						dependentsMap = new Map();
+						addedSourceFile.dependents.set(buildConfig, dependentsMap);
+					}
+					let dependents = dependentsMap.get(addedSourceFile);
 					if (dependents === undefined) {
 						dependents = new Set();
-						addedSourceFile.dependents.set(buildConfig, dependents);
+						dependentsMap.set(addedSourceFile, dependents);
 					}
-					dependents.add(sourceFile);
+					dependents.add(addedDependency.buildId);
+					if (addedSourceFile.id === 'externals')
+						console.log('added dependenct', addedDependency.buildId);
+
 					// Add source file to build if needed.
 					// Externals are handled separately by `updateExternalsSourceFile`, not here,
 					// because they're batched for the entire build.
@@ -852,91 +864,69 @@ export class Filer implements BuildContext {
 					}
 				}
 
-				// TODO this is done above .. I think that's what we want
-				// ignore dependencies on self - happens with common externals
-				// if (addedSourceId !== sourceFile.id) {
-				let dependencies = sourceFile.dependencies.get(buildConfig);
+				// update `dependencies` of the source file
+				let dependenciesMap = sourceFile.dependencies.get(buildConfig);
+				if (dependenciesMap === undefined) {
+					dependenciesMap = new Map();
+					sourceFile.dependencies.set(buildConfig, dependenciesMap);
+				}
+				let dependencies = dependenciesMap.get(addedSourceId);
 				if (dependencies === undefined) {
 					dependencies = new Set();
-					sourceFile.dependencies.set(buildConfig, dependencies);
+					dependenciesMap.set(addedSourceId, dependencies);
 				}
-				dependencies.add(addedSourceId);
-				// }
+				dependencies.add(addedDependency.buildId);
 			}
 		}
 		if (removedDependencies !== null) {
-			// TODO this is a gross hack for externals
-			// TODO don't we have a similar but more subtle problem with multiple files from a build?
-			let _hasExternals: boolean | undefined;
-			const hasExternals = (): boolean => {
-				if (_hasExternals !== undefined) return _hasExternals;
-				for (const newBuildFile of newBuildFiles) {
-					if (newBuildFile.dependenciesByBuildId !== null) {
-						for (const dependency of newBuildFile.dependenciesByBuildId.values()) {
-							if (dependency.external) {
-								_hasExternals = true;
-								return _hasExternals;
-							}
-						}
-					}
-				}
-				_hasExternals = false;
-				return _hasExternals;
-			};
 			for (const removedDependency of removedDependencies) {
 				const removedSourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
-				// TODO this is wrong!!!!!!!! it still has other external deps!
-				console.log('removedSourceId', removedSourceId, sourceFile.id);
+				console.log('removedSourceId', removedSourceId, removedDependency.buildId);
 				// ignore dependencies on self - happens with common externals
 				if (removedSourceId === sourceFile.id) continue;
-				if (removedSourceId === EXTERNALS_SOURCE_ID) {
-					// TODO uh oh..this was not made for M:N building!
-					// the problem here is that it's de-duping by build id, not source,
-					// so all externals are clobbering each other right here
-					console.log(red('externals source id'));
-					if (hasExternals()) continue;
-				}
 				const removedSourceFile = this.files.get(removedSourceId);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				assertBuildableSourceFile(removedSourceFile);
-
-				// if (removedSourceId !== sourceFile.id) {
-				let dependencies = sourceFile.dependencies.get(buildConfig);
-				if (dependencies === undefined) {
-					// debugger;
-					// console.log('removedSourceFile', removedSourceFile);
-					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}: ${sourceFile.id}`);
-				}
-				dependencies.delete(removedSourceId);
-				// }
-
-				// TODO
-				// wait should we be mapping at all?
-				// wait should we be mapping at all?
-				// wait should we be mapping at all?
-				// wait should we be mapping at all?
-				// wait should we be mapping at all?
-				// wait should we be mapping at all? or using build ids. properly handle multiple build files
-				// the diffing with `diffDependencies` is all build ids!
 				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
 					debugger;
-					console.log('removedDependency', removedDependency);
-					console.log('buildConfig, removedSourceFile.id', buildConfig, removedSourceFile.id);
-					throw Error(
-						`Expected build config: ${printBuildConfig(buildConfig)}: ${removedSourceFile.id}`,
-					);
+					console.log('no build config in removed source file');
+					// throw Error(`Expected build config: ${removedSourceFile.id}`);
 				}
-				let dependents = removedSourceFile.dependents.get(buildConfig);
+
+				// update `dependencies` of the source file
+				let dependenciesMap = sourceFile.dependencies.get(buildConfig);
+				if (dependenciesMap === undefined) {
+					throw Error(`Expected dependenciesMap: ${sourceFile.id}`);
+				}
+				let dependencies = dependenciesMap.get(removedSourceId);
+				if (dependencies === undefined) {
+					throw Error(`Expected dependencies: ${removedSourceId}: ${sourceFile.id}`);
+				}
+				dependencies.delete(removedDependency.buildId);
+				if (dependencies.size === 0) {
+					dependenciesMap.delete(removedSourceId);
+				}
+
+				// update `dependents` of the removed file
+				let dependentsMap = removedSourceFile.dependents.get(buildConfig);
+				if (dependentsMap === undefined) {
+					throw Error(`Expected dependentsMap: ${removedSourceFile.id}`);
+				}
+				let dependents = dependentsMap.get(sourceFile);
 				if (dependents === undefined) {
-					throw Error(
-						`Expected dependents: ${printBuildConfig(buildConfig)}: ${removedSourceFile.id}`,
-					);
+					throw Error(`Expected dependents: ${removedSourceFile.id}`);
 				}
-				dependents.delete(sourceFile); // TODO should these be build ids instead? what about dependencies, build ids too?
-				if (dependents.size === 0 && !removedSourceFile.isInputToBuildConfigs?.has(buildConfig)) {
-					(promises || (promises = [])).push(
-						this.removeSourceFileFromBuild(removedSourceFile, buildConfig),
-					);
+				dependents.delete(removedDependency.buildId);
+				if (dependents.size === 0) {
+					dependentsMap.delete(sourceFile);
+					if (
+						dependentsMap.size === 0 &&
+						!removedSourceFile.isInputToBuildConfigs?.has(buildConfig)
+					) {
+						(promises || (promises = [])).push(
+							this.removeSourceFileFromBuild(removedSourceFile, buildConfig),
+						);
+					}
 				}
 			}
 		}
@@ -969,13 +959,15 @@ export class Filer implements BuildContext {
 		await this.updateSourceFile(id, filerDir); // TODO use the return value?
 		const sourceFile = this.files.get(id);
 		assertBuildableSourceFile(sourceFile);
-		if (sourceFile.buildFiles.size > 0) {
-			await Promise.all(
-				Array.from(sourceFile.buildFiles.keys()).map((buildConfig) =>
-					this.hydrateSourceFileFromCache(sourceFile, buildConfig),
-				),
-			);
-		}
+		// if (sourceFile.buildFiles.size > 0) {
+		// 	await Promise.all(
+		// 		Array.from(sourceFile.buildFiles.keys()).map((buildConfig) =>
+		// 		// TODO this is weird because we're hydrating but not building.
+		// 		// and we're not adding to the build either
+		// 			this.hydrateSourceFileFromCache(sourceFile, buildConfig),
+		// 		),
+		// 	);
+		// }
 		return sourceFile;
 		// TODO tried this but no, because `initSourceFile` is not what we want,
 		// and we didn't awnt to special case hydration,

@@ -25,6 +25,10 @@ export interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
 	readonly sourceId: string;
 	readonly buildConfig: BuildConfig;
+	// This data structure de-dupes by build id, because we can throw away
+	// the information of duplicate imports to the same dependency within each build file.
+	// We may want to store more granular dependency info, including imported identifiers,
+	// in the future.
 	readonly dependenciesByBuildId: Map<string, BuildDependency> | null;
 }
 

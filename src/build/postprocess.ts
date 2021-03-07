@@ -89,7 +89,6 @@ export const postprocess = (
 						external: isExternalBuildId(buildId, buildConfig, ctx),
 						// TODO what if this had `originalSpecifier` and `isExternalImport` too?
 					});
-					// console.log('DEP', dependenciesByBuildId.get(buildId));
 				}
 				if (mappedSpecifier !== specifier) {
 					transformedContents += contents.substring(index, start) + mappedSpecifier;

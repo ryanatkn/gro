@@ -102,8 +102,6 @@ export const loadImportMapFromDisk = async (dest: string): Promise<ImportMap | u
 	return importMap;
 };
 
-const DELAYED_PROMISE_DURATION = 250; // this needs to be larger than `IDLE_CHECK_INTERVAL`
-
 export interface DelayedPromise<T> {
 	promise: Promise<T>;
 	reset(): void;
@@ -111,7 +109,7 @@ export interface DelayedPromise<T> {
 
 export const createDelayedPromise = <T>(
 	cb: () => Promise<T>,
-	duration = DELAYED_PROMISE_DURATION,
+	duration: number,
 ): DelayedPromise<T> => {
 	let resolve: any, reject: any;
 	const promise = new Promise<T>((rs, rj) => ((resolve = rs), (reject = rj)));
