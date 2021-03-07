@@ -1,7 +1,7 @@
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
-import {toBuildOutPath, EXTERNALS_BUILD_DIR} from '../paths.js';
-import type {ExternalsBuilderState} from './externalsBuildHelpers.js';
+import {toBuildOutPath} from '../paths.js';
+import type {ExternalsBuilderState, EXTERNALS_BUILDER_STATE_KEY} from './externalsBuildHelpers.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from './ServedDir.js';
 import {Logger} from '../utils/log.js';
@@ -41,7 +41,7 @@ export interface BuildContext {
 }
 
 export interface BuilderState {
-	[EXTERNALS_BUILD_DIR]?: ExternalsBuilderState;
+	[EXTERNALS_BUILDER_STATE_KEY]?: ExternalsBuilderState;
 }
 
 export type Build = TextBuild | BinaryBuild;
@@ -60,7 +60,6 @@ interface BaseBuild {
 	dir: string;
 	extension: string;
 	buildConfig: BuildConfig;
-	common?: boolean;
 }
 
 export type BuildSource = TextBuildSource | BinaryBuildSource;
@@ -74,7 +73,6 @@ export interface BinaryBuildSource extends BaseBuildSource {
 }
 interface BaseBuildSource {
 	buildable: true;
-	external: boolean;
 	id: string;
 	filename: string;
 	dir: string;

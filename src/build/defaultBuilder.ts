@@ -10,6 +10,7 @@ import {
 	createExternalsBuilder,
 	InitialOptions as ExternalsBuilderInitialOptions,
 } from './externalsBuilder.js';
+import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
 
 export const createDefaultBuilder = (
 	swcBuilderOptions?: SwcBuilderInitialOptions,
@@ -25,7 +26,7 @@ export const createDefaultBuilder = (
 		lazyBuilderOptions = {
 			...lazyBuilderOptions,
 			getBuilder: (source, buildConfig) => {
-				if (source.external) {
+				if (source.id === EXTERNALS_SOURCE_ID) {
 					if (buildConfig.platform !== 'browser') {
 						throw Error('Expected browser for externals builder.');
 					}

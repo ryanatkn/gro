@@ -1,15 +1,9 @@
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import {
-	basePathToSourceId,
-	EXTERNALS_BUILD_DIR,
-	paths,
-	toBuildBasePath,
-	toSourceExtension,
-} from '../paths.js';
-import {COMMON_SOURCE_ID} from './buildFile.js';
+import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
 import {BuildDependency} from './builder.js';
+import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -32,16 +26,11 @@ export interface MapDependencyToSourceId {
 	(dependency: BuildDependency, buildRootDir: string): string;
 }
 
-const COMMONS_ID_PREFIX = `${EXTERNALS_BUILD_DIR}/${COMMON_SOURCE_ID}/`;
-
+// TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
 export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildRootDir) => {
 	const basePath = toBuildBasePath(dependency.buildId, buildRootDir);
 	if (dependency.external) {
-		if (basePath.startsWith(COMMONS_ID_PREFIX)) {
-			return COMMON_SOURCE_ID;
-		} else {
-			return dependency.specifier;
-		}
+		return EXTERNALS_SOURCE_ID;
 	} else {
 		return basePathToSourceId(toSourceExtension(basePath));
 	}

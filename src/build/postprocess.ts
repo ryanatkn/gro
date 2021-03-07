@@ -7,13 +7,14 @@ import {
 	EXTERNALS_BUILD_DIR,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
+	toBuildBasePath,
 	toBuildExtension,
 	toBuildOutPath,
 } from '../paths.js';
 import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {getIsExternalModule} from '../utils/module.js';
-import {isExternalBuildId} from './externalsBuildHelpers.js';
+import {EXTERNALS_SOURCE_ID, isExternalBuildId} from './externalsBuildHelpers.js';
 
 // TODO this is all hacky and should be refactored
 // make it pluggable like builders, maybe
@@ -44,19 +45,29 @@ export const postprocess = (
 				const end = d > -1 ? e - 1 : e;
 				const specifier = contents.substring(start, end);
 				if (specifier === 'import.meta') continue;
+				let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
 				let mappedSpecifier = toBuildExtension(specifier);
 				let buildId: string;
 				const isExternalImport = isExternalModule(specifier);
-				// imports of externals are always externals, hence `|| source.external`
-				if (isExternalImport || source.external) {
+				if (!isExternalImport && source.id === EXTERNALS_SOURCE_ID) {
+					// handle common externals, imports internal to the externals
+					if (isBrowser) {
+						buildId = join(build.dir, specifier);
+						finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildRootDir)}${
+							finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+						}`;
+					} else {
+						buildId = mappedSpecifier;
+					}
+				} else if (isExternalImport || source.id === EXTERNALS_SOURCE_ID) {
+					// handle regular externals
 					if (isBrowser) {
 						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
 							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
 						}
-						mappedSpecifier = `/${join(
-							isExternalImport ? EXTERNALS_BUILD_DIR : source.dirBasePath,
-							mappedSpecifier,
-						)}${mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION}`;
+						mappedSpecifier = `/${join(EXTERNALS_BUILD_DIR, mappedSpecifier)}${
+							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+						}`;
 						buildId = toBuildOutPath(
 							ctx.dev,
 							buildConfig.name,
@@ -72,11 +83,13 @@ export const postprocess = (
 				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
 				if (!dependenciesByBuildId.has(buildId)) {
 					dependenciesByBuildId.set(buildId, {
-						specifier,
+						specifier: finalSpecifier,
 						mappedSpecifier,
 						buildId,
 						external: isExternalBuildId(buildId, buildConfig, ctx),
+						// TODO what if this had `originalSpecifier` and `isExternalImport` too?
 					});
+					// console.log('DEP', dependenciesByBuildId.get(buildId));
 				}
 				if (mappedSpecifier !== specifier) {
 					transformedContents += contents.substring(index, start) + mappedSpecifier;

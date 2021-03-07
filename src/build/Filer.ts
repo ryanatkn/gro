@@ -4,7 +4,13 @@ import lexer from 'es-module-lexer';
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
-import {JSON_EXTENSION, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
+import {
+	EXTERNALS_BUILD_DIR,
+	JSON_EXTENSION,
+	JS_EXTENSION,
+	paths,
+	toBuildOutPath,
+} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
@@ -23,18 +29,22 @@ import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
-	assertBuildableExternalsSourceFile,
 	assertBuildableSourceFile,
-	BuildableExternalsSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
 	SourceFile,
 } from './sourceFile.js';
-import {BuildFile, COMMON_SOURCE_ID, createBuildFile, diffDependencies} from './buildFile.js';
+import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
 import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import {wrap} from '../utils/async.js';
+import {
+	EXTERNALS_SOURCE_ID,
+	getExternalsBuilderState,
+	getExternalsBuildState,
+} from './externalsBuildHelpers.js';
+import {queueExternalsBuild} from './externalsBuilder.js';
 
 /*
 
@@ -56,7 +66,6 @@ export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface CachedSourceInfoData {
 	readonly sourceId: string;
-	readonly external: boolean;
 	readonly contentsHash: string;
 	readonly builds: {
 		readonly id: string;
@@ -269,7 +278,7 @@ export class Filer implements BuildContext {
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
-		// this.log.trace('initialized!');
+		this.log.trace(blue('initialized!'));
 
 		finishInitializing!();
 	}
@@ -346,7 +355,7 @@ export class Filer implements BuildContext {
 		// Iterate through the files once and apply the filters to all source files.
 		if (filters.length) {
 			for (const file of this.files.values()) {
-				if (file.type !== 'source' || file.external) continue;
+				if (file.type !== 'source' || file.id === EXTERNALS_SOURCE_ID) continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
@@ -362,6 +371,7 @@ export class Filer implements BuildContext {
 		}
 
 		await Promise.all(promises);
+		await this.waitForExternals();
 	}
 
 	// Adds a build config to a source file.
@@ -371,12 +381,12 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		// this.log.trace(
-		// 	`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
-		// );
+		this.log.trace(
+			`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
+		);
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(
-				`Expected to add buildConfig for ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
+				`Already has buildConfig ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
 			);
 		}
 		// Add the build config. The caller is expected to check to avoid duplicates.
@@ -447,7 +457,8 @@ export class Filer implements BuildContext {
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
-		const id = join(filerDir.dir, change.path);
+		const id =
+			change.path === EXTERNALS_SOURCE_ID ? EXTERNALS_SOURCE_ID : join(filerDir.dir, change.path);
 		switch (change.type) {
 			case 'init':
 			case 'create':
@@ -524,12 +535,14 @@ export class Filer implements BuildContext {
 		for (const buildConfig of this.buildConfigs) {
 			if (isInputToBuildConfig(file, buildConfig)) {
 				(inputBuildConfigs || (inputBuildConfigs = new Set())).add(buildConfig);
+				console.log(red('init source file 1'), file.id);
 				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, true));
 			}
 		}
 		if (dependentBuildConfigs !== null) {
 			for (const buildConfig of dependentBuildConfigs) {
 				if (inputBuildConfigs?.has(buildConfig)) continue;
+				console.log(red('init source file 2'), file.id);
 				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, false));
 			}
 		}
@@ -566,7 +579,10 @@ export class Filer implements BuildContext {
 				}
 			}
 
-			const external = sourceFile === undefined ? isExternalBrowserModule(id) : sourceFile.external;
+			const external =
+				sourceFile === undefined
+					? isExternalBrowserModule(id)
+					: sourceFile.id === EXTERNALS_SOURCE_ID;
 
 			let extension: string;
 			let encoding: Encoding;
@@ -581,10 +597,8 @@ export class Filer implements BuildContext {
 				encoding = inferEncoding(extension);
 			}
 			const newSourceContents = external
-				? // TODO it may require additional changes,
-				  // but the package.json version could be put here,
-				  // allowing externals to update at runtime
-				  // maybe also for the "common" files, this could be the importMap (stringified? or not?)
+				? // TODO doesn't seem we can make this a key derived from the specifiers,
+				  // because they're potentially different each build
 				  ''
 				: await loadContents(encoding, id);
 
@@ -635,8 +649,8 @@ export class Filer implements BuildContext {
 
 	// These are used to avoid concurrent builds for any given source file.
 	// TODO maybe make these `Map<BuildConfig, Set<BuildableSourceFile>>`, initialize during `init` to avoid bookkeeping API overhead or speciality code
-	private pendingBuilds = new Set<string>(); // value is `buildConfig.name + sourceId`
-	private enqueuedBuilds = new Set<string>(); // value is `buildConfig.name + sourceId`
+	private pendingBuilds: Map<BuildConfig, Set<string>> = new Map(); // value is sourceId
+	private enqueuedBuilds: Map<BuildConfig, Set<string>> = new Map(); // value is sourceId
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent builds.
@@ -649,21 +663,33 @@ export class Filer implements BuildContext {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		const key = `${buildConfig.name}${sourceFile.id}`;
-		if (this.pendingBuilds.has(key)) {
-			this.enqueuedBuilds.add(key);
+		let pendingBuilds = this.pendingBuilds.get(buildConfig);
+		if (pendingBuilds === undefined) {
+			pendingBuilds = new Set();
+			this.pendingBuilds.set(buildConfig, pendingBuilds);
+		}
+		let enqueuedBuilds = this.enqueuedBuilds.get(buildConfig);
+		if (enqueuedBuilds === undefined) {
+			enqueuedBuilds = new Set();
+			this.enqueuedBuilds.set(buildConfig, enqueuedBuilds);
+		}
+
+		const {id} = sourceFile;
+		if (pendingBuilds.has(id)) {
+			console.log('enqueueing id', id); // TODO I think we want to intercept for externals
+			enqueuedBuilds.add(id);
 			return;
 		}
-		this.pendingBuilds.add(key);
+		pendingBuilds.add(id);
 		try {
 			await this._buildSourceFile(sourceFile, buildConfig);
 		} catch (err) {
-			this.log.error(red('build failed'), gray(sourceFile.id), printError(err));
+			this.log.error(red('build failed'), gray(id), printError(err));
 			// TODO probably want to track this failure data
 		}
-		this.pendingBuilds.delete(key);
-		if (this.enqueuedBuilds.has(key)) {
-			this.enqueuedBuilds.delete(key);
+		pendingBuilds.delete(id);
+		if (enqueuedBuilds.has(id)) {
+			enqueuedBuilds.delete(id);
 			// TODO wait is this a source of inefficiency?
 			// should we check to see if it needs to be built again,
 			// or if we should just return the pending promise,
@@ -673,7 +699,7 @@ export class Filer implements BuildContext {
 			// Something changed during the build for this file, so recurse.
 			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
-			const shouldBuild = await this.updateSourceFile(sourceFile.id, sourceFile.filerDir);
+			const shouldBuild = await this.updateSourceFile(id, sourceFile.filerDir);
 			if (shouldBuild) {
 				await this.buildSourceFile(sourceFile, buildConfig);
 			}
@@ -685,6 +711,9 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		this.log.info('build source file', gray(sourceFile.id));
+		if (sourceFile.id === 'externals') {
+			console.log('externals buildstates', this.state.externals?.buildStates);
+		}
 
 		// Compile the source file.
 		let result: BuildResult<Build>;
@@ -702,21 +731,6 @@ export class Filer implements BuildContext {
 			createBuildFile(build, this, result, sourceFile, buildConfig),
 		);
 
-		// TODO this is a hack - common externals need special handling -
-		// it all stems from the fact that the system wasn't designed for M:N file builds, just 1:N,
-		// and it also hacks in lazy and virtual source files!
-		if (sourceFile.external) {
-			const buildState = this.state.externals!.buildStates.get(buildConfig)!;
-			if (buildState.commonBuilds !== null) {
-				// this fires off a build for the common source file.
-				// it'll read the above state and the importMap
-				// it's fragile so  .. treat it as such :) or refactor!
-				// TODO are there race conditions here? commonBuilds might be grabbed in a tick?
-				this.log.trace(`force updating externals ${gray(COMMON_SOURCE_ID)}`);
-				await this.updateExternalSourceFile(COMMON_SOURCE_ID, buildConfig, sourceFile.filerDir);
-			}
-		}
-
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
 		await this.updateCachedSourceInfo(sourceFile);
@@ -728,7 +742,6 @@ export class Filer implements BuildContext {
 		newBuildFiles: BuildFile[],
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		// TODO maybe do this in-memory updating before `updateCommonBuilds`? or does it not matter?
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
 		const changes = diffBuildFiles(newBuildFiles, oldBuildFiles);
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
@@ -778,6 +791,9 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		if (newBuildFiles === oldBuildFiles) return;
+		if (sourceFile.id === 'externals') {
+			console.log(red('updateDependencies enter'), sourceFile.id);
+		}
 
 		const {addedDependencies, removedDependencies} =
 			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
@@ -791,15 +807,30 @@ export class Filer implements BuildContext {
 				// we create no source file for them
 				// buildConfig.platform === 'browser'; // TODO may be `external` but not browser, is relying on the check against `buildId`, doesn't seem ideal
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
-				const dependencySourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
-				let addedSourceFile = this.files.get(dependencySourceId);
+				const addedSourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
+				// ignore dependencies on self - happens with common externals
+				if (addedSourceId === sourceFile.id) {
+					// TODO should these be checked upstream in the diffing?
+					console.log('TODO ignoring added self dependency', addedSourceId);
+					continue;
+				}
+				let addedSourceFile = this.files.get(addedSourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
-				// lazily create external source files if needed
-				if (addedSourceFile === undefined && addedDependency.external) {
-					addedSourceFile = await this.createExternalSourceFile(
-						dependencySourceId,
-						sourceFile.filerDir,
-					);
+				// lazily create external source file if needed
+				if (addedDependency.external) {
+					if (addedSourceFile === undefined) {
+						// TODO wait I think we can create the externals file here,
+						// but also defer its loading of build files, hydrating or whatever,
+						// just like we do in `updateExternalsSourceFile`.
+						// should those be combined then?
+						addedSourceFile = await this.createExternalsSourceFile(
+							addedSourceId,
+							// addedDependency.buildId, // TODO need to associate this build ID to the source file - maybe change helper to `addExternalDependency()`
+							sourceFile.filerDir,
+						);
+						console.log(red('TODO blocking externals source file created!'), addedSourceId);
+					}
+					this.updateExternalsSourceFile(addedSourceFile, addedDependency, buildConfig);
 				}
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
@@ -809,47 +840,96 @@ export class Filer implements BuildContext {
 						addedSourceFile.dependents.set(buildConfig, dependents);
 					}
 					dependents.add(sourceFile);
-					if (!addedSourceFile.buildConfigs.has(buildConfig)) {
+					// Add source file to build if needed.
+					// Externals are handled separately by `updateExternalsSourceFile`, not here,
+					// because they're batched for the entire build.
+					// If we waited for externals to build before moving on like the normal process,
+					// then that could cause cascading externals builds as the dependency tree builds.
+					if (!addedSourceFile.buildConfigs.has(buildConfig) && !addedDependency.external) {
 						(promises || (promises = [])).push(
 							this.addSourceFileToBuild(
-								addedSourceFile,
+								addedSourceFile as BuildableSourceFile,
 								buildConfig,
-								isInputToBuildConfig(addedSourceFile, buildConfig),
+								isInputToBuildConfig(addedSourceFile as BuildableSourceFile, buildConfig),
 							),
 						);
 					}
 				}
 
+				// TODO this is done above .. I think that's what we want
 				// ignore dependencies on self - happens with common externals
-				if (
-					dependencySourceId !== sourceFile.id
-					// TODO
-					// &&
-					// !(addedDependency.external && addedExternalBrowserModule)
-				) {
-					let dependencies = sourceFile.dependencies.get(buildConfig);
-					if (dependencies === undefined) {
-						dependencies = new Set();
-						sourceFile.dependencies.set(buildConfig, dependencies);
-					}
-					dependencies.add(dependencySourceId);
+				// if (addedSourceId !== sourceFile.id) {
+				let dependencies = sourceFile.dependencies.get(buildConfig);
+				if (dependencies === undefined) {
+					dependencies = new Set();
+					sourceFile.dependencies.set(buildConfig, dependencies);
 				}
+				dependencies.add(addedSourceId);
+				// }
 			}
 		}
 		if (removedDependencies !== null) {
+			// TODO this is a gross hack for externals
+			// TODO don't we have a similar but more subtle problem with multiple files from a build?
+			let _hasExternals: boolean | undefined;
+			const hasExternals = (): boolean => {
+				if (_hasExternals !== undefined) return _hasExternals;
+				for (const newBuildFile of newBuildFiles) {
+					if (newBuildFile.dependenciesByBuildId !== null) {
+						for (const dependency of newBuildFile.dependenciesByBuildId.values()) {
+							if (dependency.external) {
+								_hasExternals = true;
+								return _hasExternals;
+							}
+						}
+					}
+				}
+				_hasExternals = false;
+				return _hasExternals;
+			};
 			for (const removedDependency of removedDependencies) {
-				const sourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
-				const removedSourceFile = this.files.get(sourceId);
+				const removedSourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
+				// TODO this is wrong!!!!!!!! it still has other external deps!
+				console.log('removedSourceId', removedSourceId, sourceFile.id);
+				// ignore dependencies on self - happens with common externals
+				if (removedSourceId === sourceFile.id) {
+					// TODO should these be checked upstream in the diffing?
+					console.log('TODO ignoring removed self dependency', removedSourceId);
+					continue;
+				}
+				if (removedSourceId === EXTERNALS_SOURCE_ID) {
+					// TODO uh oh..this was not made for M:N building!
+					// the problem here is that it's de-duping by build id, not source,
+					// so all externals are clobbering each other right here
+					console.log(red('externals source id'));
+					if (hasExternals()) continue;
+				}
+				const removedSourceFile = this.files.get(removedSourceId);
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				assertBuildableSourceFile(removedSourceFile);
 
+				// if (removedSourceId !== sourceFile.id) {
 				let dependencies = sourceFile.dependencies.get(buildConfig);
 				if (dependencies === undefined) {
+					// debugger;
+					// console.log('removedSourceFile', removedSourceFile);
 					throw Error(`Expected dependencies: ${printBuildConfig(buildConfig)}: ${sourceFile.id}`);
 				}
-				dependencies.delete(sourceId);
+				dependencies.delete(removedSourceId);
+				// }
 
+				// TODO
+				// wait should we be mapping at all?
+				// wait should we be mapping at all?
+				// wait should we be mapping at all?
+				// wait should we be mapping at all?
+				// wait should we be mapping at all?
+				// wait should we be mapping at all? or using build ids. properly handle multiple build files
+				// the diffing with `diffDependencies` is all build ids!
 				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
+					debugger;
+					console.log('removedDependency', removedDependency);
+					console.log('buildConfig, removedSourceFile.id', buildConfig, removedSourceFile.id);
 					throw Error(
 						`Expected build config: ${printBuildConfig(buildConfig)}: ${removedSourceFile.id}`,
 					);
@@ -860,7 +940,7 @@ export class Filer implements BuildContext {
 						`Expected dependents: ${printBuildConfig(buildConfig)}: ${removedSourceFile.id}`,
 					);
 				}
-				dependents.delete(sourceFile);
+				dependents.delete(sourceFile); // TODO should these be build ids instead? what about dependencies, build ids too?
 				if (dependents.size === 0 && !removedSourceFile.isInputToBuildConfigs?.has(buildConfig)) {
 					(promises || (promises = [])).push(
 						this.removeSourceFileFromBuild(removedSourceFile, buildConfig),
@@ -869,22 +949,7 @@ export class Filer implements BuildContext {
 			}
 		}
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
-	}
-
-	// TODO probably needs a better name, maybe use it more other places, or delete it?
-	private async updateExternalSourceFile(
-		id: string,
-		buildConfig: BuildConfig,
-		filerDir: FilerDir,
-	): Promise<void> {
-		await this.updateSourceFile(id, filerDir); // TODO maybe use the return value? what contents should it have? the list of common files?
-		const sourceFile = this.files.get(id);
-		assertBuildableExternalsSourceFile(sourceFile);
-		if (sourceFile.buildConfigs.has(buildConfig)) {
-			await this.buildSourceFile(sourceFile, buildConfig);
-		} else {
-			await this.addSourceFileToBuild(sourceFile, buildConfig, false);
-		}
+		console.log('updateDependencies exit', sourceFile.id);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -901,17 +966,118 @@ export class Filer implements BuildContext {
 	}
 
 	// TODO can we remove this thing completely, treating externals like all others?
-	private async createExternalSourceFile(
+	// It seems not, because the `Filer` currently does not handle multiple source files
+	// per build, it's 1:N not M:N, and further the externals build lazily,
+	// so we probably need to refactor, ultimately into a plugin system.
+	private async createExternalsSourceFile(
 		id: string,
 		filerDir: FilerDir,
-	): Promise<BuildableExternalsSourceFile> {
-		const sourceFile = this.files.get(id);
-		if (sourceFile !== undefined) throw Error(`Expected to create source file: ${id}`);
-		// this.log.trace('creating external source file', gray(id));
+	): Promise<BuildableSourceFile> {
+		if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);
 		await this.updateSourceFile(id, filerDir); // TODO use the return value?
-		const newFile = this.files.get(id);
-		assertBuildableExternalsSourceFile(newFile);
-		return newFile;
+		const sourceFile = this.files.get(id);
+		assertBuildableSourceFile(sourceFile);
+		if (sourceFile.buildFiles.size > 0) {
+			await Promise.all(
+				Array.from(sourceFile.buildFiles.keys()).map((buildConfig) =>
+					this.hydrateSourceFileFromCache(sourceFile, buildConfig),
+				),
+			);
+		}
+		return sourceFile;
+		// TODO tried this but no, because `initSourceFile` is not what we want,
+		// and we didn't awnt to special case hydration,
+		// but this does suggest we should refactor all of it.
+		// // TODO helper or something
+		// await this.onDirChange({type: 'create', path: id, stats: {isDirectory: () => false}}, filerDir);
+		// const file = this.files.get(id);
+		// assertBuildableSourceFile(file);
+		// console.log(red('created!'), id);
+		// // TODO hydrate? is the `initSourceFile` in the `onDirChange` actually what we want?s
+		// return file;
+		// this.log.trace('creating external source file', gray(id));
+	}
+
+	// TODO this could possibly be changed to explicitly call the build,
+	// instead of waiting with timeouts in places,
+	// and it'd be specific to one ExternalsBuildState, so it'd be per build config.
+	// we could then remove things like the tracking what's building in the Filer and externalsBuidler
+	private updatingExternals: Promise<void>[] = [];
+	private async waitForExternals(): Promise<void> {
+		if (this.updatingExternals.length === 0) return;
+		await Promise.all(this.updatingExternals);
+		this.updatingExternals.length = 0;
+	}
+
+	// TODO try to refactor this, maybe merge into `updateSourceFile`?
+	// could we use `contents` instead of `specifiers`,
+	// or should this be better abstracted?
+	private updateExternalsSourceFile(
+		sourceFile: BuildableSourceFile,
+		addedDependency: BuildDependency,
+		buildConfig: BuildConfig,
+	): Promise<void> | null {
+		const {specifier} = addedDependency;
+		// TODO could also do something with "addedDependency.common" in postprocess
+		// maybe `isExternalImport` - see that comment there - if it's NOT an external import...
+		if (specifier.startsWith(`/${EXTERNALS_BUILD_DIR}/`)) return null;
+
+		// TODO diff the cached import map specifiers against the current state - if different, build, if not, no-op!
+		const buildState = getExternalsBuildState(getExternalsBuilderState(this.state), buildConfig);
+
+		// TODO basically..what we want, is when a file is finished building,
+		// we want some callback logic to run - the logic is like,
+		// "if there are no other pending builds other than this one, proceed with the externals build"
+		// this.pendingBuilds2.get(buildConfig)!.delete(id);
+		// if (this.pendingBuilds2.get(buildConfig)!.size === 0) {
+		// 	// account for this one!!
+		// 	...
+		// }
+
+		// TODO should we use `contents` to do this the normal way?
+		// just queue an `update` check? what if we called `onDirChange`?
+		// unfortunately, no! I tried this, and the problem is that `onDirChange`
+		// occurs in the context of a source file and all of its builds,
+		// (because Gro has a 1:N sourceFile:buildFiles model)
+		// but here we're in the context of a single build.
+		// maybe there's another way..? ..! ...
+
+		if (!buildState.specifiers.has(specifier)) {
+			console.log(red('adding specifier'), specifier, sourceFile.id);
+			buildState.specifiers.add(specifier);
+			// now that we mutated the specifiers, update the source file,
+			// which derives the `contents` of the externals source file from the specifiers
+			console.log('should build externals!', specifier);
+
+			const updating = queueExternalsBuild(
+				sourceFile.id,
+				buildState,
+				this.buildingSourceFiles,
+				this.log,
+				async () => {
+					// TODO or hydrate? is that the problem?
+					// I think yeah so, we use this same
+					// detection logic for hydration inside `addSourceFileToBuild`
+					if (sourceFile.buildConfigs.has(buildConfig)) {
+						console.log(red('updateExternalsSourceFile BUILDING'), addedDependency.specifier);
+						await this.buildSourceFile(sourceFile, buildConfig);
+					} else {
+						console.log(
+							red('updateExternalsSourceFile ADDING TO BUILD'),
+							addedDependency.specifier,
+						);
+						// TODO I think this works? forces it to build? because we added the specifier
+						// this is basically a param to the function, "forceBuild"
+						sourceFile.dirty = true;
+						await this.addSourceFileToBuild(sourceFile, buildConfig, false);
+					}
+					console.log(red('updateExternalsSourceFile BUILT!!!!!!'), addedDependency.specifier);
+				},
+			);
+			this.updatingExternals.push(updating);
+			return updating;
+		}
+		return null;
 	}
 
 	// TODO as an optimization, this should be debounced per file,
@@ -921,7 +1087,6 @@ export class Filer implements BuildContext {
 		const cacheId = toCachedSourceInfoId(file, this.buildRootDir);
 		const data: CachedSourceInfoData = {
 			sourceId: file.id,
-			external: file.external,
 			contentsHash: getFileContentsHash(file),
 			builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 				files.map((file) => ({
@@ -944,6 +1109,7 @@ export class Filer implements BuildContext {
 		// 		'wasted build detected! unchanged file was built and identical source info written to disk: ' +
 		// 			cacheId,
 		// 	);
+
 		// }
 		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
 		// this.log.trace('outputting cached source info', gray(cacheId));

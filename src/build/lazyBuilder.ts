@@ -33,11 +33,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const createLazyBuilder = (opts: InitialOptions = {}): Required<Builder> => {
 	const {getBuilder, getBuilders} = initOptions(opts);
 
-	const build: Builder['build'] = (
-		source: BuildSource,
-		buildConfig: BuildConfig,
-		ctx: BuildContext,
-	) => {
+	const build: Builder['build'] = (source, buildConfig, ctx) => {
 		const builder = getBuilder(source, buildConfig) || noopBuilder;
 		return builder.build(source, buildConfig, ctx);
 	};

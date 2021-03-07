@@ -31,7 +31,7 @@ export const DIST_DIR = `${DIST_DIR_NAME}/`;
 export const CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_BASE_PATH = 'gro.config.js';
 
-export const EXTERNALS_BUILD_DIR = 'externals';
+export const EXTERNALS_BUILD_DIR = 'externals'; // TODO breaks the above trailing slash convention - revisit with trailing-slash branch
 
 export interface Paths {
 	root: string;

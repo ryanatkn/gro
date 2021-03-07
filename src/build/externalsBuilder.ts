@@ -13,9 +13,7 @@ import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {createLock} from '../utils/lock.js';
-import {COMMON_SOURCE_ID} from './buildFile.js';
 import {wrap} from '../utils/async.js';
-import {BuildableExternalsSourceFile} from './sourceFile.js';
 import {
 	createDelayedPromise,
 	ExternalsBuildState,
@@ -27,6 +25,7 @@ import {
 	toSpecifiers,
 	updateImportMapOnDisk,
 } from './externalsBuildHelpers.js';
+import {EMPTY_ARRAY} from '../utils/array.js';
 
 /*
 
@@ -68,7 +67,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, sourceMap, target, state, buildingSourceFiles},
+		{buildRootDir, dev, sourceMap, target, state},
 	) => {
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -83,17 +82,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		const builderState = getExternalsBuilderState(state);
 		const buildState = getExternalsBuildState(builderState, buildConfig);
 
-		if (source.id === COMMON_SOURCE_ID) {
-			await buildState.installing?.promise; // wait for any pending installation to finish
-			const builds = buildState.commonBuilds;
-			if (builds === null) {
-				throw Error('Expected to find builds for common externals');
-			}
-			buildState.commonBuilds = null;
-			const result: BuildResult<TextBuild> = {builds};
-			return result;
-		}
-
 		return wrap(async (after) => {
 			const obtained = lock.lock(source.id);
 			if (obtained) log.trace('externals lock obtained', gray(source.id));
@@ -102,8 +90,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				if (released) log.trace('externals lock released', gray(source.id));
 			});
 			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
-
-			let id: string;
 
 			log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
@@ -121,37 +107,37 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				}),
 			];
 
-			let contents: string;
+			let builds: TextBuild[];
+			let installResult: InstallResult;
 			try {
-				const installResult = await installExternal(
-					source.id,
-					dest,
-					buildConfig,
-					buildState,
-					plugins,
-					buildingSourceFiles,
-					log,
-				);
+				installResult = await installExternal(dest, buildState, plugins, log);
 				// `state.importMap` is now updated
-				id = join(dest, installResult.importMap.imports[source.id]);
-				contents = await loadContents(encoding, id);
+
+				// TODO load all of the files in the import map
+				builds = [
+					...(await Promise.all(
+						Object.keys(installResult.importMap.imports).map(
+							async (specifier): Promise<TextBuild> => {
+								const id = join(dest, installResult.importMap.imports[specifier]);
+								return {
+									id,
+									filename: basename(id),
+									dir: dirname(id),
+									extension: JS_EXTENSION,
+									encoding,
+									contents: await loadContents(encoding, id),
+									sourceMapOf: null,
+									buildConfig,
+								};
+							},
+						),
+					)),
+					...((await loadCommonBuilds(installResult, dest, buildConfig)) || EMPTY_ARRAY),
+				];
 			} catch (err) {
 				log.error(`Failed to bundle external module: ${source.id}`);
 				throw err;
 			}
-
-			const builds: TextBuild[] = [
-				{
-					id,
-					filename: basename(id),
-					dir: dirname(id),
-					extension: JS_EXTENSION,
-					encoding,
-					contents,
-					sourceMapOf: null,
-					buildConfig,
-				},
-			];
 
 			// TODO maybe we return "common" `Build`s here?
 			// the idea being that the `Filer` can handle them
@@ -165,12 +151,15 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	};
 
 	const onRemove: ExternalsBuilder['onRemove'] = async (
-		sourceFile: BuildableExternalsSourceFile,
-		buildConfig: BuildConfig,
-		ctx: BuildContext,
+		sourceFile,
+		buildConfig,
+		ctx,
 	): Promise<void> => {
+		// TODO this didn't fire!
+		console.log('on remove', sourceFile.id, buildConfig.name);
 		const builderState = getExternalsBuilderState(ctx.state);
 		const buildState = getExternalsBuildState(builderState, buildConfig);
+		// TODO this is busted
 		buildState.specifiers.delete(sourceFile.id);
 		// mutate `importMap` with the removed source file
 		if (buildState.importMap !== undefined) {
@@ -200,7 +189,9 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				const importMap = await loadImportMapFromDisk(dest);
 				if (importMap !== undefined) {
 					buildState.importMap = importMap;
+					console.log('ASSIGNING SPECIFIRS', buildState.specifiers);
 					buildState.specifiers = toSpecifiers(importMap);
+					console.log('ASSIGNed SPECIFIRS', buildState.specifiers);
 				}
 			}),
 		);
@@ -212,34 +203,40 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 // TODO this is really hacky - it's working,
 // but it causes unnecessary delays building externals
 const IDLE_CHECK_INTERVAL = 200; // needs to be smaller than `IDLE_CHECK_DELAY`
-const IDLE_CHECK_DELAY = 500; // needs to be larger than `IDLE_CHECK_INTERVAL`
+const IDLE_CHECK_DELAY = 1500; // needs to be larger than `IDLE_CHECK_INTERVAL`
 const IDLE_TIME_LIMIT = parseInt((process.env as any).GRO_IDLE_TIME_LIMIT, 10) || 20000; // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
 // TODO wait what's the relationship between those two? check for errors?
 
 const installExternal = async (
-	sourceId: string,
 	dest: string,
-	buildConfig: BuildConfig,
 	state: ExternalsBuildState,
 	plugins: RollupPlugin[],
-	buildingSourceFiles: Set<string>,
 	log: Logger,
 ): Promise<InstallResult> => {
+	log.info('installing externals', state.specifiers);
+	const result = await install(Array.from(state.specifiers), {dest, rollup: {plugins}});
+	log.info('install result', result);
+	log.trace('previous import map', state.importMap);
+	state.importMap = result.importMap;
+	return result;
+};
+
+export const queueExternalsBuild = async (
+	sourceId: string,
+	state: ExternalsBuildState,
+	buildingSourceFiles: Set<string>,
+	log: Logger,
+	cb: () => Promise<void>, // last cb wins!
+): Promise<void> => {
+	state.installingCb = cb;
 	buildingSourceFiles.delete(sourceId); // externals are hacky like this, because they'd cause it to hang!
 	if (state.installing === null) {
+		console.log('creatnig delayed thingy...');
 		state.installing = createDelayedPromise(async () => {
-			log.info('installing externals', state.specifiers);
-			const result = await installExternals(state.specifiers, dest, plugins);
-			log.info('install result', result);
-			// `state.specifiers` is already updated
-			// log.info('old import map result', state.importMap);
-			state.importMap = result.importMap;
-			state.installing = null;
-			if (state.commonBuilds !== null) {
-				log.error('unexpected commonBuilds'); // indicates a problem, but don't want to throw
-			}
-			state.commonBuilds = await loadCommonBuilds(result, dest, buildConfig);
-			return result;
+			state.installing = null; // TODO so.. putting this after `cb()` causes an error
+			console.log('firing delayed thingy...');
+			await state.installingCb!();
+			state.installingCb = null;
 		}, IDLE_CHECK_DELAY);
 		state.idleTimer = 0;
 		state.resetterInterval = setInterval(() => {
@@ -255,6 +252,7 @@ const installExternal = async (
 			if (buildingSourceFiles.size === 0) {
 				setTimeout(() => {
 					// check again in a moment just to be sure
+					// TODO make this more robust lol
 					if (buildingSourceFiles.size === 0) {
 						clearInterval(state.resetterInterval!);
 						state.resetterInterval = null;
@@ -264,8 +262,6 @@ const installExternal = async (
 			}
 		}, IDLE_CHECK_INTERVAL);
 	}
-	if (state.specifiers.has(sourceId)) return state.installing.promise;
-	state.specifiers.add(sourceId);
 	state.installing.reset();
 	return state.installing.promise;
 };
@@ -291,14 +287,7 @@ const loadCommonBuilds = async (
 				contents: await loadContents(encoding, commonDependencyId),
 				sourceMapOf: null,
 				buildConfig,
-				common: true,
 			}),
 		),
 	);
 };
-
-const installExternals = async (
-	specifiers: Set<string>,
-	dest: string,
-	plugins: RollupPlugin[],
-): Promise<InstallResult> => install(Array.from(specifiers), {dest, rollup: {plugins}});

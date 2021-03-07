@@ -1,7 +1,7 @@
-import {InstallResult, ImportMap} from 'esinstall';
+import {ImportMap} from 'esinstall';
 
 import {EXTERNALS_BUILD_DIR, toBuildOutPath} from '../paths.js';
-import type {BuilderState, BuildContext, TextBuild} from './builder.js';
+import type {BuilderState, BuildContext} from './builder.js';
 import {gray} from '../colors/terminal.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
@@ -15,14 +15,15 @@ export interface ExternalsBuilderState {
 export interface ExternalsBuildState {
 	importMap: ImportMap | undefined;
 	specifiers: Set<string>;
-	installing: DelayedPromise<InstallResult> | null;
+	installing: DelayedPromise<void> | null;
+	installingCb: (() => void) | null;
 	idleTimer: number;
 	resetterInterval: NodeJS.Timeout | null;
-	commonBuilds: TextBuild[] | null;
 }
 
+export const EXTERNALS_SOURCE_ID = EXTERNALS_BUILD_DIR;
 // store the externals builder state here on the builder context `state` object
-export const EXTERNALS_BUILDER_STATE_KEY = 'externals';
+export const EXTERNALS_BUILDER_STATE_KEY = EXTERNALS_SOURCE_ID;
 
 // throws if it can't find it
 export const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
@@ -67,9 +68,9 @@ export const initExternalsBuildState = (
 		// installStats: undefined, // TODO get initial stats too? yes when/if needed
 		// TODO this needs to be a map, or do we need it at all?
 		installing: null,
+		installingCb: null,
 		idleTimer: 0,
 		resetterInterval: null,
-		commonBuilds: null,
 	};
 	builderState.buildStates.set(buildConfig, buildState);
 	return buildState;

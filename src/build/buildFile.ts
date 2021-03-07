@@ -24,12 +24,9 @@ export interface BinaryBuildFile extends BaseBuildFile {
 export interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
 	readonly sourceId: string;
-	readonly external: boolean;
 	readonly buildConfig: BuildConfig;
 	readonly dependenciesByBuildId: Map<string, BuildDependency> | null;
 }
-
-export const COMMON_SOURCE_ID = 'common'; // TODO revisit this along with `build.common`
 
 export const createBuildFile = (
 	build: Build,
@@ -43,10 +40,7 @@ export const createBuildFile = (
 		case 'utf8':
 			return {
 				type: 'build',
-				// TODO this is a hack, not sure about it -
-				// currently used to prevent common externals from being deleted
-				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
-				external: sourceFile.external,
+				sourceId: sourceFile.id,
 				buildConfig,
 				dependenciesByBuildId,
 				id: build.id,
@@ -64,10 +58,7 @@ export const createBuildFile = (
 		case null:
 			return {
 				type: 'build',
-				// TODO this is a hack, not sure about it -
-				// currently used to prevent common externals from being deleted
-				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
-				external: sourceFile.external,
+				sourceId: sourceFile.id,
 				buildConfig,
 				dependenciesByBuildId,
 				id: build.id,
@@ -106,7 +97,6 @@ export const reconstructBuildFiles = async (
 						buildFile = {
 							type: 'build',
 							sourceId: cachedSourceInfo.data.sourceId,
-							external: cachedSourceInfo.data.external,
 							buildConfig,
 							dependenciesByBuildId:
 								dependencies && new Map(dependencies.map((d) => [d.buildId, d])),
@@ -129,7 +119,6 @@ export const reconstructBuildFiles = async (
 						buildFile = {
 							type: 'build',
 							sourceId: cachedSourceInfo.data.sourceId,
-							external: cachedSourceInfo.data.external,
 							buildConfig,
 							dependenciesByBuildId:
 								dependencies && new Map(dependencies.map((d) => [d.buildId, d])),
