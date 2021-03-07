@@ -6,7 +6,8 @@ Inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 ([www.snowpack.dev](https://www.snowpack.dev/)),
 Gro leverages ES modules during development
 to avoid the unnecessary overhead and complexity of bundling.
-Unlike Snowpack and similar tools like [wmr](https://github.com/preactjs/wmr),
+Unlike Snowpack and similar tools like
+[vite](https://github.com/vitejs/vite) and [wmr](https://github.com/preactjs/wmr),
 Gro is designed for servers and libraries, not just frontends.
 See below for [a deeper comparison](#comparison-to-snowpack).
 
