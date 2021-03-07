@@ -809,11 +809,7 @@ export class Filer implements BuildContext {
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
 				const addedSourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
 				// ignore dependencies on self - happens with common externals
-				if (addedSourceId === sourceFile.id) {
-					// TODO should these be checked upstream in the diffing?
-					console.log('TODO ignoring added self dependency', addedSourceId);
-					continue;
-				}
+				if (addedSourceId === sourceFile.id) continue;
 				let addedSourceFile = this.files.get(addedSourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
 				// lazily create external source file if needed
@@ -892,11 +888,7 @@ export class Filer implements BuildContext {
 				// TODO this is wrong!!!!!!!! it still has other external deps!
 				console.log('removedSourceId', removedSourceId, sourceFile.id);
 				// ignore dependencies on self - happens with common externals
-				if (removedSourceId === sourceFile.id) {
-					// TODO should these be checked upstream in the diffing?
-					console.log('TODO ignoring removed self dependency', removedSourceId);
-					continue;
-				}
+				if (removedSourceId === sourceFile.id) continue;
 				if (removedSourceId === EXTERNALS_SOURCE_ID) {
 					// TODO uh oh..this was not made for M:N building!
 					// the problem here is that it's de-duping by build id, not source,
@@ -1066,9 +1058,7 @@ export class Filer implements BuildContext {
 							red('updateExternalsSourceFile ADDING TO BUILD'),
 							addedDependency.specifier,
 						);
-						// TODO I think this works? forces it to build? because we added the specifier
-						// this is basically a param to the function, "forceBuild"
-						sourceFile.dirty = true;
+						sourceFile.dirty = true; // force it to build
 						await this.addSourceFileToBuild(sourceFile, buildConfig, false);
 					}
 					console.log(red('updateExternalsSourceFile BUILT!!!!!!'), addedDependency.specifier);
