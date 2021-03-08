@@ -34,6 +34,8 @@ between the CLI, build tools, and app code.
 It tries to dissolve walls that typically separate these domains
 while deferring to your code and facilitating buildtime development processes.
 
+> caveat: Gro's CLI probably doesn't play nicely with others. Needs lots of improvements.
+
 ## usage
 
 Gro has complex rules to convert your input commands,
