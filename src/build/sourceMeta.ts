@@ -43,6 +43,7 @@ export const updateSourceMeta = async (
 		contentsHash: getFileContentsHash(file),
 		builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 			// TODO better way to get this type safety? rather unordinary!
+			// without this annotation, additional unknown props pass through without warning
 			files.map((file): SourceMetaData['builds'][0] => ({
 				id: file.id,
 				name: file.buildConfig.name,
