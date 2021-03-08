@@ -948,17 +948,6 @@ export class Filer implements BuildContext {
 		);
 	}
 
-	// TODO this could possibly be changed to explicitly call the build,
-	// instead of waiting with timeouts in places,
-	// and it'd be specific to one ExternalsBuildState, so it'd be per build config.
-	// we could then remove things like the tracking what's building in the Filer and externalsBuidler
-	private updatingExternals: Promise<void>[] = [];
-	private async waitForExternals(): Promise<void> {
-		if (this.updatingExternals.length === 0) return;
-		await Promise.all(this.updatingExternals);
-		this.updatingExternals.length = 0;
-	}
-
 	// TODO try to refactor this, maybe merge into `updateSourceFile`?
 	// TODO basically..what we want, is when a file is finished building,
 	// we want some callback logic to run - the logic is like,
@@ -993,6 +982,16 @@ export class Filer implements BuildContext {
 			return updating;
 		}
 		return null;
+	}
+	// TODO this could possibly be changed to explicitly call the build,
+	// instead of waiting with timeouts in places,
+	// and it'd be specific to one ExternalsBuildState, so it'd be per build config.
+	// we could then remove things like the tracking what's building in the Filer and externalsBuidler
+	private updatingExternals: Promise<void>[] = [];
+	private async waitForExternals(): Promise<void> {
+		if (this.updatingExternals.length === 0) return;
+		await Promise.all(this.updatingExternals);
+		this.updatingExternals.length = 0;
 	}
 }
 

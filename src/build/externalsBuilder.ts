@@ -200,7 +200,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 // TODO this is really hacky - it's working in the general case,
 // but it causes unnecessary delays building externals
 const IDLE_CHECK_INTERVAL = 200; // needs to be smaller than `IDLE_CHECK_DELAY`
-const IDLE_CHECK_DELAY = 1500; // needs to be larger than `IDLE_CHECK_INTERVAL`
+const IDLE_CHECK_DELAY = 700; // needs to be larger than `IDLE_CHECK_INTERVAL`
 const IDLE_TIME_LIMIT = parseInt((process.env as any).GRO_IDLE_TIME_LIMIT, 10) || 20000; // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
 // TODO wait what's the relationship between those two? check for errors?
 
