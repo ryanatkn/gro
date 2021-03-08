@@ -86,6 +86,8 @@ Gro differs in some significant ways:
 - Snowpack emphasizes composing tools through the CLI and plugins.
   Gro emphasizes writing [tasks](./tasks.md) in TypeScript to use libraries directly,
   but we'll probably do more to support CLI integrations.
+- Gro uses Snowpack's [`esinstall`](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
+  to bundle npm dependencies for the browser. Huge thanks to them.
 - Gro does not yet support hot module reloading, though work is in progress.
 
 <p align="center">
