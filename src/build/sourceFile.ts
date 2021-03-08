@@ -12,6 +12,7 @@ import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
 import {EXTERNALS_BUILD_DIR} from '../paths.js';
 import {isExternalBrowserModule} from '../utils/module.js';
+import type {BuildDependency} from './builder.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
 export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
@@ -40,8 +41,8 @@ export interface BaseBuildableFile {
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
-	readonly dependencies: Map<BuildConfig, Map<string, Set<string>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
-	readonly dependents: Map<BuildConfig, Map<string, Set<string>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
+	readonly dependencies: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
+	readonly dependents: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
 	readonly buildable: true;
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }

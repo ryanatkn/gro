@@ -787,10 +787,10 @@ export class Filer implements BuildContext {
 					}
 					let dependents = dependentsMap.get(sourceFile.id);
 					if (dependents === undefined) {
-						dependents = new Set();
+						dependents = new Map();
 						dependentsMap.set(sourceFile.id, dependents);
 					}
-					dependents.add(addedDependency.buildId);
+					dependents.set(addedDependency.buildId, addedDependency);
 
 					// Add source file to build if needed.
 					// Externals are handled separately by `updateExternalsSourceFile`, not here,
@@ -816,10 +816,10 @@ export class Filer implements BuildContext {
 				}
 				let dependencies = dependenciesMap.get(addedSourceId);
 				if (dependencies === undefined) {
-					dependencies = new Set();
+					dependencies = new Map();
 					dependenciesMap.set(addedSourceId, dependencies);
 				}
-				dependencies.add(addedDependency.buildId);
+				dependencies.set(addedDependency.buildId, addedDependency);
 			}
 		}
 		if (removedDependencies !== null) {
