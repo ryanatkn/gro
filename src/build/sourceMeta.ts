@@ -42,7 +42,8 @@ export const updateSourceMeta = async (
 		sourceId: file.id,
 		contentsHash: getFileContentsHash(file),
 		builds: Array.from(file.buildFiles.values()).flatMap((files) =>
-			files.map((file) => ({
+			// TODO better way to get this type safety? rather unordinary!
+			files.map((file): SourceMetaData['builds'][0] => ({
 				id: file.id,
 				name: file.buildConfig.name,
 				dependencies: file.dependenciesByBuildId && Array.from(file.dependenciesByBuildId.values()),
