@@ -219,6 +219,7 @@ const installExternal = async (
 	return result;
 };
 
+// TODO this hackily guesses if the filer is idle enough to start installing externals
 export const queueExternalsBuild = async (
 	sourceId: string,
 	state: ExternalsBuildState,

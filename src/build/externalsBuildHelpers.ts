@@ -16,7 +16,7 @@ export interface ExternalsBuildState {
 	importMap: ImportMap | undefined;
 	specifiers: Set<string>;
 	installing: DelayedPromise<void> | null;
-	installingCb: (() => void) | null;
+	installingCb: (() => Promise<void>) | null;
 	idleTimer: number;
 	resetterInterval: NodeJS.Timeout | null;
 }

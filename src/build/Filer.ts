@@ -888,9 +888,7 @@ export class Filer implements BuildContext {
 				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
 				assertBuildableSourceFile(removedSourceFile);
 				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
-					debugger;
-					console.log('no build config in removed source file');
-					// throw Error(`Expected build config: ${removedSourceFile.id}`);
+					throw Error(`Expected build config: ${removedSourceFile.id}`);
 				}
 
 				// update `dependencies` of the source file
