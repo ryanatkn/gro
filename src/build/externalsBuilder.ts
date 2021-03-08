@@ -160,6 +160,9 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	// 	// mutate `importMap` with the removed source file
 	// 	if (buildState.importMap !== undefined) {
 	// 		delete buildState.importMap.imports[sourceFile.id];
+	//    // TODO race condition
+	//    // importMap gets corrupted when a bunch of files are deleted at once
+	//    // (to reproduce, remove all client index.ts imports except devtools)
 	// 		// TODO problem with race condition on multiple of these being removed at once
 	// 		// could detect a pending promise, and wrap with a new one, and ignore if already pending.
 	// 		// (because it'll read the fresh state)
@@ -210,7 +213,7 @@ const installExternal = async (
 	log.info('installing externals', state.specifiers);
 	const result = await install(Array.from(state.specifiers), {dest, rollup: {plugins}});
 	log.info('install result', result);
-	log.trace('previous import map', state.importMap);
+	// log.trace('previous import map', state.importMap);
 	state.importMap = result.importMap;
 	return result;
 };
@@ -268,7 +271,7 @@ const loadCommonBuilds = async (
 		join(dest, path),
 	);
 	if (commonDependencyIds.length === 0) return null;
-	// log.trace('building common dependencies', commonDependencyIds);
+	// log.trace('loading common dependencies', commonDependencyIds);
 	return Promise.all(
 		commonDependencyIds.map(
 			async (commonDependencyId): Promise<TextBuild> => ({
