@@ -815,10 +815,7 @@ export class Filer implements BuildContext {
 				// lazily create external source file if needed
 				if (addedDependency.external) {
 					if (addedSourceFile === undefined) {
-						addedSourceFile = await this.createExternalsSourceFile(
-							addedSourceId,
-							sourceFile.filerDir,
-						);
+						addedSourceFile = await this.createExternalsSourceFile(sourceFile.filerDir);
 					}
 					this.updateExternalsSourceFile(addedSourceFile, addedDependency, buildConfig);
 				}
@@ -932,36 +929,39 @@ export class Filer implements BuildContext {
 		}
 	}
 
-	// TODO should probably be batched into a single promise?
-	// TODO can we remove this thing completely, treating externals like all others?
+	// TODO can we remove `createExternalsSourceFile`, treating externals like all others?
 	// It seems not, because the `Filer` currently does not handle multiple source files
 	// per build, it's 1:N not M:N, and further the externals build lazily,
 	// so we probably need to refactor, ultimately into a plugin system.
-	private async createExternalsSourceFile(
-		id: string,
-		filerDir: FilerDir,
-	): Promise<BuildableSourceFile> {
-		this.log.trace('creating external source file', gray(id));
-		if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);
-		await this.updateSourceFile(id, filerDir);
-		const sourceFile = this.files.get(id);
-		assertBuildableSourceFile(sourceFile);
-		// TODO why is this needed for the client to work in the browser?
-		// shouldn't it be taken care of through the normal externals update?
-		// it's duplicating the work of `addSourceFileToBuild`
-		if (sourceFile.buildFiles.size > 0) {
-			await Promise.all(
-				Array.from(sourceFile.buildFiles.keys()).map(
-					(buildConfig) => (
-						// TODO this is weird because we're hydrating but not building.
-						// and we're not adding to the build either
-						sourceFile.buildConfigs.add(buildConfig),
-						this.hydrateSourceFileFromCache(sourceFile, buildConfig)
-					),
-				),
-			);
-		}
-		return sourceFile;
+	private creatingExternalsSourceFile: Promise<BuildableSourceFile> | undefined;
+	private async createExternalsSourceFile(filerDir: FilerDir): Promise<BuildableSourceFile> {
+		return (
+			this.creatingExternalsSourceFile ||
+			(this.creatingExternalsSourceFile = (async () => {
+				const id = EXTERNALS_SOURCE_ID;
+				this.log.trace('creating external source file', gray(id));
+				if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);
+				await this.updateSourceFile(id, filerDir);
+				const sourceFile = this.files.get(id);
+				assertBuildableSourceFile(sourceFile);
+				// TODO why is this needed for the client to work in the browser?
+				// shouldn't it be taken care of through the normal externals update?
+				// it's duplicating the work of `addSourceFileToBuild`
+				if (sourceFile.buildFiles.size > 0) {
+					await Promise.all(
+						Array.from(sourceFile.buildFiles.keys()).map(
+							(buildConfig) => (
+								// TODO this is weird because we're hydrating but not building.
+								// and we're not adding to the build either
+								sourceFile.buildConfigs.add(buildConfig),
+								this.hydrateSourceFileFromCache(sourceFile, buildConfig)
+							),
+						),
+					);
+				}
+				return sourceFile;
+			})())
+		);
 	}
 
 	// TODO this could possibly be changed to explicitly call the build,
