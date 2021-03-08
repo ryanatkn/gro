@@ -60,7 +60,7 @@ export const updateSourceMeta = async (
 	// 	deepEqual(await readJson(cacheId), sourceMeta)
 	// ) {
 	// 	console.log(
-	// 		'wasted build detected! unchanged file was built and identical source info written to disk: ' +
+	// 		'wasted build detected! unchanged file was built and identical source meta written to disk: ' +
 	// 			cacheId,
 	// 	);
 	// }
@@ -100,7 +100,7 @@ export const initSourceMeta = async (
 	);
 };
 
-// Cached source info may be stale if any source files were moved or deleted
+// Cached source meta may be stale if any source files were moved or deleted
 // since the last time the Filer ran.
 // We can simply delete any cached info that doesn't map back to a source file.
 export const cleanSourceMeta = async (
