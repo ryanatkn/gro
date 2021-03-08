@@ -785,10 +785,10 @@ export class Filer implements BuildContext {
 						dependentsMap = new Map();
 						addedSourceFile.dependents.set(buildConfig, dependentsMap);
 					}
-					let dependents = dependentsMap.get(sourceFile);
+					let dependents = dependentsMap.get(sourceFile.id);
 					if (dependents === undefined) {
 						dependents = new Set();
-						dependentsMap.set(sourceFile, dependents);
+						dependentsMap.set(sourceFile.id, dependents);
 					}
 					dependents.add(addedDependency.buildId);
 
@@ -853,13 +853,13 @@ export class Filer implements BuildContext {
 				if (dependentsMap === undefined) {
 					throw Error(`Expected dependentsMap: ${removedSourceFile.id}`);
 				}
-				let dependents = dependentsMap.get(sourceFile);
+				let dependents = dependentsMap.get(sourceFile.id);
 				if (dependents === undefined) {
 					throw Error(`Expected dependents: ${removedSourceFile.id}`);
 				}
 				dependents.delete(removedDependency.buildId);
 				if (dependents.size === 0) {
-					dependentsMap.delete(sourceFile);
+					dependentsMap.delete(sourceFile.id);
 					if (
 						dependentsMap.size === 0 &&
 						!removedSourceFile.isInputToBuildConfigs?.has(buildConfig)

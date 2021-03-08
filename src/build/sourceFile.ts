@@ -41,7 +41,7 @@ export interface BaseBuildableFile {
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 	readonly dependencies: Map<BuildConfig, Map<string, Set<string>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
-	readonly dependents: Map<BuildConfig, Map<BuildableSourceFile, Set<string>>>; // `dependents` are sets of build ids by buildable source files, that import or otherwise depend on this one (uh oh..is this reference going to cause issues?)
+	readonly dependents: Map<BuildConfig, Map<string, Set<string>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
 	readonly buildable: true;
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }
