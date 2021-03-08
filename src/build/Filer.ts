@@ -488,14 +488,12 @@ export class Filer implements BuildContext {
 		for (const buildConfig of this.buildConfigs) {
 			if (isInputToBuildConfig(file, buildConfig)) {
 				(inputBuildConfigs || (inputBuildConfigs = new Set())).add(buildConfig);
-				console.log(red('init source file 1'), file.id);
 				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, true));
 			}
 		}
 		if (dependentBuildConfigs !== null) {
 			for (const buildConfig of dependentBuildConfigs) {
 				if (inputBuildConfigs?.has(buildConfig)) continue;
-				console.log(red('init source file 2'), file.id);
 				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, false));
 			}
 		}
@@ -629,7 +627,6 @@ export class Filer implements BuildContext {
 
 		const {id} = sourceFile;
 		if (pendingBuilds.has(id)) {
-			console.log('enqueueing id', id); // TODO I think we want to intercept for externals
 			enqueuedBuilds.add(id);
 			return;
 		}
@@ -664,9 +661,6 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		this.log.info('build source file', gray(sourceFile.id));
-		if (sourceFile.id === 'externals') {
-			console.log('externals buildstates', this.state.externals?.buildStates);
-		}
 
 		// Compile the source file.
 		let result: BuildResult<Build>;
