@@ -12,8 +12,6 @@ import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
-import {createLock} from '../utils/lock.js';
-import {wrap} from '../utils/async.js';
 import {
 	createDelayedPromise,
 	ExternalsBuildState,
@@ -60,9 +58,6 @@ const encoding = 'utf8';
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
 	const {basePath, log} = initOptions(opts);
 
-	// TODO i dunno lol. this code is freakish
-	const lock = createLock<string>();
-
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
@@ -81,73 +76,65 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		const builderState = getExternalsBuilderState(state);
 		const buildState = getExternalsBuildState(builderState, buildConfig);
 
-		return wrap(async (after) => {
-			const obtained = lock.lock(source.id);
-			if (obtained) log.trace('externals lock obtained', gray(source.id));
-			after(() => {
-				const released = lock.unlock(source.id);
-				if (released) log.trace('externals lock released', gray(source.id));
+		const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+
+		log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
+
+		// TODO add an external API for customizing the `install` params
+		// TODO this is legacy stuff that we need to rethink when we handle CSS better
+		const cssCache = createCssCache();
+		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
+		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
+		const plugins: RollupPlugin[] = [
+			groSveltePlugin({
+				dev,
+				addCssBuild: addSvelteCssBuild,
+				preprocessor: createDefaultPreprocessor(sourceMap, target),
+				compileOptions: {},
+			}),
+		];
+
+		let builds: TextBuild[];
+		let installResult: InstallResult;
+		try {
+			log.info('installing externals', buildState.specifiers);
+			installResult = await install(Array.from(buildState.specifiers), {
+				dest,
+				rollup: {plugins},
+				polyfillNode: true, // needed for some libs - maybe make customizable?
 			});
-			const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+			log.info('install result', installResult);
+			// log.trace('previous import map', state.importMap); maybe diff?
+			buildState.importMap = installResult.importMap;
 
-			log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
-
-			// TODO add an external API for customizing the `install` params
-			// TODO this is legacy stuff that we need to rethink when we handle CSS better
-			const cssCache = createCssCache();
-			// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
-			const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
-			const plugins: RollupPlugin[] = [
-				groSveltePlugin({
-					dev,
-					addCssBuild: addSvelteCssBuild,
-					preprocessor: createDefaultPreprocessor(sourceMap, target),
-					compileOptions: {},
-				}),
+			// TODO load all of the files in the import map
+			builds = [
+				...(await Promise.all(
+					Object.keys(installResult.importMap.imports).map(
+						async (specifier): Promise<TextBuild> => {
+							const id = join(dest, installResult.importMap.imports[specifier]);
+							return {
+								id,
+								filename: basename(id),
+								dir: dirname(id),
+								extension: JS_EXTENSION,
+								encoding,
+								contents: await loadContents(encoding, id),
+								sourceMapOf: null,
+								buildConfig,
+							};
+						},
+					),
+				)),
+				...((await loadCommonBuilds(installResult, dest, buildConfig)) || EMPTY_ARRAY),
 			];
+		} catch (err) {
+			log.error(`Failed to bundle external module: ${source.id}`);
+			throw err;
+		}
 
-			let builds: TextBuild[];
-			let installResult: InstallResult;
-			try {
-				log.info('installing externals', buildState.specifiers);
-				installResult = await install(Array.from(buildState.specifiers), {
-					dest,
-					rollup: {plugins},
-					polyfillNode: true, // needed for some libs - maybe make customizable?
-				});
-				log.info('install result', installResult);
-				// log.trace('previous import map', state.importMap); maybe diff?
-				buildState.importMap = installResult.importMap;
-
-				// TODO load all of the files in the import map
-				builds = [
-					...(await Promise.all(
-						Object.keys(installResult.importMap.imports).map(
-							async (specifier): Promise<TextBuild> => {
-								const id = join(dest, installResult.importMap.imports[specifier]);
-								return {
-									id,
-									filename: basename(id),
-									dir: dirname(id),
-									extension: JS_EXTENSION,
-									encoding,
-									contents: await loadContents(encoding, id),
-									sourceMapOf: null,
-									buildConfig,
-								};
-							},
-						),
-					)),
-					...((await loadCommonBuilds(installResult, dest, buildConfig)) || EMPTY_ARRAY),
-				];
-			} catch (err) {
-				log.error(`Failed to bundle external module: ${source.id}`);
-				throw err;
-			}
-
-			const result: BuildResult<TextBuild> = {builds};
-			return result;
-		});
+		const result: BuildResult<TextBuild> = {builds};
+		return result;
 	};
 
 	const init: ExternalsBuilder['init'] = async (
