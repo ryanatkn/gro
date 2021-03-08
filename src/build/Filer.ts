@@ -823,7 +823,8 @@ export class Filer implements BuildContext {
 				// ignore dependencies on self - happens with common externals
 				if (removedSourceId === sourceFile.id) continue;
 				const removedSourceFile = this.files.get(removedSourceId);
-				if (removedSourceFile === undefined) continue; // import might point to a nonexistent file
+				// import might point to a nonexistent file, ignore them completely
+				if (removedSourceFile === undefined) continue;
 				assertBuildableSourceFile(removedSourceFile);
 				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
 					throw Error(`Expected build config: ${removedSourceFile.id}`);
@@ -857,7 +858,8 @@ export class Filer implements BuildContext {
 					dependentsMap.delete(sourceFile.id);
 					if (
 						dependentsMap.size === 0 &&
-						!removedSourceFile.isInputToBuildConfigs?.has(buildConfig)
+						!removedSourceFile.isInputToBuildConfigs?.has(buildConfig) &&
+						!removedDependency.external // TODO ignoring these for now, would be weird to remove only when it has none, but not handle other removals (maybe it should handle them?)
 					) {
 						(promises || (promises = [])).push(
 							this.removeSourceFileFromBuild(removedSourceFile, buildConfig),

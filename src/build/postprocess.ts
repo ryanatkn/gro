@@ -53,6 +53,7 @@ export const postprocess = (
 					// handle common externals, imports internal to the externals
 					if (isBrowser) {
 						buildId = join(build.dir, specifier);
+						// map internal externals imports to absolute paths, so we get stable ids
 						finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildRootDir)}${
 							finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 						}`;
