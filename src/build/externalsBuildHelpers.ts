@@ -83,6 +83,7 @@ export const toImportMapPath = (dest: string): string => `${dest}/import-map.jso
 
 // Normally `esinstall` writes out the `import-map.json` file,
 // but whenever files are deleted we update it without going through `esinstall`.
+// TODO remove this? isn't being used anywhere anymore
 export const updateImportMapOnDisk = async (
 	importMap: ImportMap,
 	buildConfig: BuildConfig,

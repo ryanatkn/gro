@@ -109,8 +109,15 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			let builds: TextBuild[];
 			let installResult: InstallResult;
 			try {
-				installResult = await installExternal(dest, buildState, plugins, log);
-				// `state.importMap` is now updated
+				log.info('installing externals', buildState.specifiers);
+				installResult = await install(Array.from(buildState.specifiers), {
+					dest,
+					rollup: {plugins},
+					polyfillNode: true, // needed for some libs - maybe make customizable?
+				});
+				log.info('install result', installResult);
+				// log.trace('previous import map', state.importMap); maybe diff?
+				buildState.importMap = installResult.importMap;
 
 				// TODO load all of the files in the import map
 				builds = [
@@ -143,36 +150,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		});
 	};
 
-	// TODO this no longer works because we changed externals
-	// to have a single source file, rather than one source file per specifier.
-	// For now, no externals are deleted. Will this cause problems? Maybe?
-	// const onRemove: ExternalsBuilder['onRemove'] = async (
-	// 	sourceFile,
-	// 	buildConfig,
-	// 	ctx,
-	// ): Promise<void> => {
-	// 	// TODO this didn't fire!
-	// 	console.log('on remove', sourceFile.id, buildConfig.name);
-	// 	const builderState = getExternalsBuilderState(ctx.state);
-	// 	const buildState = getExternalsBuildState(builderState, buildConfig);
-	// 	// TODO this is busted
-	// 	buildState.specifiers.delete(sourceFile.id);
-	// 	// mutate `importMap` with the removed source file
-	// 	if (buildState.importMap !== undefined) {
-	// 		delete buildState.importMap.imports[sourceFile.id];
-	//    // TODO race condition
-	//    // importMap gets corrupted when a bunch of files are deleted at once
-	//    // (to reproduce, remove all client index.ts imports except devtools)
-	// 		// TODO problem with race condition on multiple of these being removed at once
-	// 		// could detect a pending promise, and wrap with a new one, and ignore if already pending.
-	// 		// (because it'll read the fresh state)
-	// 		// promise is set to null if it's still equal when resolved
-	// 		// ctx.buildingSourceFiles.size; // TODO wait til idle? hmm. because it might be written by an install! uhh.. who should win?
-	// 		// buildState.updatingImportMap;
-	// 		await updateImportMapOnDisk(buildState.importMap, buildConfig, ctx);
-	// 	}
-	// };
-
 	const init: ExternalsBuilder['init'] = async (
 		{state, dev, buildRootDir}: BuildContext,
 		buildConfigs: BuildConfig[],
@@ -203,24 +180,6 @@ const IDLE_CHECK_INTERVAL = 200; // needs to be smaller than `IDLE_CHECK_DELAY`
 const IDLE_CHECK_DELAY = 700; // needs to be larger than `IDLE_CHECK_INTERVAL`
 const IDLE_TIME_LIMIT = parseInt((process.env as any).GRO_IDLE_TIME_LIMIT, 10) || 20000; // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
 // TODO wait what's the relationship between those two? check for errors?
-
-const installExternal = async (
-	dest: string,
-	state: ExternalsBuildState,
-	plugins: RollupPlugin[],
-	log: Logger,
-): Promise<InstallResult> => {
-	log.info('installing externals', state.specifiers);
-	const result = await install(Array.from(state.specifiers), {
-		dest,
-		rollup: {plugins},
-		polyfillNode: true, // needed for some libs - maybe make customizable?
-	});
-	log.info('install result', result);
-	// log.trace('previous import map', state.importMap);
-	state.importMap = result.importMap;
-	return result;
-};
 
 // TODO this hackily guesses if the filer is idle enough to start installing externals
 export const queueExternalsBuild = async (
