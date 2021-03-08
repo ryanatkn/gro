@@ -324,7 +324,7 @@ export class Filer implements BuildContext {
 		}
 
 		await Promise.all(promises);
-		await this.waitForExternals();
+		await this.waitForExternals(); // because they currently build without blocking the main source file builds (due to constraints TODO fix?)
 	}
 
 	// Adds a build config to a source file.
