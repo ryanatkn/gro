@@ -10,13 +10,14 @@ import {
 	createExternalsBuilder,
 	InitialOptions as ExternalsBuilderInitialOptions,
 } from './externalsBuilder.js';
+import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
 
-export const createDefaultBuilder = async (
+export const createDefaultBuilder = (
 	swcBuilderOptions?: SwcBuilderInitialOptions,
 	svelteBuilderOptions?: SvelteBuilderInitialOptions,
 	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
 	lazyBuilderOptions?: LazyBuilderInitialOptions,
-): Promise<Builder> => {
+): Builder => {
 	if (!lazyBuilderOptions?.getBuilder) {
 		const swcBuilder = createSwcBuilder(swcBuilderOptions);
 		const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
@@ -25,7 +26,7 @@ export const createDefaultBuilder = async (
 		lazyBuilderOptions = {
 			...lazyBuilderOptions,
 			getBuilder: (source, buildConfig) => {
-				if (source.external) {
+				if (source.id === EXTERNALS_SOURCE_ID) {
 					if (buildConfig.platform !== 'browser') {
 						throw Error('Expected browser for externals builder.');
 					}

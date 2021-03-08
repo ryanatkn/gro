@@ -1,17 +1,9 @@
 import {createHash} from 'crypto';
 import {resolve} from 'path';
-import {BuildConfig} from '../config/buildConfig.js';
 
-import {
-	basePathToSourceId,
-	EXTERNALS_BUILD_DIR,
-	JS_EXTENSION,
-	paths,
-	toBuildBasePath,
-	toSourceExtension,
-} from '../paths.js';
-import {stripEnd, stripStart} from '../utils/string.js';
-import {COMMON_SOURCE_ID, isExternalBuildId} from './buildFile.js';
+import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
+import {BuildDependency} from './builder.js';
+import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -30,34 +22,16 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 	return filterDirectory;
 };
 
-export interface MapBuildIdToSourceId {
-	(
-		buildId: string,
-		external: boolean,
-		dev: boolean,
-		buildConfig: BuildConfig,
-		buildRootDir: string,
-	): string;
+export interface MapDependencyToSourceId {
+	(dependency: BuildDependency, buildRootDir: string): string;
 }
 
-const EXTERNALS_ID_PREFIX = `${EXTERNALS_BUILD_DIR}/`;
-const COMMONS_ID_PREFIX = `${EXTERNALS_ID_PREFIX}${COMMON_SOURCE_ID}/`;
-
-// TODO has weird special cases, points to refactoring
-export const mapBuildIdToSourceId: MapBuildIdToSourceId = (
-	buildId,
-	external,
-	dev,
-	buildConfig,
-	buildRootDir,
-) => {
-	const basePath = toBuildBasePath(buildId, buildRootDir);
-	const sourceId = external
-		? basePath.startsWith(COMMONS_ID_PREFIX)
-			? COMMON_SOURCE_ID
-			: isExternalBuildId(buildId, dev, buildConfig, buildRootDir)
-			? stripStart(stripEnd(basePath, JS_EXTENSION), EXTERNALS_ID_PREFIX)
-			: buildId
-		: basePathToSourceId(toSourceExtension(basePath));
-	return sourceId;
+// TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
+export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildRootDir) => {
+	const basePath = toBuildBasePath(dependency.buildId, buildRootDir);
+	if (dependency.external) {
+		return EXTERNALS_SOURCE_ID;
+	} else {
+		return basePathToSourceId(toSourceExtension(basePath));
+	}
 };

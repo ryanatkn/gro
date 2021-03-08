@@ -7,20 +7,20 @@
 > **_warning!_** You should not use Gro today
 > unless you're willing to take ownership of the code.
 > Expect bugs, missing features, and undocumented breaking changes.
-> Gro integrates several tools into a single experience but
-> for now it probably doesn't suit your needs.
-> Many other mature tools with large communities solve similar problems.
-> All that said, you might find some interesting or useful things here!
+> In fact don't expect any documentation.. or .. just don't expect anything.
+> Gro integrates several tools into a single experience but it's pre-alpha,
+> and there are many mature substitutes with large communities.
+> That said, you might find some interesting or useful things here!
 > Feel free to open issues for questions or discussion.
 
 ## about
 
-Gro is an opinionated monotool for making webapps.
+Gro is an opinionated monotool ("kit", "metaframework"?) for making webapps.
 It includes:
 
 - [unbundled development](/src/docs/unbundledDevelopment.md)
-  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers/libraries,
-  inspired by [Snowpack](https://github.com/pikapkg/snowpack)
+  for [Svelte](https://github.com/sveltejs/svelte) UIs (currently, just SPAs)
+  and Node servers/libraries, inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
   using [swc](https://github.com/swc-project/swc) in dev mode for speed

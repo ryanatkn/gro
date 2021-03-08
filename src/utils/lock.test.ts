@@ -6,15 +6,19 @@ test('createLock()', () => {
 	const lock = createLock();
 	const runLifecycle = (key: any) => {
 		t.ok(!lock.has(key));
-		t.ok(!lock.tryToRelease(key));
-		t.ok(lock.tryToObtain(key));
+		t.ok(!lock.unlock(key));
+		t.is(lock.peek(), null);
+		t.ok(lock.lock(key));
 		t.ok(lock.has(key));
-		t.ok(lock.tryToObtain(key));
+		t.is(lock.peek(), key);
+		t.ok(lock.lock(key));
 		t.ok(lock.has(key));
-		t.ok(!lock.tryToObtain({}));
-		t.ok(lock.tryToRelease(key));
+		t.ok(!lock.lock({}));
+		t.is(lock.peek(), key);
+		t.ok(lock.unlock(key));
 		t.ok(!lock.has(key));
-		t.ok(!lock.tryToRelease(key));
+		t.is(lock.peek(), null);
+		t.ok(!lock.unlock(key));
 	};
 	const key1 = {};
 	test('lock lifecycle', () => {

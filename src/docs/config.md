@@ -1,6 +1,6 @@
 # config
 
-Gro's config is part of a system for compiling a source project
+Gro's config is part of a system for building a source project
 to one or more output artifacts.
 It's designed for a variety of use cases:
 
@@ -113,9 +113,9 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 
 The `platform` can currently be `"node"` or `"browser"` and
 is used by Gro's default builders to customize the output.
-When compiling for the browser, dependencies in `node_modules/` are imported via Snowpack's
+When building for the browser, dependencies in `node_modules/` are imported via Snowpack's
 [`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
-When compiling for Node, the Svelte compiler outputs
+When building for Node, the Svelte compiler outputs
 [SSR components](https://svelte.dev/docs#Server-side_component_API)
 instead of the normal DOM ones.
 

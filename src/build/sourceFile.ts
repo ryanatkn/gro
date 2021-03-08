@@ -6,33 +6,25 @@ import {BaseFilerFile} from './baseFilerFile.js';
 import {toHash} from './utils.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {Encoding} from '../fs/encoding.js';
-import type {CachedSourceInfo, FilerFile} from './Filer.js';
+import type {FilerFile} from './Filer.js';
+import type {SourceMeta} from './sourceMeta.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
 import {EXTERNALS_BUILD_DIR} from '../paths.js';
 import {isExternalBrowserModule} from '../utils/module.js';
+import type {BuildDependency} from './builder.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
-export type BuildableSourceFile =
-	| BuildableTextSourceFile
-	| BuildableBinarySourceFile
-	| BuildableExternalsSourceFile;
+export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
 export type NonBuildableSourceFile = NonBuildableTextSourceFile | NonBuildableBinarySourceFile;
 export interface TextSourceFile extends BaseSourceFile {
-	readonly external: false;
 	readonly encoding: 'utf8';
 	contents: string;
 }
 export interface BinarySourceFile extends BaseSourceFile {
-	readonly external: false;
 	readonly encoding: null;
 	contents: Buffer;
 	contentsBuffer: Buffer;
-}
-export interface ExternalsSourceFile extends BaseSourceFile {
-	readonly external: true;
-	readonly encoding: 'utf8';
-	contents: string;
 }
 export interface BaseSourceFile extends BaseFilerFile {
 	readonly type: 'source';
@@ -44,16 +36,13 @@ export interface BuildableTextSourceFile extends TextSourceFile, BaseBuildableFi
 export interface BuildableBinarySourceFile extends BinarySourceFile, BaseBuildableFile {
 	readonly filerDir: BuildableFilerDir;
 }
-export interface BuildableExternalsSourceFile extends ExternalsSourceFile, BaseBuildableFile {
-	readonly filerDir: BuildableFilerDir;
-}
 export interface BaseBuildableFile {
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
-	readonly dependencies: Map<BuildConfig, Set<string>>; // `dependencies` are source file ids that this one imports or otherwise depends on (they may point to nonexistent files!)
-	readonly dependents: Map<BuildConfig, Set<BuildableSourceFile>>; // `dependents` are other buildable source files that import or otherwise depend on this one
+	readonly dependencies: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
+	readonly dependents: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
 	readonly buildable: true;
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }
@@ -76,15 +65,15 @@ export const createSourceFile = async (
 	extension: string,
 	contents: string | Buffer,
 	filerDir: FilerDir,
-	cachedSourceInfo: CachedSourceInfo | undefined,
+	sourceMeta: SourceMeta | undefined,
 	buildConfigs: readonly BuildConfig[] | null,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
 	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
 	let dirty = false;
-	if (filerDir.buildable && cachedSourceInfo !== undefined) {
-		// TODO why the cached source info guard here for `contentsBuffer` and `contentsHash`?
+	if (filerDir.buildable && sourceMeta !== undefined) {
+		// TODO why the source meta guard here for `contentsBuffer` and `contentsHash`?
 		if (encoding === 'utf8') {
 			contentsBuffer = Buffer.from(contents);
 		} else if (encoding !== null) {
@@ -94,8 +83,8 @@ export const createSourceFile = async (
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty = contentsHash !== cachedSourceInfo.data.contentsHash;
-		reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
+		dirty = contentsHash !== sourceMeta.data.contentsHash;
+		reconstructedBuildFiles = await reconstructBuildFiles(sourceMeta, buildConfigs!);
 	}
 	if (isExternalBrowserModule(id)) {
 		// externals
@@ -105,12 +94,11 @@ export const createSourceFile = async (
 		if (!filerDir.buildable) {
 			throw Error(`Expected filer dir to be buildable: ${filerDir.dir} - ${id}`);
 		}
-		let filename = basename(id) + (id.endsWith(extension) ? '' : extension);
+		let filename = 'index' + (id.endsWith(extension) ? '' : extension);
 		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIR, dirname(id)) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',
-			external: true,
 			buildConfigs: new Set(),
 			isInputToBuildConfigs: null,
 			dependencies: new Map(),
@@ -140,7 +128,6 @@ export const createSourceFile = async (
 			return filerDir.buildable
 				? {
 						type: 'source',
-						external: false,
 						buildConfigs: new Set(),
 						isInputToBuildConfigs: null,
 						dependencies: new Map(),
@@ -163,7 +150,6 @@ export const createSourceFile = async (
 				  }
 				: {
 						type: 'source',
-						external: false,
 						buildConfigs: null,
 						isInputToBuildConfigs: null,
 						dependencies: null,
@@ -188,7 +174,6 @@ export const createSourceFile = async (
 			return filerDir.buildable
 				? {
 						type: 'source',
-						external: false,
 						buildConfigs: new Set(),
 						isInputToBuildConfigs: null,
 						dependencies: new Map(),
@@ -211,7 +196,6 @@ export const createSourceFile = async (
 				  }
 				: {
 						type: 'source',
-						external: false,
 						buildConfigs: null,
 						isInputToBuildConfigs: null,
 						dependencies: null,
@@ -252,14 +236,5 @@ export function assertBuildableSourceFile(
 	assertSourceFile(file);
 	if (!file.buildable) {
 		throw Error(`Expected file to be buildable: ${file.id}`);
-	}
-}
-
-export function assertBuildableExternalsSourceFile(
-	file: FilerFile | undefined | null,
-): asserts file is BuildableExternalsSourceFile {
-	assertBuildableSourceFile(file);
-	if (!file.external) {
-		throw Error(`Expected an external file: ${file.id}`);
 	}
 }

@@ -7,25 +7,31 @@ import {
 	EXTERNALS_BUILD_DIR,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
+	toBuildBasePath,
 	toBuildExtension,
 	toBuildOutPath,
 } from '../paths.js';
-import type {Build, BuildContext, BuildResult, BuildSource} from './builder.js';
+import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {getIsExternalModule} from '../utils/module.js';
+import {EXTERNALS_SOURCE_ID, isExternalBuildId} from './externalsBuildHelpers.js';
 
 // TODO this is all hacky and should be refactored
+// make it pluggable like builders, maybe
 
 export const postprocess = (
 	build: Build,
-	{servedDirs, buildRootDir, dev}: BuildContext,
+	ctx: BuildContext,
 	result: BuildResult<Build>,
 	source: BuildSource,
-): {contents: Build['contents']; dependencies: Set<string> | null} => {
+): {
+	contents: Build['contents'];
+	dependenciesByBuildId: Map<string, BuildDependency> | null;
+} => {
 	if (build.encoding === 'utf8') {
 		let {contents, buildConfig} = build;
 		const isBrowser = buildConfig.platform === 'browser';
-		let dependencies: Set<string> | null = null;
+		let dependenciesByBuildId: Map<string, BuildDependency> | null = null;
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
@@ -37,33 +43,56 @@ export const postprocess = (
 			for (const {s, e, d} of imports) {
 				const start = d > -1 ? s + 1 : s;
 				const end = d > -1 ? e - 1 : e;
-				const moduleName = contents.substring(start, end);
-				if (moduleName === 'import.meta') continue;
-				let newModuleName = toBuildExtension(moduleName);
-				let dependency: string;
-				const isExternalImport = isExternalModule(moduleName);
-				if (isExternalImport) {
+				const specifier = contents.substring(start, end);
+				if (specifier === 'import.meta') continue;
+				let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
+				let mappedSpecifier = toBuildExtension(specifier);
+				let buildId: string;
+				const isExternalImport = isExternalModule(specifier);
+				if (!isExternalImport && source.id === EXTERNALS_SOURCE_ID) {
+					// handle common externals, imports internal to the externals
 					if (isBrowser) {
-						// TODO might want to use this `esinstall` helper: https://github.com/snowpackjs/snowpack/blob/a09bba81d01fa7b3769024f9bd5adf0d3fc4bafc/esinstall/src/util.ts#L161
-						// I'd prefer to add the `.js` always, but esinstall seems to force this
-						newModuleName = `/${EXTERNALS_BUILD_DIR}/${newModuleName}${
-							newModuleName.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+						buildId = join(build.dir, specifier);
+						// map internal externals imports to absolute paths, so we get stable ids
+						finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildRootDir)}${
+							finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 						}`;
-						dependency = toBuildOutPath(
-							dev,
+					} else {
+						buildId = mappedSpecifier;
+					}
+				} else if (isExternalImport || source.id === EXTERNALS_SOURCE_ID) {
+					// handle regular externals
+					if (isBrowser) {
+						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
+							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
+						}
+						mappedSpecifier = `/${join(EXTERNALS_BUILD_DIR, mappedSpecifier)}${
+							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+						}`;
+						buildId = toBuildOutPath(
+							ctx.dev,
 							buildConfig.name,
-							newModuleName.substring(1),
-							buildRootDir,
+							mappedSpecifier.substring(1),
+							ctx.buildRootDir,
 						);
 					} else {
-						dependency = newModuleName;
+						buildId = mappedSpecifier;
 					}
 				} else {
-					dependency = join(build.dir, newModuleName);
+					buildId = join(build.dir, mappedSpecifier);
 				}
-				(dependencies || (dependencies = new Set())).add(dependency);
-				if (newModuleName !== moduleName) {
-					transformedContents += contents.substring(index, start) + newModuleName;
+				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
+				if (!dependenciesByBuildId.has(buildId)) {
+					dependenciesByBuildId.set(buildId, {
+						specifier: finalSpecifier,
+						mappedSpecifier,
+						buildId,
+						external: isExternalBuildId(buildId, buildConfig, ctx),
+						// TODO what if this had `originalSpecifier` and `isExternalImport` too?
+					});
+				}
+				if (mappedSpecifier !== specifier) {
+					transformedContents += contents.substring(index, start) + mappedSpecifier;
 					index = end;
 				}
 			}
@@ -77,7 +106,7 @@ export const postprocess = (
 			const cssCompilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
 			if (cssCompilation !== undefined) {
 				let importPath: string | undefined;
-				for (const servedDir of servedDirs) {
+				for (const servedDir of ctx.servedDirs) {
 					if (cssCompilation.id.startsWith(servedDir.dir)) {
 						importPath = stripStart(cssCompilation.id, servedDir.servedAt);
 						break;
@@ -88,10 +117,10 @@ export const postprocess = (
 				}
 			}
 		}
-		return {contents, dependencies};
+		return {contents, dependenciesByBuildId};
 	} else {
 		// Handle other encodings like binary.
-		return {contents: build.contents, dependencies: null};
+		return {contents: build.contents, dependenciesByBuildId: null};
 	}
 };
 
@@ -109,4 +138,19 @@ const injectSvelteCssImport = (contents: string, importPath: string): string => 
 		newlineIndex,
 	)}${injectedCssLoaderScript}${contents.substring(newlineIndex)}`;
 	return newContents;
+};
+
+// TODO tests as docs
+const shouldModifyDotJs = (sourceId: string): boolean => {
+	const maxSlashCount = sourceId[0] === '@' ? 1 : 0;
+	let slashCount = 0;
+	for (let i = 0; i < sourceId.length; i++) {
+		if (sourceId[i] === '/') {
+			slashCount++;
+			if (slashCount > maxSlashCount) {
+				return false;
+			}
+		}
+	}
+	return true;
 };

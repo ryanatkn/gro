@@ -16,6 +16,7 @@ import {
 	toBuildExtension,
 	toSourceExtension,
 	toBuildBasePath,
+	EXTERNALS_BUILD_DIR,
 } from './paths.js';
 
 test('createPaths()', () => {
@@ -125,4 +126,8 @@ test('toSourceExtension()', () => {
 	t.is(toSourceExtension('foo/bar'), 'foo/bar');
 	t.is(toSourceExtension('foo/'), 'foo/');
 	t.is(toSourceExtension('foo'), 'foo');
+});
+
+test('EXTERNALS_BUILD_DIR has no slash', () => {
+	t.ok(!EXTERNALS_BUILD_DIR.includes('/'));
 });

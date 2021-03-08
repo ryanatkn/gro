@@ -21,7 +21,7 @@ export const task: Task = {
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
-			builder: await createDefaultBuilder(),
+			builder: createDefaultBuilder(),
 			sourceDirs: [paths.source],
 			servedDirs: config.serve || getDefaultServedDirs(config),
 			buildConfigs: config.builds,

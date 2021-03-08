@@ -1,8 +1,8 @@
-import type {Build, BuildContext, BuildResult} from './builder.js';
+import type {Build, BuildContext, BuildDependency, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
-import type {CachedSourceInfo} from './Filer.js';
-import {EXTERNALS_BUILD_DIR, SOURCEMAP_EXTENSION, toBuildOutPath} from '../paths.js';
+import type {SourceMeta} from './sourceMeta.js';
+import {SOURCEMAP_EXTENSION} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
@@ -24,12 +24,13 @@ export interface BinaryBuildFile extends BaseBuildFile {
 export interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
 	readonly sourceId: string;
-	readonly external: boolean;
 	readonly buildConfig: BuildConfig;
-	readonly dependencies: Set<string> | null;
+	// This data structure de-dupes by build id, because we can throw away
+	// the information of duplicate imports to the same dependency within each build file.
+	// We may want to store more granular dependency info, including imported identifiers,
+	// in the future.
+	readonly dependenciesByBuildId: Map<string, BuildDependency> | null;
 }
-
-export const COMMON_SOURCE_ID = 'common'; // TODO revisit this along with `build.common`
 
 export const createBuildFile = (
 	build: Build,
@@ -38,17 +39,14 @@ export const createBuildFile = (
 	sourceFile: BuildableSourceFile,
 	buildConfig: BuildConfig,
 ): BuildFile => {
-	const {contents, dependencies} = postprocess(build, ctx, result, sourceFile);
+	const {contents, dependenciesByBuildId} = postprocess(build, ctx, result, sourceFile);
 	switch (build.encoding) {
 		case 'utf8':
 			return {
 				type: 'build',
-				// TODO this is a hack, not sure about it -
-				// currently used to prevent common externals from being deleted
-				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
-				external: sourceFile.external,
+				sourceId: sourceFile.id,
 				buildConfig,
-				dependencies, // TODO should these dependencies be updated for ALL build files in externals as appropriate? are they?
+				dependenciesByBuildId,
 				id: build.id,
 				filename: build.filename,
 				dir: build.dir,
@@ -64,12 +62,9 @@ export const createBuildFile = (
 		case null:
 			return {
 				type: 'build',
-				// TODO this is a hack, not sure about it -
-				// currently used to prevent common externals from being deleted
-				sourceId: build.common ? COMMON_SOURCE_ID : sourceFile.id,
-				external: sourceFile.external,
+				sourceId: sourceFile.id,
 				buildConfig,
-				dependencies,
+				dependenciesByBuildId,
 				id: build.id,
 				filename: build.filename,
 				dir: build.dir,
@@ -87,12 +82,12 @@ export const createBuildFile = (
 };
 
 export const reconstructBuildFiles = async (
-	cachedSourceInfo: CachedSourceInfo,
+	sourceMeta: SourceMeta,
 	buildConfigs: readonly BuildConfig[],
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(
-		cachedSourceInfo.data.builds.map(
+		sourceMeta.data.builds.map(
 			async (build): Promise<void> => {
 				const {id, name, dependencies, encoding} = build;
 				const filename = basename(id);
@@ -105,10 +100,10 @@ export const reconstructBuildFiles = async (
 					case 'utf8':
 						buildFile = {
 							type: 'build',
-							sourceId: cachedSourceInfo.data.sourceId,
-							external: cachedSourceInfo.data.external,
+							sourceId: sourceMeta.data.sourceId,
 							buildConfig,
-							dependencies: dependencies && new Set(dependencies),
+							dependenciesByBuildId:
+								dependencies && new Map(dependencies.map((d) => [d.buildId, d])),
 							id,
 							filename,
 							dir,
@@ -127,10 +122,10 @@ export const reconstructBuildFiles = async (
 					case null:
 						buildFile = {
 							type: 'build',
-							sourceId: cachedSourceInfo.data.sourceId,
-							external: cachedSourceInfo.data.external,
+							sourceId: sourceMeta.data.sourceId,
 							buildConfig,
-							dependencies: dependencies && new Set(dependencies),
+							dependenciesByBuildId:
+								dependencies && new Map(dependencies.map((d) => [d.buildId, d])),
 							id,
 							filename,
 							dir,
@@ -166,12 +161,6 @@ const addBuildFile = (
 	files.push(buildFile);
 };
 
-// TODO rename? move?
-export interface DependencyInfo {
-	id: string;
-	external: boolean;
-}
-
 // TODO maybe this should take in cached aggregated data from the source file, not `oldBuildFiles`?
 
 // Returns the dependency changes between two sets of build files.
@@ -180,31 +169,35 @@ export interface DependencyInfo {
 export const diffDependencies = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
-	dev: boolean,
-	buildConfig: BuildConfig,
-	buildRootDir: string,
 ): {
-	addedDependencies: DependencyInfo[] | null;
-	removedDependencies: DependencyInfo[] | null;
+	addedDependencies: BuildDependency[] | null;
+	removedDependencies: BuildDependency[] | null;
 } | null => {
-	let addedDependencies: DependencyInfo[] | null = null;
-	let removedDependencies: DependencyInfo[] | null = null;
+	if (newFiles === oldFiles) return null;
+	let addedDependencies: BuildDependency[] | null = null;
+	let removedDependencies: BuildDependency[] | null = null;
 
-	// Aggregate all of the dependencies for each source file.
-	let newDependencies: Set<string> | null = null;
-	let oldDependencies: Set<string> | null = null;
+	// Aggregate all of the dependencies for each source file. The map de-dupes by build id.
+	let newDependencies: Map<string, BuildDependency> | null = null;
+	let oldDependencies: Map<string, BuildDependency> | null = null;
 	for (const newFile of newFiles) {
-		if (newFile.dependencies !== null) {
-			for (const dependency of newFile.dependencies) {
-				(newDependencies || (newDependencies = new Set())).add(dependency);
+		if (newFile.dependenciesByBuildId !== null) {
+			for (const dependency of newFile.dependenciesByBuildId.values()) {
+				if (newDependencies === null) newDependencies = new Map();
+				if (!newDependencies.has(dependency.buildId)) {
+					newDependencies.set(dependency.buildId, dependency);
+				}
 			}
 		}
 	}
 	if (oldFiles !== null) {
 		for (const oldFile of oldFiles) {
-			if (oldFile.dependencies !== null) {
-				for (const dependency of oldFile.dependencies) {
-					(oldDependencies || (oldDependencies = new Set())).add(dependency);
+			if (oldFile.dependenciesByBuildId !== null) {
+				for (const dependency of oldFile.dependenciesByBuildId.values()) {
+					if (oldDependencies === null) oldDependencies = new Map();
+					if (!oldDependencies.has(dependency.buildId)) {
+						oldDependencies.set(dependency.buildId, dependency);
+					}
 				}
 			}
 		}
@@ -212,22 +205,18 @@ export const diffDependencies = (
 
 	// Figure out which dependencies were added and removed.
 	if (newDependencies !== null) {
-		for (const newDependency of newDependencies) {
-			if (oldDependencies === null || !oldDependencies.has(newDependency)) {
-				(addedDependencies || (addedDependencies = [])).push({
-					id: newDependency,
-					external: isExternalBuildId(newDependency, dev, buildConfig, buildRootDir),
-				});
+		for (const newDependency of newDependencies.values()) {
+			if (oldDependencies === null || !oldDependencies.has(newDependency.buildId)) {
+				if (addedDependencies === null) addedDependencies = [];
+				addedDependencies.push(newDependency);
 			}
 		}
 	}
 	if (oldDependencies !== null) {
-		for (const oldDependency of oldDependencies) {
-			if (newDependencies === null || !newDependencies.has(oldDependency)) {
-				(removedDependencies || (removedDependencies = [])).push({
-					id: oldDependency,
-					external: isExternalBuildId(oldDependency, dev, buildConfig, buildRootDir),
-				});
+		for (const oldDependency of oldDependencies.values()) {
+			if (newDependencies === null || !newDependencies.has(oldDependency.buildId)) {
+				if (removedDependencies === null) removedDependencies = [];
+				removedDependencies.push(oldDependency);
 			}
 		}
 	}
@@ -236,14 +225,3 @@ export const diffDependencies = (
 		? {addedDependencies, removedDependencies}
 		: null;
 };
-
-// Externals are Node imports referenced in browser builds.
-export const isExternalBuildId = (
-	id: string,
-	dev: boolean,
-	buildConfig: BuildConfig,
-	buildRootDir: string,
-): boolean =>
-	buildConfig.platform === 'browser'
-		? id.startsWith(toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildRootDir) + '/')
-		: false;
