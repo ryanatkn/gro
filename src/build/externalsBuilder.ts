@@ -211,7 +211,11 @@ const installExternal = async (
 	log: Logger,
 ): Promise<InstallResult> => {
 	log.info('installing externals', state.specifiers);
-	const result = await install(Array.from(state.specifiers), {dest, rollup: {plugins}});
+	const result = await install(Array.from(state.specifiers), {
+		dest,
+		rollup: {plugins},
+		polyfillNode: true, // needed for some libs - maybe make customizable?
+	});
 	log.info('install result', result);
 	// log.trace('previous import map', state.importMap);
 	state.importMap = result.importMap;
