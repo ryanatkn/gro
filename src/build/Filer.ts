@@ -3,7 +3,7 @@ import lexer from 'es-module-lexer';
 
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
-import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
+import {remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
@@ -39,11 +39,12 @@ import {
 	getExternalsBuildState,
 } from './externalsBuildHelpers.js';
 import {queueExternalsBuild} from './externalsBuilder.js';
-import type {CachedSourceInfo, CachedSourceInfoData} from './cachedSourceInfo.js';
+import type {CachedSourceInfo} from './cachedSourceInfo.js';
 import {
 	deleteCachedSourceInfo,
 	updateCachedSourceInfo,
-	toCachedSourceInfoDir,
+	cleanCachedSourceInfo,
+	initCachedSourceInfo,
 } from './cachedSourceInfo.js';
 
 /*
@@ -145,6 +146,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 export class Filer implements BuildContext {
 	private readonly files: Map<string, FilerFile> = new Map();
+	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: FilerDir[];
 	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
 	private readonly buildConfigs: readonly BuildConfig[] | null;
@@ -228,7 +230,7 @@ export class Filer implements BuildContext {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([this.initCachedSourceInfo(), lexer.init]);
+		await Promise.all([initCachedSourceInfo(this.cachedSourceInfo, this), lexer.init]);
 		// this.log.trace('inited cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,
@@ -240,7 +242,7 @@ export class Filer implements BuildContext {
 
 		// Now that the cached source info and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
-		await this.cleanCachedSourceInfo();
+		await cleanCachedSourceInfo(this.cachedSourceInfo, this.fileExists, this);
 		// this.log.trace('cleaned');
 
 		// This initializes the builders. Should be done before the builds are initialized.
@@ -265,34 +267,6 @@ export class Filer implements BuildContext {
 		this.log.trace(blue('initialized!'));
 
 		finishInitializing!();
-	}
-
-	private async initCachedSourceInfo(): Promise<void> {
-		const cachedSourceInfoDir = toCachedSourceInfoDir(this.buildRootDir);
-		if (!(await pathExists(cachedSourceInfoDir))) return;
-		const files = await findFiles(cachedSourceInfoDir, undefined, null);
-		await Promise.all(
-			Array.from(files.entries()).map(async ([path, stats]) => {
-				if (stats.isDirectory()) return;
-				const cacheId = `${cachedSourceInfoDir}/${path}`;
-				const data: CachedSourceInfoData = await readJson(cacheId);
-				this.cachedSourceInfo.set(data.sourceId, {cacheId, data});
-			}),
-		);
-	}
-
-	// Cached source info may be stale if any source files were moved or deleted
-	// since the last time the Filer ran.
-	// We can simply delete any cached info that doesn't map back to a source file.
-	private async cleanCachedSourceInfo(): Promise<void> {
-		let promises: Promise<void>[] | null = null;
-		for (const sourceId of this.cachedSourceInfo.keys()) {
-			if (!this.files.has(sourceId) && !isExternalBrowserModule(sourceId)) {
-				this.log.warn('deleting unknown cached source info', gray(sourceId));
-				(promises || (promises = [])).push(deleteCachedSourceInfo(this.cachedSourceInfo, sourceId));
-			}
-		}
-		if (promises !== null) await Promise.all(promises);
 	}
 
 	// During initialization, after all files are loaded into memory,
@@ -437,7 +411,7 @@ export class Filer implements BuildContext {
 			}
 		}
 
-		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this.buildRootDir);
+		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this);
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -717,7 +691,7 @@ export class Filer implements BuildContext {
 
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
-		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this.buildRootDir);
+		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this);
 	}
 
 	// Updates the build files in the memory cache and writes to disk.
