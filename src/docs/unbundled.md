@@ -88,7 +88,7 @@ Gro differs in some significant ways:
   but we'll probably do more to support CLI integrations.
 - Gro uses Snowpack's [`esinstall`](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
   to bundle npm dependencies for the browser. Huge thanks to them.
-- Gro does not yet support hot module reloading, though work is in progress.
+- Gro does not yet support hot module reloading, though work is in progress, in theory.
 
 <p align="center">
   <a href="https://github.com/feltcoop/gro">
