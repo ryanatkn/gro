@@ -65,8 +65,6 @@ export const initExternalsBuildState = (
 	buildState = {
 		importMap: undefined,
 		specifiers: new Set(),
-		// installStats: undefined, // TODO get initial stats too? yes when/if needed
-		// TODO this needs to be a map, or do we need it at all?
 		installing: null,
 		installingCb: null,
 		idleTimer: 0,
