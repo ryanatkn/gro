@@ -7,7 +7,7 @@ import {toHash} from './utils.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';
-import type {CachedSourceInfo} from './cachedSourceInfo.js';
+import type {CachedSourceInfo} from './sourceMeta.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
 import {EXTERNALS_BUILD_DIR} from '../paths.js';

@@ -1,7 +1,7 @@
 import type {Build, BuildContext, BuildDependency, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
-import type {CachedSourceInfo} from './cachedSourceInfo.js';
+import type {CachedSourceInfo} from './sourceMeta.js';
 import {SOURCEMAP_EXTENSION} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';

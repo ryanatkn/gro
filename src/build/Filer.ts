@@ -39,13 +39,13 @@ import {
 	getExternalsBuildState,
 } from './externalsBuildHelpers.js';
 import {queueExternalsBuild} from './externalsBuilder.js';
-import type {CachedSourceInfo} from './cachedSourceInfo.js';
+import type {CachedSourceInfo} from './sourceMeta.js';
 import {
 	deleteCachedSourceInfo,
 	updateCachedSourceInfo,
 	cleanCachedSourceInfo,
 	initCachedSourceInfo,
-} from './cachedSourceInfo.js';
+} from './sourceMeta.js';
 
 /*
 
