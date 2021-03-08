@@ -839,10 +839,10 @@ export class Filer implements BuildContext {
 						dependentsMap = new Map();
 						addedSourceFile.dependents.set(buildConfig, dependentsMap);
 					}
-					let dependents = dependentsMap.get(addedSourceFile);
+					let dependents = dependentsMap.get(sourceFile);
 					if (dependents === undefined) {
 						dependents = new Set();
-						dependentsMap.set(addedSourceFile, dependents);
+						dependentsMap.set(sourceFile, dependents);
 					}
 					dependents.add(addedDependency.buildId);
 					if (addedSourceFile.id === 'externals')
