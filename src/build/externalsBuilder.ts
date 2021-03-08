@@ -23,7 +23,6 @@ import {
 	initExternalsBuildState,
 	loadImportMapFromDisk,
 	toSpecifiers,
-	updateImportMapOnDisk,
 } from './externalsBuildHelpers.js';
 import {EMPTY_ARRAY} from '../utils/array.js';
 
@@ -139,40 +138,37 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				throw err;
 			}
 
-			// TODO maybe we return "common" `Build`s here?
-			// the idea being that the `Filer` can handle them
-			// as a whole after each compile.
-			// Remember we can change the `Filer` API however we want to special case externals! or other needs
-			// functionality is first: model the data correctly and process it correctly.
-			// refactoring is a lot easier, and it's never too late to refactor! it never gets intractably hard
 			const result: BuildResult<TextBuild> = {builds};
 			return result;
 		});
 	};
 
-	const onRemove: ExternalsBuilder['onRemove'] = async (
-		sourceFile,
-		buildConfig,
-		ctx,
-	): Promise<void> => {
-		// TODO this didn't fire!
-		console.log('on remove', sourceFile.id, buildConfig.name);
-		const builderState = getExternalsBuilderState(ctx.state);
-		const buildState = getExternalsBuildState(builderState, buildConfig);
-		// TODO this is busted
-		buildState.specifiers.delete(sourceFile.id);
-		// mutate `importMap` with the removed source file
-		if (buildState.importMap !== undefined) {
-			delete buildState.importMap.imports[sourceFile.id];
-			// TODO problem with race condition on multiple of these being removed at once
-			// could detect a pending promise, and wrap with a new one, and ignore if already pending.
-			// (because it'll read the fresh state)
-			// promise is set to null if it's still equal when resolved
-			// ctx.buildingSourceFiles.size; // TODO wait til idle? hmm. because it might be written by an install! uhh.. who should win?
-			// buildState.updatingImportMap;
-			await updateImportMapOnDisk(buildState.importMap, buildConfig, ctx);
-		}
-	};
+	// TODO this no longer works because we changed externals
+	// to have a single source file, rather than one source file per specifier.
+	// For now, no externals are deleted. Will this cause problems? Maybe?
+	// const onRemove: ExternalsBuilder['onRemove'] = async (
+	// 	sourceFile,
+	// 	buildConfig,
+	// 	ctx,
+	// ): Promise<void> => {
+	// 	// TODO this didn't fire!
+	// 	console.log('on remove', sourceFile.id, buildConfig.name);
+	// 	const builderState = getExternalsBuilderState(ctx.state);
+	// 	const buildState = getExternalsBuildState(builderState, buildConfig);
+	// 	// TODO this is busted
+	// 	buildState.specifiers.delete(sourceFile.id);
+	// 	// mutate `importMap` with the removed source file
+	// 	if (buildState.importMap !== undefined) {
+	// 		delete buildState.importMap.imports[sourceFile.id];
+	// 		// TODO problem with race condition on multiple of these being removed at once
+	// 		// could detect a pending promise, and wrap with a new one, and ignore if already pending.
+	// 		// (because it'll read the fresh state)
+	// 		// promise is set to null if it's still equal when resolved
+	// 		// ctx.buildingSourceFiles.size; // TODO wait til idle? hmm. because it might be written by an install! uhh.. who should win?
+	// 		// buildState.updatingImportMap;
+	// 		await updateImportMapOnDisk(buildState.importMap, buildConfig, ctx);
+	// 	}
+	// };
 
 	const init: ExternalsBuilder['init'] = async (
 		{state, dev, buildRootDir}: BuildContext,
@@ -195,10 +191,10 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		);
 	};
 
-	return {build, onRemove, init};
+	return {build, init};
 };
 
-// TODO this is really hacky - it's working,
+// TODO this is really hacky - it's working in the general case,
 // but it causes unnecessary delays building externals
 const IDLE_CHECK_INTERVAL = 200; // needs to be smaller than `IDLE_CHECK_DELAY`
 const IDLE_CHECK_DELAY = 1500; // needs to be larger than `IDLE_CHECK_INTERVAL`
@@ -230,10 +226,8 @@ export const queueExternalsBuild = async (
 	state.installingCb = cb;
 	buildingSourceFiles.delete(sourceId); // externals are hacky like this, because they'd cause it to hang!
 	if (state.installing === null) {
-		console.log('creatnig delayed thingy...');
 		state.installing = createDelayedPromise(async () => {
 			state.installing = null; // TODO so.. putting this after `cb()` causes an error
-			console.log('firing delayed thingy...');
 			await state.installingCb!();
 			state.installingCb = null;
 		}, IDLE_CHECK_DELAY);

@@ -5,7 +5,7 @@ import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDi
 import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 import {
-	EXTERNALS_BUILD_DIR,
+	EXTERNALS_BUILD_DIR_SUBPATH,
 	JSON_EXTENSION,
 	JS_EXTENSION,
 	paths,
@@ -381,9 +381,9 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		this.log.trace(
-			`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
-		);
+		// this.log.trace(
+		// 	`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
+		// );
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(
 				`Already has buildConfig ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
@@ -794,9 +794,6 @@ export class Filer implements BuildContext {
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		if (newBuildFiles === oldBuildFiles) return;
-		if (sourceFile.id === 'externals') {
-			console.log(red('updateDependencies enter'), sourceFile.id);
-		}
 
 		const {addedDependencies, removedDependencies} =
 			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
@@ -818,16 +815,10 @@ export class Filer implements BuildContext {
 				// lazily create external source file if needed
 				if (addedDependency.external) {
 					if (addedSourceFile === undefined) {
-						// TODO wait I think we can create the externals file here,
-						// but also defer its loading of build files, hydrating or whatever,
-						// just like we do in `updateExternalsSourceFile`.
-						// should those be combined then?
 						addedSourceFile = await this.createExternalsSourceFile(
 							addedSourceId,
-							// addedDependency.buildId, // TODO need to associate this build ID to the source file - maybe change helper to `addExternalDependency()`
 							sourceFile.filerDir,
 						);
-						console.log(red('TODO blocking externals source file created!'), addedSourceId);
 					}
 					this.updateExternalsSourceFile(addedSourceFile, addedDependency, buildConfig);
 				}
@@ -845,8 +836,6 @@ export class Filer implements BuildContext {
 						dependentsMap.set(sourceFile, dependents);
 					}
 					dependents.add(addedDependency.buildId);
-					if (addedSourceFile.id === 'externals')
-						console.log('added dependenct', addedDependency.buildId);
 
 					// Add source file to build if needed.
 					// Externals are handled separately by `updateExternalsSourceFile`, not here,
@@ -881,7 +870,6 @@ export class Filer implements BuildContext {
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
 				const removedSourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
-				console.log('removedSourceId', removedSourceId, removedDependency.buildId);
 				// ignore dependencies on self - happens with common externals
 				if (removedSourceId === sourceFile.id) continue;
 				const removedSourceFile = this.files.get(removedSourceId);
@@ -929,7 +917,6 @@ export class Filer implements BuildContext {
 			}
 		}
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
-		console.log('updateDependencies exit', sourceFile.id);
 	}
 
 	private async destroySourceId(id: string): Promise<void> {
@@ -945,6 +932,7 @@ export class Filer implements BuildContext {
 		}
 	}
 
+	// TODO should probably be batched into a single promise?
 	// TODO can we remove this thing completely, treating externals like all others?
 	// It seems not, because the `Filer` currently does not handle multiple source files
 	// per build, it's 1:N not M:N, and further the externals build lazily,
@@ -953,7 +941,7 @@ export class Filer implements BuildContext {
 		id: string,
 		filerDir: FilerDir,
 	): Promise<BuildableSourceFile> {
-		// this.log.trace('creating external source file', gray(id));
+		this.log.trace('creating external source file', gray(id));
 		if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);
 		await this.updateSourceFile(id, filerDir);
 		const sourceFile = this.files.get(id);
@@ -988,66 +976,33 @@ export class Filer implements BuildContext {
 	}
 
 	// TODO try to refactor this, maybe merge into `updateSourceFile`?
-	// could we use `contents` instead of `specifiers`,
-	// or should this be better abstracted?
+	// TODO basically..what we want, is when a file is finished building,
+	// we want some callback logic to run - the logic is like,
+	// "if there are no other pending builds other than this one, proceed with the externals build"
+	// the problem is the builds are recursively depth-first!
+	// so we can't wait til it's "idle", because it's never idle until everything is built.
 	private updateExternalsSourceFile(
 		sourceFile: BuildableSourceFile,
 		addedDependency: BuildDependency,
 		buildConfig: BuildConfig,
 	): Promise<void> | null {
 		const {specifier} = addedDependency;
-		// TODO could also do something with "addedDependency.common" in postprocess
-		// maybe `isExternalImport` - see that comment there - if it's NOT an external import...
-		if (specifier.startsWith(`/${EXTERNALS_BUILD_DIR}/`)) return null;
-
-		// TODO diff the cached import map specifiers against the current state - if different, build, if not, no-op!
+		if (specifier.startsWith(EXTERNALS_BUILD_DIR_SUBPATH)) return null;
 		const buildState = getExternalsBuildState(getExternalsBuilderState(this.state), buildConfig);
-
-		// TODO basically..what we want, is when a file is finished building,
-		// we want some callback logic to run - the logic is like,
-		// "if there are no other pending builds other than this one, proceed with the externals build"
-		// this.pendingBuilds2.get(buildConfig)!.delete(id);
-		// if (this.pendingBuilds2.get(buildConfig)!.size === 0) {
-		// 	// account for this one!!
-		// 	...
-		// }
-
-		// TODO should we use `contents` to do this the normal way?
-		// just queue an `update` check? what if we called `onDirChange`?
-		// unfortunately, no! I tried this, and the problem is that `onDirChange`
-		// occurs in the context of a source file and all of its builds,
-		// (because Gro has a 1:N sourceFile:buildFiles model)
-		// but here we're in the context of a single build.
-		// maybe there's another way..? ..! ...
-
 		if (!buildState.specifiers.has(specifier)) {
-			console.log(red('adding specifier'), specifier, sourceFile.id);
 			buildState.specifiers.add(specifier);
-			// now that we mutated the specifiers, update the source file,
-			// which derives the `contents` of the externals source file from the specifiers
-			console.log('should build externals!', specifier);
-
 			const updating = queueExternalsBuild(
 				sourceFile.id,
 				buildState,
 				this.buildingSourceFiles,
 				this.log,
 				async () => {
-					// TODO or hydrate? is that the problem?
-					// I think yeah so, we use this same
-					// detection logic for hydration inside `addSourceFileToBuild`
 					if (sourceFile.buildConfigs.has(buildConfig)) {
-						console.log(red('updateExternalsSourceFile BUILDING'), addedDependency.specifier);
 						await this.buildSourceFile(sourceFile, buildConfig);
 					} else {
-						console.log(
-							red('updateExternalsSourceFile ADDING TO BUILD'),
-							addedDependency.specifier,
-						);
 						sourceFile.dirty = true; // force it to build
 						await this.addSourceFileToBuild(sourceFile, buildConfig, false);
 					}
-					console.log(red('updateExternalsSourceFile BUILT!!!!!!'), addedDependency.specifier);
 				},
 			);
 			this.updatingExternals.push(updating);
