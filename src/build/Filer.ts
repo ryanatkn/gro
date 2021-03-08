@@ -4,13 +4,7 @@ import lexer from 'es-module-lexer';
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
-import {
-	EXTERNALS_BUILD_DIR_SUBPATH,
-	JSON_EXTENSION,
-	JS_EXTENSION,
-	paths,
-	toBuildOutPath,
-} from '../paths.js';
+import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
@@ -35,7 +29,7 @@ import {
 	SourceFile,
 } from './sourceFile.js';
 import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
-import {BaseFilerFile, getFileContentsHash} from './baseFilerFile.js';
+import {BaseFilerFile} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import {wrap} from '../utils/async.js';
@@ -45,6 +39,12 @@ import {
 	getExternalsBuildState,
 } from './externalsBuildHelpers.js';
 import {queueExternalsBuild} from './externalsBuilder.js';
+import type {CachedSourceInfo, CachedSourceInfoData} from './cachedSourceInfo.js';
+import {
+	deleteCachedSourceInfo,
+	updateCachedSourceInfo,
+	toCachedSourceInfoDir,
+} from './cachedSourceInfo.js';
 
 /*
 
@@ -63,22 +63,6 @@ TODO
 */
 
 export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
-
-export interface CachedSourceInfoData {
-	readonly sourceId: string;
-	readonly contentsHash: string;
-	readonly builds: {
-		readonly id: string;
-		readonly name: string;
-		readonly dependencies: BuildDependency[] | null;
-		readonly encoding: Encoding;
-	}[];
-}
-export interface CachedSourceInfo {
-	readonly cacheId: string; // path to the cached JSON file on disk
-	readonly data: CachedSourceInfoData; // the plain JSON written to disk
-}
-const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`
 
 export interface Options {
 	dev: boolean;
@@ -284,7 +268,7 @@ export class Filer implements BuildContext {
 	}
 
 	private async initCachedSourceInfo(): Promise<void> {
-		const cachedSourceInfoDir = `${this.buildRootDir}${CACHED_SOURCE_INFO_DIR}`;
+		const cachedSourceInfoDir = toCachedSourceInfoDir(this.buildRootDir);
 		if (!(await pathExists(cachedSourceInfoDir))) return;
 		const files = await findFiles(cachedSourceInfoDir, undefined, null);
 		await Promise.all(
@@ -305,7 +289,7 @@ export class Filer implements BuildContext {
 		for (const sourceId of this.cachedSourceInfo.keys()) {
 			if (!this.files.has(sourceId) && !isExternalBrowserModule(sourceId)) {
 				this.log.warn('deleting unknown cached source info', gray(sourceId));
-				(promises || (promises = [])).push(this.deleteCachedSourceInfo(sourceId));
+				(promises || (promises = [])).push(deleteCachedSourceInfo(this.cachedSourceInfo, sourceId));
 			}
 		}
 		if (promises !== null) await Promise.all(promises);
@@ -453,7 +437,7 @@ export class Filer implements BuildContext {
 			}
 		}
 
-		await this.updateCachedSourceInfo(sourceFile);
+		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this.buildRootDir);
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -733,7 +717,7 @@ export class Filer implements BuildContext {
 
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
-		await this.updateCachedSourceInfo(sourceFile);
+		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this.buildRootDir);
 	}
 
 	// Updates the build files in the memory cache and writes to disk.
@@ -925,7 +909,7 @@ export class Filer implements BuildContext {
 			if (this.buildConfigs !== null) {
 				await Promise.all(this.buildConfigs.map((b) => this.updateBuildFiles(sourceFile, [], b)));
 			}
-			await this.deleteCachedSourceInfo(sourceFile.id);
+			await deleteCachedSourceInfo(this.cachedSourceInfo, sourceFile.id);
 		}
 	}
 
@@ -1010,49 +994,6 @@ export class Filer implements BuildContext {
 		}
 		return null;
 	}
-
-	// TODO as an optimization, this should be debounced per file,
-	// because we're writing per build config.
-	private async updateCachedSourceInfo(file: BuildableSourceFile): Promise<void> {
-		if (file.buildConfigs.size === 0) return this.deleteCachedSourceInfo(file.id);
-		const cacheId = toCachedSourceInfoId(file, this.buildRootDir);
-		const data: CachedSourceInfoData = {
-			sourceId: file.id,
-			contentsHash: getFileContentsHash(file),
-			builds: Array.from(file.buildFiles.values()).flatMap((files) =>
-				files.map((file) => ({
-					id: file.id,
-					name: file.buildConfig.name,
-					dependencies:
-						file.dependenciesByBuildId && Array.from(file.dependenciesByBuildId.values()),
-					encoding: file.encoding,
-				})),
-			),
-		};
-		const cachedSourceInfo: CachedSourceInfo = {cacheId, data};
-		// This is useful for debugging, but has false positives
-		// when source changes but output doesn't, like if comments get elided.
-		// if (
-		// 	(await pathExists(cacheId)) &&
-		// 	deepEqual(await readJson(cacheId), cachedSourceInfo)
-		// ) {
-		// 	console.log(
-		// 		'wasted build detected! unchanged file was built and identical source info written to disk: ' +
-		// 			cacheId,
-		// 	);
-
-		// }
-		this.cachedSourceInfo.set(file.id, cachedSourceInfo);
-		// this.log.trace('outputting cached source info', gray(cacheId));
-		await outputFile(cacheId, JSON.stringify(data, null, 2));
-	}
-
-	private async deleteCachedSourceInfo(sourceId: string): Promise<void> {
-		const info = this.cachedSourceInfo.get(sourceId);
-		if (info === undefined) return; // silently do nothing, which is fine because it's a cache
-		this.cachedSourceInfo.delete(sourceId);
-		return remove(info.cacheId);
-	}
 }
 
 const syncBuildFilesToDisk = async (changes: BuildFileChange[], log: Logger): Promise<void> => {
@@ -1093,9 +1034,6 @@ const syncBuildFilesToDisk = async (changes: BuildFileChange[], log: Logger): Pr
 		}),
 	);
 };
-
-const toCachedSourceInfoId = (file: BuildableSourceFile, buildRootDir: string): string =>
-	`${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 const syncBuildFilesToMemoryCache = (
 	files: Map<string, FilerFile>,
