@@ -39,13 +39,8 @@ import {
 	getExternalsBuildState,
 } from './externalsBuildHelpers.js';
 import {queueExternalsBuild} from './externalsBuilder.js';
-import type {CachedSourceInfo} from './sourceMeta.js';
-import {
-	deleteCachedSourceInfo,
-	updateCachedSourceInfo,
-	cleanCachedSourceInfo,
-	initCachedSourceInfo,
-} from './sourceMeta.js';
+import type {SourceMeta} from './sourceMeta.js';
+import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
 
 /*
 
@@ -148,7 +143,7 @@ export class Filer implements BuildContext {
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: FilerDir[];
-	private readonly cachedSourceInfo: Map<string, CachedSourceInfo> = new Map();
+	private readonly sourceMeta: Map<string, SourceMeta> = new Map();
 	private readonly buildConfigs: readonly BuildConfig[] | null;
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
 
@@ -230,19 +225,19 @@ export class Filer implements BuildContext {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([initCachedSourceInfo(this.cachedSourceInfo, this), lexer.init]);
+		await Promise.all([initSourceMeta(this.sourceMeta, this), lexer.init]);
 		// this.log.trace('inited cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including files to be served, source files, and build files.
-		// Initializing the dirs must be done after `this.initCachedSourceInfo`
-		// because it creates source files, which need `this.cachedSourceInfo` to be populated.
+		// Initializing the dirs must be done after `this.initSourceMeta`
+		// because it creates source files, which need `this.sourceMeta` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.trace('inited files');
 
-		// Now that the cached source info and source files are loaded into memory,
+		// Now that the source meta and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
-		await cleanCachedSourceInfo(this.cachedSourceInfo, this.fileExists, this);
+		await cleanSourceMeta(this.sourceMeta, this.fileExists, this);
 		// this.log.trace('cleaned');
 
 		// This initializes the builders. Should be done before the builds are initialized.
@@ -411,7 +406,7 @@ export class Filer implements BuildContext {
 			}
 		}
 
-		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this);
+		await updateSourceMeta(this.sourceMeta, sourceFile, this);
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -568,7 +563,7 @@ export class Filer implements BuildContext {
 					extension,
 					newSourceContents,
 					filerDir,
-					this.cachedSourceInfo.get(id),
+					this.sourceMeta.get(id),
 					this.buildConfigs,
 				);
 				this.files.set(id, newSourceFile);
@@ -691,7 +686,7 @@ export class Filer implements BuildContext {
 
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
-		await updateCachedSourceInfo(this.cachedSourceInfo, sourceFile, this);
+		await updateSourceMeta(this.sourceMeta, sourceFile, this);
 	}
 
 	// Updates the build files in the memory cache and writes to disk.
@@ -883,7 +878,7 @@ export class Filer implements BuildContext {
 			if (this.buildConfigs !== null) {
 				await Promise.all(this.buildConfigs.map((b) => this.updateBuildFiles(sourceFile, [], b)));
 			}
-			await deleteCachedSourceInfo(this.cachedSourceInfo, sourceFile.id);
+			await deleteSourceMeta(this.sourceMeta, sourceFile.id);
 		}
 	}
 

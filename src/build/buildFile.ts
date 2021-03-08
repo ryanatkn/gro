@@ -1,7 +1,7 @@
 import type {Build, BuildContext, BuildDependency, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
-import type {CachedSourceInfo} from './sourceMeta.js';
+import type {SourceMeta} from './sourceMeta.js';
 import {SOURCEMAP_EXTENSION} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
@@ -82,12 +82,12 @@ export const createBuildFile = (
 };
 
 export const reconstructBuildFiles = async (
-	cachedSourceInfo: CachedSourceInfo,
+	sourceMeta: SourceMeta,
 	buildConfigs: readonly BuildConfig[],
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(
-		cachedSourceInfo.data.builds.map(
+		sourceMeta.data.builds.map(
 			async (build): Promise<void> => {
 				const {id, name, dependencies, encoding} = build;
 				const filename = basename(id);
@@ -100,7 +100,7 @@ export const reconstructBuildFiles = async (
 					case 'utf8':
 						buildFile = {
 							type: 'build',
-							sourceId: cachedSourceInfo.data.sourceId,
+							sourceId: sourceMeta.data.sourceId,
 							buildConfig,
 							dependenciesByBuildId:
 								dependencies && new Map(dependencies.map((d) => [d.buildId, d])),
@@ -122,7 +122,7 @@ export const reconstructBuildFiles = async (
 					case null:
 						buildFile = {
 							type: 'build',
-							sourceId: cachedSourceInfo.data.sourceId,
+							sourceId: sourceMeta.data.sourceId,
 							buildConfig,
 							dependenciesByBuildId:
 								dependencies && new Map(dependencies.map((d) => [d.buildId, d])),

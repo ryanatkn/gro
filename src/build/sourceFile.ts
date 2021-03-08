@@ -7,7 +7,7 @@ import {toHash} from './utils.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';
-import type {CachedSourceInfo} from './sourceMeta.js';
+import type {SourceMeta} from './sourceMeta.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
 import {EXTERNALS_BUILD_DIR} from '../paths.js';
@@ -65,15 +65,15 @@ export const createSourceFile = async (
 	extension: string,
 	contents: string | Buffer,
 	filerDir: FilerDir,
-	cachedSourceInfo: CachedSourceInfo | undefined,
+	sourceMeta: SourceMeta | undefined,
 	buildConfigs: readonly BuildConfig[] | null,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
 	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
 	let dirty = false;
-	if (filerDir.buildable && cachedSourceInfo !== undefined) {
-		// TODO why the cached source info guard here for `contentsBuffer` and `contentsHash`?
+	if (filerDir.buildable && sourceMeta !== undefined) {
+		// TODO why the source meta guard here for `contentsBuffer` and `contentsHash`?
 		if (encoding === 'utf8') {
 			contentsBuffer = Buffer.from(contents);
 		} else if (encoding !== null) {
@@ -83,8 +83,8 @@ export const createSourceFile = async (
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty = contentsHash !== cachedSourceInfo.data.contentsHash;
-		reconstructedBuildFiles = await reconstructBuildFiles(cachedSourceInfo, buildConfigs!);
+		dirty = contentsHash !== sourceMeta.data.contentsHash;
+		reconstructedBuildFiles = await reconstructBuildFiles(sourceMeta, buildConfigs!);
 	}
 	if (isExternalBrowserModule(id)) {
 		// externals
