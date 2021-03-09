@@ -141,7 +141,7 @@ Gro uses
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
 [swc](https://github.com/swc-project/swc) ∙
 [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
-[Prettier](https://github.com/prettier/prettier) ∙  
+[Prettier](https://github.com/prettier/prettier) ∙
 [Node](https://nodejs.org) & [more](package.json)
 
 [Gro's strategy](/src/docs/unbundled.md) of pairing unbundled ES modules during development
