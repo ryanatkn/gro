@@ -243,6 +243,7 @@ export class Filer implements BuildContext {
 
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
+		// what data is not yet ready? does this belong inside `initBuilds`?
 		if (this.buildConfigs !== null) {
 			for (const dir of this.dirs) {
 				if (!dir.buildable) continue;
@@ -468,8 +469,12 @@ export class Filer implements BuildContext {
 		// TODO could be sped up with some caching data structures
 		for (const f of this.files.values()) {
 			if (f.type !== 'source' || !f.buildable) continue;
-			for (const [buildConfig, dependencies] of f.dependencies) {
-				if (dependencies.has(file.id)) {
+			for (const [buildConfig, dependenciesMap] of f.dependencies) {
+				if (dependenciesMap.has(file.id)) {
+					const dependencies = dependenciesMap.get(file.id)!;
+					for (const dependency of dependencies.values()) {
+						addDependent(f, file, buildConfig, dependency);
+					}
 					(dependentBuildConfigs || (dependentBuildConfigs = new Set())).add(buildConfig);
 				}
 			}
@@ -750,17 +755,7 @@ export class Filer implements BuildContext {
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
 					// update `dependents` of the added file
-					let dependentsMap = addedSourceFile.dependents.get(buildConfig);
-					if (dependentsMap === undefined) {
-						dependentsMap = new Map();
-						addedSourceFile.dependents.set(buildConfig, dependentsMap);
-					}
-					let dependents = dependentsMap.get(sourceFile.id);
-					if (dependents === undefined) {
-						dependents = new Map();
-						dependentsMap.set(sourceFile.id, dependents);
-					}
-					dependents.set(addedDependency.buildId, addedDependency);
+					addDependent(sourceFile, addedSourceFile, buildConfig, addedDependency);
 
 					// Add source file to build if needed.
 					// Externals are handled separately by `updateExternalsSourceFile`, not here,
@@ -779,17 +774,7 @@ export class Filer implements BuildContext {
 				}
 
 				// update `dependencies` of the source file
-				let dependenciesMap = sourceFile.dependencies.get(buildConfig);
-				if (dependenciesMap === undefined) {
-					dependenciesMap = new Map();
-					sourceFile.dependencies.set(buildConfig, dependenciesMap);
-				}
-				let dependencies = dependenciesMap.get(addedSourceId);
-				if (dependencies === undefined) {
-					dependencies = new Map();
-					dependenciesMap.set(addedSourceId, dependencies);
-				}
-				dependencies.set(addedDependency.buildId, addedDependency);
+				addDependency(sourceFile, addedSourceId, buildConfig, addedDependency);
 			}
 		}
 		if (removedDependencies !== null) {
@@ -1120,4 +1105,39 @@ const isInputToBuildConfig = (
 		}
 	}
 	return false;
+};
+
+// TODO not sure about these names
+const addDependent = (
+	dependentSourceFile: BuildableSourceFile,
+	dependencySourceFile: BuildableSourceFile,
+	buildConfig: BuildConfig,
+	addedDependency: BuildDependency,
+) => {
+	let dependentsMap = dependencySourceFile.dependents.get(buildConfig);
+	if (dependentsMap === undefined) {
+		dependencySourceFile.dependents.set(buildConfig, (dependentsMap = new Map()));
+	}
+	let dependents = dependentsMap.get(dependentSourceFile.id);
+	if (dependents === undefined) {
+		dependentsMap.set(dependentSourceFile.id, (dependents = new Map()));
+	}
+	dependents.set(addedDependency.buildId, addedDependency);
+};
+
+const addDependency = (
+	dependentSourceFile: BuildableSourceFile,
+	dependencySourceId: string,
+	buildConfig: BuildConfig,
+	addedDependency: BuildDependency,
+) => {
+	let dependenciesMap = dependentSourceFile.dependencies.get(buildConfig);
+	if (dependenciesMap === undefined) {
+		dependentSourceFile.dependencies.set(buildConfig, (dependenciesMap = new Map()));
+	}
+	let dependencies = dependenciesMap.get(dependencySourceId);
+	if (dependencies === undefined) {
+		dependenciesMap.set(dependencySourceId, (dependencies = new Map()));
+	}
+	dependencies.set(addedDependency.buildId, addedDependency);
 };
