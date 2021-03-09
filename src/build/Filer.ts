@@ -375,6 +375,7 @@ export class Filer implements BuildContext {
 	private async removeSourceFileFromBuild(
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
+		shouldUpdateSourceMeta = true,
 	): Promise<void> {
 		this.log.trace(
 			`removing source file from build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
@@ -406,7 +407,9 @@ export class Filer implements BuildContext {
 			}
 		}
 
-		await updateSourceMeta(this.sourceMeta, sourceFile, this);
+		if (shouldUpdateSourceMeta) {
+			await updateSourceMeta(this.sourceMeta, sourceFile, this);
+		}
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
@@ -640,15 +643,12 @@ export class Filer implements BuildContext {
 		pendingBuilds.delete(id);
 		if (enqueuedBuilds.has(id)) {
 			enqueuedBuilds.delete(id);
-			// TODO wait is this a source of inefficiency?
-			// should we check to see if it needs to be built again,
-			// or if we should just return the pending promise,
-			// like in `updateSourceFile`?
-			// maybe have an explicit `invalidate` semantics?
-
 			// Something changed during the build for this file, so recurse.
 			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
+			// TODO this is wasteful - we could get the previous source file's contents by adding a var above,
+			// but `updateSourceFile` loads the contents from disk -
+			// however I'd rather optimize this only after tests are in place.
 			const shouldBuild = await this.updateSourceFile(id, sourceFile.filerDir);
 			if (shouldBuild) {
 				await this.buildSourceFile(sourceFile, buildConfig);
@@ -707,9 +707,6 @@ export class Filer implements BuildContext {
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		// TODO overlapping calls are a problem here! (warm startup)
-		// needs to collate based on sourceFile...... like `updateSourceFile`
-		// what about `updateBuildFiles`? that's called in multiple places too
 		// this.log.trace('hydrate', gray(sourceFile.id));
 		const buildFiles = sourceFile.buildFiles.get(buildConfig);
 		if (buildFiles === undefined) {
@@ -718,7 +715,6 @@ export class Filer implements BuildContext {
 		const changes = diffBuildFiles(buildFiles, null);
 		syncBuildFilesToMemoryCache(this.files, changes);
 		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
-		// TODO use the diffed set of files to do the automatic cleaning of the .gro directory in total?
 	}
 
 	// After building the source file, we need to handle any dependency changes for each build file.
@@ -872,8 +868,16 @@ export class Filer implements BuildContext {
 		this.files.delete(id);
 		if (sourceFile.buildable) {
 			if (this.buildConfigs !== null) {
-				await Promise.all(this.buildConfigs.map((b) => this.updateBuildFiles(sourceFile, [], b)));
+				await Promise.all(
+					this.buildConfigs.map((b) =>
+						sourceFile.buildConfigs.has(b)
+							? this.removeSourceFileFromBuild(sourceFile, b, false)
+							: null,
+					),
+				);
 			}
+			// passing `false` above to avoid writing `sourceMeta` to disk for each build -
+			// batch delete it now:
 			await deleteSourceMeta(this.sourceMeta, sourceFile.id);
 		}
 	}
@@ -901,7 +905,7 @@ export class Filer implements BuildContext {
 						Array.from(sourceFile.buildFiles.keys()).map(
 							(buildConfig) => (
 								// TODO this is weird because we're hydrating but not building.
-								// and we're not adding to the build either
+								// and we're not adding to the build either - see comments above for more
 								sourceFile.buildConfigs.add(buildConfig),
 								this.hydrateSourceFileFromCache(sourceFile, buildConfig)
 							),
