@@ -24,6 +24,7 @@ import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js'
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
 	assertBuildableSourceFile,
+	assertSourceFile,
 	BuildableSourceFile,
 	createSourceFile,
 	SourceFile,
@@ -286,19 +287,7 @@ export class Filer implements BuildContext {
 					continue;
 				}
 				const file = this.files.get(input);
-				if (!file) {
-					throw Error(`Build config ${printBuildConfig(buildConfig)} has unknown input '${input}'`);
-				}
-				if (file.type !== 'source') {
-					throw Error(
-						`Build config ${printBuildConfig(buildConfig)} has non-source input '${input}'`,
-					);
-				}
-				if (!file.buildable) {
-					throw Error(
-						`Build config ${printBuildConfig(buildConfig)} has non-buildable input '${input}'`,
-					);
-				}
+				assertBuildableSourceFile(file);
 				if (!file.buildConfigs.has(buildConfig)) {
 					promises.push(this.addSourceFileToBuild(file, buildConfig, true));
 				}
@@ -432,9 +421,7 @@ export class Filer implements BuildContext {
 						filerDir.buildable // only needed for types, doing this instead of casting for type safety
 					) {
 						const file = this.files.get(id);
-						if (file === undefined || file.type !== 'source' || !file.buildable) {
-							throw Error(`Expected a buildable source file: ${id}`);
-						}
+						assertBuildableSourceFile(file);
 						if (change.type === 'create') {
 							await this.initSourceFile(file);
 						} else {
@@ -518,9 +505,7 @@ export class Filer implements BuildContext {
 			// this.log.trace(`updating source file ${gray(id)}`);
 			const sourceFile = this.files.get(id);
 			if (sourceFile !== undefined) {
-				if (sourceFile.type !== 'source') {
-					throw Error(`Expected to update a source file but got type '${sourceFile.type}': ${id}`);
-				}
+				assertSourceFile(sourceFile);
 				if (sourceFile.filerDir !== filerDir) {
 					// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
 					// We might be able to support this,
@@ -863,7 +848,7 @@ export class Filer implements BuildContext {
 
 	private async destroySourceId(id: string): Promise<void> {
 		const sourceFile = this.files.get(id);
-		if (!sourceFile || sourceFile.type !== 'source') return; // ignore build files (maybe throw an error if the file isn't found, should not happen)
+		assertSourceFile(sourceFile);
 		this.log.trace('destroying file', gray(id));
 		this.files.delete(id);
 		if (sourceFile.buildable) {
