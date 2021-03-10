@@ -119,6 +119,32 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		const localPath = toLocalPath(url);
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
+		// TODO refactor
+		// do we want to look for `/src/` and specially handle?
+		// or do we want to look for a suffix like `/meta` and specially handle?
+		// or
+		const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
+		const SOURCE_PATH_PREFIX = 'src/';
+		if (SOURCE_ROOT_MATCHER.test(url)) {
+			console.log('SEND ALL SRC');
+			const headers: OutgoingHttpHeaders = {
+				'Content-Type': 'application/json',
+			};
+			res.writeHead(200, headers);
+			res.end(JSON.stringify(Array.from(filer.getSourceMeta().values())));
+			return;
+		}
+		if (localPath.startsWith(SOURCE_PATH_PREFIX)) {
+			console.log('GOT PATH');
+			const headers: OutgoingHttpHeaders = {
+				'Content-Type': 'application/json',
+			};
+			res.writeHead(200, headers);
+			res.end('{"a":1}');
+			return;
+		}
+
+		// search for a file with this path
 		let file = await filer.findByPath(localPath);
 		if (!file) {
 			// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
@@ -145,9 +171,9 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 
 const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
 
+// TODO need to rethink this
 const toLocalPath = (url: string): string => {
 	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
-	// This avoids making a second file query when we know the path is a directory.
 	const relativePath =
 		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
 	return relativePath;

@@ -126,7 +126,7 @@ npm run bootstrap # builds and links `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
 # development
-gro dev # build in watch mode
+gro dev # starts dev server in watch mode
 gro project/dist # update the `gro` CLI
 
 # release

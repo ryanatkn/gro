@@ -1,13 +1,24 @@
 <script>
+	import {onMount} from 'svelte';
 	import {fade} from 'svelte/transition';
 
 	import FilerVisualizer from './FilerVisualizer.svelte';
 	import ServerVisualizer from './ServerVisualizer.svelte';
 	import SourceTreeVisualizer from './SourceTreeVisualizer.svelte';
 	import BuildTreeVisualizer from './BuildTreeVisualizer.svelte';
+	import SourceMetaDataRaw from './SourceMetaDataRaw.svelte';
 
 	export let name;
 	console.log('enter App.svelte');
+
+	let sourceMeta;
+
+	onMount(async () => {
+		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
+		const srcMeta = await (await fetch(SOURCE_META_PATH)).json();
+		console.log('srcMeta', srcMeta);
+		sourceMeta = srcMeta;
+	});
 
 	let showFilerVisualizer1 = true;
 	let showFilerVisualizer2 = true;
@@ -51,6 +62,14 @@
 		<BuildTreeVisualizer name="build tree" />
 	</div>
 {/if}
+
+<div class="source-meta">
+	{#if sourceMeta}
+		{#each sourceMeta as sourceMetaData}
+			<SourceMetaDataRaw {sourceMetaData} />
+		{/each}
+	{:else}loading...{/if}
+</div>
 
 <style>
 	main {

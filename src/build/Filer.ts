@@ -145,6 +145,9 @@ export class Filer implements BuildContext {
 	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: FilerDir[];
 	private readonly sourceMeta: Map<string, SourceMeta> = new Map();
+	getSourceMeta(): Map<string, SourceMeta> {
+		return this.sourceMeta; // TODO redesign this getter?
+	}
 	private readonly buildConfigs: readonly BuildConfig[] | null;
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
 
