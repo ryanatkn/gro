@@ -738,7 +738,6 @@ export class Filer implements BuildContext {
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				// buildConfig.platform === 'browser'; // TODO may be `external` but not browser, is relying on the check against `buildId`, doesn't seem ideal
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
 				const addedSourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
 				// ignore dependencies on self - happens with common externals
@@ -787,7 +786,7 @@ export class Filer implements BuildContext {
 				if (removedSourceFile === undefined) continue;
 				assertBuildableSourceFile(removedSourceFile);
 				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
-					throw Error(`Expected build config: ${removedSourceFile.id}`);
+					throw Error(`Expected build config ${buildConfig.name}: ${removedSourceFile.id}`);
 				}
 
 				// update `dependencies` of the source file
@@ -811,7 +810,7 @@ export class Filer implements BuildContext {
 				}
 				let dependents = dependentsMap.get(sourceFile.id);
 				if (dependents === undefined) {
-					throw Error(`Expected dependents: ${removedSourceFile.id}`);
+					throw Error(`Expected dependents: ${removedSourceFile.id}: ${sourceFile.id}`);
 				}
 				dependents.delete(removedDependency.buildId);
 				if (dependents.size === 0) {
@@ -959,8 +958,6 @@ const syncBuildFilesToDisk = async (changes: BuildFileChange[], log: Logger): Pr
 					shouldOutputNewFile = true;
 				}
 			} else if (change.type === 'removed') {
-				// TODO this is handled upstream, but go find it
-				// oldFile.sourceId !== COMMON_SOURCE_ID
 				log.trace('deleting build file on disk', gray(file.id));
 				return remove(file.id);
 			} else {
@@ -1008,7 +1005,7 @@ type BuildFileChange =
 // This uses `Array#find` because the arrays are expected to be small,
 // because we're currently only using it for individual file builds,
 // but that assumption might change and cause this code to be slow.
-// TODO maybe change to sets?
+// TODO maybe change to sets or a better data structure for the usage patterns?
 const diffBuildFiles = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
@@ -1107,7 +1104,6 @@ const isInputToBuildConfig = (
 	return false;
 };
 
-// TODO not sure about these names
 const addDependent = (
 	dependentSourceFile: BuildableSourceFile,
 	dependencySourceFile: BuildableSourceFile,
