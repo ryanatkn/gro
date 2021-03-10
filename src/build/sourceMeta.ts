@@ -7,6 +7,11 @@ import type {BuildableSourceFile} from './sourceFile.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import {gray} from '../colors/terminal.js';
 
+export interface SourceMeta {
+	readonly cacheId: string; // path to the cached JSON file on disk
+	readonly data: SourceMetaData; // the plain JSON written to disk
+}
+
 export interface SourceMetaData {
 	readonly sourceId: string;
 	readonly contentsHash: string;
@@ -16,11 +21,6 @@ export interface SourceMetaData {
 		readonly dependencies: BuildDependency[] | null;
 		readonly encoding: Encoding;
 	}[];
-}
-
-export interface SourceMeta {
-	readonly cacheId: string; // path to the cached JSON file on disk
-	readonly data: SourceMetaData; // the plain JSON written to disk
 }
 
 const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`

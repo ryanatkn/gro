@@ -2,4 +2,4 @@
 	export let sourceMetaData;
 </script>
 
-<div>{sourceMetaData.cacheId}</div>
+<div>{sourceMetaData.data.sourceId}</div>
