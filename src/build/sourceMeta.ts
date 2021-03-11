@@ -15,12 +15,14 @@ export interface SourceMeta {
 export interface SourceMetaData {
 	readonly sourceId: string;
 	readonly contentsHash: string;
-	readonly builds: {
-		readonly id: string;
-		readonly name: string;
-		readonly dependencies: BuildDependency[] | null;
-		readonly encoding: Encoding;
-	}[];
+	readonly builds: SourceMetaBuild[];
+}
+
+export interface SourceMetaBuild {
+	readonly id: string;
+	readonly name: string;
+	readonly dependencies: BuildDependency[] | null;
+	readonly encoding: Encoding;
 }
 
 const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`

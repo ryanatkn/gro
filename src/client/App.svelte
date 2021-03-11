@@ -1,27 +1,47 @@
 <script>
 	import {onMount} from 'svelte';
 	import {fade} from 'svelte/transition';
+	import {writable} from 'svelte/store';
 
 	import FilerVisualizer from './FilerVisualizer.svelte';
 	import ServerVisualizer from './ServerVisualizer.svelte';
 	import SourceTreeVisualizer from './SourceTreeVisualizer.svelte';
 	import BuildTreeVisualizer from './BuildTreeVisualizer.svelte';
-	import SourceMetaDataRaw from './SourceMetaDataRaw.svelte';
+	import SourceMetaRaw from './SourceMetaRaw.svelte';
+	import SourceMetaExpander from './SourceMetaExpander.svelte';
+	import SourceMetaTable from './SourceMetaTable.svelte';
+	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
+	import {createSourceTree} from './sourceTree.js';
 
 	export let name;
 	console.log('enter App.svelte');
 
-	let sourceMeta;
+	let sourceMetaItems;
+	$: sourceTree = sourceMetaItems ? createSourceTree(sourceMetaItems) : null;
+	$: console.log('created sourceTree', sourceTree);
+
+	const sourceMetaViews = [
+		SourceMetaRaw,
+		SourceMetaExpander,
+		SourceMetaTable,
+		SourceMetaTreeExplorer,
+	];
+	let activeSourceMetaViewIndex = 1;
+	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
+	const setActiveSourceMetaView = (view) =>
+		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
+
+	const selectedSourceMeta = writable(null);
+	const hoveredSourceMeta = writable(null);
 
 	onMount(async () => {
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
-		const srcMeta = await (await fetch(SOURCE_META_PATH)).json();
-		console.log('srcMeta', srcMeta);
-		sourceMeta = srcMeta;
+		sourceMetaItems = await (await fetch(SOURCE_META_PATH)).json();
+		console.log('sourceMetaItems', sourceMetaItems);
 	});
 
-	let showFilerVisualizer1 = true;
-	let showFilerVisualizer2 = true;
+	let showFilerVisualizer1 = false;
+	let showFilerVisualizer2 = false;
 	let showServerVisualizer = true;
 	let showSourceTreeVisualizer = true;
 	let showBuildTreeVisualizer = true;
@@ -63,11 +83,24 @@
 	</div>
 {/if}
 
+<nav>
+	{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
+		<button
+			on:click={() => setActiveSourceMetaView(sourceMetaView)}
+			class:active={sourceMetaView === activeSourceMetaView}
+		>
+			{sourceMetaView.name}
+		</button>
+	{/each}
+</nav>
 <div class="source-meta">
-	{#if sourceMeta}
-		{#each sourceMeta as sourceMetaData}
-			<SourceMetaDataRaw {sourceMetaData} />
-		{/each}
+	{#if sourceTree}
+		<svelte:component
+			this={activeSourceMetaView}
+			{sourceTree}
+			{selectedSourceMeta}
+			{hoveredSourceMeta}
+		/>
 	{:else}loading...{/if}
 </div>
 
@@ -75,5 +108,8 @@
 	main {
 		background: black;
 		color: darkgoldenrod;
+	}
+	.active {
+		background: transparent;
 	}
 </style>

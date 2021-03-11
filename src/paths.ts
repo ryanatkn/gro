@@ -91,7 +91,7 @@ export const toBuildBasePath = (buildId: string, buildRootDir = paths.build): st
 	for (let i = 0; i < rootPath.length; i++) {
 		if (rootPath[i] === '/') separatorCount++;
 		if (separatorCount === 2) {
-			// `2` to strip the dev/prod directory and the build out directory
+			// `2` to strip the dev/prod directory and the build name directory
 			return rootPath.substring(i + 1);
 		}
 	}

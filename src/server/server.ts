@@ -9,7 +9,7 @@ import {
 } from 'http';
 import {ListenOptions} from 'net';
 
-import {cyan, yellow, gray, red} from '../colors/terminal.js';
+import {cyan, yellow, gray, red, rainbow, green} from '../colors/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
@@ -103,7 +103,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 			await new Promise<void>((resolve, _reject) => {
 				reject = _reject;
 				server.listen(listenOptions, () => {
-					log.trace('listening', listenOptions); // `port` is now its final value
+					log.trace(`${rainbow('listening')} ${green(`${host}:${finalPort}`)}`);
 					resolve();
 				});
 			});
@@ -120,27 +120,14 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
 		// TODO refactor
-		// do we want to look for `/src/` and specially handle?
-		// or do we want to look for a suffix like `/meta` and specially handle?
-		// or
+		// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
 		const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
-		const SOURCE_PATH_PREFIX = 'src/';
 		if (SOURCE_ROOT_MATCHER.test(url)) {
-			console.log('SEND ALL SRC');
 			const headers: OutgoingHttpHeaders = {
 				'Content-Type': 'application/json',
 			};
 			res.writeHead(200, headers);
 			res.end(JSON.stringify(Array.from(filer.getSourceMeta().values())));
-			return;
-		}
-		if (localPath.startsWith(SOURCE_PATH_PREFIX)) {
-			console.log('GOT PATH');
-			const headers: OutgoingHttpHeaders = {
-				'Content-Type': 'application/json',
-			};
-			res.writeHead(200, headers);
-			res.end('{"a":1}');
 			return;
 		}
 

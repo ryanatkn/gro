@@ -864,7 +864,7 @@ export class Filer implements BuildContext {
 			this.creatingExternalsSourceFile ||
 			(this.creatingExternalsSourceFile = (async () => {
 				const id = EXTERNALS_SOURCE_ID;
-				this.log.trace('creating external source file', gray(id));
+				// this.log.trace('creating external source file', gray(id));
 				if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);
 				await this.updateSourceFile(id, filerDir);
 				const sourceFile = this.files.get(id);

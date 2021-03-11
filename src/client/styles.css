@@ -1,0 +1,9 @@
+*,
+*:before,
+*:after {
+	box-sizing: border-box;
+}
+
+code {
+	font-family: monospace, monospace; /* funky hack to prevent it from shrinking */
+}
