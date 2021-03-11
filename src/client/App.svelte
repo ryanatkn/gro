@@ -11,6 +11,7 @@
 	import SourceMetaRaw from './SourceMetaRaw.svelte';
 	import SourceMetaExpander from './SourceMetaExpander.svelte';
 	import SourceMetaTable from './SourceMetaTable.svelte';
+	import SourceMetaBuildsTable from './SourceMetaBuildsTable.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import {createSourceTree} from './sourceTree.js';
 
@@ -25,6 +26,7 @@
 		SourceMetaRaw,
 		SourceMetaExpander,
 		SourceMetaTable,
+		SourceMetaBuildsTable,
 		SourceMetaTreeExplorer,
 	];
 	let activeSourceMetaViewIndex = 1;
@@ -129,7 +131,6 @@
 		--fg_color: #fff;
 
 		background-color: var(--bg_color);
-		color: darkgoldenrod;
 	}
 
 	.active {

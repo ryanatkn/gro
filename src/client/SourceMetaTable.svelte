@@ -10,6 +10,11 @@
 </script>
 
 <table>
+	<thead>
+		<th>source id</th>
+		<th>build name</th>
+		<th>build ids</th>
+	</thead>
 	{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
 		{#each sourceMeta.buildNames as buildName (buildName)}
 			{#if selectedBuildNames.includes(buildName)}

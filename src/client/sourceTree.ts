@@ -1,16 +1,17 @@
 import {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
 
 export interface SourceTree {
-	// children: SourceTreeNode[];
-	meta: SourceTreeMeta[];
-	metaByBuildName: Map<string, SourceTreeMeta[]>;
-	buildsByBuildName: Map<string, SourceMetaBuild[]>;
-	buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
+	// readonly children: SourceTreeNode[];
+	readonly meta: SourceTreeMeta[];
+	readonly metaByBuildName: Map<string, SourceTreeMeta[]>;
+	readonly buildsByBuildName: Map<string, SourceMetaBuild[]>;
+	readonly buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
+	readonly builds: SourceMetaBuild[];
 }
 
 export interface SourceTreeMeta extends SourceMeta {
-	buildsByBuildName: Map<string, SourceMetaBuild[]>;
-	buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
+	readonly buildsByBuildName: Map<string, SourceMetaBuild[]>;
+	readonly buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
 }
 
 // export interface SourceTreeNode {
@@ -21,15 +22,17 @@ export const createSourceTree = (sourceMeta: SourceMeta[]): SourceTree => {
 	const meta = toSourceTreeMeta(
 		sourceMeta.sort((a, b) => (a.data.sourceId > b.data.sourceId ? 1 : -1)),
 	);
+	const builds: SourceMetaBuild[] = [];
 	const buildsByBuildName: Map<string, SourceMetaBuild[]> = new Map();
 	for (const sourceTreeMeta of meta) {
 		for (const sourceMetaBuilds of sourceTreeMeta.buildsByBuildName.values()) {
 			for (const sourceMetaBuild of sourceMetaBuilds) {
-				let builds = buildsByBuildName.get(sourceMetaBuild.name);
-				if (builds === undefined) {
-					buildsByBuildName.set(sourceMetaBuild.name, (builds = []));
-				}
 				builds.push(sourceMetaBuild);
+				let sourceMetaBuilds = buildsByBuildName.get(sourceMetaBuild.name);
+				if (sourceMetaBuilds === undefined) {
+					buildsByBuildName.set(sourceMetaBuild.name, (sourceMetaBuilds = []));
+				}
+				sourceMetaBuilds.push(sourceMetaBuild);
 			}
 		}
 	}
@@ -45,6 +48,7 @@ export const createSourceTree = (sourceMeta: SourceMeta[]): SourceTree => {
 		metaByBuildName,
 		buildsByBuildName,
 		buildNames,
+		builds,
 	};
 };
 
