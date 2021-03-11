@@ -1,5 +1,6 @@
 <script>
 	export let sourceTree;
+	export const selectedBuildNames = undefined;
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 </script>
@@ -9,9 +10,7 @@
 		<tr>
 			<td><button>{sourceMeta.data.sourceId}</button></td>
 			<td>
-				{#if sourceMeta.data.builds}
-					{#each sourceMeta.data.builds as build}<span>{build.name}</span>{/each}
-				{/if}
+				{#each sourceMeta.buildNames as buildName}<span>{buildName}</span>{/each}
 			</td>
 		</tr>
 	{/each}

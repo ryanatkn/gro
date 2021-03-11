@@ -1,5 +1,6 @@
 <script>
 	export let sourceTree;
+	export const selectedBuildNames = undefined;
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 </script>

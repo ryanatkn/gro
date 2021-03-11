@@ -17,8 +17,8 @@
 	console.log('enter App.svelte');
 
 	let sourceMetaItems;
-	$: sourceTree = sourceMetaItems ? createSourceTree(sourceMetaItems) : null;
-	$: console.log('created sourceTree', sourceTree);
+	let sourceTree;
+	let selectedBuildNames = [];
 
 	const sourceMetaViews = [
 		SourceMetaRaw,
@@ -38,6 +38,9 @@
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
 		sourceMetaItems = await (await fetch(SOURCE_META_PATH)).json();
 		console.log('sourceMetaItems', sourceMetaItems);
+		sourceTree = createSourceTree(sourceMetaItems);
+		selectedBuildNames = sourceTree.buildNames;
+		console.log('sourceTree', sourceTree);
 	});
 
 	let showFilerVisualizer1 = false;
@@ -95,11 +98,23 @@
 </nav>
 <div class="source-meta">
 	{#if sourceTree}
+		<form>
+			{#each sourceTree.buildNames as buildName (buildName)}
+				<div>
+					<label>
+						<input type="checkbox" bind:group={selectedBuildNames} value={buildName} />
+						{buildName}
+						({sourceTree.metaByBuildName.get(buildName).length})
+					</label>
+				</div>
+			{/each}
+		</form>
 		<svelte:component
 			this={activeSourceMetaView}
 			{sourceTree}
 			{selectedSourceMeta}
 			{hoveredSourceMeta}
+			{selectedBuildNames}
 		/>
 	{:else}loading...{/if}
 </div>
