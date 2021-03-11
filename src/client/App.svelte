@@ -7,6 +7,7 @@
 	import ServerVisualizer from './ServerVisualizer.svelte';
 	import SourceTreeVisualizer from './SourceTreeVisualizer.svelte';
 	import BuildTreeVisualizer from './BuildTreeVisualizer.svelte';
+	import SourceMeta from './SourceMeta.svelte';
 	import SourceMetaRaw from './SourceMetaRaw.svelte';
 	import SourceMetaExpander from './SourceMetaExpander.svelte';
 	import SourceMetaTable from './SourceMetaTable.svelte';
@@ -43,6 +44,7 @@
 		console.log('sourceTree', sourceTree);
 	});
 
+	let showSourceMeta = true;
 	let showFilerVisualizer1 = false;
 	let showFilerVisualizer2 = false;
 	let showServerVisualizer = true;
@@ -86,38 +88,29 @@
 	</div>
 {/if}
 
-<nav>
-	{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
-		<button
-			on:click={() => setActiveSourceMetaView(sourceMetaView)}
-			class:active={sourceMetaView === activeSourceMetaView}
-		>
-			{sourceMetaView.name}
-		</button>
-	{/each}
-</nav>
-<div class="source-meta">
+{#if showSourceMeta}
+	<nav>
+		<button on:click={() => (showSourceMeta = false)}>🗙</button>
+		{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
+			<button
+				on:click={() => setActiveSourceMetaView(sourceMetaView)}
+				class:active={sourceMetaView === activeSourceMetaView}
+			>
+				{sourceMetaView.name}
+			</button>
+		{/each}
+	</nav>
+
 	{#if sourceTree}
-		<form>
-			{#each sourceTree.buildNames as buildName (buildName)}
-				<div>
-					<label>
-						<input type="checkbox" bind:group={selectedBuildNames} value={buildName} />
-						{buildName}
-						({sourceTree.metaByBuildName.get(buildName).length})
-					</label>
-				</div>
-			{/each}
-		</form>
-		<svelte:component
-			this={activeSourceMetaView}
+		<SourceMeta
 			{sourceTree}
+			{selectedBuildNames}
+			{activeSourceMetaView}
 			{selectedSourceMeta}
 			{hoveredSourceMeta}
-			{selectedBuildNames}
 		/>
 	{:else}loading...{/if}
-</div>
+{:else}<button on:click={() => (showSourceMeta = true)}>show source meta</button>{/if}
 
 <style>
 	main {
