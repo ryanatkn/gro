@@ -20,7 +20,7 @@ export interface SourceMetaData {
 
 export interface SourceMetaBuild {
 	readonly id: string;
-	readonly name: string;
+	readonly name: string; // TODO doesn't feel right, maybe rename to `buildName`
 	readonly dependencies: BuildDependency[] | null;
 	readonly encoding: Encoding;
 }
