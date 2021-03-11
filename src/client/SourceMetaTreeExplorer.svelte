@@ -1,14 +1,18 @@
 <script>
+	import {filterSelectedMetaItems} from './sourceTree.js';
+
 	export let sourceTree;
-	export const selectedBuildNames = undefined;
+	export let selectedBuildNames;
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
+
+	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
 </script>
 
 <div class="explorer">
-	{#each sourceTree.meta as sourceMeta (sourceMeta.cacheId)}
+	{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
 		<div class="node">{sourceMeta.data.sourceId}</div>
-	{/each}
+	{:else}<small><em>no builds selected</em></small>{/each}
 </div>
 
 <style>
