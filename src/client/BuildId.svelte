@@ -15,5 +15,6 @@
 <style>
 	.build-id {
 		color: var(--color_1_text);
+		white-space: nowrap;
 	}
 </style>

@@ -13,5 +13,6 @@
 <style>
 	.source-id {
 		color: var(--color_0_text);
+		white-space: nowrap;
 	}
 </style>

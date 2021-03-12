@@ -37,5 +37,4 @@ button {
 	justify-content: center;
 	align-items: center;
 	padding: 0 var(--spacing_md);
-	min-height: var(--spacing_height_md); /* or rename to `input_height_min` or something? */
 }
