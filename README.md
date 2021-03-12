@@ -15,7 +15,7 @@
 
 ## about
 
-Gro is an opinionated monotool (_kit_ or _metaframework_?) for making webapps.
+Gro is an opinionated monotool (aka _app framework_ or _kit_) for making web apps and other things.
 It includes:
 
 - [unbundled development](/src/docs/unbundled.md)
