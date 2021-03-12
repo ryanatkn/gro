@@ -3,10 +3,9 @@
 
 	export let id;
 
-	// TODO import `paths` directly instead and remove this
-	const rootDir = getContext('rootDir');
+	const ctx = getContext('buildContext');
 
-	$: displayed = id.startsWith($rootDir) ? id.slice($rootDir.length - 1) : id;
+	$: displayed = id.startsWith($ctx.buildDir) ? id.slice($ctx.buildDir.length - 1) : id;
 </script>
 
 <div class="build-id">{displayed}</div>

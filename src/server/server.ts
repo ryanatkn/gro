@@ -122,6 +122,7 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 
 		// TODO refactor
 		// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
+		// also, `src/` is hardcoded below in `paths.source`s
 		const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
 		if (SOURCE_ROOT_MATCHER.test(url)) {
 			const headers: OutgoingHttpHeaders = {
@@ -129,7 +130,14 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 			};
 			res.writeHead(200, headers);
 			res.end(
-				JSON.stringify({rootDir: paths.root, items: Array.from(filer.getSourceMeta().values())}),
+				JSON.stringify({
+					// TODO this is a hacky, not using the filer's dirs for the source,
+					// but that's because it doesn't have a single one, so..?
+					// it's similar to the "// TODO refactor" above - `src/` is hardcoded in.
+					buildDir: filer.buildRootDir,
+					sourceDir: paths.source,
+					items: Array.from(filer.getSourceMeta().values()),
+				}),
 			);
 			return;
 		}

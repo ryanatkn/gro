@@ -20,10 +20,12 @@
 	console.log('enter App.svelte');
 
 	let sourceMetaItems;
-	const rootDir = writable();
-	setContext('rootDir', rootDir);
 	let sourceTree;
 	let selectedBuildNames = [];
+
+	// TODO refactor (at minimum, use an imported context key)
+	const buildContext = writable();
+	setContext('buildContext', buildContext);
 
 	const sourceMetaViews = [
 		SourceMetaRaw,
@@ -45,8 +47,8 @@
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
 		const result = await (await fetch(SOURCE_META_PATH)).json();
 		sourceMetaItems = result.items;
-		$rootDir = result.rootDir; // TODO import paths instead, probably
-		console.log('rootDir', $rootDir);
+		$buildContext = {buildDir: result.buildDir, sourceDir: result.sourceDir};
+		console.log('buildContext', $buildContext);
 		console.log('sourceMetaItems', sourceMetaItems);
 		sourceTree = createSourceTree(sourceMetaItems);
 		selectedBuildNames = sourceTree.buildNames;
