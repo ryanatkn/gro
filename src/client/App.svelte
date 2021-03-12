@@ -17,9 +17,9 @@
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import {createSourceTree} from './sourceTree.js';
 
-	export let name;
 	console.log('enter App.svelte');
 
+	let packageJson;
 	let sourceMetaItems;
 	let sourceTree;
 	let selectedBuildNames = [];
@@ -47,10 +47,10 @@
 	onMount(async () => {
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
 		const result = await (await fetch(SOURCE_META_PATH)).json();
+		console.log('fetch result', result);
+		packageJson = result.packageJson;
 		sourceMetaItems = result.items;
 		$buildContext = {buildDir: result.buildDir, sourceDir: result.sourceDir};
-		console.log('buildContext', $buildContext);
-		console.log('sourceMetaItems', sourceMetaItems);
 		sourceTree = createSourceTree(sourceMetaItems);
 		selectedBuildNames = sourceTree.buildNames;
 		console.log('sourceTree', sourceTree);
@@ -60,101 +60,105 @@
 	let showFilerVisualizer1 = false;
 	let showFilerVisualizer2 = false;
 	let showServerVisualizer = true;
-	let showSourceTreeVisualizer = true;
-	let showBuildTreeVisualizer = true;
+	let showSourceTreeVisualizer = false;
+	let showBuildTreeVisualizer = false;
 </script>
 
 <div class="app">
-	<section>
-		<header>
-			<span class="logo"> {name} </span>
-			<nav>
-				{#if !showFilerVisualizer1}
-					<!-- server filer visualizer -->
-					<button on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}>
+	{#if sourceTree}
+		<section>
+			<header>
+				<span class="logo">
+					{#if packageJson.homepage}
+						<a href={packageJson.homepage}>{packageJson.name}</a>
+					{:else}{packageJson.name}{/if}
+				</span>
+				<nav>
+					{#if !showFilerVisualizer1}
+						<!-- server filer visualizer -->
+						<button on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}>
 						FilerVisualizer (server)
 					</button>
-				{/if}
-				{#if !showFilerVisualizer2}
-					<!-- client example filer visualizer -->
-					<button on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}>
+					{/if}
+					{#if !showFilerVisualizer2}
+						<!-- client example filer visualizer -->
+						<button on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}>
 						FilerVisualizer (client)
 					</button>
-				{/if}
-				{#if !showServerVisualizer}
-					<!-- gro dev server filer visualizer -->
-					<button on:pointerdown={() => (showServerVisualizer = !showServerVisualizer)}>
+					{/if}
+					{#if !showServerVisualizer}
+						<!-- gro dev server filer visualizer -->
+						<button on:pointerdown={() => (showServerVisualizer = !showServerVisualizer)}>
 						ServerVisualizer
 					</button>
-				{/if}
-				{#if !showSourceTreeVisualizer}
-					<!-- source tree visualizer -->
-					<button on:pointerdown={() => (showSourceTreeVisualizer = !showSourceTreeVisualizer)}>
+					{/if}
+					{#if !showSourceTreeVisualizer}
+						<!-- source tree visualizer -->
+						<button on:pointerdown={() => (showSourceTreeVisualizer = !showSourceTreeVisualizer)}>
 					SourceTreeVisualizer
 				</button>
-				{/if}
-				{#if !showBuildTreeVisualizer}
-					<!-- build tree visualizer -->
-					<button on:pointerdown={() => (showBuildTreeVisualizer = !showBuildTreeVisualizer)}>
+					{/if}
+					{#if !showBuildTreeVisualizer}
+						<!-- build tree visualizer -->
+						<button on:pointerdown={() => (showBuildTreeVisualizer = !showBuildTreeVisualizer)}>
 						BuildTreeVisualizer
 					</button>
-				{/if}
-			</nav>
-		</header>
-	</section>
+					{/if}
+				</nav>
+			</header>
+		</section>
 
-	{#if showFilerVisualizer1}
-		<section transition:slide>
-			<button on:pointerdown={() => (showFilerVisualizer1 = false)}>🗙</button>
-			<ViewName view={FilerVisualizer} />
-			<FilerVisualizer name="server" />
-		</section>
-	{/if}
-	{#if showFilerVisualizer2}
-		<section transition:slide>
-			<button on:pointerdown={() => (showFilerVisualizer2 = false)}>🗙</button>
-			<ViewName view={FilerVisualizer} />
-			<FilerVisualizer name="client example" />
-		</section>
-	{/if}
-	{#if showServerVisualizer}
-		<section transition:slide>
-			<button on:pointerdown={() => (showServerVisualizer = false)}>🗙</button>
-			<ViewName view={ServerVisualizer} />
-			<ServerVisualizer name="gro dev server" />
-		</section>
-	{/if}
-	{#if showSourceTreeVisualizer}
-		<section transition:slide>
-			<button on:pointerdown={() => (showSourceTreeVisualizer = false)}>🗙</button>
-			<ViewName view={SourceTreeVisualizer} />
-			<SourceTreeVisualizer name="source tree" />
-		</section>
-	{/if}
-	{#if showBuildTreeVisualizer}
-		<section transition:slide>
-			<button on:pointerdown={() => (showBuildTreeVisualizer = false)}>🗙</button>
-			<ViewName view={BuildTreeVisualizer} />
-			<BuildTreeVisualizer name="build tree" />
-		</section>
-	{/if}
+		{#if showFilerVisualizer1}
+			<section transition:slide>
+				<button on:pointerdown={() => (showFilerVisualizer1 = false)}>🗙</button>
+				<ViewName view={FilerVisualizer} />
+				<FilerVisualizer name="server" />
+			</section>
+		{/if}
+		{#if showFilerVisualizer2}
+			<section transition:slide>
+				<button on:pointerdown={() => (showFilerVisualizer2 = false)}>🗙</button>
+				<ViewName view={FilerVisualizer} />
+				<FilerVisualizer name="client example" />
+			</section>
+		{/if}
+		{#if showServerVisualizer}
+			<section transition:slide>
+				<button on:pointerdown={() => (showServerVisualizer = false)}>🗙</button>
+				<ViewName view={ServerVisualizer} />
+				<ServerVisualizer name="gro dev server" />
+			</section>
+		{/if}
+		{#if showSourceTreeVisualizer}
+			<section transition:slide>
+				<button on:pointerdown={() => (showSourceTreeVisualizer = false)}>🗙</button>
+				<ViewName view={SourceTreeVisualizer} />
+				<SourceTreeVisualizer name="source tree" />
+			</section>
+		{/if}
+		{#if showBuildTreeVisualizer}
+			<section transition:slide>
+				<button on:pointerdown={() => (showBuildTreeVisualizer = false)}>🗙</button>
+				<ViewName view={BuildTreeVisualizer} />
+				<BuildTreeVisualizer name="build tree" />
+			</section>
+		{/if}
 
-	<section transition:slide>
-		{#if showSourceMeta}
-			<nav>
-				<button on:pointerdown={() => (showSourceMeta = false)}>🗙</button>
-				{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
-					<button
-						on:pointerdown={() => setActiveSourceMetaView(sourceMetaView)}
-						class:active={sourceMetaView === activeSourceMetaView}
-						disabled={sourceMetaView === activeSourceMetaView}
-					>
-						{sourceMetaView.name}
-					</button>
-				{/each}
-			</nav>
+		<section transition:slide>
+			{#if showSourceMeta}
+				<nav>
+					<button on:pointerdown={() => (showSourceMeta = false)}>🗙</button>
+					{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
+						<button
+							on:pointerdown={() => setActiveSourceMetaView(sourceMetaView)}
+							class:active={sourceMetaView === activeSourceMetaView}
+							disabled={sourceMetaView === activeSourceMetaView}
+						>
+							{sourceMetaView.name}
+						</button>
+					{/each}
+				</nav>
 
-			{#if sourceTree}
 				<SourceMeta
 					{sourceTree}
 					{selectedBuildNames}
@@ -162,9 +166,9 @@
 					{selectedSourceMeta}
 					{hoveredSourceMeta}
 				/>
-			{:else}loading...{/if}
-		{:else}<button on:pointerdown={() => (showSourceMeta = true)}>show source meta</button>{/if}
-	</section>
+			{:else}<button on:pointerdown={() => (showSourceMeta = true)}>show source meta</button>{/if}
+		</section>
+	{:else}loading...{/if}
 </div>
 
 <style>

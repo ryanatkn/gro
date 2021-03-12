@@ -22,6 +22,7 @@ import {
 	getFileContentsHash,
 } from '../build/baseFilerFile.js';
 import {paths} from '../paths.js';
+import {loadPackageJson} from '../project/packageJson.js';
 
 export interface DevServer {
 	readonly server: Server;
@@ -138,6 +139,8 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 					buildDir: filer.buildDir,
 					sourceDir: paths.source, // TODO see above
 					items: Array.from(filer.getSourceMeta().values()),
+					// TODO should this be imported/replaced at buildtime instead of loading/sending like thie?
+					packageJson: await loadPackageJson(),
 				}),
 			);
 			return;
