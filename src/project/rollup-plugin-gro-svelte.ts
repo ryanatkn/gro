@@ -5,7 +5,7 @@ import {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
 import {magenta, red} from '../colors/terminal.js';
-import {getPathStem} from '../utils/path.js';
+import {toPathStem} from '../utils/path.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import {GroCssBuild} from './types.js';
@@ -105,7 +105,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 					dev,
 					...compileOptions,
 					filename: id,
-					name: getPathStem(id),
+					name: toPathStem(id),
 				});
 			} catch (err) {
 				log.error(red('Failed to compile Svelte'), printPath(id));
