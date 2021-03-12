@@ -65,18 +65,22 @@
 
 <div class="app">
 	<section>
-		{name}
-		<button
-			on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}
-		>{#if showFilerVisualizer1}
-				hide server filer visualizer
-			{:else}show server filer visualizer{/if}</button>
+		<header>
+			<span class="logo"> {name} </span>
+			<nav>
+				<button
+					on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}
+				>{#if showFilerVisualizer1}
+						hide server filer visualizer
+					{:else}show server filer visualizer{/if}</button>
 
-		<button
-			on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}
-		>{#if showFilerVisualizer2}
-				hide client example filer visualizer
-			{:else}show client example filer visualizer{/if}</button>
+				<button
+					on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}
+				>{#if showFilerVisualizer2}
+						hide client example filer visualizer
+					{:else}show client example filer visualizer{/if}</button>
+			</nav>
+		</header>
 	</section>
 
 	{#if showFilerVisualizer1}
@@ -148,6 +152,7 @@
 		--color_2_text: #5f4c34;
 		--spacing_sm: 5px;
 		--spacing_md: 10px;
+		--spacing_height_md: 24px;
 
 		height: 100%;
 		overflow-y: scroll; /* for Windows behavior */
@@ -158,6 +163,20 @@
 
 	.active {
 		background: transparent;
+	}
+
+	header {
+		display: flex;
+		align-items: center;
+	}
+
+	.logo {
+		padding-right: var(--spacing_sm);
+	}
+
+	nav {
+		display: flex;
+		align-items: center;
 	}
 
 	section {
