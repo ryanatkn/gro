@@ -85,9 +85,9 @@ export const toImportMapPath = (dest: string): string => `${dest}/import-map.jso
 export const updateImportMapOnDisk = async (
 	importMap: ImportMap,
 	buildConfig: BuildConfig,
-	{dev, buildRootDir, log}: BuildContext,
+	{dev, buildDir, log}: BuildContext,
 ): Promise<void> => {
-	const dest = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildRootDir);
+	const dest = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildDir);
 	const importMapPath = toImportMapPath(dest);
 	// TODO `outputJson`? hmm
 	log.trace(`writing import map to ${gray(importMapPath)}`);
@@ -141,6 +141,6 @@ export const isExternalBuildId = (
 ): boolean =>
 	buildConfig.platform === 'browser'
 		? id.startsWith(
-				toBuildOutPath(ctx.dev, buildConfig.name, EXTERNALS_BUILD_DIR, ctx.buildRootDir) + '/',
+				toBuildOutPath(ctx.dev, buildConfig.name, EXTERNALS_BUILD_DIR, ctx.buildDir) + '/',
 		  )
 		: false;

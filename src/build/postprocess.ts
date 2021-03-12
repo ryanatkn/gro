@@ -54,7 +54,7 @@ export const postprocess = (
 					if (isBrowser) {
 						buildId = join(build.dir, specifier);
 						// map internal externals imports to absolute paths, so we get stable ids
-						finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildRootDir)}${
+						finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildDir)}${
 							finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 						}`;
 					} else {
@@ -73,7 +73,7 @@ export const postprocess = (
 							ctx.dev,
 							buildConfig.name,
 							mappedSpecifier.substring(1),
-							ctx.buildRootDir,
+							ctx.buildDir,
 						);
 					} else {
 						buildId = mappedSpecifier;

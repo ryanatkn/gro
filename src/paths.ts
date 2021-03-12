@@ -70,8 +70,8 @@ export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => `${p.source}${basePath}`;
 
-export const toBuildsOutDir = (dev: boolean, buildRootDir = paths.build): string =>
-	`${ensureTrailingSlash(buildRootDir)}${dev ? 'dev' : 'prod'}`;
+export const toBuildsOutDir = (dev: boolean, buildDir = paths.build): string =>
+	`${ensureTrailingSlash(buildDir)}${dev ? 'dev' : 'prod'}`;
 // TODO this is only needed because of how we added `/` to all directories above
 // fix those and remove this!
 function ensureTrailingSlash(s: string): string {
@@ -82,16 +82,16 @@ export const toBuildOutPath = (
 	dev: boolean,
 	buildConfigName: string,
 	basePath = '',
-	buildRootDir = paths.build,
-): string => `${toBuildsOutDir(dev, buildRootDir)}/${buildConfigName}/${basePath}`;
+	buildDir = paths.build,
+): string => `${toBuildsOutDir(dev, buildDir)}/${buildConfigName}/${basePath}`;
 
-export const toBuildBasePath = (buildId: string, buildRootDir = paths.build): string => {
-	const rootPath = stripStart(buildId, buildRootDir);
+export const toBuildBasePath = (buildId: string, buildDir = paths.build): string => {
+	const rootPath = stripStart(buildId, buildDir);
 	let separatorCount = 0;
 	for (let i = 0; i < rootPath.length; i++) {
 		if (rootPath[i] === '/') separatorCount++;
 		if (separatorCount === 2) {
-			// `2` to strip the dev/prod directory and the build out directory
+			// `2` to strip the dev/prod directory and the build name directory
 			return rootPath.substring(i + 1);
 		}
 	}

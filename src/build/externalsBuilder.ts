@@ -61,7 +61,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, sourceMap, target, state},
+		{buildDir, dev, sourceMap, target, state},
 	) => {
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -76,7 +76,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		const builderState = getExternalsBuilderState(state);
 		const buildState = getExternalsBuildState(builderState, buildConfig);
 
-		const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+		const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildDir);
 
 		log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
@@ -138,7 +138,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	};
 
 	const init: ExternalsBuilder['init'] = async (
-		{state, dev, buildRootDir}: BuildContext,
+		{state, dev, buildDir}: BuildContext,
 		buildConfigs: BuildConfig[],
 	): Promise<void> => {
 		// initialize the externals builder state, which is stored on the `BuildContext` (the filer)
@@ -148,7 +148,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			buildConfigs.map(async (buildConfig) => {
 				if (buildConfig.platform !== 'browser') return;
 				const buildState = initExternalsBuildState(builderState, buildConfig);
-				const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildRootDir);
+				const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildDir);
 				const importMap = await loadImportMapFromDisk(dest);
 				if (importMap !== undefined) {
 					buildState.importMap = importMap;

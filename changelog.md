@@ -32,6 +32,8 @@
   ([#70](https://github.com/feltcoop/gro/pull/70))
 - replace deep equality helpers with `dequal`
   ([#73](https://github.com/feltcoop/gro/pull/73))
+- add a basic client to view project data
+  ([#86](https://github.com/feltcoop/gro/pull/86))
 - add server caching
   ([#77](https://github.com/feltcoop/gro/pull/77))
 

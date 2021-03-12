@@ -9,7 +9,7 @@ import {
 } from 'http';
 import {ListenOptions} from 'net';
 
-import {cyan, yellow, gray, red} from '../colors/terminal.js';
+import {cyan, yellow, gray, red, rainbow, green} from '../colors/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
@@ -21,6 +21,7 @@ import {
 	getFileStats,
 	getFileContentsHash,
 } from '../build/baseFilerFile.js';
+import {paths} from '../paths.js';
 
 export interface DevServer {
 	readonly server: Server;
@@ -103,7 +104,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 			await new Promise<void>((resolve, _reject) => {
 				reject = _reject;
 				server.listen(listenOptions, () => {
-					log.trace('listening', listenOptions); // `port` is now its final value
+					log.trace(`${rainbow('listening')} ${green(`${host}:${finalPort}`)}`);
 					resolve();
 				});
 			});
@@ -119,6 +120,30 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		const localPath = toLocalPath(url);
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
+		// TODO refactor
+		// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
+		// also, `src/` is hardcoded below in `paths.source`s
+		const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
+		if (SOURCE_ROOT_MATCHER.test(url)) {
+			const headers: OutgoingHttpHeaders = {
+				'Content-Type': 'application/json',
+			};
+			res.writeHead(200, headers);
+			res.end(
+				JSON.stringify({
+					// TODO this is a hacky, not using the filer's dirs for the source,
+					// but that's because it doesn't have a single one, so..?
+					// it's similar to the "// TODO refactor" above - `src/` is hardcoded in.
+					// The client needs it for now but it needs to be rethought.
+					buildDir: filer.buildDir,
+					sourceDir: paths.source, // TODO see above
+					items: Array.from(filer.getSourceMeta().values()),
+				}),
+			);
+			return;
+		}
+
+		// search for a file with this path
 		let file = await filer.findByPath(localPath);
 		if (!file) {
 			// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
@@ -145,9 +170,9 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 
 const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
 
+// TODO need to rethink this
 const toLocalPath = (url: string): string => {
 	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
-	// This avoids making a second file query when we know the path is a directory.
 	const relativePath =
 		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
 	return relativePath;

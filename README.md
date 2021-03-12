@@ -15,7 +15,8 @@
 
 ## about
 
-Gro is an opinionated monotool (_kit_ or _metaframework_?) for making webapps.
+Gro is an opinionated monotool (aka _app framework_ or _kit_)
+for making web apps, libraries, and servers.
 It includes:
 
 - [unbundled development](/src/docs/unbundled.md)
@@ -126,7 +127,7 @@ npm run bootstrap # builds and links `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
 # development
-gro dev # build in watch mode
+gro dev # starts dev server in watch mode
 gro project/dist # update the `gro` CLI
 
 # release

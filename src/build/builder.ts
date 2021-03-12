@@ -31,7 +31,7 @@ export interface BuildResult<TBuild extends Build = Build> {
 
 export interface BuildContext {
 	readonly log: Logger;
-	readonly buildRootDir: string;
+	readonly buildDir: string;
 	readonly dev: boolean;
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget;
@@ -81,9 +81,9 @@ interface BaseBuildSource {
 }
 
 export const noopBuilder: Builder = {
-	build: (source, buildConfig, {buildRootDir, dev}) => {
+	build: (source, buildConfig, {buildDir, dev}) => {
 		const {filename, extension} = source;
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
+		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
 		const id = `${outDir}${filename}`;
 		let file: Build;
 		switch (source.encoding) {

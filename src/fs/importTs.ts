@@ -48,7 +48,7 @@ export const importTs = async (
 
 	const ctx: BuildContext = {
 		log: new SystemLogger([cyan('[importTs]')]),
-		buildRootDir: tempDir,
+		buildDir: tempDir,
 		dev: true,
 		sourceMap: false,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
