@@ -43,7 +43,7 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 	const build: SwcBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, sourceMap, target},
+		{buildDir, dev, sourceMap, target},
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
@@ -52,7 +52,7 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
+		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
 		const swcOptions = getSwcOptions(sourceMap, target);
 		const finalSwcOptions = {...swcOptions, filename: relative(outDir, id)};
 		const output = await swc.transform(contents, finalSwcOptions);

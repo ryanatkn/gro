@@ -135,10 +135,8 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 					// but that's because it doesn't have a single one, so..?
 					// it's similar to the "// TODO refactor" above - `src/` is hardcoded in.
 					// The client needs it for now but it needs to be rethought.
-					// We're renaming `buildRootDir` to `buildDir` to reflect that this is
-					// not the same `BuildContext` that the Filer and builders use. It's..special for now.
-					buildDir: filer.buildRootDir,
-					sourceDir: paths.source,
+					buildDir: filer.buildDir,
+					sourceDir: paths.source, // TODO see above
 					items: Array.from(filer.getSourceMeta().values()),
 				}),
 			);

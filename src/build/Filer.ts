@@ -47,7 +47,7 @@ import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} fro
 
 The `Filer` is at the heart of the build system.
 
-The `Filer` wholly owns its `buildRootDir`, `./.gro` by default.
+The `Filer` wholly owns its `buildDir`, `./.gro` by default.
 If any files or directories change inside it without going through the `Filer`,
 it may go into a corrupted state.
 Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
@@ -67,7 +67,7 @@ export interface Options {
 	sourceDirs: string[];
 	servedDirs: ServedDir[];
 	buildConfigs: BuildConfig[] | null;
-	buildRootDir: string;
+	buildDir: string;
 	mapDependencyToSourceId: MapDependencyToSourceId;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
@@ -88,7 +88,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 				' Omit the value or provide `null` if this was intended.',
 		);
 	}
-	const buildRootDir = opts.buildRootDir || paths.build; // TODO assumes trailing slash
+	const buildDir = opts.buildDir || paths.build; // TODO assumes trailing slash
 	const sourceDirs = opts.sourceDirs ? opts.sourceDirs.map((d) => resolve(d)) : [];
 	validateDirs(sourceDirs);
 	const servedDirs = toServedDirs(
@@ -105,7 +105,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 								buildConfigs.find((c) => c.primary)!
 							).name,
 							'',
-							buildRootDir,
+							buildDir,
 						),
 				  ]),
 	);
@@ -136,7 +136,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		sourceDirs,
 		servedDirs,
 		buildConfigs,
-		buildRootDir,
+		buildDir,
 	};
 };
 
@@ -155,7 +155,7 @@ export class Filer implements BuildContext {
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
 	readonly log: Logger;
-	readonly buildRootDir: string;
+	readonly buildDir: string;
 	readonly dev: boolean;
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
@@ -168,7 +168,7 @@ export class Filer implements BuildContext {
 			dev,
 			builder,
 			buildConfigs,
-			buildRootDir,
+			buildDir,
 			mapDependencyToSourceId,
 			sourceDirs,
 			servedDirs,
@@ -180,7 +180,7 @@ export class Filer implements BuildContext {
 		} = initOptions(opts);
 		this.dev = dev;
 		this.buildConfigs = buildConfigs;
-		this.buildRootDir = buildRootDir;
+		this.buildDir = buildDir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
 		this.sourceMap = sourceMap;
 		this.target = target;
@@ -189,7 +189,7 @@ export class Filer implements BuildContext {
 			sourceDirs,
 			servedDirs,
 			builder,
-			buildRootDir,
+			buildDir,
 			this.onDirChange,
 			watch,
 			watcherDebounce,
@@ -449,7 +449,7 @@ export class Filer implements BuildContext {
 						// and looking up the correct build configs.
 						await Promise.all(
 							this.buildConfigs.map((buildConfig) =>
-								remove(toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildRootDir)),
+								remove(toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildDir)),
 							),
 						);
 					}
@@ -742,7 +742,7 @@ export class Filer implements BuildContext {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
 				if (!addedDependency.external && isExternalBrowserModule(addedDependency.buildId)) continue;
-				const addedSourceId = this.mapDependencyToSourceId(addedDependency, this.buildRootDir);
+				const addedSourceId = this.mapDependencyToSourceId(addedDependency, this.buildDir);
 				// ignore dependencies on self - happens with common externals
 				if (addedSourceId === sourceFile.id) continue;
 				let addedSourceFile = this.files.get(addedSourceId);
@@ -781,7 +781,7 @@ export class Filer implements BuildContext {
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
-				const removedSourceId = this.mapDependencyToSourceId(removedDependency, this.buildRootDir);
+				const removedSourceId = this.mapDependencyToSourceId(removedDependency, this.buildDir);
 				// ignore dependencies on self - happens with common externals
 				if (removedSourceId === sourceFile.id) continue;
 				const removedSourceFile = this.files.get(removedSourceId);
@@ -1068,7 +1068,7 @@ const createFilerDirs = (
 	sourceDirs: string[],
 	servedDirs: ServedDir[],
 	builder: Builder | null,
-	buildRootDir: string,
+	buildDir: string,
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
@@ -1087,7 +1087,7 @@ const createFilerDirs = (
 			// so I think you add `{dir} + '/'` to both?
 			!sourceDirs.find((d) => servedDir.dir.startsWith(d)) &&
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
-			!servedDir.dir.startsWith(buildRootDir)
+			!servedDir.dir.startsWith(buildDir)
 		) {
 			dirs.push(createFilerDir(servedDir.dir, null, onChange, watch, watcherDebounce));
 		}

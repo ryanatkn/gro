@@ -26,20 +26,19 @@ export interface SourceMetaBuild {
 }
 
 const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`
-export const toSourceMetaDir = (buildRootDir: string): string =>
-	`${buildRootDir}${CACHED_SOURCE_INFO_DIR}`;
+export const toSourceMetaDir = (buildDir: string): string => `${buildDir}${CACHED_SOURCE_INFO_DIR}`;
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
 export const updateSourceMeta = async (
 	sourceMetaBySourceId: Map<string, SourceMeta>,
 	file: BuildableSourceFile,
-	{buildRootDir}: BuildContext,
+	{buildDir}: BuildContext,
 ): Promise<void> => {
 	if (file.buildConfigs.size === 0) {
 		return deleteSourceMeta(sourceMetaBySourceId, file.id);
 	}
-	const cacheId = toSourceMetaId(file, buildRootDir);
+	const cacheId = toSourceMetaId(file, buildDir);
 	const data: SourceMetaData = {
 		sourceId: file.id,
 		contentsHash: getFileContentsHash(file),
@@ -82,14 +81,14 @@ export const deleteSourceMeta = async (
 	return remove(info.cacheId);
 };
 
-const toSourceMetaId = (file: BuildableSourceFile, buildRootDir: string): string =>
-	`${buildRootDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
+const toSourceMetaId = (file: BuildableSourceFile, buildDir: string): string =>
+	`${buildDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 export const initSourceMeta = async (
 	sourceMetaBySourceId: Map<string, SourceMeta>,
-	{buildRootDir}: BuildContext,
+	{buildDir}: BuildContext,
 ): Promise<void> => {
-	const sourceMetaDir = toSourceMetaDir(buildRootDir);
+	const sourceMetaDir = toSourceMetaDir(buildDir);
 	if (!(await pathExists(sourceMetaDir))) return;
 	const files = await findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(

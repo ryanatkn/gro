@@ -23,12 +23,12 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 };
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, buildRootDir: string): string;
+	(dependency: BuildDependency, buildDir: string): string;
 }
 
 // TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
-export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildRootDir) => {
-	const basePath = toBuildBasePath(dependency.buildId, buildRootDir);
+export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildDir) => {
+	const basePath = toBuildBasePath(dependency.buildId, buildDir);
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;
 	} else {

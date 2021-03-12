@@ -69,7 +69,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 	const build: SvelteBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildRootDir, dev, sourceMap, target},
+		{buildDir, dev, sourceMap, target},
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
@@ -78,7 +78,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildRootDir);
+		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps
