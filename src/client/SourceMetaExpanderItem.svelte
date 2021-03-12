@@ -42,10 +42,18 @@
 
 <div class="summary" class:deemphasized class:emphasized>
 	<div class="dep">
-		{#if activeIsDependency}↤{/if}
+		{#if activeIsDependency}
+			<span
+				title="{sourceMeta.data.sourceId} has a dependency on {activeSourceMeta.data.sourceId}"
+			>↤</span>
+		{/if}
 	</div>
 	<div class="dep">
-		{#if activeIsDependent}↦{/if}
+		{#if activeIsDependent}
+			<span
+				title="{sourceMeta.data.sourceId} is a dependency of {activeSourceMeta.data.sourceId}"
+			>↦</span>
+		{/if}
 	</div>
 	<button
 		on:pointerdown={onPointerDown}
