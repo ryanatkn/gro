@@ -21,6 +21,7 @@ import {
 	getFileStats,
 	getFileContentsHash,
 } from '../build/baseFilerFile.js';
+import {paths} from '../paths.js';
 
 export interface DevServer {
 	readonly server: Server;
@@ -127,7 +128,9 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 				'Content-Type': 'application/json',
 			};
 			res.writeHead(200, headers);
-			res.end(JSON.stringify(Array.from(filer.getSourceMeta().values())));
+			res.end(
+				JSON.stringify({rootDir: paths.root, items: Array.from(filer.getSourceMeta().values())}),
+			);
 			return;
 		}
 

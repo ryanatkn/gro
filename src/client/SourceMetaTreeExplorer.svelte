@@ -1,5 +1,6 @@
 <script>
 	import {filterSelectedMetaItems} from './sourceTree.js';
+	import SourceId from './SourceId.svelte';
 
 	export let sourceTree;
 	export let selectedBuildNames;
@@ -11,7 +12,9 @@
 
 <div class="explorer">
 	{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
-		<div class="node">{sourceMeta.data.sourceId}</div>
+		<div class="node">
+			<SourceId id={sourceMeta.data.sourceId} />
+		</div>
 	{:else}<small><em>no builds selected</em></small>{/each}
 </div>
 

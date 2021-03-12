@@ -1,4 +1,6 @@
 <script>
+	import SourceId from './SourceId.svelte';
+
 	export let sourceMeta;
 	export let selectedSourceMeta;
 	export let hoveredSourceMeta;
@@ -10,10 +12,13 @@
 	$: hovered = sourceMeta === $hoveredSourceMeta;
 	$: selected = sourceMeta === $selectedSourceMeta;
 
-	const onPointerEnter = (e) => {
+	const onPointerDown = () => {
+		$selectedSourceMeta = selected ? null : sourceMeta;
+	};
+	const onPointerEnter = () => {
 		$hoveredSourceMeta = sourceMeta;
 	};
-	const onPointerLeave = (e) => {
+	const onPointerLeave = () => {
 		if ($hoveredSourceMeta === sourceMeta) $hoveredSourceMeta = null;
 	};
 
@@ -43,13 +48,13 @@
 		{#if activeIsDependent}↦{/if}
 	</div>
 	<button
-		on:click={() => ($selectedSourceMeta = sourceMeta)}
+		on:pointerdown={onPointerDown}
 		on:pointerenter={onPointerEnter}
 		on:pointerleave={onPointerLeave}
 		class:hovered
 		class:selected
 	>
-		{sourceMeta.data.sourceId}
+		<SourceId id={sourceMeta.data.sourceId} />
 	</button>
 </div>
 

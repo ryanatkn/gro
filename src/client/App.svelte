@@ -1,6 +1,6 @@
 <script>
-	import {onMount} from 'svelte';
-	import {fade} from 'svelte/transition';
+	import {onMount, setContext} from 'svelte';
+	import {slide} from 'svelte/transition';
 	import {writable} from 'svelte/store';
 
 	import FilerVisualizer from './FilerVisualizer.svelte';
@@ -12,6 +12,7 @@
 	import SourceMetaExpander from './SourceMetaExpander.svelte';
 	import SourceMetaTable from './SourceMetaTable.svelte';
 	import SourceMetaBuildsTable from './SourceMetaBuildsTable.svelte';
+	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import {createSourceTree} from './sourceTree.js';
 
@@ -19,6 +20,8 @@
 	console.log('enter App.svelte');
 
 	let sourceMetaItems;
+	const rootDir = writable();
+	setContext('rootDir', rootDir);
 	let sourceTree;
 	let selectedBuildNames = [];
 
@@ -27,9 +30,10 @@
 		SourceMetaExpander,
 		SourceMetaTable,
 		SourceMetaBuildsTable,
+		SourceMetaBuildTree,
 		SourceMetaTreeExplorer,
 	];
-	let activeSourceMetaViewIndex = 1;
+	let activeSourceMetaViewIndex = 4;
 	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
 	const setActiveSourceMetaView = (view) =>
 		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
@@ -39,7 +43,10 @@
 
 	onMount(async () => {
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
-		sourceMetaItems = await (await fetch(SOURCE_META_PATH)).json();
+		const result = await (await fetch(SOURCE_META_PATH)).json();
+		sourceMetaItems = result.items;
+		$rootDir = result.rootDir; // TODO import paths instead, probably
+		console.log('rootDir', $rootDir);
 		console.log('sourceMetaItems', sourceMetaItems);
 		sourceTree = createSourceTree(sourceMetaItems);
 		selectedBuildNames = sourceTree.buildNames;
@@ -54,55 +61,55 @@
 	let showBuildTreeVisualizer = true;
 </script>
 
-<main>
-	<div class="pane">
+<div class="app">
+	<section>
 		{name}
 		<button
-			on:click={() => (showFilerVisualizer1 = !showFilerVisualizer1)}
+			on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}
 		>{#if showFilerVisualizer1}
 				hide server filer visualizer
 			{:else}show server filer visualizer{/if}</button>
 
 		<button
-			on:click={() => (showFilerVisualizer2 = !showFilerVisualizer2)}
+			on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}
 		>{#if showFilerVisualizer2}
 				hide client example filer visualizer
 			{:else}show client example filer visualizer{/if}</button>
-	</div>
+	</section>
 
 	{#if showFilerVisualizer1}
-		<div class="pane" in:fade>
+		<section transition:slide>
 			<FilerVisualizer name="server" />
-		</div>
+		</section>
 	{/if}
 	{#if showFilerVisualizer2}
-		<div class="pane" in:fade>
+		<section transition:slide>
 			<FilerVisualizer name="client example" />
-		</div>
+		</section>
 	{/if}
 	{#if showServerVisualizer}
-		<div class="pane" in:fade>
+		<section transition:slide>
 			<ServerVisualizer name="gro dev server" />
-		</div>
+		</section>
 	{/if}
 	{#if showSourceTreeVisualizer}
-		<div class="pane" in:fade>
+		<section transition:slide>
 			<SourceTreeVisualizer name="source tree" />
-		</div>
+		</section>
 	{/if}
 	{#if showBuildTreeVisualizer}
-		<div class="pane" in:fade>
+		<section transition:slide>
 			<BuildTreeVisualizer name="build tree" />
-		</div>
+		</section>
 	{/if}
 
-	<div class="pane" in:fade>
+	<section transition:slide>
 		{#if showSourceMeta}
 			<nav>
-				<button on:click={() => (showSourceMeta = false)}>🗙</button>
+				<button on:pointerdown={() => (showSourceMeta = false)}>🗙</button>
 				{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
 					<button
-						on:click={() => setActiveSourceMetaView(sourceMetaView)}
+						on:pointerdown={() => setActiveSourceMetaView(sourceMetaView)}
 						class:active={sourceMetaView === activeSourceMetaView}
 						disabled={sourceMetaView === activeSourceMetaView}
 					>
@@ -120,28 +127,41 @@
 					{hoveredSourceMeta}
 				/>
 			{:else}loading...{/if}
-		{:else}<button on:click={() => (showSourceMeta = true)}>show source meta</button>{/if}
-	</div>
-</main>
+		{:else}<button on:pointerdown={() => (showSourceMeta = true)}>show source meta</button>{/if}
+	</section>
+</div>
 
 <style>
-	main {
+	.app {
 		/* TODO */
-		--bg_color: #fff;
-		--fg_color: #fff;
+		--color_bg: rgb(210, 219, 209);
+		--color_fg: #fff;
+		--color_bg_layer: rgba(1, 0, 0, 0.13);
+		--color_text: rgb(11, 3, 3);
+		--color_0: #40a060;
+		--color_1: #495499;
+		--color_2: #997649;
+		--color_0_text: #2f5e3f;
+		--color_1_text: #3a4069;
+		--color_2_text: #5f4c34;
+		--spacing_sm: 5px;
+		--spacing_md: 10px;
 
-		background-color: var(--bg_color);
+		height: 100%;
+		overflow-y: scroll; /* for Windows behavior */
+		overflow-x: auto;
+		position: relative;
+		background-color: var(--color_bg);
 	}
 
 	.active {
 		background: transparent;
 	}
 
-	.pane {
-		background-color: var(--fg_color);
-		margin: 5px;
-		padding: 5px;
-		border: 1px solid #ddd;
-		border-radius: 3px;
+	section {
+		background-color: var(--color_fg);
+		margin-bottom: var(--spacing_sm);
+		/* TODO add `0` to left/right - padding should be left to another class */
+		padding: var(--spacing_sm);
 	}
 </style>

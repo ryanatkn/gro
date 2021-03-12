@@ -1,4 +1,6 @@
 <script>
+	import SourceId from './SourceId.svelte';
+
 	export let sourceMeta;
 	export let hoveredSourceMeta;
 
@@ -44,13 +46,13 @@
 		{#if hoveredIsDependent}↦{/if}
 	</div>
 	<button
-		on:click={() => (expanded = !expanded)}
+		on:pointerdown={() => (expanded = !expanded)}
 		on:pointerenter={onPointerEnter}
 		on:pointerleave={onPointerLeave}
 		class:hovering
 	>
 		{expandedText}
-		{sourceMeta.data.sourceId}
+		<SourceId id={sourceMeta.data.sourceId} />
 	</button>
 </div>
 {#if expanded}
@@ -58,7 +60,7 @@
       {JSON.stringify(sourceMeta, null, 2)}
     </pre>
 	<button
-		on:click={() => (expanded = !expanded)}
+		on:pointerdown={() => (expanded = !expanded)}
 		on:pointerenter={onPointerEnter}
 		on:pointerleave={onPointerLeave}
 	>

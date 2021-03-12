@@ -1,4 +1,8 @@
 <script>
+	import BuildId from './BuildId.svelte';
+	import SourceId from './SourceId.svelte';
+	import BuildName from './BuildName.svelte';
+
 	import {filterSelectedMetaItems} from './sourceTree.js';
 
 	export let sourceTree;
@@ -9,28 +13,34 @@
 	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
 </script>
 
-<table>
-	<thead>
-		<th>source id</th>
-		<th>build name</th>
-		<th>build ids</th>
-	</thead>
-	{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
-		{#each sourceMeta.buildNames as buildName (buildName)}
-			{#if selectedBuildNames.includes(buildName)}
-				<tr>
-					<td>{sourceMeta.data.sourceId}</td>
-					<td>{buildName}</td>
-					<td>
-						{#each sourceMeta.buildsByBuildName.get(buildName) as build (build.id)}
-							<div>{build.id}</div>
-						{/each}
-					</td>
-				</tr>
-			{/if}
+{#if filteredSourceMetaItems.length}
+	<table>
+		<thead>
+			<th>source id</th>
+			<th>build name</th>
+			<th>build ids</th>
+		</thead>
+		{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
+			{#each sourceMeta.buildNames as buildName (buildName)}
+				{#if selectedBuildNames.includes(buildName)}
+					<tr>
+						<td>
+							<SourceId id={sourceMeta.data.sourceId} />
+						</td>
+						<td>
+							<BuildName {buildName} />
+						</td>
+						<td>
+							{#each sourceMeta.buildsByBuildName.get(buildName) as build (build.id)}
+								<BuildId id={build.id} />
+							{/each}
+						</td>
+					</tr>
+				{/if}
+			{/each}
 		{/each}
-	{:else}<small><em>no builds selected</em></small>{/each}
-</table>
+	</table>
+{:else}<small><em>no builds selected</em></small>{/if}
 
 <style>
 	td {
