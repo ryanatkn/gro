@@ -1,8 +1,5 @@
 import './devtools.js';
 import App from './App.svelte';
-import * as fp from 'path';
-console.log('fp', fp);
-(window as any).fp = fp;
 
 // TODO remove when we have another import from outside `src/client/`
 import {mix} from '../utils/math.js';

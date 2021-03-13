@@ -6,14 +6,6 @@ import {gray} from '../colors/terminal.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
 
-// TODO these can currently only be customized by mutating the object
-export interface ExternalsAliasMap {
-	[key: string]: string;
-}
-export const DEFAULT_EXTERNALS_ALIASES: ExternalsAliasMap = {
-	path: 'path-browserify',
-};
-
 export interface ExternalsBuilderState {
 	readonly buildStates: Map<BuildConfig, ExternalsBuildState>;
 }
@@ -109,11 +101,11 @@ export const loadImportMapFromDisk = async (dest: string): Promise<ImportMap | u
 	return importMap;
 };
 
-// This is inefficient but it's currently only called after installing externals,
-// so it's whatever the opposite of a hot code path is.
-export const toImportMapSpecifiers = (importMap: ImportMap, alias: ExternalsAliasMap): string[] => {
-	const excludedAliases = new Set(Object.values(alias));
-	return Object.keys(importMap.imports).filter((specifier) => !excludedAliases.has(specifier));
+export interface ExternalsAliases {
+	[key: string]: string;
+}
+export const DEFAULT_EXTERNALS_ALIASES: ExternalsAliases = {
+	path: 'path-browserify',
 };
 
 export interface DelayedPromise<T> {

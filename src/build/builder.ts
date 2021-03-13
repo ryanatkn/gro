@@ -1,7 +1,11 @@
 import {UnreachableError} from '../utils/error.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutPath} from '../paths.js';
-import type {ExternalsBuilderState, EXTERNALS_BUILDER_STATE_KEY} from './externalsBuildHelpers.js';
+import type {
+	ExternalsAliases,
+	ExternalsBuilderState,
+	EXTERNALS_BUILDER_STATE_KEY,
+} from './externalsBuildHelpers.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from './ServedDir.js';
 import {Logger} from '../utils/log.js';
@@ -29,6 +33,7 @@ export interface BuildResult<TBuild extends Build = Build> {
 	builds: TBuild[];
 }
 
+// For docs on these, see where they're implemented in the `Filer`.
 export interface BuildContext {
 	readonly log: Logger;
 	readonly buildDir: string;
@@ -36,6 +41,7 @@ export interface BuildContext {
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget;
 	readonly servedDirs: readonly ServedDir[];
+	readonly externalsAliases: ExternalsAliases;
 	readonly state: BuilderState;
 	readonly buildingSourceFiles: Set<string>;
 }

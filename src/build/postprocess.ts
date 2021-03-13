@@ -14,11 +14,7 @@ import {
 import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
 import {stripStart} from '../utils/string.js';
 import {getIsExternalModule} from '../utils/module.js';
-import {
-	EXTERNALS_SOURCE_ID,
-	isExternalBuildId,
-	DEFAULT_EXTERNALS_ALIASES,
-} from './externalsBuildHelpers.js';
+import {EXTERNALS_SOURCE_ID, isExternalBuildId} from './externalsBuildHelpers.js';
 
 // TODO this is all hacky and should be refactored
 // make it pluggable like builders, maybe
@@ -67,8 +63,8 @@ export const postprocess = (
 				} else if (isExternalImport || source.id === EXTERNALS_SOURCE_ID) {
 					// handle regular externals
 					if (isBrowser) {
-						if (mappedSpecifier in DEFAULT_EXTERNALS_ALIASES) {
-							mappedSpecifier = DEFAULT_EXTERNALS_ALIASES[mappedSpecifier];
+						if (mappedSpecifier in ctx.externalsAliases) {
+							mappedSpecifier = ctx.externalsAliases[mappedSpecifier];
 						}
 						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
 							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');

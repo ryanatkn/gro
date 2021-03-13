@@ -14,15 +14,12 @@ import {createCssCache} from '../project/cssCache.js';
 import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
 import {
 	createDelayedPromise,
-	DEFAULT_EXTERNALS_ALIASES,
-	ExternalsAliasMap,
 	ExternalsBuildState,
 	getExternalsBuilderState,
 	getExternalsBuildState,
 	initExternalsBuilderState,
 	initExternalsBuildState,
 	loadImportMapFromDisk,
-	toImportMapSpecifiers,
 	toSpecifiers,
 } from './externalsBuildHelpers.js';
 import {EMPTY_ARRAY} from '../utils/array.js';
@@ -42,7 +39,6 @@ but this isn't a great solution
 
 export interface Options {
 	basePath: string;
-	alias: ExternalsAliasMap;
 	log: Logger;
 }
 export type InitialOptions = Partial<Options>;
@@ -50,7 +46,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
 	return {
 		basePath: EXTERNALS_BUILD_DIR,
-		alias: DEFAULT_EXTERNALS_ALIASES,
 		...omitUndefined(opts),
 		log,
 	};
@@ -61,12 +56,12 @@ type ExternalsBuilder = Builder<TextBuildSource, TextBuild>;
 const encoding = 'utf8';
 
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
-	const {basePath, alias, log} = initOptions(opts);
+	const {basePath, log} = initOptions(opts);
 
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildDir, dev, sourceMap, target, state},
+		{buildDir, dev, sourceMap, target, state, externalsAliases},
 	) => {
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -107,16 +102,14 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				dest,
 				rollup: {plugins},
 				polyfillNode: true, // needed for some libs - maybe make customizable?
-				alias,
+				alias: externalsAliases,
 			});
 			log.info('install result', installResult);
 			// log.trace('previous import map', state.importMap); maybe diff?
 			buildState.importMap = installResult.importMap;
-
-			// TODO load all of the files in the import map
 			builds = [
 				...(await Promise.all(
-					toImportMapSpecifiers(installResult.importMap, alias).map(
+					Array.from(buildState.specifiers).map(
 						async (specifier): Promise<TextBuild> => {
 							const id = join(dest, installResult.importMap.imports[specifier]);
 							return {
