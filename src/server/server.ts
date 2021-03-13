@@ -59,7 +59,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 		// hacky but w/e - these values are not final until `devServer.start` resolves
 		finalPort--;
 		listenOptions.port = finalPort;
-		(devServer as Writable<DevServer>).port = finalPort;
+		(devServer as Assignable<DevServer>).port = finalPort;
 	};
 
 	const listenOptions: ListenOptions = {

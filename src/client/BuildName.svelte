@@ -1,5 +1,5 @@
-<script>
-	export let buildName;
+<script lang="ts">
+	export let buildName: string;
 </script>
 
 <span class="build-name">{buildName}</span>

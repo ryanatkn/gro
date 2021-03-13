@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {onMount, setContext, SvelteComponent} from 'svelte';
+	import {onMount} from 'svelte';
 	import {slide} from 'svelte/transition';
 	import {writable} from 'svelte/store';
 
@@ -8,7 +8,7 @@
 	import ViewName from './ViewName.svelte';
 	import SourceTreeVisualizer from './SourceTreeVisualizer.svelte';
 	import BuildTreeVisualizer from './BuildTreeVisualizer.svelte';
-	import SourceMeta from './SourceMeta.svelte';
+	import SourceMetaView from './SourceMetaView.svelte';
 	import SourceMetaRaw from './SourceMetaRaw.svelte';
 	import SourceMetaExpander from './SourceMetaExpander.svelte';
 	import SourceMetaTable from './SourceMetaTable.svelte';
@@ -16,20 +16,20 @@
 	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import {createSourceTree, SourceTree} from './sourceTree.js';
-	import type {ProjectState} from '../server/projectState';
+	import type {ProjectState} from '../server/projectState.js';
+	import type {View} from './view.js';
+	import {provideProjectState} from './projectState.js';
 
 	console.log('enter App.svelte');
 
-	let projectState: ProjectState;
-	$: homepage = (projectState?.packageJson.homepage || '') as string;
+	$: homepage = ($ctx?.packageJson.homepage || '') as string;
 	let sourceTree: SourceTree;
 	let selectedBuildNames: string[] = [];
 
-	// TODO refactor (at minimum, use an imported context key)
-	const buildContext = writable<null | {buildDir: string; sourceDir: string}>(null);
-	setContext('buildContext', buildContext);
+	const ctx = writable<ProjectState>(null!);
+	provideProjectState(ctx);
 
-	const sourceMetaViews: typeof SvelteComponent[] = [
+	const sourceMetaViews: View[] = [
 		SourceMetaRaw,
 		SourceMetaExpander,
 		SourceMetaTable,
@@ -39,7 +39,7 @@
 	];
 	let activeSourceMetaViewIndex = 4;
 	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
-	const setActiveSourceMetaView = (view: typeof SvelteComponent) =>
+	const setActiveSourceMetaView = (view: View) =>
 		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
 
 	const selectedSourceMeta = writable(null);
@@ -47,10 +47,9 @@
 
 	onMount(async () => {
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
-		projectState = await (await fetch(SOURCE_META_PATH)).json();
-		console.log('fetched projectState', projectState);
-		$buildContext = {buildDir: projectState.buildDir, sourceDir: projectState.sourceDir};
-		sourceTree = createSourceTree(projectState.items, projectState.buildConfigs);
+		$ctx = await (await fetch(SOURCE_META_PATH)).json(); // TODO handle errors
+		console.log('fetched projectState', $ctx);
+		sourceTree = createSourceTree($ctx.items, $ctx.buildConfigs);
 		selectedBuildNames = sourceTree.buildNames;
 		console.log('sourceTree', sourceTree);
 	});
@@ -68,9 +67,9 @@
 		<section>
 			<header>
 				<span class="logo">
-					{#if projectState.packageJson.homepage}
-						<a href={homepage}>{projectState.packageJson.name}</a>
-					{:else}{projectState.packageJson.name}{/if}
+					{#if $ctx.packageJson.homepage}
+						<a href={homepage}>{$ctx.packageJson.name}</a>
+					{:else}{$ctx.packageJson.name}{/if}
 				</span>
 				<nav>
 					{#if !showFilerVisualizer1}
@@ -158,7 +157,7 @@
 					{/each}
 				</nav>
 
-				<SourceMeta
+				<SourceMetaView
 					{sourceTree}
 					{selectedBuildNames}
 					{activeSourceMetaView}
@@ -167,7 +166,9 @@
 				/>
 			{:else}<button on:pointerdown={() => (showSourceMeta = true)}>show source meta</button>{/if}
 		</section>
-	{:else}loading...{/if}
+	{:else}
+		<div class="loading">...</div>
+	{/if}
 </div>
 
 <style>
@@ -201,6 +202,12 @@
 		overflow-x: auto;
 		position: relative;
 		background-color: var(--color_2_bg);
+	}
+
+	.loading {
+		text-align: center;
+		opacity: 0.6;
+		font-size: 7em;
 	}
 
 	.active {

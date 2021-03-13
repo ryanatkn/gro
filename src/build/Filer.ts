@@ -341,7 +341,7 @@ export class Filer implements BuildContext {
 		if (isInput) {
 			if (sourceFile.isInputToBuildConfigs === null) {
 				// Cast to keep the `readonly` modifier outside of initialization.
-				(sourceFile as Writable<
+				(sourceFile as Assignable<
 					BuildableSourceFile,
 					'isInputToBuildConfigs'
 				>).isInputToBuildConfigs = new Set();

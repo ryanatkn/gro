@@ -1,5 +1,5 @@
-<script>
-	export let name;
+<script lang="ts">
+	export let name: string;
 </script>
 
 server visualizer!
@@ -8,6 +8,7 @@ server visualizer!
 	<li>
 		requests
 		<ul>
+			<li>view and traverse history</li>
 			<li>filter by status code</li>
 			<li>create requests (from scratch or old ones, templates, ..)</li>
 		</ul>

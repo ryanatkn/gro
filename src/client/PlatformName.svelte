@@ -1,5 +1,5 @@
-<script>
-	export let platformName;
+<script lang="ts">
+	export let platformName: string;
 </script>
 
 <span class="platform-name">{platformName}</span>

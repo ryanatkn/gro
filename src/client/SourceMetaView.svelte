@@ -1,12 +1,17 @@
-<script>
+<script lang="ts">
+	import {Writable} from 'svelte/store';
+
 	import BuildName from './BuildName.svelte';
 	import PlatformName from './PlatformName.svelte';
+	import {SourceTree} from './sourceTree.js';
+	import {View} from './view.js';
+	import {SourceMeta} from '../build/sourceMeta.js';
 
-	export let sourceTree;
-	export let selectedBuildNames;
-	export let activeSourceMetaView;
-	export let selectedSourceMeta;
-	export let hoveredSourceMeta;
+	export let sourceTree: SourceTree;
+	export let selectedBuildNames: string[];
+	export let activeSourceMetaView: View;
+	export let selectedSourceMeta: Writable<SourceMeta | null>;
+	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 </script>
 
 <div class="source-meta">

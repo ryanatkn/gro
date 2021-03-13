@@ -1,11 +1,10 @@
-<script>
-	import {getContext} from 'svelte';
-
+<script lang="ts">
+	import {useProjectState} from './projectState.js';
 	import {toRootPath} from './pathHelpers.js';
 
-	export let id;
+	const ctx = useProjectState();
 
-	const ctx = getContext('buildContext');
+	export let id: string;
 
 	$: displayed = id.startsWith($ctx.buildDir) ? toRootPath(id, $ctx.buildDir) : id;
 </script>

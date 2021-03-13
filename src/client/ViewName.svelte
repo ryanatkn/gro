@@ -1,7 +1,9 @@
-<script>
+<script lang="ts">
+	import type {View} from './view.js';
+
 	// TODO maybe change this data structure?
 	// just accept a string? class name in a registry? a file path? url?
-	export let view;
+	export let view: View;
 </script>
 
 <span class="view-name">{view.name}</span>

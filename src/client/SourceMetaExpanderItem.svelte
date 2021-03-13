@@ -1,9 +1,12 @@
-<script>
-	import SourceId from './SourceId.svelte';
+<script lang="ts">
+	import {Writable} from 'svelte/store';
 
-	export let sourceMeta;
-	export let selectedSourceMeta;
-	export let hoveredSourceMeta;
+	import SourceId from './SourceId.svelte';
+	import {SourceMeta} from '../build/sourceMeta.js';
+
+	export let sourceMeta: SourceMeta;
+	export let selectedSourceMeta: Writable<SourceMeta | null>;
+	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
 	// this allows you to default stuff to e.g. the selected if there's no hovered
 	$: activeSourceMeta = $hoveredSourceMeta || $selectedSourceMeta;
@@ -23,7 +26,7 @@
 	};
 
 	// TODO need a better data structure for this
-	const isDependency = (dependency, dependent) =>
+	const isDependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
@@ -38,21 +41,18 @@
 	$: activeIsDependent = isDependency(sourceMeta, activeSourceMeta);
 	$: emphasized = activeIsDependency || activeIsDependent || active;
 	$: deemphasized = activeSourceMeta && !emphasized;
+	$: data = activeSourceMeta?.data!; // TODO this is a workaround for not having `!` in templates
 </script>
 
 <div class="summary" class:deemphasized class:emphasized>
 	<div class="dep">
 		{#if activeIsDependency}
-			<span
-				title="{sourceMeta.data.sourceId} has a dependency on {activeSourceMeta.data.sourceId}"
-			>↤</span>
+			<span title="{sourceMeta.data.sourceId} has a dependency on {data.sourceId}">↤</span>
 		{/if}
 	</div>
 	<div class="dep">
 		{#if activeIsDependent}
-			<span
-				title="{sourceMeta.data.sourceId} is a dependency of {activeSourceMeta.data.sourceId}"
-			>↦</span>
+			<span title="{sourceMeta.data.sourceId} is a dependency of {data.sourceId}">↦</span>
 		{/if}
 	</div>
 	<button

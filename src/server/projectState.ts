@@ -8,6 +8,9 @@ import type {PackageJson} from '../project/packageJson.js';
 // SourceMeta
 // ..?
 
+// TODO should these properties be split into things that are static and dynamic?
+// `items` is dynamic but most of these aren't
+
 // TODO currently serving this at `src/` - how should the code/types be organized?
 export interface ProjectState {
 	// TODO this is a hacky, not using the filer's dirs for the source,

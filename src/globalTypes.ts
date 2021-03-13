@@ -24,7 +24,7 @@ declare type PartialValues<T> = {
 	[P in keyof T]: Partial<T[P]>;
 };
 
-type Writable<T, K extends keyof T = keyof T> = {
+type Assignable<T, K extends keyof T = keyof T> = {
 	-readonly [P in K]: T[P];
 };
 

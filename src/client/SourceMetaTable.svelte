@@ -1,12 +1,11 @@
-<script>
+<script lang="ts">
 	import BuildId from './BuildId.svelte';
 	import SourceId from './SourceId.svelte';
 	import BuildName from './BuildName.svelte';
+	import {SourceTree, filterSelectedMetaItems} from './sourceTree.js';
 
-	import {filterSelectedMetaItems} from './sourceTree.js';
-
-	export let sourceTree;
-	export let selectedBuildNames;
+	export let sourceTree: SourceTree;
+	export let selectedBuildNames: string[];
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
