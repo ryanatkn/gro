@@ -4,8 +4,8 @@ import {deepEqual} from '../utils/deepEqual.js';
 
 export interface SourceTree {
 	// readonly children: SourceTreeNode[];
-	readonly meta: SourceTreeMeta[];
-	readonly metaByBuildName: Map<string, SourceTreeMeta[]>;
+	readonly metas: SourceTreeMeta[];
+	readonly metasByBuildName: Map<string, SourceTreeMeta[]>;
 	readonly buildsByBuildName: Map<string, SourceMetaBuild[]>;
 	readonly buildConfigs: readonly BuildConfig[];
 	readonly buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
@@ -25,12 +25,12 @@ export const createSourceTree = (
 	sourceMeta: SourceMeta[],
 	buildConfigs: readonly BuildConfig[],
 ): SourceTree => {
-	const meta = toSourceTreeMeta(
+	const metas = toSourceTreeMeta(
 		sourceMeta.sort((a, b) => (a.data.sourceId > b.data.sourceId ? 1 : -1)),
 	);
 	const builds: SourceMetaBuild[] = [];
 	const buildsByBuildName: Map<string, SourceMetaBuild[]> = new Map();
-	for (const sourceTreeMeta of meta) {
+	for (const sourceTreeMeta of metas) {
 		for (const sourceMetaBuilds of sourceTreeMeta.buildsByBuildName.values()) {
 			for (const sourceMetaBuild of sourceMetaBuilds) {
 				builds.push(sourceMetaBuild);
@@ -51,15 +51,15 @@ export const createSourceTree = (
 			buildNamesFromConfigs,
 		);
 	}
-	const metaByBuildName: Map<string, SourceTreeMeta[]> = new Map(
+	const metasByBuildName: Map<string, SourceTreeMeta[]> = new Map(
 		buildNames.map((buildName) => [
 			buildName,
-			meta.filter((sourceTreeMeta) => sourceTreeMeta.buildsByBuildName.has(buildName)),
+			metas.filter((meta) => meta.buildsByBuildName.has(buildName)),
 		]),
 	);
 	return {
-		meta,
-		metaByBuildName,
+		metas,
+		metasByBuildName,
 		buildsByBuildName,
 		buildConfigs,
 		buildNames,
@@ -67,8 +67,8 @@ export const createSourceTree = (
 	};
 };
 
-export const toSourceTreeMeta = (meta: SourceMeta[]): SourceTreeMeta[] => {
-	return meta.map((sourceMeta) => {
+export const toSourceTreeMeta = (metas: SourceMeta[]): SourceTreeMeta[] => {
+	return metas.map((sourceMeta) => {
 		sourceMeta.data.builds;
 		const buildsByBuildName: Map<string, SourceMetaBuild[]> = new Map();
 		for (const build of sourceMeta.data.builds) {
@@ -89,12 +89,15 @@ export const toSourceTreeMeta = (meta: SourceMeta[]): SourceTreeMeta[] => {
 
 // filters those meta items that have some selected build, based on `selectedBuildNames`
 export const filterSelectedMetaItems = (sourceTree: SourceTree, selectedBuildNames: string[]) =>
-	sourceTree.meta.filter((m) => selectedBuildNames.some((n) => m.buildsByBuildName.has(n)));
+	sourceTree.metas.filter((m) => selectedBuildNames.some((n) => m.buildsByBuildName.has(n)));
 
-export const getMetaByBuildName = (sourceTree: SourceTree, buildName: string): SourceTreeMeta[] => {
-	const meta = sourceTree.metaByBuildName.get(buildName)!;
-	if (!meta) throw Error(`Expected to find meta: ${buildName}`);
-	return meta;
+export const getMetasByBuildName = (
+	sourceTree: SourceTree,
+	buildName: string,
+): SourceTreeMeta[] => {
+	const metas = sourceTree.metasByBuildName.get(buildName)!;
+	if (!metas) throw Error(`Expected to find meta:s ${buildName}`);
+	return metas;
 };
 
 export const getBuildsByBuildName = (
