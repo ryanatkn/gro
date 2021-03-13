@@ -175,7 +175,7 @@
 	.app {
 		/* TODO */
 		--color_fg: #fff;
-		--color_bg_layer: rgba(1, 0, 0, 0.13);
+		--color_bg_layer: rgba(1, 0, 0, 0.08);
 		--color_text: hsl(0, 57%, 3%);
 		--color_felt: hsl(112, 35%, 44%);
 		--color_0: hsl(112, 43%, 44%);

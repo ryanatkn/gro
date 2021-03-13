@@ -90,3 +90,18 @@ export const toSourceTreeMeta = (meta: SourceMeta[]): SourceTreeMeta[] => {
 // filters those meta items that have some selected build, based on `selectedBuildNames`
 export const filterSelectedMetaItems = (sourceTree: SourceTree, selectedBuildNames: string[]) =>
 	sourceTree.meta.filter((m) => selectedBuildNames.some((n) => m.buildsByBuildName.has(n)));
+
+export const getMetaByBuildName = (sourceTree: SourceTree, buildName: string): SourceTreeMeta[] => {
+	const meta = sourceTree.metaByBuildName.get(buildName)!;
+	if (!meta) throw Error(`Expected to find meta: ${buildName}`);
+	return meta;
+};
+
+export const getBuildsByBuildName = (
+	sourceMeta: SourceTreeMeta,
+	buildName: string,
+): SourceMetaBuild[] => {
+	const builds = sourceMeta.buildsByBuildName.get(buildName)!;
+	if (!builds) throw Error(`Expected to find builds: ${buildName}`);
+	return builds;
+};

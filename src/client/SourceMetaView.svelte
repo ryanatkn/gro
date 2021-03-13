@@ -3,7 +3,7 @@
 
 	import BuildName from './BuildName.svelte';
 	import PlatformName from './PlatformName.svelte';
-	import {SourceTree} from './sourceTree.js';
+	import {getMetaByBuildName, SourceTree} from './sourceTree.js';
 	import {View} from './view.js';
 	import {SourceMeta} from '../build/sourceMeta.js';
 
@@ -22,7 +22,7 @@
 					<input type="checkbox" bind:group={selectedBuildNames} value={buildConfig.name} />
 					<BuildName buildName={buildConfig.name} />
 					<small>
-						({sourceTree.metaByBuildName.get(buildConfig.name).length})
+						({getMetaByBuildName(sourceTree, buildConfig.name).length})
 
 						<PlatformName platformName={buildConfig.platform} />
 						{#if buildConfig.primary}primary{/if}

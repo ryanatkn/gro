@@ -2,7 +2,7 @@
 	import BuildId from './BuildId.svelte';
 	import SourceId from './SourceId.svelte';
 	import BuildName from './BuildName.svelte';
-	import {SourceTree, filterSelectedMetaItems} from './sourceTree.js';
+	import {SourceTree, filterSelectedMetaItems, getBuildsByBuildName} from './sourceTree.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
@@ -30,7 +30,7 @@
 							<BuildName {buildName} />
 						</td>
 						<td>
-							{#each sourceMeta.buildsByBuildName.get(buildName) as build (build.id)}
+							{#each getBuildsByBuildName(sourceMeta, buildName) as build (build.id)}
 								<BuildId id={build.id} />
 							{/each}
 						</td>
