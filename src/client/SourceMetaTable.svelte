@@ -10,33 +10,39 @@
 	export const hoveredSourceMeta = undefined;
 
 	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
+	$: finalItems = filteredSourceMetaItems.flatMap((sourceMeta) =>
+		sourceMeta.buildNames
+			.map(
+				(buildName) =>
+					selectedBuildNames.includes(buildName)
+						? {sourceMeta, buildName, key: `${buildName}:${sourceMeta.cacheId}`} // TODO hmm
+						: null!, // bc filter below
+			)
+			.filter(Boolean),
+	);
 </script>
 
-{#if filteredSourceMetaItems.length}
+{#if finalItems.length}
 	<table>
 		<thead>
 			<th>source id</th>
 			<th>build name</th>
 			<th>build ids</th>
 		</thead>
-		{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
-			{#each sourceMeta.buildNames as buildName (buildName)}
-				{#if selectedBuildNames.includes(buildName)}
-					<tr>
-						<td>
-							<SourceId id={sourceMeta.data.sourceId} />
-						</td>
-						<td>
-							<BuildName {buildName} />
-						</td>
-						<td>
-							{#each getBuildsByBuildName(sourceMeta, buildName) as build (build.id)}
-								<BuildId id={build.id} />
-							{/each}
-						</td>
-					</tr>
-				{/if}
-			{/each}
+		{#each finalItems as {sourceMeta, buildName, key} (key)}
+			<tr>
+				<td>
+					<SourceId id={sourceMeta.data.sourceId} />
+				</td>
+				<td>
+					<BuildName {buildName} />
+				</td>
+				<td>
+					{#each getBuildsByBuildName(sourceMeta, buildName) as build (build.id)}
+						<BuildId id={build.id} />
+					{/each}
+				</td>
+			</tr>
 		{/each}
 	</table>
 {:else}<small><em>no builds selected</em></small>{/if}
