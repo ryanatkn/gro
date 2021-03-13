@@ -101,6 +101,13 @@ export const loadImportMapFromDisk = async (dest: string): Promise<ImportMap | u
 	return importMap;
 };
 
+export interface ExternalsAliases {
+	[key: string]: string;
+}
+export const DEFAULT_EXTERNALS_ALIASES: ExternalsAliases = {
+	path: 'path-browserify',
+};
+
 export interface DelayedPromise<T> {
 	promise: Promise<T>;
 	reset(): void;

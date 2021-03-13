@@ -63,6 +63,9 @@ export const postprocess = (
 				} else if (isExternalImport || source.id === EXTERNALS_SOURCE_ID) {
 					// handle regular externals
 					if (isBrowser) {
+						if (mappedSpecifier in ctx.externalsAliases) {
+							mappedSpecifier = ctx.externalsAliases[mappedSpecifier];
+						}
 						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
 							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
 						}

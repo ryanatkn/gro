@@ -61,7 +61,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildDir, dev, sourceMap, target, state},
+		{buildDir, dev, sourceMap, target, state, externalsAliases},
 	) => {
 		// if (sourceMap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -102,15 +102,14 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				dest,
 				rollup: {plugins},
 				polyfillNode: true, // needed for some libs - maybe make customizable?
+				alias: externalsAliases,
 			});
 			log.info('install result', installResult);
 			// log.trace('previous import map', state.importMap); maybe diff?
 			buildState.importMap = installResult.importMap;
-
-			// TODO load all of the files in the import map
 			builds = [
 				...(await Promise.all(
-					Object.keys(installResult.importMap.imports).map(
+					Array.from(buildState.specifiers).map(
 						async (specifier): Promise<TextBuild> => {
 							const id = join(dest, installResult.importMap.imports[specifier]);
 							return {

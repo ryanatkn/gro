@@ -54,7 +54,7 @@
 		on:pointerleave={onPointerLeave}
 		class:hovering
 	>
-		{expandedText}
+		<span class="icon">{expandedText}</span>
 		<SourceId id={sourceMeta.data.sourceId} />
 	</button>
 </div>
@@ -90,5 +90,9 @@
 	}
 	.deemphasized {
 		opacity: 0.62;
+	}
+	.icon {
+		opacity: 0.6;
+		padding-right: var(--spacing_sm);
 	}
 </style>

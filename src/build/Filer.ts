@@ -35,6 +35,8 @@ import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import {wrap} from '../utils/async.js';
 import {
+	DEFAULT_EXTERNALS_ALIASES,
+	ExternalsAliases,
 	EXTERNALS_SOURCE_ID,
 	getExternalsBuilderState,
 	getExternalsBuildState,
@@ -64,10 +66,11 @@ export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 export interface Options {
 	dev: boolean;
 	builder: Builder | null;
-	sourceDirs: string[];
-	servedDirs: ServedDir[];
 	buildConfigs: BuildConfig[] | null;
 	buildDir: string;
+	sourceDirs: string[];
+	servedDirs: ServedDir[];
+	externalsAliases: ExternalsAliases;
 	mapDependencyToSourceId: MapDependencyToSourceId;
 	sourceMap: boolean;
 	target: EcmaScriptTarget;
@@ -125,6 +128,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		dev,
 		mapDependencyToSourceId,
+		externalsAliases: DEFAULT_EXTERNALS_ALIASES,
 		sourceMap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
@@ -158,6 +162,7 @@ export class Filer implements BuildContext {
 	readonly sourceMap: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
 	readonly servedDirs: readonly ServedDir[];
+	readonly externalsAliases: ExternalsAliases; // TODO should this allow aliasing anything? not just externals?
 	readonly state: BuilderState = {};
 	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 
@@ -170,6 +175,7 @@ export class Filer implements BuildContext {
 			mapDependencyToSourceId,
 			sourceDirs,
 			servedDirs,
+			externalsAliases,
 			sourceMap,
 			target,
 			watch,
@@ -180,6 +186,7 @@ export class Filer implements BuildContext {
 		this.buildConfigs = buildConfigs;
 		this.buildDir = buildDir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
+		this.externalsAliases = externalsAliases;
 		this.sourceMap = sourceMap;
 		this.target = target;
 		this.log = log;

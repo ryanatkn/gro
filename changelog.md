@@ -25,7 +25,8 @@
   ([#61](https://github.com/feltcoop/gro/pull/61),
   [#71](https://github.com/feltcoop/gro/pull/71),
   [#76](https://github.com/feltcoop/gro/pull/76),
-  [#81](https://github.com/feltcoop/gro/pull/81))
+  [#81](https://github.com/feltcoop/gro/pull/81),
+  [#88](https://github.com/feltcoop/gro/pull/88))
 - make `createBuilder` pluggable allowing users to provide a compiler for each file
   ([#57](https://github.com/feltcoop/gro/pull/57))
 - rename `compiler` to `builder`

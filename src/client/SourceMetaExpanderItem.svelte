@@ -15,7 +15,9 @@
 	$: hovered = sourceMeta === $hoveredSourceMeta;
 	$: selected = sourceMeta === $selectedSourceMeta;
 
-	const onPointerDown = () => {
+	const onPointerDown = (e: PointerEvent) => {
+		// TODO this needs to be done for all of the handlers..
+		if (e.button !== 0) return;
 		$selectedSourceMeta = selected ? null : sourceMeta;
 	};
 	const onPointerEnter = () => {
