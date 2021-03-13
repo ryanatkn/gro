@@ -16,15 +16,12 @@
 	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import {createSourceTree, SourceTree} from './sourceTree.js';
-	import type {PackageJson} from '../project/packageJson';
 	import type {ProjectState} from '../server/projectState';
-	import type {SourceMeta as SourceMetaType} from '../build/sourceMeta.js';
 
 	console.log('enter App.svelte');
 
-	let packageJson: PackageJson;
-	$: homepage = (packageJson?.homepage || '') as string;
-	let sourceMetaItems: SourceMetaType[];
+	let projectState: ProjectState;
+	$: homepage = (projectState?.packageJson.homepage || '') as string;
 	let sourceTree: SourceTree;
 	let selectedBuildNames: string[] = [];
 
@@ -50,12 +47,10 @@
 
 	onMount(async () => {
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
-		const result: ProjectState = await (await fetch(SOURCE_META_PATH)).json();
-		console.log('fetch result', result);
-		packageJson = result.packageJson;
-		sourceMetaItems = result.items;
-		$buildContext = {buildDir: result.buildDir, sourceDir: result.sourceDir};
-		sourceTree = createSourceTree(sourceMetaItems);
+		projectState = await (await fetch(SOURCE_META_PATH)).json();
+		console.log('fetched projectState', projectState);
+		$buildContext = {buildDir: projectState.buildDir, sourceDir: projectState.sourceDir};
+		sourceTree = createSourceTree(projectState.items, projectState.buildConfigs);
 		selectedBuildNames = sourceTree.buildNames;
 		console.log('sourceTree', sourceTree);
 	});
@@ -73,9 +68,9 @@
 		<section>
 			<header>
 				<span class="logo">
-					{#if packageJson.homepage}
-						<a href={homepage}>{packageJson.name}</a>
-					{:else}{packageJson.name}{/if}
+					{#if projectState.packageJson.homepage}
+						<a href={homepage}>{projectState.packageJson.name}</a>
+					{:else}{projectState.packageJson.name}{/if}
 				</span>
 				<nav>
 					{#if !showFilerVisualizer1}
@@ -186,14 +181,17 @@
 		--color_1: hsl(202, 35%, 44%);
 		--color_2: hsl(33, 35%, 44%);
 		--color_3: hsl(272, 39%, 44%);
+		--color_4: hsl(166, 35%, 44%);
 		--color_0_text: hsl(112, 33%, 28%);
 		--color_1_text: hsl(202, 29%, 32%);
 		--color_2_text: hsl(33, 29%, 29%);
 		--color_3_text: hsl(272, 31%, 30%);
+		--color_4_text: hsl(166, 29%, 29%);
 		--color_0_bg: hsl(112, 30%, 91%);
 		--color_1_bg: hsl(202, 30%, 91%);
 		--color_2_bg: hsl(33, 30%, 91%);
 		--color_3_bg: hsl(272, 30%, 91%);
+		--color_4_bg: hsl(166, 30%, 91%);
 		--spacing_sm: 5px;
 		--spacing_md: 10px;
 		--spacing_height_md: 24px;

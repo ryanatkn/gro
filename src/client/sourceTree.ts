@@ -1,10 +1,13 @@
 import {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
+import {BuildConfig} from '../config/buildConfig.js';
+import {deepEqual} from '../utils/deepEqual.js';
 
 export interface SourceTree {
 	// readonly children: SourceTreeNode[];
 	readonly meta: SourceTreeMeta[];
 	readonly metaByBuildName: Map<string, SourceTreeMeta[]>;
 	readonly buildsByBuildName: Map<string, SourceMetaBuild[]>;
+	readonly buildConfigs: readonly BuildConfig[];
 	readonly buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
 	readonly builds: SourceMetaBuild[];
 }
@@ -18,7 +21,10 @@ export interface SourceTreeMeta extends SourceMeta {
 // 	children?: SourceTreeNode[];
 // }
 
-export const createSourceTree = (sourceMeta: SourceMeta[]): SourceTree => {
+export const createSourceTree = (
+	sourceMeta: SourceMeta[],
+	buildConfigs: readonly BuildConfig[],
+): SourceTree => {
 	const meta = toSourceTreeMeta(
 		sourceMeta.sort((a, b) => (a.data.sourceId > b.data.sourceId ? 1 : -1)),
 	);
@@ -37,6 +43,14 @@ export const createSourceTree = (sourceMeta: SourceMeta[]): SourceTree => {
 		}
 	}
 	const buildNames = Array.from(buildsByBuildName.keys()).sort();
+	const buildNamesFromConfigs = buildConfigs.map((b) => b.name).sort();
+	if (!deepEqual(buildNames, buildNamesFromConfigs)) {
+		console.warn(
+			'build names differ between builds and configs',
+			buildNames,
+			buildNamesFromConfigs,
+		);
+	}
 	const metaByBuildName: Map<string, SourceTreeMeta[]> = new Map(
 		buildNames.map((buildName) => [
 			buildName,
@@ -47,6 +61,7 @@ export const createSourceTree = (sourceMeta: SourceMeta[]): SourceTree => {
 		meta,
 		metaByBuildName,
 		buildsByBuildName,
+		buildConfigs,
 		buildNames,
 		builds,
 	};

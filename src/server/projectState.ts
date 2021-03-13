@@ -2,6 +2,12 @@ import type {SourceMeta} from '../build/sourceMeta.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 import type {PackageJson} from '../project/packageJson.js';
 
+// TODO rename?
+// ProjectState (current)
+// ProjectMeta
+// SourceMeta
+// ..?
+
 // TODO currently serving this at `src/` - how should the code/types be organized?
 export interface ProjectState {
 	// TODO this is a hacky, not using the filer's dirs for the source,
@@ -11,7 +17,7 @@ export interface ProjectState {
 	readonly buildDir: string; // TODO see above
 	readonly sourceDir: string; // TODO see above
 	readonly items: SourceMeta[];
-	readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly buildConfigs: readonly BuildConfig[];
 	// TODO should this be imported/replaced at buildtime instead of loading/sending like thie?
 	readonly packageJson: PackageJson;
 }
