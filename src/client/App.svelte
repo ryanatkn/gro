@@ -1,5 +1,5 @@
-<script>
-	import {onMount, setContext} from 'svelte';
+<script lang="ts">
+	import {onMount, setContext, SvelteComponent} from 'svelte';
 	import {slide} from 'svelte/transition';
 	import {writable} from 'svelte/store';
 
@@ -15,20 +15,24 @@
 	import SourceMetaBuildsTable from './SourceMetaBuildsTable.svelte';
 	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
-	import {createSourceTree} from './sourceTree.js';
+	import {createSourceTree, SourceTree} from './sourceTree.js';
+	import type {PackageJson} from '../project/packageJson';
+	import type {ProjectState} from '../server/projectState';
+	import type {SourceMeta as SourceMetaType} from '../build/sourceMeta.js';
 
 	console.log('enter App.svelte');
 
-	let packageJson;
-	let sourceMetaItems;
-	let sourceTree;
-	let selectedBuildNames = [];
+	let packageJson: PackageJson;
+	$: homepage = (packageJson?.homepage || '') as string;
+	let sourceMetaItems: SourceMetaType[];
+	let sourceTree: SourceTree;
+	let selectedBuildNames: string[] = [];
 
 	// TODO refactor (at minimum, use an imported context key)
-	const buildContext = writable();
+	const buildContext = writable<null | {buildDir: string; sourceDir: string}>(null);
 	setContext('buildContext', buildContext);
 
-	const sourceMetaViews = [
+	const sourceMetaViews: typeof SvelteComponent[] = [
 		SourceMetaRaw,
 		SourceMetaExpander,
 		SourceMetaTable,
@@ -38,7 +42,7 @@
 	];
 	let activeSourceMetaViewIndex = 4;
 	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
-	const setActiveSourceMetaView = (view) =>
+	const setActiveSourceMetaView = (view: typeof SvelteComponent) =>
 		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
 
 	const selectedSourceMeta = writable(null);
@@ -46,7 +50,7 @@
 
 	onMount(async () => {
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
-		const result = await (await fetch(SOURCE_META_PATH)).json();
+		const result: ProjectState = await (await fetch(SOURCE_META_PATH)).json();
 		console.log('fetch result', result);
 		packageJson = result.packageJson;
 		sourceMetaItems = result.items;
@@ -70,7 +74,7 @@
 			<header>
 				<span class="logo">
 					{#if packageJson.homepage}
-						<a href={packageJson.homepage}>{packageJson.name}</a>
+						<a href={homepage}>{packageJson.name}</a>
 					{:else}{packageJson.name}{/if}
 				</span>
 				<nav>

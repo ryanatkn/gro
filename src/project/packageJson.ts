@@ -12,8 +12,8 @@ and in the future we should be able to easily auto-generate types for them.
 
 */
 
-type PackageJson = Obj<Json>; // TODO generate one day
-type GroPackageJson = Obj<Json>; // TODO generate one day
+export type PackageJson = Obj<Json>; // TODO generate one day
+export type GroPackageJson = Obj<Json>; // TODO generate one day
 
 let packageJson: PackageJson | undefined;
 

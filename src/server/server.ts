@@ -23,6 +23,7 @@ import {
 } from '../build/baseFilerFile.js';
 import {paths} from '../paths.js';
 import {loadPackageJson} from '../project/packageJson.js';
+import {ProjectState} from './projectState.js';
 
 export interface DevServer {
 	readonly server: Server;
@@ -121,7 +122,7 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 		const localPath = toLocalPath(url);
 		log.trace('serving', gray(req.url), '→', gray(localPath));
 
-		// TODO refactor
+		// TODO refactor - see `./projectState.ts` for more
 		// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
 		// also, `src/` is hardcoded below in `paths.source`s
 		const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
@@ -130,19 +131,14 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 				'Content-Type': 'application/json',
 			};
 			res.writeHead(200, headers);
-			res.end(
-				JSON.stringify({
-					// TODO this is a hacky, not using the filer's dirs for the source,
-					// but that's because it doesn't have a single one, so..?
-					// it's similar to the "// TODO refactor" above - `src/` is hardcoded in.
-					// The client needs it for now but it needs to be rethought.
-					buildDir: filer.buildDir,
-					sourceDir: paths.source, // TODO see above
-					items: Array.from(filer.getSourceMeta().values()),
-					// TODO should this be imported/replaced at buildtime instead of loading/sending like thie?
-					packageJson: await loadPackageJson(),
-				}),
-			);
+			const projectState: ProjectState = {
+				buildDir: filer.buildDir,
+				sourceDir: paths.source,
+				items: Array.from(filer.sourceMeta.values()),
+				buildConfigs: filer.buildConfigs,
+				packageJson: await loadPackageJson(),
+			};
+			res.end(JSON.stringify(projectState));
 			return;
 		}
 
