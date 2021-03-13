@@ -1,7 +1,8 @@
 import {dirname, relative, basename} from 'path';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
-import {paths, toPathParts, toPathSegments, basePathToSourceId} from '../paths.js';
+import {paths, basePathToSourceId} from '../paths.js';
+import {toPathParts, toPathSegments} from '../utils/path.js';
 import {stripStart} from '../utils/string.js';
 import {last} from '../utils/array.js';
 import {loadTaskModules} from '../task/taskModule.js';

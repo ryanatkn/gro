@@ -116,26 +116,6 @@ export const hasSourceExtension = (path: string): boolean =>
 	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_DEFS_EXTENSION)) ||
 	path.endsWith(SVELTE_EXTENSION);
 
-// Gets the individual parts of a path, ignoring dots and separators.
-// toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
-export const toPathSegments = (path: string): string[] =>
-	path.split('/').filter((s) => s && s !== '.');
-
-// Designed for the `cheap-watch` API.
-// toPathParts('./foo/bar/baz.ts') => ['foo', 'foo/bar', 'foo/bar/baz.ts']
-export const toPathParts = (path: string): string[] => {
-	const segments = toPathSegments(path);
-	let currentPath = path[0] === '/' ? '/' : '';
-	return segments.map((segment) => {
-		if (!currentPath || currentPath === '/') {
-			currentPath += segment;
-		} else {
-			currentPath += '/' + segment;
-		}
-		return currentPath;
-	});
-};
-
 // Can be used to map a source id from e.g. the cwd to gro's.
 export const replaceRootDir = (id: string, rootDir: string, p = paths): string =>
 	join(rootDir, toRootPath(id, p));
