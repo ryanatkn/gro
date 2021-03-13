@@ -127,8 +127,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 	}
 	return {
 		dev,
-		mapDependencyToSourceId,
 		externalsAliases: DEFAULT_EXTERNALS_ALIASES,
+		mapDependencyToSourceId,
 		sourceMap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
@@ -137,10 +137,10 @@ export const initOptions = (opts: InitialOptions): Options => {
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
 		builder,
-		sourceDirs,
-		servedDirs,
 		buildConfigs,
 		buildDir,
+		sourceDirs,
+		servedDirs,
 	};
 };
 
@@ -172,10 +172,10 @@ export class Filer implements BuildContext {
 			builder,
 			buildConfigs,
 			buildDir,
-			mapDependencyToSourceId,
 			sourceDirs,
 			servedDirs,
 			externalsAliases,
+			mapDependencyToSourceId,
 			sourceMap,
 			target,
 			watch,
