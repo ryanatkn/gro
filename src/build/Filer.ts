@@ -141,14 +141,12 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer implements BuildContext {
+	// TODO think about accessors - I'm currently just making things public when I need them here
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: FilerDir[];
-	private readonly sourceMeta: Map<string, SourceMeta> = new Map();
-	getSourceMeta(): Map<string, SourceMeta> {
-		return this.sourceMeta; // TODO redesign this getter?
-	}
-	private readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly sourceMeta: Map<string, SourceMeta> = new Map();
+	readonly buildConfigs: readonly BuildConfig[] | null;
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
 
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
@@ -343,7 +341,7 @@ export class Filer implements BuildContext {
 		if (isInput) {
 			if (sourceFile.isInputToBuildConfigs === null) {
 				// Cast to keep the `readonly` modifier outside of initialization.
-				(sourceFile as Writable<
+				(sourceFile as Assignable<
 					BuildableSourceFile,
 					'isInputToBuildConfigs'
 				>).isInputToBuildConfigs = new Set();

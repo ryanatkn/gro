@@ -1,11 +1,14 @@
-<script>
-	import SourceMetaExpanderItem from './SourceMetaExpanderItem.svelte';
-	import {filterSelectedMetaItems} from './sourceTree.js';
+<script lang="ts">
+	import {Writable} from 'svelte/store';
 
-	export let sourceTree;
-	export let selectedBuildNames;
-	export let selectedSourceMeta;
-	export let hoveredSourceMeta;
+	import SourceMetaExpanderItem from './SourceMetaExpanderItem.svelte';
+	import {SourceTree, filterSelectedMetaItems} from './sourceTree.js';
+	import {SourceMeta} from '../build/sourceMeta.js';
+
+	export let sourceTree: SourceTree;
+	export let selectedBuildNames: string[];
+	export let selectedSourceMeta: Writable<SourceMeta | null>;
+	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
 	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
 </script>

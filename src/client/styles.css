@@ -14,8 +14,9 @@ html {
 body {
 	height: 100%;
 	padding: 0;
-	line-height: 1.27;
+	line-height: 1.2;
 	font-size: 16px;
+	color: var(--color_text);
 	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,
 		'Open Sans', Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
@@ -32,10 +33,14 @@ img {
 	max-width: 100%;
 }
 
+a {
+	color: var(--color_2_text);
+	text-decoration: none;
+}
+
 button {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	padding: 0 var(--spacing_md);
-	min-height: var(--spacing_height_md); /* or rename to `input_height_min` or something? */
 }

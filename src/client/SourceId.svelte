@@ -1,9 +1,9 @@
-<script>
-	import {getContext} from 'svelte';
+<script lang="ts">
+	import {useProjectState} from './projectState.js';
 
-	export let id;
+	const ctx = useProjectState();
 
-	const ctx = getContext('buildContext');
+	export let id: string;
 
 	$: displayed = id.startsWith($ctx.sourceDir) ? id.slice($ctx.sourceDir.length - 1) : id;
 </script>
@@ -13,5 +13,6 @@
 <style>
 	.source-id {
 		color: var(--color_0_text);
+		white-space: nowrap;
 	}
 </style>

@@ -10,7 +10,7 @@ if (!root) throw Error('Cannot find root element');
 
 export const app = new App({
 	target: root,
-	props: {name: 'gro'}, // TODO get this from config, replacing at buildtime
+	props: {},
 });
 
 (window as any).app = app;

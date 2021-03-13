@@ -1,25 +1,28 @@
-<script>
-	import SourceId from './SourceId.svelte';
+<script lang="ts">
+	import {Writable} from 'svelte/store';
 
-	export let sourceMeta;
-	export let hoveredSourceMeta;
+	import SourceId from './SourceId.svelte';
+	import {SourceMeta} from '../build/sourceMeta.js';
+
+	export let sourceMeta: SourceMeta;
+	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
 	let expanded = false;
 	$: expandedText = expanded ? '–' : '+';
 
 	let hovering = false;
 
-	const onPointerEnter = (e) => {
+	const onPointerEnter = () => {
 		hovering = true;
 		$hoveredSourceMeta = sourceMeta;
 	};
-	const onPointerLeave = (e) => {
+	const onPointerLeave = () => {
 		hovering = false;
 		if ($hoveredSourceMeta === sourceMeta) $hoveredSourceMeta = null;
 	};
 
 	// TODO probably want to do a better data structure than this
-	const isDependency = (dependency, dependent) =>
+	const isDependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
