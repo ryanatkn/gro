@@ -1,5 +1,5 @@
 import {basename, dirname, join} from 'path';
-import {install, InstallResult} from 'esinstall';
+import {install as installWithEsinstall, InstallResult} from 'esinstall';
 import {Plugin as RollupPlugin} from 'rollup';
 
 import {Logger, SystemLogger} from '../utils/log.js';
@@ -38,6 +38,7 @@ but this isn't a great solution
 */
 
 export interface Options {
+	install: typeof installWithEsinstall;
 	basePath: string;
 	log: Logger;
 }
@@ -45,6 +46,7 @@ export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
 	return {
+		install: installWithEsinstall,
 		basePath: EXTERNALS_BUILD_DIR,
 		...omitUndefined(opts),
 		log,
@@ -56,7 +58,7 @@ type ExternalsBuilder = Builder<TextBuildSource, TextBuild>;
 const encoding = 'utf8';
 
 export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
-	const {basePath, log} = initOptions(opts);
+	const {install, basePath, log} = initOptions(opts);
 
 	const build: ExternalsBuilder['build'] = async (
 		source,
@@ -80,7 +82,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 
 		log.info(`bundling externals ${printBuildConfig(buildConfig)}: ${gray(source.id)}`);
 
-		// TODO add an external API for customizing the `install` params
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
 		const cssCache = createCssCache();
 		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
