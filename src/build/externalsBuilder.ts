@@ -1,5 +1,5 @@
 import {basename, dirname, join} from 'path';
-import {install, InstallResult} from 'esinstall';
+import {install as installWithEsinstall, InstallResult} from 'esinstall';
 import {Plugin as RollupPlugin} from 'rollup';
 
 import {Logger, SystemLogger} from '../utils/log.js';
@@ -38,7 +38,7 @@ but this isn't a great solution
 */
 
 export interface Options {
-	install: typeof install;
+	install: typeof installWithEsinstall;
 	basePath: string;
 	log: Logger;
 }
@@ -46,7 +46,7 @@ export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
 	return {
-		install,
+		install: installWithEsinstall,
 		basePath: EXTERNALS_BUILD_DIR,
 		...omitUndefined(opts),
 		log,
