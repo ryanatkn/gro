@@ -112,18 +112,24 @@ export const initOptions = (opts: InitialOptions): Options => {
 						),
 				  ]),
 	);
-	if (sourceDirs.length === 0 && servedDirs.length === 0) {
-		throw Error('Filer created with no directories to build or serve.');
-	}
-	if (sourceDirs.length !== 0 && buildConfigs === null) {
-		throw Error('Filer created with directories to build but no build configs were provided.');
-	}
 	const builder = opts.builder || null;
-	if (sourceDirs.length !== 0 && !builder) {
-		throw Error('Filer created with directories to build but no builder was provided.');
-	}
-	if (builder && sourceDirs.length === 0) {
-		throw Error('Filer created with a builder but no directories to build.');
+	if (sourceDirs.length) {
+		if (!buildConfigs) {
+			throw Error('Filer created with directories to build but no build configs were provided.');
+		}
+		if (!builder) {
+			throw Error('Filer created with directories to build but no builder was provided.');
+		}
+	} else {
+		if (!servedDirs.length) {
+			throw Error('Filer created with no directories to build or serve.');
+		}
+		if (builder) {
+			throw Error('Filer created with a builder but no directories to build.');
+		}
+		if (buildConfigs) {
+			throw Error('Filer created with build configs but no builder was provided.');
+		}
 	}
 	return {
 		dev,
@@ -149,8 +155,9 @@ export class Filer implements BuildContext {
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: FilerDir[];
-	readonly sourceMeta: Map<string, SourceMeta> = new Map();
+	private readonly builder: Builder | null;
 	readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly sourceMeta: Map<string, SourceMeta> = new Map();
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
 
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
@@ -183,6 +190,7 @@ export class Filer implements BuildContext {
 			log,
 		} = initOptions(opts);
 		this.dev = dev;
+		this.builder = builder;
 		this.buildConfigs = buildConfigs;
 		this.buildDir = buildDir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
@@ -193,7 +201,6 @@ export class Filer implements BuildContext {
 		this.dirs = createFilerDirs(
 			sourceDirs,
 			servedDirs,
-			builder,
 			buildDir,
 			this.onDirChange,
 			watch,
@@ -255,8 +262,8 @@ export class Filer implements BuildContext {
 		if (this.buildConfigs !== null) {
 			for (const dir of this.dirs) {
 				if (!dir.buildable) continue;
-				if (dir.builder.init !== undefined) {
-					await dir.builder.init(this, this.buildConfigs);
+				if (this.builder!.init !== undefined) {
+					await this.builder!.init(this, this.buildConfigs);
 				}
 			}
 		}
@@ -396,7 +403,7 @@ export class Filer implements BuildContext {
 		}
 		sourceFile.dependencies.delete(buildConfig);
 		sourceFile.dependents.delete(buildConfig);
-		const {onRemove} = sourceFile.filerDir.builder;
+		const {onRemove} = this.builder!;
 		if (onRemove) {
 			try {
 				await onRemove(sourceFile, buildConfig, this);
@@ -665,7 +672,7 @@ export class Filer implements BuildContext {
 
 		this.buildingSourceFiles.add(sourceFile.id); // track so we can see what the filer is doing
 		try {
-			result = await sourceFile.filerDir.builder.build(sourceFile, buildConfig, this);
+			result = await this.builder!.build(sourceFile, buildConfig, this);
 		} catch (err) {
 			this.buildingSourceFiles.delete(sourceFile.id);
 			throw err;
@@ -935,7 +942,7 @@ export class Filer implements BuildContext {
 	// we could then remove things like the tracking what's building in the Filer and externalsBuidler
 	private updatingExternals: Promise<void>[] = [];
 	private async waitForExternals(): Promise<void> {
-		if (this.updatingExternals.length === 0) return;
+		if (!this.updatingExternals.length) return;
 		await Promise.all(this.updatingExternals);
 		this.updatingExternals.length = 0;
 	}
@@ -1072,7 +1079,6 @@ const validateDirs = (sourceDirs: string[]) => {
 const createFilerDirs = (
 	sourceDirs: string[],
 	servedDirs: ServedDir[],
-	builder: Builder | null,
 	buildDir: string,
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
@@ -1080,7 +1086,7 @@ const createFilerDirs = (
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {
-		dirs.push(createFilerDir(sourceDir, builder, onChange, watch, watcherDebounce));
+		dirs.push(createFilerDir(sourceDir, true, onChange, watch, watcherDebounce));
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a source or externals directory,
@@ -1094,7 +1100,7 @@ const createFilerDirs = (
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildDir)
 		) {
-			dirs.push(createFilerDir(servedDir.dir, null, onChange, watch, watcherDebounce));
+			dirs.push(createFilerDir(servedDir.dir, false, onChange, watch, watcherDebounce));
 		}
 	}
 	return dirs;
