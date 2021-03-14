@@ -26,4 +26,4 @@ export const toPathParts = (path: string): string[] => {
 // Gets the individual parts of a path, ignoring dots and separators.
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
 export const toPathSegments = (path: string): string[] =>
-	path.split('/').filter((s) => s && s !== '.');
+	path.split('/').filter((s) => s && s !== '.' && s !== '..');

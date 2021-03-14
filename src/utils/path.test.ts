@@ -21,6 +21,9 @@ test('toPathSegments()', () => {
 	test('leading dot', () => {
 		t.equal(toPathSegments('./foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
 	});
+	test('leading two dots', () => {
+		t.equal(toPathSegments('../../foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
+	});
 	test('leading slash', () => {
 		t.equal(toPathSegments('/foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
 	});
