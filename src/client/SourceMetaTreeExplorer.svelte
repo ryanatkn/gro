@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {filterSelectedMetaItems, SourceTree} from './sourceTree.js';
+	import {filterSelectedMetas, SourceTree} from './sourceTree.js';
 	import SourceId from './SourceId.svelte';
 
 	export let sourceTree: SourceTree;
@@ -7,11 +7,11 @@
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
-	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
 </script>
 
 <div class="explorer">
-	{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
+	{#each filteredSourceMetas as sourceMeta (sourceMeta.cacheId)}
 		<div class="node">
 			<SourceId id={sourceMeta.data.sourceId} />
 		</div>

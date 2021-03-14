@@ -1,69 +1,53 @@
 <script lang="ts">
-	import {SourceTree, filterSelectedMetaItems} from './sourceTree.js';
-	import BuildId from './BuildId.svelte';
-	import SourceId from './SourceId.svelte';
-	import {getBuildsByBuildName} from './sourceTree.js';
+	import {SourceTree, filterSelectedMetas, SourceTreeMeta} from './sourceTree.js';
+	import {toPathSegments} from '../utils/path.js';
+	import {stripStart} from '../utils/string.js';
+	import {useProjectState} from './projectState.js';
+	import {FileTreeFolder} from './fileTree.js';
+	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
-	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
-	$: finalItems = filteredSourceMetaItems.flatMap((sourceMeta) =>
-		sourceMeta.buildNames
-			.map(
-				(buildName) =>
-					selectedBuildNames.includes(buildName)
-						? {sourceMeta, buildName, key: `${buildName}:${sourceMeta.cacheId}`} // TODO hmm
-						: null!, // bc filter below
-			)
-			.filter(Boolean),
-	);
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
+	$: fileTreeFolder = toFileTree(filteredSourceMetas, 'src');
+
+	const projectState = useProjectState();
+
+	// TODO instead of reconstructing the dirs/files here,
+	// probably push this upstream - filer dirs are probably the prereq
+	// TODO refactor all of this, some hacky code because data structures aren't final
+
+	const toFileTree = (sourceTreeMetas: SourceTreeMeta[], rootDirName: string): FileTreeFolder => {
+		const fileTree: FileTreeFolder = {type: 'folder', name: rootDirName, children: []};
+		const getFileInfo = (basePath: string): {folder: FileTreeFolder; name: string} => {
+			let current: FileTreeFolder = fileTree;
+			const segments = toPathSegments(basePath);
+			// The `sourceTreeMetas` currently include files only and not directories,
+			// so we just ignore the final segment, and assume everything else is a folder.
+			for (const segment of segments.slice(0, segments.length - 1)) {
+				let next = current.children.find((t) => t.name === segment) as FileTreeFolder | undefined;
+				if (!next) {
+					next = {type: 'folder', name: segment, children: []};
+					current.children.push(next);
+				}
+				current = next;
+			}
+			return {folder: current, name: segments[segments.length - 1]};
+		};
+		for (const sourceTreeMeta of sourceTreeMetas) {
+			const sourceIdBasePath = stripStart(sourceTreeMeta.data.sourceId, $projectState.sourceDir);
+			const {folder, name} = getFileInfo(sourceIdBasePath);
+			folder.children.push({type: 'file', name});
+		}
+		return fileTree;
+	};
 </script>
 
 <div>
-	{#each finalItems as {sourceMeta, buildName, key} (key)}
-		<div class="root item bg">
-			<div class="content">
-				<SourceId id={sourceMeta.data.sourceId} />
-			</div>
-			<div>
-				{#each getBuildsByBuildName(sourceMeta, buildName) as build (build.id)}
-					<div class="item bg">
-						<div class="content">
-							<BuildId id={build.id} />
-						</div>
-						{#if build.dependencies}
-							<div class="content bg">
-								<div>
-									{#each build.dependencies as dependency (dependency.buildId)}
-										<BuildId id={dependency.buildId} />
-									{/each}
-								</div>
-							</div>
-						{/if}
-					</div>
-				{/each}
-			</div>
-		</div>
-	{:else}<small><em>no builds selected</em></small>{/each}
+	{#if filteredSourceMetas.length}
+		<FileTreeExplorerFolder folder={fileTreeFolder} />
+	{:else}<small><em>no builds selected</em></small>{/if}
 </div>
-
-<style>
-	/* TODO name?? */
-	.content {
-		display: flex;
-		align-items: center;
-		padding: var(--spacing_sm);
-	}
-	.root {
-	}
-	.item {
-		display: flex;
-		align-items: stretch;
-	}
-	.bg {
-		background-color: var(--color_bg_layer);
-	}
-</style>
