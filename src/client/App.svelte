@@ -16,6 +16,7 @@
 	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
 	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
+	import SourceMetaTreeExplorers from './SourceMetaTreeExplorers.svelte';
 	import {createSourceTree, SourceTree} from './sourceTree.js';
 	import type {ProjectState} from '../server/projectState.js';
 	import type {View} from './view.js';
@@ -38,8 +39,9 @@
 		SourceMetaBuildTree,
 		SourceMetaBuildTreeExplorer,
 		SourceMetaTreeExplorer,
+		SourceMetaTreeExplorers,
 	];
-	let activeSourceMetaViewIndex = 5;
+	let activeSourceMetaViewIndex = 7;
 	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
 	const setActiveSourceMetaView = (view: View) =>
 		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
