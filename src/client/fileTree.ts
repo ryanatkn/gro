@@ -1,3 +1,5 @@
+import {basename} from 'path';
+
 import {SourceTreeMeta} from './sourceTree.js';
 import {toPathSegments} from '../utils/path.js';
 import {stripStart} from '../utils/string.js';
@@ -20,14 +22,13 @@ export interface FileTreeFolder {
 
 // TODO refactor all of this, some hacky code because data structures aren't final
 
-export const toFileTree = (
+export const toFileTreeFolder = (
 	sourceDir: string,
 	sourceTreeMetas: SourceTreeMeta[],
-	rootDirName: string,
 ): FileTreeFolder => {
-	const fileTree: FileTreeFolder = {type: 'folder', name: rootDirName, children: []};
+	const root: FileTreeFolder = {type: 'folder', name: basename(sourceDir), children: []};
 	const getFileInfo = (basePath: string): {folder: FileTreeFolder; name: string} => {
-		let current: FileTreeFolder = fileTree;
+		let current: FileTreeFolder = root;
 		const segments = toPathSegments(basePath);
 		// The `sourceTreeMetas` currently include files only and not directories,
 		// so we just ignore the final segment, and assume everything else is a folder.
@@ -46,5 +47,6 @@ export const toFileTree = (
 		const {folder, name} = getFileInfo(sourceIdBasePath);
 		folder.children.push({type: 'file', name});
 	}
-	return fileTree;
+	console.log('toFileTreeFolder:', root);
+	return root;
 };

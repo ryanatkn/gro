@@ -2,7 +2,7 @@
 	import {SourceTree, filterSelectedMetas} from './sourceTree.js';
 	import {useProjectState} from './projectState.js';
 	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
-	import {toFileTree} from './fileTree.js';
+	import {toFileTreeFolder} from './fileTree.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
@@ -12,7 +12,7 @@
 	const ps = useProjectState();
 
 	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
-	$: fileTreeFolder = toFileTree($ps.sourceDir, filteredSourceMetas, 'src');
+	$: fileTreeFolder = toFileTreeFolder($ps.sourceDir, filteredSourceMetas);
 </script>
 
 <div>
