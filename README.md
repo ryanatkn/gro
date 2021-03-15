@@ -72,7 +72,7 @@ gro some/file.task.ts # same as above
 gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
 ```
 
-Gro has a number of builtin tasks.
+Gro has a number of builtin tasks that you can run with the CLI.
 To learn more [see the task docs](/src/task)
 and [the generated task index](/src/docs/tasks.md).
 
@@ -136,7 +136,7 @@ gro project/build # builds for release and updates the `gro` CLI
 
 ## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
-Gro uses
+Gro builds on
 [Svelte](https://github.com/sveltejs/svelte) ∙
 [Rollup](https://github.com/rollup/rollup) ∙
 [TypeScript](https://github.com/microsoft/TypeScript) ∙

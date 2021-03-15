@@ -59,7 +59,7 @@
 	let showSourceMeta = true;
 	let showFilerVisualizer1 = false;
 	let showFilerVisualizer2 = false;
-	let showServerVisualizer = true;
+	let showServerVisualizer = false;
 	let showSourceTreeVisualizer = false;
 	let showBuildTreeVisualizer = false;
 </script>
@@ -144,7 +144,7 @@
 			</section>
 		{/if}
 
-		<section transition:slide>
+		<section>
 			{#if showSourceMeta}
 				<nav>
 					<button on:pointerdown={() => (showSourceMeta = false)}>🗙</button>
@@ -228,6 +228,7 @@
 	nav {
 		display: flex;
 		align-items: center;
+		flex-wrap: wrap;
 	}
 
 	section {
