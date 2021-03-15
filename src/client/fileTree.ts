@@ -9,6 +9,7 @@ export type FileTreeNode = FileTreeFile | FileTreeFolder;
 export interface FileTreeFile {
 	type: 'file';
 	name: string;
+	meta: SourceTreeMeta;
 }
 
 export interface FileTreeFolder {
@@ -42,11 +43,30 @@ export const toFileTreeFolder = (
 		}
 		return {folder: current, name: segments[segments.length - 1]};
 	};
-	for (const sourceTreeMeta of sourceTreeMetas) {
-		const sourceIdBasePath = stripStart(sourceTreeMeta.data.sourceId, sourceDir);
+	for (const meta of sourceTreeMetas) {
+		const sourceIdBasePath = stripStart(meta.data.sourceId, sourceDir);
 		const {folder, name} = getFileInfo(sourceIdBasePath);
-		folder.children.push({type: 'file', name});
+		folder.children.push({type: 'file', name, meta});
 	}
-	console.log('toFileTreeFolder:', root);
+	forEachFolder(root, (f) => sortFolderChildren(f));
 	return root;
+};
+
+const forEachFolder = (folder: FileTreeFolder, cb: (folder: FileTreeFolder) => void) => {
+	cb(folder);
+	for (const child of folder.children) {
+		if (child.type === 'folder') {
+			forEachFolder(child, cb);
+		}
+	}
+};
+
+// sorts `folder.children` in place, putting files after directories
+const sortFolderChildren = (folder: FileTreeFolder): void => {
+	folder.children.sort((a, b) => {
+		if (a.type === 'folder') {
+			if (b.type !== 'folder') return -1;
+		} else if (b.type === 'folder') return 1;
+		return a.name.localeCompare(b.name);
+	});
 };
