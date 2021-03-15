@@ -1,14 +1,15 @@
 <script lang="ts">
 	import FileTreeExplorerFile from './FileTreeExplorerFile.svelte';
+	import FileTreeExplorerNode from './FileTreeExplorerNode.svelte';
 	import {FileTreeFolder} from './fileTree.js';
 
 	export let folder: FileTreeFolder;
 </script>
 
-<div>{folder.name}</div>
-<ul>
+<FileTreeExplorerNode node={folder} />
+<ul class="folder">
 	{#each folder.children as child (child.name)}
-		<li>
+		<li class={child.type}>
 			{#if child.type === 'folder'}
 				<svelte:self folder={child} />
 			{:else}

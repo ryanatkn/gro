@@ -26,14 +26,31 @@
 		display: flex;
 		align-items: stretch;
 	}
-	/* TODO how to style these? */
+	/*
+		TODO how to style these?
+		these global selectors are just a hacky to get things working.
+		might need to redesign concepts to avoid the complex selector logic to get styles right.
+	 */
 	.build-explorer :global(ul) {
 		padding: 0;
 		list-style: none;
 		background-color: var(--color_bg_layer);
 	}
-	.build-explorer :global(li) {
+	.build-explorer :global(ul.folder) {
+		padding: var(--spacing_sm);
+	}
+	.build-explorer :global(li.folder) {
 		display: flex;
 		align-items: center;
+		padding-bottom: var(--spacing_sm);
+	}
+	.build-explorer :global(.node) {
+		display: flex;
+		align-items: center;
+		padding-right: var(--spacing_sm);
+	}
+	/* yikes lol */
+	.build-explorer :global(li.file > .file > .node) {
+		padding-right: 0;
 	}
 </style>
