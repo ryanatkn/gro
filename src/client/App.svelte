@@ -17,12 +17,31 @@
 	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import SourceMetaTreeExplorers from './SourceMetaTreeExplorers.svelte';
+	import MarkupView from '../ui/MarkupView.svelte';
+	import {MarkupNode} from '../ui/markup.js';
 	import {createSourceTree, SourceTree} from './sourceTree.js';
 	import type {ProjectState} from '../server/projectState.js';
 	import type {View} from './view.js';
 	import {provideProjectState} from './projectState.js';
 
 	console.log('enter App.svelte');
+
+	let id = 0;
+	const markupNode: MarkupNode = {
+		type: 'Block',
+		id: id++,
+		children: [
+			{type: 'Text', id: id++, content: 'hey~!'},
+			{
+				type: 'Block',
+				id: id++,
+				children: [
+					{type: 'Text', id: id++, content: 'check it out, a language!'},
+					{type: 'Text', id: id++, content: 'wow'},
+				],
+			},
+		],
+	};
 
 	$: homepage = ($ctx?.packageJson.homepage || '') as string;
 	let sourceTree: SourceTree;
@@ -109,6 +128,8 @@
 				</nav>
 			</header>
 		</section>
+
+		<MarkupView node={markupNode} />
 
 		{#if showFilerVisualizer1}
 			<section transition:slide>
