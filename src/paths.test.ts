@@ -10,8 +10,6 @@ import {
 	sourceIdToBasePath,
 	basePathToSourceId,
 	hasSourceExtension,
-	toPathParts,
-	toPathSegments,
 	toImportId,
 	toBuildExtension,
 	toSourceExtension,
@@ -66,32 +64,6 @@ test('hasSourceExtension()', () => {
 	});
 	test('svelte', () => {
 		t.ok(hasSourceExtension('foo/bar/baz.svelte'));
-	});
-});
-
-test('toPathSegments()', () => {
-	t.equal(toPathSegments('foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
-	test('leading dot', () => {
-		t.equal(toPathSegments('./foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
-	});
-	test('leading slash', () => {
-		t.equal(toPathSegments('/foo/bar/baz.ts'), ['foo', 'bar', 'baz.ts']);
-	});
-	test('trailing slash', () => {
-		t.equal(toPathSegments('foo/bar/baz/'), ['foo', 'bar', 'baz']);
-	});
-});
-
-test('toPathParts()', () => {
-	t.equal(toPathParts('foo/bar/baz.ts'), ['foo', 'foo/bar', 'foo/bar/baz.ts']);
-	test('leading dot', () => {
-		t.equal(toPathParts('./foo/bar/baz.ts'), ['foo', 'foo/bar', 'foo/bar/baz.ts']);
-	});
-	test('leading slash', () => {
-		t.equal(toPathParts('/foo/bar/baz.ts'), ['/foo', '/foo/bar', '/foo/bar/baz.ts']);
-	});
-	test('trailing slash', () => {
-		t.equal(toPathParts('foo/bar/baz/'), ['foo', 'foo/bar', 'foo/bar/baz']);
 	});
 });
 

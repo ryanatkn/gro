@@ -14,6 +14,7 @@
 	import SourceMetaTable from './SourceMetaTable.svelte';
 	import SourceMetaBuildsTable from './SourceMetaBuildsTable.svelte';
 	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
+	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import {createSourceTree, SourceTree} from './sourceTree.js';
 	import type {ProjectState} from '../server/projectState.js';
@@ -35,9 +36,10 @@
 		SourceMetaTable,
 		SourceMetaBuildsTable,
 		SourceMetaBuildTree,
+		SourceMetaBuildTreeExplorer,
 		SourceMetaTreeExplorer,
 	];
-	let activeSourceMetaViewIndex = 4;
+	let activeSourceMetaViewIndex = 5;
 	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
 	const setActiveSourceMetaView = (view: View) =>
 		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
@@ -57,7 +59,7 @@
 	let showSourceMeta = true;
 	let showFilerVisualizer1 = false;
 	let showFilerVisualizer2 = false;
-	let showServerVisualizer = true;
+	let showServerVisualizer = false;
 	let showSourceTreeVisualizer = false;
 	let showBuildTreeVisualizer = false;
 </script>
@@ -142,7 +144,7 @@
 			</section>
 		{/if}
 
-		<section transition:slide>
+		<section>
 			{#if showSourceMeta}
 				<nav>
 					<button on:pointerdown={() => (showSourceMeta = false)}>🗙</button>
@@ -193,8 +195,9 @@
 		--color_2_bg: hsl(33, 30%, 91%);
 		--color_3_bg: hsl(272, 30%, 91%);
 		--color_4_bg: hsl(166, 30%, 91%);
-		--spacing_sm: 5px;
-		--spacing_md: 10px;
+		--spacing_xs: 3px;
+		--spacing_sm: 6px;
+		--spacing_md: 12px;
 		--spacing_height_md: 24px;
 
 		height: 100%;
@@ -226,6 +229,7 @@
 	nav {
 		display: flex;
 		align-items: center;
+		flex-wrap: wrap;
 	}
 
 	section {

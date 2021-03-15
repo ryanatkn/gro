@@ -2,11 +2,11 @@
 	import {useProjectState} from './projectState.js';
 	import {toRootPath} from './pathHelpers.js';
 
-	const ctx = useProjectState();
+	const ps = useProjectState();
 
 	export let id: string;
 
-	$: displayed = id.startsWith($ctx.buildDir) ? toRootPath(id, $ctx.buildDir) : id;
+	$: displayed = id.startsWith($ps.buildDir) ? toRootPath(id, $ps.buildDir) : id;
 </script>
 
 <div class="build-id">{displayed}</div>

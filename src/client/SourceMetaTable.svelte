@@ -2,15 +2,15 @@
 	import BuildId from './BuildId.svelte';
 	import SourceId from './SourceId.svelte';
 	import BuildName from './BuildName.svelte';
-	import {SourceTree, filterSelectedMetaItems, getBuildsByBuildName} from './sourceTree.js';
+	import {SourceTree, filterSelectedMetas, getBuildsByBuildName} from './sourceTree.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
-	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
-	$: finalItems = filteredSourceMetaItems.flatMap((sourceMeta) =>
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
+	$: finalItems = filteredSourceMetas.flatMap((sourceMeta) =>
 		sourceMeta.buildNames
 			.map(
 				(buildName) =>

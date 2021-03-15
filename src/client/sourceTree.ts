@@ -88,7 +88,7 @@ export const toSourceTreeMeta = (metas: SourceMeta[]): SourceTreeMeta[] => {
 };
 
 // filters those meta items that have some selected build, based on `selectedBuildNames`
-export const filterSelectedMetaItems = (
+export const filterSelectedMetas = (
 	sourceTree: SourceTree,
 	selectedBuildNames: string[],
 ): SourceTreeMeta[] =>

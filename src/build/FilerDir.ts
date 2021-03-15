@@ -1,7 +1,6 @@
 import {ensureDir} from '../fs/nodeFs.js';
 import {DEBOUNCE_DEFAULT, watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import {Builder} from './builder.js';
 import {PathStats} from '../fs/pathData.js';
 
 // Buildable filer dirs are watched, built, and written to disk.
@@ -9,11 +8,9 @@ import {PathStats} from '../fs/pathData.js';
 export type FilerDir = BuildableFilerDir | NonBuildableFilerDir;
 export interface BuildableFilerDir extends BaseFilerDir {
 	readonly buildable: true;
-	readonly builder: Builder;
 }
 export interface NonBuildableFilerDir extends BaseFilerDir {
 	readonly buildable: false;
-	readonly builder: null;
 }
 
 interface BaseFilerDir {
@@ -34,7 +31,7 @@ export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir
 
 export const createFilerDir = (
 	dir: string,
-	builder: Builder | null,
+	buildable: boolean,
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number = DEBOUNCE_DEFAULT,
@@ -57,27 +54,6 @@ export const createFilerDir = (
 			),
 		);
 	};
-	let filerDir: FilerDir;
-	if (builder === null) {
-		filerDir = {
-			buildable: false,
-			builder: null,
-			dir,
-			onChange,
-			watcher,
-			close,
-			init,
-		};
-	} else {
-		filerDir = {
-			buildable: true,
-			builder,
-			dir,
-			onChange,
-			watcher,
-			close,
-			init,
-		};
-	}
+	const filerDir: FilerDir = {buildable, dir, onChange, watcher, close, init};
 	return filerDir;
 };

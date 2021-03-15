@@ -1,11 +1,11 @@
 <script lang="ts">
 	import {useProjectState} from './projectState.js';
 
-	const ctx = useProjectState();
+	const ps = useProjectState();
 
 	export let id: string;
 
-	$: displayed = id.startsWith($ctx.sourceDir) ? id.slice($ctx.sourceDir.length - 1) : id;
+	$: displayed = id.startsWith($ps.sourceDir) ? id.slice($ps.sourceDir.length - 1) : id;
 </script>
 
 <span class="source-id">{displayed}</span>

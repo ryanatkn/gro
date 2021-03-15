@@ -1,21 +1,24 @@
 <script lang="ts">
-	import {filterSelectedMetaItems, SourceTree} from './sourceTree.js';
-	import SourceId from './SourceId.svelte';
+	import {filterSelectedMetas, SourceTree} from './sourceTree.js';
+	import {toFileTreeFolder} from './fileTree.js';
+	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
+	import {useProjectState} from './projectState.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
-	$: filteredSourceMetaItems = filterSelectedMetaItems(sourceTree, selectedBuildNames);
+	const ps = useProjectState();
+
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
+	$: fileTreeFolder = toFileTreeFolder($ps.sourceDir, filteredSourceMetas);
 </script>
 
 <div class="explorer">
-	{#each filteredSourceMetaItems as sourceMeta (sourceMeta.cacheId)}
-		<div class="node">
-			<SourceId id={sourceMeta.data.sourceId} />
-		</div>
-	{:else}<small><em>no builds selected</em></small>{/each}
+	{#if filteredSourceMetas.length}
+		<FileTreeExplorerFolder folder={fileTreeFolder} />
+	{:else}<small><em>no builds selected</em></small>{/if}
 </div>
 
 <style>
@@ -23,9 +26,5 @@
 		display: flex;
 		flex-direction: column;
 		align-items: stretch;
-	}
-	.node {
-		display: flex;
-		align-items: center;
 	}
 </style>

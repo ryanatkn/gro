@@ -220,7 +220,7 @@ const loadCommonBuilds = async (
 	const commonDependencyIds = Object.keys(installResult.stats.common).map((path) =>
 		join(dest, path),
 	);
-	if (commonDependencyIds.length === 0) return null;
+	if (!commonDependencyIds.length) return null;
 	// log.trace('loading common dependencies', commonDependencyIds);
 	return Promise.all(
 		commonDependencyIds.map(
