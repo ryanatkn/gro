@@ -36,21 +36,17 @@
 		list-style: none;
 		background-color: var(--color_bg_layer);
 	}
-	.build-explorer :global(ul.folder) {
-		padding: var(--spacing_sm);
-	}
 	.build-explorer :global(li.folder) {
+		padding: var(--spacing_sm);
 		display: flex;
 		align-items: center;
-		padding-bottom: var(--spacing_sm);
 	}
 	.build-explorer :global(.node) {
 		display: flex;
 		align-items: center;
-		padding-right: var(--spacing_sm);
+		padding: 0 var(--spacing_sm);
 	}
-	/* yikes lol */
-	.build-explorer :global(li.file > .file > .node) {
-		padding-right: 0;
+	.build-explorer :global(li.folder > .node) {
+		padding-left: 0;
 	}
 </style>

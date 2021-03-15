@@ -195,8 +195,9 @@
 		--color_2_bg: hsl(33, 30%, 91%);
 		--color_3_bg: hsl(272, 30%, 91%);
 		--color_4_bg: hsl(166, 30%, 91%);
-		--spacing_sm: 5px;
-		--spacing_md: 10px;
+		--spacing_xs: 3px;
+		--spacing_sm: 6px;
+		--spacing_md: 12px;
 		--spacing_height_md: 24px;
 
 		height: 100%;
