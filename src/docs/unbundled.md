@@ -25,7 +25,7 @@ Today, Gro is aimed at three primary use cases:
 Eventually, Gro plans to support
 server side rendering (SSR) and static site generation (SSG),
 but today these are low priority.
-We recommend using [Sapper](https://github.com/sveltejs/sapper) for most websites.
+We recommend using [SvelteKit](https://github.com/sveltejs/kit) for most websites.
 Gro is primarily intended for SPAs and Node projects,
 and **it won't reach a stable production-ready 1.0 for quite a while.**
 

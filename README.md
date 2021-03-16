@@ -6,10 +6,10 @@
 
 > **_warning!_** You should not use Gro today
 > unless you're willing to take ownership of the code.
-> Expect bugs, missing features, and undocumented breaking changes.
-> In fact don't expect any documentation.. or .. just don't expect anything.
-> Gro integrates several tools into a single experience but it's pre-alpha,
-> and there are many mature substitutes with large communities.
+> For now, consider Gro's free software
+> [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
+> meaning it's a lot of work to keep around.
+> Docs are lacking, some things are in progress, and it might pee on your stuff.
 > That said, you might find some interesting or useful things here!
 > Feel free to open issues for questions or discussion.
 
