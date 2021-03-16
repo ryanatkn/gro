@@ -26,6 +26,7 @@ export const task: Task = {
 		const mapOutputOptions = args.mapOutputOptions as any;
 		const mapWatchOptions = args.mapWatchOptions as any;
 
+		// TODO this is outdated - needs to be updated with the Gro config (see `dev.task.ts`)
 		const tsconfigPath = undefined; // TODO parameterized options?
 		const basePath = undefined; // TODO parameterized options?
 		const tsconfig = loadTsconfig(log, tsconfigPath, basePath);

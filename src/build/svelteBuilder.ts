@@ -1,4 +1,4 @@
-import svelte from 'svelte/compiler.js';
+import * as svelte from 'svelte/compiler';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 
@@ -61,7 +61,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		const key = sourceMap + target;
 		const existingPreprocessor = preprocessorCache.get(key);
 		if (existingPreprocessor !== undefined) return existingPreprocessor;
-		const newPreprocessor = createPreprocessor(sourceMap, target);
+		const newPreprocessor = createPreprocessor(target, sourceMap);
 		preprocessorCache.set(key, newPreprocessor);
 		return newPreprocessor;
 	};

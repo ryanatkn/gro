@@ -1,5 +1,6 @@
 <script lang="ts">
-	import {filterSelectedMetas, SourceTree} from './sourceTree.js';
+	import {filterSelectedMetas} from './sourceTree.js';
+	import type {SourceTree} from './sourceTree.js';
 	import {toFileTreeFolder} from './fileTree.js';
 	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
 	import {useProjectState} from './projectState.js';
