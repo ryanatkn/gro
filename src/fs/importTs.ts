@@ -2,7 +2,7 @@ import lexer from 'es-module-lexer';
 
 import {paths, TS_EXTENSION} from '../paths.js';
 import {randomInt} from '../utils/random.js';
-import {createSwcBuilder} from '../build/swcBuilder.js';
+import {createEsbuildBuilder} from '../build/esbuildBuilder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import type {BuildContext, TextBuildSource} from '../build/builder.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
@@ -80,7 +80,7 @@ const compileFileAndImports = async (
 		dirBasePath: stripStart(dir, paths.source),
 		extension: TS_EXTENSION,
 	};
-	const builder = createSwcBuilder();
+	const builder = createEsbuildBuilder();
 	const {
 		builds: [build],
 	} = await builder.build(source, buildConfig, ctx);

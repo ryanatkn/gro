@@ -1,13 +1,21 @@
 import ts from 'typescript';
-import type {JscTarget} from '@swc/core';
 import {join, dirname, resolve} from 'path';
 
 import {black, bgRed} from '../colors/terminal.js';
 import {Logger} from '../utils/log.js';
 
-export type EcmaScriptTarget = JscTarget;
+export type EcmaScriptTarget =
+	| 'es3'
+	| 'es5'
+	| 'es2015'
+	| 'es2016'
+	| 'es2017'
+	| 'es2018'
+	| 'es2019'
+	| 'es2020'
+	| 'esnext';
 
-export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2019';
+export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
 export const toEcmaScriptTarget = (target: ts.ScriptTarget | undefined): EcmaScriptTarget => {
 	switch (target) {
@@ -25,8 +33,10 @@ export const toEcmaScriptTarget = (target: ts.ScriptTarget | undefined): EcmaScr
 			return 'es2018';
 		case 6: // ES2019 = 6,
 			return 'es2019';
-		// ES2020 = 7,
-		// ESNext = 99,
+		case 7: // ES2020 = 7,
+			return 'es2020';
+		case 99: // ESNext = 99,
+			return 'esnext';
 		// JSON = 100,
 		// Latest = 99
 		default:

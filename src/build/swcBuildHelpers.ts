@@ -9,7 +9,7 @@ export const getDefaultSwcOptions = (
 	sourceMaps: sourceMap,
 	jsc: {
 		parser: {syntax: 'typescript', tsx: false, decorators: false, dynamicImport: true},
-		target,
+		target: target as any,
 		externalHelpers: true,
 		loose: true, // TODO?
 		// TODO this doesn't preserve things like worthless statements separated by commas,
