@@ -23,6 +23,7 @@
     // "composite": true, // Enable project compilation: https://www.typescriptlang.org/docs/handbook/project-references.html
     // "diagnostics": false, // Show diagnostic information.
     // "incremental": true, // Enable incremental compilation by reading/writing information from prior compilations to a file on disk.
+    // TODO turn `isolatedModules` on once TS4.3 lands and `exports` are added and `globalTypes` is redesigned
     "isolatedModules": false, // Transpile each file as a separate module (similar to 'ts.transpileModule').
     // "listEmittedFiles": false, // Print names of generated files part of the compilation.
     // "listFiles": true, // Print names of files part of the compilation.
