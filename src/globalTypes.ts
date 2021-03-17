@@ -8,6 +8,12 @@ TODO probably make this `.d.ts` when we make a proper build process
 
 */
 
+declare namespace NodeJS {
+	export interface ProcessEnv {
+		NODE_ENV: string;
+	}
+}
+
 declare type Obj<T = any> = {[key: string]: T};
 
 declare type OmitStrict<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
