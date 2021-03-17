@@ -41,7 +41,7 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	include: ['*.ts+(|x)', '**/*.ts+(|x)'],
+	include: ['*.ts', '**/*.ts'],
 	exclude: ['*.d.ts', '**/*.d.ts'],
 	tsconfigPath: undefined,
 	basePath: undefined,

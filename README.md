@@ -24,7 +24,7 @@ It includes:
   and Node servers/libraries, inspired by [Snowpack](https://github.com/pikapkg/snowpack)
 - production bundling via [Rollup](https://github.com/rollup/rollup)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
-  using [swc](https://github.com/swc-project/swc) in dev mode for speed
+  using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
 - testing library called `oki` (docs at [`src/oki`](/src/oki))
@@ -140,7 +140,7 @@ Gro builds on
 [Svelte](https://github.com/sveltejs/svelte) ∙
 [Rollup](https://github.com/rollup/rollup) ∙
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
-[swc](https://github.com/swc-project/swc) ∙
+[esbuild](https://github.com/evanw/esbuild) ∙
 [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [lukeed\/\*](https://github.com/lukeed) ∙

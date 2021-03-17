@@ -5,7 +5,7 @@ import {
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import * as esbuildPreprocess from 'svelte-preprocess-esbuild';
+import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {Logger} from '../utils/log.js';
 import {yellow} from '../colors/terminal.js';
@@ -19,7 +19,7 @@ export type CreatePreprocessor = (
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
 export const createDefaultPreprocessor: CreatePreprocessor = (target, sourceMap) =>
-	esbuildPreprocess.typescript(getDefaultEsbuildPreprocessOptions(target, sourceMap));
+	sveltePreprocessEsbuild.typescript(getDefaultEsbuildPreprocessOptions(target, sourceMap));
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {

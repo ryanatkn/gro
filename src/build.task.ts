@@ -3,7 +3,7 @@ import {resolve} from 'path';
 import {pathExists} from './fs/nodeFs.js';
 import {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
-import {getDefaultSwcOptions} from './build/swcBuildHelpers.js';
+import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
 import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';
 
 // TODO how should this be done? do we want to allow development builds with Rollup?
@@ -32,7 +32,7 @@ export const task: Task = {
 		const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
 		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
 		const sourceMap = tsconfig.compilerOptions?.sourceMap ?? process.env.NODE_ENV !== 'production';
-		const swcOptions = getDefaultSwcOptions(target, sourceMap);
+		const esbuildOptions = getDefaultEsbuildOptions(target, sourceMap);
 
 		if (inputFiles.length) {
 			const build = createBuild({
@@ -44,7 +44,7 @@ export const task: Task = {
 				mapInputOptions,
 				mapOutputOptions,
 				mapWatchOptions,
-				swcOptions,
+				esbuildOptions,
 			});
 			await build.promise;
 		} else {

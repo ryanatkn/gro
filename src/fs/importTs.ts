@@ -52,7 +52,7 @@ export const importTs = async (
 		dev: true,
 		sourceMap: false,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
-		// TODO these last two aren't needed, maybe the swc compiler's type should explicitly choose which options it uses?
+		// TODO these last two aren't needed, maybe the builder's type should explicitly choose which options it uses?
 		servedDirs: [],
 		externalsAliases: {},
 		state: {},

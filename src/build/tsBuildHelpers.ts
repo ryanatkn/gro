@@ -62,7 +62,7 @@ const tsconfigCache: Map<string, TsConfig> = new Map();
 
 // TODO This is pretty slow.
 // (10ms last I measured, might seem small but you can do a LOT of work in 10ms and it's *blocking*)
-// Caching helps but maybe we should just import the JSON, at least when only using swc?
+// Caching helps but maybe we should just import the JSON, at least when only using esbuild?
 // Also we don't currently watch for changes, but could eventually,
 // way down the line when that's the biggest issue to address!
 export const loadTsconfig = (

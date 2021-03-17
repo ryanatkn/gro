@@ -1,5 +1,4 @@
 import esbuild from 'esbuild';
-import {relative} from 'path';
 
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
@@ -9,7 +8,7 @@ import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
-import {addJsSourceMapFooter} from './buildHelpers.js';
+import {addJsSourceMapFooter} from './utils.js';
 
 export interface Options {
 	log: Logger;
@@ -57,7 +56,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
 		const esbuildOptions = {
 			...getEsbuildOptions(sourceMap, target),
-			sourcefile: relative(outDir, source.id),
+			sourcefile: source.id,
 		};
 		const output = await esbuild.transform(source.contents, esbuildOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
