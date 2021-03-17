@@ -2,7 +2,7 @@ import * as terser from 'terser';
 import {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
-import {magenta} from '../colors/terminal.js';
+import {magenta} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath, printError} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';

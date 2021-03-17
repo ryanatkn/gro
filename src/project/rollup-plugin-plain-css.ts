@@ -3,7 +3,7 @@ import {resolve, dirname} from 'path';
 import {existsSync} from 'fs';
 import {createFilter} from '@rollup/pluginutils';
 
-import {green} from '../colors/terminal.js';
+import {green} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';

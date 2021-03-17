@@ -1,4 +1,4 @@
-import {red} from '../colors/terminal.js';
+import {red} from '../utils/terminal.js';
 import {GenModuleMeta} from './genModule.js';
 import {
 	GenResults,

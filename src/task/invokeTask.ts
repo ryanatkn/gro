@@ -1,4 +1,4 @@
-import {magenta, cyan, red, gray} from '../colors/terminal.js';
+import {magenta, cyan, red, gray} from '../utils/terminal.js';
 import {Args} from '../cli/types';
 import {SystemLogger, Logger, configureLogLevel} from '../utils/log.js';
 import {runTask} from './runTask.js';

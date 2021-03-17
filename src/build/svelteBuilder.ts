@@ -23,7 +23,7 @@ import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
-import {cyan} from '../colors/terminal.js';
+import {cyan} from '../utils/terminal.js';
 import {addCssSourceMapFooter, addJsSourceMapFooter} from './utils.js';
 
 export interface Options {

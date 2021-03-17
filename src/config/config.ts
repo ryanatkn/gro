@@ -6,7 +6,7 @@ import {
 	validateBuildConfigs,
 } from './buildConfig.js';
 import {Logger, LogLevel, SystemLogger} from '../utils/log.js';
-import {magenta} from '../colors/terminal.js';
+import {magenta} from '../utils/terminal.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
 import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';

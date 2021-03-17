@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import {join, dirname, resolve} from 'path';
 
-import {black, bgRed} from '../colors/terminal.js';
+import {black, bgRed} from '../utils/terminal.js';
 import {Logger} from '../utils/log.js';
 
 export type EcmaScriptTarget =

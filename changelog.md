@@ -125,7 +125,7 @@
 
 ## 0.2.2
 
-- export `kleur/colors` from `src/colors/terminal.js`
+- export `kleur/colors` from `src/utils/terminal.js`
   ([#27](https://github.com/feltcoop/gro/pull/27))
 
 ## 0.2.1

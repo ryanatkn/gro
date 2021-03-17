@@ -1,4 +1,4 @@
-import {red, green, gray} from './colors/terminal.js';
+import {red, green, gray} from './utils/terminal.js';
 import {outputFile} from './fs/nodeFs.js';
 import {Task, TaskError} from './task/task.js';
 import {runGen} from './gen/runGen.js';
