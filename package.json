@@ -12,12 +12,9 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "bootstrap": "rm -rf .gro dist && tsc; cp -r .gro/prod/node/ dist/ && npm link",
-    "b": "npm run bootstrap",
+    "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=.gro/prod/node/; cp -r .gro/prod/node/ dist/ && npm link",
     "dev": "clear && rm -rf .gro && gro dev",
-    "d": "npm run dev",
     "redev": "clear && npm run bootstrap && gro dev",
-    "r": "npm run redev",
     "preversion": "npm run bootstrap && gro check && npm run bootstrap && gro project/build"
   },
   "repository": {
