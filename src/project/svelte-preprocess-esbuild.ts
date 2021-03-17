@@ -17,19 +17,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 import { readFile, existsSync } from 'fs';
 import { dirname, resolve } from 'path';
-import * as esbuild from 'esbuild';
+import esbuild from 'esbuild';
 import { promisify } from 'util';
 
 const read = promisify(readFile);
 
-import type { Service, TransformOptions } from 'esbuild';
+import type { TransformOptions } from 'esbuild';
 import type { PreprocessorGroup, Processed } from 'svelte/types/compiler/preprocess';
 
 export type Definitions = {
 	[find: string]: string;
 }
 
-type Allow = Pick<TransformOptions, 'avoidTDZ'|'banner'|'charset'|'define'|'footer'|'keepNames'|'pure'|'target'|'treeShaking'|'tsconfigRaw'>;
+type Allow = Pick<TransformOptions, 'banner'|'charset'|'define'|'footer'|'keepNames'|'pure'|'target'|'treeShaking'|'tsconfigRaw'>;
 
 export interface Options extends Allow {
 	/** @default 'tsconfig.json' */
@@ -56,24 +56,6 @@ type Negate<U, T> = U extends T ? never : U;
 type TSConfig = Negate<TransformOptions['tsconfigRaw'], string> & { extends?: boolean };
 
 // ---
-
-let decided = false;
-let service: Service | null;
-
-function isWatcher(): boolean {
-	const { ROLLUP_WATCH, WEBPACK_DEV_SERVER, CI, NODE_ENV } = process.env;
-
-	if (CI != null) return false;
-	if (ROLLUP_WATCH || WEBPACK_DEV_SERVER) return true;
-	return !/^(prod|test)/.test(NODE_ENV) && /^(dev|local)/.test(NODE_ENV);
-}
-
-async function decide() {
-	decided = true;
-	if (isWatcher()) {
-		service = await esbuild.startService();
-	}
-}
 
 const isExternal = /^(https?:)?\/\//;
 const isString = (x: unknown): x is string => typeof x === 'string';
@@ -109,7 +91,7 @@ async function transform(input: ProcessorInput, options: TransformOptions): Prom
 		}
 	}
 
-	let output = await (service || esbuild).transform(input.content, config);
+	let output = await esbuild.transform(input.content, config);
 
 	// TODO: format output.warnings
 	if (output.warnings.length > 0) {
@@ -135,7 +117,7 @@ export function typescript(options: Partial<Options> = {}): PreprocessorGroup {
 		loader: 'ts',
 		format: 'esm',
 		minify: false,
-		errorLimit: 0,
+		logLimit: 0,
 	};
 
 	let contents: TSConfig;
@@ -171,8 +153,6 @@ export function typescript(options: Partial<Options> = {}): PreprocessorGroup {
 
 	return {
 		async script(input) {
-			decided || await decide();
-
 			let bool = !!isTypescript(input.attributes);
 			if (!bool && !!define) return transform(input, { define, loader: 'js' });
 			if (!bool) return { code: input.content };
@@ -190,8 +170,6 @@ export function replace(define: Definitions = {}): PreprocessorGroup {
 
 	return {
 		async script(input) {
-			decided || await decide();
-
 			let bool = !!isTypescript(input.attributes);
 			if (bool) return { code: input.content };
 
