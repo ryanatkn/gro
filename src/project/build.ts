@@ -10,7 +10,8 @@ import {
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
 import {resolve} from 'path';
-import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
+// TODO switch to `svelte-preprocess-esbuild` when it's updated
+import * as sveltePreprocessEsbuild from './svelte-preprocess-esbuild.js';
 
 import {magenta} from '../colors/terminal.js';
 import {rainbow} from '../colors/terminal.js';

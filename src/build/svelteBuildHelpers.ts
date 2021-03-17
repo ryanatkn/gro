@@ -5,7 +5,8 @@ import {
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
+// TODO switch to `svelte-preprocess-esbuild` when it's updated
+import * as sveltePreprocessEsbuild from '../project/svelte-preprocess-esbuild.js';
 
 import {Logger} from '../utils/log.js';
 import {yellow} from '../colors/terminal.js';
