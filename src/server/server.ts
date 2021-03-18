@@ -63,8 +63,8 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	};
 
 	const listenOptions: ListenOptions = {
-		port,
 		host,
+		port,
 		// backlog?: number;
 		// path?: string;
 		// exclusive?: boolean;

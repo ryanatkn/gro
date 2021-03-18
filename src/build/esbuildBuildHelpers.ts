@@ -1,6 +1,5 @@
 import esbuild from 'esbuild';
-// TODO switch to `svelte-preprocess-esbuild` when it's updated
-import * as sveltePreprocessEsbuild from '../project/svelte-preprocess-esbuild.js';
+import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from './tsBuildHelpers.js';
 
