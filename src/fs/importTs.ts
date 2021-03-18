@@ -50,7 +50,7 @@ export const importTs = async (
 		log: new SystemLogger([cyan('[importTs]')]),
 		buildDir: tempDir,
 		dev: true,
-		sourceMap: false,
+		sourcemap: false,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		// TODO these last two aren't needed, maybe the builder's type should explicitly choose which options it uses?
 		servedDirs: [],

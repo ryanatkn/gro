@@ -72,7 +72,7 @@ export interface Options {
 	servedDirs: ServedDir[];
 	externalsAliases: ExternalsAliases;
 	mapDependencyToSourceId: MapDependencyToSourceId;
-	sourceMap: boolean;
+	sourcemap: boolean;
 	target: EcmaScriptTarget;
 	watch: boolean;
 	watcherDebounce: number | undefined;
@@ -135,7 +135,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		dev,
 		externalsAliases: DEFAULT_EXTERNALS_ALIASES,
 		mapDependencyToSourceId,
-		sourceMap: true,
+		sourcemap: true,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
 		watcherDebounce: undefined,
@@ -166,7 +166,7 @@ export class Filer implements BuildContext {
 	readonly log: Logger;
 	readonly buildDir: string;
 	readonly dev: boolean;
-	readonly sourceMap: boolean;
+	readonly sourcemap: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
 	readonly servedDirs: readonly ServedDir[];
 	readonly externalsAliases: ExternalsAliases; // TODO should this allow aliasing anything? not just externals?
@@ -183,7 +183,7 @@ export class Filer implements BuildContext {
 			servedDirs,
 			externalsAliases,
 			mapDependencyToSourceId,
-			sourceMap,
+			sourcemap,
 			target,
 			watch,
 			watcherDebounce,
@@ -195,7 +195,7 @@ export class Filer implements BuildContext {
 		this.buildDir = buildDir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
 		this.externalsAliases = externalsAliases;
-		this.sourceMap = sourceMap;
+		this.sourcemap = sourcemap;
 		this.target = target;
 		this.log = log;
 		this.dirs = createFilerDirs(

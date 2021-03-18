@@ -14,7 +14,7 @@ export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
 	readonly encoding: 'utf8';
 	readonly contents: string;
-	readonly sourceMapOf: string | null; // TODO maybe prefer a union with an `isSourceMap` boolean flag?
+	readonly sourcemapOf: string | null; // TODO maybe prefer a union with an `isSourceMap` boolean flag?
 }
 export interface BinaryBuildFile extends BaseBuildFile {
 	readonly encoding: null;
@@ -53,7 +53,7 @@ export const createBuildFile = (
 				extension: build.extension,
 				encoding: build.encoding,
 				contents: contents as string,
-				sourceMapOf: build.sourceMapOf,
+				sourcemapOf: build.sourcemapOf,
 				contentsBuffer: undefined,
 				contentsHash: undefined,
 				stats: undefined,
@@ -110,7 +110,7 @@ export const reconstructBuildFiles = async (
 							extension,
 							encoding,
 							contents: contents as string,
-							sourceMapOf: id.endsWith(SOURCEMAP_EXTENSION)
+							sourcemapOf: id.endsWith(SOURCEMAP_EXTENSION)
 								? stripEnd(id, SOURCEMAP_EXTENSION)
 								: null,
 							contentsBuffer: undefined,

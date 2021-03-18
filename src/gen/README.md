@@ -44,8 +44,8 @@ Ergonomics are key to unlocking codegen's full potential.
 It adds a layer of indirection between the code you write and run.
 Also, you could introduce security vulnerabilities
 if you fail to escape certain inputs.
-Importantly, there is no support for source maps right now.
-Source maps could be added at some point, at least in many cases.
+Importantly, there is no support for sourcemaps right now.
+Sourcemaps could be added at some point, at least in many cases.
 
 Inspirations include Lisp macros and
 [Svelte](https://github.com/sveltejs/svelte), a compiler for building UIs.
@@ -231,4 +231,4 @@ which is called in the npm [`"preversion"`](../../package.json) script.
       Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc
       to generate html/markdown/etc
 - [ ] support generating non-text files
-- [ ] source maps
+- [ ] sourcemaps

@@ -55,13 +55,13 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 
 	const preprocessorCache: Map<string, PreprocessorGroup | PreprocessorGroup[] | null> = new Map();
 	const getPreprocessor = (
-		sourceMap: boolean,
+		sourcemap: boolean,
 		target: EcmaScriptTarget,
 	): PreprocessorGroup | PreprocessorGroup[] | null => {
-		const key = sourceMap + target;
+		const key = sourcemap + target;
 		const existingPreprocessor = preprocessorCache.get(key);
 		if (existingPreprocessor !== undefined) return existingPreprocessor;
-		const newPreprocessor = createPreprocessor(target, sourceMap);
+		const newPreprocessor = createPreprocessor(target, sourcemap);
 		preprocessorCache.set(key, newPreprocessor);
 		return newPreprocessor;
 	};
@@ -69,7 +69,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 	const build: SvelteBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildDir, dev, sourceMap, target},
+		{buildDir, dev, sourcemap, target},
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`svelte only handles utf8 encoding, not ${source.encoding}`);
@@ -83,7 +83,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 
 		// TODO see rollup-plugin-svelte for how to track deps
 		// let dependencies = [];
-		const preprocessor = getPreprocessor(sourceMap, target);
+		const preprocessor = getPreprocessor(sourcemap, target);
 		if (preprocessor !== null) {
 			const preprocessed = await svelte.preprocess(contents, preprocessor, {filename: id});
 			preprocessedCode = preprocessed.code;
@@ -110,8 +110,8 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		const cssFilename = `${source.filename}${CSS_EXTENSION}`;
 		const jsId = `${outDir}${jsFilename}`;
 		const cssId = `${outDir}${cssFilename}`;
-		const hasJsSourceMap = sourceMap && js.map !== undefined;
-		const hasCssSourceMap = sourceMap && css.map !== undefined;
+		const hasJsSourceMap = sourcemap && js.map !== undefined;
+		const hasCssSourceMap = sourcemap && css.map !== undefined;
 
 		const builds: TextBuild[] = [
 			{
@@ -123,7 +123,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				contents: hasJsSourceMap
 					? addJsSourceMapFooter(js.code, jsFilename + SOURCEMAP_EXTENSION)
 					: js.code,
-				sourceMapOf: null,
+				sourcemapOf: null,
 				buildConfig,
 			},
 		];
@@ -135,7 +135,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				extension: SOURCEMAP_EXTENSION,
 				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
-				sourceMapOf: jsId,
+				sourcemapOf: jsId,
 				buildConfig,
 			});
 		}
@@ -149,7 +149,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				contents: hasCssSourceMap
 					? addCssSourceMapFooter(css.code, cssFilename + SOURCEMAP_EXTENSION)
 					: css.code,
-				sourceMapOf: null,
+				sourcemapOf: null,
 				buildConfig,
 			});
 			if (hasCssSourceMap) {
@@ -160,7 +160,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 					extension: SOURCEMAP_EXTENSION,
 					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
-					sourceMapOf: cssId,
+					sourcemapOf: cssId,
 					buildConfig,
 				});
 			}

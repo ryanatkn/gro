@@ -40,7 +40,7 @@ const FALLBACK_CONFIG_BUILD_BASE_PATH = 'config/gro.config.default.js';
 export interface GroConfig {
 	readonly builds: BuildConfig[];
 	readonly target: EcmaScriptTarget;
-	readonly sourceMap: boolean;
+	readonly sourcemap: boolean;
 	readonly host: string;
 	readonly port: number;
 	readonly logLevel: LogLevel;
@@ -52,7 +52,7 @@ export interface GroConfig {
 export interface PartialGroConfig {
 	readonly builds: PartialBuildConfig[];
 	readonly target?: EcmaScriptTarget;
-	readonly sourceMap?: boolean;
+	readonly sourcemap?: boolean;
 	readonly host?: string;
 	readonly port?: number;
 	readonly logLevel?: LogLevel;
@@ -192,7 +192,7 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 	const primaryBrowserBuildConfig =
 		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
 	return {
-		sourceMap: process.env.NODE_ENV !== 'production', // TODO hmm where does this come from?
+		sourcemap: process.env.NODE_ENV !== 'production', // TODO hmm where does this come from?
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		logLevel: LogLevel.Trace,

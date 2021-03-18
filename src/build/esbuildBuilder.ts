@@ -31,13 +31,13 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 
 	const esbuildOptionsCache: Map<string, esbuild.TransformOptions> = new Map();
 	const getEsbuildOptions = (
-		sourceMap: boolean,
+		sourcemap: boolean,
 		target: EcmaScriptTarget,
 	): esbuild.TransformOptions => {
-		const key = sourceMap + target;
+		const key = sourcemap + target;
 		const existingEsbuildOptions = esbuildOptionsCache.get(key);
 		if (existingEsbuildOptions !== undefined) return existingEsbuildOptions;
-		const newEsbuildOptions = createEsbuildOptions(target, sourceMap);
+		const newEsbuildOptions = createEsbuildOptions(target, sourcemap);
 		esbuildOptionsCache.set(key, newEsbuildOptions);
 		return newEsbuildOptions;
 	};
@@ -45,7 +45,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 	const build: EsbuildBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildDir, dev, sourceMap, target},
+		{buildDir, dev, sourcemap, target},
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
@@ -55,7 +55,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		}
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
 		const esbuildOptions = {
-			...getEsbuildOptions(sourceMap, target),
+			...getEsbuildOptions(sourcemap, target),
 			sourcefile: source.id,
 		};
 		const output = await esbuild.transform(source.contents, esbuildOptions);
@@ -71,7 +71,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				contents: output.map
 					? addJsSourceMapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
-				sourceMapOf: null,
+				sourcemapOf: null,
 				buildConfig,
 			},
 		];
@@ -83,7 +83,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				extension: SOURCEMAP_EXTENSION,
 				encoding: source.encoding,
 				contents: output.map,
-				sourceMapOf: jsId,
+				sourcemapOf: jsId,
 				buildConfig,
 			});
 		}
@@ -96,8 +96,8 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 
 type CreateEsbuildOptions = (
 	target: EcmaScriptTarget,
-	sourceMap: boolean,
+	sourcemap: boolean,
 ) => esbuild.TransformOptions;
 
-const createDefaultEsbuildOptions: CreateEsbuildOptions = (target, sourceMap) =>
-	getDefaultEsbuildOptions(target, sourceMap);
+const createDefaultEsbuildOptions: CreateEsbuildOptions = (target, sourcemap) =>
+	getDefaultEsbuildOptions(target, sourcemap);
