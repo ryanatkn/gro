@@ -2,19 +2,16 @@ import type {Build, BuildContext, BuildDependency, BuildResult} from './builder.
 import {UnreachableError} from '../utils/error.js';
 import {BaseFilerFile} from './baseFilerFile.js';
 import type {SourceMeta} from './sourceMeta.js';
-import {SOURCEMAP_EXTENSION} from '../paths.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
 import {BuildableSourceFile} from './sourceFile.js';
-import {stripEnd} from '../utils/string.js';
 import {BuildConfig} from '../config/buildConfig.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
 	readonly encoding: 'utf8';
 	readonly contents: string;
-	readonly sourcemapOf: string | null; // TODO maybe prefer a union with an `isSourcemap` boolean flag?
 }
 export interface BinaryBuildFile extends BaseBuildFile {
 	readonly encoding: null;
@@ -53,7 +50,6 @@ export const createBuildFile = (
 				extension: build.extension,
 				encoding: build.encoding,
 				contents: contents as string,
-				sourcemapOf: build.sourcemapOf,
 				contentsBuffer: undefined,
 				contentsHash: undefined,
 				stats: undefined,
@@ -110,9 +106,6 @@ export const reconstructBuildFiles = async (
 							extension,
 							encoding,
 							contents: contents as string,
-							sourcemapOf: id.endsWith(SOURCEMAP_EXTENSION)
-								? stripEnd(id, SOURCEMAP_EXTENSION)
-								: null,
 							contentsBuffer: undefined,
 							contentsHash: undefined,
 							stats: undefined,
