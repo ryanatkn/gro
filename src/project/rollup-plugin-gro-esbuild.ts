@@ -67,7 +67,7 @@ export const groEsbuildPlugin = (opts: InitialOptions): Plugin => {
 			log.trace('transpile', printPath(id));
 			let output: esbuild.TransformResult;
 			try {
-				// TODO do we need to add `sourcefile` to `esbuildOptions` for source maps?
+				// TODO do we need to add `sourcefile` to `esbuildOptions` for sourcemaps?
 				// currently not seeing a difference in the output
 				output = await esbuild.transform(code, esbuildOptions);
 			} catch (err) {

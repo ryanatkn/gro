@@ -35,7 +35,7 @@ export const buildSourceDirectory = async (
 		buildConfigs: config.builds,
 		watch: false,
 		target: config.target,
-		sourceMap: config.sourceMap,
+		sourcemap: config.sourcemap,
 		dev,
 	});
 	timingToCreateFiler();

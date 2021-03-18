@@ -38,7 +38,7 @@ export interface BuildContext {
 	readonly log: Logger;
 	readonly buildDir: string;
 	readonly dev: boolean;
-	readonly sourceMap: boolean;
+	readonly sourcemap: boolean;
 	readonly target: EcmaScriptTarget;
 	readonly servedDirs: readonly ServedDir[];
 	readonly externalsAliases: ExternalsAliases;
@@ -54,7 +54,7 @@ export type Build = TextBuild | BinaryBuild;
 export interface TextBuild extends BaseBuild {
 	encoding: 'utf8';
 	contents: string;
-	sourceMapOf: string | null; // TODO for source maps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+	sourcemapOf: string | null; // TODO for sourcemaps? hmm. maybe we want a union with an `isSourcemap` boolean flag?
 }
 export interface BinaryBuild extends BaseBuild {
 	encoding: null;
@@ -101,7 +101,7 @@ export const noopBuilder: Builder = {
 					extension,
 					encoding: source.encoding,
 					contents: source.contents,
-					sourceMapOf: null,
+					sourcemapOf: null,
 					buildConfig,
 				};
 				break;

@@ -36,7 +36,7 @@ import {
 export interface Options {
 	esbuildOptions: EsbuildTransformOptions;
 	dev: boolean;
-	sourceMap: boolean;
+	sourcemap: boolean;
 	inputFiles: string[];
 	outputDir: string;
 	watch: boolean;
@@ -49,7 +49,7 @@ export type RequiredOptions = 'esbuildOptions';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
-	sourceMap: opts.dev ?? true,
+	sourcemap: opts.dev ?? true,
 	inputFiles: [resolve('index.ts')],
 	outputDir: resolve('dist/'),
 	watch: true,
@@ -106,7 +106,7 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 };
 
 const createInputOptions = (inputFile: string, options: Options, _log: Logger): InputOptions => {
-	const {dev, sourceMap, cssCache, esbuildOptions} = options;
+	const {dev, sourcemap, cssCache, esbuildOptions} = options;
 
 	// TODO make this extensible - how? should bundles be combined for production builds?
 	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
@@ -124,7 +124,7 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 				addCssBuild: addSvelteCssBuild,
 				preprocessor: [
 					sveltePreprocessEsbuild.typescript(
-						getDefaultEsbuildPreprocessOptions(esbuildOptions.target, sourceMap),
+						getDefaultEsbuildPreprocessOptions(esbuildOptions.target, sourcemap),
 					),
 				],
 				compileOptions: {},
@@ -133,11 +133,11 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 			plainCssPlugin({addCssBuild: addPlainCssBuild}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,
-				sourcemap: sourceMap,
+				sourcemap,
 			}),
 			resolvePlugin(),
 			commonjsPlugin(),
-			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourceMap}})]),
+			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourcemap}})]),
 		],
 
 		// >> advanced input options
@@ -192,7 +192,7 @@ const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
 		// paths,
 		// preserveModules,
 		// preserveModulesRoot,
-		sourcemap: options.sourceMap,
+		sourcemap: options.sourcemap,
 		// sourcemapExcludeSources,
 		// sourcemapFile,
 		// sourcemapPathTransform,

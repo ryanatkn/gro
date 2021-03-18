@@ -26,7 +26,7 @@ export const task: Task = {
 			servedDirs: config.serve || getDefaultServedDirs(config),
 			buildConfigs: config.builds,
 			target: config.target,
-			sourceMap: config.sourceMap,
+			sourcemap: config.sourcemap,
 		});
 		timingToCreateFiler();
 

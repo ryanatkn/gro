@@ -2,9 +2,9 @@
 import {attachProcessErrorHandlers} from '../utils/process.js';
 attachProcessErrorHandlers();
 
-// install source maps
-import sourceMapSupport from 'source-map-support';
-sourceMapSupport.install({
+// install sourcemaps
+import sourcemapSupport from 'source-map-support';
+sourcemapSupport.install({
 	handleUncaughtExceptions: false,
 });
 

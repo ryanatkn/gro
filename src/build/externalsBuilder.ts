@@ -63,9 +63,9 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildDir, dev, sourceMap, target, state, externalsAliases},
+		{buildDir, dev, sourcemap, target, state, externalsAliases},
 	) => {
-		// if (sourceMap) {
+		// if (sourcemap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
 		if (!dev) {
@@ -90,7 +90,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			groSveltePlugin({
 				dev,
 				addCssBuild: addSvelteCssBuild,
-				preprocessor: createDefaultPreprocessor(target, sourceMap),
+				preprocessor: createDefaultPreprocessor(target, sourcemap),
 				compileOptions: {},
 			}),
 		];
@@ -120,7 +120,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 								extension: JS_EXTENSION,
 								encoding,
 								contents: await loadContents(encoding, id),
-								sourceMapOf: null,
+								sourcemapOf: null,
 								buildConfig,
 							};
 						},
@@ -231,7 +231,7 @@ const loadCommonBuilds = async (
 				extension: JS_EXTENSION,
 				encoding,
 				contents: await loadContents(encoding, commonDependencyId),
-				sourceMapOf: null,
+				sourcemapOf: null,
 				buildConfig,
 			}),
 		),

@@ -60,7 +60,7 @@ The [`PartialGroConfig`](/src/gro.config.ts) is the return value of config files
 export interface PartialGroConfig {
 	readonly builds: PartialBuildConfig[];
 	readonly target?: EcmaScriptTarget;
-	readonly sourceMap?: boolean;
+	readonly sourcemap?: boolean;
 	readonly host?: string;
 	readonly port?: number;
 	readonly logLevel?: LogLevel;

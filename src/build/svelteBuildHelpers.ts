@@ -15,11 +15,11 @@ import {EcmaScriptTarget} from './tsBuildHelpers.js';
 
 export type CreatePreprocessor = (
 	target: EcmaScriptTarget,
-	sourceMap: boolean,
+	sourcemap: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
-export const createDefaultPreprocessor: CreatePreprocessor = (target, sourceMap) =>
-	sveltePreprocessEsbuild.typescript(getDefaultEsbuildPreprocessOptions(target, sourceMap));
+export const createDefaultPreprocessor: CreatePreprocessor = (target, sourcemap) =>
+	sveltePreprocessEsbuild.typescript(getDefaultEsbuildPreprocessOptions(target, sourcemap));
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {
