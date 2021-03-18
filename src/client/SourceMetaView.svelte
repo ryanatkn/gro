@@ -1,11 +1,12 @@
 <script lang="ts">
-	import {Writable} from 'svelte/store';
+	import type {Writable} from 'svelte/store';
 
 	import BuildName from './BuildName.svelte';
 	import PlatformName from './PlatformName.svelte';
-	import {getMetasByBuildName, SourceTree} from './sourceTree.js';
-	import {View} from './view.js';
-	import {SourceMeta} from '../build/sourceMeta.js';
+	import {getMetasByBuildName} from './sourceTree.js';
+	import type {SourceTree} from './sourceTree.js';
+	import type {View} from './view.js';
+	import type {SourceMeta} from '../build/sourceMeta.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

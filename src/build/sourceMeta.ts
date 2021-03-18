@@ -112,7 +112,7 @@ export const cleanSourceMeta = async (
 	let promises: Promise<void>[] | null = null;
 	for (const sourceId of sourceMetaBySourceId.keys()) {
 		if (!fileExists(sourceId) && !isExternalBrowserModule(sourceId)) {
-			log.warn('deleting unknown source meta', gray(sourceId));
+			log.trace('deleting unknown source meta', gray(sourceId));
 			(promises || (promises = [])).push(deleteSourceMeta(sourceMetaBySourceId, sourceId));
 		}
 	}

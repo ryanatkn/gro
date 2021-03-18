@@ -1,5 +1,5 @@
-import {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
-import {BuildConfig} from '../config/buildConfig.js';
+import type {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 import {deepEqual} from '../utils/deepEqual.js';
 
 export interface SourceTree {

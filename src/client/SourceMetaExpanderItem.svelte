@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {Writable} from 'svelte/store';
+	import type {Writable} from 'svelte/store';
 
 	import SourceId from './SourceId.svelte';
-	import {SourceMeta} from '../build/sourceMeta.js';
+	import type {SourceMeta} from '../build/sourceMeta.js';
 
 	export let sourceMeta: SourceMeta;
 	export let selectedSourceMeta: Writable<SourceMeta | null>;

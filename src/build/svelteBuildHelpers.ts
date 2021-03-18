@@ -1,25 +1,25 @@
 import type {ExistingRawSourceMap, PluginContext} from 'rollup';
-import type svelte from 'svelte/compiler.js';
+import type {compile} from 'svelte/compiler';
 import {
 	CompileOptions as SvelteCompileOptions,
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {Logger} from '../utils/log.js';
 import {yellow} from '../colors/terminal.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
-import {getDefaultSwcOptions} from './swcBuildHelpers.js';
+import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {sveltePreprocessSwc} from '../project/svelte-preprocess-swc.js';
 
 export type CreatePreprocessor = (
-	sourceMap: boolean,
 	target: EcmaScriptTarget,
+	sourceMap: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
-export const createDefaultPreprocessor: CreatePreprocessor = (sourceMap, target) =>
-	sveltePreprocessSwc({swcOptions: getDefaultSwcOptions(target, sourceMap)});
+export const createDefaultPreprocessor: CreatePreprocessor = (target, sourceMap) =>
+	sveltePreprocessEsbuild.typescript(getDefaultEsbuildPreprocessOptions(target, sourceMap));
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {
@@ -30,10 +30,7 @@ export interface SvelteCompileStats {
 	};
 }
 // TODO type belongs upstream - augmented for better safety
-export type SvelteCompilation = OmitStrict<
-	ReturnType<typeof svelte.compile>,
-	'js' | 'css' | 'stats'
-> & {
+export type SvelteCompilation = OmitStrict<ReturnType<typeof compile>, 'js' | 'css' | 'stats'> & {
 	js: {
 		code: string;
 		map: ExistingRawSourceMap | undefined;

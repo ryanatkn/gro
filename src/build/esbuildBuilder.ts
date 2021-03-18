@@ -1,61 +1,64 @@
-import swc from '@swc/core';
-import {relative} from 'path';
+import esbuild from 'esbuild';
 
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {getDefaultSwcOptions} from './swcBuildHelpers.js';
+import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../colors/terminal.js';
-import {addJsSourceMapFooter} from './buildHelpers.js';
+import {addJsSourceMapFooter} from './utils.js';
 
 export interface Options {
 	log: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	createSwcOptions: CreateSwcOptions;
+	createEsbuildOptions: CreateEsbuildOptions;
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
-		createSwcOptions: createDefaultSwcOptions,
+		createEsbuildOptions: createDefaultEsbuildOptions,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[swcBuilder]')]),
+		log: opts.log || new SystemLogger([cyan('[esbuildBuilder]')]),
 	};
 };
 
-type SwcBuilder = Builder<TextBuildSource, TextBuild>;
+type EsbuildBuilder = Builder<TextBuildSource, TextBuild>;
 
-export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
-	const {createSwcOptions} = initOptions(opts);
+export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder => {
+	const {createEsbuildOptions} = initOptions(opts);
 
-	const swcOptionsCache: Map<string, swc.Options> = new Map();
-	const getSwcOptions = (sourceMap: boolean, target: EcmaScriptTarget): swc.Options => {
+	const esbuildOptionsCache: Map<string, esbuild.TransformOptions> = new Map();
+	const getEsbuildOptions = (
+		sourceMap: boolean,
+		target: EcmaScriptTarget,
+	): esbuild.TransformOptions => {
 		const key = sourceMap + target;
-		const existingSwcOptions = swcOptionsCache.get(key);
-		if (existingSwcOptions !== undefined) return existingSwcOptions;
-		const newSwcOptions = createSwcOptions(sourceMap, target);
-		swcOptionsCache.set(key, newSwcOptions);
-		return newSwcOptions;
+		const existingEsbuildOptions = esbuildOptionsCache.get(key);
+		if (existingEsbuildOptions !== undefined) return existingEsbuildOptions;
+		const newEsbuildOptions = createEsbuildOptions(target, sourceMap);
+		esbuildOptionsCache.set(key, newEsbuildOptions);
+		return newEsbuildOptions;
 	};
 
-	const build: SwcBuilder['build'] = async (
+	const build: EsbuildBuilder['build'] = async (
 		source,
 		buildConfig,
 		{buildDir, dev, sourceMap, target},
 	) => {
 		if (source.encoding !== 'utf8') {
-			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
+			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== TS_EXTENSION) {
-			throw Error(`swc only handles ${TS_EXTENSION} files, not ${source.extension}`);
+			throw Error(`esbuild only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
-		const {id, encoding, contents} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
-		const swcOptions = getSwcOptions(sourceMap, target);
-		const finalSwcOptions = {...swcOptions, filename: relative(outDir, id)};
-		const output = await swc.transform(contents, finalSwcOptions);
+		const esbuildOptions = {
+			...getEsbuildOptions(sourceMap, target),
+			sourcefile: source.id,
+		};
+		const output = await esbuild.transform(source.contents, esbuildOptions);
 		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
 		const builds: TextBuild[] = [
@@ -64,7 +67,7 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 				filename: jsFilename,
 				dir: outDir,
 				extension: JS_EXTENSION,
-				encoding,
+				encoding: source.encoding,
 				contents: output.map
 					? addJsSourceMapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
@@ -78,7 +81,7 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
 				extension: SOURCEMAP_EXTENSION,
-				encoding,
+				encoding: source.encoding,
 				contents: output.map,
 				sourceMapOf: jsId,
 				buildConfig,
@@ -91,7 +94,10 @@ export const createSwcBuilder = (opts: InitialOptions = {}): SwcBuilder => {
 	return {build};
 };
 
-type CreateSwcOptions = (sourceMap: boolean, target: EcmaScriptTarget) => swc.Options;
+type CreateEsbuildOptions = (
+	target: EcmaScriptTarget,
+	sourceMap: boolean,
+) => esbuild.TransformOptions;
 
-const createDefaultSwcOptions: CreateSwcOptions = (sourceMap, target) =>
-	getDefaultSwcOptions(target, sourceMap);
+const createDefaultEsbuildOptions: CreateEsbuildOptions = (target, sourceMap) =>
+	getDefaultEsbuildOptions(target, sourceMap);

@@ -10,7 +10,7 @@ import {
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
 import {resolve} from 'path';
-import swc from '@swc/core';
+import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {magenta} from '../colors/terminal.js';
 import {rainbow} from '../colors/terminal.js';
@@ -22,16 +22,19 @@ import {outputCssPlugin} from './rollup-plugin-output-css.js';
 import {createCssCache, CssCache} from './cssCache.js';
 import {groJsonPlugin} from './rollup-plugin-gro-json.js';
 import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
-import {groSwcPlugin} from './rollup-plugin-gro-swc.js';
+import {groEsbuildPlugin} from './rollup-plugin-gro-esbuild.js';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import {GroCssBuild} from './types.js';
-import {sveltePreprocessSwc} from './svelte-preprocess-swc.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {identity} from '../utils/function.js';
+import {
+	EsbuildTransformOptions,
+	getDefaultEsbuildPreprocessOptions,
+} from '../build/esbuildBuildHelpers.js';
 
 export interface Options {
-	swcOptions: swc.Options;
+	esbuildOptions: EsbuildTransformOptions;
 	dev: boolean;
 	sourceMap: boolean;
 	inputFiles: string[];
@@ -42,7 +45,7 @@ export interface Options {
 	mapWatchOptions: MapWatchOptions;
 	cssCache: CssCache<GroCssBuild>;
 }
-export type RequiredOptions = 'swcOptions';
+export type RequiredOptions = 'esbuildOptions';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
@@ -103,7 +106,7 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 };
 
 const createInputOptions = (inputFile: string, options: Options, _log: Logger): InputOptions => {
-	const {dev, sourceMap, cssCache, swcOptions} = options;
+	const {dev, sourceMap, cssCache, esbuildOptions} = options;
 
 	// TODO make this extensible - how? should bundles be combined for production builds?
 	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
@@ -119,10 +122,14 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 			groSveltePlugin({
 				dev,
 				addCssBuild: addSvelteCssBuild,
-				preprocessor: [sveltePreprocessSwc({swcOptions})],
+				preprocessor: [
+					sveltePreprocessEsbuild.typescript(
+						getDefaultEsbuildPreprocessOptions(esbuildOptions.target, sourceMap),
+					),
+				],
 				compileOptions: {},
 			}),
-			groSwcPlugin({swcOptions}),
+			groEsbuildPlugin({esbuildOptions}),
 			plainCssPlugin({addCssBuild: addPlainCssBuild}),
 			outputCssPlugin({
 				getCssBundles: cssCache.getCssBundles,

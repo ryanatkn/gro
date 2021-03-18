@@ -1,4 +1,4 @@
-import svelte from 'svelte/compiler.js';
+import * as svelte from 'svelte/compiler';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import {Plugin} from 'rollup';

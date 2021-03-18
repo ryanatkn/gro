@@ -28,6 +28,8 @@
   [#81](https://github.com/feltcoop/gro/pull/81),
   [#88](https://github.com/feltcoop/gro/pull/88),
   [#89](https://github.com/feltcoop/gro/pull/89))
+- replace swc with esbuild
+  ([#92](https://github.com/feltcoop/gro/pull/92))
 - make `createBuilder` pluggable allowing users to provide a compiler for each file
   ([#57](https://github.com/feltcoop/gro/pull/57))
 - rename `compiler` to `builder`

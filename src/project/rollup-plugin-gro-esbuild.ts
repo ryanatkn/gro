@@ -1,4 +1,4 @@
-import swc from '@swc/core';
+import esbuild from 'esbuild';
 import {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
 import {createFilter} from '@rollup/pluginutils';
@@ -22,24 +22,24 @@ interface Stats {
 const MATCH_JS_IMPORT = /^\.?\.\/.*\.js$/;
 
 export interface Options {
-	swcOptions: swc.Options;
+	esbuildOptions: esbuild.TransformOptions;
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
 	onstats: typeof handleStats;
 }
-export type RequiredOptions = 'swcOptions';
+export type RequiredOptions = 'esbuildOptions';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	include: ['*.ts+(|x)', '**/*.ts+(|x)'],
+	include: ['*.ts', '**/*.ts'],
 	exclude: ['*.d.ts', '**/*.d.ts'],
 	onstats: handleStats,
 	...omitUndefined(opts),
 });
 
-export const name = 'gro-swc';
+export const name = 'gro-esbuild';
 
-export const groSwcPlugin = (opts: InitialOptions): Plugin => {
-	const {include, exclude, swcOptions, onstats} = initOptions(opts);
+export const groEsbuildPlugin = (opts: InitialOptions): Plugin => {
+	const {include, exclude, esbuildOptions, onstats} = initOptions(opts);
 
 	const log = new SystemLogger([magenta(`[${name}]`)]);
 
@@ -65,11 +65,11 @@ export const groSwcPlugin = (opts: InitialOptions): Plugin => {
 			const stopwatch = createStopwatch();
 
 			log.trace('transpile', printPath(id));
-			let output: swc.Output;
+			let output: esbuild.TransformResult;
 			try {
-				// TODO do we need to add `filename` to `swcOptions` for source maps?
+				// TODO do we need to add `sourcefile` to `esbuildOptions` for source maps?
 				// currently not seeing a difference in the output
-				output = await swc.transform(code, swcOptions);
+				output = await esbuild.transform(code, esbuildOptions);
 			} catch (err) {
 				log.error(red('Failed to transpile TypeScript'), printPath(id));
 				throw err;

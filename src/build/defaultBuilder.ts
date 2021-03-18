@@ -1,7 +1,10 @@
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {Builder} from './builder.js';
 import {createLazyBuilder, InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
-import {createSwcBuilder, InitialOptions as SwcBuilderInitialOptions} from './swcBuilder.js';
+import {
+	createEsbuildBuilder,
+	InitialOptions as SwcBuilderInitialOptions,
+} from './esbuildBuilder.js';
 import {
 	createSvelteBuilder,
 	InitialOptions as SvelteBuilderInitialOptions,
@@ -13,16 +16,16 @@ import {
 import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
 
 export const createDefaultBuilder = (
-	swcBuilderOptions?: SwcBuilderInitialOptions,
+	esbuildBuilderOptions?: SwcBuilderInitialOptions,
 	svelteBuilderOptions?: SvelteBuilderInitialOptions,
 	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
 	lazyBuilderOptions?: LazyBuilderInitialOptions,
 ): Builder => {
 	if (!lazyBuilderOptions?.getBuilder) {
-		const swcBuilder = createSwcBuilder(swcBuilderOptions);
+		const esbuildBuilder = createEsbuildBuilder(esbuildBuilderOptions);
 		const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
 		const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
-		const builders: Builder[] = [swcBuilder, svelteBuilder, externalsBuilder];
+		const builders: Builder[] = [esbuildBuilder, svelteBuilder, externalsBuilder];
 		lazyBuilderOptions = {
 			...lazyBuilderOptions,
 			getBuilder: (source, buildConfig) => {
@@ -34,7 +37,7 @@ export const createDefaultBuilder = (
 				}
 				switch (source.extension) {
 					case TS_EXTENSION:
-						return swcBuilder;
+						return esbuildBuilder;
 					case SVELTE_EXTENSION:
 						return svelteBuilder;
 					default:

@@ -1,4 +1,4 @@
-import svelte from 'svelte/compiler.js';
+import * as svelte from 'svelte/compiler';
 import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 
@@ -24,7 +24,7 @@ import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.j
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../colors/terminal.js';
-import {addCssSourceMapFooter, addJsSourceMapFooter} from './buildHelpers.js';
+import {addCssSourceMapFooter, addJsSourceMapFooter} from './utils.js';
 
 export interface Options {
 	log: Logger;
@@ -61,7 +61,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		const key = sourceMap + target;
 		const existingPreprocessor = preprocessorCache.get(key);
 		if (existingPreprocessor !== undefined) return existingPreprocessor;
-		const newPreprocessor = createPreprocessor(sourceMap, target);
+		const newPreprocessor = createPreprocessor(target, sourceMap);
 		preprocessorCache.set(key, newPreprocessor);
 		return newPreprocessor;
 	};
@@ -72,7 +72,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		{buildDir, dev, sourceMap, target},
 	) => {
 		if (source.encoding !== 'utf8') {
-			throw Error(`swc only handles utf8 encoding, not ${source.encoding}`);
+			throw Error(`svelte only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);

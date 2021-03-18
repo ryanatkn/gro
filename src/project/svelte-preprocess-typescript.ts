@@ -9,11 +9,11 @@ import {omitUndefined} from '../utils/object.js';
 
 /*
 
-This module is no longer used, see `./svelte-preprocess-swc.ts`.
+This module is no longer used, instead see `svelte-preprocess-esbuild`.
 It may be used in the future for generating type mappings in production.
 
 This preprocessor transpiles the script portion of Svelte files
-if the script tag has a `lang="typescript"` attribute.
+if the script tag has a `lang="ts"` attribute.
 No typechecking is performed - that's left for a separate build step.
 
 */
@@ -25,7 +25,7 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	langs: ['typescript'],
+	langs: ['ts'],
 	tsconfigPath: undefined,
 	basePath: undefined,
 	...omitUndefined(opts),
