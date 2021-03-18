@@ -46,7 +46,7 @@ export const buildSourceDirectory = async (
 
 	filer.close();
 
-	// we need to build the prod after the Filer is done, or else the Filer deletes its output!
+	// we need to compile the prod build after the Filer is done, or else the Filer deletes its output!
 	if (!dev) {
 		const timingToCompile = timings.start('compile with tsc');
 		log.info('compiling TypeScript');
