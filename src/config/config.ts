@@ -13,6 +13,7 @@ import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 import type {ServedDirPartial} from '../build/ServedDir.js';
+import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 
 /*
 
@@ -40,6 +41,8 @@ export interface GroConfig {
 	readonly builds: BuildConfig[];
 	readonly target: EcmaScriptTarget;
 	readonly sourceMap: boolean;
+	readonly host: string;
+	readonly port: number;
 	readonly logLevel: LogLevel;
 	readonly serve?: ServedDirPartial[];
 	readonly primaryNodeBuildConfig: BuildConfig;
@@ -50,6 +53,8 @@ export interface PartialGroConfig {
 	readonly builds: PartialBuildConfig[];
 	readonly target?: EcmaScriptTarget;
 	readonly sourceMap?: boolean;
+	readonly host?: string;
+	readonly port?: number;
 	readonly logLevel?: LogLevel;
 	readonly serve?: ServedDirPartial[];
 }
@@ -188,6 +193,8 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
 	return {
 		sourceMap: process.env.NODE_ENV !== 'production', // TODO hmm where does this come from?
+		host: DEFAULT_SERVER_HOST,
+		port: DEFAULT_SERVER_PORT,
 		logLevel: LogLevel.Trace,
 		...omitUndefined(config),
 		builds: buildConfigs,
