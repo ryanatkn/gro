@@ -10,9 +10,9 @@ export const task: Task = {
 			// We don't want to have to worry about the security of the dev server.
 			throw Error('Serve should not be used in production');
 		}
-		// TODO also take these from args
-		const host: string | undefined = process.env.HOST;
-		const port: number | undefined = Number(process.env.PORT) || undefined;
+		// TODO validate
+		const host: string | undefined = (args.host as string) || process.env.HOST;
+		const port: number | undefined = Number(args.port) || Number(process.env.PORT) || undefined;
 		const servedDirs: string[] = args._.length ? args._ : ['.'];
 
 		// TODO this is inefficient for just serving files in a directory

@@ -31,7 +31,7 @@ export const task: Task = {
 		timingToCreateFiler();
 
 		const timingToCreateDevServer = timings.start('create dev server');
-		const server = createDevServer({filer});
+		const server = createDevServer({filer, host: config.host, port: config.port});
 		timingToCreateDevServer();
 
 		await Promise.all([

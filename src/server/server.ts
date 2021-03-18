@@ -32,6 +32,9 @@ export interface DevServer {
 	readonly port: number;
 }
 
+export const DEFAULT_SERVER_HOST: string = process.env.HOST || 'localhost';
+export const DEFAULT_SERVER_PORT: number = Number(process.env.PORT) || 8999;
+
 export interface Options {
 	filer: Filer;
 	host: string;
@@ -40,11 +43,9 @@ export interface Options {
 }
 export type RequiredOptions = 'filer';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-const DEFAULT_HOST = 'localhost';
-const DEFAULT_PORT = 8999;
 export const initOptions = (opts: InitialOptions): Options => ({
-	host: DEFAULT_HOST,
-	port: DEFAULT_PORT,
+	host: DEFAULT_SERVER_HOST,
+	port: DEFAULT_SERVER_PORT,
 	...omitUndefined(opts),
 	log: opts.log || new SystemLogger([cyan('[server]')]),
 });

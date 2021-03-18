@@ -23,7 +23,6 @@ const createConfig: GroConfigCreator = async () => {
 		],
 		logLevel: LogLevel.Trace,
 	};
-
 	return config;
 };
 
