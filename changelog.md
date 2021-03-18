@@ -8,7 +8,8 @@
   ([#67](https://github.com/feltcoop/gro/pull/67),
   [#68](https://github.com/feltcoop/gro/pull/68),
   [#82](https://github.com/feltcoop/gro/pull/82),
-  [#83](https://github.com/feltcoop/gro/pull/83))
+  [#83](https://github.com/feltcoop/gro/pull/83),
+  [#95](https://github.com/feltcoop/gro/pull/95))
 - add `Filer` to replace `CachingCompiler` with additional filesystem capabilities
   ([#54](https://github.com/feltcoop/gro/pull/54),
   [#55](https://github.com/feltcoop/gro/pull/55),
