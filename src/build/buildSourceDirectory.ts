@@ -51,12 +51,6 @@ export const buildSourceDirectory = async (
 		const timingToCompile = timings.start('compile with esbuild');
 		log.info('compiling TypeScript');
 		await spawnProcess('npx', ['tsc']);
-		// TODO why is this not working the same as the script in `package.json`?
-		// await spawnProcess('node_modules/.bin/esbuild', [
-		// 	'src/**/*.ts',
-		// 	'src/*.ts',
-		// 	'--outdir=.gro/prod/node/',
-		// ]);
 		timingToCompile();
 	}
 
