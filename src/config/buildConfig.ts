@@ -32,20 +32,24 @@ export interface PartialBuildConfig {
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const normalizeBuildConfigs = (partials: PartialBuildConfig[]): BuildConfig[] => {
+export const normalizeBuildConfigs = (partials: (PartialBuildConfig | null)[]): BuildConfig[] => {
 	const platforms: Set<string> = new Set();
 	const primaryPlatforms: Set<string> = new Set();
 
-	const hasDist = partials.some((b) => b.dist);
+	const hasDist = partials.some((b) => b?.dist);
 
 	// This array may be mutated inside this function, but the objects inside remain immutable.
-	let buildConfigs: BuildConfig[] = partials.map((buildConfig) => ({
-		name: buildConfig.name,
-		platform: buildConfig.platform,
-		input: normalizeBuildConfigInput(buildConfig.input),
-		dist: hasDist ? buildConfig.dist ?? false : true, // If no config is marked as `dist`, assume they all are.
-		primary: buildConfig.primary ?? false,
-	}));
+	const buildConfigs: BuildConfig[] = [];
+	for (const buildConfig of partials) {
+		if (!buildConfig) continue;
+		buildConfigs.push({
+			name: buildConfig.name,
+			platform: buildConfig.platform,
+			input: normalizeBuildConfigInput(buildConfig.input),
+			dist: hasDist ? buildConfig.dist ?? false : true, // If no config is marked as `dist`, assume they all are.
+			primary: buildConfig.primary ?? false,
+		});
+	}
 
 	for (const buildConfig of buildConfigs) {
 		platforms.add(buildConfig.platform);
