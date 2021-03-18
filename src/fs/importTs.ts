@@ -12,7 +12,7 @@ import {stripStart} from '../utils/string.js';
 import {isExternalNodeModule} from '../utils/module.js';
 import {replaceExtension} from '../utils/path.js';
 import {SystemLogger} from '../utils/log.js';
-import {cyan} from '../colors/terminal.js';
+import {cyan} from '../utils/terminal.js';
 
 /*
 

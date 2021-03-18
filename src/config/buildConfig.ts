@@ -3,7 +3,7 @@ import {resolve} from 'path';
 import {ensureArray} from '../utils/array.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
-import {blue} from '../colors/terminal.js';
+import {blue} from '../utils/terminal.js';
 
 // See `../docs/config.md` for documentation.
 

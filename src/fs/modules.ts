@@ -1,4 +1,4 @@
-import {red} from '../colors/terminal.js';
+import {red} from '../utils/terminal.js';
 import {pathExists, stat} from './nodeFs.js';
 import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';

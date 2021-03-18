@@ -1,6 +1,6 @@
 import {spawn, SpawnOptions} from 'child_process';
 
-import {red} from '../colors/terminal.js';
+import {red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
 import {SystemLogger} from './log.js';
 import {printError} from './print.js';

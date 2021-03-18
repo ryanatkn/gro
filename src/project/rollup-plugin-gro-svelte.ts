@@ -4,7 +4,7 @@ import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/inte
 import {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
-import {magenta, red} from '../colors/terminal.js';
+import {magenta, red} from '../utils/terminal.js';
 import {toPathStem} from '../utils/path.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';

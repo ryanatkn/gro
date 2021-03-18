@@ -9,7 +9,7 @@ import {
 } from 'http';
 import {ListenOptions} from 'net';
 
-import {cyan, yellow, gray, red, rainbow, green} from '../colors/terminal.js';
+import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';

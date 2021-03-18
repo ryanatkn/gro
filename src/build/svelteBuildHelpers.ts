@@ -8,7 +8,7 @@ import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {Logger} from '../utils/log.js';
-import {yellow} from '../colors/terminal.js';
+import {yellow} from '../utils/terminal.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
 import {EcmaScriptTarget} from './tsBuildHelpers.js';

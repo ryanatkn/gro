@@ -7,7 +7,7 @@ import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '.
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
-import {cyan} from '../colors/terminal.js';
+import {cyan} from '../utils/terminal.js';
 import {addJsSourceMapFooter} from './utils.js';
 
 export interface Options {

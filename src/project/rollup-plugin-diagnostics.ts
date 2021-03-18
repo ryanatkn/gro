@@ -1,6 +1,6 @@
 import {Plugin} from 'rollup';
 
-import {gray} from '../colors/terminal.js';
+import {gray} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {createStopwatch} from '../utils/time.js';

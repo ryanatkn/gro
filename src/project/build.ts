@@ -12,8 +12,8 @@ import commonjsPlugin from '@rollup/plugin-commonjs';
 import {resolve} from 'path';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
-import {magenta} from '../colors/terminal.js';
-import {rainbow} from '../colors/terminal.js';
+import {magenta} from '../utils/terminal.js';
+import {rainbow} from '../utils/terminal.js';
 import {SystemLogger, Logger} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/string.js';

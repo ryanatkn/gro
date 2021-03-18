@@ -6,7 +6,7 @@ import {Logger, SystemLogger} from '../utils/log.js';
 import {EXTERNALS_BUILD_DIR, JS_EXTENSION, toBuildOutPath} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, BuildContext, TextBuildSource, TextBuild} from './builder.js';
-import {cyan, gray} from '../colors/terminal.js';
+import {cyan, gray} from '../utils/terminal.js';
 import {loadContents} from './load.js';
 import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';

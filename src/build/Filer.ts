@@ -8,7 +8,7 @@ import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {gray, magenta, red, blue} from '../colors/terminal.js';
+import {gray, magenta, red, blue} from '../utils/terminal.js';
 import {printError} from '../utils/print.js';
 import type {
 	Build,

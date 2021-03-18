@@ -5,7 +5,7 @@ import {getFileContentsHash} from './baseFilerFile.js';
 import type {BuildDependency, BuildContext} from './builder.js';
 import type {BuildableSourceFile} from './sourceFile.js';
 import {isExternalBrowserModule} from '../utils/module.js';
-import {gray} from '../colors/terminal.js';
+import {gray} from '../utils/terminal.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk

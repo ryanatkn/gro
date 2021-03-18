@@ -40,6 +40,8 @@
   ([#86](https://github.com/feltcoop/gro/pull/86),
   [#87](https://github.com/feltcoop/gro/pull/87),
   [#90](https://github.com/feltcoop/gro/pull/90))
+- move terminal color module to src/utils
+  ([#93](https://github.com/feltcoop/gro/pull/93))
 - add server caching
   ([#77](https://github.com/feltcoop/gro/pull/77))
 
@@ -125,7 +127,7 @@
 
 ## 0.2.2
 
-- export `kleur/colors` from `src/colors/terminal.js`
+- export `kleur/colors` from `src/utils/terminal.js`
   ([#27](https://github.com/feltcoop/gro/pull/27))
 
 ## 0.2.1
