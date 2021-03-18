@@ -123,7 +123,6 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				contents: hasJsSourcemap
 					? addJsSourcemapFooter(js.code, jsFilename + SOURCEMAP_EXTENSION)
 					: js.code,
-				sourcemapOf: null,
 				buildConfig,
 			},
 		];
@@ -135,7 +134,6 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				extension: SOURCEMAP_EXTENSION,
 				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
-				sourcemapOf: jsId,
 				buildConfig,
 			});
 		}
@@ -149,7 +147,6 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				contents: hasCssSourcemap
 					? addCssSourcemapFooter(css.code, cssFilename + SOURCEMAP_EXTENSION)
 					: css.code,
-				sourcemapOf: null,
 				buildConfig,
 			});
 			if (hasCssSourcemap) {
@@ -160,7 +157,6 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 					extension: SOURCEMAP_EXTENSION,
 					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
-					sourcemapOf: cssId,
 					buildConfig,
 				});
 			}

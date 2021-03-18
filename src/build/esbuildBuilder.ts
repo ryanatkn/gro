@@ -71,7 +71,6 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				contents: output.map
 					? addJsSourcemapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
-				sourcemapOf: null,
 				buildConfig,
 			},
 		];
@@ -83,7 +82,6 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				extension: SOURCEMAP_EXTENSION,
 				encoding: source.encoding,
 				contents: output.map,
-				sourcemapOf: jsId,
 				buildConfig,
 			});
 		}

@@ -120,7 +120,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 								extension: JS_EXTENSION,
 								encoding,
 								contents: await loadContents(encoding, id),
-								sourcemapOf: null,
 								buildConfig,
 							};
 						},
@@ -231,7 +230,6 @@ const loadCommonBuilds = async (
 				extension: JS_EXTENSION,
 				encoding,
 				contents: await loadContents(encoding, commonDependencyId),
-				sourcemapOf: null,
 				buildConfig,
 			}),
 		),
