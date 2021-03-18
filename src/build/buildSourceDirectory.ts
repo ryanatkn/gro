@@ -46,11 +46,18 @@ export const buildSourceDirectory = async (
 
 	filer.close();
 
-	// tsc needs to be invoked after the Filer is done, or else the Filer deletes its output!
+	// we need to build the prod after the Filer is done, or else the Filer deletes its output!
 	if (!dev) {
-		const timingToCompileWithTsc = timings.start('compile with tsc');
-		await spawnProcess('node_modules/.bin/tsc'); // ignore compiler errors
-		timingToCompileWithTsc();
+		const timingToCompile = timings.start('compile with esbuild');
+		log.info('compiling TypeScript');
+		await spawnProcess('npx', ['tsc']);
+		// TODO why is this not working the same as the script in `package.json`?
+		// await spawnProcess('node_modules/.bin/esbuild', [
+		// 	'src/**/*.ts',
+		// 	'src/*.ts',
+		// 	'--outdir=.gro/prod/node/',
+		// ]);
+		timingToCompile();
 	}
 
 	logTimings();

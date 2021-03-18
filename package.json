@@ -13,8 +13,8 @@
     "start": "gro",
     "test": "gro test",
     "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=.gro/prod/node/; cp -r .gro/prod/node/ dist/ && npm link",
-    "dev": "clear && rm -rf .gro && gro dev",
-    "redev": "clear && npm run bootstrap && gro dev",
+    "dev": "clear && npm run bootstrap && gro dev",
+    "build": "clear && npm run bootstrap && gro project/build",
     "preversion": "npm run bootstrap && gro check && npm run bootstrap && gro project/build"
   },
   "repository": {

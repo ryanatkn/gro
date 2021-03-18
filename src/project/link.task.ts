@@ -4,7 +4,8 @@ import {spawnProcess} from '../utils/process.js';
 
 export const task: Task = {
 	description: 'link the distribution',
-	run: async () => {
+	run: async ({log}) => {
+		log.info(`linking`);
 		const linkResult = await spawnProcess('npm', ['link']);
 		if (!linkResult.ok) {
 			throw new TaskError(`Failed to link. ${printKeyValue('code', linkResult.code)}`);

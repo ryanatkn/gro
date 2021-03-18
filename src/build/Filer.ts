@@ -276,7 +276,7 @@ export class Filer implements BuildContext {
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
-		this.log.trace(blue('initialized!'));
+		// this.log.trace(blue('initialized!'));
 
 		finishInitializing!();
 	}

@@ -12,10 +12,10 @@ export const formatDirectory = (
 	directory: string,
 	check = false,
 ): Promise<{ok: true} | {ok: false; code: number}> => {
-	const prettierArgs = [check ? '--check' : '--write'];
+	const prettierArgs = ['prettier', check ? '--check' : '--write'];
 	prettierArgs.push(`${directory}**/*.{${FORMATTED_EXTENSIONS}}`);
 	if (directory === paths.source) {
 		prettierArgs.push(`${paths.root}*.{${FORMATTED_EXTENSIONS}}`);
 	}
-	return spawnProcess('node_modules/.bin/prettier', prettierArgs);
+	return spawnProcess('npx', prettierArgs);
 };
