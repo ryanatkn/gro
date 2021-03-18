@@ -8,7 +8,7 @@ import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../utils/terminal.js';
-import {addJsSourceMapFooter} from './utils.js';
+import {addJsSourcemapFooter} from './utils.js';
 
 export interface Options {
 	log: Logger;
@@ -69,7 +69,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				extension: JS_EXTENSION,
 				encoding: source.encoding,
 				contents: output.map
-					? addJsSourceMapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
+					? addJsSourcemapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
 				sourcemapOf: null,
 				buildConfig,

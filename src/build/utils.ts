@@ -36,8 +36,8 @@ export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, bui
 	}
 };
 
-export const addJsSourceMapFooter = (code: string, sourcemapPath: string): string =>
+export const addJsSourcemapFooter = (code: string, sourcemapPath: string): string =>
 	`${code}\n//# sourceMappingURL=${sourcemapPath}`;
 
-export const addCssSourceMapFooter = (code: string, sourcemapPath: string): string =>
+export const addCssSourcemapFooter = (code: string, sourcemapPath: string): string =>
 	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;

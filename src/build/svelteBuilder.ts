@@ -24,7 +24,7 @@ import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.j
 import {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../utils/terminal.js';
-import {addCssSourceMapFooter, addJsSourceMapFooter} from './utils.js';
+import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
 
 export interface Options {
 	log: Logger;
@@ -110,8 +110,8 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		const cssFilename = `${source.filename}${CSS_EXTENSION}`;
 		const jsId = `${outDir}${jsFilename}`;
 		const cssId = `${outDir}${cssFilename}`;
-		const hasJsSourceMap = sourcemap && js.map !== undefined;
-		const hasCssSourceMap = sourcemap && css.map !== undefined;
+		const hasJsSourcemap = sourcemap && js.map !== undefined;
+		const hasCssSourcemap = sourcemap && css.map !== undefined;
 
 		const builds: TextBuild[] = [
 			{
@@ -120,14 +120,14 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				dir: outDir,
 				extension: JS_EXTENSION,
 				encoding,
-				contents: hasJsSourceMap
-					? addJsSourceMapFooter(js.code, jsFilename + SOURCEMAP_EXTENSION)
+				contents: hasJsSourcemap
+					? addJsSourcemapFooter(js.code, jsFilename + SOURCEMAP_EXTENSION)
 					: js.code,
 				sourcemapOf: null,
 				buildConfig,
 			},
 		];
-		if (hasJsSourceMap) {
+		if (hasJsSourcemap) {
 			builds.push({
 				id: jsId + SOURCEMAP_EXTENSION,
 				filename: jsFilename + SOURCEMAP_EXTENSION,
@@ -146,13 +146,13 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				dir: outDir,
 				extension: CSS_EXTENSION,
 				encoding,
-				contents: hasCssSourceMap
-					? addCssSourceMapFooter(css.code, cssFilename + SOURCEMAP_EXTENSION)
+				contents: hasCssSourcemap
+					? addCssSourcemapFooter(css.code, cssFilename + SOURCEMAP_EXTENSION)
 					: css.code,
 				sourcemapOf: null,
 				buildConfig,
 			});
-			if (hasCssSourceMap) {
+			if (hasCssSourcemap) {
 				builds.push({
 					id: cssId + SOURCEMAP_EXTENSION,
 					filename: cssFilename + SOURCEMAP_EXTENSION,

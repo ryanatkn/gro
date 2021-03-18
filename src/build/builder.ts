@@ -54,7 +54,7 @@ export type Build = TextBuild | BinaryBuild;
 export interface TextBuild extends BaseBuild {
 	encoding: 'utf8';
 	contents: string;
-	sourcemapOf: string | null; // TODO for sourcemaps? hmm. maybe we want a union with an `isSourceMap` boolean flag?
+	sourcemapOf: string | null; // TODO for sourcemaps? hmm. maybe we want a union with an `isSourcemap` boolean flag?
 }
 export interface BinaryBuild extends BaseBuild {
 	encoding: null;

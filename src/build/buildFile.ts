@@ -14,7 +14,7 @@ export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
 	readonly encoding: 'utf8';
 	readonly contents: string;
-	readonly sourcemapOf: string | null; // TODO maybe prefer a union with an `isSourceMap` boolean flag?
+	readonly sourcemapOf: string | null; // TODO maybe prefer a union with an `isSourcemap` boolean flag?
 }
 export interface BinaryBuildFile extends BaseBuildFile {
 	readonly encoding: null;
