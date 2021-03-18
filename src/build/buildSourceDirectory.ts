@@ -48,7 +48,7 @@ export const buildSourceDirectory = async (
 
 	// we need to build the prod after the Filer is done, or else the Filer deletes its output!
 	if (!dev) {
-		const timingToCompile = timings.start('compile with esbuild');
+		const timingToCompile = timings.start('compile with tsc');
 		log.info('compiling TypeScript');
 		await spawnProcess('npx', ['tsc']);
 		timingToCompile();
