@@ -234,7 +234,7 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // TODO improve this, possibly using `mtime` with the Filer updating directory `mtime` on compile
 const shouldBuildProject = async (sourceId: string): Promise<boolean> => {
 	// don't try to compile Gro's own codebase from outside of it
-	if (isGroId(sourceId) && !isThisProjectGro) return false;
+	if (!isThisProjectGro && isGroId(sourceId)) return false;
 	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
 	if (isThisProjectGro && !(await pathExists(paths.build))) return true;
 	// ensure the build file for the source id exists in the default dev build
