@@ -80,32 +80,32 @@
 					{#if !showFilerVisualizer1}
 						<!-- server filer visualizer -->
 						<button on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}>
-						FilerVisualizer (server)
-					</button>
+							FilerVisualizer (server)
+						</button>
 					{/if}
 					{#if !showFilerVisualizer2}
 						<!-- client example filer visualizer -->
 						<button on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}>
-						FilerVisualizer (client)
-					</button>
+							FilerVisualizer (client)
+						</button>
 					{/if}
 					{#if !showServerVisualizer}
 						<!-- gro dev server filer visualizer -->
 						<button on:pointerdown={() => (showServerVisualizer = !showServerVisualizer)}>
-						ServerVisualizer
-					</button>
+							ServerVisualizer
+						</button>
 					{/if}
 					{#if !showSourceTreeVisualizer}
 						<!-- source tree visualizer -->
 						<button on:pointerdown={() => (showSourceTreeVisualizer = !showSourceTreeVisualizer)}>
-					SourceTreeVisualizer
-				</button>
+							SourceTreeVisualizer
+						</button>
 					{/if}
 					{#if !showBuildTreeVisualizer}
 						<!-- build tree visualizer -->
 						<button on:pointerdown={() => (showBuildTreeVisualizer = !showBuildTreeVisualizer)}>
-						BuildTreeVisualizer
-					</button>
+							BuildTreeVisualizer
+						</button>
 					{/if}
 				</nav>
 			</header>

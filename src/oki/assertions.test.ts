@@ -115,7 +115,7 @@ test('assertions', () => {
 	});
 	test('rejects() a promise 🞩', async () => {
 		await failToReject(async () => {
-			await t.rejects(new Promise((resolve) => resolve()));
+			await t.rejects(new Promise((resolve) => resolve(true)));
 		});
 	});
 	test('rejects() with a string matcher ✓', async () => {

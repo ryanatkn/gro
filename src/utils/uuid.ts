@@ -1,8 +1,8 @@
-import _uuid from '@lukeed/uuid';
+import {v4} from '@lukeed/uuid';
 
 export type Uuid = Flavored<string, 'Uuid'>;
 
-export const uuid: () => Uuid = _uuid;
+export const uuid: () => Uuid = v4;
 
 export const isUuid = (s: string): s is Uuid => uuidMatcher.test(s);
 
