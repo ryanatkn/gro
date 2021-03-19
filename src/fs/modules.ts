@@ -181,7 +181,7 @@ export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<
 					case 'importFailed': {
 						reasons.push(
 							red(
-								`Module import ${printPath(id)} failed from input ${printPath(
+								`Module import ${printPath(id, pathsFromId(id))} failed from input ${printPath(
 									inputPath,
 									pathsFromId(inputPath),
 								)}: ${printError(result.error)}`,
@@ -190,7 +190,13 @@ export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<
 						break;
 					}
 					case 'invalid': {
-						reasons.push(red(`Module ${printPath(id)} failed validation '${result.validation}'.`));
+						reasons.push(
+							red(
+								`Module ${printPath(id, pathsFromId(id))} failed validation '${
+									result.validation
+								}'.`,
+							),
+						);
 						break;
 					}
 					default:

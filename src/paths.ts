@@ -131,7 +131,9 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 export const toImportId = (sourceId: string, dev: boolean, buildConfigName: string): string => {
 	const p = pathsFromId(sourceId);
 	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
-	return toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
+	return p === groPaths
+		? join(groImportDir, dirBasePath)
+		: toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
 };
 
 // TODO This function loses information. It's also hardcodedd to Gro's default file types.
