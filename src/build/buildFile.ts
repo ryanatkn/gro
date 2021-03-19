@@ -7,6 +7,7 @@ import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
 import {BuildableSourceFile} from './sourceFile.js';
 import {BuildConfig} from '../config/buildConfig.js';
+import {toBuildOutDirname} from '../paths.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
@@ -80,10 +81,13 @@ export const createBuildFile = (
 export const reconstructBuildFiles = async (
 	sourceMeta: SourceMeta,
 	buildConfigs: readonly BuildConfig[],
+	dev: boolean,
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
+	const builds = sourceMeta.data.builds[toBuildOutDirname(dev)];
+	if (!builds) return buildFiles;
 	await Promise.all(
-		sourceMeta.data.builds.map(
+		builds.map(
 			async (build): Promise<void> => {
 				const {id, name, dependencies, encoding} = build;
 				const filename = basename(id);

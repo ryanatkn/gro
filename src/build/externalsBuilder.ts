@@ -68,9 +68,6 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		// if (sourcemap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
-		if (!dev) {
-			throw Error('The externals builder is currently not designed for production usage.');
-		}
 		if (source.encoding !== encoding) {
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
@@ -136,15 +133,17 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		return result;
 	};
 
-	const init: ExternalsBuilder['init'] = async (
-		{state, dev, buildDir}: BuildContext,
-		buildConfigs: BuildConfig[],
-	): Promise<void> => {
+	const init: ExternalsBuilder['init'] = async ({
+		state,
+		dev,
+		buildConfigs,
+		buildDir,
+	}: BuildContext): Promise<void> => {
 		// initialize the externals builder state, which is stored on the `BuildContext` (the filer)
 		const builderState = initExternalsBuilderState(state);
 		// mutate the build state with any available initial values
 		await Promise.all(
-			buildConfigs.map(async (buildConfig) => {
+			buildConfigs!.map(async (buildConfig) => {
 				if (buildConfig.platform !== 'browser') return;
 				const buildState = initExternalsBuildState(builderState, buildConfig);
 				const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildDir);

@@ -156,13 +156,13 @@ export class Filer implements BuildContext {
 	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: FilerDir[];
 	private readonly builder: Builder | null;
-	readonly buildConfigs: readonly BuildConfig[] | null;
-	readonly sourceMeta: Map<string, SourceMeta> = new Map();
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
 
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
+	readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly buildDir: string;
 	readonly dev: boolean;
@@ -241,7 +241,7 @@ export class Filer implements BuildContext {
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
-		await Promise.all([initSourceMeta(this.sourceMeta, this), lexer.init]);
+		await Promise.all([initSourceMeta(this), lexer.init]);
 		// this.log.trace('inited cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,
@@ -253,7 +253,7 @@ export class Filer implements BuildContext {
 
 		// Now that the source meta and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
-		await cleanSourceMeta(this.sourceMeta, this.fileExists, this);
+		await cleanSourceMeta(this, this.fileExists);
 		// this.log.trace('cleaned');
 
 		// This initializes the builders. Should be done before the builds are initialized.
@@ -263,7 +263,7 @@ export class Filer implements BuildContext {
 			for (const dir of this.dirs) {
 				if (!dir.buildable) continue;
 				if (this.builder!.init !== undefined) {
-					await this.builder!.init(this, this.buildConfigs);
+					await this.builder!.init(this);
 				}
 			}
 		}
@@ -413,7 +413,7 @@ export class Filer implements BuildContext {
 		}
 
 		if (shouldUpdateSourceMeta) {
-			await updateSourceMeta(this.sourceMeta, sourceFile, this);
+			await updateSourceMeta(this, sourceFile);
 		}
 	}
 
@@ -569,8 +569,8 @@ export class Filer implements BuildContext {
 					extension,
 					newSourceContents,
 					filerDir,
-					this.sourceMeta.get(id),
-					this.buildConfigs,
+					this.sourceMetaById.get(id),
+					this,
 				);
 				this.files.set(id, newSourceFile);
 				// If the created source file has its build files hydrated from the cache,
@@ -685,7 +685,7 @@ export class Filer implements BuildContext {
 
 		// Update the source file with the new build files.
 		await this.updateBuildFiles(sourceFile, newBuildFiles, buildConfig);
-		await updateSourceMeta(this.sourceMeta, sourceFile, this);
+		await updateSourceMeta(this, sourceFile);
 	}
 
 	// Updates the build files in the memory cache and writes to disk.
@@ -862,7 +862,7 @@ export class Filer implements BuildContext {
 			}
 			// passing `false` above to avoid writing `sourceMeta` to disk for each build -
 			// batch delete it now:
-			await deleteSourceMeta(this.sourceMeta, sourceFile.id);
+			await deleteSourceMeta(this, sourceFile.id);
 		}
 	}
 
@@ -958,8 +958,8 @@ const syncBuildFilesToDisk = async (changes: BuildFileChange[], log: Logger): Pr
 					// log.trace('creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {
-					const existingCotents = await loadContents(file.encoding, file.id);
-					if (!areContentsEqual(file.encoding, file.contents, existingCotents)) {
+					const existingContents = await loadContents(file.encoding, file.id);
+					if (!areContentsEqual(file.encoding, file.contents, existingContents)) {
 						log.trace('updating stale build file on disk', gray(file.id));
 						shouldOutputNewFile = true;
 					} // ...else the build file on disk already matches what's in memory.

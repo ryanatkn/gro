@@ -9,6 +9,7 @@ import type {
 import {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {ServedDir} from './ServedDir.js';
 import {Logger} from '../utils/log.js';
+import {SourceMeta} from './sourceMeta.js';
 
 // TODO maybe move to `buildFile`? but then `postprocess` would have a dependency on the build file.
 // its imports make more sense as is.
@@ -26,7 +27,7 @@ export interface Builder<TSource extends BuildSource = BuildSource, TBuild exten
 		ctx: BuildContext,
 	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>; // TODO should this be forced async?
 	onRemove?(source: TSource, buildConfig: BuildConfig, ctx: BuildContext): Promise<void>;
-	init?(ctx: BuildContext, buildConfigs: readonly BuildConfig[]): Promise<void>;
+	init?(ctx: BuildContext): Promise<void>;
 }
 
 export interface BuildResult<TBuild extends Build = Build> {
@@ -35,6 +36,8 @@ export interface BuildResult<TBuild extends Build = Build> {
 
 // For docs on these, see where they're implemented in the `Filer`.
 export interface BuildContext {
+	readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly sourceMetaById: Map<string, SourceMeta>;
 	readonly log: Logger;
 	readonly buildDir: string;
 	readonly dev: boolean;

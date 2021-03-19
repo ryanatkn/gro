@@ -48,10 +48,10 @@ export const createLazyBuilder = (opts: InitialOptions = {}): Required<Builder> 
 		await builder.onRemove(source, buildConfig, ctx);
 	};
 
-	const init: Builder['init'] = async (ctx: BuildContext, buildConfigs: readonly BuildConfig[]) => {
+	const init: Builder['init'] = async (ctx: BuildContext) => {
 		for (const builder of getBuilders()) {
 			if (builder.init === undefined) continue;
-			await builder.init(ctx, buildConfigs);
+			await builder.init(ctx);
 		}
 	};
 

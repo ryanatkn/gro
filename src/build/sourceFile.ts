@@ -10,9 +10,9 @@ import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
-import {EXTERNALS_BUILD_DIR} from '../paths.js';
+import {EXTERNALS_BUILD_DIR, toBuildOutDirname} from '../paths.js';
 import {isExternalBrowserModule} from '../utils/module.js';
-import type {BuildDependency} from './builder.js';
+import type {BuildContext, BuildDependency} from './builder.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
 export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
@@ -66,7 +66,7 @@ export const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	sourceMeta: SourceMeta | undefined,
-	buildConfigs: readonly BuildConfig[] | null,
+	{buildConfigs, dev}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
@@ -83,8 +83,10 @@ export const createSourceFile = async (
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty = contentsHash !== sourceMeta.data.contentsHash;
-		reconstructedBuildFiles = await reconstructBuildFiles(sourceMeta, buildConfigs!);
+		dirty =
+			contentsHash !== sourceMeta.data.contentsHash ||
+			!(toBuildOutDirname(dev) in sourceMeta.data.builds);
+		reconstructedBuildFiles = await reconstructBuildFiles(sourceMeta, buildConfigs!, dev);
 	}
 	if (isExternalBrowserModule(id)) {
 		// externals

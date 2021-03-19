@@ -16,7 +16,7 @@ export const getDefaultEsbuildOptions = (
 	sourcemap,
 	format: 'esm',
 	loader: 'ts',
-	charset: 'utf8', // ! following `svelte-preprocess-esbuild` here
+	charset: 'utf8', // following `svelte-preprocess-esbuild` here
 	tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
 });
 

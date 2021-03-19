@@ -1,5 +1,6 @@
 import type {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
 import type {BuildConfig} from '../config/buildConfig.js';
+import {BuildOutDirname} from '../paths.js';
 import {deepEqual} from '../utils/deepEqual.js';
 
 export interface SourceTree {
@@ -71,12 +72,16 @@ export const toSourceTreeMeta = (metas: SourceMeta[]): SourceTreeMeta[] => {
 	return metas.map((sourceMeta) => {
 		sourceMeta.data.builds;
 		const buildsByBuildName: Map<string, SourceMetaBuild[]> = new Map();
-		for (const build of sourceMeta.data.builds) {
-			let builds = buildsByBuildName.get(build.name);
-			if (builds === undefined) {
-				buildsByBuildName.set(build.name, (builds = []));
+		for (const mode in sourceMeta.data.builds) {
+			const builds = sourceMeta.data.builds[mode as BuildOutDirname];
+			if (!builds) continue;
+			for (const build of builds) {
+				let builds = buildsByBuildName.get(build.name);
+				if (builds === undefined) {
+					buildsByBuildName.set(build.name, (builds = []));
+				}
+				builds.push(build);
 			}
-			builds.push(build);
 		}
 		const treeMeta: SourceTreeMeta = {
 			...sourceMeta,

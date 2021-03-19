@@ -135,7 +135,7 @@ const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
 			const projectState: ProjectState = {
 				buildDir: filer.buildDir,
 				sourceDir: paths.source,
-				items: Array.from(filer.sourceMeta.values()),
+				items: Array.from(filer.sourceMetaById.values()),
 				buildConfigs: filer.buildConfigs!,
 				packageJson: await loadPackageJson(),
 			};
