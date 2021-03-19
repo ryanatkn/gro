@@ -51,7 +51,7 @@ test('basePathToSourceId()', () => {
 });
 
 // TODO !
-// test('toBuildsOutDir()', () => {});
+// test('toBuildOutDir()', () => {});
 // test('toBuildOutPath()', () => {});
 
 test('toBuildBasePath()', () => {

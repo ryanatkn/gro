@@ -70,8 +70,14 @@ export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const basePathToSourceId = (basePath: string, p = paths): string => `${p.source}${basePath}`;
 
-export const toBuildsOutDir = (dev: boolean, buildDir = paths.build): string =>
-	`${ensureTrailingSlash(buildDir)}${dev ? 'dev' : 'prod'}`;
+export const toBuildOutDir = (dev: boolean, buildDir = paths.build): string =>
+	`${ensureTrailingSlash(buildDir)}${toBuildOutDirname(dev)}`;
+export const toBuildOutDirname = (dev: boolean): BuildOutDirname =>
+	dev ? BUILD_DIRNAME_DEV : BUILD_DIRNAME_PROD;
+export const BUILD_DIRNAME_DEV = 'dev';
+export const BUILD_DIRNAME_PROD = 'prod';
+export type BuildOutDirname = 'dev' | 'prod';
+
 // TODO this is only needed because of how we added `/` to all directories above
 // fix those and remove this!
 function ensureTrailingSlash(s: string): string {
@@ -83,7 +89,7 @@ export const toBuildOutPath = (
 	buildConfigName: string,
 	basePath = '',
 	buildDir = paths.build,
-): string => `${toBuildsOutDir(dev, buildDir)}/${buildConfigName}/${basePath}`;
+): string => `${toBuildOutDir(dev, buildDir)}/${buildConfigName}/${basePath}`;
 
 export const toBuildBasePath = (buildId: string, buildDir = paths.build): string => {
 	const rootPath = stripStart(buildId, buildDir);

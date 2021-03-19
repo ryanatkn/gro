@@ -50,7 +50,7 @@ export interface GroConfig {
 }
 
 export interface PartialGroConfig {
-	readonly builds: PartialBuildConfig[];
+	readonly builds: (PartialBuildConfig | null)[]; // allow `null` for convenience
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly host?: string;

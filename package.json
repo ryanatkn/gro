@@ -13,8 +13,8 @@
     "start": "gro",
     "test": "gro test",
     "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=.gro/prod/node/; cp -r .gro/prod/node/ dist/ && npm link",
-    "dev": "clear && rm -rf .gro && gro dev",
-    "redev": "clear && npm run bootstrap && gro dev",
+    "dev": "clear && npm run bootstrap && gro dev",
+    "build": "clear && npm run bootstrap && gro project/build",
     "preversion": "npm run bootstrap && gro check && npm run bootstrap && gro project/build"
   },
   "repository": {
@@ -54,7 +54,7 @@
     "cheap-watch": "^1.0.3",
     "dequal": "^2.0.2",
     "es-module-lexer": "^0.3.25",
-    "esbuild": "^0.9.2",
+    "esbuild": "^0.9.3",
     "esinstall": "^1.0.5",
     "fs-extra": "^9.0.1",
     "kleur": "^4.1.3",
