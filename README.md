@@ -29,7 +29,6 @@ It includes:
   using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
-- testing library called `oki` (docs at [`src/oki`](/src/oki))
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
 - dev server with efficient caching and pluggable compilation
 - formatting via [Prettier](https://github.com/prettier/prettier)
@@ -41,7 +40,6 @@ It includes:
 
 - [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
 - [`task`](/src/task) runner
-- [`oki`](/src/oki) testing library
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs)
   - [tasks](/src/docs/tasks.md)
@@ -87,6 +85,8 @@ gro build # builds everything for production
 ```
 
 Testing with `oki` (docs at [`src/oki`](/src/oki))
+
+> TODO replace `oki` with [`uvu`](https://github.com/lukeed/uvu)
 
 ```bash
 gro test # run all tests for `*.test.ts` files
