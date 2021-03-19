@@ -17,7 +17,8 @@
   [#60](https://github.com/feltcoop/gro/pull/60),
   [#62](https://github.com/feltcoop/gro/pull/62),
   [#63](https://github.com/feltcoop/gro/pull/63),
-  [#94](https://github.com/feltcoop/gro/pull/94))
+  [#94](https://github.com/feltcoop/gro/pull/94),
+  [#98](https://github.com/feltcoop/gro/pull/98))
 - add Svelte compilation to the unbundled compilation strategies
   ([#52](https://github.com/feltcoop/gro/pull/52),
   [#56](https://github.com/feltcoop/gro/pull/56),
