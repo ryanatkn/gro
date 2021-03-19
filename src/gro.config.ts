@@ -18,7 +18,12 @@ const createConfig: GroConfigCreator = async () => {
 				platform: 'node',
 				dist: true,
 				primary: true,
-				input: ['index.ts', createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**'])],
+				input: [
+					'index.ts',
+					'cli/gro.ts',
+					'cli/invoke.ts',
+					createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**']),
+				],
 			},
 			{
 				name: BROWSER_BUILD_CONFIG_NAME,

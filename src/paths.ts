@@ -127,11 +127,18 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 	join(rootDir, toRootPath(id, p));
 
 // Converts a source id into an id that can be imported.
-// When importing Gro paths, this correctly chooses the build or dist dir.
-export const toImportId = (sourceId: string, dev: boolean, buildConfigName: string): string => {
-	const p = pathsFromId(sourceId);
+// When importing from inside Gro's dist/ directory,
+// it returns a relative path and ignores `dev` and `buildConfigName`.
+export const toImportId = (
+	sourceId: string,
+	dev: boolean,
+	buildConfigName: string,
+	p = pathsFromId(sourceId),
+): string => {
 	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
-	return toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
+	return groImportDir === paths.root
+		? join(groImportDir, dirBasePath)
+		: toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
 };
 
 // TODO This function loses information. It's also hardcodedd to Gro's default file types.

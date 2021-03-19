@@ -15,6 +15,7 @@
     "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=.gro/prod/node/; cp -r .gro/prod/node/ dist/ && npm link",
     "dev": "clear && npm run bootstrap && gro dev",
     "build": "clear && npm run bootstrap && gro project/build",
+    "buildprod": "clear && npm run bootstrap && gro project/build && rm -rf .gro",
     "preversion": "npm run bootstrap && gro check && npm run bootstrap && gro project/build"
   },
   "repository": {
@@ -83,7 +84,7 @@
     "singleQuote": true,
     "trailingComma": "all",
     "bracketSpacing": false,
-    "svelteSortOrder": "scripts-markup-styles",
+    "svelteSortOrder": "options-scripts-markup-styles",
     "svelteBracketNewLine": true,
     "overrides": [
       {

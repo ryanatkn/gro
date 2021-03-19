@@ -25,14 +25,15 @@ export const printValue = (value: unknown): unknown => {
 	}
 };
 
-export const printPath = (path: string, p = paths): string => gray(`./${toRootPath(path, p)}`);
+export const printPath = (path: string, p = paths, prefix = './'): string =>
+	gray(`${prefix}${toRootPath(path, p)}`);
 
 export const printPathOrGroPath = (path: string, fromPaths = paths): string => {
 	const inferredPaths = pathsFromId(path);
 	if (fromPaths === groPaths || inferredPaths === fromPaths) {
-		return printPath(path, inferredPaths);
+		return printPath(path, inferredPaths, '');
 	} else {
-		return gray(groDirBasename) + printPath(path, groPaths);
+		return gray(groDirBasename) + printPath(path, groPaths, '');
 	}
 };
 
