@@ -136,7 +136,7 @@ export const toImportId = (
 	p = pathsFromId(sourceId),
 ): string => {
 	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
-	return groImportDir === paths.root
+	return !isThisProjectGro && groImportDir === groPaths.dist
 		? join(groImportDir, dirBasePath)
 		: toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
 };
