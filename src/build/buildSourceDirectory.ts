@@ -11,7 +11,7 @@ export const buildSourceDirectory = async (
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {
-	log.info('building source directory', process.env.NODE_ENV);
+	log.info('building source directory');
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
