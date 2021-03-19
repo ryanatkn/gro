@@ -22,7 +22,7 @@ const createConfig: GroConfigCreator = async () => {
 					'index.ts',
 					'cli/gro.ts',
 					'cli/invoke.ts',
-					createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**']),
+					createFilter(['**/*.{task,test,uvu,config,gen}*.ts', '**/fixtures/**']),
 				],
 			},
 			{

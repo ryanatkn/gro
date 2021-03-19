@@ -7,6 +7,7 @@ import {printMs, printTiming} from './utils/print.js';
 import {createStopwatch, Timings} from './utils/time.js';
 import * as report from './oki/report.js';
 import {plural} from './utils/string.js';
+import {spawnProcess} from './utils/process.js';
 
 export const task: Task = {
 	description: 'run tests',
@@ -61,5 +62,8 @@ export const task: Task = {
 				`Failed ${testRunResult.stats.failCount} test${plural(testRunResult.stats.failCount)}.`,
 			);
 		}
+
+		// TODO !! replace everything above with `uvu`
+		await spawnProcess('npx', ['node', '.gro/dev/node/utils/array.uvu.js']);
 	},
 };
