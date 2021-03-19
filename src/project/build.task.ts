@@ -2,6 +2,9 @@ import {Task} from '../task/task.js';
 import {printTiming} from '../utils/print.js';
 import {spawnProcess} from '../utils/process.js';
 import {Timings} from '../utils/time.js';
+import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
+import {loadGroConfig} from '../config/config.js';
+import {configureLogLevel} from '../utils/log.js';
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
@@ -10,13 +13,19 @@ export const task: Task = {
 		if (!args.D && !args.dev) {
 			process.env.NODE_ENV = 'production';
 		}
+		const dev = process.env.NODE_ENV !== 'production';
 
 		log.info(`building for ${process.env.NODE_ENV}`);
 		const timings = new Timings();
 
+		const timeToLoadConfig = timings.start('load config');
+		const config = await loadGroConfig();
+		configureLogLevel(config.logLevel);
+		timeToLoadConfig();
+
 		// build everything using the normal build process - js files will compiled again by `tsc` later
 		const timingToBuildWithFiler = timings.start('build with filer');
-		await invokeTask('compile');
+		await buildSourceDirectory(config, dev, log);
 		timingToBuildWithFiler();
 
 		// compile again with `tsc` to create all of the TypeScript type defs, sourcemaps, and typemaps

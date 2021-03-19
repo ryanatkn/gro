@@ -105,7 +105,7 @@ export interface PartialBuildConfig {
 ```
 
 The `name` field can be anything and maps to the build's output directory name.
-By defining `"name": "foo",`, running `gro dev`/`gro compile` or `gro build` creates builds
+By defining `"name": "foo",`, running `gro dev` or `gro build` creates builds
 in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 
 > Importantly, **Gro requires a Node build named `"node"`**
