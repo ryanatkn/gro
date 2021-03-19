@@ -85,9 +85,7 @@ gro dev # starts the dev server in watch mode
 gro build # builds everything for production
 ```
 
-Testing with `oki` (docs at [`src/oki`](/src/oki))
-
-> TODO replace `oki` with [`uvu`](https://github.com/lukeed/uvu)
+Testing with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
 gro test # run all tests for `*.test.ts` files
