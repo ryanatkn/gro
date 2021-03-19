@@ -128,8 +128,12 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 
 // Converts a source id into an id that can be imported.
 // When importing Gro paths, this correctly chooses the build or dist dir.
-export const toImportId = (sourceId: string, dev: boolean, buildConfigName: string): string => {
-	const p = pathsFromId(sourceId);
+export const toImportId = (
+	sourceId: string,
+	dev: boolean,
+	buildConfigName: string,
+	p = pathsFromId(sourceId),
+): string => {
 	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
 	return p === groPaths
 		? join(groImportDir, dirBasePath)

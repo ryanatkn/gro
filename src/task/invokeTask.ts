@@ -235,6 +235,9 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 const shouldBuildProject = async (sourceId: string): Promise<boolean> => {
 	// don't try to compile Gro's own codebase from outside of it
 	if (isGroId(sourceId) && !isThisProjectGro) return false;
+	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
+	if (isThisProjectGro && !(await pathExists(paths.build))) return true;
+	// ensure the build file for the source id exists in the default dev build
 	const buildId = toImportId(sourceId, true, DEFAULT_BUILD_CONFIG_NAME);
 	return !(await pathExists(buildId));
 };

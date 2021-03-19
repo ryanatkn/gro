@@ -1,4 +1,4 @@
-import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_BASE_PATH} from '../paths.js';
+import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_BASE_PATH, toImportId} from '../paths.js';
 import {
 	BuildConfig,
 	normalizeBuildConfigs,
@@ -34,8 +34,8 @@ This choice keeps things simple and flexible because:
 
 */
 
-const FALLBACK_CONFIG_NAME = 'gro/src/config/gro.config.default.ts';
-const FALLBACK_CONFIG_BUILD_BASE_PATH = 'config/gro.config.default.js';
+const FALLBACK_CONFIG_BASE_PATH = 'config/gro.config.default.ts';
+const FALLBACK_CONFIG_NAME = `gro/src/${FALLBACK_CONFIG_BASE_PATH}`;
 
 export interface GroConfig {
 	readonly builds: BuildConfig[];
@@ -118,6 +118,7 @@ export const loadGroConfig = async (): Promise<GroConfig> => {
 
 	const {configSourceId} = paths;
 
+	// TODO maybe refactor this to use `../fs/modules#loadModule`, duplicates some stuff
 	let configModule: GroConfigModule;
 	let modulePath: string;
 	if (await pathExists(configSourceId)) {
@@ -138,13 +139,14 @@ export const loadGroConfig = async (): Promise<GroConfig> => {
 	} else {
 		// The project does not have a `gro.config.ts`, so use Gro's fallback default.
 		modulePath = FALLBACK_CONFIG_NAME;
-		const fallbackConfigBuildId = toBuildOutPath(
-			dev,
-			DEFAULT_BUILD_CONFIG.name,
-			FALLBACK_CONFIG_BUILD_BASE_PATH,
-			groPaths.build,
+		configModule = await import(
+			toImportId(
+				`${groPaths.source}${FALLBACK_CONFIG_BASE_PATH}`,
+				dev,
+				DEFAULT_BUILD_CONFIG.name,
+				groPaths,
+			)
 		);
-		configModule = await import(fallbackConfigBuildId);
 	}
 
 	const validated = validateConfigModule(configModule);
