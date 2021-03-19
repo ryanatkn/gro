@@ -171,7 +171,7 @@ test('loadModules()', () => {
 						ok: false,
 						type: 'importFailed',
 						id,
-						error: error = new Error('Test failed import'),
+						error: (error = new Error('Test failed import')),
 					};
 				}
 				return loadModule(id, testValidation);
