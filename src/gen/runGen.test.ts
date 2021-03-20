@@ -156,7 +156,7 @@ test_gen('failing gen function', async () => {
 
 	const resultA = genResults.results[0];
 	t.ok(resultA);
-	t.ok(!resultA?.ok);
+	t.not.ok(resultA?.ok);
 	t.ok(resultA.reason);
 	t.ok(resultA.error);
 

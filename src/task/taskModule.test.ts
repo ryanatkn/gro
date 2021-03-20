@@ -12,8 +12,8 @@ const test_validateTaskModule = suite('validateTaskModule');
 
 test_validateTaskModule('basic behavior', () => {
 	t.ok(validateTaskModule(testTaskModule));
-	t.ok(!validateTaskModule(testInvalidTaskModule));
-	t.ok(!validateTaskModule({task: {run: {}}}));
+	t.not.ok(validateTaskModule(testInvalidTaskModule));
+	t.not.ok(validateTaskModule({task: {run: {}}}));
 });
 
 test_validateTaskModule.run();
@@ -36,7 +36,7 @@ test_loadTaskModule('basic behavior', async () => {
 test_loadTaskModule('invalid module', async () => {
 	const id = resolve('src/task/fixtures/testInvalidTaskModule.js');
 	const result = await loadTaskModule(id);
-	t.ok(!result.ok);
+	t.not.ok(result.ok);
 	if (result.type === 'invalid') {
 		t.is(result.id, id);
 		t.is(result.mod, testInvalidTaskModule);
@@ -49,7 +49,7 @@ test_loadTaskModule('invalid module', async () => {
 test_loadTaskModule('failing module', async () => {
 	const id = resolve('src/task/fixtures/testFailingTaskModule.js');
 	const result = await loadTaskModule(id);
-	t.ok(!result.ok);
+	t.not.ok(result.ok);
 	if (result.type === 'importFailed') {
 		t.is(result.id, id);
 		t.ok(result.error);

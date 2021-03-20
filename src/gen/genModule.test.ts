@@ -13,8 +13,8 @@ test_validateGenModule('minimal interface', () => {
 });
 
 test_validateGenModule('invalid module', () => {
-	t.ok(!validateGenModule({gen: {}}));
-	t.ok(!validateGenModule({task: {run: {}}}));
+	t.not.ok(validateGenModule({gen: {}}));
+	t.not.ok(validateGenModule({task: {run: {}}}));
 });
 
 test_validateGenModule.run();

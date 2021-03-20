@@ -1,6 +1,7 @@
+import {suite} from 'uvu';
+import * as t from 'uvu/assert';
 import {resolve, join, sep} from 'path';
 
-import {test, t} from './oki/oki.js';
 import {
 	createPaths,
 	paths,
@@ -17,57 +18,100 @@ import {
 	EXTERNALS_BUILD_DIR,
 } from './paths.js';
 
-test('createPaths()', () => {
+/* test_createPaths */
+const test_createPaths = suite('createPaths');
+
+test_createPaths('basic behavior', () => {
 	const root = resolve('../fake');
 	const p = createPaths(root);
 	t.is(p.root, join(root, sep));
 	t.is(p.source, join(root, 'src/'));
 });
 
-test('paths object has the same identity as the groPaths object', () => {
+test_createPaths('paths object has the same identity as the groPaths object', () => {
 	t.is(paths, groPaths); // because we're testing inside the Gro project
 });
 
-test('isGroId()', () => {
+test_createPaths.run();
+/* /test_createPaths */
+
+/* test_isGroId */
+const test_isGroId = suite('isGroId');
+
+test_isGroId('basic behavior', () => {
 	t.ok(isGroId(resolve(paths.source)));
-	t.ok(!isGroId(resolve('../fake/src')));
+	t.not.ok(isGroId(resolve('../fake/src')));
 });
 
-test('toRootPath()', () => {
+test_isGroId.run();
+/* /test_isGroId */
+
+/* test_toRootPath */
+const test_toRootPath = suite('toRootPath');
+
+test_toRootPath('basic behavior', () => {
 	t.is(toRootPath(resolve('foo/bar')), 'foo/bar');
 });
 
-test('sourceIdToBasePath()', () => {
-	test('sourceId', () => {
-		t.is(sourceIdToBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
-	});
+test_toRootPath.run();
+/* /test_toRootPath */
+
+/* test_sourceIdToBasePath */
+const test_sourceIdToBasePath = suite('sourceIdToBasePath');
+
+test_sourceIdToBasePath('basic behavior', () => {
+	t.is(sourceIdToBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
 });
 
-test('basePathToSourceId()', () => {
+test_sourceIdToBasePath.run();
+/* /test_sourceIdToBasePath */
+
+/* test_basePathToSourceId */
+const test_basePathToSourceId = suite('basePathToSourceId');
+
+test_basePathToSourceId('basic behavior', () => {
 	t.is(basePathToSourceId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
-	test('does not change extension', () => {
-		t.is(basePathToSourceId('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
-	});
 });
+
+test_basePathToSourceId('does not change extension', () => {
+	t.is(basePathToSourceId('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
+});
+
+test_basePathToSourceId.run();
+/* /test_basePathToSourceId */
 
 // TODO !
 // test('toBuildOutDir()', () => {});
 // test('toBuildOutPath()', () => {});
 
-test('toBuildBasePath()', () => {
+/* test_toBuildBasePath */
+const test_toBuildBasePath = suite('toBuildBasePath');
+
+test_toBuildBasePath('basic behavior', () => {
 	t.is(toBuildBasePath(resolve('.gro/dev/buildName/foo/bar/baz.js')), 'foo/bar/baz.js');
 });
 
-test('hasSourceExtension()', () => {
-	test('typescript', () => {
-		t.ok(hasSourceExtension('foo/bar/baz.ts'));
-	});
-	test('svelte', () => {
-		t.ok(hasSourceExtension('foo/bar/baz.svelte'));
-	});
+test_toBuildBasePath.run();
+/* /test_toBuildBasePath */
+
+/* test_hasSourceExtension */
+const test_hasSourceExtension = suite('hasSourceExtension');
+
+test_hasSourceExtension('typescript', () => {
+	t.ok(hasSourceExtension('foo/bar/baz.ts'));
 });
 
-test('toImportId()', () => {
+test_hasSourceExtension('svelte', () => {
+	t.ok(hasSourceExtension('foo/bar/baz.svelte'));
+});
+
+test_hasSourceExtension.run();
+/* /test_hasSourceExtension */
+
+/* test_toImportId */
+const test_toImportId = suite('toImportId');
+
+test_toImportId('basic behavior', () => {
 	t.is(toImportId(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
 	t.is(toImportId(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
 	t.is(
@@ -76,14 +120,26 @@ test('toImportId()', () => {
 	);
 });
 
-test('toBuildExtension()', () => {
+test_toImportId.run();
+/* /test_toImportId */
+
+/* test_toBuildExtension */
+const test_toBuildExtension = suite('toBuildExtension');
+
+test_toBuildExtension('basic behavior', () => {
 	t.is(toBuildExtension('foo/bar.ts'), 'foo/bar.js');
 	t.is(toBuildExtension('foo/bar.svelte'), 'foo/bar.svelte.js');
 	t.is(toBuildExtension('foo/bar.css'), 'foo/bar.css');
 	t.is(toBuildExtension('foo/bar.png'), 'foo/bar.png');
 });
 
-test('toSourceExtension()', () => {
+test_toBuildExtension.run();
+/* /test_toBuildExtension */
+
+/* test_toSourceExtension */
+const test_toSourceExtension = suite('toSourceExtension');
+
+test_toSourceExtension('basic behavior', () => {
 	t.is(toSourceExtension('foo/bar.js'), 'foo/bar.ts');
 	t.is(toSourceExtension('foo/bar.js.map'), 'foo/bar.ts');
 	t.is(toSourceExtension('foo/bar.svelte.js'), 'foo/bar.svelte');
@@ -100,6 +156,15 @@ test('toSourceExtension()', () => {
 	t.is(toSourceExtension('foo'), 'foo');
 });
 
-test('EXTERNALS_BUILD_DIR has no slash', () => {
-	t.ok(!EXTERNALS_BUILD_DIR.includes('/'));
+test_toSourceExtension.run();
+/* /test_toSourceExtension */
+
+/* test_EXTERNALS_BUILD_DIR */
+const test_EXTERNALS_BUILD_DIR = suite('EXTERNALS_BUILD_DIR');
+
+test_EXTERNALS_BUILD_DIR('has no slash', () => {
+	t.not.ok(EXTERNALS_BUILD_DIR.includes('/'));
 });
+
+test_EXTERNALS_BUILD_DIR.run();
+/* /test_EXTERNALS_BUILD_DIR */

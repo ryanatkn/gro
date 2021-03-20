@@ -145,13 +145,13 @@ test_validateBuildConfigs('basic behavior', () => {
 });
 
 test_validateBuildConfigs('fails with undefined', () => {
-	t.ok(!validateBuildConfigs(undefined as any).ok);
-	t.ok(!validateBuildConfigs({name: 'node', platform: 'node', input} as any).ok);
+	t.not.ok(validateBuildConfigs(undefined as any).ok);
+	t.not.ok(validateBuildConfigs({name: 'node', platform: 'node', input} as any).ok);
 });
 
 test_validateBuildConfigs('fails with an invalid name', () => {
-	t.ok(!validateBuildConfigs(normalizeBuildConfigs([{platform: 'node', input} as any])).ok);
-	t.ok(!validateBuildConfigs(normalizeBuildConfigs([{name: '', platform: 'node', input}])).ok);
+	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{platform: 'node', input} as any])).ok);
+	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{name: '', platform: 'node', input}])).ok);
 });
 
 test_validateBuildConfigs(
@@ -216,7 +216,7 @@ test_validateBuildConfigs('fails with multiple primary configs for the same plat
 });
 
 test_validateBuildConfigs('fails with an invalid platform', () => {
-	t.ok(!validateBuildConfigs(normalizeBuildConfigs([{name: 'node', input} as any])).ok);
+	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{name: 'node', input} as any])).ok);
 	t.ok(
 		!validateBuildConfigs(normalizeBuildConfigs([{name: 'node', platform: 'deno', input} as any]))
 			.ok,

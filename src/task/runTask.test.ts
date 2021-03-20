@@ -72,7 +72,7 @@ test_runTask('failing task', async () => {
 		{_: []},
 		async () => {},
 	);
-	t.ok(!result.ok);
+	t.not.ok(result.ok);
 	t.ok(result.reason);
 	t.is(result.error, err);
 });

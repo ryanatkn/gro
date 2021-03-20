@@ -19,10 +19,10 @@ const test_isTaskPath = suite('isTaskPath');
 
 test_isTaskPath('basic behavior', () => {
 	t.ok(isTaskPath('foo.task.ts'));
-	t.ok(!isTaskPath('foo.ts'));
-	t.ok(!isTaskPath('foo.task.js'));
+	t.not.ok(isTaskPath('foo.ts'));
+	t.not.ok(isTaskPath('foo.task.js'));
 	t.ok(isTaskPath('bar/baz/foo.task.ts'));
-	t.ok(!isTaskPath('bar/baz/foo.ts'));
+	t.not.ok(isTaskPath('bar/baz/foo.ts'));
 });
 
 test_isTaskPath.run();

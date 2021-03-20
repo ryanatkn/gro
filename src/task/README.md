@@ -26,7 +26,8 @@ and defers composition to the user in regular TypeScript modules.
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args
 - it's easy to hook into or override any of Gro's builtin tasks,
-  like [`gro test`](../oki) and [`gro gen`](../gen)
+  like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
+  (tasks are copy-paste friendly! just update the imports)
 - it's fast because it imports only the modules that your chosen tasks need
 
 The task runner's purpose is to provide an ergonomic interface

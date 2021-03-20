@@ -9,20 +9,20 @@ const test_createLock = suite('createLock');
 test_createLock('basic behavior', () => {
 	const lock = createLock();
 	const runLifecycle = (key: any) => {
-		t.ok(!lock.has(key));
-		t.ok(!lock.unlock(key));
+		t.not.ok(lock.has(key));
+		t.not.ok(lock.unlock(key));
 		t.is(lock.peek(), null);
 		t.ok(lock.lock(key));
 		t.ok(lock.has(key));
 		t.is(lock.peek(), key);
 		t.ok(lock.lock(key));
 		t.ok(lock.has(key));
-		t.ok(!lock.lock({}));
+		t.not.ok(lock.lock({}));
 		t.is(lock.peek(), key);
 		t.ok(lock.unlock(key));
-		t.ok(!lock.has(key));
+		t.not.ok(lock.has(key));
 		t.is(lock.peek(), null);
-		t.ok(!lock.unlock(key));
+		t.not.ok(lock.unlock(key));
 	};
 	const key1 = {};
 	// lock lifecycle

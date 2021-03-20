@@ -23,26 +23,26 @@ test_createObtainable('unobtain out of order', async () => {
 
 	const [thing1, unobtain1] = obtainThing();
 	t.is(thing1, thing);
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 
 	const [thing2, unobtain2] = obtainThing();
 	t.is(thing2, thing);
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 	t.is.not(unobtain1, unobtain2); // unobtain function refs should not be the same
 
 	const [thing3, unobtain3] = obtainThing();
 	t.is(thing3, thing);
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 
 	const unobtainPromise2 = unobtain2();
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 	t.ok(unobtainPromise2 instanceof Promise);
 
 	const unobtainPromise3 = unobtain3();
 	unobtain3(); // call unobtain additional times to make sure it's idempotent
 	unobtain3();
 	unobtain3();
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 	t.ok(unobtainPromise3 instanceof Promise);
 
 	const unobtainPromise1 = unobtain1();
@@ -57,7 +57,7 @@ test_createObtainable('unobtain out of order', async () => {
 	t.ok(thing4);
 	t.is(thing4, thing);
 	t.is.not(thing4, originalThing);
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 	const unobtainPromise4 = unobtain4();
 	t.ok(isUnobtained);
 	t.ok(unobtainPromise4 instanceof Promise);
@@ -90,7 +90,7 @@ test_createObtainable('obtain is called during unobtain', () => {
 			t.ok(thing3);
 			t.is(thing3, thing);
 			t.is.not(thing3, thingUnobtained);
-			t.ok(!isUnobtained);
+			t.not.ok(isUnobtained);
 			unobtain3();
 			t.ok(isUnobtained);
 			t.is(thing, undefined);
@@ -99,14 +99,14 @@ test_createObtainable('obtain is called during unobtain', () => {
 
 	const [thing1, unobtain1] = obtainThing();
 	t.is(thing1, thing);
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 
 	const [thing2, unobtain2] = obtainThing();
 	t.is(thing2, thing);
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 
 	unobtain2();
-	t.ok(!isUnobtained);
+	t.not.ok(isUnobtained);
 
 	unobtain1();
 	t.ok(isUnobtained);
