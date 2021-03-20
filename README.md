@@ -40,6 +40,7 @@ It includes:
 
 - [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
 - [`task`](/src/task) runner
+- [`dev server`](/src/server)
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs)
   - [tasks](/src/docs/tasks.md)
