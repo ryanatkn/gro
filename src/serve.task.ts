@@ -2,6 +2,7 @@ import {Task} from './task/task.js';
 import {createDevServer} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {printPath} from './utils/print.js';
+import {loadHttpsCredentials} from './server/https.js';
 
 export const task: Task = {
 	description: 'start static file server',
@@ -20,7 +21,12 @@ export const task: Task = {
 		const filer = new Filer({servedDirs});
 		await filer.init();
 
-		const server = createDevServer({filer, host, port});
+		// TODO write docs and validate args, maybe refactor, see also `dev.task.ts`
+		const https = args.nocert
+			? null
+			: await loadHttpsCredentials(log, args.certfile as string, args.certkeyfile as string);
+
+		const server = createDevServer({filer, host, port, https});
 		log.info(`serving on ${server.host}:${server.port}`, ...servedDirs.map((d) => printPath(d)));
 		await server.start();
 	},

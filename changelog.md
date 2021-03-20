@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.5.1
+
+- add http2 and https support to the dev server
+  ([#104](https://github.com/feltcoop/gro/pull/104))
+
 ## 0.5.0
 
 - change the `build/` directory to `.gro/` and support multiple builds
