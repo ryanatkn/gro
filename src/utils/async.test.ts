@@ -1,12 +1,23 @@
-import {test, t} from '../oki/oki.js';
+import {suite} from 'uvu';
+import * as t from 'uvu/assert';
+
 import {wait, wrap} from './async.js';
 
-test('wait()', async () => {
+/* test_wait */
+const test_wait = suite('wait');
+
+test_wait('basic behavior', async () => {
 	await wait();
 	await wait(10);
 });
 
-test('wrap()', async () => {
+test_wait.run();
+/* /test_wait */
+
+/* test_wrap */
+const test_wrap = suite('wrap');
+
+test_wrap('basic behavior', async () => {
 	let v = 'start';
 	await wrap(async (after) => {
 		t.is(v, 'start');
@@ -29,3 +40,6 @@ test('wrap()', async () => {
 	});
 	t.is(v, 'after3');
 });
+
+test_wrap.run();
+/* /test_wrap */

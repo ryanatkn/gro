@@ -1,7 +1,12 @@
-import {test, t} from '../oki/oki.js';
+import {suite} from 'uvu';
+import * as t from 'uvu/assert';
+
 import {getJsonType} from './json.js';
 
-test('getJsonType()', () => {
+/* test_getJsonType */
+const test_getJsonType = suite('getJsonType');
+
+test_getJsonType('basic behavior', () => {
 	t.is(getJsonType(''), 'string');
 	t.is(getJsonType('1'), 'string');
 	t.is(getJsonType(1), 'number');
@@ -16,3 +21,6 @@ test('getJsonType()', () => {
 	t.throws(() => getJsonType(BigInt(9000) as any));
 	t.throws(() => getJsonType(Symbol() as any));
 });
+
+test_getJsonType.run();
+/* /test_getJsonType */

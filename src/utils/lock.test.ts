@@ -1,8 +1,12 @@
-import {test, t} from '../oki/oki.js';
+import {suite} from 'uvu';
+import * as t from 'uvu/assert';
 
 import {createLock} from './lock.js';
 
-test('createLock()', () => {
+/* test_createLock */
+const test_createLock = suite('createLock');
+
+test_createLock('basic behavior', () => {
 	const lock = createLock();
 	const runLifecycle = (key: any) => {
 		t.ok(!lock.has(key));
@@ -21,13 +25,13 @@ test('createLock()', () => {
 		t.ok(!lock.unlock(key));
 	};
 	const key1 = {};
-	test('lock lifecycle', () => {
-		runLifecycle(key1);
-	});
-	test('lock lifecycle again', () => {
-		runLifecycle(key1);
-	});
-	test('lock lifecycle again with a new key', () => {
-		runLifecycle({});
-	});
+	// lock lifecycle
+	runLifecycle(key1);
+	// lock lifecycle again
+	runLifecycle(key1);
+	// lock lifecycle again with a new key
+	runLifecycle({});
 });
+
+test_createLock.run();
+/* /test_createLock */
