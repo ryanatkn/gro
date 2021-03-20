@@ -9,6 +9,10 @@ import * as report from './oki/report.js';
 import {plural} from './utils/string.js';
 import {spawnProcess} from './utils/process.js';
 
+// TODO now that this is wrapping `uvu`,
+// we need to think about how to make this transparently
+// expose its API instead of forcing a constrained wrapper on users
+
 export const task: Task = {
 	description: 'run tests',
 	run: async ({log, args}): Promise<void> => {
@@ -64,6 +68,6 @@ export const task: Task = {
 		}
 
 		// TODO !! replace everything above with `uvu`
-		await spawnProcess('npx', ['node', '.gro/dev/node/utils/array.uvu.js']);
+		await spawnProcess('npx', ['uvu', '.gro/dev/node/utils', '.+\\.spec\\.js$']);
 	},
 };
