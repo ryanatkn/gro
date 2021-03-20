@@ -81,8 +81,8 @@ test_basePathToSourceId.run();
 /* /test_basePathToSourceId */
 
 // TODO !
-// test('toBuildOutDir()', () => {});
-// test('toBuildOutPath()', () => {});
+// toBuildOutDir
+// toBuildOutPath
 
 /* test_toBuildBasePath */
 const test_toBuildBasePath = suite('toBuildBasePath');
