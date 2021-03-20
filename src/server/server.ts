@@ -1,12 +1,17 @@
 import {
-	createServer,
-	Server,
-	ServerOptions,
-	RequestListener,
-	ServerResponse,
-	IncomingMessage,
+	createServer as createHttp1Server,
+	Server as Http1Server,
+	RequestListener as Http1RequestListener,
+	IncomingMessage as Http1ServerRequest,
+	ServerResponse as Http1ServerResponse,
 	OutgoingHttpHeaders,
 } from 'http';
+import {
+	createSecureServer as createHttp2Server,
+	Http2Server,
+	Http2ServerRequest,
+	Http2ServerResponse,
+} from 'http2';
 import {ListenOptions} from 'net';
 
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
@@ -26,7 +31,7 @@ import {loadPackageJson} from '../project/packageJson.js';
 import {ProjectState} from './projectState.js';
 
 export interface DevServer {
-	readonly server: Server;
+	readonly server: Http1Server | Http2Server;
 	start(): Promise<void>;
 	readonly host: string;
 	readonly port: number;
@@ -39,23 +44,26 @@ export interface Options {
 	filer: Filer;
 	host: string;
 	port: number;
+	https: {cert: string; key: string} | null;
 	log: Logger;
 }
 export type RequiredOptions = 'filer';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
-	host: DEFAULT_SERVER_HOST,
-	port: DEFAULT_SERVER_PORT,
-	...omitUndefined(opts),
-	log: opts.log || new SystemLogger([cyan('[server]')]),
-});
+export const initOptions = (opts: InitialOptions): Options => {
+	return {
+		host: DEFAULT_SERVER_HOST,
+		port: DEFAULT_SERVER_PORT,
+		https: null,
+		...omitUndefined(opts),
+		log: opts.log || new SystemLogger([cyan('[server]')]),
+	};
+};
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	const options = initOptions(opts);
-	const {filer, host, port, log} = options;
+	const {filer, host, port, https, log} = options;
 
 	let finalPort = port;
-
 	const nextPort = () => {
 		// hacky but w/e - these values are not final until `devServer.start` resolves
 		finalPort--;
@@ -73,11 +81,15 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 		// writableAll?: boolean;
 		// ipv6Only?: boolean;
 	};
-	const serverOptions: ServerOptions = {
-		// IncomingMessage?: typeof IncomingMessage;
-		// ServerResponse?: typeof ServerResponse;
-	};
-	const server = createServer(serverOptions, createRequestListener(filer, log));
+	let server: Http1Server | Http2Server;
+	if (https) {
+		server = createHttp2Server(https, createHttp1RequestListener(filer, log) as any);
+		// TODO streaming!
+		// server.on('error', (err) => log.error(err));
+		// server.on('stream', createHttp2StreamHandler(filer, log));
+	} else {
+		server = createHttp1Server(createHttp1RequestListener(filer, log));
+	}
 	let reject: (err: Error) => void;
 	server.on('error', (err) => {
 		if ((err as any).code === 'EADDRINUSE') {
@@ -107,7 +119,11 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 			await new Promise<void>((resolve, _reject) => {
 				reject = _reject;
 				server.listen(listenOptions, () => {
-					log.trace(`${rainbow('listening')} ${green(`${host}:${finalPort}`)}`);
+					log.trace(
+						`${rainbow('listening')} ${https ? cyan('https://') : ''}${green(
+							`${host}:${finalPort}`,
+						)}`,
+					);
 					resolve();
 				});
 			});
@@ -116,8 +132,8 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	return devServer;
 };
 
-const createRequestListener = (filer: Filer, log: Logger): RequestListener => {
-	const requestListener: RequestListener = async (req, res) => {
+const createHttp1RequestListener = (filer: Filer, log: Logger): Http1RequestListener => {
+	const requestListener: Http1RequestListener = async (req, res) => {
 		if (!req.url) return;
 		const url = parseUrl(req.url);
 		const localPath = toLocalPath(url);
@@ -178,7 +194,10 @@ const toLocalPath = (url: string): string => {
 	return relativePath;
 };
 
-const send404 = (req: IncomingMessage, res: ServerResponse) => {
+const send404 = (
+	req: Http1ServerRequest | Http2ServerRequest,
+	res: Http1ServerResponse | Http2ServerResponse,
+) => {
 	const headers: OutgoingHttpHeaders = {
 		'Content-Type': 'text/plain; charset=utf-8',
 	};
@@ -186,12 +205,16 @@ const send404 = (req: IncomingMessage, res: ServerResponse) => {
 	res.end(`404 not found: ${req.url}`);
 };
 
-const send304 = (res: ServerResponse) => {
+const send304 = (res: Http1ServerResponse | Http2ServerResponse) => {
 	res.writeHead(304);
 	res.end();
 };
 
-const send200 = async (_req: IncomingMessage, res: ServerResponse, file: BaseFilerFile) => {
+const send200 = async (
+	_req: Http1ServerRequest | Http2ServerRequest,
+	res: Http1ServerResponse | Http2ServerResponse,
+	file: BaseFilerFile,
+) => {
 	const stats = await getFileStats(file);
 	const mimeType = getFileMimeType(file);
 	const headers: OutgoingHttpHeaders = {

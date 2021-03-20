@@ -8,10 +8,11 @@ import {createDevServer} from './server/server.js';
 import {GroConfig, loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import {ServedDirPartial} from './build/ServedDir.js';
+import {loadHttpsCredentials} from './server/https.js';
 
 export const task: Task = {
 	description: 'start dev server',
-	run: async ({log}) => {
+	run: async ({log, args}) => {
 		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');
@@ -31,7 +32,11 @@ export const task: Task = {
 		timingToCreateFiler();
 
 		const timingToCreateDevServer = timings.start('create dev server');
-		const server = createDevServer({filer, host: config.host, port: config.port});
+		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
+		const https = args.nocert
+			? null
+			: await loadHttpsCredentials(log, args.certfile as string, args.certkeyfile as string);
+		const server = createDevServer({filer, host: config.host, port: config.port, https});
 		timingToCreateDevServer();
 
 		await Promise.all([

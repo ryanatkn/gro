@@ -35,7 +35,7 @@ export const runTask = async (
 					? err.message
 					: `Unexpected error running task ${cyan(
 							task.name,
-					  )}. Aborting. To "turn it off and on again" run \`gro clean\`.`,
+					  )}. Aborting. If this is unexpected try running \`gro clean\`.`,
 			),
 			error: err,
 		};
