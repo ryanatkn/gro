@@ -2,15 +2,10 @@ import {
 	createServer as createHttp1Server,
 	Server as Http1Server,
 	RequestListener as Http1RequestListener,
-	ServerResponse as Http1ServerResponse,
+	IncomingHttpHeaders,
 	OutgoingHttpHeaders,
 } from 'http';
-import {
-	createSecureServer as createHttp2Server,
-	Http2Server,
-	IncomingHttpHeaders,
-	ServerHttp2Stream,
-} from 'http2';
+import {createSecureServer as createHttp2Server, Http2Server, ServerHttp2Stream} from 'http2';
 import {ListenOptions} from 'net';
 
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
@@ -136,114 +131,23 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 	return devServer;
 };
 
-// TODO refactor with `createHttp1RequestListener`, this is a lot of copypasta
 const createHttp2StreamListener = (filer: Filer, log: Logger): Http2StreamHandler => {
 	return async (stream, headers) => {
-		const rawUrl = headers[':path'];
+		const rawUrl = headers[':path'] as string;
 		if (!rawUrl) return stream.end();
-		const url = parseUrl(rawUrl);
-		const localPath = toLocalPath(url);
-		log.trace('serving', gray(rawUrl), '→', gray(localPath));
-
-		// TODO refactor - see `./projectState.ts` for more
-		// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
-		// also, `src/` is hardcoded below in `paths.source`s
-		const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
-		if (SOURCE_ROOT_MATCHER.test(url)) {
-			const projectState: ProjectState = {
-				buildDir: filer.buildDir,
-				sourceDir: paths.source,
-				items: Array.from(filer.sourceMetaById.values()),
-				buildConfigs: filer.buildConfigs!,
-				packageJson: await loadPackageJson(),
-			};
-			stream.respond({
-				':status': 200,
-				'Content-Type': 'application/json',
-			});
-			return stream.end(JSON.stringify(projectState));
-		}
-
-		// search for a file with this path
-		let file = await filer.findByPath(localPath);
-		if (!file) {
-			// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
-			file = await filer.findByPath(`${localPath}/index.html`);
-		}
-		// if (file?.type === 'directory') { // or `file?.isDirectory`
-		// 	file = filer.findById(file.id + '/index.html');
-		// }
-		if (!file) {
-			log.info(`${yellow('404')} ${red(localPath)}`);
-			stream.respond({
-				':status': 404,
-				'Content-Type': 'text/plain; charset=utf-8',
-			});
-			return stream.end(`404 not found: ${url}`);
-		}
-		// console.log('req headers', gray(file.id), headers);
-		const etag = headers['if-none-match'];
-		if (etag && etag === toETag(file)) {
-			log.info(`${yellow('304')} ${gray(localPath)}`);
-			stream.respond({':status': 304});
-			return stream.end();
-		}
-		log.info(`${yellow('200')} ${gray(localPath)}`);
-		const responseHeaders = await to200Headers(file);
-		responseHeaders[':status'] = 200;
-		stream.respond(responseHeaders);
-		return stream.end(getFileContentsBuffer(file));
+		const response = await toResponse(rawUrl, headers, filer, log);
+		response.headers[':status'] = response.status; // http2 does its own thing
+		stream.respond(response.headers);
+		stream.end(response.data);
 	};
 };
 
 const createHttp1RequestListener = (filer: Filer, log: Logger): Http1RequestListener => {
 	const requestListener: Http1RequestListener = async (req, res) => {
 		if (!req.url) return;
-		const url = parseUrl(req.url);
-		const localPath = toLocalPath(url);
-		log.trace('serving', gray(req.url), '→', gray(localPath));
-
-		// TODO refactor - see `./projectState.ts` for more
-		// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
-		// also, `src/` is hardcoded below in `paths.source`s
-		const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
-		if (SOURCE_ROOT_MATCHER.test(url)) {
-			const headers: OutgoingHttpHeaders = {
-				'Content-Type': 'application/json',
-			};
-			res.writeHead(200, headers);
-			const projectState: ProjectState = {
-				buildDir: filer.buildDir,
-				sourceDir: paths.source,
-				items: Array.from(filer.sourceMetaById.values()),
-				buildConfigs: filer.buildConfigs!,
-				packageJson: await loadPackageJson(),
-			};
-			res.end(JSON.stringify(projectState));
-			return;
-		}
-
-		// search for a file with this path
-		let file = await filer.findByPath(localPath);
-		if (!file) {
-			// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
-			file = await filer.findByPath(`${localPath}/index.html`);
-		}
-		// if (file?.type === 'directory') { // or `file?.isDirectory`
-		// 	file = filer.findById(file.id + '/index.html');
-		// }
-		if (!file) {
-			log.info(`${yellow('404')} ${red(localPath)}`);
-			return send404(res, url);
-		}
-		// console.log('req headers', gray(file.id), req.headers);
-		const etag = req.headers['if-none-match'];
-		if (etag && etag === toETag(file)) {
-			log.info(`${yellow('304')} ${gray(localPath)}`);
-			return send304(res);
-		}
-		log.info(`${yellow('200')} ${gray(localPath)}`);
-		return send200(res, file);
+		const response = await toResponse(req.url, req.headers, filer, log);
+		res.writeHead(response.status, response.headers);
+		res.end(response.data);
 	};
 	return requestListener;
 };
@@ -256,25 +160,6 @@ const toLocalPath = (url: string): string => {
 	const relativePath =
 		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
 	return relativePath;
-};
-
-const send404 = (res: Http1ServerResponse, url: string) => {
-	const headers: OutgoingHttpHeaders = {
-		'Content-Type': 'text/plain; charset=utf-8',
-	};
-	res.writeHead(404, headers);
-	res.end(`404 not found: ${url}`);
-};
-
-const send304 = (res: Http1ServerResponse) => {
-	res.writeHead(304);
-	res.end();
-};
-
-const send200 = async (res: Http1ServerResponse, file: BaseFilerFile) => {
-	const headers = await to200Headers(file);
-	res.writeHead(200, headers);
-	res.end(getFileContentsBuffer(file));
 };
 
 const to200Headers = async (file: BaseFilerFile): Promise<OutgoingHttpHeaders> => {
@@ -305,3 +190,74 @@ const to200Headers = async (file: BaseFilerFile): Promise<OutgoingHttpHeaders> =
 };
 
 const toETag = (file: BaseFilerFile): string => `"${getFileContentsHash(file)}"`;
+
+interface DevServerResponse {
+	status: 200 | 304 | 404;
+	headers: OutgoingHttpHeaders;
+	data?: string | Buffer | undefined;
+}
+
+const toResponse = async (
+	rawUrl: string,
+	headers: IncomingHttpHeaders,
+	filer: Filer,
+	log: Logger,
+): Promise<DevServerResponse> => {
+	const url = parseUrl(rawUrl);
+	const localPath = toLocalPath(url);
+	log.trace('serving', gray(rawUrl), '→', gray(localPath));
+
+	// TODO refactor - see `./projectState.ts` for more
+	// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
+	// also, `src/` is hardcoded below in `paths.source`s
+	const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
+	if (SOURCE_ROOT_MATCHER.test(url)) {
+		const projectState: ProjectState = {
+			buildDir: filer.buildDir,
+			sourceDir: paths.source,
+			items: Array.from(filer.sourceMetaById.values()),
+			buildConfigs: filer.buildConfigs!,
+			packageJson: await loadPackageJson(),
+		};
+		return {
+			status: 200,
+			headers: {'Content-Type': 'application/json'},
+			data: JSON.stringify(projectState),
+		};
+	}
+
+	// search for a file with this path
+	let file = await filer.findByPath(localPath);
+	if (!file) {
+		// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
+		file = await filer.findByPath(`${localPath}/index.html`);
+	}
+	// if (file?.type === 'directory') { // or `file?.isDirectory`
+	// 	file = filer.findById(file.id + '/index.html');
+	// }
+
+	// 404 - not found
+	if (!file) {
+		log.info(`${yellow('404')} ${red(localPath)}`);
+		return {
+			status: 404,
+			headers: {'Content-Type': 'text/plain; charset=utf-8'},
+			data: `404 not found: ${url}`,
+		};
+	}
+
+	// 304 - not modified
+	const etag = headers['if-none-match'];
+	if (etag && etag === toETag(file)) {
+		log.info(`${yellow('304')} ${gray(localPath)}`);
+		return {status: 304, headers: {}};
+	}
+
+	// 200 - ok
+	log.info(`${yellow('200')} ${gray(localPath)}`);
+	return {
+		status: 200,
+		headers: await to200Headers(file),
+		data: getFileContentsBuffer(file),
+	};
+};
