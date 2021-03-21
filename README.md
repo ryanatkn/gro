@@ -17,7 +17,7 @@
 
 ## about
 
-Gro is an opinionated _app framework_ or _kit_
+Gro is an opinionated app framework or **kit**
 for making web frontends, servers, and libraries.
 It includes:
 
