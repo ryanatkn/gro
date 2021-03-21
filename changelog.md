@@ -1,5 +1,9 @@
 # Gro changelog
 
+## 0.6.1
+
+- temporarily pin `esinstall` version to fix a breaking regression
+
 ## 0.6.0
 
 - replace Gro's internal testing library `oki` with
