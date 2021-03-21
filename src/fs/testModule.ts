@@ -3,6 +3,9 @@ import {paths} from '../paths.js';
 import {findFiles} from '../fs/nodeFs.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 
+// TODO this is no longer needed to the same extent as it was before switching to `uvu`,
+// but it contains the conventions for the app used in some other places
+
 export interface TestModuleMeta extends ModuleMeta<TestModule> {}
 
 export type TestModule = object;

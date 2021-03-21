@@ -71,7 +71,7 @@ Gro differs in some significant ways:
   we're still figuring things out.
 - Snowpack is a frontend build tool that's focused on doing that one thing very well.
   Gro has a sprawling scope that includes
-  a [task runner](../task), [testing library](../oki), tools for [code generation](../gen),
+  a [task runner](../task), [build system](../build), tools for [code generation](../gen),
   and many utilities to fill in gaps for Node and the browser.
   Gro also wraps libraries like [fs-extra](https://github.com/jprichardson/node-fs-extra)
   for a better interface to Node's filesystem and it ships with Prettier to format code.

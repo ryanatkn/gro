@@ -1,7 +1,11 @@
-import {test, t} from '../oki/oki.js';
+import {test} from 'uvu';
+import * as t from 'uvu/assert';
+
 import {loadGroConfig} from './config.js';
 
-test('loadGroConfig()', async () => {
+test('loadGroConfig', async () => {
 	const config = await loadGroConfig();
 	t.ok(config);
 });
+
+test.run();

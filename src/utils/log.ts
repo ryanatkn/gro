@@ -40,6 +40,9 @@ the data management layer.
 
 Logging in and around tests is a motivating use case for this design.
 See the usage of `TestLogger` in the test framework code for more.
+Scratch that: that code is gone now after we replaced Gro's `oki` with `uvu`.
+How should we integrate the test logger with `uvu`? 
+TODO !
 
 */
 export class Logger {

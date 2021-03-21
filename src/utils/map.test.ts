@@ -1,7 +1,12 @@
-import {test, t} from '../oki/oki.js';
+import {suite} from 'uvu';
+import * as t from 'uvu/assert';
+
 import {sortMap} from './map.js';
 
-test('sortMap()', () => {
+/* test_sortMap */
+const test_sortMap = suite('sortMap');
+
+test_sortMap('basic behavior', () => {
 	t.equal(
 		sortMap(
 			new Map([
@@ -18,24 +23,27 @@ test('sortMap()', () => {
 			['d', 1],
 		]),
 	);
+});
 
-	test('custom comparator', () => {
-		t.equal(
-			sortMap(
-				new Map([
-					['d', 1],
-					['a', 1],
-					['c', 1],
-					['b', 1],
-				]),
-				(a, b) => (a[0] > b[0] ? -1 : 1),
-			),
+test_sortMap('custom comparator', () => {
+	t.equal(
+		sortMap(
 			new Map([
 				['d', 1],
+				['a', 1],
 				['c', 1],
 				['b', 1],
-				['a', 1],
 			]),
-		);
-	});
+			(a, b) => (a[0] > b[0] ? -1 : 1),
+		),
+		new Map([
+			['d', 1],
+			['c', 1],
+			['b', 1],
+			['a', 1],
+		]),
+	);
 });
+
+test_sortMap.run();
+/* /test_sortMap */

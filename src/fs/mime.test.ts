@@ -1,4 +1,5 @@
-import {test, t} from '../oki/oki.js';
+import {test} from 'uvu';
+import * as t from 'uvu/assert';
 
 import {
 	getMimeTypeByExtension,
@@ -7,7 +8,7 @@ import {
 	removeMimeTypeExtension,
 } from './mime.js';
 
-test('getMimeTypeByExtension()', () => {
+test('getMimeTypeByExtension', () => {
 	t.is(getMimeTypeByExtension('txt'), 'text/plain');
 	t.is(getMimeTypeByExtension('log'), 'text/plain');
 	t.is(getMimeTypeByExtension('js'), 'text/javascript');
@@ -16,14 +17,14 @@ test('getMimeTypeByExtension()', () => {
 	t.is(getMimeTypeByExtension('fakeext'), null);
 });
 
-test('getExtensionsByMimeType()', () => {
+test('getExtensionsByMimeType', () => {
 	t.equal(getExtensionsByMimeType('text/plain'), ['txt', 'log']);
 	t.equal(getExtensionsByMimeType('application/json'), ['json', 'map']);
 	t.equal(getExtensionsByMimeType('text/javascript'), ['js', 'mjs']);
 	t.equal(getExtensionsByMimeType('fake/test-type'), null);
 });
 
-test('custom mime types', () => {
+test('addMimeTypeExtension', () => {
 	addMimeTypeExtension('test/type', 'foo');
 	addMimeTypeExtension('test/type', 'bar');
 	addMimeTypeExtension('test/type', 'bar'); // add twice to make sure that's not a problem
@@ -38,5 +39,7 @@ test('custom mime types', () => {
 	t.is(getMimeTypeByExtension('foo'), null);
 	t.is(getMimeTypeByExtension('bar'), null);
 	t.equal(getExtensionsByMimeType('test/type'), null);
-	t.ok(!removeMimeTypeExtension('bar'));
+	t.not.ok(removeMimeTypeExtension('bar'));
 });
+
+test.run();

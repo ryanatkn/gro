@@ -85,12 +85,10 @@ gro dev # starts the dev server in watch mode
 gro build # builds everything for production
 ```
 
-Testing with `oki` (docs at [`src/oki`](/src/oki))
-
-> TODO replace `oki` with [`uvu`](https://github.com/lukeed/uvu)
+Testing with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
-gro test # run all tests for `*.test.ts` files
+gro test # run all tests for `*.test.ts` files with `uvu`
 ```
 
 Codegen with `gen` (docs at [`src/gen`](/src/gen))
@@ -145,6 +143,7 @@ Gro builds on
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
 [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
+[uvu](https://github.com/lukeed/uvu) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [lukeed\/\*](https://github.com/lukeed) ∙
 [Node](https://nodejs.org) & [more](package.json)

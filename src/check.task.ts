@@ -1,22 +1,21 @@
 import {Task, TaskError} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
-import {findTestModules} from './oki/testModule.js';
 
 export const task: Task = {
 	description: 'check that everything is ready to commit',
 	run: async ({log, args, invokeTask}) => {
 		await invokeTask('typecheck');
 
-		// Run tests only if the the project has some.
-		const findTestModulesResult = await findTestModules();
-		if (findTestModulesResult.ok) {
-			await invokeTask('test');
-		} else if (findTestModulesResult.type !== 'inputDirectoriesWithNoFiles') {
-			for (const reason of findTestModulesResult.reasons) {
-				log.error(reason);
-			}
-			throw new TaskError('Failed to find task modules.');
-		}
+		// // Run tests only if the the project has some.
+		// const findTestModulesResult = await findTestModules();
+		// if (findTestModulesResult.ok) {
+		await invokeTask('test');
+		// } else if (findTestModulesResult.type !== 'inputDirectoriesWithNoFiles') {
+		// 	for (const reason of findTestModulesResult.reasons) {
+		// 		log.error(reason);
+		// 	}
+		// 	throw new TaskError('Failed to find task modules.');
+		// }
 
 		// Check for stale code generation if the project has any gen files.
 		const findGenModulesResult = await findGenModules();

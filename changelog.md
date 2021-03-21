@@ -1,7 +1,10 @@
 # Gro changelog
 
-## 0.5.1
+## 0.6.0
 
+- replace Gro's internal testing library `oki` with
+  [`uvu`](https://github.com/lukeed/uvu)
+  ([#103](https://github.com/feltcoop/gro/pull/103))
 - add http2 and https support to the dev server
   ([#104](https://github.com/feltcoop/gro/pull/104))
 

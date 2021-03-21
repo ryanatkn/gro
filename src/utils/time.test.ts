@@ -1,49 +1,67 @@
-import {test, t} from '../oki/oki.js';
+import {suite} from 'uvu';
+import * as t from 'uvu/assert';
+
 import {createStopwatch, Timings} from './time.js';
 
-test('createStopwatch', () => {
+/* test_createStopwatch */
+const test_createStopwatch = suite('createStopwatch');
+
+test_createStopwatch('basic behavior', () => {
 	const stopwatch = createStopwatch(4);
 	const elapsed = stopwatch();
 	t.ok(elapsed.toString().split('.')[1].length <= 4);
 });
 
-test('Timings', () => {
-	test('start and stop', () => {
-		const timings = new Timings<'foo' | 'bar'>(4);
-		timings.start('foo');
-		t.throws(() => timings.start('foo'));
-		timings.stop('foo');
-		t.throws(() => timings.stop('foo'));
-		t.throws(() => timings.stop('bar'));
-		const elapsed = timings.get('foo');
-		t.throws(() => timings.get('bar'));
-		t.ok(elapsed.toString().split('.')[1].length <= 4);
-	});
+test_createStopwatch.run();
+/* /test_createStopwatch */
 
-	test('start with stop callback', () => {
-		const timings = new Timings<'foo'>(4);
-		const timingToFoo = timings.start('foo');
-		const elapsed = timingToFoo();
-		t.ok(elapsed.toString().split('.')[1].length <= 4);
-		t.throws(() => timingToFoo());
-		t.throws(() => timings.stop('foo'));
-		t.is(elapsed, timings.get('foo'));
-	});
+/* test_Timings */
+const test_Timings = suite('Timings');
 
-	test('merge timings', () => {
-		const a = new Timings(10);
-		const b = new Timings(10);
-		a.start('test');
-		const aTiming = a.stop('test');
-		t.ok(aTiming);
-		b.start('test');
-		const bTiming = b.stop('test');
-		t.ok(bTiming);
-		a.merge(b);
-		t.is(a.get('test'), aTiming + bTiming);
-		t.is(b.get('test'), bTiming);
-	});
+test_Timings('start and stop', () => {
+	const timings = new Timings<'foo' | 'bar'>(4);
+	timings.start('foo');
+	t.throws(() => timings.start('foo'));
+	timings.stop('foo');
+	t.throws(() => timings.stop('foo'));
+	t.throws(() => timings.stop('bar'));
+	const elapsed = timings.get('foo');
+	t.throws(() => timings.get('bar'));
+	t.ok(elapsed.toString().split('.')[1].length <= 4);
 
-	// TODO TypeScript 3.9 @ts-expect-error
-	// timings.start('no');
+	// we don't want to actually call this - what a better pattern?
+	const typechecking = () => {
+		// @ts-expect-error
+		timings.start('no');
+		// @ts-expect-error
+		timings.start('nope' as string);
+	};
+	typechecking;
 });
+
+test_Timings('start with stop callback', () => {
+	const timings = new Timings<'foo'>(4);
+	const timingToFoo = timings.start('foo');
+	const elapsed = timingToFoo();
+	t.ok(elapsed.toString().split('.')[1].length <= 4);
+	t.throws(() => timingToFoo());
+	t.throws(() => timings.stop('foo'));
+	t.is(elapsed, timings.get('foo'));
+});
+
+test_Timings('merge timings', () => {
+	const a = new Timings(10);
+	const b = new Timings(10);
+	a.start('test');
+	const aTiming = a.stop('test');
+	t.ok(aTiming);
+	b.start('test');
+	const bTiming = b.stop('test');
+	t.ok(bTiming);
+	a.merge(b);
+	t.is(a.get('test'), aTiming + bTiming);
+	t.is(b.get('test'), bTiming);
+});
+
+test_Timings.run();
+/* /test_Timings */
