@@ -24,14 +24,15 @@ It includes:
 - [unbundled development](/src/docs/unbundled.md)
   for [Svelte](https://github.com/sveltejs/svelte) UIs (currently, just SPAs)
   and Node servers/libraries, inspired by [Snowpack](https://github.com/pikapkg/snowpack)
-- production bundling via [Rollup](https://github.com/rollup/rollup)
+- production bundling with [Rollup](https://github.com/rollup/rollup)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
   using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
 - dev server with efficient caching and pluggable builders
-- formatting via [Prettier](https://github.com/prettier/prettier)
+- testing with [uvu](https://github.com/lukeed/uvu)
+- formatting with [Prettier](https://github.com/prettier/prettier)
 - utilities to fill in the gaps for Node and the browser
 - more to come, exploring what deeply integrated tools enable
   for developer power, ergonomics, and productivity
