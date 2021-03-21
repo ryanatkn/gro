@@ -35,6 +35,14 @@ and **it won't reach a stable production-ready 1.0 for quite a while.**
 Gro's development is still a work in progress, and production usage is discouraged,
 but please feel free to try it and share your feedback!
 
+## todo
+
+- [x] basics
+- [ ] livereload CSS
+- [ ] HMR
+- [ ] improve loading speed with `cache-control: immutable` and
+      [import maps](https://github.com/WICG/import-maps/)
+
 ## comparison to Snowpack
 
 Gro's unbundled development is heavily inspired by [Snowpack](https://github.com/pikapkg/snowpack),
