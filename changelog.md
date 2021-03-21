@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.6.2
+
+- allow deleting input files
+  ([#105](https://github.com/feltcoop/gro/pull/105))
+
 ## 0.6.1
 
 - temporarily pin `esinstall` version to fix a breaking regression

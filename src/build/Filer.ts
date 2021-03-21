@@ -385,11 +385,6 @@ export class Filer implements BuildContext {
 		this.log.trace(
 			`removing source file from build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
 		);
-		if (sourceFile.isInputToBuildConfigs?.has(buildConfig)) {
-			throw Error(
-				`Removing build configs from input files is not allowed: ${buildConfig}: ${sourceFile.id}`,
-			);
-		}
 
 		await this.updateBuildFiles(sourceFile, [], buildConfig);
 
