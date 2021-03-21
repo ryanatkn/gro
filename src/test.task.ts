@@ -1,4 +1,4 @@
-import {Task} from './task/task.js';
+import {Task, TaskError} from './task/task.js';
 import {printTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {spawnProcess} from './utils/process.js';
@@ -17,13 +17,21 @@ export const task: Task = {
 		const dev = process.env.NODE_ENV !== 'production';
 		const dir = toRootPath(toBuildOutPath(dev, DEFAULT_BUILD_CONFIG_NAME));
 
-		// TODO return value?
 		const timeToRunUvu = timings.start('run test with uvu');
-		await spawnProcess('npx', ['uvu', dir, '.+\\.test\\.js$', ...process.argv.slice(3)]);
+		const testRunResult = await spawnProcess('npx', [
+			'uvu',
+			dir,
+			'.+\\.test\\.js$',
+			...process.argv.slice(3),
+		]);
 		timeToRunUvu();
 
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));
+		}
+
+		if (!testRunResult.ok) {
+			throw new TaskError('Tests failed.');
 		}
 	},
 };
