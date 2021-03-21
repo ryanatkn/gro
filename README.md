@@ -146,7 +146,7 @@ Gro builds on
 [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
-[lukeed\/\*](https://github.com/lukeed) ∙
+[@lukeed\/\*](https://github.com/lukeed) ∙
 [Node](https://nodejs.org) & [more](package.json)
 
 [Gro's strategy](/src/docs/unbundled.md) of pairing unbundled ES modules during development
