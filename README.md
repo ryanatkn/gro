@@ -30,7 +30,7 @@ It includes:
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
-- dev server with efficient caching and pluggable builders
+- dev server with efficient caching and http2/https support
 - testing with [uvu](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier)
 - utilities to fill in the gaps for Node and the browser
@@ -41,7 +41,7 @@ It includes:
 
 - [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
 - [`task`](/src/task) runner
-- [`dev server`](/src/server)
+- [dev server](/src/server)
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs)
   - [tasks](/src/docs/tasks.md)
