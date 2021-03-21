@@ -89,7 +89,7 @@ gro build # builds everything for production
 Testing with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
-gro test # run all tests for `*.test.ts` files with `uvu`
+gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
 ```
 
 Codegen with `gen` (docs at [`src/gen`](/src/gen))
