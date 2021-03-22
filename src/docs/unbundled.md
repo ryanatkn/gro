@@ -38,7 +38,7 @@ but please feel free to try it and share your feedback!
 ## todo
 
 - [x] basics
-- [ ] livereload CSS
+- [ ] livereload CSS (and fix pop-in during dev)
 - [ ] HMR
 - [ ] improve loading speed with `cache-control: immutable` and
       [import maps](https://github.com/WICG/import-maps/)
