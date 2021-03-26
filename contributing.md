@@ -18,8 +18,8 @@ But I have too many things to prioritize,
 and I feel it's irresponsible to push open source Node projects that don't support Windows.
 
 So Gro sits in a pre-alpha limbo. For other reasons too -
-things may change dramatically and I don't want the friction of external users.
-I value your time!!
+things may change dramatically and I don't want the friction of breaking external users.
+I value your time too!!
 
 In summary, this free software is free as in puppy, I guess is what I'm saying.
 I hope it's not free as in mattress... that's not the software I want to dump on the world.
