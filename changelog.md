@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.6.3
+
+- restrict the dev server to development usage
+  ([#107](https://github.com/feltcoop/gro/pull/107))
+
 ## 0.6.2
 
 - allow deleting input files
