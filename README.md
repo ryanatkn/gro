@@ -18,6 +18,8 @@
 > All that out of the way: you might find some interesting or useful things here!
 > Please open issues for questions or discussion.
 
+> **Windows is not supported. WSL works well**
+
 ## about
 
 Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
@@ -160,6 +162,10 @@ npm link ../gro
 # release
 gro build # build for release and update the `gro` CLI
 ```
+
+## contributing
+
+see [contributing.md🌄](./contributing.md)
 
 ## credits :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
