@@ -18,7 +18,7 @@
 > All that out of the way: you might find some interesting or useful things here!
 > Please open issues for questions or discussion.
 
-> **Windows is not supported. WSL works well**
+> **Windows is not yet supported. WSL works well**
 
 ## about
 
