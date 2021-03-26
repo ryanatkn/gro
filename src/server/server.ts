@@ -24,6 +24,11 @@ import {paths} from '../paths.js';
 import {loadPackageJson} from '../project/packageJson.js';
 import {ProjectState} from './projectState.js';
 
+// We don't want to have to worry about the security of the dev server.
+if (process.env.NODE_ENV !== 'development') {
+	throw Error('The dev server is only designed for development. Security cannot be guaranteed.');
+}
+
 type Http2StreamHandler = (
 	stream: ServerHttp2Stream,
 	headers: IncomingHttpHeaders,
