@@ -2,6 +2,8 @@
 
 ## 0.6.3
 
+- fix import path
+  ([#111](https://github.com/feltcoop/gro/pull/111))
 - restrict the dev server to development usage
   ([#107](https://github.com/feltcoop/gro/pull/107))
 
