@@ -1,3 +1,2 @@
-import {dequal} from 'dequal';
-
-export const deepEqual = dequal; // see https://github.com/lukeed/dequal
+// see https://github.com/lukeed/dequal
+export {dequal as deepEqual} from 'dequal';
