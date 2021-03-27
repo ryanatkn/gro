@@ -208,7 +208,7 @@ gro gen --check # exits with error code 1 if anything is new or different
 or in code:
 
 ```ts
-import {Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {

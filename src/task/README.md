@@ -85,7 +85,7 @@ $ gro gro/some/file
 
 ```ts
 // src/some/file.task.ts
-import {Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -97,14 +97,18 @@ export const task: Task = {
 
 ### `Task` type
 
-> `import {Task} from '@feltcoop/gro';`
+> ```ts
+> import type {Task} from '@feltcoop/gro';`
+> ```
+
+````
 
 ```ts
 export interface Task {
 	run: (ctx: TaskContext) => Promise<unknown>;
 	description?: string;
 }
-```
+````
 
 ### run a task inside another task
 
@@ -129,7 +133,7 @@ gro some/file
 
 ```ts
 // src/some/file.task.ts
-import {Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
@@ -152,7 +156,7 @@ $ gro test
 
 ```ts
 // src/test.task.ts
-import {Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
