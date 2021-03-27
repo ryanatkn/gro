@@ -97,18 +97,18 @@ export const task: Task = {
 
 ### `Task` type
 
-> ```ts
-> import type {Task} from '@feltcoop/gro';`
-> ```
-
-````
+```ts
+// mymodule.ts
+import type {Task} from '@feltcoop/gro';`
+```
 
 ```ts
+// `@feltcoop/gro`
 export interface Task {
 	run: (ctx: TaskContext) => Promise<unknown>;
 	description?: string;
 }
-````
+```
 
 ### run a task inside another task
 
