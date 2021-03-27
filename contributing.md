@@ -2,7 +2,7 @@ hey! thanks for your interest in contributing! Welcome, but it's complicated!;;;
 
 So, this is just a project I work on to support my other work.
 Although Gro is a [@feltcoop](https://github.com/feltcoop) project,
-I am its sole developer for now,
+I am its only developer for now,
 and we have more important projects that occupy almost all of our time.
 
 I don't want to spend much time on support outside of our needs.
