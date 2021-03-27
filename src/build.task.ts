@@ -1,7 +1,7 @@
 import {resolve} from 'path';
 
 import {pathExists} from './fs/nodeFs.js';
-import {Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
 import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';

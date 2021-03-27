@@ -1,5 +1,5 @@
 import * as terser from 'terser';
-import {Plugin} from 'rollup';
+import type {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
 import {magenta} from '../utils/terminal.js';

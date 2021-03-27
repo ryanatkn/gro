@@ -1,11 +1,11 @@
-import {Plugin} from 'rollup';
+import type {Plugin} from 'rollup';
 import {resolve, dirname} from 'path';
 import {existsSync} from 'fs';
 import {createFilter} from '@rollup/pluginutils';
 
 import {green} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {GroCssBuild} from './types.js';
+import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 
 export interface Options {

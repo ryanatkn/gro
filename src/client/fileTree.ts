@@ -1,6 +1,6 @@
 import {basename} from 'path';
 
-import {SourceTreeMeta} from './sourceTree.js';
+import type {SourceTreeMeta} from './sourceTree.js';
 import {toPathSegments} from '../utils/path.js';
 import {stripStart} from '../utils/string.js';
 

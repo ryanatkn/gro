@@ -1,6 +1,6 @@
 import CheapWatch from 'cheap-watch';
 
-import {PathStats, PathFilter} from './pathData.js';
+import type {PathStats, PathFilter} from './pathData.js';
 import {omitUndefined} from '../utils/object.js';
 
 /*

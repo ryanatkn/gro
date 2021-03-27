@@ -1,5 +1,5 @@
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
-import {Builder} from './builder.js';
+import type {Builder} from './builder.js';
 import {createLazyBuilder, InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
 import {
 	createEsbuildBuilder,

@@ -1,4 +1,4 @@
-import {Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {createDevServer} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {printPath} from './utils/print.js';

@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 
 import {magenta, red} from '../utils/terminal.js';
 import {SystemLogger, Logger} from '../utils/log.js';

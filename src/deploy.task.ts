@@ -1,6 +1,6 @@
 import {join, basename} from 'path';
 
-import {Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 import {copy, pathExists} from './fs/nodeFs.js';
 import {paths} from './paths.js';

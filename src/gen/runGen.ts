@@ -1,5 +1,5 @@
 import {red} from '../utils/terminal.js';
-import {GenModuleMeta} from './genModule.js';
+import type {GenModuleMeta} from './genModule.js';
 import {
 	GenResults,
 	GenModuleResult,

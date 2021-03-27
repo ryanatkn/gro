@@ -1,11 +1,11 @@
 import {basename, dirname, join} from 'path';
 
-import {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/FilerDir.js';
+import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/FilerDir.js';
 import {BuildFile, reconstructBuildFiles} from './buildFile.js';
-import {BaseFilerFile} from './baseFilerFile.js';
+import type {BaseFilerFile} from './baseFilerFile.js';
 import {toHash} from './utils.js';
-import {BuildConfig} from '../config/buildConfig.js';
-import {Encoding} from '../fs/encoding.js';
+import type {BuildConfig} from '../config/buildConfig.js';
+import type {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {UnreachableError} from '../utils/error.js';

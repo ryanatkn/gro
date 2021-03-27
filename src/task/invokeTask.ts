@@ -1,5 +1,5 @@
 import {magenta, cyan, red, gray} from '../utils/terminal.js';
-import {Args} from '../cli/types';
+import type {Args} from '../cli/types';
 import {SystemLogger, Logger, configureLogLevel} from '../utils/log.js';
 import {runTask} from './runTask.js';
 import {createStopwatch, Timings} from '../utils/time.js';

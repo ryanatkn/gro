@@ -1,14 +1,14 @@
 import * as svelte from 'svelte/compiler';
-import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
-import {Plugin} from 'rollup';
+import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import type {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
 import {magenta, red} from '../utils/terminal.js';
 import {toPathStem} from '../utils/path.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
-import {GroCssBuild} from './types.js';
+import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import {
 	SvelteCompilation,

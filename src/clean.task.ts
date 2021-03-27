@@ -1,4 +1,4 @@
-import {Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {clean} from './project/clean.js';
 
 export const task: Task = {

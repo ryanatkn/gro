@@ -1,7 +1,7 @@
 import CheapWatch from 'cheap-watch';
 import fsExtra from 'fs-extra';
 
-import {PathStats, PathFilter} from './pathData.js';
+import type {PathStats, PathFilter} from './pathData.js';
 import {sortMap, compareSimpleMapEntries} from '../utils/map.js';
 
 // This uses `CheapWatch` which probably isn't the fastest, but it works fine for now.

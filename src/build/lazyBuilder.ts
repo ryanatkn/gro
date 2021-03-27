@@ -1,6 +1,6 @@
 import {BuildContext, Builder, BuildSource, noopBuilder} from './builder.js';
 import {omitUndefined} from '../utils/object.js';
-import {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 
 export interface GetBuilder {
 	(source: BuildSource, buildConfig: BuildConfig): Builder | null;

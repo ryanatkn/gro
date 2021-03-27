@@ -1,6 +1,6 @@
 import esbuild from 'esbuild';
 
-import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';

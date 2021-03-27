@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import {GroConfigCreator, PartialGroConfig} from './config.js';
+import type {GroConfigCreator, PartialGroConfig} from './config.js';
 import {LogLevel} from '../utils/log.js';
 
 // This is the default config that's used if the current project does not define one.

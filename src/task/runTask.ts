@@ -1,7 +1,7 @@
 import {cyan, magenta, red, gray} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import {TaskModuleMeta} from './taskModule.js';
-import {Args} from '../cli/types.js';
+import type {TaskModuleMeta} from './taskModule.js';
+import type {Args} from '../cli/types.js';
 import {TaskError} from './task.js';
 
 export type RunTaskResult =
