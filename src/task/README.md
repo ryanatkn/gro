@@ -93,6 +93,12 @@ export const task: Task = {
 		await whatever();
 	},
 };
+
+// @feltcoop/gro
+export interface Task {
+	run: (ctx: TaskContext) => Promise<unknown>;
+	description?: string;
+}
 ```
 
 ### run a task inside another task
