@@ -98,11 +98,6 @@ export const task: Task = {
 ### `Task` type
 
 ```ts
-// mymodule.ts
-import type {Task} from '@feltcoop/gro';`
-```
-
-```ts
 // `@feltcoop/gro`
 export interface Task {
 	run: (ctx: TaskContext) => Promise<unknown>;
