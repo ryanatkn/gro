@@ -4,8 +4,6 @@
 
 - restrict the dev server to development usage
   ([#107](https://github.com/feltcoop/gro/pull/107))
-- change TypeScript setting `importsNotUsedAsValues` to `"error"`
-  ([#109](https://github.com/feltcoop/gro/pull/109))
 
 ## 0.6.2
 
