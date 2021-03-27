@@ -93,8 +93,13 @@ export const task: Task = {
 		await whatever();
 	},
 };
+```
 
-// @feltcoop/gro
+### `Task` type
+
+> `import {Task} from '@feltcoop/gro';`
+
+```ts
 export interface Task {
 	run: (ctx: TaskContext) => Promise<unknown>;
 	description?: string;
