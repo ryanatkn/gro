@@ -1,12 +1,12 @@
 import type {Build, BuildContext, BuildDependency, BuildResult} from './builder.js';
 import {UnreachableError} from '../utils/error.js';
-import {BaseFilerFile} from './baseFilerFile.js';
+import type {BaseFilerFile} from './baseFilerFile.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
-import {BuildableSourceFile} from './sourceFile.js';
-import {BuildConfig} from '../config/buildConfig.js';
+import type {BuildableSourceFile} from './sourceFile.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutDirname} from '../paths.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;

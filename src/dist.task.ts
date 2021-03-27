@@ -1,5 +1,5 @@
 import {copy} from './fs/nodeFs.js';
-import {Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './fs/testModule.js';
 import {printPath} from './utils/print.js';

@@ -1,8 +1,8 @@
 import * as svelte from 'svelte/compiler';
-import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 
-import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {
 	baseSvelteCompileOptions,
 	createDefaultPreprocessor,
@@ -21,7 +21,7 @@ import {
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
-import {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../utils/terminal.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';

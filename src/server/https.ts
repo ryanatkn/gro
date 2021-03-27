@@ -1,7 +1,7 @@
 import {join} from 'path';
 
 import {pathExists, readFile} from '../fs/nodeFs.js';
-import {Logger} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 
 export interface HttpsCredentials {
 	cert: string;

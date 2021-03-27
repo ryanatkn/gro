@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
-import {GenModuleMeta} from './genModule.js';
+import type {GenModuleMeta} from './genModule.js';
 import {runGen} from './runGen.js';
 
 /* test_gen */

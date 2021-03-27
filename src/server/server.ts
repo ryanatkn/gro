@@ -6,13 +6,13 @@ import {
 	OutgoingHttpHeaders,
 } from 'http';
 import {createSecureServer as createHttp2Server, Http2Server, ServerHttp2Stream} from 'http2';
-import {ListenOptions} from 'net';
+import type {ListenOptions} from 'net';
 
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
-import {Filer} from '../build/Filer.js';
+import type {Filer} from '../build/Filer.js';
 import {
 	BaseFilerFile,
 	getFileMimeType,
@@ -22,7 +22,7 @@ import {
 } from '../build/baseFilerFile.js';
 import {paths} from '../paths.js';
 import {loadPackageJson} from '../project/packageJson.js';
-import {ProjectState} from './projectState.js';
+import type {ProjectState} from './projectState.js';
 
 type Http2StreamHandler = (
 	stream: ServerHttp2Stream,

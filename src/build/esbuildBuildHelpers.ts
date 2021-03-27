@@ -1,5 +1,5 @@
-import esbuild from 'esbuild';
-import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
+import type esbuild from 'esbuild';
+import type * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from './tsBuildHelpers.js';
 

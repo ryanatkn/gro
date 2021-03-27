@@ -1,15 +1,15 @@
 import {UnreachableError} from '../utils/error.js';
-import {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutPath} from '../paths.js';
 import type {
 	ExternalsAliases,
 	ExternalsBuilderState,
 	EXTERNALS_BUILDER_STATE_KEY,
 } from './externalsBuildHelpers.js';
-import {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {ServedDir} from './ServedDir.js';
-import {Logger} from '../utils/log.js';
-import {SourceMeta} from './sourceMeta.js';
+import type {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {ServedDir} from './ServedDir.js';
+import type {Logger} from '../utils/log.js';
+import type {SourceMeta} from './sourceMeta.js';
 
 // TODO maybe move to `buildFile`? but then `postprocess` would have a dependency on the build file.
 // its imports make more sense as is.

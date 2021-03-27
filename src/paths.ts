@@ -136,6 +136,7 @@ export const toImportId = (
 	p = pathsFromId(sourceId),
 ): string => {
 	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
+	// TODO `groImportDir === groPaths.dist` is definitely wrong
 	return !isThisProjectGro && groImportDir === groPaths.dist
 		? join(groImportDir, dirBasePath)
 		: toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);

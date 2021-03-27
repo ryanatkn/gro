@@ -1,6 +1,6 @@
 import {pathExists, remove} from '../fs/nodeFs.js';
 import {paths} from '../paths.js';
-import {SystemLogger} from '../utils/log.js';
+import type {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 
 export const clean = async (log: SystemLogger) => {

@@ -1,4 +1,4 @@
-import {Plugin} from 'rollup';
+import type {Plugin} from 'rollup';
 import {createFilter, dataToEsm} from '@rollup/pluginutils';
 
 import {magenta} from '../utils/terminal.js';

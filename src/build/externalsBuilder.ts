@@ -1,6 +1,6 @@
 import {basename, dirname, join} from 'path';
 import {install as installWithEsinstall, InstallResult} from 'esinstall';
-import {Plugin as RollupPlugin} from 'rollup';
+import type {Plugin as RollupPlugin} from 'rollup';
 
 import {Logger, SystemLogger} from '../utils/log.js';
 import {EXTERNALS_BUILD_DIR, JS_EXTENSION, toBuildOutPath} from '../paths.js';

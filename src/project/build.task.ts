@@ -1,4 +1,4 @@
-import {Task} from '../task/task.js';
+import type {Task} from '../task/task.js';
 import {printTiming} from '../utils/print.js';
 import {spawnProcess} from '../utils/process.js';
 import {Timings} from '../utils/time.js';

@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import {Plugin, PluginContext} from 'rollup';
+import type {Plugin, PluginContext} from 'rollup';
 import {resolve} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 

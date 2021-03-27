@@ -3,7 +3,7 @@ import {pathExists, stat} from './nodeFs.js';
 import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import {Timings} from '../utils/time.js';
-import {PathStats, PathData} from './pathData.js';
+import type {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';

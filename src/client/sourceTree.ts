@@ -1,6 +1,6 @@
 import type {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
 import type {BuildConfig} from '../config/buildConfig.js';
-import {BuildOutDirname} from '../paths.js';
+import type {BuildOutDirname} from '../paths.js';
 import {deepEqual} from '../utils/deepEqual.js';
 
 export interface SourceTree {

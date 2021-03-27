@@ -3,7 +3,7 @@ import lexer from 'es-module-lexer';
 import {paths, TS_EXTENSION} from '../paths.js';
 import {randomInt} from '../utils/random.js';
 import {createEsbuildBuilder} from '../build/esbuildBuilder.js';
-import {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 import type {BuildContext, TextBuildSource} from '../build/builder.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
 import {outputFile, readFile, remove} from './nodeFs.js';

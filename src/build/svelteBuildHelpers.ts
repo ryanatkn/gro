@@ -1,17 +1,17 @@
 import type {ExistingRawSourceMap, PluginContext} from 'rollup';
 import type {compile} from 'svelte/compiler';
-import {
+import type {
 	CompileOptions as SvelteCompileOptions,
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
-import {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
-import {Logger} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {yellow} from '../utils/terminal.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
-import {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 
 export type CreatePreprocessor = (
 	target: EcmaScriptTarget,

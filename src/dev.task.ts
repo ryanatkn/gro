@@ -1,4 +1,4 @@
-import {Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {printTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
@@ -7,7 +7,7 @@ import {paths, toBuildOutPath} from './paths.js';
 import {createDevServer} from './server/server.js';
 import {GroConfig, loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
-import {ServedDirPartial} from './build/ServedDir.js';
+import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 
 export const task: Task = {

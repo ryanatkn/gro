@@ -1,10 +1,10 @@
 import {printMs, printTiming} from '../utils/print.js';
-import {Logger} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {createDefaultBuilder} from './defaultBuilder.js';
-import {GroConfig} from '../config/config.js';
+import type {GroConfig} from '../config/config.js';
 
 export const buildSourceDirectory = async (
 	config: GroConfig,

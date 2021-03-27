@@ -1,7 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 // import {createDirectoryFilter} from './build/utils.js';
-import {GroConfigCreator, PartialGroConfig} from './config/config.js';
+import type {GroConfigCreator, PartialGroConfig} from './config/config.js';
 import {toBuildOutPath} from './paths.js';
 import {LogLevel} from './utils/log.js';
 

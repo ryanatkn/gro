@@ -30,7 +30,7 @@ import {
 	SourceFile,
 } from './sourceFile.js';
 import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
-import {BaseFilerFile} from './baseFilerFile.js';
+import type {BaseFilerFile} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import {wrap} from '../utils/async.js';
@@ -303,6 +303,7 @@ export class Filer implements BuildContext {
 					continue;
 				}
 				const file = this.files.get(input);
+				// TODO this assert throws with a bad error - should print `input`
 				assertBuildableSourceFile(file);
 				if (!file.buildConfigs.has(buildConfig)) {
 					promises.push(this.addSourceFileToBuild(file, buildConfig, true));

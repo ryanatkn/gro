@@ -9,7 +9,7 @@ import {
 	loadSourceIdsByInputPath,
 	getPossibleSourceIds,
 } from './inputPath.js';
-import {PathStats} from './pathData.js';
+import type {PathStats} from './pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
 
 /* test_resolveRawInputPath */

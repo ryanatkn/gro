@@ -1,5 +1,5 @@
 import {pathExists} from './fs/nodeFs.js';
-import {Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 
 export const task: Task = {

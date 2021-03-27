@@ -1,4 +1,4 @@
-import {BuildConfig} from './buildConfig.js';
+import type {BuildConfig} from './buildConfig.js';
 import {paths} from '../paths.js';
 
 // Gro currently enforces that the primary build config

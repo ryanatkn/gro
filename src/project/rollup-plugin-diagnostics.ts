@@ -1,4 +1,4 @@
-import {Plugin} from 'rollup';
+import type {Plugin} from 'rollup';
 
 import {gray} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';

@@ -1,4 +1,4 @@
-import {Task} from '../task/task.js';
+import type {Task} from '../task/task.js';
 
 export const task: Task = {
 	description: 'create and link the distribution',
