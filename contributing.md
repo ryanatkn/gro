@@ -25,7 +25,13 @@ Also, Gro can't work for everyone's needs and still be Gro.
 I'm trying to make it flexible, and I welcome pointers
 on improving the usefulness of the software gracefully,
 but I also can't guarantee that Gro will work for your use cases.
-SvelteKit and Vite are more general-purpose tools.
+This is why Gro's tagline is:
+
+> opinionated tools for web development
+
+It's trying to signal that, "hey, opinions: feel free to disagree; MIT".
+But Gro _is_ more general-purpose than the phrase may suggest.
+But SvelteKit and Vite are _actually designed to be_ general-purpose tools.
 Please set your expectations accordingly 🐢
 I expect we'll see more kits/metaframeworks tailored to needs beyond Gro's scope
 
