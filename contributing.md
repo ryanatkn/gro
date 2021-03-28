@@ -10,7 +10,8 @@ But I do want to give away the source code in case it can help!
 (and be improved? I'm not selfish for me, I'm selfish for the code, you see)
 The license is MIT, so you're free to use and repurpose it without our permission.
 We have so much work to do and Gro is just a low level tool.
-time is precious🌄
+It can't work for everyone's needs and still be Gro.
+and time is precious🌄
 
 Example: Gro doesn't support Windows. That's bad.
 It excludes many people out there who don't know what a WSL is.
