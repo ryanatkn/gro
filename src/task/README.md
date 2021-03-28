@@ -132,10 +132,15 @@ import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
+		// runs `src/some/file.task.ts`, automatically forwarding `args`
+		await invokeTask('some/file');
+		// as documented above, the following is similar but lacks nice features:
+		// await (await import('./some/file.task.js')).run(ctx);
+
 		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`
 		await invokeTask('other/file', {...args, optionally: 'extendTheArgs'});
 
-		// runs `gro/src/other/file.task.ts` directly
+		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
 		await invokeTask('gro/other/file');
 	},
 };
