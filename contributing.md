@@ -10,8 +10,7 @@ But I do want to give away the source code in case it can help!
 (and be improved? I'm not selfish for me, I'm selfish for the code, you see)
 The license is MIT, so you're free to use and repurpose it without our permission.
 We have so much work to do and Gro is just a low level tool.
-It can't work for everyone's needs and still be Gro.
-and time is precious🌄
+time is precious🌄
 
 Example: Gro doesn't support Windows. That's bad.
 It excludes many people out there who don't know what a WSL is.
@@ -21,6 +20,13 @@ and I feel it's irresponsible to push open source Node projects that don't suppo
 So Gro sits in a pre-alpha limbo. For other reasons too -
 things may change dramatically and I don't want the friction of breaking external users.
 I value your time too!!
+
+Also, Gro can't work for everyone's needs and still be Gro.
+I'm trying to make it flexible, and I welcome pointers
+on improving the usefulness of the software gracefully,
+but I also can't guarantee that Gro will work for your use cases.
+SvelteKit and Vite are more general-purpose tools.
+I expect we'll see more kits/metaframeworks that suit needs out of Gro's scope.
 
 In summary, this free software is
 [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
