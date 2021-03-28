@@ -13,12 +13,20 @@ import {loadHttpsCredentials} from './server/https.js';
 export const task: Task = {
 	description: 'start dev server',
 	run: async ({log, args}) => {
+		// TODO handle these properly
+		// args.oncreateconfig
+		// args.oncreatefiler
+		// args.oncreateserver
+		// args.oninitfiler
+		// args.onstartserver
+		// args.onready
 		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig();
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
+		args.oncreateconfig && (args as any).oncreateconfig(config);
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
@@ -30,6 +38,7 @@ export const task: Task = {
 			sourcemap: config.sourcemap,
 		});
 		timingToCreateFiler();
+		args.oncreatefiler && (args as any).oncreatefiler(filer);
 
 		const timingToCreateDevServer = timings.start('create dev server');
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
@@ -38,19 +47,24 @@ export const task: Task = {
 			: await loadHttpsCredentials(log, args.certfile as string, args.certkeyfile as string);
 		const server = createDevServer({filer, host: config.host, port: config.port, https});
 		timingToCreateDevServer();
+		args.oncreateserver && (args as any).oncreateserver(server);
 
 		await Promise.all([
 			(async () => {
 				const timingToInitFiler = timings.start('init filer');
 				await filer.init();
 				timingToInitFiler();
+				args.oninitfiler && (args as any).oninitfiler(filer);
 			})(),
 			(async () => {
 				const timingToStartDevServer = timings.start('start dev server');
 				await server.start();
 				timingToStartDevServer();
+				args.onstartserver && (args as any).onstartserver(server);
 			})(),
 		]);
+
+		args.onready && (args as any).onready(filer, server);
 
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));
