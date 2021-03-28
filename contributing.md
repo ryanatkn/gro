@@ -26,7 +26,8 @@ I'm trying to make it flexible, and I welcome pointers
 on improving the usefulness of the software gracefully,
 but I also can't guarantee that Gro will work for your use cases.
 SvelteKit and Vite are more general-purpose tools.
-I expect we'll see more kits/metaframeworks that suit needs out of Gro's scope.
+Please set your expectations accordingly 🐢
+I expect we'll see more kits/metaframeworks tailored to needs beyond Gro's scope
 
 In summary, this free software is
 [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
