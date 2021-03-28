@@ -6,7 +6,8 @@ I am its only developer for now,
 and we have more important projects that occupy almost all of our time.
 
 I don't want to spend much time on support outside of our needs.
-But I do want to give away the source code in case it can help! (and be improved?)
+But I do want to give away the source code in case it can help!
+(and be improved? I'm not selfish for me, I'm selfish for the code, you see)
 We have so much work to do and Gro is just a low level tool.
 I know for sure you understand, because you're reading a `contributing.md` document
 for open source software, so I can only imagine that you value your own time.
