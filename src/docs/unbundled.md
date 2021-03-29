@@ -23,7 +23,8 @@ Today, Gro is aimed at three primary use cases:
 - Node modules, like libraries and standalone servers
 
 Eventually, Gro plans to support
-server side rendering (SSR) and static site generation (SSG),
+server side rendering (SSR) and static site generation (SSG)
+by [replacing Vite in SvelteKit](https://github.com/feltcoop/gro/issues/106),
 but today these are low priority.
 We recommend using [SvelteKit](https://github.com/sveltejs/kit) for most websites.
 Gro is primarily intended for SPAs and Node projects,
