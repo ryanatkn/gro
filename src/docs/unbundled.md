@@ -98,6 +98,7 @@ Gro differs in some significant ways:
 - Gro uses Snowpack's [`esinstall`](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
   to bundle npm dependencies for the browser. Huge thanks to them.
 - Gro does not yet support hot module reloading, though work is in progress, in theory.
+  This lovely library does the hard part: [rixo/svelte-hmr](https://github.com/rixo/svelte-hmr)
 
 <p align="center">
   <a href="https://github.com/feltcoop/gro">
