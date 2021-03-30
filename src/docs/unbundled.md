@@ -49,7 +49,8 @@ but please feel free to try it and share your feedback!
 - [ ] HMR
 - [ ] improve loading speed with `cache-control: immutable` and
       [import maps](https://github.com/WICG/import-maps/)
-      (Firefox is much slower than Chrome here, and http2 didn't help on my machine)
+      (on my machine Firefox is much slower than Chrome
+      handling a module import waterfall, locally, and http2 didn't help)
 
 ## comparison to Snowpack
 
