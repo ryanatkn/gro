@@ -32,6 +32,7 @@ import {
 	EsbuildTransformOptions,
 	getDefaultEsbuildPreprocessOptions,
 } from '../build/esbuildBuildHelpers.js';
+import type {PartialExcept} from '../types.js';
 
 export interface Options {
 	esbuildOptions: EsbuildTransformOptions;

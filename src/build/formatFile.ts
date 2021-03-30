@@ -2,6 +2,7 @@ import prettier from 'prettier';
 import {extname} from 'path';
 
 import {loadPackageJson} from '../project/packageJson.js';
+import type {Obj} from '../types.js';
 
 export const formatFile = async (id: string, contents: string): Promise<string> => {
 	const parser = inferParser(id);

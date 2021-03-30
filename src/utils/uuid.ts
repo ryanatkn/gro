@@ -1,5 +1,7 @@
 import {v4} from '@lukeed/uuid';
 
+import type {Flavored} from '../types.js';
+
 export type Uuid = Flavored<string, 'Uuid'>;
 
 export const uuid: () => Uuid = v4;

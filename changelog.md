@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.7.0
+
+- **break**: change global types to root exports
+  ([#114](https://github.com/feltcoop/gro/pull/114))
+
 ## 0.6.5
 
 - improve the error message when a build config input is missing

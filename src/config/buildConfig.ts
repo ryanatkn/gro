@@ -4,6 +4,7 @@ import {ensureArray} from '../utils/array.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
 import {blue} from '../utils/terminal.js';
+import type {Result} from '../types.js';
 
 // See `../docs/config.md` for documentation.
 

@@ -1,3 +1,5 @@
+import type {Obj} from '../types.js';
+
 export interface Args {
 	_: string[];
 	[key: string]: string | number | boolean | string[] | undefined;
