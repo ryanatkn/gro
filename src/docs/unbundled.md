@@ -1,5 +1,7 @@
 # unbundled development
 
+> please note: Gro's SPA behavior is deprecated for SvelteKit's
+
 Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
