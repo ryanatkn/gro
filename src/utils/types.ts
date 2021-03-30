@@ -31,6 +31,22 @@ export type Assignable<T, K extends keyof T = keyof T> = {
 };
 
 export type Result<TValue = {}, TError = {}> = ({ok: true} & TValue) | ({ok: false} & TError);
+// A helper that says,
+// "hey I know this is wrapped in a `Result`, but I expect it to be `ok`,
+// so if it's not, I understand it will throw an error"
+export const unwrap = <
+	TValue extends {value: TWrappedValue},
+	TWrappedValue,
+	TError extends {reason?: string}
+>(
+	result: Result<TValue, TError>,
+): TWrappedValue => {
+	if (result.ok) {
+		return result.value;
+	} else {
+		throw Error(result.reason || 'Failed to unwrap result with unknown reason');
+	}
+};
 
 /*
 

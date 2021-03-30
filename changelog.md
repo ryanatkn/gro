@@ -4,6 +4,8 @@
 
 - rename `src/types.ts` to `src/utils/types.ts`
   ([#115](https://github.com/feltcoop/gro/pull/115))
+- add `unwrap` helper to `src/utils/types.ts`
+  ([#116](https://github.com/feltcoop/gro/pull/116))
 
 ## 0.7.0
 
