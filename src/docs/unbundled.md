@@ -29,7 +29,7 @@ but today these are low priority.
 We recommend using [SvelteKit (and Vite)](https://github.com/sveltejs/kit) for frontends.
 Gro is primarily intended for SPAs and Node projects -
 the current SPA behavior is deprecated for SvelteKite -
-and **it won't reach a stable production-ready 1.0 for quite a while.**
+and **Gro won't reach a stable production-ready 1.0 for quite a while.**
 
 > SPAs without SSR are a niche use case - they're usually **not** what you want on the web!
 > But sometimes they're _exactly_ what you want, and Gro was purpose-built to support them.
