@@ -17,6 +17,7 @@ import {
 	handleStats,
 } from '../build/svelteBuildHelpers.js';
 import {CSS_EXTENSION} from '../paths.js';
+import type {PartialExcept} from '../types.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190

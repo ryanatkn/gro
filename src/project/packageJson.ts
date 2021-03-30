@@ -3,6 +3,7 @@ import {join} from 'path';
 import {readJson} from '../fs/nodeFs.js';
 import {paths, groPaths, isThisProjectGro} from '../paths.js';
 import type {Json} from '../utils/json.js';
+import type {Obj} from '../types.js';
 
 /*
 

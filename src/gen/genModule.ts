@@ -3,6 +3,7 @@ import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
 import {pathExists, readFile, findFiles} from '../fs/nodeFs.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
+import type {Obj} from '../types.js';
 
 export interface GenModule {
 	gen: Gen;

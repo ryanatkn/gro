@@ -2,6 +2,7 @@ import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modul
 import {paths} from '../paths.js';
 import {findFiles} from '../fs/nodeFs.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
+import type {Obj} from '../types.js';
 
 // TODO this is no longer needed to the same extent as it was before switching to `uvu`,
 // but it contains the conventions for the app used in some other places

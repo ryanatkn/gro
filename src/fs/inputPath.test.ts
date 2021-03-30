@@ -11,6 +11,7 @@ import {
 } from './inputPath.js';
 import type {PathStats} from './pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
+import type {Obj} from '../types.js';
 
 /* test_resolveRawInputPath */
 const test_resolveRawInputPath = suite('resolveRawInputPath');

@@ -1,3 +1,5 @@
+import type {Obj} from '../types.js';
+
 // TODO refactor, move where? hacky because `path`, should reuse existing code
 // TODO maybe cache these values on the domain objects instead of this?
 const toBasePathCache: Obj<string> = {};
