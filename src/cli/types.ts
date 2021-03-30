@@ -1,4 +1,4 @@
-import type {Obj} from '../types.js';
+import type {Obj} from '../index.js';
 
 export interface Args {
 	_: string[];

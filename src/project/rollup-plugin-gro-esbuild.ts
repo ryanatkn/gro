@@ -10,7 +10,7 @@ import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {toRootPath, isSourceId, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import {replaceExtension} from '../utils/path.js';
-import type {PartialExcept} from '../types.js';
+import type {PartialExcept} from '../index.js';
 
 // TODO improve along with Svelte compile stats
 interface Stats {

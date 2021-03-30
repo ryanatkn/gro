@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 
-import type {PartialExcept} from '../types.js';
+import type {PartialExcept} from '../index.js';
 
 export interface ServedDir {
 	dir: string; // TODO rename? `source`, `sourceDir`, `path`

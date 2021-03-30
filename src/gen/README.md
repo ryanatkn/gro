@@ -155,7 +155,7 @@ export const gen: Gen = () => {
 	return [
 		{
 			contents: `
-				import {Thing} from './types';
+				import {Thing} from './index';
 				export const isThing = (t: any): t is Thing => t?.field === ${fieldValue};
 			`,
 		},
@@ -174,7 +174,7 @@ export const gen: Gen = () => {
 Outputs `src/thing.ts`:
 
 ```ts
-import {Thing} from './types.js';
+import {Thing} from './index.js';
 export const isThing = (t: any): t is Thing => t?.field === 1;
 ```
 

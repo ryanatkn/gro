@@ -2,7 +2,7 @@ import CheapWatch from 'cheap-watch';
 
 import type {PathStats, PathFilter} from './pathData.js';
 import {omitUndefined} from '../utils/object.js';
-import type {PartialExcept} from '../types.js';
+import type {PartialExcept} from '../index.js';
 
 /*
 

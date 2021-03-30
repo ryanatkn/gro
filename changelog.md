@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.7.1
+
+- rename `src/types.ts` to `src/utils/types.ts`
+  ([#115](https://github.com/feltcoop/gro/pull/115))
+
 ## 0.7.0
 
 - **break**: change global types to root exports
