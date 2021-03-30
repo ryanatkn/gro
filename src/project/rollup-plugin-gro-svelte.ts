@@ -8,7 +8,7 @@ import {magenta, red} from '../utils/terminal.js';
 import {toPathStem} from '../utils/path.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
-import type {GroCssBuild} from './index.js';
+import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import {
 	SvelteCompilation,
