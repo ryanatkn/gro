@@ -308,7 +308,7 @@ export class Filer implements BuildContext {
 					assertBuildableSourceFile(file);
 				} catch (err) {
 					this.log.error(red('missing input'), input, printError(err));
-					throw Error(`Missing input`);
+					throw Error('Missing input: check the build config and source files for the above input');
 				}
 				if (!file.buildConfigs.has(buildConfig)) {
 					promises.push(this.addSourceFileToBuild(file, buildConfig, true));
