@@ -2,7 +2,7 @@
 
 ## 0.7.0
 
-- **breaking**: change global types to root exports
+- **break**: change global types to root exports
   ([#114](https://github.com/feltcoop/gro/pull/114))
 
 ## 0.6.5
