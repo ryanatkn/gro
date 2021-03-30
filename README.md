@@ -136,7 +136,7 @@ gro project/dist # update the `gro` CLI
 gro project/build # builds for release and updates the `gro` CLI
 ```
 
-## credits :turtle: <sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
+## credits :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
 Gro builds on
 [Svelte](https://github.com/sveltejs/svelte) ∙
