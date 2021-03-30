@@ -304,7 +304,12 @@ export class Filer implements BuildContext {
 				}
 				const file = this.files.get(input);
 				// TODO this assert throws with a bad error - should print `input`
-				assertBuildableSourceFile(file);
+				try {
+					assertBuildableSourceFile(file);
+				} catch (err) {
+					this.log.error(red('missing input'), input, printError(err));
+					throw Error(`Missing input`);
+				}
 				if (!file.buildConfigs.has(buildConfig)) {
 					promises.push(this.addSourceFileToBuild(file, buildConfig, true));
 				}
