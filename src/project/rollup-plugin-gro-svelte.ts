@@ -8,7 +8,7 @@ import {magenta, red} from '../utils/terminal.js';
 import {toPathStem} from '../utils/path.js';
 import {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
-import type {GroCssBuild} from './types.js';
+import type {GroCssBuild} from './index.js';
 import {omitUndefined} from '../utils/object.js';
 import {
 	SvelteCompilation,
@@ -17,7 +17,7 @@ import {
 	handleStats,
 } from '../build/svelteBuildHelpers.js';
 import {CSS_EXTENSION} from '../paths.js';
-import type {PartialExcept} from '../types.js';
+import type {PartialExcept} from '../index.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190

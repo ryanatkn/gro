@@ -3,7 +3,7 @@ import {ModuleMeta, LoadModuleResult, loadModule, loadModules, findModules} from
 import {Task, toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
 import {findFiles} from '../fs/nodeFs.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
-import type {Obj} from '../types.js';
+import type {Obj} from '../index.js';
 
 export interface TaskModule {
 	task: Task;

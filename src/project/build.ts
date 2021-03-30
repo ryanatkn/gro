@@ -24,7 +24,7 @@ import {groJsonPlugin} from './rollup-plugin-gro-json.js';
 import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
 import {groEsbuildPlugin} from './rollup-plugin-gro-esbuild.js';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
-import type {GroCssBuild} from './types.js';
+import type {GroCssBuild} from './index.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {identity} from '../utils/function.js';
@@ -32,7 +32,7 @@ import {
 	EsbuildTransformOptions,
 	getDefaultEsbuildPreprocessOptions,
 } from '../build/esbuildBuildHelpers.js';
-import type {PartialExcept} from '../types.js';
+import type {PartialExcept} from '../index.js';
 
 export interface Options {
 	esbuildOptions: EsbuildTransformOptions;

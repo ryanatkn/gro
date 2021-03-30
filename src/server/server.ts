@@ -23,7 +23,7 @@ import {
 import {paths} from '../paths.js';
 import {loadPackageJson} from '../project/packageJson.js';
 import type {ProjectState} from './projectState.js';
-import type {Assignable, PartialExcept} from '../types.js';
+import type {Assignable, PartialExcept} from '../index.js';
 
 type Http2StreamHandler = (
 	stream: ServerHttp2Stream,

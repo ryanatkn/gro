@@ -12,7 +12,7 @@ import {yellow} from '../utils/terminal.js';
 import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import type {OmitStrict} from '../types.js';
+import type {OmitStrict} from '../index.js';
 
 export type CreatePreprocessor = (
 	target: EcmaScriptTarget,

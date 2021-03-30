@@ -44,7 +44,7 @@ import {
 import {queueExternalsBuild} from './externalsBuilder.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
-import type {OmitStrict, Assignable} from '../types.js';
+import type {OmitStrict, Assignable} from '../index.js';
 
 /*
 

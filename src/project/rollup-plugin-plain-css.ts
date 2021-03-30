@@ -5,9 +5,9 @@ import {createFilter} from '@rollup/pluginutils';
 
 import {green} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
-import type {GroCssBuild} from './types.js';
+import type {GroCssBuild} from './index.js';
 import {omitUndefined} from '../utils/object.js';
-import type {PartialExcept} from '../types.js';
+import type {PartialExcept} from '../index.js';
 
 export interface Options {
 	addCssBuild(build: GroCssBuild): boolean;
