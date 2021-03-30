@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.6.5
+
+- improve the error message when a build config input is missing
+  ([#113](https://github.com/feltcoop/gro/pull/113))
+
 ## 0.6.4
 
 - add `args` hooks to `src/dev.task.ts`
