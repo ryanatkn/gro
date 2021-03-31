@@ -1,5 +1,11 @@
 # Gro changelog
 
+## 0.7.3
+
+- internal rename of `src/globalTypes.ts` to `src/globals.d.ts`
+  now that they only declare module types
+  ([#120](https://github.com/feltcoop/gro/pull/120))
+
 ## 0.7.2
 
 - gracefully handle deprecated Gro frontends
