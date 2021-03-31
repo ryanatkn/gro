@@ -20,7 +20,7 @@
 
 ## about
 
-Gro is an op**i**niona**t**ed app framewor**k** or **kit**
+Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
 for making web frontends, servers, and libraries.
 It includes:
 
