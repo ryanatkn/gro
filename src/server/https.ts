@@ -1,5 +1,6 @@
 import {join} from 'path';
 
+import {stringFromEnv} from '../utils/env.js';
 import {pathExists, readFile} from '../fs/nodeFs.js';
 import type {Logger} from '../utils/log.js';
 
@@ -8,10 +9,12 @@ export interface HttpsCredentials {
 	key: string;
 }
 
-const DEFAULT_CERT_FILE: string =
-	process.env.GRO_CERT_FILE || join(process.cwd(), 'localhost-cert.pem');
-const DEFAULT_CERTKEY_FILE: string =
-	process.env.GRO_CERTKEY_FILE || join(process.cwd(), 'localhost-privkey.pem');
+const DEFAULT_CERT_FILE: string = stringFromEnv('GRO_CERT_FILE', () =>
+	join(process.cwd(), 'localhost-cert.pem'),
+);
+const DEFAULT_CERTKEY_FILE: string = stringFromEnv('GRO_CERTKEY_FILE', () =>
+	join(process.cwd(), 'localhost-privkey.pem'),
+);
 
 // Tries to load the given cert and key, returning `null` if unable.
 export const loadHttpsCredentials = async (

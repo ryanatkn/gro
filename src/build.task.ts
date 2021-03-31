@@ -1,13 +1,11 @@
 import {resolve} from 'path';
 
+import {dev} from './env.js';
 import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
 import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';
-
-// TODO how should this be done? do we want to allow development builds with Rollup?
-process.env.NODE_ENV = 'production';
 
 const DEFAULT_OUTPUT_DIR = 'dist/';
 const DEFAULT_INPUT_NAMES = ['src/index.ts'];
@@ -17,9 +15,9 @@ export const task: Task = {
 	run: async ({log, args}): Promise<void> => {
 		const inputFiles = await resolveInputFiles(args._);
 		log.info('inputFiles', inputFiles);
-
-		// TODO what's the best way to define these types? make `Task` generic? schema validation?
-		const dev: boolean = 'dev' in args ? !!args.dev : process.env.NODE_ENV !== 'production';
+		if (dev) {
+			log.warn('building in development mode; normally this is only for diagnostics');
+		}
 		const watch: boolean = (args.watch as any) || false;
 		const outputDir: string = (args.outputDir as any) || DEFAULT_OUTPUT_DIR;
 		const mapInputOptions = args.mapInputOptions as any;
@@ -31,7 +29,7 @@ export const task: Task = {
 		const basePath = undefined; // TODO parameterized options?
 		const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
 		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
-		const sourcemap = tsconfig.compilerOptions?.sourceMap ?? process.env.NODE_ENV !== 'production';
+		const sourcemap = tsconfig.compilerOptions?.sourceMap ?? true;
 		const esbuildOptions = getDefaultEsbuildOptions(target, sourcemap);
 
 		if (inputFiles.length) {

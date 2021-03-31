@@ -12,7 +12,7 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=.gro/prod/node/; cp -r .gro/prod/node/ dist/ && npm link",
+    "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=.gro/prod/node/ --define:import.meta.env.DEV=true; cp -r .gro/prod/node/ dist/ && npm link",
     "dev": "clear && npm run bootstrap && gro dev",
     "build": "clear && npm run bootstrap && gro project/build",
     "buildprod": "clear && npm run bootstrap && gro project/build && rm -rf .gro",

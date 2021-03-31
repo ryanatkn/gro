@@ -57,11 +57,12 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 	const getPreprocessor = (
 		sourcemap: boolean,
 		target: EcmaScriptTarget,
+		dev: boolean,
 	): PreprocessorGroup | PreprocessorGroup[] | null => {
 		const key = sourcemap + target;
 		const existingPreprocessor = preprocessorCache.get(key);
 		if (existingPreprocessor !== undefined) return existingPreprocessor;
-		const newPreprocessor = createPreprocessor(target, sourcemap);
+		const newPreprocessor = createPreprocessor(target, sourcemap, dev);
 		preprocessorCache.set(key, newPreprocessor);
 		return newPreprocessor;
 	};
@@ -83,7 +84,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 
 		// TODO see rollup-plugin-svelte for how to track deps
 		// let dependencies = [];
-		const preprocessor = getPreprocessor(sourcemap, target);
+		const preprocessor = getPreprocessor(sourcemap, target, dev);
 		if (preprocessor !== null) {
 			const preprocessed = await svelte.preprocess(contents, preprocessor, {filename: id});
 			preprocessedCode = preprocessed.code;

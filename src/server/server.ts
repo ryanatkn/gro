@@ -8,6 +8,7 @@ import {
 import {createSecureServer as createHttp2Server, Http2Server, ServerHttp2Stream} from 'http2';
 import type {ListenOptions} from 'net';
 
+import {dev} from '../env.js';
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
@@ -24,6 +25,7 @@ import {paths} from '../paths.js';
 import {loadPackageJson} from '../project/packageJson.js';
 import type {ProjectState} from './projectState.js';
 import type {Assignable, PartialExcept} from '../index.js';
+import {numberFromEnv, stringFromEnv} from '../utils/env.js';
 
 type Http2StreamHandler = (
 	stream: ServerHttp2Stream,
@@ -38,8 +40,8 @@ export interface DevServer {
 	readonly port: number;
 }
 
-export const DEFAULT_SERVER_HOST: string = process.env.HOST || 'localhost';
-export const DEFAULT_SERVER_PORT: number = Number(process.env.PORT) || 8999;
+export const DEFAULT_SERVER_HOST: string = stringFromEnv('HOST', 'localhost');
+export const DEFAULT_SERVER_PORT: number = numberFromEnv('PORT', 8999);
 
 export interface Options {
 	filer: Filer;
@@ -62,7 +64,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	// We don't want to have to worry about the security of the dev server.
-	if (process.env.NODE_ENV !== 'development') {
+	if (!dev) {
 		throw Error('The dev server may only be run in development for security reasons.');
 	}
 

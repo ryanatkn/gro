@@ -2,6 +2,8 @@
 
 ## 0.7.3
 
+- add `src/env.ts` and `import.meta.env.DEV` support inspired by SvelteKit
+  ([#122](https://github.com/feltcoop/gro/pull/122))
 - internal rename of `src/globalTypes.ts` to `src/globals.d.ts`
   now that they only declare module types
   ([#120](https://github.com/feltcoop/gro/pull/120))

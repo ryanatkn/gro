@@ -6,9 +6,6 @@ import {copy, pathExists} from './fs/nodeFs.js';
 import {paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 
-// TODO how should this be done?
-process.env.NODE_ENV = 'production';
-
 // TODO customize
 const distDirName = basename(paths.dist);
 const deploymentBranch = 'gh-pages';

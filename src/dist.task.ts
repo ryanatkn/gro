@@ -1,5 +1,6 @@
-import {copy} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
+import {dev} from './env.js';
+import {copy} from './fs/nodeFs.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './fs/testModule.js';
 import {printPath} from './utils/print.js';
@@ -18,7 +19,6 @@ export const task: Task = {
 
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.
-		const dev = process.env.NODE_ENV !== 'production';
 		const config = await loadGroConfig();
 		configureLogLevel(config.logLevel);
 		const buildConfigsForDist = config.builds.filter((b) => b.dist);

@@ -33,11 +33,12 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 	const getEsbuildOptions = (
 		sourcemap: boolean,
 		target: EcmaScriptTarget,
+		dev: boolean,
 	): esbuild.TransformOptions => {
 		const key = sourcemap + target;
 		const existingEsbuildOptions = esbuildOptionsCache.get(key);
 		if (existingEsbuildOptions !== undefined) return existingEsbuildOptions;
-		const newEsbuildOptions = createEsbuildOptions(target, sourcemap);
+		const newEsbuildOptions = createEsbuildOptions(target, sourcemap, dev);
 		esbuildOptionsCache.set(key, newEsbuildOptions);
 		return newEsbuildOptions;
 	};
@@ -55,7 +56,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		}
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
 		const esbuildOptions = {
-			...getEsbuildOptions(sourcemap, target),
+			...getEsbuildOptions(sourcemap, target, dev),
 			sourcefile: source.id,
 		};
 		const output = await esbuild.transform(source.contents, esbuildOptions);
@@ -95,7 +96,8 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 type CreateEsbuildOptions = (
 	target: EcmaScriptTarget,
 	sourcemap: boolean,
+	dev: boolean,
 ) => esbuild.TransformOptions;
 
-const createDefaultEsbuildOptions: CreateEsbuildOptions = (target, sourcemap) =>
-	getDefaultEsbuildOptions(target, sourcemap);
+const createDefaultEsbuildOptions: CreateEsbuildOptions = (target, sourcemap, dev) =>
+	getDefaultEsbuildOptions(target, sourcemap, dev);
