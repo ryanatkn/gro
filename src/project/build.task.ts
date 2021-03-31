@@ -18,6 +18,10 @@ export const task: Task = {
 		log.info(`building for ${process.env.NODE_ENV}`);
 		const timings = new Timings();
 
+		const timeToClean = timings.start('clean');
+		await invokeTask('clean');
+		timeToClean();
+
 		const timeToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig();
 		configureLogLevel(config.logLevel);
