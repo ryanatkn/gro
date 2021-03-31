@@ -17,4 +17,4 @@ interface NumberFromEnv {
 }
 
 export const numberFromEnv: NumberFromEnv = (key: string, fallback?: number | Lazy<number>) =>
-	(key in process.env && Number(process.env[key])) || (lazy(fallback) as any); // TODO fix type casting
+	(key in process.env && Number(process.env[key])) || (fallback && (lazy(fallback) as any)); // TODO fix type casting
