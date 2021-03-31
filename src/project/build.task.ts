@@ -20,7 +20,6 @@ export const task: Task = {
 		const timings = new Timings();
 
 		const timeToClean = timings.start('clean');
-		// await invokeTask('clean');
 		await cleanDist(log);
 		timeToClean();
 
