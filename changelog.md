@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.7.2
+
+- gracefully handle deprecated Gro frontends
+  ([#118](https://github.com/feltcoop/gro/pull/118))
+
 ## 0.7.1
 
 - rename `src/types.ts` to `src/utils/types.ts`
