@@ -24,7 +24,7 @@ It includes:
 - [unbundled development](/src/docs/unbundled.md)
   for [Svelte](https://github.com/sveltejs/svelte) UIs
   (inspired by [Snowpack](https://github.com/pikapkg/snowpack))
-  and integrated development for Node servers and libraries
+  and integrated tools for Node servers and libraries
   - Gro supports SPAs on the frontend,
     but that functionality is now deprecated for
     [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite),
