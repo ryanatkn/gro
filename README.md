@@ -22,8 +22,13 @@ for making web frontends, servers, and libraries.
 It includes:
 
 - [unbundled development](/src/docs/unbundled.md)
-  for [Svelte](https://github.com/sveltejs/svelte) UIs (currently, just SPAs)
+  for [Svelte](https://github.com/sveltejs/svelte) UIs
   and Node servers/libraries, inspired by [Snowpack](https://github.com/pikapkg/snowpack)
+  - Gro supports SPAs on the frontend,
+    but that functionality is now deprecated for
+    [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite),
+    with long term plans to
+    [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
 - production bundling with [Rollup](https://github.com/rollup/rollup)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
   using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
