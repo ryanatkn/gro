@@ -20,6 +20,9 @@ export const task: Task = {
 
 		// TODO what's the best way to define these types? make `Task` generic? schema validation?
 		const dev: boolean = 'dev' in args ? !!args.dev : process.env.NODE_ENV !== 'production';
+		if (dev) {
+			log.warn('building in development mode; normally this is only for diagnostics');
+		}
 		const watch: boolean = (args.watch as any) || false;
 		const outputDir: string = (args.outputDir as any) || DEFAULT_OUTPUT_DIR;
 		const mapInputOptions = args.mapInputOptions as any;
