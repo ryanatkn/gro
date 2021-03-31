@@ -40,6 +40,7 @@ It includes:
   unless it's a deliberate tradeoff
 - testing with [uvu](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier)
+  (it's not always pretty, but it's formatted)
 - utilities to fill in the gaps for Node and the browser
 - more to come, exploring what deeply integrated tools enable
   for developer power, ergonomics, and productivity
