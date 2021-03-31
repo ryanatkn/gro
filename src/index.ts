@@ -1,5 +1,3 @@
-import './globals.js'; // makes global types available to user code
-
 export type {Task} from './task/task.js';
 export {TaskError} from './task/task.js';
 
