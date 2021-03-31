@@ -5,6 +5,7 @@ import {Timings} from '../utils/time.js';
 import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
 import {loadGroConfig} from '../config/config.js';
 import {configureLogLevel} from '../utils/log.js';
+import {cleanDist} from './clean.js';
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
@@ -17,6 +18,11 @@ export const task: Task = {
 
 		log.info(`building for ${process.env.NODE_ENV}`);
 		const timings = new Timings();
+
+		const timeToClean = timings.start('clean');
+		// await invokeTask('clean');
+		await cleanDist(log);
+		timeToClean();
 
 		const timeToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig();
