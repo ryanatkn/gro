@@ -34,7 +34,7 @@ export const task: Task = {
 		const basePath = undefined; // TODO parameterized options?
 		const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
 		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
-		const sourcemap = tsconfig.compilerOptions?.sourceMap ?? process.env.NODE_ENV !== 'production';
+		const sourcemap = tsconfig.compilerOptions?.sourceMap ?? process.env.NODE_ENV === 'development';
 		const esbuildOptions = getDefaultEsbuildOptions(target, sourcemap);
 
 		if (inputFiles.length) {
