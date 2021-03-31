@@ -17,10 +17,11 @@ import type {OmitStrict} from '../index.js';
 export type CreatePreprocessor = (
 	target: EcmaScriptTarget,
 	sourcemap: boolean,
+	dev: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
-export const createDefaultPreprocessor: CreatePreprocessor = (target, sourcemap) =>
-	sveltePreprocessEsbuild.typescript(getDefaultEsbuildPreprocessOptions(target, sourcemap));
+export const createDefaultPreprocessor: CreatePreprocessor = (target, sourcemap, dev) =>
+	sveltePreprocessEsbuild.typescript(getDefaultEsbuildPreprocessOptions(target, sourcemap, dev));
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {

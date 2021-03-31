@@ -125,7 +125,7 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 				addCssBuild: addSvelteCssBuild,
 				preprocessor: [
 					sveltePreprocessEsbuild.typescript(
-						getDefaultEsbuildPreprocessOptions(esbuildOptions.target, sourcemap),
+						getDefaultEsbuildPreprocessOptions(esbuildOptions.target, sourcemap, dev),
 					),
 				],
 				compileOptions: {},

@@ -1,5 +1,6 @@
 import {resolve} from 'path';
 
+import {dev} from './env.js';
 import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
@@ -19,7 +20,7 @@ export const task: Task = {
 		log.info('inputFiles', inputFiles);
 
 		// TODO what's the best way to define these types? make `Task` generic? schema validation?
-		const dev: boolean = 'dev' in args ? !!args.dev : process.env.NODE_ENV !== 'production';
+		console.log('dev', dev);
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
