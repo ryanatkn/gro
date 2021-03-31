@@ -3,13 +3,14 @@ import {createDevServer} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {printPath} from './utils/print.js';
 import {loadHttpsCredentials} from './server/https.js';
+import {numberFromEnv, stringFromEnv} from './utils/env.js';
 
 export const task: Task = {
 	description: 'start static file server',
 	run: async ({log, args}): Promise<void> => {
 		// TODO validate
-		const host: string | undefined = (args.host as string) || process.env.HOST;
-		const port: number | undefined = Number(args.port) || Number(process.env.PORT) || undefined;
+		const host: string | undefined = (args.host as string) || stringFromEnv('HOST');
+		const port: number | undefined = Number(args.port) || numberFromEnv('PORT');
 		const servedDirs: string[] = args._.length ? args._ : ['.'];
 
 		// TODO this is inefficient for just serving files in a directory
