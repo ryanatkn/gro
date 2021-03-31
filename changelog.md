@@ -175,13 +175,13 @@
 
 ## 0.2.4
 
-- add `Result` type helper to `src/globals.d.ts`
+- add `Result` type helper to `src/globalTypes.ts`
   ([#29](https://github.com/feltcoop/gro/pull/29))
 
 ## 0.2.3
 
 - fix external module type declarations by merging
-  `src/project/globals.d.d.ts` into `src/globals.d.ts`
+  `src/project/globalTypes.d.ts` into `src/globalTypes.ts`
   ([#28](https://github.com/feltcoop/gro/pull/28))
 
 ## 0.2.2
