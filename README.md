@@ -11,7 +11,8 @@
 > meaning you're aware it's a lot of work to keep around,
 > and you're allowing it into your home anyway.
 > Docs are lacking, some things are in progress, and it might pee on your stuff.
-> (_caveat emptor_: it's darn cute and quickly becomes a member of the family)
+> ([_caveat emptor_](https://en.wikipedia.org/wiki/Caveat_emptor):
+> it's darn cute and quickly becomes a member of the family)
 > [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
 > are probably what you're looking for.
 > All that out of the way: you might find some interesting or useful things here!
