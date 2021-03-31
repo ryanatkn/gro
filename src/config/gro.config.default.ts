@@ -6,6 +6,11 @@ import {PartialBuildConfig} from './buildConfig.js';
 import {pathExists} from '../fs/nodeFs.js';
 
 // This is the default config that's used if the current project does not define one.
+// The default config detects
+// Gro's deprecated SPA mode - https://github.com/feltcoop/gro/issues/106 -
+// if it sees both a `src/index.html` and `src/index.ts`.
+// It also looks for a primary Node server entry point at `src/server/server.ts`.
+// Both are no-ops if not detected.
 
 const createConfig: GroConfigCreator = async () => {
 	const config: PartialGroConfig = {
@@ -14,7 +19,10 @@ const createConfig: GroConfigCreator = async () => {
 			{
 				name: 'node',
 				platform: 'node',
-				input: [createFilter('**/*.{task,test,config,gen}*.ts')],
+				input: [
+					(await pathExists('src/server/server.ts')) ? 'server/server.ts' : null!,
+					createFilter('**/*.{task,test,config,gen}*.ts'),
+				].filter(Boolean),
 			},
 		],
 		logLevel: LogLevel.Trace,

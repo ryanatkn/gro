@@ -13,6 +13,12 @@ To accomplish this, Gro has an optional config file that lives at `$PROJECT/src/
 If a project does not define a config, Gro imports a default config from
 [`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts).
 
+> The default config detects
+> [Gro's deprecated SPA mode](https://github.com/feltcoop/gro/issues/106)
+> if it sees both a `src/index.html` and `src/index.ts`.
+> It also looks for a primary Node server entry point at `src/server/server.ts`.
+> Both are no-ops if not detected.
+
 See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
 
 ## examples

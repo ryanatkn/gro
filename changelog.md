@@ -4,6 +4,8 @@
 
 - gracefully handle deprecated Gro frontends
   ([#118](https://github.com/feltcoop/gro/pull/118))
+- detect default server build at `src/server/server.ts`
+  ([#119](https://github.com/feltcoop/gro/pull/119))
 
 ## 0.7.1
 

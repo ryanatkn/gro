@@ -208,8 +208,8 @@ export class Filer implements BuildContext {
 			watcherDebounce,
 		);
 		this.servedDirs = servedDirs;
-		log.trace(cyan('buildConfigs'), buildConfigs);
-		log.trace(cyan('servedDirs'), servedDirs);
+		log.trace(cyan('buildConfigs\n'), buildConfigs);
+		log.trace(cyan('servedDirs\n'), servedDirs);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
