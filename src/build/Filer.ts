@@ -208,6 +208,7 @@ export class Filer implements BuildContext {
 			watcherDebounce,
 		);
 		this.servedDirs = servedDirs;
+		log.trace('buildConfigs', buildConfigs);
 		log.trace('servedDirs', servedDirs);
 	}
 
