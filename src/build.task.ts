@@ -10,6 +10,14 @@ import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';
 const DEFAULT_OUTPUT_DIR = 'dist/';
 const DEFAULT_INPUT_NAMES = ['src/index.ts'];
 
+/*
+
+build server
+
+Gro now supports a `src/server/server.ts` in its default build configs. It should build everything nicely for production too.
+
+*/
+
 export const task: Task = {
 	description: 'build the project',
 	run: async ({log, args}): Promise<void> => {
