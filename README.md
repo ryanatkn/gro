@@ -8,9 +8,10 @@
 > unless you're willing to take ownership of the code.
 > For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
-> meaning you're allowing it into your home, caveats and all,
-> knowing it's a lot of work to keep around.
+> meaning you're aware it's a lot of work to keep around,
+> and you're allowing it into your home anyway.
 > Docs are lacking, some things are in progress, and it might pee on your stuff.
+> (_caveat emptor_: it's darn cute and quickly becomes a member of the family)
 > [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
 > are probably what you're looking for.
 > All that out of the way: you might find some interesting or useful things here!
