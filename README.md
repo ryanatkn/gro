@@ -36,6 +36,8 @@ It includes:
   (docs at [`src/task`](/src/task))
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
 - dev server with efficient caching and http2/https support
+- filesystem-abstracting build system that considers any wasted work a bug,
+  unless it's a deliberate tradeoff
 - testing with [uvu](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier)
 - utilities to fill in the gaps for Node and the browser
