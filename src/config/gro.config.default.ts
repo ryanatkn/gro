@@ -14,7 +14,10 @@ const createConfig: GroConfigCreator = async () => {
 			{
 				name: 'node',
 				platform: 'node',
-				input: [createFilter('**/*.{task,test,config,gen}*.ts')],
+				input: [
+					(await pathExists('src/server/server.ts')) ? 'server/server.ts' : null!,
+					createFilter('**/*.{task,test,config,gen}*.ts'),
+				].filter(Boolean),
 			},
 		],
 		logLevel: LogLevel.Trace,
