@@ -1,4 +1,5 @@
-import {Task, TaskError} from './task/task.js';
+import type {Task} from './task/task.js';
+import {TaskError} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 import {printKeyValue} from './utils/print.js';
 

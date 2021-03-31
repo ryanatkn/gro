@@ -1,4 +1,5 @@
 import type {Task} from '../task/task.js';
+import {dev} from '../env.js';
 import {printTiming} from '../utils/print.js';
 import {spawnProcess} from '../utils/process.js';
 import {Timings} from '../utils/time.js';
@@ -8,14 +9,7 @@ import {configureLogLevel} from '../utils/log.js';
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
-	run: async ({invokeTask, args, log}) => {
-		// TODO improve this - maybe this should be a global gro task flag?
-		if (!args.D && !args.dev) {
-			process.env.NODE_ENV = 'production';
-		}
-		const dev = process.env.NODE_ENV !== 'production';
-
-		log.info(`building for ${process.env.NODE_ENV}`);
+	run: async ({invokeTask, log}) => {
 		const timings = new Timings();
 
 		const timeToLoadConfig = timings.start('load config');

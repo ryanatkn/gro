@@ -1,3 +1,4 @@
+import {dev} from '../env.js';
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_BASE_PATH, toImportId} from '../paths.js';
 import {
 	BuildConfig,
@@ -113,7 +114,6 @@ Caveats
 export const loadGroConfig = async (): Promise<GroConfig> => {
 	if (cachedConfig !== undefined) return cachedConfig;
 
-	const dev = process.env.NODE_ENV !== 'production'; // TODO should this be a parameter or accessed via a helper?
 	const log = new SystemLogger([magenta('[config]')]);
 	const options: GroConfigCreatorOptions = {log, dev};
 
@@ -195,7 +195,7 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 	const primaryBrowserBuildConfig =
 		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
 	return {
-		sourcemap: process.env.NODE_ENV !== 'production', // TODO hmm where does this come from?
+		sourcemap: true,
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		logLevel: LogLevel.Trace,

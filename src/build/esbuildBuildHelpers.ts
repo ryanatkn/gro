@@ -21,7 +21,7 @@ export const getDefaultEsbuildOptions = (
 	tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
 	define: {
 		'import.meta.env.DEV': JSON.stringify(dev),
-		'import.meta.env.SSR': 'false', // TODO
+		// 'import.meta.env.SSR': 'false', // TODO (when implemented, also add to bootstrap npm script)
 	},
 });
 
@@ -35,6 +35,6 @@ export const getDefaultEsbuildPreprocessOptions = (
 	tsconfigRaw: {compilerOptions: {}}, // pass an empty object so the preprocessor doesn't load the tsconfig
 	define: {
 		'import.meta.env.DEV': JSON.stringify(dev),
-		'import.meta.env.SSR': 'false', // TODO
+		// 'import.meta.env.SSR': 'false', // TODO (when implemented, also add to bootstrap npm script)
 	},
 });
