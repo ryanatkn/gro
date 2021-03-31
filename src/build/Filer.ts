@@ -8,7 +8,7 @@ import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {gray, magenta, red, blue} from '../utils/terminal.js';
+import {gray, magenta, red, blue, cyan} from '../utils/terminal.js';
 import {printError} from '../utils/print.js';
 import type {
 	Build,
@@ -208,8 +208,8 @@ export class Filer implements BuildContext {
 			watcherDebounce,
 		);
 		this.servedDirs = servedDirs;
-		log.trace('buildConfigs', buildConfigs);
-		log.trace('servedDirs', servedDirs);
+		log.trace(cyan('buildConfigs'), buildConfigs);
+		log.trace(cyan('servedDirs'), servedDirs);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
