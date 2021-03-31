@@ -8,7 +8,7 @@
 > unless you're willing to take ownership of the code.
 > For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
-> meaning you're aware it's a lot of work to keep around,
+> meaning you're aware it's a lot of work to maintain,
 > and you're allowing it into your home anyway.
 > Docs are lacking, some things are in progress, and it might pee on your stuff.
 > ([_caveat emptor_](https://en.wikipedia.org/wiki/Caveat_emptor):
