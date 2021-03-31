@@ -35,7 +35,6 @@ const toDefaultBrowserBuild = (): PartialBuildConfig => ({
 
 // TODO extract helper?
 const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
-	// TODO these paths
 	const [hasIndexHtml, hasIndexTs] = await Promise.all([
 		pathExists('src/index.html'),
 		pathExists('src/index.ts'),
