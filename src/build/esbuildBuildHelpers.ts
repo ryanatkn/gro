@@ -20,7 +20,8 @@ export const getDefaultEsbuildOptions = (
 	charset: 'utf8', // following `svelte-preprocess-esbuild` here
 	tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
 	define: {
-		'import.meta.env': JSON.stringify(toMetaEnv(dev)),
+		'import.meta.env.DEV': JSON.stringify(dev),
+		'import.meta.env.SSR': 'false', // TODO
 	},
 });
 
@@ -33,11 +34,7 @@ export const getDefaultEsbuildPreprocessOptions = (
 	sourcemap,
 	tsconfigRaw: {compilerOptions: {}}, // pass an empty object so the preprocessor doesn't load the tsconfig
 	define: {
-		'import.meta.env': JSON.stringify(toMetaEnv(dev)),
+		'import.meta.env.DEV': JSON.stringify(dev),
+		'import.meta.env.SSR': 'false', // TODO
 	},
-});
-
-const toMetaEnv = (dev: boolean) => ({
-	DEV: dev,
-	SSR: false, // TODO
 });
