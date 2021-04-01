@@ -73,10 +73,10 @@ export const task: Task = {
 
 // TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
 const resolveInputFiles = async (buildConfig: BuildConfig): Promise<string[]> =>
-	Promise.all(
-		buildConfig.input
-			.map(async (input) =>
+	(
+		await Promise.all(
+			buildConfig.input.map(async (input) =>
 				typeof input === 'string' && (await pathExists(input)) ? input : null!,
-			)
-			.filter(Boolean),
-	);
+			),
+		)
+	).filter(Boolean);
