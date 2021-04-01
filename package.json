@@ -77,7 +77,8 @@
     "@types/fs-extra": "^9.0.8",
     "@types/node": "^14.14.35",
     "@types/prettier": "^2.2.3",
-    "@types/source-map-support": "^0.5.3"
+    "@types/source-map-support": "^0.5.3",
+    "strict-event-emitter-types": "^2.0.0"
   },
   "prettier": {
     "useTabs": true,
