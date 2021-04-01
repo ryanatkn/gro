@@ -17,7 +17,7 @@ export const task: Task = {
 	run: async ({log, args, invokeTask}): Promise<void> => {
 		// Normal user projects will ignore this code path right here:
 		// in other words, `isThisProjectGro` will always be `false` for your code.
-		// TODO bad task pollution, this is bad for users who want to copy/paste this task.
+		// TODO task pollution, this is bad for users who want to copy/paste this task.
 		// think of a better way - maybe config+defaults?
 		if (isThisProjectGro) {
 			return invokeTask('project/build');
