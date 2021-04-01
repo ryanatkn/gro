@@ -10,6 +10,9 @@ import {green} from './utils/terminal.js';
 // - publishes to npm from the `main` branch (TODO configure)
 // - syncs commits and tags to GitHub `main` branch
 
+// TODO configure branch
+// TODO add `dry` option so it can be tested
+
 type VersionIncrement = string;
 const validateVersionIncrement: ValidateVersionIncrement = (v) => {
 	if (!v || typeof v !== 'string') {
