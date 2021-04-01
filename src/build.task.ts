@@ -20,7 +20,7 @@ export const task: Task = {
 		// TODO bad task pollution, this is bad for users who want to copy/paste this task.
 		// think of a better way - maybe config+defaults?
 		if (isThisProjectGro) {
-			return invokeTask('build');
+			return invokeTask('project/build');
 		}
 
 		const timings = new Timings();
