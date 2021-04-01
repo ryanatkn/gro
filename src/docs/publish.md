@@ -48,7 +48,8 @@ npm publish
 And finally push the tagged commit to sync on GitHub.
 
 ```bash
-git push origin --tags
+git push --tags
+git push
 ```
 
 ## prefer `gro version`
