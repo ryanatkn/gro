@@ -1,5 +1,4 @@
 import type {Task} from './task/task.js';
-import {dev} from './env.js';
 import {copy} from './fs/nodeFs.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './fs/testModule.js';
@@ -15,6 +14,8 @@ export const isDistFile = (path: string): boolean =>
 export const task: Task = {
 	description: 'create the distribution',
 	run: async ({log}) => {
+		const dev = process.env.NODE_ENV !== 'production';
+
 		await cleanDist(log);
 
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.

@@ -8,7 +8,6 @@ import {
 import {createSecureServer as createHttp2Server, Http2Server, ServerHttp2Stream} from 'http2';
 import type {ListenOptions} from 'net';
 
-import {dev} from '../env.js';
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
 import {Logger, SystemLogger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
@@ -64,7 +63,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 export const createDevServer = (opts: InitialOptions): DevServer => {
 	// We don't want to have to worry about the security of the dev server.
-	if (!dev) {
+	if (process.env.NODE_ENV === 'production') {
 		throw Error('The dev server may only be run in development for security reasons.');
 	}
 

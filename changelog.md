@@ -1,9 +1,10 @@
 # Gro changelog
 
-## 0.7.3
+## 0.8.0
 
-- add `src/env.ts` and `import.meta.env.DEV` support inspired by SvelteKit
-  ([#122](https://github.com/feltcoop/gro/pull/122))
+- **break**: redesign prod build task `src/build.task.ts`
+  and remove support for CLI build inputs in favor of config
+  ([#123](https://github.com/feltcoop/gro/pull/123))
 - internal rename of `src/globalTypes.ts` to `src/globals.d.ts`
   now that they only declare module types
   ([#120](https://github.com/feltcoop/gro/pull/120))

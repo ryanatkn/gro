@@ -1,11 +1,13 @@
 import type {Task} from '../task/task.js';
-import {dev} from '../env.js';
 import {printTiming} from '../utils/print.js';
 import {spawnProcess} from '../utils/process.js';
 import {Timings} from '../utils/time.js';
 import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
 import {loadGroConfig} from '../config/config.js';
 import {configureLogLevel} from '../utils/log.js';
+
+process.env.NODE_ENV = 'production';
+const dev = false; // forcing prod builds for now
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
