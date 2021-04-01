@@ -1,6 +1,7 @@
 import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
+import StrictEventEmitter from 'strict-event-emitter-types';
 
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
@@ -62,6 +63,12 @@ TODO
 - probably silence a lot of the logging (or add `debug` log level?) once tests are added
 
 */
+
+// The Filer is an `EventEmitter` with the following events:
+type FilerEmitter = StrictEventEmitter<EventEmitter, FilerEvents>;
+interface FilerEvents {
+	build: {sourceFile: SourceFile; buildConfig: BuildConfig};
+}
 
 export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
@@ -152,7 +159,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-export class Filer extends EventEmitter implements BuildContext {
+export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements BuildContext {
 	// TODO think about accessors - I'm currently just making things public when I need them here
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
