@@ -36,7 +36,7 @@ export const task: Task = {
 		await spawnProcess('git', ['pull']);
 
 		// Normal user projects will hit this code path right here:
-		// in other words, `isThisProjectGro` will always be `true` for your code.
+		// in other words, `isThisProjectGro` will always be `false` for your code.
 		// TODO bad task pollution, think of a better way - maybe config+defaults
 		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
 		if (!isThisProjectGro) {
