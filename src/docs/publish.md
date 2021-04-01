@@ -56,6 +56,6 @@ git push
 
 Gro offers a `gro version` task that passes through its args directly to
 [`npm version`](https://docs.npmjs.com/cli/v6/commands/npm-version).
-It bumps the version, publishes to npm, and syncs commits and tags to GitHub.
+It builds, bumps the version, publishes to npm, and syncs commits and tags to GitHub.
 When stable, it will properly roll back if something goes wrong at any step.
 Currently it's not stable. You may need to `git reset --hard` version commits if things go wrong.
