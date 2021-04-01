@@ -78,15 +78,18 @@ export const task: Task = {
 			let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
 			const serverPath = toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js');
 			const restartServer = async (): Promise<void> => {
-				if (serverProcess) {
-					serverProcess.kill();
+				if (serverClosed) {
+					if (serverProcess) {
+						serverProcess.kill();
+						serverProcess = null;
+					}
 					await serverClosed;
 				}
 				serverProcess = spawn('node', [serverPath], {stdio: 'inherit'});
 				let resolve: () => void;
 				serverClosed = new Promise((r) => (resolve = r));
+				// TODO handle errors
 				serverProcess.on('close', () => {
-					serverProcess = null;
 					resolve();
 				});
 			};
