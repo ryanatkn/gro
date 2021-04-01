@@ -1,3 +1,5 @@
+import {spawn, ChildProcess} from 'child_process';
+
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {printTiming} from './utils/print.js';
@@ -65,6 +67,40 @@ export const task: Task = {
 		]);
 
 		args.onready && (args as any).onready(filer, server);
+
+		// The API server process: it's killed and restarted every time a dependency changes.
+		if (hasServer) {
+			let serverProcess: ChildProcess | null = null;
+			let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
+			const serverPath = toBuildOutPath(dev, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js');
+			const restartServer = async (): Promise<void> => {
+				if (serverProcess) {
+					serverProcess.kill();
+					await serverClosed;
+				}
+				serverProcess = spawn('node', [serverPath], {stdio: 'inherit'});
+				let resolve: () => void;
+				serverClosed = new Promise((r) => (resolve = r));
+				serverProcess.on('close', () => {
+					serverProcess = null;
+					resolve();
+				});
+			};
+
+			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
+			// TODO type? it's for *downstream* tasks, so maybe just import its interface?
+			(args as any).oninitfiler = (filer: Filer) => {
+				restartServer(); // start on init
+				filer.on('build', ({buildConfig}) => {
+					// TODO to avoid false positives, maybe split apart the default Node and server builds.
+					// Without more granular detection, the API server will restart
+					// when files like this dev task change. That's fine, but it's not nice.
+					if (!serverProcess || buildConfig.name === 'node') {
+						restartServer();
+					}
+				});
+			};
+		}
 
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));
