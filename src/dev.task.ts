@@ -100,6 +100,7 @@ export const task: Task = {
 					// Without more granular detection, the API server will restart
 					// when files like this dev task change. That's fine, but it's not nice.
 					if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
+						// TODO throttle
 						restartServer();
 					}
 				});
