@@ -40,7 +40,7 @@ export const task: Task = {
 
 		// Normal user projects will hit this code path right here:
 		// in other words, `isThisProjectGro` will always be `false` for your code.
-		// TODO bad task pollution, this is bad for users who want to copy/paste this task.
+		// TODO task pollution, this is bad for users who want to copy/paste this task.
 		// think of a better way - maybe config+defaults?
 		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
 		if (!isThisProjectGro) {

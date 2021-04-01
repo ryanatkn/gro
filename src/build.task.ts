@@ -3,7 +3,7 @@ import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
 import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';
-import {toBuildOutPath} from './paths.js';
+import {isThisProjectGro, toBuildOutPath} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
@@ -14,7 +14,15 @@ const dev = false; // forcing prod builds for now
 
 export const task: Task = {
 	description: 'build the project',
-	run: async ({log, args}): Promise<void> => {
+	run: async ({log, args, invokeTask}): Promise<void> => {
+		// Normal user projects will ignore this code path right here:
+		// in other words, `isThisProjectGro` will always be `false` for your code.
+		// TODO task pollution, this is bad for users who want to copy/paste this task.
+		// think of a better way - maybe config+defaults?
+		if (isThisProjectGro) {
+			return invokeTask('project/build');
+		}
+
 		const timings = new Timings();
 
 		if (dev) {

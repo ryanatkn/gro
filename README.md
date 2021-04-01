@@ -151,7 +151,7 @@ gro dev # starts dev server in watch mode
 gro project/dist # update the `gro` CLI
 
 # release
-gro project/build # builds for release and updates the `gro` CLI
+gro build # builds for release and updates the `gro` CLI
 ```
 
 ## credits :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>

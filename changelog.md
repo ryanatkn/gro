@@ -4,6 +4,8 @@
 
 - add `src/version.task.ts` to automate versioning and publishing
   ([#127](https://github.com/feltcoop/gro/pull/127))
+- change `src/build.task.ts` to work internally for Gro
+  ([#128](https://github.com/feltcoop/gro/pull/128))
 
 ## 0.8.3
 
