@@ -101,6 +101,7 @@ const getDefaultServedDirs = (config: GroConfig): ServedDirPartial[] => {
 	return [buildOutDirToServe];
 };
 
+// TODO extract to a util? redesign
 const createServerProcess = (serverPath: string) => {
 	let serverProcess: ChildProcess | null = null;
 	let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
