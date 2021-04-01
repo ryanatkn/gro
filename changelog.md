@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.8.1
+
+- fix build not filtering out `null` inputs
+  ([#124](https://github.com/feltcoop/gro/pull/124))
+
 ## 0.8.0
 
 - **break**: redesign prod build task `src/build.task.ts`
