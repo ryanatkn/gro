@@ -12,7 +12,7 @@ import {green} from './utils/terminal.js';
 
 type VersionIncrement = string;
 const validateVersionIncrement: ValidateVersionIncrement = (v) => {
-	if (!v) {
+	if (!v || typeof v !== 'string') {
 		throw Error(
 			`Expected a version increment like one of patch|minor|major, e.g. gro version patch`,
 		);
