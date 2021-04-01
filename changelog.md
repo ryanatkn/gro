@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.8.2
+
+- change `Filer` to extend `EventEmitter` and emit a `'build'` event
+  ([#125](https://github.com/feltcoop/gro/pull/125))
+
 ## 0.8.1
 
 - fix build not filtering out `null` inputs
