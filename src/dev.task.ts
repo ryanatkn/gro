@@ -75,6 +75,7 @@ export const task: Task = {
 		if (await hasGroServer()) {
 			// the API server process: kill'd and restarted every time a dependency changes
 			const serverProcess = createServerProcess(
+				// TODO link `'server/server.js'` programmatically with `'src/server/server.ts' elsewhere
 				toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js'),
 			);
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
