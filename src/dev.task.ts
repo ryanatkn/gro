@@ -82,6 +82,7 @@ export const task: Task = {
 				// TODO to avoid false positives, probably split apart the default Node and server builds.
 				// Without more granular detection, the API server will restart
 				// when files like this dev task change. That's fine, but it's not nice.
+				// so this will probably be `DEFAULT_SERVER_BUILD_CONFIG_NAME`
 				if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
 					// TODO throttle
 					serverProcess.restart();
