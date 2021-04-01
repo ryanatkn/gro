@@ -74,35 +74,17 @@ export const task: Task = {
 		// TODO make this more reusable
 		if (await hasGroServer()) {
 			// the API server process: kill'd and restarted every time a dependency changes
-			let serverProcess: ChildProcess | null = null;
-			let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
-			const serverPath = toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js');
-			const restartServer = async (): Promise<void> => {
-				if (serverClosed) {
-					if (serverProcess) {
-						serverProcess.kill();
-						serverProcess = null;
-					}
-					await serverClosed;
-				}
-				serverProcess = spawn('node', [serverPath], {stdio: 'inherit'});
-				let resolve: () => void;
-				serverClosed = new Promise((r) => (resolve = r));
-				// TODO handle errors
-				serverProcess.on('close', () => {
-					resolve();
-				});
-			};
-
+			const serverProcess = createServerProcess(
+				toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js'),
+			);
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
-			restartServer(); // start on init
 			filer.on('build', ({buildConfig}) => {
 				// TODO to avoid false positives, probably split apart the default Node and server builds.
 				// Without more granular detection, the API server will restart
 				// when files like this dev task change. That's fine, but it's not nice.
 				if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
 					// TODO throttle
-					restartServer();
+					serverProcess.restart();
 				}
 			});
 		}
@@ -117,4 +99,27 @@ const getDefaultServedDirs = (config: GroConfig): ServedDirPartial[] => {
 	const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.primaryNodeBuildConfig;
 	const buildOutDirToServe = toBuildOutPath(true, buildConfigToServe.name, '');
 	return [buildOutDirToServe];
+};
+
+const createServerProcess = (serverPath: string) => {
+	let serverProcess: ChildProcess | null = null;
+	let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
+	const restart = async (): Promise<void> => {
+		if (serverClosed) {
+			if (serverProcess) {
+				serverProcess.kill();
+				serverProcess = null;
+			}
+			await serverClosed;
+		}
+		serverProcess = spawn('node', [serverPath], {stdio: 'inherit'});
+		let resolve: () => void;
+		serverClosed = new Promise((r) => (resolve = r));
+		// TODO handle errors, this swallows them I think
+		serverProcess.on('close', () => {
+			resolve();
+		});
+	};
+	restart(); // start on init
+	return {restart};
 };
