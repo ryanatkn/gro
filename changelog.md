@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.8.3
+
+- change `strict-event-emitter-types` to a regular dependency
+  ([#126](https://github.com/feltcoop/gro/pull/126))
+
 ## 0.8.2
 
 - change `Filer` to extend `EventEmitter` and emit a `'build'` event
