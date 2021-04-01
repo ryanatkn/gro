@@ -22,6 +22,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [serve](../serve.task.ts) - start static file server
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
+- [version](../version.task.ts) - bump version and publish
 
 ## usage
 

@@ -2,6 +2,11 @@
 
 ## 0.8.3
 
+- add `src/version.task.ts` to avoid errors bumping the version and publishing
+  ([#127](https://github.com/feltcoop/gro/pull/127))
+
+## 0.8.3
+
 - change type deps exposed to users to regular dependencies
   ([#126](https://github.com/feltcoop/gro/pull/126))
 
