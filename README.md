@@ -126,6 +126,11 @@ gro serve some/dir and/another/dir # serves some directories
 ```
 
 ```bash
+gro version patch # bump version, publish to npm, and sync to GitHub
+gro version major --and args --are forwarded --to 'npm version'
+```
+
+```bash
 gro --version # or `-v` prints the Gro version
 ```
 

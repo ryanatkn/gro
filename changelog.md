@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.8.4
+
+- add `src/version.task.ts` to automate versioning and publishing
+  ([#127](https://github.com/feltcoop/gro/pull/127))
+
 ## 0.8.3
 
 - change type deps exposed to users to regular dependencies
