@@ -72,31 +72,11 @@ export const task: Task = {
 };
 
 // TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
-const resolveInputFiles = async (buildConfig: BuildConfig): Promise<string[]> => {
-	return (
-		await Promise.all(
-			buildConfig.input.map(async (input) => {
-				console.log('input', input);
-				return typeof input === 'string' && (await pathExists(input)) ? input : null!;
-			}),
-		)
-	).filter(Boolean);
-
-	// if no file names are provided, add a default if it exists
-	// if (!fileNames.length) {
-	// 	for (const name of DEFAULT_INPUT_NAMES) {
-	// 		const path = resolve(name);
-	// 		if (await pathExists(path)) {
-	// 			fileNames = [name];
-	// 			break;
-	// 		}
-	// 	}
-	// }
-	// const inputFiles = fileNames.map((f) => resolve(f));
-	// for (const file of inputFiles) {
-	// 	if (!(await pathExists(file))) {
-	// 		throw Error(`Input file not found: ${file}`);
-	// 	}
-	// }
-	// return inputFiles;
-};
+const resolveInputFiles = async (buildConfig: BuildConfig): Promise<string[]> =>
+	Promise.all(
+		buildConfig.input
+			.map(async (input) =>
+				typeof input === 'string' && (await pathExists(input)) ? input : null!,
+			)
+			.filter(Boolean),
+	);
