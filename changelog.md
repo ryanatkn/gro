@@ -1,6 +1,6 @@
 # Gro changelog
 
-## 0.8.3
+## 0.8.4
 
 - add `src/version.task.ts` to avoid errors bumping the version and publishing
   ([#127](https://github.com/feltcoop/gro/pull/127))
