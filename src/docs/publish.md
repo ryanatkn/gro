@@ -4,14 +4,14 @@ Here's how to publish a new version of Gro.
 
 ## login to npm
 
-If you're not already logged into npm in your terminal:
-
 ```bash
 npm whoami # check if you're logged in
 
 # not logged in?
 npm login # and follow the instructions
 ```
+
+> see also [`npm adduser`](https://docs.npmjs.com/cli/v6/commands/npm-adduser)
 
 ## make sure everything looks good
 
@@ -53,7 +53,8 @@ git push origin --tags
 
 ## prefer `gro version`
 
-Gro offers a `gro version` task that passes through its args directly to `npm version`.
+Gro offers a `gro version` task that passes through its args directly to
+[`npm version`](https://docs.npmjs.com/cli/v6/commands/npm-version).
 It bumps the version, publishes to npm, and syncs commits and tags to GitHub.
 When stable, it will properly roll back if something goes wrong at any step.
 Currently it's not stable. You may need to `git reset --hard` version commits if things go wrong.
