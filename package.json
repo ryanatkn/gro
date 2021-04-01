@@ -55,7 +55,6 @@
     "@types/fs-extra": "^9.0.9",
     "@types/node": "^14.14.37",
     "@types/prettier": "^2.2.3",
-    "@types/source-map-support": "^0.5.3",
     "cheap-watch": "^1.0.3",
     "dequal": "^2.0.2",
     "es-module-lexer": "^0.4.1",
@@ -78,7 +77,9 @@
     "typescript": "^4.2.3",
     "uvu": "^0.5.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/source-map-support": "^0.5.3"
+  },
   "prettier": {
     "useTabs": true,
     "printWidth": 100,
