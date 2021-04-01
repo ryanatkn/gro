@@ -11,7 +11,7 @@ import {GroConfig, loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
-import {hasGroServer} from './config/gro.config.default.js';
+import {hasGroServer, SERVER_BUILD_BASE_PATH} from './config/gro.config.default.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
 
 export const task: Task = {
@@ -76,7 +76,7 @@ export const task: Task = {
 			// the API server process: kill'd and restarted every time a dependency changes
 			const serverProcess = createServerProcess(
 				// TODO link `'server/server.js'` programmatically with `'src/server/server.ts' elsewhere
-				toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js'),
+				toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, SERVER_BUILD_BASE_PATH),
 			);
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
 			filer.on('build', ({buildConfig}) => {
