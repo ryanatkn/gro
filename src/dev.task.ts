@@ -92,19 +92,16 @@ export const task: Task = {
 			};
 
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
-			// TODO type? it's for *downstream* tasks, so maybe just import its interface?
-			(args as any).oninitfiler = (filer: Filer) => {
-				restartServer(); // start on init
-				filer.on('build', ({buildConfig}) => {
-					// TODO to avoid false positives, probably split apart the default Node and server builds.
-					// Without more granular detection, the API server will restart
-					// when files like this dev task change. That's fine, but it's not nice.
-					if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
-						// TODO throttle
-						restartServer();
-					}
-				});
-			};
+			restartServer(); // start on init
+			filer.on('build', ({buildConfig}) => {
+				// TODO to avoid false positives, probably split apart the default Node and server builds.
+				// Without more granular detection, the API server will restart
+				// when files like this dev task change. That's fine, but it's not nice.
+				if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
+					// TODO throttle
+					restartServer();
+				}
+			});
 		}
 
 		for (const [key, timing] of timings.getAll()) {
