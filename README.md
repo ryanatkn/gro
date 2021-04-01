@@ -142,6 +142,7 @@ gro typecheck # just the typechecking
 ## develop
 
 ```bash
+npm i
 npm run bootstrap # builds and links `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
