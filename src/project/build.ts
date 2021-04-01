@@ -35,10 +35,10 @@ import {
 import type {PartialExcept} from '../index.js';
 
 export interface Options {
+	inputFiles: string[];
 	esbuildOptions: EsbuildTransformOptions;
 	dev: boolean;
 	sourcemap: boolean;
-	inputFiles: string[];
 	outputDir: string;
 	watch: boolean;
 	mapInputOptions: MapInputOptions;
@@ -46,12 +46,11 @@ export interface Options {
 	mapWatchOptions: MapWatchOptions;
 	cssCache: CssCache<GroCssBuild>;
 }
-export type RequiredOptions = 'esbuildOptions';
+export type RequiredOptions = 'inputFiles' | 'esbuildOptions';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
 	sourcemap: opts.dev ?? true,
-	inputFiles: [resolve('index.ts')],
 	outputDir: resolve('dist/'),
 	watch: true,
 	mapInputOptions: identity,

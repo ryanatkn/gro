@@ -1,6 +1,5 @@
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
-import {dev} from './env.js';
 import {printTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {spawnProcess} from './utils/process.js';
@@ -16,6 +15,7 @@ export const task: Task = {
 	run: async ({log}): Promise<void> => {
 		const timings = new Timings();
 
+		const dev = process.env.NODE_ENV !== 'production';
 		const dir = toRootPath(toBuildOutPath(dev, DEFAULT_BUILD_CONFIG_NAME));
 
 		const timeToRunUvu = timings.start('run test with uvu');

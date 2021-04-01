@@ -1,4 +1,3 @@
-import {dev} from '../env.js';
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_BASE_PATH, toImportId} from '../paths.js';
 import {
 	BuildConfig,
@@ -114,6 +113,7 @@ Caveats
 export const loadGroConfig = async (): Promise<GroConfig> => {
 	if (cachedConfig !== undefined) return cachedConfig;
 
+	const dev = process.env.NODE_ENV !== 'production';
 	const log = new SystemLogger([magenta('[config]')]);
 	const options: GroConfigCreatorOptions = {log, dev};
 
