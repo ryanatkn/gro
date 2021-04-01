@@ -2,7 +2,7 @@
 
 ## 0.8.3
 
-- change `strict-event-emitter-types` to a regular dependency
+- change type deps exposed to users to regular dependencies
   ([#126](https://github.com/feltcoop/gro/pull/126))
 
 ## 0.8.2
