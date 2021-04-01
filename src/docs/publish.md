@@ -25,7 +25,7 @@ gro build
 ## bump the version and tag the commit
 
 To publish a new version of Gro,
-first bump the version.
+first [bump the version with `npm version`](https://docs.npmjs.com/cli/v6/commands/npm-version).
 The npm script `"preversion"` will make sure
 everything typechecks and all tests pass.
 This creates a new commit with the version tag,
