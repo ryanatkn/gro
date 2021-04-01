@@ -20,7 +20,7 @@ const createConfig: GroConfigCreator = async () => {
 				name: 'node',
 				platform: 'node',
 				input: [
-					(await pathExists('src/server/server.ts')) ? 'server/server.ts' : null!,
+					(await hasGroServer()) ? 'server/server.ts' : null!,
 					createFilter('**/*.{task,test,config,gen}*.ts'),
 				].filter(Boolean),
 			},
@@ -42,10 +42,13 @@ const toDefaultBrowserBuild = (): PartialBuildConfig => ({
 });
 
 // TODO extract helper?
-const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
+export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	const [hasIndexHtml, hasIndexTs] = await Promise.all([
 		pathExists('src/index.html'),
 		pathExists('src/index.ts'),
 	]);
 	return hasIndexHtml && hasIndexTs;
 };
+
+// TODO extract helper?
+export const hasGroServer = (): Promise<boolean> => pathExists('src/server/server.ts');

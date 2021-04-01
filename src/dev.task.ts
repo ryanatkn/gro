@@ -11,6 +11,8 @@ import {GroConfig, loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
+import {hasGroServer} from './config/gro.config.default.js';
+import {DEFAULT_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
 
 export const task: Task = {
 	description: 'start dev server',
@@ -68,11 +70,13 @@ export const task: Task = {
 
 		args.onready && (args as any).onready(filer, server);
 
-		// The API server process: it's killed and restarted every time a dependency changes.
-		if (hasServer) {
+		// Support the Gro server pattern by default.
+		// TODO make this more reusable
+		if (await hasGroServer()) {
+			// the API server process: kill'd and restarted every time a dependency changes
 			let serverProcess: ChildProcess | null = null;
 			let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
-			const serverPath = toBuildOutPath(dev, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js');
+			const serverPath = toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, 'server/server.js');
 			const restartServer = async (): Promise<void> => {
 				if (serverProcess) {
 					serverProcess.kill();
@@ -92,10 +96,10 @@ export const task: Task = {
 			(args as any).oninitfiler = (filer: Filer) => {
 				restartServer(); // start on init
 				filer.on('build', ({buildConfig}) => {
-					// TODO to avoid false positives, maybe split apart the default Node and server builds.
+					// TODO to avoid false positives, probably split apart the default Node and server builds.
 					// Without more granular detection, the API server will restart
 					// when files like this dev task change. That's fine, but it's not nice.
-					if (!serverProcess || buildConfig.name === 'node') {
+					if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
 						restartServer();
 					}
 				});
