@@ -2,7 +2,7 @@
 
 ## 0.8.5
 
-- add server auto-restart to /src/dev.task.ts
+- add server auto-restart to `src/dev.task.ts`
   ([#129](https://github.com/feltcoop/gro/pull/129))
 - improve the [clean task](https://github.com/feltcoop/gro/blob/main/src/clean.task.ts)
   ([#130](https://github.com/feltcoop/gro/pull/130))
