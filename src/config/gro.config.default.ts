@@ -23,9 +23,9 @@ export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // 
 const createConfig: GroConfigCreator = async () => {
 	const config: PartialGroConfig = {
 		builds: [
-			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null,
 			PRIMARY_NODE_BUILD_CONFIG,
 			(await hasGroServer()) ? SERVER_BUILD_CONFIG : null,
+			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null,
 		],
 		logLevel: LogLevel.Trace,
 	};
