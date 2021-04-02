@@ -45,7 +45,9 @@ export interface RestartableProcess {
 	restart: () => void;
 }
 
-// `kill` is sync, so we tie things up with promises
+// This needs to handle many concurrent `restart` calls gracefully,
+// and restart after the trailing call.
+// It's slightly more complex because `kill` is sync, so we tie things up with promises.
 export const createRestartableProcess = (serverPath: string): RestartableProcess => {
 	let child: ChildProcess | null = null;
 	let restarting: Promise<void> | null = null;
