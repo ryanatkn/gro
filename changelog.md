@@ -3,6 +3,7 @@
 ## 0.9.0
 
 - **break**: separate the default server and primary Node builds
+  in `src/config/gro.config.default.ts`
   ([#131](https://github.com/feltcoop/gro/pull/131))
 - **break**: rename `src/utils/createObtainable.ts` to `src/utils/obtainable.ts` to fit convention
   ([#131](https://github.com/feltcoop/gro/pull/131))
