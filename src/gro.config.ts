@@ -2,7 +2,6 @@ import {createFilter} from '@rollup/pluginutils';
 
 // import {createDirectoryFilter} from './build/utils.js';
 import type {GroConfigCreator, PartialGroConfig} from './config/config.js';
-import {SERVER_BUILD_CONFIG} from './config/defaultBuildConfig.js';
 import {toBuildOutPath} from './paths.js';
 import {LogLevel} from './utils/log.js';
 
@@ -14,6 +13,8 @@ const createConfig: GroConfigCreator = async () => {
 	const BROWSER_BUILD_CONFIG_NAME = 'browser';
 	const config: PartialGroConfig = {
 		builds: [
+			// TODO think about this
+			// {...SERVER_BUILD_CONFIG, dist: false},
 			{
 				name: 'node',
 				platform: 'node',
@@ -26,7 +27,6 @@ const createConfig: GroConfigCreator = async () => {
 					createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**']),
 				],
 			},
-			{...SERVER_BUILD_CONFIG, dist: false},
 			{
 				name: BROWSER_BUILD_CONFIG_NAME,
 				platform: 'browser',

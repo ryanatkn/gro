@@ -1,7 +1,7 @@
 import {resolve} from 'path';
 
 import {ensureArray} from '../utils/array.js';
-import {PRIMARY_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
+import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
 import {blue} from '../utils/terminal.js';
 import type {Result} from '../index.js';
@@ -115,12 +115,12 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 						` multiple primary items for platform "${buildConfig.platform}".`,
 				};
 			}
-			if (buildConfig.platform === 'node' && buildConfig.name !== PRIMARY_BUILD_CONFIG_NAME) {
+			if (buildConfig.platform === 'node' && buildConfig.name !== PRIMARY_NODE_BUILD_CONFIG_NAME) {
 				return {
 					ok: false,
 					reason:
 						`The field 'gro.builds' in package.json must name` +
-						` its primary Node config '${PRIMARY_BUILD_CONFIG_NAME}'`,
+						` its primary Node config '${PRIMARY_NODE_BUILD_CONFIG_NAME}'`,
 				};
 			}
 			primaryPlatforms.add(buildConfig.platform);

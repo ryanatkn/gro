@@ -3,14 +3,14 @@ import {Filer} from './build/Filer.js';
 import {printTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {createDefaultBuilder} from './build/defaultBuilder.js';
-import {paths, toBuildOutPath, SERVER_BUILD_BASE_PATH} from './paths.js';
+import {paths, toBuildOutPath, SERVER_BUILD_BASE_PATH, isThisProjectGro} from './paths.js';
 import {createDevServer} from './server/server.js';
 import {GroConfig, loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {createRestartableProcess} from './utils/process.js';
-import {hasGroServer, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
+import {hasGroServerConfig, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
 
 export const task: Task = {
 	description: 'start dev server',
@@ -70,7 +70,12 @@ export const task: Task = {
 		args.onready && (args as any).onready(filer, server);
 
 		// Support the Gro server pattern by default.
-		if (await hasGroServer()) {
+		// Normal user projects will hit this code path right here:
+		// in other words, `isThisProjectGro` will always be `false` for your code.
+		// TODO task pollution, this is bad for users who want to copy/paste this task.
+		// think of a better way - maybe config+defaults?
+		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
+		if (!isThisProjectGro && hasGroServerConfig(config.builds)) {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
 			const serverBuildPath = toBuildOutPath(
 				true,

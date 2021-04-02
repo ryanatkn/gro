@@ -8,9 +8,9 @@ import {pathExists} from '../fs/nodeFs.js';
 // for the Node platform has this value as its name.
 // This convention speeds up running tasks by standardizing where Gro can look for built files.
 // This restriction could be relaxed by using cached metadata, but this keeps things simple for now.
-export const PRIMARY_BUILD_CONFIG_NAME = 'node';
+export const PRIMARY_NODE_BUILD_CONFIG_NAME = 'node';
 export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
-	name: PRIMARY_BUILD_CONFIG_NAME,
+	name: PRIMARY_NODE_BUILD_CONFIG_NAME,
 	platform: 'node',
 	primary: true,
 	dist: false,
@@ -18,10 +18,15 @@ export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 };
 
 export const hasGroServer = (): Promise<boolean> => pathExists(SERVER_SOURCE_ID);
+export const hasGroServerConfig = (buildConfigs: BuildConfig[]): boolean =>
+	buildConfigs.some(
+		(b) => b.name === SERVER_BUILD_CONFIG_NAME && b.platform === SERVER_BUILD_CONFIG_PLATFORM,
+	);
 export const SERVER_BUILD_CONFIG_NAME = 'server';
+export const SERVER_BUILD_CONFIG_PLATFORM = 'node';
 export const SERVER_BUILD_CONFIG: BuildConfig = {
 	name: SERVER_BUILD_CONFIG_NAME,
-	platform: 'node',
+	platform: SERVER_BUILD_CONFIG_PLATFORM,
 	primary: false,
 	dist: true,
 	input: [SERVER_SOURCE_BASE_PATH],
