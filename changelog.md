@@ -2,6 +2,12 @@
 
 ## 0.8.4
 
+- improve the [clean](https://github.com/feltcoop/gro/blob/main/src/clean.task.ts) task:
+  it now accepts `-s` and `-n` options to clear `.svelte/` and `node_modules/`
+  ([#130](https://github.com/feltcoop/gro/pull/130))
+
+## 0.8.4
+
 - add `src/version.task.ts` to automate versioning and publishing
   ([#127](https://github.com/feltcoop/gro/pull/127))
 - change `src/build.task.ts` to work internally for Gro
