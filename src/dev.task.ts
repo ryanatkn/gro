@@ -70,21 +70,20 @@ export const task: Task = {
 		args.onready && (args as any).onready(filer, server);
 
 		// Support the Gro server pattern by default.
-		// TODO make this more reusable
 		if (await hasGroServer()) {
-			// the API server process: kill'd and restarted every time a dependency changes
-			const serverProcess = createRestartableProcess(
-				// TODO link `'server/server.js'` programmatically with `'src/server/server.ts' elsewhere
-				toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, SERVER_BUILD_BASE_PATH),
-			);
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
+			const serverBuildPath = toBuildOutPath(
+				true,
+				DEFAULT_BUILD_CONFIG_NAME,
+				SERVER_BUILD_BASE_PATH,
+			);
+			const serverProcess = createRestartableProcess(serverBuildPath);
 			filer.on('build', ({buildConfig}) => {
 				// TODO to avoid false positives, probably split apart the default Node and server builds.
 				// Without more granular detection, the API server will restart
 				// when files like this dev task change. That's fine, but it's not nice.
 				// so this will probably be `DEFAULT_SERVER_BUILD_CONFIG_NAME`
 				if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
-					// TODO throttle
 					serverProcess.restart();
 				}
 			});

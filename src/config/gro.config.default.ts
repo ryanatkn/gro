@@ -14,8 +14,8 @@ import {basePathToSourceId, toBuildExtension} from '../paths.js';
 // Both are no-ops if not detected.
 
 export const SERVER_SOURCE_BASE_PATH = 'server/server.ts';
-export const SERVER_BUILD_BASE_PATH = toBuildExtension(SERVER_SOURCE_BASE_PATH);
-export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // absolute path
+export const SERVER_BUILD_BASE_PATH = toBuildExtension(SERVER_SOURCE_BASE_PATH); // 'server/server.js'
+export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.js'
 
 const createConfig: GroConfigCreator = async () => {
 	const config: PartialGroConfig = {
