@@ -236,4 +236,5 @@ export const SERVER_BUILD_BASE_PATH = toBuildExtension(SERVER_SOURCE_BASE_PATH);
 export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
 
 export const NODE_MODULES_PATH = 'node_modules';
-export const SVELTE_KIT_PATH = '.svelte';
+export const SVELTE_KIT_DEV_PATH = '.svelte';
+export const SVELTE_KIT_BUILD_PATH = 'build';
