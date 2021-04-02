@@ -13,7 +13,7 @@ openssl req -x509 -newkey rsa:2048 -nodes -sha256 -subj '/CN=localhost' \
 or the builtin task:
 
 ```bash
-gro project/cert
+gro cert
 ```
 
 Gro will automatically see the certs created from the above:
