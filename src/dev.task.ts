@@ -84,7 +84,10 @@ export const task: Task = {
 				// when files like this dev task change. That's fine, but it's not nice.
 				// so this will probably be `DEFAULT_SERVER_BUILD_CONFIG_NAME`
 				if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
-					serverProcess.restart();
+					for (let i = 0; i < 10; i++) {
+						console.log('restarting');
+						serverProcess.restart();
+					}
 				}
 			});
 		}
