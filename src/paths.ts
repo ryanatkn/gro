@@ -28,6 +28,10 @@ export const SOURCE_DIR = `${SOURCE_DIR_NAME}/`;
 export const BUILD_DIR = `${BUILD_DIR_NAME}/`;
 export const DIST_DIR = `${DIST_DIR_NAME}/`;
 
+export const NODE_MODULES_PATH = 'node_modules';
+export const SVELTE_KIT_DEV_PATH = '.svelte';
+export const SVELTE_KIT_BUILD_PATH = 'build';
+
 export const CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_BASE_PATH = 'gro.config.js';
 
@@ -234,7 +238,3 @@ export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
 export const SERVER_SOURCE_BASE_PATH = 'server/server.ts';
 export const SERVER_BUILD_BASE_PATH = toBuildExtension(SERVER_SOURCE_BASE_PATH); // 'server/server.js'
 export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
-
-export const NODE_MODULES_PATH = 'node_modules';
-export const SVELTE_KIT_DEV_PATH = '.svelte';
-export const SVELTE_KIT_BUILD_PATH = 'build';
