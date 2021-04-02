@@ -60,10 +60,12 @@ export const createRestartableProcess = (
 	let child: ChildProcess | null = null;
 	let restarting: Promise<void> | null = null;
 	let restarted: (() => void) | null = null;
+	let queuedRestart = false; // do we have a queued trailing restart?
 	const restart = async (): Promise<void> => {
+		console.log('[restart] enter');
 		if (restarting) console.log('[restart] already restarting');
 		if (restarting) {
-			// TODO queue another for the final restart
+			queuedRestart = true;
 			return restarting;
 		}
 		if (child) {
@@ -78,9 +80,16 @@ export const createRestartableProcess = (
 		child.on('close', () => {
 			console.log('[restart] close');
 			restarting = null;
-			if (restarted) console.log('[restart] close restarting');
+			if (restarted) console.log('[restart] close restarted()');
 			if (restarted) restarted();
 		});
+		if (queuedRestart) {
+			queuedRestart = false;
+			console.log('[restart] queued restarting');
+			await restart();
+			console.log('[restart] queued restarted');
+		}
+		console.log('[restart] exit');
 	};
 	restart(); // start on init
 	return {restart};
