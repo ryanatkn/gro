@@ -1,5 +1,3 @@
-import {spawn, ChildProcess} from 'child_process';
-
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {printTiming} from './utils/print.js';
@@ -13,6 +11,7 @@ import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {hasGroServer, SERVER_BUILD_BASE_PATH} from './config/gro.config.default.js';
 import {DEFAULT_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
+import {createRestartableProcess} from './utils/process.js';
 
 export const task: Task = {
 	description: 'start dev server',
@@ -74,7 +73,7 @@ export const task: Task = {
 		// TODO make this more reusable
 		if (await hasGroServer()) {
 			// the API server process: kill'd and restarted every time a dependency changes
-			const serverProcess = createServerProcess(
+			const serverProcess = createRestartableProcess(
 				// TODO link `'server/server.js'` programmatically with `'src/server/server.ts' elsewhere
 				toBuildOutPath(true, DEFAULT_BUILD_CONFIG_NAME, SERVER_BUILD_BASE_PATH),
 			);
@@ -101,28 +100,4 @@ const getDefaultServedDirs = (config: GroConfig): ServedDirPartial[] => {
 	const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.primaryNodeBuildConfig;
 	const buildOutDirToServe = toBuildOutPath(true, buildConfigToServe.name, '');
 	return [buildOutDirToServe];
-};
-
-// TODO extract to a util? redesign
-const createServerProcess = (serverPath: string) => {
-	let serverProcess: ChildProcess | null = null;
-	let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
-	const restart = async (): Promise<void> => {
-		if (serverClosed) {
-			if (serverProcess) {
-				serverProcess.kill();
-				serverProcess = null;
-			}
-			await serverClosed;
-		}
-		serverProcess = spawn('node', [serverPath], {stdio: 'inherit'});
-		let resolve: () => void;
-		serverClosed = new Promise((r) => (resolve = r));
-		// TODO handle errors, this swallows them I think
-		serverProcess.on('close', () => {
-			resolve();
-		});
-	};
-	restart(); // start on init
-	return {restart};
 };

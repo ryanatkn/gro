@@ -1,4 +1,4 @@
-import {spawn, SpawnOptions} from 'child_process';
+import {spawn, SpawnOptions, ChildProcess} from 'child_process';
 
 import {red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
@@ -38,3 +38,28 @@ export const spawnProcess = (
 			resolve(code ? {ok: false, code} : {ok: true});
 		});
 	});
+
+// TODO might want to expand this API for some use cases - assumes always running
+export interface RestartableProcess {
+	restart: () => void;
+}
+
+export const createRestartableProcess = (serverPath: string): RestartableProcess => {
+	let serverProcess: ChildProcess | null = null;
+	let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
+	const restart = async (): Promise<void> => {
+		if (serverClosed) {
+			if (serverProcess) {
+				serverProcess.kill();
+				serverProcess = null;
+			}
+			await serverClosed;
+		}
+		serverProcess = spawn('node', [serverPath], {stdio: 'inherit'});
+		let resolve: () => void;
+		serverClosed = new Promise((r) => (resolve = r));
+		serverProcess.on('close', resolve!);
+	};
+	restart(); // start on init
+	return {restart};
+};
