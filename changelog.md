@@ -1,6 +1,6 @@
 # Gro changelog
 
-## 0.8.4
+## 0.8.5
 
 - improve the [clean](https://github.com/feltcoop/gro/blob/main/src/clean.task.ts) task:
   it now accepts `-s` and `-n` options to clear `.svelte/` and `node_modules/`
