@@ -1,7 +1,9 @@
 # Gro changelog
 
-## 0.8.5
+## 0.9.0
 
+- **break**: separate the default server and primary Node builds
+  ([#131](https://github.com/feltcoop/gro/pull/131))
 - add server auto-restart to `src/dev.task.ts`
   ([#129](https://github.com/feltcoop/gro/pull/129))
 - improve the [clean task](https://github.com/feltcoop/gro/blob/main/src/clean.task.ts)
