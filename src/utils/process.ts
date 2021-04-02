@@ -1,4 +1,5 @@
-import {spawn, SpawnOptions, ChildProcess} from 'child_process';
+import {spawn} from 'child_process';
+import type {SpawnOptions, ChildProcess} from 'child_process';
 
 import {red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
@@ -44,21 +45,24 @@ export interface RestartableProcess {
 	restart: () => void;
 }
 
+// `kill` is sync, so we tie things up with promises
 export const createRestartableProcess = (serverPath: string): RestartableProcess => {
-	let serverProcess: ChildProcess | null = null;
-	let serverClosed: Promise<void> | null = null; // `kill` is sync; this resolves when it's done
+	let child: ChildProcess | null = null;
+	let restarting: Promise<void> | null = null;
+	let restarted: () => void;
 	const restart = async (): Promise<void> => {
-		if (serverClosed) {
-			if (serverProcess) {
-				serverProcess.kill();
-				serverProcess = null;
-			}
-			await serverClosed;
+		if (restarting) return restarting; // TODO queue another for the final restart
+		if (child) {
+			restarting = new Promise((r) => (restarted = r));
+			child.kill();
+			child = null;
+			await restarting;
 		}
-		serverProcess = spawn('node', [serverPath], {stdio: 'inherit'});
-		let resolve: () => void;
-		serverClosed = new Promise((r) => (resolve = r));
-		serverProcess.on('close', resolve!);
+		child = spawn('node', [serverPath], {stdio: 'inherit'});
+		child.on('close', () => {
+			restarting = null;
+			if (restarted) restarted();
+		});
 	};
 	restart(); // start on init
 	return {restart};
