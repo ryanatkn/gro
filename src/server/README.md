@@ -26,7 +26,7 @@ $root/localhost-privkey.pem
 To ignore them in git, you can add this to `.gitignore`:
 
 ```
-*.pem
+/*.pem
 ```
 
 > TODO document the options

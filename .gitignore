@@ -3,7 +3,9 @@ node_modules
 
 /.gro
 /dist
+
+/*.pem
+
 *.ignore
 *.ignore.*
 ignore/
-*.pem
