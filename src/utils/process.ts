@@ -48,8 +48,8 @@ export interface RestartableProcess {
 
 const DEFAULT_RESTART_DELAY = 5; // milliseconds
 
-// This needs to handle many concurrent `restart` calls gracefully,
-// and restart after the trailing call.
+// This handles many concurrent `restart` calls gracefully,
+// and restarts ones after the trailing call, waiting some `delay` in between.
 // It's slightly more complex because `kill` is sync, so we tie things up with promises.
 export const createRestartableProcess = (
 	command: string,
