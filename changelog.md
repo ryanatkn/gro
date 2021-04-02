@@ -266,7 +266,7 @@
 ## 0.1.11
 
 - fix `terser` import
-- export `Unobtain` type from `utils/createObtainable.ts`
+- export `Unobtain` type from `utils/obtainable.ts`
 
 ## 0.1.10
 
@@ -319,7 +319,7 @@
 ## 0.1.2
 
 - upgrade TypeScript dep
-- add `utils/createObtainable.ts` for decoupled lifecycle management
+- add `utils/obtainable.ts` for decoupled lifecycle management
 
 ## 0.1.1
 

@@ -11,7 +11,7 @@ It can also be used to create lazily instantiated references.
 
 The motivating use case was reusing a database connection across multiple tasks.
 
-See the tests for usage examples - ./createObtainable.test.ts
+See the tests for usage examples - ./obtainable.test.ts
 
 */
 export const createObtainable = <T>(
