@@ -77,7 +77,7 @@ export const task: Task = {
 				DEFAULT_BUILD_CONFIG_NAME,
 				SERVER_BUILD_BASE_PATH,
 			);
-			const serverProcess = createRestartableProcess(serverBuildPath);
+			const serverProcess = createRestartableProcess('node', [serverBuildPath]);
 			filer.on('build', ({buildConfig}) => {
 				// TODO to avoid false positives, probably split apart the default Node and server builds.
 				// Without more granular detection, the API server will restart
