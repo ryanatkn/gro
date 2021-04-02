@@ -55,22 +55,30 @@ export const createRestartableProcess = (
 	command: string,
 	args: readonly string[] = [],
 	options?: SpawnOptions,
-	delay = DEFAULT_RESTART_DELAY, // milliseconds
+	delay = DEFAULT_RESTART_DELAY, // milliseconds to wait after killing a process before restarting
 ): RestartableProcess => {
 	let child: ChildProcess | null = null;
 	let restarting: Promise<void> | null = null;
-	let restarted: () => void;
+	let restarted: (() => void) | null = null;
 	const restart = async (): Promise<void> => {
-		if (restarting) return restarting; // TODO queue another for the final restart
+		if (restarting) console.log('[restart] already restarting');
+		if (restarting) {
+			// TODO queue another for the final restart
+			return restarting;
+		}
 		if (child) {
 			restarting = new Promise<void>((resolve) => (restarted = resolve)).then(() => wait(delay));
 			child.kill();
 			child = null;
+			console.log('[restart] awaiting');
 			await restarting;
+			console.log('[restart] awaited');
 		}
 		child = spawn(command, args, {stdio: 'inherit', ...options});
 		child.on('close', () => {
+			console.log('[restart] close');
 			restarting = null;
+			if (restarted) console.log('[restart] close restarting');
 			if (restarted) restarted();
 		});
 	};
