@@ -9,7 +9,7 @@ import {Logger, LogLevel, SystemLogger} from '../utils/log.js';
 import {magenta} from '../utils/terminal.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
-import {DEFAULT_BUILD_CONFIG} from './defaultBuildConfig.js';
+import {PRIMARY_NODE_BUILD_CONFIG} from './defaultBuildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 import type {ServedDirPartial} from '../build/ServedDir.js';
@@ -51,7 +51,7 @@ export interface GroConfig {
 }
 
 export interface PartialGroConfig {
-	readonly builds: (PartialBuildConfig | null)[]; // allow `null` for convenience
+	readonly builds: readonly (PartialBuildConfig | null)[]; // allow `null` for convenience
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly host?: string;
@@ -126,7 +126,11 @@ export const loadGroConfig = async (): Promise<GroConfig> => {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
 		modulePath = configSourceId;
-		const configBuildId = toBuildOutPath(dev, DEFAULT_BUILD_CONFIG.name, CONFIG_BUILD_BASE_PATH);
+		const configBuildId = toBuildOutPath(
+			dev,
+			PRIMARY_NODE_BUILD_CONFIG.name,
+			CONFIG_BUILD_BASE_PATH,
+		);
 		if (await pathExists(configBuildId)) {
 			configModule = await import(configBuildId);
 		} else {
@@ -135,7 +139,7 @@ export const loadGroConfig = async (): Promise<GroConfig> => {
 			// to compile the config from TypeScript to importable JavaScript.
 			// Importantly, the build config is typically the default, because it hasn't yet been loaded,
 			// so there could be subtle differences between the actual and bootstrapped configs.
-			configModule = await importTs(configSourceId, DEFAULT_BUILD_CONFIG);
+			configModule = await importTs(configSourceId, PRIMARY_NODE_BUILD_CONFIG);
 		}
 	} else {
 		// The project does not have a `gro.config.ts`, so use Gro's fallback default.
@@ -144,7 +148,7 @@ export const loadGroConfig = async (): Promise<GroConfig> => {
 			toImportId(
 				`${groPaths.source}${FALLBACK_CONFIG_BASE_PATH}`,
 				dev,
-				DEFAULT_BUILD_CONFIG.name,
+				PRIMARY_NODE_BUILD_CONFIG.name,
 				groPaths,
 			)
 		);

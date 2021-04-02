@@ -34,9 +34,6 @@ export const CONFIG_BUILD_BASE_PATH = 'gro.config.js';
 export const EXTERNALS_BUILD_DIR = 'externals'; // TODO breaks the above trailing slash convention - revisit with trailing-slash branch
 export const EXTERNALS_BUILD_DIR_SUBPATH = `/${EXTERNALS_BUILD_DIR}/`;
 
-export const NODE_MODULES_PATH = 'node_modules';
-export const SVELTE_KIT_PATH = '.svelte';
-
 export interface Paths {
 	root: string;
 	source: string;
@@ -233,3 +230,10 @@ export const groDirBasename = `${basename(groDir)}/`;
 export const paths = createPaths(`${process.cwd()}/`);
 export const isThisProjectGro = groDir === paths.root;
 export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
+
+export const SERVER_SOURCE_BASE_PATH = 'server/server.ts';
+export const SERVER_BUILD_BASE_PATH = toBuildExtension(SERVER_SOURCE_BASE_PATH); // 'server/server.js'
+export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
+
+export const NODE_MODULES_PATH = 'node_modules';
+export const SVELTE_KIT_PATH = '.svelte';

@@ -3,15 +3,14 @@ import {Filer} from './build/Filer.js';
 import {printTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {createDefaultBuilder} from './build/defaultBuilder.js';
-import {paths, toBuildOutPath} from './paths.js';
+import {paths, toBuildOutPath, SERVER_BUILD_BASE_PATH} from './paths.js';
 import {createDevServer} from './server/server.js';
 import {GroConfig, loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
-import {hasGroServer, SERVER_BUILD_BASE_PATH} from './config/gro.config.default.js';
-import {DEFAULT_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
 import {createRestartableProcess} from './utils/process.js';
+import {hasGroServer, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
 
 export const task: Task = {
 	description: 'start dev server',
@@ -43,6 +42,7 @@ export const task: Task = {
 		timingToCreateFiler();
 		args.oncreatefiler && (args as any).oncreatefiler(filer);
 
+		// TODO restart functionality
 		const timingToCreateDevServer = timings.start('create dev server');
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
 		const https = args.nocert
@@ -74,16 +74,12 @@ export const task: Task = {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
 			const serverBuildPath = toBuildOutPath(
 				true,
-				DEFAULT_BUILD_CONFIG_NAME,
+				SERVER_BUILD_CONFIG_NAME,
 				SERVER_BUILD_BASE_PATH,
 			);
 			const serverProcess = createRestartableProcess('node', [serverBuildPath]);
 			filer.on('build', ({buildConfig}) => {
-				// TODO to avoid false positives, probably split apart the default Node and server builds.
-				// Without more granular detection, the API server will restart
-				// when files like this dev task change. That's fine, but it's not nice.
-				// so this will probably be `DEFAULT_SERVER_BUILD_CONFIG_NAME`
-				if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
+				if (buildConfig.name === SERVER_BUILD_CONFIG_NAME) {
 					serverProcess.restart();
 				}
 			});

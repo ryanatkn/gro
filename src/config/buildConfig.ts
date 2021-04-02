@@ -1,7 +1,7 @@
 import {resolve} from 'path';
 
 import {ensureArray} from '../utils/array.js';
-import {DEFAULT_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
+import {PRIMARY_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
 import {blue} from '../utils/terminal.js';
 import type {Result} from '../index.js';
@@ -26,14 +26,16 @@ type BuildConfigInput = string | ((id: string) => boolean);
 export interface PartialBuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
-	readonly input: BuildConfigInput | BuildConfigInput[];
+	readonly input: BuildConfigInput | readonly BuildConfigInput[];
 	readonly dist?: boolean;
 	readonly primary?: boolean;
 }
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const normalizeBuildConfigs = (partials: (PartialBuildConfig | null)[]): BuildConfig[] => {
+export const normalizeBuildConfigs = (
+	partials: readonly (PartialBuildConfig | null)[],
+): BuildConfig[] => {
 	const platforms: Set<string> = new Set();
 	const primaryPlatforms: Set<string> = new Set();
 
@@ -69,7 +71,7 @@ export const normalizeBuildConfigs = (partials: (PartialBuildConfig | null)[]): 
 };
 
 const normalizeBuildConfigInput = (input: PartialBuildConfig['input']): BuildConfig['input'] =>
-	ensureArray(input).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
+	ensureArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
 export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {reason: string}> => {
@@ -113,12 +115,12 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 						` multiple primary items for platform "${buildConfig.platform}".`,
 				};
 			}
-			if (buildConfig.platform === 'node' && buildConfig.name !== DEFAULT_BUILD_CONFIG_NAME) {
+			if (buildConfig.platform === 'node' && buildConfig.name !== PRIMARY_BUILD_CONFIG_NAME) {
 				return {
 					ok: false,
 					reason:
 						`The field 'gro.builds' in package.json must name` +
-						` its primary Node config '${DEFAULT_BUILD_CONFIG_NAME}'`,
+						` its primary Node config '${PRIMARY_BUILD_CONFIG_NAME}'`,
 				};
 			}
 			primaryPlatforms.add(buildConfig.platform);
