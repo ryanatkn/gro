@@ -13,6 +13,8 @@ const createConfig: GroConfigCreator = async () => {
 	const BROWSER_BUILD_CONFIG_NAME = 'browser';
 	const config: PartialGroConfig = {
 		builds: [
+			// TODO think about this
+			// {...SERVER_BUILD_CONFIG, dist: false},
 			{
 				name: 'node',
 				platform: 'node',

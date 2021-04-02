@@ -1,10 +1,13 @@
-import {createFilter} from '@rollup/pluginutils';
-
 import type {GroConfigCreator, PartialGroConfig} from './config.js';
 import {LogLevel} from '../utils/log.js';
-import {PartialBuildConfig} from './buildConfig.js';
-import {pathExists} from '../fs/nodeFs.js';
 import {basePathToSourceId, toBuildExtension} from '../paths.js';
+import {
+	hasDeprecatedGroFrontend,
+	hasGroServer,
+	PRIMARY_NODE_BUILD_CONFIG,
+	SERVER_BUILD_CONFIG,
+	toDefaultBrowserBuild,
+} from './defaultBuildConfig.js';
 
 // This is the default config that's used if the current project does not define one.
 // The default config detects
@@ -20,15 +23,9 @@ export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // 
 const createConfig: GroConfigCreator = async () => {
 	const config: PartialGroConfig = {
 		builds: [
-			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null,
-			{
-				name: 'node',
-				platform: 'node',
-				input: [
-					(await hasGroServer()) ? SERVER_SOURCE_BASE_PATH : null!,
-					createFilter('**/*.{task,test,config,gen}*.ts'),
-				].filter(Boolean),
-			},
+			PRIMARY_NODE_BUILD_CONFIG,
+			hasGroServer() ? SERVER_BUILD_CONFIG : null,
+			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
 		logLevel: LogLevel.Trace,
 	};
@@ -36,24 +33,3 @@ const createConfig: GroConfigCreator = async () => {
 };
 
 export default createConfig;
-
-const assetPaths = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
-
-const toDefaultBrowserBuild = (): PartialBuildConfig => ({
-	name: 'browser',
-	platform: 'browser',
-	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
-	dist: true,
-});
-
-// TODO extract helper? or is this default config file its actual home?
-export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
-	const [hasIndexHtml, hasIndexTs] = await Promise.all([
-		pathExists('src/index.html'),
-		pathExists('src/index.ts'),
-	]);
-	return hasIndexHtml && hasIndexTs;
-};
-
-// TODO extract helper? or is this default config file its actual home?
-export const hasGroServer = (): Promise<boolean> => pathExists(SERVER_SOURCE_ID);

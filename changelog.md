@@ -1,7 +1,12 @@
 # Gro changelog
 
-## 0.8.5
+## 0.9.0
 
+- **break**: separate the default server and primary Node builds
+  in `src/config/gro.config.default.ts`
+  ([#131](https://github.com/feltcoop/gro/pull/131))
+- **break**: rename `src/utils/createObtainable.ts` to `src/utils/obtainable.ts` to fit convention
+  ([#131](https://github.com/feltcoop/gro/pull/131))
 - add server auto-restart to `src/dev.task.ts`
   ([#129](https://github.com/feltcoop/gro/pull/129))
 - improve the [clean task](https://github.com/feltcoop/gro/blob/main/src/clean.task.ts)
@@ -266,7 +271,7 @@
 ## 0.1.11
 
 - fix `terser` import
-- export `Unobtain` type from `utils/createObtainable.ts`
+- export `Unobtain` type from `utils/obtainable.ts`
 
 ## 0.1.10
 
@@ -319,7 +324,7 @@
 ## 0.1.2
 
 - upgrade TypeScript dep
-- add `utils/createObtainable.ts` for decoupled lifecycle management
+- add `utils/obtainable.ts` for decoupled lifecycle management
 
 ## 0.1.1
 
