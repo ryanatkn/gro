@@ -1,5 +1,16 @@
 # Gro changelog
 
+## 0.8.5
+
+- improve the [clean task](https://github.com/feltcoop/gro/blob/main/src/clean.task.ts)
+  ([#130](https://github.com/feltcoop/gro/pull/130))
+  - running `gro clean` with no options behaves the same, deleting `/.gro/` and `/dist/`
+  - `gro clean` now accepts a number of options:
+    - `-s`: delete `/.svelte/`
+    - `-n`: delete `/node_modules/`
+    - `-B`: preserve `/.gro/`, the Gro build directory
+    - `-D`: preserve `/dist/`
+
 ## 0.8.4
 
 - add `src/version.task.ts` to automate versioning and publishing

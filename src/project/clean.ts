@@ -1,24 +1,27 @@
 import {pathExists, remove} from '../fs/nodeFs.js';
-import {paths} from '../paths.js';
+import {NODE_MODULES_PATH, paths, SVELTE_KIT_PATH} from '../paths.js';
 import type {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 
-export const clean = async (log: SystemLogger) => {
-	await cleanBuild(log);
-	await cleanDist(log);
-};
+export const clean = async (
+	{
+		build = false,
+		dist = false,
+		svelteKit = false,
+		nodeModules = false,
+	}: {build?: boolean; dist?: boolean; svelteKit?: boolean; nodeModules?: boolean},
+	log: SystemLogger,
+) =>
+	Promise.all([
+		build ? cleanDir(paths.build, log) : null,
+		dist ? cleanDir(paths.dist, log) : null,
+		svelteKit ? cleanDir(SVELTE_KIT_PATH, log) : null,
+		nodeModules ? cleanDir(NODE_MODULES_PATH, log) : null,
+	]);
 
-// Checking `pathExists` avoids creating the directory if it doesn't exist.
-export const cleanBuild = async (log: SystemLogger) => {
-	if (await pathExists(paths.build)) {
-		log.info('removing', printPath(paths.build));
-		await remove(paths.build);
-	}
-};
-
-export const cleanDist = async (log: SystemLogger) => {
-	if (await pathExists(paths.dist)) {
-		log.info('removing', printPath(paths.dist));
-		await remove(paths.dist);
+export const cleanDir = async (path: string, log: SystemLogger): Promise<void> => {
+	if (await pathExists(path)) {
+		log.info('removing', printPath(path));
+		await remove(path);
 	}
 };
