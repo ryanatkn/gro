@@ -50,7 +50,8 @@ export interface RestartableProcess {
 // It's slightly more complex because `kill` is sync, so we tie things up with promises.
 export const createRestartableProcess = (
 	command: string,
-	args: readonly string[],
+	args: readonly string[] = [],
+	options?: SpawnOptions,
 ): RestartableProcess => {
 	let child: ChildProcess | null = null;
 	let restarting: Promise<void> | null = null;
@@ -63,7 +64,7 @@ export const createRestartableProcess = (
 			child = null;
 			await restarting;
 		}
-		child = spawn(command, args, {stdio: 'inherit'});
+		child = spawn(command, args, {stdio: 'inherit', ...options});
 		child.on('close', () => {
 			restarting = null;
 			if (restarted) restarted();
