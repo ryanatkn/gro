@@ -3,7 +3,7 @@ import {copy} from './fs/nodeFs.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from './fs/testModule.js';
 import {printPath} from './utils/print.js';
-import {cleanDist} from './project/clean.js';
+import {clean} from './project/clean.js';
 import {loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import {printBuildConfig} from './config/buildConfig.js';
@@ -16,7 +16,7 @@ export const task: Task = {
 	run: async ({log}) => {
 		const dev = process.env.NODE_ENV !== 'production';
 
-		await cleanDist(log);
+		await clean({dist: true}, log);
 
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.

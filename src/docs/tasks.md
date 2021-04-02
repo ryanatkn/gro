@@ -9,7 +9,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [build](../build.task.ts) - build the project
 - [cert](../cert.task.ts) - creates a self-signed cert for https with openssl
 - [check](../check.task.ts) - check that everything is ready to commit
-- [clean](../clean.task.ts) - remove build and temp files
+- [clean](../clean.task.ts) - remove files: build/ (unless -B), dist/ (unless -D), and optionally .svelte/ (-s) and node_modules/ (-n)
 - [deploy](../deploy.task.ts) - deploy to gh-pages
 - [dev](../dev.task.ts) - start dev server
 - [dist](../dist.task.ts) - create the distribution

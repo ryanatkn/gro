@@ -4,13 +4,13 @@ import type {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 
 export const clean = async (
-	log: SystemLogger,
 	{
-		build = true,
-		dist = true,
+		build = false,
+		dist = false,
 		svelteKit = false,
 		nodeModules = false,
 	}: {build?: boolean; dist?: boolean; svelteKit?: boolean; nodeModules?: boolean},
+	log: SystemLogger,
 ) =>
 	Promise.all([
 		build ? cleanDir(paths.build, log) : null,
