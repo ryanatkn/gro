@@ -34,8 +34,8 @@ export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	]);
 	return hasIndexHtml && hasIndexTs;
 };
-const assetPaths = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
-export const toDefaultBrowserBuild = (): PartialBuildConfig => ({
+const DEFAULT_ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
+export const toDefaultBrowserBuild = (assetPaths = DEFAULT_ASSET_PATHS): PartialBuildConfig => ({
 	name: 'browser',
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
