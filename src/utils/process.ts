@@ -5,6 +5,7 @@ import {red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
 import {SystemLogger} from './log.js';
 import {printError} from './print.js';
+import {wait} from './async.js';
 
 export const attachProcessErrorHandlers = () => {
 	process.on('uncaughtException', handleError).on('unhandledRejection', handleUnhandledRejection);
@@ -45,6 +46,8 @@ export interface RestartableProcess {
 	restart: () => void;
 }
 
+const DEFAULT_RESTART_DELAY = 5; // milliseconds
+
 // This needs to handle many concurrent `restart` calls gracefully,
 // and restart after the trailing call.
 // It's slightly more complex because `kill` is sync, so we tie things up with promises.
@@ -52,6 +55,7 @@ export const createRestartableProcess = (
 	command: string,
 	args: readonly string[] = [],
 	options?: SpawnOptions,
+	delay = DEFAULT_RESTART_DELAY, // milliseconds
 ): RestartableProcess => {
 	let child: ChildProcess | null = null;
 	let restarting: Promise<void> | null = null;
@@ -59,7 +63,7 @@ export const createRestartableProcess = (
 	const restart = async (): Promise<void> => {
 		if (restarting) return restarting; // TODO queue another for the final restart
 		if (child) {
-			restarting = new Promise((r) => (restarted = r));
+			restarting = new Promise<void>((resolve) => (restarted = resolve)).then(() => wait(delay));
 			child.kill();
 			child = null;
 			await restarting;
