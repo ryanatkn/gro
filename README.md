@@ -79,9 +79,9 @@ gro # should print some stuff - defers to the project's locally installed versio
 ## usage
 
 ```bash
-gro # lists all available tasks with the pattern `*.task.ts`
-gro some/dir # lists all tasks inside `src/some/dir`
-gro some/file # runs `src/some/file.task.ts`
+gro # list all available tasks with the pattern `*.task.ts`
+gro some/dir # list all tasks inside `src/some/dir`
+gro some/file # run `src/some/file.task.ts`
 gro some/file.task.ts # same as above
 gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
 ```
@@ -91,11 +91,11 @@ To learn more [see the task docs](/src/task)
 and [the generated task index](/src/docs/tasks.md).
 
 ```bash
-gro dev # starts the dev server in watch mode
+gro dev # start the dev server in watch mode
 ```
 
 ```bash
-gro build # builds everything for production
+gro build # build everything for production
 ```
 
 Testing with [`uvu`](https://github.com/lukeed/uvu):
@@ -107,22 +107,22 @@ gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
 Codegen with `gen` (docs at [`src/gen`](/src/gen))
 
 ```bash
-gro gen # runs codegen for all `*.gen.*` files
-gro gen --check # errors if any generated files are new or different
+gro gen # run codegen for all `*.gen.*` files
+gro gen --check # error if any generated files are new or different
 ```
 
 ```bash
-gro format # formats all of the source files using Prettier
-gro format --check # checks that all source files are formatted
+gro format # format all of the source files using Prettier
+gro format --check # check that all source files are formatted
 ```
 
 ```bash
-gro clean # deletes all build artifacts from the filesystem
+gro clean # delete all build artifacts from the filesystem
 ```
 
 ```bash
-gro serve # serves the current directory
-gro serve some/dir and/another/dir # serves some directories
+gro serve # serve the current directory
+gro serve some/dir and/another/dir # serve some directories
 ```
 
 ```bash
@@ -131,11 +131,11 @@ gro version major --and args --are forwarded --to 'npm version'
 ```
 
 ```bash
-gro --version # or `-v` prints the Gro version
+gro -v # aka `--version`: print the Gro version
 ```
 
 ```bash
-gro check # typechecks, runs tests, and ensures generated files are current
+gro check # typecheck, run tests, and ensure generated files are current
 gro typecheck # just the typechecking
 ```
 
@@ -143,15 +143,15 @@ gro typecheck # just the typechecking
 
 ```bash
 npm i
-npm run bootstrap # builds and links `gro` - needed only once
+npm run bootstrap # build and link `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
 # development
-gro dev # starts dev server in watch mode
+gro dev # start dev server in watch mode
 gro project/dist # update the `gro` CLI
 
 # release
-gro build # builds for release and updates the `gro` CLI
+gro build # build for release and update the `gro` CLI
 ```
 
 ## credits :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
