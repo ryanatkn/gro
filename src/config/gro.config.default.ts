@@ -46,7 +46,7 @@ const toDefaultBrowserBuild = (): PartialBuildConfig => ({
 	dist: true,
 });
 
-// TODO extract helper?
+// TODO extract helper? or is this default config file its actual home?
 export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	const [hasIndexHtml, hasIndexTs] = await Promise.all([
 		pathExists('src/index.html'),
@@ -55,5 +55,5 @@ export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	return hasIndexHtml && hasIndexTs;
 };
 
-// TODO extract helper?
+// TODO extract helper? or is this default config file its actual home?
 export const hasGroServer = (): Promise<boolean> => pathExists(SERVER_SOURCE_ID);
