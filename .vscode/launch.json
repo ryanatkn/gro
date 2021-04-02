@@ -1,7 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [
-    // TODO having a launch config breaks f11 fullscreen - wat
+    // TODO having a launch config now breaks f11 fullscreen - wat
     // {
     //   "type": "node",
     //   "request": "launch",
