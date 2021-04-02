@@ -1,9 +1,11 @@
-import {spawn, SpawnOptions} from 'child_process';
+import {spawn} from 'child_process';
+import type {SpawnOptions, ChildProcess} from 'child_process';
 
 import {red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
 import {SystemLogger} from './log.js';
 import {printError} from './print.js';
+import {wait} from './async.js';
 
 export const attachProcessErrorHandlers = () => {
 	process.on('uncaughtException', handleError).on('unhandledRejection', handleUnhandledRejection);
@@ -38,3 +40,48 @@ export const spawnProcess = (
 			resolve(code ? {ok: false, code} : {ok: true});
 		});
 	});
+
+// TODO might want to expand this API for some use cases - assumes always running
+export interface RestartableProcess {
+	restart: () => void;
+}
+
+const DEFAULT_RESTART_DELAY = 5; // milliseconds
+
+// This handles many concurrent `restart` calls gracefully,
+// and restarts ones after the trailing call, waiting some `delay` in between.
+// It's slightly more complex because `kill` is sync, so we tie things up with promises.
+export const createRestartableProcess = (
+	command: string,
+	args: readonly string[] = [],
+	options?: SpawnOptions,
+	delay = DEFAULT_RESTART_DELAY, // milliseconds to wait after killing a process before restarting
+): RestartableProcess => {
+	let child: ChildProcess | null = null;
+	let restarting: Promise<void> | null = null;
+	let restarted: (() => void) | null = null;
+	let queuedRestart = false; // do we have a queued trailing restart?
+	const restart = async (): Promise<void> => {
+		if (restarting) {
+			queuedRestart = true;
+			return restarting;
+		}
+		if (child) {
+			restarting = new Promise<void>((resolve) => (restarted = resolve)).then(() => wait(delay));
+			child.kill();
+			child = null;
+			await restarting;
+		}
+		child = spawn(command, args, {stdio: 'inherit', ...options});
+		child.on('close', () => {
+			restarting = null;
+			if (restarted) restarted();
+		});
+		if (queuedRestart) {
+			queuedRestart = false;
+			await restart();
+		}
+	};
+	restart(); // start on init
+	return {restart};
+};

@@ -9,6 +9,9 @@ import {GroConfig, loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
+import {hasGroServer, SERVER_BUILD_BASE_PATH} from './config/gro.config.default.js';
+import {DEFAULT_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
+import {createRestartableProcess} from './utils/process.js';
 
 export const task: Task = {
 	description: 'start dev server',
@@ -65,6 +68,26 @@ export const task: Task = {
 		]);
 
 		args.onready && (args as any).onready(filer, server);
+
+		// Support the Gro server pattern by default.
+		if (await hasGroServer()) {
+			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
+			const serverBuildPath = toBuildOutPath(
+				true,
+				DEFAULT_BUILD_CONFIG_NAME,
+				SERVER_BUILD_BASE_PATH,
+			);
+			const serverProcess = createRestartableProcess('node', [serverBuildPath]);
+			filer.on('build', ({buildConfig}) => {
+				// TODO to avoid false positives, probably split apart the default Node and server builds.
+				// Without more granular detection, the API server will restart
+				// when files like this dev task change. That's fine, but it's not nice.
+				// so this will probably be `DEFAULT_SERVER_BUILD_CONFIG_NAME`
+				if (buildConfig.name === DEFAULT_BUILD_CONFIG_NAME) {
+					serverProcess.restart();
+				}
+			});
+		}
 
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));
