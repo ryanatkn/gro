@@ -1,5 +1,11 @@
 # Gro changelog
 
+## 0.11.1
+
+- add a confirmation prompt to `gro version`
+  with version validations between `changelog.md` and `package.json`
+  ([#140](https://github.com/feltcoop/gro/pull/140))
+
 ## 0.11.0
 
 - **break**: update dependencies
