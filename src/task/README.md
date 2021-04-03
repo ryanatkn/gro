@@ -175,8 +175,11 @@ This lets projects fully customize every task.
 
 ### throwing errors
 
-If a task encounters an error, it should throw rather than exiting the process.
+If a task encounters an error, normally it should throw rather than exiting the process.
 This defers control to the caller, like your own parent tasks.
+
+> TODO add support for `FatalError`
+
 Often, errors that tasks encounter do not need a stack trace,
 and we don't want the added noise to be logged.
 To suppress logging the stack trace for an error,
@@ -190,6 +193,22 @@ export const task: Task = {
 		if (someErrorCondition) {
 			throw new TaskError('We hit a known error - ignore the stack trace!');
 		}
+	},
+};
+```
+
+### `dev` forwarding through the task invocation tree
+
+```ts
+// src/some/file.task.ts
+import type {Task} from '@feltcoop/gro';
+
+export const task: Task = {
+	dev: false,
+	run: async ({dev, invokeTask}) => {
+		// `dev` is `false` because it's defined two lines up in the task definition,
+		// unless an ancestor task called `invokeTask` with a `true` value, like this:
+		invokeTask('descendentTaskWithFlippedDevValue', undefined, !dev);
 	},
 };
 ```

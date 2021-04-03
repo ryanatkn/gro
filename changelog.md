@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.9.4
+
+- forward the optional `dev` arg through the task invocation tree via `invokeTask` and `runTask`
+  ([#135](https://github.com/feltcoop/gro/pull/135))
+
 ## 0.9.3
 
 - add the optional `dev` property to `Task` definitions to fix the inherited context
