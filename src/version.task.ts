@@ -36,15 +36,15 @@ export const task: Task = {
 	run: async ({args, log, invokeTask}): Promise<void> => {
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
-		log.info('new version:', green(versionIncrement));
+		log.info(green(versionIncrement), '← new version');
 
 		await new Promise(async (resolve) => {
 			const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
 				getLatestChangelogHeading(),
 				getCurrentPackageVersion(),
 			]);
-			log.info('latest changelog version:', green(latestChangelogVersion));
-			log.info('current package version:', green(currentPackageVersion));
+			log.info(green(latestChangelogVersion), '← latest changelog version');
+			log.info(green(currentPackageVersion), '← current package version');
 			if (latestChangelogVersion === currentPackageVersion) {
 				throw Error('Changelog version matches package version. Is the changelog updated?');
 			}
