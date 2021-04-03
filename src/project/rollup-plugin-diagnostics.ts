@@ -36,8 +36,8 @@ export const diagnosticsPlugin = (): Plugin => {
 			log.info(tag('generateBundle'), {isWrite, bundles: Object.keys(bundle)});
 		},
 		// intro() {}
-		load(id) {
-			log.trace(tag('load'), printPath(id));
+		load(_id) {
+			// log.trace(tag('load'), printPath(id));
 			return null;
 		},
 		options(_o) {
@@ -64,13 +64,13 @@ export const diagnosticsPlugin = (): Plugin => {
 		},
 		// resolveDynamicImport(_specifier, _importer) {}
 		// resolveFileUrl(_asset) {}
-		resolveId(importee, importer) {
-			log.trace(tag('resolveId'), gray(importee), (importer && '<- ' + printPath(importer)) || '');
+		resolveId(_importee, _importer) {
+			// log.trace(tag('resolveId'), gray(importee), (importer && '<- ' + printPath(importer)) || '');
 			return null;
 		},
 		// resolveImportMeta(_property, _asset) {}
-		transform(code, id) {
-			log.trace(tag('transform'), printPath(id), printKeyValue('len', (code && code.length) || 0));
+		transform(_code, _id) {
+			// log.trace(tag('transform'), printPath(id), printKeyValue('len', (code && code.length) || 0));
 			return null;
 		},
 		watchChange(id) {
