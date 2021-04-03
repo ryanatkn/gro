@@ -38,7 +38,7 @@ export const task: Task = {
 		timingToLoadConfig();
 		args.oncreateconfig && (args as any).oncreateconfig(config);
 
-		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap);
+		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 
 		// For each build config, infer which of the inputs
 		// are actual source files, and therefore belong in the default Rollup build.

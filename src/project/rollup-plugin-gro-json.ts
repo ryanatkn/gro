@@ -44,15 +44,12 @@ export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
 
 			log.trace('transform json', printPath(id));
 
-			return {
-				code: dataToEsm(JSON.parse(code), {
-					compact,
-					indent,
-					namedExports,
-					preferConst,
-				}),
-				map: {mappings: ''} as const,
-			};
+			return dataToEsm(JSON.parse(code), {
+				compact,
+				indent,
+				namedExports,
+				preferConst,
+			});
 		},
 	};
 };
