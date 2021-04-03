@@ -2,8 +2,9 @@
 
 ## 0.9.2
 
-- fix `src/build.task.ts` again
-  ([#133](https://github.com/feltcoop/gro/pull/133))
+- fix `src/build.task.ts` ([#133](https://github.com/feltcoop/gro/pull/133)):
+  - forward dev arg to esbuild options builder
+  - fix return values of rollup plugins to respect sourcemaps
 
 ## 0.9.1
 
