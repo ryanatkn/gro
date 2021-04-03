@@ -6,12 +6,10 @@ import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
 import {loadGroConfig} from '../config/config.js';
 import {configureLogLevel} from '../utils/log.js';
 
-process.env.NODE_ENV = 'production';
-const dev = false; // forcing prod builds for now
-
 export const task: Task = {
 	description: 'build, create, and link the distribution',
-	run: async ({invokeTask, log}) => {
+	dev: false,
+	run: async ({dev, invokeTask, log}) => {
 		const timings = new Timings();
 
 		const timeToLoadConfig = timings.start('load config');

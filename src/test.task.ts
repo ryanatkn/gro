@@ -12,10 +12,9 @@ import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
 
 export const task: Task = {
 	description: 'run tests',
-	run: async ({log}): Promise<void> => {
+	run: async ({dev, log}): Promise<void> => {
 		const timings = new Timings();
 
-		const dev = process.env.NODE_ENV !== 'production';
 		const dir = toRootPath(toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG_NAME));
 
 		const timeToRunUvu = timings.start('run test with uvu');
