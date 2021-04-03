@@ -27,8 +27,8 @@ export const runTask = async (
 			dev,
 			args,
 			log: new SystemLogger([`${gray('[')}${magenta(task.name)}${gray(':log')}${gray(']')}`]),
-			invokeTask: (invokedTaskName, invokedArgs = args, _dev = dev) =>
-				invokeTask(invokedTaskName, invokedArgs, _dev),
+			invokeTask: (invokedTaskName, invokedArgs = args, invokedDev = dev) =>
+				invokeTask(invokedTaskName, invokedArgs, invokedDev),
 		});
 	} catch (err) {
 		return {
