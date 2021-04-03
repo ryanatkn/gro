@@ -8,7 +8,7 @@ import {readFile} from './fs/nodeFs.js';
 import {loadPackageJson} from './project/packageJson.js';
 import type {Logger} from './utils/log.js';
 
-const rl = createReadlineInterface({input: process.stdin, output: process.stdout});
+const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
 
 // version.task.ts
 // - usage: `gro version patch`
@@ -74,14 +74,14 @@ const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<v
 		if (latestChangelogVersion === currentPackageVersion) {
 			throw Error('Changelog version matches package version. Is the changelog updated?');
 		}
-		rl.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
+		readline.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
 			const lowercasedAnswer = answer.toLowerCase();
 			if (!(lowercasedAnswer === 'y' || lowercasedAnswer === 'yes')) {
 				log.info(green('exiting task with no changes'));
 				process.exit();
 			}
 			log.info(rainbow('proceeding'));
-			rl.close();
+			readline.close();
 			resolve(null);
 		});
 	});
