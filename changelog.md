@@ -2,6 +2,9 @@
 
 ## 0.11.1
 
+- track and clean up child processes in `src/utils/process.ts` helpers
+  and expose the functionality to users as `registerGlobalSpawn`
+  ([#141](https://github.com/feltcoop/gro/pull/141))
 - add a confirmation prompt to `gro version`
   with version validations between `changelog.md` and `package.json`
   ([#140](https://github.com/feltcoop/gro/pull/140))
