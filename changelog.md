@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.10.0
+
+- **break**: change `src/gro.config.ts` to export a `config` identifer instead of `default`
+  ([#137](https://github.com/feltcoop/gro/pull/137))
+
 ## 0.9.5
 
 - set `process.env.NODE_ENV` when running tasks with explicit `dev` values
