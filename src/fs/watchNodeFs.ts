@@ -28,32 +28,30 @@ export interface WatcherChangeCallback {
 
 export const DEBOUNCE_DEFAULT = 10;
 
+// ignore some things in a typical Gro project
+// note this set is exported & mutable 🤭
+export const ignoredPaths = new Set(['.git', '.svelte', 'node_modules', '.DS_Store']);
+const defaultFilter: PathFilter = (file) => !ignoredPaths.has(file.path);
+
 export interface Options {
 	dir: string;
 	onChange: WatcherChangeCallback;
-	filter: PathFilter | null;
-	debounce: number;
 	watch: boolean;
+	debounce: number;
+	filter: PathFilter | null;
 }
 export type RequiredOptions = 'dir' | 'onChange';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	debounce: DEBOUNCE_DEFAULT,
-	filter: null,
 	watch: true,
+	debounce: DEBOUNCE_DEFAULT,
+	filter: defaultFilter,
 	...omitUndefined(opts),
 });
 
 export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 	const {dir, onChange, filter, debounce, watch} = initOptions(opts);
-	const watcher = new CheapWatch({
-		dir,
-		filter: filter
-			? (file: {path: string; stats: PathStats}) => file.stats.isDirectory() || filter(file)
-			: undefined,
-		watch,
-		debounce,
-	});
+	const watcher = new CheapWatch({dir, filter, watch, debounce});
 	if (watch) {
 		watcher.on('+', ({path, stats, isNew}) => {
 			onChange({type: isNew ? 'create' : 'update', path, stats});
