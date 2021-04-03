@@ -1,16 +1,6 @@
 import type {Lazy} from './lazy.js';
 import {lazy} from './lazy.js';
 
-declare global {
-	interface ImportMeta {
-		env: {
-			DEV: boolean;
-		};
-	}
-}
-
-export const dev = import.meta.env.DEV; // TODO hmm
-
 // TODO validation?
 
 interface StringFromEnv {

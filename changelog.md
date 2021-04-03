@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.9.5
+
+- remove `import.meta.env.DEV` support for now despite SvelteKit alignment
+  ([#136](https://github.com/feltcoop/gro/pull/136))
+
 ## 0.9.4
 
 - forward the optional `dev` arg through the task invocation tree via `invokeTask` and `runTask`
