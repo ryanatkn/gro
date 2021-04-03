@@ -2,7 +2,7 @@
 
 ## 0.9.3
 
-- add the optional `dev` property to `Task` definitions to set the inherited context
+- add the optional `dev` property to `Task` definitions to fix the inherited context
   ([#134](https://github.com/feltcoop/gro/pull/134))
 
 ## 0.9.2
