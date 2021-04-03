@@ -37,10 +37,9 @@ export const task: Task = {
 	run: async ({args, log, invokeTask}): Promise<void> => {
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
-		log.info(green(versionIncrement), '← new version');
 
 		// Confirm with the user that we're doing what they expect.
-		await confirmWithUser(log);
+		await confirmWithUser(versionIncrement, log);
 
 		// Make sure we're on the main branch:
 		await spawnProcess('git', ['checkout', 'main']); // TODO allow configuring `'main'`
@@ -63,7 +62,8 @@ export const task: Task = {
 	},
 };
 
-const confirmWithUser = async (log: Logger): Promise<void> => {
+const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<void> => {
+	log.info(green(versionIncrement), '← new version');
 	await new Promise(async (resolve) => {
 		const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
 			getLatestChangelogHeading(),
