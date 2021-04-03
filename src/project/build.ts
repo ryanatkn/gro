@@ -135,7 +135,7 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 				getCssBundles: cssCache.getCssBundles,
 				sourcemap,
 			}),
-			resolvePlugin(),
+			resolvePlugin({preferBuiltins: true}),
 			commonjsPlugin(),
 			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourcemap}})]),
 		],
