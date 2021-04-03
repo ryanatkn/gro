@@ -1,5 +1,11 @@
 # Gro changelog
 
+## 0.10.1
+
+- add the `Filer` option `filter` with type `PathFilter`
+  and ignore directories like `.git` by default
+  ([#138](https://github.com/feltcoop/gro/pull/138))
+
 ## 0.10.0
 
 - **break**: change `src/gro.config.ts` to export a `config` identifer instead of `default`
