@@ -1,19 +1,28 @@
 import {spawn} from 'child_process';
 import type {SpawnOptions, ChildProcess} from 'child_process';
 
-import {red} from '../utils/terminal.js';
+import {gray, green, magenta, red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
 import {SystemLogger} from './log.js';
 import {printError} from './print.js';
 import {wait} from './async.js';
 
+const log = new SystemLogger([`${gray('[')}${magenta('process')}${gray(']')}`]);
+
+export const printChildProcess = (child: ChildProcess): string =>
+	`${gray('pid(')}${child.pid}${gray(')')} ← ${green(child.spawnargs.join(' '))}`;
+
 // TODO refactor
 export const globalSpawn: Set<ChildProcess> = new Set();
 export const registerGlobalSpawn = (child: ChildProcess): (() => void) => {
-	if (globalSpawn.has(child)) throw Error(`Already registered global spawn: ${child}`);
+	if (globalSpawn.has(child)) {
+		log.error(red('already registered global spawn:'), printChildProcess(child));
+	}
 	globalSpawn.add(child);
 	return () => {
-		if (!globalSpawn.has(child)) throw Error(`Spawn not registered: ${child}`);
+		if (!globalSpawn.has(child)) {
+			log.error(red('spawn not registered:'), printChildProcess(child));
+		}
 		globalSpawn.delete(child);
 	};
 };
@@ -23,8 +32,7 @@ export const attachProcessErrorHandlers = () => {
 };
 
 export const handleError = (err: Error, label = 'handleError'): void => {
-	const log = new SystemLogger([red(`[${label}]`)]);
-	log.error(printError(err));
+	new SystemLogger([red(`[${label}]`)]).error(printError(err));
 	for (const spawn of globalSpawn) {
 		spawn.kill(); // TODO mabye `waitForKill()`?
 	}
