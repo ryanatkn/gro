@@ -194,6 +194,22 @@ export const task: Task = {
 };
 ```
 
+### `dev` task invocation tree forwarding
+
+```ts
+// src/some/file.task.ts
+import type {Task} from '@feltcoop/gro';
+
+export const task: Task = {
+	dev: false,
+	run: async ({dev, invokeTask}) => {
+		// `dev` is `false` because it's defined two lines up in the task definition,
+		// unless an ancestor task called `invokeTask` with a `true` value, like this:
+		invokeTask('descendentTaskWithFlippedDevValue', undefined, !dev);
+	},
+};
+```
+
 ## future improvements
 
 - [ ] consider a pattern for declaring and validating CLI args
