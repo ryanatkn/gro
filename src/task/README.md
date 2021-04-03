@@ -194,7 +194,7 @@ export const task: Task = {
 };
 ```
 
-### `dev` task invocation tree forwarding
+### `dev` forwarding through the task invocation tree
 
 ```ts
 // src/some/file.task.ts
