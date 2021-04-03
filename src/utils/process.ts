@@ -12,7 +12,6 @@ const log = new SystemLogger([`${gray('[')}${magenta('process')}${gray(']')}`]);
 export const printChildProcess = (child: ChildProcess): string =>
 	`${gray('pid(')}${child.pid}${gray(')')} ← ${green(child.spawnargs.join(' '))}`;
 
-// TODO refactor
 export const globalSpawn: Set<ChildProcess> = new Set();
 export const registerGlobalSpawn = (child: ChildProcess): (() => void) => {
 	if (globalSpawn.has(child)) {
