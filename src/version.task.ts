@@ -81,6 +81,7 @@ export const task: Task = {
 	},
 };
 
+// TODO document this better
 // TODO move where?
 // TODO refactor? this code is quick & worky
 const changelogMatcher = /##(.+)/;
