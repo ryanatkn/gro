@@ -19,15 +19,23 @@ export const runTask = async (
 	task: TaskModuleMeta,
 	args: Args,
 	invokeTask: (taskName: string, args: Args, dev: boolean) => Promise<void>,
-	dev = task.mod.task.dev ?? process.env.NODE_ENV !== 'production',
+	dev?: boolean,
 ): Promise<RunTaskResult> => {
+	if (dev === undefined) {
+		if (task.mod.task.dev !== undefined) {
+			dev = task.mod.task.dev;
+			process.env.NODE_ENV = dev ? 'development' : 'production';
+		} else {
+			dev = process.env.NODE_ENV !== 'production';
+		}
+	}
 	let output;
 	try {
 		output = await task.mod.task.run({
 			dev,
 			args,
 			log: new SystemLogger([`${gray('[')}${magenta(task.name)}${gray(':log')}${gray(']')}`]),
-			invokeTask: (invokedTaskName, invokedArgs = args, invokedDev = dev) =>
+			invokeTask: (invokedTaskName, invokedArgs = args, invokedDev = dev!) =>
 				invokeTask(invokedTaskName, invokedArgs, invokedDev),
 		});
 	} catch (err) {
