@@ -85,8 +85,9 @@ export const groEsbuildPlugin = (opts: InitialOptions): Plugin => {
 				},
 			};
 			onstats(id, stats, handleStats, this, log);
-			// TODO onwarn
-			// output.warnings;
+			for (const warning of output.warnings) {
+				log.warn(warning);
+			}
 			return {code: output.code, map: esbuildOptions.sourcemap ? output.map : null};
 		},
 	};
