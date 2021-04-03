@@ -8,8 +8,6 @@ import {readFile} from './fs/nodeFs.js';
 import {loadPackageJson} from './project/packageJson.js';
 import type {Logger} from './utils/log.js';
 
-const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
-
 // version.task.ts
 // - usage: `gro version patch`
 // - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version
@@ -63,6 +61,7 @@ export const task: Task = {
 };
 
 const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<void> => {
+	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
 	log.info(green(versionIncrement), '← new version');
 	await new Promise(async (resolve) => {
 		const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
