@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.9.2
+
+- fix `src/build.task.ts` again
+  ([#133](https://github.com/feltcoop/gro/pull/133))
+
 ## 0.9.1
 
 - fix `src/build.task.ts` to correctly use `sourcemap` and `target` Gro config options
