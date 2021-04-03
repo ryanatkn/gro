@@ -61,9 +61,6 @@ const main = (): Promise<void> => {
 		// the global version can be used to build the project.
 		const filePath = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
-		// TODO This currently only tests the production build if the dev one doesn't exist.
-		// The correct thing is probably to see which one was created most recently,
-		// but I don't think that's easy until we start caching metadata.
 		if (existsSync('.gro/dev/node/cli/gro.js') && existsSync('.gro/dev/node/cli/invoke.js')) {
 			return import(join(filePath, '../../../.gro/dev/node/cli/invoke.js'));
 		}
