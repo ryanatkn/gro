@@ -15,8 +15,8 @@ import {
 // It also looks for a primary Node server entry point at `src/server/server.ts`.
 // Both are no-ops if not detected.
 
-const createConfig: GroConfigCreator = async () => {
-	const config: PartialGroConfig = {
+export const config: GroConfigCreator = async () => {
+	const partial: PartialGroConfig = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
 			hasGroServer() ? SERVER_BUILD_CONFIG : null,
@@ -24,7 +24,5 @@ const createConfig: GroConfigCreator = async () => {
 		],
 		logLevel: LogLevel.Trace,
 	};
-	return config;
+	return partial;
 };
-
-export default createConfig;

@@ -61,7 +61,7 @@ export interface PartialGroConfig {
 }
 
 export interface GroConfigModule {
-	readonly default: PartialGroConfig | GroConfigCreator;
+	readonly config: PartialGroConfig | GroConfigCreator;
 }
 
 export interface GroConfigCreator {
@@ -157,7 +157,7 @@ export const loadGroConfig = async (dev: boolean): Promise<GroConfig> => {
 	if (!validated.ok) {
 		throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
 	}
-	cachedConfig = await toConfig(configModule.default, options, modulePath);
+	cachedConfig = await toConfig(configModule.config, options, modulePath);
 	return cachedConfig;
 };
 
@@ -180,8 +180,8 @@ export const toConfig = async (
 };
 
 const validateConfigModule = (configModule: any): Result<{}, {reason: string}> => {
-	if (!(typeof configModule.default === 'function' || typeof configModule.default === 'object')) {
-		throw Error(`Invalid Gro config module. Expected a default export.`);
+	if (!(typeof configModule.config === 'function' || typeof configModule.config === 'object')) {
+		throw Error(`Invalid Gro config module. Expected a 'config' export.`);
 	}
 	return {ok: true};
 };
