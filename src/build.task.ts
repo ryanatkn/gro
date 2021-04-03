@@ -2,7 +2,6 @@ import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
-import {loadTsconfig, toEcmaScriptTarget} from './build/tsBuildHelpers.js';
 import {isThisProjectGro, toBuildOutPath} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
@@ -39,13 +38,7 @@ export const task: Task = {
 		timingToLoadConfig();
 		args.oncreateconfig && (args as any).oncreateconfig(config);
 
-		// TODO this is outdated - needs to be updated with the Gro config (see `dev.task.ts`)
-		const tsconfigPath = undefined; // TODO parameterized options?
-		const basePath = undefined; // TODO parameterized options?
-		const tsconfig = loadTsconfig(log, tsconfigPath, basePath);
-		const target = toEcmaScriptTarget(tsconfig.compilerOptions?.target);
-		const sourcemap = tsconfig.compilerOptions?.sourceMap ?? true;
-		const esbuildOptions = getDefaultEsbuildOptions(target, sourcemap);
+		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap);
 
 		// For each build config, infer which of the inputs
 		// are actual source files, and therefore belong in the default Rollup build.
@@ -59,7 +52,7 @@ export const task: Task = {
 					const outputDir = toBuildOutPath(dev, buildConfig.name);
 					const build = createBuild({
 						dev,
-						sourcemap,
+						sourcemap: config.sourcemap,
 						inputFiles,
 						outputDir,
 						watch,

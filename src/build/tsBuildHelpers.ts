@@ -17,32 +17,33 @@ export type EcmaScriptTarget =
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
-export const toEcmaScriptTarget = (target: ts.ScriptTarget | undefined): EcmaScriptTarget => {
-	switch (target) {
-		case 0: // ES3 = 0,
-			return 'es3';
-		case 1: // ES5 = 1,
-			return 'es5';
-		case 2: // ES2015 = 2,
-			return 'es2015';
-		case 3: // ES2016 = 3,
-			return 'es2016';
-		case 4: // ES2017 = 4,
-			return 'es2017';
-		case 5: // ES2018 = 5,
-			return 'es2018';
-		case 6: // ES2019 = 6,
-			return 'es2019';
-		case 7: // ES2020 = 7,
-			return 'es2020';
-		case 99: // ESNext = 99,
-			return 'esnext';
-		// JSON = 100,
-		// Latest = 99
-		default:
-			return DEFAULT_ECMA_SCRIPT_TARGET;
-	}
-};
+// TODO remove eventually. might want to default the Gro config target to the
+// export const toEcmaScriptTarget = (target: ts.ScriptTarget | undefined): EcmaScriptTarget => {
+// 	switch (target) {
+// 		case 0: // ES3 = 0,
+// 			return 'es3';
+// 		case 1: // ES5 = 1,
+// 			return 'es5';
+// 		case 2: // ES2015 = 2,
+// 			return 'es2015';
+// 		case 3: // ES2016 = 3,
+// 			return 'es2016';
+// 		case 4: // ES2017 = 4,
+// 			return 'es2017';
+// 		case 5: // ES2018 = 5,
+// 			return 'es2018';
+// 		case 6: // ES2019 = 6,
+// 			return 'es2019';
+// 		case 7: // ES2020 = 7,
+// 			return 'es2020';
+// 		case 99: // ESNext = 99,
+// 			return 'esnext';
+// 		// JSON = 100,
+// 		// Latest = 99
+// 		default:
+// 			return DEFAULT_ECMA_SCRIPT_TARGET;
+// 	}
+// };
 
 // confusingly, TypeScript doesn't seem to be a good type for this
 export interface TsConfig {
