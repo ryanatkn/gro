@@ -8,7 +8,7 @@ import {LogLevel} from './utils/log.js';
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
-const createConfig: GroConfigCreator = async () => {
+export const config: GroConfigCreator = async () => {
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
 	const BROWSER_BUILD_CONFIG_NAME = 'browser';
 	const config: PartialGroConfig = {
@@ -45,5 +45,3 @@ const createConfig: GroConfigCreator = async () => {
 	};
 	return config;
 };
-
-export default createConfig;
