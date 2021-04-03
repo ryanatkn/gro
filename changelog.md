@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.11.0
+
+- **break**: update dependencies
+  ([#139](https://github.com/feltcoop/gro/pull/139))
+
 ## 0.10.1
 
 - add the `Filer` option `filter` with type `PathFilter`
