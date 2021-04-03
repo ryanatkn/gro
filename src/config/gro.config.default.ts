@@ -1,6 +1,5 @@
 import type {GroConfigCreator, PartialGroConfig} from './config.js';
 import {LogLevel} from '../utils/log.js';
-import {basePathToSourceId, toBuildExtension} from '../paths.js';
 import {
 	hasDeprecatedGroFrontend,
 	hasGroServer,
@@ -15,10 +14,6 @@ import {
 // if it sees both a `src/index.html` and `src/index.ts`.
 // It also looks for a primary Node server entry point at `src/server/server.ts`.
 // Both are no-ops if not detected.
-
-export const SERVER_SOURCE_BASE_PATH = 'server/server.ts';
-export const SERVER_BUILD_BASE_PATH = toBuildExtension(SERVER_SOURCE_BASE_PATH); // 'server/server.js'
-export const SERVER_SOURCE_ID = basePathToSourceId(SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
 
 const createConfig: GroConfigCreator = async () => {
 	const config: PartialGroConfig = {
