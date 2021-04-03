@@ -2,7 +2,7 @@
 
 ## 0.9.4
 
-- add the optional `dev` arg to `invokeTask` and `runTask`
+- forward the optional `dev` arg through the task invocation tree via `invokeTask` and `runTask`
   ([#135](https://github.com/feltcoop/gro/pull/135))
 
 ## 0.9.3
