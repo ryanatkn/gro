@@ -2,7 +2,7 @@
 
 ## 0.9.4
 
-- add the `dev` property to `invokeTask` and `runTask`
+- add the optional `dev` arg to `invokeTask` and `runTask`
   ([#135](https://github.com/feltcoop/gro/pull/135))
 
 ## 0.9.3
