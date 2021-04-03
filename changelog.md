@@ -1,5 +1,12 @@
 # Gro changelog
 
+## 0.9.1
+
+- fix `src/build.task.ts` to correctly use `sourcemap` and `target` Gro config options
+  ([#132](https://github.com/feltcoop/gro/pull/132))
+- turn sourcemaps off by default in production
+  ([#132](https://github.com/feltcoop/gro/pull/132))
+
 ## 0.9.0
 
 - **break**: separate the default server and primary Node builds

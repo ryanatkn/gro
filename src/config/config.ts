@@ -199,7 +199,7 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 	const primaryBrowserBuildConfig =
 		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
 	return {
-		sourcemap: true,
+		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		logLevel: LogLevel.Trace,
