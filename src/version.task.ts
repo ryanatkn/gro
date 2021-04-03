@@ -38,6 +38,7 @@ export const task: Task = {
 		validateVersionIncrement(versionIncrement);
 		log.info(green(versionIncrement), '← new version');
 
+		// Confirm with the user that we're doing what they expect.
 		await new Promise(async (resolve) => {
 			const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
 				getLatestChangelogHeading(),
