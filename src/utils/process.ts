@@ -53,10 +53,12 @@ export const despawn = (child: ChildProcess): Promise<SpawnResult> => {
 };
 
 export const attachProcessErrorHandlers = () => {
-	process.on('uncaughtException', handleError).on('unhandledRejection', handleUnhandledRejection);
+	process
+		.on('uncaughtException', handleFatalError)
+		.on('unhandledRejection', handleUnhandledRejection);
 };
 
-export const handleError = async (err: Error, label = 'handleError'): Promise<void> => {
+const handleFatalError = async (err: Error, label = 'handleFatalError'): Promise<void> => {
 	new SystemLogger([red(`[${label}]`)]).error(printError(err));
 	await Promise.all(Array.from(globalSpawn).map((child) => despawn(child)));
 	process.exit(1);
@@ -64,11 +66,11 @@ export const handleError = async (err: Error, label = 'handleError'): Promise<vo
 
 const handleUnhandledRejection = (err: Error | any): Promise<void> => {
 	if (err instanceof TaskError) {
-		return handleError(err, 'TaskError');
+		return handleFatalError(err, 'TaskError');
 	} else if (err instanceof Error) {
-		return handleError(err, 'unhandledRejection');
+		return handleFatalError(err, 'unhandledRejection');
 	} else {
-		return handleError(new Error(err), 'unhandledRejection');
+		return handleFatalError(new Error(err), 'unhandledRejection');
 	}
 };
 
