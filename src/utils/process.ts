@@ -28,6 +28,7 @@ export const printChildProcess = (child: ChildProcess): string =>
 // We register spawned processes gloabally so we can gracefully exit child processes.
 // Otherwise, errors can cause zombie processes, sometimes blocking ports even!
 export const globalSpawn: Set<ChildProcess> = new Set();
+
 export const registerGlobalSpawn = (child: ChildProcess): (() => void) => {
 	if (globalSpawn.has(child)) {
 		log.error(red('already registered global spawn:'), printChildProcess(child));
