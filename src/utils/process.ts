@@ -1,17 +1,24 @@
-import {spawn} from 'child_process';
+import {spawn as spawnChildProcess} from 'child_process';
 import type {SpawnOptions, ChildProcess} from 'child_process';
 
 import {gray, green, magenta, red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
 import {SystemLogger} from './log.js';
-import {printError} from './print.js';
+import {printError, printKeyValue} from './print.js';
 import {wait} from './async.js';
+import type {Result} from './types.js';
 
 const log = new SystemLogger([`${gray('[')}${magenta('process')}${gray(']')}`]);
+
+// TODO are `code` and `signal` more related than that?
+// e.g. should this be a union type where one is always `null`?
+export type SpawnResult = Result<{}, {code: number | null; signal: NodeJS.Signals | null}>;
 
 export const printChildProcess = (child: ChildProcess): string =>
 	`${gray('pid(')}${child.pid}${gray(')')} ← ${green(child.spawnargs.join(' '))}`;
 
+// We register spawned processes gloabally so we can gracefully exit child processes.
+// Otherwise, errors can cause zombie processes, sometimes blocking ports even!
 export const globalSpawn: Set<ChildProcess> = new Set();
 export const registerGlobalSpawn = (child: ChildProcess): (() => void) => {
 	if (globalSpawn.has(child)) {
@@ -26,44 +33,68 @@ export const registerGlobalSpawn = (child: ChildProcess): (() => void) => {
 	};
 };
 
+// let's be nice
+export const despawn = (child: ChildProcess): Promise<SpawnResult> => {
+	return new Promise((resolve) => {
+		log.trace('despawning', printChildProcess(child));
+		child.once('close', (code, signal) => {
+			resolve(code ? {ok: false, code, signal} : {ok: true});
+		});
+		child.kill();
+	});
+};
+
 export const attachProcessErrorHandlers = () => {
 	process.on('uncaughtException', handleError).on('unhandledRejection', handleUnhandledRejection);
 };
 
-export const handleError = (err: Error, label = 'handleError'): void => {
+export const handleError = async (err: Error, label = 'handleError'): Promise<void> => {
 	new SystemLogger([red(`[${label}]`)]).error(printError(err));
-	for (const spawn of globalSpawn) {
-		spawn.kill(); // TODO mabye `waitForKill()`?
-	}
+	await Promise.all(Array.from(globalSpawn).map((child) => despawn(child)));
 	process.exit(1);
 };
 
-const handleUnhandledRejection = (err: Error | any): void => {
+const handleUnhandledRejection = (err: Error | any): Promise<void> => {
 	if (err instanceof TaskError) {
-		handleError(err, 'TaskError');
+		return handleError(err, 'TaskError');
 	} else if (err instanceof Error) {
-		handleError(err, 'unhandledRejection');
+		return handleError(err, 'unhandledRejection');
 	} else {
-		handleError(new Error(err), 'unhandledRejection');
+		return handleError(new Error(err), 'unhandledRejection');
 	}
+};
+
+// Wraps the normal Node `child_process.spawn` with graceful child shutdown behavior.
+// Also returns a convenient `closed` promise.
+// If you only need `closed`, prefer the shorthand function `spawnProcess`.
+export const spawn = (
+	command: string,
+	args: readonly string[] = [],
+	options?: SpawnOptions,
+): {child: ChildProcess; closed: Promise<SpawnResult>} => {
+	let resolve: (v: SpawnResult) => void;
+	const closed = new Promise<SpawnResult>((r) => (resolve = r));
+	const child = spawnChildProcess(command, args, {stdio: 'inherit', ...options});
+	const unregister = registerGlobalSpawn(child);
+	child.once('close', (code, signal) => {
+		unregister();
+		resolve(code || signal ? {ok: false, code, signal} : {ok: true});
+	});
+	return {closed, child};
 };
 
 // This is just a convenient promise wrapper around `child_process.spawn`
 // that's intended for commands that have an end, not long running-processes.
-// Any more advanced usage should use `spawn` directly.
-export const spawnProcess = (
-	command: string,
-	args: readonly string[] = [],
-	options?: SpawnOptions,
-): Promise<{ok: true} | {ok: false; code: number}> =>
-	new Promise((resolve) => {
-		const child = spawn(command, args, {stdio: 'inherit', ...options});
-		const unregister = registerGlobalSpawn(child);
-		child.on('close', (code) => {
-			unregister();
-			resolve(code ? {ok: false, code} : {ok: true});
-		});
-	});
+// Any more advanced usage should use `spawn` directly to have access to the `child`.
+export const spawnProcess = (...args: Parameters<typeof spawn>): Promise<SpawnResult> =>
+	spawn(...args).closed;
+
+export const printSpawnResult = (result: SpawnResult): string => {
+	if (result.ok) return 'ok';
+	let text = result.code === null ? '' : printKeyValue('code', result.code);
+	if (result.signal !== null) text += (text ? ' ' : '') + printKeyValue('signal', result.signal);
+	return text;
+};
 
 // TODO might want to expand this API for some use cases - assumes always running
 export interface RestartableProcess {
@@ -96,9 +127,9 @@ export const createRestartableProcess = (
 			child = null;
 			await restarting;
 		}
-		child = spawn(command, args, {stdio: 'inherit', ...options});
+		child = spawnChildProcess(command, args, {stdio: 'inherit', ...options});
 		const unregister = registerGlobalSpawn(child);
-		child.on('close', () => {
+		child.once('close', () => {
 			unregister();
 			restarting = null;
 			if (restarted) restarted();
