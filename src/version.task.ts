@@ -1,7 +1,13 @@
-import {isThisProjectGro} from './paths.js';
+import {createInterface as createReadlineInterface} from 'readline';
+
 import type {Task} from './task/task.js';
+import {isThisProjectGro} from './paths.js';
 import {spawnProcess} from './utils/process.js';
-import {green} from './utils/terminal.js';
+import {green, bgBlack, rainbow} from './utils/terminal.js';
+import {readFile} from './fs/nodeFs.js';
+import {loadPackageJson} from './project/packageJson.js';
+
+const rl = createReadlineInterface({input: process.stdin, output: process.stdout});
 
 // version.task.ts
 // - usage: `gro version patch`
@@ -32,6 +38,28 @@ export const task: Task = {
 		validateVersionIncrement(versionIncrement);
 		log.info('new version:', green(versionIncrement));
 
+		await new Promise(async (resolve) => {
+			const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
+				getLatestChangelogHeading(),
+				getCurrentPackageVersion(),
+			]);
+			log.info('latest changelog version:', green(latestChangelogVersion));
+			log.info('current package version:', green(currentPackageVersion));
+			if (latestChangelogVersion === currentPackageVersion) {
+				throw Error('Changelog version matches package version. Is the changelog updated?');
+			}
+			rl.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
+				const lowercasedAnswer = answer.toLowerCase();
+				if (!(lowercasedAnswer === 'y' || lowercasedAnswer === 'yes')) {
+					log.info(green('exiting task with no changes'));
+					process.exit();
+				}
+				log.info(rainbow('proceeding'));
+				rl.close();
+				resolve(null);
+			});
+		});
+
 		// Make sure we're on the main branch:
 		await spawnProcess('git', ['checkout', 'main']); // TODO allow configuring `'main'`
 
@@ -51,4 +79,26 @@ export const task: Task = {
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
 	},
+};
+
+// TODO move where?
+// TODO refactor? this code is quick & worky
+const changelogMatcher = /##(.+)/;
+const getLatestChangelogHeading = async (): Promise<string> => {
+	const changelog = await readFile('changelog.md', 'utf8');
+	const matches = changelog.match(changelogMatcher);
+	if (matches) {
+		const version = matches[1].trim();
+		if (version) return version;
+	}
+	throw Error('Expected changelog subheading with version: "## 0.0.1"');
+};
+
+// TODO move where?
+const getCurrentPackageVersion = async (): Promise<string> => {
+	const pkg = await loadPackageJson();
+	if (!pkg.version || typeof pkg.version !== 'string') {
+		throw Error(`Expected package.json to have a valid version: ${pkg.version}`);
+	}
+	return pkg.version;
 };
