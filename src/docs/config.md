@@ -26,7 +26,7 @@ See [`src/config/config.ts`](/src/config/config.ts) for the config types and imp
 Here's a config for a simple Node project:
 
 ```ts
-import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+import type {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
 
 export const config: GroConfigCreator = async () => {
 	return {
@@ -38,7 +38,7 @@ export const config: GroConfigCreator = async () => {
 Here's what a frontend-only project with both desktop and mobile builds may look like:
 
 ```ts
-import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+import type {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
 import {createFilter} from '@rollup/pluginutils';
 
 export const config: GroConfigCreator = async () => {
