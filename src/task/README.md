@@ -101,7 +101,8 @@ export const task: Task = {
 // `@feltcoop/gro`
 export interface Task {
 	run: (ctx: TaskContext) => Promise<unknown>;
-	description?: string;
+	description?: string; // optional text describing the task - TODO should this be required?
+	dev?: boolean; // optionally set the `dev` value in the inherited context
 }
 ```
 
