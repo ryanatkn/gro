@@ -10,9 +10,17 @@ import type {Result} from './types.js';
 
 const log = new SystemLogger([`${gray('[')}${magenta('process')}${gray(']')}`]);
 
+export interface SpawnedProcess {
+	child: ChildProcess;
+	closed: Promise<SpawnResult>;
+}
+
 // TODO are `code` and `signal` more related than that?
 // e.g. should this be a union type where one is always `null`?
-export type SpawnResult = Result<{}, {code: number | null; signal: NodeJS.Signals | null}>;
+export type SpawnResult = Result<
+	{signal: NodeJS.Signals | null},
+	{signal: NodeJS.Signals | null; code: number | null}
+>;
 
 export const printChildProcess = (child: ChildProcess): string =>
 	`${gray('pid(')}${child.pid}${gray(')')} ← ${green(child.spawnargs.join(' '))}`;
@@ -33,15 +41,15 @@ export const registerGlobalSpawn = (child: ChildProcess): (() => void) => {
 	};
 };
 
-// let's be nice
 export const despawn = (child: ChildProcess): Promise<SpawnResult> => {
-	return new Promise((resolve) => {
-		log.trace('despawning', printChildProcess(child));
-		child.once('close', (code, signal) => {
-			resolve(code ? {ok: false, code, signal} : {ok: true});
-		});
-		child.kill();
+	let resolve: (v: SpawnResult) => void;
+	const closed = new Promise<SpawnResult>((r) => (resolve = r));
+	log.trace('despawning', printChildProcess(child));
+	child.once('close', (code, signal) => {
+		resolve(code ? {ok: false, code, signal} : {ok: true, signal});
 	});
+	child.kill();
+	return closed;
 };
 
 export const attachProcessErrorHandlers = () => {
@@ -64,11 +72,6 @@ const handleUnhandledRejection = (err: Error | any): Promise<void> => {
 	}
 };
 
-export interface SpawnedProcess {
-	child: ChildProcess;
-	closed: Promise<SpawnResult>;
-}
-
 // Wraps the normal Node `child_process.spawn` with graceful child shutdown behavior.
 // Also returns a convenient `closed` promise.
 // If you only need `closed`, prefer the shorthand function `spawnProcess`.
@@ -83,7 +86,7 @@ export const spawn = (
 	const unregister = registerGlobalSpawn(child);
 	child.once('close', (code, signal) => {
 		unregister();
-		resolve(code || signal ? {ok: false, code, signal} : {ok: true});
+		resolve(code ? {ok: false, code, signal} : {ok: true, signal});
 	});
 	return {closed, child};
 };
