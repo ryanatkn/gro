@@ -2,6 +2,8 @@
 
 ## 0.9.5
 
+- set `process.env.NODE_ENV` when running tasks with explicit `dev` values
+  ([#136](https://github.com/feltcoop/gro/pull/136))
 - remove `import.meta.env.DEV` support for now despite SvelteKit alignment
   ([#136](https://github.com/feltcoop/gro/pull/136))
 
