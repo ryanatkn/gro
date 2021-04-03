@@ -82,7 +82,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				const {loadGroConfig} = await import('../config/config.js');
-				const config = await loadGroConfig();
+				const config = await loadGroConfig(process.env.NODE_ENV !== 'production'); // TODO is this the right `dev` value?
 				configureLogLevel(config.logLevel);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');

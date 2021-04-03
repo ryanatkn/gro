@@ -19,7 +19,7 @@ export const task: Task = {
 
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.
-		const config = await loadGroConfig();
+		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		const buildConfigsForDist = config.builds.filter((b) => b.dist);
 		await Promise.all(

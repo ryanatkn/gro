@@ -4,7 +4,7 @@ import * as t from 'uvu/assert';
 import {loadGroConfig} from './config.js';
 
 test('loadGroConfig', async () => {
-	const config = await loadGroConfig();
+	const config = await loadGroConfig(true);
 	t.ok(config);
 });
 

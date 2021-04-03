@@ -14,7 +14,7 @@ import {hasGroServerConfig, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuil
 
 export const task: Task = {
 	description: 'start dev server',
-	run: async ({log, args}) => {
+	run: async ({dev, log, args}) => {
 		// TODO handle these properly
 		// args.oncreateconfig
 		// args.oncreatefiler
@@ -25,7 +25,7 @@ export const task: Task = {
 		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig();
+		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 		args.oncreateconfig && (args as any).oncreateconfig(config);

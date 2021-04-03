@@ -13,7 +13,7 @@ export const task: Task = {
 		const timings = new Timings();
 
 		const timeToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig();
+		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timeToLoadConfig();
 

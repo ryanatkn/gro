@@ -110,10 +110,9 @@ Caveats
 
 */
 
-export const loadGroConfig = async (): Promise<GroConfig> => {
+export const loadGroConfig = async (dev: boolean): Promise<GroConfig> => {
 	if (cachedConfig !== undefined) return cachedConfig;
 
-	const dev = process.env.NODE_ENV !== 'production';
 	const log = new SystemLogger([magenta('[config]')]);
 	const options: GroConfigCreatorOptions = {log, dev};
 

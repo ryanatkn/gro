@@ -31,7 +31,7 @@ export const task: Task = {
 		const mapWatchOptions = args.mapWatchOptions as any;
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig();
+		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 		args.oncreateconfig && (args as any).oncreateconfig(config);
