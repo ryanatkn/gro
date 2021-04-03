@@ -28,13 +28,11 @@ Here's a config for a simple Node project:
 ```ts
 import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
 
-const createConfig: GroConfigCreator = async () => {
+export const config: GroConfigCreator = async () => {
 	return {
 		builds: [{name: 'node', platform: 'node', input: 'index.ts'}],
 	};
 };
-
-export default createConfig;
 ```
 
 Here's what a frontend-only project with both desktop and mobile builds may look like:
@@ -43,7 +41,7 @@ Here's what a frontend-only project with both desktop and mobile builds may look
 import {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
 import {createFilter} from '@rollup/pluginutils';
 
-const createConfig: GroConfigCreator = async () => {
+export const config: GroConfigCreator = async () => {
 	return {
 		builds: [
 			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', dist: true},
@@ -52,8 +50,6 @@ const createConfig: GroConfigCreator = async () => {
 		],
 	};
 };
-
-export default createConfig;
 ```
 
 Here's [Gro's own internal config](/src/gro.config.ts) and
