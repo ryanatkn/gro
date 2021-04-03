@@ -6,6 +6,7 @@ import {spawnProcess} from './utils/process.js';
 import {green, bgBlack, rainbow} from './utils/terminal.js';
 import {readFile} from './fs/nodeFs.js';
 import {loadPackageJson} from './project/packageJson.js';
+import type {Logger} from './utils/log.js';
 
 const rl = createReadlineInterface({input: process.stdin, output: process.stdout});
 
@@ -39,27 +40,7 @@ export const task: Task = {
 		log.info(green(versionIncrement), '← new version');
 
 		// Confirm with the user that we're doing what they expect.
-		await new Promise(async (resolve) => {
-			const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
-				getLatestChangelogHeading(),
-				getCurrentPackageVersion(),
-			]);
-			log.info(green(latestChangelogVersion), '← latest changelog version');
-			log.info(green(currentPackageVersion), '← current package version');
-			if (latestChangelogVersion === currentPackageVersion) {
-				throw Error('Changelog version matches package version. Is the changelog updated?');
-			}
-			rl.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
-				const lowercasedAnswer = answer.toLowerCase();
-				if (!(lowercasedAnswer === 'y' || lowercasedAnswer === 'yes')) {
-					log.info(green('exiting task with no changes'));
-					process.exit();
-				}
-				log.info(rainbow('proceeding'));
-				rl.close();
-				resolve(null);
-			});
-		});
+		await confirmWithUser(log);
 
 		// Make sure we're on the main branch:
 		await spawnProcess('git', ['checkout', 'main']); // TODO allow configuring `'main'`
@@ -80,6 +61,30 @@ export const task: Task = {
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
 	},
+};
+
+const confirmWithUser = async (log: Logger): Promise<void> => {
+	await new Promise(async (resolve) => {
+		const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
+			getLatestChangelogHeading(),
+			getCurrentPackageVersion(),
+		]);
+		log.info(green(latestChangelogVersion), '← latest changelog version');
+		log.info(green(currentPackageVersion), '← current package version');
+		if (latestChangelogVersion === currentPackageVersion) {
+			throw Error('Changelog version matches package version. Is the changelog updated?');
+		}
+		rl.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
+			const lowercasedAnswer = answer.toLowerCase();
+			if (!(lowercasedAnswer === 'y' || lowercasedAnswer === 'yes')) {
+				log.info(green('exiting task with no changes'));
+				process.exit();
+			}
+			log.info(rainbow('proceeding'));
+			rl.close();
+			resolve(null);
+		});
+	});
 };
 
 // TODO document this better

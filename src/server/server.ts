@@ -9,7 +9,8 @@ import {createSecureServer as createHttp2Server, Http2Server, ServerHttp2Stream}
 import type {ListenOptions} from 'net';
 
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
-import {Logger, SystemLogger} from '../utils/log.js';
+import {SystemLogger} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Filer} from '../build/Filer.js';
