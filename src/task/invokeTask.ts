@@ -43,7 +43,7 @@ The comments describe each condition.
 
 */
 
-export const invokeTask = async (taskName: string, args: Args): Promise<void> => {
+export const invokeTask = async (taskName: string, args: Args, dev?: boolean): Promise<void> => {
 	const log = new SystemLogger([`${gray('[')}${magenta(taskName || 'gro')}${gray(']')}`]);
 
 	// Check if the caller just wants to see the version.
@@ -82,7 +82,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				const {loadGroConfig} = await import('../config/config.js');
-				const config = await loadGroConfig(process.env.NODE_ENV !== 'production'); // TODO is this the right `dev` value?
+				const config = await loadGroConfig(dev ?? process.env.NODE_ENV !== 'production');
 				configureLogLevel(config.logLevel);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
@@ -107,7 +107,7 @@ export const invokeTask = async (taskName: string, args: Args): Promise<void> =>
 					}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const result = await runTask(task, args, invokeTask);
+				const result = await runTask(task, args, invokeTask, dev);
 				timingToRunTask();
 				if (result.ok) {
 					log.info(`✓ ${cyan(task.name)}`);

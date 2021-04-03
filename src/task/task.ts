@@ -11,7 +11,7 @@ export interface TaskContext {
 	dev: boolean;
 	log: Logger;
 	args: Args;
-	invokeTask: (taskName: string, args?: Args) => Promise<void>;
+	invokeTask: (taskName: string, args?: Args, dev?: boolean) => Promise<void>;
 }
 
 export const TASK_FILE_PATTERN = /\.task\.ts$/;

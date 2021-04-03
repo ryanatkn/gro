@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.9.4
+
+- add the `dev` property to `invokeTask` and `runTask`
+  ([#135](https://github.com/feltcoop/gro/pull/135))
+
 ## 0.9.3
 
 - add the optional `dev` property to `Task` definitions to fix the inherited context
