@@ -8,12 +8,10 @@ import {loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {BuildConfig} from './config/buildConfig.js';
 
-process.env.NODE_ENV = 'production';
-const dev = false; // forcing prod builds for now
-
 export const task: Task = {
 	description: 'build the project',
-	run: async ({log, args, invokeTask}): Promise<void> => {
+	dev: false,
+	run: async ({dev, log, args, invokeTask}): Promise<void> => {
 		// Normal user projects will ignore this code path right here:
 		// in other words, `isThisProjectGro` will always be `false` for your code.
 		// TODO task pollution, this is bad for users who want to copy/paste this task.
@@ -33,7 +31,7 @@ export const task: Task = {
 		const mapWatchOptions = args.mapWatchOptions as any;
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig();
+		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 		args.oncreateconfig && (args as any).oncreateconfig(config);

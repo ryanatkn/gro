@@ -4,9 +4,11 @@ import type {Args} from '../cli/types.js';
 export interface Task {
 	run: (ctx: TaskContext) => Promise<unknown>;
 	description?: string;
+	dev?: boolean;
 }
 
 export interface TaskContext {
+	dev: boolean;
 	log: Logger;
 	args: Args;
 	invokeTask: (taskName: string, args?: Args) => Promise<void>;

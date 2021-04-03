@@ -23,6 +23,7 @@ export const runTask = async (
 	let output;
 	try {
 		output = await task.mod.task.run({
+			dev: task.mod.task.dev ?? process.env.NODE_ENV !== 'production',
 			args,
 			log: new SystemLogger([`${gray('[')}${magenta(task.name)}${gray(':log')}${gray(']')}`]),
 			invokeTask: (invokedTaskName, invokedArgs = args) => invokeTask(invokedTaskName, invokedArgs),

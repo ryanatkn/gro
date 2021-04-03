@@ -13,14 +13,13 @@ export const isDistFile = (path: string): boolean =>
 
 export const task: Task = {
 	description: 'create the distribution',
-	run: async ({log}) => {
-		const dev = process.env.NODE_ENV !== 'production';
-
+	dev: false,
+	run: async ({dev, log}) => {
 		await clean({dist: true}, log);
 
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.
-		const config = await loadGroConfig();
+		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		const buildConfigsForDist = config.builds.filter((b) => b.dist);
 		await Promise.all(
