@@ -47,6 +47,7 @@ import {queueExternalsBuild} from './externalsBuilder.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
 import type {OmitStrict, Assignable} from '../index.js';
+import {PathFilter} from '../fs/pathData.js';
 
 /*
 
@@ -85,6 +86,7 @@ export interface Options {
 	target: EcmaScriptTarget;
 	watch: boolean;
 	watcherDebounce: number | undefined;
+	filter: PathFilter | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -148,6 +150,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
 		watcherDebounce: undefined,
+		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger([magenta('[filer]')]),
@@ -197,6 +200,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			target,
 			watch,
 			watcherDebounce,
+			filter,
 			log,
 		} = initOptions(opts);
 		this.dev = dev;
@@ -215,6 +219,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			this.onDirChange,
 			watch,
 			watcherDebounce,
+			filter,
 		);
 		this.servedDirs = servedDirs;
 		log.trace(cyan('buildConfigs\n'), buildConfigs);
@@ -1096,10 +1101,11 @@ const createFilerDirs = (
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
+	filter: PathFilter | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {
-		dirs.push(createFilerDir(sourceDir, true, onChange, watch, watcherDebounce));
+		dirs.push(createFilerDir(sourceDir, true, onChange, filter, watch, watcherDebounce));
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a source or externals directory,
@@ -1113,7 +1119,7 @@ const createFilerDirs = (
 			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
 			!servedDir.dir.startsWith(buildDir)
 		) {
-			dirs.push(createFilerDir(servedDir.dir, false, onChange, watch, watcherDebounce));
+			dirs.push(createFilerDir(servedDir.dir, false, onChange, filter, watch, watcherDebounce));
 		}
 	}
 	return dirs;

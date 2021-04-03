@@ -36,16 +36,16 @@ const defaultFilter: PathFilter = (file) => !ignoredPaths.has(file.path);
 export interface Options {
 	dir: string;
 	onChange: WatcherChangeCallback;
+	filter: PathFilter | null;
 	watch: boolean;
 	debounce: number;
-	filter: PathFilter | null;
 }
 export type RequiredOptions = 'dir' | 'onChange';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
+	filter: defaultFilter,
 	watch: true,
 	debounce: DEBOUNCE_DEFAULT,
-	filter: defaultFilter,
 	...omitUndefined(opts),
 });
 

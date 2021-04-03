@@ -33,16 +33,16 @@ export const createFilerDir = (
 	dir: string,
 	buildable: boolean,
 	onChange: FilerDirChangeCallback,
+	filter: PathFilter | undefined,
 	watch: boolean,
 	watcherDebounce: number = DEBOUNCE_DEFAULT,
-	filter?: PathFilter,
 ): FilerDir => {
 	const watcher = watchNodeFs({
 		dir,
 		onChange: (change) => onChange(change, filerDir),
+		filter,
 		watch,
 		debounce: watcherDebounce,
-		filter,
 	});
 	const close = () => {
 		watcher.close();
