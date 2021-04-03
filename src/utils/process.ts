@@ -64,6 +64,11 @@ const handleUnhandledRejection = (err: Error | any): Promise<void> => {
 	}
 };
 
+export interface SpawnedProcess {
+	child: ChildProcess;
+	closed: Promise<SpawnResult>;
+}
+
 // Wraps the normal Node `child_process.spawn` with graceful child shutdown behavior.
 // Also returns a convenient `closed` promise.
 // If you only need `closed`, prefer the shorthand function `spawnProcess`.
@@ -71,7 +76,7 @@ export const spawn = (
 	command: string,
 	args: readonly string[] = [],
 	options?: SpawnOptions,
-): {child: ChildProcess; closed: Promise<SpawnResult>} => {
+): SpawnedProcess => {
 	let resolve: (v: SpawnResult) => void;
 	const closed = new Promise<SpawnResult>((r) => (resolve = r));
 	const child = spawnChildProcess(command, args, {stdio: 'inherit', ...options});
