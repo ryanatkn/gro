@@ -67,9 +67,6 @@ const main = (): Promise<void> => {
 		if (existsSync('.gro/dev/node/cli/gro.js') && existsSync('.gro/dev/node/cli/invoke.js')) {
 			return import(join(filePath, '../../../.gro/dev/node/cli/invoke.js'));
 		}
-		if (existsSync('.gro/prod/node/cli/gro.js') && existsSync('.gro/prod/node/cli/invoke.js')) {
-			return import(join(filePath, '../../../.gro/prod/node/cli/invoke.js'));
-		}
 		// case 3
 		// Fall back to the version associated with the running CLI.
 		return import(join(filePath, '../invoke.js'));
