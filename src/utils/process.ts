@@ -7,6 +7,17 @@ import {SystemLogger} from './log.js';
 import {printError} from './print.js';
 import {wait} from './async.js';
 
+// TODO refactor
+export const globalSpawn: Set<ChildProcess> = new Set();
+export const registerGlobalSpawn = (child: ChildProcess): (() => void) => {
+	if (globalSpawn.has(child)) throw Error(`Already registered global spawn: ${child}`);
+	globalSpawn.add(child);
+	return () => {
+		if (!globalSpawn.has(child)) throw Error(`Spawn not registered: ${child}`);
+		globalSpawn.delete(child);
+	};
+};
+
 export const attachProcessErrorHandlers = () => {
 	process.on('uncaughtException', handleError).on('unhandledRejection', handleUnhandledRejection);
 };
@@ -14,6 +25,9 @@ export const attachProcessErrorHandlers = () => {
 export const handleError = (err: Error, label = 'handleError'): void => {
 	const log = new SystemLogger([red(`[${label}]`)]);
 	log.error(printError(err));
+	for (const spawn of globalSpawn) {
+		spawn.kill(); // TODO mabye `waitForKill()`?
+	}
 	process.exit(1);
 };
 
@@ -27,7 +41,8 @@ const handleUnhandledRejection = (err: Error | any): void => {
 	}
 };
 
-// This is just a convenient promise wrapper around `child_process.spawn`.
+// This is just a convenient promise wrapper around `child_process.spawn`
+// that's intended for commands that have an end, not long running-processes.
 // Any more advanced usage should use `spawn` directly.
 export const spawnProcess = (
 	command: string,
@@ -35,8 +50,10 @@ export const spawnProcess = (
 	options?: SpawnOptions,
 ): Promise<{ok: true} | {ok: false; code: number}> =>
 	new Promise((resolve) => {
-		const childProcess = spawn(command, args, {stdio: 'inherit', ...options});
-		childProcess.on('close', (code) => {
+		const child = spawn(command, args, {stdio: 'inherit', ...options});
+		const unregister = registerGlobalSpawn(child);
+		child.on('close', (code) => {
+			unregister();
 			resolve(code ? {ok: false, code} : {ok: true});
 		});
 	});
@@ -73,7 +90,9 @@ export const createRestartableProcess = (
 			await restarting;
 		}
 		child = spawn(command, args, {stdio: 'inherit', ...options});
+		const unregister = registerGlobalSpawn(child);
 		child.on('close', () => {
+			unregister();
 			restarting = null;
 			if (restarted) restarted();
 		});
