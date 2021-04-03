@@ -3,9 +3,9 @@
 ## 0.9.1
 
 - fix `src/build.task.ts` to correctly use `sourcemap` and `target` Gro config options
-  ([#131](https://github.com/feltcoop/gro/pull/131))
+  ([#132](https://github.com/feltcoop/gro/pull/132))
 - turn sourcemaps off by default in production
-  ([#131](https://github.com/feltcoop/gro/pull/131))
+  ([#132](https://github.com/feltcoop/gro/pull/132))
 
 ## 0.9.0
 
