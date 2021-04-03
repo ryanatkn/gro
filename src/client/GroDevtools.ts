@@ -7,6 +7,7 @@ export class GroDevtools {
 		this.head = document.getElementsByTagName('head')[0];
 	}
 
+	// TODO redesign this completely, this was just the first hack that came to mind
 	registerCss(path: string) {
 		if (this.styleElementsByPath.has(path)) {
 			// TODO should this do reference counting and remove unused CSS?

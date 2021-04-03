@@ -1,7 +1,14 @@
-import {isThisProjectGro} from './paths.js';
+import {createInterface as createReadlineInterface} from 'readline';
+
 import type {Task} from './task/task.js';
+import {isThisProjectGro} from './paths.js';
 import {spawnProcess} from './utils/process.js';
-import {green} from './utils/terminal.js';
+import {green, bgBlack, rainbow} from './utils/terminal.js';
+import {readFile} from './fs/nodeFs.js';
+import {loadPackageJson} from './project/packageJson.js';
+import type {Logger} from './utils/log.js';
+
+const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
 
 // version.task.ts
 // - usage: `gro version patch`
@@ -30,7 +37,9 @@ export const task: Task = {
 	run: async ({args, log, invokeTask}): Promise<void> => {
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
-		log.info('new version:', green(versionIncrement));
+
+		// Confirm with the user that we're doing what they expect.
+		await confirmWithUser(versionIncrement, log);
 
 		// Make sure we're on the main branch:
 		await spawnProcess('git', ['checkout', 'main']); // TODO allow configuring `'main'`
@@ -51,4 +60,52 @@ export const task: Task = {
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
 	},
+};
+
+const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<void> => {
+	log.info(green(versionIncrement), '← new version');
+	await new Promise(async (resolve) => {
+		const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
+			getLatestChangelogHeading(),
+			getCurrentPackageVersion(),
+		]);
+		log.info(green(latestChangelogVersion), '← latest changelog version');
+		log.info(green(currentPackageVersion), '← current package version');
+		if (latestChangelogVersion === currentPackageVersion) {
+			throw Error('Changelog version matches package version. Is the changelog updated?');
+		}
+		readline.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
+			const lowercasedAnswer = answer.toLowerCase();
+			if (!(lowercasedAnswer === 'y' || lowercasedAnswer === 'yes')) {
+				log.info(green('exiting task with no changes'));
+				process.exit();
+			}
+			log.info(rainbow('proceeding'));
+			readline.close();
+			resolve(null);
+		});
+	});
+};
+
+// TODO document this better
+// TODO move where?
+// TODO refactor? this code is quick & worky
+const changelogMatcher = /##(.+)/;
+const getLatestChangelogHeading = async (): Promise<string> => {
+	const changelog = await readFile('changelog.md', 'utf8');
+	const matches = changelog.match(changelogMatcher);
+	if (matches) {
+		const version = matches[1].trim();
+		if (version) return version;
+	}
+	throw Error('Expected changelog subheading with version: "## 0.0.1"');
+};
+
+// TODO move where?
+const getCurrentPackageVersion = async (): Promise<string> => {
+	const pkg = await loadPackageJson();
+	if (!pkg.version || typeof pkg.version !== 'string') {
+		throw Error(`Expected package.json to have a valid version: ${pkg.version}`);
+	}
+	return pkg.version;
 };
