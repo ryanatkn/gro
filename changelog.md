@@ -2,7 +2,8 @@
 
 ## 0.11.3
 
-- add `events` to task context, so tasks can communicate with each other using a normal `EventEmitter`
+- add `events` to task context,
+  so tasks can communicate with each other using a normal Node `EventEmitter`
   ([#143](https://github.com/feltcoop/gro/pull/143))
   - events aren't great for everything;
     this PR also documents a value mapping pattern convention for tasks in `src/task/README.md`
