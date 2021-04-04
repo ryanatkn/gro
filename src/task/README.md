@@ -204,19 +204,22 @@ Some Gro tasks use a value mapping pattern convention that we tentatively recomm
 // src/some/file.task.ts
 import type {Task} from '@feltcoop/gro';
 
-// For convenience in some cases, change this to `export interface TaskArgs extends Args {`
-export interface TaskArgs {
-	mapSomeString?: (thing: string) => string;
+import {TaskArgs as OtherTaskArgs} from './other.task.js';
+
+export interface TaskArgs extends OtherTaskArgs {
+	mapSomething: (thing: string) => string;
+	// this is provided by `OtherTaskArgs`:
+	// mapSomeNumber: (other: number) => number;
 }
 
 export const task: Task<TaskArgs> = {
 	run: async ({args}) => {
-		// `args` is of type `TaskArgs`
+		// `args` has type `TaskArgs`
 
-		// other tasks can assign args that this task consumes
-		const mapped = args.mapSomeString(value);
+		// other tasks can assign args that this task consumes:
+		const somethingcooler = args.mapSomething('somethingcool');
 
-		// and this task can provide args for others
+		// and this task can provide args for others:
 		args.mapSomeNumber = (n) => n * ((1 + Math.sqrt(5)) / 2);
 	},
 };
@@ -244,7 +247,7 @@ export interface TaskEvents extends OtherTaskEvents {
 
 export const task: Task<TaskArgs, TaskEvents> = {
 	run: async ({events}) => {
-		// `events` is of type `StrictEventEmitter<EventEmitter, TaskEvents>`
+		// `events` has type `StrictEventEmitter<EventEmitter, TaskEvents>`
 		// see: https://github.com/bterlson/strict-event-emitter-types/
 		events.emit('mytask.data', 2, 'params');
 
