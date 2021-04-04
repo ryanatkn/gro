@@ -46,12 +46,18 @@ export const task: Task<TaskArgs> = {
 
 		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 
-		// For each build config, infer which of the inputs
-		// are actual source files, and therefore belong in the default Rollup build.
+		// Not every build config is built for the final `dist/`!
+		// Only those that currently have `dist: true` are output.
+		// This allows a project's `src/gro.config.ts`
+		// to control the "last mile" each time `gro build` is run.
+		const buildConfigsToBuild = config.builds.filter((buildConfig) => buildConfig.dist);
+		// For each build config that has `dist: true`,
+		// infer which of the inputs are actual source files,
+		// and therefore belong in the default Rollup build.
 		// If more customization is needed, users should implement their own `src/build.task.ts`,
 		// which can be bootstrapped by copy/pasting this one. (and updating the imports)
 		await Promise.all(
-			config.builds.map(async (buildConfig) => {
+			buildConfigsToBuild.map(async (buildConfig) => {
 				const inputFiles = await resolveInputFiles(buildConfig);
 				log.info(`building "${buildConfig.name}"`, inputFiles);
 				if (inputFiles.length) {

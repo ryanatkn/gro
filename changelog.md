@@ -1,5 +1,11 @@
 # Gro changelog
 
+## 0.11.3
+
+- `gro build` now correctly builds only `BuildConfig`s that have `dist: true`,
+  allowing users to customize the `dist/` output in each `gro build`
+  ([#143](https://github.com/feltcoop/gro/pull/143))
+
 ## 0.11.2
 
 - add a generic parameter to `Task` to type its `TaskArgs`
