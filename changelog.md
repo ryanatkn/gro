@@ -146,7 +146,7 @@
 
 ## 0.6.4
 
-- add `args` listeners to `src/dev.task.ts`
+- add `args` hooks to `src/dev.task.ts`
   ([#112](https://github.com/feltcoop/gro/pull/112))
 
 ## 0.6.3
