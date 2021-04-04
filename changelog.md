@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.11.2
+
+- add a generic to `Task` to type its `TaskArgs`
+  ([#142](https://github.com/feltcoop/gro/pull/142))
+
 ## 0.11.1
 
 - track and clean up child processes in `src/utils/process.ts` helpers

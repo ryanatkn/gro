@@ -1,7 +1,7 @@
 import {cyan, magenta, red, gray} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import type {TaskModuleMeta} from './taskModule.js';
-import type {Args} from '../cli/types.js';
+import type {Args} from './task.js';
 import {TaskError} from './task.js';
 
 export type RunTaskResult =
@@ -19,7 +19,7 @@ export const runTask = async (
 	task: TaskModuleMeta,
 	args: Args,
 	invokeTask: (taskName: string, args: Args, dev: boolean) => Promise<void>,
-	dev?: boolean,
+	dev: boolean | undefined,
 ): Promise<RunTaskResult> => {
 	if (dev === undefined) {
 		if (task.mod.task.dev !== undefined) {

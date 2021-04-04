@@ -11,13 +11,18 @@ import {createStopwatch, Timings} from './utils/time.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './build/formatFile.js';
 
+export interface TaskArgs {
+	_: string[];
+	check?: boolean;
+}
+
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
-export const task: Task = {
+export const task: Task<TaskArgs> = {
 	description: 'run code generation scripts',
 	run: async ({log, args}): Promise<void> => {
 		const rawInputPaths = args._;
-		const check = !!args.check; // TODO args declaration and validation
+		const check = !!args.check;
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();

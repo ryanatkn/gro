@@ -1,14 +1,24 @@
 import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
+import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
 import {isThisProjectGro, toBuildOutPath} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
+import type {GroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {BuildConfig} from './config/buildConfig.js';
 
-export const task: Task = {
+export interface TaskArgs {
+	watch?: boolean;
+	mapInputOptions?: MapInputOptions;
+	mapOutputOptions?: MapOutputOptions;
+	mapWatchOptions?: MapWatchOptions;
+	onCreateConfig?: (config: GroConfig) => void;
+}
+
+export const task: Task<TaskArgs> = {
 	description: 'build the project',
 	dev: false,
 	run: async ({dev, log, args, invokeTask}): Promise<void> => {
@@ -25,16 +35,14 @@ export const task: Task = {
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
-		const watch: boolean = (args.watch as any) || false;
-		const mapInputOptions = args.mapInputOptions as any;
-		const mapOutputOptions = args.mapOutputOptions as any;
-		const mapWatchOptions = args.mapWatchOptions as any;
+		const watch = args.watch ?? false;
+		const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
-		args.oncreateconfig && (args as any).oncreateconfig(config);
+		if (args.onCreateConfig) args.onCreateConfig(config);
 
 		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 
