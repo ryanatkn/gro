@@ -18,7 +18,7 @@ export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
 	mapOutputOptions?: MapOutputOptions;
 	mapWatchOptions?: MapWatchOptions;
-	closeApiServer?: (spawned: SpawnedProcess) => Promise<void>;
+	closeApiServer?: (spawned: SpawnedProcess) => Promise<void>; // let other tasks hang onto the api server
 }
 
 export interface TaskEvents extends ServerTaskEvents {
