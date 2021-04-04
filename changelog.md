@@ -2,7 +2,7 @@
 
 ## 0.11.2
 
-- add a generic to `Task` to type its `TaskArgs`
+- add a generic parameter to `Task` to type its `TaskArgs`
   ([#142](https://github.com/feltcoop/gro/pull/142))
 
 ## 0.11.1
