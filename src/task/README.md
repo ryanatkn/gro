@@ -217,7 +217,7 @@ export const task: Task = {
 
 The `Task` interface is generic. Its first param is the type of the task context `args`.
 
-Here's the args and hooks pattern Gro uses internally, that we tentatively recommend:
+Here's the args pattern Gro uses internally, that we tentatively recommend:
 
 ```ts
 // src/some/file.task.ts
