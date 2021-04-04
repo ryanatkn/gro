@@ -155,7 +155,7 @@ export const task: Task = {
 
 		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
 		// forwarding both custom args and a different event emitter (warning: spaghetti)
-		await invokeTask('other/file', {...args, optionally: 'extendTheArgs'}, newEventEmitter);
+		await invokeTask('other/file', {...args, optionally: 'extendTheArgs'}, newSubtreeEventEmitter);
 
 		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
 		await invokeTask('gro/other/file');
@@ -179,7 +179,7 @@ export const task: Task = {
 	run: async ({args, invokeTask}) => {
 		await doSomethingFirst();
 		// This wraps Gro's `test` task, but it doesn't have to!
-		await invokeTask('gro/test', {...args, optionally: 'extendTheArgs'});
+		await invokeTask('gro/test', {...args, optionally: 'extendTheArgs'}, newSubtreeEventEmitter);
 		await andAfterIfYouWant();
 	},
 };
