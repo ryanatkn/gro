@@ -121,7 +121,7 @@ export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
 }
 ```
 
-### run a task inside another task
+### run a task inside another task with `invokeTask`
 
 Because Gro tasks are just functions,
 you can directly import them from within other tasks and run them.
@@ -179,6 +179,9 @@ export const task: Task = {
 	run: async ({args, invokeTask}) => {
 		await doSomethingFirst();
 		// This wraps Gro's `test` task, but it doesn't have to!
+		// It's possible to `import {task as groBuiltinTestTask} from '@feltcoop/gro/dist/test.task.js'`
+		// and then call `groBuiltinTestTask.run` directly,
+		// but that loses the benefits discussed in the `invokeTask` section above.
 		await invokeTask('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
 		await andAfterIfYouWant();
 	},
