@@ -16,7 +16,12 @@ export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
 	// TODO could lookup `Args` based on a map of `taskName` types (codegen to keep it simple?)
-	invokeTask: (taskName: string, args?: Args, dev?: boolean) => Promise<void>;
+	invokeTask: (
+		taskName: string,
+		args?: Args,
+		events?: StrictEventEmitter<EventEmitter, TEvents>,
+		dev?: boolean,
+	) => Promise<void>;
 }
 
 export const TASK_FILE_PATTERN = /\.task\.ts$/;
