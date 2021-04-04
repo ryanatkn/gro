@@ -6,6 +6,8 @@
   ([#145](https://github.com/feltcoop/gro/pull/145))
 - add task `gro server` to support the default API server use case in SvelteKit
   ([#145](https://github.com/feltcoop/gro/pull/145))
+- remove the `gro dist` task; it's now part of `gro build`
+  ([#146](https://github.com/feltcoop/gro/pull/146))
 
 ## 0.11.3
 

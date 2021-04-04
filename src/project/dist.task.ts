@@ -1,9 +1,39 @@
 import type {Task} from '../task/task.js';
+import {copy} from '../fs/nodeFs.js';
+import {paths, toBuildOutPath} from '../paths.js';
+import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
+import {printPath} from '../utils/print.js';
+import {clean} from './clean.js';
+import {loadGroConfig} from '../config/config.js';
+import {configureLogLevel} from '../utils/log.js';
+import {printBuildConfig} from '../config/buildConfig.js';
 
 export const task: Task = {
 	description: 'create and link the distribution',
-	run: async ({invokeTask}) => {
-		await invokeTask('dist');
+	dev: false,
+	run: async ({invokeTask, dev, log}) => {
+		await clean({dist: true}, log);
+
+		// This reads the `dist` flag on the build configs to help construct the final dist directory.
+		// See the docs at `./docs/config.md`.
+		const config = await loadGroConfig(dev);
+		configureLogLevel(config.logLevel);
+		const buildConfigsForDist = config.builds.filter((b) => b.dist);
+		await Promise.all(
+			buildConfigsForDist.map((buildConfig) => {
+				const buildOutDir = toBuildOutPath(dev, buildConfig.name);
+				const distOutDir =
+					buildConfigsForDist.length === 1
+						? paths.dist
+						: `${paths.dist}${printBuildConfig(buildConfig)}`;
+				log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);
+				return copy(buildOutDir, distOutDir, {filter: (id) => isDistFile(id)});
+			}),
+		);
+
 		await invokeTask('project/link');
 	},
 };
+
+export const isDistFile = (path: string): boolean =>
+	!isTestBuildFile(path) && !isTestBuildArtifact(path);
