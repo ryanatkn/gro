@@ -95,14 +95,29 @@ export const task: Task = {
 };
 ```
 
-### `Task` type
+### `Task` and `TaskContext types
 
 ```ts
-// `@feltcoop/gro`
-export interface Task {
-	run: (ctx: TaskContext) => Promise<unknown>;
-	description?: string; // optional text describing the task - TODO should this be required?
-	dev?: boolean; // optionally set the `dev` value in the inherited context
+// usage:
+// import type {Task, TaskContext} from '@feltcoop/gro';
+
+export interface Task<TArgs extends Obj = Args, TEvents = {}> {
+	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
+	description?: string;
+	dev?: boolean;
+}
+
+export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
+	dev: boolean;
+	log: Logger;
+	args: TArgs;
+	events: StrictEventEmitter<EventEmitter, TEvents>;
+	invokeTask: (
+		taskName: string,
+		args?: Args,
+		events?: StrictEventEmitter<EventEmitter, TEvents>,
+		dev?: boolean,
+	) => Promise<void>;
 }
 ```
 
