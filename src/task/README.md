@@ -173,6 +173,67 @@ Note that when hooking into [Gro's builtin tasks](../docs/tasks.md),
 like `test.task.ts` above, you don't have to call its version.
 This lets projects fully customize every task.
 
+### task arg types
+
+The `Task` interface is generic. Its first param is the type of the task context `args`.
+
+Here's the args pattern Gro uses internally, that we tentatively recommend:
+
+```ts
+// src/some/file.task.ts
+import type {Task} from '@feltcoop/gro';
+
+// For convenience in some cases, change this to `export interface TaskArgs extends Args {`
+export interface TaskArgs {
+	mapSomeString?: (thing: string) => string;
+}
+
+export const task: Task<TaskArgs> = {
+	run: async ({args}) => {
+		// `args` is of type `TaskArgs`
+
+		// other tasks can assign args that this task consumes
+		const mapped = args.mapSomeString(value);
+
+		// and this task can provide args for others
+		args.mapSomeNumber = (n) => n * ((1 + Math.sqrt(5)) / 2);
+	},
+};
+```
+
+### task events
+
+The `Task` interface's second generic parameter is `TEvents`
+to type the `events` property of the `TaskContext`.
+It uses Node's builtin `EventEmitter` with types provided by the types-only dependency
+[`strict-event-emitter-types`](https://github.com/bterlson/strict-event-emitter-types/).
+
+Here's how a task can emit and listen to events:
+
+```ts
+// src/some/mytask.task.ts
+import type {Task} from '@feltcoop/gro';
+
+import type {TaskEvents as OtherTaskEvents} from './othertask.task.ts';
+
+export interface TaskArgs {}
+export interface TaskEvents extends OtherTaskEvents {
+	'mytask.data': (count: number, thing: string) => void;
+}
+
+export const task: Task<TaskArgs, TaskEvents> = {
+	run: async ({events}) => {
+		// `events` is of type `StrictEventEmitter<EventEmitter, TaskEvents>`
+		// see: https://github.com/bterlson/strict-event-emitter-types/
+		events.emit('mytask.data', 2, 'params');
+
+		// This is typed because we extended `TaskEvents` by another `othertask`'s events.
+		// Other listeners and providers can be upstream or downstream of this task.
+		events.once('othertask.eventname', (some: string, things: boolean, rock: object) => {});
+	},
+};
+```
+
 ### throwing errors
 
 If a task encounters an error, normally it should throw rather than exiting the process.
@@ -209,34 +270,6 @@ export const task: Task = {
 		// `dev` is `false` because it's defined two lines up in the task definition,
 		// unless an ancestor task called `invokeTask` with a `true` value, like this:
 		invokeTask('descendentTaskWithFlippedDevValue', undefined, !dev);
-	},
-};
-```
-
-### task arg types
-
-The `Task` interface is generic. Its first param is the type of the task context `args`.
-
-Here's the args pattern Gro uses internally, that we tentatively recommend:
-
-```ts
-// src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
-
-// For convenience in some cases, change this to `export interface TaskArgs extends Args {`
-export interface TaskArgs {
-	mapSomeString?: (thing: string) => string;
-}
-
-export const task: Task<TaskArgs> = {
-	run: async ({args}) => {
-		// `args` is of type `TaskArgs`
-
-		// other tasks can assign args that this task consumes
-		const mapped = args.mapSomeString(value);
-
-		// and this task can provide args for others
-		args.mapSomeNumber = (n) => n * ((1 + Math.sqrt(5)) / 2);
 	},
 };
 ```
