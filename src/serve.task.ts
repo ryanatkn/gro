@@ -17,10 +17,9 @@ export interface TaskArgs {
 export const task: Task<TaskArgs> = {
 	description: 'start static file server',
 	run: async ({log, args}): Promise<void> => {
-		// TODO validate
-		const host: string | undefined = args.host || stringFromEnv('HOST');
-		const port: number | undefined = Number(args.port) || numberFromEnv('PORT'); // TODO `numberFromArgs` helper?
-		const servedDirs: string[] = args._.length ? args._ : ['.'];
+		const host = args.host || stringFromEnv('HOST');
+		const port = Number(args.port) || numberFromEnv('PORT');
+		const servedDirs = args._.length ? args._ : ['.'];
 
 		// TODO this is inefficient for just serving files in a directory
 		// maybe we want a `lazy` flag?
