@@ -2,7 +2,7 @@
 
 ## 0.11.4
 
-- integrate the default Gro API server with SvelteKit
+- integrate the default Gro API server with SvelteKit and Gro's build task
   ([#145](https://github.com/feltcoop/gro/pull/145))
 - add task `gro server` to support the default API server use case in SvelteKit
   ([#145](https://github.com/feltcoop/gro/pull/145))
