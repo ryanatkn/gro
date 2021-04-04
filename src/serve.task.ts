@@ -8,7 +8,7 @@ import {numberFromEnv, stringFromEnv} from './utils/env.js';
 export interface TaskArgs {
 	_: string[];
 	host?: string;
-	port?: string;
+	port?: string | number;
 	nocert?: boolean;
 	certfile?: string;
 	certkeyfile?: string;

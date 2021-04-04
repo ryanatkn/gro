@@ -1,6 +1,8 @@
 import {red, yellow, gray, black, bgYellow, bgRed} from '../utils/terminal.js';
 import {EMPTY_ARRAY} from './array.js';
 
+// TODO could use some refactoring
+
 // TODO track warnings/errors (or anything above a certain threshold)
 // and report at the end of each build (and other tasks)
 
