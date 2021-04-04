@@ -184,7 +184,7 @@ export const task: Task = {
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
 		await invokeTask('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
-		await andAfterIfYouWant();
+		await emailEveryoneWithTestResults();
 	},
 };
 ```
