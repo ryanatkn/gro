@@ -12,10 +12,10 @@ The license is MIT, so you're free to use and repurpose it without our permissio
 We have so much work to do and Gro is just a low level tool.
 time is precious🌄
 
-Example: Gro doesn't support Windows. That's bad.
+Example: Gro doesn't support Windows. That's not great.
 It excludes many people out there who don't know what a WSL is.
-But I have too many things to prioritize,
-and I feel it's irresponsible to push open source Node projects that don't support Windows.
+I have many other things to prioritize,
+but I also don't want to promote open source Node projects that don't support Windows.
 
 So Gro sits in a pre-alpha limbo. For other reasons too -
 things may change dramatically and I don't want the friction of breaking external users.
