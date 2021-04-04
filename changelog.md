@@ -5,6 +5,8 @@
 - `gro build` now correctly builds only `BuildConfig`s that have `dist: true`,
   allowing users to customize the `dist/` output in each `gro build` via `src/gro.config.ts`
   ([#144](https://github.com/feltcoop/gro/pull/144))
+- add utils for callback hooks at `src/utils/listener.ts`
+  ([#143](https://github.com/feltcoop/gro/pull/143))
 
 ## 0.11.2
 
@@ -141,7 +143,7 @@
 
 ## 0.6.4
 
-- add `args` hooks to `src/dev.task.ts`
+- add `args` listeners to `src/dev.task.ts`
   ([#112](https://github.com/feltcoop/gro/pull/112))
 
 ## 0.6.3

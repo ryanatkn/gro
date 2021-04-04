@@ -12,7 +12,7 @@ import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {createRestartableProcess} from './utils/process.js';
 import {hasGroServerConfig, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
-import {callHooks} from './utils/hook.js';
+import {callListeners} from './utils/listener.js';
 
 export interface TaskArgs {
 	nocert?: boolean;
@@ -35,7 +35,7 @@ export const task: Task<TaskArgs> = {
 		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
-		callHooks(args, 'onCreateConfig', [config]);
+		callListeners(args, 'onCreateConfig', [config]);
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
@@ -47,7 +47,7 @@ export const task: Task<TaskArgs> = {
 			sourcemap: config.sourcemap,
 		});
 		timingToCreateFiler();
-		callHooks(args, 'onCreateFiler', [filer, config]);
+		callListeners(args, 'onCreateFiler', [filer, config]);
 
 		// TODO restart functionality
 		const timingToCreateGroServer = timings.start('create dev server');
@@ -57,24 +57,24 @@ export const task: Task<TaskArgs> = {
 			: await loadHttpsCredentials(log, args.certfile, args.certkeyfile);
 		const server = createGroServer({filer, host: config.host, port: config.port, https});
 		timingToCreateGroServer();
-		callHooks(args, 'onCreateServer', [server]);
+		callListeners(args, 'onCreateServer', [server]);
 
 		await Promise.all([
 			(async () => {
 				const timingToInitFiler = timings.start('init filer');
 				await filer.init();
 				timingToInitFiler();
-				callHooks(args, 'onInitFiler', [filer]);
+				callListeners(args, 'onInitFiler', [filer]);
 			})(),
 			(async () => {
 				const timingToStartGroServer = timings.start('start dev server');
 				await server.start();
 				timingToStartGroServer();
-				callHooks(args, 'onStartServer', [server]);
+				callListeners(args, 'onStartServer', [server]);
 			})(),
 		]);
 
-		callHooks(args, 'onReady', [server, filer, config]);
+		callListeners(args, 'onReady', [server, filer, config]);
 
 		// Support the Gro server pattern by default.
 		// Normal user projects will hit this code path right here:

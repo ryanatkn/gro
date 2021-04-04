@@ -9,7 +9,7 @@ import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {BuildConfig} from './config/buildConfig.js';
-import {callHooks} from './utils/hook.js';
+import {callListeners} from './utils/listener.js';
 
 export interface TaskArgs {
 	watch?: boolean;
@@ -43,7 +43,7 @@ export const task: Task<TaskArgs> = {
 		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
-		callHooks(args, 'onCreateConfig', [config]);
+		callListeners(args, 'onCreateConfig', [config]);
 
 		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 
