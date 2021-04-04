@@ -153,8 +153,9 @@ export const task: Task = {
 		// as documented above, the following is similar but lacks nice features:
 		// await (await import('./some/file.task.js')).run(ctx);
 
-		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`
-		await invokeTask('other/file', {...args, optionally: 'extendTheArgs'});
+		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
+		// forwarding both custom args and a different event emitter (warning: spaghetti)
+		await invokeTask('other/file', {...args, optionally: 'extendTheArgs'}, newEventEmitter);
 
 		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
 		await invokeTask('gro/other/file');
