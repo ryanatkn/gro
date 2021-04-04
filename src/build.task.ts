@@ -18,6 +18,7 @@ export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
 	mapOutputOptions?: MapOutputOptions;
 	mapWatchOptions?: MapWatchOptions;
+	closeApiServer?: (spawned: SpawnedProcess) => Promise<void>;
 }
 
 export interface TaskEvents extends ServerTaskEvents {
@@ -67,7 +68,9 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				events.once('server.spawn', (spawned) => {
 					spawnedApiServer = spawned;
 				});
-				await invokeTask('server', undefined, undefined, true);
+				// TODO still broken
+				// await invokeTask('server', undefined, undefined, true);
+				await invokeTask('server');
 			}
 		}
 
@@ -106,8 +109,13 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		// done! clean up the API server
 		if (spawnedApiServer) {
-			spawnedApiServer!.child.kill();
-			await spawnedApiServer!.closed;
+			if (args.closeApiServer) {
+				// don't await - whoever attached `closeApiServer` will clean it up
+				args.closeApiServer(spawnedApiServer);
+			} else {
+				spawnedApiServer!.child.kill();
+				await spawnedApiServer!.closed;
+			}
 		}
 	},
 };
