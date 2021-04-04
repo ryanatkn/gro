@@ -20,6 +20,7 @@ test_runTask('passes args and returns output', async () => {
 		},
 		args,
 		async () => {},
+		true,
 	);
 	t.ok(result.ok);
 	t.is(result.output, args);
@@ -47,6 +48,7 @@ test_runTask('invokes a sub task', async () => {
 			invokedTaskName = invokingTaskName;
 			invokedArgs = invokingArgs;
 		},
+		true,
 	);
 	t.ok(result.ok);
 	t.is(invokedTaskName, 'bar/testTask');
@@ -71,6 +73,7 @@ test_runTask('failing task', async () => {
 		},
 		{_: []},
 		async () => {},
+		true,
 	);
 	t.not.ok(result.ok);
 	t.ok(result.reason);

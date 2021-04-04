@@ -4,10 +4,14 @@ import {formatDirectory} from './build/formatDirectory.js';
 import {paths} from './paths.js';
 import {printSpawnResult} from './utils/process.js';
 
-export const task: Task = {
+export interface TaskArgs {
+	check?: boolean;
+}
+
+export const task: Task<TaskArgs> = {
 	description: 'format source files',
 	run: async ({args}) => {
-		const check = !!args.check; // TODO args declaration and validation
+		const check = !!args.check;
 		const formatResult = await formatDirectory(paths.source, check);
 		if (!formatResult.ok) {
 			throw new TaskError(

@@ -1,7 +1,7 @@
 import type {Logger} from '../utils/log.js';
 
 export interface Task<TArgs = Args> {
-	run: (ctx: TaskContext<TArgs>) => Promise<unknown>;
+	run: (ctx: TaskContext<TArgs>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	description?: string;
 	dev?: boolean;
 }
@@ -15,7 +15,7 @@ export interface Task<TArgs = Args> {
 // The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
 export interface Args {
 	_: string[];
-	[key: string]: any; // can assign anything to `args` in tasks
+	[key: string]: unknown; // can assign anything to `args` in tasks
 }
 
 export interface TaskContext<TArgs = Args> {

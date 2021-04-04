@@ -204,11 +204,35 @@ export const task: Task = {
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	dev: false,
+	dev: false, // tell the task runner to set `dev` to false, updating `process.env.NODE_ENV`
 	run: async ({dev, invokeTask}) => {
 		// `dev` is `false` because it's defined two lines up in the task definition,
 		// unless an ancestor task called `invokeTask` with a `true` value, like this:
 		invokeTask('descendentTaskWithFlippedDevValue', undefined, !dev);
+	},
+};
+```
+
+### task arg types
+
+The `Task` interface is generic. Its first param is the type of the task context `args`.
+
+Here's the args pattern Gro uses internally:
+
+```ts
+// src/some/file.task.ts
+import type {Task} from '@feltcoop/gro';
+
+// If needed for uncommon reasons in the task below,
+// this can be changed to `export interface TaskArgs extends Args {`
+export interface TaskArgs {
+	onHook?: (thing: any) => void;
+}
+
+export const task: Task<TaskArgs> = {
+	run: async ({args}) => {
+		// `args` is of type `TaskArgs`
+		args.onHook({parentTasks: 'canHookIntoThis', byAssigning: 'toArgs'});
 	},
 };
 ```

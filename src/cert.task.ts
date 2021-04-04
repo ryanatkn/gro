@@ -2,10 +2,14 @@ import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 
-export const task: Task = {
+export interface TaskArgs {
+	host?: string;
+}
+
+export const task: Task<TaskArgs> = {
 	description: 'creates a self-signed cert for https with openssl',
 	run: async ({args}) => {
-		const host = (args.host as string) || 'localhost';
+		const host = args.host || 'localhost';
 		const certFile = `${host}-cert.pem`;
 		const keyFile = `${host}-privkey.pem`;
 		if (await pathExists(certFile)) throw Error(`File ${certFile} already exists. Aborting.`);

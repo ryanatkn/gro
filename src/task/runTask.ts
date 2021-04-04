@@ -19,7 +19,7 @@ export const runTask = async (
 	task: TaskModuleMeta,
 	args: Args,
 	invokeTask: (taskName: string, args: Args, dev: boolean) => Promise<void>,
-	dev?: boolean,
+	dev: boolean | undefined,
 ): Promise<RunTaskResult> => {
 	if (dev === undefined) {
 		if (task.mod.task.dev !== undefined) {

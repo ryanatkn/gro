@@ -33,7 +33,7 @@ type Http2StreamHandler = (
 	flags: number,
 ) => void;
 
-export interface DevServer {
+export interface GroServer {
 	readonly server: Http1Server | Http2Server;
 	start(): Promise<void>;
 	readonly host: string;
@@ -62,7 +62,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-export const createDevServer = (opts: InitialOptions): DevServer => {
+export const createGroServer = (opts: InitialOptions): GroServer => {
 	// We don't want to have to worry about the security of the dev server.
 	if (process.env.NODE_ENV === 'production') {
 		throw Error('The dev server may only be run in development for security reasons.');
@@ -76,7 +76,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 		// hacky but w/e - these values are not final until `devServer.start` resolves
 		finalPort--;
 		listenOptions.port = finalPort;
-		(devServer as Assignable<DevServer>).port = finalPort;
+		(devServer as Assignable<GroServer>).port = finalPort;
 	};
 
 	const listenOptions: ListenOptions = {
@@ -113,7 +113,7 @@ export const createDevServer = (opts: InitialOptions): DevServer => {
 
 	let started = false;
 
-	const devServer: DevServer = {
+	const devServer: GroServer = {
 		server,
 		host,
 		port, // this value is not valid until `start` is complete
@@ -199,7 +199,7 @@ const to200Headers = async (file: BaseFilerFile): Promise<OutgoingHttpHeaders> =
 
 const toETag = (file: BaseFilerFile): string => `"${getFileContentsHash(file)}"`;
 
-interface DevServerResponse {
+interface GroServerResponse {
 	status: 200 | 304 | 404;
 	headers: OutgoingHttpHeaders;
 	data?: string | Buffer | undefined;
@@ -210,7 +210,7 @@ const toResponse = async (
 	headers: IncomingHttpHeaders,
 	filer: Filer,
 	log: Logger,
-): Promise<DevServerResponse> => {
+): Promise<GroServerResponse> => {
 	const url = parseUrl(rawUrl);
 	const localPath = toLocalPath(url);
 	log.trace('serving', gray(rawUrl), '→', gray(localPath));

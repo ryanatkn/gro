@@ -6,6 +6,10 @@ import {copy, pathExists} from './fs/nodeFs.js';
 import {paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 
+export interface TaskArgs {
+	dry?: boolean;
+}
+
 // TODO customize
 const distDirName = basename(paths.dist);
 const deploymentBranch = 'gh-pages';
@@ -16,7 +20,7 @@ const TEMP_PREFIX = '__TEMP__';
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
-export const task: Task = {
+export const task: Task<TaskArgs> = {
 	description: 'deploy to gh-pages',
 	run: async ({invokeTask, args, log}): Promise<void> => {
 		const {dry} = args;
