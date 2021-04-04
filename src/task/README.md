@@ -191,7 +191,8 @@ export const task: Task = {
 
 Note that when hooking into [Gro's builtin tasks](../docs/tasks.md),
 like `test.task.ts` above, you don't have to call its version.
-This lets projects fully customize every task.
+You can copy/paste an existing task and customize it,
+rewrite a task from scratch, compose them together, or whatever is needed for each project.
 
 ### task arg types
 
