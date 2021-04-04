@@ -3,15 +3,15 @@ import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
-import {isThisProjectGro, toBuildOutPath} from './paths.js';
+import {isThisProjectGro, paths} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {BuildConfig} from './config/buildConfig.js';
+import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
 export interface TaskArgs {
-	watch?: boolean;
 	mapInputOptions?: MapInputOptions;
 	mapOutputOptions?: MapOutputOptions;
 	mapWatchOptions?: MapWatchOptions;
@@ -19,6 +19,7 @@ export interface TaskArgs {
 
 export interface TaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
+	'build.buildSourceDirectory': void;
 }
 
 export const task: Task<TaskArgs, TaskEvents> = {
@@ -38,7 +39,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
-		const watch = args.watch ?? false;
 		const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
 
 		const timingToLoadConfig = timings.start('load config');
@@ -49,10 +49,21 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 
+		// TODO think this through
+		// This is like a "prebuild" phase.
+		// Build everything with esbuild and Gro's `Filer` first,
+		// so we have the production server available to run while SvelteKit is building.
+		// See the other reference to `isThisProjectGro` for comments about its weirdness.
+		if (!isThisProjectGro) {
+			await buildSourceDirectory(config, dev, log);
+			events.emit('build.buildSourceDirectory');
+		}
+
 		// Not every build config is built for the final `dist/`!
 		// Only those that currently have `dist: true` are output.
 		// This allows a project's `src/gro.config.ts`
 		// to control the "last mile" each time `gro build` is run.
+		// TODO maybe assign these to the `config` above?
 		const buildConfigsToBuild = config.builds.filter((buildConfig) => buildConfig.dist);
 		// For each build config that has `dist: true`,
 		// infer which of the inputs are actual source files,
@@ -64,13 +75,11 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				const inputFiles = await resolveInputFiles(buildConfig);
 				log.info(`building "${buildConfig.name}"`, inputFiles);
 				if (inputFiles.length) {
-					const outputDir = toBuildOutPath(dev, buildConfig.name);
 					const build = createBuild({
 						dev,
 						sourcemap: config.sourcemap,
 						inputFiles,
-						outputDir,
-						watch,
+						outputDir: paths.dist,
 						mapInputOptions,
 						mapOutputOptions,
 						mapWatchOptions,
@@ -82,8 +91,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				}
 			}),
 		);
-
-		// ...
 	},
 };
 
