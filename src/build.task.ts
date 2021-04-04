@@ -68,8 +68,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				events.once('server.spawn', (spawned) => {
 					spawnedApiServer = spawned;
 				});
-				// TODO still broken
-				// await invokeTask('server', undefined, undefined, true);
 				await invokeTask('server');
 			}
 		}
