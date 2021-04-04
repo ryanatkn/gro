@@ -31,6 +31,7 @@ export const DIST_DIR = `${DIST_DIR_NAME}/`;
 export const NODE_MODULES_PATH = 'node_modules';
 export const SVELTE_KIT_DEV_PATH = '.svelte';
 export const SVELTE_KIT_BUILD_PATH = 'build';
+export const SVELTE_KIT_DIST_PATH = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
 
 export const CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_BASE_PATH = 'gro.config.js';
