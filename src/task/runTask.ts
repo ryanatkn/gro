@@ -1,8 +1,11 @@
+import type {EventEmitter} from 'events';
+
 import {cyan, magenta, red, gray} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import type {TaskModuleMeta} from './taskModule.js';
 import type {Args} from './task.js';
 import {TaskError} from './task.js';
+import type {invokeTask as InvokeTaskFunction} from './invokeTask.js';
 
 export type RunTaskResult =
 	| {
@@ -18,7 +21,8 @@ export type RunTaskResult =
 export const runTask = async (
 	task: TaskModuleMeta,
 	args: Args,
-	invokeTask: (taskName: string, args: Args, dev: boolean) => Promise<void>,
+	events: EventEmitter,
+	invokeTask: typeof InvokeTaskFunction,
 	dev: boolean | undefined,
 ): Promise<RunTaskResult> => {
 	if (dev === undefined) {
@@ -34,9 +38,10 @@ export const runTask = async (
 		output = await task.mod.task.run({
 			dev,
 			args,
+			events,
 			log: new SystemLogger([`${gray('[')}${magenta(task.name)}${gray(':log')}${gray(']')}`]),
-			invokeTask: (invokedTaskName, invokedArgs = args, invokedDev = dev!) =>
-				invokeTask(invokedTaskName, invokedArgs, invokedDev),
+			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedDev = dev) =>
+				invokeTask(invokedTaskName, invokedArgs, invokedEvents, invokedDev),
 		});
 	} catch (err) {
 		return {

@@ -15,26 +15,29 @@ import {hasGroServerConfig, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuil
 
 export interface TaskArgs {
 	nocert?: boolean;
-	certfile: string;
-	certkeyfile: string;
-	onCreateConfig?: (config: GroConfig) => void;
-	onCreateFiler?: (file: Filer, config: GroConfig) => void;
-	onCreateServer?: (server: GroServer) => void;
-	onInitFiler?: (filer: Filer) => void;
-	onStartServer?: (server: GroServer) => void;
-	onReady?: (server: GroServer, filer: Filer, config: GroConfig) => void;
+	certfile?: string;
+	certkeyfile?: string;
 }
 
-export const task: Task<TaskArgs> = {
+export interface TaskEvents {
+	'dev.createConfig': (config: GroConfig) => void;
+	'dev.createFiler': (file: Filer, config: GroConfig) => void;
+	'dev.createServer': (server: GroServer) => void;
+	'dev.initFiler': (filer: Filer) => void;
+	'dev.startServer': (server: GroServer) => void;
+	'dev.ready': (server: GroServer, filer: Filer, config: GroConfig) => void;
+}
+
+export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'start dev server',
-	run: async ({dev, log, args}) => {
+	run: async ({dev, log, args, events}) => {
 		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
-		if (args.onCreateConfig) args.onCreateConfig(config);
+		events.emit('dev.createConfig', config);
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
@@ -46,7 +49,7 @@ export const task: Task<TaskArgs> = {
 			sourcemap: config.sourcemap,
 		});
 		timingToCreateFiler();
-		if (args.onCreateFiler) args.onCreateFiler(filer, config);
+		events.emit('dev.createFiler', filer, config);
 
 		// TODO restart functionality
 		const timingToCreateGroServer = timings.start('create dev server');
@@ -56,24 +59,24 @@ export const task: Task<TaskArgs> = {
 			: await loadHttpsCredentials(log, args.certfile, args.certkeyfile);
 		const server = createGroServer({filer, host: config.host, port: config.port, https});
 		timingToCreateGroServer();
-		if (args.onCreateServer) args.onCreateServer(server);
+		events.emit('dev.createServer', server);
 
 		await Promise.all([
 			(async () => {
 				const timingToInitFiler = timings.start('init filer');
 				await filer.init();
 				timingToInitFiler();
-				if (args.onInitFiler) args.onInitFiler(filer);
+				events.emit('dev.initFiler', filer);
 			})(),
 			(async () => {
 				const timingToStartGroServer = timings.start('start dev server');
 				await server.start();
 				timingToStartGroServer();
-				if (args.onStartServer) args.onStartServer(server);
+				events.emit('dev.startServer', server);
 			})(),
 		]);
 
-		if (args.onReady) args.onReady(server, filer, config);
+		events.emit('dev.ready', server, filer, config);
 
 		// Support the Gro server pattern by default.
 		// Normal user projects will hit this code path right here:

@@ -1,7 +1,7 @@
 import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
-import StrictEventEmitter from 'strict-event-emitter-types';
+import type StrictEventEmitter from 'strict-event-emitter-types';
 
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';

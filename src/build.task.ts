@@ -15,13 +15,16 @@ export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
 	mapOutputOptions?: MapOutputOptions;
 	mapWatchOptions?: MapWatchOptions;
-	onCreateConfig?: (config: GroConfig) => void;
 }
 
-export const task: Task<TaskArgs> = {
+export interface TaskEvents {
+	'build.createConfig': (config: GroConfig) => void;
+}
+
+export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'build the project',
 	dev: false,
-	run: async ({dev, log, args, invokeTask}): Promise<void> => {
+	run: async ({dev, log, args, invokeTask, events}): Promise<void> => {
 		// Normal user projects will ignore this code path right here:
 		// in other words, `isThisProjectGro` will always be `false` for your code.
 		// TODO task pollution, this is bad for users who want to copy/paste this task.
@@ -42,7 +45,7 @@ export const task: Task<TaskArgs> = {
 		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
-		if (args.onCreateConfig) args.onCreateConfig(config);
+		events.emit('build.createConfig', config);
 
 		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 

@@ -1,4 +1,5 @@
 import {magenta, cyan, red, gray} from '../utils/terminal.js';
+import {EventEmitter} from 'events';
 import type {Args} from './task.js';
 import {SystemLogger, Logger, configureLogLevel} from '../utils/log.js';
 import {runTask} from './runTask.js';
@@ -43,7 +44,12 @@ The comments describe each condition.
 
 */
 
-export const invokeTask = async (taskName: string, args: Args, dev?: boolean): Promise<void> => {
+export const invokeTask = async (
+	taskName: string,
+	args: Args,
+	events = new EventEmitter(),
+	dev?: boolean,
+): Promise<void> => {
 	const log = new SystemLogger([`${gray('[')}${magenta(taskName || 'gro')}${gray(']')}`]);
 
 	// Check if the caller just wants to see the version.
@@ -107,7 +113,7 @@ export const invokeTask = async (taskName: string, args: Args, dev?: boolean): P
 					}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const result = await runTask(task, args, invokeTask, dev);
+				const result = await runTask(task, args, events, invokeTask, dev);
 				timingToRunTask();
 				if (result.ok) {
 					log.info(`✓ ${cyan(task.name)}`);

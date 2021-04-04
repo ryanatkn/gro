@@ -1,3 +1,4 @@
+import {EventEmitter} from 'events';
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
@@ -19,6 +20,7 @@ test_runTask('passes args and returns output', async () => {
 			},
 		},
 		args,
+		new EventEmitter(),
 		async () => {},
 		true,
 	);
@@ -44,6 +46,7 @@ test_runTask('invokes a sub task', async () => {
 			},
 		},
 		args,
+		new EventEmitter(),
 		async (invokingTaskName, invokingArgs) => {
 			invokedTaskName = invokingTaskName;
 			invokedArgs = invokingArgs;
@@ -72,6 +75,7 @@ test_runTask('failing task', async () => {
 			},
 		},
 		{_: []},
+		new EventEmitter(),
 		async () => {},
 		true,
 	);

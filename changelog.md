@@ -2,6 +2,11 @@
 
 ## 0.11.3
 
+- add `events` to `TaskContext` and its generic type to `Task`,
+  so tasks can communicate with each other using a normal Node `EventEmitter`
+  ([#143](https://github.com/feltcoop/gro/pull/143))
+  - events aren't great for everything;
+    this PR also documents a value mapping pattern convention for tasks in `src/task/README.md`
 - `gro build` now correctly builds only `BuildConfig`s that have `dist: true`,
   allowing users to customize the `dist/` output in each `gro build` via `src/gro.config.ts`
   ([#144](https://github.com/feltcoop/gro/pull/144))
