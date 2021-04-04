@@ -2,7 +2,7 @@
 
 ## 0.11.3
 
-- add `events` to task context,
+- add `events` to `TaskContext` and its generic type to `Task`,
   so tasks can communicate with each other using a normal Node `EventEmitter`
   ([#143](https://github.com/feltcoop/gro/pull/143))
   - events aren't great for everything;
