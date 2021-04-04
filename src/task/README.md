@@ -126,7 +126,7 @@ export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
 Because Gro tasks are just functions,
 you can directly import them from within other tasks and run them.
 However, we recommend using the `invokeTask` helper
-for its automatic logging and diagnostics.
+for its ergonomics and automatic logging and diagnostics.
 
 The `invokeTask` helper uses Gro's task resolution rules
 to allow user code to override builtin tasks.
