@@ -10,6 +10,9 @@ import type {GroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {BuildConfig} from './config/buildConfig.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
+import type {SpawnedProcess} from './utils/process.js';
+import type {TaskEvents as ServerTaskEvents} from './server.task.js';
+import {hasGroServer} from './config/defaultBuildConfig.js';
 
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
@@ -17,9 +20,9 @@ export interface TaskArgs {
 	mapWatchOptions?: MapWatchOptions;
 }
 
-export interface TaskEvents {
+export interface TaskEvents extends ServerTaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
-	'build.buildSourceDirectory': void;
+	'build.prebuild': void;
 }
 
 export const task: Task<TaskArgs, TaskEvents> = {
@@ -54,9 +57,18 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// Build everything with esbuild and Gro's `Filer` first,
 		// so we have the production server available to run while SvelteKit is building.
 		// See the other reference to `isThisProjectGro` for comments about its weirdness.
+		let spawnedApiServer: SpawnedProcess | null = null;
 		if (!isThisProjectGro) {
 			await buildSourceDirectory(config, dev, log);
-			events.emit('build.buildSourceDirectory');
+			events.emit('build.prebuild');
+
+			// now that the prebuild is ready, we can start the API server, if it exists
+			if (await hasGroServer()) {
+				events.once('server.spawn', (spawned) => {
+					spawnedApiServer = spawned;
+				});
+				await invokeTask('server', undefined, undefined, true);
+			}
 		}
 
 		// Not every build config is built for the final `dist/`!
@@ -91,6 +103,12 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				}
 			}),
 		);
+
+		// done! clean up the API server
+		if (spawnedApiServer) {
+			spawnedApiServer!.child.kill();
+			await spawnedApiServer!.closed;
+		}
 	},
 };
 
