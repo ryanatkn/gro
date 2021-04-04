@@ -198,7 +198,7 @@ rewrite a task from scratch, compose them together, or whatever is needed for ea
 
 The `Task` interface is generic. Its first param is the type of the task context `args`.
 
-Here's "value mapping pattern" Gro uses internally with args, that we tentatively recommend:
+Some Gro tasks use a value mapping pattern convention that we tentatively recommend:
 
 ```ts
 // src/some/file.task.ts
