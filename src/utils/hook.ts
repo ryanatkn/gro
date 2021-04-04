@@ -2,8 +2,6 @@
 
 import {Obj} from './types.js';
 
-// The idea is the it lets you call a bunch of maybe-funtions on some mutable object.
-
 export interface Hook<THookArgs extends any[] = any[]> {
 	(...obj: THookArgs): void;
 }
