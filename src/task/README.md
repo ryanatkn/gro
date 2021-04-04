@@ -95,7 +95,7 @@ export const task: Task = {
 };
 ```
 
-### `Task` and `TaskContext` types
+### types `Task` and `TaskContext`
 
 ```ts
 // usage:
