@@ -222,29 +222,21 @@ Here's the args and hooks pattern Gro uses internally, that we tentatively recom
 ```ts
 // src/some/file.task.ts
 import type {Task} from '@feltcoop/gro';
-import {callListeners, addListener} from '@feltcoop/gro/dist/utils/listener.js';
 
-// If needed for uncommon reasons in the task below,
-// this can be changed to `export interface TaskArgs extends Args {`
+// For convenience in some cases, change this to `export interface TaskArgs extends Args {`
 export interface TaskArgs {
-	onListener?: (thing: any) => void;
+	mapSomeString?: (thing: string) => string;
 }
 
 export const task: Task<TaskArgs> = {
 	run: async ({args}) => {
 		// `args` is of type `TaskArgs`
 
-		// these listener utils are typesafe over `args`,
-		// and allow tasks to pass data and events.
-		// why not use event emitters? great question!
+		// other tasks can assign args that this task consumes
+		const mapped = args.mapSomeString(value);
 
-		// to call hooks on the args, usually for parent tasks:
-		callListeners(args, 'onListener', [
-			{parentTasks: 'canListenerIntoThis', byAssigning: 'toArgs'},
-		]);
-
-		// to register a hook, usually for child tasks:
-		addListener(args, 'onListener', (thing) => console.log('thing', thing));
+		// and this task can provide args for others
+		args.mapSomeNumber = (n) => n * ((1 + Math.sqrt(5)) / 2);
 	},
 };
 ```

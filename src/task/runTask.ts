@@ -1,3 +1,5 @@
+import {EventEmitter} from 'events';
+
 import {cyan, magenta, red, gray} from '../utils/terminal.js';
 import {SystemLogger} from '../utils/log.js';
 import type {TaskModuleMeta} from './taskModule.js';
@@ -34,6 +36,7 @@ export const runTask = async (
 		output = await task.mod.task.run({
 			dev,
 			args,
+			events: new EventEmitter(),
 			log: new SystemLogger([`${gray('[')}${magenta(task.name)}${gray(':log')}${gray(']')}`]),
 			invokeTask: (invokedTaskName, invokedArgs = args, invokedDev = dev!) =>
 				invokeTask(invokedTaskName, invokedArgs, invokedDev),

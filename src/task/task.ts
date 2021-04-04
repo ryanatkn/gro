@@ -1,15 +1,20 @@
-import type {Logger} from '../utils/log.js';
+import type StrictEventEmitter from 'strict-event-emitter-types';
+import type {EventEmitter} from 'events';
 
-export interface Task<TArgs = Args> {
-	run: (ctx: TaskContext<TArgs>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
+import type {Logger} from '../utils/log.js';
+import {Obj} from '../utils/types.js';
+
+export interface Task<TArgs extends Obj = Args, TEvents = {}> {
+	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	description?: string;
 	dev?: boolean;
 }
 
-export interface TaskContext<TArgs = Args> {
+export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
 	dev: boolean;
 	log: Logger;
 	args: TArgs;
+	events: StrictEventEmitter<EventEmitter, TEvents>;
 	// TODO could lookup `Args` based on a map of `taskName` types (codegen to keep it simple?)
 	invokeTask: (taskName: string, args?: Args, dev?: boolean) => Promise<void>;
 }
