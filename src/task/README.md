@@ -243,8 +243,6 @@ export const task: Task<TaskArgs> = {
 
 ## future improvements
 
-- [ ] should tasks have a return value too, that's the return type of `invokeTask`?
-      or should hooks be the only supported pattern?
 - [ ] consider a pattern for declaring and validating CLI args
 
 ## why?
