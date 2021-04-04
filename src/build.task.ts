@@ -1,14 +1,23 @@
 import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
+import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
 import {isThisProjectGro, toBuildOutPath} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import type {BuildConfig} from './config/buildConfig.js';
+import type {Args} from './task/task.js';
 
-export const task: Task = {
+export interface TaskArgs extends Args {
+	watch: boolean;
+	mapInputOptions: MapInputOptions;
+	mapOutputOptions: MapOutputOptions;
+	mapWatchOptions: MapWatchOptions;
+}
+
+export const task: Task<TaskArgs> = {
 	description: 'build the project',
 	dev: false,
 	run: async ({dev, log, args, invokeTask}): Promise<void> => {

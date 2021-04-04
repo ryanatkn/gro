@@ -10,7 +10,7 @@ sourcemapSupport.install({
 
 import mri from 'mri';
 
-import type {Args} from './types.js';
+import type {Args} from '../task/task.js';
 import {invokeTask} from '../task/invokeTask.js';
 
 /*
