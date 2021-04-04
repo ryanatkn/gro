@@ -192,7 +192,7 @@ This lets projects fully customize every task.
 
 The `Task` interface is generic. Its first param is the type of the task context `args`.
 
-Here's the args pattern Gro uses internally, that we tentatively recommend:
+Here's "value mapping pattern" Gro uses internally with args, that we tentatively recommend:
 
 ```ts
 // src/some/file.task.ts
