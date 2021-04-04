@@ -56,6 +56,10 @@ test_callHooks('basic behavior', () => {
 	remove3();
 	remove3();
 	remove3();
+	callHooks(obj, key, [1]);
+	callHooks(obj, key, [1]);
+	callHooks(obj, key, [1]);
+	t.is(count, 19);
 });
 
 test_callHooks.run();
