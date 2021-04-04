@@ -9,7 +9,6 @@ import {
 } from 'rollup';
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
-import {resolve} from 'path';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {magenta} from '../utils/terminal.js';
@@ -33,6 +32,7 @@ import {
 	getDefaultEsbuildPreprocessOptions,
 } from '../build/esbuildBuildHelpers.js';
 import type {PartialExcept} from '../index.js';
+import {paths} from '../paths.js';
 
 export interface Options {
 	inputFiles: string[];
@@ -51,8 +51,8 @@ export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
 	sourcemap: opts.dev ?? true,
-	outputDir: resolve('dist/'),
-	watch: true,
+	outputDir: paths.dist,
+	watch: false,
 	mapInputOptions: identity,
 	mapOutputOptions: identity,
 	mapWatchOptions: identity,

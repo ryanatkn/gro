@@ -31,6 +31,9 @@ export const SERVER_BUILD_CONFIG: BuildConfig = {
 	dist: true,
 	input: [SERVER_SOURCE_BASE_PATH],
 };
+// the first of these matches SvelteKit, the second is just close for convenience
+export const SERVER_DEFAULT_PORT_DEV = 3000;
+export const SERVER_DEFAULT_PORT_PROD = 3001;
 
 export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	const [hasIndexHtml, hasIndexTs] = await Promise.all([
