@@ -284,7 +284,7 @@ export const task: Task = {
 	run: async ({dev, invokeTask}) => {
 		// `dev` is `false` because it's defined two lines up in the task definition,
 		// unless an ancestor task called `invokeTask` with a `true` value, like this:
-		invokeTask('descendentTaskWithFlippedDevValue', undefined, !dev);
+		invokeTask('descendentTaskWithFlippedDevValue', undefined, undefined, !dev);
 	},
 };
 ```
