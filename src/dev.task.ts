@@ -12,6 +12,7 @@ import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {createRestartableProcess} from './utils/process.js';
 import {hasGroServerConfig, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
+import {callHooks} from './utils/hook.js';
 
 export interface TaskArgs {
 	nocert?: boolean;
@@ -34,7 +35,7 @@ export const task: Task<TaskArgs> = {
 		const config = await loadGroConfig(dev);
 		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
-		if (args.onCreateConfig) args.onCreateConfig(config);
+		callHooks(args, 'onCreateConfig', [config]);
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
@@ -46,7 +47,7 @@ export const task: Task<TaskArgs> = {
 			sourcemap: config.sourcemap,
 		});
 		timingToCreateFiler();
-		if (args.onCreateFiler) args.onCreateFiler(filer, config);
+		callHooks(args, 'onCreateFiler', [filer, config]);
 
 		// TODO restart functionality
 		const timingToCreateGroServer = timings.start('create dev server');
@@ -56,24 +57,24 @@ export const task: Task<TaskArgs> = {
 			: await loadHttpsCredentials(log, args.certfile, args.certkeyfile);
 		const server = createGroServer({filer, host: config.host, port: config.port, https});
 		timingToCreateGroServer();
-		if (args.onCreateServer) args.onCreateServer(server);
+		callHooks(args, 'onCreateServer', [server]);
 
 		await Promise.all([
 			(async () => {
 				const timingToInitFiler = timings.start('init filer');
 				await filer.init();
 				timingToInitFiler();
-				if (args.onInitFiler) args.onInitFiler(filer);
+				callHooks(args, 'onInitFiler', [filer]);
 			})(),
 			(async () => {
 				const timingToStartGroServer = timings.start('start dev server');
 				await server.start();
 				timingToStartGroServer();
-				if (args.onStartServer) args.onStartServer(server);
+				callHooks(args, 'onStartServer', [server]);
 			})(),
 		]);
 
-		if (args.onReady) args.onReady(server, filer, config);
+		callHooks(args, 'onReady', [server, filer, config]);
 
 		// Support the Gro server pattern by default.
 		// Normal user projects will hit this code path right here:

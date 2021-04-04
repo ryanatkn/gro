@@ -6,18 +6,6 @@ export interface Task<TArgs = Args> {
 	dev?: boolean;
 }
 
-// These extend the CLI args for tasks.
-// Anything can be assigned to a task's `args`. It's just a mutable POJO dictionary.
-// Downstream tasks will see args that upstream events mutate,
-// unless `invokeTask` is called with modified args.
-// Upstream tasks can use hooks to respond to downstream events and values.
-// It's a beautiful mutable spaghetti mess. cant get enough
-// The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
-export interface Args {
-	_: string[];
-	[key: string]: unknown; // can assign anything to `args` in tasks
-}
-
 export interface TaskContext<TArgs = Args> {
 	dev: boolean;
 	log: Logger;
@@ -39,3 +27,15 @@ export const toTaskName = (basePath: string): string => basePath.replace(TASK_FI
 // It's useful for cleaning up logging because
 // we usually don't need their stack trace.
 export class TaskError extends Error {}
+
+// These extend the CLI args for tasks.
+// Anything can be assigned to a task's `args`. It's just a mutable POJO dictionary.
+// Downstream tasks will see args that upstream events mutate,
+// unless `invokeTask` is called with modified args.
+// Upstream tasks can use hooks to respond to downstream events and values.
+// It's a beautiful mutable spaghetti mess. cant get enough
+// The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
+export interface Args {
+	_: string[];
+	[key: string]: unknown; // can assign anything to `args` in tasks
+}
