@@ -3,6 +3,7 @@ import {toApiServerBuildPath} from './config/defaultBuildConfig.js';
 import {spawn} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';
 import {red} from './utils/terminal.js';
+import {GroBuildState, outputGroBuildState} from './build/state.js';
 
 /*
 
@@ -45,7 +46,11 @@ export const task: Task<{}, TaskEvents> = {
 		// TODO what if we wrote out the port and
 		// also, retried if it conflicted ports, have some affordance here to increment and write to disk
 		// on disk, we can check for that file in `svelte.config.cjs`
-		const spawned = spawn('node', [serverPath]);
+		const state: GroBuildState = {port: 3003};
+		await outputGroBuildState(state);
+		const spawned = spawn('node', [serverPath], {
+			env: {...process.env, PORT: state.port.toString()},
+		});
 		events.emit('server.spawn', spawned);
 	},
 };
