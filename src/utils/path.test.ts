@@ -1,7 +1,13 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {replaceExtension, toPathStem, toPathParts, toPathSegments} from './path.js';
+import {
+	replaceExtension,
+	toPathStem,
+	toPathParts,
+	toPathSegments,
+	toCommonBaseDir,
+} from './path.js';
 
 /* test_replaceExtension */
 const test_replaceExtension = suite('replaceExtension');
@@ -77,3 +83,13 @@ test_toPathParts('trailing slash', () => {
 
 test_toPathParts.run();
 /* /test_toPathParts */
+
+/* test_toCommonBaseDir */
+const test_toCommonBaseDir = suite('toCommonBaseDir');
+
+test_toCommonBaseDir('basic behavior', () => {
+	t.is(toCommonBaseDir(['a/b/c.ts', 'a/b/c/d.ts', 'a/b/c/e.ts', 'a/b/c/e/f']), 'a/b');
+});
+
+test_toCommonBaseDir.run();
+/* /test_toCommonBaseDir */

@@ -1,18 +1,20 @@
-import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
-import {isThisProjectGro, paths} from './paths.js';
+import {DIST_DIR, isThisProjectGro, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
-import type {BuildConfig} from './config/buildConfig.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import type {SpawnedProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
-import {hasGroServerConfig} from './config/defaultBuildConfig.js';
+import {hasApiServerConfig} from './config/defaultBuildConfig.js';
+import {printTiming} from './utils/print.js';
+import {resolveInputFiles} from './build/utils.js';
+import {green} from './utils/terminal.js';
+import {toCommonBaseDir} from './utils/path.js';
 
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
@@ -64,7 +66,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			events.emit('build.prebuild');
 
 			// now that the prebuild is ready, we can start the API server, if it exists
-			if (hasGroServerConfig(config.builds)) {
+			if (hasApiServerConfig(config.builds)) {
 				events.once('server.spawn', (spawned) => {
 					spawnedApiServer = spawned;
 				});
@@ -86,13 +88,18 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
 				const inputFiles = await resolveInputFiles(buildConfig);
-				log.info(`building "${buildConfig.name}"`, inputFiles);
+				// TODO ok wait, does `outputDir` need to be at the output dir path?
+				const outputDir = `${DIST_DIR}${toBuildExtension(
+					sourceIdToBasePath(toCommonBaseDir(inputFiles)),
+				)}`;
+				// const outputDir = paths.dist;
+				log.info(`building ${green(buildConfig.name)}`, outputDir, inputFiles);
 				if (inputFiles.length) {
 					const build = createBuild({
 						dev,
 						sourcemap: config.sourcemap,
 						inputFiles,
-						outputDir: paths.dist,
+						outputDir,
 						mapInputOptions,
 						mapOutputOptions,
 						mapWatchOptions,
@@ -115,15 +122,9 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				await spawnedApiServer!.closed;
 			}
 		}
+
+		for (const [key, timing] of timings.getAll()) {
+			log.trace(printTiming(key, timing));
+		}
 	},
 };
-
-// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
-const resolveInputFiles = async (buildConfig: BuildConfig): Promise<string[]> =>
-	(
-		await Promise.all(
-			buildConfig.input.map(async (input) =>
-				typeof input === 'string' && (await pathExists(input)) ? input : null!,
-			),
-		)
-	).filter(Boolean);

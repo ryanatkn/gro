@@ -1,5 +1,12 @@
 # Gro changelog
 
+## 0.12.0
+
+- add `gro start` as an alias for `npm start`
+  ([#147](https://github.com/feltcoop/gro/pull/147))
+- **break**: rename some things around the API server
+  ([#147](https://github.com/feltcoop/gro/pull/147))
+
 ## 0.11.4
 
 - integrate the default Gro API server with SvelteKit and Gro's build task

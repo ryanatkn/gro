@@ -2,9 +2,9 @@ import type {GroConfigCreator, PartialGroConfig} from './config.js';
 import {LogLevel} from '../utils/log.js';
 import {
 	hasDeprecatedGroFrontend,
-	hasGroServer,
+	hasApiServer,
 	PRIMARY_NODE_BUILD_CONFIG,
-	SERVER_BUILD_CONFIG,
+	API_SERVER_BUILD_CONFIG,
 	toDefaultBrowserBuild,
 } from './defaultBuildConfig.js';
 
@@ -19,7 +19,7 @@ export const config: GroConfigCreator = async () => {
 	const partial: PartialGroConfig = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
-			hasGroServer() ? SERVER_BUILD_CONFIG : null,
+			hasApiServer() ? API_SERVER_BUILD_CONFIG : null,
 			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
 		logLevel: LogLevel.Trace,

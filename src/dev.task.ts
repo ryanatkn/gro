@@ -3,15 +3,19 @@ import {Filer} from './build/Filer.js';
 import {printTiming} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {createDefaultBuilder} from './build/defaultBuilder.js';
-import {paths, toBuildOutPath, SERVER_BUILD_BASE_PATH, isThisProjectGro} from './paths.js';
+import {paths, toBuildOutPath, isThisProjectGro} from './paths.js';
 import {createGroServer} from './server/server.js';
 import type {GroServer} from './server/server.js';
-import {GroConfig, loadGroConfig} from './config/config.js';
-import {configureLogLevel} from './utils/log.js';
+import type {GroConfig} from './config/config.js';
+import {loadGroConfig} from './config/config.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {createRestartableProcess} from './utils/process.js';
-import {hasGroServerConfig, SERVER_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
+import {
+	hasApiServerConfig,
+	API_SERVER_BUILD_BASE_PATH,
+	API_SERVER_BUILD_CONFIG_NAME,
+} from './config/defaultBuildConfig.js';
 
 export interface TaskArgs {
 	nocert?: boolean;
@@ -35,7 +39,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
-		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 		events.emit('dev.createConfig', config);
 
@@ -78,22 +81,22 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		events.emit('dev.ready', server, filer, config);
 
-		// Support the Gro server pattern by default.
+		// Support the API server pattern by default.
 		// Normal user projects will hit this code path right here:
 		// in other words, `isThisProjectGro` will always be `false` for your code.
 		// TODO task pollution, this is bad for users who want to copy/paste this task.
 		// think of a better way - maybe config+defaults?
 		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
-		if (!isThisProjectGro && hasGroServerConfig(config.builds)) {
+		if (!isThisProjectGro && hasApiServerConfig(config.builds)) {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
 			const serverBuildPath = toBuildOutPath(
 				true,
-				SERVER_BUILD_CONFIG_NAME,
-				SERVER_BUILD_BASE_PATH,
+				API_SERVER_BUILD_CONFIG_NAME,
+				API_SERVER_BUILD_BASE_PATH,
 			);
 			const serverProcess = createRestartableProcess('node', [serverBuildPath]);
 			filer.on('build', ({buildConfig}) => {
-				if (buildConfig.name === SERVER_BUILD_CONFIG_NAME) {
+				if (buildConfig.name === API_SERVER_BUILD_CONFIG_NAME) {
 					serverProcess.restart();
 				}
 			});
