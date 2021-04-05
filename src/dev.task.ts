@@ -6,8 +6,8 @@ import {createDefaultBuilder} from './build/defaultBuilder.js';
 import {paths, toBuildOutPath, isThisProjectGro} from './paths.js';
 import {createGroServer} from './server/server.js';
 import type {GroServer} from './server/server.js';
-import {GroConfig, loadGroConfig} from './config/config.js';
-import {configureLogLevel} from './utils/log.js';
+import type {GroConfig} from './config/config.js';
+import {loadGroConfig} from './config/config.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {createRestartableProcess} from './utils/process.js';
@@ -39,7 +39,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
-		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 		events.emit('dev.createConfig', config);
 

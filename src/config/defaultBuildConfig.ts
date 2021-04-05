@@ -1,7 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
-import {toBuildExtension, basePathToSourceId, toBuildOutPath} from '../paths.js';
+import {toBuildExtension, basePathToSourceId, toBuildOutPath, paths} from '../paths.js';
 import {pathExists} from '../fs/nodeFs.js';
 
 // Gro currently enforces that the primary build config
@@ -20,7 +20,6 @@ export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
 export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
-// export const API_SERVER_DIST_ROOT_PATH = `${DIST_DIR_NAME}/server.js`; // TODO calculate this, how? should we change the server build out?
 export const hasApiServer = (): Promise<boolean> => pathExists(API_SERVER_SOURCE_ID);
 export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
@@ -37,10 +36,11 @@ export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	input: [API_SERVER_SOURCE_BASE_PATH],
 };
 // the first of these matches SvelteKit, the second is just close for convenience
+// TODO change to remove the second, search upwards for an open port
 export const API_SERVER_DEFAULT_PORT_DEV = 3000;
 export const API_SERVER_DEFAULT_PORT_PROD = 3001;
-export const toApiServerBuildPath = (dev: boolean): string =>
-	toBuildOutPath(dev, API_SERVER_BUILD_CONFIG_NAME, API_SERVER_BUILD_BASE_PATH);
+export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): string =>
+	toBuildOutPath(dev, API_SERVER_BUILD_CONFIG_NAME, API_SERVER_BUILD_BASE_PATH, buildDir);
 
 export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	const [hasIndexHtml, hasIndexTs] = await Promise.all([

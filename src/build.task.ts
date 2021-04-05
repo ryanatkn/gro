@@ -13,6 +13,7 @@ import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import type {SpawnedProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
 import {hasApiServerConfig} from './config/defaultBuildConfig.js';
+import {printTiming} from './utils/print.js';
 
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
@@ -86,13 +87,16 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
 				const inputFiles = await resolveInputFiles(buildConfig);
+				// TODO ok wait, does `outputDir` need to be at the output dir path?
+				const outputDir = paths.dist;
+				// const outputDir = paths.dist;
 				log.info(`building "${buildConfig.name}"`, inputFiles);
 				if (inputFiles.length) {
 					const build = createBuild({
 						dev,
 						sourcemap: config.sourcemap,
 						inputFiles,
-						outputDir: paths.dist,
+						outputDir,
 						mapInputOptions,
 						mapOutputOptions,
 						mapWatchOptions,
@@ -114,6 +118,10 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				spawnedApiServer!.child.kill();
 				await spawnedApiServer!.closed;
 			}
+		}
+
+		for (const [key, timing] of timings.getAll()) {
+			log.trace(printTiming(key, timing));
 		}
 	},
 };
