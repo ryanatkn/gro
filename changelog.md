@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.12.1
+
+- fix swapped API server ports
+  ([#148](https://github.com/feltcoop/gro/pull/148))
+
 ## 0.12.0
 
 - **break**: output builds to `dist/` mirroring the source tree as much as possible

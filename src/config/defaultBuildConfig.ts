@@ -37,8 +37,8 @@ export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 };
 // the first of these matches SvelteKit, the second is just close for convenience
 // TODO change to remove the second, search upwards for an open port
-export const API_SERVER_DEFAULT_PORT_DEV = 3000;
-export const API_SERVER_DEFAULT_PORT_PROD = 3001;
+export const API_SERVER_DEFAULT_PORT_PROD = 3000;
+export const API_SERVER_DEFAULT_PORT_DEV = 3001;
 export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): string =>
 	toBuildOutPath(dev, API_SERVER_BUILD_CONFIG_NAME, API_SERVER_BUILD_BASE_PATH, buildDir);
 
