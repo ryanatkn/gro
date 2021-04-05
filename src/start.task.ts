@@ -5,6 +5,7 @@ import {spawnProcess} from './utils/process.js';
 
 export const task: Task = {
 	description: 'alias for npm start that builds if needed',
+	dev: false,
 	run: async ({invokeTask}) => {
 		if (!(await pathExists(DIST_DIR))) {
 			await invokeTask('build');
