@@ -3,6 +3,7 @@ import {createFilter} from '@rollup/pluginutils';
 import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
 import {toBuildExtension, basePathToSourceId, toBuildOutPath, paths} from '../paths.js';
 import {pathExists} from '../fs/nodeFs.js';
+import {getExtensions} from '../fs/mime.js';
 
 // Gro currently enforces that the primary build config
 // for the Node platform has this value as its name.
@@ -49,10 +50,10 @@ export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	]);
 	return hasIndexHtml && hasIndexTs;
 };
-const DEFAULT_ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
-export const toDefaultBrowserBuild = (assetPaths = DEFAULT_ASSET_PATHS): PartialBuildConfig => ({
+export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): PartialBuildConfig => ({
 	name: 'browser',
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
 	dist: true,
 });
+const toDefaultAssetPaths = (): string[] => Array.from(getExtensions());
