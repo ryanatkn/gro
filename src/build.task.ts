@@ -12,7 +12,7 @@ import type {BuildConfig} from './config/buildConfig.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import type {SpawnedProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
-import {hasGroServerConfig} from './config/defaultBuildConfig.js';
+import {hasApiServerConfig} from './config/defaultBuildConfig.js';
 
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
@@ -64,7 +64,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			events.emit('build.prebuild');
 
 			// now that the prebuild is ready, we can start the API server, if it exists
-			if (hasGroServerConfig(config.builds)) {
+			if (hasApiServerConfig(config.builds)) {
 				events.once('server.spawn', (spawned) => {
 					spawnedApiServer = spawned;
 				});

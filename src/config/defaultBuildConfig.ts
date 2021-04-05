@@ -1,7 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
-import {SERVER_SOURCE_BASE_PATH, SERVER_SOURCE_ID} from '../paths.js';
+import {toBuildExtension, basePathToSourceId} from '../paths.js';
 import {pathExists} from '../fs/nodeFs.js';
 
 // Gro currently enforces that the primary build config
@@ -17,23 +17,27 @@ export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 	input: [createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**'])],
 };
 
-export const hasGroServer = (): Promise<boolean> => pathExists(SERVER_SOURCE_ID);
-export const hasGroServerConfig = (buildConfigs: BuildConfig[]): boolean =>
+export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
+export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
+export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
+export const hasApiServer = (): Promise<boolean> => pathExists(API_SERVER_SOURCE_ID);
+export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
-		(b) => b.name === SERVER_BUILD_CONFIG_NAME && b.platform === SERVER_BUILD_CONFIG_PLATFORM,
+		(b) =>
+			b.name === API_SERVER_BUILD_CONFIG_NAME && b.platform === API_SERVER_BUILD_CONFIG_PLATFORM,
 	);
-export const SERVER_BUILD_CONFIG_NAME = 'server';
-export const SERVER_BUILD_CONFIG_PLATFORM = 'node';
-export const SERVER_BUILD_CONFIG: BuildConfig = {
-	name: SERVER_BUILD_CONFIG_NAME,
-	platform: SERVER_BUILD_CONFIG_PLATFORM,
+export const API_SERVER_BUILD_CONFIG_NAME = 'server';
+export const API_SERVER_BUILD_CONFIG_PLATFORM = 'node';
+export const API_SERVER_BUILD_CONFIG: BuildConfig = {
+	name: API_SERVER_BUILD_CONFIG_NAME,
+	platform: API_SERVER_BUILD_CONFIG_PLATFORM,
 	primary: false,
 	dist: true,
-	input: [SERVER_SOURCE_BASE_PATH],
+	input: [API_SERVER_SOURCE_BASE_PATH],
 };
 // the first of these matches SvelteKit, the second is just close for convenience
-export const SERVER_DEFAULT_PORT_DEV = 3000;
-export const SERVER_DEFAULT_PORT_PROD = 3001;
+export const API_SERVER_DEFAULT_PORT_DEV = 3000;
+export const API_SERVER_DEFAULT_PORT_PROD = 3001;
 
 export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
 	const [hasIndexHtml, hasIndexTs] = await Promise.all([
