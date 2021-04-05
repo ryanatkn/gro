@@ -8,7 +8,7 @@ export const gen: Gen = async ({originId}) => {
 		`
 // note: if bundle size is an issue, prefer this module to using /src/fs/mime.ts when possible
 
-// these can be mutated at init
+// this list can be mutated after importing
 export const DEFAULT_ASSET_PATHS: string[] = [${Array.from(getExtensions())
 			.map((e) => `'${e}'`)
 			.join(', ')}]; 
