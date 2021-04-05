@@ -174,6 +174,6 @@ was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
 
 Gro's buildtime antics were inspired by [Svelte](https://github.com/sveltejs/svelte).
 
-## license :bird:
+## license [🐦](https://en.wikipedia.org/wiki/Free_and_open-source_software)
 
 [MIT](LICENSE)
