@@ -20,7 +20,7 @@ What is a task? See [`src/tasks/README.md`](../task).
 - [project/link](../project/link.task.ts) - link the distribution
 - [serve](../serve.task.ts) - start static file server
 - [server](../server.task.ts) - start API server
-- [start](../start.task.ts) - alias for npm start that builds if needed
+- [start](../start.task.ts) - runs the dist/ builds for production
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
 - [version](../version.task.ts) - bump version, publish to npm, and sync to GitHub
