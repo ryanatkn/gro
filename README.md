@@ -26,7 +26,8 @@ It includes:
 
 - [unbundled development](/src/docs/unbundled.md)
   for [Svelte](https://github.com/sveltejs/svelte) UIs
-  (inspired by [Snowpack](https://github.com/pikapkg/snowpack))
+  (inspired by [Snowpack](https://github.com/pikapkg/snowpack) and backed by
+  [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall))
   and integrated tools for Node servers and libraries
   - Gro supports SPAs on the frontend,
     but that functionality is now deprecated for
