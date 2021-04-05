@@ -2,13 +2,12 @@
 
 ## 0.12.0
 
-- add `gro start` as an alias for `npm start`
+- **break**: output builds to `dist/` mirroring the source tree as much as possible
   ([#147](https://github.com/feltcoop/gro/pull/147))
 - **break**: rename some things around the API server
   ([#147](https://github.com/feltcoop/gro/pull/147))
-
-## 0.11.4
-
+- add `gro start` as an alias for `npm start`
+  ([#147](https://github.com/feltcoop/gro/pull/147))
 - integrate the default Gro API server with SvelteKit and Gro's build task
   ([#145](https://github.com/feltcoop/gro/pull/145))
 - add task `gro server` to support the default API server use case in SvelteKit
