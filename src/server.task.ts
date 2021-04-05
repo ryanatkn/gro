@@ -43,6 +43,9 @@ export const task: Task<{}, TaskEvents> = {
 			log.error(red('server path does not exist:'), serverPath);
 			throw Error(`API server failed to start due to missing file: ${serverPath}`);
 		}
+		// TODO what if we wrote out the port and
+		// also, retried if it conflicted ports, have some affordance here to increment and write to disk
+		// on disk, we can check for that file in `svelte.config.cjs`
 		const spawned = spawn('node', [serverPath]);
 		events.emit('server.spawn', spawned);
 	},
