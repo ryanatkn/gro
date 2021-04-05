@@ -17,6 +17,7 @@ export type PackageJson = Obj<Json>; // TODO generate one day
 export type GroPackageJson = Obj<Json>; // TODO generate one day
 
 let packageJson: PackageJson | undefined;
+let groPackageJson: GroPackageJson | undefined;
 
 export const loadPackageJson = async (forceRefresh = false): Promise<PackageJson> => {
 	if (isThisProjectGro) return loadGroPackageJson(forceRefresh);
@@ -25,9 +26,6 @@ export const loadPackageJson = async (forceRefresh = false): Promise<PackageJson
 	}
 	return packageJson!;
 };
-
-let groPackageJson: GroPackageJson | undefined;
-
 export const loadGroPackageJson = async (forceRefresh = false): Promise<GroPackageJson> => {
 	if (!groPackageJson || forceRefresh) {
 		groPackageJson = await readJson(join(groPaths.root, 'package.json'));

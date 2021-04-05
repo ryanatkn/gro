@@ -2,7 +2,7 @@ import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
-import {isThisProjectGro, paths} from './paths.js';
+import {DIST_DIR, isThisProjectGro, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
@@ -14,6 +14,7 @@ import {hasApiServerConfig} from './config/defaultBuildConfig.js';
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {green} from './utils/terminal.js';
+import {toCommonBaseDir} from './utils/path.js';
 
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
@@ -88,9 +89,11 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			buildConfigsToBuild.map(async (buildConfig) => {
 				const inputFiles = await resolveInputFiles(buildConfig);
 				// TODO ok wait, does `outputDir` need to be at the output dir path?
-				const outputDir = paths.dist;
+				const outputDir = `${DIST_DIR}${toBuildExtension(
+					sourceIdToBasePath(toCommonBaseDir(inputFiles)),
+				)}`;
 				// const outputDir = paths.dist;
-				log.info(`building ${green(buildConfig.name)}`, inputFiles);
+				log.info(`building ${green(buildConfig.name)}`, outputDir, inputFiles);
 				if (inputFiles.length) {
 					const build = createBuild({
 						dev,

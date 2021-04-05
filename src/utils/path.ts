@@ -1,4 +1,4 @@
-import {extname, basename} from 'path';
+import {extname, basename, dirname} from 'path';
 
 export const replaceExtension = (path: string, newExtension: string): string => {
 	const {length} = extname(path);
@@ -27,3 +27,34 @@ export const toPathParts = (path: string): string[] => {
 // toPathSegments('/foo/bar/baz.ts') => ['foo', 'bar', 'baz.ts']
 export const toPathSegments = (path: string): string[] =>
 	path.split('/').filter((s) => s && s !== '.' && s !== '..');
+
+// Note that this operates on file paths, not directories.
+// It will strip the basename of any directories, which seems surprising.
+// The algorithm will be really slow for any big large array sizes. Don't do that.
+export const toCommonBaseDir = (filePaths: string[]): string => {
+	const dirs = filePaths.map((p) => dirname(p));
+	if (dirs.length === 1) return dirs[0];
+	const longest = [dirs[0]];
+	// stop if we get to ''
+	while (dirs[0]) {
+		let longestLength = longest[0].length;
+		for (let i = 1; i < dirs.length; i++) {
+			const path = dirs[i];
+			if (path.length > longestLength) {
+				longest.length = 1;
+				longest[0] = path;
+				longestLength = path.length;
+			} else if (path.length === longestLength) {
+				longest.push(path);
+			}
+		}
+		if (longest.length === dirs.length) return longest[0];
+		for (let i = 0; i < longest.length; i++) {
+			const path = longest[i];
+			dirs[dirs.findIndex((d) => d === path)] = dirname(path);
+		}
+		longest.length = 1;
+		longest[0] = dirs[0];
+	}
+	throw Error(`Unable to find a common base dir: ${filePaths.join(' ')}`);
+};
