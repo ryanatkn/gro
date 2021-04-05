@@ -13,7 +13,7 @@ import {
 } from '../paths.js';
 import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
 import {stripStart} from '../utils/string.js';
-import {getIsExternalModule} from '../utils/module.js';
+import {toIsExternalModule} from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID, isExternalBuildId} from './externalsBuildHelpers.js';
 
 // TODO this is all hacky and should be refactored
@@ -35,7 +35,7 @@ export const postprocess = (
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
-			const isExternalModule = getIsExternalModule(isBrowser);
+			const isExternalModule = toIsExternalModule(isBrowser);
 			let transformedContents = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`

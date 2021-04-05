@@ -1,4 +1,3 @@
-import {pathExists} from './fs/nodeFs.js';
 import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
@@ -8,12 +7,13 @@ import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
-import type {BuildConfig} from './config/buildConfig.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import type {SpawnedProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
 import {hasApiServerConfig} from './config/defaultBuildConfig.js';
 import {printTiming} from './utils/print.js';
+import {resolveInputFiles} from './build/utils.js';
+import {green} from './utils/terminal.js';
 
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
@@ -90,7 +90,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				// TODO ok wait, does `outputDir` need to be at the output dir path?
 				const outputDir = paths.dist;
 				// const outputDir = paths.dist;
-				log.info(`building "${buildConfig.name}"`, inputFiles);
+				log.info(`building ${green(buildConfig.name)}`, inputFiles);
 				if (inputFiles.length) {
 					const build = createBuild({
 						dev,
@@ -125,13 +125,3 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		}
 	},
 };
-
-// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
-const resolveInputFiles = async (buildConfig: BuildConfig): Promise<string[]> =>
-	(
-		await Promise.all(
-			buildConfig.input.map(async (input) =>
-				typeof input === 'string' && (await pathExists(input)) ? input : null!,
-			),
-		)
-	).filter(Boolean);

@@ -1,5 +1,5 @@
 // convenience helper
-export const getIsExternalModule = (isBrowser: boolean): IsExternalModule =>
+export const toIsExternalModule = (isBrowser: boolean): IsExternalModule =>
 	isBrowser ? isExternalBrowserModule : isExternalNodeModule;
 
 interface IsExternalModule {
