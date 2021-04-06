@@ -6,7 +6,8 @@ export const gen: Gen = async ({originId}) => {
 	return renderTsHeaderAndFooter(
 		{originId},
 		`
-// note: if bundle size is an issue, prefer this module to using /src/fs/mime.ts when possible
+// note: in environments where bundle size is important,
+// prefer this module to using /src/fs/mime.ts when possible
 
 // this list can be mutated after importing
 export const DEFAULT_ASSET_PATHS: string[] = [${Array.from(getExtensions())
