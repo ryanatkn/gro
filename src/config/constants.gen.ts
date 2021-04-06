@@ -12,7 +12,7 @@ export const gen: Gen = async ({originId}) => {
 // this list can be mutated after importing
 export const DEFAULT_ASSET_PATHS: string[] = [${Array.from(getExtensions())
 			.map((e) => `'${e}'`)
-			.join(', ')}]; 
+			.join(',')}];
 `,
 	);
 };
