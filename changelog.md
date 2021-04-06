@@ -2,7 +2,7 @@
 
 ## 0.13.1
 
-- improve logging aesthetics
+- improve logging readability
   ([#152](https://github.com/feltcoop/gro/pull/152))
 
 ## 0.13.0
