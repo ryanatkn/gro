@@ -2,6 +2,8 @@
 
 ## 0.12.2
 
+- add `getMimeTypes` and `getExtensions` returning iterators to `src/fs/mime.ts`
+  ([#149](https://github.com/feltcoop/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/feltcoop/gro/pull/149))
 
