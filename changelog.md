@@ -4,12 +4,12 @@
 
 - **break**: require Node >=14.16.0
   ([#150](https://github.com/feltcoop/gro/pull/150))
+- fix false positive API server detection in default config
+  ([#151](https://github.com/feltcoop/gro/pull/151))
 - add `getMimeTypes` and `getExtensions` returning iterators to `src/fs/mime.ts`
   ([#149](https://github.com/feltcoop/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/feltcoop/gro/pull/149))
-- fix false positive API server detection in default config
-  ([#151](https://github.com/feltcoop/gro/pull/151))
 
 ## 0.12.1
 
