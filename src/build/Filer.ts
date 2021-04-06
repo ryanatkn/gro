@@ -10,7 +10,7 @@ import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {Logger, SystemLogger} from '../utils/log.js';
-import {gray, magenta, red, blue, cyan} from '../utils/terminal.js';
+import {gray, magenta, red, cyan} from '../utils/terminal.js';
 import {printError} from '../utils/print.js';
 import type {
 	Build,
@@ -21,7 +21,7 @@ import type {
 	BuildResult,
 } from './builder.js';
 import {Encoding, inferEncoding} from '../fs/encoding.js';
-import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
+import {BuildConfig, printBuildConfigLabel} from '../config/buildConfig.js';
 import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
 import {
@@ -253,7 +253,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	async init(): Promise<void> {
 		if (this.initializing) return this.initializing;
-		this.log.trace(blue('init'));
+		this.log.trace('init');
 		let finishInitializing: () => void;
 		this.initializing = new Promise((r) => (finishInitializing = r));
 
@@ -323,7 +323,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				try {
 					assertBuildableSourceFile(file);
 				} catch (_err) {
-					this.log.error(red('missing input'), input, red('for build config'), buildConfig);
+					this.log.error(printBuildConfigLabel(buildConfig), red('missing input'), input);
 					throw Error('Missing input: check the build config and source files for the above input');
 				}
 				if (!file.buildConfigs.has(buildConfig)) {
@@ -365,9 +365,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// 	`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
 		// );
 		if (sourceFile.buildConfigs.has(buildConfig)) {
-			throw Error(
-				`Already has buildConfig ${printBuildConfig(buildConfig)}: ${gray(sourceFile.id)}`,
-			);
+			throw Error(`Already has buildConfig ${buildConfig.name}: ${gray(sourceFile.id)}`);
 		}
 		// Add the build config. The caller is expected to check to avoid duplicates.
 		sourceFile.buildConfigs.add(buildConfig);
@@ -405,7 +403,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		shouldUpdateSourceMeta = true,
 	): Promise<void> {
 		this.log.trace(
-			`removing source file from build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
+			`${printBuildConfigLabel(buildConfig)} removing source file ${gray(sourceFile.id)}`,
 		);
 
 		await this.updateBuildFiles(sourceFile, [], buildConfig);
@@ -425,7 +423,10 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			try {
 				await onRemove(sourceFile, buildConfig, this);
 			} catch (err) {
-				this.log.error('error while removing source file from builder', printError(err));
+				this.log.error(
+					`${printBuildConfigLabel(buildConfig)} error while removing source file from builder`,
+					printError(err),
+				);
 			}
 		}
 
@@ -660,7 +661,12 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			await this._buildSourceFile(sourceFile, buildConfig);
 			this.emit('build', {sourceFile, buildConfig});
 		} catch (err) {
-			this.log.error(red('build failed'), gray(id), printError(err));
+			this.log.error(
+				printBuildConfigLabel(buildConfig),
+				red('build failed'),
+				gray(id),
+				printError(err),
+			);
 			// TODO probably want to track this failure data
 		}
 		pendingBuilds.delete(id);
@@ -683,7 +689,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		sourceFile: BuildableSourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		this.log.info('build source file', gray(sourceFile.id));
+		this.log.info(`${printBuildConfigLabel(buildConfig)} build source file`, gray(sourceFile.id));
 
 		// Compile the source file.
 		let result: BuildResult<Build>;
@@ -967,18 +973,20 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 }
 
 const syncBuildFilesToDisk = async (changes: BuildFileChange[], log: Logger): Promise<void> => {
+	const {buildConfig} = changes[0]?.file;
+	const label = buildConfig ? printBuildConfigLabel(buildConfig) : '';
 	await Promise.all(
 		changes.map(async (change) => {
 			const {file} = change;
 			let shouldOutputNewFile = false;
 			if (change.type === 'added') {
 				if (!(await pathExists(file.id))) {
-					// log.trace('creating build file on disk', gray(file.id));
+					// log.trace(label, 'creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {
 					const existingContents = await loadContents(file.encoding, file.id);
 					if (!areContentsEqual(file.encoding, file.contents, existingContents)) {
-						log.trace('updating stale build file on disk', gray(file.id));
+						log.trace(label, 'updating stale build file on disk', gray(file.id));
 						shouldOutputNewFile = true;
 					} // ...else the build file on disk already matches what's in memory.
 					// This can happen if the source file changed but this particular build file did not.
@@ -987,11 +995,11 @@ const syncBuildFilesToDisk = async (changes: BuildFileChange[], log: Logger): Pr
 				}
 			} else if (change.type === 'updated') {
 				if (!areContentsEqual(file.encoding, file.contents, change.oldFile.contents)) {
-					log.trace('updating build file on disk', gray(file.id));
+					log.trace(label, 'updating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				}
 			} else if (change.type === 'removed') {
-				log.trace('deleting build file on disk', gray(file.id));
+				log.trace(label, 'deleting build file on disk', gray(file.id));
 				return remove(file.id);
 			} else {
 				throw new UnreachableError(change);
