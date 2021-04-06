@@ -3,7 +3,7 @@ import {resolve} from 'path';
 import {ensureArray} from '../utils/array.js';
 import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
-import {blue} from '../utils/terminal.js';
+import {blue, gray} from '../utils/terminal.js';
 import type {Result} from '../index.js';
 
 // See `../docs/config.md` for documentation.
@@ -130,3 +130,5 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 };
 
 export const printBuildConfig = (buildConfig: BuildConfig): string => blue(buildConfig.name);
+export const printBuildConfigLabel = (buildConfig: BuildConfig): string =>
+	`${gray('build:')}${printBuildConfig(buildConfig)}`;

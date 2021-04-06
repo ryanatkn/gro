@@ -27,6 +27,9 @@ export const getMimeTypeByExtension = (ext: string): string | null =>
 export const getExtensionsByMimeType = (mimeType: string): string[] | null =>
 	extensionsByMimeType.get(mimeType) || null;
 
+export const getExtensions = () => mimeTypeByExtension.keys();
+export const getMimeTypes = () => extensionsByMimeType.keys();
+
 // Overrides anything that might already be cached.
 export const addMimeTypeExtension = (mimeType: string, extension: string): void => {
 	const existingMimeType = mimeTypeByExtension.get(extension);

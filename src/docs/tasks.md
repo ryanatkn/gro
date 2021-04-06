@@ -2,7 +2,7 @@
 
 > <sub>[gro](/../..) / [docs](./) / tasks.md</sub>
 
-What is a task? See [`src/tasks/README.md`](../task).
+What is a `Task`? See [`src/tasks/README.md`](../task).
 
 ## all tasks
 

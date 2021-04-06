@@ -6,6 +6,8 @@ import {
 	getExtensionsByMimeType,
 	addMimeTypeExtension,
 	removeMimeTypeExtension,
+	getExtensions,
+	getMimeTypes,
 } from './mime.js';
 
 test('getMimeTypeByExtension', () => {
@@ -22,6 +24,14 @@ test('getExtensionsByMimeType', () => {
 	t.equal(getExtensionsByMimeType('application/json'), ['json', 'map']);
 	t.equal(getExtensionsByMimeType('text/javascript'), ['js', 'mjs']);
 	t.equal(getExtensionsByMimeType('fake/test-type'), null);
+});
+
+test('getExtensions', () => {
+	t.ok(Array.from(getExtensions()).length);
+});
+
+test('getMimeTypes', () => {
+	t.ok(Array.from(getMimeTypes()).length);
 });
 
 test('addMimeTypeExtension', () => {
