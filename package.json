@@ -45,7 +45,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=14.16.0"
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
