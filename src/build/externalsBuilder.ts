@@ -164,7 +164,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 // but it causes unnecessary delays building externals
 const IDLE_CHECK_INTERVAL = 200; // needs to be smaller than `IDLE_CHECK_DELAY`
 const IDLE_CHECK_DELAY = 700; // needs to be larger than `IDLE_CHECK_INTERVAL`
-const IDLE_TIME_LIMIT = numberFromEnv('GRO_IDLE_TIME_LIMIT', 20000); // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
+const IDLE_TIME_LIMIT = numberFromEnv('GRO_IDLE_TIME_LIMIT', 20_000); // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
 // TODO wait what's the relationship between those two? check for errors?
 
 // TODO this hackily guesses if the filer is idle enough to start installing externals

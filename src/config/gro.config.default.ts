@@ -19,7 +19,7 @@ export const config: GroConfigCreator = async () => {
 	const partial: PartialGroConfig = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
-			hasApiServer() ? API_SERVER_BUILD_CONFIG : null,
+			(await hasApiServer()) ? API_SERVER_BUILD_CONFIG : null,
 			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
 		logLevel: LogLevel.Trace,
