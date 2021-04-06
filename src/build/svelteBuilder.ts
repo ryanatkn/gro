@@ -11,7 +11,7 @@ import {
 	handleWarn,
 	SvelteCompilation,
 } from './svelteBuildHelpers.js';
-import {Logger, SystemLogger} from '../utils/log.js';
+import {Logger, printLogLabel, SystemLogger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
@@ -43,7 +43,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		onstats: null,
 		createPreprocessor: createDefaultPreprocessor,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[svelteBuilder]')]),
+		log: opts.log || new SystemLogger([printLogLabel('svelteBuilder', cyan)]),
 		svelteCompileOptions: opts.svelteCompileOptions || {},
 	};
 };

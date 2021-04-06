@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.13.1
+
+- improve logging readability
+  ([#152](https://github.com/feltcoop/gro/pull/152))
+
 ## 0.13.0
 
 - **break**: require Node >=14.16.0

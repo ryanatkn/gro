@@ -4,7 +4,7 @@ import sourcemapCodec from 'sourcemap-codec';
 
 import {blue, gray} from '../utils/terminal.js';
 import {outputFile} from '../fs/nodeFs.js';
-import {SystemLogger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import type {GroCssBuild, GroCssBundle} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
@@ -27,7 +27,7 @@ export const name = 'output-css';
 export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 	const {getCssBundles, toFinalCss, sourcemap} = initOptions(opts);
 
-	const log = new SystemLogger([blue(`[${name}]`)]);
+	const log = new SystemLogger([printLogLabel(name, blue)]);
 
 	return {
 		name,

@@ -1,7 +1,7 @@
 import type {EventEmitter} from 'events';
 
-import {cyan, magenta, red, gray} from '../utils/terminal.js';
-import {SystemLogger} from '../utils/log.js';
+import {cyan, red, gray} from '../utils/terminal.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {TaskModuleMeta} from './taskModule.js';
 import type {Args} from './task.js';
 import {TaskError} from './task.js';
@@ -39,7 +39,7 @@ export const runTask = async (
 			dev,
 			args,
 			events,
-			log: new SystemLogger([`${gray('[')}${magenta(task.name)}${gray(':log')}${gray(']')}`]),
+			log: new SystemLogger([`${printLogLabel(task.name)}${gray('[log]')}`]),
 			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedDev = dev) =>
 				invokeTask(invokedTaskName, invokedArgs, invokedEvents, invokedDev),
 		});

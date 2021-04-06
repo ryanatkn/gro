@@ -1,14 +1,14 @@
 import {spawn as spawnChildProcess} from 'child_process';
 import type {SpawnOptions, ChildProcess} from 'child_process';
 
-import {gray, green, magenta, red} from '../utils/terminal.js';
+import {gray, green, red} from '../utils/terminal.js';
 import {TaskError} from '../task/task.js';
-import {SystemLogger} from './log.js';
+import {printLogLabel, SystemLogger} from './log.js';
 import {printError, printKeyValue} from './print.js';
 import {wait} from './async.js';
 import type {Result} from './types.js';
 
-const log = new SystemLogger([`${gray('[')}${magenta('process')}${gray(']')}`]);
+const log = new SystemLogger([printLogLabel('process')]);
 
 export interface SpawnedProcess {
 	child: ChildProcess;
@@ -61,7 +61,7 @@ export const attachProcessErrorHandlers = () => {
 };
 
 const handleFatalError = async (err: Error, label = 'handleFatalError'): Promise<void> => {
-	new SystemLogger([red(`[${label}]`)]).error(printError(err));
+	new SystemLogger([printLogLabel(label, red)]).error(printError(err));
 	await Promise.all(Array.from(globalSpawn).map((child) => despawn(child)));
 	process.exit(1);
 };

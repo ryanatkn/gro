@@ -9,8 +9,8 @@ import {remove, outputFile, pathExists} from '../fs/nodeFs.js';
 import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
-import {Logger, SystemLogger} from '../utils/log.js';
-import {gray, magenta, red, cyan} from '../utils/terminal.js';
+import {Logger, printLogLabel, SystemLogger} from '../utils/log.js';
+import {gray, red, cyan} from '../utils/terminal.js';
 import {printError} from '../utils/print.js';
 import type {
 	Build,
@@ -153,7 +153,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([magenta('[filer]')]),
+		log: opts.log || new SystemLogger([printLogLabel('filer')]),
 		builder,
 		buildConfigs,
 		buildDir,

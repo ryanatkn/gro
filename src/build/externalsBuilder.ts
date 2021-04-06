@@ -2,7 +2,7 @@ import {basename, dirname, join} from 'path';
 import {install as installWithEsinstall, InstallResult} from 'esinstall';
 import type {Plugin as RollupPlugin} from 'rollup';
 
-import {Logger, SystemLogger} from '../utils/log.js';
+import {Logger, printLogLabel, SystemLogger} from '../utils/log.js';
 import {EXTERNALS_BUILD_DIR, JS_EXTENSION, toBuildOutPath} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, BuildContext, TextBuildSource, TextBuild} from './builder.js';
@@ -45,7 +45,7 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger([cyan('[externalsBuilder]')]);
+	const log = opts.log || new SystemLogger([printLogLabel('externalsBuilder', cyan)]);
 	return {
 		install: installWithEsinstall,
 		basePath: EXTERNALS_BUILD_DIR,

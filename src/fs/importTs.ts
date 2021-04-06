@@ -11,7 +11,7 @@ import {basename, dirname, join} from 'path';
 import {stripStart} from '../utils/string.js';
 import {isExternalNodeModule} from '../utils/module.js';
 import {replaceExtension} from '../utils/path.js';
-import {SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {cyan} from '../utils/terminal.js';
 
 /*
@@ -48,7 +48,7 @@ export const importTs = async (
 	const ctx: BuildContext = {
 		buildConfigs: [],
 		sourceMetaById: new Map(),
-		log: new SystemLogger([cyan('[importTs]')]),
+		log: new SystemLogger([printLogLabel('importTs', cyan)]),
 		buildDir: tempDir,
 		dev: true,
 		sourcemap: false,

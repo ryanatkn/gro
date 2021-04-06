@@ -4,7 +4,7 @@ import {existsSync} from 'fs';
 import {createFilter} from '@rollup/pluginutils';
 
 import {green} from '../utils/terminal.js';
-import {SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
@@ -35,7 +35,7 @@ export const name = 'plain-css';
 export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 	const {addCssBuild, extensions, include, exclude} = initOptions(opts);
 
-	const log = new SystemLogger([green(`[${name}]`)]);
+	const log = new SystemLogger([printLogLabel(name, green)]);
 
 	const filter = createFilter(include, exclude);
 
