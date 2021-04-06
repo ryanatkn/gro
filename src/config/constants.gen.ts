@@ -1,4 +1,4 @@
-import {Gen} from '../gen/gen.js';
+import type {Gen} from '../gen/gen.js';
 import {getExtensions} from '../fs/mime.js';
 import {renderTsHeaderAndFooter} from '../gen/helpers/ts.js';
 
