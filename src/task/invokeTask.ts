@@ -1,7 +1,7 @@
-import {magenta, cyan, red, gray} from '../utils/terminal.js';
+import {cyan, red, gray} from '../utils/terminal.js';
 import {EventEmitter} from 'events';
 import type {Args} from './task.js';
-import {SystemLogger, Logger, configureLogLevel} from '../utils/log.js';
+import {SystemLogger, Logger, configureLogLevel, printLogLabel} from '../utils/log.js';
 import {runTask} from './runTask.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {printMs, printPath, printPathOrGroPath, printTiming} from '../utils/print.js';
@@ -50,7 +50,7 @@ export const invokeTask = async (
 	events = new EventEmitter(),
 	dev?: boolean,
 ): Promise<void> => {
-	const log = new SystemLogger([`${gray('[')}${magenta(taskName || 'gro')}${gray(']')}`]);
+	const log = new SystemLogger([printLogLabel(taskName || 'gro')]);
 
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {

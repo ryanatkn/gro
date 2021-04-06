@@ -1,5 +1,5 @@
 import {green} from '../utils/terminal.js';
-import {SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {printKeyValue, printPath} from '../utils/print.js';
 
 export interface CssBuild {
@@ -20,7 +20,7 @@ export interface CssCache<T extends CssBuild = CssBuild> {
 }
 
 export const createCssCache = <T extends CssBuild = CssBuild>(): CssCache<T> => {
-	const log = new SystemLogger([green('[cssCache]')]);
+	const log = new SystemLogger([printLogLabel('cssCache', green)]);
 
 	// `bundles` key is an output bundle file name
 	const bundles = new Map<string, CssBundle<T>>();

@@ -2,8 +2,7 @@ import * as terser from 'terser';
 import type {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
-import {magenta} from '../utils/terminal.js';
-import {SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {printPath, printError} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -27,7 +26,7 @@ export const name = 'gro-terser';
 export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 	const {include, exclude, minifyOptions} = initOptions(opts);
 
-	const log = new SystemLogger([magenta(`[${name}]`)]);
+	const log = new SystemLogger([printLogLabel(name)]);
 
 	const filter = createFilter(include, exclude);
 

@@ -1,4 +1,4 @@
-import {red, yellow, gray, black, bgYellow, bgRed} from '../utils/terminal.js';
+import {red, yellow, gray, black, magenta, bgYellow, bgRed} from '../utils/terminal.js';
 import {EMPTY_ARRAY} from './array.js';
 
 // TODO could use some refactoring
@@ -178,3 +178,6 @@ export const configureLogLevel = (
 		SystemLogger.level = level;
 	}
 };
+
+export const printLogLabel = (label: string, color = magenta): string =>
+	`${gray('[')}${color(label)}${gray(']')}`;

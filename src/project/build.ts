@@ -11,9 +11,8 @@ import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
-import {magenta} from '../utils/terminal.js';
 import {rainbow} from '../utils/terminal.js';
-import {SystemLogger, Logger} from '../utils/log.js';
+import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/string.js';
 import {plainCssPlugin} from './rollup-plugin-plain-css.js';
@@ -70,7 +69,7 @@ export type MapWatchOptions = (o: RollupWatchOptions, b: Options) => RollupWatch
 export const createBuild = (opts: InitialOptions): Build => {
 	const options = initOptions(opts);
 
-	const log = new SystemLogger([magenta('[build]')]);
+	const log = new SystemLogger([printLogLabel('build')]);
 
 	log.trace('build options', options);
 

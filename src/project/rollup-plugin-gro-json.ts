@@ -1,8 +1,7 @@
 import type {Plugin} from 'rollup';
 import {createFilter, dataToEsm} from '@rollup/pluginutils';
 
-import {magenta} from '../utils/terminal.js';
-import {SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import {omitUndefined} from '../utils/object.js';
 
@@ -33,7 +32,7 @@ export const name = 'gro-json';
 export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
 	const {include, exclude, compact, indent, namedExports, preferConst} = initOptions(opts);
 
-	const log = new SystemLogger([magenta(`[${name}]`)]);
+	const log = new SystemLogger([printLogLabel(name)]);
 
 	const filter = createFilter(include, exclude);
 

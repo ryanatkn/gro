@@ -9,7 +9,7 @@ import {createSecureServer as createHttp2Server, Http2Server, ServerHttp2Stream}
 import type {ListenOptions} from 'net';
 
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
-import {SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
 import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
@@ -58,7 +58,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		port: DEFAULT_SERVER_PORT,
 		https: null,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[server]')]),
+		log: opts.log || new SystemLogger([printLogLabel('server', cyan)]),
 	};
 };
 

@@ -5,8 +5,7 @@ import {
 	PartialBuildConfig,
 	validateBuildConfigs,
 } from './buildConfig.js';
-import {Logger, LogLevel, SystemLogger, configureLogLevel} from '../utils/log.js';
-import {magenta} from '../utils/terminal.js';
+import {Logger, LogLevel, SystemLogger, configureLogLevel, printLogLabel} from '../utils/log.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/nodeFs.js';
 import {PRIMARY_NODE_BUILD_CONFIG} from './defaultBuildConfig.js';
@@ -116,7 +115,7 @@ export const loadGroConfig = async (
 ): Promise<GroConfig> => {
 	if (cachedConfig !== undefined) return cachedConfig;
 
-	const log = new SystemLogger([magenta('[config]')]);
+	const log = new SystemLogger([printLogLabel('config')]);
 	const options: GroConfigCreatorOptions = {log, dev};
 
 	const {configSourceId} = paths;

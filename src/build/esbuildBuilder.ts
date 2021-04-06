@@ -2,7 +2,7 @@ import esbuild from 'esbuild';
 
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
-import {Logger, SystemLogger} from '../utils/log.js';
+import {Logger, SystemLogger, printLogLabel} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
@@ -20,7 +20,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		createEsbuildOptions: createDefaultEsbuildOptions,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([cyan('[esbuildBuilder]')]),
+		log: opts.log || new SystemLogger([printLogLabel('esbuildBuilder', cyan)]),
 	};
 };
 

@@ -4,9 +4,9 @@ import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler
 import type {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
-import {magenta, red} from '../utils/terminal.js';
+import {red} from '../utils/terminal.js';
 import {toPathStem} from '../utils/path.js';
-import {SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
@@ -72,7 +72,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		onstats,
 	} = initOptions(opts);
 
-	const log = new SystemLogger([magenta(`[${name}]`)]);
+	const log = new SystemLogger([printLogLabel(name)]);
 
 	const getCompilation = (id: string): GroSvelteCompilation | undefined => compilations.get(id);
 
