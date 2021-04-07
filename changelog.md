@@ -4,6 +4,10 @@
 
 - **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
   ([#154](https://github.com/feltcoop/gro/pull/154))
+- **break**: rename `toArray` from `ensureArray`
+  ([#117](https://github.com/feltcoop/gro/pull/117))
+- export many more things from root: `import {/* !!! */} from '@feltcoop/gro';`
+  ([#117](https://github.com/feltcoop/gro/pull/117))
 
 ## 0.13.1
 
