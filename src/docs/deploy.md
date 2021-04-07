@@ -1,10 +1,10 @@
 # gro/deploy
 
-For now, Gro's `gro deploy` task only supports static deployments to
+For now, Gro's `gro deploy` task supports only static deployments to
 [GitHub pages](https://pages.github.com/).
 Eventually we want to expand builtin support,
 including servers and other static clouds,
-but for now you may need to implement `src/deploy.task.ts` yourself.
+but for now you need to implement `src/deploy.task.ts` yourself outside of GitHub pages.
 
 ```bash
 gro deploy # prepares dist/
