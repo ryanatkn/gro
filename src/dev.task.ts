@@ -10,11 +10,12 @@ import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
-import {createRestartableProcess} from './utils/process.js';
+import {createRestartableProcess, spawnProcess} from './utils/process.js';
 import {
 	hasApiServerConfig,
 	API_SERVER_BUILD_BASE_PATH,
 	API_SERVER_BUILD_CONFIG_NAME,
+	hasSvelteKitFrontend,
 } from './config/defaultBuildConfig.js';
 
 export interface TaskArgs {
@@ -35,6 +36,13 @@ export interface TaskEvents {
 export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'start dev server',
 	run: async ({dev, log, args, events}) => {
+		// If this is a SvelteKit frontend, for now, just defer to its dev command.
+		// TODO support merging SvelteKit and Gro builds (and then delete `felt-server`'s dev task)
+		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+			await spawnProcess('npx', ['svelte-kit', 'dev']);
+			return;
+		}
+
 		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');

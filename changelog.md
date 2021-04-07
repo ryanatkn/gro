@@ -320,7 +320,7 @@
 
 ## 0.2.10
 
-- add a default `gro deploy` task for gh-pages
+- add a default `gro deploy` task for GitHub pages
   ([#39](https://github.com/feltcoop/gro/pull/39))
 - run the clean task at the beginning of the check task
   ([#37](https://github.com/feltcoop/gro/pull/37))
