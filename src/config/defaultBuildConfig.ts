@@ -5,6 +5,8 @@ import {toBuildExtension, basePathToSourceId, toBuildOutPath, paths} from '../pa
 import {pathExists} from '../fs/node.js';
 import {getExtensions} from '../fs/mime.js';
 
+export const GIT_DEPLOY_BRANCH = 'main';
+
 // Gro currently enforces that the primary build config
 // for the Node platform has this value as its name.
 // This convention speeds up running tasks by standardizing where Gro can look for built files.
