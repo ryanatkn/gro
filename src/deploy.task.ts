@@ -3,10 +3,10 @@ import {join, basename} from 'path';
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 import {copy} from './fs/node.js';
-import {paths, SVELTE_KIT_BUILD_PATH} from './paths.js';
+import {paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {magenta, green, rainbow, red} from './utils/terminal.js';
-import {GIT_DEPLOY_BRANCH, hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
+import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
 
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
@@ -83,11 +83,6 @@ export const task: Task<TaskArgs> = {
 
 			// Update the initial file.
 			await copy(initialFile, join(distDir, initialFile));
-
-			// Handle builds outside of Gro, like SvelteKit, without any configuration.
-			if (await hasSvelteKitFrontend()) {
-				await copy(SVELTE_KIT_BUILD_PATH, distDir);
-			}
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
