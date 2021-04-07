@@ -5,6 +5,7 @@ import {spawnProcess} from './utils/process.js';
 import {copy, pathExists} from './fs/node.js';
 import {paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
+import {green, red} from './utils/terminal.js';
 
 export interface TaskArgs {
 	dry?: boolean;
@@ -60,9 +61,9 @@ export const task: Task<TaskArgs> = {
 			}
 			await copy(initialFile, join(distDir, initialFile));
 		} catch (err) {
-			log.error('Build failed:', printError(err));
+			log.error(red('Build failed:'), printError(err));
 			if (dry) {
-				log.info('Dry deploy failed! Files are available in', printPath(distDirName));
+				log.info(red('Dry deploy failed!'), 'Files are available in', printPath(distDirName));
 			} else {
 				await cleanGitWorktree(true);
 			}
@@ -71,7 +72,7 @@ export const task: Task<TaskArgs> = {
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
-			log.info('Dry deploy complete! Files are available in', printPath(distDirName));
+			log.info(green('Dry deploy complete!'), 'Files are available in', printPath(distDirName));
 		} else {
 			await spawnProcess('git', ['add', '.'], {cwd: distDir});
 			await spawnProcess('git', ['commit', '-m', 'deployment'], {
