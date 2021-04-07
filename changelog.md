@@ -14,9 +14,6 @@
   ([#156](https://github.com/feltcoop/gro/pull/156))
 - export many more things from root: `import {/* !!! */} from '@feltcoop/gro';`
   ([#117](https://github.com/feltcoop/gro/pull/117))
-
-## 0.13.1
-
 - improve logging readability
   ([#152](https://github.com/feltcoop/gro/pull/152))
 
