@@ -36,13 +36,10 @@ export const task: Task<TaskArgs> = {
 
 		// TODO confirm with dialog some of the things (extract a Gro helper?)
 
-		console.log('spawnProcess git status');
 		// Exit early if the git working directory has any unstaged or staged changes.
 		const result = await spawnProcess('git', ['diff-index', '--quiet', 'HEAD']);
-		console.log('result;', result);
 		if (!result.ok) {
-		}
-		if (!dry) {
+			log.error(red('git working directory is unclean~ please commit or stash to proceed'));
 			return;
 		}
 
@@ -89,9 +86,9 @@ export const task: Task<TaskArgs> = {
 				await copy(SVELTE_KIT_BUILD_PATH, distDir);
 			}
 		} catch (err) {
-			log.error(red('Build failed'), 'but', green('no changes were made to git.'), printError(err));
+			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
-				log.info(red('Dry deploy failed!'), 'Files are available in', printPath(distDirName));
+				log.info(red('dry deploy failed:'), 'files are available in', printPath(distDirName));
 			} else {
 				await cleanGitWorktree(true);
 			}
@@ -100,7 +97,7 @@ export const task: Task<TaskArgs> = {
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
-			log.info(green('Dry deploy complete!'), 'Files are available in', printPath(distDirName));
+			log.info(green('dry deploy complete:'), 'files are available in', printPath(distDirName));
 			return;
 		}
 
@@ -111,7 +108,7 @@ export const task: Task<TaskArgs> = {
 			await spawnProcess('git', ['commit', '-m', 'deployment'], gitArgs);
 			await spawnProcess('git', ['push', 'origin', deploymentBranch], gitArgs);
 		} catch (err) {
-			log.error(red('Updating git failed:'), printError(err));
+			log.error(red('updating git failed:'), printError(err));
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
