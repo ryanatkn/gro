@@ -119,6 +119,7 @@ export const task: Task<TaskArgs> = {
 	},
 };
 
+// TODO like above, these cause some misleading logging
 const cleanGitWorktree = async (force = false): Promise<void> => {
 	const removeCommand = ['worktree', 'remove', distDirName];
 	if (force) removeCommand.push('--force');
