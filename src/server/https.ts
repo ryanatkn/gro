@@ -1,6 +1,6 @@
 import {join} from 'path';
 
-import {stringFromEnv} from '../utils/env.js';
+import {toEnvString} from '../utils/env.js';
 import {pathExists, readFile} from '../fs/node.js';
 import type {Logger} from '../utils/log.js';
 
@@ -9,10 +9,10 @@ export interface HttpsCredentials {
 	key: string;
 }
 
-const DEFAULT_CERT_FILE: string = stringFromEnv('GRO_CERT_FILE', () =>
+const DEFAULT_CERT_FILE: string = toEnvString('GRO_CERT_FILE', () =>
 	join(process.cwd(), 'localhost-cert.pem'),
 );
-const DEFAULT_CERTKEY_FILE: string = stringFromEnv('GRO_CERTKEY_FILE', () =>
+const DEFAULT_CERTKEY_FILE: string = toEnvString('GRO_CERTKEY_FILE', () =>
 	join(process.cwd(), 'localhost-privkey.pem'),
 );
 

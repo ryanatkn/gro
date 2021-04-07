@@ -2,6 +2,11 @@
 
 ## 0.14.0
 
+- **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
+  ([#154](https://github.com/feltcoop/gro/pull/154))
+
+## 0.14.0
+
 - **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
   ([#154](https://github.com/feltcoop/gro/pull/154))
 - **break**: rename `src/fs/clean.ts` from `src/project/clean.ts`
