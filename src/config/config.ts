@@ -1,15 +1,13 @@
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_BASE_PATH, toImportId} from '../paths.js';
-import {
-	BuildConfig,
-	normalizeBuildConfigs,
-	PartialBuildConfig,
-	validateBuildConfigs,
-} from './buildConfig.js';
-import {Logger, LogLevel, SystemLogger, configureLogLevel, printLogLabel} from '../utils/log.js';
+import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
+import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
+import {LogLevel, SystemLogger, configureLogLevel, printLogLabel} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/node.js';
 import {PRIMARY_NODE_BUILD_CONFIG} from './defaultBuildConfig.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from '../build/tsBuildHelpers.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
+import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 import type {ServedDirPartial} from '../build/ServedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';

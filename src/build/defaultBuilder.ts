@@ -1,19 +1,14 @@
-import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import type {Builder} from './builder.js';
-import {createLazyBuilder, InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
-import {
-	createEsbuildBuilder,
-	InitialOptions as SwcBuilderInitialOptions,
-} from './esbuildBuilder.js';
-import {
-	createSvelteBuilder,
-	InitialOptions as SvelteBuilderInitialOptions,
-} from './svelteBuilder.js';
-import {
-	createExternalsBuilder,
-	InitialOptions as ExternalsBuilderInitialOptions,
-} from './externalsBuilder.js';
 import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
+import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
+import {createLazyBuilder} from './lazyBuilder.js';
+import type {InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
+import {createEsbuildBuilder} from './esbuildBuilder.js';
+import type {InitialOptions as SwcBuilderInitialOptions} from './esbuildBuilder.js';
+import {createSvelteBuilder} from './svelteBuilder.js';
+import type {InitialOptions as SvelteBuilderInitialOptions} from './svelteBuilder.js';
+import {createExternalsBuilder} from './externalsBuilder.js';
+import type {InitialOptions as ExternalsBuilderInitialOptions} from './externalsBuilder.js';
 
 export const createDefaultBuilder = (
 	esbuildBuilderOptions?: SwcBuilderInitialOptions,

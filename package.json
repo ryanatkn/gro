@@ -62,6 +62,7 @@
     "esinstall": "1.0.5",
     "fs-extra": "^9.1.0",
     "kleur": "^4.1.4",
+    "locate-character": "^2.0.5",
     "mri": "^1.1.6",
     "path-browserify": "^1.0.1",
     "prettier": "^2.2.1",

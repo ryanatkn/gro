@@ -6,12 +6,12 @@ import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {
 	baseSvelteCompileOptions,
 	createDefaultPreprocessor,
-	CreatePreprocessor,
 	handleStats,
 	handleWarn,
-	SvelteCompilation,
 } from './svelteBuildHelpers.js';
-import {Logger, printLogLabel, SystemLogger} from '../utils/log.js';
+import type {CreatePreprocessor, SvelteCompilation} from './svelteBuildHelpers.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,

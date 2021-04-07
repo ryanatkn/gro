@@ -1,4 +1,5 @@
-import {BuildContext, Builder, BuildSource, noopBuilder} from './builder.js';
+import {noopBuilder} from './builder.js';
+import type {BuildContext, Builder, BuildSource} from './builder.js';
 import {omitUndefined} from '../utils/object.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 

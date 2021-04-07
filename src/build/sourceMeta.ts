@@ -1,6 +1,7 @@
 import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/node.js';
 import type {Encoding} from '../fs/encoding.js';
-import {BuildOutDirname, JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
+import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
+import type {BuildOutDirname} from '../paths.js';
 import {getFileContentsHash} from './baseFilerFile.js';
 import type {BuildDependency, BuildContext} from './builder.js';
 import type {BuildableSourceFile} from './sourceFile.js';

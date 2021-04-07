@@ -1,11 +1,12 @@
-import {
-	createServer as createHttp1Server,
+import {createServer as createHttp1Server} from 'http';
+import type {
 	Server as Http1Server,
 	RequestListener as Http1RequestListener,
 	IncomingHttpHeaders,
 	OutgoingHttpHeaders,
 } from 'http';
-import {createSecureServer as createHttp2Server, Http2Server, ServerHttp2Stream} from 'http2';
+import {createSecureServer as createHttp2Server} from 'http2';
+import type {Http2Server, ServerHttp2Stream} from 'http2';
 import type {ListenOptions} from 'net';
 
 import {cyan, yellow, gray, red, rainbow, green} from '../utils/terminal.js';
@@ -15,12 +16,12 @@ import {stripAfter} from '../utils/string.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Filer} from '../build/Filer.js';
 import {
-	BaseFilerFile,
 	getFileMimeType,
 	getFileContentsBuffer,
 	getFileStats,
 	getFileContentsHash,
 } from '../build/baseFilerFile.js';
+import type {BaseFilerFile} from '../build/baseFilerFile.js';
 import {paths} from '../paths.js';
 import {loadPackageJson} from '../project/packageJson.js';
 import type {ProjectState} from './projectState.js';
