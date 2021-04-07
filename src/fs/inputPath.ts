@@ -5,12 +5,13 @@ import {
 	SOURCE_DIR,
 	SOURCE_DIR_NAME,
 	replaceRootDir,
-	Paths,
 	groDirBasename,
 	groPaths,
 } from '../paths.js';
+import type {Paths} from '../paths.js';
 import {stripStart} from '../utils/string.js';
-import {PathData, toPathData, PathStats} from './pathData.js';
+import {toPathData} from './pathData.js';
+import type {PathData, PathStats} from './pathData.js';
 
 /*
 

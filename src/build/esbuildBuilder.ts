@@ -2,7 +2,8 @@ import esbuild from 'esbuild';
 
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
-import {Logger, SystemLogger, printLogLabel} from '../utils/log.js';
+import {SystemLogger, printLogLabel} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';

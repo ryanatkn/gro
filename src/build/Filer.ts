@@ -3,13 +3,16 @@ import lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 
-import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
-import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
+import {createFilerDir} from '../build/FilerDir.js';
+import type {FilerDir, FilerDirChangeCallback} from '../build/FilerDir.js';
+import {mapDependencyToSourceId} from './utils.js';
+import type {MapDependencyToSourceId} from './utils.js';
 import {remove, outputFile, pathExists} from '../fs/node.js';
 import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
-import {Logger, printLogLabel, SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {gray, red, cyan} from '../utils/terminal.js';
 import {printError} from '../utils/print.js';
 import type {
@@ -20,29 +23,29 @@ import type {
 	BuilderState,
 	BuildResult,
 } from './builder.js';
-import {Encoding, inferEncoding} from '../fs/encoding.js';
-import {BuildConfig, printBuildConfigLabel} from '../config/buildConfig.js';
-import {EcmaScriptTarget, DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
-import {ServedDir, ServedDirPartial, toServedDirs} from './ServedDir.js';
-import {
-	assertBuildableSourceFile,
-	assertSourceFile,
-	BuildableSourceFile,
-	createSourceFile,
-	SourceFile,
-} from './sourceFile.js';
-import {BuildFile, createBuildFile, diffDependencies} from './buildFile.js';
+import {inferEncoding} from '../fs/encoding.js';
+import type {Encoding} from '../fs/encoding.js';
+import {printBuildConfigLabel} from '../config/buildConfig.js';
+import type {BuildConfig} from '../config/buildConfig.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
+import type {EcmaScriptTarget} from './tsBuildHelpers.js';
+import {toServedDirs} from './ServedDir.js';
+import type {ServedDir, ServedDirPartial} from './ServedDir.js';
+import {assertBuildableSourceFile, assertSourceFile, createSourceFile} from './sourceFile.js';
+import type {BuildableSourceFile, SourceFile} from './sourceFile.js';
+import {createBuildFile, diffDependencies} from './buildFile.js';
+import type {BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import {wrap} from '../utils/async.js';
 import {
 	DEFAULT_EXTERNALS_ALIASES,
-	ExternalsAliases,
 	EXTERNALS_SOURCE_ID,
 	getExternalsBuilderState,
 	getExternalsBuildState,
 } from './externalsBuildHelpers.js';
+import type {ExternalsAliases} from './externalsBuildHelpers.js';
 import {queueExternalsBuild} from './externalsBuilder.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';

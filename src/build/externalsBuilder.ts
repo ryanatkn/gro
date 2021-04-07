@@ -1,8 +1,10 @@
 import {basename, dirname, join} from 'path';
-import {install as installWithEsinstall, InstallResult} from 'esinstall';
+import {install as installWithEsinstall} from 'esinstall';
+import type {InstallResult} from 'esinstall';
 import type {Plugin as RollupPlugin} from 'rollup';
 
-import {Logger, printLogLabel, SystemLogger} from '../utils/log.js';
+import {printLogLabel, SystemLogger} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {EXTERNALS_BUILD_DIR, JS_EXTENSION, toBuildOutPath} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, BuildContext, TextBuildSource, TextBuild} from './builder.js';
@@ -11,10 +13,10 @@ import {loadContents} from './load.js';
 import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from '../project/cssCache.js';
-import {BuildConfig, printBuildConfig} from '../config/buildConfig.js';
+import {printBuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 import {
 	createDelayedPromise,
-	ExternalsBuildState,
 	getExternalsBuilderState,
 	getExternalsBuildState,
 	initExternalsBuilderState,
@@ -22,6 +24,7 @@ import {
 	loadImportMapFromDisk,
 	toSpecifiers,
 } from './externalsBuildHelpers.js';
+import type {ExternalsBuildState} from './externalsBuildHelpers.js';
 import {EMPTY_ARRAY} from '../utils/array.js';
 import {numberFromEnv} from '../utils/env.js';
 

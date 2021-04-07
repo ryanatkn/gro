@@ -4,7 +4,8 @@ import sourcemapCodec from 'sourcemap-codec';
 
 import {blue, gray} from '../utils/terminal.js';
 import {outputFile} from '../fs/node.js';
-import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
+import {SystemLogger, printLogLabel} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import type {GroCssBuild, GroCssBundle} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';

@@ -1,7 +1,8 @@
 import {basename, dirname, join} from 'path';
 
 import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/FilerDir.js';
-import {BuildFile, reconstructBuildFiles} from './buildFile.js';
+import {reconstructBuildFiles} from './buildFile.js';
+import type {BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
 import {toHash} from './utils.js';
 import type {BuildConfig} from '../config/buildConfig.js';

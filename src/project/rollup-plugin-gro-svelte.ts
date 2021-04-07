@@ -10,12 +10,8 @@ import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
-import {
-	SvelteCompilation,
-	baseSvelteCompileOptions,
-	handleWarn,
-	handleStats,
-} from '../build/svelteBuildHelpers.js';
+import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelteBuildHelpers.js';
+import type {SvelteCompilation} from '../build/svelteBuildHelpers.js';
 import {CSS_EXTENSION} from '../paths.js';
 import type {PartialExcept} from '../index.js';
 

@@ -6,6 +6,8 @@
   ([#154](https://github.com/feltcoop/gro/pull/154))
 - **break**: rename `toArray` from `ensureArray`
   ([#117](https://github.com/feltcoop/gro/pull/117))
+- upgrade to `svelte@3.37.0`
+  ([#102](https://github.com/feltcoop/gro/pull/102))
 - export many more things from root: `import {/* !!! */} from '@feltcoop/gro';`
   ([#117](https://github.com/feltcoop/gro/pull/117))
 
@@ -290,7 +292,7 @@
 
 - handle build errors in the deploy task and add the `--dry` deploy flag
   ([#42](https://github.com/feltcoop/gro/pull/42))
-- update dependencies
+- upgrade dependencies
   ([#43](https://github.com/feltcoop/gro/pull/43),
   [#44](https://github.com/feltcoop/gro/pull/44))
 
