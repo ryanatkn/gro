@@ -51,7 +51,7 @@ export const runTask = async (
 					? err.message
 					: `Unexpected error running task ${cyan(
 							task.name,
-					  )}. Aborting. If this is unexpected try running \`gro clean\`.`,
+					  )}. Canceling. If this is unexpected try running \`gro clean\`.`,
 			),
 			error: err,
 		};

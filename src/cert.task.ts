@@ -12,8 +12,8 @@ export const task: Task<TaskArgs> = {
 		const host = args.host || 'localhost';
 		const certFile = `${host}-cert.pem`;
 		const keyFile = `${host}-privkey.pem`;
-		if (await pathExists(certFile)) throw Error(`File ${certFile} already exists. Aborting.`);
-		if (await pathExists(keyFile)) throw Error(`File ${keyFile} already exists. Aborting.`);
+		if (await pathExists(certFile)) throw Error(`File ${certFile} already exists. Canceling.`);
+		if (await pathExists(keyFile)) throw Error(`File ${keyFile} already exists. Canceling.`);
 		await spawnProcess(
 			'openssl',
 			`req -x509 -newkey rsa:2048 -nodes -sha256 -subj /CN=${host} -keyout ${keyFile} -out ${certFile}`.split(
