@@ -6,12 +6,13 @@ import {copy} from './fs/node.js';
 import {paths, SVELTE_KIT_BUILD_PATH} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {magenta, green, rainbow, red} from './utils/terminal.js';
-import {hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
+import {GIT_DEPLOY_BRANCH, hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
 
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
 export interface TaskArgs {
+	branch?: string; // optional branch to deploy from; defaults to 'main'
 	dry?: boolean;
 	clean?: boolean; // clean the git worktree and Gro cache
 }
@@ -26,9 +27,13 @@ const TEMP_PREFIX = '__TEMP__';
 export const task: Task<TaskArgs> = {
 	description: 'deploy to static hosting',
 	run: async ({invokeTask, args, log}): Promise<void> => {
-		const {dry, clean} = args;
+		const {branch, dry, clean} = args;
+
+		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
 		// TODO checkout main
+		await spawnProcess('git', ['checkout', sourceBranch]);
+
 		// TODO confirm with dialog some of the things (extract a Gro helper?)
 
 		console.log('spawnProcess git status');
@@ -52,7 +57,7 @@ export const task: Task<TaskArgs> = {
 				`git rm -rf . && ` +
 				`mv ${TEMP_PREFIX}${initialFile} ${initialFile} && ` +
 				`git add ${initialFile} && ` +
-				'git commit -m "setup" && git checkout main',
+				`git commit -m "setup" && git checkout ${sourceBranch}`,
 			[],
 			{shell: true},
 		);
