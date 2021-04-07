@@ -5,6 +5,7 @@ import {Timings} from '../utils/time.js';
 import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
 import {loadGroConfig} from '../config/config.js';
 import {configureLogLevel} from '../utils/log.js';
+import {clean} from '../fs/clean.js';
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
@@ -21,6 +22,8 @@ export const task: Task = {
 		const timingToBuildWithFiler = timings.start('build with filer');
 		await buildSourceDirectory(config, dev, log);
 		timingToBuildWithFiler();
+
+		await clean({dist: true}, log);
 
 		// compile again with `tsc` to create all of the TypeScript type defs, sourcemaps, and typemaps
 		const timingToCompileWithTsc = timings.start('compile with tsc');
