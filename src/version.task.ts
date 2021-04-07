@@ -3,7 +3,7 @@ import {createInterface as createReadlineInterface} from 'readline';
 import type {Task} from './task/task.js';
 import {isThisProjectGro} from './paths.js';
 import {spawnProcess} from './utils/process.js';
-import {green, bgBlack, rainbow} from './utils/terminal.js';
+import {green, bgBlack, rainbow, red} from './utils/terminal.js';
 import {readFile} from './fs/node.js';
 import {loadPackageJson} from './project/packageJson.js';
 import type {Logger} from './utils/log.js';
@@ -64,14 +64,25 @@ const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<v
 	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
 	log.info(green(versionIncrement), '← new version');
 	await new Promise<void>(async (resolve) => {
-		const [latestChangelogVersion, currentPackageVersion] = await Promise.all([
-			getLatestChangelogHeading(),
-			getCurrentPackageVersion(),
-		]);
-		log.info(green(latestChangelogVersion), '← latest changelog version');
+		const [
+			[currentChangelogVersion, previousChangelogVersion],
+			currentPackageVersion,
+		] = await Promise.all([getChangelogVersions(), getCurrentPackageVersion()]);
+		log.info(green(currentChangelogVersion || '<empty>'), '← current changelog version');
 		log.info(green(currentPackageVersion), '← current package version');
-		if (latestChangelogVersion === currentPackageVersion) {
-			throw Error('Changelog version matches package version. Is the changelog updated?');
+		log.info(green(previousChangelogVersion || '<empty>'), '← previous changelog version');
+		if (currentChangelogVersion === currentPackageVersion) {
+			log.error(
+				red('Current changelog version matches package version. Is the changelog updated?'),
+			);
+		}
+		if (previousChangelogVersion !== currentPackageVersion) {
+			log.error(
+				red(
+					'Previous changelog version does not match package version.' +
+						' Is there an unpublished version in the changelog?',
+				),
+			);
 		}
 		readline.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
 			const lowercasedAnswer = answer.toLowerCase();
@@ -89,15 +100,14 @@ const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<v
 // TODO document this better
 // TODO move where?
 // TODO refactor? this code is quick & worky
-const changelogMatcher = /##(.+)/;
-const getLatestChangelogHeading = async (): Promise<string> => {
+const getChangelogVersions = async (): Promise<
+	[currentChangelogVersion?: string, previousChangelogVersion?: string]
+> => {
+	const changelogMatcher = /##.+/g;
 	const changelog = await readFile('changelog.md', 'utf8');
-	const matches = changelog.match(changelogMatcher);
-	if (matches) {
-		const version = matches[1].trim();
-		if (version) return version;
-	}
-	throw Error('Expected changelog subheading with version: "## 0.0.1"');
+	const matchCurrent = changelog.match(changelogMatcher);
+	if (!matchCurrent) return [];
+	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [string, string];
 };
 
 // TODO move where?
