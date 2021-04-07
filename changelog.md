@@ -4,6 +4,7 @@
 
 - **break**: update `src/deploy.task.ts` to work with SvelteKit
   ([#157](https://github.com/feltcoop/gro/pull/157))
+  - add flag `gro deploy --clean` to reset deployment state
   - it now uses the `deploy` branch instead of `gh-pages`
 - **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
   ([#154](https://github.com/feltcoop/gro/pull/154))
