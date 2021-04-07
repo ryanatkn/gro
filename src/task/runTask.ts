@@ -1,6 +1,6 @@
 import type {EventEmitter} from 'events';
 
-import {cyan, red, gray} from '../utils/terminal.js';
+import {cyan, red} from '../utils/terminal.js';
 import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {TaskModuleMeta} from './taskModule.js';
 import type {Args} from './task.js';

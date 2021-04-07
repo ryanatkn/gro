@@ -31,15 +31,17 @@ export const task: Task<TaskArgs> = {
 
 		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
-		// TODO checkout main
-		await spawnProcess('git', ['checkout', sourceBranch]);
-
-		// TODO confirm with dialog some of the things (extract a Gro helper?)
-
 		// Exit early if the git working directory has any unstaged or staged changes.
-		const result = await spawnProcess('git', ['diff-index', '--quiet', 'HEAD']);
-		if (!result.ok) {
+		const gitDiffResult = await spawnProcess('git', ['diff-index', '--quiet', 'HEAD']);
+		if (!gitDiffResult.ok) {
 			log.error(red('git working directory is unclean~ please commit or stash to proceed'));
+			return;
+		}
+
+		// Ensure we're on the right branch.
+		const gitCheckoutResult = await spawnProcess('git', ['checkout', sourceBranch]);
+		if (!gitCheckoutResult.ok) {
+			log.error(red(`failed git checkout with exit code ${gitCheckoutResult.code}`));
 			return;
 		}
 
@@ -56,6 +58,7 @@ export const task: Task<TaskArgs> = {
 				`git add ${initialFile} && ` +
 				`git commit -m "setup" && git checkout ${sourceBranch}`,
 			[],
+			// this uses `shell: true` because the above is unwieldy with standard command construction
 			{shell: true},
 		);
 
@@ -116,6 +119,8 @@ export const task: Task<TaskArgs> = {
 		// TODO maybe add a flag to preserve these files instead of overloading `dry`?
 		// or maybe just create a separate `deploy` dir to avoid problems?
 		await cleanGitWorktree();
+
+		log.info(rainbow('deployed'));
 	},
 };
 

@@ -30,6 +30,7 @@ export const DEBOUNCE_DEFAULT = 10;
 
 // ignore some things in a typical Gro project
 // note this set is exported & mutable 🤭
+// TODO use gitignore? expose gitignore interface to gro users?
 export const ignoredPaths = new Set(['.git', '.svelte', 'node_modules', '.DS_Store']);
 const defaultFilter: PathFilter = (file) => !ignoredPaths.has(file.path);
 
