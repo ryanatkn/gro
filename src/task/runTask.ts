@@ -39,7 +39,7 @@ export const runTask = async (
 			dev,
 			args,
 			events,
-			log: new SystemLogger([`${printLogLabel(task.name)}${gray('[log]')}`]),
+			log: new SystemLogger([`${printLogLabel(task.name)}`]),
 			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedDev = dev) =>
 				invokeTask(invokedTaskName, invokedArgs, invokedEvents, invokedDev),
 		});
