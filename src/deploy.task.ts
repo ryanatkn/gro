@@ -28,6 +28,20 @@ export const task: Task<TaskArgs> = {
 	run: async ({invokeTask, args, log}): Promise<void> => {
 		const {dry, clean} = args;
 
+		// TODO checkout main
+		// TODO confirm with dialog some of the things (extract a Gro helper?)
+
+		console.log('spawnProcess git status');
+		// Exit early if the git working directory has any unstaged or staged changes.
+		const result = await spawnProcess('git', ['diff-index', '--quiet', 'HEAD']);
+		console.log('result;', result);
+		if (!result.ok) {
+		}
+		if (!dry) {
+			return;
+		}
+
+		// TODO filter stdout? `--quiet` didn't work
 		// Set up the deployment branch if necessary.
 		// If the `deploymentBranch` already exists, this is a no-op.
 		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
