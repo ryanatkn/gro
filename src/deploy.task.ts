@@ -2,11 +2,14 @@ import {join, basename} from 'path';
 
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
-import {copy, pathExists} from './fs/node.js';
+import {copy} from './fs/node.js';
 import {paths, SVELTE_KIT_BUILD_PATH} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {green, red} from './utils/terminal.js';
 import {hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
+
+// TODO support other kinds of deployments
+// TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
 export interface TaskArgs {
 	dry?: boolean;
@@ -19,11 +22,8 @@ const deploymentBranch = 'deploy';
 const initialFile = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
 
-// TODO support other kinds of deployments
-// TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
-
 export const task: Task<TaskArgs> = {
-	description: 'deploy to gh-pages',
+	description: 'deploy to static hosting',
 	run: async ({invokeTask, args, log}): Promise<void> => {
 		const {dry} = args;
 
@@ -57,6 +57,7 @@ export const task: Task<TaskArgs> = {
 			// Update the initial file.
 			await copy(initialFile, join(distDir, initialFile));
 
+			// Handle builds outside of Gro, like SvelteKit, without any configuration.
 			if (await hasSvelteKitFrontend()) {
 				await copy(SVELTE_KIT_BUILD_PATH, distDir);
 			}
@@ -84,9 +85,7 @@ export const task: Task<TaskArgs> = {
 			await spawnProcess('git', ['push', 'origin', deploymentBranch], gitArgs);
 		} catch (err) {
 			log.error(red('Updating git failed:'), printError(err));
-			throw Error(
-				`Deploy failed in a bad state after building but before pushing. See the error above.`,
-			);
+			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
 		// Clean up the worktree so it doesn't interfere with development.
