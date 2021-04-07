@@ -3,9 +3,10 @@ import {join, basename} from 'path';
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 import {copy, pathExists} from './fs/node.js';
-import {paths} from './paths.js';
+import {paths, SVELTE_KIT_BUILD_PATH} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {green, red} from './utils/terminal.js';
+import {hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
 
 export interface TaskArgs {
 	dry?: boolean;
@@ -14,9 +15,8 @@ export interface TaskArgs {
 // TODO customize
 const distDir = paths.dist;
 const distDirName = basename(distDir);
-const deploymentBranch = 'gh-pages';
-const deploymentStaticContentDir = join(paths.source, 'project/gh-pages/');
-const initialFile = 'package.json';
+const deploymentBranch = 'deploy';
+const initialFile = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
 
 // TODO support other kinds of deployments
@@ -31,6 +31,7 @@ export const task: Task<TaskArgs> = {
 		// If the `deploymentBranch` already exists, this is a no-op.
 		await spawnProcess(
 			`git checkout --orphan ${deploymentBranch} && ` +
+				// TODO there's definitely a better way to do this
 				`cp ${initialFile} ${TEMP_PREFIX}${initialFile} && ` +
 				`git rm -rf . && ` +
 				`mv ${TEMP_PREFIX}${initialFile} ${initialFile} && ` +
@@ -53,13 +54,12 @@ export const task: Task<TaskArgs> = {
 			// Run the build.
 			await invokeTask('build');
 
-			// Copy everything from `src/project/gh-pages`. (like `CNAME` for GitHub custom domains)
-			// If any files conflict, throw an error!
-			// That should be part of the build process.
-			if (await pathExists(deploymentStaticContentDir)) {
-				await copy(deploymentStaticContentDir, distDir);
-			}
+			// Update the initial file.
 			await copy(initialFile, join(distDir, initialFile));
+
+			if (await hasSvelteKitFrontend()) {
+				await copy(SVELTE_KIT_BUILD_PATH, distDir);
+			}
 		} catch (err) {
 			log.error(red('Build failed:'), printError(err));
 			if (dry) {
@@ -73,20 +73,26 @@ export const task: Task<TaskArgs> = {
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
 			log.info(green('Dry deploy complete!'), 'Files are available in', printPath(distDirName));
-		} else {
-			await spawnProcess('git', ['add', '.'], {cwd: distDir});
-			await spawnProcess('git', ['commit', '-m', 'deployment'], {
-				cwd: distDir,
-			});
-			await spawnProcess('git', ['push', 'origin', deploymentBranch], {
-				cwd: distDir,
-			});
-
-			// Clean up the worktree so it doesn't interfere with development.
-			// TODO maybe add a flag to preserve these files instead of overloading `dry`?
-			// or maybe just create a separate `deploy` dir to avoid problems?
-			await cleanGitWorktree();
+			return;
 		}
+
+		try {
+			// TODO wait is this `cwd` correct or vestiges of the old code?
+			const gitArgs = {cwd: distDir};
+			await spawnProcess('git', ['add', '.'], gitArgs);
+			await spawnProcess('git', ['commit', '-m', 'deployment'], gitArgs);
+			await spawnProcess('git', ['push', 'origin', deploymentBranch], gitArgs);
+		} catch (err) {
+			log.error(red('Updating git failed:'), printError(err));
+			throw Error(
+				`Deploy failed in a bad state after building but before pushing. See the error above.`,
+			);
+		}
+
+		// Clean up the worktree so it doesn't interfere with development.
+		// TODO maybe add a flag to preserve these files instead of overloading `dry`?
+		// or maybe just create a separate `deploy` dir to avoid problems?
+		await cleanGitWorktree();
 	},
 };
 
