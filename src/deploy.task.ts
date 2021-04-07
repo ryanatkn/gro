@@ -96,9 +96,8 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Set up the deployment worktree in the dist directory.
-			await spawnProcess('git', ['worktree', 'add', distDirName, deploymentBranch]);
-			const gitArgs = {cwd: distDir};
-			console.log('distDir', distDir);
+			await spawnProcess('git', ['worktree', 'add', '-b', deploymentBranch, distDirName]);
+			const gitArgs = {cwd: distDirName};
 			await spawnProcess('git', ['add', '.', '-f'], gitArgs);
 			await spawnProcess('git', ['commit', '-m', 'deployment'], gitArgs);
 			await spawnProcess('git', ['push', 'origin', deploymentBranch], gitArgs);
