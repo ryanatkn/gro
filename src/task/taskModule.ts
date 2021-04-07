@@ -1,7 +1,7 @@
 import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
 import {ModuleMeta, LoadModuleResult, loadModule, loadModules, findModules} from '../fs/modules.js';
 import {Task, toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
-import {findFiles} from '../fs/nodeFs.js';
+import {findFiles} from '../fs/node.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import type {Obj} from '../index.js';
 

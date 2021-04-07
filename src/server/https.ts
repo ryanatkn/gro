@@ -1,7 +1,7 @@
 import {join} from 'path';
 
 import {stringFromEnv} from '../utils/env.js';
-import {pathExists, readFile} from '../fs/nodeFs.js';
+import {pathExists, readFile} from '../fs/node.js';
 import type {Logger} from '../utils/log.js';
 
 export interface HttpsCredentials {

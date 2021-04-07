@@ -6,7 +6,7 @@ import {findModules, loadModules, loadModule} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
-import {findFiles} from './nodeFs.js';
+import {findFiles} from './node.js';
 import {getPossibleSourceIds} from './inputPath.js';
 import type {Obj} from '../index.js';
 

@@ -5,7 +5,7 @@ import type {BuildConfig} from '../config/buildConfig.js';
 import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
 import type {BuildDependency} from './builder.js';
 import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
-import {pathExists} from '../fs/nodeFs.js';
+import {pathExists} from '../fs/node.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.

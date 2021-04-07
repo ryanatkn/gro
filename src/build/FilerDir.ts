@@ -1,4 +1,4 @@
-import {ensureDir} from '../fs/nodeFs.js';
+import {ensureDir} from '../fs/node.js';
 import {DEBOUNCE_DEFAULT, watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import type {PathFilter, PathStats} from '../fs/pathData.js';

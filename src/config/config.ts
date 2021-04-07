@@ -7,7 +7,7 @@ import {
 } from './buildConfig.js';
 import {Logger, LogLevel, SystemLogger, configureLogLevel, printLogLabel} from '../utils/log.js';
 import {importTs} from '../fs/importTs.js';
-import {pathExists} from '../fs/nodeFs.js';
+import {pathExists} from '../fs/node.js';
 import {PRIMARY_NODE_BUILD_CONFIG} from './defaultBuildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET, EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';

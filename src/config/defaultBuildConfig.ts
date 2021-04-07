@@ -2,7 +2,7 @@ import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
 import {toBuildExtension, basePathToSourceId, toBuildOutPath, paths} from '../paths.js';
-import {pathExists} from '../fs/nodeFs.js';
+import {pathExists} from '../fs/node.js';
 import {getExtensions} from '../fs/mime.js';
 
 // Gro currently enforces that the primary build config

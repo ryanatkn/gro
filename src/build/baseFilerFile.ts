@@ -1,4 +1,4 @@
-import {stat, Stats} from '../fs/nodeFs.js';
+import {stat, Stats} from '../fs/node.js';
 import type {Encoding} from '../fs/encoding.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {toHash} from './utils.js';

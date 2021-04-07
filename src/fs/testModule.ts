@@ -1,6 +1,6 @@
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {paths} from '../paths.js';
-import {findFiles} from '../fs/nodeFs.js';
+import {findFiles} from '../fs/node.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import type {Obj} from '../index.js';
 

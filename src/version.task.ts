@@ -4,7 +4,7 @@ import type {Task} from './task/task.js';
 import {isThisProjectGro} from './paths.js';
 import {spawnProcess} from './utils/process.js';
 import {green, bgBlack, rainbow} from './utils/terminal.js';
-import {readFile} from './fs/nodeFs.js';
+import {readFile} from './fs/node.js';
 import {loadPackageJson} from './project/packageJson.js';
 import type {Logger} from './utils/log.js';
 

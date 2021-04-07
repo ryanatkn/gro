@@ -1,4 +1,4 @@
-import {pathExists} from './fs/nodeFs.js';
+import {pathExists} from './fs/node.js';
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 

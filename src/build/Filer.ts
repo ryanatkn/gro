@@ -5,7 +5,7 @@ import type StrictEventEmitter from 'strict-event-emitter-types';
 
 import {FilerDir, FilerDirChangeCallback, createFilerDir} from '../build/FilerDir.js';
 import {MapDependencyToSourceId, mapDependencyToSourceId} from './utils.js';
-import {remove, outputFile, pathExists} from '../fs/nodeFs.js';
+import {remove, outputFile, pathExists} from '../fs/node.js';
 import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';

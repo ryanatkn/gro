@@ -2,7 +2,7 @@ import type {Task} from './task/task.js';
 import {toApiServerBuildPath} from './config/defaultBuildConfig.js';
 import {spawn} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';
-import {pathExists} from './fs/nodeFs.js';
+import {pathExists} from './fs/node.js';
 import {red} from './utils/terminal.js';
 
 /*
