@@ -3,7 +3,7 @@
 ## 0.15.0
 
 - **break**: update `src/deploy.task.ts` to work with SvelteKit
-  ([#154](https://github.com/feltcoop/gro/pull/154))
+  ([#157](https://github.com/feltcoop/gro/pull/157))
   - it now uses the `deploy` branch instead of `gh-pages`
 - **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
   ([#154](https://github.com/feltcoop/gro/pull/154))
