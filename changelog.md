@@ -1,6 +1,6 @@
 # Gro changelog
 
-## 0.14.0
+## 0.15.0
 
 - **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
   ([#154](https://github.com/feltcoop/gro/pull/154))
