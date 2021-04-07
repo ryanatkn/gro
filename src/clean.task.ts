@@ -1,5 +1,5 @@
 import type {Task} from './task/task.js';
-import {clean} from './project/clean.js';
+import {clean} from './fs/clean.js';
 
 export interface TaskArgs {
 	B?: boolean; // !build
