@@ -7,15 +7,15 @@ import {green, bgBlack, rainbow, red} from './utils/terminal.js';
 import {readFile} from './fs/node.js';
 import {loadPackageJson} from './project/packageJson.js';
 import type {Logger} from './utils/log.js';
+import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
 
 // version.task.ts
 // - usage: `gro version patch`
 // - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version
 // - runs the production build
-// - publishes to npm from the `main` branch (TODO configure)
-// - syncs commits and tags to GitHub `main` branch
+// - publishes to npm from the `main` branch, configurable with `--branch`
+// - syncs commits and tags to the configured main branch
 
-// TODO configure branch
 // TODO add `dry` option so it can be tested
 
 type VersionIncrement = string;
@@ -30,17 +30,24 @@ interface ValidateVersionIncrement {
 	(v: unknown): asserts v is VersionIncrement;
 }
 
-export const task: Task = {
+export interface TaskArgs {
+	_: string[];
+	branch?: string;
+}
+
+export const task: Task<TaskArgs> = {
 	description: 'bump version, publish to npm, and sync to GitHub',
 	run: async ({args, log, invokeTask}): Promise<void> => {
+		const {branch = GIT_DEPLOY_BRANCH} = args;
+
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
 
 		// Confirm with the user that we're doing what they expect.
 		await confirmWithUser(versionIncrement, log);
 
-		// Make sure we're on the main branch:
-		await spawnProcess('git', ['checkout', 'main']); // TODO allow configuring `'main'`
+		// Make sure we're on the right branch:
+		await spawnProcess('git', ['checkout', branch]);
 
 		// And updated to the latest:
 		await spawnProcess('git', ['pull']);
