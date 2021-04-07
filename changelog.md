@@ -2,7 +2,8 @@
 
 ## 0.15.0
 
-- **break**: update `src/build.task.ts` and `src/deploy.task.ts` to work with SvelteKit
+- **break**: make `src/build.task.ts`, `src/deploy.task.ts`,
+  and `src/start.task.ts` work with SvelteKit
   ([#157](https://github.com/feltcoop/gro/pull/157))
   - add flag `gro deploy --clean` to reset deployment state
   - add flag `--branch` to both tasks, default to `main`
