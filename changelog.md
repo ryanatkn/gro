@@ -10,6 +10,8 @@
   ([#117](https://github.com/feltcoop/gro/pull/117))
 - upgrade to `svelte@3.37.0`
   ([#102](https://github.com/feltcoop/gro/pull/102))
+- fix `dist/` build
+  ([#156](https://github.com/feltcoop/gro/pull/156))
 - export many more things from root: `import {/* !!! */} from '@feltcoop/gro';`
   ([#117](https://github.com/feltcoop/gro/pull/117))
 
