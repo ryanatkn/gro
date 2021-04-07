@@ -74,9 +74,6 @@ export const task: Task<TaskArgs> = {
 			return;
 		}
 
-		// Set up the deployment worktree in the dist directory.
-		await spawnProcess('git', ['worktree', 'add', distDirName, deploymentBranch]);
-
 		try {
 			// Run the build.
 			await invokeTask('build');
@@ -87,8 +84,6 @@ export const task: Task<TaskArgs> = {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
 				log.info(red('dry deploy failed:'), 'files are available in', printPath(distDirName));
-			} else {
-				await cleanGitWorktree(true);
 			}
 			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
 		}
@@ -100,13 +95,16 @@ export const task: Task<TaskArgs> = {
 		}
 
 		try {
-			// TODO wait is this `cwd` correct or vestiges of the old code?
+			// Set up the deployment worktree in the dist directory.
+			await spawnProcess('git', ['worktree', 'add', distDirName, deploymentBranch]);
 			const gitArgs = {cwd: distDir};
-			await spawnProcess('git', ['add', '.'], gitArgs);
+			console.log('distDir', distDir);
+			await spawnProcess('git', ['add', '.', '-f'], gitArgs);
 			await spawnProcess('git', ['commit', '-m', 'deployment'], gitArgs);
 			await spawnProcess('git', ['push', 'origin', deploymentBranch], gitArgs);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
+			await cleanGitWorktree(true);
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
