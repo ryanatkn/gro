@@ -53,6 +53,7 @@ It includes:
 ## docs
 
 - [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
+- [deploy](/src/docs/deploy.md) to GitHub pages
 - [`task`](/src/task) runner
 - [dev server](/src/server)
 - [`gen`](/src/gen) code generation
@@ -148,8 +149,13 @@ npm run bootstrap # build and link `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
 # development
-gro dev # start dev server in watch mode
-gro project/dist # update the `gro` CLI
+gro dev # start dev server in watch mode; it's designed as a long-running process
+gro build # update the `gro` CLI locally (see comment directly below: slow because bug)
+# gro project/dist # TODO this should be the command but it's currently bugged
+
+# use your development version of `gro` locally in another project
+cd ../otherproject
+npm link ../gro
 
 # release
 gro build # build for release and update the `gro` CLI

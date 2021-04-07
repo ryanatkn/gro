@@ -1,15 +1,16 @@
 import type {Task} from './task/task.js';
 import {pathExists} from './fs/node.js';
 import {Timings} from './utils/time.js';
-import {paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
+import {isThisProjectGro, paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
-import {spawn} from './utils/process.js';
+import {spawn, spawnProcess} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';
 import {green} from './utils/terminal.js';
 import type {BuildConfig} from './config/buildConfig.js';
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
+import {hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
 
 export interface TaskEvents {
 	'start.spawned': (spawneds: SpawnedProcess[], config: GroConfig) => void;
@@ -20,40 +21,48 @@ export const task: Task<{}, TaskEvents> = {
 	dev: false,
 	run: async ({log, invokeTask, dev, events}) => {
 		const timings = new Timings();
+
+		// build if needed
 		if (!(await pathExists(paths.dist))) {
 			log.info(green('dist not detected; building'));
 			const timingToBuild = timings.start('build');
 			await invokeTask('build');
 			timingToBuild();
 		}
+
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
 		timingToLoadConfig();
-		const inputs: {
-			buildConfig: BuildConfig;
-			inputFile: string;
-		}[] = (
-			await Promise.all(
-				// TODO this needs to be changed, might need to configure on each `buildConfig`
-				// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
-				config.builds.map(async (buildConfig) =>
-					(await resolveInputFiles(buildConfig)).map((inputFile) => ({buildConfig, inputFile})),
-				),
-			)
-		).flat();
-		const spawneds: SpawnedProcess[] = inputs
-			.map((input) => {
-				if (!input.buildConfig.dist) return null!;
-				const path = toEntryPath(input.buildConfig);
-				if (!path) {
-					log.error('expected to find entry path for build config', input.buildConfig);
-					return null!;
-				}
-				return spawn('node', [path]);
-			})
-			.filter(Boolean);
-		events.emit('start.spawned', spawneds, config);
 
+		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
+		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+			await spawnProcess('npx', ['svelte-kit', 'start']);
+		} else {
+			const inputs: {
+				buildConfig: BuildConfig;
+				inputFile: string;
+			}[] = (
+				await Promise.all(
+					// TODO this needs to be changed, might need to configure on each `buildConfig`
+					// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
+					config.builds.map(async (buildConfig) =>
+						(await resolveInputFiles(buildConfig)).map((inputFile) => ({buildConfig, inputFile})),
+					),
+				)
+			).flat();
+			const spawneds: SpawnedProcess[] = inputs
+				.map((input) => {
+					if (!input.buildConfig.dist) return null!;
+					const path = toEntryPath(input.buildConfig);
+					if (!path) {
+						log.error('expected to find entry path for build config', input.buildConfig);
+						return null!;
+					}
+					return spawn('node', [path]);
+				})
+				.filter(Boolean);
+			events.emit('start.spawned', spawneds, config);
+		}
 		for (const [key, timing] of timings.getAll()) {
 			log.trace(printTiming(key, timing));
 		}

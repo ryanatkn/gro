@@ -2,19 +2,27 @@ import type {Task} from './task/task.js';
 import {createBuild} from './project/build.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
 import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
-import {DIST_DIR, isThisProjectGro, sourceIdToBasePath, toBuildExtension} from './paths.js';
+import {
+	DIST_DIR,
+	isThisProjectGro,
+	sourceIdToBasePath,
+	SVELTE_KIT_BUILD_PATH,
+	toBuildExtension,
+} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
 import {configureLogLevel} from './utils/log.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
-import type {SpawnedProcess} from './utils/process.js';
+import {SpawnedProcess, spawnProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
-import {hasApiServerConfig} from './config/defaultBuildConfig.js';
+import {hasApiServerConfig, hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
-import {green} from './utils/terminal.js';
 import {toCommonBaseDir} from './utils/path.js';
+import {clean} from './fs/clean.js';
+import {move} from './fs/node.js';
+import {printBuildConfigLabel} from './config/buildConfig.js';
 
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
@@ -55,6 +63,19 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 
+		const timingToClean = timings.start('clean');
+		await clean({dist: true}, log);
+		timingToClean();
+
+		// If this is a SvelteKit frontend, for now, just build it and exit immediately.
+		// TODO support merging SvelteKit and Gro builds (and then delete `felt-server`'s build task)
+		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+			const timingToBuildSvelteKit = timings.start('SvelteKit build');
+			await spawnProcess('npx', ['svelte-kit', 'build']);
+			await move(SVELTE_KIT_BUILD_PATH, DIST_DIR);
+			timingToBuildSvelteKit();
+		}
+
 		// TODO think this through
 		// This is like a "prebuild" phase.
 		// Build everything with esbuild and Gro's `Filer` first,
@@ -62,7 +83,9 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// See the other reference to `isThisProjectGro` for comments about its weirdness.
 		let spawnedApiServer: SpawnedProcess | null = null;
 		if (!isThisProjectGro) {
+			const timingToPrebuild = timings.start('prebuild');
 			await buildSourceDirectory(config, dev, log);
+			timingToPrebuild();
 			events.emit('build.prebuild');
 
 			// now that the prebuild is ready, we can start the API server, if it exists
@@ -85,32 +108,34 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// and therefore belong in the default Rollup build.
 		// If more customization is needed, users should implement their own `src/build.task.ts`,
 		// which can be bootstrapped by copy/pasting this one. (and updating the imports)
+		const timingToBuild = timings.start('build');
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
 				const inputFiles = await resolveInputFiles(buildConfig);
+				if (!inputFiles.length) {
+					log.trace('no input files in', printBuildConfigLabel(buildConfig));
+					return;
+				}
 				// TODO ok wait, does `outputDir` need to be at the output dir path?
 				const outputDir = `${DIST_DIR}${toBuildExtension(
 					sourceIdToBasePath(toCommonBaseDir(inputFiles)),
 				)}`;
 				// const outputDir = paths.dist;
-				log.info(`building ${green(buildConfig.name)}`, outputDir, inputFiles);
-				if (inputFiles.length) {
-					const build = createBuild({
-						dev,
-						sourcemap: config.sourcemap,
-						inputFiles,
-						outputDir,
-						mapInputOptions,
-						mapOutputOptions,
-						mapWatchOptions,
-						esbuildOptions,
-					});
-					await build.promise;
-				} else {
-					log.warn(`no input files in build "${buildConfig.name}"`);
-				}
+				log.info('building', printBuildConfigLabel(buildConfig), outputDir, inputFiles);
+				const build = createBuild({
+					dev,
+					sourcemap: config.sourcemap,
+					inputFiles,
+					outputDir,
+					mapInputOptions,
+					mapOutputOptions,
+					mapWatchOptions,
+					esbuildOptions,
+				});
+				await build.promise;
 			}),
 		);
+		timingToBuild();
 
 		// done! clean up the API server
 		if (spawnedApiServer) {
@@ -119,7 +144,9 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				args.closeApiServer(spawnedApiServer);
 			} else {
 				spawnedApiServer!.child.kill();
+				const timingToCloseServer = timings.start('close server');
 				await spawnedApiServer!.closed;
+				timingToCloseServer();
 			}
 		}
 

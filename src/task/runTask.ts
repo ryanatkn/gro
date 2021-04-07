@@ -1,6 +1,6 @@
 import type {EventEmitter} from 'events';
 
-import {cyan, red, gray} from '../utils/terminal.js';
+import {cyan, red} from '../utils/terminal.js';
 import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {TaskModuleMeta} from './taskModule.js';
 import type {Args} from './task.js';
@@ -39,7 +39,7 @@ export const runTask = async (
 			dev,
 			args,
 			events,
-			log: new SystemLogger([`${printLogLabel(task.name)}${gray('[log]')}`]),
+			log: new SystemLogger([`${printLogLabel(task.name)}`]),
 			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedDev = dev) =>
 				invokeTask(invokedTaskName, invokedArgs, invokedEvents, invokedDev),
 		});
@@ -51,7 +51,7 @@ export const runTask = async (
 					? err.message
 					: `Unexpected error running task ${cyan(
 							task.name,
-					  )}. Aborting. If this is unexpected try running \`gro clean\`.`,
+					  )}. Canceling. If this is unexpected try running \`gro clean\`.`,
 			),
 			error: err,
 		};

@@ -5,6 +5,8 @@ import {toBuildExtension, basePathToSourceId, toBuildOutPath, paths} from '../pa
 import {pathExists} from '../fs/node.js';
 import {getExtensions} from '../fs/mime.js';
 
+export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
+
 // Gro currently enforces that the primary build config
 // for the Node platform has this value as its name.
 // This convention speeds up running tasks by standardizing where Gro can look for built files.
@@ -43,13 +45,14 @@ export const API_SERVER_DEFAULT_PORT_DEV = 3001;
 export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): string =>
 	toBuildOutPath(dev, API_SERVER_BUILD_CONFIG_NAME, API_SERVER_BUILD_BASE_PATH, buildDir);
 
-export const hasDeprecatedGroFrontend = async (): Promise<boolean> => {
-	const [hasIndexHtml, hasIndexTs] = await Promise.all([
-		pathExists('src/index.html'),
-		pathExists('src/index.ts'),
-	]);
-	return hasIndexHtml && hasIndexTs;
-};
+const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
+export const hasSvelteKitFrontend = async (): Promise<boolean> =>
+	everyPathExists(SVELTE_KIT_FRONTEND_PATHS);
+
+const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
+export const hasDeprecatedGroFrontend = async (): Promise<boolean> =>
+	everyPathExists(DEPRECATED_GRO_FRONTEND_PATHS);
+
 export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): PartialBuildConfig => ({
 	name: 'browser',
 	platform: 'browser',
@@ -57,3 +60,6 @@ export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): Parti
 	dist: true,
 });
 const toDefaultAssetPaths = (): string[] => Array.from(getExtensions());
+
+const everyPathExists = async (paths: string[]): Promise<boolean> =>
+	(await Promise.all(paths.map((path) => pathExists(path)))).every((v) => !!v);
