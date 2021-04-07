@@ -11,7 +11,8 @@ export interface TaskArgs {
 }
 
 // TODO customize
-const distDirName = basename(paths.dist);
+const distDir = paths.dist;
+const distDirName = basename(distDir);
 const deploymentBranch = 'gh-pages';
 const deploymentStaticContentDir = join(paths.source, 'project/gh-pages/');
 const initialFile = 'package.json';
@@ -55,9 +56,9 @@ export const task: Task<TaskArgs> = {
 			// If any files conflict, throw an error!
 			// That should be part of the build process.
 			if (await pathExists(deploymentStaticContentDir)) {
-				await copy(deploymentStaticContentDir, paths.dist);
+				await copy(deploymentStaticContentDir, distDir);
 			}
-			await copy(initialFile, join(paths.dist, initialFile));
+			await copy(initialFile, join(distDir, initialFile));
 		} catch (err) {
 			log.error('Build failed:', printError(err));
 			if (dry) {
@@ -72,12 +73,12 @@ export const task: Task<TaskArgs> = {
 		if (dry) {
 			log.info('Dry deploy complete! Files are available in', printPath(distDirName));
 		} else {
-			await spawnProcess('git', ['add', '.'], {cwd: paths.dist});
+			await spawnProcess('git', ['add', '.'], {cwd: distDir});
 			await spawnProcess('git', ['commit', '-m', 'deployment'], {
-				cwd: paths.dist,
+				cwd: distDir,
 			});
 			await spawnProcess('git', ['push', 'origin', deploymentBranch], {
-				cwd: paths.dist,
+				cwd: distDir,
 			});
 
 			// Clean up the worktree so it doesn't interfere with development.

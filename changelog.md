@@ -4,6 +4,8 @@
 
 - **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
   ([#154](https://github.com/feltcoop/gro/pull/154))
+- **break**: rename `src/fs/clean.ts` from `src/project/clean.ts`
+  ([#155](https://github.com/feltcoop/gro/pull/155))
 - **break**: rename `toArray` from `ensureArray`
   ([#117](https://github.com/feltcoop/gro/pull/117))
 - upgrade to `svelte@3.37.0`

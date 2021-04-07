@@ -3,7 +3,7 @@ import {copy} from '../fs/node.js';
 import {paths, toBuildOutPath} from '../paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
 import {printPath} from '../utils/print.js';
-import {clean} from './clean.js';
+import {clean} from '../fs/clean.js';
 import {loadGroConfig} from '../config/config.js';
 import {configureLogLevel} from '../utils/log.js';
 import {printBuildConfig} from '../config/buildConfig.js';
