@@ -4,6 +4,9 @@
 
 - **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
   ([#154](https://github.com/feltcoop/gro/pull/154))
+- **break**: rename `toArray` from `ensureArray`
+  ([#154](https://github.com/feltcoop/gro/pull/154))
+- export `AsyncStatus` from root
 
 ## 0.13.1
 

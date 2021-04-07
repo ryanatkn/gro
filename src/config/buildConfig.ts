@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 
-import {ensureArray} from '../utils/array.js';
+import {toArray} from '../utils/array.js';
 import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
 import {blue, gray} from '../utils/terminal.js';
@@ -71,7 +71,7 @@ export const normalizeBuildConfigs = (
 };
 
 const normalizeBuildConfigInput = (input: PartialBuildConfig['input']): BuildConfig['input'] =>
-	ensureArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
+	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
 export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {reason: string}> => {

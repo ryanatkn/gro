@@ -1,5 +1,5 @@
-import type {Lazy} from './lazy.js';
-import {lazy} from './lazy.js';
+import type {Lazy} from './function.js';
+import {lazy} from './function.js';
 
 // TODO validation?
 
