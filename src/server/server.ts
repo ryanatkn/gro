@@ -26,7 +26,7 @@ import {paths} from '../paths.js';
 import {loadPackageJson} from '../project/packageJson.js';
 import type {ProjectState} from './projectState.js';
 import type {Assignable, PartialExcept} from '../index.js';
-import {numberFromEnv, stringFromEnv} from '../utils/env.js';
+import {toEnvNumber, toEnvString} from '../utils/env.js';
 
 type Http2StreamHandler = (
 	stream: ServerHttp2Stream,
@@ -41,8 +41,8 @@ export interface GroServer {
 	readonly port: number;
 }
 
-export const DEFAULT_SERVER_HOST: string = stringFromEnv('HOST', 'localhost');
-export const DEFAULT_SERVER_PORT: number = numberFromEnv('PORT', 8999);
+export const DEFAULT_SERVER_HOST: string = toEnvString('HOST', 'localhost');
+export const DEFAULT_SERVER_PORT: number = toEnvNumber('PORT', 8999);
 
 export interface Options {
 	filer: Filer;

@@ -3,7 +3,7 @@ import {createGroServer} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {printPath} from './utils/print.js';
 import {loadHttpsCredentials} from './server/https.js';
-import {numberFromEnv, stringFromEnv} from './utils/env.js';
+import {toEnvNumber, toEnvString} from './utils/env.js';
 
 export interface TaskArgs {
 	_: string[];
@@ -17,8 +17,8 @@ export interface TaskArgs {
 export const task: Task<TaskArgs> = {
 	description: 'start static file server',
 	run: async ({log, args}): Promise<void> => {
-		const host = args.host || stringFromEnv('HOST');
-		const port = Number(args.port) || numberFromEnv('PORT');
+		const host = args.host || toEnvString('HOST');
+		const port = Number(args.port) || toEnvNumber('PORT');
 		const servedDirs = args._.length ? args._ : ['.'];
 
 		// TODO this is inefficient for just serving files in a directory
