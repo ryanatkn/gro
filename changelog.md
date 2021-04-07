@@ -2,7 +2,7 @@
 
 ## 0.15.0
 
-- **break**: update `src/deploy.task.ts` to work with SvelteKit
+- **break**: update `src/build.task.ts` and `src/deploy.task.ts` to work with SvelteKit
   ([#157](https://github.com/feltcoop/gro/pull/157))
   - add flag `gro deploy --clean` to reset deployment state
   - it now uses the `deploy` branch instead of `gh-pages`
