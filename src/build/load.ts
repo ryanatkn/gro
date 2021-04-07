@@ -1,4 +1,4 @@
-import {readFile} from '../fs/nodeFs.js';
+import {readFile} from '../fs/node.js';
 import type {Encoding} from '../fs/encoding.js';
 
 export const loadContents = <T extends Encoding>(

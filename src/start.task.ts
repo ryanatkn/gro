@@ -1,5 +1,5 @@
 import type {Task} from './task/task.js';
-import {pathExists} from './fs/nodeFs.js';
+import {pathExists} from './fs/node.js';
 import {Timings} from './utils/time.js';
 import {paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import type {GroConfig} from './config/config.js';

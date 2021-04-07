@@ -1,4 +1,4 @@
-import {pathExists, remove} from '../fs/nodeFs.js';
+import {pathExists, remove} from '../fs/node.js';
 import {NODE_MODULES_PATH, paths, SVELTE_KIT_DEV_PATH, SVELTE_KIT_BUILD_PATH} from '../paths.js';
 import {EMPTY_ARRAY} from '../utils/array.js';
 import type {SystemLogger} from '../utils/log.js';

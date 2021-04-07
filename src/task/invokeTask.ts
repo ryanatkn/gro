@@ -18,7 +18,7 @@ import {
 	isThisProjectGro,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
-import {findFiles, pathExists} from '../fs/nodeFs.js';
+import {findFiles, pathExists} from '../fs/node.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';

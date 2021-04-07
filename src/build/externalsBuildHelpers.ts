@@ -4,7 +4,7 @@ import {EXTERNALS_BUILD_DIR, toBuildOutPath} from '../paths.js';
 import type {BuilderState, BuildContext} from './builder.js';
 import {gray} from '../utils/terminal.js';
 import type {BuildConfig} from '../config/buildConfig.js';
-import {outputFile, pathExists, readJson} from '../fs/nodeFs.js';
+import {outputFile, pathExists, readJson} from '../fs/node.js';
 
 export interface ExternalsBuilderState {
 	readonly buildStates: Map<BuildConfig, ExternalsBuildState>;

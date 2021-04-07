@@ -3,7 +3,7 @@ import {dirname, join, relative} from 'path';
 import sourcemapCodec from 'sourcemap-codec';
 
 import {blue, gray} from '../utils/terminal.js';
-import {outputFile} from '../fs/nodeFs.js';
+import {outputFile} from '../fs/node.js';
 import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import type {GroCssBuild, GroCssBundle} from './types.js';
 import {omitUndefined} from '../utils/object.js';

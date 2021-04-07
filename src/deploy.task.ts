@@ -2,7 +2,7 @@ import {join, basename} from 'path';
 
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
-import {copy, pathExists} from './fs/nodeFs.js';
+import {copy, pathExists} from './fs/node.js';
 import {paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 
@@ -37,13 +37,6 @@ export const task: Task<TaskArgs> = {
 			[],
 			{shell: true},
 		);
-
-		const cleanGitWorktree = async (force = false): Promise<void> => {
-			const removeCommand = ['worktree', 'remove', distDirName];
-			if (force) removeCommand.push('--force');
-			await spawnProcess('git', removeCommand);
-			await spawnProcess('git', ['worktree', 'prune']);
-		};
 
 		// Clean up any existing worktree.
 		await cleanGitWorktree();
@@ -93,4 +86,11 @@ export const task: Task<TaskArgs> = {
 			await cleanGitWorktree();
 		}
 	},
+};
+
+const cleanGitWorktree = async (force = false): Promise<void> => {
+	const removeCommand = ['worktree', 'remove', distDirName];
+	if (force) removeCommand.push('--force');
+	await spawnProcess('git', removeCommand);
+	await spawnProcess('git', ['worktree', 'prune']);
 };

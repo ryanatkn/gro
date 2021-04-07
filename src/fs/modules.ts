@@ -1,5 +1,5 @@
 import {red} from '../utils/terminal.js';
-import {pathExists, stat} from './nodeFs.js';
+import {pathExists, stat} from './node.js';
 import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import {Timings} from '../utils/time.js';

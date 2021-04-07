@@ -1,7 +1,7 @@
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {red, green, gray} from './utils/terminal.js';
-import {outputFile} from './fs/nodeFs.js';
+import {outputFile} from './fs/node.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {printPath, printMs, printError, printTiming} from './utils/print.js';

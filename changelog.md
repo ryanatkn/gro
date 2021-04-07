@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.14.0
+
+- **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
+  ([#154](https://github.com/feltcoop/gro/pull/154))
+
 ## 0.13.1
 
 - improve logging readability
@@ -436,7 +441,7 @@
 ## 0.1.1
 
 - add `fs/watchNodeFs.ts` for low level filesystem watching
-- expose `remove` and `ensureDir` in `fs/nodeFs.ts`
+- expose `remove` and `ensureDir` in `fs/node.ts`
 
 ## 0.1.0
 

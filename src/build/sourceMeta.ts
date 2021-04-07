@@ -1,4 +1,4 @@
-import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/nodeFs.js';
+import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/node.js';
 import type {Encoding} from '../fs/encoding.js';
 import {BuildOutDirname, JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
 import {getFileContentsHash} from './baseFilerFile.js';

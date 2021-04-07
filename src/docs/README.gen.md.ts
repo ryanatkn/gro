@@ -5,7 +5,7 @@ import {paths, basePathToSourceId} from '../paths.js';
 import {toPathParts, toPathSegments} from '../utils/path.js';
 import {last} from '../utils/array.js';
 import {stripStart} from '../utils/string.js';
-import {findFiles} from '../fs/nodeFs.js';
+import {findFiles} from '../fs/node.js';
 
 // This renders a simple index of a possibly nested directory of files.
 
