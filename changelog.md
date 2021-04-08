@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.15.1
+
+- patch SvelteKit bug with duplicate build directories
+  [#160](https://github.com/feltcoop/gro/pull/160)
+
 ## 0.15.0
 
 - **break**: make `src/build.task.ts`, `src/deploy.task.ts`,
