@@ -45,6 +45,7 @@ export type Stats = fsExtra.Stats;
 export const readFile = fsExtra.readFile;
 export const readJson = fsExtra.readJson;
 export const outputFile = fsExtra.outputFile;
+export const readDir = fsExtra.readdir;
 export const emptyDir = fsExtra.emptyDir;
 export const ensureDir = fsExtra.ensureDir;
 export const copy = fsExtra.copy;
