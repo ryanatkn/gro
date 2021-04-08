@@ -3,7 +3,7 @@ import {join, sep, isAbsolute} from 'path';
 import {
 	basePathToSourceId,
 	SOURCE_DIR,
-	SOURCE_DIR_NAME,
+	SOURCE_DIRNAME,
 	replaceRootDir,
 	groDirBasename,
 	groPaths,
@@ -49,7 +49,7 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 		}
 	}
 	// Handle `src` by itself without conflicting with `srcFoo` names.
-	if (basePath === SOURCE_DIR_NAME) basePath = '';
+	if (basePath === SOURCE_DIRNAME) basePath = '';
 	// Allow prefix `src/` and just remove it if it's there.
 	basePath = stripStart(basePath, SOURCE_DIR);
 	return basePathToSourceId(basePath, fromPaths);

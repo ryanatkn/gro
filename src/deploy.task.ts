@@ -3,7 +3,7 @@ import {join, basename} from 'path';
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
 import {copy, move, remove, readDir} from './fs/node.js';
-import {GIT_PATH, paths} from './paths.js';
+import {GIT_DIRNAME, paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {magenta, green, rainbow, red} from './utils/terminal.js';
 import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
@@ -22,9 +22,9 @@ export interface TaskArgs {
 
 // TODO customize
 const DIST_DIR = paths.dist;
-const DIST_DIR_NAME = basename(DIST_DIR);
-const WORKTREE_DIR_NAME = 'worktree';
-const WORKTREE_DIR = `${paths.root}${WORKTREE_DIR_NAME}`;
+const DIST_DIRNAME = basename(DIST_DIR);
+const WORKTREE_DIRNAME = 'worktree';
+const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 const DEPLOY_BRANCH = 'deploy';
 const INITIAL_FILE = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
@@ -89,27 +89,27 @@ export const task: Task<TaskArgs> = {
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
-				log.info(red('dry deploy failed:'), 'files are available in', printPath(DIST_DIR_NAME));
+				log.info(red('dry deploy failed:'), 'files are available in', printPath(DIST_DIRNAME));
 			}
 			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
 		}
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
-			log.info(green('dry deploy complete:'), 'files are available in', printPath(DIST_DIR_NAME));
+			log.info(green('dry deploy complete:'), 'files are available in', printPath(DIST_DIRNAME));
 			return;
 		}
 
 		try {
 			// Set up the deployment worktree in the dist directory.
-			await spawnProcess('git', ['worktree', 'add', WORKTREE_DIR_NAME, DEPLOY_BRANCH]);
+			await spawnProcess('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
 				(await readDir(WORKTREE_DIR)).map((path) =>
-					path === GIT_PATH ? null : remove(`${WORKTREE_DIR}/${path}`),
+					path === GIT_DIRNAME ? null : remove(`${WORKTREE_DIR}/${path}`),
 				),
 			);
 			await Promise.all(
@@ -129,7 +129,7 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
-		await remove(`${WORKTREE_DIR}/${GIT_PATH}`);
+		await remove(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
 		await move(WORKTREE_DIR, DIST_DIR, {overwrite: true});
 		await cleanGitWorktree();
 
@@ -139,6 +139,6 @@ export const task: Task<TaskArgs> = {
 
 // TODO like above, these cause some misleading logging
 const cleanGitWorktree = async (): Promise<void> => {
-	await spawnProcess('git', ['worktree', 'remove', WORKTREE_DIR_NAME, '--force']);
+	await spawnProcess('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force']);
 	await spawnProcess('git', ['worktree', 'prune']);
 };

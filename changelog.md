@@ -1,9 +1,11 @@
 # Gro changelog
 
-## 0.15.1
+## 0.16.0
 
+- **break**: rename some paths constants for consistency
+  ([#161](https://github.com/feltcoop/gro/pull/161))
 - patch SvelteKit bug with duplicate build directories
-  [#160](https://github.com/feltcoop/gro/pull/160)
+  ([#160](https://github.com/feltcoop/gro/pull/160))
 
 ## 0.15.0
 
@@ -17,7 +19,7 @@
 - **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
   ([#158](https://github.com/feltcoop/gro/pull/158))
 - add helper `readDir` to `src/fs/node.ts`
-  [#159](https://github.com/feltcoop/gro/pull/159)
+  ([#159](https://github.com/feltcoop/gro/pull/159))
 
 ## 0.14.0
 
