@@ -11,7 +11,7 @@ import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
-import {EXTERNALS_BUILD_DIR, toBuildOutDirname} from '../paths.js';
+import {EXTERNALS_BUILD_DIRNAME, toBuildOutDirname} from '../paths.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import type {BuildContext, BuildDependency} from './builder.js';
 
@@ -98,7 +98,7 @@ export const createSourceFile = async (
 			throw Error(`Expected filer dir to be buildable: ${filerDir.dir} - ${id}`);
 		}
 		let filename = 'index' + (id.endsWith(extension) ? '' : extension);
-		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIR, dirname(id)) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIRNAME, dirname(id)) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',

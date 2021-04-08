@@ -21,24 +21,37 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 
 // TODO pass these to `createPaths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
-export const SOURCE_DIR_NAME = 'src';
-export const BUILD_DIR_NAME = '.gro';
-export const DIST_DIR_NAME = 'dist';
-export const SOURCE_DIR = `${SOURCE_DIR_NAME}/`;
-export const BUILD_DIR = `${BUILD_DIR_NAME}/`;
-export const DIST_DIR = `${DIST_DIR_NAME}/`;
+export const SOURCE_DIRNAME = 'src';
+export const BUILD_DIRNAME = '.gro';
+export const DIST_DIRNAME = 'dist';
+export const SOURCE_DIR = `${SOURCE_DIRNAME}/`;
+export const BUILD_DIR = `${BUILD_DIRNAME}/`;
+export const DIST_DIR = `${DIST_DIRNAME}/`;
 
-export const NODE_MODULES_PATH = 'node_modules';
-export const SVELTE_KIT_DEV_PATH = '.svelte';
-export const SVELTE_KIT_BUILD_PATH = 'build';
-export const SVELTE_KIT_DIST_PATH = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
-export const GIT_PATH = '.git';
+export const NODE_MODULES_DIRNAME = 'node_modules';
+export const SVELTE_KIT_DEV_DIRNAME = '.svelte';
+export const SVELTE_KIT_BUILD_DIRNAME = 'build';
+export const SVELTE_KIT_DIST_DIRNAME = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
+export const GIT_DIRNAME = '.git';
 
-export const CONFIG_SOURCE_BASE_PATH = 'gro.config.ts';
-export const CONFIG_BUILD_BASE_PATH = 'gro.config.js';
+export const CONFIG_SOURCE_PATH = 'gro.config.ts';
+export const CONFIG_BUILD_PATH = 'gro.config.js';
 
-export const EXTERNALS_BUILD_DIR = 'externals'; // TODO breaks the above trailing slash convention - revisit with trailing-slash branch
-export const EXTERNALS_BUILD_DIR_SUBPATH = `/${EXTERNALS_BUILD_DIR}/`;
+export const EXTERNALS_BUILD_DIRNAME = 'externals'; // TODO breaks the above trailing slash convention - revisit with trailing-slash branch
+export const EXTERNALS_BUILD_DIR_ROOT_PREFIX = `/${EXTERNALS_BUILD_DIRNAME}/`;
+
+export const JS_EXTENSION = '.js';
+export const TS_EXTENSION = '.ts';
+export const TS_DEFS_EXTENSION = '.d.ts';
+export const CSS_EXTENSION = '.css';
+export const SVELTE_EXTENSION = '.svelte';
+export const SVELTE_JS_BUILD_EXTENSION = '.svelte.js';
+export const SVELTE_CSS_BUILD_EXTENSION = '.svelte.css';
+export const JSON_EXTENSION = '.json';
+export const SOURCEMAP_EXTENSION = '.map';
+export const JS_SOURCEMAP_EXTENSION = '.js.map';
+export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
+export const SVELTE_CSS_SOURCEMAP_EXTENSION = '.svelte.css.map';
 
 export interface Paths {
 	root: string;
@@ -57,7 +70,7 @@ export const createPaths = (root: string): Paths => {
 		source,
 		build,
 		dist: `${root}${DIST_DIR}`,
-		configSourceId: `${source}${CONFIG_SOURCE_BASE_PATH}`,
+		configSourceId: `${source}${CONFIG_SOURCE_PATH}`,
 	};
 };
 
@@ -109,19 +122,6 @@ export const toBuildBasePath = (buildId: string, buildDir = paths.build): string
 	}
 	throw Error(`Invalid build id, cannot convert to build base path: ${buildId}`);
 };
-
-export const JS_EXTENSION = '.js';
-export const TS_EXTENSION = '.ts';
-export const TS_DEFS_EXTENSION = '.d.ts';
-export const CSS_EXTENSION = '.css';
-export const SVELTE_EXTENSION = '.svelte';
-export const SVELTE_JS_BUILD_EXTENSION = '.svelte.js';
-export const SVELTE_CSS_BUILD_EXTENSION = '.svelte.css';
-export const JSON_EXTENSION = '.json';
-export const SOURCEMAP_EXTENSION = '.map';
-export const JS_SOURCEMAP_EXTENSION = '.js.map';
-export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
-export const SVELTE_CSS_SOURCEMAP_EXTENSION = '.svelte.css.map';
 
 // TODO probably change this to use a regexp (benchmark?)
 export const hasSourceExtension = (path: string): boolean =>

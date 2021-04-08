@@ -6,7 +6,7 @@ import {
 	DIST_DIR,
 	isThisProjectGro,
 	sourceIdToBasePath,
-	SVELTE_KIT_BUILD_PATH,
+	SVELTE_KIT_BUILD_DIRNAME,
 	toBuildExtension,
 } from './paths.js';
 import {Timings} from './utils/time.js';
@@ -77,12 +77,12 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
 			// TODO take a look at its issues/codebase for fix
 			if (
-				(await pathExists(`${SVELTE_KIT_BUILD_PATH}/_app`)) &&
-				(await pathExists(`${SVELTE_KIT_BUILD_PATH}/app`))
+				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_app`)) &&
+				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/app`))
 			) {
-				await remove(`${SVELTE_KIT_BUILD_PATH}/_app`);
+				await remove(`${SVELTE_KIT_BUILD_DIRNAME}/_app`);
 			}
-			await move(SVELTE_KIT_BUILD_PATH, DIST_DIR);
+			await move(SVELTE_KIT_BUILD_DIRNAME, DIST_DIR);
 			timingToBuildSvelteKit();
 		}
 

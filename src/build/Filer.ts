@@ -8,7 +8,7 @@ import type {FilerDir, FilerDirChangeCallback} from '../build/FilerDir.js';
 import {mapDependencyToSourceId} from './utils.js';
 import type {MapDependencyToSourceId} from './utils.js';
 import {remove, outputFile, pathExists} from '../fs/node.js';
-import {EXTERNALS_BUILD_DIR_SUBPATH, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
+import {EXTERNALS_BUILD_DIR_ROOT_PREFIX, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {printLogLabel, SystemLogger} from '../utils/log.js';
@@ -940,7 +940,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		buildConfig: BuildConfig,
 	): Promise<void> | null {
 		const {specifier} = addedDependency;
-		if (specifier.startsWith(EXTERNALS_BUILD_DIR_SUBPATH)) return null;
+		if (specifier.startsWith(EXTERNALS_BUILD_DIR_ROOT_PREFIX)) return null;
 		const buildState = getExternalsBuildState(getExternalsBuilderState(this.state), buildConfig);
 		if (!buildState.specifiers.has(specifier)) {
 			buildState.specifiers.add(specifier);

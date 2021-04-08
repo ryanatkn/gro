@@ -1,4 +1,4 @@
-import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_BASE_PATH, toImportId} from '../paths.js';
+import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
 import {LogLevel, SystemLogger, configureLogLevel, printLogLabel} from '../utils/log.js';
@@ -125,11 +125,7 @@ export const loadGroConfig = async (
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
 		modulePath = configSourceId;
-		const configBuildId = toBuildOutPath(
-			dev,
-			PRIMARY_NODE_BUILD_CONFIG.name,
-			CONFIG_BUILD_BASE_PATH,
-		);
+		const configBuildId = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
 		if (await pathExists(configBuildId)) {
 			configModule = await import(configBuildId);
 		} else {

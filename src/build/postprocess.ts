@@ -4,7 +4,7 @@ import lexer from 'es-module-lexer';
 
 import {
 	CSS_EXTENSION,
-	EXTERNALS_BUILD_DIR,
+	EXTERNALS_BUILD_DIRNAME,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildBasePath,
@@ -69,7 +69,7 @@ export const postprocess = (
 						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
 							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
 						}
-						mappedSpecifier = `/${join(EXTERNALS_BUILD_DIR, mappedSpecifier)}${
+						mappedSpecifier = `/${join(EXTERNALS_BUILD_DIRNAME, mappedSpecifier)}${
 							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 						}`;
 						buildId = toBuildOutPath(

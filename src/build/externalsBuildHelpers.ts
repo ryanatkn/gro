@@ -1,6 +1,6 @@
 import type {ImportMap} from 'esinstall';
 
-import {EXTERNALS_BUILD_DIR, toBuildOutPath} from '../paths.js';
+import {EXTERNALS_BUILD_DIRNAME, toBuildOutPath} from '../paths.js';
 import type {BuilderState, BuildContext} from './builder.js';
 import {gray} from '../utils/terminal.js';
 import type {BuildConfig} from '../config/buildConfig.js';
@@ -21,7 +21,7 @@ export interface ExternalsBuildState {
 	resetterInterval: NodeJS.Timeout | null;
 }
 
-export const EXTERNALS_SOURCE_ID = EXTERNALS_BUILD_DIR;
+export const EXTERNALS_SOURCE_ID = EXTERNALS_BUILD_DIRNAME;
 // store the externals builder state here on the builder context `state` object
 export const EXTERNALS_BUILDER_STATE_KEY = EXTERNALS_SOURCE_ID;
 
@@ -87,7 +87,7 @@ export const updateImportMapOnDisk = async (
 	buildConfig: BuildConfig,
 	{dev, buildDir, log}: BuildContext,
 ): Promise<void> => {
-	const dest = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIR, buildDir);
+	const dest = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME, buildDir);
 	const importMapPath = toImportMapPath(dest);
 	// TODO `outputJson`? hmm
 	log.trace(`writing import map to ${gray(importMapPath)}`);
@@ -148,6 +148,6 @@ export const isExternalBuildId = (
 ): boolean =>
 	buildConfig.platform === 'browser'
 		? id.startsWith(
-				toBuildOutPath(ctx.dev, buildConfig.name, EXTERNALS_BUILD_DIR, ctx.buildDir) + '/',
+				toBuildOutPath(ctx.dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME, ctx.buildDir) + '/',
 		  )
 		: false;

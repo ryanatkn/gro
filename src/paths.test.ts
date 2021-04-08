@@ -15,7 +15,7 @@ import {
 	toBuildExtension,
 	toSourceExtension,
 	toBuildBasePath,
-	EXTERNALS_BUILD_DIR,
+	EXTERNALS_BUILD_DIRNAME,
 } from './paths.js';
 
 /* test_createPaths */
@@ -159,12 +159,12 @@ test_toSourceExtension('basic behavior', () => {
 test_toSourceExtension.run();
 /* /test_toSourceExtension */
 
-/* test_EXTERNALS_BUILD_DIR */
-const test_EXTERNALS_BUILD_DIR = suite('EXTERNALS_BUILD_DIR');
+/* test_EXTERNALS_BUILD_DIRNAME */
+const test_EXTERNALS_BUILD_DIRNAME = suite('EXTERNALS_BUILD_DIRNAME');
 
-test_EXTERNALS_BUILD_DIR('has no slash', () => {
-	t.not.ok(EXTERNALS_BUILD_DIR.includes('/'));
+test_EXTERNALS_BUILD_DIRNAME('has no slash', () => {
+	t.not.ok(EXTERNALS_BUILD_DIRNAME.includes('/'));
 });
 
-test_EXTERNALS_BUILD_DIR.run();
-/* /test_EXTERNALS_BUILD_DIR */
+test_EXTERNALS_BUILD_DIRNAME.run();
+/* /test_EXTERNALS_BUILD_DIRNAME */
