@@ -24,6 +24,8 @@ import {clean} from './fs/clean.js';
 import {move} from './fs/node.js';
 import {printBuildConfigLabel} from './config/buildConfig.js';
 
+// outputs dist/ using SvelteKit or Gro config
+
 export interface TaskArgs {
 	mapInputOptions?: MapInputOptions;
 	mapOutputOptions?: MapOutputOptions;
