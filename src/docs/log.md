@@ -21,10 +21,16 @@ See [`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts)
 for the default.
 
 [Gro's dev loggers](/src/utils/log.ts) have more overhead and complexity than needed
-because they late-bind all of they functionality,
-enabling global configuration the logger classes at runtime,
-specifically by importing the classes `Logger` and `SystemLogger`
-and mutating their static properties.
+because they late-bind all of their functionality,
+enabling code to globally configure logging behavior dynamically at runtime.
+
+> This is great for development, but we need a more efficient logger for production,
+> and we'll want to do perf-related buildtime log statement mapping for production anyway;
+> the logger will be a small piece of that effort.
+
+Specifically, runtime configuration is achieved by
+importing the classes `Logger` and `SystemLogger`
+and mutating their static properties:
 
 ```ts
 import {Logger, LogLevel} from '@feltcoop/gro';
@@ -48,12 +54,9 @@ The `printLogLabel` is a helper for readability and aesthetics:
 ```ts
 import {Logger, printLogLabel} from '@feltcoop/gro';
 import {rainbow} from '@feltcoop/gro/dist/utils/terminal.js';
-const log = new Logger(printLogLabel('official business', rainbow));
+const logA = new Logger(printLogLabel('official business', rainbow));
+const logB = new Logger(printLogLabel('party invitations')); // default color is `magenta`
 ```
-
-This is great for development, but we need a more efficient logger for production,
-and we'll want to do perf-related buildtime log statement mapping for production anyway;
-the logger will be a small piece of that effort.
 
 ```ts
 export class Logger extends DevLogger {
@@ -76,7 +79,7 @@ export enum LogLevel {
 }
 ```
 
-The `DevLogger` can be extended for custom loggers
+The `DevLogger` can be extended with your own custom loggers
 that have state separate from the builtins.
 Your loggers don't have to follow Gro's global configuration pattern, either.
 
