@@ -8,6 +8,8 @@
   for undefined Gro config properties:
   `GRO_HOST`, `GRO_PORT`, `GRO_LOG_LEVEL`
   ([#162](https://github.com/feltcoop/gro/pull/162))
+- document the dev logger and fix a bug in the two logger classes
+  ([#162](https://github.com/feltcoop/gro/pull/162))
 
 ## 0.16.0
 

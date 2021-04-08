@@ -8,11 +8,11 @@ import {toEnvNumber} from './env.js';
 // and report at the end of each build (and other tasks)
 
 export enum LogLevel {
-	Off,
-	Error,
-	Warn,
-	Info,
-	Trace,
+	Off = 0,
+	Error = 1,
+	Warn = 2,
+	Info = 3,
+	Trace = 4,
 }
 
 export const ENV_LOG_LEVEL = toEnvNumber('GRO_LOG_LEVEL');
@@ -54,11 +54,28 @@ How should we integrate the test logger with `uvu`?
 TODO !
 
 */
-export class Logger {
+
+export type Log = (...args: any[]) => void;
+
+export interface LoggerState {
+	level: LogLevel;
+	log: Log;
+	error: LogLevelDefaults;
+	warn: LogLevelDefaults;
+	info: LogLevelDefaults;
+	trace: LogLevelDefaults;
+}
+
+interface LogLevelDefaults {
+	prefixes: any[];
+	suffixes: any[];
+}
+
+export class DevLogger {
 	constructor(
-		public readonly prefixes: readonly any[] = EMPTY_ARRAY,
-		public readonly suffixes: readonly any[] = EMPTY_ARRAY,
-		public readonly state: LoggerState = Logger,
+		public readonly prefixes: readonly any[],
+		public readonly suffixes: readonly any[],
+		public readonly state: LoggerState, // can be the implementing class constructor
 	) {}
 
 	error(...args: any[]): void {
@@ -112,11 +129,21 @@ export class Logger {
 	newline(): void {
 		this.state.log('\n');
 	}
+}
 
-	// These properties can be mutated at runtime (see `configureLog`)
+export class Logger extends DevLogger {
+	constructor(
+		public readonly prefixes: readonly any[] = EMPTY_ARRAY,
+		public readonly suffixes: readonly any[] = EMPTY_ARRAY,
+		public readonly state: LoggerState = Logger,
+	) {
+		super(prefixes, suffixes, state);
+	}
+
+	// These properties can be mutated at runtime (see `configureLogLevel`)
 	// to affect all loggers instantiated with the default `state`.
 	// See the comment on `LoggerState` for more.
-	static level = DEFAULT_LOG_LEVEL;
+	static level: LogLevel = DEFAULT_LOG_LEVEL;
 	static log: Log = console.log.bind(console);
 	static error: LogLevelDefaults = {
 		prefixes: [red('➤'), black(bgRed(' 🞩 error 🞩 ')), red('\n➤')],
@@ -136,22 +163,6 @@ export class Logger {
 	};
 }
 
-export type Log = (...args: any[]) => void;
-
-export interface LoggerState {
-	level: LogLevel;
-	log: Log;
-	error: LogLevelDefaults;
-	warn: LogLevelDefaults;
-	info: LogLevelDefaults;
-	trace: LogLevelDefaults;
-}
-
-interface LogLevelDefaults {
-	prefixes: any[];
-	suffixes: any[];
-}
-
 /*
 
 The `SystemLogger` is distinct from the `Logger`
@@ -162,8 +173,7 @@ This allows user code to simply import and use `Logger`.
 and users can always extend `Logger` with their own custom versions.
 
 */
-export class SystemLogger extends Logger {
-	static level = LogLevel.Trace;
+export class SystemLogger extends DevLogger {
 	constructor(
 		prefixes: readonly any[] = EMPTY_ARRAY,
 		suffixes: readonly any[] = EMPTY_ARRAY,
@@ -171,6 +181,28 @@ export class SystemLogger extends Logger {
 	) {
 		super(prefixes, suffixes, state);
 	}
+
+	// These properties can be mutated at runtime (see `configureLogLevel`)
+	// to affect all loggers instantiated with the default `state`.
+	// See the comment on `LoggerState` for more.
+	static level: LogLevel = DEFAULT_LOG_LEVEL;
+	static log: Log = console.log.bind(console);
+	static error: LogLevelDefaults = {
+		prefixes: [red('➤'), black(bgRed(' 🞩 error 🞩 ')), red('\n➤')],
+		suffixes: ['\n ', black(bgRed(' 🞩🞩 '))],
+	};
+	static warn: LogLevelDefaults = {
+		prefixes: [yellow('➤'), black(bgYellow(' ⚑ warning ⚑ ')), '\n' + yellow('➤')],
+		suffixes: ['\n ', black(bgYellow(' ⚑ '))],
+	};
+	static info: LogLevelDefaults = {
+		prefixes: [gray('➤')],
+		suffixes: [],
+	};
+	static trace: LogLevelDefaults = {
+		prefixes: [gray('—')],
+		suffixes: [],
+	};
 }
 
 export const configureLogLevel = (
