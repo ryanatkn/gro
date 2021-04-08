@@ -10,8 +10,8 @@ but for now you need to implement `src/deploy.task.ts` yourself outside of GitHu
 
 For a low-tech deploy task example for a VPS server,
 (disclaimer: this code was written a while ago in a hurry),
-see `felt-mockup`'s
-[`src/deploy.task.ts`](https://github.com/feltcoop/felt-mockup/blob/main/src/deploy.task.ts).
+see
+[`@feltcoop/felt-mockup/src/deploy.task.ts`](https://github.com/feltcoop/felt-mockup/blob/main/src/deploy.task.ts).
 
 ```bash
 gro deploy # prepare dist/ and commit it to the `deploy` branch, then push to go live
