@@ -6,6 +6,7 @@ For now, [Gro's logger](/src/utils/log.ts) is designed for development only, not
 import {Logger} from '@feltcoop/gro';
 const log = new Logger('[official business]');
 log.info('i have something to report');
+log.trace('this is a verbose and very wordy long report for a meeting');
 log.warn('dont u dare');
 log.error('wat');
 log.plain('this message passes through to console.log unmodified');
