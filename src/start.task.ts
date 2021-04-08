@@ -35,7 +35,7 @@ export const task: Task<{}, TaskEvents> = {
 		timingToLoadConfig();
 
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
-		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+		if (await hasSvelteKitFrontend()) {
 			await spawnProcess('npx', ['svelte-kit', 'start']);
 		} else {
 			const inputs: {

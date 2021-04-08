@@ -71,7 +71,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		// If this is a SvelteKit frontend, for now, just build it and exit immediately.
 		// TODO support merging SvelteKit and Gro builds (and then delete `felt-server`'s build task)
-		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+		if (await hasSvelteKitFrontend()) {
 			const timingToBuildSvelteKit = timings.start('SvelteKit build');
 			await spawnProcess('npx', ['svelte-kit', 'build']);
 			// TODO remove this when SvelteKit has its duplicate build dir bug fixed

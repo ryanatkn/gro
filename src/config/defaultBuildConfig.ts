@@ -1,7 +1,13 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
-import {toBuildExtension, basePathToSourceId, toBuildOutPath, paths} from '../paths.js';
+import {
+	toBuildExtension,
+	basePathToSourceId,
+	toBuildOutPath,
+	paths,
+	isThisProjectGro,
+} from '../paths.js';
 import {pathExists} from '../fs/node.js';
 import {getExtensions} from '../fs/mime.js';
 
@@ -47,7 +53,7 @@ export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): stri
 
 const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const hasSvelteKitFrontend = async (): Promise<boolean> =>
-	everyPathExists(SVELTE_KIT_FRONTEND_PATHS);
+	!isThisProjectGro && (await everyPathExists(SVELTE_KIT_FRONTEND_PATHS));
 
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (): Promise<boolean> =>
