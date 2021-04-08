@@ -16,6 +16,6 @@ gro deploy --clean # if something goes wrong, use this to reset git and gro stat
 See [`src/deploy.task.ts`](/src/deploy.task.ts) for the details.
 
 For a low-tech deploy task example for a VPS server,
-code with no warranty or support that was written a while ago in a hurry,
+(disclaimer: this code was written a while ago in a hurry),
 see `felt-mockup`'s
 [`src/deploy.task.ts`](https://github.com/feltcoop/felt-mockup/blob/main/src/deploy.task.ts).
