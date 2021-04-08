@@ -7,7 +7,6 @@ task supports only static deployments to
 Eventually we want to expand builtin support,
 including servers and other static clouds,
 but for now you need to implement `src/deploy.task.ts` yourself outside of GitHub pages.
-
 For a low-tech deploy task example for a VPS server,
 (disclaimer: this code was written a while ago in a hurry),
 see
