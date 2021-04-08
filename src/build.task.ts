@@ -21,7 +21,7 @@ import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {toCommonBaseDir} from './utils/path.js';
 import {clean} from './fs/clean.js';
-import {move} from './fs/node.js';
+import {move, pathExists, remove} from './fs/node.js';
 import {printBuildConfigLabel} from './config/buildConfig.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
@@ -74,6 +74,14 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
 			const timingToBuildSvelteKit = timings.start('SvelteKit build');
 			await spawnProcess('npx', ['svelte-kit', 'build']);
+			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
+			// TODO take a look at its issues/codebase for fix
+			if (
+				(await pathExists(`${SVELTE_KIT_BUILD_PATH}/_app`)) &&
+				(await pathExists(`${SVELTE_KIT_BUILD_PATH}/app`))
+			) {
+				await remove(`${SVELTE_KIT_BUILD_PATH}/_app`);
+			}
 			await move(SVELTE_KIT_BUILD_PATH, DIST_DIR);
 			timingToBuildSvelteKit();
 		}
