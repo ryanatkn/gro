@@ -20,5 +20,5 @@ interface ToEnvNumber {
 
 export const toEnvNumber: ToEnvNumber = (key: string, fallback?: number | Lazy<number>) => {
 	const value = parseInt(process.env[key] || '', 10);
-	return !Number.isNaN(value) ? value : lazy(fallback)!;
+	return Number.isNaN(value) ? lazy(fallback)! : value;
 };
