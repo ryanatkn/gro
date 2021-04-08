@@ -8,9 +8,9 @@ Eventually we want to expand builtin support,
 including servers and other static clouds,
 but for now you need to implement `src/deploy.task.ts` yourself outside of GitHub pages.
 For a low-tech deploy task example for a VPS server,
-(disclaimer: this code was written a while ago in a hurry),
 see
 [`@feltcoop/felt-mockup/src/deploy.task.ts`](https://github.com/feltcoop/felt-mockup/blob/main/src/deploy.task.ts).
+(disclaimer: this code was written a while ago in a hurry)
 
 ```bash
 gro deploy # prepare dist/ and commit it to the `deploy` branch, then push to go live
