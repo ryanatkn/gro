@@ -30,6 +30,26 @@ import {Logger, LogLevel} from '@feltcoop/gro/dist/utils/log.js';
 Logger.level = LogLevel.Info;
 ```
 
+The `configureLogLevel` helper does this for both `Logger` and `SystemLogger`:
+
+```ts
+import {configureLogLevel, LogLevel} from '@feltcoop/gro/dist/utils/log.js';
+configureLogLevel(LogLevel.Info);
+// configureLogLevel = (
+// 	level: LogLevel,
+// 	configureMainLogger = true,
+// 	configureSystemLogger = true,
+// ): void => {
+```
+
+The `printLogLabel` is a helper for readability and aesthetics:
+
+```ts
+import {Logger, printLogLabel} from '@feltcoop/gro/dist/utils/log.js';
+import {rainbow} from '@feltcoop/gro/dist/utils/terminal.js';
+const log = new Logger(printLogLabel('official business', rainbow));
+```
+
 This is great for development, but we need a more efficient logger for production,
 and we'll want to do perf-related buildtime log statement mapping for production anyway;
 the logger will be a small piece of that effort.
