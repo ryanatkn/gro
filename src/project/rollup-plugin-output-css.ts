@@ -28,7 +28,7 @@ export const name = 'output-css';
 export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 	const {getCssBundles, toFinalCss, sourcemap} = initOptions(opts);
 
-	const log = new SystemLogger([printLogLabel(name, blue)]);
+	const log = new SystemLogger(printLogLabel(name, blue));
 
 	return {
 		name,

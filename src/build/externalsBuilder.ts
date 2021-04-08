@@ -48,7 +48,7 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger([printLogLabel('externalsBuilder', cyan)]);
+	const log = opts.log || new SystemLogger(printLogLabel('externalsBuilder', cyan));
 	return {
 		install: installWithEsinstall,
 		basePath: EXTERNALS_BUILD_DIRNAME,

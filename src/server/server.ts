@@ -59,7 +59,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		port: DEFAULT_SERVER_PORT,
 		https: null,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([printLogLabel('server', cyan)]),
+		log: opts.log || new SystemLogger(printLogLabel('server', cyan)),
 	};
 };
 

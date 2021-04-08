@@ -69,7 +69,7 @@ export type MapWatchOptions = (o: RollupWatchOptions, b: Options) => RollupWatch
 export const createBuild = (opts: InitialOptions): Build => {
 	const options = initOptions(opts);
 
-	const log = new SystemLogger([printLogLabel('build')]);
+	const log = new SystemLogger(printLogLabel('build'));
 
 	log.trace('build options', options);
 

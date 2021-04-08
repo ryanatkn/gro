@@ -2,6 +2,15 @@
 
 For now, [Gro's logger](/src/utils/log.ts) is designed for development only, not production.
 
+```ts
+import {Logger} from '@feltcoop/gro/dist/utils/log.js';
+const log = new Logger('[official business]');
+log.info('i have something to report');
+log.warn('dont u dare');
+log.error('wat');
+log.plain('this message passes through to console.log unmodified');
+```
+
 To configure the log level, which controls log output verbosity,
 Gro's default config uses the environment variable `GRO_LOG_LEVEL` if it exists,
 and defaults to `LogLeve.Trace`, the most verbose option.
@@ -30,6 +39,7 @@ export class Logger extends DevLogger {
 	// default logger for user code
 
 	// see the implementation for more: /src/utils/log.ts
+	// defaults to `process.env.GRO_LOG_LEVEL`
 	static level: LogLevel = DEFAULT_LOG_LEVEL;
 }
 export class SystemLogger extends DevLogger {

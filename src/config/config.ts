@@ -127,7 +127,7 @@ export const loadGroConfig = async (
 		return cachedConfig;
 	}
 
-	const log = new SystemLogger([printLogLabel('config')]);
+	const log = new SystemLogger(printLogLabel('config'));
 	const options: GroConfigCreatorOptions = {log, dev};
 
 	const {configSourceId} = paths;

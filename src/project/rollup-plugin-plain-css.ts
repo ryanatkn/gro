@@ -35,7 +35,7 @@ export const name = 'plain-css';
 export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 	const {addCssBuild, extensions, include, exclude} = initOptions(opts);
 
-	const log = new SystemLogger([printLogLabel(name, green)]);
+	const log = new SystemLogger(printLogLabel(name, green));
 
 	const filter = createFilter(include, exclude);
 

@@ -43,7 +43,7 @@ export const name = 'gro-esbuild';
 export const groEsbuildPlugin = (opts: InitialOptions): Plugin => {
 	const {include, exclude, esbuildOptions, onstats} = initOptions(opts);
 
-	const log = new SystemLogger([printLogLabel(name)]);
+	const log = new SystemLogger(printLogLabel(name));
 
 	const filter = createFilter(include, exclude);
 

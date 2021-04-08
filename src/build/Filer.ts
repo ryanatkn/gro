@@ -156,7 +156,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([printLogLabel('filer')]),
+		log: opts.log || new SystemLogger(printLogLabel('filer')),
 		builder,
 		buildConfigs,
 		buildDir,

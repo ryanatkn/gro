@@ -32,7 +32,7 @@ export const name = 'gro-json';
 export const groJsonPlugin = (opts: InitialOptions = {}): Plugin => {
 	const {include, exclude, compact, indent, namedExports, preferConst} = initOptions(opts);
 
-	const log = new SystemLogger([printLogLabel(name)]);
+	const log = new SystemLogger(printLogLabel(name));
 
 	const filter = createFilter(include, exclude);
 

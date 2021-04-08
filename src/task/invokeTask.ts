@@ -50,7 +50,7 @@ export const invokeTask = async (
 	events = new EventEmitter(),
 	dev?: boolean,
 ): Promise<void> => {
-	const log = new SystemLogger([printLogLabel(taskName || 'gro')]);
+	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {

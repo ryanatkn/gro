@@ -1,5 +1,5 @@
 import {red, yellow, gray, black, magenta, bgYellow, bgRed} from '../utils/terminal.js';
-import {EMPTY_ARRAY} from './array.js';
+import {EMPTY_ARRAY, toArray} from './array.js';
 import {toEnvNumber} from './env.js';
 
 // TODO could use some refactoring
@@ -72,11 +72,19 @@ interface LogLevelDefaults {
 }
 
 export class DevLogger {
+	readonly prefixes: readonly any[];
+	readonly suffixes: readonly any[];
+	readonly state: LoggerState; // can be the implementing class constructor
+
 	constructor(
-		public readonly prefixes: readonly any[],
-		public readonly suffixes: readonly any[],
-		public readonly state: LoggerState, // can be the implementing class constructor
-	) {}
+		prefixes: readonly any[] | unknown,
+		suffixes: readonly any[] | unknown,
+		state: LoggerState,
+	) {
+		this.prefixes = toArray(prefixes);
+		this.suffixes = toArray(suffixes);
+		this.state = state;
+	}
 
 	error(...args: any[]): void {
 		if (this.state.level < LogLevel.Error) return;
@@ -133,9 +141,9 @@ export class DevLogger {
 
 export class Logger extends DevLogger {
 	constructor(
-		public readonly prefixes: readonly any[] = EMPTY_ARRAY,
-		public readonly suffixes: readonly any[] = EMPTY_ARRAY,
-		public readonly state: LoggerState = Logger,
+		prefixes: readonly any[] | unknown = EMPTY_ARRAY,
+		suffixes: readonly any[] | unknown = EMPTY_ARRAY,
+		state: LoggerState = Logger,
 	) {
 		super(prefixes, suffixes, state);
 	}
@@ -175,8 +183,8 @@ and users can always extend `Logger` with their own custom versions.
 */
 export class SystemLogger extends DevLogger {
 	constructor(
-		prefixes: readonly any[] = EMPTY_ARRAY,
-		suffixes: readonly any[] = EMPTY_ARRAY,
+		prefixes: readonly any[] | unknown = EMPTY_ARRAY,
+		suffixes: readonly any[] | unknown = EMPTY_ARRAY,
 		state: LoggerState = SystemLogger,
 	) {
 		super(prefixes, suffixes, state);
