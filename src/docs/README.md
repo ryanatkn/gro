@@ -4,6 +4,7 @@
 
 - [config](config.md)
 - [deploy](deploy.md)
+- [log](log.md)
 - [options](options.md)
 - [publish](publish.md)
 - [tasks](tasks.md)
