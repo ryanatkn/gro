@@ -8,7 +8,9 @@
   for undefined Gro config properties:
   `GRO_HOST`, `GRO_PORT`, `GRO_LOG_LEVEL`
   ([#162](https://github.com/feltcoop/gro/pull/162))
-- export the logger API from root and document and fix it
+- export the logger API from root and
+  [document](/src/docs/log.md)
+  and fix it
   ([#162](https://github.com/feltcoop/gro/pull/162))
 
 ## 0.16.0
