@@ -3,7 +3,7 @@
 For now, [Gro's logger](/src/utils/log.ts) is designed for development only, not production.
 
 ```ts
-import {Logger} from '@feltcoop/gro/dist/utils/log.js';
+import {Logger} from '@feltcoop/gro';
 const log = new Logger('[official business]');
 log.info('i have something to report');
 log.warn('dont u dare');
@@ -26,14 +26,14 @@ specifically by importing the classes `Logger` and `SystemLogger`
 and mutating their static properties.
 
 ```ts
-import {Logger, LogLevel} from '@feltcoop/gro/dist/utils/log.js';
+import {Logger, LogLevel} from '@feltcoop/gro';
 Logger.level = LogLevel.Info;
 ```
 
 The `configureLogLevel` helper does this for both `Logger` and `SystemLogger`:
 
 ```ts
-import {configureLogLevel, LogLevel} from '@feltcoop/gro/dist/utils/log.js';
+import {configureLogLevel, LogLevel} from '@feltcoop/gro';
 configureLogLevel(LogLevel.Info);
 // configureLogLevel = (
 // 	level: LogLevel,
@@ -45,7 +45,7 @@ configureLogLevel(LogLevel.Info);
 The `printLogLabel` is a helper for readability and aesthetics:
 
 ```ts
-import {Logger, printLogLabel} from '@feltcoop/gro/dist/utils/log.js';
+import {Logger, printLogLabel} from '@feltcoop/gro';
 import {rainbow} from '@feltcoop/gro/dist/utils/terminal.js';
 const log = new Logger(printLogLabel('official business', rainbow));
 ```
