@@ -12,7 +12,6 @@ import {
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
-import {configureLogLevel} from './utils/log.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import {SpawnedProcess, spawnProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
@@ -59,7 +58,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
-		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 

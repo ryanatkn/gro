@@ -1,7 +1,7 @@
 import {cyan, red, gray} from '../utils/terminal.js';
 import {EventEmitter} from 'events';
 import type {Args} from './task.js';
-import {SystemLogger, Logger, configureLogLevel, printLogLabel} from '../utils/log.js';
+import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import {runTask} from './runTask.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {printMs, printPath, printPathOrGroPath, printTiming} from '../utils/print.js';
@@ -89,7 +89,6 @@ export const invokeTask = async (
 				const timingToLoadConfig = timings.start('load config');
 				const {loadGroConfig} = await import('../config/config.js');
 				const config = await loadGroConfig(dev ?? process.env.NODE_ENV !== 'production');
-				configureLogLevel(config.logLevel);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');

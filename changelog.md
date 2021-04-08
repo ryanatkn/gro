@@ -1,5 +1,14 @@
 # Gro changelog
 
+## 0.17.0
+
+- **break**: rename `src/utils/equal.ts` module from `deepEqual.ts`
+  ([#162](https://github.com/feltcoop/gro/pull/162))
+- default to some environment variables
+  for undefined Gro config properties:
+  `GRO_HOST`, `GRO_PORT`, `GRO_LOG_LEVEL`
+  ([#162](https://github.com/feltcoop/gro/pull/162))
+
 ## 0.16.0
 
 - **break**: rename some paths constants for consistency

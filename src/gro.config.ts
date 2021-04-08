@@ -3,7 +3,7 @@ import {createFilter} from '@rollup/pluginutils';
 // import {createDirectoryFilter} from './build/utils.js';
 import type {GroConfigCreator, PartialGroConfig} from './config/config.js';
 import {toBuildOutPath} from './paths.js';
-import {LogLevel} from './utils/log.js';
+import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
@@ -34,7 +34,7 @@ export const config: GroConfigCreator = async () => {
 				// input: createDirectoryFilter('client'),
 			},
 		],
-		logLevel: LogLevel.Trace,
+		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		serve: [
 			// first try to fulfill requests with files in `$PROJECT/src/client/` as if it were `/`
 			toBuildOutPath(true, BROWSER_BUILD_CONFIG_NAME, 'client'),

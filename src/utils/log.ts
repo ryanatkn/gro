@@ -1,5 +1,6 @@
 import {red, yellow, gray, black, magenta, bgYellow, bgRed} from '../utils/terminal.js';
 import {EMPTY_ARRAY} from './array.js';
+import {toEnvNumber} from './env.js';
 
 // TODO could use some refactoring
 
@@ -14,6 +15,9 @@ export enum LogLevel {
 	Trace,
 }
 
+export const ENV_LOG_LEVEL = toEnvNumber('GRO_LOG_LEVEL');
+export const DEFAULT_LOG_LEVEL = ENV_LOG_LEVEL ?? LogLevel.Trace;
+
 /*
 
 `Logger` uses a special pattern
@@ -21,6 +25,9 @@ to achieve a good mix of convenience and flexibility
 both for Gro and user code.
 It uses late binding to allow runtime mutations
 and it accepts a `LoggerState` argument for custom behavior.
+Though the code is more verbose and slower as a result,
+the tradeoffs make sense for logging in development.
+TODO use a different logger in production
 
 The default `LoggerState` is the `Logger` class itself.
 This pattern allows us to have globally mutable logger state
@@ -109,7 +116,7 @@ export class Logger {
 	// These properties can be mutated at runtime (see `configureLog`)
 	// to affect all loggers instantiated with the default `state`.
 	// See the comment on `LoggerState` for more.
-	static level = LogLevel.Trace;
+	static level = DEFAULT_LOG_LEVEL;
 	static log: Log = console.log.bind(console);
 	static error: LogLevelDefaults = {
 		prefixes: [red('➤'), black(bgRed(' 🞩 error 🞩 ')), red('\n➤')],
