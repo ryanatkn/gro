@@ -1,5 +1,5 @@
 import type {GroConfigCreator, PartialGroConfig} from './config.js';
-import {LogLevel} from '../utils/log.js';
+import {ENV_LOG_LEVEL, LogLevel} from '../utils/log.js';
 import {
 	hasDeprecatedGroFrontend,
 	hasApiServer,
@@ -22,7 +22,7 @@ export const config: GroConfigCreator = async () => {
 			(await hasApiServer()) ? API_SERVER_BUILD_CONFIG : null,
 			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
-		logLevel: LogLevel.Trace,
+		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 	};
 	return partial;
 };

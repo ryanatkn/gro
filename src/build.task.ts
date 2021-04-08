@@ -12,7 +12,6 @@ import {
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
-import {configureLogLevel} from './utils/log.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import {SpawnedProcess, spawnProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
@@ -59,7 +58,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
-		configureLogLevel(config.logLevel);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 
@@ -71,7 +69,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		// If this is a SvelteKit frontend, for now, just build it and exit immediately.
 		// TODO support merging SvelteKit and Gro builds (and then delete `felt-server`'s build task)
-		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+		if (await hasSvelteKitFrontend()) {
 			const timingToBuildSvelteKit = timings.start('SvelteKit build');
 			await spawnProcess('npx', ['svelte-kit', 'build']);
 			// TODO remove this when SvelteKit has its duplicate build dir bug fixed

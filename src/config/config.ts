@@ -1,7 +1,13 @@
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
-import {LogLevel, SystemLogger, configureLogLevel, printLogLabel} from '../utils/log.js';
+import {
+	LogLevel,
+	SystemLogger,
+	configureLogLevel,
+	printLogLabel,
+	DEFAULT_LOG_LEVEL,
+} from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
 import {importTs} from '../fs/importTs.js';
 import {pathExists} from '../fs/node.js';
@@ -107,13 +113,21 @@ Caveats
 
 */
 
+const applyConfig = (config: GroConfig) => {
+	// other things?
+	configureLogLevel(config.logLevel);
+};
+
 export const loadGroConfig = async (
 	dev: boolean,
 	applyConfigToSystem = true,
 ): Promise<GroConfig> => {
-	if (cachedConfig !== undefined) return cachedConfig;
+	if (cachedConfig !== undefined) {
+		if (applyConfigToSystem) applyConfig(cachedConfig);
+		return cachedConfig;
+	}
 
-	const log = new SystemLogger([printLogLabel('config')]);
+	const log = new SystemLogger(printLogLabel('config'));
 	const options: GroConfigCreatorOptions = {log, dev};
 
 	const {configSourceId} = paths;
@@ -154,10 +168,7 @@ export const loadGroConfig = async (
 		throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
 	}
 	cachedConfig = await toConfig(configModule.config, options, modulePath);
-	if (applyConfigToSystem) {
-		// other things?
-		configureLogLevel(cachedConfig.logLevel);
-	}
+	if (applyConfigToSystem) applyConfig(cachedConfig);
 	return cachedConfig;
 };
 
@@ -201,7 +212,7 @@ const normalizeConfig = (config: PartialGroConfig): GroConfig => {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
-		logLevel: LogLevel.Trace,
+		logLevel: DEFAULT_LOG_LEVEL,
 		...omitUndefined(config),
 		builds: buildConfigs,
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,

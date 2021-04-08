@@ -8,7 +8,7 @@ import {printError, printKeyValue} from './print.js';
 import {wait} from './async.js';
 import type {Result} from './types.js';
 
-const log = new SystemLogger([printLogLabel('process')]);
+const log = new SystemLogger(printLogLabel('process'));
 
 export interface SpawnedProcess {
 	child: ChildProcess;
@@ -61,7 +61,7 @@ export const attachProcessErrorHandlers = () => {
 };
 
 const handleFatalError = async (err: Error, label = 'handleFatalError'): Promise<void> => {
-	new SystemLogger([printLogLabel(label, red)]).error(printError(err));
+	new SystemLogger(printLogLabel(label, red)).error(printError(err));
 	await Promise.all(Array.from(globalSpawn).map((child) => despawn(child)));
 	process.exit(1);
 };

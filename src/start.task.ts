@@ -1,7 +1,7 @@
 import type {Task} from './task/task.js';
 import {pathExists} from './fs/node.js';
 import {Timings} from './utils/time.js';
-import {isThisProjectGro, paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
+import {paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
 import {spawn, spawnProcess} from './utils/process.js';
@@ -35,7 +35,7 @@ export const task: Task<{}, TaskEvents> = {
 		timingToLoadConfig();
 
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
-		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+		if (await hasSvelteKitFrontend()) {
 			await spawnProcess('npx', ['svelte-kit', 'start']);
 		} else {
 			const inputs: {

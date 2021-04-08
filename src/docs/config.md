@@ -63,9 +63,9 @@ export interface PartialGroConfig {
 	readonly builds: PartialBuildConfig[];
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
-	readonly host?: string;
-	readonly port?: number;
-	readonly logLevel?: LogLevel;
+	readonly host?: string; // env.GRO_HOST
+	readonly port?: number; // env.GRO_PORT
+	readonly logLevel?: LogLevel; // env.GRO_LOG_LEVEL
 	readonly serve?: ServedDirPartial[];
 }
 ```

@@ -48,7 +48,7 @@ export const importTs = async (
 	const ctx: BuildContext = {
 		buildConfigs: [],
 		sourceMetaById: new Map(),
-		log: new SystemLogger([printLogLabel('importTs', cyan)]),
+		log: new SystemLogger(printLogLabel('importTs', cyan)),
 		buildDir: tempDir,
 		dev: true,
 		sourcemap: false,

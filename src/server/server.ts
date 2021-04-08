@@ -41,8 +41,8 @@ export interface GroServer {
 	readonly port: number;
 }
 
-export const DEFAULT_SERVER_HOST: string = toEnvString('HOST', 'localhost');
-export const DEFAULT_SERVER_PORT: number = toEnvNumber('PORT', 8999);
+export const DEFAULT_SERVER_HOST = toEnvString('GRO_HOST', 'localhost');
+export const DEFAULT_SERVER_PORT = toEnvNumber('GRO_PORT', 8999);
 
 export interface Options {
 	filer: Filer;
@@ -59,7 +59,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		port: DEFAULT_SERVER_PORT,
 		https: null,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([printLogLabel('server', cyan)]),
+		log: opts.log || new SystemLogger(printLogLabel('server', cyan)),
 	};
 };
 

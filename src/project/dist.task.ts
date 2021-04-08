@@ -4,7 +4,6 @@ import {paths, toBuildOutPath} from '../paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
 import {printPath} from '../utils/print.js';
 import {loadGroConfig} from '../config/config.js';
-import {configureLogLevel} from '../utils/log.js';
 import {printBuildConfig} from '../config/buildConfig.js';
 
 export const task: Task = {
@@ -14,7 +13,6 @@ export const task: Task = {
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.
 		const config = await loadGroConfig(dev);
-		configureLogLevel(config.logLevel);
 		const buildConfigsForDist = config.builds.filter((b) => b.dist);
 		await Promise.all(
 			buildConfigsForDist.map((buildConfig) => {

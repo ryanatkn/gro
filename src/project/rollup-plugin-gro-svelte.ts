@@ -68,7 +68,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		onstats,
 	} = initOptions(opts);
 
-	const log = new SystemLogger([printLogLabel(name)]);
+	const log = new SystemLogger(printLogLabel(name));
 
 	const getCompilation = (id: string): GroSvelteCompilation | undefined => compilations.get(id);
 

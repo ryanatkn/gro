@@ -26,7 +26,7 @@ export const name = 'gro-terser';
 export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 	const {include, exclude, minifyOptions} = initOptions(opts);
 
-	const log = new SystemLogger([printLogLabel(name)]);
+	const log = new SystemLogger(printLogLabel(name));
 
 	const filter = createFilter(include, exclude);
 

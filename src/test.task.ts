@@ -10,9 +10,11 @@ import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
 // Args are passed through directly to `uvu`'s CLI:
 // https://github.com/lukeed/uvu/blob/master/docs/cli.md
 
+const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
+
 export const task: Task = {
 	description: 'run tests',
-	run: async ({dev, log}): Promise<void> => {
+	run: async ({dev, log, args}): Promise<void> => {
 		const timings = new Timings();
 
 		const dir = toRootPath(toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG_NAME));
@@ -21,7 +23,7 @@ export const task: Task = {
 		const testRunResult = await spawnProcess('npx', [
 			'uvu',
 			dir,
-			'.+\\.test\\.js$',
+			...(args._.length ? args._ : DEFAULT_TEST_FILE_PATTERNS),
 			...process.argv.slice(3),
 		]);
 		timeToRunUvu();

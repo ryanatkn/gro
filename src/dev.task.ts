@@ -38,7 +38,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 	run: async ({dev, log, args, events}) => {
 		// If this is a SvelteKit frontend, for now, just defer to its dev command.
 		// TODO support merging SvelteKit and Gro builds (and then delete `felt-server`'s dev task)
-		if ((await hasSvelteKitFrontend()) && !isThisProjectGro) {
+		if (await hasSvelteKitFrontend()) {
 			await spawnProcess('npx', ['svelte-kit', 'dev']);
 			return;
 		}

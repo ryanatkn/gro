@@ -43,7 +43,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		onstats: null,
 		createPreprocessor: createDefaultPreprocessor,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([printLogLabel('svelteBuilder', cyan)]),
+		log: opts.log || new SystemLogger(printLogLabel('svelteBuilder', cyan)),
 		svelteCompileOptions: opts.svelteCompileOptions || {},
 	};
 };

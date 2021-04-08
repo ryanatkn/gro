@@ -21,7 +21,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		createEsbuildOptions: createDefaultEsbuildOptions,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger([printLogLabel('esbuildBuilder', cyan)]),
+		log: opts.log || new SystemLogger(printLogLabel('esbuildBuilder', cyan)),
 	};
 };
 

@@ -1,5 +1,6 @@
 import {red, yellow, gray, black, magenta, bgYellow, bgRed} from '../utils/terminal.js';
-import {EMPTY_ARRAY} from './array.js';
+import {EMPTY_ARRAY, toArray} from './array.js';
+import {toEnvNumber} from './env.js';
 
 // TODO could use some refactoring
 
@@ -7,12 +8,15 @@ import {EMPTY_ARRAY} from './array.js';
 // and report at the end of each build (and other tasks)
 
 export enum LogLevel {
-	Off,
-	Error,
-	Warn,
-	Info,
-	Trace,
+	Off = 0,
+	Error = 1,
+	Warn = 2,
+	Info = 3,
+	Trace = 4,
 }
+
+export const ENV_LOG_LEVEL = toEnvNumber('GRO_LOG_LEVEL');
+export const DEFAULT_LOG_LEVEL = ENV_LOG_LEVEL ?? LogLevel.Trace;
 
 /*
 
@@ -21,6 +25,9 @@ to achieve a good mix of convenience and flexibility
 both for Gro and user code.
 It uses late binding to allow runtime mutations
 and it accepts a `LoggerState` argument for custom behavior.
+Though the code is more verbose and slower as a result,
+the tradeoffs make sense for logging in development.
+TODO use a different logger in production
 
 The default `LoggerState` is the `Logger` class itself.
 This pattern allows us to have globally mutable logger state
@@ -47,12 +54,37 @@ How should we integrate the test logger with `uvu`?
 TODO !
 
 */
-export class Logger {
+
+export type Log = (...args: any[]) => void;
+
+export interface LoggerState {
+	level: LogLevel;
+	log: Log;
+	error: LogLevelDefaults;
+	warn: LogLevelDefaults;
+	info: LogLevelDefaults;
+	trace: LogLevelDefaults;
+}
+
+interface LogLevelDefaults {
+	prefixes: any[];
+	suffixes: any[];
+}
+
+export class DevLogger {
+	readonly prefixes: readonly any[];
+	readonly suffixes: readonly any[];
+	readonly state: LoggerState; // can be the implementing class constructor
+
 	constructor(
-		public readonly prefixes: readonly any[] = EMPTY_ARRAY,
-		public readonly suffixes: readonly any[] = EMPTY_ARRAY,
-		public readonly state: LoggerState = Logger,
-	) {}
+		prefixes: readonly any[] | unknown,
+		suffixes: readonly any[] | unknown,
+		state: LoggerState,
+	) {
+		this.prefixes = toArray(prefixes);
+		this.suffixes = toArray(suffixes);
+		this.state = state;
+	}
 
 	error(...args: any[]): void {
 		if (this.state.level < LogLevel.Error) return;
@@ -105,11 +137,21 @@ export class Logger {
 	newline(): void {
 		this.state.log('\n');
 	}
+}
 
-	// These properties can be mutated at runtime (see `configureLog`)
+export class Logger extends DevLogger {
+	constructor(
+		prefixes: readonly any[] | unknown = EMPTY_ARRAY,
+		suffixes: readonly any[] | unknown = EMPTY_ARRAY,
+		state: LoggerState = Logger,
+	) {
+		super(prefixes, suffixes, state);
+	}
+
+	// These properties can be mutated at runtime (see `configureLogLevel`)
 	// to affect all loggers instantiated with the default `state`.
 	// See the comment on `LoggerState` for more.
-	static level = LogLevel.Trace;
+	static level: LogLevel = DEFAULT_LOG_LEVEL;
 	static log: Log = console.log.bind(console);
 	static error: LogLevelDefaults = {
 		prefixes: [red('➤'), black(bgRed(' 🞩 error 🞩 ')), red('\n➤')],
@@ -129,22 +171,6 @@ export class Logger {
 	};
 }
 
-export type Log = (...args: any[]) => void;
-
-export interface LoggerState {
-	level: LogLevel;
-	log: Log;
-	error: LogLevelDefaults;
-	warn: LogLevelDefaults;
-	info: LogLevelDefaults;
-	trace: LogLevelDefaults;
-}
-
-interface LogLevelDefaults {
-	prefixes: any[];
-	suffixes: any[];
-}
-
 /*
 
 The `SystemLogger` is distinct from the `Logger`
@@ -155,15 +181,36 @@ This allows user code to simply import and use `Logger`.
 and users can always extend `Logger` with their own custom versions.
 
 */
-export class SystemLogger extends Logger {
-	static level = LogLevel.Trace;
+export class SystemLogger extends DevLogger {
 	constructor(
-		prefixes: readonly any[] = EMPTY_ARRAY,
-		suffixes: readonly any[] = EMPTY_ARRAY,
+		prefixes: readonly any[] | unknown = EMPTY_ARRAY,
+		suffixes: readonly any[] | unknown = EMPTY_ARRAY,
 		state: LoggerState = SystemLogger,
 	) {
 		super(prefixes, suffixes, state);
 	}
+
+	// These properties can be mutated at runtime (see `configureLogLevel`)
+	// to affect all loggers instantiated with the default `state`.
+	// See the comment on `LoggerState` for more.
+	static level: LogLevel = DEFAULT_LOG_LEVEL;
+	static log: Log = console.log.bind(console);
+	static error: LogLevelDefaults = {
+		prefixes: [red('➤'), black(bgRed(' 🞩 error 🞩 ')), red('\n➤')],
+		suffixes: ['\n ', black(bgRed(' 🞩🞩 '))],
+	};
+	static warn: LogLevelDefaults = {
+		prefixes: [yellow('➤'), black(bgYellow(' ⚑ warning ⚑ ')), '\n' + yellow('➤')],
+		suffixes: ['\n ', black(bgYellow(' ⚑ '))],
+	};
+	static info: LogLevelDefaults = {
+		prefixes: [gray('➤')],
+		suffixes: [],
+	};
+	static trace: LogLevelDefaults = {
+		prefixes: [gray('—')],
+		suffixes: [],
+	};
 }
 
 export const configureLogLevel = (

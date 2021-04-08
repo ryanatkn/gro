@@ -63,6 +63,7 @@ It includes:
   - [tasks](/src/docs/tasks.md)
   - [config](/src/docs/config.md)
   - [publish](/src/docs/publish.md)
+  - [log](/src/docs/log.md)
   - [options](/src/docs/options.md)
 
 ## install
