@@ -6,6 +6,8 @@
   ([#161](https://github.com/feltcoop/gro/pull/161))
 - patch SvelteKit bug with duplicate build directories
   ([#160](https://github.com/feltcoop/gro/pull/160))
+- add [contributing.md🌄](./contributing.md)
+  ([#108](https://github.com/feltcoop/gro/pull/108))
 
 ## 0.15.0
 
