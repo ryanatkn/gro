@@ -7,7 +7,7 @@ including servers and other static clouds,
 but for now you need to implement `src/deploy.task.ts` yourself outside of GitHub pages.
 
 ```bash
-gro deploy # prepares dist/
+gro deploy # prepares dist/ and pushes it to the remote `deploy` branch
 gro deploy --branch my-branch # deploy from a branch other than 'main'
 gro deploy --dry # prepare dist/ but don't commit or push
 gro deploy --clean # if something goes wrong, this resets git and gro state
