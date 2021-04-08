@@ -1,9 +1,8 @@
 import {join, basename} from 'path';
-import {readdirSync} from 'fs';
 
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
-import {copy, move, remove} from './fs/node.js';
+import {copy, move, remove, readDir} from './fs/node.js';
 import {GIT_PATH, paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {magenta, green, rainbow, red} from './utils/terminal.js';
@@ -109,12 +108,14 @@ export const task: Task<TaskArgs> = {
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
-				readdirSync(WORKTREE_DIR).map((path) =>
+				(await readDir(WORKTREE_DIR)).map((path) =>
 					path === GIT_PATH ? null : remove(`${WORKTREE_DIR}/${path}`),
 				),
 			);
 			await Promise.all(
-				readdirSync(DIST_DIR).map((path) => move(`${DIST_DIR}${path}`, `${WORKTREE_DIR}/${path}`)),
+				(await readDir(DIST_DIR)).map((path) =>
+					move(`${DIST_DIR}${path}`, `${WORKTREE_DIR}/${path}`),
+				),
 			);
 			// commit the changes
 			const gitArgs = {cwd: WORKTREE_DIR};
@@ -132,7 +133,7 @@ export const task: Task<TaskArgs> = {
 		await move(WORKTREE_DIR, DIST_DIR, {overwrite: true});
 		await cleanGitWorktree();
 
-		log.info(rainbow('deployed'));
+		log.info(rainbow('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };
 
