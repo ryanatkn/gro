@@ -38,7 +38,7 @@ export const CONFIG_SOURCE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_PATH = 'gro.config.js';
 
 export const EXTERNALS_BUILD_DIRNAME = 'externals'; // TODO breaks the above trailing slash convention - revisit with trailing-slash branch
-export const EXTERNALS_BUILD_DIR_PREFIX = `/${EXTERNALS_BUILD_DIRNAME}/`;
+export const EXTERNALS_BUILD_DIR_ROOT_PREFIX = `/${EXTERNALS_BUILD_DIRNAME}/`;
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
