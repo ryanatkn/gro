@@ -33,6 +33,7 @@ export const SVELTE_KIT_DEV_DIRNAME = '.svelte';
 export const SVELTE_KIT_BUILD_DIRNAME = 'build';
 export const SVELTE_KIT_DIST_DIRNAME = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
 export const GIT_DIRNAME = '.git';
+export const GITIGNORE_FILENAME = '.gitignore';
 
 export const CONFIG_SOURCE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_PATH = 'gro.config.js';
