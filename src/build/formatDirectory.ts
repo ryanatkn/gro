@@ -1,9 +1,21 @@
 import {spawnProcess} from '../utils/process.js';
 import type {SpawnResult} from '../utils/process.js';
-import {paths} from '../paths.js';
+import {
+	GITHUB_DIRNAME,
+	paths,
+	README_FILENAME,
+	SVELTE_KIT_CONFIG_FILENAME,
+	TSCONFIG_FILENAME,
+} from '../paths.js';
 
 // TODO ?
 const FORMATTED_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
+const FORMATTED_ROOT_PATHS = `${[
+	README_FILENAME,
+	SVELTE_KIT_CONFIG_FILENAME,
+	TSCONFIG_FILENAME,
+	GITHUB_DIRNAME,
+].join(',')}/**/*`;
 
 // This formats a directory on the filesystem.
 // If the source directory is given, it also formats all of the root directory files.
@@ -13,7 +25,7 @@ export const formatDirectory = (directory: string, check = false): Promise<Spawn
 	const prettierArgs = ['prettier', check ? '--check' : '--write'];
 	prettierArgs.push(`${directory}**/*.{${FORMATTED_EXTENSIONS}}`);
 	if (directory === paths.source) {
-		prettierArgs.push(`${paths.root}*.{${FORMATTED_EXTENSIONS}}`);
+		prettierArgs.push(`${paths.root}{${FORMATTED_ROOT_PATHS}}`);
 	}
 	return spawnProcess('npx', prettierArgs);
 };

@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.17.1
+
+- fix `gro format` to whitelist files off root when formatting `src/`
+  ([#166](https://github.com/feltcoop/gro/pull/166))
+
 ## 0.17.0
 
 - **break**: rename `src/utils/equal.ts` module from `deepEqual.ts`

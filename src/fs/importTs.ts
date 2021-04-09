@@ -5,7 +5,7 @@ import {randomInt} from '../utils/random.js';
 import {createEsbuildBuilder} from '../build/esbuildBuilder.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 import type {BuildContext, TextBuildSource} from '../build/builder.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/tsBuildHelpers.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../config/defaultBuildConfig.js';
 import {outputFile, readFile, remove} from './node.js';
 import {basename, dirname, join} from 'path';
 import {stripStart} from '../utils/string.js';

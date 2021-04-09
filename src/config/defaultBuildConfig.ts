@@ -10,6 +10,9 @@ import {
 } from '../paths.js';
 import {pathExists} from '../fs/node.js';
 import {getExtensions} from '../fs/mime.js';
+import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
+
+export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
 export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
 

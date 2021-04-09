@@ -28,13 +28,6 @@ export const SOURCE_DIR = `${SOURCE_DIRNAME}/`;
 export const BUILD_DIR = `${BUILD_DIRNAME}/`;
 export const DIST_DIR = `${DIST_DIRNAME}/`;
 
-export const NODE_MODULES_DIRNAME = 'node_modules';
-export const SVELTE_KIT_DEV_DIRNAME = '.svelte';
-export const SVELTE_KIT_BUILD_DIRNAME = 'build';
-export const SVELTE_KIT_DIST_DIRNAME = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
-export const GIT_DIRNAME = '.git';
-export const GITIGNORE_FILENAME = '.gitignore';
-
 export const CONFIG_SOURCE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_PATH = 'gro.config.js';
 
@@ -53,6 +46,17 @@ export const SOURCEMAP_EXTENSION = '.map';
 export const JS_SOURCEMAP_EXTENSION = '.js.map';
 export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
 export const SVELTE_CSS_SOURCEMAP_EXTENSION = '.svelte.css.map';
+
+export const README_FILENAME = 'README.md';
+export const SVELTE_KIT_CONFIG_FILENAME = 'svelte.config.cjs';
+export const SVELTE_KIT_DEV_DIRNAME = '.svelte';
+export const SVELTE_KIT_BUILD_DIRNAME = 'build';
+export const SVELTE_KIT_DIST_DIRNAME = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
+export const NODE_MODULES_DIRNAME = 'node_modules';
+export const GITHUB_DIRNAME = '.github';
+export const GIT_DIRNAME = '.git';
+export const GITIGNORE_FILENAME = '.gitignore';
+export const TSCONFIG_FILENAME = 'tsconfig.json';
 
 export interface Paths {
 	root: string;

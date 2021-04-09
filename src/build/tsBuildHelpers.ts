@@ -3,6 +3,7 @@ import {join, dirname, resolve} from 'path';
 
 import {black, bgRed} from '../utils/terminal.js';
 import type {Logger} from '../utils/log.js';
+import {TSCONFIG_FILENAME} from '../paths.js';
 
 export type EcmaScriptTarget =
 	| 'es3'
@@ -14,8 +15,6 @@ export type EcmaScriptTarget =
 	| 'es2019'
 	| 'es2020'
 	| 'esnext';
-
-export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
 // TODO remove eventually. might want to default the Gro config target to the
 // export const toEcmaScriptTarget = (target: ts.ScriptTarget | undefined): EcmaScriptTarget => {
@@ -73,7 +72,7 @@ export const loadTsconfig = (
 	forceReload = false,
 ): TsConfig => {
 	// create a canonical cache key that can accept multiple variations
-	const cacheKey = join(resolve(basePath), tsconfigPath || 'tsconfig.json');
+	const cacheKey = join(resolve(basePath), tsconfigPath || TSCONFIG_FILENAME);
 	if (!forceReload) {
 		const cachedTsconfig = tsconfigCache.get(cacheKey);
 		if (cachedTsconfig) return cachedTsconfig;
