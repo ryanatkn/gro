@@ -64,11 +64,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export const createGroServer = (opts: InitialOptions): GroServer => {
-	// We don't want to have to worry about the security of the dev server.
-	if (process.env.NODE_ENV === 'production') {
-		throw Error('The dev server may only be run in development for security reasons.');
-	}
-
 	const options = initOptions(opts);
 	const {filer, host, port, https, log} = options;
 

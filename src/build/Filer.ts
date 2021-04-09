@@ -365,7 +365,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		isInput: boolean,
 	): Promise<void> {
 		// this.log.trace(
-		// 	`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
+		// 	`adding source file to build ${printBuildConfigLabel(buildConfig)} ${gray(sourceFile.id)}`,
 		// );
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(`Already has buildConfig ${buildConfig.name}: ${gray(sourceFile.id)}`);
@@ -441,6 +441,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
 			change.path === EXTERNALS_SOURCE_ID ? EXTERNALS_SOURCE_ID : join(filerDir.dir, change.path);
+		console.log(red(change.type), id);
 		switch (change.type) {
 			case 'init':
 			case 'create':
