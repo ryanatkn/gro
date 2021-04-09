@@ -29,7 +29,7 @@ import {printBuildConfigLabel} from '../config/buildConfig.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {toServedDirs} from './ServedDir.js';
+import {stripBase, toServedDirs} from './ServedDir.js';
 import type {ServedDir, ServedDirPartial} from './ServedDir.js';
 import {assertBuildableSourceFile, assertSourceFile, createSourceFile} from './sourceFile.js';
 import type {BuildableSourceFile, SourceFile} from './sourceFile.js';
@@ -233,7 +233,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	async findByPath(path: string): Promise<BaseFilerFile | null> {
 		const {files} = this;
 		for (const servedDir of this.servedDirs) {
-			const id = `${servedDir.servedAt}/${path}`;
+			const id = `${servedDir.servedAt}/${stripBase(path, servedDir.base)}`;
 			const file = files.get(id);
 			if (file === undefined) {
 				this.log.trace(`findByPath: miss: ${id}`);

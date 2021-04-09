@@ -1,7 +1,7 @@
 import type {Task} from './task/task.js';
 import {pathExists} from './fs/node.js';
 import {Timings} from './utils/time.js';
-import {paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
+import {DIST_DIRNAME, paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
 import {spawn} from './utils/process.js';
@@ -12,6 +12,8 @@ import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
+import {toSvelteKitBasePath} from './build/sveltekit.js';
+import {loadPackageJson} from './project/packageJson.js';
 
 export interface TaskArgs extends ServeTaskArgs {}
 
@@ -40,10 +42,10 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
 		if (await hasSvelteKitFrontend()) {
 			// `svelte-kit start` is not respecting the `svelte.config.cjs` property `paths.base`,
-			// so we serve up the dist ourselves
-			// await spawnProcess('npx', ['svelte-kit', 'start']); // fails for static production builds
-			args.serve = [{dir: 'dist' /*, servedAt: dev ? '' : '/kitty'*/}]; // TODO source this value properly
-			console.log('args.serve', args.serve);
+			// so we serve up the dist ourselves. we were going to anyway, if we're being honest
+			args.serve = [
+				{dir: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
+			];
 			await invokeTask('serve');
 		} else {
 			const inputs: {
