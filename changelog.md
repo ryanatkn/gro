@@ -4,6 +4,10 @@
 
 - fix `gro format` to whitelist files off root when formatting `src/`
   ([#166](https://github.com/feltcoop/gro/pull/166))
+- fix `gro test` to gracefully handle projects with no Gro build outputs
+  ([#167](https://github.com/feltcoop/gro/pull/167))
+- run `gro check` before building in `gro version`
+  ([#167](https://github.com/feltcoop/gro/pull/167))
 
 ## 0.17.0
 
