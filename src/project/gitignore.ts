@@ -53,6 +53,6 @@ export const loadGitignoreFilter = (forceRefresh = false): Filter => {
 export const isGitignored = (path: string, root = process.cwd()) =>
 	loadGitignoreFilter()(join(root, path));
 
-// TODO what's the better way to do this? mapping between
+// TODO what's the better way to do this? quick hacky mapping for one use case between
 // [picomatch](https://github.com/micromatch/picomatch) and `.gitignore`
 const toPattern = (line: string): string => stripStart(line, '/');
