@@ -77,14 +77,48 @@ to serve the contents of both `src/` and `src/client/` off of the root directory
 serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
 ```
 
-An optional `servedAt` property can be paired with the directories passed to `serve`:
+```ts
+type ServedDirPartial =
+	| string
+	| {
+			path: string;
+			root?: string;
+			base?: string;
+	  };
+```
+
+The optional `root` property can be paired with the directories passed to `serve`:
 
 ```ts
 config = {
 	serve: [
-		{dir: '/some/path', servedAt: '/some'},
-		'/a', // is the same as:
-		{dir: '/a'},
+		{path: '/some/path', root: '/some'},
+
+		// no root by default; these are all equivalent:
+		'/a',
+		{path: '/a'},
+		{path: '/a', root: ''},
+		{path: '/a', root: '.'},
+		{path: '/a', root: './'},
+	],
+};
+```
+
+The optional `base` property is used by `serve` to mimic the production behavior
+of static deployments like GitHub pages:
+
+```ts
+config = {
+	serve: [
+		{path: '/', base: 'my-package-name'}, // served at e.g. `myname.github.io/my-package-name`
+
+		// no base by default; these are all equivalent:
+		'/a',
+		{path: '/a'},
+		{path: '/a', base: ''},
+		{path: '/a', base: '/'},
+		{path: '/a', base: '.'},
+		{path: '/a', base: './'},
 	],
 };
 ```

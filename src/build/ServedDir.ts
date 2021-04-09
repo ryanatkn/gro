@@ -4,20 +4,20 @@ import type {PartialExcept} from '../index.js';
 import {stripStart} from '../utils/string.js';
 
 export interface ServedDir {
-	dir: string; // TODO rename? `source`, `sourceDir`, `path`
-	servedAt: string; // TODO rename? `root`
-	base: string; // relative path stripped from requests to support e.g. for GitHub pages this is the repo name
+	path: string;
+	root: string;
+	base: string; // relative path stripped from requests; for GitHub pages, this is the repo name
 }
 
-export type ServedDirPartial = string | PartialExcept<ServedDir, 'dir'>;
+export type ServedDirPartial = string | PartialExcept<ServedDir, 'path'>;
 
 export const toServedDir = (dir: ServedDirPartial): ServedDir => {
-	if (typeof dir === 'string') dir = {dir};
-	const resolvedDir = resolve(dir.dir);
+	if (typeof dir === 'string') dir = {path: dir};
+	const resolvedDir = resolve(dir.path);
 	return {
-		dir: resolvedDir,
+		path: resolvedDir,
 		base: dir.base ? baseToRelativePath(dir.base) : '', // see `baseToRelativePath` for more
-		servedAt: dir.servedAt ? resolve(dir.servedAt) : resolvedDir,
+		root: dir.root ? resolve(dir.root) : resolvedDir,
 	};
 };
 
@@ -27,10 +27,10 @@ export const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
 	for (const dir of dirs) {
 		// TODO instead of the error, should we allow multiple served paths for each input dir?
 		// This is mainly done to prevent duplicate work in watching the source directories.
-		if (uniqueDirs.has(dir.dir)) {
-			throw Error(`Duplicate servedDirs are not allowed: ${dir.dir}`);
+		if (uniqueDirs.has(dir.path)) {
+			throw Error(`Duplicate servedDirs are not allowed: ${dir.path}`);
 		}
-		uniqueDirs.add(dir.dir);
+		uniqueDirs.add(dir.path);
 	}
 	return dirs;
 };

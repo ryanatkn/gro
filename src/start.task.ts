@@ -44,7 +44,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			// `svelte-kit start` is not respecting the `svelte.config.cjs` property `paths.base`,
 			// so we serve up the dist ourselves. we were going to anyway, if we're being honest
 			args.serve = [
-				{dir: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
+				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
 			];
 			await invokeTask('serve');
 		} else {

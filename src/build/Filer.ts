@@ -233,7 +233,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	async findByPath(path: string): Promise<BaseFilerFile | null> {
 		const {files} = this;
 		for (const servedDir of this.servedDirs) {
-			const id = `${servedDir.servedAt}/${stripBase(path, servedDir.base)}`;
+			const id = `${servedDir.root}/${stripBase(path, servedDir.base)}`;
 			const file = files.get(id);
 			if (file === undefined) {
 				this.log.trace(`findByPath: miss: ${id}`);
@@ -1127,11 +1127,11 @@ const createFilerDirs = (
 			// TODO I think these are bugged with trailing slashes -
 			// note the `servedDir.dir` of `servedDir.dir.startsWith` could also not have a trailing slash!
 			// so I think you add `{dir} + '/'` to both?
-			!sourceDirs.find((d) => servedDir.dir.startsWith(d)) &&
-			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
-			!servedDir.dir.startsWith(buildDir)
+			!sourceDirs.find((d) => servedDir.path.startsWith(d)) &&
+			!servedDirs.find((d) => d !== servedDir && servedDir.path.startsWith(d.path)) &&
+			!servedDir.path.startsWith(buildDir)
 		) {
-			dirs.push(createFilerDir(servedDir.dir, false, onChange, filter, watch, watcherDebounce));
+			dirs.push(createFilerDir(servedDir.path, false, onChange, filter, watch, watcherDebounce));
 		}
 	}
 	return dirs;
