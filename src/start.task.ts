@@ -1,25 +1,30 @@
 import type {Task} from './task/task.js';
 import {pathExists} from './fs/node.js';
 import {Timings} from './utils/time.js';
-import {paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
+import {DIST_DIRNAME, paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
-import {spawn, spawnProcess} from './utils/process.js';
+import {spawn} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';
 import {green} from './utils/terminal.js';
 import type {BuildConfig} from './config/buildConfig.js';
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
+import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
+import {toSvelteKitBasePath} from './build/sveltekit.js';
+import {loadPackageJson} from './project/packageJson.js';
+
+export interface TaskArgs extends ServeTaskArgs {}
 
 export interface TaskEvents {
 	'start.spawned': (spawneds: SpawnedProcess[], config: GroConfig) => void;
 }
 
-export const task: Task<{}, TaskEvents> = {
+export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'runs the dist/ builds for production',
 	dev: false,
-	run: async ({log, invokeTask, dev, events}) => {
+	run: async ({log, invokeTask, dev, events, args}) => {
 		const timings = new Timings();
 
 		// build if needed
@@ -36,7 +41,12 @@ export const task: Task<{}, TaskEvents> = {
 
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
 		if (await hasSvelteKitFrontend()) {
-			await spawnProcess('npx', ['svelte-kit', 'start']);
+			// `svelte-kit start` is not respecting the `svelte.config.cjs` property `paths.base`,
+			// so we serve up the dist ourselves. we were going to anyway, if we're being honest
+			args.serve = [
+				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
+			];
+			await invokeTask('serve');
 		} else {
 			const inputs: {
 				buildConfig: BuildConfig;

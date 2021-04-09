@@ -3,7 +3,6 @@ import {join} from 'path';
 import {readJson} from '../fs/node.js';
 import {paths, groPaths, isThisProjectGro} from '../paths.js';
 import type {Json} from '../utils/json.js';
-import type {Obj} from '../index.js';
 
 /*
 
@@ -13,8 +12,11 @@ and in the future we should be able to easily auto-generate types for them.
 
 */
 
-export type PackageJson = Obj<Json>; // TODO generate one day
-export type GroPackageJson = Obj<Json>; // TODO generate one day
+export interface PackageJson {
+	[key: string]: Json;
+	name: string;
+}
+export interface GroPackageJson extends PackageJson {}
 
 let packageJson: PackageJson | undefined;
 let groPackageJson: GroPackageJson | undefined;
@@ -32,3 +34,7 @@ export const loadGroPackageJson = async (forceRefresh = false): Promise<GroPacka
 	}
 	return groPackageJson!;
 };
+
+// gets the "b" of "@a/b" for namespaced packages
+export const toPackageRepoName = (pkg: PackageJson): string =>
+	pkg.name.includes('/') ? pkg.name.split('/').slice(1).join('/') : pkg.name;

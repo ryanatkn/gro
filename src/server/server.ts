@@ -64,20 +64,15 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export const createGroServer = (opts: InitialOptions): GroServer => {
-	// We don't want to have to worry about the security of the dev server.
-	if (process.env.NODE_ENV === 'production') {
-		throw Error('The dev server may only be run in development for security reasons.');
-	}
-
 	const options = initOptions(opts);
 	const {filer, host, port, https, log} = options;
 
 	let finalPort = port;
 	const nextPort = () => {
-		// hacky but w/e - these values are not final until `devServer.start` resolves
+		// hacky but w/e - these values are not final until `groServer.start` resolves
 		finalPort--;
 		listenOptions.port = finalPort;
-		(devServer as Assignable<GroServer>).port = finalPort;
+		(groServer as Assignable<GroServer>).port = finalPort;
 	};
 
 	const listenOptions: ListenOptions = {
@@ -114,7 +109,7 @@ export const createGroServer = (opts: InitialOptions): GroServer => {
 
 	let started = false;
 
-	const devServer: GroServer = {
+	const groServer: GroServer = {
 		server,
 		host,
 		port, // this value is not valid until `start` is complete
@@ -137,7 +132,7 @@ export const createGroServer = (opts: InitialOptions): GroServer => {
 			});
 		},
 	};
-	return devServer;
+	return groServer;
 };
 
 const createHttp2StreamListener = (filer: Filer, log: Logger): Http2StreamHandler => {

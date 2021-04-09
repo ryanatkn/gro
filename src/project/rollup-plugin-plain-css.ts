@@ -1,6 +1,5 @@
 import type {Plugin} from 'rollup';
 import {resolve, dirname} from 'path';
-import {existsSync} from 'fs';
 import {createFilter} from '@rollup/pluginutils';
 
 import {green} from '../utils/terminal.js';
@@ -8,6 +7,7 @@ import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
+import {pathExists} from '../fs/node.js';
 
 export interface Options {
 	addCssBuild(build: GroCssBuild): boolean;
@@ -56,7 +56,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 	return {
 		name,
 		// see comments above for what this is doing
-		resolveId(importee, importer) {
+		async resolveId(importee, importer) {
 			// This is a hack that ignores `include`, but the whole thing is a hack.
 			// See the above comments at `sortIndexById` for the explanation.
 			if (!extensions.some((e) => importee.endsWith(e)) || !importer) return null;
@@ -65,7 +65,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 			// despite using `{skipSelf: true}`. So we manually resolve the id.
 			const resolvedId = resolve(dirname(importer), importee);
 			if (sortIndexById.has(resolvedId)) return resolvedId; // this doesn't account for import order changing while in watch mode
-			if (!existsSync(resolvedId)) return null; // allow node imports like `normalize.css`
+			if (!(await pathExists(resolvedId))) return null; // allow node imports like `normalize.css`
 			sortIndexById.set(resolvedId, currentSortIndex);
 			currentSortIndex++;
 			return resolvedId;

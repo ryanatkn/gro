@@ -38,6 +38,13 @@ to the Node platform when the cost and friction are low.
 Eventually we'll want our code to run on other platforms, like Deno,
 and this practice will make future interop or migration more feasible.
 
+All of these functions return promises.
+This is important because they will conform to a future filesystem host interface,
+and because we need to support contexts like the browser and who knows what remote servers,
+an async-only filesystem interface is the way to go.
+
+TODO implement and use the Filesystem interface
+
 */
 export const pathExists = fsExtra.pathExists;
 export const stat = fsExtra.stat;

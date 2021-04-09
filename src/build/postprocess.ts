@@ -110,8 +110,8 @@ export const postprocess = (
 			if (cssCompilation !== undefined) {
 				let importPath: string | undefined;
 				for (const servedDir of ctx.servedDirs) {
-					if (cssCompilation.id.startsWith(servedDir.dir)) {
-						importPath = stripStart(cssCompilation.id, servedDir.servedAt);
+					if (cssCompilation.id.startsWith(servedDir.path)) {
+						importPath = stripStart(cssCompilation.id, servedDir.root);
 						break;
 					}
 				}

@@ -29,7 +29,7 @@ import {printBuildConfigLabel} from '../config/buildConfig.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from './tsBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {toServedDirs} from './ServedDir.js';
+import {stripBase, toServedDirs} from './ServedDir.js';
 import type {ServedDir, ServedDirPartial} from './ServedDir.js';
 import {assertBuildableSourceFile, assertSourceFile, createSourceFile} from './sourceFile.js';
 import type {BuildableSourceFile, SourceFile} from './sourceFile.js';
@@ -233,7 +233,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	async findByPath(path: string): Promise<BaseFilerFile | null> {
 		const {files} = this;
 		for (const servedDir of this.servedDirs) {
-			const id = `${servedDir.servedAt}/${path}`;
+			const id = `${servedDir.root}/${stripBase(path, servedDir.base)}`;
 			const file = files.get(id);
 			if (file === undefined) {
 				this.log.trace(`findByPath: miss: ${id}`);
@@ -365,7 +365,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		isInput: boolean,
 	): Promise<void> {
 		// this.log.trace(
-		// 	`adding source file to build ${printBuildConfig(buildConfig)} ${gray(sourceFile.id)}`,
+		// 	`adding source file to build ${printBuildConfigLabel(buildConfig)} ${gray(sourceFile.id)}`,
 		// );
 		if (sourceFile.buildConfigs.has(buildConfig)) {
 			throw Error(`Already has buildConfig ${buildConfig.name}: ${gray(sourceFile.id)}`);
@@ -441,6 +441,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
 			change.path === EXTERNALS_SOURCE_ID ? EXTERNALS_SOURCE_ID : join(filerDir.dir, change.path);
+		console.log(red(change.type), id);
 		switch (change.type) {
 			case 'init':
 			case 'create':
@@ -1126,11 +1127,11 @@ const createFilerDirs = (
 			// TODO I think these are bugged with trailing slashes -
 			// note the `servedDir.dir` of `servedDir.dir.startsWith` could also not have a trailing slash!
 			// so I think you add `{dir} + '/'` to both?
-			!sourceDirs.find((d) => servedDir.dir.startsWith(d)) &&
-			!servedDirs.find((d) => d !== servedDir && servedDir.dir.startsWith(d.dir)) &&
-			!servedDir.dir.startsWith(buildDir)
+			!sourceDirs.find((d) => servedDir.path.startsWith(d)) &&
+			!servedDirs.find((d) => d !== servedDir && servedDir.path.startsWith(d.path)) &&
+			!servedDir.path.startsWith(buildDir)
 		) {
-			dirs.push(createFilerDir(servedDir.dir, false, onChange, filter, watch, watcherDebounce));
+			dirs.push(createFilerDir(servedDir.path, false, onChange, filter, watch, watcherDebounce));
 		}
 	}
 	return dirs;
