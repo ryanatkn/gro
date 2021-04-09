@@ -50,8 +50,8 @@ export const loadGitignoreFilter = (forceRefresh = false): Filter => {
 	return filter;
 };
 
-export const isGitignored = (path: string, root = process.cwd()) =>
-	loadGitignoreFilter()(join(root, path));
+export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean) =>
+	loadGitignoreFilter(forceRefresh)(join(root, path));
 
 // TODO what's the better way to do this? quick hacky mapping for one use case between
 // [picomatch](https://github.com/micromatch/picomatch) and `.gitignore`
