@@ -19,11 +19,11 @@ export interface BuildConfig {
 type BuildConfigInput = string | ((id: string) => boolean);
 
 // The partial was originally this calculated type, but it's a lot less readable.
-// export type PartialBuildConfig = PartialExcept<
+// export type BuildConfigPartial = PartialExcept<
 // 	OmitStrict<BuildConfig, 'input'> & {readonly input: string | string[]},
 // 	'name' | 'platform'
 // >;
-export interface PartialBuildConfig {
+export interface BuildConfigPartial {
 	readonly name: string;
 	readonly platform: PlatformTarget;
 	readonly input: BuildConfigInput | readonly BuildConfigInput[];
@@ -34,7 +34,7 @@ export interface PartialBuildConfig {
 export type PlatformTarget = 'node' | 'browser';
 
 export const normalizeBuildConfigs = (
-	partials: readonly (PartialBuildConfig | null)[],
+	partials: readonly (BuildConfigPartial | null)[],
 ): BuildConfig[] => {
 	const platforms: Set<string> = new Set();
 	const primaryPlatforms: Set<string> = new Set();
@@ -70,7 +70,7 @@ export const normalizeBuildConfigs = (
 	return buildConfigs;
 };
 
-const normalizeBuildConfigInput = (input: PartialBuildConfig['input']): BuildConfig['input'] =>
+const normalizeBuildConfigInput = (input: BuildConfigPartial['input']): BuildConfig['input'] =>
 	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)

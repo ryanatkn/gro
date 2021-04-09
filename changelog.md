@@ -4,6 +4,9 @@
 
 - **break**: rename `src/utils/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/feltcoop/gro/pull/162))
+- **break**: rename `GroConfigPartial` from `PartialGroConfig`
+  and `BuildConfigPartial` from `PartialBuildConfig`
+  ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
 - add helper `toSvelteKitBasePath` to `src/build/sveltekit.ts`

@@ -1,4 +1,4 @@
-import type {GroConfigCreator, PartialGroConfig} from './config.js';
+import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {ENV_LOG_LEVEL, LogLevel} from '../utils/log.js';
 import {
 	hasDeprecatedGroFrontend,
@@ -16,7 +16,7 @@ import {
 // Both are no-ops if not detected.
 
 export const config: GroConfigCreator = async () => {
-	const partial: PartialGroConfig = {
+	const partial: GroConfigPartial = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
 			(await hasApiServer()) ? API_SERVER_BUILD_CONFIG : null,

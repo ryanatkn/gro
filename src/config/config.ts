@@ -1,6 +1,6 @@
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
-import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
+import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
 import {
 	LogLevel,
 	SystemLogger,
@@ -53,8 +53,8 @@ export interface GroConfig {
 	readonly primaryBrowserBuildConfig: BuildConfig | null;
 }
 
-export interface PartialGroConfig {
-	readonly builds: readonly (PartialBuildConfig | null)[]; // allow `null` for convenience
+export interface GroConfigPartial {
+	readonly builds: readonly (BuildConfigPartial | null)[]; // allow `null` for convenience
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly host?: string;
@@ -64,11 +64,11 @@ export interface PartialGroConfig {
 }
 
 export interface GroConfigModule {
-	readonly config: PartialGroConfig | GroConfigCreator;
+	readonly config: GroConfigPartial | GroConfigCreator;
 }
 
 export interface GroConfigCreator {
-	(options: GroConfigCreatorOptions): PartialGroConfig | Promise<PartialGroConfig>;
+	(options: GroConfigCreatorOptions): GroConfigPartial | Promise<GroConfigPartial>;
 }
 export interface GroConfigCreatorOptions {
 	// env: NodeJS.ProcessEnv; // TODO?
@@ -173,7 +173,7 @@ export const loadGroConfig = async (
 };
 
 export const toConfig = async (
-	configOrCreator: PartialGroConfig | GroConfigCreator,
+	configOrCreator: GroConfigPartial | GroConfigCreator,
 	options: GroConfigCreatorOptions,
 	path: string,
 ): Promise<GroConfig> => {
@@ -203,7 +203,7 @@ const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
 	return {ok: true};
 };
 
-const normalizeConfig = (config: PartialGroConfig): GroConfig => {
+const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 	const buildConfigs = normalizeBuildConfigs(config.builds);
 	const primaryNodeBuildConfig = buildConfigs.find((b) => b.primary && b.platform === 'node')!;
 	const primaryBrowserBuildConfig =
