@@ -6,6 +6,7 @@ import {
 	DIST_DIR,
 	isThisProjectGro,
 	sourceIdToBasePath,
+	SVELTE_KIT_APP_DIRNAME,
 	SVELTE_KIT_BUILD_DIRNAME,
 	toBuildExtension,
 } from './paths.js';
@@ -96,10 +97,10 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
 			// TODO take a look at its issues/codebase for fix
 			if (
-				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_app`)) &&
-				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/app`))
+				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`)) &&
+				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/${SVELTE_KIT_APP_DIRNAME}`))
 			) {
-				await remove(`${SVELTE_KIT_BUILD_DIRNAME}/_app`);
+				await remove(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`);
 			}
 			// TODO remove this when we implement something like `adapter-felt`
 			// We implement the adapting Svelte server ourselves in production,
