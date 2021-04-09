@@ -3,7 +3,7 @@ import CheapWatch from 'cheap-watch';
 import type {PathStats, PathFilter} from './pathData.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
-import {isIgnored} from '../project/gitignore.js';
+import {isGitignored} from '../project/gitignore.js';
 
 /*
 
@@ -29,7 +29,7 @@ export interface WatcherChangeCallback {
 
 export const DEBOUNCE_DEFAULT = 10;
 
-const defaultFilter: PathFilter = (file) => !isIgnored(file.path);
+const defaultFilter: PathFilter = (file) => !isGitignored(file.path);
 
 export interface Options {
 	dir: string;

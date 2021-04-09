@@ -32,7 +32,7 @@ const DEFAULT_IGNORED_PATHS = [
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const loadFilter = (forceRefresh = false): Filter => {
+export const loadGitignoreFilter = (forceRefresh = false): Filter => {
 	if (forceRefresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
@@ -50,7 +50,8 @@ export const loadFilter = (forceRefresh = false): Filter => {
 	return filter;
 };
 
-export const isIgnored = (path: string, root = process.cwd()) => loadFilter()(join(root, path));
+export const isGitignored = (path: string, root = process.cwd()) =>
+	loadGitignoreFilter()(join(root, path));
 
 // TODO what's the better way to do this? mapping between
 // [picomatch](https://github.com/micromatch/picomatch) and `.gitignore`
