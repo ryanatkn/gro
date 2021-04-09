@@ -10,7 +10,7 @@ import {green} from './utils/terminal.js';
 import type {BuildConfig} from './config/buildConfig.js';
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
-import {hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
+import {hasApiServer, hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
 import {toSvelteKitBasePath} from './build/sveltekit.js';
 import {loadPackageJson} from './project/packageJson.js';
@@ -40,12 +40,13 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		timingToLoadConfig();
 
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
-		if (await hasSvelteKitFrontend()) {
+		if ((await hasSvelteKitFrontend()) && !(await hasApiServer())) {
 			// `svelte-kit start` is not respecting the `svelte.config.cjs` property `paths.base`,
 			// so we serve up the dist ourselves. we were going to anyway, if we're being honest
 			args.serve = [
 				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
 			];
+			// TODO set port to 3000 or whatever it should be
 			await invokeTask('serve');
 		} else {
 			const inputs: {
