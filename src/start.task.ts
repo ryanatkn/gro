@@ -46,6 +46,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			args.serve = [
 				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
 			];
+			// TODO set port to 3000 or whatever it should be
 			await invokeTask('serve');
 		} else {
 			const inputs: {
