@@ -6,6 +6,7 @@ import {
 	DIST_DIR,
 	isThisProjectGro,
 	sourceIdToBasePath,
+	SVELTE_KIT_APP_DIRNAME,
 	SVELTE_KIT_BUILD_DIRNAME,
 	toBuildExtension,
 } from './paths.js';
@@ -67,23 +68,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		await clean({dist: true}, log);
 		timingToClean();
 
-		// If this is a SvelteKit frontend, for now, just build it and exit immediately.
-		// TODO support merging SvelteKit and Gro builds (and then delete `felt-server`'s build task)
-		if (await hasSvelteKitFrontend()) {
-			const timingToBuildSvelteKit = timings.start('SvelteKit build');
-			await spawnProcess('npx', ['svelte-kit', 'build']);
-			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
-			// TODO take a look at its issues/codebase for fix
-			if (
-				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_app`)) &&
-				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/app`))
-			) {
-				await remove(`${SVELTE_KIT_BUILD_DIRNAME}/_app`);
-			}
-			await move(SVELTE_KIT_BUILD_DIRNAME, DIST_DIR);
-			timingToBuildSvelteKit();
-		}
-
 		// TODO think this through
 		// This is like a "prebuild" phase.
 		// Build everything with esbuild and Gro's `Filer` first,
@@ -105,6 +89,32 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			}
 		}
 
+		// Handle any SvelteKit build.
+		// TODO could parallelize this - currently puts all SvelteKit stuff first
+		if (await hasSvelteKitFrontend()) {
+			const timingToBuildSvelteKit = timings.start('SvelteKit build');
+			await spawnProcess('npx', ['svelte-kit', 'build']);
+			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
+			// TODO take a look at its issues/codebase for fix
+			if (
+				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`)) &&
+				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/${SVELTE_KIT_APP_DIRNAME}`))
+			) {
+				await remove(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`);
+			}
+			// TODO remove this when we implement something like `adapter-felt`
+			// We implement the adapting Svelte server ourselves in production,
+			// so this line deletes the default Node adapter server app file.
+			// The Node adapter is convenient to keep in place, and we just adjust the final `dist/`.
+			await remove(`${SVELTE_KIT_BUILD_DIRNAME}/index.js`);
+			await move(SVELTE_KIT_BUILD_DIRNAME, DIST_DIR);
+			timingToBuildSvelteKit();
+		}
+
+		// The SvelteKit part of the build is now complete.
+		// It's in `dist/` waiting for any Gro builds to be written around it.
+		// TODO refactor when we implement `adapter-felt`
+
 		// Not every build config is built for the final `dist/`!
 		// Only those that currently have `dist: true` are output.
 		// This allows a project's `src/gro.config.ts`
@@ -124,11 +134,9 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
 				}
-				// TODO ok wait, does `outputDir` need to be at the output dir path?
 				const outputDir = `${DIST_DIR}${toBuildExtension(
 					sourceIdToBasePath(toCommonBaseDir(inputFiles)),
 				)}`;
-				// const outputDir = paths.dist;
 				log.info('building', printBuildConfigLabel(buildConfig), outputDir, inputFiles);
 				const build = createBuild({
 					dev,

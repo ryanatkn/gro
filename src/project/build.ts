@@ -19,7 +19,7 @@ import {plainCssPlugin} from './rollup-plugin-plain-css.js';
 import {outputCssPlugin} from './rollup-plugin-output-css.js';
 import {createCssCache, CssCache} from './cssCache.js';
 import {groJsonPlugin} from './rollup-plugin-gro-json.js';
-import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
+// import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
 import {groEsbuildPlugin} from './rollup-plugin-gro-esbuild.js';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import type {GroCssBuild} from './types.js';
@@ -136,7 +136,8 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 			}),
 			resolvePlugin({preferBuiltins: true}),
 			commonjsPlugin(),
-			...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourcemap}})]),
+			// TODO re-enable terser, but add a config option (probably `terser` object)
+			// ...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourcemap}})]),
 		],
 
 		// >> advanced input options

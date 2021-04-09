@@ -30,6 +30,8 @@ export interface MapDependencyToSourceId {
 
 // TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
 export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildDir) => {
+	// TODO this is failing with build ids like `terser` - should that be the build id? yes?
+	// dependency.external
 	const basePath = toBuildBasePath(dependency.buildId, buildDir);
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;

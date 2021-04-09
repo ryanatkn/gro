@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.18.0
+
+- **break**: change the interface of `gro dev` and `gro build` to support the API server
+  ([#168](https://github.com/feltcoop/gro/pull/168))
+
 ## 0.17.1
 
 - fix `gro format` to whitelist files off root when formatting `src/`

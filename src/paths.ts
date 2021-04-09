@@ -51,7 +51,7 @@ export const README_FILENAME = 'README.md';
 export const SVELTE_KIT_CONFIG_FILENAME = 'svelte.config.cjs';
 export const SVELTE_KIT_DEV_DIRNAME = '.svelte';
 export const SVELTE_KIT_BUILD_DIRNAME = 'build';
-export const SVELTE_KIT_DIST_DIRNAME = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
+export const SVELTE_KIT_APP_DIRNAME = 'app'; // same as /svelte.config.cjs `kit.appDir`
 export const NODE_MODULES_DIRNAME = 'node_modules';
 export const GITHUB_DIRNAME = '.github';
 export const GIT_DIRNAME = '.git';
@@ -125,7 +125,10 @@ export const toBuildBasePath = (buildId: string, buildDir = paths.build): string
 			return rootPath.substring(i + 1);
 		}
 	}
-	throw Error(`Invalid build id, cannot convert to build base path: ${buildId}`);
+	// TODO ? errors on inputs like `terser` - should that be allowed to be a `buildId`??
+	// can reproduce by removing a dependency (when turned off I think?)
+	// throw Error(`Invalid build id, cannot convert to build base path: ${buildId}`);
+	return buildId;
 };
 
 // TODO probably change this to use a regexp (benchmark?)
