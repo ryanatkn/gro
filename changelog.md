@@ -4,6 +4,10 @@
 
 - **break**: rename `src/utils/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/feltcoop/gro/pull/162))
+- make serve task work for production SvelteKit builds
+  ([#163](https://github.com/feltcoop/gro/pull/163))
+- add helper `toSvelteKitBasePath` to `src/build/sveltekit.ts`
+  ([#163](https://github.com/feltcoop/gro/pull/163))
 - default to some environment variables
   for undefined Gro config properties:
   `GRO_HOST`, `GRO_PORT`, `GRO_LOG_LEVEL`
