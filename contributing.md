@@ -1,6 +1,6 @@
 hey! thanks for your interest in contributing! Welcome, but it's complicated!;;;;
 
-So, this is just a project I work on to support my other work.
+So, Gro is a project that I, a developer of quantity 1, use to support my other work.
 Although Gro is a [@feltcoop](https://github.com/feltcoop) project,
 I am its only developer for now,
 and we have more important projects that occupy almost all of our time.

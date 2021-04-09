@@ -16,7 +16,8 @@
 > [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
 > are probably what you're looking for.
 > All that out of the way: you might find some interesting or useful things here!
-> Please open issues for questions or discussion.
+> Please open issues for questions or discussion
+> and [see contributing.md](contributing.md) for more.
 
 > **Windows is not yet supported. WSL works well**
 
