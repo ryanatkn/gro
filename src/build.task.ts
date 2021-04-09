@@ -67,7 +67,28 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		await clean({dist: true}, log);
 		timingToClean();
 
-		// Handle both SvelteKit and Gro builds in one.
+		// TODO think this through
+		// This is like a "prebuild" phase.
+		// Build everything with esbuild and Gro's `Filer` first,
+		// so we have the production server available to run while SvelteKit is building.
+		// See the other reference to `isThisProjectGro` for comments about its weirdness.
+		let spawnedApiServer: SpawnedProcess | null = null;
+		if (!isThisProjectGro) {
+			const timingToPrebuild = timings.start('prebuild');
+			await buildSourceDirectory(config, dev, log);
+			timingToPrebuild();
+			events.emit('build.prebuild');
+
+			// now that the prebuild is ready, we can start the API server, if it exists
+			if (hasApiServerConfig(config.builds)) {
+				events.once('server.spawn', (spawned) => {
+					spawnedApiServer = spawned;
+				});
+				await invokeTask('server');
+			}
+		}
+
+		// Handle any SvelteKit build.
 		// TODO could parallelize this - currently puts all SvelteKit stuff first
 		if (await hasSvelteKitFrontend()) {
 			const timingToBuildSvelteKit = timings.start('SvelteKit build');
@@ -92,27 +113,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// The SvelteKit part of the build is now complete.
 		// It's in `dist/` waiting for any Gro builds to be written around it.
 		// TODO refactor when we implement `adapter-felt`
-
-		// TODO think this through
-		// This is like a "prebuild" phase.
-		// Build everything with esbuild and Gro's `Filer` first,
-		// so we have the production server available to run while SvelteKit is building.
-		// See the other reference to `isThisProjectGro` for comments about its weirdness.
-		let spawnedApiServer: SpawnedProcess | null = null;
-		if (!isThisProjectGro) {
-			const timingToPrebuild = timings.start('prebuild');
-			await buildSourceDirectory(config, dev, log);
-			timingToPrebuild();
-			events.emit('build.prebuild');
-
-			// now that the prebuild is ready, we can start the API server, if it exists
-			if (hasApiServerConfig(config.builds)) {
-				events.once('server.spawn', (spawned) => {
-					spawnedApiServer = spawned;
-				});
-				await invokeTask('server');
-			}
-		}
 
 		// Not every build config is built for the final `dist/`!
 		// Only those that currently have `dist: true` are output.

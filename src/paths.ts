@@ -125,7 +125,10 @@ export const toBuildBasePath = (buildId: string, buildDir = paths.build): string
 			return rootPath.substring(i + 1);
 		}
 	}
-	throw Error(`Invalid build id, cannot convert to build base path: ${buildId}`);
+	// TODO ? errors on inputs like `terser` - should that be allowed to be a `buildId`??
+	// can reproduce by removing a dependency (when turned off I think?)
+	// throw Error(`Invalid build id, cannot convert to build base path: ${buildId}`);
+	return buildId;
 };
 
 // TODO probably change this to use a regexp (benchmark?)
