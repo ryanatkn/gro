@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import type {BuildConfig, PartialBuildConfig} from './buildConfig.js';
+import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
 import {
 	toBuildExtension,
 	basePathToSourceId,
@@ -59,7 +59,7 @@ const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (): Promise<boolean> =>
 	everyPathExists(DEPRECATED_GRO_FRONTEND_PATHS);
 
-export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): PartialBuildConfig => ({
+export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): BuildConfigPartial => ({
 	name: 'browser',
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],

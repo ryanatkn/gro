@@ -1,7 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 // import {createDirectoryFilter} from './build/utils.js';
-import type {GroConfigCreator, PartialGroConfig} from './config/config.js';
+import type {GroConfigCreator, GroConfigPartial} from './config/config.js';
 import {toBuildOutPath} from './paths.js';
 import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 
@@ -11,7 +11,7 @@ import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 export const config: GroConfigCreator = async () => {
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
 	const BROWSER_BUILD_CONFIG_NAME = 'browser';
-	const config: PartialGroConfig = {
+	const config: GroConfigPartial = {
 		builds: [
 			// TODO think about this
 			// {...SERVER_BUILD_CONFIG, dist: false},

@@ -56,11 +56,11 @@ Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
 
-The [`PartialGroConfig`](/src/gro.config.ts) is the return value of config files:
+The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files:
 
 ```ts
-export interface PartialGroConfig {
-	readonly builds: PartialBuildConfig[];
+export interface GroConfigPartial {
+	readonly builds: BuildConfigPartial[];
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly host?: string; // env.GRO_HOST
@@ -127,11 +127,11 @@ config = {
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`PartialBuildConfig`](/src/config/buildConfig.ts) type,
+Here's the [`BuildConfigPartial`](/src/config/buildConfig.ts) type,
 which is the user-facing version of the [`BuildConfig`](/src/config/buildConfig.ts):
 
 ```ts
-export interface PartialBuildConfig {
+export interface BuildConfigPartial {
 	readonly name: string;
 	readonly platform: PlatformTarget; // 'node' | 'browser'
 	readonly input: BuildConfigInput | BuildConfigInput[];
