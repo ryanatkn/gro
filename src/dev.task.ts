@@ -10,7 +10,7 @@ import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
-import {createRestartableProcess, spawnProcess} from './utils/process.js';
+import {createRestartableProcess, spawn, SpawnedProcess} from './utils/process.js';
 import {
 	hasApiServerConfig,
 	API_SERVER_BUILD_BASE_PATH,
@@ -24,26 +24,32 @@ export interface TaskArgs {
 	certkeyfile?: string;
 }
 
+export interface DevTaskContext {
+	config: GroConfig;
+	filer: Filer;
+	server: GroServer;
+	svelteKitProcess: SpawnedProcess | null;
+}
+
 export interface TaskEvents {
 	'dev.createConfig': (config: GroConfig) => void;
-	'dev.createFiler': (file: Filer, config: GroConfig) => void;
+	'dev.createFiler': (filer: Filer) => void;
 	'dev.createServer': (server: GroServer) => void;
-	'dev.initFiler': (filer: Filer) => void;
-	'dev.startServer': (server: GroServer) => void;
-	'dev.ready': (server: GroServer, filer: Filer, config: GroConfig) => void;
+	'dev.initFiler': (ctx: DevTaskContext) => void;
+	'dev.startServer': (ctx: DevTaskContext) => void;
+	'dev.ready': (ctx: DevTaskContext) => void;
 }
 
 export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'start dev server',
 	run: async ({dev, log, args, events}) => {
-		// If this is a SvelteKit frontend, for now, just defer to its dev command.
-		// TODO support merging SvelteKit and Gro builds (and then delete `felt-server`'s dev task)
-		if (await hasSvelteKitFrontend()) {
-			await spawnProcess('npx', ['svelte-kit', 'dev']);
-			return;
-		}
-
 		const timings = new Timings();
+
+		// Support SvelteKit builds alongside Gro
+		let svelteKitProcess: SpawnedProcess | null = null;
+		if (await hasSvelteKitFrontend()) {
+			svelteKitProcess = spawn('npx', ['svelte-kit', 'dev']);
+		}
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(dev);
@@ -60,7 +66,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			sourcemap: config.sourcemap,
 		});
 		timingToCreateFiler();
-		events.emit('dev.createFiler', filer, config);
+		events.emit('dev.createFiler', filer);
 
 		// TODO restart functionality
 		const timingToCreateGroServer = timings.start('create dev server');
@@ -72,22 +78,24 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		timingToCreateGroServer();
 		events.emit('dev.createServer', server);
 
+		const devTaskContext: DevTaskContext = {config, server, filer, svelteKitProcess};
+
 		await Promise.all([
 			(async () => {
 				const timingToInitFiler = timings.start('init filer');
 				await filer.init();
 				timingToInitFiler();
-				events.emit('dev.initFiler', filer);
+				events.emit('dev.initFiler', devTaskContext);
 			})(),
 			(async () => {
 				const timingToStartGroServer = timings.start('start dev server');
 				await server.start();
 				timingToStartGroServer();
-				events.emit('dev.startServer', server);
+				events.emit('dev.startServer', devTaskContext);
 			})(),
 		]);
 
-		events.emit('dev.ready', server, filer, config);
+		events.emit('dev.ready', devTaskContext);
 
 		// Support the API server pattern by default.
 		// Normal user projects will hit this code path right here:
