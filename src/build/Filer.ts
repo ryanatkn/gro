@@ -441,7 +441,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
 		const id =
 			change.path === EXTERNALS_SOURCE_ID ? EXTERNALS_SOURCE_ID : join(filerDir.dir, change.path);
-		console.log(red(change.type), id);
+		// console.log(red(change.type), id);
 		switch (change.type) {
 			case 'init':
 			case 'create':
