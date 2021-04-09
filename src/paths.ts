@@ -51,7 +51,6 @@ export const README_FILENAME = 'README.md';
 export const SVELTE_KIT_CONFIG_FILENAME = 'svelte.config.cjs';
 export const SVELTE_KIT_DEV_DIRNAME = '.svelte';
 export const SVELTE_KIT_BUILD_DIRNAME = 'build';
-export const SVELTE_KIT_DIST_DIRNAME = 'sveltekit'; // dist/sveltekit/<your_svelte_build>
 export const NODE_MODULES_DIRNAME = 'node_modules';
 export const GITHUB_DIRNAME = '.github';
 export const GIT_DIRNAME = '.git';
