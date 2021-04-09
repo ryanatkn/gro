@@ -22,9 +22,9 @@ interface Filter {
 	(id: string | unknown): boolean;
 }
 
-export let filter: Filter | null = null;
+let filter: Filter | null = null;
 
-export const DEFAULT_IGNORED_PATHS = [
+const DEFAULT_IGNORED_PATHS = [
 	GIT_DIRNAME,
 	SVELTE_KIT_DEV_DIRNAME,
 	NODE_MODULES_DIRNAME,
@@ -32,7 +32,8 @@ export const DEFAULT_IGNORED_PATHS = [
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const loadFilter = (): Filter => {
+export const loadFilter = (forceRefresh = false): Filter => {
+	if (forceRefresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
 	try {
