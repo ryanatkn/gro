@@ -2,7 +2,7 @@
 
 ## 0.18.0
 
-- change the interface of `gro dev`
+- **break**: change the interface of `gro dev` and `gro build` to support the API server
   ([#168](https://github.com/feltcoop/gro/pull/168))
 
 ## 0.17.1
