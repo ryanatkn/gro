@@ -54,6 +54,4 @@ export const isIgnored = (path: string, root = process.cwd()) => loadFilter()(jo
 
 // TODO what's the better way to do this? mapping between
 // [picomatch](https://github.com/micromatch/picomatch) and `.gitignore`
-const toPattern = (line: string): string => {
-	return stripStart(line, '/');
-};
+const toPattern = (line: string): string => stripStart(line, '/');
