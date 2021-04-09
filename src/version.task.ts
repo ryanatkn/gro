@@ -58,6 +58,7 @@ export const task: Task<TaskArgs> = {
 		// think of a better way - maybe config+defaults?
 		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
 		if (!isThisProjectGro) {
+			await invokeTask('check');
 			await invokeTask('build');
 		}
 		await spawnProcess('npm', ['version', ...process.argv.slice(3)]);
