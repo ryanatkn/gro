@@ -10,7 +10,8 @@ import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
-import {createRestartableProcess, spawn, SpawnedProcess} from './utils/process.js';
+import {createRestartableProcess, spawn} from './utils/process.js';
+import type {SpawnedProcess} from './utils/process.js';
 import {
 	hasApiServerConfig,
 	API_SERVER_BUILD_BASE_PATH,
