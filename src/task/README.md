@@ -104,7 +104,7 @@ export const task: Task = {
 export interface Task<TArgs extends Obj = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
 	description?: string;
-	dev?: boolean;
+	dev?: boolean; // set to `false` to run the task and its children in production mode
 }
 
 export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
