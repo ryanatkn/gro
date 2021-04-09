@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.18.1
+
+- fix `gro start` task to work with SvelteKit and the API server if detected
+  ([#169](https://github.com/feltcoop/gro/pull/169))
+
 ## 0.18.0
 
 - **break**: change the interface of `gro dev` and `gro build` to support the API server
