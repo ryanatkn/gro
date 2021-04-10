@@ -23,6 +23,7 @@ import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
 import {PRIMARY_NODE_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
+import {nodeFsHost} from '../fs/node.js';
 
 /*
 
@@ -92,7 +93,7 @@ export const invokeTask = async (
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
-				await buildSourceDirectory(config, true, log);
+				await buildSourceDirectory(config, nodeFsHost, true, log);
 				timingToBuildProject();
 			}
 

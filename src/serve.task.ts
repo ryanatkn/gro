@@ -3,6 +3,7 @@ import {createGroServer, DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from './serve
 import {Filer} from './build/Filer.js';
 import {loadHttpsCredentials} from './server/https.js';
 import type {ServedDirPartial} from './build/ServedDir.js';
+import {nodeFsHost} from './fs/node.js';
 
 export interface TaskArgs {
 	_: string[];
@@ -24,7 +25,7 @@ export const task: Task<TaskArgs> = {
 
 		// TODO this is inefficient for just serving files in a directory
 		// maybe we want a `lazy` flag?
-		const filer = new Filer({servedDirs, dev});
+		const filer = new Filer({fs: nodeFsHost, servedDirs, dev});
 		await filer.init();
 
 		// TODO write docs and validate args, maybe refactor, see also `dev.task.ts`

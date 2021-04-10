@@ -5,9 +5,11 @@ import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {createDefaultBuilder} from './defaultBuilder.js';
 import type {GroConfig} from '../config/config.js';
+import type {FsHost} from '../fs/host.js';
 
 export const buildSourceDirectory = async (
 	config: GroConfig,
+	fs: FsHost,
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {
@@ -24,6 +26,7 @@ export const buildSourceDirectory = async (
 
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
+		fs,
 		builder: createDefaultBuilder(),
 		sourceDirs: [paths.source],
 		buildConfigs: config.builds,

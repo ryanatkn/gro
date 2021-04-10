@@ -5,6 +5,7 @@ import {Timings} from '../utils/time.js';
 import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
 import {loadGroConfig} from '../config/config.js';
 import {clean} from '../fs/clean.js';
+import {nodeFsHost} from '../fs/node.js';
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
@@ -18,7 +19,7 @@ export const task: Task = {
 
 		// build everything using the normal build process - js files will compiled again by `tsc` later
 		const timingToBuildWithFiler = timings.start('build with filer');
-		await buildSourceDirectory(config, dev, log);
+		await buildSourceDirectory(config, nodeFsHost, dev, log);
 		timingToBuildWithFiler();
 
 		await clean({dist: true}, log);

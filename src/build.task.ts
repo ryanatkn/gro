@@ -23,6 +23,7 @@ import {toCommonBaseDir} from './utils/path.js';
 import {clean} from './fs/clean.js';
 import {move, pathExists, remove} from './fs/node.js';
 import {printBuildConfigLabel} from './config/buildConfig.js';
+import {nodeFsHost} from './fs/node.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
 
@@ -76,7 +77,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		let spawnedApiServer: SpawnedProcess | null = null;
 		if (!isThisProjectGro) {
 			const timingToPrebuild = timings.start('prebuild');
-			await buildSourceDirectory(config, dev, log);
+			await buildSourceDirectory(config, nodeFsHost, dev, log);
 			timingToPrebuild();
 			events.emit('build.prebuild');
 

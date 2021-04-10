@@ -18,6 +18,7 @@ import {
 	API_SERVER_BUILD_CONFIG_NAME,
 	hasSvelteKitFrontend,
 } from './config/defaultBuildConfig.js';
+import {nodeFsHost} from './fs/node.js';
 
 export interface TaskArgs {
 	nocert?: boolean;
@@ -59,6 +60,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
+			fs: nodeFsHost,
 			builder: createDefaultBuilder(),
 			sourceDirs: [paths.source],
 			servedDirs: config.serve || getDefaultServedDirs(config),

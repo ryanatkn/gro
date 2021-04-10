@@ -5,7 +5,7 @@ import {Timings} from './utils/time.js';
 import {spawnProcess} from './utils/process.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
 import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
-import {pathExists} from './fs/node.js';
+import {nodeFsHost, pathExists} from './fs/node.js';
 import {loadGroConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
@@ -29,7 +29,7 @@ export const task: Task = {
 			timingToLoadConfig();
 
 			const timingToPrebuild = timings.start('prebuild');
-			await buildSourceDirectory(config, dev, log);
+			await buildSourceDirectory(config, nodeFsHost, dev, log);
 			timingToPrebuild();
 
 			// Projects may not define any artifacts for the Node build,
