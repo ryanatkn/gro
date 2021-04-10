@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.18.2
+
+- fix `gro start` task to serve static builds to port 3000 like the others
+  ([#170](https://github.com/feltcoop/gro/pull/170))
+
 ## 0.18.1
 
 - fix `gro start` task to work with SvelteKit and the API server if detected
