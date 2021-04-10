@@ -51,7 +51,7 @@ export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 // TODO change to remove the second, search upwards for an open port
 export const API_SERVER_DEFAULT_PORT_PROD = 3000;
 export const API_SERVER_DEFAULT_PORT_DEV = 3001;
-export const toApiServePort = (dev: boolean): number =>
+export const toApiServerPort = (dev: boolean): number =>
 	dev ? API_SERVER_DEFAULT_PORT_DEV : API_SERVER_DEFAULT_PORT_PROD;
 export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): string =>
 	toBuildOutPath(dev, API_SERVER_BUILD_CONFIG_NAME, API_SERVER_BUILD_BASE_PATH, buildDir);
