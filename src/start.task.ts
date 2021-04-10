@@ -10,7 +10,7 @@ import {green} from './utils/terminal.js';
 import type {BuildConfig} from './config/buildConfig.js';
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
-import {hasApiServer, hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
+import {hasApiServer, hasSvelteKitFrontend, toApiServePort} from './config/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
 import {toSvelteKitBasePath} from './build/sveltekit.js';
 import {loadPackageJson} from './project/packageJson.js';
@@ -46,8 +46,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			args.serve = [
 				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
 			];
-			// TODO set port to 3000 or whatever it should be
-			await invokeTask('serve');
+			await invokeTask('serve', {...args, port: args.port || toApiServePort(dev)});
 		} else {
 			const inputs: {
 				buildConfig: BuildConfig;
