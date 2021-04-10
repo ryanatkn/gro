@@ -1,8 +1,8 @@
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {paths} from '../paths.js';
-import {findFiles} from '../fs/node.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import type {Obj} from '../index.js';
+import type {Filesystem} from './filesystem.js';
 
 // TODO this is no longer needed to the same extent as it was before switching to `uvu`,
 // but it contains the conventions for the app used in some other places
@@ -29,12 +29,14 @@ export const isTestBuildArtifact = (path: string): boolean =>
 	TEST_BUILD_ARTIFACT_MATCHER.test(path);
 
 export const findTestModules = (
+	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [TEST_FILE_SUFFIX],
 	rootDirs: string[] = [],
 ) =>
 	findModules(
+		fs,
 		inputPaths,
-		(id) => findFiles(id, (file) => isTestPath(file.path)),
+		(id) => fs.findFiles(id, (file) => isTestPath(file.path)),
 		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);

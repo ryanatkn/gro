@@ -16,7 +16,7 @@ export interface TaskArgs {
 
 export const task: Task<TaskArgs> = {
 	description: 'start static file server',
-	run: async ({log, args, dev}): Promise<void> => {
+	run: async ({fs, log, args, dev}): Promise<void> => {
 		const host = args.host || DEFAULT_SERVER_HOST;
 		const port = Number(args.port) || DEFAULT_SERVER_PORT;
 		const servedDirs: ServedDirPartial[] = args.serve || (args._.length ? args._ : ['.']);
@@ -24,13 +24,13 @@ export const task: Task<TaskArgs> = {
 
 		// TODO this is inefficient for just serving files in a directory
 		// maybe we want a `lazy` flag?
-		const filer = new Filer({servedDirs, dev});
+		const filer = new Filer({fs, servedDirs, dev});
 		await filer.init();
 
 		// TODO write docs and validate args, maybe refactor, see also `dev.task.ts`
 		const https = args.nocert
 			? null
-			: await loadHttpsCredentials(log, args.certfile, args.certkeyfile);
+			: await loadHttpsCredentials(fs, log, args.certfile, args.certkeyfile);
 
 		const server = createGroServer({filer, host, port, https});
 		log.info(`serving on ${server.host}:${server.port}`, ...servedDirs);

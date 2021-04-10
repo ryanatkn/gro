@@ -12,6 +12,7 @@ import mri from 'mri';
 
 import type {Args} from '../task/task.js';
 import {invokeTask} from '../task/invokeTask.js';
+import {nodeFilesystem} from '../fs/node.js';
 
 /*
 
@@ -31,7 +32,7 @@ const main = async () => {
 	} = argv;
 	const args = {_, ...namedArgs};
 
-	await invokeTask(taskName, args);
+	await invokeTask(nodeFilesystem, taskName, args);
 };
 
 main(); // see `attachProcessErrorHandlers` above for why we don't catch here

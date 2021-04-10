@@ -1,5 +1,4 @@
 import {red} from '../utils/terminal.js';
-import {pathExists, stat} from './node.js';
 import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import {Timings} from '../utils/time.js';
@@ -8,6 +7,7 @@ import {toImportId, pathsFromId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
 import {PRIMARY_NODE_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
 import type {Obj, Result} from '../index.js';
+import type {Filesystem} from './filesystem.js';
 
 /*
 
@@ -93,6 +93,7 @@ Finds modules from input paths. (see `src/fs/inputPath.ts` for more)
 
 */
 export const findModules = async (
+	fs: Filesystem,
 	inputPaths: string[],
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
 	getPossibleSourceIds?: (inputPath: string) => string[],
@@ -101,9 +102,8 @@ export const findModules = async (
 	const timings = new Timings<FindModulesTimings>();
 	const timingToMapInputPaths = timings.start('map input paths');
 	const {sourceIdPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
+		fs,
 		inputPaths,
-		pathExists,
-		stat,
 		getPossibleSourceIds,
 	);
 	timingToMapInputPaths();

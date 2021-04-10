@@ -32,8 +32,10 @@ import {
 } from '../build/esbuildBuildHelpers.js';
 import type {PartialExcept} from '../index.js';
 import {paths} from '../paths.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
+	fs: Filesystem;
 	inputFiles: string[];
 	esbuildOptions: EsbuildTransformOptions;
 	dev: boolean;
@@ -45,7 +47,7 @@ export interface Options {
 	mapWatchOptions: MapWatchOptions;
 	cssCache: CssCache<GroCssBuild>;
 }
-export type RequiredOptions = 'inputFiles' | 'esbuildOptions';
+export type RequiredOptions = 'fs' | 'inputFiles' | 'esbuildOptions';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
@@ -105,7 +107,7 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 };
 
 const createInputOptions = (inputFile: string, options: Options, _log: Logger): InputOptions => {
-	const {dev, sourcemap, cssCache, esbuildOptions} = options;
+	const {fs, dev, sourcemap, cssCache, esbuildOptions} = options;
 
 	// TODO make this extensible - how? should bundles be combined for production builds?
 	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
@@ -129,8 +131,9 @@ const createInputOptions = (inputFile: string, options: Options, _log: Logger): 
 				compileOptions: {},
 			}),
 			groEsbuildPlugin({esbuildOptions}),
-			plainCssPlugin({addCssBuild: addPlainCssBuild}),
+			plainCssPlugin({fs, addCssBuild: addPlainCssBuild}),
 			outputCssPlugin({
+				fs,
 				getCssBundles: cssCache.getCssBundles,
 				sourcemap,
 			}),

@@ -5,7 +5,6 @@ import {paths, basePathToSourceId} from '../paths.js';
 import {toPathParts, toPathSegments} from '../utils/path.js';
 import {last} from '../utils/array.js';
 import {stripStart} from '../utils/string.js';
-import {findFiles} from '../fs/node.js';
 
 // This renders a simple index of a possibly nested directory of files.
 
@@ -13,7 +12,7 @@ import {findFiles} from '../fs/node.js';
 // TODO show nested structure, not a flat list
 // TODO work with file types beyond markdown
 
-export const gen: Gen = async ({originId}) => {
+export const gen: Gen = async ({fs, originId}) => {
 	// TODO need to get this from project config or something
 	const rootPath = last(toPathSegments(paths.root));
 
@@ -30,7 +29,7 @@ export const gen: Gen = async ({originId}) => {
 	// TODO this is GitHub-specific
 	const rootLink = `[${rootPath}](/../..)`;
 
-	const docFiles = await findFiles(originDir);
+	const docFiles = await fs.findFiles(originDir);
 	const docPaths: string[] = [];
 	for (const [path, stats] of docFiles) {
 		if (stats.isDirectory() || path === outputFileName || !path.endsWith('.md')) {

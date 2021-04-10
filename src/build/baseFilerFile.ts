@@ -1,5 +1,4 @@
-import {stat} from '../fs/node.js';
-import type {Stats} from '../fs/node.js';
+import type {Filesystem, Stats} from '../fs/filesystem.js';
 import type {Encoding} from '../fs/encoding.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {toHash} from './utils.js';
@@ -30,10 +29,10 @@ export const getFileContentsBuffer = (file: BaseFilerFile): Buffer =>
 		: (file.contentsBuffer = Buffer.from(file.contents));
 
 // Stats are currently lazily loaded. Should they be?
-export const getFileStats = (file: BaseFilerFile): Stats | Promise<Stats> =>
+export const getFileStats = (fs: Filesystem, file: BaseFilerFile): Stats | Promise<Stats> =>
 	file.stats !== undefined
 		? file.stats
-		: stat(file.id).then((stats) => {
+		: fs.stat(file.id).then((stats) => {
 				file.stats = stats;
 				return stats;
 		  });

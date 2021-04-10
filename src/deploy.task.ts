@@ -2,7 +2,6 @@ import {join, basename} from 'path';
 
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
-import {copy, move, remove, readDir} from './fs/node.js';
 import {GIT_DIRNAME, paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {magenta, green, rainbow, red} from './utils/terminal.js';
@@ -32,7 +31,7 @@ const TEMP_PREFIX = '__TEMP__';
 export const task: Task<TaskArgs> = {
 	description: 'deploy to static hosting',
 	dev: false,
-	run: async ({invokeTask, args, log}): Promise<void> => {
+	run: async ({fs, invokeTask, args, log}): Promise<void> => {
 		const {branch, dry, clean} = args;
 
 		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
@@ -85,7 +84,7 @@ export const task: Task<TaskArgs> = {
 			await invokeTask('build');
 
 			// Update the initial file.
-			await copy(INITIAL_FILE, join(DIST_DIR, INITIAL_FILE));
+			await fs.copy(INITIAL_FILE, join(DIST_DIR, INITIAL_FILE));
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
@@ -108,13 +107,13 @@ export const task: Task<TaskArgs> = {
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
-				(await readDir(WORKTREE_DIR)).map((path) =>
-					path === GIT_DIRNAME ? null : remove(`${WORKTREE_DIR}/${path}`),
+				(await fs.readDir(WORKTREE_DIR)).map((path) =>
+					path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`),
 				),
 			);
 			await Promise.all(
-				(await readDir(DIST_DIR)).map((path) =>
-					move(`${DIST_DIR}${path}`, `${WORKTREE_DIR}/${path}`),
+				(await fs.readDir(DIST_DIR)).map((path) =>
+					fs.move(`${DIST_DIR}${path}`, `${WORKTREE_DIR}/${path}`),
 				),
 			);
 			// commit the changes
@@ -129,8 +128,8 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
-		await remove(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
-		await move(WORKTREE_DIR, DIST_DIR, {overwrite: true});
+		await fs.remove(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
+		await fs.move(WORKTREE_DIR, DIST_DIR, {overwrite: true});
 		await cleanGitWorktree();
 
 		log.info(rainbow('deployed')); // TODO log a different message if "Everything up-to-date"

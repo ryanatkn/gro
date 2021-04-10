@@ -6,7 +6,7 @@ import {findModules, loadModules, loadModule} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
-import {findFiles} from './node.js';
+import {findFiles, nodeFilesystem} from './node.js';
 import {getPossibleSourceIds} from './inputPath.js';
 import type {Obj} from '../index.js';
 
@@ -76,6 +76,7 @@ test_findModules('with and without extension', async () => {
 	const id1 = resolve('src/fs/fixtures/test1.foo.ts');
 	const id2 = resolve('src/fs/fixtures/test2.foo.ts');
 	const result = await findModules(
+		nodeFilesystem,
 		[path1, id2],
 		(id) => findFiles(id),
 		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
@@ -99,7 +100,9 @@ test_findModules('with and without extension', async () => {
 
 test_findModules('directory', async () => {
 	const id = resolve('src/fs/fixtures/');
-	const result = await findModules([id], (id) => findFiles(id, ({path}) => path.includes('.foo.')));
+	const result = await findModules(nodeFilesystem, [id], (id) =>
+		findFiles(id, ({path}) => path.includes('.foo.')),
+	);
 	t.ok(result.ok);
 	t.equal(
 		result.sourceIdsByInputPath,
@@ -110,6 +113,7 @@ test_findModules('directory', async () => {
 
 test_findModules('fail with unmappedInputPaths', async () => {
 	const result = await findModules(
+		nodeFilesystem,
 		[
 			resolve('src/fs/fixtures/bar1'),
 			resolve('src/fs/fixtures/failme1'),
@@ -133,6 +137,7 @@ test_findModules('fail with unmappedInputPaths', async () => {
 
 test_findModules('fail with inputDirectoriesWithNoFiles', async () => {
 	const result = await findModules(
+		nodeFilesystem,
 		[
 			resolve('src/fs/fixtures/baz1'),
 			resolve('src/fs/fixtures/bar1'),

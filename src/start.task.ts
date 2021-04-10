@@ -1,5 +1,4 @@
 import type {Task} from './task/task.js';
-import {pathExists} from './fs/node.js';
 import {Timings} from './utils/time.js';
 import {DIST_DIRNAME, paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import type {GroConfig} from './config/config.js';
@@ -24,11 +23,11 @@ export interface TaskEvents {
 export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'runs the dist/ builds for production',
 	dev: false,
-	run: async ({log, invokeTask, dev, events, args}) => {
+	run: async ({fs, log, invokeTask, dev, events, args}) => {
 		const timings = new Timings();
 
 		// build if needed
-		if (!(await pathExists(paths.dist))) {
+		if (!(await fs.pathExists(paths.dist))) {
 			log.info(green('dist not detected; building'));
 			const timingToBuild = timings.start('build');
 			await invokeTask('build');
@@ -36,15 +35,15 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		}
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig(dev);
+		const config = await loadGroConfig(fs, dev);
 		timingToLoadConfig();
 
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
-		if ((await hasSvelteKitFrontend()) && !(await hasApiServer())) {
+		if ((await hasSvelteKitFrontend(fs)) && !(await hasApiServer(fs))) {
 			// `svelte-kit start` is not respecting the `svelte.config.cjs` property `paths.base`,
 			// so we serve up the dist ourselves. we were going to anyway, if we're being honest
 			args.serve = [
-				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(), dev)},
+				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(fs), dev)},
 			];
 			await invokeTask('serve', {...args, port: args.port || toApiServerPort(dev)});
 		} else {
@@ -56,7 +55,10 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					// TODO this needs to be changed, might need to configure on each `buildConfig`
 					// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
 					config.builds.map(async (buildConfig) =>
-						(await resolveInputFiles(buildConfig)).map((inputFile) => ({buildConfig, inputFile})),
+						(await resolveInputFiles(fs, buildConfig)).map((inputFile) => ({
+							buildConfig,
+							inputFile,
+						})),
 					),
 				)
 			).flat();

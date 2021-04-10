@@ -27,6 +27,7 @@ import {loadPackageJson} from '../project/packageJson.js';
 import type {ProjectState} from './projectState.js';
 import type {Assignable, PartialExcept} from '../index.js';
 import {toEnvNumber, toEnvString} from '../utils/env.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 type Http2StreamHandler = (
 	stream: ServerHttp2Stream,
@@ -156,45 +157,6 @@ const createHttp1RequestListener = (filer: Filer, log: Logger): Http1RequestList
 	return requestListener;
 };
 
-const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
-
-// TODO need to rethink this
-const toLocalPath = (url: string): string => {
-	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
-	const relativePath =
-		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
-	return relativePath;
-};
-
-const to200Headers = async (file: BaseFilerFile): Promise<OutgoingHttpHeaders> => {
-	const stats = await getFileStats(file);
-	const mimeType = getFileMimeType(file);
-	const headers: OutgoingHttpHeaders = {
-		'Content-Type':
-			mimeType === null
-				? 'application/octet-stream'
-				: file.encoding === 'utf8'
-				? `${mimeType}; charset=utf-8`
-				: mimeType,
-		'Content-Length': stats.size,
-		ETag: toETag(file),
-
-		// TODO any of these helpful?
-		// 'Last-Modified': stats.mtime.toUTCString(),
-		// 'Cache-Control': 'no-cache,must-revalidate',
-		// 'Cache-Control': 'must-revalidate',
-
-		// TODO probably support various types of resource caching,
-		// especially if we output files with contents hashes.
-		// 'Cache-Control': 'immutable',
-		// 'Cache-Control': 'max-age=31536000',
-	};
-	// console.log('res headers', gray(file.id), headers);
-	return headers;
-};
-
-const toETag = (file: BaseFilerFile): string => `"${getFileContentsHash(file)}"`;
-
 interface GroServerResponse {
 	status: 200 | 304 | 404;
 	headers: OutgoingHttpHeaders;
@@ -221,7 +183,7 @@ const toResponse = async (
 			sourceDir: paths.source,
 			items: Array.from(filer.sourceMetaById.values()),
 			buildConfigs: filer.buildConfigs!,
-			packageJson: await loadPackageJson(),
+			packageJson: await loadPackageJson(filer.fs),
 		};
 		return {
 			status: 200,
@@ -261,7 +223,47 @@ const toResponse = async (
 	log.info(`${yellow('200')} ${gray(localPath)}`);
 	return {
 		status: 200,
-		headers: await to200Headers(file),
+		headers: await to200Headers(filer.fs, file),
 		data: getFileContentsBuffer(file),
 	};
+};
+
+const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
+
+// TODO need to rethink this
+const toLocalPath = (url: string): string => {
+	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
+	const relativePath =
+		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
+	return relativePath;
+};
+
+const toETag = (file: BaseFilerFile): string => `"${getFileContentsHash(file)}"`;
+
+const to200Headers = async (fs: Filesystem, file: BaseFilerFile): Promise<OutgoingHttpHeaders> => {
+	// TODO where do we get fs? the server? the filer?
+	const stats = await getFileStats(fs, file);
+	const mimeType = getFileMimeType(file);
+	const headers: OutgoingHttpHeaders = {
+		'Content-Type':
+			mimeType === null
+				? 'application/octet-stream'
+				: file.encoding === 'utf8'
+				? `${mimeType}; charset=utf-8`
+				: mimeType,
+		'Content-Length': stats.size,
+		ETag: toETag(file),
+
+		// TODO any of these helpful?
+		// 'Last-Modified': stats.mtime.toUTCString(),
+		// 'Cache-Control': 'no-cache,must-revalidate',
+		// 'Cache-Control': 'must-revalidate',
+
+		// TODO probably support various types of resource caching,
+		// especially if we output files with contents hashes.
+		// 'Cache-Control': 'immutable',
+		// 'Cache-Control': 'max-age=31536000',
+	};
+	// console.log('res headers', gray(file.id), headers);
+	return headers;
 };

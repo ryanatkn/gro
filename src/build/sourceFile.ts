@@ -67,7 +67,7 @@ export const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	sourceMeta: SourceMeta | undefined,
-	{buildConfigs, dev}: BuildContext,
+	{fs, buildConfigs, dev}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
@@ -87,7 +87,7 @@ export const createSourceFile = async (
 		dirty =
 			contentsHash !== sourceMeta.data.contentsHash ||
 			!(toBuildOutDirname(dev) in sourceMeta.data.builds);
-		reconstructedBuildFiles = await reconstructBuildFiles(sourceMeta, buildConfigs!, dev);
+		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!, dev);
 	}
 	if (isExternalBrowserModule(id)) {
 		// externals

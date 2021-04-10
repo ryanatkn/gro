@@ -3,6 +3,7 @@ import type {EventEmitter} from 'events';
 
 import type {Logger} from '../utils/log.js';
 import type {Obj} from '../utils/types.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Task<TArgs extends Obj = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
@@ -11,6 +12,7 @@ export interface Task<TArgs extends Obj = Args, TEvents = {}> {
 }
 
 export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
+	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
 	args: TArgs;
@@ -21,6 +23,7 @@ export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
 		args?: Args,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
 		dev?: boolean,
+		fs?: Filesystem,
 	) => Promise<void>;
 }
 

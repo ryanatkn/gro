@@ -4,7 +4,7 @@ import {findGenModules} from './gen/genModule.js';
 
 export const task: Task = {
 	description: 'check that everything is ready to commit',
-	run: async ({log, args, invokeTask}) => {
+	run: async ({fs, log, args, invokeTask}) => {
 		await invokeTask('typecheck');
 
 		// // Run tests only if the the project has some.
@@ -19,7 +19,7 @@ export const task: Task = {
 		// }
 
 		// Check for stale code generation if the project has any gen files.
-		const findGenModulesResult = await findGenModules();
+		const findGenModulesResult = await findGenModules(fs);
 		if (findGenModulesResult.ok) {
 			log.info('checking that generated files have not changed');
 			await invokeTask('gen', {...args, check: true});

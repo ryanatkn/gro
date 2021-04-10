@@ -21,7 +21,6 @@ import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {toCommonBaseDir} from './utils/path.js';
 import {clean} from './fs/clean.js';
-import {move, pathExists, remove} from './fs/node.js';
 import {printBuildConfigLabel} from './config/buildConfig.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
@@ -41,7 +40,7 @@ export interface TaskEvents extends ServerTaskEvents {
 export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'build the project',
 	dev: false,
-	run: async ({dev, log, args, invokeTask, events}): Promise<void> => {
+	run: async ({fs, dev, log, args, invokeTask, events}): Promise<void> => {
 		// Normal user projects will ignore this code path right here:
 		// in other words, `isThisProjectGro` will always be `false` for your code.
 		// TODO task pollution, this is bad for users who want to copy/paste this task.
@@ -58,14 +57,14 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig(dev);
+		const config = await loadGroConfig(fs, dev);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 
 		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
 
 		const timingToClean = timings.start('clean');
-		await clean({dist: true}, log);
+		await clean(fs, {dist: true}, log);
 		timingToClean();
 
 		// TODO think this through
@@ -76,7 +75,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		let spawnedApiServer: SpawnedProcess | null = null;
 		if (!isThisProjectGro) {
 			const timingToPrebuild = timings.start('prebuild');
-			await buildSourceDirectory(config, dev, log);
+			await buildSourceDirectory(fs, config, dev, log);
 			timingToPrebuild();
 			events.emit('build.prebuild');
 
@@ -91,23 +90,23 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		// Handle any SvelteKit build.
 		// TODO could parallelize this - currently puts all SvelteKit stuff first
-		if (await hasSvelteKitFrontend()) {
+		if (await hasSvelteKitFrontend(fs)) {
 			const timingToBuildSvelteKit = timings.start('SvelteKit build');
 			await spawnProcess('npx', ['svelte-kit', 'build']);
 			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
 			// TODO take a look at its issues/codebase for fix
 			if (
-				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`)) &&
-				(await pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/${SVELTE_KIT_APP_DIRNAME}`))
+				(await fs.pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`)) &&
+				(await fs.pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/${SVELTE_KIT_APP_DIRNAME}`))
 			) {
-				await remove(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`);
+				await fs.remove(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`);
 			}
 			// TODO remove this when we implement something like `adapter-felt`
 			// We implement the adapting Svelte server ourselves in production,
 			// so this line deletes the default Node adapter server app file.
 			// The Node adapter is convenient to keep in place, and we just adjust the final `dist/`.
-			await remove(`${SVELTE_KIT_BUILD_DIRNAME}/index.js`);
-			await move(SVELTE_KIT_BUILD_DIRNAME, DIST_DIR);
+			await fs.remove(`${SVELTE_KIT_BUILD_DIRNAME}/index.js`);
+			await fs.move(SVELTE_KIT_BUILD_DIRNAME, DIST_DIR);
 			timingToBuildSvelteKit();
 		}
 
@@ -129,7 +128,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		const timingToBuild = timings.start('build');
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
-				const inputFiles = await resolveInputFiles(buildConfig);
+				const inputFiles = await resolveInputFiles(fs, buildConfig);
 				if (!inputFiles.length) {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
@@ -139,6 +138,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				)}`;
 				log.info('building', printBuildConfigLabel(buildConfig), outputDir, inputFiles);
 				const build = createBuild({
+					fs,
 					dev,
 					sourcemap: config.sourcemap,
 					inputFiles,

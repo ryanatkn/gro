@@ -10,9 +10,10 @@ export interface TaskArgs {
 
 export const task: Task<TaskArgs> = {
 	description: 'remove temporary dev and build files',
-	run: async ({log, args}): Promise<void> => {
+	run: async ({fs, log, args}): Promise<void> => {
 		// TODO document with mdsvex
 		await clean(
+			fs,
 			{
 				build: !args.B,
 				dist: !args.D,

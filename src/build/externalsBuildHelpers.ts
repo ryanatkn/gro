@@ -2,9 +2,8 @@ import type {ImportMap} from 'esinstall';
 
 import {EXTERNALS_BUILD_DIRNAME, toBuildOutPath} from '../paths.js';
 import type {BuilderState, BuildContext} from './builder.js';
-import {gray} from '../utils/terminal.js';
 import type {BuildConfig} from '../config/buildConfig.js';
-import {outputFile, pathExists, readJson} from '../fs/node.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface ExternalsBuilderState {
 	readonly buildStates: Map<BuildConfig, ExternalsBuildState>;
@@ -79,25 +78,13 @@ export const toSpecifiers = (importMap: ImportMap): Set<string> =>
 
 export const toImportMapPath = (dest: string): string => `${dest}/import-map.json`;
 
-// Normally `esinstall` writes out the `import-map.json` file,
-// but whenever files are deleted we update it without going through `esinstall`.
-// TODO remove this? isn't being used anywhere anymore
-export const updateImportMapOnDisk = async (
-	importMap: ImportMap,
-	buildConfig: BuildConfig,
-	{dev, buildDir, log}: BuildContext,
-): Promise<void> => {
-	const dest = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME, buildDir);
+export const loadImportMapFromDisk = async (
+	fs: Filesystem,
+	dest: string,
+): Promise<ImportMap | undefined> => {
 	const importMapPath = toImportMapPath(dest);
-	// TODO `outputJson`? hmm
-	log.trace(`writing import map to ${gray(importMapPath)}`);
-	await outputFile(importMapPath, JSON.stringify(importMap, null, 2));
-};
-
-export const loadImportMapFromDisk = async (dest: string): Promise<ImportMap | undefined> => {
-	const importMapPath = toImportMapPath(dest);
-	if (!(await pathExists(importMapPath))) return undefined;
-	const importMap: ImportMap = await readJson(importMapPath);
+	if (!(await fs.pathExists(importMapPath))) return undefined;
+	const importMap: ImportMap = await fs.readJson(importMapPath);
 	return importMap;
 };
 

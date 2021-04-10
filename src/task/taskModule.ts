@@ -3,9 +3,9 @@ import {loadModule, loadModules, findModules} from '../fs/modules.js';
 import type {ModuleMeta, LoadModuleResult} from '../fs/modules.js';
 import {toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
 import type {Task} from './task.js';
-import {findFiles} from '../fs/node.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import type {Obj} from '../index.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface TaskModule {
 	task: Task;
@@ -28,13 +28,15 @@ export const loadTaskModule = async (id: string): Promise<LoadModuleResult<TaskM
 };
 
 export const loadTaskModules = async (
+	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [TASK_FILE_SUFFIX],
 	rootDirs: string[] = [],
 ) => {
 	const findModulesResult = await findModules(
+		fs,
 		inputPaths,
-		(id) => findFiles(id, (file) => isTaskPath(file.path)),
+		(id) => fs.findFiles(id, (file) => isTaskPath(file.path)),
 		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);
 	if (!findModulesResult.ok) return findModulesResult;

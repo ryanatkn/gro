@@ -1,4 +1,3 @@
-import {findFiles, remove, outputFile, pathExists, readJson} from '../fs/node.js';
 import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
 import type {BuildOutDirname} from '../paths.js';
@@ -35,7 +34,7 @@ export const updateSourceMeta = async (
 	ctx: BuildContext,
 	file: BuildableSourceFile,
 ): Promise<void> => {
-	const {sourceMetaById, dev, buildDir} = ctx;
+	const {fs, sourceMetaById, dev, buildDir} = ctx;
 	if (file.buildConfigs.size === 0) {
 		return deleteSourceMeta(ctx, file.id);
 	}
@@ -84,11 +83,11 @@ export const updateSourceMeta = async (
 
 	sourceMetaById.set(file.id, sourceMeta);
 	// this.log.trace('outputting source meta', gray(cacheId));
-	await outputFile(cacheId, JSON.stringify(data, null, 2));
+	await fs.outputFile(cacheId, JSON.stringify(data, null, 2));
 };
 
 export const deleteSourceMeta = async (
-	{sourceMetaById, dev}: BuildContext,
+	{fs, sourceMetaById, dev}: BuildContext,
 	sourceId: string,
 ): Promise<void> => {
 	const meta = sourceMetaById.get(sourceId);
@@ -97,22 +96,26 @@ export const deleteSourceMeta = async (
 	// delete the source meta on disk, but only if it has no builds for the other dev/prod mode
 	const otherBuilds = meta.data.builds[toBuildOutDirname(!dev)];
 	if (!otherBuilds) {
-		await remove(meta.cacheId);
+		await fs.remove(meta.cacheId);
 	}
 };
 
 const toSourceMetaId = (file: BuildableSourceFile, buildDir: string): string =>
 	`${buildDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
-export const initSourceMeta = async ({sourceMetaById, buildDir}: BuildContext): Promise<void> => {
+export const initSourceMeta = async ({
+	fs,
+	sourceMetaById,
+	buildDir,
+}: BuildContext): Promise<void> => {
 	const sourceMetaDir = toSourceMetaDir(buildDir);
-	if (!(await pathExists(sourceMetaDir))) return;
-	const files = await findFiles(sourceMetaDir, undefined, null);
+	if (!(await fs.pathExists(sourceMetaDir))) return;
+	const files = await fs.findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(
 		Array.from(files.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
 			const cacheId = `${sourceMetaDir}/${path}`;
-			const data: SourceMetaData = await readJson(cacheId);
+			const data: SourceMetaData = await fs.readJson(cacheId);
 			sourceMetaById.set(data.sourceId, {cacheId, data});
 		}),
 	);

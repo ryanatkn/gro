@@ -2,10 +2,10 @@ import {createHash} from 'crypto';
 import {resolve} from 'path';
 
 import type {BuildConfig} from '../config/buildConfig.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
 import type {BuildDependency} from './builder.js';
 import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
-import {pathExists} from '../fs/node.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -47,11 +47,14 @@ export const addCssSourcemapFooter = (code: string, sourcemapPath: string): stri
 	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;
 
 // TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
-export const resolveInputFiles = async (buildConfig: BuildConfig): Promise<string[]> =>
+export const resolveInputFiles = async (
+	fs: Filesystem,
+	buildConfig: BuildConfig,
+): Promise<string[]> =>
 	(
 		await Promise.all(
 			buildConfig.input.map(async (input) =>
-				typeof input === 'string' && (await pathExists(input)) ? input : null!,
+				typeof input === 'string' && (await fs.pathExists(input)) ? input : null!,
 			),
 		)
 	).filter(Boolean);

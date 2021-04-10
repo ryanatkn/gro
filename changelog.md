@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.19.0
+
+- extract the `Filesystem` interface and thread it everywhere from `src/cli/invoke.ts` and tests
+  ([#171](https://github.com/feltcoop/gro/pull/171))
+
 ## 0.18.2
 
 - fix `gro start` task to serve static builds to port 3000 like the others

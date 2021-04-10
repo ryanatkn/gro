@@ -7,15 +7,16 @@ import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
-import {pathExists} from '../fs/node.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
+	fs: Filesystem;
 	addCssBuild(build: GroCssBuild): boolean;
 	extensions: string[]; // see comments below at `sortIndexById` for why this exists
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
 }
-export type RequiredOptions = 'addCssBuild';
+export type RequiredOptions = 'fs' | 'addCssBuild';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	if (opts.include && !opts.extensions) {
@@ -33,7 +34,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const name = 'plain-css';
 
 export const plainCssPlugin = (opts: InitialOptions): Plugin => {
-	const {addCssBuild, extensions, include, exclude} = initOptions(opts);
+	const {fs, addCssBuild, extensions, include, exclude} = initOptions(opts);
 
 	const log = new SystemLogger(printLogLabel(name, green));
 
@@ -65,7 +66,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 			// despite using `{skipSelf: true}`. So we manually resolve the id.
 			const resolvedId = resolve(dirname(importer), importee);
 			if (sortIndexById.has(resolvedId)) return resolvedId; // this doesn't account for import order changing while in watch mode
-			if (!(await pathExists(resolvedId))) return null; // allow node imports like `normalize.css`
+			if (!(await fs.pathExists(resolvedId))) return null; // allow node imports like `normalize.css`
 			sortIndexById.set(resolvedId, currentSortIndex);
 			currentSortIndex++;
 			return resolvedId;

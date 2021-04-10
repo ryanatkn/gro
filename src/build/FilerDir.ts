@@ -1,7 +1,7 @@
-import {ensureDir} from '../fs/node.js';
 import {DEBOUNCE_DEFAULT, watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import type {PathFilter, PathStats} from '../fs/pathData.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 // Buildable filer dirs are watched, built, and written to disk.
 // For non-buildable dirs, the `dir` is only watched and nothing is written to the filesystem.
@@ -30,6 +30,7 @@ export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
 export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir) => Promise<void>;
 
 export const createFilerDir = (
+	fs: Filesystem,
 	dir: string,
 	buildable: boolean,
 	onChange: FilerDirChangeCallback,
@@ -48,7 +49,7 @@ export const createFilerDir = (
 		watcher.close();
 	};
 	const init = async () => {
-		await ensureDir(dir);
+		await fs.ensureDir(dir);
 		const statsBySourcePath = await watcher.init();
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>

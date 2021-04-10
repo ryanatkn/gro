@@ -5,7 +5,6 @@ import {Timings} from './utils/time.js';
 import {spawnProcess} from './utils/process.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
 import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
-import {pathExists} from './fs/node.js';
 import {loadGroConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
@@ -17,25 +16,25 @@ const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 
 export const task: Task = {
 	description: 'run tests',
-	run: async ({dev, log, args}): Promise<void> => {
+	run: async ({fs, dev, log, args}): Promise<void> => {
 		const timings = new Timings();
 
 		const testsBuildDir = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG_NAME);
 
 		// TODO cleaner way to detect & rebuild?
-		if (!(await pathExists(testsBuildDir))) {
+		if (!(await fs.pathExists(testsBuildDir))) {
 			const timingToLoadConfig = timings.start('load config');
-			const config = await loadGroConfig(dev);
+			const config = await loadGroConfig(fs, dev);
 			timingToLoadConfig();
 
 			const timingToPrebuild = timings.start('prebuild');
-			await buildSourceDirectory(config, dev, log);
+			await buildSourceDirectory(fs, config, dev, log);
 			timingToPrebuild();
 
 			// Projects may not define any artifacts for the Node build,
 			// and we don't force anything out in that case,
 			// so just exit early if that happens.
-			if (!(await pathExists(testsBuildDir))) {
+			if (!(await fs.pathExists(testsBuildDir))) {
 				log.info('no tests found');
 				return;
 			}

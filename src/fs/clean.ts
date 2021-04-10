@@ -1,4 +1,3 @@
-import {pathExists, remove} from '../fs/node.js';
 import {
 	NODE_MODULES_DIRNAME,
 	paths,
@@ -8,8 +7,10 @@ import {
 import {EMPTY_ARRAY} from '../utils/array.js';
 import type {SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
+import type {Filesystem} from './filesystem.js';
 
 export const clean = async (
+	fs: Filesystem,
 	{
 		build = false,
 		dist = false,
@@ -19,17 +20,17 @@ export const clean = async (
 	log: SystemLogger,
 ) =>
 	Promise.all([
-		build ? cleanDir(paths.build, log) : null,
-		dist ? cleanDir(paths.dist, log) : null,
+		build ? cleanDir(fs, paths.build, log) : null,
+		dist ? cleanDir(fs, paths.dist, log) : null,
 		...(svelteKit
-			? [cleanDir(SVELTE_KIT_DEV_DIRNAME, log), cleanDir(SVELTE_KIT_BUILD_DIRNAME, log)]
+			? [cleanDir(fs, SVELTE_KIT_DEV_DIRNAME, log), cleanDir(fs, SVELTE_KIT_BUILD_DIRNAME, log)]
 			: EMPTY_ARRAY),
-		nodeModules ? cleanDir(NODE_MODULES_DIRNAME, log) : null,
+		nodeModules ? cleanDir(fs, NODE_MODULES_DIRNAME, log) : null,
 	]);
 
-export const cleanDir = async (path: string, log: SystemLogger): Promise<void> => {
-	if (await pathExists(path)) {
+export const cleanDir = async (fs: Filesystem, path: string, log: SystemLogger): Promise<void> => {
+	if (await fs.pathExists(path)) {
 		log.info('removing', printPath(path));
-		await remove(path);
+		await fs.remove(path);
 	}
 };
