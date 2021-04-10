@@ -1,6 +1,6 @@
 import {join} from 'path';
+import type {Filesystem} from '../fs/filesystem.js';
 
-import {readJson} from '../fs/node.js';
 import {paths, groPaths, isThisProjectGro} from '../paths.js';
 import type {Json} from '../utils/json.js';
 
@@ -21,16 +21,22 @@ export interface GroPackageJson extends PackageJson {}
 let packageJson: PackageJson | undefined;
 let groPackageJson: GroPackageJson | undefined;
 
-export const loadPackageJson = async (forceRefresh = false): Promise<PackageJson> => {
-	if (isThisProjectGro) return loadGroPackageJson(forceRefresh);
+export const loadPackageJson = async (
+	fs: Filesystem,
+	forceRefresh = false,
+): Promise<PackageJson> => {
+	if (isThisProjectGro) return loadGroPackageJson(fs, forceRefresh);
 	if (!packageJson || forceRefresh) {
-		packageJson = await readJson(join(paths.root, 'package.json'));
+		packageJson = await fs.readJson(join(paths.root, 'package.json'));
 	}
 	return packageJson!;
 };
-export const loadGroPackageJson = async (forceRefresh = false): Promise<GroPackageJson> => {
+export const loadGroPackageJson = async (
+	fs: Filesystem,
+	forceRefresh = false,
+): Promise<GroPackageJson> => {
 	if (!groPackageJson || forceRefresh) {
-		groPackageJson = await readJson(join(groPaths.root, 'package.json'));
+		groPackageJson = await fs.readJson(join(groPaths.root, 'package.json'));
 	}
 	return groPackageJson!;
 };

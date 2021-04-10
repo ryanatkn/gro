@@ -8,9 +8,9 @@ import {
 	paths,
 	isThisProjectGro,
 } from '../paths.js';
-import {pathExists} from '../fs/node.js';
 import {getExtensions} from '../fs/mime.js';
 import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
@@ -32,7 +32,8 @@ export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
 export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
-export const hasApiServer = (): Promise<boolean> => pathExists(API_SERVER_SOURCE_ID);
+export const hasApiServer = (fs: Filesystem): Promise<boolean> =>
+	fs.pathExists(API_SERVER_SOURCE_ID);
 export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
 		(b) =>
@@ -57,12 +58,12 @@ export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): stri
 	toBuildOutPath(dev, API_SERVER_BUILD_CONFIG_NAME, API_SERVER_BUILD_BASE_PATH, buildDir);
 
 const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
-export const hasSvelteKitFrontend = async (): Promise<boolean> =>
-	!isThisProjectGro && (await everyPathExists(SVELTE_KIT_FRONTEND_PATHS));
+export const hasSvelteKitFrontend = async (fs: Filesystem): Promise<boolean> =>
+	!isThisProjectGro && (await everyPathExists(fs, SVELTE_KIT_FRONTEND_PATHS));
 
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
-export const hasDeprecatedGroFrontend = async (): Promise<boolean> =>
-	everyPathExists(DEPRECATED_GRO_FRONTEND_PATHS);
+export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>
+	everyPathExists(fs, DEPRECATED_GRO_FRONTEND_PATHS);
 
 export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): BuildConfigPartial => ({
 	name: 'browser',
@@ -72,5 +73,5 @@ export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): Build
 });
 const toDefaultAssetPaths = (): string[] => Array.from(getExtensions());
 
-const everyPathExists = async (paths: string[]): Promise<boolean> =>
-	(await Promise.all(paths.map((path) => pathExists(path)))).every((v) => !!v);
+const everyPathExists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
+	(await Promise.all(paths.map((path) => fs.pathExists(path)))).every((v) => !!v);

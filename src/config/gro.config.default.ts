@@ -15,12 +15,12 @@ import {
 // It also looks for a primary Node server entry point at `src/server/server.ts`.
 // Both are no-ops if not detected.
 
-export const config: GroConfigCreator = async () => {
+export const config: GroConfigCreator = async ({fs}) => {
 	const partial: GroConfigPartial = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
-			(await hasApiServer()) ? API_SERVER_BUILD_CONFIG : null,
-			(await hasDeprecatedGroFrontend()) ? toDefaultBrowserBuild() : null, // TODO configure asset paths
+			(await hasApiServer(fs)) ? API_SERVER_BUILD_CONFIG : null,
+			(await hasDeprecatedGroFrontend(fs)) ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 	};

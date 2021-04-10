@@ -6,6 +6,7 @@ import type {TaskModuleMeta} from './taskModule.js';
 import type {Args} from './task.js';
 import {TaskError} from './task.js';
 import type {invokeTask as InvokeTaskFunction} from './invokeTask.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export type RunTaskResult =
 	| {
@@ -19,6 +20,7 @@ export type RunTaskResult =
 	  };
 
 export const runTask = async (
+	fs: Filesystem,
 	task: TaskModuleMeta,
 	args: Args,
 	events: EventEmitter,
@@ -36,12 +38,18 @@ export const runTask = async (
 	let output;
 	try {
 		output = await task.mod.task.run({
+			fs,
 			dev,
 			args,
 			events,
 			log: new SystemLogger(printLogLabel(task.name)),
-			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedDev = dev) =>
-				invokeTask(invokedTaskName, invokedArgs, invokedEvents, invokedDev),
+			invokeTask: (
+				invokedTaskName,
+				invokedArgs = args,
+				invokedEvents = events,
+				invokedDev = dev,
+				invokedFs = fs,
+			) => invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents, invokedDev),
 		});
 	} catch (err) {
 		return {

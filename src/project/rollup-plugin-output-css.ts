@@ -3,19 +3,20 @@ import {dirname, join, relative} from 'path';
 import sourcemapCodec from 'sourcemap-codec';
 
 import {blue, gray} from '../utils/terminal.js';
-import {outputFile} from '../fs/node.js';
 import {SystemLogger, printLogLabel} from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
 import type {GroCssBuild, GroCssBundle} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
+	fs: Filesystem;
 	getCssBundles(): Map<string, GroCssBundle>;
 	toFinalCss(build: GroCssBuild, log: Logger): string | null;
 	sourcemap: boolean; // TODO consider per-bundle options
 }
-export type RequiredOptions = 'getCssBundles';
+export type RequiredOptions = 'fs' | 'getCssBundles';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	toFinalCss,
@@ -26,7 +27,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 export const name = 'output-css';
 
 export const outputCssPlugin = (opts: InitialOptions): Plugin => {
-	const {getCssBundles, toFinalCss, sourcemap} = initOptions(opts);
+	const {fs, getCssBundles, toFinalCss, sourcemap} = initOptions(opts);
 
 	const log = new SystemLogger(printLogLabel(name, blue));
 
@@ -108,10 +109,13 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 					);
 
 					log.info('writing css bundle and sourcemap', dest);
-					await Promise.all([outputFile(dest, finalCss), outputFile(sourcemapDest, cssSourcemap)]);
+					await Promise.all([
+						fs.outputFile(dest, finalCss),
+						fs.outputFile(sourcemapDest, cssSourcemap),
+					]);
 				} else {
 					log.info('writing css bundle', dest);
-					await outputFile(dest, css);
+					await fs.outputFile(dest, css);
 				}
 			}
 		},

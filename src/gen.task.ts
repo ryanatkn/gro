@@ -1,7 +1,6 @@
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {red, green, gray} from './utils/terminal.js';
-import {outputFile} from './fs/node.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {printPath, printMs, printError, printTiming} from './utils/print.js';
@@ -20,7 +19,7 @@ export interface TaskArgs {
 // if there's any validation or import errors
 export const task: Task<TaskArgs> = {
 	description: 'run code generation scripts',
-	run: async ({log, args}): Promise<void> => {
+	run: async ({fs, log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 		const check = !!args.check;
 
@@ -31,7 +30,7 @@ export const task: Task<TaskArgs> = {
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
 		// load all of the gen modules
-		const findModulesResult = await findGenModules(inputPaths);
+		const findModulesResult = await findGenModules(fs, inputPaths);
 		if (!findModulesResult.ok) {
 			for (const reason of findModulesResult.reasons) {
 				log.error(reason);
@@ -53,7 +52,7 @@ export const task: Task<TaskArgs> = {
 
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(loadModulesResult.modules, formatFile);
+		const genResults = await runGen(fs, loadModulesResult.modules, formatFile);
 		stopTimingToGenerateCode();
 
 		const failCount = genResults.failures.length;
@@ -63,7 +62,7 @@ export const task: Task<TaskArgs> = {
 			if (!failCount) {
 				log.info('checking generated files for changes');
 				const stopTimingToCheckResults = timings.start('check results for changes');
-				const checkGenModulesResults = await checkGenModules(genResults);
+				const checkGenModulesResults = await checkGenModules(fs, genResults);
 				stopTimingToCheckResults();
 
 				let hasUnexpectedChanges = false;
@@ -95,7 +94,7 @@ export const task: Task<TaskArgs> = {
 					.map((result) =>
 						result.files.map((file) => {
 							log.info('writing', printPath(file.id), 'generated from', printPath(file.originId));
-							return outputFile(file.id, file.contents);
+							return fs.outputFile(file.id, file.contents);
 						}),
 					)
 					.flat(),

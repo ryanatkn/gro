@@ -10,6 +10,7 @@ import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import type {ServedDir} from './ServedDir.js';
 import type {Logger} from '../utils/log.js';
 import type {SourceMeta} from './sourceMeta.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 // TODO maybe move to `buildFile`? but then `postprocess` would have a dependency on the build file.
 // its imports make more sense as is.
@@ -36,6 +37,7 @@ export interface BuildResult<TBuild extends Build = Build> {
 
 // For docs on these, see where they're implemented in the `Filer`.
 export interface BuildContext {
+	readonly fs: Filesystem;
 	readonly buildConfigs: readonly BuildConfig[] | null;
 	readonly sourceMetaById: Map<string, SourceMeta>;
 	readonly log: Logger;

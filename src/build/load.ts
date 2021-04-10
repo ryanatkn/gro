@@ -1,8 +1,9 @@
-import {readFile} from '../fs/node.js';
 import type {Encoding} from '../fs/encoding.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export const loadContents = <T extends Encoding>(
+	fs: Filesystem,
 	encoding: T,
 	id: string,
 ): Promise<T extends 'utf8' ? string : string | Buffer> =>
-	encoding === null ? readFile(id) : (readFile(id, encoding as any) as any);
+	encoding === null ? fs.readFile(id) : (fs.readFile(id, encoding as any) as any);

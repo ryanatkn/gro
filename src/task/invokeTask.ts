@@ -18,12 +18,11 @@ import {
 	isThisProjectGro,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
-import {findFiles, pathExists} from '../fs/node.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../project/packageJson.js';
 import {PRIMARY_NODE_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
-import {nodeFsHost} from '../fs/node.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 /*
 
@@ -46,6 +45,7 @@ The comments describe each condition.
 */
 
 export const invokeTask = async (
+	fs: Filesystem,
 	taskName: string,
 	args: Args,
 	events = new EventEmitter(),
@@ -55,7 +55,7 @@ export const invokeTask = async (
 
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {
-		const groPackageJson = await loadGroPackageJson();
+		const groPackageJson = await loadGroPackageJson(fs);
 		log.info(`${gray('v')}${cyan(groPackageJson.version as string)}`);
 		return;
 	}
@@ -69,8 +69,9 @@ export const invokeTask = async (
 	// Find the task or directory specified by the `inputPath`.
 	// Fall back to searching the Gro directory as well.
 	const findModulesResult = await findModules(
+		fs,
 		[inputPath],
-		(id) => findFiles(id, (file) => isTaskPath(file.path)),
+		(id) => fs.findFiles(id, (file) => isTaskPath(file.path)),
 		(inputPath) => getPossibleSourceIds(inputPath, [TASK_FILE_SUFFIX], [groPaths.root]),
 	);
 
@@ -83,17 +84,17 @@ export const invokeTask = async (
 
 			// First ensure that the project has been built.
 			// This is useful for initial project setup and CI.
-			if (await shouldBuildProject(pathData.id)) {
+			if (await shouldBuildProject(fs, pathData.id)) {
 				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 				// every time a task is invoked.
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				const {loadGroConfig} = await import('../config/config.js');
-				const config = await loadGroConfig(dev ?? process.env.NODE_ENV !== 'production');
+				const config = await loadGroConfig(fs, dev ?? process.env.NODE_ENV !== 'production');
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
-				await buildSourceDirectory(config, nodeFsHost, true, log);
+				await buildSourceDirectory(fs, config, true, log);
 				timingToBuildProject();
 			}
 
@@ -113,7 +114,7 @@ export const invokeTask = async (
 					}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const result = await runTask(task, args, events, invokeTask, dev);
+				const result = await runTask(fs, task, args, events, invokeTask, dev);
 				timingToRunTask();
 				if (result.ok) {
 					log.info(`✓ ${cyan(task.name)}`);
@@ -144,8 +145,8 @@ export const invokeTask = async (
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
 				const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
-				const groDirFindModulesResult = await findModules([groDirInputPath], (id) =>
-					findFiles(id, (file) => isTaskPath(file.path)),
+				const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
+					fs.findFiles(id, (file) => isTaskPath(file.path)),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (groDirFindModulesResult.ok) {
@@ -178,8 +179,8 @@ export const invokeTask = async (
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
 			const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
-			const groDirFindModulesResult = await findModules([groDirInputPath], (id) =>
-				findFiles(id, (file) => isTaskPath(file.path)),
+			const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
+				fs.findFiles(id, (file) => isTaskPath(file.path)),
 			);
 			if (groDirFindModulesResult.ok) {
 				timings.merge(groDirFindModulesResult.timings);
@@ -240,12 +241,12 @@ const logErrorReasons = (log: Logger, reasons: string[]): void => {
 // Properly detecting this is too expensive and would slow task startup time significantly.
 // Generally speaking, the developer is expected to be running `gro dev` to keep the build fresh.
 // TODO improve this, possibly using `mtime` with the Filer updating directory `mtime` on compile
-const shouldBuildProject = async (sourceId: string): Promise<boolean> => {
+const shouldBuildProject = async (fs: Filesystem, sourceId: string): Promise<boolean> => {
 	// don't try to compile Gro's own codebase from outside of it
 	if (!isThisProjectGro && isGroId(sourceId)) return false;
 	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
-	if (isThisProjectGro && !(await pathExists(paths.build))) return true;
+	if (isThisProjectGro && !(await fs.pathExists(paths.build))) return true;
 	// ensure the build file for the source id exists in the default dev build
 	const buildId = toImportId(sourceId, true, PRIMARY_NODE_BUILD_CONFIG_NAME);
-	return !(await pathExists(buildId));
+	return !(await fs.pathExists(buildId));
 };

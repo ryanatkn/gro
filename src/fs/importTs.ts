@@ -6,13 +6,13 @@ import {createEsbuildBuilder} from '../build/esbuildBuilder.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 import type {BuildContext, TextBuildSource} from '../build/builder.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../config/defaultBuildConfig.js';
-import {outputFile, readFile, remove} from './node.js';
 import {basename, dirname, join} from 'path';
 import {stripStart} from '../utils/string.js';
 import {isExternalNodeModule} from '../utils/module.js';
 import {replaceExtension} from '../utils/path.js';
 import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {cyan} from '../utils/terminal.js';
+import type {Filesystem} from './filesystem.js';
 
 /*
 
@@ -40,12 +40,14 @@ See the GitHub issues to report any problems: https://github.com/feltcoop/gro/is
 
 */
 export const importTs = async (
+	fs: Filesystem,
 	sourceId: string,
 	buildConfig: BuildConfig,
 	tempDir = randomTempDir(),
 ): Promise<any> => {
 	await lexer.init;
 	const ctx: BuildContext = {
+		fs,
 		buildConfigs: [],
 		sourceMetaById: new Map(),
 		log: new SystemLogger(printLogLabel('importTs', cyan)),
@@ -58,13 +60,14 @@ export const importTs = async (
 		state: {},
 		buildingSourceFiles: new Set(),
 	};
-	const buildId = await compileFileAndImports(sourceId, buildConfig, ctx);
+	const buildId = await compileFileAndImports(fs, sourceId, buildConfig, ctx);
 	const mod = await import(buildId);
-	await remove(tempDir);
+	await fs.remove(tempDir);
 	return mod;
 };
 
 const compileFileAndImports = async (
+	fs: Filesystem,
 	sourceId: string,
 	buildConfig: BuildConfig,
 	ctx: BuildContext,
@@ -73,7 +76,7 @@ const compileFileAndImports = async (
 	const source: TextBuildSource = {
 		buildable: true,
 		encoding: 'utf8',
-		contents: await readFile(sourceId, 'utf8'),
+		contents: await fs.readFile(sourceId, 'utf8'),
 		id: sourceId,
 		filename: basename(sourceId),
 		dir,
@@ -93,8 +96,8 @@ const compileFileAndImports = async (
 
 	// write the result and compile depdencies in parallel
 	await Promise.all([
-		outputFile(build.id, build.contents),
-		Promise.all(internalDepSourceIds.map((id) => compileFileAndImports(id, buildConfig, ctx))),
+		fs.outputFile(build.id, build.contents),
+		Promise.all(internalDepSourceIds.map((id) => compileFileAndImports(fs, id, buildConfig, ctx))),
 	]);
 
 	return build.id;

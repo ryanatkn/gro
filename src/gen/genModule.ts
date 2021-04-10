@@ -1,9 +1,9 @@
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
-import {pathExists, readFile, findFiles} from '../fs/node.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
 import type {Obj} from '../index.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface GenModule {
 	gen: Gen;
@@ -30,14 +30,22 @@ export type CheckGenModuleResult =
 			hasChanged: true;
 	  };
 
-export const checkGenModules = async (genResults: GenResults): Promise<CheckGenModuleResult[]> => {
+export const checkGenModules = async (
+	fs: Filesystem,
+	genResults: GenResults,
+): Promise<CheckGenModuleResult[]> => {
 	return Promise.all(
-		genResults.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat(),
+		genResults.successes
+			.map((result) => result.files.map((file) => checkGenModule(fs, file)))
+			.flat(),
 	);
 };
 
-export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResult> => {
-	if (!(await pathExists(file.id))) {
+export const checkGenModule = async (
+	fs: Filesystem,
+	file: GenFile,
+): Promise<CheckGenModuleResult> => {
+	if (!(await fs.pathExists(file.id))) {
 		return {
 			file,
 			existingContents: null,
@@ -45,7 +53,7 @@ export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResul
 			hasChanged: true,
 		};
 	}
-	const existingContents = await readFile(file.id, 'utf8');
+	const existingContents = await fs.readFile(file.id, 'utf8');
 	return {
 		file,
 		existingContents,
@@ -55,12 +63,14 @@ export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResul
 };
 
 export const findGenModules = (
+	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN],
 	rootDirs: string[] = [],
 ) =>
 	findModules(
+		fs,
 		inputPaths,
-		(id) => findFiles(id, (file) => isGenPath(file.path)),
+		(id) => fs.findFiles(id, (file) => isGenPath(file.path)),
 		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);

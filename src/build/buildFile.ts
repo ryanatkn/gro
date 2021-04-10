@@ -8,6 +8,7 @@ import {loadContents} from './load.js';
 import type {BuildableSourceFile} from './sourceFile.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 import {toBuildOutDirname} from '../paths.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
@@ -79,6 +80,7 @@ export const createBuildFile = (
 };
 
 export const reconstructBuildFiles = async (
+	fs: Filesystem,
 	sourceMeta: SourceMeta,
 	buildConfigs: readonly BuildConfig[],
 	dev: boolean,
@@ -93,7 +95,7 @@ export const reconstructBuildFiles = async (
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
-				const contents = await loadContents(encoding, id);
+				const contents = await loadContents(fs, encoding, id);
 				const buildConfig = buildConfigs.find((b) => b.name === name)!; // is a bit awkward, but probably not inefficient enough to change
 				let buildFile: BuildFile;
 				switch (encoding) {

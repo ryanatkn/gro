@@ -12,6 +12,7 @@ import type {Paths} from '../paths.js';
 import {stripStart} from '../utils/string.js';
 import {toPathData} from './pathData.js';
 import type {PathData, PathStats} from './pathData.js';
+import type {Filesystem} from './filesystem.js';
 
 /*
 
@@ -101,9 +102,8 @@ Parameterized by `pathExists` and `stat` so it's fs-agnostic.
 
 */
 export const loadSourcePathDataByInputPath = async (
+	fs: Filesystem,
 	inputPaths: string[],
-	pathExists: (path: string) => Promise<boolean>,
-	stat: (path: string | Buffer) => Promise<PathStats>,
 	getPossibleSourceIdsForInputPath?: (inputPath: string) => string[],
 ): Promise<{
 	sourceIdPathDataByInputPath: Map<string, PathData>;
@@ -118,8 +118,8 @@ export const loadSourcePathDataByInputPath = async (
 			? getPossibleSourceIdsForInputPath(inputPath)
 			: [inputPath];
 		for (const possibleSourceId of possibleSourceIds) {
-			if (!(await pathExists(possibleSourceId))) continue;
-			const stats = await stat(possibleSourceId);
+			if (!(await fs.pathExists(possibleSourceId))) continue;
+			const stats = await fs.stat(possibleSourceId);
 			if (stats.isDirectory()) {
 				if (!dirPathData) {
 					dirPathData = toPathData(possibleSourceId, stats);

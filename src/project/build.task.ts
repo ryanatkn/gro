@@ -5,24 +5,23 @@ import {Timings} from '../utils/time.js';
 import {buildSourceDirectory} from '../build/buildSourceDirectory.js';
 import {loadGroConfig} from '../config/config.js';
 import {clean} from '../fs/clean.js';
-import {nodeFsHost} from '../fs/node.js';
 
 export const task: Task = {
 	description: 'build, create, and link the distribution',
 	dev: false,
-	run: async ({dev, invokeTask, log}) => {
+	run: async ({fs, dev, invokeTask, log}) => {
 		const timings = new Timings();
 
 		const timeToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig(dev);
+		const config = await loadGroConfig(fs, dev);
 		timeToLoadConfig();
 
 		// build everything using the normal build process - js files will compiled again by `tsc` later
 		const timingToBuildWithFiler = timings.start('build with filer');
-		await buildSourceDirectory(config, nodeFsHost, dev, log);
+		await buildSourceDirectory(fs, config, dev, log);
 		timingToBuildWithFiler();
 
-		await clean({dist: true}, log);
+		await clean(fs, {dist: true}, log);
 
 		// compile again with `tsc` to create all of the TypeScript type defs, sourcemaps, and typemaps
 		const timingToCompileWithTsc = timings.start('compile with tsc');

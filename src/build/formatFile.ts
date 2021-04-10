@@ -3,11 +3,12 @@ import {extname} from 'path';
 
 import {loadPackageJson} from '../project/packageJson.js';
 import type {Obj} from '../index.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
-export const formatFile = async (id: string, contents: string): Promise<string> => {
+export const formatFile = async (fs: Filesystem, id: string, contents: string): Promise<string> => {
 	const parser = inferParser(id);
 	if (!parser) return contents;
-	const config = (await loadPackageJson()).prettier as Obj;
+	const config = (await loadPackageJson(fs)).prettier as Obj;
 	return prettier.format(contents, {...config, parser});
 };
 

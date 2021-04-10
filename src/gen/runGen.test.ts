@@ -4,6 +4,7 @@ import {resolve, join} from 'path';
 
 import type {GenModuleMeta} from './genModule.js';
 import {runGen} from './runGen.js';
+import {nodeFilesystem} from '../fs/node.js';
 
 /* test_gen */
 const test_gen = suite('gen');
@@ -63,8 +64,11 @@ test_gen('basic behavior', async () => {
 		},
 	};
 	const genModulesByInputPath = [modA, modB, modC];
-	const genResults = await runGen(genModulesByInputPath, async (id, contents) =>
-		id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
+	const genResults = await runGen(
+		nodeFilesystem,
+		genModulesByInputPath,
+		async (_fs, id, contents) =>
+			id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
 	);
 	t.is(genResults.inputCount, 3);
 	t.is(genResults.outputCount, 4);
@@ -145,7 +149,7 @@ test_gen('failing gen function', async () => {
 		},
 	};
 	const genModulesByInputPath: GenModuleMeta[] = [modA, modB];
-	const genResults = await runGen(genModulesByInputPath);
+	const genResults = await runGen(nodeFilesystem, genModulesByInputPath);
 	t.is(genResults.inputCount, 2);
 	t.is(genResults.outputCount, 1);
 	t.is(genResults.successes.length, 1);

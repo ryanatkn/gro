@@ -2,7 +2,6 @@ import type {Task} from './task/task.js';
 import {toApiServerBuildPath} from './config/defaultBuildConfig.js';
 import {spawn} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';
-import {pathExists} from './fs/node.js';
 import {red} from './utils/terminal.js';
 
 /*
@@ -37,9 +36,9 @@ export interface TaskEvents {
 // TODO what's the best way to give a placeholder for the unused first `TArgs` type argument?
 export const task: Task<{}, TaskEvents> = {
 	description: 'start API server',
-	run: async ({dev, events, log}) => {
+	run: async ({fs, dev, events, log}) => {
 		const serverPath = toApiServerBuildPath(dev);
-		if (!(await pathExists(serverPath))) {
+		if (!(await fs.pathExists(serverPath))) {
 			log.error(red('server path does not exist:'), serverPath);
 			throw Error(`API server failed to start due to missing file: ${serverPath}`);
 		}

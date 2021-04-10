@@ -18,8 +18,8 @@ import {loadTaskModules} from '../task/taskModule.js';
 // TODO needs some cleanup and better APIs - paths are confusing and verbose!
 // TODO add backlinks to every document that links to this one
 
-export const gen: Gen = async ({originId}) => {
-	const result = await loadTaskModules();
+export const gen: Gen = async ({fs, originId}) => {
+	const result = await loadTaskModules(fs);
 	if (!result.ok) {
 		for (const reason of result.reasons) {
 			console.log(reason); // TODO logger as argument

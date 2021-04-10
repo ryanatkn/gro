@@ -27,6 +27,7 @@ import {
 import type {ExternalsBuildState} from './externalsBuildHelpers.js';
 import {EMPTY_ARRAY} from '../utils/array.js';
 import {toEnvNumber} from '../utils/env.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 /*
 
@@ -67,7 +68,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		buildConfig,
-		{buildDir, dev, sourcemap, target, state, externalsAliases},
+		{fs, buildDir, dev, sourcemap, target, state, externalsAliases},
 	) => {
 		// if (sourcemap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -120,13 +121,13 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 								dir: dirname(id),
 								extension: JS_EXTENSION,
 								encoding,
-								contents: await loadContents(encoding, id),
+								contents: await loadContents(fs, encoding, id),
 								buildConfig,
 							};
 						},
 					),
 				)),
-				...((await loadCommonBuilds(installResult, dest, buildConfig)) || EMPTY_ARRAY),
+				...((await loadCommonBuilds(fs, installResult, dest, buildConfig)) || EMPTY_ARRAY),
 			];
 		} catch (err) {
 			log.error(`Failed to bundle external module: ${source.id}`);
@@ -138,6 +139,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 	};
 
 	const init: ExternalsBuilder['init'] = async ({
+		fs,
 		state,
 		dev,
 		buildConfigs,
@@ -151,7 +153,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 				if (buildConfig.platform !== 'browser') return;
 				const buildState = initExternalsBuildState(builderState, buildConfig);
 				const dest = toBuildOutPath(dev, buildConfig.name, basePath, buildDir);
-				const importMap = await loadImportMapFromDisk(dest);
+				const importMap = await loadImportMapFromDisk(fs, dest);
 				if (importMap !== undefined) {
 					buildState.importMap = importMap;
 					buildState.specifiers = toSpecifiers(importMap);
@@ -215,6 +217,7 @@ export const queueExternalsBuild = async (
 };
 
 const loadCommonBuilds = async (
+	fs: Filesystem,
 	installResult: InstallResult,
 	dest: string,
 	buildConfig: BuildConfig,
@@ -232,7 +235,7 @@ const loadCommonBuilds = async (
 				dir: dirname(commonDependencyId),
 				extension: JS_EXTENSION,
 				encoding,
-				contents: await loadContents(encoding, commonDependencyId),
+				contents: await loadContents(fs, encoding, commonDependencyId),
 				buildConfig,
 			}),
 		),

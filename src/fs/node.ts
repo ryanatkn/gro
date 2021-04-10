@@ -1,7 +1,7 @@
 import CheapWatch from 'cheap-watch';
 import fsExtra from 'fs-extra';
 
-import type {FsHost} from './host.js';
+import type {Filesystem} from './filesystem.js';
 import type {PathStats, PathFilter} from './pathData.js';
 import {sortMap, compareSimpleMapEntries} from '../utils/map.js';
 
@@ -44,10 +44,7 @@ This is important because they will conform to a future filesystem host interfac
 and because we need to support contexts like the browser and who knows what remote servers,
 an async-only filesystem interface is the way to go.
 
-TODO implement and use the Filesystem interface
-
 */
-export type Stats = fsExtra.Stats;
 export const stat = fsExtra.stat;
 export const pathExists = fsExtra.pathExists;
 export const readFile = fsExtra.readFile;
@@ -60,7 +57,7 @@ export const readDir = fsExtra.readdir;
 export const emptyDir = fsExtra.emptyDir;
 export const ensureDir = fsExtra.ensureDir;
 
-export const nodeFsHost: FsHost = {
+export const nodeFilesystem: Filesystem = {
 	stat,
 	pathExists,
 	readFile,
@@ -72,4 +69,5 @@ export const nodeFsHost: FsHost = {
 	readDir,
 	emptyDir,
 	ensureDir,
+	findFiles,
 };

@@ -3,7 +3,7 @@ import lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 
-import type {FsHost} from '../fs/host.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {createFilerDir} from '../build/FilerDir.js';
 import type {FilerDir, FilerDirChangeCallback} from '../build/FilerDir.js';
 import {mapDependencyToSourceId} from './utils.js';
@@ -77,7 +77,7 @@ interface FilerEvents {
 export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface Options {
-	fs: FsHost;
+	fs: Filesystem;
 	dev: boolean;
 	builder: Builder | null;
 	buildConfigs: BuildConfig[] | null;
@@ -168,8 +168,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements BuildContext {
-	readonly fs: FsHost; // TODO should this be on `BuildContext`?
-
 	// TODO think about accessors - I'm currently just making things public when I need them here
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly fileExists: (id: string) => boolean = (id) => this.files.has(id);
@@ -180,6 +178,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
+	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
 	readonly buildConfigs: readonly BuildConfig[] | null;
 	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
@@ -222,6 +221,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.target = target;
 		this.log = log;
 		this.dirs = createFilerDirs(
+			this.fs,
 			sourceDirs,
 			servedDirs,
 			buildDir,
@@ -589,7 +589,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				? // TODO doesn't seem we can make this a key derived from the specifiers,
 				  // because they're potentially different each build
 				  ''
-				: await loadContents(encoding, id);
+				: await loadContents(this.fs, encoding, id);
 
 			if (sourceFile === undefined) {
 				// Memory cache is cold.
@@ -985,7 +985,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 }
 
 const syncBuildFilesToDisk = async (
-	fs: FsHost,
+	fs: Filesystem,
 	changes: BuildFileChange[],
 	log: Logger,
 ): Promise<void> => {
@@ -1000,7 +1000,7 @@ const syncBuildFilesToDisk = async (
 					// log.trace(label, 'creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {
-					const existingContents = await loadContents(file.encoding, file.id);
+					const existingContents = await loadContents(fs, file.encoding, file.id);
 					if (!areContentsEqual(file.encoding, file.contents, existingContents)) {
 						log.trace(label, 'updating stale build file on disk', gray(file.id));
 						shouldOutputNewFile = true;
@@ -1119,6 +1119,7 @@ const validateDirs = (sourceDirs: string[]) => {
 // Creates objects to load a directory's contents and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
 const createFilerDirs = (
+	fs: Filesystem,
 	sourceDirs: string[],
 	servedDirs: ServedDir[],
 	buildDir: string,
@@ -1129,7 +1130,7 @@ const createFilerDirs = (
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {
-		dirs.push(createFilerDir(sourceDir, true, onChange, filter, watch, watcherDebounce));
+		dirs.push(createFilerDir(fs, sourceDir, true, onChange, filter, watch, watcherDebounce));
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a source or externals directory,
@@ -1143,7 +1144,9 @@ const createFilerDirs = (
 			!servedDirs.find((d) => d !== servedDir && servedDir.path.startsWith(d.path)) &&
 			!servedDir.path.startsWith(buildDir)
 		) {
-			dirs.push(createFilerDir(servedDir.path, false, onChange, filter, watch, watcherDebounce));
+			dirs.push(
+				createFilerDir(fs, servedDir.path, false, onChange, filter, watch, watcherDebounce),
+			);
 		}
 	}
 	return dirs;

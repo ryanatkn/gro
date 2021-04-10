@@ -1,6 +1,10 @@
 import type {PathLike, Stats, CopyOptions, MoveOptions} from 'fs-extra';
 
-export interface FsHost {
+import type {PathFilter, PathStats} from './pathData.js';
+
+export type {Stats} from 'fs-extra';
+
+export interface Filesystem {
 	stat: FsStat;
 	pathExists: FsPathExists;
 	readFile: FsReadFile;
@@ -12,6 +16,7 @@ export interface FsHost {
 	readDir: FsReadDir;
 	emptyDir: FsEmptyDir;
 	ensureDir: FsEnsureDir;
+	findFiles: FsFindFiles;
 }
 
 export interface FsStat {
@@ -47,4 +52,12 @@ export interface FsEmptyDir {
 }
 export interface FsEnsureDir {
 	(path: string): Promise<void>;
+}
+export interface FsFindFiles {
+	(
+		dir: string,
+		filter?: PathFilter,
+		// pass `null` to speed things up at the risk of infrequent misorderings (at least on Linux)
+		sort?: ((a: [any, any], b: [any, any]) => number) | null,
+	): Promise<Map<string, PathStats>>;
 }

@@ -10,10 +10,12 @@ import {
 } from './gen.js';
 import {printPath} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export const runGen = async (
+	fs: Filesystem,
 	genModules: GenModuleMeta[],
-	formatFile?: (id: string, contents: string) => Promise<string>,
+	formatFile?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
 ): Promise<GenResults> => {
 	let inputCount = 0;
 	let outputCount = 0;
@@ -23,7 +25,7 @@ export const runGen = async (
 		genModules.map(
 			async ({id, mod}): Promise<GenModuleResult> => {
 				inputCount++;
-				const genCtx: GenContext = {originId: id};
+				const genCtx: GenContext = {fs, originId: id};
 				timings.start(id);
 
 				// Perform code generation by calling `gen` on the module.
@@ -49,7 +51,7 @@ export const runGen = async (
 					files = [];
 					for (const file of genResult.files) {
 						try {
-							files.push({...file, contents: await formatFile(file.id, file.contents)});
+							files.push({...file, contents: await formatFile(fs, file.id, file.contents)});
 						} catch (err) {
 							return {
 								ok: false,

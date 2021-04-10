@@ -6,6 +6,7 @@ import {validateTaskModule, loadTaskModule, loadTaskModules} from './taskModule.
 import * as actualTestTaskModule from '../test.task.js';
 import * as testTaskModule from './fixtures/testTaskModule.taskFixture.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
+import {nodeFilesystem} from '../fs/node.js';
 
 /* test_validateTaskModule */
 const test_validateTaskModule = suite('validateTaskModule');
@@ -65,7 +66,10 @@ test_loadTaskModule.run();
 const test_loadTaskModules = suite('loadTaskModules');
 
 test_loadTaskModules('basic behavior', async () => {
-	const result = await loadTaskModules([resolve('src/test'), resolve('src/test.task.ts')]);
+	const result = await loadTaskModules(nodeFilesystem, [
+		resolve('src/test'),
+		resolve('src/test.task.ts'),
+	]);
 	t.ok(result.ok);
 	t.is(result.modules.length, 1);
 	t.is(result.modules[0].mod, actualTestTaskModule);

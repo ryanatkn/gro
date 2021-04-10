@@ -1,4 +1,5 @@
 import {join, basename, dirname} from 'path';
+import type {Filesystem} from '../fs/filesystem.js';
 
 import {isSourceId} from '../paths.js';
 
@@ -24,6 +25,7 @@ export interface Gen {
 	(g: GenContext): RawGenResult | Promise<RawGenResult>;
 }
 export interface GenContext {
+	fs: Filesystem;
 	originId: string;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?

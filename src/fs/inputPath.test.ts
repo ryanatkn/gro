@@ -12,6 +12,7 @@ import {
 import type {PathStats} from './pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
 import type {Obj} from '../index.js';
+import {nodeFilesystem} from './node.js';
 
 /* test_resolveRawInputPath */
 const test_resolveRawInputPath = suite('resolveRawInputPath');
@@ -124,11 +125,15 @@ const test_loadSourcePathDataByInputPath = suite('loadSourcePathDataByInputPath'
 
 test_loadSourcePathDataByInputPath('loads source path data and handles missing paths', async () => {
 	const result = await loadSourcePathDataByInputPath(
+		{
+			...nodeFilesystem,
+			pathExists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
+			stat: async (path) =>
+				({
+					isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
+				} as any),
+		},
 		['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
-		async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
-		async (path) => ({
-			isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
-		}),
 		(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
 	);
 	t.equal(result, {

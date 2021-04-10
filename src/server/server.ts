@@ -27,7 +27,7 @@ import {loadPackageJson} from '../project/packageJson.js';
 import type {ProjectState} from './projectState.js';
 import type {Assignable, PartialExcept} from '../index.js';
 import {toEnvNumber, toEnvString} from '../utils/env.js';
-import type {FsHost} from '../fs/host.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 type Http2StreamHandler = (
 	stream: ServerHttp2Stream,
@@ -183,7 +183,7 @@ const toResponse = async (
 			sourceDir: paths.source,
 			items: Array.from(filer.sourceMetaById.values()),
 			buildConfigs: filer.buildConfigs!,
-			packageJson: await loadPackageJson(),
+			packageJson: await loadPackageJson(filer.fs),
 		};
 		return {
 			status: 200,
@@ -240,7 +240,7 @@ const toLocalPath = (url: string): string => {
 
 const toETag = (file: BaseFilerFile): string => `"${getFileContentsHash(file)}"`;
 
-const to200Headers = async (fs: FsHost, file: BaseFilerFile): Promise<OutgoingHttpHeaders> => {
+const to200Headers = async (fs: Filesystem, file: BaseFilerFile): Promise<OutgoingHttpHeaders> => {
 	// TODO where do we get fs? the server? the filer?
 	const stats = await getFileStats(fs, file);
 	const mimeType = getFileMimeType(file);

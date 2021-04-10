@@ -4,6 +4,7 @@ import {join} from 'path';
 
 import {validateGenModule, findGenModules} from './genModule.js';
 import {paths} from '../paths.js';
+import {nodeFilesystem} from '../fs/node.js';
 
 /* test_validateGenModule */
 const test_validateGenModule = suite('validateGenModule');
@@ -24,7 +25,7 @@ test_validateGenModule.run();
 const test_findGenModules = suite('findGenModules');
 
 test_findGenModules('finds gen modules in a directory', async () => {
-	const findGenModulesResult = await findGenModules([join(paths.source, 'docs/')]);
+	const findGenModulesResult = await findGenModules(nodeFilesystem, [join(paths.source, 'docs/')]);
 	t.ok(findGenModulesResult.ok);
 	t.ok(findGenModulesResult.sourceIdPathDataByInputPath.size);
 });

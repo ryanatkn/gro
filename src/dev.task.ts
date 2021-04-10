@@ -18,7 +18,6 @@ import {
 	API_SERVER_BUILD_CONFIG_NAME,
 	hasSvelteKitFrontend,
 } from './config/defaultBuildConfig.js';
-import {nodeFsHost} from './fs/node.js';
 
 export interface TaskArgs {
 	nocert?: boolean;
@@ -44,23 +43,23 @@ export interface TaskEvents {
 
 export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'start dev server',
-	run: async ({dev, log, args, events}) => {
+	run: async ({fs, dev, log, args, events}) => {
 		const timings = new Timings();
 
 		// Support SvelteKit builds alongside Gro
 		let svelteKitProcess: SpawnedProcess | null = null;
-		if (await hasSvelteKitFrontend()) {
+		if (await hasSvelteKitFrontend(fs)) {
 			svelteKitProcess = spawn('npx', ['svelte-kit', 'dev']);
 		}
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig(dev);
+		const config = await loadGroConfig(fs, dev);
 		timingToLoadConfig();
 		events.emit('dev.createConfig', config);
 
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
-			fs: nodeFsHost,
+			fs,
 			builder: createDefaultBuilder(),
 			sourceDirs: [paths.source],
 			servedDirs: config.serve || getDefaultServedDirs(config),
@@ -76,7 +75,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
 		const https = args.nocert
 			? null
-			: await loadHttpsCredentials(log, args.certfile, args.certkeyfile);
+			: await loadHttpsCredentials(fs, log, args.certfile, args.certkeyfile);
 		const server = createGroServer({filer, host: config.host, port: config.port, https});
 		timingToCreateGroServer();
 		events.emit('dev.createServer', server);

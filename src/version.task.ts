@@ -4,10 +4,10 @@ import type {Task} from './task/task.js';
 import {isThisProjectGro} from './paths.js';
 import {spawnProcess} from './utils/process.js';
 import {green, bgBlack, rainbow, red} from './utils/terminal.js';
-import {readFile} from './fs/node.js';
 import {loadPackageJson} from './project/packageJson.js';
 import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
+import type {Filesystem} from './fs/filesystem.js';
 
 // version.task.ts
 // - usage: `gro version patch`
@@ -37,14 +37,14 @@ export interface TaskArgs {
 
 export const task: Task<TaskArgs> = {
 	description: 'bump version, publish to npm, and sync to GitHub',
-	run: async ({args, log, invokeTask}): Promise<void> => {
+	run: async ({fs, args, log, invokeTask}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH} = args;
 
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
 
 		// Confirm with the user that we're doing what they expect.
-		await confirmWithUser(versionIncrement, log);
+		await confirmWithUser(fs, versionIncrement, log);
 
 		// Make sure we're on the right branch:
 		await spawnProcess('git', ['checkout', branch]);
@@ -68,14 +68,18 @@ export const task: Task<TaskArgs> = {
 	},
 };
 
-const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<void> => {
+const confirmWithUser = async (
+	fs: Filesystem,
+	versionIncrement: string,
+	log: Logger,
+): Promise<void> => {
 	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
 	log.info(green(versionIncrement), '← new version');
 	await new Promise<void>(async (resolve) => {
 		const [
 			[currentChangelogVersion, previousChangelogVersion],
 			currentPackageVersion,
-		] = await Promise.all([getChangelogVersions(), getCurrentPackageVersion()]);
+		] = await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
 		log.info(green(currentChangelogVersion || '<empty>'), '← current changelog version');
 		log.info(green(currentPackageVersion), '← current package version');
 		log.info(green(previousChangelogVersion || '<empty>'), '← previous changelog version');
@@ -108,19 +112,19 @@ const confirmWithUser = async (versionIncrement: string, log: Logger): Promise<v
 // TODO document this better
 // TODO move where?
 // TODO refactor? this code is quick & worky
-const getChangelogVersions = async (): Promise<
-	[currentChangelogVersion?: string, previousChangelogVersion?: string]
-> => {
+const getChangelogVersions = async (
+	fs: Filesystem,
+): Promise<[currentChangelogVersion?: string, previousChangelogVersion?: string]> => {
 	const changelogMatcher = /##.+/g;
-	const changelog = await readFile('changelog.md', 'utf8');
+	const changelog = await fs.readFile('changelog.md', 'utf8');
 	const matchCurrent = changelog.match(changelogMatcher);
 	if (!matchCurrent) return [];
 	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [string, string];
 };
 
 // TODO move where?
-const getCurrentPackageVersion = async (): Promise<string> => {
-	const pkg = await loadPackageJson();
+const getCurrentPackageVersion = async (fs: Filesystem): Promise<string> => {
+	const pkg = await loadPackageJson(fs);
 	if (!pkg.version || typeof pkg.version !== 'string') {
 		throw Error(`Expected package.json to have a valid version: ${pkg.version}`);
 	}
