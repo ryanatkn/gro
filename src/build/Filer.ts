@@ -90,7 +90,7 @@ export interface Options {
 	target: EcmaScriptTarget;
 	watch: boolean;
 	watcherDebounce: number | undefined;
-	filter: PathFilter | null;
+	filter: PathFilter | null | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -155,7 +155,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
 		watcherDebounce: undefined,
-		filter: null,
+		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
