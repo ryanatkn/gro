@@ -2,8 +2,9 @@ import CheapWatch from 'cheap-watch';
 import fsExtra from 'fs-extra';
 
 import type {Filesystem} from './filesystem.js';
-import type {PathStats, PathFilter} from './pathData.js';
+import type {PathStats} from './pathData.js';
 import {sortMap, compareSimpleMapEntries} from '../utils/map.js';
+import type {PathFilter} from './pathData.js';
 
 // This uses `CheapWatch` which probably isn't the fastest, but it works fine for now.
 // TODO should this API be changed to only include files and not directories?

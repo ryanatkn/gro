@@ -8,13 +8,14 @@ export interface PathStats {
 	isDirectory(): boolean;
 }
 
-export interface PathFilter {
-	(file: {path: string; stats: PathStats}): boolean;
-}
-
 export const toPathData = (id: string, stats: PathStats): PathData => {
 	return {
 		id,
 		isDirectory: stats.isDirectory(),
 	};
 };
+
+// This is a subset of the `cheap-watch` types designed for browser compatibility.
+export interface PathFilter {
+	(file: {path: string; stats: PathStats}): boolean;
+}

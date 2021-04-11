@@ -34,10 +34,11 @@ export const createFilerDir = (
 	dir: string,
 	buildable: boolean,
 	onChange: FilerDirChangeCallback,
-	filter: PathFilter | undefined,
+	filter: PathFilter | null,
 	watch: boolean,
 	watcherDebounce: number = DEBOUNCE_DEFAULT,
 ): FilerDir => {
+	// TODO abstract this from the Node filesystem
 	const watcher = watchNodeFs({
 		dir,
 		onChange: (change) => onChange(change, filerDir),

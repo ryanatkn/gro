@@ -1,9 +1,13 @@
+import {join} from 'path';
 import CheapWatch from 'cheap-watch';
 
-import type {PathStats, PathFilter} from './pathData.js';
+import type {PathFilter, PathStats} from './pathData.js';
+import {paths} from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
-import {isGitignored} from '../project/gitignore.js';
+import type {FileFilter} from './file.js';
+import {loadGitignoreFilter} from '../project/gitignore.js';
+import type {Filesystem} from './filesystem.js';
 
 /*
 
@@ -29,8 +33,6 @@ export interface WatcherChangeCallback {
 
 export const DEBOUNCE_DEFAULT = 10;
 
-const defaultFilter: PathFilter = (file) => !isGitignored(file.path);
-
 export interface Options {
 	dir: string;
 	onChange: WatcherChangeCallback;
@@ -41,10 +43,10 @@ export interface Options {
 export type RequiredOptions = 'dir' | 'onChange';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
-	filter: defaultFilter,
 	watch: true,
 	debounce: DEBOUNCE_DEFAULT,
 	...omitUndefined(opts),
+	filter: opts.filter === undefined ? toDefaultFilter() : opts.filter,
 });
 
 export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
@@ -68,4 +70,14 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 			watcher.removeAllListeners();
 		},
 	};
+};
+
+// TODO refactor these
+
+const toPathFilter = (filter: FileFilter, root = paths.root): PathFilter => ({path}) =>
+	!filter(join(root, path));
+
+const toDefaultFilter = (): PathFilter => {
+	const gitignoreFilter = loadGitignoreFilter();
+	return toPathFilter(gitignoreFilter);
 };

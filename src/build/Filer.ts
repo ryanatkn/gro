@@ -90,7 +90,7 @@ export interface Options {
 	target: EcmaScriptTarget;
 	watch: boolean;
 	watcherDebounce: number | undefined;
-	filter: PathFilter | undefined;
+	filter: PathFilter | null;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -155,7 +155,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
 		watcherDebounce: undefined,
-		filter: undefined,
+		filter: null,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
@@ -221,7 +221,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.target = target;
 		this.log = log;
 		this.dirs = createFilerDirs(
-			this.fs,
+			fs,
 			sourceDirs,
 			servedDirs,
 			buildDir,
@@ -1126,7 +1126,7 @@ const createFilerDirs = (
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
-	filter: PathFilter | undefined,
+	filter: PathFilter | null,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {
