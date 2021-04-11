@@ -109,7 +109,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
 		if (!isThisProjectGro && hasApiServerConfig(config.builds)) {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
-			const serverBuildPath = toBuildOutPath(
+			const apiServerBuildPath = toBuildOutPath(
 				true,
 				API_SERVER_BUILD_CONFIG_NAME,
 				API_SERVER_BUILD_BASE_PATH,
@@ -117,12 +117,12 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			// TODO set port and write to .gro dir
 			const state: GroBuildState = {port: 3003};
 			await outputGroBuildState(state);
-			const serverProcess = createRestartableProcess('node', [serverBuildPath], {
+			const apiServerProcess = createRestartableProcess('node', [apiServerBuildPath], {
 				env: {...process.env, PORT: state.port.toString()},
 			});
 			filer.on('build', ({buildConfig}) => {
 				if (buildConfig.name === API_SERVER_BUILD_CONFIG_NAME) {
-					serverProcess.restart();
+					apiServerProcess.restart();
 				}
 			});
 		}
