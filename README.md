@@ -19,7 +19,7 @@
 > Please open issues for questions or discussion
 > and [see contributing.md](contributing.md) for more.
 
-> **Windows is not yet supported. WSL works well**
+> **Windows is not yet supported.** WSL works well enough
 
 ## about
 
