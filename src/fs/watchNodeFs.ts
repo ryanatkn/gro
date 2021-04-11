@@ -77,7 +77,4 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 const toPathFilter = (filter: FileFilter, root = paths.root): PathFilter => ({path}) =>
 	!filter(join(root, path));
 
-const toDefaultFilter = (): PathFilter => {
-	const gitignoreFilter = loadGitignoreFilter();
-	return toPathFilter(gitignoreFilter);
-};
+const toDefaultFilter = (): PathFilter => toPathFilter(loadGitignoreFilter());

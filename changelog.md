@@ -38,7 +38,7 @@
   ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
-- add `src/project/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
+- add `src/project/gitignore.ts` with `loadGitignoreFilter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
 - add helper `toSvelteKitBasePath` to `src/build/sveltekit.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
