@@ -1,6 +1,7 @@
 import {watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import type {PathFilter, PathStats} from '../fs/pathData.js';
+import type {PathStats} from '../fs/pathData.js';
+import type {PathFilter} from '../fs/pathFilter.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 // Buildable filer dirs are watched, built, and written to disk.

@@ -50,7 +50,7 @@ import {queueExternalsBuild} from './externalsBuilder.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
 import type {OmitStrict, Assignable, PartialExcept} from '../index.js';
-import type {PathFilter} from '../fs/pathData.js';
+import type {PathFilter} from '../fs/pathFilter.js';
 
 /*
 

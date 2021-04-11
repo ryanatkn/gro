@@ -1,11 +1,10 @@
-import {join} from 'path';
 import CheapWatch from 'cheap-watch';
 
-import type {PathFilter, PathStats} from './pathData.js';
-import {paths} from '../paths.js';
+import type {PathStats} from './pathData.js';
+import {toPathFilter} from './pathFilter.js';
+import type {PathFilter} from './pathFilter.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
-import type {FileFilter} from './file.js';
 import {loadGitignoreFilter} from '../project/gitignore.js';
 
 /*
@@ -70,10 +69,5 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 		},
 	};
 };
-
-// TODO refactor these
-
-const toPathFilter = (filter: FileFilter, root = paths.root): PathFilter => ({path}) =>
-	!filter(join(root, path));
 
 const toDefaultFilter = (): PathFilter => toPathFilter(loadGitignoreFilter());
