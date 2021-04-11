@@ -29,11 +29,11 @@ This is why Gro's tagline is:
 
 > opinionated tools for web development
 
-It's trying to signal that, "look out, opinions: it's normal to disagree; MIT".
+It's trying to signal that, "look out for the opinions: it's normal to disagree; MIT".
 But Gro _is_ more general-purpose than the phrase may suggest.
 But SvelteKit and Vite are _actually designed to be_ general-purpose tools.
 Please set your expectations accordingly 🐢
-I expect we'll see more kits/metaframeworks tailored to needs beyond Gro's scope
+I expect we'll see more kits/metaframeworks tailored to needs beyond Gro's scope.
 
 In summary, this free software is
 [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
