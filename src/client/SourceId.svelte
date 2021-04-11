@@ -5,7 +5,7 @@
 
 	export let id: string;
 
-	$: displayed = id.startsWith($ps.sourceDir) ? id.slice($ps.sourceDir.length - 1) : id;
+	$: displayed = id.startsWith($ps.sourceDir) ? id.substring($ps.sourceDir.length - 1) : id;
 </script>
 
 <span class="source-id">{displayed}</span>

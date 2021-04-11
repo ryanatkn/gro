@@ -1,6 +1,7 @@
 import type {PathLike, Stats, CopyOptions, MoveOptions} from 'fs-extra';
 
-import type {PathFilter, PathStats} from './pathData.js';
+import type {PathStats} from './pathData.js';
+import type {PathFilter} from './pathFilter.js';
 
 export type {Stats} from 'fs-extra';
 

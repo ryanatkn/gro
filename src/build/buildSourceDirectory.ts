@@ -27,13 +27,13 @@ export const buildSourceDirectory = async (
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
 		fs,
+		dev,
 		builder: createDefaultBuilder(),
 		sourceDirs: [paths.source],
 		buildConfigs: config.builds,
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,
-		dev,
 	});
 	timingToCreateFiler();
 

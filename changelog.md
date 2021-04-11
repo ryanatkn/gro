@@ -2,8 +2,12 @@
 
 ## 0.19.0
 
-- extract the `Filesystem` interface and thread it everywhere from `src/cli/invoke.ts` and tests
+- **break**: extract the `Filesystem` interface and
+  thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
+- **break**: replace `src/project/gitignore.ts` helper `isGitignored`
+  with `src/fs/pathFilter.ts` helper `toPathFilter`
+  ([#172](https://github.com/feltcoop/gro/pull/172))
 
 ## 0.18.2
 

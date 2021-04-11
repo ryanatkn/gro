@@ -14,7 +14,7 @@ export const toBasePath = (id: string, buildDir: string): string => {
 		if (id[i] === '/') {
 			slashCount++;
 			if (slashCount === 2) {
-				return (toBasePathCache[cacheKey] = id.slice(i));
+				return (toBasePathCache[cacheKey] = id.substring(i));
 			}
 		}
 	}
@@ -33,5 +33,5 @@ export const toRootPath = (id: string, buildDir: string): string => {
 		if (char === '/') break;
 		start--;
 	}
-	return (toRootPathCache[cacheKey] = id.slice(start - 1));
+	return (toRootPathCache[cacheKey] = id.substring(start - 1));
 };

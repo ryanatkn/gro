@@ -60,6 +60,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		const timingToCreateFiler = timings.start('create filer');
 		const filer = new Filer({
 			fs,
+			dev,
 			builder: createDefaultBuilder(),
 			sourceDirs: [paths.source],
 			servedDirs: config.serve || getDefaultServedDirs(config),

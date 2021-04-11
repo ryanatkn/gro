@@ -8,7 +8,7 @@ import {
 	NODE_MODULES_DIRNAME,
 	SVELTE_KIT_DEV_DIRNAME,
 } from '../paths.js';
-import {stripStart} from '../utils/string.js';
+import type {FileFilter} from '../fs/file.js';
 
 /*
 
@@ -18,11 +18,7 @@ If we need support for Gro simultaneously, see ./packageJson.ts as an example.
 
 */
 
-interface Filter {
-	(id: string | unknown): boolean;
-}
-
-let filter: Filter | null = null;
+let filter: FileFilter | null = null;
 
 const DEFAULT_IGNORED_PATHS = [
 	GIT_DIRNAME,
@@ -32,7 +28,7 @@ const DEFAULT_IGNORED_PATHS = [
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const loadGitignoreFilter = (forceRefresh = false): Filter => {
+export const loadGitignoreFilter = (forceRefresh = false): FileFilter => {
 	if (forceRefresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
@@ -53,6 +49,22 @@ export const loadGitignoreFilter = (forceRefresh = false): Filter => {
 export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean) =>
 	loadGitignoreFilter(forceRefresh)(join(root, path));
 
-// TODO what's the better way to do this? quick hacky mapping for one use case between
-// [picomatch](https://github.com/micromatch/picomatch) and `.gitignore`
-const toPattern = (line: string): string => stripStart(line, '/');
+// TODO What's the better way to do this?
+// This is a quick hacky mapping for one use case between
+// `.gitignore` and picomatch: https://github.com/micromatch/picomatch
+// This code definitely fails for valid patterns!
+const toPattern = (line: string): string => {
+	const firstChar = line[0];
+	if (firstChar === '/') {
+		line = line.substring(1);
+	} else if (firstChar !== '*') {
+		line = `**/${line}`;
+	}
+	const lastChar = line[line.length - 1];
+	if (lastChar === '/') {
+		line = `${line}**`;
+	} else if (lastChar !== '*') {
+		line = `${line}/**`;
+	}
+	return line;
+};

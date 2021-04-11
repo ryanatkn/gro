@@ -1,6 +1,7 @@
-import {DEBOUNCE_DEFAULT, watchNodeFs} from '../fs/watchNodeFs.js';
+import {watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import type {PathFilter, PathStats} from '../fs/pathData.js';
+import type {PathStats} from '../fs/pathData.js';
+import type {PathFilter} from '../fs/pathFilter.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 // Buildable filer dirs are watched, built, and written to disk.
@@ -34,16 +35,17 @@ export const createFilerDir = (
 	dir: string,
 	buildable: boolean,
 	onChange: FilerDirChangeCallback,
-	filter: PathFilter | undefined,
 	watch: boolean,
-	watcherDebounce: number = DEBOUNCE_DEFAULT,
+	watcherDebounce: number | undefined,
+	filter: PathFilter | null | undefined,
 ): FilerDir => {
+	// TODO abstract this from the Node filesystem
 	const watcher = watchNodeFs({
 		dir,
 		onChange: (change) => onChange(change, filerDir),
-		filter,
 		watch,
 		debounce: watcherDebounce,
+		filter,
 	});
 	const close = () => {
 		watcher.close();

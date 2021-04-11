@@ -50,7 +50,7 @@ import {queueExternalsBuild} from './externalsBuilder.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
 import type {OmitStrict, Assignable, PartialExcept} from '../index.js';
-import type {PathFilter} from '../fs/pathData.js';
+import type {PathFilter} from '../fs/pathFilter.js';
 
 /*
 
@@ -90,7 +90,7 @@ export interface Options {
 	target: EcmaScriptTarget;
 	watch: boolean;
 	watcherDebounce: number | undefined;
-	filter: PathFilter | undefined;
+	filter: PathFilter | null | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -221,7 +221,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.target = target;
 		this.log = log;
 		this.dirs = createFilerDirs(
-			this.fs,
+			fs,
 			sourceDirs,
 			servedDirs,
 			buildDir,
@@ -1126,11 +1126,11 @@ const createFilerDirs = (
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
-	filter: PathFilter | undefined,
+	filter: PathFilter | null | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {
-		dirs.push(createFilerDir(fs, sourceDir, true, onChange, filter, watch, watcherDebounce));
+		dirs.push(createFilerDir(fs, sourceDir, true, onChange, watch, watcherDebounce, filter));
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a source or externals directory,
@@ -1145,7 +1145,7 @@ const createFilerDirs = (
 			!servedDir.path.startsWith(buildDir)
 		) {
 			dirs.push(
-				createFilerDir(fs, servedDir.path, false, onChange, filter, watch, watcherDebounce),
+				createFilerDir(fs, servedDir.path, false, onChange, watch, watcherDebounce, filter),
 			);
 		}
 	}

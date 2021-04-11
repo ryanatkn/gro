@@ -8,10 +8,6 @@ export interface PathStats {
 	isDirectory(): boolean;
 }
 
-export interface PathFilter {
-	(file: {path: string; stats: PathStats}): boolean;
-}
-
 export const toPathData = (id: string, stats: PathStats): PathData => {
 	return {
 		id,

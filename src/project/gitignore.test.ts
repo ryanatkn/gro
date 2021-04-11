@@ -1,27 +1,27 @@
+import {resolve} from 'path';
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {isGitignored, loadGitignoreFilter} from './gitignore.js';
-
-/* test_isGitignored */
-const test_isGitignored = suite('isGitignored');
-
-test_isGitignored('basic behavior', () => {
-	t.ok(isGitignored('node_modules'));
-	t.ok(!isGitignored('node_module'));
-	// TODO ignore other patterns too, but this is sufficient for now
-	// t.ok(isGitignored('node_modules/a/b'));
-	// t.ok(isGitignored('a/b/node_modules/c/d'));
-	// t.ok(isGitignored('/a/b/node_modules/c/d'));
-});
-
-test_isGitignored.run();
-/* /test_isGitignored */
+import {loadGitignoreFilter} from './gitignore.js';
 
 /* test_loadGitignoreFilter */
 const test_loadGitignoreFilter = suite('loadGitignoreFilter');
 
 test_loadGitignoreFilter('basic behavior', () => {
+	const filter = loadGitignoreFilter();
+	t.ok(filter(resolve('dist')));
+	t.ok(!filter(resolve('a/dist')));
+	t.ok(filter(resolve('node_modules')));
+	t.ok(filter(resolve('a/node_modules')));
+	t.ok(filter(resolve('node_modules/a')));
+	t.ok(filter(resolve('a/node_modules/b')));
+	t.ok(!filter(resolve('node_module')));
+	t.ok(!filter(resolve('a/node_module')));
+	t.ok(!filter(resolve('node_module/a')));
+	t.ok(!filter(resolve('a/node_module/b')));
+});
+
+test_loadGitignoreFilter('caching and forceRefresh', () => {
 	const filter1 = loadGitignoreFilter();
 	const filter2 = loadGitignoreFilter();
 	t.is(filter1, filter2);
