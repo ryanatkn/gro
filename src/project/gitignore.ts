@@ -50,6 +50,22 @@ export const loadGitignoreFilter = (forceRefresh = false): FileFilter => {
 export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean) =>
 	loadGitignoreFilter(forceRefresh)(join(root, path));
 
-// TODO what's the better way to do this? quick hacky mapping for one use case between
-// [picomatch](https://github.com/micromatch/picomatch) and `.gitignore`
-const toPattern = (line: string): string => stripStart(line, '/');
+// TODO What's the better way to do this?
+// This is a quick hacky mapping for one use case between
+// `.gitignore` and picomatch: https://github.com/micromatch/picomatch
+// This code definitely fails for valid patterns!
+const toPattern = (line: string): string => {
+	const firstChar = line[0];
+	if (firstChar === '/') {
+		line = line.substring(1);
+	} else if (firstChar !== '*') {
+		line = `**/${line}`;
+	}
+	const lastChar = line[line.length - 1];
+	if (lastChar === '/') {
+		line = `${line}**`;
+	} else if (lastChar !== '*') {
+		line = `${line}/**`;
+	}
+	return line;
+};
