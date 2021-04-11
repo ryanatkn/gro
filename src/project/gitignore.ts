@@ -8,7 +8,6 @@ import {
 	NODE_MODULES_DIRNAME,
 	SVELTE_KIT_DEV_DIRNAME,
 } from '../paths.js';
-import {stripStart} from '../utils/string.js';
 import type {FileFilter} from '../fs/file.js';
 
 /*
