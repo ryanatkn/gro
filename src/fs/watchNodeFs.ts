@@ -7,7 +7,6 @@ import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
 import type {FileFilter} from './file.js';
 import {loadGitignoreFilter} from '../project/gitignore.js';
-import type {Filesystem} from './filesystem.js';
 
 /*
 
@@ -36,7 +35,7 @@ export const DEBOUNCE_DEFAULT = 10;
 export interface Options {
 	dir: string;
 	onChange: WatcherChangeCallback;
-	filter: PathFilter | null;
+	filter: PathFilter | null | undefined;
 	watch: boolean;
 	debounce: number;
 }

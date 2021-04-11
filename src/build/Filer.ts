@@ -1126,11 +1126,11 @@ const createFilerDirs = (
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
-	filter: PathFilter | null,
+	filter: PathFilter | null | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {
-		dirs.push(createFilerDir(fs, sourceDir, true, onChange, filter, watch, watcherDebounce));
+		dirs.push(createFilerDir(fs, sourceDir, true, onChange, watch, watcherDebounce, filter));
 	}
 	for (const servedDir of servedDirs) {
 		// If a `servedDir` is inside a source or externals directory,
@@ -1145,7 +1145,7 @@ const createFilerDirs = (
 			!servedDir.path.startsWith(buildDir)
 		) {
 			dirs.push(
-				createFilerDir(fs, servedDir.path, false, onChange, filter, watch, watcherDebounce),
+				createFilerDir(fs, servedDir.path, false, onChange, watch, watcherDebounce, filter),
 			);
 		}
 	}
