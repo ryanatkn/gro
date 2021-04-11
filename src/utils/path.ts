@@ -14,11 +14,10 @@ export const toPathParts = (path: string): string[] => {
 	const segments = toPathSegments(path);
 	let currentPath = path[0] === '/' ? '/' : '';
 	return segments.map((segment) => {
-		if (!currentPath || currentPath === '/') {
-			currentPath += segment;
-		} else {
-			currentPath += '/' + segment;
+		if (currentPath && currentPath !== '/') {
+			currentPath += '/';
 		}
+		currentPath += segment;
 		return currentPath;
 	});
 };

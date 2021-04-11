@@ -1,8 +1,13 @@
 # Gro changelog
 
+## 0.20.0
+
+- **break**: rework the `Fs` interface and implement `MemoryFs` for testing
+  ([#173](https://github.com/feltcoop/gro/pull/173))
+
 ## 0.19.0
 
-- **break**: extract the `Filesystem` interface and
+- **break**: extract the `Fs` interface and
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
 - **break**: replace `src/project/gitignore.ts` helper `isGitignored`

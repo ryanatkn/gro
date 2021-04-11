@@ -1,7 +1,7 @@
 import {EventEmitter} from 'events';
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
-import {nodeFilesystem} from '../fs/node.js';
+import {fs} from '../fs/node.js';
 
 import {runTask} from './runTask.js';
 
@@ -11,7 +11,7 @@ const test_runTask = suite('runTask');
 test_runTask('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
 	const result = await runTask(
-		nodeFilesystem,
+		fs,
 		{
 			name: 'testTask',
 			id: 'foo/testTask',
@@ -35,7 +35,7 @@ test_runTask('invokes a sub task', async () => {
 	let invokedTaskName;
 	let invokedArgs;
 	const result = await runTask(
-		nodeFilesystem,
+		fs,
 		{
 			name: 'testTask',
 			id: 'foo/testTask',
@@ -65,7 +65,7 @@ test_runTask('invokes a sub task', async () => {
 test_runTask('failing task', async () => {
 	let err;
 	const result = await runTask(
-		nodeFilesystem,
+		fs,
 		{
 			name: 'testTask',
 			id: 'foo/testTask',

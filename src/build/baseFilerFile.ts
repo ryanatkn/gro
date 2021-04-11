@@ -1,4 +1,5 @@
-import type {Filesystem, Stats} from '../fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import type {PathStats} from '../fs/pathData.js';
 import type {Encoding} from '../fs/encoding.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
 import {toHash} from './utils.js';
@@ -14,7 +15,7 @@ export interface BaseFilerFile {
 	readonly contents: string | Buffer;
 	contentsBuffer: Buffer | undefined; // `undefined` and mutable for lazy loading
 	contentsHash: string | undefined; // `undefined` and mutable for lazy loading
-	stats: Stats | undefined; // `undefined` and mutable for lazy loading
+	stats: PathStats | undefined; // `undefined` and mutable for lazy loading
 	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
 
@@ -28,8 +29,8 @@ export const getFileContentsBuffer = (file: BaseFilerFile): Buffer =>
 		? file.contentsBuffer
 		: (file.contentsBuffer = Buffer.from(file.contents));
 
-// Stats are currently lazily loaded. Should they be?
-export const getFileStats = (fs: Filesystem, file: BaseFilerFile): Stats | Promise<Stats> =>
+// PathStats are currently lazily loaded. Should they be?
+export const getFileStats = (fs: Filesystem, file: BaseFilerFile): PathStats | Promise<PathStats> =>
 	file.stats !== undefined
 		? file.stats
 		: fs.stat(file.id).then((stats) => {
