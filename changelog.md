@@ -2,7 +2,10 @@
 
 ## 0.20.0
 
-- **break**: rework the `Fs` interface and implement `MemoryFs` for testing
+- **break**: rework the `Filesystem` interfaces
+  ([#173](https://github.com/feltcoop/gro/pull/173))
+- add abstract class `Fs` and implement `MemoryFs`
+  to complement the `fs-extra` implementation at `src/fs/node.ts`
   ([#173](https://github.com/feltcoop/gro/pull/173))
 
 ## 0.19.0
