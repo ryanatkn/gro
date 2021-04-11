@@ -7,7 +7,7 @@ import type {PathFilter} from './pathFilter.js';
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
 export interface Filesystem {
 	stat: FsStat;
-	pathExists: stringExists;
+	pathExists: FsPathExists;
 	readFile: FsReadFile;
 	readJson: FsReadJson;
 	outputFile: FsOutputFile;
@@ -23,7 +23,7 @@ export interface Filesystem {
 export interface FsStat {
 	(path: string): Promise<PathStats>;
 }
-export interface stringExists {
+export interface FsPathExists {
 	(path: string): Promise<boolean>;
 }
 export interface FsReadFile {
@@ -69,7 +69,7 @@ export interface FsFindFiles {
 // TODO maybe swap these two names?
 export abstract class Fs implements Filesystem {
 	abstract stat: FsStat;
-	abstract pathExists: stringExists;
+	abstract pathExists: FsPathExists;
 	abstract readFile: FsReadFile;
 	abstract readJson: FsReadJson;
 	abstract outputFile: FsOutputFile;
