@@ -29,7 +29,7 @@ This is why Gro's tagline is:
 
 > opinionated tools for web development
 
-It's trying to signal that, "hey, opinions: feel free to disagree; MIT".
+It's trying to signal that, "look out, opinions: it's normal to disagree; MIT".
 But Gro _is_ more general-purpose than the phrase may suggest.
 But SvelteKit and Vite are _actually designed to be_ general-purpose tools.
 Please set your expectations accordingly 🐢
