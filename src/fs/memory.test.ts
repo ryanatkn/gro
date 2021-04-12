@@ -6,6 +6,7 @@ import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
 import {stripEnd} from '../utils/string.js';
 import {toPathParts} from '../utils/path.js';
+import {toRootPath} from '../paths.js';
 
 // TODO reset the fs between calls, or suites, or something
 // having a fresh one each time seems really useful to see the totality of what e.g. the Filer is doing
@@ -450,15 +451,18 @@ test_findFiles('basic behavior', async ({fs}) => {
 		const contents = 'contents';
 		await fs.outputFile(path, contents, 'utf8');
 		let filterCallCount = 0;
-		const files = await fs.findFiles(path, () => (filterCallCount++, true));
-		t.is(files.size, 1);
-		t.is(filterCallCount, 1);
-		t.ok(files.has(toFsId(path)));
+		const files = await fs.findFiles('.', () => (filterCallCount++, true));
+		const rootPath = toRootPath(toFsId(path));
+		t.is(filterCallCount, files.size);
+		t.is(files.size, rootPath.split('/').length);
+		t.ok(files.has(rootPath));
 	}
 });
 
 test_findFiles('find a bunch of files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
+	const ignoredPath = 'b/c2.ts';
+	let hasIgnoredPath = false;
 	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir1/b/c1.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir1/b/c2.ts`, fakeTsContents);
@@ -466,18 +470,16 @@ test_findFiles('find a bunch of files and dirs', async ({fs}) => {
 	await fs.ensureDir(`${path}/dir1/d`);
 	await fs.ensureDir(`${path}/dir1/e/f`);
 	await fs.outputFile(`${path}/dir2/2.ts`, fakeTsContents);
-	const found = await fs.findFiles(`${path}/dir1`);
-	console.log('found', found);
-	t.equal(Array.from(found.keys()), [
-		'a.ts',
-		'b',
-		'b/c1.ts',
-		'b/c2.ts',
-		'b/c3.ts',
-		'd',
-		'e',
-		'e/f',
-	]);
+	const found = await fs.findFiles(
+		`${path}/dir1`,
+		({path}) => {
+			if (!hasIgnoredPath) hasIgnoredPath = path === ignoredPath;
+			return path !== ignoredPath;
+		},
+		(a, b) => -a[0].localeCompare(b[0]),
+	);
+	t.ok(hasIgnoredPath); // makes sure the test isn't wrong
+	t.equal(Array.from(found.keys()), ['e/f', 'e', 'd', 'b/c3.ts', 'b/c1.ts', 'b', 'a.ts']);
 });
 
 test_findFiles.run();

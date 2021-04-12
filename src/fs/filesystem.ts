@@ -2,7 +2,7 @@ import {resolve} from 'path';
 
 import type {Flavored} from '../utils/types.js';
 import type {Encoding} from './encoding.js';
-import type {PathData, PathStats} from './pathData.js';
+import type {PathStats} from './pathData.js';
 import type {PathFilter} from './pathFilter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
@@ -128,7 +128,7 @@ export interface BaseNode {
 	readonly contents: string | Buffer | null;
 	// readonly contentsBuffer: Buffer | null;
 	readonly stats: PathStats;
-	readonly path: PathData; // TODO name? `PathInfo`? `PathMeta`? `Path`?
+	// readonly pathData: PathData; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
 export interface BaseFileNode extends BaseNode {
 	readonly isDirectory: false;

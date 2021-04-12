@@ -1,24 +1,18 @@
 import {Fs, toFsId, FsStats} from './filesystem.js';
 import type {FsCopyOptions, FsId, FsMoveOptions, FsNode} from './filesystem';
-import {toPathData} from './pathData.js';
 import type {PathStats} from './pathData.js';
-import {compareSimpleMapEntries} from '../utils/map.js';
+import {compareSimpleMapEntries, sortMap} from '../utils/map.js';
 import type {PathFilter} from './pathFilter.js';
 import type {Encoding} from './encoding.js';
 import type {Assignable} from '../utils/types.js';
 import {toPathParts} from '../utils/path.js';
 import {ensureEnd, stripStart} from '../utils/string.js';
 
-// TODO resolve paths
-// TODO extend EventEmitter and emit lots of events
-// TODO formalize module interface for all filesystem impls
 // TODO should this module have a more specific name? or a more specific directory, with all other implementations?
 
-// TODO can we have internal methods that don't normalize `toFsId`? or flags to avoid normalizing? (optional bool? could be a long-lived object)
+// TODO extend EventEmitter and emit lots of events
 
-// TODO
-// TODO
-// TODO bug with filters - need filter all children vs filter shallow children
+// TODO improve perf in data structures and algorithms for large workloads
 
 const ROOT = '/';
 
@@ -26,7 +20,6 @@ export class MemoryFs extends Fs {
 	_root = toFsId('.');
 
 	// TODO for now we're prefixing all non-Fs API with an underscore for clarity, maybe compose better?
-	// TODO other data structures? what access patterns do we want to optimize for?
 	_files: Map<FsId, FsNode> = new Map();
 	_exists(path: string): boolean {
 		return this._files.has(toFsId(path));
@@ -34,7 +27,7 @@ export class MemoryFs extends Fs {
 	_find(id: FsId): FsNode | undefined {
 		return this._files.get(id);
 	}
-	// finds nodes within `id`, not including `id`
+	// finds nodes within `id`, not including `id`; includes all descendents
 	_filter(id: FsId): FsNode[] {
 		const nodes: FsNode[] = [];
 		const node = this._find(id);
@@ -69,7 +62,7 @@ export class MemoryFs extends Fs {
 				contents: null,
 				// contentsBuffer: null,
 				stats,
-				path: toPathData(pathPart, stats),
+				// pathData: toPathData(pathPart, stats),
 			});
 		}
 		this._update(node.id, node);
@@ -129,7 +122,7 @@ export class MemoryFs extends Fs {
 			contents: data,
 			// contentsBuffer: data, // TODO lazily load this?
 			stats,
-			path: toPathData(id, stats),
+			// pathData: toPathData(id, stats),
 		});
 	};
 	remove = async (path: string): Promise<void> => {
@@ -137,8 +130,9 @@ export class MemoryFs extends Fs {
 		const file = this._find(id);
 		if (!file) return; // silent no-op like `fs-extra`
 		if (file.isDirectory) {
+			// this search finds all descendent nodes, no need to recurse
 			for (const node of this._filter(id)) {
-				await this.remove(node.id);
+				this._remove(node.id);
 			}
 		}
 		this._remove(id); // remove children above first
@@ -189,14 +183,14 @@ export class MemoryFs extends Fs {
 			contents: null,
 			// contentsBuffer: null,
 			stats,
-			path: toPathData(id, stats),
+			// pathData: toPathData(id, stats),
 		});
 	};
 	readDir = async (path: string): Promise<string[]> => {
 		// TODO use `_filter` - does it return relative? what behavior for missing, or file?
 		const id = toFsId(path);
 		const nodes = this._filter(id);
-		return nodes.map((node) => stripStart(node.id, ensureEnd(id, '/')));
+		return nodes.map((node) => stripStart(node.id, ensureEnd(id, ROOT)));
 	};
 	emptyDir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
@@ -207,24 +201,21 @@ export class MemoryFs extends Fs {
 	findFiles = async (
 		dir: string,
 		filter?: PathFilter,
-		// pass `null` to speed things up at the risk of rare misorderings
 		sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
 	): Promise<Map<string, PathStats>> => {
 		// TODO wait so in the dir .. we can now find this dir and all of its subdirs
 		// cache the subdirs somehow (backlink to parent node? do we have stable references? we do ya?)
 
 		const found = new Map();
-		const baseDir = toFsId(dir); // TODO resolve relative to filesystem's base (mount at `/` in memory!)
+		const baseDir = toFsId(dir);
 		for (const file of this._files.values()) {
-			if (file.id.startsWith(baseDir)) {
-				// TODO should each file have its `basePath`?
-				// const basePath = stripStart(file.id, baseDir);
-				// console.log('basePath', basePath);
-				found.set(file.id, file.stats);
+			if (file.id === baseDir || !file.id.startsWith(baseDir)) continue;
+			const path = stripStart(file.id, ensureEnd(baseDir, ROOT));
+			if (!filter || filter({path, stats: file.stats})) {
+				found.set(path, file.stats);
 			}
 		}
-		// console.log('found', Array.from(found.entries()));
-		return found;
+		return sort ? sortMap(found, sort) : found;
 	};
 }
 

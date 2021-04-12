@@ -13,12 +13,11 @@ test_findFiles('basic behavior', async ({fs}) => {
 		'./src/fs/fixtures',
 		({path}) => {
 			if (!hasIgnoredPath) hasIgnoredPath = path === ignoredPath;
-			return path !== 'test1.foo.ts';
+			return path !== ignoredPath;
 		},
 		(a, b) => -a[0].localeCompare(b[0]),
 	);
 	t.ok(hasIgnoredPath); // makes sure the test isn't wrong
-	t.ok(result.size);
 	t.equal(Array.from(result.keys()), [
 		'test2.foo.ts',
 		'baz2/test2.baz.ts',
