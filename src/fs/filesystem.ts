@@ -28,7 +28,6 @@ export interface FsExists {
 	(path: string): Promise<boolean>;
 }
 export interface FsReadFile {
-	// TODO ran into problems using overrides, couldn't get subclass to typecheck:
 	(path: string): Promise<Buffer>;
 	(path: string, encoding: 'utf8'): Promise<string>;
 	(path: string, encoding: null): Promise<Buffer>;
