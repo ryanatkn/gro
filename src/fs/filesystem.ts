@@ -66,7 +66,6 @@ export interface FsFindFiles {
 	): Promise<Map<string, PathStats>>;
 }
 
-// TODO maybe swap these two names?
 export abstract class Fs implements Filesystem {
 	abstract stat: FsStat;
 	abstract exists: FsExists;
@@ -82,14 +81,14 @@ export abstract class Fs implements Filesystem {
 	abstract findFiles: FsFindFiles;
 }
 
-// TODO remove some of these, but which?
+// TODO try to implement some of these
 export interface FsCopyOptions {
-	dereference?: boolean;
+	// dereference?: boolean;
 	overwrite?: boolean;
-	preserveTimestamps?: boolean;
-	errorOnExist?: boolean;
-	filter?: FsCopyFilterSync | FsCopyFilterAsync;
-	recursive?: boolean;
+	// preserveTimestamps?: boolean;
+	// errorOnExist?: boolean;
+	// filter?: FsCopyFilterSync | FsCopyFilterAsync;
+	// recursive?: boolean;
 }
 export interface FsMoveOptions {
 	overwrite?: boolean;
@@ -107,7 +106,7 @@ export class FsStats implements PathStats {
 
 export type FsId = Flavored<string, 'FsId'>;
 
-// TODO probably needs to take a cwd param?
+// The `resolve` looks magic and hardcoded - it's matching how `fs` and `fs-extra` resolve paths.
 export const toFsId = (path: string): FsId => resolve(path);
 
 // TODO extract - how do they intersect with Filer types? and smaller interfaces like `PathData`?
