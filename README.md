@@ -132,17 +132,19 @@ gro serve some/dir and/another/dir # serve some directories
 ```
 
 ```bash
-gro version patch # bump version, publish to npm, and sync to GitHub
-gro version major --and args --are forwarded --to 'npm version'
-```
-
-```bash
 gro -v # aka `--version`: print the Gro version
 ```
 
 ```bash
 gro check # typecheck, run tests, and ensure generated files are current
 gro typecheck # just the typechecking
+```
+
+To publish: (also see [`src/docs/publish.md`](src/docs/publish.md))
+
+```bash
+gro version patch # bump version, publish to npm, and sync to GitHub
+gro version major --and args --are forwarded --to 'npm version'
 ```
 
 ## develop
