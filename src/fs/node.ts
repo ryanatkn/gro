@@ -9,7 +9,7 @@ import type {PathFilter} from './pathFilter.js';
 // This uses `CheapWatch` which probably isn't the fastest, but it works fine for now.
 // TODO should this API be changed to only include files and not directories?
 // or maybe change the name so it's not misleading?
-export const findFiles = async (
+const findFiles = async (
 	dir: string,
 	filter?: PathFilter,
 	// pass `null` to speed things up at the risk of rare misorderings

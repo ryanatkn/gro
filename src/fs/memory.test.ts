@@ -26,10 +26,7 @@ interface SuiteContext {
 	fs: MemoryFs;
 }
 const suiteContext: SuiteContext = {fs: memoryFs};
-
-const resetMemoryFs = ({fs}: SuiteContext) => {
-	fs._reset();
-};
+const resetMemoryFs = ({fs}: SuiteContext) => fs._reset();
 
 const fakeTsContents = 'export const a = 5;';
 
