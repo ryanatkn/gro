@@ -245,8 +245,8 @@ const shouldBuildProject = async (fs: Filesystem, sourceId: string): Promise<boo
 	// don't try to compile Gro's own codebase from outside of it
 	if (!isThisProjectGro && isGroId(sourceId)) return false;
 	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
-	if (isThisProjectGro && !(await fs.pathExists(paths.build))) return true;
+	if (isThisProjectGro && !(await fs.exists(paths.build))) return true;
 	// ensure the build file for the source id exists in the default dev build
 	const buildId = toImportId(sourceId, true, PRIMARY_NODE_BUILD_CONFIG_NAME);
-	return !(await fs.pathExists(buildId));
+	return !(await fs.exists(buildId));
 };

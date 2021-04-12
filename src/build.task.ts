@@ -96,8 +96,8 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
 			// TODO take a look at its issues/codebase for fix
 			if (
-				(await fs.pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`)) &&
-				(await fs.pathExists(`${SVELTE_KIT_BUILD_DIRNAME}/${SVELTE_KIT_APP_DIRNAME}`))
+				(await fs.exists(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`)) &&
+				(await fs.exists(`${SVELTE_KIT_BUILD_DIRNAME}/${SVELTE_KIT_APP_DIRNAME}`))
 			) {
 				await fs.remove(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`);
 			}

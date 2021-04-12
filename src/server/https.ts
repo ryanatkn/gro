@@ -23,10 +23,7 @@ export const loadHttpsCredentials = async (
 	certFile = DEFAULT_CERT_FILE,
 	keyFile = DEFAULT_CERTKEY_FILE,
 ): Promise<HttpsCredentials | null> => {
-	const [certExists, keyExists] = await Promise.all([
-		fs.pathExists(certFile),
-		fs.pathExists(keyFile),
-	]);
+	const [certExists, keyExists] = await Promise.all([fs.exists(certFile), fs.exists(keyFile)]);
 	if (!certExists && !keyExists) return null;
 	if (certExists && !keyExists) {
 		log.warn('https cert exists but the key file does not', keyFile);

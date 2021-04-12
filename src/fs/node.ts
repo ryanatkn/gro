@@ -29,7 +29,7 @@ export const findFiles = async (
 
 export const fs: Filesystem = {
 	stat: fsExtra.stat,
-	pathExists: fsExtra.pathExists,
+	exists: fsExtra.pathExists,
 	readFile: fsExtra.readFile,
 	readJson: fsExtra.readJson,
 	outputFile: fsExtra.outputFile as FsOutputFile, // TODO incompatible encodings: is this an actual problem? or is `fs-extra` mistyped? test with `null`

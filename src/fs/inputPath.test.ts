@@ -127,7 +127,7 @@ test_loadSourcePathDataByInputPath('loads source path data and handles missing p
 	const result = await loadSourcePathDataByInputPath(
 		{
 			...fs,
-			pathExists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
+			exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
 			stat: async (path) =>
 				({
 					isDirectory: () => path === 'fake/test2' || path === 'fake/test3',

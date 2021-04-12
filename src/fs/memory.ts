@@ -78,7 +78,7 @@ export class MemoryFs extends Fs {
 		}
 		return file.stats;
 	};
-	pathExists = async (path: string): Promise<boolean> => {
+	exists = async (path: string): Promise<boolean> => {
 		const id = toFsId(path);
 		return this._files.has(id);
 	};

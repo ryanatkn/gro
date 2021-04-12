@@ -137,12 +137,12 @@ export const loadGroConfig = async (
 	// TODO maybe refactor this to use `../fs/modules#loadModule`, duplicates some stuff
 	let configModule: GroConfigModule;
 	let modulePath: string;
-	if (await fs.pathExists(configSourceId)) {
+	if (await fs.exists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
 		modulePath = configSourceId;
 		const configBuildId = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
-		if (await fs.pathExists(configBuildId)) {
+		if (await fs.exists(configBuildId)) {
 			configModule = await import(configBuildId);
 		} else {
 			// We need to bootstrap the config because it's not yet built.

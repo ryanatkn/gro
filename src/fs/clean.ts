@@ -29,7 +29,7 @@ export const clean = async (
 	]);
 
 export const cleanDir = async (fs: Filesystem, path: string, log: SystemLogger): Promise<void> => {
-	if (await fs.pathExists(path)) {
+	if (await fs.exists(path)) {
 		log.info('removing', printPath(path));
 		await fs.remove(path);
 	}

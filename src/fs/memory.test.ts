@@ -59,7 +59,7 @@ test_outputFile('updates an existing file', async ({fs}) => {
 	}
 });
 
-// TODO test_pathExists
+// TODO test_exists
 
 // TODO test that it creates the in-between directories
 // this will break the `length` checks!! can use the new length checks to check segment creation

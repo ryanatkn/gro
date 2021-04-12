@@ -72,7 +72,7 @@ export const updateSourceMeta = async (
 	// This is useful for debugging, but has false positives
 	// when source changes but output doesn't, like if comments get elided.
 	// if (
-	// 	(await pathExists(cacheId)) &&
+	// 	(await fs.exists(cacheId)) &&
 	// 	deepEqual(await readJson(cacheId), sourceMeta)
 	// ) {
 	// 	console.log(
@@ -109,7 +109,7 @@ export const initSourceMeta = async ({
 	buildDir,
 }: BuildContext): Promise<void> => {
 	const sourceMetaDir = toSourceMetaDir(buildDir);
-	if (!(await fs.pathExists(sourceMetaDir))) return;
+	if (!(await fs.exists(sourceMetaDir))) return;
 	const files = await fs.findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(
 		Array.from(files.entries()).map(async ([path, stats]) => {

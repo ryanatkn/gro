@@ -45,7 +45,7 @@ export const checkGenModule = async (
 	fs: Filesystem,
 	file: GenFile,
 ): Promise<CheckGenModuleResult> => {
-	if (!(await fs.pathExists(file.id))) {
+	if (!(await fs.exists(file.id))) {
 		return {
 			file,
 			existingContents: null,

@@ -996,7 +996,7 @@ const syncBuildFilesToDisk = async (
 			const {file} = change;
 			let shouldOutputNewFile = false;
 			if (change.type === 'added') {
-				if (!(await fs.pathExists(file.id))) {
+				if (!(await fs.exists(file.id))) {
 					// log.trace(label, 'creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {

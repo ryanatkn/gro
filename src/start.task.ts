@@ -27,7 +27,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		const timings = new Timings();
 
 		// build if needed
-		if (!(await fs.pathExists(paths.dist))) {
+		if (!(await fs.exists(paths.dist))) {
 			log.info(green('dist not detected; building'));
 			const timingToBuild = timings.start('build');
 			await invokeTask('build');

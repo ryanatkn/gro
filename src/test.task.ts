@@ -22,7 +22,7 @@ export const task: Task = {
 		const testsBuildDir = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG_NAME);
 
 		// TODO cleaner way to detect & rebuild?
-		if (!(await fs.pathExists(testsBuildDir))) {
+		if (!(await fs.exists(testsBuildDir))) {
 			const timingToLoadConfig = timings.start('load config');
 			const config = await loadGroConfig(fs, dev);
 			timingToLoadConfig();
@@ -34,7 +34,7 @@ export const task: Task = {
 			// Projects may not define any artifacts for the Node build,
 			// and we don't force anything out in that case,
 			// so just exit early if that happens.
-			if (!(await fs.pathExists(testsBuildDir))) {
+			if (!(await fs.exists(testsBuildDir))) {
 				log.info('no tests found');
 				return;
 			}
