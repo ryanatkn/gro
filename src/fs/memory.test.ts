@@ -84,7 +84,7 @@ test_readFile('basic behavior', async ({fs}) => {
 });
 
 test_readFile('missing file throws', async ({fs}) => {
-	// TODO async `t.throws` ? hmm
+	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		fs._reset();
 		await fs.readFile('/missing/file', 'utf8');
@@ -112,7 +112,7 @@ test_readJson('basic behavior', async ({fs}) => {
 });
 
 test_readJson('missing file throws', async ({fs}) => {
-	// TODO async `t.throws` ? hmm
+	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		fs._reset();
 		await fs.readJson('/missing/file');
@@ -202,10 +202,10 @@ test_move('handles move conflict with overwrite false', async ({fs}) => {
 	await fs.outputFile(path1, fakeTsContents);
 	await fs.outputFile(path2, fakeTsContents);
 	t.is(fs._files.size, 5);
-	// async `t.throws`
+	// TODO async `t.throws` or `t.rejects` ?
 	let failed = true;
 	try {
-		await fs.move(path1, path2); // TODO does it throw?
+		await fs.move(path1, path2);
 	} catch (err) {
 		failed = false;
 	}
@@ -231,7 +231,7 @@ test_move('handles move conflict with overwrite true', async ({fs}) => {
 });
 
 test_move('missing source path throws', async ({fs}) => {
-	// TODO async `t.throws` ? hmm
+	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		await fs.move('/missing/file', '/');
 	} catch (err) {
@@ -289,10 +289,10 @@ test_copy('handles copy conflict with overwrite false', async ({fs}) => {
 	await fs.outputFile(path1, fakeTsContents);
 	await fs.outputFile(path2, fakeTsContents);
 	t.is(fs._files.size, 5);
-	// async `t.throws`
+	// TODO async `t.throws`
 	let failed = true;
 	try {
-		await fs.copy(path1, path2); // TODO does it throw?
+		await fs.copy(path1, path2);
 	} catch (err) {
 		failed = false;
 	}
@@ -318,7 +318,7 @@ test_copy('handles copy conflict with overwrite true', async ({fs}) => {
 });
 
 test_copy('missing source path throws', async ({fs}) => {
-	// TODO async `t.throws` ? hmm
+	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		await fs.copy('/missing/file', '/');
 	} catch (err) {
@@ -381,6 +381,41 @@ test_ensureDir('normalize paths', async ({fs}) => {
 
 test_ensureDir.run();
 /* /test_ensureDir */
+
+/* test_readDir */
+const test_readDir = suite('readDir', suiteContext);
+test_readDir.before.each(resetMemoryFs);
+
+test_readDir('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
+		fs._reset();
+		await fs.outputFile(path, 'contents', 'utf8');
+		t.ok(fs._exists(path));
+		const dir = dirname(path);
+		const paths = await fs.readDir(dir);
+		t.ok(paths.length);
+	}
+});
+
+test_readDir('readDirs contained files and dirs', async ({fs}) => {
+	const path = '/a/b/c';
+	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c1.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c2.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c3.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/d`, fakeTsContents);
+	const paths = await fs.readDir(`${path}/dir1`);
+	t.equal(paths, ['a.ts', 'b', 'b/c1.ts', 'b/c2.ts', 'b/c3.ts', 'd']);
+});
+
+test_readDir('missing file fails silently', async ({fs}) => {
+	const paths = await fs.readDir('/missing/file');
+	t.equal(paths, []);
+	t.is(fs._files.size, 0);
+});
+
+test_readDir.run();
+/* /test_readDir */
 
 /* test_emptyDir */
 const test_emptyDir = suite('emptyDir', suiteContext);

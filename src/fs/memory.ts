@@ -7,7 +7,7 @@ import type {PathFilter} from './pathFilter.js';
 import type {Encoding} from './encoding.js';
 import type {Assignable} from '../utils/types.js';
 import {toPathParts} from '../utils/path.js';
-import {stripStart} from '../utils/string.js';
+import {ensureEnd, stripStart} from '../utils/string.js';
 
 // TODO resolve paths
 // TODO extend EventEmitter and emit lots of events
@@ -19,6 +19,8 @@ import {stripStart} from '../utils/string.js';
 // TODO
 // TODO
 // TODO bug with filters - need filter all children vs filter shallow children
+
+const ROOT = '/';
 
 export class MemoryFs extends Fs {
 	_root = toFsId('.');
@@ -37,14 +39,12 @@ export class MemoryFs extends Fs {
 		const nodes: FsNode[] = [];
 		const node = this._find(id);
 		if (!node || !node.isDirectory) return []; // TODO or throw?
-		const prefix = id === '/' ? '/' : `${id}/`;
+		const prefix = id === ROOT ? ROOT : `${id}/`;
 		// TODO instead of searching the whole space, could have a better data structure
 		// TODO to search just children quickly, we need a better data structure
 		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `BaseBuildableFile`s)
 		for (const nodeId of this._files.keys()) {
-			if (!nodeId.startsWith(prefix) || id === nodeId) {
-				continue; // `id === nodeId` when value is `/` and it goes into an infinite loop
-			}
+			if (!nodeId.startsWith(prefix) || nodeId === ROOT) continue;
 			nodes.push(this._files.get(nodeId)!);
 		}
 		return nodes;
@@ -56,7 +56,7 @@ export class MemoryFs extends Fs {
 	}
 	_add(node: FsNode): void {
 		const pathParts = toPathParts(node.id);
-		pathParts.unshift('/'); // TODO hacky
+		pathParts.unshift(ROOT); // TODO hacky
 		// skip the last one, that's what's created above
 		for (let i = 0; i < pathParts.length - 1; i++) {
 			const pathPart = pathParts[i];
@@ -159,7 +159,7 @@ export class MemoryFs extends Fs {
 		const destId = toFsId(destPath);
 		// create a new node at the new location
 		for (const srcNode of srcNodes) {
-			const nodeDestId = `${destId}${stripStart(srcNode.id, srcId)}`;
+			const nodeDestId = `${destId === ROOT ? '' : destId}${stripStart(srcNode.id, srcId)}`;
 			const exists = this._files.has(nodeDestId);
 			let output = false;
 			if (exists) {
@@ -194,7 +194,9 @@ export class MemoryFs extends Fs {
 	};
 	readDir = async (path: string): Promise<string[]> => {
 		// TODO use `_filter` - does it return relative? what behavior for missing, or file?
-		return [];
+		const id = toFsId(path);
+		const nodes = this._filter(id);
+		return nodes.map((node) => stripStart(node.id, ensureEnd(id, '/')));
 	};
 	emptyDir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
