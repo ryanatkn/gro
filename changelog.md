@@ -10,7 +10,7 @@
 
 ## 0.19.0
 
-- **break**: extract the `Fs` interface and
+- **break**: extract the `Filesystem` interface and
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
 - **break**: replace `src/project/gitignore.ts` helper `isGitignored`
