@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
-import {dirname} from 'path';
+import {dirname, resolve} from 'path';
 
 import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
@@ -17,7 +17,9 @@ import {toPathParts} from '../utils/path.js';
 // then mount at /a and test that path `b` resolves to `/a/b`
 
 // add leading and trailing slash variants
-const testPaths = ['a', 'a/b', 'a/b/c'].flatMap((p) => [p, `/${p}`]).flatMap((p) => [p, `${p}/`]);
+const testPaths = ['a', 'a/b', 'a/b/c']
+	.flatMap((p) => [p, resolve(p)])
+	.flatMap((p) => [p, `${p}/`]);
 
 interface SuiteContext {
 	fs: MemoryFs;
@@ -330,24 +332,6 @@ test_copy('missing source path throws', async ({fs}) => {
 test_copy.run();
 /* /test_copy */
 
-/* test_findFiles */
-const test_findFiles = suite('findFiles', suiteContext);
-test_findFiles.before.each(resetMemoryFs);
-
-test_findFiles('basic behavior', async ({fs}) => {
-	for (const path of testPaths) {
-		fs._reset();
-		const contents = 'contents';
-		await fs.outputFile(path, contents, 'utf8');
-		const files = await fs.findFiles(path);
-		t.is(files.size, 1);
-		t.ok(files.has(toFsId(path)));
-	}
-});
-
-test_findFiles.run();
-/* /test_findFiles */
-
 /* test_ensureDir */
 const test_ensureDir = suite('ensureDir', suiteContext);
 test_ensureDir.before.each(resetMemoryFs);
@@ -455,3 +439,46 @@ test_emptyDir('missing file fails silently', async ({fs}) => {
 
 test_emptyDir.run();
 /* /test_emptyDir */
+
+/* test_findFiles */
+const test_findFiles = suite('findFiles', suiteContext);
+test_findFiles.before.each(resetMemoryFs);
+
+test_findFiles('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
+		fs._reset();
+		const contents = 'contents';
+		await fs.outputFile(path, contents, 'utf8');
+		let filterCallCount = 0;
+		const files = await fs.findFiles(path, () => (filterCallCount++, true));
+		t.is(files.size, 1);
+		t.is(filterCallCount, 1);
+		t.ok(files.has(toFsId(path)));
+	}
+});
+
+test_findFiles('find a bunch of files and dirs', async ({fs}) => {
+	const path = '/a/b/c';
+	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c1.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c2.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c3.ts`, fakeTsContents);
+	await fs.ensureDir(`${path}/dir1/d`);
+	await fs.ensureDir(`${path}/dir1/e/f`);
+	await fs.outputFile(`${path}/dir2/2.ts`, fakeTsContents);
+	const found = await fs.findFiles(`${path}/dir1`);
+	console.log('found', found);
+	t.equal(Array.from(found.keys()), [
+		'a.ts',
+		'b',
+		'b/c1.ts',
+		'b/c2.ts',
+		'b/c3.ts',
+		'd',
+		'e',
+		'e/f',
+	]);
+});
+
+test_findFiles.run();
+/* /test_findFiles */
