@@ -7,7 +7,9 @@ import type {PathFilter} from './pathFilter.js';
 import type {Encoding} from './encoding.js';
 import type {Assignable} from '../utils/types.js';
 import {toPathParts} from '../utils/path.js';
+import {stripStart} from '../utils/string.js';
 
+// TODO resolve paths
 // TODO extend EventEmitter and emit lots of events
 // TODO formalize module interface for all filesystem impls
 // TODO should this module have a more specific name? or a more specific directory, with all other implementations?
@@ -18,8 +20,23 @@ export class MemoryFs extends Fs {
 	// TODO for now we're prefixing all non-Fs API with an underscore for clarity, maybe compose better?
 	// TODO other data structures? what access patterns do we want to optimize for?
 	_files: Map<FsId, FsNode> = new Map();
+	_exists(path: string): boolean {
+		return this._files.has(toFsId(path));
+	}
 	_find(id: FsId): FsNode | undefined {
 		return this._files.get(id);
+	}
+	// finds nodes within `id`, not including `id`
+	_filter(id: FsId): FsNode[] {
+		const nodes: FsNode[] = [];
+		const node = this._find(id);
+		if (!node || !node.isDirectory) return []; // TODO or throw?
+		const prefix = `${id}/`;
+		for (const nodeId of this._files.keys()) {
+			if (!nodeId.startsWith(prefix)) continue;
+			nodes.push(this._files.get(nodeId)!);
+		}
+		return nodes;
 	}
 	_update(id: FsId, node: FsNode): void {
 		// TODO should this merge? or always expect that upstream? or maybe `_merge`
@@ -27,7 +44,6 @@ export class MemoryFs extends Fs {
 		this._files.set(id, node);
 	}
 	_add(node: FsNode): void {
-		this._update(node.id, node);
 		const pathParts = toPathParts(node.id);
 		// skip the last one, that's what's created above
 		for (let i = 0; i < pathParts.length - 1; i++) {
@@ -44,6 +60,7 @@ export class MemoryFs extends Fs {
 				path: toPathData(pathPart, stats),
 			});
 		}
+		this._update(node.id, node);
 	}
 	_remove(id: FsId): void {
 		this._files.delete(id);
@@ -107,20 +124,46 @@ export class MemoryFs extends Fs {
 		const id = toFsId(path);
 		const file = this._find(id);
 		if (!file) return; // silent no-op like `fs-extra`
-		this._remove(id);
 		if (file.isDirectory) {
-			// TODO remove all that start with this
-			const pathPrefix = `${id}/`;
-			for (const nodeId of this._files.keys()) {
-				if (!nodeId.startsWith(pathPrefix)) continue;
-				await this.remove(nodeId);
+			for (const node of this._filter(id)) {
+				await this.remove(node.id);
 			}
 		}
+		this._remove(id); // remove children above first
 	};
-	move = async (src: string, dest: string, options?: FsMoveOptions): Promise<void> => {
-		// TODO
+	// do the simple thing: remove+create (much simpler especially when caches get complex)
+	// TODO ? options?.limit
+	move = async (srcPath: string, destPath: string, options?: FsMoveOptions): Promise<void> => {
+		const srcId = toFsId(srcPath);
+		await this.stat(srcId); // throws with the same error as `fs-extra` if it doesn't exist
+		// first grab the nodes and delete the src
+		const srcNodes = this._filter(srcId);
+		srcNodes.push(this._find(srcId)!); // calling `stat` above so the assertion is safe
+		srcNodes.sort((a, b) => a.id.localeCompare(b.id)); // TODO do we need to do this elsewhere? maybe in `_filter`?
+		const destId = toFsId(destPath);
+		// create a new node at the new location
+		for (const srcNode of srcNodes) {
+			const nodeDestId = `${destId}${stripStart(srcNode.id, srcId)}`;
+			const exists = this._files.has(nodeDestId);
+			let output = false;
+			if (exists) {
+				if (options?.overwrite) {
+					await this.remove(nodeDestId);
+					output = true;
+				} else {
+					throw Error(`dest already exists: ${nodeDestId}`);
+				}
+			} else {
+				output = true;
+			}
+			if (output) {
+				await this.outputFile(nodeDestId, srcNode.contents, srcNode.encoding);
+			}
+		}
+		// TODO move this back up before removing srcNodes?
+		await this.remove(srcId);
 	};
-	copy = async (src: string, dest: string, options?: FsCopyOptions): Promise<void> => {
+	copy = async (srcPath: string, destPath: string, options?: FsCopyOptions): Promise<void> => {
 		// TODO
 	};
 	readDir = async (path: string): Promise<string[]> => {

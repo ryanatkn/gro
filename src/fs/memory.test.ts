@@ -34,17 +34,18 @@ test_outputFile.before.each(resetMemoryFs);
 
 test_outputFile('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
+		fs._reset();
 		t.is(fs._files.size, 0);
 		const contents = 'hi';
 		await fs.outputFile(path, contents, 'utf8');
 		t.ok(fs._files.size);
 		t.is(fs._find(toFsId(path))!.contents, contents);
-		fs._reset();
 	}
 });
 
 test_outputFile('updates an existing file', async ({fs}) => {
 	for (const path of testPaths) {
+		fs._reset();
 		t.is(fs._files.size, 0);
 		const contents1 = 'contents1';
 		await fs.outputFile(path, contents1, 'utf8');
@@ -55,9 +56,10 @@ test_outputFile('updates an existing file', async ({fs}) => {
 		await fs.outputFile(path, contents2, 'utf8');
 		t.is(fs._files.size, size); // count has not changed
 		t.is(fs._find(toFsId(path))!.contents, contents2);
-		fs._reset();
 	}
 });
+
+// TODO test_pathExists
 
 // TODO test that it creates the in-between directories
 // this will break the `length` checks!! can use the new length checks to check segment creation
@@ -71,11 +73,11 @@ test_readFile.before.each(resetMemoryFs);
 
 test_readFile('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
+		fs._reset();
 		const contents = 'contents';
 		await fs.outputFile(path, contents, 'utf8');
 		const found = await fs.readFile(path, 'utf8');
 		t.is(contents, found);
-		fs._reset();
 	}
 });
 
@@ -99,11 +101,11 @@ test_readJson.before.each(resetMemoryFs);
 
 test_readJson('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
+		fs._reset();
 		const contents = {contents: {deep: {1: 1}}};
 		await fs.outputFile(path, JSON.stringify(contents), 'utf8');
 		const found = await fs.readJson(path);
 		t.equal(contents, found);
-		fs._reset();
 	}
 });
 
@@ -127,10 +129,11 @@ test_remove.before.each(resetMemoryFs);
 
 test_remove('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
+		fs._reset();
 		await fs.outputFile(path, 'contents', 'utf8');
-		t.ok(await fs.pathExists(path));
+		t.ok(fs._exists(path));
 		await fs.remove(path);
-		t.ok(!(await fs.pathExists(path)));
+		t.ok(!fs._exists(path));
 	}
 });
 
@@ -153,18 +156,109 @@ test_remove('missing file fails silently', async ({fs}) => {
 test_remove.run();
 /* /test_remove */
 
+/* test_move */
+const test_move = suite('move', suiteContext);
+test_move.before.each(resetMemoryFs);
+
+test_move('basic behavior', async ({fs}) => {
+	const dest = '/testdest';
+	for (const path of testPaths) {
+		fs._reset();
+		await fs.outputFile(path, 'contents', 'utf8');
+		t.ok(fs._exists(path));
+		t.ok(!fs._exists(dest));
+		await fs.move(path, dest);
+		t.ok(!fs._exists(path));
+		t.ok(fs._exists(dest));
+	}
+});
+
+test_move('moves contained files and dirs', async ({fs}) => {
+	fs._reset();
+	const path = '/a/b/c';
+	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
+	t.is(fs._files.size, 9);
+	const newPath = '/a/e';
+	await fs.move(`${path}/dir1`, `${newPath}/dir1`); // TODO any special merge behavior?
+	t.ok(fs._exists(`${newPath}/dir1`));
+	t.ok(fs._exists(`${newPath}/dir1/a.ts`));
+	t.ok(fs._exists(`${newPath}/dir1/b`));
+	t.ok(fs._exists(`${newPath}/dir1/b/c.ts`));
+	t.ok(fs._exists(`${path}/dir2/d.ts`));
+	t.ok(!fs._exists(`${path}/dir1`));
+	t.ok(!fs._exists(`${path}/dir1/a.ts`));
+	t.ok(!fs._exists(`${path}/dir1/b`));
+	t.ok(!fs._exists(`${path}/dir1/b/c.ts`));
+	t.is(fs._files.size, 10); // add the one new base dir
+});
+
+test_move('move conflict with overwrite false', async ({fs}) => {
+	fs._reset();
+	const dir = '/a/b';
+	const filename1 = '1.ts';
+	const filename2 = '2.ts';
+	const path1 = `${dir}/${filename1}`;
+	const path2 = `${dir}/${filename2}`;
+	await fs.outputFile(path1, fakeTsContents);
+	await fs.outputFile(path2, fakeTsContents);
+	t.is(fs._files.size, 4);
+	// async `t.throws`
+	let failed = true;
+	try {
+		await fs.move(path1, path2); // TODO does it throw?
+	} catch (err) {
+		failed = false;
+	}
+	if (failed) throw Error();
+	t.ok(fs._exists(path1));
+	t.ok(fs._exists(path2));
+	t.is(fs._files.size, 4);
+});
+
+test_move('move conflict with overwrite true', async ({fs}) => {
+	fs._reset();
+	const dir = '/a/b';
+	const filename1 = '1.ts';
+	const filename2 = '2.ts';
+	const path1 = `${dir}/${filename1}`;
+	const path2 = `${dir}/${filename2}`;
+	await fs.outputFile(path1, fakeTsContents);
+	await fs.outputFile(path2, fakeTsContents);
+	t.is(fs._files.size, 4);
+	await fs.move(path1, path2, {overwrite: true});
+	t.ok(!fs._exists(path1));
+	t.ok(fs._exists(path2));
+	t.is(fs._files.size, 3);
+});
+
+test_move('missing source path throws', async ({fs}) => {
+	// TODO async `t.throws` ? hmm
+	try {
+		fs._reset();
+		await fs.move('/missing/file', '/');
+	} catch (err) {
+		return;
+	}
+	throw Error();
+});
+
+test_move.run();
+/* /test_move */
+
 /* test_findFiles */
 const test_findFiles = suite('findFiles', suiteContext);
 test_findFiles.before.each(resetMemoryFs);
 
 test_findFiles('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
+		fs._reset();
 		const contents = 'contents';
 		await fs.outputFile(path, contents, 'utf8');
 		const files = await fs.findFiles(path);
 		t.is(files.size, 1);
 		t.ok(files.has(toFsId(path)));
-		fs._reset();
 	}
 });
 
@@ -177,22 +271,22 @@ test_ensureDir.before.each(resetMemoryFs);
 
 test_ensureDir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
-		t.ok(!(await fs.pathExists(path)));
-		await fs.ensureDir(path);
-		t.ok(await fs.pathExists(path));
 		fs._reset();
+		t.ok(!fs._exists(path));
+		await fs.ensureDir(path);
+		t.ok(fs._exists(path));
 	}
 });
 
 test_ensureDir('normalize paths', async ({fs}) => {
 	for (const path of testPaths) {
 		const testNormalizePaths = async (path1: string, path2: string) => {
-			t.ok(!(await fs.pathExists(path1)));
-			t.ok(!(await fs.pathExists(path2)));
-			await fs.ensureDir(path1);
-			t.ok(await fs.pathExists(path1));
-			t.ok(await fs.pathExists(path2));
 			fs._reset();
+			t.ok(!fs._exists(path1));
+			t.ok(!fs._exists(path2));
+			await fs.ensureDir(path1);
+			t.ok(fs._exists(path1));
+			t.ok(fs._exists(path2));
 		};
 
 		const endsWithSlash = path.endsWith('/');
