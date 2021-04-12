@@ -1,9 +1,11 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
+import {dirname} from 'path';
 
 import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
 import {stripEnd} from '../utils/string.js';
+import {toPathParts} from '../utils/path.js';
 
 // TODO reset the fs between calls, or suites, or something
 // having a fresh one each time seems really useful to see the totality of what e.g. the Filer is doing
@@ -38,7 +40,7 @@ test_outputFile('basic behavior', async ({fs}) => {
 		t.is(fs._files.size, 0);
 		const contents = 'hi';
 		await fs.outputFile(path, contents, 'utf8');
-		t.ok(fs._files.size);
+		t.is(fs._files.size, toPathParts(toFsId(path)).length + 1);
 		t.is(fs._find(toFsId(path))!.contents, contents);
 	}
 });
@@ -50,7 +52,7 @@ test_outputFile('updates an existing file', async ({fs}) => {
 		const contents1 = 'contents1';
 		await fs.outputFile(path, contents1, 'utf8');
 		const {size} = fs._files;
-		t.ok(size);
+		t.is(size, toPathParts(toFsId(path)).length + 1);
 		t.is(fs._find(toFsId(path))!.contents, contents1);
 		const contents2 = 'contents2';
 		await fs.outputFile(path, contents2, 'utf8');
@@ -138,18 +140,16 @@ test_remove('basic behavior', async ({fs}) => {
 });
 
 test_remove('removes contained files and dirs', async ({fs}) => {
-	fs._reset();
 	const path = '/a/b/c';
 	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir1/b/c.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
-	t.is(fs._files.size, 9);
+	t.is(fs._files.size, 10);
 	await fs.remove(`${path}/dir1`);
-	t.is(fs._files.size, 5);
+	t.is(fs._files.size, 6);
 });
 
 test_remove('missing file fails silently', async ({fs}) => {
-	fs._reset();
 	await fs.remove('/missing/file');
 });
 
@@ -174,12 +174,11 @@ test_move('basic behavior', async ({fs}) => {
 });
 
 test_move('moves contained files and dirs', async ({fs}) => {
-	fs._reset();
 	const path = '/a/b/c';
 	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir1/b/c.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
-	t.is(fs._files.size, 9);
+	t.is(fs._files.size, 10);
 	const newPath = '/a/e';
 	await fs.move(`${path}/dir1`, `${newPath}/dir1`); // TODO any special merge behavior?
 	t.ok(fs._exists(`${newPath}/dir1`));
@@ -191,11 +190,10 @@ test_move('moves contained files and dirs', async ({fs}) => {
 	t.ok(!fs._exists(`${path}/dir1/a.ts`));
 	t.ok(!fs._exists(`${path}/dir1/b`));
 	t.ok(!fs._exists(`${path}/dir1/b/c.ts`));
-	t.is(fs._files.size, 10); // add the one new base dir
+	t.is(fs._files.size, 11); // add the one new base dir
 });
 
-test_move('move conflict with overwrite false', async ({fs}) => {
-	fs._reset();
+test_move('handles move conflict with overwrite false', async ({fs}) => {
 	const dir = '/a/b';
 	const filename1 = '1.ts';
 	const filename2 = '2.ts';
@@ -203,7 +201,7 @@ test_move('move conflict with overwrite false', async ({fs}) => {
 	const path2 = `${dir}/${filename2}`;
 	await fs.outputFile(path1, fakeTsContents);
 	await fs.outputFile(path2, fakeTsContents);
-	t.is(fs._files.size, 4);
+	t.is(fs._files.size, 5);
 	// async `t.throws`
 	let failed = true;
 	try {
@@ -214,11 +212,10 @@ test_move('move conflict with overwrite false', async ({fs}) => {
 	if (failed) throw Error();
 	t.ok(fs._exists(path1));
 	t.ok(fs._exists(path2));
-	t.is(fs._files.size, 4);
+	t.is(fs._files.size, 5);
 });
 
-test_move('move conflict with overwrite true', async ({fs}) => {
-	fs._reset();
+test_move('handles move conflict with overwrite true', async ({fs}) => {
 	const dir = '/a/b';
 	const filename1 = '1.ts';
 	const filename2 = '2.ts';
@@ -226,17 +223,16 @@ test_move('move conflict with overwrite true', async ({fs}) => {
 	const path2 = `${dir}/${filename2}`;
 	await fs.outputFile(path1, fakeTsContents);
 	await fs.outputFile(path2, fakeTsContents);
-	t.is(fs._files.size, 4);
+	t.is(fs._files.size, 5);
 	await fs.move(path1, path2, {overwrite: true});
 	t.ok(!fs._exists(path1));
 	t.ok(fs._exists(path2));
-	t.is(fs._files.size, 3);
+	t.is(fs._files.size, 4);
 });
 
 test_move('missing source path throws', async ({fs}) => {
 	// TODO async `t.throws` ? hmm
 	try {
-		fs._reset();
 		await fs.move('/missing/file', '/');
 	} catch (err) {
 		return;
@@ -246,6 +242,93 @@ test_move('missing source path throws', async ({fs}) => {
 
 test_move.run();
 /* /test_move */
+
+/* test_copy */
+const test_copy = suite('copy', suiteContext);
+test_copy.before.each(resetMemoryFs);
+
+test_copy('basic behavior', async ({fs}) => {
+	const dest = '/testdest';
+	for (const path of testPaths) {
+		fs._reset();
+		await fs.outputFile(path, 'contents', 'utf8');
+		t.ok(fs._exists(path));
+		t.ok(!fs._exists(dest));
+		await fs.copy(path, dest);
+		t.ok(fs._exists(path));
+		t.ok(fs._exists(dest));
+	}
+});
+
+test_copy('copies contained files and dirs', async ({fs}) => {
+	const path = '/a/b/c';
+	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
+	t.is(fs._files.size, 10);
+	const newPath = '/a/e';
+	await fs.copy(`${path}/dir1`, `${newPath}/dir1`); // TODO any special merge behavior?
+	t.ok(fs._exists(`${newPath}/dir1`));
+	t.ok(fs._exists(`${newPath}/dir1/a.ts`));
+	t.ok(fs._exists(`${newPath}/dir1/b`));
+	t.ok(fs._exists(`${newPath}/dir1/b/c.ts`));
+	t.ok(fs._exists(`${path}/dir2/d.ts`));
+	t.ok(fs._exists(`${path}/dir1`));
+	t.ok(fs._exists(`${path}/dir1/a.ts`));
+	t.ok(fs._exists(`${path}/dir1/b`));
+	t.ok(fs._exists(`${path}/dir1/b/c.ts`));
+	t.is(fs._files.size, 15); // add the one new base dir
+});
+
+test_copy('handles copy conflict with overwrite false', async ({fs}) => {
+	const dir = '/a/b';
+	const filename1 = '1.ts';
+	const filename2 = '2.ts';
+	const path1 = `${dir}/${filename1}`;
+	const path2 = `${dir}/${filename2}`;
+	await fs.outputFile(path1, fakeTsContents);
+	await fs.outputFile(path2, fakeTsContents);
+	t.is(fs._files.size, 5);
+	// async `t.throws`
+	let failed = true;
+	try {
+		await fs.copy(path1, path2); // TODO does it throw?
+	} catch (err) {
+		failed = false;
+	}
+	if (failed) throw Error();
+	t.ok(fs._exists(path1));
+	t.ok(fs._exists(path2));
+	t.is(fs._files.size, 5);
+});
+
+test_copy('handles copy conflict with overwrite true', async ({fs}) => {
+	const dir = '/a/b';
+	const filename1 = '1.ts';
+	const filename2 = '2.ts';
+	const path1 = `${dir}/${filename1}`;
+	const path2 = `${dir}/${filename2}`;
+	await fs.outputFile(path1, fakeTsContents);
+	await fs.outputFile(path2, fakeTsContents);
+	t.is(fs._files.size, 5);
+	await fs.copy(path1, path2, {overwrite: true});
+	t.ok(fs._exists(path1));
+	t.ok(fs._exists(path2));
+	t.is(fs._files.size, 5);
+});
+
+test_copy('missing source path throws', async ({fs}) => {
+	// TODO async `t.throws` ? hmm
+	try {
+		await fs.copy('/missing/file', '/');
+	} catch (err) {
+		return;
+	}
+	throw Error();
+});
+
+test_copy.run();
+/* /test_copy */
 
 /* test_findFiles */
 const test_findFiles = suite('findFiles', suiteContext);
@@ -298,3 +381,42 @@ test_ensureDir('normalize paths', async ({fs}) => {
 
 test_ensureDir.run();
 /* /test_ensureDir */
+
+/* test_emptyDir */
+const test_emptyDir = suite('emptyDir', suiteContext);
+test_emptyDir.before.each(resetMemoryFs);
+
+test_emptyDir('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
+		fs._reset();
+		await fs.outputFile(path, 'contents', 'utf8');
+		t.ok(fs._exists(path));
+		const {size} = fs._files;
+		const dir = dirname(path);
+		await fs.emptyDir(dir);
+		t.ok(fs._exists(dir));
+		t.ok(!fs._exists(path));
+		t.ok(size > fs._files.size);
+		t.ok(fs._files.size);
+	}
+});
+
+test_emptyDir('emptyDirs contained files and dirs', async ({fs}) => {
+	const path = '/a/b/c';
+	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c1.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c2.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c3.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
+	t.is(fs._files.size, 12);
+	await fs.emptyDir(`${path}/dir1`);
+	t.is(fs._files.size, 7);
+	t.ok(fs._exists(`${path}/dir1`));
+});
+
+test_emptyDir('missing file fails silently', async ({fs}) => {
+	await fs.emptyDir('/missing/file');
+});
+
+test_emptyDir.run();
+/* /test_emptyDir */

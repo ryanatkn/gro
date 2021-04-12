@@ -1,4 +1,5 @@
-import {stripEnd} from '../utils/string.js';
+import {resolve} from 'path';
+
 import type {Flavored} from '../utils/types.js';
 import type {Encoding} from './encoding.js';
 import type {PathData, PathStats} from './pathData.js';
@@ -108,7 +109,7 @@ export class FsStats implements PathStats {
 export type FsId = Flavored<string, 'FsId'>;
 
 // TODO probably needs to take a cwd param?
-export const toFsId = (path: string): FsId => stripEnd(path, '/');
+export const toFsId = (path: string): FsId => resolve(path);
 
 // TODO extract - how do they intersect with Filer types? and smaller interfaces like `PathData`?
 export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;

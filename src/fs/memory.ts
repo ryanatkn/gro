@@ -16,7 +16,13 @@ import {stripStart} from '../utils/string.js';
 
 // TODO can we have internal methods that don't normalize `toFsId`? or flags to avoid normalizing? (optional bool? could be a long-lived object)
 
+// TODO
+// TODO
+// TODO bug with filters - need filter all children vs filter shallow children
+
 export class MemoryFs extends Fs {
+	_root = toFsId('.');
+
 	// TODO for now we're prefixing all non-Fs API with an underscore for clarity, maybe compose better?
 	// TODO other data structures? what access patterns do we want to optimize for?
 	_files: Map<FsId, FsNode> = new Map();
@@ -31,9 +37,14 @@ export class MemoryFs extends Fs {
 		const nodes: FsNode[] = [];
 		const node = this._find(id);
 		if (!node || !node.isDirectory) return []; // TODO or throw?
-		const prefix = `${id}/`;
+		const prefix = id === '/' ? '/' : `${id}/`;
+		// TODO instead of searching the whole space, could have a better data structure
+		// TODO to search just children quickly, we need a better data structure
+		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `BaseBuildableFile`s)
 		for (const nodeId of this._files.keys()) {
-			if (!nodeId.startsWith(prefix)) continue;
+			if (!nodeId.startsWith(prefix) || id === nodeId) {
+				continue; // `id === nodeId` when value is `/` and it goes into an infinite loop
+			}
 			nodes.push(this._files.get(nodeId)!);
 		}
 		return nodes;
@@ -45,6 +56,7 @@ export class MemoryFs extends Fs {
 	}
 	_add(node: FsNode): void {
 		const pathParts = toPathParts(node.id);
+		pathParts.unshift('/'); // TODO hacky
 		// skip the last one, that's what's created above
 		for (let i = 0; i < pathParts.length - 1; i++) {
 			const pathPart = pathParts[i];
@@ -131,15 +143,19 @@ export class MemoryFs extends Fs {
 		}
 		this._remove(id); // remove children above first
 	};
-	// do the simple thing: remove+create (much simpler especially when caches get complex)
-	// TODO ? options?.limit
+	// doing the simple thing: copy+remove (much simpler especially when caches get complex)
 	move = async (srcPath: string, destPath: string, options?: FsMoveOptions): Promise<void> => {
 		const srcId = toFsId(srcPath);
 		await this.stat(srcId); // throws with the same error as `fs-extra` if it doesn't exist
+		await this.copy(srcId, destPath, {overwrite: options?.overwrite});
+		await this.remove(srcId);
+	};
+	copy = async (srcPath: string, destPath: string, options?: FsCopyOptions): Promise<void> => {
+		const srcId = toFsId(srcPath);
 		// first grab the nodes and delete the src
 		const srcNodes = this._filter(srcId);
 		srcNodes.push(this._find(srcId)!); // calling `stat` above so the assertion is safe
-		srcNodes.sort((a, b) => a.id.localeCompare(b.id)); // TODO do we need to do this elsewhere? maybe in `_filter`?
+		srcNodes.sort((a, b) => a.id.localeCompare(b.id)); // TODO do this elsewhere? maybe in `_filter`?
 		const destId = toFsId(destPath);
 		// create a new node at the new location
 		for (const srcNode of srcNodes) {
@@ -160,18 +176,6 @@ export class MemoryFs extends Fs {
 				await this.outputFile(nodeDestId, srcNode.contents, srcNode.encoding);
 			}
 		}
-		// TODO move this back up before removing srcNodes?
-		await this.remove(srcId);
-	};
-	copy = async (srcPath: string, destPath: string, options?: FsCopyOptions): Promise<void> => {
-		// TODO
-	};
-	readDir = async (path: string): Promise<string[]> => {
-		// TODO
-		return [];
-	};
-	emptyDir = async (path: string): Promise<void> => {
-		// TODO
 	};
 	ensureDir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
@@ -187,6 +191,16 @@ export class MemoryFs extends Fs {
 			stats,
 			path: toPathData(id, stats),
 		});
+	};
+	readDir = async (path: string): Promise<string[]> => {
+		// TODO use `_filter` - does it return relative? what behavior for missing, or file?
+		return [];
+	};
+	emptyDir = async (path: string): Promise<void> => {
+		const id = toFsId(path);
+		for (const node of this._filter(id)) {
+			await this.remove(node.id);
+		}
 	};
 	findFiles = async (
 		dir: string,
