@@ -23,6 +23,7 @@ export class MemoryFs extends Fs {
 	}
 	_update(id: FsId, node: FsNode): void {
 		// TODO should this merge? or always expect that upstream? or maybe `_merge`
+		// const existing = this._find(id);
 		this._files.set(id, node);
 	}
 	_add(node: FsNode): void {
@@ -43,6 +44,9 @@ export class MemoryFs extends Fs {
 				path: toPathData(pathPart, stats),
 			});
 		}
+	}
+	_remove(id: FsId): void {
+		this._files.delete(id);
 	}
 	// delete everything, a very safe and cool `rm -rf /`
 	_reset() {
@@ -100,7 +104,18 @@ export class MemoryFs extends Fs {
 		});
 	};
 	remove = async (path: string): Promise<void> => {
-		// TODO
+		const id = toFsId(path);
+		const file = this._find(id);
+		if (!file) return; // silent no-op like `fs-extra`
+		this._remove(id);
+		if (file.isDirectory) {
+			// TODO remove all that start with this
+			const pathPrefix = `${id}/`;
+			for (const nodeId of this._files.keys()) {
+				if (!nodeId.startsWith(pathPrefix)) continue;
+				await this.remove(nodeId);
+			}
+		}
 	};
 	move = async (src: string, dest: string, options?: FsMoveOptions): Promise<void> => {
 		// TODO
@@ -116,9 +131,8 @@ export class MemoryFs extends Fs {
 		// TODO
 	};
 	ensureDir = async (path: string): Promise<void> => {
-		if (await this.pathExists(path)) return;
-		// TODO normalize path
 		const id = toFsId(path);
+		if (this._find(path)) return;
 		const isDirectory = true;
 		const stats = new FsStats(isDirectory);
 		this._add({

@@ -26,23 +26,25 @@ const resetMemoryFs = ({fs}: SuiteContext) => {
 	fs._reset();
 };
 
+const fakeTsContents = 'export const a = 5;';
+
 /* test_outputFile */
 const test_outputFile = suite('outputFile', suiteContext);
 test_outputFile.before.each(resetMemoryFs);
 
-for (const path of testPaths) {
-	test_outputFile('basic behavior', async ({fs}) => {
+test_outputFile('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
 		t.is(fs._files.size, 0);
 		const contents = 'hi';
 		await fs.outputFile(path, contents, 'utf8');
 		t.ok(fs._files.size);
 		t.is(fs._find(toFsId(path))!.contents, contents);
 		fs._reset();
-	});
-}
+	}
+});
 
-for (const path of testPaths) {
-	test_outputFile(`updates an existing file: ${path}`, async ({fs}) => {
+test_outputFile('updates an existing file', async ({fs}) => {
+	for (const path of testPaths) {
 		t.is(fs._files.size, 0);
 		const contents1 = 'contents1';
 		await fs.outputFile(path, contents1, 'utf8');
@@ -54,8 +56,8 @@ for (const path of testPaths) {
 		t.is(fs._files.size, size); // count has not changed
 		t.is(fs._find(toFsId(path))!.contents, contents2);
 		fs._reset();
-	});
-}
+	}
+});
 
 // TODO test that it creates the in-between directories
 // this will break the `length` checks!! can use the new length checks to check segment creation
@@ -67,17 +69,17 @@ test_outputFile.run();
 const test_readFile = suite('readFile', suiteContext);
 test_readFile.before.each(resetMemoryFs);
 
-for (const path of testPaths) {
-	test_readFile('basic behavior', async ({fs}) => {
+test_readFile('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
 		const contents = 'contents';
 		await fs.outputFile(path, contents, 'utf8');
 		const found = await fs.readFile(path, 'utf8');
 		t.is(contents, found);
 		fs._reset();
-	});
-}
+	}
+});
 
-test_readFile('missing file', async ({fs}) => {
+test_readFile('missing file throws', async ({fs}) => {
 	// TODO async `t.throws` ? hmm
 	try {
 		fs._reset();
@@ -95,17 +97,17 @@ test_readFile.run();
 const test_readJson = suite('readJson', suiteContext);
 test_readJson.before.each(resetMemoryFs);
 
-for (const path of testPaths) {
-	test_readJson('basic behavior', async ({fs}) => {
+test_readJson('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
 		const contents = {contents: {deep: {1: 1}}};
 		await fs.outputFile(path, JSON.stringify(contents), 'utf8');
 		const found = await fs.readJson(path);
 		t.equal(contents, found);
 		fs._reset();
-	});
-}
+	}
+});
 
-test_readJson('missing file', async ({fs}) => {
+test_readJson('missing file throws', async ({fs}) => {
 	// TODO async `t.throws` ? hmm
 	try {
 		fs._reset();
@@ -119,20 +121,52 @@ test_readJson('missing file', async ({fs}) => {
 test_readJson.run();
 /* /test_readJson */
 
+/* test_remove */
+const test_remove = suite('remove', suiteContext);
+test_remove.before.each(resetMemoryFs);
+
+test_remove('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
+		await fs.outputFile(path, 'contents', 'utf8');
+		t.ok(await fs.pathExists(path));
+		await fs.remove(path);
+		t.ok(!(await fs.pathExists(path)));
+	}
+});
+
+test_remove('removes contained files and dirs', async ({fs}) => {
+	fs._reset();
+	const path = '/a/b/c';
+	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/c.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
+	t.is(fs._files.size, 9);
+	await fs.remove(`${path}/dir1`);
+	t.is(fs._files.size, 5);
+});
+
+test_remove('missing file fails silently', async ({fs}) => {
+	fs._reset();
+	await fs.remove('/missing/file');
+});
+
+test_remove.run();
+/* /test_remove */
+
 /* test_findFiles */
 const test_findFiles = suite('findFiles', suiteContext);
 test_findFiles.before.each(resetMemoryFs);
 
-for (const path of testPaths) {
-	test_findFiles('basic behavior', async ({fs}) => {
+test_findFiles('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
 		const contents = 'contents';
 		await fs.outputFile(path, contents, 'utf8');
 		const files = await fs.findFiles(path);
 		t.is(files.size, 1);
 		t.ok(files.has(toFsId(path)));
 		fs._reset();
-	});
-}
+	}
+});
 
 test_findFiles.run();
 /* /test_findFiles */
@@ -141,17 +175,17 @@ test_findFiles.run();
 const test_ensureDir = suite('ensureDir', suiteContext);
 test_ensureDir.before.each(resetMemoryFs);
 
-for (const path of testPaths) {
-	test_ensureDir('basic behavior', async ({fs}) => {
+test_ensureDir('basic behavior', async ({fs}) => {
+	for (const path of testPaths) {
 		t.ok(!(await fs.pathExists(path)));
 		await fs.ensureDir(path);
 		t.ok(await fs.pathExists(path));
 		fs._reset();
-	});
-}
+	}
+});
 
-for (const path of testPaths) {
-	test_ensureDir('normalize paths', async ({fs}) => {
+test_ensureDir('normalize paths', async ({fs}) => {
+	for (const path of testPaths) {
 		const testNormalizePaths = async (path1: string, path2: string) => {
 			t.ok(!(await fs.pathExists(path1)));
 			t.ok(!(await fs.pathExists(path2)));
@@ -165,8 +199,8 @@ for (const path of testPaths) {
 		// TODO maybe add a `stripLast` instead of this
 		const testPath2 = endsWithSlash ? stripEnd(path, '/') : `${path}/`;
 		await testNormalizePaths(endsWithSlash ? path : testPath2, endsWithSlash ? testPath2 : path);
-	});
-}
+	}
+});
 
 test_ensureDir.run();
 /* /test_ensureDir */

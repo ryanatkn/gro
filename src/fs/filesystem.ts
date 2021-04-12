@@ -107,8 +107,7 @@ export class FsStats implements PathStats {
 
 export type FsId = Flavored<string, 'FsId'>;
 
-// TODO improve and move
-// name? `toNormalPath`? `normalize`? `normalizePath`?
+// TODO probably needs to take a cwd param?
 export const toFsId = (path: string): FsId => stripEnd(path, '/');
 
 // TODO extract - how do they intersect with Filer types? and smaller interfaces like `PathData`?
