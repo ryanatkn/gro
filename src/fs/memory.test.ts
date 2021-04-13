@@ -264,20 +264,24 @@ test_copy('copies contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	await fs.outputFile(`${path}/dir1/a.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir1/b/c.ts`, fakeTsContents);
+	await fs.outputFile(`${path}/dir1/b/IGNORE.ts`, fakeTsContents);
 	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
-	t.is(fs._files.size, 10);
+	t.is(fs._files.size, 11);
 	const newPath = '/a/e';
-	await fs.copy(`${path}/dir1`, `${newPath}/dir1`); // TODO any special merge behavior?
+	await fs.copy(`${path}/dir1`, `${newPath}/dir1`, {filter: (id) => !id.endsWith('/IGNORE.ts')});
 	t.ok(fs._exists(`${newPath}/dir1`));
 	t.ok(fs._exists(`${newPath}/dir1/a.ts`));
 	t.ok(fs._exists(`${newPath}/dir1/b`));
 	t.ok(fs._exists(`${newPath}/dir1/b/c.ts`));
+	t.ok(!fs._exists(`${newPath}/dir1/b/IGNORE.ts`));
+	t.ok(!fs._exists(`${newPath}/dir2/d.ts`));
 	t.ok(fs._exists(`${path}/dir2/d.ts`));
 	t.ok(fs._exists(`${path}/dir1`));
 	t.ok(fs._exists(`${path}/dir1/a.ts`));
 	t.ok(fs._exists(`${path}/dir1/b`));
 	t.ok(fs._exists(`${path}/dir1/b/c.ts`));
-	t.is(fs._files.size, 15); // add the one new base dir
+	t.ok(fs._exists(`${path}/dir1/b/IGNORE.ts`));
+	t.is(fs._files.size, 16); // add the one new base dir
 });
 
 test_copy('handles copy conflict with overwrite false', async ({fs}) => {

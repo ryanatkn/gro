@@ -87,7 +87,7 @@ export interface FsCopyOptions {
 	overwrite?: boolean;
 	// preserveTimestamps?: boolean;
 	// errorOnExist?: boolean;
-	// filter?: FsCopyFilterSync | FsCopyFilterAsync;
+	filter?: FsCopyFilterSync | FsCopyFilterAsync;
 	// recursive?: boolean;
 }
 export interface FsMoveOptions {

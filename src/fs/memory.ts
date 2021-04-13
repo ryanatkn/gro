@@ -145,6 +145,8 @@ export class MemoryFs extends Fs {
 		await this.remove(srcId);
 	};
 	copy = async (srcPath: string, destPath: string, options?: FsCopyOptions): Promise<void> => {
+		const overwrite = options?.overwrite;
+		const filter = options?.filter;
 		const srcId = toFsId(srcPath);
 		// first grab the nodes and delete the src
 		const srcNodes = this._filter(srcId);
@@ -154,10 +156,11 @@ export class MemoryFs extends Fs {
 		// create a new node at the new location
 		for (const srcNode of srcNodes) {
 			const nodeDestId = `${destId === ROOT ? '' : destId}${stripStart(srcNode.id, srcId)}`;
+			if (filter && !filter(srcNode.id, nodeDestId)) continue;
 			const exists = this._files.has(nodeDestId);
 			let output = false;
 			if (exists) {
-				if (options?.overwrite) {
+				if (overwrite) {
 					await this.remove(nodeDestId);
 					output = true;
 				} else {
