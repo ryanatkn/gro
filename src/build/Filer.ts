@@ -989,7 +989,7 @@ const syncBuildFilesToDisk = async (
 	changes: BuildFileChange[],
 	log: Logger,
 ): Promise<void> => {
-	const {buildConfig} = changes[0]?.file;
+	const buildConfig = changes[0]?.file?.buildConfig;
 	const label = buildConfig ? printBuildConfigLabel(buildConfig) : '';
 	await Promise.all(
 		changes.map(async (change) => {
