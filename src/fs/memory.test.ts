@@ -268,7 +268,9 @@ test_copy('copies contained files and dirs', async ({fs}) => {
 	await fs.outputFile(`${path}/dir2/d.ts`, fakeTsContents);
 	t.is(fs._files.size, 11);
 	const newPath = '/a/e';
-	await fs.copy(`${path}/dir1`, `${newPath}/dir1`, {filter: (id) => !id.endsWith('/IGNORE.ts')});
+	await fs.copy(`${path}/dir1`, `${newPath}/dir1`, {
+		filter: (id) => Promise.resolve(!id.endsWith('/IGNORE.ts')),
+	});
 	t.ok(fs._exists(`${newPath}/dir1`));
 	t.ok(fs._exists(`${newPath}/dir1/a.ts`));
 	t.ok(fs._exists(`${newPath}/dir1/b`));
