@@ -75,6 +75,7 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const filer = new Filer({
 		fs,
 		dev,
+		buildDir: '/c/',
 		builder,
 		buildConfigs: [buildConfig],
 		sourceDirs: [rootId],
@@ -87,8 +88,16 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const entryFile = await filer.findByPath(entrypointFilename);
 	t.is(entryFile?.id, entryId);
 
-	console.log('fs._files.keys()', fs._files.keys());
-	t.is(fs._files.size, 12);
+	t.equal(Array.from(fs._files.keys()), [
+		'/',
+		'/a',
+		'/a/b',
+		'/a/b/src',
+		'/a/b/src/entrypoint.ts',
+		'/c',
+		'/c/src',
+		'/c/src/entrypoint.ts.json',
+	]);
 	t.ok(fs._files.has(entryId));
 
 	filer.close();
