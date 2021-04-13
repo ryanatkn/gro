@@ -90,7 +90,7 @@ export interface Options {
 	target: EcmaScriptTarget;
 	watch: boolean;
 	watcherDebounce: number | undefined;
-	filter: PathFilter | null | undefined;
+	filter: PathFilter | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -989,14 +989,14 @@ const syncBuildFilesToDisk = async (
 	changes: BuildFileChange[],
 	log: Logger,
 ): Promise<void> => {
-	const {buildConfig} = changes[0]?.file;
+	const buildConfig = changes[0]?.file?.buildConfig;
 	const label = buildConfig ? printBuildConfigLabel(buildConfig) : '';
 	await Promise.all(
 		changes.map(async (change) => {
 			const {file} = change;
 			let shouldOutputNewFile = false;
 			if (change.type === 'added') {
-				if (!(await fs.pathExists(file.id))) {
+				if (!(await fs.exists(file.id))) {
 					// log.trace(label, 'creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {
@@ -1126,7 +1126,7 @@ const createFilerDirs = (
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
-	filter: PathFilter | null | undefined,
+	filter: PathFilter | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {

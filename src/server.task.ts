@@ -38,7 +38,7 @@ export const task: Task<{}, TaskEvents> = {
 	description: 'start API server',
 	run: async ({fs, dev, events, log}) => {
 		const serverPath = toApiServerBuildPath(dev);
-		if (!(await fs.pathExists(serverPath))) {
+		if (!(await fs.exists(serverPath))) {
 			log.error(red('server path does not exist:'), serverPath);
 			throw Error(`API server failed to start due to missing file: ${serverPath}`);
 		}

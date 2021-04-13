@@ -66,7 +66,7 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 			// despite using `{skipSelf: true}`. So we manually resolve the id.
 			const resolvedId = resolve(dirname(importer), importee);
 			if (sortIndexById.has(resolvedId)) return resolvedId; // this doesn't account for import order changing while in watch mode
-			if (!(await fs.pathExists(resolvedId))) return null; // allow node imports like `normalize.css`
+			if (!(await fs.exists(resolvedId))) return null; // allow node imports like `normalize.css`
 			sortIndexById.set(resolvedId, currentSortIndex);
 			currentSortIndex++;
 			return resolvedId;

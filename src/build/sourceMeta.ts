@@ -72,8 +72,8 @@ export const updateSourceMeta = async (
 	// This is useful for debugging, but has false positives
 	// when source changes but output doesn't, like if comments get elided.
 	// if (
-	// 	(await pathExists(cacheId)) &&
-	// 	deepEqual(await readJson(cacheId), sourceMeta)
+	// 	(await fs.exists(cacheId)) &&
+	// 	deepEqual(JSON.parse(await readFile(cacheId, 'utf8')), sourceMeta)
 	// ) {
 	// 	console.log(
 	// 		'wasted build detected! unchanged file was built and identical source meta written to disk: ' +
@@ -109,13 +109,13 @@ export const initSourceMeta = async ({
 	buildDir,
 }: BuildContext): Promise<void> => {
 	const sourceMetaDir = toSourceMetaDir(buildDir);
-	if (!(await fs.pathExists(sourceMetaDir))) return;
+	if (!(await fs.exists(sourceMetaDir))) return;
 	const files = await fs.findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(
 		Array.from(files.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
 			const cacheId = `${sourceMetaDir}/${path}`;
-			const data: SourceMetaData = await fs.readJson(cacheId);
+			const data: SourceMetaData = JSON.parse(await fs.readFile(cacheId, 'utf8'));
 			sourceMetaById.set(data.sourceId, {cacheId, data});
 		}),
 	);

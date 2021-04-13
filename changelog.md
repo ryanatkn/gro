@@ -1,5 +1,17 @@
 # Gro changelog
 
+## 0.20.0
+
+- **break**: rework the `Filesystem` interfaces
+  ([#173](https://github.com/feltcoop/gro/pull/173))
+  - export a `fs` instance from each `Filesystem` implementation
+    and do not export individual functions
+  - rename `pathExists` to `exists`
+  - remove `readJson`
+- add abstract class `Fs` and implement `MemoryFs`
+  to complement the `fs-extra` implementation at `src/fs/node.ts`
+  ([#173](https://github.com/feltcoop/gro/pull/173))
+
 ## 0.19.0
 
 - **break**: extract the `Filesystem` interface and

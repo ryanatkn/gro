@@ -8,20 +8,30 @@ const test_sortMap = suite('sortMap');
 
 test_sortMap('basic behavior', () => {
 	t.equal(
-		sortMap(
-			new Map([
-				['d', 1],
-				['a', 1],
-				['c', 1],
-				['b', 1],
-			]),
+		Array.from(
+			sortMap(
+				new Map([
+					['A', 1],
+					['B', 1],
+					['C', 1],
+					['d', 1],
+					['a', 1],
+					['c', 1],
+					['b', 1],
+				]),
+			).keys(),
 		),
-		new Map([
-			['a', 1],
-			['b', 1],
-			['c', 1],
-			['d', 1],
-		]),
+		Array.from(
+			new Map([
+				['a', 1],
+				['A', 1],
+				['b', 1],
+				['B', 1],
+				['c', 1],
+				['C', 1],
+				['d', 1],
+			]).keys(),
+		),
 	);
 });
 

@@ -54,7 +54,7 @@ export const resolveInputFiles = async (
 	(
 		await Promise.all(
 			buildConfig.input.map(async (input) =>
-				typeof input === 'string' && (await fs.pathExists(input)) ? input : null!,
+				typeof input === 'string' && (await fs.exists(input)) ? input : null!,
 			),
 		)
 	).filter(Boolean);

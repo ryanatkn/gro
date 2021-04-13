@@ -98,7 +98,7 @@ export const getPossibleSourceIds = (
 Gets the path data for each input path,
 searching for the possibilities based on `extensions`
 and stopping at the first match.
-Parameterized by `pathExists` and `stat` so it's fs-agnostic.
+Parameterized by `exists` and `stat` so it's fs-agnostic.
 
 */
 export const loadSourcePathDataByInputPath = async (
@@ -118,7 +118,7 @@ export const loadSourcePathDataByInputPath = async (
 			? getPossibleSourceIdsForInputPath(inputPath)
 			: [inputPath];
 		for (const possibleSourceId of possibleSourceIds) {
-			if (!(await fs.pathExists(possibleSourceId))) continue;
+			if (!(await fs.exists(possibleSourceId))) continue;
 			const stats = await fs.stat(possibleSourceId);
 			if (stats.isDirectory()) {
 				if (!dirPathData) {

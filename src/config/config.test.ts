@@ -2,10 +2,10 @@ import {test} from 'uvu';
 import * as t from 'uvu/assert';
 
 import {loadGroConfig} from './config.js';
-import {nodeFilesystem} from '../fs/node.js';
+import {fs} from '../fs/node.js';
 
 test('loadGroConfig', async () => {
-	const config = await loadGroConfig(nodeFilesystem, true);
+	const config = await loadGroConfig(fs, true);
 	t.ok(config);
 });
 

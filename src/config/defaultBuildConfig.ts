@@ -32,8 +32,7 @@ export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
 export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
-export const hasApiServer = (fs: Filesystem): Promise<boolean> =>
-	fs.pathExists(API_SERVER_SOURCE_ID);
+export const hasApiServer = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
 		(b) =>
@@ -74,4 +73,4 @@ export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): Build
 const toDefaultAssetPaths = (): string[] => Array.from(getExtensions());
 
 const everyPathExists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
-	(await Promise.all(paths.map((path) => fs.pathExists(path)))).every((v) => !!v);
+	(await Promise.all(paths.map((path) => fs.exists(path)))).every((v) => !!v);

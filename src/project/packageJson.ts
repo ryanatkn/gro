@@ -27,7 +27,7 @@ export const loadPackageJson = async (
 ): Promise<PackageJson> => {
 	if (isThisProjectGro) return loadGroPackageJson(fs, forceRefresh);
 	if (!packageJson || forceRefresh) {
-		packageJson = await fs.readJson(join(paths.root, 'package.json'));
+		packageJson = JSON.parse(await fs.readFile(join(paths.root, 'package.json'), 'utf8'));
 	}
 	return packageJson!;
 };
@@ -36,7 +36,7 @@ export const loadGroPackageJson = async (
 	forceRefresh = false,
 ): Promise<GroPackageJson> => {
 	if (!groPackageJson || forceRefresh) {
-		groPackageJson = await fs.readJson(join(groPaths.root, 'package.json'));
+		groPackageJson = JSON.parse(await fs.readFile(join(groPaths.root, 'package.json'), 'utf8'));
 	}
 	return groPackageJson!;
 };
