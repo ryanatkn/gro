@@ -4,6 +4,8 @@ import * as t from 'uvu/assert';
 import {Filer} from './Filer.js';
 import {fs as memoryFs} from '../fs/memory.js';
 import type {MemoryFs} from '../fs/memory.js';
+import type {Builder} from './builder.js';
+import type {BuildConfig} from '../config/buildConfig.js';
 
 interface SuiteContext {
 	fs: MemoryFs;
@@ -17,7 +19,6 @@ test_Filer.before.each(resetMemoryFs);
 
 test_Filer('basic serve usage', async ({fs}) => {
 	const dev = true;
-	fs._reset();
 
 	const aId = '/served/a.html';
 	const bId = '/served/b.svelte';
@@ -52,30 +53,45 @@ test_Filer('basic serve usage', async ({fs}) => {
 	filer.close();
 });
 
-// TODO this is broken
-// test_Filer('basic build usage', async ({fs}) => {
-// 	const dev = true;
-// 	fs._reset();
-// const buildConfig: BuildConfig = {
-//   name: 'test_build_config',
-//   platform: 'node',
-//   primary: true,
-//   dist: false,
-//   input: ['entrypoint.ts'],
-// };
-// 	const filer = new Filer({
-// 		fs,
-// 		dev,
-// 		builder: createDefaultBuilder(),
-// 		sourceDirs: [paths.source],
-// 		buildConfigs: [buildConfig],
-// 		watch: false,
-// 	});
-// 	t.ok(filer);
-// 	await filer.init();
-// 	t.ok(fs._files.size);
-// 	filer.close();
-// });
+test_Filer('basic build usage with no watch', async ({fs}) => {
+	const dev = true;
+	// TODO add a TypeScript file with a dependency
+	const rootId = '/a/b/src';
+	const entrypointFilename = 'entrypoint.ts';
+	const entryId = `${rootId}/${entrypointFilename}`;
+	fs.outputFile(entryId, 'export const a: number = 5;', 'utf8');
+	const buildConfig: BuildConfig = {
+		name: 'test_build_config',
+		platform: 'node',
+		primary: true,
+		dist: false,
+		input: [entryId],
+	};
+	const builder: Builder = {
+		build(_source, _buildConfig, _ctx) {
+			return {builds: []}; // TODO return a file and verify it below
+		},
+	};
+	const filer = new Filer({
+		fs,
+		dev,
+		builder,
+		buildConfigs: [buildConfig],
+		sourceDirs: [rootId],
+		servedDirs: [rootId], // normally gets served out of the Gro build dirs, but we override
+		watch: false,
+	});
+	t.ok(filer);
+	await filer.init();
+
+	const entryFile = await filer.findByPath(entrypointFilename);
+	t.is(entryFile?.id, entryId);
+
+	t.is(fs._files.size, 12);
+	t.ok(fs._files.has(entryId));
+
+	filer.close();
+});
 
 // TODO more tests
 
