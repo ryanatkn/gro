@@ -10,7 +10,6 @@ export interface Filesystem {
 	stat: FsStat;
 	exists: FsExists;
 	readFile: FsReadFile;
-	readJson: FsReadJson;
 	outputFile: FsOutputFile;
 	remove: FsRemove;
 	move: FsMove;
@@ -32,9 +31,6 @@ export interface FsReadFile {
 	(path: string, encoding: 'utf8'): Promise<string>;
 	(path: string, encoding: null): Promise<Buffer>;
 	(path: string, encoding?: Encoding): Promise<Buffer | string>;
-}
-export interface FsReadJson {
-	(path: string): Promise<any>;
 }
 export interface FsOutputFile {
 	(path: string, data: any, encoding?: Encoding): Promise<void>;
@@ -70,7 +66,6 @@ export abstract class Fs implements Filesystem {
 	abstract stat: FsStat;
 	abstract exists: FsExists;
 	abstract readFile: FsReadFile;
-	abstract readJson: FsReadJson;
 	abstract outputFile: FsOutputFile;
 	abstract remove: FsRemove;
 	abstract move: FsMove;

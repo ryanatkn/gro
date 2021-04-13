@@ -99,10 +99,6 @@ export class MemoryFs extends Fs {
 		}
 		return file.contents || '';
 	};
-	readJson = async (path: string): Promise<any> => {
-		const contents = await this.readFile(path, 'utf8');
-		return JSON.parse(contents);
-	};
 	outputFile = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
 		const id = toFsId(path);
 

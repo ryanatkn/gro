@@ -97,34 +97,6 @@ test_readFile('missing file throws', async ({fs}) => {
 test_readFile.run();
 /* /test_readFile */
 
-/* test_readJson */
-const test_readJson = suite('readJson', suiteContext);
-test_readJson.before.each(resetMemoryFs);
-
-test_readJson('basic behavior', async ({fs}) => {
-	for (const path of testPaths) {
-		fs._reset();
-		const contents = {contents: {deep: {1: 1}}};
-		await fs.outputFile(path, JSON.stringify(contents), 'utf8');
-		const found = await fs.readJson(path);
-		t.equal(contents, found);
-	}
-});
-
-test_readJson('missing file throws', async ({fs}) => {
-	// TODO async `t.throws` or `t.rejects` ?
-	try {
-		fs._reset();
-		await fs.readJson('/missing/file');
-	} catch (err) {
-		return;
-	}
-	throw Error();
-});
-
-test_readJson.run();
-/* /test_readJson */
-
 /* test_remove */
 const test_remove = suite('remove', suiteContext);
 test_remove.before.each(resetMemoryFs);

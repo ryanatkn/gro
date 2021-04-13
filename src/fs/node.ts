@@ -31,7 +31,6 @@ export const fs: Filesystem = {
 	stat: fsExtra.stat,
 	exists: fsExtra.pathExists,
 	readFile: fsExtra.readFile,
-	readJson: fsExtra.readJson,
 	outputFile: fsExtra.outputFile as FsOutputFile, // TODO incompatible encodings: is this an actual problem? or is `fs-extra` mistyped? test with `null`
 	remove: fsExtra.remove,
 	move: fsExtra.move,

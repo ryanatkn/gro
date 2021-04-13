@@ -84,7 +84,7 @@ export const loadImportMapFromDisk = async (
 ): Promise<ImportMap | undefined> => {
 	const importMapPath = toImportMapPath(dest);
 	if (!(await fs.exists(importMapPath))) return undefined;
-	const importMap: ImportMap = await fs.readJson(importMapPath);
+	const importMap: ImportMap = JSON.parse(await fs.readFile(importMapPath, 'utf8'));
 	return importMap;
 };
 
