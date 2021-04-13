@@ -90,7 +90,7 @@ export interface Options {
 	target: EcmaScriptTarget;
 	watch: boolean;
 	watcherDebounce: number | undefined;
-	filter: PathFilter | null | undefined;
+	filter: PathFilter | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
@@ -1126,7 +1126,7 @@ const createFilerDirs = (
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
-	filter: PathFilter | null | undefined,
+	filter: PathFilter | undefined,
 ): FilerDir[] => {
 	const dirs: FilerDir[] = [];
 	for (const sourceDir of sourceDirs) {

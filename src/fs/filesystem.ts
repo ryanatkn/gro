@@ -109,7 +109,7 @@ export type FsId = Flavored<string, 'FsId'>;
 // The `resolve` looks magic and hardcoded - it's matching how `fs` and `fs-extra` resolve paths.
 export const toFsId = (path: string): FsId => resolve(path);
 
-// TODO extract - how do they intersect with Filer types? and smaller interfaces like `PathData`?
+// TODO extract these? - how do they intersect with Filer types? and smaller interfaces like `PathData`?
 export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;
 
 // TODO should we use `BaseFilerFile` here?

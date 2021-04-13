@@ -3,6 +3,7 @@ import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import type {PathStats} from '../fs/pathData.js';
 import type {PathFilter} from '../fs/pathFilter.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import {noop} from '../utils/function.js';
 
 // Buildable filer dirs are watched, built, and written to disk.
 // For non-buildable dirs, the `dir` is only watched and nothing is written to the filesystem.
@@ -13,13 +14,13 @@ export interface BuildableFilerDir extends BaseFilerDir {
 export interface NonBuildableFilerDir extends BaseFilerDir {
 	readonly buildable: false;
 }
-
 interface BaseFilerDir {
 	readonly dir: string;
-	readonly watcher: WatchNodeFs;
+	readonly buildable: boolean;
 	readonly onChange: FilerDirChangeCallback;
-	readonly close: () => void;
 	readonly init: () => Promise<void>;
+	readonly close: () => void;
+	readonly watcher: WatchNodeFs | null;
 }
 
 export interface FilerDirChange {
@@ -37,28 +38,42 @@ export const createFilerDir = (
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
-	filter: PathFilter | null | undefined,
+	filter: PathFilter | undefined,
 ): FilerDir => {
-	// TODO abstract this from the Node filesystem
-	const watcher = watchNodeFs({
-		dir,
-		onChange: (change) => onChange(change, filerDir),
-		watch,
-		debounce: watcherDebounce,
-		filter,
-	});
-	const close = () => {
-		watcher.close();
-	};
-	const init = async () => {
-		await fs.ensureDir(dir);
-		const statsBySourcePath = await watcher.init();
-		await Promise.all(
-			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-				stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
-			),
-		);
-	};
-	const filerDir: FilerDir = {buildable, dir, onChange, watcher, close, init};
-	return filerDir;
+	if (watch) {
+		// TODO abstract this from the Node filesystem
+		const watcher = watchNodeFs({
+			dir,
+			onChange: (change) => onChange(change, filerDir),
+			watch,
+			debounce: watcherDebounce,
+			filter,
+		});
+		const close = () => {
+			watcher.close();
+		};
+		const init = async () => {
+			await fs.ensureDir(dir);
+			const statsBySourcePath = await watcher.init();
+			await Promise.all(
+				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
+					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+				),
+			);
+		};
+		const filerDir: FilerDir = {buildable, dir, onChange, init, close, watcher};
+		return filerDir;
+	} else {
+		const init = async () => {
+			await fs.ensureDir(dir);
+			const statsBySourcePath = await fs.findFiles(dir, filter);
+			await Promise.all(
+				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
+					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+				),
+			);
+		};
+		const filerDir: FilerDir = {buildable, dir, onChange, init, close: noop, watcher: null};
+		return filerDir;
+	}
 };

@@ -19,10 +19,13 @@ test_Filer('basic serve usage', async ({fs}) => {
 	const dev = true;
 	fs._reset();
 
-	fs.outputFile('/served/a.html', 'a', 'utf8');
-	fs.outputFile('/served/b.svelte', 'b', 'utf8');
-	fs.outputFile('/served/c.svelte.md', 'c', 'utf8');
-	console.log('fs._files', fs._files);
+	const aId = '/served/a.html';
+	const bId = '/served/b.svelte';
+	const cId = '/served/c/c.svelte.md';
+
+	fs.outputFile(aId, 'a', 'utf8');
+	fs.outputFile(bId, 'b', 'utf8');
+	fs.outputFile(cId, 'c', 'utf8');
 
 	const filer = new Filer({
 		fs,
@@ -32,12 +35,21 @@ test_Filer('basic serve usage', async ({fs}) => {
 	});
 	t.ok(filer);
 
-	// TODO make this work
-	// await filer.init();
-	// TODO make sure the fs contains and filer loaded what we'd expect from the config (query both exhaustively for internal state)
-	t.ok(fs._files.size);
+	await filer.init();
 
-	// filer.close();
+	const a = await filer.findByPath('a.html');
+	t.is(a?.id, aId);
+	const b = await filer.findByPath('b.svelte');
+	t.is(b?.id, bId);
+	const c = await filer.findByPath('c/c.svelte.md');
+	t.is(c?.id, cId);
+
+	t.is(fs._files.size, 6);
+	t.ok(fs._files.has(aId));
+	t.ok(fs._files.has(bId));
+	t.ok(fs._files.has(cId));
+
+	filer.close();
 });
 
 // TODO this is broken
