@@ -87,6 +87,7 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const entryFile = await filer.findByPath(entrypointFilename);
 	t.is(entryFile?.id, entryId);
 
+	console.log('fs._files.keys()', fs._files.keys());
 	t.is(fs._files.size, 12);
 	t.ok(fs._files.has(entryId));
 
