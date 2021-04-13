@@ -103,7 +103,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			log.info('installing externals', buildState.specifiers);
 			installResult = await install(Array.from(buildState.specifiers), {
 				dest,
-				rollup: {plugins},
+				rollup: {plugins} as any, // TODO type problem with esinstall and rollup
 				polyfillNode: true, // needed for some libs - maybe make customizable?
 				alias: externalsAliases,
 			});
