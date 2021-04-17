@@ -29,7 +29,8 @@ export const task: Task = {
 			}),
 		);
 
-		// TODO this fixes the npm 7 linking issue, but it probably should be fixed a different way
+		// TODO this fixes the npm 7 linking issue, but it probably should be fixed a different way.
+		// Why is this needed here but not when we call `npm run bootstrap` and get esbuild outputs?
 		const chmodResult = await spawnProcess('chmod', ['+x', 'dist/cli/gro.js']);
 		if (!chmodResult.ok) log.error(`CLI chmod failed with code ${chmodResult.code}`);
 
