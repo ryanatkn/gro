@@ -1,5 +1,11 @@
 # Gro changelog
 
+## 0.20.1
+
+- upgrade to npm 7 and its v2 lockfile
+  ([#174](https://github.com/feltcoop/gro/pull/174),
+  [#175](https://github.com/feltcoop/gro/pull/175))
+
 ## 0.20.0
 
 - **break**: rework the `Filesystem` interfaces
