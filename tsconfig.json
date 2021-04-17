@@ -15,7 +15,7 @@
     // "allowJs": false, // Allow javascript files to be compiled.
     // "checkJs": false, // Report errors in .js files.
     // "outFile": "./", // Concatenate and emit output to single file.
-    "outDir": "dist", // Redirect output structure to the directory.
+    "outDir": ".gro/prod/node", // Redirect output structure to the directory.
     "rootDir": "src", // Specify the root directory of input files. Use to control the output directory structure with `--outDir`.
     // "project": "", // Compile a project given a valid configuration file.
 

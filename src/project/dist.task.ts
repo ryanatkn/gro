@@ -22,10 +22,7 @@ export const task: Task = {
 						? paths.dist
 						: `${paths.dist}${printBuildConfig(buildConfig)}`;
 				log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);
-				return fs.copy(buildOutDir, distOutDir, {
-					overwrite: false, // let the TypeScript output take priority, but allow other files like Svelte
-					filter: (id) => isDistFile(id),
-				});
+				return fs.copy(buildOutDir, distOutDir, {filter: (src) => isDistFile(src)});
 			}),
 		);
 
