@@ -419,11 +419,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 		const deleted = sourceFile.buildConfigs.delete(buildConfig);
 		if (!deleted) {
-			throw Error(`Expected to delete buildConfig ${buildConfig}: ${sourceFile.id}`);
+			throw Error(`Expected to delete buildConfig ${buildConfig.name}: ${sourceFile.id}`);
 		}
 		const deletedBuildFiles = sourceFile.buildFiles.delete(buildConfig);
 		if (!deletedBuildFiles) {
-			throw Error(`Expected to delete build files ${buildConfig}: ${sourceFile.id}`);
+			throw Error(`Expected to delete build files ${buildConfig.name}: ${sourceFile.id}`);
 		}
 		sourceFile.dependencies.delete(buildConfig);
 		sourceFile.dependents.delete(buildConfig);
