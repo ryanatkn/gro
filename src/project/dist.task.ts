@@ -4,6 +4,7 @@ import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
 import {printPath} from '../utils/print.js';
 import {loadGroConfig} from '../config/config.js';
 import {printBuildConfig} from '../config/buildConfig.js';
+import {spawnProcess} from '../utils/process.js';
 
 export const task: Task = {
 	description: 'create and link the distribution',
@@ -27,6 +28,10 @@ export const task: Task = {
 				});
 			}),
 		);
+
+		// TODO this fixes the npm 7 linking issue, but it probably should be fixed a different way
+		const chmodResult = await spawnProcess('chmod', ['+x', 'dist/cli/gro.js']);
+		if (!chmodResult.ok) log.error(`CLI chmod failed with code ${chmodResult.code}`);
 
 		await invokeTask('project/link');
 	},
