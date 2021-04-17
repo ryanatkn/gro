@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.20.2
+
+- refactor Gro's production build
+  ([#176](https://github.com/feltcoop/gro/pull/176))
+
 ## 0.20.1
 
 - upgrade to npm 7 and its v2 lockfile
