@@ -8,9 +8,6 @@ import {stripEnd} from '../utils/string.js';
 import {toPathParts} from '../utils/path.js';
 import {toRootPath} from '../paths.js';
 
-// TODO reset the fs between calls, or suites, or something
-// having a fresh one each time seems really useful to see the totality of what e.g. the Filer is doing
-
 // TODO organize these test suites better
 // TODO generic fs test suite
 
