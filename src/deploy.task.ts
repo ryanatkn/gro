@@ -27,6 +27,7 @@ const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 const DEPLOY_BRANCH = 'deploy';
 const INITIAL_FILE = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
+const GIT_ARGS = {cwd: WORKTREE_DIR};
 
 export const task: Task<TaskArgs> = {
 	description: 'deploy to static hosting',
@@ -102,6 +103,13 @@ export const task: Task<TaskArgs> = {
 		try {
 			// Set up the deployment worktree in the dist directory.
 			await spawnProcess('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
+			// Pull the remote deploy branch.
+			const gitPullResult = await spawnProcess('git', ['pull', 'origin', DEPLOY_BRANCH], GIT_ARGS);
+			if (!gitPullResult.ok) {
+				log.error(red(`failed git pull in deploy branch with exit code ${gitPullResult.code}`));
+				await cleanGitWorktree();
+				return;
+			}
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
@@ -117,10 +125,9 @@ export const task: Task<TaskArgs> = {
 				),
 			);
 			// commit the changes
-			const gitArgs = {cwd: WORKTREE_DIR};
-			await spawnProcess('git', ['add', '.', '-f'], gitArgs);
-			await spawnProcess('git', ['commit', '-m', 'deployment'], gitArgs);
-			await spawnProcess('git', ['push', 'origin', DEPLOY_BRANCH], gitArgs);
+			await spawnProcess('git', ['add', '.', '-f'], GIT_ARGS);
+			await spawnProcess('git', ['commit', '-m', 'deployment'], GIT_ARGS);
+			await spawnProcess('git', ['push', 'origin', DEPLOY_BRANCH], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
 			await cleanGitWorktree();
