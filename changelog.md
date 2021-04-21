@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.20.3
+
+- fix production builds
+  ([#177](https://github.com/feltcoop/gro/pull/177))
+
 ## 0.20.2
 
 - refactor Gro's production build

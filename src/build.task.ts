@@ -134,7 +134,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					return;
 				}
 				const outputDir = `${DIST_DIR}${toBuildExtension(
-					sourceIdToBasePath(toCommonBaseDir(inputFiles)),
+					sourceIdToBasePath(toCommonBaseDir(inputFiles) + '/'), // TODO refactor when fixing the trailing `/`
 				)}`;
 				log.info('building', printBuildConfigLabel(buildConfig), outputDir, inputFiles);
 				const build = createBuild({
