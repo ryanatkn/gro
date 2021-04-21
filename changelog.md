@@ -2,7 +2,7 @@
 
 ## 0.20.3
 
-- fix deprecated static builds
+- fix production builds
   ([#177](https://github.com/feltcoop/gro/pull/177))
 
 ## 0.20.2
