@@ -21,7 +21,7 @@ So Gro sits in a pre-alpha limbo. For other reasons too -
 things may change dramatically and I don't want the friction of breaking external users.
 I value your time too!!
 
-All that said: if you draw inside its lines, Gro is a good development tool today IMO.
+All that said: **if you draw inside its lines, Gro is a good development tool today _IMO_**.
 I am happy to take contributions in any form,
 but please open [issues](https://github.com/feltcoop/gro/issues)
 before attempting work that you expect to be merged. We all value each others' time.
