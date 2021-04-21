@@ -59,3 +59,6 @@ Gro offers a `gro version` task that passes through its args directly to
 It builds, bumps the version, publishes to npm, and syncs commits and tags to GitHub.
 When stable, it will properly roll back if something goes wrong at any step.
 Currently it's not stable. You may need to `git reset --hard` version commits if things go wrong.
+
+> note: if `npm publish` fails during `gro version`, nothing else should be affected;
+> continue manually with `npm publish` (usually fails because you need to `npm adduser`)
