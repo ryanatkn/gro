@@ -79,9 +79,9 @@ export abstract class Fs implements Filesystem {
 // TODO try to implement some of these
 export interface FsCopyOptions {
 	// dereference?: boolean;
-	overwrite?: boolean;
+	overwrite?: boolean; // defaults to `true`
 	// preserveTimestamps?: boolean;
-	// errorOnExist?: boolean;
+	// errorOnExist?: boolean; // TODO implement this
 	filter?: FsCopyFilterSync | FsCopyFilterAsync;
 	// recursive?: boolean;
 }

@@ -1,10 +1,8 @@
 import type {Task} from '../task/task.js';
-import {paths, toBuildOutPath} from '../paths.js';
 import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
-import {printPath} from '../utils/print.js';
 import {loadGroConfig} from '../config/config.js';
-import {printBuildConfig} from '../config/buildConfig.js';
 import {spawnProcess} from '../utils/process.js';
+import {copyDist} from '../build/dist.js';
 
 export const task: Task = {
 	description: 'create and link the distribution',
@@ -13,17 +11,9 @@ export const task: Task = {
 		// This reads the `dist` flag on the build configs to help construct the final dist directory.
 		// See the docs at `./docs/config.md`.
 		const config = await loadGroConfig(fs, dev);
-		const buildConfigsForDist = config.builds.filter((b) => b.dist);
+		const distCount = config.builds.filter((b) => b.dist).length;
 		await Promise.all(
-			buildConfigsForDist.map((buildConfig) => {
-				const buildOutDir = toBuildOutPath(dev, buildConfig.name);
-				const distOutDir =
-					buildConfigsForDist.length === 1
-						? paths.dist
-						: `${paths.dist}${printBuildConfig(buildConfig)}`;
-				log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);
-				return fs.copy(buildOutDir, distOutDir, {filter: (src) => isDistFile(src)});
-			}),
+			config.builds.map((buildConfig) => copyDist(fs, buildConfig, dev, distCount, log)),
 		);
 
 		// TODO this fixes the npm 7 linking issue, but it probably should be fixed a different way.

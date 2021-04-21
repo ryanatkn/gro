@@ -20,8 +20,10 @@ import {hasApiServerConfig, hasSvelteKitFrontend} from './config/defaultBuildCon
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {toCommonBaseDir} from './utils/path.js';
-import {clean} from './fs/clean.js';
 import {printBuildConfigLabel} from './config/buildConfig.js';
+import {ensureEnd} from './utils/string.js';
+import {clean} from './fs/clean.js';
+import {copyDist} from './build/dist.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
 
@@ -126,6 +128,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// If more customization is needed, users should implement their own `src/build.task.ts`,
 		// which can be bootstrapped by copy/pasting this one. (and updating the imports)
 		const timingToBuild = timings.start('build');
+		const distCount = config.builds.filter((b) => b.dist).length;
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
 				const inputFiles = await resolveInputFiles(fs, buildConfig);
@@ -134,7 +137,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					return;
 				}
 				const outputDir = `${DIST_DIR}${toBuildExtension(
-					sourceIdToBasePath(toCommonBaseDir(inputFiles) + '/'), // TODO refactor when fixing the trailing `/`
+					sourceIdToBasePath(ensureEnd(toCommonBaseDir(inputFiles), '/')), // TODO refactor when fixing the trailing `/`
 				)}`;
 				log.info('building', printBuildConfigLabel(buildConfig), outputDir, inputFiles);
 				const build = createBuild({
@@ -150,7 +153,9 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				});
 				await build.promise;
 
-				// TODO copy static files
+				// copy static files into `dist/`
+				// if (buildConfig.dist) { // TODO should we guard like this or just do that inside `copyDist`?
+				await copyDist(fs, buildConfig, dev, distCount, log);
 			}),
 		);
 		timingToBuild();
