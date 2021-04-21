@@ -1,6 +1,6 @@
 # Gro changelog
 
-## 0.20.3
+## 0.20.4
 
 - fix `gro deploy` to first pull the remote deploy branch
   ([#178](https://github.com/feltcoop/gro/pull/178))
