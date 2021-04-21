@@ -58,3 +58,12 @@ export const resolveInputFiles = async (
 			),
 		)
 	).filter(Boolean);
+
+export const isInputToBuildConfig = (id: string, buildConfig: BuildConfig): boolean => {
+	for (const input of buildConfig.input) {
+		if (typeof input === 'string' ? id === input : input(id)) {
+			return true;
+		}
+	}
+	return false;
+};
