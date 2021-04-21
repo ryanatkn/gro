@@ -149,6 +149,8 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					esbuildOptions,
 				});
 				await build.promise;
+
+				// TODO copy static files
 			}),
 		);
 		timingToBuild();
