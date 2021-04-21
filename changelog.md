@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.20.5
+
+- fix `gro build` to copy files to `dist/`
+  ([#179](https://github.com/feltcoop/gro/pull/179))
+
 ## 0.20.4
 
 - fix `gro deploy` to first pull the remote deploy branch
