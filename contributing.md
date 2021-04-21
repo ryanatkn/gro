@@ -21,6 +21,11 @@ So Gro sits in a pre-alpha limbo. For other reasons too -
 things may change dramatically and I don't want the friction of breaking external users.
 I value your time too!!
 
+All that said: if you draw inside its lines, Gro is a good development tool today IMO.
+I am happy to take contributions in any form,
+but please open [issues](https://github.com/feltcoop/gro/issues)
+before attempting work that you expect to be merged. We all value each others' time.
+
 Also, Gro can't work for everyone's needs and still be Gro.
 I'm trying to make it flexible, and I welcome pointers
 on improving the usefulness of the software gracefully,
@@ -40,5 +45,6 @@ In summary, this free software is
 I guess is what I'm saying.
 I hope it's not free as in mattress... that's not the software I want to dump on the world.
 
-I'm definitely interested in discussing Gro.
+I'm always interested in discussing Gro,
+and I'd be happy to dicusss
 Open [issues](https://github.com/feltcoop/gro/issues)!
