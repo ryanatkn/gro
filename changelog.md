@@ -2,7 +2,7 @@
 
 ## 0.20.5
 
-- fix `gro build` to copy files to `dist/`
+- fix `gro build` to copy files to `dist/` with `src/build/dist.ts` helper
   ([#179](https://github.com/feltcoop/gro/pull/179))
 
 ## 0.20.4
