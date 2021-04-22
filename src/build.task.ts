@@ -153,8 +153,8 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				});
 				await build.promise;
 
-				// copy static files into `dist/`
-				// if (buildConfig.dist) { // TODO should we guard like this or just do that inside `copyDist`?
+				// TODO might need to be refactored
+				// copy static prod files into `dist/`
 				await copyDist(fs, buildConfig, dev, distCount, log);
 			}),
 		);
