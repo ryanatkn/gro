@@ -6,7 +6,7 @@ import type StrictEventEmitter from 'strict-event-emitter-types';
 import type {Filesystem} from '../fs/filesystem.js';
 import {createFilerDir} from '../build/FilerDir.js';
 import type {FilerDir, FilerDirChangeCallback} from '../build/FilerDir.js';
-import {mapDependencyToSourceId} from './utils.js';
+import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
 import type {MapDependencyToSourceId} from './utils.js';
 import {EXTERNALS_BUILD_DIR_ROOT_PREFIX, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
 import {nulls, omitUndefined} from '../utils/object.js';
@@ -526,7 +526,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		let inputBuildConfigs: Set<BuildConfig> | null = null;
 		for (const buildConfig of this.buildConfigs) {
-			if (isInputToBuildConfig(file, buildConfig)) {
+			if (isInputToBuildConfig(file.id, buildConfig.input)) {
 				(inputBuildConfigs || (inputBuildConfigs = new Set())).add(buildConfig);
 				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, true));
 			}
@@ -817,7 +817,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 							this.addSourceFileToBuild(
 								addedSourceFile as BuildableSourceFile,
 								buildConfig,
-								isInputToBuildConfig(addedSourceFile as BuildableSourceFile, buildConfig),
+								isInputToBuildConfig(addedSourceFile.id, buildConfig.input),
 							),
 						);
 					}
@@ -1150,18 +1150,6 @@ const createFilerDirs = (
 		}
 	}
 	return dirs;
-};
-
-const isInputToBuildConfig = (
-	sourceFile: BuildableSourceFile,
-	buildConfig: BuildConfig,
-): boolean => {
-	for (const input of buildConfig.input) {
-		if (typeof input === 'string' ? sourceFile.id === input : input(sourceFile.id)) {
-			return true;
-		}
-	}
-	return false;
 };
 
 const addDependent = (

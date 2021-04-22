@@ -48,7 +48,7 @@ It includes:
   unless it's a deliberate tradeoff
 - integrated [`fs`](src/fs/filesystem.ts) that works in [Node](src/fs/node.ts)
   (modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
-  which is a drop-in replacement for Node's `fs`) and in
+  which is a drop-in replacement for Node's `fs` with better semantics) and in
   [memory](src/fs/memory.ts) (aka the browser/serviceworkers/node/etc)
   (TODO more, like a `localStorage` & GitHub repo)
 - testing with [uvu](https://github.com/lukeed/uvu)

@@ -16,7 +16,11 @@ export interface BuildConfig {
 	readonly primary: boolean;
 }
 
-type BuildConfigInput = string | ((id: string) => boolean);
+export type BuildConfigInput = string | InputFilter;
+
+export interface InputFilter {
+	(id: string): boolean;
+}
 
 // The partial was originally this calculated type, but it's a lot less readable.
 // export type BuildConfigPartial = PartialExcept<

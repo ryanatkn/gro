@@ -20,8 +20,10 @@ import {hasApiServerConfig, hasSvelteKitFrontend} from './config/defaultBuildCon
 import {printTiming} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {toCommonBaseDir} from './utils/path.js';
-import {clean} from './fs/clean.js';
 import {printBuildConfigLabel} from './config/buildConfig.js';
+import {ensureEnd} from './utils/string.js';
+import {clean} from './fs/clean.js';
+import {copyDist} from './build/dist.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
 
@@ -126,22 +128,23 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// If more customization is needed, users should implement their own `src/build.task.ts`,
 		// which can be bootstrapped by copy/pasting this one. (and updating the imports)
 		const timingToBuild = timings.start('build');
+		const distCount = config.builds.filter((b) => b.dist).length;
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
-				const inputFiles = await resolveInputFiles(fs, buildConfig);
-				if (!inputFiles.length) {
+				const {files, filters} = await resolveInputFiles(fs, buildConfig);
+				if (!files.length) {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
 				}
 				const outputDir = `${DIST_DIR}${toBuildExtension(
-					sourceIdToBasePath(toCommonBaseDir(inputFiles) + '/'), // TODO refactor when fixing the trailing `/`
+					sourceIdToBasePath(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
 				)}`;
-				log.info('building', printBuildConfigLabel(buildConfig), outputDir, inputFiles);
+				log.info('building', printBuildConfigLabel(buildConfig), outputDir, files);
 				const build = createBuild({
 					fs,
 					dev,
 					sourcemap: config.sourcemap,
-					inputFiles,
+					inputFiles: files,
 					outputDir,
 					mapInputOptions,
 					mapOutputOptions,
@@ -149,6 +152,10 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					esbuildOptions,
 				});
 				await build.promise;
+
+				// TODO might need to be refactored, like `filters` should be `buildConfig.input`
+				// copy static prod files into `dist/`
+				await copyDist(fs, buildConfig, dev, distCount, log, filters);
 			}),
 		);
 		timingToBuild();

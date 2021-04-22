@@ -55,7 +55,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					// TODO this needs to be changed, might need to configure on each `buildConfig`
 					// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
 					config.builds.map(async (buildConfig) =>
-						(await resolveInputFiles(fs, buildConfig)).map((inputFile) => ({
+						(await resolveInputFiles(fs, buildConfig)).files.map((inputFile) => ({
 							buildConfig,
 							inputFile,
 						})),
