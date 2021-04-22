@@ -3,7 +3,7 @@ import {clean} from './fs/clean.js';
 import {spawnProcess} from './utils/process.js';
 
 export interface TaskArgs {
-	'no-build'?: boolean; // !`/build`
+	'no-build'?: boolean; // !`/.gro`
 	'no-dist'?: boolean; // !`/dist`
 	svelte?: boolean; // `/.svelte`
 	nodemodules: boolean; // `/node_modules`
