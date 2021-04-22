@@ -1,5 +1,4 @@
 import type {Task} from '../task/task.js';
-import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
 import {loadGroConfig} from '../config/config.js';
 import {spawnProcess} from '../utils/process.js';
 import {copyDist} from '../build/dist.js';
@@ -24,6 +23,3 @@ export const task: Task = {
 		await invokeTask('project/link');
 	},
 };
-
-export const isDistFile = (path: string): boolean =>
-	!isTestBuildFile(path) && !isTestBuildArtifact(path);

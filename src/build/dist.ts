@@ -4,7 +4,7 @@ import {paths, toBuildOutPath} from '../paths.js';
 import type {Logger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
 import {printBuildConfig} from '../config/buildConfig.js';
-import {isDistFile} from '../project/dist.task.js';
+import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
 
 export const copyDist = async (
 	fs: Filesystem,
@@ -22,3 +22,6 @@ export const copyDist = async (
 		filter: (src) => isDistFile(src),
 	});
 };
+
+export const isDistFile = (path: string): boolean =>
+	!isTestBuildFile(path) && !isTestBuildArtifact(path);
