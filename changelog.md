@@ -1,7 +1,10 @@
 # Gro changelog
 
-## 0.20.5
+## 0.21.0
 
+- **break**: change `gro clean` args to longhand and
+  add option `--git` to prune dead branches
+  ([#180](https://github.com/feltcoop/gro/pull/180))
 - fix `gro build` to copy files to `dist/` with `src/build/dist.ts` helper `copyDist`
   ([#179](https://github.com/feltcoop/gro/pull/179))
 
