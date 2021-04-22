@@ -49,7 +49,7 @@ export const addCssSourcemapFooter = (code: string, sourcemapPath: string): stri
 
 export interface ResolvedInputFiles {
 	files: string[];
-	filters: InputFilter[]; // TODO
+	filters: InputFilter[]; // TODO this may be an antipattern, consider removing it
 }
 
 // TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
