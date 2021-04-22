@@ -153,7 +153,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				});
 				await build.promise;
 
-				// TODO might need to be refactored
+				// TODO might need to be refactored, like `filters` should be `buildConfig.input`
 				// copy static prod files into `dist/`
 				await copyDist(fs, buildConfig, dev, distCount, log, filters);
 			}),
