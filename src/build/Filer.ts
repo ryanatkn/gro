@@ -526,7 +526,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		let inputBuildConfigs: Set<BuildConfig> | null = null;
 		for (const buildConfig of this.buildConfigs) {
-			if (isInputToBuildConfig(file.id, buildConfig)) {
+			if (isInputToBuildConfig(file.id, buildConfig.input)) {
 				(inputBuildConfigs || (inputBuildConfigs = new Set())).add(buildConfig);
 				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, true));
 			}
@@ -817,7 +817,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 							this.addSourceFileToBuild(
 								addedSourceFile as BuildableSourceFile,
 								buildConfig,
-								isInputToBuildConfig(addedSourceFile.id, buildConfig),
+								isInputToBuildConfig(addedSourceFile.id, buildConfig.input),
 							),
 						);
 					}

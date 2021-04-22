@@ -131,20 +131,20 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		const distCount = config.builds.filter((b) => b.dist).length;
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
-				const inputFiles = await resolveInputFiles(fs, buildConfig);
-				if (!inputFiles.length) {
+				const {files, filters} = await resolveInputFiles(fs, buildConfig);
+				if (!files.length) {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
 				}
 				const outputDir = `${DIST_DIR}${toBuildExtension(
-					sourceIdToBasePath(ensureEnd(toCommonBaseDir(inputFiles), '/')), // TODO refactor when fixing the trailing `/`
+					sourceIdToBasePath(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
 				)}`;
-				log.info('building', printBuildConfigLabel(buildConfig), outputDir, inputFiles);
+				log.info('building', printBuildConfigLabel(buildConfig), outputDir, files);
 				const build = createBuild({
 					fs,
 					dev,
 					sourcemap: config.sourcemap,
-					inputFiles,
+					inputFiles: files,
 					outputDir,
 					mapInputOptions,
 					mapOutputOptions,
@@ -155,7 +155,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 				// TODO might need to be refactored
 				// copy static prod files into `dist/`
-				await copyDist(fs, buildConfig, dev, distCount, log);
+				await copyDist(fs, buildConfig, dev, distCount, log, filters);
 			}),
 		);
 		timingToBuild();

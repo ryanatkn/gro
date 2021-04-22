@@ -1,7 +1,8 @@
+import {createFilter} from '@rollup/pluginutils';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig, BuildConfigInput, InputFilter} from '../config/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
 import type {BuildDependency} from './builder.js';
@@ -46,21 +47,35 @@ export const addJsSourcemapFooter = (code: string, sourcemapPath: string): strin
 export const addCssSourcemapFooter = (code: string, sourcemapPath: string): string =>
 	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;
 
+export interface ResolvedInputFiles {
+	files: string[];
+	filters: InputFilter[]; // TODO
+}
+
 // TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
 export const resolveInputFiles = async (
 	fs: Filesystem,
 	buildConfig: BuildConfig,
-): Promise<string[]> =>
-	(
-		await Promise.all(
-			buildConfig.input.map(async (input) =>
-				typeof input === 'string' && (await fs.exists(input)) ? input : null!,
-			),
-		)
-	).filter(Boolean);
+): Promise<ResolvedInputFiles> => {
+	const resolved: ResolvedInputFiles = {files: [], filters: []};
+	await Promise.all(
+		buildConfig.input.map(async (input) => {
+			if (typeof input === 'string') {
+				if (await fs.exists(input)) {
+					resolved.files.push(input);
+				} else {
+					resolved.filters.push(createFilter(input));
+				}
+			} else {
+				resolved.filters.push(input);
+			}
+		}),
+	);
+	return resolved;
+};
 
-export const isInputToBuildConfig = (id: string, buildConfig: BuildConfig): boolean => {
-	for (const input of buildConfig.input) {
+export const isInputToBuildConfig = (id: string, inputs: readonly BuildConfigInput[]): boolean => {
+	for (const input of inputs) {
 		if (typeof input === 'string' ? id === input : input(id)) {
 			return true;
 		}
