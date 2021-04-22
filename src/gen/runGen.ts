@@ -8,14 +8,16 @@ import {
 	GenModuleResultSuccess,
 	GenModuleResultFailure,
 } from './gen.js';
-import {printPath} from '../utils/print.js';
+import {printError, printPath} from '../utils/print.js';
 import {Timings} from '../utils/time.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import type {Logger} from '../utils/log.js';
 
 export const runGen = async (
 	fs: Filesystem,
 	genModules: GenModuleMeta[],
 	formatFile?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
+	log?: Logger,
 ): Promise<GenResults> => {
 	let inputCount = 0;
 	let outputCount = 0;
@@ -50,17 +52,17 @@ export const runGen = async (
 				if (formatFile) {
 					files = [];
 					for (const file of genResult.files) {
+						let contents: string;
 						try {
-							files.push({...file, contents: await formatFile(fs, file.id, file.contents)});
+							contents = await formatFile(fs, file.id, file.contents);
 						} catch (err) {
-							return {
-								ok: false,
-								id,
-								error: err,
-								reason: red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
-								elapsed: timings.stop(id),
-							};
+							contents = file.contents;
+							log?.error(
+								red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
+								printError(err),
+							);
 						}
+						files.push({...file, contents});
 					}
 				} else {
 					files = genResult.files;

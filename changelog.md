@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.21.1
+
+- change `gro gen` to handle failed formatting gracefully
+  ([#181](https://github.com/feltcoop/gro/pull/181))
+
 ## 0.21.0
 
 - **break**: change `gro clean` args to longhand and
