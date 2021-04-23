@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.21.2
+
+- ignore error on failed `git pull` during `gro deploy`
+  ([#182](https://github.com/feltcoop/gro/pull/182))
+
 ## 0.21.1
 
 - change `gro gen` to handle failed formatting gracefully
