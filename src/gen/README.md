@@ -56,7 +56,8 @@ the parent project [Gro](https://github.com/feltcoop/gro).
 
 The `gro gen` task looks for any files with `.gen.`
 in the file name and tries to call an exported `gen`
-function to generate one or more output files.
+function to generate one or more output files,
+and then it writes the results to the filesystem.
 
 ```bash
 gro gen # runs codegen for all *.gen.* files in src/
