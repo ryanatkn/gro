@@ -60,6 +60,7 @@ function to generate one or more output files.
 
 ```bash
 gro gen # runs codegen for all *.gen.* files in src/
+gro gen --check # exits with error code 1 if anything is new or different
 ```
 
 > in the following examples,
