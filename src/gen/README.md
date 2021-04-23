@@ -47,6 +47,12 @@ if you fail to escape certain inputs.
 Importantly, there is no support for sourcemaps right now.
 Sourcemaps could be added at some point, at least in many cases.
 
+Generating files automatically can make bugs more consequential than normal.
+Gro puts the brakes
+
+> TODO add "does that make ANY sense?" checks to `gro gen`
+> maybe a `max` that a `gen` module export can override `export const max = 50;`
+
 Inspirations include Lisp macros and
 [Svelte](https://github.com/sveltejs/svelte), a compiler for building UIs.
 Svelte is the UI library integrated in
