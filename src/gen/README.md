@@ -61,7 +61,7 @@ and then it writes the results to the filesystem.
 
 ```bash
 gro gen # runs codegen for all *.gen.* files in src/
-gro gen --check # exits with error code 1 if anything is new or different
+gro gen --check # exits with error code 1 if anything is new or different; no-op to the fs
 ```
 
 > in the following examples,
@@ -204,7 +204,7 @@ The `check` CLI argument can be passed to perform this check
 instead of writing the generated files to disk.
 
 ```bash
-gro gen --check # exits with error code 1 if anything is new or different
+gro gen --check # exits with error code 1 if anything is new or different; no-op to the fs
 ```
 
 or in code:
