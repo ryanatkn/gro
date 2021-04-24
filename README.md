@@ -46,11 +46,15 @@ It includes:
 - dev server with efficient caching and http2/https support
 - filesystem-abstracting build system that considers any wasted work a bug,
   unless it's a deliberate tradeoff
-- integrated [`fs`](src/fs/filesystem.ts) that works in [Node](src/fs/node.ts)
-  (modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
-  which is a drop-in replacement for Node's `fs` with better semantics) and in
-  [memory](src/fs/memory.ts) (aka the browser/serviceworkers/node/etc)
-  (TODO more, like `localStorage`/kv & GitHub repo, with a good composition/proxy API)
+- integrated platform-independent [`fs`](src/fs/filesystem.ts)
+  - modeled after & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
+    which is a drop-in replacement for Node's `fs` with better semantics)
+  - [memory](src/fs/memory.ts) implementation works everywhere JS runs
+  - TODO more, like:
+    - `localStorage`
+    - GitHub repo
+    - any keyvalue
+    - a good composition/proxy API
 - testing with [uvu](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier);
   it's not always pretty, but it's always formatted
