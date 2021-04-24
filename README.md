@@ -48,7 +48,7 @@ It includes:
   unless it's a deliberate tradeoff
 - integrated platform-independent [`fs`](src/fs/filesystem.ts)
   - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
-    which is a drop-in replacement for Node's `fs` with better semantics)
+    a drop-in replacement for Node's `fs` with better semantics
   - [memory](src/fs/memory.ts) implementation works everywhere JS runs
   - TODO more, like:
     - `localStorage`
