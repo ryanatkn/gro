@@ -50,7 +50,7 @@ It includes:
   (modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
   which is a drop-in replacement for Node's `fs` with better semantics) and in
   [memory](src/fs/memory.ts) (aka the browser/serviceworkers/node/etc)
-  (TODO more, like a `localStorage` & GitHub repo)
+  (TODO more, like `localStorage`/kv & GitHub repo, with a good composition/proxy API)
 - testing with [uvu](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier);
   it's not always pretty, but it's always formatted
