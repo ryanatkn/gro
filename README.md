@@ -53,7 +53,7 @@ It includes:
   - TODO more, like:
     - `localStorage`
     - GitHub repo
-    - any keyvalue
+    - generic keyvalue stores
     - a good composition/proxy API
 - testing with [uvu](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier);
