@@ -123,7 +123,7 @@ export const task: Task<TaskArgs> = {
 			// commit the changes
 			await spawnProcess('git', ['add', '.', '-f'], GIT_ARGS);
 			await spawnProcess('git', ['commit', '-m', 'deployment'], GIT_ARGS);
-			await spawnProcess('git', ['push', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
+			await spawnProcess('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
 			await cleanGitWorktree();
