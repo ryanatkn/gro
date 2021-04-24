@@ -47,7 +47,7 @@ It includes:
 - filesystem-abstracting build system that considers any wasted work a bug,
   unless it's a deliberate tradeoff
 - integrated platform-independent [`fs`](src/fs/filesystem.ts)
-  - modeled after & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
+  - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
     which is a drop-in replacement for Node's `fs` with better semantics)
   - [memory](src/fs/memory.ts) implementation works everywhere JS runs
   - TODO more, like:
