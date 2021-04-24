@@ -6,7 +6,7 @@ export const renderNoscriptSection = (sourceCodeUrl: string): string => `<noscri
 			things could happen!
 		</p>
 		<p>
-			This website insists on respecting you and your machines - the
+			This website tries to respect you and your machines - the
 			<a href="${sourceCodeUrl}">source code</a>
 			is open for inspection and criticism.
 		</p>
