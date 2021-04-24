@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.21.3
+
+- force push on `gro deploy`
+  ([#183](https://github.com/feltcoop/gro/pull/183))
+
 ## 0.21.2
 
 - ignore error on failed `git pull` during `gro deploy`
