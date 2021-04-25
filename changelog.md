@@ -2,7 +2,7 @@
 
 ## 0.21.4
 
-- export `UnreachableError` from root
+- export `UnreachableError` and time utils from root
   ([#184](https://github.com/feltcoop/gro/pull/184))
 
 ## 0.21.3
