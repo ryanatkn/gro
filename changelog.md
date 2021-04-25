@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.21.4
+
+- export `UnreachableError` from root
+  ([#184](https://github.com/feltcoop/gro/pull/184))
+
 ## 0.21.3
 
 - force push on `gro deploy`
