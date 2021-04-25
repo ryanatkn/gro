@@ -11,6 +11,7 @@ export type {Lazy} from './utils/function.js';
 export type {ErrorClass} from './utils/error.js';
 
 // types above, code below
+export {UnreachableError} from './utils/error.js';
 export {wait, wrap} from './utils/async.js';
 export {last, toArray, EMPTY_ARRAY} from './utils/array.js';
 export {loadPackageJson} from './project/packageJson.js';
