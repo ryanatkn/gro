@@ -45,5 +45,4 @@ In summary, this free software is
 I guess is what I'm saying.
 I hope it's not free as in mattress... that's not the software I want to dump on the world.
 
-I'm always interested in discussing Gro,
-and I'd be happy to dicusss — open [issues](https://github.com/feltcoop/gro/issues)!
+I'm always interested in discussing Gro — open [issues](https://github.com/feltcoop/gro/issues)!
