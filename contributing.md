@@ -19,7 +19,7 @@ I have many other things to prioritize,
 but I also don't want to promote open source Node projects that don't support Windows.
 
 So Gro sits in a pre-alpha limbo. For other reasons too —
-things may change dramatically and I don't want the friction of breaking external users.
+things may change dramatically and I don't want the friction of breaking external users this early.
 I value your time too!!
 
 All that said: **if you draw inside its lines, Gro is a good development tool today _IMO_**.
