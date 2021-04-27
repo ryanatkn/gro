@@ -6,6 +6,7 @@ I am its only developer for now,
 and we have more important projects that occupy almost all of our time.
 
 I don't want to spend much time on support outside of our needs.
+Some is fine — welcome even! — but there's a line I don't know yet.
 But I do want to give away the source code in case it can help!
 (and be improved? I'm not selfish for me, I'm selfish for the code, you see)
 The license is MIT, so you're free to use and repurpose it without our permission.
@@ -17,7 +18,7 @@ It excludes many people out there who don't know what a WSL is.
 I have many other things to prioritize,
 but I also don't want to promote open source Node projects that don't support Windows.
 
-So Gro sits in a pre-alpha limbo. For other reasons too -
+So Gro sits in a pre-alpha limbo. For other reasons too —
 things may change dramatically and I don't want the friction of breaking external users.
 I value your time too!!
 
