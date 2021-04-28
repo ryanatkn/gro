@@ -1,8 +1,12 @@
 # gro/deploy
 
-For now, the [`gro deploy`](/src/deploy.task.ts)
-task supports only static deployments to
-[GitHub pages](https://pages.github.com/).
+The [`gro deploy`](/src/deploy.task.ts)
+task is designed to support static deployments to
+[GitHub pages](https://pages.github.com/),
+but what it actually does is just push builds to a branch.
+It needs some refactoring to be more generic,
+but it works for simple cases beyond "static deployments".
+Needs more work for its scope to be clear.
 
 ```bash
 gro deploy # prepare dist/ and commit it to the `deploy` branch, then push to go live
