@@ -47,10 +47,9 @@ if you fail to escape certain inputs.
 Importantly, there is no support for sourcemaps right now.
 Sourcemaps could be added at some point, at least in many cases.
 
-Inspirations include Lisp macros and
-[Svelte](https://github.com/sveltejs/svelte), a compiler for building UIs.
-Svelte is the UI library integrated in
-the parent project [Gro](https://github.com/feltcoop/gro).
+Inspirations include Lisp macros, the
+[Svelte](https://github.com/sveltejs/svelte) compiler,
+and [Zig](https://github.com/ziglang/zig)'s comptime.
 
 ## usage
 
