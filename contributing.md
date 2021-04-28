@@ -23,6 +23,7 @@ things may change dramatically and I don't want the friction of breaking externa
 I value your time too!!
 
 All that said: **if you draw inside its lines, Gro is a good development tool today _IMO_**.
+(I think its task runner alone is worth the dependency (TODO publish a slim `gro-cli`))
 I am happy to take contributions in any form,
 but please open [issues](https://github.com/feltcoop/gro/issues)
 before attempting work that you expect to be merged.
