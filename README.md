@@ -65,7 +65,7 @@ It includes:
 ## docs
 
 - [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
-- [deploy](/src/docs/deploy.md) to GitHub pages
+- [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
 - [`task`](/src/task) runner
 - [dev server](/src/server)
 - [`gen`](/src/gen) code generation
