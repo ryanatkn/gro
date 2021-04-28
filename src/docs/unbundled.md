@@ -74,7 +74,8 @@ Gro differs in some significant ways:
   and supports a wide plugin ecosystem.
   Gro's goal is to provide an opinionated batteries-included experience
   with a core set of technologies like
-  [Svelte](https://github.com/sveltejs/svelte) and [Prettier](https://github.com/prettier/prettier).
+  [Svelte](https://github.com/sveltejs/svelte) and
+  [TypeScript](https://github.com/microsoft/TypeScript).
   Despite its most-in-one role,
   Gro does still value flexibility and interoperability.
   It has a pluggable build architecture that can support a lot of things,
