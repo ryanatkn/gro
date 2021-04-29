@@ -47,7 +47,7 @@ but please feel free to try it and share your feedback!
 - [x] basics
 - [ ] livereload CSS (and fix pop-in during dev)
 - [ ] HMR
-- [ ] support [SvelteKit](https://github.com/feltcoop/gro/issues/106) as an alternative to Vite
+- [ ] [support SvelteKit](https://github.com/feltcoop/gro/issues/106) as an alternative to Vite
 - [ ] probably support Rollup plugins in development, but how?
 - [ ] improve loading speed with `cache-control: immutable` and
       [import maps](https://github.com/WICG/import-maps/)
