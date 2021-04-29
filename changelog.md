@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.21.5
+
+- export config types and helpers from root
+  ([#185](https://github.com/feltcoop/gro/pull/185))
+
 ## 0.21.4
 
 - export `UnreachableError` and time utils from root
