@@ -3,6 +3,7 @@ export type {Gen, GenContext} from './gen/gen.js';
 
 // this is a lot of explicit exports (all of them),
 // but almost everything else is explicit, so..
+export {loadGroConfig, toConfig} from './config/config.js';
 export type {
 	GroConfig,
 	GroConfigPartial,
@@ -10,7 +11,6 @@ export type {
 	GroConfigCreator,
 	GroConfigCreatorOptions,
 } from './config/config.js';
-export {loadGroConfig, toConfig} from './config/config.js';
 
 // by definition, these are generic, so just export everything
 export * from './utils/types.js';
