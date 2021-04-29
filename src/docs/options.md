@@ -8,6 +8,8 @@ For cases where all options are required,
 the options argument's type needs no special handling.
 However when you need partials and defaults,
 the codebase's conventions are documented below.
+It's not the pattern for every circumstance;
+there is overhead that e.g. hot paths and simple implementations should avoid.
 
 Gro uses a consistent options pattern that has one significant gotcha:
 **if an option can be `undefined`, it must default to `undefined`**
