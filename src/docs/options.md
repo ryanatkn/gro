@@ -70,6 +70,8 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	// but standardizing the conventions is a big win.
 	// When possible, prefer `null` to `undefined` when designing options APIs.
 	...omitUndefined(opts),
+
+	// complicatedOverridingValueCanBeComputed: here(opts),
 });
 
 // use in a plain function
