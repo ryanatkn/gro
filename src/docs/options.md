@@ -24,6 +24,8 @@ to making the property existence optional.
 For more, see the example below and
 [this TypeScript issue](https://github.com/Microsoft/TypeScript/issues/13195).
 
+> TODO review this to see if we can use a helper to avoid an unnecessary object copy
+
 Example:
 
 ```ts
@@ -36,6 +38,8 @@ export interface Options {
 }
 export type RequiredOptions = 'a'; // or `'a' | 'b'` or `never`
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+// or the simpler case when there are no required options:
+// export const initOptions = (opts: Partial<Options>): Options => ({
 export const initOptions = (opts: InitialOptions): Options => ({
 	// Required properties should not be included here,
 	// because their values will always be overwritten.
