@@ -7,8 +7,8 @@ but what it actually does is just push builds to a branch.
 By default it pushes to the `deploy` branch —
 **importantly**, it force pushes; this is because Gro treats your deployment
 branch as disposable, able to be deleted or squashed or whatever whenever.
-
-Internally, `gro deploy` uses [git worktree](https://git-scm.com/docs/git-worktree).
+Internally, `gro deploy` uses [git worktree](https://git-scm.com/docs/git-worktree)
+for tidiness.
 
 `gro deploy` needs some refactoring to be more generic,
 but it works for simple cases beyond "static deployments".
