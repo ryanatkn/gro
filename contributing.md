@@ -20,7 +20,7 @@ but I also don't want to promote open source Node projects that don't support Wi
 So Gro sits in a pre-alpha limbo. For other reasons too —
 things may change dramatically and I don't want the friction of breaking external users this early.
 I value your time too!! There probably won't be too much chaos-churn,
-but some % of dev users are demanding to a degree I can't support yet.
+but some % of dev users will have stability expectations I can't meet yet.
 
 All that said: **if you draw inside its lines, Gro is a good development tool today _IMO_**.
 (I think its task runner alone is worth the dependency (TODO publish a slim `gro-cli`))
