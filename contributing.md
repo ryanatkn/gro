@@ -8,7 +8,7 @@ and we have more important projects that occupy almost all of our time.
 I don't want to spend much time on support outside of our needs.
 Some is fine, welcome even 😺 but there's a line 😾 and I don't know where it is yet.
 And I want to give away the source code because I think it's useful and cool.
-The license is MIT, so you're free to use and repurpose it without our permission.
+The license is MIT, so you're free to use and repurpose it with ain't nobody's permission.
 We have much work to do and Gro is just a low level tool.
 time is precious🌄
 
