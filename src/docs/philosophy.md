@@ -2,7 +2,18 @@
 
 > why does gro?
 
-> **work in progress**
+This document describes some of our thinking behind Gro.
+Its purpose and scope is specific to Gro and our situation;
+it's not something to apply out of context without care.
+The context:
+
+1. Gro is a low level tool supporting our other projects
+2. our other projects are in their infancy
+3. our plan is to sustainably produce software by selling services for these other projects
+4. we expect a lot of experimentation and backwards incompatible change while exploring
+
+Some important details might not apply to your projects,
+and Gro's philosophy will change over time.
 
 ### we want tools that are:
 
@@ -11,20 +22,20 @@
 - **automated**: leverage laziness to its full potential, with wisdom; see prior _point_
 - **customizable**: happypath defaults and full control when you need it
 - **easy to use**: as internally complex as needed to be simple and powerful externally
-- **decentralized**: go make stuff idk
 - **loved**: tools made by people who _love_ them feel 1) different and 2) better
 - **social force multipliers for good**: unlock and inspire ways to create and collaborate
 - **human-inspectable**:
   - understanding what our tools are doing should be a holistically designed experience
-  - output tool data in common formats using human-friendly APIs, like JSON to the filesystem,
-    and provide userland plugin points for reading and exporting data
+  - interoperability should be an integrated design quality:
+    output tool data in common formats using human-friendly APIs, like JSON to the filesystem,
+    and provide userland plugin points for reading/writing data and monitoring behavior
   - our tools and meta tools should be the same technologies, so they can feed into each other
   - two examples of good efforts here include the
     [build system](https://github.com/feltcoop/gro/blob/main/src/docs/unbundled.md)
     and [task resolution and composition](https://github.com/feltcoop/gro/tree/main/src/task)
 - **built to evolve and grow for the long run**:
   - patiently search for best-of-all-worlds tradeoffs, or at least better ones
-  - churn and pay debt sooner rather than later; the evergreen web lets us leave legacy in the past
+  - pay technical debt sooner rather than later; the evergreen web lets us leave legacy in the past
   - if/when software outlives its usefulness, cede gracefully and help users exit,
     acknowledging we're all people not resources
 

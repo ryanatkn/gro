@@ -4,6 +4,7 @@ So, Gro is a project that I, a developer of quantity 1, use to support my other 
 Although Gro is a [@feltcoop](https://github.com/feltcoop) project,
 I am its only developer for now,
 and we have more important projects that occupy almost all of our time.
+For more you can read about [Gro's current philosophy](src/docs/philosophy.md).
 
 I don't want to spend much time on support outside of our needs.
 Some is fine, welcome even 😺 but there's a line 😾 and I don't know where it is yet.
