@@ -6,6 +6,7 @@
 - [deploy](deploy.md)
 - [log](log.md)
 - [options](options.md)
+- [philosophy](philosophy.md)
 - [publish](publish.md)
 - [tasks](tasks.md)
 - [unbundled](unbundled.md)

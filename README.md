@@ -30,10 +30,10 @@ It includes:
 - [unbundled development](/src/docs/unbundled.md)
   for [Svelte](https://github.com/sveltejs/svelte) UIs
   and integrated tools for Node servers and libraries
-  (inspired by [Snowpack](https://github.com/pikapkg/snowpack) and backed by
+  (inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
   [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall))
   - Gro supports SPAs on the frontend,
-    but that functionality is now deprecated for
+    but that functionality is now deprecated-ish for
     [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite),
     with long term plans to
     [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
@@ -57,7 +57,7 @@ It includes:
     - generic keyvalue stores
     - a good composition/proxy API
 - testing with [uvu](https://github.com/lukeed/uvu)
-- formatting with [Prettier](https://github.com/prettier/prettier);
+- formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
 - more to come, exploring what deeply integrated tools enable
   for developer power, ergonomics, and productivity
@@ -75,6 +75,7 @@ It includes:
   - [publish](/src/docs/publish.md)
   - [log](/src/docs/log.md)
   - [options](/src/docs/options.md)
+  - [philosophy](/src/docs/philosophy.md)
 
 ## install
 
