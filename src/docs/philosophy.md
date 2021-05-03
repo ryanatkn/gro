@@ -45,12 +45,12 @@ and Gro's philosophy will change over time.
 What I mean is, the above are ideals, not a purity test.
 We want to maintain a growth mindset, always striving never arriving.
 
-### talk is cheap so let's keep writing philosophical words:
+### talk is cheap so here's some more:
 
-- **respectful software is more than free**: it's written for people first,
+- **_respectful software_ is more than free**: it's written for people first,
   and it cares about user health, culture, power consumption, etc,
   including the important things that don't feed the bottom line
-- **respect sources of truth**: without an authoritative source of information,
+- **respect sources of truth**: without authoritatives sources of information,
   you cannot derive data and code with confidence,
   muddying the model of relationships and flow in your emergent system language,
   dashing any hopes of holistic automation;
