@@ -20,7 +20,7 @@ and Gro's philosophy will change over time.
 - **specific**: designed for our use cases and workflows; natural fits for the domain; coordinated
 - **sharp**: powerful, efficient, productive, lean, wieldy
 - **automated**: leverage laziness to its full potential, with wisdom; see prior _point_
-- **customizable**: happypath defaults and full control when you need it
+- **customizable**: happypath defaults and full control when you need it; modular everywhere
 - **easy to use**: as internally complex as needed to be simple and powerful externally
 - **loved**: tools made by people who _love_ them feel 1) different and 2) better
 - **social force multipliers for good**: unlock and inspire ways to create and collaborate
