@@ -54,39 +54,43 @@ export const postprocess = (
 				let mappedSpecifier = isExternal
 					? toBuildExtension(specifier)
 					: hack_toBuildExtensionWithPossiblyExtensionlessSpecifier(specifier);
-				if (!isExternalImport && isExternalImportedByExternal) {
-					// handle common externals, imports internal to the externals
-					if (isBrowser) {
-						buildId = join(build.dir, specifier);
-						// map internal externals imports to absolute paths, so we get stable ids
-						finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildDir)}${
-							finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-						}`;
-					} else {
-						buildId = mappedSpecifier;
-					}
-				} else if (isExternal) {
-					// handle regular externals
-					if (isBrowser) {
-						if (mappedSpecifier in ctx.externalsAliases) {
-							mappedSpecifier = ctx.externalsAliases[mappedSpecifier];
+				if (isExternal) {
+					if (isExternalImport) {
+						// handle regular externals
+						if (isBrowser) {
+							if (mappedSpecifier in ctx.externalsAliases) {
+								mappedSpecifier = ctx.externalsAliases[mappedSpecifier];
+							}
+							if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
+								mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
+							}
+							mappedSpecifier = `/${join(EXTERNALS_BUILD_DIRNAME, mappedSpecifier)}${
+								mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+							}`;
+							buildId = toBuildOutPath(
+								ctx.dev,
+								buildConfig.name,
+								mappedSpecifier.substring(1),
+								ctx.buildDir,
+							);
+						} else {
+							buildId = mappedSpecifier;
 						}
-						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
-							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
-						}
-						mappedSpecifier = `/${join(EXTERNALS_BUILD_DIRNAME, mappedSpecifier)}${
-							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-						}`;
-						buildId = toBuildOutPath(
-							ctx.dev,
-							buildConfig.name,
-							mappedSpecifier.substring(1),
-							ctx.buildDir,
-						);
 					} else {
-						buildId = mappedSpecifier;
+						// handle common externals, imports internal to the externals
+						if (isBrowser) {
+							buildId = join(build.dir, specifier);
+							// map internal externals imports to absolute paths, so we get stable ids
+							finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildDir)}${
+								finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+							}`;
+						} else {
+							// externals imported in Node builds use Node module resolution
+							buildId = mappedSpecifier;
+						}
 					}
 				} else {
+					// internal import
 					buildId = join(build.dir, mappedSpecifier);
 				}
 				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
