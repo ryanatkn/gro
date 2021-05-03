@@ -9,7 +9,7 @@
 > For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
 > meaning you're aware it's a lot of work to maintain,
-> and you're allowing it into your home anyway.
+> and you're inviting it into your home anyway.
 > Docs are lacking, some things are in progress, and it might pee on your stuff.
 > ([caveat emptor](https://en.wikipedia.org/wiki/Caveat_emptor):
 > it's darn cute and quickly becomes a member of the family)

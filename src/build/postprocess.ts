@@ -46,9 +46,12 @@ export const postprocess = (
 				const specifier = contents.substring(start, end);
 				if (specifier === 'import.meta') continue;
 				let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
+				console.log('specifier', specifier);
 				let mappedSpecifier = toBuildExtension(specifier);
+				console.log('mappedSpecifier', mappedSpecifier);
 				let buildId: string;
 				const isExternalImport = isExternalModule(specifier);
+				console.log('isExternalImport', isExternalImport);
 				if (!isExternalImport && source.id === EXTERNALS_SOURCE_ID) {
 					// handle common externals, imports internal to the externals
 					if (isBrowser) {
