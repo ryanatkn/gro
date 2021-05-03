@@ -174,10 +174,12 @@ const shouldModifyDotJs = (sourceId: string): boolean => {
 // because now we can't extract the extension from a user-provided specifier. Gack!
 // Exposing this hack to user config is something that's probably needed,
 // but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
-const HACK_EXTENSIONLESS_EXTENSIONS = new Set([SVELTE_EXTENSION, JS_EXTENSION, TS_EXTENSION]);
 const hack_toBuildExtensionWithPossiblyExtensionlessSpecifier = (specifier: string): string => {
 	const extension = extname(specifier);
 	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
 		? specifier + JS_EXTENSION
 		: toBuildExtension(specifier);
 };
+
+// This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.
+const HACK_EXTENSIONLESS_EXTENSIONS = new Set([SVELTE_EXTENSION, JS_EXTENSION, TS_EXTENSION]);
