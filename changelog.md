@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.21.6
+
+- hack: add temporary support for extensionless import paths to internal modules
+  ([#186](https://github.com/feltcoop/gro/pull/186))
+
 ## 0.21.5
 
 - export config types and helpers from root

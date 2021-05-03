@@ -1,4 +1,4 @@
-import {join} from 'path';
+import {join, extname} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
 
@@ -10,6 +10,7 @@ import {
 	toBuildBasePath,
 	toBuildExtension,
 	toBuildOutPath,
+	TS_EXTENSION,
 } from '../paths.js';
 import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
 import {stripStart} from '../utils/string.js';
@@ -45,43 +46,51 @@ export const postprocess = (
 				const end = d > -1 ? e - 1 : e;
 				const specifier = contents.substring(start, end);
 				if (specifier === 'import.meta') continue;
-				let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
-				let mappedSpecifier = toBuildExtension(specifier);
 				let buildId: string;
+				let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
 				const isExternalImport = isExternalModule(specifier);
-				if (!isExternalImport && source.id === EXTERNALS_SOURCE_ID) {
-					// handle common externals, imports internal to the externals
-					if (isBrowser) {
-						buildId = join(build.dir, specifier);
-						// map internal externals imports to absolute paths, so we get stable ids
-						finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildDir)}${
-							finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-						}`;
-					} else {
-						buildId = mappedSpecifier;
-					}
-				} else if (isExternalImport || source.id === EXTERNALS_SOURCE_ID) {
-					// handle regular externals
-					if (isBrowser) {
-						if (mappedSpecifier in ctx.externalsAliases) {
-							mappedSpecifier = ctx.externalsAliases[mappedSpecifier];
+				const isExternalImportedByExternal = source.id === EXTERNALS_SOURCE_ID;
+				const isExternal = isExternalImport || isExternalImportedByExternal;
+				let mappedSpecifier = isExternal
+					? toBuildExtension(specifier)
+					: hack_toBuildExtensionWithPossiblyExtensionlessSpecifier(specifier);
+				if (isExternal) {
+					if (isExternalImport) {
+						// handle regular externals
+						if (isBrowser) {
+							if (mappedSpecifier in ctx.externalsAliases) {
+								mappedSpecifier = ctx.externalsAliases[mappedSpecifier];
+							}
+							if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
+								mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
+							}
+							mappedSpecifier = `/${join(EXTERNALS_BUILD_DIRNAME, mappedSpecifier)}${
+								mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+							}`;
+							buildId = toBuildOutPath(
+								ctx.dev,
+								buildConfig.name,
+								mappedSpecifier.substring(1),
+								ctx.buildDir,
+							);
+						} else {
+							buildId = mappedSpecifier;
 						}
-						if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
-							mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
-						}
-						mappedSpecifier = `/${join(EXTERNALS_BUILD_DIRNAME, mappedSpecifier)}${
-							mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-						}`;
-						buildId = toBuildOutPath(
-							ctx.dev,
-							buildConfig.name,
-							mappedSpecifier.substring(1),
-							ctx.buildDir,
-						);
 					} else {
-						buildId = mappedSpecifier;
+						// handle common externals, imports internal to the externals
+						if (isBrowser) {
+							buildId = join(build.dir, specifier);
+							// map internal externals imports to absolute paths, so we get stable ids
+							finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildDir)}${
+								finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+							}`;
+						} else {
+							// externals imported in Node builds use Node module resolution
+							buildId = mappedSpecifier;
+						}
 					}
 				} else {
+					// internal import
 					buildId = join(build.dir, mappedSpecifier);
 				}
 				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
@@ -157,3 +166,20 @@ const shouldModifyDotJs = (sourceId: string): boolean => {
 	}
 	return true;
 };
+
+// This is a temporary hack to allow importing `to/thing` as equivalent to `to/thing.js`,
+// despite it being off-spec, because of this combination of problems with TypeScript and Vite:
+// https://github.com/feltcoop/gro/pull/186
+// The main problem this causes is breaking the ability to infer file extensions automatically,
+// because now we can't extract the extension from a user-provided specifier. Gack!
+// Exposing this hack to user config is something that's probably needed,
+// but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
+const hack_toBuildExtensionWithPossiblyExtensionlessSpecifier = (specifier: string): string => {
+	const extension = extname(specifier);
+	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
+		? specifier + JS_EXTENSION
+		: toBuildExtension(specifier);
+};
+
+// This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.
+const HACK_EXTENSIONLESS_EXTENSIONS = new Set([SVELTE_EXTENSION, JS_EXTENSION, TS_EXTENSION]);
