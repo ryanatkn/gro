@@ -7,7 +7,7 @@ and we have more important projects that occupy almost all of our time.
 For more you can read about [Gro's current philosophy](src/docs/philosophy.md).
 
 I don't want to spend much time on support outside of our needs.
-Some is fine, welcome even 😺 but there's a line 😾 and I don't know where it is yet.
+Some is fine, welcome even 😺 but there is a line 😾 and I don't know where it is yet.
 And I want to give away the source code because I think it's useful and cool.
 The license is MIT, so you're free to use and repurpose it with ain't nobody's permission.
 We have much work to do and Gro is just a low level tool.
@@ -26,8 +26,8 @@ but some % of dev users will have stability expectations I can't meet yet.
 All that said: **if you draw inside its lines, Gro is a good development tool today _IMO_**.
 (I think its task runner alone is worth the dependency (TODO publish a slim `gro-cli`))
 I am happy to take contributions in any form,
-but please open [issues](https://github.com/feltcoop/gro/issues)
-before attempting work that you expect to be merged.
+but **please open [issues](https://github.com/feltcoop/gro/issues)**
+**before attempting work that you expect to be merged.**
 
 Also, Gro can't work for everyone's needs and still be Gro.
 I'm trying to make it flexible, and I welcome pointers

@@ -17,10 +17,10 @@ and Gro's philosophy will change over time.
 
 ### we want tools that are:
 
-- **specific**: designed for our use cases and workflows; natural fits for the domain; coordinated
-- **sharp**: powerful, efficient, productive, lean, wieldy
+- **specific**: designed for our use cases and workflows; natural fits for the domain
+- **sharp**: powerful, efficient, productive, lean, coordinated, wieldy
 - **automated**: leverage laziness to its full potential, with wisdom; see prior _point_
-- **customizable**: happypath defaults and full control when you need it; modular everywhere
+- **customizable**: happypath defaults and full control when you need it; hypermodular
 - **easy to use**: as internally complex as needed to be simple and powerful externally
 - **loved**: tools made by people who _love_ them feel 1) different and 2) better
 - **social force multipliers for good**: unlock and inspire ways to create and collaborate
@@ -29,7 +29,6 @@ and Gro's philosophy will change over time.
   - interoperability should be an integrated design quality:
     output tool data in common formats using human-friendly APIs, like JSON to the filesystem,
     and provide userland plugin points for reading/writing data and monitoring behavior
-  - our tools and meta tools should be the same technologies, so they can feed into each other
   - two examples of good efforts here include the
     [build system](https://github.com/feltcoop/gro/blob/main/src/docs/unbundled.md)
     and [task resolution and composition](https://github.com/feltcoop/gro/tree/main/src/task)
@@ -53,9 +52,10 @@ We want to maintain a growth mindset, always striving never arriving.
 - **respect sources of truth**: without authoritatives sources of information,
   you cannot derive data and code with confidence,
   muddying the model of relationships and flow in your emergent system language,
-  dashing any hopes of holistic automation;
-  we should support patterns for defining sources of truth and
-  deriving useful information throughout our systems (e.g. codegen & JSON schema)
+  dashing any hopes of holistic automation
+  - we should support patterns for defining sources of truth and
+    deriving useful information throughout our systems (e.g. codegen & JSON schema)
+  - our tools and meta tools should be the same technologies, so they can feed into each other
 - **don't pass the buck, own it**:
   - follow end UX through to DX and take responsibility for every detail and dependency
     (in theory lol)
