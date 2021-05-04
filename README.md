@@ -167,8 +167,7 @@ gro test # make sure everything looks good - same as `npm test`
 
 # development
 gro dev # start dev server in watch mode; it's designed as a long-running process
-gro build # update the `gro` CLI locally (see comment directly below: slow because bug)
-# gro project/dist # TODO this should be the command but it's currently bugged
+gro build # update the `gro` CLI locally
 
 # use your development version of `gro` locally in another project
 cd ../otherproject
