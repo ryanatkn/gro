@@ -2,6 +2,7 @@
 
 > <sub>[gro](/../..) / docs / README.md</sub>
 
+- [build](build.md)
 - [config](config.md)
 - [deploy](deploy.md)
 - [log](log.md)
