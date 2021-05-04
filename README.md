@@ -64,17 +64,18 @@ It includes:
 
 ## docs
 
-- [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
-- [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
+- [build](/src/docs/unbundled.md) for web frontends, servers, and libraries
+  - [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
+  - [config](/src/docs/config.md)
+  - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
+  - [publish](/src/docs/publish.md)
 - [`task`](/src/task) runner
+  - [tasks](/src/docs/tasks.md) list
 - [dev server](/src/server)
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs)
-  - [tasks](/src/docs/tasks.md)
-  - [config](/src/docs/config.md)
-  - [publish](/src/docs/publish.md)
   - [log](/src/docs/log.md)
-  - [options](/src/docs/options.md)
+  - [options](/src/docs/options.md) pattern
   - [philosophy](/src/docs/philosophy.md)
 
 ## install
