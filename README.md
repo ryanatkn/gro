@@ -64,8 +64,8 @@ It includes:
 
 ## docs
 
-- [build](/src/docs/build.md)
-  - [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
+- [build](/src/docs/build.md) web frontends, servers, and libraries
+  - [unbundled development](/src/docs/unbundled.md)
   - [config](/src/docs/config.md)
   - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/docs/publish.md)
