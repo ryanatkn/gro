@@ -146,17 +146,16 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		timingToBuild();
 
 		// Adapt the build to final ouputs.
-		// TODO timings for each
 		const timingToAdapt = timings.start('adapt');
 		const adapters = await config.adapt();
 		if (adapters) {
-			await Promise.all(
-				toArray(adapters).map(async (adapter) => {
-					const timing = timings.start(`adapt ${adapter.name}`);
-					await adapter.adapt();
-					timing();
-				}),
-			);
+			// this could be parallelized, but I think adapting one at a time is a better DX for now,
+			// easier to follow what's happening (probably parallelize though, or maybe an option)
+			for (const adapter of toArray(adapters)) {
+				const timing = timings.start(`adapt ${adapter.name}`);
+				await adapter.adapt();
+				timing();
+			}
 		}
 		timingToAdapt();
 
