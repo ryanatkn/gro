@@ -1,5 +1,6 @@
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
+import type {AdaptBuilds} from './adapt.js';
 import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
 import {
 	LogLevel,
@@ -18,6 +19,7 @@ import type {ServedDirPartial} from '../build/ServedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 import type {Result} from '../index.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import {defaultAdapt} from './defaultAdapt.js';
 
 /*
 
@@ -43,6 +45,7 @@ const FALLBACK_CONFIG_NAME = `gro/src/${FALLBACK_CONFIG_BASE_PATH}`;
 
 export interface GroConfig {
 	readonly builds: BuildConfig[];
+	readonly adapt: AdaptBuilds;
 	readonly target: EcmaScriptTarget;
 	readonly sourcemap: boolean;
 	readonly host: string;
@@ -55,6 +58,7 @@ export interface GroConfig {
 
 export interface GroConfigPartial {
 	readonly builds: readonly (BuildConfigPartial | null)[]; // allow `null` for convenience
+	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly host?: string;
@@ -215,6 +219,7 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		logLevel: DEFAULT_LOG_LEVEL,
+		adapt: defaultAdapt,
 		...omitUndefined(config),
 		builds: buildConfigs,
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,

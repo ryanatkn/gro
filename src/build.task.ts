@@ -1,10 +1,8 @@
 import type {Task} from './task/task.js';
-import {createBuild} from './project/build.js';
-import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './project/build.js';
-import {getDefaultEsbuildOptions} from './build/esbuildBuildHelpers.js';
+import {createBuild} from './build/build.js';
+import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './build/build.js';
 import {
 	DIST_DIR,
-	isThisProjectGro,
 	sourceIdToBasePath,
 	SVELTE_KIT_APP_DIRNAME,
 	SVELTE_KIT_BUILD_DIRNAME,
@@ -24,6 +22,7 @@ import {printBuildConfigLabel} from './config/buildConfig.js';
 import {ensureEnd} from './utils/string.js';
 import {clean} from './fs/clean.js';
 import {copyDist} from './build/dist.js';
+import {toArray} from './utils/array.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
 
@@ -43,51 +42,37 @@ export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'build the project',
 	dev: false,
 	run: async ({fs, dev, log, args, invokeTask, events}): Promise<void> => {
-		// Normal user projects will ignore this code path right here:
-		// in other words, `isThisProjectGro` will always be `false` for your code.
-		// TODO task pollution, this is bad for users who want to copy/paste this task.
-		// think of a better way - maybe config+defaults?
-		if (isThisProjectGro) {
-			return invokeTask('project/build');
-		}
-
-		const timings = new Timings();
-
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
+
 		const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
+
+		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(fs, dev);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 
-		const esbuildOptions = getDefaultEsbuildOptions(config.target, config.sourcemap, dev);
-
 		const timingToClean = timings.start('clean');
 		await clean(fs, {dist: true}, log);
 		timingToClean();
 
-		// TODO think this through
-		// This is like a "prebuild" phase.
 		// Build everything with esbuild and Gro's `Filer` first,
 		// so we have the production server available to run while SvelteKit is building.
-		// See the other reference to `isThisProjectGro` for comments about its weirdness.
 		let spawnedApiServer: SpawnedProcess | null = null;
-		if (!isThisProjectGro) {
-			const timingToPrebuild = timings.start('prebuild');
-			await buildSourceDirectory(fs, config, dev, log);
-			timingToPrebuild();
-			events.emit('build.prebuild');
+		const timingToPrebuild = timings.start('prebuild');
+		await buildSourceDirectory(fs, config, dev, log);
+		timingToPrebuild();
+		events.emit('build.prebuild');
 
-			// now that the prebuild is ready, we can start the API server, if it exists
-			if (hasApiServerConfig(config.builds)) {
-				events.once('server.spawn', (spawned) => {
-					spawnedApiServer = spawned;
-				});
-				await invokeTask('server');
-			}
+		// now that the prebuild is ready, we can start the API server, if it exists
+		if (hasApiServerConfig(config.builds)) {
+			events.once('server.spawn', (spawned) => {
+				spawnedApiServer = spawned;
+			});
+			await invokeTask('server');
 		}
 
 		// Handle any SvelteKit build.
@@ -128,6 +113,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// If more customization is needed, users should implement their own `src/build.task.ts`,
 		// which can be bootstrapped by copy/pasting this one. (and updating the imports)
 		const timingToBuild = timings.start('build');
+		// TODO this should only happen when we opt into bundling - how is that defined?
 		const distCount = config.builds.filter((b) => b.dist).length;
 		await Promise.all(
 			buildConfigsToBuild.map(async (buildConfig) => {
@@ -136,12 +122,12 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
 				}
+				// TODO `files` needs to be mapped to production output files
 				const outputDir = `${DIST_DIR}${toBuildExtension(
 					sourceIdToBasePath(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
 				)}`;
 				log.info('building', printBuildConfigLabel(buildConfig), outputDir, files);
 				const build = createBuild({
-					fs,
 					dev,
 					sourcemap: config.sourcemap,
 					inputFiles: files,
@@ -149,7 +135,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					mapInputOptions,
 					mapOutputOptions,
 					mapWatchOptions,
-					esbuildOptions,
 				});
 				await build.promise;
 
@@ -159,6 +144,21 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			}),
 		);
 		timingToBuild();
+
+		// Adapt the build to final ouputs.
+		// TODO timings for each
+		const timingToAdapt = timings.start('adapt');
+		const adapters = await config.adapt();
+		if (adapters) {
+			await Promise.all(
+				toArray(adapters).map(async (adapter) => {
+					const timing = timings.start(`adapt ${adapter.name}`);
+					await adapter.adapt();
+					timing();
+				}),
+			);
+		}
+		timingToAdapt();
 
 		// done! clean up the API server
 		if (spawnedApiServer) {

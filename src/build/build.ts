@@ -9,35 +9,20 @@ import {
 } from 'rollup';
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
-import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {rainbow} from '../utils/terminal.js';
 import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/string.js';
-import {plainCssPlugin} from './rollup-plugin-plain-css.js';
-import {outputCssPlugin} from './rollup-plugin-output-css.js';
-import {createCssCache, CssCache} from './cssCache.js';
-import {groJsonPlugin} from './rollup-plugin-gro-json.js';
 // import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
-import {groEsbuildPlugin} from './rollup-plugin-gro-esbuild.js';
-import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
-import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {identity} from '../utils/function.js';
-import {
-	EsbuildTransformOptions,
-	getDefaultEsbuildPreprocessOptions,
-} from '../build/esbuildBuildHelpers.js';
 import type {PartialExcept} from '../index.js';
 import {paths} from '../paths.js';
-import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
-	fs: Filesystem;
 	inputFiles: string[];
-	esbuildOptions: EsbuildTransformOptions;
 	dev: boolean;
 	sourcemap: boolean;
 	outputDir: string;
@@ -45,9 +30,8 @@ export interface Options {
 	mapInputOptions: MapInputOptions;
 	mapOutputOptions: MapOutputOptions;
 	mapWatchOptions: MapWatchOptions;
-	cssCache: CssCache<GroCssBuild>;
 }
-export type RequiredOptions = 'fs' | 'inputFiles' | 'esbuildOptions';
+export type RequiredOptions = 'inputFiles';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
@@ -57,7 +41,6 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	mapInputOptions: identity,
 	mapOutputOptions: identity,
 	mapWatchOptions: identity,
-	cssCache: opts.cssCache || createCssCache(),
 	...omitUndefined(opts),
 });
 
@@ -107,36 +90,12 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 };
 
 const createInputOptions = (inputFile: string, options: Options, _log: Logger): InputOptions => {
-	const {fs, dev, sourcemap, cssCache, esbuildOptions} = options;
-
-	// TODO make this extensible - how? should bundles be combined for production builds?
-	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
-	const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
-
 	const unmappedInputOptions: InputOptions = {
 		// >> core input options
 		// external,
 		input: inputFile, // required
 		plugins: [
 			diagnosticsPlugin(),
-			groJsonPlugin({compact: !dev}),
-			groSveltePlugin({
-				dev,
-				addCssBuild: addSvelteCssBuild,
-				preprocessor: [
-					sveltePreprocessEsbuild.typescript(
-						getDefaultEsbuildPreprocessOptions(esbuildOptions.target, sourcemap, dev),
-					),
-				],
-				compileOptions: {},
-			}),
-			groEsbuildPlugin({esbuildOptions}),
-			plainCssPlugin({fs, addCssBuild: addPlainCssBuild}),
-			outputCssPlugin({
-				fs,
-				getCssBundles: cssCache.getCssBundles,
-				sourcemap,
-			}),
 			resolvePlugin({preferBuiltins: true}),
 			commonjsPlugin(),
 			// TODO re-enable terser, but add a config option (probably `terser` object)

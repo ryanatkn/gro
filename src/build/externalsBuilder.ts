@@ -10,9 +10,9 @@ import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, BuildContext, TextBuildSource, TextBuild} from './builder.js';
 import {cyan, gray} from '../utils/terminal.js';
 import {loadContents} from './load.js';
-import {groSveltePlugin} from '../project/rollup-plugin-gro-svelte.js';
+import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
-import {createCssCache} from '../project/cssCache.js';
+import {createCssCache} from './cssCache.js';
 import {printBuildConfig} from '../config/buildConfig.js';
 import type {BuildConfig} from '../config/buildConfig.js';
 import {
