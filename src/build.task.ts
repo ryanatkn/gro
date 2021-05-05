@@ -101,6 +101,8 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// It's in `dist/` waiting for any Gro builds to be written around it.
 		// TODO refactor when we implement `adapter-felt`
 
+		// TODO make this a customizable bundling step
+
 		// Not every build config is built for the final `dist/`!
 		// Only those that currently have `dist: true` are output.
 		// This allows a project's `src/gro.config.ts`
