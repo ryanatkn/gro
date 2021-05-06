@@ -29,4 +29,12 @@ export const defaultAdapt: AdaptBuilds = async () => {
 	console.log('adapt!!');
 	console.log('adapt!!');
 	console.log('adapt!!');
+	return [
+		{
+			name: 'default-adapter',
+			adapt: (ctx) => {
+				console.log('adapting!', ctx);
+			},
+		},
+	];
 };

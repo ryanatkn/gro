@@ -1,4 +1,4 @@
-import type {Task} from './task/task.js';
+import type {Task, Args} from './task/task.js';
 import {createBuild} from './build/build.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './build/build.js';
 import {
@@ -23,10 +23,11 @@ import {ensureEnd} from './utils/string.js';
 import {clean} from './fs/clean.js';
 import {copyDist} from './build/dist.js';
 import {toArray} from './utils/array.js';
+import type {AdaptBuildsContext} from './config/adapt.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
 
-export interface TaskArgs {
+export interface TaskArgs extends Args {
 	mapInputOptions?: MapInputOptions;
 	mapOutputOptions?: MapOutputOptions;
 	mapWatchOptions?: MapWatchOptions;
@@ -41,7 +42,8 @@ export interface TaskEvents extends ServerTaskEvents {
 export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'build the project',
 	dev: false,
-	run: async ({fs, dev, log, args, invokeTask, events}): Promise<void> => {
+	run: async (ctx): Promise<void> => {
+		const {fs, dev, log, args, invokeTask, events} = ctx;
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
@@ -149,15 +151,14 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		// Adapt the build to final ouputs.
 		const timingToAdapt = timings.start('adapt');
-		const adapters = await config.adapt();
-		if (adapters) {
-			// this could be parallelized, but I think adapting one at a time is a better DX for now,
-			// easier to follow what's happening (probably parallelize though, or maybe an option)
-			for (const adapter of toArray(adapters)) {
-				const timing = timings.start(`adapt ${adapter.name}`);
-				await adapter.adapt();
-				timing();
-			}
+		const adaptContext: AdaptBuildsContext<TaskArgs, TaskEvents> = {...ctx, config};
+		const adapters = await config.adapt(adaptContext);
+		// this could be parallelized, but I think adapting one at a time is a better DX for now,
+		// easier to follow what's happening (probably parallelize though, or maybe an option)
+		for (const adapter of toArray(adapters)) {
+			const timing = timings.start(`adapt ${adapter.name}`);
+			await adapter.adapt(adaptContext);
+			timing();
 		}
 		timingToAdapt();
 
