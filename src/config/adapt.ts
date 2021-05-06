@@ -18,14 +18,17 @@ Returning an empty array causes a no-op.
 
 // TODO defaulting to `any` might be a problem
 export interface AdaptBuilds<TArgs = any, TEvents = any> {
-	(ctx: AdaptBuildsContext<TArgs, TEvents>): Promise<Adapter | Adapter[]>;
+	(ctx: AdaptBuildsContext<TArgs, TEvents>): Promise<
+		Adapter<TArgs, TEvents> | Adapter<TArgs, TEvents>[]
+	>;
 }
 
-export interface AdaptBuildsContext<TArgs, TEvents> extends TaskContext<TArgs, TEvents> {
+export interface AdaptBuildsContext<TArgs = any, TEvents = any>
+	extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
 }
 
-export interface Adapter {
+export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	adapt: <TArgs, TEvents>(ctx: AdaptBuildsContext<TArgs, TEvents>) => Promise<void>;
+	adapt: (ctx: AdaptBuildsContext<TArgs, TEvents>) => Promise<void>;
 }

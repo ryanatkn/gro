@@ -32,7 +32,7 @@ export const defaultAdapt: AdaptBuilds = async () => {
 	return [
 		{
 			name: 'default-adapter',
-			adapt: (ctx) => {
+			adapt: async (ctx) => {
 				console.log('adapting!', ctx);
 			},
 		},
