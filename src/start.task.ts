@@ -7,7 +7,7 @@ import {spawn} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';
 import {green} from './utils/terminal.js';
 import type {BuildConfig} from './config/buildConfig.js';
-import {printTiming} from './utils/print.js';
+import {printTimings} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {hasApiServer, hasSvelteKitFrontend, toApiServerPort} from './config/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
@@ -75,9 +75,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				.filter(Boolean);
 			events.emit('start.spawned', spawneds, config);
 		}
-		for (const [key, timing] of timings.getAll()) {
-			log.trace(printTiming(key, timing));
-		}
+		printTimings(timings, log);
 	},
 };
 

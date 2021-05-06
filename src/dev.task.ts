@@ -1,6 +1,6 @@
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
-import {printTiming} from './utils/print.js';
+import {printTimings} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {createDefaultBuilder} from './build/defaultBuilder.js';
 import {paths, toBuildOutPath, isThisProjectGro} from './paths.js';
@@ -121,9 +121,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			});
 		}
 
-		for (const [key, timing] of timings.getAll()) {
-			log.trace(printTiming(key, timing));
-		}
+		printTimings(timings, log);
 	},
 };
 

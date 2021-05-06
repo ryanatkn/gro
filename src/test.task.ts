@@ -1,6 +1,6 @@
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
-import {printTiming} from './utils/print.js';
+import {printTimings} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {spawnProcess} from './utils/process.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
@@ -49,9 +49,7 @@ export const task: Task = {
 		]);
 		timeToRunUvu();
 
-		for (const [key, timing] of timings.getAll()) {
-			log.trace(printTiming(key, timing));
-		}
+		printTimings(timings, log);
 
 		if (!testRunResult.ok) {
 			throw new TaskError('Tests failed.');

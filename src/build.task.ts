@@ -1,13 +1,6 @@
 import type {Task, Args} from './task/task.js';
-import {createBuild} from './build/build.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './build/build.js';
-import {
-	DIST_DIR,
-	sourceIdToBasePath,
-	SVELTE_KIT_APP_DIRNAME,
-	SVELTE_KIT_BUILD_DIRNAME,
-	toBuildExtension,
-} from './paths.js';
+import {DIST_DIR, SVELTE_KIT_APP_DIRNAME, SVELTE_KIT_BUILD_DIRNAME} from './paths.js';
 import {Timings} from './utils/time.js';
 import {loadGroConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
@@ -15,13 +8,8 @@ import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import {SpawnedProcess, spawnProcess} from './utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
 import {hasApiServerConfig, hasSvelteKitFrontend} from './config/defaultBuildConfig.js';
-import {printTiming} from './utils/print.js';
-import {resolveInputFiles} from './build/utils.js';
-import {toCommonBaseDir} from './utils/path.js';
-import {printBuildConfigLabel} from './config/buildConfig.js';
-import {ensureEnd} from './utils/string.js';
+import {printTimings} from './utils/print.js';
 import {clean} from './fs/clean.js';
-import {copyDist} from './build/dist.js';
 import {toArray} from './utils/array.js';
 import type {AdaptBuildsContext} from './config/adapt.js';
 
@@ -48,9 +36,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
 
-		const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
-
-		const timings = new Timings();
+		const timings = new Timings(); // TODO belongs in ctx
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(fs, dev);
@@ -105,50 +91,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		// TODO make this a customizable bundling step
 
-		// Not every build config is built for the final `dist/`!
-		// Only those that currently have `dist: true` are output.
-		// This allows a project's `src/gro.config.ts`
-		// to control the "last mile" each time `gro build` is run.
-		// TODO maybe assign these to the `config` above?
-		const buildConfigsToBuild = config.builds.filter((buildConfig) => buildConfig.dist);
-		// For each build config that has `dist: true`,
-		// infer which of the inputs are actual source files,
-		// and therefore belong in the default Rollup build.
-		// If more customization is needed, users should implement their own `src/build.task.ts`,
-		// which can be bootstrapped by copy/pasting this one. (and updating the imports)
-		const timingToBuild = timings.start('build');
-		// TODO this should only happen when we opt into bundling - how is that defined?
-		const distCount = config.builds.filter((b) => b.dist).length;
-		await Promise.all(
-			buildConfigsToBuild.map(async (buildConfig) => {
-				const {files, filters} = await resolveInputFiles(fs, buildConfig);
-				if (!files.length) {
-					log.trace('no input files in', printBuildConfigLabel(buildConfig));
-					return;
-				}
-				// TODO `files` needs to be mapped to production output files
-				const outputDir = `${DIST_DIR}${toBuildExtension(
-					sourceIdToBasePath(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
-				)}`;
-				log.info('building', printBuildConfigLabel(buildConfig), outputDir, files);
-				const build = createBuild({
-					dev,
-					sourcemap: config.sourcemap,
-					inputFiles: files,
-					outputDir,
-					mapInputOptions,
-					mapOutputOptions,
-					mapWatchOptions,
-				});
-				await build.promise;
-
-				// TODO might need to be refactored, like `filters` should be `buildConfig.input`
-				// copy static prod files into `dist/`
-				await copyDist(fs, buildConfig, dev, distCount, log, filters);
-			}),
-		);
-		timingToBuild();
-
 		// Adapt the build to final ouputs.
 		const timingToAdapt = timings.start('adapt');
 		const adaptContext: AdaptBuildsContext<TaskArgs, TaskEvents> = {...ctx, config};
@@ -175,8 +117,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			}
 		}
 
-		for (const [key, timing] of timings.getAll()) {
-			log.trace(printTiming(key, timing));
-		}
+		printTimings(timings, log);
 	},
 };

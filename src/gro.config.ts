@@ -5,7 +5,7 @@ import type {GroConfigCreator} from './config/config.js';
 import {toBuildOutPath} from './paths.js';
 import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 import {Timings} from './utils/time.js';
-import {printTiming} from './utils/print.js';
+import {printTimings} from './utils/print.js';
 import {printSpawnResult, spawnProcess} from './utils/process.js';
 import {clean} from './fs/clean.js';
 import {copyDist} from './build/dist.js';
@@ -85,9 +85,7 @@ export const config: GroConfigCreator = async () => {
 						}
 						timingToCreateDist();
 
-						for (const [key, timing] of timings.getAll()) {
-							log.trace(printTiming(key, timing));
-						}
+						printTimings(timings, log);
 					},
 				},
 			];

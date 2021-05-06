@@ -4,7 +4,7 @@ import type {Args} from './task.js';
 import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import {runTask} from './runTask.js';
 import {createStopwatch, Timings} from '../utils/time.js';
-import {printMs, printPath, printPathOrGroPath, printTiming} from '../utils/print.js';
+import {printMs, printPath, printPathOrGroPath, printTimings} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
 import {
@@ -206,9 +206,7 @@ export const invokeTask = async (
 		process.exit(1);
 	}
 
-	for (const [key, timing] of timings.getAll()) {
-		log.trace(printTiming(key, timing));
-	}
+	printTimings(timings, log);
 	log.info(`🕒 ${printMs(totalTiming())}`);
 };
 

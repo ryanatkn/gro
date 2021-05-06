@@ -1,4 +1,4 @@
-import {printMs, printTiming} from '../utils/print.js';
+import {printMs, printTimings} from '../utils/print.js';
 import type {Logger} from '../utils/log.js';
 import {createStopwatch, Timings} from '../utils/time.js';
 import {paths} from '../paths.js';
@@ -18,9 +18,7 @@ export const buildSourceDirectory = async (
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
 	const logTimings = () => {
-		for (const [key, timing] of timings.getAll()) {
-			log.trace(printTiming(key, timing));
-		}
+		printTimings(timings, log);
 		log.info(`🕒 built in ${printMs(totalTiming())}`);
 	};
 

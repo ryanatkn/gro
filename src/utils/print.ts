@@ -2,6 +2,8 @@ import {gray, white, green, yellow} from '../utils/terminal.js';
 import {round} from '../utils/math.js';
 import {paths, toRootPath, groDirBasename, pathsFromId, groPaths} from '../paths.js';
 import {truncate} from './string.js';
+import type {Timings} from './time.js';
+import type {Logger} from './log.js';
 
 export const printKeyValue = (key: string, val: string | number): string =>
 	gray(`${key}(`) + val + gray(')');
@@ -51,3 +53,9 @@ export const printError = (err: Error): string =>
 
 export const printTiming = (key: string | number, timing: number): string =>
 	`${printMs(timing)} ${gray('←')} ${gray(key)}`;
+
+export const printTimings = (timings: Timings, log: Logger): void => {
+	for (const [key, timing] of timings.getAll()) {
+		log.trace(printTiming(key, timing));
+	}
+};
