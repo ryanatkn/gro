@@ -1,7 +1,6 @@
 import {resolve} from 'path';
 
 import {toArray} from '../utils/array.js';
-import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
 import {blue, gray} from '../utils/terminal.js';
 import type {Result} from '../index.js';
@@ -29,20 +28,17 @@ export interface BuildConfigPartial {
 	readonly name: string;
 	readonly platform: PlatformTarget;
 	readonly input: BuildConfigInput | readonly BuildConfigInput[];
-	readonly dist?: boolean;
-	readonly primary?: boolean;
 }
 
 export type PlatformTarget = 'node' | 'browser';
 
+export const PRIMARY_NODE_BUILD_CONFIG_NAME = 'node';
+export const isPrimaryBuildConfig = (config: BuildConfig): boolean =>
+	config.name === PRIMARY_NODE_BUILD_CONFIG_NAME;
+
 export const normalizeBuildConfigs = (
 	partials: readonly (BuildConfigPartial | null)[],
 ): BuildConfig[] => {
-	const platforms: Set<string> = new Set();
-	const primaryPlatforms: Set<string> = new Set();
-
-	const hasDist = partials.some((b) => b?.dist);
-
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	const buildConfigs: BuildConfig[] = [];
 	for (const buildConfig of partials) {
@@ -51,22 +47,7 @@ export const normalizeBuildConfigs = (
 			name: buildConfig.name,
 			platform: buildConfig.platform,
 			input: normalizeBuildConfigInput(buildConfig.input),
-			dist: hasDist ? buildConfig.dist ?? false : true, // If no config is marked as `dist`, assume they all are.
-			primary: buildConfig.primary ?? false,
 		});
-	}
-
-	for (const buildConfig of buildConfigs) {
-		platforms.add(buildConfig.platform);
-		if (buildConfig.primary) primaryPlatforms.add(buildConfig.platform);
-	}
-
-	for (const platform of platforms) {
-		// If no config is marked as primary for a platform, choose the first one.
-		if (!primaryPlatforms.has(platform)) {
-			const firstIndexForPlatform = buildConfigs.findIndex((b) => b.platform === platform);
-			buildConfigs[firstIndexForPlatform] = {...buildConfigs[firstIndexForPlatform], primary: true};
-		}
 	}
 
 	return buildConfigs;
@@ -84,7 +65,6 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 		};
 	}
 	const names: Set<string> = new Set();
-	const primaryPlatforms: Set<PlatformTarget> = new Set();
 	for (const buildConfig of buildConfigs) {
 		if (
 			!buildConfig ||
@@ -107,26 +87,6 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			};
 		}
 		names.add(buildConfig.name);
-		// Disallow multiple primary configs for each platform.
-		if (buildConfig.primary) {
-			if (primaryPlatforms.has(buildConfig.platform)) {
-				return {
-					ok: false,
-					reason:
-						`The field 'gro.builds' in package.json cannot have` +
-						` multiple primary items for platform "${buildConfig.platform}".`,
-				};
-			}
-			if (buildConfig.platform === 'node' && buildConfig.name !== PRIMARY_NODE_BUILD_CONFIG_NAME) {
-				return {
-					ok: false,
-					reason:
-						`The field 'gro.builds' in package.json must name` +
-						` its primary Node config '${PRIMARY_NODE_BUILD_CONFIG_NAME}'`,
-				};
-			}
-			primaryPlatforms.add(buildConfig.platform);
-		}
 	}
 	return {ok: true};
 };

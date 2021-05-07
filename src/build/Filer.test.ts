@@ -63,8 +63,6 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const buildConfig: BuildConfig = {
 		name: 'test_build_config',
 		platform: 'node',
-		primary: true,
-		dist: false,
 		input: [entryId],
 	};
 	const builder: Builder = {

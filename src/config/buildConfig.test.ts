@@ -12,7 +12,7 @@ const test_normalizeBuildConfigs = suite('normalizeBuildConfigs');
 
 test_normalizeBuildConfigs('normalizes a plain config', () => {
 	const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node', input: '.'}]);
-	t.equal(buildConfig, [{name: 'node', platform: 'node', input, primary: true, dist: true}]);
+	t.equal(buildConfig, [{name: 'node', platform: 'node', input}]);
 });
 
 test_normalizeBuildConfigs('normalizes inputs', () => {
@@ -28,9 +28,9 @@ test_normalizeBuildConfigs('normalizes inputs', () => {
 		{name: 'node7', platform: 'node', input: [inputPath, inputFilter]},
 	]);
 	t.equal(buildConfig, [
-		{name: 'node', platform: 'node', input, primary: true, dist: true},
-		{name: 'node2', platform: 'node', input, primary: false, dist: true},
-		{name: 'node3', platform: 'node', input, primary: false, dist: true},
+		{name: 'node', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
 		{
 			name: 'node4',
 			platform: 'node',
@@ -65,47 +65,47 @@ test_normalizeBuildConfigs('normalizes inputs', () => {
 test_normalizeBuildConfigs('declares a single dist', () => {
 	const buildConfig = normalizeBuildConfigs([
 		{name: 'node1', platform: 'node', input},
-		{name: 'node2', platform: 'node', input, dist: true},
-		{name: 'node3', platform: 'node', input, primary: true},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
 	]);
 	t.equal(buildConfig, [
-		{name: 'node1', platform: 'node', input, primary: false, dist: false},
-		{name: 'node2', platform: 'node', input, primary: false, dist: true},
-		{name: 'node3', platform: 'node', input, primary: true, dist: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
 	]);
 });
 
 test_normalizeBuildConfigs('ensures a primary config for each platform', () => {
 	const buildConfig = normalizeBuildConfigs([
-		{name: 'node1', platform: 'node', input, primary: false, dist: true},
-		{name: 'node2', platform: 'node', input, primary: false},
-		{name: 'browser1', platform: 'browser', input, primary: false},
-		{name: 'browser2', platform: 'browser', input, primary: false},
-		{name: 'browser3', platform: 'browser', input, primary: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'browser1', platform: 'browser', input},
+		{name: 'browser2', platform: 'browser', input},
+		{name: 'browser3', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
-		{name: 'node1', platform: 'node', input, primary: true, dist: true},
-		{name: 'node2', platform: 'node', input, primary: false, dist: false},
-		{name: 'browser1', platform: 'browser', input, primary: true, dist: false},
-		{name: 'browser2', platform: 'browser', input, primary: false, dist: false},
-		{name: 'browser3', platform: 'browser', input, primary: false, dist: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'browser1', platform: 'browser', input},
+		{name: 'browser2', platform: 'browser', input},
+		{name: 'browser3', platform: 'browser', input},
 	]);
 });
 
 test_normalizeBuildConfigs('makes all dist when none is', () => {
 	const buildConfig = normalizeBuildConfigs([
-		{name: 'node1', platform: 'node', input, dist: false},
-		{name: 'node2', platform: 'node', input, dist: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
-		{name: 'browser1', platform: 'browser', input, dist: false},
+		{name: 'browser1', platform: 'browser', input},
 		{name: 'browser2', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
-		{name: 'node1', platform: 'node', input, primary: true, dist: true},
-		{name: 'node2', platform: 'node', input, primary: false, dist: true},
-		{name: 'node3', platform: 'node', input, primary: false, dist: true},
-		{name: 'browser1', platform: 'browser', input, primary: true, dist: true},
-		{name: 'browser2', platform: 'browser', input, primary: false, dist: true},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+		{name: 'browser1', platform: 'browser', input},
+		{name: 'browser2', platform: 'browser', input},
 	]);
 });
 
@@ -124,8 +124,8 @@ test_validateBuildConfigs('basic behavior', () => {
 	t.ok(
 		validateBuildConfigs(
 			normalizeBuildConfigs([
-				{name: 'node', platform: 'node', input, primary: true},
-				{name: 'node2', platform: 'node', input, dist: true},
+				{name: 'node', platform: 'node', input},
+				{name: 'node2', platform: 'node', input},
 				{name: 'browser', platform: 'browser', input},
 				{name: 'browser2', platform: 'browser', input},
 			]),
@@ -135,10 +135,10 @@ test_validateBuildConfigs('basic behavior', () => {
 		validateBuildConfigs(
 			normalizeBuildConfigs([
 				{name: 'node', platform: 'node', input},
-				{name: 'node2', platform: 'node', input, dist: true},
+				{name: 'node2', platform: 'node', input},
 				{name: 'browser', platform: 'browser', input},
-				{name: 'browser2', platform: 'browser', input, primary: true, dist: true},
-				{name: 'browser3', platform: 'browser', input, dist: true},
+				{name: 'browser2', platform: 'browser', input},
+				{name: 'browser3', platform: 'browser', input},
 			]),
 		).ok,
 	);
@@ -166,7 +166,7 @@ test_validateBuildConfigs(
 			!validateBuildConfigs(
 				normalizeBuildConfigs([
 					{name: 'node', platform: 'node', input},
-					{name: 'failing_custom_name', platform: 'node', input, primary: true},
+					{name: 'failing_custom_name', platform: 'node', input},
 				]),
 			).ok,
 		);
@@ -197,9 +197,9 @@ test_validateBuildConfigs('fails with multiple primary configs for the same plat
 		!validateBuildConfigs(
 			normalizeBuildConfigs([
 				{name: 'node', platform: 'node', input},
-				{name: 'node2', platform: 'node', input, primary: true},
-				{name: 'browser', platform: 'browser', input, primary: true},
-				{name: 'node3', platform: 'node', input, primary: true},
+				{name: 'node2', platform: 'node', input},
+				{name: 'browser', platform: 'browser', input},
+				{name: 'node3', platform: 'node', input},
 			]),
 		).ok,
 	);
@@ -207,9 +207,9 @@ test_validateBuildConfigs('fails with multiple primary configs for the same plat
 		!validateBuildConfigs(
 			normalizeBuildConfigs([
 				{name: 'node', platform: 'node', input},
-				{name: 'browser1', platform: 'browser', input, primary: true},
+				{name: 'browser1', platform: 'browser', input},
 				{name: 'browser2', platform: 'browser', input},
-				{name: 'browser3', platform: 'browser', input, primary: true},
+				{name: 'browser3', platform: 'browser', input},
 			]),
 		).ok,
 	);

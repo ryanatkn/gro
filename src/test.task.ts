@@ -4,7 +4,7 @@ import {printTimings} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {spawnProcess} from './utils/process.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
-import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
+import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './config/buildConfig.js';
 import {loadGroConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 

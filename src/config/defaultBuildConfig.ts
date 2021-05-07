@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
+import {BuildConfig, BuildConfigPartial, PRIMARY_NODE_BUILD_CONFIG_NAME} from './buildConfig.js';
 import {
 	toBuildExtension,
 	basePathToSourceId,
@@ -20,12 +20,10 @@ export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
 // for the Node platform has this value as its name.
 // This convention speeds up running tasks by standardizing where Gro can look for built files.
 // This restriction could be relaxed by using cached metadata, but this keeps things simple for now.
-export const PRIMARY_NODE_BUILD_CONFIG_NAME = 'node';
+
 export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 	name: PRIMARY_NODE_BUILD_CONFIG_NAME,
 	platform: 'node',
-	primary: true,
-	dist: false,
 	input: [createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**'])],
 };
 
@@ -43,8 +41,6 @@ export const API_SERVER_BUILD_CONFIG_PLATFORM = 'node';
 export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_CONFIG_NAME,
 	platform: API_SERVER_BUILD_CONFIG_PLATFORM,
-	primary: false,
-	dist: true,
 	input: [API_SERVER_SOURCE_BASE_PATH],
 };
 // the first of these matches SvelteKit, the second is just close for convenience
@@ -68,7 +64,6 @@ export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): Build
 	name: 'browser',
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
-	dist: true,
 });
 const toDefaultAssetPaths = (): string[] => Array.from(getExtensions());
 

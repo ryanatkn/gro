@@ -1,5 +1,5 @@
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
-import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
+import {isPrimaryBuildConfig, normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import type {AdaptBuilds} from './adapt.js';
 import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
 import {
@@ -211,9 +211,10 @@ const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
 
 const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 	const buildConfigs = normalizeBuildConfigs(config.builds);
-	const primaryNodeBuildConfig = buildConfigs.find((b) => b.primary && b.platform === 'node')!;
-	const primaryBrowserBuildConfig =
-		buildConfigs.find((b) => b.primary && b.platform === 'browser') || null;
+	const primaryNodeBuildConfig = buildConfigs.find((b) => isPrimaryBuildConfig(b))!;
+	// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
+	// so this is a temp hack that just chooses the first browser build
+	const primaryBrowserBuildConfig = buildConfigs.find((b) => b.platform === 'browser') || null;
 	return {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,
