@@ -219,8 +219,6 @@ const logAvailableTasks = (
 	if (sourceIds.length) {
 		log.info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
 		for (const sourceId of sourceIds) {
-			// don't print Gro's internal `project/x` tasks for external users
-			if (!isThisProjectGro && sourceId.startsWith(`${groPaths.source}project`)) continue;
 			log.info('\t' + cyan(toTaskName(sourceIdToBasePath(sourceId, pathsFromId(sourceId)))));
 		}
 	} else {
