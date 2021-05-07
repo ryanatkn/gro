@@ -12,7 +12,7 @@ import {resolveInputFiles} from './build/utils.js';
 import {hasApiServer, hasSvelteKitFrontend, toApiServerPort} from './config/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
 import {toSvelteKitBasePath} from './build/sveltekit.js';
-import {loadPackageJson} from './project/packageJson.js';
+import {loadPackageJson} from './utils/packageJson.js';
 
 export interface TaskArgs extends ServeTaskArgs {}
 

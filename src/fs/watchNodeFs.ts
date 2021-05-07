@@ -5,7 +5,7 @@ import {toPathFilter} from './pathFilter.js';
 import type {PathFilter} from './pathFilter.js';
 import {omitUndefined} from '../utils/object.js';
 import type {PartialExcept} from '../index.js';
-import {loadGitignoreFilter} from '../project/gitignore.js';
+import {loadGitignoreFilter} from '../utils/gitignore.js';
 
 /*
 

@@ -1,7 +1,7 @@
 import prettier from 'prettier';
 import {extname} from 'path';
 
-import {loadPackageJson} from '../project/packageJson.js';
+import {loadPackageJson} from '../utils/packageJson.js';
 import type {Obj} from '../index.js';
 import type {Filesystem} from '../fs/filesystem.js';
 

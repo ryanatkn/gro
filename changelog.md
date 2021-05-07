@@ -85,7 +85,7 @@
 - **break**: extract the `Filesystem` interface and
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
-- **break**: replace `src/project/gitignore.ts` helper `isGitignored`
+- **break**: replace `src/utils/gitignore.ts` helper `isGitignored`
   with `src/fs/pathFilter.ts` helper `toPathFilter`
   ([#172](https://github.com/feltcoop/gro/pull/172))
 
@@ -122,7 +122,7 @@
   ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
-- add `src/project/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
+- add `src/utils/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
 - add helper `toSvelteKitBasePath` to `src/build/sveltekit.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
@@ -162,7 +162,7 @@
 
 - **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
   ([#154](https://github.com/feltcoop/gro/pull/154))
-- **break**: rename `src/fs/clean.ts` from `src/project/clean.ts`
+- **break**: rename `src/fs/clean.ts` from `src/utils/clean.ts`
   ([#155](https://github.com/feltcoop/gro/pull/155))
 - **break**: rename `toArray` from `ensureArray`
   ([#117](https://github.com/feltcoop/gro/pull/117))
@@ -507,7 +507,7 @@
 ## 0.2.3
 
 - fix external module type declarations by merging
-  `src/project/globalTypes.d.ts` into `src/globalTypes.ts`
+  `src/utils/globalTypes.d.ts` into `src/globalTypes.ts`
   ([#28](https://github.com/feltcoop/gro/pull/28))
 
 ## 0.2.2

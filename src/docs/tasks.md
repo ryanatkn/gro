@@ -14,7 +14,6 @@ What is a `Task`? See [`src/tasks/README.md`](../task).
 - [dev](../dev.task.ts) - start dev server
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
-- [project/echo](../project/echo.task.ts) - diagnostic task that logs CLI args
 - [serve](../serve.task.ts) - start static file server
 - [server](../server.task.ts) - start API server
 - [start](../start.task.ts) - runs the dist/ builds for production

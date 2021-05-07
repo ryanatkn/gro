@@ -23,7 +23,7 @@ export type {Lazy} from './utils/function.js';
 export type {ErrorClass} from './utils/error.js';
 export {UnreachableError} from './utils/error.js';
 export {last, toArray, EMPTY_ARRAY} from './utils/array.js';
-export {loadPackageJson} from './project/packageJson.js';
+export {loadPackageJson} from './utils/packageJson.js';
 export {TaskError} from './task/task.js';
 export type {Log, LoggerState} from './utils/log.js';
 export {
