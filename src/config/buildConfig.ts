@@ -12,8 +12,6 @@ export interface BuildConfig {
 	readonly name: string;
 	readonly platform: PlatformTarget;
 	readonly input: readonly BuildConfigInput[];
-	readonly dist: boolean;
-	readonly primary: boolean;
 }
 
 export type BuildConfigInput = string | InputFilter;
