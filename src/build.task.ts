@@ -24,7 +24,7 @@ export interface TaskArgs extends Args {
 
 export interface TaskEvents extends ServerTaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
-	'build.prebuild': void;
+	'build.buildSrc': void;
 }
 
 export const task: Task<TaskArgs, TaskEvents> = {
@@ -50,12 +50,12 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// Build everything with esbuild and Gro's `Filer` first,
 		// so we have the production server available to run while SvelteKit is building.
 		let spawnedApiServer: SpawnedProcess | null = null;
-		const timingToPrebuild = timings.start('prebuild');
+		const timingToBuildSrc = timings.start('buildSrc');
 		await buildSourceDirectory(fs, config, dev, log);
-		timingToPrebuild();
-		events.emit('build.prebuild');
+		timingToBuildSrc();
+		events.emit('build.buildSrc');
 
-		// now that the prebuild is ready, we can start the API server, if it exists
+		// now that the sources are built, we can start the API server, if it exists
 		if (hasApiServerConfig(config.builds)) {
 			events.once('server.spawn', (spawned) => {
 				spawnedApiServer = spawned;
@@ -88,8 +88,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// The SvelteKit part of the build is now complete.
 		// It's in `dist/` waiting for any Gro builds to be written around it.
 		// TODO refactor when we implement `adapter-felt`
-
-		// TODO make this a customizable bundling step
 
 		// Adapt the build to final ouputs.
 		const timingToAdapt = timings.start('adapt');
