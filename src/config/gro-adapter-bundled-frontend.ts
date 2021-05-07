@@ -8,7 +8,7 @@ import {ensureEnd} from '../utils/string.js';
 import {copyDist} from '../build/dist.js';
 import {Timings} from '../utils/time.js';
 
-// TODO name? is it specific to frontends?
+// TODO name? is it actually specific to frontends?
 
 export const createBundledFrontendAdapter = (): Adapter => {
 	return {

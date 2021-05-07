@@ -16,11 +16,10 @@ Returning an empty array causes a no-op.
 
 */
 
-// TODO defaulting to `any` might be a problem
 export interface AdaptBuilds<TArgs = any, TEvents = any> {
-	(ctx: AdaptBuildsContext<TArgs, TEvents>): Promise<
-		Adapter<TArgs, TEvents> | Adapter<TArgs, TEvents>[]
-	>;
+	(ctx: AdaptBuildsContext<TArgs, TEvents>):
+		| (Adapter<TArgs, TEvents> | Adapter<TArgs, TEvents>[])
+		| Promise<Adapter<TArgs, TEvents> | Adapter<TArgs, TEvents>[]>;
 }
 
 export interface AdaptBuildsContext<TArgs = any, TEvents = any>
@@ -30,5 +29,5 @@ export interface AdaptBuildsContext<TArgs = any, TEvents = any>
 
 export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	adapt: (ctx: AdaptBuildsContext<TArgs, TEvents>) => Promise<void>;
+	adapt: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
 }
