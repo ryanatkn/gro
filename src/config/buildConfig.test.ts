@@ -154,14 +154,6 @@ test_validateBuildConfigs(
 				normalizeBuildConfigs([{name: 'failing_custom_name', platform: 'node', input}]),
 			).ok,
 		);
-		t.ok(
-			!validateBuildConfigs(
-				normalizeBuildConfigs([
-					{name: 'node', platform: 'node', input},
-					{name: 'failing_custom_name', platform: 'node', input},
-				]),
-			).ok,
-		);
 	},
 );
 
@@ -179,29 +171,6 @@ test_validateBuildConfigs('fails with duplicate names', () => {
 			normalizeBuildConfigs([
 				{name: 'node', platform: 'node', input},
 				{name: 'node', platform: 'browser', input},
-			]),
-		).ok,
-	);
-});
-
-test_validateBuildConfigs('fails with multiple primary configs for the same platform ', () => {
-	t.ok(
-		!validateBuildConfigs(
-			normalizeBuildConfigs([
-				{name: 'node', platform: 'node', input},
-				{name: 'node2', platform: 'node', input},
-				{name: 'browser', platform: 'browser', input},
-				{name: 'node3', platform: 'node', input},
-			]),
-		).ok,
-	);
-	t.ok(
-		!validateBuildConfigs(
-			normalizeBuildConfigs([
-				{name: 'node', platform: 'node', input},
-				{name: 'browser1', platform: 'browser', input},
-				{name: 'browser2', platform: 'browser', input},
-				{name: 'browser3', platform: 'browser', input},
 			]),
 		).ok,
 	);

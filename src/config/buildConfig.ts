@@ -64,6 +64,15 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
+	const primaryBuildConfig = buildConfigs.find((b) => b.name === PRIMARY_NODE_BUILD_CONFIG_NAME);
+	if (!primaryBuildConfig) {
+		return {
+			ok: false,
+			reason:
+				`The field 'gro.builds' in package.json must have` +
+				` a 'node' config named '${PRIMARY_NODE_BUILD_CONFIG_NAME}'`,
+		};
+	}
 	const names: Set<string> = new Set();
 	for (const buildConfig of buildConfigs) {
 		if (
