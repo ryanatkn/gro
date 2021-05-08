@@ -63,6 +63,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			await invokeTask('server');
 		}
 
+		// TODO move to a detected adapter
 		// Handle any SvelteKit build.
 		// TODO could parallelize this - currently puts all SvelteKit stuff first
 		if (await hasSvelteKitFrontend(fs)) {
