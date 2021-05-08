@@ -26,8 +26,6 @@
 						({getMetasByBuildName(sourceTree, buildConfig.name).length})
 
 						<PlatformName platformName={buildConfig.platform} />
-						{#if buildConfig.primary}primary{/if}
-						{#if buildConfig.dist}dist{/if}
 					</small>
 				</label>
 			</div>

@@ -35,29 +35,21 @@ test_normalizeBuildConfigs('normalizes inputs', () => {
 			name: 'node4',
 			platform: 'node',
 			input: [inputPath],
-			primary: false,
-			dist: true,
 		},
 		{
 			name: 'node5',
 			platform: 'node',
 			input: [inputPath],
-			primary: false,
-			dist: true,
 		},
 		{
 			name: 'node6',
 			platform: 'node',
 			input: [inputFilter],
-			primary: false,
-			dist: true,
 		},
 		{
 			name: 'node7',
 			platform: 'node',
 			input: [inputPath, inputFilter],
-			primary: false,
-			dist: true,
 		},
 	]);
 });

@@ -16,7 +16,7 @@ If a project does not define a config, Gro imports a default config from
 > The default config detects
 > [Gro's deprecated SPA mode](https://github.com/feltcoop/gro/issues/106)
 > if it sees both a `src/index.html` and `src/index.ts`.
-> It also looks for a primary Node server entry point at `src/server/server.ts`.
+> It also looks for a Node server entry point at `src/server/server.ts`.
 > Both are no-ops if not detected.
 
 See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
@@ -44,8 +44,8 @@ import {createFilter} from '@rollup/pluginutils';
 export const config: GroConfigCreator = async () => {
 	return {
 		builds: [
-			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', dist: true},
-			{name: 'browser_desktop', platform: 'browser', input: 'index.ts', dist: true, primary: true},
+			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', adapt: mobileAdapter()},
+			{name: 'browser_desktop', platform: 'browser', input: 'index.ts', adapt: desktopAdapter()},
 			{name: 'node', platform: 'node', input: createFilter('**/*.{task,test,gen}*.ts')},
 		],
 	};
@@ -135,8 +135,6 @@ export interface BuildConfigPartial {
 	readonly name: string;
 	readonly platform: PlatformTarget; // 'node' | 'browser'
 	readonly input: BuildConfigInput | BuildConfigInput[];
-	readonly dist?: boolean;
-	readonly primary?: boolean;
 }
 ```
 
@@ -146,7 +144,6 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 
 > Importantly, **Gro requires a Node build named `"node"`**
 > that it uses to run things like tests, tasks, and codegen.
-> It must be the primary Node build.
 > Ideally this would be configurable, but doing so would slow Gro down in many cases.
 
 The `platform` can currently be `"node"` or `"browser"` and
@@ -164,22 +161,3 @@ To define filters, it's convenient to use the
 [`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
 from `@rollup/pluginutils` and
 Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
-
-The optional `dist` flag marks builds for inclusion in the root `dist/` directory
-by [the `gro dist` task](/src/dist.task.ts).
-If no `dist` flag is found on any builds, all builds are included.
-If multiple builds are found, the `gro dist` task copies their directories into `dist/`,
-named according to the `name` build config field.
-If one build is found, its contents are put directly into `dist/` with no directory namespacing.
-Like all builtin tasks, you can easily customize this behavior
-by creating `src/dist.task.ts` in your project and optionally
-[invoking the original task](/src/task#run-a-task-inside-another-task).
-
-The optional `primary` flag tells Gro which build of each platform
-should be used when doing something that needs exactly one build.
-For Node builds, this includes things like running tasks, tests, codegen,
-and other Node-related development concerns.
-For browser builds, this is the build that's served by the development server.
-As mentioned above, the `primary` Node build is always named `"node"`.
-For other platforms, if no `primary` flag exists on any build,
-Gro marks the first build in the `builds` array as primary.

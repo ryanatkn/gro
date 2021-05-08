@@ -13,13 +13,9 @@ export const config: GroConfigCreator = async () => {
 	const BROWSER_BUILD_CONFIG_NAME = 'browser';
 	return {
 		builds: [
-			// TODO think about this
-			// {...SERVER_BUILD_CONFIG, dist: false},
 			{
 				name: 'node',
 				platform: 'node',
-				dist: true,
-				primary: true,
 				input: [
 					'index.ts',
 					'cli/gro.ts',

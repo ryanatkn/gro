@@ -12,7 +12,7 @@ import {
 // The default config detects
 // Gro's deprecated SPA mode - https://github.com/feltcoop/gro/issues/106 -
 // if it sees both a `src/index.html` and `src/index.ts`.
-// It also looks for a primary Node server entry point at `src/server/server.ts`.
+// It also looks for a Node server entry point at `src/server/server.ts`.
 // Both are no-ops if not detected.
 
 export const config: GroConfigCreator = async ({fs}) => {
@@ -29,10 +29,10 @@ export const config: GroConfigCreator = async ({fs}) => {
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		adapt: async () => {
 			return [
-				// TODO detect
 				enableDeprecatedGroFrontend
 					? (await import('./gro-adapter-bundled-frontend.js')).createAdapter()
 					: null,
+				// TODO
 				// (await import('./gro-adapter-node-lib.js')).createAdapter(),
 			];
 		},
