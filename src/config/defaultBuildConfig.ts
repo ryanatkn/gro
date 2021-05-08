@@ -1,6 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import {BuildConfig, BuildConfigPartial, PRIMARY_NODE_BUILD_CONFIG_NAME} from './buildConfig.js';
+import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './buildConfig.js';
+import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
 import {
 	toBuildExtension,
 	basePathToSourceId,

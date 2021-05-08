@@ -5,10 +5,25 @@ import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {clean} from '../fs/clean.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
+import {omitUndefined} from '../utils/object.js';
 
 // TODO name? is it actually specific to Node libs?
 
-export const createAdapter = (): Adapter => {
+export interface Options {
+	buildNames: string[];
+}
+
+const DEFAULT_BUILD_NAMES = ['node'];
+
+const initOptions = (opts: Partial<Options>): Options => {
+	return {
+		...omitUndefined(opts),
+		buildNames: opts.buildNames || DEFAULT_BUILD_NAMES,
+	};
+};
+
+export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
+	const {buildNames} = initOptions(opts);
 	return {
 		name: 'gro-adapter-node-lib',
 		adapt: async ({config, fs, dev, log}) => {
@@ -27,9 +42,9 @@ export const createAdapter = (): Adapter => {
 			const timingToCreateDist = timings.start('create dist');
 			// This reads the `dist` flag on the build configs to help construct the final dist directory.
 			// See the docs at `./docs/config.md`.
-			const distCount = config.builds.filter((b) => b.dist).length;
+			const distBuilds = config.builds.filter((b) => buildNames.includes(b.name));
 			await Promise.all(
-				config.builds.map((buildConfig) => copyDist(fs, buildConfig, dev, distCount, log)),
+				distBuilds.map((buildConfig) => copyDist(fs, buildConfig, dev, buildNames.length, log)),
 			);
 
 			// TODO this fixes the npm 7 linking issue, but it probably should be fixed a different way.

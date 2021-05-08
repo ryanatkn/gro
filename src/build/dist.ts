@@ -22,7 +22,6 @@ export const copyDist = async (
 	log: Logger,
 	filters?: InputFilter[], // TODO this is hacky, should be `buildConfig.input` but we're using it to branch logic
 ): Promise<void> => {
-	if (!buildConfig.dist) return;
 	const buildOutDir = toBuildOutPath(dev, buildConfig.name);
 	const distOutDir = distCount === 1 ? paths.dist : `${paths.dist}${printBuildConfig(buildConfig)}`;
 	const externalsDir = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME);
