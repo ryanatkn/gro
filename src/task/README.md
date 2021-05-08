@@ -28,6 +28,8 @@ and defers composition to the user in regular TypeScript modules.
 - it's easy to hook into or override any of Gro's builtin tasks,
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
   (tasks are copy-paste friendly! just update the imports)
+- the task execution environment is filesystem agnostic by default; `run` receives a
+  [`TaskContext` argument](#user-content-types-task-and-taskcontext) with an `fs` property
 - it's fast because it imports only the modules that your chosen tasks need
 
 The task runner's purpose is to provide an ergonomic interface
@@ -108,6 +110,7 @@ export interface Task<TArgs extends Obj = Args, TEvents = {}> {
 }
 
 export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
+	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
 	args: TArgs;
@@ -117,6 +120,7 @@ export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
 		args?: Args,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
 		dev?: boolean,
+		fs?: Filesystem,
 	) => Promise<void>;
 }
 ```
