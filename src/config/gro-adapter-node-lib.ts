@@ -8,7 +8,7 @@ import {copyDist} from '../build/dist.js';
 
 // TODO name? is it actually specific to Node libs?
 
-export const createNodeLibAdapter = (): Adapter => {
+export const createAdapter = (): Adapter => {
 	return {
 		name: 'gro-adapter-node-lib',
 		adapt: async ({config, fs, dev, log}) => {

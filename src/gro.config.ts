@@ -2,7 +2,6 @@ import {createFilter} from '@rollup/pluginutils';
 
 // import {createDirectoryFilter} from './build/utils.js';
 import type {GroConfigCreator} from './config/config.js';
-import {createNodeLibAdapter} from './config/gro-adapter-node-lib.js';
 import {toBuildOutPath} from './paths.js';
 import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 
@@ -43,6 +42,6 @@ export const config: GroConfigCreator = async () => {
 			toBuildOutPath(true, BROWSER_BUILD_CONFIG_NAME, ''),
 			// then.. no file found
 		],
-		adapt: async () => createNodeLibAdapter(),
+		adapt: async () => (await import('./config/gro-adapter-node-lib.js')).createAdapter(),
 	};
 };

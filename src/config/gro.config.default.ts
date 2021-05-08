@@ -16,13 +16,26 @@ import {
 // Both are no-ops if not detected.
 
 export const config: GroConfigCreator = async ({fs}) => {
+	const [enableApiServer, enableDeprecatedGroFrontend] = await Promise.all([
+		hasApiServer(fs),
+		hasDeprecatedGroFrontend(fs),
+	]);
 	const partial: GroConfigPartial = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
-			(await hasApiServer(fs)) ? API_SERVER_BUILD_CONFIG : null,
-			(await hasDeprecatedGroFrontend(fs)) ? toDefaultBrowserBuild() : null, // TODO configure asset paths
+			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
+			enableDeprecatedGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
+		adapt: async () => {
+			return [
+				// TODO detect
+				enableDeprecatedGroFrontend
+					? (await import('./gro-adapter-bundled-frontend.js')).createAdapter()
+					: null,
+				// (await import('./gro-adapter-node-lib.js')).createAdapter(),
+			];
+		},
 	};
 	return partial;
 };

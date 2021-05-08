@@ -96,6 +96,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// this could be parallelized, but I think adapting one at a time is a better DX for now,
 		// easier to follow what's happening (probably parallelize though, or maybe an option)
 		for (const adapter of toArray(adapters)) {
+			if (!adapter) continue;
 			const timing = timings.start(`adapt ${adapter.name}`);
 			await adapter.adapt(adaptContext);
 			timing();

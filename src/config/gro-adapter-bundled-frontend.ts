@@ -10,7 +10,7 @@ import {Timings} from '../utils/time.js';
 
 // TODO name? is it actually specific to frontends?
 
-export const createBundledFrontendAdapter = (): Adapter => {
+export const createAdapter = (): Adapter => {
 	return {
 		name: 'gro-adapter-bundled-frontend',
 		adapt: async ({config, fs, args, log, dev}) => {

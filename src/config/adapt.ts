@@ -18,8 +18,8 @@ Returning an empty array causes a no-op.
 
 export interface AdaptBuilds<TArgs = any, TEvents = any> {
 	(ctx: AdaptBuildsContext<TArgs, TEvents>):
-		| (Adapter<TArgs, TEvents> | Adapter<TArgs, TEvents>[])
-		| Promise<Adapter<TArgs, TEvents> | Adapter<TArgs, TEvents>[]>;
+		| (Adapter<TArgs, TEvents> | (Adapter<TArgs, TEvents> | null)[])
+		| Promise<Adapter<TArgs, TEvents> | (Adapter<TArgs, TEvents> | null)[]>;
 }
 
 export interface AdaptBuildsContext<TArgs = any, TEvents = any>
