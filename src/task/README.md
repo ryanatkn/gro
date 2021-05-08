@@ -333,3 +333,12 @@ What makes Gro different?
     it'll print all tasks available both in your project and Gro.
   - The trailing `.task.ts` in the file path provided to `gro` is optional,
     so for example, `gro foo/bar` is the same as `gro foo/bar.task.ts`.
+
+## :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
+
+Gro's task runner has many inspirations:
+
+- [mgutz/task](https://github.com/mgutz/task)
+- [Gulp](https://github.com/gulpjs/gulp)
+- [@mgutz](https://github.com/mgutz)' [Projmate](https://github.com/projmate/projmate-core)
+- [Grunt](https://github.com/gruntjs/grunt)
