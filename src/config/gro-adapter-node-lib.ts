@@ -35,7 +35,7 @@ export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
 
 			// compile again with `tsc` to create all of the TypeScript type defs, sourcemaps, and typemaps
 			const timingToCompileWithTsc = timings.start('compile with tsc');
-			log.info('compiling with tsc');
+			log.info('compiling with tsc'); // TODO change this api to have `timings` take a logger and replace this line with logging in `start` above
 			await Promise.all(
 				buildNames.map(async (buildName) => {
 					const outDir = toBuildOutPath(dev, buildName);
