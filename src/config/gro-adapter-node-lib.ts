@@ -7,7 +7,7 @@ import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
 import {omitUndefined} from '../utils/object.js';
 import {paths, toBuildOutPath} from '../paths.js';
-import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './buildConfig.js';
+import {PRIMARY_NODE_BUILD_NAME} from './buildConfig.js';
 
 // TODO name? is it actually specific to Node libs?
 
@@ -15,7 +15,7 @@ export interface Options {
 	buildNames: readonly string[];
 }
 
-const DEFAULT_BUILD_NAMES: readonly string[] = [PRIMARY_NODE_BUILD_CONFIG_NAME];
+const DEFAULT_BUILD_NAMES: readonly string[] = [PRIMARY_NODE_BUILD_NAME];
 
 const initOptions = (opts: Partial<Options>): Options => {
 	return {
@@ -37,8 +37,8 @@ export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
 			const timingToCompileWithTsc = timings.start('compile with tsc');
 			log.info('compiling with tsc');
 			await Promise.all(
-				buildNames.map(async (buildConfigName) => {
-					const outDir = toBuildOutPath(dev, buildConfigName);
+				buildNames.map(async (buildName) => {
+					const outDir = toBuildOutPath(dev, buildName);
 					const tscResult = await spawnProcess('npx', [
 						'tsc',
 						'--outDir',

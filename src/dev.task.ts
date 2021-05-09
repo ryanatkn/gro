@@ -15,7 +15,7 @@ import type {SpawnedProcess} from './utils/process.js';
 import {
 	hasApiServerConfig,
 	API_SERVER_BUILD_BASE_PATH,
-	API_SERVER_BUILD_CONFIG_NAME,
+	API_SERVER_BUILD_NAME,
 	hasSvelteKitFrontend,
 } from './config/defaultBuildConfig.js';
 
@@ -110,12 +110,12 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
 			const serverBuildPath = toBuildOutPath(
 				true,
-				API_SERVER_BUILD_CONFIG_NAME,
+				API_SERVER_BUILD_NAME,
 				API_SERVER_BUILD_BASE_PATH,
 			);
 			const serverProcess = createRestartableProcess('node', [serverBuildPath]);
 			filer.on('build', ({buildConfig}) => {
-				if (buildConfig.name === API_SERVER_BUILD_CONFIG_NAME) {
+				if (buildConfig.name === API_SERVER_BUILD_NAME) {
 					serverProcess.restart();
 				}
 			});

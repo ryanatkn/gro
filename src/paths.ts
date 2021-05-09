@@ -110,10 +110,10 @@ function ensureTrailingSlash(s: string): string {
 
 export const toBuildOutPath = (
 	dev: boolean,
-	buildConfigName: string,
+	buildName: string,
 	basePath = '',
 	buildDir = paths.build,
-): string => `${toBuildOutDir(dev, buildDir)}/${buildConfigName}/${basePath}`;
+): string => `${toBuildOutDir(dev, buildDir)}/${buildName}/${basePath}`;
 
 export const toBuildBasePath = (buildId: string, buildDir = paths.build): string => {
 	const rootPath = stripStart(buildId, buildDir);
@@ -142,17 +142,17 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 
 // Converts a source id into an id that can be imported.
 // When importing from inside Gro's dist/ directory,
-// it returns a relative path and ignores `dev` and `buildConfigName`.
+// it returns a relative path and ignores `dev` and `buildName`.
 export const toImportId = (
 	sourceId: string,
 	dev: boolean,
-	buildConfigName: string,
+	buildName: string,
 	p = pathsFromId(sourceId),
 ): string => {
 	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
 	return !isThisProjectGro && groImportDir === p.dist
 		? join(groImportDir, dirBasePath)
-		: toBuildOutPath(dev, buildConfigName, dirBasePath, p.build);
+		: toBuildOutPath(dev, buildName, dirBasePath, p.build);
 };
 
 // TODO This function loses information. It's also hardcodedd to Gro's default file types.

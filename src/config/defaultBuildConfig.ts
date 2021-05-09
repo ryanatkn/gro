@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './buildConfig.js';
+import {PRIMARY_NODE_BUILD_NAME} from './buildConfig.js';
 import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
 import {
 	toBuildExtension,
@@ -23,7 +23,7 @@ export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
 // This restriction could be relaxed by using cached metadata, but this keeps things simple for now.
 
 export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
-	name: PRIMARY_NODE_BUILD_CONFIG_NAME,
+	name: PRIMARY_NODE_BUILD_NAME,
 	platform: 'node',
 	input: [createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**'])],
 };
@@ -34,13 +34,12 @@ export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PA
 export const hasApiServer = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
-		(b) =>
-			b.name === API_SERVER_BUILD_CONFIG_NAME && b.platform === API_SERVER_BUILD_CONFIG_PLATFORM,
+		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_CONFIG_PLATFORM,
 	);
-export const API_SERVER_BUILD_CONFIG_NAME = 'server';
+export const API_SERVER_BUILD_NAME = 'server';
 export const API_SERVER_BUILD_CONFIG_PLATFORM = 'node';
 export const API_SERVER_BUILD_CONFIG: BuildConfig = {
-	name: API_SERVER_BUILD_CONFIG_NAME,
+	name: API_SERVER_BUILD_NAME,
 	platform: API_SERVER_BUILD_CONFIG_PLATFORM,
 	input: [API_SERVER_SOURCE_BASE_PATH],
 };
@@ -51,7 +50,7 @@ export const API_SERVER_DEFAULT_PORT_DEV = 3001;
 export const toApiServerPort = (dev: boolean): number =>
 	dev ? API_SERVER_DEFAULT_PORT_DEV : API_SERVER_DEFAULT_PORT_PROD;
 export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): string =>
-	toBuildOutPath(dev, API_SERVER_BUILD_CONFIG_NAME, API_SERVER_BUILD_BASE_PATH, buildDir);
+	toBuildOutPath(dev, API_SERVER_BUILD_NAME, API_SERVER_BUILD_BASE_PATH, buildDir);
 
 const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const hasSvelteKitFrontend = async (fs: Filesystem): Promise<boolean> =>

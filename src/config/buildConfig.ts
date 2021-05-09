@@ -32,9 +32,9 @@ export interface BuildConfigPartial {
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const PRIMARY_NODE_BUILD_CONFIG_NAME = 'node';
+export const PRIMARY_NODE_BUILD_NAME = 'node';
 export const isPrimaryBuildConfig = (config: BuildConfig): boolean =>
-	config.name === PRIMARY_NODE_BUILD_CONFIG_NAME;
+	config.name === PRIMARY_NODE_BUILD_NAME;
 
 export const normalizeBuildConfigs = (
 	partials: readonly (BuildConfigPartial | null)[],
@@ -64,13 +64,13 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
-	const primaryBuildConfig = buildConfigs.find((b) => b.name === PRIMARY_NODE_BUILD_CONFIG_NAME);
+	const primaryBuildConfig = buildConfigs.find((b) => b.name === PRIMARY_NODE_BUILD_NAME);
 	if (!primaryBuildConfig) {
 		return {
 			ok: false,
 			reason:
 				`The field 'gro.builds' in package.json must have` +
-				` a 'node' config named '${PRIMARY_NODE_BUILD_CONFIG_NAME}'`,
+				` a 'node' config named '${PRIMARY_NODE_BUILD_NAME}'`,
 		};
 	}
 	const names: Set<string> = new Set();

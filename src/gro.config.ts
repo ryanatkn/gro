@@ -10,7 +10,7 @@ import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 
 export const config: GroConfigCreator = async () => {
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
-	const BROWSER_BUILD_CONFIG_NAME = 'browser';
+	const BROWSER_BUILD_NAME = 'browser';
 	return {
 		builds: [
 			{
@@ -24,7 +24,7 @@ export const config: GroConfigCreator = async () => {
 				],
 			},
 			{
-				name: BROWSER_BUILD_CONFIG_NAME,
+				name: BROWSER_BUILD_NAME,
 				platform: 'browser',
 				input: ['client/index.ts', createFilter(`**/*.{${ASSET_PATHS.join(',')}}`)],
 				// input: createDirectoryFilter('client'),
@@ -33,9 +33,9 @@ export const config: GroConfigCreator = async () => {
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		serve: [
 			// first try to fulfill requests with files in `$PROJECT/src/client/` as if it were `/`
-			toBuildOutPath(true, BROWSER_BUILD_CONFIG_NAME, 'client'),
+			toBuildOutPath(true, BROWSER_BUILD_NAME, 'client'),
 			// then look for files in `$PROJECT/src/`
-			toBuildOutPath(true, BROWSER_BUILD_CONFIG_NAME, ''),
+			toBuildOutPath(true, BROWSER_BUILD_NAME, ''),
 			// then.. no file found
 		],
 		adapt: async () => (await import('./config/gro-adapter-node-lib.js')).createAdapter(),
