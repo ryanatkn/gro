@@ -31,14 +31,16 @@ export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
 		adapt: async ({config, fs, dev, log}) => {
 			const timings = new Timings(); // TODO probably move to task context
 
+			const buildConfigs = config.builds.filter((b) => buildNames.includes(b.name));
+
 			await clean(fs, {dist: true}, log);
 
 			// compile again with `tsc` to create all of the TypeScript type defs, sourcemaps, and typemaps
 			const timingToCompileWithTsc = timings.start('compile with tsc');
 			log.info('compiling with tsc'); // TODO change this api to have `timings` take a logger and replace this line with logging in `start` above
 			await Promise.all(
-				buildNames.map(async (buildName) => {
-					const outDir = toBuildOutPath(dev, buildName);
+				buildConfigs.map(async (buildConfig) => {
+					const outDir = toBuildOutPath(dev, buildConfig.name);
 					const tscResult = await spawnProcess('npx', [
 						'tsc',
 						'--outDir',
@@ -52,14 +54,14 @@ export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
 			);
 			timingToCompileWithTsc();
 
-			// create the dist
-			const timingToCreateDist = timings.start('create dist');
+			// copy the dist
+			const timingToCopyDist = timings.start('copy dist');
 			// This reads the `dist` flag on the build configs to help construct the final dist directory.
 			// See the docs at `./docs/config.md`.
-			const distBuilds = config.builds.filter((b) => buildNames.includes(b.name));
 			await Promise.all(
-				distBuilds.map((buildConfig) => copyDist(fs, buildConfig, dev, buildNames.length, log)),
+				buildConfigs.map((buildConfig) => copyDist(fs, buildConfig, dev, buildNames.length, log)),
 			);
+			timingToCopyDist();
 
 			// TODO this fixes the npm 7 linking issue, but it probably should be fixed a different way.
 			// Why is this needed here but not when we call `npm run bootstrap` and get esbuild outputs?
@@ -70,7 +72,6 @@ export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
 			if (!linkResult.ok) {
 				throw new TaskError(`Failed to link. ${printSpawnResult(linkResult)}`);
 			}
-			timingToCreateDist();
 
 			printTimings(timings, log);
 		},

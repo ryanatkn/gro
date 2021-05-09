@@ -9,6 +9,7 @@ import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
 export const config: GroConfigCreator = async () => {
+	// TODO not this
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
 	const BROWSER_BUILD_NAME = 'browser';
 	return {
@@ -38,6 +39,12 @@ export const config: GroConfigCreator = async () => {
 			toBuildOutPath(true, BROWSER_BUILD_NAME, ''),
 			// then.. no file found
 		],
-		adapt: async () => (await import('./config/gro-adapter-node-lib.js')).createAdapter(),
+		adapt: async () =>
+			Promise.all([
+				// TODO is this how we want to compose behavior?
+				// linking could be an option of `node-lib`
+				(await import('./config/gro-adapter-node-lib.js')).createAdapter(),
+				(await import('./config/gro-adapter-npm-link.js')).createAdapter({path: 'dist/cli/gro.js'}),
+			]),
 	};
 };
