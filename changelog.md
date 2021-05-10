@@ -3,7 +3,9 @@
 ## 0.22.0
 
 - **break**: rename `Filesystem.writeFile` from `outputFile`
+  ([#188](https://github.com/feltcoop/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
+  ([#188](https://github.com/feltcoop/gro/pull/188))
 
 ## 0.21.6
 
