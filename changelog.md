@@ -1,5 +1,9 @@
 # Gro changelog
 
+## 0.22.0
+
+- **break**: rename `Filesystem.writeFile` from `outputFile`
+
 ## 0.21.6
 
 - hack: add temporary support for extensionless import paths to internal modules
