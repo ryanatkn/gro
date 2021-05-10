@@ -13,19 +13,21 @@ import {PRIMARY_NODE_BUILD_NAME} from './buildConfig.js';
 
 export interface Options {
 	buildNames: readonly string[];
+	link: string | null;
 }
 
 const DEFAULT_BUILD_NAMES: readonly string[] = [PRIMARY_NODE_BUILD_NAME];
 
 const initOptions = (opts: Partial<Options>): Options => {
 	return {
+		link: null,
 		...omitUndefined(opts),
 		buildNames: opts.buildNames || DEFAULT_BUILD_NAMES,
 	};
 };
 
 export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
-	const {buildNames} = initOptions(opts);
+	const {buildNames, link} = initOptions(opts);
 	return {
 		name: 'gro-adapter-node-lib',
 		adapt: async ({config, fs, dev, log}) => {
@@ -71,6 +73,18 @@ export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
 			const linkResult = await spawnProcess('npm', ['link']);
 			if (!linkResult.ok) {
 				throw new TaskError(`Failed to link. ${printSpawnResult(linkResult)}`);
+			}
+
+			if (link) {
+				const timingToNpmLink = timings.start('npm link');
+				const chmodResult = await spawnProcess('chmod', ['+x', link]);
+				if (!chmodResult.ok) log.error(`CLI chmod failed with code ${chmodResult.code}`);
+				log.info(`linking`);
+				const linkResult = await spawnProcess('npm', ['link']);
+				if (!linkResult.ok) {
+					throw new TaskError(`Failed to link. ${printSpawnResult(linkResult)}`);
+				}
+				timingToNpmLink();
 			}
 
 			printTimings(timings, log);

@@ -41,10 +41,7 @@ export const config: GroConfigCreator = async () => {
 		],
 		adapt: async () =>
 			Promise.all([
-				// TODO is this how we want to compose behavior?
-				// linking could be an option of `node-lib`
-				(await import('./config/gro-adapter-node-lib.js')).createAdapter(),
-				(await import('./config/gro-adapter-npm-link.js')).createAdapter({path: 'dist/cli/gro.js'}),
+				(await import('./config/gro-adapter-node-lib.js')).createAdapter({link: 'dist/cli/gro.js'}),
 			]),
 	};
 };
