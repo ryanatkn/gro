@@ -9,6 +9,7 @@ import type {PathFilter} from './pathFilter.js';
 export interface Filesystem {
 	stat: FsStat;
 	exists: FsExists;
+	findFiles: FsFindFiles;
 	readFile: FsReadFile;
 	writeFile: FsWriteFile;
 	remove: FsRemove;
@@ -17,7 +18,6 @@ export interface Filesystem {
 	readDir: FsReadDir;
 	emptyDir: FsEmptyDir;
 	ensureDir: FsEnsureDir;
-	findFiles: FsFindFiles;
 }
 
 export interface FsStat {
@@ -25,6 +25,14 @@ export interface FsStat {
 }
 export interface FsExists {
 	(path: string): Promise<boolean>;
+}
+export interface FsFindFiles {
+	(
+		dir: string,
+		filter?: PathFilter,
+		// pass `null` to speed things up at the risk of infrequent misorderings (at least on Linux)
+		sort?: ((a: [any, any], b: [any, any]) => number) | null,
+	): Promise<Map<string, PathStats>>;
 }
 export interface FsReadFile {
 	(path: string): Promise<Buffer>;
@@ -53,18 +61,11 @@ export interface FsEmptyDir {
 export interface FsEnsureDir {
 	(path: string): Promise<void>;
 }
-export interface FsFindFiles {
-	(
-		dir: string,
-		filter?: PathFilter,
-		// pass `null` to speed things up at the risk of infrequent misorderings (at least on Linux)
-		sort?: ((a: [any, any], b: [any, any]) => number) | null,
-	): Promise<Map<string, PathStats>>;
-}
 
 export abstract class Fs implements Filesystem {
 	abstract stat: FsStat;
 	abstract exists: FsExists;
+	abstract findFiles: FsFindFiles;
 	abstract readFile: FsReadFile;
 	abstract writeFile: FsWriteFile;
 	abstract remove: FsRemove;
@@ -73,7 +74,6 @@ export abstract class Fs implements Filesystem {
 	abstract readDir: FsReadDir;
 	abstract emptyDir: FsEmptyDir;
 	abstract ensureDir: FsEnsureDir;
-	abstract findFiles: FsFindFiles;
 }
 
 // TODO try to implement some of these
