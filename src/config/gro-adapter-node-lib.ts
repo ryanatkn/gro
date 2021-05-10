@@ -5,7 +5,6 @@ import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {clean} from '../fs/clean.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {omitUndefined} from '../utils/object.js';
 import {paths, toBuildOutPath} from '../paths.js';
 import {PRIMARY_NODE_BUILD_NAME} from './buildConfig.js';
 
@@ -13,21 +12,14 @@ import {PRIMARY_NODE_BUILD_NAME} from './buildConfig.js';
 
 export interface Options {
 	buildNames: readonly string[];
-	link: string | null;
+	link: string | null; // path to `npm link`
 }
 
 const DEFAULT_BUILD_NAMES: readonly string[] = [PRIMARY_NODE_BUILD_NAME];
 
-const initOptions = (opts: Partial<Options>): Options => {
-	return {
-		link: null,
-		...omitUndefined(opts),
-		buildNames: opts.buildNames || DEFAULT_BUILD_NAMES,
-	};
-};
-
-export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
-	const {buildNames, link} = initOptions(opts);
+export const createAdapter = (options?: Partial<Options>): Adapter => {
+	const buildNames = options?.buildNames ?? DEFAULT_BUILD_NAMES;
+	const link = options?.link ?? null;
 	return {
 		name: 'gro-adapter-node-lib',
 		adapt: async ({config, fs, dev, log}) => {
@@ -65,16 +57,7 @@ export const createAdapter = (opts: Partial<Options> = {}): Adapter => {
 			);
 			timingToCopyDist();
 
-			// TODO this fixes the npm 7 linking issue, but it probably should be fixed a different way.
-			// Why is this needed here but not when we call `npm run bootstrap` and get esbuild outputs?
-			const chmodResult = await spawnProcess('chmod', ['+x', 'dist/cli/gro.js']);
-			if (!chmodResult.ok) log.error(`CLI chmod failed with code ${chmodResult.code}`);
-			log.info(`linking`);
-			const linkResult = await spawnProcess('npm', ['link']);
-			if (!linkResult.ok) {
-				throw new TaskError(`Failed to link. ${printSpawnResult(linkResult)}`);
-			}
-
+			// `npm link` if configured
 			if (link) {
 				const timingToNpmLink = timings.start('npm link');
 				const chmodResult = await spawnProcess('chmod', ['+x', link]);
