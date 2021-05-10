@@ -4,6 +4,7 @@ import {toArray} from '../utils/array.js';
 import {paths} from '../paths.js';
 import {blue, gray} from '../utils/terminal.js';
 import type {Result} from '../index.js';
+import {PRIMARY_NODE_BUILD_CONFIG, PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
 
 // See `../docs/config.md` for documentation.
 
@@ -32,7 +33,6 @@ export interface BuildConfigPartial {
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const PRIMARY_NODE_BUILD_NAME = 'node';
 export const isPrimaryBuildConfig = (config: BuildConfig): boolean =>
 	config.name === PRIMARY_NODE_BUILD_NAME;
 
@@ -41,13 +41,21 @@ export const normalizeBuildConfigs = (
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	const buildConfigs: BuildConfig[] = [];
-	for (const buildConfig of partials) {
-		if (!buildConfig) continue;
-		buildConfigs.push({
-			name: buildConfig.name,
-			platform: buildConfig.platform,
-			input: normalizeBuildConfigInput(buildConfig.input),
-		});
+	let hasPrimaryBuildConfig = false;
+	for (const partial of partials) {
+		if (!partial) continue;
+		const buildConfig: BuildConfig = {
+			name: partial.name,
+			platform: partial.platform,
+			input: normalizeBuildConfigInput(partial.input),
+		};
+		buildConfigs.push(buildConfig);
+		if (!hasPrimaryBuildConfig && isPrimaryBuildConfig(buildConfig)) {
+			hasPrimaryBuildConfig = true;
+		}
+	}
+	if (!hasPrimaryBuildConfig) {
+		buildConfigs.unshift(PRIMARY_NODE_BUILD_CONFIG);
 	}
 
 	return buildConfigs;

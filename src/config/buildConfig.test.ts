@@ -4,6 +4,7 @@ import {join} from 'path';
 
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import {paths} from '../paths.js';
+import {PRIMARY_NODE_BUILD_CONFIG} from './defaultBuildConfig.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
 
@@ -54,6 +55,20 @@ test_normalizeBuildConfigs('normalizes inputs', () => {
 	]);
 });
 
+test_normalizeBuildConfigs('adds a primary build config', () => {
+	const buildConfig = normalizeBuildConfigs([
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+	]);
+	t.equal(buildConfig, [
+		PRIMARY_NODE_BUILD_CONFIG,
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+	]);
+});
+
 test_normalizeBuildConfigs('declares a single dist', () => {
 	const buildConfig = normalizeBuildConfigs([
 		{name: 'node1', platform: 'node', input},
@@ -61,6 +76,7 @@ test_normalizeBuildConfigs('declares a single dist', () => {
 		{name: 'node3', platform: 'node', input},
 	]);
 	t.equal(buildConfig, [
+		PRIMARY_NODE_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
@@ -76,6 +92,7 @@ test_normalizeBuildConfigs('ensures a primary config for each platform', () => {
 		{name: 'browser3', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
+		PRIMARY_NODE_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'browser1', platform: 'browser', input},
@@ -93,6 +110,7 @@ test_normalizeBuildConfigs('makes all dist when none is', () => {
 		{name: 'browser2', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
+		PRIMARY_NODE_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
@@ -145,17 +163,6 @@ test_validateBuildConfigs('fails with an invalid name', () => {
 	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{platform: 'node', input} as any])).ok);
 	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{name: '', platform: 'node', input}])).ok);
 });
-
-test_validateBuildConfigs(
-	'fails with a primary Node name that does not match the enforced default',
-	() => {
-		t.ok(
-			!validateBuildConfigs(
-				normalizeBuildConfigs([{name: 'failing_custom_name', platform: 'node', input}]),
-			).ok,
-		);
-	},
-);
 
 test_validateBuildConfigs('fails with duplicate names', () => {
 	t.ok(

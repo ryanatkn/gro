@@ -11,8 +11,7 @@ import {
 } from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
 import {importTs} from '../fs/importTs.js';
-import {PRIMARY_NODE_BUILD_CONFIG} from './defaultBuildConfig.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from './defaultBuildConfig.js';
+import {PRIMARY_NODE_BUILD_CONFIG, DEFAULT_ECMA_SCRIPT_TARGET} from './defaultBuildConfig.js';
 import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 import type {ServedDirPartial} from '../build/ServedDir.js';
@@ -211,10 +210,6 @@ const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
 
 const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 	const buildConfigs = normalizeBuildConfigs(config.builds);
-	const primaryNodeBuildConfig = buildConfigs.find((b) => isPrimaryBuildConfig(b))!;
-	// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
-	// so this is a temp hack that just chooses the first browser build
-	const primaryBrowserBuildConfig = buildConfigs.find((b) => b.platform === 'browser') || null;
 	return {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,
@@ -224,7 +219,9 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 		...omitUndefined(config),
 		builds: buildConfigs,
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		primaryNodeBuildConfig,
-		primaryBrowserBuildConfig,
+		primaryNodeBuildConfig: buildConfigs.find((b) => isPrimaryBuildConfig(b))!,
+		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
+		// so this is a temp hack that just chooses the first browser build
+		primaryBrowserBuildConfig: buildConfigs.find((b) => b.platform === 'browser') || null,
 	};
 };

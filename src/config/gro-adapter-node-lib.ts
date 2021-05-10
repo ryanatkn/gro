@@ -6,7 +6,7 @@ import {clean} from '../fs/clean.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
 import {paths, toBuildOutPath} from '../paths.js';
-import {PRIMARY_NODE_BUILD_NAME} from './buildConfig.js';
+import {PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
 
 // TODO name? is it actually specific to Node libs?
 
