@@ -94,7 +94,7 @@ export const task: Task<TaskArgs> = {
 					.map((result) =>
 						result.files.map((file) => {
 							log.info('writing', printPath(file.id), 'generated from', printPath(file.originId));
-							return fs.outputFile(file.id, file.contents);
+							return fs.writeFile(file.id, file.contents);
 						}),
 					)
 					.flat(),

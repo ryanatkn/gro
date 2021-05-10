@@ -1021,7 +1021,7 @@ const syncBuildFilesToDisk = async (
 				throw new UnreachableError(change);
 			}
 			if (shouldOutputNewFile) {
-				await fs.outputFile(file.id, file.contents);
+				await fs.writeFile(file.id, file.contents);
 			}
 		}),
 	);

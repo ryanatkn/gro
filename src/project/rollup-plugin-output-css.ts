@@ -110,12 +110,12 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 
 					log.info('writing css bundle and sourcemap', dest);
 					await Promise.all([
-						fs.outputFile(dest, finalCss),
-						fs.outputFile(sourcemapDest, cssSourcemap),
+						fs.writeFile(dest, finalCss),
+						fs.writeFile(sourcemapDest, cssSourcemap),
 					]);
 				} else {
 					log.info('writing css bundle', dest);
-					await fs.outputFile(dest, css);
+					await fs.writeFile(dest, css);
 				}
 			}
 		},

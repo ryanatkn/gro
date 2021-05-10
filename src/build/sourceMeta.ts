@@ -83,7 +83,7 @@ export const updateSourceMeta = async (
 
 	sourceMetaById.set(file.id, sourceMeta);
 	// this.log.trace('outputting source meta', gray(cacheId));
-	await fs.outputFile(cacheId, JSON.stringify(data, null, 2));
+	await fs.writeFile(cacheId, JSON.stringify(data, null, 2));
 };
 
 export const deleteSourceMeta = async (

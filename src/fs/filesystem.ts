@@ -10,7 +10,7 @@ export interface Filesystem {
 	stat: FsStat;
 	exists: FsExists;
 	readFile: FsReadFile;
-	outputFile: FsOutputFile;
+	writeFile: FsOutputFile;
 	remove: FsRemove;
 	move: FsMove;
 	copy: FsCopy;
@@ -66,7 +66,7 @@ export abstract class Fs implements Filesystem {
 	abstract stat: FsStat;
 	abstract exists: FsExists;
 	abstract readFile: FsReadFile;
-	abstract outputFile: FsOutputFile;
+	abstract writeFile: FsOutputFile;
 	abstract remove: FsRemove;
 	abstract move: FsMove;
 	abstract copy: FsCopy;
