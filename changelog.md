@@ -4,6 +4,8 @@
 
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/feltcoop/gro/pull/187))
+- **break**: add a default `"node"` build named `"node"` if one is not defined
+  ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: rename `Filesystem.writeFile` from `outputFile`
   ([#188](https://github.com/feltcoop/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
