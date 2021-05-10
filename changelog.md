@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.22.0
+
+- **break**: rename `Filesystem.writeFile` from `outputFile`
+- **break**: upgrade to `fs-extra@10.0.0`
+
 ## 0.21.6
 
 - hack: add temporary support for extensionless import paths to internal modules

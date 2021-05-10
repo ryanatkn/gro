@@ -96,7 +96,7 @@ const compileFileAndImports = async (
 
 	// write the result and compile depdencies in parallel
 	await Promise.all([
-		fs.outputFile(build.id, build.contents),
+		fs.writeFile(build.id, build.contents),
 		Promise.all(internalDepSourceIds.map((id) => compileFileAndImports(fs, id, buildConfig, ctx))),
 	]);
 

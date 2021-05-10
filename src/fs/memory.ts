@@ -99,7 +99,7 @@ export class MemoryFs extends Fs {
 		}
 		return file.contents || '';
 	};
-	outputFile = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
+	writeFile = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
 		const id = toFsId(path);
 
 		// does the file already exist? update if so
@@ -166,7 +166,7 @@ export class MemoryFs extends Fs {
 				output = true;
 			}
 			if (output) {
-				await this.outputFile(nodeDestId, srcNode.contents, srcNode.encoding);
+				await this.writeFile(nodeDestId, srcNode.contents, srcNode.encoding);
 			}
 		}
 	};

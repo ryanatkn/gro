@@ -24,9 +24,9 @@ test_Filer('basic serve usage', async ({fs}) => {
 	const bId = '/served/b.svelte';
 	const cId = '/served/c/c.svelte.md';
 
-	fs.outputFile(aId, 'a', 'utf8');
-	fs.outputFile(bId, 'b', 'utf8');
-	fs.outputFile(cId, 'c', 'utf8');
+	fs.writeFile(aId, 'a', 'utf8');
+	fs.writeFile(bId, 'b', 'utf8');
+	fs.writeFile(cId, 'c', 'utf8');
 
 	const filer = new Filer({
 		fs,
@@ -59,7 +59,7 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const rootId = '/a/b/src';
 	const entrypointFilename = 'entrypoint.ts';
 	const entryId = `${rootId}/${entrypointFilename}`;
-	fs.outputFile(entryId, 'export const a: number = 5;', 'utf8');
+	fs.writeFile(entryId, 'export const a: number = 5;', 'utf8');
 	const buildConfig: BuildConfig = {
 		name: 'test_build_config',
 		platform: 'node',

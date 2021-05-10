@@ -60,7 +60,7 @@
     "es-module-lexer": "^0.4.1",
     "esbuild": "^0.9.3",
     "esinstall": "1.0.5",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "kleur": "^4.1.4",
     "locate-character": "^2.0.5",
     "mri": "^1.1.6",
