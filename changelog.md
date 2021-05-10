@@ -3,6 +3,7 @@
 ## 0.22.0
 
 - **break**: rename `Filesystem.writeFile` from `outputFile`
+- **break**: upgrade to `fs-extra@10.0.0`
 
 ## 0.21.6
 
