@@ -10,7 +10,7 @@ export interface Filesystem {
 	stat: FsStat;
 	exists: FsExists;
 	readFile: FsReadFile;
-	writeFile: FsOutputFile;
+	writeFile: FsWriteFile;
 	remove: FsRemove;
 	move: FsMove;
 	copy: FsCopy;
@@ -32,7 +32,7 @@ export interface FsReadFile {
 	(path: string, encoding: null): Promise<Buffer>;
 	(path: string, encoding?: Encoding): Promise<Buffer | string>;
 }
-export interface FsOutputFile {
+export interface FsWriteFile {
 	(path: string, data: any, encoding?: Encoding): Promise<void>;
 }
 export interface FsRemove {
@@ -66,7 +66,7 @@ export abstract class Fs implements Filesystem {
 	abstract stat: FsStat;
 	abstract exists: FsExists;
 	abstract readFile: FsReadFile;
-	abstract writeFile: FsOutputFile;
+	abstract writeFile: FsWriteFile;
 	abstract remove: FsRemove;
 	abstract move: FsMove;
 	abstract copy: FsCopy;

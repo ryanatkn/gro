@@ -1,7 +1,7 @@
 import CheapWatch from 'cheap-watch';
 import fsExtra from 'fs-extra';
 
-import type {Filesystem, FsOutputFile} from './filesystem.js';
+import type {Filesystem, FsWriteFile} from './filesystem.js';
 import type {PathStats} from './pathData.js';
 import {sortMap, compareSimpleMapEntries} from '../utils/map.js';
 import type {PathFilter} from './pathFilter.js';
@@ -31,7 +31,7 @@ export const fs: Filesystem = {
 	stat: fsExtra.stat,
 	exists: fsExtra.pathExists,
 	readFile: fsExtra.readFile,
-	writeFile: fsExtra.outputFile as FsOutputFile, // TODO incompatible encodings: is this an actual problem? or is `fs-extra` mistyped? test with `null`
+	writeFile: fsExtra.outputFile as FsWriteFile, // TODO incompatible encodings: is this an actual problem? or is `fs-extra` mistyped? test with `null`
 	remove: fsExtra.remove,
 	move: fsExtra.move,
 	copy: fsExtra.copy,
