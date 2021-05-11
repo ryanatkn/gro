@@ -188,8 +188,9 @@ export class MemoryFs extends Fs {
 	readDir = async (path: string): Promise<string[]> => {
 		// TODO use `_filter` - does it return relative? what behavior for missing, or file?
 		const id = toFsId(path);
+		const idSlash = ensureEnd(id, ROOT);
 		const nodes = this._filter(id);
-		return nodes.map((node) => stripStart(node.id, ensureEnd(id, ROOT)));
+		return nodes.map((node) => stripStart(node.id, idSlash));
 	};
 	emptyDir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
@@ -207,9 +208,10 @@ export class MemoryFs extends Fs {
 
 		const found = new Map();
 		const baseDir = toFsId(dir);
+		const baseDirSlash = ensureEnd(baseDir, ROOT);
 		for (const file of this._files.values()) {
 			if (file.id === baseDir || !file.id.startsWith(baseDir)) continue;
-			const path = stripStart(file.id, ensureEnd(baseDir, ROOT));
+			const path = stripStart(file.id, baseDirSlash);
 			if (!filter || filter({path, stats: file.stats})) {
 				found.set(path, file.stats);
 			}
