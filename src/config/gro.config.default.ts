@@ -7,6 +7,7 @@ import {
 	PRIMARY_NODE_BUILD_CONFIG,
 	API_SERVER_BUILD_CONFIG,
 	toDefaultBrowserBuild,
+	NODE_LIBRARY_BUILD_CONFIG,
 } from './defaultBuildConfig.js';
 
 // This is the default config that's used if the current project does not define one.
@@ -27,10 +28,12 @@ export const config: GroConfigCreator = async ({fs}) => {
 			PRIMARY_NODE_BUILD_CONFIG,
 			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
+			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		adapt: async () => {
 			return [
+				// TODO './gro-adapter-api-server.js'
 				enableGroFrontend
 					? (await import('./gro-adapter-bundled-frontend.js')).createAdapter()
 					: null,

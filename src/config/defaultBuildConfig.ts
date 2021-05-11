@@ -28,19 +28,31 @@ export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 	input: [createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**'])],
 };
 
+const NODE_LIBRARY_PATH = 'src/index.ts';
+const NODE_LIBRARY_EXCLUDE_PATH = 'src/index.html';
+export const hasNodeLibrary = async (fs: Filesystem): Promise<boolean> =>
+	(await fs.exists(NODE_LIBRARY_PATH)) && !(await fs.exists(NODE_LIBRARY_EXCLUDE_PATH));
+export const NODE_LIBRARY_BUILD_NAME = 'lib';
+export const NODE_LIBRARY_BUILD_PLATFORM = 'node';
+export const NODE_LIBRARY_BUILD_CONFIG: BuildConfig = {
+	name: NODE_LIBRARY_BUILD_NAME,
+	platform: NODE_LIBRARY_BUILD_PLATFORM,
+	input: [NODE_LIBRARY_PATH],
+};
+
 export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
 export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
 export const hasApiServer = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
-		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_CONFIG_PLATFORM,
+		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_PLATFORM,
 	);
 export const API_SERVER_BUILD_NAME = 'server';
-export const API_SERVER_BUILD_CONFIG_PLATFORM = 'node';
+export const API_SERVER_BUILD_PLATFORM = 'node';
 export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_NAME,
-	platform: API_SERVER_BUILD_CONFIG_PLATFORM,
+	platform: API_SERVER_BUILD_PLATFORM,
 	input: [API_SERVER_SOURCE_BASE_PATH],
 };
 // the first of these matches SvelteKit, the second is just close for convenience
@@ -55,11 +67,6 @@ export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): stri
 const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const hasSvelteKitFrontend = async (fs: Filesystem): Promise<boolean> =>
 	!isThisProjectGro && (await everyPathExists(fs, SVELTE_KIT_FRONTEND_PATHS));
-
-const GRO_NODE_LIBRARY_PATH = 'src/index.ts';
-const GRO_NODE_LIBRARY_EXCLUDE_PATH = 'src/index.html';
-export const hasNodeLibrary = async (fs: Filesystem): Promise<boolean> =>
-	(await fs.exists(GRO_NODE_LIBRARY_PATH)) && !(await fs.exists(GRO_NODE_LIBRARY_EXCLUDE_PATH));
 
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>
