@@ -48,6 +48,22 @@ export const createAdapter = (options?: Partial<Options>): Adapter => {
 			);
 			timingToCompileWithTsc();
 
+			// TODO instead of copying dist blindly,
+			// maybe we take an option to bundle certain entrypoints?
+			// how to support commonjs+esm outputs cleanly?
+			// // output esm to index.mjs
+			// args.mapOutputOptions = (outputOptions) => {
+			// 	return {...outputOptions, sourcemap: false};
+			// };
+			// await invokeTask('gro/build');
+			// await fs.move('dist/index.js', 'TEMP.mjs'); // stash
+			// // output commonjs to index.js
+			// args.mapOutputOptions = (outputOptions) => {
+			// 	return {...outputOptions, format: 'commonjs', sourcemap: false};
+			// };
+			// await invokeTask('gro/build');
+			// await fs.move('TEMP.mjs', 'dist/index.mjs'); // unstash
+
 			// copy the dist
 			const timingToCopyDist = timings.start('copy dist');
 			// This reads the `dist` flag on the build configs to help construct the final dist directory.
