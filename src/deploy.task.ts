@@ -105,7 +105,8 @@ export const task: Task<TaskArgs> = {
 		try {
 			// Set up the deployment worktree in the dist directory.
 			await spawnProcess('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
-			// Pull the remote deploy branch, ignoring failures
+			// Fetch and pull the remote deploy branch, ignoring failures
+			await spawnProcess('git', ['fetch', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
 			await spawnProcess('git', ['pull', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
