@@ -33,7 +33,8 @@ export const config: GroConfigCreator = async ({fs}) => {
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		adapt: async () => {
 			return [
-				// TODO './gro-adapter-api-server.js'
+				// TODO
+				// enableApiServer ? (await import('./gro-adapter-api-server.js')).createAdapter() : null,
 				enableGroFrontend
 					? (await import('./gro-adapter-bundled-frontend.js')).createAdapter()
 					: null,

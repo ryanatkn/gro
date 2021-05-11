@@ -11,7 +11,8 @@ export const defaultAdapt: AdaptBuilds = async ({fs}) => {
 		hasNodeLibrary(fs),
 	]);
 	return [
-		// TODO './gro-adapter-api-server.js'
+		// TODO
+		// enableApiServer ? (await import('./gro-adapter-api-server.js')).createAdapter() : null,
 		enableGroFrontend ? (await import('./gro-adapter-bundled-frontend.js')).createAdapter() : null,
 		enableNodeLibrary ? (await import('./gro-adapter-node-library.js')).createAdapter() : null,
 	];
