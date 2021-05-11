@@ -56,6 +56,11 @@ const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const hasSvelteKitFrontend = async (fs: Filesystem): Promise<boolean> =>
 	!isThisProjectGro && (await everyPathExists(fs, SVELTE_KIT_FRONTEND_PATHS));
 
+const GRO_NODE_LIBRARY_PATH = 'src/index.ts';
+const GRO_NODE_LIBRARY_EXCLUDE_PATH = 'src/index.html';
+export const hasNodeLibrary = async (fs: Filesystem): Promise<boolean> =>
+	(await fs.exists(GRO_NODE_LIBRARY_PATH)) && !(await fs.exists(GRO_NODE_LIBRARY_EXCLUDE_PATH));
+
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, DEPRECATED_GRO_FRONTEND_PATHS);

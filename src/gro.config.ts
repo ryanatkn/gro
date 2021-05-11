@@ -41,7 +41,9 @@ export const config: GroConfigCreator = async () => {
 		],
 		adapt: async () =>
 			Promise.all([
-				(await import('./config/gro-adapter-node-lib.js')).createAdapter({link: 'dist/cli/gro.js'}),
+				(await import('./config/gro-adapter-node-library.js')).createAdapter({
+					link: 'dist/cli/gro.js',
+				}),
 			]),
 	};
 };

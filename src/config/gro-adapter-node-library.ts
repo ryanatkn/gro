@@ -21,7 +21,7 @@ export const createAdapter = (options?: Partial<Options>): Adapter => {
 	const buildNames = options?.buildNames ?? DEFAULT_BUILD_NAMES;
 	const link = options?.link ?? null;
 	return {
-		name: 'gro-adapter-node-lib',
+		name: 'gro-adapter-node-library',
 		adapt: async ({config, fs, dev, log}) => {
 			const timings = new Timings(); // TODO probably move to task context
 

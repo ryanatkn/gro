@@ -3,6 +3,7 @@ import {ENV_LOG_LEVEL, LogLevel} from '../utils/log.js';
 import {
 	hasDeprecatedGroFrontend,
 	hasApiServer,
+	hasNodeLibrary,
 	PRIMARY_NODE_BUILD_CONFIG,
 	API_SERVER_BUILD_CONFIG,
 	toDefaultBrowserBuild,
@@ -16,24 +17,24 @@ import {
 // Both are no-ops if not detected.
 
 export const config: GroConfigCreator = async ({fs}) => {
-	const [enableApiServer, enableDeprecatedGroFrontend] = await Promise.all([
+	const [enableApiServer, enableGroFrontend, enableNodeLibrary] = await Promise.all([
 		hasApiServer(fs),
 		hasDeprecatedGroFrontend(fs),
+		hasNodeLibrary(fs),
 	]);
 	const partial: GroConfigPartial = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
 			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
-			enableDeprecatedGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
+			enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		adapt: async () => {
 			return [
-				enableDeprecatedGroFrontend
+				enableGroFrontend
 					? (await import('./gro-adapter-bundled-frontend.js')).createAdapter()
 					: null,
-				// TODO
-				// (await import('./gro-adapter-node-lib.js')).createAdapter(),
+				enableNodeLibrary ? (await import('./gro-adapter-node-library.js')).createAdapter() : null,
 			];
 		},
 	};
