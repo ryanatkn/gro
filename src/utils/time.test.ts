@@ -20,11 +20,10 @@ const test_Timings = suite('Timings');
 
 test_Timings('start and stop', () => {
 	const timings = new Timings<'foo' | 'bar'>(4);
-	timings.start('foo');
+	const timing = timings.start('foo');
 	t.throws(() => timings.start('foo'));
-	timings.stop('foo');
-	t.throws(() => timings.stop('foo'));
-	t.throws(() => timings.stop('bar'));
+	timing();
+	t.throws(() => timing());
 	const elapsed = timings.get('foo');
 	t.throws(() => timings.get('bar'));
 	t.ok(elapsed.toString().split('.')[1].length <= 4);
@@ -45,18 +44,18 @@ test_Timings('start with stop callback', () => {
 	const elapsed = timingToFoo();
 	t.ok(elapsed.toString().split('.')[1].length <= 4);
 	t.throws(() => timingToFoo());
-	t.throws(() => timings.stop('foo'));
+	t.throws(() => timingToFoo());
 	t.is(elapsed, timings.get('foo'));
 });
 
 test_Timings('merge timings', () => {
 	const a = new Timings(10);
 	const b = new Timings(10);
-	a.start('test');
-	const aTiming = a.stop('test');
+	const timingA = a.start('test');
+	const aTiming = timingA();
 	t.ok(aTiming);
-	b.start('test');
-	const bTiming = b.stop('test');
+	const timingB = b.start('test');
+	const bTiming = timingB();
 	t.ok(bTiming);
 	a.merge(b);
 	t.is(a.get('test'), aTiming + bTiming);
