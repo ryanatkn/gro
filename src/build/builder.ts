@@ -12,15 +12,6 @@ import type {Logger} from '../utils/log.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-// TODO maybe move to `buildFile`? but then `postprocess` would have a dependency on the build file.
-// its imports make more sense as is.
-export interface BuildDependency {
-	specifier: string;
-	mappedSpecifier: string;
-	buildId: string;
-	external: boolean;
-}
-
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
 	name: string;
 	build(
@@ -130,3 +121,12 @@ export const noopBuilder: Builder = {
 	// onRemove: not implemented because it's a no-op
 	// init: not implemented because it's a no-op
 };
+
+// TODO maybe move to `buildFile`? but then `postprocess` would have a dependency on the build file.
+// its imports make more sense as is.
+export interface BuildDependency {
+	specifier: string;
+	mappedSpecifier: string;
+	buildId: string;
+	external: boolean;
+}
