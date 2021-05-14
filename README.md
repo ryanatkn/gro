@@ -37,7 +37,7 @@ It includes:
     [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite),
     with long term plans to
     [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
-- configurable adapters featuring e.g.
+- [configurable adapters](src/docs/build.md#adapters) featuring e.g.
   optional production bundling with [Rollup](https://github.com/rollup/rollup)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
   using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
