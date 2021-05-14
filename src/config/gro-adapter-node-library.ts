@@ -149,8 +149,8 @@ export const createAdapter = ({
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
 			for (const buildConfig of bundled) {
 				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				const {files} = await resolveInputFiles(fs, buildConfig);
-				// TODO use `filters` to select the others?
+				const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
+				// TODO use `filters` to select the others..right?
 				if (!files.length) {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
@@ -158,7 +158,6 @@ export const createAdapter = ({
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 				const outputDir = buildOptions.dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				// TODO rename less hackily
 				await runRollup({
 					dev,
 					sourcemap: config.sourcemap,
