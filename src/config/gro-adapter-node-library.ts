@@ -158,28 +158,36 @@ export const createAdapter = ({
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 				const outputDir = buildOptions.dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				await runRollup({
-					dev,
-					sourcemap: config.sourcemap,
-					input,
-					outputDir,
-					mapInputOptions,
-					mapOutputOptions: (o, b) => ({
-						...(mapOutputOptions ? mapOutputOptions(o, b) : o),
-						format: 'commonjs',
-					}),
-					mapWatchOptions,
-				});
-				await fs.move(`${buildOptions.dir}/index.js`, `${buildOptions.dir}/index.cjs`);
-				await runRollup({
-					dev,
-					sourcemap: config.sourcemap,
-					input,
-					outputDir,
-					mapInputOptions,
-					mapOutputOptions,
-					mapWatchOptions,
-				});
+				if (buildOptions.type === 'unbundled') throw Error();
+				if (!buildOptions.cjs && !buildOptions.esm) {
+					throw Error(`Build must have either cjs or esm or both: ${buildOptions.name}`);
+				}
+				if (buildOptions.cjs) {
+					await runRollup({
+						dev,
+						sourcemap: config.sourcemap,
+						input,
+						outputDir,
+						mapInputOptions,
+						mapOutputOptions: (o, b) => ({
+							...(mapOutputOptions ? mapOutputOptions(o, b) : o),
+							format: 'commonjs',
+						}),
+						mapWatchOptions,
+					});
+					await fs.move(`${buildOptions.dir}/index.js`, `${buildOptions.dir}/index.cjs`);
+				}
+				if (buildOptions.esm) {
+					await runRollup({
+						dev,
+						sourcemap: config.sourcemap,
+						input,
+						outputDir,
+						mapInputOptions,
+						mapOutputOptions,
+						mapWatchOptions,
+					});
+				}
 			}
 			timingToBundleWithRollup();
 
