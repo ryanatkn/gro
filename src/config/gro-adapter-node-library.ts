@@ -149,6 +149,7 @@ export const createAdapter = ({
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
 			for (const buildConfig of bundled) {
 				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
+				if (buildOptions.type !== 'bundled') throw Error();
 				const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
@@ -158,7 +159,6 @@ export const createAdapter = ({
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 				const outputDir = buildOptions.dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				if (buildOptions.type === 'unbundled') throw Error();
 				if (!buildOptions.cjs && !buildOptions.esm) {
 					throw Error(`Build must have either cjs or esm or both: ${buildOptions.name}`);
 				}
