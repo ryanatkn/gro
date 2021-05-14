@@ -4,7 +4,7 @@ import type {Args} from './task.js';
 import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import {runTask} from './runTask.js';
 import {createStopwatch, Timings} from '../utils/time.js';
-import {printMs, printPath, printPathOrGroPath, printTiming} from '../utils/print.js';
+import {printMs, printPath, printPathOrGroPath, printTimings} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
 import {
@@ -20,8 +20,8 @@ import {
 import {findModules, loadModules} from '../fs/modules.js';
 import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
-import {loadGroPackageJson} from '../project/packageJson.js';
-import {PRIMARY_NODE_BUILD_CONFIG_NAME} from '../config/defaultBuildConfig.js';
+import {loadGroPackageJson} from '../utils/packageJson.js';
+import {PRIMARY_NODE_BUILD_NAME} from '../config/defaultBuildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 /*
@@ -206,9 +206,7 @@ export const invokeTask = async (
 		process.exit(1);
 	}
 
-	for (const [key, timing] of timings.getAll()) {
-		log.trace(printTiming(key, timing));
-	}
+	printTimings(timings, log);
 	log.info(`🕒 ${printMs(totalTiming())}`);
 };
 
@@ -221,8 +219,6 @@ const logAvailableTasks = (
 	if (sourceIds.length) {
 		log.info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
 		for (const sourceId of sourceIds) {
-			// don't print Gro's internal `project/x` tasks for external users
-			if (!isThisProjectGro && sourceId.startsWith(`${groPaths.source}project`)) continue;
 			log.info('\t' + cyan(toTaskName(sourceIdToBasePath(sourceId, pathsFromId(sourceId)))));
 		}
 	} else {
@@ -247,6 +243,6 @@ const shouldBuildProject = async (fs: Filesystem, sourceId: string): Promise<boo
 	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
 	if (isThisProjectGro && !(await fs.exists(paths.build))) return true;
 	// ensure the build file for the source id exists in the default dev build
-	const buildId = toImportId(sourceId, true, PRIMARY_NODE_BUILD_CONFIG_NAME);
+	const buildId = toImportId(sourceId, true, PRIMARY_NODE_BUILD_NAME);
 	return !(await fs.exists(buildId));
 };

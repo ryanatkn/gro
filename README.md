@@ -37,7 +37,8 @@ It includes:
     [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite),
     with long term plans to
     [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
-- production bundling with [Rollup](https://github.com/rollup/rollup)
+- configurable adapters featuring e.g.
+  optional production bundling with [Rollup](https://github.com/rollup/rollup)
 - fully integrated [TypeScript](https://github.com/microsoft/typescript)
   using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
@@ -64,17 +65,18 @@ It includes:
 
 ## docs
 
-- [unbundled development](/src/docs/unbundled.md) for web frontends, servers, and libraries
-- [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
+- [build](/src/docs/build.md) web frontends, servers, and libraries
+  - [unbundled development](/src/docs/unbundled.md)
+  - [config](/src/docs/config.md)
+  - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
+  - [publish](/src/docs/publish.md)
 - [`task`](/src/task) runner
+  - [tasks](/src/docs/tasks.md) list
 - [dev server](/src/server)
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs)
-  - [tasks](/src/docs/tasks.md)
-  - [config](/src/docs/config.md)
-  - [publish](/src/docs/publish.md)
   - [log](/src/docs/log.md)
-  - [options](/src/docs/options.md)
+  - [options](/src/docs/options.md) pattern
   - [philosophy](/src/docs/philosophy.md)
 
 ## install
@@ -167,8 +169,7 @@ gro test # make sure everything looks good - same as `npm test`
 
 # development
 gro dev # start dev server in watch mode; it's designed as a long-running process
-gro build # update the `gro` CLI locally (see comment directly below: slow because bug)
-# gro project/dist # TODO this should be the command but it's currently bugged
+gro build # update the `gro` CLI locally
 
 # use your development version of `gro` locally in another project
 cd ../otherproject

@@ -43,5 +43,5 @@ export const createDefaultBuilder = (
 		};
 	}
 
-	return createLazyBuilder(lazyBuilderOptions);
+	return {...createLazyBuilder(lazyBuilderOptions), name: 'gro-builder-default'};
 };

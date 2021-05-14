@@ -1,4 +1,4 @@
-import type {OmitStrict} from '../index.js';
+import type {OmitStrict, Obj} from './types.js';
 
 // Iterated keys in `for..in` are always returned as strings,
 // so to prevent usage errors the key type of `mapFn` is always a string.
@@ -86,3 +86,5 @@ export const undefineds: {[key: string]: undefined} = new Proxy(
 		},
 	},
 );
+
+export const EMPTY_OBJECT: Obj<any> = Object.freeze({}) as any;

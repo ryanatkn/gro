@@ -2,6 +2,15 @@
 
 ## 0.22.0
 
+- **break**: redesign `gro publish` and `gro deploy`
+  ([#187](https://github.com/feltcoop/gro/pull/187))
+- **break**: add [`Adapter` system](src/docs/build.md#adapters) and
+  [Node library adapter](src/adapt/gro-adapter-node-library.ts)
+  ([#187](https://github.com/feltcoop/gro/pull/187))
+- **break**: add a default `"node"` build named `"node"` if one is not defined
+  ([#187](https://github.com/feltcoop/gro/pull/187))
+- **break**: rename `toObtainable` from `createObtainable`
+  ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: rename `Filesystem.writeFile` from `outputFile`
   ([#188](https://github.com/feltcoop/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
@@ -83,7 +92,7 @@
 - **break**: extract the `Filesystem` interface and
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
-- **break**: replace `src/project/gitignore.ts` helper `isGitignored`
+- **break**: replace `src/utils/gitignore.ts` helper `isGitignored`
   with `src/fs/pathFilter.ts` helper `toPathFilter`
   ([#172](https://github.com/feltcoop/gro/pull/172))
 
@@ -120,7 +129,7 @@
   ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
-- add `src/project/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
+- add `src/utils/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
 - add helper `toSvelteKitBasePath` to `src/build/sveltekit.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
@@ -160,7 +169,7 @@
 
 - **break**: rename `src/fs/node.ts` from `src/fs/nodeFs.ts`
   ([#154](https://github.com/feltcoop/gro/pull/154))
-- **break**: rename `src/fs/clean.ts` from `src/project/clean.ts`
+- **break**: rename `src/fs/clean.ts` from `src/utils/clean.ts`
   ([#155](https://github.com/feltcoop/gro/pull/155))
 - **break**: rename `toArray` from `ensureArray`
   ([#117](https://github.com/feltcoop/gro/pull/117))
@@ -280,7 +289,7 @@
 - **break**: separate the default server and primary Node builds
   in `src/config/gro.config.default.ts`
   ([#131](https://github.com/feltcoop/gro/pull/131))
-- **break**: rename `src/utils/createObtainable.ts` to `src/utils/obtainable.ts` to fit convention
+- **break**: rename `src/utils/toObtainable.ts` to `src/utils/obtainable.ts` to fit convention
   ([#131](https://github.com/feltcoop/gro/pull/131))
 - add server auto-restart to `src/dev.task.ts`
   ([#129](https://github.com/feltcoop/gro/pull/129))
@@ -505,7 +514,7 @@
 ## 0.2.3
 
 - fix external module type declarations by merging
-  `src/project/globalTypes.d.ts` into `src/globalTypes.ts`
+  `src/utils/globalTypes.d.ts` into `src/globalTypes.ts`
   ([#28](https://github.com/feltcoop/gro/pull/28))
 
 ## 0.2.2

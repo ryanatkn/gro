@@ -56,5 +56,5 @@ export const createLazyBuilder = (opts: InitialOptions = {}): Required<Builder> 
 		}
 	};
 
-	return {build, onRemove, init};
+	return {name: 'gro-builder-lazy', build, onRemove, init};
 };

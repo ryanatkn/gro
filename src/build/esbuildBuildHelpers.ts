@@ -12,7 +12,7 @@ export interface EsbuildTransformOptions extends esbuild.TransformOptions {
 export const getDefaultEsbuildOptions = (
 	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = true,
-	_dev = true,
+	dev = true,
 ): EsbuildTransformOptions => ({
 	target,
 	sourcemap,
@@ -20,16 +20,16 @@ export const getDefaultEsbuildOptions = (
 	loader: 'ts',
 	charset: 'utf8', // following `svelte-preprocess-esbuild` here
 	tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
-	define: {},
+	define: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });
 
 export const getDefaultEsbuildPreprocessOptions = (
 	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = true,
-	_dev = true,
+	dev = true,
 ): Partial<sveltePreprocessEsbuild.Options> => ({
 	target,
 	sourcemap,
 	tsconfigRaw: {compilerOptions: {}}, // pass an empty object so the preprocessor doesn't load the tsconfig
-	define: {},
+	define: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });

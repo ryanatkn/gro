@@ -1,10 +1,10 @@
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
-import {printTiming} from './utils/print.js';
+import {printTimings} from './utils/print.js';
 import {Timings} from './utils/time.js';
 import {spawnProcess} from './utils/process.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
-import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './config/defaultBuildConfig.js';
+import {PRIMARY_NODE_BUILD_NAME} from './config/defaultBuildConfig.js';
 import {loadGroConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
@@ -19,7 +19,7 @@ export const task: Task = {
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const timings = new Timings();
 
-		const testsBuildDir = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG_NAME);
+		const testsBuildDir = toBuildOutPath(dev, PRIMARY_NODE_BUILD_NAME);
 
 		// TODO cleaner way to detect & rebuild?
 		if (!(await fs.exists(testsBuildDir))) {
@@ -49,9 +49,7 @@ export const task: Task = {
 		]);
 		timeToRunUvu();
 
-		for (const [key, timing] of timings.getAll()) {
-			log.trace(printTiming(key, timing));
-		}
+		printTimings(timings, log);
 
 		if (!testRunResult.ok) {
 			throw new TaskError('Tests failed.');

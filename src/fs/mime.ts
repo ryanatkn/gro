@@ -1,3 +1,5 @@
+import type {Flavored} from '../utils/types';
+
 /*
 
 This is a minimal set of MIME types
@@ -17,21 +19,24 @@ References:
 
 */
 
-// global cache
-const mimeTypeByExtension = new Map<string, string>();
-const extensionsByMimeType = new Map<string, string[]>();
+export type MimeType = Flavored<string, 'MimeType'>;
+export type FileExtension = Flavored<string, 'FileExtension'>; // excluding leading `.`
 
-export const getMimeTypeByExtension = (ext: string): string | null =>
+// global cache
+const mimeTypeByExtension = new Map<FileExtension, MimeType>();
+const extensionsByMimeType = new Map<MimeType, FileExtension[]>();
+
+export const getMimeTypeByExtension = (ext: FileExtension): MimeType | null =>
 	mimeTypeByExtension.get(ext) || null;
 
-export const getExtensionsByMimeType = (mimeType: string): string[] | null =>
+export const getExtensionsByMimeType = (mimeType: MimeType): FileExtension[] | null =>
 	extensionsByMimeType.get(mimeType) || null;
 
 export const getExtensions = () => mimeTypeByExtension.keys();
 export const getMimeTypes = () => extensionsByMimeType.keys();
 
 // Overrides anything that might already be cached.
-export const addMimeTypeExtension = (mimeType: string, extension: string): void => {
+export const addMimeTypeExtension = (mimeType: MimeType, extension: FileExtension): void => {
 	const existingMimeType = mimeTypeByExtension.get(extension);
 	if (existingMimeType === mimeType) return;
 	if (existingMimeType) removeMimeTypeExtension(extension);
@@ -43,7 +48,7 @@ export const addMimeTypeExtension = (mimeType: string, extension: string): void 
 };
 
 // Returns a boolean indicating if the extension was removed for the mime type.
-export const removeMimeTypeExtension = (extension: string): boolean => {
+export const removeMimeTypeExtension = (extension: FileExtension): boolean => {
 	const mimeType = mimeTypeByExtension.get(extension);
 	if (!mimeType) return false;
 	const newExtensions = extensionsByMimeType.get(mimeType)!.filter((e) => e !== extension);
@@ -57,7 +62,7 @@ export const removeMimeTypeExtension = (extension: string): boolean => {
 };
 
 (() => {
-	const types: [string, string[]][] = [
+	const types: [MimeType, FileExtension[]][] = [
 		// Since 'application/octet-stream' is the default, we don't include it.
 		['application/json', ['json', 'map']],
 		['application/schema+json', ['json']],

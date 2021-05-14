@@ -25,27 +25,27 @@ TODO configure port
 
 */
 
-// export interface TaskArgs {
-//   port?: string | number;
-// }
+export interface TaskArgs {
+	apiServerPath?: string;
+}
 
 export interface TaskEvents {
-	'server.spawn': (spawned: SpawnedProcess) => void;
+	'server.spawn': (spawned: SpawnedProcess, apiServerPath: string) => void;
 }
 
 // TODO what's the best way to give a placeholder for the unused first `TArgs` type argument?
-export const task: Task<{}, TaskEvents> = {
+export const task: Task<TaskArgs, TaskEvents> = {
 	description: 'start API server',
-	run: async ({fs, dev, events, log}) => {
-		const serverPath = toApiServerBuildPath(dev);
-		if (!(await fs.exists(serverPath))) {
-			log.error(red('server path does not exist:'), serverPath);
-			throw Error(`API server failed to start due to missing file: ${serverPath}`);
+	run: async ({fs, dev, events, args, log}) => {
+		const apiServerPath = args.apiServerPath ?? toApiServerBuildPath(dev);
+		if (!(await fs.exists(apiServerPath))) {
+			log.error(red('server path does not exist:'), apiServerPath);
+			throw Error(`API server failed to start due to missing file: ${apiServerPath}`);
 		}
 		// TODO what if we wrote out the port and
 		// also, retried if it conflicted ports, have some affordance here to increment and write to disk
 		// on disk, we can check for that file in `svelte.config.cjs`
-		const spawned = spawn('node', [serverPath]);
-		events.emit('server.spawn', spawned);
+		const spawned = spawn('node', [apiServerPath]);
+		events.emit('server.spawn', spawned, apiServerPath);
 	},
 };

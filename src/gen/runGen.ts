@@ -28,7 +28,7 @@ export const runGen = async (
 			async ({id, mod}): Promise<GenModuleResult> => {
 				inputCount++;
 				const genCtx: GenContext = {fs, originId: id};
-				timings.start(id);
+				const timingForModule = timings.start(id);
 
 				// Perform code generation by calling `gen` on the module.
 				let rawGenResult;
@@ -40,7 +40,7 @@ export const runGen = async (
 						id,
 						error: err,
 						reason: red(`Error generating ${printPath(id)}`),
-						elapsed: timings.stop(id),
+						elapsed: timingForModule(),
 					};
 				}
 
@@ -73,7 +73,7 @@ export const runGen = async (
 					ok: true,
 					id,
 					files,
-					elapsed: timings.stop(id),
+					elapsed: timingForModule(),
 				};
 			},
 		),

@@ -18,7 +18,7 @@ and Gro's philosophy will change over time.
 ### we want tools that are:
 
 - **specific**: designed for our use cases and workflows; natural fits for the domain
-- **sharp**: powerful, efficient, productive, lean, coordinated, wieldy
+- **sharp**: powerful, efficient, productive, lean, integrated, wieldy
 - **automated**: leverage laziness to its full potential, with wisdom; see prior _point_
 - **customizable**: happypath defaults and full control when you need it; hypermodular
 - **easy to use**: as internally complex as needed to be simple and powerful externally
@@ -56,10 +56,10 @@ We want to maintain a growth mindset, always striving never arriving.
   - we should support patterns for defining sources of truth and
     deriving useful information throughout our systems (e.g. codegen & JSON schema)
   - our tools and meta tools should be the same technologies, so they can feed into each other
-- **don't pass the buck, own it**:
+- **own the buck, don't pass it**:
   - follow end UX through to DX and take responsibility for every detail and dependency
     (in theory lol)
-  - at some point, practically speaking, we have to say
+  - at many points, practically speaking, we have to say
     "below this turtle is a black box I do not have time to understand from the inside"
     and that's ok; we need to be intentional about what we consider a black box and why;
     this is part of the "taking responsibility" in the prior point

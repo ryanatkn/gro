@@ -1,8 +1,7 @@
 export type {Task, TaskContext} from './task/task.js';
 export type {Gen, GenContext} from './gen/gen.js';
 
-// this is a lot of explicit exports (all of them),
-// but almost everything else is explicit, so..
+// export all of the main config helpers and types
 export {loadGroConfig, toConfig} from './config/config.js';
 export type {
 	GroConfig,
@@ -11,6 +10,13 @@ export type {
 	GroConfigCreator,
 	GroConfigCreatorOptions,
 } from './config/config.js';
+// also export the build config stuff
+export {
+	normalizeBuildConfigs,
+	validateBuildConfigs,
+	isPrimaryBuildConfig,
+} from './config/buildConfig.js';
+export type {BuildConfig, BuildName, BuildConfigPartial} from './config/buildConfig.js';
 
 // by definition, these are generic, so just export everything
 export * from './utils/types.js';
@@ -23,7 +29,7 @@ export type {Lazy} from './utils/function.js';
 export type {ErrorClass} from './utils/error.js';
 export {UnreachableError} from './utils/error.js';
 export {last, toArray, EMPTY_ARRAY} from './utils/array.js';
-export {loadPackageJson} from './project/packageJson.js';
+export {loadPackageJson} from './utils/packageJson.js';
 export {TaskError} from './task/task.js';
 export type {Log, LoggerState} from './utils/log.js';
 export {

@@ -5,7 +5,7 @@
 
 ## motivation
 
-The `gro gen` task allows us to enhance our projects
+The `gro gen` task helps us enhance our projects
 with convention-based code generation (codegen) techniques.
 
 Why? Codegen can produce cool results and eternal pain.
@@ -29,7 +29,7 @@ We may want to smooth out this use case in the future.
 
 Integrating codegen into our development process
 is a simple idea with vast potential.
-It allows us to have a single source of truth for data
+It lets us have a single source of truth for data
 that would otherwise be scattered throughout our codebases
 without compromising any of our code's runtime characteristics.
 We can generate documentation, types, validators, tests, fakes,

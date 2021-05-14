@@ -1,4 +1,5 @@
-import {Fs, toFsId, FsStats} from './filesystem.js';
+import {toFsId, FsStats} from './filesystem.js';
+import type {Filesystem, FsReadFile} from './filesystem.js';
 import type {FsCopyOptions, FsId, FsMoveOptions, FsNode} from './filesystem';
 import type {PathStats} from './pathData.js';
 import {compareSimpleMapEntries, sortMap} from '../utils/map.js';
@@ -16,7 +17,7 @@ import {ensureEnd, stripStart} from '../utils/string.js';
 
 const ROOT = '/';
 
-export class MemoryFs extends Fs {
+export class MemoryFs implements Filesystem {
 	_root = toFsId('.');
 
 	// TODO for now we're prefixing all non-Fs API with an underscore for clarity, maybe compose better?
@@ -88,7 +89,7 @@ export class MemoryFs extends Fs {
 		return this._files.has(id);
 	};
 	// TODO the `any` fixes a type error, not sure how to fix properly
-	readFile: Fs['readFile'] = async (path: string, encoding?: Encoding): Promise<any> => {
+	readFile: FsReadFile = async (path: string, encoding?: Encoding): Promise<any> => {
 		const id = toFsId(path);
 		const file = this._find(id);
 		if (!file) {

@@ -1,19 +1,20 @@
 import {resolve} from 'path';
 
 import {toArray} from '../utils/array.js';
-import {PRIMARY_NODE_BUILD_CONFIG_NAME} from './defaultBuildConfig.js';
 import {paths} from '../paths.js';
 import {blue, gray} from '../utils/terminal.js';
 import type {Result} from '../index.js';
+import {PRIMARY_NODE_BUILD_CONFIG, PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
+import type {Flavored} from '../utils/types.js';
 
 // See `../docs/config.md` for documentation.
 
-export interface BuildConfig {
-	readonly name: string;
-	readonly platform: PlatformTarget;
+export type BuildName = Flavored<string, 'BuildName'>;
+
+export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
+	readonly name: BuildName;
+	readonly platform: TPlatformTarget;
 	readonly input: readonly BuildConfigInput[];
-	readonly dist: boolean;
-	readonly primary: boolean;
 }
 
 export type BuildConfigInput = string | InputFilter;
@@ -28,47 +29,36 @@ export interface InputFilter {
 // 	'name' | 'platform'
 // >;
 export interface BuildConfigPartial {
-	readonly name: string;
+	readonly name: BuildName;
 	readonly platform: PlatformTarget;
 	readonly input: BuildConfigInput | readonly BuildConfigInput[];
-	readonly dist?: boolean;
-	readonly primary?: boolean;
 }
 
 export type PlatformTarget = 'node' | 'browser';
 
+export const isPrimaryBuildConfig = (config: BuildConfig): boolean =>
+	config.name === PRIMARY_NODE_BUILD_NAME;
+
 export const normalizeBuildConfigs = (
 	partials: readonly (BuildConfigPartial | null)[],
 ): BuildConfig[] => {
-	const platforms: Set<string> = new Set();
-	const primaryPlatforms: Set<string> = new Set();
-
-	const hasDist = partials.some((b) => b?.dist);
-
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	const buildConfigs: BuildConfig[] = [];
-	for (const buildConfig of partials) {
-		if (!buildConfig) continue;
-		buildConfigs.push({
-			name: buildConfig.name,
-			platform: buildConfig.platform,
-			input: normalizeBuildConfigInput(buildConfig.input),
-			dist: hasDist ? buildConfig.dist ?? false : true, // If no config is marked as `dist`, assume they all are.
-			primary: buildConfig.primary ?? false,
-		});
-	}
-
-	for (const buildConfig of buildConfigs) {
-		platforms.add(buildConfig.platform);
-		if (buildConfig.primary) primaryPlatforms.add(buildConfig.platform);
-	}
-
-	for (const platform of platforms) {
-		// If no config is marked as primary for a platform, choose the first one.
-		if (!primaryPlatforms.has(platform)) {
-			const firstIndexForPlatform = buildConfigs.findIndex((b) => b.platform === platform);
-			buildConfigs[firstIndexForPlatform] = {...buildConfigs[firstIndexForPlatform], primary: true};
+	let hasPrimaryBuildConfig = false;
+	for (const partial of partials) {
+		if (!partial) continue;
+		const buildConfig: BuildConfig = {
+			name: partial.name,
+			platform: partial.platform,
+			input: normalizeBuildConfigInput(partial.input),
+		};
+		buildConfigs.push(buildConfig);
+		if (!hasPrimaryBuildConfig && isPrimaryBuildConfig(buildConfig)) {
+			hasPrimaryBuildConfig = true;
 		}
+	}
+	if (!hasPrimaryBuildConfig) {
+		buildConfigs.unshift(PRIMARY_NODE_BUILD_CONFIG);
 	}
 
 	return buildConfigs;
@@ -85,8 +75,16 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
-	const names: Set<string> = new Set();
-	const primaryPlatforms: Set<PlatformTarget> = new Set();
+	const primaryBuildConfig = buildConfigs.find((b) => b.name === PRIMARY_NODE_BUILD_NAME);
+	if (!primaryBuildConfig) {
+		return {
+			ok: false,
+			reason:
+				`The field 'gro.builds' in package.json must have` +
+				` a 'node' config named '${PRIMARY_NODE_BUILD_NAME}'`,
+		};
+	}
+	const names: Set<BuildName> = new Set();
 	for (const buildConfig of buildConfigs) {
 		if (
 			!buildConfig ||
@@ -109,26 +107,6 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			};
 		}
 		names.add(buildConfig.name);
-		// Disallow multiple primary configs for each platform.
-		if (buildConfig.primary) {
-			if (primaryPlatforms.has(buildConfig.platform)) {
-				return {
-					ok: false,
-					reason:
-						`The field 'gro.builds' in package.json cannot have` +
-						` multiple primary items for platform "${buildConfig.platform}".`,
-				};
-			}
-			if (buildConfig.platform === 'node' && buildConfig.name !== PRIMARY_NODE_BUILD_CONFIG_NAME) {
-				return {
-					ok: false,
-					reason:
-						`The field 'gro.builds' in package.json must name` +
-						` its primary Node config '${PRIMARY_NODE_BUILD_CONFIG_NAME}'`,
-				};
-			}
-			primaryPlatforms.add(buildConfig.platform);
-		}
 	}
 	return {ok: true};
 };

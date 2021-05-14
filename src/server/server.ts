@@ -23,7 +23,7 @@ import {
 } from '../build/baseFilerFile.js';
 import type {BaseFilerFile} from '../build/baseFilerFile.js';
 import {paths} from '../paths.js';
-import {loadPackageJson} from '../project/packageJson.js';
+import {loadPackageJson} from '../utils/packageJson.js';
 import type {ProjectState} from './projectState.js';
 import type {Assignable, PartialExcept} from '../index.js';
 import {toEnvNumber, toEnvString} from '../utils/env.js';

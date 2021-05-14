@@ -22,6 +22,7 @@ export interface BuildDependency {
 }
 
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
+	name: string;
 	build(
 		source: TSource,
 		buildConfig: BuildConfig,
@@ -91,6 +92,7 @@ interface BaseBuildSource {
 }
 
 export const noopBuilder: Builder = {
+	name: 'gro-builder-noop',
 	build: (source, buildConfig, {buildDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);

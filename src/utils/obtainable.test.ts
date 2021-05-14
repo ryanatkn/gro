@@ -1,15 +1,15 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {createObtainable} from './obtainable.js';
+import {toObtainable} from './obtainable.js';
 
-/* test_createObtainable */
-const test_createObtainable = suite('createObtainable');
+/* test_toObtainable */
+const test_toObtainable = suite('toObtainable');
 
-test_createObtainable('unobtain out of order', async () => {
+test_toObtainable('unobtain out of order', async () => {
 	let thing: Symbol | undefined;
 	let isUnobtained = false;
-	const obtainThing = createObtainable(
+	const obtainThing = toObtainable(
 		() => {
 			t.is(thing, undefined);
 			thing = Symbol();
@@ -68,11 +68,11 @@ test_createObtainable('unobtain out of order', async () => {
 // This is a complicated corner case that probably should not happen
 // because it would normally cause a stack overflow in user code,
 // but we're covering it just in case.
-test_createObtainable('obtain is called during unobtain', () => {
+test_toObtainable('obtain is called during unobtain', () => {
 	let shouldObtainDuringUnobtain = true;
 	let thing: Symbol | undefined;
 	let isUnobtained = false;
-	const obtainThing = createObtainable(
+	const obtainThing = toObtainable(
 		() => {
 			t.is(thing, undefined);
 			isUnobtained = false;
@@ -112,13 +112,13 @@ test_createObtainable('obtain is called during unobtain', () => {
 	t.ok(isUnobtained);
 });
 
-test_createObtainable('cannot obtain undefined', () => {
-	const obtainThing = createObtainable(
+test_toObtainable('cannot obtain undefined', () => {
+	const obtainThing = toObtainable(
 		() => undefined,
 		() => {},
 	);
 	t.throws(() => obtainThing());
 });
 
-test_createObtainable.run();
-/* /test_createObtainable */
+test_toObtainable.run();
+/* /test_toObtainable */

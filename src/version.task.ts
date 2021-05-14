@@ -4,7 +4,7 @@ import type {Task} from './task/task.js';
 import {isThisProjectGro} from './paths.js';
 import {spawnProcess} from './utils/process.js';
 import {green, bgBlack, rainbow, red} from './utils/terminal.js';
-import {loadPackageJson} from './project/packageJson.js';
+import {loadPackageJson} from './utils/packageJson.js';
 import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';

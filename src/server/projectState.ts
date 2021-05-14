@@ -1,6 +1,6 @@
 import type {SourceMeta} from '../build/sourceMeta.js';
 import type {BuildConfig} from '../config/buildConfig.js';
-import type {PackageJson} from '../project/packageJson.js';
+import type {PackageJson} from '../utils/packageJson.js';
 
 // TODO rename?
 // ProjectState (current)

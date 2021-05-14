@@ -30,7 +30,7 @@ export const runTask = async (
 	if (dev === undefined) {
 		if (task.mod.task.dev !== undefined) {
 			dev = task.mod.task.dev;
-			process.env.NODE_ENV = dev ? 'development' : 'production';
+			process.env['NODE_ENV'] = dev ? 'development' : 'production';
 		} else {
 			dev = process.env.NODE_ENV !== 'production';
 		}

@@ -7,12 +7,12 @@ import {spawn} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';
 import {green} from './utils/terminal.js';
 import type {BuildConfig} from './config/buildConfig.js';
-import {printTiming} from './utils/print.js';
+import {printTimings} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {hasApiServer, hasSvelteKitFrontend, toApiServerPort} from './config/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
 import {toSvelteKitBasePath} from './build/sveltekit.js';
-import {loadPackageJson} from './project/packageJson.js';
+import {loadPackageJson} from './utils/packageJson.js';
 
 export interface TaskArgs extends ServeTaskArgs {}
 
@@ -49,22 +49,23 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		} else {
 			const inputs: {
 				buildConfig: BuildConfig;
-				inputFile: string;
+				input: string;
 			}[] = (
 				await Promise.all(
 					// TODO this needs to be changed, might need to configure on each `buildConfig`
 					// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
 					config.builds.map(async (buildConfig) =>
-						(await resolveInputFiles(fs, buildConfig)).files.map((inputFile) => ({
+						(await resolveInputFiles(fs, buildConfig)).files.map((input) => ({
 							buildConfig,
-							inputFile,
+							input,
 						})),
 					),
 				)
 			).flat();
 			const spawneds: SpawnedProcess[] = inputs
 				.map((input) => {
-					if (!input.buildConfig.dist) return null!;
+					// TODO
+					// if (!input.buildConfig.dist) return null!;
 					const path = toEntryPath(input.buildConfig);
 					if (!path) {
 						log.error('expected to find entry path for build config', input.buildConfig);
@@ -75,9 +76,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				.filter(Boolean);
 			events.emit('start.spawned', spawneds, config);
 		}
-		for (const [key, timing] of timings.getAll()) {
-			log.trace(printTiming(key, timing));
-		}
+		printTimings(timings, log);
 	},
 };
 

@@ -166,7 +166,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		return result;
 	};
 
-	return {build};
+	return {name: 'gro-builder-svelte', build};
 };
 
 const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {

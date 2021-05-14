@@ -30,6 +30,9 @@ export type Assignable<T, K extends keyof T = keyof T> = {
 	-readonly [P in K]: T[P];
 };
 
+export type Defined<T> = T extends undefined ? never : T;
+export type NotNull<T> = T extends null ? never : T;
+
 export type Result<TValue = {}, TError = {}> = ({ok: true} & TValue) | ({ok: false} & TError);
 // A helper that says,
 // "hey I know this is wrapped in a `Result`, but I expect it to be `ok`,

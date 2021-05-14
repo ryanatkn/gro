@@ -1,22 +1,28 @@
 import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
-import type {Plugin} from 'rollup';
+import type {Plugin, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 
 import {red} from '../utils/terminal.js';
 import {toPathStem} from '../utils/path.js';
 import {printLogLabel, SystemLogger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
-import type {GroCssBuild} from './types.js';
 import {omitUndefined} from '../utils/object.js';
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelteBuildHelpers.js';
 import type {SvelteCompilation} from '../build/svelteBuildHelpers.js';
 import {CSS_EXTENSION} from '../paths.js';
 import type {PartialExcept} from '../index.js';
+import type {CssBuild} from './cssCache.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
+
+export interface GroCssBuild extends CssBuild {
+	sourceId: string; // for Svelte files, the `.svelte` version instead of `.css`
+	sortIndex: number; // sort order when css is concatenated - maybe make this optional?
+	map: ExistingRawSourceMap | undefined;
+}
 
 export type GroSvelteCompilation = SvelteCompilation & {
 	id: string;

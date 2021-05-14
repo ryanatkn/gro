@@ -2,16 +2,15 @@ import type StrictEventEmitter from 'strict-event-emitter-types';
 import type {EventEmitter} from 'events';
 
 import type {Logger} from '../utils/log.js';
-import type {Obj} from '../utils/types.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export interface Task<TArgs extends Obj = Args, TEvents = {}> {
+export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	description?: string;
 	dev?: boolean;
 }
 
-export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
+export interface TaskContext<TArgs = {}, TEvents = {}> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;

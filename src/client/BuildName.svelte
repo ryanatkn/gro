@@ -1,5 +1,7 @@
 <script lang="ts">
-	export let buildName: string;
+	import type {BuildName} from '../config/buildConfig';
+
+	export let buildName: BuildName;
 </script>
 
 <span class="build-name">{buildName}</span>
