@@ -56,7 +56,7 @@ We want to maintain a growth mindset, always striving never arriving.
   - we should support patterns for defining sources of truth and
     deriving useful information throughout our systems (e.g. codegen & JSON schema)
   - our tools and meta tools should be the same technologies, so they can feed into each other
-- **don't pass the buck, own it**:
+- **own the buck, don't pass it**:
   - follow end UX through to DX and take responsibility for every detail and dependency
     (in theory lol)
   - at some point, practically speaking, we have to say
