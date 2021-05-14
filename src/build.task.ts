@@ -54,14 +54,14 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		const adapters = await config.adapt(adaptContext);
 		timingToCreateAdapters();
 
-		const timingToCallbegin = timings.start('begin');
+		const timingToCallBegin = timings.start('begin');
 		for (const adapter of toArray(adapters)) {
 			if (!adapter?.begin) continue;
 			const timing = timings.start(`begin:${adapter.name}`);
 			await adapter.begin(adaptContext);
 			timing();
 		}
-		timingToCallbegin();
+		timingToCallBegin();
 
 		const timingToCallAdapt = timings.start('adapt');
 		for (const adapter of toArray(adapters)) {
@@ -72,14 +72,14 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		}
 		timingToCallAdapt();
 
-		const timingToCallend = timings.start('end');
+		const timingToCallEnd = timings.start('end');
 		for (const adapter of toArray(adapters)) {
 			if (!adapter?.end) continue;
 			const timing = timings.start(`end:${adapter.name}`);
 			await adapter.end(adaptContext);
 			timing();
 		}
-		timingToCallend();
+		timingToCallEnd();
 
 		printTimings(timings, log);
 	},

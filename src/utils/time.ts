@@ -26,6 +26,7 @@ export class Timings<T extends string | number = string | number> {
 			throw Error(`Timing key is already in use: ${key}`);
 		}
 		this.stopwatches.set(key, createStopwatch(decimals));
+		this.timings.set(key, 0); // initializing to preserve order
 		return () => this.stop(key);
 	}
 	stop(key: T): number {
