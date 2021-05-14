@@ -21,9 +21,21 @@ export const config: GroConfigCreator = async ({dev}) => {
 					'index.ts',
 					'cli/gro.ts',
 					'cli/invoke.ts',
-					createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**']),
+					createFilter(['**/*.{task,test,config,gen,gen.*}.ts', '**/fixtures/**']),
 				],
 			},
+			dev
+				? null
+				: {
+						name: 'lib',
+						platform: 'node',
+						input: [
+							'index.ts',
+							'cli/gro.ts',
+							'cli/invoke.ts',
+							createFilter(['**/*.{task,config}.ts']),
+						],
+				  },
 			{
 				name: BROWSER_BUILD_NAME,
 				platform: 'browser',
@@ -40,11 +52,12 @@ export const config: GroConfigCreator = async ({dev}) => {
 			toBuildOutPath(true, BROWSER_BUILD_NAME, ''),
 			// then.. no file found
 		],
+		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>
 			Promise.all([
 				(await import('./config/gro-adapter-node-library.js')).createAdapter({
 					link: 'dist/cli/gro.js',
-					builds: [{name: 'node', type: 'unbundled'}],
+					builds: [{name: 'lib', type: 'unbundled'}],
 				}),
 			]),
 	};

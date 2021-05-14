@@ -4,7 +4,7 @@ import {printTimings} from '../utils/print.js';
 import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {DIST_DIRNAME, paths, toDistOutDir} from '../paths.js';
+import {DIST_DIRNAME, paths, toBuildOutPath, toDistOutDir} from '../paths.js';
 import {PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
 import {BuildConfig, BuildName, printBuildConfigLabel} from './buildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
@@ -106,10 +106,11 @@ export const createAdapter = ({
 			log.info('compiling with tsc'); // TODO change this api to have `timings` take a logger and replace this line with logging in `start` above
 			await Promise.all(
 				buildConfigs.map(async (buildConfig) => {
+					const {dir} = buildOptionsByBuildName.get(buildConfig.name)!;
 					const tscResult = await spawnProcess('npx', [
 						'tsc',
 						'--outDir',
-						buildOptionsByBuildName.get(buildConfig.name)!.dir!,
+						dir,
 						'--rootDir',
 						paths.source,
 						'--sourceMap',
@@ -118,8 +119,28 @@ export const createAdapter = ({
 						config.sourcemap && dev ? 'true' : 'false',
 						'--emitDeclarationOnly',
 					]);
-					if (!tscResult.ok)
+					if (!tscResult.ok) {
 						throw Error(`TypeScript failed to compile with code ${tscResult.code}`);
+					}
+					// TODO this is hacky - deletes unused *.d.ts files (like tests) and empty dirs
+					const files = await fs.findFiles(dir);
+					await Promise.all(
+						Array.from(files.entries()).map(async ([path, stats]) => {
+							if (stats.isDirectory()) {
+								if (!(await fs.exists(toBuildOutPath(dev, buildConfig.name, path)))) {
+									await fs.remove(`${dir}/${path}`);
+								}
+							} else {
+								if (path.endsWith('.d.ts')) {
+									const jsBuildFilePath = `${stripEnd(path, '.d.ts')}.js`;
+									const buildOutPath = toBuildOutPath(dev, buildConfig.name, jsBuildFilePath);
+									if (!(await fs.exists(buildOutPath))) {
+										await fs.remove(`${dir}/${path}`);
+									}
+								}
+							}
+						}),
+					);
 				}),
 			);
 			timingToCompileWithTsc();
@@ -163,10 +184,10 @@ export const createAdapter = ({
 			}
 			timingToBundleWithRollup();
 
-			const timingToCopyDist = timings.start('copy dist');
+			const timingToCopyDist = timings.start('copy unbundled builds to dist');
 			for (const buildConfig of unbundled) {
 				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				await copyDist(fs, buildConfig, dev, buildOptions.dir!, log);
+				await copyDist(fs, buildConfig, dev, buildOptions.dir, log);
 			}
 			timingToCopyDist();
 
