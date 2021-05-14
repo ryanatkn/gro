@@ -117,6 +117,7 @@ export const createAdapter = ({
 						config.sourcemap ? 'true' : 'false',
 						'--declarationMap',
 						config.sourcemap && dev ? 'true' : 'false',
+						'--declaration',
 						'--emitDeclarationOnly',
 					]);
 					if (!tscResult.ok) {
