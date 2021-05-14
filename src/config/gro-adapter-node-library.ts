@@ -165,12 +165,10 @@ export const createAdapter = ({
 					input,
 					outputDir,
 					mapInputOptions,
-					mapOutputOptions: (outputOptions, options) => {
-						const mapped = mapOutputOptions
-							? mapOutputOptions(outputOptions, options)
-							: outputOptions;
-						return {...mapped, format: 'commonjs'};
-					},
+					mapOutputOptions: (outputOptions, options) => ({
+						...(mapOutputOptions ? mapOutputOptions(outputOptions, options) : outputOptions),
+						format: 'commonjs',
+					}),
 					mapWatchOptions,
 				});
 				await fs.move(`${buildOptions.dir}/index.js`, `${buildOptions.dir}/index.cjs`);
