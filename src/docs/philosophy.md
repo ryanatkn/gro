@@ -59,7 +59,7 @@ We want to maintain a growth mindset, always striving never arriving.
 - **own the buck, don't pass it**:
   - follow end UX through to DX and take responsibility for every detail and dependency
     (in theory lol)
-  - at some point, practically speaking, we have to say
+  - at many points, practically speaking, we have to say
     "below this turtle is a black box I do not have time to understand from the inside"
     and that's ok; we need to be intentional about what we consider a black box and why;
     this is part of the "taking responsibility" in the prior point
