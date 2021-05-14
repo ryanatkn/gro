@@ -49,22 +49,23 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		} else {
 			const inputs: {
 				buildConfig: BuildConfig;
-				inputFile: string;
+				input: string;
 			}[] = (
 				await Promise.all(
 					// TODO this needs to be changed, might need to configure on each `buildConfig`
 					// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
 					config.builds.map(async (buildConfig) =>
-						(await resolveInputFiles(fs, buildConfig)).files.map((inputFile) => ({
+						(await resolveInputFiles(fs, buildConfig)).files.map((input) => ({
 							buildConfig,
-							inputFile,
+							input,
 						})),
 					),
 				)
 			).flat();
 			const spawneds: SpawnedProcess[] = inputs
 				.map((input) => {
-					if (!input.buildConfig.dist) return null!;
+					// TODO
+					// if (!input.buildConfig.dist) return null!;
 					const path = toEntryPath(input.buildConfig);
 					if (!path) {
 						log.error('expected to find entry path for build config', input.buildConfig);

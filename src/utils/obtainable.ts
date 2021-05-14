@@ -14,8 +14,8 @@ The motivating use case was reusing a database connection across multiple tasks.
 See the tests for usage examples - ./obtainable.test.ts
 
 */
-export const createObtainable = <T>(
-	createObtainableValue: () => T,
+export const toObtainable = <T>(
+	toObtainableValue: () => T,
 	teardownObtainableValue?: (obtainable: T) => unknown,
 ): (() => [T, Unobtain]) => {
 	let obtainable: T | undefined;
@@ -36,7 +36,7 @@ export const createObtainable = <T>(
 		const obtainedRef = Symbol();
 		obtainedRefs.add(obtainedRef);
 		if (obtainable === undefined) {
-			obtainable = createObtainableValue();
+			obtainable = toObtainableValue();
 			promise = new Promise<void>((r) => (resolve = r));
 			if (obtainable === undefined) {
 				// this prevents `obtain` from being called multiple times,

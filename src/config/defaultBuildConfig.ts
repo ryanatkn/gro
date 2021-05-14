@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
+import type {BuildConfig, BuildConfigPartial, BuildName} from './buildConfig.js';
 import {
 	toBuildExtension,
 	basePathToSourceId,
@@ -20,7 +20,7 @@ export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
 // for the Node platform has this value as its name.
 // This convention speeds up running tasks by standardizing where Gro can look for built files.
 // This restriction could be relaxed by using cached metadata, but this keeps things simple for now.
-export const PRIMARY_NODE_BUILD_NAME = 'node';
+export const PRIMARY_NODE_BUILD_NAME: BuildName = 'node';
 
 export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 	name: PRIMARY_NODE_BUILD_NAME,
@@ -32,7 +32,7 @@ const NODE_LIBRARY_PATH = 'src/index.ts';
 const NODE_LIBRARY_EXCLUDE_PATH = 'src/index.html';
 export const hasNodeLibrary = async (fs: Filesystem): Promise<boolean> =>
 	(await fs.exists(NODE_LIBRARY_PATH)) && !(await fs.exists(NODE_LIBRARY_EXCLUDE_PATH));
-export const NODE_LIBRARY_BUILD_NAME = 'lib';
+export const NODE_LIBRARY_BUILD_NAME: BuildName = 'lib';
 export const NODE_LIBRARY_BUILD_PLATFORM = 'node';
 export const NODE_LIBRARY_BUILD_CONFIG: BuildConfig = {
 	name: NODE_LIBRARY_BUILD_NAME,
@@ -48,7 +48,7 @@ export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
 		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_PLATFORM,
 	);
-export const API_SERVER_BUILD_NAME = 'server';
+export const API_SERVER_BUILD_NAME: BuildName = 'server';
 export const API_SERVER_BUILD_PLATFORM = 'node';
 export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_NAME,
@@ -72,8 +72,9 @@ const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, DEPRECATED_GRO_FRONTEND_PATHS);
 
+export const DEFAULT_BROWSER_BUILD_NAME: BuildName = 'browser';
 export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): BuildConfigPartial => ({
-	name: 'browser',
+	name: DEFAULT_BROWSER_BUILD_NAME,
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
 });

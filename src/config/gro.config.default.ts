@@ -10,27 +10,36 @@ import {
 	NODE_LIBRARY_BUILD_CONFIG,
 } from './defaultBuildConfig.js';
 
-// This is the default config that's used if the current project does not define one.
-// The default config detects
-// Gro's deprecated SPA mode - https://github.com/feltcoop/gro/issues/106 -
-// if it sees both a `src/index.html` and `src/index.ts`.
-// It also looks for a Node server entry point at `src/server/server.ts`.
-// Both are no-ops if not detected.
+/*
+
+This is the default config that's used
+if the current project does not define one at `src/gro.config.ts`.
+It looks at the project and tries to do the right thing:
+
+- if `src/index.html` and `src/index.ts`,
+	assumes Gro's deprecated SPA mode - https://github.com/feltcoop/gro/issues/106
+- if `src/index.ts` and not `src/index.html`,
+	assumes a Node library
+- if `src/server/server.ts`,
+	assumes a Node API server
+
+*/
 
 export const config: GroConfigCreator = async ({fs}) => {
-	const [enableApiServer, enableGroFrontend, enableNodeLibrary] = await Promise.all([
-		hasApiServer(fs),
+	const [enableGroFrontend, enableNodeLibrary, enableApiServer] = await Promise.all([
 		hasDeprecatedGroFrontend(fs),
 		hasNodeLibrary(fs),
+		hasApiServer(fs),
 	]);
 	const partial: GroConfigPartial = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
-			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
+			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
+		// TODO should this use `defaultAdapt`? might be different?
 		adapt: async () => {
 			return [
 				// TODO

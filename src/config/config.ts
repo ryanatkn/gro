@@ -10,7 +10,6 @@ import {
 	DEFAULT_LOG_LEVEL,
 } from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
-import {importTs} from '../fs/importTs.js';
 import {PRIMARY_NODE_BUILD_CONFIG, DEFAULT_ECMA_SCRIPT_TARGET} from './defaultBuildConfig.js';
 import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
@@ -145,16 +144,16 @@ export const loadGroConfig = async (
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
 		modulePath = configSourceId;
 		const configBuildId = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
-		if (await fs.exists(configBuildId)) {
-			configModule = await import(configBuildId);
-		} else {
-			// We need to bootstrap the config because it's not yet built.
-			// This is the lightest possible build process
-			// to compile the config from TypeScript to importable JavaScript.
-			// Importantly, the build config is typically the default, because it hasn't yet been loaded,
-			// so there could be subtle differences between the actual and bootstrapped configs.
-			configModule = await importTs(fs, configSourceId, PRIMARY_NODE_BUILD_CONFIG);
+		if (!(await fs.exists(configBuildId))) {
+			const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
+			await buildSourceDirectory(
+				fs,
+				await toConfig({builds: [PRIMARY_NODE_BUILD_CONFIG]}, {fs, log, dev}, modulePath),
+				dev,
+				log,
+			);
 		}
+		configModule = await import(configBuildId);
 	} else {
 		// The project does not have a `gro.config.ts`, so use Gro's fallback default.
 		modulePath = FALLBACK_CONFIG_NAME;

@@ -13,7 +13,9 @@ export const defaultAdapt: AdaptBuilds = async ({fs}) => {
 	return [
 		// TODO
 		// enableApiServer ? (await import('./gro-adapter-api-server.js')).createAdapter() : null,
-		enableGroFrontend ? (await import('./gro-adapter-bundled-frontend.js')).createAdapter() : null,
+		enableGroFrontend
+			? (await import('./gro-adapter-bundled-frontend.js')).createAdapter({builds: ['browser']})
+			: null,
 		enableNodeLibrary ? (await import('./gro-adapter-node-library.js')).createAdapter() : null,
 	];
 };

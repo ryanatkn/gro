@@ -3,6 +3,7 @@ import {
 	watch,
 	OutputOptions,
 	InputOptions,
+	InputOption,
 	RollupWatchOptions,
 	RollupOutput,
 	RollupBuild,
@@ -11,18 +12,19 @@ import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
 
 import {rainbow} from '../utils/terminal.js';
-import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
+import {SystemLogger, printLogLabel} from '../utils/log.js';
+import type {Logger} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
 import {deindent} from '../utils/string.js';
 // import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
 import {omitUndefined} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {identity} from '../utils/function.js';
-import type {PartialExcept} from '../index.js';
+import type {PartialExcept} from '../utils/types.js';
 import {paths} from '../paths.js';
 
 export interface Options {
-	inputFiles: string[];
+	input: InputOption;
 	dev: boolean;
 	sourcemap: boolean;
 	outputDir: string;
@@ -30,8 +32,9 @@ export interface Options {
 	mapInputOptions: MapInputOptions;
 	mapOutputOptions: MapOutputOptions;
 	mapWatchOptions: MapWatchOptions;
+	log: Logger;
 }
-export type RequiredOptions = 'inputFiles';
+export type RequiredOptions = 'input';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
@@ -42,29 +45,19 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	mapOutputOptions: identity,
 	mapWatchOptions: identity,
 	...omitUndefined(opts),
+	log: opts.log || new SystemLogger(printLogLabel('build')),
 });
 
-interface Build {
-	promise: Promise<void>;
-}
 export type MapInputOptions = (o: InputOptions, b: Options) => InputOptions;
 export type MapOutputOptions = (o: OutputOptions, b: Options) => OutputOptions;
 export type MapWatchOptions = (o: RollupWatchOptions, b: Options) => RollupWatchOptions;
 
-export const createBuild = (opts: InitialOptions): Build => {
+export const runRollup = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
+	const {log} = options;
 
-	const log = new SystemLogger(printLogLabel('build'));
-
-	log.trace('build options', options);
-
-	const promise = runBuild(options, log);
-
-	return {promise};
-};
-
-const runBuild = async (options: Options, log: Logger): Promise<void> => {
 	log.info(`building for ${options.dev ? 'development' : 'production'}`);
+	log.trace('build options', options);
 
 	// run rollup
 	if (options.watch) {
@@ -89,11 +82,11 @@ const runBuild = async (options: Options, log: Logger): Promise<void> => {
 	}
 };
 
-const createInputOptions = (inputFile: string, options: Options, _log: Logger): InputOptions => {
+const createInputOptions = (options: Options, _log: Logger): InputOptions => {
 	const unmappedInputOptions: InputOptions = {
 		// >> core input options
 		// external,
-		input: inputFile, // required
+		input: options.input, // required
 		plugins: [
 			diagnosticsPlugin(),
 			resolvePlugin({preferBuiltins: true}),
@@ -177,13 +170,9 @@ const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
 	return outputOptions;
 };
 
-const createWatchOptions = (
-	inputFile: string,
-	options: Options,
-	log: Logger,
-): RollupWatchOptions => {
+const createWatchOptions = (options: Options, log: Logger): RollupWatchOptions => {
 	const unmappedWatchOptions: RollupWatchOptions = {
-		...createInputOptions(inputFile, options, log),
+		...createInputOptions(options, log),
 		output: createOutputOptions(options, log),
 		watch: {
 			// chokidar,
@@ -202,62 +191,52 @@ interface RollupBuildResult {
 	output: RollupOutput;
 }
 
-const runRollupBuild = async (options: Options, log: Logger): Promise<RollupBuildResult[]> => {
-	// We're running builds sequentially,
-	// because doing them in parallel makes the logs incomprehensible.
-	// Maybe make parallel an option?
-	const results: RollupBuildResult[] = [];
-	for (const inputFile of options.inputFiles) {
-		const inputOptions = createInputOptions(inputFile, options, log);
-		const outputOptions = createOutputOptions(options, log);
+const runRollupBuild = async (options: Options, log: Logger): Promise<RollupBuildResult> => {
+	const inputOptions = createInputOptions(options, log);
+	const outputOptions = createOutputOptions(options, log);
+	const build = await rollup(inputOptions);
+	const output = await build.write(outputOptions);
+	return {build, output};
 
-		const build = await rollup(inputOptions);
-
-		const output = await build.write(outputOptions);
-
-		results.push({build, output});
-
-		// for (const chunkOrAsset of output.output) {
-		//   if (chunkOrAsset.isAsset) {
-		//     // For assets, this contains
-		//     // {
-		//     //   isAsset: true,                 // signifies that this is an asset
-		//     //   fileName: string,              // the asset file name
-		//     //   source: string | Buffer        // the asset source
-		//     // }
-		//     console.log('Asset', chunkOrAsset);
-		//   } else {
-		//     // For chunks, this contains
-		//     // {
-		//     //   code: string,                  // the generated JS code
-		//     //   dynamicImports: string[],      // external modules imported dynamically by the chunk
-		//     //   exports: string[],             // exported variable names
-		//     //   facadeModuleId: string | null, // the id of a module that this chunk corresponds to
-		//     //   fileName: string,              // the chunk file name
-		//     //   imports: string[],             // external modules imported statically by the chunk
-		//     //   isDynamicEntry: boolean,       // is this chunk a dynamic entry point
-		//     //   isEntry: boolean,              // is this chunk a static entry point
-		//     //   map: string | null,            // sourcemaps if present
-		//     //   modules: {                     // information about the modules in this chunk
-		//     //     [id: string]: {
-		//     //       renderedExports: string[]; // exported variable names that were included
-		//     //       removedExports: string[];  // exported variable names that were removed
-		//     //       renderedLength: number;    // the length of the remaining code in this module
-		//     //       originalLength: number;    // the original length of the code in this module
-		//     //     };
-		//     //   },
-		//     //   name: string                   // the name of this chunk as used in naming patterns
-		//     // }
-		//     console.log('Chunk', chunkOrAsset.modules);
-		//   }
-		// }
-	}
-	return results;
+	// for (const chunkOrAsset of output.output) {
+	//   if (chunkOrAsset.isAsset) {
+	//     // For assets, this contains
+	//     // {
+	//     //   isAsset: true,                 // signifies that this is an asset
+	//     //   fileName: string,              // the asset file name
+	//     //   source: string | Buffer        // the asset source
+	//     // }
+	//     console.log('Asset', chunkOrAsset);
+	//   } else {
+	//     // For chunks, this contains
+	//     // {
+	//     //   code: string,                  // the generated JS code
+	//     //   dynamicImports: string[],      // external modules imported dynamically by the chunk
+	//     //   exports: string[],             // exported variable names
+	//     //   facadeModuleId: string | null, // the id of a module that this chunk corresponds to
+	//     //   fileName: string,              // the chunk file name
+	//     //   imports: string[],             // external modules imported statically by the chunk
+	//     //   isDynamicEntry: boolean,       // is this chunk a dynamic entry point
+	//     //   isEntry: boolean,              // is this chunk a static entry point
+	//     //   map: string | null,            // sourcemaps if present
+	//     //   modules: {                     // information about the modules in this chunk
+	//     //     [id: string]: {
+	//     //       renderedExports: string[]; // exported variable names that were included
+	//     //       removedExports: string[];  // exported variable names that were removed
+	//     //       renderedLength: number;    // the length of the remaining code in this module
+	//     //       originalLength: number;    // the original length of the code in this module
+	//     //     };
+	//     //   },
+	//     //   name: string                   // the name of this chunk as used in naming patterns
+	//     // }
+	//     console.log('Chunk', chunkOrAsset.modules);
+	//   }
+	// }
 };
 
 const runRollupWatcher = async (options: Options, log: Logger): Promise<void> => {
 	return new Promise((_resolve, reject) => {
-		const watchOptions = options.inputFiles.map((f) => createWatchOptions(f, options, log));
+		const watchOptions = createWatchOptions(options, log);
 		// trace(('watchOptions'), watchOptions);
 		const watcher = watch(watchOptions);
 

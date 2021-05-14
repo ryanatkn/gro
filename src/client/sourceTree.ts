@@ -1,5 +1,5 @@
 import type {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig, BuildName} from '../config/buildConfig.js';
 import type {BuildOutDirname} from '../paths.js';
 import {deepEqual} from '../utils/equal.js';
 
@@ -101,7 +101,7 @@ export const filterSelectedMetas = (
 
 export const getMetasByBuildName = (
 	sourceTree: SourceTree,
-	buildName: string,
+	buildName: BuildName,
 ): SourceTreeMeta[] => {
 	const metas = sourceTree.metasByBuildName.get(buildName)!;
 	if (!metas) throw Error(`Expected to find meta:s ${buildName}`);
@@ -110,7 +110,7 @@ export const getMetasByBuildName = (
 
 export const getBuildsByBuildName = (
 	sourceMeta: SourceTreeMeta,
-	buildName: string,
+	buildName: BuildName,
 ): SourceMetaBuild[] => {
 	const builds = sourceMeta.buildsByBuildName.get(buildName)!;
 	if (!builds) throw Error(`Expected to find builds: ${buildName}`);

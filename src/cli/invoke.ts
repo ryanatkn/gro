@@ -2,12 +2,6 @@
 import {attachProcessErrorHandlers} from '../utils/process.js';
 attachProcessErrorHandlers();
 
-// install sourcemaps
-import sourcemapSupport from 'source-map-support';
-sourcemapSupport.install({
-	handleUncaughtExceptions: false,
-});
-
 import mri from 'mri';
 
 import type {Args} from '../task/task.js';
@@ -25,6 +19,14 @@ When the CLI is invoked it passes the first CLI arg as "taskName" to `invokeTask
 */
 const main = async () => {
 	const argv: Args = mri(process.argv.slice(2));
+
+	// install sourcemaps
+	if (process.env.NODE_ENV !== 'production') {
+		const sourcemapSupport = await import('source-map-support');
+		sourcemapSupport.install({
+			handleUncaughtExceptions: false,
+		});
+	}
 
 	const {
 		_: [taskName, ..._],

@@ -5,12 +5,15 @@ import {paths} from '../paths.js';
 import {blue, gray} from '../utils/terminal.js';
 import type {Result} from '../index.js';
 import {PRIMARY_NODE_BUILD_CONFIG, PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
+import type {Flavored} from '../utils/types.js';
 
 // See `../docs/config.md` for documentation.
 
-export interface BuildConfig {
-	readonly name: string;
-	readonly platform: PlatformTarget;
+export type BuildName = Flavored<string, 'BuildName'>;
+
+export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
+	readonly name: BuildName;
+	readonly platform: TPlatformTarget;
 	readonly input: readonly BuildConfigInput[];
 }
 
@@ -26,7 +29,7 @@ export interface InputFilter {
 // 	'name' | 'platform'
 // >;
 export interface BuildConfigPartial {
-	readonly name: string;
+	readonly name: BuildName;
 	readonly platform: PlatformTarget;
 	readonly input: BuildConfigInput | readonly BuildConfigInput[];
 }
@@ -81,7 +84,7 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 				` a 'node' config named '${PRIMARY_NODE_BUILD_NAME}'`,
 		};
 	}
-	const names: Set<string> = new Set();
+	const names: Set<BuildName> = new Set();
 	for (const buildConfig of buildConfigs) {
 		if (
 			!buildConfig ||

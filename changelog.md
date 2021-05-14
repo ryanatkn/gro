@@ -6,6 +6,8 @@
   ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined
   ([#187](https://github.com/feltcoop/gro/pull/187))
+- **break**: rename `toObtainable` from `createObtainable`
+  ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: rename `Filesystem.writeFile` from `outputFile`
   ([#188](https://github.com/feltcoop/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
@@ -284,7 +286,7 @@
 - **break**: separate the default server and primary Node builds
   in `src/config/gro.config.default.ts`
   ([#131](https://github.com/feltcoop/gro/pull/131))
-- **break**: rename `src/utils/createObtainable.ts` to `src/utils/obtainable.ts` to fit convention
+- **break**: rename `src/utils/toObtainable.ts` to `src/utils/obtainable.ts` to fit convention
   ([#131](https://github.com/feltcoop/gro/pull/131))
 - add server auto-restart to `src/dev.task.ts`
   ([#129](https://github.com/feltcoop/gro/pull/129))

@@ -62,20 +62,6 @@ export interface FsEnsureDir {
 	(path: string): Promise<void>;
 }
 
-export abstract class Fs implements Filesystem {
-	abstract stat: FsStat;
-	abstract exists: FsExists;
-	abstract findFiles: FsFindFiles;
-	abstract readFile: FsReadFile;
-	abstract writeFile: FsWriteFile;
-	abstract remove: FsRemove;
-	abstract move: FsMove;
-	abstract copy: FsCopy;
-	abstract readDir: FsReadDir;
-	abstract emptyDir: FsEmptyDir;
-	abstract ensureDir: FsEnsureDir;
-}
-
 // TODO try to implement some of these
 export interface FsCopyOptions {
 	// dereference?: boolean;

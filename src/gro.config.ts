@@ -8,7 +8,7 @@ import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
-export const config: GroConfigCreator = async () => {
+export const config: GroConfigCreator = async ({dev}) => {
 	// TODO not this
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
 	const BROWSER_BUILD_NAME = 'browser';
@@ -31,6 +31,7 @@ export const config: GroConfigCreator = async () => {
 				// input: createDirectoryFilter('client'),
 			},
 		],
+		sourcemap: dev,
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		serve: [
 			// first try to fulfill requests with files in `$PROJECT/src/client/` as if it were `/`
@@ -43,6 +44,7 @@ export const config: GroConfigCreator = async () => {
 			Promise.all([
 				(await import('./config/gro-adapter-node-library.js')).createAdapter({
 					link: 'dist/cli/gro.js',
+					builds: [{name: 'node', type: 'unbundled'}],
 				}),
 			]),
 	};

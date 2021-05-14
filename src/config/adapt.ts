@@ -29,5 +29,7 @@ export interface AdaptBuildsContext<TArgs = any, TEvents = any>
 
 export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	adapt: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
+	begin?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
+	adapt?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
+	end?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
 }

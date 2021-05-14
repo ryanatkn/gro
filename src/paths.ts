@@ -1,5 +1,6 @@
 import {join, basename} from 'path';
 import {fileURLToPath} from 'url';
+import type {BuildName} from './config/buildConfig.js';
 
 import {replaceExtension} from './utils/path.js';
 import {stripStart} from './utils/string.js';
@@ -110,7 +111,7 @@ function ensureTrailingSlash(s: string): string {
 
 export const toBuildOutPath = (
 	dev: boolean,
-	buildName: string,
+	buildName: BuildName,
 	basePath = '',
 	buildDir = paths.build,
 ): string => `${toBuildOutDir(dev, buildDir)}/${buildName}/${basePath}`;
@@ -146,7 +147,7 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 export const toImportId = (
 	sourceId: string,
 	dev: boolean,
-	buildName: string,
+	buildName: BuildName,
 	p = pathsFromId(sourceId),
 ): string => {
 	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
@@ -234,6 +235,9 @@ export const toSourceExtension = (buildId: string): string => {
 	}
 	return buildId;
 };
+
+export const toDistOutDir = (name: BuildName, count: number, dir: string): string =>
+	count === 1 ? dir : `${dir}/${name}`;
 
 export const groImportDir = join(fileURLToPath(import.meta.url), '../');
 export const groDir = join(
