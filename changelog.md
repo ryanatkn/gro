@@ -12,6 +12,8 @@
   ([#188](https://github.com/feltcoop/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
   ([#188](https://github.com/feltcoop/gro/pull/188))
+- add [`Adapter` system](src/docs/build.md#adapters) and
+  [Node library adapter](src/adapt/gro-adapter-node-library.ts)
 
 ## 0.21.6
 
