@@ -80,6 +80,7 @@ export interface GroConfigCreatorOptions {
 }
 
 let cachedConfig: GroConfig | undefined;
+let cachedDev: boolean | undefined;
 
 /*
 
@@ -126,7 +127,7 @@ export const loadGroConfig = async (
 	dev: boolean,
 	applyConfigToSystem = true,
 ): Promise<GroConfig> => {
-	if (cachedConfig !== undefined) {
+	if (cachedConfig && cachedDev === dev) {
 		if (applyConfigToSystem) applyConfig(cachedConfig);
 		return cachedConfig;
 	}
@@ -148,7 +149,8 @@ export const loadGroConfig = async (
 			const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
 			await buildSourceDirectory(
 				fs,
-				await toConfig({builds: [PRIMARY_NODE_BUILD_CONFIG]}, {fs, log, dev}, modulePath),
+				// TODO feels hacky, the `sourcemap` in particular
+				await toConfig({builds: [PRIMARY_NODE_BUILD_CONFIG], sourcemap: dev}, options, modulePath),
 				dev,
 				log,
 			);
@@ -172,6 +174,7 @@ export const loadGroConfig = async (
 		throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
 	}
 	cachedConfig = await toConfig(configModule.config, options, modulePath);
+	cachedDev = dev;
 	if (applyConfigToSystem) applyConfig(cachedConfig);
 	return cachedConfig;
 };
