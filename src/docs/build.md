@@ -4,7 +4,7 @@ This document describes how to go from `gro build` to live websites and npm pack
 
 Gro has an [unbundled build system](unbundled.md)
 that tries to be flexible for many use cases.
-It produces artifacts to `.gro/prob/{build_name}`
+For production builds, it outputs artifacts to `.gro/prod/{build_name}`
 that get _adapted_ — to use terminology of SvelteKit —
 to the target platforms.
 
