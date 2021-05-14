@@ -65,6 +65,7 @@ export const createAdapter = ({
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
 	dir = stripEnd(dir, '/');
 	const count = builds.length;
+	if (!count) throw Error('No builds provided');
 	const buildOptionsByBuildName: Map<BuildName, AdaptBuildOptions> = new Map(
 		builds.map((partial) => [partial.name, toAdaptBuildsOptions(partial, count, dir)]),
 	);
