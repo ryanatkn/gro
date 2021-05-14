@@ -33,7 +33,7 @@ export const config: GroConfigCreator = async ({dev}) => {
 							'index.ts',
 							'cli/gro.ts',
 							'cli/invoke.ts',
-							createFilter(['**/*.{task,config}.ts']),
+							createFilter(['**/*.{task,config,config.default}.ts']),
 						],
 				  },
 			{

@@ -28,10 +28,11 @@ export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 	input: [createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**'])],
 };
 
-const NODE_LIBRARY_PATH = 'src/index.ts';
-const NODE_LIBRARY_EXCLUDE_PATH = 'src/index.html';
+const NODE_LIBRARY_PATH = 'index.ts';
+const NODE_LIBRARY_SOURCE_ID = basePathToSourceId('index.ts');
+const NODE_LIBRARY_EXCLUDE_SOURCE_ID = basePathToSourceId('index.html');
 export const hasNodeLibrary = async (fs: Filesystem): Promise<boolean> =>
-	(await fs.exists(NODE_LIBRARY_PATH)) && !(await fs.exists(NODE_LIBRARY_EXCLUDE_PATH));
+	(await fs.exists(NODE_LIBRARY_SOURCE_ID)) && !(await fs.exists(NODE_LIBRARY_EXCLUDE_SOURCE_ID));
 export const NODE_LIBRARY_BUILD_NAME: BuildName = 'lib';
 export const NODE_LIBRARY_BUILD_PLATFORM = 'node';
 export const NODE_LIBRARY_BUILD_CONFIG: BuildConfig = {
