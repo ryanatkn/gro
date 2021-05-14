@@ -158,17 +158,7 @@ export const createAdapter = ({
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 				const outputDir = buildOptions.dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				await runRollup({
-					dev,
-					sourcemap: config.sourcemap,
-					input,
-					outputDir,
-					mapInputOptions,
-					mapOutputOptions,
-					mapWatchOptions,
-				});
-				// TODO rename all files to .mjs automatically
-				await fs.move(`${buildOptions.dir}/index.js`, `${buildOptions.dir}/index.mjs`);
+				// TODO rename less hackily
 				await runRollup({
 					dev,
 					sourcemap: config.sourcemap,
@@ -181,6 +171,16 @@ export const createAdapter = ({
 							: outputOptions;
 						return {...mapped, format: 'commonjs'};
 					},
+					mapWatchOptions,
+				});
+				await fs.move(`${buildOptions.dir}/index.js`, `${buildOptions.dir}/index.cjs`);
+				await runRollup({
+					dev,
+					sourcemap: config.sourcemap,
+					input,
+					outputDir,
+					mapInputOptions,
+					mapOutputOptions,
 					mapWatchOptions,
 				});
 			}
