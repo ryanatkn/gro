@@ -165,8 +165,8 @@ export const createAdapter = ({
 					input,
 					outputDir,
 					mapInputOptions,
-					mapOutputOptions: (outputOptions, options) => ({
-						...(mapOutputOptions ? mapOutputOptions(outputOptions, options) : outputOptions),
+					mapOutputOptions: (o, b) => ({
+						...(mapOutputOptions ? mapOutputOptions(o, b) : o),
 						format: 'commonjs',
 					}),
 					mapWatchOptions,
