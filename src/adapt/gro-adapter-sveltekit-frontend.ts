@@ -4,6 +4,7 @@ import {DIST_DIRNAME, SVELTE_KIT_APP_DIRNAME, SVELTE_KIT_BUILD_DIRNAME} from '..
 import {spawnProcess} from '../utils/process.js';
 import {printTimings} from '../utils/print.js';
 
+// TODO WIP do not use
 // TODO name? is it actually specific to frontends? or is this more about bundling?
 
 export const createAdapter = (): Adapter => {

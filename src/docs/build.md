@@ -25,7 +25,7 @@ The build process has discrete steps:
 
 1. `Builder`s run and output production artifacts to `.gro/prod/{buildName}` for each build
 2. `Adapter`s run and output, umm, anything?
-   like SvelteKit frontends, Node libraries, API servers, & more !?
+   like SvelteKit frontends, Node libraries, API servers, & more !
 
 > as we're thinking about them, `Adapter`s should not modify the contents of `.gro/prod/`;
 > they take builds as inputs, and without changing them,

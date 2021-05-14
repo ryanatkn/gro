@@ -11,6 +11,7 @@ import {Timings} from '../utils/time.js';
 import {DEFAULT_BROWSER_BUILD_NAME} from '../config/defaultBuildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 
+// TODO WIP do not use
 // TODO name? is it actually specific to frontends? or is this more about bundling?
 
 export interface Options {
