@@ -31,6 +31,7 @@ The build process has discrete steps:
 > they take builds as inputs, and without changing them,
 > they output whatever you want for as long as you want as messily as you want,
 > just no messing with the source, that is forbidden --
-> this design lets you run many adapters on one build, which means power and efficiency;
+> this design lets you run many adapters on one build,
+> which means composability & power & efficiency;
 > if you find yourself wanting to modify builds in place, try a `Builder` instead
 > (the API probably needs improvements and helpers) open issues if you want to discuss!
