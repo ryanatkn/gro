@@ -14,6 +14,8 @@ import {resolveInputFiles} from '../build/utils.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 
+// TODO this adapter behaves as if it owns the dist/ directory, how to compose?
+
 export interface Options {
 	builds: AdaptBuildOptionsPartial[]; // defaults to [{name: 'node', type: 'bundled'}]
 	dir: string; // defaults to dist/
