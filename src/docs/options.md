@@ -28,7 +28,13 @@ For more, see the example below and
 
 > TODO review this to see if we can use a helper to avoid an unnecessary object copy
 
-Example:
+When possible, keep it simple:
+
+```ts
+export const keepItSimple = ({a = true, b = 36}: Options) => {
+```
+
+But sometimes we need more structure (or want more sugar):
 
 ```ts
 import {omitUndefined} from '../utils/object.js';
