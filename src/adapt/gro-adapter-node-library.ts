@@ -1,12 +1,12 @@
-import type {Adapter} from './adapt.js';
+import type {Adapter} from './adapter.js';
 import {Timings} from '../utils/time.js';
 import {printTimings} from '../utils/print.js';
 import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
 import {DIST_DIRNAME, paths, toBuildOutPath, toDistOutDir, toImportId} from '../paths.js';
-import {NODE_LIBRARY_BUILD_NAME} from './defaultBuildConfig.js';
-import {BuildConfig, BuildName, printBuildConfigLabel} from './buildConfig.js';
+import {NODE_LIBRARY_BUILD_NAME} from '../config/defaultBuildConfig.js';
+import {BuildConfig, BuildName, printBuildConfigLabel} from '../config/buildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripEnd} from '../utils/string.js';

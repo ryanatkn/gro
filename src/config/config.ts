@@ -1,6 +1,6 @@
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
 import {isPrimaryBuildConfig, normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
-import type {AdaptBuilds} from './adapt.js';
+import type {AdaptBuilds} from '../adapt/adapter.js';
 import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
 import {
 	LogLevel,
@@ -17,7 +17,7 @@ import type {ServedDirPartial} from '../build/ServedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 import type {Result} from '../index.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {defaultAdapt} from './defaultAdapt.js';
+import {defaultAdapt} from '../adapt/defaultAdapt.js';
 
 /*
 

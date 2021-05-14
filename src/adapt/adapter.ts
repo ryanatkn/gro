@@ -1,5 +1,5 @@
 import type {TaskContext} from '../task/task.js';
-import type {GroConfig} from './config.js';
+import type {GroConfig} from '../config/config.js';
 
 /*
 

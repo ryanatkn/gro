@@ -1,4 +1,4 @@
-import type {Adapter} from './adapt.js';
+import type {Adapter} from './adapter.js';
 import type {SpawnedProcess} from '../utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from '../server.task.js';
 import type {Args} from '../task/task.js';

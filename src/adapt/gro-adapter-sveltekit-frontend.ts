@@ -1,4 +1,4 @@
-import type {Adapter} from './adapt.js';
+import type {Adapter} from './adapter.js';
 import {Timings} from '../utils/time.js';
 import {DIST_DIRNAME, SVELTE_KIT_APP_DIRNAME, SVELTE_KIT_BUILD_DIRNAME} from '../paths.js';
 import {spawnProcess} from '../utils/process.js';

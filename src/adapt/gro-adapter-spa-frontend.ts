@@ -1,14 +1,14 @@
-import type {Adapter} from './adapt.js';
+import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';
 import {DIST_DIRNAME, sourceIdToBasePath, toBuildExtension, toDistOutDir} from '../paths.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {toCommonBaseDir} from '../utils/path.js';
-import {printBuildConfigLabel} from './buildConfig.js';
-import type {BuildName} from './buildConfig.js';
+import {printBuildConfigLabel} from '../config/buildConfig.js';
+import type {BuildName} from '../config/buildConfig.js';
 import {ensureEnd} from '../utils/string.js';
 import {copyDist} from '../build/dist.js';
 import {Timings} from '../utils/time.js';
-import {DEFAULT_BROWSER_BUILD_NAME} from './defaultBuildConfig.js';
+import {DEFAULT_BROWSER_BUILD_NAME} from '../config/defaultBuildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 
 // TODO name? is it actually specific to frontends? or is this more about bundling?

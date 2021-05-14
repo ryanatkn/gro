@@ -91,7 +91,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		return result;
 	};
 
-	return {build};
+	return {name: 'gro-builder-esbuild', build};
 };
 
 type CreateEsbuildOptions = (
