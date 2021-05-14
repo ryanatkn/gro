@@ -4,8 +4,8 @@ import {printTimings} from '../utils/print.js';
 import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {DIST_DIRNAME, paths, toBuildOutPath, toDistOutDir} from '../paths.js';
-import {PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
+import {DIST_DIRNAME, paths, toBuildOutPath, toDistOutDir, toImportId} from '../paths.js';
+import {NODE_LIBRARY_BUILD_NAME} from './defaultBuildConfig.js';
 import {BuildConfig, BuildName, printBuildConfigLabel} from './buildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
@@ -29,7 +29,7 @@ export type AdaptBuildOptionsPartial =
 	| {name: BuildName; type: 'bundled'; esm?: boolean; cjs?: boolean};
 
 const DEFAULT_BUILDS: AdaptBuildOptionsPartial[] = [
-	{name: PRIMARY_NODE_BUILD_NAME, type: 'bundled'},
+	{name: NODE_LIBRARY_BUILD_NAME, type: 'bundled'},
 ];
 const toAdaptBuildsOptions = (
 	partial: AdaptBuildOptionsPartial,
@@ -155,12 +155,13 @@ export const createAdapter = ({
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
 				}
+				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 				const outputDir = buildOptions.dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
 				await runRollup({
 					dev,
 					sourcemap: config.sourcemap,
-					input: files,
+					input,
 					outputDir,
 					mapInputOptions,
 					mapOutputOptions,
@@ -171,7 +172,7 @@ export const createAdapter = ({
 				await runRollup({
 					dev,
 					sourcemap: config.sourcemap,
-					input: files,
+					input,
 					outputDir,
 					mapInputOptions,
 					mapOutputOptions: (outputOptions, options) => {
