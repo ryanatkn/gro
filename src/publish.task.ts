@@ -128,6 +128,7 @@ const confirmWithUser = async (
 				return logError('malformed `previousChangelogVersion`:', previousChangelogVersion);
 			}
 			// TODO predict what it should be, and compare to currentChangelogVersion
+			let expectedNextVersion: string;
 			if (versionIncrement === 'major') {
 				currentChangelogVersionParts[0]; // TODO
 				currentPackageVersionParts[0]; // TODO
