@@ -4,6 +4,8 @@
 
 - **break**: rename `gro publish` from `gro version` and expand its scope
   ([#189](https://github.com/feltcoop/gro/pull/189))
+- make `config.builds` optional and accept non-array values
+  ([#189](https://github.com/feltcoop/gro/pull/189))
 
 ## 0.22.0
 

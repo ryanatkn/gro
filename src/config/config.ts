@@ -56,7 +56,7 @@ export interface GroConfig {
 }
 
 export interface GroConfigPartial {
-	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null; // allow `null` for convenience
+	readonly builds?: (BuildConfigPartial | null)[] | BuildConfigPartial | null; // allow `null` for convenience
 	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
@@ -212,7 +212,7 @@ const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
 };
 
 const normalizeConfig = (config: GroConfigPartial): GroConfig => {
-	const buildConfigs = normalizeBuildConfigs(toArray(config.builds));
+	const buildConfigs = normalizeBuildConfigs(toArray(config.builds || null));
 	return {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,
