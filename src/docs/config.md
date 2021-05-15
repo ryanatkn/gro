@@ -2,12 +2,13 @@
 
 Gro's config is part of a system for building a source project
 to one or more output artifacts.
-It's designed for a variety of use cases:
+It's designed for a variety of needs:
 
-- support multiple use cases at one like SvelteKit frontends, Node libraries, and API servers
+- support multiple use cases from one source project,
+  like SvelteKit frontends, Node libraries, and API servers
 - support multiple build targets like legacy/modern ES versions and mobile/desktop frontends
 - support multiple platform targets like Node and browsers, including server-side rendering
-- support multiple packages created from one codebase to be published separately
+- support multiple packages created from one source project to be published separately
 - support dev and prod builds that coexist on the filesystem
 
 To accomplish this, Gro has an optional config file that lives at `$PROJECT/src/gro.config.ts`.
