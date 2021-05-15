@@ -2,7 +2,7 @@ import {createInterface as createReadlineInterface} from 'readline';
 
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
-import {green, bgBlack, rainbow, red, yellow} from './utils/terminal.js';
+import {green, bgBlack, rainbow, red, yellow, bold} from './utils/terminal.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
@@ -121,14 +121,14 @@ const confirmWithUser = async (
 
 		const expectedAnswer = errored ? 'yes!!' : 'y';
 		if (errored) {
-			log.warn(`there's an error above, please read before proceeding`);
+			log.warn(yellow(`there's an error above, please read before proceeding`));
 		}
 		readline.question(
 			bgBlack(`does this look correct? type "${expectedAnswer}" to proceed`) + ' ',
 			(answer) => {
 				const lowercasedAnswer = answer.toLowerCase();
 				if (lowercasedAnswer !== expectedAnswer) {
-					log.info(green('exiting task with no changes'));
+					log.info('exiting task with', bold('no changes'));
 					process.exit();
 				}
 				log.info(rainbow('proceeding'));
