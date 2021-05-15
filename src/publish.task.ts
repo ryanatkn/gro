@@ -17,12 +17,16 @@ import type {Flavored, Result} from './utils/types.js';
 // - publishes to npm from the `main` branch, configurable with `--branch`
 // - syncs commits and tags to the configured main branch
 
-// TODO add `dry` option so it can be tested
+export interface TaskArgs {
+	_: string[];
+	branch?: string;
+	dry?: boolean;
+}
 
 export const task: Task<TaskArgs> = {
 	description: 'bump version, publish to npm, and sync to GitHub',
 	run: async ({fs, args, log, invokeTask}): Promise<void> => {
-		const {branch = GIT_DEPLOY_BRANCH} = args;
+		const {branch = GIT_DEPLOY_BRANCH, dry = false} = args;
 
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
@@ -39,6 +43,11 @@ export const task: Task<TaskArgs> = {
 		// Make sure everything is in working order, and then create the final artifacts:
 		await invokeTask('check');
 		await invokeTask('build');
+
+		if (dry) {
+			log.info(rainbow('dry run complete!'));
+			return;
+		}
 
 		await spawnProcess('npm', ['version', ...process.argv.slice(3)]);
 		await spawnProcess('npm', ['publish']);
@@ -173,11 +182,6 @@ interface ValidateVersionIncrement {
 }
 const isStandardVersionIncrement = (v: string): v is StandardVersionIncrement =>
 	v === 'major' || v === 'minor' || v === 'patch';
-
-export interface TaskArgs {
-	_: string[];
-	branch?: string;
-}
 
 const validateStandardVersionIncrementParts = (
 	versionIncrement: StandardVersionIncrement,
