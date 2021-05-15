@@ -11,7 +11,9 @@ It's designed for a variety of use cases:
 
 To accomplish this, Gro has an optional config file that lives at `$PROJECT/src/gro.config.ts`.
 If a project does not define a config, Gro imports a default config from
-[`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts).
+[`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts),
+which looks at your project for familiar patterns (like Node libraries and SvelteKit frontends)
+and tries to do the right thing.
 
 > The default config detects
 > [Gro's deprecated SPA mode](https://github.com/feltcoop/gro/issues/106)
@@ -44,9 +46,19 @@ import {createFilter} from '@rollup/pluginutils';
 export const config: GroConfigCreator = async () => {
 	return {
 		builds: [
-			{name: 'browser_mobile', platform: 'browser', input: 'index.ts', adapt: mobileAdapter()},
-			{name: 'browser_desktop', platform: 'browser', input: 'index.ts', adapt: desktopAdapter()},
-			{name: 'node', platform: 'node', input: createFilter('**/*.{task,test,gen}*.ts')},
+			{
+				name: 'browser_mobile',
+				platform: 'browser',
+				input: 'index.ts',
+				adapt: () => await import('./gro-adapter-browser-mobile.js'),
+			},
+			{
+				name: 'browser_desktop',
+				platform: 'browser',
+				input: 'index.ts',
+				adapt: () => await import('./gro-adapter-browser-desktop.js'),
+			},
+			// a default `name: 'node'` build is added by Gro to build tasks and other system files
 		],
 	};
 };
@@ -60,7 +72,8 @@ The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files
 
 ```ts
 export interface GroConfigPartial {
-	readonly builds: BuildConfigPartial[];
+	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
+	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly host?: string; // env.GRO_HOST
