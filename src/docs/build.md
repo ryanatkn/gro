@@ -51,7 +51,8 @@ The `AdaptBuildsContext` extends
 [Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
 so adapter functions have full access to
-[the normal task environment](../task/README.md).
+[the normal task environment](../task/README.md)
+in addition to things like the current project's Gro config.
 
 Gro has a number of builtin adapters. Some are a work in progress:
 
