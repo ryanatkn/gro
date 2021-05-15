@@ -84,8 +84,8 @@ export const config: GroConfigCreator = async () => {
 			(await import('@feltcoop/gro/gro-adapter-api-server.js')).createAdapter(),
 		],
 
-		// this does not work, even though it's simpler!
-		adapt: {name: 'my-adapter', adapt: () => {}},
+		// this **does not work**, even though it's simpler!
+		adapt: {name: 'my-adapter', adapt: () => {}}, // type error! must be a function
 
 		// this does work (note it does not have to import anything, or be async):
 		adapt: () => {
