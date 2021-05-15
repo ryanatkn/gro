@@ -80,35 +80,54 @@ const confirmWithUser = async (
 		log.info(green(previousChangelogVersion || '<empty>'), '← previous changelog version');
 		log.info(green(currentPackageVersion), '← current package version');
 
+		let errored = false;
+		const logError = (...args: any[]) => {
+			errored = true;
+			log.error(...args);
+		};
+
+		if (currentChangelogVersion === currentPackageVersion) {
+			logError(red('Current changelog version matches package version. Is the changelog updated?'));
+		}
+		if (previousChangelogVersion !== currentPackageVersion) {
+			logError(
+				red(
+					'Previous changelog version does not match package version.' +
+						' Is there an unpublished version in the changelog?',
+				),
+			);
+		}
+
 		const currentChangelogVersionParts = currentChangelogVersion?.split('.'); // v
 		const currentPackageVersionParts = currentPackageVersion?.split('.'); // v - 1
 		const previousChangelogVersionParts = previousChangelogVersion?.split('.'); // v - 1
 
 		const validateParts = (versionIncrement: 'major' | 'minor' | 'patch') => {
 			if (!currentChangelogVersionParts) {
-				return log.error(
+				return logError(
 					'expected `currentChangelogVersion` to be major.minor.patch:',
 					currentChangelogVersion,
 				);
 			} else if (currentChangelogVersionParts.length !== 3) {
-				return log.error('malformed `currentChangelogVersion`:', currentChangelogVersion);
+				return logError('malformed `currentChangelogVersion`:', currentChangelogVersion);
 			}
 			if (!currentPackageVersionParts) {
-				return log.error(
+				return logError(
 					'expected `currentPackageVersion` to be major.minor.patch:',
 					currentPackageVersion,
 				);
 			} else if (currentPackageVersionParts.length !== 3) {
-				return log.error('malformed `currentPackageVersion`:', currentPackageVersion);
+				return logError('malformed `currentPackageVersion`:', currentPackageVersion);
 			}
 			if (!previousChangelogVersionParts) {
-				return log.error(
+				return logError(
 					'expected `previousChangelogVersion` to be major.minor.patch:',
 					previousChangelogVersion,
 				);
 			} else if (previousChangelogVersionParts.length !== 3) {
-				return log.error('malformed `previousChangelogVersion`:', previousChangelogVersion);
+				return logError('malformed `previousChangelogVersion`:', previousChangelogVersion);
 			}
+			// TODO predict what it should be, and compare to currentChangelogVersion
 			if (versionIncrement === 'major') {
 				currentChangelogVersionParts[0]; // TODO
 				currentPackageVersionParts[0]; // TODO
@@ -133,6 +152,7 @@ const confirmWithUser = async (
 		) {
 			validateParts(versionIncrement);
 		} else {
+			errored = true;
 			log.warn('unknown version increment: please review the following carefully:');
 			log.info(yellow(versionIncrement), '← version increment');
 			log.info(yellow(currentChangelogVersion || '<empty>'), '← current changelog version (new)');
@@ -140,29 +160,23 @@ const confirmWithUser = async (
 			log.info(yellow(currentPackageVersion), '← current package version (old)');
 		}
 
-		if (currentChangelogVersion === currentPackageVersion) {
-			log.error(
-				red('Current changelog version matches package version. Is the changelog updated?'),
-			);
+		const expectedAnswer = errored ? 'yes!!' : 'y';
+		if (errored) {
+			log.warn(`there's an error above, please read before proceeding`);
 		}
-		if (previousChangelogVersion !== currentPackageVersion) {
-			log.error(
-				red(
-					'Previous changelog version does not match package version.' +
-						' Is there an unpublished version in the changelog?',
-				),
-			);
-		}
-		readline.question(bgBlack('does this look correct? y/n') + ' ', (answer) => {
-			const lowercasedAnswer = answer.toLowerCase();
-			if (!(lowercasedAnswer === 'y' || lowercasedAnswer === 'yes')) {
-				log.info(green('exiting task with no changes'));
-				process.exit();
-			}
-			log.info(rainbow('proceeding'));
-			readline.close();
-			resolve();
-		});
+		readline.question(
+			bgBlack(`does this look correct? type "${expectedAnswer}" to proceed`) + ' ',
+			(answer) => {
+				const lowercasedAnswer = answer.toLowerCase();
+				if (lowercasedAnswer !== expectedAnswer) {
+					log.info(green('exiting task with no changes'));
+					process.exit();
+				}
+				log.info(rainbow('proceeding'));
+				readline.close();
+				resolve();
+			},
+		);
 	});
 };
 
