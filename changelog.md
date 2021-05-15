@@ -2,7 +2,7 @@
 
 ## 0.23.0
 
-- **break**: rename `gro version` to `gro publish` and expands its scope
+- **break**: rename `gro publish` from `gro version` and expands its scope
   ([#189](https://github.com/feltcoop/gro/pull/189))
 
 ## 0.22.0
