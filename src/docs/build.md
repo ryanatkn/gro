@@ -29,7 +29,7 @@ the build process has discrete steps:
 
 > as we're thinking about them, `Adapter`s should not modify the contents of `.gro/prod/`;
 > adapters take these builds as inputs, and without changing them,
-> they output whatever you want for as long as you want as messily as you want,
+> they output whatever you want, for as long as you want, as messily as you want;
 > just no messing with the source, that is forbidden --
 > this design lets you run many adapters on one build,
 > which means composability & power & efficiency;
