@@ -4,7 +4,7 @@ Gro's config is part of a system for building a source project
 to one or more output artifacts.
 It's designed for a variety of needs:
 
-- support multiple use cases from one source project,
+- support multiple use cases in one source project,
   like SvelteKit frontends, Node libraries, and API servers
 - support multiple build targets like legacy/modern ES versions and mobile/desktop frontends
 - support multiple platform targets like Node and browsers, including server-side rendering
