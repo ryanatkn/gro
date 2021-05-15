@@ -92,7 +92,7 @@ export const config: GroConfigCreator = async () => {
 			return {name: 'my-adapter', adapt: () => {}};
 		},
 
-		// both `adapt` and the `Adapter` hooks get access to the task context extended with the config:
+		// both `adapt` and the `Adapter` hooks receive the task context extended with the config:
 		adapt: ({dev, config}) => {
 			return dev ? {name: 'my-adapter', adapt: ({fs}) => fs.copy(/**/)} : toProdAdapters(config);
 		},
