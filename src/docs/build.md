@@ -56,9 +56,9 @@ so adapter functions have full access to
 Gro has a number of builtin adapters. Some are a work in progress:
 
 - [x] [`gro-adapter-node-library`](../adapt/gro-adapter-node-library.ts)
-- [ ] [`gro-adapter-api-server`](../adapt/gro-adapter-api-server)
-- [ ] [`gro-adapter-spa-frontend`](../adapt/gro-adapter-spa-frontend)
-- [ ] [`gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend)
+- [ ] [`gro-adapter-api-server`](../adapt/gro-adapter-api-server.ts)
+- [ ] [`gro-adapter-spa-frontend`](../adapt/gro-adapter-spa-frontend.ts)
+- [ ] [`gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend.ts)
 
 ## deploying and publishing
 
