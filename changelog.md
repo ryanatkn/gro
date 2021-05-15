@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.23.0
+
+- **break**: rename `gro version` to `gro publish` and expands its scope
+  ([#189](https://github.com/feltcoop/gro/pull/189))
+
 ## 0.22.0
 
 - **break**: redesign `gro publish` and `gro deploy`
