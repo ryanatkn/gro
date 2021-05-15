@@ -15,7 +15,7 @@ import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 import type {ServedDirPartial} from '../build/ServedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
-import type {Result} from '../index.js';
+import type {Result} from '../utils/types.js';
 import {toArray} from '../utils/array.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {defaultAdapt} from '../adapt/defaultAdapt.js';

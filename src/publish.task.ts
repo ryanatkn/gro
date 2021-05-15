@@ -8,6 +8,7 @@ import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
 import {UnreachableError} from './utils/error.js';
+import type {Flavored, Result} from './utils/types.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -17,23 +18,6 @@ import {UnreachableError} from './utils/error.js';
 // - syncs commits and tags to the configured main branch
 
 // TODO add `dry` option so it can be tested
-
-type VersionIncrement = string;
-const validateVersionIncrement: ValidateVersionIncrement = (v) => {
-	if (!v || typeof v !== 'string') {
-		throw Error(
-			`Expected a version increment like one of patch|minor|major, e.g. gro publish patch`,
-		);
-	}
-};
-interface ValidateVersionIncrement {
-	(v: unknown): asserts v is VersionIncrement;
-}
-
-export interface TaskArgs {
-	_: string[];
-	branch?: string;
-}
 
 export const task: Task<TaskArgs> = {
 	description: 'bump version, publish to npm, and sync to GitHub',
@@ -81,7 +65,7 @@ const confirmWithUser = async (
 		log.info(green(currentPackageVersion), '← current package version');
 
 		let errored = false;
-		const logError = (...args: any[]) => {
+		const logError: Logger['error'] = (...args) => {
 			errored = true;
 			log.error(...args);
 		};
@@ -98,60 +82,18 @@ const confirmWithUser = async (
 			);
 		}
 
-		const currentChangelogVersionParts = currentChangelogVersion?.split('.'); // v
-		const currentPackageVersionParts = currentPackageVersion?.split('.'); // v - 1
-		const previousChangelogVersionParts = previousChangelogVersion?.split('.'); // v - 1
-
-		const validateParts = (versionIncrement: 'major' | 'minor' | 'patch') => {
-			if (!currentChangelogVersionParts) {
-				return logError(
-					'expected `currentChangelogVersion` to be major.minor.patch:',
-					currentChangelogVersion,
-				);
-			} else if (currentChangelogVersionParts.length !== 3) {
-				return logError('malformed `currentChangelogVersion`:', currentChangelogVersion);
-			}
-			if (!currentPackageVersionParts) {
-				return logError(
-					'expected `currentPackageVersion` to be major.minor.patch:',
-					currentPackageVersion,
-				);
-			} else if (currentPackageVersionParts.length !== 3) {
-				return logError('malformed `currentPackageVersion`:', currentPackageVersion);
-			}
-			if (!previousChangelogVersionParts) {
-				return logError(
-					'expected `previousChangelogVersion` to be major.minor.patch:',
-					previousChangelogVersion,
-				);
-			} else if (previousChangelogVersionParts.length !== 3) {
-				return logError('malformed `previousChangelogVersion`:', previousChangelogVersion);
-			}
-			// TODO predict what it should be, and compare to currentChangelogVersion
-			let expectedNextVersion: string;
-			if (versionIncrement === 'major') {
-				currentChangelogVersionParts[0]; // TODO
-				currentPackageVersionParts[0]; // TODO
-				previousChangelogVersionParts[0]; // TODO
-			} else if (versionIncrement === 'minor') {
-				currentChangelogVersionParts[1]; // TODO
-				currentPackageVersionParts[1]; // TODO
-				previousChangelogVersionParts[1]; // TODO
-			} else if (versionIncrement === 'patch') {
-				currentChangelogVersionParts[2]; // TODO
-				currentPackageVersionParts[2]; // TODO
-				previousChangelogVersionParts[2]; // TODO
-			} else {
-				throw new UnreachableError(versionIncrement);
-			}
+		const publishContext: PublishContext = {
+			currentPackageVersion,
+			currentChangelogVersion,
+			previousChangelogVersion,
 		};
 
-		if (
-			versionIncrement === 'major' ||
-			versionIncrement === 'minor' ||
-			versionIncrement === 'patch'
-		) {
-			validateParts(versionIncrement);
+		if (isStandardVersionIncrement(versionIncrement)) {
+			const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
+			if (!result.ok) {
+				errored = true;
+				log.error(red('failed to validate standard version increment'), result.reason);
+			}
 		} else {
 			errored = true;
 			log.warn('unknown version increment: please review the following carefully:');
@@ -201,4 +143,87 @@ const getCurrentPackageVersion = async (fs: Filesystem): Promise<string> => {
 		throw Error(`Expected package.json to have a valid version: ${pkg.version}`);
 	}
 	return pkg.version;
+};
+
+interface PublishContext {
+	readonly currentPackageVersion: string;
+	readonly currentChangelogVersion: string | undefined;
+	readonly previousChangelogVersion: string | undefined;
+}
+
+// TODO probably want to extra to version helpers
+type StandardVersionIncrement = 'major' | 'minor' | 'patch';
+type VersionIncrement = Flavored<string, 'VersionIncrement'>;
+const validateVersionIncrement: ValidateVersionIncrement = (v) => {
+	if (!v || typeof v !== 'string') {
+		throw Error(
+			`Expected a version increment like one of patch|minor|major, e.g. gro publish patch`,
+		);
+	}
+};
+interface ValidateVersionIncrement {
+	(v: unknown): asserts v is VersionIncrement;
+}
+const isStandardVersionIncrement = (v: string): v is StandardVersionIncrement =>
+	v === 'major' || v === 'minor' || v === 'patch';
+
+export interface TaskArgs {
+	_: string[];
+	branch?: string;
+}
+
+const validateStandardVersionIncrementParts = (
+	versionIncrement: StandardVersionIncrement,
+	{currentChangelogVersion, currentPackageVersion, previousChangelogVersion}: PublishContext,
+): Result<{}, {reason: string}> => {
+	const currentPackageVersionParts = toVersionParts(currentPackageVersion, 'currentPackageVersion');
+	if (!currentPackageVersionParts.ok) {
+		return currentPackageVersionParts;
+	}
+
+	const previousChangelogVersionParts =
+		previousChangelogVersion === undefined
+			? null
+			: toVersionParts(previousChangelogVersion, 'previousChangelogVersion');
+	if (previousChangelogVersionParts && !previousChangelogVersionParts.ok) {
+		return previousChangelogVersionParts;
+	}
+
+	const expectedNextVersion = toExpectedNextVersion(
+		versionIncrement,
+		currentPackageVersionParts.value,
+	);
+	if (expectedNextVersion !== currentChangelogVersion) {
+		return {ok: false, reason: `expected currentChangelogVersion to ${versionIncrement}`};
+	}
+
+	return {ok: true};
+};
+
+type VersionParts = [number, number, number];
+const toVersionParts = (
+	version: string,
+	name: string = 'version',
+): Result<{value: VersionParts}, {reason: string}> => {
+	const value = version.split('.').map((v) => Number(v)) as VersionParts;
+	if (!value) {
+		return {ok: false, reason: `expected ${name} to match major.minor.patch: ${version}`};
+	} else if (value.length !== 3) {
+		return {ok: false, reason: `malformed ${name}: ${version}`};
+	}
+	return {ok: true, value};
+};
+const toExpectedNextVersion = (
+	versionIncrement: StandardVersionIncrement,
+	[major, minor, patch]: VersionParts,
+) => {
+	if (versionIncrement === 'major') {
+		return `${major + 1}.0.0`;
+	} else if (versionIncrement === 'minor') {
+		return `${major}.${minor + 1}.0`;
+	} else if (versionIncrement === 'patch') {
+		return `${major}.${minor}.${patch + 1}`;
+	} else {
+		throw new UnreachableError(versionIncrement);
+	}
 };

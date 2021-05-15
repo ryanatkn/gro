@@ -25,7 +25,7 @@ import type {BaseFilerFile} from '../build/baseFilerFile.js';
 import {paths} from '../paths.js';
 import {loadPackageJson} from '../utils/packageJson.js';
 import type {ProjectState} from './projectState.js';
-import type {Assignable, PartialExcept} from '../index.js';
+import type {Assignable, PartialExcept} from '../utils/types.js';
 import {toEnvNumber, toEnvString} from '../utils/env.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
