@@ -14,8 +14,6 @@ Adapting is designed to be powerful and open ended.
 
 ## adapters
 
-TODO describe where to define `adapt` (and why lazily import)
-
 Gro has `Adapter`s inspired by Svelte.
 When we run:
 
@@ -61,6 +59,10 @@ Gro has a number of builtin adapters. Some are a work in progress:
 - [ ] [`gro-adapter-api-server`](../adapt/gro-adapter-api-server.ts)
 - [ ] [`gro-adapter-spa-frontend`](../adapt/gro-adapter-spa-frontend.ts)
 - [ ] [`gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend.ts)
+
+## config
+
+See [the config docs](config.md) to learn how to use adapters and other build options.
 
 ## deploying and publishing
 
