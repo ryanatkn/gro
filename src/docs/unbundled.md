@@ -7,6 +7,8 @@
 
 Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
+This document details a specific aspect of its [build system](build.md): "unbundled" developement.
+
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 [Vite](https://github.com/vitejs/vite), and [WMR](https://github.com/preactjs/wmr),
 Gro leverages ES modules during development
@@ -45,6 +47,7 @@ but please feel free to try it and share your feedback!
 ## todo
 
 - [x] basics
+- [ ] add API using esbuild to optionally bundle specific pieces to speed up development
 - [ ] livereload CSS (and fix pop-in during dev)
 - [ ] HMR
 - [ ] [support SvelteKit](https://github.com/feltcoop/gro/issues/106) as an alternative to Vite

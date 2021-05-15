@@ -14,6 +14,8 @@ Adapting is designed to be powerful and open ended.
 
 ## adapters
 
+TODO describe where to define `adapt` (and why lazily import)
+
 Gro has `Adapter`s inspired by Svelte.
 When we run:
 
