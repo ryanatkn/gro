@@ -100,7 +100,7 @@ export interface BuildConfigPartial {
 }
 ```
 
-The `name` field can be anything and maps to the build's output directory name.
+The `name` property can be anything and maps to the build's output directory name.
 By defining `"name": "foo",`, running `gro dev` or `gro build` creates builds
 in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 
@@ -108,7 +108,7 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 > that it uses to run things like tests, tasks, and codegen.
 > Ideally this would be configurable, but doing so would slow Gro down in many cases.
 
-The `platform` can currently be `"node"` or `"browser"` and
+The `platform` property can currently be `"node"` or `"browser"` and
 is used by Gro's default builders to customize the output.
 When building for the browser, dependencies in `node_modules/` are imported via Snowpack's
 [`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
@@ -116,7 +116,7 @@ When building for Node, the Svelte compiler outputs
 [SSR components](https://svelte.dev/docs#Server-side_component_API)
 instead of the normal DOM ones.
 
-The `input` field specifies the source code entry points for the build.
+The `input` property specifies the source code entry points for the build.
 Each input must be a file path (absolute or relative to `src/`),
 or a filter function with the signature `(id: string) => boolean`.
 To define filters, it's convenient to use the
