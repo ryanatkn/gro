@@ -5,7 +5,7 @@ to one or more output artifacts.
 It's designed for a variety of needs:
 
 - support multiple use cases in one source project,
-  like SvelteKit frontends, Node libraries, and API servers
+  like SvelteKit apps, Node libraries, and API servers
 - support multiple build targets like legacy/modern ES versions and mobile/desktop frontends
 - support multiple platform targets like Node and browsers, including server-side rendering
 - support multiple packages created from one source project to be published separately
@@ -14,7 +14,7 @@ It's designed for a variety of needs:
 To accomplish this, Gro has an optional config file that lives at `$PROJECT/src/gro.config.ts`.
 If a project does not define a config, Gro imports a default config from
 [`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts),
-which looks at your project for familiar patterns (like Node libraries and SvelteKit frontends)
+which looks at your project for familiar patterns (like Node libraries and SvelteKit apps)
 and tries to do the right thing.
 
 > The default config detects
