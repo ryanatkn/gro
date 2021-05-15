@@ -67,8 +67,8 @@ Gro has a number of builtin adapters. Some are a work in progress:
 To learn how to use adapters and other build options, see [the config docs](config.md).
 
 You may notice that the Gro config `adapt` property is a function that returns `Adapter` instances,
-and you may be dismayed that it's not as simple as SvelteKit's API,
-which has an `adapter` property that accepts `Adapter` instances.
+and you may be dismayed that it's not as simple as SvelteKit's API, which has
+[an `adapter` property that accepts `Adapter` instances](https://kit.svelte.dev/docs#adapters).
 In Gro, there's the `adapt` function property,
 a necessary wrapper function that returns `Adapter` instances:
 
