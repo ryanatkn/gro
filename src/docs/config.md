@@ -76,8 +76,8 @@ The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files
 export interface GroConfigPartial {
 	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
 	readonly adapt?: AdaptBuilds;
-	readonly target?: EcmaScriptTarget;
-	readonly sourcemap?: boolean;
+	readonly target?: EcmaScriptTarget; // defaults to 'es2020'
+	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
 	readonly logLevel?: LogLevel; // env.GRO_LOG_LEVEL
@@ -85,7 +85,46 @@ export interface GroConfigPartial {
 }
 ```
 
-### adapt
+### `builds`
+
+The `builds` property of the Gro config
+is an array of build configs that describe a project's outputs.
+Here's the [`BuildConfigPartial`](/src/config/buildConfig.ts) type,
+which is the user-facing version of the [`BuildConfig`](/src/config/buildConfig.ts):
+
+```ts
+export interface BuildConfigPartial {
+	readonly name: string;
+	readonly platform: PlatformTarget; // 'node' | 'browser'
+	readonly input: BuildConfigInput | BuildConfigInput[];
+}
+```
+
+The `name` field can be anything and maps to the build's output directory name.
+By defining `"name": "foo",`, running `gro dev` or `gro build` creates builds
+in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
+
+> Importantly, **Gro requires a Node build named `"node"`**
+> that it uses to run things like tests, tasks, and codegen.
+> Ideally this would be configurable, but doing so would slow Gro down in many cases.
+
+The `platform` can currently be `"node"` or `"browser"` and
+is used by Gro's default builders to customize the output.
+When building for the browser, dependencies in `node_modules/` are imported via Snowpack's
+[`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
+When building for Node, the Svelte compiler outputs
+[SSR components](https://svelte.dev/docs#Server-side_component_API)
+instead of the normal DOM ones.
+
+The `input` field specifies the source code entry points for the build.
+Each input must be a file path (absolute or relative to `src/`),
+or a filter function with the signature `(id: string) => boolean`.
+To define filters, it's convenient to use the
+[`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
+from `@rollup/pluginutils` and
+Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
+
+### `adapt`
 
 The `adapt` property is a function that returns any number of `Adapter` instances.
 Read more about [`adapt` and the `Adapter` in the build docs](build.md).
@@ -98,7 +137,7 @@ export interface AdaptBuilds<TArgs = any, TEvents = any> {
 }
 ```
 
-### serve
+### `serve`
 
 [Gro's internal config](/src/gro.config.ts) uses the `serve` property
 to serve the contents of both `src/` and `src/client/` off of the root directory.
@@ -152,42 +191,3 @@ config = {
 	],
 };
 ```
-
-## build config
-
-The `builds` property of the Gro config
-is an array of build configs that describe a project's outputs.
-Here's the [`BuildConfigPartial`](/src/config/buildConfig.ts) type,
-which is the user-facing version of the [`BuildConfig`](/src/config/buildConfig.ts):
-
-```ts
-export interface BuildConfigPartial {
-	readonly name: string;
-	readonly platform: PlatformTarget; // 'node' | 'browser'
-	readonly input: BuildConfigInput | BuildConfigInput[];
-}
-```
-
-The `name` field can be anything and maps to the build's output directory name.
-By defining `"name": "foo",`, running `gro dev` or `gro build` creates builds
-in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
-
-> Importantly, **Gro requires a Node build named `"node"`**
-> that it uses to run things like tests, tasks, and codegen.
-> Ideally this would be configurable, but doing so would slow Gro down in many cases.
-
-The `platform` can currently be `"node"` or `"browser"` and
-is used by Gro's default builders to customize the output.
-When building for the browser, dependencies in `node_modules/` are imported via Snowpack's
-[`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
-When building for Node, the Svelte compiler outputs
-[SSR components](https://svelte.dev/docs#Server-side_component_API)
-instead of the normal DOM ones.
-
-The `input` field specifies the source code entry points for the build.
-Each input must be a file path (absolute or relative to `src/`),
-or a filter function with the signature `(id: string) => boolean`.
-To define filters, it's convenient to use the
-[`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
-from `@rollup/pluginutils` and
-Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
