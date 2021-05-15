@@ -60,9 +60,52 @@ Gro has a number of builtin adapters. Some are a work in progress:
 - [ ] [`gro-adapter-spa-frontend`](../adapt/gro-adapter-spa-frontend.ts)
 - [ ] [`gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend.ts)
 
-## config
+## adapt
 
-See [the config docs](config.md) to learn how to use adapters and other build options.
+[Gro configs](config.md) have an `adapt` property to configure a project's `Adapter` usage.
+
+To learn how to use adapters and other build options, see [the config docs](config.md).
+
+You may notice that the Gro config `adapt` property is a function that returns `Adapter`s,
+and you may be dismayed that it's not as simple as SvelteKit's API,
+which has an `adapter` property that accepts `Adapter` instances.
+In Gro, there's the `adapt` function property,
+a necessary wrapper function that returns `Adapter` instances:
+
+```ts
+import type {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+
+export const config: GroConfigCreator = async () => {
+	return {
+		adapt: async () => [
+			(await import('@feltcoop/gro/gro-adapter-sveltekit-frontend.js')).createAdapter(),
+			(await import('@feltcoop/gro/gro-adapter-node-library.js')).createAdapter(),
+			(await import('@feltcoop/gro/gro-adapter-api-server.js')).createAdapter(),
+		],
+
+		// this does not work, even though it's simpler!
+		// adapt: {name: 'my-adapter', adapt: ({fs}) => { fs.copy(/**/); }},
+
+		// this does work (note it does not have to import anything, or be async):
+		// adapt: () => {
+		// 	return {name: 'my-adapter', adapt: ({fs}) => { fs.copy(/**/); }};
+		// },
+	};
+};
+```
+
+Why the wrapper function?
+It's to avoid a performance footgun:
+production adapters may have very large dependencies,
+and we want to avoid importing them every time we load our project's config --
+which is every time we run a task!
+Without lazy adapter imports, every run of `gro` could feel sluggish, even for even small projects.
+
+We hope to establish good practice patterns like this early when we can,
+even when it means less convenience or simplicity. Helps avoid technical debt.
+In this case, the cost is just a wrapper function and dynamic imports,
+and the benefit is we ensure good performance for running Gro tasks.
+(more specifically, loading a project's Gro config)
 
 ## deploying and publishing
 
