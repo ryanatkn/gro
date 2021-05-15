@@ -9,7 +9,7 @@ import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
 
 // publish.task.ts
-// - usage: `gro version patch`
+// - usage: `gro publish patch`
 // - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version
 // - runs the production build
 // - publishes to npm from the `main` branch, configurable with `--branch`
@@ -21,7 +21,7 @@ type VersionIncrement = string;
 const validateVersionIncrement: ValidateVersionIncrement = (v) => {
 	if (!v || typeof v !== 'string') {
 		throw Error(
-			`Expected a version increment like one of patch|minor|major, e.g. gro version patch`,
+			`Expected a version increment like one of patch|minor|major, e.g. gro publish patch`,
 		);
 	}
 };
