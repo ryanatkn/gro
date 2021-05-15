@@ -12,8 +12,6 @@ adapters are little plugins that take production builds as inputs and produce fi
 Despite the similarity, Gro's adapter API differs from SvelteKit's,
 and interoperability is not a goal yet. (and may never be, can't tell right now)
 
-Returning an empty array causes a no-op.
-
 */
 
 export interface Adapter<TArgs = any, TEvents = any> {
