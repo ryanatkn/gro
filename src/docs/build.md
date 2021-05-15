@@ -106,7 +106,8 @@ production adapters may have very large dependencies,
 and we want to avoid importing them every time we load our project's config --
 which is every time we run many tasks!
 
-Without lazy adapter imports, every run of `gro` could feel sluggish, even for even small projects,
+Without lazy adapter imports, every run of many common tasks could be noticeably sluggish,
+even for even small projects,
 and this pattern helps us remember to structure our code so it remains fast.
 
 We hope to establish good practice patterns like this early when we can,
