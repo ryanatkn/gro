@@ -25,8 +25,8 @@ export interface Adapter<TArgs = any, TEvents = any> {
 
 export interface AdaptBuilds<TArgs = any, TEvents = any> {
 	(ctx: AdaptBuildsContext<TArgs, TEvents>):
-		| (Adapter<TArgs, TEvents> | (Adapter<TArgs, TEvents> | null)[])
-		| Promise<Adapter<TArgs, TEvents> | (Adapter<TArgs, TEvents> | null)[]>;
+		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
+		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
 }
 
 export interface AdaptBuildsContext<TArgs = any, TEvents = any>

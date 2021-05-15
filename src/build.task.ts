@@ -6,7 +6,7 @@ import type {GroConfig} from './config/config.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
 import {printTimings} from './utils/print.js';
 import {toArray} from './utils/array.js';
-import type {AdaptBuildsContext} from './adapt/adapter.js';
+import type {AdaptBuildsContext, Adapter} from './adapt/adapter.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
@@ -51,35 +51,41 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			...ctx,
 			config,
 		};
-		const adapters = await config.adapt(adaptContext);
+		const adapters: Adapter<any, any>[] = toArray(await config.adapt(adaptContext)).filter(
+			Boolean,
+		) as Adapter<any, any>[];
 		timingToCreateAdapters();
 
-		const timingToCallBegin = timings.start('begin');
-		for (const adapter of toArray(adapters)) {
-			if (!adapter?.begin) continue;
-			const timing = timings.start(`begin:${adapter.name}`);
-			await adapter.begin(adaptContext);
-			timing();
-		}
-		timingToCallBegin();
+		if (adapters.length) {
+			const timingToCallBegin = timings.start('begin');
+			for (const adapter of adapters) {
+				if (!adapter.begin) continue;
+				const timing = timings.start(`begin:${adapter.name}`);
+				await adapter.begin(adaptContext);
+				timing();
+			}
+			timingToCallBegin();
 
-		const timingToCallAdapt = timings.start('adapt');
-		for (const adapter of toArray(adapters)) {
-			if (!adapter?.adapt) continue;
-			const timing = timings.start(`adapt:${adapter.name}`);
-			await adapter.adapt(adaptContext);
-			timing();
-		}
-		timingToCallAdapt();
+			const timingToCallAdapt = timings.start('adapt');
+			for (const adapter of adapters) {
+				if (!adapter.adapt) continue;
+				const timing = timings.start(`adapt:${adapter.name}`);
+				await adapter.adapt(adaptContext);
+				timing();
+			}
+			timingToCallAdapt();
 
-		const timingToCallEnd = timings.start('end');
-		for (const adapter of toArray(adapters)) {
-			if (!adapter?.end) continue;
-			const timing = timings.start(`end:${adapter.name}`);
-			await adapter.end(adaptContext);
-			timing();
+			const timingToCallEnd = timings.start('end');
+			for (const adapter of adapters) {
+				if (!adapter.end) continue;
+				const timing = timings.start(`end:${adapter.name}`);
+				await adapter.end(adaptContext);
+				timing();
+			}
+			timingToCallEnd();
+		} else {
+			log.info('no adapters to `adapt`');
 		}
-		timingToCallEnd();
 
 		printTimings(timings, log);
 	},
