@@ -83,6 +83,21 @@ export interface GroConfigPartial {
 }
 ```
 
+### adapt
+
+The `adapt` property is a function that returns any number of `Adapter` instances.
+Read more about [`adapt` and the `Adapter` in the build docs](build.md).
+
+```ts
+export interface AdaptBuilds<TArgs = any, TEvents = any> {
+	(ctx: AdaptBuildsContext<TArgs, TEvents>):
+		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
+		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
+}
+```
+
+### serve
+
 [Gro's internal config](/src/gro.config.ts) uses the `serve` property
 to serve the contents of both `src/` and `src/client/` off of the root directory.
 
