@@ -9,7 +9,7 @@ import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
 
-// version.task.ts
+// publish.task.ts
 // - usage: `gro version patch`
 // - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version
 // - runs the production build
@@ -43,7 +43,8 @@ export const task: Task<TaskArgs> = {
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
 
-		// Confirm with the user that we're doing what they expect.
+		// Confirm with the user that we're doing what they expect:
+		// TODO improve this to do the math for the simple kinds
 		await confirmWithUser(fs, versionIncrement, log);
 
 		// Make sure we're on the right branch:
@@ -52,15 +53,10 @@ export const task: Task<TaskArgs> = {
 		// And updated to the latest:
 		await spawnProcess('git', ['pull']);
 
-		// Normal user projects will hit this code path right here:
-		// in other words, `isThisProjectGro` will always be `false` for your code.
-		// TODO task pollution, this is bad for users who want to copy/paste this task.
-		// think of a better way - maybe config+defaults?
-		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
-		if (!isThisProjectGro) {
-			await invokeTask('check');
-			await invokeTask('build');
-		}
+		// Make sure everything is in working order, and then create the final artifacts:
+		await invokeTask('check');
+		await invokeTask('build');
+
 		await spawnProcess('npm', ['version', ...process.argv.slice(3)]);
 		await spawnProcess('npm', ['publish']);
 		await spawnProcess('git', ['push']);

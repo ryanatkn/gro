@@ -156,8 +156,8 @@ gro typecheck # just the typechecking
 To publish: (also see [`src/docs/publish.md`](src/docs/publish.md))
 
 ```bash
-gro version patch # bump version, publish to npm, and sync to GitHub
-gro version major --and args --are forwarded --to 'npm version'
+gro publish patch # bump version, publish to npm, and sync to GitHub
+gro publish major --and args --are forwarded --to 'npm version'
 ```
 
 ## develop
