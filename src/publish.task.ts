@@ -1,7 +1,6 @@
 import {createInterface as createReadlineInterface} from 'readline';
 
 import type {Task} from './task/task.js';
-import {isThisProjectGro} from './paths.js';
 import {spawnProcess} from './utils/process.js';
 import {green, bgBlack, rainbow, red} from './utils/terminal.js';
 import {loadPackageJson} from './utils/packageJson.js';
