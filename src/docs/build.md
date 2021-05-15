@@ -30,11 +30,11 @@ the build process has two discrete steps:
 > as we're thinking about them, `Adapter`s should not modify the contents of `.gro/prod/`;
 > adapters take these builds as inputs, and without changing them,
 > they output whatever you want, for as long as you want, as messily as you want;
-> just no messing with the source, that is forbidden --
+> just no messing with the source, that is forbidden —
 > this design lets you run many adapters on one build,
 > which means composability & power & efficiency;
 > if you find yourself wanting to modify builds in place, try a `Builder` instead
-> (the API probably needs improvements and helpers) -- open issues if you want to discuss!
+> (the API probably needs improvements and helpers) — open issues if you want to discuss!
 
 An adapter is a small plugin with a few optional hooks:
 
@@ -103,7 +103,7 @@ export const config: GroConfigCreator = async () => {
 Why the required wrapper function?
 It's to avoid a performance footgun:
 production adapters may have very large dependencies,
-and we want to avoid importing them every time we load our project's config --
+and we want to avoid importing them every time we load our project's config —
 which is every time we run many tasks!
 
 Without lazy adapter imports, every run of many common tasks could be noticeably sluggish,
