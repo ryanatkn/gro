@@ -21,7 +21,7 @@ When we run:
 gro build
 ```
 
-the build process has discrete steps:
+the build process has two discrete steps:
 
 1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{buildName}` for each build
 2. [`Adapter`](../adapt/adapter.ts)s run and output, umm, anything?
