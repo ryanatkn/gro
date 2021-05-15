@@ -5,7 +5,7 @@ import {spawnProcess} from './utils/process.js';
 import {green, bgBlack, rainbow, red, yellow, bold} from './utils/terminal.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import type {Logger} from './utils/log.js';
-import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
+import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
 import {UnreachableError} from './utils/error.js';
 import type {Flavored, Result} from './utils/types.js';

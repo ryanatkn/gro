@@ -5,7 +5,7 @@ import {Filer} from './Filer.js';
 import {fs as memoryFs} from '../fs/memory.js';
 import type {MemoryFs} from '../fs/memory.js';
 import type {Builder} from './builder.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 
 interface SuiteContext {
 	fs: MemoryFs;

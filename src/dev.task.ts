@@ -17,7 +17,7 @@ import {
 	API_SERVER_BUILD_BASE_PATH,
 	API_SERVER_BUILD_NAME,
 	hasSvelteKitFrontend,
-} from './config/defaultBuildConfig.js';
+} from './build/defaultBuildConfig.js';
 
 export interface TaskArgs {
 	nocert?: boolean;

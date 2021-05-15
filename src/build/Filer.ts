@@ -25,9 +25,9 @@ import type {
 } from './builder.js';
 import {inferEncoding} from '../fs/encoding.js';
 import type {Encoding} from '../fs/encoding.js';
-import {isPrimaryBuildConfig, printBuildConfigLabel} from '../config/buildConfig.js';
-import type {BuildConfig} from '../config/buildConfig.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../config/defaultBuildConfig.js';
+import {isPrimaryBuildConfig, printBuildConfigLabel} from '../build/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/defaultBuildConfig.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {stripBase, toServedDirs} from './ServedDir.js';
 import type {ServedDir, ServedDirPartial} from './ServedDir.js';

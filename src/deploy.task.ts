@@ -5,7 +5,7 @@ import {spawnProcess} from './utils/process.js';
 import {GIT_DIRNAME, paths} from './paths.js';
 import {printError, printPath} from './utils/print.js';
 import {magenta, green, rainbow, red} from './utils/terminal.js';
-import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
+import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 
 // TODO there's a bug where sometimes you have to run `gro deploy` twice.. hm
 // TODO support other kinds of deployments

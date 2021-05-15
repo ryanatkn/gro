@@ -1,4 +1,4 @@
-import type {BuildConfig, InputFilter} from '../config/buildConfig.js';
+import type {BuildConfig, InputFilter} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {
 	basePathToSourceId,

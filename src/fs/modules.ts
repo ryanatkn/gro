@@ -5,7 +5,7 @@ import {Timings} from '../utils/time.js';
 import type {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId} from '../paths.js';
 import {UnreachableError} from '../utils/error.js';
-import {PRIMARY_NODE_BUILD_NAME} from '../config/defaultBuildConfig.js';
+import {PRIMARY_NODE_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import type {Obj, Result} from '../utils/types.js';
 import type {Filesystem} from './filesystem.js';
 

@@ -15,8 +15,8 @@ export {
 	normalizeBuildConfigs,
 	validateBuildConfigs,
 	isPrimaryBuildConfig,
-} from './config/buildConfig.js';
-export type {BuildConfig, BuildName, BuildConfigPartial} from './config/buildConfig.js';
+} from './build/buildConfig.js';
+export type {BuildConfig, BuildName, BuildConfigPartial} from './build/buildConfig.js';
 
 // by definition, these are generic, so just export everything
 export * from './utils/types.js';

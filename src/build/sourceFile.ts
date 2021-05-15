@@ -5,7 +5,7 @@ import {reconstructBuildFiles} from './buildFile.js';
 import type {BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
 import {toHash} from './utils.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 import type {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';

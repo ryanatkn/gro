@@ -1,5 +1,5 @@
 import type {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
-import type {BuildConfig, BuildName} from '../config/buildConfig.js';
+import type {BuildConfig, BuildName} from '../build/buildConfig.js';
 import type {BuildOutDirname} from '../paths.js';
 import {deepEqual} from '../utils/equal.js';
 

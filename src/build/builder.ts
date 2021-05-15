@@ -1,5 +1,5 @@
 import {UnreachableError} from '../utils/error.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutPath} from '../paths.js';
 import type {
 	ExternalsAliases,

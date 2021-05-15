@@ -89,8 +89,8 @@ export interface GroConfigPartial {
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`BuildConfigPartial`](/src/config/buildConfig.ts) type,
-which is the user-facing version of the [`BuildConfig`](/src/config/buildConfig.ts):
+Here's the [`BuildConfigPartial`](/src/build/buildConfig.ts) type,
+which is the user-facing version of the [`BuildConfig`](/src/build/buildConfig.ts):
 
 ```ts
 export interface BuildConfigPartial {
