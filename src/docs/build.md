@@ -114,8 +114,7 @@ We hope to establish good practice patterns like this early when we can,
 even when it means less convenience or simplicity.
 Helps avoid technical debt and clarifies how things work.
 In this case, the cost is just a wrapper function and dynamic imports,
-and the benefit is we ensure good performance for running Gro tasks.
-(more specifically, loading a project's Gro config)
+and the benefit is being guided to keep your tools fast.
 
 ## deploying and publishing
 
