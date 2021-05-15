@@ -16,6 +16,7 @@ import {omitUndefined} from '../utils/object.js';
 import type {ServedDirPartial} from '../build/ServedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 import type {Result} from '../index.js';
+import {toArray} from '../utils/array.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {defaultAdapt} from '../adapt/defaultAdapt.js';
 
@@ -55,7 +56,7 @@ export interface GroConfig {
 }
 
 export interface GroConfigPartial {
-	readonly builds: readonly (BuildConfigPartial | null)[]; // allow `null` for convenience
+	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null; // allow `null` for convenience
 	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
@@ -211,7 +212,7 @@ const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
 };
 
 const normalizeConfig = (config: GroConfigPartial): GroConfig => {
-	const buildConfigs = normalizeBuildConfigs(config.builds);
+	const buildConfigs = normalizeBuildConfigs(toArray(config.builds));
 	return {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,
