@@ -84,22 +84,31 @@ export const config: GroConfigCreator = async () => {
 		],
 
 		// this does not work, even though it's simpler!
-		// adapt: {name: 'my-adapter', adapt: ({fs}) => { fs.copy(/**/); }},
+		// adapt: {name: 'my-adapter', adapt: () => {}},
 
 		// this does work (note it does not have to import anything, or be async):
 		// adapt: () => {
-		// 	return {name: 'my-adapter', adapt: ({fs}) => { fs.copy(/**/); }};
+		// 	return {name: 'my-adapter', adapt: () => {}};
+		// },
+
+		// both `adapt` and the `Adapter` hooks get access to an extended task context:
+		// adapt: ({dev, config}) => {
+		// 	return dev
+		// 		? {name: 'my-adapter', adapt: ({fs}) => fs.copy(/**/)}
+		// 		: toProdAdapters(config);
 		// },
 	};
 };
 ```
 
-Why the wrapper function?
+Why the required wrapper function?
 It's to avoid a performance footgun:
 production adapters may have very large dependencies,
 and we want to avoid importing them every time we load our project's config --
 which is every time we run a task!
-Without lazy adapter imports, every run of `gro` could feel sluggish, even for even small projects.
+
+Without lazy adapter imports, every run of `gro` could feel sluggish, even for even small projects,
+and this pattern helps us remember to structure our code so it remains fast.
 
 We hope to establish good practice patterns like this early when we can,
 even when it means less convenience or simplicity. Helps avoid technical debt.
