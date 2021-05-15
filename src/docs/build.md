@@ -5,8 +5,8 @@ This document describes how to go from `gro build` to live websites and npm pack
 Gro has an [unbundled build system](unbundled.md)
 that tries to be flexible for many use cases.
 For production builds, it outputs artifacts to `.gro/prod/{build_name}`
-that get _adapted_ — to use terminology of SvelteKit —
-to the final artifacts. Adapting can be as simple as copying
+that get _adapted_ — to use terminology of SvelteKit — to their final form.
+Adapting can be as simple as copying
 the directory of files in `.gro/prod/{build_name}` to `dist/`,
 or it may be more complex, like a SvelteKit build,
 or a Node library bundled into sibling `.js` and `.cjs` outputs.
@@ -14,7 +14,7 @@ Adapting is designed to be powerful and open ended.
 
 ## adapters
 
-Gro has `Adapter`s inspired by Svelte.
+Gro borrows the `Adapter` concept from SvelteKit to help us control our builds.
 When we run:
 
 ```bash
