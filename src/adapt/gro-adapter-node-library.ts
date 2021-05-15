@@ -17,9 +17,9 @@ import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/
 // TODO this adapter behaves as if it owns the dist/ directory, how to compose?
 
 export interface Options {
-	builds: AdaptBuildOptionsPartial[]; // defaults to [{name: 'node', type: 'bundled'}]
+	builds: AdaptBuildOptionsPartial[]; // defaults to [{name: 'lib', type: 'bundled'}]
 	dir: string; // defaults to dist/
-	link: string | null; // path to `npm link`
+	link: string | null; // path to `npm link`, defaults to null
 }
 
 // TODO do we want the esm/cjs flags?
@@ -74,11 +74,8 @@ export const createAdapter = ({
 	return {
 		name: 'gro-adapter-node-library',
 		begin: async ({fs}) => {
+			// TODO this doesn't compose - need to either change this, or add helper machinery around it
 			await fs.remove(dir);
-
-			// TODO should we compile types here, so they're available to other adapters?
-			// it's a little out of the architecture to have `adapt` write to the prod dirs, I think,
-			// but a previous step would make more sense
 		},
 		adapt: async ({config, fs, dev, log, args}) => {
 			const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;

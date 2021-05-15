@@ -6,11 +6,11 @@ Gro has an [unbundled build system](unbundled.md)
 that tries to be flexible for many use cases.
 For production builds, it outputs artifacts to `.gro/prod/{build_name}`
 that get _adapted_ — to use terminology of SvelteKit —
-to the target platforms.
-
-"Target platforms" for Gro includes publishing to npm,
-but Gro has a very clear distinction between **deploy** and **publish**:
-`gro publish` is for npm and `gro deploy` is for the web.
+to the final artifacts. Adapting can be as simple as copying
+the directory of files in `.gro/prod/{build_name}` to `dist/`,
+or it may be more complex, like a SvelteKit build,
+or a Node library bundled into sibling `.js` and `.cjs` outputs.
+Adapting is designed to be powerful and open ended.
 
 ## adapters
 
@@ -21,20 +21,20 @@ When we run:
 gro build
 ```
 
-The build process has discrete steps:
+the build process has discrete steps:
 
 1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{buildName}` for each build
 2. [`Adapter`](../adapt/adapter.ts)s run and output, umm, anything?
    like SvelteKit frontends, Node libraries, API servers, & more !
 
 > as we're thinking about them, `Adapter`s should not modify the contents of `.gro/prod/`;
-> they take builds as inputs, and without changing them,
+> adapters take these builds as inputs, and without changing them,
 > they output whatever you want for as long as you want as messily as you want,
 > just no messing with the source, that is forbidden --
 > this design lets you run many adapters on one build,
 > which means composability & power & efficiency;
 > if you find yourself wanting to modify builds in place, try a `Builder` instead
-> (the API probably needs improvements and helpers) open issues if you want to discuss!
+> (the API probably needs improvements and helpers) -- open issues if you want to discuss!
 
 An adapter is a small plugin with a few optional hooks:
 
@@ -59,3 +59,10 @@ Gro has a number of builtin adapters. Some are a work in progress:
 - [ ] [`gro-adapter-api-server`](../adapt/gro-adapter-api-server)
 - [ ] [`gro-adapter-spa-frontend`](../adapt/gro-adapter-spa-frontend)
 - [ ] [`gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend)
+
+## deploying and publishing
+
+Gro has a very clear distinction between **deploy** and **publish**:
+`gro publish` is for npm and `gro deploy` is for the web.
+
+> TODO write this section
