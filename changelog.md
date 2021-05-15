@@ -6,6 +6,8 @@
   ([#189](https://github.com/feltcoop/gro/pull/189))
 - make `config.builds` optional and accept non-array values
   ([#189](https://github.com/feltcoop/gro/pull/189))
+- document more about `adapt`
+  ([#189](https://github.com/feltcoop/gro/pull/189))
 
 ## 0.22.0
 
