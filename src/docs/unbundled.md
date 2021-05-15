@@ -84,7 +84,7 @@ Gro differs in some significant ways:
   [TypeScript](https://github.com/microsoft/TypeScript).
   Despite its most-in-one role,
   Gro does still value flexibility and interoperability.
-  It has a pluggable build architecture that can support a lot of things,
+  It has a pluggable [build architecture](build.md) that can support a lot of things,
   with more powerful plugins in the future,
   but it's not our priority to encourage a plugin ecosystem.
   Instead, we expect Gro to evolve towards more opinionated choices, not fewer,
