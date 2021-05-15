@@ -2,11 +2,12 @@ import {createInterface as createReadlineInterface} from 'readline';
 
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
-import {green, bgBlack, rainbow, red} from './utils/terminal.js';
+import {green, bgBlack, rainbow, red, yellow} from './utils/terminal.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './config/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
+import {UnreachableError} from './utils/error.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -43,7 +44,6 @@ export const task: Task<TaskArgs> = {
 		validateVersionIncrement(versionIncrement);
 
 		// Confirm with the user that we're doing what they expect:
-		// TODO improve this to do the math for the simple kinds
 		await confirmWithUser(fs, versionIncrement, log);
 
 		// Make sure we're on the right branch:
@@ -69,15 +69,77 @@ const confirmWithUser = async (
 	log: Logger,
 ): Promise<void> => {
 	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
-	log.info(green(versionIncrement), '← new version');
 	await new Promise<void>(async (resolve) => {
 		const [
 			[currentChangelogVersion, previousChangelogVersion],
 			currentPackageVersion,
 		] = await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
+
+		log.info(green(versionIncrement), '← version increment');
 		log.info(green(currentChangelogVersion || '<empty>'), '← current changelog version');
-		log.info(green(currentPackageVersion), '← current package version');
 		log.info(green(previousChangelogVersion || '<empty>'), '← previous changelog version');
+		log.info(green(currentPackageVersion), '← current package version');
+
+		const currentChangelogVersionParts = currentChangelogVersion?.split('.'); // v
+		const currentPackageVersionParts = currentPackageVersion?.split('.'); // v - 1
+		const previousChangelogVersionParts = previousChangelogVersion?.split('.'); // v - 1
+
+		const validateParts = (versionIncrement: 'major' | 'minor' | 'patch') => {
+			if (!currentChangelogVersionParts) {
+				return log.error(
+					'expected `currentChangelogVersion` to be major.minor.patch:',
+					currentChangelogVersion,
+				);
+			} else if (currentChangelogVersionParts.length !== 3) {
+				return log.error('malformed `currentChangelogVersion`:', currentChangelogVersion);
+			}
+			if (!currentPackageVersionParts) {
+				return log.error(
+					'expected `currentPackageVersion` to be major.minor.patch:',
+					currentPackageVersion,
+				);
+			} else if (currentPackageVersionParts.length !== 3) {
+				return log.error('malformed `currentPackageVersion`:', currentPackageVersion);
+			}
+			if (!previousChangelogVersionParts) {
+				return log.error(
+					'expected `previousChangelogVersion` to be major.minor.patch:',
+					previousChangelogVersion,
+				);
+			} else if (previousChangelogVersionParts.length !== 3) {
+				return log.error('malformed `previousChangelogVersion`:', previousChangelogVersion);
+			}
+			if (versionIncrement === 'major') {
+				currentChangelogVersionParts[0]; // TODO
+				currentPackageVersionParts[0]; // TODO
+				previousChangelogVersionParts[0]; // TODO
+			} else if (versionIncrement === 'minor') {
+				currentChangelogVersionParts[1]; // TODO
+				currentPackageVersionParts[1]; // TODO
+				previousChangelogVersionParts[1]; // TODO
+			} else if (versionIncrement === 'patch') {
+				currentChangelogVersionParts[2]; // TODO
+				currentPackageVersionParts[2]; // TODO
+				previousChangelogVersionParts[2]; // TODO
+			} else {
+				throw new UnreachableError(versionIncrement);
+			}
+		};
+
+		if (
+			versionIncrement === 'major' ||
+			versionIncrement === 'minor' ||
+			versionIncrement === 'patch'
+		) {
+			validateParts(versionIncrement);
+		} else {
+			log.warn('unknown version increment: please review the following carefully:');
+			log.info(yellow(versionIncrement), '← version increment');
+			log.info(yellow(currentChangelogVersion || '<empty>'), '← current changelog version (new)');
+			log.info(yellow(previousChangelogVersion || '<empty>'), '← previous changelog version (old)');
+			log.info(yellow(currentPackageVersion), '← current package version (old)');
+		}
+
 		if (currentChangelogVersion === currentPackageVersion) {
 			log.error(
 				red('Current changelog version matches package version. Is the changelog updated?'),
