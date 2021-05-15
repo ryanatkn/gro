@@ -91,8 +91,15 @@ const confirmWithUser = async (
 		if (isStandardVersionIncrement(versionIncrement)) {
 			const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
 			if (!result.ok) {
-				errored = true;
-				log.error(red('failed to validate standard version increment'), result.reason);
+				logError(red('failed to validate standard version increment'), result.reason);
+			} else {
+				log.info(green(versionIncrement), '← version increment');
+				log.info(green(currentChangelogVersion || '<empty>'), '← current changelog version (new)');
+				log.info(
+					green(previousChangelogVersion || '<empty>'),
+					'← previous changelog version (old)',
+				);
+				log.info(green(currentPackageVersion), '← current package version (old)');
 			}
 		} else {
 			errored = true;
@@ -194,7 +201,13 @@ const validateStandardVersionIncrementParts = (
 		currentPackageVersionParts.value,
 	);
 	if (expectedNextVersion !== currentChangelogVersion) {
-		return {ok: false, reason: `expected currentChangelogVersion to ${versionIncrement}`};
+		return {
+			ok: false,
+			reason:
+				`expected changelog version to be ${expectedNextVersion}` +
+				` based on version increment ${versionIncrement}` +
+				` but got ${currentChangelogVersion}`,
+		};
 	}
 
 	return {ok: true};
