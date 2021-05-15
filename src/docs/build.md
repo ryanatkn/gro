@@ -84,19 +84,17 @@ export const config: GroConfigCreator = async () => {
 		],
 
 		// this does not work, even though it's simpler!
-		// adapt: {name: 'my-adapter', adapt: () => {}},
+		adapt: {name: 'my-adapter', adapt: () => {}},
 
 		// this does work (note it does not have to import anything, or be async):
-		// adapt: () => {
-		// 	return {name: 'my-adapter', adapt: () => {}};
-		// },
+		adapt: () => {
+			return {name: 'my-adapter', adapt: () => {}};
+		},
 
 		// both `adapt` and the `Adapter` hooks get access to an extended task context:
-		// adapt: ({dev, config}) => {
-		// 	return dev
-		// 		? {name: 'my-adapter', adapt: ({fs}) => fs.copy(/**/)}
-		// 		: toProdAdapters(config);
-		// },
+		adapt: ({dev, config}) => {
+			return dev ? {name: 'my-adapter', adapt: ({fs}) => fs.copy(/**/)} : toProdAdapters(config);
+		},
 	};
 };
 ```
