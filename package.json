@@ -14,8 +14,7 @@
     "test": "gro test",
     "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=dist; npm link",
     "dev": "clear && npm run bootstrap && gro dev",
-    "build": "clear && npm run bootstrap && gro build",
-    "buildprod": "npm run build && rm -rf .gro"
+    "build": "clear && npm run bootstrap && gro build"
   },
   "repository": {
     "type": "git",
