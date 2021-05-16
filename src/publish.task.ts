@@ -208,9 +208,9 @@ const validateStandardVersionIncrementParts = (
 		return {
 			ok: false,
 			reason:
-				`\n\nexpected changelog version: ${yellow(expectedNextVersion)}\n` +
-				`actual changelog version: ${yellow(currentChangelogVersion)}\n` +
-				`specified version increment: ${red(versionIncrement)}\n`,
+				`\n\n${yellow(expectedNextVersion)} ← expected changelog version\n` +
+				`${yellow(currentChangelogVersion)} ← actual changelog version\n` +
+				`${red(versionIncrement)} ← specified version increment\n`,
 		};
 	}
 
