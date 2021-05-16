@@ -50,9 +50,14 @@ export interface Adapter<TArgs = any, TEvents = any> {
 The `AdapterContext` extends
 [Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
-so adapter functions have full access to
-[the normal task environment](../task/README.md)
-in addition to things like the current project's Gro config.
+so the adapter hooks and `adapt` both have access to
+[the normal task environment](../task/README.md) and more:
+
+```ts
+export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
+	config: GroConfig;
+}
+```
 
 Gro has a number of builtin adapters. Some are a work in progress:
 
