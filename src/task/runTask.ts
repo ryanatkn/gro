@@ -27,8 +27,6 @@ export const runTask = async (
 	invokeTask: typeof InvokeTaskFunction,
 	dev: boolean | undefined, // `undefined` on first task invocation, so it infers from the first task
 ): Promise<RunTaskResult> => {
-	// TODO there's a contradiction here with how `dev` is handled,
-	// and it's biting us with `gro check` in `gro publish`
 	if (dev === undefined) {
 		if (task.mod.task.dev !== undefined) {
 			dev = task.mod.task.dev;
