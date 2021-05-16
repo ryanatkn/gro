@@ -7,7 +7,8 @@
 
 Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
-This document details a specific aspect of its [build system](build.md): "unbundled" developement.
+During development, we use `gro dev` and its "unbundled" development system
+to get simple and speedy builds.
 
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 [Vite](https://github.com/vitejs/vite), and [WMR](https://github.com/preactjs/wmr),
