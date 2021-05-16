@@ -8,8 +8,7 @@ User code can call `addMimeTypeExtension`
 to add custom types to the global cache.
 
 Most of the included types are widely supported in browsers
-with the exception of some very common types and
-media formats that Firefox supports.
+with the exception of some common types and media formats that Firefox supports.
 
 Since 'application/octet-stream' is the default, we don't include it.
 
