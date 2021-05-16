@@ -20,7 +20,8 @@ export const getDefaultEsbuildOptions = (
 	loader: 'ts',
 	charset: 'utf8', // following `svelte-preprocess-esbuild` here
 	tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
-	define: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
+	// TODO hacky but trying to get dev build and publishing stuff figured out
+	define: dev ? undefined : {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });
 
 export const getDefaultEsbuildPreprocessOptions = (
@@ -31,5 +32,6 @@ export const getDefaultEsbuildPreprocessOptions = (
 	target,
 	sourcemap,
 	tsconfigRaw: {compilerOptions: {}}, // pass an empty object so the preprocessor doesn't load the tsconfig
-	define: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
+	// TODO hacky but trying to get dev build and publishing stuff figured out
+	define: dev ? undefined : {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });

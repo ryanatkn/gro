@@ -9,6 +9,8 @@ import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
 import {UnreachableError} from './utils/error.js';
 import type {Flavored, Result} from './utils/types.js';
+import {buildSourceDirectory} from './build/buildSourceDirectory.js';
+import {loadGroConfig} from './config/config.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -48,6 +50,8 @@ export const task: Task<TaskArgs> = {
 		await spawnProcess('git', ['pull']);
 
 		// Make sure everything is in working order, and then create the final artifacts:
+		const config = await loadGroConfig(fs, dev);
+		await buildSourceDirectory(fs, config, dev, log);
 		await invokeTask('check', childTaskArgs);
 		await invokeTask('build', childTaskArgs);
 
