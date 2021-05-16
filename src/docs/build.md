@@ -83,7 +83,7 @@ You may notice that the Gro config `adapt` property is a function that returns `
 and you may be dismayed that it's not as simple as SvelteKit's API, which has
 [an `adapter` property that accepts `Adapter` instances](https://kit.svelte.dev/docs#adapters).
 In Gro, there's the `adapt` function property,
-a required wrapper function that returns `Adapter` instances:
+a function that returns `Adapter` instances:
 
 ```ts
 import type {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
@@ -122,7 +122,7 @@ export const config: GroConfigCreator = async () => {
 };
 ```
 
-Why the required wrapper function?
+Why the wrapper function?
 It's to avoid a performance footgun:
 production adapters sometimes have very large dependencies,
 and we want to avoid importing them every time we load our project's config —
