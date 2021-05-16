@@ -5,12 +5,12 @@
 - [build](build.md)
 - [config](config.md)
 - [deploy](deploy.md)
+- [dev](dev.md)
 - [log](log.md)
 - [options](options.md)
 - [philosophy](philosophy.md)
 - [publish](publish.md)
 - [tasks](tasks.md)
-- [unbundled](unbundled.md)
 
 > <sub>[gro](/../..) / docs / README.md</sub>
 

@@ -2,7 +2,7 @@
 
 This document describes how to go from `gro build` to live websites and npm packages.
 
-Gro has an [unbundled build system](unbundled.md)
+Gro has an [unbundled build system](dev.md)
 that tries to be flexible for many use cases.
 During development, we use it with `gro dev`.
 

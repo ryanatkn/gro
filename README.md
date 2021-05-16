@@ -29,7 +29,7 @@ It includes:
 
 - [build system](/src/docs/build.md)
   for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers and libraries
-  - [unbundled development](/src/docs/unbundled.md)
+  - [unbundled development](/src/docs/dev.md)
     inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
     [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
     - Gro supports its own form of SPA on the frontend,
@@ -68,7 +68,7 @@ It includes:
 ## docs
 
 - [build](/src/docs/build.md) web frontends, servers, and libraries
-  - [unbundled development](/src/docs/unbundled.md)
+  - [unbundled development](/src/docs/dev.md)
   - [config](/src/docs/config.md)
   - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/docs/publish.md)
@@ -199,7 +199,7 @@ Gro builds on
 [@lukeed\/\*](https://github.com/lukeed) ∙
 [Node](https://nodejs.org) & [more](package.json)
 
-[Gro's strategy](/src/docs/unbundled.md) of pairing unbundled ES modules during development
+[Gro's strategy](/src/docs/dev.md) of pairing unbundled ES modules during development
 with optimized bundles for production
 was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
 
