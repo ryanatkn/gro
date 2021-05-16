@@ -1,6 +1,6 @@
 import {join, basename} from 'path';
 import {fileURLToPath} from 'url';
-import type {BuildName} from './config/buildConfig.js';
+import type {BuildName} from './build/buildConfig.js';
 
 import {replaceExtension} from './utils/path.js';
 import {stripStart} from './utils/string.js';

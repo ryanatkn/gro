@@ -2,7 +2,7 @@ import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modul
 import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
-import type {Obj} from '../index.js';
+import type {Obj} from '../utils/types.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface GenModule {

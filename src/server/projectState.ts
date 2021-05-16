@@ -1,5 +1,5 @@
 import type {SourceMeta} from '../build/sourceMeta.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 import type {PackageJson} from '../utils/packageJson.js';
 
 // TODO rename?

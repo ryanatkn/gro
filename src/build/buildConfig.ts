@@ -3,9 +3,8 @@ import {resolve} from 'path';
 import {toArray} from '../utils/array.js';
 import {paths} from '../paths.js';
 import {blue, gray} from '../utils/terminal.js';
-import type {Result} from '../index.js';
 import {PRIMARY_NODE_BUILD_CONFIG, PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
-import type {Flavored} from '../utils/types.js';
+import type {Result, Flavored} from '../utils/types.js';
 
 // See `../docs/config.md` for documentation.
 

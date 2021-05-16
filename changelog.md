@@ -1,5 +1,14 @@
 # Gro changelog
 
+## 0.23.0
+
+- **break**: rename `gro publish` from `gro version` and improve its safety
+  ([#189](https://github.com/feltcoop/gro/pull/189))
+- make `config.builds` optional and accept non-array values
+  ([#189](https://github.com/feltcoop/gro/pull/189))
+- document more about `adapt`
+  ([#189](https://github.com/feltcoop/gro/pull/189))
+
 ## 0.22.0
 
 - **break**: redesign `gro publish` and `gro deploy`

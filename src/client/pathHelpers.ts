@@ -1,4 +1,4 @@
-import type {Obj} from '../index.js';
+import type {Obj} from '../utils/types.js';
 
 // TODO refactor, move where? hacky because `path`, should reuse existing code
 // TODO maybe cache these values on the domain objects instead of this?

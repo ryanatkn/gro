@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 
-import type {PartialExcept} from '../index.js';
+import type {PartialExcept} from '../utils/types.js';
 import {stripStart} from '../utils/string.js';
 
 export interface ServedDir {

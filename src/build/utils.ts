@@ -2,7 +2,7 @@ import {createFilter} from '@rollup/pluginutils';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import type {BuildConfig, BuildConfigInput, InputFilter} from '../config/buildConfig.js';
+import type {BuildConfig, BuildConfigInput, InputFilter} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
 import type {BuildDependency} from './builder.js';

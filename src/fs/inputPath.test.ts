@@ -11,7 +11,7 @@ import {
 } from './inputPath.js';
 import type {PathStats} from './pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
-import type {Obj} from '../index.js';
+import type {Obj} from '../utils/types.js';
 import {fs} from './node.js';
 
 /* test_resolveRawInputPath */

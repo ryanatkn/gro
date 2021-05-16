@@ -1,4 +1,4 @@
-# gro/log
+# log
 
 For now, [Gro's logger](/src/utils/log.ts) is designed for development only, not production.
 

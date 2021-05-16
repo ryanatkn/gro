@@ -1,7 +1,11 @@
 import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
-import {isPrimaryBuildConfig, normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
+import {
+	isPrimaryBuildConfig,
+	normalizeBuildConfigs,
+	validateBuildConfigs,
+} from '../build/buildConfig.js';
 import type {AdaptBuilds} from '../adapt/adapter.js';
-import type {BuildConfig, BuildConfigPartial} from './buildConfig.js';
+import type {BuildConfig, BuildConfigPartial} from '../build/buildConfig.js';
 import {
 	LogLevel,
 	SystemLogger,
@@ -10,12 +14,16 @@ import {
 	DEFAULT_LOG_LEVEL,
 } from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
-import {PRIMARY_NODE_BUILD_CONFIG, DEFAULT_ECMA_SCRIPT_TARGET} from './defaultBuildConfig.js';
+import {
+	PRIMARY_NODE_BUILD_CONFIG,
+	DEFAULT_ECMA_SCRIPT_TARGET,
+} from '../build/defaultBuildConfig.js';
 import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
-import type {ServedDirPartial} from '../build/ServedDir.js';
+import type {ServedDirPartial} from '../build/servedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
-import type {Result} from '../index.js';
+import type {Result} from '../utils/types.js';
+import {toArray} from '../utils/array.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {defaultAdapt} from '../adapt/defaultAdapt.js';
 
@@ -55,7 +63,7 @@ export interface GroConfig {
 }
 
 export interface GroConfigPartial {
-	readonly builds: readonly (BuildConfigPartial | null)[]; // allow `null` for convenience
+	readonly builds?: (BuildConfigPartial | null)[] | BuildConfigPartial | null; // allow `null` for convenience
 	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
@@ -211,7 +219,7 @@ const validateConfig = (config: GroConfig): Result<{}, {reason: string}> => {
 };
 
 const normalizeConfig = (config: GroConfigPartial): GroConfig => {
-	const buildConfigs = normalizeBuildConfigs(config.builds);
+	const buildConfigs = normalizeBuildConfigs(toArray(config.builds || null));
 	return {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,

@@ -12,7 +12,7 @@ import {omitUndefined} from '../utils/object.js';
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelteBuildHelpers.js';
 import type {SvelteCompilation} from '../build/svelteBuildHelpers.js';
 import {CSS_EXTENSION} from '../paths.js';
-import type {PartialExcept} from '../index.js';
+import type {PartialExcept} from '../utils/types.js';
 import type {CssBuild} from './cssCache.js';
 
 // TODO support `package.json` "svelte" field

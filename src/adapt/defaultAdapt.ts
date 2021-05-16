@@ -1,5 +1,5 @@
 import type {AdaptBuilds} from './adapter.js';
-import {hasDeprecatedGroFrontend, hasNodeLibrary} from '../config/defaultBuildConfig.js';
+import {hasDeprecatedGroFrontend, hasNodeLibrary} from '../build/defaultBuildConfig.js';
 
 // TODO copy dist ? autodetect behavior?
 

@@ -13,8 +13,8 @@ import {loadContents} from './load.js';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
 import {createCssCache} from './cssCache.js';
-import {printBuildConfig} from '../config/buildConfig.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import {printBuildConfig} from '../build/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 import {
 	createDelayedPromise,
 	getExternalsBuilderState,

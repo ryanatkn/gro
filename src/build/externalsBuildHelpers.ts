@@ -2,7 +2,7 @@ import type {ImportMap} from 'esinstall';
 
 import {EXTERNALS_BUILD_DIRNAME, toBuildOutPath} from '../paths.js';
 import type {BuilderState, BuildContext} from './builder.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface ExternalsBuilderState {

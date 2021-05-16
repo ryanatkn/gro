@@ -8,7 +8,7 @@ import {
 	API_SERVER_BUILD_CONFIG,
 	toDefaultBrowserBuild,
 	NODE_LIBRARY_BUILD_CONFIG,
-} from './defaultBuildConfig.js';
+} from '../build/defaultBuildConfig.js';
 
 /*
 

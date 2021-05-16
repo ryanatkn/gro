@@ -5,53 +5,65 @@ This document describes how to go from `gro build` to live websites and npm pack
 Gro has an [unbundled build system](unbundled.md)
 that tries to be flexible for many use cases.
 For production builds, it outputs artifacts to `.gro/prod/{build_name}`
-that get _adapted_ — to use terminology of SvelteKit —
-to the final artifacts. Adapting can be as simple as copying
+that get _adapted_ — to use terminology of SvelteKit — to their final form.
+Adapting can be as simple as copying
 the directory of files in `.gro/prod/{build_name}` to `dist/`,
 or it may be more complex, like a SvelteKit build,
 or a Node library bundled into sibling `.js` and `.cjs` outputs.
 Adapting is designed to be powerful and open ended.
 
+## contents
+
+- [adapters](#adapters)
+- [adapt](#adapt)
+- [deploying and publishing](#deploying-and-publishing)
+
 ## adapters
 
-Gro has `Adapter`s inspired by Svelte.
+Gro borrows the `Adapter` concept from SvelteKit to help us control our builds.
 When we run:
 
 ```bash
 gro build
 ```
 
-the build process has discrete steps:
+the build process has two discrete steps:
 
 1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{buildName}` for each build
 2. [`Adapter`](../adapt/adapter.ts)s run and output, umm, anything?
-   like SvelteKit frontends, Node libraries, API servers, & more !
+   like SvelteKit apps, Node libraries, API servers, & more !
 
 > as we're thinking about them, `Adapter`s should not modify the contents of `.gro/prod/`;
 > adapters take these builds as inputs, and without changing them,
 > they output whatever you want, for as long as you want, as messily as you want;
-> just no messing with the source, that is forbidden --
+> just no messing with the source, that is forbidden —
 > this design lets you run many adapters on one build,
 > which means composability & power & efficiency;
 > if you find yourself wanting to modify builds in place, try a `Builder` instead
-> (the API probably needs improvements and helpers) -- open issues if you want to discuss!
+> (the API probably needs improvements and helpers) — open issues if you want to discuss!
 
 An adapter is a small plugin with a few optional hooks:
 
 ```ts
 export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	begin?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
-	adapt?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
-	end?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
+	begin?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	adapt?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	end?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
 }
 ```
 
-The `AdaptBuildsContext` extends
+The `AdapterContext` extends
 [Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
-so adapter functions have full access to
-[the normal task environment](../task/README.md).
+so the adapter hooks and `adapt` both have access to
+[the normal task environment](../task/README.md) and more:
+
+```ts
+export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
+	config: GroConfig;
+}
+```
 
 Gro has a number of builtin adapters. Some are a work in progress:
 
@@ -60,9 +72,74 @@ Gro has a number of builtin adapters. Some are a work in progress:
 - [ ] [`gro-adapter-spa-frontend`](../adapt/gro-adapter-spa-frontend.ts)
 - [ ] [`gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend.ts)
 
+## adapt
+
+[Gro configs](config.md) have an optional `adapt` function property
+that returns zero or more `Adapter` instances.
+
+To learn how to use adapters and other build options, see [the config docs](config.md).
+
+You may notice that the Gro config `adapt` property is a function that returns `Adapter` instances,
+and you may be dismayed that it's not as simple as SvelteKit's API, which has
+[an `adapter` property that accepts `Adapter` instances](https://kit.svelte.dev/docs#adapters).
+In Gro, there's the `adapt` function property,
+a necessary wrapper function that returns `Adapter` instances:
+
+```ts
+import type {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
+
+export const config: GroConfigCreator = async () => {
+	return {
+		adapt: async () => [
+			(await import('@feltcoop/gro/gro-adapter-sveltekit-frontend.js')).createAdapter(),
+			(await import('@feltcoop/gro/gro-adapter-node-library.js')).createAdapter(),
+			(await import('@feltcoop/gro/gro-adapter-api-server.js')).createAdapter(),
+		],
+
+		// this **does not work**, even though it's simpler!
+		adapt: {name: 'my-adapter', adapt: () => {}}, // type error! must be a function or undefined
+
+		// this works: note it does not have to import anything, or be async:
+		adapt: () => ({name: 'my-adapter', adapt: () => {}}),
+
+		// both `adapt` and the `Adapter` hooks receive the task context extended with the config:
+		adapt: ({dev, config}) => {
+			return dev ? {name: 'my-adapter', adapt: ({fs}) => fs.copy(/**/)} : toProdAdapters(config);
+		},
+
+		// it's ok to return nothing
+		adapt: () => null,
+		adapt: () => [],
+		adapt: () => [null],
+	};
+};
+```
+
+Why the required wrapper function?
+It's to avoid a performance footgun:
+production adapters sometimes have very large dependencies,
+and we want to avoid importing them every time we load our project's config —
+which is every time we run many tasks!
+
+Without lazy adapter imports, every run of many common tasks could be noticeably sluggish,
+even for even small projects,
+and this pattern helps us remember to structure our code so it remains fast.
+
+We hope to establish good practice patterns like this early when we can,
+even when it means less convenience or simplicity.
+Helps avoid technical debt even if it wins no beauty contests.
+In this case, the cost is just a wrapper function and dynamic imports,
+and the benefit is being guided to keep our tools fast.
+
 ## deploying and publishing
 
-Gro has a very clear distinction between **deploy** and **publish**:
-`gro publish` is for npm and `gro deploy` is for the web.
+Now that we can make builds and then adapt them, how do we, like, make them go?
+You know, to the web or whatever?
 
-> TODO write this section
+The [`gro deploy`](deploy.md) task helps you output builds to a branch,
+like for static publishing to GitHub pages. (TODO needs work)
+
+The [`gro publish`](publish.md) task publishes packages to npm.
+
+Both of these tasks call `gro build` internally
+but you can always run it manually if you're curious.

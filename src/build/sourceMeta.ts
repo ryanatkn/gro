@@ -6,7 +6,7 @@ import type {BuildDependency, BuildContext} from './builder.js';
 import type {BuildableSourceFile} from './sourceFile.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import {gray} from '../utils/terminal.js';
-import type {BuildName} from '../config/buildConfig.js';
+import type {BuildName} from '../build/buildConfig.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk

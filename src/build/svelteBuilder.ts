@@ -21,7 +21,7 @@ import {
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../utils/terminal.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';

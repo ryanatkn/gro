@@ -3,12 +3,12 @@ import {runRollup} from '../build/rollup.js';
 import {DIST_DIRNAME, sourceIdToBasePath, toBuildExtension, toDistOutDir} from '../paths.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {toCommonBaseDir} from '../utils/path.js';
-import {printBuildConfigLabel} from '../config/buildConfig.js';
-import type {BuildName} from '../config/buildConfig.js';
+import {printBuildConfigLabel} from '../build/buildConfig.js';
+import type {BuildName} from '../build/buildConfig.js';
 import {ensureEnd} from '../utils/string.js';
 import {copyDist} from '../build/dist.js';
 import {Timings} from '../utils/time.js';
-import {DEFAULT_BROWSER_BUILD_NAME} from '../config/defaultBuildConfig.js';
+import {DEFAULT_BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 
 // TODO WIP do not use

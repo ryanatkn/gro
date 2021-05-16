@@ -6,7 +6,7 @@ import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
 import type {BuildableSourceFile} from './sourceFile.js';
-import type {BuildConfig} from '../config/buildConfig.js';
+import type {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutDirname} from '../paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
