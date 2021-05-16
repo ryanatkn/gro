@@ -74,7 +74,8 @@ Gro has a number of builtin adapters. Some are a work in progress:
 
 ## adapt
 
-[Gro configs](config.md) have an `adapt` property to configure a project's `Adapter` usage.
+[Gro configs](config.md) have an optional `adapt` function property
+that returns zero or more `Adapter` instances.
 
 To learn how to use adapters and other build options, see [the config docs](config.md).
 
