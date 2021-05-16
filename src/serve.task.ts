@@ -2,7 +2,7 @@ import type {Task} from './task/task.js';
 import {createGroServer, DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {loadHttpsCredentials} from './server/https.js';
-import type {ServedDirPartial} from './build/ServedDir.js';
+import type {ServedDirPartial} from './build/servedDir.js';
 
 export interface TaskArgs {
 	_: string[];

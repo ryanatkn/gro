@@ -4,8 +4,8 @@ import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {createFilerDir} from '../build/FilerDir.js';
-import type {FilerDir, FilerDirChangeCallback} from '../build/FilerDir.js';
+import {createFilerDir} from '../build/filerDir.js';
+import type {FilerDir, FilerDirChangeCallback} from '../build/filerDir.js';
 import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
 import type {MapDependencyToSourceId} from './utils.js';
 import {EXTERNALS_BUILD_DIR_ROOT_PREFIX, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
@@ -29,8 +29,8 @@ import {isPrimaryBuildConfig, printBuildConfigLabel} from '../build/buildConfig.
 import type {BuildConfig} from '../build/buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/defaultBuildConfig.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {stripBase, toServedDirs} from './ServedDir.js';
-import type {ServedDir, ServedDirPartial} from './ServedDir.js';
+import {stripBase, toServedDirs} from './servedDir.js';
+import type {ServedDir, ServedDirPartial} from './servedDir.js';
 import {assertBuildableSourceFile, assertSourceFile, createSourceFile} from './sourceFile.js';
 import type {BuildableSourceFile, SourceFile} from './sourceFile.js';
 import {createBuildFile, diffDependencies} from './buildFile.js';

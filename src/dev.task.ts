@@ -8,7 +8,7 @@ import {createGroServer} from './server/server.js';
 import type {GroServer} from './server/server.js';
 import type {GroConfig} from './config/config.js';
 import {loadGroConfig} from './config/config.js';
-import type {ServedDirPartial} from './build/ServedDir.js';
+import type {ServedDirPartial} from './build/servedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {createRestartableProcess, spawn} from './utils/process.js';
 import type {SpawnedProcess} from './utils/process.js';

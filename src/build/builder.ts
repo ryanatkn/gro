@@ -7,7 +7,7 @@ import type {
 	EXTERNALS_BUILDER_STATE_KEY,
 } from './externalsBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import type {ServedDir} from './ServedDir.js';
+import type {ServedDir} from './servedDir.js';
 import type {Logger} from '../utils/log.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
