@@ -41,13 +41,13 @@ An adapter is a small plugin with a few optional hooks:
 ```ts
 export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	begin?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
-	adapt?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
-	end?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
+	begin?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	adapt?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	end?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
 }
 ```
 
-The `AdaptBuildsContext` extends
+The `AdapterContext` extends
 [Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
 so adapter functions have full access to

@@ -2,7 +2,7 @@ import {createInterface as createReadlineInterface} from 'readline';
 
 import type {Task} from './task/task.js';
 import {spawnProcess} from './utils/process.js';
-import {green, bgBlack, rainbow, red, yellow, bold} from './utils/terminal.js';
+import {green, bgBlack, rainbow, cyan, red, yellow} from './utils/terminal.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
@@ -68,11 +68,6 @@ const confirmWithUser = async (
 			currentPackageVersion,
 		] = await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
 
-		log.info(green(versionIncrement), '← version increment');
-		log.info(green(currentChangelogVersion || '<empty>'), '← current changelog version');
-		log.info(green(previousChangelogVersion || '<empty>'), '← previous changelog version');
-		log.info(green(currentPackageVersion), '← current package version');
-
 		let errored = false;
 		const logError: Logger['error'] = (...args) => {
 			errored = true;
@@ -112,23 +107,28 @@ const confirmWithUser = async (
 			}
 		} else {
 			errored = true;
-			log.warn('unknown version increment: please review the following carefully:');
-			log.info(yellow(versionIncrement), '← version increment');
-			log.info(yellow(currentChangelogVersion || '<empty>'), '← current changelog version (new)');
-			log.info(yellow(previousChangelogVersion || '<empty>'), '← previous changelog version (old)');
-			log.info(yellow(currentPackageVersion), '← current package version (old)');
+			log.warn(
+				`unknown version increment "${versionIncrement}":`,
+				yellow('please review the following carefully:'),
+			);
 		}
+
+		const color = errored ? yellow : green;
+		log.info(color(versionIncrement), '← version increment');
+		log.info(color(currentChangelogVersion || '<empty>'), '← current changelog version');
+		log.info(color(previousChangelogVersion || '<empty>'), '← previous changelog version');
+		log.info(color(currentPackageVersion), '← current package version');
 
 		const expectedAnswer = errored ? 'yes!!' : 'y';
 		if (errored) {
-			log.warn(yellow(`there's an error above, please read before proceeding`));
+			log.warn(yellow(`there's an error or uncheckable condition above`));
 		}
 		readline.question(
 			bgBlack(`does this look correct? type "${expectedAnswer}" to proceed`) + ' ',
 			(answer) => {
 				const lowercasedAnswer = answer.toLowerCase();
 				if (lowercasedAnswer !== expectedAnswer) {
-					log.info('exiting task with', bold('no changes'));
+					log.info('exiting task with', cyan('no changes'));
 					process.exit();
 				}
 				log.info(rainbow('proceeding'));

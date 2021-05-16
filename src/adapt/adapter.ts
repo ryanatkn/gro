@@ -16,18 +16,17 @@ and interoperability is not a goal yet. (and may never be, can't tell right now)
 
 export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	begin?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
-	adapt?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
-	end?: (ctx: AdaptBuildsContext<TArgs, TEvents>) => void | Promise<void>;
+	begin?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	adapt?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	end?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
 }
 
 export interface AdaptBuilds<TArgs = any, TEvents = any> {
-	(ctx: AdaptBuildsContext<TArgs, TEvents>):
+	(ctx: AdapterContext<TArgs, TEvents>):
 		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
 		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
 }
 
-export interface AdaptBuildsContext<TArgs = any, TEvents = any>
-	extends TaskContext<TArgs, TEvents> {
+export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
 }

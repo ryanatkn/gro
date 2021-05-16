@@ -6,7 +6,7 @@ import type {GroConfig} from './config/config.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
 import {printTimings} from './utils/print.js';
 import {toArray} from './utils/array.js';
-import type {AdaptBuildsContext, Adapter} from './adapt/adapter.js';
+import type {AdapterContext, Adapter} from './adapt/adapter.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
@@ -47,7 +47,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		// Adapt the build to final ouputs.
 		const timingToCreateAdapters = timings.start('create adapters');
-		const adaptContext: AdaptBuildsContext<TaskArgs, TaskEvents> = {
+		const adaptContext: AdapterContext<TaskArgs, TaskEvents> = {
 			...ctx,
 			config,
 		};

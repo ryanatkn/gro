@@ -131,7 +131,7 @@ Read more about [`adapt` and the `Adapter` in the build docs](build.md).
 
 ```ts
 export interface AdaptBuilds<TArgs = any, TEvents = any> {
-	(ctx: AdaptBuildsContext<TArgs, TEvents>):
+	(ctx: AdapterContext<TArgs, TEvents>):
 		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
 		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
 }
