@@ -110,7 +110,7 @@ export const config: GroConfigCreator = async () => {
 
 Why the required wrapper function?
 It's to avoid a performance footgun:
-production adapters may have very large dependencies,
+production adapters sometimes have very large dependencies,
 and we want to avoid importing them every time we load our project's config —
 which is every time we run many tasks!
 
