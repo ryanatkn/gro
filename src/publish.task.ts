@@ -35,6 +35,8 @@ export const task: Task<TaskArgs> = {
 		await confirmWithUser(fs, versionIncrement, log);
 
 		// Make sure we're on the right branch:
+		// TODO see how the deploy task uses git, probably do that instead
+		await spawnProcess('git', ['fetch', 'origin', branch]);
 		await spawnProcess('git', ['checkout', branch]);
 
 		// And updated to the latest:
