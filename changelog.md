@@ -3,7 +3,10 @@
 ## 0.23.1
 
 - fix arg forwarding
-  ([#191](https://github.com/feltcoop/gro/pull/191))
+  ([#191](https://github.com/feltcoop/gro/pull/191),
+  [#192](https://github.com/feltcoop/gro/pull/192))
+- fix `gro test` in production, also fixing `gro publish`
+  ([#192](https://github.com/feltcoop/gro/pull/192))
 
 ## 0.23.0
 
