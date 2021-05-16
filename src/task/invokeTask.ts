@@ -90,12 +90,12 @@ export const invokeTask = async (
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				const {loadGroConfig} = await import('../config/config.js');
-				const finalDev = dev ?? process.env.NODE_ENV !== 'production'; // TODO
-				const config = await loadGroConfig(fs, finalDev);
+				const bootstrappingDev = true; // this does not inherit from the `dev` arg or `process.env.NODE_ENV`
+				const config = await loadGroConfig(fs, bootstrappingDev);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
-				await buildSourceDirectory(fs, config, finalDev, log);
+				await buildSourceDirectory(fs, config, bootstrappingDev, log);
 				timingToBuildProject();
 			}
 
