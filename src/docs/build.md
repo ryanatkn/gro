@@ -12,6 +12,12 @@ or it may be more complex, like a SvelteKit build,
 or a Node library bundled into sibling `.js` and `.cjs` outputs.
 Adapting is designed to be powerful and open ended.
 
+## contents
+
+- [adapters](#adapters)
+- [adapt](#adapt)
+- [deploying and publishing](#deploying-and-publishing)
+
 ## adapters
 
 Gro borrows the `Adapter` concept from SvelteKit to help us control our builds.
