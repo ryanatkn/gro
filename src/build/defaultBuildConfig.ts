@@ -25,7 +25,7 @@ export const PRIMARY_NODE_BUILD_NAME: BuildName = 'node';
 export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
 	name: PRIMARY_NODE_BUILD_NAME,
 	platform: 'node',
-	input: [createFilter(['**/*.{task,test,config,gen}*.ts', '**/fixtures/**'])],
+	input: [createFilter(['**/*.{task,test,config,gen,gen.*}.ts', '**/fixtures/**'])],
 };
 
 const NODE_LIBRARY_PATH = 'index.ts';
