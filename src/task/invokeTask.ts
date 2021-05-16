@@ -87,8 +87,18 @@ export const invokeTask = async (
 			if (await shouldBuildProject(fs, pathData.id)) {
 				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 				// every time a task is invoked.
+				if (dev !== undefined) {
+					// TODO include this?
+					throw Error(
+						'Invalid `invokeTask` call with a `dev` argument and unbuilt project.' +
+							' This probably means Gro or a task made something weird happen.',
+					);
+				}
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
+				// TODO probably do this as a separate process
+				// also this is messy, the `loadGroConfig` does some hacky config loading,
+				// and then we end up building twice - can it be done in a single pass?
 				const {loadGroConfig} = await import('../config/config.js');
 				const bootstrappingDev = true; // this does not inherit from the `dev` arg or `process.env.NODE_ENV`
 				const config = await loadGroConfig(fs, bootstrappingDev);

@@ -34,7 +34,7 @@ export type LoadModuleFailure =
 export const loadModule = async <T>(
 	id: string,
 	validate?: (mod: Obj) => mod is T,
-	dev = true,
+	dev = process.env.NODE_ENV !== 'production',
 	buildName = PRIMARY_NODE_BUILD_NAME,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
 	let mod;
