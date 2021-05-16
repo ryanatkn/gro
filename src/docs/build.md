@@ -122,7 +122,7 @@ export const config: GroConfigCreator = async () => {
 };
 ```
 
-Why the wrapper function?
+Why must `adapt` be a function, and not just one or more `Adapter` instances?
 It's to avoid a performance footgun:
 production adapters sometimes have very large dependencies,
 and we want to avoid importing them every time we load our project's config —
