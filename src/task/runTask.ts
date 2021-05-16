@@ -37,7 +37,7 @@ export const runTask = async (
 			dev = process.env.NODE_ENV !== 'production';
 		}
 	}
-	let output;
+	let output: unknown;
 	try {
 		output = await task.mod.task.run({
 			fs,
