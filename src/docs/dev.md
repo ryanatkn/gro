@@ -1,4 +1,4 @@
-# unbundled development
+# dev
 
 > please note: Gro's SPA behavior is deprecated for
 > [SvelteKit](https://github.com/sveltejs/kit) -
