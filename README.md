@@ -27,13 +27,12 @@ Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
 for making web frontends, servers, and libraries.
 It includes:
 
-- a [build system](/src/docs/build.md)
+- [build system](/src/docs/build.md)
+  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers and libraries
   - [unbundled development](/src/docs/unbundled.md)
-    for [Svelte](https://github.com/sveltejs/svelte) UIs
-    and integrated tools for Node servers and libraries
-    (inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
-    [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall))
-    - Gro supports SPAs on the frontend,
+    inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
+    [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
+    - Gro supports its own form of SPA on the frontend,
       but that functionality is now deprecated-ish for
       [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
   - [configurable adapters](src/docs/build.md#adapters) featuring e.g.
