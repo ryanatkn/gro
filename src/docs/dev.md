@@ -20,7 +20,8 @@ Gro focuses as much on servers and libraries as much as it does frontends,
 and Gro integrates more concerns like [tasks](../task/README.md).
 See below for [a deeper comparison to Snowpack](#comparison-to-snowpack).
 
-For production, Gro uses Rollup to produce efficient bundles.
+For production, Gro has [optional adapters](build.md)
+that use Rollup to produce efficient bundles.
 The result is the best of both worlds:
 fast iteration with straightforward builds during development,
 and uncompromising efficiency and flexibility for production.
