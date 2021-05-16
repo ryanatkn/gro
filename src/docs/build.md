@@ -136,7 +136,8 @@ and the benefit is being guided to keep our tools fast.
 Now that we can make builds and then adapt them, how do we, like, make them go?
 You know, to the web or whatever?
 
-The [`gro deploy`](deploy.md) task helps you output builds to a branch. (TODO needs work)
+The [`gro deploy`](deploy.md) task helps you output builds to a branch,
+like for static publishing to GitHub pages. (TODO needs work)
 
 The [`gro publish`](publish.md) task publishes packages to npm.
 
