@@ -112,7 +112,7 @@ and this pattern helps us remember to structure our code so it remains fast.
 
 We hope to establish good practice patterns like this early when we can,
 even when it means less convenience or simplicity.
-Helps avoid technical debt and clarifies how things work.
+Helps avoid technical debt even if it wins no beauty contests.
 In this case, the cost is just a wrapper function and dynamic imports,
 and the benefit is being guided to keep your tools fast.
 
