@@ -1,4 +1,4 @@
-# gro/deploy
+# deploy
 
 The [`gro deploy`](/src/deploy.task.ts)
 task is designed to support static deployments to
