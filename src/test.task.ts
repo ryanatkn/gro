@@ -17,6 +17,8 @@ const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 export const task: Task = {
 	description: 'run tests',
 	run: async ({fs, dev, log, args}): Promise<void> => {
+		const {_: testFilePatterns} = args;
+
 		const timings = new Timings();
 
 		const testsBuildDir = toBuildOutPath(dev, PRIMARY_NODE_BUILD_NAME);
@@ -44,7 +46,7 @@ export const task: Task = {
 		const testRunResult = await spawnProcess('npx', [
 			'uvu',
 			toRootPath(testsBuildDir),
-			...(args._.length ? args._ : DEFAULT_TEST_FILE_PATTERNS),
+			...(testFilePatterns.length ? testFilePatterns : DEFAULT_TEST_FILE_PATTERNS),
 			...process.argv.slice(3),
 		]);
 		timeToRunUvu();

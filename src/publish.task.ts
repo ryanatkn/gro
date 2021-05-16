@@ -31,6 +31,7 @@ export const task: Task<TaskArgs> = {
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
+		const childTaskArgs = {...args, _: []};
 
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
@@ -47,8 +48,8 @@ export const task: Task<TaskArgs> = {
 		await spawnProcess('git', ['pull']);
 
 		// Make sure everything is in working order, and then create the final artifacts:
-		await invokeTask('check');
-		await invokeTask('build');
+		await invokeTask('check', childTaskArgs);
+		await invokeTask('build', childTaskArgs);
 
 		if (dry) {
 			log.info(rainbow('dry run complete!'));
