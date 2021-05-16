@@ -26,7 +26,7 @@ to making the property existence optional.
 For more, see the example below and
 [this TypeScript issue](https://github.com/Microsoft/TypeScript/issues/13195).
 
-> TODO review this to see if we can use a helper to avoid an unnecessary object copy
+> TODO this needs to be reworked/simplified some, without losing the good stuff
 
 When possible, keep it simple:
 
