@@ -108,7 +108,8 @@ const confirmWithUser = async (
 		} else {
 			errored = true;
 			log.warn(
-				`unknown version increment "${versionIncrement}":`,
+				red(`unknown version increment "${versionIncrement}":`),
+				'gro supports only major|minor|patch:',
 				yellow('please review the following carefully:'),
 			);
 		}
@@ -128,7 +129,7 @@ const confirmWithUser = async (
 			(answer) => {
 				const lowercasedAnswer = answer.toLowerCase();
 				if (lowercasedAnswer !== expectedAnswer) {
-					log.info('exiting task with', cyan('no changes'));
+					log.info('exiting with', cyan('no changes'));
 					process.exit();
 				}
 				log.info(rainbow('proceeding'));
