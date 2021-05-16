@@ -133,7 +133,12 @@ and the benefit is being guided to keep our tools fast.
 
 ## deploying and publishing
 
-Gro has a very clear distinction between **deploy** and **publish**:
-`gro publish` is for npm and `gro deploy` is for the web.
+Now that we can make builds and then adapt them, how do we, like, make them go?
+You know, to the web or whatever?
 
-> TODO write this section
+The [`gro deploy`](deploy.md) task helps you output builds to a branch. (TODO needs work)
+
+The [`gro publish`](publish.md) task publishes packages to npm.
+
+Both of these tasks call `gro build` internally
+but you can always run it manually if you're curious.
