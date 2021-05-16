@@ -83,7 +83,7 @@ You may notice that the Gro config `adapt` property is a function that returns `
 and you may be dismayed that it's not as simple as SvelteKit's API, which has
 [an `adapter` property that accepts `Adapter` instances](https://kit.svelte.dev/docs#adapters).
 In Gro, there's the `adapt` function property,
-a necessary wrapper function that returns `Adapter` instances:
+a required wrapper function that returns `Adapter` instances:
 
 ```ts
 import type {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
@@ -127,7 +127,7 @@ and this pattern helps us remember to structure our code so it remains fast.
 
 We hope to establish good practice patterns like this early when we can,
 even when it means less convenience or simplicity.
-Helps avoid technical debt even if it wins no beauty contests.
+Doing so helps us avoid technical debt and mystery slowdowns, even if it wins no beauty contests.
 In this case, the cost is just a wrapper function and dynamic imports,
 and the benefit is being guided to keep our tools fast.
 
