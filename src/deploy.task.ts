@@ -34,8 +34,11 @@ const GIT_ARGS = {cwd: WORKTREE_DIR};
 export const task: Task<TaskArgs> = {
 	description: 'deploy to static hosting',
 	dev: false,
-	run: async ({fs, invokeTask, args, log}): Promise<void> => {
+	run: async ({fs, invokeTask, args, log, dev}): Promise<void> => {
 		const {branch, dry, clean} = args;
+		if (dev) {
+			log.warn('building in development mode; normally this is only for diagnostics');
+		}
 
 		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
