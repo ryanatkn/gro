@@ -101,6 +101,9 @@ export const config: GroConfigCreator = async () => {
 		adapt: ({dev, config}) => {
 			return dev ? {name: 'my-adapter', adapt: ({fs}) => fs.copy(/**/)} : toProdAdapters(config);
 		},
+
+		// it's ok to return nothing
+		adapt: () => null,
 	};
 };
 ```
