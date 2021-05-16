@@ -22,7 +22,7 @@ export const task: Task = {
 		const findGenModulesResult = await findGenModules(fs);
 		if (findGenModulesResult.ok) {
 			log.info('checking that generated files have not changed');
-			await invokeTask('gen', {...args, check: true, _: []});
+			await invokeTask('gen', {...args, check: true});
 		} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
 			for (const reason of findGenModulesResult.reasons) {
 				log.error(reason);

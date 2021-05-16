@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.23.1
+
+- fix arg forwarding
+  ([#191](https://github.com/feltcoop/gro/pull/191))
+
 ## 0.23.0
 
 - **break**: rename `gro publish` from `gro version` and improve its safety
