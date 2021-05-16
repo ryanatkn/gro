@@ -92,10 +92,8 @@ export const config: GroConfigCreator = async () => {
 		// this **does not work**, even though it's simpler!
 		adapt: {name: 'my-adapter', adapt: () => {}}, // type error! must be a function or undefined
 
-		// this work: note it does not have to import anything, or be async:
-		adapt: () => {
-			return {name: 'my-adapter', adapt: () => {}};
-		},
+		// this works: note it does not have to import anything, or be async:
+		adapt: () => ({name: 'my-adapter', adapt: () => {}}),
 
 		// both `adapt` and the `Adapter` hooks receive the task context extended with the config:
 		adapt: ({dev, config}) => {
