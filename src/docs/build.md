@@ -102,6 +102,8 @@ export const config: GroConfigCreator = async () => {
 
 		// it's ok to return nothing
 		adapt: () => null,
+		adapt: () => [],
+		adapt: () => [null],
 	};
 };
 ```
