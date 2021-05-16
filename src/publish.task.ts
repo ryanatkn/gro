@@ -75,12 +75,15 @@ const confirmWithUser = async (
 		};
 
 		if (currentChangelogVersion === currentPackageVersion) {
-			logError(red('Current changelog version matches package version. Is the changelog updated?'));
+			logError(
+				red('New changelog version matches old package version.'),
+				'Is the changelog updated?',
+			);
 		}
 		if (previousChangelogVersion !== currentPackageVersion) {
 			logError(
-				red('Previous changelog version does not match package version.'),
-				' Is there an unpublished version in the changelog?',
+				red('Old changelog version does not match old package version.'),
+				'Is there an unpublished version in the changelog?',
 			);
 		}
 
