@@ -45,6 +45,14 @@ and **Gro won't reach a stable production-ready 1.0 for quite a while.**
 Gro's development is still a work in progress, and production usage is discouraged,
 but please feel free to try it and share your feedback!
 
+## usage
+
+```bash
+gro dev
+```
+
+To configure a project, see [the config docs](config.md).
+
 ## todo
 
 - [x] basics
