@@ -56,7 +56,7 @@ export interface Adapter<TArgs = any, TEvents = any> {
 The `AdapterContext` extends
 [Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
-so the adapter hooks and `adapt` both have access to
+so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
