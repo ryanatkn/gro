@@ -95,15 +95,10 @@ const confirmWithUser = async (
 		if (isStandardVersionIncrement(versionIncrement)) {
 			const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
 			if (!result.ok) {
-				logError(red('failed to validate standard version increment'), result.reason);
-			} else {
-				log.info(green(versionIncrement), '← version increment');
-				log.info(green(currentChangelogVersion || '<empty>'), '← current changelog version (new)');
-				log.info(
-					green(previousChangelogVersion || '<empty>'),
-					'← previous changelog version (old)',
+				logError(
+					red('failed to validate standard version increment compared to changelog:'),
+					result.reason,
 				);
-				log.info(green(currentPackageVersion), '← current package version (old)');
 			}
 		} else {
 			errored = true;
@@ -116,19 +111,22 @@ const confirmWithUser = async (
 
 		const color = errored ? yellow : green;
 		log.info(color(versionIncrement), '← version increment');
-		log.info(color(currentChangelogVersion || '<empty>'), '← current changelog version');
-		log.info(color(previousChangelogVersion || '<empty>'), '← previous changelog version');
-		log.info(color(currentPackageVersion), '← current package version');
+		log.info(color(currentChangelogVersion || '<empty>'), '← new changelog version');
+		log.info(color(previousChangelogVersion || '<empty>'), '← old changelog version');
+		log.info(color(currentPackageVersion), '← old package version');
 
 		const expectedAnswer = errored ? 'yes!!' : 'y';
 		if (errored) {
 			log.warn(yellow(`there's an error or uncheckable condition above`));
 		}
 		readline.question(
-			bgBlack(`does this look correct? type "${expectedAnswer}" to proceed`) + ' ',
+			bgBlack(
+				`does this look correct? ${
+					errored ? red(`if you're sure `) : ''
+				}type "${expectedAnswer}" to proceed`,
+			) + ' ',
 			(answer) => {
-				const lowercasedAnswer = answer.toLowerCase();
-				if (lowercasedAnswer !== expectedAnswer) {
+				if (answer.toLowerCase() !== expectedAnswer.toLowerCase()) {
 					log.info('exiting with', cyan('no changes'));
 					process.exit();
 				}
@@ -209,9 +207,9 @@ const validateStandardVersionIncrementParts = (
 		return {
 			ok: false,
 			reason:
-				`expected changelog version to be ${expectedNextVersion}` +
-				` based on version increment ${versionIncrement}` +
-				` but got ${currentChangelogVersion}`,
+				`\n\nexpected changelog version: ${yellow(expectedNextVersion)}\n` +
+				`actual changelog version: ${yellow(currentChangelogVersion)}\n` +
+				`specified version increment: ${red(versionIncrement)}\n`,
 		};
 	}
 
