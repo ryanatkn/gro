@@ -25,8 +25,11 @@ export interface TaskArgs {
 
 export const task: Task<TaskArgs> = {
 	description: 'bump version, publish to npm, and sync to GitHub',
-	run: async ({fs, args, log, invokeTask}): Promise<void> => {
+	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false} = args;
+		if (dev) {
+			log.warn('building in development mode; normally this is only for diagnostics');
+		}
 
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
