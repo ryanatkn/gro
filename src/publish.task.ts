@@ -25,8 +25,12 @@ export interface TaskArgs {
 
 export const task: Task<TaskArgs> = {
 	description: 'bump version, publish to npm, and sync to GitHub',
-	run: async ({fs, args, log, invokeTask}): Promise<void> => {
+	dev: false,
+	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false} = args;
+		if (dev) {
+			log.warn('building in development mode; normally this is only for diagnostics');
+		}
 
 		const versionIncrement = args._[0];
 		validateVersionIncrement(versionIncrement);
@@ -35,6 +39,8 @@ export const task: Task<TaskArgs> = {
 		await confirmWithUser(fs, versionIncrement, log);
 
 		// Make sure we're on the right branch:
+		// TODO see how the deploy task uses git, probably do that instead
+		await spawnProcess('git', ['fetch', 'origin', branch]);
 		await spawnProcess('git', ['checkout', branch]);
 
 		// And updated to the latest:
