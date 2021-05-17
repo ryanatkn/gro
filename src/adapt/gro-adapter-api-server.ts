@@ -21,7 +21,7 @@ export const createAdapter = ({apiServerPath}: Partial<Options> = EMPTY_OBJECT):
 > => {
 	let spawnedApiServer: SpawnedProcess | null = null;
 	return {
-		name: 'gro-adapter-sveltekit-frontend',
+		name: '@feltcoop/gro-adapter-sveltekit-frontend',
 		// adapt: async ({config, args, events, invokeTask}) => {
 		// 	// const buildConfigsToBuild = config.builds.filter((b) => builds.includes(b.name));
 		// },

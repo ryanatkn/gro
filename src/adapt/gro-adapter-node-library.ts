@@ -72,7 +72,7 @@ export const createAdapter = ({
 		builds.map((partial) => [partial.name, toAdaptBuildsOptions(partial, count, dir)]),
 	);
 	return {
-		name: 'gro-adapter-node-library',
+		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
 			// TODO this doesn't compose - need to either change this, or add helper machinery around it
 			await fs.remove(dir);

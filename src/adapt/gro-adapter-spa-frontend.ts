@@ -26,7 +26,7 @@ export const createAdapter = ({
 	dir = DIST_DIRNAME,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	return {
-		name: 'gro-adapter-spa-frontend',
+		name: '@feltcoop/gro-adapter-spa-frontend',
 		begin: async ({fs}) => {
 			await fs.remove(dir);
 		},

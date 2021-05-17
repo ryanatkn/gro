@@ -9,7 +9,7 @@ import {printTimings} from '../utils/print.js';
 
 export const createAdapter = (): Adapter => {
 	return {
-		name: 'gro-adapter-sveltekit-frontend',
+		name: '@feltcoop/gro-adapter-sveltekit-frontend',
 		begin: async ({fs}) => {
 			await fs.remove(DIST_DIRNAME);
 		},
