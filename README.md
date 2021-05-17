@@ -32,23 +32,21 @@ It includes:
   - [unbundled development](/src/docs/dev.md)
     inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
     [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
-    - Gro supports its own form of SPA on the frontend,
-      but that functionality is now deprecated-ish for
-      [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
   - [configurable adapters](src/docs/build.md#adapters) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
-    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
-    with long term plans to
-    [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
   - fully integrated [TypeScript](https://github.com/microsoft/typescript)
     and [Svelte](https://github.com/sveltejs/svelte)
+    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
+  - Gro supports its own form of SPA on the frontend,
+    but that functionality is now deprecated-ish for
+    [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
+    with long term plans to
+    [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
-  - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override
+  - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
 - [dev server](/src/server/README.md) with efficient caching and http2/https support
-- filesystem-abstracting build system that considers any wasted work a bug,
-  unless it's a deliberate tradeoff
 - integrated platform-independent [`fs`](src/fs/filesystem.ts)
   (code is parameterized with an `fs` argument)
   - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
