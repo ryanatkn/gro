@@ -27,24 +27,26 @@ Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
 for making web frontends, servers, and libraries.
 It includes:
 
-- [unbundled development](/src/docs/unbundled.md)
-  for [Svelte](https://github.com/sveltejs/svelte) UIs
-  and integrated tools for Node servers and libraries
-  (inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
-  [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall))
-  - Gro supports SPAs on the frontend,
-    but that functionality is now deprecated-ish for
-    [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite),
+- [build system](/src/docs/build.md)
+  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers and libraries
+  - [unbundled development](/src/docs/dev.md)
+    inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
+    [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
+    - Gro supports its own form of SPA on the frontend,
+      but that functionality is now deprecated-ish for
+      [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
+  - [configurable adapters](src/docs/build.md#adapters) featuring e.g.
+    optional production bundling with [Rollup](https://github.com/rollup/rollup)
+    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
     with long term plans to
     [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
-- [configurable adapters](src/docs/build.md#adapters) featuring e.g.
-  optional production bundling with [Rollup](https://github.com/rollup/rollup)
-- fully integrated [TypeScript](https://github.com/microsoft/typescript)
-  using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
+  - fully integrated [TypeScript](https://github.com/microsoft/typescript)
+    and [Svelte](https://github.com/sveltejs/svelte)
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
+  - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override
 - codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
-- dev server with efficient caching and http2/https support
+- [dev server](/src/server/README.md) with efficient caching and http2/https support
 - filesystem-abstracting build system that considers any wasted work a bug,
   unless it's a deliberate tradeoff
 - integrated platform-independent [`fs`](src/fs/filesystem.ts)
@@ -66,7 +68,7 @@ It includes:
 ## docs
 
 - [build](/src/docs/build.md) web frontends, servers, and libraries
-  - [unbundled development](/src/docs/unbundled.md)
+  - [unbundled development](/src/docs/dev.md)
   - [config](/src/docs/config.md)
   - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/docs/publish.md)
@@ -197,7 +199,7 @@ Gro builds on
 [@lukeed\/\*](https://github.com/lukeed) ∙
 [Node](https://nodejs.org) & [more](package.json)
 
-[Gro's strategy](/src/docs/unbundled.md) of pairing unbundled ES modules during development
+[Gro's strategy](/src/docs/dev.md) of pairing unbundled ES modules during development
 with optimized bundles for production
 was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
 

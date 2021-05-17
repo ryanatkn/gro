@@ -1,4 +1,4 @@
-# unbundled development
+# dev
 
 > please note: Gro's SPA behavior is deprecated for
 > [SvelteKit](https://github.com/sveltejs/kit) -
@@ -7,7 +7,8 @@
 
 Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
-This document details a specific aspect of its [build system](build.md): "unbundled" developement.
+During development, we use `gro dev` and its "unbundled" development system
+to get simple and speedy builds.
 
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 [Vite](https://github.com/vitejs/vite), and [WMR](https://github.com/preactjs/wmr),
@@ -19,7 +20,8 @@ Gro focuses as much on servers and libraries as much as it does frontends,
 and Gro integrates more concerns like [tasks](../task/README.md).
 See below for [a deeper comparison to Snowpack](#comparison-to-snowpack).
 
-For production, Gro uses Rollup to produce efficient bundles.
+For production, Gro has [optional adapters](build.md)
+that use Rollup to produce efficient bundles.
 The result is the best of both worlds:
 fast iteration with straightforward builds during development,
 and uncompromising efficiency and flexibility for production.
@@ -44,6 +46,14 @@ and **Gro won't reach a stable production-ready 1.0 for quite a while.**
 
 Gro's development is still a work in progress, and production usage is discouraged,
 but please feel free to try it and share your feedback!
+
+## usage
+
+```bash
+gro dev
+```
+
+To configure a project, see [the config docs](config.md).
 
 ## todo
 

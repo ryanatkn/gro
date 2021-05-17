@@ -2,6 +2,7 @@ import type esbuild from 'esbuild';
 import type * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/defaultBuildConfig.js';
+import {isThisProjectGro} from '../paths.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 
 export interface EsbuildTransformOptions extends esbuild.TransformOptions {
@@ -11,8 +12,8 @@ export interface EsbuildTransformOptions extends esbuild.TransformOptions {
 
 export const getDefaultEsbuildOptions = (
 	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
-	sourcemap = true,
-	dev = true,
+	dev = process.env.NODE_ENV !== 'production',
+	sourcemap = dev,
 ): EsbuildTransformOptions => ({
 	target,
 	sourcemap,
@@ -20,16 +21,26 @@ export const getDefaultEsbuildOptions = (
 	loader: 'ts',
 	charset: 'utf8', // following `svelte-preprocess-esbuild` here
 	tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
-	define: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
+	// TODO hacky but trying to get dev build and publishing stuff figured out
+	// the more correct way is probably making a `define` option for user configs
+	define:
+		dev || isThisProjectGro
+			? undefined
+			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });
 
 export const getDefaultEsbuildPreprocessOptions = (
 	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
-	sourcemap = true,
-	dev = true,
+	dev = process.env.NODE_ENV !== 'production',
+	sourcemap = dev,
 ): Partial<sveltePreprocessEsbuild.Options> => ({
 	target,
 	sourcemap,
 	tsconfigRaw: {compilerOptions: {}}, // pass an empty object so the preprocessor doesn't load the tsconfig
-	define: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
+	// TODO hacky but trying to get dev build and publishing stuff figured out
+	// the more correct way is probably making a `define` option for user configs
+	define:
+		dev || isThisProjectGro
+			? undefined
+			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });

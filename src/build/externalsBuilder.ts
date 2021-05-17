@@ -92,7 +92,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			groSveltePlugin({
 				dev,
 				addCssBuild: addSvelteCssBuild,
-				preprocessor: createDefaultPreprocessor(target, sourcemap, dev),
+				preprocessor: createDefaultPreprocessor(target, dev, sourcemap),
 				compileOptions: {},
 			}),
 		];

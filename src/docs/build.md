@@ -2,10 +2,12 @@
 
 This document describes how to go from `gro build` to live websites and npm packages.
 
-Gro has an [unbundled build system](unbundled.md)
+Gro has an [unbundled build system](dev.md)
 that tries to be flexible for many use cases.
-For production builds, it outputs artifacts to `.gro/prod/{build_name}`
-that get _adapted_ — to use terminology of SvelteKit — to their final form.
+During development, we use it with `gro dev`.
+
+For production, we use `gro build` to output builds to `.gro/prod/{build_name}`,
+which then get _adapted_ — to use terminology of SvelteKit — to their final form.
 Adapting can be as simple as copying
 the directory of files in `.gro/prod/{build_name}` to `dist/`,
 or it may be more complex, like a SvelteKit build,
@@ -56,7 +58,7 @@ export interface Adapter<TArgs = any, TEvents = any> {
 The `AdapterContext` extends
 [Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
-so the adapter hooks and `adapt` both have access to
+so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
@@ -83,7 +85,7 @@ You may notice that the Gro config `adapt` property is a function that returns `
 and you may be dismayed that it's not as simple as SvelteKit's API, which has
 [an `adapter` property that accepts `Adapter` instances](https://kit.svelte.dev/docs#adapters).
 In Gro, there's the `adapt` function property,
-a required wrapper function that returns `Adapter` instances:
+a function that returns `Adapter` instances:
 
 ```ts
 import type {GroConfigCreator} from '@feltcoop/gro/dist/config/config.js';
@@ -122,7 +124,7 @@ export const config: GroConfigCreator = async () => {
 };
 ```
 
-Why the required wrapper function?
+Why must `adapt` be a function, and not just one or more `Adapter` instances?
 It's to avoid a performance footgun:
 production adapters sometimes have very large dependencies,
 and we want to avoid importing them every time we load our project's config —

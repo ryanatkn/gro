@@ -123,7 +123,8 @@ export const createAdapter = ({
 					if (!tscResult.ok) {
 						throw Error(`TypeScript failed to compile with code ${tscResult.code}`);
 					}
-					// TODO this is hacky - deletes unused *.d.ts files (like tests) and empty dirs
+					// TODO this is hacky - deletes unused *.d.ts files (like tests) and empty dirs.
+					// the right way is probably using the source tree and the TypeScript compiler
 					const files = await fs.findFiles(dir);
 					await Promise.all(
 						Array.from(files.entries()).map(async ([path, stats]) => {

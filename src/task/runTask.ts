@@ -25,7 +25,7 @@ export const runTask = async (
 	args: Args,
 	events: EventEmitter,
 	invokeTask: typeof InvokeTaskFunction,
-	dev: boolean | undefined,
+	dev: boolean | undefined, // `undefined` on first task invocation, so it infers from the first task
 ): Promise<RunTaskResult> => {
 	if (dev === undefined) {
 		if (task.mod.task.dev !== undefined) {
@@ -35,7 +35,7 @@ export const runTask = async (
 			dev = process.env.NODE_ENV !== 'production';
 		}
 	}
-	let output;
+	let output: unknown;
 	try {
 		output = await task.mod.task.run({
 			fs,

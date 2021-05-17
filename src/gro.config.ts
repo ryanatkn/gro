@@ -15,27 +15,15 @@ export const config: GroConfigCreator = async ({dev}) => {
 	return {
 		builds: [
 			{
-				name: 'node',
+				name: 'lib',
 				platform: 'node',
 				input: [
 					'index.ts',
 					'cli/gro.ts',
 					'cli/invoke.ts',
-					createFilter(['**/*.{task,test,config,gen,gen.*}.ts', '**/fixtures/**']),
+					createFilter(['**/*.{task,config,config.default}.ts']),
 				],
 			},
-			dev
-				? null
-				: {
-						name: 'lib',
-						platform: 'node',
-						input: [
-							'index.ts',
-							'cli/gro.ts',
-							'cli/invoke.ts',
-							createFilter(['**/*.{task,config,config.default}.ts']),
-						],
-				  },
 			{
 				name: BROWSER_BUILD_NAME,
 				platform: 'browser',
