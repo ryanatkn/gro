@@ -148,7 +148,7 @@
   ([#163](https://github.com/feltcoop/gro/pull/163))
 - add `src/utils/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
-- add helper `toSvelteKitBasePath` to `src/build/sveltekit.ts`
+- add helper `toSvelteKitBasePath` to `src/build/sveltekitHelpers.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
 - default to some environment variables
   for undefined Gro config properties:

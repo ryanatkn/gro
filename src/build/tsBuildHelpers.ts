@@ -129,3 +129,8 @@ const createFormatDiagnosticsHost = (): ts.FormatDiagnosticsHost => {
 		},
 	};
 };
+
+export const emitDeclarations = () => {
+	console.log('emit');
+	// ts.
+};

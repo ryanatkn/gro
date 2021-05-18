@@ -11,7 +11,7 @@ import {printTimings} from './utils/print.js';
 import {resolveInputFiles} from './build/utils.js';
 import {hasApiServer, hasSvelteKitFrontend, toApiServerPort} from './build/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
-import {toSvelteKitBasePath} from './build/sveltekit.js';
+import {toSvelteKitBasePath} from './build/sveltekitHelpers.js';
 import {loadPackageJson} from './utils/packageJson.js';
 
 export interface TaskArgs extends ServeTaskArgs {}
