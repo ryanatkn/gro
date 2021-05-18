@@ -130,6 +130,7 @@ const createFormatDiagnosticsHost = (): ts.FormatDiagnosticsHost => {
 	};
 };
 
+// TODO
 export const emitDeclarations = () => {
 	console.log('emit');
 	// ts.
