@@ -1,4 +1,3 @@
-import ts from 'typescript';
 import type {CompilerOptions} from 'typescript';
 
 import {EMPTY_OBJECT} from '../utils/object.js';
@@ -14,9 +13,16 @@ export type EcmaScriptTarget =
 	| 'es2020'
 	| 'esnext';
 
+export interface GenerateTypes {
+	(id: string): string;
+}
+
 export const toGenerateTypes = async (
 	tsOptions: CompilerOptions = EMPTY_OBJECT,
-): Promise<(id: string) => string> => {
+): Promise<GenerateTypes> => {
+	// We're lazily importing the TypeScript compiler because this module is loaded eagerly,
+	// but `toGenerateTypes` is only called in some circumstances at runtime. (like prod builds)
+	const ts = (await import('typescript')).default;
 	let result: string; // this is safe because the returned function below is synchronous
 	const options: CompilerOptions = {
 		...tsOptions,

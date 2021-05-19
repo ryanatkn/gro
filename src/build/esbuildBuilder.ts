@@ -1,6 +1,6 @@
 import esbuild from 'esbuild';
 
-import type {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {EcmaScriptTarget, GenerateTypes} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
 import {SystemLogger, printLogLabel} from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
@@ -16,18 +16,17 @@ import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.j
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../utils/terminal.js';
 import {addJsSourcemapFooter} from './utils.js';
+import {toGenerateTypes} from './tsBuildHelpers.js';
 
 export interface Options {
 	log: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
 	createEsbuildOptions: CreateEsbuildOptions;
-	generateTypes: null | ((id: string) => Promise<string>);
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		createEsbuildOptions: createDefaultEsbuildOptions,
-		generateTypes: null,
 		...omitUndefined(opts),
 		log: opts.log || new SystemLogger(printLogLabel('esbuildBuilder', cyan)),
 	};
@@ -36,7 +35,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 type EsbuildBuilder = Builder<TextBuildSource, TextBuild>;
 
 export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder => {
-	const {createEsbuildOptions, generateTypes} = initOptions(opts);
+	const {createEsbuildOptions} = initOptions(opts);
 
 	const esbuildOptionsCache: Map<string, esbuild.TransformOptions> = new Map();
 	const getEsbuildOptions = (
@@ -50,6 +49,13 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		const newEsbuildOptions = createEsbuildOptions(target, dev, sourcemap);
 		esbuildOptionsCache.set(key, newEsbuildOptions);
 		return newEsbuildOptions;
+	};
+
+	let cachedGenerateTypes: GenerateTypes | null = null;
+	const loadGenerateTypes = async (): Promise<GenerateTypes> => {
+		if (cachedGenerateTypes) return cachedGenerateTypes;
+		cachedGenerateTypes = await toGenerateTypes!();
+		return cachedGenerateTypes;
 	};
 
 	const build: EsbuildBuilder['build'] = async (
@@ -95,14 +101,15 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				buildConfig,
 			});
 		}
-		if (generateTypes) {
+		// TODO hardcoding to generate types only in production builds, might want to change
+		if (!dev && toGenerateTypes) {
 			builds.push({
 				id: replaceExtension(jsId, TS_DEFS_EXTENSION),
 				filename: replaceExtension(jsFilename, TS_DEFS_EXTENSION),
 				dir: outDir,
 				extension: TS_DEFS_EXTENSION,
 				encoding: source.encoding,
-				contents: await generateTypes(source.id),
+				contents: (await loadGenerateTypes())(source.id),
 				buildConfig,
 			});
 		}
