@@ -51,12 +51,9 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		return newEsbuildOptions;
 	};
 
-	let cachedGenerateTypes: GenerateTypes | null = null;
-	const loadGenerateTypes = async (): Promise<GenerateTypes> => {
-		if (cachedGenerateTypes) return cachedGenerateTypes;
-		cachedGenerateTypes = await toGenerateTypes!();
-		return cachedGenerateTypes;
-	};
+	let cachedGenerateTypes: Promise<GenerateTypes> | null = null;
+	const loadGenerateTypes = async (): Promise<GenerateTypes> =>
+		cachedGenerateTypes || (cachedGenerateTypes = toGenerateTypes());
 
 	const build: EsbuildBuilder['build'] = async (
 		source,
@@ -102,7 +99,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 			});
 		}
 		// TODO hardcoding to generate types only in production builds, might want to change
-		if (!dev && toGenerateTypes) {
+		if (!dev) {
 			builds.push({
 				id: replaceExtension(jsId, TS_DEFS_EXTENSION),
 				filename: replaceExtension(jsFilename, TS_DEFS_EXTENSION),

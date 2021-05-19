@@ -17,6 +17,9 @@ export interface GenerateTypes {
 	(id: string): string;
 }
 
+// TODO optimize, this is unusably slow for some reason
+// - is there a faster path in the TypeScript compiler API for generating types?
+// - maybe queue these calls instead of calling concurrently
 export const toGenerateTypes = async (
 	tsOptions: CompilerOptions = EMPTY_OBJECT,
 ): Promise<GenerateTypes> => {
@@ -28,10 +31,12 @@ export const toGenerateTypes = async (
 		...tsOptions,
 		declaration: true,
 		emitDeclarationOnly: true,
+		isolatedModules: true, //  TODO might want to figure out how to loosen this, but SvelteKit needs it so it's fine for now
 	};
 	const host = ts.createCompilerHost(options);
 	host.writeFile = (_, data) => (result = data);
 	return (id) => {
+		// if (!id.endsWith('src/build.task.ts')) return '//';
 		const program = ts.createProgram([id], options, host);
 		program.emit();
 		return result;
