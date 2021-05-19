@@ -110,7 +110,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		return result;
 	};
 
-	return {name: 'gro-builder-esbuild', build};
+	return {name: '@feltcoop/gro-builder-esbuild', build};
 };
 
 type CreateEsbuildOptions = (

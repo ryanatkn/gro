@@ -83,7 +83,7 @@ interface BaseBuildSource {
 }
 
 export const noopBuilder: Builder = {
-	name: 'gro-builder-noop',
+	name: '@feltcoop/gro-builder-noop',
 	build: (source, buildConfig, {buildDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
