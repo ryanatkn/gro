@@ -106,7 +106,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				dir: outDir,
 				extension: TS_DEFS_EXTENSION,
 				encoding: source.encoding,
-				contents: (await loadGenerateTypes())(source.id),
+				contents: (await loadGenerateTypes())(source.id, source.contents),
 				buildConfig,
 			});
 		}
