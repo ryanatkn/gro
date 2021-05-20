@@ -35,7 +35,9 @@ export const toGenerateTypes = async (
 		...tsOptions,
 		declaration: true,
 		emitDeclarationOnly: true,
-		isolatedModules: true, //  TODO might want to figure out how to loosen this, but SvelteKit needs it so it's fine for now
+		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
+		noLib: true,
+		noResolve: true,
 	};
 	const host = ts.createCompilerHost(options);
 	host.writeFile = (_, data) => (result = data);
