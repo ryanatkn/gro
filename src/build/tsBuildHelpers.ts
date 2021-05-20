@@ -1,4 +1,6 @@
 import type {CompilerOptions} from 'typescript';
+// import type typescript from 'typescript';
+// import {paths} from '../paths.js';
 
 import {EMPTY_OBJECT} from '../utils/object.js';
 
@@ -38,13 +40,30 @@ export const toGenerateTypes = async (
 		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
 		noLib: true,
 		noResolve: true,
+		skipLibCheck: true,
 	};
+
+	// // memory impl of `ts.createCompilerHost(options)`
+	// const toCompilerHost = (ts: typeof typescript): CompilerHost => ({
+	// 	getSourceFile: (fileName, target) => ts.createSourceFile(fileName, currentContents, target),
+	// 	getDefaultLibLocation: () => paths.root,
+	// 	getDefaultLibFileName: () => 'lib.d.ts',
+	// 	writeFile: (_, data) => (result = data),
+	// 	getCurrentDirectory: () => paths.root,
+	// 	useCaseSensitiveFileNames: () => true,
+	// 	getCanonicalFileName: (filename) => filename,
+	// 	getNewLine: () => '\n',
+	// 	fileExists: () => true, // the build system does this for us, no need to hit the filesystem
+	// 	readFile: () => '',
+	// });
+
+	// const host = toCompilerHost(ts);
 	const host = ts.createCompilerHost(options);
 	host.writeFile = (_, data) => (result = data);
 	host.getSourceFile = (fileName, target) => ts.createSourceFile(fileName, currentContents, target);
+
 	return (id, contents) => {
 		currentContents = contents;
-		// if (!id.endsWith('src/build.task.ts')) return '//';
 		const program = ts.createProgram([id], options, host);
 		program.emit();
 		return result;
