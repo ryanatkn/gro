@@ -42,7 +42,7 @@ export interface BuildContext {
 	readonly externalsAliases: ExternalsAliases;
 	readonly state: BuilderState;
 	readonly buildingSourceFiles: Set<string>;
-	readonly findById: (id: string) => BaseFilerFile | null;
+	readonly findById: (id: string) => BaseFilerFile | undefined;
 }
 
 export interface BuilderState {
