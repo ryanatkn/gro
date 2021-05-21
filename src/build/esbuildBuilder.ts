@@ -52,7 +52,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 	};
 
 	let cachedGenerateTypes: Promise<GenerateTypes> | null = null;
-	const loadGenerateTypes = async (): Promise<GenerateTypes> =>
+	const loadGenerateTypes = (): Promise<GenerateTypes> =>
 		cachedGenerateTypes || (cachedGenerateTypes = toGenerateTypes());
 
 	const build: EsbuildBuilder['build'] = async (

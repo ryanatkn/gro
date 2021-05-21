@@ -32,13 +32,14 @@ export const toGenerateTypes = async (
 	// This is safe because the returned function below is synchronous
 	let result: string;
 	let currentContents: string;
+	let currentId: string;
 
 	const options: CompilerOptions = {
 		...tsOptions,
 		declaration: true,
 		emitDeclarationOnly: true,
 		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
-		noLib: true,
+		// noLib: true,
 		noResolve: true,
 		skipLibCheck: true,
 	};
@@ -60,9 +61,13 @@ export const toGenerateTypes = async (
 	// const host = toCompilerHost(ts);
 	const host = ts.createCompilerHost(options);
 	host.writeFile = (_, data) => (result = data);
-	host.getSourceFile = (fileName, target) => ts.createSourceFile(fileName, currentContents, target);
+	// host.getSourceFile = (fileName, target) =>
+	// 	// currentId === fileName
+	// 	// 	? ts.createSourceFile(fileName, currentContents, target)
+	// 	ts.createSourceFile(fileName, readFileSync(fileName, 'utf8'), target);
 
 	return (id, contents) => {
+		currentId = id;
 		currentContents = contents;
 		const program = ts.createProgram([id], options, host);
 		program.emit();
