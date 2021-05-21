@@ -14,11 +14,9 @@ There's a mismatch with the current usage versus Gro's systems;
 Gro builds files as individual units (minus the externals builder, see below),
 but I'm unable to find a compiler API that makes it straightforward and efficient
 to output a single file's type definitions.
-
 What I want may simply be impossible because of how the type system works.
 
-This problem manifests as builds taking around 50-100x longer than they should.
-With optimizations I've brought that down to 5-10x, but the situation is sad.
+This problem manifests as builds taking around 10x longer than they should.
 
 It would be possible and efficient to generate types outside of Gro's normal build system,
 but right now I don't like those implications long term.
@@ -45,9 +43,6 @@ export interface GenerateTypes {
 	(id: string, contents: string): string;
 }
 
-// TODO optimize, this is unusably slow for some reason
-// - is there a faster path in the TypeScript compiler API for generating types?
-// - maybe queue these calls instead of calling concurrently
 export const toGenerateTypes = async (
 	{log, findById}: BuildContext,
 	tsOptions: CompilerOptions = EMPTY_OBJECT,
@@ -67,25 +62,10 @@ export const toGenerateTypes = async (
 		declaration: true,
 		emitDeclarationOnly: true,
 		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
-		// noResolve: true, // TODO
+		// noResolve: true, // TODO doesn't generate the types correctly, but it makes it build fast!
 		skipLibCheck: true,
 	};
 
-	// // memory impl of `ts.createCompilerHost(options)`
-	// const toCompilerHost = (ts: typeof typescript): CompilerHost => ({
-	// 	getSourceFile: (fileName, target) => ts.createSourceFile(fileName, currentContents, target),
-	// 	getDefaultLibLocation: () => paths.root,
-	// 	getDefaultLibFileName: () => 'lib.d.ts',
-	// 	writeFile: (_, data) => (result = data),
-	// 	getCurrentDirectory: () => paths.root,
-	// 	useCaseSensitiveFileNames: () => true,
-	// 	getCanonicalFileName: (filename) => filename,
-	// 	getNewLine: () => '\n',
-	// 	fileExists: () => true,
-	// 	readFile: () => '',
-	// });
-
-	// const host = toCompilerHost(ts);
 	const host = ts.createCompilerHost(options);
 	host.writeFile = (fileName, data) => {
 		if (!fileName.endsWith(TS_DEFS_EXTENSION)) throw Error('TODO');
