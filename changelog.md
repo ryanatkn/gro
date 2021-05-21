@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.23.2
+
+- add optional type generation for production to `esbuild` builder
+  ([#194](https://github.com/feltcoop/gro/pull/194))
+
 ## 0.23.1
 
 - fix arg forwarding
