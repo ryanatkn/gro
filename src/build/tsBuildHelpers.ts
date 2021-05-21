@@ -1,7 +1,8 @@
 import {readFileSync} from 'fs';
 import type {CompilerOptions} from 'typescript';
-import {isSourceId} from '../paths.js';
+import {isSourceId, TS_DEFS_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
+import {printPath} from '../utils/print.js';
 import {stripEnd} from '../utils/string.js';
 import type {Obj} from '../utils/types.js';
 import type {BuildContext} from './builder.js';
@@ -30,7 +31,7 @@ export interface GenerateTypes {
 // - is there a faster path in the TypeScript compiler API for generating types?
 // - maybe queue these calls instead of calling concurrently
 export const toGenerateTypes = async (
-	{findById}: BuildContext,
+	{log, findById}: BuildContext,
 	tsOptions: CompilerOptions = EMPTY_OBJECT,
 ): Promise<GenerateTypes> => {
 	// We're lazily importing the TypeScript compiler because this module is loaded eagerly,
@@ -63,19 +64,19 @@ export const toGenerateTypes = async (
 	// 	useCaseSensitiveFileNames: () => true,
 	// 	getCanonicalFileName: (filename) => filename,
 	// 	getNewLine: () => '\n',
-	// 	fileExists: () => true, // the build system does this for us, no need to hit the filesystem
+	// 	fileExists: () => true,
 	// 	readFile: () => '',
 	// });
 
 	// const host = toCompilerHost(ts);
 	const host = ts.createCompilerHost(options);
 	host.writeFile = (fileName, data) => {
-		if (
-			fileName.substring(0, fileName.length - 4) === currentId.substring(0, currentId.length - 2)
-		) {
+		if (!fileName.endsWith(TS_DEFS_EXTENSION)) throw Error('TODO');
+		const fileNameTs = stripEnd(fileName, TS_DEFS_EXTENSION) + TS_EXTENSION;
+		if (fileNameTs === currentId) {
 			result = data;
 		}
-		results[stripEnd(fileName, '.d.ts') + '.ts'] = data;
+		results[fileNameTs] = data;
 	};
 	host.readFile = (fileName) => {
 		if (fileName === currentId) {
@@ -90,6 +91,7 @@ export const toGenerateTypes = async (
 
 	return (id, contents) => {
 		if (id in results) return results[id];
+		log.info('generating types', printPath(id));
 		result = '';
 		currentId = id;
 		currentContents = contents;
