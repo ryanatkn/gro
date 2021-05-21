@@ -45,8 +45,8 @@ export const toGenerateTypes = async (
 		declaration: true,
 		emitDeclarationOnly: true,
 		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
-		// noLib: true,
-		// noResolve: true,
+		// noLib: true, // TODO
+		// noResolve: true, // TODO
 		skipLibCheck: true,
 	};
 
@@ -76,11 +76,14 @@ export const toGenerateTypes = async (
 		// 	// TODO how to cache this without staleness?
 		// }
 	};
-	// TODO optimize, lookup from memory
-	// host.getSourceFile = (fileName, target) =>
-	// 	currentId === fileName
-	// 		? ts.createSourceFile(fileName, currentContents, target)
-	// 		: ts.createSourceFile(fileName, readFileSync(fileNameSrc, 'utf8'), target);
+	host.readFile = (fileName) => {
+		if (fileName === currentId) {
+			console.log('fileName, currentId', fileName, currentId);
+			return currentContents;
+		}
+		// TODO lookup from memory.. but externals?
+		return readFileSync(fileName, 'utf8');
+	};
 
 	return (id, contents) => {
 		result = '';
