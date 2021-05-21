@@ -4,13 +4,31 @@ import {isSourceId, TS_DEFS_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 import {printPath} from '../utils/print.js';
 import {stripEnd} from '../utils/string.js';
-import type {Obj} from '../utils/types.js';
 import type {BuildContext} from './builder.js';
 
-// TODO I'm about to give up here
-// maybe we just use tsc on the entire project,
-// compile to a temporary directory, and then just change this to
-// ensure the process has been run once, and then just read from the fs?
+/*
+
+This uses the TypeScript compiler to generate types.
+
+There's a mismatch with the current usage versus Gro's systems;
+Gro builds files as individual units (minus the externals builder, see below),
+but I'm unable to find a compiler API that makes it straightforward and efficient
+to output a single file's type definitions.
+
+What I want may simply be impossible because of how the type system works.
+
+This problem manifested as builds taking over 100x longer than they should.
+With optimizations I've brought that down to roughly 7x.
+
+It would be possible and efficient to generate types outside of Gro's normal build system,
+but right now I don't like those implications long term.
+Instead, I think there's a better design for Gro here,
+to expand its view of the world beyond individual files,
+which would also address the currently hacky implementation of the externals builder.
+
+These two use cases - externals and types - should be able to inform a better design.
+
+*/
 
 export type EcmaScriptTarget =
 	| 'es3'
@@ -40,7 +58,7 @@ export const toGenerateTypes = async (
 
 	// This is safe because the returned function below is synchronous
 	let result: string;
-	const results: Obj<string> = {};
+	const results: Map<string, string> = new Map();
 	let currentContents: string;
 	let currentId: string;
 
@@ -49,7 +67,6 @@ export const toGenerateTypes = async (
 		declaration: true,
 		emitDeclarationOnly: true,
 		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
-		// noLib: true, // TODO
 		// noResolve: true, // TODO
 		skipLibCheck: true,
 	};
@@ -76,7 +93,7 @@ export const toGenerateTypes = async (
 		if (fileNameTs === currentId) {
 			result = data;
 		}
-		results[fileNameTs] = data;
+		results.set(fileNameTs, data);
 	};
 	host.readFile = (fileName) => {
 		if (fileName === currentId) {
@@ -90,8 +107,8 @@ export const toGenerateTypes = async (
 	};
 
 	return (id, contents) => {
-		if (id in results) return results[id];
-		log.info('generating types', printPath(id));
+		if (results.has(id)) return results.get(id)!;
+		log.trace('generating types', printPath(id));
 		result = '';
 		currentId = id;
 		currentContents = contents;
