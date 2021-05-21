@@ -12,7 +12,7 @@ import {
 	TS_EXTENSION,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
+import type {BuildContext, Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../utils/terminal.js';
 import {addJsSourcemapFooter} from './utils.js';
@@ -51,15 +51,16 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		return newEsbuildOptions;
 	};
 
-	let cachedGenerateTypes: Promise<GenerateTypes> | null = null;
-	const loadGenerateTypes = (): Promise<GenerateTypes> =>
-		cachedGenerateTypes || (cachedGenerateTypes = toGenerateTypes());
+	let cachedGenerateTypes: Map<BuildContext, Promise<GenerateTypes>> = new Map();
+	const loadGenerateTypes = (buildContext: BuildContext): Promise<GenerateTypes> => {
+		if (cachedGenerateTypes.has(buildContext)) return cachedGenerateTypes.get(buildContext)!;
+		const promise = toGenerateTypes(buildContext);
+		cachedGenerateTypes.set(buildContext, promise);
+		return promise;
+	};
 
-	const build: EsbuildBuilder['build'] = async (
-		source,
-		buildConfig,
-		{buildDir, dev, sourcemap, target},
-	) => {
+	const build: EsbuildBuilder['build'] = async (source, buildConfig, buildContext) => {
+		const {buildDir, dev, sourcemap, target} = buildContext;
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
 		}
@@ -106,7 +107,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				dir: outDir,
 				extension: TS_DEFS_EXTENSION,
 				encoding: source.encoding,
-				contents: (await loadGenerateTypes())(source.id, source.contents),
+				contents: (await loadGenerateTypes(buildContext))(source.id, source.contents),
 				buildConfig,
 			});
 		}

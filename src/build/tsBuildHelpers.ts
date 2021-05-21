@@ -1,14 +1,13 @@
 import {readFileSync} from 'fs';
 import type {CompilerOptions} from 'typescript';
-// import type typescript from 'typescript';
-// import {paths} from '../paths.js';
+import {isSourceId} from '../paths.js';
+import {EMPTY_OBJECT} from '../utils/object.js';
+import type {BuildContext} from './builder.js';
 
 // TODO I'm about to give up here
 // maybe we just use tsc on the entire project,
 // compile to a temporary directory, and then just change this to
 // ensure the process has been run once, and then just read from the fs?
-
-import {EMPTY_OBJECT} from '../utils/object.js';
 
 export type EcmaScriptTarget =
 	| 'es3'
@@ -29,6 +28,7 @@ export interface GenerateTypes {
 // - is there a faster path in the TypeScript compiler API for generating types?
 // - maybe queue these calls instead of calling concurrently
 export const toGenerateTypes = async (
+	{findById}: BuildContext,
 	tsOptions: CompilerOptions = EMPTY_OBJECT,
 ): Promise<GenerateTypes> => {
 	// We're lazily importing the TypeScript compiler because this module is loaded eagerly,
@@ -78,14 +78,18 @@ export const toGenerateTypes = async (
 	};
 	host.readFile = (fileName) => {
 		if (fileName === currentId) {
-			console.log('fileName, currentId', fileName, currentId);
+			console.log('read currentId', fileName, currentId);
 			return currentContents;
+		} else if (isSourceId(fileName)) {
+			return findById(fileName)!.contents as string;
+		} else {
+			// TODO externals - this is a problem because it's synchronous, can't use portable `fs.readFile`
+			return readFileSync(fileName, 'utf8');
 		}
-		// TODO lookup from memory.. but externals?
-		return readFileSync(fileName, 'utf8');
 	};
 
 	return (id, contents) => {
+		console.log('types currentId', currentId);
 		result = '';
 		currentId = id;
 		currentContents = contents;

@@ -189,6 +189,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly externalsAliases: ExternalsAliases; // TODO should this allow aliasing anything? not just externals?
 	readonly state: BuilderState = {};
 	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
+	// TODO not sure about this
+	readonly findById = (id: string): BaseFilerFile | null => this.files.get(id) || null;
 
 	constructor(opts: InitialOptions) {
 		super();

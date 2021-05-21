@@ -11,6 +11,7 @@ import type {ServedDir} from './servedDir.js';
 import type {Logger} from '../utils/log.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import type {BaseFilerFile} from './baseFilerFile.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
 	name: string;
@@ -41,6 +42,7 @@ export interface BuildContext {
 	readonly externalsAliases: ExternalsAliases;
 	readonly state: BuilderState;
 	readonly buildingSourceFiles: Set<string>;
+	readonly findById: (id: string) => BaseFilerFile | null;
 }
 
 export interface BuilderState {
