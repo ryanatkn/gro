@@ -17,8 +17,8 @@ to output a single file's type definitions.
 
 What I want may simply be impossible because of how the type system works.
 
-This problem manifested as builds taking over 100x longer than they should.
-With optimizations I've brought that down to roughly 7x.
+This problem manifests as builds taking around 50-100x longer than they should.
+With optimizations I've brought that down to 5-10x, but the situation is sad.
 
 It would be possible and efficient to generate types outside of Gro's normal build system,
 but right now I don't like those implications long term.
