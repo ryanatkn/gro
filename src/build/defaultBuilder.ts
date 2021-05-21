@@ -43,5 +43,5 @@ export const createDefaultBuilder = (
 		};
 	}
 
-	return {...createLazyBuilder(lazyBuilderOptions), name: 'gro-builder-default'};
+	return {...createLazyBuilder(lazyBuilderOptions), name: '@feltcoop/gro-builder-default'};
 };

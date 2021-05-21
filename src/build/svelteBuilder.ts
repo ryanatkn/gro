@@ -26,6 +26,9 @@ import {UnreachableError} from '../utils/error.js';
 import {cyan} from '../utils/terminal.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
 
+// TODO build types in production unless `declarations` is `false`,
+// so they'll be automatically copied into unbundled production dists
+
 export interface Options {
 	log: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
@@ -166,7 +169,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		return result;
 	};
 
-	return {name: 'gro-builder-svelte', build};
+	return {name: '@feltcoop/gro-builder-svelte', build};
 };
 
 const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {

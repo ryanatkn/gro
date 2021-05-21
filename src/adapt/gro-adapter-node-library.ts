@@ -4,7 +4,7 @@ import {printTimings} from '../utils/print.js';
 import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {DIST_DIRNAME, paths, toBuildOutPath, toDistOutDir, toImportId} from '../paths.js';
+import {DIST_DIRNAME, toDistOutDir, toImportId} from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {BuildConfig, BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
@@ -99,53 +99,6 @@ export const createAdapter = ({
 					throw new UnreachableError(buildOptions);
 				}
 			}
-
-			// TODO this leads to false paths with `type: 'bundled'` builds, right?
-			// compile again with `tsc` to create all of the TypeScript type defs, sourcemaps, and typemaps
-			const timingToCompileWithTsc = timings.start('compile with tsc');
-			log.info('compiling with tsc'); // TODO change this api to have `timings` take a logger and replace this line with logging in `start` above
-			await Promise.all(
-				buildConfigs.map(async (buildConfig) => {
-					const {dir} = buildOptionsByBuildName.get(buildConfig.name)!;
-					const tscResult = await spawnProcess('npx', [
-						'tsc',
-						'--outDir',
-						dir,
-						'--rootDir',
-						paths.source,
-						'--sourceMap',
-						config.sourcemap ? 'true' : 'false',
-						'--declarationMap',
-						config.sourcemap && dev ? 'true' : 'false',
-						'--declaration',
-						'--emitDeclarationOnly',
-					]);
-					if (!tscResult.ok) {
-						throw Error(`TypeScript failed to compile with code ${tscResult.code}`);
-					}
-					// TODO this is hacky - deletes unused *.d.ts files (like tests) and empty dirs.
-					// the right way is probably using the source tree and the TypeScript compiler
-					const files = await fs.findFiles(dir);
-					await Promise.all(
-						Array.from(files.entries()).map(async ([path, stats]) => {
-							if (stats.isDirectory()) {
-								if (!(await fs.exists(toBuildOutPath(dev, buildConfig.name, path)))) {
-									await fs.remove(`${dir}/${path}`);
-								}
-							} else {
-								if (path.endsWith('.d.ts')) {
-									const jsBuildFilePath = `${stripEnd(path, '.d.ts')}.js`;
-									const buildOutPath = toBuildOutPath(dev, buildConfig.name, jsBuildFilePath);
-									if (!(await fs.exists(buildOutPath))) {
-										await fs.remove(`${dir}/${path}`);
-									}
-								}
-							}
-						}),
-					);
-				}),
-			);
-			timingToCompileWithTsc();
 
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
 			for (const buildConfig of bundled) {

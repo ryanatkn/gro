@@ -56,5 +56,5 @@ export const createLazyBuilder = (opts: InitialOptions = {}): Required<Builder> 
 		}
 	};
 
-	return {name: 'gro-builder-lazy', build, onRemove, init};
+	return {name: '@feltcoop/gro-builder-lazy', build, onRemove, init};
 };

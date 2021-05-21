@@ -189,6 +189,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly externalsAliases: ExternalsAliases; // TODO should this allow aliasing anything? not just externals?
 	readonly state: BuilderState = {};
 	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
+	// TODO not sure about this
+	readonly findById = (id: string): BaseFilerFile | undefined => this.files.get(id) || undefined;
 
 	constructor(opts: InitialOptions) {
 		super();
@@ -235,7 +237,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
-	async findByPath(path: string): Promise<BaseFilerFile | null> {
+	async findByPath(path: string): Promise<BaseFilerFile | undefined> {
 		const {files} = this;
 		for (const servedDir of this.servedDirs) {
 			const id = `${servedDir.root}/${stripBase(path, servedDir.base)}`;
@@ -248,7 +250,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 		}
 		this.log.trace(`findByPath: not found: ${path}`);
-		return null;
+		return undefined;
 	}
 
 	close(): void {
