@@ -2,6 +2,8 @@ import {readFileSync} from 'fs';
 import type {CompilerOptions} from 'typescript';
 import {isSourceId} from '../paths.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
+import {stripEnd} from '../utils/string.js';
+import type {Obj} from '../utils/types.js';
 import type {BuildContext} from './builder.js';
 
 // TODO I'm about to give up here
@@ -37,6 +39,7 @@ export const toGenerateTypes = async (
 
 	// This is safe because the returned function below is synchronous
 	let result: string;
+	const results: Obj<string> = {};
 	let currentContents: string;
 	let currentId: string;
 
@@ -72,13 +75,10 @@ export const toGenerateTypes = async (
 		) {
 			result = data;
 		}
-		// else {
-		// 	// TODO how to cache this without staleness?
-		// }
+		results[stripEnd(fileName, '.d.ts') + '.ts'] = data;
 	};
 	host.readFile = (fileName) => {
 		if (fileName === currentId) {
-			console.log('read currentId', fileName, currentId);
 			return currentContents;
 		} else if (isSourceId(fileName)) {
 			return findById(fileName)!.contents as string;
@@ -89,7 +89,7 @@ export const toGenerateTypes = async (
 	};
 
 	return (id, contents) => {
-		console.log('types currentId', currentId);
+		if (id in results) return results[id];
 		result = '';
 		currentId = id;
 		currentContents = contents;
