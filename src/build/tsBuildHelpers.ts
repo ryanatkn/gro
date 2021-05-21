@@ -1,6 +1,12 @@
+import {readFileSync} from 'fs';
 import type {CompilerOptions} from 'typescript';
 // import type typescript from 'typescript';
 // import {paths} from '../paths.js';
+
+// TODO I'm about to give up here
+// maybe we just use tsc on the entire project,
+// compile to a temporary directory, and then just change this to
+// ensure the process has been run once, and then just read from the fs?
 
 import {EMPTY_OBJECT} from '../utils/object.js';
 
@@ -40,7 +46,7 @@ export const toGenerateTypes = async (
 		emitDeclarationOnly: true,
 		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
 		// noLib: true,
-		noResolve: true,
+		// noResolve: true,
 		skipLibCheck: true,
 	};
 
@@ -60,13 +66,24 @@ export const toGenerateTypes = async (
 
 	// const host = toCompilerHost(ts);
 	const host = ts.createCompilerHost(options);
-	host.writeFile = (_, data) => (result = data);
+	host.writeFile = (fileName, data) => {
+		if (
+			fileName.substring(0, fileName.length - 4) === currentId.substring(0, currentId.length - 2)
+		) {
+			result = data;
+		}
+		// else {
+		// 	// TODO how to cache this without staleness?
+		// }
+	};
+	// TODO optimize, lookup from memory
 	// host.getSourceFile = (fileName, target) =>
-	// 	// currentId === fileName
-	// 	// 	? ts.createSourceFile(fileName, currentContents, target)
-	// 	ts.createSourceFile(fileName, readFileSync(fileName, 'utf8'), target);
+	// 	currentId === fileName
+	// 		? ts.createSourceFile(fileName, currentContents, target)
+	// 		: ts.createSourceFile(fileName, readFileSync(fileNameSrc, 'utf8'), target);
 
 	return (id, contents) => {
+		result = '';
 		currentId = id;
 		currentContents = contents;
 		const program = ts.createProgram([id], options, host);

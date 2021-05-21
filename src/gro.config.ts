@@ -24,12 +24,15 @@ export const config: GroConfigCreator = async ({dev}) => {
 					createFilter(['**/*.{task,config,config.default}.ts']),
 				],
 			},
-			{
-				name: BROWSER_BUILD_NAME,
-				platform: 'browser',
-				input: ['client/index.ts', createFilter(`**/*.{${ASSET_PATHS.join(',')}}`)],
-				// input: createDirectoryFilter('client'),
-			},
+			// the Gro browser build is currently an internal experiment
+			dev
+				? {
+						name: BROWSER_BUILD_NAME,
+						platform: 'browser',
+						input: ['client/index.ts', createFilter(`**/*.{${ASSET_PATHS.join(',')}}`)],
+						// input: createDirectoryFilter('client'),
+				  }
+				: null,
 		],
 		sourcemap: dev,
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
