@@ -8,8 +8,8 @@ import {spawnProcess} from '../utils/process.js';
 
 This uses the TypeScript compiler to generate types.
 
-`toGenerateTypes` uses `tsc` directly,
-and `toGenerateTypesForFile` then looks up those results.
+The function `generateTypes` uses `tsc` to output all declarations to the filesystem,
+and then `toGenerateTypesForFile` looks up those cached results.
 
 */
 
@@ -28,7 +28,7 @@ export const generateTypes = async (
 	src: string,
 	dest: string,
 	sourcemap: boolean,
-	declarationMap = sourcemap,
+	declarationMap: boolean = sourcemap,
 	args: string[] = EMPTY_ARRAY,
 ) => {
 	const tscResult = await spawnProcess('npx', [
