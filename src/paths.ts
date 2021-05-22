@@ -37,7 +37,8 @@ export const EXTERNALS_BUILD_DIR_ROOT_PREFIX = `/${EXTERNALS_BUILD_DIRNAME}/`;
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
-export const TS_DEFS_EXTENSION = '.d.ts';
+export const TS_TYPE_EXTENSION = '.d.ts';
+export const TS_TYPEMAP_EXTENSION = '.d.ts.map'; // `declarationMap` -> `typemap` to match `sourcemap`
 export const CSS_EXTENSION = '.css';
 export const SVELTE_EXTENSION = '.svelte';
 export const SVELTE_JS_BUILD_EXTENSION = '.svelte.js';
@@ -137,7 +138,7 @@ export const toBuildBasePath = (buildId: string, buildDir = paths.build): string
 
 // TODO probably change this to use a regexp (benchmark?)
 export const hasSourceExtension = (path: string): boolean =>
-	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_DEFS_EXTENSION)) ||
+	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_TYPE_EXTENSION)) ||
 	path.endsWith(SVELTE_EXTENSION);
 
 // Can be used to map a source id from e.g. the cwd to gro's.
