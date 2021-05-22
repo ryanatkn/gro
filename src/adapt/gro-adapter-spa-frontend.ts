@@ -46,7 +46,7 @@ export const createAdapter = ({
 			const timingToBuild = timings.start('build');
 			await Promise.all(
 				buildConfigsToBuild.map(async (buildConfig) => {
-					const {files, filters} = await resolveInputFiles(fs, buildConfig);
+					const {files} = await resolveInputFiles(fs, buildConfig);
 					if (!files.length) {
 						log.trace('no input files in', printBuildConfigLabel(buildConfig));
 						return;
@@ -73,7 +73,6 @@ export const createAdapter = ({
 						dev,
 						toDistOutDir(buildConfig.name, buildConfigsToBuild.length, dir),
 						log,
-						filters,
 					);
 				}),
 			);
