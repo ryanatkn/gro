@@ -9,7 +9,6 @@ import {
 } from '../paths.js';
 import type {Logger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
-import {isTestBuildFile, isTestBuildArtifact} from '../fs/testModule.js';
 import {isInputToBuildConfig} from './utils.js';
 
 export const copyDist = async (
@@ -29,13 +28,9 @@ export const copyDist = async (
 			if (src === externalsDir) return false;
 			const stats = await fs.stat(src);
 			if (stats.isDirectory()) return true;
-			if (!isDistFile(src)) return false; // TODO refactor this out
 			if (!filters) return true;
 			const sourceId = basePathToSourceId(toBuildBasePath(toSourceExtension(src)));
 			return isInputToBuildConfig(sourceId, filters);
 		},
 	});
 };
-
-export const isDistFile = (path: string): boolean =>
-	!isTestBuildFile(path) && !isTestBuildArtifact(path);

@@ -20,16 +20,6 @@ export const isTestPath = (path: string): boolean => path.endsWith(TEST_FILE_SUF
 export const loadTestModule = (id: string): Promise<LoadModuleResult<TestModuleMeta>> =>
 	loadModule(id, validateTestModule);
 
-export const TEST_BUILD_FILE_MATCHER = /\.test\.js$/;
-export const TEST_BUILD_FIXTURES_MATCHER = /\/fixtures(\/|$)/; // TODO combine with the above?
-export const isTestBuildFile = (path: string): boolean =>
-	TEST_BUILD_FILE_MATCHER.test(path) || TEST_BUILD_FIXTURES_MATCHER.test(path);
-
-// Artifacts include typings and sourcemaps.
-export const TEST_BUILD_ARTIFACT_MATCHER = /\.test\.(js\.map|d\.ts|d\.ts\.map)$/;
-export const isTestBuildArtifact = (path: string): boolean =>
-	TEST_BUILD_ARTIFACT_MATCHER.test(path);
-
 export const findTestModules = (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
