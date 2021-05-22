@@ -103,6 +103,9 @@ export const BUILD_DIRNAME_DEV = 'dev';
 export const BUILD_DIRNAME_PROD = 'prod';
 export type BuildOutDirname = 'dev' | 'prod';
 
+export const TYPES_BUILD_DIRNAME = 'types';
+export const toTypesBuildDir = (p = paths) => `${p.build}${TYPES_BUILD_DIRNAME}`;
+
 // TODO this is only needed because of how we added `/` to all directories above
 // fix those and remove this!
 function ensureTrailingSlash(s: string): string {

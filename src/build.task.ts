@@ -8,6 +8,8 @@ import {printTimings} from './utils/print.js';
 import {toArray} from './utils/array.js';
 import type {AdapterContext, Adapter} from './adapt/adapter.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
+import {generateTypes} from './build/tsBuildHelpers.js';
+import {paths, toTypesBuildDir} from './paths.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
 
@@ -19,6 +21,7 @@ export interface TaskArgs extends Args {
 
 export interface TaskEvents extends ServerTaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
+	'build.buildTypes': void;
 	'build.buildSrc': void;
 }
 
@@ -32,6 +35,12 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		}
 
 		const timings = new Timings(); // TODO belongs in ctx
+
+		// Build all types so they're available.
+		const timingToBuildTypes = timings.start('buildTypes');
+		await generateTypes(paths.source, toTypesBuildDir(), true);
+		timingToBuildTypes();
+		events.emit('build.buildTypes');
 
 		const timingToLoadConfig = timings.start('load config');
 		const config = await loadGroConfig(fs, dev);
