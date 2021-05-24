@@ -1,6 +1,6 @@
 import esbuild from 'esbuild';
 
-import type {EcmaScriptTarget, GenerateTypes} from './tsBuildHelpers.js';
+import type {EcmaScriptTarget, GenerateTypesForFile} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
 import {SystemLogger, printLogLabel} from '../utils/log.js';
 import type {Logger} from '../utils/log.js';
@@ -8,15 +8,17 @@ import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
 	toBuildOutPath,
-	TS_DEFS_EXTENSION,
+	TS_TYPE_EXTENSION,
 	TS_EXTENSION,
+	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
 import {omitUndefined} from '../utils/object.js';
-import type {BuildContext, Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
+import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import {replaceExtension} from '../utils/path.js';
 import {cyan} from '../utils/terminal.js';
 import {addJsSourcemapFooter} from './utils.js';
-import {toGenerateTypes} from './tsBuildHelpers.js';
+import {toGenerateTypesForFile} from './tsBuildHelpers.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
 	log: Logger;
@@ -51,16 +53,19 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		return newEsbuildOptions;
 	};
 
-	let cachedGenerateTypes: Map<BuildContext, Promise<GenerateTypes>> = new Map();
-	const loadGenerateTypes = (buildContext: BuildContext): Promise<GenerateTypes> => {
-		if (cachedGenerateTypes.has(buildContext)) return cachedGenerateTypes.get(buildContext)!;
-		const promise = toGenerateTypes(buildContext);
-		cachedGenerateTypes.set(buildContext, promise);
+	let cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
+	const loadGenerateTypes = (fs: Filesystem): Promise<GenerateTypesForFile> => {
+		if (cachedGenerateTypes.has(fs)) return cachedGenerateTypes.get(fs)!;
+		const promise = toGenerateTypesForFile(fs);
+		cachedGenerateTypes.set(fs, promise);
 		return promise;
 	};
 
-	const build: EsbuildBuilder['build'] = async (source, buildConfig, buildContext) => {
-		const {buildDir, dev, sourcemap, target} = buildContext;
+	const build: EsbuildBuilder['build'] = async (
+		source,
+		buildConfig,
+		{buildDir, dev, sourcemap, target, fs},
+	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
 		}
@@ -101,15 +106,27 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		}
 		// TODO hardcoding to generate types only in production builds, might want to change
 		if (!dev) {
+			const {types, typemap} = await (await loadGenerateTypes(fs))(source.id);
 			builds.push({
-				id: replaceExtension(jsId, TS_DEFS_EXTENSION),
-				filename: replaceExtension(jsFilename, TS_DEFS_EXTENSION),
+				id: replaceExtension(jsId, TS_TYPE_EXTENSION),
+				filename: replaceExtension(jsFilename, TS_TYPE_EXTENSION),
 				dir: outDir,
-				extension: TS_DEFS_EXTENSION,
+				extension: TS_TYPE_EXTENSION,
 				encoding: source.encoding,
-				contents: (await loadGenerateTypes(buildContext))(source.id, source.contents),
+				contents: types,
 				buildConfig,
 			});
+			if (typemap !== undefined) {
+				builds.push({
+					id: replaceExtension(jsId, TS_TYPEMAP_EXTENSION),
+					filename: replaceExtension(jsFilename, TS_TYPEMAP_EXTENSION),
+					dir: outDir,
+					extension: TS_TYPEMAP_EXTENSION,
+					encoding: source.encoding,
+					contents: typemap,
+					buildConfig,
+				});
+			}
 		}
 		const result: BuildResult<TextBuild> = {builds};
 		return result;

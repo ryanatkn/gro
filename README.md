@@ -138,7 +138,7 @@ gro format --check # check that all source files are formatted
 
 ```bash
 gro clean # delete all build artifacts from the filesystem
-gro clean --svelte --nodemodules --git # deletes dirs and prunes git branches
+gro clean --svelte --nodemodules --git # also deletes dirs and prunes git branches
 ```
 
 ```bash

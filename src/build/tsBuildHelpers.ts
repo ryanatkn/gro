@@ -1,30 +1,20 @@
-import {readFileSync} from 'fs';
-import type {CompilerOptions} from 'typescript';
-import {isSourceId, TS_DEFS_EXTENSION, TS_EXTENSION} from '../paths.js';
-import {EMPTY_OBJECT} from '../utils/object.js';
-import {printPath} from '../utils/print.js';
-import {stripEnd} from '../utils/string.js';
-import type {BuildContext} from './builder.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import {
+	sourceIdToBasePath,
+	toTypesBuildDir,
+	TS_TYPE_EXTENSION as TS_TYPE_EXTENSION,
+	TS_TYPEMAP_EXTENSION,
+} from '../paths.js';
+import {EMPTY_ARRAY} from '../utils/array.js';
+import {replaceExtension} from '../utils/path.js';
+import {spawnProcess} from '../utils/process.js';
 
 /*
 
 This uses the TypeScript compiler to generate types.
 
-There's a mismatch with the current usage versus Gro's systems;
-Gro builds files as individual units (minus the externals builder, see below),
-but I'm unable to find a compiler API that makes it straightforward and efficient
-to output a single file's type definitions.
-What I want may simply be impossible because of how the type system works.
-
-This problem manifests as builds taking around 10x longer than they should.
-
-It would be possible and efficient to generate types outside of Gro's normal build system,
-but right now I don't like those implications long term.
-Instead, I think there's a better design for Gro here,
-to expand its view of the world beyond individual files,
-which would also address the currently hacky implementation of the externals builder.
-
-These two use cases - externals and types - should be able to inform a better design.
+The function `generateTypes` uses `tsc` to output all declarations to the filesystem,
+and then `toGenerateTypesForFile` looks up those cached results.
 
 */
 
@@ -39,61 +29,60 @@ export type EcmaScriptTarget =
 	| 'es2020'
 	| 'esnext';
 
-export interface GenerateTypes {
-	(id: string, contents: string): string;
+export const generateTypes = async (
+	src: string,
+	dest: string,
+	sourcemap: boolean,
+	typemap: boolean = sourcemap,
+	args: string[] = EMPTY_ARRAY,
+) => {
+	const tscResult = await spawnProcess('npx', [
+		'tsc',
+		'--outDir',
+		dest,
+		'--rootDir',
+		src,
+		'--sourceMap',
+		sourcemap ? 'true' : 'false',
+		'--declarationMap',
+		typemap ? 'true' : 'false',
+		'--declaration',
+		'--emitDeclarationOnly',
+		...args,
+	]);
+	if (!tscResult.ok) {
+		throw Error(`TypeScript failed to compile with code ${tscResult.code}`);
+	}
+};
+
+export interface GenerateTypesForFile {
+	(id: string): Promise<GeneratedTypes>;
 }
 
-export const toGenerateTypes = async (
-	{log, findById}: BuildContext,
-	tsOptions: CompilerOptions = EMPTY_OBJECT,
-): Promise<GenerateTypes> => {
-	// We're lazily importing the TypeScript compiler because this module is loaded eagerly,
-	// but `toGenerateTypes` is only called in some circumstances at runtime. (like prod builds)
-	const ts = (await import('typescript')).default;
+export interface GeneratedTypes {
+	types: string;
+	typemap?: string;
+}
 
-	// This is safe because the returned function below is synchronous
-	let result: string;
-	const results: Map<string, string> = new Map();
-	let currentContents: string;
-	let currentId: string;
-
-	const options: CompilerOptions = {
-		...tsOptions,
-		declaration: true,
-		emitDeclarationOnly: true,
-		isolatedModules: true, // already had this restriction with Svelte, so no fancy const enums
-		// noResolve: true, // TODO doesn't generate the types correctly, but it makes it build fast!
-		skipLibCheck: true,
-	};
-
-	const host = ts.createCompilerHost(options);
-	host.writeFile = (fileName, data) => {
-		if (!fileName.endsWith(TS_DEFS_EXTENSION)) throw Error('TODO');
-		const fileNameTs = stripEnd(fileName, TS_DEFS_EXTENSION) + TS_EXTENSION;
-		if (fileNameTs === currentId) {
-			result = data;
-		}
-		results.set(fileNameTs, data);
-	};
-	host.readFile = (fileName) => {
-		if (fileName === currentId) {
-			return currentContents;
-		} else if (isSourceId(fileName)) {
-			return findById(fileName)!.contents as string;
-		} else {
-			// TODO externals - this is a problem because it's synchronous, can't use portable `fs.readFile`
-			return readFileSync(fileName, 'utf8');
-		}
-	};
-
-	return (id, contents) => {
+// This looks up types from the filesystem created by `generateTypes` for individual files.
+// This lets us do project-wide type compilation once and do cheap lookups from the global cache.
+// This strategy is used because the TypeScript compiler performs an order of magnitude slower
+// when it compiles type declarations for individual files compared to an entire project at once.
+// (there may be dramatic improvements to the individual file building strategy,
+// but I couldn't find them in a reasonable amount of time)
+export const toGenerateTypesForFile = async (fs: Filesystem): Promise<GenerateTypesForFile> => {
+	const results: Map<string, GeneratedTypes> = new Map();
+	return async (id) => {
 		if (results.has(id)) return results.get(id)!;
-		log.trace('generating types', printPath(id));
-		result = '';
-		currentId = id;
-		currentContents = contents;
-		const program = ts.createProgram([id], options, host);
-		program.emit();
+		const rootPath = `${toTypesBuildDir()}/${sourceIdToBasePath(id)}`; // TODO pass through `paths`, maybe from the `BuildContext`
+		const typesId = replaceExtension(rootPath, TS_TYPE_EXTENSION);
+		const typemapId = replaceExtension(rootPath, TS_TYPEMAP_EXTENSION);
+		const [types, typemap] = await Promise.all([
+			fs.readFile(typesId, 'utf8'),
+			(async () => ((await fs.exists(typemapId)) ? fs.readFile(typemapId, 'utf8') : undefined))(),
+		]);
+		const result: GeneratedTypes = {types, typemap};
+		results.set(id, result);
 		return result;
 	};
 };
