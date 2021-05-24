@@ -1,5 +1,9 @@
 # changelog
 
+## 0.23.6
+
+- tweak publish steps to handle failure better
+
 ## 0.23.5
 
 - tweak publishing errors

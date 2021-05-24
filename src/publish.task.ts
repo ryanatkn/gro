@@ -61,9 +61,9 @@ export const task: Task<TaskArgs> = {
 		}
 
 		await spawnProcess('npm', ['version', ...process.argv.slice(3)]);
-		await spawnProcess('npm', ['publish']);
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
+		await spawnProcess('npm', ['publish']);
 	},
 };
 
