@@ -1,6 +1,6 @@
 # changelog
 
-## 0.24.0
+## 0.23.7
 
 - fix `gro publish` arg forwarding to `npm version`
   ([#200](https://github.com/feltcoop/gro/pull/200))
