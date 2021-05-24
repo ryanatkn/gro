@@ -39,7 +39,7 @@ export const task: Task<TaskArgs> = {
 		validateVersionIncrement(versionIncrement);
 
 		// Confirm with the user that we're doing what they expect:
-		await confirmWithUser(fs, versionIncrement, log);
+		const publishContext = await confirmWithUser(fs, versionIncrement, log);
 
 		// Make sure we're on the right branch:
 		// TODO see how the deploy task uses git, probably do that instead
@@ -60,10 +60,14 @@ export const task: Task<TaskArgs> = {
 			return;
 		}
 
-		await spawnProcess('npm', ['version', ...process.argv.slice(3)]);
+		await spawnProcess('npm', ['version', versionIncrement]);
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
-		await spawnProcess('npm', ['publish']);
+		const publishArgs = ['publish'];
+		if (!publishContext.previousChangelogVersion) {
+			publishArgs.push('--access', 'public');
+		}
+		await spawnProcess('npm', publishArgs);
 	},
 };
 
@@ -71,9 +75,9 @@ const confirmWithUser = async (
 	fs: Filesystem,
 	versionIncrement: string,
 	log: Logger,
-): Promise<void> => {
+): Promise<PublishContext> => {
 	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
-	await new Promise<void>(async (resolve) => {
+	return new Promise<PublishContext>(async (resolve) => {
 		const [
 			[currentChangelogVersion, previousChangelogVersion],
 			currentPackageVersion,
@@ -144,7 +148,7 @@ const confirmWithUser = async (
 				}
 				log.info(rainbow('proceeding'));
 				readline.close();
-				resolve();
+				resolve(publishContext);
 			},
 		);
 	});
