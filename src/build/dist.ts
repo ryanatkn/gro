@@ -2,6 +2,7 @@ import {relative, dirname} from 'path';
 
 import type {BuildConfig} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import type {PathStats} from '../fs/pathData.js';
 import {
 	basePathToSourceId,
 	EXTERNALS_BUILD_DIRNAME,
@@ -18,7 +19,7 @@ export const copyDist = async (
 	dev: boolean,
 	distOutDir: string,
 	log: Logger,
-	filter?: (id: string) => boolean,
+	filter?: (id: string, stats: PathStats) => boolean,
 ): Promise<void> => {
 	const buildOutDir = toBuildOutPath(dev, buildConfig.name);
 	const externalsDir = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME);
@@ -28,8 +29,8 @@ export const copyDist = async (
 		overwrite: false, // TODO this was old, not sure anymore: prioritizes the artifacts from other build processes
 		filter: async (id) => {
 			if (id === externalsDir) return false;
-			if (filter && !filter(id)) return false;
 			const stats = await fs.stat(id);
+			if (filter && !filter(id, stats)) return false;
 			if (stats.isDirectory()) return true;
 			// typemaps are edited before copying, see below
 			if (id.endsWith(TS_TYPEMAP_EXTENSION)) {

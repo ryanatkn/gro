@@ -4,7 +4,13 @@ import {printTimings} from '../utils/print.js';
 import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {DIST_DIRNAME, toDistOutDir, toImportId, TS_EXTENSION, TS_TYPE_EXTENSION} from '../paths.js';
+import {
+	DIST_DIRNAME,
+	toDistOutDir,
+	toImportId,
+	TS_TYPEMAP_EXTENSION,
+	TS_TYPE_EXTENSION,
+} from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {BuildConfig, BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
@@ -13,6 +19,7 @@ import {stripEnd} from '../utils/string.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
+import type {PathStats} from '../fs/pathData.js';
 
 // TODO this adapter behaves as if it owns the dist/ directory, how to compose?
 
@@ -148,7 +155,7 @@ export const createAdapter = ({
 			const timingToCopyDist = timings.start('copy builds to dist');
 			for (const buildConfig of buildConfigs) {
 				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				const filter = bundled.includes(buildConfig) ? bundledDistFiler : undefined;
+				const filter = bundled.includes(buildConfig) ? bundledDistFilter : undefined;
 				await copyDist(fs, buildConfig, dev, buildOptions.dir, log, filter);
 			}
 			timingToCopyDist();
@@ -171,5 +178,5 @@ export const createAdapter = ({
 	};
 };
 
-const bundledDistFiler = (id: string): boolean =>
-	id.endsWith(TS_EXTENSION) || id.endsWith(TS_TYPE_EXTENSION);
+const bundledDistFilter = (id: string, stats: PathStats): boolean =>
+	stats.isDirectory() ? true : id.endsWith(TS_TYPE_EXTENSION) || id.endsWith(TS_TYPEMAP_EXTENSION);
