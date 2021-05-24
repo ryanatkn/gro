@@ -1,5 +1,10 @@
 # changelog
 
+## 0.24.0
+
+- fix `gro publish` to initialize scoped packages
+  ([#200](https://github.com/feltcoop/gro/pull/200))
+
 ## 0.23.6
 
 - tweak publish steps to handle failure better
