@@ -1,4 +1,4 @@
-# Gro changelog
+# changelog
 
 ## 0.23.4
 

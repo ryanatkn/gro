@@ -150,16 +150,23 @@ const confirmWithUser = async (
 	});
 };
 
+const CHANGELOG_PATH = 'changelog.md';
+
 // TODO document this better
 // TODO move where?
 // TODO refactor? this code is quick & worky
 const getChangelogVersions = async (
 	fs: Filesystem,
 ): Promise<[currentChangelogVersion?: string, previousChangelogVersion?: string]> => {
+	if (!(await fs.exists(CHANGELOG_PATH))) {
+		throw Error(`Publishing requires ${CHANGELOG_PATH} - please create it to continue`);
+	}
 	const changelogMatcher = /##.+/g;
-	const changelog = await fs.readFile('changelog.md', 'utf8');
+	const changelog = await fs.readFile(CHANGELOG_PATH, 'utf8');
 	const matchCurrent = changelog.match(changelogMatcher);
-	if (!matchCurrent) return [];
+	if (!matchCurrent) {
+		throw Error(`Changelog must have at least one version header, e.g. ## 0.1.0`);
+	}
 	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [string, string];
 };
 
