@@ -10,6 +10,7 @@ import type {AdapterContext, Adapter} from './adapt/adapter.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 import {generateTypes} from './build/tsBuildHelpers.js';
 import {paths, toTypesBuildDir} from './paths.js';
+import {clean} from './fs/clean.js';
 
 // outputs build artifacts to dist/ using SvelteKit or Gro config
 
@@ -35,6 +36,9 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		}
 
 		const timings = new Timings(); // TODO belongs in ctx
+
+		// TODO properly clean
+		await clean(fs, {dist: true}, log);
 
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
