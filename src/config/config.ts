@@ -146,8 +146,21 @@ export const loadGroConfig = async (
 	const {configSourceId} = paths;
 
 	// TODO maybe refactor this to use `../fs/modules#loadModule`, duplicates some stuff
-	let configModule: GroConfigModule;
 	let modulePath: string;
+
+	// TODO wait should this ALWAYS be loaded, and we extend with anything the user might create?
+	// The project does not have a `gro.config.ts`, so use Gro's fallback default.
+	modulePath = FALLBACK_CONFIG_NAME;
+	const defaultConfigModule = await import(
+		toImportId(
+			`${groPaths.source}${FALLBACK_CONFIG_BASE_PATH}`,
+			dev,
+			PRIMARY_NODE_BUILD_CONFIG.name,
+			groPaths,
+		)
+	);
+
+	let configModule: GroConfigModule | null = null;
 	if (await fs.exists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
@@ -164,24 +177,17 @@ export const loadGroConfig = async (
 			);
 		}
 		configModule = await import(configBuildId);
-	} else {
-		// The project does not have a `gro.config.ts`, so use Gro's fallback default.
-		modulePath = FALLBACK_CONFIG_NAME;
-		configModule = await import(
-			toImportId(
-				`${groPaths.source}${FALLBACK_CONFIG_BASE_PATH}`,
-				dev,
-				PRIMARY_NODE_BUILD_CONFIG.name,
-				groPaths,
-			)
-		);
+		const validated = validateConfigModule(configModule);
+		if (!validated.ok) {
+			throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
+		}
 	}
 
-	const validated = validateConfigModule(configModule);
-	if (!validated.ok) {
-		throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
-	}
-	cachedConfig = await toConfig(configModule.config, options, modulePath);
+	cachedConfig = await toConfig(
+		{...defaultConfigModule.config, ...(configModule ? configModule.config : {})},
+		options,
+		modulePath,
+	);
 	cachedDev = dev;
 	if (applyConfigToSystem) applyConfig(cachedConfig);
 	return cachedConfig;
