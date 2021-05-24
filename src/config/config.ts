@@ -1,4 +1,4 @@
-import {paths, groPaths, toBuildOutPath, CONFIG_BUILD_PATH, toImportId} from '../paths.js';
+import {paths, toBuildOutPath, CONFIG_BUILD_PATH} from '../paths.js';
 import {
 	isPrimaryBuildConfig,
 	normalizeBuildConfigs,
@@ -22,10 +22,11 @@ import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import {omitUndefined} from '../utils/object.js';
 import type {ServedDirPartial} from '../build/servedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
-import type {Result} from '../utils/types.js';
+import type {Assignable, Result} from '../utils/types.js';
 import {toArray} from '../utils/array.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {defaultAdapt} from '../adapt/defaultAdapt.js';
+import {config as createDefaultConfig} from './gro.config.default.js';
 
 /*
 
@@ -45,9 +46,6 @@ This choice keeps things simple and flexible because:
 - isolating all buildable source code in `src/` avoids a lot of tooling complexity
 
 */
-
-const FALLBACK_CONFIG_BASE_PATH = 'config/gro.config.default.ts';
-const FALLBACK_CONFIG_NAME = `gro/src/${FALLBACK_CONFIG_BASE_PATH}`;
 
 export interface GroConfig {
 	readonly builds: BuildConfig[];
@@ -85,6 +83,7 @@ export interface GroConfigCreatorOptions {
 	readonly fs: Filesystem;
 	readonly dev: boolean;
 	readonly log: Logger;
+	readonly config: GroConfig; // default config is available for user config code
 }
 
 let cachedConfig: GroConfig | undefined;
@@ -141,26 +140,12 @@ export const loadGroConfig = async (
 	}
 
 	const log = new SystemLogger(printLogLabel('config'));
-	const options: GroConfigCreatorOptions = {fs, log, dev};
-
+	const options: GroConfigCreatorOptions = {fs, log, dev, config: null as any};
+	const defaultConfig = await toConfig(createDefaultConfig, options, '');
+	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
 	const {configSourceId} = paths;
 
-	// TODO maybe refactor this to use `../fs/modules#loadModule`, duplicates some stuff
 	let modulePath: string;
-
-	// TODO wait should this ALWAYS be loaded, and we extend with anything the user might create?
-	// The project does not have a `gro.config.ts`, so use Gro's fallback default.
-	modulePath = FALLBACK_CONFIG_NAME;
-	const defaultConfigModule = await import(
-		toImportId(
-			`${groPaths.source}${FALLBACK_CONFIG_BASE_PATH}`,
-			dev,
-			PRIMARY_NODE_BUILD_CONFIG.name,
-			groPaths,
-		)
-	);
-
-	let configModule: GroConfigModule | null = null;
 	if (await fs.exists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
@@ -176,18 +161,16 @@ export const loadGroConfig = async (
 				log,
 			);
 		}
-		configModule = await import(configBuildId);
+		const configModule = await import(configBuildId);
 		const validated = validateConfigModule(configModule);
 		if (!validated.ok) {
 			throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
 		}
+		cachedConfig = await toConfig(configModule.config, options, modulePath, defaultConfig);
+	} else {
+		cachedConfig = defaultConfig;
 	}
 
-	cachedConfig = await toConfig(
-		{...defaultConfigModule.config, ...(configModule ? configModule.config : {})},
-		options,
-		modulePath,
-	);
 	cachedDev = dev;
 	if (applyConfigToSystem) applyConfig(cachedConfig);
 	return cachedConfig;
@@ -197,11 +180,12 @@ export const toConfig = async (
 	configOrCreator: GroConfigPartial | GroConfigCreator,
 	options: GroConfigCreatorOptions,
 	path: string,
+	baseConfig?: GroConfig,
 ): Promise<GroConfig> => {
 	const configPartial =
 		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
 
-	const config = normalizeConfig(configPartial);
+	const config = normalizeConfig({...baseConfig, ...configPartial});
 
 	const validateResult = validateConfig(config);
 	if (!validateResult.ok) {
