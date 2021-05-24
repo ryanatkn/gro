@@ -60,14 +60,20 @@ export const task: Task<TaskArgs> = {
 			return;
 		}
 
-		await spawnProcess('npm', ['version', versionIncrement]);
+		const npmVersionResult = await spawnProcess('npm', ['version', versionIncrement]);
+		if (!npmVersionResult.ok) {
+			throw Error('npm version failed: see the error above');
+		}
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
 		const publishArgs = ['publish'];
 		if (!publishContext.previousChangelogVersion) {
 			publishArgs.push('--access', 'public');
 		}
-		await spawnProcess('npm', publishArgs);
+		const npmPublishResult = await spawnProcess('npm', publishArgs);
+		if (!npmPublishResult.ok) {
+			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
+		}
 	},
 };
 
