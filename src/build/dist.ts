@@ -29,6 +29,7 @@ export const copyDist = async (
 			if (path === externalsDir) return false;
 			const stats = await fs.stat(path);
 			if (stats.isDirectory()) return true;
+			// typemaps are edited before copying, see below
 			if (path.endsWith(TS_TYPEMAP_EXTENSION)) {
 				typemapFiles.push(path);
 				return false;
@@ -45,8 +46,8 @@ export const copyDist = async (
 			const distOutPath = `${distOutDir}/${basePath}`;
 			const typemapSourcePath = relative(dirname(distOutPath), sourceId);
 			const typemap = JSON.parse(await fs.readFile(id, 'utf8'));
-			typemap.sources[0] = typemapSourcePath;
-			await fs.writeFile(distOutPath, JSON.stringify(typemap));
+			typemap.sources[0] = typemapSourcePath; // haven't seen any exceptions that would break this
+			return fs.writeFile(distOutPath, JSON.stringify(typemap));
 		}),
 	);
 };

@@ -37,6 +37,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		const timings = new Timings(); // TODO belongs in ctx
 
 		// Build all types so they're available.
+		// TODO refactor? maybe lazily build types only when a builder wants them
 		const timingToBuildTypes = timings.start('buildTypes');
 		await generateTypes(paths.source, toTypesBuildDir(), true);
 		timingToBuildTypes();
