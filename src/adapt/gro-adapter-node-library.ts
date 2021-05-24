@@ -148,7 +148,7 @@ export const createAdapter = ({
 			const timingToCopyDist = timings.start('copy builds to dist');
 			for (const buildConfig of buildConfigs) {
 				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				const filter = unbundled.includes(buildConfig) ? undefined : bundledDistFiler;
+				const filter = bundled.includes(buildConfig) ? bundledDistFiler : undefined;
 				await copyDist(fs, buildConfig, dev, buildOptions.dir, log, filter);
 			}
 			timingToCopyDist();
