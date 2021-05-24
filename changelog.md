@@ -1,5 +1,9 @@
 # changelog
 
+## 0.23.5
+
+- tweak publishing errors
+
 ## 0.23.4
 
 - fix typemap source path

@@ -91,7 +91,7 @@ const confirmWithUser = async (
 				'Is the changelog updated?',
 			);
 		}
-		if (previousChangelogVersion !== currentPackageVersion) {
+		if (previousChangelogVersion && previousChangelogVersion !== currentPackageVersion) {
 			logError(
 				red('Old changelog version does not match old package version.'),
 				'Is there an unpublished version in the changelog?',
@@ -108,14 +108,14 @@ const confirmWithUser = async (
 			const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
 			if (!result.ok) {
 				logError(
-					red('failed to validate standard version increment compared to changelog:'),
+					red('Failed to validate standard version increment compared to changelog:'),
 					result.reason,
 				);
 			}
 		} else {
 			errored = true;
 			log.warn(
-				red(`unknown version increment "${versionIncrement}":`),
+				red(`Unknown version increment "${versionIncrement}":`),
 				'gro supports only major|minor|patch:',
 				yellow('please review the following carefully:'),
 			);
