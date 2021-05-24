@@ -1,9 +1,11 @@
-# Gro changelog
+# changelog
 
 ## 0.23.4
 
 - fix typemap source path
   ([#198](https://github.com/feltcoop/gro/pull/198))
+- improve publishing changelog UX
+  ([#197](https://github.com/feltcoop/gro/pull/197))
 
 ## 0.23.3
 
