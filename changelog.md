@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.23.4
+
+- fix typemap source path
+  ([#198](https://github.com/feltcoop/gro/pull/198))
+
 ## 0.23.3
 
 - generate types for bundled production builds

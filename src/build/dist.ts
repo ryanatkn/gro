@@ -8,10 +8,12 @@ import {
 	EXTERNALS_BUILD_DIRNAME,
 	toBuildBasePath,
 	toBuildOutPath,
+	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
 import type {Logger} from '../utils/log.js';
 import {printPath} from '../utils/print.js';
+import {stripEnd} from '../utils/string.js';
 
 export const copyDist = async (
 	fs: Filesystem,
@@ -45,7 +47,7 @@ export const copyDist = async (
 	await Promise.all(
 		typemapFiles.map(async (id) => {
 			const basePath = toBuildBasePath(id);
-			const sourceId = basePathToSourceId(basePath);
+			const sourceId = stripEnd(basePathToSourceId(basePath), TS_TYPEMAP_EXTENSION) + TS_EXTENSION;
 			const distOutPath = `${distOutDir}/${basePath}`;
 			const typemapSourcePath = relative(dirname(distOutPath), sourceId);
 			const typemap = JSON.parse(await fs.readFile(id, 'utf8'));
