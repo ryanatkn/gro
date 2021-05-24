@@ -2,7 +2,7 @@
 
 ## 0.24.0
 
-- extend config with detected defaults
+- **break**: extend config with detected defaults
   ([#199](https://github.com/feltcoop/gro/pull/199))
 
 ## 0.23.7
