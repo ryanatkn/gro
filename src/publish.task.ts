@@ -62,7 +62,7 @@ export const task: Task<TaskArgs> = {
 
 		const npmVersionResult = await spawnProcess('npm', ['version', versionIncrement]);
 		if (!npmVersionResult.ok) {
-			throw Error('npm version failed: see the error above');
+			throw Error('npm version failed: no commits were made: see the error above');
 		}
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
