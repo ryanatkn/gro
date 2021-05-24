@@ -4,7 +4,7 @@ import {printTimings} from '../utils/print.js';
 import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {DIST_DIRNAME, toDistOutDir, toImportId} from '../paths.js';
+import {DIST_DIRNAME, toDistOutDir, toImportId, TS_EXTENSION, TS_TYPE_EXTENSION} from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {BuildConfig, BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
@@ -145,10 +145,11 @@ export const createAdapter = ({
 			}
 			timingToBundleWithRollup();
 
-			const timingToCopyDist = timings.start('copy unbundled builds to dist');
-			for (const buildConfig of unbundled) {
+			const timingToCopyDist = timings.start('copy builds to dist');
+			for (const buildConfig of buildConfigs) {
 				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				await copyDist(fs, buildConfig, dev, buildOptions.dir, log);
+				const filter = unbundled.includes(buildConfig) ? undefined : bundledDistFiler;
+				await copyDist(fs, buildConfig, dev, buildOptions.dir, log, filter);
 			}
 			timingToCopyDist();
 
@@ -169,3 +170,6 @@ export const createAdapter = ({
 		},
 	};
 };
+
+const bundledDistFiler = (id: string): boolean =>
+	id.endsWith(TS_EXTENSION) || id.endsWith(TS_TYPE_EXTENSION);

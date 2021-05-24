@@ -18,6 +18,7 @@ export const copyDist = async (
 	dev: boolean,
 	distOutDir: string,
 	log: Logger,
+	filter?: (id: string) => boolean,
 ): Promise<void> => {
 	const buildOutDir = toBuildOutPath(dev, buildConfig.name);
 	const externalsDir = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME);
@@ -25,13 +26,14 @@ export const copyDist = async (
 	const typemapFiles: string[] = [];
 	await fs.copy(buildOutDir, distOutDir, {
 		overwrite: false, // TODO this was old, not sure anymore: prioritizes the artifacts from other build processes
-		filter: async (path) => {
-			if (path === externalsDir) return false;
-			const stats = await fs.stat(path);
+		filter: async (id) => {
+			if (id === externalsDir) return false;
+			if (filter && !filter(id)) return false;
+			const stats = await fs.stat(id);
 			if (stats.isDirectory()) return true;
 			// typemaps are edited before copying, see below
-			if (path.endsWith(TS_TYPEMAP_EXTENSION)) {
-				typemapFiles.push(path);
+			if (id.endsWith(TS_TYPEMAP_EXTENSION)) {
+				typemapFiles.push(id);
 				return false;
 			}
 			return true;

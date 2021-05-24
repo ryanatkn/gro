@@ -1,5 +1,10 @@
 # Gro changelog
 
+## 0.23.3
+
+- generate types for unbundled production builds
+  ([#196](https://github.com/feltcoop/gro/pull/196))
+
 ## 0.23.2
 
 - generate types for production builds
