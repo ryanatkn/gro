@@ -15,29 +15,22 @@ export const createAdapter = (): Adapter => {
 		adapt: async ({fs, log}) => {
 			const timings = new Timings();
 
-			const timingToBuild = timings.start('build');
-
-			// TODO move to a detected adapter
 			// Handle any SvelteKit build.
-			// TODO could parallelize this - currently puts all SvelteKit stuff first
-			const timingToBuildSvelteKit = timings.start('SvelteKit build');
+			const timingToBuildSvelteKit = timings.start('build SvelteKit');
 			await spawnProcess('npx', ['svelte-kit', 'build']);
+			timingToBuildSvelteKit();
+
+			const timingToBuild = timings.start('copy build');
 			// TODO remove this when SvelteKit has its duplicate build dir bug fixed
 			// TODO take a look at its issues/codebase for fix
 			if (
 				(await fs.exists(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`)) &&
 				(await fs.exists(`${SVELTE_KIT_BUILD_DIRNAME}/${SVELTE_KIT_APP_DIRNAME}`))
 			) {
+				console.log('REMOVING');
 				await fs.remove(`${SVELTE_KIT_BUILD_DIRNAME}/_${SVELTE_KIT_APP_DIRNAME}`);
 			}
-			// TODO remove this when we implement something like `adapter-felt`
-			// We implement the adapting Svelte server ourselves in production,
-			// so this line deletes the default Node adapter server app file.
-			// The Node adapter is convenient to keep in place, and we just adjust the final `dist/`.
-			await fs.remove(`${SVELTE_KIT_BUILD_DIRNAME}/index.js`);
 			await fs.move(SVELTE_KIT_BUILD_DIRNAME, DIST_DIRNAME);
-			timingToBuildSvelteKit();
-
 			timingToBuild();
 
 			printTimings(timings, log);
