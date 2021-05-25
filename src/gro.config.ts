@@ -21,6 +21,10 @@ export const config: GroConfigCreator = async ({dev}) => {
 					'index.ts',
 					'cli/gro.ts',
 					'cli/invoke.ts',
+					'client/devtools.ts',
+					// TODO probably extract these to another repo, felt or gen utils or something
+					'gen/helpers/html.ts',
+					'gen/helpers/ts.ts',
 					createFilter(['**/*.{task,config,config.default}.ts']),
 				],
 			},

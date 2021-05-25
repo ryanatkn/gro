@@ -1,6 +1,12 @@
 import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';
-import {DIST_DIRNAME, sourceIdToBasePath, toBuildExtension, toDistOutDir} from '../paths.js';
+import {
+	DIST_DIRNAME,
+	sourceIdToBasePath,
+	toBuildExtension,
+	toDistOutDir,
+	toImportId,
+} from '../paths.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {toCommonBaseDir} from '../utils/path.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
@@ -11,7 +17,7 @@ import {Timings} from '../utils/time.js';
 import {DEFAULT_BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 
-// TODO WIP do not use
+// WIP do not use
 // TODO name? is it actually specific to frontends? or is this more about bundling?
 
 export interface Options {
@@ -51,6 +57,7 @@ export const createAdapter = ({
 						log.trace('no input files in', printBuildConfigLabel(buildConfig));
 						return;
 					}
+					const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 					// TODO `files` needs to be mapped to production output files
 					const outputDir = `${DIST_DIRNAME}/${toBuildExtension(
 						sourceIdToBasePath(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
@@ -59,7 +66,7 @@ export const createAdapter = ({
 					await runRollup({
 						dev,
 						sourcemap: config.sourcemap,
-						input: files,
+						input,
 						outputDir,
 						mapInputOptions,
 						mapOutputOptions,
