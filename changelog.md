@@ -1,5 +1,10 @@
 # changelog
 
+## 0.25.0
+
+- **break**: upgrade to latest SvelteKit, changing the dir `.svelte` to `.svelte-kit`
+  ([#202](https://github.com/feltcoop/gro/pull/202))
+
 ## 0.24.1
 
 - separate source meta for dev and prod

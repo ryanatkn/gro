@@ -51,7 +51,7 @@ export const SVELTE_CSS_SOURCEMAP_EXTENSION = '.svelte.css.map';
 
 export const README_FILENAME = 'README.md';
 export const SVELTE_KIT_CONFIG_FILENAME = 'svelte.config.cjs';
-export const SVELTE_KIT_DEV_DIRNAME = '.svelte';
+export const SVELTE_KIT_DEV_DIRNAME = '.svelte-kit';
 export const SVELTE_KIT_BUILD_DIRNAME = 'build';
 export const SVELTE_KIT_APP_DIRNAME = 'app'; // same as /svelte.config.cjs `kit.appDir`
 export const NODE_MODULES_DIRNAME = 'node_modules';
