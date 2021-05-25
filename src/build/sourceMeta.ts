@@ -1,6 +1,5 @@
 import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
-import type {BuildOutDirname} from '../paths.js';
 import {getFileContentsHash} from './baseFilerFile.js';
 import type {BuildDependency, BuildContext} from './builder.js';
 import type {BuildableSourceFile} from './sourceFile.js';
@@ -16,7 +15,7 @@ export interface SourceMeta {
 export interface SourceMetaData {
 	readonly sourceId: string;
 	readonly contentsHash: string;
-	readonly builds: Partial<Record<BuildOutDirname, SourceMetaBuild[]>>;
+	readonly builds: SourceMetaBuild[];
 }
 
 export interface SourceMetaBuild {
@@ -41,33 +40,22 @@ export const updateSourceMeta = async (
 		return deleteSourceMeta(ctx, file.id);
 	}
 
-	const outDirname = toBuildOutDirname(dev);
-	const otherOutDirname = toBuildOutDirname(!dev);
-
-	// keep any existing builds of the other mode
-	const otherBuilds = sourceMetaById.get(file.id)?.data.builds[otherOutDirname];
-
 	// create the new meta, not mutating the old
 	const cacheId = toSourceMetaId(file, buildDir, dev);
 	const data: SourceMetaData = {
 		sourceId: file.id,
 		contentsHash: getFileContentsHash(file),
-		builds: {
-			[outDirname]: Array.from(file.buildFiles.values()).flatMap((files) =>
-				// TODO better way to get this type safety? rather unordinary!
-				// without this annotation, additional unknown props pass through without warning
-				files.map(
-					(file): SourceMetaBuild => ({
-						id: file.id,
-						name: file.buildConfig.name,
-						dependencies:
-							file.dependenciesByBuildId && Array.from(file.dependenciesByBuildId.values()),
-						encoding: file.encoding,
-					}),
-				),
+		builds: Array.from(file.buildFiles.values()).flatMap((files) =>
+			files.map(
+				(file): SourceMetaBuild => ({
+					id: file.id,
+					name: file.buildConfig.name,
+					dependencies:
+						file.dependenciesByBuildId && Array.from(file.dependenciesByBuildId.values()),
+					encoding: file.encoding,
+				}),
 			),
-			[otherOutDirname]: otherBuilds,
-		},
+		),
 	};
 	const sourceMeta: SourceMeta = {cacheId, data};
 	// TODO convert this to a test
@@ -89,17 +77,13 @@ export const updateSourceMeta = async (
 };
 
 export const deleteSourceMeta = async (
-	{fs, sourceMetaById, dev}: BuildContext,
+	{fs, sourceMetaById}: BuildContext,
 	sourceId: string,
 ): Promise<void> => {
 	const meta = sourceMetaById.get(sourceId);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache
 	sourceMetaById.delete(sourceId);
-	// delete the source meta on disk, but only if it has no builds for the other dev/prod mode
-	const otherBuilds = meta.data.builds[toBuildOutDirname(!dev)];
-	if (!otherBuilds) {
-		await fs.remove(meta.cacheId);
-	}
+	await fs.remove(meta.cacheId);
 };
 
 const toSourceMetaId = (file: BuildableSourceFile, buildDir: string, dev: boolean): string =>

@@ -7,7 +7,6 @@ import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
 import type {BuildableSourceFile} from './sourceFile.js';
 import type {BuildConfig} from '../build/buildConfig.js';
-import {toBuildOutDirname} from '../paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
@@ -83,13 +82,10 @@ export const reconstructBuildFiles = async (
 	fs: Filesystem,
 	sourceMeta: SourceMeta,
 	buildConfigs: readonly BuildConfig[],
-	dev: boolean,
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
-	const builds = sourceMeta.data.builds[toBuildOutDirname(dev)];
-	if (!builds) return buildFiles;
 	await Promise.all(
-		builds.map(
+		sourceMeta.data.builds.map(
 			async (build): Promise<void> => {
 				const {id, name, dependencies, encoding} = build;
 				const filename = basename(id);

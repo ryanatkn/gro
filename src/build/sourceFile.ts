@@ -11,7 +11,7 @@ import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {UnreachableError} from '../utils/error.js';
 import {stripStart} from '../utils/string.js';
-import {EXTERNALS_BUILD_DIRNAME, toBuildOutDirname} from '../paths.js';
+import {EXTERNALS_BUILD_DIRNAME} from '../paths.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import type {BuildContext, BuildDependency} from './builder.js';
 
@@ -67,7 +67,7 @@ export const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	sourceMeta: SourceMeta | undefined,
-	{fs, buildConfigs, dev}: BuildContext,
+	{fs, buildConfigs}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
@@ -84,10 +84,8 @@ export const createSourceFile = async (
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty =
-			contentsHash !== sourceMeta.data.contentsHash ||
-			!(toBuildOutDirname(dev) in sourceMeta.data.builds);
-		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!, dev);
+		dirty = contentsHash !== sourceMeta.data.contentsHash || !sourceMeta.data.builds.length; // TODO is the length check right? maybe remove
+		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!);
 	}
 	if (isExternalBrowserModule(id)) {
 		// externals
