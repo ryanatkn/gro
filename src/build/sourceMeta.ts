@@ -48,7 +48,7 @@ export const updateSourceMeta = async (
 	const otherBuilds = sourceMetaById.get(file.id)?.data.builds[otherOutDirname];
 
 	// create the new meta, not mutating the old
-	const cacheId = toSourceMetaId(file, buildDir);
+	const cacheId = toSourceMetaId(file, buildDir, dev);
 	const data: SourceMetaData = {
 		sourceId: file.id,
 		contentsHash: getFileContentsHash(file),
@@ -102,8 +102,8 @@ export const deleteSourceMeta = async (
 	}
 };
 
-const toSourceMetaId = (file: BuildableSourceFile, buildDir: string): string =>
-	`${buildDir}${CACHED_SOURCE_INFO_DIR}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
+const toSourceMetaId = (file: BuildableSourceFile, buildDir: string, dev: boolean): string =>
+	`${toSourceMetaDir(buildDir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 export const initSourceMeta = async ({
 	fs,
