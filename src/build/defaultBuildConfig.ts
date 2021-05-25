@@ -1,13 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, BuildConfigPartial, BuildName} from './buildConfig.js';
-import {
-	toBuildExtension,
-	basePathToSourceId,
-	toBuildOutPath,
-	paths,
-	isThisProjectGro,
-} from '../paths.js';
+import {toBuildExtension, basePathToSourceId, toBuildOutPath, paths} from '../paths.js';
 import {getExtensions} from '../fs/mime.js';
 import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
