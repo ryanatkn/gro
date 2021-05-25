@@ -26,9 +26,9 @@ export interface SourceMetaBuild {
 	readonly encoding: Encoding;
 }
 
-const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`
+const CACHED_SOURCE_INFO_DIR_SUFFIX = '_meta'; // so `/.gro/dev_meta/` is metadata for `/.gro/dev`
 export const toSourceMetaDir = (buildDir: string, dev: boolean): string =>
-	`${buildDir}${CACHED_SOURCE_INFO_DIR}/${toBuildOutDirname(dev)}`;
+	`${buildDir}${toBuildOutDirname(dev)}_${CACHED_SOURCE_INFO_DIR_SUFFIX}`;
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
