@@ -67,7 +67,7 @@ export const toApiServerBuildPath = (dev: boolean, buildDir = paths.build): stri
 
 const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const hasSvelteKitFrontend = async (fs: Filesystem): Promise<boolean> =>
-	!isThisProjectGro && (await everyPathExists(fs, SVELTE_KIT_FRONTEND_PATHS));
+	everyPathExists(fs, SVELTE_KIT_FRONTEND_PATHS);
 
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>
