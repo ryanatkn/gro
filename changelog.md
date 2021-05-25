@@ -1,5 +1,12 @@
 # changelog
 
+## 0.24.0
+
+- **break**: extend config with detected defaults
+  ([#199](https://github.com/feltcoop/gro/pull/199))
+- improve `gro publish` errors and suport restricted packages
+  ([#199](https://github.com/feltcoop/gro/pull/199))
+
 ## 0.23.7
 
 - fix `gro publish` arg forwarding to `npm version`

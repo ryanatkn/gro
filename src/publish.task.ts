@@ -22,14 +22,15 @@ import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 export interface TaskArgs {
 	_: string[];
 	branch?: string;
-	dry?: boolean;
+	dry?: boolean; // run without changing git or npm
+	restricted?: string; // if `true`, package is not public
 }
 
 export const task: Task<TaskArgs> = {
 	description: 'bump version, publish to npm, and sync to GitHub',
 	dev: false,
 	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
-		const {branch = GIT_DEPLOY_BRANCH, dry = false} = args;
+		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
@@ -60,14 +61,20 @@ export const task: Task<TaskArgs> = {
 			return;
 		}
 
-		await spawnProcess('npm', ['version', versionIncrement]);
+		const npmVersionResult = await spawnProcess('npm', ['version', versionIncrement]);
+		if (!npmVersionResult.ok) {
+			throw Error('npm version failed: no commits were made: see the error above');
+		}
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
 		const publishArgs = ['publish'];
 		if (!publishContext.previousChangelogVersion) {
-			publishArgs.push('--access', 'public');
+			publishArgs.push('--access', restricted ? 'restricted' : 'public');
 		}
-		await spawnProcess('npm', publishArgs);
+		const npmPublishResult = await spawnProcess('npm', publishArgs);
+		if (!npmPublishResult.ok) {
+			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
+		}
 	},
 };
 
