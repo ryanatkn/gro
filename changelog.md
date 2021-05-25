@@ -4,7 +4,9 @@
 
 - **break**: upgrade to latest SvelteKit, changing the dir `.svelte` to `.svelte-kit`
   ([#202](https://github.com/feltcoop/gro/pull/202))
-- add frontend adapters
+- add SvelteKit frontend adapter
+  ([#193](https://github.com/feltcoop/gro/pull/193))
+- fix `gro deploy`
   ([#193](https://github.com/feltcoop/gro/pull/193))
 
 ## 0.24.1
