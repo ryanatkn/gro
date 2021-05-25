@@ -1,10 +1,8 @@
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {ENV_LOG_LEVEL, LogLevel} from '../utils/log.js';
 import {
-	hasDeprecatedGroFrontend,
 	hasNodeLibrary,
 	PRIMARY_NODE_BUILD_CONFIG,
-	toDefaultBrowserBuild,
 	NODE_LIBRARY_BUILD_CONFIG,
 	hasSvelteKitFrontend,
 } from '../build/defaultBuildConfig.js';
@@ -31,19 +29,19 @@ export const config: GroConfigCreator = async ({fs}) => {
 		enableNodeLibrary,
 		// enableApiServer,
 		enableSvelteKitFrontend,
-		enableGroFrontend,
+		// enableGroFrontend,
 	] = await Promise.all([
 		hasNodeLibrary(fs),
 		// hasApiServer(fs),
 		hasSvelteKitFrontend(fs),
-		hasDeprecatedGroFrontend(fs),
+		// hasDeprecatedGroFrontend(fs),
 	]);
 	const partial: GroConfigPartial = {
 		builds: [
 			PRIMARY_NODE_BUILD_CONFIG,
 			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
 			// enableApiServer ? API_SERVER_BUILD_CONFIG : null,
-			enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
+			// enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 			// note there's no build for SvelteKit frontends - should there be?
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
@@ -54,9 +52,9 @@ export const config: GroConfigCreator = async ({fs}) => {
 					: null,
 				// TODO
 				// enableApiServer ? (await import('../adapt/gro-adapter-api-server.js')).createAdapter() : null,
-				enableGroFrontend
-					? (await import('../adapt/gro-adapter-spa-frontend.js')).createAdapter()
-					: null,
+				// enableGroFrontend
+				// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).createAdapter()
+				// 	: null,
 				enableSvelteKitFrontend
 					? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).createAdapter()
 					: null,
