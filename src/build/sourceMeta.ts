@@ -27,7 +27,8 @@ export interface SourceMetaBuild {
 }
 
 const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`
-export const toSourceMetaDir = (buildDir: string): string => `${buildDir}${CACHED_SOURCE_INFO_DIR}`;
+export const toSourceMetaDir = (buildDir: string, dev: boolean): string =>
+	`${buildDir}${CACHED_SOURCE_INFO_DIR}`;
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
