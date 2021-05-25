@@ -145,18 +145,20 @@ export const loadGroConfig = async (
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
 	const {configSourceId} = paths;
 
-	let modulePath: string;
 	if (await fs.exists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
-		modulePath = configSourceId;
 		const configBuildId = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
 		if (!(await fs.exists(configBuildId))) {
 			const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
 			await buildSourceDirectory(
 				fs,
 				// TODO feels hacky, the `sourcemap` in particular
-				await toConfig({builds: [PRIMARY_NODE_BUILD_CONFIG], sourcemap: dev}, options, modulePath),
+				await toConfig(
+					{builds: [PRIMARY_NODE_BUILD_CONFIG], sourcemap: dev},
+					options,
+					configSourceId,
+				),
 				dev,
 				log,
 			);
@@ -164,9 +166,9 @@ export const loadGroConfig = async (
 		const configModule = await import(configBuildId);
 		const validated = validateConfigModule(configModule);
 		if (!validated.ok) {
-			throw Error(`Invalid Gro config module at '${modulePath}': ${validated.reason}`);
+			throw Error(`Invalid Gro config module at '${configSourceId}': ${validated.reason}`);
 		}
-		cachedConfig = await toConfig(configModule.config, options, modulePath, defaultConfig);
+		cachedConfig = await toConfig(configModule.config, options, configSourceId, defaultConfig);
 	} else {
 		cachedConfig = defaultConfig;
 	}
@@ -185,7 +187,9 @@ export const toConfig = async (
 	const configPartial =
 		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
 
-	const config = normalizeConfig({...baseConfig, ...configPartial});
+	const extendedConfig = baseConfig ? {...baseConfig, ...configPartial} : configPartial;
+
+	const config = normalizeConfig(extendedConfig);
 
 	const validateResult = validateConfig(config);
 	if (!validateResult.ok) {
