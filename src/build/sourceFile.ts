@@ -84,7 +84,7 @@ export const createSourceFile = async (
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty = contentsHash !== sourceMeta.data.contentsHash || !sourceMeta.data.builds.length; // TODO is the length check right? maybe remove
+		dirty = contentsHash !== sourceMeta.data.contentsHash;
 		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!);
 	}
 	if (isExternalBrowserModule(id)) {
