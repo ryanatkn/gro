@@ -1,5 +1,10 @@
 # changelog
 
+## 0.24.1
+
+- separate source meta for dev and prod
+  ([#201](https://github.com/feltcoop/gro/pull/201))
+
 ## 0.24.0
 
 - **break**: extend config with detected defaults

@@ -94,8 +94,8 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 		'/a/b/src',
 		'/a/b/src/entrypoint.ts',
 		'/c',
-		'/c/src',
-		'/c/src/entrypoint.ts.json',
+		'/c/dev_meta',
+		'/c/dev_meta/entrypoint.ts.json',
 	]);
 	t.ok(fs._files.has(entryId));
 
