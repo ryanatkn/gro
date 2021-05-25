@@ -25,7 +25,6 @@ import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 import type {Assignable, Result} from '../utils/types.js';
 import {toArray} from '../utils/array.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {defaultAdapt} from '../adapt/defaultAdapt.js';
 import {config as createDefaultConfig} from './gro.config.default.js';
 
 /*
@@ -219,7 +218,7 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		logLevel: DEFAULT_LOG_LEVEL,
-		adapt: defaultAdapt,
+		adapt: () => null,
 		...omitUndefined(config),
 		builds: buildConfigs,
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
