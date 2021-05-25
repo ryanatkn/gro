@@ -1,21 +1,27 @@
 import type {AdaptBuilds} from './adapter.js';
-import {hasDeprecatedGroFrontend, hasNodeLibrary} from '../build/defaultBuildConfig.js';
-
-// TODO copy dist ? autodetect behavior?
+import {
+	hasDeprecatedGroFrontend,
+	hasNodeLibrary,
+	hasSvelteKitFrontend,
+} from '../build/defaultBuildConfig.js';
 
 export const defaultAdapt: AdaptBuilds = async ({fs}) => {
-	const [enableGroFrontend, enableNodeLibrary] = await Promise.all([
+	const [enableNodeLibrary, enableGroFrontend, enableSvelteKitFrontend] = await Promise.all([
 		// enableApiServer,
 		// hasApiServer(fs),
-		hasDeprecatedGroFrontend(fs),
 		hasNodeLibrary(fs),
+		hasDeprecatedGroFrontend(fs),
+		hasSvelteKitFrontend(fs),
 	]);
 	return [
 		// TODO
 		// enableApiServer ? (await import('./gro-adapter-api-server.js')).createAdapter() : null,
+		enableNodeLibrary ? (await import('./gro-adapter-node-library.js')).createAdapter() : null,
 		enableGroFrontend
 			? (await import('./gro-adapter-spa-frontend.js')).createAdapter({builds: ['browser']})
 			: null,
-		enableNodeLibrary ? (await import('./gro-adapter-node-library.js')).createAdapter() : null,
+		enableSvelteKitFrontend
+			? (await import('./gro-adapter-sveltekit-frontend.js')).createAdapter()
+			: null,
 	];
 };
