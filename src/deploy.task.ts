@@ -7,6 +7,8 @@ import {printError, printPath} from './utils/print.js';
 import {magenta, green, rainbow, red} from './utils/terminal.js';
 import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 
+// docs at ./docs/deploy.md
+
 // TODO there's a bug where sometimes you have to run `gro deploy` twice.. hm
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
@@ -109,7 +111,7 @@ export const task: Task<TaskArgs> = {
 			// Fetch the remote deploy branch
 			await spawnProcess('git', ['fetch', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
 			// Set up the deployment worktree in the dist directory.
-			await spawnProcess('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
+			await spawnProcess('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH], GIT_ARGS);
 			// Pull the remote deploy branch just in case, ignoring failures
 			await spawnProcess('git', ['pull', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
 			// Populate the worktree dir with the new files.
