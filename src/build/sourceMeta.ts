@@ -28,7 +28,7 @@ export interface SourceMetaBuild {
 
 const CACHED_SOURCE_INFO_DIR = 'src'; // so `/.gro/src/` is metadata for `/src`
 export const toSourceMetaDir = (buildDir: string, dev: boolean): string =>
-	`${buildDir}${CACHED_SOURCE_INFO_DIR}`;
+	`${buildDir}${CACHED_SOURCE_INFO_DIR}/${dev ? 'dev' : 'prod'}`;
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
@@ -109,8 +109,9 @@ export const initSourceMeta = async ({
 	fs,
 	sourceMetaById,
 	buildDir,
+	dev,
 }: BuildContext): Promise<void> => {
-	const sourceMetaDir = toSourceMetaDir(buildDir);
+	const sourceMetaDir = toSourceMetaDir(buildDir, dev);
 	if (!(await fs.exists(sourceMetaDir))) return;
 	const files = await fs.findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(
