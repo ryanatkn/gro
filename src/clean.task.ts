@@ -5,7 +5,7 @@ import {spawnProcess} from './utils/process.js';
 export interface TaskArgs {
 	'no-build'?: boolean; // !`/.gro`
 	'no-dist'?: boolean; // !`/dist`
-	svelte?: boolean; // `/.svelte`
+	sveltekit?: boolean; // `/.svelte-kit`
 	nodemodules: boolean; // `/node_modules`
 	git?: boolean; // `git remote prune origin`
 }
@@ -22,7 +22,7 @@ export const task: Task<TaskArgs> = {
 			{
 				build: !args['no-build'],
 				dist: !args['no-dist'],
-				svelteKit: !!args.svelte,
+				svelteKit: !!args.sveltekit,
 				nodeModules: !!args.nodemodules,
 			},
 			log,
