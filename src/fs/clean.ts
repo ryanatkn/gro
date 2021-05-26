@@ -5,6 +5,7 @@ import {
 	SVELTE_KIT_DEV_DIRNAME,
 	SVELTE_KIT_BUILD_DIRNAME,
 	toBuildOutDir,
+	SVELTE_KIT_VITE_CACHE_PATH,
 } from '../paths.js';
 import {EMPTY_ARRAY} from '../utils/array.js';
 import type {SystemLogger} from '../utils/log.js';
@@ -46,7 +47,11 @@ export const clean = async (
 			: EMPTY_ARRAY),
 		dist ? removeDir(fs, paths.dist, log) : null,
 		...(svelteKit
-			? [removeDir(fs, SVELTE_KIT_DEV_DIRNAME, log), removeDir(fs, SVELTE_KIT_BUILD_DIRNAME, log)]
+			? [
+					removeDir(fs, SVELTE_KIT_DEV_DIRNAME, log),
+					removeDir(fs, SVELTE_KIT_BUILD_DIRNAME, log),
+					removeDir(fs, SVELTE_KIT_VITE_CACHE_PATH, log),
+			  ]
 			: EMPTY_ARRAY),
 		nodeModules ? removeDir(fs, NODE_MODULES_DIRNAME, log) : null,
 	]);
