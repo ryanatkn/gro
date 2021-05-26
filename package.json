@@ -2,6 +2,7 @@
   "name": "@feltcoop/gro",
   "version": "0.25.2",
   "description": "opinionated tools for web development",
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
@@ -41,7 +42,6 @@
     "dist",
     "src"
   ],
-  "type": "module",
   "engines": {
     "node": ">=14.16.0"
   },
