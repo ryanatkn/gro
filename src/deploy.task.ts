@@ -45,9 +45,21 @@ export const task: Task<TaskArgs> = {
 		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
 		// Exit early if the git working directory has any unstaged or staged changes.
-		const gitDiffResult = await spawnProcess('git', ['diff-index', '--quiet', 'HEAD']);
-		if (!gitDiffResult.ok) {
-			log.error(red('git working directory is unclean~ please commit or stash to proceed'));
+		// unstaged changes: `git diff --exit-code`
+		// staged uncommitted changes: `git diff --exit-code --cached`
+		const gitDiffUnstagedResult = await spawnProcess('git', ['diff', '--exit-code', '--quiet']);
+		if (!gitDiffUnstagedResult.ok) {
+			log.error(red('git has unstaged changes: please commit or stash to proceed'));
+			return;
+		}
+		const gitDiffStagedResult = await spawnProcess('git', [
+			'diff',
+			'--exit-code',
+			'--cached',
+			'--quiet',
+		]);
+		if (!gitDiffStagedResult.ok) {
+			log.error(red('git has staged but uncommitted changes: please commit or stash to proceed'));
 			return;
 		}
 

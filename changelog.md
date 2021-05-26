@@ -1,5 +1,10 @@
 # changelog
 
+## 0.25.2
+
+- properly detect unclean git state for `gro deploy`
+  ([#205](https://github.com/feltcoop/gro/pull/205))
+
 ## 0.25.1
 
 - add `.nojekyll` support to frontend adapters for GitHub Pages compatibility
