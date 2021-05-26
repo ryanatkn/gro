@@ -1,5 +1,10 @@
 # changelog
 
+## 0.25.1
+
+- add `.nojekyll` support to frontend adapters for GitHub pages compatibility
+  ([#203](https://github.com/feltcoop/gro/pull/203))
+
 ## 0.25.0
 
 - **break**: upgrade to latest SvelteKit, changing the dir `.svelte` to `.svelte-kit`

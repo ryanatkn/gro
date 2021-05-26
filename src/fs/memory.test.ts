@@ -4,9 +4,8 @@ import {dirname, resolve} from 'path';
 
 import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
-import {stripEnd} from '../utils/string.js';
 import {toPathParts} from '../utils/path.js';
-import {toRootPath} from '../paths.js';
+import {stripTrailingSlash, toRootPath} from '../paths.js';
 
 // TODO organize these test suites better
 // TODO generic fs test suite
@@ -331,7 +330,7 @@ test_ensureDir('normalize paths', async ({fs}) => {
 
 		const endsWithSlash = path.endsWith('/');
 		// TODO maybe add a `stripLast` instead of this
-		const testPath2 = endsWithSlash ? stripEnd(path, '/') : `${path}/`;
+		const testPath2 = endsWithSlash ? stripTrailingSlash(path) : `${path}/`;
 		await testNormalizePaths(endsWithSlash ? path : testPath2, endsWithSlash ? testPath2 : path);
 	}
 });
