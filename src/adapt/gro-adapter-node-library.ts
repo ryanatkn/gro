@@ -15,11 +15,11 @@ import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {BuildConfig, BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
 import {UnreachableError} from '../utils/error.js';
-import {stripEnd} from '../utils/string.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
+import {stripTrailingSlash} from '../utils/path.js';
 
 // TODO this adapter behaves as if it owns the dist/ directory, how to compose?
 
@@ -72,7 +72,7 @@ export const createAdapter = ({
 	dir = DIST_DIRNAME,
 	link = null,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
-	dir = stripEnd(dir, '/');
+	dir = stripTrailingSlash(dir);
 	const count = builds.length;
 	if (!count) throw Error('No builds provided');
 	const buildOptionsByBuildName: Map<BuildName, AdaptBuildOptions> = new Map(
@@ -81,7 +81,6 @@ export const createAdapter = ({
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
-			// TODO this doesn't compose - need to either change this, or add helper machinery around it
 			await fs.remove(dir);
 		},
 		adapt: async ({config, fs, dev, log, args}) => {

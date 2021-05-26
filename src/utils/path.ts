@@ -1,5 +1,9 @@
 import {extname, basename, dirname} from 'path';
 
+export const stripTrailingSlash = (p: string): string =>
+	p[p.length - 1] === '/' ? p.substring(0, p.length - 1) : p;
+
+// Note this treats `foo.d.ts` as `.ts` - compound extensions should use `stripEnd`
 export const replaceExtension = (path: string, newExtension: string): string => {
 	const {length} = extname(path);
 	return (length === 0 ? path : path.substring(0, path.length - length)) + newExtension;

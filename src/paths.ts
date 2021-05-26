@@ -2,7 +2,7 @@ import {join, basename} from 'path';
 import {fileURLToPath} from 'url';
 import type {BuildName} from './build/buildConfig.js';
 
-import {replaceExtension} from './utils/path.js';
+import {replaceExtension, stripTrailingSlash} from './utils/path.js';
 import {stripStart} from './utils/string.js';
 
 /*
@@ -69,7 +69,7 @@ export interface Paths {
 }
 
 export const createPaths = (root: string): Paths => {
-	root = ensureTrailingSlash(root);
+	root = stripTrailingSlash(root) + '/';
 	const source = `${root}${SOURCE_DIR}`;
 	const build = `${root}${BUILD_DIR}`;
 	return {
@@ -97,7 +97,7 @@ export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 export const basePathToSourceId = (basePath: string, p = paths): string => `${p.source}${basePath}`;
 
 export const toBuildOutDir = (dev: boolean, buildDir = paths.build): string =>
-	`${ensureTrailingSlash(buildDir)}${toBuildOutDirname(dev)}`;
+	`${stripTrailingSlash(buildDir)}/${toBuildOutDirname(dev)}`;
 export const toBuildOutDirname = (dev: boolean): BuildOutDirname =>
 	dev ? BUILD_DIRNAME_DEV : BUILD_DIRNAME_PROD;
 export const BUILD_DIRNAME_DEV = 'dev';
@@ -106,12 +106,6 @@ export type BuildOutDirname = 'dev' | 'prod';
 
 export const TYPES_BUILD_DIRNAME = 'types';
 export const toTypesBuildDir = (p = paths) => `${p.build}${TYPES_BUILD_DIRNAME}`;
-
-// TODO this is only needed because of how we added `/` to all directories above
-// fix those and remove this!
-function ensureTrailingSlash(s: string): string {
-	return s[s.length - 1] === '/' ? s : s + '/';
-}
 
 export const toBuildOutPath = (
 	dev: boolean,
