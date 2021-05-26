@@ -16,13 +16,17 @@ import {copyDist} from '../build/dist.js';
 import {Timings} from '../utils/time.js';
 import {DEFAULT_BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {EMPTY_OBJECT} from '../utils/object.js';
+import {printTimings} from '../utils/print.js';
 
 // WIP do not use
-// TODO name? is it actually specific to frontends? or is this more about bundling?
+
+const NOJEKYLL = '.nojekyll';
+const DEFAULT_TARGET = 'github_pages';
 
 export interface Options {
 	builds: readonly BuildName[];
 	dir: string;
+	target: 'github_pages' | 'static';
 }
 
 const DEFAULT_BUILD_NAMES: readonly BuildName[] = [DEFAULT_BROWSER_BUILD_NAME];
@@ -30,6 +34,7 @@ const DEFAULT_BUILD_NAMES: readonly BuildName[] = [DEFAULT_BROWSER_BUILD_NAME];
 export const createAdapter = ({
 	builds = DEFAULT_BUILD_NAMES,
 	dir = DIST_DIRNAME,
+	target = DEFAULT_TARGET,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	return {
 		name: '@feltcoop/gro-adapter-spa-frontend',
@@ -49,7 +54,7 @@ export const createAdapter = ({
 			// and therefore belong in the default Rollup build.
 			// If more customization is needed, users should implement their own `src/build.task.ts`,
 			// which can be bootstrapped by copy/pasting this one. (and updating the imports)
-			const timingToBuild = timings.start('build');
+			const timingToBundle = timings.start('bundle');
 			await Promise.all(
 				buildConfigsToBuild.map(async (buildConfig) => {
 					const {files} = await resolveInputFiles(fs, buildConfig);
@@ -83,7 +88,20 @@ export const createAdapter = ({
 					);
 				}),
 			);
-			timingToBuild();
+			timingToBundle();
+
+			// GitHub pages processes everything with Jekyll by default,
+			// breaking things like files and dirs prefixed with an underscore.
+			// This adds a `.nojekyll` file to the root of the output
+			// to tell GitHub Pages to treat the outputs as plain static files.
+			if (target === 'github_pages') {
+				const nojekyllPath = `${dir}/${NOJEKYLL}`;
+				if (!(await fs.exists(nojekyllPath))) {
+					await fs.writeFile(nojekyllPath, '', 'utf8');
+				}
+			}
+
+			printTimings(timings, log);
 		},
 	};
 };
