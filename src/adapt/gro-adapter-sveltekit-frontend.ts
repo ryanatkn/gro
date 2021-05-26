@@ -34,9 +34,9 @@ export const createAdapter = ({
 			await spawnProcess('npx', ['svelte-kit', 'build']);
 			timingToBuildSvelteKit();
 
-			const timingToBuild = timings.start('copy build');
+			const timingToCopyDist = timings.start('copy build to dist');
 			await fs.move(svelteKitDir, dir);
-			timingToBuild();
+			timingToCopyDist();
 
 			// GitHub pages processes everything with Jekyll by default,
 			// breaking things like files and dirs prefixed with an underscore.
