@@ -3,7 +3,7 @@
 ## 0.25.1
 
 - add `.nojekyll` support to frontend adapters for GitHub Pages compatibility
-  ([#203](https://github.com/feltcoop/gro/pull/203))
+  ([#204](https://github.com/feltcoop/gro/pull/204))
 
 ## 0.25.0
 
