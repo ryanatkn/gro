@@ -46,7 +46,7 @@ export const task: Task<TaskArgs> = {
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
-		// staged uncommitted changes: `git diff --cached --exit-code`
+		// staged uncommitted changes: `git diff --exit-code --cached`
 		const gitDiffUnstagedResult = await spawnProcess('git', ['diff', '--exit-code', '--quiet']);
 		if (!gitDiffUnstagedResult.ok) {
 			log.error(red('git has unstaged changes: please commit or stash to proceed'));
