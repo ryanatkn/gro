@@ -29,7 +29,7 @@ export const createAdapter = ({
 		adapt: async ({fs, log}) => {
 			const timings = new Timings();
 
-			// Handle any SvelteKit build.
+			// Build with SvelteKit.
 			const timingToBuildSvelteKit = timings.start('build SvelteKit');
 			await spawnProcess('npx', ['svelte-kit', 'build']);
 			timingToBuildSvelteKit();
