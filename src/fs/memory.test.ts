@@ -4,8 +4,8 @@ import {dirname, resolve} from 'path';
 
 import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
-import {toPathParts} from '../utils/path.js';
-import {stripTrailingSlash, toRootPath} from '../paths.js';
+import {stripTrailingSlash, toPathParts} from '../utils/path.js';
+import {toRootPath} from '../paths.js';
 
 // TODO organize these test suites better
 // TODO generic fs test suite
