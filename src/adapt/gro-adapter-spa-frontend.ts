@@ -8,7 +8,7 @@ import {
 	toImportId,
 } from '../paths.js';
 import {resolveInputFiles} from '../build/utils.js';
-import {toCommonBaseDir} from '../utils/path.js';
+import {stripTrailingSlash, toCommonBaseDir} from '../utils/path.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName} from '../build/buildConfig.js';
 import {ensureEnd} from '../utils/string.js';
@@ -36,6 +36,7 @@ export const createAdapter = ({
 	dir = DIST_DIRNAME,
 	target = DEFAULT_TARGET,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
+	dir = stripTrailingSlash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-spa-frontend',
 		begin: async ({fs}) => {
