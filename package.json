@@ -1,6 +1,6 @@
 {
   "name": "@feltcoop/gro",
-  "version": "0.25.1",
+  "version": "0.25.2",
   "description": "opinionated tools for web development",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
