@@ -81,7 +81,6 @@ export const createAdapter = ({
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
-			// TODO this doesn't compose - need to either change this, or add helper machinery around it
 			await fs.remove(dir);
 		},
 		adapt: async ({config, fs, dev, log, args}) => {
