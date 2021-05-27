@@ -45,21 +45,19 @@ export const config: GroConfigCreator = async ({fs}) => {
 			// note there's no build for SvelteKit frontends - should there be?
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
-		adapt: async () => {
-			return [
-				enableNodeLibrary
-					? (await import('../adapt/gro-adapter-node-library.js')).createAdapter()
-					: null,
-				// TODO
-				// enableApiServer ? (await import('../adapt/gro-adapter-api-server.js')).createAdapter() : null,
-				// enableGroFrontend
-				// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).createAdapter()
-				// 	: null,
-				enableSvelteKitFrontend
-					? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).createAdapter()
-					: null,
-			];
-		},
+		adapt: async () => [
+			enableNodeLibrary
+				? (await import('../adapt/gro-adapter-node-library.js')).createAdapter()
+				: null,
+			// TODO
+			// enableApiServer ? (await import('../adapt/gro-adapter-api-server.js')).createAdapter() : null,
+			// enableGroFrontend
+			// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).createAdapter()
+			// 	: null,
+			enableSvelteKitFrontend
+				? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).createAdapter()
+				: null,
+		],
 	};
 	return partial;
 };
