@@ -1,5 +1,3 @@
-import type {Obj} from '@feltcoop/felt/utils/types.js';
-
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
@@ -12,7 +10,8 @@ export interface GenModule {
 
 export interface GenModuleMeta extends ModuleMeta<GenModule> {}
 
-export const validateGenModule = (mod: Obj): mod is GenModule => typeof mod.gen === 'function';
+export const validateGenModule = (mod: Record<string, any>): mod is GenModule =>
+	typeof mod.gen === 'function';
 
 export const loadGenModule = (id: string): Promise<LoadModuleResult<GenModuleMeta>> =>
 	loadModule(id, validateGenModule);

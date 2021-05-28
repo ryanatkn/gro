@@ -1,7 +1,6 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, sep, join} from 'path';
-import type {Obj} from '@feltcoop/felt/utils/types.js';
 
 import {
 	resolveRawInputPath,
@@ -151,7 +150,7 @@ test_loadSourcePathDataByInputPath.run();
 
 /* test_loadSourceIdsByInputPath */
 const test_loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async () => {
-	const testFiles: Obj<Map<string, PathStats>> = {
+	const testFiles: Record<string, Map<string, PathStats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([

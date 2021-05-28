@@ -1,7 +1,6 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
-import type {Obj} from '@feltcoop/felt/utils/types.js';
 
 import {findModules, loadModules, loadModule} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
@@ -37,7 +36,7 @@ test_loadModule('without validation', async () => {
 test_loadModule('fails validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	let validatedMod;
-	const testValidation = (mod: Obj) => {
+	const testValidation = (mod: Record<string, any>) => {
 		validatedMod = mod;
 		return false;
 	};
@@ -173,7 +172,7 @@ test_loadModules('fail with loadModuleFailures', async () => {
 	const idBar2 = join(pathBar2, 'test2.bar.ts');
 	const idBaz1 = join(pathBaz1, 'test1.baz.ts');
 	const idBaz2 = join(pathBaz2, 'test2.baz.ts');
-	const testValidation = ((mod: Obj) => mod.bar !== 1) as any;
+	const testValidation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
 	let error;
 	const result = await loadModules(
 		new Map([

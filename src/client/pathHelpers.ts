@@ -1,8 +1,6 @@
-import type {Obj} from '@feltcoop/felt/utils/types.js';
-
 // TODO refactor, move where? hacky because `path`, should reuse existing code
 // TODO maybe cache these values on the domain objects instead of this?
-const toBasePathCache: Obj<string> = {};
+const toBasePathCache: Record<string, string> = {};
 
 export const toBasePath = (id: string, buildDir: string): string => {
 	if (id[0] !== '/') return id;
@@ -21,7 +19,7 @@ export const toBasePath = (id: string, buildDir: string): string => {
 	return (toBasePathCache[cacheKey] = id);
 };
 
-const toRootPathCache: Obj<string> = {};
+const toRootPathCache: Record<string, string> = {};
 
 export const toRootPath = (id: string, buildDir: string): string => {
 	const cacheKey = id + buildDir;

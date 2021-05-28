@@ -1,5 +1,3 @@
-import type {Obj} from '@feltcoop/felt/utils/types.js';
-
 import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
 import {loadModule, loadModules, findModules} from '../fs/modules.js';
 import type {ModuleMeta, LoadModuleResult} from '../fs/modules.js';
@@ -16,7 +14,7 @@ export interface TaskModuleMeta extends ModuleMeta<TaskModule> {
 	name: string;
 }
 
-export const validateTaskModule = (mod: Obj): mod is TaskModule =>
+export const validateTaskModule = (mod: Record<string, any>): mod is TaskModule =>
 	!!mod.task && typeof mod.task.run === 'function';
 
 export const loadTaskModule = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {

@@ -1,5 +1,3 @@
-import type {Obj} from '@feltcoop/felt/utils/types.js';
-
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {paths} from '../paths.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
@@ -12,7 +10,8 @@ export interface TestModuleMeta extends ModuleMeta<TestModule> {}
 
 export type TestModule = object;
 
-export const validateTestModule = (mod: Obj): mod is TestModule => !!mod && typeof mod === 'object';
+export const validateTestModule = (mod: Record<string, any>): mod is TestModule =>
+	!!mod && typeof mod === 'object';
 
 export const TEST_FILE_SUFFIX = '.test.ts';
 
