@@ -236,9 +236,6 @@ export const toSourceExtension = (buildId: string): string => {
 	return buildId;
 };
 
-export const toDistOutDir = (name: BuildName, count: number, dir: string): string =>
-	count === 1 ? dir : `${dir}/${name}`;
-
 export const groImportDir = join(fileURLToPath(import.meta.url), '../');
 export const groDir = join(
 	groImportDir,

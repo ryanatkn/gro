@@ -6,13 +6,7 @@ import {printTimings} from '@feltcoop/felt/utils/print.js';
 
 import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';
-import {
-	DIST_DIRNAME,
-	sourceIdToBasePath,
-	toBuildExtension,
-	toDistOutDir,
-	toImportId,
-} from '../paths.js';
+import {DIST_DIRNAME, sourceIdToBasePath, toBuildExtension, toImportId} from '../paths.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName} from '../build/buildConfig.js';
@@ -81,13 +75,7 @@ export const createAdapter = ({
 					});
 
 					// copy static prod files into `dist/`
-					await copyDist(
-						fs,
-						buildConfig,
-						dev,
-						toDistOutDir(buildConfig.name, buildConfigsToBuild.length, dir),
-						log,
-					);
+					await copyDist(fs, buildConfig, dev, `${dir}/${buildConfig.name}`, log);
 				}),
 			);
 			timingToBundle();

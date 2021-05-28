@@ -8,15 +8,9 @@ import {stripTrailingSlash} from '@feltcoop/felt/utils/path.js';
 import type {Adapter} from './adapter.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {
-	DIST_DIRNAME,
-	toDistOutDir,
-	toImportId,
-	TS_TYPEMAP_EXTENSION,
-	TS_TYPE_EXTENSION,
-} from '../paths.js';
+import {DIST_DIRNAME, toImportId, TS_TYPEMAP_EXTENSION, TS_TYPE_EXTENSION} from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import {BuildConfig, BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
+import {BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
@@ -25,7 +19,7 @@ import type {PathStats} from '../fs/pathData.js';
 // TODO this adapter behaves as if it owns the dist/ directory, how to compose?
 
 export interface Options {
-	builds: AdaptBuildOptionsPartial[]; // defaults to [{name: 'lib', type: 'bundled'}]
+	buildOptionsPartial: AdaptBuildOptionsPartial; // defaults to [{name: 'lib', type: 'bundled'}]
 	dir: string; // defaults to dist/
 	link: string | null; // path to `npm link`, defaults to null
 }
@@ -38,15 +32,15 @@ export type AdaptBuildOptionsPartial =
 	| {name: BuildName; type: 'unbundled'} // unbundled supports esm only (TODO maybe support cjs?)
 	| {name: BuildName; type: 'bundled'; esm?: boolean; cjs?: boolean};
 
-const DEFAULT_BUILDS: AdaptBuildOptionsPartial[] = [
-	{name: NODE_LIBRARY_BUILD_NAME, type: 'bundled'},
-];
+const DEFAULT_BUILD_OPTIONS: AdaptBuildOptionsPartial = {
+	name: NODE_LIBRARY_BUILD_NAME,
+	type: 'unbundled',
+};
 const toAdaptBuildsOptions = (
 	partial: AdaptBuildOptionsPartial,
-	count: number,
 	distDir: string,
 ): AdaptBuildOptions => {
-	const dir = toDistOutDir(partial.name, count, distDir);
+	const dir = `${distDir}/${partial.name}`;
 	if (partial.type === 'unbundled') {
 		return {name: partial.name, type: 'unbundled', dir};
 	} else if (partial.type === 'bundled') {
@@ -69,16 +63,12 @@ interface AdapterArgs {
 }
 
 export const createAdapter = ({
-	builds = DEFAULT_BUILDS,
+	buildOptionsPartial = DEFAULT_BUILD_OPTIONS,
 	dir = DIST_DIRNAME,
 	link = null,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
 	dir = stripTrailingSlash(dir);
-	const count = builds.length;
-	if (!count) throw Error('No builds provided');
-	const buildOptionsByBuildName: Map<BuildName, AdaptBuildOptions> = new Map(
-		builds.map((partial) => [partial.name, toAdaptBuildsOptions(partial, count, dir)]),
-	);
+	const buildOptions = toAdaptBuildsOptions(buildOptionsPartial, dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
@@ -89,27 +79,13 @@ export const createAdapter = ({
 
 			const timings = new Timings(); // TODO probably move to task context
 
-			const buildConfigs: BuildConfig[] = [];
-			const bundled: BuildConfig[] = [];
-			const unbundled: BuildConfig[] = [];
-			for (const buildOptions of buildOptionsByBuildName.values()) {
-				const buildConfig = config.builds.find((b) => b.name === buildOptions.name);
-				if (!buildConfig) {
-					throw Error(`Unknown build config: ${buildOptions.name}`);
-				}
-				buildConfigs.push(buildConfig);
-				if (buildOptions.type === 'unbundled') {
-					unbundled.push(buildConfig);
-				} else if (buildOptions.type === 'bundled') {
-					bundled.push(buildConfig);
-				} else {
-					throw new UnreachableError(buildOptions);
-				}
+			const buildConfig = config.builds.find((b) => b.name === buildOptions.name);
+			if (!buildConfig) {
+				throw Error(`Unknown build config: ${buildOptions.name}`);
 			}
 
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
-			for (const buildConfig of bundled) {
-				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
+			if (buildOptions.type === 'bundled') {
 				if (buildOptions.type !== 'bundled') throw Error();
 				const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
 				// TODO use `filters` to select the others..right?
@@ -153,11 +129,8 @@ export const createAdapter = ({
 			timingToBundleWithRollup();
 
 			const timingToCopyDist = timings.start('copy builds to dist');
-			for (const buildConfig of buildConfigs) {
-				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				const filter = bundled.includes(buildConfig) ? bundledDistFilter : undefined;
-				await copyDist(fs, buildConfig, dev, buildOptions.dir, log, filter);
-			}
+			const filter = buildOptions.type === 'bundled' ? bundledDistFilter : undefined;
+			await copyDist(fs, buildConfig, dev, buildOptions.dir, log, filter);
 			timingToCopyDist();
 
 			// `npm link` if configured
