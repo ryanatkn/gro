@@ -2,7 +2,7 @@
 
 ## 0.26.0
 
-- move utils to `@feltcoop/felt` and add it as a dependency
+- **break**: move utils to `@feltcoop/felt` and add it as a dependency
   ([#206](https://github.com/feltcoop/gro/pull/206))
 
 ## 0.25.2
