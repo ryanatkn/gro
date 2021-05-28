@@ -1,7 +1,7 @@
 import {join, basename} from 'path';
-import {spawnProcess} from '@feltcoop/felt/dist/utils/process.js';
-import {printError, printPath} from '@feltcoop/felt/dist/utils/print.js';
-import {magenta, green, rainbow, red} from '@feltcoop/felt/dist/utils/terminal.js';
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {printError, printPath} from '@feltcoop/felt/utils/print.js';
+import {magenta, green, rainbow, red} from '@feltcoop/felt/utils/terminal.js';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths} from './paths.js';

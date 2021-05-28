@@ -1,14 +1,9 @@
-import {cyan, red, gray} from '@feltcoop/felt/dist/utils/terminal.js';
-import {SystemLogger, Logger, printLogLabel} from '@feltcoop/felt/dist/utils/log.js';
+import {cyan, red, gray} from '@feltcoop/felt/utils/terminal.js';
+import {SystemLogger, Logger, printLogLabel} from '@feltcoop/felt/utils/log.js';
 import {EventEmitter} from 'events';
-import {createStopwatch, Timings} from '@feltcoop/felt/dist/utils/time.js';
-import {
-	printMs,
-	printPath,
-	printPathOrGroPath,
-	printTimings,
-} from '@feltcoop/felt/dist/utils/print.js';
-import {plural} from '@feltcoop/felt/dist/utils/string.js';
+import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
+import {printMs, printPath, printPathOrGroPath, printTimings} from '@feltcoop/felt/utils/print.js';
+import {plural} from '@feltcoop/felt/utils/string.js';
 
 import type {Args} from './task.js';
 import {runTask} from './runTask.js';

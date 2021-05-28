@@ -1,4 +1,4 @@
-import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/dist/utils/log.js';
+import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/utils/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {

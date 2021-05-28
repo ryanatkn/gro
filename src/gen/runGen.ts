@@ -1,7 +1,7 @@
-import {red} from '@feltcoop/felt/dist/utils/terminal.js';
-import {printError, printPath} from '@feltcoop/felt/dist/utils/print.js';
-import {Timings} from '@feltcoop/felt/dist/utils/time.js';
-import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {red} from '@feltcoop/felt/utils/terminal.js';
+import {printError, printPath} from '@feltcoop/felt/utils/print.js';
+import {Timings} from '@feltcoop/felt/utils/time.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
 
 import type {GenModuleMeta} from './genModule.js';
 import {

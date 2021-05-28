@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, sep, join} from 'path';
-import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
+import type {Obj} from '@feltcoop/felt/utils/types.js';
 
 import {
 	resolveRawInputPath,

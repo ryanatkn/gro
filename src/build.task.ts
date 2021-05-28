@@ -1,6 +1,6 @@
-import {Timings} from '@feltcoop/felt/dist/utils/time.js';
-import {printTimings} from '@feltcoop/felt/dist/utils/print.js';
-import {toArray} from '@feltcoop/felt/dist/utils/array.js';
+import {Timings} from '@feltcoop/felt/utils/time.js';
+import {printTimings} from '@feltcoop/felt/utils/print.js';
+import {toArray} from '@feltcoop/felt/utils/array.js';
 
 import type {Task, Args} from './task/task.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './build/rollup.js';

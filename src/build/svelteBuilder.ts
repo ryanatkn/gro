@@ -1,11 +1,11 @@
 import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
-import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
-import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
-import {cyan} from '@feltcoop/felt/dist/utils/terminal.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import {cyan} from '@feltcoop/felt/utils/terminal.js';
 
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {

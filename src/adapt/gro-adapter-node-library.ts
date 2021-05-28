@@ -1,9 +1,9 @@
-import {Timings} from '@feltcoop/felt/dist/utils/time.js';
-import {printTimings} from '@feltcoop/felt/dist/utils/print.js';
-import {printSpawnResult, spawnProcess} from '@feltcoop/felt/dist/utils/process.js';
-import {EMPTY_OBJECT} from '@feltcoop/felt/dist/utils/object.js';
-import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
-import {stripTrailingSlash} from '@feltcoop/felt/dist/utils/path.js';
+import {Timings} from '@feltcoop/felt/utils/time.js';
+import {printTimings} from '@feltcoop/felt/utils/print.js';
+import {printSpawnResult, spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
+import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import {stripTrailingSlash} from '@feltcoop/felt/utils/path.js';
 
 import type {Adapter} from './adapter.js';
 import {TaskError} from '../task/task.js';

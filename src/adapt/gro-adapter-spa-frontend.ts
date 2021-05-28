@@ -1,8 +1,8 @@
-import {stripTrailingSlash, toCommonBaseDir} from '@feltcoop/felt/dist/utils/path.js';
-import {ensureEnd} from '@feltcoop/felt/dist/utils/string.js';
-import {Timings} from '@feltcoop/felt/dist/utils/time.js';
-import {EMPTY_OBJECT} from '@feltcoop/felt/dist/utils/object.js';
-import {printTimings} from '@feltcoop/felt/dist/utils/print.js';
+import {stripTrailingSlash, toCommonBaseDir} from '@feltcoop/felt/utils/path.js';
+import {ensureEnd} from '@feltcoop/felt/utils/string.js';
+import {Timings} from '@feltcoop/felt/utils/time.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
+import {printTimings} from '@feltcoop/felt/utils/print.js';
 
 import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';

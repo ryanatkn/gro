@@ -1,4 +1,4 @@
-import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
+import type {Obj} from '@feltcoop/felt/utils/types.js';
 
 // TODO refactor, move where? hacky because `path`, should reuse existing code
 // TODO maybe cache these values on the domain objects instead of this?

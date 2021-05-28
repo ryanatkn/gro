@@ -8,13 +8,13 @@ import type {
 import {createSecureServer as createHttp2Server} from 'http2';
 import type {Http2Server, ServerHttp2Stream} from 'http2';
 import type {ListenOptions} from 'net';
-import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/dist/utils/terminal.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
-import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
-import {stripAfter} from '@feltcoop/felt/dist/utils/string.js';
-import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
-import type {Assignable, PartialExcept} from '@feltcoop/felt/dist/utils/types.js';
-import {toEnvNumber, toEnvString} from '@feltcoop/felt/dist/utils/env.js';
+import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/utils/terminal.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {stripAfter} from '@feltcoop/felt/utils/string.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import type {Assignable, PartialExcept} from '@feltcoop/felt/utils/types.js';
+import {toEnvNumber, toEnvString} from '@feltcoop/felt/utils/env.js';
 
 import type {Filer} from '../build/Filer.js';
 import {

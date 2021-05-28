@@ -1,7 +1,7 @@
-import {red, green, gray} from '@feltcoop/felt/dist/utils/terminal.js';
-import {printPath, printMs, printError, printTimings} from '@feltcoop/felt/dist/utils/print.js';
-import {plural} from '@feltcoop/felt/dist/utils/string.js';
-import {createStopwatch, Timings} from '@feltcoop/felt/dist/utils/time.js';
+import {red, green, gray} from '@feltcoop/felt/utils/terminal.js';
+import {printPath, printMs, printError, printTimings} from '@feltcoop/felt/utils/print.js';
+import {plural} from '@feltcoop/felt/utils/string.js';
+import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';

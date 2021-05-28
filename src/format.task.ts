@@ -1,4 +1,4 @@
-import {printSpawnResult} from '@feltcoop/felt/dist/utils/process.js';
+import {printSpawnResult} from '@feltcoop/felt/utils/process.js';
 
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';

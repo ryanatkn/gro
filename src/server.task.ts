@@ -1,6 +1,6 @@
-import {spawn} from '@feltcoop/felt/dist/utils/process.js';
-import type {SpawnedProcess} from '@feltcoop/felt/dist/utils/process.js';
-import {red} from '@feltcoop/felt/dist/utils/terminal.js';
+import {spawn} from '@feltcoop/felt/utils/process.js';
+import type {SpawnedProcess} from '@feltcoop/felt/utils/process.js';
+import {red} from '@feltcoop/felt/utils/terminal.js';
 
 import type {Task} from './task/task.js';
 import {toApiServerBuildPath} from './build/defaultBuildConfig.js';

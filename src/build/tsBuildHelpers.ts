@@ -1,6 +1,6 @@
-import {EMPTY_ARRAY} from '@feltcoop/felt/dist/utils/array.js';
-import {replaceExtension} from '@feltcoop/felt/dist/utils/path.js';
-import {spawnProcess} from '@feltcoop/felt/dist/utils/process.js';
+import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
+import {replaceExtension} from '@feltcoop/felt/utils/path.js';
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {

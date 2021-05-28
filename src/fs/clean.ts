@@ -1,6 +1,6 @@
-import {EMPTY_ARRAY} from '@feltcoop/felt/dist/utils/array.js';
-import type {SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
-import {printPath} from '@feltcoop/felt/dist/utils/print.js';
+import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
+import type {SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {printPath} from '@feltcoop/felt/utils/print.js';
 
 import {toSourceMetaDir} from '../build/sourceMeta.js';
 import {

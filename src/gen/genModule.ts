@@ -1,4 +1,4 @@
-import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
+import type {Obj} from '@feltcoop/felt/utils/types.js';
 
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';

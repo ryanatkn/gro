@@ -2,12 +2,12 @@ import {basename, dirname, join} from 'path';
 import {install as installWithEsinstall} from 'esinstall';
 import type {InstallResult} from 'esinstall';
 import type {Plugin as RollupPlugin} from 'rollup';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
-import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
-import {cyan, gray} from '@feltcoop/felt/dist/utils/terminal.js';
-import {EMPTY_ARRAY} from '@feltcoop/felt/dist/utils/array.js';
-import {toEnvNumber} from '@feltcoop/felt/dist/utils/env.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {cyan, gray} from '@feltcoop/felt/utils/terminal.js';
+import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
+import {toEnvNumber} from '@feltcoop/felt/utils/env.js';
 
 import {EXTERNALS_BUILD_DIRNAME, JS_EXTENSION, toBuildOutPath} from '../paths.js';
 import type {Builder, BuildResult, BuildContext, TextBuildSource, TextBuild} from './builder.js';

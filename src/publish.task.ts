@@ -1,9 +1,9 @@
 import {createInterface as createReadlineInterface} from 'readline';
-import {spawnProcess} from '@feltcoop/felt/dist/utils/process.js';
-import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/dist/utils/terminal.js';
-import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
-import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
-import type {Flavored, Result} from '@feltcoop/felt/dist/utils/types.js';
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/utils/terminal.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import type {Flavored, Result} from '@feltcoop/felt/utils/types.js';
 
 import type {Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';

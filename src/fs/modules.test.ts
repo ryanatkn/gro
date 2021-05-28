@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
-import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
+import type {Obj} from '@feltcoop/felt/utils/types.js';
 
 import {findModules, loadModules, loadModule} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';

@@ -1,5 +1,5 @@
 import {join} from 'path';
-import type {Json} from '@feltcoopp/felt/dist/utils/json.js';
+import type {Json} from '@feltcoopp/felt/utils/json.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {paths, groPaths, isThisProjectGro} from '../paths.js';

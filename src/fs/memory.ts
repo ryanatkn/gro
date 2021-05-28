@@ -1,7 +1,7 @@
-import {compareSimpleMapEntries, sortMap} from '@feltcoop/felt/dist/utils/map.js';
-import type {Assignable} from '@feltcoop/felt/dist/utils/types.js';
-import {toPathParts} from '@feltcoop/felt/dist/utils/path.js';
-import {ensureEnd, stripStart} from '@feltcoop/felt/dist/utils/string.js';
+import {compareSimpleMapEntries, sortMap} from '@feltcoop/felt/utils/map.js';
+import type {Assignable} from '@feltcoop/felt/utils/types.js';
+import {toPathParts} from '@feltcoop/felt/utils/path.js';
+import {ensureEnd, stripStart} from '@feltcoop/felt/utils/string.js';
 
 import {toFsId, FsStats} from './filesystem.js';
 import type {Filesystem, FsReadFile} from './filesystem.js';

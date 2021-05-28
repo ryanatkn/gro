@@ -1,4 +1,4 @@
-import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
+import type {Obj} from '@feltcoop/felt/utils/types.js';
 
 import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
 import {loadModule, loadModules, findModules} from '../fs/modules.js';

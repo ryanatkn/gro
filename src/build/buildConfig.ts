@@ -1,7 +1,7 @@
 import {resolve} from 'path';
-import {toArray} from '@feltcoop/felt/dist/utils/array.js';
-import {blue, gray} from '@feltcoop/felt/dist/utils/terminal.js';
-import type {Result, Flavored} from '@feltcoop/felt/dist/utils/types.js';
+import {toArray} from '@feltcoop/felt/utils/array.js';
+import {blue, gray} from '@feltcoop/felt/utils/terminal.js';
+import type {Result, Flavored} from '@feltcoop/felt/utils/types.js';
 
 import {paths} from '../paths.js';
 import {PRIMARY_NODE_BUILD_CONFIG, PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';

@@ -1,5 +1,5 @@
-import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
-import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
 
 import type {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutPath} from '../paths.js';

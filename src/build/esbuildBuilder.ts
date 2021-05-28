@@ -1,9 +1,9 @@
 import esbuild from 'esbuild';
-import {SystemLogger, printLogLabel} from '@feltcoop/felt/dist/utils/log.js';
-import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
-import {replaceExtension} from '@feltcoop/felt/dist/utils/path.js';
-import {cyan} from '@feltcoop/felt/dist/utils/terminal.js';
+import {SystemLogger, printLogLabel} from '@feltcoop/felt/utils/log.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {replaceExtension} from '@feltcoop/felt/utils/path.js';
+import {cyan} from '@feltcoop/felt/utils/terminal.js';
 
 import type {EcmaScriptTarget, GenerateTypesForFile} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';

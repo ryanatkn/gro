@@ -1,4 +1,4 @@
-import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 
 import {noopBuilder} from './builder.js';
 import type {BuildContext, Builder, BuildSource} from './builder.js';

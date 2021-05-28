@@ -1,7 +1,7 @@
 import {join, extname} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
-import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
+import {stripStart} from '@feltcoop/felt/utils/string.js';
 
 import {
 	CSS_EXTENSION,

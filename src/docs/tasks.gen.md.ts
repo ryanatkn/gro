@@ -1,7 +1,7 @@
 import {dirname, relative, basename} from 'path';
-import {toPathParts, toPathSegments} from '@feltcoop/felt/dist/utils/path.js';
-import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
-import {last} from '@feltcoop/felt/dist/utils/array.js';
+import {toPathParts, toPathSegments} from '@feltcoop/felt/utils/path.js';
+import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {last} from '@feltcoop/felt/utils/array.js';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, basePathToSourceId} from '../paths.js';

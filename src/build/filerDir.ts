@@ -1,4 +1,4 @@
-import {noop} from '@feltcoop/felt/dist/utils/function.js';
+import {noop} from '@feltcoop/felt/utils/function.js';
 
 import {watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';

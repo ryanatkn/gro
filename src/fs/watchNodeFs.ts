@@ -1,6 +1,6 @@
 import CheapWatch from 'cheap-watch';
-import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
-import type {PartialExcept} from '@feltcoop/felt/dist/utils/types.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
 import type {PathStats} from './pathData.js';
 import {toPathFilter} from './pathFilter.js';

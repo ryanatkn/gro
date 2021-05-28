@@ -1,4 +1,4 @@
-import {gray} from '@feltcoop/felt/dist/utils/terminal.js';
+import {gray} from '@feltcoop/felt/utils/terminal.js';
 
 import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
