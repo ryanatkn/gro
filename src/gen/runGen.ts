@@ -1,4 +1,8 @@
-import {red} from '../utils/terminal.js';
+import {red} from '@feltcoop/felt/dist/utils/terminal.js';
+import {printError, printPath} from '@feltcoop/felt/dist/utils/print.js';
+import {Timings} from '@feltcoop/felt/dist/utils/time.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+
 import type {GenModuleMeta} from './genModule.js';
 import {
 	GenResults,
@@ -8,10 +12,7 @@ import {
 	GenModuleResultSuccess,
 	GenModuleResultFailure,
 } from './gen.js';
-import {printError, printPath} from '../utils/print.js';
-import {Timings} from '../utils/time.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import type {Logger} from '../utils/log.js';
 
 export const runGen = async (
 	fs: Filesystem,

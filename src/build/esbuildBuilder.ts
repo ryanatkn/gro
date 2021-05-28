@@ -1,9 +1,12 @@
 import esbuild from 'esbuild';
+import {SystemLogger, printLogLabel} from '@feltcoop/felt/dist/utils/log.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
+import {replaceExtension} from '@feltcoop/felt/dist/utils/path.js';
+import {cyan} from '@feltcoop/felt/dist/utils/terminal.js';
 
 import type {EcmaScriptTarget, GenerateTypesForFile} from './tsBuildHelpers.js';
 import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
-import {SystemLogger, printLogLabel} from '../utils/log.js';
-import type {Logger} from '../utils/log.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
@@ -12,10 +15,7 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
-import {replaceExtension} from '../utils/path.js';
-import {cyan} from '../utils/terminal.js';
 import {addJsSourcemapFooter} from './utils.js';
 import {toGenerateTypesForFile} from './tsBuildHelpers.js';
 import type {Filesystem} from '../fs/filesystem.js';

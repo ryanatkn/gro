@@ -1,7 +1,7 @@
 import type {EventEmitter} from 'events';
+import {cyan, red} from '@feltcoop/felt/dist/utils/terminal.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
 
-import {cyan, red} from '../utils/terminal.js';
-import {printLogLabel, SystemLogger} from '../utils/log.js';
 import type {TaskModuleMeta} from './taskModule.js';
 import type {Args} from './task.js';
 import {TaskError} from './task.js';

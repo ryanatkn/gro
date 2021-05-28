@@ -1,14 +1,16 @@
 import {join} from 'path';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Json} from '@feltcoopp/felt/dist/utils/json.js';
 
+import type {Filesystem} from '../fs/filesystem.js';
 import {paths, groPaths, isThisProjectGro} from '../paths.js';
-import type {Json} from '../utils/json.js';
 
 /*
 
 This is a single entrypoint for getting the `package.json` of both the current project and Gro.
 It's helpful because Node's ES modules do not yet support json files without a flag,
 and in the future we should be able to easily auto-generate types for them.
+
+TODO we probably want to extract this to felt
 
 */
 

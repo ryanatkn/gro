@@ -1,14 +1,14 @@
 import {createInterface as createReadlineInterface} from 'readline';
+import {spawnProcess} from '@feltcoop/felt/dist/utils/process.js';
+import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/dist/utils/terminal.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
+import type {Flavored, Result} from '@feltcoop/felt/dist/utils/types.js';
 
 import type {Task} from './task/task.js';
-import {spawnProcess} from './utils/process.js';
-import {green, bgBlack, rainbow, cyan, red, yellow} from './utils/terminal.js';
 import {loadPackageJson} from './utils/packageJson.js';
-import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
-import {UnreachableError} from './utils/error.js';
-import type {Flavored, Result} from './utils/types.js';
 import {loadGroConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 

@@ -1,8 +1,8 @@
 import {basename} from 'path';
+import {toPathSegments} from '@feltcoop/felt/dist/utils/path.js';
+import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
 
 import type {SourceTreeMeta} from './sourceTree.js';
-import {toPathSegments} from '../utils/path.js';
-import {stripStart} from '../utils/string.js';
 
 export type FileTreeNode = FileTreeFile | FileTreeFolder;
 

@@ -1,4 +1,7 @@
 import {relative, dirname} from 'path';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {printPath} from '@feltcoop/felt/dist/utils/print.js';
+import {stripEnd} from '@feltcoop/felt/dist/utils/string.js';
 
 import type {BuildConfig} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -11,9 +14,6 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import type {Logger} from '../utils/log.js';
-import {printPath} from '../utils/print.js';
-import {stripEnd} from '../utils/string.js';
 
 export const copyDist = async (
 	fs: Filesystem,

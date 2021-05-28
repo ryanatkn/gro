@@ -1,4 +1,4 @@
-import type {Flavored} from '../utils/types';
+import type {Flavored} from '@feltcoop/felt/dist/utils/types';
 
 /*
 

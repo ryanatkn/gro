@@ -1,4 +1,6 @@
-import {UnreachableError} from '../utils/error.js';
+import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+
 import type {BuildConfig} from '../build/buildConfig.js';
 import {toBuildOutPath} from '../paths.js';
 import type {
@@ -8,7 +10,6 @@ import type {
 } from './externalsBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import type {ServedDir} from './servedDir.js';
-import type {Logger} from '../utils/log.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './baseFilerFile.js';

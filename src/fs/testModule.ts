@@ -1,7 +1,8 @@
+import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
+
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {paths} from '../paths.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
-import type {Obj} from '../utils/types.js';
 import type {Filesystem} from './filesystem.js';
 
 // TODO this is no longer needed to the same extent as it was before switching to `uvu`,

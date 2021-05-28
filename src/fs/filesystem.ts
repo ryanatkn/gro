@@ -1,6 +1,6 @@
 import {resolve} from 'path';
+import type {Flavored} from '@feltcoop/felt/dist/utils/types.js';
 
-import type {Flavored} from '../utils/types.js';
 import type {Encoding} from './encoding.js';
 import type {PathStats} from './pathData.js';
 import type {PathFilter} from './pathFilter.js';

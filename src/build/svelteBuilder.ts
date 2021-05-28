@@ -1,6 +1,11 @@
 import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
+import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
+import {cyan} from '@feltcoop/felt/dist/utils/terminal.js';
 
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import {
@@ -10,8 +15,6 @@ import {
 	handleWarn,
 } from './svelteBuildHelpers.js';
 import type {CreatePreprocessor, SvelteCompilation} from './svelteBuildHelpers.js';
-import {printLogLabel, SystemLogger} from '../utils/log.js';
-import type {Logger} from '../utils/log.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
@@ -19,11 +22,8 @@ import {
 	SVELTE_EXTENSION,
 	toBuildOutPath,
 } from '../paths.js';
-import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
 import type {BuildConfig} from '../build/buildConfig.js';
-import {UnreachableError} from '../utils/error.js';
-import {cyan} from '../utils/terminal.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
 
 // TODO build types in production unless `declarations` is `false`,

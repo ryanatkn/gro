@@ -1,4 +1,5 @@
 import {join, sep, isAbsolute} from 'path';
+import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
 
 import {
 	basePathToSourceId,
@@ -9,7 +10,6 @@ import {
 	groPaths,
 } from '../paths.js';
 import type {Paths} from '../paths.js';
-import {stripStart} from '../utils/string.js';
 import {toPathData} from './pathData.js';
 import type {PathData, PathStats} from './pathData.js';
 import type {Filesystem} from './filesystem.js';

@@ -1,9 +1,9 @@
 import {createFilter} from '@rollup/pluginutils';
+import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/dist/utils/log.js';
 
 // import {createDirectoryFilter} from './build/utils.js';
 import type {GroConfigCreator} from './config/config.js';
 import {toBuildOutPath} from './paths.js';
-import {ENV_LOG_LEVEL, LogLevel} from './utils/log.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.

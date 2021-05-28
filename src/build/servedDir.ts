@@ -1,7 +1,6 @@
 import {resolve} from 'path';
-
-import type {PartialExcept} from '../utils/types.js';
-import {stripStart} from '../utils/string.js';
+import type {PartialExcept} from '@feltcoop/felt/dist/utils/types.js';
+import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
 
 export interface ServedDir {
 	path: string;

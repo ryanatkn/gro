@@ -1,6 +1,7 @@
+import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
+
 import {noopBuilder} from './builder.js';
 import type {BuildContext, Builder, BuildSource} from './builder.js';
-import {omitUndefined} from '../utils/object.js';
 import type {BuildConfig} from '../build/buildConfig.js';
 
 export interface GetBuilder {

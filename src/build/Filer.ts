@@ -2,6 +2,14 @@ import {resolve, extname, join} from 'path';
 import lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
+import {nulls, omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
+import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {gray, red, cyan} from '@feltcoop/felt/dist/utils/terminal.js';
+import {printError} from '@feltcoop/felt/dist/utils/print.js';
+import {wrap} from '@feltcoop/felt/dist/utils/async.js';
+import type {OmitStrict, Assignable, PartialExcept} from '@feltcoop/felt/dist/utils/types.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {createFilerDir} from '../build/filerDir.js';
@@ -9,12 +17,6 @@ import type {FilerDir, FilerDirChangeCallback} from '../build/filerDir.js';
 import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
 import type {MapDependencyToSourceId} from './utils.js';
 import {EXTERNALS_BUILD_DIR_ROOT_PREFIX, JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
-import {nulls, omitUndefined} from '../utils/object.js';
-import {UnreachableError} from '../utils/error.js';
-import {printLogLabel, SystemLogger} from '../utils/log.js';
-import type {Logger} from '../utils/log.js';
-import {gray, red, cyan} from '../utils/terminal.js';
-import {printError} from '../utils/print.js';
 import type {
 	Build,
 	BuildContext,
@@ -38,7 +40,6 @@ import type {BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
 import {loadContents} from './load.js';
 import {isExternalBrowserModule} from '../utils/module.js';
-import {wrap} from '../utils/async.js';
 import {
 	DEFAULT_EXTERNALS_ALIASES,
 	EXTERNALS_SOURCE_ID,
@@ -49,7 +50,6 @@ import type {ExternalsAliases} from './externalsBuildHelpers.js';
 import {queueExternalsBuild} from './externalsBuilder.js';
 import type {SourceMeta} from './sourceMeta.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
-import type {OmitStrict, Assignable, PartialExcept} from '../utils/types.js';
 import type {PathFilter} from '../fs/pathFilter.js';
 
 /*

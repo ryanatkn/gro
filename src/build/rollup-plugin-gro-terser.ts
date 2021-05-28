@@ -1,10 +1,9 @@
 import * as terser from 'terser';
 import type {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
-
-import {printLogLabel, SystemLogger} from '../utils/log.js';
-import {printPath, printError} from '../utils/print.js';
-import {omitUndefined} from '../utils/object.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
+import {printPath, printError} from '@feltcoop/felt/dist/utils/print.js';
+import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
 
 // TODO speed up with workers
 

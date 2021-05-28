@@ -1,7 +1,11 @@
+import {Timings} from '@feltcoop/felt/dist/utils/time.js';
+import {printTimings} from '@feltcoop/felt/dist/utils/print.js';
+import {printSpawnResult, spawnProcess} from '@feltcoop/felt/dist/utils/process.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/dist/utils/object.js';
+import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
+import {stripTrailingSlash} from '@feltcoop/felt/dist/utils/path.js';
+
 import type {Adapter} from './adapter.js';
-import {Timings} from '../utils/time.js';
-import {printTimings} from '../utils/print.js';
-import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
 import {
@@ -13,13 +17,10 @@ import {
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {BuildConfig, BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
-import {EMPTY_OBJECT} from '../utils/object.js';
-import {UnreachableError} from '../utils/error.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
-import {stripTrailingSlash} from '../utils/path.js';
 
 // TODO this adapter behaves as if it owns the dist/ directory, how to compose?
 

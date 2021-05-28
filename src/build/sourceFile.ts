@@ -1,4 +1,6 @@
 import {basename, dirname, join} from 'path';
+import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
+import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
 
 import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/filerDir.js';
 import {reconstructBuildFiles} from './buildFile.js';
@@ -9,8 +11,6 @@ import type {BuildConfig} from '../build/buildConfig.js';
 import type {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
-import {UnreachableError} from '../utils/error.js';
-import {stripStart} from '../utils/string.js';
 import {EXTERNALS_BUILD_DIRNAME} from '../paths.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import type {BuildContext, BuildDependency} from './builder.js';

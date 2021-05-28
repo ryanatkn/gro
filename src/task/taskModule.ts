@@ -1,10 +1,11 @@
+import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
+
 import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
 import {loadModule, loadModules, findModules} from '../fs/modules.js';
 import type {ModuleMeta, LoadModuleResult} from '../fs/modules.js';
 import {toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
 import type {Task} from './task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
-import type {Obj} from '../utils/types.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface TaskModule {

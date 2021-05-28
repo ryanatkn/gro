@@ -1,10 +1,11 @@
+import {gray} from '@feltcoop/felt/dist/utils/terminal.js';
+
 import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
 import {getFileContentsHash} from './baseFilerFile.js';
 import type {BuildDependency, BuildContext} from './builder.js';
 import type {BuildableSourceFile} from './sourceFile.js';
 import {isExternalBrowserModule} from '../utils/module.js';
-import {gray} from '../utils/terminal.js';
 import type {BuildName} from '../build/buildConfig.js';
 
 export interface SourceMeta {

@@ -1,8 +1,9 @@
+import {printSpawnResult} from '@feltcoop/felt/dist/utils/process.js';
+
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {formatDirectory} from './build/formatDirectory.js';
 import {paths} from './paths.js';
-import {printSpawnResult} from './utils/process.js';
 
 export interface TaskArgs {
 	check?: boolean;

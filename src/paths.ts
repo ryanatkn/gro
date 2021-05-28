@@ -1,9 +1,10 @@
 import {join, basename} from 'path';
 import {fileURLToPath} from 'url';
-import type {BuildName} from './build/buildConfig.js';
+import {replaceExtension, stripTrailingSlash} from '@feltcoop/felt/dist/utils/path.js';
+import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
+import {gray} from '@feltcoop/felt/dist/utils/terminal.js';
 
-import {replaceExtension, stripTrailingSlash} from './utils/path.js';
-import {stripStart} from './utils/string.js';
+import type {BuildName} from './build/buildConfig.js';
 
 /*
 
@@ -247,3 +248,15 @@ export const groDirBasename = `${basename(groDir)}/`;
 export const paths = createPaths(`${process.cwd()}/`);
 export const isThisProjectGro = groDir === paths.root;
 export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
+
+export const printPath = (path: string, p = paths, prefix = './'): string =>
+	gray(`${prefix}${toRootPath(path, p)}`);
+
+export const printPathOrGroPath = (path: string, fromPaths = paths): string => {
+	const inferredPaths = pathsFromId(path);
+	if (fromPaths === groPaths || inferredPaths === fromPaths) {
+		return printPath(path, inferredPaths, '');
+	} else {
+		return gray(groDirBasename) + printPath(path, groPaths, '');
+	}
+};

@@ -6,13 +6,13 @@ import type {
 } from 'svelte/types/compiler/interfaces';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {yellow} from '@feltcoop/felt/dist/utils/terminal.js';
+import {printKeyValue, printMs, printPath} from '@feltcoop/felt/dist/utils/print.js';
+import type {OmitStrict} from '@feltcoop/felt/dist/utils/types.js';
 
-import type {Logger} from '../utils/log.js';
-import {yellow} from '../utils/terminal.js';
-import {printKeyValue, printMs, printPath} from '../utils/print.js';
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import type {OmitStrict} from '../utils/types.js';
 
 export type CreatePreprocessor = (
 	target: EcmaScriptTarget,

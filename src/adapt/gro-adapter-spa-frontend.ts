@@ -1,3 +1,9 @@
+import {stripTrailingSlash, toCommonBaseDir} from '@feltcoop/felt/dist/utils/path.js';
+import {ensureEnd} from '@feltcoop/felt/dist/utils/string.js';
+import {Timings} from '@feltcoop/felt/dist/utils/time.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/dist/utils/object.js';
+import {printTimings} from '@feltcoop/felt/dist/utils/print.js';
+
 import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';
 import {
@@ -8,15 +14,10 @@ import {
 	toImportId,
 } from '../paths.js';
 import {resolveInputFiles} from '../build/utils.js';
-import {stripTrailingSlash, toCommonBaseDir} from '../utils/path.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName} from '../build/buildConfig.js';
-import {ensureEnd} from '../utils/string.js';
 import {copyDist} from '../build/dist.js';
-import {Timings} from '../utils/time.js';
 import {DEFAULT_BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import {EMPTY_OBJECT} from '../utils/object.js';
-import {printTimings} from '../utils/print.js';
 
 // WIP do not use
 

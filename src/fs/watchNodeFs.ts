@@ -1,10 +1,10 @@
 import CheapWatch from 'cheap-watch';
+import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
+import type {PartialExcept} from '@feltcoop/felt/dist/utils/types.js';
 
 import type {PathStats} from './pathData.js';
 import {toPathFilter} from './pathFilter.js';
 import type {PathFilter} from './pathFilter.js';
-import {omitUndefined} from '../utils/object.js';
-import type {PartialExcept} from '../utils/types.js';
 import {loadGitignoreFilter} from '../utils/gitignore.js';
 
 /*

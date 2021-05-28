@@ -1,6 +1,7 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, sep, join} from 'path';
+import type {Obj} from '@feltcoop/felt/dist/utils/types.js';
 
 import {
 	resolveRawInputPath,
@@ -11,7 +12,6 @@ import {
 } from './inputPath.js';
 import type {PathStats} from './pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
-import type {Obj} from '../utils/types.js';
 import {fs} from './node.js';
 
 /* test_resolveRawInputPath */

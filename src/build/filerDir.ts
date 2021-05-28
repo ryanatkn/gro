@@ -1,9 +1,10 @@
+import {noop} from '@feltcoop/felt/dist/utils/function.js';
+
 import {watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import type {PathStats} from '../fs/pathData.js';
 import type {PathFilter} from '../fs/pathFilter.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {noop} from '../utils/function.js';
 
 // Buildable filer dirs are watched, built, and written to disk.
 // For non-buildable dirs, the `dir` is only watched and nothing is written to the filesystem.

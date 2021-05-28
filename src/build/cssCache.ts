@@ -1,6 +1,6 @@
-import {green} from '../utils/terminal.js';
-import {printLogLabel, SystemLogger} from '../utils/log.js';
-import {printKeyValue, printPath} from '../utils/print.js';
+import {green} from '@feltcoop/felt/dist/utils/terminal.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/dist/utils/log.js';
+import {printKeyValue, printPath} from '@feltcoop/felt/dist/utils/print.js';
 
 export interface CssBuild {
 	id: string;

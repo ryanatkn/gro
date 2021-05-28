@@ -1,10 +1,10 @@
 import {dirname, relative, basename} from 'path';
+import {toPathParts, toPathSegments} from '@feltcoop/felt/dist/utils/path.js';
+import {last} from '@feltcoop/felt/dist/utils/array.js';
+import {stripStart} from '@feltcoop/felt/dist/utils/string.js';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, basePathToSourceId} from '../paths.js';
-import {toPathParts, toPathSegments} from '../utils/path.js';
-import {last} from '../utils/array.js';
-import {stripStart} from '../utils/string.js';
 
 // This renders a simple index of a possibly nested directory of files.
 

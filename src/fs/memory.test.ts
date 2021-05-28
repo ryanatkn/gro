@@ -1,10 +1,10 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {dirname, resolve} from 'path';
+import {stripTrailingSlash, toPathParts} from '@feltcoop/felt/dist/utils/path.js';
 
 import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
-import {stripTrailingSlash, toPathParts} from '../utils/path.js';
 import {toRootPath} from '../paths.js';
 
 // TODO organize these test suites better

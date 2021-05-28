@@ -1,6 +1,7 @@
-import {printMs, printTimings} from '../utils/print.js';
-import type {Logger} from '../utils/log.js';
-import {createStopwatch, Timings} from '../utils/time.js';
+import {printMs, printTimings} from '@feltcoop/felt/dist/utils/print.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {createStopwatch, Timings} from '@feltcoop/felt/dist/utils/time.js';
+
 import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {createDefaultBuilder} from './defaultBuilder.js';

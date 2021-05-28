@@ -10,17 +10,17 @@ import {
 } from 'rollup';
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
+import {rainbow} from '@feltcoop/felt/dist/utils/terminal.js';
+import {SystemLogger, printLogLabel} from '@feltcoop/felt/dist/utils/log.js';
+import type {Logger} from '@feltcoop/felt/dist/utils/log.js';
+import {deindent} from '@feltcoop/felt/dist/utils/string.js';
+import {omitUndefined} from '@feltcoop/felt/dist/utils/object.js';
+import {UnreachableError} from '@feltcoop/felt/dist/utils/error.js';
+import {identity} from '@feltcoop/felt/dist/utils/function.js';
+import type {PartialExcept} from '@feltcoop/felt/dist/utils/types.js';
 
-import {rainbow} from '../utils/terminal.js';
-import {SystemLogger, printLogLabel} from '../utils/log.js';
-import type {Logger} from '../utils/log.js';
 import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
-import {deindent} from '../utils/string.js';
 // import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
-import {omitUndefined} from '../utils/object.js';
-import {UnreachableError} from '../utils/error.js';
-import {identity} from '../utils/function.js';
-import type {PartialExcept} from '../utils/types.js';
 import {paths} from '../paths.js';
 
 export interface Options {

@@ -1,10 +1,11 @@
+import {Timings} from '@feltcoop/felt/dist/utils/time.js';
+import {spawnProcess} from '@feltcoop/felt/dist/utils/process.js';
+import {printTimings} from '@feltcoop/felt/dist/utils/print.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/dist/utils/object.js';
+import {stripTrailingSlash} from '@feltcoop/felt/dist/utils/path.js';
+
 import type {Adapter} from './adapter.js';
-import {Timings} from '../utils/time.js';
 import {DIST_DIRNAME, SVELTE_KIT_BUILD_DIRNAME} from '../paths.js';
-import {spawnProcess} from '../utils/process.js';
-import {printTimings} from '../utils/print.js';
-import {EMPTY_OBJECT} from '../utils/object.js';
-import {stripTrailingSlash} from '../utils/path.js';
 
 const NOJEKYLL = '.nojekyll';
 const DEFAULT_TARGET = 'github_pages';

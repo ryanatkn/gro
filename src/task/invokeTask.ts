@@ -1,10 +1,17 @@
-import {cyan, red, gray} from '../utils/terminal.js';
+import {cyan, red, gray} from '@feltcoop/felt/dist/utils/terminal.js';
+import {SystemLogger, Logger, printLogLabel} from '@feltcoop/felt/dist/utils/log.js';
 import {EventEmitter} from 'events';
+import {createStopwatch, Timings} from '@feltcoop/felt/dist/utils/time.js';
+import {
+	printMs,
+	printPath,
+	printPathOrGroPath,
+	printTimings,
+} from '@feltcoop/felt/dist/utils/print.js';
+import {plural} from '@feltcoop/felt/dist/utils/string.js';
+
 import type {Args} from './task.js';
-import {SystemLogger, Logger, printLogLabel} from '../utils/log.js';
 import {runTask} from './runTask.js';
-import {createStopwatch, Timings} from '../utils/time.js';
-import {printMs, printPath, printPathOrGroPath, printTimings} from '../utils/print.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
 import {
@@ -18,7 +25,6 @@ import {
 	isThisProjectGro,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
-import {plural} from '../utils/string.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
 import {PRIMARY_NODE_BUILD_NAME} from '../build/defaultBuildConfig.js';
