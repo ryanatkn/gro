@@ -12,8 +12,6 @@ import {generateTypes} from './build/tsBuildHelpers.js';
 import {paths, toTypesBuildDir} from './paths.js';
 import {clean} from './fs/clean.js';
 
-// outputs build artifacts to dist/ using SvelteKit or Gro config
-
 export interface TaskArgs extends Args {
 	mapInputOptions?: MapInputOptions;
 	mapOutputOptions?: MapOutputOptions;
@@ -37,7 +35,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timings = new Timings(); // TODO belongs in ctx
 
-		await clean(fs, {dist: true}, log);
+		await clean(fs, {buildProd: true}, log);
 
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them

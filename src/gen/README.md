@@ -3,6 +3,8 @@
 > automated codegen by convention for
 > [Gro](https://github.com/feltcoop/gro)
 
+**note**: this is one of the more experimental parts of Gro, and significant changes are planned
+
 ## motivation
 
 The `gro gen` task helps us enhance our projects
