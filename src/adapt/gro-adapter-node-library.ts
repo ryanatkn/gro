@@ -7,7 +7,13 @@ import {stripTrailingSlash} from '@feltcoop/felt/utils/path.js';
 import type {Adapter} from './adapter.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {paths, toImportId, TS_TYPEMAP_EXTENSION, TS_TYPE_EXTENSION} from '../paths.js';
+import {
+	paths,
+	SOURCE_DIRNAME,
+	toImportId,
+	TS_TYPEMAP_EXTENSION,
+	TS_TYPE_EXTENSION,
+} from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {resolveInputFiles} from '../build/utils.js';
@@ -119,7 +125,7 @@ export const createAdapter = ({
 				);
 
 				// copy src
-				fs.copy(paths.source, dir);
+				await fs.copy(paths.source, `${dir}/${SOURCE_DIRNAME}`);
 
 				// TODO
 				// update the `package.json` with "files" and "exports"
