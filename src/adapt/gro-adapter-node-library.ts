@@ -19,12 +19,19 @@ import type {PathStats} from '../fs/pathData.js';
 const OTHER_PUBLISHED_FILES = new Set(
 	['package.json'].concat(
 		// these can be any case and optionally end with `.md`
-		['README', 'CHANGES', 'CHANGELOG', 'HISTORY', 'LICENSE', 'LICENCE', 'NOTICE'].flatMap(
-			(filename) => {
-				const lower = filename.toLowerCase();
-				return [lower, `${lower}.md`];
-			},
-		),
+		[
+			'README',
+			'CHANGES',
+			'CHANGELOG',
+			'HISTORY',
+			'LICENSE',
+			'LICENCE',
+			'NOTICE',
+			'GOVERNANCE',
+		].flatMap((filename) => {
+			const lower = filename.toLowerCase();
+			return [lower, `${lower}.md`];
+		}),
 	),
 );
 
