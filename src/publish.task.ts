@@ -168,7 +168,7 @@ const CHANGELOG_PATH = 'changelog.md';
 // TODO refactor? this code is quick & worky
 const getChangelogVersions = async (
 	fs: Filesystem,
-): Promise<[currentChangelogVersion?: string, previousChangelogVersion?: string]> => {
+): Promise<[currentChangelogVersion: string, previousChangelogVersion?: string]> => {
 	if (!(await fs.exists(CHANGELOG_PATH))) {
 		throw Error(`Publishing requires ${CHANGELOG_PATH} - please create it to continue`);
 	}
@@ -178,7 +178,10 @@ const getChangelogVersions = async (
 	if (!matchCurrent) {
 		throw Error(`Changelog must have at least one version header, e.g. ## 0.1.0`);
 	}
-	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [string, string];
+	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [
+		string,
+		string | undefined,
+	];
 };
 
 // TODO move where?
@@ -192,7 +195,7 @@ const getCurrentPackageVersion = async (fs: Filesystem): Promise<string> => {
 
 interface PublishContext {
 	readonly currentPackageVersion: string;
-	readonly currentChangelogVersion: string | undefined;
+	readonly currentChangelogVersion: string;
 	readonly previousChangelogVersion: string | undefined;
 }
 
