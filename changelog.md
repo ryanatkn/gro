@@ -2,7 +2,7 @@
 
 ## 0.26.2
 
-- publish library build
+- support publishing library builds
   ([#209](https://github.com/feltcoop/gro/pull/209))
 - fix typemaps for production builds
   ([#209](https://github.com/feltcoop/gro/pull/209))
