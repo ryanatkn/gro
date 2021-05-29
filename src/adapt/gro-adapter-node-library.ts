@@ -170,12 +170,6 @@ export const createAdapter = ({
 				}
 				pkg.files = Array.from(files);
 				await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
-				// "files": [
-				//   "index.js",
-				//   "src",
-				//   "lib",
-				//   "utils"
-				// ],
 			}
 
 			// `npm link` if configured
