@@ -1,5 +1,12 @@
 # changelog
 
+## 0.26.2
+
+- support publishing library builds
+  ([#209](https://github.com/feltcoop/gro/pull/209))
+- fix typemaps for production builds
+  ([#209](https://github.com/feltcoop/gro/pull/209))
+
 ## 0.26.1
 
 - rename default `'library'` build from `'lib'`

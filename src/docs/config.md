@@ -75,6 +75,7 @@ The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files
 ```ts
 export interface GroConfigPartial {
 	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
+	readonly publish?: string | null; // dir for `gro publish`, defaults to 'dist/library' if it exists
 	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod

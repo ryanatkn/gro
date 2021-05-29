@@ -10,7 +10,7 @@ import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 import type {Assignable, Result} from '@feltcoop/felt/utils/types.js';
 import {toArray} from '@feltcoop/felt/utils/array.js';
 
-import {paths, toBuildOutPath, CONFIG_BUILD_PATH} from '../paths.js';
+import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {
 	isPrimaryBuildConfig,
 	normalizeBuildConfigs,
@@ -21,6 +21,7 @@ import type {BuildConfig, BuildConfigPartial} from '../build/buildConfig.js';
 import {
 	PRIMARY_NODE_BUILD_CONFIG,
 	DEFAULT_ECMA_SCRIPT_TARGET,
+	NODE_LIBRARY_BUILD_NAME,
 } from '../build/defaultBuildConfig.js';
 import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
 import type {ServedDirPartial} from '../build/servedDir.js';
@@ -49,6 +50,7 @@ This choice keeps things simple and flexible because:
 
 export interface GroConfig {
 	readonly builds: BuildConfig[];
+	readonly publish: string | null;
 	readonly adapt: AdaptBuilds;
 	readonly target: EcmaScriptTarget;
 	readonly sourcemap: boolean;
@@ -62,6 +64,7 @@ export interface GroConfig {
 
 export interface GroConfigPartial {
 	readonly builds?: (BuildConfigPartial | null)[] | BuildConfigPartial | null; // allow `null` for convenience
+	readonly publish?: string | null; // dir to publish: defaults to 'dist/library', or null if it doesn't exist -- TODO support multiple
 	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
@@ -222,10 +225,19 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 		adapt: () => null,
 		...omitUndefined(config),
 		builds: buildConfigs,
+		publish:
+			config.publish || config.publish === null
+				? config.publish
+				: toDefaultPublishDirs(buildConfigs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
 		primaryNodeBuildConfig: buildConfigs.find((b) => isPrimaryBuildConfig(b))!,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
 		primaryBrowserBuildConfig: buildConfigs.find((b) => b.platform === 'browser') || null,
 	};
+};
+
+const toDefaultPublishDirs = (buildConfigs: BuildConfig[]): string | null => {
+	const buildConfigToPublish = buildConfigs.find((b) => b.name === NODE_LIBRARY_BUILD_NAME);
+	return buildConfigToPublish ? `${DIST_DIRNAME}/${buildConfigToPublish.name}` : null;
 };

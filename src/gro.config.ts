@@ -2,7 +2,7 @@ import {createFilter} from '@rollup/pluginutils';
 import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/utils/log.js';
 
 // import {createDirectoryFilter} from './build/utils.js';
-import type {GroConfigCreator} from './config/config.js';
+import type {GroConfigCreator, GroConfigPartial} from './config/config.js';
 import {toBuildOutPath} from './paths.js';
 import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/defaultBuildConfig.js';
 
@@ -12,7 +12,7 @@ import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/defaultBuil
 export const config: GroConfigCreator = async ({dev}) => {
 	// TODO not this
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
-	return {
+	const partial: GroConfigPartial = {
 		builds: [
 			{
 				...NODE_LIBRARY_BUILD_CONFIG,
@@ -37,6 +37,7 @@ export const config: GroConfigCreator = async ({dev}) => {
 				  }
 				: null,
 		],
+		publish: '.',
 		sourcemap: dev,
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		serve: [
@@ -58,4 +59,5 @@ export const config: GroConfigCreator = async ({dev}) => {
 				}),
 			]),
 	};
+	return partial;
 };
