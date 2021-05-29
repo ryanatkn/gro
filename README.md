@@ -188,11 +188,11 @@ see [contributing.md🌄](./contributing.md)
 ## credits :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
 Gro builds on
-[Svelte](https://github.com/sveltejs/svelte) ∙
-[Rollup](https://github.com/rollup/rollup) ∙
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
+[Svelte](https://github.com/sveltejs/svelte) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
 [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
+[Rollup](https://github.com/rollup/rollup) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
