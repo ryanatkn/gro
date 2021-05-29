@@ -9,7 +9,9 @@ import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
 import {
 	paths,
+	sourceIdToBasePath,
 	SOURCE_DIRNAME,
+	toBuildExtension,
 	toImportId,
 	TS_TYPEMAP_EXTENSION,
 	TS_TYPE_EXTENSION,
@@ -63,10 +65,11 @@ export const createAdapter = ({
 				throw Error(`Unknown build config: ${buildName}`);
 			}
 
+			const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
+
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
 			if (type === 'bundled') {
 				if (type !== 'bundled') throw Error();
-				const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
@@ -127,37 +130,12 @@ export const createAdapter = ({
 				// copy src
 				await fs.copy(paths.source, `${dir}/${SOURCE_DIRNAME}`);
 
-				// TODO
-				// update the `package.json` with "files" and "exports"
-				// "exports": {
-				//   ".": "./index.js",
-				//   "./package.json": "./package.json",
-				//   "./utils/array.js": "./utils/array.js",
-				//   "./utils/async.js": "./utils/async.js",
-				//   "./utils/env.js": "./utils/env.js",
-				//   "./utils/equal.js": "./utils/equal.js",
-				//   "./utils/error.js": "./utils/error.js",
-				//   "./utils/function.js": "./utils/function.js",
-				//   "./utils/json.js": "./utils/json.js",
-				//   "./utils/lock.js": "./utils/lock.js",
-				//   "./utils/log.js": "./utils/log.js",
-				//   "./utils/map.js": "./utils/map.js",
-				//   "./utils/math.js": "./utils/math.js",
-				//   "./utils/object.js": "./utils/object.js",
-				//   "./utils/obtainable.js": "./utils/obtainable.js",
-				//   "./utils/path.js": "./utils/path.js",
-				//   "./utils/print.js": "./utils/print.js",
-				//   "./utils/process.js": "./utils/process.js",
-				//   "./utils/random.js": "./utils/random.js",
-				//   "./utils/string.js": "./utils/string.js",
-				//   "./utils/terminal.js": "./utils/terminal.js",
-				//   "./utils/time.js": "./utils/time.js",
-				//   "./utils/uuid.js": "./utils/uuid.js"
-				// },
+				// update package.json with computed values
 				const pkgPath = `${dir}/package.json`;
 				const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf8'));
 
-				const files = new Set(pkg.files || []);
+				// add the "files" key to package.json
+				const pkgFiles = new Set(pkg.files || []);
 				const dirPaths = await fs.readDir(dir);
 				for (const path of dirPaths) {
 					if (
@@ -165,10 +143,23 @@ export const createAdapter = ({
 						!path.endsWith(TS_TYPE_EXTENSION) &&
 						!path.endsWith(TS_TYPEMAP_EXTENSION)
 					) {
-						files.add(path);
+						pkgFiles.add(path);
 					}
 				}
-				pkg.files = Array.from(files);
+				pkg.files = Array.from(pkgFiles);
+
+				// add the "exports" key to package.json
+				const pkgExports: Record<string, string> = {
+					'.': pkg.main,
+					'./package.json': './package.json',
+				};
+				for (const sourceId of files) {
+					const path = `./${toBuildExtension(sourceIdToBasePath(sourceId))}`;
+					pkgExports[path] = path;
+				}
+				pkg.exports = pkgExports;
+
+				// write the new package.json
 				await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
 			}
 
