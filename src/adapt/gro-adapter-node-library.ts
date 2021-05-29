@@ -112,7 +112,7 @@ export const createAdapter = ({
 
 			const timingToCopyDist = timings.start('copy builds to dist');
 			const filter = type === 'bundled' ? bundledDistFilter : undefined;
-			await copyDist(fs, buildConfig, dev, dir, log, filter);
+			await copyDist(fs, buildConfig, dev, dir, log, filter, pack);
 			timingToCopyDist();
 
 			// If the output is treated as a package, it needs some special handling to get it ready.

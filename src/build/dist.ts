@@ -6,13 +6,14 @@ import type {BuildConfig} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {PathStats} from '../fs/pathData.js';
 import {
-	basePathToSourceId,
 	EXTERNALS_BUILD_DIRNAME,
 	toBuildBasePath,
 	toBuildOutPath,
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 	printPath,
+	SOURCE_DIRNAME,
+	paths,
 } from '../paths.js';
 
 // TODO make typemaps optional - how? on the `BuildConfig`?
@@ -25,6 +26,7 @@ export const copyDist = async (
 	distOutDir: string,
 	log: Logger,
 	filter?: (id: string, stats: PathStats) => boolean,
+	pack: boolean = true, // TODO reconsider this API, see `gro-adapter-node-library`
 ): Promise<void> => {
 	const buildOutDir = toBuildOutPath(dev, buildConfig.name);
 	const externalsDir = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME);
@@ -50,9 +52,12 @@ export const copyDist = async (
 	await Promise.all(
 		typemapFiles.map(async (id) => {
 			const basePath = toBuildBasePath(id);
-			const sourceId = stripEnd(basePathToSourceId(basePath), TS_TYPEMAP_EXTENSION) + TS_EXTENSION;
+			const sourceBasePath = `${stripEnd(basePath, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
+			const distSourceId = pack
+				? `${distOutDir}/${SOURCE_DIRNAME}/${sourceBasePath}`
+				: `${paths.source}${sourceBasePath}`;
 			const distOutPath = `${distOutDir}/${basePath}`;
-			const typemapSourcePath = relative(dirname(distOutPath), sourceId);
+			const typemapSourcePath = relative(dirname(distOutPath), distSourceId);
 			const typemap = JSON.parse(await fs.readFile(id, 'utf8'));
 			typemap.sources[0] = typemapSourcePath; // haven't seen any exceptions that would break this
 			return fs.writeFile(distOutPath, JSON.stringify(typemap));
