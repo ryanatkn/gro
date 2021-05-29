@@ -4,6 +4,7 @@ import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/utils/log.js';
 // import {createDirectoryFilter} from './build/utils.js';
 import type {GroConfigCreator} from './config/config.js';
 import {toBuildOutPath} from './paths.js';
+import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/defaultBuildConfig.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
@@ -11,12 +12,10 @@ import {toBuildOutPath} from './paths.js';
 export const config: GroConfigCreator = async ({dev}) => {
 	// TODO not this
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
-	const BROWSER_BUILD_NAME = 'browser';
 	return {
 		builds: [
 			{
-				name: 'lib',
-				platform: 'node',
+				...NODE_LIBRARY_BUILD_CONFIG,
 				input: [
 					'index.ts',
 					'cli/gro.ts',
