@@ -53,8 +53,8 @@ export const config: GroConfigCreator = async ({dev}) => {
 				(await import('./adapt/gro-adapter-node-library.js')).createAdapter({
 					dir: 'dist',
 					link: 'dist/cli/gro.js',
-					// TODO unlike most libraries, Gro ships its dist/ as a sibling to src/
-					// and this opts out of the default library behavior, but this is more of a temp hack
+					// TODO temp hack - unlike most libraries, Gro ships its dist/ as a sibling to src/,
+					// and this flag opts out of the default library behavior
 					pack: false,
 				}),
 			]),
