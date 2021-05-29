@@ -14,7 +14,6 @@ import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
-// - optional second arg is the dir to publish: `gro publish patch dist/dirname`
 // - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version
 // - runs the production build
 // - publishes to npm from the `main` branch, configurable with `--branch`
@@ -40,7 +39,7 @@ export const task: Task<TaskArgs> = {
 		}
 		const childTaskArgs = {...args, _: []};
 
-		const [versionIncrement, publishDir] = args._;
+		const [versionIncrement] = args._;
 		validateVersionIncrement(versionIncrement);
 
 		// Confirm with the user that we're doing what they expect:
@@ -59,7 +58,6 @@ export const task: Task<TaskArgs> = {
 		if (config.publish === null) {
 			throw Error('config.publish is null, so this package cannot be published');
 		}
-		const finalPublishDir = publishDir || config.publish;
 		await buildSourceDirectory(fs, config, dev, log);
 		await invokeTask('check', childTaskArgs);
 
@@ -74,7 +72,7 @@ export const task: Task<TaskArgs> = {
 		await invokeTask('build', childTaskArgs);
 
 		if (dry) {
-			log.info({versionIncrement, finalPublishDir, branch});
+			log.info({versionIncrement, publish: config.publish, branch});
 			log.info(rainbow('dry run complete!'));
 			return;
 		}
@@ -85,7 +83,7 @@ export const task: Task<TaskArgs> = {
 		if (!publishContext.previousChangelogVersion) {
 			publishArgs.push('--access', restricted ? 'restricted' : 'public');
 		}
-		const npmPublishResult = await spawnProcess('npm', publishArgs, {cwd: finalPublishDir});
+		const npmPublishResult = await spawnProcess('npm', publishArgs, {cwd: config.publish});
 		if (!npmPublishResult.ok) {
 			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
 		}
