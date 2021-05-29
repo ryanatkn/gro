@@ -1,6 +1,5 @@
 import {relative, dirname} from 'path';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {printPath} from '@feltcoop/felt/utils/print.js';
 import {stripEnd} from '@feltcoop/felt/utils/string.js';
 
 import type {BuildConfig} from '../build/buildConfig.js';
@@ -13,6 +12,7 @@ import {
 	toBuildOutPath,
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
+	printPath,
 } from '../paths.js';
 
 // TODO make typemaps optional - how? on the `BuildConfig`?

@@ -6,13 +6,12 @@ import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/utils/terminal.js';
 import {toPathStem} from '@feltcoop/felt/utils/path.js';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
-import {printPath} from '@feltcoop/felt/utils/print.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelteBuildHelpers.js';
 import type {SvelteCompilation} from '../build/svelteBuildHelpers.js';
-import {CSS_EXTENSION} from '../paths.js';
+import {CSS_EXTENSION, printPath} from '../paths.js';
 import type {CssBuild} from './cssCache.js';
 
 // TODO support `package.json` "svelte" field

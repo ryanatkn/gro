@@ -1,6 +1,5 @@
 import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
 import type {SystemLogger} from '@feltcoop/felt/utils/log.js';
-import {printPath} from '@feltcoop/felt/utils/print.js';
 
 import {toSourceMetaDir} from '../build/sourceMeta.js';
 import {
@@ -10,6 +9,7 @@ import {
 	SVELTE_KIT_BUILD_DIRNAME,
 	toBuildOutDir,
 	SVELTE_KIT_VITE_CACHE_PATH,
+	printPath,
 } from '../paths.js';
 import type {Filesystem} from './filesystem.js';
 

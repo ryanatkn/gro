@@ -2,7 +2,7 @@ import {cyan, red, gray} from '@feltcoop/felt/utils/terminal.js';
 import {SystemLogger, Logger, printLogLabel} from '@feltcoop/felt/utils/log.js';
 import {EventEmitter} from 'events';
 import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
-import {printMs, printPath, printPathOrGroPath, printTimings} from '@feltcoop/felt/utils/print.js';
+import {printMs, printTimings} from '@feltcoop/felt/utils/print.js';
 import {plural} from '@feltcoop/felt/utils/string.js';
 
 import type {Args} from './task.js';
@@ -18,6 +18,8 @@ import {
 	isGroId,
 	toImportId,
 	isThisProjectGro,
+	printPath,
+	printPathOrGroPath,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {loadTaskModule} from './taskModule.js';

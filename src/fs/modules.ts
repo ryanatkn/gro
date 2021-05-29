@@ -1,12 +1,12 @@
 import {red} from '@feltcoop/felt/utils/terminal.js';
-import {printPath, printError, printPathOrGroPath} from '@feltcoop/felt/utils/print.js';
 import {Timings} from '@feltcoop/felt/utils/time.js';
 import {UnreachableError} from '@feltcoop/felt/utils/error.js';
 import type {Result} from '@feltcoop/felt/utils/types.js';
+import {printError} from '@feltcoop/felt/utils/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import type {PathStats, PathData} from './pathData.js';
-import {toImportId, pathsFromId} from '../paths.js';
+import {toImportId, pathsFromId, printPath, printPathOrGroPath} from '../paths.js';
 import {PRIMARY_NODE_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import type {Filesystem} from './filesystem.js';
 
