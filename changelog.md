@@ -1,5 +1,10 @@
 # changelog
 
+## 0.26.1
+
+- rename `'library'` build from `'lib'`
+  ([#208](https://github.com/feltcoop/gro/pull/208))
+
 ## 0.26.0
 
 - **break**: move utils to `@feltcoop/felt` and add it as a dependency
