@@ -8,7 +8,7 @@ import {stripTrailingSlash} from '@feltcoop/felt/utils/path.js';
 import type {Adapter} from './adapter.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
-import {DIST_DIRNAME, toImportId, TS_TYPEMAP_EXTENSION, TS_TYPE_EXTENSION} from '../paths.js';
+import {paths, toImportId, TS_TYPEMAP_EXTENSION, TS_TYPE_EXTENSION} from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import {BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {resolveInputFiles} from '../build/utils.js';
@@ -30,7 +30,7 @@ const OTHER_PUBLISHED_FILES = new Set(
 
 export interface Options {
 	buildOptionsPartial: AdaptBuildOptionsPartial; // defaults to [{buildName: 'lib', type: 'bundled'}]
-	dir: string; // defaults to `dist/${buildName}`
+	distDir: string; // defaults to `dist/${buildName}`
 	link: string | null; // path to `npm link`, defaults to null
 }
 
@@ -74,15 +74,15 @@ interface AdapterArgs {
 
 export const createAdapter = ({
 	buildOptionsPartial = DEFAULT_BUILD_OPTIONS,
-	dir = DIST_DIRNAME,
+	distDir = paths.dist,
 	link = null,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
-	dir = stripTrailingSlash(dir);
-	const buildOptions = toAdaptBuildsOptions(buildOptionsPartial, dir);
+	distDir = stripTrailingSlash(distDir);
+	const buildOptions = toAdaptBuildsOptions(buildOptionsPartial, distDir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
-			await fs.remove(dir);
+			await fs.remove(distDir);
 		},
 		adapt: async ({config, fs, dev, log, args}) => {
 			const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
@@ -152,6 +152,9 @@ export const createAdapter = ({
 					}
 				}),
 			);
+
+			// copy src
+			fs.copy(paths.source, buildOptions.dir);
 
 			// `npm link` if configured
 			if (link) {
