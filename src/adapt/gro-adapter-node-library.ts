@@ -104,9 +104,9 @@ export const createAdapter = ({
 			await copyDist(fs, buildConfig, dev, dir, log, filter);
 			timingToCopyDist();
 
-			// if the output is treated as a package,
-			// copy files from the project root to the dist, but don't overwrite anything in the build
+			// If the output is treated as a package, it needs some special handling to get it ready.
 			if (pack) {
+				// copy files from the project root to the dist, but don't overwrite anything in the build
 				await Promise.all(
 					(await fs.readDir('.')).map((path): void | Promise<void> => {
 						const filename = path.toLowerCase();
@@ -115,6 +115,40 @@ export const createAdapter = ({
 						}
 					}),
 				);
+
+				// TODO
+				// update the `package.json` with "files" and "exports"
+				// "exports": {
+				//   ".": "./index.js",
+				//   "./package.json": "./package.json",
+				//   "./utils/array.js": "./utils/array.js",
+				//   "./utils/async.js": "./utils/async.js",
+				//   "./utils/env.js": "./utils/env.js",
+				//   "./utils/equal.js": "./utils/equal.js",
+				//   "./utils/error.js": "./utils/error.js",
+				//   "./utils/function.js": "./utils/function.js",
+				//   "./utils/json.js": "./utils/json.js",
+				//   "./utils/lock.js": "./utils/lock.js",
+				//   "./utils/log.js": "./utils/log.js",
+				//   "./utils/map.js": "./utils/map.js",
+				//   "./utils/math.js": "./utils/math.js",
+				//   "./utils/object.js": "./utils/object.js",
+				//   "./utils/obtainable.js": "./utils/obtainable.js",
+				//   "./utils/path.js": "./utils/path.js",
+				//   "./utils/print.js": "./utils/print.js",
+				//   "./utils/process.js": "./utils/process.js",
+				//   "./utils/random.js": "./utils/random.js",
+				//   "./utils/string.js": "./utils/string.js",
+				//   "./utils/terminal.js": "./utils/terminal.js",
+				//   "./utils/time.js": "./utils/time.js",
+				//   "./utils/uuid.js": "./utils/uuid.js"
+				// },
+				// "files": [
+				//   "index.js",
+				//   "src",
+				//   "lib",
+				//   "utils"
+				// ],
 			}
 
 			// copy src
