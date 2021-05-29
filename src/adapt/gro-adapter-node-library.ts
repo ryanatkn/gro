@@ -23,6 +23,10 @@ import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
 
+// TODO maybe add a `files` option to explicitly include source files,
+// and fall back to inferring from the build config
+// (it should probably accept the normal include/exclude filters from @rollup/pluginutils)
+
 export interface Options {
 	buildName: BuildName; // defaults to 'library'
 	dir: string; // defaults to `dist/${buildName}`
