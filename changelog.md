@@ -2,7 +2,7 @@
 
 ## 0.26.1
 
-- rename `'library'` build from `'lib'`
+- rename default `'library'` build from `'lib'`
   ([#208](https://github.com/feltcoop/gro/pull/208))
 
 ## 0.26.0
