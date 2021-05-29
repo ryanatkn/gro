@@ -36,7 +36,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timings = new Timings(); // TODO belongs in ctx
 
-		await clean(fs, {buildProd: true}, log);
+		await clean(fs, {buildProd: false}, log); // TODO hack fix
 
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
