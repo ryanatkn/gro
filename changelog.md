@@ -6,6 +6,8 @@
   ([#209](https://github.com/feltcoop/gro/pull/209))
 - fix typemaps for production builds
   ([#209](https://github.com/feltcoop/gro/pull/209))
+- fix clean
+  ([#207](https://github.com/feltcoop/gro/pull/207))
 
 ## 0.26.1
 
