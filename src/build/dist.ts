@@ -15,6 +15,9 @@ import {
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
 
+// TODO make typemaps optional - how? on the `BuildConfig`?
+// or as an arg? on the main Gro config?
+
 export const copyDist = async (
 	fs: Filesystem,
 	buildConfig: BuildConfig,

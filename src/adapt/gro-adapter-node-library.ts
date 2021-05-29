@@ -16,36 +16,46 @@ import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
 
-// TODO this adapter behaves as if it owns the dist/ directory, how to compose?
+const OTHER_PUBLISHED_FILES = new Set(
+	['package.json'].concat(
+		// these can be any case and optionally end with `.md`
+		['README', 'CHANGES', 'CHANGELOG', 'HISTORY', 'LICENSE', 'LICENCE', 'NOTICE'].flatMap(
+			(filename) => {
+				const lower = filename.toLowerCase();
+				return [lower, `${lower}.md`];
+			},
+		),
+	),
+);
 
 export interface Options {
-	buildOptionsPartial: AdaptBuildOptionsPartial; // defaults to [{name: 'lib', type: 'bundled'}]
-	dir: string; // defaults to dist/
+	buildOptionsPartial: AdaptBuildOptionsPartial; // defaults to [{buildName: 'lib', type: 'bundled'}]
+	dir: string; // defaults to `dist/${buildName}`
 	link: string | null; // path to `npm link`, defaults to null
 }
 
 // TODO do we want the esm/cjs flags?
 export type AdaptBuildOptions =
-	| {name: BuildName; type: 'unbundled'; dir: string} // unbundled supports esm only (TODO maybe support cjs?)
-	| {name: BuildName; type: 'bundled'; dir: string; esm: boolean; cjs: boolean};
+	| {buildName: BuildName; type: 'unbundled'; dir: string} // unbundled supports esm only (TODO maybe support cjs?)
+	| {buildName: BuildName; type: 'bundled'; dir: string; esm: boolean; cjs: boolean};
 export type AdaptBuildOptionsPartial =
-	| {name: BuildName; type: 'unbundled'} // unbundled supports esm only (TODO maybe support cjs?)
-	| {name: BuildName; type: 'bundled'; esm?: boolean; cjs?: boolean};
+	| {buildName: BuildName; type: 'unbundled'} // unbundled supports esm only (TODO maybe support cjs?)
+	| {buildName: BuildName; type: 'bundled'; esm?: boolean; cjs?: boolean};
 
 const DEFAULT_BUILD_OPTIONS: AdaptBuildOptionsPartial = {
-	name: NODE_LIBRARY_BUILD_NAME,
+	buildName: NODE_LIBRARY_BUILD_NAME,
 	type: 'unbundled',
 };
 const toAdaptBuildsOptions = (
 	partial: AdaptBuildOptionsPartial,
 	distDir: string,
 ): AdaptBuildOptions => {
-	const dir = `${distDir}/${partial.name}`;
+	const dir = `${distDir}/${partial.buildName}`;
 	if (partial.type === 'unbundled') {
-		return {name: partial.name, type: 'unbundled', dir};
+		return {buildName: partial.buildName, type: 'unbundled', dir};
 	} else if (partial.type === 'bundled') {
 		return {
-			name: partial.name,
+			buildName: partial.buildName,
 			type: 'bundled',
 			dir,
 			esm: partial.esm ?? true,
@@ -79,9 +89,9 @@ export const createAdapter = ({
 
 			const timings = new Timings(); // TODO probably move to task context
 
-			const buildConfig = config.builds.find((b) => b.name === buildOptions.name);
+			const buildConfig = config.builds.find((b) => b.name === buildOptions.buildName);
 			if (!buildConfig) {
-				throw Error(`Unknown build config: ${buildOptions.name}`);
+				throw Error(`Unknown build config: ${buildOptions.buildName}`);
 			}
 
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
@@ -97,7 +107,7 @@ export const createAdapter = ({
 				const outputDir = buildOptions.dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
 				if (!buildOptions.cjs && !buildOptions.esm) {
-					throw Error(`Build must have either cjs or esm or both: ${buildOptions.name}`);
+					throw Error(`Build must have either cjs or esm or both: ${buildOptions.buildName}`);
 				}
 				if (buildOptions.cjs) {
 					await runRollup({
@@ -132,6 +142,16 @@ export const createAdapter = ({
 			const filter = buildOptions.type === 'bundled' ? bundledDistFilter : undefined;
 			await copyDist(fs, buildConfig, dev, buildOptions.dir, log, filter);
 			timingToCopyDist();
+
+			// copy other published files from the project root to the dist, but don't overwrite
+			await Promise.all(
+				(await fs.readDir('.')).map((path): void | Promise<void> => {
+					const filename = path.toLowerCase();
+					if (OTHER_PUBLISHED_FILES.has(filename)) {
+						return fs.copy(path, buildOptions.dir, {overwrite: false});
+					}
+				}),
+			);
 
 			// `npm link` if configured
 			if (link) {
