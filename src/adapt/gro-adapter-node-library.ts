@@ -2,6 +2,7 @@ import {Timings} from '@feltcoop/felt/utils/time.js';
 import {printTimings} from '@feltcoop/felt/utils/print.js';
 import {printSpawnResult, spawnProcess} from '@feltcoop/felt/utils/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
+import {stripTrailingSlash} from '@feltcoop/felt/utils/path.js';
 
 import type {Adapter} from './adapter.js';
 import {TaskError} from '../task/task.js';
@@ -40,6 +41,7 @@ export const createAdapter = ({
 	cjs = true,
 	pack = true,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
+	dir = stripTrailingSlash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
@@ -110,7 +112,7 @@ export const createAdapter = ({
 				await Promise.all(
 					(await fs.readDir('.')).map((path): void | Promise<void> => {
 						const filename = path.toLowerCase();
-						if (PACKAGE_FILES.has(filename)) {
+						if (PACKAGE_FILES.has(filename) || OTHER_PACKAGE_FILES.has(filename)) {
 							return fs.copy(path, `${dir}/${path}`, {overwrite: false});
 						}
 					}),
@@ -143,6 +145,22 @@ export const createAdapter = ({
 				//   "./utils/time.js": "./utils/time.js",
 				//   "./utils/uuid.js": "./utils/uuid.js"
 				// },
+				const pkgPath = `${dir}/package.json`;
+				const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf8'));
+
+				const files = new Set(pkg.files || []);
+				const dirPaths = await fs.readDir(dir);
+				for (const path of dirPaths) {
+					if (
+						!PACKAGE_FILES.has(path.toLowerCase()) &&
+						!path.endsWith(TS_TYPE_EXTENSION) &&
+						!path.endsWith(TS_TYPEMAP_EXTENSION)
+					) {
+						files.add(path);
+					}
+				}
+				pkg.files = Array.from(files);
+				await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
 				// "files": [
 				//   "index.js",
 				//   "src",
@@ -175,10 +193,17 @@ export const createAdapter = ({
 const bundledDistFilter = (id: string, stats: PathStats): boolean =>
 	stats.isDirectory() ? true : id.endsWith(TS_TYPE_EXTENSION) || id.endsWith(TS_TYPEMAP_EXTENSION);
 
+// these can be any case and optionally end with `.md`
+const toPossibleFileNames = (paths: string[]): string[] =>
+	paths.flatMap((path) => {
+		const lower = path.toLowerCase();
+		return [lower, `${lower}.md`];
+	});
+
+// these are the files npm includes by default; unlike npm, the only extension we support is `.md`
 const PACKAGE_FILES = new Set(
 	['package.json'].concat(
-		// these can be any case and optionally end with `.md`
-		[
+		toPossibleFileNames([
 			'README',
 			'CHANGES',
 			'CHANGELOG',
@@ -186,10 +211,7 @@ const PACKAGE_FILES = new Set(
 			'LICENSE',
 			'LICENCE',
 			'NOTICE',
-			'GOVERNANCE',
-		].flatMap((filename) => {
-			const lower = filename.toLowerCase();
-			return [lower, `${lower}.md`];
-		}),
+		]),
 	),
 );
+const OTHER_PACKAGE_FILES = new Set(toPossibleFileNames(['GOVERNANCE']));
