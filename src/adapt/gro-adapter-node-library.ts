@@ -155,7 +155,7 @@ export const createAdapter = ({
 				(await fs.readDir('.')).map((path): void | Promise<void> => {
 					const filename = path.toLowerCase();
 					if (OTHER_PUBLISHED_FILES.has(filename)) {
-						return fs.copy(path, buildOptions.dir, {overwrite: false});
+						return fs.copy(path, `${buildOptions.dir}/${path}`, {overwrite: false});
 					}
 				}),
 			);
