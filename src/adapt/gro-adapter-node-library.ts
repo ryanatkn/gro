@@ -25,8 +25,8 @@ import type {PathStats} from '../fs/pathData.js';
 
 export interface Options {
 	buildName: BuildName; // defaults to 'library'
-	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
 	dir: string; // defaults to `dist/${buildName}`
+	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
 	link: string | null; // path to `npm link`, defaults to null
 	// TODO currently these options are only available for 'bundled'
 	esm: boolean; // defaults to true
@@ -42,8 +42,8 @@ interface AdapterArgs {
 
 export const createAdapter = ({
 	buildName = NODE_LIBRARY_BUILD_NAME,
-	type = 'unbundled',
 	dir = `${paths.dist}${buildName}`,
+	type = 'unbundled',
 	link = null,
 	esm = true,
 	cjs = true,
