@@ -118,6 +118,9 @@ export const createAdapter = ({
 					}),
 				);
 
+				// copy src
+				fs.copy(paths.source, dir);
+
 				// TODO
 				// update the `package.json` with "files" and "exports"
 				// "exports": {
@@ -168,9 +171,6 @@ export const createAdapter = ({
 				//   "utils"
 				// ],
 			}
-
-			// copy src
-			fs.copy(paths.source, dir);
 
 			// `npm link` if configured
 			if (link) {
