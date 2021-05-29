@@ -225,7 +225,10 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 		adapt: () => null,
 		...omitUndefined(config),
 		builds: buildConfigs,
-		publish: config.publish || toDefaultPublishDirs(buildConfigs),
+		publish:
+			config.publish || config.publish === null
+				? config.publish
+				: toDefaultPublishDirs(buildConfigs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
 		primaryNodeBuildConfig: buildConfigs.find((b) => isPrimaryBuildConfig(b))!,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
