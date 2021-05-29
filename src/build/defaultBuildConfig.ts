@@ -27,11 +27,10 @@ const NODE_LIBRARY_SOURCE_ID = basePathToSourceId('index.ts');
 const NODE_LIBRARY_EXCLUDE_SOURCE_ID = basePathToSourceId('index.html');
 export const hasNodeLibrary = async (fs: Filesystem): Promise<boolean> =>
 	(await fs.exists(NODE_LIBRARY_SOURCE_ID)) && !(await fs.exists(NODE_LIBRARY_EXCLUDE_SOURCE_ID));
-export const NODE_LIBRARY_BUILD_NAME: BuildName = 'lib';
-export const NODE_LIBRARY_BUILD_PLATFORM = 'node';
+export const NODE_LIBRARY_BUILD_NAME: BuildName = 'library';
 export const NODE_LIBRARY_BUILD_CONFIG: BuildConfig = {
 	name: NODE_LIBRARY_BUILD_NAME,
-	platform: NODE_LIBRARY_BUILD_PLATFORM,
+	platform: 'node',
 	input: [NODE_LIBRARY_PATH],
 };
 
@@ -41,13 +40,12 @@ export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PA
 export const hasApiServer = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const hasApiServerConfig = (buildConfigs: BuildConfig[]): boolean =>
 	buildConfigs.some(
-		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_PLATFORM,
+		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_CONFIG.platform,
 	);
 export const API_SERVER_BUILD_NAME: BuildName = 'server';
-export const API_SERVER_BUILD_PLATFORM = 'node';
 export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_NAME,
-	platform: API_SERVER_BUILD_PLATFORM,
+	platform: 'node',
 	input: [API_SERVER_SOURCE_BASE_PATH],
 };
 // the first of these matches SvelteKit, the second is just close for convenience
@@ -67,9 +65,9 @@ const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, DEPRECATED_GRO_FRONTEND_PATHS);
 
-export const DEFAULT_BROWSER_BUILD_NAME: BuildName = 'browser';
+export const BROWSER_BUILD_NAME: BuildName = 'browser';
 export const toDefaultBrowserBuild = (assetPaths = toDefaultAssetPaths()): BuildConfigPartial => ({
-	name: DEFAULT_BROWSER_BUILD_NAME,
+	name: BROWSER_BUILD_NAME,
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
 });

@@ -11,7 +11,7 @@ import {resolveInputFiles} from '../build/utils.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName} from '../build/buildConfig.js';
 import {copyDist} from '../build/dist.js';
-import {DEFAULT_BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
+import {BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
 
 // WIP do not use
 
@@ -24,7 +24,7 @@ export interface Options {
 	target: 'github_pages' | 'static';
 }
 
-const DEFAULT_BUILD_NAMES: readonly BuildName[] = [DEFAULT_BROWSER_BUILD_NAME];
+const DEFAULT_BUILD_NAMES: readonly BuildName[] = [BROWSER_BUILD_NAME];
 
 export const createAdapter = ({
 	builds = DEFAULT_BUILD_NAMES,
