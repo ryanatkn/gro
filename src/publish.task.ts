@@ -14,6 +14,7 @@ import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
+// - optional second arg is the dir to publish: `gro publish patch dist/dirname`
 // - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version
 // - runs the production build
 // - publishes to npm from the `main` branch, configurable with `--branch`
@@ -31,16 +32,19 @@ export const task: Task<TaskArgs> = {
 	dev: false,
 	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
+		if (dry) {
+			log.info(rainbow('dry run!'));
+		}
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
 		const childTaskArgs = {...args, _: []};
 
-		const versionIncrement = args._[0];
+		const [versionIncrement, publishDir] = args._;
 		validateVersionIncrement(versionIncrement);
 
 		// Confirm with the user that we're doing what they expect:
-		const publishContext = await confirmWithUser(fs, versionIncrement, log);
+		const publishContext = await confirmWithUser(fs, versionIncrement, dry, log);
 
 		// Make sure we're on the right branch:
 		// TODO see how the deploy task uses git, probably do that instead
@@ -52,26 +56,36 @@ export const task: Task<TaskArgs> = {
 
 		// Build, check, then create the final artifacts:
 		const config = await loadGroConfig(fs, dev);
+		if (config.publish === null) {
+			throw Error('config.publish is null, so this package cannot be published');
+		}
+		const finalPublishDir = publishDir || config.publish;
 		await buildSourceDirectory(fs, config, dev, log);
 		await invokeTask('check', childTaskArgs);
+
+		// Bump the version so the package.json is updated before building:
+		if (!dry) {
+			const npmVersionResult = await spawnProcess('npm', ['version', versionIncrement]);
+			if (!npmVersionResult.ok) {
+				throw Error('npm version failed: no commits were made: see the error above');
+			}
+		}
+
 		await invokeTask('build', childTaskArgs);
 
 		if (dry) {
+			log.info({versionIncrement, finalPublishDir, branch});
 			log.info(rainbow('dry run complete!'));
 			return;
 		}
 
-		const npmVersionResult = await spawnProcess('npm', ['version', versionIncrement]);
-		if (!npmVersionResult.ok) {
-			throw Error('npm version failed: no commits were made: see the error above');
-		}
 		await spawnProcess('git', ['push']);
 		await spawnProcess('git', ['push', '--tags']);
 		const publishArgs = ['publish'];
 		if (!publishContext.previousChangelogVersion) {
 			publishArgs.push('--access', restricted ? 'restricted' : 'public');
 		}
-		const npmPublishResult = await spawnProcess('npm', publishArgs);
+		const npmPublishResult = await spawnProcess('npm', publishArgs, {cwd: finalPublishDir});
 		if (!npmPublishResult.ok) {
 			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
 		}
@@ -81,6 +95,7 @@ export const task: Task<TaskArgs> = {
 const confirmWithUser = async (
 	fs: Filesystem,
 	versionIncrement: string,
+	dry: boolean,
 	log: Logger,
 ): Promise<PublishContext> => {
 	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
@@ -153,7 +168,7 @@ const confirmWithUser = async (
 					log.info('exiting with', cyan('no changes'));
 					process.exit();
 				}
-				log.info(rainbow('proceeding'));
+				log.info(rainbow('proceeding' + (dry ? ' with dry run' : '')));
 				readline.close();
 				resolve(publishContext);
 			},
