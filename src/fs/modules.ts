@@ -1,12 +1,13 @@
-import {red} from '../utils/terminal.js';
-import {printPath, printError, printPathOrGroPath} from '../utils/print.js';
+import {red} from '@feltcoop/felt/utils/terminal.js';
+import {Timings} from '@feltcoop/felt/utils/time.js';
+import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import type {Result} from '@feltcoop/felt/utils/types.js';
+import {printError} from '@feltcoop/felt/utils/print.js';
+
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
-import {Timings} from '../utils/time.js';
 import type {PathStats, PathData} from './pathData.js';
-import {toImportId, pathsFromId} from '../paths.js';
-import {UnreachableError} from '../utils/error.js';
+import {toImportId, pathsFromId, printPath, printPathOrGroPath} from '../paths.js';
 import {PRIMARY_NODE_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import type {Obj, Result} from '../utils/types.js';
 import type {Filesystem} from './filesystem.js';
 
 /*
@@ -21,7 +22,7 @@ TODO now that `Filer` is here, integrate it further
 
 */
 
-export interface ModuleMeta<ModuleType = Obj> {
+export interface ModuleMeta<ModuleType = Record<string, any>> {
 	id: string;
 	mod: ModuleType;
 }
@@ -29,11 +30,11 @@ export interface ModuleMeta<ModuleType = Obj> {
 export type LoadModuleResult<T> = Result<{mod: T}, LoadModuleFailure>;
 export type LoadModuleFailure =
 	| {ok: false; type: 'importFailed'; id: string; error: Error}
-	| {ok: false; type: 'invalid'; id: string; mod: Obj; validation: string};
+	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
 
 export const loadModule = async <T>(
 	id: string,
-	validate?: (mod: Obj) => mod is T,
+	validate?: (mod: Record<string, any>) => mod is T,
 	dev = process.env.NODE_ENV !== 'production',
 	buildName = PRIMARY_NODE_BUILD_NAME,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {

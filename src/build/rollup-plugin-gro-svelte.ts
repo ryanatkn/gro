@@ -3,16 +3,15 @@ import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import type {Plugin, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
+import {red} from '@feltcoop/felt/utils/terminal.js';
+import {toPathStem} from '@feltcoop/felt/utils/path.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
-import {red} from '../utils/terminal.js';
-import {toPathStem} from '../utils/path.js';
-import {printLogLabel, SystemLogger} from '../utils/log.js';
-import {printPath} from '../utils/print.js';
-import {omitUndefined} from '../utils/object.js';
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelteBuildHelpers.js';
 import type {SvelteCompilation} from '../build/svelteBuildHelpers.js';
-import {CSS_EXTENSION} from '../paths.js';
-import type {PartialExcept} from '../utils/types.js';
+import {CSS_EXTENSION, printPath} from '../paths.js';
 import type {CssBuild} from './cssCache.js';
 
 // TODO support `package.json` "svelte" field

@@ -1,5 +1,10 @@
 # changelog
 
+## 0.26.0
+
+- **break**: move utils to `@feltcoop/felt` and add it as a dependency
+  ([#206](https://github.com/feltcoop/gro/pull/206))
+
 ## 0.25.2
 
 - properly detect unclean git state for `gro deploy`

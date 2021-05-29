@@ -1,22 +1,17 @@
+import {stripTrailingSlash, toCommonBaseDir} from '@feltcoop/felt/utils/path.js';
+import {ensureEnd} from '@feltcoop/felt/utils/string.js';
+import {Timings} from '@feltcoop/felt/utils/time.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
+import {printTimings} from '@feltcoop/felt/utils/print.js';
+
 import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';
-import {
-	DIST_DIRNAME,
-	sourceIdToBasePath,
-	toBuildExtension,
-	toDistOutDir,
-	toImportId,
-} from '../paths.js';
+import {DIST_DIRNAME, sourceIdToBasePath, toBuildExtension, toImportId} from '../paths.js';
 import {resolveInputFiles} from '../build/utils.js';
-import {stripTrailingSlash, toCommonBaseDir} from '../utils/path.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName} from '../build/buildConfig.js';
-import {ensureEnd} from '../utils/string.js';
 import {copyDist} from '../build/dist.js';
-import {Timings} from '../utils/time.js';
 import {DEFAULT_BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import {EMPTY_OBJECT} from '../utils/object.js';
-import {printTimings} from '../utils/print.js';
 
 // WIP do not use
 
@@ -80,13 +75,7 @@ export const createAdapter = ({
 					});
 
 					// copy static prod files into `dist/`
-					await copyDist(
-						fs,
-						buildConfig,
-						dev,
-						toDistOutDir(buildConfig.name, buildConfigsToBuild.length, dir),
-						log,
-					);
+					await copyDist(fs, buildConfig, dev, `${dir}/${buildConfig.name}`, log);
 				}),
 			);
 			timingToBundle();

@@ -1,9 +1,9 @@
 import {EventEmitter} from 'events';
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
-import {fs} from '../fs/node.js';
 
 import {runTask} from './runTask.js';
+import {fs} from '../fs/node.js';
 
 /* test_runTask */
 const test_runTask = suite('runTask');

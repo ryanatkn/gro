@@ -2,7 +2,6 @@ import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modul
 import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
-import type {Obj} from '../utils/types.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface GenModule {
@@ -11,7 +10,8 @@ export interface GenModule {
 
 export interface GenModuleMeta extends ModuleMeta<GenModule> {}
 
-export const validateGenModule = (mod: Obj): mod is GenModule => typeof mod.gen === 'function';
+export const validateGenModule = (mod: Record<string, any>): mod is GenModule =>
+	typeof mod.gen === 'function';
 
 export const loadGenModule = (id: string): Promise<LoadModuleResult<GenModuleMeta>> =>
 	loadModule(id, validateGenModule);

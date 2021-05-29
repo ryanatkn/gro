@@ -1,4 +1,6 @@
 import {relative, dirname} from 'path';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {stripEnd} from '@feltcoop/felt/utils/string.js';
 
 import type {BuildConfig} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -10,10 +12,11 @@ import {
 	toBuildOutPath,
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
+	printPath,
 } from '../paths.js';
-import type {Logger} from '../utils/log.js';
-import {printPath} from '../utils/print.js';
-import {stripEnd} from '../utils/string.js';
+
+// TODO make typemaps optional - how? on the `BuildConfig`?
+// or as an arg? on the main Gro config?
 
 export const copyDist = async (
 	fs: Filesystem,

@@ -2,13 +2,15 @@ import {basename, dirname, join} from 'path';
 import {install as installWithEsinstall} from 'esinstall';
 import type {InstallResult} from 'esinstall';
 import type {Plugin as RollupPlugin} from 'rollup';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {cyan, gray} from '@feltcoop/felt/utils/terminal.js';
+import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
+import {toEnvNumber} from '@feltcoop/felt/utils/env.js';
 
-import {printLogLabel, SystemLogger} from '../utils/log.js';
-import type {Logger} from '../utils/log.js';
 import {EXTERNALS_BUILD_DIRNAME, JS_EXTENSION, toBuildOutPath} from '../paths.js';
-import {omitUndefined} from '../utils/object.js';
 import type {Builder, BuildResult, BuildContext, TextBuildSource, TextBuild} from './builder.js';
-import {cyan, gray} from '../utils/terminal.js';
 import {loadContents} from './load.js';
 import {groSveltePlugin} from './rollup-plugin-gro-svelte.js';
 import {createDefaultPreprocessor} from './svelteBuildHelpers.js';
@@ -25,8 +27,6 @@ import {
 	toSpecifiers,
 } from './externalsBuildHelpers.js';
 import type {ExternalsBuildState} from './externalsBuildHelpers.js';
-import {EMPTY_ARRAY} from '../utils/array.js';
-import {toEnvNumber} from '../utils/env.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 /*

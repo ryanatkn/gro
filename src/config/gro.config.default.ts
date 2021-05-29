@@ -1,5 +1,6 @@
+import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/utils/log.js';
+
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
-import {ENV_LOG_LEVEL, LogLevel} from '../utils/log.js';
 import {
 	hasNodeLibrary,
 	PRIMARY_NODE_BUILD_CONFIG,

@@ -1,5 +1,6 @@
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+
 import type {Task} from './task/task.js';
-import {spawnProcess} from './utils/process.js';
 
 export interface TaskArgs {
 	host?: string;

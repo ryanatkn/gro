@@ -1,6 +1,6 @@
 import {join, basename, dirname} from 'path';
-import type {Filesystem} from '../fs/filesystem.js';
 
+import type {Filesystem} from '../fs/filesystem.js';
 import {isSourceId} from '../paths.js';
 
 // TODO consider splitting the primitive data/helpers/types

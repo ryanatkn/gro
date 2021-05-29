@@ -1,6 +1,7 @@
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+
 import type {Task} from './task/task.js';
 import {clean} from './fs/clean.js';
-import {spawnProcess} from './utils/process.js';
 
 export interface TaskArgs {
 	'no-build'?: boolean; // !`/.gro`

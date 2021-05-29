@@ -1,7 +1,6 @@
 import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
 import {paths} from '../paths.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
-import type {Obj} from '../utils/types.js';
 import type {Filesystem} from './filesystem.js';
 
 // TODO this is no longer needed to the same extent as it was before switching to `uvu`,
@@ -11,7 +10,8 @@ export interface TestModuleMeta extends ModuleMeta<TestModule> {}
 
 export type TestModule = object;
 
-export const validateTestModule = (mod: Obj): mod is TestModule => !!mod && typeof mod === 'object';
+export const validateTestModule = (mod: Record<string, any>): mod is TestModule =>
+	!!mod && typeof mod === 'object';
 
 export const TEST_FILE_SUFFIX = '.test.ts';
 

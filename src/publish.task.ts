@@ -1,14 +1,14 @@
 import {createInterface as createReadlineInterface} from 'readline';
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/utils/terminal.js';
+import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import type {Flavored, Result} from '@feltcoop/felt/utils/types.js';
 
 import type {Task} from './task/task.js';
-import {spawnProcess} from './utils/process.js';
-import {green, bgBlack, rainbow, cyan, red, yellow} from './utils/terminal.js';
 import {loadPackageJson} from './utils/packageJson.js';
-import type {Logger} from './utils/log.js';
 import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
-import {UnreachableError} from './utils/error.js';
-import type {Flavored, Result} from './utils/types.js';
 import {loadGroConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
@@ -168,7 +168,7 @@ const CHANGELOG_PATH = 'changelog.md';
 // TODO refactor? this code is quick & worky
 const getChangelogVersions = async (
 	fs: Filesystem,
-): Promise<[currentChangelogVersion?: string, previousChangelogVersion?: string]> => {
+): Promise<[currentChangelogVersion: string, previousChangelogVersion?: string]> => {
 	if (!(await fs.exists(CHANGELOG_PATH))) {
 		throw Error(`Publishing requires ${CHANGELOG_PATH} - please create it to continue`);
 	}
@@ -178,7 +178,10 @@ const getChangelogVersions = async (
 	if (!matchCurrent) {
 		throw Error(`Changelog must have at least one version header, e.g. ## 0.1.0`);
 	}
-	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [string, string];
+	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [
+		string,
+		string | undefined,
+	];
 };
 
 // TODO move where?
@@ -192,7 +195,7 @@ const getCurrentPackageVersion = async (fs: Filesystem): Promise<string> => {
 
 interface PublishContext {
 	readonly currentPackageVersion: string;
-	readonly currentChangelogVersion: string | undefined;
+	readonly currentChangelogVersion: string;
 	readonly previousChangelogVersion: string | undefined;
 }
 

@@ -11,7 +11,6 @@ import {
 } from './inputPath.js';
 import type {PathStats} from './pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
-import type {Obj} from '../utils/types.js';
 import {fs} from './node.js';
 
 /* test_resolveRawInputPath */
@@ -151,7 +150,7 @@ test_loadSourcePathDataByInputPath.run();
 
 /* test_loadSourceIdsByInputPath */
 const test_loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async () => {
-	const testFiles: Obj<Map<string, PathStats>> = {
+	const testFiles: Record<string, Map<string, PathStats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([

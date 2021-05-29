@@ -1,10 +1,10 @@
 import {join, basename} from 'path';
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {printError} from '@feltcoop/felt/utils/print.js';
+import {magenta, green, rainbow, red} from '@feltcoop/felt/utils/terminal.js';
 
 import type {Task} from './task/task.js';
-import {spawnProcess} from './utils/process.js';
-import {GIT_DIRNAME, paths} from './paths.js';
-import {printError, printPath} from './utils/print.js';
-import {magenta, green, rainbow, red} from './utils/terminal.js';
+import {GIT_DIRNAME, paths, printPath} from './paths.js';
 import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 
 // docs at ./docs/deploy.md

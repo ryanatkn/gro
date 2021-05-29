@@ -103,13 +103,13 @@ export const task: Task = {
 // usage:
 // import type {Task, TaskContext} from '@feltcoop/gro';
 
-export interface Task<TArgs extends Obj = Args, TEvents = {}> {
+export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
 	description?: string;
 	dev?: boolean; // set to `false` to run the task and its children in production mode
 }
 
-export interface TaskContext<TArgs extends Obj = Args, TEvents = {}> {
+export interface TaskContext<TArgs = {}, TEvents = {}> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;

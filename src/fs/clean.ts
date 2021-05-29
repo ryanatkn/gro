@@ -1,3 +1,6 @@
+import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
+import type {SystemLogger} from '@feltcoop/felt/utils/log.js';
+
 import {toSourceMetaDir} from '../build/sourceMeta.js';
 import {
 	NODE_MODULES_DIRNAME,
@@ -6,10 +9,8 @@ import {
 	SVELTE_KIT_BUILD_DIRNAME,
 	toBuildOutDir,
 	SVELTE_KIT_VITE_CACHE_PATH,
+	printPath,
 } from '../paths.js';
-import {EMPTY_ARRAY} from '../utils/array.js';
-import type {SystemLogger} from '../utils/log.js';
-import {printPath} from '../utils/print.js';
 import type {Filesystem} from './filesystem.js';
 
 export const clean = async (

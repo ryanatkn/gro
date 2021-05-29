@@ -1,3 +1,7 @@
+import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
+import {replaceExtension} from '@feltcoop/felt/utils/path.js';
+import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+
 import type {Filesystem} from '../fs/filesystem.js';
 import {
 	sourceIdToBasePath,
@@ -5,9 +9,6 @@ import {
 	TS_TYPE_EXTENSION as TS_TYPE_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import {EMPTY_ARRAY} from '../utils/array.js';
-import {replaceExtension} from '../utils/path.js';
-import {spawnProcess} from '../utils/process.js';
 
 /*
 

@@ -1,6 +1,7 @@
+import {printSpawnResult, spawnProcess} from '@feltcoop/felt/utils/process.js';
+
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
-import {printSpawnResult, spawnProcess} from './utils/process.js';
 
 export const task: Task = {
 	description: 'typecheck the project without emitting any files',

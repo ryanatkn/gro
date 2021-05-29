@@ -1,8 +1,9 @@
+import type {SpawnedProcess} from '@feltcoop/felt/utils/process.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
+
 import type {Adapter} from './adapter.js';
-import type {SpawnedProcess} from '../utils/process.js';
 import type {TaskEvents as ServerTaskEvents} from '../server.task.js';
 import type {Args} from '../task/task.js';
-import {EMPTY_OBJECT} from '../utils/object.js';
 
 // TODO WIP do not use
 // TODO name? is it actually specific to frontends? or is this more about bundling?

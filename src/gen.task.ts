@@ -1,14 +1,16 @@
+import {red, green, gray} from '@feltcoop/felt/utils/terminal.js';
+import {printMs, printError, printTimings} from '@feltcoop/felt/utils/print.js';
+import {plural} from '@feltcoop/felt/utils/string.js';
+import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
+
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
-import {red, green, gray} from './utils/terminal.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
-import {printPath, printMs, printError, printTimings} from './utils/print.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
-import {plural} from './utils/string.js';
-import {createStopwatch, Timings} from './utils/time.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './build/formatFile.js';
+import {printPath} from './paths.js';
 
 export interface TaskArgs {
 	_: string[];

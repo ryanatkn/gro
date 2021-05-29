@@ -1,9 +1,10 @@
 import type {Plugin} from 'rollup';
+import {gray} from '@feltcoop/felt/utils/terminal.js';
+import {SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {printKeyValue, printMs} from '@feltcoop/felt/utils/print.js';
+import {createStopwatch} from '@feltcoop/felt/utils/time.js';
 
-import {gray} from '../utils/terminal.js';
-import {SystemLogger} from '../utils/log.js';
-import {printKeyValue, printMs, printPath} from '../utils/print.js';
-import {createStopwatch} from '../utils/time.js';
+import {printPath} from '../paths.js';
 
 export const name = 'diagnostics';
 

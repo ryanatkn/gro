@@ -1,65 +1,38 @@
+import {Timings} from '@feltcoop/felt/utils/time.js';
+import {printTimings} from '@feltcoop/felt/utils/print.js';
+import {printSpawnResult, spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
+import {stripTrailingSlash} from '@feltcoop/felt/utils/path.js';
+
 import type {Adapter} from './adapter.js';
-import {Timings} from '../utils/time.js';
-import {printTimings} from '../utils/print.js';
-import {printSpawnResult, spawnProcess} from '../utils/process.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
 import {
-	DIST_DIRNAME,
-	toDistOutDir,
+	paths,
+	sourceIdToBasePath,
+	SOURCE_DIRNAME,
+	toBuildExtension,
 	toImportId,
 	TS_TYPEMAP_EXTENSION,
 	TS_TYPE_EXTENSION,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import {BuildConfig, BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
-import {EMPTY_OBJECT} from '../utils/object.js';
-import {UnreachableError} from '../utils/error.js';
+import {BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
 import {resolveInputFiles} from '../build/utils.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
-import {stripTrailingSlash} from '../utils/path.js';
-
-// TODO this adapter behaves as if it owns the dist/ directory, how to compose?
 
 export interface Options {
-	builds: AdaptBuildOptionsPartial[]; // defaults to [{name: 'lib', type: 'bundled'}]
-	dir: string; // defaults to dist/
+	buildName: BuildName; // defaults to 'library'
+	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
+	dir: string; // defaults to `dist/${buildName}`
 	link: string | null; // path to `npm link`, defaults to null
+	// TODO currently these options are only available for 'bundled'
+	esm: boolean; // defaults to true
+	cjs: boolean; // defaults to true
+	pack: boolean; // treat the dist as a package to be published - defaults to true
 }
-
-// TODO do we want the esm/cjs flags?
-export type AdaptBuildOptions =
-	| {name: BuildName; type: 'unbundled'; dir: string} // unbundled supports esm only (TODO maybe support cjs?)
-	| {name: BuildName; type: 'bundled'; dir: string; esm: boolean; cjs: boolean};
-export type AdaptBuildOptionsPartial =
-	| {name: BuildName; type: 'unbundled'} // unbundled supports esm only (TODO maybe support cjs?)
-	| {name: BuildName; type: 'bundled'; esm?: boolean; cjs?: boolean};
-
-const DEFAULT_BUILDS: AdaptBuildOptionsPartial[] = [
-	{name: NODE_LIBRARY_BUILD_NAME, type: 'bundled'},
-];
-const toAdaptBuildsOptions = (
-	partial: AdaptBuildOptionsPartial,
-	count: number,
-	distDir: string,
-): AdaptBuildOptions => {
-	const dir = toDistOutDir(partial.name, count, distDir);
-	if (partial.type === 'unbundled') {
-		return {name: partial.name, type: 'unbundled', dir};
-	} else if (partial.type === 'bundled') {
-		return {
-			name: partial.name,
-			type: 'bundled',
-			dir,
-			esm: partial.esm ?? true,
-			cjs: partial.cjs ?? true,
-		};
-	} else {
-		throw new UnreachableError(partial);
-	}
-};
 
 interface AdapterArgs {
 	mapInputOptions: MapInputOptions;
@@ -68,16 +41,15 @@ interface AdapterArgs {
 }
 
 export const createAdapter = ({
-	builds = DEFAULT_BUILDS,
-	dir = DIST_DIRNAME,
+	buildName = NODE_LIBRARY_BUILD_NAME,
+	type = 'unbundled',
+	dir = `${paths.dist}${buildName}`,
 	link = null,
+	esm = true,
+	cjs = true,
+	pack = true,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
 	dir = stripTrailingSlash(dir);
-	const count = builds.length;
-	if (!count) throw Error('No builds provided');
-	const buildOptionsByBuildName: Map<BuildName, AdaptBuildOptions> = new Map(
-		builds.map((partial) => [partial.name, toAdaptBuildsOptions(partial, count, dir)]),
-	);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
@@ -88,41 +60,28 @@ export const createAdapter = ({
 
 			const timings = new Timings(); // TODO probably move to task context
 
-			const buildConfigs: BuildConfig[] = [];
-			const bundled: BuildConfig[] = [];
-			const unbundled: BuildConfig[] = [];
-			for (const buildOptions of buildOptionsByBuildName.values()) {
-				const buildConfig = config.builds.find((b) => b.name === buildOptions.name);
-				if (!buildConfig) {
-					throw Error(`Unknown build config: ${buildOptions.name}`);
-				}
-				buildConfigs.push(buildConfig);
-				if (buildOptions.type === 'unbundled') {
-					unbundled.push(buildConfig);
-				} else if (buildOptions.type === 'bundled') {
-					bundled.push(buildConfig);
-				} else {
-					throw new UnreachableError(buildOptions);
-				}
+			const buildConfig = config.builds.find((b) => b.name === buildName);
+			if (!buildConfig) {
+				throw Error(`Unknown build config: ${buildName}`);
 			}
 
+			const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
+
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
-			for (const buildConfig of bundled) {
-				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				if (buildOptions.type !== 'bundled') throw Error();
-				const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
+			if (type === 'bundled') {
+				if (type !== 'bundled') throw Error();
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
 					return;
 				}
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
-				const outputDir = buildOptions.dir;
+				const outputDir = dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				if (!buildOptions.cjs && !buildOptions.esm) {
-					throw Error(`Build must have either cjs or esm or both: ${buildOptions.name}`);
+				if (!cjs && !esm) {
+					throw Error(`Build must have either cjs or esm or both: ${buildName}`);
 				}
-				if (buildOptions.cjs) {
+				if (cjs) {
 					await runRollup({
 						dev,
 						sourcemap: config.sourcemap,
@@ -135,9 +94,9 @@ export const createAdapter = ({
 						}),
 						mapWatchOptions,
 					});
-					await fs.move(`${buildOptions.dir}/index.js`, `${buildOptions.dir}/index.cjs`);
+					await fs.move(`${dir}/index.js`, `${dir}/index.cjs`);
 				}
-				if (buildOptions.esm) {
+				if (esm) {
 					await runRollup({
 						dev,
 						sourcemap: config.sourcemap,
@@ -152,12 +111,57 @@ export const createAdapter = ({
 			timingToBundleWithRollup();
 
 			const timingToCopyDist = timings.start('copy builds to dist');
-			for (const buildConfig of buildConfigs) {
-				const buildOptions = buildOptionsByBuildName.get(buildConfig.name)!;
-				const filter = bundled.includes(buildConfig) ? bundledDistFilter : undefined;
-				await copyDist(fs, buildConfig, dev, buildOptions.dir, log, filter);
-			}
+			const filter = type === 'bundled' ? bundledDistFilter : undefined;
+			await copyDist(fs, buildConfig, dev, dir, log, filter);
 			timingToCopyDist();
+
+			// If the output is treated as a package, it needs some special handling to get it ready.
+			if (pack) {
+				// copy files from the project root to the dist, but don't overwrite anything in the build
+				await Promise.all(
+					(await fs.readDir('.')).map((path): void | Promise<void> => {
+						const filename = path.toLowerCase();
+						if (PACKAGE_FILES.has(filename) || OTHER_PACKAGE_FILES.has(filename)) {
+							return fs.copy(path, `${dir}/${path}`, {overwrite: false});
+						}
+					}),
+				);
+
+				// copy src
+				await fs.copy(paths.source, `${dir}/${SOURCE_DIRNAME}`);
+
+				// update package.json with computed values
+				const pkgPath = `${dir}/package.json`;
+				const pkg = JSON.parse(await fs.readFile(pkgPath, 'utf8'));
+
+				// add the "files" key to package.json
+				const pkgFiles = new Set(pkg.files || []);
+				const dirPaths = await fs.readDir(dir);
+				for (const path of dirPaths) {
+					if (
+						!PACKAGE_FILES.has(path.toLowerCase()) &&
+						!path.endsWith(TS_TYPE_EXTENSION) &&
+						!path.endsWith(TS_TYPEMAP_EXTENSION)
+					) {
+						pkgFiles.add(path);
+					}
+				}
+				pkg.files = Array.from(pkgFiles);
+
+				// add the "exports" key to package.json
+				const pkgExports: Record<string, string> = {
+					'.': pkg.main,
+					'./package.json': './package.json',
+				};
+				for (const sourceId of files) {
+					const path = `./${toBuildExtension(sourceIdToBasePath(sourceId))}`;
+					pkgExports[path] = path;
+				}
+				pkg.exports = pkgExports;
+
+				// write the new package.json
+				await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
+			}
 
 			// `npm link` if configured
 			if (link) {
@@ -179,3 +183,26 @@ export const createAdapter = ({
 
 const bundledDistFilter = (id: string, stats: PathStats): boolean =>
 	stats.isDirectory() ? true : id.endsWith(TS_TYPE_EXTENSION) || id.endsWith(TS_TYPEMAP_EXTENSION);
+
+// these can be any case and optionally end with `.md`
+const toPossibleFileNames = (paths: string[]): string[] =>
+	paths.flatMap((path) => {
+		const lower = path.toLowerCase();
+		return [lower, `${lower}.md`];
+	});
+
+// these are the files npm includes by default; unlike npm, the only extension we support is `.md`
+const PACKAGE_FILES = new Set(
+	['package.json'].concat(
+		toPossibleFileNames([
+			'README',
+			'CHANGES',
+			'CHANGELOG',
+			'HISTORY',
+			'LICENSE',
+			'LICENCE',
+			'NOTICE',
+		]),
+	),
+);
+const OTHER_PACKAGE_FILES = new Set(toPossibleFileNames(['GOVERNANCE']));

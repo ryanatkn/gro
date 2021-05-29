@@ -8,7 +8,6 @@ import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
 import {getPossibleSourceIds} from './inputPath.js';
-import type {Obj} from '../utils/types.js';
 
 /* test_loadModule */
 const test_loadModule = suite('loadModule');
@@ -37,7 +36,7 @@ test_loadModule('without validation', async () => {
 test_loadModule('fails validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	let validatedMod;
-	const testValidation = (mod: Obj) => {
+	const testValidation = (mod: Record<string, any>) => {
 		validatedMod = mod;
 		return false;
 	};
@@ -173,7 +172,7 @@ test_loadModules('fail with loadModuleFailures', async () => {
 	const idBar2 = join(pathBar2, 'test2.bar.ts');
 	const idBaz1 = join(pathBaz1, 'test1.baz.ts');
 	const idBaz2 = join(pathBaz2, 'test2.baz.ts');
-	const testValidation = ((mod: Obj) => mod.bar !== 1) as any;
+	const testValidation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
 	let error;
 	const result = await loadModules(
 		new Map([
