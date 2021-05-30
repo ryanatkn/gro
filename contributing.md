@@ -31,9 +31,12 @@ but **please open [issues](https://github.com/feltcoop/gro/issues)**
 **before attempting work that you expect to be merged.**
 
 Also, Gro can't work for everyone's needs and still be Gro.
-I'm trying to make it flexible, and I welcome pointers
-on improving the usefulness of the software gracefully,
-but I also can't guarantee that Gro will work for your use cases.
+I'm trying to make it flexible, and if it doesn't work for you,
+I would enjoy discussing your issues,
+along with any questions or pointers you may have
+for improving the usefulness of the software gracefully.
+Big caveat though, I also can't guarantee that Gro will work for your use cases,
+and at times it's quite possible I may look, gasp, inflexible, myself.
 This is why Gro's tagline is:
 
 > opinionated tools for web development
