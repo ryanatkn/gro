@@ -24,7 +24,7 @@ import {
 import {findModules, loadModules} from '../fs/modules.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
-import {PRIMARY_NODE_BUILD_NAME} from '../build/defaultBuildConfig.js';
+import {SYSTEM_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 /*
@@ -257,6 +257,6 @@ const shouldBuildProject = async (fs: Filesystem, sourceId: string): Promise<boo
 	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
 	if (isThisProjectGro && !(await fs.exists(paths.build))) return true;
 	// ensure the build file for the source id exists in the default dev build
-	const buildId = toImportId(sourceId, true, PRIMARY_NODE_BUILD_NAME);
+	const buildId = toImportId(sourceId, true, SYSTEM_BUILD_NAME);
 	return !(await fs.exists(buildId));
 };

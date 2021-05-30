@@ -3,7 +3,7 @@ import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/utils/log.js';
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {
 	hasNodeLibrary,
-	PRIMARY_NODE_BUILD_CONFIG,
+	SYSTEM_BUILD_CONFIG,
 	NODE_LIBRARY_BUILD_CONFIG,
 	hasSvelteKitFrontend,
 } from '../build/defaultBuildConfig.js';
@@ -39,7 +39,7 @@ export const config: GroConfigCreator = async ({fs}) => {
 	]);
 	const partial: GroConfigPartial = {
 		builds: [
-			PRIMARY_NODE_BUILD_CONFIG,
+			SYSTEM_BUILD_CONFIG,
 			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
 			// enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			// enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths

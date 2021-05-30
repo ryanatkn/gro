@@ -34,7 +34,7 @@ import type {GroConfigCreator} from '@feltcoop/gro';
 
 export const config: GroConfigCreator = async () => {
 	return {
-		builds: [{name: 'node', platform: 'node', input: 'index.ts'}],
+		builds: [{name: 'server', platform: 'node', input: 'index.ts'}],
 	};
 };
 ```

@@ -14,10 +14,9 @@ export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
 // for the Node platform has this value as its name.
 // This convention speeds up running tasks by standardizing where Gro can look for built files.
 // This restriction could be relaxed by using cached metadata, but this keeps things simple for now.
-export const PRIMARY_NODE_BUILD_NAME: BuildName = 'node';
-
-export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
-	name: PRIMARY_NODE_BUILD_NAME,
+export const SYSTEM_BUILD_NAME: BuildName = 'system';
+export const SYSTEM_BUILD_CONFIG: BuildConfig = {
+	name: SYSTEM_BUILD_NAME,
 	platform: 'node',
 	input: [createFilter(['**/*.{task,test,config,gen,gen.*}.ts', '**/fixtures/**'])],
 };

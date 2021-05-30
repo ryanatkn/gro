@@ -4,7 +4,7 @@ import {blue, gray} from '@feltcoop/felt/utils/terminal.js';
 import type {Result, Flavored} from '@feltcoop/felt/utils/types.js';
 
 import {paths} from '../paths.js';
-import {PRIMARY_NODE_BUILD_CONFIG, PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
+import {SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './defaultBuildConfig.js';
 
 // See `../docs/config.md` for documentation.
 
@@ -36,7 +36,7 @@ export interface BuildConfigPartial {
 export type PlatformTarget = 'node' | 'browser';
 
 export const isPrimaryBuildConfig = (config: BuildConfig): boolean =>
-	config.name === PRIMARY_NODE_BUILD_NAME;
+	config.name === SYSTEM_BUILD_NAME;
 
 export const normalizeBuildConfigs = (
 	partials: readonly (BuildConfigPartial | null)[],
@@ -57,7 +57,7 @@ export const normalizeBuildConfigs = (
 		}
 	}
 	if (!hasPrimaryBuildConfig) {
-		buildConfigs.unshift(PRIMARY_NODE_BUILD_CONFIG);
+		buildConfigs.unshift(SYSTEM_BUILD_CONFIG);
 	}
 
 	return buildConfigs;
@@ -74,13 +74,13 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
-	const primaryBuildConfig = buildConfigs.find((b) => b.name === PRIMARY_NODE_BUILD_NAME);
+	const primaryBuildConfig = buildConfigs.find((b) => b.name === SYSTEM_BUILD_NAME);
 	if (!primaryBuildConfig) {
 		return {
 			ok: false,
 			reason:
 				`The field 'gro.builds' in package.json must have` +
-				` a 'node' config named '${PRIMARY_NODE_BUILD_NAME}'`,
+				` a 'node' config named '${SYSTEM_BUILD_NAME}'`,
 		};
 	}
 	const names: Set<BuildName> = new Set();

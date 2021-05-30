@@ -19,7 +19,7 @@ import {
 import type {AdaptBuilds} from '../adapt/adapter.js';
 import type {BuildConfig, BuildConfigPartial} from '../build/buildConfig.js';
 import {
-	PRIMARY_NODE_BUILD_CONFIG,
+	SYSTEM_BUILD_CONFIG,
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
 } from '../build/defaultBuildConfig.js';
@@ -151,17 +151,13 @@ export const loadGroConfig = async (
 	if (await fs.exists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
-		const configBuildId = toBuildOutPath(dev, PRIMARY_NODE_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
+		const configBuildId = toBuildOutPath(dev, SYSTEM_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
 		if (!(await fs.exists(configBuildId))) {
 			const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
 			await buildSourceDirectory(
 				fs,
 				// TODO feels hacky, the `sourcemap` in particular
-				await toConfig(
-					{builds: [PRIMARY_NODE_BUILD_CONFIG], sourcemap: dev},
-					options,
-					configSourceId,
-				),
+				await toConfig({builds: [SYSTEM_BUILD_CONFIG], sourcemap: dev}, options, configSourceId),
 				dev,
 				log,
 			);

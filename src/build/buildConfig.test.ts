@@ -4,7 +4,7 @@ import {join} from 'path';
 
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import {paths} from '../paths.js';
-import {PRIMARY_NODE_BUILD_CONFIG} from './defaultBuildConfig.js';
+import {SYSTEM_BUILD_CONFIG} from './defaultBuildConfig.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
 
@@ -62,7 +62,7 @@ test_normalizeBuildConfigs('adds a primary build config', () => {
 		{name: 'node3', platform: 'node', input},
 	]);
 	t.equal(buildConfig, [
-		PRIMARY_NODE_BUILD_CONFIG,
+		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
@@ -76,7 +76,7 @@ test_normalizeBuildConfigs('declares a single dist', () => {
 		{name: 'node3', platform: 'node', input},
 	]);
 	t.equal(buildConfig, [
-		PRIMARY_NODE_BUILD_CONFIG,
+		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
@@ -92,7 +92,7 @@ test_normalizeBuildConfigs('ensures a primary config for each platform', () => {
 		{name: 'browser3', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
-		PRIMARY_NODE_BUILD_CONFIG,
+		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'browser1', platform: 'browser', input},
@@ -110,7 +110,7 @@ test_normalizeBuildConfigs('makes all dist when none is', () => {
 		{name: 'browser2', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
-		PRIMARY_NODE_BUILD_CONFIG,
+		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},

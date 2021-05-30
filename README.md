@@ -28,7 +28,7 @@ for making web frontends, servers, and libraries.
 It includes:
 
 - [build system](/src/docs/build.md)
-  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers and libraries
+  for [Svelte](https://github.com/sveltejs/svelte) UIs, Node servers/libraries, and other things
   - [unbundled development](/src/docs/dev.md)
     inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
     [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
