@@ -1,13 +1,18 @@
 # changelog
 
+## 0.27.0
+
+- **break**: rename `'system'` build from `'node'`
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+- fix clean
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+
 ## 0.26.2
 
 - support publishing library builds
   ([#209](https://github.com/feltcoop/gro/pull/209))
 - fix typemaps for production builds
   ([#209](https://github.com/feltcoop/gro/pull/209))
-- fix clean
-  ([#207](https://github.com/feltcoop/gro/pull/207))
 
 ## 0.26.1
 
