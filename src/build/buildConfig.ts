@@ -4,7 +4,12 @@ import {blue, gray} from '@feltcoop/felt/utils/terminal.js';
 import type {Result, Flavored} from '@feltcoop/felt/utils/types.js';
 
 import {paths} from '../paths.js';
-import {SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './defaultBuildConfig.js';
+import {
+	CONFIG_BUILD_CONFIG,
+	CONFIG_BUILD_NAME,
+	SYSTEM_BUILD_CONFIG,
+	SYSTEM_BUILD_NAME,
+} from './defaultBuildConfig.js';
 
 // See `../docs/config.md` for documentation.
 
@@ -35,15 +40,19 @@ export interface BuildConfigPartial {
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const isPrimaryBuildConfig = (config: BuildConfig): boolean =>
+export const isSystemBuildConfig = (config: BuildConfig): boolean =>
 	config.name === SYSTEM_BUILD_NAME;
+
+export const isConfigBuildConfig = (config: BuildConfig): boolean =>
+	config.name === CONFIG_BUILD_NAME;
 
 export const normalizeBuildConfigs = (
 	partials: readonly (BuildConfigPartial | null)[],
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	const buildConfigs: BuildConfig[] = [];
-	let hasPrimaryBuildConfig = false;
+	let hasConfigBuildConfig = false;
+	let hasSystemBuildConfig = false;
 	for (const partial of partials) {
 		if (!partial) continue;
 		const buildConfig: BuildConfig = {
@@ -52,14 +61,19 @@ export const normalizeBuildConfigs = (
 			input: normalizeBuildConfigInput(partial.input),
 		};
 		buildConfigs.push(buildConfig);
-		if (!hasPrimaryBuildConfig && isPrimaryBuildConfig(buildConfig)) {
-			hasPrimaryBuildConfig = true;
+		if (!hasConfigBuildConfig && isConfigBuildConfig(buildConfig)) {
+			hasConfigBuildConfig = true;
+		}
+		if (!hasSystemBuildConfig && isSystemBuildConfig(buildConfig)) {
+			hasSystemBuildConfig = true;
 		}
 	}
-	if (!hasPrimaryBuildConfig) {
+	if (!hasSystemBuildConfig) {
 		buildConfigs.unshift(SYSTEM_BUILD_CONFIG);
 	}
-
+	if (!hasConfigBuildConfig) {
+		buildConfigs.unshift(CONFIG_BUILD_CONFIG);
+	}
 	return buildConfigs;
 };
 
@@ -74,8 +88,17 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
-	const primaryBuildConfig = buildConfigs.find((b) => b.name === SYSTEM_BUILD_NAME);
-	if (!primaryBuildConfig) {
+	const configBuildConfig = buildConfigs.find((c) => isConfigBuildConfig(c));
+	if (!configBuildConfig) {
+		return {
+			ok: false,
+			reason:
+				`The field 'gro.builds' in package.json must have` +
+				` a 'node' config named '${CONFIG_BUILD_NAME}'`,
+		};
+	}
+	const systemBuildConfig = buildConfigs.find((c) => isSystemBuildConfig(c));
+	if (!systemBuildConfig) {
 		return {
 			ok: false,
 			reason:

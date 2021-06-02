@@ -11,11 +11,7 @@ export type {
 	GroConfigCreatorOptions,
 } from './config/config.js';
 // also export the build config stuff
-export {
-	normalizeBuildConfigs,
-	validateBuildConfigs,
-	isPrimaryBuildConfig,
-} from './build/buildConfig.js';
+export {normalizeBuildConfigs, validateBuildConfigs} from './build/buildConfig.js';
 export type {BuildConfig, BuildName, BuildConfigPartial} from './build/buildConfig.js';
 
 // these seem useful and generic enough to export to users

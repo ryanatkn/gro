@@ -4,22 +4,31 @@ import {join} from 'path';
 
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import {paths} from '../paths.js';
-import {SYSTEM_BUILD_CONFIG} from './defaultBuildConfig.js';
+import {CONFIG_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './defaultBuildConfig.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
+const FAKE_CONFIG_INPUT_RAW = 'other_gro.config2.ts';
+const FAKE_CONFIG_INPUT_NORMALIZED = [`${paths.source}other_gro.config2.ts`];
 
 /* test_normalizeBuildConfigs */
 const test_normalizeBuildConfigs = suite('normalizeBuildConfigs');
 
 test_normalizeBuildConfigs('normalizes a plain config', () => {
-	const buildConfig = normalizeBuildConfigs([{name: 'system', platform: 'node', input: '.'}]);
-	t.equal(buildConfig, [{name: 'system', platform: 'node', input}]);
+	const buildConfig = normalizeBuildConfigs([
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_RAW},
+		{name: 'system', platform: 'node', input: '.'},
+	]);
+	t.equal(buildConfig, [
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
+		{name: 'system', platform: 'node', input},
+	]);
 });
 
 test_normalizeBuildConfigs('normalizes inputs', () => {
 	const inputPath = join(paths.source, 'foo');
 	const inputFilter = () => true;
 	const buildConfig = normalizeBuildConfigs([
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_RAW},
 		{name: 'system', platform: 'node', input: '.'},
 		{name: 'node2', platform: 'node', input: paths.source},
 		{name: 'node3', platform: 'node', input},
@@ -29,6 +38,7 @@ test_normalizeBuildConfigs('normalizes inputs', () => {
 		{name: 'node7', platform: 'node', input: [inputPath, inputFilter]},
 	]);
 	t.equal(buildConfig, [
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
 		{name: 'system', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
@@ -55,14 +65,47 @@ test_normalizeBuildConfigs('normalizes inputs', () => {
 	]);
 });
 
-test_normalizeBuildConfigs('adds a primary build config', () => {
+test_normalizeBuildConfigs('adds missing config and system configs', () => {
 	const buildConfig = normalizeBuildConfigs([
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
 	]);
 	t.equal(buildConfig, [
+		CONFIG_BUILD_CONFIG,
 		SYSTEM_BUILD_CONFIG,
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+	]);
+});
+
+test_normalizeBuildConfigs('adds a missing config build config', () => {
+	const buildConfig = normalizeBuildConfigs([
+		SYSTEM_BUILD_CONFIG,
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+	]);
+	t.equal(buildConfig, [
+		CONFIG_BUILD_CONFIG,
+		SYSTEM_BUILD_CONFIG,
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+	]);
+});
+
+test_normalizeBuildConfigs('adds a missing system build config', () => {
+	const buildConfig = normalizeBuildConfigs([
+		CONFIG_BUILD_CONFIG,
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+	]);
+	t.equal(buildConfig, [
+		SYSTEM_BUILD_CONFIG,
+		CONFIG_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
@@ -76,6 +119,7 @@ test_normalizeBuildConfigs('declares a single dist', () => {
 		{name: 'node3', platform: 'node', input},
 	]);
 	t.equal(buildConfig, [
+		CONFIG_BUILD_CONFIG,
 		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
@@ -92,6 +136,7 @@ test_normalizeBuildConfigs('ensures a primary config for each platform', () => {
 		{name: 'browser3', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
+		CONFIG_BUILD_CONFIG,
 		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
@@ -110,6 +155,7 @@ test_normalizeBuildConfigs('makes all dist when none is', () => {
 		{name: 'browser2', platform: 'browser', input},
 	]);
 	t.equal(buildConfig, [
+		CONFIG_BUILD_CONFIG,
 		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},

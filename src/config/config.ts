@@ -12,7 +12,8 @@ import {toArray} from '@feltcoop/felt/utils/array.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {
-	isPrimaryBuildConfig,
+	isSystemBuildConfig,
+	isConfigBuildConfig,
 	normalizeBuildConfigs,
 	validateBuildConfigs,
 } from '../build/buildConfig.js';
@@ -58,8 +59,9 @@ export interface GroConfig {
 	readonly port: number;
 	readonly logLevel: LogLevel;
 	readonly serve?: ServedDirPartial[];
-	readonly primaryNodeBuildConfig: BuildConfig;
-	readonly primaryBrowserBuildConfig: BuildConfig | null;
+	readonly configBuildConfig: BuildConfig;
+	readonly systemBuildConfig: BuildConfig;
+	readonly primaryBrowserBuildConfig: BuildConfig | null; // TODO improve this, too rigid
 }
 
 export interface GroConfigPartial {
@@ -226,7 +228,8 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 				? config.publish
 				: toDefaultPublishDirs(buildConfigs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		primaryNodeBuildConfig: buildConfigs.find((b) => isPrimaryBuildConfig(b))!,
+		configBuildConfig: buildConfigs.find((b) => isConfigBuildConfig(b))!,
+		systemBuildConfig: buildConfigs.find((b) => isSystemBuildConfig(b))!,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
 		primaryBrowserBuildConfig: buildConfigs.find((b) => b.platform === 'browser') || null,

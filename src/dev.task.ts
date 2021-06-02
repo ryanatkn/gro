@@ -127,7 +127,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 };
 
 const getDefaultServedDirs = (config: GroConfig): ServedDirPartial[] => {
-	const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.primaryNodeBuildConfig;
+	const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.systemBuildConfig;
 	const buildOutDirToServe = toBuildOutPath(true, buildConfigToServe.name, '');
 	return [buildOutDirToServe];
 };
