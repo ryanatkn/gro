@@ -12,15 +12,15 @@ const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix 
 const test_normalizeBuildConfigs = suite('normalizeBuildConfigs');
 
 test_normalizeBuildConfigs('normalizes a plain config', () => {
-	const buildConfig = normalizeBuildConfigs([{name: 'node', platform: 'node', input: '.'}]);
-	t.equal(buildConfig, [{name: 'node', platform: 'node', input}]);
+	const buildConfig = normalizeBuildConfigs([{name: 'system', platform: 'node', input: '.'}]);
+	t.equal(buildConfig, [{name: 'system', platform: 'node', input}]);
 });
 
 test_normalizeBuildConfigs('normalizes inputs', () => {
 	const inputPath = join(paths.source, 'foo');
 	const inputFilter = () => true;
 	const buildConfig = normalizeBuildConfigs([
-		{name: 'node', platform: 'node', input: '.'},
+		{name: 'system', platform: 'node', input: '.'},
 		{name: 'node2', platform: 'node', input: paths.source},
 		{name: 'node3', platform: 'node', input},
 		{name: 'node4', platform: 'node', input: 'foo'},
@@ -29,7 +29,7 @@ test_normalizeBuildConfigs('normalizes inputs', () => {
 		{name: 'node7', platform: 'node', input: [inputPath, inputFilter]},
 	]);
 	t.equal(buildConfig, [
-		{name: 'node', platform: 'node', input},
+		{name: 'system', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
 		{name: 'node3', platform: 'node', input},
 		{
