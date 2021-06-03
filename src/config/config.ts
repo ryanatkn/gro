@@ -91,8 +91,8 @@ export interface GroConfigCreatorOptions {
 	readonly config: GroConfig; // default config is available for user config code
 }
 
-let cachedConfig: GroConfig | undefined;
-let cachedDev: boolean | undefined;
+let cachedDevConfig: GroConfig | undefined;
+let cachedProdConfig: GroConfig | undefined;
 
 /*
 
@@ -139,7 +139,8 @@ export const loadGroConfig = async (
 	dev: boolean,
 	applyConfigToSystem = true,
 ): Promise<GroConfig> => {
-	if (cachedConfig && cachedDev === dev) {
+	const cachedConfig = dev ? cachedDevConfig : cachedProdConfig;
+	if (cachedConfig) {
 		if (applyConfigToSystem) applyConfig(cachedConfig);
 		return cachedConfig;
 	}
@@ -150,6 +151,7 @@ export const loadGroConfig = async (
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
 	const {configSourceId} = paths;
 
+	let config: GroConfig;
 	if (await fs.exists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
@@ -169,14 +171,17 @@ export const loadGroConfig = async (
 		if (!validated.ok) {
 			throw Error(`Invalid Gro config module at '${configSourceId}': ${validated.reason}`);
 		}
-		cachedConfig = await toConfig(configModule.config, options, configSourceId, defaultConfig);
+		config = await toConfig(configModule.config, options, configSourceId, defaultConfig);
 	} else {
-		cachedConfig = defaultConfig;
+		config = defaultConfig;
 	}
-
-	cachedDev = dev;
-	if (applyConfigToSystem) applyConfig(cachedConfig);
-	return cachedConfig;
+	if (dev) {
+		cachedDevConfig = config;
+	} else {
+		cachedProdConfig = config;
+	}
+	if (applyConfigToSystem) applyConfig(config);
+	return config;
 };
 
 export const toConfig = async (
