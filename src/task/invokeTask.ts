@@ -100,11 +100,11 @@ export const invokeTask = async (
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				// TODO probably do this as a separate process
-				// also this is messy, the `loadGroConfig` does some hacky config loading,
+				// also this is messy, the `loadConfig` does some hacky config loading,
 				// and then we end up building twice - can it be done in a single pass?
-				const {loadGroConfig} = await import('../config/config.js');
+				const {loadConfig} = await import('../config/config.js');
 				const bootstrappingDev = true; // this does not inherit from the `dev` arg or `process.env.NODE_ENV`
-				const config = await loadGroConfig(fs, bootstrappingDev);
+				const config = await loadConfig(fs, bootstrappingDev);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');

@@ -134,7 +134,7 @@ const applyConfig = (config: GroConfig) => {
 	configureLogLevel(config.logLevel);
 };
 
-export const loadGroConfig = async (
+export const loadConfig = async (
 	fs: Filesystem,
 	dev: boolean,
 	applyConfigToSystem = true,

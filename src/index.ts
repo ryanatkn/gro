@@ -2,7 +2,7 @@ export type {Task, TaskContext} from './task/task.js';
 export type {Gen, GenContext} from './gen/gen.js';
 
 // export all of the main config helpers and types
-export {loadGroConfig, toConfig} from './config/config.js';
+export {loadConfig, toConfig} from './config/config.js';
 export type {
 	GroConfig,
 	GroConfigPartial,
