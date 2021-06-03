@@ -176,6 +176,7 @@ test_normalizeBuildConfigs.run();
 const test_validateBuildConfigs = suite('validateBuildConfigs');
 
 test_validateBuildConfigs('basic behavior', () => {
+	t.ok(validateBuildConfigs(normalizeBuildConfigs([])).ok);
 	t.ok(validateBuildConfigs(normalizeBuildConfigs([{name: 'node', platform: 'node', input}])).ok);
 	t.ok(
 		validateBuildConfigs(
@@ -196,6 +197,14 @@ test_validateBuildConfigs('basic behavior', () => {
 				{name: 'browser2', platform: 'browser', input},
 				{name: 'browser3', platform: 'browser', input},
 			]),
+		).ok,
+	);
+});
+
+test_validateBuildConfigs('fails with input path that does not exist', () => {
+	t.not.ok(
+		validateBuildConfigs(
+			normalizeBuildConfigs([{name: 'node', platform: 'node', input: 'no_such_file.ts'}]),
 		).ok,
 	);
 });

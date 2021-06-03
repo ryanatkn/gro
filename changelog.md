@@ -4,6 +4,8 @@
 
 - **break**: rename `'system'` build from `'node'`
   ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: build configs now fail to validate if any input path strings do not exist
+  ([#207](https://github.com/feltcoop/gro/pull/207))
 - fix clean
   ([#207](https://github.com/feltcoop/gro/pull/207))
 

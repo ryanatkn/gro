@@ -21,6 +21,7 @@ export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
 	readonly input: readonly BuildConfigInput[];
 }
 
+// `string` inputs must be a relative or absolute path to a source file
 export type BuildConfigInput = string | InputFilter;
 
 export interface InputFilter {

@@ -64,7 +64,7 @@ export const resolveInputFiles = async (
 				if (await fs.exists(input)) {
 					resolved.files.push(input);
 				} else {
-					resolved.filters.push(createFilter(input));
+					throw Error(`Input file does not exist: ${input}`);
 				}
 			} else {
 				resolved.filters.push(input);
