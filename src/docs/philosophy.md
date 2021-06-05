@@ -23,12 +23,12 @@ and Gro's philosophy will change over time.
 - **customizable**: happypath defaults and full control when you need it; hypermodular
 - **easy to use**: as internally complex as needed to be simple and powerful externally
 - **loved**: tools made by people who _love_ them feel 1) different and 2) better
-- **social force multipliers for good**: unlock and inspire ways to create and collaborate
+- **generative**: unlock and inspire ways to create and collaborate
 - **human-inspectable**:
   - understanding what our tools are doing should be a holistically designed experience
   - interoperability should be an integrated design quality:
     output tool data in common formats using human-friendly APIs, like JSON to the filesystem,
-    and provide userland plugin points for reading/writing data and monitoring behavior
+    and provide userland plugin points for reading/writing data and monitoring behavior efficiently
   - two examples of good efforts here include the
     [build system](https://github.com/feltcoop/gro/blob/main/src/docs/dev.md)
     and [task resolution and composition](https://github.com/feltcoop/gro/tree/main/src/task)
@@ -42,7 +42,7 @@ and Gro's philosophy will change over time.
 > in a new shiny tool called BulletSilver, or BS for short.
 
 What I mean is, the above are ideals, not a purity test.
-We want to maintain a growth mindset, always striving never arriving.
+We want to maintain a growth mindset, accepting imperfection and enjoying the effort.
 
 ### talk is cheap so here's some more:
 
@@ -65,8 +65,8 @@ We want to maintain a growth mindset, always striving never arriving.
     this is part of the "taking responsibility" in the prior point
   - be smart about taking on dependencies versus re-implementing;
     Gro and Felt lean more towards re-invention but draw a bright line
-    around TypeScript, Svelte, Rollup, esbuild,
-    any of [@lukeed](https://github.com/lukeed)'s modules, and many other technologies,
+    around TypeScript, Svelte, SvelteKit, Rollup, esbuild,
+    any of @lukeed's modules, and many other technologies,
     saying "this is the dependency we're standardizing on"
     (this _sometimes_ forces choices on users;
     prefer options when elegant but beware compromising important qualities for flexibility)
