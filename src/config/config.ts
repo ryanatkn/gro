@@ -20,7 +20,6 @@ import {
 import type {AdaptBuilds} from '../adapt/adapter.js';
 import type {BuildConfig, BuildConfigPartial} from '../build/buildConfig.js';
 import {
-	SYSTEM_BUILD_CONFIG,
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
 	CONFIG_BUILD_CONFIG,
@@ -146,33 +145,30 @@ export const loadConfig = async (
 		return cachedConfig;
 	}
 
-	// TODO I think this is correct?
+	const log = new SystemLogger(printLogLabel('config'));
+
 	const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
 	const bootstrap_config = await toConfig(
 		{builds: [CONFIG_BUILD_CONFIG], sourcemap: dev},
 		options,
-		configSourceId,
+		'gro/config',
 	);
-	await buildSourceDirectory(fs, config, dev, log);
+	await buildSourceDirectory(fs, bootstrap_config, dev, log);
 
-	const log = new SystemLogger(printLogLabel('config'));
-	const options: GroConfigCreatorOptions = {fs, log, dev, config: null as any};
-	const defaultConfig = await toConfig(createDefaultConfig, options, '');
-	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
 	const {configSourceId} = paths;
 
 	let config: GroConfig;
 	if (await fs.exists(configSourceId)) {
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
-		const configBuildId = toBuildOutPath(dev, SYSTEM_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
+		const configBuildId = toBuildOutPath(dev, CONFIG_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
 		if (!(await fs.exists(configBuildId))) {
 			const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
 			await buildSourceDirectory(
 				fs,
 				// TOOD should be a `BOOTSTRAP_CONFIG` or something
 				// TODO feels hacky, the `sourcemap` in particular
-				await toConfig({builds: [SYSTEM_BUILD_CONFIG], sourcemap: dev}, options, configSourceId),
+				await toConfig({builds: [CONFIG_BUILD_CONFIG], sourcemap: dev}, options, configSourceId),
 				dev,
 				log,
 			);
@@ -182,8 +178,12 @@ export const loadConfig = async (
 		if (!validated.ok) {
 			throw Error(`Invalid Gro config module at '${configSourceId}': ${validated.reason}`);
 		}
-		config = await toConfig(configModule.config, options, configSourceId, defaultConfig);
+		config = await toConfig(configModule.config, options, configSourceId);
 	} else {
+		const options: GroConfigCreatorOptions = {fs, log, dev, config: null as any};
+		const defaultConfig = await toConfig(createDefaultConfig, options, '');
+		(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
+
 		config = defaultConfig;
 	}
 	if (dev) {
@@ -199,14 +199,11 @@ export const toConfig = async (
 	configOrCreator: GroConfigPartial | GroConfigCreator,
 	options: GroConfigCreatorOptions,
 	path: string,
-	baseConfig?: GroConfig,
 ): Promise<GroConfig> => {
 	const configPartial =
 		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
 
-	const extendedConfig = baseConfig ? {...baseConfig, ...configPartial} : configPartial;
-
-	const config = normalizeConfig(extendedConfig);
+	const config = normalizeConfig(configPartial);
 
 	const validateResult = validateConfig(config);
 	if (!validateResult.ok) {
