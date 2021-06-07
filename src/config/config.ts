@@ -147,31 +147,22 @@ export const loadConfig = async (
 
 	const log = new SystemLogger(printLogLabel('config'));
 
-	const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
-	const bootstrap_config = await toConfig(
-		{builds: [CONFIG_BUILD_CONFIG], sourcemap: dev},
-		options,
-		'gro/config',
-	);
-	await buildSourceDirectory(fs, bootstrap_config, dev, log);
-
 	const {configSourceId} = paths;
-
 	let config: GroConfig;
 	if (await fs.exists(configSourceId)) {
+		const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
+		const bootstrap_config = await toConfig(
+			{builds: [CONFIG_BUILD_CONFIG], sourcemap: dev},
+			options,
+			'gro/config',
+		);
+		await buildSourceDirectory(fs, bootstrap_config, dev, log);
+
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
 		const configBuildId = toBuildOutPath(dev, CONFIG_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
 		if (!(await fs.exists(configBuildId))) {
-			const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
-			await buildSourceDirectory(
-				fs,
-				// TOOD should be a `BOOTSTRAP_CONFIG` or something
-				// TODO feels hacky, the `sourcemap` in particular
-				await toConfig({builds: [CONFIG_BUILD_CONFIG], sourcemap: dev}, options, configSourceId),
-				dev,
-				log,
-			);
+			throw Error('Cannot find config build id: ${configBuildId} from ${configSourceId}');
 		}
 		const configModule = await import(configBuildId);
 		const validated = validateConfigModule(configModule);
