@@ -1,28 +1,28 @@
 <script lang="ts">
 	import type {Writable} from 'svelte/store';
 
-	import SourceId from './SourceId.svelte';
+	import Source_Id from './Source_Id.svelte';
 	import type {Source_Meta} from '../build/source_meta.js';
 
 	export let source_meta: Source_Meta;
 	export let hovered_source_meta: Writable<Source_Meta | null>;
 
 	let expanded = false;
-	$: expandedText = expanded ? '–' : '+';
+	$: expanded_text = expanded ? '–' : '+';
 
 	let hovering = false;
 
-	const onPointerEnter = () => {
+	const on_pointer_enter = () => {
 		hovering = true;
 		$hovered_source_meta = source_meta;
 	};
-	const onPointerLeave = () => {
+	const on_pointer_leave = () => {
 		hovering = false;
 		if ($hovered_source_meta === source_meta) $hovered_source_meta = null;
 	};
 
 	// TODO probably want to do a better data structure than this
-	const isDependency = (dependency: Source_Meta | null, dependent: Source_Meta | null) =>
+	const is_dependency = (dependency: Source_Meta | null, dependent: Source_Meta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
@@ -33,29 +33,29 @@
 			),
 		);
 
-	$: hoveredIsDependency = isDependency($hovered_source_meta, source_meta);
-	$: hoveredIsDependent = isDependency(source_meta, $hovered_source_meta);
+	$: hovered_is_dependency = is_dependency($hovered_source_meta, source_meta);
+	$: hovered_is_dependent = is_dependency(source_meta, $hovered_source_meta);
 	$: deemphasized =
 		$hovered_source_meta &&
 		!hovering &&
-		!(hoveredIsDependency || hoveredIsDependent || $hovered_source_meta === source_meta);
+		!(hovered_is_dependency || hovered_is_dependent || $hovered_source_meta === source_meta);
 </script>
 
 <div class="summary" class:deemphasized>
 	<div class="dep">
-		{#if hoveredIsDependency}↤{/if}
+		{#if hovered_is_dependency}↤{/if}
 	</div>
 	<div class="dep">
-		{#if hoveredIsDependent}↦{/if}
+		{#if hovered_is_dependent}↦{/if}
 	</div>
 	<button
 		on:pointerdown={() => (expanded = !expanded)}
-		on:pointerenter={onPointerEnter}
-		on:pointerleave={onPointerLeave}
+		on:pointerenter={on_pointer_enter}
+		on:pointerleave={on_pointer_leave}
 		class:hovering
 	>
-		<span class="icon">{expandedText}</span>
-		<SourceId id={source_meta.data.source_id} />
+		<span class="icon">{expanded_text}</span>
+		<Source_Id id={source_meta.data.source_id} />
 	</button>
 </div>
 {#if expanded}
@@ -64,10 +64,10 @@
     </pre>
 	<button
 		on:pointerdown={() => (expanded = !expanded)}
-		on:pointerenter={onPointerEnter}
-		on:pointerleave={onPointerLeave}
+		on:pointerenter={on_pointer_enter}
+		on:pointerleave={on_pointer_leave}
 	>
-		{expandedText}
+		{expanded_text}
 	</button>
 {/if}
 

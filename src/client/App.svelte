@@ -44,7 +44,7 @@
 	];
 	let active_source_meta_view_index = 7;
 	$: active_source_meta_view = source_meta_views[active_source_meta_view_index];
-	const setActiveSource_Meta_View = (view: View) =>
+	const set_active_source_meta_view = (view: View) =>
 		(active_source_meta_view_index = source_meta_views.indexOf(view)); // TODO handle error?
 
 	const selected_source_meta = writable(null);
@@ -157,7 +157,7 @@
 					<button on:pointerdown={() => (show_source_meta = false)}>🗙</button>
 					{#each source_meta_views as source_metaView (source_metaView.name)}
 						<button
-							on:pointerdown={() => setActiveSource_Meta_View(source_metaView)}
+							on:pointerdown={() => set_active_source_meta_view(source_metaView)}
 							class:active={source_metaView === active_source_meta_view}
 							disabled={source_metaView === active_source_meta_view}
 						>

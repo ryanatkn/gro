@@ -8,10 +8,10 @@ export class Gro_Devtools {
 	}
 
 	// TODO redesign this completely, this was just the first hack that came to mind
-	registerCss(path: string) {
+	register_css(path: string) {
 		if (this.style_elements_by_path.has(path)) {
 			// TODO should this do reference counting and remove unused CSS?
-			// if so, we need to have components call `unregisterCss`,
+			// if so, we need to have components call `unregister_css`,
 			// which could be a function returned from this method
 			return;
 		}

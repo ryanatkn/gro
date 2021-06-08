@@ -25,13 +25,13 @@ export interface File_Tree_Folder {
 
 export const to_file_tree_folder = (
 	source_dir: string,
-	source_treeMetas: Source_Tree_Meta[],
+	source_tree_metas: Source_Tree_Meta[],
 ): File_Tree_Folder => {
 	const root: File_Tree_Folder = {type: 'folder', name: basename(source_dir), children: []};
-	const getFileInfo = (base_path: string): {folder: File_Tree_Folder; name: string} => {
+	const get_file_info = (base_path: string): {folder: File_Tree_Folder; name: string} => {
 		let current: File_Tree_Folder = root;
 		const segments = to_path_segments(base_path);
-		// The `source_treeMetas` currently include files only and not directories,
+		// The `source_tree_metas` currently include files only and not directories,
 		// so we just ignore the final segment, and assume everything else is a folder.
 		for (const segment of segments.slice(0, segments.length - 1)) {
 			let next = current.children.find((t) => t.name === segment) as File_Tree_Folder | undefined;
@@ -43,26 +43,26 @@ export const to_file_tree_folder = (
 		}
 		return {folder: current, name: segments[segments.length - 1]};
 	};
-	for (const meta of source_treeMetas) {
-		const source_idBasePath = strip_start(meta.data.source_id, source_dir);
-		const {folder, name} = getFileInfo(source_idBasePath);
+	for (const meta of source_tree_metas) {
+		const source_id_base_path = strip_start(meta.data.source_id, source_dir);
+		const {folder, name} = get_file_info(source_id_base_path);
 		folder.children.push({type: 'file', name, meta});
 	}
-	forEachFolder(root, (f) => sortFolderChildren(f));
+	for_each_folder(root, (f) => sort_folder_children(f));
 	return root;
 };
 
-const forEachFolder = (folder: File_Tree_Folder, cb: (folder: File_Tree_Folder) => void) => {
+const for_each_folder = (folder: File_Tree_Folder, cb: (folder: File_Tree_Folder) => void) => {
 	cb(folder);
 	for (const child of folder.children) {
 		if (child.type === 'folder') {
-			forEachFolder(child, cb);
+			for_each_folder(child, cb);
 		}
 	}
 };
 
 // sorts `folder.children` in place, putting files after directories
-const sortFolderChildren = (folder: File_Tree_Folder): void => {
+const sort_folder_children = (folder: File_Tree_Folder): void => {
 	folder.children.sort((a, b) => {
 		if (a.type === 'folder') {
 			if (b.type !== 'folder') return -1;

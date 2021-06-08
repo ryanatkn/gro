@@ -10,8 +10,8 @@
 	export const selected_source_meta = undefined;
 	export const hovered_source_meta = undefined;
 
-	$: filteredSource_Metas = filter_selected_metas(source_tree, selected_build_names);
-	$: finalItems = filteredSource_Metas.flatMap((source_meta) =>
+	$: filtered_source_metas = filter_selected_metas(source_tree, selected_build_names);
+	$: final_items = filtered_source_metas.flatMap((source_meta) =>
 		source_meta.build_names
 			.map(
 				(build_name) =>
@@ -23,14 +23,14 @@
 	);
 </script>
 
-{#if finalItems.length}
+{#if final_items.length}
 	<table>
 		<thead>
 			<th>source id</th>
 			<th>build name</th>
 			<th>build ids</th>
 		</thead>
-		{#each finalItems as {source_meta, build_name, key} (key)}
+		{#each final_items as {source_meta, build_name, key} (key)}
 			<tr>
 				<td>
 					<Source_Id id={source_meta.data.source_id} />

@@ -153,7 +153,7 @@ const inject_svelte_css_import = (contents: string, import_path: string): string
 			break;
 		}
 	}
-	const injected_css_loader_script = `;globalThis.gro.registerCss('${import_path}');`; // account for barbaric semicolonness code
+	const injected_css_loader_script = `;globalThis.gro.register_css('${import_path}');`; // account for barbaric semicolonness code
 	const new_contents = `${contents.substring(
 		0,
 		newline_index,

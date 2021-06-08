@@ -10,15 +10,15 @@
 	export const selected_source_meta = undefined;
 	export const hovered_source_meta = undefined;
 
-	const ps = use_project_state();
+	const project = use_project_state();
 
-	$: filteredSource_Metas = filter_selected_metas(source_tree, selected_build_names);
-	$: file_treeFolder = to_file_tree_folder($ps.source_dir, filteredSource_Metas);
+	$: filtered_source_metas = filter_selected_metas(source_tree, selected_build_names);
+	$: file_tree_folder = to_file_tree_folder($project.source_dir, filtered_source_metas);
 </script>
 
 <div class="explorer">
-	{#if filteredSource_Metas.length}
-		<File_Tree_Explorer_Folder folder={file_treeFolder} />
+	{#if filtered_source_metas.length}
+		<File_Tree_Explorer_Folder folder={file_tree_folder} />
 	{:else}<small><em>no builds selected</em></small>{/if}
 </div>
 

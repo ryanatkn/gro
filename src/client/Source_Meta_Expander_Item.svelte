@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type {Writable} from 'svelte/store';
 
-	import SourceId from './SourceId.svelte';
+	import Source_Id from './Source_Id.svelte';
 	import type {Source_Meta} from '../build/source_meta.js';
 
 	export let source_meta: Source_Meta;
@@ -9,26 +9,26 @@
 	export let hovered_source_meta: Writable<Source_Meta | null>;
 
 	// this allows you to default stuff to e.g. the selected if there's no hovered
-	$: activeSource_Meta = $hovered_source_meta || $selected_source_meta;
+	$: active_source_meta = $hovered_source_meta || $selected_source_meta;
 	$: active = $hovered_source_meta ? hovered : selected;
 
 	$: hovered = source_meta === $hovered_source_meta;
 	$: selected = source_meta === $selected_source_meta;
 
-	const onPointerDown = (e: PointerEvent) => {
+	const on_pointer_down = (e: PointerEvent) => {
 		// TODO this needs to be done for all of the handlers..
 		if (e.button !== 0) return;
 		$selected_source_meta = selected ? null : source_meta;
 	};
-	const onPointerEnter = () => {
+	const on_pointer_enter = () => {
 		$hovered_source_meta = source_meta;
 	};
-	const onPointerLeave = () => {
+	const on_pointer_leave = () => {
 		if ($hovered_source_meta === source_meta) $hovered_source_meta = null;
 	};
 
 	// TODO need a better data structure for this
-	const isDependency = (dependency: Source_Meta | null, dependent: Source_Meta | null) =>
+	const is_dependency = (dependency: Source_Meta | null, dependent: Source_Meta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
@@ -39,32 +39,32 @@
 			),
 		);
 
-	$: activeIsDependency = isDependency(activeSource_Meta, source_meta);
-	$: activeIsDependent = isDependency(source_meta, activeSource_Meta);
-	$: emphasized = activeIsDependency || activeIsDependent || active;
-	$: deemphasized = activeSource_Meta && !emphasized;
-	$: data = activeSource_Meta?.data!; // TODO this is a workaround for not having `!` in templates
+	$: active_is_dependency = is_dependency(active_source_meta, source_meta);
+	$: active_is_dependent = is_dependency(source_meta, active_source_meta);
+	$: emphasized = active_is_dependency || active_is_dependent || active;
+	$: deemphasized = active_source_meta && !emphasized;
+	$: data = active_source_meta?.data!; // TODO this is a workaround for not having `!` in templates
 </script>
 
 <div class="summary" class:deemphasized class:emphasized>
 	<div class="dep">
-		{#if activeIsDependency}
+		{#if active_is_dependency}
 			<span title="{source_meta.data.source_id} has a dependency on {data.source_id}">↤</span>
 		{/if}
 	</div>
 	<div class="dep">
-		{#if activeIsDependent}
+		{#if active_is_dependent}
 			<span title="{source_meta.data.source_id} is a dependency of {data.source_id}">↦</span>
 		{/if}
 	</div>
 	<button
-		on:pointerdown={onPointerDown}
-		on:pointerenter={onPointerEnter}
-		on:pointerleave={onPointerLeave}
+		on:pointerdown={on_pointer_down}
+		on:pointerenter={on_pointer_enter}
+		on:pointerleave={on_pointer_leave}
 		class:hovered
 		class:selected
 	>
-		<SourceId id={source_meta.data.source_id} />
+		<Source_Id id={source_meta.data.source_id} />
 	</button>
 </div>
 

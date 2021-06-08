@@ -16,10 +16,10 @@ export interface Source_Meta {
 export interface Source_MetaData {
 	readonly source_id: string;
 	readonly contents_hash: string;
-	readonly builds: Source_MetaBuild[];
+	readonly builds: Source_Meta_Build[];
 }
 
-export interface Source_MetaBuild {
+export interface Source_Meta_Build {
 	readonly id: string;
 	readonly name: Build_Name; // TODO doesn't feel right, maybe rename to `build_name`
 	readonly dependencies: Build_Dependency[] | null;
@@ -48,7 +48,7 @@ export const update_source_meta = async (
 		contents_hash: get_file_contents_hash(file),
 		builds: Array.from(file.build_files.values()).flatMap((files) =>
 			files.map(
-				(file): Source_MetaBuild => ({
+				(file): Source_Meta_Build => ({
 					id: file.id,
 					name: file.build_config.name,
 					dependencies:
