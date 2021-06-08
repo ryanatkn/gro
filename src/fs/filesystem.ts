@@ -81,6 +81,7 @@ export type Fs_Copy_Filter_Async = (src: string, dest: string) => Promise<boolea
 export class Fs_Stats implements Path_Stats {
 	constructor(private readonly _is_directory: boolean) {}
 	isDirectory() {
+		// TODO maybe cache as `is_directory`?
 		return this._is_directory;
 	}
 }

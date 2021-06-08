@@ -27,37 +27,37 @@ test_resolve_raw_input_path('basic behavior', () => {
 });
 
 test_resolve_raw_input_path('source directory', () => {
-	const targetDir = resolve('src') + '/'; // inferred as directory
-	t.is(resolve_raw_input_path('src'), targetDir);
-	t.is(resolve_raw_input_path('src/'), targetDir);
-	t.is(resolve_raw_input_path('./src'), targetDir);
-	t.is(resolve_raw_input_path('./src/'), targetDir);
-	t.is(resolve_raw_input_path('./srcTest'), targetDir + 'srcTest');
-	t.is(resolve_raw_input_path('srcTest'), targetDir + 'srcTest');
-	t.is.not(resolve_raw_input_path('.gro'), targetDir);
+	const target_dir = resolve('src') + '/'; // inferred as directory
+	t.is(resolve_raw_input_path('src'), target_dir);
+	t.is(resolve_raw_input_path('src/'), target_dir);
+	t.is(resolve_raw_input_path('./src'), target_dir);
+	t.is(resolve_raw_input_path('./src/'), target_dir);
+	t.is(resolve_raw_input_path('./srcTest'), target_dir + 'srcTest');
+	t.is(resolve_raw_input_path('srcTest'), target_dir + 'srcTest');
+	t.is.not(resolve_raw_input_path('.gro'), target_dir);
 });
 
 test_resolve_raw_input_path('forced gro directory', () => {
-	const fakeDir = resolve('../fake') + sep;
-	const fakePaths = create_paths(fakeDir);
-	const groTarget = resolve('src/foo/bar.ts');
-	t.is(resolve_raw_input_path('gro/foo/bar.ts'), groTarget);
-	t.is(resolve_raw_input_path('foo/bar.ts', fakePaths), join(fakeDir, 'src/foo/bar.ts'));
-	t.is(resolve_raw_input_path('gro/foo/bar.ts', fakePaths), join(fakeDir, 'src/gro/foo/bar.ts'));
-	t.is(resolve_raw_input_path('foo/bar.ts'), groTarget);
-	t.is(resolve_raw_input_path('foo/bar.ts', gro_paths), groTarget);
+	const fake_dir = resolve('../fake') + sep;
+	const fake_paths = create_paths(fake_dir);
+	const gro_target = resolve('src/foo/bar.ts');
+	t.is(resolve_raw_input_path('gro/foo/bar.ts'), gro_target);
+	t.is(resolve_raw_input_path('foo/bar.ts', fake_paths), join(fake_dir, 'src/foo/bar.ts'));
+	t.is(resolve_raw_input_path('gro/foo/bar.ts', fake_paths), join(fake_dir, 'src/gro/foo/bar.ts'));
+	t.is(resolve_raw_input_path('foo/bar.ts'), gro_target);
+	t.is(resolve_raw_input_path('foo/bar.ts', gro_paths), gro_target);
 	t.is(resolve_raw_input_path('gro'), resolve('src') + sep);
 });
 
 test_resolve_raw_input_path('directories', () => {
-	const targetDir = resolve('src/foo/bar');
-	t.is(resolve_raw_input_path('foo/bar'), targetDir);
-	t.is(resolve_raw_input_path('foo/bar/'), targetDir + '/');
-	t.is(resolve_raw_input_path('src/foo/bar'), targetDir);
-	t.is(resolve_raw_input_path('src/foo/bar/'), targetDir + '/');
-	t.is(resolve_raw_input_path('./src/foo/bar'), targetDir);
-	t.is(resolve_raw_input_path('./src/foo/bar/'), targetDir + '/');
-	t.is.not(resolve_raw_input_path('bar'), targetDir);
+	const target_dir = resolve('src/foo/bar');
+	t.is(resolve_raw_input_path('foo/bar'), target_dir);
+	t.is(resolve_raw_input_path('foo/bar/'), target_dir + '/');
+	t.is(resolve_raw_input_path('src/foo/bar'), target_dir);
+	t.is(resolve_raw_input_path('src/foo/bar/'), target_dir + '/');
+	t.is(resolve_raw_input_path('./src/foo/bar'), target_dir);
+	t.is(resolve_raw_input_path('./src/foo/bar/'), target_dir + '/');
+	t.is.not(resolve_raw_input_path('bar'), target_dir);
 });
 
 test_resolve_raw_input_path.run();
@@ -105,14 +105,14 @@ test_get_possible_source_ids('implied to be a directory by trailing slash', () =
 });
 
 test_get_possible_source_ids('in both another directory and gro', () => {
-	const fakeDir = resolve('../fake') + sep;
-	const fakePaths = create_paths(fakeDir);
-	const input_path = join(fakeDir, 'src/foo/bar');
-	t.equal(get_possible_source_ids(input_path, ['.baz.ts'], [gro_paths.root], fakePaths), [
+	const fake_dir = resolve('../fake') + sep;
+	const fake_paths = create_paths(fake_dir);
+	const input_path = join(fake_dir, 'src/foo/bar');
+	t.equal(get_possible_source_ids(input_path, ['.baz.ts'], [gro_paths.root], fake_paths), [
 		input_path,
 		input_path + '.baz.ts',
-		replace_root_dir(input_path, gro_paths.root, fakePaths),
-		replace_root_dir(input_path, gro_paths.root, fakePaths) + '.baz.ts',
+		replace_root_dir(input_path, gro_paths.root, fake_paths),
+		replace_root_dir(input_path, gro_paths.root, fake_paths) + '.baz.ts',
 	]);
 });
 
@@ -153,7 +153,7 @@ test_load_source_path_data_by_input_path.run();
 
 /* test_load_source_ids_by_input_path */
 const test_load_source_ids_by_input_path = suite('load_source_ids_by_input_path', async () => {
-	const testFiles: Record<string, Map<string, Path_Stats>> = {
+	const test_files: Record<string, Map<string, Path_Stats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([
@@ -183,7 +183,7 @@ const test_load_source_ids_by_input_path = suite('load_source_ids_by_input_path'
 			['fake', {id: 'fake', is_directory: true}],
 			['fake/nomatches', {id: 'fake/nomatches', is_directory: true}],
 		]),
-		async (id) => testFiles[id],
+		async (id) => test_files[id],
 	);
 	t.equal(result, {
 		source_ids_by_input_path: new Map([

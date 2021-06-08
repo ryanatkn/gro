@@ -3,9 +3,9 @@ import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
 import {find_modules, load_modules, load_module} from './modules.js';
-import * as modTest1 from './fixtures/test1.foo.js';
-import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
-import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
+import * as mod_test1 from './fixtures/test1.foo.js';
+import * as mod_test_baz1 from './fixtures/baz1/test1.baz.js';
+import * as mod_test_baz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
 import {get_possible_source_ids} from './input_path.js';
 
@@ -22,7 +22,7 @@ test_load_module('basic behavior', async () => {
 	t.ok(result.ok);
 	t.is(result.mod.id, id);
 	t.is(result.mod.mod, validated_mod);
-	t.is(result.mod.mod, modTest1);
+	t.is(result.mod.mod, mod_test1);
 });
 
 test_load_module('without validation', async () => {
@@ -30,7 +30,7 @@ test_load_module('without validation', async () => {
 	const result = await load_module(id);
 	t.ok(result.ok);
 	t.is(result.mod.id, id);
-	t.is(result.mod.mod, modTest1);
+	t.is(result.mod.mod, mod_test1);
 });
 
 test_load_module('fails validation', async () => {
@@ -46,7 +46,7 @@ test_load_module('fails validation', async () => {
 		t.is(result.validation, test_validation.name);
 		t.is(result.id, id);
 		t.is(result.mod, validated_mod);
-		t.is(result.mod, modTest1);
+		t.is(result.mod, mod_test1);
 	} else {
 		throw Error('Should be invalid');
 	}
@@ -211,9 +211,9 @@ test_load_modules('fail with load_module_failures', async () => {
 	t.is(failure2.error, error);
 	t.is(result.modules.length, 2);
 	t.is(result.modules[0].id, id_baz1);
-	t.is(result.modules[0].mod, modTestBaz1);
+	t.is(result.modules[0].mod, mod_test_baz1);
 	t.is(result.modules[1].id, id_baz2);
-	t.is(result.modules[1].mod, modTestBaz2);
+	t.is(result.modules[1].mod, mod_test_baz2);
 });
 
 test_load_modules.run();

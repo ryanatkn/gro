@@ -35,10 +35,10 @@ or both, or neither, depending on its needs.
 In the future we may want to support globbing or regexps.
 
 */
-export const resolve_raw_input_path = (rawInputPath: string, from_paths?: Paths): string => {
-	if (isAbsolute(rawInputPath)) return rawInputPath;
+export const resolve_raw_input_path = (raw_input_path: string, from_paths?: Paths): string => {
+	if (isAbsolute(raw_input_path)) return raw_input_path;
 	// Allow prefix `./` and just remove it if it's there.
-	let base_path = strip_start(rawInputPath, './');
+	let base_path = strip_start(raw_input_path, './');
 	if (!from_paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 		if (base_path.startsWith(gro_dir_basename)) {
@@ -56,8 +56,8 @@ export const resolve_raw_input_path = (rawInputPath: string, from_paths?: Paths)
 	return base_path_to_source_id(base_path, from_paths);
 };
 
-export const resolve_raw_input_paths = (rawInputPaths: string[]): string[] =>
-	(rawInputPaths.length ? rawInputPaths : ['./']).map((p) => resolve_raw_input_path(p));
+export const resolve_raw_input_paths = (raw_input_paths: string[]): string[] =>
+	(raw_input_paths.length ? raw_input_paths : ['./']).map((p) => resolve_raw_input_path(p));
 
 /*
 
@@ -73,24 +73,24 @@ export const get_possible_source_ids = (
 	root_dirs: string[] = [],
 	paths?: Paths,
 ): string[] => {
-	const possibleSourceIds = [input_path];
+	const possible_source_ids = [input_path];
 	if (!input_path.endsWith(sep)) {
 		for (const extension of extensions) {
 			if (!input_path.endsWith(extension)) {
-				possibleSourceIds.push(input_path + extension);
+				possible_source_ids.push(input_path + extension);
 			}
 		}
 	}
 	if (root_dirs.length) {
-		const ids = possibleSourceIds.slice(); // make a copy or infinitely loop!
+		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
-			for (const possibleSourceId of ids) {
-				possibleSourceIds.push(replace_root_dir(possibleSourceId, root_dir, paths));
+			for (const possible_source_id of ids) {
+				possible_source_ids.push(replace_root_dir(possible_source_id, root_dir, paths));
 			}
 		}
 	}
-	return possibleSourceIds;
+	return possible_source_ids;
 };
 
 /*
@@ -112,25 +112,25 @@ export const load_source_path_data_by_input_path = async (
 	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
 	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
-		let filePath_Data: Path_Data | null = null;
-		let dirPath_Data: Path_Data | null = null;
-		const possibleSourceIds = get_possible_source_idsForInputPath
+		let file_path_data: Path_Data | null = null;
+		let dir_path_data: Path_Data | null = null;
+		const possible_source_ids = get_possible_source_idsForInputPath
 			? get_possible_source_idsForInputPath(input_path)
 			: [input_path];
-		for (const possibleSourceId of possibleSourceIds) {
-			if (!(await fs.exists(possibleSourceId))) continue;
-			const stats = await fs.stat(possibleSourceId);
+		for (const possible_source_id of possible_source_ids) {
+			if (!(await fs.exists(possible_source_id))) continue;
+			const stats = await fs.stat(possible_source_id);
 			if (stats.isDirectory()) {
-				if (!dirPath_Data) {
-					dirPath_Data = to_path_data(possibleSourceId, stats);
+				if (!dir_path_data) {
+					dir_path_data = to_path_data(possible_source_id, stats);
 				}
 			} else {
-				filePath_Data = to_path_data(possibleSourceId, stats);
+				file_path_data = to_path_data(possible_source_id, stats);
 				break;
 			}
 		}
-		if (filePath_Data || dirPath_Data) {
-			source_id_path_data_by_input_path.set(input_path, filePath_Data || dirPath_Data!); // the ! is needed because TypeScript inference fails
+		if (file_path_data || dir_path_data) {
+			source_id_path_data_by_input_path.set(input_path, file_path_data || dir_path_data!); // the ! is needed because TypeScript inference fails
 		} else {
 			unmapped_input_paths.push(input_path);
 		}
@@ -154,19 +154,19 @@ export const load_source_ids_by_input_path = async (
 }> => {
 	const source_ids_by_input_path = new Map<string, string[]>();
 	const input_directories_with_no_files: string[] = [];
-	const existingSourceIds = new Set<string>();
+	const existing_source_ids = new Set<string>();
 	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
 		if (path_data.is_directory) {
 			const files = await find_files(path_data.id);
 			if (files.size) {
 				let source_ids: string[] = [];
-				let hasFiles = false;
+				let has_files = false;
 				for (const [path, stats] of files) {
 					if (!stats.isDirectory()) {
-						hasFiles = true;
+						has_files = true;
 						const source_id = join(path_data.id, path);
-						if (!existingSourceIds.has(source_id)) {
-							existingSourceIds.add(source_id);
+						if (!existing_source_ids.has(source_id)) {
+							existing_source_ids.add(source_id);
 							source_ids.push(source_id);
 						}
 					}
@@ -174,7 +174,7 @@ export const load_source_ids_by_input_path = async (
 				if (source_ids.length) {
 					source_ids_by_input_path.set(input_path, source_ids);
 				}
-				if (!hasFiles) {
+				if (!has_files) {
 					input_directories_with_no_files.push(input_path);
 				}
 				// do callers ever need `inputDirectoriesWithDuplicateFiles`?
@@ -182,8 +182,8 @@ export const load_source_ids_by_input_path = async (
 				input_directories_with_no_files.push(input_path);
 			}
 		} else {
-			if (!existingSourceIds.has(path_data.id)) {
-				existingSourceIds.add(path_data.id);
+			if (!existing_source_ids.has(path_data.id)) {
+				existing_source_ids.add(path_data.id);
 				source_ids_by_input_path.set(input_path, [path_data.id]);
 			}
 		}

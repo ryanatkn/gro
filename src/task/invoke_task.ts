@@ -98,14 +98,14 @@ export const invoke_task = async (
 					);
 				}
 				log.info('building project to run task');
-				const timingToLoadConfig = timings.start('load config');
+				const timing_to_load_config = timings.start('load config');
 				// TODO probably do this as a separate process
 				// also this is messy, the `load_config` does some hacky config loading,
 				// and then we end up building twice - can it be done in a single pass?
 				const {load_config} = await import('../config/config.js');
 				const bootstrapping_dev = true; // this does not inherit from the `dev` arg or `process.env.NODE_ENV`
 				const config = await load_config(fs, bootstrapping_dev);
-				timingToLoadConfig();
+				timing_to_load_config();
 				const timing_to_build_project = timings.start('build project');
 				const {build_source_directory} = await import('../build/build_source_directory.js');
 				await build_source_directory(fs, config, bootstrapping_dev, log);
@@ -127,32 +127,32 @@ export const invoke_task = async (
 						(task.mod.task.description && gray(task.mod.task.description)) || ''
 					}`,
 				);
-				const timingToRunTask = timings.start('run task');
+				const timing_to_run_task = timings.start('run task');
 				const result = await run_task(fs, task, args, events, invoke_task, dev);
-				timingToRunTask();
+				timing_to_run_task();
 				if (result.ok) {
 					log.info(`✓ ${cyan(task.name)}`);
 				} else {
 					log.info(`${red('🞩')} ${cyan(task.name)}`);
-					logErrorReasons(log, [result.reason]);
+					log_error_reasons(log, [result.reason]);
 					throw result.error;
 				}
 			} else {
-				logErrorReasons(log, load_modules_result.reasons);
+				log_error_reasons(log, load_modules_result.reasons);
 				process.exit(1);
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
 			if (is_this_project_gro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
-				logAvailableTasks(
+				log_available_tasks(
 					log,
 					print_path(path_data.id),
 					find_modules_result.source_ids_by_input_path,
 				);
 			} else if (is_gro_id(path_data.id)) {
 				// Does the Gro directory contain the matching files? Log them.
-				logAvailableTasks(
+				log_available_tasks(
 					log,
 					print_path_or_gro_path(path_data.id),
 					find_modules_result.source_ids_by_input_path,
@@ -162,25 +162,25 @@ export const invoke_task = async (
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
-				const gro_dirInputPath = replace_root_dir(input_path, gro_paths.root);
-				const gro_dirFind_Modules_Result = await find_modules(fs, [gro_dirInputPath], (id) =>
+				const gro_dir_input_path = replace_root_dir(input_path, gro_paths.root);
+				const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
 					fs.find_files(id, (file) => is_task_path(file.path)),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
-				if (gro_dirFind_Modules_Result.ok) {
-					timings.merge(gro_dirFind_Modules_Result.timings);
-					const groPath_Data = gro_dirFind_Modules_Result.source_id_path_data_by_input_path.get(
-						gro_dirInputPath,
+				if (gro_dir_find_modules_result.ok) {
+					timings.merge(gro_dir_find_modules_result.timings);
+					const groPath_Data = gro_dir_find_modules_result.source_id_path_data_by_input_path.get(
+						gro_dir_input_path,
 					)!;
 					// First log the Gro matches.
-					logAvailableTasks(
+					log_available_tasks(
 						log,
 						print_path_or_gro_path(groPath_Data.id),
-						gro_dirFind_Modules_Result.source_ids_by_input_path,
+						gro_dir_find_modules_result.source_ids_by_input_path,
 					);
 				}
 				// Then log the current working directory matches.
-				logAvailableTasks(
+				log_available_tasks(
 					log,
 					print_path(path_data.id),
 					find_modules_result.source_ids_by_input_path,
@@ -195,36 +195,36 @@ export const invoke_task = async (
 			is_gro_id(find_modules_result.source_id_path_data_by_input_path.get(input_path)!.id)
 		) {
 			// If the directory is inside Gro, just log the errors.
-			logErrorReasons(log, find_modules_result.reasons);
+			log_error_reasons(log, find_modules_result.reasons);
 			process.exit(1);
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
-			const gro_dirInputPath = replace_root_dir(input_path, gro_paths.root);
-			const gro_dirFind_Modules_Result = await find_modules(fs, [gro_dirInputPath], (id) =>
+			const gro_dir_input_path = replace_root_dir(input_path, gro_paths.root);
+			const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
 				fs.find_files(id, (file) => is_task_path(file.path)),
 			);
-			if (gro_dirFind_Modules_Result.ok) {
-				timings.merge(gro_dirFind_Modules_Result.timings);
-				const groPath_Data = gro_dirFind_Modules_Result.source_id_path_data_by_input_path.get(
-					gro_dirInputPath,
+			if (gro_dir_find_modules_result.ok) {
+				timings.merge(gro_dir_find_modules_result.timings);
+				const groPath_Data = gro_dir_find_modules_result.source_id_path_data_by_input_path.get(
+					gro_dir_input_path,
 				)!;
 				// Log the Gro matches.
-				logAvailableTasks(
+				log_available_tasks(
 					log,
 					print_path_or_gro_path(groPath_Data.id),
-					gro_dirFind_Modules_Result.source_ids_by_input_path,
+					gro_dir_find_modules_result.source_ids_by_input_path,
 				);
 			} else {
 				// Log the original errors, not the Gro-specific ones.
-				logErrorReasons(log, find_modules_result.reasons);
+				log_error_reasons(log, find_modules_result.reasons);
 				process.exit(1);
 			}
 		}
 	} else {
 		// Some other find modules result failure happened, so log it out.
 		// (currently, just "unmapped_input_paths")
-		logErrorReasons(log, find_modules_result.reasons);
+		log_error_reasons(log, find_modules_result.reasons);
 		process.exit(1);
 	}
 
@@ -232,25 +232,25 @@ export const invoke_task = async (
 	log.info(`🕒 ${print_ms(total_timing())}`);
 };
 
-const logAvailableTasks = (
+const log_available_tasks = (
 	log: Logger,
-	dirLabel: string,
+	dir_label: string,
 	source_ids_by_input_path: Map<string, string[]>,
 ): void => {
 	const source_ids = Array.from(source_ids_by_input_path.values()).flat();
 	if (source_ids.length) {
-		log.info(`${source_ids.length} task${plural(source_ids.length)} in ${dirLabel}:`);
+		log.info(`${source_ids.length} task${plural(source_ids.length)} in ${dir_label}:`);
 		for (const source_id of source_ids) {
 			log.info(
 				'\t' + cyan(to_task_name(source_id_to_base_path(source_id, paths_from_id(source_id)))),
 			);
 		}
 	} else {
-		log.info(`No tasks found in ${dirLabel}.`);
+		log.info(`No tasks found in ${dir_label}.`);
 	}
 };
 
-const logErrorReasons = (log: Logger, reasons: string[]): void => {
+const log_error_reasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {
 		log.error(reason);
 	}

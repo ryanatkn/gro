@@ -7,15 +7,15 @@ import type {Memory_Fs} from '../fs/memory.js';
 import type {Builder} from './builder.js';
 import type {Build_Config} from '../build/build_config.js';
 
-interface SuiteContext {
+interface Suite_Context {
 	fs: Memory_Fs;
 }
-const suiteContext: SuiteContext = {fs: memoryFs};
-const resetMemory_Fs = ({fs}: SuiteContext) => fs._reset();
+const suite_context: Suite_Context = {fs: memoryFs};
+const reset_memory_fs = ({fs}: Suite_Context) => fs._reset();
 
 /* test_Filer */
-const test_Filer = suite('Filer', suiteContext);
-test_Filer.before.each(resetMemory_Fs);
+const test_Filer = suite('Filer', suite_context);
+test_Filer.before.each(reset_memory_fs);
 
 test_Filer('basic serve usage', async ({fs}) => {
 	const dev = true;
