@@ -6,7 +6,7 @@ import {create_stopwatch, Timings} from '@feltcoop/felt/util/time.js';
 import type {Task} from './task/task.js';
 import {Task_Error} from './task/task.js';
 import {run_gen} from './gen/run_gen.js';
-import {loadGenModule, checkGenModules, find_gen_modules} from './gen/gen_module.js';
+import {load_gen_module, check_gen_modules, find_gen_modules} from './gen/gen_module.js';
 import {resolve_raw_input_paths} from './fs/input_path.js';
 import {load_modules} from './fs/modules.js';
 import {format_file} from './build/format_file.js';
@@ -42,7 +42,7 @@ export const task: Task<Task_Args> = {
 		timings.merge(find_modules_result.timings);
 		const load_modules_result = await load_modules(
 			find_modules_result.source_ids_by_input_path,
-			loadGenModule,
+			load_gen_module,
 		);
 		if (!load_modules_result.ok) {
 			for (const reason of load_modules_result.reasons) {
@@ -64,7 +64,7 @@ export const task: Task<Task_Args> = {
 			if (!fail_count) {
 				log.info('checking generated files for changes');
 				const stop_timing_to_check_results = timings.start('check results for changes');
-				const check_gen_modules_results = await checkGenModules(fs, gen_results);
+				const check_gen_modules_results = await check_gen_modules(fs, gen_results);
 				stop_timing_to_check_results();
 
 				let has_unexpected_changes = false;
@@ -75,7 +75,7 @@ export const task: Task<Task_Args> = {
 						red(
 							`Generated file ${print_path(result.file.id)} via ${print_path(
 								result.file.origin_id,
-							)} ${result.isNew ? 'is new' : 'has changed'}.`,
+							)} ${result.is_new ? 'is new' : 'has changed'}.`,
 						),
 					);
 				}

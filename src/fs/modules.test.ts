@@ -2,20 +2,20 @@ import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
-import {find_modules, load_modules, loadModule} from './modules.js';
+import {find_modules, load_modules, load_module} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
 import {get_possible_source_ids} from './input_path.js';
 
-/* test_loadModule */
-const test_loadModule = suite('loadModule');
+/* test_load_module */
+const test_load_module = suite('load_module');
 
-test_loadModule('basic behavior', async () => {
+test_load_module('basic behavior', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	let validatedMod;
-	const result = await loadModule(id, ((mod: any) => {
+	const result = await load_module(id, ((mod: any) => {
 		validatedMod = mod;
 		return true;
 	}) as any);
@@ -25,22 +25,22 @@ test_loadModule('basic behavior', async () => {
 	t.is(result.mod.mod, modTest1);
 });
 
-test_loadModule('without validation', async () => {
+test_load_module('without validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
-	const result = await loadModule(id);
+	const result = await load_module(id);
 	t.ok(result.ok);
 	t.is(result.mod.id, id);
 	t.is(result.mod.mod, modTest1);
 });
 
-test_loadModule('fails validation', async () => {
+test_load_module('fails validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	let validatedMod;
 	const testValidation = (mod: Record<string, any>) => {
 		validatedMod = mod;
 		return false;
 	};
-	const result = await loadModule(id, testValidation as any);
+	const result = await load_module(id, testValidation as any);
 	t.not.ok(result.ok);
 	if (result.type === 'invalid') {
 		t.is(result.validation, testValidation.name);
@@ -52,9 +52,9 @@ test_loadModule('fails validation', async () => {
 	}
 });
 
-test_loadModule('fails to import', async () => {
+test_load_module('fails to import', async () => {
 	const id = resolve('foo/test/failure');
-	const result = await loadModule(id);
+	const result = await load_module(id);
 	t.not.ok(result.ok);
 	if (result.type === 'import_failed') {
 		t.is(result.id, id);
@@ -64,8 +64,8 @@ test_loadModule('fails to import', async () => {
 	}
 });
 
-test_loadModule.run();
-/* /test_loadModule */
+test_load_module.run();
+/* /test_load_module */
 
 /* test_find_modules */
 const test_find_modules = suite('find_modules');
@@ -110,7 +110,7 @@ test_find_modules('directory', async () => {
 	t.equal(result.source_id_path_data_by_input_path, new Map([[id, {id, isDirectory: true}]]));
 });
 
-test_find_modules('fail with unmappedInputPaths', async () => {
+test_find_modules('fail with unmapped_input_paths', async () => {
 	const result = await find_modules(
 		fs,
 		[
@@ -124,13 +124,13 @@ test_find_modules('fail with unmappedInputPaths', async () => {
 	);
 	t.not.ok(result.ok);
 	t.ok(result.reasons.length);
-	if (result.type === 'unmappedInputPaths') {
-		t.equal(result.unmappedInputPaths, [
+	if (result.type === 'unmapped_input_paths') {
+		t.equal(result.unmapped_input_paths, [
 			resolve('src/fs/fixtures/failme1'),
 			resolve('src/fs/fixtures/failme2'),
 		]);
 	} else {
-		throw Error('Expected to fail with unmappedInputPaths');
+		throw Error('Expected to fail with unmapped_input_paths');
 	}
 });
 
@@ -163,7 +163,7 @@ test_find_modules.run();
 /* test_load_modules */
 const test_load_modules = suite('load_modules');
 
-test_load_modules('fail with loadModuleFailures', async () => {
+test_load_modules('fail with load_moduleFailures', async () => {
 	const pathBar1 = resolve('src/fs/fixtures/bar1');
 	const pathBar2 = resolve('src/fs/fixtures/bar2');
 	const pathBaz1 = resolve('src/fs/fixtures/baz1');
@@ -188,16 +188,16 @@ test_load_modules('fail with loadModuleFailures', async () => {
 					error: (error = new Error('Test failed import')),
 				};
 			}
-			return loadModule(id, testValidation);
+			return load_module(id, testValidation);
 		},
 	);
 	t.not.ok(result.ok);
 	t.ok(result.reasons.length);
-	if (result.type !== 'loadModuleFailures') {
-		throw Error('Expected to fail with loadModuleFailures');
+	if (result.type !== 'load_moduleFailures') {
+		throw Error('Expected to fail with load_moduleFailures');
 	}
-	t.is(result.loadModuleFailures.length, 2);
-	const [failure1, failure2] = result.loadModuleFailures;
+	t.is(result.load_moduleFailures.length, 2);
+	const [failure1, failure2] = result.load_moduleFailures;
 	if (failure1.type !== 'invalid') {
 		throw Error('Expected to fail with invalid');
 	}

@@ -1028,8 +1028,8 @@ const sync_build_files_to_disk = async (
 					// log.trace(label, 'creating build file on disk', gray(file.id));
 					should_output_new_file = true;
 				} else {
-					const existingContents = await load_contents(fs, file.encoding, file.id);
-					if (!are_contents_equal(file.encoding, file.contents, existingContents)) {
+					const existing_contents = await load_contents(fs, file.encoding, file.id);
+					if (!are_contents_equal(file.encoding, file.contents, existing_contents)) {
 						log.trace(label, 'updating stale build file on disk', gray(file.id));
 						should_output_new_file = true;
 					} // ...else the build file on disk already matches what's in memory.

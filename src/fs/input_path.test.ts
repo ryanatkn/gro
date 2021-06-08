@@ -143,7 +143,7 @@ test_load_source_path_data_by_input_path(
 				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
 				['fake/test3', {id: 'fake/test3', isDirectory: true}],
 			]),
-			unmappedInputPaths: ['fake/missing'],
+			unmapped_input_paths: ['fake/missing'],
 		});
 	},
 );

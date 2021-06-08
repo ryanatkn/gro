@@ -1,4 +1,4 @@
-import {Module_Meta, loadModule, Load_Module_Result, find_modules} from '../fs/modules.js';
+import {Module_Meta, load_module, Load_Module_Result, find_modules} from '../fs/modules.js';
 import {Gen, Gen_Results, Gen_File, is_gen_path, GEN_FILE_PATTERN} from './gen.js';
 import {get_possible_source_ids} from '../fs/input_path.js';
 import {paths} from '../paths.js';
@@ -10,55 +10,55 @@ export interface GenModule {
 
 export interface Gen_Module_Meta extends Module_Meta<GenModule> {}
 
-export const validateGenModule = (mod: Record<string, any>): mod is GenModule =>
+export const validate_gen_module = (mod: Record<string, any>): mod is GenModule =>
 	typeof mod.gen === 'function';
 
-export const loadGenModule = (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> =>
-	loadModule(id, validateGenModule);
+export const load_gen_module = (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> =>
+	load_module(id, validate_gen_module);
 
-export type CheckGen_Module_Result =
+export type Check_Gen_Module_Result =
 	| {
 			file: Gen_File;
-			existingContents: string;
-			isNew: false;
+			existing_contents: string;
+			is_new: false;
 			has_changed: boolean;
 	  }
 	| {
 			file: Gen_File;
-			existingContents: null;
-			isNew: true;
+			existing_contents: null;
+			is_new: true;
 			has_changed: true;
 	  };
 
-export const checkGenModules = async (
+export const check_gen_modules = async (
 	fs: Filesystem,
-	genResults: Gen_Results,
-): Promise<CheckGen_Module_Result[]> => {
+	gen_results: Gen_Results,
+): Promise<Check_Gen_Module_Result[]> => {
 	return Promise.all(
-		genResults.successes
-			.map((result) => result.files.map((file) => checkGenModule(fs, file)))
+		gen_results.successes
+			.map((result) => result.files.map((file) => check_gen_module(fs, file)))
 			.flat(),
 	);
 };
 
-export const checkGenModule = async (
+export const check_gen_module = async (
 	fs: Filesystem,
 	file: Gen_File,
-): Promise<CheckGen_Module_Result> => {
+): Promise<Check_Gen_Module_Result> => {
 	if (!(await fs.exists(file.id))) {
 		return {
 			file,
-			existingContents: null,
-			isNew: true,
+			existing_contents: null,
+			is_new: true,
 			has_changed: true,
 		};
 	}
-	const existingContents = await fs.read_file(file.id, 'utf8');
+	const existing_contents = await fs.read_file(file.id, 'utf8');
 	return {
 		file,
-		existingContents,
-		isNew: false,
-		has_changed: file.contents !== existingContents,
+		existing_contents,
+		is_new: false,
+		has_changed: file.contents !== existing_contents,
 	};
 };
 

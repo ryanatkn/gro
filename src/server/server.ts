@@ -1,20 +1,20 @@
-import {create_server as createHttp1Server} from 'http';
+import {createServer as create_http1_server} from 'http';
 import type {
-	Server as Http1Server,
-	RequestListener as Http1RequestListener,
+	Server as Http1_Server,
+	RequestListener as Http1_Request_Listener,
 	IncomingHttpHeaders,
 	OutgoingHttpHeaders,
 } from 'http';
-import {createSecureServer as createHttp2Server} from 'http2';
+import {createSecureServer as create_http2_erver} from 'http2';
 import type {Http2Server, ServerHttp2Stream} from 'http2';
 import type {ListenOptions} from 'net';
 import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/util/terminal.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
-import {stripAfter} from '@feltcoop/felt/util/string.js';
+import {strip_after} from '@feltcoop/felt/util/string.js';
 import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import type {Assignable, Partial_Except} from '@feltcoop/felt/util/types.js';
-import {toEnvNumber, toEnvString} from '@feltcoop/felt/util/env.js';
+import {to_env_number, to_env_string} from '@feltcoop/felt/util/env.js';
 
 import type {Filer} from '../build/Filer.js';
 import {
@@ -36,20 +36,20 @@ type Http2StreamHandler = (
 ) => void;
 
 export interface Gro_Server {
-	readonly server: Http1Server | Http2Server;
+	readonly server: Http1_Server | Http2Server;
 	start(): Promise<void>;
 	readonly host: string;
 	readonly port: number;
 }
 
-export const DEFAULT_SERVER_HOST = toEnvString('GRO_HOST', 'localhost');
-export const DEFAULT_SERVER_PORT = toEnvNumber('GRO_PORT', 8999);
+export const DEFAULT_SERVER_HOST = to_env_string('GRO_HOST', 'localhost');
+export const DEFAULT_SERVER_PORT = to_env_number('GRO_PORT', 8999);
 
 export interface Options {
 	filer: Filer;
 	host: string;
 	port: number;
-	https: {cert: string; key: string; allowHTTP1?: boolean} | null;
+	https: {cert: string; key: string} | null;
 	log: Logger;
 }
 export type Required_Options = 'filer';
@@ -68,15 +68,15 @@ export const create_gro_server = (opts: Initial_Options): Gro_Server => {
 	const options = init_options(opts);
 	const {filer, host, port, https, log} = options;
 
-	let finalPort = port;
-	const nextPort = () => {
-		// hacky but w/e - these values are not final until `groServer.start` resolves
-		finalPort--;
-		listenOptions.port = finalPort;
-		(groServer as Assignable<Gro_Server>).port = finalPort;
+	let final_port = port;
+	const next_port = () => {
+		// hacky but w/e - these values are not final until `gro_server.start` resolves
+		final_port--;
+		listen_options.port = final_port;
+		(gro_server as Assignable<Gro_Server>).port = final_port;
 	};
 
-	const listenOptions: ListenOptions = {
+	const listen_options: ListenOptions = {
 		host,
 		port,
 		// backlog?: number;
@@ -86,22 +86,22 @@ export const create_gro_server = (opts: Initial_Options): Gro_Server => {
 		// writableAll?: boolean;
 		// ipv6Only?: boolean;
 	};
-	let server: Http1Server | Http2Server;
+	let server: Http1_Server | Http2Server;
 	if (https) {
-		server = createHttp2Server(https);
+		server = create_http2_erver(https);
 		server.on('error', (err) => log.error(err));
-		server.on('stream', createHttp2StreamListener(filer, log));
+		server.on('stream', create_http2_stream_listener(filer, log));
 	} else {
-		server = createHttp1Server(createHttp1RequestListener(filer, log));
+		server = create_http1_server(create_http1_request_listener(filer, log));
 	}
 	let reject: (err: Error) => void;
 	server.on('error', (err) => {
 		if ((err as any).code === 'EADDRINUSE') {
-			log.trace(`port ${yellow(finalPort)} is busy, trying next`);
-			nextPort();
+			log.trace(`port ${yellow(final_port)} is busy, trying next`);
+			next_port();
 			setTimeout(() => {
 				server.close();
-				server.listen(listenOptions); // original listener is still there
+				server.listen(listen_options); // original listener is still there
 			}, 0);
 		} else {
 			reject(err);
@@ -110,7 +110,7 @@ export const create_gro_server = (opts: Initial_Options): Gro_Server => {
 
 	let started = false;
 
-	const groServer: Gro_Server = {
+	const gro_server: Gro_Server = {
 		server,
 		host,
 		port, // this value is not valid until `start` is complete
@@ -122,10 +122,10 @@ export const create_gro_server = (opts: Initial_Options): Gro_Server => {
 			// the `on('error'` handler above does the catching
 			await new Promise<void>((resolve, _reject) => {
 				reject = _reject;
-				server.listen(listenOptions, () => {
+				server.listen(listen_options, () => {
 					log.trace(
 						`${rainbow('listening')} ${https ? cyan('https://') : ''}${green(
-							`${host}:${finalPort}`,
+							`${host}:${final_port}`,
 						)}`,
 					);
 					resolve();
@@ -133,45 +133,45 @@ export const create_gro_server = (opts: Initial_Options): Gro_Server => {
 			});
 		},
 	};
-	return groServer;
+	return gro_server;
 };
 
-const createHttp2StreamListener = (filer: Filer, log: Logger): Http2StreamHandler => {
+const create_http2_stream_listener = (filer: Filer, log: Logger): Http2StreamHandler => {
 	return async (stream, headers) => {
-		const rawUrl = headers[':path'] as string;
-		if (!rawUrl) return stream.end();
-		const response = await toResponse(rawUrl, headers, filer, log);
+		const raw_url = headers[':path'] as string;
+		if (!raw_url) return stream.end();
+		const response = await toResponse(raw_url, headers, filer, log);
 		response.headers[':status'] = response.status; // http2 does its own thing
 		stream.respond(response.headers);
 		stream.end(response.data);
 	};
 };
 
-const createHttp1RequestListener = (filer: Filer, log: Logger): Http1RequestListener => {
-	const requestListener: Http1RequestListener = async (req, res) => {
+const create_http1_request_listener = (filer: Filer, log: Logger): Http1_Request_Listener => {
+	const request_listener: Http1_Request_Listener = async (req, res) => {
 		if (!req.url) return;
 		const response = await toResponse(req.url, req.headers, filer, log);
 		res.writeHead(response.status, response.headers);
 		res.end(response.data);
 	};
-	return requestListener;
+	return request_listener;
 };
 
-interface Gro_ServerResponse {
+interface Gro_Server_Response {
 	status: 200 | 304 | 404;
 	headers: OutgoingHttpHeaders;
 	data?: string | Buffer | undefined;
 }
 
 const toResponse = async (
-	rawUrl: string,
+	raw_url: string,
 	headers: IncomingHttpHeaders,
 	filer: Filer,
 	log: Logger,
-): Promise<Gro_ServerResponse> => {
-	const url = parseUrl(rawUrl);
-	const localPath = toLocalPath(url);
-	log.trace('serving', gray(rawUrl), '→', gray(localPath));
+): Promise<Gro_Server_Response> => {
+	const url = parse_url(raw_url);
+	const local_path = to_local_path(url);
+	log.trace('serving', gray(raw_url), '→', gray(local_path));
 
 	// TODO refactor - see `./project_state.ts` for more
 	// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
@@ -193,10 +193,10 @@ const toResponse = async (
 	}
 
 	// search for a file with this path
-	let file = await filer.find_by_path(localPath);
+	let file = await filer.find_by_path(local_path);
 	if (!file) {
 		// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
-		file = await filer.find_by_path(`${localPath}/index.html`);
+		file = await filer.find_by_path(`${local_path}/index.html`);
 	}
 	// if (file?.type === 'directory') { // or `file?.isDirectory`
 	// 	file = filer.find_by_id(file.id + '/index.html');
@@ -204,7 +204,7 @@ const toResponse = async (
 
 	// 404 - not found
 	if (!file) {
-		log.info(`${yellow('404')} ${red(localPath)}`);
+		log.info(`${yellow('404')} ${red(local_path)}`);
 		return {
 			status: 404,
 			headers: {'Content-Type': 'text/plain; charset=utf-8'},
@@ -214,33 +214,33 @@ const toResponse = async (
 
 	// 304 - not modified
 	const etag = headers['if-none-match'];
-	if (etag && etag === toETag(file)) {
-		log.info(`${yellow('304')} ${gray(localPath)}`);
+	if (etag && etag === to_etag(file)) {
+		log.info(`${yellow('304')} ${gray(local_path)}`);
 		return {status: 304, headers: {}};
 	}
 
 	// 200 - ok
-	log.info(`${yellow('200')} ${gray(localPath)}`);
+	log.info(`${yellow('200')} ${gray(local_path)}`);
 	return {
 		status: 200,
-		headers: await to200Headers(filer.fs, file),
+		headers: await to_200_headers(filer.fs, file),
 		data: get_file_contents_buffer(file),
 	};
 };
 
-const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
+const parse_url = (raw: string): string => decodeURI(strip_after(raw, '?'));
 
 // TODO need to rethink this
-const toLocalPath = (url: string): string => {
-	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
-	const relativePath =
-		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
-	return relativePath;
+const to_local_path = (url: string): string => {
+	const relative_url = url[0] === '/' ? url.substring(1) : url;
+	const relative_path =
+		!relative_url || relative_url.endsWith('/') ? `${relative_url}index.html` : relative_url;
+	return relative_path;
 };
 
-const toETag = (file: Base_Filer_File): string => `"${get_file_contents_hash(file)}"`;
+const to_etag = (file: Base_Filer_File): string => `"${get_file_contents_hash(file)}"`;
 
-const to200Headers = async (
+const to_200_headers = async (
 	fs: Filesystem,
 	file: Base_Filer_File,
 ): Promise<OutgoingHttpHeaders> => {
@@ -255,7 +255,7 @@ const to200Headers = async (
 				? `${mime_type}; charset=utf-8`
 				: mime_type,
 		'Content-Length': stats.size,
-		ETag: toETag(file),
+		ETag: to_etag(file),
 
 		// TODO any of these helpful?
 		// 'Last-Modified': stats.mtime.toUTCString(),

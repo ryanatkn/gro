@@ -7,7 +7,7 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {cyan, gray} from '@feltcoop/felt/util/terminal.js';
 import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
-import {toEnvNumber} from '@feltcoop/felt/util/env.js';
+import {to_env_number} from '@feltcoop/felt/util/env.js';
 
 import {EXTERNALS_BUILD_DIRNAME, JS_EXTENSION, to_build_out_path} from '../paths.js';
 import type {
@@ -175,7 +175,7 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 // but it causes unnecessary delays building externals
 const IDLE_CHECK_INTERVAL = 200; // needs to be smaller than `IDLE_CHECK_DELAY`
 const IDLE_CHECK_DELAY = 700; // needs to be larger than `IDLE_CHECK_INTERVAL`
-const IDLE_TIME_LIMIT = toEnvNumber('GRO_IDLE_TIME_LIMIT', 20_000); // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
+const IDLE_TIME_LIMIT = to_env_number('GRO_IDLE_TIME_LIMIT', 20_000); // TODO hacky failsafe, it'll time out after this long, which may be totally busted in some cases..
 // TODO wait what's the relationship between those two? check for errors?
 
 // TODO this hackily guesses if the filer is idle enough to start installing externals

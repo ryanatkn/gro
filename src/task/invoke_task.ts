@@ -223,7 +223,7 @@ export const invoke_task = async (
 		}
 	} else {
 		// Some other find modules result failure happened, so log it out.
-		// (currently, just "unmappedInputPaths")
+		// (currently, just "unmapped_input_paths")
 		logErrorReasons(log, find_modules_result.reasons);
 		process.exit(1);
 	}

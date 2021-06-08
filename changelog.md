@@ -208,7 +208,7 @@
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
 - **break**: replace `src/utils/gitignore.ts` helper `isGitignored`
-  with `src/fs/path_filter.ts` helper `toPath_Filter`
+  with `src/fs/path_filter.ts` helper `to_path_filter`
   ([#172](https://github.com/feltcoop/gro/pull/172))
 
 ## 0.18.2
@@ -244,7 +244,7 @@
   ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
-- add `src/utils/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
+- add `src/utils/gitignore.ts` with `isGitignored` and `load_gitignore_filter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
 - add helper `to_sveltekit_base_path` to `src/build/sveltekit_helpers.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
@@ -275,7 +275,7 @@
   - add flag `gro deploy --clean` to reset deployment state
   - add flag `--branch` to both tasks, default to `main`
   - default to the `deploy` branch instead of `gh-pages`
-- **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
+- **break**: rename `to_env_string` and `to_env_number` from `stringFromEnv` and `numberFromEnv`
   ([#158](https://github.com/feltcoop/gro/pull/158))
 - add helper `read_dir` to `src/fs/node.ts`
   ([#159](https://github.com/feltcoop/gro/pull/159))

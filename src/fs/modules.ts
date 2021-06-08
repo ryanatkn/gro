@@ -15,7 +15,7 @@ import type {Filesystem} from './filesystem.js';
 
 /*
 
-The main functions here, `find_modules` and `load_modules`/`loadModule`,
+The main functions here, `find_modules` and `load_modules`/`load_module`,
 cleanly separate finding from loading.
 This has significant performance consequences and is friendly to future changes.
 Currently the implementations only use the filesystem,
@@ -35,7 +35,7 @@ export type Load_Module_Failure =
 	| {ok: false; type: 'import_failed'; id: string; error: Error}
 	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
 
-export const loadModule = async <T>(
+export const load_module = async <T>(
 	id: string,
 	validate?: (mod: Record<string, any>) => mod is T,
 	dev = process.env.NODE_ENV !== 'production',
@@ -57,12 +57,12 @@ export type Find_Modules_Result = Result<
 	{
 		source_ids_by_input_path: Map<string, string[]>;
 		source_id_path_data_by_input_path: Map<string, Path_Data>;
-		timings: Timings<FindModulesTimings>;
+		timings: Timings<Find_Modules_Timings>;
 	},
 	| {
-			type: 'unmappedInputPaths';
+			type: 'unmapped_input_paths';
 			source_id_path_data_by_input_path: Map<string, Path_Data>;
-			unmappedInputPaths: string[];
+			unmapped_input_paths: string[];
 			reasons: string[];
 	  }
 	| {
@@ -73,23 +73,23 @@ export type Find_Modules_Result = Result<
 			reasons: string[];
 	  }
 >;
-type FindModulesTimings = 'map input paths' | 'find files';
+type Find_Modules_Timings = 'map input paths' | 'find files';
 
-export type LoadModulesResult<Module_MetaType extends Module_Meta> = Result<
+export type Load_Modules_Result<Module_Meta_Type extends Module_Meta> = Result<
 	{
-		modules: Module_MetaType[];
-		timings: Timings<LoadModulesTimings>;
+		modules: Module_Meta_Type[];
+		timings: Timings<Load_Modules_Timings>;
 	},
 	{
-		type: 'loadModuleFailures';
-		loadModuleFailures: Load_Module_Failure[];
+		type: 'load_module_failures';
+		load_module_failures: Load_Module_Failure[];
 		reasons: string[];
 		// still return the modules and timings, deferring to the caller
-		modules: Module_MetaType[];
-		timings: Timings<LoadModulesTimings>;
+		modules: Module_Meta_Type[];
+		timings: Timings<Load_Modules_Timings>;
 	}
 >;
-type LoadModulesTimings = 'load modules';
+type Load_Modules_Timings = 'load modules';
 
 /*
 
@@ -103,22 +103,22 @@ export const find_modules = async (
 	get_possible_source_ids?: (input_path: string) => string[],
 ): Promise<Find_Modules_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
-	const timings = new Timings<FindModulesTimings>();
-	const timingToMapInputPaths = timings.start('map input paths');
+	const timings = new Timings<Find_Modules_Timings>();
+	const timing_to_map_input_paths = timings.start('map input paths');
 	const {
 		source_id_path_data_by_input_path,
-		unmappedInputPaths,
+		unmapped_input_paths,
 	} = await load_source_path_data_by_input_path(fs, input_paths, get_possible_source_ids);
-	timingToMapInputPaths();
+	timing_to_map_input_paths();
 
 	// Error if any input path could not be mapped.
-	if (unmappedInputPaths.length) {
+	if (unmapped_input_paths.length) {
 		return {
 			ok: false,
-			type: 'unmappedInputPaths',
+			type: 'unmapped_input_paths',
 			source_id_path_data_by_input_path,
-			unmappedInputPaths,
-			reasons: unmappedInputPaths.map((input_path) =>
+			unmapped_input_paths,
+			reasons: unmapped_input_paths.map((input_path) =>
 				red(
 					`Input path ${print_path_or_gro_path(
 						input_path,
@@ -130,14 +130,14 @@ export const find_modules = async (
 	}
 
 	// Find all of the files for any directories.
-	const timingToFindFiles = timings.start('find files');
+	const timing_to_find_files = timings.start('find files');
 	const {
 		source_ids_by_input_path,
 		input_directories_with_no_files,
 	} = await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) =>
 		find_files(id),
 	);
-	timingToFindFiles();
+	timing_to_find_files();
 
 	// Error if any input path has no files. (means we have an empty directory)
 	return input_directories_with_no_files.length
@@ -164,25 +164,25 @@ export const find_modules = async (
 Load modules by source id.
 This runs serially because importing test files requires
 linking the current file with the module's initial execution.
-TODO parallelize..how? Separate functions? `load_modulesSerially`?
+TODO parallelize..how? Separate functions? `load_modules_serially`?
 
 */
-export const load_modules = async <Module_Type, Module_MetaType extends Module_Meta<Module_Type>>(
+export const load_modules = async <Module_Type, Module_Meta_Type extends Module_Meta<Module_Type>>(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
-	loadModuleById: (source_id: string) => Promise<Load_Module_Result<Module_MetaType>>,
-): Promise<LoadModulesResult<Module_MetaType>> => {
-	const timings = new Timings<LoadModulesTimings>();
-	const timingToLoadModules = timings.start('load modules');
-	const modules: Module_MetaType[] = [];
-	const loadModuleFailures: Load_Module_Failure[] = [];
+	load_module_by_id: (source_id: string) => Promise<Load_Module_Result<Module_Meta_Type>>,
+): Promise<Load_Modules_Result<Module_Meta_Type>> => {
+	const timings = new Timings<Load_Modules_Timings>();
+	const timing_to_load_modules = timings.start('load modules');
+	const modules: Module_Meta_Type[] = [];
+	const load_module_failures: Load_Module_Failure[] = [];
 	const reasons: string[] = [];
 	for (const [input_path, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
-			const result = await loadModuleById(id);
+			const result = await load_module_by_id(id);
 			if (result.ok) {
 				modules.push(result.mod);
 			} else {
-				loadModuleFailures.push(result);
+				load_module_failures.push(result);
 				switch (result.type) {
 					case 'import_failed': {
 						reasons.push(
@@ -211,13 +211,13 @@ export const load_modules = async <Module_Type, Module_MetaType extends Module_M
 			}
 		}
 	}
-	timingToLoadModules();
+	timing_to_load_modules();
 
-	return loadModuleFailures.length
+	return load_module_failures.length
 		? {
 				ok: false,
-				type: 'loadModuleFailures',
-				loadModuleFailures,
+				type: 'load_module_failures',
+				load_module_failures,
 				reasons,
 				modules,
 				timings,

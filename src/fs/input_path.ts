@@ -10,7 +10,7 @@ import {
 	gro_paths,
 } from '../paths.js';
 import type {Paths} from '../paths.js';
-import {toPath_Data} from './path_data.js';
+import {to_path_data} from './path_data.js';
 import type {Path_Data, Path_Stats} from './path_data.js';
 import type {Filesystem} from './filesystem.js';
 
@@ -107,10 +107,10 @@ export const load_source_path_data_by_input_path = async (
 	get_possible_source_idsForInputPath?: (input_path: string) => string[],
 ): Promise<{
 	source_id_path_data_by_input_path: Map<string, Path_Data>;
-	unmappedInputPaths: string[];
+	unmapped_input_paths: string[];
 }> => {
 	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
-	const unmappedInputPaths: string[] = [];
+	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
 		let filePath_Data: Path_Data | null = null;
 		let dirPath_Data: Path_Data | null = null;
@@ -122,20 +122,20 @@ export const load_source_path_data_by_input_path = async (
 			const stats = await fs.stat(possibleSourceId);
 			if (stats.isDirectory()) {
 				if (!dirPath_Data) {
-					dirPath_Data = toPath_Data(possibleSourceId, stats);
+					dirPath_Data = to_path_data(possibleSourceId, stats);
 				}
 			} else {
-				filePath_Data = toPath_Data(possibleSourceId, stats);
+				filePath_Data = to_path_data(possibleSourceId, stats);
 				break;
 			}
 		}
 		if (filePath_Data || dirPath_Data) {
 			source_id_path_data_by_input_path.set(input_path, filePath_Data || dirPath_Data!); // the ! is needed because TypeScript inference fails
 		} else {
-			unmappedInputPaths.push(input_path);
+			unmapped_input_paths.push(input_path);
 		}
 	}
-	return {source_id_path_data_by_input_path, unmappedInputPaths};
+	return {source_id_path_data_by_input_path, unmapped_input_paths};
 };
 
 /*

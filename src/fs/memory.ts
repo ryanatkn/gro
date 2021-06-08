@@ -64,7 +64,7 @@ export class MemoryFs implements Filesystem {
 				contents: null,
 				// contents_buffer: null,
 				stats,
-				// path_data: toPath_Data(pathPart, stats),
+				// path_data: to_path_data(pathPart, stats),
 			});
 		}
 		this._update(node.id, node);
@@ -120,7 +120,7 @@ export class MemoryFs implements Filesystem {
 			contents: data,
 			// contents_buffer: data, // TODO lazily load this?
 			stats,
-			// path_data: toPath_Data(id, stats),
+			// path_data: to_path_data(id, stats),
 		});
 	};
 	remove = async (path: string): Promise<void> => {
@@ -184,7 +184,7 @@ export class MemoryFs implements Filesystem {
 			contents: null,
 			// contents_buffer: null,
 			stats,
-			// path_data: toPath_Data(id, stats),
+			// path_data: to_path_data(id, stats),
 		});
 	};
 	read_dir = async (path: string): Promise<string[]> => {

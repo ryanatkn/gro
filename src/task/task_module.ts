@@ -1,5 +1,5 @@
 import {source_id_to_base_path, paths, paths_from_id} from '../paths.js';
-import {loadModule, load_modules, find_modules} from '../fs/modules.js';
+import {load_module, load_modules, find_modules} from '../fs/modules.js';
 import type {Module_Meta, Load_Module_Result} from '../fs/modules.js';
 import {to_task_name, is_task_path, TASK_FILE_SUFFIX} from './task.js';
 import type {Task} from './task.js';
@@ -20,7 +20,7 @@ export const validate_task_module = (mod: Record<string, any>): mod is TaskModul
 export const load_task_module = async (
 	id: string,
 ): Promise<Load_Module_Result<Task_Module_Meta>> => {
-	const result = await loadModule(id, validate_task_module);
+	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
 	return {
 		...result,

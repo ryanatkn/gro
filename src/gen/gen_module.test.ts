@@ -2,24 +2,24 @@ import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {join} from 'path';
 
-import {validateGenModule, find_gen_modules} from './gen_module.js';
+import {validate_gen_module, find_gen_modules} from './gen_module.js';
 import {paths} from '../paths.js';
 import {fs} from '../fs/node.js';
 
-/* test_validateGenModule */
-const test_validateGenModule = suite('validateGenModule');
+/* test_validate_gen_module */
+const test_validate_gen_module = suite('validate_gen_module');
 
-test_validateGenModule('minimal interface', () => {
-	t.ok(validateGenModule({gen: () => {}}));
+test_validate_gen_module('minimal interface', () => {
+	t.ok(validate_gen_module({gen: () => {}}));
 });
 
-test_validateGenModule('invalid module', () => {
-	t.not.ok(validateGenModule({gen: {}}));
-	t.not.ok(validateGenModule({task: {run: {}}}));
+test_validate_gen_module('invalid module', () => {
+	t.not.ok(validate_gen_module({gen: {}}));
+	t.not.ok(validate_gen_module({task: {run: {}}}));
 });
 
-test_validateGenModule.run();
-/* /test_validateGenModule */
+test_validate_gen_module.run();
+/* /test_validate_gen_module */
 
 /* test_find_gen_modules */
 const test_find_gen_modules = suite('find_gen_modules');
