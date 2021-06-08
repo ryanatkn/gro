@@ -41,7 +41,7 @@ export const generate_types = async (
 		'tsc',
 		'--outDir',
 		dest,
-		'--root_dir',
+		'--rootDir',
 		src,
 		'--sourceMap',
 		sourcemap ? 'true' : 'false',
