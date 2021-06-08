@@ -3,7 +3,7 @@
 ## 0.27.0
 
 - **break**: convert to `snake_case` from `camelCase`
-  ([#208](https://github.com/feltcoop/gro/pull/208))
+  ([#211](https://github.com/feltcoop/gro/pull/211))
 - **break**: rename `'system'` build from `'node'`
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: add `'config'` build to simplify internals
@@ -15,9 +15,9 @@
 - **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - add `no-watch` arg to `gro dev`
-  ([#208](https://github.com/feltcoop/gro/pull/208))
+  ([#211](https://github.com/feltcoop/gro/pull/211))
 - rename some args in `gro dev` and `gro serve`
-  ([#208](https://github.com/feltcoop/gro/pull/208))
+  ([#211](https://github.com/feltcoop/gro/pull/211))
 
 ## 0.26.2
 
