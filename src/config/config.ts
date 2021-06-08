@@ -147,6 +147,10 @@ export const loadConfig = async (
 
 	const log = new SystemLogger(printLogLabel('config'));
 
+	const options: GroConfigCreatorOptions = {fs, log, dev, config: null as any};
+	const defaultConfig = await toConfig(createDefaultConfig, options, '');
+	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
+
 	const {configSourceId} = paths;
 	let config: GroConfig;
 	if (await fs.exists(configSourceId)) {
@@ -154,7 +158,7 @@ export const loadConfig = async (
 		const bootstrap_config = await toConfig(
 			{builds: [CONFIG_BUILD_CONFIG], sourcemap: dev},
 			options,
-			'gro/config',
+			'gro/build/defaultBuildConfig.ts',
 		);
 		await buildSourceDirectory(fs, bootstrap_config, dev, log);
 
@@ -169,12 +173,8 @@ export const loadConfig = async (
 		if (!validated.ok) {
 			throw Error(`Invalid Gro config module at '${configSourceId}': ${validated.reason}`);
 		}
-		config = await toConfig(configModule.config, options, configSourceId);
+		config = await toConfig(configModule.config, options, configSourceId, defaultConfig);
 	} else {
-		const options: GroConfigCreatorOptions = {fs, log, dev, config: null as any};
-		const defaultConfig = await toConfig(createDefaultConfig, options, '');
-		(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
-
 		config = defaultConfig;
 	}
 	if (dev) {
@@ -190,11 +190,14 @@ export const toConfig = async (
 	configOrCreator: GroConfigPartial | GroConfigCreator,
 	options: GroConfigCreatorOptions,
 	path: string,
+	baseConfig?: GroConfig,
 ): Promise<GroConfig> => {
 	const configPartial =
 		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
 
-	const config = normalizeConfig(configPartial);
+	const extendedConfig = baseConfig ? {...baseConfig, ...configPartial} : configPartial;
+
+	const config = normalizeConfig(extendedConfig);
 
 	const validateResult = validateConfig(config);
 	if (!validateResult.ok) {
