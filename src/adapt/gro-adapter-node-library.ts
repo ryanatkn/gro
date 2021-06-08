@@ -17,8 +17,8 @@ import {
 	TS_TYPE_EXTENSION,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import {BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
-import {resolveInputFiles} from '../build/utils.js';
+import type {BuildName} from '../build/buildConfig.js';
+import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
@@ -69,7 +69,7 @@ export const createAdapter = ({
 				throw Error(`Unknown build config: ${buildName}`);
 			}
 
-			const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
+			const files = toInputFiles(buildConfig.input);
 
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
 			if (type === 'bundled') {

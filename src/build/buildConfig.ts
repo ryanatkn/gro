@@ -10,6 +10,8 @@ import {
 	SYSTEM_BUILD_CONFIG,
 	SYSTEM_BUILD_NAME,
 } from './defaultBuildConfig.js';
+import {validateInputFiles} from './utils.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 // See `../docs/config.md` for documentation.
 
@@ -88,7 +90,10 @@ const normalizeBuildConfigInput = (input: BuildConfigPartial['input']): BuildCon
 	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
-export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {reason: string}> => {
+export const validateBuildConfigs = async (
+	fs: Filesystem,
+	buildConfigs: BuildConfig[],
+): Promise<Result<{}, {reason: string}>> => {
 	if (!Array.isArray(buildConfigs)) {
 		return {
 			ok: false,
@@ -136,6 +141,8 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			};
 		}
 		names.add(buildConfig.name);
+		const validatedInput = await validateInputFiles(fs, toInputFiles(buildConfig.input));
+		if (!validatedInput.ok) return validatedInput;
 	}
 	return {ok: true};
 };

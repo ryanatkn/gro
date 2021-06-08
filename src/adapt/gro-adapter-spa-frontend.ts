@@ -7,8 +7,7 @@ import {printTimings} from '@feltcoop/felt/utils/print.js';
 import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';
 import {DIST_DIRNAME, sourceIdToBasePath, toBuildExtension, toImportId} from '../paths.js';
-import {resolveInputFiles} from '../build/utils.js';
-import {printBuildConfigLabel} from '../build/buildConfig.js';
+import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
 import type {BuildName} from '../build/buildConfig.js';
 import {copyDist} from '../build/dist.js';
 import {BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
@@ -53,7 +52,7 @@ export const createAdapter = ({
 			const timingToBundle = timings.start('bundle');
 			await Promise.all(
 				buildConfigsToBuild.map(async (buildConfig) => {
-					const {files} = await resolveInputFiles(fs, buildConfig);
+					const files = toInputFiles(buildConfig.input);
 					if (!files.length) {
 						log.trace('no input files in', printBuildConfigLabel(buildConfig));
 						return;

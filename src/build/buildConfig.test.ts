@@ -5,6 +5,7 @@ import {join} from 'path';
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import {paths} from '../paths.js';
 import {CONFIG_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './defaultBuildConfig.js';
+import {fs} from '../fs/node.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
 const FAKE_CONFIG_INPUT_RAW = 'other_gro.config2.ts';
@@ -175,74 +176,107 @@ test_normalizeBuildConfigs.run();
 /* test_validateBuildConfigs */
 const test_validateBuildConfigs = suite('validateBuildConfigs');
 
-test_validateBuildConfigs('basic behavior', () => {
-	t.ok(validateBuildConfigs(normalizeBuildConfigs([])).ok);
-	t.ok(validateBuildConfigs(normalizeBuildConfigs([{name: 'node', platform: 'node', input}])).ok);
+test_validateBuildConfigs('basic behavior', async () => {
+	t.ok((await validateBuildConfigs(fs, normalizeBuildConfigs([]))).ok);
 	t.ok(
-		validateBuildConfigs(
-			normalizeBuildConfigs([
-				{name: 'node', platform: 'node', input},
-				{name: 'node2', platform: 'node', input},
-				{name: 'browser', platform: 'browser', input},
-				{name: 'browser2', platform: 'browser', input},
-			]),
+		(
+			await validateBuildConfigs(
+				fs,
+				normalizeBuildConfigs([{name: 'node', platform: 'node', input}]),
+			)
 		).ok,
 	);
 	t.ok(
-		validateBuildConfigs(
-			normalizeBuildConfigs([
-				{name: 'node', platform: 'node', input},
-				{name: 'node2', platform: 'node', input},
-				{name: 'browser', platform: 'browser', input},
-				{name: 'browser2', platform: 'browser', input},
-				{name: 'browser3', platform: 'browser', input},
-			]),
+		(
+			await validateBuildConfigs(
+				fs,
+				normalizeBuildConfigs([
+					{name: 'node', platform: 'node', input},
+					{name: 'node2', platform: 'node', input},
+					{name: 'browser', platform: 'browser', input},
+					{name: 'browser2', platform: 'browser', input},
+				]),
+			)
+		).ok,
+	);
+	t.ok(
+		(
+			await validateBuildConfigs(
+				fs,
+				normalizeBuildConfigs([
+					{name: 'node', platform: 'node', input},
+					{name: 'node2', platform: 'node', input},
+					{name: 'browser', platform: 'browser', input},
+					{name: 'browser2', platform: 'browser', input},
+					{name: 'browser3', platform: 'browser', input},
+				]),
+			)
 		).ok,
 	);
 });
 
-test_validateBuildConfigs('fails with input path that does not exist', () => {
+test_validateBuildConfigs('fails with input path that does not exist', async () => {
 	t.not.ok(
-		validateBuildConfigs(
-			normalizeBuildConfigs([{name: 'node', platform: 'node', input: 'no_such_file.ts'}]),
+		(
+			await validateBuildConfigs(
+				fs,
+				normalizeBuildConfigs([{name: 'node', platform: 'node', input: 'no_such_file.ts'}]),
+			)
 		).ok,
 	);
 });
 
-test_validateBuildConfigs('fails with undefined', () => {
-	t.not.ok(validateBuildConfigs(undefined as any).ok);
-	t.not.ok(validateBuildConfigs({name: 'node', platform: 'node', input} as any).ok);
+test_validateBuildConfigs('fails with undefined', async () => {
+	t.not.ok((await validateBuildConfigs(fs, undefined as any)).ok);
+	t.not.ok((await validateBuildConfigs(fs, {name: 'node', platform: 'node', input} as any)).ok);
 });
 
-test_validateBuildConfigs('fails with an invalid name', () => {
-	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{platform: 'node', input} as any])).ok);
-	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{name: '', platform: 'node', input}])).ok);
-});
-
-test_validateBuildConfigs('fails with duplicate names', () => {
-	t.ok(
-		!validateBuildConfigs(
-			normalizeBuildConfigs([
-				{name: 'node', platform: 'node', input},
-				{name: 'node', platform: 'node', input},
-			]),
-		).ok,
+test_validateBuildConfigs('fails with an invalid name', async () => {
+	t.not.ok(
+		(await validateBuildConfigs(fs, normalizeBuildConfigs([{platform: 'node', input} as any]))).ok,
 	);
-	t.ok(
-		!validateBuildConfigs(
-			normalizeBuildConfigs([
-				{name: 'node', platform: 'node', input},
-				{name: 'node', platform: 'browser', input},
-			]),
-		).ok,
-	);
-});
-
-test_validateBuildConfigs('fails with an invalid platform', () => {
-	t.not.ok(validateBuildConfigs(normalizeBuildConfigs([{name: 'node', input} as any])).ok);
-	t.ok(
-		!validateBuildConfigs(normalizeBuildConfigs([{name: 'node', platform: 'deno', input} as any]))
+	t.not.ok(
+		(await validateBuildConfigs(fs, normalizeBuildConfigs([{name: '', platform: 'node', input}])))
 			.ok,
+	);
+});
+
+test_validateBuildConfigs('fails with duplicate names', async () => {
+	t.ok(
+		!(
+			await validateBuildConfigs(
+				fs,
+				normalizeBuildConfigs([
+					{name: 'node', platform: 'node', input},
+					{name: 'node', platform: 'node', input},
+				]),
+			)
+		).ok,
+	);
+	t.ok(
+		!(
+			await validateBuildConfigs(
+				fs,
+				normalizeBuildConfigs([
+					{name: 'node', platform: 'node', input},
+					{name: 'node', platform: 'browser', input},
+				]),
+			)
+		).ok,
+	);
+});
+
+test_validateBuildConfigs('fails with an invalid platform', async () => {
+	t.not.ok(
+		(await validateBuildConfigs(fs, normalizeBuildConfigs([{name: 'node', input} as any]))).ok,
+	);
+	t.ok(
+		!(
+			await validateBuildConfigs(
+				fs,
+				normalizeBuildConfigs([{name: 'node', platform: 'deno', input} as any]),
+			)
+		).ok,
 	);
 });
 

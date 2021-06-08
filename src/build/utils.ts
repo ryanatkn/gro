@@ -1,13 +1,8 @@
+import type {Result} from '@feltcoop/felt/utils/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import {
-	BuildConfig,
-	BuildConfigInput,
-	InputFilter,
-	toInputFiles,
-	toInputFilters,
-} from '../build/buildConfig.js';
+import type {BuildConfigInput, InputFilter} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
 import type {BuildDependency} from './builder.js';
@@ -57,27 +52,25 @@ export interface ResolvedInputFiles {
 	filters: InputFilter[]; // TODO this may be an antipattern, consider removing it
 }
 
-// TODO use `resolveRawInputPaths`? consider the virtual fs - use the `Filer` probably
-export const resolveInputFiles = async (
+export const validateInputFiles = async (
 	fs: Filesystem,
-	buildConfig: BuildConfig,
-): Promise<ResolvedInputFiles> => {
-	const resolved: ResolvedInputFiles = {
-		files: toInputFiles(buildConfig.input),
-		filters: toInputFilters(buildConfig.input),
-	};
-	await validateInputFiles(fs, resolved.files);
-	return resolved;
-};
-
-export const validateInputFiles = (fs: Filesystem, files: string[]): Promise<any> =>
-	Promise.all(
-		files.map(async (input) => {
-			if (!(await fs.exists(input))) {
-				throw Error(`Input file does not exist: ${input}`);
-			}
-		}),
+	files: string[],
+): Promise<Result<{}, {reason: string}>> => {
+	const results = await Promise.all(
+		files.map(
+			async (input): Promise<null | {ok: false; reason: string}> => {
+				if (!(await fs.exists(input))) {
+					return {ok: false, reason: `Input file does not exist: ${input}`};
+				}
+				return null;
+			},
+		),
 	);
+	for (const result of results) {
+		if (result) return result;
+	}
+	return {ok: true};
+};
 
 export const isInputToBuildConfig = (id: string, inputs: readonly BuildConfigInput[]): boolean => {
 	for (const input of inputs) {
