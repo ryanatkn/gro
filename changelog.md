@@ -14,6 +14,8 @@
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: change `gro-adapter-sveltekit-frontend` output so it composes with others
+  ([#207](https://github.com/feltcoop/gro/pull/207))
 - add `no-watch` arg to `gro dev`
   ([#211](https://github.com/feltcoop/gro/pull/211))
 - rename some args in `gro dev` and `gro serve`
