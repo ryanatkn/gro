@@ -14,7 +14,7 @@ This module invokes the Gro CLI which in turn invokes tasks.
 Tasks are the CLI's primary concept.
 To learn more about them, see the docs at `src/task/README.md`.
 
-When the CLI is invoked it passes the first CLI arg as "taskName" to `invoke_task`.
+When the CLI is invoked it passes the first CLI arg as "task_name" to `invoke_task`.
 
 */
 const main = async () => {
@@ -29,12 +29,12 @@ const main = async () => {
 	}
 
 	const {
-		_: [taskName, ..._],
+		_: [task_name, ..._],
 		...namedArgs
 	} = argv;
 	const args = {_, ...namedArgs};
 
-	await invoke_task(nodeFs, taskName, args);
+	await invoke_task(nodeFs, task_name, args);
 };
 
 main(); // see `attach_process_error_handlers` above for why we don't catch here

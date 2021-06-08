@@ -1,6 +1,6 @@
-import {Module_Meta, loadModule, Load_Module_Result, findModules} from '../fs/modules.js';
+import {Module_Meta, loadModule, Load_Module_Result, find_modules} from '../fs/modules.js';
 import {paths} from '../paths.js';
-import {getPossibleSourceIds} from '../fs/inputPath.js';
+import {get_possible_source_ids} from '../fs/input_path.js';
 import type {Filesystem} from './filesystem.js';
 
 // TODO this is no longer needed to the same extent as it was before switching to `uvu`,
@@ -22,13 +22,13 @@ export const loadTestModule = (id: string): Promise<Load_Module_Result<TestModul
 
 export const findTestModules = (
 	fs: Filesystem,
-	inputPaths: string[] = [paths.source],
+	input_paths: string[] = [paths.source],
 	extensions: string[] = [TEST_FILE_SUFFIX],
 	root_dirs: string[] = [],
 ) =>
-	findModules(
+	find_modules(
 		fs,
-		inputPaths,
+		input_paths,
 		(id) => fs.findFiles(id, (file) => isTestPath(file.path)),
-		(inputPath) => getPossibleSourceIds(inputPath, extensions, root_dirs),
+		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

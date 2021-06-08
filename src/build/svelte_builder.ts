@@ -13,8 +13,8 @@ import {
 	createDefaultPreprocessor,
 	handleStats,
 	handleWarn,
-} from './svelteBuildHelpers.js';
-import type {CreatePreprocessor, SvelteCompilation} from './svelteBuildHelpers.js';
+} from './svelte_build_helpers.js';
+import type {CreatePreprocessor, SvelteCompilation} from './svelte_build_helpers.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,

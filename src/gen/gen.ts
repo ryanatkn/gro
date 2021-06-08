@@ -4,7 +4,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 import {is_source_id} from '../paths.js';
 
 // TODO consider splitting the primitive data/helpers/types
-// out of this module like how `task` is separated from `runTask`
+// out of this module like how `task` is separated from `run_task`
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN_FILE_SEPARATOR; // TODO regexp?

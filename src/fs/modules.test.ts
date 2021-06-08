@@ -2,12 +2,12 @@ import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
-import {findModules, load_modules, loadModule} from './modules.js';
+import {find_modules, load_modules, loadModule} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
-import {getPossibleSourceIds} from './inputPath.js';
+import {get_possible_source_ids} from './input_path.js';
 
 /* test_loadModule */
 const test_loadModule = suite('loadModule');
@@ -67,18 +67,18 @@ test_loadModule('fails to import', async () => {
 test_loadModule.run();
 /* /test_loadModule */
 
-/* test_findModules */
-const test_findModules = suite('findModules');
+/* test_find_modules */
+const test_find_modules = suite('find_modules');
 
-test_findModules('with and without extension', async () => {
+test_find_modules('with and without extension', async () => {
 	const path1 = resolve('src/fs/fixtures/test1');
 	const id1 = resolve('src/fs/fixtures/test1.foo.ts');
 	const id2 = resolve('src/fs/fixtures/test2.foo.ts');
-	const result = await findModules(
+	const result = await find_modules(
 		fs,
 		[path1, id2],
 		(id) => fs.findFiles(id),
-		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
+		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	t.ok(result.ok);
 	t.equal(
@@ -97,9 +97,9 @@ test_findModules('with and without extension', async () => {
 	);
 });
 
-test_findModules('directory', async () => {
+test_find_modules('directory', async () => {
 	const id = resolve('src/fs/fixtures/');
-	const result = await findModules(fs, [id], (id) =>
+	const result = await find_modules(fs, [id], (id) =>
 		fs.findFiles(id, ({path}) => path.includes('.foo.')),
 	);
 	t.ok(result.ok);
@@ -110,8 +110,8 @@ test_findModules('directory', async () => {
 	t.equal(result.source_id_path_data_by_input_path, new Map([[id, {id, isDirectory: true}]]));
 });
 
-test_findModules('fail with unmappedInputPaths', async () => {
-	const result = await findModules(
+test_find_modules('fail with unmappedInputPaths', async () => {
+	const result = await find_modules(
 		fs,
 		[
 			resolve('src/fs/fixtures/bar1'),
@@ -120,7 +120,7 @@ test_findModules('fail with unmappedInputPaths', async () => {
 			resolve('src/fs/fixtures/failme2'),
 		],
 		(id) => fs.findFiles(id),
-		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
+		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	t.not.ok(result.ok);
 	t.ok(result.reasons.length);
@@ -134,8 +134,8 @@ test_findModules('fail with unmappedInputPaths', async () => {
 	}
 });
 
-test_findModules('fail with input_directories_with_no_files', async () => {
-	const result = await findModules(
+test_find_modules('fail with input_directories_with_no_files', async () => {
+	const result = await find_modules(
 		fs,
 		[
 			resolve('src/fs/fixtures/baz1'),
@@ -157,8 +157,8 @@ test_findModules('fail with input_directories_with_no_files', async () => {
 	}
 });
 
-test_findModules.run();
-/* /test_findModules */
+test_find_modules.run();
+/* /test_find_modules */
 
 /* test_load_modules */
 const test_load_modules = suite('load_modules');

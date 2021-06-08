@@ -2,7 +2,7 @@ import type {Plugin} from 'rollup';
 import {gray} from '@feltcoop/felt/utils/terminal.js';
 import {System_Logger} from '@feltcoop/felt/utils/log.js';
 import {printKeyValue, printMs} from '@feltcoop/felt/utils/print.js';
-import {createStopwatch} from '@feltcoop/felt/utils/time.js';
+import {create_stopwatch} from '@feltcoop/felt/utils/time.js';
 
 import {print_path} from '../paths.js';
 
@@ -13,7 +13,7 @@ const tag = (s: string) => s; // maybe color this
 export const diagnosticsPlugin = (): Plugin => {
 	const log = new System_Logger(gray(`[${name}]`));
 
-	const stopwatch = createStopwatch();
+	const stopwatch = create_stopwatch();
 	let started = false;
 
 	// TODO consider returning 2 plugins, one to be put first and one to go last to track timings

@@ -9,8 +9,8 @@ import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
-import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelteBuildHelpers.js';
-import type {SvelteCompilation} from '../build/svelteBuildHelpers.js';
+import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelte_build_helpers.js';
+import type {SvelteCompilation} from '../build/svelte_build_helpers.js';
 import {CSS_EXTENSION, print_path} from '../paths.js';
 import type {CssBuild} from './cssCache.js';
 

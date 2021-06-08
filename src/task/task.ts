@@ -16,9 +16,9 @@ export interface Task_Context<TArgs = {}, TEvents = {}> {
 	log: Logger;
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
-	// TODO could lookup `Args` based on a map of `taskName` types (codegen to keep it simple?)
+	// TODO could lookup `Args` based on a map of `task_name` types (codegen to keep it simple?)
 	invoke_task: (
-		taskName: string,
+		task_name: string,
 		args?: Args,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
 		dev?: boolean,
@@ -29,11 +29,11 @@ export interface Task_Context<TArgs = {}, TEvents = {}> {
 export const TASK_FILE_PATTERN = /\.task\.ts$/;
 export const TASK_FILE_SUFFIX = '.task.ts';
 
-export const isTaskPath = (path: string): boolean => TASK_FILE_PATTERN.test(path);
+export const is_task_path = (path: string): boolean => TASK_FILE_PATTERN.test(path);
 
-export const toTaskPath = (taskName: string): string => taskName + TASK_FILE_SUFFIX;
+export const toTaskPath = (task_name: string): string => task_name + TASK_FILE_SUFFIX;
 
-export const toTaskName = (base_path: string): string => base_path.replace(TASK_FILE_PATTERN, '');
+export const to_task_name = (base_path: string): string => base_path.replace(TASK_FILE_PATTERN, '');
 
 // This is used by tasks to signal a known failure.
 // It's useful for cleaning up logging because

@@ -7,7 +7,7 @@ import {print_error} from '@feltcoop/felt/utils/print.js';
 import {
 	load_source_path_data_by_input_path,
 	load_source_ids_by_input_path,
-} from '../fs/inputPath.js';
+} from '../fs/input_path.js';
 import type {Path_Stats, Path_Data} from './path_data.js';
 import {to_import_id, paths_from_id, print_path, print_path_or_gro_path} from '../paths.js';
 import {SYSTEM_BUILD_NAME} from '../build/default_build_config.js';
@@ -15,7 +15,7 @@ import type {Filesystem} from './filesystem.js';
 
 /*
 
-The main functions here, `findModules` and `load_modules`/`loadModule`,
+The main functions here, `find_modules` and `load_modules`/`loadModule`,
 cleanly separate finding from loading.
 This has significant performance consequences and is friendly to future changes.
 Currently the implementations only use the filesystem,
@@ -93,14 +93,14 @@ type LoadModulesTimings = 'load modules';
 
 /*
 
-Finds modules from input paths. (see `src/fs/inputPath.ts` for more)
+Finds modules from input paths. (see `src/fs/input_path.ts` for more)
 
 */
-export const findModules = async (
+export const find_modules = async (
 	fs: Filesystem,
-	inputPaths: string[],
+	input_paths: string[],
 	findFiles: (id: string) => Promise<Map<string, Path_Stats>>,
-	getPossibleSourceIds?: (inputPath: string) => string[],
+	get_possible_source_ids?: (input_path: string) => string[],
 ): Promise<Find_Modules_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
@@ -108,7 +108,7 @@ export const findModules = async (
 	const {
 		source_id_path_data_by_input_path,
 		unmappedInputPaths,
-	} = await load_source_path_data_by_input_path(fs, inputPaths, getPossibleSourceIds);
+	} = await load_source_path_data_by_input_path(fs, input_paths, get_possible_source_ids);
 	timingToMapInputPaths();
 
 	// Error if any input path could not be mapped.
@@ -118,11 +118,11 @@ export const findModules = async (
 			type: 'unmappedInputPaths',
 			source_id_path_data_by_input_path,
 			unmappedInputPaths,
-			reasons: unmappedInputPaths.map((inputPath) =>
+			reasons: unmappedInputPaths.map((input_path) =>
 				red(
 					`Input path ${print_path_or_gro_path(
-						inputPath,
-						paths_from_id(inputPath),
+						input_path,
+						paths_from_id(input_path),
 					)} cannot be mapped to a file or directory.`,
 				),
 			),
@@ -145,11 +145,11 @@ export const findModules = async (
 				source_id_path_data_by_input_path,
 				source_ids_by_input_path,
 				input_directories_with_no_files,
-				reasons: input_directories_with_no_files.map((inputPath) =>
+				reasons: input_directories_with_no_files.map((input_path) =>
 					red(
 						`Input directory ${print_path_or_gro_path(
-							source_id_path_data_by_input_path.get(inputPath)!.id,
-							paths_from_id(inputPath),
+							source_id_path_data_by_input_path.get(input_path)!.id,
+							paths_from_id(input_path),
 						)} contains no matching files.`,
 					),
 				),
@@ -166,7 +166,7 @@ TODO parallelize..how? Separate functions? `load_modulesSerially`?
 
 */
 export const load_modules = async <Module_Type, Module_MetaType extends Module_Meta<Module_Type>>(
-	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
+	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
 	loadModuleById: (source_id: string) => Promise<Load_Module_Result<Module_MetaType>>,
 ): Promise<LoadModulesResult<Module_MetaType>> => {
 	const timings = new Timings<LoadModulesTimings>();
@@ -174,7 +174,7 @@ export const load_modules = async <Module_Type, Module_MetaType extends Module_M
 	const modules: Module_MetaType[] = [];
 	const loadModuleFailures: Load_Module_Failure[] = [];
 	const reasons: string[] = [];
-	for (const [inputPath, source_ids] of source_ids_by_input_path) {
+	for (const [input_path, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
 			const result = await loadModuleById(id);
 			if (result.ok) {
@@ -186,8 +186,8 @@ export const load_modules = async <Module_Type, Module_MetaType extends Module_M
 						reasons.push(
 							red(
 								`Module import ${print_path(id, paths_from_id(id))} failed from input ${print_path(
-									inputPath,
-									paths_from_id(inputPath),
+									input_path,
+									paths_from_id(input_path),
 								)}: ${print_error(result.error)}`,
 							),
 						);

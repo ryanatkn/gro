@@ -2,13 +2,13 @@ import type {EventEmitter} from 'events';
 import {cyan, red} from '@feltcoop/felt/utils/terminal.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 
-import type {TaskModule_Meta} from './task_module.js';
+import type {Task_Module_Meta} from './task_module.js';
 import type {Args} from './task.js';
 import {Task_Error} from './task.js';
-import type {invoke_task as InvokeTaskFunction} from './invoke_task.js';
+import type {invoke_task as Invoke_Task_Function} from './invoke_task.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export type RunTaskResult =
+export type Run_Task_Result =
 	| {
 			ok: true;
 			output: unknown;
@@ -19,14 +19,14 @@ export type RunTaskResult =
 			error: Error;
 	  };
 
-export const runTask = async (
+export const run_task = async (
 	fs: Filesystem,
-	task: TaskModule_Meta,
+	task: Task_Module_Meta,
 	args: Args,
 	events: EventEmitter,
-	invoke_task: typeof InvokeTaskFunction,
+	invoke_task: typeof Invoke_Task_Function,
 	dev: boolean | undefined, // `undefined` on first task invocation, so it infers from the first task
-): Promise<RunTaskResult> => {
+): Promise<Run_Task_Result> => {
 	if (dev === undefined) {
 		if (task.mod.task.dev !== undefined) {
 			dev = task.mod.task.dev;
@@ -44,12 +44,12 @@ export const runTask = async (
 			events,
 			log: new System_Logger(print_log_label(task.name)),
 			invoke_task: (
-				invokedTaskName,
-				invokedArgs = args,
+				invoked_task_name,
+				invoked_args = args,
 				invokedEvents = events,
 				invokedDev = dev,
 				invokedFs = fs,
-			) => invoke_task(invokedFs, invokedTaskName, invokedArgs, invokedEvents, invokedDev),
+			) => invoke_task(invokedFs, invoked_task_name, invoked_args, invokedEvents, invokedDev),
 		});
 	} catch (err) {
 		return {

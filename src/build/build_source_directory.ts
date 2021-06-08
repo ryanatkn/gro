@@ -1,6 +1,6 @@
 import {printMs, print_timings} from '@feltcoop/felt/utils/print.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
+import {create_stopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
 import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
@@ -16,11 +16,11 @@ export const build_source_directory = async (
 ): Promise<void> => {
 	log.info('building source directory');
 
-	const totalTiming = createStopwatch();
+	const total_timing = create_stopwatch();
 	const timings = new Timings();
 	const logTimings = () => {
 		print_timings(timings, log);
-		log.info(`🕒 built in ${printMs(totalTiming())}`);
+		log.info(`🕒 built in ${printMs(total_timing())}`);
 	};
 
 	const timingToCreateFiler = timings.start('create filer');

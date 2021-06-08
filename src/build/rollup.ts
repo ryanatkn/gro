@@ -19,7 +19,7 @@ import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 import {identity} from '@feltcoop/felt/utils/function.js';
 import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
-import {diagnosticsPlugin} from './rollup-plugin-diagnostics.js';
+import {diagnosticsPlugin} from './rollup_plugin_diagnostics.js';
 // import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
 import {paths} from '../paths.js';
 

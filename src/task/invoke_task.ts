@@ -1,14 +1,14 @@
 import {cyan, red, gray} from '@feltcoop/felt/utils/terminal.js';
 import {System_Logger, Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
 import {EventEmitter} from 'events';
-import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
+import {create_stopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 import {printMs, print_timings} from '@feltcoop/felt/utils/print.js';
 import {plural} from '@feltcoop/felt/utils/string.js';
 
 import type {Args} from './task.js';
-import {runTask} from './runTask.js';
-import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
-import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
+import {run_task} from './run_task.js';
+import {resolve_raw_input_path, get_possible_source_ids} from '../fs/input_path.js';
+import {TASK_FILE_SUFFIX, is_task_path, to_task_name} from './task.js';
 import {
 	paths,
 	gro_paths,
@@ -21,7 +21,7 @@ import {
 	print_path,
 	print_path_or_gro_path,
 } from '../paths.js';
-import {findModules, load_modules} from '../fs/modules.js';
+import {find_modules, load_modules} from '../fs/modules.js';
 import {load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../utils/package_json.js';
 import {SYSTEM_BUILD_NAME} from '../build/default_build_config.js';
@@ -34,7 +34,7 @@ This module invokes Gro tasks by name using the filesystem as the source.
 When a task is invoked,
 it first searches for tasks in the current working directory.
 and falls back to searching Gro's directory, if the two are different.
-See `src/fs/inputPath.ts` for info about what "taskName" can refer to.
+See `src/fs/input_path.ts` for info about what "task_name" can refer to.
 If it matches a directory, all of the tasks within it are logged,
 both in the current working directory and Gro.
 
@@ -49,39 +49,39 @@ The comments describe each condition.
 
 export const invoke_task = async (
 	fs: Filesystem,
-	taskName: string,
+	task_name: string,
 	args: Args,
 	events = new EventEmitter(),
 	dev?: boolean,
 ): Promise<void> => {
-	const log = new System_Logger(print_log_label(taskName || 'gro'));
+	const log = new System_Logger(print_log_label(task_name || 'gro'));
 
 	// Check if the caller just wants to see the version.
-	if (!taskName && (args.version || args.v)) {
+	if (!task_name && (args.version || args.v)) {
 		const gro_package_json = await load_gro_package_json(fs);
 		log.info(`${gray('v')}${cyan(gro_package_json.version as string)}`);
 		return;
 	}
 
-	const totalTiming = createStopwatch();
+	const total_timing = create_stopwatch();
 	const timings = new Timings();
 
 	// Resolve the input path for the provided task name.
-	const inputPath = resolveRawInputPath(taskName || paths.source);
+	const input_path = resolve_raw_input_path(task_name || paths.source);
 
-	// Find the task or directory specified by the `inputPath`.
+	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await findModules(
+	const find_modules_result = await find_modules(
 		fs,
-		[inputPath],
-		(id) => fs.findFiles(id, (file) => isTaskPath(file.path)),
-		(inputPath) => getPossibleSourceIds(inputPath, [TASK_FILE_SUFFIX], [gro_paths.root]),
+		[input_path],
+		(id) => fs.findFiles(id, (file) => is_task_path(file.path)),
+		(input_path) => get_possible_source_ids(input_path, [TASK_FILE_SUFFIX], [gro_paths.root]),
 	);
 
 	if (find_modules_result.ok) {
 		timings.merge(find_modules_result.timings);
 		// Found a match either in the current working directory or Gro's directory.
-		const path_data = find_modules_result.source_id_path_data_by_input_path.get(inputPath)!; // this is null safe because result is ok
+		const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
 		if (!path_data.isDirectory) {
 			// The input path matches a file, so load and run it.
 
@@ -128,7 +128,7 @@ export const invoke_task = async (
 					}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const result = await runTask(fs, task, args, events, invoke_task, dev);
+				const result = await run_task(fs, task, args, events, invoke_task, dev);
 				timingToRunTask();
 				if (result.ok) {
 					log.info(`✓ ${cyan(task.name)}`);
@@ -162,9 +162,9 @@ export const invoke_task = async (
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
-				const gro_dirInputPath = replace_root_dir(inputPath, gro_paths.root);
-				const gro_dirFind_Modules_Result = await findModules(fs, [gro_dirInputPath], (id) =>
-					fs.findFiles(id, (file) => isTaskPath(file.path)),
+				const gro_dirInputPath = replace_root_dir(input_path, gro_paths.root);
+				const gro_dirFind_Modules_Result = await find_modules(fs, [gro_dirInputPath], (id) =>
+					fs.findFiles(id, (file) => is_task_path(file.path)),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (gro_dirFind_Modules_Result.ok) {
@@ -192,7 +192,7 @@ export const invoke_task = async (
 		if (
 			is_this_project_gro ||
 			// this is null safe because of the failure type
-			is_gro_id(find_modules_result.source_id_path_data_by_input_path.get(inputPath)!.id)
+			is_gro_id(find_modules_result.source_id_path_data_by_input_path.get(input_path)!.id)
 		) {
 			// If the directory is inside Gro, just log the errors.
 			logErrorReasons(log, find_modules_result.reasons);
@@ -200,9 +200,9 @@ export const invoke_task = async (
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
-			const gro_dirInputPath = replace_root_dir(inputPath, gro_paths.root);
-			const gro_dirFind_Modules_Result = await findModules(fs, [gro_dirInputPath], (id) =>
-				fs.findFiles(id, (file) => isTaskPath(file.path)),
+			const gro_dirInputPath = replace_root_dir(input_path, gro_paths.root);
+			const gro_dirFind_Modules_Result = await find_modules(fs, [gro_dirInputPath], (id) =>
+				fs.findFiles(id, (file) => is_task_path(file.path)),
 			);
 			if (gro_dirFind_Modules_Result.ok) {
 				timings.merge(gro_dirFind_Modules_Result.timings);
@@ -229,7 +229,7 @@ export const invoke_task = async (
 	}
 
 	print_timings(timings, log);
-	log.info(`🕒 ${printMs(totalTiming())}`);
+	log.info(`🕒 ${printMs(total_timing())}`);
 };
 
 const logAvailableTasks = (
@@ -242,7 +242,7 @@ const logAvailableTasks = (
 		log.info(`${source_ids.length} task${plural(source_ids.length)} in ${dirLabel}:`);
 		for (const source_id of source_ids) {
 			log.info(
-				'\t' + cyan(toTaskName(source_id_to_base_path(source_id, paths_from_id(source_id)))),
+				'\t' + cyan(to_task_name(source_id_to_base_path(source_id, paths_from_id(source_id)))),
 			);
 		}
 	} else {

@@ -1,6 +1,6 @@
-import {Module_Meta, loadModule, Load_Module_Result, findModules} from '../fs/modules.js';
+import {Module_Meta, loadModule, Load_Module_Result, find_modules} from '../fs/modules.js';
 import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
-import {getPossibleSourceIds} from '../fs/inputPath.js';
+import {get_possible_source_ids} from '../fs/input_path.js';
 import {paths} from '../paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -64,13 +64,13 @@ export const checkGenModule = async (
 
 export const find_gen_modules = (
 	fs: Filesystem,
-	inputPaths: string[] = [paths.source],
+	input_paths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN],
 	root_dirs: string[] = [],
 ) =>
-	findModules(
+	find_modules(
 		fs,
-		inputPaths,
+		input_paths,
 		(id) => fs.findFiles(id, (file) => isGenPath(file.path)),
-		(inputPath) => getPossibleSourceIds(inputPath, extensions, root_dirs),
+		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

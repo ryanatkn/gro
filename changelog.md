@@ -378,7 +378,7 @@
 
 ## 0.9.4
 
-- forward the optional `dev` arg through the task invocation tree via `invoke_task` and `runTask`
+- forward the optional `dev` arg through the task invocation tree via `invoke_task` and `run_task`
   ([#135](https://github.com/feltcoop/gro/pull/135))
 
 ## 0.9.3

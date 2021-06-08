@@ -2,19 +2,19 @@ import {EventEmitter} from 'events';
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {runTask} from './runTask.js';
+import {run_task} from './run_task.js';
 import {fs} from '../fs/node.js';
 
-/* test_runTask */
-const test_runTask = suite('runTask');
+/* test_run_task */
+const test_run_task = suite('run_task');
 
-test_runTask('passes args and returns output', async () => {
+test_run_task('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
-	const result = await runTask(
+	const result = await run_task(
 		fs,
 		{
-			name: 'testTask',
-			id: 'foo/testTask',
+			name: 'test_task',
+			id: 'foo/test_task',
 			mod: {
 				task: {
 					run: async ({args}) => args,
@@ -30,19 +30,19 @@ test_runTask('passes args and returns output', async () => {
 	t.is(result.output, args);
 });
 
-test_runTask('invokes a sub task', async () => {
+test_run_task('invokes a sub task', async () => {
 	const args = {a: 1, _: []};
-	let invokedTaskName;
-	let invokedArgs;
-	const result = await runTask(
+	let invoked_task_name;
+	let invoked_args;
+	const result = await run_task(
 		fs,
 		{
-			name: 'testTask',
-			id: 'foo/testTask',
+			name: 'test_task',
+			id: 'foo/test_task',
 			mod: {
 				task: {
 					run: async ({args, invoke_task}) => {
-						invoke_task('bar/testTask', args);
+						invoke_task('bar/test_task', args);
 						return args;
 					},
 				},
@@ -51,24 +51,24 @@ test_runTask('invokes a sub task', async () => {
 		args,
 		new EventEmitter(),
 		async (_fs, invokingTaskName, invokingArgs) => {
-			invokedTaskName = invokingTaskName;
-			invokedArgs = invokingArgs;
+			invoked_task_name = invokingTaskName;
+			invoked_args = invokingArgs;
 		},
 		true,
 	);
 	t.ok(result.ok);
-	t.is(invokedTaskName, 'bar/testTask');
-	t.is(invokedArgs, args);
+	t.is(invoked_task_name, 'bar/test_task');
+	t.is(invoked_args, args);
 	t.is(result.output, args);
 });
 
-test_runTask('failing task', async () => {
+test_run_task('failing task', async () => {
 	let err;
-	const result = await runTask(
+	const result = await run_task(
 		fs,
 		{
-			name: 'testTask',
-			id: 'foo/testTask',
+			name: 'test_task',
+			id: 'foo/test_task',
 			mod: {
 				task: {
 					run: async () => {
@@ -88,5 +88,5 @@ test_runTask('failing task', async () => {
 	t.is(result.error, err);
 });
 
-test_runTask.run();
-/* /test_runTask */
+test_run_task.run();
+/* /test_run_task */

@@ -1,13 +1,13 @@
 import {red, green, gray} from '@feltcoop/felt/utils/terminal.js';
 import {printMs, print_error, print_timings} from '@feltcoop/felt/utils/print.js';
 import {plural} from '@feltcoop/felt/utils/string.js';
-import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
+import {create_stopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
 import type {Task} from './task/task.js';
 import {Task_Error} from './task/task.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, find_gen_modules} from './gen/gen_module.js';
-import {resolveRawInputPaths} from './fs/inputPath.js';
+import {resolve_raw_input_paths} from './fs/input_path.js';
 import {load_modules} from './fs/modules.js';
 import {formatFile} from './build/formatFile.js';
 import {print_path} from './paths.js';
@@ -25,14 +25,14 @@ export const task: Task<Task_Args> = {
 		const rawInputPaths = args._;
 		const check = !!args.check;
 
-		const totalTiming = createStopwatch();
+		const total_timing = create_stopwatch();
 		const timings = new Timings();
 
 		// resolve the input paths relative to src/
-		const inputPaths = resolveRawInputPaths(rawInputPaths);
+		const input_paths = resolve_raw_input_paths(rawInputPaths);
 
 		// load all of the gen modules
-		const find_modules_result = await find_gen_modules(fs, inputPaths);
+		const find_modules_result = await find_gen_modules(fs, input_paths);
 		if (!find_modules_result.ok) {
 			for (const reason of find_modules_result.reasons) {
 				log.error(reason);
@@ -119,7 +119,7 @@ export const task: Task<Task_Args> = {
 			),
 		);
 		print_timings(timings, log);
-		log.info(`🕒 ${printMs(totalTiming())}`);
+		log.info(`🕒 ${printMs(total_timing())}`);
 
 		if (failCount) {
 			for (const result of genResults.failures) {
