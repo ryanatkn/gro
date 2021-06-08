@@ -14,8 +14,12 @@
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/feltcoop/gro/pull/207))
+- add `no-watch` arg to `gro dev`
+  ([#208](https://github.com/feltcoop/gro/pull/208))
 - fix clean
   ([#207](https://github.com/feltcoop/gro/pull/207))
+- rename cert args in `gro dev` and `gro serve`
+  ([#208](https://github.com/feltcoop/gro/pull/208))
 
 ## 0.26.2
 

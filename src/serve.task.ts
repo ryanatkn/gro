@@ -10,8 +10,8 @@ export interface Task_Args {
 	host?: string;
 	port?: string | number;
 	insecure?: boolean;
-	certfile?: string;
-	certkeyfile?: string;
+	cert?: string;
+	certkey?: string;
 }
 
 export const task: Task<Task_Args> = {
@@ -30,7 +30,7 @@ export const task: Task<Task_Args> = {
 		// TODO write docs and validate args, maybe refactor, see also `dev.task.ts`
 		const https = args.insecure
 			? null
-			: await load_https_credentials(fs, log, args.certfile, args.certkeyfile);
+			: await load_https_credentials(fs, log, args.cert, args.certkey);
 
 		const server = create_gro_server({filer, host, port, https});
 		log.info(`serving on ${server.host}:${server.port}`, ...served_dirs);

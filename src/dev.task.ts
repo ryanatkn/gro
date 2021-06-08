@@ -21,9 +21,10 @@ import {
 } from './build/default_build_config.js';
 
 export interface Task_Args {
-	nocert?: boolean;
-	certfile?: string;
-	certkeyfile?: string;
+	'no-watch'?: boolean;
+	'no-cert'?: boolean;
+	cert?: string;
+	certkey?: string;
 }
 
 export interface Dev_Task_Context {
@@ -45,6 +46,8 @@ export interface Task_Events {
 export const task: Task<Task_Args, Task_Events> = {
 	description: 'start dev server',
 	run: async ({fs, dev, log, args, events}) => {
+		const watch = !args['no-watch'];
+
 		const timings = new Timings();
 
 		// Support SvelteKit builds alongside Gro
@@ -68,6 +71,7 @@ export const task: Task<Task_Args, Task_Events> = {
 			build_configs: config.builds,
 			target: config.target,
 			sourcemap: config.sourcemap,
+			watch,
 		});
 		timing_to_create_filer();
 		events.emit('dev.create_filer', filer);
@@ -75,9 +79,9 @@ export const task: Task<Task_Args, Task_Events> = {
 		// TODO restart functionality
 		const timing_to_create_gro_server = timings.start('create dev server');
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
-		const https = args.nocert
+		const https = args['no-cert']
 			? null
-			: await load_https_credentials(fs, log, args.certfile, args.certkeyfile);
+			: await load_https_credentials(fs, log, args.cert, args.certkey);
 		const server = create_gro_server({filer, host: config.host, port: config.port, https});
 		timing_to_create_gro_server();
 		events.emit('dev.create_server', server);
