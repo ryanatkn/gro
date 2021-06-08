@@ -7,7 +7,8 @@
 - **break**: rename `'system'` build from `'node'`
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: add `'config'` build to simplify internals
-  ([#207](https://github.com/feltcoop/gro/pull/207))
+  ([#207](https://github.com/feltcoop/gro/pull/207),
+  [#212](https://github.com/feltcoop/gro/pull/212))
 - **break**: build configs now fail to validate if any input path strings do not exist
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: rename `load_config` from `loadGro_Config`
