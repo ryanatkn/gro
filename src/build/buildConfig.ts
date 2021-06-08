@@ -28,6 +28,12 @@ export interface InputFilter {
 	(id: string): boolean;
 }
 
+export const toInputFiles = (input: readonly BuildConfigInput[]): string[] =>
+	input.filter((input) => typeof input === 'string') as string[];
+
+export const toInputFilters = (input: readonly BuildConfigInput[]): InputFilter[] =>
+	input.filter((input) => typeof input !== 'string') as InputFilter[];
+
 // The partial was originally this calculated type, but it's a lot less readable.
 // export type BuildConfigPartial = PartialExcept<
 // 	OmitStrict<BuildConfig, 'input'> & {readonly input: string | string[]},
