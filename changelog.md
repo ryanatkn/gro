@@ -10,6 +10,8 @@
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: rename `loadConfig` from `loadGroConfig`
   ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: change `validateBuildConfigs` function signature
+  ([#207](https://github.com/feltcoop/gro/pull/207))
 - fix clean
   ([#207](https://github.com/feltcoop/gro/pull/207))
 
