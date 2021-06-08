@@ -1,13 +1,13 @@
-import {compareSimpleMapEntries, sortMap} from '@feltcoop/felt/utils/map.js';
+import {compare_simple_map_entries, sortMap} from '@feltcoop/felt/utils/map.js';
 import type {Assignable} from '@feltcoop/felt/utils/types.js';
 import {toPathParts} from '@feltcoop/felt/utils/path.js';
-import {ensureEnd, strip_start} from '@feltcoop/felt/utils/string.js';
+import {ensure_end, strip_start} from '@feltcoop/felt/utils/string.js';
 
 import {toFsId, FsStats} from './filesystem.js';
 import type {Filesystem, FsReadFile} from './filesystem.js';
 import type {FsCopyOptions, FsId, FsMoveOptions, FsNode} from './filesystem';
 import type {Path_Stats} from './path_data.js';
-import type {PathFilter} from './pathFilter.js';
+import type {Path_Filter} from './path_filter.js';
 import type {Encoding} from './encoding.js';
 
 // TODO should this module have a more specific name? or a more specific directory, with all other implementations?
@@ -37,7 +37,7 @@ export class MemoryFs implements Filesystem {
 		const prefix = id === ROOT ? ROOT : `${id}/`;
 		// TODO instead of searching the whole space, could have a better data structure
 		// TODO to search just children quickly, we need a better data structure
-		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `BaseBuildableFile`s)
+		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `Base_Buildable_File`s)
 		for (const nodeId of this._files.keys()) {
 			if (!nodeId.startsWith(prefix) || nodeId === ROOT) continue;
 			nodes.push(this._files.get(nodeId)!);
@@ -62,7 +62,7 @@ export class MemoryFs implements Filesystem {
 				isDirectory,
 				encoding: null,
 				contents: null,
-				// contentsBuffer: null,
+				// contents_buffer: null,
 				stats,
 				// path_data: toPath_Data(pathPart, stats),
 			});
@@ -90,7 +90,7 @@ export class MemoryFs implements Filesystem {
 		return this._files.has(id);
 	};
 	// TODO the `any` fixes a type error, not sure how to fix properly
-	readFile: FsReadFile = async (path: string, encoding?: Encoding): Promise<any> => {
+	read_file: FsReadFile = async (path: string, encoding?: Encoding): Promise<any> => {
 		const id = toFsId(path);
 		const file = this._find(id);
 		if (!file) {
@@ -101,7 +101,7 @@ export class MemoryFs implements Filesystem {
 		}
 		return file.contents || '';
 	};
-	writeFile = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
+	write_file = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
 		const id = toFsId(path);
 
 		// does the file already exist? update if so
@@ -118,7 +118,7 @@ export class MemoryFs implements Filesystem {
 			isDirectory: false,
 			encoding,
 			contents: data,
-			// contentsBuffer: data, // TODO lazily load this?
+			// contents_buffer: data, // TODO lazily load this?
 			stats,
 			// path_data: toPath_Data(id, stats),
 		});
@@ -168,11 +168,11 @@ export class MemoryFs implements Filesystem {
 				output = true;
 			}
 			if (output) {
-				await this.writeFile(nodeDestId, srcNode.contents, srcNode.encoding);
+				await this.write_file(nodeDestId, srcNode.contents, srcNode.encoding);
 			}
 		}
 	};
-	ensureDir = async (path: string): Promise<void> => {
+	ensure_dir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
 		if (this._find(path)) return;
 		const isDirectory = true;
@@ -182,35 +182,35 @@ export class MemoryFs implements Filesystem {
 			isDirectory,
 			encoding: null,
 			contents: null,
-			// contentsBuffer: null,
+			// contents_buffer: null,
 			stats,
 			// path_data: toPath_Data(id, stats),
 		});
 	};
-	readDir = async (path: string): Promise<string[]> => {
+	read_dir = async (path: string): Promise<string[]> => {
 		// TODO use `_filter` - does it return relative? what behavior for missing, or file?
 		const id = toFsId(path);
-		const idSlash = ensureEnd(id, ROOT);
+		const idSlash = ensure_end(id, ROOT);
 		const nodes = this._filter(id);
 		return nodes.map((node) => strip_start(node.id, idSlash));
 	};
-	emptyDir = async (path: string): Promise<void> => {
+	empty_dir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
 		for (const node of this._filter(id)) {
 			await this.remove(node.id);
 		}
 	};
-	findFiles = async (
+	find_files = async (
 		dir: string,
-		filter?: PathFilter,
-		sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
+		filter?: Path_Filter,
+		sort: typeof compare_simple_map_entries | null = compare_simple_map_entries,
 	): Promise<Map<string, Path_Stats>> => {
 		// TODO wait so in the dir .. we can now find this dir and all of its subdirs
 		// cache the subdirs somehow (backlink to parent node? do we have stable references? we do ya?)
 
 		const found = new Map();
 		const baseDir = toFsId(dir);
-		const baseDirSlash = ensureEnd(baseDir, ROOT);
+		const baseDirSlash = ensure_end(baseDir, ROOT);
 		for (const file of this._files.values()) {
 			if (file.id === baseDir || !file.id.startsWith(baseDir)) continue;
 			const path = strip_start(file.id, baseDirSlash);

@@ -1,87 +1,91 @@
 import * as svelte from 'svelte/compiler';
-import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/compiler/preprocess';
+import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compiler/interfaces';
 import type {Plugin, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/utils/terminal.js';
 import {toPathStem} from '@feltcoop/felt/utils/path.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
-import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
+import type {Partial_Except} from '@feltcoop/felt/utils/types.js';
 
-import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelte_build_helpers.js';
-import type {SvelteCompilation} from '../build/svelte_build_helpers.js';
+import {
+	base_svelte_compile_options,
+	handle_warn,
+	handle_stats,
+} from '../build/svelte_build_helpers.js';
+import type {Svelte_Compilation} from '../build/svelte_build_helpers.js';
 import {CSS_EXTENSION, print_path} from '../paths.js';
-import type {CssBuild} from './cssCache.js';
+import type {Css_Build} from './cssCache.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
 
-export interface GroCssBuild extends CssBuild {
+export interface Gro_Css_Build extends Css_Build {
 	source_id: string; // for Svelte files, the `.svelte` version instead of `.css`
-	sortIndex: number; // sort order when css is concatenated - maybe make this optional?
+	sort_index: number; // sort order when css is concatenated - maybe make this optional?
 	map: ExistingRawSourceMap | undefined;
 }
 
-export type GroSvelteCompilation = SvelteCompilation & {
+export type Gro_Svelte_Compilation = Svelte_Compilation & {
 	id: string;
-	cssId: string | undefined;
-	code: string; // may be preprocessed or equal to `originalCode`
-	originalCode: string;
+	css_id: string | undefined;
+	code: string; // may be preprocessed or equal to `original_code`
+	original_code: string;
 };
 
 export interface Options {
 	dev: boolean;
-	addCssBuild(build: GroCssBuild): boolean;
+	add_css_build(build: Gro_Css_Build): boolean;
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
-	preprocessor: PreprocessorGroup | PreprocessorGroup[] | null;
-	compileOptions: SvelteCompileOptions;
-	compilations: Map<string, GroSvelteCompilation>;
-	onwarn: typeof handleWarn;
-	onstats: typeof handleStats;
+	preprocessor: Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null;
+	compile_options: Svelte_Compile_Options;
+	compilations: Map<string, Gro_Svelte_Compilation>;
+	onwarn: typeof handle_warn;
+	onstats: typeof handle_stats;
 }
-export type RequiredOptions = 'dev' | 'addCssBuild';
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
+export type Required_Options = 'dev' | 'add_css_build';
+export type Initial_Options = Partial_Except<Options, Required_Options>;
+export const init_options = (opts: Initial_Options): Options => ({
 	include: '**/*.svelte',
 	exclude: null,
 	preprocessor: null,
-	compileOptions: {},
-	compilations: new Map<string, GroSvelteCompilation>(),
-	onwarn: handleWarn,
-	onstats: handleStats,
-	...omitUndefined(opts),
+	compile_options: {},
+	compilations: new Map<string, Gro_Svelte_Compilation>(),
+	onwarn: handle_warn,
+	onstats: handle_stats,
+	...omit_undefined(opts),
 });
 
-export interface GroSveltePlugin extends Plugin {
-	getCompilation: (id: string) => GroSvelteCompilation | undefined;
+export interface Gro_Svelte_Plugin extends Plugin {
+	get_compilation: (id: string) => Gro_Svelte_Compilation | undefined;
 }
 
 export const name = 'gro-svelte';
 
-export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
+export const groSveltePlugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 	const {
 		dev,
-		addCssBuild,
+		add_css_build,
 		include,
 		exclude,
 		preprocessor,
-		compileOptions,
+		compile_options,
 		compilations,
 		onwarn,
 		onstats,
-	} = initOptions(opts);
+	} = init_options(opts);
 
 	const log = new System_Logger(print_log_label(name));
 
-	const getCompilation = (id: string): GroSvelteCompilation | undefined => compilations.get(id);
+	const get_compilation = (id: string): Gro_Svelte_Compilation | undefined => compilations.get(id);
 
 	const filter = createFilter(include, exclude);
 
 	return {
 		name,
-		getCompilation,
+		get_compilation,
 		async transform(code, id) {
 			if (!filter(id)) return null;
 			log.trace('transform', print_path(id));
@@ -100,12 +104,12 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			}
 
 			log.trace('compile', print_path(id));
-			let svelteCompilation: SvelteCompilation;
+			let svelteCompilation: Svelte_Compilation;
 			try {
 				svelteCompilation = svelte.compile(preprocessedCode, {
-					...baseSvelteCompileOptions,
+					...base_svelte_compile_options,
 					dev,
-					...compileOptions,
+					...compile_options,
 					filename: id,
 					name: toPathStem(id),
 				});
@@ -116,27 +120,27 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			const {js, css, warnings, stats} = svelteCompilation;
 
 			for (const warning of warnings) {
-				onwarn(id, warning, handleWarn, log, this);
+				onwarn(id, warning, handle_warn, log, this);
 			}
 
-			onstats(id, stats, handleStats, log, this);
+			onstats(id, stats, handle_stats, log, this);
 
-			const cssId = `${id}${CSS_EXTENSION}`;
-			log.trace('add css import', print_path(cssId));
-			addCssBuild({
-				id: cssId,
+			const css_id = `${id}${CSS_EXTENSION}`;
+			log.trace('add css import', print_path(css_id));
+			add_css_build({
+				id: css_id,
 				source_id: id,
-				sortIndex: -1,
+				sort_index: -1,
 				...css,
 			});
 
 			// save the compilation so other plugins can use it
-			const compilation: GroSvelteCompilation = {
+			const compilation: Gro_Svelte_Compilation = {
 				...svelteCompilation,
 				id,
-				cssId,
+				css_id,
 				code: preprocessedCode,
-				originalCode: code,
+				original_code: code,
 			};
 			compilations.set(id, compilation);
 

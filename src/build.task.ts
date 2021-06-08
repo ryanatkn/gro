@@ -6,10 +6,10 @@ import type {Task, Args} from './task/task.js';
 import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from './build/rollup.js';
 import {load_config} from './config/config.js';
 import type {Gro_Config} from './config/config.js';
-import type {Task_Events as ServerTask_Events} from './server.task.js';
-import type {AdapterContext, Adapter} from './adapt/adapter.js';
+import type {Task_Events as Server_Task_Events} from './server.task.js';
+import type {Adapter_Context, Adapter} from './adapt/adapter.js';
 import {build_source_directory} from './build/build_source_directory.js';
-import {generateTypes} from './build/tsBuildHelpers.js';
+import {generateTypes} from './build/ts_build_helpers.js';
 import {paths, to_types_build_dir} from './paths.js';
 import {clean} from './fs/clean.js';
 
@@ -19,7 +19,7 @@ export interface Task_Args extends Args {
 	map_watch_options?: Map_Watch_Options;
 }
 
-export interface Task_Events extends ServerTask_Events {
+export interface Task_Events extends Server_Task_Events {
 	'build.createConfig': (config: Gro_Config) => void;
 	'build.buildTypes': void;
 	'build.buildSrc': void;
@@ -59,7 +59,7 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		// Adapt the build to final ouputs.
 		const timingToCreateAdapters = timings.start('create adapters');
-		const adaptContext: AdapterContext<Task_Args, Task_Events> = {
+		const adaptContext: Adapter_Context<Task_Args, Task_Events> = {
 			...ctx,
 			config,
 		};

@@ -2,40 +2,40 @@
 	import type {Writable} from 'svelte/store';
 
 	import Build_Name from './Build_Name.svelte';
-	import PlatformName from './PlatformName.svelte';
-	import {getMetasByBuild_Name} from './sourceTree.js';
-	import type {SourceTree} from './sourceTree.js';
+	import Platform_Name from './Platform_Name.svelte';
+	import {get_metas_by_build_name} from './source_tree.js';
+	import type {Source_Tree} from './source_tree.js';
 	import type {View} from './view.js';
-	import type {SourceMeta} from '../build/source_meta.js';
+	import type {Source_Meta} from '../build/source_meta.js';
 
-	export let sourceTree: SourceTree;
-	export let selectedBuild_Names: string[];
-	export let activeSourceMetaView: View;
-	export let selectedSourceMeta: Writable<SourceMeta | null>;
-	export let hoveredSourceMeta: Writable<SourceMeta | null>;
+	export let source_tree: Source_Tree;
+	export let selected_build_names: string[];
+	export let active_source_meta_view: View;
+	export let selected_source_meta: Writable<Source_Meta | null>;
+	export let hovered_source_meta: Writable<Source_Meta | null>;
 </script>
 
 <div class="source-meta">
 	<form>
-		{#each sourceTree.build_configs as build_config (build_config.name)}
+		{#each source_tree.build_configs as build_config (build_config.name)}
 			<div>
 				<label>
-					<input type="checkbox" bind:group={selectedBuild_Names} value={build_config.name} />
+					<input type="checkbox" bind:group={selected_build_names} value={build_config.name} />
 					<Build_Name build_name={build_config.name} />
 					<small>
-						({getMetasByBuild_Name(sourceTree, build_config.name).length})
+						({get_metas_by_build_name(source_tree, build_config.name).length})
 
-						<PlatformName platformName={build_config.platform} />
+						<Platform_Name platform_name={build_config.platform} />
 					</small>
 				</label>
 			</div>
 		{/each}
 	</form>
 	<svelte:component
-		this={activeSourceMetaView}
-		{sourceTree}
-		{selectedSourceMeta}
-		{hoveredSourceMeta}
-		{selectedBuild_Names}
+		this={active_source_meta_view}
+		{source_tree}
+		{selected_source_meta}
+		{hovered_source_meta}
+		{selected_build_names}
 	/>
 </div>

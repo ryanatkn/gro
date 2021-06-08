@@ -141,13 +141,13 @@ export const load_source_path_data_by_input_path = async (
 /*
 
 Finds all of the matching files for the given input paths.
-Parameterized by `findFiles` so it's fs-agnostic.
+Parameterized by `find_files` so it's fs-agnostic.
 De-dupes source ids.
 
 */
 export const load_source_ids_by_input_path = async (
 	source_id_path_data_by_input_path: Map<string, Path_Data>,
-	findFiles: (id: string) => Promise<Map<string, Path_Stats>>,
+	find_files: (id: string) => Promise<Map<string, Path_Stats>>,
 ): Promise<{
 	source_ids_by_input_path: Map<string, string[]>;
 	input_directories_with_no_files: string[];
@@ -156,8 +156,8 @@ export const load_source_ids_by_input_path = async (
 	const input_directories_with_no_files: string[] = [];
 	const existingSourceIds = new Set<string>();
 	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
-		if (path_data.isDirectory) {
-			const files = await findFiles(path_data.id);
+		if (path_data.is_directory) {
+			const files = await find_files(path_data.id);
 			if (files.size) {
 				let source_ids: string[] = [];
 				let hasFiles = false;

@@ -107,22 +107,22 @@ export const task: Task = {
 // usage:
 // import type {Task, Task_Context} from '@feltcoop/gro';
 
-export interface Task<TArgs = Args, TEvents = {}> {
-	run: (ctx: Task_Context<TArgs, TEvents>) => Promise<unknown>;
+export interface Task<T_Args = Args, T_Events = {}> {
+	run: (ctx: Task_Context<T_Args, T_Events>) => Promise<unknown>;
 	description?: string;
 	dev?: boolean; // set to `false` to run the task and its children in production mode
 }
 
-export interface Task_Context<TArgs = {}, TEvents = {}> {
+export interface Task_Context<T_Args = {}, T_Events = {}> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
-	args: TArgs;
-	events: StrictEventEmitter<EventEmitter, TEvents>;
+	args: T_Args;
+	events: StrictEventEmitter<EventEmitter, T_Events>;
 	invoke_task: (
 		task_name: string,
 		args?: Args,
-		events?: StrictEventEmitter<EventEmitter, TEvents>,
+		events?: StrictEventEmitter<EventEmitter, T_Events>,
 		dev?: boolean,
 		fs?: Filesystem,
 	) => Promise<void>;
@@ -235,7 +235,7 @@ export const task: Task<Task_Args> = {
 
 ### task events
 
-The `Task` interface's second generic parameter is `TEvents`
+The `Task` interface's second generic parameter is `T_Events`
 to type the `events` property of the `Task_Context`.
 It uses Node's builtin `EventEmitter` with types provided by the types-only dependency
 [`strict-event-emitter-types`](https://github.com/bterlson/strict-event-emitter-types/).

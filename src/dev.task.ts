@@ -5,7 +5,7 @@ import type {Spawned_Process} from '@feltcoop/felt/utils/process.js';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
-import {createDefaultBuilder} from './build/defaultBuilder.js';
+import {create_default_builder} from './build/default_builder.js';
 import {paths, to_build_out_path, is_this_project_gro} from './paths.js';
 import {create_gro_server} from './server/server.js';
 import type {GroServer} from './server/server.js';
@@ -14,7 +14,7 @@ import {load_config} from './config/config.js';
 import type {Served_Dir_Partial} from './build/served_dir.js';
 import {load_https_credentials} from './server/https.js';
 import {
-	has_api_serverConfig,
+	has_api_server_config,
 	API_SERVER_BUILD_BASE_PATH,
 	API_SERVER_BUILD_NAME,
 	has_sveltekit_frontend,
@@ -58,18 +58,18 @@ export const task: Task<Task_Args, Task_Events> = {
 		timingToLoadConfig();
 		events.emit('dev.createConfig', config);
 
-		const timingToCreateFiler = timings.start('create filer');
+		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
 			fs,
 			dev,
-			builder: createDefaultBuilder(),
-			sourceDirs: [paths.source],
-			served_dirs: config.serve || getDefaultServedDirs(config),
+			builder: create_default_builder(),
+			source_dirs: [paths.source],
+			served_dirs: config.serve || getDefaultServed_Dirs(config),
 			build_configs: config.builds,
 			target: config.target,
 			sourcemap: config.sourcemap,
 		});
-		timingToCreateFiler();
+		timing_to_create_filer();
 		events.emit('dev.createFiler', filer);
 
 		// TODO restart functionality
@@ -107,7 +107,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		// TODO task pollution, this is bad for users who want to copy/paste this task.
 		// think of a better way - maybe config+defaults?
 		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
-		if (!is_this_project_gro && has_api_serverConfig(config.builds)) {
+		if (!is_this_project_gro && has_api_server_config(config.builds)) {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
 			const serverBuildPath = to_build_out_path(
 				true,
@@ -126,8 +126,8 @@ export const task: Task<Task_Args, Task_Events> = {
 	},
 };
 
-const getDefaultServedDirs = (config: Gro_Config): Served_Dir_Partial[] => {
-	const build_configToServe = config.primaryBrowserBuild_Config ?? config.system_build_config;
-	const buildOutDirToServe = to_build_out_path(true, build_configToServe.name, '');
-	return [buildOutDirToServe];
+const getDefaultServed_Dirs = (config: Gro_Config): Served_Dir_Partial[] => {
+	const build_config_to_serve = config.primary_browser_build_config ?? config.system_build_config;
+	const build_out_dir_to_serve = to_build_out_path(true, build_config_to_serve.name, '');
+	return [build_out_dir_to_serve];
 };

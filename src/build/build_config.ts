@@ -17,42 +17,42 @@ import type {Filesystem} from '../fs/filesystem.js';
 
 export type Build_Name = Flavored<string, 'Build_Name'>;
 
-export interface Build_Config<TPlatformTarget extends string = PlatformTarget> {
+export interface Build_Config<T_Platform_Target extends string = Platform_Target> {
 	readonly name: Build_Name;
-	readonly platform: TPlatformTarget;
+	readonly platform: T_Platform_Target;
 	readonly input: readonly Build_Config_Input[];
 }
 
 // `string` inputs must be a relative or absolute path to a source file
-export type Build_Config_Input = string | InputFilter;
+export type Build_Config_Input = string | Input_Filter;
 
-export interface InputFilter {
+export interface Input_Filter {
 	(id: string): boolean;
 }
 
 export const to_input_files = (input: readonly Build_Config_Input[]): string[] =>
 	input.filter((input) => typeof input === 'string') as string[];
 
-export const toInputFilters = (input: readonly Build_Config_Input[]): InputFilter[] =>
-	input.filter((input) => typeof input !== 'string') as InputFilter[];
+export const to_input_filters = (input: readonly Build_Config_Input[]): Input_Filter[] =>
+	input.filter((input) => typeof input !== 'string') as Input_Filter[];
 
 // The partial was originally this calculated type, but it's a lot less readable.
-// export type Build_Config_Partial = PartialExcept<
-// 	OmitStrict<Build_Config, 'input'> & {readonly input: string | string[]},
+// export type Build_Config_Partial = Partial_Except<
+// 	Omit_Strict<Build_Config, 'input'> & {readonly input: string | string[]},
 // 	'name' | 'platform'
 // >;
 export interface Build_Config_Partial {
 	readonly name: Build_Name;
-	readonly platform: PlatformTarget;
+	readonly platform: Platform_Target;
 	readonly input: Build_Config_Input | readonly Build_Config_Input[];
 }
 
-export type PlatformTarget = 'node' | 'browser';
+export type Platform_Target = 'node' | 'browser';
 
 export const is_system_build_config = (config: Build_Config): boolean =>
 	config.name === SYSTEM_BUILD_NAME;
 
-export const isConfigBuild_Config = (config: Build_Config): boolean =>
+export const is_config_build_config = (config: Build_Config): boolean =>
 	config.name === CONFIG_BUILD_NAME;
 
 export const normalize_build_configs = (
@@ -60,33 +60,35 @@ export const normalize_build_configs = (
 ): Build_Config[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	const build_configs: Build_Config[] = [];
-	let hasConfigBuild_Config = false;
-	let hasSystemBuild_Config = false;
+	let has_config_build_config = false;
+	let has_system_build_config = false;
 	for (const partial of partials) {
 		if (!partial) continue;
 		const build_config: Build_Config = {
 			name: partial.name,
 			platform: partial.platform,
-			input: normalizeBuild_Config_Input(partial.input),
+			input: normalize_build_config_input(partial.input),
 		};
 		build_configs.push(build_config);
-		if (!hasConfigBuild_Config && isConfigBuild_Config(build_config)) {
-			hasConfigBuild_Config = true;
+		if (!has_config_build_config && is_config_build_config(build_config)) {
+			has_config_build_config = true;
 		}
-		if (!hasSystemBuild_Config && is_system_build_config(build_config)) {
-			hasSystemBuild_Config = true;
+		if (!has_system_build_config && is_system_build_config(build_config)) {
+			has_system_build_config = true;
 		}
 	}
-	if (!hasSystemBuild_Config) {
+	if (!has_system_build_config) {
 		build_configs.unshift(SYSTEM_BUILD_CONFIG);
 	}
-	if (!hasConfigBuild_Config) {
+	if (!has_config_build_config) {
 		build_configs.unshift(CONFIG_BUILD_CONFIG);
 	}
 	return build_configs;
 };
 
-const normalizeBuild_Config_Input = (input: Build_Config_Partial['input']): Build_Config['input'] =>
+const normalize_build_config_input = (
+	input: Build_Config_Partial['input'],
+): Build_Config['input'] =>
 	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
@@ -100,8 +102,8 @@ export const validate_build_configs = async (
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
-	const configBuild_Config = build_configs.find((c) => isConfigBuild_Config(c));
-	if (!configBuild_Config) {
+	const config_build_config = build_configs.find((c) => is_config_build_config(c));
+	if (!config_build_config) {
 		return {
 			ok: false,
 			reason:

@@ -26,32 +26,32 @@ const resetMemoryFs = ({fs}: SuiteContext) => fs._reset();
 
 const fakeTsContents = 'export const a = 5;';
 
-/* test_writeFile */
-const test_writeFile = suite('writeFile', suiteContext);
-test_writeFile.before.each(resetMemoryFs);
+/* test_write_file */
+const test_write_file = suite('write_file', suiteContext);
+test_write_file.before.each(resetMemoryFs);
 
-test_writeFile('basic behavior', async ({fs}) => {
+test_write_file('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		t.is(fs._files.size, 0);
 		const contents = 'hi';
-		await fs.writeFile(path, contents, 'utf8');
+		await fs.write_file(path, contents, 'utf8');
 		t.is(fs._files.size, toPathParts(toFsId(path)).length + 1);
 		t.is(fs._find(toFsId(path))!.contents, contents);
 	}
 });
 
-test_writeFile('updates an existing file', async ({fs}) => {
+test_write_file('updates an existing file', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		t.is(fs._files.size, 0);
 		const contents1 = 'contents1';
-		await fs.writeFile(path, contents1, 'utf8');
+		await fs.write_file(path, contents1, 'utf8');
 		const {size} = fs._files;
 		t.is(size, toPathParts(toFsId(path)).length + 1);
 		t.is(fs._find(toFsId(path))!.contents, contents1);
 		const contents2 = 'contents2';
-		await fs.writeFile(path, contents2, 'utf8');
+		await fs.write_file(path, contents2, 'utf8');
 		t.is(fs._files.size, size); // count has not changed
 		t.is(fs._find(toFsId(path))!.contents, contents2);
 	}
@@ -62,36 +62,36 @@ test_writeFile('updates an existing file', async ({fs}) => {
 // TODO test that it creates the in-between directories
 // this will break the `length` checks!! can use the new length checks to check segment creation
 
-test_writeFile.run();
-/* /test_writeFile */
+test_write_file.run();
+/* /test_write_file */
 
-/* test_readFile */
-const test_readFile = suite('readFile', suiteContext);
-test_readFile.before.each(resetMemoryFs);
+/* test_read_file */
+const test_read_file = suite('read_file', suiteContext);
+test_read_file.before.each(resetMemoryFs);
 
-test_readFile('basic behavior', async ({fs}) => {
+test_read_file('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		const contents = 'contents';
-		await fs.writeFile(path, contents, 'utf8');
-		const found = await fs.readFile(path, 'utf8');
+		await fs.write_file(path, contents, 'utf8');
+		const found = await fs.read_file(path, 'utf8');
 		t.is(contents, found);
 	}
 });
 
-test_readFile('missing file throws', async ({fs}) => {
+test_read_file('missing file throws', async ({fs}) => {
 	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		fs._reset();
-		await fs.readFile('/missing/file', 'utf8');
+		await fs.read_file('/missing/file', 'utf8');
 	} catch (err) {
 		return;
 	}
 	throw Error();
 });
 
-test_readFile.run();
-/* /test_readFile */
+test_read_file.run();
+/* /test_read_file */
 
 /* test_remove */
 const test_remove = suite('remove', suiteContext);
@@ -100,7 +100,7 @@ test_remove.before.each(resetMemoryFs);
 test_remove('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
-		await fs.writeFile(path, 'contents', 'utf8');
+		await fs.write_file(path, 'contents', 'utf8');
 		t.ok(fs._exists(path));
 		await fs.remove(path);
 		t.ok(!fs._exists(path));
@@ -109,9 +109,9 @@ test_remove('basic behavior', async ({fs}) => {
 
 test_remove('removes contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
-	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir2/d.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir2/d.ts`, fakeTsContents);
 	t.is(fs._files.size, 10);
 	await fs.remove(`${path}/dir1`);
 	t.is(fs._files.size, 6);
@@ -132,7 +132,7 @@ test_move('basic behavior', async ({fs}) => {
 	const dest = '/testdest';
 	for (const path of testPaths) {
 		fs._reset();
-		await fs.writeFile(path, 'contents', 'utf8');
+		await fs.write_file(path, 'contents', 'utf8');
 		t.ok(fs._exists(path));
 		t.ok(!fs._exists(dest));
 		await fs.move(path, dest);
@@ -143,9 +143,9 @@ test_move('basic behavior', async ({fs}) => {
 
 test_move('moves contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
-	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir2/d.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir2/d.ts`, fakeTsContents);
 	t.is(fs._files.size, 10);
 	const newPath = '/a/e';
 	await fs.move(`${path}/dir1`, `${newPath}/dir1`); // TODO any special merge behavior?
@@ -167,8 +167,8 @@ test_move('handles move conflict with overwrite false', async ({fs}) => {
 	const filename2 = '2.ts';
 	const path1 = `${dir}/${filename1}`;
 	const path2 = `${dir}/${filename2}`;
-	await fs.writeFile(path1, fakeTsContents);
-	await fs.writeFile(path2, fakeTsContents);
+	await fs.write_file(path1, fakeTsContents);
+	await fs.write_file(path2, fakeTsContents);
 	t.is(fs._files.size, 5);
 	// TODO async `t.throws` or `t.rejects` ?
 	let failed = true;
@@ -189,8 +189,8 @@ test_move('handles move conflict with overwrite true', async ({fs}) => {
 	const filename2 = '2.ts';
 	const path1 = `${dir}/${filename1}`;
 	const path2 = `${dir}/${filename2}`;
-	await fs.writeFile(path1, fakeTsContents);
-	await fs.writeFile(path2, fakeTsContents);
+	await fs.write_file(path1, fakeTsContents);
+	await fs.write_file(path2, fakeTsContents);
 	t.is(fs._files.size, 5);
 	await fs.move(path1, path2, {overwrite: true});
 	t.ok(!fs._exists(path1));
@@ -219,7 +219,7 @@ test_copy('basic behavior', async ({fs}) => {
 	const dest = '/testdest';
 	for (const path of testPaths) {
 		fs._reset();
-		await fs.writeFile(path, 'contents', 'utf8');
+		await fs.write_file(path, 'contents', 'utf8');
 		t.ok(fs._exists(path));
 		t.ok(!fs._exists(dest));
 		await fs.copy(path, dest);
@@ -230,10 +230,10 @@ test_copy('basic behavior', async ({fs}) => {
 
 test_copy('copies contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
-	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/IGNORE.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir2/d.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/IGNORE.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir2/d.ts`, fakeTsContents);
 	t.is(fs._files.size, 11);
 	const newPath = '/a/e';
 	await fs.copy(`${path}/dir1`, `${newPath}/dir1`, {
@@ -260,8 +260,8 @@ test_copy('handles copy conflict with overwrite false', async ({fs}) => {
 	const filename2 = '2.ts';
 	const path1 = `${dir}/${filename1}`;
 	const path2 = `${dir}/${filename2}`;
-	await fs.writeFile(path1, fakeTsContents);
-	await fs.writeFile(path2, fakeTsContents);
+	await fs.write_file(path1, fakeTsContents);
+	await fs.write_file(path2, fakeTsContents);
 	t.is(fs._files.size, 5);
 	// TODO async `t.throws`
 	let failed = true;
@@ -282,8 +282,8 @@ test_copy('handles copy conflict with overwrite true', async ({fs}) => {
 	const filename2 = '2.ts';
 	const path1 = `${dir}/${filename1}`;
 	const path2 = `${dir}/${filename2}`;
-	await fs.writeFile(path1, fakeTsContents);
-	await fs.writeFile(path2, fakeTsContents);
+	await fs.write_file(path1, fakeTsContents);
+	await fs.write_file(path2, fakeTsContents);
 	t.is(fs._files.size, 5);
 	await fs.copy(path1, path2, {overwrite: true});
 	t.ok(fs._exists(path1));
@@ -304,26 +304,26 @@ test_copy('missing source path throws', async ({fs}) => {
 test_copy.run();
 /* /test_copy */
 
-/* test_ensureDir */
-const test_ensureDir = suite('ensureDir', suiteContext);
-test_ensureDir.before.each(resetMemoryFs);
+/* test_ensure_dir */
+const test_ensure_dir = suite('ensure_dir', suiteContext);
+test_ensure_dir.before.each(resetMemoryFs);
 
-test_ensureDir('basic behavior', async ({fs}) => {
+test_ensure_dir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		t.ok(!fs._exists(path));
-		await fs.ensureDir(path);
+		await fs.ensure_dir(path);
 		t.ok(fs._exists(path));
 	}
 });
 
-test_ensureDir('normalize paths', async ({fs}) => {
+test_ensure_dir('normalize paths', async ({fs}) => {
 	for (const path of testPaths) {
 		const testNormalizePaths = async (path1: string, path2: string) => {
 			fs._reset();
 			t.ok(!fs._exists(path1));
 			t.ok(!fs._exists(path2));
-			await fs.ensureDir(path1);
+			await fs.ensure_dir(path1);
 			t.ok(fs._exists(path1));
 			t.ok(fs._exists(path2));
 		};
@@ -335,56 +335,56 @@ test_ensureDir('normalize paths', async ({fs}) => {
 	}
 });
 
-test_ensureDir.run();
-/* /test_ensureDir */
+test_ensure_dir.run();
+/* /test_ensure_dir */
 
-/* test_readDir */
-const test_readDir = suite('readDir', suiteContext);
-test_readDir.before.each(resetMemoryFs);
+/* test_read_dir */
+const test_read_dir = suite('read_dir', suiteContext);
+test_read_dir.before.each(resetMemoryFs);
 
-test_readDir('basic behavior', async ({fs}) => {
+test_read_dir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
-		await fs.writeFile(path, 'contents', 'utf8');
+		await fs.write_file(path, 'contents', 'utf8');
 		t.ok(fs._exists(path));
 		const dir = dirname(path);
-		const paths = await fs.readDir(dir);
+		const paths = await fs.read_dir(dir);
 		t.ok(paths.length);
 	}
 });
 
-test_readDir('readDirs contained files and dirs', async ({fs}) => {
+test_read_dir('read_dirs contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
-	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c1.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c2.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c3.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/d`, fakeTsContents);
-	const paths = await fs.readDir(`${path}/dir1`);
+	await fs.write_file(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c1.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c2.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c3.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/d`, fakeTsContents);
+	const paths = await fs.read_dir(`${path}/dir1`);
 	t.equal(paths, ['a.ts', 'b', 'b/c1.ts', 'b/c2.ts', 'b/c3.ts', 'd']);
 });
 
-test_readDir('missing file fails silently', async ({fs}) => {
-	const paths = await fs.readDir('/missing/file');
+test_read_dir('missing file fails silently', async ({fs}) => {
+	const paths = await fs.read_dir('/missing/file');
 	t.equal(paths, []);
 	t.is(fs._files.size, 0);
 });
 
-test_readDir.run();
-/* /test_readDir */
+test_read_dir.run();
+/* /test_read_dir */
 
-/* test_emptyDir */
-const test_emptyDir = suite('emptyDir', suiteContext);
-test_emptyDir.before.each(resetMemoryFs);
+/* test_empty_dir */
+const test_empty_dir = suite('empty_dir', suiteContext);
+test_empty_dir.before.each(resetMemoryFs);
 
-test_emptyDir('basic behavior', async ({fs}) => {
+test_empty_dir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
-		await fs.writeFile(path, 'contents', 'utf8');
+		await fs.write_file(path, 'contents', 'utf8');
 		t.ok(fs._exists(path));
 		const {size} = fs._files;
 		const dir = dirname(path);
-		await fs.emptyDir(dir);
+		await fs.empty_dir(dir);
 		t.ok(fs._exists(dir));
 		t.ok(!fs._exists(path));
 		t.ok(size > fs._files.size);
@@ -392,37 +392,37 @@ test_emptyDir('basic behavior', async ({fs}) => {
 	}
 });
 
-test_emptyDir('emptyDirs contained files and dirs', async ({fs}) => {
+test_empty_dir('empty_dirs contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
-	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c1.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c2.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c3.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir2/d.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c1.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c2.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c3.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir2/d.ts`, fakeTsContents);
 	t.is(fs._files.size, 12);
-	await fs.emptyDir(`${path}/dir1`);
+	await fs.empty_dir(`${path}/dir1`);
 	t.is(fs._files.size, 7);
 	t.ok(fs._exists(`${path}/dir1`));
 });
 
-test_emptyDir('missing file fails silently', async ({fs}) => {
-	await fs.emptyDir('/missing/file');
+test_empty_dir('missing file fails silently', async ({fs}) => {
+	await fs.empty_dir('/missing/file');
 });
 
-test_emptyDir.run();
-/* /test_emptyDir */
+test_empty_dir.run();
+/* /test_empty_dir */
 
-/* test_findFiles */
-const test_findFiles = suite('findFiles', suiteContext);
-test_findFiles.before.each(resetMemoryFs);
+/* test_find_files */
+const test_find_files = suite('find_files', suiteContext);
+test_find_files.before.each(resetMemoryFs);
 
-test_findFiles('basic behavior', async ({fs}) => {
+test_find_files('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		const contents = 'contents';
-		await fs.writeFile(path, contents, 'utf8');
+		await fs.write_file(path, contents, 'utf8');
 		let filterCallCount = 0;
-		const files = await fs.findFiles('.', () => (filterCallCount++, true));
+		const files = await fs.find_files('.', () => (filterCallCount++, true));
 		const rootPath = to_root_path(toFsId(path));
 		t.is(filterCallCount, files.size);
 		t.is(files.size, rootPath.split('/').length);
@@ -430,18 +430,18 @@ test_findFiles('basic behavior', async ({fs}) => {
 	}
 });
 
-test_findFiles('find a bunch of files and dirs', async ({fs}) => {
+test_find_files('find a bunch of files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	const ignoredPath = 'b/c2.ts';
 	let hasIgnoredPath = false;
-	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c1.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c2.ts`, fakeTsContents);
-	await fs.writeFile(`${path}/dir1/b/c3.ts`, fakeTsContents);
-	await fs.ensureDir(`${path}/dir1/d`);
-	await fs.ensureDir(`${path}/dir1/e/f`);
-	await fs.writeFile(`${path}/dir2/2.ts`, fakeTsContents);
-	const found = await fs.findFiles(
+	await fs.write_file(`${path}/dir1/a.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c1.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c2.ts`, fakeTsContents);
+	await fs.write_file(`${path}/dir1/b/c3.ts`, fakeTsContents);
+	await fs.ensure_dir(`${path}/dir1/d`);
+	await fs.ensure_dir(`${path}/dir1/e/f`);
+	await fs.write_file(`${path}/dir2/2.ts`, fakeTsContents);
+	const found = await fs.find_files(
 		`${path}/dir1`,
 		({path}) => {
 			if (!hasIgnoredPath) hasIgnoredPath = path === ignoredPath;
@@ -453,5 +453,5 @@ test_findFiles('find a bunch of files and dirs', async ({fs}) => {
 	t.equal(Array.from(found.keys()), ['e/f', 'e', 'd', 'b/c3.ts', 'b/c1.ts', 'b', 'a.ts']);
 });
 
-test_findFiles.run();
-/* /test_findFiles */
+test_find_files.run();
+/* /test_find_files */

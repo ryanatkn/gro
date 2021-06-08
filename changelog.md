@@ -126,7 +126,7 @@
   ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: rename `toObtainable` from `createObtainable`
   ([#187](https://github.com/feltcoop/gro/pull/187))
-- **break**: rename `Filesystem.writeFile` from `outputFile`
+- **break**: rename `Filesystem.write_file` from `outputFile`
   ([#188](https://github.com/feltcoop/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
   ([#188](https://github.com/feltcoop/gro/pull/188))
@@ -166,7 +166,7 @@
 - **break**: change `gro clean` args to longhand and
   add option `--git` to prune dead branches
   ([#180](https://github.com/feltcoop/gro/pull/180))
-- fix `gro build` to copy files to `dist/` with `src/build/dist.ts` helper `copyDist`
+- fix `gro build` to copy files to `dist/` with `src/build/dist.ts` helper `copy_dist`
   ([#179](https://github.com/feltcoop/gro/pull/179))
 
 ## 0.20.4
@@ -208,7 +208,7 @@
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
 - **break**: replace `src/utils/gitignore.ts` helper `isGitignored`
-  with `src/fs/pathFilter.ts` helper `toPathFilter`
+  with `src/fs/path_filter.ts` helper `toPath_Filter`
   ([#172](https://github.com/feltcoop/gro/pull/172))
 
 ## 0.18.2
@@ -277,7 +277,7 @@
   - default to the `deploy` branch instead of `gh-pages`
 - **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
   ([#158](https://github.com/feltcoop/gro/pull/158))
-- add helper `readDir` to `src/fs/node.ts`
+- add helper `read_dir` to `src/fs/node.ts`
   ([#159](https://github.com/feltcoop/gro/pull/159))
 
 ## 0.14.0
@@ -303,7 +303,7 @@
   ([#150](https://github.com/feltcoop/gro/pull/150))
 - fix false positive API server detection in default config
   ([#151](https://github.com/feltcoop/gro/pull/151))
-- add `getMimeTypes` and `getExtensions` returning iterators to `src/fs/mime.ts`
+- add `getMimeTypes` and `get_extensions` returning iterators to `src/fs/mime.ts`
   ([#149](https://github.com/feltcoop/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/feltcoop/gro/pull/149))
@@ -360,7 +360,7 @@
 
 ## 0.10.1
 
-- add the `Filer` option `filter` with type `PathFilter`
+- add the `Filer` option `filter` with type `Path_Filter`
   and ignore directories like `.git` by default
   ([#138](https://github.com/feltcoop/gro/pull/138))
 
@@ -728,7 +728,7 @@
 ## 0.1.1
 
 - add `fs/watchNodeFs.ts` for low level filesystem watching
-- expose `remove` and `ensureDir` in `fs/node.ts`
+- expose `remove` and `ensure_dir` in `fs/node.ts`
 
 ## 0.1.0
 

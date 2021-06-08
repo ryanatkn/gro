@@ -1,22 +1,22 @@
 <script lang="ts">
-	import BuildId from './BuildId.svelte';
-	import SourceId from './SourceId.svelte';
+	import Build_Id from './Build_Id.svelte';
+	import Source_Id from './Source_Id.svelte';
 	import Build_Name from './Build_Name.svelte';
-	import {filterSelectedMetas, getBuildsByBuild_Name} from './sourceTree.js';
-	import type {SourceTree} from './sourceTree.js';
+	import {filter_selected_metas, get_builds_by_build_name} from './source_tree.js';
+	import type {Source_Tree} from './source_tree.js';
 
-	export let sourceTree: SourceTree;
-	export let selectedBuild_Names: string[];
-	export const selectedSourceMeta = undefined;
-	export const hoveredSourceMeta = undefined;
+	export let source_tree: Source_Tree;
+	export let selected_build_names: string[];
+	export const selected_source_meta = undefined;
+	export const hovered_source_meta = undefined;
 
-	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuild_Names);
-	$: finalItems = filteredSourceMetas.flatMap((source_meta) =>
+	$: filteredSource_Metas = filter_selected_metas(source_tree, selected_build_names);
+	$: finalItems = filteredSource_Metas.flatMap((source_meta) =>
 		source_meta.build_names
 			.map(
 				(build_name) =>
-					selectedBuild_Names.includes(build_name)
-						? {source_meta, build_name, key: `${build_name}:${source_meta.cacheId}`} // TODO hmm
+					selected_build_names.includes(build_name)
+						? {source_meta, build_name, key: `${build_name}:${source_meta.cache_id}`} // TODO hmm
 						: null!, // bc filter below
 			)
 			.filter(Boolean),
@@ -33,14 +33,14 @@
 		{#each finalItems as {source_meta, build_name, key} (key)}
 			<tr>
 				<td>
-					<SourceId id={source_meta.data.source_id} />
+					<Source_Id id={source_meta.data.source_id} />
 				</td>
 				<td>
 					<Build_Name {build_name} />
 				</td>
 				<td>
-					{#each getBuildsByBuild_Name(source_meta, build_name) as build (build.id)}
-						<BuildId id={build.id} />
+					{#each get_builds_by_build_name(source_meta, build_name) as build (build.id)}
+						<Build_Id id={build.id} />
 					{/each}
 				</td>
 			</tr>

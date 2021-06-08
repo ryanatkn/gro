@@ -1,10 +1,10 @@
 import CheapWatch from 'cheap-watch';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
-import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
+import type {Partial_Except} from '@feltcoop/felt/utils/types.js';
 
 import type {Path_Stats} from './path_data.js';
-import {toPathFilter} from './pathFilter.js';
-import type {PathFilter} from './pathFilter.js';
+import {toPath_Filter} from './path_filter.js';
+import type {Path_Filter} from './path_filter.js';
 import {loadGitignoreFilter} from '../utils/gitignore.js';
 
 /*
@@ -34,21 +34,21 @@ export const DEBOUNCE_DEFAULT = 10;
 export interface Options {
 	dir: string;
 	onChange: WatcherChangeCallback;
-	filter: PathFilter | null | undefined;
+	filter: Path_Filter | null | undefined;
 	watch: boolean;
 	debounce: number;
 }
-export type RequiredOptions = 'dir' | 'onChange';
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
+export type Required_Options = 'dir' | 'onChange';
+export type Initial_Options = Partial_Except<Options, Required_Options>;
+export const init_options = (opts: Initial_Options): Options => ({
 	watch: true,
 	debounce: DEBOUNCE_DEFAULT,
-	...omitUndefined(opts),
+	...omit_undefined(opts),
 	filter: opts.filter === undefined ? toDefaultFilter() : opts.filter,
 });
 
-export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
-	const {dir, onChange, filter, debounce, watch} = initOptions(opts);
+export const watchNodeFs = (opts: Initial_Options): WatchNodeFs => {
+	const {dir, onChange, filter, debounce, watch} = init_options(opts);
 	const watcher = new CheapWatch({dir, filter, watch, debounce});
 	if (watch) {
 		watcher.on('+', ({path, stats, isNew}) => {
@@ -70,4 +70,4 @@ export const watchNodeFs = (opts: InitialOptions): WatchNodeFs => {
 	};
 };
 
-const toDefaultFilter = (): PathFilter => toPathFilter(loadGitignoreFilter());
+const toDefaultFilter = (): Path_Filter => toPath_Filter(loadGitignoreFilter());

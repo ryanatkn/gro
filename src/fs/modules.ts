@@ -99,7 +99,7 @@ Finds modules from input paths. (see `src/fs/input_path.ts` for more)
 export const find_modules = async (
 	fs: Filesystem,
 	input_paths: string[],
-	findFiles: (id: string) => Promise<Map<string, Path_Stats>>,
+	find_files: (id: string) => Promise<Map<string, Path_Stats>>,
 	get_possible_source_ids?: (input_path: string) => string[],
 ): Promise<Find_Modules_Result> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
@@ -134,7 +134,9 @@ export const find_modules = async (
 	const {
 		source_ids_by_input_path,
 		input_directories_with_no_files,
-	} = await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => findFiles(id));
+	} = await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) =>
+		find_files(id),
+	);
 	timingToFindFiles();
 
 	// Error if any input path has no files. (means we have an empty directory)

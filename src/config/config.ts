@@ -6,29 +6,29 @@ import {
 	DEFAULT_LOG_LEVEL,
 } from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
 import type {Assignable, Result} from '@feltcoop/felt/utils/types.js';
 import {toArray} from '@feltcoop/felt/utils/array.js';
 
 import {paths, to_build_out_path, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {
 	is_system_build_config,
-	isConfigBuild_Config,
+	is_config_build_config,
 	normalize_build_configs,
 	validate_build_configs,
 } from '../build/build_config.js';
-import type {AdaptBuilds} from '../adapt/adapter.js';
+import type {Adapt_Builds} from '../adapt/adapter.js';
 import type {Build_Config, Build_Config_Partial} from '../build/build_config.js';
 import {
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
 	CONFIG_BUILD_CONFIG,
 } from '../build/default_build_config.js';
-import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
+import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Served_Dir_Partial} from '../build/served_dir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {config as createDefaultConfig} from './gro.config.default.js';
+import {config as create_default_config} from './gro.config.default.js';
 
 /*
 
@@ -52,23 +52,23 @@ This choice keeps things simple and flexible because:
 export interface Gro_Config {
 	readonly builds: Build_Config[];
 	readonly publish: string | null;
-	readonly adapt: AdaptBuilds;
-	readonly target: EcmaScriptTarget;
+	readonly adapt: Adapt_Builds;
+	readonly target: Ecma_Script_Target;
 	readonly sourcemap: boolean;
 	readonly host: string;
 	readonly port: number;
 	readonly log_level: Log_Level;
 	readonly serve?: Served_Dir_Partial[];
-	readonly configBuild_Config: Build_Config;
+	readonly config_build_config: Build_Config;
 	readonly system_build_config: Build_Config;
-	readonly primaryBrowserBuild_Config: Build_Config | null; // TODO improve this, too rigid
+	readonly primary_browser_build_config: Build_Config | null; // TODO improve this, too rigid
 }
 
 export interface Gro_Config_Partial {
 	readonly builds?: (Build_Config_Partial | null)[] | Build_Config_Partial | null; // allow `null` for convenience
 	readonly publish?: string | null; // dir to publish: defaults to 'dist/library', or null if it doesn't exist -- TODO support multiple
-	readonly adapt?: AdaptBuilds;
-	readonly target?: EcmaScriptTarget;
+	readonly adapt?: Adapt_Builds;
+	readonly target?: Ecma_Script_Target;
 	readonly sourcemap?: boolean;
 	readonly host?: string;
 	readonly port?: number;
@@ -91,8 +91,8 @@ export interface Gro_Config_Creator_Options {
 	readonly config: Gro_Config; // default config is available for user config code
 }
 
-let cachedDevConfig: Gro_Config | undefined;
-let cachedProdConfig: Gro_Config | undefined;
+let cached_dev_config: Gro_Config | undefined;
+let cached_prod_config: Gro_Config | undefined;
 
 /*
 
@@ -129,7 +129,7 @@ Caveats
 
 */
 
-const applyConfig = (config: Gro_Config) => {
+const apply_config = (config: Gro_Config) => {
 	// other things?
 	configureLog_Level(config.log_level);
 };
@@ -137,19 +137,19 @@ const applyConfig = (config: Gro_Config) => {
 export const load_config = async (
 	fs: Filesystem,
 	dev: boolean,
-	applyConfigToSystem = true,
+	apply_config_to_system = true,
 ): Promise<Gro_Config> => {
-	const cachedConfig = dev ? cachedDevConfig : cachedProdConfig;
-	if (cachedConfig) {
-		if (applyConfigToSystem) applyConfig(cachedConfig);
-		return cachedConfig;
+	const cached_config = dev ? cached_dev_config : cached_prod_config;
+	if (cached_config) {
+		if (apply_config_to_system) apply_config(cached_config);
+		return cached_config;
 	}
 
 	const log = new System_Logger(print_log_label('config'));
 
 	const options: Gro_Config_Creator_Options = {fs, log, dev, config: null as any};
-	const defaultConfig = await to_config(createDefaultConfig, options, '');
-	(options as Assignable<Gro_Config_Creator_Options, 'config'>).config = defaultConfig;
+	const default_config = await to_config(create_default_config, options, '');
+	(options as Assignable<Gro_Config_Creator_Options, 'config'>).config = default_config;
 
 	const {config_source_id} = paths;
 	let config: Gro_Config;
@@ -164,66 +164,66 @@ export const load_config = async (
 
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
-		const configBuildId = to_build_out_path(dev, CONFIG_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
-		if (!(await fs.exists(configBuildId))) {
-			throw Error('Cannot find config build id: ${configBuildId} from ${config_source_id}');
+		const config_build_id = to_build_out_path(dev, CONFIG_BUILD_CONFIG.name, CONFIG_BUILD_PATH);
+		if (!(await fs.exists(config_build_id))) {
+			throw Error(`Cannot find config build id: ${config_build_id} from ${config_source_id}`);
 		}
-		const configModule = await import(configBuildId);
-		const validated = validateConfigModule(configModule);
+		const config_module = await import(config_build_id);
+		const validated = validate_config_module(config_module);
 		if (!validated.ok) {
 			throw Error(`Invalid Gro config module at '${config_source_id}': ${validated.reason}`);
 		}
-		config = await to_config(configModule.config, options, config_source_id, defaultConfig);
+		config = await to_config(config_module.config, options, config_source_id, default_config);
 	} else {
-		config = defaultConfig;
+		config = default_config;
 	}
 	if (dev) {
-		cachedDevConfig = config;
+		cached_dev_config = config;
 	} else {
-		cachedProdConfig = config;
+		cached_prod_config = config;
 	}
-	if (applyConfigToSystem) applyConfig(config);
+	if (apply_config_to_system) apply_config(config);
 	return config;
 };
 
 export const to_config = async (
-	configOrCreator: Gro_Config_Partial | Gro_Config_Creator,
+	config_or_creator: Gro_Config_Partial | Gro_Config_Creator,
 	options: Gro_Config_Creator_Options,
 	path: string,
-	baseConfig?: Gro_Config,
+	base_config?: Gro_Config,
 ): Promise<Gro_Config> => {
-	const configPartial =
-		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
+	const config_partial =
+		typeof config_or_creator === 'function' ? await config_or_creator(options) : config_or_creator;
 
-	const extendedConfig = baseConfig ? {...baseConfig, ...configPartial} : configPartial;
+	const extended_config = base_config ? {...base_config, ...config_partial} : config_partial;
 
-	const config = normalizeConfig(extendedConfig);
+	const config = normalize_config(extended_config);
 
-	const validateResult = await validateConfig(options.fs, config);
-	if (!validateResult.ok) {
-		throw Error(`Invalid Gro config at '${path}': ${validateResult.reason}`);
+	const validate_result = await validate_config(options.fs, config);
+	if (!validate_result.ok) {
+		throw Error(`Invalid Gro config at '${path}': ${validate_result.reason}`);
 	}
 
 	return config;
 };
 
-const validateConfigModule = (configModule: any): Result<{}, {reason: string}> => {
-	if (!(typeof configModule.config === 'function' || typeof configModule.config === 'object')) {
+const validate_config_module = (config_module: any): Result<{}, {reason: string}> => {
+	if (!(typeof config_module.config === 'function' || typeof config_module.config === 'object')) {
 		throw Error(`Invalid Gro config module. Expected a 'config' export.`);
 	}
 	return {ok: true};
 };
 
-const validateConfig = async (
+const validate_config = async (
 	fs: Filesystem,
 	config: Gro_Config,
 ): Promise<Result<{}, {reason: string}>> => {
-	const build_configsResult = await validate_build_configs(fs, config.builds);
-	if (!build_configsResult.ok) return build_configsResult;
+	const build_configs_result = await validate_build_configs(fs, config.builds);
+	if (!build_configs_result.ok) return build_configs_result;
 	return {ok: true};
 };
 
-const normalizeConfig = (config: Gro_Config_Partial): Gro_Config => {
+const normalize_config = (config: Gro_Config_Partial): Gro_Config => {
 	const build_configs = normalize_build_configs(toArray(config.builds || null));
 	return {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
@@ -231,22 +231,22 @@ const normalizeConfig = (config: Gro_Config_Partial): Gro_Config => {
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,
 		adapt: () => null,
-		...omitUndefined(config),
+		...omit_undefined(config),
 		builds: build_configs,
 		publish:
 			config.publish || config.publish === null
 				? config.publish
-				: toDefaultPublishDirs(build_configs),
+				: to_default_publish_dirs(build_configs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		configBuild_Config: build_configs.find((b) => isConfigBuild_Config(b))!,
+		config_build_config: build_configs.find((b) => is_config_build_config(b))!,
 		system_build_config: build_configs.find((b) => is_system_build_config(b))!,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
-		primaryBrowserBuild_Config: build_configs.find((b) => b.platform === 'browser') || null,
+		primary_browser_build_config: build_configs.find((b) => b.platform === 'browser') || null,
 	};
 };
 
-const toDefaultPublishDirs = (build_configs: Build_Config[]): string | null => {
-	const build_configToPublish = build_configs.find((b) => b.name === NODE_LIBRARY_BUILD_NAME);
-	return build_configToPublish ? `${DIST_DIRNAME}/${build_configToPublish.name}` : null;
+const to_default_publish_dirs = (build_configs: Build_Config[]): string | null => {
+	const build_config_to_publish = build_configs.find((b) => b.name === NODE_LIBRARY_BUILD_NAME);
+	return build_config_to_publish ? `${DIST_DIRNAME}/${build_config_to_publish.name}` : null;
 };

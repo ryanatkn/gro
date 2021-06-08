@@ -1,12 +1,12 @@
 import esbuild from 'esbuild';
 import {System_Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
 import {replace_extension} from '@feltcoop/felt/utils/path.js';
 import {cyan} from '@feltcoop/felt/utils/terminal.js';
 
-import type {EcmaScriptTarget, GenerateTypesForFile} from './tsBuildHelpers.js';
-import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
+import type {Ecma_Script_Target, GenerateTypesForFile} from './ts_build_helpers.js';
+import {get_default_esbuild_options} from './esbuildBuildHelpers.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
@@ -15,9 +15,9 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
+import type {Builder, Build_Result, Text_Build, Text_Build_Source} from './builder.js';
 import {add_js_sourcemap_footer} from './utils.js';
-import {toGenerateTypesForFile} from './tsBuildHelpers.js';
+import {toGenerateTypesForFile} from './ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
@@ -25,23 +25,23 @@ export interface Options {
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
 	createEsbuildOptions: CreateEsbuildOptions;
 }
-export type InitialOptions = Partial<Options>;
-export const initOptions = (opts: InitialOptions): Options => {
+export type Initial_Options = Partial<Options>;
+export const init_options = (opts: Initial_Options): Options => {
 	return {
 		createEsbuildOptions: createDefaultEsbuildOptions,
-		...omitUndefined(opts),
-		log: opts.log || new System_Logger(print_log_label('esbuildBuilder', cyan)),
+		...omit_undefined(opts),
+		log: opts.log || new System_Logger(print_log_label('esbuild_builder', cyan)),
 	};
 };
 
-type EsbuildBuilder = Builder<TextBuildSource, TextBuild>;
+type EsbuildBuilder = Builder<Text_Build_Source, Text_Build>;
 
-export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder => {
-	const {createEsbuildOptions} = initOptions(opts);
+export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuilder => {
+	const {createEsbuildOptions} = init_options(opts);
 
 	const esbuildOptionsCache: Map<string, esbuild.TransformOptions> = new Map();
 	const getEsbuildOptions = (
-		target: EcmaScriptTarget,
+		target: Ecma_Script_Target,
 		dev: boolean,
 		sourcemap: boolean,
 	): esbuild.TransformOptions => {
@@ -80,7 +80,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		const output = await esbuild.transform(source.contents, esbuildOptions);
 		const jsFilename = replace_extension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
-		const builds: TextBuild[] = [
+		const builds: Text_Build[] = [
 			{
 				id: jsId,
 				filename: jsFilename,
@@ -128,7 +128,7 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				});
 			}
 		}
-		const result: BuildResult<TextBuild> = {builds};
+		const result: Build_Result<Text_Build> = {builds};
 		return result;
 	};
 
@@ -136,10 +136,10 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 };
 
 type CreateEsbuildOptions = (
-	target: EcmaScriptTarget,
+	target: Ecma_Script_Target,
 	dev: boolean,
 	sourcemap: boolean,
 ) => esbuild.TransformOptions;
 
 const createDefaultEsbuildOptions: CreateEsbuildOptions = (target, dev, sourcemap) =>
-	getDefaultEsbuildOptions(target, dev, sourcemap);
+	get_default_esbuild_options(target, dev, sourcemap);

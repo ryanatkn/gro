@@ -1,11 +1,11 @@
 <script lang="ts">
-	export let platformName: string;
+	export let platform_name: string;
 </script>
 
-<span class="platform-name">{platformName}</span>
+<span>{platform_name}</span>
 
 <style>
-	.platform-name {
+	span {
 		color: var(--color_4_text);
 		white-space: nowrap;
 	}

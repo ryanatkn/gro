@@ -14,19 +14,20 @@ and interoperability is not a goal yet. (and may never be, can't tell right now)
 
 */
 
-export interface Adapter<TArgs = any, TEvents = any> {
+export interface Adapter<T_Args = any, T_Events = any> {
 	name: string;
-	begin?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
-	adapt?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
-	end?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	begin?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	adapt?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	end?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
 }
 
-export interface AdaptBuilds<TArgs = any, TEvents = any> {
-	(ctx: AdapterContext<TArgs, TEvents>):
-		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
-		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
+export interface Adapt_Builds<T_Args = any, T_Events = any> {
+	(ctx: Adapter_Context<T_Args, T_Events>):
+		| (Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[])
+		| Promise<Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[]>;
 }
 
-export interface AdapterContext<TArgs = any, TEvents = any> extends Task_Context<TArgs, TEvents> {
+export interface Adapter_Context<T_Args = any, T_Events = any>
+	extends Task_Context<T_Args, T_Events> {
 	config: Gro_Config;
 }

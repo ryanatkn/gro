@@ -1,28 +1,28 @@
 import type {ExistingRawSourceMap, PluginContext} from 'rollup';
 import type {compile} from 'svelte/compiler';
 import type {
-	CompileOptions as SvelteCompileOptions,
-	Warning as SvelteWarning,
+	CompileOptions as Svelte_Compile_Options,
+	Warning as Svelte_Warning,
 } from 'svelte/types/compiler/interfaces';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
+import * as svelte_preprocess_esbuild from 'svelte-preprocess-esbuild';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {yellow} from '@feltcoop/felt/utils/terminal.js';
-import {printKeyValue, printMs} from '@feltcoop/felt/utils/print.js';
-import type {OmitStrict} from '@feltcoop/felt/utils/types.js';
+import {print_key_value, printMs} from '@feltcoop/felt/utils/print.js';
+import type {Omit_Strict} from '@feltcoop/felt/utils/types.js';
 
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
-import type {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {Ecma_Script_Target} from './ts_build_helpers.js';
 import {print_path} from '../paths.js';
 
-export type CreatePreprocessor = (
-	target: EcmaScriptTarget,
+export type Create_Preprocessor = (
+	target: Ecma_Script_Target,
 	dev: boolean,
 	sourcemap: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
-export const createDefaultPreprocessor: CreatePreprocessor = (target, dev, sourcemap) =>
-	sveltePreprocessEsbuild.typescript(getDefaultEsbuildPreprocessOptions(target, dev, sourcemap));
+export const create_default_preprocessor: Create_Preprocessor = (target, dev, sourcemap) =>
+	svelte_preprocess_esbuild.typescript(getDefaultEsbuildPreprocessOptions(target, dev, sourcemap));
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {
@@ -33,7 +33,7 @@ export interface SvelteCompileStats {
 	};
 }
 // TODO type belongs upstream - augmented for better safety
-export type SvelteCompilation = OmitStrict<ReturnType<typeof compile>, 'js' | 'css' | 'stats'> & {
+export type Svelte_Compilation = Omit_Strict<ReturnType<typeof compile>, 'js' | 'css' | 'stats'> & {
 	js: {
 		code: string;
 		map: ExistingRawSourceMap | undefined;
@@ -46,7 +46,7 @@ export type SvelteCompilation = OmitStrict<ReturnType<typeof compile>, 'js' | 'c
 };
 
 // Commented-out values are the same as the defaults.
-export const baseSvelteCompileOptions: SvelteCompileOptions = {
+export const base_svelte_compile_options: Svelte_Compile_Options = {
 	// filename: undefined, // `string` used for debugging hints and sourcemaps. Your bundler plugin will set it automatically.
 	// name: 'Component', // `string` that sets the name of the resulting JavaScript class (though the compiler will rename it if it would otherwise conflict with other variables in scope). It will normally be inferred from `filename`.
 	// format: 'esm', // If "esm", creates a JavaScript module (with import and export). If "cjs", creates a CommonJS module (with require and module.exports), which is useful in some server-side rendering situations or for testing.
@@ -68,36 +68,36 @@ export const baseSvelteCompileOptions: SvelteCompileOptions = {
 };
 
 // TODO make this more generic than tied to Svelte?
-export const handleWarn = (
+export const handle_warn = (
 	id: string,
-	warning: SvelteWarning,
-	_handleWarn: (id: string, warning: SvelteWarning, ...args: any[]) => void,
+	warning: Svelte_Warning,
+	_handle_warn: (id: string, warning: Svelte_Warning, ...args: any[]) => void,
 	log: Logger,
-	_pluginContext?: PluginContext,
+	_plugin_ontext?: PluginContext,
 ): void => {
-	const warnArgs: any[] = [print_path(id)];
+	const warn_args: any[] = [print_path(id)];
 	if (warning.frame) {
-		warnArgs.push('\n' + warning.frame, '\n', yellow(warning.message));
+		warn_args.push('\n' + warning.frame, '\n', yellow(warning.message));
 	} else {
-		warnArgs.push(warning);
+		warn_args.push(warning);
 	}
-	log.warn(...warnArgs);
+	log.warn(...warn_args);
 };
 
-export const handleStats = (
+export const handle_stats = (
 	id: string,
 	stats: SvelteCompileStats,
-	_handleStats: (id: string, stats: SvelteCompileStats, ...args: any[]) => void,
+	_handle_stats: (id: string, stats: SvelteCompileStats, ...args: any[]) => void,
 	log: Logger,
-	_pluginContext?: PluginContext,
+	_plugin_ontext?: PluginContext,
 ): void => {
 	log.trace(
-		printKeyValue('stats', print_path(id)),
+		print_key_value('stats', print_path(id)),
 		...[
-			printKeyValue('total', printMs(stats.timings.total)),
-			stats.timings.parse && printKeyValue('parse', printMs(stats.timings.parse.total)),
+			print_key_value('total', printMs(stats.timings.total)),
+			stats.timings.parse && print_key_value('parse', printMs(stats.timings.parse.total)),
 			stats.timings['create component'] &&
-				printKeyValue('create', printMs(stats.timings['create component'].total)),
+				print_key_value('create', printMs(stats.timings['create component'].total)),
 		].filter(Boolean),
 	);
 };

@@ -12,21 +12,21 @@ import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/utils/term
 import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {stripAfter} from '@feltcoop/felt/utils/string.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
-import type {Assignable, PartialExcept} from '@feltcoop/felt/utils/types.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
+import type {Assignable, Partial_Except} from '@feltcoop/felt/utils/types.js';
 import {toEnvNumber, toEnvString} from '@feltcoop/felt/utils/env.js';
 
 import type {Filer} from '../build/Filer.js';
 import {
-	getFileMimeType,
-	getFileContentsBuffer,
-	getFileStats,
-	getFileContentsHash,
-} from '../build/baseFilerFile.js';
-import type {BaseFilerFile} from '../build/baseFilerFile.js';
+	get_file_mime_type,
+	get_file_contents_buffer,
+	get_file_stats,
+	get_file_contents_hash,
+} from '../build/base_filer_file.js';
+import type {Base_Filer_File} from '../build/base_filer_file.js';
 import {paths} from '../paths.js';
 import {load_package_json} from '../utils/package_json.js';
-import type {ProjectState} from './projectState.js';
+import type {Project_State} from './project_state.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 type Http2StreamHandler = (
@@ -52,20 +52,20 @@ export interface Options {
 	https: {cert: string; key: string; allowHTTP1?: boolean} | null;
 	log: Logger;
 }
-export type RequiredOptions = 'filer';
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => {
+export type Required_Options = 'filer';
+export type Initial_Options = Partial_Except<Options, Required_Options>;
+export const init_options = (opts: Initial_Options): Options => {
 	return {
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		https: null,
-		...omitUndefined(opts),
+		...omit_undefined(opts),
 		log: opts.log || new System_Logger(print_log_label('server', cyan)),
 	};
 };
 
-export const create_gro_server = (opts: InitialOptions): GroServer => {
-	const options = initOptions(opts);
+export const create_gro_server = (opts: Initial_Options): GroServer => {
+	const options = init_options(opts);
 	const {filer, host, port, https, log} = options;
 
 	let finalPort = port;
@@ -173,33 +173,33 @@ const toResponse = async (
 	const localPath = toLocalPath(url);
 	log.trace('serving', gray(rawUrl), '→', gray(localPath));
 
-	// TODO refactor - see `./projectState.ts` for more
+	// TODO refactor - see `./project_state.ts` for more
 	// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
 	// also, `src/` is hardcoded below in `paths.source`s
 	const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
 	if (SOURCE_ROOT_MATCHER.test(url)) {
-		const projectState: ProjectState = {
+		const project_state: Project_State = {
 			build_dir: filer.build_dir,
-			sourceDir: paths.source,
-			items: Array.from(filer.source_metaById.values()),
+			source_dir: paths.source,
+			items: Array.from(filer.source_meta_by_id.values()),
 			build_configs: filer.build_configs!,
 			package_json: await load_package_json(filer.fs),
 		};
 		return {
 			status: 200,
 			headers: {'Content-Type': 'application/json'},
-			data: JSON.stringify(projectState),
+			data: JSON.stringify(project_state),
 		};
 	}
 
 	// search for a file with this path
-	let file = await filer.findByPath(localPath);
+	let file = await filer.find_by_path(localPath);
 	if (!file) {
 		// TODO this is just temporary - the more correct code is below. The filer needs to support directories.
-		file = await filer.findByPath(`${localPath}/index.html`);
+		file = await filer.find_by_path(`${localPath}/index.html`);
 	}
 	// if (file?.type === 'directory') { // or `file?.isDirectory`
-	// 	file = filer.findById(file.id + '/index.html');
+	// 	file = filer.find_by_id(file.id + '/index.html');
 	// }
 
 	// 404 - not found
@@ -224,7 +224,7 @@ const toResponse = async (
 	return {
 		status: 200,
 		headers: await to200Headers(filer.fs, file),
-		data: getFileContentsBuffer(file),
+		data: get_file_contents_buffer(file),
 	};
 };
 
@@ -238,19 +238,22 @@ const toLocalPath = (url: string): string => {
 	return relativePath;
 };
 
-const toETag = (file: BaseFilerFile): string => `"${getFileContentsHash(file)}"`;
+const toETag = (file: Base_Filer_File): string => `"${get_file_contents_hash(file)}"`;
 
-const to200Headers = async (fs: Filesystem, file: BaseFilerFile): Promise<OutgoingHttpHeaders> => {
+const to200Headers = async (
+	fs: Filesystem,
+	file: Base_Filer_File,
+): Promise<OutgoingHttpHeaders> => {
 	// TODO where do we get fs? the server? the filer?
-	const stats = await getFileStats(fs, file);
-	const mimeType = getFileMimeType(file);
+	const stats = await get_file_stats(fs, file);
+	const mime_type = get_file_mime_type(file);
 	const headers: OutgoingHttpHeaders = {
 		'Content-Type':
-			mimeType === null
+			mime_type === null
 				? 'application/octet-stream'
 				: file.encoding === 'utf8'
-				? `${mimeType}; charset=utf-8`
-				: mimeType,
+				? `${mime_type}; charset=utf-8`
+				: mime_type,
 		'Content-Length': stats.size,
 		ETag: toETag(file),
 

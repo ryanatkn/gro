@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {FileTreeFile} from './fileTree.js';
-	import FileTreeExplorerNode from './FileTreeExplorerNode.svelte';
+	import type {File_Tree_File} from './file_tree.js';
+	import File_Tree_Explorer_Node from './File_Tree_Explorer_Node.svelte';
 
-	export let file: FileTreeFile;
+	export let file: File_Tree_File;
 </script>
 
 <div class="file">
-	<FileTreeExplorerNode node={file} />
+	<File_Tree_Explorer_Node node={file} />
 </div>

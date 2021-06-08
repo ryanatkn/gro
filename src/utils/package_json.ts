@@ -29,7 +29,7 @@ export const load_package_json = async (
 ): Promise<Package_Json> => {
 	if (is_this_project_gro) return load_gro_package_json(fs, forceRefresh);
 	if (!package_json || forceRefresh) {
-		package_json = JSON.parse(await fs.readFile(join(paths.root, 'package.json'), 'utf8'));
+		package_json = JSON.parse(await fs.read_file(join(paths.root, 'package.json'), 'utf8'));
 	}
 	return package_json!;
 };
@@ -38,7 +38,7 @@ export const load_gro_package_json = async (
 	forceRefresh = false,
 ): Promise<Gro_Package_Json> => {
 	if (!gro_package_json || forceRefresh) {
-		gro_package_json = JSON.parse(await fs.readFile(join(gro_paths.root, 'package.json'), 'utf8'));
+		gro_package_json = JSON.parse(await fs.read_file(join(gro_paths.root, 'package.json'), 'utf8'));
 	}
 	return gro_package_json!;
 };

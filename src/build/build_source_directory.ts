@@ -4,7 +4,7 @@ import {create_stopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
 import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
-import {createDefaultBuilder} from './defaultBuilder.js';
+import {create_default_builder} from './default_builder.js';
 import type {Gro_Config} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -18,29 +18,29 @@ export const build_source_directory = async (
 
 	const total_timing = create_stopwatch();
 	const timings = new Timings();
-	const logTimings = () => {
+	const log_timings = () => {
 		print_timings(timings, log);
 		log.info(`🕒 built in ${printMs(total_timing())}`);
 	};
 
-	const timingToCreateFiler = timings.start('create filer');
+	const timing_to_create_filer = timings.start('create filer');
 	const filer = new Filer({
 		fs,
 		dev,
-		builder: createDefaultBuilder(),
-		sourceDirs: [paths.source],
+		builder: create_default_builder(),
+		source_dirs: [paths.source],
 		build_configs: config.builds,
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,
 	});
-	timingToCreateFiler();
+	timing_to_create_filer();
 
-	const timingToInitFiler = timings.start('init filer');
+	const timing_to_init_filer = timings.start('init filer');
 	await filer.init();
-	timingToInitFiler();
+	timing_to_init_filer();
 
 	filer.close();
 
-	logTimings();
+	log_timings();
 };

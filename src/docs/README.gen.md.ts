@@ -1,5 +1,5 @@
 import {dirname, relative, basename} from 'path';
-import {toPathParts, toPathSegments} from '@feltcoop/felt/utils/path.js';
+import {toPathParts, to_path_segments} from '@feltcoop/felt/utils/path.js';
 import {last} from '@feltcoop/felt/utils/array.js';
 import {strip_start} from '@feltcoop/felt/utils/string.js';
 
@@ -14,7 +14,7 @@ import {paths, base_path_to_source_id} from '../paths.js';
 
 export const gen: Gen = async ({fs, originId}) => {
 	// TODO need to get this from project config or something
-	const rootPath = last(toPathSegments(paths.root));
+	const rootPath = last(to_path_segments(paths.root));
 
 	const originDir = dirname(originId);
 	const originBase = basename(originId);
@@ -29,7 +29,7 @@ export const gen: Gen = async ({fs, originId}) => {
 	// TODO this is GitHub-specific
 	const rootLink = `[${rootPath}](/../..)`;
 
-	const docFiles = await fs.findFiles(originDir);
+	const docFiles = await fs.find_files(originDir);
 	const docPaths: string[] = [];
 	for (const [path, stats] of docFiles) {
 		if (stats.isDirectory() || path === outputFileName || !path.endsWith('.md')) {
@@ -45,7 +45,7 @@ export const gen: Gen = async ({fs, originId}) => {
 	const pathParts = toPathParts(relativeDir).map((relativePathPart) =>
 		isIndexFile && relativePathPart === relativeDir
 			? relativePathPart
-			: `[${last(toPathSegments(relativePathPart))}](${
+			: `[${last(to_path_segments(relativePathPart))}](${
 					relative(originDir, base_path_to_source_id(relativePathPart)) || './'
 			  })`,
 	);

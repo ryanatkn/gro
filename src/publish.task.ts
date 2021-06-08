@@ -186,7 +186,7 @@ const get_changelog_versions = async (
 		throw Error(`Publishing requires ${CHANGELOG_PATH} - please create it to continue`);
 	}
 	const changelog_matcher = /##.+/g;
-	const changelog = await fs.readFile(CHANGELOG_PATH, 'utf8');
+	const changelog = await fs.read_file(CHANGELOG_PATH, 'utf8');
 	const match_current = changelog.match(changelog_matcher);
 	if (!match_current) {
 		throw Error(`Changelog must have at least one version header, e.g. ## 0.1.0`);

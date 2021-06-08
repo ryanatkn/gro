@@ -1,7 +1,7 @@
 import type {Plugin} from 'rollup';
 import {gray} from '@feltcoop/felt/utils/terminal.js';
 import {System_Logger} from '@feltcoop/felt/utils/log.js';
-import {printKeyValue, printMs} from '@feltcoop/felt/utils/print.js';
+import {print_key_value, printMs} from '@feltcoop/felt/utils/print.js';
 import {create_stopwatch} from '@feltcoop/felt/utils/time.js';
 
 import {print_path} from '../paths.js';
@@ -25,7 +25,7 @@ export const diagnosticsPlugin = (): Plugin => {
 			if (started) {
 				stopwatch(true); // reset the clock
 			} else {
-				log.info(printKeyValue('startupTime', printMs(stopwatch(true))));
+				log.info(print_key_value('startupTime', printMs(stopwatch(true))));
 				started = true;
 			}
 		},
@@ -33,8 +33,8 @@ export const diagnosticsPlugin = (): Plugin => {
 			log.info(tag('buildEnd'));
 		},
 		// footer() {}
-		generateBundle(_outputOptions, bundle, isWrite) {
-			log.info(tag('generateBundle'), {isWrite, bundles: Object.keys(bundle)});
+		generateBundle(_output_options, bundle, is_write) {
+			log.info(tag('generateBundle'), {is_write, bundles: Object.keys(bundle)});
 		},
 		// intro() {}
 		load(_id) {
@@ -71,7 +71,7 @@ export const diagnosticsPlugin = (): Plugin => {
 		},
 		// resolveImportMeta(_property, _asset) {}
 		transform(_code, _id) {
-			// log.trace(tag('transform'), print_path(id), printKeyValue('len', (code && code.length) || 0));
+			// log.trace(tag('transform'), print_path(id), print_key_value('len', (code && code.length) || 0));
 			return null;
 		},
 		watchChange(id) {
@@ -85,7 +85,7 @@ export const diagnosticsPlugin = (): Plugin => {
 				// how should that work?
 				// ideally the state is contained here in the diagnostics plugin
 				// could track what module is logging via the keyed tags.
-				printKeyValue('totalElapsed', printMs(stopwatch())),
+				print_key_value('totalElapsed', printMs(stopwatch())),
 			);
 		},
 	};

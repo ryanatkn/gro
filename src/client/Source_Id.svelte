@@ -1,11 +1,11 @@
 <script lang="ts">
-	import {useProjectState} from './projectState.js';
+	import {use_project_state} from './project_state.js';
 
-	const ps = useProjectState();
+	const ps = use_project_state();
 
 	export let id: string;
 
-	$: displayed = id.startsWith($ps.sourceDir) ? id.substring($ps.sourceDir.length - 1) : id;
+	$: displayed = id.startsWith($ps.source_dir) ? id.substring($ps.source_dir.length - 1) : id;
 </script>
 
 <span class="source-id">{displayed}</span>

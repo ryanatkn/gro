@@ -1,12 +1,12 @@
 import type {ImportMap} from 'esinstall';
 
 import {EXTERNALS_BUILD_DIRNAME, to_build_out_path} from '../paths.js';
-import type {BuilderState, BuildContext} from './builder.js';
+import type {Builder_State, Build_Context} from './builder.js';
 import type {Build_Config} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export interface ExternalsBuilderState {
-	readonly buildStates: Map<Build_Config, ExternalsBuildState>;
+export interface Externals_Builder_State {
+	readonly build_states: Map<Build_Config, ExternalsBuildState>;
 }
 
 // extends `filer.state.externals`
@@ -25,7 +25,7 @@ export const EXTERNALS_SOURCE_ID = EXTERNALS_BUILD_DIRNAME;
 export const EXTERNALS_BUILDER_STATE_KEY = EXTERNALS_SOURCE_ID;
 
 // throws if it can't find it
-export const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
+export const get_externals_builder_state = (state: Builder_State): Externals_Builder_State => {
 	const builderState = state[EXTERNALS_BUILDER_STATE_KEY];
 	if (builderState === undefined) {
 		throw Error(`Expected builder state to exist: ${EXTERNALS_BUILDER_STATE_KEY}`);
@@ -34,34 +34,34 @@ export const getExternalsBuilderState = (state: BuilderState): ExternalsBuilderS
 };
 
 // this throws if the state already exists
-export const initExternalsBuilderState = (state: BuilderState): ExternalsBuilderState => {
+export const initExternals_Builder_State = (state: Builder_State): Externals_Builder_State => {
 	let builderState = state[EXTERNALS_BUILDER_STATE_KEY];
 	if (builderState !== undefined) throw Error('Builder state already initialized');
-	builderState = {buildStates: new Map()};
+	builderState = {build_states: new Map()};
 	state[EXTERNALS_BUILDER_STATE_KEY] = builderState;
 	return builderState;
 };
 
 // throws if it can't find it
-export const getExternalsBuildState = (
-	builderState: ExternalsBuilderState,
+export const get_externals_build_state = (
+	builderState: Externals_Builder_State,
 	build_config: Build_Config,
 ): ExternalsBuildState => {
-	const buildState = builderState.buildStates.get(build_config);
-	if (buildState === undefined) {
+	const build_state = builderState.build_states.get(build_config);
+	if (build_state === undefined) {
 		throw Error(`Expected build state to exist: ${build_config.name}`);
 	}
-	return buildState;
+	return build_state;
 };
 
 // this throws if the state already exists
 export const initExternalsBuildState = (
-	builderState: ExternalsBuilderState,
+	builderState: Externals_Builder_State,
 	build_config: Build_Config,
 ): ExternalsBuildState => {
-	let buildState = builderState.buildStates.get(build_config);
-	if (buildState !== undefined) throw Error('Build state already initialized');
-	buildState = {
+	let build_state = builderState.build_states.get(build_config);
+	if (build_state !== undefined) throw Error('Build state already initialized');
+	build_state = {
 		importMap: undefined,
 		specifiers: new Set(),
 		installing: null,
@@ -69,8 +69,8 @@ export const initExternalsBuildState = (
 		idleTimer: 0,
 		resetterInterval: null,
 	};
-	builderState.buildStates.set(build_config, buildState);
-	return buildState;
+	builderState.build_states.set(build_config, build_state);
+	return build_state;
 };
 
 export const toSpecifiers = (importMap: ImportMap): Set<string> =>
@@ -84,14 +84,14 @@ export const loadImportMapFromDisk = async (
 ): Promise<ImportMap | undefined> => {
 	const importMapPath = toImportMapPath(dest);
 	if (!(await fs.exists(importMapPath))) return undefined;
-	const importMap: ImportMap = JSON.parse(await fs.readFile(importMapPath, 'utf8'));
+	const importMap: ImportMap = JSON.parse(await fs.read_file(importMapPath, 'utf8'));
 	return importMap;
 };
 
-export interface ExternalsAliases {
+export interface Externals_Aliases {
 	[key: string]: string;
 }
-export const DEFAULT_EXTERNALS_ALIASES: ExternalsAliases = {
+export const DEFAULT_EXTERNALS_ALIASES: Externals_Aliases = {
 	path: 'path-browserify',
 };
 
@@ -128,10 +128,10 @@ export const createDelayedPromise = <T>(
 };
 
 // Externals are Node imports referenced in browser builds.
-export const isExternalBuildId = (
+export const is_external_build_id = (
 	id: string,
 	build_config: Build_Config,
-	ctx: BuildContext,
+	ctx: Build_Context,
 ): boolean =>
 	build_config.platform === 'browser'
 		? id.startsWith(

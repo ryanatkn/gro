@@ -76,8 +76,8 @@ The [`Gro_Config_Partial`](/src/gro.config.ts) is the return value of config fil
 export interface Gro_Config_Partial {
 	readonly builds: (Build_Config_Partial | null)[] | Build_Config_Partial | null;
 	readonly publish?: string | null; // dir for `gro publish`, defaults to 'dist/library' if it exists
-	readonly adapt?: AdaptBuilds;
-	readonly target?: EcmaScriptTarget; // defaults to 'es2020'
+	readonly adapt?: Adapt_Builds;
+	readonly target?: Ecma_Script_Target; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
@@ -96,7 +96,7 @@ which is the user-facing version of the [`Build_Config`](/src/build/build_config
 ```ts
 export interface Build_Config_Partial {
 	readonly name: string;
-	readonly platform: PlatformTarget; // 'node' | 'browser'
+	readonly platform: Platform_Target; // 'node' | 'browser'
 	readonly input: Build_Config_Input | Build_Config_Input[];
 }
 ```
@@ -131,10 +131,10 @@ The `adapt` property is a function that returns any number of `Adapter` instance
 Read more about [`adapt` and the `Adapter` in the build docs](build.md).
 
 ```ts
-export interface AdaptBuilds<TArgs = any, TEvents = any> {
-	(ctx: AdapterContext<TArgs, TEvents>):
-		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
-		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
+export interface Adapt_Builds<T_Args = any, T_Events = any> {
+	(ctx: Adapter_Context<T_Args, T_Events>):
+		| (Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[])
+		| Promise<Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[]>;
 }
 ```
 

@@ -1,59 +1,59 @@
 import {
 	rollup,
 	watch,
-	OutputOptions,
-	InputOptions,
-	InputOption,
-	RollupWatchOptions,
-	RollupOutput,
-	RollupBuild,
+	OutputOptions as Rollup_Output_Options,
+	InputOptions as Rollup_Input_Options,
+	InputOption as Rollup_Input_Option,
+	RollupWatchOptions as Rollup_Watch_Options,
+	RollupOutput as Rollup_Output,
+	RollupBuild as Rollup_Build,
 } from 'rollup';
-import resolvePlugin from '@rollup/plugin-node-resolve';
-import commonjsPlugin from '@rollup/plugin-commonjs';
+import resolve_plugin from '@rollup/plugin-node-resolve';
+import commonjs_plugin from '@rollup/plugin-commonjs';
 import {rainbow} from '@feltcoop/felt/utils/terminal.js';
 import {System_Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {deindent} from '@feltcoop/felt/utils/string.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
 import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 import {identity} from '@feltcoop/felt/utils/function.js';
-import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
+import type {Partial_Except} from '@feltcoop/felt/utils/types.js';
 
 import {diagnosticsPlugin} from './rollup_plugin_diagnostics.js';
-// import {groTerserPlugin} from './rollup-plugin-gro-terser.js';
+// import {gro_terser_plugin} from './rollup-plugin-gro-terser.js';
 import {paths} from '../paths.js';
 
 export interface Options {
 	input: InputOption;
 	dev: boolean;
 	sourcemap: boolean;
-	outputDir: string;
+	output_dir: string;
 	watch: boolean;
 	map_input_options: Map_Input_Options;
 	map_output_options: Map_Output_Options;
 	map_watch_options: Map_Watch_Options;
 	log: Logger;
 }
-export type RequiredOptions = 'input';
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
+export type Required_Options = 'input';
+export type Initial_Options = Partial_Except<Options, Required_Options>;
+export const init_options = (opts: Initial_Options): Options => ({
 	dev: true,
 	sourcemap: opts.dev ?? true,
-	outputDir: paths.dist,
+	output_dir: paths.dist,
 	watch: false,
 	map_input_options: identity,
 	map_output_options: identity,
 	map_watch_options: identity,
-	...omitUndefined(opts),
+	...omit_undefined(opts),
 	log: opts.log || new System_Logger(print_log_label('build')),
 });
 
-export type Map_Input_Options = (o: InputOptions, b: Options) => InputOptions;
-export type Map_Output_Options = (o: OutputOptions, b: Options) => OutputOptions;
-export type Map_Watch_Options = (o: RollupWatchOptions, b: Options) => RollupWatchOptions;
+export type Map_Input_Options = (o: Rollup_Input_Options, b: Options) => Rollup_Input_Options;
+export type Map_Output_Options = (o: Rollup_Output_Options, b: Options) => Rollup_Output_Options;
+export type Map_Watch_Options = (o: Rollup_Watch_Options, b: Options) => Rollup_Watch_Options;
 
-export const runRollup = async (opts: InitialOptions): Promise<void> => {
-	const options = initOptions(opts);
+export const runRollup = async (opts: Initial_Options): Promise<void> => {
+	const options = init_options(opts);
 	const {log} = options;
 
 	log.info(`building for ${options.dev ? 'development' : 'production'}`);
@@ -63,12 +63,12 @@ export const runRollup = async (opts: InitialOptions): Promise<void> => {
 	if (options.watch) {
 		// run the watcher
 		log.info('building and watching');
-		await runRollupWatcher(options, log);
+		await run_rollup_watcher(options, log);
 		log.info('stopped watching');
 	} else {
 		// build the js
 		log.info('building');
-		await runRollupBuild(options, log);
+		await run_rollup_build(options, log);
 		log.info(
 			'\n' +
 				rainbow(
@@ -82,17 +82,17 @@ export const runRollup = async (opts: InitialOptions): Promise<void> => {
 	}
 };
 
-const createInputOptions = (options: Options, _log: Logger): InputOptions => {
-	const unmappedInputOptions: InputOptions = {
+const create_input_options = (options: Options, _log: Logger): Rollup_Input_Options => {
+	const unmapped_input_options: Rollup_Input_Options = {
 		// >> core input options
 		// external,
 		input: options.input, // required
 		plugins: [
 			diagnosticsPlugin(),
-			resolvePlugin({preferBuiltins: true}),
-			commonjsPlugin(),
+			resolve_plugin({preferBuiltins: true}),
+			commonjs_plugin(),
 			// TODO re-enable terser, but add a config option (probably `terser` object)
-			// ...(dev ? [] : [groTerserPlugin({minifyOptions: {sourceMap: sourcemap}})]),
+			// ...(dev ? [] : [gro_terser_plugin({minify_options: {sourceMap: sourcemap}})]),
 		],
 
 		// >> advanced input options
@@ -114,15 +114,15 @@ const createInputOptions = (options: Options, _log: Logger): InputOptions => {
 		// experimentalCacheExpiry,
 		// perf
 	};
-	const inputOptions = options.map_input_options(unmappedInputOptions, options);
-	// log.trace('inputOptions', inputOptions);
-	return inputOptions;
+	const input_options = options.map_input_options(unmapped_input_options, options);
+	// log.trace('input_options', input_options);
+	return input_options;
 };
 
-const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
-	const unmappedOutputOptions: OutputOptions = {
+const create_output_options = (options: Options, log: Logger): Rollup_Output_Options => {
+	const unmapped_output_options: Rollup_Output_Options = {
 		// >> core output options
-		dir: options.outputDir,
+		dir: options.output_dir,
 		// file,
 		format: 'esm', // required
 		// globals,
@@ -165,15 +165,15 @@ const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
 		// strict,
 		// systemNullSetters,
 	};
-	const outputOptions = options.map_output_options(unmappedOutputOptions, options);
-	log.trace('outputOptions', outputOptions);
-	return outputOptions;
+	const output_options = options.map_output_options(unmapped_output_options, options);
+	log.trace('output_options', output_options);
+	return output_options;
 };
 
-const createWatchOptions = (options: Options, log: Logger): RollupWatchOptions => {
-	const unmappedWatchOptions: RollupWatchOptions = {
-		...createInputOptions(options, log),
-		output: createOutputOptions(options, log),
+const create_watch_options = (options: Options, log: Logger): Rollup_Watch_Options => {
+	const unmapped_watch_options: Rollup_Watch_Options = {
+		...create_input_options(options, log),
+		output: create_output_options(options, log),
 		watch: {
 			// chokidar,
 			clearScreen: false,
@@ -181,21 +181,21 @@ const createWatchOptions = (options: Options, log: Logger): RollupWatchOptions =
 			// include,
 		},
 	};
-	const watchOptions = options.map_watch_options(unmappedWatchOptions, options);
-	// log.trace('watchOptions', watchOptions);
-	return watchOptions;
+	const watch_options = options.map_watch_options(unmapped_watch_options, options);
+	// log.trace('watch_options', watch_options);
+	return watch_options;
 };
 
-interface RollupBuildResult {
-	build: RollupBuild;
-	output: RollupOutput;
+interface Rollup_Build_Result {
+	build: Rollup_Build;
+	output: Rollup_Output;
 }
 
-const runRollupBuild = async (options: Options, log: Logger): Promise<RollupBuildResult> => {
-	const inputOptions = createInputOptions(options, log);
-	const outputOptions = createOutputOptions(options, log);
-	const build = await rollup(inputOptions);
-	const output = await build.write(outputOptions);
+const run_rollup_build = async (options: Options, log: Logger): Promise<Rollup_Build_Result> => {
+	const input_options = create_input_options(options, log);
+	const output_options = create_output_options(options, log);
+	const build = await rollup(input_options);
+	const output = await build.write(output_options);
 	return {build, output};
 
 	// for (const chunkOrAsset of output.output) {
@@ -234,11 +234,11 @@ const runRollupBuild = async (options: Options, log: Logger): Promise<RollupBuil
 	// }
 };
 
-const runRollupWatcher = async (options: Options, log: Logger): Promise<void> => {
+const run_rollup_watcher = async (options: Options, log: Logger): Promise<void> => {
 	return new Promise((_resolve, reject) => {
-		const watchOptions = createWatchOptions(options, log);
-		// trace(('watchOptions'), watchOptions);
-		const watcher = watch(watchOptions);
+		const watch_options = create_watch_options(options, log);
+		// trace(('watch_options'), watch_options);
+		const watcher = watch(watch_options);
 
 		watcher.on('event', (event) => {
 			log.info(`rollup event: ${event.code}`);

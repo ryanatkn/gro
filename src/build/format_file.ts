@@ -4,8 +4,12 @@ import {extname} from 'path';
 import {load_package_json} from '../utils/package_json.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export const formatFile = async (fs: Filesystem, id: string, contents: string): Promise<string> => {
-	const parser = inferParser(id);
+export const format_file = async (
+	fs: Filesystem,
+	id: string,
+	contents: string,
+): Promise<string> => {
+	const parser = infer_parser(id);
 	if (!parser) return contents;
 	const config = (await load_package_json(fs)).prettier as Record<string, any>;
 	return prettier.format(contents, {...config, parser});
@@ -13,7 +17,7 @@ export const formatFile = async (fs: Filesystem, id: string, contents: string): 
 
 // This is a lot faster than `prettier.getFileInfo`
 // because it doesn't have to look at the filesystem.
-const inferParser = (id: string): prettier.BuiltInParserName | null => {
+const infer_parser = (id: string): prettier.BuiltInParserName | null => {
 	const extension = extname(id).substring(1);
 	switch (extension) {
 		case 'ts':

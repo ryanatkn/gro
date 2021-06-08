@@ -4,10 +4,10 @@
 	export let build_name: Build_Name;
 </script>
 
-<span class="build-name">{build_name}</span>
+<span>{build_name}</span>
 
 <style>
-	.build-name {
+	span {
 		color: var(--color_2_text);
 		white-space: nowrap;
 	}

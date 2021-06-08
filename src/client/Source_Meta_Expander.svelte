@@ -1,19 +1,19 @@
 <script lang="ts">
 	import type {Writable} from 'svelte/store';
 
-	import SourceMetaExpanderItem from './SourceMetaExpanderItem.svelte';
-	import {filterSelectedMetas} from './sourceTree.js';
-	import type {SourceTree} from './sourceTree.js';
-	import type {SourceMeta} from '../build/source_meta.js';
+	import Source_Meta_ExpanderItem from './Source_Meta_ExpanderItem.svelte';
+	import {filter_selected_metas} from './source_tree.js';
+	import type {Source_Tree} from './source_tree.js';
+	import type {Source_Meta} from '../build/source_meta.js';
 
-	export let sourceTree: SourceTree;
-	export let selectedBuild_Names: string[];
-	export let selectedSourceMeta: Writable<SourceMeta | null>;
-	export let hoveredSourceMeta: Writable<SourceMeta | null>;
+	export let source_tree: Source_Tree;
+	export let selected_build_names: string[];
+	export let selected_source_meta: Writable<Source_Meta | null>;
+	export let hovered_source_meta: Writable<Source_Meta | null>;
 
-	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuild_Names);
+	$: filteredSource_Metas = filter_selected_metas(source_tree, selected_build_names);
 </script>
 
-{#each filteredSourceMetas as source_meta (source_meta.cacheId)}
-	<SourceMetaExpanderItem {source_meta} {selectedSourceMeta} {hoveredSourceMeta} />
+{#each filteredSource_Metas as source_meta (source_meta.cache_id)}
+	<Source_Meta_ExpanderItem {source_meta} {selected_source_meta} {hovered_source_meta} />
 {:else}<small><em>no builds selected</em></small>{/each}

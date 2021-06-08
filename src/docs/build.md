@@ -47,22 +47,23 @@ the build process has two discrete steps:
 An adapter is a small plugin with a few optional hooks:
 
 ```ts
-export interface Adapter<TArgs = any, TEvents = any> {
+export interface Adapter<T_Args = any, T_Events = any> {
 	name: string;
-	begin?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
-	adapt?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
-	end?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	begin?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	adapt?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	end?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
 }
 ```
 
-The `AdapterContext` extends
+The `Adapter_Context` extends
 [Gro's `Task_Context`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
 so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
-export interface AdapterContext<TArgs = any, TEvents = any> extends Task_Context<TArgs, TEvents> {
+export interface Adapter_Context<T_Args = any, T_Events = any>
+	extends Task_Context<T_Args, T_Events> {
 	config: Gro_Config;
 }
 ```

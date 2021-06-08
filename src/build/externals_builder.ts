@@ -4,29 +4,35 @@ import type {InstallResult} from 'esinstall';
 import type {Plugin as RollupPlugin} from 'rollup';
 import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
 import {cyan, gray} from '@feltcoop/felt/utils/terminal.js';
 import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
 import {toEnvNumber} from '@feltcoop/felt/utils/env.js';
 
 import {EXTERNALS_BUILD_DIRNAME, JS_EXTENSION, to_build_out_path} from '../paths.js';
-import type {Builder, BuildResult, BuildContext, TextBuildSource, TextBuild} from './builder.js';
-import {loadContents} from './load.js';
+import type {
+	Builder,
+	Build_Result,
+	Build_Context,
+	Text_Build_Source,
+	Text_Build,
+} from './builder.js';
+import {load_contents} from './load.js';
 import {groSveltePlugin} from './rollup_plugin_gro_svelte.js';
-import {createDefaultPreprocessor} from './svelte_build_helpers.js';
-import {createCssCache} from './cssCache.js';
+import {create_default_preprocessor} from './svelte_build_helpers.js';
+import {create_css_cache} from './cssCache.js';
 import {print_build_config} from '../build/build_config.js';
 import type {Build_Config} from '../build/build_config.js';
 import {
 	createDelayedPromise,
-	getExternalsBuilderState,
-	getExternalsBuildState,
-	initExternalsBuilderState,
+	get_externals_builder_state,
+	get_externals_build_state,
+	initExternals_Builder_State,
 	initExternalsBuildState,
 	loadImportMapFromDisk,
 	toSpecifiers,
-} from './externalsBuildHelpers.js';
-import type {ExternalsBuildState} from './externalsBuildHelpers.js';
+} from './externals_build_helpers.js';
+import type {ExternalsBuildState} from './externals_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 /*
@@ -47,28 +53,28 @@ export interface Options {
 	base_path: string;
 	log: Logger;
 }
-export type InitialOptions = Partial<Options>;
-export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new System_Logger(print_log_label('externalsBuilder', cyan));
+export type Initial_Options = Partial<Options>;
+export const init_options = (opts: Initial_Options): Options => {
+	const log = opts.log || new System_Logger(print_log_label('externals_builder', cyan));
 	return {
 		install: installWithEsinstall,
 		base_path: EXTERNALS_BUILD_DIRNAME,
-		...omitUndefined(opts),
+		...omit_undefined(opts),
 		log,
 	};
 };
 
-type ExternalsBuilder = Builder<TextBuildSource, TextBuild>;
+type ExternalsBuilder = Builder<Text_Build_Source, Text_Build>;
 
 const encoding = 'utf8';
 
-export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuilder => {
-	const {install, base_path, log} = initOptions(opts);
+export const create_externals_builder = (opts: Initial_Options = {}): ExternalsBuilder => {
+	const {install, base_path, log} = init_options(opts);
 
 	const build: ExternalsBuilder['build'] = async (
 		source,
 		build_config,
-		{fs, build_dir, dev, sourcemap, target, state, externalsAliases},
+		{fs, build_dir, dev, sourcemap, target, state, externals_aliases},
 	) => {
 		// if (sourcemap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
@@ -77,43 +83,43 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
 
-		const builderState = getExternalsBuilderState(state);
-		const buildState = getExternalsBuildState(builderState, build_config);
+		const builderState = get_externals_builder_state(state);
+		const build_state = get_externals_build_state(builderState, build_config);
 
 		const dest = to_build_out_path(dev, build_config.name, base_path, build_dir);
 
 		log.info(`bundling externals ${print_build_config(build_config)}: ${gray(source.id)}`);
 
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
-		const cssCache = createCssCache();
-		// const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
-		const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
+		const cssCache = create_css_cache();
+		// const addPlainCss_Build = cssCache.add_css_build.bind(null, 'bundle.plain.css');
+		const addSvelteCss_Build = cssCache.add_css_build.bind(null, 'bundle.svelte.css');
 		const plugins: RollupPlugin[] = [
 			groSveltePlugin({
 				dev,
-				addCssBuild: addSvelteCssBuild,
-				preprocessor: createDefaultPreprocessor(target, dev, sourcemap),
-				compileOptions: {},
+				add_css_build: addSvelteCss_Build,
+				preprocessor: create_default_preprocessor(target, dev, sourcemap),
+				compile_options: {},
 			}),
 		];
 
-		let builds: TextBuild[];
+		let builds: Text_Build[];
 		let installResult: InstallResult;
 		try {
-			log.info('installing externals', buildState.specifiers);
-			installResult = await install(Array.from(buildState.specifiers), {
+			log.info('installing externals', build_state.specifiers);
+			installResult = await install(Array.from(build_state.specifiers), {
 				dest,
 				rollup: {plugins} as any, // TODO type problem with esinstall and rollup
 				polyfillNode: true, // needed for some libs - maybe make customizable?
-				alias: externalsAliases,
+				alias: externals_aliases,
 			});
 			log.info('install result', installResult);
 			// log.trace('previous import map', state.importMap); maybe diff?
-			buildState.importMap = installResult.importMap;
+			build_state.importMap = installResult.importMap;
 			builds = [
 				...(await Promise.all(
-					Array.from(buildState.specifiers).map(
-						async (specifier): Promise<TextBuild> => {
+					Array.from(build_state.specifiers).map(
+						async (specifier): Promise<Text_Build> => {
 							const id = join(dest, installResult.importMap.imports[specifier]);
 							return {
 								id,
@@ -121,7 +127,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 								dir: dirname(id),
 								extension: JS_EXTENSION,
 								encoding,
-								contents: await loadContents(fs, encoding, id),
+								contents: await load_contents(fs, encoding, id),
 								build_config,
 							};
 						},
@@ -134,7 +140,7 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 			throw err;
 		}
 
-		const result: BuildResult<TextBuild> = {builds};
+		const result: Build_Result<Text_Build> = {builds};
 		return result;
 	};
 
@@ -144,19 +150,19 @@ export const createExternalsBuilder = (opts: InitialOptions = {}): ExternalsBuil
 		dev,
 		build_configs,
 		build_dir,
-	}: BuildContext): Promise<void> => {
-		// initialize the externals builder state, which is stored on the `BuildContext` (the filer)
-		const builderState = initExternalsBuilderState(state);
+	}: Build_Context): Promise<void> => {
+		// initialize the externals builder state, which is stored on the `Build_Context` (the filer)
+		const builderState = initExternals_Builder_State(state);
 		// mutate the build state with any available initial values
 		await Promise.all(
 			build_configs!.map(async (build_config) => {
 				if (build_config.platform !== 'browser') return;
-				const buildState = initExternalsBuildState(builderState, build_config);
+				const build_state = initExternalsBuildState(builderState, build_config);
 				const dest = to_build_out_path(dev, build_config.name, base_path, build_dir);
 				const importMap = await loadImportMapFromDisk(fs, dest);
 				if (importMap !== undefined) {
-					buildState.importMap = importMap;
-					buildState.specifiers = toSpecifiers(importMap);
+					build_state.importMap = importMap;
+					build_state.specifiers = toSpecifiers(importMap);
 				}
 			}),
 		);
@@ -173,15 +179,15 @@ const IDLE_TIME_LIMIT = toEnvNumber('GRO_IDLE_TIME_LIMIT', 20_000); // TODO hack
 // TODO wait what's the relationship between those two? check for errors?
 
 // TODO this hackily guesses if the filer is idle enough to start installing externals
-export const queueExternalsBuild = async (
+export const queue_externals_build = async (
 	source_id: string,
 	state: ExternalsBuildState,
-	buildingSourceFiles: Set<string>,
+	building_source_files: Set<string>,
 	log: Logger,
 	cb: () => Promise<void>, // last cb wins!
 ): Promise<void> => {
 	state.installingCb = cb;
-	buildingSourceFiles.delete(source_id); // externals are hacky like this, because they'd cause it to hang!
+	building_source_files.delete(source_id); // externals are hacky like this, because they'd cause it to hang!
 	if (state.installing === null) {
 		state.installing = createDelayedPromise(async () => {
 			state.installing = null; // TODO so.. putting this after `cb()` causes an error
@@ -199,11 +205,11 @@ export const queueExternalsBuild = async (
 				return;
 			}
 			state.installing!.reset();
-			if (buildingSourceFiles.size === 0) {
+			if (building_source_files.size === 0) {
 				setTimeout(() => {
 					// check again in a moment just to be sure
 					// TODO make this more robust lol
-					if (buildingSourceFiles.size === 0) {
+					if (building_source_files.size === 0) {
 						clearInterval(state.resetterInterval!);
 						state.resetterInterval = null;
 						state.idleTimer = 0;
@@ -221,7 +227,7 @@ const loadCommonBuilds = async (
 	installResult: InstallResult,
 	dest: string,
 	build_config: Build_Config,
-): Promise<TextBuild[] | null> => {
+): Promise<Text_Build[] | null> => {
 	const commonDependencyIds = Object.keys(installResult.stats.common).map((path) =>
 		join(dest, path),
 	);
@@ -229,13 +235,13 @@ const loadCommonBuilds = async (
 	// log.trace('loading common dependencies', commonDependencyIds);
 	return Promise.all(
 		commonDependencyIds.map(
-			async (commonDependencyId): Promise<TextBuild> => ({
+			async (commonDependencyId): Promise<Text_Build> => ({
 				id: commonDependencyId,
 				filename: basename(commonDependencyId),
 				dir: dirname(commonDependencyId),
 				extension: JS_EXTENSION,
 				encoding,
-				contents: await loadContents(fs, encoding, commonDependencyId),
+				contents: await load_contents(fs, encoding, commonDependencyId),
 				build_config,
 			}),
 		),

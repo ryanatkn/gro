@@ -1,24 +1,24 @@
 <script lang="ts">
-	import {filterSelectedMetas} from './sourceTree.js';
-	import type {SourceTree} from './sourceTree.js';
-	import {useProjectState} from './projectState.js';
-	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
-	import {toFileTreeFolder} from './fileTree.js';
+	import {filter_selected_metas} from './source_tree.js';
+	import type {Source_Tree} from './source_tree.js';
+	import {use_project_state} from './project_state.js';
+	import File_Tree_Explorer_Folder from './File_Tree_Explorer_Folder.svelte';
+	import {to_file_tree_folder} from './file_tree.js';
 
-	export let sourceTree: SourceTree;
-	export let selectedBuild_Names: string[];
-	export const selectedSourceMeta = undefined;
-	export const hoveredSourceMeta = undefined;
+	export let source_tree: Source_Tree;
+	export let selected_build_names: string[];
+	export const selected_source_meta = undefined;
+	export const hovered_source_meta = undefined;
 
-	const ps = useProjectState();
+	const ps = use_project_state();
 
-	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuild_Names);
-	$: fileTreeFolder = toFileTreeFolder($ps.sourceDir, filteredSourceMetas);
+	$: filteredSource_Metas = filter_selected_metas(source_tree, selected_build_names);
+	$: file_treeFolder = to_file_tree_folder($ps.source_dir, filteredSource_Metas);
 </script>
 
 <div class="build-explorer">
-	{#if filteredSourceMetas.length}
-		<FileTreeExplorerFolder folder={fileTreeFolder} />
+	{#if filteredSource_Metas.length}
+		<File_Tree_Explorer_Folder folder={file_treeFolder} />
 	{:else}<small><em>no builds selected</em></small>{/if}
 </div>
 

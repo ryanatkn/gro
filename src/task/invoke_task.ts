@@ -74,7 +74,7 @@ export const invoke_task = async (
 	const find_modules_result = await find_modules(
 		fs,
 		[input_path],
-		(id) => fs.findFiles(id, (file) => is_task_path(file.path)),
+		(id) => fs.find_files(id, (file) => is_task_path(file.path)),
 		(input_path) => get_possible_source_ids(input_path, [TASK_FILE_SUFFIX], [gro_paths.root]),
 	);
 
@@ -82,7 +82,7 @@ export const invoke_task = async (
 		timings.merge(find_modules_result.timings);
 		// Found a match either in the current working directory or Gro's directory.
 		const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
-		if (!path_data.isDirectory) {
+		if (!path_data.is_directory) {
 			// The input path matches a file, so load and run it.
 
 			// First ensure that the project has been built.
@@ -164,7 +164,7 @@ export const invoke_task = async (
 				// and log everything out.
 				const gro_dirInputPath = replace_root_dir(input_path, gro_paths.root);
 				const gro_dirFind_Modules_Result = await find_modules(fs, [gro_dirInputPath], (id) =>
-					fs.findFiles(id, (file) => is_task_path(file.path)),
+					fs.find_files(id, (file) => is_task_path(file.path)),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (gro_dirFind_Modules_Result.ok) {
@@ -202,7 +202,7 @@ export const invoke_task = async (
 			// but it has no matching files, we still want to search Gro's directory.
 			const gro_dirInputPath = replace_root_dir(input_path, gro_paths.root);
 			const gro_dirFind_Modules_Result = await find_modules(fs, [gro_dirInputPath], (id) =>
-				fs.findFiles(id, (file) => is_task_path(file.path)),
+				fs.find_files(id, (file) => is_task_path(file.path)),
 			);
 			if (gro_dirFind_Modules_Result.ok) {
 				timings.merge(gro_dirFind_Modules_Result.timings);

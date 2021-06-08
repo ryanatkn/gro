@@ -19,7 +19,7 @@ and then `toGenerateTypesForFile` looks up those cached results.
 
 */
 
-export type EcmaScriptTarget =
+export type Ecma_Script_Target =
 	| 'es3'
 	| 'es5'
 	| 'es2015'
@@ -75,12 +75,12 @@ export const toGenerateTypesForFile = async (fs: Filesystem): Promise<GenerateTy
 	const results: Map<string, GeneratedTypes> = new Map();
 	return async (id) => {
 		if (results.has(id)) return results.get(id)!;
-		const rootPath = `${to_types_build_dir()}/${source_id_to_base_path(id)}`; // TODO pass through `paths`, maybe from the `BuildContext`
+		const rootPath = `${to_types_build_dir()}/${source_id_to_base_path(id)}`; // TODO pass through `paths`, maybe from the `Build_Context`
 		const typesId = replace_extension(rootPath, TS_TYPE_EXTENSION);
 		const typemapId = replace_extension(rootPath, TS_TYPEMAP_EXTENSION);
 		const [types, typemap] = await Promise.all([
-			fs.readFile(typesId, 'utf8'),
-			(async () => ((await fs.exists(typemapId)) ? fs.readFile(typemapId, 'utf8') : undefined))(),
+			fs.read_file(typesId, 'utf8'),
+			(async () => ((await fs.exists(typemapId)) ? fs.read_file(typemapId, 'utf8') : undefined))(),
 		]);
 		const result: GeneratedTypes = {types, typemap};
 		results.set(id, result);

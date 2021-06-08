@@ -3,21 +3,21 @@ import type {Flavored} from '@feltcoop/felt/utils/types.js';
 
 import type {Encoding} from './encoding.js';
 import type {Path_Stats} from './path_data.js';
-import type {PathFilter} from './pathFilter.js';
+import type {Path_Filter} from './path_filter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
 export interface Filesystem {
 	stat: FsStat;
 	exists: FsExists;
-	findFiles: FsFindFiles;
-	readFile: FsReadFile;
-	writeFile: FsWriteFile;
+	find_files: FsFindFiles;
+	read_file: FsReadFile;
+	write_file: FsWriteFile;
 	remove: FsRemove;
 	move: FsMove;
 	copy: FsCopy;
-	readDir: FsReadDir;
-	emptyDir: FsEmptyDir;
-	ensureDir: FsEnsureDir;
+	read_dir: FsReadDir;
+	empty_dir: FsEmptyDir;
+	ensure_dir: FsEnsureDir;
 }
 
 export interface FsStat {
@@ -29,7 +29,7 @@ export interface FsExists {
 export interface FsFindFiles {
 	(
 		dir: string,
-		filter?: PathFilter,
+		filter?: Path_Filter,
 		// pass `null` to speed things up at the risk of infrequent misorderings (at least on Linux)
 		sort?: ((a: [any, any], b: [any, any]) => number) | null,
 	): Promise<Map<string, Path_Stats>>;
@@ -93,7 +93,7 @@ export const toFsId = (path: string): FsId => resolve(path);
 // TODO extract these? - how do they intersect with Filer types? and smaller interfaces like `Path_Data`?
 export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;
 
-// TODO should we use `BaseFilerFile` here?
+// TODO should we use `Base_Filer_File` here?
 // this mirrors a lot of that, except this models directories as well,
 // which we wanted to upstream ..
 // so this is a good entrypoint for backporting dirs into the Filer
@@ -105,7 +105,7 @@ export interface BaseNode {
 	readonly isDirectory: boolean;
 	readonly encoding: Encoding;
 	readonly contents: string | Buffer | null;
-	// readonly contentsBuffer: Buffer | null;
+	// readonly contents_buffer: Buffer | null;
 	readonly stats: Path_Stats;
 	// readonly path_data: Path_Data; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
@@ -120,10 +120,10 @@ export interface TextFileNode extends BaseFileNode {
 export interface BinaryFileNode extends BaseFileNode {
 	readonly encoding: null;
 	readonly contents: Buffer;
-	// readonly contentsBuffer: Buffer;
+	// readonly contents_buffer: Buffer;
 }
 export interface DirectoryNode extends BaseNode {
 	readonly isDirectory: true;
 	readonly contents: null;
-	// readonly contentsBuffer: null;
+	// readonly contents_buffer: null;
 }

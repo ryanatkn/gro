@@ -4,58 +4,61 @@ import type {Logger} from '@feltcoop/felt/utils/log.js';
 import type {Build_Config} from '../build/build_config.js';
 import {to_build_out_path} from '../paths.js';
 import type {
-	ExternalsAliases,
-	ExternalsBuilderState,
+	Externals_Aliases,
+	Externals_Builder_State,
 	EXTERNALS_BUILDER_STATE_KEY,
-} from './externalsBuildHelpers.js';
-import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import type {ServedDir} from './served_dir.js';
-import type {SourceMeta} from './source_meta.js';
+} from './externals_build_helpers.js';
+import type {Ecma_Script_Target} from './ts_build_helpers.js';
+import type {Served_Dir} from './served_dir.js';
+import type {Source_Meta} from './source_meta.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import type {BaseFilerFile} from './baseFilerFile.js';
+import type {Base_Filer_File} from './base_filer_file.js';
 
-export interface Builder<TSource extends BuildSource = BuildSource, TBuild extends Build = Build> {
+export interface Builder<
+	TSource extends Build_Source = Build_Source,
+	TBuild extends Build = Build
+> {
 	name: string;
 	build(
 		source: TSource,
 		build_config: Build_Config,
-		ctx: BuildContext,
-	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>; // TODO should this be forced async?
-	onRemove?(source: TSource, build_config: Build_Config, ctx: BuildContext): Promise<void>;
-	init?(ctx: BuildContext): Promise<void>;
+		ctx: Build_Context,
+	): Build_Result<TBuild> | Promise<Build_Result<TBuild>>; // TODO should this be forced async?
+	on_remove?(source: TSource, build_config: Build_Config, ctx: Build_Context): Promise<void>;
+	init?(ctx: Build_Context): Promise<void>;
 }
 
-export interface BuildResult<TBuild extends Build = Build> {
+export interface Build_Result<TBuild extends Build = Build> {
 	builds: TBuild[];
 }
 
 // For docs on these, see where they're implemented in the `Filer`.
-export interface BuildContext {
+export interface Build_Context {
 	readonly fs: Filesystem;
 	readonly build_configs: readonly Build_Config[] | null;
-	readonly source_metaById: Map<string, SourceMeta>;
+	readonly source_meta_by_id: Map<string, Source_Meta>;
 	readonly log: Logger;
 	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
-	readonly target: EcmaScriptTarget;
-	readonly served_dirs: readonly ServedDir[];
-	readonly externalsAliases: ExternalsAliases;
-	readonly state: BuilderState;
-	readonly buildingSourceFiles: Set<string>;
-	readonly findById: (id: string) => BaseFilerFile | undefined;
+	readonly target: Ecma_Script_Target;
+	readonly served_dirs: readonly Served_Dir[];
+	readonly externals_aliases: Externals_Aliases;
+	readonly state: Builder_State;
+	readonly building_source_files: Set<string>;
+	readonly find_by_id: (id: string) => Base_Filer_File | undefined;
 }
 
-export interface BuilderState {
-	[EXTERNALS_BUILDER_STATE_KEY]?: ExternalsBuilderState;
+export interface Builder_State {
+	[EXTERNALS_BUILDER_STATE_KEY]?: Externals_Builder_State;
 }
 
-export type Build = TextBuild | BinaryBuild;
-export interface TextBuild extends BaseBuild {
+export type Build = Text_Build | Binary_Build;
+export interface Text_Build extends BaseBuild {
 	encoding: 'utf8';
 	contents: string;
 }
-export interface BinaryBuild extends BaseBuild {
+export interface Binary_Build extends BaseBuild {
 	encoding: null;
 	contents: Buffer;
 }
@@ -67,16 +70,16 @@ interface BaseBuild {
 	build_config: Build_Config;
 }
 
-export type BuildSource = TextBuildSource | BinaryBuildSource;
-export interface TextBuildSource extends BaseBuildSource {
+export type Build_Source = Text_Build_Source | Binary_Build_Source;
+export interface Text_Build_Source extends Base_Build_Source {
 	encoding: 'utf8';
 	contents: string;
 }
-export interface BinaryBuildSource extends BaseBuildSource {
+export interface Binary_Build_Source extends Base_Build_Source {
 	encoding: null;
 	contents: Buffer;
 }
-interface BaseBuildSource {
+interface Base_Build_Source {
 	buildable: true;
 	id: string;
 	filename: string;
@@ -85,7 +88,7 @@ interface BaseBuildSource {
 	extension: string;
 }
 
-export const noopBuilder: Builder = {
+export const noop_builder: Builder = {
 	name: '@feltcoop/gro-builder-noop',
 	build: (source, build_config, {build_dir, dev}) => {
 		const {filename, extension} = source;
@@ -118,18 +121,18 @@ export const noopBuilder: Builder = {
 			default:
 				throw new Unreachable_Error(source);
 		}
-		const result: BuildResult = {builds: [file]};
+		const result: Build_Result = {builds: [file]};
 		return result;
 	},
-	// onRemove: not implemented because it's a no-op
+	// on_remove: not implemented because it's a no-op
 	// init: not implemented because it's a no-op
 };
 
-// TODO maybe move to `buildFile`? but then `postprocess` would have a dependency on the build file.
+// TODO maybe move to `build_file`? but then `postprocess` would have a dependency on the build file.
 // its imports make more sense as is.
-export interface BuildDependency {
+export interface Build_Dependency {
 	specifier: string;
-	mappedSpecifier: string;
+	mapped_specifier: string;
 	build_id: string;
 	external: boolean;
 }

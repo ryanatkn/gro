@@ -1,20 +1,20 @@
 import * as svelte from 'svelte/compiler';
-import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
 import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 import {cyan} from '@feltcoop/felt/utils/terminal.js';
 
-import type {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {Ecma_Script_Target} from './ts_build_helpers.js';
 import {
-	baseSvelteCompileOptions,
-	createDefaultPreprocessor,
-	handleStats,
-	handleWarn,
+	base_svelte_compile_options,
+	create_default_preprocessor,
+	handle_stats,
+	handle_warn,
 } from './svelte_build_helpers.js';
-import type {CreatePreprocessor, SvelteCompilation} from './svelte_build_helpers.js';
+import type {Create_Preprocessor, Svelte_Compilation} from './svelte_build_helpers.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
@@ -22,7 +22,7 @@ import {
 	SVELTE_EXTENSION,
 	to_build_out_path,
 } from '../paths.js';
-import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
+import type {Builder, Build_Result, Text_Build, Text_Build_Source} from './builder.js';
 import type {Build_Config} from '../build/build_config.js';
 import {add_css_sourcemap_footer, add_js_sourcemap_footer} from './utils.js';
 
@@ -32,42 +32,45 @@ import {add_css_sourcemap_footer, add_js_sourcemap_footer} from './utils.js';
 export interface Options {
 	log: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	createPreprocessor: CreatePreprocessor;
+	create_preprocessor: Create_Preprocessor;
 	// TODO how to support options like this without screwing up caching?
 	// maybe compilers need a way to declare their options so they (or a hash) can be cached?
-	svelteCompileOptions: SvelteCompileOptions;
-	onwarn: typeof handleWarn;
-	onstats: typeof handleStats | null;
+	svelte_compile_options: SvelteCompileOptions;
+	onwarn: typeof handle_warn;
+	onstats: typeof handle_stats | null;
 }
-export type InitialOptions = Partial<Options>;
-export const initOptions = (opts: InitialOptions): Options => {
+export type Initial_Options = Partial<Options>;
+export const init_options = (opts: Initial_Options): Options => {
 	return {
-		onwarn: handleWarn,
+		onwarn: handle_warn,
 		onstats: null,
-		createPreprocessor: createDefaultPreprocessor,
-		...omitUndefined(opts),
-		log: opts.log || new System_Logger(print_log_label('svelteBuilder', cyan)),
-		svelteCompileOptions: opts.svelteCompileOptions || {},
+		create_preprocessor: create_default_preprocessor,
+		...omit_undefined(opts),
+		log: opts.log || new System_Logger(print_log_label('svelte_builder', cyan)),
+		svelte_compile_options: opts.svelte_compile_options || {},
 	};
 };
 
-type SvelteBuilder = Builder<TextBuildSource, TextBuild>;
+type SvelteBuilder = Builder<Text_Build_Source, Text_Build>;
 
-export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder => {
-	const {log, createPreprocessor, svelteCompileOptions, onwarn, onstats} = initOptions(opts);
+export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder => {
+	const {log, create_preprocessor, svelte_compile_options, onwarn, onstats} = init_options(opts);
 
-	const preprocessorCache: Map<string, PreprocessorGroup | PreprocessorGroup[] | null> = new Map();
-	const getPreprocessor = (
-		target: EcmaScriptTarget,
+	const preprocessor_cache: Map<
+		string,
+		Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null
+	> = new Map();
+	const get_preprocessor = (
+		target: Ecma_Script_Target,
 		dev: boolean,
 		sourcemap: boolean,
-	): PreprocessorGroup | PreprocessorGroup[] | null => {
+	): Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null => {
 		const key = sourcemap + target;
-		const existingPreprocessor = preprocessorCache.get(key);
-		if (existingPreprocessor !== undefined) return existingPreprocessor;
-		const newPreprocessor = createPreprocessor(target, dev, sourcemap);
-		preprocessorCache.set(key, newPreprocessor);
-		return newPreprocessor;
+		const existing_preprocessor = preprocessor_cache.get(key);
+		if (existing_preprocessor !== undefined) return existing_preprocessor;
+		const new_preprocessor = create_preprocessor(target, dev, sourcemap);
+		preprocessor_cache.set(key, new_preprocessor);
+		return new_preprocessor;
 	};
 
 	const build: SvelteBuilder['build'] = async (
@@ -82,59 +85,59 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
-		let preprocessedCode: string;
+		const out_dir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
+		let preprocessed_code: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps
 		// let dependencies = [];
-		const preprocessor = getPreprocessor(target, dev, sourcemap);
+		const preprocessor = get_preprocessor(target, dev, sourcemap);
 		if (preprocessor !== null) {
 			const preprocessed = await svelte.preprocess(contents, preprocessor, {filename: id});
-			preprocessedCode = preprocessed.code;
+			preprocessed_code = preprocessed.code;
 			// dependencies = preprocessed.dependencies; // TODO
 		} else {
-			preprocessedCode = contents;
+			preprocessed_code = contents;
 		}
 
-		const output: SvelteCompilation = svelte.compile(preprocessedCode, {
-			...baseSvelteCompileOptions,
+		const output: Svelte_Compilation = svelte.compile(preprocessed_code, {
+			...base_svelte_compile_options,
 			dev,
-			generate: getGenerateOption(build_config),
-			...svelteCompileOptions,
+			generate: get_generate_option(build_config),
+			...svelte_compile_options,
 			filename: id, // TODO should we be giving a different path?
 		});
 		const {js, css, warnings, stats} = output;
 
 		for (const warning of warnings) {
-			onwarn(id, warning, handleWarn, log);
+			onwarn(id, warning, handle_warn, log);
 		}
-		if (onstats) onstats(id, stats, handleStats, log);
+		if (onstats) onstats(id, stats, handle_stats, log);
 
-		const jsFilename = `${source.filename}${JS_EXTENSION}`;
-		const cssFilename = `${source.filename}${CSS_EXTENSION}`;
-		const jsId = `${outDir}${jsFilename}`;
-		const cssId = `${outDir}${cssFilename}`;
-		const hasJsSourcemap = sourcemap && js.map !== undefined;
-		const hasCssSourcemap = sourcemap && css.map !== undefined;
+		const js_filename = `${source.filename}${JS_EXTENSION}`;
+		const css_filename = `${source.filename}${CSS_EXTENSION}`;
+		const js_id = `${out_dir}${js_filename}`;
+		const css_id = `${out_dir}${css_filename}`;
+		const has_js_sourcemap = sourcemap && js.map !== undefined;
+		const has_css_sourcemap = sourcemap && css.map !== undefined;
 
-		const builds: TextBuild[] = [
+		const builds: Text_Build[] = [
 			{
-				id: jsId,
-				filename: jsFilename,
-				dir: outDir,
+				id: js_id,
+				filename: js_filename,
+				dir: out_dir,
 				extension: JS_EXTENSION,
 				encoding,
-				contents: hasJsSourcemap
-					? add_js_sourcemap_footer(js.code, jsFilename + SOURCEMAP_EXTENSION)
+				contents: has_js_sourcemap
+					? add_js_sourcemap_footer(js.code, js_filename + SOURCEMAP_EXTENSION)
 					: js.code,
 				build_config,
 			},
 		];
-		if (hasJsSourcemap) {
+		if (has_js_sourcemap) {
 			builds.push({
-				id: jsId + SOURCEMAP_EXTENSION,
-				filename: jsFilename + SOURCEMAP_EXTENSION,
-				dir: outDir,
+				id: js_id + SOURCEMAP_EXTENSION,
+				filename: js_filename + SOURCEMAP_EXTENSION,
+				dir: out_dir,
 				extension: SOURCEMAP_EXTENSION,
 				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
@@ -143,21 +146,21 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		}
 		if (css.code) {
 			builds.push({
-				id: cssId,
-				filename: cssFilename,
-				dir: outDir,
+				id: css_id,
+				filename: css_filename,
+				dir: out_dir,
 				extension: CSS_EXTENSION,
 				encoding,
-				contents: hasCssSourcemap
-					? add_css_sourcemap_footer(css.code, cssFilename + SOURCEMAP_EXTENSION)
+				contents: has_css_sourcemap
+					? add_css_sourcemap_footer(css.code, css_filename + SOURCEMAP_EXTENSION)
 					: css.code,
 				build_config,
 			});
-			if (hasCssSourcemap) {
+			if (has_css_sourcemap) {
 				builds.push({
-					id: cssId + SOURCEMAP_EXTENSION,
-					filename: cssFilename + SOURCEMAP_EXTENSION,
-					dir: outDir,
+					id: css_id + SOURCEMAP_EXTENSION,
+					filename: css_filename + SOURCEMAP_EXTENSION,
+					dir: out_dir,
 					extension: SOURCEMAP_EXTENSION,
 					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
@@ -165,14 +168,14 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				});
 			}
 		}
-		const result: BuildResult<TextBuild> = {builds};
+		const result: Build_Result<Text_Build> = {builds};
 		return result;
 	};
 
 	return {name: '@feltcoop/gro-builder-svelte', build};
 };
 
-const getGenerateOption = (build_config: Build_Config): 'dom' | 'ssr' | false => {
+const get_generate_option = (build_config: Build_Config): 'dom' | 'ssr' | false => {
 	switch (build_config.platform) {
 		case 'browser':
 			return 'dom';

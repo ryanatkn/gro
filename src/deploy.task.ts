@@ -131,12 +131,12 @@ export const task: Task<Task_Args> = {
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
-				(await fs.readDir(WORKTREE_DIR)).map((path) =>
+				(await fs.read_dir(WORKTREE_DIR)).map((path) =>
 					path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`),
 				),
 			);
 			await Promise.all(
-				(await fs.readDir(DIST_DIR)).map((path) =>
+				(await fs.read_dir(DIST_DIR)).map((path) =>
 					fs.move(`${DIST_DIR}${path}`, `${WORKTREE_DIR}/${path}`),
 				),
 			);

@@ -2,11 +2,11 @@ import {createFilter} from '@rollup/pluginutils';
 
 import type {Build_Config, Build_Config_Partial, Build_Name} from './build_config.js';
 import {to_build_extension, base_path_to_source_id, to_build_out_path, paths} from '../paths.js';
-import {getExtensions} from '../fs/mime.js';
-import type {EcmaScriptTarget} from '../build/tsBuildHelpers.js';
+import {get_extensions} from '../fs/mime.js';
+import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
+export const DEFAULT_ECMA_SCRIPT_TARGET: Ecma_Script_Target = 'es2020';
 
 export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
 
@@ -30,7 +30,7 @@ export const SYSTEM_BUILD_CONFIG: Build_Config = {
 const NODE_LIBRARY_PATH = 'index.ts';
 const NODE_LIBRARY_SOURCE_ID = base_path_to_source_id('index.ts');
 const NODE_LIBRARY_EXCLUDE_SOURCE_ID = base_path_to_source_id('index.html');
-export const hasNodeLibrary = async (fs: Filesystem): Promise<boolean> =>
+export const has_node_library = async (fs: Filesystem): Promise<boolean> =>
 	(await fs.exists(NODE_LIBRARY_SOURCE_ID)) && !(await fs.exists(NODE_LIBRARY_EXCLUDE_SOURCE_ID));
 export const NODE_LIBRARY_BUILD_NAME: Build_Name = 'library';
 export const NODE_LIBRARY_BUILD_CONFIG: Build_Config = {
@@ -43,7 +43,7 @@ export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
 export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
 export const has_api_server = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
-export const has_api_serverConfig = (build_configs: Build_Config[]): boolean =>
+export const has_api_server_config = (build_configs: Build_Config[]): boolean =>
 	build_configs.some(
 		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_CONFIG.platform,
 	);
@@ -67,7 +67,7 @@ export const has_sveltekit_frontend = async (fs: Filesystem): Promise<boolean> =
 	everyPathExists(fs, SVELTEKIT_FRONTEND_PATHS);
 
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
-export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>
+export const has_deprecated_gro_frontend = async (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, DEPRECATED_GRO_FRONTEND_PATHS);
 
 export const BROWSER_BUILD_NAME: Build_Name = 'browser';
@@ -78,7 +78,7 @@ export const toDefaultBrowserBuild = (
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
 });
-const toDefaultAssetPaths = (): string[] => Array.from(getExtensions());
+const toDefaultAssetPaths = (): string[] => Array.from(get_extensions());
 
 const everyPathExists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
 	(await Promise.all(paths.map((path) => fs.exists(path)))).every((v) => !!v);

@@ -1,11 +1,11 @@
 import {setContext, getContext} from 'svelte';
 import type {Writable} from 'svelte/store';
 
-import type {ProjectState} from '../server/projectState.js';
+import type {Project_State} from '../server/project_state.js';
 
-const contextKey = Symbol();
+const context_key = Symbol();
 
-export const provideProjectState = (ctx: Writable<ProjectState>): void =>
-	setContext(contextKey, ctx);
+export const provide_project_state = (ctx: Writable<Project_State>): void =>
+	setContext(context_key, ctx);
 
-export const useProjectState = (): Writable<ProjectState> => getContext(contextKey);
+export const use_project_state = (): Writable<Project_State> => getContext(context_key);

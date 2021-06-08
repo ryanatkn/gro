@@ -1,20 +1,20 @@
 import type esbuild from 'esbuild';
-import type * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
+import type * as svelte_preprocess_esbuild from 'svelte-preprocess-esbuild';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
 import {is_this_project_gro} from '../paths.js';
-import type {EcmaScriptTarget} from './tsBuildHelpers.js';
+import type {Ecma_Script_Target} from './ts_build_helpers.js';
 
-export interface EsbuildTransformOptions extends esbuild.TransformOptions {
-	target: EcmaScriptTarget;
+export interface Esbuild_Transform_Options extends esbuild.TransformOptions {
+	target: Ecma_Script_Target;
 	sourcemap: boolean;
 }
 
-export const getDefaultEsbuildOptions = (
-	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
+export const get_default_esbuild_options = (
+	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
 	dev = process.env.NODE_ENV !== 'production',
 	sourcemap = dev,
-): EsbuildTransformOptions => ({
+): Esbuild_Transform_Options => ({
 	target,
 	sourcemap,
 	format: 'esm',
@@ -30,10 +30,10 @@ export const getDefaultEsbuildOptions = (
 });
 
 export const getDefaultEsbuildPreprocessOptions = (
-	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
+	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
 	dev = process.env.NODE_ENV !== 'production',
 	sourcemap = dev,
-): Partial<sveltePreprocessEsbuild.Options> => ({
+): Partial<svelte_preprocess_esbuild.Options> => ({
 	target,
 	sourcemap,
 	tsconfigRaw: {compilerOptions: {}}, // pass an empty object so the preprocessor doesn't load the tsconfig

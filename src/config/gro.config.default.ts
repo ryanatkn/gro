@@ -2,7 +2,7 @@ import {ENV_LOG_LEVEL, Log_Level} from '@feltcoop/felt/utils/log.js';
 
 import type {Gro_Config_Creator, Gro_Config_Partial} from './config.js';
 import {
-	hasNodeLibrary,
+	has_node_library,
 	SYSTEM_BUILD_CONFIG,
 	NODE_LIBRARY_BUILD_CONFIG,
 	has_sveltekit_frontend,
@@ -27,35 +27,35 @@ It looks at the project and tries to do the right thing:
 
 export const config: Gro_Config_Creator = async ({fs}) => {
 	const [
-		enableNodeLibrary,
-		// enableApiServer,
-		enableSvelteKitFrontend,
-		// enableGroFrontend,
+		enable_node_library,
+		// enable_api_server,
+		enable_sveltekit_frontend,
+		// enable_gro_frontend,
 	] = await Promise.all([
-		hasNodeLibrary(fs),
+		has_node_library(fs),
 		// has_api_server(fs),
 		has_sveltekit_frontend(fs),
-		// hasDeprecatedGroFrontend(fs),
+		// has_deprecated_gro_frontend(fs),
 	]);
 	const partial: Gro_Config_Partial = {
 		builds: [
 			SYSTEM_BUILD_CONFIG,
-			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
-			// enableApiServer ? API_SERVER_BUILD_CONFIG : null,
-			// enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
+			enable_node_library ? NODE_LIBRARY_BUILD_CONFIG : null,
+			// enable_api_server ? API_SERVER_BUILD_CONFIG : null,
+			// enable_gro_frontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 			// note there's no build for SvelteKit frontends - should there be?
 		],
 		log_level: ENV_LOG_LEVEL ?? Log_Level.Trace,
 		adapt: async () => [
-			enableNodeLibrary
+			enable_node_library
 				? (await import('../adapt/gro-adapter-node-library.js')).create_adapter()
 				: null,
 			// TODO
-			// enableApiServer ? (await import('../adapt/gro-adapter-api-server.js')).create_adapter() : null,
-			// enableGroFrontend
+			// enable_api_server ? (await import('../adapt/gro-adapter-api-server.js')).create_adapter() : null,
+			// enable_gro_frontend
 			// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).create_adapter()
 			// 	: null,
-			enableSvelteKitFrontend
+			enable_sveltekit_frontend
 				? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).create_adapter()
 				: null,
 		],

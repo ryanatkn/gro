@@ -6,7 +6,7 @@ import mri from 'mri';
 
 import type {Args} from '../task/task.js';
 import {invoke_task} from '../task/invoke_task.js';
-import {fs as nodeFs} from '../fs/node.js';
+import {fs as node_fs} from '../fs/node.js';
 
 /*
 
@@ -22,19 +22,19 @@ const main = async () => {
 
 	// install sourcemaps
 	if (process.env.NODE_ENV !== 'production') {
-		const sourcemapSupport = await import('source-map-support');
-		sourcemapSupport.install({
+		const sourcemap_support = await import('source-map-support');
+		sourcemap_support.install({
 			handleUncaughtExceptions: false,
 		});
 	}
 
 	const {
 		_: [task_name, ..._],
-		...namedArgs
+		...named_args
 	} = argv;
-	const args = {_, ...namedArgs};
+	const args = {_, ...named_args};
 
-	await invoke_task(nodeFs, task_name, args);
+	await invoke_task(node_fs, task_name, args);
 };
 
 main(); // see `attach_process_error_handlers` above for why we don't catch here

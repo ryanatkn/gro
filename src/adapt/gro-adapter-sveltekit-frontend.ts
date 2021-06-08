@@ -12,13 +12,13 @@ const DEFAULT_TARGET = 'github_pages';
 
 export interface Options {
 	dir: string;
-	svelte_kit_dir: string;
+	sveltekit_dir: string;
 	target: 'github_pages' | 'static';
 }
 
 export const create_adapter = ({
 	dir = DIST_DIRNAME,
-	svelte_kit_dir = SVELTEKIT_BUILD_DIRNAME,
+	sveltekit_dir = SVELTEKIT_BUILD_DIRNAME,
 	target = DEFAULT_TARGET,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
@@ -30,12 +30,12 @@ export const create_adapter = ({
 		adapt: async ({fs, log}) => {
 			const timings = new Timings();
 
-			const timing_to_build_svelte_kit = timings.start('build SvelteKit');
+			const timing_to_build_sveltekit = timings.start('build SvelteKit');
 			await spawn_process('npx', ['svelte-kit', 'build']);
-			timing_to_build_svelte_kit();
+			timing_to_build_sveltekit();
 
 			const timing_to_copy_dist = timings.start('copy build to dist');
-			await fs.move(svelte_kit_dir, dir);
+			await fs.move(sveltekit_dir, dir);
 			timing_to_copy_dist();
 
 			// GitHub pages processes everything with Jekyll by default,
@@ -45,7 +45,7 @@ export const create_adapter = ({
 			if (target === 'github_pages') {
 				const nojekyll_path = `${dir}/${NOJEKYLL}`;
 				if (!(await fs.exists(nojekyll_path))) {
-					await fs.writeFile(nojekyll_path, '', 'utf8');
+					await fs.write_file(nojekyll_path, '', 'utf8');
 				}
 			}
 

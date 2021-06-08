@@ -11,5 +11,5 @@ const textExtensions = new Set<string>([
 	'.txt',
 ]);
 
-export const inferEncoding = (extension: string): Encoding =>
+export const infer_encoding = (extension: string): Encoding =>
 	textExtensions.has(extension) ? 'utf8' : null;

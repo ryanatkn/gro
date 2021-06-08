@@ -3,7 +3,7 @@ import type {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import {print_error} from '@feltcoop/felt/utils/print.js';
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/utils/object.js';
 
 import {print_path} from '../paths.js';
 
@@ -12,20 +12,20 @@ import {print_path} from '../paths.js';
 export interface Options {
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
-	minifyOptions: terser.MinifyOptions;
+	minify_options: terser.MinifyOptions;
 }
-export type InitialOptions = Partial<Options>;
-export const initOptions = (opts: InitialOptions): Options => ({
+export type Initial_Options = Partial<Options>;
+export const init_options = (opts: Initial_Options): Options => ({
 	include: null,
 	exclude: null,
-	minifyOptions: {sourceMap: false},
-	...omitUndefined(opts),
+	minify_options: {sourceMap: false},
+	...omit_undefined(opts),
 });
 
 export const name = 'gro-terser';
 
-export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
-	const {include, exclude, minifyOptions} = initOptions(opts);
+export const gro_terser_plugin = (opts: Initial_Options = {}): Plugin => {
+	const {include, exclude, minify_options} = init_options(opts);
 
 	const log = new System_Logger(print_log_label(name));
 
@@ -41,7 +41,7 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 			try {
 				const result = await terser.minify(code, {
 					module: format === 'es',
-					...minifyOptions,
+					...minify_options,
 				});
 
 				if (result.code === undefined) {

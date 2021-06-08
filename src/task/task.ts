@@ -4,23 +4,23 @@ import type {Logger} from '@feltcoop/felt/utils/log.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 
-export interface Task<TArgs = Args, TEvents = {}> {
-	run: (ctx: Task_Context<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
+export interface Task<T_Args = Args, T_Events = {}> {
+	run: (ctx: Task_Context<T_Args, T_Events>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	description?: string;
 	dev?: boolean;
 }
 
-export interface Task_Context<TArgs = {}, TEvents = {}> {
+export interface Task_Context<T_Args = {}, T_Events = {}> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
-	args: TArgs;
-	events: StrictEventEmitter<EventEmitter, TEvents>;
+	args: T_Args;
+	events: StrictEventEmitter<EventEmitter, T_Events>;
 	// TODO could lookup `Args` based on a map of `task_name` types (codegen to keep it simple?)
 	invoke_task: (
 		task_name: string,
 		args?: Args,
-		events?: StrictEventEmitter<EventEmitter, TEvents>,
+		events?: StrictEventEmitter<EventEmitter, T_Events>,
 		dev?: boolean,
 		fs?: Filesystem,
 	) => Promise<void>;

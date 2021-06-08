@@ -9,7 +9,7 @@ import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, find_gen_modules} from './gen/gen_module.js';
 import {resolve_raw_input_paths} from './fs/input_path.js';
 import {load_modules} from './fs/modules.js';
-import {formatFile} from './build/formatFile.js';
+import {format_file} from './build/format_file.js';
 import {print_path} from './paths.js';
 
 export interface Task_Args {
@@ -54,7 +54,7 @@ export const task: Task<Task_Args> = {
 
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(fs, load_modules_result.modules, formatFile, log);
+		const genResults = await runGen(fs, load_modules_result.modules, format_file, log);
 		stopTimingToGenerateCode();
 
 		const failCount = genResults.failures.length;
@@ -96,7 +96,7 @@ export const task: Task<Task_Args> = {
 					.map((result) =>
 						result.files.map((file) => {
 							log.info('writing', print_path(file.id), 'generated from', print_path(file.originId));
-							return fs.writeFile(file.id, file.contents);
+							return fs.write_file(file.id, file.contents);
 						}),
 					)
 					.flat(),

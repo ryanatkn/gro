@@ -34,7 +34,7 @@ export interface Task_Events {
 	'server.spawn': (spawned: Spawned_Process, api_server_path: string) => void;
 }
 
-// TODO what's the best way to give a placeholder for the unused first `TArgs` type argument?
+// TODO what's the best way to give a placeholder for the unused first `T_Args` type argument?
 export const task: Task<Task_Args, Task_Events> = {
 	description: 'start API server',
 	run: async ({fs, dev, events, args, log}) => {

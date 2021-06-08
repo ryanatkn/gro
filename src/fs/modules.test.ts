@@ -77,7 +77,7 @@ test_find_modules('with and without extension', async () => {
 	const result = await find_modules(
 		fs,
 		[path1, id2],
-		(id) => fs.findFiles(id),
+		(id) => fs.find_files(id),
 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	t.ok(result.ok);
@@ -100,7 +100,7 @@ test_find_modules('with and without extension', async () => {
 test_find_modules('directory', async () => {
 	const id = resolve('src/fs/fixtures/');
 	const result = await find_modules(fs, [id], (id) =>
-		fs.findFiles(id, ({path}) => path.includes('.foo.')),
+		fs.find_files(id, ({path}) => path.includes('.foo.')),
 	);
 	t.ok(result.ok);
 	t.equal(
@@ -119,7 +119,7 @@ test_find_modules('fail with unmappedInputPaths', async () => {
 			resolve('src/fs/fixtures/bar2'),
 			resolve('src/fs/fixtures/failme2'),
 		],
-		(id) => fs.findFiles(id),
+		(id) => fs.find_files(id),
 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	t.not.ok(result.ok);
@@ -143,7 +143,7 @@ test_find_modules('fail with input_directories_with_no_files', async () => {
 			resolve('src/fs/fixtures/bar2'),
 			resolve('src/fs/fixtures/baz2'),
 		],
-		(id) => fs.findFiles(id, ({path}) => !path.includes('.bar.')),
+		(id) => fs.find_files(id, ({path}) => !path.includes('.bar.')),
 	);
 	t.not.ok(result.ok);
 	t.ok(result.reasons.length);

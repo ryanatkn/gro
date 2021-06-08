@@ -1,47 +1,47 @@
 import type {Builder} from './builder.js';
-import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
+import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
-import {createLazyBuilder} from './lazyBuilder.js';
-import type {InitialOptions as LazyBuilderInitialOptions} from './lazyBuilder.js';
-import {createEsbuildBuilder} from './esbuildBuilder.js';
-import type {InitialOptions as SwcBuilderInitialOptions} from './esbuildBuilder.js';
-import {createSvelteBuilder} from './svelteBuilder.js';
-import type {InitialOptions as SvelteBuilderInitialOptions} from './svelteBuilder.js';
-import {createExternalsBuilder} from './externalsBuilder.js';
-import type {InitialOptions as ExternalsBuilderInitialOptions} from './externalsBuilder.js';
+import {create_simple_builder} from './simple_builder.js';
+import type {Initial_Options as Simple_Builder_Initial_Options} from './simple_builder.js';
+import {create_esbuild_builder} from './esbuild_builder.js';
+import type {Initial_Options as Esbuild_Builder_Initial_Options} from './esbuild_builder.js';
+import {create_svelte_builder} from './svelte_builder.js';
+import type {Initial_Options as Svelte_Builder_Initial_Options} from './svelte_builder.js';
+import {create_externals_builder} from './externals_builder.js';
+import type {Initial_Options as Externals_Builder_Initial_Options} from './externals_builder.js';
 
-export const createDefaultBuilder = (
-	esbuildBuilderOptions?: SwcBuilderInitialOptions,
-	svelteBuilderOptions?: SvelteBuilderInitialOptions,
-	externalsBuilderOptions?: ExternalsBuilderInitialOptions,
-	lazyBuilderOptions?: LazyBuilderInitialOptions,
+export const create_default_builder = (
+	esbuild_builder_options?: Esbuild_Builder_Initial_Options,
+	svelte_builder_options?: Svelte_Builder_Initial_Options,
+	externals_builder_options?: Externals_Builder_Initial_Options,
+	simple_builder_options?: Simple_Builder_Initial_Options,
 ): Builder => {
-	if (!lazyBuilderOptions?.getBuilder) {
-		const esbuildBuilder = createEsbuildBuilder(esbuildBuilderOptions);
-		const svelteBuilder = createSvelteBuilder(svelteBuilderOptions);
-		const externalsBuilder = createExternalsBuilder(externalsBuilderOptions);
-		const builders: Builder[] = [esbuildBuilder, svelteBuilder, externalsBuilder];
-		lazyBuilderOptions = {
-			...lazyBuilderOptions,
-			getBuilder: (source, build_config) => {
+	if (!simple_builder_options?.get_builder) {
+		const esbuild_builder = create_esbuild_builder(esbuild_builder_options);
+		const svelte_builder = create_svelte_builder(svelte_builder_options);
+		const externals_builder = create_externals_builder(externals_builder_options);
+		const builders: Builder[] = [esbuild_builder, svelte_builder, externals_builder];
+		simple_builder_options = {
+			...simple_builder_options,
+			get_builder: (source, build_config) => {
 				if (source.id === EXTERNALS_SOURCE_ID) {
 					if (build_config.platform !== 'browser') {
 						throw Error('Expected browser for externals builder.');
 					}
-					return externalsBuilder;
+					return externals_builder;
 				}
 				switch (source.extension) {
 					case TS_EXTENSION:
-						return esbuildBuilder;
+						return esbuild_builder;
 					case SVELTE_EXTENSION:
-						return svelteBuilder;
+						return svelte_builder;
 					default:
 						return null;
 				}
 			},
-			getBuilders: () => builders,
+			get_builders: () => builders,
 		};
 	}
 
-	return {...createLazyBuilder(lazyBuilderOptions), name: '@feltcoop/gro-builder-default'};
+	return {...create_simple_builder(simple_builder_options), name: '@feltcoop/gro-builder-default'};
 };

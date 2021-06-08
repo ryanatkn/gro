@@ -1,5 +1,5 @@
-import {strip_trailing_slash, toCommonBaseDir} from '@feltcoop/felt/utils/path.js';
-import {ensureEnd} from '@feltcoop/felt/utils/string.js';
+import {strip_trailing_slash, to_common_base_dir} from '@feltcoop/felt/utils/path.js';
+import {ensure_end} from '@feltcoop/felt/utils/string.js';
 import {Timings} from '@feltcoop/felt/utils/time.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
 import {print_timings} from '@feltcoop/felt/utils/print.js';
@@ -9,7 +9,7 @@ import {runRollup} from '../build/rollup.js';
 import {DIST_DIRNAME, source_id_to_base_path, to_build_extension, to_import_id} from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import type {Build_Name} from '../build/build_config.js';
-import {copyDist} from '../build/dist.js';
+import {copy_dist} from '../build/dist.js';
 import {BROWSER_BUILD_NAME} from '../build/default_build_config.js';
 
 // WIP do not use
@@ -42,16 +42,16 @@ export const create_adapter = ({
 			const timings = new Timings();
 
 			// Not every build config is built for the final `dist/`!
-			const build_configsToBuild = config.builds.filter((b) => builds.includes(b.name));
+			const build_configs_to_build = config.builds.filter((b) => builds.includes(b.name));
 
 			// For each build config that has `dist: true`,
 			// infer which of the inputs are actual source files,
 			// and therefore belong in the default Rollup build.
 			// If more customization is needed, users should implement their own `src/build.task.ts`,
 			// which can be bootstrapped by copy/pasting this one. (and updating the imports)
-			const timingToBundle = timings.start('bundle');
+			const timing_to_bundle = timings.start('bundle');
 			await Promise.all(
-				build_configsToBuild.map(async (build_config) => {
+				build_configs_to_build.map(async (build_config) => {
 					const files = to_input_files(build_config.input);
 					if (!files.length) {
 						log.trace('no input files in', print_build_config_label(build_config));
@@ -59,34 +59,34 @@ export const create_adapter = ({
 					}
 					const input = files.map((source_id) => to_import_id(source_id, dev, build_config.name));
 					// TODO `files` needs to be mapped to production output files
-					const outputDir = `${DIST_DIRNAME}/${to_build_extension(
-						source_id_to_base_path(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
+					const output_dir = `${DIST_DIRNAME}/${to_build_extension(
+						source_id_to_base_path(ensure_end(to_common_base_dir(files), '/')), // TODO refactor when fixing the trailing `/`
 					)}`;
-					log.info('building', print_build_config_label(build_config), outputDir, files);
+					log.info('building', print_build_config_label(build_config), output_dir, files);
 					await runRollup({
 						dev,
 						sourcemap: config.sourcemap,
 						input,
-						outputDir,
+						output_dir,
 						map_input_options,
 						map_output_options,
 						map_watch_options,
 					});
 
 					// copy static prod files into `dist/`
-					await copyDist(fs, build_config, dev, `${dir}/${build_config.name}`, log);
+					await copy_dist(fs, build_config, dev, `${dir}/${build_config.name}`, log);
 				}),
 			);
-			timingToBundle();
+			timing_to_bundle();
 
 			// GitHub pages processes everything with Jekyll by default,
 			// breaking things like files and dirs prefixed with an underscore.
 			// This adds a `.nojekyll` file to the root of the output
 			// to tell GitHub Pages to treat the outputs as plain static files.
 			if (target === 'github_pages') {
-				const nojekyllPath = `${dir}/${NOJEKYLL}`;
-				if (!(await fs.exists(nojekyllPath))) {
-					await fs.writeFile(nojekyllPath, '', 'utf8');
+				const nojekyll_path = `${dir}/${NOJEKYLL}`;
+				if (!(await fs.exists(nojekyll_path))) {
+					await fs.write_file(nojekyll_path, '', 'utf8');
 				}
 			}
 

@@ -1,12 +1,12 @@
 export interface Path_Data {
 	id: string; // absolute path, same as `id` in rollup
-	isDirectory: boolean;
+	is_directory: boolean;
 }
 
 export const toPath_Data = (id: string, stats: Path_Stats): Path_Data => {
 	return {
 		id,
-		isDirectory: stats.isDirectory(),
+		is_directory: stats.isDirectory(),
 	};
 };
 

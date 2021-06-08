@@ -18,7 +18,7 @@ import {print_path} from '../paths.js';
 export const runGen = async (
 	fs: Filesystem,
 	gen_modules: GenModule_Meta[],
-	formatFile?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
+	format_file?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
 	log?: Logger,
 ): Promise<GenResults> => {
 	let inputCount = 0;
@@ -51,12 +51,12 @@ export const runGen = async (
 
 				// Format the files if needed.
 				let files;
-				if (formatFile) {
+				if (format_file) {
 					files = [];
 					for (const file of genResult.files) {
 						let contents: string;
 						try {
-							contents = await formatFile(fs, file.id, file.contents);
+							contents = await format_file(fs, file.id, file.contents);
 						} catch (err) {
 							contents = file.contents;
 							log?.error(

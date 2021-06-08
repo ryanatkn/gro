@@ -29,6 +29,6 @@ export const findTestModules = (
 	find_modules(
 		fs,
 		input_paths,
-		(id) => fs.findFiles(id, (file) => isTestPath(file.path)),
+		(id) => fs.find_files(id, (file) => isTestPath(file.path)),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

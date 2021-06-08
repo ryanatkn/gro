@@ -53,7 +53,7 @@ export const checkGenModule = async (
 			hasChanged: true,
 		};
 	}
-	const existingContents = await fs.readFile(file.id, 'utf8');
+	const existingContents = await fs.read_file(file.id, 'utf8');
 	return {
 		file,
 		existingContents,
@@ -71,6 +71,6 @@ export const find_gen_modules = (
 	find_modules(
 		fs,
 		input_paths,
-		(id) => fs.findFiles(id, (file) => isGenPath(file.path)),
+		(id) => fs.find_files(id, (file) => isGenPath(file.path)),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

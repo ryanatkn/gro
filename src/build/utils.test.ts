@@ -3,21 +3,21 @@ import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
 import {paths} from '../paths.js';
-import {toHash, createDirectoryFilter} from './utils.js';
+import {to_hash, createDirectoryFilter} from './utils.js';
 
-/* test_toHash */
-const test_toHash = suite('toHash');
+/* test_to_hash */
+const test_to_hash = suite('to_hash');
 
-test_toHash('turns a buffer into a string', () => {
-	t.type(toHash(Buffer.from('hey')), 'string');
+test_to_hash('turns a buffer into a string', () => {
+	t.type(to_hash(Buffer.from('hey')), 'string');
 });
 
-test_toHash('returns the same value given the same input', () => {
-	t.is(toHash(Buffer.from('hey')), toHash(Buffer.from('hey')));
+test_to_hash('returns the same value given the same input', () => {
+	t.is(to_hash(Buffer.from('hey')), to_hash(Buffer.from('hey')));
 });
 
-test_toHash.run();
-/* /test_toHash */
+test_to_hash.run();
+/* /test_to_hash */
 
 /* test_createDirectoryFilter */
 const test_createDirectoryFilter = suite('createDirectoryFilter', {

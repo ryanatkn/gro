@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs';
+import {read_fileSync} from 'fs';
 import {join} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 
@@ -33,7 +33,7 @@ export const loadGitignoreFilter = (forceRefresh = false): FileFilter => {
 	if (filter) return filter;
 	let lines: string[];
 	try {
-		const gitignore = readFileSync(GITIGNORE_FILENAME, 'utf8');
+		const gitignore = read_fileSync(GITIGNORE_FILENAME, 'utf8');
 		lines = gitignore
 			.split('\n')
 			.map((line) => line.trim())

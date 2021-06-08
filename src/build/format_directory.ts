@@ -20,13 +20,13 @@ const FORMATTED_ROOT_PATHS = `${[
 
 // This formats a directory on the filesystem.
 // If the source directory is given, it also formats all of the root directory files.
-// This is separated from `./formatFile` to avoid importing all of the `prettier` code
+// This is separated from `./format_file` to avoid importing all of the `prettier` code
 // inside modules that import this one. (which has a nontrivial cost)
-export const formatDirectory = (directory: string, check = false): Promise<SpawnResult> => {
-	const prettierArgs = ['prettier', check ? '--check' : '--write'];
-	prettierArgs.push(`${directory}**/*.{${FORMATTED_EXTENSIONS}}`);
+export const format_directory = (directory: string, check = false): Promise<SpawnResult> => {
+	const prettier_args = ['prettier', check ? '--check' : '--write'];
+	prettier_args.push(`${directory}**/*.{${FORMATTED_EXTENSIONS}}`);
 	if (directory === paths.source) {
-		prettierArgs.push(`${paths.root}{${FORMATTED_ROOT_PATHS}}`);
+		prettier_args.push(`${paths.root}{${FORMATTED_ROOT_PATHS}}`);
 	}
-	return spawn_process('npx', prettierArgs);
+	return spawn_process('npx', prettier_args);
 };

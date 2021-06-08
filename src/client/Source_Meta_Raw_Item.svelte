@@ -2,10 +2,10 @@
 	import type {Writable} from 'svelte/store';
 
 	import SourceId from './SourceId.svelte';
-	import type {SourceMeta} from '../build/source_meta.js';
+	import type {Source_Meta} from '../build/source_meta.js';
 
-	export let source_meta: SourceMeta;
-	export let hoveredSourceMeta: Writable<SourceMeta | null>;
+	export let source_meta: Source_Meta;
+	export let hovered_source_meta: Writable<Source_Meta | null>;
 
 	let expanded = false;
 	$: expandedText = expanded ? '–' : '+';
@@ -14,15 +14,15 @@
 
 	const onPointerEnter = () => {
 		hovering = true;
-		$hoveredSourceMeta = source_meta;
+		$hovered_source_meta = source_meta;
 	};
 	const onPointerLeave = () => {
 		hovering = false;
-		if ($hoveredSourceMeta === source_meta) $hoveredSourceMeta = null;
+		if ($hovered_source_meta === source_meta) $hovered_source_meta = null;
 	};
 
 	// TODO probably want to do a better data structure than this
-	const isDependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
+	const isDependency = (dependency: Source_Meta | null, dependent: Source_Meta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
@@ -33,12 +33,12 @@
 			),
 		);
 
-	$: hoveredIsDependency = isDependency($hoveredSourceMeta, source_meta);
-	$: hoveredIsDependent = isDependency(source_meta, $hoveredSourceMeta);
+	$: hoveredIsDependency = isDependency($hovered_source_meta, source_meta);
+	$: hoveredIsDependent = isDependency(source_meta, $hovered_source_meta);
 	$: deemphasized =
-		$hoveredSourceMeta &&
+		$hovered_source_meta &&
 		!hovering &&
-		!(hoveredIsDependency || hoveredIsDependent || $hoveredSourceMeta === source_meta);
+		!(hoveredIsDependency || hoveredIsDependent || $hovered_source_meta === source_meta);
 </script>
 
 <div class="summary" class:deemphasized>

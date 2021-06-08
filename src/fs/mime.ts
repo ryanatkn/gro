@@ -22,41 +22,41 @@ export type MimeType = Flavored<string, 'MimeType'>;
 export type FileExtension = Flavored<string, 'FileExtension'>; // excluding leading `.`
 
 // global cache
-const mimeTypeByExtension = new Map<FileExtension, MimeType>();
+const mime_typeByExtension = new Map<FileExtension, MimeType>();
 const extensionsByMimeType = new Map<MimeType, FileExtension[]>();
 
-export const getMimeTypeByExtension = (ext: FileExtension): MimeType | null =>
-	mimeTypeByExtension.get(ext) || null;
+export const get_mime_type_by_extension = (ext: FileExtension): MimeType | null =>
+	mime_typeByExtension.get(ext) || null;
 
-export const getExtensionsByMimeType = (mimeType: MimeType): FileExtension[] | null =>
-	extensionsByMimeType.get(mimeType) || null;
+export const get_extensionsByMimeType = (mime_type: MimeType): FileExtension[] | null =>
+	extensionsByMimeType.get(mime_type) || null;
 
-export const getExtensions = () => mimeTypeByExtension.keys();
+export const get_extensions = () => mime_typeByExtension.keys();
 export const getMimeTypes = () => extensionsByMimeType.keys();
 
 // Overrides anything that might already be cached.
-export const addMimeTypeExtension = (mimeType: MimeType, extension: FileExtension): void => {
-	const existingMimeType = mimeTypeByExtension.get(extension);
-	if (existingMimeType === mimeType) return;
+export const addMimeTypeExtension = (mime_type: MimeType, extension: FileExtension): void => {
+	const existingMimeType = mime_typeByExtension.get(extension);
+	if (existingMimeType === mime_type) return;
 	if (existingMimeType) removeMimeTypeExtension(extension);
-	mimeTypeByExtension.set(extension, mimeType);
+	mime_typeByExtension.set(extension, mime_type);
 	extensionsByMimeType.set(
-		mimeType,
-		extensionsByMimeType.get(mimeType)?.concat(extension) || [extension],
+		mime_type,
+		extensionsByMimeType.get(mime_type)?.concat(extension) || [extension],
 	);
 };
 
 // Returns a boolean indicating if the extension was removed for the mime type.
 export const removeMimeTypeExtension = (extension: FileExtension): boolean => {
-	const mimeType = mimeTypeByExtension.get(extension);
-	if (!mimeType) return false;
-	const newExtensions = extensionsByMimeType.get(mimeType)!.filter((e) => e !== extension);
+	const mime_type = mime_typeByExtension.get(extension);
+	if (!mime_type) return false;
+	const newExtensions = extensionsByMimeType.get(mime_type)!.filter((e) => e !== extension);
 	if (newExtensions.length) {
-		extensionsByMimeType.set(mimeType, newExtensions);
+		extensionsByMimeType.set(mime_type, newExtensions);
 	} else {
-		extensionsByMimeType.delete(mimeType);
+		extensionsByMimeType.delete(mime_type);
 	}
-	mimeTypeByExtension.delete(extension);
+	mime_typeByExtension.delete(extension);
 	return true;
 };
 
@@ -112,9 +112,9 @@ export const removeMimeTypeExtension = (extension: FileExtension): boolean => {
 	];
 	// Iterate in reverse order so the first declaration of each extension supercedes later ones.
 	for (let i = types.length - 1; i >= 0; i--) {
-		const [mimeType, extensions] = types[i];
+		const [mime_type, extensions] = types[i];
 		for (const extension of extensions) {
-			addMimeTypeExtension(mimeType, extension);
+			addMimeTypeExtension(mime_type, extension);
 		}
 	}
 })();

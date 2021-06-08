@@ -34,8 +34,8 @@ export const load_https_credentials = async (
 		return null;
 	}
 	const [cert, key] = await Promise.all([
-		fs.readFile(certFile, 'utf8'),
-		fs.readFile(keyFile, 'utf8'),
+		fs.read_file(certFile, 'utf8'),
+		fs.read_file(keyFile, 'utf8'),
 	]);
 	return {cert, key};
 };

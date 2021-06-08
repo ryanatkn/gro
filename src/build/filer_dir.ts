@@ -3,49 +3,52 @@ import {noop} from '@feltcoop/felt/utils/function.js';
 import {watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
 import type {Path_Stats} from '../fs/path_data.js';
-import type {PathFilter} from '../fs/pathFilter.js';
+import type {Path_Filter} from '../fs/path_filter.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 // Buildable filer dirs are watched, built, and written to disk.
 // For non-buildable dirs, the `dir` is only watched and nothing is written to the filesystem.
-export type FilerDir = BuildableFilerDir | NonBuildableFilerDir;
-export interface BuildableFilerDir extends BaseFilerDir {
+export type Filer_Dir = Buildable_Filer_Dir | Non_Buildable_Filer_Dir;
+export interface Buildable_Filer_Dir extends Base_Filer_Dir {
 	readonly buildable: true;
 }
-export interface NonBuildableFilerDir extends BaseFilerDir {
+export interface Non_Buildable_Filer_Dir extends Base_Filer_Dir {
 	readonly buildable: false;
 }
-interface BaseFilerDir {
+interface Base_Filer_Dir {
 	readonly dir: string;
 	readonly buildable: boolean;
-	readonly onChange: FilerDirChangeCallback;
+	readonly onChange: Filer_Dir_Change_Callback;
 	readonly init: () => Promise<void>;
 	readonly close: () => void;
 	readonly watcher: WatchNodeFs | null;
 }
 
-export interface FilerDirChange {
-	type: FilerDirChangeType;
+export interface Filer_DirChange {
+	type: Filer_DirChangeType;
 	path: string;
 	stats: Path_Stats;
 }
-export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
-export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir) => Promise<void>;
+export type Filer_DirChangeType = 'init' | 'create' | 'update' | 'delete';
+export type Filer_Dir_Change_Callback = (
+	change: Filer_DirChange,
+	filer_dir: Filer_Dir,
+) => Promise<void>;
 
-export const createFilerDir = (
+export const create_filer_dir = (
 	fs: Filesystem,
 	dir: string,
 	buildable: boolean,
-	onChange: FilerDirChangeCallback,
+	onChange: Filer_Dir_Change_Callback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
-	filter: PathFilter | undefined,
-): FilerDir => {
+	filter: Path_Filter | undefined,
+): Filer_Dir => {
 	if (watch) {
 		// TODO abstract this from the Node filesystem
 		const watcher = watchNodeFs({
 			dir,
-			onChange: (change) => onChange(change, filerDir),
+			onChange: (change) => onChange(change, filer_dir),
 			watch,
 			debounce: watcherDebounce,
 			filter,
@@ -54,27 +57,27 @@ export const createFilerDir = (
 			watcher.close();
 		};
 		const init = async () => {
-			await fs.ensureDir(dir);
+			await fs.ensure_dir(dir);
 			const statsBySourcePath = await watcher.init();
 			await Promise.all(
 				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filer_dir),
 				),
 			);
 		};
-		const filerDir: FilerDir = {buildable, dir, onChange, init, close, watcher};
-		return filerDir;
+		const filer_dir: Filer_Dir = {buildable, dir, onChange, init, close, watcher};
+		return filer_dir;
 	} else {
 		const init = async () => {
-			await fs.ensureDir(dir);
-			const statsBySourcePath = await fs.findFiles(dir, filter);
+			await fs.ensure_dir(dir);
+			const statsBySourcePath = await fs.find_files(dir, filter);
 			await Promise.all(
 				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filer_dir),
 				),
 			);
 		};
-		const filerDir: FilerDir = {buildable, dir, onChange, init, close: noop, watcher: null};
-		return filerDir;
+		const filer_dir: Filer_Dir = {buildable, dir, onChange, init, close: noop, watcher: null};
+		return filer_dir;
 	}
 };

@@ -1,26 +1,26 @@
 import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 
-import type {Build, BuildContext, BuildDependency, BuildResult} from './builder.js';
-import type {BaseFilerFile} from './baseFilerFile.js';
-import type {SourceMeta} from './source_meta.js';
+import type {Build, Build_Context, Build_Dependency, Build_Result} from './builder.js';
+import type {Base_Filer_File} from './base_filer_file.js';
+import type {Source_Meta} from './source_meta.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
-import {loadContents} from './load.js';
-import type {BuildableSourceFile} from './sourceFile.js';
+import {load_contents} from './load.js';
+import type {Buildable_Source_File} from './source_file.js';
 import type {Build_Config} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export type BuildFile = TextBuildFile | BinaryBuildFile;
-export interface TextBuildFile extends BaseBuildFile {
+export type Build_File = Text_Build_File | Binary_Build_File;
+export interface Text_Build_File extends Base_Build_File {
 	readonly encoding: 'utf8';
 	readonly contents: string;
 }
-export interface BinaryBuildFile extends BaseBuildFile {
+export interface Binary_Build_File extends Base_Build_File {
 	readonly encoding: null;
 	readonly contents: Buffer;
-	readonly contentsBuffer: Buffer;
+	readonly contents_buffer: Buffer;
 }
-export interface BaseBuildFile extends BaseFilerFile {
+export interface Base_Build_File extends Base_Filer_File {
 	readonly type: 'build';
 	readonly source_id: string;
 	readonly build_config: Build_Config;
@@ -28,63 +28,63 @@ export interface BaseBuildFile extends BaseFilerFile {
 	// the information of duplicate imports to the same dependency within each build file.
 	// We may want to store more granular dependency info, including imported identifiers,
 	// in the future.
-	readonly dependenciesByBuildId: Map<string, BuildDependency> | null;
+	readonly dependencies_by_build_id: Map<string, Build_Dependency> | null;
 }
 
-export const createBuildFile = (
+export const create_build_file = (
 	build: Build,
-	ctx: BuildContext,
-	result: BuildResult<Build>,
-	sourceFile: BuildableSourceFile,
+	ctx: Build_Context,
+	result: Build_Result<Build>,
+	source_file: Buildable_Source_File,
 	build_config: Build_Config,
-): BuildFile => {
-	const {contents, dependenciesByBuildId} = postprocess(build, ctx, result, sourceFile);
+): Build_File => {
+	const {contents, dependencies_by_build_id} = postprocess(build, ctx, result, source_file);
 	switch (build.encoding) {
 		case 'utf8':
 			return {
 				type: 'build',
-				source_id: sourceFile.id,
+				source_id: source_file.id,
 				build_config,
-				dependenciesByBuildId,
+				dependencies_by_build_id,
 				id: build.id,
 				filename: build.filename,
 				dir: build.dir,
 				extension: build.extension,
 				encoding: build.encoding,
 				contents: contents as string,
-				contentsBuffer: undefined,
-				contentsHash: undefined,
+				contents_buffer: undefined,
+				contents_hash: undefined,
 				stats: undefined,
-				mimeType: undefined,
+				mime_type: undefined,
 			};
 		case null:
 			return {
 				type: 'build',
-				source_id: sourceFile.id,
+				source_id: source_file.id,
 				build_config,
-				dependenciesByBuildId,
+				dependencies_by_build_id,
 				id: build.id,
 				filename: build.filename,
 				dir: build.dir,
 				extension: build.extension,
 				encoding: build.encoding,
 				contents: contents as Buffer,
-				contentsBuffer: build.contents,
-				contentsHash: undefined,
+				contents_buffer: build.contents,
+				contents_hash: undefined,
 				stats: undefined,
-				mimeType: undefined,
+				mime_type: undefined,
 			};
 		default:
 			throw new Unreachable_Error(build);
 	}
 };
 
-export const reconstructBuildFiles = async (
+export const reconstructBuild_Files = async (
 	fs: Filesystem,
-	source_meta: SourceMeta,
+	source_meta: Source_Meta,
 	build_configs: readonly Build_Config[],
-): Promise<Map<Build_Config, BuildFile[]>> => {
-	const buildFiles: Map<Build_Config, BuildFile[]> = new Map();
+): Promise<Map<Build_Config, Build_File[]>> => {
+	const build_files: Map<Build_Config, Build_File[]> = new Map();
 	await Promise.all(
 		source_meta.data.builds.map(
 			async (build): Promise<void> => {
@@ -92,16 +92,16 @@ export const reconstructBuildFiles = async (
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
-				const contents = await loadContents(fs, encoding, id);
+				const contents = await load_contents(fs, encoding, id);
 				const build_config = build_configs.find((b) => b.name === name)!; // is a bit awkward, but probably not inefficient enough to change
-				let buildFile: BuildFile;
+				let build_file: Build_File;
 				switch (encoding) {
 					case 'utf8':
-						buildFile = {
+						build_file = {
 							type: 'build',
 							source_id: source_meta.data.source_id,
 							build_config,
-							dependenciesByBuildId:
+							dependencies_by_build_id:
 								dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 							id,
 							filename,
@@ -109,18 +109,18 @@ export const reconstructBuildFiles = async (
 							extension,
 							encoding,
 							contents: contents as string,
-							contentsBuffer: undefined,
-							contentsHash: undefined,
+							contents_buffer: undefined,
+							contents_hash: undefined,
 							stats: undefined,
-							mimeType: undefined,
+							mime_type: undefined,
 						};
 						break;
 					case null:
-						buildFile = {
+						build_file = {
 							type: 'build',
 							source_id: source_meta.data.source_id,
 							build_config,
-							dependenciesByBuildId:
+							dependencies_by_build_id:
 								dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 							id,
 							filename,
@@ -128,71 +128,71 @@ export const reconstructBuildFiles = async (
 							extension,
 							encoding,
 							contents: contents as Buffer,
-							contentsBuffer: contents as Buffer,
-							contentsHash: undefined,
+							contents_buffer: contents as Buffer,
+							contents_hash: undefined,
 							stats: undefined,
-							mimeType: undefined,
+							mime_type: undefined,
 						};
 						break;
 					default:
 						throw new Unreachable_Error(encoding);
 				}
-				addBuildFile(buildFile, buildFiles, build_config);
+				add_build_file(build_file, build_files, build_config);
 			},
 		),
 	);
-	return buildFiles;
+	return build_files;
 };
 
-const addBuildFile = (
-	buildFile: BuildFile,
-	buildFiles: Map<Build_Config, BuildFile[]>,
+const add_build_file = (
+	build_file: Build_File,
+	build_files: Map<Build_Config, Build_File[]>,
 	build_config: Build_Config,
 ): void => {
-	let files = buildFiles.get(build_config);
+	let files = build_files.get(build_config);
 	if (files === undefined) {
 		files = [];
-		buildFiles.set(build_config, files);
+		build_files.set(build_config, files);
 	}
-	files.push(buildFile);
+	files.push(build_file);
 };
 
-// TODO maybe this should take in cached aggregated data from the source file, not `oldBuildFiles`?
+// TODO maybe this should take in cached aggregated data from the source file, not `oldBuild_Files`?
 
 // Returns the dependency changes between two sets of build files.
 // Lazily instantiate the collections as a small optimization -
 // this function is expected to return `null` most of the time.
-export const diffDependencies = (
-	newFiles: readonly BuildFile[],
-	oldFiles: readonly BuildFile[] | null,
+export const diff_dependencies = (
+	new_files: readonly Build_File[],
+	old_files: readonly Build_File[] | null,
 ): {
-	addedDependencies: BuildDependency[] | null;
-	removedDependencies: BuildDependency[] | null;
+	added_dependencies: Build_Dependency[] | null;
+	removed_dependencies: Build_Dependency[] | null;
 } | null => {
-	if (newFiles === oldFiles) return null;
-	let addedDependencies: BuildDependency[] | null = null;
-	let removedDependencies: BuildDependency[] | null = null;
+	if (new_files === old_files) return null;
+	let added_dependencies: Build_Dependency[] | null = null;
+	let removed_dependencies: Build_Dependency[] | null = null;
 
 	// Aggregate all of the dependencies for each source file. The map de-dupes by build id.
-	let newDependencies: Map<string, BuildDependency> | null = null;
-	let oldDependencies: Map<string, BuildDependency> | null = null;
-	for (const newFile of newFiles) {
-		if (newFile.dependenciesByBuildId !== null) {
-			for (const dependency of newFile.dependenciesByBuildId.values()) {
-				if (newDependencies === null) newDependencies = new Map();
-				if (!newDependencies.has(dependency.build_id)) {
-					newDependencies.set(dependency.build_id, dependency);
+	let new_dependencies: Map<string, Build_Dependency> | null = null;
+	let old_dependencies: Map<string, Build_Dependency> | null = null;
+	for (const new_file of new_files) {
+		if (new_file.dependencies_by_build_id !== null) {
+			for (const dependency of new_file.dependencies_by_build_id.values()) {
+				if (new_dependencies === null) new_dependencies = new Map();
+				if (!new_dependencies.has(dependency.build_id)) {
+					new_dependencies.set(dependency.build_id, dependency);
 				}
 			}
 		}
 	}
-	if (oldFiles !== null) {
-		for (const oldFile of oldFiles) {
-			if (oldFile.dependenciesByBuildId !== null) {
-				for (const dependency of oldFile.dependenciesByBuildId.values()) {
-					if (oldDependencies === null) oldDependencies = new Map();
-					if (!oldDependencies.has(dependency.build_id)) {
-						oldDependencies.set(dependency.build_id, dependency);
+	if (old_files !== null) {
+		for (const old_file of old_files) {
+			if (old_file.dependencies_by_build_id !== null) {
+				for (const dependency of old_file.dependencies_by_build_id.values()) {
+					if (old_dependencies === null) old_dependencies = new Map();
+					if (!old_dependencies.has(dependency.build_id)) {
+						old_dependencies.set(dependency.build_id, dependency);
 					}
 				}
 			}
@@ -200,24 +200,24 @@ export const diffDependencies = (
 	}
 
 	// Figure out which dependencies were added and removed.
-	if (newDependencies !== null) {
-		for (const newDependency of newDependencies.values()) {
-			if (oldDependencies === null || !oldDependencies.has(newDependency.build_id)) {
-				if (addedDependencies === null) addedDependencies = [];
-				addedDependencies.push(newDependency);
+	if (new_dependencies !== null) {
+		for (const new_dependency of new_dependencies.values()) {
+			if (old_dependencies === null || !old_dependencies.has(new_dependency.build_id)) {
+				if (added_dependencies === null) added_dependencies = [];
+				added_dependencies.push(new_dependency);
 			}
 		}
 	}
-	if (oldDependencies !== null) {
-		for (const oldDependency of oldDependencies.values()) {
-			if (newDependencies === null || !newDependencies.has(oldDependency.build_id)) {
-				if (removedDependencies === null) removedDependencies = [];
-				removedDependencies.push(oldDependency);
+	if (old_dependencies !== null) {
+		for (const old_dependency of old_dependencies.values()) {
+			if (new_dependencies === null || !new_dependencies.has(old_dependency.build_id)) {
+				if (removed_dependencies === null) removed_dependencies = [];
+				removed_dependencies.push(old_dependency);
 			}
 		}
 	}
 
-	return addedDependencies !== null || removedDependencies !== null
-		? {addedDependencies, removedDependencies}
+	return added_dependencies !== null || removed_dependencies !== null
+		? {added_dependencies, removed_dependencies}
 		: null;
 };
