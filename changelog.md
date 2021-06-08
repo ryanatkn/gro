@@ -3,7 +3,7 @@
 ## 0.27.0
 
 - **break**: convert to `snake_case` from `camelCase`
-  ([#211](https://github.com/feltcoop/gro/pull/211))
+  ([#210](https://github.com/feltcoop/gro/pull/210))
 - **break**: rename `'system'` build from `'node'`
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: add `'config'` build to simplify internals
