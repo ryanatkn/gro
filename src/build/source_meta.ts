@@ -42,7 +42,7 @@ export const update_source_meta = async (
 	}
 
 	// create the new meta, not mutating the old
-	const cache_id = toSource_MetaId(file, build_dir, dev);
+	const cache_id = to_source_meta_id(file, build_dir, dev);
 	const data: Source_MetaData = {
 		source_id: file.id,
 		contents_hash: get_file_contents_hash(file),
@@ -87,10 +87,10 @@ export const delete_source_meta = async (
 	await fs.remove(meta.cache_id);
 };
 
-const toSource_MetaId = (file: Buildable_Source_File, build_dir: string, dev: boolean): string =>
+const to_source_meta_id = (file: Buildable_Source_File, build_dir: string, dev: boolean): string =>
 	`${to_source_meta_dir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
 
-export const initSource_Meta = async ({
+export const init_source_meta = async ({
 	fs,
 	source_meta_by_id,
 	build_dir,

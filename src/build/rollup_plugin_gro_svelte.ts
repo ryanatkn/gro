@@ -4,7 +4,7 @@ import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compil
 import type {Plugin, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/util/terminal.js';
-import {toPathStem} from '@feltcoop/felt/util/path.js';
+import {to_path_stem} from '@feltcoop/felt/util/path.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import type {Partial_Except} from '@feltcoop/felt/util/types.js';
@@ -16,7 +16,7 @@ import {
 } from '../build/svelte_build_helpers.js';
 import type {Svelte_Compilation} from '../build/svelte_build_helpers.js';
 import {CSS_EXTENSION, print_path} from '../paths.js';
-import type {Css_Build} from './cssCache.js';
+import type {Css_Build} from './css_cache.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
@@ -111,7 +111,7 @@ export const groSveltePlugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 					dev,
 					...compile_options,
 					filename: id,
-					name: toPathStem(id),
+					name: to_path_stem(id),
 				});
 			} catch (err) {
 				log.error(red('Failed to compile Svelte'), print_path(id));

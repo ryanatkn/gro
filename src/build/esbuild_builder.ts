@@ -6,7 +6,7 @@ import {replace_extension} from '@feltcoop/felt/util/path.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
 import type {Ecma_Script_Target, GenerateTypesForFile} from './ts_build_helpers.js';
-import {get_default_esbuild_options} from './esbuildBuildHelpers.js';
+import {get_default_esbuild_options} from './esbuild_build_helpers.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,

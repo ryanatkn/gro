@@ -118,7 +118,7 @@ export const task: Task<Task_Args> = {
 		log.info(log_result);
 		log.info(
 			green(
-				`generated ${gen_results.outputCount} file${plural(gen_results.outputCount)} from ${
+				`generated ${gen_results.output_count} file${plural(gen_results.output_count)} from ${
 					gen_results.successes.length
 				} input file${plural(gen_results.successes.length)}`,
 			),

@@ -237,7 +237,7 @@ export function assert_source_file(
 	}
 }
 
-export function assertBuildable_Source_File(
+export function assert_buildable_source_file(
 	file: Filer_File | undefined | null,
 ): asserts file is Buildable_Source_File {
 	assert_source_file(file);

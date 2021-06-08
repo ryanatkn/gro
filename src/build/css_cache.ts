@@ -22,7 +22,7 @@ export interface CssCache<T extends Css_Build = Css_Build> {
 }
 
 export const create_css_cache = <T extends Css_Build = Css_Build>(): CssCache<T> => {
-	const log = new System_Logger(print_log_label('cssCache', green));
+	const log = new System_Logger(print_log_label('css_cache', green));
 
 	// `bundles` key is an output bundle file name
 	const bundles = new Map<string, Css_Bundle<T>>();

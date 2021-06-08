@@ -1,5 +1,5 @@
 import {Module_Meta, loadModule, Load_Module_Result, find_modules} from '../fs/modules.js';
-import {Gen, Gen_Results, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
+import {Gen, Gen_Results, Gen_File, is_gen_path, GEN_FILE_PATTERN} from './gen.js';
 import {get_possible_source_ids} from '../fs/input_path.js';
 import {paths} from '../paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -18,13 +18,13 @@ export const loadGenModule = (id: string): Promise<Load_Module_Result<Gen_Module
 
 export type CheckGen_Module_Result =
 	| {
-			file: GenFile;
+			file: Gen_File;
 			existingContents: string;
 			isNew: false;
 			has_changed: boolean;
 	  }
 	| {
-			file: GenFile;
+			file: Gen_File;
 			existingContents: null;
 			isNew: true;
 			has_changed: true;
@@ -43,7 +43,7 @@ export const checkGenModules = async (
 
 export const checkGenModule = async (
 	fs: Filesystem,
-	file: GenFile,
+	file: Gen_File,
 ): Promise<CheckGen_Module_Result> => {
 	if (!(await fs.exists(file.id))) {
 		return {
@@ -71,6 +71,6 @@ export const find_gen_modules = (
 	find_modules(
 		fs,
 		input_paths,
-		(id) => fs.find_files(id, (file) => isGenPath(file.path)),
+		(id) => fs.find_files(id, (file) => is_gen_path(file.path)),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

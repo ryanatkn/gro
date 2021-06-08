@@ -29,7 +29,7 @@ export const get_default_esbuild_options = (
 			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });
 
-export const getDefaultEsbuildPreprocessOptions = (
+export const get_default_esbuild_preprocess_options = (
 	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
 	dev = process.env.NODE_ENV !== 'production',
 	sourcemap = dev,

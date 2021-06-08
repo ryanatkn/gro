@@ -67,8 +67,8 @@ test_gen('basic behavior', async () => {
 	const genResults = await run_gen(fs, gen_modulesByInputPath, async (_fs, id, contents) =>
 		id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
 	);
-	t.is(genResults.inputCount, 3);
-	t.is(genResults.outputCount, 4);
+	t.is(genResults.input_count, 3);
+	t.is(genResults.output_count, 4);
 	t.is(genResults.successes.length, 3);
 	t.is(genResults.failures.length, 0);
 	t.is(genResults.results.length, 3);
@@ -147,8 +147,8 @@ test_gen('failing gen function', async () => {
 	};
 	const gen_modulesByInputPath: Gen_Module_Meta[] = [modA, modB];
 	const genResults = await run_gen(fs, gen_modulesByInputPath);
-	t.is(genResults.inputCount, 2);
-	t.is(genResults.outputCount, 1);
+	t.is(genResults.input_count, 2);
+	t.is(genResults.output_count, 1);
 	t.is(genResults.successes.length, 1);
 	t.is(genResults.failures.length, 1);
 	t.is(genResults.results.length, 2);

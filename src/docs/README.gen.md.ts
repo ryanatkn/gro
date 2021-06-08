@@ -3,7 +3,7 @@ import {toPathParts, to_path_segments} from '@feltcoop/felt/util/path.js';
 import {last} from '@feltcoop/felt/util/array.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
-import {Gen, toOutputFileName} from '../gen/gen.js';
+import {Gen, to_output_file_name} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../paths.js';
 
 // This renders a simple index of a possibly nested directory of files.
@@ -24,7 +24,7 @@ export const gen: Gen = async ({fs, origin_id}) => {
 	const relativeDir = dirname(relativePath);
 
 	// TODO should this be passed in the context, like `defaultOutputFileName`?
-	const outputFileName = toOutputFileName(originBase);
+	const outputFileName = to_output_file_name(originBase);
 
 	// TODO this is GitHub-specific
 	const rootLink = `[${rootPath}](/../..)`;

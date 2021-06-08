@@ -1,7 +1,7 @@
 import {
 	Log_Level,
 	System_Logger,
-	configureLog_Level,
+	configure_log_level,
 	print_log_label,
 	DEFAULT_LOG_LEVEL,
 } from '@feltcoop/felt/util/log.js';
@@ -131,7 +131,7 @@ Caveats
 
 const apply_config = (config: Gro_Config) => {
 	// other things?
-	configureLog_Level(config.log_level);
+	configure_log_level(config.log_level);
 };
 
 export const load_config = async (

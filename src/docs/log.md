@@ -37,12 +37,12 @@ import {Logger, Log_Level} from '@feltcoop/gro';
 Logger.level = Log_Level.Info;
 ```
 
-The `configureLog_Level` helper does this for both `Logger` and `System_Logger`:
+The `configure_log_level` helper does this for both `Logger` and `System_Logger`:
 
 ```ts
-import {configureLog_Level, Log_Level} from '@feltcoop/gro';
-configureLog_Level(Log_Level.Info);
-// configureLog_Level = (
+import {configure_log_level, Log_Level} from '@feltcoop/gro';
+configure_log_level(Log_Level.Info);
+// configure_log_level = (
 // 	level: Log_Level,
 // 	configureMainLogger = true,
 // 	configureSystem_Logger = true,

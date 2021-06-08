@@ -20,7 +20,7 @@ import type {
 import {load_contents} from './load.js';
 import {groSveltePlugin} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './svelte_build_helpers.js';
-import {create_css_cache} from './cssCache.js';
+import {create_css_cache} from './css_cache.js';
 import {print_build_config} from '../build/build_config.js';
 import type {Build_Config} from '../build/build_config.js';
 import {
@@ -91,9 +91,9 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 		log.info(`bundling externals ${print_build_config(build_config)}: ${gray(source.id)}`);
 
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
-		const cssCache = create_css_cache();
-		// const addPlainCss_Build = cssCache.add_css_build.bind(null, 'bundle.plain.css');
-		const addSvelteCss_Build = cssCache.add_css_build.bind(null, 'bundle.svelte.css');
+		const css_cache = create_css_cache();
+		// const addPlainCss_Build = css_cache.add_css_build.bind(null, 'bundle.plain.css');
+		const addSvelteCss_Build = css_cache.add_css_build.bind(null, 'bundle.svelte.css');
 		const plugins: RollupPlugin[] = [
 			groSveltePlugin({
 				dev,

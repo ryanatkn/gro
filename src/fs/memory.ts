@@ -1,4 +1,4 @@
-import {compare_simple_map_entries, sortMap} from '@feltcoop/felt/util/map.js';
+import {compare_simple_map_entries, sort_map} from '@feltcoop/felt/util/map.js';
 import type {Assignable} from '@feltcoop/felt/util/types.js';
 import {toPathParts} from '@feltcoop/felt/util/path.js';
 import {ensure_end, strip_start} from '@feltcoop/felt/util/string.js';
@@ -218,7 +218,7 @@ export class MemoryFs implements Filesystem {
 				found.set(path, file.stats);
 			}
 		}
-		return sort ? sortMap(found, sort) : found;
+		return sort ? sort_map(found, sort) : found;
 	};
 }
 

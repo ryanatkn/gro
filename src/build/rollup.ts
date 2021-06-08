@@ -24,7 +24,7 @@ import {diagnosticsPlugin} from './rollup_plugin_diagnostics.js';
 import {paths} from '../paths.js';
 
 export interface Options {
-	input: InputOption;
+	input: Rollup_Input_Option;
 	dev: boolean;
 	sourcemap: boolean;
 	output_dir: string;

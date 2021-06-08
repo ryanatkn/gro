@@ -1,6 +1,6 @@
 import Cheap_Watch from 'cheap-watch';
 import fs_extra from 'fs-extra';
-import {sortMap, compare_simple_map_entries} from '@feltcoop/felt/util/map.js';
+import {sort_map, compare_simple_map_entries} from '@feltcoop/felt/util/map.js';
 
 import type {Filesystem, FsWriteFile} from './filesystem.js';
 import type {Path_Stats} from './path_data.js';
@@ -24,7 +24,7 @@ const find_files = async (
 	});
 	await watcher.init();
 	watcher.close();
-	return sort ? sortMap(watcher.paths, sort) : watcher.paths;
+	return sort ? sort_map(watcher.paths, sort) : watcher.paths;
 };
 
 export const fs: Filesystem = {
