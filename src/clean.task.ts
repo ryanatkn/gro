@@ -4,7 +4,9 @@ import type {Task} from './task/task.js';
 import {clean} from './fs/clean.js';
 
 export interface Task_Args {
+	build?: boolean; // !`/.gro`
 	'no-build'?: boolean; // !`/.gro`
+	dist?: boolean; // !`/dist`
 	'no-dist'?: boolean; // !`/dist`
 	sveltekit?: boolean; // `/.svelte-kit`
 	nodemodules: boolean; // `/nodemodules`
@@ -21,8 +23,8 @@ export const task: Task<Task_Args> = {
 		await clean(
 			fs,
 			{
-				build: !args['no-build'],
-				dist: !args['no-dist'],
+				build: !args.build,
+				dist: !args.dist,
 				sveltekit: !!args.sveltekit,
 				nodemodules: !!args.nodemodules,
 			},

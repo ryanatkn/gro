@@ -96,7 +96,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		// TODO restart functionality
 		const timing_to_create_gro_server = timings.start('create dev server');
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
-		const https = args['insecure']
+		const https = args.insecure
 			? null
 			: await load_https_credentials(fs, log, args.cert, args.certkey);
 		const server = create_gro_server({filer, host: config.host, port: config.port, https});
