@@ -2,15 +2,17 @@
 
 ## 0.27.0
 
+- **break**: convert to `snake_case` from `camelCase`
+  ([#208](https://github.com/feltcoop/gro/pull/208))
 - **break**: rename `'system'` build from `'node'`
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: add `'config'` build to simplify internals
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: build configs now fail to validate if any input path strings do not exist
   ([#207](https://github.com/feltcoop/gro/pull/207))
-- **break**: rename `loadConfig` from `loadGroConfig`
+- **break**: rename `load_config` from `loadGro_Config`
   ([#207](https://github.com/feltcoop/gro/pull/207))
-- **break**: change `validateBuildConfigs` function signature
+- **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - fix clean
   ([#207](https://github.com/feltcoop/gro/pull/207))
@@ -124,7 +126,7 @@
   ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: rename `toObtainable` from `createObtainable`
   ([#187](https://github.com/feltcoop/gro/pull/187))
-- **break**: rename `Filesystem.writeFile` from `outputFile`
+- **break**: rename `Filesystem.write_file` from `outputFile`
   ([#188](https://github.com/feltcoop/gro/pull/188))
 - **break**: upgrade to `fs-extra@10.0.0`
   ([#188](https://github.com/feltcoop/gro/pull/188))
@@ -141,7 +143,7 @@
 
 ## 0.21.4
 
-- export `UnreachableError` and time utils from root
+- export `Unreachable_Error` and time utils from root
   ([#184](https://github.com/feltcoop/gro/pull/184))
 
 ## 0.21.3
@@ -164,7 +166,7 @@
 - **break**: change `gro clean` args to longhand and
   add option `--git` to prune dead branches
   ([#180](https://github.com/feltcoop/gro/pull/180))
-- fix `gro build` to copy files to `dist/` with `src/build/dist.ts` helper `copyDist`
+- fix `gro build` to copy files to `dist/` with `src/build/dist.ts` helper `copy_dist`
   ([#179](https://github.com/feltcoop/gro/pull/179))
 
 ## 0.20.4
@@ -196,7 +198,7 @@
     and do not export individual functions
   - rename `pathExists` to `exists`
   - remove `readJson`
-- add abstract class `Fs` and implement `MemoryFs`
+- add abstract class `Fs` and implement `Memory_Fs`
   to complement the `fs-extra` implementation at `src/fs/node.ts`
   ([#173](https://github.com/feltcoop/gro/pull/173))
 
@@ -206,7 +208,7 @@
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
 - **break**: replace `src/utils/gitignore.ts` helper `isGitignored`
-  with `src/fs/pathFilter.ts` helper `toPathFilter`
+  with `src/fs/path_filter.ts` helper `to_path_filter`
   ([#172](https://github.com/feltcoop/gro/pull/172))
 
 ## 0.18.2
@@ -237,14 +239,14 @@
 
 - **break**: rename `src/utils/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/feltcoop/gro/pull/162))
-- **break**: rename `GroConfigPartial` from `PartialGroConfig`
-  and `BuildConfigPartial` from `PartialBuildConfig`
+- **break**: rename `Gro_Config_Partial` from `PartialGro_Config`
+  and `Build_Config_Partial` from `PartialBuild_Config`
   ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
-- add `src/utils/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
+- add `src/utils/gitignore.ts` with `isGitignored` and `load_gitignore_filter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
-- add helper `toSvelteKitBasePath` to `src/build/sveltekitHelpers.ts`
+- add helper `to_sveltekit_base_path` to `src/build/sveltekit_helpers.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
 - default to some environment variables
   for undefined Gro config properties:
@@ -273,9 +275,9 @@
   - add flag `gro deploy --clean` to reset deployment state
   - add flag `--branch` to both tasks, default to `main`
   - default to the `deploy` branch instead of `gh-pages`
-- **break**: rename `toEnvString` and `toEnvNumber` from `stringFromEnv` and `numberFromEnv`
+- **break**: rename `to_env_string` and `to_env_number` from `stringFromEnv` and `numberFromEnv`
   ([#158](https://github.com/feltcoop/gro/pull/158))
-- add helper `readDir` to `src/fs/node.ts`
+- add helper `read_dir` to `src/fs/node.ts`
   ([#159](https://github.com/feltcoop/gro/pull/159))
 
 ## 0.14.0
@@ -284,7 +286,7 @@
   ([#154](https://github.com/feltcoop/gro/pull/154))
 - **break**: rename `src/fs/clean.ts` from `src/utils/clean.ts`
   ([#155](https://github.com/feltcoop/gro/pull/155))
-- **break**: rename `toArray` from `ensureArray`
+- **break**: rename `to_array` from `ensureArray`
   ([#117](https://github.com/feltcoop/gro/pull/117))
 - upgrade to `svelte@3.37.0`
   ([#102](https://github.com/feltcoop/gro/pull/102))
@@ -301,7 +303,7 @@
   ([#150](https://github.com/feltcoop/gro/pull/150))
 - fix false positive API server detection in default config
   ([#151](https://github.com/feltcoop/gro/pull/151))
-- add `getMimeTypes` and `getExtensions` returning iterators to `src/fs/mime.ts`
+- add `get_mime_types` and `get_extensions` returning iterators to `src/fs/mime.ts`
   ([#149](https://github.com/feltcoop/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/feltcoop/gro/pull/149))
@@ -328,18 +330,18 @@
 
 ## 0.11.3
 
-- add `events` to `TaskContext` and its generic type to `Task`,
+- add `events` to `Task_Context` and its generic type to `Task`,
   so tasks can communicate with each other using a normal Node `EventEmitter`
   ([#143](https://github.com/feltcoop/gro/pull/143))
   - events aren't great for everything;
     this PR also documents a value mapping pattern convention for tasks in `src/task/README.md`
-- `gro build` now correctly builds only `BuildConfig`s that have `dist: true`,
+- `gro build` now correctly builds only `Build_Config`s that have `dist: true`,
   allowing users to customize the `dist/` output in each `gro build` via `src/gro.config.ts`
   ([#144](https://github.com/feltcoop/gro/pull/144))
 
 ## 0.11.2
 
-- add a generic parameter to `Task` to type its `TaskArgs`
+- add a generic parameter to `Task` to type its `Task_Args`
   ([#142](https://github.com/feltcoop/gro/pull/142))
 
 ## 0.11.1
@@ -358,7 +360,7 @@
 
 ## 0.10.1
 
-- add the `Filer` option `filter` with type `PathFilter`
+- add the `Filer` option `filter` with type `Path_Filter`
   and ignore directories like `.git` by default
   ([#138](https://github.com/feltcoop/gro/pull/138))
 
@@ -376,7 +378,7 @@
 
 ## 0.9.4
 
-- forward the optional `dev` arg through the task invocation tree via `invokeTask` and `runTask`
+- forward the optional `dev` arg through the task invocation tree via `invoke_task` and `run_task`
   ([#135](https://github.com/feltcoop/gro/pull/135))
 
 ## 0.9.3
@@ -660,7 +662,7 @@
 
 ## 0.1.12
 
-- add the `invokeTask` helper for task composition
+- add the `invoke_task` helper for task composition
   ([#20](https://github.com/feltcoop/gro/pull/20))
 - add CLI flags to print the Gro version with `--version` or `-v`
   ([#21](https://github.com/feltcoop/gro/pull/21))
@@ -725,8 +727,8 @@
 
 ## 0.1.1
 
-- add `fs/watchNodeFs.ts` for low level filesystem watching
-- expose `remove` and `ensureDir` in `fs/node.ts`
+- add `fs/watch_node_fs.ts` for low level filesystem watching
+- expose `remove` and `ensure_dir` in `fs/node.ts`
 
 ## 0.1.0
 

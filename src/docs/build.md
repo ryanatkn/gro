@@ -31,7 +31,7 @@ gro build
 
 the build process has two discrete steps:
 
-1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{buildName}` for each build
+1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{build_name}` for each build
 2. [`Adapter`](../adapt/adapter.ts)s run and output, umm, anything?
    like SvelteKit apps, Node libraries, API servers, & more !
 
@@ -47,23 +47,24 @@ the build process has two discrete steps:
 An adapter is a small plugin with a few optional hooks:
 
 ```ts
-export interface Adapter<TArgs = any, TEvents = any> {
+export interface Adapter<T_Args = any, T_Events = any> {
 	name: string;
-	begin?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
-	adapt?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
-	end?: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	begin?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	adapt?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	end?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
 }
 ```
 
-The `AdapterContext` extends
-[Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
+The `Adapter_Context` extends
+[Gro's `Task_Context`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
 so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
-export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
-	config: GroConfig;
+export interface Adapter_Context<T_Args = any, T_Events = any>
+	extends Task_Context<T_Args, T_Events> {
+	config: Gro_Config;
 }
 ```
 
@@ -88,14 +89,14 @@ In Gro, there's the `adapt` function property,
 a function that returns `Adapter` instances:
 
 ```ts
-import type {GroConfigCreator} from '@feltcoop/gro';
+import type {Gro_Config_Creator} from '@feltcoop/gro';
 
-export const config: GroConfigCreator = async () => {
+export const config: Gro_Config_Creator = async () => {
 	return {
 		adapt: async () => [
-			(await import('@feltcoop/gro/gro-adapter-sveltekit-frontend.js')).createAdapter(),
-			(await import('@feltcoop/gro/gro-adapter-node-library.js')).createAdapter(),
-			(await import('@feltcoop/gro/gro-adapter-api-server.js')).createAdapter(),
+			(await import('@feltcoop/gro/gro-adapter-sveltekit-frontend.js')).create_adapter(),
+			(await import('@feltcoop/gro/gro-adapter-node-library.js')).create_adapter(),
+			(await import('@feltcoop/gro/gro-adapter-api-server.js')).create_adapter(),
 		],
 
 		// this **does not work**, even though it's simpler!

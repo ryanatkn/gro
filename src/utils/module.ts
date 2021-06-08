@@ -1,6 +1,6 @@
 // convenience helper
-export const toIsExternalModule = (isBrowser: boolean): IsExternalModule =>
-	isBrowser ? isExternalBrowserModule : isExternalNodeModule;
+export const to_is_external_module = (isBrowser: boolean): IsExternalModule =>
+	isBrowser ? is_external_browser_module : isExternalNodeModule;
 
 interface IsExternalModule {
 	(moduleName: string): boolean;
@@ -9,7 +9,7 @@ interface IsExternalModule {
 // Browser modules can be relative or absolute paths.
 const INTERNAL_BROWSER_MODULE_MATCHER = /^\.?\.?\//;
 
-export const isExternalBrowserModule: IsExternalModule = (moduleName: string): boolean =>
+export const is_external_browser_module: IsExternalModule = (moduleName: string): boolean =>
 	!INTERNAL_BROWSER_MODULE_MATCHER.test(moduleName);
 
 // Node modules can be relative paths, but not absolute.

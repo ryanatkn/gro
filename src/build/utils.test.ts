@@ -3,25 +3,25 @@ import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
 import {paths} from '../paths.js';
-import {toHash, createDirectoryFilter} from './utils.js';
+import {to_hash, createDirectoryFilter} from './utils.js';
 
-/* test_toHash */
-const test_toHash = suite('toHash');
+/* test_to_hash */
+const test_to_hash = suite('to_hash');
 
-test_toHash('turns a buffer into a string', () => {
-	t.type(toHash(Buffer.from('hey')), 'string');
+test_to_hash('turns a buffer into a string', () => {
+	t.type(to_hash(Buffer.from('hey')), 'string');
 });
 
-test_toHash('returns the same value given the same input', () => {
-	t.is(toHash(Buffer.from('hey')), toHash(Buffer.from('hey')));
+test_to_hash('returns the same value given the same input', () => {
+	t.is(to_hash(Buffer.from('hey')), to_hash(Buffer.from('hey')));
 });
 
-test_toHash.run();
-/* /test_toHash */
+test_to_hash.run();
+/* /test_to_hash */
 
 /* test_createDirectoryFilter */
 const test_createDirectoryFilter = suite('createDirectoryFilter', {
-	rootDir: resolve('bar'),
+	root_dir: resolve('bar'),
 });
 
 test_createDirectoryFilter('relative source path', () => {
@@ -40,20 +40,20 @@ test_createDirectoryFilter('absolute source path', () => {
 	t.not.ok(filter(join(paths.source, 'fo/')));
 });
 
-test_createDirectoryFilter('relative path with custom root', ({rootDir}) => {
-	const filter = createDirectoryFilter('foo', rootDir);
-	t.ok(filter(join(rootDir, 'foo')));
-	t.ok(filter(join(rootDir, 'foo/')));
-	t.not.ok(filter(join(rootDir, 'fo')));
-	t.not.ok(filter(join(rootDir, 'fo/')));
+test_createDirectoryFilter('relative path with custom root', ({root_dir}) => {
+	const filter = createDirectoryFilter('foo', root_dir);
+	t.ok(filter(join(root_dir, 'foo')));
+	t.ok(filter(join(root_dir, 'foo/')));
+	t.not.ok(filter(join(root_dir, 'fo')));
+	t.not.ok(filter(join(root_dir, 'fo/')));
 });
 
-test_createDirectoryFilter('absolute path with custom root', ({rootDir}) => {
-	const filter = createDirectoryFilter(join(rootDir, 'foo'), rootDir);
-	t.ok(filter(join(rootDir, 'foo')));
-	t.ok(filter(join(rootDir, 'foo/')));
-	t.not.ok(filter(join(rootDir, 'fo')));
-	t.not.ok(filter(join(rootDir, 'fo/')));
+test_createDirectoryFilter('absolute path with custom root', ({root_dir}) => {
+	const filter = createDirectoryFilter(join(root_dir, 'foo'), root_dir);
+	t.ok(filter(join(root_dir, 'foo')));
+	t.ok(filter(join(root_dir, 'foo/')));
+	t.not.ok(filter(join(root_dir, 'fo')));
+	t.not.ok(filter(join(root_dir, 'fo/')));
 });
 
 test_createDirectoryFilter.run();

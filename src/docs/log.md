@@ -16,7 +16,7 @@ To configure the log level, which controls log output verbosity,
 Gro's default config uses the environment variable `GRO_LOG_LEVEL` if it exists,
 and defaults to `LogLeve.Trace`, the most verbose option.
 
-Users can [configure the `logLevel`](./config.md) in `src/gro.config.ts`.
+Users can [configure the `log_level`](./config.md) in `src/gro.config.ts`.
 See [`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts)
 for the default.
 
@@ -29,33 +29,33 @@ enabling code to globally configure logging behavior dynamically at runtime.
 > the logger will be a small piece of that effort.
 
 Specifically, runtime configuration is achieved by
-importing the classes `Logger` and `SystemLogger`
+importing the classes `Logger` and `System_Logger`
 and mutating their static properties:
 
 ```ts
-import {Logger, LogLevel} from '@feltcoop/gro';
-Logger.level = LogLevel.Info;
+import {Logger, Log_Level} from '@feltcoop/gro';
+Logger.level = Log_Level.Info;
 ```
 
-The `configureLogLevel` helper does this for both `Logger` and `SystemLogger`:
+The `configure_log_level` helper does this for both `Logger` and `System_Logger`:
 
 ```ts
-import {configureLogLevel, LogLevel} from '@feltcoop/gro';
-configureLogLevel(LogLevel.Info);
-// configureLogLevel = (
-// 	level: LogLevel,
+import {configure_log_level, Log_Level} from '@feltcoop/gro';
+configure_log_level(Log_Level.Info);
+// configure_log_level = (
+// 	level: Log_Level,
 // 	configureMainLogger = true,
-// 	configureSystemLogger = true,
+// 	configureSystem_Logger = true,
 // ): void => {
 ```
 
-The `printLogLabel` is a helper for readability and aesthetics:
+The `print_log_label` is a helper for readability and aesthetics:
 
 ```ts
-import {Logger, printLogLabel} from '@feltcoop/gro';
-import {rainbow} from '@feltcoop/felt/utils/terminal.js';
-const logA = new Logger(printLogLabel('official business', rainbow));
-const logB = new Logger(printLogLabel('party invitations')); // default color is `magenta`
+import {Logger, print_log_label} from '@feltcoop/gro';
+import {rainbow} from '@feltcoop/felt/util/terminal.js';
+const logA = new Logger(print_log_label('official business', rainbow));
+const logB = new Logger(print_log_label('party invitations')); // default color is `magenta`
 ```
 
 ```ts
@@ -64,13 +64,13 @@ export class Logger extends DevLogger {
 
 	// see the implementation for more: /src/utils/log.ts
 	// defaults to `process.env.GRO_LOG_LEVEL`
-	static level: LogLevel = DEFAULT_LOG_LEVEL;
+	static level: Log_Level = DEFAULT_LOG_LEVEL;
 }
-export class SystemLogger extends DevLogger {
+export class System_Logger extends DevLogger {
 	// default logger for gro internal code
 }
 
-export enum LogLevel {
+export enum Log_Level {
 	Off = 0,
 	Error = 1,
 	Warn = 2,

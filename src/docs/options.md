@@ -15,7 +15,7 @@ Gro uses a consistent options pattern that has one significant gotcha:
 **if an option can be `undefined`, it must default to `undefined`**
 to ensure type safety for callers.
 All values that are `undefined` are omitted when the options are initialized
-through use of the conventional `omitUndefined` helper.
+through use of the conventional `omit_undefined` helper.
 The best workaround is to design options interfaces
 to accept `null` in place of `undefined`.
 
@@ -37,18 +37,18 @@ export const keepItSimple = ({a = true, b = 36}: Options) => {
 But sometimes we need more structure (or want more sugar):
 
 ```ts
-import {omitUndefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
 export interface Options {
 	a: boolean;
 	b: string | null;
 	c: number | undefined; // `undefined` needs special handling! see below
 }
-export type RequiredOptions = 'a'; // or `'a' | 'b'` or `never`
-export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export type Required_Options = 'a'; // or `'a' | 'b'` or `never`
+export type Initial_Options = Partial_Except<Options, Required_Options>;
 // or the simpler case when there are no required options:
-// export const initOptions = (opts: Partial<Options>): Options => ({
-export const initOptions = (opts: InitialOptions): Options => ({
+// export const init_options = (opts: Partial<Options>): Options => ({
+export const init_options = (opts: Initial_Options): Options => ({
 	// Required properties should not be included here,
 	// because their values will always be overwritten.
 	// a: true,
@@ -77,21 +77,21 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	// This is a lot of documentation for a deceptively simple pattern,
 	// but standardizing the conventions is a big win.
 	// When possible, prefer `null` to `undefined` when designing options APIs.
-	...omitUndefined(opts),
+	...omit_undefined(opts),
 
 	// complicatedOverridingValueCanBeComputed: here(opts),
 });
 
 // use in a plain function
-export const createThing = (opts: InitialOptions) => {
-	const options = initOptions(opts);
+export const createThing = (opts: Initial_Options) => {
+	const options = init_options(opts);
 };
 
 // use in a class
 export class Thing {
 	readonly options: Options; // optionally store the reference
-	constructor(opts: InitialOptions) {
-		this.options = initOptions(opts);
+	constructor(opts: Initial_Options) {
+		this.options = init_options(opts);
 	}
 }
 ```

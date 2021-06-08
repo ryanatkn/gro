@@ -1,75 +1,82 @@
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {spawn} from '@feltcoop/felt/utils/process.js';
-import type {SpawnedProcess} from '@feltcoop/felt/utils/process.js';
-import {green} from '@feltcoop/felt/utils/terminal.js';
-import {printTimings} from '@feltcoop/felt/utils/print.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
+import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
+import {green} from '@feltcoop/felt/util/terminal.js';
+import {print_timings} from '@feltcoop/felt/util/print.js';
 
 import type {Task} from './task/task.js';
-import {DIST_DIRNAME, paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
-import type {GroConfig} from './config/config.js';
-import {loadConfig} from './config/config.js';
-import type {BuildConfig} from './build/buildConfig.js';
-import {toInputFiles} from './build/buildConfig.js';
-import {hasApiServer, hasSvelteKitFrontend, toApiServerPort} from './build/defaultBuildConfig.js';
-import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
-import {toSvelteKitBasePath} from './build/sveltekitHelpers.js';
-import {loadPackageJson} from './utils/packageJson.js';
+import {DIST_DIRNAME, paths, source_id_to_base_path, to_build_extension} from './paths.js';
+import type {Gro_Config} from './config/config.js';
+import {load_config} from './config/config.js';
+import type {Build_Config} from './build/build_config.js';
+import {to_input_files} from './build/build_config.js';
+import {
+	has_api_server,
+	has_sveltekit_frontend,
+	to_api_server_port,
+} from './build/default_build_config.js';
+import type {Task_Args as Serve_Task_Args} from './serve.task.js';
+import {to_sveltekit_base_path} from './build/sveltekit_helpers.js';
+import {load_package_json} from './utils/package_json.js';
 
-export interface TaskArgs extends ServeTaskArgs {}
+export interface Task_Args extends Serve_Task_Args {}
 
-export interface TaskEvents {
-	'start.spawned': (spawneds: SpawnedProcess[], config: GroConfig) => void;
+export interface Task_Events {
+	'start.spawned': (spawneds: Spawned_Process[], config: Gro_Config) => void;
 }
 
-export const task: Task<TaskArgs, TaskEvents> = {
+export const task: Task<Task_Args, Task_Events> = {
 	description: 'runs the dist/ builds for production',
 	dev: false,
-	run: async ({fs, log, invokeTask, dev, events, args}) => {
+	run: async ({fs, log, invoke_task, dev, events, args}) => {
 		const timings = new Timings();
 
 		// build if needed
 		if (!(await fs.exists(paths.dist))) {
 			log.info(green('dist not detected; building'));
-			const timingToBuild = timings.start('build');
-			await invokeTask('build');
-			timingToBuild();
+			const timing_to_build = timings.start('build');
+			await invoke_task('build');
+			timing_to_build();
 		}
 
-		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
-		timingToLoadConfig();
+		const timing_to_load_config = timings.start('load config');
+		const config = await load_config(fs, dev);
+		timing_to_load_config();
 
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
-		if ((await hasSvelteKitFrontend(fs)) && !(await hasApiServer(fs))) {
+		if ((await has_sveltekit_frontend(fs)) && !(await has_api_server(fs))) {
 			// `svelte-kit start` is not respecting the `svelte.config.cjs` property `paths.base`,
 			// so we serve up the dist ourselves. we were going to anyway, if we're being honest
 			args.serve = [
-				{path: DIST_DIRNAME, base: dev ? '' : toSvelteKitBasePath(await loadPackageJson(fs), dev)},
+				{
+					path: DIST_DIRNAME,
+					base: dev ? '' : to_sveltekit_base_path(await load_package_json(fs), dev),
+				},
 			];
-			await invokeTask('serve', {...args, port: args.port || toApiServerPort(dev)});
+			await invoke_task('serve', {...args, port: args.port || to_api_server_port(dev)});
 		} else {
 			const inputs: {
-				buildConfig: BuildConfig;
+				build_config: Build_Config;
 				input: string;
 			}[] = (
 				await Promise.all(
-					// TODO this needs to be changed, might need to configure on each `buildConfig`
+					// TODO this needs to be changed, might need to configure on each `build_config`
 					// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
-					config.builds.map(async (buildConfig) =>
-						toInputFiles(buildConfig.input).map((input) => ({
-							buildConfig,
+					config.builds.map(async (build_config) =>
+						to_input_files(build_config.input).map((input) => ({
+							build_config,
 							input,
 						})),
 					),
 				)
 			).flat();
-			const spawneds: SpawnedProcess[] = inputs
+			const spawneds: Spawned_Process[] = inputs
 				.map((input) => {
 					// TODO
-					// if (!input.buildConfig.dist) return null!;
-					const path = toEntryPath(input.buildConfig);
+					// if (!input.build_config.dist) return null!;
+					const path = toEntryPath(input.build_config);
 					if (!path) {
-						log.error('expected to find entry path for build config', input.buildConfig);
+						log.error('expected to find entry path for build config', input.build_config);
 						return null!;
 					}
 					return spawn('node', [path]);
@@ -77,16 +84,16 @@ export const task: Task<TaskArgs, TaskEvents> = {
 				.filter(Boolean);
 			events.emit('start.spawned', spawneds, config);
 		}
-		printTimings(timings, log);
+		print_timings(timings, log);
 	},
 };
 
 // TODO where does this utility belong?
-const toEntryPath = (buildConfig: BuildConfig): string | null => {
+const toEntryPath = (build_config: Build_Config): string | null => {
 	// TODO this just looks for the first one - need better control, if this pattern is stabilized
-	const sourceId = buildConfig.input.find((input) => typeof input === 'string') as
+	const source_id = build_config.input.find((input) => typeof input === 'string') as
 		| string
 		| undefined;
-	if (!sourceId) return null;
-	return `${paths.dist}${toBuildExtension(sourceIdToBasePath(sourceId))}`;
+	if (!source_id) return null;
+	return `${paths.dist}${to_build_extension(source_id_to_base_path(source_id))}`;
 };

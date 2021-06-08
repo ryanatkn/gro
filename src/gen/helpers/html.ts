@@ -1,4 +1,4 @@
-export const renderNoscriptSection = (sourceCodeUrl: string): string => `<noscript>
+export const render_noscript_section = (source_code_url: string): string => `<noscript>
 <section style="display: flex; justify-content: center;">
 	<div style="max-width: 300px; padding-right: 10px;">
 		<p>
@@ -7,14 +7,14 @@ export const renderNoscriptSection = (sourceCodeUrl: string): string => `<noscri
 		</p>
 		<p>
 			This website tries to respect you and your machines - the
-			<a href="${sourceCodeUrl}">source code</a>
+			<a href="${source_code_url}">source code</a>
 			is open for inspection and criticism.
 		</p>
 	</div>
 </section>
 </noscript>`;
 
-export const renderMetaTags = (): string => `<meta charset="utf-8" />
+export const render_meta_tags = (): string => `<meta charset="utf-8" />
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=no"

@@ -1,23 +1,23 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {fs as nodeFs} from './node.js';
+import {fs as node_fs} from './node.js';
 
-/* test_findFiles */
-const test_findFiles = suite('findFiles', {fs: nodeFs});
+/* test_find_files */
+const test_find_files = suite('find_files', {fs: node_fs});
 
-test_findFiles('basic behavior', async ({fs}) => {
-	const ignoredPath = 'test1.foo.ts';
-	let hasIgnoredPath = false;
-	const result = await fs.findFiles(
+test_find_files('basic behavior', async ({fs}) => {
+	const ignored_path = 'test1.foo.ts';
+	let has_ignored_path = false;
+	const result = await fs.find_files(
 		'./src/fs/fixtures',
 		({path}) => {
-			if (!hasIgnoredPath) hasIgnoredPath = path === ignoredPath;
-			return path !== ignoredPath;
+			if (!has_ignored_path) has_ignored_path = path === ignored_path;
+			return path !== ignored_path;
 		},
 		(a, b) => -a[0].localeCompare(b[0]),
 	);
-	t.ok(hasIgnoredPath); // makes sure the test isn't wrong
+	t.ok(has_ignored_path); // makes sure the test isn't wrong
 	t.equal(Array.from(result.keys()), [
 		'test2.foo.ts',
 		'baz2/test2.baz.ts',
@@ -33,5 +33,5 @@ test_findFiles('basic behavior', async ({fs}) => {
 
 // TODO more tests
 
-test_findFiles.run();
-/* /test_findFiles */
+test_find_files.run();
+/* /test_find_files */

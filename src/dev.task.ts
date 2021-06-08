@@ -1,133 +1,133 @@
-import {printTimings} from '@feltcoop/felt/utils/print.js';
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {createRestartableProcess, spawn} from '@feltcoop/felt/utils/process.js';
-import type {SpawnedProcess} from '@feltcoop/felt/utils/process.js';
+import {print_timings} from '@feltcoop/felt/util/print.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {create_restartable_process, spawn} from '@feltcoop/felt/util/process.js';
+import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
-import {createDefaultBuilder} from './build/defaultBuilder.js';
-import {paths, toBuildOutPath, isThisProjectGro} from './paths.js';
-import {createGroServer} from './server/server.js';
-import type {GroServer} from './server/server.js';
-import type {GroConfig} from './config/config.js';
-import {loadConfig} from './config/config.js';
-import type {ServedDirPartial} from './build/servedDir.js';
-import {loadHttpsCredentials} from './server/https.js';
+import {create_default_builder} from './build/default_builder.js';
+import {paths, to_build_out_path, is_this_project_gro} from './paths.js';
+import {create_gro_server} from './server/server.js';
+import type {Gro_Server} from './server/server.js';
+import type {Gro_Config} from './config/config.js';
+import {load_config} from './config/config.js';
+import type {Served_Dir_Partial} from './build/served_dir.js';
+import {load_https_credentials} from './server/https.js';
 import {
-	hasApiServerConfig,
+	has_api_server_config,
 	API_SERVER_BUILD_BASE_PATH,
 	API_SERVER_BUILD_NAME,
-	hasSvelteKitFrontend,
-} from './build/defaultBuildConfig.js';
+	has_sveltekit_frontend,
+} from './build/default_build_config.js';
 
-export interface TaskArgs {
+export interface Task_Args {
 	nocert?: boolean;
 	certfile?: string;
 	certkeyfile?: string;
 }
 
-export interface DevTaskContext {
-	config: GroConfig;
+export interface Dev_Task_Context {
+	config: Gro_Config;
 	filer: Filer;
-	server: GroServer;
-	svelteKitProcess: SpawnedProcess | null;
+	server: Gro_Server;
+	sveltekit_process: Spawned_Process | null;
 }
 
-export interface TaskEvents {
-	'dev.createConfig': (config: GroConfig) => void;
-	'dev.createFiler': (filer: Filer) => void;
-	'dev.createServer': (server: GroServer) => void;
-	'dev.initFiler': (ctx: DevTaskContext) => void;
-	'dev.startServer': (ctx: DevTaskContext) => void;
-	'dev.ready': (ctx: DevTaskContext) => void;
+export interface Task_Events {
+	'dev.create_config': (config: Gro_Config) => void;
+	'dev.create_filer': (filer: Filer) => void;
+	'dev.create_server': (server: Gro_Server) => void;
+	'dev.init_filer': (ctx: Dev_Task_Context) => void;
+	'dev.start_server': (ctx: Dev_Task_Context) => void;
+	'dev.ready': (ctx: Dev_Task_Context) => void;
 }
 
-export const task: Task<TaskArgs, TaskEvents> = {
+export const task: Task<Task_Args, Task_Events> = {
 	description: 'start dev server',
 	run: async ({fs, dev, log, args, events}) => {
 		const timings = new Timings();
 
 		// Support SvelteKit builds alongside Gro
-		let svelteKitProcess: SpawnedProcess | null = null;
-		if (await hasSvelteKitFrontend(fs)) {
-			svelteKitProcess = spawn('npx', ['svelte-kit', 'dev']);
+		let sveltekit_process: Spawned_Process | null = null;
+		if (await has_sveltekit_frontend(fs)) {
+			sveltekit_process = spawn('npx', ['svelte-kit', 'dev']);
 		}
 
-		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
-		timingToLoadConfig();
-		events.emit('dev.createConfig', config);
+		const timing_to_load_config = timings.start('load config');
+		const config = await load_config(fs, dev);
+		timing_to_load_config();
+		events.emit('dev.create_config', config);
 
-		const timingToCreateFiler = timings.start('create filer');
+		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
 			fs,
 			dev,
-			builder: createDefaultBuilder(),
-			sourceDirs: [paths.source],
-			servedDirs: config.serve || getDefaultServedDirs(config),
-			buildConfigs: config.builds,
+			builder: create_default_builder(),
+			source_dirs: [paths.source],
+			served_dirs: config.serve || get_default_served_dirs(config),
+			build_configs: config.builds,
 			target: config.target,
 			sourcemap: config.sourcemap,
 		});
-		timingToCreateFiler();
-		events.emit('dev.createFiler', filer);
+		timing_to_create_filer();
+		events.emit('dev.create_filer', filer);
 
 		// TODO restart functionality
-		const timingToCreateGroServer = timings.start('create dev server');
+		const timing_to_create_gro_server = timings.start('create dev server');
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
 		const https = args.nocert
 			? null
-			: await loadHttpsCredentials(fs, log, args.certfile, args.certkeyfile);
-		const server = createGroServer({filer, host: config.host, port: config.port, https});
-		timingToCreateGroServer();
-		events.emit('dev.createServer', server);
+			: await load_https_credentials(fs, log, args.certfile, args.certkeyfile);
+		const server = create_gro_server({filer, host: config.host, port: config.port, https});
+		timing_to_create_gro_server();
+		events.emit('dev.create_server', server);
 
-		const devTaskContext: DevTaskContext = {config, server, filer, svelteKitProcess};
+		const dev_task_context: Dev_Task_Context = {config, server, filer, sveltekit_process};
 
 		await Promise.all([
 			(async () => {
-				const timingToInitFiler = timings.start('init filer');
+				const timing_to_init_filer = timings.start('init filer');
 				await filer.init();
-				timingToInitFiler();
-				events.emit('dev.initFiler', devTaskContext);
+				timing_to_init_filer();
+				events.emit('dev.init_filer', dev_task_context);
 			})(),
 			(async () => {
-				const timingToStartGroServer = timings.start('start dev server');
+				const timing_to_start_gro_server = timings.start('start dev server');
 				await server.start();
-				timingToStartGroServer();
-				events.emit('dev.startServer', devTaskContext);
+				timing_to_start_gro_server();
+				events.emit('dev.start_server', dev_task_context);
 			})(),
 		]);
 
-		events.emit('dev.ready', devTaskContext);
+		events.emit('dev.ready', dev_task_context);
 
 		// Support the API server pattern by default.
 		// Normal user projects will hit this code path right here:
-		// in other words, `isThisProjectGro` will always be `false` for your code.
+		// in other words, `is_this_project_gro` will always be `false` for your code.
 		// TODO task pollution, this is bad for users who want to copy/paste this task.
 		// think of a better way - maybe config+defaults?
 		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
-		if (!isThisProjectGro && hasApiServerConfig(config.builds)) {
+		if (!is_this_project_gro && has_api_server_config(config.builds)) {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
-			const serverBuildPath = toBuildOutPath(
+			const server_build_path = to_build_out_path(
 				true,
 				API_SERVER_BUILD_NAME,
 				API_SERVER_BUILD_BASE_PATH,
 			);
-			const serverProcess = createRestartableProcess('node', [serverBuildPath]);
-			filer.on('build', ({buildConfig}) => {
-				if (buildConfig.name === API_SERVER_BUILD_NAME) {
-					serverProcess.restart();
+			const server_process = create_restartable_process('node', [server_build_path]);
+			filer.on('build', ({build_config}) => {
+				if (build_config.name === API_SERVER_BUILD_NAME) {
+					server_process.restart();
 				}
 			});
 		}
 
-		printTimings(timings, log);
+		print_timings(timings, log);
 	},
 };
 
-const getDefaultServedDirs = (config: GroConfig): ServedDirPartial[] => {
-	const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.systemBuildConfig;
-	const buildOutDirToServe = toBuildOutPath(true, buildConfigToServe.name, '');
-	return [buildOutDirToServe];
+const get_default_served_dirs = (config: Gro_Config): Served_Dir_Partial[] => {
+	const build_config_to_serve = config.primary_browser_build_config ?? config.system_build_config;
+	const build_out_dir_to_serve = to_build_out_path(true, build_config_to_serve.name, '');
+	return [build_out_dir_to_serve];
 };

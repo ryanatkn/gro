@@ -1,6 +1,6 @@
 import {join} from 'path';
-import {toEnvString} from '@feltcoop/felt/utils/env.js';
-import type {Logger} from '@feltcoop/felt/utils/log.js';
+import {to_env_string} from '@feltcoop/felt/util/env.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -9,33 +9,33 @@ export interface HttpsCredentials {
 	key: string;
 }
 
-const DEFAULT_CERT_FILE: string = toEnvString('GRO_CERT_FILE', () =>
+const DEFAULT_CERT_FILE: string = to_env_string('GRO_CERT_FILE', () =>
 	join(process.cwd(), 'localhost-cert.pem'),
 );
-const DEFAULT_CERTKEY_FILE: string = toEnvString('GRO_CERTKEY_FILE', () =>
+const DEFAULT_CERTKEY_FILE: string = to_env_string('GRO_CERTKEY_FILE', () =>
 	join(process.cwd(), 'localhost-privkey.pem'),
 );
 
 // Tries to load the given cert and key, returning `null` if unable.
-export const loadHttpsCredentials = async (
+export const load_https_credentials = async (
 	fs: Filesystem,
 	log: Logger,
-	certFile = DEFAULT_CERT_FILE,
-	keyFile = DEFAULT_CERTKEY_FILE,
+	cert_file = DEFAULT_CERT_FILE,
+	key_file = DEFAULT_CERTKEY_FILE,
 ): Promise<HttpsCredentials | null> => {
-	const [certExists, keyExists] = await Promise.all([fs.exists(certFile), fs.exists(keyFile)]);
-	if (!certExists && !keyExists) return null;
-	if (certExists && !keyExists) {
-		log.warn('https cert exists but the key file does not', keyFile);
+	const [cert_exists, key_exists] = await Promise.all([fs.exists(cert_file), fs.exists(key_file)]);
+	if (!cert_exists && !key_exists) return null;
+	if (cert_exists && !key_exists) {
+		log.warn('https cert exists but the key file does not', key_file);
 		return null;
 	}
-	if (!certExists && keyExists) {
-		log.warn('https key exists but the cert file does not', certFile);
+	if (!cert_exists && key_exists) {
+		log.warn('https key exists but the cert file does not', cert_file);
 		return null;
 	}
 	const [cert, key] = await Promise.all([
-		fs.readFile(certFile, 'utf8'),
-		fs.readFile(keyFile, 'utf8'),
+		fs.read_file(cert_file, 'utf8'),
+		fs.read_file(key_file, 'utf8'),
 	]);
 	return {cert, key};
 };

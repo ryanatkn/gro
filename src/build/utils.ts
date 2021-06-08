@@ -1,58 +1,58 @@
-import type {Result} from '@feltcoop/felt/utils/types';
+import type {Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import type {BuildConfigInput, InputFilter} from '../build/buildConfig.js';
+import type {Build_Config_Input, Input_Filter} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {basePathToSourceId, paths, toBuildBasePath, toSourceExtension} from '../paths.js';
-import type {BuildDependency} from './builder.js';
-import {EXTERNALS_SOURCE_ID} from './externalsBuildHelpers.js';
+import {base_path_to_source_id, paths, to_build_base_path, to_source_extension} from '../paths.js';
+import type {Build_Dependency} from './builder.js';
+import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
-export const toHash = (buf: Buffer): string =>
+export const to_hash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
 interface FilterDirectory {
 	(id: string): boolean;
 }
 
-export const createDirectoryFilter = (dir: string, rootDir = paths.source): FilterDirectory => {
-	dir = resolve(rootDir, dir);
+export const createDirectoryFilter = (dir: string, root_dir = paths.source): FilterDirectory => {
+	dir = resolve(root_dir, dir);
 	const dirWithTrailingSlash = dir + '/';
 	const filterDirectory: FilterDirectory = (id) =>
 		id === dir || id.startsWith(dirWithTrailingSlash);
 	return filterDirectory;
 };
 
-export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, buildDir: string): string;
+export interface Map_Dependency_To_Source_Id {
+	(dependency: Build_Dependency, build_dir: string): string;
 }
 
-// TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
-export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildDir) => {
+// TODO this could be `Map_Build_Id_To_Source_Id` and infer externals from the `base_path`
+export const map_dependency_to_source_id: Map_Dependency_To_Source_Id = (dependency, build_dir) => {
 	// TODO this is failing with build ids like `terser` - should that be the build id? yes?
 	// dependency.external
-	const basePath = toBuildBasePath(dependency.buildId, buildDir);
+	const base_path = to_build_base_path(dependency.build_id, build_dir);
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;
 	} else {
-		return basePathToSourceId(toSourceExtension(basePath));
+		return base_path_to_source_id(to_source_extension(base_path));
 	}
 };
 
-export const addJsSourcemapFooter = (code: string, sourcemapPath: string): string =>
+export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): string =>
 	`${code}\n//# sourceMappingURL=${sourcemapPath}`;
 
-export const addCssSourcemapFooter = (code: string, sourcemapPath: string): string =>
+export const add_css_sourcemap_footer = (code: string, sourcemapPath: string): string =>
 	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;
 
 export interface ResolvedInputFiles {
 	files: string[];
-	filters: InputFilter[]; // TODO this may be an antipattern, consider removing it
+	filters: Input_Filter[]; // TODO this may be an antipattern, consider removing it
 }
 
-export const validateInputFiles = async (
+export const validate_input_files = async (
 	fs: Filesystem,
 	files: string[],
 ): Promise<Result<{}, {reason: string}>> => {
@@ -72,7 +72,10 @@ export const validateInputFiles = async (
 	return {ok: true};
 };
 
-export const isInputToBuildConfig = (id: string, inputs: readonly BuildConfigInput[]): boolean => {
+export const is_input_to_build_config = (
+	id: string,
+	inputs: readonly Build_Config_Input[],
+): boolean => {
 	for (const input of inputs) {
 		if (typeof input === 'string' ? id === input : input(id)) {
 			return true;

@@ -1,26 +1,26 @@
 import type {Task} from './task/task.js';
-import {TaskError} from './task/task.js';
-import {findGenModules} from './gen/genModule.js';
+import {Task_Error} from './task/task.js';
+import {find_gen_modules} from './gen/gen_module.js';
 
 export const task: Task = {
 	description: 'check that everything is ready to commit',
-	run: async ({fs, log, args, invokeTask}) => {
-		await invokeTask('typecheck');
+	run: async ({fs, log, args, invoke_task}) => {
+		await invoke_task('typecheck');
 
-		await invokeTask('test');
+		await invoke_task('test');
 
 		// Check for stale code generation if the project has any gen files.
-		const findGenModulesResult = await findGenModules(fs);
-		if (findGenModulesResult.ok) {
+		const find_gen_modules_result = await find_gen_modules(fs);
+		if (find_gen_modules_result.ok) {
 			log.info('checking that generated files have not changed');
-			await invokeTask('gen', {...args, check: true});
-		} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
-			for (const reason of findGenModulesResult.reasons) {
+			await invoke_task('gen', {...args, check: true});
+		} else if (find_gen_modules_result.type !== 'input_directories_with_no_files') {
+			for (const reason of find_gen_modules_result.reasons) {
 				log.error(reason);
 			}
-			throw new TaskError('Failed to find gen modules.');
+			throw new Task_Error('Failed to find gen modules.');
 		}
 
-		await invokeTask('format', {...args, check: true});
+		await invoke_task('format', {...args, check: true});
 	},
 };

@@ -6,29 +6,29 @@ import {
 	GITIGNORE_FILENAME,
 	GIT_DIRNAME,
 	NODE_MODULES_DIRNAME,
-	SVELTE_KIT_DEV_DIRNAME,
+	SVELTEKIT_DEV_DIRNAME,
 } from '../paths.js';
-import type {FileFilter} from '../fs/file.js';
+import type {File_Filter} from '../fs/file.js';
 
 /*
 
 This only handles the `gitignore` for the current working directory.
 
-If we need support for Gro simultaneously, see ./packageJson.ts as an example.
+If we need support for Gro simultaneously, see ./package_json.ts as an example.
 
 */
 
-let filter: FileFilter | null = null;
+let filter: File_Filter | null = null;
 
 const DEFAULT_IGNORED_PATHS = [
 	GIT_DIRNAME,
-	SVELTE_KIT_DEV_DIRNAME,
+	SVELTEKIT_DEV_DIRNAME,
 	NODE_MODULES_DIRNAME,
 	'.DS_Store',
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const loadGitignoreFilter = (forceRefresh = false): FileFilter => {
+export const load_gitignore_filter = (forceRefresh = false): File_Filter => {
 	if (forceRefresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
@@ -47,7 +47,7 @@ export const loadGitignoreFilter = (forceRefresh = false): FileFilter => {
 };
 
 export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean) =>
-	loadGitignoreFilter(forceRefresh)(join(root, path));
+	load_gitignore_filter(forceRefresh)(join(root, path));
 
 // TODO What's the better way to do this?
 // This is a quick hacky mapping for one use case between

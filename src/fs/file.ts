@@ -1,5 +1,5 @@
-// TODO more
+// TODO
 
-export interface FileFilter {
+export interface File_Filter {
 	(id: string): boolean;
 }

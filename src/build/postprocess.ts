@@ -1,43 +1,49 @@
 import {join, extname} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
-import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import {
 	CSS_EXTENSION,
 	EXTERNALS_BUILD_DIRNAME,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
-	toBuildBasePath,
-	toBuildExtension,
-	toBuildOutPath,
+	to_build_base_path,
+	to_build_extension,
+	to_build_out_path,
 	TS_EXTENSION,
 } from '../paths.js';
-import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
-import {toIsExternalModule} from '../utils/module.js';
-import {EXTERNALS_SOURCE_ID, isExternalBuildId} from './externalsBuildHelpers.js';
+import type {
+	Build,
+	Build_Context,
+	Build_Result,
+	Build_Source,
+	Build_Dependency,
+} from './builder.js';
+import {to_is_external_module} from '../utils/module.js';
+import {EXTERNALS_SOURCE_ID, is_external_build_id} from './externals_build_helpers.js';
 
 // TODO this is all hacky and should be refactored
 // make it pluggable like builders, maybe
 
 export const postprocess = (
 	build: Build,
-	ctx: BuildContext,
-	result: BuildResult<Build>,
-	source: BuildSource,
+	ctx: Build_Context,
+	result: Build_Result<Build>,
+	source: Build_Source,
 ): {
 	contents: Build['contents'];
-	dependenciesByBuildId: Map<string, BuildDependency> | null;
+	dependencies_by_build_id: Map<string, Build_Dependency> | null;
 } => {
 	if (build.encoding === 'utf8') {
-		let {contents, buildConfig} = build;
-		const isBrowser = buildConfig.platform === 'browser';
-		let dependenciesByBuildId: Map<string, BuildDependency> | null = null;
+		let {contents, build_config} = build;
+		const is_browser = build_config.platform === 'browser';
+		let dependencies_by_build_id: Map<string, Build_Dependency> | null = null;
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
-			const isExternalModule = toIsExternalModule(isBrowser);
-			let transformedContents = '';
+			const is_external_module = to_is_external_module(is_browser);
+			let transformed_contents = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
 			const [imports] = lexer.parse(contents);
@@ -46,120 +52,123 @@ export const postprocess = (
 				const end = d > -1 ? e - 1 : e;
 				const specifier = contents.substring(start, end);
 				if (specifier === 'import.meta') continue;
-				let buildId: string;
-				let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
-				const isExternalImport = isExternalModule(specifier);
-				const isExternalImportedByExternal = source.id === EXTERNALS_SOURCE_ID;
-				const isExternal = isExternalImport || isExternalImportedByExternal;
-				let mappedSpecifier = isExternal
-					? toBuildExtension(specifier)
-					: hack_toBuildExtensionWithPossiblyExtensionlessSpecifier(specifier);
-				if (isExternal) {
-					if (isExternalImport) {
+				let build_id: string;
+				let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
+				const is_external_import = is_external_module(specifier);
+				const is_external_imported_by_external = source.id === EXTERNALS_SOURCE_ID;
+				const is_external = is_external_import || is_external_imported_by_external;
+				let mapped_specifier = is_external
+					? to_build_extension(specifier)
+					: hack_to_build_extension_with_possibly_extensionless_specifier(specifier);
+				if (is_external) {
+					if (is_external_import) {
 						// handle regular externals
-						if (isBrowser) {
-							if (mappedSpecifier in ctx.externalsAliases) {
-								mappedSpecifier = ctx.externalsAliases[mappedSpecifier];
+						if (is_browser) {
+							if (mapped_specifier in ctx.externals_aliases) {
+								mapped_specifier = ctx.externals_aliases[mapped_specifier];
 							}
-							if (mappedSpecifier.endsWith(JS_EXTENSION) && shouldModifyDotJs(mappedSpecifier)) {
-								mappedSpecifier = mappedSpecifier.replace(/\.js$/, 'js');
+							if (
+								mapped_specifier.endsWith(JS_EXTENSION) &&
+								should_modify_dot_js(mapped_specifier)
+							) {
+								mapped_specifier = mapped_specifier.replace(/\.js$/, 'js');
 							}
-							mappedSpecifier = `/${join(EXTERNALS_BUILD_DIRNAME, mappedSpecifier)}${
-								mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+							mapped_specifier = `/${join(EXTERNALS_BUILD_DIRNAME, mapped_specifier)}${
+								mapped_specifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 							}`;
-							buildId = toBuildOutPath(
+							build_id = to_build_out_path(
 								ctx.dev,
-								buildConfig.name,
-								mappedSpecifier.substring(1),
-								ctx.buildDir,
+								build_config.name,
+								mapped_specifier.substring(1),
+								ctx.build_dir,
 							);
 						} else {
-							buildId = mappedSpecifier;
+							build_id = mapped_specifier;
 						}
 					} else {
 						// handle common externals, imports internal to the externals
-						if (isBrowser) {
-							buildId = join(build.dir, specifier);
+						if (is_browser) {
+							build_id = join(build.dir, specifier);
 							// map internal externals imports to absolute paths, so we get stable ids
-							finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildDir)}${
-								finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+							final_specifier = `/${to_build_base_path(build_id, ctx.build_dir)}${
+								final_specifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 							}`;
 						} else {
 							// externals imported in Node builds use Node module resolution
-							buildId = mappedSpecifier;
+							build_id = mapped_specifier;
 						}
 					}
 				} else {
 					// internal import
-					buildId = join(build.dir, mappedSpecifier);
+					build_id = join(build.dir, mapped_specifier);
 				}
-				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
-				if (!dependenciesByBuildId.has(buildId)) {
-					dependenciesByBuildId.set(buildId, {
-						specifier: finalSpecifier,
-						mappedSpecifier,
-						buildId,
-						external: isExternalBuildId(buildId, buildConfig, ctx),
-						// TODO what if this had `originalSpecifier` and `isExternalImport` too?
+				if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
+				if (!dependencies_by_build_id.has(build_id)) {
+					dependencies_by_build_id.set(build_id, {
+						specifier: final_specifier,
+						mapped_specifier,
+						build_id,
+						external: is_external_build_id(build_id, build_config, ctx),
+						// TODO what if this had `originalSpecifier` and `is_external_import` too?
 					});
 				}
-				if (mappedSpecifier !== specifier) {
-					transformedContents += contents.substring(index, start) + mappedSpecifier;
+				if (mapped_specifier !== specifier) {
+					transformed_contents += contents.substring(index, start) + mapped_specifier;
 					index = end;
 				}
 			}
 			if (index > 0) {
-				contents = transformedContents + contents.substring(index);
+				contents = transformed_contents + contents.substring(index);
 			}
 		}
 
 		// Support Svelte CSS for development in the browser.
-		if (source.extension === SVELTE_EXTENSION && build.extension === JS_EXTENSION && isBrowser) {
-			const cssCompilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
-			if (cssCompilation !== undefined) {
-				let importPath: string | undefined;
-				for (const servedDir of ctx.servedDirs) {
-					if (cssCompilation.id.startsWith(servedDir.path)) {
-						importPath = stripStart(cssCompilation.id, servedDir.root);
+		if (source.extension === SVELTE_EXTENSION && build.extension === JS_EXTENSION && is_browser) {
+			const css_compilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
+			if (css_compilation !== undefined) {
+				let import_path: string | undefined;
+				for (const served_dir of ctx.served_dirs) {
+					if (css_compilation.id.startsWith(served_dir.path)) {
+						import_path = strip_start(css_compilation.id, served_dir.root);
 						break;
 					}
 				}
-				if (importPath !== undefined) {
-					contents = injectSvelteCssImport(contents, importPath);
+				if (import_path !== undefined) {
+					contents = inject_svelte_css_import(contents, import_path);
 				}
 			}
 		}
-		return {contents, dependenciesByBuildId};
+		return {contents, dependencies_by_build_id};
 	} else {
 		// Handle other encodings like binary.
-		return {contents: build.contents, dependenciesByBuildId: null};
+		return {contents: build.contents, dependencies_by_build_id: null};
 	}
 };
 
-const injectSvelteCssImport = (contents: string, importPath: string): string => {
-	let newlineIndex = contents.length;
+const inject_svelte_css_import = (contents: string, import_path: string): string => {
+	let newline_index = contents.length;
 	for (let i = 0; i < contents.length; i++) {
 		if (contents[i] === '\n') {
-			newlineIndex = i;
+			newline_index = i;
 			break;
 		}
 	}
-	const injectedCssLoaderScript = `;globalThis.gro.registerCss('${importPath}');`; // account for barbaric semicolonness code
-	const newContents = `${contents.substring(
+	const injected_css_loader_script = `;globalThis.gro.register_css('${import_path}');`; // account for barbaric semicolonness code
+	const new_contents = `${contents.substring(
 		0,
-		newlineIndex,
-	)}${injectedCssLoaderScript}${contents.substring(newlineIndex)}`;
-	return newContents;
+		newline_index,
+	)}${injected_css_loader_script}${contents.substring(newline_index)}`;
+	return new_contents;
 };
 
 // TODO tests as docs
-const shouldModifyDotJs = (sourceId: string): boolean => {
-	const maxSlashCount = sourceId[0] === '@' ? 1 : 0;
-	let slashCount = 0;
-	for (let i = 0; i < sourceId.length; i++) {
-		if (sourceId[i] === '/') {
-			slashCount++;
-			if (slashCount > maxSlashCount) {
+const should_modify_dot_js = (source_id: string): boolean => {
+	const max_slash_count = source_id[0] === '@' ? 1 : 0;
+	let slash_count = 0;
+	for (let i = 0; i < source_id.length; i++) {
+		if (source_id[i] === '/') {
+			slash_count++;
+			if (slash_count > max_slash_count) {
 				return false;
 			}
 		}
@@ -174,11 +183,13 @@ const shouldModifyDotJs = (sourceId: string): boolean => {
 // because now we can't extract the extension from a user-provided specifier. Gack!
 // Exposing this hack to user config is something that's probably needed,
 // but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
-const hack_toBuildExtensionWithPossiblyExtensionlessSpecifier = (specifier: string): string => {
+const hack_to_build_extension_with_possibly_extensionless_specifier = (
+	specifier: string,
+): string => {
 	const extension = extname(specifier);
 	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
 		? specifier + JS_EXTENSION
-		: toBuildExtension(specifier);
+		: to_build_extension(specifier);
 };
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.

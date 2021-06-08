@@ -134,7 +134,7 @@ export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
 	return {
 		contents: `console.log('${message}')`,
-		fileName: '../elsewhere/otherName.ts',
+		filename: '../elsewhere/otherName.ts',
 	};
 };
 ```
@@ -164,11 +164,11 @@ export const gen: Gen = () => {
 		},
 		{
 			contents: `export interface Thing { field: ${typeof fieldValue} }`,
-			fileName: 'types.ts',
+			filename: 'types.ts',
 		},
 		{
 			contents: `{"field": ${fieldValue}}`,
-			fileName: 'data/thing.json',
+			filename: 'data/thing.json',
 		},
 	];
 };
@@ -214,9 +214,9 @@ or in code:
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	run: async ({args, invokeTask}) => {
-		// this throws a `TaskError` if anything is new or different
-		await invokeTask('gen', {...args, check: true});
+	run: async ({args, invoke_task}) => {
+		// this throws a `Task_Error` if anything is new or different
+		await invoke_task('gen', {...args, check: true});
 	},
 };
 ```

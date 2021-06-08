@@ -1,14 +1,14 @@
-import {printSpawnResult, spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {print_spawn_result, spawn_process} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
-import {TaskError} from './task/task.js';
+import {Task_Error} from './task/task.js';
 
 export const task: Task = {
 	description: 'typecheck the project without emitting any files',
 	run: async () => {
-		const typecheckResult = await spawnProcess('npx', ['tsc', '--noEmit']);
-		if (!typecheckResult.ok) {
-			throw new TaskError(`Failed to typecheck. ${printSpawnResult(typecheckResult)}`);
+		const typecheck_result = await spawn_process('npx', ['tsc', '--noEmit']);
+		if (!typecheck_result.ok) {
+			throw new Task_Error(`Failed to typecheck. ${print_spawn_result(typecheck_result)}`);
 		}
 	},
 };

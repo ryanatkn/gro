@@ -1,11 +1,11 @@
 import {test} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {loadConfig} from './config.js';
+import {load_config} from './config.js';
 import {fs} from '../fs/node.js';
 
-test('loadConfig', async () => {
-	const config = await loadConfig(fs, true);
+test('load_config', async () => {
+	const config = await load_config(fs, true);
 	t.ok(config);
 });
 
