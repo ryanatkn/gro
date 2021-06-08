@@ -8,7 +8,7 @@ import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as svelte_preprocess_esbuild from 'svelte-preprocess-esbuild';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {yellow} from '@feltcoop/felt/utils/terminal.js';
-import {print_key_value, printMs} from '@feltcoop/felt/utils/print.js';
+import {print_key_value, print_ms} from '@feltcoop/felt/utils/print.js';
 import type {Omit_Strict} from '@feltcoop/felt/utils/types.js';
 
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
@@ -94,10 +94,10 @@ export const handle_stats = (
 	log.trace(
 		print_key_value('stats', print_path(id)),
 		...[
-			print_key_value('total', printMs(stats.timings.total)),
-			stats.timings.parse && print_key_value('parse', printMs(stats.timings.parse.total)),
+			print_key_value('total', print_ms(stats.timings.total)),
+			stats.timings.parse && print_key_value('parse', print_ms(stats.timings.parse.total)),
 			stats.timings['create component'] &&
-				print_key_value('create', printMs(stats.timings['create component'].total)),
+				print_key_value('create', print_ms(stats.timings['create component'].total)),
 		].filter(Boolean),
 	);
 };

@@ -3,57 +3,57 @@ import {print_error} from '@feltcoop/felt/utils/print.js';
 import {Timings} from '@feltcoop/felt/utils/time.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 
-import type {GenModule_Meta} from './gen_module.js';
+import type {Gen_Module_Meta} from './gen_module.js';
 import {
-	GenResults,
-	GenModuleResult,
+	Gen_Results,
+	Gen_Module_Result,
 	Gen_Context,
-	toGenResult,
-	GenModuleResultSuccess,
-	GenModuleResultFailure,
+	to_gen_result,
+	Gen_Module_Result_Success,
+	Gen_Module_Result_Failure,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {print_path} from '../paths.js';
 
-export const runGen = async (
+export const run_gen = async (
 	fs: Filesystem,
-	gen_modules: GenModule_Meta[],
+	gen_modules: Gen_Module_Meta[],
 	format_file?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
 	log?: Logger,
-): Promise<GenResults> => {
-	let inputCount = 0;
-	let outputCount = 0;
+): Promise<Gen_Results> => {
+	let input_count = 0;
+	let output_count = 0;
 	const timings = new Timings();
-	const timingForTotal = timings.start('total');
+	const timing_for_total = timings.start('total');
 	const results = await Promise.all(
 		gen_modules.map(
-			async ({id, mod}): Promise<GenModuleResult> => {
-				inputCount++;
-				const genCtx: Gen_Context = {fs, originId: id};
-				const timingForModule = timings.start(id);
+			async ({id, mod}): Promise<Gen_Module_Result> => {
+				input_count++;
+				const genCtx: Gen_Context = {fs, origin_id: id};
+				const timing_for_module = timings.start(id);
 
 				// Perform code generation by calling `gen` on the module.
-				let rawGenResult;
+				let raw_gen_result;
 				try {
-					rawGenResult = await mod.gen(genCtx);
+					raw_gen_result = await mod.gen(genCtx);
 				} catch (err) {
 					return {
 						ok: false,
 						id,
 						error: err,
 						reason: red(`Error generating ${print_path(id)}`),
-						elapsed: timingForModule(),
+						elapsed: timing_for_module(),
 					};
 				}
 
 				// Convert the module's return value to a normalized form.
-				const genResult = toGenResult(id, rawGenResult);
+				const gen_result = to_gen_result(id, raw_gen_result);
 
 				// Format the files if needed.
 				let files;
 				if (format_file) {
 					files = [];
-					for (const file of genResult.files) {
+					for (const file of gen_result.files) {
 						let contents: string;
 						try {
 							contents = await format_file(fs, file.id, file.contents);
@@ -67,25 +67,25 @@ export const runGen = async (
 						files.push({...file, contents});
 					}
 				} else {
-					files = genResult.files;
+					files = gen_result.files;
 				}
 
-				outputCount += files.length;
+				output_count += files.length;
 				return {
 					ok: true,
 					id,
 					files,
-					elapsed: timingForModule(),
+					elapsed: timing_for_module(),
 				};
 			},
 		),
 	);
 	return {
 		results,
-		successes: results.filter((r) => r.ok) as GenModuleResultSuccess[],
-		failures: results.filter((r) => !r.ok) as GenModuleResultFailure[],
-		inputCount,
-		outputCount,
-		elapsed: timingForTotal(),
+		successes: results.filter((r) => r.ok) as Gen_Module_Result_Success[],
+		failures: results.filter((r) => !r.ok) as Gen_Module_Result_Failure[],
+		input_count,
+		output_count,
+		elapsed: timing_for_total(),
 	};
 };

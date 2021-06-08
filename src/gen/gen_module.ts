@@ -1,5 +1,5 @@
 import {Module_Meta, loadModule, Load_Module_Result, find_modules} from '../fs/modules.js';
-import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
+import {Gen, Gen_Results, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
 import {get_possible_source_ids} from '../fs/input_path.js';
 import {paths} from '../paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -8,32 +8,32 @@ export interface GenModule {
 	gen: Gen;
 }
 
-export interface GenModule_Meta extends Module_Meta<GenModule> {}
+export interface Gen_Module_Meta extends Module_Meta<GenModule> {}
 
 export const validateGenModule = (mod: Record<string, any>): mod is GenModule =>
 	typeof mod.gen === 'function';
 
-export const loadGenModule = (id: string): Promise<Load_Module_Result<GenModule_Meta>> =>
+export const loadGenModule = (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> =>
 	loadModule(id, validateGenModule);
 
-export type CheckGenModuleResult =
+export type CheckGen_Module_Result =
 	| {
 			file: GenFile;
 			existingContents: string;
 			isNew: false;
-			hasChanged: boolean;
+			has_changed: boolean;
 	  }
 	| {
 			file: GenFile;
 			existingContents: null;
 			isNew: true;
-			hasChanged: true;
+			has_changed: true;
 	  };
 
 export const checkGenModules = async (
 	fs: Filesystem,
-	genResults: GenResults,
-): Promise<CheckGenModuleResult[]> => {
+	genResults: Gen_Results,
+): Promise<CheckGen_Module_Result[]> => {
 	return Promise.all(
 		genResults.successes
 			.map((result) => result.files.map((file) => checkGenModule(fs, file)))
@@ -44,13 +44,13 @@ export const checkGenModules = async (
 export const checkGenModule = async (
 	fs: Filesystem,
 	file: GenFile,
-): Promise<CheckGenModuleResult> => {
+): Promise<CheckGen_Module_Result> => {
 	if (!(await fs.exists(file.id))) {
 		return {
 			file,
 			existingContents: null,
 			isNew: true,
-			hasChanged: true,
+			has_changed: true,
 		};
 	}
 	const existingContents = await fs.read_file(file.id, 'utf8');
@@ -58,7 +58,7 @@ export const checkGenModule = async (
 		file,
 		existingContents,
 		isNew: false,
-		hasChanged: file.contents !== existingContents,
+		has_changed: file.contents !== existingContents,
 	};
 };
 

@@ -1,4 +1,4 @@
-import {createServer as createHttp1Server} from 'http';
+import {create_server as createHttp1Server} from 'http';
 import type {
 	Server as Http1Server,
 	RequestListener as Http1RequestListener,
@@ -35,7 +35,7 @@ type Http2StreamHandler = (
 	flags: number,
 ) => void;
 
-export interface GroServer {
+export interface Gro_Server {
 	readonly server: Http1Server | Http2Server;
 	start(): Promise<void>;
 	readonly host: string;
@@ -64,7 +64,7 @@ export const init_options = (opts: Initial_Options): Options => {
 	};
 };
 
-export const create_gro_server = (opts: Initial_Options): GroServer => {
+export const create_gro_server = (opts: Initial_Options): Gro_Server => {
 	const options = init_options(opts);
 	const {filer, host, port, https, log} = options;
 
@@ -73,7 +73,7 @@ export const create_gro_server = (opts: Initial_Options): GroServer => {
 		// hacky but w/e - these values are not final until `groServer.start` resolves
 		finalPort--;
 		listenOptions.port = finalPort;
-		(groServer as Assignable<GroServer>).port = finalPort;
+		(groServer as Assignable<Gro_Server>).port = finalPort;
 	};
 
 	const listenOptions: ListenOptions = {
@@ -110,7 +110,7 @@ export const create_gro_server = (opts: Initial_Options): GroServer => {
 
 	let started = false;
 
-	const groServer: GroServer = {
+	const groServer: Gro_Server = {
 		server,
 		host,
 		port, // this value is not valid until `start` is complete
@@ -157,7 +157,7 @@ const createHttp1RequestListener = (filer: Filer, log: Logger): Http1RequestList
 	return requestListener;
 };
 
-interface GroServerResponse {
+interface Gro_ServerResponse {
 	status: 200 | 304 | 404;
 	headers: OutgoingHttpHeaders;
 	data?: string | Buffer | undefined;
@@ -168,7 +168,7 @@ const toResponse = async (
 	headers: IncomingHttpHeaders,
 	filer: Filer,
 	log: Logger,
-): Promise<GroServerResponse> => {
+): Promise<Gro_ServerResponse> => {
 	const url = parseUrl(rawUrl);
 	const localPath = toLocalPath(url);
 	log.trace('serving', gray(rawUrl), '→', gray(localPath));

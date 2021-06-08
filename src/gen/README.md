@@ -134,7 +134,7 @@ export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
 	return {
 		contents: `console.log('${message}')`,
-		fileName: '../elsewhere/otherName.ts',
+		filename: '../elsewhere/otherName.ts',
 	};
 };
 ```
@@ -164,11 +164,11 @@ export const gen: Gen = () => {
 		},
 		{
 			contents: `export interface Thing { field: ${typeof fieldValue} }`,
-			fileName: 'types.ts',
+			filename: 'types.ts',
 		},
 		{
 			contents: `{"field": ${fieldValue}}`,
-			fileName: 'data/thing.json',
+			filename: 'data/thing.json',
 		},
 	];
 };

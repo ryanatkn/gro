@@ -1,7 +1,7 @@
 import type {Plugin} from 'rollup';
 import {gray} from '@feltcoop/felt/utils/terminal.js';
 import {System_Logger} from '@feltcoop/felt/utils/log.js';
-import {print_key_value, printMs} from '@feltcoop/felt/utils/print.js';
+import {print_key_value, print_ms} from '@feltcoop/felt/utils/print.js';
 import {create_stopwatch} from '@feltcoop/felt/utils/time.js';
 
 import {print_path} from '../paths.js';
@@ -25,7 +25,7 @@ export const diagnosticsPlugin = (): Plugin => {
 			if (started) {
 				stopwatch(true); // reset the clock
 			} else {
-				log.info(print_key_value('startupTime', printMs(stopwatch(true))));
+				log.info(print_key_value('startupTime', print_ms(stopwatch(true))));
 				started = true;
 			}
 		},
@@ -85,7 +85,7 @@ export const diagnosticsPlugin = (): Plugin => {
 				// how should that work?
 				// ideally the state is contained here in the diagnostics plugin
 				// could track what module is logging via the keyed tags.
-				print_key_value('totalElapsed', printMs(stopwatch())),
+				print_key_value('totalElapsed', print_ms(stopwatch())),
 			);
 		},
 	};

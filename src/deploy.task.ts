@@ -42,31 +42,31 @@ export const task: Task<Task_Args> = {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
 
-		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
+		const source_branch = branch || GIT_DEPLOY_BRANCH;
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
 		// staged uncommitted changes: `git diff --exit-code --cached`
-		const gitDiffUnstagedResult = await spawn_process('git', ['diff', '--exit-code', '--quiet']);
-		if (!gitDiffUnstagedResult.ok) {
+		const git_diff_unstaged_result = await spawn_process('git', ['diff', '--exit-code', '--quiet']);
+		if (!git_diff_unstaged_result.ok) {
 			log.error(red('git has unstaged changes: please commit or stash to proceed'));
 			return;
 		}
-		const gitDiffStagedResult = await spawn_process('git', [
+		const git_diff_staged_result = await spawn_process('git', [
 			'diff',
 			'--exit-code',
 			'--cached',
 			'--quiet',
 		]);
-		if (!gitDiffStagedResult.ok) {
+		if (!git_diff_staged_result.ok) {
 			log.error(red('git has staged but uncommitted changes: please commit or stash to proceed'));
 			return;
 		}
 
 		// Ensure we're on the right branch.
-		const gitCheckoutResult = await spawn_process('git', ['checkout', sourceBranch]);
-		if (!gitCheckoutResult.ok) {
-			log.error(red(`failed git checkout with exit code ${gitCheckoutResult.code}`));
+		const git_checkout_result = await spawn_process('git', ['checkout', source_branch]);
+		if (!git_checkout_result.ok) {
+			log.error(red(`failed git checkout with exit code ${git_checkout_result.code}`));
 			return;
 		}
 
@@ -81,14 +81,14 @@ export const task: Task<Task_Args> = {
 				`git rm -rf . && ` +
 				`mv ${TEMP_PREFIX}${INITIAL_FILE} ${INITIAL_FILE} && ` +
 				`git add ${INITIAL_FILE} && ` +
-				`git commit -m "setup" && git checkout ${sourceBranch}`,
+				`git commit -m "setup" && git checkout ${source_branch}`,
 			[],
 			// this uses `shell: true` because the above is unwieldy with standard command construction
 			{shell: true},
 		);
 
 		// Clean up any existing worktree.
-		await cleanGitWorktree();
+		await clean_git_worktree();
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Get ready to build from scratch.
@@ -146,21 +146,21 @@ export const task: Task<Task_Args> = {
 			await spawn_process('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
-			await cleanGitWorktree();
+			await clean_git_worktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
 		await fs.remove(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
 		await fs.move(WORKTREE_DIR, DIST_DIR, {overwrite: true});
-		await cleanGitWorktree();
+		await clean_git_worktree();
 
 		log.info(rainbow('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };
 
 // TODO like above, these cause some misleading logging
-const cleanGitWorktree = async (): Promise<void> => {
+const clean_git_worktree = async (): Promise<void> => {
 	await spawn_process('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force']);
 	await spawn_process('git', ['worktree', 'prune']);
 };

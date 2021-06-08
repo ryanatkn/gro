@@ -2,8 +2,8 @@ import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
-import type {GenModule_Meta} from './gen_module.js';
-import {runGen} from './runGen.js';
+import type {Gen_Module_Meta} from './gen_module.js';
+import {run_gen} from './run_gen.js';
 import {fs} from '../fs/node.js';
 
 /* test_gen */
@@ -12,59 +12,59 @@ const test_gen = suite('gen');
 test_gen('basic behavior', async () => {
 	const source_idA = resolve('src/foo.gen.ts');
 	const source_idBC = resolve('src/bar/bc');
-	let fileA: undefined | {fileName: string; contents: string};
-	let fileB: undefined | {fileName: string; contents: string};
-	let fileC1: undefined | {fileName: string; contents: string};
-	let fileC2: undefined | {fileName: string; contents: string};
-	let modA: GenModule_Meta = {
+	let file_a: undefined | {filename: string; contents: string};
+	let file_b: undefined | {filename: string; contents: string};
+	let file_c1: undefined | {filename: string; contents: string};
+	let file_c2: undefined | {filename: string; contents: string};
+	let modA: Gen_Module_Meta = {
 		id: source_idA,
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, source_idA);
-				if (fileA) throw Error('Already generated fileA');
-				fileA = {
-					fileName: 'foo.ts',
-					contents: 'fileA',
+				t.is(ctx.origin_id, source_idA);
+				if (file_a) throw Error('Already generated file_a');
+				file_a = {
+					filename: 'foo.ts',
+					contents: 'file_a',
 				};
-				return fileA.contents; // here we return the shorthand version
+				return file_a.contents; // here we return the shorthand version
 			},
 		},
 	};
-	let modB: GenModule_Meta = {
+	let modB: Gen_Module_Meta = {
 		id: join(source_idBC, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, modB.id);
-				if (fileB) throw Error('Already generated fileB');
-				fileB = {
-					fileName: 'outputB.ts',
-					contents: 'fileB',
+				t.is(ctx.origin_id, modB.id);
+				if (file_b) throw Error('Already generated file_b');
+				file_b = {
+					filename: 'outputB.ts',
+					contents: 'file_b',
 				};
-				return fileB;
+				return file_b;
 			},
 		},
 	};
-	let modC: GenModule_Meta = {
+	let modC: Gen_Module_Meta = {
 		id: join(source_idBC, 'modC.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, modC.id);
-				if (fileC1) throw Error('Already generated fileC1');
-				if (fileC2) throw Error('Already generated fileC2');
-				fileC1 = {
-					fileName: 'outputC1.ts',
-					contents: 'fileC1',
+				t.is(ctx.origin_id, modC.id);
+				if (file_c1) throw Error('Already generated file_c1');
+				if (file_c2) throw Error('Already generated file_c2');
+				file_c1 = {
+					filename: 'outputC1.ts',
+					contents: 'file_c1',
 				};
-				fileC2 = {
-					fileName: 'outputC2.ts',
-					contents: 'fileC2',
+				file_c2 = {
+					filename: 'outputC2.ts',
+					contents: 'file_c2',
 				};
-				return [fileC1, fileC2];
+				return [file_c1, file_c2];
 			},
 		},
 	};
 	const gen_modulesByInputPath = [modA, modB, modC];
-	const genResults = await runGen(fs, gen_modulesByInputPath, async (_fs, id, contents) =>
+	const genResults = await run_gen(fs, gen_modulesByInputPath, async (_fs, id, contents) =>
 		id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
 	);
 	t.is(genResults.inputCount, 3);
@@ -78,39 +78,39 @@ test_gen('basic behavior', async () => {
 
 	const resultA = genResults.results[0];
 	t.ok(resultA?.ok);
-	t.ok(fileA);
+	t.ok(file_a);
 	t.equal(resultA.files, [
 		{
-			contents: fileA.contents,
-			id: join(modA.id, '../', fileA.fileName),
-			originId: modA.id,
+			contents: file_a.contents,
+			id: join(modA.id, '../', file_a.filename),
+			origin_id: modA.id,
 		},
 	]);
 
 	const resultB = genResults.results[1];
 	t.ok(resultB?.ok);
-	t.ok(fileB);
+	t.ok(file_b);
 	t.equal(resultB.files, [
 		{
-			contents: `${fileB.contents}/*FORMATTED*/`,
-			id: join(modB.id, '../', fileB.fileName),
-			originId: modB.id,
+			contents: `${file_b.contents}/*FORMATTED*/`,
+			id: join(modB.id, '../', file_b.filename),
+			origin_id: modB.id,
 		},
 	]);
 	const resultC = genResults.results[2];
 	t.ok(resultC?.ok);
-	t.ok(fileC1);
-	t.ok(fileC2);
+	t.ok(file_c1);
+	t.ok(file_c2);
 	t.equal(resultC.files, [
 		{
-			contents: fileC1.contents,
-			id: join(modC.id, '../', fileC1.fileName),
-			originId: modC.id,
+			contents: file_c1.contents,
+			id: join(modC.id, '../', file_c1.filename),
+			origin_id: modC.id,
 		},
 		{
-			contents: fileC2.contents,
-			id: join(modC.id, '../', fileC2.fileName),
-			originId: modC.id,
+			contents: file_c2.contents,
+			id: join(modC.id, '../', file_c2.filename),
+			origin_id: modC.id,
 		},
 	]);
 });
@@ -118,11 +118,11 @@ test_gen('basic behavior', async () => {
 test_gen('failing gen function', async () => {
 	const source_idA = resolve('src/foo.gen.ts');
 	const source_idB = resolve('src/bar/baz');
-	let fileB: undefined | {fileName: string; contents: string}; // no fileA because it's never generated
+	let file_b: undefined | {filename: string; contents: string}; // no file_a because it's never generated
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	let modA: GenModule_Meta = {
+	let modA: Gen_Module_Meta = {
 		id: source_idA,
 		mod: {
 			gen: async () => {
@@ -131,22 +131,22 @@ test_gen('failing gen function', async () => {
 			},
 		},
 	};
-	let modB: GenModule_Meta = {
+	let modB: Gen_Module_Meta = {
 		id: join(source_idB, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, modB.id);
-				if (fileB) throw Error('Already generated fileB');
-				fileB = {
-					fileName: 'outputB.ts',
-					contents: 'fileB',
+				t.is(ctx.origin_id, modB.id);
+				if (file_b) throw Error('Already generated file_b');
+				file_b = {
+					filename: 'outputB.ts',
+					contents: 'file_b',
 				};
-				return fileB;
+				return file_b;
 			},
 		},
 	};
-	const gen_modulesByInputPath: GenModule_Meta[] = [modA, modB];
-	const genResults = await runGen(fs, gen_modulesByInputPath);
+	const gen_modulesByInputPath: Gen_Module_Meta[] = [modA, modB];
+	const genResults = await run_gen(fs, gen_modulesByInputPath);
 	t.is(genResults.inputCount, 2);
 	t.is(genResults.outputCount, 1);
 	t.is(genResults.successes.length, 1);
@@ -163,12 +163,12 @@ test_gen('failing gen function', async () => {
 
 	const resultB = genResults.results[1];
 	t.ok(resultB?.ok);
-	t.ok(fileB);
+	t.ok(file_b);
 	t.equal(resultB.files, [
 		{
-			contents: fileB.contents,
-			id: join(modB.id, '../', fileB.fileName),
-			originId: modB.id,
+			contents: file_b.contents,
+			id: join(modB.id, '../', file_b.filename),
+			origin_id: modB.id,
 		},
 	]);
 });

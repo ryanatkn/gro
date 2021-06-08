@@ -1,4 +1,4 @@
-import {printMs, print_timings} from '@feltcoop/felt/utils/print.js';
+import {print_ms, print_timings} from '@feltcoop/felt/utils/print.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {create_stopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
@@ -20,7 +20,7 @@ export const build_source_directory = async (
 	const timings = new Timings();
 	const log_timings = () => {
 		print_timings(timings, log);
-		log.info(`🕒 built in ${printMs(total_timing())}`);
+		log.info(`🕒 built in ${print_ms(total_timing())}`);
 	};
 
 	const timing_to_create_filer = timings.start('create filer');

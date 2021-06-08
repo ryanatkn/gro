@@ -18,7 +18,7 @@ import {load_task_modules} from '../task/task_module.js';
 // TODO needs some cleanup and better APIs - paths are confusing and verbose!
 // TODO add backlinks to every document that links to this one
 
-export const gen: Gen = async ({fs, originId}) => {
+export const gen: Gen = async ({fs, origin_id}) => {
 	const result = await load_task_modules(fs);
 	if (!result.ok) {
 		for (const reason of result.reasons) {
@@ -31,11 +31,11 @@ export const gen: Gen = async ({fs, originId}) => {
 	// TODO need to get this from project config or something
 	const rootPath = last(to_path_segments(paths.root));
 
-	const originDir = dirname(originId);
-	const originBase = basename(originId);
+	const originDir = dirname(origin_id);
+	const originBase = basename(origin_id);
 
 	const baseDir = paths.source;
-	const relativePath = strip_start(originId, baseDir);
+	const relativePath = strip_start(origin_id, baseDir);
 	const relativeDir = dirname(relativePath);
 
 	// TODO should this be passed in the context, like `defaultOutputFileName`?
@@ -54,7 +54,7 @@ export const gen: Gen = async ({fs, originId}) => {
 	);
 	const breadcrumbs = '> <sub>' + [rootLink, ...pathParts, outputFileName].join(' / ') + '</sub>';
 
-	// TODO render the footer with the originId
+	// TODO render the footer with the origin_id
 	return `# tasks
 
 ${breadcrumbs}

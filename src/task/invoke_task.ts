@@ -2,7 +2,7 @@ import {cyan, red, gray} from '@feltcoop/felt/utils/terminal.js';
 import {System_Logger, Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
 import {EventEmitter} from 'events';
 import {create_stopwatch, Timings} from '@feltcoop/felt/utils/time.js';
-import {printMs, print_timings} from '@feltcoop/felt/utils/print.js';
+import {print_ms, print_timings} from '@feltcoop/felt/utils/print.js';
 import {plural} from '@feltcoop/felt/utils/string.js';
 
 import type {Args} from './task.js';
@@ -229,7 +229,7 @@ export const invoke_task = async (
 	}
 
 	print_timings(timings, log);
-	log.info(`🕒 ${printMs(total_timing())}`);
+	log.info(`🕒 ${print_ms(total_timing())}`);
 };
 
 const logAvailableTasks = (

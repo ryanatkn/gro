@@ -13,10 +13,10 @@ export const task: Task<Task_Args> = {
 	description: 'format source files',
 	run: async ({args}) => {
 		const check = !!args.check;
-		const formatResult = await format_directory(paths.source, check);
-		if (!formatResult.ok) {
+		const format_result = await format_directory(paths.source, check);
+		if (!format_result.ok) {
 			throw new Task_Error(
-				`Failed ${check ? 'formatting check' : 'to format'}. ${print_spawn_result(formatResult)}`,
+				`Failed ${check ? 'formatting check' : 'to format'}. ${print_spawn_result(format_result)}`,
 			);
 		}
 	},

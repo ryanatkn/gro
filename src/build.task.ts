@@ -9,7 +9,7 @@ import type {Gro_Config} from './config/config.js';
 import type {Task_Events as Server_Task_Events} from './server.task.js';
 import type {Adapter_Context, Adapter} from './adapt/adapter.js';
 import {build_source_directory} from './build/build_source_directory.js';
-import {generateTypes} from './build/ts_build_helpers.js';
+import {generate_types} from './build/ts_build_helpers.js';
 import {paths, to_types_build_dir} from './paths.js';
 import {clean} from './fs/clean.js';
 
@@ -20,9 +20,9 @@ export interface Task_Args extends Args {
 }
 
 export interface Task_Events extends Server_Task_Events {
-	'build.createConfig': (config: Gro_Config) => void;
-	'build.buildTypes': void;
-	'build.buildSrc': void;
+	'build.create_config': (config: Gro_Config) => void;
+	'build.build_types': void;
+	'build.build_src': void;
 }
 
 export const task: Task<Task_Args, Task_Events> = {
@@ -40,61 +40,61 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
-		const timingToBuildTypes = timings.start('buildTypes');
-		await generateTypes(paths.source, to_types_build_dir(), true);
-		timingToBuildTypes();
-		events.emit('build.buildTypes');
+		const timing_to_build_types = timings.start('build_types');
+		await generate_types(paths.source, to_types_build_dir(), true);
+		timing_to_build_types();
+		events.emit('build.build_types');
 
-		const timingToLoadConfig = timings.start('load config');
+		const timing_to_load_config = timings.start('load config');
 		const config = await load_config(fs, dev);
-		timingToLoadConfig();
-		events.emit('build.createConfig', config);
+		timing_to_load_config();
+		events.emit('build.create_config', config);
 
 		// Build everything with esbuild and Gro's `Filer` first.
 		// These production artifacts are then available to all adapters.
-		const timingToBuildSrc = timings.start('buildSrc');
+		const timing_to_build_src = timings.start('build_src');
 		await build_source_directory(fs, config, dev, log);
-		timingToBuildSrc();
-		events.emit('build.buildSrc');
+		timing_to_build_src();
+		events.emit('build.build_src');
 
 		// Adapt the build to final ouputs.
-		const timingToCreateAdapters = timings.start('create adapters');
-		const adaptContext: Adapter_Context<Task_Args, Task_Events> = {
+		const timing_to_create_adapters = timings.start('create adapters');
+		const adapt_context: Adapter_Context<Task_Args, Task_Events> = {
 			...ctx,
 			config,
 		};
-		const adapters: Adapter<any, any>[] = toArray(await config.adapt(adaptContext)).filter(
+		const adapters: Adapter<any, any>[] = toArray(await config.adapt(adapt_context)).filter(
 			Boolean,
 		) as Adapter<any, any>[];
-		timingToCreateAdapters();
+		timing_to_create_adapters();
 
 		if (adapters.length) {
-			const timingToCallBegin = timings.start('begin');
+			const timing_to_call_begin = timings.start('begin');
 			for (const adapter of adapters) {
 				if (!adapter.begin) continue;
 				const timing = timings.start(`begin:${adapter.name}`);
-				await adapter.begin(adaptContext);
+				await adapter.begin(adapt_context);
 				timing();
 			}
-			timingToCallBegin();
+			timing_to_call_begin();
 
-			const timingToCallAdapt = timings.start('adapt');
+			const timing_to_call_adapt = timings.start('adapt');
 			for (const adapter of adapters) {
 				if (!adapter.adapt) continue;
 				const timing = timings.start(`adapt:${adapter.name}`);
-				await adapter.adapt(adaptContext);
+				await adapter.adapt(adapt_context);
 				timing();
 			}
-			timingToCallAdapt();
+			timing_to_call_adapt();
 
-			const timingToCallEnd = timings.start('end');
+			const timing_to_call_end = timings.start('end');
 			for (const adapter of adapters) {
 				if (!adapter.end) continue;
 				const timing = timings.start(`end:${adapter.name}`);
-				await adapter.end(adaptContext);
+				await adapter.end(adapt_context);
 				timing();
 			}
-			timingToCallEnd();
+			timing_to_call_end();
 		} else {
 			log.info('no adapters to `adapt`');
 		}

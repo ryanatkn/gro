@@ -14,7 +14,7 @@ import {
 
 This uses the TypeScript compiler to generate types.
 
-The function `generateTypes` uses `tsc` to output all declarations to the filesystem,
+The function `generate_types` uses `tsc` to output all declarations to the filesystem,
 and then `toGenerateTypesForFile` looks up those cached results.
 
 */
@@ -30,7 +30,7 @@ export type Ecma_Script_Target =
 	| 'es2020'
 	| 'esnext';
 
-export const generateTypes = async (
+export const generate_types = async (
 	src: string,
 	dest: string,
 	sourcemap: boolean,
@@ -65,7 +65,7 @@ export interface GeneratedTypes {
 	typemap?: string;
 }
 
-// This looks up types from the filesystem created by `generateTypes` for individual files.
+// This looks up types from the filesystem created by `generate_types` for individual files.
 // This lets us do project-wide type compilation once and do cheap lookups from the global cache.
 // This strategy is used because the TypeScript compiler performs an order of magnitude slower
 // when it compiles type declarations for individual files compared to an entire project at once.
