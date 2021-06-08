@@ -1,5 +1,5 @@
 import {green} from '@feltcoop/felt/utils/terminal.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import {printKeyValue} from '@feltcoop/felt/utils/print.js';
 
 import {print_path} from '../paths.js';
@@ -22,7 +22,7 @@ export interface CssCache<T extends CssBuild = CssBuild> {
 }
 
 export const createCssCache = <T extends CssBuild = CssBuild>(): CssCache<T> => {
-	const log = new SystemLogger(printLogLabel('cssCache', green));
+	const log = new System_Logger(print_log_label('cssCache', green));
 
 	// `bundles` key is an output bundle file name
 	const bundles = new Map<string, CssBundle<T>>();

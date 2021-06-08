@@ -1,4 +1,4 @@
-import type {SourceMeta} from '../build/sourceMeta.js';
+import type {SourceMeta} from '../build/source_meta.js';
 import type {Build_Config} from '../build/build_config.js';
 import type {PackageJson} from '../utils/package_json.js';
 

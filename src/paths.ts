@@ -51,11 +51,11 @@ export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
 export const SVELTE_CSS_SOURCEMAP_EXTENSION = '.svelte.css.map';
 
 export const README_FILENAME = 'README.md';
-export const SVELTE_KIT_CONFIG_FILENAME = 'svelte.config.cjs';
-export const SVELTE_KIT_DEV_DIRNAME = '.svelte-kit';
-export const SVELTE_KIT_BUILD_DIRNAME = 'build';
-export const SVELTE_KIT_APP_DIRNAME = 'app'; // same as /svelte.config.cjs `kit.appDir`
-export const SVELTE_KIT_VITE_CACHE_PATH = 'node_modules/.vite';
+export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.cjs';
+export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
+export const SVELTEKIT_BUILD_DIRNAME = 'build';
+export const SVELTEKIT_APP_DIRNAME = 'app'; // same as /svelte.config.cjs `kit.appDir`
+export const SVELTEKIT_VITE_CACHE_PATH = 'node_modules/.vite';
 export const NODE_MODULES_DIRNAME = 'node_modules';
 export const GITHUB_DIRNAME = '.github';
 export const GIT_DIRNAME = '.git';

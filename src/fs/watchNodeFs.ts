@@ -2,7 +2,7 @@ import CheapWatch from 'cheap-watch';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
-import type {PathStats} from './pathData.js';
+import type {Path_Stats} from './path_data.js';
 import {toPathFilter} from './pathFilter.js';
 import type {PathFilter} from './pathFilter.js';
 import {loadGitignoreFilter} from '../utils/gitignore.js';
@@ -15,14 +15,14 @@ import {loadGitignoreFilter} from '../utils/gitignore.js';
 */
 
 export interface WatchNodeFs {
-	init: () => Promise<Map<string, PathStats>>;
+	init: () => Promise<Map<string, Path_Stats>>;
 	close: () => void;
 }
 
 export interface WatcherChange {
 	type: WatcherChangeType;
 	path: string;
-	stats: PathStats;
+	stats: Path_Stats;
 }
 export type WatcherChangeType = 'create' | 'update' | 'delete';
 export interface WatcherChangeCallback {

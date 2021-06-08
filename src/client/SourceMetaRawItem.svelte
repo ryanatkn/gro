@@ -2,9 +2,9 @@
 	import type {Writable} from 'svelte/store';
 
 	import SourceId from './SourceId.svelte';
-	import type {SourceMeta} from '../build/sourceMeta.js';
+	import type {SourceMeta} from '../build/source_meta.js';
 
-	export let sourceMeta: SourceMeta;
+	export let source_meta: SourceMeta;
 	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
 	let expanded = false;
@@ -14,11 +14,11 @@
 
 	const onPointerEnter = () => {
 		hovering = true;
-		$hoveredSourceMeta = sourceMeta;
+		$hoveredSourceMeta = source_meta;
 	};
 	const onPointerLeave = () => {
 		hovering = false;
-		if ($hoveredSourceMeta === sourceMeta) $hoveredSourceMeta = null;
+		if ($hoveredSourceMeta === source_meta) $hoveredSourceMeta = null;
 	};
 
 	// TODO probably want to do a better data structure than this
@@ -33,12 +33,12 @@
 			),
 		);
 
-	$: hoveredIsDependency = isDependency($hoveredSourceMeta, sourceMeta);
-	$: hoveredIsDependent = isDependency(sourceMeta, $hoveredSourceMeta);
+	$: hoveredIsDependency = isDependency($hoveredSourceMeta, source_meta);
+	$: hoveredIsDependent = isDependency(source_meta, $hoveredSourceMeta);
 	$: deemphasized =
 		$hoveredSourceMeta &&
 		!hovering &&
-		!(hoveredIsDependency || hoveredIsDependent || $hoveredSourceMeta === sourceMeta);
+		!(hoveredIsDependency || hoveredIsDependent || $hoveredSourceMeta === source_meta);
 </script>
 
 <div class="summary" class:deemphasized>
@@ -55,12 +55,12 @@
 		class:hovering
 	>
 		<span class="icon">{expandedText}</span>
-		<SourceId id={sourceMeta.data.source_id} />
+		<SourceId id={source_meta.data.source_id} />
 	</button>
 </div>
 {#if expanded}
 	<pre>
-      {JSON.stringify(sourceMeta, null, 2)}
+      {JSON.stringify(source_meta, null, 2)}
     </pre>
 	<button
 		on:pointerdown={() => (expanded = !expanded)}

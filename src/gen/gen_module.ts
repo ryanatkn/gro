@@ -1,4 +1,4 @@
-import {ModuleMeta, loadModule, LoadModuleResult, findModules} from '../fs/modules.js';
+import {Module_Meta, loadModule, Load_Module_Result, findModules} from '../fs/modules.js';
 import {Gen, GenResults, GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
@@ -8,12 +8,12 @@ export interface GenModule {
 	gen: Gen;
 }
 
-export interface GenModuleMeta extends ModuleMeta<GenModule> {}
+export interface GenModule_Meta extends Module_Meta<GenModule> {}
 
 export const validateGenModule = (mod: Record<string, any>): mod is GenModule =>
 	typeof mod.gen === 'function';
 
-export const loadGenModule = (id: string): Promise<LoadModuleResult<GenModuleMeta>> =>
+export const loadGenModule = (id: string): Promise<Load_Module_Result<GenModule_Meta>> =>
 	loadModule(id, validateGenModule);
 
 export type CheckGenModuleResult =
@@ -62,7 +62,7 @@ export const checkGenModule = async (
 	};
 };
 
-export const findGenModules = (
+export const find_gen_modules = (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN],

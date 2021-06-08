@@ -30,7 +30,7 @@ export interface DevTask_Context {
 	config: Gro_Config;
 	filer: Filer;
 	server: GroServer;
-	svelteKitProcess: Spawned_Process | null;
+	sveltekitProcess: Spawned_Process | null;
 }
 
 export interface Task_Events {
@@ -48,9 +48,9 @@ export const task: Task<Task_Args, Task_Events> = {
 		const timings = new Timings();
 
 		// Support SvelteKit builds alongside Gro
-		let svelteKitProcess: Spawned_Process | null = null;
+		let sveltekitProcess: Spawned_Process | null = null;
 		if (await has_sveltekit_frontend(fs)) {
-			svelteKitProcess = spawn('npx', ['svelte-kit', 'dev']);
+			sveltekitProcess = spawn('npx', ['svelte-kit', 'dev']);
 		}
 
 		const timingToLoadConfig = timings.start('load config');
@@ -82,7 +82,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		timingToCreateGroServer();
 		events.emit('dev.createServer', server);
 
-		const devTask_Context: DevTask_Context = {config, server, filer, svelteKitProcess};
+		const devTask_Context: DevTask_Context = {config, server, filer, sveltekitProcess};
 
 		await Promise.all([
 			(async () => {

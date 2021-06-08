@@ -1,5 +1,5 @@
 import {basename, dirname, join} from 'path';
-import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 import {strip_start} from '@feltcoop/felt/utils/string.js';
 
 import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/filerDir.js';
@@ -10,7 +10,7 @@ import {toHash} from './utils.js';
 import type {Build_Config} from '../build/build_config.js';
 import type {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';
-import type {SourceMeta} from './sourceMeta.js';
+import type {SourceMeta} from './source_meta.js';
 import {EXTERNALS_BUILD_DIRNAME} from '../paths.js';
 import {isExternalBrowserModule} from '../utils/module.js';
 import type {BuildContext, BuildDependency} from './builder.js';
@@ -66,26 +66,26 @@ export const createSourceFile = async (
 	extension: string,
 	contents: string | Buffer,
 	filerDir: FilerDir,
-	sourceMeta: SourceMeta | undefined,
+	source_meta: SourceMeta | undefined,
 	{fs, build_configs}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
 	let reconstructedBuildFiles: Map<Build_Config, BuildFile[]> | null = null;
 	let dirty = false;
-	if (filerDir.buildable && sourceMeta !== undefined) {
+	if (filerDir.buildable && source_meta !== undefined) {
 		// TODO why the source meta guard here for `contentsBuffer` and `contentsHash`?
 		if (encoding === 'utf8') {
 			contentsBuffer = Buffer.from(contents);
 		} else if (encoding !== null) {
-			throw new UnreachableError(encoding);
+			throw new Unreachable_Error(encoding);
 		}
 		contentsHash = toHash(contentsBuffer!);
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty = contentsHash !== sourceMeta.data.contentsHash;
-		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, build_configs!);
+		dirty = contentsHash !== source_meta.data.contentsHash;
+		reconstructedBuildFiles = await reconstructBuildFiles(fs, source_meta, build_configs!);
 	}
 	if (isExternalBrowserModule(id)) {
 		// externals
@@ -218,7 +218,7 @@ export const createSourceFile = async (
 						mimeType: undefined,
 				  };
 		default:
-			throw new UnreachableError(encoding);
+			throw new Unreachable_Error(encoding);
 	}
 };
 

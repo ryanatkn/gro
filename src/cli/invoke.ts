@@ -1,6 +1,6 @@
 // handle uncaught errors
-import {attachProcessErrorHandlers} from '../utils/process.js';
-attachProcessErrorHandlers();
+import {attach_process_error_handlers} from '../utils/process.js';
+attach_process_error_handlers();
 
 import mri from 'mri';
 
@@ -37,4 +37,4 @@ const main = async () => {
 	await invoke_task(nodeFs, taskName, args);
 };
 
-main(); // see `attachProcessErrorHandlers` above for why we don't catch here
+main(); // see `attach_process_error_handlers` above for why we don't catch here

@@ -11,12 +11,12 @@
 	export const hoveredSourceMeta = undefined;
 
 	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuild_Names);
-	$: finalItems = filteredSourceMetas.flatMap((sourceMeta) =>
-		sourceMeta.build_names
+	$: finalItems = filteredSourceMetas.flatMap((source_meta) =>
+		source_meta.build_names
 			.map(
 				(build_name) =>
 					selectedBuild_Names.includes(build_name)
-						? {sourceMeta, build_name, key: `${build_name}:${sourceMeta.cacheId}`} // TODO hmm
+						? {source_meta, build_name, key: `${build_name}:${source_meta.cacheId}`} // TODO hmm
 						: null!, // bc filter below
 			)
 			.filter(Boolean),
@@ -30,16 +30,16 @@
 			<th>build name</th>
 			<th>build ids</th>
 		</thead>
-		{#each finalItems as {sourceMeta, build_name, key} (key)}
+		{#each finalItems as {source_meta, build_name, key} (key)}
 			<tr>
 				<td>
-					<SourceId id={sourceMeta.data.source_id} />
+					<SourceId id={source_meta.data.source_id} />
 				</td>
 				<td>
 					<Build_Name {build_name} />
 				</td>
 				<td>
-					{#each getBuildsByBuild_Name(sourceMeta, build_name) as build (build.id)}
+					{#each getBuildsByBuild_Name(source_meta, build_name) as build (build.id)}
 						<BuildId id={build.id} />
 					{/each}
 				</td>

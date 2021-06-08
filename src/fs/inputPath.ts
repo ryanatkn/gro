@@ -10,8 +10,8 @@ import {
 	gro_paths,
 } from '../paths.js';
 import type {Paths} from '../paths.js';
-import {toPathData} from './pathData.js';
-import type {PathData, PathStats} from './pathData.js';
+import {toPath_Data} from './path_data.js';
+import type {Path_Data, Path_Stats} from './path_data.js';
 import type {Filesystem} from './filesystem.js';
 
 /*
@@ -101,19 +101,19 @@ and stopping at the first match.
 Parameterized by `exists` and `stat` so it's fs-agnostic.
 
 */
-export const loadSourcePathDataByInputPath = async (
+export const load_source_path_data_by_input_path = async (
 	fs: Filesystem,
 	inputPaths: string[],
 	getPossibleSourceIdsForInputPath?: (inputPath: string) => string[],
 ): Promise<{
-	source_idPathDataByInputPath: Map<string, PathData>;
+	source_id_path_data_by_input_path: Map<string, Path_Data>;
 	unmappedInputPaths: string[];
 }> => {
-	const source_idPathDataByInputPath = new Map<string, PathData>();
+	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
 	const unmappedInputPaths: string[] = [];
 	for (const inputPath of inputPaths) {
-		let filePathData: PathData | null = null;
-		let dirPathData: PathData | null = null;
+		let filePath_Data: Path_Data | null = null;
+		let dirPath_Data: Path_Data | null = null;
 		const possibleSourceIds = getPossibleSourceIdsForInputPath
 			? getPossibleSourceIdsForInputPath(inputPath)
 			: [inputPath];
@@ -121,21 +121,21 @@ export const loadSourcePathDataByInputPath = async (
 			if (!(await fs.exists(possibleSourceId))) continue;
 			const stats = await fs.stat(possibleSourceId);
 			if (stats.isDirectory()) {
-				if (!dirPathData) {
-					dirPathData = toPathData(possibleSourceId, stats);
+				if (!dirPath_Data) {
+					dirPath_Data = toPath_Data(possibleSourceId, stats);
 				}
 			} else {
-				filePathData = toPathData(possibleSourceId, stats);
+				filePath_Data = toPath_Data(possibleSourceId, stats);
 				break;
 			}
 		}
-		if (filePathData || dirPathData) {
-			source_idPathDataByInputPath.set(inputPath, filePathData || dirPathData!); // the ! is needed because TypeScript inference fails
+		if (filePath_Data || dirPath_Data) {
+			source_id_path_data_by_input_path.set(inputPath, filePath_Data || dirPath_Data!); // the ! is needed because TypeScript inference fails
 		} else {
 			unmappedInputPaths.push(inputPath);
 		}
 	}
-	return {source_idPathDataByInputPath, unmappedInputPaths};
+	return {source_id_path_data_by_input_path, unmappedInputPaths};
 };
 
 /*
@@ -145,26 +145,26 @@ Parameterized by `findFiles` so it's fs-agnostic.
 De-dupes source ids.
 
 */
-export const loadSourceIdsByInputPath = async (
-	source_idPathDataByInputPath: Map<string, PathData>,
-	findFiles: (id: string) => Promise<Map<string, PathStats>>,
+export const load_source_ids_by_input_path = async (
+	source_id_path_data_by_input_path: Map<string, Path_Data>,
+	findFiles: (id: string) => Promise<Map<string, Path_Stats>>,
 ): Promise<{
-	source_idsByInputPath: Map<string, string[]>;
-	inputDirectoriesWithNoFiles: string[];
+	source_ids_by_input_path: Map<string, string[]>;
+	input_directories_with_no_files: string[];
 }> => {
-	const source_idsByInputPath = new Map<string, string[]>();
-	const inputDirectoriesWithNoFiles: string[] = [];
+	const source_ids_by_input_path = new Map<string, string[]>();
+	const input_directories_with_no_files: string[] = [];
 	const existingSourceIds = new Set<string>();
-	for (const [inputPath, pathData] of source_idPathDataByInputPath) {
-		if (pathData.isDirectory) {
-			const files = await findFiles(pathData.id);
+	for (const [inputPath, path_data] of source_id_path_data_by_input_path) {
+		if (path_data.isDirectory) {
+			const files = await findFiles(path_data.id);
 			if (files.size) {
 				let source_ids: string[] = [];
 				let hasFiles = false;
 				for (const [path, stats] of files) {
 					if (!stats.isDirectory()) {
 						hasFiles = true;
-						const source_id = join(pathData.id, path);
+						const source_id = join(path_data.id, path);
 						if (!existingSourceIds.has(source_id)) {
 							existingSourceIds.add(source_id);
 							source_ids.push(source_id);
@@ -172,21 +172,21 @@ export const loadSourceIdsByInputPath = async (
 					}
 				}
 				if (source_ids.length) {
-					source_idsByInputPath.set(inputPath, source_ids);
+					source_ids_by_input_path.set(inputPath, source_ids);
 				}
 				if (!hasFiles) {
-					inputDirectoriesWithNoFiles.push(inputPath);
+					input_directories_with_no_files.push(inputPath);
 				}
 				// do callers ever need `inputDirectoriesWithDuplicateFiles`?
 			} else {
-				inputDirectoriesWithNoFiles.push(inputPath);
+				input_directories_with_no_files.push(inputPath);
 			}
 		} else {
-			if (!existingSourceIds.has(pathData.id)) {
-				existingSourceIds.add(pathData.id);
-				source_idsByInputPath.set(inputPath, [pathData.id]);
+			if (!existingSourceIds.has(path_data.id)) {
+				existingSourceIds.add(path_data.id);
+				source_ids_by_input_path.set(inputPath, [path_data.id]);
 			}
 		}
 	}
-	return {source_idsByInputPath, inputDirectoriesWithNoFiles};
+	return {source_ids_by_input_path, input_directories_with_no_files};
 };

@@ -5,7 +5,7 @@ import {last} from '@feltcoop/felt/utils/array.js';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../paths.js';
-import {loadTaskModules} from '../task/taskModule.js';
+import {load_task_modules} from '../task/task_module.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
@@ -19,7 +19,7 @@ import {loadTaskModules} from '../task/taskModule.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({fs, originId}) => {
-	const result = await loadTaskModules(fs);
+	const result = await load_task_modules(fs);
 	if (!result.ok) {
 		for (const reason of result.reasons) {
 			console.log(reason); // TODO logger as argument

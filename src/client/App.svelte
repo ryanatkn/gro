@@ -32,7 +32,7 @@
 	const ctx = writable<ProjectState>(null!);
 	provideProjectState(ctx);
 
-	const sourceMetaViews: View[] = [
+	const source_metaViews: View[] = [
 		SourceMetaRaw,
 		SourceMetaExpander,
 		SourceMetaTable,
@@ -43,9 +43,9 @@
 		SourceMetaTreeExplorers,
 	];
 	let activeSourceMetaViewIndex = 7;
-	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
+	$: activeSourceMetaView = source_metaViews[activeSourceMetaViewIndex];
 	const setActiveSourceMetaView = (view: View) =>
-		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
+		(activeSourceMetaViewIndex = source_metaViews.indexOf(view)); // TODO handle error?
 
 	const selectedSourceMeta = writable(null);
 	const hoveredSourceMeta = writable(null);
@@ -151,13 +151,13 @@
 			{#if showSourceMeta}
 				<nav>
 					<button on:pointerdown={() => (showSourceMeta = false)}>🗙</button>
-					{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
+					{#each source_metaViews as source_metaView (source_metaView.name)}
 						<button
-							on:pointerdown={() => setActiveSourceMetaView(sourceMetaView)}
-							class:active={sourceMetaView === activeSourceMetaView}
-							disabled={sourceMetaView === activeSourceMetaView}
+							on:pointerdown={() => setActiveSourceMetaView(source_metaView)}
+							class:active={source_metaView === activeSourceMetaView}
+							disabled={source_metaView === activeSourceMetaView}
 						>
-							{sourceMetaView.name}
+							{source_metaView.name}
 						</button>
 					{/each}
 				</nav>

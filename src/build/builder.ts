@@ -1,4 +1,4 @@
-import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 
 import type {Build_Config} from '../build/build_config.js';
@@ -10,7 +10,7 @@ import type {
 } from './externalsBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 import type {ServedDir} from './served_dir.js';
-import type {SourceMeta} from './sourceMeta.js';
+import type {SourceMeta} from './source_meta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
 
@@ -33,7 +33,7 @@ export interface BuildResult<TBuild extends Build = Build> {
 export interface BuildContext {
 	readonly fs: Filesystem;
 	readonly build_configs: readonly Build_Config[] | null;
-	readonly sourceMetaById: Map<string, SourceMeta>;
+	readonly source_metaById: Map<string, SourceMeta>;
 	readonly log: Logger;
 	readonly build_dir: string;
 	readonly dev: boolean;
@@ -116,7 +116,7 @@ export const noopBuilder: Builder = {
 				};
 				break;
 			default:
-				throw new UnreachableError(source);
+				throw new Unreachable_Error(source);
 		}
 		const result: BuildResult = {builds: [file]};
 		return result;

@@ -1,14 +1,14 @@
 import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
-import type {SystemLogger} from '@feltcoop/felt/utils/log.js';
+import type {System_Logger} from '@feltcoop/felt/utils/log.js';
 
-import {toSourceMetaDir} from '../build/sourceMeta.js';
+import {to_source_meta_dir} from '../build/source_meta.js';
 import {
 	NODE_MODULES_DIRNAME,
 	paths,
-	SVELTE_KIT_DEV_DIRNAME,
-	SVELTE_KIT_BUILD_DIRNAME,
+	SVELTEKIT_DEV_DIRNAME,
+	SVELTEKIT_BUILD_DIRNAME,
 	to_build_out_dir,
-	SVELTE_KIT_VITE_CACHE_PATH,
+	SVELTEKIT_VITE_CACHE_PATH,
 	print_path,
 } from '../paths.js';
 import type {Filesystem} from './filesystem.js';
@@ -17,47 +17,51 @@ export const clean = async (
 	fs: Filesystem,
 	{
 		build = false,
-		buildDev = false,
-		buildProd = false,
+		build_dev = false,
+		build_prod = false,
 		dist = false,
-		svelteKit = false,
-		nodeModules = false,
+		sveltekit = false,
+		nodemodules = false,
 	}: {
 		build?: boolean;
-		buildDev?: boolean;
-		buildProd?: boolean;
+		build_dev?: boolean;
+		build_prod?: boolean;
 		dist?: boolean;
-		svelteKit?: boolean;
-		nodeModules?: boolean;
+		sveltekit?: boolean;
+		nodemodules?: boolean;
 	},
-	log: SystemLogger,
+	log: System_Logger,
 ) =>
 	Promise.all([
-		build ? removeDir(fs, paths.build, log) : null,
-		...(!build && buildDev
+		build ? remove_dir(fs, paths.build, log) : null,
+		...(!build && build_dev
 			? [
-					removeDir(fs, to_build_out_dir(true), log),
-					removeDir(fs, toSourceMetaDir(paths.build, true), log),
+					remove_dir(fs, to_build_out_dir(true), log),
+					remove_dir(fs, to_source_meta_dir(paths.build, true), log),
 			  ]
 			: EMPTY_ARRAY),
-		...(!build && buildProd
+		...(!build && build_prod
 			? [
-					removeDir(fs, to_build_out_dir(false), log),
-					removeDir(fs, toSourceMetaDir(paths.build, false), log),
+					remove_dir(fs, to_build_out_dir(false), log),
+					remove_dir(fs, to_source_meta_dir(paths.build, false), log),
 			  ]
 			: EMPTY_ARRAY),
-		dist ? removeDir(fs, paths.dist, log) : null,
-		...(svelteKit
+		dist ? remove_dir(fs, paths.dist, log) : null,
+		...(sveltekit
 			? [
-					removeDir(fs, SVELTE_KIT_DEV_DIRNAME, log),
-					removeDir(fs, SVELTE_KIT_BUILD_DIRNAME, log),
-					removeDir(fs, SVELTE_KIT_VITE_CACHE_PATH, log),
+					remove_dir(fs, SVELTEKIT_DEV_DIRNAME, log),
+					remove_dir(fs, SVELTEKIT_BUILD_DIRNAME, log),
+					remove_dir(fs, SVELTEKIT_VITE_CACHE_PATH, log),
 			  ]
 			: EMPTY_ARRAY),
-		nodeModules ? removeDir(fs, NODE_MODULES_DIRNAME, log) : null,
+		nodemodules ? remove_dir(fs, NODE_MODULES_DIRNAME, log) : null,
 	]);
 
-export const removeDir = async (fs: Filesystem, path: string, log: SystemLogger): Promise<void> => {
+export const remove_dir = async (
+	fs: Filesystem,
+	path: string,
+	log: System_Logger,
+): Promise<void> => {
 	if (await fs.exists(path)) {
 		log.info('removing', print_path(path));
 		await fs.remove(path);

@@ -21,7 +21,7 @@ import type {Build_Name} from '../build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {runRollup} from '../build/rollup.js';
 import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from '../build/rollup.js';
-import type {PathStats} from '../fs/pathData.js';
+import type {Path_Stats} from '../fs/path_data.js';
 
 // TODO maybe add a `files` option to explicitly include source files,
 // and fall back to inferring from the build config
@@ -114,10 +114,10 @@ export const create_adapter = ({
 			}
 			timing_to_bundle_with_rollup();
 
-			const timingToCopyDist = timings.start('copy builds to dist');
+			const timing_to_copy_dist = timings.start('copy builds to dist');
 			const filter = type === 'bundled' ? bundledDistFilter : undefined;
 			await copyDist(fs, build_config, dev, dir, log, filter, pack);
-			timingToCopyDist();
+			timing_to_copy_dist();
 
 			// If the output is treated as a package, it needs some special handling to get it ready.
 			if (pack) {
@@ -185,7 +185,7 @@ export const create_adapter = ({
 	};
 };
 
-const bundledDistFilter = (id: string, stats: PathStats): boolean =>
+const bundledDistFilter = (id: string, stats: Path_Stats): boolean =>
 	stats.isDirectory() ? true : id.endsWith(TS_TYPE_EXTENSION) || id.endsWith(TS_TYPEMAP_EXTENSION);
 
 // these can be any case and optionally end with `.md`

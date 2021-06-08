@@ -1,5 +1,5 @@
 import esbuild from 'esbuild';
-import {SystemLogger, printLogLabel} from '@feltcoop/felt/utils/log.js';
+import {System_Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 import {replace_extension} from '@feltcoop/felt/utils/path.js';
@@ -30,7 +30,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	return {
 		createEsbuildOptions: createDefaultEsbuildOptions,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger(printLogLabel('esbuildBuilder', cyan)),
+		log: opts.log || new System_Logger(print_log_label('esbuildBuilder', cyan)),
 	};
 };
 

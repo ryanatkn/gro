@@ -9,7 +9,7 @@ import {createSecureServer as createHttp2Server} from 'http2';
 import type {Http2Server, ServerHttp2Stream} from 'http2';
 import type {ListenOptions} from 'net';
 import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/utils/terminal.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {stripAfter} from '@feltcoop/felt/utils/string.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
@@ -60,7 +60,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		port: DEFAULT_SERVER_PORT,
 		https: null,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger(printLogLabel('server', cyan)),
+		log: opts.log || new System_Logger(print_log_label('server', cyan)),
 	};
 };
 
@@ -181,7 +181,7 @@ const toResponse = async (
 		const projectState: ProjectState = {
 			build_dir: filer.build_dir,
 			sourceDir: paths.source,
-			items: Array.from(filer.sourceMetaById.values()),
+			items: Array.from(filer.source_metaById.values()),
 			build_configs: filer.build_configs!,
 			package_json: await load_package_json(filer.fs),
 		};

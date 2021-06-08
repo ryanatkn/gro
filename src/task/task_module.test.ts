@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve} from 'path';
 
-import {validateTaskModule, loadTaskModule, loadTaskModules} from './taskModule.js';
+import {validateTaskModule, load_task_module, load_task_modules} from './task_module.js';
 import * as actualTestTaskModule from '../test.task.js';
 import * as testTaskModule from './fixtures/testTaskModule.taskFixture.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
@@ -20,13 +20,13 @@ test_validateTaskModule('basic behavior', () => {
 test_validateTaskModule.run();
 /* /test_validateTaskModule */
 
-/* test_loadTaskModule */
-const test_loadTaskModule = suite('loadTaskModule');
+/* test_load_task_module */
+const test_load_task_module = suite('load_task_module');
 
-test_loadTaskModule('basic behavior', async () => {
+test_load_task_module('basic behavior', async () => {
 	const name = 'task/fixtures/testTaskModule.taskFixture.js';
 	const id = resolve('src/' + name);
-	const result = await loadTaskModule(id);
+	const result = await load_task_module(id);
 	t.ok(result.ok);
 	t.is(result.mod.id, id);
 	t.is(result.mod.id, id);
@@ -34,9 +34,9 @@ test_loadTaskModule('basic behavior', async () => {
 	t.is(result.mod.mod, testTaskModule);
 });
 
-test_loadTaskModule('invalid module', async () => {
+test_load_task_module('invalid module', async () => {
 	const id = resolve('src/task/fixtures/testInvalidTaskModule.js');
-	const result = await loadTaskModule(id);
+	const result = await load_task_module(id);
 	t.not.ok(result.ok);
 	if (result.type === 'invalid') {
 		t.is(result.id, id);
@@ -47,11 +47,11 @@ test_loadTaskModule('invalid module', async () => {
 	}
 });
 
-test_loadTaskModule('failing module', async () => {
+test_load_task_module('failing module', async () => {
 	const id = resolve('src/task/fixtures/testFailingTaskModule.js');
-	const result = await loadTaskModule(id);
+	const result = await load_task_module(id);
 	t.not.ok(result.ok);
-	if (result.type === 'importFailed') {
+	if (result.type === 'import_failed') {
 		t.is(result.id, id);
 		t.ok(result.error);
 	} else {
@@ -59,18 +59,18 @@ test_loadTaskModule('failing module', async () => {
 	}
 });
 
-test_loadTaskModule.run();
-/* /test_loadTaskModule */
+test_load_task_module.run();
+/* /test_load_task_module */
 
-/* test_loadTaskModules */
-const test_loadTaskModules = suite('loadTaskModules');
+/* test_load_task_modules */
+const test_load_task_modules = suite('load_task_modules');
 
-test_loadTaskModules('basic behavior', async () => {
-	const result = await loadTaskModules(fs, [resolve('src/test'), resolve('src/test.task.ts')]);
+test_load_task_modules('basic behavior', async () => {
+	const result = await load_task_modules(fs, [resolve('src/test'), resolve('src/test.task.ts')]);
 	t.ok(result.ok);
 	t.is(result.modules.length, 1);
 	t.is(result.modules[0].mod, actualTestTaskModule);
 });
 
-test_loadTaskModules.run();
-/* /test_loadTaskModules */
+test_load_task_modules.run();
+/* /test_load_task_modules */

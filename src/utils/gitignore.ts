@@ -6,7 +6,7 @@ import {
 	GITIGNORE_FILENAME,
 	GIT_DIRNAME,
 	NODE_MODULES_DIRNAME,
-	SVELTE_KIT_DEV_DIRNAME,
+	SVELTEKIT_DEV_DIRNAME,
 } from '../paths.js';
 import type {FileFilter} from '../fs/file.js';
 
@@ -22,7 +22,7 @@ let filter: FileFilter | null = null;
 
 const DEFAULT_IGNORED_PATHS = [
 	GIT_DIRNAME,
-	SVELTE_KIT_DEV_DIRNAME,
+	SVELTEKIT_DEV_DIRNAME,
 	NODE_MODULES_DIRNAME,
 	'.DS_Store',
 ];

@@ -1,8 +1,8 @@
-import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 
 import type {Build, BuildContext, BuildDependency, BuildResult} from './builder.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
-import type {SourceMeta} from './sourceMeta.js';
+import type {SourceMeta} from './source_meta.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {loadContents} from './load.js';
@@ -75,18 +75,18 @@ export const createBuildFile = (
 				mimeType: undefined,
 			};
 		default:
-			throw new UnreachableError(build);
+			throw new Unreachable_Error(build);
 	}
 };
 
 export const reconstructBuildFiles = async (
 	fs: Filesystem,
-	sourceMeta: SourceMeta,
+	source_meta: SourceMeta,
 	build_configs: readonly Build_Config[],
 ): Promise<Map<Build_Config, BuildFile[]>> => {
 	const buildFiles: Map<Build_Config, BuildFile[]> = new Map();
 	await Promise.all(
-		sourceMeta.data.builds.map(
+		source_meta.data.builds.map(
 			async (build): Promise<void> => {
 				const {id, name, dependencies, encoding} = build;
 				const filename = basename(id);
@@ -99,7 +99,7 @@ export const reconstructBuildFiles = async (
 					case 'utf8':
 						buildFile = {
 							type: 'build',
-							source_id: sourceMeta.data.source_id,
+							source_id: source_meta.data.source_id,
 							build_config,
 							dependenciesByBuildId:
 								dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
@@ -118,7 +118,7 @@ export const reconstructBuildFiles = async (
 					case null:
 						buildFile = {
 							type: 'build',
-							source_id: sourceMeta.data.source_id,
+							source_id: source_meta.data.source_id,
 							build_config,
 							dependenciesByBuildId:
 								dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
@@ -135,7 +135,7 @@ export const reconstructBuildFiles = async (
 						};
 						break;
 					default:
-						throw new UnreachableError(encoding);
+						throw new Unreachable_Error(encoding);
 				}
 				addBuildFile(buildFile, buildFiles, build_config);
 			},

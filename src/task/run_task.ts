@@ -1,8 +1,8 @@
 import type {EventEmitter} from 'events';
 import {cyan, red} from '@feltcoop/felt/utils/terminal.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 
-import type {TaskModuleMeta} from './taskModule.js';
+import type {TaskModule_Meta} from './task_module.js';
 import type {Args} from './task.js';
 import {Task_Error} from './task.js';
 import type {invoke_task as InvokeTaskFunction} from './invoke_task.js';
@@ -21,7 +21,7 @@ export type RunTaskResult =
 
 export const runTask = async (
 	fs: Filesystem,
-	task: TaskModuleMeta,
+	task: TaskModule_Meta,
 	args: Args,
 	events: EventEmitter,
 	invoke_task: typeof InvokeTaskFunction,
@@ -42,7 +42,7 @@ export const runTask = async (
 			dev,
 			args,
 			events,
-			log: new SystemLogger(printLogLabel(task.name)),
+			log: new System_Logger(print_log_label(task.name)),
 			invoke_task: (
 				invokedTaskName,
 				invokedArgs = args,

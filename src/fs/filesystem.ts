@@ -2,7 +2,7 @@ import {resolve} from 'path';
 import type {Flavored} from '@feltcoop/felt/utils/types.js';
 
 import type {Encoding} from './encoding.js';
-import type {PathStats} from './pathData.js';
+import type {Path_Stats} from './path_data.js';
 import type {PathFilter} from './pathFilter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
@@ -21,7 +21,7 @@ export interface Filesystem {
 }
 
 export interface FsStat {
-	(path: string): Promise<PathStats>;
+	(path: string): Promise<Path_Stats>;
 }
 export interface FsExists {
 	(path: string): Promise<boolean>;
@@ -32,7 +32,7 @@ export interface FsFindFiles {
 		filter?: PathFilter,
 		// pass `null` to speed things up at the risk of infrequent misorderings (at least on Linux)
 		sort?: ((a: [any, any], b: [any, any]) => number) | null,
-	): Promise<Map<string, PathStats>>;
+	): Promise<Map<string, Path_Stats>>;
 }
 export interface FsReadFile {
 	(path: string): Promise<Buffer>;
@@ -78,7 +78,7 @@ export interface FsMoveOptions {
 export type FsCopyFilterSync = (src: string, dest: string) => boolean;
 export type FsCopyFilterAsync = (src: string, dest: string) => Promise<boolean>;
 
-export class FsStats implements PathStats {
+export class FsStats implements Path_Stats {
 	constructor(private readonly _isDirectory: boolean) {}
 	isDirectory() {
 		return this._isDirectory;
@@ -90,7 +90,7 @@ export type FsId = Flavored<string, 'FsId'>;
 // The `resolve` looks magic and hardcoded - it's matching how `fs` and `fs-extra` resolve paths.
 export const toFsId = (path: string): FsId => resolve(path);
 
-// TODO extract these? - how do they intersect with Filer types? and smaller interfaces like `PathData`?
+// TODO extract these? - how do they intersect with Filer types? and smaller interfaces like `Path_Data`?
 export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;
 
 // TODO should we use `BaseFilerFile` here?
@@ -106,8 +106,8 @@ export interface BaseNode {
 	readonly encoding: Encoding;
 	readonly contents: string | Buffer | null;
 	// readonly contentsBuffer: Buffer | null;
-	readonly stats: PathStats;
-	// readonly pathData: PathData; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
+	readonly stats: Path_Stats;
+	// readonly path_data: Path_Data; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
 export interface BaseFileNode extends BaseNode {
 	readonly isDirectory: false;

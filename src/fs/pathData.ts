@@ -1,9 +1,9 @@
-export interface PathData {
+export interface Path_Data {
 	id: string; // absolute path, same as `id` in rollup
 	isDirectory: boolean;
 }
 
-export const toPathData = (id: string, stats: PathStats): PathData => {
+export const toPath_Data = (id: string, stats: Path_Stats): Path_Data => {
 	return {
 		id,
 		isDirectory: stats.isDirectory(),
@@ -12,7 +12,7 @@ export const toPathData = (id: string, stats: PathStats): PathData => {
 
 // This is a browser-compatible subset of `fs.Stats`.
 // TODO the `size` ? should we always support it?
-export interface PathStats {
+export interface Path_Stats {
 	size?: number;
 	isDirectory(): boolean;
 }

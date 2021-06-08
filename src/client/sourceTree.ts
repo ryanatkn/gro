@@ -1,6 +1,6 @@
 import {deepEqual} from '@feltcoop/felt/utils/equal.js';
 
-import type {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
+import type {SourceMeta, SourceMetaBuild} from '../build/source_meta.js';
 import type {Build_Config, Build_Name} from '../build/build_config.js';
 
 export interface SourceTree {
@@ -23,23 +23,23 @@ export interface SourceTreeMeta extends SourceMeta {
 // }
 
 export const createSourceTree = (
-	sourceMeta: SourceMeta[],
+	source_meta: SourceMeta[],
 	build_configs: readonly Build_Config[],
 ): SourceTree => {
 	const metas = toSourceTreeMeta(
-		sourceMeta.sort((a, b) => (a.data.source_id > b.data.source_id ? 1 : -1)),
+		source_meta.sort((a, b) => (a.data.source_id > b.data.source_id ? 1 : -1)),
 	);
 	const builds: SourceMetaBuild[] = [];
 	const buildsByBuild_Name: Map<string, SourceMetaBuild[]> = new Map();
 	for (const sourceTreeMeta of metas) {
-		for (const sourceMetaBuilds of sourceTreeMeta.buildsByBuild_Name.values()) {
-			for (const sourceMetaBuild of sourceMetaBuilds) {
-				builds.push(sourceMetaBuild);
-				let sourceMetaBuilds = buildsByBuild_Name.get(sourceMetaBuild.name);
-				if (sourceMetaBuilds === undefined) {
-					buildsByBuild_Name.set(sourceMetaBuild.name, (sourceMetaBuilds = []));
+		for (const source_metaBuilds of sourceTreeMeta.buildsByBuild_Name.values()) {
+			for (const source_metaBuild of source_metaBuilds) {
+				builds.push(source_metaBuild);
+				let source_metaBuilds = buildsByBuild_Name.get(source_metaBuild.name);
+				if (source_metaBuilds === undefined) {
+					buildsByBuild_Name.set(source_metaBuild.name, (source_metaBuilds = []));
 				}
-				sourceMetaBuilds.push(sourceMetaBuild);
+				source_metaBuilds.push(source_metaBuild);
 			}
 		}
 	}
@@ -69,9 +69,9 @@ export const createSourceTree = (
 };
 
 export const toSourceTreeMeta = (metas: SourceMeta[]): SourceTreeMeta[] => {
-	return metas.map((sourceMeta) => {
+	return metas.map((source_meta) => {
 		const buildsByBuild_Name: Map<string, SourceMetaBuild[]> = new Map();
-		for (const build of sourceMeta.data.builds) {
+		for (const build of source_meta.data.builds) {
 			let builds = buildsByBuild_Name.get(build.name);
 			if (builds === undefined) {
 				buildsByBuild_Name.set(build.name, (builds = []));
@@ -79,7 +79,7 @@ export const toSourceTreeMeta = (metas: SourceMeta[]): SourceTreeMeta[] => {
 			builds.push(build);
 		}
 		const treeMeta: SourceTreeMeta = {
-			...sourceMeta,
+			...source_meta,
 			buildsByBuild_Name,
 			build_names: Array.from(buildsByBuild_Name.keys()).sort(),
 		};
@@ -104,10 +104,10 @@ export const getMetasByBuild_Name = (
 };
 
 export const getBuildsByBuild_Name = (
-	sourceMeta: SourceTreeMeta,
+	source_meta: SourceTreeMeta,
 	build_name: Build_Name,
 ): SourceMetaBuild[] => {
-	const builds = sourceMeta.buildsByBuild_Name.get(build_name)!;
+	const builds = source_meta.buildsByBuild_Name.get(build_name)!;
 	if (!builds) throw Error(`Expected to find builds: ${build_name}`);
 	return builds;
 };

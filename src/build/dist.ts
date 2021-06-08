@@ -4,7 +4,7 @@ import {strip_end} from '@feltcoop/felt/utils/string.js';
 
 import type {Build_Config} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import type {PathStats} from '../fs/pathData.js';
+import type {Path_Stats} from '../fs/path_data.js';
 import {
 	EXTERNALS_BUILD_DIRNAME,
 	to_build_base_path,
@@ -25,7 +25,7 @@ export const copyDist = async (
 	dev: boolean,
 	distOutDir: string,
 	log: Logger,
-	filter?: (id: string, stats: PathStats) => boolean,
+	filter?: (id: string, stats: Path_Stats) => boolean,
 	pack: boolean = true, // TODO reconsider this API, see `gro-adapter-node-library`
 ): Promise<void> => {
 	const buildOutDir = to_build_out_path(dev, build_config.name);

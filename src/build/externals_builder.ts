@@ -2,7 +2,7 @@ import {basename, dirname, join} from 'path';
 import {install as installWithEsinstall} from 'esinstall';
 import type {InstallResult} from 'esinstall';
 import type {Plugin as RollupPlugin} from 'rollup';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 import {cyan, gray} from '@feltcoop/felt/utils/terminal.js';
@@ -49,7 +49,7 @@ export interface Options {
 }
 export type InitialOptions = Partial<Options>;
 export const initOptions = (opts: InitialOptions): Options => {
-	const log = opts.log || new SystemLogger(printLogLabel('externalsBuilder', cyan));
+	const log = opts.log || new System_Logger(print_log_label('externalsBuilder', cyan));
 	return {
 		install: installWithEsinstall,
 		base_path: EXTERNALS_BUILD_DIRNAME,

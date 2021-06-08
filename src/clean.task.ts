@@ -7,7 +7,7 @@ export interface Task_Args {
 	'no-build'?: boolean; // !`/.gro`
 	'no-dist'?: boolean; // !`/dist`
 	sveltekit?: boolean; // `/.svelte-kit`
-	nodemodules: boolean; // `/node_modules`
+	nodemodules: boolean; // `/nodemodules`
 	git?: boolean; // `git remote prune origin`
 }
 
@@ -23,8 +23,8 @@ export const task: Task<Task_Args> = {
 			{
 				build: !args['no-build'],
 				dist: !args['no-dist'],
-				svelteKit: !!args.sveltekit,
-				nodeModules: !!args.nodemodules,
+				sveltekit: !!args.sveltekit,
+				nodemodules: !!args.nodemodules,
 			},
 			log,
 		);

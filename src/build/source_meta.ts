@@ -27,7 +27,7 @@ export interface SourceMetaBuild {
 }
 
 const CACHED_SOURCE_INFO_DIR_SUFFIX = '_meta'; // so `/.gro/dev_meta` is metadata for `/.gro/dev`
-export const toSourceMetaDir = (build_dir: string, dev: boolean): string =>
+export const to_source_meta_dir = (build_dir: string, dev: boolean): string =>
 	`${build_dir}${to_build_out_dirname(dev)}${CACHED_SOURCE_INFO_DIR_SUFFIX}`;
 
 // TODO as an optimization, this should be debounced per file,
@@ -36,7 +36,7 @@ export const updateSourceMeta = async (
 	ctx: BuildContext,
 	file: BuildableSourceFile,
 ): Promise<void> => {
-	const {fs, sourceMetaById, dev, build_dir} = ctx;
+	const {fs, source_metaById, dev, build_dir} = ctx;
 	if (file.build_configs.size === 0) {
 		return deleteSourceMeta(ctx, file.id);
 	}
@@ -58,13 +58,13 @@ export const updateSourceMeta = async (
 			),
 		),
 	};
-	const sourceMeta: SourceMeta = {cacheId, data};
+	const source_meta: SourceMeta = {cacheId, data};
 	// TODO convert this to a test
 	// This is useful for debugging, but has false positives
 	// when source changes but output doesn't, like if comments get elided.
 	// if (
 	// 	(await fs.exists(cacheId)) &&
-	// 	deepEqual(JSON.parse(await readFile(cacheId, 'utf8')), sourceMeta)
+	// 	deepEqual(JSON.parse(await readFile(cacheId, 'utf8')), source_meta)
 	// ) {
 	// 	console.log(
 	// 		'wasted build detected! unchanged file was built and identical source meta written to disk: ' +
@@ -72,39 +72,39 @@ export const updateSourceMeta = async (
 	// 	);
 	// }
 
-	sourceMetaById.set(file.id, sourceMeta);
+	source_metaById.set(file.id, source_meta);
 	// this.log.trace('outputting source meta', gray(cacheId));
 	await fs.writeFile(cacheId, JSON.stringify(data, null, 2));
 };
 
 export const deleteSourceMeta = async (
-	{fs, sourceMetaById}: BuildContext,
+	{fs, source_metaById}: BuildContext,
 	source_id: string,
 ): Promise<void> => {
-	const meta = sourceMetaById.get(source_id);
+	const meta = source_metaById.get(source_id);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache
-	sourceMetaById.delete(source_id);
+	source_metaById.delete(source_id);
 	await fs.remove(meta.cacheId);
 };
 
 const toSourceMetaId = (file: BuildableSourceFile, build_dir: string, dev: boolean): string =>
-	`${toSourceMetaDir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
+	`${to_source_meta_dir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
 
 export const initSourceMeta = async ({
 	fs,
-	sourceMetaById,
+	source_metaById,
 	build_dir,
 	dev,
 }: BuildContext): Promise<void> => {
-	const sourceMetaDir = toSourceMetaDir(build_dir, dev);
-	if (!(await fs.exists(sourceMetaDir))) return;
-	const files = await fs.findFiles(sourceMetaDir, undefined, null);
+	const source_metaDir = to_source_meta_dir(build_dir, dev);
+	if (!(await fs.exists(source_metaDir))) return;
+	const files = await fs.findFiles(source_metaDir, undefined, null);
 	await Promise.all(
 		Array.from(files.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
-			const cacheId = `${sourceMetaDir}/${path}`;
+			const cacheId = `${source_metaDir}/${path}`;
 			const data: SourceMetaData = JSON.parse(await fs.readFile(cacheId, 'utf8'));
-			sourceMetaById.set(data.source_id, {cacheId, data});
+			source_metaById.set(data.source_id, {cacheId, data});
 		}),
 	);
 };
@@ -116,9 +116,9 @@ export const cleanSourceMeta = async (
 	ctx: BuildContext,
 	fileExists: (id: string) => boolean,
 ): Promise<void> => {
-	const {sourceMetaById, log} = ctx;
+	const {source_metaById, log} = ctx;
 	let promises: Promise<void>[] | null = null;
-	for (const source_id of sourceMetaById.keys()) {
+	for (const source_id of source_metaById.keys()) {
 		if (!fileExists(source_id) && !isExternalBrowserModule(source_id)) {
 			log.trace('deleting unknown source meta', gray(source_id));
 			(promises || (promises = [])).push(deleteSourceMeta(ctx, source_id));

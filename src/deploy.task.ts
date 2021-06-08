@@ -1,6 +1,6 @@
 import {join, basename} from 'path';
 import {spawn_process} from '@feltcoop/felt/utils/process.js';
-import {printError} from '@feltcoop/felt/utils/print.js';
+import {print_error} from '@feltcoop/felt/utils/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/utils/terminal.js';
 
 import type {Task} from './task/task.js';
@@ -106,7 +106,7 @@ export const task: Task<Task_Args> = {
 			// Update the initial file.
 			await fs.copy(INITIAL_FILE, join(DIST_DIR, INITIAL_FILE));
 		} catch (err) {
-			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
+			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
 			if (dry) {
 				log.info(red('dry deploy failed:'), 'files are available in', print_path(DIST_DIRNAME));
 			}
@@ -145,7 +145,7 @@ export const task: Task<Task_Args> = {
 			await spawn_process('git', ['commit', '-m', 'deployment'], GIT_ARGS);
 			await spawn_process('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
 		} catch (err) {
-			log.error(red('updating git failed:'), printError(err));
+			log.error(red('updating git failed:'), print_error(err));
 			await cleanGitWorktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}

@@ -14,15 +14,15 @@
 </script>
 
 <div>
-	{#each filteredSourceMetas as sourceMeta (sourceMeta.cacheId)}
-		{#each sourceMeta.build_names as build_name (build_name)}
+	{#each filteredSourceMetas as source_meta (source_meta.cacheId)}
+		{#each source_meta.build_names as build_name (build_name)}
 			{#if selectedBuild_Names.includes(build_name)}
 				<div class="root item bg">
 					<div class="content">
-						<SourceId id={sourceMeta.data.source_id} />
+						<SourceId id={source_meta.data.source_id} />
 					</div>
 					<div>
-						{#each getBuildsByBuild_Name(sourceMeta, build_name) as build (build.id)}
+						{#each getBuildsByBuild_Name(source_meta, build_name) as build (build.id)}
 							<div class="item bg">
 								<div class="content">
 									<BuildId id={build.id} />

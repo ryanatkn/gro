@@ -1,8 +1,8 @@
 import {
 	Log_Level,
-	SystemLogger,
+	System_Logger,
 	configureLog_Level,
-	printLogLabel,
+	print_log_label,
 	DEFAULT_LOG_LEVEL,
 } from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
@@ -145,7 +145,7 @@ export const load_config = async (
 		return cachedConfig;
 	}
 
-	const log = new SystemLogger(printLogLabel('config'));
+	const log = new System_Logger(print_log_label('config'));
 
 	const options: Gro_Config_Creator_Options = {fs, log, dev, config: null as any};
 	const defaultConfig = await to_config(createDefaultConfig, options, '');

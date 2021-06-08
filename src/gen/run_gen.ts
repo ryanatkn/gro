@@ -1,9 +1,9 @@
 import {red} from '@feltcoop/felt/utils/terminal.js';
-import {printError} from '@feltcoop/felt/utils/print.js';
+import {print_error} from '@feltcoop/felt/utils/print.js';
 import {Timings} from '@feltcoop/felt/utils/time.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 
-import type {GenModuleMeta} from './genModule.js';
+import type {GenModule_Meta} from './gen_module.js';
 import {
 	GenResults,
 	GenModuleResult,
@@ -17,7 +17,7 @@ import {print_path} from '../paths.js';
 
 export const runGen = async (
 	fs: Filesystem,
-	genModules: GenModuleMeta[],
+	gen_modules: GenModule_Meta[],
 	formatFile?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
 	log?: Logger,
 ): Promise<GenResults> => {
@@ -26,7 +26,7 @@ export const runGen = async (
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
 	const results = await Promise.all(
-		genModules.map(
+		gen_modules.map(
 			async ({id, mod}): Promise<GenModuleResult> => {
 				inputCount++;
 				const genCtx: Gen_Context = {fs, originId: id};
@@ -61,7 +61,7 @@ export const runGen = async (
 							contents = file.contents;
 							log?.error(
 								red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
-								printError(err),
+								print_error(err),
 							);
 						}
 						files.push({...file, contents});

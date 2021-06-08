@@ -62,9 +62,9 @@ export const to_api_server_port = (dev: boolean): number =>
 export const to_api_server_build_path = (dev: boolean, build_dir = paths.build): string =>
 	to_build_out_path(dev, API_SERVER_BUILD_NAME, API_SERVER_BUILD_BASE_PATH, build_dir);
 
-const SVELTE_KIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
+const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const has_sveltekit_frontend = async (fs: Filesystem): Promise<boolean> =>
-	everyPathExists(fs, SVELTE_KIT_FRONTEND_PATHS);
+	everyPathExists(fs, SVELTEKIT_FRONTEND_PATHS);
 
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const hasDeprecatedGroFrontend = async (fs: Filesystem): Promise<boolean> =>

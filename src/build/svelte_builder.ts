@@ -1,10 +1,10 @@
 import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
-import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 import {cyan} from '@feltcoop/felt/utils/terminal.js';
 
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
@@ -46,7 +46,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		onstats: null,
 		createPreprocessor: createDefaultPreprocessor,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger(printLogLabel('svelteBuilder', cyan)),
+		log: opts.log || new System_Logger(print_log_label('svelteBuilder', cyan)),
 		svelteCompileOptions: opts.svelteCompileOptions || {},
 	};
 };
@@ -179,6 +179,6 @@ const getGenerateOption = (build_config: Build_Config): 'dom' | 'ssr' | false =>
 		case 'node':
 			return 'ssr';
 		default:
-			throw new UnreachableError(build_config.platform);
+			throw new Unreachable_Error(build_config.platform);
 	}
 };

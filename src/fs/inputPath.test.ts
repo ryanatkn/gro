@@ -5,11 +5,11 @@ import {resolve, sep, join} from 'path';
 import {
 	resolveRawInputPath,
 	resolveRawInputPaths,
-	loadSourcePathDataByInputPath,
-	loadSourceIdsByInputPath,
+	load_source_path_data_by_input_path,
+	load_source_ids_by_input_path,
 	getPossibleSourceIds,
 } from './inputPath.js';
-import type {PathStats} from './pathData.js';
+import type {Path_Stats} from './path_data.js';
 import {gro_paths, replace_root_dir, create_paths, paths} from '../paths.js';
 import {fs} from './node.js';
 
@@ -119,38 +119,41 @@ test_getPossibleSourceIds('in both another directory and gro', () => {
 test_getPossibleSourceIds.run();
 /* /test_getPossibleSourceIds */
 
-/* test_loadSourcePathDataByInputPath */
-const test_loadSourcePathDataByInputPath = suite('loadSourcePathDataByInputPath');
+/* test_load_source_path_data_by_input_path */
+const test_load_source_path_data_by_input_path = suite('load_source_path_data_by_input_path');
 
-test_loadSourcePathDataByInputPath('loads source path data and handles missing paths', async () => {
-	const result = await loadSourcePathDataByInputPath(
-		{
-			...fs,
-			exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
-			stat: async (path) =>
-				({
-					isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
-				} as any),
-		},
-		['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
-		(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
-	);
-	t.equal(result, {
-		source_idPathDataByInputPath: new Map([
-			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
-			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
-			['fake/test3', {id: 'fake/test3', isDirectory: true}],
-		]),
-		unmappedInputPaths: ['fake/missing'],
-	});
-});
+test_load_source_path_data_by_input_path(
+	'loads source path data and handles missing paths',
+	async () => {
+		const result = await load_source_path_data_by_input_path(
+			{
+				...fs,
+				exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
+				stat: async (path) =>
+					({
+						isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
+					} as any),
+			},
+			['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
+			(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
+		);
+		t.equal(result, {
+			source_id_path_data_by_input_path: new Map([
+				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
+				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
+				['fake/test3', {id: 'fake/test3', isDirectory: true}],
+			]),
+			unmappedInputPaths: ['fake/missing'],
+		});
+	},
+);
 
-test_loadSourcePathDataByInputPath.run();
-/* /test_loadSourcePathDataByInputPath */
+test_load_source_path_data_by_input_path.run();
+/* /test_load_source_path_data_by_input_path */
 
-/* test_loadSourceIdsByInputPath */
-const test_loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async () => {
-	const testFiles: Record<string, Map<string, PathStats>> = {
+/* test_load_source_ids_by_input_path */
+const test_load_source_ids_by_input_path = suite('load_source_ids_by_input_path', async () => {
+	const testFiles: Record<string, Map<string, Path_Stats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([
@@ -171,7 +174,7 @@ const test_loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async ()
 		]),
 		'fake/nomatches': new Map([['fake/nomatches', {isDirectory: () => true}]]),
 	};
-	const result = await loadSourceIdsByInputPath(
+	const result = await load_source_ids_by_input_path(
 		new Map([
 			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
 			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
@@ -183,15 +186,15 @@ const test_loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async ()
 		async (id) => testFiles[id],
 	);
 	t.equal(result, {
-		source_idsByInputPath: new Map([
+		source_ids_by_input_path: new Map([
 			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
 			['fake/test2', ['fake/test2.bar.ts']],
 			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],
 			['fake', ['fake/test3/c.ts']],
 		]),
-		inputDirectoriesWithNoFiles: ['fake/nomatches'],
+		input_directories_with_no_files: ['fake/nomatches'],
 	});
 });
 
-test_loadSourceIdsByInputPath.run();
-/* /test_loadSourceIdsByInputPath */
+test_load_source_ids_by_input_path.run();
+/* /test_load_source_ids_by_input_path */

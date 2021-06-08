@@ -3,11 +3,11 @@ import lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {nulls, omitUndefined} from '@feltcoop/felt/utils/object.js';
-import {UnreachableError} from '@feltcoop/felt/utils/error.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {gray, red, cyan} from '@feltcoop/felt/utils/terminal.js';
-import {printError} from '@feltcoop/felt/utils/print.js';
+import {print_error} from '@feltcoop/felt/utils/print.js';
 import {wrap} from '@feltcoop/felt/utils/async.js';
 import type {OmitStrict, Assignable, PartialExcept} from '@feltcoop/felt/utils/types.js';
 
@@ -48,8 +48,13 @@ import {
 } from './externalsBuildHelpers.js';
 import type {ExternalsAliases} from './externalsBuildHelpers.js';
 import {queueExternalsBuild} from './externalsBuilder.js';
-import type {SourceMeta} from './sourceMeta.js';
-import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
+import type {SourceMeta} from './source_meta.js';
+import {
+	deleteSourceMeta,
+	updateSourceMeta,
+	cleanSourceMeta,
+	initSourceMeta,
+} from './source_meta.js';
 import type {PathFilter} from '../fs/pathFilter.js';
 
 /*
@@ -157,7 +162,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
-		log: opts.log || new SystemLogger(printLogLabel('filer')),
+		log: opts.log || new System_Logger(print_log_label('filer')),
 		builder,
 		build_configs,
 		build_dir,
@@ -179,7 +184,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
 	readonly build_configs: readonly Build_Config[] | null;
-	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
+	readonly source_metaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly build_dir: string;
 	readonly dev: boolean;
@@ -273,7 +278,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
-		// because it creates source files, which need `this.sourceMeta` to be populated.
+		// because it creates source files, which need `this.source_meta` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.trace('inited files');
 
@@ -435,7 +440,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			} catch (err) {
 				this.log.error(
 					`${print_build_config_label(build_config)} error while removing source file from builder`,
-					printError(err),
+					print_error(err),
 				);
 			}
 		}
@@ -502,7 +507,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				break;
 			}
 			default:
-				throw new UnreachableError(change.type);
+				throw new Unreachable_Error(change.type);
 		}
 	};
 
@@ -600,7 +605,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					extension,
 					newSourceContents,
 					filerDir,
-					this.sourceMetaById.get(id),
+					this.source_metaById.get(id),
 					this,
 				);
 				this.files.set(id, newSourceFile);
@@ -628,7 +633,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 						sourceFile.contentsHash = undefined;
 						break;
 					default:
-						throw new UnreachableError(sourceFile);
+						throw new Unreachable_Error(sourceFile);
 				}
 			}
 			return filerDir.buildable;
@@ -678,7 +683,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				print_build_config_label(build_config),
 				red('build failed'),
 				gray(id),
-				printError(err),
+				print_error(err),
 			);
 			// TODO probably want to track this failure data
 		}
@@ -901,7 +906,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					),
 				);
 			}
-			// passing `false` above to avoid writing `sourceMeta` to disk for each build -
+			// passing `false` above to avoid writing `source_meta` to disk for each build -
 			// batch delete it now:
 			await deleteSourceMeta(this, sourceFile.id);
 		}
@@ -1023,7 +1028,7 @@ const syncBuildFilesToDisk = async (
 				log.trace(label, 'deleting build file on disk', gray(file.id));
 				return fs.remove(file.id);
 			} else {
-				throw new UnreachableError(change);
+				throw new Unreachable_Error(change);
 			}
 			if (shouldOutputNewFile) {
 				await fs.writeFile(file.id, file.contents);
@@ -1042,7 +1047,7 @@ const syncBuildFilesToMemoryCache = (
 		} else if (change.type === 'removed') {
 			files.delete(change.file.id);
 		} else {
-			throw new UnreachableError(change);
+			throw new Unreachable_Error(change);
 		}
 	}
 };
@@ -1101,7 +1106,7 @@ const areContentsEqual = (encoding: Encoding, a: string | Buffer, b: string | Bu
 		case null:
 			return (a as Buffer).equals(b as Buffer);
 		default:
-			throw new UnreachableError(encoding);
+			throw new Unreachable_Error(encoding);
 	}
 };
 

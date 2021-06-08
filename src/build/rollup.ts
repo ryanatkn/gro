@@ -11,11 +11,11 @@ import {
 import resolvePlugin from '@rollup/plugin-node-resolve';
 import commonjsPlugin from '@rollup/plugin-commonjs';
 import {rainbow} from '@feltcoop/felt/utils/terminal.js';
-import {SystemLogger, printLogLabel} from '@feltcoop/felt/utils/log.js';
+import {System_Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {deindent} from '@feltcoop/felt/utils/string.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
-import {UnreachableError} from '@feltcoop/felt/utils/error.js';
+import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
 import {identity} from '@feltcoop/felt/utils/function.js';
 import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
@@ -45,7 +45,7 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	map_output_options: identity,
 	map_watch_options: identity,
 	...omitUndefined(opts),
-	log: opts.log || new SystemLogger(printLogLabel('build')),
+	log: opts.log || new System_Logger(print_log_label('build')),
 });
 
 export type Map_Input_Options = (o: InputOptions, b: Options) => InputOptions;
@@ -255,7 +255,7 @@ const runRollupWatcher = async (options: Options, log: Logger): Promise<void> =>
 					reject(`Error: ${event.error.message}`);
 					break;
 				default:
-					throw new UnreachableError(event);
+					throw new Unreachable_Error(event);
 			}
 		});
 

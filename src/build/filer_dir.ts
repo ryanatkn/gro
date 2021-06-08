@@ -2,7 +2,7 @@ import {noop} from '@feltcoop/felt/utils/function.js';
 
 import {watchNodeFs} from '../fs/watchNodeFs.js';
 import type {WatchNodeFs} from '../fs/watchNodeFs.js';
-import type {PathStats} from '../fs/pathData.js';
+import type {Path_Stats} from '../fs/path_data.js';
 import type {PathFilter} from '../fs/pathFilter.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -27,7 +27,7 @@ interface BaseFilerDir {
 export interface FilerDirChange {
 	type: FilerDirChangeType;
 	path: string;
-	stats: PathStats;
+	stats: Path_Stats;
 }
 export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
 export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir) => Promise<void>;

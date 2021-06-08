@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 
-import type {GenModuleMeta} from './genModule.js';
+import type {GenModule_Meta} from './gen_module.js';
 import {runGen} from './runGen.js';
 import {fs} from '../fs/node.js';
 
@@ -16,7 +16,7 @@ test_gen('basic behavior', async () => {
 	let fileB: undefined | {fileName: string; contents: string};
 	let fileC1: undefined | {fileName: string; contents: string};
 	let fileC2: undefined | {fileName: string; contents: string};
-	let modA: GenModuleMeta = {
+	let modA: GenModule_Meta = {
 		id: source_idA,
 		mod: {
 			gen: async (ctx) => {
@@ -30,7 +30,7 @@ test_gen('basic behavior', async () => {
 			},
 		},
 	};
-	let modB: GenModuleMeta = {
+	let modB: GenModule_Meta = {
 		id: join(source_idBC, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -44,7 +44,7 @@ test_gen('basic behavior', async () => {
 			},
 		},
 	};
-	let modC: GenModuleMeta = {
+	let modC: GenModule_Meta = {
 		id: join(source_idBC, 'modC.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -63,8 +63,8 @@ test_gen('basic behavior', async () => {
 			},
 		},
 	};
-	const genModulesByInputPath = [modA, modB, modC];
-	const genResults = await runGen(fs, genModulesByInputPath, async (_fs, id, contents) =>
+	const gen_modulesByInputPath = [modA, modB, modC];
+	const genResults = await runGen(fs, gen_modulesByInputPath, async (_fs, id, contents) =>
 		id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
 	);
 	t.is(genResults.inputCount, 3);
@@ -122,7 +122,7 @@ test_gen('failing gen function', async () => {
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	let modA: GenModuleMeta = {
+	let modA: GenModule_Meta = {
 		id: source_idA,
 		mod: {
 			gen: async () => {
@@ -131,7 +131,7 @@ test_gen('failing gen function', async () => {
 			},
 		},
 	};
-	let modB: GenModuleMeta = {
+	let modB: GenModule_Meta = {
 		id: join(source_idB, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -145,8 +145,8 @@ test_gen('failing gen function', async () => {
 			},
 		},
 	};
-	const genModulesByInputPath: GenModuleMeta[] = [modA, modB];
-	const genResults = await runGen(fs, genModulesByInputPath);
+	const gen_modulesByInputPath: GenModule_Meta[] = [modA, modB];
+	const genResults = await runGen(fs, gen_modulesByInputPath);
 	t.is(genResults.inputCount, 2);
 	t.is(genResults.outputCount, 1);
 	t.is(genResults.successes.length, 1);

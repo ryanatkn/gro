@@ -29,7 +29,7 @@ enabling code to globally configure logging behavior dynamically at runtime.
 > the logger will be a small piece of that effort.
 
 Specifically, runtime configuration is achieved by
-importing the classes `Logger` and `SystemLogger`
+importing the classes `Logger` and `System_Logger`
 and mutating their static properties:
 
 ```ts
@@ -37,7 +37,7 @@ import {Logger, Log_Level} from '@feltcoop/gro';
 Logger.level = Log_Level.Info;
 ```
 
-The `configureLog_Level` helper does this for both `Logger` and `SystemLogger`:
+The `configureLog_Level` helper does this for both `Logger` and `System_Logger`:
 
 ```ts
 import {configureLog_Level, Log_Level} from '@feltcoop/gro';
@@ -45,17 +45,17 @@ configureLog_Level(Log_Level.Info);
 // configureLog_Level = (
 // 	level: Log_Level,
 // 	configureMainLogger = true,
-// 	configureSystemLogger = true,
+// 	configureSystem_Logger = true,
 // ): void => {
 ```
 
-The `printLogLabel` is a helper for readability and aesthetics:
+The `print_log_label` is a helper for readability and aesthetics:
 
 ```ts
-import {Logger, printLogLabel} from '@feltcoop/gro';
+import {Logger, print_log_label} from '@feltcoop/gro';
 import {rainbow} from '@feltcoop/felt/utils/terminal.js';
-const logA = new Logger(printLogLabel('official business', rainbow));
-const logB = new Logger(printLogLabel('party invitations')); // default color is `magenta`
+const logA = new Logger(print_log_label('official business', rainbow));
+const logB = new Logger(print_log_label('party invitations')); // default color is `magenta`
 ```
 
 ```ts
@@ -66,7 +66,7 @@ export class Logger extends DevLogger {
 	// defaults to `process.env.GRO_LOG_LEVEL`
 	static level: Log_Level = DEFAULT_LOG_LEVEL;
 }
-export class SystemLogger extends DevLogger {
+export class System_Logger extends DevLogger {
 	// default logger for gro internal code
 }
 

@@ -3,7 +3,7 @@ import fsExtra from 'fs-extra';
 import {sortMap, compareSimpleMapEntries} from '@feltcoop/felt/utils/map.js';
 
 import type {Filesystem, FsWriteFile} from './filesystem.js';
-import type {PathStats} from './pathData.js';
+import type {Path_Stats} from './path_data.js';
 import type {PathFilter} from './pathFilter.js';
 
 // This uses `CheapWatch` which probably isn't the fastest, but it works fine for now.
@@ -14,11 +14,11 @@ const findFiles = async (
 	filter?: PathFilter,
 	// pass `null` to speed things up at the risk of rare misorderings
 	sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
-): Promise<Map<string, PathStats>> => {
+): Promise<Map<string, Path_Stats>> => {
 	const watcher = new CheapWatch({
 		dir,
 		filter: filter
-			? (file: {path: string; stats: PathStats}) => file.stats.isDirectory() || filter(file)
+			? (file: {path: string; stats: Path_Stats}) => file.stats.isDirectory() || filter(file)
 			: undefined,
 		watch: false,
 	});

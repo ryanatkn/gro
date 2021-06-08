@@ -6,7 +6,7 @@ import {ensureEnd, strip_start} from '@feltcoop/felt/utils/string.js';
 import {toFsId, FsStats} from './filesystem.js';
 import type {Filesystem, FsReadFile} from './filesystem.js';
 import type {FsCopyOptions, FsId, FsMoveOptions, FsNode} from './filesystem';
-import type {PathStats} from './pathData.js';
+import type {Path_Stats} from './path_data.js';
 import type {PathFilter} from './pathFilter.js';
 import type {Encoding} from './encoding.js';
 
@@ -64,7 +64,7 @@ export class MemoryFs implements Filesystem {
 				contents: null,
 				// contentsBuffer: null,
 				stats,
-				// pathData: toPathData(pathPart, stats),
+				// path_data: toPath_Data(pathPart, stats),
 			});
 		}
 		this._update(node.id, node);
@@ -77,7 +77,7 @@ export class MemoryFs implements Filesystem {
 		this._files.clear();
 	}
 
-	stat = async (path: string): Promise<PathStats> => {
+	stat = async (path: string): Promise<Path_Stats> => {
 		const id = toFsId(path);
 		const file = this._find(id);
 		if (!file) {
@@ -120,7 +120,7 @@ export class MemoryFs implements Filesystem {
 			contents: data,
 			// contentsBuffer: data, // TODO lazily load this?
 			stats,
-			// pathData: toPathData(id, stats),
+			// path_data: toPath_Data(id, stats),
 		});
 	};
 	remove = async (path: string): Promise<void> => {
@@ -184,7 +184,7 @@ export class MemoryFs implements Filesystem {
 			contents: null,
 			// contentsBuffer: null,
 			stats,
-			// pathData: toPathData(id, stats),
+			// path_data: toPath_Data(id, stats),
 		});
 	};
 	readDir = async (path: string): Promise<string[]> => {
@@ -204,7 +204,7 @@ export class MemoryFs implements Filesystem {
 		dir: string,
 		filter?: PathFilter,
 		sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
-	): Promise<Map<string, PathStats>> => {
+	): Promise<Map<string, Path_Stats>> => {
 		// TODO wait so in the dir .. we can now find this dir and all of its subdirs
 		// cache the subdirs somehow (backlink to parent node? do we have stable references? we do ya?)
 

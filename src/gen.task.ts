@@ -1,14 +1,14 @@
 import {red, green, gray} from '@feltcoop/felt/utils/terminal.js';
-import {printMs, printError, print_timings} from '@feltcoop/felt/utils/print.js';
+import {printMs, print_error, print_timings} from '@feltcoop/felt/utils/print.js';
 import {plural} from '@feltcoop/felt/utils/string.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
 import type {Task} from './task/task.js';
 import {Task_Error} from './task/task.js';
 import {runGen} from './gen/runGen.js';
-import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
+import {loadGenModule, checkGenModules, find_gen_modules} from './gen/gen_module.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
-import {loadModules} from './fs/modules.js';
+import {load_modules} from './fs/modules.js';
 import {formatFile} from './build/formatFile.js';
 import {print_path} from './paths.js';
 
@@ -32,29 +32,29 @@ export const task: Task<Task_Args> = {
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
 		// load all of the gen modules
-		const findModulesResult = await findGenModules(fs, inputPaths);
-		if (!findModulesResult.ok) {
-			for (const reason of findModulesResult.reasons) {
+		const find_modules_result = await find_gen_modules(fs, inputPaths);
+		if (!find_modules_result.ok) {
+			for (const reason of find_modules_result.reasons) {
 				log.error(reason);
 			}
 			throw new Task_Error('Failed to find gen modules.');
 		}
-		timings.merge(findModulesResult.timings);
-		const loadModulesResult = await loadModules(
-			findModulesResult.source_idsByInputPath,
+		timings.merge(find_modules_result.timings);
+		const load_modules_result = await load_modules(
+			find_modules_result.source_ids_by_input_path,
 			loadGenModule,
 		);
-		if (!loadModulesResult.ok) {
-			for (const reason of loadModulesResult.reasons) {
+		if (!load_modules_result.ok) {
+			for (const reason of load_modules_result.reasons) {
 				log.error(reason);
 			}
 			throw new Task_Error('Failed to load gen modules.');
 		}
-		timings.merge(loadModulesResult.timings);
+		timings.merge(load_modules_result.timings);
 
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(fs, loadModulesResult.modules, formatFile, log);
+		const genResults = await runGen(fs, load_modules_result.modules, formatFile, log);
 		stopTimingToGenerateCode();
 
 		const failCount = genResults.failures.length;
@@ -123,7 +123,7 @@ export const task: Task<Task_Args> = {
 
 		if (failCount) {
 			for (const result of genResults.failures) {
-				log.error(result.reason, '\n', printError(result.error));
+				log.error(result.reason, '\n', print_error(result.error));
 			}
 			throw new Task_Error(`Failed to generate ${failCount} file${plural(failCount)}.`);
 		}

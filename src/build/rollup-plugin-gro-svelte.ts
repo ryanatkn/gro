@@ -5,7 +5,7 @@ import type {Plugin, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/utils/terminal.js';
 import {toPathStem} from '@feltcoop/felt/utils/path.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
@@ -73,7 +73,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		onstats,
 	} = initOptions(opts);
 
-	const log = new SystemLogger(printLogLabel(name));
+	const log = new System_Logger(print_log_label(name));
 
 	const getCompilation = (id: string): GroSvelteCompilation | undefined => compilations.get(id);
 

@@ -14,35 +14,35 @@ TODO we probably want to extract this to felt
 
 */
 
-export interface PackageJson {
+export interface Package_Json {
 	[key: string]: Json;
 	name: string;
 }
-export interface GroPackageJson extends PackageJson {}
+export interface Gro_Package_Json extends Package_Json {}
 
-let package_json: PackageJson | undefined;
-let groPackageJson: GroPackageJson | undefined;
+let package_json: Package_Json | undefined;
+let gro_package_json: Gro_Package_Json | undefined;
 
 export const load_package_json = async (
 	fs: Filesystem,
 	forceRefresh = false,
-): Promise<PackageJson> => {
-	if (is_this_project_gro) return loadGroPackageJson(fs, forceRefresh);
+): Promise<Package_Json> => {
+	if (is_this_project_gro) return load_gro_package_json(fs, forceRefresh);
 	if (!package_json || forceRefresh) {
 		package_json = JSON.parse(await fs.readFile(join(paths.root, 'package.json'), 'utf8'));
 	}
 	return package_json!;
 };
-export const loadGroPackageJson = async (
+export const load_gro_package_json = async (
 	fs: Filesystem,
 	forceRefresh = false,
-): Promise<GroPackageJson> => {
-	if (!groPackageJson || forceRefresh) {
-		groPackageJson = JSON.parse(await fs.readFile(join(gro_paths.root, 'package.json'), 'utf8'));
+): Promise<Gro_Package_Json> => {
+	if (!gro_package_json || forceRefresh) {
+		gro_package_json = JSON.parse(await fs.readFile(join(gro_paths.root, 'package.json'), 'utf8'));
 	}
-	return groPackageJson!;
+	return gro_package_json!;
 };
 
 // gets the "b" of "@a/b" for namespaced packages
-export const toPackageRepoName = (pkg: PackageJson): string =>
+export const to_package_repo_name = (pkg: Package_Json): string =>
 	pkg.name.includes('/') ? pkg.name.split('/').slice(1).join('/') : pkg.name;
