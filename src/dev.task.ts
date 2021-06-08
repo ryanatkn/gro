@@ -21,8 +21,9 @@ import {
 } from './build/default_build_config.js';
 
 export interface Task_Args {
+	watch?: boolean; // defaults to `true`
 	'no-watch'?: boolean;
-	'no-cert'?: boolean;
+	insecure?: boolean;
 	cert?: string;
 	certkey?: string;
 }
@@ -46,7 +47,9 @@ export interface Task_Events {
 export const task: Task<Task_Args, Task_Events> = {
 	description: 'start dev server',
 	run: async ({fs, dev, log, args, events}) => {
-		const watch = !args['no-watch'];
+		const watch = args.watch ?? true;
+		console.log('args', args);
+		console.log('watch', watch);
 
 		const timings = new Timings();
 
@@ -76,10 +79,24 @@ export const task: Task<Task_Args, Task_Events> = {
 		timing_to_create_filer();
 		events.emit('dev.create_filer', filer);
 
+		const init_filer = async (): Promise<void> => {
+			const timing_to_init_filer = timings.start('init filer');
+			await filer.init();
+			timing_to_init_filer();
+		};
+
+		// exit early if we're not in watch mode
+		// TODO this is a bit janky because events behave differently
+		if (!watch) {
+			await init_filer();
+			print_timings(timings, log);
+			return;
+		}
+
 		// TODO restart functionality
 		const timing_to_create_gro_server = timings.start('create dev server');
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
-		const https = args['no-cert']
+		const https = args['insecure']
 			? null
 			: await load_https_credentials(fs, log, args.cert, args.certkey);
 		const server = create_gro_server({filer, host: config.host, port: config.port, https});
@@ -90,9 +107,7 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		await Promise.all([
 			(async () => {
-				const timing_to_init_filer = timings.start('init filer');
-				await filer.init();
-				timing_to_init_filer();
+				await init_filer();
 				events.emit('dev.init_filer', dev_task_context);
 			})(),
 			(async () => {
