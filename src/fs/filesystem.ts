@@ -7,26 +7,26 @@ import type {Path_Filter} from './path_filter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
 export interface Filesystem {
-	stat: FsStat;
-	exists: FsExists;
-	find_files: FsFindFiles;
-	read_file: FsReadFile;
-	write_file: FsWriteFile;
-	remove: FsRemove;
-	move: FsMove;
-	copy: FsCopy;
-	read_dir: FsReadDir;
-	empty_dir: FsEmptyDir;
-	ensure_dir: FsEnsureDir;
+	stat: Fs_Stat;
+	exists: Fs_Exists;
+	find_files: Fs_Find_Files;
+	read_file: Fs_Read_File;
+	write_file: Fs_Write_File;
+	remove: Fs_Remove;
+	move: Fs_Move;
+	copy: Fs_Copy;
+	read_dir: Fs_Read_Dir;
+	empty_dir: Fs_Empty_Dir;
+	ensure_dir: Fs_Ensure_Dir;
 }
 
-export interface FsStat {
+export interface Fs_Stat {
 	(path: string): Promise<Path_Stats>;
 }
-export interface FsExists {
+export interface Fs_Exists {
 	(path: string): Promise<boolean>;
 }
-export interface FsFindFiles {
+export interface Fs_Find_Files {
 	(
 		dir: string,
 		filter?: Path_Filter,
@@ -34,64 +34,64 @@ export interface FsFindFiles {
 		sort?: ((a: [any, any], b: [any, any]) => number) | null,
 	): Promise<Map<string, Path_Stats>>;
 }
-export interface FsReadFile {
+export interface Fs_Read_File {
 	(path: string): Promise<Buffer>;
 	(path: string, encoding: 'utf8'): Promise<string>;
 	(path: string, encoding: null): Promise<Buffer>;
 	(path: string, encoding?: Encoding): Promise<Buffer | string>;
 }
-export interface FsWriteFile {
+export interface Fs_Write_File {
 	(path: string, data: any, encoding?: Encoding): Promise<void>;
 }
-export interface FsRemove {
+export interface Fs_Remove {
 	(path: string): Promise<void>;
 }
-export interface FsMove {
-	(src: string, dest: string, options?: FsMoveOptions): Promise<void>; // TODO which options?
+export interface Fs_Move {
+	(src: string, dest: string, options?: Fs_Move_Options): Promise<void>; // TODO which options?
 }
-export interface FsCopy {
-	(src: string, dest: string, options?: FsCopyOptions): Promise<void>; // TODO which options? all? breaks conventionn with above
+export interface Fs_Copy {
+	(src: string, dest: string, options?: Fs_Copy_Options): Promise<void>; // TODO which options? all? breaks conventionn with above
 }
-export interface FsReadDir {
+export interface Fs_Read_Dir {
 	(path: string): Promise<string[]>;
 }
-export interface FsEmptyDir {
+export interface Fs_Empty_Dir {
 	(path: string): Promise<void>;
 }
-export interface FsEnsureDir {
+export interface Fs_Ensure_Dir {
 	(path: string): Promise<void>;
 }
 
 // TODO try to implement some of these
-export interface FsCopyOptions {
+export interface Fs_Copy_Options {
 	// dereference?: boolean;
 	overwrite?: boolean; // defaults to `true`
 	// preserveTimestamps?: boolean;
 	// errorOnExist?: boolean; // TODO implement this
-	filter?: FsCopyFilterSync | FsCopyFilterAsync;
+	filter?: Fs_Copy_Filter_Sync | Fs_Copy_Filter_Async;
 	// recursive?: boolean;
 }
-export interface FsMoveOptions {
+export interface Fs_Move_Options {
 	overwrite?: boolean;
 	limit?: number;
 }
-export type FsCopyFilterSync = (src: string, dest: string) => boolean;
-export type FsCopyFilterAsync = (src: string, dest: string) => Promise<boolean>;
+export type Fs_Copy_Filter_Sync = (src: string, dest: string) => boolean;
+export type Fs_Copy_Filter_Async = (src: string, dest: string) => Promise<boolean>;
 
-export class FsStats implements Path_Stats {
-	constructor(private readonly _isDirectory: boolean) {}
+export class Fs_Stats implements Path_Stats {
+	constructor(private readonly _is_directory: boolean) {}
 	isDirectory() {
-		return this._isDirectory;
+		return this._is_directory;
 	}
 }
 
-export type FsId = Flavored<string, 'FsId'>;
+export type Fs_Id = Flavored<string, 'Fs_Id'>;
 
 // The `resolve` looks magic and hardcoded - it's matching how `fs` and `fs-extra` resolve paths.
-export const toFsId = (path: string): FsId => resolve(path);
+export const to_fs_id = (path: string): Fs_Id => resolve(path);
 
 // TODO extract these? - how do they intersect with Filer types? and smaller interfaces like `Path_Data`?
-export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;
+export type Fs_Node = Text_File_Node | Binary_File_Node | Directory_Node;
 
 // TODO should we use `Base_Filer_File` here?
 // this mirrors a lot of that, except this models directories as well,
@@ -100,30 +100,30 @@ export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;
 
 // TODO names? should they have `Fs` prefix? extract?
 
-export interface BaseNode {
-	readonly id: FsId;
-	readonly isDirectory: boolean;
+export interface Base_Node {
+	readonly id: Fs_Id;
+	readonly is_directory: boolean;
 	readonly encoding: Encoding;
 	readonly contents: string | Buffer | null;
 	// readonly contents_buffer: Buffer | null;
 	readonly stats: Path_Stats;
 	// readonly path_data: Path_Data; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
-export interface BaseFileNode extends BaseNode {
-	readonly isDirectory: false;
+export interface BaseFileNode extends Base_Node {
+	readonly is_directory: false;
 	readonly contents: string | Buffer;
 }
-export interface TextFileNode extends BaseFileNode {
+export interface Text_File_Node extends BaseFileNode {
 	readonly encoding: 'utf8';
 	readonly contents: string;
 }
-export interface BinaryFileNode extends BaseFileNode {
+export interface Binary_File_Node extends BaseFileNode {
 	readonly encoding: null;
 	readonly contents: Buffer;
 	// readonly contents_buffer: Buffer;
 }
-export interface DirectoryNode extends BaseNode {
-	readonly isDirectory: true;
+export interface Directory_Node extends Base_Node {
+	readonly is_directory: true;
 	readonly contents: null;
 	// readonly contents_buffer: null;
 }

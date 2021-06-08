@@ -2,7 +2,7 @@ import Cheap_Watch from 'cheap-watch';
 import fs_extra from 'fs-extra';
 import {sort_map, compare_simple_map_entries} from '@feltcoop/felt/util/map.js';
 
-import type {Filesystem, FsWriteFile} from './filesystem.js';
+import type {Filesystem, Fs_Write_File} from './filesystem.js';
 import type {Path_Stats} from './path_data.js';
 import type {Path_Filter} from './path_filter.js';
 
@@ -31,7 +31,7 @@ export const fs: Filesystem = {
 	stat: fs_extra.stat,
 	exists: fs_extra.pathExists,
 	read_file: fs_extra.readFile,
-	write_file: fs_extra.outputFile as FsWriteFile, // TODO incompatible encodings: is this an actual problem? or is `fs-extra` mistyped? test with `null`
+	write_file: fs_extra.outputFile as Fs_Write_File, // TODO incompatible encodings: is this an actual problem? or is `fs-extra` mistyped? test with `null`
 	remove: fs_extra.remove,
 	move: fs_extra.move,
 	copy: fs_extra.copy,

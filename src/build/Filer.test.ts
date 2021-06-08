@@ -3,19 +3,19 @@ import * as t from 'uvu/assert';
 
 import {Filer} from './Filer.js';
 import {fs as memoryFs} from '../fs/memory.js';
-import type {MemoryFs} from '../fs/memory.js';
+import type {Memory_Fs} from '../fs/memory.js';
 import type {Builder} from './builder.js';
 import type {Build_Config} from '../build/build_config.js';
 
 interface SuiteContext {
-	fs: MemoryFs;
+	fs: Memory_Fs;
 }
 const suiteContext: SuiteContext = {fs: memoryFs};
-const resetMemoryFs = ({fs}: SuiteContext) => fs._reset();
+const resetMemory_Fs = ({fs}: SuiteContext) => fs._reset();
 
 /* test_Filer */
 const test_Filer = suite('Filer', suiteContext);
-test_Filer.before.each(resetMemoryFs);
+test_Filer.before.each(resetMemory_Fs);
 
 test_Filer('basic serve usage', async ({fs}) => {
 	const dev = true;

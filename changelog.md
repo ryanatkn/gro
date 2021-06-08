@@ -198,7 +198,7 @@
     and do not export individual functions
   - rename `pathExists` to `exists`
   - remove `readJson`
-- add abstract class `Fs` and implement `MemoryFs`
+- add abstract class `Fs` and implement `Memory_Fs`
   to complement the `fs-extra` implementation at `src/fs/node.ts`
   ([#173](https://github.com/feltcoop/gro/pull/173))
 
@@ -303,7 +303,7 @@
   ([#150](https://github.com/feltcoop/gro/pull/150))
 - fix false positive API server detection in default config
   ([#151](https://github.com/feltcoop/gro/pull/151))
-- add `getMimeTypes` and `get_extensions` returning iterators to `src/fs/mime.ts`
+- add `get_mime_types` and `get_extensions` returning iterators to `src/fs/mime.ts`
   ([#149](https://github.com/feltcoop/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/feltcoop/gro/pull/149))

@@ -14,14 +14,14 @@ const test_load_module = suite('load_module');
 
 test_load_module('basic behavior', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
-	let validatedMod;
+	let validated_mod;
 	const result = await load_module(id, ((mod: any) => {
-		validatedMod = mod;
+		validated_mod = mod;
 		return true;
 	}) as any);
 	t.ok(result.ok);
 	t.is(result.mod.id, id);
-	t.is(result.mod.mod, validatedMod);
+	t.is(result.mod.mod, validated_mod);
 	t.is(result.mod.mod, modTest1);
 });
 
@@ -35,17 +35,17 @@ test_load_module('without validation', async () => {
 
 test_load_module('fails validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
-	let validatedMod;
-	const testValidation = (mod: Record<string, any>) => {
-		validatedMod = mod;
+	let validated_mod;
+	const test_validation = (mod: Record<string, any>) => {
+		validated_mod = mod;
 		return false;
 	};
-	const result = await load_module(id, testValidation as any);
+	const result = await load_module(id, test_validation as any);
 	t.not.ok(result.ok);
 	if (result.type === 'invalid') {
-		t.is(result.validation, testValidation.name);
+		t.is(result.validation, test_validation.name);
 		t.is(result.id, id);
-		t.is(result.mod, validatedMod);
+		t.is(result.mod, validated_mod);
 		t.is(result.mod, modTest1);
 	} else {
 		throw Error('Should be invalid');
@@ -163,24 +163,24 @@ test_find_modules.run();
 /* test_load_modules */
 const test_load_modules = suite('load_modules');
 
-test_load_modules('fail with load_moduleFailures', async () => {
-	const pathBar1 = resolve('src/fs/fixtures/bar1');
-	const pathBar2 = resolve('src/fs/fixtures/bar2');
-	const pathBaz1 = resolve('src/fs/fixtures/baz1');
-	const pathBaz2 = resolve('src/fs/fixtures/baz2');
-	const idBar1 = join(pathBar1, 'test1.bar.ts');
-	const idBar2 = join(pathBar2, 'test2.bar.ts');
-	const idBaz1 = join(pathBaz1, 'test1.baz.ts');
-	const idBaz2 = join(pathBaz2, 'test2.baz.ts');
-	const testValidation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
+test_load_modules('fail with load_module_failures', async () => {
+	const path_bar1 = resolve('src/fs/fixtures/bar1');
+	const path_bar2 = resolve('src/fs/fixtures/bar2');
+	const path_baz1 = resolve('src/fs/fixtures/baz1');
+	const path_baz2 = resolve('src/fs/fixtures/baz2');
+	const id_bar1 = join(path_bar1, 'test1.bar.ts');
+	const id_bar2 = join(path_bar2, 'test2.bar.ts');
+	const id_baz1 = join(path_baz1, 'test1.baz.ts');
+	const id_baz2 = join(path_baz2, 'test2.baz.ts');
+	const test_validation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
 	let error;
 	const result = await load_modules(
 		new Map([
-			[pathBar1, [idBar1, idBar2]],
-			[pathBaz1, [idBaz1, idBaz2]],
+			[path_bar1, [id_bar1, id_bar2]],
+			[path_baz1, [id_baz1, id_baz2]],
 		]),
 		async (id) => {
-			if (id === idBar2) {
+			if (id === id_bar2) {
 				return {
 					ok: false,
 					type: 'import_failed',
@@ -188,31 +188,31 @@ test_load_modules('fail with load_moduleFailures', async () => {
 					error: (error = new Error('Test failed import')),
 				};
 			}
-			return load_module(id, testValidation);
+			return load_module(id, test_validation);
 		},
 	);
 	t.not.ok(result.ok);
 	t.ok(result.reasons.length);
-	if (result.type !== 'load_moduleFailures') {
-		throw Error('Expected to fail with load_moduleFailures');
+	if (result.type !== 'load_module_failures') {
+		throw Error('Expected to fail with load_module_failures');
 	}
-	t.is(result.load_moduleFailures.length, 2);
-	const [failure1, failure2] = result.load_moduleFailures;
+	t.is(result.load_module_failures.length, 2);
+	const [failure1, failure2] = result.load_module_failures;
 	if (failure1.type !== 'invalid') {
 		throw Error('Expected to fail with invalid');
 	}
-	t.is(failure1.id, idBar1);
+	t.is(failure1.id, id_bar1);
 	t.ok(failure1.mod);
-	t.is(failure1.validation, testValidation.name);
+	t.is(failure1.validation, test_validation.name);
 	if (failure2.type !== 'import_failed') {
 		throw Error('Expected to fail with import_failed');
 	}
-	t.is(failure2.id, idBar2);
+	t.is(failure2.id, id_bar2);
 	t.is(failure2.error, error);
 	t.is(result.modules.length, 2);
-	t.is(result.modules[0].id, idBaz1);
+	t.is(result.modules[0].id, id_baz1);
 	t.is(result.modules[0].mod, modTestBaz1);
-	t.is(result.modules[1].id, idBaz2);
+	t.is(result.modules[1].id, id_baz2);
 	t.is(result.modules[1].mod, modTestBaz2);
 });
 

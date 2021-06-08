@@ -139,9 +139,9 @@ test_load_source_path_data_by_input_path(
 		);
 		t.equal(result, {
 			source_id_path_data_by_input_path: new Map([
-				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
-				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
-				['fake/test3', {id: 'fake/test3', isDirectory: true}],
+				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', is_directory: false}],
+				['fake/test2', {id: 'fake/test2.bar.ts', is_directory: false}],
+				['fake/test3', {id: 'fake/test3', is_directory: true}],
 			]),
 			unmapped_input_paths: ['fake/missing'],
 		});
@@ -176,12 +176,12 @@ const test_load_source_ids_by_input_path = suite('load_source_ids_by_input_path'
 	};
 	const result = await load_source_ids_by_input_path(
 		new Map([
-			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
-			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
-			['fake/test3', {id: 'fake/test3', isDirectory: true}],
-			['fake/', {id: 'fake/', isDirectory: true}],
-			['fake', {id: 'fake', isDirectory: true}],
-			['fake/nomatches', {id: 'fake/nomatches', isDirectory: true}],
+			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', is_directory: false}],
+			['fake/test2', {id: 'fake/test2.bar.ts', is_directory: false}],
+			['fake/test3', {id: 'fake/test3', is_directory: true}],
+			['fake/', {id: 'fake/', is_directory: true}],
+			['fake', {id: 'fake', is_directory: true}],
+			['fake/nomatches', {id: 'fake/nomatches', is_directory: true}],
 		]),
 		async (id) => testFiles[id],
 	);

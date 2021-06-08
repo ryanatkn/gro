@@ -1,6 +1,6 @@
 export type Encoding = 'utf8' | null; // `null` means binary buffer
 
-const textExtensions = new Set<string>([
+const text_extensions = new Set<string>([
 	'.ts',
 	'.js',
 	'.svelte',
@@ -12,4 +12,4 @@ const textExtensions = new Set<string>([
 ]);
 
 export const infer_encoding = (extension: string): Encoding =>
-	textExtensions.has(extension) ? 'utf8' : null;
+	text_extensions.has(extension) ? 'utf8' : null;

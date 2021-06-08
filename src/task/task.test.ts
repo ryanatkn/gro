@@ -5,7 +5,7 @@ import {
 	TASK_FILE_PATTERN,
 	TASK_FILE_SUFFIX,
 	is_task_path,
-	toTaskPath,
+	to_task_path,
 	to_task_name,
 } from './task.js';
 
@@ -34,20 +34,20 @@ test_is_task_path('basic behavior', () => {
 test_is_task_path.run();
 /* /test_is_task_path */
 
-/* test_toTaskPath */
-const test_toTaskPath = suite('toTaskPath');
+/* test_to_task_path */
+const test_to_task_path = suite('to_task_path');
 
-test_toTaskPath('basic behavior', () => {
-	t.is(toTaskPath('foo'), 'foo.task.ts');
-	t.is(toTaskPath('bar/baz/foo'), 'bar/baz/foo.task.ts');
+test_to_task_path('basic behavior', () => {
+	t.is(to_task_path('foo'), 'foo.task.ts');
+	t.is(to_task_path('bar/baz/foo'), 'bar/baz/foo.task.ts');
 });
 
-test_toTaskPath('performs no special checks', () => {
-	t.is(toTaskPath('bar/baz/foo.task.ts'), 'bar/baz/foo.task.ts.task.ts');
+test_to_task_path('performs no special checks', () => {
+	t.is(to_task_path('bar/baz/foo.task.ts'), 'bar/baz/foo.task.ts.task.ts');
 });
 
-test_toTaskPath.run();
-/* /test_toTaskPath */
+test_to_task_path.run();
+/* /test_to_task_path */
 
 /* test_to_task_name */
 const test_to_task_name = suite('to_task_name');

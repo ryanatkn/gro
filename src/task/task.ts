@@ -31,7 +31,7 @@ export const TASK_FILE_SUFFIX = '.task.ts';
 
 export const is_task_path = (path: string): boolean => TASK_FILE_PATTERN.test(path);
 
-export const toTaskPath = (task_name: string): string => task_name + TASK_FILE_SUFFIX;
+export const to_task_path = (task_name: string): string => task_name + TASK_FILE_SUFFIX;
 
 export const to_task_name = (base_path: string): string => base_path.replace(TASK_FILE_PATTERN, '');
 

@@ -4,7 +4,7 @@ import type {Flavored} from '@feltcoop/felt/util/types';
 
 This is a minimal set of MIME types
 suitable for lightweight inclusion in the browser.
-User code can call `addMimeTypeExtension`
+User code can call `add_mime_type_extension`
 to add custom types to the global cache.
 
 Most of the included types are widely supported in browsers
@@ -18,50 +18,50 @@ References:
 
 */
 
-export type MimeType = Flavored<string, 'MimeType'>;
-export type FileExtension = Flavored<string, 'FileExtension'>; // excluding leading `.`
+export type Mime_Type = Flavored<string, 'Mime_Type'>;
+export type File_Extension = Flavored<string, 'File_Extension'>; // excluding leading `.`
 
 // global cache
-const mime_typeByExtension = new Map<FileExtension, MimeType>();
-const extensionsByMimeType = new Map<MimeType, FileExtension[]>();
+const mime_type_by_extension = new Map<File_Extension, Mime_Type>();
+const extensions_by_mime_type = new Map<Mime_Type, File_Extension[]>();
 
-export const get_mime_type_by_extension = (ext: FileExtension): MimeType | null =>
-	mime_typeByExtension.get(ext) || null;
+export const get_mime_type_by_extension = (ext: File_Extension): Mime_Type | null =>
+	mime_type_by_extension.get(ext) || null;
 
-export const get_extensionsByMimeType = (mime_type: MimeType): FileExtension[] | null =>
-	extensionsByMimeType.get(mime_type) || null;
+export const get_extensions_by_mime_type = (mime_type: Mime_Type): File_Extension[] | null =>
+	extensions_by_mime_type.get(mime_type) || null;
 
-export const get_extensions = () => mime_typeByExtension.keys();
-export const getMimeTypes = () => extensionsByMimeType.keys();
+export const get_extensions = () => mime_type_by_extension.keys();
+export const get_mime_types = () => extensions_by_mime_type.keys();
 
 // Overrides anything that might already be cached.
-export const addMimeTypeExtension = (mime_type: MimeType, extension: FileExtension): void => {
-	const existingMimeType = mime_typeByExtension.get(extension);
-	if (existingMimeType === mime_type) return;
-	if (existingMimeType) removeMimeTypeExtension(extension);
-	mime_typeByExtension.set(extension, mime_type);
-	extensionsByMimeType.set(
+export const add_mime_type_extension = (mime_type: Mime_Type, extension: File_Extension): void => {
+	const existing_mime_type = mime_type_by_extension.get(extension);
+	if (existing_mime_type === mime_type) return;
+	if (existing_mime_type) remove_mime_type_extension(extension);
+	mime_type_by_extension.set(extension, mime_type);
+	extensions_by_mime_type.set(
 		mime_type,
-		extensionsByMimeType.get(mime_type)?.concat(extension) || [extension],
+		extensions_by_mime_type.get(mime_type)?.concat(extension) || [extension],
 	);
 };
 
 // Returns a boolean indicating if the extension was removed for the mime type.
-export const removeMimeTypeExtension = (extension: FileExtension): boolean => {
-	const mime_type = mime_typeByExtension.get(extension);
+export const remove_mime_type_extension = (extension: File_Extension): boolean => {
+	const mime_type = mime_type_by_extension.get(extension);
 	if (!mime_type) return false;
-	const newExtensions = extensionsByMimeType.get(mime_type)!.filter((e) => e !== extension);
-	if (newExtensions.length) {
-		extensionsByMimeType.set(mime_type, newExtensions);
+	const new_extensions = extensions_by_mime_type.get(mime_type)!.filter((e) => e !== extension);
+	if (new_extensions.length) {
+		extensions_by_mime_type.set(mime_type, new_extensions);
 	} else {
-		extensionsByMimeType.delete(mime_type);
+		extensions_by_mime_type.delete(mime_type);
 	}
-	mime_typeByExtension.delete(extension);
+	mime_type_by_extension.delete(extension);
 	return true;
 };
 
 (() => {
-	const types: [MimeType, FileExtension[]][] = [
+	const types: [Mime_Type, File_Extension[]][] = [
 		// Since 'application/octet-stream' is the default, we don't include it.
 		['application/json', ['json', 'map']],
 		['application/schema+json', ['json']],
@@ -114,7 +114,7 @@ export const removeMimeTypeExtension = (extension: FileExtension): boolean => {
 	for (let i = types.length - 1; i >= 0; i--) {
 		const [mime_type, extensions] = types[i];
 		for (const extension of extensions) {
-			addMimeTypeExtension(mime_type, extension);
+			add_mime_type_extension(mime_type, extension);
 		}
 	}
 })();

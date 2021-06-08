@@ -3,8 +3,8 @@ import * as t from 'uvu/assert';
 import {dirname, resolve} from 'path';
 import {strip_trailing_slash, toPathParts} from '@feltcoop/felt/util/path.js';
 
-import {fs as memoryFs, MemoryFs} from './memory.js';
-import {toFsId} from './filesystem.js';
+import {fs as memoryFs, Memory_Fs} from './memory.js';
+import {to_fs_id} from './filesystem.js';
 import {to_root_path} from '../paths.js';
 
 // TODO organize these test suites better
@@ -19,16 +19,16 @@ const testPaths = ['a', 'a/b', 'a/b/c']
 	.flatMap((p) => [p, `${p}/`]);
 
 interface SuiteContext {
-	fs: MemoryFs;
+	fs: Memory_Fs;
 }
 const suiteContext: SuiteContext = {fs: memoryFs};
-const resetMemoryFs = ({fs}: SuiteContext) => fs._reset();
+const resetMemory_Fs = ({fs}: SuiteContext) => fs._reset();
 
 const fakeTsContents = 'export const a = 5;';
 
 /* test_write_file */
 const test_write_file = suite('write_file', suiteContext);
-test_write_file.before.each(resetMemoryFs);
+test_write_file.before.each(resetMemory_Fs);
 
 test_write_file('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
@@ -36,8 +36,8 @@ test_write_file('basic behavior', async ({fs}) => {
 		t.is(fs._files.size, 0);
 		const contents = 'hi';
 		await fs.write_file(path, contents, 'utf8');
-		t.is(fs._files.size, toPathParts(toFsId(path)).length + 1);
-		t.is(fs._find(toFsId(path))!.contents, contents);
+		t.is(fs._files.size, toPathParts(to_fs_id(path)).length + 1);
+		t.is(fs._find(to_fs_id(path))!.contents, contents);
 	}
 });
 
@@ -48,12 +48,12 @@ test_write_file('updates an existing file', async ({fs}) => {
 		const contents1 = 'contents1';
 		await fs.write_file(path, contents1, 'utf8');
 		const {size} = fs._files;
-		t.is(size, toPathParts(toFsId(path)).length + 1);
-		t.is(fs._find(toFsId(path))!.contents, contents1);
+		t.is(size, toPathParts(to_fs_id(path)).length + 1);
+		t.is(fs._find(to_fs_id(path))!.contents, contents1);
 		const contents2 = 'contents2';
 		await fs.write_file(path, contents2, 'utf8');
 		t.is(fs._files.size, size); // count has not changed
-		t.is(fs._find(toFsId(path))!.contents, contents2);
+		t.is(fs._find(to_fs_id(path))!.contents, contents2);
 	}
 });
 
@@ -67,7 +67,7 @@ test_write_file.run();
 
 /* test_read_file */
 const test_read_file = suite('read_file', suiteContext);
-test_read_file.before.each(resetMemoryFs);
+test_read_file.before.each(resetMemory_Fs);
 
 test_read_file('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
@@ -95,7 +95,7 @@ test_read_file.run();
 
 /* test_remove */
 const test_remove = suite('remove', suiteContext);
-test_remove.before.each(resetMemoryFs);
+test_remove.before.each(resetMemory_Fs);
 
 test_remove('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
@@ -126,7 +126,7 @@ test_remove.run();
 
 /* test_move */
 const test_move = suite('move', suiteContext);
-test_move.before.each(resetMemoryFs);
+test_move.before.each(resetMemory_Fs);
 
 test_move('basic behavior', async ({fs}) => {
 	const dest = '/testdest';
@@ -213,7 +213,7 @@ test_move.run();
 
 /* test_copy */
 const test_copy = suite('copy', suiteContext);
-test_copy.before.each(resetMemoryFs);
+test_copy.before.each(resetMemory_Fs);
 
 test_copy('basic behavior', async ({fs}) => {
 	const dest = '/testdest';
@@ -306,7 +306,7 @@ test_copy.run();
 
 /* test_ensure_dir */
 const test_ensure_dir = suite('ensure_dir', suiteContext);
-test_ensure_dir.before.each(resetMemoryFs);
+test_ensure_dir.before.each(resetMemory_Fs);
 
 test_ensure_dir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
@@ -340,7 +340,7 @@ test_ensure_dir.run();
 
 /* test_read_dir */
 const test_read_dir = suite('read_dir', suiteContext);
-test_read_dir.before.each(resetMemoryFs);
+test_read_dir.before.each(resetMemory_Fs);
 
 test_read_dir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
@@ -375,7 +375,7 @@ test_read_dir.run();
 
 /* test_empty_dir */
 const test_empty_dir = suite('empty_dir', suiteContext);
-test_empty_dir.before.each(resetMemoryFs);
+test_empty_dir.before.each(resetMemory_Fs);
 
 test_empty_dir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
@@ -414,7 +414,7 @@ test_empty_dir.run();
 
 /* test_find_files */
 const test_find_files = suite('find_files', suiteContext);
-test_find_files.before.each(resetMemoryFs);
+test_find_files.before.each(resetMemory_Fs);
 
 test_find_files('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
@@ -423,7 +423,7 @@ test_find_files('basic behavior', async ({fs}) => {
 		await fs.write_file(path, contents, 'utf8');
 		let filterCallCount = 0;
 		const files = await fs.find_files('.', () => (filterCallCount++, true));
-		const rootPath = to_root_path(toFsId(path));
+		const rootPath = to_root_path(to_fs_id(path));
 		t.is(filterCallCount, files.size);
 		t.is(files.size, rootPath.split('/').length);
 		t.ok(files.has(rootPath));
