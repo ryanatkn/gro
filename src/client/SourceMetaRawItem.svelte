@@ -29,7 +29,7 @@
 		// omg this is a big O WTF
 		dependent.data.builds.find((build1) =>
 			build1.dependencies?.find((d) =>
-				dependency.data.builds.find((build2) => build2.id === d.buildId),
+				dependency.data.builds.find((build2) => build2.id === d.build_id),
 			),
 		);
 
@@ -55,7 +55,7 @@
 		class:hovering
 	>
 		<span class="icon">{expandedText}</span>
-		<SourceId id={sourceMeta.data.sourceId} />
+		<SourceId id={sourceMeta.data.source_id} />
 	</button>
 </div>
 {#if expanded}

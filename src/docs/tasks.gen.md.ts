@@ -1,10 +1,10 @@
 import {dirname, relative, basename} from 'path';
 import {toPathParts, toPathSegments} from '@feltcoop/felt/utils/path.js';
-import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {strip_start} from '@feltcoop/felt/utils/string.js';
 import {last} from '@feltcoop/felt/utils/array.js';
 
 import {Gen, toOutputFileName} from '../gen/gen.js';
-import {paths, basePathToSourceId} from '../paths.js';
+import {paths, base_path_to_source_id} from '../paths.js';
 import {loadTaskModules} from '../task/taskModule.js';
 
 // This is the first simple implementation of Gro's automated docs.
@@ -35,7 +35,7 @@ export const gen: Gen = async ({fs, originId}) => {
 	const originBase = basename(originId);
 
 	const baseDir = paths.source;
-	const relativePath = stripStart(originId, baseDir);
+	const relativePath = strip_start(originId, baseDir);
 	const relativeDir = dirname(relativePath);
 
 	// TODO should this be passed in the context, like `defaultOutputFileName`?
@@ -49,7 +49,7 @@ export const gen: Gen = async ({fs, originId}) => {
 	const pathParts = toPathParts(relativeDir).map(
 		(relativePathPart) =>
 			`[${last(toPathSegments(relativePathPart))}](${
-				relative(originDir, basePathToSourceId(relativePathPart)) || './'
+				relative(originDir, base_path_to_source_id(relativePathPart)) || './'
 			})`,
 	);
 	const breadcrumbs = '> <sub>' + [rootLink, ...pathParts, outputFileName].join(' / ') + '</sub>';

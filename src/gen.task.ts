@@ -1,25 +1,25 @@
 import {red, green, gray} from '@feltcoop/felt/utils/terminal.js';
-import {printMs, printError, printTimings} from '@feltcoop/felt/utils/print.js';
+import {printMs, printError, print_timings} from '@feltcoop/felt/utils/print.js';
 import {plural} from '@feltcoop/felt/utils/string.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
 import type {Task} from './task/task.js';
-import {TaskError} from './task/task.js';
+import {Task_Error} from './task/task.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './build/formatFile.js';
-import {printPath} from './paths.js';
+import {print_path} from './paths.js';
 
-export interface TaskArgs {
+export interface Task_Args {
 	_: string[];
 	check?: boolean;
 }
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
-export const task: Task<TaskArgs> = {
+export const task: Task<Task_Args> = {
 	description: 'run code generation scripts',
 	run: async ({fs, log, args}): Promise<void> => {
 		const rawInputPaths = args._;
@@ -37,18 +37,18 @@ export const task: Task<TaskArgs> = {
 			for (const reason of findModulesResult.reasons) {
 				log.error(reason);
 			}
-			throw new TaskError('Failed to find gen modules.');
+			throw new Task_Error('Failed to find gen modules.');
 		}
 		timings.merge(findModulesResult.timings);
 		const loadModulesResult = await loadModules(
-			findModulesResult.sourceIdsByInputPath,
+			findModulesResult.source_idsByInputPath,
 			loadGenModule,
 		);
 		if (!loadModulesResult.ok) {
 			for (const reason of loadModulesResult.reasons) {
 				log.error(reason);
 			}
-			throw new TaskError('Failed to load gen modules.');
+			throw new Task_Error('Failed to load gen modules.');
 		}
 		timings.merge(loadModulesResult.timings);
 
@@ -73,14 +73,14 @@ export const task: Task<TaskArgs> = {
 					hasUnexpectedChanges = true;
 					log.error(
 						red(
-							`Generated file ${printPath(result.file.id)} via ${printPath(result.file.originId)} ${
-								result.isNew ? 'is new' : 'has changed'
-							}.`,
+							`Generated file ${print_path(result.file.id)} via ${print_path(
+								result.file.originId,
+							)} ${result.isNew ? 'is new' : 'has changed'}.`,
 						),
 					);
 				}
 				if (hasUnexpectedChanges) {
-					throw new TaskError(
+					throw new Task_Error(
 						'Failed gen check. Some generated files have unexpectedly changed.' +
 							' Run `gro gen` and try again.',
 					);
@@ -95,7 +95,7 @@ export const task: Task<TaskArgs> = {
 				genResults.successes
 					.map((result) =>
 						result.files.map((file) => {
-							log.info('writing', printPath(file.id), 'generated from', printPath(file.originId));
+							log.info('writing', print_path(file.id), 'generated from', print_path(file.originId));
 							return fs.writeFile(file.id, file.contents);
 						}),
 					)
@@ -108,7 +108,7 @@ export const task: Task<TaskArgs> = {
 		for (const result of genResults.results) {
 			logResult += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${printPath(result.id)}`;
+			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
 		}
 		log.info(logResult);
 		log.info(
@@ -118,14 +118,14 @@ export const task: Task<TaskArgs> = {
 				} input file${plural(genResults.successes.length)}`,
 			),
 		);
-		printTimings(timings, log);
+		print_timings(timings, log);
 		log.info(`🕒 ${printMs(totalTiming())}`);
 
 		if (failCount) {
 			for (const result of genResults.failures) {
 				log.error(result.reason, '\n', printError(result.error));
 			}
-			throw new TaskError(`Failed to generate ${failCount} file${plural(failCount)}.`);
+			throw new Task_Error(`Failed to generate ${failCount} file${plural(failCount)}.`);
 		}
 	},
 };

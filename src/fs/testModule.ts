@@ -24,11 +24,11 @@ export const findTestModules = (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [TEST_FILE_SUFFIX],
-	rootDirs: string[] = [],
+	root_dirs: string[] = [],
 ) =>
 	findModules(
 		fs,
 		inputPaths,
 		(id) => fs.findFiles(id, (file) => isTestPath(file.path)),
-		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
+		(inputPath) => getPossibleSourceIds(inputPath, extensions, root_dirs),
 	);

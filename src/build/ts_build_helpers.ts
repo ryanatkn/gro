@@ -1,11 +1,11 @@
 import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
-import {replaceExtension} from '@feltcoop/felt/utils/path.js';
-import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {replace_extension} from '@feltcoop/felt/utils/path.js';
+import {spawn_process} from '@feltcoop/felt/utils/process.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {
-	sourceIdToBasePath,
-	toTypesBuildDir,
+	source_id_to_base_path,
+	to_types_build_dir,
 	TS_TYPE_EXTENSION as TS_TYPE_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
@@ -37,11 +37,11 @@ export const generateTypes = async (
 	typemap: boolean = sourcemap,
 	args: string[] = EMPTY_ARRAY,
 ) => {
-	const tscResult = await spawnProcess('npx', [
+	const tscResult = await spawn_process('npx', [
 		'tsc',
 		'--outDir',
 		dest,
-		'--rootDir',
+		'--root_dir',
 		src,
 		'--sourceMap',
 		sourcemap ? 'true' : 'false',
@@ -75,9 +75,9 @@ export const toGenerateTypesForFile = async (fs: Filesystem): Promise<GenerateTy
 	const results: Map<string, GeneratedTypes> = new Map();
 	return async (id) => {
 		if (results.has(id)) return results.get(id)!;
-		const rootPath = `${toTypesBuildDir()}/${sourceIdToBasePath(id)}`; // TODO pass through `paths`, maybe from the `BuildContext`
-		const typesId = replaceExtension(rootPath, TS_TYPE_EXTENSION);
-		const typemapId = replaceExtension(rootPath, TS_TYPEMAP_EXTENSION);
+		const rootPath = `${to_types_build_dir()}/${source_id_to_base_path(id)}`; // TODO pass through `paths`, maybe from the `BuildContext`
+		const typesId = replace_extension(rootPath, TS_TYPE_EXTENSION);
+		const typemapId = replace_extension(rootPath, TS_TYPEMAP_EXTENSION);
 		const [types, typemap] = await Promise.all([
 			fs.readFile(typesId, 'utf8'),
 			(async () => ((await fs.exists(typemapId)) ? fs.readFile(typemapId, 'utf8') : undefined))(),

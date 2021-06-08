@@ -1,8 +1,8 @@
 import type esbuild from 'esbuild';
 import type * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/defaultBuildConfig.js';
-import {isThisProjectGro} from '../paths.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
+import {is_this_project_gro} from '../paths.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
 
 export interface EsbuildTransformOptions extends esbuild.TransformOptions {
@@ -24,7 +24,7 @@ export const getDefaultEsbuildOptions = (
 	// TODO hacky but trying to get dev build and publishing stuff figured out
 	// the more correct way is probably making a `define` option for user configs
 	define:
-		dev || isThisProjectGro
+		dev || is_this_project_gro
 			? undefined
 			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });
@@ -40,7 +40,7 @@ export const getDefaultEsbuildPreprocessOptions = (
 	// TODO hacky but trying to get dev build and publishing stuff figured out
 	// the more correct way is probably making a `define` option for user configs
 	define:
-		dev || isThisProjectGro
+		dev || is_this_project_gro
 			? undefined
 			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });

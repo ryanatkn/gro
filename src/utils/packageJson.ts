@@ -2,7 +2,7 @@ import {join} from 'path';
 import type {Json} from '@feltcoop/felt/utils/json.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {paths, groPaths, isThisProjectGro} from '../paths.js';
+import {paths, gro_paths, is_this_project_gro} from '../paths.js';
 
 /*
 
@@ -20,25 +20,25 @@ export interface PackageJson {
 }
 export interface GroPackageJson extends PackageJson {}
 
-let packageJson: PackageJson | undefined;
+let package_json: PackageJson | undefined;
 let groPackageJson: GroPackageJson | undefined;
 
-export const loadPackageJson = async (
+export const load_package_json = async (
 	fs: Filesystem,
 	forceRefresh = false,
 ): Promise<PackageJson> => {
-	if (isThisProjectGro) return loadGroPackageJson(fs, forceRefresh);
-	if (!packageJson || forceRefresh) {
-		packageJson = JSON.parse(await fs.readFile(join(paths.root, 'package.json'), 'utf8'));
+	if (is_this_project_gro) return loadGroPackageJson(fs, forceRefresh);
+	if (!package_json || forceRefresh) {
+		package_json = JSON.parse(await fs.readFile(join(paths.root, 'package.json'), 'utf8'));
 	}
-	return packageJson!;
+	return package_json!;
 };
 export const loadGroPackageJson = async (
 	fs: Filesystem,
 	forceRefresh = false,
 ): Promise<GroPackageJson> => {
 	if (!groPackageJson || forceRefresh) {
-		groPackageJson = JSON.parse(await fs.readFile(join(groPaths.root, 'package.json'), 'utf8'));
+		groPackageJson = JSON.parse(await fs.readFile(join(gro_paths.root, 'package.json'), 'utf8'));
 	}
 	return groPackageJson!;
 };

@@ -10,7 +10,7 @@ import {
 	getPossibleSourceIds,
 } from './inputPath.js';
 import type {PathStats} from './pathData.js';
-import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
+import {gro_paths, replace_root_dir, create_paths, paths} from '../paths.js';
 import {fs} from './node.js';
 
 /* test_resolveRawInputPath */
@@ -39,13 +39,13 @@ test_resolveRawInputPath('source directory', () => {
 
 test_resolveRawInputPath('forced gro directory', () => {
 	const fakeDir = resolve('../fake') + sep;
-	const fakePaths = createPaths(fakeDir);
+	const fakePaths = create_paths(fakeDir);
 	const groTarget = resolve('src/foo/bar.ts');
 	t.is(resolveRawInputPath('gro/foo/bar.ts'), groTarget);
 	t.is(resolveRawInputPath('foo/bar.ts', fakePaths), join(fakeDir, 'src/foo/bar.ts'));
 	t.is(resolveRawInputPath('gro/foo/bar.ts', fakePaths), join(fakeDir, 'src/gro/foo/bar.ts'));
 	t.is(resolveRawInputPath('foo/bar.ts'), groTarget);
-	t.is(resolveRawInputPath('foo/bar.ts', groPaths), groTarget);
+	t.is(resolveRawInputPath('foo/bar.ts', gro_paths), groTarget);
 	t.is(resolveRawInputPath('gro'), resolve('src') + sep);
 });
 
@@ -106,13 +106,13 @@ test_getPossibleSourceIds('implied to be a directory by trailing slash', () => {
 
 test_getPossibleSourceIds('in both another directory and gro', () => {
 	const fakeDir = resolve('../fake') + sep;
-	const fakePaths = createPaths(fakeDir);
+	const fakePaths = create_paths(fakeDir);
 	const inputPath = join(fakeDir, 'src/foo/bar');
-	t.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [groPaths.root], fakePaths), [
+	t.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [gro_paths.root], fakePaths), [
 		inputPath,
 		inputPath + '.baz.ts',
-		replaceRootDir(inputPath, groPaths.root, fakePaths),
-		replaceRootDir(inputPath, groPaths.root, fakePaths) + '.baz.ts',
+		replace_root_dir(inputPath, gro_paths.root, fakePaths),
+		replace_root_dir(inputPath, gro_paths.root, fakePaths) + '.baz.ts',
 	]);
 });
 
@@ -136,7 +136,7 @@ test_loadSourcePathDataByInputPath('loads source path data and handles missing p
 		(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
 	);
 	t.equal(result, {
-		sourceIdPathDataByInputPath: new Map([
+		source_idPathDataByInputPath: new Map([
 			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
 			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
 			['fake/test3', {id: 'fake/test3', isDirectory: true}],
@@ -183,7 +183,7 @@ const test_loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async ()
 		async (id) => testFiles[id],
 	);
 	t.equal(result, {
-		sourceIdsByInputPath: new Map([
+		source_idsByInputPath: new Map([
 			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
 			['fake/test2', ['fake/test2.bar.ts']],
 			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],

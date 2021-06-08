@@ -1,11 +1,11 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {dirname, resolve} from 'path';
-import {stripTrailingSlash, toPathParts} from '@feltcoop/felt/utils/path.js';
+import {strip_trailing_slash, toPathParts} from '@feltcoop/felt/utils/path.js';
 
 import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
-import {toRootPath} from '../paths.js';
+import {to_root_path} from '../paths.js';
 
 // TODO organize these test suites better
 // TODO generic fs test suite
@@ -330,7 +330,7 @@ test_ensureDir('normalize paths', async ({fs}) => {
 
 		const endsWithSlash = path.endsWith('/');
 		// TODO maybe add a `stripLast` instead of this
-		const testPath2 = endsWithSlash ? stripTrailingSlash(path) : `${path}/`;
+		const testPath2 = endsWithSlash ? strip_trailing_slash(path) : `${path}/`;
 		await testNormalizePaths(endsWithSlash ? path : testPath2, endsWithSlash ? testPath2 : path);
 	}
 });
@@ -423,7 +423,7 @@ test_findFiles('basic behavior', async ({fs}) => {
 		await fs.writeFile(path, contents, 'utf8');
 		let filterCallCount = 0;
 		const files = await fs.findFiles('.', () => (filterCallCount++, true));
-		const rootPath = toRootPath(toFsId(path));
+		const rootPath = to_root_path(toFsId(path));
 		t.is(filterCallCount, files.size);
 		t.is(files.size, rootPath.split('/').length);
 		t.ok(files.has(rootPath));

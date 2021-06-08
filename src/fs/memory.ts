@@ -1,7 +1,7 @@
 import {compareSimpleMapEntries, sortMap} from '@feltcoop/felt/utils/map.js';
 import type {Assignable} from '@feltcoop/felt/utils/types.js';
 import {toPathParts} from '@feltcoop/felt/utils/path.js';
-import {ensureEnd, stripStart} from '@feltcoop/felt/utils/string.js';
+import {ensureEnd, strip_start} from '@feltcoop/felt/utils/string.js';
 
 import {toFsId, FsStats} from './filesystem.js';
 import type {Filesystem, FsReadFile} from './filesystem.js';
@@ -153,7 +153,7 @@ export class MemoryFs implements Filesystem {
 		const destId = toFsId(destPath);
 		// create a new node at the new location
 		for (const srcNode of srcNodes) {
-			const nodeDestId = `${destId === ROOT ? '' : destId}${stripStart(srcNode.id, srcId)}`;
+			const nodeDestId = `${destId === ROOT ? '' : destId}${strip_start(srcNode.id, srcId)}`;
 			if (filter && !(await filter(srcNode.id, nodeDestId))) continue;
 			const exists = this._files.has(nodeDestId);
 			let output = false;
@@ -192,7 +192,7 @@ export class MemoryFs implements Filesystem {
 		const id = toFsId(path);
 		const idSlash = ensureEnd(id, ROOT);
 		const nodes = this._filter(id);
-		return nodes.map((node) => stripStart(node.id, idSlash));
+		return nodes.map((node) => strip_start(node.id, idSlash));
 	};
 	emptyDir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
@@ -213,7 +213,7 @@ export class MemoryFs implements Filesystem {
 		const baseDirSlash = ensureEnd(baseDir, ROOT);
 		for (const file of this._files.values()) {
 			if (file.id === baseDir || !file.id.startsWith(baseDir)) continue;
-			const path = stripStart(file.id, baseDirSlash);
+			const path = strip_start(file.id, baseDirSlash);
 			if (!filter || filter({path, stats: file.stats})) {
 				found.set(path, file.stats);
 			}

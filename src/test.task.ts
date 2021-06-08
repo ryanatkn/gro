@@ -1,13 +1,13 @@
-import {printTimings} from '@feltcoop/felt/utils/print.js';
+import {print_timings} from '@feltcoop/felt/utils/print.js';
 import {Timings} from '@feltcoop/felt/utils/time.js';
-import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {spawn_process} from '@feltcoop/felt/utils/process.js';
 
 import type {Task} from './task/task.js';
-import {TaskError} from './task/task.js';
-import {toBuildOutPath, toRootPath} from './paths.js';
-import {SYSTEM_BUILD_NAME} from './build/defaultBuildConfig.js';
-import {loadConfig} from './config/config.js';
-import {buildSourceDirectory} from './build/buildSourceDirectory.js';
+import {Task_Error} from './task/task.js';
+import {to_build_out_path, to_root_path} from './paths.js';
+import {SYSTEM_BUILD_NAME} from './build/default_build_config.js';
+import {load_config} from './config/config.js';
+import {build_source_directory} from './build/build_source_directory.js';
 
 // Runs the project's tests: `gro test [...args]`
 // Args are passed through directly to `uvu`'s CLI:
@@ -18,45 +18,45 @@ const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 export const task: Task = {
 	description: 'run tests',
 	run: async ({fs, dev, log, args}): Promise<void> => {
-		const patternCount = args._.length;
-		const testFilePatterns = patternCount ? args._ : DEFAULT_TEST_FILE_PATTERNS;
+		const pattern_count = args._.length;
+		const test_file_patterns = pattern_count ? args._ : DEFAULT_TEST_FILE_PATTERNS;
 
 		const timings = new Timings();
 
-		const testsBuildDir = toBuildOutPath(dev, SYSTEM_BUILD_NAME);
+		const tests_build_dir = to_build_out_path(dev, SYSTEM_BUILD_NAME);
 
 		// TODO cleaner way to detect & rebuild?
-		if (!(await fs.exists(testsBuildDir))) {
-			const timingToLoadConfig = timings.start('load config');
-			const config = await loadConfig(fs, dev);
-			timingToLoadConfig();
+		if (!(await fs.exists(tests_build_dir))) {
+			const timing_to_load_config = timings.start('load config');
+			const config = await load_config(fs, dev);
+			timing_to_load_config();
 
-			const timingToPrebuild = timings.start('prebuild');
-			await buildSourceDirectory(fs, config, dev, log);
-			timingToPrebuild();
+			const timing_to_prebuild = timings.start('prebuild');
+			await build_source_directory(fs, config, dev, log);
+			timing_to_prebuild();
 
 			// Projects may not define any artifacts for the Node build,
 			// and we don't force anything out in that case,
 			// so just exit early if that happens.
-			if (!(await fs.exists(testsBuildDir))) {
+			if (!(await fs.exists(tests_build_dir))) {
 				log.info('no tests found');
 				return;
 			}
 		}
 
-		const timeToRunUvu = timings.start('run test with uvu');
-		const testRunResult = await spawnProcess('npx', [
+		const time_to_run_uvu = timings.start('run test with uvu');
+		const test_run_result = await spawn_process('npx', [
 			'uvu',
-			toRootPath(testsBuildDir),
-			...testFilePatterns,
-			...process.argv.slice(3 + patternCount),
+			to_root_path(tests_build_dir),
+			...test_file_patterns,
+			...process.argv.slice(3 + pattern_count),
 		]);
-		timeToRunUvu();
+		time_to_run_uvu();
 
-		printTimings(timings, log);
+		print_timings(timings, log);
 
-		if (!testRunResult.ok) {
-			throw new TaskError('Tests failed.');
+		if (!test_run_result.ok) {
+			throw new Task_Error('Tests failed.');
 		}
 	},
 };

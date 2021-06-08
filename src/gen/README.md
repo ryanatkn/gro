@@ -214,9 +214,9 @@ or in code:
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	run: async ({args, invokeTask}) => {
-		// this throws a `TaskError` if anything is new or different
-		await invokeTask('gen', {...args, check: true});
+	run: async ({args, invoke_task}) => {
+		// this throws a `Task_Error` if anything is new or different
+		await invoke_task('gen', {...args, check: true});
 	},
 };
 ```

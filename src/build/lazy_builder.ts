@@ -2,10 +2,10 @@ import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 
 import {noopBuilder} from './builder.js';
 import type {BuildContext, Builder, BuildSource} from './builder.js';
-import type {BuildConfig} from '../build/buildConfig.js';
+import type {Build_Config} from '../build/build_config.js';
 
 export interface GetBuilder {
-	(source: BuildSource, buildConfig: BuildConfig): Builder | null;
+	(source: BuildSource, build_config: Build_Config): Builder | null;
 }
 export interface GetBuilders {
 	(): Builder[];
@@ -35,19 +35,19 @@ export const initOptions = (opts: InitialOptions): Options => {
 export const createLazyBuilder = (opts: InitialOptions = {}): Required<Builder> => {
 	const {getBuilder, getBuilders} = initOptions(opts);
 
-	const build: Builder['build'] = (source, buildConfig, ctx) => {
-		const builder = getBuilder(source, buildConfig) || noopBuilder;
-		return builder.build(source, buildConfig, ctx);
+	const build: Builder['build'] = (source, build_config, ctx) => {
+		const builder = getBuilder(source, build_config) || noopBuilder;
+		return builder.build(source, build_config, ctx);
 	};
 
 	const onRemove: Builder['onRemove'] = async (
 		source: BuildSource,
-		buildConfig: BuildConfig,
+		build_config: Build_Config,
 		ctx: BuildContext,
 	) => {
-		const builder = getBuilder(source, buildConfig) || noopBuilder;
+		const builder = getBuilder(source, build_config) || noopBuilder;
 		if (builder.onRemove === undefined) return;
-		await builder.onRemove(source, buildConfig, ctx);
+		await builder.onRemove(source, build_config, ctx);
 	};
 
 	const init: Builder['init'] = async (ctx: BuildContext) => {

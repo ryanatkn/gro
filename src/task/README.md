@@ -22,7 +22,7 @@ and defers composition to the user in regular TypeScript modules.
   no configuration or scaffolding commands needed!
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
-  (but there's also the helper `invokeTask`: see more below)
+  (but there's also the helper `invoke_task`: see more below)
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args
@@ -30,8 +30,8 @@ and defers composition to the user in regular TypeScript modules.
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
   (tasks are copy-paste friendly! just update the imports)
 - the task execution environment is filesystem agnostic by default; `run` receives a
-  [`TaskContext` argument](#user-content-types-task-and-taskcontext) with an `fs` property
-- the `TaskContext` provides a rich baseline context object
+  [`Task_Context` argument](#user-content-types-task-and-taskcontext) with an `fs` property
+- the `Task_Context` provides a rich baseline context object
   for both dev env and one-off script authoring and execution,
   enriching the APIs of both Gro and userland with its portable and extensibile affordances
 - it's fast because it imports only the modules that your chosen tasks need
@@ -101,25 +101,25 @@ export const task: Task = {
 };
 ```
 
-### types `Task` and `TaskContext`
+### types `Task` and `Task_Context`
 
 ```ts
 // usage:
-// import type {Task, TaskContext} from '@feltcoop/gro';
+// import type {Task, Task_Context} from '@feltcoop/gro';
 
 export interface Task<TArgs = Args, TEvents = {}> {
-	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
+	run: (ctx: Task_Context<TArgs, TEvents>) => Promise<unknown>;
 	description?: string;
 	dev?: boolean; // set to `false` to run the task and its children in production mode
 }
 
-export interface TaskContext<TArgs = {}, TEvents = {}> {
+export interface Task_Context<TArgs = {}, TEvents = {}> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
-	invokeTask: (
+	invoke_task: (
 		taskName: string,
 		args?: Args,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
@@ -129,20 +129,20 @@ export interface TaskContext<TArgs = {}, TEvents = {}> {
 }
 ```
 
-### run a task inside another task with `invokeTask`
+### run a task inside another task with `invoke_task`
 
 Because Gro tasks are just functions,
 you can directly import them from within other tasks and run them.
-However, we recommend using the `invokeTask` helper
+However, we recommend using the `invoke_task` helper
 for its ergonomics and automatic logging and diagnostics.
 
-The `invokeTask` helper uses Gro's task resolution rules
+The `invoke_task` helper uses Gro's task resolution rules
 to allow user code to override builtin tasks.
-For example, Gro's `check.task.ts` calls `invokeTask('test')`
+For example, Gro's `check.task.ts` calls `invoke_task('test')`
 so that it calls your `src/test.task.ts` if it exists
 and falls back to `gro/src/test.task.ts` if not.
 
-It's less important to use `invokeTask` over explicit imports in user code
+It's less important to use `invoke_task` over explicit imports in user code
 because you don't need to rely on the task override rules to get desired behavior,
 but the logging and diagnostics it provides are nice to have.
 
@@ -155,18 +155,18 @@ gro some/file
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	run: async ({args, invokeTask}) => {
+	run: async ({args, invoke_task}) => {
 		// runs `src/some/file.task.ts`, automatically forwarding `args`
-		await invokeTask('some/file');
+		await invoke_task('some/file');
 		// as documented above, the following is similar but lacks nice features:
 		// await (await import('./some/file.task.js')).run(ctx);
 
 		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
 		// forwarding both custom args and a different event emitter (warning: spaghetti)
-		await invokeTask('other/file', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
+		await invoke_task('other/file', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
 
 		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
-		await invokeTask('gro/other/file');
+		await invoke_task('gro/other/file');
 	},
 };
 ```
@@ -184,14 +184,14 @@ $ gro test
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	run: async ({args, invokeTask}) => {
+	run: async ({args, invoke_task}) => {
 		await doSomethingFirst();
-		// As discussed in the `invokeTask` section above,
+		// As discussed in the `invoke_task` section above,
 		// it's possible to `import {task as groBuiltinTestTask} from '@feltcoop/gro/dist/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
-		await invokeTask('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
+		await invoke_task('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
 		await emailEveryoneWithTestResults();
 	},
 };
@@ -212,17 +212,17 @@ Some Gro tasks use a value mapping pattern convention that we tentatively recomm
 // src/some/file.task.ts
 import type {Task} from '@feltcoop/gro';
 
-import {TaskArgs as OtherTaskArgs} from './other.task.js';
+import {Task_Args as OtherTask_Args} from './other.task.js';
 
-export interface TaskArgs extends OtherTaskArgs {
+export interface Task_Args extends OtherTask_Args {
 	mapSomething: (thing: string) => string;
-	// this is provided by `OtherTaskArgs`:
+	// this is provided by `OtherTask_Args`:
 	// mapSomeNumber: (other: number) => number;
 }
 
-export const task: Task<TaskArgs> = {
+export const task: Task<Task_Args> = {
 	run: async ({args}) => {
-		// `args` has type `TaskArgs`
+		// `args` has type `Task_Args`
 
 		// other tasks can assign args that this task consumes:
 		const somethingcooler = args.mapSomething('somethingcool');
@@ -236,7 +236,7 @@ export const task: Task<TaskArgs> = {
 ### task events
 
 The `Task` interface's second generic parameter is `TEvents`
-to type the `events` property of the `TaskContext`.
+to type the `events` property of the `Task_Context`.
 It uses Node's builtin `EventEmitter` with types provided by the types-only dependency
 [`strict-event-emitter-types`](https://github.com/bterlson/strict-event-emitter-types/).
 
@@ -246,20 +246,20 @@ Here's how a task can emit and listen to events:
 // src/some/mytask.task.ts
 import type {Task} from '@feltcoop/gro';
 
-import type {TaskEvents as OtherTaskEvents} from './othertask.task.ts';
+import type {Task_Events as OtherTask_Events} from './othertask.task.ts';
 
-export interface TaskArgs {}
-export interface TaskEvents extends OtherTaskEvents {
+export interface Task_Args {}
+export interface Task_Events extends OtherTask_Events {
 	'mytask.data': (count: number, thing: string) => void;
 }
 
-export const task: Task<TaskArgs, TaskEvents> = {
+export const task: Task<Task_Args, Task_Events> = {
 	run: async ({events}) => {
-		// `events` has type `StrictEventEmitter<EventEmitter, TaskEvents>`
+		// `events` has type `StrictEventEmitter<EventEmitter, Task_Events>`
 		// see: https://github.com/bterlson/strict-event-emitter-types/
 		events.emit('mytask.data', 2, 'params');
 
-		// This is typed because we extended `TaskEvents` by another `othertask`'s events.
+		// This is typed because we extended `Task_Events` by another `othertask`'s events.
 		// Other listeners and providers can be upstream or downstream of this task.
 		events.once('othertask.eventname', (some: string, things: boolean, rock: object) => {});
 	},
@@ -276,15 +276,15 @@ This defers control to the caller, like your own parent tasks.
 Often, errors that tasks encounter do not need a stack trace,
 and we don't want the added noise to be logged.
 To suppress logging the stack trace for an error,
-throw a `TaskError`.
+throw a `Task_Error`.
 
 ```ts
-import {Task, TaskError} from '@feltcoop/gro';
+import {Task, Task_Error} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async () => {
 		if (someErrorCondition) {
-			throw new TaskError('We hit a known error - ignore the stack trace!');
+			throw new Task_Error('We hit a known error - ignore the stack trace!');
 		}
 	},
 };
@@ -298,10 +298,10 @@ import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	dev: false, // tell the task runner to set `dev` to false, updating `process.env.NODE_ENV`
-	run: async ({dev, invokeTask}) => {
+	run: async ({dev, invoke_task}) => {
 		// `dev` is `false` because it's defined two lines up in the task definition,
-		// unless an ancestor task called `invokeTask` with a `true` value, like this:
-		invokeTask('descendentTaskWithFlippedDevValue', undefined, undefined, !dev);
+		// unless an ancestor task called `invoke_task` with a `true` value, like this:
+		invoke_task('descendentTaskWithFlippedDevValue', undefined, undefined, !dev);
 	},
 };
 ```

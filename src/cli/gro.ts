@@ -62,13 +62,13 @@ const main = (): Promise<void> => {
 		const filePath = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
 		const dev = process.env.NODE_ENV !== 'production';
-		const basePath1 = dev ? '.gro/dev/node/cli' : '.gro/prod/node/cli';
-		const basePath2 = dev ? '.gro/prod/node/cli' : '.gro/dev/node/cli';
-		if (existsSync(`${basePath1}/gro.js`) && existsSync(`${basePath1}/invoke.js`)) {
-			return import(join(filePath, `../../../${basePath1}/invoke.js`));
+		const base_path1 = dev ? '.gro/dev/node/cli' : '.gro/prod/node/cli';
+		const base_path2 = dev ? '.gro/prod/node/cli' : '.gro/dev/node/cli';
+		if (existsSync(`${base_path1}/gro.js`) && existsSync(`${base_path1}/invoke.js`)) {
+			return import(join(filePath, `../../../${base_path1}/invoke.js`));
 		}
-		if (existsSync(`${basePath2}/gro.js`) && existsSync(`${basePath2}/invoke.js`)) {
-			return import(join(filePath, `../../../${basePath2}/invoke.js`));
+		if (existsSync(`${base_path2}/gro.js`) && existsSync(`${base_path2}/invoke.js`)) {
+			return import(join(filePath, `../../../${base_path2}/invoke.js`));
 		}
 		// case 3
 		// Fall back to the version associated with the running CLI.

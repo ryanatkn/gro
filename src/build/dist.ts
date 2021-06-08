@@ -1,36 +1,36 @@
 import {relative, dirname} from 'path';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {stripEnd} from '@feltcoop/felt/utils/string.js';
+import {strip_end} from '@feltcoop/felt/utils/string.js';
 
-import type {BuildConfig} from '../build/buildConfig.js';
+import type {Build_Config} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {PathStats} from '../fs/pathData.js';
 import {
 	EXTERNALS_BUILD_DIRNAME,
-	toBuildBasePath,
-	toBuildOutPath,
+	to_build_base_path,
+	to_build_out_path,
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
-	printPath,
+	print_path,
 	SOURCE_DIRNAME,
 	paths,
 } from '../paths.js';
 
-// TODO make typemaps optional - how? on the `BuildConfig`?
+// TODO make typemaps optional - how? on the `Build_Config`?
 // or as an arg? on the main Gro config?
 
 export const copyDist = async (
 	fs: Filesystem,
-	buildConfig: BuildConfig,
+	build_config: Build_Config,
 	dev: boolean,
 	distOutDir: string,
 	log: Logger,
 	filter?: (id: string, stats: PathStats) => boolean,
 	pack: boolean = true, // TODO reconsider this API, see `gro-adapter-node-library`
 ): Promise<void> => {
-	const buildOutDir = toBuildOutPath(dev, buildConfig.name);
-	const externalsDir = toBuildOutPath(dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME);
-	log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);
+	const buildOutDir = to_build_out_path(dev, build_config.name);
+	const externalsDir = to_build_out_path(dev, build_config.name, EXTERNALS_BUILD_DIRNAME);
+	log.info(`copying ${print_path(buildOutDir)} to ${print_path(distOutDir)}`);
 	const typemapFiles: string[] = [];
 	await fs.copy(buildOutDir, distOutDir, {
 		overwrite: false, // TODO this was old, not sure anymore: prioritizes the artifacts from other build processes
@@ -51,12 +51,12 @@ export const copyDist = async (
 	// based on the relative change from the build to the dist
 	await Promise.all(
 		typemapFiles.map(async (id) => {
-			const basePath = toBuildBasePath(id);
-			const sourceBasePath = `${stripEnd(basePath, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
+			const base_path = to_build_base_path(id);
+			const sourceBasePath = `${strip_end(base_path, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
 			const distSourceId = pack
 				? `${distOutDir}/${SOURCE_DIRNAME}/${sourceBasePath}`
 				: `${paths.source}${sourceBasePath}`;
-			const distOutPath = `${distOutDir}/${basePath}`;
+			const distOutPath = `${distOutDir}/${base_path}`;
 			const typemapSourcePath = relative(dirname(distOutPath), distSourceId);
 			const typemap = JSON.parse(await fs.readFile(id, 'utf8'));
 			typemap.sources[0] = typemapSourcePath; // haven't seen any exceptions that would break this

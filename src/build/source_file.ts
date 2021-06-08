@@ -1,13 +1,13 @@
 import {basename, dirname, join} from 'path';
 import {UnreachableError} from '@feltcoop/felt/utils/error.js';
-import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {strip_start} from '@feltcoop/felt/utils/string.js';
 
 import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from '../build/filerDir.js';
 import {reconstructBuildFiles} from './buildFile.js';
 import type {BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
 import {toHash} from './utils.js';
-import type {BuildConfig} from '../build/buildConfig.js';
+import type {Build_Config} from '../build/build_config.js';
 import type {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
@@ -29,7 +29,7 @@ export interface BinarySourceFile extends BaseSourceFile {
 }
 export interface BaseSourceFile extends BaseFilerFile {
 	readonly type: 'source';
-	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
+	readonly dir_base_path: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `base_path` too?
 }
 export interface BuildableTextSourceFile extends TextSourceFile, BaseBuildableFile {
 	readonly filerDir: BuildableFilerDir;
@@ -39,11 +39,11 @@ export interface BuildableBinarySourceFile extends BinarySourceFile, BaseBuildab
 }
 export interface BaseBuildableFile {
 	readonly filerDir: FilerDir;
-	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
-	readonly buildConfigs: Set<BuildConfig>;
-	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
-	readonly dependencies: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
-	readonly dependents: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
+	readonly buildFiles: Map<Build_Config, readonly BuildFile[]>;
+	readonly build_configs: Set<Build_Config>;
+	readonly is_input_to_build_configs: null | Set<Build_Config>;
+	readonly dependencies: Map<Build_Config, Map<string, Map<string, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
+	readonly dependents: Map<Build_Config, Map<string, Map<string, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
 	readonly buildable: true;
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }
@@ -52,8 +52,8 @@ export interface NonBuildableBinarySourceFile extends BinarySourceFile, BaseNonB
 export interface BaseNonBuildableFile {
 	readonly filerDir: NonBuildableFilerDir;
 	readonly buildFiles: null;
-	readonly buildConfigs: null;
-	readonly isInputToBuildConfigs: null;
+	readonly build_configs: null;
+	readonly is_input_to_build_configs: null;
 	readonly dependencies: null;
 	readonly dependents: null;
 	readonly buildable: false;
@@ -67,11 +67,11 @@ export const createSourceFile = async (
 	contents: string | Buffer,
 	filerDir: FilerDir,
 	sourceMeta: SourceMeta | undefined,
-	{fs, buildConfigs}: BuildContext,
+	{fs, build_configs}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentsBuffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
 	let contentsHash: string | undefined = undefined;
-	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
+	let reconstructedBuildFiles: Map<Build_Config, BuildFile[]> | null = null;
 	let dirty = false;
 	if (filerDir.buildable && sourceMeta !== undefined) {
 		// TODO why the source meta guard here for `contentsBuffer` and `contentsHash`?
@@ -85,7 +85,7 @@ export const createSourceFile = async (
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
 		dirty = contentsHash !== sourceMeta.data.contentsHash;
-		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!);
+		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, build_configs!);
 	}
 	if (isExternalBrowserModule(id)) {
 		// externals
@@ -96,12 +96,12 @@ export const createSourceFile = async (
 			throw Error(`Expected filer dir to be buildable: ${filerDir.dir} - ${id}`);
 		}
 		let filename = 'index' + (id.endsWith(extension) ? '' : extension);
-		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIRNAME, dirname(id)) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
+		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIRNAME, dirname(id)) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
+		const dir_base_path = strip_start(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 		return {
 			type: 'source',
-			buildConfigs: new Set(),
-			isInputToBuildConfigs: null,
+			build_configs: new Set(),
+			is_input_to_build_configs: null,
 			dependencies: new Map(),
 			dependents: new Map(),
 			buildable: true,
@@ -109,7 +109,7 @@ export const createSourceFile = async (
 			id,
 			filename,
 			dir,
-			dirBasePath,
+			dir_base_path,
 			extension,
 			encoding,
 			contents: contents as string,
@@ -122,15 +122,15 @@ export const createSourceFile = async (
 		};
 	}
 	const filename = basename(id);
-	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
+	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
+	const dir_base_path = strip_start(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 	switch (encoding) {
 		case 'utf8':
 			return filerDir.buildable
 				? {
 						type: 'source',
-						buildConfigs: new Set(),
-						isInputToBuildConfigs: null,
+						build_configs: new Set(),
+						is_input_to_build_configs: null,
 						dependencies: new Map(),
 						dependents: new Map(),
 						buildable: true,
@@ -138,7 +138,7 @@ export const createSourceFile = async (
 						id,
 						filename,
 						dir,
-						dirBasePath,
+						dir_base_path,
 						extension,
 						encoding,
 						contents: contents as string,
@@ -151,8 +151,8 @@ export const createSourceFile = async (
 				  }
 				: {
 						type: 'source',
-						buildConfigs: null,
-						isInputToBuildConfigs: null,
+						build_configs: null,
+						is_input_to_build_configs: null,
 						dependencies: null,
 						dependents: null,
 						buildable: false,
@@ -160,7 +160,7 @@ export const createSourceFile = async (
 						id,
 						filename,
 						dir,
-						dirBasePath,
+						dir_base_path,
 						extension,
 						encoding,
 						contents: contents as string,
@@ -175,8 +175,8 @@ export const createSourceFile = async (
 			return filerDir.buildable
 				? {
 						type: 'source',
-						buildConfigs: new Set(),
-						isInputToBuildConfigs: null,
+						build_configs: new Set(),
+						is_input_to_build_configs: null,
 						dependencies: new Map(),
 						dependents: new Map(),
 						buildable: true,
@@ -184,7 +184,7 @@ export const createSourceFile = async (
 						id,
 						filename,
 						dir,
-						dirBasePath,
+						dir_base_path,
 						extension,
 						encoding,
 						contents: contents as Buffer,
@@ -197,8 +197,8 @@ export const createSourceFile = async (
 				  }
 				: {
 						type: 'source',
-						buildConfigs: null,
-						isInputToBuildConfigs: null,
+						build_configs: null,
+						is_input_to_build_configs: null,
 						dependencies: null,
 						dependents: null,
 						buildable: false,
@@ -206,7 +206,7 @@ export const createSourceFile = async (
 						id,
 						filename,
 						dir,
-						dirBasePath,
+						dir_base_path,
 						extension,
 						encoding,
 						contents: contents as Buffer,

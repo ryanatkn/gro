@@ -1,12 +1,12 @@
 <script lang="ts">
 	import {useProjectState} from './projectState.js';
-	import {toRootPath} from './pathHelpers.js';
+	import {to_root_path} from './pathHelpers.js';
 
 	const ps = useProjectState();
 
 	export let id: string;
 
-	$: displayed = id.startsWith($ps.buildDir) ? toRootPath(id, $ps.buildDir) : id;
+	$: displayed = id.startsWith($ps.build_dir) ? to_root_path(id, $ps.build_dir) : id;
 </script>
 
 <div class="build-id">{displayed}</div>

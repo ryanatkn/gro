@@ -14,7 +14,7 @@ import type {FileFilter} from '../fs/file.js';
 
 This only handles the `gitignore` for the current working directory.
 
-If we need support for Gro simultaneously, see ./packageJson.ts as an example.
+If we need support for Gro simultaneously, see ./package_json.ts as an example.
 
 */
 

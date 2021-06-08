@@ -1,26 +1,26 @@
 import {Timings} from '@feltcoop/felt/utils/time.js';
-import {printTimings} from '@feltcoop/felt/utils/print.js';
-import {printSpawnResult, spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {print_timings} from '@feltcoop/felt/utils/print.js';
+import {print_spawn_result, spawn_process} from '@feltcoop/felt/utils/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
-import {stripTrailingSlash} from '@feltcoop/felt/utils/path.js';
+import {strip_trailing_slash} from '@feltcoop/felt/utils/path.js';
 
 import type {Adapter} from './adapter.js';
-import {TaskError} from '../task/task.js';
+import {Task_Error} from '../task/task.js';
 import {copyDist} from '../build/dist.js';
 import {
 	paths,
-	sourceIdToBasePath,
+	source_id_to_base_path,
 	SOURCE_DIRNAME,
-	toBuildExtension,
-	toImportId,
+	to_build_extension,
+	to_import_id,
 	TS_TYPEMAP_EXTENSION,
 	TS_TYPE_EXTENSION,
 } from '../paths.js';
-import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import type {BuildName} from '../build/buildConfig.js';
-import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
+import {NODE_LIBRARY_BUILD_NAME} from '../build/default_build_config.js';
+import type {Build_Name} from '../build/build_config.js';
+import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {runRollup} from '../build/rollup.js';
-import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
+import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
 
 // TODO maybe add a `files` option to explicitly include source files,
@@ -28,8 +28,8 @@ import type {PathStats} from '../fs/pathData.js';
 // (it should probably accept the normal include/exclude filters from @rollup/pluginutils)
 
 export interface Options {
-	buildName: BuildName; // defaults to 'library'
-	dir: string; // defaults to `dist/${buildName}`
+	build_name: Build_Name; // defaults to 'library'
+	dir: string; // defaults to `dist/${build_name}`
 	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
 	link: string | null; // path to `npm link`, defaults to null
 	// TODO currently these options are only available for 'bundled'
@@ -39,51 +39,51 @@ export interface Options {
 }
 
 interface AdapterArgs {
-	mapInputOptions: MapInputOptions;
-	mapOutputOptions: MapOutputOptions;
-	mapWatchOptions: MapWatchOptions;
+	map_input_options: Map_Input_Options;
+	map_output_options: Map_Output_Options;
+	map_watch_options: Map_Watch_Options;
 }
 
-export const createAdapter = ({
-	buildName = NODE_LIBRARY_BUILD_NAME,
-	dir = `${paths.dist}${buildName}`,
+export const create_adapter = ({
+	build_name = NODE_LIBRARY_BUILD_NAME,
+	dir = `${paths.dist}${build_name}`,
 	type = 'unbundled',
 	link = null,
 	esm = true,
 	cjs = true,
 	pack = true,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
-	dir = stripTrailingSlash(dir);
+	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		begin: async ({fs}) => {
 			await fs.remove(dir);
 		},
 		adapt: async ({config, fs, dev, log, args}) => {
-			const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
+			const {map_input_options, map_output_options, map_watch_options} = args;
 
 			const timings = new Timings(); // TODO probably move to task context
 
-			const buildConfig = config.builds.find((b) => b.name === buildName);
-			if (!buildConfig) {
-				throw Error(`Unknown build config: ${buildName}`);
+			const build_config = config.builds.find((b) => b.name === build_name);
+			if (!build_config) {
+				throw Error(`Unknown build config: ${build_name}`);
 			}
 
-			const files = toInputFiles(buildConfig.input);
+			const files = to_input_files(build_config.input);
 
-			const timingToBundleWithRollup = timings.start('bundle with rollup');
+			const timing_to_bundle_with_rollup = timings.start('bundle with rollup');
 			if (type === 'bundled') {
 				if (type !== 'bundled') throw Error();
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
-					log.trace('no input files in', printBuildConfigLabel(buildConfig));
+					log.trace('no input files in', print_build_config_label(build_config));
 					return;
 				}
-				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
+				const input = files.map((source_id) => to_import_id(source_id, dev, build_config.name));
 				const outputDir = dir;
-				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
+				log.info('bundling', print_build_config_label(build_config), outputDir, files);
 				if (!cjs && !esm) {
-					throw Error(`Build must have either cjs or esm or both: ${buildName}`);
+					throw Error(`Build must have either cjs or esm or both: ${build_name}`);
 				}
 				if (cjs) {
 					await runRollup({
@@ -91,12 +91,12 @@ export const createAdapter = ({
 						sourcemap: config.sourcemap,
 						input,
 						outputDir,
-						mapInputOptions,
-						mapOutputOptions: (o, b) => ({
-							...(mapOutputOptions ? mapOutputOptions(o, b) : o),
+						map_input_options,
+						map_output_options: (o, b) => ({
+							...(map_output_options ? map_output_options(o, b) : o),
 							format: 'commonjs',
 						}),
-						mapWatchOptions,
+						map_watch_options,
 					});
 					await fs.move(`${dir}/index.js`, `${dir}/index.cjs`);
 				}
@@ -106,17 +106,17 @@ export const createAdapter = ({
 						sourcemap: config.sourcemap,
 						input,
 						outputDir,
-						mapInputOptions,
-						mapOutputOptions,
-						mapWatchOptions,
+						map_input_options,
+						map_output_options,
+						map_watch_options,
 					});
 				}
 			}
-			timingToBundleWithRollup();
+			timing_to_bundle_with_rollup();
 
 			const timingToCopyDist = timings.start('copy builds to dist');
 			const filter = type === 'bundled' ? bundledDistFilter : undefined;
-			await copyDist(fs, buildConfig, dev, dir, log, filter, pack);
+			await copyDist(fs, build_config, dev, dir, log, filter, pack);
 			timingToCopyDist();
 
 			// If the output is treated as a package, it needs some special handling to get it ready.
@@ -157,8 +157,8 @@ export const createAdapter = ({
 					'.': pkg.main,
 					'./package.json': './package.json',
 				};
-				for (const sourceId of files) {
-					const path = `./${toBuildExtension(sourceIdToBasePath(sourceId))}`;
+				for (const source_id of files) {
+					const path = `./${to_build_extension(source_id_to_base_path(source_id))}`;
 					pkgExports[path] = path;
 				}
 				pkg.exports = pkgExports;
@@ -170,17 +170,17 @@ export const createAdapter = ({
 			// `npm link` if configured
 			if (link) {
 				const timingToNpmLink = timings.start('npm link');
-				const chmodResult = await spawnProcess('chmod', ['+x', link]);
+				const chmodResult = await spawn_process('chmod', ['+x', link]);
 				if (!chmodResult.ok) log.error(`CLI chmod failed with code ${chmodResult.code}`);
 				log.info(`linking`);
-				const linkResult = await spawnProcess('npm', ['link']);
+				const linkResult = await spawn_process('npm', ['link']);
 				if (!linkResult.ok) {
-					throw new TaskError(`Failed to link. ${printSpawnResult(linkResult)}`);
+					throw new Task_Error(`Failed to link. ${print_spawn_result(linkResult)}`);
 				}
 				timingToNpmLink();
 			}
 
-			printTimings(timings, log);
+			print_timings(timings, log);
 		},
 	};
 };

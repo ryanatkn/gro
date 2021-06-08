@@ -35,7 +35,7 @@
 		// omg this is a big O WTF
 		dependent.data.builds.find((build1) =>
 			build1.dependencies?.find((d) =>
-				dependency.data.builds.find((build2) => build2.id === d.buildId),
+				dependency.data.builds.find((build2) => build2.id === d.build_id),
 			),
 		);
 
@@ -49,12 +49,12 @@
 <div class="summary" class:deemphasized class:emphasized>
 	<div class="dep">
 		{#if activeIsDependency}
-			<span title="{sourceMeta.data.sourceId} has a dependency on {data.sourceId}">↤</span>
+			<span title="{sourceMeta.data.source_id} has a dependency on {data.source_id}">↤</span>
 		{/if}
 	</div>
 	<div class="dep">
 		{#if activeIsDependent}
-			<span title="{sourceMeta.data.sourceId} is a dependency of {data.sourceId}">↦</span>
+			<span title="{sourceMeta.data.source_id} is a dependency of {data.source_id}">↦</span>
 		{/if}
 	</div>
 	<button
@@ -64,7 +64,7 @@
 		class:hovered
 		class:selected
 	>
-		<SourceId id={sourceMeta.data.sourceId} />
+		<SourceId id={sourceMeta.data.source_id} />
 	</button>
 </div>
 

@@ -4,14 +4,14 @@
 	import type {SourceTree} from './sourceTree.js';
 
 	export let sourceTree: SourceTree;
-	export let selectedBuildNames: string[];
+	export let selectedBuild_Names: string[];
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 </script>
 
 <div class="explorers">
-	<SourceMetaBuildTreeExplorer {sourceTree} {selectedBuildNames} />
-	<SourceMetaTreeExplorer {sourceTree} {selectedBuildNames} />
+	<SourceMetaBuildTreeExplorer {sourceTree} {selectedBuild_Names} />
+	<SourceMetaTreeExplorer {sourceTree} {selectedBuild_Names} />
 </div>
 
 <style>

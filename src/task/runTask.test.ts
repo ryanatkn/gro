@@ -41,8 +41,8 @@ test_runTask('invokes a sub task', async () => {
 			id: 'foo/testTask',
 			mod: {
 				task: {
-					run: async ({args, invokeTask}) => {
-						invokeTask('bar/testTask', args);
+					run: async ({args, invoke_task}) => {
+						invoke_task('bar/testTask', args);
 						return args;
 					},
 				},

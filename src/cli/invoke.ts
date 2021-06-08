@@ -5,7 +5,7 @@ attachProcessErrorHandlers();
 import mri from 'mri';
 
 import type {Args} from '../task/task.js';
-import {invokeTask} from '../task/invokeTask.js';
+import {invoke_task} from '../task/invoke_task.js';
 import {fs as nodeFs} from '../fs/node.js';
 
 /*
@@ -14,7 +14,7 @@ This module invokes the Gro CLI which in turn invokes tasks.
 Tasks are the CLI's primary concept.
 To learn more about them, see the docs at `src/task/README.md`.
 
-When the CLI is invoked it passes the first CLI arg as "taskName" to `invokeTask`.
+When the CLI is invoked it passes the first CLI arg as "taskName" to `invoke_task`.
 
 */
 const main = async () => {
@@ -34,7 +34,7 @@ const main = async () => {
 	} = argv;
 	const args = {_, ...namedArgs};
 
-	await invokeTask(nodeFs, taskName, args);
+	await invoke_task(nodeFs, taskName, args);
 };
 
 main(); // see `attachProcessErrorHandlers` above for why we don't catch here

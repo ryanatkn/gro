@@ -1,15 +1,15 @@
 <script lang="ts">
 	import type {Writable} from 'svelte/store';
 
-	import BuildName from './BuildName.svelte';
+	import Build_Name from './Build_Name.svelte';
 	import PlatformName from './PlatformName.svelte';
-	import {getMetasByBuildName} from './sourceTree.js';
+	import {getMetasByBuild_Name} from './sourceTree.js';
 	import type {SourceTree} from './sourceTree.js';
 	import type {View} from './view.js';
 	import type {SourceMeta} from '../build/sourceMeta.js';
 
 	export let sourceTree: SourceTree;
-	export let selectedBuildNames: string[];
+	export let selectedBuild_Names: string[];
 	export let activeSourceMetaView: View;
 	export let selectedSourceMeta: Writable<SourceMeta | null>;
 	export let hoveredSourceMeta: Writable<SourceMeta | null>;
@@ -17,15 +17,15 @@
 
 <div class="source-meta">
 	<form>
-		{#each sourceTree.buildConfigs as buildConfig (buildConfig.name)}
+		{#each sourceTree.build_configs as build_config (build_config.name)}
 			<div>
 				<label>
-					<input type="checkbox" bind:group={selectedBuildNames} value={buildConfig.name} />
-					<BuildName buildName={buildConfig.name} />
+					<input type="checkbox" bind:group={selectedBuild_Names} value={build_config.name} />
+					<Build_Name build_name={build_config.name} />
 					<small>
-						({getMetasByBuildName(sourceTree, buildConfig.name).length})
+						({getMetasByBuild_Name(sourceTree, build_config.name).length})
 
-						<PlatformName platformName={buildConfig.platform} />
+						<PlatformName platformName={build_config.platform} />
 					</small>
 				</label>
 			</div>
@@ -36,6 +36,6 @@
 		{sourceTree}
 		{selectedSourceMeta}
 		{hoveredSourceMeta}
-		{selectedBuildNames}
+		{selectedBuild_Names}
 	/>
 </div>

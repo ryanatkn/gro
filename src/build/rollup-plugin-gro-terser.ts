@@ -5,7 +5,7 @@ import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
 import {printError} from '@feltcoop/felt/utils/print.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
 
-import {printPath} from '../paths.js';
+import {print_path} from '../paths.js';
 
 // TODO speed up with workers
 
@@ -36,7 +36,7 @@ export const groTerserPlugin = (opts: InitialOptions = {}): Plugin => {
 		async renderChunk(code, chunk, {format}) {
 			if (!filter(chunk.fileName)) return null;
 
-			log.info('terser', printPath(chunk.fileName));
+			log.info('terser', print_path(chunk.fileName));
 
 			try {
 				const result = await terser.minify(code, {

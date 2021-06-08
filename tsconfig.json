@@ -5,7 +5,7 @@
 		"module": "esnext",
 		"lib": ["esnext", "dom"],
 		"outDir": ".gro/prod/node",
-		"rootDir": "src",
+		"root_dir": "src",
 		"isolatedModules": true,
 		"importsNotUsedAsValues": "error",
 		"strict": true,

@@ -1,13 +1,13 @@
 import prettier from 'prettier';
 import {extname} from 'path';
 
-import {loadPackageJson} from '../utils/packageJson.js';
+import {load_package_json} from '../utils/package_json.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export const formatFile = async (fs: Filesystem, id: string, contents: string): Promise<string> => {
 	const parser = inferParser(id);
 	if (!parser) return contents;
-	const config = (await loadPackageJson(fs)).prettier as Record<string, any>;
+	const config = (await load_package_json(fs)).prettier as Record<string, any>;
 	return prettier.format(contents, {...config, parser});
 };
 

@@ -2,7 +2,7 @@ import esbuild from 'esbuild';
 import {SystemLogger, printLogLabel} from '@feltcoop/felt/utils/log.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {omitUndefined} from '@feltcoop/felt/utils/object.js';
-import {replaceExtension} from '@feltcoop/felt/utils/path.js';
+import {replace_extension} from '@feltcoop/felt/utils/path.js';
 import {cyan} from '@feltcoop/felt/utils/terminal.js';
 
 import type {EcmaScriptTarget, GenerateTypesForFile} from './tsBuildHelpers.js';
@@ -10,13 +10,13 @@ import {getDefaultEsbuildOptions} from './esbuildBuildHelpers.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
-	toBuildOutPath,
+	to_build_out_path,
 	TS_TYPE_EXTENSION,
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
-import {addJsSourcemapFooter} from './utils.js';
+import {add_js_sourcemap_footer} from './utils.js';
 import {toGenerateTypesForFile} from './tsBuildHelpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -63,8 +63,8 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 
 	const build: EsbuildBuilder['build'] = async (
 		source,
-		buildConfig,
-		{buildDir, dev, sourcemap, target, fs},
+		build_config,
+		{build_dir, dev, sourcemap, target, fs},
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
@@ -72,13 +72,13 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 		if (source.extension !== TS_EXTENSION) {
 			throw Error(`esbuild only handles ${TS_EXTENSION} files, not ${source.extension}`);
 		}
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
+		const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 		const esbuildOptions = {
 			...getEsbuildOptions(target, dev, sourcemap),
 			sourcefile: source.id,
 		};
 		const output = await esbuild.transform(source.contents, esbuildOptions);
-		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
+		const jsFilename = replace_extension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
 		const builds: TextBuild[] = [
 			{
@@ -88,9 +88,9 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				extension: JS_EXTENSION,
 				encoding: source.encoding,
 				contents: output.map
-					? addJsSourcemapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
+					? add_js_sourcemap_footer(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
-				buildConfig,
+				build_config,
 			},
 		];
 		if (output.map) {
@@ -101,30 +101,30 @@ export const createEsbuildBuilder = (opts: InitialOptions = {}): EsbuildBuilder 
 				extension: SOURCEMAP_EXTENSION,
 				encoding: source.encoding,
 				contents: output.map,
-				buildConfig,
+				build_config,
 			});
 		}
 		// TODO hardcoding to generate types only in production builds, might want to change
 		if (!dev) {
 			const {types, typemap} = await (await loadGenerateTypes(fs))(source.id);
 			builds.push({
-				id: replaceExtension(jsId, TS_TYPE_EXTENSION),
-				filename: replaceExtension(jsFilename, TS_TYPE_EXTENSION),
+				id: replace_extension(jsId, TS_TYPE_EXTENSION),
+				filename: replace_extension(jsFilename, TS_TYPE_EXTENSION),
 				dir: outDir,
 				extension: TS_TYPE_EXTENSION,
 				encoding: source.encoding,
 				contents: types,
-				buildConfig,
+				build_config,
 			});
 			if (typemap !== undefined) {
 				builds.push({
-					id: replaceExtension(jsId, TS_TYPEMAP_EXTENSION),
-					filename: replaceExtension(jsFilename, TS_TYPEMAP_EXTENSION),
+					id: replace_extension(jsId, TS_TYPEMAP_EXTENSION),
+					filename: replace_extension(jsFilename, TS_TYPEMAP_EXTENSION),
 					dir: outDir,
 					extension: TS_TYPEMAP_EXTENSION,
 					encoding: source.encoding,
 					contents: typemap,
-					buildConfig,
+					build_config,
 				});
 			}
 		}

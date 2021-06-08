@@ -10,17 +10,17 @@ import {fs} from '../fs/node.js';
 const test_gen = suite('gen');
 
 test_gen('basic behavior', async () => {
-	const sourceIdA = resolve('src/foo.gen.ts');
-	const sourceIdBC = resolve('src/bar/bc');
+	const source_idA = resolve('src/foo.gen.ts');
+	const source_idBC = resolve('src/bar/bc');
 	let fileA: undefined | {fileName: string; contents: string};
 	let fileB: undefined | {fileName: string; contents: string};
 	let fileC1: undefined | {fileName: string; contents: string};
 	let fileC2: undefined | {fileName: string; contents: string};
 	let modA: GenModuleMeta = {
-		id: sourceIdA,
+		id: source_idA,
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, sourceIdA);
+				t.is(ctx.originId, source_idA);
 				if (fileA) throw Error('Already generated fileA');
 				fileA = {
 					fileName: 'foo.ts',
@@ -31,7 +31,7 @@ test_gen('basic behavior', async () => {
 		},
 	};
 	let modB: GenModuleMeta = {
-		id: join(sourceIdBC, 'modB.gen.ts'),
+		id: join(source_idBC, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
 				t.is(ctx.originId, modB.id);
@@ -45,7 +45,7 @@ test_gen('basic behavior', async () => {
 		},
 	};
 	let modC: GenModuleMeta = {
-		id: join(sourceIdBC, 'modC.gen.ts'),
+		id: join(source_idBC, 'modC.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
 				t.is(ctx.originId, modC.id);
@@ -116,14 +116,14 @@ test_gen('basic behavior', async () => {
 });
 
 test_gen('failing gen function', async () => {
-	const sourceIdA = resolve('src/foo.gen.ts');
-	const sourceIdB = resolve('src/bar/baz');
+	const source_idA = resolve('src/foo.gen.ts');
+	const source_idB = resolve('src/bar/baz');
 	let fileB: undefined | {fileName: string; contents: string}; // no fileA because it's never generated
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
 	let modA: GenModuleMeta = {
-		id: sourceIdA,
+		id: source_idA,
 		mod: {
 			gen: async () => {
 				genError = Error('This fails for testing');
@@ -132,7 +132,7 @@ test_gen('failing gen function', async () => {
 		},
 	};
 	let modB: GenModuleMeta = {
-		id: join(sourceIdB, 'modB.gen.ts'),
+		id: join(source_idB, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
 				t.is(ctx.originId, modB.id);

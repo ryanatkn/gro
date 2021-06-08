@@ -1,13 +1,13 @@
 import {join, sep, isAbsolute} from 'path';
-import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {strip_start} from '@feltcoop/felt/utils/string.js';
 
 import {
-	basePathToSourceId,
+	base_path_to_source_id,
 	SOURCE_DIR,
 	SOURCE_DIRNAME,
-	replaceRootDir,
-	groDirBasename,
-	groPaths,
+	replace_root_dir,
+	gro_dir_basename,
+	gro_paths,
 } from '../paths.js';
 import type {Paths} from '../paths.js';
 import {toPathData} from './pathData.js';
@@ -35,25 +35,25 @@ or both, or neither, depending on its needs.
 In the future we may want to support globbing or regexps.
 
 */
-export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
+export const resolveRawInputPath = (rawInputPath: string, from_paths?: Paths): string => {
 	if (isAbsolute(rawInputPath)) return rawInputPath;
 	// Allow prefix `./` and just remove it if it's there.
-	let basePath = stripStart(rawInputPath, './');
-	if (!fromPaths) {
+	let base_path = strip_start(rawInputPath, './');
+	if (!from_paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-		if (basePath.startsWith(groDirBasename)) {
-			fromPaths = groPaths;
-			basePath = stripStart(basePath, groDirBasename);
-		} else if (basePath + sep === groDirBasename) {
-			fromPaths = groPaths;
-			basePath = '';
+		if (base_path.startsWith(gro_dir_basename)) {
+			from_paths = gro_paths;
+			base_path = strip_start(base_path, gro_dir_basename);
+		} else if (base_path + sep === gro_dir_basename) {
+			from_paths = gro_paths;
+			base_path = '';
 		}
 	}
 	// Handle `src` by itself without conflicting with `srcFoo` names.
-	if (basePath === SOURCE_DIRNAME) basePath = '';
+	if (base_path === SOURCE_DIRNAME) base_path = '';
 	// Allow prefix `src/` and just remove it if it's there.
-	basePath = stripStart(basePath, SOURCE_DIR);
-	return basePathToSourceId(basePath, fromPaths);
+	base_path = strip_start(base_path, SOURCE_DIR);
+	return base_path_to_source_id(base_path, from_paths);
 };
 
 export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
@@ -62,7 +62,7 @@ export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
 /*
 
 Gets a list of possible source ids for each input path with `extensions`,
-duplicating each under `rootDirs`.
+duplicating each under `root_dirs`.
 This is first used to fall back to the Gro dir to search for tasks.
 It's the helper used in implementations of `getPossibleSourceIdsForInputPath` below.
 
@@ -70,7 +70,7 @@ It's the helper used in implementations of `getPossibleSourceIdsForInputPath` be
 export const getPossibleSourceIds = (
 	inputPath: string,
 	extensions: string[],
-	rootDirs: string[] = [],
+	root_dirs: string[] = [],
 	paths?: Paths,
 ): string[] => {
 	const possibleSourceIds = [inputPath];
@@ -81,12 +81,12 @@ export const getPossibleSourceIds = (
 			}
 		}
 	}
-	if (rootDirs.length) {
+	if (root_dirs.length) {
 		const ids = possibleSourceIds.slice(); // make a copy or infinitely loop!
-		for (const rootDir of rootDirs) {
-			if (inputPath.startsWith(rootDir)) continue; // avoid duplicates
+		for (const root_dir of root_dirs) {
+			if (inputPath.startsWith(root_dir)) continue; // avoid duplicates
 			for (const possibleSourceId of ids) {
-				possibleSourceIds.push(replaceRootDir(possibleSourceId, rootDir, paths));
+				possibleSourceIds.push(replace_root_dir(possibleSourceId, root_dir, paths));
 			}
 		}
 	}
@@ -106,10 +106,10 @@ export const loadSourcePathDataByInputPath = async (
 	inputPaths: string[],
 	getPossibleSourceIdsForInputPath?: (inputPath: string) => string[],
 ): Promise<{
-	sourceIdPathDataByInputPath: Map<string, PathData>;
+	source_idPathDataByInputPath: Map<string, PathData>;
 	unmappedInputPaths: string[];
 }> => {
-	const sourceIdPathDataByInputPath = new Map<string, PathData>();
+	const source_idPathDataByInputPath = new Map<string, PathData>();
 	const unmappedInputPaths: string[] = [];
 	for (const inputPath of inputPaths) {
 		let filePathData: PathData | null = null;
@@ -130,12 +130,12 @@ export const loadSourcePathDataByInputPath = async (
 			}
 		}
 		if (filePathData || dirPathData) {
-			sourceIdPathDataByInputPath.set(inputPath, filePathData || dirPathData!); // the ! is needed because TypeScript inference fails
+			source_idPathDataByInputPath.set(inputPath, filePathData || dirPathData!); // the ! is needed because TypeScript inference fails
 		} else {
 			unmappedInputPaths.push(inputPath);
 		}
 	}
-	return {sourceIdPathDataByInputPath, unmappedInputPaths};
+	return {source_idPathDataByInputPath, unmappedInputPaths};
 };
 
 /*
@@ -146,33 +146,33 @@ De-dupes source ids.
 
 */
 export const loadSourceIdsByInputPath = async (
-	sourceIdPathDataByInputPath: Map<string, PathData>,
+	source_idPathDataByInputPath: Map<string, PathData>,
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
 ): Promise<{
-	sourceIdsByInputPath: Map<string, string[]>;
+	source_idsByInputPath: Map<string, string[]>;
 	inputDirectoriesWithNoFiles: string[];
 }> => {
-	const sourceIdsByInputPath = new Map<string, string[]>();
+	const source_idsByInputPath = new Map<string, string[]>();
 	const inputDirectoriesWithNoFiles: string[] = [];
 	const existingSourceIds = new Set<string>();
-	for (const [inputPath, pathData] of sourceIdPathDataByInputPath) {
+	for (const [inputPath, pathData] of source_idPathDataByInputPath) {
 		if (pathData.isDirectory) {
 			const files = await findFiles(pathData.id);
 			if (files.size) {
-				let sourceIds: string[] = [];
+				let source_ids: string[] = [];
 				let hasFiles = false;
 				for (const [path, stats] of files) {
 					if (!stats.isDirectory()) {
 						hasFiles = true;
-						const sourceId = join(pathData.id, path);
-						if (!existingSourceIds.has(sourceId)) {
-							existingSourceIds.add(sourceId);
-							sourceIds.push(sourceId);
+						const source_id = join(pathData.id, path);
+						if (!existingSourceIds.has(source_id)) {
+							existingSourceIds.add(source_id);
+							source_ids.push(source_id);
 						}
 					}
 				}
-				if (sourceIds.length) {
-					sourceIdsByInputPath.set(inputPath, sourceIds);
+				if (source_ids.length) {
+					source_idsByInputPath.set(inputPath, source_ids);
 				}
 				if (!hasFiles) {
 					inputDirectoriesWithNoFiles.push(inputPath);
@@ -184,9 +184,9 @@ export const loadSourceIdsByInputPath = async (
 		} else {
 			if (!existingSourceIds.has(pathData.id)) {
 				existingSourceIds.add(pathData.id);
-				sourceIdsByInputPath.set(inputPath, [pathData.id]);
+				source_idsByInputPath.set(inputPath, [pathData.id]);
 			}
 		}
 	}
-	return {sourceIdsByInputPath, inputDirectoriesWithNoFiles};
+	return {source_idsByInputPath, inputDirectoriesWithNoFiles};
 };

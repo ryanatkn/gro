@@ -17,7 +17,7 @@ const DEFAULT_CERTKEY_FILE: string = toEnvString('GRO_CERTKEY_FILE', () =>
 );
 
 // Tries to load the given cert and key, returning `null` if unable.
-export const loadHttpsCredentials = async (
+export const load_https_credentials = async (
 	fs: Filesystem,
 	log: Logger,
 	certFile = DEFAULT_CERT_FILE,

@@ -1,15 +1,15 @@
 import {UnreachableError} from '@feltcoop/felt/utils/error.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 
-import type {BuildConfig} from '../build/buildConfig.js';
-import {toBuildOutPath} from '../paths.js';
+import type {Build_Config} from '../build/build_config.js';
+import {to_build_out_path} from '../paths.js';
 import type {
 	ExternalsAliases,
 	ExternalsBuilderState,
 	EXTERNALS_BUILDER_STATE_KEY,
 } from './externalsBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import type {ServedDir} from './servedDir.js';
+import type {ServedDir} from './served_dir.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './baseFilerFile.js';
@@ -18,10 +18,10 @@ export interface Builder<TSource extends BuildSource = BuildSource, TBuild exten
 	name: string;
 	build(
 		source: TSource,
-		buildConfig: BuildConfig,
+		build_config: Build_Config,
 		ctx: BuildContext,
 	): BuildResult<TBuild> | Promise<BuildResult<TBuild>>; // TODO should this be forced async?
-	onRemove?(source: TSource, buildConfig: BuildConfig, ctx: BuildContext): Promise<void>;
+	onRemove?(source: TSource, build_config: Build_Config, ctx: BuildContext): Promise<void>;
 	init?(ctx: BuildContext): Promise<void>;
 }
 
@@ -32,14 +32,14 @@ export interface BuildResult<TBuild extends Build = Build> {
 // For docs on these, see where they're implemented in the `Filer`.
 export interface BuildContext {
 	readonly fs: Filesystem;
-	readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly build_configs: readonly Build_Config[] | null;
 	readonly sourceMetaById: Map<string, SourceMeta>;
 	readonly log: Logger;
-	readonly buildDir: string;
+	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
 	readonly target: EcmaScriptTarget;
-	readonly servedDirs: readonly ServedDir[];
+	readonly served_dirs: readonly ServedDir[];
 	readonly externalsAliases: ExternalsAliases;
 	readonly state: BuilderState;
 	readonly buildingSourceFiles: Set<string>;
@@ -64,7 +64,7 @@ interface BaseBuild {
 	filename: string;
 	dir: string;
 	extension: string;
-	buildConfig: BuildConfig;
+	build_config: Build_Config;
 }
 
 export type BuildSource = TextBuildSource | BinaryBuildSource;
@@ -81,15 +81,15 @@ interface BaseBuildSource {
 	id: string;
 	filename: string;
 	dir: string;
-	dirBasePath: string;
+	dir_base_path: string;
 	extension: string;
 }
 
 export const noopBuilder: Builder = {
 	name: '@feltcoop/gro-builder-noop',
-	build: (source, buildConfig, {buildDir, dev}) => {
+	build: (source, build_config, {build_dir, dev}) => {
 		const {filename, extension} = source;
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
+		const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 		const id = `${outDir}${filename}`;
 		let file: Build;
 		switch (source.encoding) {
@@ -101,7 +101,7 @@ export const noopBuilder: Builder = {
 					extension,
 					encoding: source.encoding,
 					contents: source.contents,
-					buildConfig,
+					build_config,
 				};
 				break;
 			case null:
@@ -112,7 +112,7 @@ export const noopBuilder: Builder = {
 					extension,
 					encoding: source.encoding,
 					contents: source.contents,
-					buildConfig,
+					build_config,
 				};
 				break;
 			default:
@@ -130,6 +130,6 @@ export const noopBuilder: Builder = {
 export interface BuildDependency {
 	specifier: string;
 	mappedSpecifier: string;
-	buildId: string;
+	build_id: string;
 	external: boolean;
 }

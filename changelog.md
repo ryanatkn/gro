@@ -10,9 +10,9 @@
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: build configs now fail to validate if any input path strings do not exist
   ([#207](https://github.com/feltcoop/gro/pull/207))
-- **break**: rename `loadConfig` from `loadGroConfig`
+- **break**: rename `load_config` from `loadGro_Config`
   ([#207](https://github.com/feltcoop/gro/pull/207))
-- **break**: change `validateBuildConfigs` function signature
+- **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - fix clean
   ([#207](https://github.com/feltcoop/gro/pull/207))
@@ -239,14 +239,14 @@
 
 - **break**: rename `src/utils/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/feltcoop/gro/pull/162))
-- **break**: rename `GroConfigPartial` from `PartialGroConfig`
-  and `BuildConfigPartial` from `PartialBuildConfig`
+- **break**: rename `Gro_Config_Partial` from `PartialGro_Config`
+  and `Build_Config_Partial` from `PartialBuild_Config`
   ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
 - add `src/utils/gitignore.ts` with `isGitignored` and `loadGitignoreFilter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
-- add helper `toSvelteKitBasePath` to `src/build/sveltekitHelpers.ts`
+- add helper `to_sveltekit_base_path` to `src/build/sveltekit_helpers.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
 - default to some environment variables
   for undefined Gro config properties:
@@ -330,18 +330,18 @@
 
 ## 0.11.3
 
-- add `events` to `TaskContext` and its generic type to `Task`,
+- add `events` to `Task_Context` and its generic type to `Task`,
   so tasks can communicate with each other using a normal Node `EventEmitter`
   ([#143](https://github.com/feltcoop/gro/pull/143))
   - events aren't great for everything;
     this PR also documents a value mapping pattern convention for tasks in `src/task/README.md`
-- `gro build` now correctly builds only `BuildConfig`s that have `dist: true`,
+- `gro build` now correctly builds only `Build_Config`s that have `dist: true`,
   allowing users to customize the `dist/` output in each `gro build` via `src/gro.config.ts`
   ([#144](https://github.com/feltcoop/gro/pull/144))
 
 ## 0.11.2
 
-- add a generic parameter to `Task` to type its `TaskArgs`
+- add a generic parameter to `Task` to type its `Task_Args`
   ([#142](https://github.com/feltcoop/gro/pull/142))
 
 ## 0.11.1
@@ -378,7 +378,7 @@
 
 ## 0.9.4
 
-- forward the optional `dev` arg through the task invocation tree via `invokeTask` and `runTask`
+- forward the optional `dev` arg through the task invocation tree via `invoke_task` and `runTask`
   ([#135](https://github.com/feltcoop/gro/pull/135))
 
 ## 0.9.3
@@ -662,7 +662,7 @@
 
 ## 0.1.12
 
-- add the `invokeTask` helper for task composition
+- add the `invoke_task` helper for task composition
   ([#20](https://github.com/feltcoop/gro/pull/20))
 - add CLI flags to print the Gro version with `--version` or `-v`
   ([#21](https://github.com/feltcoop/gro/pull/21))

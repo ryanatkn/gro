@@ -7,13 +7,13 @@ import type {GenModuleMeta} from './genModule.js';
 import {
 	GenResults,
 	GenModuleResult,
-	GenContext,
+	Gen_Context,
 	toGenResult,
 	GenModuleResultSuccess,
 	GenModuleResultFailure,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {printPath} from '../paths.js';
+import {print_path} from '../paths.js';
 
 export const runGen = async (
 	fs: Filesystem,
@@ -29,7 +29,7 @@ export const runGen = async (
 		genModules.map(
 			async ({id, mod}): Promise<GenModuleResult> => {
 				inputCount++;
-				const genCtx: GenContext = {fs, originId: id};
+				const genCtx: Gen_Context = {fs, originId: id};
 				const timingForModule = timings.start(id);
 
 				// Perform code generation by calling `gen` on the module.
@@ -41,7 +41,7 @@ export const runGen = async (
 						ok: false,
 						id,
 						error: err,
-						reason: red(`Error generating ${printPath(id)}`),
+						reason: red(`Error generating ${print_path(id)}`),
 						elapsed: timingForModule(),
 					};
 				}
@@ -60,7 +60,7 @@ export const runGen = async (
 						} catch (err) {
 							contents = file.contents;
 							log?.error(
-								red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
+								red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
 								printError(err),
 							);
 						}

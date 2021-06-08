@@ -1,21 +1,21 @@
 import {deepEqual} from '@feltcoop/felt/utils/equal.js';
 
 import type {SourceMeta, SourceMetaBuild} from '../build/sourceMeta.js';
-import type {BuildConfig, BuildName} from '../build/buildConfig.js';
+import type {Build_Config, Build_Name} from '../build/build_config.js';
 
 export interface SourceTree {
 	// readonly children: SourceTreeNode[];
 	readonly metas: SourceTreeMeta[];
-	readonly metasByBuildName: Map<string, SourceTreeMeta[]>;
-	readonly buildsByBuildName: Map<string, SourceMetaBuild[]>;
-	readonly buildConfigs: readonly BuildConfig[];
-	readonly buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
+	readonly metasByBuild_Name: Map<string, SourceTreeMeta[]>;
+	readonly buildsByBuild_Name: Map<string, SourceMetaBuild[]>;
+	readonly build_configs: readonly Build_Config[];
+	readonly build_names: string[]; // for convenience, same as keys of `buildsByBuild_Name`
 	readonly builds: SourceMetaBuild[];
 }
 
 export interface SourceTreeMeta extends SourceMeta {
-	readonly buildsByBuildName: Map<string, SourceMetaBuild[]>;
-	readonly buildNames: string[]; // for convenience, same as keys of `buildsByBuildName`
+	readonly buildsByBuild_Name: Map<string, SourceMetaBuild[]>;
+	readonly build_names: string[]; // for convenience, same as keys of `buildsByBuild_Name`
 }
 
 // export interface SourceTreeNode {
@@ -24,90 +24,90 @@ export interface SourceTreeMeta extends SourceMeta {
 
 export const createSourceTree = (
 	sourceMeta: SourceMeta[],
-	buildConfigs: readonly BuildConfig[],
+	build_configs: readonly Build_Config[],
 ): SourceTree => {
 	const metas = toSourceTreeMeta(
-		sourceMeta.sort((a, b) => (a.data.sourceId > b.data.sourceId ? 1 : -1)),
+		sourceMeta.sort((a, b) => (a.data.source_id > b.data.source_id ? 1 : -1)),
 	);
 	const builds: SourceMetaBuild[] = [];
-	const buildsByBuildName: Map<string, SourceMetaBuild[]> = new Map();
+	const buildsByBuild_Name: Map<string, SourceMetaBuild[]> = new Map();
 	for (const sourceTreeMeta of metas) {
-		for (const sourceMetaBuilds of sourceTreeMeta.buildsByBuildName.values()) {
+		for (const sourceMetaBuilds of sourceTreeMeta.buildsByBuild_Name.values()) {
 			for (const sourceMetaBuild of sourceMetaBuilds) {
 				builds.push(sourceMetaBuild);
-				let sourceMetaBuilds = buildsByBuildName.get(sourceMetaBuild.name);
+				let sourceMetaBuilds = buildsByBuild_Name.get(sourceMetaBuild.name);
 				if (sourceMetaBuilds === undefined) {
-					buildsByBuildName.set(sourceMetaBuild.name, (sourceMetaBuilds = []));
+					buildsByBuild_Name.set(sourceMetaBuild.name, (sourceMetaBuilds = []));
 				}
 				sourceMetaBuilds.push(sourceMetaBuild);
 			}
 		}
 	}
-	const buildNames = Array.from(buildsByBuildName.keys()).sort();
-	const buildNamesFromConfigs = buildConfigs.map((b) => b.name).sort();
-	if (!deepEqual(buildNames, buildNamesFromConfigs)) {
+	const build_names = Array.from(buildsByBuild_Name.keys()).sort();
+	const build_namesFromConfigs = build_configs.map((b) => b.name).sort();
+	if (!deepEqual(build_names, build_namesFromConfigs)) {
 		console.warn(
 			'build names differ between builds and configs',
-			buildNames,
-			buildNamesFromConfigs,
+			build_names,
+			build_namesFromConfigs,
 		);
 	}
-	const metasByBuildName: Map<string, SourceTreeMeta[]> = new Map(
-		buildNames.map((buildName) => [
-			buildName,
-			metas.filter((meta) => meta.buildsByBuildName.has(buildName)),
+	const metasByBuild_Name: Map<string, SourceTreeMeta[]> = new Map(
+		build_names.map((build_name) => [
+			build_name,
+			metas.filter((meta) => meta.buildsByBuild_Name.has(build_name)),
 		]),
 	);
 	return {
 		metas,
-		metasByBuildName,
-		buildsByBuildName,
-		buildConfigs,
-		buildNames,
+		metasByBuild_Name,
+		buildsByBuild_Name,
+		build_configs,
+		build_names,
 		builds,
 	};
 };
 
 export const toSourceTreeMeta = (metas: SourceMeta[]): SourceTreeMeta[] => {
 	return metas.map((sourceMeta) => {
-		const buildsByBuildName: Map<string, SourceMetaBuild[]> = new Map();
+		const buildsByBuild_Name: Map<string, SourceMetaBuild[]> = new Map();
 		for (const build of sourceMeta.data.builds) {
-			let builds = buildsByBuildName.get(build.name);
+			let builds = buildsByBuild_Name.get(build.name);
 			if (builds === undefined) {
-				buildsByBuildName.set(build.name, (builds = []));
+				buildsByBuild_Name.set(build.name, (builds = []));
 			}
 			builds.push(build);
 		}
 		const treeMeta: SourceTreeMeta = {
 			...sourceMeta,
-			buildsByBuildName,
-			buildNames: Array.from(buildsByBuildName.keys()).sort(),
+			buildsByBuild_Name,
+			build_names: Array.from(buildsByBuild_Name.keys()).sort(),
 		};
 		return treeMeta;
 	});
 };
 
-// filters those meta items that have some selected build, based on `selectedBuildNames`
+// filters those meta items that have some selected build, based on `selectedBuild_Names`
 export const filterSelectedMetas = (
 	sourceTree: SourceTree,
-	selectedBuildNames: string[],
+	selectedBuild_Names: string[],
 ): SourceTreeMeta[] =>
-	sourceTree.metas.filter((m) => selectedBuildNames.some((n) => m.buildsByBuildName.has(n)));
+	sourceTree.metas.filter((m) => selectedBuild_Names.some((n) => m.buildsByBuild_Name.has(n)));
 
-export const getMetasByBuildName = (
+export const getMetasByBuild_Name = (
 	sourceTree: SourceTree,
-	buildName: BuildName,
+	build_name: Build_Name,
 ): SourceTreeMeta[] => {
-	const metas = sourceTree.metasByBuildName.get(buildName)!;
-	if (!metas) throw Error(`Expected to find meta:s ${buildName}`);
+	const metas = sourceTree.metasByBuild_Name.get(build_name)!;
+	if (!metas) throw Error(`Expected to find meta:s ${build_name}`);
 	return metas;
 };
 
-export const getBuildsByBuildName = (
+export const getBuildsByBuild_Name = (
 	sourceMeta: SourceTreeMeta,
-	buildName: BuildName,
+	build_name: Build_Name,
 ): SourceMetaBuild[] => {
-	const builds = sourceMeta.buildsByBuildName.get(buildName)!;
-	if (!builds) throw Error(`Expected to find builds: ${buildName}`);
+	const builds = sourceMeta.buildsByBuild_Name.get(build_name)!;
+	if (!builds) throw Error(`Expected to find builds: ${build_name}`);
 	return builds;
 };

@@ -1,12 +1,12 @@
 import type {ImportMap} from 'esinstall';
 
-import {EXTERNALS_BUILD_DIRNAME, toBuildOutPath} from '../paths.js';
+import {EXTERNALS_BUILD_DIRNAME, to_build_out_path} from '../paths.js';
 import type {BuilderState, BuildContext} from './builder.js';
-import type {BuildConfig} from '../build/buildConfig.js';
+import type {Build_Config} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface ExternalsBuilderState {
-	readonly buildStates: Map<BuildConfig, ExternalsBuildState>;
+	readonly buildStates: Map<Build_Config, ExternalsBuildState>;
 }
 
 // extends `filer.state.externals`
@@ -45,11 +45,11 @@ export const initExternalsBuilderState = (state: BuilderState): ExternalsBuilder
 // throws if it can't find it
 export const getExternalsBuildState = (
 	builderState: ExternalsBuilderState,
-	buildConfig: BuildConfig,
+	build_config: Build_Config,
 ): ExternalsBuildState => {
-	const buildState = builderState.buildStates.get(buildConfig);
+	const buildState = builderState.buildStates.get(build_config);
 	if (buildState === undefined) {
-		throw Error(`Expected build state to exist: ${buildConfig.name}`);
+		throw Error(`Expected build state to exist: ${build_config.name}`);
 	}
 	return buildState;
 };
@@ -57,9 +57,9 @@ export const getExternalsBuildState = (
 // this throws if the state already exists
 export const initExternalsBuildState = (
 	builderState: ExternalsBuilderState,
-	buildConfig: BuildConfig,
+	build_config: Build_Config,
 ): ExternalsBuildState => {
-	let buildState = builderState.buildStates.get(buildConfig);
+	let buildState = builderState.buildStates.get(build_config);
 	if (buildState !== undefined) throw Error('Build state already initialized');
 	buildState = {
 		importMap: undefined,
@@ -69,7 +69,7 @@ export const initExternalsBuildState = (
 		idleTimer: 0,
 		resetterInterval: null,
 	};
-	builderState.buildStates.set(buildConfig, buildState);
+	builderState.buildStates.set(build_config, buildState);
 	return buildState;
 };
 
@@ -130,11 +130,11 @@ export const createDelayedPromise = <T>(
 // Externals are Node imports referenced in browser builds.
 export const isExternalBuildId = (
 	id: string,
-	buildConfig: BuildConfig,
+	build_config: Build_Config,
 	ctx: BuildContext,
 ): boolean =>
-	buildConfig.platform === 'browser'
+	build_config.platform === 'browser'
 		? id.startsWith(
-				toBuildOutPath(ctx.dev, buildConfig.name, EXTERNALS_BUILD_DIRNAME, ctx.buildDir) + '/',
+				to_build_out_path(ctx.dev, build_config.name, EXTERNALS_BUILD_DIRNAME, ctx.build_dir) + '/',
 		  )
 		: false;

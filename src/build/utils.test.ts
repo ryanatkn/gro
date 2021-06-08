@@ -21,7 +21,7 @@ test_toHash.run();
 
 /* test_createDirectoryFilter */
 const test_createDirectoryFilter = suite('createDirectoryFilter', {
-	rootDir: resolve('bar'),
+	root_dir: resolve('bar'),
 });
 
 test_createDirectoryFilter('relative source path', () => {
@@ -40,20 +40,20 @@ test_createDirectoryFilter('absolute source path', () => {
 	t.not.ok(filter(join(paths.source, 'fo/')));
 });
 
-test_createDirectoryFilter('relative path with custom root', ({rootDir}) => {
-	const filter = createDirectoryFilter('foo', rootDir);
-	t.ok(filter(join(rootDir, 'foo')));
-	t.ok(filter(join(rootDir, 'foo/')));
-	t.not.ok(filter(join(rootDir, 'fo')));
-	t.not.ok(filter(join(rootDir, 'fo/')));
+test_createDirectoryFilter('relative path with custom root', ({root_dir}) => {
+	const filter = createDirectoryFilter('foo', root_dir);
+	t.ok(filter(join(root_dir, 'foo')));
+	t.ok(filter(join(root_dir, 'foo/')));
+	t.not.ok(filter(join(root_dir, 'fo')));
+	t.not.ok(filter(join(root_dir, 'fo/')));
 });
 
-test_createDirectoryFilter('absolute path with custom root', ({rootDir}) => {
-	const filter = createDirectoryFilter(join(rootDir, 'foo'), rootDir);
-	t.ok(filter(join(rootDir, 'foo')));
-	t.ok(filter(join(rootDir, 'foo/')));
-	t.not.ok(filter(join(rootDir, 'fo')));
-	t.not.ok(filter(join(rootDir, 'fo/')));
+test_createDirectoryFilter('absolute path with custom root', ({root_dir}) => {
+	const filter = createDirectoryFilter(join(root_dir, 'foo'), root_dir);
+	t.ok(filter(join(root_dir, 'foo')));
+	t.ok(filter(join(root_dir, 'foo/')));
+	t.not.ok(filter(join(root_dir, 'fo')));
+	t.not.ok(filter(join(root_dir, 'fo/')));
 });
 
 test_createDirectoryFilter.run();

@@ -1,16 +1,16 @@
-import {printMs, printTimings} from '@feltcoop/felt/utils/print.js';
+import {printMs, print_timings} from '@feltcoop/felt/utils/print.js';
 import type {Logger} from '@feltcoop/felt/utils/log.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/utils/time.js';
 
 import {paths} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {createDefaultBuilder} from './defaultBuilder.js';
-import type {GroConfig} from '../config/config.js';
+import type {Gro_Config} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export const buildSourceDirectory = async (
+export const build_source_directory = async (
 	fs: Filesystem,
-	config: GroConfig,
+	config: Gro_Config,
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {
@@ -19,7 +19,7 @@ export const buildSourceDirectory = async (
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
 	const logTimings = () => {
-		printTimings(timings, log);
+		print_timings(timings, log);
 		log.info(`🕒 built in ${printMs(totalTiming())}`);
 	};
 
@@ -29,7 +29,7 @@ export const buildSourceDirectory = async (
 		dev,
 		builder: createDefaultBuilder(),
 		sourceDirs: [paths.source],
-		buildConfigs: config.builds,
+		build_configs: config.builds,
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,

@@ -25,7 +25,7 @@ import {
 } from '../build/baseFilerFile.js';
 import type {BaseFilerFile} from '../build/baseFilerFile.js';
 import {paths} from '../paths.js';
-import {loadPackageJson} from '../utils/packageJson.js';
+import {load_package_json} from '../utils/package_json.js';
 import type {ProjectState} from './projectState.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -64,7 +64,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	};
 };
 
-export const createGroServer = (opts: InitialOptions): GroServer => {
+export const create_gro_server = (opts: InitialOptions): GroServer => {
 	const options = initOptions(opts);
 	const {filer, host, port, https, log} = options;
 
@@ -179,11 +179,11 @@ const toResponse = async (
 	const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
 	if (SOURCE_ROOT_MATCHER.test(url)) {
 		const projectState: ProjectState = {
-			buildDir: filer.buildDir,
+			build_dir: filer.build_dir,
 			sourceDir: paths.source,
 			items: Array.from(filer.sourceMetaById.values()),
-			buildConfigs: filer.buildConfigs!,
-			packageJson: await loadPackageJson(filer.fs),
+			build_configs: filer.build_configs!,
+			package_json: await load_package_json(filer.fs),
 		};
 		return {
 			status: 200,

@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
-import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {strip_start} from '@feltcoop/felt/utils/string.js';
 
 export interface ServedDir {
 	path: string;
@@ -8,9 +8,9 @@ export interface ServedDir {
 	base: string; // relative path stripped from requests; for GitHub pages, this is the repo name
 }
 
-export type ServedDirPartial = string | PartialExcept<ServedDir, 'path'>;
+export type Served_Dir_Partial = string | PartialExcept<ServedDir, 'path'>;
 
-export const toServedDir = (dir: ServedDirPartial): ServedDir => {
+export const toServedDir = (dir: Served_Dir_Partial): ServedDir => {
 	if (typeof dir === 'string') dir = {path: dir};
 	const resolvedDir = resolve(dir.path);
 	return {
@@ -20,14 +20,14 @@ export const toServedDir = (dir: ServedDirPartial): ServedDir => {
 	};
 };
 
-export const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
+export const toServedDirs = (partials: Served_Dir_Partial[]): ServedDir[] => {
 	const dirs = partials.map((d) => toServedDir(d));
 	const uniqueDirs = new Set<string>();
 	for (const dir of dirs) {
 		// TODO instead of the error, should we allow multiple served paths for each input dir?
 		// This is mainly done to prevent duplicate work in watching the source directories.
 		if (uniqueDirs.has(dir.path)) {
-			throw Error(`Duplicate servedDirs are not allowed: ${dir.path}`);
+			throw Error(`Duplicate served_dirs are not allowed: ${dir.path}`);
 		}
 		uniqueDirs.add(dir.path);
 	}
@@ -35,7 +35,7 @@ export const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
 };
 
 // `base` is the same as in `ServedDir` above
-export const stripBase = (path: string, base: string) => stripStart(stripStart(path, base), '/');
+export const stripBase = (path: string, base: string) => strip_start(strip_start(path, base), '/');
 
 // for compatibility with SvelteKit, the incoming `base` value may have a leading / or ./ or be a .
-const baseToRelativePath = (base: string): string => stripStart(stripStart(base, '.'), '/');
+const baseToRelativePath = (base: string): string => strip_start(strip_start(base, '.'), '/');

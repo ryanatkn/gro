@@ -2,7 +2,7 @@ import {green} from '@feltcoop/felt/utils/terminal.js';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
 import {printKeyValue} from '@feltcoop/felt/utils/print.js';
 
-import {printPath} from '../paths.js';
+import {print_path} from '../paths.js';
 
 export interface CssBuild {
 	id: string;
@@ -50,7 +50,7 @@ export const createCssCache = <T extends CssBuild = CssBuild>(): CssCache<T> => 
 				bundles.set(bundleName, bundle);
 			}
 
-			log.info(printKeyValue('caching', printPath(id)), printKeyValue('bundle', bundleName));
+			log.info(printKeyValue('caching', print_path(id)), printKeyValue('bundle', bundleName));
 			bundle.buildsById.set(id, build);
 			bundle.changedIds.add(id);
 

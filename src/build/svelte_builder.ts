@@ -20,11 +20,11 @@ import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
 	SVELTE_EXTENSION,
-	toBuildOutPath,
+	to_build_out_path,
 } from '../paths.js';
 import type {Builder, BuildResult, TextBuild, TextBuildSource} from './builder.js';
-import type {BuildConfig} from '../build/buildConfig.js';
-import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
+import type {Build_Config} from '../build/build_config.js';
+import {add_css_sourcemap_footer, add_js_sourcemap_footer} from './utils.js';
 
 // TODO build types in production unless `declarations` is `false`,
 // so they'll be automatically copied into unbundled production dists
@@ -72,8 +72,8 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 
 	const build: SvelteBuilder['build'] = async (
 		source,
-		buildConfig,
-		{buildDir, dev, sourcemap, target},
+		build_config,
+		{build_dir, dev, sourcemap, target},
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`svelte only handles utf8 encoding, not ${source.encoding}`);
@@ -82,7 +82,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
 		const {id, encoding, contents} = source;
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
+		const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 		let preprocessedCode: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps
@@ -99,7 +99,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 		const output: SvelteCompilation = svelte.compile(preprocessedCode, {
 			...baseSvelteCompileOptions,
 			dev,
-			generate: getGenerateOption(buildConfig),
+			generate: getGenerateOption(build_config),
 			...svelteCompileOptions,
 			filename: id, // TODO should we be giving a different path?
 		});
@@ -125,9 +125,9 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				extension: JS_EXTENSION,
 				encoding,
 				contents: hasJsSourcemap
-					? addJsSourcemapFooter(js.code, jsFilename + SOURCEMAP_EXTENSION)
+					? add_js_sourcemap_footer(js.code, jsFilename + SOURCEMAP_EXTENSION)
 					: js.code,
-				buildConfig,
+				build_config,
 			},
 		];
 		if (hasJsSourcemap) {
@@ -138,7 +138,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				extension: SOURCEMAP_EXTENSION,
 				encoding,
 				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
-				buildConfig,
+				build_config,
 			});
 		}
 		if (css.code) {
@@ -149,9 +149,9 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 				extension: CSS_EXTENSION,
 				encoding,
 				contents: hasCssSourcemap
-					? addCssSourcemapFooter(css.code, cssFilename + SOURCEMAP_EXTENSION)
+					? add_css_sourcemap_footer(css.code, cssFilename + SOURCEMAP_EXTENSION)
 					: css.code,
-				buildConfig,
+				build_config,
 			});
 			if (hasCssSourcemap) {
 				builds.push({
@@ -161,7 +161,7 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 					extension: SOURCEMAP_EXTENSION,
 					encoding,
 					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
-					buildConfig,
+					build_config,
 				});
 			}
 		}
@@ -172,13 +172,13 @@ export const createSvelteBuilder = (opts: InitialOptions = {}): SvelteBuilder =>
 	return {name: '@feltcoop/gro-builder-svelte', build};
 };
 
-const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {
-	switch (buildConfig.platform) {
+const getGenerateOption = (build_config: Build_Config): 'dom' | 'ssr' | false => {
+	switch (build_config.platform) {
 		case 'browser':
 			return 'dom';
 		case 'node':
 			return 'ssr';
 		default:
-			throw new UnreachableError(buildConfig.platform);
+			throw new UnreachableError(build_config.platform);
 	}
 };

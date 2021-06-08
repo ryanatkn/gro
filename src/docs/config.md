@@ -30,9 +30,9 @@ See [`src/config/config.ts`](/src/config/config.ts) for the config types and imp
 Here's a config for a simple Node project:
 
 ```ts
-import type {GroConfigCreator} from '@feltcoop/gro';
+import type {Gro_Config_Creator} from '@feltcoop/gro';
 
-export const config: GroConfigCreator = async () => {
+export const config: Gro_Config_Creator = async () => {
 	return {
 		builds: [{name: 'server', platform: 'node', input: 'index.ts'}],
 	};
@@ -42,10 +42,10 @@ export const config: GroConfigCreator = async () => {
 Here's what a frontend-only project with both desktop and mobile builds may look like:
 
 ```ts
-import type {GroConfigCreator} from '@feltcoop/gro';
+import type {Gro_Config_Creator} from '@feltcoop/gro';
 import {createFilter} from '@rollup/pluginutils';
 
-export const config: GroConfigCreator = async () => {
+export const config: Gro_Config_Creator = async () => {
 	return {
 		builds: [
 			{
@@ -70,19 +70,19 @@ Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
 
-The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files:
+The [`Gro_Config_Partial`](/src/gro.config.ts) is the return value of config files:
 
 ```ts
-export interface GroConfigPartial {
-	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
+export interface Gro_Config_Partial {
+	readonly builds: (Build_Config_Partial | null)[] | Build_Config_Partial | null;
 	readonly publish?: string | null; // dir for `gro publish`, defaults to 'dist/library' if it exists
 	readonly adapt?: AdaptBuilds;
 	readonly target?: EcmaScriptTarget; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
-	readonly logLevel?: LogLevel; // env.GRO_LOG_LEVEL
-	readonly serve?: ServedDirPartial[];
+	readonly log_level?: Log_Level; // env.GRO_LOG_LEVEL
+	readonly serve?: Served_Dir_Partial[];
 }
 ```
 
@@ -90,14 +90,14 @@ export interface GroConfigPartial {
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`BuildConfigPartial`](/src/build/buildConfig.ts) type,
-which is the user-facing version of the [`BuildConfig`](/src/build/buildConfig.ts):
+Here's the [`Build_Config_Partial`](/src/build/build_config.ts) type,
+which is the user-facing version of the [`Build_Config`](/src/build/build_config.ts):
 
 ```ts
-export interface BuildConfigPartial {
+export interface Build_Config_Partial {
 	readonly name: string;
 	readonly platform: PlatformTarget; // 'node' | 'browser'
-	readonly input: BuildConfigInput | BuildConfigInput[];
+	readonly input: Build_Config_Input | Build_Config_Input[];
 }
 ```
 
@@ -144,11 +144,11 @@ export interface AdaptBuilds<TArgs = any, TEvents = any> {
 to serve the contents of both `src/` and `src/client/` off of the root directory.
 
 ```ts
-serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
+serve: [to_build_out_path(true, 'browser', 'client'), to_build_out_path(true, 'browser', '')],
 ```
 
 ```ts
-type ServedDirPartial =
+type Served_Dir_Partial =
 	| string
 	| {
 			path: string;

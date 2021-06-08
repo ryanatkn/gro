@@ -5,7 +5,7 @@ import {Filer} from './Filer.js';
 import {fs as memoryFs} from '../fs/memory.js';
 import type {MemoryFs} from '../fs/memory.js';
 import type {Builder} from './builder.js';
-import type {BuildConfig} from '../build/buildConfig.js';
+import type {Build_Config} from '../build/build_config.js';
 
 interface SuiteContext {
 	fs: MemoryFs;
@@ -31,7 +31,7 @@ test_Filer('basic serve usage', async ({fs}) => {
 	const filer = new Filer({
 		fs,
 		dev,
-		servedDirs: ['/served'],
+		served_dirs: ['/served'],
 		watch: false,
 	});
 	t.ok(filer);
@@ -60,25 +60,25 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const entrypointFilename = 'entrypoint.ts';
 	const entryId = `${rootId}/${entrypointFilename}`;
 	fs.writeFile(entryId, 'export const a: number = 5;', 'utf8');
-	const buildConfig: BuildConfig = {
+	const build_config: Build_Config = {
 		name: 'test_build_config',
 		platform: 'node',
 		input: [entryId],
 	};
 	const builder: Builder = {
 		name: '@feltcoop/gro-builder-test',
-		build(_source, _buildConfig, _ctx) {
+		build(_source, _build_config, _ctx) {
 			return {builds: []}; // TODO return a file and verify it below
 		},
 	};
 	const filer = new Filer({
 		fs,
 		dev,
-		buildDir: '/c/',
+		build_dir: '/c/',
 		builder,
-		buildConfigs: [buildConfig],
+		build_configs: [build_config],
 		sourceDirs: [rootId],
-		servedDirs: [rootId], // normally gets served out of the Gro build dirs, but we override
+		served_dirs: [rootId], // normally gets served out of the Gro build dirs, but we override
 		watch: false,
 	});
 	t.ok(filer);

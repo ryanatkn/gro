@@ -4,8 +4,8 @@ import {printLogLabel, SystemLogger} from '@feltcoop/felt/utils/log.js';
 
 import type {TaskModuleMeta} from './taskModule.js';
 import type {Args} from './task.js';
-import {TaskError} from './task.js';
-import type {invokeTask as InvokeTaskFunction} from './invokeTask.js';
+import {Task_Error} from './task.js';
+import type {invoke_task as InvokeTaskFunction} from './invoke_task.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export type RunTaskResult =
@@ -24,7 +24,7 @@ export const runTask = async (
 	task: TaskModuleMeta,
 	args: Args,
 	events: EventEmitter,
-	invokeTask: typeof InvokeTaskFunction,
+	invoke_task: typeof InvokeTaskFunction,
 	dev: boolean | undefined, // `undefined` on first task invocation, so it infers from the first task
 ): Promise<RunTaskResult> => {
 	if (dev === undefined) {
@@ -43,19 +43,19 @@ export const runTask = async (
 			args,
 			events,
 			log: new SystemLogger(printLogLabel(task.name)),
-			invokeTask: (
+			invoke_task: (
 				invokedTaskName,
 				invokedArgs = args,
 				invokedEvents = events,
 				invokedDev = dev,
 				invokedFs = fs,
-			) => invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents, invokedDev),
+			) => invoke_task(invokedFs, invokedTaskName, invokedArgs, invokedEvents, invokedDev),
 		});
 	} catch (err) {
 		return {
 			ok: false,
 			reason: red(
-				err instanceof TaskError
+				err instanceof Task_Error
 					? err.message
 					: `Unexpected error running task ${cyan(
 							task.name,

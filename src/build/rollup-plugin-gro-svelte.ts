@@ -11,14 +11,14 @@ import type {PartialExcept} from '@feltcoop/felt/utils/types.js';
 
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/svelteBuildHelpers.js';
 import type {SvelteCompilation} from '../build/svelteBuildHelpers.js';
-import {CSS_EXTENSION, printPath} from '../paths.js';
+import {CSS_EXTENSION, print_path} from '../paths.js';
 import type {CssBuild} from './cssCache.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
 
 export interface GroCssBuild extends CssBuild {
-	sourceId: string; // for Svelte files, the `.svelte` version instead of `.css`
+	source_id: string; // for Svelte files, the `.svelte` version instead of `.css`
 	sortIndex: number; // sort order when css is concatenated - maybe make this optional?
 	map: ExistingRawSourceMap | undefined;
 }
@@ -84,14 +84,14 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 		getCompilation,
 		async transform(code, id) {
 			if (!filter(id)) return null;
-			log.trace('transform', printPath(id));
+			log.trace('transform', print_path(id));
 
 			let preprocessedCode = code;
 
 			// TODO see rollup-plugin-svelte for how to track deps
 			// let dependencies = [];
 			if (preprocessor) {
-				log.trace('preprocess', printPath(id));
+				log.trace('preprocess', print_path(id));
 				const preprocessed = await svelte.preprocess(code, preprocessor, {
 					filename: id,
 				});
@@ -99,7 +99,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 				// dependencies = preprocessed.dependencies;
 			}
 
-			log.trace('compile', printPath(id));
+			log.trace('compile', print_path(id));
 			let svelteCompilation: SvelteCompilation;
 			try {
 				svelteCompilation = svelte.compile(preprocessedCode, {
@@ -110,7 +110,7 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 					name: toPathStem(id),
 				});
 			} catch (err) {
-				log.error(red('Failed to compile Svelte'), printPath(id));
+				log.error(red('Failed to compile Svelte'), print_path(id));
 				throw err;
 			}
 			const {js, css, warnings, stats} = svelteCompilation;
@@ -122,10 +122,10 @@ export const groSveltePlugin = (opts: InitialOptions): GroSveltePlugin => {
 			onstats(id, stats, handleStats, log, this);
 
 			const cssId = `${id}${CSS_EXTENSION}`;
-			log.trace('add css import', printPath(cssId));
+			log.trace('add css import', print_path(cssId));
 			addCssBuild({
 				id: cssId,
-				sourceId: id,
+				source_id: id,
 				sortIndex: -1,
 				...css,
 			});

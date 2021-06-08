@@ -27,7 +27,7 @@ const test_findGenModules = suite('findGenModules');
 test_findGenModules('finds gen modules in a directory', async () => {
 	const findGenModulesResult = await findGenModules(fs, [join(paths.source, 'docs/')]);
 	t.ok(findGenModulesResult.ok);
-	t.ok(findGenModulesResult.sourceIdPathDataByInputPath.size);
+	t.ok(findGenModulesResult.source_idPathDataByInputPath.size);
 });
 
 test_findGenModules.run();

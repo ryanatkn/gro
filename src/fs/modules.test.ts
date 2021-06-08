@@ -82,14 +82,14 @@ test_findModules('with and without extension', async () => {
 	);
 	t.ok(result.ok);
 	t.equal(
-		result.sourceIdsByInputPath,
+		result.source_idsByInputPath,
 		new Map([
 			[path1, [id1]],
 			[id2, [id2]],
 		]),
 	);
 	t.equal(
-		result.sourceIdPathDataByInputPath,
+		result.source_idPathDataByInputPath,
 		new Map([
 			[path1, {id: id1, isDirectory: false}],
 			[id2, {id: id2, isDirectory: false}],
@@ -104,10 +104,10 @@ test_findModules('directory', async () => {
 	);
 	t.ok(result.ok);
 	t.equal(
-		result.sourceIdsByInputPath,
+		result.source_idsByInputPath,
 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 	);
-	t.equal(result.sourceIdPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
+	t.equal(result.source_idPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
 });
 
 test_findModules('fail with unmappedInputPaths', async () => {

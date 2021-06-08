@@ -25,9 +25,9 @@
 
 	console.log('enter App.svelte');
 
-	$: homepage = ($ctx?.packageJson.homepage || '') as string;
+	$: homepage = ($ctx?.package_json.homepage || '') as string;
 	let sourceTree: SourceTree;
-	let selectedBuildNames: string[] = [];
+	let selectedBuild_Names: string[] = [];
 
 	const ctx = writable<ProjectState>(null!);
 	provideProjectState(ctx);
@@ -54,8 +54,8 @@
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
 		$ctx = await (await fetch(SOURCE_META_PATH)).json(); // TODO handle errors
 		console.log('fetched projectState', $ctx);
-		sourceTree = createSourceTree($ctx.items, $ctx.buildConfigs);
-		selectedBuildNames = sourceTree.buildNames;
+		sourceTree = createSourceTree($ctx.items, $ctx.build_configs);
+		selectedBuild_Names = sourceTree.build_names;
 		console.log('sourceTree', sourceTree);
 	});
 
@@ -72,9 +72,9 @@
 		<section>
 			<header>
 				<span class="logo">
-					{#if $ctx.packageJson.homepage}
-						<a href={homepage}>{$ctx.packageJson.name}</a>
-					{:else}{$ctx.packageJson.name}{/if}
+					{#if $ctx.package_json.homepage}
+						<a href={homepage}>{$ctx.package_json.name}</a>
+					{:else}{$ctx.package_json.name}{/if}
 				</span>
 				<nav>
 					{#if !showFilerVisualizer1}
@@ -164,7 +164,7 @@
 
 				<SourceMetaView
 					{sourceTree}
-					{selectedBuildNames}
+					{selectedBuild_Names}
 					{activeSourceMetaView}
 					{selectedSourceMeta}
 					{hoveredSourceMeta}

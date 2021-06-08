@@ -7,11 +7,11 @@
 	import type {SourceMeta} from '../build/sourceMeta.js';
 
 	export let sourceTree: SourceTree;
-	export let selectedBuildNames: string[];
+	export let selectedBuild_Names: string[];
 	export let selectedSourceMeta: Writable<SourceMeta | null>;
 	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
-	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuild_Names);
 </script>
 
 {#each filteredSourceMetas as sourceMeta (sourceMeta.cacheId)}

@@ -1,31 +1,31 @@
 import {Timings} from '@feltcoop/felt/utils/time.js';
-import {printTimings} from '@feltcoop/felt/utils/print.js';
+import {print_timings} from '@feltcoop/felt/utils/print.js';
 import {toArray} from '@feltcoop/felt/utils/array.js';
 
 import type {Task, Args} from './task/task.js';
-import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './build/rollup.js';
-import {loadConfig} from './config/config.js';
-import type {GroConfig} from './config/config.js';
-import type {TaskEvents as ServerTaskEvents} from './server.task.js';
+import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from './build/rollup.js';
+import {load_config} from './config/config.js';
+import type {Gro_Config} from './config/config.js';
+import type {Task_Events as ServerTask_Events} from './server.task.js';
 import type {AdapterContext, Adapter} from './adapt/adapter.js';
-import {buildSourceDirectory} from './build/buildSourceDirectory.js';
+import {build_source_directory} from './build/build_source_directory.js';
 import {generateTypes} from './build/tsBuildHelpers.js';
-import {paths, toTypesBuildDir} from './paths.js';
+import {paths, to_types_build_dir} from './paths.js';
 import {clean} from './fs/clean.js';
 
-export interface TaskArgs extends Args {
-	mapInputOptions?: MapInputOptions;
-	mapOutputOptions?: MapOutputOptions;
-	mapWatchOptions?: MapWatchOptions;
+export interface Task_Args extends Args {
+	map_input_options?: Map_Input_Options;
+	map_output_options?: Map_Output_Options;
+	map_watch_options?: Map_Watch_Options;
 }
 
-export interface TaskEvents extends ServerTaskEvents {
-	'build.createConfig': (config: GroConfig) => void;
+export interface Task_Events extends ServerTask_Events {
+	'build.createConfig': (config: Gro_Config) => void;
 	'build.buildTypes': void;
 	'build.buildSrc': void;
 }
 
-export const task: Task<TaskArgs, TaskEvents> = {
+export const task: Task<Task_Args, Task_Events> = {
 	description: 'build the project',
 	dev: false,
 	run: async (ctx): Promise<void> => {
@@ -41,25 +41,25 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
 		const timingToBuildTypes = timings.start('buildTypes');
-		await generateTypes(paths.source, toTypesBuildDir(), true);
+		await generateTypes(paths.source, to_types_build_dir(), true);
 		timingToBuildTypes();
 		events.emit('build.buildTypes');
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
+		const config = await load_config(fs, dev);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 
 		// Build everything with esbuild and Gro's `Filer` first.
 		// These production artifacts are then available to all adapters.
 		const timingToBuildSrc = timings.start('buildSrc');
-		await buildSourceDirectory(fs, config, dev, log);
+		await build_source_directory(fs, config, dev, log);
 		timingToBuildSrc();
 		events.emit('build.buildSrc');
 
 		// Adapt the build to final ouputs.
 		const timingToCreateAdapters = timings.start('create adapters');
-		const adaptContext: AdapterContext<TaskArgs, TaskEvents> = {
+		const adaptContext: AdapterContext<Task_Args, Task_Events> = {
 			...ctx,
 			config,
 		};
@@ -99,6 +99,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			log.info('no adapters to `adapt`');
 		}
 
-		printTimings(timings, log);
+		print_timings(timings, log);
 	},
 };

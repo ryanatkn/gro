@@ -66,11 +66,11 @@ export const findGenModules = (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN],
-	rootDirs: string[] = [],
+	root_dirs: string[] = [],
 ) =>
 	findModules(
 		fs,
 		inputPaths,
 		(id) => fs.findFiles(id, (file) => isGenPath(file.path)),
-		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
+		(inputPath) => getPossibleSourceIds(inputPath, extensions, root_dirs),
 	);

@@ -1,6 +1,6 @@
 import {basename} from 'path';
 import {toPathSegments} from '@feltcoop/felt/utils/path.js';
-import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {strip_start} from '@feltcoop/felt/utils/string.js';
 
 import type {SourceTreeMeta} from './sourceTree.js';
 
@@ -28,9 +28,9 @@ export const toFileTreeFolder = (
 	sourceTreeMetas: SourceTreeMeta[],
 ): FileTreeFolder => {
 	const root: FileTreeFolder = {type: 'folder', name: basename(sourceDir), children: []};
-	const getFileInfo = (basePath: string): {folder: FileTreeFolder; name: string} => {
+	const getFileInfo = (base_path: string): {folder: FileTreeFolder; name: string} => {
 		let current: FileTreeFolder = root;
-		const segments = toPathSegments(basePath);
+		const segments = toPathSegments(base_path);
 		// The `sourceTreeMetas` currently include files only and not directories,
 		// so we just ignore the final segment, and assume everything else is a folder.
 		for (const segment of segments.slice(0, segments.length - 1)) {
@@ -44,8 +44,8 @@ export const toFileTreeFolder = (
 		return {folder: current, name: segments[segments.length - 1]};
 	};
 	for (const meta of sourceTreeMetas) {
-		const sourceIdBasePath = stripStart(meta.data.sourceId, sourceDir);
-		const {folder, name} = getFileInfo(sourceIdBasePath);
+		const source_idBasePath = strip_start(meta.data.source_id, sourceDir);
+		const {folder, name} = getFileInfo(source_idBasePath);
 		folder.children.push({type: 'file', name, meta});
 	}
 	forEachFolder(root, (f) => sortFolderChildren(f));

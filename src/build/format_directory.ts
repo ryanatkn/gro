@@ -1,4 +1,4 @@
-import {spawnProcess} from '@feltcoop/felt/utils/process.js';
+import {spawn_process} from '@feltcoop/felt/utils/process.js';
 import type {SpawnResult} from '@feltcoop/felt/utils/process.js';
 
 import {
@@ -28,5 +28,5 @@ export const formatDirectory = (directory: string, check = false): Promise<Spawn
 	if (directory === paths.source) {
 		prettierArgs.push(`${paths.root}{${FORMATTED_ROOT_PATHS}}`);
 	}
-	return spawnProcess('npx', prettierArgs);
+	return spawn_process('npx', prettierArgs);
 };

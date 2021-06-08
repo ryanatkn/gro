@@ -6,13 +6,13 @@
 	import {toFileTreeFolder} from './fileTree.js';
 
 	export let sourceTree: SourceTree;
-	export let selectedBuildNames: string[];
+	export let selectedBuild_Names: string[];
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
 	const ps = useProjectState();
 
-	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuild_Names);
 	$: fileTreeFolder = toFileTreeFolder($ps.sourceDir, filteredSourceMetas);
 </script>
 

@@ -7,9 +7,9 @@ import {
 	paths,
 	SVELTE_KIT_DEV_DIRNAME,
 	SVELTE_KIT_BUILD_DIRNAME,
-	toBuildOutDir,
+	to_build_out_dir,
 	SVELTE_KIT_VITE_CACHE_PATH,
-	printPath,
+	print_path,
 } from '../paths.js';
 import type {Filesystem} from './filesystem.js';
 
@@ -36,13 +36,13 @@ export const clean = async (
 		build ? removeDir(fs, paths.build, log) : null,
 		...(!build && buildDev
 			? [
-					removeDir(fs, toBuildOutDir(true), log),
+					removeDir(fs, to_build_out_dir(true), log),
 					removeDir(fs, toSourceMetaDir(paths.build, true), log),
 			  ]
 			: EMPTY_ARRAY),
 		...(!build && buildProd
 			? [
-					removeDir(fs, toBuildOutDir(false), log),
+					removeDir(fs, to_build_out_dir(false), log),
 					removeDir(fs, toSourceMetaDir(paths.build, false), log),
 			  ]
 			: EMPTY_ARRAY),
@@ -59,7 +59,7 @@ export const clean = async (
 
 export const removeDir = async (fs: Filesystem, path: string, log: SystemLogger): Promise<void> => {
 	if (await fs.exists(path)) {
-		log.info('removing', printPath(path));
+		log.info('removing', print_path(path));
 		await fs.remove(path);
 	}
 };

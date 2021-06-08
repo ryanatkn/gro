@@ -1,9 +1,9 @@
 import {spawn} from '@feltcoop/felt/utils/process.js';
-import type {SpawnedProcess} from '@feltcoop/felt/utils/process.js';
+import type {Spawned_Process} from '@feltcoop/felt/utils/process.js';
 import {red} from '@feltcoop/felt/utils/terminal.js';
 
 import type {Task} from './task/task.js';
-import {toApiServerBuildPath} from './build/defaultBuildConfig.js';
+import {to_api_server_build_path} from './build/default_build_config.js';
 
 /*
 
@@ -26,27 +26,27 @@ TODO configure port
 
 */
 
-export interface TaskArgs {
-	apiServerPath?: string;
+export interface Task_Args {
+	api_server_path?: string;
 }
 
-export interface TaskEvents {
-	'server.spawn': (spawned: SpawnedProcess, apiServerPath: string) => void;
+export interface Task_Events {
+	'server.spawn': (spawned: Spawned_Process, api_server_path: string) => void;
 }
 
 // TODO what's the best way to give a placeholder for the unused first `TArgs` type argument?
-export const task: Task<TaskArgs, TaskEvents> = {
+export const task: Task<Task_Args, Task_Events> = {
 	description: 'start API server',
 	run: async ({fs, dev, events, args, log}) => {
-		const apiServerPath = args.apiServerPath ?? toApiServerBuildPath(dev);
-		if (!(await fs.exists(apiServerPath))) {
-			log.error(red('server path does not exist:'), apiServerPath);
-			throw Error(`API server failed to start due to missing file: ${apiServerPath}`);
+		const api_server_path = args.api_server_path ?? to_api_server_build_path(dev);
+		if (!(await fs.exists(api_server_path))) {
+			log.error(red('server path does not exist:'), api_server_path);
+			throw Error(`API server failed to start due to missing file: ${api_server_path}`);
 		}
 		// TODO what if we wrote out the port and
 		// also, retried if it conflicted ports, have some affordance here to increment and write to disk
 		// on disk, we can check for that file in `svelte.config.cjs`
-		const spawned = spawn('node', [apiServerPath]);
-		events.emit('server.spawn', spawned, apiServerPath);
+		const spawned = spawn('node', [api_server_path]);
+		events.emit('server.spawn', spawned, api_server_path);
 	},
 };

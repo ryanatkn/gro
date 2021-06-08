@@ -23,9 +23,9 @@ export const createDefaultBuilder = (
 		const builders: Builder[] = [esbuildBuilder, svelteBuilder, externalsBuilder];
 		lazyBuilderOptions = {
 			...lazyBuilderOptions,
-			getBuilder: (source, buildConfig) => {
+			getBuilder: (source, build_config) => {
 				if (source.id === EXTERNALS_SOURCE_ID) {
-					if (buildConfig.platform !== 'browser') {
+					if (build_config.platform !== 'browser') {
 						throw Error('Expected browser for externals builder.');
 					}
 					return externalsBuilder;

@@ -1,5 +1,5 @@
-import type {TaskContext} from '../task/task.js';
-import type {GroConfig} from '../config/config.js';
+import type {Task_Context} from '../task/task.js';
+import type {Gro_Config} from '../config/config.js';
 
 /*
 
@@ -27,6 +27,6 @@ export interface AdaptBuilds<TArgs = any, TEvents = any> {
 		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
 }
 
-export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
-	config: GroConfig;
+export interface AdapterContext<TArgs = any, TEvents = any> extends Task_Context<TArgs, TEvents> {
+	config: Gro_Config;
 }

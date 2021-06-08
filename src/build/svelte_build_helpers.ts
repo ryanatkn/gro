@@ -13,7 +13,7 @@ import type {OmitStrict} from '@feltcoop/felt/utils/types.js';
 
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
-import {printPath} from '../paths.js';
+import {print_path} from '../paths.js';
 
 export type CreatePreprocessor = (
 	target: EcmaScriptTarget,
@@ -75,7 +75,7 @@ export const handleWarn = (
 	log: Logger,
 	_pluginContext?: PluginContext,
 ): void => {
-	const warnArgs: any[] = [printPath(id)];
+	const warnArgs: any[] = [print_path(id)];
 	if (warning.frame) {
 		warnArgs.push('\n' + warning.frame, '\n', yellow(warning.message));
 	} else {
@@ -92,7 +92,7 @@ export const handleStats = (
 	_pluginContext?: PluginContext,
 ): void => {
 	log.trace(
-		printKeyValue('stats', printPath(id)),
+		printKeyValue('stats', print_path(id)),
 		...[
 			printKeyValue('total', printMs(stats.timings.total)),
 			stats.timings.parse && printKeyValue('parse', printMs(stats.timings.parse.total)),

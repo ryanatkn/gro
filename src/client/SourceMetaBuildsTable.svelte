@@ -1,14 +1,14 @@
 <script lang="ts">
 	import BuildId from './BuildId.svelte';
-	import BuildName from './BuildName.svelte';
+	import Build_Name from './Build_Name.svelte';
 	import type {SourceTree} from './sourceTree.js';
 
 	export let sourceTree: SourceTree;
-	export let selectedBuildNames: string[];
+	export let selectedBuild_Names: string[];
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
-	$: filteredBuilds = sourceTree.builds.filter((b) => selectedBuildNames.includes(b.name));
+	$: filteredBuilds = sourceTree.builds.filter((b) => selectedBuild_Names.includes(b.name));
 </script>
 
 {#if filteredBuilds.length}
@@ -24,13 +24,13 @@
 					<BuildId id={build.id} />
 				</td>
 				<td>
-					<BuildName buildName={build.name} />
+					<Build_Name build_name={build.name} />
 				</td>
 				<td>
 					{#if build.dependencies}
-						{#each build.dependencies as dependency (dependency.buildId)}
+						{#each build.dependencies as dependency (dependency.build_id)}
 							<div>
-								<BuildId id={dependency.buildId} />
+								<BuildId id={dependency.build_id} />
 							</div>
 						{/each}
 					{/if}

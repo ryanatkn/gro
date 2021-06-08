@@ -1,7 +1,7 @@
 import {join, basename, dirname} from 'path';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {isSourceId} from '../paths.js';
+import {is_source_id} from '../paths.js';
 
 // TODO consider splitting the primitive data/helpers/types
 // out of this module like how `task` is separated from `runTask`
@@ -22,9 +22,9 @@ export interface GenFile {
 }
 
 export interface Gen {
-	(g: GenContext): RawGenResult | Promise<RawGenResult>;
+	(g: Gen_Context): RawGenResult | Promise<RawGenResult>;
 }
-export interface GenContext {
+export interface Gen_Context {
 	fs: Filesystem;
 	originId: string;
 }
@@ -61,7 +61,7 @@ export type GenModuleResultFailure = {
 };
 
 export const toGenResult = (originId: string, rawResult: RawGenResult): GenResult => {
-	if (!isSourceId(originId)) {
+	if (!is_source_id(originId)) {
 		throw Error(`originId must be a source id: ${originId}`);
 	}
 	return {

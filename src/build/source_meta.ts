@@ -1,12 +1,12 @@
 import {gray} from '@feltcoop/felt/utils/terminal.js';
 
 import type {Encoding} from '../fs/encoding.js';
-import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
+import {JSON_EXTENSION, to_build_out_dirname} from '../paths.js';
 import {getFileContentsHash} from './baseFilerFile.js';
 import type {BuildDependency, BuildContext} from './builder.js';
 import type {BuildableSourceFile} from './sourceFile.js';
 import {isExternalBrowserModule} from '../utils/module.js';
-import type {BuildName} from '../build/buildConfig.js';
+import type {Build_Name} from '../build/build_config.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk
@@ -14,21 +14,21 @@ export interface SourceMeta {
 }
 
 export interface SourceMetaData {
-	readonly sourceId: string;
+	readonly source_id: string;
 	readonly contentsHash: string;
 	readonly builds: SourceMetaBuild[];
 }
 
 export interface SourceMetaBuild {
 	readonly id: string;
-	readonly name: BuildName; // TODO doesn't feel right, maybe rename to `buildName`
+	readonly name: Build_Name; // TODO doesn't feel right, maybe rename to `build_name`
 	readonly dependencies: BuildDependency[] | null;
 	readonly encoding: Encoding;
 }
 
 const CACHED_SOURCE_INFO_DIR_SUFFIX = '_meta'; // so `/.gro/dev_meta` is metadata for `/.gro/dev`
-export const toSourceMetaDir = (buildDir: string, dev: boolean): string =>
-	`${buildDir}${toBuildOutDirname(dev)}${CACHED_SOURCE_INFO_DIR_SUFFIX}`;
+export const toSourceMetaDir = (build_dir: string, dev: boolean): string =>
+	`${build_dir}${to_build_out_dirname(dev)}${CACHED_SOURCE_INFO_DIR_SUFFIX}`;
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
@@ -36,21 +36,21 @@ export const updateSourceMeta = async (
 	ctx: BuildContext,
 	file: BuildableSourceFile,
 ): Promise<void> => {
-	const {fs, sourceMetaById, dev, buildDir} = ctx;
-	if (file.buildConfigs.size === 0) {
+	const {fs, sourceMetaById, dev, build_dir} = ctx;
+	if (file.build_configs.size === 0) {
 		return deleteSourceMeta(ctx, file.id);
 	}
 
 	// create the new meta, not mutating the old
-	const cacheId = toSourceMetaId(file, buildDir, dev);
+	const cacheId = toSourceMetaId(file, build_dir, dev);
 	const data: SourceMetaData = {
-		sourceId: file.id,
+		source_id: file.id,
 		contentsHash: getFileContentsHash(file),
 		builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 			files.map(
 				(file): SourceMetaBuild => ({
 					id: file.id,
-					name: file.buildConfig.name,
+					name: file.build_config.name,
 					dependencies:
 						file.dependenciesByBuildId && Array.from(file.dependenciesByBuildId.values()),
 					encoding: file.encoding,
@@ -79,24 +79,24 @@ export const updateSourceMeta = async (
 
 export const deleteSourceMeta = async (
 	{fs, sourceMetaById}: BuildContext,
-	sourceId: string,
+	source_id: string,
 ): Promise<void> => {
-	const meta = sourceMetaById.get(sourceId);
+	const meta = sourceMetaById.get(source_id);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache
-	sourceMetaById.delete(sourceId);
+	sourceMetaById.delete(source_id);
 	await fs.remove(meta.cacheId);
 };
 
-const toSourceMetaId = (file: BuildableSourceFile, buildDir: string, dev: boolean): string =>
-	`${toSourceMetaDir(buildDir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
+const toSourceMetaId = (file: BuildableSourceFile, build_dir: string, dev: boolean): string =>
+	`${toSourceMetaDir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
 
 export const initSourceMeta = async ({
 	fs,
 	sourceMetaById,
-	buildDir,
+	build_dir,
 	dev,
 }: BuildContext): Promise<void> => {
-	const sourceMetaDir = toSourceMetaDir(buildDir, dev);
+	const sourceMetaDir = toSourceMetaDir(build_dir, dev);
 	if (!(await fs.exists(sourceMetaDir))) return;
 	const files = await fs.findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(
@@ -104,7 +104,7 @@ export const initSourceMeta = async ({
 			if (stats.isDirectory()) return;
 			const cacheId = `${sourceMetaDir}/${path}`;
 			const data: SourceMetaData = JSON.parse(await fs.readFile(cacheId, 'utf8'));
-			sourceMetaById.set(data.sourceId, {cacheId, data});
+			sourceMetaById.set(data.source_id, {cacheId, data});
 		}),
 	);
 };
@@ -118,10 +118,10 @@ export const cleanSourceMeta = async (
 ): Promise<void> => {
 	const {sourceMetaById, log} = ctx;
 	let promises: Promise<void>[] | null = null;
-	for (const sourceId of sourceMetaById.keys()) {
-		if (!fileExists(sourceId) && !isExternalBrowserModule(sourceId)) {
-			log.trace('deleting unknown source meta', gray(sourceId));
-			(promises || (promises = [])).push(deleteSourceMeta(ctx, sourceId));
+	for (const source_id of sourceMetaById.keys()) {
+		if (!fileExists(source_id) && !isExternalBrowserModule(source_id)) {
+			log.trace('deleting unknown source meta', gray(source_id));
+			(promises || (promises = [])).push(deleteSourceMeta(ctx, source_id));
 		}
 	}
 	if (promises !== null) await Promise.all(promises);

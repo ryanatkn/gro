@@ -29,9 +29,9 @@ export interface Options {
 	sourcemap: boolean;
 	outputDir: string;
 	watch: boolean;
-	mapInputOptions: MapInputOptions;
-	mapOutputOptions: MapOutputOptions;
-	mapWatchOptions: MapWatchOptions;
+	map_input_options: Map_Input_Options;
+	map_output_options: Map_Output_Options;
+	map_watch_options: Map_Watch_Options;
 	log: Logger;
 }
 export type RequiredOptions = 'input';
@@ -41,16 +41,16 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	sourcemap: opts.dev ?? true,
 	outputDir: paths.dist,
 	watch: false,
-	mapInputOptions: identity,
-	mapOutputOptions: identity,
-	mapWatchOptions: identity,
+	map_input_options: identity,
+	map_output_options: identity,
+	map_watch_options: identity,
 	...omitUndefined(opts),
 	log: opts.log || new SystemLogger(printLogLabel('build')),
 });
 
-export type MapInputOptions = (o: InputOptions, b: Options) => InputOptions;
-export type MapOutputOptions = (o: OutputOptions, b: Options) => OutputOptions;
-export type MapWatchOptions = (o: RollupWatchOptions, b: Options) => RollupWatchOptions;
+export type Map_Input_Options = (o: InputOptions, b: Options) => InputOptions;
+export type Map_Output_Options = (o: OutputOptions, b: Options) => OutputOptions;
+export type Map_Watch_Options = (o: RollupWatchOptions, b: Options) => RollupWatchOptions;
 
 export const runRollup = async (opts: InitialOptions): Promise<void> => {
 	const options = initOptions(opts);
@@ -114,7 +114,7 @@ const createInputOptions = (options: Options, _log: Logger): InputOptions => {
 		// experimentalCacheExpiry,
 		// perf
 	};
-	const inputOptions = options.mapInputOptions(unmappedInputOptions, options);
+	const inputOptions = options.map_input_options(unmappedInputOptions, options);
 	// log.trace('inputOptions', inputOptions);
 	return inputOptions;
 };
@@ -165,7 +165,7 @@ const createOutputOptions = (options: Options, log: Logger): OutputOptions => {
 		// strict,
 		// systemNullSetters,
 	};
-	const outputOptions = options.mapOutputOptions(unmappedOutputOptions, options);
+	const outputOptions = options.map_output_options(unmappedOutputOptions, options);
 	log.trace('outputOptions', outputOptions);
 	return outputOptions;
 };
@@ -181,7 +181,7 @@ const createWatchOptions = (options: Options, log: Logger): RollupWatchOptions =
 			// include,
 		},
 	};
-	const watchOptions = options.mapWatchOptions(unmappedWatchOptions, options);
+	const watchOptions = options.map_watch_options(unmappedWatchOptions, options);
 	// log.trace('watchOptions', watchOptions);
 	return watchOptions;
 };

@@ -1,16 +1,16 @@
 import {join, extname} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
-import {stripStart} from '@feltcoop/felt/utils/string.js';
+import {strip_start} from '@feltcoop/felt/utils/string.js';
 
 import {
 	CSS_EXTENSION,
 	EXTERNALS_BUILD_DIRNAME,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
-	toBuildBasePath,
-	toBuildExtension,
-	toBuildOutPath,
+	to_build_base_path,
+	to_build_extension,
+	to_build_out_path,
 	TS_EXTENSION,
 } from '../paths.js';
 import type {Build, BuildContext, BuildResult, BuildSource, BuildDependency} from './builder.js';
@@ -30,8 +30,8 @@ export const postprocess = (
 	dependenciesByBuildId: Map<string, BuildDependency> | null;
 } => {
 	if (build.encoding === 'utf8') {
-		let {contents, buildConfig} = build;
-		const isBrowser = buildConfig.platform === 'browser';
+		let {contents, build_config} = build;
+		const isBrowser = build_config.platform === 'browser';
 		let dependenciesByBuildId: Map<string, BuildDependency> | null = null;
 
 		// Map import paths to the built versions.
@@ -46,14 +46,14 @@ export const postprocess = (
 				const end = d > -1 ? e - 1 : e;
 				const specifier = contents.substring(start, end);
 				if (specifier === 'import.meta') continue;
-				let buildId: string;
+				let build_id: string;
 				let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
 				const isExternalImport = isExternalModule(specifier);
 				const isExternalImportedByExternal = source.id === EXTERNALS_SOURCE_ID;
 				const isExternal = isExternalImport || isExternalImportedByExternal;
 				let mappedSpecifier = isExternal
-					? toBuildExtension(specifier)
-					: hack_toBuildExtensionWithPossiblyExtensionlessSpecifier(specifier);
+					? to_build_extension(specifier)
+					: hack_to_build_extensionWithPossiblyExtensionlessSpecifier(specifier);
 				if (isExternal) {
 					if (isExternalImport) {
 						// handle regular externals
@@ -67,39 +67,39 @@ export const postprocess = (
 							mappedSpecifier = `/${join(EXTERNALS_BUILD_DIRNAME, mappedSpecifier)}${
 								mappedSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 							}`;
-							buildId = toBuildOutPath(
+							build_id = to_build_out_path(
 								ctx.dev,
-								buildConfig.name,
+								build_config.name,
 								mappedSpecifier.substring(1),
-								ctx.buildDir,
+								ctx.build_dir,
 							);
 						} else {
-							buildId = mappedSpecifier;
+							build_id = mappedSpecifier;
 						}
 					} else {
 						// handle common externals, imports internal to the externals
 						if (isBrowser) {
-							buildId = join(build.dir, specifier);
+							build_id = join(build.dir, specifier);
 							// map internal externals imports to absolute paths, so we get stable ids
-							finalSpecifier = `/${toBuildBasePath(buildId, ctx.buildDir)}${
+							finalSpecifier = `/${to_build_base_path(build_id, ctx.build_dir)}${
 								finalSpecifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
 							}`;
 						} else {
 							// externals imported in Node builds use Node module resolution
-							buildId = mappedSpecifier;
+							build_id = mappedSpecifier;
 						}
 					}
 				} else {
 					// internal import
-					buildId = join(build.dir, mappedSpecifier);
+					build_id = join(build.dir, mappedSpecifier);
 				}
 				if (dependenciesByBuildId === null) dependenciesByBuildId = new Map();
-				if (!dependenciesByBuildId.has(buildId)) {
-					dependenciesByBuildId.set(buildId, {
+				if (!dependenciesByBuildId.has(build_id)) {
+					dependenciesByBuildId.set(build_id, {
 						specifier: finalSpecifier,
 						mappedSpecifier,
-						buildId,
-						external: isExternalBuildId(buildId, buildConfig, ctx),
+						build_id,
+						external: isExternalBuildId(build_id, build_config, ctx),
 						// TODO what if this had `originalSpecifier` and `isExternalImport` too?
 					});
 				}
@@ -118,9 +118,9 @@ export const postprocess = (
 			const cssCompilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
 			if (cssCompilation !== undefined) {
 				let importPath: string | undefined;
-				for (const servedDir of ctx.servedDirs) {
-					if (cssCompilation.id.startsWith(servedDir.path)) {
-						importPath = stripStart(cssCompilation.id, servedDir.root);
+				for (const served_dir of ctx.served_dirs) {
+					if (cssCompilation.id.startsWith(served_dir.path)) {
+						importPath = strip_start(cssCompilation.id, served_dir.root);
 						break;
 					}
 				}
@@ -153,11 +153,11 @@ const injectSvelteCssImport = (contents: string, importPath: string): string => 
 };
 
 // TODO tests as docs
-const shouldModifyDotJs = (sourceId: string): boolean => {
-	const maxSlashCount = sourceId[0] === '@' ? 1 : 0;
+const shouldModifyDotJs = (source_id: string): boolean => {
+	const maxSlashCount = source_id[0] === '@' ? 1 : 0;
 	let slashCount = 0;
-	for (let i = 0; i < sourceId.length; i++) {
-		if (sourceId[i] === '/') {
+	for (let i = 0; i < source_id.length; i++) {
+		if (source_id[i] === '/') {
 			slashCount++;
 			if (slashCount > maxSlashCount) {
 				return false;
@@ -174,11 +174,11 @@ const shouldModifyDotJs = (sourceId: string): boolean => {
 // because now we can't extract the extension from a user-provided specifier. Gack!
 // Exposing this hack to user config is something that's probably needed,
 // but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
-const hack_toBuildExtensionWithPossiblyExtensionlessSpecifier = (specifier: string): string => {
+const hack_to_build_extensionWithPossiblyExtensionlessSpecifier = (specifier: string): string => {
 	const extension = extname(specifier);
 	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
 		? specifier + JS_EXTENSION
-		: toBuildExtension(specifier);
+		: to_build_extension(specifier);
 };
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.

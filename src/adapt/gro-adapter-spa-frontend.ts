@@ -1,16 +1,16 @@
-import {stripTrailingSlash, toCommonBaseDir} from '@feltcoop/felt/utils/path.js';
+import {strip_trailing_slash, toCommonBaseDir} from '@feltcoop/felt/utils/path.js';
 import {ensureEnd} from '@feltcoop/felt/utils/string.js';
 import {Timings} from '@feltcoop/felt/utils/time.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
-import {printTimings} from '@feltcoop/felt/utils/print.js';
+import {print_timings} from '@feltcoop/felt/utils/print.js';
 
 import type {Adapter} from './adapter.js';
 import {runRollup} from '../build/rollup.js';
-import {DIST_DIRNAME, sourceIdToBasePath, toBuildExtension, toImportId} from '../paths.js';
-import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
-import type {BuildName} from '../build/buildConfig.js';
+import {DIST_DIRNAME, source_id_to_base_path, to_build_extension, to_import_id} from '../paths.js';
+import {print_build_config_label, to_input_files} from '../build/build_config.js';
+import type {Build_Name} from '../build/build_config.js';
 import {copyDist} from '../build/dist.js';
-import {BROWSER_BUILD_NAME} from '../build/defaultBuildConfig.js';
+import {BROWSER_BUILD_NAME} from '../build/default_build_config.js';
 
 // WIP do not use
 
@@ -18,31 +18,31 @@ const NOJEKYLL = '.nojekyll';
 const DEFAULT_TARGET = 'github_pages';
 
 export interface Options {
-	builds: readonly BuildName[];
+	builds: readonly Build_Name[];
 	dir: string;
 	target: 'github_pages' | 'static';
 }
 
-const DEFAULT_BUILD_NAMES: readonly BuildName[] = [BROWSER_BUILD_NAME];
+const DEFAULT_BUILD_NAMES: readonly Build_Name[] = [BROWSER_BUILD_NAME];
 
-export const createAdapter = ({
+export const create_adapter = ({
 	builds = DEFAULT_BUILD_NAMES,
 	dir = DIST_DIRNAME,
 	target = DEFAULT_TARGET,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
-	dir = stripTrailingSlash(dir);
+	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-spa-frontend',
 		begin: async ({fs}) => {
 			await fs.remove(dir);
 		},
 		adapt: async ({config, fs, args, log, dev}) => {
-			const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
+			const {map_input_options, map_output_options, map_watch_options} = args;
 
 			const timings = new Timings();
 
 			// Not every build config is built for the final `dist/`!
-			const buildConfigsToBuild = config.builds.filter((b) => builds.includes(b.name));
+			const build_configsToBuild = config.builds.filter((b) => builds.includes(b.name));
 
 			// For each build config that has `dist: true`,
 			// infer which of the inputs are actual source files,
@@ -51,30 +51,30 @@ export const createAdapter = ({
 			// which can be bootstrapped by copy/pasting this one. (and updating the imports)
 			const timingToBundle = timings.start('bundle');
 			await Promise.all(
-				buildConfigsToBuild.map(async (buildConfig) => {
-					const files = toInputFiles(buildConfig.input);
+				build_configsToBuild.map(async (build_config) => {
+					const files = to_input_files(build_config.input);
 					if (!files.length) {
-						log.trace('no input files in', printBuildConfigLabel(buildConfig));
+						log.trace('no input files in', print_build_config_label(build_config));
 						return;
 					}
-					const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
+					const input = files.map((source_id) => to_import_id(source_id, dev, build_config.name));
 					// TODO `files` needs to be mapped to production output files
-					const outputDir = `${DIST_DIRNAME}/${toBuildExtension(
-						sourceIdToBasePath(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
+					const outputDir = `${DIST_DIRNAME}/${to_build_extension(
+						source_id_to_base_path(ensureEnd(toCommonBaseDir(files), '/')), // TODO refactor when fixing the trailing `/`
 					)}`;
-					log.info('building', printBuildConfigLabel(buildConfig), outputDir, files);
+					log.info('building', print_build_config_label(build_config), outputDir, files);
 					await runRollup({
 						dev,
 						sourcemap: config.sourcemap,
 						input,
 						outputDir,
-						mapInputOptions,
-						mapOutputOptions,
-						mapWatchOptions,
+						map_input_options,
+						map_output_options,
+						map_watch_options,
 					});
 
 					// copy static prod files into `dist/`
-					await copyDist(fs, buildConfig, dev, `${dir}/${buildConfig.name}`, log);
+					await copyDist(fs, build_config, dev, `${dir}/${build_config.name}`, log);
 				}),
 			);
 			timingToBundle();
@@ -90,7 +90,7 @@ export const createAdapter = ({
 				}
 			}
 
-			printTimings(timings, log);
+			print_timings(timings, log);
 		},
 	};
 };

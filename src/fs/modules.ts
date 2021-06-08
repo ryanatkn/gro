@@ -6,8 +6,8 @@ import {printError} from '@feltcoop/felt/utils/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import type {PathStats, PathData} from './pathData.js';
-import {toImportId, pathsFromId, printPath, printPathOrGroPath} from '../paths.js';
-import {SYSTEM_BUILD_NAME} from '../build/defaultBuildConfig.js';
+import {to_import_id, paths_from_id, print_path, print_path_or_gro_path} from '../paths.js';
+import {SYSTEM_BUILD_NAME} from '../build/default_build_config.js';
 import type {Filesystem} from './filesystem.js';
 
 /*
@@ -36,11 +36,11 @@ export const loadModule = async <T>(
 	id: string,
 	validate?: (mod: Record<string, any>) => mod is T,
 	dev = process.env.NODE_ENV !== 'production',
-	buildName = SYSTEM_BUILD_NAME,
+	build_name = SYSTEM_BUILD_NAME,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
 	let mod;
 	try {
-		mod = await import(toImportId(id, dev, buildName));
+		mod = await import(to_import_id(id, dev, build_name));
 	} catch (err) {
 		return {ok: false, type: 'importFailed', id, error: err};
 	}
@@ -52,20 +52,20 @@ export const loadModule = async <T>(
 
 export type FindModulesResult = Result<
 	{
-		sourceIdsByInputPath: Map<string, string[]>;
-		sourceIdPathDataByInputPath: Map<string, PathData>;
+		source_idsByInputPath: Map<string, string[]>;
+		source_idPathDataByInputPath: Map<string, PathData>;
 		timings: Timings<FindModulesTimings>;
 	},
 	| {
 			type: 'unmappedInputPaths';
-			sourceIdPathDataByInputPath: Map<string, PathData>;
+			source_idPathDataByInputPath: Map<string, PathData>;
 			unmappedInputPaths: string[];
 			reasons: string[];
 	  }
 	| {
 			type: 'inputDirectoriesWithNoFiles';
-			sourceIdsByInputPath: Map<string, string[]>;
-			sourceIdPathDataByInputPath: Map<string, PathData>;
+			source_idsByInputPath: Map<string, string[]>;
+			source_idPathDataByInputPath: Map<string, PathData>;
 			inputDirectoriesWithNoFiles: string[];
 			reasons: string[];
 	  }
@@ -102,7 +102,7 @@ export const findModules = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
 	const timingToMapInputPaths = timings.start('map input paths');
-	const {sourceIdPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
+	const {source_idPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
 		fs,
 		inputPaths,
 		getPossibleSourceIds,
@@ -114,13 +114,13 @@ export const findModules = async (
 		return {
 			ok: false,
 			type: 'unmappedInputPaths',
-			sourceIdPathDataByInputPath,
+			source_idPathDataByInputPath,
 			unmappedInputPaths,
 			reasons: unmappedInputPaths.map((inputPath) =>
 				red(
-					`Input path ${printPathOrGroPath(
+					`Input path ${print_path_or_gro_path(
 						inputPath,
-						pathsFromId(inputPath),
+						paths_from_id(inputPath),
 					)} cannot be mapped to a file or directory.`,
 				),
 			),
@@ -130,9 +130,9 @@ export const findModules = async (
 	// Find all of the files for any directories.
 	const timingToFindFiles = timings.start('find files');
 	const {
-		sourceIdsByInputPath,
+		source_idsByInputPath,
 		inputDirectoriesWithNoFiles,
-	} = await loadSourceIdsByInputPath(sourceIdPathDataByInputPath, (id) => findFiles(id));
+	} = await loadSourceIdsByInputPath(source_idPathDataByInputPath, (id) => findFiles(id));
 	timingToFindFiles();
 
 	// Error if any input path has no files. (means we have an empty directory)
@@ -140,19 +140,19 @@ export const findModules = async (
 		? {
 				ok: false,
 				type: 'inputDirectoriesWithNoFiles',
-				sourceIdPathDataByInputPath,
-				sourceIdsByInputPath,
+				source_idPathDataByInputPath,
+				source_idsByInputPath,
 				inputDirectoriesWithNoFiles,
 				reasons: inputDirectoriesWithNoFiles.map((inputPath) =>
 					red(
-						`Input directory ${printPathOrGroPath(
-							sourceIdPathDataByInputPath.get(inputPath)!.id,
-							pathsFromId(inputPath),
+						`Input directory ${print_path_or_gro_path(
+							source_idPathDataByInputPath.get(inputPath)!.id,
+							paths_from_id(inputPath),
 						)} contains no matching files.`,
 					),
 				),
 		  }
-		: {ok: true, sourceIdsByInputPath, sourceIdPathDataByInputPath, timings};
+		: {ok: true, source_idsByInputPath, source_idPathDataByInputPath, timings};
 };
 
 /*
@@ -164,16 +164,16 @@ TODO parallelize..how? Separate functions? `loadModulesSerially`?
 
 */
 export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<ModuleType>>(
-	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
-	loadModuleById: (sourceId: string) => Promise<LoadModuleResult<ModuleMetaType>>,
+	source_idsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
+	loadModuleById: (source_id: string) => Promise<LoadModuleResult<ModuleMetaType>>,
 ): Promise<LoadModulesResult<ModuleMetaType>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	const timingToLoadModules = timings.start('load modules');
 	const modules: ModuleMetaType[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
-	for (const [inputPath, sourceIds] of sourceIdsByInputPath) {
-		for (const id of sourceIds) {
+	for (const [inputPath, source_ids] of source_idsByInputPath) {
+		for (const id of source_ids) {
 			const result = await loadModuleById(id);
 			if (result.ok) {
 				modules.push(result.mod);
@@ -183,9 +183,9 @@ export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<
 					case 'importFailed': {
 						reasons.push(
 							red(
-								`Module import ${printPath(id, pathsFromId(id))} failed from input ${printPath(
+								`Module import ${print_path(id, paths_from_id(id))} failed from input ${print_path(
 									inputPath,
-									pathsFromId(inputPath),
+									paths_from_id(inputPath),
 								)}: ${printError(result.error)}`,
 							),
 						);
@@ -194,7 +194,7 @@ export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<
 					case 'invalid': {
 						reasons.push(
 							red(
-								`Module ${printPath(id, pathsFromId(id))} failed validation '${
+								`Module ${print_path(id, paths_from_id(id))} failed validation '${
 									result.validation
 								}'.`,
 							),

@@ -16,7 +16,7 @@ To configure the log level, which controls log output verbosity,
 Gro's default config uses the environment variable `GRO_LOG_LEVEL` if it exists,
 and defaults to `LogLeve.Trace`, the most verbose option.
 
-Users can [configure the `logLevel`](./config.md) in `src/gro.config.ts`.
+Users can [configure the `log_level`](./config.md) in `src/gro.config.ts`.
 See [`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts)
 for the default.
 
@@ -33,17 +33,17 @@ importing the classes `Logger` and `SystemLogger`
 and mutating their static properties:
 
 ```ts
-import {Logger, LogLevel} from '@feltcoop/gro';
-Logger.level = LogLevel.Info;
+import {Logger, Log_Level} from '@feltcoop/gro';
+Logger.level = Log_Level.Info;
 ```
 
-The `configureLogLevel` helper does this for both `Logger` and `SystemLogger`:
+The `configureLog_Level` helper does this for both `Logger` and `SystemLogger`:
 
 ```ts
-import {configureLogLevel, LogLevel} from '@feltcoop/gro';
-configureLogLevel(LogLevel.Info);
-// configureLogLevel = (
-// 	level: LogLevel,
+import {configureLog_Level, Log_Level} from '@feltcoop/gro';
+configureLog_Level(Log_Level.Info);
+// configureLog_Level = (
+// 	level: Log_Level,
 // 	configureMainLogger = true,
 // 	configureSystemLogger = true,
 // ): void => {
@@ -64,13 +64,13 @@ export class Logger extends DevLogger {
 
 	// see the implementation for more: /src/utils/log.ts
 	// defaults to `process.env.GRO_LOG_LEVEL`
-	static level: LogLevel = DEFAULT_LOG_LEVEL;
+	static level: Log_Level = DEFAULT_LOG_LEVEL;
 }
 export class SystemLogger extends DevLogger {
 	// default logger for gro internal code
 }
 
-export enum LogLevel {
+export enum Log_Level {
 	Off = 0,
 	Error = 1,
 	Warn = 2,
