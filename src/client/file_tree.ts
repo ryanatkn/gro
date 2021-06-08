@@ -1,6 +1,6 @@
 import {basename} from 'path';
-import {to_path_segments} from '@feltcoop/felt/utils/path.js';
-import {strip_start} from '@feltcoop/felt/utils/string.js';
+import {to_path_segments} from '@feltcoop/felt/util/path.js';
+import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import type {Source_Tree_Meta} from './source_tree.js';
 

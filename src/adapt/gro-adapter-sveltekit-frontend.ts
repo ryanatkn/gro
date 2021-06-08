@@ -1,8 +1,8 @@
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {spawn_process} from '@feltcoop/felt/utils/process.js';
-import {print_timings} from '@feltcoop/felt/utils/print.js';
-import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
-import {strip_trailing_slash} from '@feltcoop/felt/utils/path.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {spawn_process} from '@feltcoop/felt/util/process.js';
+import {print_timings} from '@feltcoop/felt/util/print.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
+import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from './adapter.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from '../paths.js';

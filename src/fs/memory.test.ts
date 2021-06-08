@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {dirname, resolve} from 'path';
-import {strip_trailing_slash, toPathParts} from '@feltcoop/felt/utils/path.js';
+import {strip_trailing_slash, toPathParts} from '@feltcoop/felt/util/path.js';
 
 import {fs as memoryFs, MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';

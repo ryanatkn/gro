@@ -1,7 +1,7 @@
 import {resolve} from 'path';
-import {toArray} from '@feltcoop/felt/utils/array.js';
-import {blue, gray} from '@feltcoop/felt/utils/terminal.js';
-import type {Result, Flavored} from '@feltcoop/felt/utils/types.js';
+import {to_array} from '@feltcoop/felt/util/array.js';
+import {blue, gray} from '@feltcoop/felt/util/terminal.js';
+import type {Result, Flavored} from '@feltcoop/felt/util/types.js';
 
 import {paths} from '../paths.js';
 import {
@@ -89,7 +89,7 @@ export const normalize_build_configs = (
 const normalize_build_config_input = (
 	input: Build_Config_Partial['input'],
 ): Build_Config['input'] =>
-	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
+	to_array(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
 export const validate_build_configs = async (

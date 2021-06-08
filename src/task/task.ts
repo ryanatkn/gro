@@ -1,6 +1,6 @@
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import type {EventEmitter} from 'events';
-import type {Logger} from '@feltcoop/felt/utils/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 

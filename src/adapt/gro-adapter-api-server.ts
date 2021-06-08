@@ -1,5 +1,5 @@
-import type {Spawned_Process} from '@feltcoop/felt/utils/process.js';
-import {EMPTY_OBJECT} from '@feltcoop/felt/utils/object.js';
+import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
+import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 
 import type {Adapter} from './adapter.js';
 import type {Task_Events as Server_Task_Events} from '../server.task.js';

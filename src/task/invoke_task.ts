@@ -1,9 +1,9 @@
-import {cyan, red, gray} from '@feltcoop/felt/utils/terminal.js';
-import {System_Logger, Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
+import {cyan, red, gray} from '@feltcoop/felt/util/terminal.js';
+import {System_Logger, Logger, print_log_label} from '@feltcoop/felt/util/log.js';
 import {EventEmitter} from 'events';
-import {create_stopwatch, Timings} from '@feltcoop/felt/utils/time.js';
-import {print_ms, print_timings} from '@feltcoop/felt/utils/print.js';
-import {plural} from '@feltcoop/felt/utils/string.js';
+import {create_stopwatch, Timings} from '@feltcoop/felt/util/time.js';
+import {print_ms, print_timings} from '@feltcoop/felt/util/print.js';
+import {plural} from '@feltcoop/felt/util/string.js';
 
 import type {Args} from './task.js';
 import {run_task} from './run_task.js';

@@ -53,7 +53,7 @@ The `print_log_label` is a helper for readability and aesthetics:
 
 ```ts
 import {Logger, print_log_label} from '@feltcoop/gro';
-import {rainbow} from '@feltcoop/felt/utils/terminal.js';
+import {rainbow} from '@feltcoop/felt/util/terminal.js';
 const logA = new Logger(print_log_label('official business', rainbow));
 const logB = new Logger(print_log_label('party invitations')); // default color is `magenta`
 ```

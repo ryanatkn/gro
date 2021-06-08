@@ -1,8 +1,8 @@
 import type {Plugin} from 'rollup';
-import {gray} from '@feltcoop/felt/utils/terminal.js';
-import {System_Logger} from '@feltcoop/felt/utils/log.js';
-import {print_key_value, print_ms} from '@feltcoop/felt/utils/print.js';
-import {create_stopwatch} from '@feltcoop/felt/utils/time.js';
+import {gray} from '@feltcoop/felt/util/terminal.js';
+import {System_Logger} from '@feltcoop/felt/util/log.js';
+import {print_key_value, print_ms} from '@feltcoop/felt/util/print.js';
+import {create_stopwatch} from '@feltcoop/felt/util/time.js';
 
 import {print_path} from '../paths.js';
 

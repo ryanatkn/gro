@@ -1,5 +1,5 @@
-import {EMPTY_ARRAY} from '@feltcoop/felt/utils/array.js';
-import type {System_Logger} from '@feltcoop/felt/utils/log.js';
+import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
+import type {System_Logger} from '@feltcoop/felt/util/log.js';
 
 import {to_source_meta_dir} from '../build/source_meta.js';
 import {

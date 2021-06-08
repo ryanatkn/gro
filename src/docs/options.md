@@ -37,7 +37,7 @@ export const keepItSimple = ({a = true, b = 36}: Options) => {
 But sometimes we need more structure (or want more sugar):
 
 ```ts
-import {omit_undefined} from '@feltcoop/felt/utils/object.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
 export interface Options {
 	a: boolean;

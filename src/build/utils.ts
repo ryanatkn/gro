@@ -1,4 +1,4 @@
-import type {Result} from '@feltcoop/felt/utils/types';
+import type {Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 

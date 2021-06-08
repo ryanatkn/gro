@@ -1,6 +1,6 @@
-import {green} from '@feltcoop/felt/utils/terminal.js';
-import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
-import {print_key_value} from '@feltcoop/felt/utils/print.js';
+import {green} from '@feltcoop/felt/util/terminal.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
+import {print_key_value} from '@feltcoop/felt/util/print.js';
 
 import {print_path} from '../paths.js';
 

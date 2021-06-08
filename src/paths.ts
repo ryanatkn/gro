@@ -1,8 +1,8 @@
 import {join, basename} from 'path';
 import {fileURLToPath} from 'url';
-import {replace_extension, strip_trailing_slash} from '@feltcoop/felt/utils/path.js';
-import {strip_start} from '@feltcoop/felt/utils/string.js';
-import {gray} from '@feltcoop/felt/utils/terminal.js';
+import {replace_extension, strip_trailing_slash} from '@feltcoop/felt/util/path.js';
+import {strip_start} from '@feltcoop/felt/util/string.js';
+import {gray} from '@feltcoop/felt/util/terminal.js';
 
 import type {Build_Name} from './build/build_config.js';
 

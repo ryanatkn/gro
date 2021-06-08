@@ -1,4 +1,4 @@
-import {attach_process_error_handlers as base_attach_process_error_handlers} from '@feltcoop/felt/utils/process.js';
+import {attach_process_error_handlers as base_attach_process_error_handlers} from '@feltcoop/felt/util/process.js';
 
 import {Task_Error} from '../task/task.js';
 

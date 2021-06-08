@@ -1,6 +1,6 @@
 import {basename, dirname, join} from 'path';
-import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
-import {strip_start} from '@feltcoop/felt/utils/string.js';
+import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
+import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import type {Non_Buildable_Filer_Dir, Buildable_Filer_Dir, Filer_Dir} from '../build/filer_dir.js';
 import {reconstructBuild_Files} from './build_file.js';

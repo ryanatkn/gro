@@ -1,6 +1,6 @@
 import type {EventEmitter} from 'events';
-import {cyan, red} from '@feltcoop/felt/utils/terminal.js';
-import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
+import {cyan, red} from '@feltcoop/felt/util/terminal.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 
 import type {Task_Module_Meta} from './task_module.js';
 import type {Args} from './task.js';

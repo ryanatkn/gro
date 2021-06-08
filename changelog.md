@@ -286,7 +286,7 @@
   ([#154](https://github.com/feltcoop/gro/pull/154))
 - **break**: rename `src/fs/clean.ts` from `src/utils/clean.ts`
   ([#155](https://github.com/feltcoop/gro/pull/155))
-- **break**: rename `toArray` from `ensureArray`
+- **break**: rename `to_array` from `ensureArray`
   ([#117](https://github.com/feltcoop/gro/pull/117))
 - upgrade to `svelte@3.37.0`
   ([#102](https://github.com/feltcoop/gro/pull/102))
@@ -727,7 +727,7 @@
 
 ## 0.1.1
 
-- add `fs/watchNodeFs.ts` for low level filesystem watching
+- add `fs/watch_node_fs.ts` for low level filesystem watching
 - expose `remove` and `ensure_dir` in `fs/node.ts`
 
 ## 0.1.0

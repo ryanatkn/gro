@@ -1,6 +1,6 @@
-import {print_timings} from '@feltcoop/felt/utils/print.js';
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {spawn_process} from '@feltcoop/felt/utils/process.js';
+import {print_timings} from '@feltcoop/felt/util/print.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {spawn_process} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
 import {Task_Error} from './task/task.js';

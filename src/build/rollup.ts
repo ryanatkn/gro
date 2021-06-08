@@ -10,14 +10,14 @@ import {
 } from 'rollup';
 import resolve_plugin from '@rollup/plugin-node-resolve';
 import commonjs_plugin from '@rollup/plugin-commonjs';
-import {rainbow} from '@feltcoop/felt/utils/terminal.js';
-import {System_Logger, print_log_label} from '@feltcoop/felt/utils/log.js';
-import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {deindent} from '@feltcoop/felt/utils/string.js';
-import {omit_undefined} from '@feltcoop/felt/utils/object.js';
-import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
-import {identity} from '@feltcoop/felt/utils/function.js';
-import type {Partial_Except} from '@feltcoop/felt/utils/types.js';
+import {rainbow} from '@feltcoop/felt/util/terminal.js';
+import {System_Logger, print_log_label} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
+import {deindent} from '@feltcoop/felt/util/string.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
+import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
+import {identity} from '@feltcoop/felt/util/function.js';
+import type {Partial_Except} from '@feltcoop/felt/util/types.js';
 
 import {diagnosticsPlugin} from './rollup_plugin_diagnostics.js';
 // import {gro_terser_plugin} from './rollup-plugin-gro-terser.js';

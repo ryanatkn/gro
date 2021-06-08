@@ -1,9 +1,9 @@
 import * as terser from 'terser';
 import type {Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
-import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
-import {print_error} from '@feltcoop/felt/utils/print.js';
-import {omit_undefined} from '@feltcoop/felt/utils/object.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
+import {print_error} from '@feltcoop/felt/util/print.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
 import {print_path} from '../paths.js';
 

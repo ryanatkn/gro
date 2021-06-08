@@ -1,8 +1,8 @@
-import {red} from '@feltcoop/felt/utils/terminal.js';
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
-import type {Result} from '@feltcoop/felt/utils/types.js';
-import {print_error} from '@feltcoop/felt/utils/print.js';
+import {red} from '@feltcoop/felt/util/terminal.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
+import type {Result} from '@feltcoop/felt/util/types.js';
+import {print_error} from '@feltcoop/felt/util/print.js';
 
 import {
 	load_source_path_data_by_input_path,

@@ -1,8 +1,8 @@
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {spawn} from '@feltcoop/felt/utils/process.js';
-import type {Spawned_Process} from '@feltcoop/felt/utils/process.js';
-import {green} from '@feltcoop/felt/utils/terminal.js';
-import {print_timings} from '@feltcoop/felt/utils/print.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
+import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
+import {green} from '@feltcoop/felt/util/terminal.js';
+import {print_timings} from '@feltcoop/felt/util/print.js';
 
 import type {Task} from './task/task.js';
 import {DIST_DIRNAME, paths, source_id_to_base_path, to_build_extension} from './paths.js';

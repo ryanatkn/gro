@@ -1,5 +1,5 @@
-import {spawn_process} from '@feltcoop/felt/utils/process.js';
-import type {SpawnResult} from '@feltcoop/felt/utils/process.js';
+import {spawn_process} from '@feltcoop/felt/util/process.js';
+import type {SpawnResult} from '@feltcoop/felt/util/process.js';
 
 import {
 	GITHUB_DIRNAME,

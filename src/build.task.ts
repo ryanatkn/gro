@@ -1,6 +1,6 @@
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {print_timings} from '@feltcoop/felt/utils/print.js';
-import {toArray} from '@feltcoop/felt/utils/array.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {print_timings} from '@feltcoop/felt/util/print.js';
+import {to_array} from '@feltcoop/felt/util/array.js';
 
 import type {Task, Args} from './task/task.js';
 import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from './build/rollup.js';
@@ -63,7 +63,7 @@ export const task: Task<Task_Args, Task_Events> = {
 			...ctx,
 			config,
 		};
-		const adapters: Adapter<any, any>[] = toArray(await config.adapt(adapt_context)).filter(
+		const adapters: Adapter<any, any>[] = to_array(await config.adapt(adapt_context)).filter(
 			Boolean,
 		) as Adapter<any, any>[];
 		timing_to_create_adapters();

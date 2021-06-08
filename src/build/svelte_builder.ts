@@ -1,11 +1,11 @@
 import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/compiler/preprocess';
-import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
-import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
-import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {omit_undefined} from '@feltcoop/felt/utils/object.js';
-import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
-import {cyan} from '@feltcoop/felt/utils/terminal.js';
+import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compiler/interfaces';
+import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
+import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
+import {cyan} from '@feltcoop/felt/util/terminal.js';
 
 import type {Ecma_Script_Target} from './ts_build_helpers.js';
 import {
@@ -35,7 +35,7 @@ export interface Options {
 	create_preprocessor: Create_Preprocessor;
 	// TODO how to support options like this without screwing up caching?
 	// maybe compilers need a way to declare their options so they (or a hash) can be cached?
-	svelte_compile_options: SvelteCompileOptions;
+	svelte_compile_options: Svelte_Compile_Options;
 	onwarn: typeof handle_warn;
 	onstats: typeof handle_stats | null;
 }

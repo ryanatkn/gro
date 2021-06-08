@@ -1,4 +1,4 @@
-import {Unreachable_Error} from '@feltcoop/felt/utils/error.js';
+import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 
 import type {Build, Build_Context, Build_Dependency, Build_Result} from './builder.js';
 import type {Base_Filer_File} from './base_filer_file.js';

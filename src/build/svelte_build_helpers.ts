@@ -6,10 +6,10 @@ import type {
 } from 'svelte/types/compiler/interfaces';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as svelte_preprocess_esbuild from 'svelte-preprocess-esbuild';
-import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {yellow} from '@feltcoop/felt/utils/terminal.js';
-import {print_key_value, print_ms} from '@feltcoop/felt/utils/print.js';
-import type {Omit_Strict} from '@feltcoop/felt/utils/types.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
+import {yellow} from '@feltcoop/felt/util/terminal.js';
+import {print_key_value, print_ms} from '@feltcoop/felt/util/print.js';
+import type {Omit_Strict} from '@feltcoop/felt/util/types.js';
 
 import {getDefaultEsbuildPreprocessOptions} from './esbuildBuildHelpers.js';
 import type {Ecma_Script_Target} from './ts_build_helpers.js';

@@ -1,7 +1,7 @@
-import {print_timings} from '@feltcoop/felt/utils/print.js';
-import {Timings} from '@feltcoop/felt/utils/time.js';
-import {create_restartable_process, spawn} from '@feltcoop/felt/utils/process.js';
-import type {Spawned_Process} from '@feltcoop/felt/utils/process.js';
+import {print_timings} from '@feltcoop/felt/util/print.js';
+import {Timings} from '@feltcoop/felt/util/time.js';
+import {create_restartable_process, spawn} from '@feltcoop/felt/util/process.js';
+import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';

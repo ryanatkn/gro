@@ -1,4 +1,4 @@
-import {deepEqual} from '@feltcoop/felt/utils/equal.js';
+import {deepEqual} from '@feltcoop/felt/util/equal.js';
 
 import type {Source_Meta, Source_MetaBuild} from '../build/source_meta.js';
 import type {Build_Config, Build_Name} from '../build/build_config.js';

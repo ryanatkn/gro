@@ -4,11 +4,11 @@ import {
 	configureLog_Level,
 	print_log_label,
 	DEFAULT_LOG_LEVEL,
-} from '@feltcoop/felt/utils/log.js';
-import type {Logger} from '@feltcoop/felt/utils/log.js';
-import {omit_undefined} from '@feltcoop/felt/utils/object.js';
-import type {Assignable, Result} from '@feltcoop/felt/utils/types.js';
-import {toArray} from '@feltcoop/felt/utils/array.js';
+} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
+import type {Assignable, Result} from '@feltcoop/felt/util/types.js';
+import {to_array} from '@feltcoop/felt/util/array.js';
 
 import {paths, to_build_out_path, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {
@@ -224,7 +224,7 @@ const validate_config = async (
 };
 
 const normalize_config = (config: Gro_Config_Partial): Gro_Config => {
-	const build_configs = normalize_build_configs(toArray(config.builds || null));
+	const build_configs = normalize_build_configs(to_array(config.builds || null));
 	return {
 		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,

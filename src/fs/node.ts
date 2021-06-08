@@ -1,6 +1,6 @@
 import Cheap_Watch from 'cheap-watch';
 import fs_extra from 'fs-extra';
-import {sortMap, compare_simple_map_entries} from '@feltcoop/felt/utils/map.js';
+import {sortMap, compare_simple_map_entries} from '@feltcoop/felt/util/map.js';
 
 import type {Filesystem, FsWriteFile} from './filesystem.js';
 import type {Path_Stats} from './path_data.js';

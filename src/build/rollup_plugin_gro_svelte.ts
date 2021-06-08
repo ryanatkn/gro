@@ -3,11 +3,11 @@ import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/
 import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compiler/interfaces';
 import type {Plugin, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
-import {red} from '@feltcoop/felt/utils/terminal.js';
-import {toPathStem} from '@feltcoop/felt/utils/path.js';
-import {print_log_label, System_Logger} from '@feltcoop/felt/utils/log.js';
-import {omit_undefined} from '@feltcoop/felt/utils/object.js';
-import type {Partial_Except} from '@feltcoop/felt/utils/types.js';
+import {red} from '@feltcoop/felt/util/terminal.js';
+import {toPathStem} from '@feltcoop/felt/util/path.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
+import type {Partial_Except} from '@feltcoop/felt/util/types.js';
 
 import {
 	base_svelte_compile_options,
