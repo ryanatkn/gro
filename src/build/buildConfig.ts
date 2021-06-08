@@ -4,7 +4,14 @@ import {blue, gray} from '@feltcoop/felt/utils/terminal.js';
 import type {Result, Flavored} from '@feltcoop/felt/utils/types.js';
 
 import {paths} from '../paths.js';
-import {PRIMARY_NODE_BUILD_CONFIG, PRIMARY_NODE_BUILD_NAME} from './defaultBuildConfig.js';
+import {
+	CONFIG_BUILD_CONFIG,
+	CONFIG_BUILD_NAME,
+	SYSTEM_BUILD_CONFIG,
+	SYSTEM_BUILD_NAME,
+} from './defaultBuildConfig.js';
+import {validateInputFiles} from './utils.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 // See `../docs/config.md` for documentation.
 
@@ -16,11 +23,18 @@ export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
 	readonly input: readonly BuildConfigInput[];
 }
 
+// `string` inputs must be a relative or absolute path to a source file
 export type BuildConfigInput = string | InputFilter;
 
 export interface InputFilter {
 	(id: string): boolean;
 }
+
+export const toInputFiles = (input: readonly BuildConfigInput[]): string[] =>
+	input.filter((input) => typeof input === 'string') as string[];
+
+export const toInputFilters = (input: readonly BuildConfigInput[]): InputFilter[] =>
+	input.filter((input) => typeof input !== 'string') as InputFilter[];
 
 // The partial was originally this calculated type, but it's a lot less readable.
 // export type BuildConfigPartial = PartialExcept<
@@ -35,15 +49,19 @@ export interface BuildConfigPartial {
 
 export type PlatformTarget = 'node' | 'browser';
 
-export const isPrimaryBuildConfig = (config: BuildConfig): boolean =>
-	config.name === PRIMARY_NODE_BUILD_NAME;
+export const isSystemBuildConfig = (config: BuildConfig): boolean =>
+	config.name === SYSTEM_BUILD_NAME;
+
+export const isConfigBuildConfig = (config: BuildConfig): boolean =>
+	config.name === CONFIG_BUILD_NAME;
 
 export const normalizeBuildConfigs = (
 	partials: readonly (BuildConfigPartial | null)[],
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	const buildConfigs: BuildConfig[] = [];
-	let hasPrimaryBuildConfig = false;
+	let hasConfigBuildConfig = false;
+	let hasSystemBuildConfig = false;
 	for (const partial of partials) {
 		if (!partial) continue;
 		const buildConfig: BuildConfig = {
@@ -52,14 +70,19 @@ export const normalizeBuildConfigs = (
 			input: normalizeBuildConfigInput(partial.input),
 		};
 		buildConfigs.push(buildConfig);
-		if (!hasPrimaryBuildConfig && isPrimaryBuildConfig(buildConfig)) {
-			hasPrimaryBuildConfig = true;
+		if (!hasConfigBuildConfig && isConfigBuildConfig(buildConfig)) {
+			hasConfigBuildConfig = true;
+		}
+		if (!hasSystemBuildConfig && isSystemBuildConfig(buildConfig)) {
+			hasSystemBuildConfig = true;
 		}
 	}
-	if (!hasPrimaryBuildConfig) {
-		buildConfigs.unshift(PRIMARY_NODE_BUILD_CONFIG);
+	if (!hasSystemBuildConfig) {
+		buildConfigs.unshift(SYSTEM_BUILD_CONFIG);
 	}
-
+	if (!hasConfigBuildConfig) {
+		buildConfigs.unshift(CONFIG_BUILD_CONFIG);
+	}
 	return buildConfigs;
 };
 
@@ -67,20 +90,32 @@ const normalizeBuildConfigInput = (input: BuildConfigPartial['input']): BuildCon
 	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
-export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {reason: string}> => {
+export const validateBuildConfigs = async (
+	fs: Filesystem,
+	buildConfigs: BuildConfig[],
+): Promise<Result<{}, {reason: string}>> => {
 	if (!Array.isArray(buildConfigs)) {
 		return {
 			ok: false,
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
-	const primaryBuildConfig = buildConfigs.find((b) => b.name === PRIMARY_NODE_BUILD_NAME);
-	if (!primaryBuildConfig) {
+	const configBuildConfig = buildConfigs.find((c) => isConfigBuildConfig(c));
+	if (!configBuildConfig) {
 		return {
 			ok: false,
 			reason:
 				`The field 'gro.builds' in package.json must have` +
-				` a 'node' config named '${PRIMARY_NODE_BUILD_NAME}'`,
+				` a 'node' config named '${CONFIG_BUILD_NAME}'`,
+		};
+	}
+	const systemBuildConfig = buildConfigs.find((c) => isSystemBuildConfig(c));
+	if (!systemBuildConfig) {
+		return {
+			ok: false,
+			reason:
+				`The field 'gro.builds' in package.json must have` +
+				` a 'node' config named '${SYSTEM_BUILD_NAME}'`,
 		};
 	}
 	const names: Set<BuildName> = new Set();
@@ -106,6 +141,8 @@ export const validateBuildConfigs = (buildConfigs: BuildConfig[]): Result<{}, {r
 			};
 		}
 		names.add(buildConfig.name);
+		const validatedInput = await validateInputFiles(fs, toInputFiles(buildConfig.input));
+		if (!validatedInput.ok) return validatedInput;
 	}
 	return {ok: true};
 };

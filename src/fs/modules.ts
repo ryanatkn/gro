@@ -7,7 +7,7 @@ import {printError} from '@feltcoop/felt/utils/print.js';
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import type {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId, printPath, printPathOrGroPath} from '../paths.js';
-import {PRIMARY_NODE_BUILD_NAME} from '../build/defaultBuildConfig.js';
+import {SYSTEM_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import type {Filesystem} from './filesystem.js';
 
 /*
@@ -36,7 +36,7 @@ export const loadModule = async <T>(
 	id: string,
 	validate?: (mod: Record<string, any>) => mod is T,
 	dev = process.env.NODE_ENV !== 'production',
-	buildName = PRIMARY_NODE_BUILD_NAME,
+	buildName = SYSTEM_BUILD_NAME,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
 	let mod;
 	try {

@@ -10,16 +10,21 @@ export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
 export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
 
-// Gro currently enforces that the primary build config
-// for the Node platform has this value as its name.
+export const CONFIG_BUILD_NAME: BuildName = 'config';
+export const CONFIG_BUILD_CONFIG: BuildConfig = {
+	name: CONFIG_BUILD_NAME,
+	platform: 'node',
+	input: [`${paths.source}gro.config.ts`],
+};
+
+// Gro currently requires this system build config for Node tasks and tests.
 // This convention speeds up running tasks by standardizing where Gro can look for built files.
 // This restriction could be relaxed by using cached metadata, but this keeps things simple for now.
-export const PRIMARY_NODE_BUILD_NAME: BuildName = 'node';
-
-export const PRIMARY_NODE_BUILD_CONFIG: BuildConfig = {
-	name: PRIMARY_NODE_BUILD_NAME,
+export const SYSTEM_BUILD_NAME: BuildName = 'system';
+export const SYSTEM_BUILD_CONFIG: BuildConfig = {
+	name: SYSTEM_BUILD_NAME,
 	platform: 'node',
-	input: [createFilter(['**/*.{task,test,config,gen,gen.*}.ts', '**/fixtures/**'])],
+	input: [createFilter(['**/*.{task,test,gen,gen.*}.ts', '**/fixtures/**'])],
 };
 
 const NODE_LIBRARY_PATH = 'index.ts';

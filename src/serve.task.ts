@@ -9,7 +9,7 @@ export interface TaskArgs {
 	serve?: ServedDirPartial[]; // takes priority over the CLI arg "_" above
 	host?: string;
 	port?: string | number;
-	nocert?: boolean;
+	insecure?: boolean;
 	certfile?: string;
 	certkeyfile?: string;
 }
@@ -28,7 +28,7 @@ export const task: Task<TaskArgs> = {
 		await filer.init();
 
 		// TODO write docs and validate args, maybe refactor, see also `dev.task.ts`
-		const https = args.nocert
+		const https = args.insecure
 			? null
 			: await loadHttpsCredentials(fs, log, args.certfile, args.certkeyfile);
 

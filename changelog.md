@@ -1,5 +1,20 @@
 # changelog
 
+## 0.27.0
+
+- **break**: rename `'system'` build from `'node'`
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: add `'config'` build to simplify internals
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: build configs now fail to validate if any input path strings do not exist
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: rename `loadConfig` from `loadGroConfig`
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: change `validateBuildConfigs` function signature
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+- fix clean
+  ([#207](https://github.com/feltcoop/gro/pull/207))
+
 ## 0.26.2
 
 - support publishing library builds

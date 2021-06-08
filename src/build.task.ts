@@ -4,7 +4,7 @@ import {toArray} from '@feltcoop/felt/utils/array.js';
 
 import type {Task, Args} from './task/task.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from './build/rollup.js';
-import {loadGroConfig} from './config/config.js';
+import {loadConfig} from './config/config.js';
 import type {GroConfig} from './config/config.js';
 import type {TaskEvents as ServerTaskEvents} from './server.task.js';
 import type {AdapterContext, Adapter} from './adapt/adapter.js';
@@ -36,7 +36,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		const timings = new Timings(); // TODO belongs in ctx
 
-		await clean(fs, {buildProd: false}, log); // TODO hack fix
+		await clean(fs, {buildProd: true}, log);
 
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
@@ -46,7 +46,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		events.emit('build.buildTypes');
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig(fs, dev);
+		const config = await loadConfig(fs, dev);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 

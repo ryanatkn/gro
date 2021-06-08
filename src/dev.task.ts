@@ -10,7 +10,7 @@ import {paths, toBuildOutPath, isThisProjectGro} from './paths.js';
 import {createGroServer} from './server/server.js';
 import type {GroServer} from './server/server.js';
 import type {GroConfig} from './config/config.js';
-import {loadGroConfig} from './config/config.js';
+import {loadConfig} from './config/config.js';
 import type {ServedDirPartial} from './build/servedDir.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {
@@ -54,7 +54,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		}
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig(fs, dev);
+		const config = await loadConfig(fs, dev);
 		timingToLoadConfig();
 		events.emit('dev.createConfig', config);
 
@@ -127,7 +127,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 };
 
 const getDefaultServedDirs = (config: GroConfig): ServedDirPartial[] => {
-	const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.primaryNodeBuildConfig;
+	const buildConfigToServe = config.primaryBrowserBuildConfig ?? config.systemBuildConfig;
 	const buildOutDirToServe = toBuildOutPath(true, buildConfigToServe.name, '');
 	return [buildOutDirToServe];
 };

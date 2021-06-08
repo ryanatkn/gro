@@ -7,9 +7,9 @@ import {printTimings} from '@feltcoop/felt/utils/print.js';
 import type {Task} from './task/task.js';
 import {DIST_DIRNAME, paths, sourceIdToBasePath, toBuildExtension} from './paths.js';
 import type {GroConfig} from './config/config.js';
-import {loadGroConfig} from './config/config.js';
+import {loadConfig} from './config/config.js';
 import type {BuildConfig} from './build/buildConfig.js';
-import {resolveInputFiles} from './build/utils.js';
+import {toInputFiles} from './build/buildConfig.js';
 import {hasApiServer, hasSvelteKitFrontend, toApiServerPort} from './build/defaultBuildConfig.js';
 import type {TaskArgs as ServeTaskArgs} from './serve.task.js';
 import {toSvelteKitBasePath} from './build/sveltekitHelpers.js';
@@ -36,7 +36,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		}
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadGroConfig(fs, dev);
+		const config = await loadConfig(fs, dev);
 		timingToLoadConfig();
 
 		// detect if we're in a SvelteKit project, and prefer that to Gro's system for now
@@ -56,7 +56,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 					// TODO this needs to be changed, might need to configure on each `buildConfig`
 					// maybe `dist: ['/path/to']` or `dist: {'/path/to': ...}`
 					config.builds.map(async (buildConfig) =>
-						(await resolveInputFiles(fs, buildConfig)).files.map((input) => ({
+						toInputFiles(buildConfig.input).map((input) => ({
 							buildConfig,
 							input,
 						})),

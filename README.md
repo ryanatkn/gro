@@ -28,7 +28,7 @@ for making web frontends, servers, and libraries.
 It includes:
 
 - [build system](/src/docs/build.md)
-  for [Svelte](https://github.com/sveltejs/svelte) UIs and Node servers and libraries
+  for [Svelte](https://github.com/sveltejs/svelte) UIs, Node servers/libraries, and other things
   - [unbundled development](/src/docs/dev.md)
     inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
     [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
@@ -188,11 +188,11 @@ see [contributing.md🌄](./contributing.md)
 ## credits :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
 
 Gro builds on
-[Svelte](https://github.com/sveltejs/svelte) ∙
-[Rollup](https://github.com/rollup/rollup) ∙
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
+[Svelte](https://github.com/sveltejs/svelte) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
 [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
+[Rollup](https://github.com/rollup/rollup) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [Prettier](https://github.com/prettier/prettier) ∙

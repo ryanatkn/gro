@@ -24,7 +24,7 @@ import {
 import {findModules, loadModules} from '../fs/modules.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
-import {PRIMARY_NODE_BUILD_NAME} from '../build/defaultBuildConfig.js';
+import {SYSTEM_BUILD_NAME} from '../build/defaultBuildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 /*
@@ -100,11 +100,11 @@ export const invokeTask = async (
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				// TODO probably do this as a separate process
-				// also this is messy, the `loadGroConfig` does some hacky config loading,
+				// also this is messy, the `loadConfig` does some hacky config loading,
 				// and then we end up building twice - can it be done in a single pass?
-				const {loadGroConfig} = await import('../config/config.js');
+				const {loadConfig} = await import('../config/config.js');
 				const bootstrappingDev = true; // this does not inherit from the `dev` arg or `process.env.NODE_ENV`
-				const config = await loadGroConfig(fs, bootstrappingDev);
+				const config = await loadConfig(fs, bootstrappingDev);
 				timingToLoadConfig();
 				const timingToBuildProject = timings.start('build project');
 				const {buildSourceDirectory} = await import('../build/buildSourceDirectory.js');
@@ -257,6 +257,6 @@ const shouldBuildProject = async (fs: Filesystem, sourceId: string): Promise<boo
 	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
 	if (isThisProjectGro && !(await fs.exists(paths.build))) return true;
 	// ensure the build file for the source id exists in the default dev build
-	const buildId = toImportId(sourceId, true, PRIMARY_NODE_BUILD_NAME);
+	const buildId = toImportId(sourceId, true, SYSTEM_BUILD_NAME);
 	return !(await fs.exists(buildId));
 };

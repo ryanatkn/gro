@@ -5,8 +5,8 @@ import {spawnProcess} from '@feltcoop/felt/utils/process.js';
 import type {Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
-import {PRIMARY_NODE_BUILD_NAME} from './build/defaultBuildConfig.js';
-import {loadGroConfig} from './config/config.js';
+import {SYSTEM_BUILD_NAME} from './build/defaultBuildConfig.js';
+import {loadConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
 // Runs the project's tests: `gro test [...args]`
@@ -23,12 +23,12 @@ export const task: Task = {
 
 		const timings = new Timings();
 
-		const testsBuildDir = toBuildOutPath(dev, PRIMARY_NODE_BUILD_NAME);
+		const testsBuildDir = toBuildOutPath(dev, SYSTEM_BUILD_NAME);
 
 		// TODO cleaner way to detect & rebuild?
 		if (!(await fs.exists(testsBuildDir))) {
 			const timingToLoadConfig = timings.start('load config');
-			const config = await loadGroConfig(fs, dev);
+			const config = await loadConfig(fs, dev);
 			timingToLoadConfig();
 
 			const timingToPrebuild = timings.start('prebuild');

@@ -56,8 +56,8 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	// Preferring `null` over `undefined` bypasses this whole mess.
 	b: null,
 
-	// Because `c` can be `undefined`, it must default to `undefined`!
-	c: undefined,
+	// Because `c` can be `undefined`, it must default to `undefined`! and it's optional:
+	// c: undefined,
 
 	// We always omit `undefined` values from the initial options
 	// so callers can be assured type safety.

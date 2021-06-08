@@ -12,7 +12,7 @@
 
 ## what
 
-A Gro task is just a function with some metadata.
+A Gro task is just a function with some optional metadata.
 Gro prefers conventions and code over configuration,
 and its task runner leverages the filesystem as the API
 and defers composition to the user in regular TypeScript modules.
@@ -20,8 +20,9 @@ and defers composition to the user in regular TypeScript modules.
 - Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
   in your source directory, so creating a new task is as simple as creating a new file -
   no configuration or scaffolding commands needed!
-- task definitions are just objects with an async `run` function and some metadata,
+- task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
+  (but there's also the helper `invokeTask`: see more below)
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args
@@ -30,6 +31,9 @@ and defers composition to the user in regular TypeScript modules.
   (tasks are copy-paste friendly! just update the imports)
 - the task execution environment is filesystem agnostic by default; `run` receives a
   [`TaskContext` argument](#user-content-types-task-and-taskcontext) with an `fs` property
+- the `TaskContext` provides a rich baseline context object
+  for both dev env and one-off script authoring and execution,
+  enriching the APIs of both Gro and userland with its portable and extensibile affordances
 - it's fast because it imports only the modules that your chosen tasks need
 
 The task runner's purpose is to provide an ergonomic interface

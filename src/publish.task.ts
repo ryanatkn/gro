@@ -9,7 +9,7 @@ import type {Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import {GIT_DEPLOY_BRANCH} from './build/defaultBuildConfig.js';
 import type {Filesystem} from './fs/filesystem.js';
-import {loadGroConfig} from './config/config.js';
+import {loadConfig} from './config/config.js';
 import {buildSourceDirectory} from './build/buildSourceDirectory.js';
 
 // publish.task.ts
@@ -54,7 +54,7 @@ export const task: Task<TaskArgs> = {
 		await spawnProcess('git', ['pull']);
 
 		// Build, check, then create the final artifacts:
-		const config = await loadGroConfig(fs, dev);
+		const config = await loadConfig(fs, dev);
 		if (config.publish === null) {
 			throw Error('config.publish is null, so this package cannot be published');
 		}

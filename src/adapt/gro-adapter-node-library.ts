@@ -17,16 +17,20 @@ import {
 	TS_TYPE_EXTENSION,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/defaultBuildConfig.js';
-import {BuildName, printBuildConfigLabel} from '../build/buildConfig.js';
-import {resolveInputFiles} from '../build/utils.js';
+import type {BuildName} from '../build/buildConfig.js';
+import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
 import {runRollup} from '../build/rollup.js';
 import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from '../build/rollup.js';
 import type {PathStats} from '../fs/pathData.js';
 
+// TODO maybe add a `files` option to explicitly include source files,
+// and fall back to inferring from the build config
+// (it should probably accept the normal include/exclude filters from @rollup/pluginutils)
+
 export interface Options {
 	buildName: BuildName; // defaults to 'library'
-	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
 	dir: string; // defaults to `dist/${buildName}`
+	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
 	link: string | null; // path to `npm link`, defaults to null
 	// TODO currently these options are only available for 'bundled'
 	esm: boolean; // defaults to true
@@ -42,8 +46,8 @@ interface AdapterArgs {
 
 export const createAdapter = ({
 	buildName = NODE_LIBRARY_BUILD_NAME,
-	type = 'unbundled',
 	dir = `${paths.dist}${buildName}`,
+	type = 'unbundled',
 	link = null,
 	esm = true,
 	cjs = true,
@@ -65,7 +69,7 @@ export const createAdapter = ({
 				throw Error(`Unknown build config: ${buildName}`);
 			}
 
-			const {files /* , filters */} = await resolveInputFiles(fs, buildConfig);
+			const files = toInputFiles(buildConfig.input);
 
 			const timingToBundleWithRollup = timings.start('bundle with rollup');
 			if (type === 'bundled') {

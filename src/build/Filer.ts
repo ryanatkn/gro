@@ -27,7 +27,7 @@ import type {
 } from './builder.js';
 import {inferEncoding} from '../fs/encoding.js';
 import type {Encoding} from '../fs/encoding.js';
-import {isPrimaryBuildConfig, printBuildConfigLabel} from '../build/buildConfig.js';
+import {isSystemBuildConfig, printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildConfig} from '../build/buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/defaultBuildConfig.js';
 import type {EcmaScriptTarget} from './tsBuildHelpers.js';
@@ -120,7 +120,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 							dev,
 							(
 								buildConfigs.find((c) => c.platform === 'browser') ||
-								buildConfigs.find((c) => isPrimaryBuildConfig(c))!
+								buildConfigs.find((c) => isSystemBuildConfig(c))!
 							).name,
 							'',
 							buildDir,
