@@ -5,7 +5,7 @@ import type {
 	IncomingHttpHeaders,
 	OutgoingHttpHeaders,
 } from 'http';
-import {createSecureServer as create_http2_erver} from 'http2';
+import {createSecureServer as create_http2_server} from 'http2';
 import type {Http2Server, ServerHttp2Stream} from 'http2';
 import type {ListenOptions} from 'net';
 import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/util/terminal.js';
@@ -88,7 +88,7 @@ export const create_gro_server = (opts: Initial_Options): Gro_Server => {
 	};
 	let server: Http1_Server | Http2Server;
 	if (https) {
-		server = create_http2_erver(https);
+		server = create_http2_server(https);
 		server.on('error', (err) => log.error(err));
 		server.on('stream', create_http2_stream_listener(filer, log));
 	} else {
