@@ -51,7 +51,7 @@ but please feel free to try it and share your feedback!
 
 ```bash
 gro dev
-gro dev --no-watch # don't start the dev server
+gro dev --no-watch # outputs dev artifacts and exits without starting the dev server
 ```
 
 To configure a project, see [the config docs](config.md).
