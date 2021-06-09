@@ -19,7 +19,7 @@ import {
 import {NODE_LIBRARY_BUILD_NAME} from '../build/default_build_config.js';
 import type {Build_Name} from '../build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
-import {runRollup} from '../build/rollup.js';
+import {run_rollup} from '../build/rollup.js';
 import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
 
@@ -86,7 +86,7 @@ export const create_adapter = ({
 					throw Error(`Build must have either cjs or esm or both: ${build_name}`);
 				}
 				if (cjs) {
-					await runRollup({
+					await run_rollup({
 						dev,
 						sourcemap: config.sourcemap,
 						input,
@@ -101,7 +101,7 @@ export const create_adapter = ({
 					await fs.move(`${dir}/index.js`, `${dir}/index.cjs`);
 				}
 				if (esm) {
-					await runRollup({
+					await run_rollup({
 						dev,
 						sourcemap: config.sourcemap,
 						input,

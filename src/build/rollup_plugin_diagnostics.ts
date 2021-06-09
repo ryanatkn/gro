@@ -10,7 +10,7 @@ export const name = 'diagnostics';
 
 const tag = (s: string) => s; // maybe color this
 
-export const diagnosticsPlugin = (): Plugin => {
+export const diagnostics_plugin = (): Plugin => {
 	const log = new System_Logger(gray(`[${name}]`));
 
 	const stopwatch = create_stopwatch();
