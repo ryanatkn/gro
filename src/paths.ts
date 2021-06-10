@@ -54,6 +54,7 @@ export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.cjs';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
+export const SVELTEKIT_DIST_DIRNAME = 'svelte-kit'; // TODO maybe make SvelteKit frontend a proper build config, and delete this line
 export const SVELTEKIT_APP_DIRNAME = 'app'; // same as /svelte.config.cjs `kit.appDir`
 export const SVELTEKIT_VITE_CACHE_PATH = 'node_modules/.vite';
 export const NODE_MODULES_DIRNAME = 'node_modules';

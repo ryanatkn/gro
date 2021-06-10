@@ -5,7 +5,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from './adapter.js';
-import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME} from '../paths.js';
+import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';
 
 const NOJEKYLL = '.nojekyll';
 const DEFAULT_TARGET = 'github_pages';
@@ -16,17 +16,15 @@ export interface Options {
 	target: 'github_pages' | 'static';
 }
 
+// TODO this hacks around the fact that we don't create a proper Gro build for SvelteKit frontends
 export const create_adapter = ({
-	dir = DIST_DIRNAME,
+	dir = `${DIST_DIRNAME}/${SVELTEKIT_DIST_DIRNAME}`,
 	sveltekit_dir = SVELTEKIT_BUILD_DIRNAME,
 	target = DEFAULT_TARGET,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
-		begin: async ({fs}) => {
-			await fs.remove(dir);
-		},
 		adapt: async ({fs, log}) => {
 			const timings = new Timings();
 
@@ -35,6 +33,7 @@ export const create_adapter = ({
 			timing_to_build_sveltekit();
 
 			const timing_to_copy_dist = timings.start('copy build to dist');
+			await fs.remove(dir);
 			await fs.move(sveltekit_dir, dir);
 			timing_to_copy_dist();
 
