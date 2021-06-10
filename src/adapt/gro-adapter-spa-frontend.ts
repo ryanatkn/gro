@@ -5,7 +5,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {print_timings} from '@feltcoop/felt/util/print.js';
 
 import type {Adapter} from './adapter.js';
-import {runRollup} from '../build/rollup.js';
+import {run_rollup} from '../build/rollup.js';
 import {DIST_DIRNAME, source_id_to_base_path, to_build_extension, to_import_id} from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import type {Build_Name} from '../build/build_config.js';
@@ -63,7 +63,7 @@ export const create_adapter = ({
 						source_id_to_base_path(ensure_end(to_common_base_dir(files), '/')), // TODO refactor when fixing the trailing `/`
 					)}`;
 					log.info('building', print_build_config_label(build_config), output_dir, files);
-					await runRollup({
+					await run_rollup({
 						dev,
 						sourcemap: config.sourcemap,
 						input,

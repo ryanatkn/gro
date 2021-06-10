@@ -19,7 +19,7 @@ import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {identity} from '@feltcoop/felt/util/function.js';
 import type {Partial_Except} from '@feltcoop/felt/util/types.js';
 
-import {diagnosticsPlugin} from './rollup_plugin_diagnostics.js';
+import {diagnostics_plugin} from './rollup_plugin_diagnostics.js';
 // import {gro_terser_plugin} from './rollup-plugin-gro-terser.js';
 import {paths} from '../paths.js';
 
@@ -52,7 +52,7 @@ export type Map_Input_Options = (o: Rollup_Input_Options, b: Options) => Rollup_
 export type Map_Output_Options = (o: Rollup_Output_Options, b: Options) => Rollup_Output_Options;
 export type Map_Watch_Options = (o: Rollup_Watch_Options, b: Options) => Rollup_Watch_Options;
 
-export const runRollup = async (opts: Initial_Options): Promise<void> => {
+export const run_rollup = async (opts: Initial_Options): Promise<void> => {
 	const options = init_options(opts);
 	const {log} = options;
 
@@ -88,7 +88,7 @@ const create_input_options = (options: Options, _log: Logger): Rollup_Input_Opti
 		// external,
 		input: options.input, // required
 		plugins: [
-			diagnosticsPlugin(),
+			diagnostics_plugin(),
 			resolve_plugin({preferBuiltins: true}),
 			commonjs_plugin(),
 			// TODO re-enable terser, but add a config option (probably `terser` object)
