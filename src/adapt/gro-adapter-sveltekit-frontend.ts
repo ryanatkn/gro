@@ -25,6 +25,9 @@ export const create_adapter = ({
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
+		begin: async ({fs}) => {
+			await fs.remove(dir);
+		},
 		adapt: async ({fs, log}) => {
 			const timings = new Timings();
 
@@ -33,7 +36,6 @@ export const create_adapter = ({
 			timing_to_build_sveltekit();
 
 			const timing_to_copy_dist = timings.start('copy build to dist');
-			await fs.remove(dir);
 			await fs.move(sveltekit_dir, dir);
 			timing_to_copy_dist();
 
