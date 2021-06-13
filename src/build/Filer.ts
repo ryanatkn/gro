@@ -27,7 +27,7 @@ import type {
 } from './builder.js';
 import {infer_encoding} from '../fs/encoding.js';
 import type {Encoding} from '../fs/encoding.js';
-import {is_system_build_config, print_build_config_label} from '../build/build_config.js';
+import {print_build_config_label} from '../build/build_config.js';
 import type {Build_Config} from '../build/build_config.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
 import type {Ecma_Script_Target} from './ts_build_helpers.js';
@@ -122,23 +122,7 @@ export const init_options = (opts: Initial_Options): Options => {
 	const build_dir = opts.build_dir || paths.build; // TODO assumes trailing slash
 	const source_dirs = opts.source_dirs ? opts.source_dirs.map((d) => resolve(d)) : [];
 	validate_dirs(source_dirs);
-	const served_dirs = to_served_dirs(
-		opts.served_dirs ||
-			(build_configs === null
-				? []
-				: [
-						// default to a best guess
-						to_build_out_path(
-							dev,
-							(
-								build_configs.find((c) => c.platform === 'browser') ||
-								build_configs.find((c) => is_system_build_config(c))!
-							).name,
-							'',
-							build_dir,
-						),
-				  ]),
-	);
+	const served_dirs = opts.served_dirs ? to_served_dirs(opts.served_dirs) : [];
 	const builder = opts.builder || null;
 	if (source_dirs.length) {
 		if (!build_configs) {

@@ -13,7 +13,6 @@ import {to_array} from '@feltcoop/felt/util/array.js';
 import {paths, to_build_out_path, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {
 	is_system_build_config,
-	is_config_build_config,
 	normalize_build_configs,
 	validate_build_configs,
 } from '../build/build_config.js';
@@ -59,7 +58,6 @@ export interface Gro_Config {
 	readonly port: number;
 	readonly log_level: Log_Level;
 	readonly serve?: Served_Dir_Partial[];
-	readonly config_build_config: Build_Config;
 	readonly system_build_config: Build_Config;
 	readonly primary_browser_build_config: Build_Config | null; // TODO improve this, too rigid
 }
@@ -155,12 +153,7 @@ export const load_config = async (
 	let config: Gro_Config;
 	if (await fs.exists(config_source_id)) {
 		const {build_source_directory} = await import('../build/build_source_directory.js');
-		const bootstrap_config = await to_config(
-			{builds: [CONFIG_BUILD_CONFIG], sourcemap: dev},
-			options,
-			'gro/build/default_build_config.ts',
-		);
-		await build_source_directory(fs, bootstrap_config, dev, log);
+		await build_source_directory(fs, to_bootstrap_config(), dev, log);
 
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
@@ -207,6 +200,21 @@ export const to_config = async (
 	return config;
 };
 
+const to_bootstrap_config = (): Gro_Config => {
+	return {
+		sourcemap: false, // TODO or always true?
+		host: DEFAULT_SERVER_HOST,
+		port: DEFAULT_SERVER_PORT,
+		log_level: DEFAULT_LOG_LEVEL,
+		adapt: () => null,
+		builds: [CONFIG_BUILD_CONFIG],
+		publish: null,
+		target: DEFAULT_ECMA_SCRIPT_TARGET,
+		system_build_config: null!,
+		primary_browser_build_config: null,
+	};
+};
+
 const validate_config_module = (config_module: any): Result<{}, {reason: string}> => {
 	if (!(typeof config_module.config === 'function' || typeof config_module.config === 'object')) {
 		throw Error(`Invalid Gro config module. Expected a 'config' export.`);
@@ -238,7 +246,6 @@ const normalize_config = (config: Gro_Config_Partial): Gro_Config => {
 				? config.publish
 				: to_default_publish_dirs(build_configs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		config_build_config: build_configs.find((b) => is_config_build_config(b))!,
 		system_build_config: build_configs.find((b) => is_system_build_config(b))!,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build

@@ -4,12 +4,7 @@ import {blue, gray} from '@feltcoop/felt/util/terminal.js';
 import type {Result, Flavored} from '@feltcoop/felt/util/types.js';
 
 import {paths} from '../paths.js';
-import {
-	CONFIG_BUILD_CONFIG,
-	CONFIG_BUILD_NAME,
-	SYSTEM_BUILD_CONFIG,
-	SYSTEM_BUILD_NAME,
-} from './default_build_config.js';
+import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './default_build_config.js';
 import {validate_input_files} from './utils.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -60,7 +55,6 @@ export const normalize_build_configs = (
 ): Build_Config[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	const build_configs: Build_Config[] = [];
-	let has_config_build_config = false;
 	let has_system_build_config = false;
 	for (const partial of partials) {
 		if (!partial) continue;
@@ -70,18 +64,12 @@ export const normalize_build_configs = (
 			input: normalize_build_config_input(partial.input),
 		};
 		build_configs.push(build_config);
-		if (!has_config_build_config && is_config_build_config(build_config)) {
-			has_config_build_config = true;
-		}
 		if (!has_system_build_config && is_system_build_config(build_config)) {
 			has_system_build_config = true;
 		}
 	}
 	if (!has_system_build_config) {
 		build_configs.unshift(SYSTEM_BUILD_CONFIG);
-	}
-	if (!has_config_build_config) {
-		build_configs.unshift(CONFIG_BUILD_CONFIG);
 	}
 	return build_configs;
 };
@@ -103,12 +91,12 @@ export const validate_build_configs = async (
 		};
 	}
 	const config_build_config = build_configs.find((c) => is_config_build_config(c));
-	if (!config_build_config) {
+	if (config_build_config) {
 		return {
 			ok: false,
 			reason:
-				`The field 'gro.builds' in package.json must have` +
-				` a 'node' config named '${CONFIG_BUILD_NAME}'`,
+				`The field 'gro.builds' in package.json has` +
+				` a 'node' config with reserved name '${CONFIG_BUILD_NAME}'`,
 		};
 	}
 	const system_build_config = build_configs.find((c) => is_system_build_config(c));
