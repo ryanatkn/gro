@@ -58,7 +58,6 @@
     "esbuild": "^0.9.3",
     "esinstall": "1.0.5",
     "fs-extra": "^10.0.0",
-    "locate-character": "^2.0.5",
     "mri": "^1.1.6",
     "path-browserify": "^1.0.1",
     "prettier": "^2.2.1",

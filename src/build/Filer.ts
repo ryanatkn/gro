@@ -260,7 +260,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 	async init(): Promise<void> {
 		if (this.initializing) return this.initializing;
-		this.log.trace('init');
+		this.log.trace('init', gray(this.dev ? 'development' : 'production'));
 		let finish_initializing: () => void;
 		this.initializing = new Promise((r) => (finish_initializing = r));
 
