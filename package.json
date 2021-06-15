@@ -50,9 +50,6 @@
     "@rollup/plugin-commonjs": "^18.0.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@rollup/pluginutils": "^4.1.0",
-    "@types/fs-extra": "^9.0.9",
-    "@types/node": "^15.6.1",
-    "@types/prettier": "^2.2.3",
     "cheap-watch": "^1.0.3",
     "es-module-lexer": "^0.4.1",
     "esbuild": "^0.9.3",
@@ -74,6 +71,9 @@
     "uvu": "^0.5.1"
   },
   "devDependencies": {
+    "@types/fs-extra": "^9.0.11",
+    "@types/node": "^15.12.2",
+    "@types/prettier": "^2.3.0",
     "@types/source-map-support": "^0.5.3"
   },
   "prettier": {
