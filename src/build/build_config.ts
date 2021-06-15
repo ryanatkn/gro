@@ -53,12 +53,7 @@ export const normalize_build_configs = (
 	const build_configs: Build_Config[] = [];
 	let should_add_system_build_config = dev; // add system build only for dev, not prod
 	for (const partial of partials) {
-		if (
-			!partial ||
-			(!dev && (partial.name === SYSTEM_BUILD_NAME || partial.name === CONFIG_BUILD_NAME))
-		) {
-			continue;
-		}
+		if (!partial) continue;
 		const build_config: Build_Config = {
 			name: partial.name,
 			platform: partial.platform,

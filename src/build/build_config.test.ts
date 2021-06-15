@@ -28,18 +28,6 @@ test_normalize_build_configs('normalizes a plain config', () => {
 	]);
 });
 
-test_normalize_build_configs('filters out system and config configs in dev mode', () => {
-	const build_config = normalize_build_configs(
-		[
-			{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_RAW},
-			{name: 'system', platform: 'node', input: '.'},
-			{name: 'testbuild', platform: 'node', input: '.'},
-		],
-		false,
-	);
-	t.equal(build_config, [{name: 'testbuild', platform: 'node', input}]);
-});
-
 test_normalize_build_configs('normalizes inputs', () => {
 	const input_path = join(paths.source, 'foo');
 	const input_filter = () => true;
@@ -285,18 +273,6 @@ test_validate_build_configs('fails with duplicate names', async () => {
 					],
 					true,
 				),
-				true,
-			)
-		).ok,
-	);
-});
-
-test_validate_build_configs('fails with a system build in production mode', async () => {
-	t.not.ok(
-		(
-			await validate_build_configs(
-				fs,
-				normalize_build_configs([{name: 'system', platform: 'node', input}], false),
 				true,
 			)
 		).ok,
