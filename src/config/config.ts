@@ -11,17 +11,14 @@ import type {Assignable, Result} from '@feltcoop/felt/util/types.js';
 import {to_array} from '@feltcoop/felt/util/array.js';
 
 import {paths, to_build_out_path, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
-import {
-	is_system_build_config,
-	normalize_build_configs,
-	validate_build_configs,
-} from '../build/build_config.js';
+import {normalize_build_configs, validate_build_configs} from '../build/build_config.js';
 import type {Adapt_Builds} from '../adapt/adapter.js';
 import type {Build_Config, Build_Config_Partial} from '../build/build_config.js';
 import {
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
 	CONFIG_BUILD_CONFIG,
+	SYSTEM_BUILD_NAME,
 } from '../build/default_build_config.js';
 import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Served_Dir_Partial} from '../build/served_dir.js';
@@ -190,9 +187,9 @@ export const to_config = async (
 
 	const extended_config = base_config ? {...base_config, ...config_partial} : config_partial;
 
-	const config = normalize_config(extended_config);
+	const config = normalize_config(extended_config, options.dev);
 
-	const validate_result = await validate_config(options.fs, config);
+	const validate_result = await validate_config(options.fs, config, options.dev);
 	if (!validate_result.ok) {
 		throw Error(`Invalid Gro config at '${path}': ${validate_result.reason}`);
 	}
@@ -225,16 +222,17 @@ const validate_config_module = (config_module: any): Result<{}, {reason: string}
 const validate_config = async (
 	fs: Filesystem,
 	config: Gro_Config,
+	dev: boolean,
 ): Promise<Result<{}, {reason: string}>> => {
-	const build_configs_result = await validate_build_configs(fs, config.builds);
+	const build_configs_result = await validate_build_configs(fs, config.builds, dev);
 	if (!build_configs_result.ok) return build_configs_result;
 	return {ok: true};
 };
 
-const normalize_config = (config: Gro_Config_Partial): Gro_Config => {
-	const build_configs = normalize_build_configs(to_array(config.builds || null));
+const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config => {
+	const build_configs = normalize_build_configs(to_array(config.builds || null), dev);
 	return {
-		sourcemap: process.env.NODE_ENV !== 'production', // TODO maybe default to tsconfig?
+		sourcemap: dev, // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,
@@ -246,7 +244,7 @@ const normalize_config = (config: Gro_Config_Partial): Gro_Config => {
 				? config.publish
 				: to_default_publish_dirs(build_configs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		system_build_config: build_configs.find((b) => is_system_build_config(b))!,
+		system_build_config: build_configs.find((b) => b.name === SYSTEM_BUILD_NAME)!,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
 		primary_browser_build_config: build_configs.find((b) => b.platform === 'browser') || null,

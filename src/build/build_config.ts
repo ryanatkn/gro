@@ -44,31 +44,32 @@ export interface Build_Config_Partial {
 
 export type Platform_Target = 'node' | 'browser';
 
-export const is_system_build_config = (config: Build_Config): boolean =>
-	config.name === SYSTEM_BUILD_NAME;
-
-export const is_config_build_config = (config: Build_Config): boolean =>
-	config.name === CONFIG_BUILD_NAME;
-
 export const normalize_build_configs = (
 	partials: readonly (Build_Config_Partial | null)[],
+	dev: boolean,
 ): Build_Config[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
+	// The system build is ignored for dev mode.
 	const build_configs: Build_Config[] = [];
-	let has_system_build_config = false;
+	let should_add_system_build_config = dev; // add system build only for dev, not prod
 	for (const partial of partials) {
-		if (!partial) continue;
+		if (
+			!partial ||
+			(!dev && (partial.name === SYSTEM_BUILD_NAME || partial.name === CONFIG_BUILD_NAME))
+		) {
+			continue;
+		}
 		const build_config: Build_Config = {
 			name: partial.name,
 			platform: partial.platform,
 			input: normalize_build_config_input(partial.input),
 		};
 		build_configs.push(build_config);
-		if (!has_system_build_config && is_system_build_config(build_config)) {
-			has_system_build_config = true;
+		if (should_add_system_build_config && build_config.name === SYSTEM_BUILD_NAME) {
+			should_add_system_build_config = false;
 		}
 	}
-	if (!has_system_build_config) {
+	if (should_add_system_build_config) {
 		build_configs.unshift(SYSTEM_BUILD_CONFIG);
 	}
 	return build_configs;
@@ -83,6 +84,7 @@ const normalize_build_config_input = (
 export const validate_build_configs = async (
 	fs: Filesystem,
 	build_configs: Build_Config[],
+	dev: boolean,
 ): Promise<Result<{}, {reason: string}>> => {
 	if (!Array.isArray(build_configs)) {
 		return {
@@ -90,7 +92,7 @@ export const validate_build_configs = async (
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
-	const config_build_config = build_configs.find((c) => is_config_build_config(c));
+	const config_build_config = build_configs.find((c) => c.name === CONFIG_BUILD_NAME);
 	if (config_build_config) {
 		return {
 			ok: false,
@@ -99,8 +101,8 @@ export const validate_build_configs = async (
 				` a 'node' config with reserved name '${CONFIG_BUILD_NAME}'`,
 		};
 	}
-	const system_build_config = build_configs.find((c) => is_system_build_config(c));
-	if (!system_build_config) {
+	const system_build_config = build_configs.find((c) => c.name === SYSTEM_BUILD_NAME);
+	if (dev && !system_build_config) {
 		return {
 			ok: false,
 			reason:
