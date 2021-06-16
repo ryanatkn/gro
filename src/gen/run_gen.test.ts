@@ -1,10 +1,13 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
+import {Logger} from '@feltcoop/felt/util/log.js';
 
 import type {Gen_Module_Meta} from './gen_module.js';
 import {run_gen} from './run_gen.js';
 import {fs} from '../fs/node.js';
+
+const log = new Logger('test_gen'); // TODO test logger?
 
 /* test_gen */
 const test_gen = suite('gen');
@@ -64,7 +67,7 @@ test_gen('basic behavior', async () => {
 		},
 	};
 	const gen_modules_by_input_path = [mod_a, mod_b, mod_c];
-	const gen_results = await run_gen(fs, gen_modules_by_input_path, async (_fs, id, contents) =>
+	const gen_results = await run_gen(fs, gen_modules_by_input_path, log, async (_fs, id, contents) =>
 		id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
 	);
 	t.is(gen_results.input_count, 3);
@@ -146,7 +149,7 @@ test_gen('failing gen function', async () => {
 		},
 	};
 	const gen_modules_by_input_path: Gen_Module_Meta[] = [mod_a, mod_b];
-	const gen_results = await run_gen(fs, gen_modules_by_input_path);
+	const gen_results = await run_gen(fs, gen_modules_by_input_path, log);
 	t.is(gen_results.input_count, 2);
 	t.is(gen_results.output_count, 1);
 	t.is(gen_results.successes.length, 1);

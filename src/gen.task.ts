@@ -54,7 +54,7 @@ export const task: Task<Task_Args> = {
 
 		// run `gen` on each of the modules
 		const stop_timing_to_generate_code = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(fs, load_modules_result.modules, format_file, log);
+		const gen_results = await run_gen(fs, load_modules_result.modules, log, format_file);
 		stop_timing_to_generate_code();
 
 		const fail_count = gen_results.failures.length;

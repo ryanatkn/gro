@@ -59,18 +59,6 @@ export const update_source_meta = async (
 		),
 	};
 	const source_meta: Source_Meta = {cache_id, data};
-	// TODO convert this to a test
-	// This is useful for debugging, but has false positives
-	// when source changes but output doesn't, like if comments get elided.
-	// if (
-	// 	(await fs.exists(cache_id)) &&
-	// 	deepEqual(JSON.parse(await read_file(cache_id, 'utf8')), source_meta)
-	// ) {
-	// 	console.log(
-	// 		'wasted build detected! unchanged file was built and identical source meta written to disk: ' +
-	// 			cache_id,
-	// 	);
-	// }
 
 	source_meta_by_id.set(file.id, source_meta);
 	// this.log.trace('outputting source meta', gray(cache_id));

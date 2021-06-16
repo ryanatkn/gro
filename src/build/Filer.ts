@@ -229,8 +229,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			filter,
 		);
 		this.served_dirs = served_dirs;
-		log.trace(cyan('build_configs\n'), build_configs);
-		log.trace(cyan('served_dirs\n'), served_dirs);
+		log.trace(cyan('build_configs'), build_configs);
+		log.trace(cyan('served_dirs'), served_dirs);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
