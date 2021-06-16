@@ -115,6 +115,7 @@ export const invoke_task = async (
 			// Load and run the task.
 			const load_modules_result = await load_modules(
 				find_modules_result.source_ids_by_input_path,
+				true,
 				load_task_module,
 			);
 			if (load_modules_result.ok) {

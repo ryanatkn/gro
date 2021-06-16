@@ -19,8 +19,9 @@ export const validate_task_module = (mod: Record<string, any>): mod is TaskModul
 
 export const load_task_module = async (
 	id: string,
+	dev: boolean,
 ): Promise<Load_Module_Result<Task_Module_Meta>> => {
-	const result = await load_module(id, validate_task_module);
+	const result = await load_module(id, dev, validate_task_module);
 	if (!result.ok) return result;
 	return {
 		...result,
@@ -41,5 +42,5 @@ export const load_task_modules = async (
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);
 	if (!find_modules_result.ok) return find_modules_result;
-	return load_modules(find_modules_result.source_ids_by_input_path, load_task_module);
+	return load_modules(find_modules_result.source_ids_by_input_path, true, load_task_module);
 };
