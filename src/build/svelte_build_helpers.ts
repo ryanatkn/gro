@@ -16,14 +16,14 @@ import type {Ecma_Script_Target} from './ts_build_helpers.js';
 import {print_path} from '../paths.js';
 
 export type Create_Preprocessor = (
-	target: Ecma_Script_Target,
 	dev: boolean,
+	target: Ecma_Script_Target,
 	sourcemap: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
-export const create_default_preprocessor: Create_Preprocessor = (target, dev, sourcemap) =>
+export const create_default_preprocessor: Create_Preprocessor = (dev, target, sourcemap) =>
 	svelte_preprocess_esbuild.typescript(
-		get_default_esbuild_preprocess_options(target, dev, sourcemap),
+		get_default_esbuild_preprocess_options(dev, target, sourcemap),
 	);
 
 // TODO type could be improved, not sure how tho

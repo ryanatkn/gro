@@ -48,7 +48,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 		const key = sourcemap + target;
 		const existingEsbuildOptions = esbuildOptionsCache.get(key);
 		if (existingEsbuildOptions !== undefined) return existingEsbuildOptions;
-		const newEsbuildOptions = createEsbuildOptions(target, dev, sourcemap);
+		const newEsbuildOptions = createEsbuildOptions(dev, target, sourcemap);
 		esbuildOptionsCache.set(key, newEsbuildOptions);
 		return newEsbuildOptions;
 	};
@@ -136,10 +136,10 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 };
 
 type CreateEsbuildOptions = (
-	target: Ecma_Script_Target,
 	dev: boolean,
+	target: Ecma_Script_Target,
 	sourcemap: boolean,
 ) => esbuild.TransformOptions;
 
-const createDefaultEsbuildOptions: CreateEsbuildOptions = (target, dev, sourcemap) =>
-	get_default_esbuild_options(target, dev, sourcemap);
+const createDefaultEsbuildOptions: CreateEsbuildOptions = (dev, target, sourcemap) =>
+	get_default_esbuild_options(dev, target, sourcemap);
