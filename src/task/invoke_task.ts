@@ -103,12 +103,11 @@ export const invoke_task = async (
 				// also this is messy, the `load_config` does some hacky config loading,
 				// and then we end up building twice - can it be done in a single pass?
 				const {load_config} = await import('../config/config.js');
-				const bootstrapping_dev = true; // this does not inherit from the `dev` arg or `process.env.NODE_ENV`
-				const config = await load_config(fs, bootstrapping_dev);
+				const config = await load_config(fs, true);
 				timing_to_load_config();
 				const timing_to_build_project = timings.start('build project');
 				const {build_source_directory} = await import('../build/build_source_directory.js');
-				await build_source_directory(fs, config, bootstrapping_dev, log);
+				await build_source_directory(fs, config, true, log);
 				timing_to_build_project();
 			}
 
