@@ -61,14 +61,9 @@ const main = (): Promise<void> => {
 		// the global version can be used to build the project.
 		const file_path = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
-		const dev = process.env.NODE_ENV !== 'production';
-		const base_path1 = dev ? '.gro/dev/node/cli' : '.gro/prod/node/cli';
-		const base_path2 = dev ? '.gro/prod/node/cli' : '.gro/dev/node/cli';
-		if (existsSync(`${base_path1}/gro.js`) && existsSync(`${base_path1}/invoke.js`)) {
-			return import(join(file_path, `../../../${base_path1}/invoke.js`));
-		}
-		if (existsSync(`${base_path2}/gro.js`) && existsSync(`${base_path2}/invoke.js`)) {
-			return import(join(file_path, `../../../${base_path2}/invoke.js`));
+		const base_path = '.gro/dev/library/cli';
+		if (existsSync(`${base_path}/gro.js`) && existsSync(`${base_path}/invoke.js`)) {
+			return import(join(file_path, `../../../${base_path}/invoke.js`));
 		}
 		// case 3
 		// Fall back to the version associated with the running CLI.
