@@ -2,17 +2,19 @@ import {print_ms, print_timings} from '@feltcoop/felt/util/print.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {create_stopwatch, Timings} from '@feltcoop/felt/util/time.js';
 
-import {paths} from '../paths.js';
+import {paths, to_types_build_dir} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {create_default_builder} from './default_builder.js';
 import type {Gro_Config} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import {generate_types} from './ts_build_helpers.js';
 
 export const build_source_directory = async (
 	fs: Filesystem,
 	config: Gro_Config,
 	dev: boolean,
 	log: Logger,
+	build_types: boolean = !dev,
 ): Promise<void> => {
 	log.info('building source directory');
 
@@ -22,6 +24,14 @@ export const build_source_directory = async (
 		print_timings(timings, log);
 		log.info(`🕒 built in ${print_ms(total_timing())}`);
 	};
+
+	if (build_types) {
+		// Build all types so they're available.
+		// TODO refactor? maybe lazily build types only when a builder wants them
+		const timing_to_build_types = timings.start('build_types');
+		await generate_types(paths.source, to_types_build_dir(), config.sourcemap);
+		timing_to_build_types();
+	}
 
 	const timing_to_create_filer = timings.start('create filer');
 	const filer = new Filer({

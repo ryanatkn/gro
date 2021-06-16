@@ -230,7 +230,7 @@ const validate_config = async (
 };
 
 const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config => {
-	const build_configs = normalize_build_configs(to_array(config.builds || null), dev);
+	const build_configs = normalize_build_configs(to_array(config.builds || null));
 	return {
 		sourcemap: dev, // TODO maybe default to tsconfig?
 		host: DEFAULT_SERVER_HOST,

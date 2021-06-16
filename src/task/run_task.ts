@@ -46,10 +46,10 @@ export const run_task = async (
 			invoke_task: (
 				invoked_task_name,
 				invoked_args = args,
-				invokedEvents = events,
-				invokedDev = dev,
-				invokedFs = fs,
-			) => invoke_task(invokedFs, invoked_task_name, invoked_args, invokedEvents, invokedDev),
+				invoked_events = events,
+				invoked_dev = dev,
+				invoked_fs = fs,
+			) => invoke_task(invoked_fs, invoked_task_name, invoked_args, invoked_events, invoked_dev),
 		});
 	} catch (err) {
 		return {

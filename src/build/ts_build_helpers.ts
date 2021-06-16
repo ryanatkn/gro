@@ -35,7 +35,7 @@ export const generate_types = async (
 	dest: string,
 	sourcemap: boolean,
 	typemap: boolean = sourcemap,
-	args: string[] = EMPTY_ARRAY,
+	tsc_args: string[] = EMPTY_ARRAY,
 ) => {
 	const tscResult = await spawn_process('npx', [
 		'tsc',
@@ -49,7 +49,7 @@ export const generate_types = async (
 		typemap ? 'true' : 'false',
 		'--declaration',
 		'--emitDeclarationOnly',
-		...args,
+		...tsc_args,
 	]);
 	if (!tscResult.ok) {
 		throw Error(`TypeScript failed to compile with code ${tscResult.code}`);

@@ -46,12 +46,11 @@ export type Platform_Target = 'node' | 'browser';
 
 export const normalize_build_configs = (
 	partials: readonly (Build_Config_Partial | null)[],
-	dev: boolean,
 ): Build_Config[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	// The system build is ignored for dev mode.
 	const build_configs: Build_Config[] = [];
-	let should_add_system_build_config = dev; // add system build only for dev, not prod
+	let should_add_system_build_config = true;
 	for (const partial of partials) {
 		if (!partial) continue;
 		const build_config: Build_Config = {

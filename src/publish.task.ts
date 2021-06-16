@@ -37,7 +37,6 @@ export const task: Task<Task_Args> = {
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
-		const child_task_args = {...args, _: []};
 
 		const [version_increment] = args._;
 		validate_version_increment(version_increment);
@@ -50,16 +49,14 @@ export const task: Task<Task_Args> = {
 		await spawn_process('git', ['fetch', 'origin', branch]);
 		await spawn_process('git', ['checkout', branch]);
 
-		// And updated to the latest:
-		await spawn_process('git', ['pull']);
-
-		// Build, check, then create the final artifacts:
 		const config = await load_config(fs, dev);
 		if (config.publish === null) {
 			throw Error('config.publish is null, so this package cannot be published');
 		}
-		await build_source_directory(fs, config, dev, log);
-		await invoke_task('check', child_task_args);
+
+		// Check in dev mode before proceeding:
+		await build_source_directory(fs, config, true, log);
+		await invoke_task('check', {...args, _: []}, undefined, true);
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {
@@ -69,7 +66,8 @@ export const task: Task<Task_Args> = {
 			}
 		}
 
-		await invoke_task('build', child_task_args);
+		// Build to create the final artifacts:
+		await invoke_task('build');
 
 		if (dry) {
 			log.info({version_increment, publish: config.publish, branch});
