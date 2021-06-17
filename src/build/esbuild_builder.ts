@@ -23,12 +23,12 @@ import type {Filesystem} from '../fs/filesystem.js';
 export interface Options {
 	log: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	createEsbuildOptions: CreateEsbuildOptions;
+	createEsbuildOptions: Create_Esbuild_Options;
 }
 export type Initial_Options = Partial<Options>;
 export const init_options = (opts: Initial_Options): Options => {
 	return {
-		createEsbuildOptions: createDefaultEsbuildOptions,
+		createEsbuildOptions: create_default_esbuild_options,
 		...omit_undefined(opts),
 		log: opts.log || new System_Logger(print_log_label('esbuild_builder', cyan)),
 	};
@@ -54,7 +54,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 	};
 
 	let cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
-	const loadGenerateTypes = (fs: Filesystem): Promise<GenerateTypesForFile> => {
+	const load_generate_types = (fs: Filesystem): Promise<GenerateTypesForFile> => {
 		if (cachedGenerateTypes.has(fs)) return cachedGenerateTypes.get(fs)!;
 		const promise = toGenerateTypesForFile(fs);
 		cachedGenerateTypes.set(fs, promise);
@@ -64,7 +64,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 	const build: EsbuildBuilder['build'] = async (
 		source,
 		build_config,
-		{build_dir, dev, sourcemap, target, fs},
+		{build_dir, dev, sourcemap, types, target, fs},
 	) => {
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
@@ -104,9 +104,8 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 				build_config,
 			});
 		}
-		// TODO hardcoding to generate types only in production builds, might want to change
-		if (!dev) {
-			const {types, typemap} = await (await loadGenerateTypes(fs))(source.id);
+		if (types) {
+			const {types, typemap} = await (await load_generate_types(fs))(source.id);
 			builds.push({
 				id: replace_extension(jsId, TS_TYPE_EXTENSION),
 				filename: replace_extension(jsFilename, TS_TYPE_EXTENSION),
@@ -135,11 +134,11 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 	return {name: '@feltcoop/gro-builder-esbuild', build};
 };
 
-type CreateEsbuildOptions = (
+type Create_Esbuild_Options = (
 	dev: boolean,
 	target: Ecma_Script_Target,
 	sourcemap: boolean,
 ) => esbuild.TransformOptions;
 
-const createDefaultEsbuildOptions: CreateEsbuildOptions = (dev, target, sourcemap) =>
+const create_default_esbuild_options: Create_Esbuild_Options = (dev, target, sourcemap) =>
 	get_default_esbuild_options(dev, target, sourcemap);

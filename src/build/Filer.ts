@@ -96,6 +96,7 @@ export interface Options {
 	externals_aliases: Externals_Aliases;
 	map_dependency_to_source_id: Map_Dependency_To_Source_Id;
 	sourcemap: boolean;
+	types: boolean;
 	target: Ecma_Script_Target;
 	watch: boolean;
 	watcher_debounce: number | undefined;
@@ -147,6 +148,7 @@ export const init_options = (opts: Initial_Options): Options => {
 		externals_aliases: DEFAULT_EXTERNALS_ALIASES,
 		map_dependency_to_source_id,
 		sourcemap: true,
+		types: !dev,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
 		watcher_debounce: undefined,
@@ -180,6 +182,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
+	readonly types: boolean;
 	readonly target: Ecma_Script_Target; // TODO shouldn't build configs have this?
 	readonly served_dirs: readonly Served_Dir[];
 	readonly externals_aliases: Externals_Aliases; // TODO should this allow aliasing anything? not just externals?
@@ -202,6 +205,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			externals_aliases,
 			map_dependency_to_source_id,
 			sourcemap,
+			types,
 			target,
 			watch,
 			watcher_debounce,
@@ -216,6 +220,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		this.map_dependency_to_source_id = map_dependency_to_source_id;
 		this.externals_aliases = externals_aliases;
 		this.sourcemap = sourcemap;
+		this.types = types;
 		this.target = target;
 		this.log = log;
 		this.dirs = create_filer_dirs(

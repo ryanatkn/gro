@@ -150,7 +150,7 @@ export const load_config = async (
 	let config: Gro_Config;
 	if (await fs.exists(config_source_id)) {
 		const {build_source_directory} = await import('../build/build_source_directory.js');
-		await build_source_directory(fs, to_bootstrap_config(), dev, log);
+		await build_source_directory(fs, to_bootstrap_config(), dev, log, false);
 
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.

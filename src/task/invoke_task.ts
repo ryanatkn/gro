@@ -54,6 +54,9 @@ export const invoke_task = async (
 	events = new EventEmitter(),
 	dev?: boolean,
 ): Promise<void> => {
+	// TODO not sure about this -- the idea is that imported modules need the updated `NODE_ENV`
+	process.env['NODE_ENV'] = dev || dev === undefined ? 'development' : 'production';
+
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 
 	// Check if the caller just wants to see the version.

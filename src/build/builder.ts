@@ -41,6 +41,7 @@ export interface Build_Context {
 	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
+	readonly types: boolean;
 	readonly target: Ecma_Script_Target;
 	readonly served_dirs: readonly Served_Dir[];
 	readonly externals_aliases: Externals_Aliases;

@@ -15,7 +15,7 @@ export const build_source_directory = async (
 	config: Gro_Config,
 	dev: boolean,
 	log: Logger,
-	build_types: boolean = !dev,
+	types: boolean = !dev,
 ): Promise<void> => {
 	log.info('building source directory', gray(dev ? 'development' : 'production'));
 
@@ -26,13 +26,13 @@ export const build_source_directory = async (
 		log.info(`🕒 built in ${print_ms(total_timing())}`);
 	};
 
-	if (build_types) {
+	if (types) {
 		log.info('building types');
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
-		const timing_to_build_types = timings.start('build_types');
+		const timing_to_types = timings.start('types');
 		await generate_types(paths.source, to_types_build_dir(), config.sourcemap);
-		timing_to_build_types();
+		timing_to_types();
 	}
 
 	log.info('building files');
@@ -46,6 +46,7 @@ export const build_source_directory = async (
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,
+		types,
 	});
 	timing_to_create_filer();
 
