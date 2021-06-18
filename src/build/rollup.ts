@@ -20,7 +20,7 @@ import {identity} from '@feltcoop/felt/util/function.js';
 import type {Partial_Except} from '@feltcoop/felt/util/types.js';
 
 import {diagnostics_plugin} from './rollup_plugin_diagnostics.js';
-// import {gro_terser_plugin} from './rollup-plugin-gro-terser.js';
+// import {gro_terser_plugin} from './rollup_plugin_gro_terser.js';
 import {paths} from '../paths.js';
 
 export interface Options {
