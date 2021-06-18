@@ -10,10 +10,10 @@ import type {Build_Name} from '../build/build_config.js';
 
 export interface Source_Meta {
 	readonly cache_id: string; // path to the cached JSON file on disk
-	readonly data: Source_MetaData; // the plain JSON written to disk
+	readonly data: Source_Meta_Data; // the plain JSON written to disk
 }
 
-export interface Source_MetaData {
+export interface Source_Meta_Data {
 	readonly source_id: string;
 	readonly contents_hash: string;
 	readonly builds: Source_Meta_Build[];
@@ -43,7 +43,7 @@ export const update_source_meta = async (
 
 	// create the new meta, not mutating the old
 	const cache_id = to_source_meta_id(file, build_dir, dev);
-	const data: Source_MetaData = {
+	const data: Source_Meta_Data = {
 		source_id: file.id,
 		contents_hash: get_file_contents_hash(file),
 		builds: Array.from(file.build_files.values()).flatMap((files) =>
@@ -84,14 +84,14 @@ export const init_source_meta = async ({
 	build_dir,
 	dev,
 }: Build_Context): Promise<void> => {
-	const source_metaDir = to_source_meta_dir(build_dir, dev);
-	if (!(await fs.exists(source_metaDir))) return;
-	const files = await fs.find_files(source_metaDir, undefined, null);
+	const source_meta_dir = to_source_meta_dir(build_dir, dev);
+	if (!(await fs.exists(source_meta_dir))) return;
+	const files = await fs.find_files(source_meta_dir, undefined, null);
 	await Promise.all(
 		Array.from(files.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
-			const cache_id = `${source_metaDir}/${path}`;
-			const data: Source_MetaData = JSON.parse(await fs.read_file(cache_id, 'utf8'));
+			const cache_id = `${source_meta_dir}/${path}`;
+			const data: Source_Meta_Data = JSON.parse(await fs.read_file(cache_id, 'utf8'));
 			source_meta_by_id.set(data.source_id, {cache_id, data});
 		}),
 	);
