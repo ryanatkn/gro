@@ -6,6 +6,7 @@ import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
+import {clean} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
 
@@ -20,7 +21,7 @@ export interface Task_Args {
 	dirname?: string; // defaults to `'svelte-kit'` if it exists
 	branch?: string; // optional branch to deploy from; defaults to 'main'
 	dry?: boolean;
-	clean?: boolean; // clean the git worktree and Gro cache
+	clean?: boolean; // instead of deploying, just clean the git worktree and Gro cache
 }
 
 // TODO customize
@@ -37,7 +38,7 @@ export const task: Task<Task_Args> = {
 	description: 'deploy to static hosting',
 	dev: false,
 	run: async ({fs, invoke_task, args, log, dev}): Promise<void> => {
-		const {branch, dry, clean} = args;
+		const {branch, dry, clean: clean_and_exit} = args;
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
@@ -96,9 +97,9 @@ export const task: Task<Task_Args> = {
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Get ready to build from scratch.
-		await invoke_task('clean');
+		await clean(fs, {build_prod: true}, log);
 
-		if (clean) {
+		if (clean_and_exit) {
 			log.info(rainbow('all clean'));
 			return;
 		}

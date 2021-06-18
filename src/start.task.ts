@@ -35,6 +35,9 @@ export const task: Task<Task_Args, Task_Events> = {
 		if (!(await fs.exists(paths.dist))) {
 			log.info(green('dist not detected; building'));
 			const timing_to_build = timings.start('build');
+			// TODO maybe `await clean(fs, {build_prod: true}, log);`
+			// or should this be an arg to `build`?
+			// or maybe just defer to the user for `gro start`?
 			await invoke_task('build');
 			timing_to_build();
 		}

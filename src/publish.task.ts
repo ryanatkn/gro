@@ -11,6 +11,7 @@ import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
 import type {Filesystem} from './fs/filesystem.js';
 import {load_config} from './config/config.js';
 import {build_source_directory} from './build/build_source_directory.js';
+import {clean} from './fs/clean.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -48,6 +49,9 @@ export const task: Task<Task_Args> = {
 		// TODO see how the deploy task uses git, probably do that instead
 		await spawn_process('git', ['fetch', 'origin', branch]);
 		await spawn_process('git', ['checkout', branch]);
+
+		// Clean before loading the config:
+		await clean(fs, {build_prod: true}, log);
 
 		const config = await load_config(fs, dev);
 		if (config.publish === null) {

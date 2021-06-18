@@ -9,7 +9,6 @@ import type {Gro_Config} from './config/config.js';
 import type {Task_Events as Server_Task_Events} from './server.task.js';
 import type {Adapter_Context, Adapter} from './adapt/adapter.js';
 import {build_source_directory} from './build/build_source_directory.js';
-import {clean} from './fs/clean.js';
 
 export interface Task_Args extends Args {
 	map_input_options?: Map_Input_Options;
@@ -32,8 +31,6 @@ export const task: Task<Task_Args, Task_Events> = {
 		}
 
 		const timings = new Timings(); // TODO belongs in ctx
-
-		await clean(fs, {build_prod: true}, log);
 
 		const timing_to_load_config = timings.start('load config');
 		const config = await load_config(fs, dev);
