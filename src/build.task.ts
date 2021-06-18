@@ -8,7 +8,7 @@ import {load_config} from './config/config.js';
 import type {Gro_Config} from './config/config.js';
 import type {Task_Events as Server_Task_Events} from './server.task.js';
 import type {Adapter_Context, Adapter} from './adapt/adapter.js';
-import {build_source_directory} from './build/build_source_directory.js';
+import {build_source} from './build/build_source.js';
 
 export interface Task_Args extends Args {
 	map_input_options?: Map_Input_Options;
@@ -40,7 +40,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		// Build everything with esbuild and Gro's `Filer` first.
 		// These production artifacts are then available to all adapters.
 		const timing_to_build_src = timings.start('build_src');
-		await build_source_directory(fs, config, dev, log);
+		await build_source(fs, config, dev, log);
 		timing_to_build_src();
 		events.emit('build.build_src');
 

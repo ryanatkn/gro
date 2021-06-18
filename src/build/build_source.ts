@@ -10,7 +10,7 @@ import type {Gro_Config} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {generate_types} from './ts_build_helpers.js';
 
-export const build_source_directory = async (
+export const build_source = async (
 	fs: Filesystem,
 	config: Gro_Config,
 	dev: boolean,

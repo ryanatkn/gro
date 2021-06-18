@@ -109,8 +109,8 @@ export const invoke_task = async (
 				const config = await load_config(fs, true);
 				timing_to_load_config();
 				const timing_to_build_project = timings.start('build project');
-				const {build_source_directory} = await import('../build/build_source_directory.js');
-				await build_source_directory(fs, config, true, log);
+				const {build_source} = await import('../build/build_source.js');
+				await build_source(fs, config, true, log);
 				timing_to_build_project();
 			}
 

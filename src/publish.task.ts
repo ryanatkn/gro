@@ -10,7 +10,7 @@ import {load_package_json} from './utils/package_json.js';
 import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
 import type {Filesystem} from './fs/filesystem.js';
 import {load_config} from './config/config.js';
-import {build_source_directory} from './build/build_source_directory.js';
+import {build_source} from './build/build_source.js';
 import {clean} from './fs/clean.js';
 
 // publish.task.ts
@@ -59,7 +59,7 @@ export const task: Task<Task_Args> = {
 		}
 
 		// Check in dev mode before proceeding:
-		await build_source_directory(fs, config, true, log);
+		await build_source(fs, config, true, log);
 		await invoke_task('check', {...args, _: []}, undefined, true);
 
 		// Bump the version so the package.json is updated before building:
