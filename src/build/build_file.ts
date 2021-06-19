@@ -88,12 +88,12 @@ export const reconstruct_build_files = async (
 	await Promise.all(
 		source_meta.data.builds.map(
 			async (build): Promise<void> => {
-				const {id, name, dependencies, encoding} = build;
+				const {id, build_name, dependencies, encoding} = build;
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
 				const contents = await load_contents(fs, encoding, id);
-				const build_config = build_configs.find((b) => b.name === name)!; // is a bit awkward, but probably not inefficient enough to change
+				const build_config = build_configs.find((b) => b.name === build_name)!; // is a bit awkward, but probably not inefficient enough to change
 				if (!build_config) {
 					// TODO wait no this build needs to be preserved somehow,
 					// otherwise running the filer with different build configs fails to preserve

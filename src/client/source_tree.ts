@@ -33,13 +33,13 @@ export const create_source_tree = (
 	const builds_by_build_name: Map<string, Source_Meta_Build[]> = new Map();
 	for (const source_tree_meta of metas) {
 		for (const source_meta_builds of source_tree_meta.builds_by_build_name.values()) {
-			for (const source_metaBuild of source_meta_builds) {
-				builds.push(source_metaBuild);
-				let source_meta_builds = builds_by_build_name.get(source_metaBuild.name);
+			for (const source_meta_build of source_meta_builds) {
+				builds.push(source_meta_build);
+				let source_meta_builds = builds_by_build_name.get(source_meta_build.build_name);
 				if (source_meta_builds === undefined) {
-					builds_by_build_name.set(source_metaBuild.name, (source_meta_builds = []));
+					builds_by_build_name.set(source_meta_build.build_name, (source_meta_builds = []));
 				}
-				source_meta_builds.push(source_metaBuild);
+				source_meta_builds.push(source_meta_build);
 			}
 		}
 	}
@@ -72,9 +72,9 @@ export const to_source_tree_meta = (metas: Source_Meta[]): Source_Tree_Meta[] =>
 	return metas.map((source_meta) => {
 		const builds_by_build_name: Map<string, Source_Meta_Build[]> = new Map();
 		for (const build of source_meta.data.builds) {
-			let builds = builds_by_build_name.get(build.name);
+			let builds = builds_by_build_name.get(build.build_name);
 			if (builds === undefined) {
-				builds_by_build_name.set(build.name, (builds = []));
+				builds_by_build_name.set(build.build_name, (builds = []));
 			}
 			builds.push(build);
 		}

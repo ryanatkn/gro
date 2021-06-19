@@ -21,7 +21,7 @@ export interface Source_Meta_Data {
 
 export interface Source_Meta_Build {
 	readonly id: string;
-	readonly name: Build_Name; // TODO doesn't feel right, maybe rename to `build_name`
+	readonly build_name: Build_Name;
 	readonly dependencies: Build_Dependency[] | null;
 	readonly encoding: Encoding;
 }
@@ -50,7 +50,7 @@ export const update_source_meta = async (
 			files.map(
 				(file): Source_Meta_Build => ({
 					id: file.id,
-					name: file.build_config.name,
+					build_name: file.build_config.name,
 					dependencies:
 						file.dependencies_by_build_id && Array.from(file.dependencies_by_build_id.values()),
 					encoding: file.encoding,
