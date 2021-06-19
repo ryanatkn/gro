@@ -41,16 +41,7 @@ between the CLI, build tools, and app code.
 It tries to dissolve walls that typically separate these domains
 while deferring to your code and facilitating buildtime development processes.
 
-> caveat: Gro's CLI probably doesn't play nicely with others. Needs lots of improvements.
-
 ## usage
-
-Gro has complex rules to convert your input commands,
-the `foo` of `gro foo`, to its internal behavior.
-It tries to do the right thing. Read ahead for how it works.
-If something doesn't feel right, it might be a design flaw,
-or maybe it conflicts with another design choice.
-We welcome any discussion about its problems and possible improvements.
 
 ### show all available tasks
 
@@ -58,7 +49,6 @@ We welcome any discussion about its problems and possible improvements.
 # This looks through `src/` in both the current working directory
 # and Gro's source for all files matching `*.task.ts` and logs them out.
 $ gro
-$ gro src # same as above
 ```
 
 ### show tasks in a directory
@@ -67,7 +57,6 @@ $ gro src # same as above
 # Logs all `*.task.ts` files in `src/some/dir` and `gro/src/some/dir`.
 # If no tasks are found, it displays an error.
 $ gro some/dir
-$ gro src/some/dir # same as above
 ```
 
 > To learn more about the Gro CLI path conventions,
