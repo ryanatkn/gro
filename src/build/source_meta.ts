@@ -5,8 +5,8 @@ import {JSON_EXTENSION, to_build_out_dirname} from '../paths.js';
 import {get_file_contents_hash} from './base_filer_file.js';
 import type {Build_Dependency, Build_Context} from './builder.js';
 import type {Buildable_Source_File} from './source_file.js';
-import {is_external_browser_module} from '../utils/module.js';
 import type {Build_Name} from '../build/build_config.js';
+import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
 
 export interface Source_Meta {
 	readonly cache_id: string; // path to the cached JSON file on disk
@@ -100,17 +100,16 @@ export const init_source_meta = async ({
 // Cached source meta may be stale if any source files were moved or deleted
 // since the last time the Filer ran.
 // We can simply delete any cached meta that doesn't map back to a source file.
-export const clean_source_meta = async (
-	ctx: Build_Context,
-	file_exists: (id: string) => boolean,
-): Promise<void> => {
-	const {source_meta_by_id, log} = ctx;
-	let promises: Promise<void>[] | null = null;
-	for (const source_id of source_meta_by_id.keys()) {
-		if (!file_exists(source_id) && !is_external_browser_module(source_id)) {
-			log.trace('deleting unknown source meta', gray(source_id));
-			(promises || (promises = [])).push(delete_source_meta(ctx, source_id));
-		}
-	}
-	if (promises !== null) await Promise.all(promises);
+// It might appear that we could use the already-loaded source files to do this check in memory,
+// but that doesn't work if the Filer is created with only a subset of the build configs.
+export const clean_source_meta = async (ctx: Build_Context): Promise<void> => {
+	const {fs, source_meta_by_id, log} = ctx;
+	await Promise.all(
+		Array.from(source_meta_by_id.keys()).map(async (source_id) => {
+			if (source_id !== EXTERNALS_SOURCE_ID && !(await fs.exists(source_id))) {
+				log.trace('deleting unknown source meta', gray(source_id));
+				await delete_source_meta(ctx, source_id);
+			}
+		}),
+	);
 };

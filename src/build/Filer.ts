@@ -167,7 +167,6 @@ export const init_options = (opts: Initial_Options): Options => {
 export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements Build_Context {
 	// TODO think about accessors - I'm currently just making things public when I need them here
 	private readonly files: Map<string, Filer_File> = new Map();
-	private readonly file_exists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: Filer_Dir[];
 	private readonly builder: Builder | null;
 	private readonly map_dependency_to_source_id: Map_Dependency_To_Source_Id;
@@ -177,6 +176,9 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `Build_Context`, probably
 	readonly build_configs: readonly Build_Config[] | null;
+	// TODO if we loosen the restriction of the filer owning the `.gro` directory,
+	// `source_meta` will need to be a shared object --
+	// a global cache is too inflexible, because we still want to support multiple independent filers
 	readonly source_meta_by_id: Map<string, Source_Meta> = new Map();
 	readonly log: Logger;
 	readonly build_dir: string;
@@ -281,7 +283,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 		// Now that the source meta and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
-		await clean_source_meta(this, this.file_exists);
+		await clean_source_meta(this);
 		// this.log.trace('cleaned');
 
 		// This initializes the builders. Should be done before the builds are initialized.

@@ -95,6 +95,9 @@ export const reconstruct_build_files = async (
 				const contents = await load_contents(fs, encoding, id);
 				const build_config = build_configs.find((b) => b.name === name)!; // is a bit awkward, but probably not inefficient enough to change
 				if (!build_config) {
+					// TODO wait no this build needs to be preserved somehow,
+					// otherwise running the filer with different build configs fails to preserve
+
 					// If the build config is not found, just ignore the cached data --
 					// if it's stale it won't hurt anything, and will disappear the next `gro clean`,
 					// and if the Filer ever runs with that config again, it'll read from the cache.
