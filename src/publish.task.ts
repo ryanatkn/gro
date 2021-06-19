@@ -28,7 +28,7 @@ export interface Task_Args {
 }
 
 export const task: Task<Task_Args> = {
-	description: 'bump version, publish to npm, and sync to GitHub',
+	summary: 'bump version, publish to npm, and sync to GitHub',
 	dev: false,
 	run: async ({fs, args, log, invoke_task, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;

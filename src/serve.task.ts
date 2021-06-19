@@ -15,7 +15,7 @@ export interface Task_Args {
 }
 
 export const task: Task<Task_Args> = {
-	description: 'start static file server',
+	summary: 'start static file server',
 	run: async ({fs, log, args, dev}): Promise<void> => {
 		const host = args.host || DEFAULT_SERVER_HOST;
 		const port = Number(args.port) || DEFAULT_SERVER_PORT;

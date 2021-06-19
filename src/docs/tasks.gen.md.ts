@@ -14,7 +14,7 @@ import {load_task_modules} from '../task/task_module.js';
 // or other otherwise get frictionless access to this specific use case,
 // and they should be able to extend or customize it to any degree.
 
-// TODO display more info about each task, including a description and params
+// TODO display more info about each task, including a summary and params
 // TODO needs some cleanup and better APIs - paths are confusing and verbose!
 // TODO add backlinks to every document that links to this one
 
@@ -68,7 +68,7 @@ ${tasks.reduce(
 	(task_list, task) =>
 		task_list +
 		`- [${task.name}](${relative(origin_dir, task.id)})${
-			task.mod.task.description ? ` - ${task.mod.task.description}` : ''
+			task.mod.task.summary ? ` - ${task.mod.task.summary}` : ''
 		}\n`,
 	'',
 )}

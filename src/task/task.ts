@@ -6,7 +6,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Task<T_Args = Args, T_Events = {}> {
 	run: (ctx: Task_Context<T_Args, T_Events>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
-	description?: string;
+	summary?: string;
 	dev?: boolean;
 }
 

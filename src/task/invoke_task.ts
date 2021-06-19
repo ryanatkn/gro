@@ -126,9 +126,7 @@ export const invoke_task = async (
 				// `path_data` is not a directory, so there's a single task module here.
 				const task = load_modules_result.modules[0];
 				log.info(
-					`→ ${cyan(task.name)} ${
-						(task.mod.task.description && gray(task.mod.task.description)) || ''
-					}`,
+					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timing_to_run_task = timings.start('run task');
 				const result = await run_task(fs, task, args, events, invoke_task, dev);

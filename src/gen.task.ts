@@ -20,7 +20,7 @@ export interface Task_Args {
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
 export const task: Task<Task_Args> = {
-	description: 'run code generation scripts',
+	summary: 'run code generation scripts',
 	run: async ({fs, log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 		const check = !!args.check;

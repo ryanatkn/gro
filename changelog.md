@@ -17,6 +17,8 @@
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: change `gro-adapter-sveltekit-frontend` output so it composes with others
   ([#207](https://github.com/feltcoop/gro/pull/207))
+- **break**: rename the `Task` `summary` property from `description`
+  ([#212](https://github.com/feltcoop/gro/pull/212))
 - add `no-watch` arg to `gro dev`
   ([#211](https://github.com/feltcoop/gro/pull/211))
 - rename some args in `gro dev` and `gro serve`

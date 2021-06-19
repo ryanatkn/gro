@@ -26,7 +26,7 @@ export interface Task_Events {
 }
 
 export const task: Task<Task_Args, Task_Events> = {
-	description: 'runs the dist/ builds for production',
+	summary: 'runs the dist/ builds for production',
 	dev: false,
 	run: async ({fs, log, invoke_task, dev, events, args}) => {
 		const timings = new Timings();

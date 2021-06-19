@@ -35,7 +35,7 @@ const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 
 export const task: Task<Task_Args> = {
-	description: 'deploy to static hosting',
+	summary: 'deploy to static hosting',
 	dev: false,
 	run: async ({fs, invoke_task, args, log, dev}): Promise<void> => {
 		const {branch, dry, clean: clean_and_exit} = args;

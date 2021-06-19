@@ -22,7 +22,7 @@ export interface Task_Events extends Server_Task_Events {
 }
 
 export const task: Task<Task_Args, Task_Events> = {
-	description: 'build the project',
+	summary: 'build the project',
 	dev: false,
 	run: async (ctx): Promise<void> => {
 		const {fs, dev, log, events} = ctx;

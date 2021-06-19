@@ -98,7 +98,7 @@ export const task: Task = {
 
 export interface Task<T_Args = Args, T_Events = {}> {
 	run: (ctx: Task_Context<T_Args, T_Events>) => Promise<unknown>;
-	description?: string;
+	summary?: string;
 	dev?: boolean; // set to `false` to run the task and its children in production mode
 }
 
@@ -309,7 +309,7 @@ What makes Gro different?
   contains task modules that conform to some interface.
   This allows them to be discoverable and puts generic handles on them,
   enabling various verbs (e.g. "run") and
-  structured metadata (e.g. "description").
+  structured metadata (e.g. "summary").
 - Tasks can be imported, inspected, combined, and manipulated in code.
   Task modules do not have any side effects when imported,
   while Node scripts just execute when imported -

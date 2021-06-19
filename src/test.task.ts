@@ -16,7 +16,7 @@ import {build_source} from './build/build_source.js';
 const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 
 export const task: Task = {
-	description: 'run tests',
+	summary: 'run tests',
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const pattern_count = args._.length;
 		const test_file_patterns = pattern_count ? args._ : DEFAULT_TEST_FILE_PATTERNS;
