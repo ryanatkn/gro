@@ -46,7 +46,8 @@ import {
 } from './externals_build_helpers.js';
 import type {Externals_Aliases} from './externals_build_helpers.js';
 import {queue_externals_build} from './externals_builder.js';
-import type {Build_Dependency, Source_Meta} from './source_meta.js';
+import type {Source_Meta} from './source_meta.js';
+import type {Build_Dependency} from './build_dependency.js';
 import {
 	delete_source_meta,
 	update_source_meta,

@@ -7,6 +7,8 @@ import type {Build_Context} from './builder.js';
 import type {Buildable_Source_File} from './source_file.js';
 import type {Build_Name} from '../build/build_config.js';
 import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
+import type {Build_Dependency, Serialized_Build_Dependency} from './build_dependency.js';
+import {serialize_build_dependency, deserialize_build_dependency} from './build_dependency.js';
 
 export interface Source_Meta {
 	readonly cache_id: string; // path to the cached JSON file on disk
@@ -23,14 +25,6 @@ export interface Source_Meta_Build {
 	readonly dependencies: Build_Dependency[] | null;
 	readonly encoding: Encoding;
 }
-// TODO maybe move to `build_file`? but then `postprocess` would have a dependency on the build file.
-// its imports make more sense as is.
-export interface Build_Dependency {
-	readonly specifier: string;
-	readonly mapped_specifier: string;
-	readonly build_id: string;
-	readonly external: boolean;
-}
 
 // The optional properties in the following serialized types
 // are not `readonly` in order to simplify object creation.
@@ -44,12 +38,6 @@ export interface Serialized_Source_Meta_Build {
 	readonly build_name: Build_Name;
 	dependencies?: Serialized_Build_Dependency[] | null; // `undefined` implies `null`
 	encoding?: Encoding; // `undefined` implies `'utf8'`
-}
-export interface Serialized_Build_Dependency {
-	readonly specifier: string;
-	mapped_specifier?: string; // `undefined` implies same as `specifier`
-	build_id?: string; // `undefined` implies same as `specifier`
-	external?: boolean; // `undefined` implies `false`
 }
 
 const CACHED_SOURCE_INFO_DIR_SUFFIX = '_meta'; // so `/.gro/dev_meta` is metadata for `/.gro/dev`
@@ -184,18 +172,7 @@ export const deserialize_source_meta_build = ({
 	id,
 	build_name,
 	dependencies: dependencies ? dependencies.map((d) => deserialize_build_dependency(d)) : null,
-	encoding: encoding === undefined ? 'utf8' : encoding,
-});
-export const deserialize_build_dependency = ({
-	specifier,
-	mapped_specifier,
-	build_id,
-	external,
-}: Serialized_Build_Dependency): Build_Dependency => ({
-	specifier,
-	mapped_specifier: mapped_specifier || specifier,
-	build_id: build_id || specifier,
-	external: external || false,
+	encoding: encoding !== undefined ? encoding : 'utf8',
 });
 
 export const serialize_source_meta = ({
@@ -219,24 +196,6 @@ export const serialize_source_meta_build = ({
 	}
 	if (encoding !== 'utf8') {
 		serialized.encoding = encoding;
-	}
-	return serialized;
-};
-export const serialize_build_dependency = ({
-	specifier,
-	mapped_specifier,
-	build_id,
-	external,
-}: Build_Dependency): Serialized_Build_Dependency => {
-	const serialized: Serialized_Build_Dependency = {specifier};
-	if (mapped_specifier !== specifier) {
-		serialized.mapped_specifier = mapped_specifier;
-	}
-	if (build_id !== specifier) {
-		serialized.build_id = build_id;
-	}
-	if (external) {
-		serialized.external = external;
 	}
 	return serialized;
 };

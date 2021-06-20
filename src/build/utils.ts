@@ -6,7 +6,7 @@ import type {Build_Config_Input, Input_Filter} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {base_path_to_source_id, paths, to_build_base_path, to_source_extension} from '../paths.js';
 import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
-import type {Build_Dependency} from './source_meta.js';
+import type {Build_Dependency} from './build_dependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.

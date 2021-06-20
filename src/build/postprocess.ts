@@ -16,7 +16,7 @@ import {
 import type {Build, Build_Context, Build_Result, Build_Source} from './builder.js';
 import {to_is_external_module} from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID, is_external_build_id} from './externals_build_helpers.js';
-import type {Build_Dependency} from './source_meta.js';
+import type {Build_Dependency} from './build_dependency.js';
 
 // TODO this is all hacky and should be refactored
 // make it pluggable like builders, maybe
