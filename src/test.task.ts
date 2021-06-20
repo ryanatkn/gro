@@ -7,7 +7,7 @@ import {Task_Error} from './task/task.js';
 import {to_build_out_path, to_root_path} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/default_build_config.js';
 import {load_config} from './config/config.js';
-import {build_source_directory} from './build/build_source_directory.js';
+import {build_source} from './build/build_source.js';
 
 // Runs the project's tests: `gro test [...args]`
 // Args are passed through directly to `uvu`'s CLI:
@@ -16,7 +16,7 @@ import {build_source_directory} from './build/build_source_directory.js';
 const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 
 export const task: Task = {
-	description: 'run tests',
+	summary: 'run tests',
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const pattern_count = args._.length;
 		const test_file_patterns = pattern_count ? args._ : DEFAULT_TEST_FILE_PATTERNS;
@@ -32,7 +32,7 @@ export const task: Task = {
 			timing_to_load_config();
 
 			const timing_to_prebuild = timings.start('prebuild');
-			await build_source_directory(fs, config, dev, log);
+			await build_source(fs, config, dev, log);
 			timing_to_prebuild();
 
 			// Projects may not define any artifacts for the Node build,

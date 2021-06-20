@@ -14,7 +14,7 @@ export const validate_gen_module = (mod: Record<string, any>): mod is GenModule 
 	typeof mod.gen === 'function';
 
 export const load_gen_module = (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> =>
-	load_module(id, validate_gen_module);
+	load_module(id, true, validate_gen_module);
 
 export type Check_Gen_Module_Result =
 	| {

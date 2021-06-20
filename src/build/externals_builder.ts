@@ -18,7 +18,7 @@ import type {
 	Text_Build,
 } from './builder.js';
 import {load_contents} from './load.js';
-import {groSveltePlugin} from './rollup_plugin_gro_svelte.js';
+import {gro_svelte_plugin} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './svelte_build_helpers.js';
 import {create_css_cache} from './css_cache.js';
 import {print_build_config} from '../build/build_config.js';
@@ -83,8 +83,8 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 			throw Error(`Externals builder only handles utf8 encoding, not ${source.encoding}`);
 		}
 
-		const builderState = get_externals_builder_state(state);
-		const build_state = get_externals_build_state(builderState, build_config);
+		const builder_state = get_externals_builder_state(state);
+		const build_state = get_externals_build_state(builder_state, build_config);
 
 		const dest = to_build_out_path(dev, build_config.name, base_path, build_dir);
 
@@ -93,12 +93,12 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
 		const css_cache = create_css_cache();
 		// const addPlainCss_Build = css_cache.add_css_build.bind(null, 'bundle.plain.css');
-		const addSvelteCss_Build = css_cache.add_css_build.bind(null, 'bundle.svelte.css');
+		const add_svelte_css_build = css_cache.add_css_build.bind(null, 'bundle.svelte.css');
 		const plugins: RollupPlugin[] = [
-			groSveltePlugin({
+			gro_svelte_plugin({
 				dev,
-				add_css_build: addSvelteCss_Build,
-				preprocessor: create_default_preprocessor(target, dev, sourcemap),
+				add_css_build: add_svelte_css_build,
+				preprocessor: create_default_preprocessor(dev, target, sourcemap),
 				compile_options: {},
 			}),
 		];
@@ -152,12 +152,12 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 		build_dir,
 	}: Build_Context): Promise<void> => {
 		// initialize the externals builder state, which is stored on the `Build_Context` (the filer)
-		const builderState = initExternals_Builder_State(state);
+		const builder_state = initExternals_Builder_State(state);
 		// mutate the build state with any available initial values
 		await Promise.all(
 			build_configs!.map(async (build_config) => {
 				if (build_config.platform !== 'browser') return;
-				const build_state = initExternalsBuildState(builderState, build_config);
+				const build_state = initExternalsBuildState(builder_state, build_config);
 				const dest = to_build_out_path(dev, build_config.name, base_path, build_dir);
 				const importMap = await loadImportMapFromDisk(fs, dest);
 				if (importMap !== undefined) {

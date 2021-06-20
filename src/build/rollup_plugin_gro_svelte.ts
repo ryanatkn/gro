@@ -64,7 +64,7 @@ export interface Gro_Svelte_Plugin extends Plugin {
 
 export const name = 'gro-svelte';
 
-export const groSveltePlugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
+export const gro_svelte_plugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 	const {
 		dev,
 		add_css_build,
@@ -90,7 +90,7 @@ export const groSveltePlugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 			if (!filter(id)) return null;
 			log.trace('transform', print_path(id));
 
-			let preprocessedCode = code;
+			let preprocessed_code = code;
 
 			// TODO see rollup-plugin-svelte for how to track deps
 			// let dependencies = [];
@@ -99,14 +99,14 @@ export const groSveltePlugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 				const preprocessed = await svelte.preprocess(code, preprocessor, {
 					filename: id,
 				});
-				preprocessedCode = preprocessed.code;
+				preprocessed_code = preprocessed.code;
 				// dependencies = preprocessed.dependencies;
 			}
 
 			log.trace('compile', print_path(id));
-			let svelteCompilation: Svelte_Compilation;
+			let svelte_compilation: Svelte_Compilation;
 			try {
-				svelteCompilation = svelte.compile(preprocessedCode, {
+				svelte_compilation = svelte.compile(preprocessed_code, {
 					...base_svelte_compile_options,
 					dev,
 					...compile_options,
@@ -117,7 +117,7 @@ export const groSveltePlugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 				log.error(red('Failed to compile Svelte'), print_path(id));
 				throw err;
 			}
-			const {js, css, warnings, stats} = svelteCompilation;
+			const {js, css, warnings, stats} = svelte_compilation;
 
 			for (const warning of warnings) {
 				onwarn(id, warning, handle_warn, log, this);
@@ -136,10 +136,10 @@ export const groSveltePlugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 
 			// save the compilation so other plugins can use it
 			const compilation: Gro_Svelte_Compilation = {
-				...svelteCompilation,
+				...svelte_compilation,
 				id,
 				css_id,
-				code: preprocessedCode,
+				code: preprocessed_code,
 				original_code: code,
 			};
 			compilations.set(id, compilation);

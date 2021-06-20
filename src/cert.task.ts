@@ -7,7 +7,7 @@ export interface Task_Args {
 }
 
 export const task: Task<Task_Args> = {
-	description: 'creates a self-signed cert for https with openssl',
+	summary: 'creates a self-signed cert for https with openssl',
 	run: async ({fs, args}) => {
 		const host = args.host || 'localhost';
 		const cert_file = `${host}-cert.pem`;

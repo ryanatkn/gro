@@ -54,6 +54,9 @@ export const invoke_task = async (
 	events = new EventEmitter(),
 	dev?: boolean,
 ): Promise<void> => {
+	// TODO not sure about this -- the idea is that imported modules need the updated `NODE_ENV`
+	process.env['NODE_ENV'] = dev || dev === undefined ? 'development' : 'production';
+
 	const log = new System_Logger(print_log_label(task_name || 'gro'));
 
 	// Check if the caller just wants to see the version.
@@ -103,18 +106,18 @@ export const invoke_task = async (
 				// also this is messy, the `load_config` does some hacky config loading,
 				// and then we end up building twice - can it be done in a single pass?
 				const {load_config} = await import('../config/config.js');
-				const bootstrapping_dev = true; // this does not inherit from the `dev` arg or `process.env.NODE_ENV`
-				const config = await load_config(fs, bootstrapping_dev);
+				const config = await load_config(fs, true);
 				timing_to_load_config();
 				const timing_to_build_project = timings.start('build project');
-				const {build_source_directory} = await import('../build/build_source_directory.js');
-				await build_source_directory(fs, config, bootstrapping_dev, log);
+				const {build_source} = await import('../build/build_source.js');
+				await build_source(fs, config, true, log);
 				timing_to_build_project();
 			}
 
 			// Load and run the task.
 			const load_modules_result = await load_modules(
 				find_modules_result.source_ids_by_input_path,
+				true,
 				load_task_module,
 			);
 			if (load_modules_result.ok) {
@@ -123,9 +126,7 @@ export const invoke_task = async (
 				// `path_data` is not a directory, so there's a single task module here.
 				const task = load_modules_result.modules[0];
 				log.info(
-					`→ ${cyan(task.name)} ${
-						(task.mod.task.description && gray(task.mod.task.description)) || ''
-					}`,
+					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timing_to_run_task = timings.start('run task');
 				const result = await run_task(fs, task, args, events, invoke_task, dev);

@@ -79,7 +79,7 @@ export const create_build_file = (
 	}
 };
 
-export const reconstructBuild_Files = async (
+export const reconstruct_build_files = async (
 	fs: Filesystem,
 	source_meta: Source_Meta,
 	build_configs: readonly Build_Config[],
@@ -88,12 +88,22 @@ export const reconstructBuild_Files = async (
 	await Promise.all(
 		source_meta.data.builds.map(
 			async (build): Promise<void> => {
-				const {id, name, dependencies, encoding} = build;
+				const {id, build_name, dependencies, encoding} = build;
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
 				const contents = await load_contents(fs, encoding, id);
-				const build_config = build_configs.find((b) => b.name === name)!; // is a bit awkward, but probably not inefficient enough to change
+				const build_config = build_configs.find((b) => b.name === build_name)!; // is a bit awkward, but probably not inefficient enough to change
+				if (!build_config) {
+					// TODO wait no this build needs to be preserved somehow,
+					// otherwise running the filer with different build configs fails to preserve
+
+					// If the build config is not found, just ignore the cached data --
+					// if it's stale it won't hurt anything, and will disappear the next `gro clean`,
+					// and if the Filer ever runs with that config again, it'll read from the cache.
+					// We rely on this behavior to have the separate bootstrap config.
+					return;
+				}
 				let build_file: Build_File;
 				switch (encoding) {
 					case 'utf8':

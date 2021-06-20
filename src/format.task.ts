@@ -10,7 +10,7 @@ export interface Task_Args {
 }
 
 export const task: Task<Task_Args> = {
-	description: 'format source files',
+	summary: 'format source files',
 	run: async ({args}) => {
 		const check = !!args.check;
 		const format_result = await format_directory(paths.source, check);

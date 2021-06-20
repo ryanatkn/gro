@@ -1,3 +1,4 @@
+import type {Logger} from '@feltcoop/felt/util/log';
 import {join, basename, dirname} from 'path';
 
 import type {Filesystem} from '../fs/filesystem.js';
@@ -27,6 +28,7 @@ export interface Gen {
 export interface Gen_Context {
 	fs: Filesystem;
 	origin_id: string;
+	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
 export type Raw_Gen_Result = string | Raw_Gen_File | Raw_Gen_File[];

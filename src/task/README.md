@@ -41,16 +41,7 @@ between the CLI, build tools, and app code.
 It tries to dissolve walls that typically separate these domains
 while deferring to your code and facilitating buildtime development processes.
 
-> caveat: Gro's CLI probably doesn't play nicely with others. Needs lots of improvements.
-
 ## usage
-
-Gro has complex rules to convert your input commands,
-the `foo` of `gro foo`, to its internal behavior.
-It tries to do the right thing. Read ahead for how it works.
-If something doesn't feel right, it might be a design flaw,
-or maybe it conflicts with another design choice.
-We welcome any discussion about its problems and possible improvements.
 
 ### show all available tasks
 
@@ -58,7 +49,6 @@ We welcome any discussion about its problems and possible improvements.
 # This looks through `src/` in both the current working directory
 # and Gro's source for all files matching `*.task.ts` and logs them out.
 $ gro
-$ gro src # same as above
 ```
 
 ### show tasks in a directory
@@ -67,7 +57,6 @@ $ gro src # same as above
 # Logs all `*.task.ts` files in `src/some/dir` and `gro/src/some/dir`.
 # If no tasks are found, it displays an error.
 $ gro some/dir
-$ gro src/some/dir # same as above
 ```
 
 > To learn more about the Gro CLI path conventions,
@@ -109,7 +98,7 @@ export const task: Task = {
 
 export interface Task<T_Args = Args, T_Events = {}> {
 	run: (ctx: Task_Context<T_Args, T_Events>) => Promise<unknown>;
-	description?: string;
+	summary?: string;
 	dev?: boolean; // set to `false` to run the task and its children in production mode
 }
 
@@ -320,7 +309,7 @@ What makes Gro different?
   contains task modules that conform to some interface.
   This allows them to be discoverable and puts generic handles on them,
   enabling various verbs (e.g. "run") and
-  structured metadata (e.g. "description").
+  structured metadata (e.g. "summary").
 - Tasks can be imported, inspected, combined, and manipulated in code.
   Task modules do not have any side effects when imported,
   while Node scripts just execute when imported -

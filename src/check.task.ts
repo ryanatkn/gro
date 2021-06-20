@@ -3,7 +3,7 @@ import {Task_Error} from './task/task.js';
 import {find_gen_modules} from './gen/gen_module.js';
 
 export const task: Task = {
-	description: 'check that everything is ready to commit',
+	summary: 'check that everything is ready to commit',
 	run: async ({fs, log, args, invoke_task}) => {
 		await invoke_task('typecheck');
 

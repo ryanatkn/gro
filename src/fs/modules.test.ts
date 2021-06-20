@@ -15,7 +15,7 @@ const test_load_module = suite('load_module');
 test_load_module('basic behavior', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	let validated_mod;
-	const result = await load_module(id, ((mod: any) => {
+	const result = await load_module(id, true, ((mod: any) => {
 		validated_mod = mod;
 		return true;
 	}) as any);
@@ -27,7 +27,7 @@ test_load_module('basic behavior', async () => {
 
 test_load_module('without validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
-	const result = await load_module(id);
+	const result = await load_module(id, true);
 	t.ok(result.ok);
 	t.is(result.mod.id, id);
 	t.is(result.mod.mod, mod_test1);
@@ -40,7 +40,7 @@ test_load_module('fails validation', async () => {
 		validated_mod = mod;
 		return false;
 	};
-	const result = await load_module(id, test_validation as any);
+	const result = await load_module(id, true, test_validation as any);
 	t.not.ok(result.ok);
 	if (result.type === 'invalid') {
 		t.is(result.validation, test_validation.name);
@@ -54,7 +54,7 @@ test_load_module('fails validation', async () => {
 
 test_load_module('fails to import', async () => {
 	const id = resolve('foo/test/failure');
-	const result = await load_module(id);
+	const result = await load_module(id, true);
 	t.not.ok(result.ok);
 	if (result.type === 'import_failed') {
 		t.is(result.id, id);
@@ -179,6 +179,7 @@ test_load_modules('fail with load_module_failures', async () => {
 			[path_bar1, [id_bar1, id_bar2]],
 			[path_baz1, [id_baz1, id_baz2]],
 		]),
+		true,
 		async (id) => {
 			if (id === id_bar2) {
 				return {
@@ -188,7 +189,7 @@ test_load_modules('fail with load_module_failures', async () => {
 					error: (error = new Error('Test failed import')),
 				};
 			}
-			return load_module(id, test_validation);
+			return load_module(id, true, test_validation);
 		},
 	);
 	t.not.ok(result.ok);

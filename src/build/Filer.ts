@@ -27,7 +27,8 @@ import type {
 } from './builder.js';
 import {infer_encoding} from '../fs/encoding.js';
 import type {Encoding} from '../fs/encoding.js';
-import {is_system_build_config, print_build_config_label} from '../build/build_config.js';
+import {print_build_config_label} from '../build/build_config.js';
+import type {Build_Name} from '../build/build_config.js';
 import type {Build_Config} from '../build/build_config.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
 import type {Ecma_Script_Target} from './ts_build_helpers.js';
@@ -96,6 +97,7 @@ export interface Options {
 	externals_aliases: Externals_Aliases;
 	map_dependency_to_source_id: Map_Dependency_To_Source_Id;
 	sourcemap: boolean;
+	types: boolean;
 	target: Ecma_Script_Target;
 	watch: boolean;
 	watcher_debounce: number | undefined;
@@ -122,23 +124,7 @@ export const init_options = (opts: Initial_Options): Options => {
 	const build_dir = opts.build_dir || paths.build; // TODO assumes trailing slash
 	const source_dirs = opts.source_dirs ? opts.source_dirs.map((d) => resolve(d)) : [];
 	validate_dirs(source_dirs);
-	const served_dirs = to_served_dirs(
-		opts.served_dirs ||
-			(build_configs === null
-				? []
-				: [
-						// default to a best guess
-						to_build_out_path(
-							dev,
-							(
-								build_configs.find((c) => c.platform === 'browser') ||
-								build_configs.find((c) => is_system_build_config(c))!
-							).name,
-							'',
-							build_dir,
-						),
-				  ]),
-	);
+	const served_dirs = opts.served_dirs ? to_served_dirs(opts.served_dirs) : [];
 	const builder = opts.builder || null;
 	if (source_dirs.length) {
 		if (!build_configs) {
@@ -163,6 +149,7 @@ export const init_options = (opts: Initial_Options): Options => {
 		externals_aliases: DEFAULT_EXTERNALS_ALIASES,
 		map_dependency_to_source_id,
 		sourcemap: true,
+		types: !dev,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
 		watcher_debounce: undefined,
@@ -181,7 +168,6 @@ export const init_options = (opts: Initial_Options): Options => {
 export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements Build_Context {
 	// TODO think about accessors - I'm currently just making things public when I need them here
 	private readonly files: Map<string, Filer_File> = new Map();
-	private readonly file_exists: (id: string) => boolean = (id) => this.files.has(id);
 	private readonly dirs: Filer_Dir[];
 	private readonly builder: Builder | null;
 	private readonly map_dependency_to_source_id: Map_Dependency_To_Source_Id;
@@ -191,11 +177,16 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `Build_Context`, probably
 	readonly build_configs: readonly Build_Config[] | null;
+	readonly build_names: Set<Build_Name> | null;
+	// TODO if we loosen the restriction of the filer owning the `.gro` directory,
+	// `source_meta` will need to be a shared object --
+	// a global cache is too inflexible, because we still want to support multiple independent filers
 	readonly source_meta_by_id: Map<string, Source_Meta> = new Map();
 	readonly log: Logger;
 	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
+	readonly types: boolean;
 	readonly target: Ecma_Script_Target; // TODO shouldn't build configs have this?
 	readonly served_dirs: readonly Served_Dir[];
 	readonly externals_aliases: Externals_Aliases; // TODO should this allow aliasing anything? not just externals?
@@ -218,6 +209,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			externals_aliases,
 			map_dependency_to_source_id,
 			sourcemap,
+			types,
 			target,
 			watch,
 			watcher_debounce,
@@ -228,10 +220,12 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		this.dev = dev;
 		this.builder = builder;
 		this.build_configs = build_configs;
+		this.build_names = build_configs ? new Set(build_configs.map((b) => b.name)) : null;
 		this.build_dir = build_dir;
 		this.map_dependency_to_source_id = map_dependency_to_source_id;
 		this.externals_aliases = externals_aliases;
 		this.sourcemap = sourcemap;
+		this.types = types;
 		this.target = target;
 		this.log = log;
 		this.dirs = create_filer_dirs(
@@ -245,8 +239,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			filter,
 		);
 		this.served_dirs = served_dirs;
-		log.trace(cyan('build_configs\n'), build_configs);
-		log.trace(cyan('served_dirs\n'), served_dirs);
+		log.trace(cyan('build_configs'), build_configs);
+		log.trace(cyan('served_dirs'), served_dirs);
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
@@ -276,7 +270,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 	async init(): Promise<void> {
 		if (this.initializing) return this.initializing;
-		this.log.trace('init');
+		this.log.trace('init', gray(this.dev ? 'development' : 'production'));
 		let finish_initializing: () => void;
 		this.initializing = new Promise((r) => (finish_initializing = r));
 
@@ -292,7 +286,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 		// Now that the source meta and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
-		await clean_source_meta(this, this.file_exists);
+		await clean_source_meta(this);
 		// this.log.trace('cleaned');
 
 		// This initializes the builders. Should be done before the builds are initialized.

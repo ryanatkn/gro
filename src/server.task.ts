@@ -36,7 +36,7 @@ export interface Task_Events {
 
 // TODO what's the best way to give a placeholder for the unused first `T_Args` type argument?
 export const task: Task<Task_Args, Task_Events> = {
-	description: 'start API server',
+	summary: 'start API server',
 	run: async ({fs, dev, events, args, log}) => {
 		const api_server_path = args.api_server_path ?? to_api_server_build_path(dev);
 		if (!(await fs.exists(api_server_path))) {

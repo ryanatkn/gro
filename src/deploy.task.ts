@@ -1,11 +1,12 @@
-import {join, basename} from 'path';
+import {join} from 'path';
 import {spawn_process} from '@feltcoop/felt/util/process.js';
 import {print_error} from '@feltcoop/felt/util/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
 import type {Task} from './task/task.js';
-import {GIT_DIRNAME, paths, print_path} from './paths.js';
+import {GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
+import {clean} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
 
@@ -17,14 +18,14 @@ import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
 export interface Task_Args {
+	dirname?: string; // defaults to `'svelte-kit'` if it exists
 	branch?: string; // optional branch to deploy from; defaults to 'main'
 	dry?: boolean;
-	clean?: boolean; // clean the git worktree and Gro cache
+	clean?: boolean; // instead of deploying, just clean the git worktree and Gro cache
 }
 
 // TODO customize
 const DIST_DIR = paths.dist;
-const DIST_DIRNAME = basename(DIST_DIR);
 const WORKTREE_DIRNAME = 'worktree';
 const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 const DEPLOY_BRANCH = 'deploy';
@@ -34,15 +35,19 @@ const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 
 export const task: Task<Task_Args> = {
-	description: 'deploy to static hosting',
+	summary: 'deploy to static hosting',
 	dev: false,
 	run: async ({fs, invoke_task, args, log, dev}): Promise<void> => {
-		const {branch, dry, clean} = args;
+		const {branch, dry, clean: clean_and_exit} = args;
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
 
 		const source_branch = branch || GIT_DEPLOY_BRANCH;
+
+		// TODO how to get the deployed build? config property? infer if there's a SvelteKit one and no config?
+		const dirname = args.dirname || SVELTEKIT_DIST_DIRNAME;
+		const dir = `${DIST_DIR}${dirname}`;
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
@@ -92,9 +97,9 @@ export const task: Task<Task_Args> = {
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Get ready to build from scratch.
-		await invoke_task('clean');
+		await clean(fs, {build_prod: true}, log);
 
-		if (clean) {
+		if (clean_and_exit) {
 			log.info(rainbow('all clean'));
 			return;
 		}
@@ -103,19 +108,25 @@ export const task: Task<Task_Args> = {
 			// Run the build.
 			await invoke_task('build');
 
+			// Make sure the expected dir exists after building.
+			if (!(await fs.exists(dir))) {
+				log.error(red('directory does not exist:'), dir);
+				return;
+			}
+
 			// Update the initial file.
-			await fs.copy(INITIAL_FILE, join(DIST_DIR, INITIAL_FILE));
+			await fs.copy(INITIAL_FILE, join(dir, INITIAL_FILE));
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
 			if (dry) {
-				log.info(red('dry deploy failed:'), 'files are available in', print_path(DIST_DIRNAME));
+				log.info(red('dry deploy failed:'), 'files are available in', print_path(dir));
 			}
 			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
 		}
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
-			log.info(green('dry deploy complete:'), 'files are available in', print_path(DIST_DIRNAME));
+			log.info(green('dry deploy complete:'), 'files are available in', print_path(dir));
 			return;
 		}
 
@@ -136,9 +147,7 @@ export const task: Task<Task_Args> = {
 				),
 			);
 			await Promise.all(
-				(await fs.read_dir(DIST_DIR)).map((path) =>
-					fs.move(`${DIST_DIR}${path}`, `${WORKTREE_DIR}/${path}`),
-				),
+				(await fs.read_dir(dir)).map((path) => fs.move(`${dir}${path}`, `${WORKTREE_DIR}/${path}`)),
 			);
 			// commit the changes
 			await spawn_process('git', ['add', '.', '-f'], GIT_ARGS);
@@ -152,7 +161,7 @@ export const task: Task<Task_Args> = {
 
 		// Clean up and efficiently reconstruct dist/ for users
 		await fs.remove(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
-		await fs.move(WORKTREE_DIR, DIST_DIR, {overwrite: true});
+		await fs.move(WORKTREE_DIR, dir, {overwrite: true});
 		await clean_git_worktree();
 
 		log.info(rainbow('deployed')); // TODO log a different message if "Everything up-to-date"

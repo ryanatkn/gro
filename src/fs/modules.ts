@@ -37,8 +37,8 @@ export type Load_Module_Failure =
 
 export const load_module = async <T>(
 	id: string,
+	dev: boolean,
 	validate?: (mod: Record<string, any>) => mod is T,
-	dev = process.env.NODE_ENV !== 'production',
 	build_name = SYSTEM_BUILD_NAME,
 ): Promise<Load_Module_Result<Module_Meta<T>>> => {
 	let mod;
@@ -169,7 +169,11 @@ TODO parallelize..how? Separate functions? `load_modules_serially`?
 */
 export const load_modules = async <Module_Type, Module_Meta_Type extends Module_Meta<Module_Type>>(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
-	load_module_by_id: (source_id: string) => Promise<Load_Module_Result<Module_Meta_Type>>,
+	dev: boolean,
+	load_module_by_id: (
+		source_id: string,
+		dev: boolean,
+	) => Promise<Load_Module_Result<Module_Meta_Type>>,
 ): Promise<Load_Modules_Result<Module_Meta_Type>> => {
 	const timings = new Timings<Load_Modules_Timings>();
 	const timing_to_load_modules = timings.start('load modules');
@@ -178,7 +182,7 @@ export const load_modules = async <Module_Type, Module_Meta_Type extends Module_
 	const reasons: string[] = [];
 	for (const [input_path, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
-			const result = await load_module_by_id(id);
+			const result = await load_module_by_id(id, dev);
 			if (result.ok) {
 				modules.push(result.mod);
 			} else {

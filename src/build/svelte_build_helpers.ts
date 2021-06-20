@@ -16,18 +16,18 @@ import type {Ecma_Script_Target} from './ts_build_helpers.js';
 import {print_path} from '../paths.js';
 
 export type Create_Preprocessor = (
-	target: Ecma_Script_Target,
 	dev: boolean,
+	target: Ecma_Script_Target,
 	sourcemap: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
-export const create_default_preprocessor: Create_Preprocessor = (target, dev, sourcemap) =>
+export const create_default_preprocessor: Create_Preprocessor = (dev, target, sourcemap) =>
 	svelte_preprocess_esbuild.typescript(
-		get_default_esbuild_preprocess_options(target, dev, sourcemap),
+		get_default_esbuild_preprocess_options(dev, target, sourcemap),
 	);
 
 // TODO type could be improved, not sure how tho
-export interface SvelteCompileStats {
+export interface Svelte_Compile_Stats {
 	timings: {
 		total: number;
 		parse?: {total: number};
@@ -44,7 +44,7 @@ export type Svelte_Compilation = Omit_Strict<ReturnType<typeof compile>, 'js' | 
 		code: string | null;
 		map: ExistingRawSourceMap | undefined;
 	};
-	stats: SvelteCompileStats;
+	stats: Svelte_Compile_Stats;
 };
 
 // Commented-out values are the same as the defaults.
@@ -88,8 +88,8 @@ export const handle_warn = (
 
 export const handle_stats = (
 	id: string,
-	stats: SvelteCompileStats,
-	_handle_stats: (id: string, stats: SvelteCompileStats, ...args: any[]) => void,
+	stats: Svelte_Compile_Stats,
+	_handle_stats: (id: string, stats: Svelte_Compile_Stats, ...args: any[]) => void,
 	log: Logger,
 	_plugin_ontext?: PluginContext,
 ): void => {

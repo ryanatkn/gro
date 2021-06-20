@@ -21,10 +21,11 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 					'cli/gro.ts',
 					'cli/invoke.ts',
 					'client/devtools.ts',
+					'config/gro.config.default.ts',
 					// TODO probably extract these to another repo, felt or gen utils or something
 					'gen/helpers/html.ts',
 					'gen/helpers/ts.ts',
-					createFilter(['**/*.{task,config,config.default}.ts']),
+					createFilter(['**/*.task.ts']),
 				],
 			},
 			// the Gro browser build is currently an internal experiment

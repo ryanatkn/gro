@@ -45,7 +45,7 @@ It includes:
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
-- codegen by convention called `gen` (docs at [`src/gen`](/src/gen))
+- codegen by convention (docs at [`src/gen`](/src/gen))
 - [dev server](/src/server/README.md) with efficient caching and http2/https support
 - integrated platform-independent [`fs`](src/fs/filesystem.ts)
   (code is parameterized with an `fs` argument)

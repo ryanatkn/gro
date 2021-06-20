@@ -68,7 +68,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		const key = sourcemap + target;
 		const existing_preprocessor = preprocessor_cache.get(key);
 		if (existing_preprocessor !== undefined) return existing_preprocessor;
-		const new_preprocessor = create_preprocessor(target, dev, sourcemap);
+		const new_preprocessor = create_preprocessor(dev, target, sourcemap);
 		preprocessor_cache.set(key, new_preprocessor);
 		return new_preprocessor;
 	};

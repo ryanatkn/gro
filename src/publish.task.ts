@@ -10,7 +10,8 @@ import {load_package_json} from './utils/package_json.js';
 import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
 import type {Filesystem} from './fs/filesystem.js';
 import {load_config} from './config/config.js';
-import {build_source_directory} from './build/build_source_directory.js';
+import {build_source} from './build/build_source.js';
+import {clean} from './fs/clean.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -27,7 +28,7 @@ export interface Task_Args {
 }
 
 export const task: Task<Task_Args> = {
-	description: 'bump version, publish to npm, and sync to GitHub',
+	summary: 'bump version, publish to npm, and sync to GitHub',
 	dev: false,
 	run: async ({fs, args, log, invoke_task, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
@@ -37,7 +38,6 @@ export const task: Task<Task_Args> = {
 		if (dev) {
 			log.warn('building in development mode; normally this is only for diagnostics');
 		}
-		const child_task_args = {...args, _: []};
 
 		const [version_increment] = args._;
 		validate_version_increment(version_increment);
@@ -50,16 +50,17 @@ export const task: Task<Task_Args> = {
 		await spawn_process('git', ['fetch', 'origin', branch]);
 		await spawn_process('git', ['checkout', branch]);
 
-		// And updated to the latest:
-		await spawn_process('git', ['pull']);
+		// Clean before loading the config:
+		await clean(fs, {build_prod: true}, log);
 
-		// Build, check, then create the final artifacts:
 		const config = await load_config(fs, dev);
 		if (config.publish === null) {
 			throw Error('config.publish is null, so this package cannot be published');
 		}
-		await build_source_directory(fs, config, dev, log);
-		await invoke_task('check', child_task_args);
+
+		// Check in dev mode before proceeding:
+		await build_source(fs, config, true, log);
+		await invoke_task('check', {...args, _: []}, undefined, true);
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {
@@ -69,7 +70,8 @@ export const task: Task<Task_Args> = {
 			}
 		}
 
-		await invoke_task('build', child_task_args);
+		// Build to create the final artifacts:
+		await invoke_task('build');
 
 		if (dry) {
 			log.info({version_increment, publish: config.publish, branch});

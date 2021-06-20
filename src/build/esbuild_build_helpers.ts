@@ -11,8 +11,8 @@ export interface Esbuild_Transform_Options extends esbuild.TransformOptions {
 }
 
 export const get_default_esbuild_options = (
+	dev: boolean,
 	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
-	dev = process.env.NODE_ENV !== 'production',
 	sourcemap = dev,
 ): Esbuild_Transform_Options => ({
 	target,
@@ -30,8 +30,8 @@ export const get_default_esbuild_options = (
 });
 
 export const get_default_esbuild_preprocess_options = (
+	dev: boolean,
 	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
-	dev = process.env.NODE_ENV !== 'production',
 	sourcemap = dev,
 ): Partial<svelte_preprocess_esbuild.Options> => ({
 	target,

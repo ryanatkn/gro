@@ -17,7 +17,7 @@ export interface Task_Args {
 const ORIGIN = 'origin';
 
 export const task: Task<Task_Args> = {
-	description: 'remove temporary dev and build files, and optionally prune git branches',
+	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	run: async ({fs, log, args}): Promise<void> => {
 		// TODO document with mdsvex
 		await clean(

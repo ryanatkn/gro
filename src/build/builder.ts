@@ -1,7 +1,7 @@
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Build_Config} from '../build/build_config.js';
+import type {Build_Config, Build_Name} from '../build/build_config.js';
 import {to_build_out_path} from '../paths.js';
 import type {
 	Externals_Aliases,
@@ -36,11 +36,13 @@ export interface Build_Result<TBuild extends Build = Build> {
 export interface Build_Context {
 	readonly fs: Filesystem;
 	readonly build_configs: readonly Build_Config[] | null;
+	readonly build_names: Set<Build_Name> | null;
 	readonly source_meta_by_id: Map<string, Source_Meta>;
 	readonly log: Logger;
 	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
+	readonly types: boolean;
 	readonly target: Ecma_Script_Target;
 	readonly served_dirs: readonly Served_Dir[];
 	readonly externals_aliases: Externals_Aliases;

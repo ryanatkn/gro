@@ -18,8 +18,8 @@ import {print_path} from '../paths.js';
 export const run_gen = async (
 	fs: Filesystem,
 	gen_modules: Gen_Module_Meta[],
+	log: Logger,
 	format_file?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
-	log?: Logger,
 ): Promise<Gen_Results> => {
 	let input_count = 0;
 	let output_count = 0;
@@ -29,7 +29,7 @@ export const run_gen = async (
 		gen_modules.map(
 			async ({id, mod}): Promise<Gen_Module_Result> => {
 				input_count++;
-				const genCtx: Gen_Context = {fs, origin_id: id};
+				const genCtx: Gen_Context = {fs, origin_id: id, log};
 				const timing_for_module = timings.start(id);
 
 				// Perform code generation by calling `gen` on the module.

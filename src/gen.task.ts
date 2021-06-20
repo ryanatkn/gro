@@ -20,7 +20,7 @@ export interface Task_Args {
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
 export const task: Task<Task_Args> = {
-	description: 'run code generation scripts',
+	summary: 'run code generation scripts',
 	run: async ({fs, log, args}): Promise<void> => {
 		const rawInputPaths = args._;
 		const check = !!args.check;
@@ -42,6 +42,7 @@ export const task: Task<Task_Args> = {
 		timings.merge(find_modules_result.timings);
 		const load_modules_result = await load_modules(
 			find_modules_result.source_ids_by_input_path,
+			true,
 			load_gen_module,
 		);
 		if (!load_modules_result.ok) {
@@ -54,7 +55,7 @@ export const task: Task<Task_Args> = {
 
 		// run `gen` on each of the modules
 		const stop_timing_to_generate_code = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(fs, load_modules_result.modules, format_file, log);
+		const gen_results = await run_gen(fs, load_modules_result.modules, log, format_file);
 		stop_timing_to_generate_code();
 
 		const fail_count = gen_results.failures.length;

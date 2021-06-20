@@ -15,12 +15,11 @@ export interface Task_Args {
 }
 
 export const task: Task<Task_Args> = {
-	description: 'start static file server',
+	summary: 'start static file server',
 	run: async ({fs, log, args, dev}): Promise<void> => {
 		const host = args.host || DEFAULT_SERVER_HOST;
 		const port = Number(args.port) || DEFAULT_SERVER_PORT;
 		const served_dirs: Served_Dir_Partial[] = args.serve || (args._.length ? args._ : ['.']);
-		console.log('served_dirs', served_dirs);
 
 		// TODO this is inefficient for just serving files in a directory
 		// maybe we want a `lazy` flag?

@@ -3,7 +3,7 @@ import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import type {Non_Buildable_Filer_Dir, Buildable_Filer_Dir, Filer_Dir} from '../build/filer_dir.js';
-import {reconstructBuild_Files} from './build_file.js';
+import {reconstruct_build_files} from './build_file.js';
 import type {Build_File} from './build_file.js';
 import type {Base_Filer_File} from './base_filer_file.js';
 import {to_hash} from './utils.js';
@@ -89,7 +89,7 @@ export const create_source_file = async (
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
 		dirty = contents_hash !== source_meta.data.contents_hash;
-		reconstructed_build_files = await reconstructBuild_Files(fs, source_meta, build_configs!);
+		reconstructed_build_files = await reconstruct_build_files(fs, source_meta, build_configs!);
 	}
 	if (is_external_browser_module(id)) {
 		// externals

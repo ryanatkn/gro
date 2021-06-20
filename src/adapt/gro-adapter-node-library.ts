@@ -20,8 +20,8 @@ import {NODE_LIBRARY_BUILD_NAME} from '../build/default_build_config.js';
 import type {Build_Name} from '../build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {run_rollup} from '../build/rollup.js';
-import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
+import type {Task_Args as Build_Task_Args} from '../build.task.js';
 
 // TODO maybe add a `files` option to explicitly include source files,
 // and fall back to inferring from the build config
@@ -38,11 +38,7 @@ export interface Options {
 	pack: boolean; // treat the dist as a package to be published - defaults to true
 }
 
-interface AdapterArgs {
-	map_input_options: Map_Input_Options;
-	map_output_options: Map_Output_Options;
-	map_watch_options: Map_Watch_Options;
-}
+export interface Adapter_Args extends Build_Task_Args {}
 
 export const create_adapter = ({
 	build_name = NODE_LIBRARY_BUILD_NAME,
@@ -52,7 +48,7 @@ export const create_adapter = ({
 	esm = true,
 	cjs = true,
 	pack = true,
-}: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
+}: Partial<Options> = EMPTY_OBJECT): Adapter<Adapter_Args> => {
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',

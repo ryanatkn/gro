@@ -45,11 +45,9 @@ export interface Task_Events {
 }
 
 export const task: Task<Task_Args, Task_Events> = {
-	description: 'start dev server',
+	summary: 'start dev server',
 	run: async ({fs, dev, log, args, events}) => {
 		const watch = args.watch ?? true;
-		console.log('args', args);
-		console.log('watch', watch);
 
 		const timings = new Timings();
 
