@@ -17,7 +17,7 @@ export const build_source = async (
 	log: Logger,
 	types: boolean = !dev,
 ): Promise<void> => {
-	log.info('building source directory', gray(dev ? 'development' : 'production'));
+	log.info('building source', gray(dev ? 'development' : 'production'));
 
 	const total_timing = create_stopwatch();
 	const timings = new Timings();
@@ -31,7 +31,7 @@ export const build_source = async (
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
 		const timing_to_types = timings.start('types');
-		await generate_types(paths.source, to_types_build_dir(), config.sourcemap);
+		await generate_types(paths.source, to_types_build_dir(), config.sourcemap, config.typemap);
 		timing_to_types();
 	}
 

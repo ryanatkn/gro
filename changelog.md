@@ -25,6 +25,8 @@
   ([#211](https://github.com/feltcoop/gro/pull/211))
 - optimize writing source meta to disk
   ([#214](https://github.com/feltcoop/gro/pull/214))
+- add `typemap` option to Gro config
+  ([#215](https://github.com/feltcoop/gro/pull/215))
 
 ## 0.26.2
 

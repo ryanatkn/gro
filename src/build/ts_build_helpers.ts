@@ -34,7 +34,7 @@ export const generate_types = async (
 	src: string,
 	dest: string,
 	sourcemap: boolean,
-	typemap: boolean = sourcemap,
+	typemap: boolean,
 	tsc_args: string[] = EMPTY_ARRAY,
 ) => {
 	const tscResult = await spawn_process('npx', [

@@ -51,6 +51,7 @@ export interface Gro_Config {
 	readonly adapt: Adapt_Builds;
 	readonly target: Ecma_Script_Target;
 	readonly sourcemap: boolean;
+	readonly typemap: boolean;
 	readonly host: string;
 	readonly port: number;
 	readonly log_level: Log_Level;
@@ -65,6 +66,7 @@ export interface Gro_Config_Partial {
 	readonly adapt?: Adapt_Builds;
 	readonly target?: Ecma_Script_Target;
 	readonly sourcemap?: boolean;
+	readonly typemap?: boolean;
 	readonly host?: string;
 	readonly port?: number;
 	readonly log_level?: Log_Level;
@@ -200,6 +202,7 @@ export const to_config = async (
 const to_bootstrap_config = (): Gro_Config => {
 	return {
 		sourcemap: false, // TODO or always true?
+		typemap: false, // TODO or always true?
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,
@@ -232,7 +235,8 @@ const validate_config = async (
 const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config => {
 	const build_configs = normalize_build_configs(to_array(config.builds || null), dev);
 	return {
-		sourcemap: dev, // TODO maybe default to tsconfig?
+		sourcemap: dev,
+		typemap: !dev,
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,
