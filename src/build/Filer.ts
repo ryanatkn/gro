@@ -28,6 +28,7 @@ import type {
 import {infer_encoding} from '../fs/encoding.js';
 import type {Encoding} from '../fs/encoding.js';
 import {print_build_config_label} from '../build/build_config.js';
+import type {Build_Name} from '../build/build_config.js';
 import type {Build_Config} from '../build/build_config.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
 import type {Ecma_Script_Target} from './ts_build_helpers.js';
@@ -176,6 +177,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `Build_Context`, probably
 	readonly build_configs: readonly Build_Config[] | null;
+	readonly build_names: Set<Build_Name> | null;
 	// TODO if we loosen the restriction of the filer owning the `.gro` directory,
 	// `source_meta` will need to be a shared object --
 	// a global cache is too inflexible, because we still want to support multiple independent filers
@@ -218,6 +220,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		this.dev = dev;
 		this.builder = builder;
 		this.build_configs = build_configs;
+		this.build_names = build_configs ? new Set(build_configs.map((b) => b.name)) : null;
 		this.build_dir = build_dir;
 		this.map_dependency_to_source_id = map_dependency_to_source_id;
 		this.externals_aliases = externals_aliases;

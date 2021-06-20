@@ -36,7 +36,7 @@ export const update_source_meta = async (
 	ctx: Build_Context,
 	file: Buildable_Source_File,
 ): Promise<void> => {
-	const {fs, source_meta_by_id, dev, build_dir} = ctx;
+	const {fs, source_meta_by_id, dev, build_dir, build_names} = ctx;
 	if (file.build_configs.size === 0) {
 		return delete_source_meta(ctx, file.id);
 	}
@@ -59,6 +59,17 @@ export const update_source_meta = async (
 		),
 	};
 	const source_meta: Source_Meta = {cache_id, data};
+
+	// preserve the builds that aren't in this build config set
+	// TODO maybe just cache these on the source meta in a separate field (not written to disk)
+	const existing_source_meta = source_meta_by_id.get(file.id);
+	if (existing_source_meta) {
+		for (const build of existing_source_meta.data.builds) {
+			if (!build_names!.has(build.build_name)) {
+				data.builds.push(build);
+			}
+		}
+	}
 
 	source_meta_by_id.set(file.id, source_meta);
 	// this.log.trace('outputting source meta', gray(cache_id));
