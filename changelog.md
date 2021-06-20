@@ -23,6 +23,8 @@
   ([#211](https://github.com/feltcoop/gro/pull/211))
 - rename some args in `gro dev` and `gro serve`
   ([#211](https://github.com/feltcoop/gro/pull/211))
+- optimize writing source meta to disk
+  ([#214](https://github.com/feltcoop/gro/pull/214))
 
 ## 0.26.2
 

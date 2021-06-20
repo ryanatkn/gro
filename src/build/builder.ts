@@ -129,12 +129,3 @@ export const noop_builder: Builder = {
 	// on_remove: not implemented because it's a no-op
 	// init: not implemented because it's a no-op
 };
-
-// TODO maybe move to `build_file`? but then `postprocess` would have a dependency on the build file.
-// its imports make more sense as is.
-export interface Build_Dependency {
-	specifier: string;
-	mapped_specifier: string;
-	build_id: string;
-	external: boolean;
-}

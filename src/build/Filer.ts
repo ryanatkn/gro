@@ -17,14 +17,7 @@ import type {Filer_Dir, Filer_Dir_Change_Callback} from '../build/filer_dir.js';
 import {is_input_to_build_config, map_dependency_to_source_id} from './utils.js';
 import type {Map_Dependency_To_Source_Id} from './utils.js';
 import {EXTERNALS_BUILD_DIR_ROOT_PREFIX, JS_EXTENSION, paths, to_build_out_path} from '../paths.js';
-import type {
-	Build,
-	Build_Context,
-	Build_Dependency,
-	Builder,
-	Builder_State,
-	Build_Result,
-} from './builder.js';
+import type {Build, Build_Context, Builder, Builder_State, Build_Result} from './builder.js';
 import {infer_encoding} from '../fs/encoding.js';
 import type {Encoding} from '../fs/encoding.js';
 import {print_build_config_label} from '../build/build_config.js';
@@ -54,6 +47,7 @@ import {
 import type {Externals_Aliases} from './externals_build_helpers.js';
 import {queue_externals_build} from './externals_builder.js';
 import type {Source_Meta} from './source_meta.js';
+import type {Build_Dependency} from './build_dependency.js';
 import {
 	delete_source_meta,
 	update_source_meta,

@@ -11,9 +11,10 @@ import type {Build_Config} from '../build/build_config.js';
 import type {Encoding} from '../fs/encoding.js';
 import type {Filer_File} from './Filer.js';
 import type {Source_Meta} from './source_meta.js';
+import type {Build_Dependency} from './build_dependency.js';
 import {EXTERNALS_BUILD_DIRNAME} from '../paths.js';
 import {is_external_browser_module} from '../utils/module.js';
-import type {Build_Context, Build_Dependency} from './builder.js';
+import type {Build_Context} from './builder.js';
 
 export type Source_File = Buildable_Source_File | Non_Buildable_Source_File;
 export type Buildable_Source_File = Buildable_Text_Source_File | Buildable_Binary_Source_File;
