@@ -1,8 +1,8 @@
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 
-import type {Build, Build_Context, Build_Dependency, Build_Result} from './builder.js';
+import type {Build, Build_Context, Build_Result} from './builder.js';
 import type {Base_Filer_File} from './base_filer_file.js';
-import type {Source_Meta} from './source_meta.js';
+import type {Build_Dependency, Source_Meta} from './source_meta.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {load_contents} from './load.js';
