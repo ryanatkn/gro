@@ -35,7 +35,7 @@ export interface Options {
 	// TODO currently these options are only available for 'bundled'
 	esm: boolean; // defaults to true
 	cjs: boolean; // defaults to true
-	pack: boolean; // treat the dist as a package to be published - defaults to true
+	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 }
 
 export interface Adapter_Args extends Build_Task_Args {}
