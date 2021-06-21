@@ -20,7 +20,7 @@ By convention, `gro gen` looks through `src/`
 for any TypeScript files with `.gen.` in the file name,
 and it outputs a file stripped of `.gen.` to the same directory.
 The `*.gen.*` origin files export a `gen` function
-that returns the contents of the output file.
+that returns the content of the output file.
 More flexibility is available when needed
 including multiple custom output files.
 
@@ -133,7 +133,7 @@ import {Gen} from '@feltcoop/gro';
 export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
 	return {
-		contents: `console.log('${message}')`,
+		content: `console.log('${message}')`,
 		filename: '../elsewhere/otherName.ts',
 	};
 };
@@ -157,17 +157,17 @@ export const gen: Gen = () => {
 	const fieldValue = 1;
 	return [
 		{
-			contents: `
+			content: `
 				import {Thing} from './index';
 				export const isThing = (t: any): t is Thing => t?.field === ${fieldValue};
 			`,
 		},
 		{
-			contents: `export interface Thing { field: ${typeof fieldValue} }`,
+			content: `export interface Thing { field: ${typeof fieldValue} }`,
 			filename: 'types.ts',
 		},
 		{
-			contents: `{"field": ${fieldValue}}`,
+			content: `{"field": ${fieldValue}}`,
 			filename: 'data/thing.json',
 		},
 	];

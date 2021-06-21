@@ -19,13 +19,13 @@ export const load_gen_module = (id: string): Promise<Load_Module_Result<Gen_Modu
 export type Check_Gen_Module_Result =
 	| {
 			file: Gen_File;
-			existing_contents: string;
+			existing_content: string;
 			is_new: false;
 			has_changed: boolean;
 	  }
 	| {
 			file: Gen_File;
-			existing_contents: null;
+			existing_content: null;
 			is_new: true;
 			has_changed: true;
 	  };
@@ -48,17 +48,17 @@ export const check_gen_module = async (
 	if (!(await fs.exists(file.id))) {
 		return {
 			file,
-			existing_contents: null,
+			existing_content: null,
 			is_new: true,
 			has_changed: true,
 		};
 	}
-	const existing_contents = await fs.read_file(file.id, 'utf8');
+	const existing_content = await fs.read_file(file.id, 'utf8');
 	return {
 		file,
-		existing_contents,
+		existing_content,
 		is_new: false,
-		has_changed: file.contents !== existing_contents,
+		has_changed: file.content !== existing_content,
 	};
 };
 

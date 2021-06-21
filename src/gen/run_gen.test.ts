@@ -15,10 +15,10 @@ const test_gen = suite('gen');
 test_gen('basic behavior', async () => {
 	const source_id_a = resolve('src/foo.gen.ts');
 	const source_id_b_c = resolve('src/bar/bc');
-	let file_a: undefined | {filename: string; contents: string};
-	let file_b: undefined | {filename: string; contents: string};
-	let file_c1: undefined | {filename: string; contents: string};
-	let file_c2: undefined | {filename: string; contents: string};
+	let file_a: undefined | {filename: string; content: string};
+	let file_b: undefined | {filename: string; content: string};
+	let file_c1: undefined | {filename: string; content: string};
+	let file_c2: undefined | {filename: string; content: string};
 	let mod_a: Gen_Module_Meta = {
 		id: source_id_a,
 		mod: {
@@ -27,9 +27,9 @@ test_gen('basic behavior', async () => {
 				if (file_a) throw Error('Already generated file_a');
 				file_a = {
 					filename: 'foo.ts',
-					contents: 'file_a',
+					content: 'file_a',
 				};
-				return file_a.contents; // here we return the shorthand version
+				return file_a.content; // here we return the shorthand version
 			},
 		},
 	};
@@ -41,7 +41,7 @@ test_gen('basic behavior', async () => {
 				if (file_b) throw Error('Already generated file_b');
 				file_b = {
 					filename: 'outputB.ts',
-					contents: 'file_b',
+					content: 'file_b',
 				};
 				return file_b;
 			},
@@ -56,19 +56,19 @@ test_gen('basic behavior', async () => {
 				if (file_c2) throw Error('Already generated file_c2');
 				file_c1 = {
 					filename: 'outputC1.ts',
-					contents: 'file_c1',
+					content: 'file_c1',
 				};
 				file_c2 = {
 					filename: 'outputC2.ts',
-					contents: 'file_c2',
+					content: 'file_c2',
 				};
 				return [file_c1, file_c2];
 			},
 		},
 	};
 	const gen_modules_by_input_path = [mod_a, mod_b, mod_c];
-	const gen_results = await run_gen(fs, gen_modules_by_input_path, log, async (_fs, id, contents) =>
-		id.endsWith('outputB.ts') ? `${contents}/*FORMATTED*/` : contents,
+	const gen_results = await run_gen(fs, gen_modules_by_input_path, log, async (_fs, id, content) =>
+		id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content,
 	);
 	t.is(gen_results.input_count, 3);
 	t.is(gen_results.output_count, 4);
@@ -84,7 +84,7 @@ test_gen('basic behavior', async () => {
 	t.ok(file_a);
 	t.equal(result_a.files, [
 		{
-			contents: file_a.contents,
+			content: file_a.content,
 			id: join(mod_a.id, '../', file_a.filename),
 			origin_id: mod_a.id,
 		},
@@ -95,7 +95,7 @@ test_gen('basic behavior', async () => {
 	t.ok(file_b);
 	t.equal(result_b.files, [
 		{
-			contents: `${file_b.contents}/*FORMATTED*/`,
+			content: `${file_b.content}/*FORMATTED*/`,
 			id: join(mod_b.id, '../', file_b.filename),
 			origin_id: mod_b.id,
 		},
@@ -106,12 +106,12 @@ test_gen('basic behavior', async () => {
 	t.ok(file_c2);
 	t.equal(result_c.files, [
 		{
-			contents: file_c1.contents,
+			content: file_c1.content,
 			id: join(mod_c.id, '../', file_c1.filename),
 			origin_id: mod_c.id,
 		},
 		{
-			contents: file_c2.contents,
+			content: file_c2.content,
 			id: join(mod_c.id, '../', file_c2.filename),
 			origin_id: mod_c.id,
 		},
@@ -121,7 +121,7 @@ test_gen('basic behavior', async () => {
 test_gen('failing gen function', async () => {
 	const source_id_a = resolve('src/foo.gen.ts');
 	const source_id_b = resolve('src/bar/baz');
-	let file_b: undefined | {filename: string; contents: string}; // no file_a because it's never generated
+	let file_b: undefined | {filename: string; content: string}; // no file_a because it's never generated
 	let gen_error; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
@@ -142,7 +142,7 @@ test_gen('failing gen function', async () => {
 				if (file_b) throw Error('Already generated file_b');
 				file_b = {
 					filename: 'outputB.ts',
-					contents: 'file_b',
+					content: 'file_b',
 				};
 				return file_b;
 			},
@@ -169,7 +169,7 @@ test_gen('failing gen function', async () => {
 	t.ok(file_b);
 	t.equal(result_b.files, [
 		{
-			contents: file_b.contents,
+			content: file_b.content,
 			id: join(mod_b.id, '../', file_b.filename),
 			origin_id: mod_b.id,
 		},

@@ -36,7 +36,7 @@ import type {Buildable_Source_File, Source_File} from './source_file.js';
 import {create_build_file, diff_dependencies} from './build_file.js';
 import type {Build_File} from './build_file.js';
 import type {Base_Filer_File} from './base_filer_file.js';
-import {load_contents} from './load.js';
+import {load_content} from './load.js';
 import {is_external_browser_module} from '../utils/module.js';
 import {
 	DEFAULT_EXTERNALS_ALIASES,
@@ -591,11 +591,11 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 				extension = extname(id);
 				encoding = infer_encoding(extension);
 			}
-			const new_source_contents = external
+			const new_source_content = external
 				? // TODO doesn't seem we can make this a key derived from the specifiers,
 				  // because they're potentially different each build
 				  ''
-				: await load_contents(this.fs, encoding, id);
+				: await load_content(this.fs, encoding, id);
 
 			if (source_file === undefined) {
 				// Memory cache is cold.
@@ -603,7 +603,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 					id,
 					encoding,
 					extension,
-					new_source_contents,
+					new_source_content,
 					filer_dir,
 					this.source_meta_by_id.get(id),
 					this,
@@ -614,23 +614,23 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 				if (new_source_file.buildable && new_source_file.build_files.size !== 0) {
 					return false;
 				}
-			} else if (are_contents_equal(encoding, source_file.contents, new_source_contents)) {
+			} else if (are_content_equal(encoding, source_file.content, new_source_content)) {
 				// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 				return false;
 			} else {
-				// Memory cache is warm, but contents have changed.
+				// Memory cache is warm, but content have changed.
 				switch (source_file.encoding) {
 					case 'utf8':
-						source_file.contents = new_source_contents as string;
+						source_file.content = new_source_content as string;
 						source_file.stats = undefined;
-						source_file.contents_buffer = undefined;
-						source_file.contents_hash = undefined;
+						source_file.content_buffer = undefined;
+						source_file.content_hash = undefined;
 						break;
 					case null:
-						source_file.contents = new_source_contents as Buffer;
+						source_file.content = new_source_content as Buffer;
 						source_file.stats = undefined;
-						source_file.contents_buffer = new_source_contents as Buffer;
-						source_file.contents_hash = undefined;
+						source_file.content_buffer = new_source_content as Buffer;
+						source_file.content_hash = undefined;
 						break;
 					default:
 						throw new Unreachable_Error(source_file);
@@ -693,8 +693,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			// Something changed during the build for this file, so recurse.
 			// This sequencing ensures that any awaiting callers always see the final version.
 			// TODO do we need to detect cycles? if we run into any, probably
-			// TODO this is wasteful - we could get the previous source file's contents by adding a var above,
-			// but `update_source_file` loads the contents from disk -
+			// TODO this is wasteful - we could get the previous source file's content by adding a var above,
+			// but `update_source_file` loads the content from disk -
 			// however I'd rather optimize this only after tests are in place.
 			const should_build = await this.update_source_file(id, source_file.filer_dir);
 			if (should_build) {
@@ -1016,17 +1016,17 @@ const sync_build_files_to_disk = async (
 					// log.trace(label, 'creating build file on disk', gray(file.id));
 					should_output_new_file = true;
 				} else {
-					const existing_contents = await load_contents(fs, file.encoding, file.id);
-					if (!are_contents_equal(file.encoding, file.contents, existing_contents)) {
+					const existing_content = await load_content(fs, file.encoding, file.id);
+					if (!are_content_equal(file.encoding, file.content, existing_content)) {
 						log.trace(label, 'updating stale build file on disk', gray(file.id));
 						should_output_new_file = true;
 					} // ...else the build file on disk already matches what's in memory.
 					// This can happen if the source file changed but this particular build file did not.
-					// Loading the usually-stale contents into memory to check before writing is inefficient,
+					// Loading the usually-stale content into memory to check before writing is inefficient,
 					// but it avoids unnecessary writing to disk and misleadingly updated file stats.
 				}
 			} else if (change.type === 'updated') {
-				if (!are_contents_equal(file.encoding, file.contents, change.old_file.contents)) {
+				if (!are_content_equal(file.encoding, file.content, change.old_file.content)) {
 					log.trace(label, 'updating build file on disk', gray(file.id));
 					should_output_new_file = true;
 				}
@@ -1037,7 +1037,7 @@ const sync_build_files_to_disk = async (
 				throw new Unreachable_Error(change);
 			}
 			if (should_output_new_file) {
-				await fs.write_file(file.id, file.contents);
+				await fs.write_file(file.id, file.content);
 			}
 		}),
 	);
@@ -1105,11 +1105,7 @@ const diff_build_files = (
 	return changes;
 };
 
-const are_contents_equal = (
-	encoding: Encoding,
-	a: string | Buffer,
-	b: string | Buffer,
-): boolean => {
+const are_content_equal = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
 		case 'utf8':
 			return a === b;
@@ -1136,7 +1132,7 @@ const validate_dirs = (source_dirs: string[]) => {
 	}
 };
 
-// Creates objects to load a directory's contents and sync filesystem changes in memory.
+// Creates objects to load a directory's content and sync filesystem changes in memory.
 // The order of objects in the returned array is meaningless.
 const create_filer_dirs = (
 	fs: Filesystem,

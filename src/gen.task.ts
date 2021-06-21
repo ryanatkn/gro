@@ -102,7 +102,7 @@ export const task: Task<Task_Args> = {
 								'generated from',
 								print_path(file.origin_id),
 							);
-							return fs.write_file(file.id, file.contents);
+							return fs.write_file(file.id, file.content);
 						}),
 					)
 					.flat(),

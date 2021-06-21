@@ -37,7 +37,7 @@ the build process has two discrete steps:
 2. [`Adapter`](../adapt/adapter.ts)s run and output, umm, anything?
    like SvelteKit apps, Node libraries, API servers, & more !
 
-> as we're thinking about them, `Adapter`s should not modify the contents of `.gro/prod/`;
+> as we're thinking about them, `Adapter`s should not modify the content of `.gro/prod/`;
 > adapters take these builds as inputs, and without changing them,
 > they output whatever you want, for as long as you want, as messily as you want;
 > just no messing with the source, that is forbidden —

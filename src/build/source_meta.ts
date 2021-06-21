@@ -2,7 +2,7 @@ import {gray} from '@feltcoop/felt/util/terminal.js';
 
 import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, to_build_out_dirname} from '../paths.js';
-import {get_file_contents_hash} from './base_filer_file.js';
+import {get_file_content_hash} from './base_filer_file.js';
 import type {Build_Context} from './builder.js';
 import type {Buildable_Source_File} from './source_file.js';
 import type {Build_Name} from '../build/build_config.js';
@@ -16,7 +16,7 @@ export interface Source_Meta {
 }
 export interface Source_Meta_Data {
 	readonly source_id: string;
-	readonly contents_hash: string;
+	readonly content_hash: string;
 	readonly builds: Source_Meta_Build[];
 }
 export interface Source_Meta_Build {
@@ -30,7 +30,7 @@ export interface Source_Meta_Build {
 // are not `readonly` in order to simplify object creation.
 export interface Serialized_Source_Meta_Data {
 	readonly source_id: string;
-	readonly contents_hash: string;
+	readonly content_hash: string;
 	readonly builds: Serialized_Source_Meta_Build[];
 }
 export interface Serialized_Source_Meta_Build {
@@ -59,7 +59,7 @@ export const update_source_meta = async (
 	const cache_id = to_source_meta_id(file, build_dir, dev);
 	const data: Source_Meta_Data = {
 		source_id: file.id,
-		contents_hash: get_file_contents_hash(file),
+		content_hash: get_file_content_hash(file),
 		builds: Array.from(file.build_files.values()).flatMap((files) =>
 			files.map(
 				(file): Source_Meta_Build => ({
@@ -156,11 +156,11 @@ export const clean_source_meta = async (ctx: Build_Context): Promise<void> => {
 // these are optimizations to write less data to disk
 export const deserialize_source_meta = ({
 	source_id,
-	contents_hash,
+	content_hash,
 	builds,
 }: Serialized_Source_Meta_Data): Source_Meta_Data => ({
 	source_id,
-	contents_hash,
+	content_hash,
 	builds: builds.map((b) => deserialize_source_meta_build(b)),
 });
 export const deserialize_source_meta_build = ({
@@ -177,11 +177,11 @@ export const deserialize_source_meta_build = ({
 
 export const serialize_source_meta = ({
 	source_id,
-	contents_hash,
+	content_hash,
 	builds,
 }: Source_Meta_Data): Serialized_Source_Meta_Data => ({
 	source_id: source_id,
-	contents_hash: contents_hash,
+	content_hash: content_hash,
 	builds: builds.map((b) => serialize_source_meta_build(b)),
 });
 export const serialize_source_meta_build = ({

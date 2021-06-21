@@ -27,25 +27,25 @@ export const postprocess = (
 	result: Build_Result<Build>,
 	source: Build_Source,
 ): {
-	contents: Build['contents'];
+	content: Build['content'];
 	dependencies_by_build_id: Map<string, Build_Dependency> | null;
 } => {
 	if (build.encoding === 'utf8') {
-		let {contents, build_config} = build;
+		let {content, build_config} = build;
 		const is_browser = build_config.platform === 'browser';
 		let dependencies_by_build_id: Map<string, Build_Dependency> | null = null;
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
 			const is_external_module = to_is_external_module(is_browser);
-			let transformed_contents = '';
+			let transformed_content = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
-			const [imports] = lexer.parse(contents);
+			const [imports] = lexer.parse(content);
 			for (const {s, e, d} of imports) {
 				const start = d > -1 ? s + 1 : s;
 				const end = d > -1 ? e - 1 : e;
-				const specifier = contents.substring(start, end);
+				const specifier = content.substring(start, end);
 				if (specifier === 'import.meta') continue;
 				let build_id: string;
 				let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
@@ -108,12 +108,12 @@ export const postprocess = (
 					});
 				}
 				if (mapped_specifier !== specifier) {
-					transformed_contents += contents.substring(index, start) + mapped_specifier;
+					transformed_content += content.substring(index, start) + mapped_specifier;
 					index = end;
 				}
 			}
 			if (index > 0) {
-				contents = transformed_contents + contents.substring(index);
+				content = transformed_content + content.substring(index);
 			}
 		}
 
@@ -129,31 +129,31 @@ export const postprocess = (
 					}
 				}
 				if (import_path !== undefined) {
-					contents = inject_svelte_css_import(contents, import_path);
+					content = inject_svelte_css_import(content, import_path);
 				}
 			}
 		}
-		return {contents, dependencies_by_build_id};
+		return {content, dependencies_by_build_id};
 	} else {
 		// Handle other encodings like binary.
-		return {contents: build.contents, dependencies_by_build_id: null};
+		return {content: build.content, dependencies_by_build_id: null};
 	}
 };
 
-const inject_svelte_css_import = (contents: string, import_path: string): string => {
-	let newline_index = contents.length;
-	for (let i = 0; i < contents.length; i++) {
-		if (contents[i] === '\n') {
+const inject_svelte_css_import = (content: string, import_path: string): string => {
+	let newline_index = content.length;
+	for (let i = 0; i < content.length; i++) {
+		if (content[i] === '\n') {
 			newline_index = i;
 			break;
 		}
 	}
 	const injected_css_loader_script = `;globalThis.gro.register_css('${import_path}');`; // account for barbaric semicolonness code
-	const new_contents = `${contents.substring(
+	const new_content = `${content.substring(
 		0,
 		newline_index,
-	)}${injected_css_loader_script}${contents.substring(newline_index)}`;
-	return new_contents;
+	)}${injected_css_loader_script}${content.substring(newline_index)}`;
+	return new_content;
 };
 
 // TODO tests as docs

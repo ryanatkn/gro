@@ -17,7 +17,7 @@ import type {
 	Text_Build_Source,
 	Text_Build,
 } from './builder.js';
-import {load_contents} from './load.js';
+import {load_content} from './load.js';
 import {gro_svelte_plugin} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './svelte_build_helpers.js';
 import {create_css_cache} from './css_cache.js';
@@ -127,7 +127,7 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 								dir: dirname(id),
 								extension: JS_EXTENSION,
 								encoding,
-								contents: await load_contents(fs, encoding, id),
+								content: await load_content(fs, encoding, id),
 								build_config,
 							};
 						},
@@ -241,7 +241,7 @@ const loadCommonBuilds = async (
 				dir: dirname(commonDependencyId),
 				extension: JS_EXTENSION,
 				encoding,
-				contents: await load_contents(fs, encoding, commonDependencyId),
+				content: await load_content(fs, encoding, commonDependencyId),
 				build_config,
 			}),
 		),

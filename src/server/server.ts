@@ -19,9 +19,9 @@ import {to_env_number, to_env_string} from '@feltcoop/felt/util/env.js';
 import type {Filer} from '../build/Filer.js';
 import {
 	get_file_mime_type,
-	get_file_contents_buffer,
+	get_file_content_buffer,
 	get_file_stats,
-	get_file_contents_hash,
+	get_file_content_hash,
 } from '../build/base_filer_file.js';
 import type {Base_Filer_File} from '../build/base_filer_file.js';
 import {paths} from '../paths.js';
@@ -224,7 +224,7 @@ const toResponse = async (
 	return {
 		status: 200,
 		headers: await to_200_headers(filer.fs, file),
-		data: get_file_contents_buffer(file),
+		data: get_file_content_buffer(file),
 	};
 };
 
@@ -238,7 +238,7 @@ const to_local_path = (url: string): string => {
 	return relative_path;
 };
 
-const to_etag = (file: Base_Filer_File): string => `"${get_file_contents_hash(file)}"`;
+const to_etag = (file: Base_Filer_File): string => `"${get_file_content_hash(file)}"`;
 
 const to_200_headers = async (
 	fs: Filesystem,
@@ -263,7 +263,7 @@ const to_200_headers = async (
 		// 'Cache-Control': 'must-revalidate',
 
 		// TODO probably support various types of resource caching,
-		// especially if we output files with contents hashes.
+		// especially if we output files with content hashes.
 		// 'Cache-Control': 'immutable',
 		// 'Cache-Control': 'max-age=31536000',
 	};

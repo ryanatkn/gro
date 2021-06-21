@@ -18,7 +18,7 @@ export type Gen_Result = {
 };
 export interface Gen_File {
 	id: string;
-	contents: string;
+	content: string;
 	origin_id: string;
 }
 
@@ -33,7 +33,7 @@ export interface Gen_Context {
 // TODO consider other return data - metadata? effects? non-file build artifacts?
 export type Raw_Gen_Result = string | Raw_Gen_File | Raw_Gen_File[];
 export interface Raw_Gen_File {
-	contents: string;
+	content: string;
 	// Defaults to file name without the `.gen`, and can be a relative path.
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
 	filename?: string;
@@ -74,7 +74,7 @@ export const to_gen_result = (origin_id: string, raw_result: Raw_Gen_Result): Ge
 
 const to_gen_files = (origin_id: string, raw_result: Raw_Gen_Result): Gen_File[] => {
 	if (typeof raw_result === 'string') {
-		return [to_gen_file(origin_id, {contents: raw_result})];
+		return [to_gen_file(origin_id, {content: raw_result})];
 	} else if (Array.isArray(raw_result)) {
 		const files = raw_result.map((f) => to_gen_file(origin_id, f));
 		validate_gen_files(files);
@@ -85,9 +85,9 @@ const to_gen_files = (origin_id: string, raw_result: Raw_Gen_Result): Gen_File[]
 };
 
 const to_gen_file = (origin_id: string, rawGen_File: Raw_Gen_File): Gen_File => {
-	const {contents, filename} = rawGen_File;
+	const {content, filename} = rawGen_File;
 	const id = to_output_file_id(origin_id, filename);
-	return {id, contents, origin_id};
+	return {id, content, origin_id};
 };
 
 const to_output_file_id = (origin_id: string, raw_file_name: string | undefined): string => {

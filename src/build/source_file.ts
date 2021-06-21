@@ -23,12 +23,12 @@ export type Non_Buildable_Source_File =
 	| Non_Buildable_Binary_Source_File;
 export interface Text_Source_File extends BaseSource_File {
 	readonly encoding: 'utf8';
-	contents: string;
+	content: string;
 }
 export interface Binary_Source_File extends BaseSource_File {
 	readonly encoding: null;
-	contents: Buffer;
-	contents_buffer: Buffer;
+	content: Buffer;
+	content_buffer: Buffer;
 }
 export interface BaseSource_File extends Base_Filer_File {
 	readonly type: 'source';
@@ -69,27 +69,27 @@ export const create_source_file = async (
 	id: string,
 	encoding: Encoding,
 	extension: string,
-	contents: string | Buffer,
+	content: string | Buffer,
 	filer_dir: Filer_Dir,
 	source_meta: Source_Meta | undefined,
 	{fs, build_configs}: Build_Context,
 ): Promise<Source_File> => {
-	let contents_buffer: Buffer | undefined = encoding === null ? (contents as Buffer) : undefined;
-	let contents_hash: string | undefined = undefined;
+	let content_buffer: Buffer | undefined = encoding === null ? (content as Buffer) : undefined;
+	let content_hash: string | undefined = undefined;
 	let reconstructed_build_files: Map<Build_Config, Build_File[]> | null = null;
 	let dirty = false;
 	if (filer_dir.buildable && source_meta !== undefined) {
-		// TODO why the source meta guard here for `contents_buffer` and `contents_hash`?
+		// TODO why the source meta guard here for `content_buffer` and `content_hash`?
 		if (encoding === 'utf8') {
-			contents_buffer = Buffer.from(contents);
+			content_buffer = Buffer.from(content);
 		} else if (encoding !== null) {
 			throw new Unreachable_Error(encoding);
 		}
-		contents_hash = to_hash(contents_buffer!);
+		content_hash = to_hash(content_buffer!);
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty = contents_hash !== source_meta.data.contents_hash;
+		dirty = content_hash !== source_meta.data.content_hash;
 		reconstructed_build_files = await reconstruct_build_files(fs, source_meta, build_configs!);
 	}
 	if (is_external_browser_module(id)) {
@@ -117,9 +117,9 @@ export const create_source_file = async (
 			dir_base_path,
 			extension,
 			encoding,
-			contents: contents as string,
-			contents_buffer,
-			contents_hash,
+			content: content as string,
+			content_buffer,
+			content_hash,
 			filer_dir,
 			build_files: reconstructed_build_files || new Map(),
 			stats: undefined,
@@ -146,9 +146,9 @@ export const create_source_file = async (
 						dir_base_path,
 						extension,
 						encoding,
-						contents: contents as string,
-						contents_buffer,
-						contents_hash,
+						content: content as string,
+						content_buffer,
+						content_hash,
 						filer_dir,
 						build_files: reconstructed_build_files || new Map(),
 						stats: undefined,
@@ -168,9 +168,9 @@ export const create_source_file = async (
 						dir_base_path,
 						extension,
 						encoding,
-						contents: contents as string,
-						contents_buffer,
-						contents_hash,
+						content: content as string,
+						content_buffer,
+						content_hash,
 						filer_dir,
 						build_files: null,
 						stats: undefined,
@@ -192,9 +192,9 @@ export const create_source_file = async (
 						dir_base_path,
 						extension,
 						encoding,
-						contents: contents as Buffer,
-						contents_buffer: contents_buffer as Buffer,
-						contents_hash,
+						content: content as Buffer,
+						content_buffer: content_buffer as Buffer,
+						content_hash,
 						filer_dir,
 						build_files: reconstructed_build_files || new Map(),
 						stats: undefined,
@@ -214,9 +214,9 @@ export const create_source_file = async (
 						dir_base_path,
 						extension,
 						encoding,
-						contents: contents as Buffer,
-						contents_buffer: contents_buffer as Buffer,
-						contents_hash,
+						content: content as Buffer,
+						content_buffer: content_buffer as Buffer,
+						content_hash,
 						filer_dir,
 						build_files: null,
 						stats: undefined,

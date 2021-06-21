@@ -84,7 +84,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
-		const {id, encoding, contents} = source;
+		const {id, encoding, content} = source;
 		const out_dir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 		let preprocessed_code: string;
 
@@ -92,11 +92,11 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		// let dependencies = [];
 		const preprocessor = get_preprocessor(target, dev, sourcemap);
 		if (preprocessor !== null) {
-			const preprocessed = await svelte.preprocess(contents, preprocessor, {filename: id});
+			const preprocessed = await svelte.preprocess(content, preprocessor, {filename: id});
 			preprocessed_code = preprocessed.code;
 			// dependencies = preprocessed.dependencies; // TODO
 		} else {
-			preprocessed_code = contents;
+			preprocessed_code = content;
 		}
 
 		const output: Svelte_Compilation = svelte.compile(preprocessed_code, {
@@ -127,7 +127,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				dir: out_dir,
 				extension: JS_EXTENSION,
 				encoding,
-				contents: has_js_sourcemap
+				content: has_js_sourcemap
 					? add_js_sourcemap_footer(js.code, js_filename + SOURCEMAP_EXTENSION)
 					: js.code,
 				build_config,
@@ -140,7 +140,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				dir: out_dir,
 				extension: SOURCEMAP_EXTENSION,
 				encoding,
-				contents: JSON.stringify(js.map), // TODO do we want to also store the object version?
+				content: JSON.stringify(js.map), // TODO do we want to also store the object version?
 				build_config,
 			});
 		}
@@ -151,7 +151,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				dir: out_dir,
 				extension: CSS_EXTENSION,
 				encoding,
-				contents: has_css_sourcemap
+				content: has_css_sourcemap
 					? add_css_sourcemap_footer(css.code, css_filename + SOURCEMAP_EXTENSION)
 					: css.code,
 				build_config,
@@ -163,7 +163,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 					dir: out_dir,
 					extension: SOURCEMAP_EXTENSION,
 					encoding,
-					contents: JSON.stringify(css.map), // TODO do we want to also store the object version?
+					content: JSON.stringify(css.map), // TODO do we want to also store the object version?
 					build_config,
 				});
 			}

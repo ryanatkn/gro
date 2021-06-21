@@ -19,7 +19,7 @@ export const run_gen = async (
 	fs: Filesystem,
 	gen_modules: Gen_Module_Meta[],
 	log: Logger,
-	format_file?: (fs: Filesystem, id: string, contents: string) => Promise<string>,
+	format_file?: (fs: Filesystem, id: string, content: string) => Promise<string>,
 ): Promise<Gen_Results> => {
 	let input_count = 0;
 	let output_count = 0;
@@ -54,17 +54,17 @@ export const run_gen = async (
 				if (format_file) {
 					files = [];
 					for (const file of gen_result.files) {
-						let contents: string;
+						let content: string;
 						try {
-							contents = await format_file(fs, file.id, file.contents);
+							content = await format_file(fs, file.id, file.content);
 						} catch (err) {
-							contents = file.contents;
+							content = file.content;
 							log?.error(
 								red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
 								print_error(err),
 							);
 						}
-						files.push({...file, contents});
+						files.push({...file, content});
 					}
 				} else {
 					files = gen_result.files;

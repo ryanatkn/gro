@@ -77,7 +77,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 			...getEsbuildOptions(target, dev, sourcemap),
 			sourcefile: source.id,
 		};
-		const output = await esbuild.transform(source.contents, esbuildOptions);
+		const output = await esbuild.transform(source.content, esbuildOptions);
 		const jsFilename = replace_extension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
 		const builds: Text_Build[] = [
@@ -87,7 +87,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 				dir: outDir,
 				extension: JS_EXTENSION,
 				encoding: source.encoding,
-				contents: output.map
+				content: output.map
 					? add_js_sourcemap_footer(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
 				build_config,
@@ -100,7 +100,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 				dir: outDir,
 				extension: SOURCEMAP_EXTENSION,
 				encoding: source.encoding,
-				contents: output.map,
+				content: output.map,
 				build_config,
 			});
 		}
@@ -112,7 +112,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 				dir: outDir,
 				extension: TS_TYPE_EXTENSION,
 				encoding: source.encoding,
-				contents: types,
+				content: types,
 				build_config,
 			});
 			if (typemap !== undefined) {
@@ -122,7 +122,7 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 					dir: outDir,
 					extension: TS_TYPEMAP_EXTENSION,
 					encoding: source.encoding,
-					contents: typemap,
+					content: typemap,
 					build_config,
 				});
 			}

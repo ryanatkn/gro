@@ -6,7 +6,7 @@ import type {Source_Meta} from './source_meta.js';
 import type {Build_Dependency} from './build_dependency.js';
 import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
-import {load_contents} from './load.js';
+import {load_content} from './load.js';
 import type {Buildable_Source_File} from './source_file.js';
 import type {Build_Config} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -14,12 +14,12 @@ import type {Filesystem} from '../fs/filesystem.js';
 export type Build_File = Text_Build_File | Binary_Build_File;
 export interface Text_Build_File extends Base_Build_File {
 	readonly encoding: 'utf8';
-	readonly contents: string;
+	readonly content: string;
 }
 export interface Binary_Build_File extends Base_Build_File {
 	readonly encoding: null;
-	readonly contents: Buffer;
-	readonly contents_buffer: Buffer;
+	readonly content: Buffer;
+	readonly content_buffer: Buffer;
 }
 export interface Base_Build_File extends Base_Filer_File {
 	readonly type: 'build';
@@ -39,7 +39,7 @@ export const create_build_file = (
 	source_file: Buildable_Source_File,
 	build_config: Build_Config,
 ): Build_File => {
-	const {contents, dependencies_by_build_id} = postprocess(build, ctx, result, source_file);
+	const {content, dependencies_by_build_id} = postprocess(build, ctx, result, source_file);
 	switch (build.encoding) {
 		case 'utf8':
 			return {
@@ -52,9 +52,9 @@ export const create_build_file = (
 				dir: build.dir,
 				extension: build.extension,
 				encoding: build.encoding,
-				contents: contents as string,
-				contents_buffer: undefined,
-				contents_hash: undefined,
+				content: content as string,
+				content_buffer: undefined,
+				content_hash: undefined,
 				stats: undefined,
 				mime_type: undefined,
 			};
@@ -69,9 +69,9 @@ export const create_build_file = (
 				dir: build.dir,
 				extension: build.extension,
 				encoding: build.encoding,
-				contents: contents as Buffer,
-				contents_buffer: build.contents,
-				contents_hash: undefined,
+				content: content as Buffer,
+				content_buffer: build.content,
+				content_hash: undefined,
 				stats: undefined,
 				mime_type: undefined,
 			};
@@ -93,7 +93,7 @@ export const reconstruct_build_files = async (
 				const filename = basename(id);
 				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 				const extension = extname(id);
-				const contents = await load_contents(fs, encoding, id);
+				const content = await load_content(fs, encoding, id);
 				const build_config = build_configs.find((b) => b.name === build_name)!; // is a bit awkward, but probably not inefficient enough to change
 				if (!build_config) {
 					// TODO wait no this build needs to be preserved somehow,
@@ -119,9 +119,9 @@ export const reconstruct_build_files = async (
 							dir,
 							extension,
 							encoding,
-							contents: contents as string,
-							contents_buffer: undefined,
-							contents_hash: undefined,
+							content: content as string,
+							content_buffer: undefined,
+							content_hash: undefined,
 							stats: undefined,
 							mime_type: undefined,
 						};
@@ -138,9 +138,9 @@ export const reconstruct_build_files = async (
 							dir,
 							extension,
 							encoding,
-							contents: contents as Buffer,
-							contents_buffer: contents as Buffer,
-							contents_hash: undefined,
+							content: content as Buffer,
+							content_buffer: content as Buffer,
+							content_hash: undefined,
 							stats: undefined,
 							mime_type: undefined,
 						};

@@ -12,38 +12,38 @@ const test_to_gen_result = suite('to_gen_result');
 test_to_gen_result('plain string', () => {
 	t.equal(to_gen_result(origin_id, '/**/'), {
 		origin_id,
-		files: [{id: resolve('src/foo.ts'), contents: '/**/', origin_id}],
+		files: [{id: resolve('src/foo.ts'), content: '/**/', origin_id}],
 	});
 });
 
-test_to_gen_result('object with a contents string', () => {
-	t.equal(to_gen_result(origin_id, {contents: '/**/'}), {
+test_to_gen_result('object with a content string', () => {
+	t.equal(to_gen_result(origin_id, {content: '/**/'}), {
 		origin_id,
-		files: [{id: resolve('src/foo.ts'), contents: '/**/', origin_id}],
+		files: [{id: resolve('src/foo.ts'), content: '/**/', origin_id}],
 	});
 });
 
 test_to_gen_result('fail with an unresolved id', () => {
-	t.throws(() => to_gen_result('src/foo.ts', {contents: '/**/'}));
+	t.throws(() => to_gen_result('src/foo.ts', {content: '/**/'}));
 });
 
 test_to_gen_result('fail with a build id', () => {
-	t.throws(() => to_gen_result(resolve('.gro/foo.js'), {contents: '/**/'}));
+	t.throws(() => to_gen_result(resolve('.gro/foo.js'), {content: '/**/'}));
 });
 
 test_to_gen_result('fail with an empty id', () => {
-	t.throws(() => to_gen_result('', {contents: '/**/'}));
+	t.throws(() => to_gen_result('', {content: '/**/'}));
 });
 
 test_to_gen_result('custom file name', () => {
 	t.equal(
 		to_gen_result(origin_id, {
 			filename: 'fooz.ts',
-			contents: '/**/',
+			content: '/**/',
 		}),
 		{
 			origin_id,
-			files: [{id: resolve('src/fooz.ts'), contents: '/**/', origin_id}],
+			files: [{id: resolve('src/fooz.ts'), content: '/**/', origin_id}],
 		},
 	);
 });
@@ -52,11 +52,11 @@ test_to_gen_result('custom file name that matches the default file name', () => 
 	t.equal(
 		to_gen_result(origin_id, {
 			filename: 'foo.ts',
-			contents: '/**/',
+			content: '/**/',
 		}),
 		{
 			origin_id,
-			files: [{id: resolve('src/foo.ts'), contents: '/**/', origin_id}],
+			files: [{id: resolve('src/foo.ts'), content: '/**/', origin_id}],
 		},
 	);
 });
@@ -65,28 +65,28 @@ test_to_gen_result('fail when custom file name explicitly matches the origin', (
 	t.throws(() => {
 		to_gen_result(origin_id, {
 			filename: 'foo.gen.ts',
-			contents: '/**/',
+			content: '/**/',
 		});
 	});
 });
 
 test_to_gen_result('fail when file name implicitly matches the origin', () => {
 	t.throws(() => {
-		to_gen_result(resolve('src/foo.ts'), {contents: '/**/'});
+		to_gen_result(resolve('src/foo.ts'), {content: '/**/'});
 	});
 });
 
 test_to_gen_result('fail with an empty file name', () => {
-	t.throws(() => to_gen_result(origin_id, {filename: '', contents: '/**/'}));
+	t.throws(() => to_gen_result(origin_id, {filename: '', content: '/**/'}));
 });
 
 test_to_gen_result('additional file name parts', () => {
-	t.equal(to_gen_result(resolve('src/foo.bar.gen.ts'), {contents: '/**/'}), {
+	t.equal(to_gen_result(resolve('src/foo.bar.gen.ts'), {content: '/**/'}), {
 		origin_id: resolve('src/foo.bar.gen.ts'),
 		files: [
 			{
 				id: resolve('src/foo.bar.ts'),
-				contents: '/**/',
+				content: '/**/',
 				origin_id: resolve('src/foo.bar.gen.ts'),
 			},
 		],
@@ -97,11 +97,11 @@ test_to_gen_result('js', () => {
 	t.equal(
 		to_gen_result(origin_id, {
 			filename: 'foo.js',
-			contents: '/**/',
+			content: '/**/',
 		}),
 		{
 			origin_id,
-			files: [{id: resolve('src/foo.js'), contents: '/**/', origin_id}],
+			files: [{id: resolve('src/foo.js'), content: '/**/', origin_id}],
 		},
 	);
 });
@@ -112,7 +112,7 @@ test_to_gen_result('implicit custom file extension', () => {
 		files: [
 			{
 				id: resolve('src/foo.json'),
-				contents: '[/**/]',
+				content: '[/**/]',
 				origin_id: resolve('src/foo.gen.json.ts'),
 			},
 		],
@@ -125,7 +125,7 @@ test_to_gen_result('implicit empty file extension', () => {
 		files: [
 			{
 				id: resolve('src/foo'),
-				contents: '[/**/]',
+				content: '[/**/]',
 				origin_id: resolve('src/foo.gen..ts'),
 			},
 		],
@@ -133,12 +133,12 @@ test_to_gen_result('implicit empty file extension', () => {
 });
 
 test_to_gen_result('implicit custom file extension with additional file name parts', () => {
-	t.equal(to_gen_result(resolve('src/foo.bar.gen.json.ts'), {contents: '[/**/]'}), {
+	t.equal(to_gen_result(resolve('src/foo.bar.gen.json.ts'), {content: '[/**/]'}), {
 		origin_id: resolve('src/foo.bar.gen.json.ts'),
 		files: [
 			{
 				id: resolve('src/foo.bar.json'),
-				contents: '[/**/]',
+				content: '[/**/]',
 				origin_id: resolve('src/foo.bar.gen.json.ts'),
 			},
 		],
@@ -151,7 +151,7 @@ test_to_gen_result('implicit custom file extension with many dots in between', (
 		files: [
 			{
 				id: resolve('src/foo...ts'),
-				contents: '[/**/]',
+				content: '[/**/]',
 				origin_id: resolve('src/foo...gen.ts'),
 			},
 		],
@@ -199,11 +199,11 @@ test_to_gen_result('explicit custom file extension', () => {
 	t.equal(
 		to_gen_result(origin_id, {
 			filename: 'foo.json',
-			contents: '[/**/]',
+			content: '[/**/]',
 		}),
 		{
 			origin_id,
-			files: [{id: resolve('src/foo.json'), contents: '[/**/]', origin_id}],
+			files: [{id: resolve('src/foo.json'), content: '[/**/]', origin_id}],
 		},
 	);
 });
@@ -212,11 +212,11 @@ test_to_gen_result('explicit custom empty file extension', () => {
 	t.equal(
 		to_gen_result(origin_id, {
 			filename: 'foo',
-			contents: '[/**/]',
+			content: '[/**/]',
 		}),
 		{
 			origin_id,
-			files: [{id: resolve('src/foo'), contents: '[/**/]', origin_id}],
+			files: [{id: resolve('src/foo'), content: '[/**/]', origin_id}],
 		},
 	);
 });
@@ -225,45 +225,42 @@ test_to_gen_result('explicit custom file extension ending with a dot', () => {
 	t.equal(
 		to_gen_result(origin_id, {
 			filename: 'foo.',
-			contents: '[/**/]',
+			content: '[/**/]',
 		}),
 		{
 			origin_id,
-			files: [{id: resolve('src/foo.'), contents: '[/**/]', origin_id}],
+			files: [{id: resolve('src/foo.'), content: '[/**/]', origin_id}],
 		},
 	);
 });
 
 test_to_gen_result('simple array of raw files', () => {
-	t.equal(
-		to_gen_result(origin_id, [{contents: '/*1*/'}, {filename: 'foo2.ts', contents: '/*2*/'}]),
-		{
-			origin_id,
-			files: [
-				{id: resolve('src/foo.ts'), contents: '/*1*/', origin_id},
-				{id: resolve('src/foo2.ts'), contents: '/*2*/', origin_id},
-			],
-		},
-	);
+	t.equal(to_gen_result(origin_id, [{content: '/*1*/'}, {filename: 'foo2.ts', content: '/*2*/'}]), {
+		origin_id,
+		files: [
+			{id: resolve('src/foo.ts'), content: '/*1*/', origin_id},
+			{id: resolve('src/foo2.ts'), content: '/*2*/', origin_id},
+		],
+	});
 });
 
 test_to_gen_result('complex array of raw files', () => {
 	t.equal(
 		to_gen_result(origin_id, [
-			{contents: '/*1*/'},
-			{filename: 'foo2.ts', contents: '/*2*/'},
-			{filename: 'foo3.ts', contents: '/*3*/'},
-			{filename: 'foo4.ts', contents: '/*4*/'},
-			{filename: 'foo5.json', contents: '[/*5*/]'},
+			{content: '/*1*/'},
+			{filename: 'foo2.ts', content: '/*2*/'},
+			{filename: 'foo3.ts', content: '/*3*/'},
+			{filename: 'foo4.ts', content: '/*4*/'},
+			{filename: 'foo5.json', content: '[/*5*/]'},
 		]),
 		{
 			origin_id,
 			files: [
-				{id: resolve('src/foo.ts'), contents: '/*1*/', origin_id},
-				{id: resolve('src/foo2.ts'), contents: '/*2*/', origin_id},
-				{id: resolve('src/foo3.ts'), contents: '/*3*/', origin_id},
-				{id: resolve('src/foo4.ts'), contents: '/*4*/', origin_id},
-				{id: resolve('src/foo5.json'), contents: '[/*5*/]', origin_id},
+				{id: resolve('src/foo.ts'), content: '/*1*/', origin_id},
+				{id: resolve('src/foo2.ts'), content: '/*2*/', origin_id},
+				{id: resolve('src/foo3.ts'), content: '/*3*/', origin_id},
+				{id: resolve('src/foo4.ts'), content: '/*4*/', origin_id},
+				{id: resolve('src/foo5.json'), content: '[/*5*/]', origin_id},
 			],
 		},
 	);
@@ -271,22 +268,22 @@ test_to_gen_result('complex array of raw files', () => {
 
 test_to_gen_result('fail with duplicate names because of omissions', () => {
 	t.throws(() => {
-		to_gen_result(origin_id, [{contents: '/*1*/'}, {contents: '/*2*/'}]);
+		to_gen_result(origin_id, [{content: '/*1*/'}, {content: '/*2*/'}]);
 	});
 });
 
 test_to_gen_result('fail with duplicate explicit names', () => {
 	t.throws(() => {
 		to_gen_result(origin_id, [
-			{filename: 'foo.ts', contents: '/*1*/'},
-			{filename: 'foo.ts', contents: '/*2*/'},
+			{filename: 'foo.ts', content: '/*1*/'},
+			{filename: 'foo.ts', content: '/*2*/'},
 		]);
 	});
 });
 
 test_to_gen_result('fail with duplicate explicit and implicit names', () => {
 	t.throws(() => {
-		to_gen_result(origin_id, [{contents: '/*1*/'}, {filename: 'foo.ts', contents: '/*2*/'}]);
+		to_gen_result(origin_id, [{content: '/*1*/'}, {filename: 'foo.ts', content: '/*2*/'}]);
 	});
 });
 
