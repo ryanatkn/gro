@@ -20,7 +20,7 @@ When the CLI is invoked it passes the first CLI arg as "task_name" to `invoke_ta
 const main = async () => {
 	const argv: Args = mri(process.argv.slice(2));
 
-	// install sourcemaps
+	// install sourcemaps for Gro development
 	if (process.env.NODE_ENV !== 'production') {
 		const sourcemap_support = await import('source-map-support');
 		sourcemap_support.install({
