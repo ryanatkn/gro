@@ -10,7 +10,7 @@ const test_serialize_source_meta = suite('serialize_source_meta');
 test_serialize_source_meta('serializes and deserializes source meta without changes', () => {
 	const data: Source_Meta_Data = {
 		source_id: 'a',
-		contents_hash: 'b',
+		content_hash: 'b',
 		builds: [
 			{
 				id: 'a',
@@ -34,7 +34,7 @@ test_serialize_source_meta('serializes and deserializes source meta without chan
 test_serialize_source_meta('optimizes when serializing', () => {
 	const data: Source_Meta_Data = {
 		source_id: 'a',
-		contents_hash: 'b',
+		content_hash: 'b',
 		builds: [
 			{
 				id: 'a',
@@ -59,7 +59,7 @@ test_serialize_source_meta('optimizes when serializing', () => {
 	};
 	const serialized_data: Serialized_Source_Meta_Data = {
 		source_id: 'a',
-		contents_hash: 'b',
+		content_hash: 'b',
 		builds: [
 			{id: 'a', build_name: 'b'},
 			{id: 'a', build_name: 'b', dependencies: [{specifier: 'a'}]},

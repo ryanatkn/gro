@@ -143,7 +143,7 @@ export interface Adapt_Builds<T_Args = any, T_Events = any> {
 ### `serve`
 
 [Gro's internal config](/src/gro.config.ts) uses the `serve` property
-to serve the contents of both `src/` and `src/client/` off of the root directory.
+to serve the content of both `src/` and `src/client/` off of the root directory.
 
 ```ts
 serve: [to_build_out_path(true, 'browser', 'client'), to_build_out_path(true, 'browser', '')],

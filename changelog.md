@@ -19,6 +19,8 @@
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: rename the `Task` `summary` property from `description`
   ([#212](https://github.com/feltcoop/gro/pull/212))
+- **break**: rename `content` from `contents`
+  ([#216](https://github.com/feltcoop/gro/pull/216))
 - add `no-watch` arg to `gro dev`
   ([#211](https://github.com/feltcoop/gro/pull/211))
 - rename some args in `gro dev` and `gro serve`

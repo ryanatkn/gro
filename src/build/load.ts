@@ -1,7 +1,7 @@
 import type {Encoding} from '../fs/encoding.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export const load_contents = <T extends Encoding>(
+export const load_content = <T extends Encoding>(
 	fs: Filesystem,
 	encoding: T,
 	id: string,

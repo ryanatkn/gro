@@ -61,8 +61,8 @@ export class Memory_Fs implements Filesystem {
 				id: pathPart,
 				is_directory,
 				encoding: null,
-				contents: null,
-				// contents_buffer: null,
+				content: null,
+				// content_buffer: null,
 				stats,
 				// path_data: to_path_data(pathPart, stats),
 			});
@@ -99,7 +99,7 @@ export class Memory_Fs implements Filesystem {
 		if (file.encoding !== encoding) {
 			console.error('unexpected encoding mismatch', encoding, file);
 		}
-		return file.contents || '';
+		return file.content || '';
 	};
 	write_file = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
 		const id = to_fs_id(path);
@@ -107,7 +107,7 @@ export class Memory_Fs implements Filesystem {
 		// does the file already exist? update if so
 		const file = this._find(id);
 		if (file) {
-			(file as Assignable<Fs_Node, 'contents'>).contents = data;
+			(file as Assignable<Fs_Node, 'content'>).content = data;
 			return;
 		}
 
@@ -117,8 +117,8 @@ export class Memory_Fs implements Filesystem {
 			id,
 			is_directory: false,
 			encoding,
-			contents: data,
-			// contents_buffer: data, // TODO lazily load this?
+			content: data,
+			// content_buffer: data, // TODO lazily load this?
 			stats,
 			// path_data: to_path_data(id, stats),
 		});
@@ -168,7 +168,7 @@ export class Memory_Fs implements Filesystem {
 				output = true;
 			}
 			if (output) {
-				await this.write_file(node_dest_id, src_node.contents, src_node.encoding);
+				await this.write_file(node_dest_id, src_node.content, src_node.encoding);
 			}
 		}
 	};
@@ -181,8 +181,8 @@ export class Memory_Fs implements Filesystem {
 			id,
 			is_directory,
 			encoding: null,
-			contents: null,
-			// contents_buffer: null,
+			content: null,
+			// content_buffer: null,
 			stats,
 			// path_data: to_path_data(id, stats),
 		});

@@ -105,26 +105,26 @@ export interface Base_Node {
 	readonly id: Fs_Id;
 	readonly is_directory: boolean;
 	readonly encoding: Encoding;
-	readonly contents: string | Buffer | null;
-	// readonly contents_buffer: Buffer | null;
+	readonly content: string | Buffer | null;
+	// readonly content_buffer: Buffer | null;
 	readonly stats: Path_Stats;
 	// readonly path_data: Path_Data; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
 export interface BaseFileNode extends Base_Node {
 	readonly is_directory: false;
-	readonly contents: string | Buffer;
+	readonly content: string | Buffer;
 }
 export interface Text_File_Node extends BaseFileNode {
 	readonly encoding: 'utf8';
-	readonly contents: string;
+	readonly content: string;
 }
 export interface Binary_File_Node extends BaseFileNode {
 	readonly encoding: null;
-	readonly contents: Buffer;
-	// readonly contents_buffer: Buffer;
+	readonly content: Buffer;
+	// readonly content_buffer: Buffer;
 }
 export interface Directory_Node extends Base_Node {
 	readonly is_directory: true;
-	readonly contents: null;
-	// readonly contents_buffer: null;
+	readonly content: null;
+	// readonly content_buffer: null;
 }

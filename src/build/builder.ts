@@ -58,11 +58,11 @@ export interface Builder_State {
 export type Build = Text_Build | Binary_Build;
 export interface Text_Build extends BaseBuild {
 	encoding: 'utf8';
-	contents: string;
+	content: string;
 }
 export interface Binary_Build extends BaseBuild {
 	encoding: null;
-	contents: Buffer;
+	content: Buffer;
 }
 interface BaseBuild {
 	id: string;
@@ -75,11 +75,11 @@ interface BaseBuild {
 export type Build_Source = Text_Build_Source | Binary_Build_Source;
 export interface Text_Build_Source extends Base_Build_Source {
 	encoding: 'utf8';
-	contents: string;
+	content: string;
 }
 export interface Binary_Build_Source extends Base_Build_Source {
 	encoding: null;
-	contents: Buffer;
+	content: Buffer;
 }
 interface Base_Build_Source {
 	buildable: true;
@@ -105,7 +105,7 @@ export const noop_builder: Builder = {
 					dir: outDir,
 					extension,
 					encoding: source.encoding,
-					contents: source.contents,
+					content: source.content,
 					build_config,
 				};
 				break;
@@ -116,7 +116,7 @@ export const noop_builder: Builder = {
 					dir: outDir,
 					extension,
 					encoding: source.encoding,
-					contents: source.contents,
+					content: source.content,
 					build_config,
 				};
 				break;
