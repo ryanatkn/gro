@@ -27,6 +27,8 @@
   ([#214](https://github.com/feltcoop/gro/pull/214))
 - add `typemap` option to Gro config
   ([#215](https://github.com/feltcoop/gro/pull/215))
+- add `types` option to Gro config
+  ([#215](https://github.com/feltcoop/gro/pull/215))
 
 ## 0.26.2
 
