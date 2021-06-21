@@ -201,8 +201,8 @@ export const to_config = async (
 
 const to_bootstrap_config = (): Gro_Config => {
 	return {
-		sourcemap: false, // TODO or always true?
-		typemap: false, // TODO or always true?
+		sourcemap: false,
+		typemap: false,
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,

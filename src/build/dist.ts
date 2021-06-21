@@ -14,6 +14,8 @@ import {
 	print_path,
 	SOURCE_DIRNAME,
 	paths,
+	TS_TYPE_EXTENSION,
+	to_types_build_dir,
 } from '../paths.js';
 
 // TODO make typemaps optional - how? on the `Build_Config`?
@@ -31,9 +33,9 @@ export const copy_dist = async (
 	const build_out_dir = to_build_out_path(dev, build_config.name);
 	const externals_dir = to_build_out_path(dev, build_config.name, EXTERNALS_BUILD_DIRNAME);
 	log.info(`copying ${print_path(build_out_dir)} to ${print_path(dist_out_dir)}`);
-	const typemap_files: string[] = [];
+	let has_types = false;
+	const typemap_files: Set<string> = new Set(); // TODO convert to array when type hacks below are fixed
 	await fs.copy(build_out_dir, dist_out_dir, {
-		overwrite: false, // TODO this was old, not sure anymore: prioritizes the artifacts from other build processes
 		filter: async (id) => {
 			if (id === externals_dir) return false;
 			const stats = await fs.stat(id);
@@ -41,16 +43,37 @@ export const copy_dist = async (
 			if (stats.isDirectory()) return true;
 			// typemaps are edited before copying, see below
 			if (id.endsWith(TS_TYPEMAP_EXTENSION)) {
-				typemap_files.push(id);
+				typemap_files.add(id);
 				return false;
+			}
+			// TODO HACK for types -- see comment below
+			if (!has_types) {
+				if (id.endsWith(TS_TYPE_EXTENSION) || id.endsWith(TS_TYPEMAP_EXTENSION)) {
+					has_types = true;
+				}
 			}
 			return true;
 		},
 	});
+
+	// TODO HACK for types -- include all type files because
+	// we're not including `import type` imports as dependencies yet
+	if (has_types) {
+		await fs.copy(to_types_build_dir(), dist_out_dir, {
+			filter: async (id) => {
+				const should_copy = !typemap_files.has(id);
+				if (should_copy && id.endsWith(TS_TYPEMAP_EXTENSION)) {
+					typemap_files.add(id);
+				}
+				return should_copy;
+			},
+		});
+	}
+
 	// typemap files (.d.ts.map) need their `sources` property mapped back to the source directory
 	// based on the relative change from the build to the dist
 	await Promise.all(
-		typemap_files.map(async (id) => {
+		Array.from(typemap_files).map(async (id) => {
 			const base_path = to_build_base_path(id);
 			const source_base_path = `${strip_end(base_path, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
 			const dist_source_id = pack

@@ -109,7 +109,7 @@ export const BUILD_DIRNAME_PROD = 'prod';
 export type Build_Out_Dirname = 'dev' | 'prod';
 
 export const TYPES_BUILD_DIRNAME = 'types';
-export const to_types_build_dir = (p = paths) => `${p.build}${TYPES_BUILD_DIRNAME}`;
+export const to_types_build_dir = (p = paths): string => `${p.build}${TYPES_BUILD_DIRNAME}`;
 
 export const to_build_out_path = (
 	dev: boolean,
@@ -119,13 +119,13 @@ export const to_build_out_path = (
 ): string => `${to_build_out_dir(dev, build_dir)}/${build_name}/${base_path}`;
 
 export const to_build_base_path = (build_id: string, build_dir = paths.build): string => {
-	const rootPath = strip_start(build_id, build_dir);
-	let separatorCount = 0;
-	for (let i = 0; i < rootPath.length; i++) {
-		if (rootPath[i] === '/') separatorCount++;
-		if (separatorCount === 2) {
+	const root_path = strip_start(build_id, build_dir);
+	let separator_count = 0;
+	for (let i = 0; i < root_path.length; i++) {
+		if (root_path[i] === '/') separator_count++;
+		if (separator_count === 2) {
 			// `2` to strip the dev/prod directory and the build name directory
-			return rootPath.substring(i + 1);
+			return root_path.substring(i + 1);
 		}
 	}
 	// TODO ? errors on inputs like `terser` - should that be allowed to be a `build_id`??
