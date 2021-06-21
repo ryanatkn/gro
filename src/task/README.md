@@ -155,7 +155,9 @@ export const task: Task = {
 		await invoke_task(
 			'other/file',
 			{...args, optionally: 'extended'},
-			new_event_emitter_for_subtree,
+			optional_event_emitter_for_subtree,
+			optional_dev_flag_for_subtree,
+			optional_fs_for_subtree,
 		);
 
 		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
