@@ -1,5 +1,10 @@
 # changelog
 
+## 0.27.1
+
+- infer `npm link` in Node library adapter
+  ([#217](https://github.com/feltcoop/gro/pull/217))
+
 ## 0.27.0
 
 - **break**: convert to `snake_case` from `camelCase`
