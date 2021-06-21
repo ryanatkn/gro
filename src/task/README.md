@@ -152,7 +152,13 @@ export const task: Task = {
 
 		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
 		// forwarding both custom args and a different event emitter (warning: spaghetti)
-		await invoke_task('other/file', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
+		await invoke_task(
+			'other/file',
+			{...args, optionally: 'extended'},
+			optional_event_emitter_for_subtree,
+			optional_dev_flag_for_subtree,
+			optional_fs_for_subtree,
+		);
 
 		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
 		await invoke_task('gro/other/file');
@@ -174,14 +180,14 @@ import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
-		await doSomethingFirst();
+		await do_something_first();
 		// As discussed in the `invoke_task` section above,
 		// it's possible to `import {task as groBuiltinTestTask} from '@feltcoop/gro/dist/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
-		await invoke_task('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
-		await emailEveryoneWithTestResults();
+		await invoke_task('gro/test', {...args, optionally: 'extended'}, new_event_emitter_for_subtree);
+		await email_everyone_with_test_results();
 	},
 };
 ```
@@ -201,12 +207,12 @@ Some Gro tasks use a value mapping pattern convention that we tentatively recomm
 // src/some/file.task.ts
 import type {Task} from '@feltcoop/gro';
 
-import {Task_Args as OtherTask_Args} from './other.task.js';
+import {Task_Args as Other_Task_Args} from './other.task.js';
 
-export interface Task_Args extends OtherTask_Args {
-	mapSomething: (thing: string) => string;
-	// this is provided by `OtherTask_Args`:
-	// mapSomeNumber: (other: number) => number;
+export interface Task_Args extends Other_Task_Args {
+	map_something: (thing: string) => string;
+	// this is provided by `Other_Task_Args`:
+	// map_some_number: (other: number) => number;
 }
 
 export const task: Task<Task_Args> = {
@@ -214,10 +220,10 @@ export const task: Task<Task_Args> = {
 		// `args` has type `Task_Args`
 
 		// other tasks can assign args that this task consumes:
-		const somethingcooler = args.mapSomething('somethingcool');
+		const something_cooler = args.map_something('something_cool');
 
 		// and this task can provide args for others:
-		args.mapSomeNumber = (n) => n * ((1 + Math.sqrt(5)) / 2);
+		args.map_some_number = (n) => n * ((1 + Math.sqrt(5)) / 2);
 	},
 };
 ```
@@ -235,10 +241,10 @@ Here's how a task can emit and listen to events:
 // src/some/mytask.task.ts
 import type {Task} from '@feltcoop/gro';
 
-import type {Task_Events as OtherTask_Events} from './othertask.task.ts';
+import type {Task_Events as Other_Task_Events} from './othertask.task.ts';
 
 export interface Task_Args {}
-export interface Task_Events extends OtherTask_Events {
+export interface Task_Events extends Other_Task_Events {
 	'mytask.data': (count: number, thing: string) => void;
 }
 
@@ -260,7 +266,7 @@ export const task: Task<Task_Args, Task_Events> = {
 If a task encounters an error, normally it should throw rather than exiting the process.
 This defers control to the caller, like your own parent tasks.
 
-> TODO add support for `FatalError`
+> TODO add support for `Fatal_Error`
 
 Often, errors that tasks encounter do not need a stack trace,
 and we don't want the added noise to be logged.
@@ -272,7 +278,7 @@ import {Task, Task_Error} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async () => {
-		if (someErrorCondition) {
+		if (some_error_condition) {
 			throw new Task_Error('We hit a known error - ignore the stack trace!');
 		}
 	},
@@ -290,7 +296,7 @@ export const task: Task = {
 	run: async ({dev, invoke_task}) => {
 		// `dev` is `false` because it's defined two lines up in the task definition,
 		// unless an ancestor task called `invoke_task` with a `true` value, like this:
-		invoke_task('descendentTaskWithFlippedDevValue', undefined, undefined, !dev);
+		invoke_task('descendent_task_with_flipped_dev_value', undefined, undefined, !dev);
 	},
 };
 ```
