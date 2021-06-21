@@ -15,7 +15,7 @@ import {
 This uses the TypeScript compiler to generate types.
 
 The function `generate_types` uses `tsc` to output all declarations to the filesystem,
-and then `toGenerateTypesForFile` looks up those cached results.
+and then `to_generate_types_for_file` looks up those cached results.
 
 */
 
@@ -34,10 +34,10 @@ export const generate_types = async (
 	src: string,
 	dest: string,
 	sourcemap: boolean,
-	typemap: boolean = sourcemap,
+	typemap: boolean,
 	tsc_args: string[] = EMPTY_ARRAY,
 ) => {
-	const tscResult = await spawn_process('npx', [
+	const tsc_result = await spawn_process('npx', [
 		'tsc',
 		'--outDir',
 		dest,
@@ -51,16 +51,16 @@ export const generate_types = async (
 		'--emitDeclarationOnly',
 		...tsc_args,
 	]);
-	if (!tscResult.ok) {
-		throw Error(`TypeScript failed to compile with code ${tscResult.code}`);
+	if (!tsc_result.ok) {
+		throw Error(`TypeScript failed to compile with code ${tsc_result.code}`);
 	}
 };
 
-export interface GenerateTypesForFile {
-	(id: string): Promise<GeneratedTypes>;
+export interface Generate_Types_For_File {
+	(id: string): Promise<Generated_Types>;
 }
 
-export interface GeneratedTypes {
+export interface Generated_Types {
 	types: string;
 	typemap?: string;
 }
@@ -71,18 +71,21 @@ export interface GeneratedTypes {
 // when it compiles type declarations for individual files compared to an entire project at once.
 // (there may be dramatic improvements to the individual file building strategy,
 // but I couldn't find them in a reasonable amount of time)
-export const toGenerateTypesForFile = async (fs: Filesystem): Promise<GenerateTypesForFile> => {
-	const results: Map<string, GeneratedTypes> = new Map();
+export const to_generate_types_for_file = async (
+	fs: Filesystem,
+): Promise<Generate_Types_For_File> => {
+	const results: Map<string, Generated_Types> = new Map();
 	return async (id) => {
 		if (results.has(id)) return results.get(id)!;
-		const rootPath = `${to_types_build_dir()}/${source_id_to_base_path(id)}`; // TODO pass through `paths`, maybe from the `Build_Context`
-		const typesId = replace_extension(rootPath, TS_TYPE_EXTENSION);
-		const typemapId = replace_extension(rootPath, TS_TYPEMAP_EXTENSION);
+		const root_path = `${to_types_build_dir()}/${source_id_to_base_path(id)}`; // TODO pass through `paths`, maybe from the `Build_Context`
+		const types_id = replace_extension(root_path, TS_TYPE_EXTENSION);
+		const typemap_id = replace_extension(root_path, TS_TYPEMAP_EXTENSION);
 		const [types, typemap] = await Promise.all([
-			fs.read_file(typesId, 'utf8'),
-			(async () => ((await fs.exists(typemapId)) ? fs.read_file(typemapId, 'utf8') : undefined))(),
+			fs.read_file(types_id, 'utf8'),
+			(async () =>
+				(await fs.exists(typemap_id)) ? fs.read_file(typemap_id, 'utf8') : undefined)(),
 		]);
-		const result: GeneratedTypes = {types, typemap};
+		const result: Generated_Types = {types, typemap};
 		results.set(id, result);
 		return result;
 	};

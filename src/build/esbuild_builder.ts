@@ -5,7 +5,7 @@ import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {replace_extension} from '@feltcoop/felt/util/path.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {Ecma_Script_Target, GenerateTypesForFile} from './ts_build_helpers.js';
+import type {Ecma_Script_Target, Generate_Types_For_File} from './ts_build_helpers.js';
 import {get_default_esbuild_options} from './esbuild_build_helpers.js';
 import {
 	JS_EXTENSION,
@@ -17,7 +17,7 @@ import {
 } from '../paths.js';
 import type {Builder, Build_Result, Text_Build, Text_Build_Source} from './builder.js';
 import {add_js_sourcemap_footer} from './utils.js';
-import {toGenerateTypesForFile} from './ts_build_helpers.js';
+import {to_generate_types_for_file} from './ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
@@ -53,10 +53,10 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 		return newEsbuildOptions;
 	};
 
-	let cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
-	const load_generate_types = (fs: Filesystem): Promise<GenerateTypesForFile> => {
+	let cachedGenerateTypes: Map<Filesystem, Promise<Generate_Types_For_File>> = new Map();
+	const load_generate_types = (fs: Filesystem): Promise<Generate_Types_For_File> => {
 		if (cachedGenerateTypes.has(fs)) return cachedGenerateTypes.get(fs)!;
-		const promise = toGenerateTypesForFile(fs);
+		const promise = to_generate_types_for_file(fs);
 		cachedGenerateTypes.set(fs, promise);
 		return promise;
 	};

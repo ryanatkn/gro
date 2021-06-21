@@ -79,6 +79,8 @@ export interface Gro_Config_Partial {
 	readonly adapt?: Adapt_Builds;
 	readonly target?: Ecma_Script_Target; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
+	readonly typemap?: boolean; // defaults to false in `dev`, true for prod
+	readonly types?: boolean; // defaults to false
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
 	readonly log_level?: Log_Level; // env.GRO_LOG_LEVEL
