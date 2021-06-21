@@ -22,6 +22,7 @@ import {print_build_config_label, to_input_files} from '../build/build_config.js
 import {run_rollup} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
 import type {Task_Args as Build_Task_Args} from '../build.task.js';
+import {load_package_json} from '../utils/package_json.js';
 
 // TODO maybe add a `files` option to explicitly include source files,
 // and fall back to inferring from the build config
@@ -31,11 +32,10 @@ export interface Options {
 	build_name: Build_Name; // defaults to 'library'
 	dir: string; // defaults to `dist/${build_name}`
 	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
-	link: string | null; // path to `npm link`, defaults to null
 	// TODO currently these options are only available for 'bundled'
 	esm: boolean; // defaults to true
 	cjs: boolean; // defaults to true
-	pack: boolean; // treat the dist as a package to be published - defaults to true
+	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 }
 
 export interface Adapter_Args extends Build_Task_Args {}
@@ -44,7 +44,6 @@ export const create_adapter = ({
 	build_name = NODE_LIBRARY_BUILD_NAME,
 	dir = `${paths.dist}${build_name}`,
 	type = 'unbundled',
-	link = null,
 	esm = true,
 	cjs = true,
 	pack = true,
@@ -115,6 +114,8 @@ export const create_adapter = ({
 			await copy_dist(fs, build_config, dev, dir, log, filter, pack);
 			timing_to_copy_dist();
 
+			const pkg = await load_package_json(fs);
+
 			// If the output is treated as a package, it needs some special handling to get it ready.
 			if (pack) {
 				// copy files from the project root to the dist, but don't overwrite anything in the build
@@ -131,8 +132,6 @@ export const create_adapter = ({
 				await fs.copy(paths.source, `${dir}/${SOURCE_DIRNAME}`);
 
 				// update package.json with computed values
-				const pkg_path = `${dir}/package.json`;
-				const pkg = JSON.parse(await fs.read_file(pkg_path, 'utf8'));
 
 				// add the "files" key to package.json
 				const pkg_files = new Set(pkg.files || []);
@@ -150,7 +149,7 @@ export const create_adapter = ({
 
 				// add the "exports" key to package.json
 				const pkg_exports: Record<string, string> = {
-					'.': pkg.main,
+					'.': pkg.main!,
 					'./package.json': './package.json',
 				};
 				for (const source_id of files) {
@@ -160,14 +159,18 @@ export const create_adapter = ({
 				pkg.exports = pkg_exports;
 
 				// write the new package.json
-				await fs.write_file(pkg_path, JSON.stringify(pkg, null, 2), 'utf8');
+				await fs.write_file(`${dir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
 			}
 
-			// `npm link` if configured
-			if (link) {
+			// `npm link`
+			if (pkg.bin) {
 				const timing_to_npm_link = timings.start('npm link');
-				const chmod_result = await spawn_process('chmod', ['+x', link]);
-				if (!chmod_result.ok) log.error(`CLI chmod failed with code ${chmod_result.code}`);
+				await Promise.all(
+					Object.values(pkg.bin).map(async (bin_path) => {
+						const chmod_result = await spawn_process('chmod', ['+x', bin_path]);
+						if (!chmod_result.ok) log.error(`CLI chmod failed with code ${chmod_result.code}`);
+					}),
+				);
 				log.info(`linking`);
 				const link_result = await spawn_process('npm', ['link']);
 				if (!link_result.ok) {
