@@ -116,7 +116,7 @@ export const config: Gro_Config_Creator = async () => {
 						adapt: ({fs}) => fs.copy(/**/),
 						end: ({log}) => log.info('done!'),
 				  }
-				: toProdAdapters(config);
+				: to_prod_adapters(config);
 		},
 
 		// it's ok to return nothing

@@ -83,7 +83,7 @@ export const init_options = (opts: Initial_Options): Options => ({
 });
 
 // use in a plain function
-export const createThing = (opts: Initial_Options) => {
+export const create_thing = (opts: Initial_Options) => {
 	const options = init_options(opts);
 };
 
