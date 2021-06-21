@@ -41,6 +41,7 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 		publish: '.',
 		sourcemap: dev,
 		typemap: !dev,
+		types: !dev,
 		log_level: ENV_LOG_LEVEL ?? Log_Level.Trace,
 		serve: [
 			// first try to fulfill requests with files in `$PROJECT/src/client/` as if it were `/`

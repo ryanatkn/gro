@@ -15,7 +15,6 @@ export const build_source = async (
 	config: Gro_Config,
 	dev: boolean,
 	log: Logger,
-	types: boolean = !dev,
 ): Promise<void> => {
 	log.info('building source', gray(dev ? 'development' : 'production'));
 
@@ -26,7 +25,7 @@ export const build_source = async (
 		log.info(`🕒 built in ${print_ms(total_timing())}`);
 	};
 
-	if (types) {
+	if (config.types) {
 		log.info('building types');
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
@@ -46,7 +45,7 @@ export const build_source = async (
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,
-		types,
+		types: config.types,
 	});
 	timing_to_create_filer();
 
