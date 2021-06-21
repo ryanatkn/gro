@@ -3,7 +3,7 @@
 ## 0.27.1
 
 - infer `npm link` in Node library adapter
-  ([#217](https://github.com/feltcoop/gro/pull/217))
+  ([#218](https://github.com/feltcoop/gro/pull/218))
 
 ## 0.27.0
 
