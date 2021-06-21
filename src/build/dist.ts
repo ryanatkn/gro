@@ -75,7 +75,7 @@ export const copy_dist = async (
 	// typemap files (.d.ts.map) need their `sources` property mapped back to the source directory
 	// based on the relative change from the build to the dist
 	await Promise.all(
-		Array.from(typemap_files).map(async (id) => {
+		typemap_files.map(async (id) => {
 			const base_path = to_build_base_path(id);
 			const source_base_path = `${strip_end(base_path, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
 			const dist_source_id = pack
@@ -91,7 +91,7 @@ export const copy_dist = async (
 
 	// TODO HACK -- see above, delete this
 	await Promise.all(
-		Array.from(hack_typemap_files).map(async (id) => {
+		hack_typemap_files.map(async (id) => {
 			const base_path = strip_start(id, to_types_build_dir()).substring(1);
 			const source_base_path = `${strip_end(base_path, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
 			const dist_source_id = pack
