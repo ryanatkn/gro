@@ -6,6 +6,13 @@
 		"lib": ["esnext", "dom"],
 		"outDir": ".gro/prod/node",
 		"rootDir": "src",
+		"baseUrl": "src",
+    "paths": {
+      "src/*": ["*"],
+      "$app/*": [".svelte/dev/runtime/app/*", ".svelte/build/runtime/app/*"],
+      "$service-worker": [".svelte/build/runtime/service-worker"],
+      "$lib/*": ["lib/*"]
+    },
 		"isolatedModules": true,
 		"importsNotUsedAsValues": "error",
 		"strict": true,
