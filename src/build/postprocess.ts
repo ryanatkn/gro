@@ -15,7 +15,11 @@ import {
 	TS_EXTENSION,
 } from '../paths.js';
 import type {Build, Build_Context, Build_Result, Build_Source} from './builder.js';
-import {is_external_module} from '../utils/module.js';
+import {
+	is_external_module,
+	MODULE_PATH_LIB_PREFIX,
+	MODULE_PATH_SRC_PREFIX,
+} from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID, is_external_build_id} from './externals_build_helpers.js';
 import type {Build_Dependency} from './build_dependency.js';
 
@@ -93,10 +97,10 @@ export const postprocess = (
 					}
 				} else {
 					// internal import
-					if (mapped_specifier.startsWith('$lib/')) {
+					if (mapped_specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
 						mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(1));
 						final_specifier = relative(source.dir, paths.source + final_specifier.substring(1));
-					} else if (mapped_specifier.startsWith('src/')) {
+					} else if (mapped_specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
 						mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(3));
 						final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
 					}
