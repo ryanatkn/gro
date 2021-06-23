@@ -140,19 +140,6 @@ export const clean_source_meta = async (ctx: Build_Context): Promise<void> => {
 	);
 };
 
-// export interface Serialized_Source_Meta_Build {
-// 	readonly id: string;
-// 	readonly build_name: Build_Name;
-// 	readonly dependencies?: Serialized_Build_Dependency[] | null; // `undefined` implies `[]`
-// 	readonly encoding?: Encoding; // `undefined` implies `'utf8'`
-// }
-// export interface Serialized_Build_Dependency {
-// 	readonly specifier: string;
-// 	readonly mapped_specifier?: string; // `undefined` implies same as `specifier`
-// 	readonly build_id?: string; // `undefined` implies same as `specifier`
-// 	readonly external?: boolean; // `undefined` implies `false`
-// }
-
 // these are optimizations to write less data to disk
 export const deserialize_source_meta = ({
 	source_id,

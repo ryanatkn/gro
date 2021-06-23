@@ -94,11 +94,11 @@ export const postprocess = (
 					// internal import
 					if (mapped_specifier.startsWith('$lib/')) {
 						mapped_specifier = `../${mapped_specifier.substring(1)}`; // TODO HACKED
+						final_specifier = `../${final_specifier.substring(1)}`; // TODO HACKED
 					} else if (mapped_specifier.startsWith('src/')) {
-						mapped_specifier = `../${mapped_specifier.substring(3)}`; // TODO HACKED
+						mapped_specifier = `..${mapped_specifier.substring(3)}`; // TODO HACKED
+						final_specifier = `..${final_specifier.substring(3)}`; // TODO HACKED
 					}
-					final_specifier = mapped_specifier; // TODO HACKED
-					// TOOD this doesn't account for the above thing: `hack_to_build_extension_with_possibly_extensionless_specifier`
 					build_id = join(build.dir, mapped_specifier);
 				}
 				if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
@@ -108,7 +108,7 @@ export const postprocess = (
 						mapped_specifier,
 						build_id,
 						external: is_external_build_id(build_id, build_config, ctx),
-						// TODO what if this had `originalSpecifier` and `is_external_import` too?
+						// TODO what if this had `original_specifier` and `is_external_import` too?
 					});
 				}
 				if (mapped_specifier !== specifier) {
