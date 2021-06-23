@@ -1,9 +1,10 @@
-import {join, extname} from 'path';
+import {join, extname, relative} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import {
+	paths,
 	CSS_EXTENSION,
 	EXTERNALS_BUILD_DIRNAME,
 	JS_EXTENSION,
@@ -93,11 +94,11 @@ export const postprocess = (
 				} else {
 					// internal import
 					if (mapped_specifier.startsWith('$lib/')) {
-						mapped_specifier = `../${mapped_specifier.substring(1)}`; // TODO HACKED
-						final_specifier = `../${final_specifier.substring(1)}`; // TODO HACKED
+						mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(1));
+						final_specifier = relative(source.dir, paths.source + final_specifier.substring(1));
 					} else if (mapped_specifier.startsWith('src/')) {
-						mapped_specifier = `..${mapped_specifier.substring(3)}`; // TODO HACKED
-						final_specifier = `..${final_specifier.substring(3)}`; // TODO HACKED
+						mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(3));
+						final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
 					}
 					build_id = join(build.dir, mapped_specifier);
 				}
