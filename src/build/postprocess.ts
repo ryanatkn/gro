@@ -14,7 +14,7 @@ import {
 	TS_EXTENSION,
 } from '../paths.js';
 import type {Build, Build_Context, Build_Result, Build_Source} from './builder.js';
-import {to_is_external_module} from '../utils/module.js';
+import {is_external_module} from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID, is_external_build_id} from './externals_build_helpers.js';
 import type {Build_Dependency} from './build_dependency.js';
 
@@ -37,7 +37,6 @@ export const postprocess = (
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
-			const is_external_module = to_is_external_module(browser);
 			let transformed_content = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`

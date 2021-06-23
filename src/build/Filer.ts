@@ -37,7 +37,7 @@ import {create_build_file, diff_dependencies} from './build_file.js';
 import type {Build_File} from './build_file.js';
 import type {Base_Filer_File} from './base_filer_file.js';
 import {load_content} from './load.js';
-import {is_external_browser_module} from '../utils/module.js';
+import {is_external_module} from '../utils/module.js';
 import {
 	DEFAULT_EXTERNALS_ALIASES,
 	EXTERNALS_SOURCE_ID,
@@ -575,9 +575,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			}
 
 			const external =
-				source_file === undefined
-					? is_external_browser_module(id)
-					: source_file.id === EXTERNALS_SOURCE_ID;
+				source_file === undefined ? is_external_module(id) : source_file.id === EXTERNALS_SOURCE_ID;
 
 			let extension: string;
 			let encoding: Encoding;
@@ -798,8 +796,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			for (const added_dependency of added_dependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				if (!added_dependency.external && is_external_browser_module(added_dependency.build_id))
-					continue;
+				if (!added_dependency.external && is_external_module(added_dependency.build_id)) continue;
 				const added_source_id = this.map_dependency_to_source_id(added_dependency, this.build_dir);
 				// ignore dependencies on self - happens with common externals
 				if (added_source_id === source_file.id) continue;
