@@ -21,7 +21,7 @@
 	import type {Source_Tree} from './source_tree.js';
 	import type {Project_State} from '../server/project_state.js';
 	import type {View} from './view.js';
-	import {provide_project_state} from './project_state.js';
+	import {set_project_state} from './project_state.js';
 
 	console.log('enter App.svelte');
 
@@ -30,7 +30,7 @@
 	let selected_build_names: string[] = [];
 
 	const ctx = writable<Project_State>(null!);
-	provide_project_state(ctx);
+	set_project_state(ctx);
 
 	const source_meta_views: View[] = [
 		Source_Meta_Raw,

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import {use_project_state} from './project_state.js';
+	import {get_project_state} from './project_state.js';
 
-	const project = use_project_state();
+	const project = get_project_state();
 
 	export let id: string;
 
