@@ -97,6 +97,7 @@ export const postprocess = (
 					}
 				} else {
 					// internal import
+					// support absolute import patterns -- TODO modularize
 					if (mapped_specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
 						mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(1));
 						final_specifier = relative(source.dir, paths.source + final_specifier.substring(1));
