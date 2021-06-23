@@ -32,12 +32,12 @@ export const postprocess = (
 } => {
 	if (build.encoding === 'utf8') {
 		let {content, build_config} = build;
-		const is_browser = build_config.platform === 'browser';
+		const browser = build_config.platform === 'browser';
 		let dependencies_by_build_id: Map<string, Build_Dependency> | null = null;
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
-			const is_external_module = to_is_external_module(is_browser);
+			const is_external_module = to_is_external_module(browser);
 			let transformed_content = '';
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
@@ -58,18 +58,17 @@ export const postprocess = (
 				if (is_external) {
 					if (is_external_import) {
 						// handle regular externals
-						if (is_browser) {
+						if (browser) {
 							if (mapped_specifier in ctx.externals_aliases) {
 								mapped_specifier = ctx.externals_aliases[mapped_specifier];
 							}
-							if (
-								mapped_specifier.endsWith(JS_EXTENSION) &&
-								should_modify_dot_js(mapped_specifier)
-							) {
-								mapped_specifier = mapped_specifier.replace(/\.js$/, 'js');
+							const has_js_extension = mapped_specifier.endsWith(JS_EXTENSION);
+							if (has_js_extension && should_modify_dot_js(mapped_specifier)) {
+								mapped_specifier =
+									mapped_specifier.substring(0, mapped_specifier.length - 3) + 'js';
 							}
 							mapped_specifier = `/${join(EXTERNALS_BUILD_DIRNAME, mapped_specifier)}${
-								mapped_specifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+								has_js_extension ? '' : JS_EXTENSION
 							}`;
 							build_id = to_build_out_path(
 								ctx.dev,
@@ -82,7 +81,7 @@ export const postprocess = (
 						}
 					} else {
 						// handle common externals, imports internal to the externals
-						if (is_browser) {
+						if (browser) {
 							build_id = join(build.dir, specifier);
 							// map internal externals imports to absolute paths, so we get stable ids
 							final_specifier = `/${to_build_base_path(build_id, ctx.build_dir)}${
@@ -118,7 +117,7 @@ export const postprocess = (
 		}
 
 		// Support Svelte CSS for development in the browser.
-		if (source.extension === SVELTE_EXTENSION && build.extension === JS_EXTENSION && is_browser) {
+		if (source.extension === SVELTE_EXTENSION && build.extension === JS_EXTENSION && browser) {
 			const css_compilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
 			if (css_compilation !== undefined) {
 				let import_path: string | undefined;
