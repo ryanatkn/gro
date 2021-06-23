@@ -18,8 +18,7 @@ import {is_external_module} from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID, is_external_build_id} from './externals_build_helpers.js';
 import type {Build_Dependency} from './build_dependency.js';
 
-// TODO this is all hacky and should be refactored
-// make it pluggable like builders, maybe
+// TODO this is all hacky and should be refactored, probably following Rollup's lead
 
 export const postprocess = (
 	build: Build,
@@ -93,6 +92,13 @@ export const postprocess = (
 					}
 				} else {
 					// internal import
+					if (mapped_specifier.startsWith('$lib/')) {
+						mapped_specifier = `../${mapped_specifier.substring(1)}`; // TODO HACKED
+					} else if (mapped_specifier.startsWith('src/')) {
+						mapped_specifier = `../${mapped_specifier.substring(3)}`; // TODO HACKED
+					}
+					final_specifier = mapped_specifier; // TODO HACKED
+					// TOOD this doesn't account for the above thing: `hack_to_build_extension_with_possibly_extensionless_specifier`
 					build_id = join(build.dir, mapped_specifier);
 				}
 				if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();

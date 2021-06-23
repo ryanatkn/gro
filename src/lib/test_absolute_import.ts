@@ -1,1 +1,1 @@
-export const test_absolute_import = 1;
+export const test_absolute_import = 'src/';
