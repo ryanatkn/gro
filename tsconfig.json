@@ -6,6 +6,11 @@
 		"lib": ["esnext", "dom"],
 		"outDir": ".gro/prod/node",
 		"rootDir": "src",
+		"baseUrl": "src",
+		"paths": {
+			"src/*": ["*"],
+			"$lib/*": ["lib/*"]
+		},
 		"isolatedModules": true,
 		"importsNotUsedAsValues": "error",
 		"strict": true,

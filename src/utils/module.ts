@@ -1,19 +1,9 @@
-// convenience helper
-export const to_is_external_module = (isBrowser: boolean): IsExternalModule =>
-	isBrowser ? is_external_browser_module : isExternalNodeModule;
+// TODO refactor to be configurable, probably following Rollup's patterns
 
-interface IsExternalModule {
-	(moduleName: string): boolean;
-}
+export const MODULE_PATH_LIB_PREFIX = '$lib/';
+export const MODULE_PATH_SRC_PREFIX = 'src/';
 
-// Browser modules can be relative or absolute paths.
-const INTERNAL_BROWSER_MODULE_MATCHER = /^\.?\.?\//;
+const INTERNAL_MODULE_MATCHER = /^(\.?\.?|src|\$lib)\//;
 
-export const is_external_browser_module: IsExternalModule = (moduleName: string): boolean =>
-	!INTERNAL_BROWSER_MODULE_MATCHER.test(moduleName);
-
-// Node modules can be relative paths, but not absolute.
-const INTERNAL_NODE_MODULE_MATCHER = /^\.?\.\//;
-
-export const isExternalNodeModule: IsExternalModule = (moduleName: string): boolean =>
-	!INTERNAL_NODE_MODULE_MATCHER.test(moduleName);
+export const is_external_module = (module_name: string): boolean =>
+	!INTERNAL_MODULE_MATCHER.test(module_name);

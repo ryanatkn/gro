@@ -13,7 +13,7 @@ import type {Filer_File} from './Filer.js';
 import type {Source_Meta} from './source_meta.js';
 import type {Build_Dependency} from './build_dependency.js';
 import {EXTERNALS_BUILD_DIRNAME} from '../paths.js';
-import {is_external_browser_module} from '../utils/module.js';
+import {is_external_module} from '../utils/module.js';
 import type {Build_Context} from './builder.js';
 
 export type Source_File = Buildable_Source_File | Non_Buildable_Source_File;
@@ -92,7 +92,7 @@ export const create_source_file = async (
 		dirty = content_hash !== source_meta.data.content_hash;
 		reconstructed_build_files = await reconstruct_build_files(fs, source_meta, build_configs!);
 	}
-	if (is_external_browser_module(id)) {
+	if (is_external_module(id)) {
 		// externals
 		if (encoding !== 'utf8') {
 			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);

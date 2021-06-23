@@ -2,6 +2,8 @@
 
 ## 0.27.1
 
+- support absolute path imports `$lib/` and `src/`
+  ([#153](https://github.com/feltcoop/gro/pull/153))
 - infer `npm link` in Node library adapter
   ([#218](https://github.com/feltcoop/gro/pull/218))
 
