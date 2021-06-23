@@ -250,7 +250,7 @@
 - **break**: extract the `Filesystem` interface and
   thread it everywhere from `src/cli/invoke.ts` and tests
   ([#171](https://github.com/feltcoop/gro/pull/171))
-- **break**: replace `src/utils/gitignore.ts` helper `isGitignored`
+- **break**: replace `src/utils/gitignore.ts` helper `is_gitignored`
   with `src/fs/path_filter.ts` helper `to_path_filter`
   ([#172](https://github.com/feltcoop/gro/pull/172))
 
@@ -287,7 +287,7 @@
   ([#164](https://github.com/feltcoop/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltcoop/gro/pull/163))
-- add `src/utils/gitignore.ts` with `isGitignored` and `load_gitignore_filter`
+- add `src/utils/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
   ([#165](https://github.com/feltcoop/gro/pull/165))
 - add helper `to_sveltekit_base_path` to `src/build/sveltekit_helpers.ts`
   ([#163](https://github.com/feltcoop/gro/pull/163))
