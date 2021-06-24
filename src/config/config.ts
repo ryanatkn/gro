@@ -18,7 +18,6 @@ import {
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
 	CONFIG_BUILD_CONFIG,
-	SYSTEM_BUILD_NAME,
 } from '../build/default_build_config.js';
 import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Served_Dir_Partial} from '../build/served_dir.js';
@@ -56,8 +55,7 @@ export interface Gro_Config {
 	readonly host: string;
 	readonly port: number;
 	readonly log_level: Log_Level;
-	readonly serve?: Served_Dir_Partial[];
-	readonly system_build_config: Build_Config;
+	readonly serve: Served_Dir_Partial[] | null;
 	readonly primary_browser_build_config: Build_Config | null; // TODO improve this, too rigid
 }
 
@@ -72,7 +70,7 @@ export interface Gro_Config_Partial {
 	readonly host?: string;
 	readonly port?: number;
 	readonly log_level?: Log_Level;
-	readonly serve?: Served_Dir_Partial[];
+	readonly serve?: Served_Dir_Partial[] | null;
 }
 
 export interface Gro_Config_Module {
@@ -213,7 +211,7 @@ const to_bootstrap_config = (): Gro_Config => {
 		builds: [CONFIG_BUILD_CONFIG],
 		publish: null,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
-		system_build_config: null!,
+		serve: null,
 		primary_browser_build_config: null,
 	};
 };
@@ -245,6 +243,7 @@ const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config 
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,
 		adapt: () => null,
+		serve: null,
 		...omit_undefined(config),
 		builds: build_configs,
 		publish:
@@ -252,7 +251,6 @@ const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config 
 				? config.publish
 				: to_default_publish_dirs(build_configs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		system_build_config: build_configs.find((b) => b.name === SYSTEM_BUILD_NAME)!,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
 		primary_browser_build_config: build_configs.find((b) => b.platform === 'browser') || null,
