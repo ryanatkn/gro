@@ -191,7 +191,7 @@ export const to_config = async (
 
 	const config = normalize_config(extended_config, options.dev);
 
-	const validate_result = await validate_config(options.fs, config);
+	const validate_result = await validate_config(options.fs, config, options.dev);
 	if (!validate_result.ok) {
 		throw Error(`Invalid Gro config at '${path}': ${validate_result.reason}`);
 	}
@@ -226,8 +226,9 @@ const validate_config_module = (config_module: any): Result<{}, {reason: string}
 const validate_config = async (
 	fs: Filesystem,
 	config: Gro_Config,
+	dev: boolean,
 ): Promise<Result<{}, {reason: string}>> => {
-	const build_configs_result = await validate_build_configs(fs, config.builds);
+	const build_configs_result = await validate_build_configs(fs, config.builds, dev);
 	if (!build_configs_result.ok) return build_configs_result;
 	return {ok: true};
 };

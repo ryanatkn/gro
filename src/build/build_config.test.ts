@@ -4,7 +4,7 @@ import {join} from 'path';
 
 import {normalize_build_configs, validate_build_configs} from './build_config.js';
 import {paths} from '../paths.js';
-import {SYSTEM_BUILD_CONFIG} from './default_build_config.js';
+import {CONFIG_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './default_build_config.js';
 import {fs} from '../fs/node.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
@@ -27,21 +27,6 @@ test_normalize_build_configs('normalizes a plain config', () => {
 		{name: 'system', platform: 'node', input},
 	]);
 });
-
-test_normalize_build_configs(
-	'filters out system and config configs from production outputs',
-	() => {
-		const build_config = normalize_build_configs(
-			[
-				{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_RAW},
-				{name: 'system', platform: 'node', input: '.'},
-				{name: 'testbuild', platform: 'node', input: '.'},
-			],
-			false,
-		);
-		t.equal(build_config, [{name: 'testbuild', platform: 'node', input}]);
-	},
-);
 
 test_normalize_build_configs('normalizes inputs', () => {
 	const input_path = join(paths.source, 'foo');
@@ -174,12 +159,13 @@ test_normalize_build_configs.run();
 const test_validate_build_configs = suite('validate_build_configs');
 
 test_validate_build_configs('basic behavior', async () => {
-	t.ok((await validate_build_configs(fs, normalize_build_configs([], true))).ok);
+	t.ok((await validate_build_configs(fs, normalize_build_configs([], true), true)).ok);
 	t.ok(
 		(
 			await validate_build_configs(
 				fs,
 				normalize_build_configs([{name: 'node', platform: 'node', input}], true),
+				true,
 			)
 		).ok,
 	);
@@ -196,6 +182,7 @@ test_validate_build_configs('basic behavior', async () => {
 					],
 					true,
 				),
+				true,
 			)
 		).ok,
 	);
@@ -213,6 +200,7 @@ test_validate_build_configs('basic behavior', async () => {
 					],
 					true,
 				),
+				true,
 			)
 		).ok,
 	);
@@ -224,14 +212,17 @@ test_validate_build_configs('fails with input path that does not exist', async (
 			await validate_build_configs(
 				fs,
 				normalize_build_configs([{name: 'node', platform: 'node', input: 'no_such_file.ts'}], true),
+				true,
 			)
 		).ok,
 	);
 });
 
 test_validate_build_configs('fails with undefined', async () => {
-	t.not.ok((await validate_build_configs(fs, undefined as any)).ok);
-	t.not.ok((await validate_build_configs(fs, {name: 'node', platform: 'node', input} as any)).ok);
+	t.not.ok((await validate_build_configs(fs, undefined as any, true)).ok);
+	t.not.ok(
+		(await validate_build_configs(fs, {name: 'node', platform: 'node', input} as any, true)).ok,
+	);
 });
 
 test_validate_build_configs('fails with an invalid name', async () => {
@@ -240,6 +231,7 @@ test_validate_build_configs('fails with an invalid name', async () => {
 			await validate_build_configs(
 				fs,
 				normalize_build_configs([{platform: 'node', input} as any], true),
+				true,
 			)
 		).ok,
 	);
@@ -248,6 +240,7 @@ test_validate_build_configs('fails with an invalid name', async () => {
 			await validate_build_configs(
 				fs,
 				normalize_build_configs([{name: '', platform: 'node', input}], true),
+				true,
 			)
 		).ok,
 	);
@@ -265,6 +258,7 @@ test_validate_build_configs('fails with duplicate names', async () => {
 					],
 					true,
 				),
+				true,
 			)
 		).ok,
 	);
@@ -279,20 +273,18 @@ test_validate_build_configs('fails with duplicate names', async () => {
 					],
 					true,
 				),
+				true,
 			)
 		).ok,
 	);
 });
 
+test_validate_build_configs('fails with a config build in production mode', async () => {
+	t.not.ok((await validate_build_configs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
+});
+
 test_validate_build_configs('fails with a system build in production mode', async () => {
-	t.not.ok(
-		(
-			await validate_build_configs(
-				fs,
-				normalize_build_configs([{name: 'system', platform: 'node', input}], false),
-			)
-		).ok,
-	);
+	t.not.ok((await validate_build_configs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
 });
 
 test_validate_build_configs('fails with an invalid platform', async () => {
@@ -301,6 +293,7 @@ test_validate_build_configs('fails with an invalid platform', async () => {
 			await validate_build_configs(
 				fs,
 				normalize_build_configs([{name: 'node', input} as any], true),
+				true,
 			)
 		).ok,
 	);
@@ -309,6 +302,7 @@ test_validate_build_configs('fails with an invalid platform', async () => {
 			await validate_build_configs(
 				fs,
 				normalize_build_configs([{name: 'node', platform: 'deno', input} as any], true),
+				true,
 			)
 		).ok,
 	);

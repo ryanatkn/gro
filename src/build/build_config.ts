@@ -53,12 +53,7 @@ export const normalize_build_configs = (
 	const build_configs: Build_Config[] = [];
 	let should_add_system_build_config = dev; // add system build only for dev, not prod
 	for (const partial of partials) {
-		if (
-			!partial ||
-			(!dev && (partial.name === SYSTEM_BUILD_NAME || partial.name === CONFIG_BUILD_NAME))
-		) {
-			continue;
-		}
+		if (!partial) continue;
 		const build_config: Build_Config = {
 			name: partial.name,
 			platform: partial.platform,
@@ -84,6 +79,7 @@ const normalize_build_config_input = (
 export const validate_build_configs = async (
 	fs: Filesystem,
 	build_configs: Build_Config[],
+	dev: boolean,
 ): Promise<Result<{}, {reason: string}>> => {
 	if (!Array.isArray(build_configs)) {
 		return {
@@ -98,6 +94,16 @@ export const validate_build_configs = async (
 			reason:
 				`The field 'gro.builds' in package.json has` +
 				` a 'node' config with reserved name '${CONFIG_BUILD_NAME}'`,
+		};
+	}
+	const system_build_config = build_configs.find((c) => c.name === SYSTEM_BUILD_NAME);
+	if (!dev && system_build_config) {
+		return {
+			ok: false,
+			reason:
+				`The field 'gro.builds' in package.json has` +
+				` a 'node' config named '${SYSTEM_BUILD_NAME}'` +
+				' for production but it is valid only in development',
 		};
 	}
 	const names: Set<Build_Name> = new Set();
