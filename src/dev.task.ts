@@ -68,7 +68,7 @@ export const task: Task<Task_Args, Task_Events> = {
 			dev,
 			builder: create_default_builder(),
 			source_dirs: [paths.source],
-			served_dirs: config.serve || get_default_served_dirs(config),
+			served_dirs: config.serve || to_default_served_dirs(config),
 			build_configs: config.builds,
 			target: config.target,
 			sourcemap: config.sourcemap,
@@ -143,8 +143,10 @@ export const task: Task<Task_Args, Task_Events> = {
 	},
 };
 
-const get_default_served_dirs = (config: Gro_Config): Served_Dir_Partial[] => {
-	const build_config_to_serve = config.primary_browser_build_config ?? config.system_build_config;
+// TODO rework this when we change the deprecated frontend build process
+const to_default_served_dirs = (config: Gro_Config): Served_Dir_Partial[] | undefined => {
+	const build_config_to_serve = config.primary_browser_build_config;
+	if (!build_config_to_serve) return undefined;
 	const build_out_dir_to_serve = to_build_out_path(true, build_config_to_serve.name, '');
 	return [build_out_dir_to_serve];
 };

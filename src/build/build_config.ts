@@ -84,7 +84,6 @@ const normalize_build_config_input = (
 export const validate_build_configs = async (
 	fs: Filesystem,
 	build_configs: Build_Config[],
-	dev: boolean,
 ): Promise<Result<{}, {reason: string}>> => {
 	if (!Array.isArray(build_configs)) {
 		return {
@@ -99,15 +98,6 @@ export const validate_build_configs = async (
 			reason:
 				`The field 'gro.builds' in package.json has` +
 				` a 'node' config with reserved name '${CONFIG_BUILD_NAME}'`,
-		};
-	}
-	const system_build_config = build_configs.find((c) => c.name === SYSTEM_BUILD_NAME);
-	if (dev && !system_build_config) {
-		return {
-			ok: false,
-			reason:
-				`The field 'gro.builds' in package.json must have` +
-				` a 'node' config named '${SYSTEM_BUILD_NAME}'`,
 		};
 	}
 	const names: Set<Build_Name> = new Set();
