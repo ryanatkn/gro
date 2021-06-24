@@ -1,7 +1,6 @@
-import {join, extname, relative} from 'path';
+import {join, extname, relative, basename} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
-import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import {
 	paths,
@@ -131,16 +130,11 @@ export const postprocess = (
 		if (source.extension === SVELTE_EXTENSION && build.extension === JS_EXTENSION && browser) {
 			const css_compilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
 			if (css_compilation !== undefined) {
-				let import_path: string | undefined;
-				for (const served_dir of ctx.served_dirs) {
-					if (css_compilation.id.startsWith(served_dir.path)) {
-						import_path = strip_start(css_compilation.id, served_dir.root);
-						break;
-					}
-				}
-				if (import_path !== undefined) {
-					content = inject_svelte_css_import(content, import_path);
-				}
+				// TODO this is hardcoded to a sibling module, but that may be overly restrictive --
+				// a previous version of this code used the `ctx.served_dirs` to handle any location,
+				// but this coupled the build outputs to the served dirs, which failed and is weird
+				const import_path = `./${basename(css_compilation.filename)}`;
+				content = inject_svelte_css_import(content, import_path);
 			}
 		}
 		return {content, dependencies_by_build_id};

@@ -3,14 +3,14 @@
 	import type {Source_Tree} from './source_tree.js';
 	import {to_file_tree_folder} from './file_tree.js';
 	import File_Tree_Explorer_Folder from './File_Tree_Explorer_Folder.svelte';
-	import {use_project_state} from './project_state.js';
+	import {get_project_state} from './project_state.js';
 
 	export let source_tree: Source_Tree;
 	export let selected_build_names: string[];
 	export const selected_source_meta = undefined;
 	export const hovered_source_meta = undefined;
 
-	const project = use_project_state();
+	const project = get_project_state();
 
 	$: filtered_source_metas = filter_selected_metas(source_tree, selected_build_names);
 	$: file_tree_folder = to_file_tree_folder($project.source_dir, filtered_source_metas);
