@@ -6,6 +6,8 @@
   ([#153](https://github.com/feltcoop/gro/pull/153))
 - infer `npm link` in Node library adapter
   ([#218](https://github.com/feltcoop/gro/pull/218))
+- fix build config validation and normalization
+  ([#220](https://github.com/feltcoop/gro/pull/220))
 
 ## 0.27.0
 
