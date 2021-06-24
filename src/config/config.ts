@@ -252,7 +252,7 @@ const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config 
 				? config.publish
 				: to_default_publish_dirs(build_configs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		system_build_config: build_configs.find((b) => b.name === SYSTEM_BUILD_NAME)!,
+		system_build_config: build_configs.find((b) => b.name === SYSTEM_BUILD_NAME),
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
 		primary_browser_build_config: build_configs.find((b) => b.platform === 'browser') || null,
