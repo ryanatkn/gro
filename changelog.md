@@ -1,5 +1,10 @@
 # changelog
 
+## 0.27.2
+
+- fix deploy task
+  ([#221](https://github.com/feltcoop/gro/pull/221))
+
 ## 0.27.1
 
 - support absolute path imports `$lib/` and `src/`

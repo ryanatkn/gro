@@ -147,7 +147,9 @@ export const task: Task<Task_Args> = {
 				),
 			);
 			await Promise.all(
-				(await fs.read_dir(dir)).map((path) => fs.move(`${dir}${path}`, `${WORKTREE_DIR}/${path}`)),
+				(await fs.read_dir(dir)).map((path) =>
+					fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`),
+				),
 			);
 			// commit the changes
 			await spawn_process('git', ['add', '.', '-f'], GIT_ARGS);
