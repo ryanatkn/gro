@@ -1,5 +1,10 @@
 # changelog
 
+## 0.27.4
+
+- implement API server config and adapter
+  ([#223](https://github.com/feltcoop/gro/pull/223))
+
 ## 0.27.3
 
 - fix default library build to include types in production

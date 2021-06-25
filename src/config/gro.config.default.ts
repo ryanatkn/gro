@@ -5,6 +5,8 @@ import {
 	has_node_library,
 	NODE_LIBRARY_BUILD_CONFIG,
 	has_sveltekit_frontend,
+	has_api_server,
+	API_SERVER_BUILD_CONFIG,
 } from '../build/default_build_config.js';
 
 /*
@@ -27,19 +29,19 @@ It looks at the project and tries to do the right thing:
 export const config: Gro_Config_Creator = async ({fs}) => {
 	const [
 		enable_node_library,
-		// enable_api_server,
+		enable_api_server,
 		enable_sveltekit_frontend,
 		// enable_gro_frontend,
 	] = await Promise.all([
 		has_node_library(fs),
-		// has_api_server(fs),
+		has_api_server(fs),
 		has_sveltekit_frontend(fs),
 		// has_deprecated_gro_frontend(fs),
 	]);
 	const partial: Gro_Config_Partial = {
 		builds: [
 			enable_node_library ? NODE_LIBRARY_BUILD_CONFIG : null,
-			// enable_api_server ? API_SERVER_BUILD_CONFIG : null,
+			enable_api_server ? API_SERVER_BUILD_CONFIG : null,
 			// enable_gro_frontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 			// note there's no build for SvelteKit frontends - should there be?
 		],
@@ -49,8 +51,9 @@ export const config: Gro_Config_Creator = async ({fs}) => {
 			enable_node_library
 				? (await import('../adapt/gro-adapter-node-library.js')).create_adapter()
 				: null,
-			// TODO
-			// enable_api_server ? (await import('../adapt/gro-adapter-api-server.js')).create_adapter() : null,
+			enable_api_server
+				? (await import('../adapt/gro-adapter-api-server.js')).create_adapter()
+				: null,
 			// enable_gro_frontend
 			// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).create_adapter()
 			// 	: null,
