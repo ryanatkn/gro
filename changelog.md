@@ -1,5 +1,10 @@
 # changelog
 
+## 0.27.3
+
+- fix default library build to include types in production
+  ([#222](https://github.com/feltcoop/gro/pull/222))
+
 ## 0.27.2
 
 - fix deploy task
