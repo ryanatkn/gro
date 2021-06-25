@@ -5,9 +5,6 @@ import type {Adapter} from './adapter.js';
 import type {Task_Events as Server_Task_Events} from '../server.task.js';
 import type {Args} from '../task/task.js';
 
-// TODO WIP do not use
-// TODO name? is it actually specific to frontends? or is this more about bundling?
-
 export interface Options {
 	api_server_path?: string;
 }
@@ -31,10 +28,11 @@ export const create_adapter = ({api_server_path}: Partial<Options> = EMPTY_OBJEC
 			events.once('server.spawn', (spawned) => {
 				spawned_api_server = spawned;
 			});
-			const p = args.api_server_path;
+			// TODO this is weird and hacky
+			const previous_args_api_server_path = args.api_server_path;
 			args.api_server_path = api_server_path;
 			await invoke_task('server');
-			args.api_server_path = p;
+			args.api_server_path = previous_args_api_server_path;
 		},
 		end: async ({args}) => {
 			// done! clean up the API server
