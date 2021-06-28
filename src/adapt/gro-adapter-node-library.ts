@@ -51,10 +51,9 @@ export const create_adapter = ({
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
-		begin: async ({fs}) => {
-			await fs.remove(dir);
-		},
 		adapt: async ({config, fs, dev, log, args}) => {
+			await fs.remove(dir); // TODO is this right?
+
 			const {map_input_options, map_output_options, map_watch_options} = args;
 
 			const timings = new Timings(); // TODO probably move to task context

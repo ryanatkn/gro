@@ -56,15 +56,6 @@ export const task: Task<Task_Args, Task_Events> = {
 		timing_to_create_adapters();
 
 		if (adapters.length) {
-			const timing_to_call_begin = timings.start('begin');
-			for (const adapter of adapters) {
-				if (!adapter.begin) continue;
-				const timing = timings.start(`begin:${adapter.name}`);
-				await adapter.begin(adapt_context);
-				timing();
-			}
-			timing_to_call_begin();
-
 			const timing_to_call_adapt = timings.start('adapt');
 			for (const adapter of adapters) {
 				if (!adapter.adapt) continue;
@@ -73,15 +64,6 @@ export const task: Task<Task_Args, Task_Events> = {
 				timing();
 			}
 			timing_to_call_adapt();
-
-			const timing_to_call_end = timings.start('end');
-			for (const adapter of adapters) {
-				if (!adapter.end) continue;
-				const timing = timings.start(`end:${adapter.name}`);
-				await adapter.end(adapt_context);
-				timing();
-			}
-			timing_to_call_end();
 		} else {
 			log.info('no adapters to `adapt`');
 		}

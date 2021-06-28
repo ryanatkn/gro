@@ -16,12 +16,10 @@ and interoperability is not a goal yet. (and may never be, can't tell right now)
 
 export interface Adapter<T_Args = any, T_Events = any> {
 	name: string;
-	begin?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
-	adapt?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
-	end?: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	adapt: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
 }
 
-export interface Adapt_Builds<T_Args = any, T_Events = any> {
+export interface To_Config_Adapters<T_Args = any, T_Events = any> {
 	(ctx: Adapter_Context<T_Args, T_Events>):
 		| (Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[])
 		| Promise<Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[]>;

@@ -25,10 +25,9 @@ export const create_adapter = ({
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
-		begin: async ({fs}) => {
-			await fs.remove(dir);
-		},
 		adapt: async ({fs, log}) => {
+			await fs.remove(dir); // TODO is this right?
+
 			const timings = new Timings();
 
 			const timing_to_build_sveltekit = timings.start('build SvelteKit');

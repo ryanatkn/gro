@@ -47,12 +47,17 @@ export const config: Gro_Config_Creator = async ({fs}) => {
 		],
 		log_level: ENV_LOG_LEVEL ?? Log_Level.Trace,
 		types: enable_node_library,
+		plugin: async () => [
+			enable_api_server
+				? (await import('../plugin/gro-plugin-api-server.js')).create_plugin()
+				: null,
+			enable_sveltekit_frontend
+				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).create_plugin()
+				: null,
+		],
 		adapt: async () => [
 			enable_node_library
 				? (await import('../adapt/gro-adapter-node-library.js')).create_adapter()
-				: null,
-			enable_api_server
-				? (await import('../adapt/gro-adapter-api-server.js')).create_adapter()
 				: null,
 			// enable_gro_frontend
 			// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).create_adapter()

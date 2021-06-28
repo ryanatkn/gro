@@ -76,7 +76,7 @@ The [`Gro_Config_Partial`](/src/gro.config.ts) is the return value of config fil
 export interface Gro_Config_Partial {
 	readonly builds: (Build_Config_Partial | null)[] | Build_Config_Partial | null;
 	readonly publish?: string | null; // dir for `gro publish`, defaults to 'dist/library' if it exists
-	readonly adapt?: Adapt_Builds;
+	readonly adapt?: To_Config_Adapters;
 	readonly target?: Ecma_Script_Target; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly typemap?: boolean; // defaults to false in `dev`, true for prod
@@ -133,7 +133,7 @@ The `adapt` property is a function that returns any number of `Adapter` instance
 Read more about [`adapt` and the `Adapter` in the build docs](build.md).
 
 ```ts
-export interface Adapt_Builds<T_Args = any, T_Events = any> {
+export interface To_Config_Adapters<T_Args = any, T_Events = any> {
 	(ctx: Adapter_Context<T_Args, T_Events>):
 		| (Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[])
 		| Promise<Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[]>;

@@ -2,6 +2,7 @@ import {print_timings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/time.js';
 import {create_restartable_process, spawn} from '@feltcoop/felt/util/process.js';
 import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
+import {to_array} from '@feltcoop/felt/util/array.js';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
@@ -19,6 +20,7 @@ import {
 	API_SERVER_BUILD_NAME,
 	has_sveltekit_frontend,
 } from './build/default_build_config.js';
+import type {Plugin, Plugin_Context} from './plugin/plugin.js';
 
 export interface Task_Args {
 	watch?: boolean; // defaults to `true`
@@ -46,21 +48,44 @@ export interface Task_Events {
 
 export const task: Task<Task_Args, Task_Events> = {
 	summary: 'start dev server',
-	run: async ({fs, dev, log, args, events}) => {
+	run: async (ctx) => {
+		const {fs, dev, log, args, events} = ctx;
+
 		const watch = args.watch ?? true;
 
 		const timings = new Timings();
 
+		const timing_to_load_config = timings.start('load config');
+		const config = await load_config(fs, dev);
+		timing_to_load_config();
+		events.emit('dev.create_config', config);
+
+		// Create the dev plugins
+		const timing_to_create_plugins = timings.start('create plugins');
+		const plugin_context: Plugin_Context<Task_Args, Task_Events> = {
+			...ctx,
+			config,
+		};
+		const plugins: Plugin<any, any>[] = to_array(await config.plugin(plugin_context)).filter(
+			Boolean,
+		) as Plugin<any, any>[];
+		timing_to_create_plugins();
+
+		// TODO move this to a plugin
 		// Support SvelteKit builds alongside Gro
 		let sveltekit_process: Spawned_Process | null = null;
 		if (await has_sveltekit_frontend(fs)) {
 			sveltekit_process = spawn('npx', ['svelte-kit', 'dev']);
 		}
 
-		const timing_to_load_config = timings.start('load config');
-		const config = await load_config(fs, dev);
-		timing_to_load_config();
-		events.emit('dev.create_config', config);
+		const timing_to_call_plugin_setup = timings.start('setup plugins');
+		for (const plugin of plugins) {
+			if (!plugin.dev_setup) continue;
+			const timing = timings.start(`setup:${plugin.name}`);
+			await plugin.dev_setup(plugin_context);
+			timing();
+		}
+		timing_to_call_plugin_setup();
 
 		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
