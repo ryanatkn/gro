@@ -1,7 +1,9 @@
 # changelog
 
-## 0.27.4
+## 0.28.0
 
+- **break**: remove `gro start` task
+  ([#223](https://github.com/feltcoop/gro/pull/223))
 - implement API server config and adapter
   ([#223](https://github.com/feltcoop/gro/pull/223))
 

@@ -17,7 +17,6 @@ What is a `Task`? See [`src/tasks/README.md`](../task).
 - [publish](../publish.task.ts) - bump version, publish to npm, and sync to GitHub
 - [serve](../serve.task.ts) - start static file server
 - [server](../server.task.ts) - start API server
-- [start](../start.task.ts) - runs the dist/ builds for production
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
 
