@@ -50,10 +50,6 @@ export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_B
 export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
 export const has_api_server = async (fs: Filesystem): Promise<boolean> =>
 	!is_this_project_gro && (await fs.exists(API_SERVER_SOURCE_ID));
-export const has_api_server_config = (build_configs: Build_Config[]): boolean =>
-	build_configs.some(
-		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_CONFIG.platform,
-	);
 export const API_SERVER_BUILD_NAME: Build_Name = 'server';
 export const API_SERVER_BUILD_CONFIG: Build_Config = {
 	name: API_SERVER_BUILD_NAME,
@@ -66,8 +62,6 @@ export const API_SERVER_DEFAULT_PORT_PROD = 3000;
 export const API_SERVER_DEFAULT_PORT_DEV = 3001;
 export const to_api_server_port = (dev: boolean): number =>
 	dev ? API_SERVER_DEFAULT_PORT_DEV : API_SERVER_DEFAULT_PORT_PROD;
-export const to_api_server_build_path = (dev: boolean, build_dir = paths.build): string =>
-	to_build_out_path(dev, API_SERVER_BUILD_NAME, API_SERVER_BUILD_BASE_PATH, build_dir);
 
 const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const has_sveltekit_frontend = async (fs: Filesystem): Promise<boolean> =>

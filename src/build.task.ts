@@ -6,7 +6,6 @@ import type {Task, Args} from './task/task.js';
 import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from './build/rollup.js';
 import {load_config} from './config/config.js';
 import type {Gro_Config} from './config/config.js';
-import type {Task_Events as Server_Task_Events} from './server.task.js';
 import type {Adapter_Context, Adapter} from './adapt/adapter.js';
 import {build_source} from './build/build_source.js';
 import type {Plugin, Plugin_Context} from './plugin/plugin.js';
@@ -17,7 +16,7 @@ export interface Task_Args extends Args {
 	map_watch_options?: Map_Watch_Options;
 }
 
-export interface Task_Events extends Server_Task_Events {
+export interface Task_Events {
 	'build.create_config': (config: Gro_Config) => void;
 	'build.build_src': void;
 }

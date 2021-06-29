@@ -1,23 +1,17 @@
 import {print_timings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/time.js';
-import {create_restartable_process} from '@feltcoop/felt/util/process.js';
 import {to_array} from '@feltcoop/felt/util/array.js';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {create_default_builder} from './build/default_builder.js';
-import {paths, to_build_out_path, is_this_project_gro} from './paths.js';
+import {paths, to_build_out_path} from './paths.js';
 import {create_gro_server} from './server/server.js';
 import type {Gro_Server} from './server/server.js';
 import type {Gro_Config} from './config/config.js';
 import {load_config} from './config/config.js';
 import type {Served_Dir_Partial} from './build/served_dir.js';
 import {load_https_credentials} from './server/https.js';
-import {
-	has_api_server_config,
-	API_SERVER_BUILD_BASE_PATH,
-	API_SERVER_BUILD_NAME,
-} from './build/default_build_config.js';
 import type {Plugin, Plugin_Context} from './plugin/plugin.js';
 
 export interface Task_Args {
@@ -150,29 +144,6 @@ export const task: Task<Task_Args, Task_Events> = {
 		]);
 
 		events.emit('dev.ready', dev_task_context);
-
-		// TODO move this to the adapter
-
-		// Support the API server pattern by default.
-		// Normal user projects will hit this code path right here:
-		// in other words, `is_this_project_gro` will always be `false` for your code.
-		// TODO task pollution, this is bad for users who want to copy/paste this task.
-		// think of a better way - maybe config+defaults?
-		// I don't want to touch Gro's prod build pipeline right now using package.json `"preversion"`
-		if (!is_this_project_gro && has_api_server_config(config.builds)) {
-			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
-			const server_build_path = to_build_out_path(
-				true,
-				API_SERVER_BUILD_NAME,
-				API_SERVER_BUILD_BASE_PATH,
-			);
-			const server_process = create_restartable_process('node', [server_build_path]);
-			filer.on('build', ({build_config}) => {
-				if (build_config.name === API_SERVER_BUILD_NAME) {
-					server_process.restart();
-				}
-			});
-		}
 
 		print_timings(timings, log);
 	},
