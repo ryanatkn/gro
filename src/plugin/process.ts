@@ -121,7 +121,7 @@ const DEFAULT_RESTART_DELAY = 5; // milliseconds
 // This handles many concurrent `restart` calls gracefully,
 // and restarts ones after the trailing call, waiting some `delay` in between.
 // It's slightly more complex because `child.kill` is sync, so we tie things up with promises.
-export const create_restartable_process = (
+export const spawn_restartable_process = (
 	command: string,
 	args: readonly string[] = [],
 	options?: SpawnOptions,

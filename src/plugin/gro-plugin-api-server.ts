@@ -8,7 +8,7 @@ import type {Build_Config, Build_Name} from 'src/build/build_config.js';
 
 // TODO import from felt instead
 import type {Restartable_Process} from './process.js';
-import {create_restartable_process} from './process.js';
+import {spawn_restartable_process} from './process.js';
 
 export interface Options {
 	build_name: Build_Name; // defaults to 'server'
@@ -47,7 +47,7 @@ export const create_plugin = ({
 			// TODO what if we wrote out the port and
 			// also, retried if it conflicted ports, have some affordance here to increment and write to disk
 			// on disk, we can check for that file in `svelte.config.cjs`
-			server_process = create_restartable_process('node', [server_build_path]);
+			server_process = spawn_restartable_process('node', [server_build_path]);
 			// events.emit('server.spawn', spawned, path);
 			// TODO remove event handler in `teardown`
 			if (filer) {
