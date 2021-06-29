@@ -1,5 +1,6 @@
 import type {Task_Context} from '../task/task.js';
 import type {Gro_Config} from '../config/config.js';
+import type {Filer} from 'src/build/Filer.js';
 
 /*
 
@@ -23,4 +24,5 @@ export interface To_Config_Plugins<T_Args = any, T_Events = any> {
 export interface Plugin_Context<T_Args = any, T_Events = any>
 	extends Task_Context<T_Args, T_Events> {
 	config: Gro_Config;
+	filer: Filer | null;
 }

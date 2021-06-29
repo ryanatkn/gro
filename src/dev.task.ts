@@ -55,19 +55,6 @@ export const task: Task<Task_Args, Task_Events> = {
 		timing_to_load_config();
 		events.emit('dev.create_config', config);
 
-		// Create the dev plugins
-		// TODO this has a lot of copypaste with `gro build` plugin usage,
-		// probably extract a common interface
-		const timing_to_create_plugins = timings.start('create plugins');
-		const plugin_context: Plugin_Context<Task_Args, Task_Events> = {
-			...ctx,
-			config,
-		};
-		const plugins: Plugin<any, any>[] = to_array(await config.plugin(plugin_context)).filter(
-			Boolean,
-		) as Plugin<any, any>[];
-		timing_to_create_plugins();
-
 		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
 			fs,
@@ -88,6 +75,20 @@ export const task: Task<Task_Args, Task_Events> = {
 			await filer.init();
 			timing_to_init_filer();
 		};
+
+		// Create the dev plugins
+		// TODO this has a lot of copypaste with `gro build` plugin usage,
+		// probably extract a common interface
+		const timing_to_create_plugins = timings.start('create plugins');
+		const plugin_context: Plugin_Context<Task_Args, Task_Events> = {
+			...ctx,
+			config,
+			filer,
+		};
+		const plugins: Plugin<any, any>[] = to_array(await config.plugin(plugin_context)).filter(
+			Boolean,
+		) as Plugin<any, any>[];
+		timing_to_create_plugins();
 
 		const timing_to_call_plugin_setup = timings.start('setup plugins');
 		for (const plugin of plugins) {
@@ -118,6 +119,7 @@ export const task: Task<Task_Args, Task_Events> = {
 			return;
 		}
 
+		// TODO should this be a plugin?
 		// TODO restart functionality
 		const timing_to_create_gro_server = timings.start('create dev server');
 		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`

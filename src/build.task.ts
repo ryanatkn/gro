@@ -44,6 +44,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		const plugin_context: Plugin_Context<Task_Args, Task_Events> = {
 			...ctx,
 			config,
+			filer: null,
 		};
 		const plugins: Plugin<any, any>[] = to_array(await config.plugin(plugin_context)).filter(
 			Boolean,
