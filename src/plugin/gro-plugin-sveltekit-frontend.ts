@@ -16,13 +16,17 @@ export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	Task_Args,
 	Server_Task_Events
 > => {
+	let sveltekit_process: Spawned_Process | null = null;
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
 		setup: async ({fs}) => {
-			let sveltekit_process: Spawned_Process | null = null;
 			if (await has_sveltekit_frontend(fs)) {
 				sveltekit_process = spawn('npx', ['svelte-kit', 'dev']);
 			}
+		},
+		teardown: async () => {
+			sveltekit_process!.child.kill();
+			await sveltekit_process!.closed;
 		},
 	};
 };
