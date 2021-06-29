@@ -9,6 +9,7 @@
 - [log](log.md)
 - [options](options.md)
 - [philosophy](philosophy.md)
+- [plugin](plugin.md)
 - [publish](publish.md)
 - [tasks](tasks.md)
 
