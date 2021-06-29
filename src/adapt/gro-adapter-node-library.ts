@@ -52,7 +52,7 @@ export const create_adapter = ({
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
 		adapt: async ({config, fs, dev, log, args}) => {
-			await fs.remove(dir); // TODO is this right?
+			await fs.remove(dir);
 
 			const {map_input_options, map_output_options, map_watch_options} = args;
 

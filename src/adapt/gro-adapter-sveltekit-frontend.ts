@@ -26,7 +26,7 @@ export const create_adapter = ({
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
 		adapt: async ({fs, log}) => {
-			await fs.remove(dir); // TODO is this right?
+			await fs.remove(dir);
 
 			const timings = new Timings();
 

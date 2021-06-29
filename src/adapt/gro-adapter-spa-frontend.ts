@@ -34,7 +34,7 @@ export const create_adapter = ({
 	return {
 		name: '@feltcoop/gro-adapter-spa-frontend',
 		adapt: async ({config, fs, args, log, dev}) => {
-			await fs.remove(dir); // TODO is this right?
+			await fs.remove(dir);
 
 			const {map_input_options, map_output_options, map_watch_options} = args;
 
