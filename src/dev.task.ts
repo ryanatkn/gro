@@ -75,33 +75,6 @@ export const task: Task<Task_Args, Task_Events> = {
 		) as Plugin<any, any>[];
 		timing_to_create_plugins();
 
-		// TODO move this to a plugin
-		// Support SvelteKit builds alongside Gro
-		let sveltekit_process: Spawned_Process | null = null;
-		if (await has_sveltekit_frontend(fs)) {
-			sveltekit_process = spawn('npx', ['svelte-kit', 'dev']);
-		}
-
-		const timing_to_call_plugin_setup = timings.start('setup plugins');
-		for (const plugin of plugins) {
-			if (!plugin.setup) continue;
-			const timing = timings.start(`setup:${plugin.name}`);
-			await plugin.setup(plugin_context);
-			timing();
-		}
-		timing_to_call_plugin_setup();
-
-		const teardown_plugins = async () => {
-			const timing_to_call_plugin_teardown = timings.start('teardown plugins');
-			for (const plugin of plugins) {
-				if (!plugin.teardown) continue;
-				const timing = timings.start(`teardown:${plugin.name}`);
-				await plugin.teardown(plugin_context);
-				timing();
-			}
-			timing_to_call_plugin_teardown();
-		};
-
 		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
 			fs,
@@ -121,6 +94,26 @@ export const task: Task<Task_Args, Task_Events> = {
 			const timing_to_init_filer = timings.start('init filer');
 			await filer.init();
 			timing_to_init_filer();
+		};
+
+		const timing_to_call_plugin_setup = timings.start('setup plugins');
+		for (const plugin of plugins) {
+			if (!plugin.setup) continue;
+			const timing = timings.start(`setup:${plugin.name}`);
+			await plugin.setup(plugin_context);
+			timing();
+		}
+		timing_to_call_plugin_setup();
+
+		const teardown_plugins = async () => {
+			const timing_to_call_plugin_teardown = timings.start('teardown plugins');
+			for (const plugin of plugins) {
+				if (!plugin.teardown) continue;
+				const timing = timings.start(`teardown:${plugin.name}`);
+				await plugin.teardown(plugin_context);
+				timing();
+			}
+			timing_to_call_plugin_teardown();
 		};
 
 		// exit early if we're not in watch mode
