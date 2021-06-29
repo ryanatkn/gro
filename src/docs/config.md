@@ -39,33 +39,6 @@ export const config: Gro_Config_Creator = async () => {
 };
 ```
 
-Here's what a frontend-only project with both desktop and mobile builds may look like:
-
-```ts
-import type {Gro_Config_Creator} from '@feltcoop/gro';
-import {createFilter} from '@rollup/pluginutils';
-
-export const config: Gro_Config_Creator = async () => {
-	return {
-		builds: [
-			{
-				name: 'browser_mobile',
-				platform: 'browser',
-				input: 'index.ts',
-				adapt: () => await import('./gro-adapter-browser-mobile.js'),
-			},
-			{
-				name: 'browser_desktop',
-				platform: 'browser',
-				input: 'index.ts',
-				adapt: () => await import('./gro-adapter-browser-desktop.js'),
-			},
-			// a default `name: 'node'` build is added by Gro to build tasks and other system files
-		],
-	};
-};
-```
-
 Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
@@ -76,6 +49,7 @@ The [`Gro_Config_Partial`](/src/gro.config.ts) is the return value of config fil
 export interface Gro_Config_Partial {
 	readonly builds: (Build_Config_Partial | null)[] | Build_Config_Partial | null;
 	readonly publish?: string | null; // dir for `gro publish`, defaults to 'dist/library' if it exists
+	readonly plugin?: To_Config_Plugins;
 	readonly adapt?: To_Config_Adapters;
 	readonly target?: Ecma_Script_Target; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
@@ -126,6 +100,19 @@ To define filters, it's convenient to use the
 [`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
 from `@rollup/pluginutils` and
 Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
+
+### `plugin`
+
+The `plugin` property is a function that returns any number of `Plugin` instances.
+Read more about [`plugin` and the `Plugin` in the dev docs](dev.md).
+
+```ts
+export interface To_Config_Plugins<T_Args = any, T_Events = any> {
+	(ctx: Plugin_Context<T_Args, T_Events>):
+		| (Plugin<T_Args, T_Events> | null | (Plugin<T_Args, T_Events> | null)[])
+		| Promise<Plugin<T_Args, T_Events> | null | (Plugin<T_Args, T_Events> | null)[]>;
+}
+```
 
 ### `adapt`
 

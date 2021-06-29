@@ -48,8 +48,8 @@ This choice keeps things simple and flexible because:
 export interface Gro_Config {
 	readonly builds: Build_Config[];
 	readonly publish: string | null;
-	readonly adapt: To_Config_Adapters;
 	readonly plugin: To_Config_Plugins;
+	readonly adapt: To_Config_Adapters;
 	readonly target: Ecma_Script_Target;
 	readonly sourcemap: boolean;
 	readonly typemap: boolean;
@@ -64,8 +64,8 @@ export interface Gro_Config {
 export interface Gro_Config_Partial {
 	readonly builds?: (Build_Config_Partial | null)[] | Build_Config_Partial | null; // allow `null` for convenience
 	readonly publish?: string | null; // dir to publish: defaults to 'dist/library', or null if it doesn't exist -- TODO support multiple
-	readonly adapt?: To_Config_Adapters;
 	readonly plugin?: To_Config_Plugins;
+	readonly adapt?: To_Config_Adapters;
 	readonly target?: Ecma_Script_Target;
 	readonly sourcemap?: boolean;
 	readonly typemap?: boolean;
@@ -210,8 +210,8 @@ const to_bootstrap_config = (): Gro_Config => {
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,
-		adapt: () => null,
 		plugin: () => null,
+		adapt: () => null,
 		builds: [CONFIG_BUILD_CONFIG],
 		publish: null,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
@@ -246,8 +246,8 @@ const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config 
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
 		log_level: DEFAULT_LOG_LEVEL,
-		adapt: () => null,
 		plugin: () => null,
+		adapt: () => null,
 		serve: null,
 		...omit_undefined(config),
 		builds: build_configs,
