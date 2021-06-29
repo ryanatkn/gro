@@ -4,7 +4,6 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import type {Plugin} from './plugin.js';
 import type {Task_Events as Server_Task_Events} from '../server.task.js';
 import type {Args} from '../task/task.js';
-import {has_sveltekit_frontend} from 'src/build/default_build_config.js';
 
 export interface Options {}
 
@@ -19,14 +18,16 @@ export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
-		setup: async ({fs}) => {
-			if (await has_sveltekit_frontend(fs)) {
+		setup: async ({args}) => {
+			if (args.watch) {
 				sveltekit_process = spawn('npx', ['svelte-kit', 'dev']);
 			}
 		},
 		teardown: async () => {
-			sveltekit_process!.child.kill();
-			await sveltekit_process!.closed;
+			if (sveltekit_process) {
+				sveltekit_process.child.kill();
+				await sveltekit_process.closed;
+			}
 		},
 	};
 };
