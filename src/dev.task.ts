@@ -1,7 +1,6 @@
 import {print_timings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/time.js';
-import {create_restartable_process, spawn} from '@feltcoop/felt/util/process.js';
-import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
+import {create_restartable_process} from '@feltcoop/felt/util/process.js';
 import {to_array} from '@feltcoop/felt/util/array.js';
 
 import type {Task} from './task/task.js';
@@ -18,7 +17,6 @@ import {
 	has_api_server_config,
 	API_SERVER_BUILD_BASE_PATH,
 	API_SERVER_BUILD_NAME,
-	has_sveltekit_frontend,
 } from './build/default_build_config.js';
 import type {Plugin, Plugin_Context} from './plugin/plugin.js';
 
@@ -34,7 +32,6 @@ export interface Dev_Task_Context {
 	config: Gro_Config;
 	filer: Filer;
 	server: Gro_Server;
-	sveltekit_process: Spawned_Process | null;
 }
 
 export interface Task_Events {
@@ -105,7 +102,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		}
 		timing_to_call_plugin_setup();
 
-		const teardown_plugins = async () => {
+		const teardown_plugins = async (): Promise<void> => {
 			const timing_to_call_plugin_teardown = timings.start('teardown plugins');
 			for (const plugin of plugins) {
 				if (!plugin.teardown) continue;
@@ -135,14 +132,14 @@ export const task: Task<Task_Args, Task_Events> = {
 		timing_to_create_gro_server();
 		events.emit('dev.create_server', server);
 
-		const dev_task_context: Dev_Task_Context = {config, server, filer, sveltekit_process};
+		const dev_task_context: Dev_Task_Context = {config, server, filer};
 
 		await Promise.all([
-			(async () => {
+			(async (): Promise<void> => {
 				await init_filer();
 				events.emit('dev.init_filer', dev_task_context);
 			})(),
-			(async () => {
+			(async (): Promise<void> => {
 				const timing_to_start_gro_server = timings.start('start dev server');
 				await server.start();
 				timing_to_start_gro_server();
@@ -151,6 +148,8 @@ export const task: Task<Task_Args, Task_Events> = {
 		]);
 
 		events.emit('dev.ready', dev_task_context);
+
+		// TODO move this to the adapter
 
 		// Support the API server pattern by default.
 		// Normal user projects will hit this code path right here:

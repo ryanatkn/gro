@@ -5,7 +5,7 @@ import {Task_Error} from './task/task.js';
 
 export const task: Task = {
 	summary: 'typecheck the project without emitting any files',
-	run: async () => {
+	run: async (): Promise<void> => {
 		const typecheck_result = await spawn_process('npx', ['tsc', '--noEmit']);
 		if (!typecheck_result.ok) {
 			throw new Task_Error(`Failed to typecheck. ${print_spawn_result(typecheck_result)}`);
