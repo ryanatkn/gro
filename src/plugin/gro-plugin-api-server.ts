@@ -9,9 +9,7 @@ export interface Options {
 	api_server_path?: string;
 }
 
-export interface Task_Args extends Args {
-	close_api_server?: (spawned: Spawned_Process) => Promise<void>; // let other tasks hang onto the api server
-}
+export interface Task_Args extends Args {}
 
 export const create_plugin = ({api_server_path}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	Task_Args,
@@ -21,25 +19,14 @@ export const create_plugin = ({api_server_path}: Partial<Options> = EMPTY_OBJECT
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
 		setup: async ({events, invoke_task, args}) => {
-			// now that the sources are built, we can start the API server, if it exists
 			events.once('server.spawn', (spawned) => {
 				api_server_process = spawned;
 			});
-			// TODO this is weird and hacky
-			const previous_args_api_server_path = args.api_server_path;
-			args.api_server_path = api_server_path;
-			await invoke_task('server');
-			args.api_server_path = previous_args_api_server_path;
+			await invoke_task('server', {...args, api_server_path});
 		},
-		teardown: async ({args}) => {
-			// done! clean up the API server
-			if (args.close_api_server) {
-				// don't await - whoever attached `close_api_server` will clean it up
-				await args.close_api_server(api_server_process!);
-			} else {
-				api_server_process!.child.kill();
-				await api_server_process!.closed;
-			}
+		teardown: async () => {
+			api_server_process!.child.kill();
+			await api_server_process!.closed;
 		},
 	};
 };

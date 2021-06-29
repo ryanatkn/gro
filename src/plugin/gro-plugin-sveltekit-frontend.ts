@@ -8,7 +8,7 @@ import type {Args} from '../task/task.js';
 export interface Options {}
 
 export interface Task_Args extends Args {
-	close_api_server?: (spawned: Spawned_Process) => Promise<void>; // let other tasks hang onto the api server
+	watch?: boolean;
 }
 
 export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
