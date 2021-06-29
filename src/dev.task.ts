@@ -90,6 +90,24 @@ export const task: Task<Task_Args, Task_Events> = {
 		) as Plugin<any, any>[];
 		timing_to_create_plugins();
 
+		// TODO should this be a plugin?
+		// TODO restart functionality
+		const timing_to_create_gro_server = timings.start('create dev server');
+		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
+		const https = args.insecure
+			? null
+			: await load_https_credentials(fs, log, args.cert, args.certkey);
+		const server = create_gro_server({filer, host: config.host, port: config.port, https});
+		timing_to_create_gro_server();
+		events.emit('dev.create_server', server);
+
+		const dev_task_context: Dev_Task_Context = {config, server, filer};
+
+		// Now that the context is ready, init the filer.
+		console.log('INIT FILER');
+		await init_filer();
+		events.emit('dev.init_filer', dev_task_context);
+
 		const timing_to_call_plugin_setup = timings.start('setup plugins');
 		for (const plugin of plugins) {
 			if (!plugin.setup) continue;
@@ -110,40 +128,14 @@ export const task: Task<Task_Args, Task_Events> = {
 			timing_to_call_plugin_teardown();
 		};
 
-		// exit early if we're not in watch mode
-		// TODO this is a bit janky because events behave differently
-		if (!watch) {
-			await init_filer();
-			print_timings(timings, log);
+		if (watch) {
+			const timing_to_start_gro_server = timings.start('start dev server');
+			await server.start();
+			timing_to_start_gro_server();
+			events.emit('dev.start_server', dev_task_context);
+		} else {
 			await teardown_plugins();
-			return;
 		}
-
-		// TODO should this be a plugin?
-		// TODO restart functionality
-		const timing_to_create_gro_server = timings.start('create dev server');
-		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
-		const https = args.insecure
-			? null
-			: await load_https_credentials(fs, log, args.cert, args.certkey);
-		const server = create_gro_server({filer, host: config.host, port: config.port, https});
-		timing_to_create_gro_server();
-		events.emit('dev.create_server', server);
-
-		const dev_task_context: Dev_Task_Context = {config, server, filer};
-
-		await Promise.all([
-			(async (): Promise<void> => {
-				await init_filer();
-				events.emit('dev.init_filer', dev_task_context);
-			})(),
-			(async (): Promise<void> => {
-				const timing_to_start_gro_server = timings.start('start dev server');
-				await server.start();
-				timing_to_start_gro_server();
-				events.emit('dev.start_server', dev_task_context);
-			})(),
-		]);
 
 		events.emit('dev.ready', dev_task_context);
 
