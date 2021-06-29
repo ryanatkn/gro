@@ -14,10 +14,15 @@ export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<Task_
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
-		setup: async ({dev, args}) => {
+		setup: async ({dev, args, log}) => {
 			if (dev) {
 				if (args.watch) {
 					sveltekit_process = spawn('npx', ['svelte-kit', 'dev']);
+				} else {
+					log.warn(
+						'The SvelteKit Gro plugin is loaded but will not output anything' +
+							' because `dev` is true and `watch` is false',
+					);
 				}
 			} else {
 				await spawn_process('npx', ['svelte-kit', 'build']);

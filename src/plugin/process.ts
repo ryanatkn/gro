@@ -1,11 +1,11 @@
 import {spawn as spawn_child_process} from 'child_process';
 import type {SpawnOptions, ChildProcess} from 'child_process';
 
-import {gray, green, red} from './terminal.js';
-import {print_log_label, System_Logger} from './log.js';
-import {print_error, print_key_value} from './print.js';
-import {wait} from './async.js';
-import type {Result} from './types.js';
+import {gray, green, red} from '@feltcoop/felt/util/terminal.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
+import {print_error, print_key_value} from '@feltcoop/felt/util/print.js';
+import {wait} from '@feltcoop/felt/util/async.js';
+import type {Result} from '@feltcoop/felt/util/types.js';
 
 const log = new System_Logger(print_log_label('process'));
 

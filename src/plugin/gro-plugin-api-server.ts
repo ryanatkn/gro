@@ -50,7 +50,9 @@ export const create_plugin = ({
 			server_process = create_restartable_process('node', [server_build_path]);
 			// events.emit('server.spawn', spawned, path);
 			// TODO remove event handler in `teardown`
-			filer.on('build', on_filer_build);
+			if (filer) {
+				filer.on('build', on_filer_build);
+			}
 		},
 		teardown: async ({filer}) => {
 			if (server_process) {
