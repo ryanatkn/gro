@@ -20,7 +20,7 @@ export const create_plugin = ({api_server_path}: Partial<Options> = EMPTY_OBJECT
 	let spawned_api_server: Spawned_Process | null = null;
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
-		dev_setup: async ({events, invoke_task, args}) => {
+		setup: async ({events, invoke_task, args}) => {
 			// now that the sources are built, we can start the API server, if it exists
 			events.once('server.spawn', (spawned) => {
 				spawned_api_server = spawned;
@@ -31,7 +31,7 @@ export const create_plugin = ({api_server_path}: Partial<Options> = EMPTY_OBJECT
 			await invoke_task('server');
 			args.api_server_path = previous_args_api_server_path;
 		},
-		dev_teardown: async ({args}) => {
+		teardown: async ({args}) => {
 			// done! clean up the API server
 			if (args.close_api_server) {
 				// don't await - whoever attached `close_api_server` will clean it up

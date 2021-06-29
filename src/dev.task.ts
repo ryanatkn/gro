@@ -51,7 +51,11 @@ export const task: Task<Task_Args, Task_Events> = {
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
 
-		const watch = args.watch ?? true;
+		// Mutate `args` with the resolved `watch` value so plugins can use it.
+		if (args.watch === undefined) {
+			args.watch = true;
+		}
+		const {watch} = args;
 
 		const timings = new Timings();
 
@@ -80,12 +84,23 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		const timing_to_call_plugin_setup = timings.start('setup plugins');
 		for (const plugin of plugins) {
-			if (!plugin.dev_setup) continue;
+			if (!plugin.setup) continue;
 			const timing = timings.start(`setup:${plugin.name}`);
-			await plugin.dev_setup(plugin_context);
+			await plugin.setup(plugin_context);
 			timing();
 		}
 		timing_to_call_plugin_setup();
+
+		const teardown_plugins = async () => {
+			const timing_to_call_plugin_teardown = timings.start('teardown plugins');
+			for (const plugin of plugins) {
+				if (!plugin.teardown) continue;
+				const timing = timings.start(`teardown:${plugin.name}`);
+				await plugin.teardown(plugin_context);
+				timing();
+			}
+			timing_to_call_plugin_teardown();
+		};
 
 		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
@@ -113,6 +128,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		if (!watch) {
 			await init_filer();
 			print_timings(timings, log);
+			await teardown_plugins();
 			return;
 		}
 
