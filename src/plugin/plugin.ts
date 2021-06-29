@@ -3,10 +3,8 @@ import type {Gro_Config} from '../config/config.js';
 
 /*
 
-Gro `Plugin`s enable custom behavior during development.
-They are not used in production builds.
-For production, if an `Adapter` is not sufficient for some use cases,
-we may need to change this, possibly by adding additional production-only hooks.
+Gro `Plugin`s enable custom behavior during `gro dev` and `gro build`.
+In contrast, `Adapter`s use the results of `gro build` to produce final artifacts.
 
 */
 

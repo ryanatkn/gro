@@ -18,9 +18,15 @@ Adapting is designed to be powerful and open ended.
 
 ## contents
 
+- [plugins](#plugins)
 - [adapters](#adapters)
 - [adapt](#adapt)
 - [deploying and publishing](#deploying-and-publishing)
+
+## plugins
+
+`Plugin`s are objects that customize the behavior of `gro build` (and `gro dev`).
+See [plugin.md](plugin.md) to learn more.
 
 ## adapters
 
@@ -46,7 +52,7 @@ the build process has two discrete steps:
 > if you find yourself wanting to modify builds in place, try a `Builder` instead
 > (the API probably needs improvements and helpers) — open issues if you want to discuss!
 
-An adapter is a small plugin with a few optional hooks:
+An adapter is an object with a few optional hooks:
 
 ```ts
 export interface Adapter<T_Args = any, T_Events = any> {

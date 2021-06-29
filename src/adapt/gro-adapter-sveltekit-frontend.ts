@@ -1,5 +1,4 @@
 import {Timings} from '@feltcoop/felt/util/time.js';
-import {spawn_process} from '@feltcoop/felt/util/process.js';
 import {print_timings} from '@feltcoop/felt/util/print.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
@@ -30,12 +29,8 @@ export const create_adapter = ({
 
 			const timings = new Timings();
 
-			const timing_to_build_sveltekit = timings.start('build SvelteKit');
-			await spawn_process('npx', ['svelte-kit', 'build']);
-			timing_to_build_sveltekit();
-
 			const timing_to_copy_dist = timings.start('copy build to dist');
-			await fs.move(sveltekit_dir, dir);
+			await fs.copy(sveltekit_dir, dir);
 			timing_to_copy_dist();
 
 			// GitHub pages processes everything with Jekyll by default,

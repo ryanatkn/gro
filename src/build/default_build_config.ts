@@ -1,7 +1,13 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {Build_Config, Build_Config_Partial, Build_Name} from './build_config.js';
-import {to_build_extension, base_path_to_source_id, to_build_out_path, paths} from '../paths.js';
+import {
+	to_build_extension,
+	base_path_to_source_id,
+	to_build_out_path,
+	paths,
+	is_this_project_gro,
+} from '../paths.js';
 import {get_extensions} from '../fs/mime.js';
 import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -42,7 +48,8 @@ export const NODE_LIBRARY_BUILD_CONFIG: Build_Config = {
 export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
 export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
-export const has_api_server = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
+export const has_api_server = async (fs: Filesystem): Promise<boolean> =>
+	!is_this_project_gro && (await fs.exists(API_SERVER_SOURCE_ID));
 export const has_api_server_config = (build_configs: Build_Config[]): boolean =>
 	build_configs.some(
 		(b) => b.name === API_SERVER_BUILD_NAME && b.platform === API_SERVER_BUILD_CONFIG.platform,

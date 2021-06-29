@@ -18,15 +18,19 @@ export const create_plugin = ({api_server_path}: Partial<Options> = EMPTY_OBJECT
 	let api_server_process: Spawned_Process | null = null;
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
-		setup: async ({events, invoke_task, args}) => {
-			events.once('server.spawn', (spawned) => {
-				api_server_process = spawned;
-			});
-			await invoke_task('server', {...args, api_server_path});
+		setup: async ({dev, events, invoke_task, args}) => {
+			if (dev) {
+				events.once('server.spawn', (spawned) => {
+					api_server_process = spawned;
+				});
+				await invoke_task('server', {...args, api_server_path});
+			}
 		},
 		teardown: async () => {
-			api_server_process!.child.kill();
-			await api_server_process!.closed;
+			if (api_server_process) {
+				api_server_process.child.kill();
+				await api_server_process.closed;
+			}
 		},
 	};
 };

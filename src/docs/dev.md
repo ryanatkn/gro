@@ -58,11 +58,8 @@ To configure a project, see [the config docs](config.md).
 
 ## plugins
 
-During development, Gro uses `Plugin`s to support custom usecases
-like SvelteKit and API servers.
-See [`config.plugin` in the config docs](config.md#plugin)
-and usage in [the default config](../config/gro.config.default.ts).
-The implementation is at [`src/plugin/plugin.ts`](../plugin/plugin.ts) with more details.
+`Plugin`s are objects that customize the behavior of `gro build` (and `gro dev`).
+See [plugin.md](plugin.md) to learn more.
 
 ## todo
 

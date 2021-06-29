@@ -9,6 +9,7 @@ import type {Gro_Config} from './config/config.js';
 import type {Task_Events as Server_Task_Events} from './server.task.js';
 import type {Adapter_Context, Adapter} from './adapt/adapter.js';
 import {build_source} from './build/build_source.js';
+import type {Plugin, Plugin_Context} from './plugin/plugin.js';
 
 export interface Task_Args extends Args {
 	map_input_options?: Map_Input_Options;
@@ -37,12 +38,43 @@ export const task: Task<Task_Args, Task_Events> = {
 		timing_to_load_config();
 		events.emit('build.create_config', config);
 
+		// Create the production plugins
+		// TODO this has a lot of copypaste with `gro dev` plugin usage,
+		// probably extract a common interface
+		const timing_to_create_plugins = timings.start('create plugins');
+		const plugin_context: Plugin_Context<Task_Args, Task_Events> = {
+			...ctx,
+			config,
+		};
+		const plugins: Plugin<any, any>[] = to_array(await config.plugin(plugin_context)).filter(
+			Boolean,
+		) as Plugin<any, any>[];
+		timing_to_create_plugins();
+
 		// Build everything with esbuild and Gro's `Filer` first.
 		// These production artifacts are then available to all adapters.
 		const timing_to_build_src = timings.start('build_src');
 		await build_source(fs, config, dev, log);
 		timing_to_build_src();
 		events.emit('build.build_src');
+
+		const timing_to_call_plugin_setup = timings.start('setup plugins');
+		for (const plugin of plugins) {
+			if (!plugin.setup) continue;
+			const timing = timings.start(`setup:${plugin.name}`);
+			await plugin.setup(plugin_context);
+			timing();
+		}
+		timing_to_call_plugin_setup();
+
+		const timing_to_call_plugin_teardown = timings.start('teardown plugins');
+		for (const plugin of plugins) {
+			if (!plugin.teardown) continue;
+			const timing = timings.start(`teardown:${plugin.name}`);
+			await plugin.teardown(plugin_context);
+			timing();
+		}
+		timing_to_call_plugin_teardown();
 
 		// Adapt the build to final ouputs.
 		const timing_to_create_adapters = timings.start('create adapters');
