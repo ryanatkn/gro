@@ -32,8 +32,6 @@ export interface Task_Events {
 	'dev.create_config': (config: Gro_Config) => void;
 	'dev.create_filer': (filer: Filer) => void;
 	'dev.create_server': (server: Gro_Server) => void;
-	'dev.init_filer': (ctx: Dev_Task_Context) => void;
-	'dev.start_server': (ctx: Dev_Task_Context) => void;
 	'dev.ready': (ctx: Dev_Task_Context) => void;
 }
 
@@ -90,10 +88,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		) as Plugin<any, any>[];
 		timing_to_create_plugins();
 
-		// TODO should this be a plugin?
-		// TODO restart functionality
 		const timing_to_create_gro_server = timings.start('create dev server');
-		// TODO write docs and validate args, maybe refactor, see also `serve.task.ts`
 		const https = args.insecure
 			? null
 			: await load_https_credentials(fs, log, args.cert, args.certkey);
@@ -101,12 +96,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		timing_to_create_gro_server();
 		events.emit('dev.create_server', server);
 
-		const dev_task_context: Dev_Task_Context = {config, server, filer};
-
-		// Now that the context is ready, init the filer.
-		console.log('INIT FILER');
 		await init_filer();
-		events.emit('dev.init_filer', dev_task_context);
 
 		const timing_to_call_plugin_setup = timings.start('setup plugins');
 		for (const plugin of plugins) {
@@ -132,11 +122,11 @@ export const task: Task<Task_Args, Task_Events> = {
 			const timing_to_start_gro_server = timings.start('start dev server');
 			await server.start();
 			timing_to_start_gro_server();
-			events.emit('dev.start_server', dev_task_context);
 		} else {
 			await teardown_plugins();
 		}
 
+		const dev_task_context: Dev_Task_Context = {config, server, filer};
 		events.emit('dev.ready', dev_task_context);
 
 		print_timings(timings, log);

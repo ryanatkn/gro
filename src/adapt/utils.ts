@@ -105,3 +105,16 @@ export const copy_dist = async (
 		}),
 	);
 };
+
+const NOJEKYLL_FILENAME = '.nojekyll';
+
+// GitHub pages processes everything with Jekyll by default,
+// breaking things like files and dirs prefixed with an underscore.
+// This adds a `.nojekyll` file to the root of the output
+// to tell GitHub Pages to treat the outputs as plain static files.
+export const ensure_nojekyll = async (fs: Filesystem, dir: string): Promise<void> => {
+	const nojekyll_path = `${dir}/${NOJEKYLL_FILENAME}`;
+	if (!(await fs.exists(nojekyll_path))) {
+		await fs.write_file(nojekyll_path, '', 'utf8');
+	}
+};

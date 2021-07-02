@@ -4,9 +4,9 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from './adapter.js';
+import {ensure_nojekyll} from './utils.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';
 
-const NOJEKYLL = '.nojekyll';
 const DEFAULT_TARGET = 'github_pages';
 
 export interface Options {
@@ -33,15 +33,8 @@ export const create_adapter = ({
 			await fs.copy(sveltekit_dir, dir);
 			timing_to_copy_dist();
 
-			// GitHub pages processes everything with Jekyll by default,
-			// breaking things like files and dirs prefixed with an underscore.
-			// This adds a `.nojekyll` file to the root of the output
-			// to tell GitHub Pages to treat the outputs as plain static files.
 			if (target === 'github_pages') {
-				const nojekyll_path = `${dir}/${NOJEKYLL}`;
-				if (!(await fs.exists(nojekyll_path))) {
-					await fs.write_file(nojekyll_path, '', 'utf8');
-				}
+				await ensure_nojekyll(fs, dir);
 			}
 
 			print_timings(timings, log);

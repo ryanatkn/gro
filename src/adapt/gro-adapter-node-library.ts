@@ -6,7 +6,7 @@ import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from './adapter.js';
 import {Task_Error} from '../task/task.js';
-import {copy_dist} from '../build/dist.js';
+import {copy_dist} from './utils.js';
 import {
 	paths,
 	source_id_to_base_path,
@@ -15,6 +15,7 @@ import {
 	to_import_id,
 	TS_TYPEMAP_EXTENSION,
 	TS_TYPE_EXTENSION,
+	DIST_DIRNAME,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/default_build_config.js';
 import type {Build_Name} from '../build/build_config.js';
@@ -42,7 +43,7 @@ export interface Adapter_Args extends Build_Task_Args {}
 
 export const create_adapter = ({
 	build_name = NODE_LIBRARY_BUILD_NAME,
-	dir = `${paths.dist}${build_name}`,
+	dir = `${DIST_DIRNAME}/${build_name}`,
 	type = 'unbundled',
 	esm = true,
 	cjs = true,
