@@ -4,7 +4,7 @@
 
 - **break**: remove `gro start` task
   ([#223](https://github.com/feltcoop/gro/pull/223))
-- add `Plugin`s and `config.plugin` to support SvelteKit and API servers with `gro dev`
+- add `Plugin`s and `config.plugin` to support SvelteKit and API servers
   ([#223](https://github.com/feltcoop/gro/pull/223))
 - implement API server config and adapter
   ([#223](https://github.com/feltcoop/gro/pull/223))
