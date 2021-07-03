@@ -1,3 +1,6 @@
+import {to_array} from '@feltcoop/felt/util/array.js';
+import type {Timings} from '@feltcoop/felt/util/time.js';
+
 import type {Task_Context} from '../task/task.js';
 import type {Gro_Config} from '../config/config.js';
 
@@ -28,4 +31,27 @@ export interface To_Config_Adapters<T_Args = any, T_Events = any> {
 export interface Adapter_Context<T_Args = any, T_Events = any>
 	extends Task_Context<T_Args, T_Events> {
 	config: Gro_Config;
+	timings: Timings;
 }
+
+export const adapt = async (ctx: Adapter_Context): Promise<readonly Adapter[]> => {
+	const {config, timings} = ctx;
+	const timing_to_create_adapters = timings.start('create adapters');
+	const adapters: Adapter<any, any>[] = to_array(await config.adapt(ctx)).filter(
+		Boolean,
+	) as Adapter<any, any>[];
+	timing_to_create_adapters();
+
+	if (adapters.length) {
+		const timing_to_run_adapters = timings.start('adapt');
+		for (const adapter of adapters) {
+			if (!adapter.adapt) continue;
+			const timing = timings.start(`adapt:${adapter.name}`);
+			await adapter.adapt(ctx);
+			timing();
+		}
+		timing_to_run_adapters();
+	}
+
+	return adapters;
+};

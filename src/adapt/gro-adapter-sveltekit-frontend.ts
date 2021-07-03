@@ -1,5 +1,3 @@
-import {Timings} from '@feltcoop/felt/util/time.js';
-import {print_timings} from '@feltcoop/felt/util/print.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
@@ -23,20 +21,14 @@ export const create_adapter = ({
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
-		adapt: async ({fs, log}) => {
+		adapt: async ({fs}) => {
 			await fs.remove(dir);
 
-			const timings = new Timings();
-
-			const timing_to_copy_dist = timings.start('copy build to dist');
 			await fs.copy(sveltekit_dir, dir);
-			timing_to_copy_dist();
 
 			if (host_target === 'github_pages') {
 				await ensure_nojekyll(fs, dir);
 			}
-
-			print_timings(timings, log);
 		},
 	};
 };

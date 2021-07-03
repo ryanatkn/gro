@@ -1,12 +1,11 @@
 import {Timings} from '@feltcoop/felt/util/time.js';
 import {print_timings} from '@feltcoop/felt/util/print.js';
-import {to_array} from '@feltcoop/felt/util/array.js';
 
 import type {Task, Args} from './task/task.js';
 import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from './build/rollup.js';
 import {load_config} from './config/config.js';
 import type {Gro_Config} from './config/config.js';
-import type {Adapter_Context, Adapter} from './adapt/adapter.js';
+import {adapt} from './adapt/adapter.js';
 import {build_source} from './build/build_source.js';
 import {Plugins} from './plugin/plugin.js';
 
@@ -50,28 +49,8 @@ export const task: Task<Task_Args, Task_Events> = {
 		await plugins.teardown();
 
 		// Adapt the build to final ouputs.
-		const timing_to_create_adapters = timings.start('create adapters');
-		const adapt_context: Adapter_Context<Task_Args, Task_Events> = {
-			...ctx,
-			config,
-		};
-		const adapters: Adapter<any, any>[] = to_array(await config.adapt(adapt_context)).filter(
-			Boolean,
-		) as Adapter<any, any>[];
-		timing_to_create_adapters();
-
-		if (adapters.length) {
-			const timing_to_call_adapt = timings.start('adapt');
-			for (const adapter of adapters) {
-				if (!adapter.adapt) continue;
-				const timing = timings.start(`adapt:${adapter.name}`);
-				await adapter.adapt(adapt_context);
-				timing();
-			}
-			timing_to_call_adapt();
-		} else {
-			log.info('no adapters to `adapt`');
-		}
+		const adapters = await adapt({...ctx, config, timings});
+		if (!adapters.length) log.info('no adapters to `adapt`');
 
 		print_timings(timings, log);
 	},
