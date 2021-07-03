@@ -21,7 +21,7 @@ import {
 	MODULE_PATH_LIB_PREFIX,
 	MODULE_PATH_SRC_PREFIX,
 } from '../utils/module.js';
-import {EXTERNALS_SOURCE_ID, is_external_build_id} from './externals_build_helpers.js';
+import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
 import type {Build_Dependency} from './build_dependency.js';
 
 // TODO this is all hacky and should be refactored, probably following Rollup's lead
@@ -44,7 +44,7 @@ export const postprocess = (
 
 		// returns `mapped_specifier`, not because it makes a ton of sense,
 		// but it's the only value needed, because this function populates `dependencies_by_build_id`
-		const handle_specifier = (specifier: string, is_type_import: boolean): string => {
+		const handle_specifier = (specifier: string, _is_type_import: boolean): string => {
 			let build_id: string;
 			let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
 			const is_external_import = is_external_module(specifier);
@@ -100,9 +100,11 @@ export const postprocess = (
 					final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
 				}
 				build_id = join(build.dir, mapped_specifier);
-				// TODO hmm shouldn't this be the correct thing? there must be a hack for types elsewhere?
 				// if (is_type_import) {
 				// 	build_id = replace_extension(build_id, TS_TYPE_EXTENSION);
+				// 	// TODO i think this needs to do TYPEMAP as well,
+				// 	// AND we need to remove the hack that includes them automatically (see `types` usage)
+				// 	// so we probably add to the `dependencies_by_build_id` 3x below
 				// }
 			}
 			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
@@ -111,12 +113,14 @@ export const postprocess = (
 					specifier: final_specifier,
 					mapped_specifier,
 					build_id,
-					external: is_external_build_id(build_id, build_config, ctx),
+					// TODO can't we use the `is_external` check above instead of calling this?
+					external: browser && is_external,
+					// external: is_external_build_id(build_id, build_config, ctx),
 					// TODO what if this had `original_specifier` and `is_external_import` too?
 				});
-				if (is_type_import) {
-					console.log('specifier to build_id', source.id, specifier, build_id);
-				}
+				// if (is_type_import) {
+				// 	console.log('specifier to build_id', source.id, specifier, build_id);
+				// }
 			}
 			return mapped_specifier;
 		};
