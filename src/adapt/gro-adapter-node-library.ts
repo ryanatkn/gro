@@ -22,7 +22,6 @@ import type {Build_Name} from '../build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {run_rollup} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
-import type {Task_Args as Build_Task_Args} from '../build.task.js';
 import {load_package_json} from '../utils/package_json.js';
 
 // TODO maybe add a `files` option to explicitly include source files,
@@ -39,8 +38,6 @@ export interface Options {
 	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 }
 
-export interface Adapter_Args extends Build_Task_Args {}
-
 export const create_adapter = ({
 	build_name = NODE_LIBRARY_BUILD_NAME,
 	dir = `${DIST_DIRNAME}/${build_name}`,
@@ -48,7 +45,7 @@ export const create_adapter = ({
 	esm = true,
 	cjs = true,
 	pack = true,
-}: Partial<Options> = EMPTY_OBJECT): Adapter<Adapter_Args> => {
+}: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',

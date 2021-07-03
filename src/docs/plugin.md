@@ -1,7 +1,12 @@
 # plugin
 
-During the `gro dev` and `gro build` tasks,
-Gro uses `Plugin`s to support custom usecases like SvelteKit and API servers.
+During the [`gro dev`](dev.md) and [`gro build`](build.md) tasks,
+Gro uses `Plugin`s to support custom usecases outside of the normal build pipeline.
+
+Gro's builtin plugins:
+
+- [`gro-plugin-node-library`](../plugin/gro-plugin-node-library.ts)
+- [`gro-plugin-sveltekit-frontend `](../plugin/gro-plugin-sveltekit-frontend.ts)
 
 See [`config.plugin` in the config docs](config.md#plugin)
 and usage in [the default config](../config/gro.config.default.ts).

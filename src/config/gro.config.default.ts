@@ -59,6 +59,11 @@ export const config: Gro_Config_Creator = async ({fs}) => {
 			enable_node_library
 				? (await import('../adapt/gro-adapter-node-library.js')).create_adapter()
 				: null,
+			enable_api_server
+				? (await import('../adapt/gro-adapter-generic-build.js')).create_adapter({
+						build_name: API_SERVER_BUILD_CONFIG.name,
+				  })
+				: null,
 			// enable_gro_frontend
 			// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).create_adapter()
 			// 	: null,

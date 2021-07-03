@@ -106,6 +106,8 @@ export const copy_dist = async (
 	);
 };
 
+export type Host_Target = 'github_pages' | 'static';
+
 const NOJEKYLL_FILENAME = '.nojekyll';
 
 // GitHub pages processes everything with Jekyll by default,

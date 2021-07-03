@@ -9,21 +9,20 @@ import {run_rollup} from '../build/rollup.js';
 import {DIST_DIRNAME, source_id_to_base_path, to_import_id} from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import type {Build_Name} from '../build/build_config.js';
+import type {Host_Target} from './utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
 import {BROWSER_BUILD_NAME} from '../build/default_build_config.js';
-
-const DEFAULT_TARGET = 'github_pages';
 
 export interface Options {
 	build_name: Build_Name;
 	dir: string;
-	target: 'github_pages' | 'static';
+	host_target: Host_Target;
 }
 
 export const create_adapter = ({
 	build_name = BROWSER_BUILD_NAME,
 	dir = `${DIST_DIRNAME}/${build_name}`,
-	target = DEFAULT_TARGET,
+	host_target = 'github_pages',
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
@@ -73,7 +72,7 @@ export const create_adapter = ({
 			// breaking things like files and dirs prefixed with an underscore.
 			// This adds a `.nojekyll` file to the root of the output
 			// to tell GitHub Pages to treat the outputs as plain static files.
-			if (target === 'github_pages') {
+			if (host_target === 'github_pages') {
 				await ensure_nojekyll(fs, dir);
 			}
 
