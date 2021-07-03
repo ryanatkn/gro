@@ -29,8 +29,8 @@ export const SYSTEM_BUILD_CONFIG: Build_Config = {
 
 const NODE_LIBRARY_PATH = 'lib/index.ts';
 const NODE_LIBRARY_SOURCE_ID = base_path_to_source_id(NODE_LIBRARY_PATH);
-export const has_node_library = async (fs: Filesystem): Promise<boolean> =>
-	await fs.exists(NODE_LIBRARY_SOURCE_ID);
+export const has_node_library = (fs: Filesystem): Promise<boolean> =>
+	fs.exists(NODE_LIBRARY_SOURCE_ID);
 export const NODE_LIBRARY_BUILD_NAME: Build_Name = 'library';
 export const NODE_LIBRARY_BUILD_CONFIG: Build_Config = {
 	name: NODE_LIBRARY_BUILD_NAME,
