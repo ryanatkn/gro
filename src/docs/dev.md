@@ -56,7 +56,7 @@ gro dev --no-watch # outputs dev artifacts and exits without starting the dev se
 
 To configure a project, see [the config docs](config.md).
 
-## plugins
+## plugin
 
 `Plugin`s are objects that customize the behavior of `gro build` (and `gro dev`).
 See [plugin.md](plugin.md) to learn more.

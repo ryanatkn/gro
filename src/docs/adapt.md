@@ -56,7 +56,7 @@ export interface Adapter_Context<T_Args = any, T_Events = any>
 }
 ```
 
-## adapt
+## config.adapt
 
 [Gro configs](config.md) have an optional `adapt` function property
 that returns zero or more `Adapter` instances.

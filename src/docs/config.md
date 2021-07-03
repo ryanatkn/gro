@@ -104,7 +104,8 @@ Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
 ### `plugin`
 
 The `plugin` property is a function that returns any number of `Plugin` instances.
-Read more about [`plugin` and the `Plugin` in the dev docs](dev.md).
+Read more about `plugin` and the `Plugin` in
+[plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
 export interface To_Config_Plugins<T_Args = any, T_Events = any> {
@@ -117,7 +118,7 @@ export interface To_Config_Plugins<T_Args = any, T_Events = any> {
 ### `adapt`
 
 The `adapt` property is a function that returns any number of `Adapter` instances.
-Read more about [`adapt` and the `Adapter` in the build docs](build.md).
+Read more about `adapt` and the `Adapter` in [adapt.md](adapt.md) and [build.md](build.md#adapt).
 
 ```ts
 export interface To_Config_Adapters<T_Args = any, T_Events = any> {
