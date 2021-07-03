@@ -36,36 +36,36 @@ export class Plugins {
 
 	static async create(ctx: Plugin_Context): Promise<Plugins> {
 		const {timings} = ctx;
-		const timing_to_create_plugins = timings.start('plugins.create');
+		const timing_to_create = timings.start('plugins.create');
 		const instances: Plugin<any, any>[] = to_array(await ctx.config.plugin(ctx)).filter(
 			Boolean,
 		) as Plugin<any, any>[];
 		const plugins = new Plugins(ctx, instances);
-		timing_to_create_plugins();
+		timing_to_create();
 		return plugins;
 	}
 
 	async setup(): Promise<void> {
 		const {timings} = this.ctx;
-		const timing_to_call_plugin_setup = timings.start('plugins.setup');
+		const timing_to_setup = timings.start('plugins.setup');
 		for (const plugin of this.instances) {
 			if (!plugin.setup) continue;
 			const timing = timings.start(`setup:${plugin.name}`);
 			await plugin.setup(this.ctx);
 			timing();
 		}
-		timing_to_call_plugin_setup();
+		timing_to_setup();
 	}
 
 	async teardown(): Promise<void> {
 		const {timings} = this.ctx;
-		const timing_to_call_plugin_teardown = timings.start('plugins.teardown');
+		const timing_to_teardown = timings.start('plugins.teardown');
 		for (const plugin of this.instances) {
 			if (!plugin.teardown) continue;
 			const timing = timings.start(`teardown:${plugin.name}`);
 			await plugin.teardown(this.ctx);
 			timing();
 		}
-		timing_to_call_plugin_teardown();
+		timing_to_teardown();
 	}
 }
