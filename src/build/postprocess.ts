@@ -1,6 +1,7 @@
 import {join, extname, relative, basename} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
+// import {replace_extension} from '@feltcoop/felt/util/path.js';
 
 import {
 	paths,
@@ -12,6 +13,7 @@ import {
 	to_build_extension,
 	to_build_out_path,
 	TS_EXTENSION,
+	// TS_TYPE_EXTENSION,
 } from '../paths.js';
 import type {Build, Build_Context, Build_Result, Build_Source} from './builder.js';
 import {
@@ -33,10 +35,91 @@ export const postprocess = (
 	content: Build['content'];
 	dependencies_by_build_id: Map<string, Build_Dependency> | null;
 } => {
+	const {dev, types, externals_aliases, build_dir} = ctx;
 	if (build.encoding === 'utf8') {
-		let {content, build_config} = build;
+		const {content: original_content, build_config} = build;
+		let content = original_content;
 		const browser = build_config.platform === 'browser';
 		let dependencies_by_build_id: Map<string, Build_Dependency> | null = null;
+
+		// returns `mapped_specifier`, not because it makes a ton of sense,
+		// but it's the only value needed, because this function populates `dependencies_by_build_id`
+		const handle_specifier = (specifier: string, is_type_import: boolean): string => {
+			let build_id: string;
+			let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
+			const is_external_import = is_external_module(specifier);
+			const is_external_imported_by_external = source.id === EXTERNALS_SOURCE_ID;
+			const is_external = is_external_import || is_external_imported_by_external;
+			let mapped_specifier = is_external
+				? to_build_extension(specifier)
+				: hack_to_build_extension_with_possibly_extensionless_specifier(specifier);
+			if (is_external) {
+				if (is_external_import) {
+					// handle regular externals
+					if (browser) {
+						if (mapped_specifier in externals_aliases) {
+							mapped_specifier = externals_aliases[mapped_specifier];
+						}
+						const has_js_extension = mapped_specifier.endsWith(JS_EXTENSION);
+						if (has_js_extension && should_modify_dot_js(mapped_specifier)) {
+							mapped_specifier = mapped_specifier.substring(0, mapped_specifier.length - 3) + 'js';
+						}
+						mapped_specifier = `/${join(EXTERNALS_BUILD_DIRNAME, mapped_specifier)}${
+							has_js_extension ? '' : JS_EXTENSION
+						}`;
+						build_id = to_build_out_path(
+							dev,
+							build_config.name,
+							mapped_specifier.substring(1),
+							build_dir,
+						);
+					} else {
+						build_id = mapped_specifier;
+					}
+				} else {
+					// handle common externals, imports internal to the externals
+					if (browser) {
+						build_id = join(build.dir, specifier);
+						// map internal externals imports to absolute paths, so we get stable ids
+						final_specifier = `/${to_build_base_path(build_id, build_dir)}${
+							final_specifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
+						}`;
+					} else {
+						// externals imported in Node builds use Node module resolution
+						build_id = mapped_specifier;
+					}
+				}
+			} else {
+				// internal import
+				// support absolute import patterns -- TODO modularize
+				if (mapped_specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
+					mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(1));
+					final_specifier = relative(source.dir, paths.source + final_specifier.substring(1));
+				} else if (mapped_specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
+					mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(3));
+					final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
+				}
+				build_id = join(build.dir, mapped_specifier);
+				// TODO hmm shouldn't this be the correct thing? there must be a hack for types elsewhere?
+				// if (is_type_import) {
+				// 	build_id = replace_extension(build_id, TS_TYPE_EXTENSION);
+				// }
+			}
+			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
+			if (!dependencies_by_build_id.has(build_id)) {
+				dependencies_by_build_id.set(build_id, {
+					specifier: final_specifier,
+					mapped_specifier,
+					build_id,
+					external: is_external_build_id(build_id, build_config, ctx),
+					// TODO what if this had `original_specifier` and `is_external_import` too?
+				});
+				if (is_type_import) {
+					console.log('specifier to build_id', source.id, specifier, build_id);
+				}
+			}
+			return mapped_specifier;
+		};
 
 		// Map import paths to the built versions.
 		if (build.extension === JS_EXTENSION) {
@@ -49,73 +132,7 @@ export const postprocess = (
 				const end = d > -1 ? e - 1 : e;
 				const specifier = content.substring(start, end);
 				if (specifier === 'import.meta') continue;
-				let build_id: string;
-				let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
-				const is_external_import = is_external_module(specifier);
-				const is_external_imported_by_external = source.id === EXTERNALS_SOURCE_ID;
-				const is_external = is_external_import || is_external_imported_by_external;
-				let mapped_specifier = is_external
-					? to_build_extension(specifier)
-					: hack_to_build_extension_with_possibly_extensionless_specifier(specifier);
-				if (is_external) {
-					if (is_external_import) {
-						// handle regular externals
-						if (browser) {
-							if (mapped_specifier in ctx.externals_aliases) {
-								mapped_specifier = ctx.externals_aliases[mapped_specifier];
-							}
-							const has_js_extension = mapped_specifier.endsWith(JS_EXTENSION);
-							if (has_js_extension && should_modify_dot_js(mapped_specifier)) {
-								mapped_specifier =
-									mapped_specifier.substring(0, mapped_specifier.length - 3) + 'js';
-							}
-							mapped_specifier = `/${join(EXTERNALS_BUILD_DIRNAME, mapped_specifier)}${
-								has_js_extension ? '' : JS_EXTENSION
-							}`;
-							build_id = to_build_out_path(
-								ctx.dev,
-								build_config.name,
-								mapped_specifier.substring(1),
-								ctx.build_dir,
-							);
-						} else {
-							build_id = mapped_specifier;
-						}
-					} else {
-						// handle common externals, imports internal to the externals
-						if (browser) {
-							build_id = join(build.dir, specifier);
-							// map internal externals imports to absolute paths, so we get stable ids
-							final_specifier = `/${to_build_base_path(build_id, ctx.build_dir)}${
-								final_specifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-							}`;
-						} else {
-							// externals imported in Node builds use Node module resolution
-							build_id = mapped_specifier;
-						}
-					}
-				} else {
-					// internal import
-					// support absolute import patterns -- TODO modularize
-					if (mapped_specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
-						mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(1));
-						final_specifier = relative(source.dir, paths.source + final_specifier.substring(1));
-					} else if (mapped_specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
-						mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(3));
-						final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
-					}
-					build_id = join(build.dir, mapped_specifier);
-				}
-				if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
-				if (!dependencies_by_build_id.has(build_id)) {
-					dependencies_by_build_id.set(build_id, {
-						specifier: final_specifier,
-						mapped_specifier,
-						build_id,
-						external: is_external_build_id(build_id, build_config, ctx),
-						// TODO what if this had `original_specifier` and `is_external_import` too?
-					});
-				}
+				const mapped_specifier = handle_specifier(specifier, false);
 				if (mapped_specifier !== specifier) {
 					transformed_content += content.substring(index, start) + mapped_specifier;
 					index = end;
@@ -123,6 +140,16 @@ export const postprocess = (
 			}
 			if (index > 0) {
 				content = transformed_content + content.substring(index);
+			}
+		}
+
+		// For TS files, we need to separately parse type imports and add them to the dependencies,
+		// because by the time we parse the JS files above with `es-module-lexer`,
+		// we've already lost the `import type` information from the TypeScript source.
+		if (types && source.extension === TS_EXTENSION && build.extension === JS_EXTENSION) {
+			const specifiers = parse_type_imports(source.content as string);
+			for (const specifier of specifiers) {
+				handle_specifier(specifier, true);
 			}
 		}
 
@@ -143,6 +170,11 @@ export const postprocess = (
 		return {content: build.content, dependencies_by_build_id: null};
 	}
 };
+
+const TYPE_IMPORT_MATCHER = /^import type [\s\S]*? from '(.+)';$/gm;
+
+const parse_type_imports = (content: string): string[] =>
+	Array.from(content.matchAll(TYPE_IMPORT_MATCHER)).map((v) => v[1]);
 
 const inject_svelte_css_import = (content: string, import_path: string): string => {
 	let newline_index = content.length;
