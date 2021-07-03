@@ -32,7 +32,10 @@ export interface Plugin_Context<T_Args = any, T_Events = any>
 }
 
 export class Plugins {
-	constructor(public readonly ctx: Plugin_Context, public readonly instances: readonly Plugin[]) {}
+	constructor(
+		private readonly ctx: Plugin_Context,
+		private readonly instances: readonly Plugin[],
+	) {}
 
 	static async create(ctx: Plugin_Context): Promise<Plugins> {
 		const {timings} = ctx;
