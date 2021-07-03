@@ -66,11 +66,11 @@ It includes:
   - [config](/src/docs/config.md)
   - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/docs/publish.md)
-- [`task`](/src/task) runner
+- [`task`](/src/task#readme) runner
   - [tasks](/src/docs/tasks.md) list
-- [dev server](/src/server)
+- [dev server](/src/server#readme)
 - [`gen`](/src/gen) code generation
-- other [docs](/src/docs)
+- other [docs](/src/docs#readme)
   - [log](/src/docs/log.md)
   - [options](/src/docs/options.md) pattern
   - [philosophy](/src/docs/philosophy.md)
