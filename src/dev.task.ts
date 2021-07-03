@@ -1,6 +1,5 @@
 import {print_timings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/time.js';
-import {to_array} from '@feltcoop/felt/util/array.js';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
@@ -12,7 +11,7 @@ import type {Gro_Config} from './config/config.js';
 import {load_config} from './config/config.js';
 import type {Served_Dir_Partial} from './build/served_dir.js';
 import {load_https_credentials} from './server/https.js';
-import type {Plugin, Plugin_Context} from './plugin/plugin.js';
+import {Plugins} from './plugin/plugin.js';
 
 export interface Task_Args {
 	watch?: boolean; // defaults to `true`
@@ -74,19 +73,7 @@ export const task: Task<Task_Args, Task_Events> = {
 			timing_to_init_filer();
 		};
 
-		// Create the dev plugins
-		// TODO this has a lot of copypaste with `gro build` plugin usage,
-		// probably extract a common interface
-		const timing_to_create_plugins = timings.start('create plugins');
-		const plugin_context: Plugin_Context<Task_Args, Task_Events> = {
-			...ctx,
-			config,
-			filer,
-		};
-		const plugins: Plugin<any, any>[] = to_array(await config.plugin(plugin_context)).filter(
-			Boolean,
-		) as Plugin<any, any>[];
-		timing_to_create_plugins();
+		const plugins = await Plugins.create({...ctx, config, filer, timings});
 
 		const timing_to_create_gro_server = timings.start('create dev server');
 		const https = args.insecure
@@ -98,32 +85,14 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		await init_filer();
 
-		const timing_to_call_plugin_setup = timings.start('setup plugins');
-		for (const plugin of plugins) {
-			if (!plugin.setup) continue;
-			const timing = timings.start(`setup:${plugin.name}`);
-			await plugin.setup(plugin_context);
-			timing();
-		}
-		timing_to_call_plugin_setup();
-
-		const teardown_plugins = async (): Promise<void> => {
-			const timing_to_call_plugin_teardown = timings.start('teardown plugins');
-			for (const plugin of plugins) {
-				if (!plugin.teardown) continue;
-				const timing = timings.start(`teardown:${plugin.name}`);
-				await plugin.teardown(plugin_context);
-				timing();
-			}
-			timing_to_call_plugin_teardown();
-		};
+		await plugins.setup();
 
 		if (watch) {
 			const timing_to_start_gro_server = timings.start('start dev server');
 			await server.start();
 			timing_to_start_gro_server();
 		} else {
-			await teardown_plugins();
+			await plugins.teardown();
 		}
 
 		const dev_task_context: Dev_Task_Context = {config, server, filer};

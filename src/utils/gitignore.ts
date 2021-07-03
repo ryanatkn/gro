@@ -28,8 +28,8 @@ const DEFAULT_IGNORED_PATHS = [
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const load_gitignore_filter = (forceRefresh = false): File_Filter => {
-	if (forceRefresh) filter = null;
+export const load_gitignore_filter = (force_refresh = false): File_Filter => {
+	if (force_refresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
 	try {
@@ -42,28 +42,28 @@ export const load_gitignore_filter = (forceRefresh = false): File_Filter => {
 	} catch (err) {
 		lines = DEFAULT_IGNORED_PATHS;
 	}
-	filter = createFilter(lines.map((line) => toPattern(line)));
+	filter = createFilter(lines.map((line) => to_pattern(line)));
 	return filter;
 };
 
-export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean) =>
-	load_gitignore_filter(forceRefresh)(join(root, path));
+export const is_gitignored = (path: string, root = process.cwd(), force_refresh?: boolean) =>
+	load_gitignore_filter(force_refresh)(join(root, path));
 
 // TODO What's the better way to do this?
 // This is a quick hacky mapping for one use case between
 // `.gitignore` and picomatch: https://github.com/micromatch/picomatch
 // This code definitely fails for valid patterns!
-const toPattern = (line: string): string => {
-	const firstChar = line[0];
-	if (firstChar === '/') {
+const to_pattern = (line: string): string => {
+	const first_char = line[0];
+	if (first_char === '/') {
 		line = line.substring(1);
-	} else if (firstChar !== '*') {
+	} else if (first_char !== '*') {
 		line = `**/${line}`;
 	}
-	const lastChar = line[line.length - 1];
-	if (lastChar === '/') {
+	const last_char = line[line.length - 1];
+	if (last_char === '/') {
 		line = `${line}**`;
-	} else if (lastChar !== '*') {
+	} else if (last_char !== '*') {
 		line = `${line}/**`;
 	}
 	return line;

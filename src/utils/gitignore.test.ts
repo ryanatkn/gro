@@ -21,7 +21,7 @@ test_load_gitignore_filter('basic behavior', () => {
 	t.ok(!filter(resolve('a/node_module/b')));
 });
 
-test_load_gitignore_filter('caching and forceRefresh', () => {
+test_load_gitignore_filter('caching and force_refresh', () => {
 	const filter1 = load_gitignore_filter();
 	const filter2 = load_gitignore_filter();
 	t.is(filter1, filter2);
