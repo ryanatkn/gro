@@ -1,5 +1,14 @@
 # changelog
 
+## 0.28.0
+
+- **break**: remove `gro start` task
+  ([#223](https://github.com/feltcoop/gro/pull/223))
+- add `Plugin`s and `config.plugin` to support SvelteKit and API servers
+  ([#223](https://github.com/feltcoop/gro/pull/223))
+- implement API server config and adapter
+  ([#223](https://github.com/feltcoop/gro/pull/223))
+
 ## 0.27.3
 
 - fix default library build to include types in production

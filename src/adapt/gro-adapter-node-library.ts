@@ -6,7 +6,7 @@ import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from './adapter.js';
 import {Task_Error} from '../task/task.js';
-import {copy_dist} from '../build/dist.js';
+import {copy_dist} from './utils.js';
 import {
 	paths,
 	source_id_to_base_path,
@@ -15,13 +15,13 @@ import {
 	to_import_id,
 	TS_TYPEMAP_EXTENSION,
 	TS_TYPE_EXTENSION,
+	DIST_DIRNAME,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/default_build_config.js';
 import type {Build_Name} from '../build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {run_rollup} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
-import type {Task_Args as Build_Task_Args} from '../build.task.js';
 import {load_package_json} from '../utils/package_json.js';
 
 // TODO maybe add a `files` option to explicitly include source files,
@@ -38,23 +38,20 @@ export interface Options {
 	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 }
 
-export interface Adapter_Args extends Build_Task_Args {}
-
 export const create_adapter = ({
 	build_name = NODE_LIBRARY_BUILD_NAME,
-	dir = `${paths.dist}${build_name}`,
+	dir = `${DIST_DIRNAME}/${build_name}`,
 	type = 'unbundled',
 	esm = true,
 	cjs = true,
 	pack = true,
-}: Partial<Options> = EMPTY_OBJECT): Adapter<Adapter_Args> => {
+}: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
-		begin: async ({fs}) => {
-			await fs.remove(dir);
-		},
 		adapt: async ({config, fs, dev, log, args}) => {
+			await fs.remove(dir);
+
 			const {map_input_options, map_output_options, map_watch_options} = args;
 
 			const timings = new Timings(); // TODO probably move to task context

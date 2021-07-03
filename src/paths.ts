@@ -100,6 +100,7 @@ export const source_id_to_base_path = (source_id: string, p = paths): string =>
 export const base_path_to_source_id = (base_path: string, p = paths): string =>
 	`${p.source}${base_path}`;
 
+// TODO the `strip_trailing_slash` is a hack
 export const to_build_out_dir = (dev: boolean, build_dir = paths.build): string =>
 	`${strip_trailing_slash(build_dir)}/${to_build_out_dirname(dev)}`;
 export const to_build_out_dirname = (dev: boolean): Build_Out_Dirname =>
