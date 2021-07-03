@@ -49,24 +49,26 @@ export class Plugins {
 	}
 
 	async setup(): Promise<void> {
-		const {timings} = this.ctx;
+		const {ctx} = this;
+		const {timings} = ctx;
 		const timing_to_setup = timings.start('plugins.setup');
 		for (const plugin of this.instances) {
 			if (!plugin.setup) continue;
 			const timing = timings.start(`setup:${plugin.name}`);
-			await plugin.setup(this.ctx);
+			await plugin.setup(ctx);
 			timing();
 		}
 		timing_to_setup();
 	}
 
 	async teardown(): Promise<void> {
-		const {timings} = this.ctx;
+		const {ctx} = this;
+		const {timings} = ctx;
 		const timing_to_teardown = timings.start('plugins.teardown');
 		for (const plugin of this.instances) {
 			if (!plugin.teardown) continue;
 			const timing = timings.start(`teardown:${plugin.name}`);
-			await plugin.teardown(this.ctx);
+			await plugin.teardown(ctx);
 			timing();
 		}
 		timing_to_teardown();
