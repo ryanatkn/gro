@@ -1,5 +1,3 @@
-import {Timings} from '@feltcoop/felt/util/time.js';
-import {print_timings} from '@feltcoop/felt/util/print.js';
 import {print_spawn_result, spawn_process} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
@@ -49,12 +47,10 @@ export const create_adapter = ({
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-node-library',
-		adapt: async ({config, fs, dev, log, args}) => {
+		adapt: async ({config, fs, dev, log, args, timings}) => {
 			await fs.remove(dir);
 
 			const {map_input_options, map_output_options, map_watch_options} = args;
-
-			const timings = new Timings(); // TODO probably move to task context
 
 			const build_config = config.builds.find((b) => b.name === build_name);
 			if (!build_config) {
@@ -106,7 +102,7 @@ export const create_adapter = ({
 			}
 			timing_to_bundle_with_rollup();
 
-			const timing_to_copy_dist = timings.start('copy builds to dist');
+			const timing_to_copy_dist = timings.start('copy build to dist');
 			const filter = type === 'bundled' ? bundled_dist_filter : undefined;
 			await copy_dist(fs, build_config, dev, dir, log, filter, pack);
 			timing_to_copy_dist();
@@ -115,6 +111,7 @@ export const create_adapter = ({
 
 			// If the output is treated as a package, it needs some special handling to get it ready.
 			if (pack) {
+				const timing_to_pack_dist = timings.start('pack dist');
 				// copy files from the project root to the dist, but don't overwrite anything in the build
 				await Promise.all(
 					(await fs.read_dir('.')).map((path): void | Promise<void> => {
@@ -157,6 +154,8 @@ export const create_adapter = ({
 
 				// write the new package.json
 				await fs.write_file(`${dir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
+
+				timing_to_pack_dist();
 			}
 
 			// `npm link`
@@ -175,8 +174,6 @@ export const create_adapter = ({
 				}
 				timing_to_npm_link();
 			}
-
-			print_timings(timings, log);
 		},
 	};
 };

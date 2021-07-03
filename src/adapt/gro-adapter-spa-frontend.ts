@@ -1,8 +1,6 @@
 import {strip_trailing_slash, to_common_base_dir} from '@feltcoop/felt/util/path.js';
 import {ensure_end} from '@feltcoop/felt/util/string.js';
-import {Timings} from '@feltcoop/felt/util/time.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import {print_timings} from '@feltcoop/felt/util/print.js';
 
 import type {Adapter} from './adapter.js';
 import {run_rollup} from '../build/rollup.js';
@@ -27,12 +25,10 @@ export const create_adapter = ({
 	dir = strip_trailing_slash(dir);
 	return {
 		name: '@feltcoop/gro-adapter-spa-frontend',
-		adapt: async ({config, fs, args, log, dev}) => {
+		adapt: async ({config, fs, args, log, dev, timings}) => {
 			await fs.remove(dir);
 
 			const {map_input_options, map_output_options, map_watch_options} = args;
-
-			const timings = new Timings();
 
 			// Infer which of the inputs are actual source files,
 			// and therefore belong in the default Rollup build.
@@ -63,10 +59,10 @@ export const create_adapter = ({
 			} else {
 				log.trace('no input files in', print_build_config_label(build_config));
 			}
+			timing_to_bundle();
 
 			// copy static prod files into `dist/`
 			await copy_dist(fs, build_config, dev, dir, log);
-			timing_to_bundle();
 
 			// GitHub pages processes everything with Jekyll by default,
 			// breaking things like files and dirs prefixed with an underscore.
@@ -75,8 +71,6 @@ export const create_adapter = ({
 			if (host_target === 'github_pages') {
 				await ensure_nojekyll(fs, dir);
 			}
-
-			print_timings(timings, log);
 		},
 	};
 };
