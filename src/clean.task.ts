@@ -1,4 +1,4 @@
-import {spawn_process} from '@feltcoop/felt/util/process.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
 import {clean} from './fs/clean.js';
@@ -33,7 +33,7 @@ export const task: Task<Task_Args> = {
 
 		// lop off unwanted git branches
 		if (args.git) {
-			await spawn_process('git', ['remote', 'prune', ORIGIN]);
+			await spawn('git', ['remote', 'prune', ORIGIN]);
 		}
 	},
 };

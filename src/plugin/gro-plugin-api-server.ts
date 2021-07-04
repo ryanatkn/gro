@@ -1,4 +1,6 @@
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
+import type {Restartable_Process} from '@feltcoop/felt/util/process.js';
+import {spawn_restartable_process} from '@feltcoop/felt/util/process.js';
 
 import type {Plugin} from './plugin.js';
 import type {Args} from 'src/task/task.js';
@@ -7,8 +9,6 @@ import {to_build_out_dir} from '../paths.js';
 import type {Build_Config, Build_Name} from 'src/build/build_config.js';
 
 // TODO import from felt instead
-import type {Restartable_Process} from './process.js';
-import {spawn_restartable_process} from './process.js';
 
 export interface Options {
 	build_name: Build_Name; // defaults to 'server'

@@ -1,5 +1,5 @@
 import {createInterface as create_readline_interface} from 'readline';
-import {spawn_process} from '@feltcoop/felt/util/process.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
 import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
@@ -47,8 +47,8 @@ export const task: Task<Task_Args> = {
 
 		// Make sure we're on the right branch:
 		// TODO see how the deploy task uses git, probably do that instead
-		await spawn_process('git', ['fetch', 'origin', branch]);
-		await spawn_process('git', ['checkout', branch]);
+		await spawn('git', ['fetch', 'origin', branch]);
+		await spawn('git', ['checkout', branch]);
 
 		// Clean before loading the config:
 		await clean(fs, {build_prod: true}, log);
@@ -64,7 +64,7 @@ export const task: Task<Task_Args> = {
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {
-			const npmVersionResult = await spawn_process('npm', ['version', version_increment]);
+			const npmVersionResult = await spawn('npm', ['version', version_increment]);
 			if (!npmVersionResult.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
@@ -79,13 +79,13 @@ export const task: Task<Task_Args> = {
 			return;
 		}
 
-		await spawn_process('git', ['push']);
-		await spawn_process('git', ['push', '--tags']);
+		await spawn('git', ['push']);
+		await spawn('git', ['push', '--tags']);
 		const publish_args = ['publish'];
 		if (!publish_context.previous_changelog_version) {
 			publish_args.push('--access', restricted ? 'restricted' : 'public');
 		}
-		const npm_publish_result = await spawn_process('npm', publish_args, {cwd: config.publish});
+		const npm_publish_result = await spawn('npm', publish_args, {cwd: config.publish});
 		if (!npm_publish_result.ok) {
 			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
 		}

@@ -1,5 +1,5 @@
 import {join} from 'path';
-import {spawn_process} from '@feltcoop/felt/util/process.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
 import {print_error} from '@feltcoop/felt/util/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
@@ -52,12 +52,12 @@ export const task: Task<Task_Args> = {
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
 		// staged uncommitted changes: `git diff --exit-code --cached`
-		const git_diff_unstaged_result = await spawn_process('git', ['diff', '--exit-code', '--quiet']);
+		const git_diff_unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet']);
 		if (!git_diff_unstaged_result.ok) {
 			log.error(red('git has unstaged changes: please commit or stash to proceed'));
 			return;
 		}
-		const git_diff_staged_result = await spawn_process('git', [
+		const git_diff_staged_result = await spawn('git', [
 			'diff',
 			'--exit-code',
 			'--cached',
@@ -69,7 +69,7 @@ export const task: Task<Task_Args> = {
 		}
 
 		// Ensure we're on the right branch.
-		const git_checkout_result = await spawn_process('git', ['checkout', source_branch]);
+		const git_checkout_result = await spawn('git', ['checkout', source_branch]);
 		if (!git_checkout_result.ok) {
 			log.error(red(`failed git checkout with exit code ${git_checkout_result.code}`));
 			return;
@@ -79,7 +79,7 @@ export const task: Task<Task_Args> = {
 		// Set up the deployment branch if necessary.
 		// If the `deploymentBranch` already exists, this is a no-op.
 		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
-		await spawn_process(
+		await spawn(
 			`git checkout --orphan ${DEPLOY_BRANCH} && ` +
 				// TODO there's definitely a better way to do this
 				`cp ${INITIAL_FILE} ${TEMP_PREFIX}${INITIAL_FILE} && ` +
@@ -132,11 +132,11 @@ export const task: Task<Task_Args> = {
 
 		try {
 			// Fetch the remote deploy branch
-			await spawn_process('git', ['fetch', ORIGIN, DEPLOY_BRANCH]);
+			await spawn('git', ['fetch', ORIGIN, DEPLOY_BRANCH]);
 			// Set up the deployment worktree
-			await spawn_process('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
+			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
 			// Pull the remote deploy branch, ignoring failures
-			await spawn_process('git', ['pull', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
+			await spawn('git', ['pull', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
@@ -152,9 +152,9 @@ export const task: Task<Task_Args> = {
 				),
 			);
 			// commit the changes
-			await spawn_process('git', ['add', '.', '-f'], GIT_ARGS);
-			await spawn_process('git', ['commit', '-m', 'deployment'], GIT_ARGS);
-			await spawn_process('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
+			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
+			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
+			await spawn('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), print_error(err));
 			await clean_git_worktree();
@@ -172,6 +172,6 @@ export const task: Task<Task_Args> = {
 
 // TODO like above, these cause some misleading logging
 const clean_git_worktree = async (): Promise<void> => {
-	await spawn_process('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force']);
-	await spawn_process('git', ['worktree', 'prune']);
+	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force']);
+	await spawn('git', ['worktree', 'prune']);
 };
