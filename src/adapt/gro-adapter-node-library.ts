@@ -218,21 +218,13 @@ const bundled_dist_filter = (id: string, stats: Path_Stats): boolean =>
 const to_possible_filenames = (paths: string[]): string[] =>
 	paths.flatMap((path) => {
 		const lower = path.toLowerCase();
-		return [lower, `${lower}.md`];
+		const upper = path.toUpperCase();
+		return [lower, `${lower}.md`, upper, `${upper}.md`];
 	});
 
-// these are the files npm includes by default; unlike npm, the only extension we support is `.md`
+// these are a subset of the files npm includes by default --
+// unlike npm, the only extension we support is `.md`
 const PACKAGE_FILES = new Set(
-	['package.json'].concat(
-		to_possible_filenames([
-			'README',
-			'CHANGES',
-			'CHANGELOG',
-			'HISTORY',
-			'LICENSE',
-			'LICENCE',
-			'NOTICE',
-		]),
-	),
+	['package.json'].concat(to_possible_filenames(['README', 'LICENSE'])),
 );
-const OTHER_PACKAGE_FILES = new Set(to_possible_filenames(['GOVERNANCE']));
+const OTHER_PACKAGE_FILES = new Set(to_possible_filenames(['CHANGELOG', 'GOVERNANCE']));
