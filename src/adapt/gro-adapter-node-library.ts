@@ -1,6 +1,7 @@
 import {print_spawn_result, spawn_process} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
+import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import type {Adapter} from './adapter.js';
 import {Task_Error} from '../task/task.js';
@@ -20,7 +21,23 @@ import type {Build_Name} from '../build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {run_rollup} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
-import {load_package_json} from '../utils/package_json.js';
+import type {Package_Json} from '../utils/package_json.js';
+
+const name = '@feltcoop/gro-adapter-node-library';
+
+// In normal circumstances, this adapter expects to handle
+// only code scoped to `src/lib`, following SvelteKit conventions.
+// It also supports Gro's current usecase that doesn't put anything under `lib/`,
+// but that functionality may be removed to have one hardcoded happy path.
+// In the normal case, the final package is flattened to the root directory,
+// so `src/lib/index.ts` becomes `index.ts`.
+// Import paths are *not* remapped by the adapter,
+// but Gro's build process does map `$lib/` and `src/` to relative paths.
+// This means all library modules must be under `src/lib` to work without additional transformation.
+const LIBRARY_DIR = 'lib/';
+// This function converts the build config's source file ids to the flattened base paths:
+const source_id_to_library_base_path = (source_id: string, library_rebase_path: string): string =>
+	strip_start(to_build_extension(source_id_to_base_path(source_id)), library_rebase_path);
 
 // TODO maybe add a `files` option to explicitly include source files,
 // and fall back to inferring from the build config
@@ -29,24 +46,28 @@ import {load_package_json} from '../utils/package_json.js';
 export interface Options {
 	build_name: Build_Name; // defaults to 'library'
 	dir: string; // defaults to `dist/${build_name}`
+	package_json: string; // defaults to 'package.json'
+	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
+	library_rebase_path: string; // defaults to 'lib/', pass '' to avoid remapping -- TODO do we want to remove this after Gro follows SvelteKit conventions?
 	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
 	// TODO currently these options are only available for 'bundled'
 	esm: boolean; // defaults to true
 	cjs: boolean; // defaults to true
-	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 }
 
 export const create_adapter = ({
 	build_name = NODE_LIBRARY_BUILD_NAME,
 	dir = `${DIST_DIRNAME}/${build_name}`,
+	library_rebase_path = LIBRARY_DIR,
+	package_json = 'package.json',
+	pack = true,
 	type = 'unbundled',
 	esm = true,
 	cjs = true,
-	pack = true,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
-		name: '@feltcoop/gro-adapter-node-library',
+		name,
 		adapt: async ({config, fs, dev, log, args, timings}) => {
 			await fs.remove(dir);
 
@@ -104,10 +125,15 @@ export const create_adapter = ({
 
 			const timing_to_copy_dist = timings.start('copy build to dist');
 			const filter = type === 'bundled' ? bundled_dist_filter : undefined;
-			await copy_dist(fs, build_config, dev, dir, log, filter, pack);
+			await copy_dist(fs, build_config, dev, dir, log, filter, pack, library_rebase_path);
 			timing_to_copy_dist();
 
-			const pkg = await load_package_json(fs);
+			let pkg: Package_Json;
+			try {
+				pkg = JSON.parse(await fs.read_file(package_json, 'utf8'));
+			} catch (err) {
+				throw Error(`Adapter ${name} failed to load package_json at path ${package_json}: ${err}`);
+			}
 
 			// If the output is treated as a package, it needs some special handling to get it ready.
 			if (pack) {
@@ -147,7 +173,7 @@ export const create_adapter = ({
 					'./package.json': './package.json',
 				};
 				for (const source_id of files) {
-					const path = `./${to_build_extension(source_id_to_base_path(source_id))}`;
+					const path = `./${source_id_to_library_base_path(source_id, library_rebase_path)}`;
 					pkg_exports[path] = path;
 				}
 				pkg.exports = pkg_exports;

@@ -58,6 +58,7 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 					// TODO temp hack - unlike most libraries, Gro ships its dist/ as a sibling to src/,
 					// and this flag opts out of the default library behavior
 					pack: false,
+					library_rebase_path: '',
 				}),
 			]),
 	};
