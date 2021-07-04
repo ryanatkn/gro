@@ -36,8 +36,15 @@ const name = '@feltcoop/gro-adapter-node-library';
 // This means all library modules must be under `src/lib` to work without additional transformation.
 const LIBRARY_DIR = 'lib/';
 // This function converts the build config's source file ids to the flattened base paths:
-const source_id_to_library_base_path = (source_id: string, library_rebase_path: string): string =>
-	strip_start(to_build_extension(source_id_to_base_path(source_id)), library_rebase_path);
+const source_id_to_library_base_path = (source_id: string, library_rebase_path: string): string => {
+	const base_path = source_id_to_base_path(source_id);
+	if (!base_path.startsWith(library_rebase_path)) {
+		throw Error(
+			`Source file does not start with library_rebase_path ${library_rebase_path}: ${base_path}`,
+		);
+	}
+	return strip_start(to_build_extension(base_path), library_rebase_path);
+};
 
 // TODO maybe add a `files` option to explicitly include source files,
 // and fall back to inferring from the build config
