@@ -1,5 +1,10 @@
 # changelog
 
+## 0.28.1
+
+- fix library adapter `package.json` paths
+  ([#228](https://github.com/feltcoop/gro/pull/228))
+
 ## 0.28.0
 
 - **break**: remove `gro start` task
