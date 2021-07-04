@@ -59,8 +59,8 @@ export const create_adapter = ({
 
 			const files = to_input_files(build_config.input);
 
-			const timing_to_bundle_with_rollup = timings.start('bundle with rollup');
 			if (type === 'bundled') {
+				const timing_to_bundle_with_rollup = timings.start('bundle with rollup');
 				if (type !== 'bundled') throw Error();
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
@@ -99,8 +99,8 @@ export const create_adapter = ({
 						map_watch_options,
 					});
 				}
+				timing_to_bundle_with_rollup();
 			}
-			timing_to_bundle_with_rollup();
 
 			const timing_to_copy_dist = timings.start('copy build to dist');
 			const filter = type === 'bundled' ? bundled_dist_filter : undefined;
