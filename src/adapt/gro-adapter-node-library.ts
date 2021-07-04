@@ -1,4 +1,4 @@
-import {print_spawn_result, spawn_process} from '@feltcoop/felt/util/process.js';
+import {print_spawn_result, spawn} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
@@ -191,12 +191,12 @@ export const create_adapter = ({
 				const timing_to_npm_link = timings.start('npm link');
 				await Promise.all(
 					Object.values(pkg.bin).map(async (bin_path) => {
-						const chmod_result = await spawn_process('chmod', ['+x', bin_path]);
+						const chmod_result = await spawn('chmod', ['+x', bin_path]);
 						if (!chmod_result.ok) log.error(`CLI chmod failed with code ${chmod_result.code}`);
 					}),
 				);
 				log.info(`linking`);
-				const link_result = await spawn_process('npm', ['link']);
+				const link_result = await spawn('npm', ['link']);
 				if (!link_result.ok) {
 					throw new Task_Error(`Failed to link. ${print_spawn_result(link_result)}`);
 				}

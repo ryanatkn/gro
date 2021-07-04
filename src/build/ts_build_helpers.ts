@@ -1,6 +1,6 @@
 import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
 import {replace_extension} from '@feltcoop/felt/util/path.js';
-import {spawn_process} from '@feltcoop/felt/util/process.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {
@@ -37,7 +37,7 @@ export const generate_types = async (
 	typemap: boolean,
 	tsc_args: string[] = EMPTY_ARRAY,
 ) => {
-	const tsc_result = await spawn_process('npx', [
+	const tsc_result = await spawn('npx', [
 		'tsc',
 		'--outDir',
 		dest,

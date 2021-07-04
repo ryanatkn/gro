@@ -1,6 +1,6 @@
 import {print_timings} from '@feltcoop/felt/util/print.js';
-import {Timings} from '@feltcoop/felt/util/time.js';
-import {spawn_process} from '@feltcoop/felt/util/process.js';
+import {Timings} from '@feltcoop/felt/util/timings.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
 import {Task_Error} from './task/task.js';
@@ -45,7 +45,7 @@ export const task: Task = {
 		}
 
 		const time_to_run_uvu = timings.start('run test with uvu');
-		const test_run_result = await spawn_process('npx', [
+		const test_run_result = await spawn('npx', [
 			'uvu',
 			to_root_path(tests_build_dir),
 			...test_file_patterns,

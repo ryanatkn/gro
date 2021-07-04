@@ -1,5 +1,5 @@
 import {red} from '@feltcoop/felt/util/terminal.js';
-import {Timings} from '@feltcoop/felt/util/time.js';
+import {Timings} from '@feltcoop/felt/util/timings.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import type {Result} from '@feltcoop/felt/util/types.js';
 import {print_error} from '@feltcoop/felt/util/print.js';

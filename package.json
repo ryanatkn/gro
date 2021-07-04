@@ -48,7 +48,7 @@
     "node": ">=14.16.0"
   },
   "dependencies": {
-    "@feltcoop/felt": "^0.2.2",
+    "@feltcoop/felt": "^0.3.0",
     "@rollup/plugin-commonjs": "^18.0.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@rollup/pluginutils": "^4.1.0",

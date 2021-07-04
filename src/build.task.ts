@@ -1,4 +1,4 @@
-import {Timings} from '@feltcoop/felt/util/time.js';
+import {Timings} from '@feltcoop/felt/util/timings.js';
 import {print_timings} from '@feltcoop/felt/util/print.js';
 
 import type {Task, Args} from './task/task.js';

@@ -1,5 +1,10 @@
 # changelog
 
+## 0.28.2
+
+- upgrade to `@feltcoop/felt@0.3.0`
+  ([#229](https://github.com/feltcoop/gro/pull/229))
+
 ## 0.28.1
 
 - fix library adapter `package.json` paths
@@ -16,8 +21,7 @@
   ([#223](https://github.com/feltcoop/gro/pull/223))
 - implement library adapter
   ([#226](https://github.com/feltcoop/gro/pull/226),
-  [#227](https://github.com/feltcoop/gro/pull/227),
-  [#228](https://github.com/feltcoop/gro/pull/228))
+  [#227](https://github.com/feltcoop/gro/pull/227))
 
 ## 0.27.3
 

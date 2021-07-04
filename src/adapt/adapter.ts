@@ -1,5 +1,5 @@
 import {to_array} from '@feltcoop/felt/util/array.js';
-import type {Timings} from '@feltcoop/felt/util/time.js';
+import type {Timings} from '@feltcoop/felt/util/timings.js';
 
 import type {Task_Context} from '../task/task.js';
 import type {Gro_Config} from '../config/config.js';

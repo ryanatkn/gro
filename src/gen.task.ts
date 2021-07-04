@@ -1,7 +1,7 @@
 import {red, green, gray} from '@feltcoop/felt/util/terminal.js';
 import {print_ms, print_error, print_timings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
-import {create_stopwatch, Timings} from '@feltcoop/felt/util/time.js';
+import {create_stopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 
 import type {Task} from './task/task.js';
 import {Task_Error} from './task/task.js';
