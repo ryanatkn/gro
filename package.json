@@ -40,7 +40,9 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "changelog.md",
+    "contributing.md"
   ],
   "engines": {
     "node": ">=14.16.0"
