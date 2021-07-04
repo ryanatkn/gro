@@ -1,7 +1,6 @@
 import {join, extname, relative, basename} from 'path';
 // `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 import lexer from 'es-module-lexer';
-// import {replace_extension} from '@feltcoop/felt/util/path.js';
 
 import {
 	paths,
@@ -13,7 +12,6 @@ import {
 	to_build_extension,
 	to_build_out_path,
 	TS_EXTENSION,
-	// TS_TYPE_EXTENSION,
 } from '../paths.js';
 import type {Build, Build_Context, Build_Result, Build_Source} from './builder.js';
 import {
@@ -44,7 +42,7 @@ export const postprocess = (
 
 		// returns `mapped_specifier`, not because it makes a ton of sense,
 		// but it's the only value needed, because this function populates `dependencies_by_build_id`
-		const handle_specifier = (specifier: string, _is_type_import: boolean): string => {
+		const handle_specifier = (specifier: string): string => {
 			let build_id: string;
 			let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
 			const is_external_import = is_external_module(specifier);
@@ -100,12 +98,6 @@ export const postprocess = (
 					final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
 				}
 				build_id = join(build.dir, mapped_specifier);
-				// if (is_type_import) {
-				// 	build_id = replace_extension(build_id, TS_TYPE_EXTENSION);
-				// 	// TODO i think this needs to do TYPEMAP as well,
-				// 	// AND we need to remove the hack that includes them automatically (see `types` usage)
-				// 	// so we probably add to the `dependencies_by_build_id` 3x below
-				// }
 			}
 			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
 			if (!dependencies_by_build_id.has(build_id)) {
@@ -113,14 +105,8 @@ export const postprocess = (
 					specifier: final_specifier,
 					mapped_specifier,
 					build_id,
-					// TODO can't we use the `is_external` check above instead of calling this?
 					external: browser && is_external,
-					// external: is_external_build_id(build_id, build_config, ctx),
-					// TODO what if this had `original_specifier` and `is_external_import` too?
 				});
-				// if (is_type_import) {
-				// 	console.log('specifier to build_id', source.id, specifier, build_id);
-				// }
 			}
 			return mapped_specifier;
 		};
@@ -136,7 +122,7 @@ export const postprocess = (
 				const end = d > -1 ? e - 1 : e;
 				const specifier = content.substring(start, end);
 				if (specifier === 'import.meta') continue;
-				const mapped_specifier = handle_specifier(specifier, false);
+				const mapped_specifier = handle_specifier(specifier);
 				if (mapped_specifier !== specifier) {
 					transformed_content += content.substring(index, start) + mapped_specifier;
 					index = end;
@@ -153,7 +139,7 @@ export const postprocess = (
 		if (types && source.extension === TS_EXTENSION && build.extension === JS_EXTENSION) {
 			const specifiers = parse_type_imports(source.content as string);
 			for (const specifier of specifiers) {
-				handle_specifier(specifier, true);
+				handle_specifier(specifier);
 			}
 		}
 
