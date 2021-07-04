@@ -16,7 +16,8 @@
   ([#223](https://github.com/feltcoop/gro/pull/223))
 - implement library adapter
   ([#226](https://github.com/feltcoop/gro/pull/226),
-  [#227](https://github.com/feltcoop/gro/pull/227))
+  [#227](https://github.com/feltcoop/gro/pull/227),
+  [#228](https://github.com/feltcoop/gro/pull/228))
 
 ## 0.27.3
 
