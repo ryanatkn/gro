@@ -148,8 +148,7 @@ export const create_adapter = ({
 				// copy files from the project root to the dist, but don't overwrite anything in the build
 				await Promise.all(
 					(await fs.read_dir('.')).map((path): void | Promise<void> => {
-						const filename = path.toLowerCase();
-						if (PACKAGE_FILES.has(filename) || OTHER_PACKAGE_FILES.has(filename)) {
+						if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
 							return fs.copy(path, `${dir}/${path}`, {overwrite: false});
 						}
 					}),
@@ -164,11 +163,7 @@ export const create_adapter = ({
 				const pkg_files = new Set(pkg.files || []);
 				const dir_paths = await fs.read_dir(dir);
 				for (const path of dir_paths) {
-					if (
-						!PACKAGE_FILES.has(path.toLowerCase()) &&
-						!path.endsWith(TS_TYPE_EXTENSION) &&
-						!path.endsWith(TS_TYPEMAP_EXTENSION)
-					) {
+					if (!PACKAGE_FILES.has(path)) {
 						pkg_files.add(path);
 					}
 				}
