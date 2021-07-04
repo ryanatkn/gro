@@ -17,12 +17,12 @@ It looks at the project and tries to do the right thing:
 
 - if `src/routes` and `src/app.html`,
 	assumes a SvelteKit frontend
-- if `src/index.html` and `src/index.ts`,
-	assumes Gro's deprecated SPA mode - https://github.com/feltcoop/gro/issues/106
-- if `src/index.ts` and not `src/index.html`,
+- if `src/lib/index.ts`,
 	assumes a Node library
 - if `src/server/server.ts`,
 	assumes a Node API server
+- if `src/index.html` and `src/index.ts`,
+	assumes Gro's deprecated SPA mode - https://github.com/feltcoop/gro/issues/106
 
 */
 

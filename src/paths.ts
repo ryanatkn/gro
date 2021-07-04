@@ -206,6 +206,9 @@ export const to_source_extension = (build_id: string): string => {
 		case SVELTE_CSS_SOURCEMAP_EXTENSION: {
 			return build_id.substring(0, len - extension2!.length);
 		}
+		case TS_TYPEMAP_EXTENSION: {
+			return build_id.substring(0, len - extension3.length) + TS_EXTENSION;
+		}
 		// case undefined:
 		// default:
 		// 	return build_id;
@@ -216,7 +219,8 @@ export const to_source_extension = (build_id: string): string => {
 		case SVELTE_CSS_BUILD_EXTENSION: {
 			return build_id.substring(0, len - extension1!.length);
 		}
-		case JS_SOURCEMAP_EXTENSION: {
+		case JS_SOURCEMAP_EXTENSION:
+		case TS_TYPE_EXTENSION: {
 			return build_id.substring(0, len - extension2.length) + TS_EXTENSION;
 		}
 		// case undefined:

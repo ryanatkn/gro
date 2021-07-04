@@ -142,6 +142,8 @@ const test_to_source_extension = suite('to_source_extension');
 test_to_source_extension('basic behavior', () => {
 	t.is(to_source_extension('foo/bar.js'), 'foo/bar.ts');
 	t.is(to_source_extension('foo/bar.js.map'), 'foo/bar.ts');
+	t.is(to_source_extension('foo/bar.d.ts'), 'foo/bar.ts');
+	t.is(to_source_extension('foo/bar.d.ts.map'), 'foo/bar.ts');
 	t.is(to_source_extension('foo/bar.svelte.js'), 'foo/bar.svelte');
 	t.is(to_source_extension('foo/bar.svelte.js.map'), 'foo/bar.svelte');
 	t.is(to_source_extension('foo/bar.svelte.css'), 'foo/bar.svelte');

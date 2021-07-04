@@ -49,10 +49,11 @@ export class Plugins {
 	}
 
 	async setup(): Promise<void> {
-		const {ctx} = this;
+		const {ctx, instances} = this;
+		if (!this.instances.length) return;
 		const {timings} = ctx;
 		const timing_to_setup = timings.start('plugins.setup');
-		for (const plugin of this.instances) {
+		for (const plugin of instances) {
 			if (!plugin.setup) continue;
 			const timing = timings.start(`setup:${plugin.name}`);
 			await plugin.setup(ctx);
@@ -62,10 +63,11 @@ export class Plugins {
 	}
 
 	async teardown(): Promise<void> {
-		const {ctx} = this;
+		const {ctx, instances} = this;
+		if (!this.instances.length) return;
 		const {timings} = ctx;
 		const timing_to_teardown = timings.start('plugins.teardown');
-		for (const plugin of this.instances) {
+		for (const plugin of instances) {
 			if (!plugin.teardown) continue;
 			const timing = timings.start(`teardown:${plugin.name}`);
 			await plugin.teardown(ctx);
