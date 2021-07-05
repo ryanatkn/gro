@@ -32,8 +32,10 @@ It includes:
   - [unbundled development](/src/docs/dev.md)
     inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
     [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
-  - [configurable adapters](src/docs/build.md#adapters) featuring e.g.
+  - [configurable adapters](src/docs/build.md#adapter) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
+  - [configurable plugins](src/docs/build.md#plugin) to support SvelteKit,
+    auto-restarting API servers, and other external build processes
   - fully integrated [TypeScript](https://github.com/microsoft/typescript)
     and [Svelte](https://github.com/sveltejs/svelte)
     using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed

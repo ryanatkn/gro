@@ -58,7 +58,7 @@ To configure a project, see [the config docs](config.md).
 
 ## plugin
 
-`Plugin`s are objects that customize the behavior of `gro build` (and `gro dev`).
+`Plugin`s are objects that customize the behavior of `gro build` and `gro dev`.
 See [plugin.md](plugin.md) to learn more.
 
 ## todo

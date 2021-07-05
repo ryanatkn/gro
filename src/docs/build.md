@@ -24,7 +24,7 @@ Adapting is designed to be powerful and open ended.
 
 ## plugin
 
-`Plugin`s are objects that customize the behavior of `gro build` (and `gro dev`).
+`Plugin`s are objects that customize the behavior of `gro build` and `gro dev`.
 See [plugin.md](plugin.md) to learn more.
 
 ## adapt
