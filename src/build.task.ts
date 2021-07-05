@@ -17,7 +17,6 @@ export interface Task_Args extends Args {
 
 export interface Task_Events {
 	'build.create_config': (config: Gro_Config) => void;
-	'build.build_src': void;
 }
 
 export const task: Task<Task_Args, Task_Events> = {
@@ -40,10 +39,13 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		// Build everything with esbuild and Gro's `Filer` first.
 		// These production artifacts are then available to all adapters.
-		const timing_to_build_src = timings.start('build_src');
-		await build_source(fs, config, dev, log);
-		timing_to_build_src();
-		events.emit('build.build_src');
+		// There may be no builds, e.g. for SvelteKit-only frontend projects,
+		// so just don't build in that case.
+		if (config.builds.length) {
+			const timing_to_build_source = timings.start('build_source');
+			await build_source(fs, config, dev, log);
+			timing_to_build_source();
+		}
 
 		await plugins.setup();
 		await plugins.teardown();

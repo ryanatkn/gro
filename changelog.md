@@ -1,5 +1,10 @@
 # changelog
 
+## 0.28.3
+
+- fix buildless builds to handle SvelteKit-only frontend projects
+  ([#230](https://github.com/feltcoop/gro/pull/230))
+
 ## 0.28.2
 
 - upgrade to `@feltcoop/felt@0.3.0`
