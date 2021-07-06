@@ -105,8 +105,10 @@ export const find_modules = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<Find_Modules_Timings>();
 	const timing_to_map_input_paths = timings.start('map input paths');
-	const {source_id_path_data_by_input_path, unmapped_input_paths} =
-		await load_source_path_data_by_input_path(fs, input_paths, get_possible_source_ids);
+	const {
+		source_id_path_data_by_input_path,
+		unmapped_input_paths,
+	} = await load_source_path_data_by_input_path(fs, input_paths, get_possible_source_ids);
 	timing_to_map_input_paths();
 
 	// Error if any input path could not be mapped.
@@ -129,8 +131,12 @@ export const find_modules = async (
 
 	// Find all of the files for any directories.
 	const timing_to_find_files = timings.start('find files');
-	const {source_ids_by_input_path, input_directories_with_no_files} =
-		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => find_files(id));
+	const {
+		source_ids_by_input_path,
+		input_directories_with_no_files,
+	} = await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) =>
+		find_files(id),
+	);
 	timing_to_find_files();
 
 	// Error if any input path has no files. (means we have an empty directory)

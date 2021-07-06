@@ -170,8 +170,9 @@ export const invoke_task = async (
 				// Ignore any errors - the directory may not exist or have any files!
 				if (gro_dir_find_modules_result.ok) {
 					timings.merge(gro_dir_find_modules_result.timings);
-					const groPath_Data =
-						gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
+					const groPath_Data = gro_dir_find_modules_result.source_id_path_data_by_input_path.get(
+						gro_dir_input_path,
+					)!;
 					// First log the Gro matches.
 					log_available_tasks(
 						log,
@@ -206,8 +207,9 @@ export const invoke_task = async (
 			);
 			if (gro_dir_find_modules_result.ok) {
 				timings.merge(gro_dir_find_modules_result.timings);
-				const groPath_Data =
-					gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
+				const groPath_Data = gro_dir_find_modules_result.source_id_path_data_by_input_path.get(
+					gro_dir_input_path,
+				)!;
 				// Log the Gro matches.
 				log_available_tasks(
 					log,

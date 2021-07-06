@@ -118,18 +118,20 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 			build_state.importMap = installResult.importMap;
 			builds = [
 				...(await Promise.all(
-					Array.from(build_state.specifiers).map(async (specifier): Promise<Text_Build> => {
-						const id = join(dest, installResult.importMap.imports[specifier]);
-						return {
-							id,
-							filename: basename(id),
-							dir: dirname(id),
-							extension: JS_EXTENSION,
-							encoding,
-							content: await load_content(fs, encoding, id),
-							build_config,
-						};
-					}),
+					Array.from(build_state.specifiers).map(
+						async (specifier): Promise<Text_Build> => {
+							const id = join(dest, installResult.importMap.imports[specifier]);
+							return {
+								id,
+								filename: basename(id),
+								dir: dirname(id),
+								extension: JS_EXTENSION,
+								encoding,
+								content: await load_content(fs, encoding, id),
+								build_config,
+							};
+						},
+					),
 				)),
 				...((await loadCommonBuilds(fs, installResult, dest, build_config)) || EMPTY_ARRAY),
 			];
