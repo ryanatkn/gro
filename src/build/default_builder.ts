@@ -43,5 +43,5 @@ export const create_default_builder = (
 		};
 	}
 
-	return {...create_simple_builder(simple_builder_options), name: '@feltcoop/gro-builder-default'};
+	return {...create_simple_builder(simple_builder_options), name: '@feltcoop/gro_builder_default'};
 };

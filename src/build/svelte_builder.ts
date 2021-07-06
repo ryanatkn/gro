@@ -172,7 +172,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		return result;
 	};
 
-	return {name: '@feltcoop/gro-builder-svelte', build};
+	return {name: '@feltcoop/gro_builder_svelte', build};
 };
 
 const get_generate_option = (build_config: Build_Config): 'dom' | 'ssr' | false => {

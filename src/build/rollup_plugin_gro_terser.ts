@@ -22,7 +22,7 @@ export const init_options = (opts: Initial_Options): Options => ({
 	...omit_undefined(opts),
 });
 
-export const name = 'gro-terser';
+export const name = '@feltcoop/rollup_plugin_gro_terser';
 
 export const gro_terser_plugin = (opts: Initial_Options = {}): Plugin => {
 	const {include, exclude, minify_options} = init_options(opts);

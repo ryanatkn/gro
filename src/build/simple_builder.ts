@@ -57,5 +57,5 @@ export const create_simple_builder = (opts: Initial_Options = {}): Required<Buil
 		}
 	};
 
-	return {name: '@feltcoop/gro-builder-lazy', build, on_remove, init};
+	return {name: '@feltcoop/gro_builder_lazy', build, on_remove, init};
 };
