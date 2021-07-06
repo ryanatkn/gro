@@ -11,7 +11,7 @@ export interface Task_Args extends Args {
 	watch?: boolean;
 }
 
-const name = '@feltcoop/gro-adapter-sveltekit-frontend';
+const name = '@feltcoop/gro_adapter_sveltekit_frontend';
 
 export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<Task_Args, {}> => {
 	let sveltekit_process: Spawned_Process | null = null;

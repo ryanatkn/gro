@@ -49,26 +49,26 @@ export const config: Gro_Config_Creator = async ({fs}) => {
 		types: enable_node_library,
 		plugin: async () => [
 			enable_api_server
-				? (await import('../plugin/gro-plugin-api-server.js')).create_plugin()
+				? (await import('../plugin/gro_plugin_api_server.js')).create_plugin()
 				: null,
 			enable_sveltekit_frontend
-				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).create_plugin()
+				? (await import('../plugin/gro_plugin_sveltekit_frontend.js')).create_plugin()
 				: null,
 		],
 		adapt: async () => [
 			enable_node_library
-				? (await import('../adapt/gro-adapter-node-library.js')).create_adapter()
+				? (await import('../adapt/gro_adapter_node_library.js')).create_adapter()
 				: null,
 			enable_api_server
-				? (await import('../adapt/gro-adapter-generic-build.js')).create_adapter({
+				? (await import('../adapt/gro_adapter_generic_build.js')).create_adapter({
 						build_name: API_SERVER_BUILD_CONFIG.name,
 				  })
 				: null,
 			// enable_gro_frontend
-			// 	? (await import('../adapt/gro-adapter-spa-frontend.js')).create_adapter()
+			// 	? (await import('../adapt/gro_adapter_spa_frontend.js')).create_adapter()
 			// 	: null,
 			enable_sveltekit_frontend
-				? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).create_adapter()
+				? (await import('../adapt/gro_adapter_sveltekit_frontend.js')).create_adapter()
 				: null,
 		],
 	};

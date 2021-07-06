@@ -53,7 +53,7 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>
 			Promise.all([
-				(await import('./adapt/gro-adapter-node-library.js')).create_adapter({
+				(await import('./adapt/gro_adapter_node_library.js')).create_adapter({
 					dir: 'dist',
 					// TODO temp hack - unlike most libraries, Gro ships its dist/ as a sibling to src/,
 					// and this flag opts out of the default library behavior

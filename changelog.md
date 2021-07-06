@@ -62,7 +62,7 @@
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: change `validate_build_configs` function signature
   ([#207](https://github.com/feltcoop/gro/pull/207))
-- **break**: change `gro-adapter-sveltekit-frontend` output so it composes with others
+- **break**: change `gro_adapter_sveltekit_frontend` output so it composes with others
   ([#207](https://github.com/feltcoop/gro/pull/207))
 - **break**: rename the `Task` `summary` property from `description`
   ([#212](https://github.com/feltcoop/gro/pull/212))
@@ -182,7 +182,7 @@
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: add [`Adapter` system](src/docs/build.md#adapters) and
-  [Node library adapter](src/adapt/gro-adapter-node-library.ts)
+  [Node library adapter](src/adapt/gro_adapter_node_library.ts)
   ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined
   ([#187](https://github.com/feltcoop/gro/pull/187))

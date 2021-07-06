@@ -35,7 +35,7 @@ export const create_plugin = ({
 	};
 
 	return {
-		name: '@feltcoop/gro-adapter-sveltekit-frontend',
+		name: '@feltcoop/gro_plugin_sveltekit_frontend',
 		setup: async ({dev, fs, filer}) => {
 			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
 			const server_build_path = `${to_build_out_dir(dev)}/${build_name}/${base_build_path}`;

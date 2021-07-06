@@ -23,7 +23,7 @@ import {run_rollup} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
 import type {Package_Json} from '../utils/package_json.js';
 
-const name = '@feltcoop/gro-adapter-node-library';
+const name = '@feltcoop/gro_adapter_node_library';
 
 // In normal circumstances, this adapter expects to handle
 // only code scoped to `src/lib`, following SvelteKit conventions.
@@ -147,7 +147,9 @@ export const create_adapter = ({
 				const timing_to_pack_dist = timings.start('pack dist');
 				// copy files from the project root to the dist, but don't overwrite anything in the build
 				await Promise.all(
-					(await fs.read_dir('.')).map((path): void | Promise<void> => {
+					(
+						await fs.read_dir('.')
+					).map((path): void | Promise<void> => {
 						if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
 							return fs.copy(path, `${dir}/${path}`, {overwrite: false});
 						}

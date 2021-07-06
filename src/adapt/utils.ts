@@ -23,7 +23,7 @@ export const copy_dist = async (
 	dist_out_dir: string,
 	log: Logger,
 	filter?: (id: string, stats: Path_Stats) => boolean,
-	pack: boolean = true, // TODO reconsider this API, see `gro-adapter-node-library`
+	pack: boolean = true, // TODO reconsider this API, see `gro_adapter_node_library`
 	rebase_path: string = '',
 ): Promise<void> => {
 	const build_out_dir = to_build_out_path(dev, build_config.name, rebase_path);
