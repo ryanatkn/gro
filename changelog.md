@@ -1,5 +1,10 @@
 # changelog
 
+## 0.29.0
+
+- **break**: rename plugins and adapters to `snake_case` from `kebab-case`
+  ([#232](https://github.com/feltcoop/gro/pull/232))
+
 ## 0.28.3
 
 - fix buildless builds to handle SvelteKit-only frontend projects
