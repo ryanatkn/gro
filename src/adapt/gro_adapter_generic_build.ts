@@ -19,7 +19,7 @@ export const create_adapter = ({
 }: Options): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
-		name: '@feltcoop/gro-adapter-generic-build',
+		name: '@feltcoop/gro_adapter_generic_build',
 		adapt: async ({config, fs, dev, log}) => {
 			await fs.remove(dir);
 

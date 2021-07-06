@@ -20,7 +20,7 @@ export const create_adapter = ({
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
-		name: '@feltcoop/gro-adapter-sveltekit-frontend',
+		name: '@feltcoop/gro_adapter_sveltekit_frontend',
 		adapt: async ({fs}) => {
 			await fs.remove(dir);
 

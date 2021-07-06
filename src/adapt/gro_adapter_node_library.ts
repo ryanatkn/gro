@@ -23,7 +23,7 @@ import {run_rollup} from '../build/rollup.js';
 import type {Path_Stats} from '../fs/path_data.js';
 import type {Package_Json} from '../utils/package_json.js';
 
-const name = '@feltcoop/gro-adapter-node-library';
+const name = '@feltcoop/gro_adapter_node_library';
 
 // In normal circumstances, this adapter expects to handle
 // only code scoped to `src/lib`, following SvelteKit conventions.

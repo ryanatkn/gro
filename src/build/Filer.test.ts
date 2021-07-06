@@ -66,7 +66,7 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 		input: [entryId],
 	};
 	const builder: Builder = {
-		name: '@feltcoop/gro-builder-test',
+		name: '@feltcoop/gro_builder_test',
 		build(_source, _build_config, _ctx) {
 			return {builds: []}; // TODO return a file and verify it below
 		},

@@ -62,7 +62,7 @@ export interface Gro_Svelte_Plugin extends Plugin {
 	get_compilation: (id: string) => Gro_Svelte_Compilation | undefined;
 }
 
-export const name = 'gro-svelte';
+export const name = '@feltcoop/rollup_plugin_gro_svelte';
 
 export const gro_svelte_plugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
 	const {

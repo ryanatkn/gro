@@ -24,7 +24,7 @@ export const create_adapter = ({
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
-		name: '@feltcoop/gro-adapter-spa-frontend',
+		name: '@feltcoop/gro_adapter_spa_frontend',
 		adapt: async ({config, fs, args, log, dev, timings}) => {
 			await fs.remove(dir);
 

@@ -168,7 +168,7 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 		);
 	};
 
-	return {name: '@feltcoop/gro-builder-externals', build, init};
+	return {name: '@feltcoop/gro_builder_externals', build, init};
 };
 
 // TODO this is really hacky - it's working in the general case,
