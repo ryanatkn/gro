@@ -16,7 +16,7 @@ import type {Base_Filer_File} from './base_filer_file.js';
 
 export interface Builder<
 	TSource extends Build_Source = Build_Source,
-	TBuild extends Build = Build,
+	TBuild extends Build = Build
 > {
 	name: string;
 	build(
