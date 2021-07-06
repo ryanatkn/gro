@@ -2,7 +2,7 @@
 
 ## 0.29.0
 
-- **break**: rename plugins and adapters to `snake_case` from `kebab-case`
+- **break**: rename plugins, adapters, and builders to `snake_case` from `kebab-case`
   ([#232](https://github.com/feltcoop/gro/pull/232))
 
 ## 0.28.3
