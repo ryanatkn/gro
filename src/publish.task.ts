@@ -100,10 +100,8 @@ const confirm_with_user = async (
 ): Promise<Publish_Context> => {
 	const readline = create_readline_interface({input: process.stdin, output: process.stdout});
 	return new Promise<Publish_Context>(async (resolve) => {
-		const [
-			[current_changelog_version, previous_changelog_version],
-			current_package_version,
-		] = await Promise.all([get_changelog_versions(fs), get_current_package_version(fs)]);
+		const [[current_changelog_version, previous_changelog_version], current_package_version] =
+			await Promise.all([get_changelog_versions(fs), get_current_package_version(fs)]);
 
 		let errored = false;
 		const log_error: Logger['error'] = (...args) => {

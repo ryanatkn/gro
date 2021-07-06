@@ -386,10 +386,9 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		if (is_input) {
 			if (source_file.is_input_to_build_configs === null) {
 				// Cast to keep the `readonly` modifier outside of initialization.
-				(source_file as Assignable<
-					Buildable_Source_File,
-					'is_input_to_build_configs'
-				>).is_input_to_build_configs = new Set();
+				(
+					source_file as Assignable<Buildable_Source_File, 'is_input_to_build_configs'>
+				).is_input_to_build_configs = new Set();
 			}
 			source_file.is_input_to_build_configs!.add(build_config);
 		}
