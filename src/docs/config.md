@@ -20,7 +20,7 @@ and tries to do the right thing.
 > The default config detects
 > [Gro's deprecated SPA mode](https://github.com/feltcoop/gro/issues/106)
 > if it sees both a `src/index.html` and `src/index.ts`.
-> It also looks for a Node server entry point at `src/server/server.ts`.
+> It also looks for a Node server entry point at `src/lib/server/server.ts`.
 > Both are no-ops if not detected.
 
 See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
