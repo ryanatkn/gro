@@ -57,14 +57,12 @@ export const validate_input_files = async (
 	files: string[],
 ): Promise<Result<{}, {reason: string}>> => {
 	const results = await Promise.all(
-		files.map(
-			async (input): Promise<null | {ok: false; reason: string}> => {
-				if (!(await fs.exists(input))) {
-					return {ok: false, reason: `Input file does not exist: ${input}`};
-				}
-				return null;
-			},
-		),
+		files.map(async (input): Promise<null | {ok: false; reason: string}> => {
+			if (!(await fs.exists(input))) {
+				return {ok: false, reason: `Input file does not exist: ${input}`};
+			}
+			return null;
+		}),
 	);
 	for (const result of results) {
 		if (result) return result;

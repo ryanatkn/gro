@@ -87,70 +87,68 @@ export const reconstruct_build_files = async (
 ): Promise<Map<Build_Config, Build_File[]>> => {
 	const build_files: Map<Build_Config, Build_File[]> = new Map();
 	await Promise.all(
-		source_meta.data.builds.map(
-			async (build): Promise<void> => {
-				const {id, build_name, dependencies, encoding} = build;
-				const filename = basename(id);
-				const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
-				const extension = extname(id);
-				const content = await load_content(fs, encoding, id);
-				const build_config = build_configs.find((b) => b.name === build_name)!; // is a bit awkward, but probably not inefficient enough to change
-				if (!build_config) {
-					// TODO wait no this build needs to be preserved somehow,
-					// otherwise running the filer with different build configs fails to preserve
+		source_meta.data.builds.map(async (build): Promise<void> => {
+			const {id, build_name, dependencies, encoding} = build;
+			const filename = basename(id);
+			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
+			const extension = extname(id);
+			const content = await load_content(fs, encoding, id);
+			const build_config = build_configs.find((b) => b.name === build_name)!; // is a bit awkward, but probably not inefficient enough to change
+			if (!build_config) {
+				// TODO wait no this build needs to be preserved somehow,
+				// otherwise running the filer with different build configs fails to preserve
 
-					// If the build config is not found, just ignore the cached data --
-					// if it's stale it won't hurt anything, and will disappear the next `gro clean`,
-					// and if the Filer ever runs with that config again, it'll read from the cache.
-					// We rely on this behavior to have the separate bootstrap config.
-					return;
-				}
-				let build_file: Build_File;
-				switch (encoding) {
-					case 'utf8':
-						build_file = {
-							type: 'build',
-							source_id: source_meta.data.source_id,
-							build_config,
-							dependencies_by_build_id:
-								dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
-							id,
-							filename,
-							dir,
-							extension,
-							encoding,
-							content: content as string,
-							content_buffer: undefined,
-							content_hash: undefined,
-							stats: undefined,
-							mime_type: undefined,
-						};
-						break;
-					case null:
-						build_file = {
-							type: 'build',
-							source_id: source_meta.data.source_id,
-							build_config,
-							dependencies_by_build_id:
-								dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
-							id,
-							filename,
-							dir,
-							extension,
-							encoding,
-							content: content as Buffer,
-							content_buffer: content as Buffer,
-							content_hash: undefined,
-							stats: undefined,
-							mime_type: undefined,
-						};
-						break;
-					default:
-						throw new Unreachable_Error(encoding);
-				}
-				add_build_file(build_file, build_files, build_config);
-			},
-		),
+				// If the build config is not found, just ignore the cached data --
+				// if it's stale it won't hurt anything, and will disappear the next `gro clean`,
+				// and if the Filer ever runs with that config again, it'll read from the cache.
+				// We rely on this behavior to have the separate bootstrap config.
+				return;
+			}
+			let build_file: Build_File;
+			switch (encoding) {
+				case 'utf8':
+					build_file = {
+						type: 'build',
+						source_id: source_meta.data.source_id,
+						build_config,
+						dependencies_by_build_id:
+							dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
+						id,
+						filename,
+						dir,
+						extension,
+						encoding,
+						content: content as string,
+						content_buffer: undefined,
+						content_hash: undefined,
+						stats: undefined,
+						mime_type: undefined,
+					};
+					break;
+				case null:
+					build_file = {
+						type: 'build',
+						source_id: source_meta.data.source_id,
+						build_config,
+						dependencies_by_build_id:
+							dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
+						id,
+						filename,
+						dir,
+						extension,
+						encoding,
+						content: content as Buffer,
+						content_buffer: content as Buffer,
+						content_hash: undefined,
+						stats: undefined,
+						mime_type: undefined,
+					};
+					break;
+				default:
+					throw new Unreachable_Error(encoding);
+			}
+			add_build_file(build_file, build_files, build_config);
+		}),
 	);
 	return build_files;
 };
