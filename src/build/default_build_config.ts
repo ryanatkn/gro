@@ -1,7 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {Build_Config, Build_Config_Partial, Build_Name} from './build_config.js';
-import {to_build_extension, base_path_to_source_id, paths, is_this_project_gro} from '../paths.js';
+import {to_build_extension, base_path_to_source_id, paths} from '../paths.js';
 import {get_extensions} from '../fs/mime.js';
 import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -38,11 +38,10 @@ export const NODE_LIBRARY_BUILD_CONFIG: Build_Config = {
 	input: [NODE_LIBRARY_PATH],
 };
 
-export const API_SERVER_SOURCE_BASE_PATH = 'server/server.ts';
-export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH); // 'server/server.js'
-export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/server/server.ts'
-export const has_api_server = async (fs: Filesystem): Promise<boolean> =>
-	!is_this_project_gro && (await fs.exists(API_SERVER_SOURCE_ID));
+export const API_SERVER_SOURCE_BASE_PATH = 'lib/server/server.ts';
+export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH); // 'lib/server/server.js'
+export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/lib/server/server.ts'
+export const has_api_server = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const API_SERVER_BUILD_NAME: Build_Name = 'server';
 export const API_SERVER_BUILD_CONFIG: Build_Config = {
 	name: API_SERVER_BUILD_NAME,
@@ -57,11 +56,11 @@ export const to_api_server_port = (dev: boolean): number =>
 	dev ? API_SERVER_DEFAULT_PORT_DEV : API_SERVER_DEFAULT_PORT_PROD;
 
 const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
-export const has_sveltekit_frontend = async (fs: Filesystem): Promise<boolean> =>
+export const has_sveltekit_frontend = (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, SVELTEKIT_FRONTEND_PATHS);
 
 const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
-export const has_deprecated_gro_frontend = async (fs: Filesystem): Promise<boolean> =>
+export const has_deprecated_gro_frontend = (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, DEPRECATED_GRO_FRONTEND_PATHS);
 
 export const BROWSER_BUILD_NAME: Build_Name = 'browser';

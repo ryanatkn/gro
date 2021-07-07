@@ -19,7 +19,7 @@ It looks at the project and tries to do the right thing:
 	assumes a SvelteKit frontend
 - if `src/lib/index.ts`,
 	assumes a Node library
-- if `src/server/server.ts`,
+- if `src/lib/server/server.ts`,
 	assumes a Node API server
 - if `src/index.html` and `src/index.ts`,
 	assumes Gro's deprecated SPA mode - https://github.com/feltcoop/gro/issues/106

@@ -1,5 +1,10 @@
 # changelog
 
+## 0.30.0
+
+- **break**: change default server to `src/lib/server/server.ts` from `src/server/server.ts`
+  ([#234](https://github.com/feltcoop/gro/pull/234))
+
 ## 0.29.0
 
 - **break**: rename plugins, adapters, and builders to `snake_case` from `kebab-case`

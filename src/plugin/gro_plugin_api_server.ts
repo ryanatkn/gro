@@ -12,7 +12,7 @@ import type {Build_Config, Build_Name} from 'src/build/build_config.js';
 
 export interface Options {
 	build_name: Build_Name; // defaults to 'server'
-	base_build_path?: string; // defaults to 'server/server.js'
+	base_build_path?: string; // defaults to 'lib/server/server.js'
 }
 
 export interface Task_Args extends Args {
@@ -37,7 +37,7 @@ export const create_plugin = ({
 	return {
 		name: '@feltcoop/gro_plugin_sveltekit_frontend',
 		setup: async ({dev, fs, filer}) => {
-			// When `src/server/server.ts` or any of its dependencies change, restart the API server.
+			// When `src/lib/server/server.ts` or any of its dependencies change, restart the API server.
 			const server_build_path = `${to_build_out_dir(dev)}/${build_name}/${base_build_path}`;
 
 			if (!(await fs.exists(server_build_path))) {
