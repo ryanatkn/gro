@@ -1,7 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {Build_Config, Build_Config_Partial, Build_Name} from './build_config.js';
-import {to_build_extension, base_path_to_source_id, paths, is_this_project_gro} from '../paths.js';
+import {to_build_extension, base_path_to_source_id, paths} from '../paths.js';
 import {get_extensions} from '../fs/mime.js';
 import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
