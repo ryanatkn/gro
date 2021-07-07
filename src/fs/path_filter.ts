@@ -9,5 +9,7 @@ export interface Path_Filter {
 	(file: {path: string; stats: Path_Stats}): boolean;
 }
 
-export const to_path_filter = (exclude: File_Filter, root = paths.root): Path_Filter => ({path}) =>
-	!exclude(join(root, path));
+export const to_path_filter =
+	(exclude: File_Filter, root = paths.root): Path_Filter =>
+	({path}) =>
+		!exclude(join(root, path));

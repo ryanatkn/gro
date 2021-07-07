@@ -1,6 +1,6 @@
 import {createInterface as create_readline_interface} from 'readline';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
+import {green, black_bg, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
@@ -100,10 +100,8 @@ const confirm_with_user = async (
 ): Promise<Publish_Context> => {
 	const readline = create_readline_interface({input: process.stdin, output: process.stdout});
 	return new Promise<Publish_Context>(async (resolve) => {
-		const [
-			[current_changelog_version, previous_changelog_version],
-			current_package_version,
-		] = await Promise.all([get_changelog_versions(fs), get_current_package_version(fs)]);
+		const [[current_changelog_version, previous_changelog_version], current_package_version] =
+			await Promise.all([get_changelog_versions(fs), get_current_package_version(fs)]);
 
 		let errored = false;
 		const log_error: Logger['error'] = (...args) => {
@@ -158,7 +156,7 @@ const confirm_with_user = async (
 			log.warn(yellow(`there's an error or uncheckable condition above`));
 		}
 		readline.question(
-			bgBlack(
+			black_bg(
 				`does this look correct? ${
 					errored ? red(`if you're sure `) : ''
 				}type "${expected_answer}" to proceed`,
