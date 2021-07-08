@@ -89,16 +89,9 @@ export const postprocess = (
 				}
 			} else {
 				// internal import
-				// support absolute import patterns -- TODO modularize
-				if (mapped_specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
-					mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(1));
-					final_specifier = relative(source.dir, paths.source + final_specifier.substring(1));
-				} else if (mapped_specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
-					mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(3));
-					final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
-				}
-				if (mapped_specifier[0] !== '.') mapped_specifier = './' + mapped_specifier;
-				if (final_specifier[0] !== '.') final_specifier = './' + final_specifier;
+				// remap absolute import patterns like `$lib/`
+				mapped_specifier = normalize_specifier(mapped_specifier, source.dir, paths.source);
+				final_specifier = normalize_specifier(final_specifier, source.dir, paths.source);
 				build_id = join(build.dir, mapped_specifier);
 			}
 			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
@@ -161,6 +154,27 @@ export const postprocess = (
 		// Handle other encodings like binary.
 		return {content: build.content, dependencies_by_build_id: null};
 	}
+};
+
+// Maps absolute `$lib/` and `src/` imports to relative specifiers.
+const normalize_specifier = (specifier: string, dir: string, source_dir: string): string => {
+	if (specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
+		specifier = to_relative_specifier(specifier, dir, source_dir, 1);
+	} else if (specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
+		specifier = to_relative_specifier(specifier, dir, source_dir, 3);
+	}
+	return specifier;
+};
+
+const to_relative_specifier = (
+	specifier: string,
+	dir: string,
+	source_dir: string,
+	chars_to_trim: number,
+): string => {
+	specifier = relative(dir, source_dir + specifier.substring(chars_to_trim));
+	if (specifier[0] !== '.') specifier = './' + specifier;
+	return specifier;
 };
 
 const TYPE_IMPORT_MATCHER = /^import type [\s\S]*? from '(.+)';$/gm;
