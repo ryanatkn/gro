@@ -54,7 +54,7 @@
     "@rollup/pluginutils": "^4.1.0",
     "cheap-watch": "^1.0.3",
     "es-module-lexer": "^0.4.1",
-    "esbuild": "^0.9.3",
+    "esbuild": "^0.12.15",
     "esinstall": "1.0.5",
     "fs-extra": "^10.0.0",
     "mri": "^1.1.6",
