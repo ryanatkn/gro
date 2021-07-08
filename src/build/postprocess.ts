@@ -48,10 +48,9 @@ export const postprocess = (
 			const is_external_import = is_external_module(specifier);
 			const is_external_imported_by_external = source.id === EXTERNALS_SOURCE_ID;
 			const is_external = is_external_import || is_external_imported_by_external;
-			let mapped_specifier = is_external
-				? to_build_extension(specifier)
-				: hack_to_build_extension_with_possibly_extensionless_specifier(specifier);
+			let mapped_specifier: string;
 			if (is_external) {
+				mapped_specifier = to_build_extension(specifier);
 				if (is_external_import) {
 					// handle regular externals
 					if (browser) {
@@ -89,14 +88,9 @@ export const postprocess = (
 				}
 			} else {
 				// internal import
-				// support absolute import patterns -- TODO modularize
-				if (mapped_specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
-					mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(1));
-					final_specifier = relative(source.dir, paths.source + final_specifier.substring(1));
-				} else if (mapped_specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
-					mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(3));
-					final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
-				}
+				final_specifier = to_relative_specifier(final_specifier, source.dir, paths.source);
+				mapped_specifier =
+					hack_to_build_extension_with_possibly_extensionless_specifier(final_specifier);
 				build_id = join(build.dir, mapped_specifier);
 			}
 			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
@@ -159,6 +153,27 @@ export const postprocess = (
 		// Handle other encodings like binary.
 		return {content: build.content, dependencies_by_build_id: null};
 	}
+};
+
+// Maps absolute `$lib/` and `src/` imports to relative specifiers.
+const to_relative_specifier = (specifier: string, dir: string, source_dir: string): string => {
+	if (specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
+		specifier = to_relative_specifier_trimmed_by(1, specifier, dir, source_dir);
+	} else if (specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
+		specifier = to_relative_specifier_trimmed_by(3, specifier, dir, source_dir);
+	}
+	return specifier;
+};
+
+const to_relative_specifier_trimmed_by = (
+	chars_to_trim: number,
+	specifier: string,
+	dir: string,
+	source_dir: string,
+): string => {
+	specifier = relative(dir, source_dir + specifier.substring(chars_to_trim));
+	if (specifier[0] !== '.') specifier = './' + specifier;
+	return specifier;
 };
 
 const TYPE_IMPORT_MATCHER = /^import type [\s\S]*? from '(.+)';$/gm;

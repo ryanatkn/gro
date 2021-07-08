@@ -2,6 +2,8 @@
 
 ## 0.30.1
 
+- fix conversion of absolute specifiers to include `./` if bare
+  ([#236](https://github.com/feltcoop/gro/pull/236))
 - upgrade to esbuild@0.12.15
   ([#235](https://github.com/feltcoop/gro/pull/235))
 
