@@ -97,6 +97,8 @@ export const postprocess = (
 					mapped_specifier = relative(source.dir, paths.source + mapped_specifier.substring(3));
 					final_specifier = relative(source.dir, paths.source + final_specifier.substring(3));
 				}
+				if (mapped_specifier[0] !== '.') mapped_specifier = './' + mapped_specifier;
+				if (final_specifier[0] !== '.') final_specifier = './' + final_specifier;
 				build_id = join(build.dir, mapped_specifier);
 			}
 			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();

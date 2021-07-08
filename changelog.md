@@ -2,6 +2,8 @@
 
 ## 0.30.1
 
+- fix computed relative import paths to include `./` if bare
+  ([#235](https://github.com/feltcoop/gro/pull/235))
 - upgrade to esbuild@0.12.15
   ([#235](https://github.com/feltcoop/gro/pull/235))
 
