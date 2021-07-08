@@ -1,5 +1,10 @@
 # changelog
 
+## 0.31.0
+
+- **break**: upgrade to esbuild@0.12.15 which may cause breaking changes in outputs
+  ([#235](https://github.com/feltcoop/gro/pull/235))
+
 ## 0.30.0
 
 - **break**: change default server to `src/lib/server/server.ts` from `src/server/server.ts`
