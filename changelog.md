@@ -1,8 +1,8 @@
 # changelog
 
-## 0.31.0
+## 0.30.1
 
-- **break**: upgrade to esbuild@0.12.15 which may cause breaking changes in outputs
+- upgrade to esbuild@0.12.15
   ([#235](https://github.com/feltcoop/gro/pull/235))
 
 ## 0.30.0
