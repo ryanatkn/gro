@@ -1,5 +1,10 @@
 # changelog
 
+## 0.30.3
+
+- fix import parsing to allow non-interpolated template string literals
+  ([#238](https://github.com/feltcoop/gro/pull/238))
+
 ## 0.30.2
 
 - fix import parsing to ignore non-literal dynamic imports

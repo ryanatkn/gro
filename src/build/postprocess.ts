@@ -113,10 +113,17 @@ export const postprocess = (
 			const [imports] = lexer.parse(content);
 			let start: number;
 			let end: number;
+			let backticked = false;
 			for (const {s, e, d} of imports) {
 				if (d > -1) {
 					const first_char = content[s];
-					if (first_char !== `'` && first_char !== '"') continue; // ignore non-literals
+					if (first_char === '`') {
+						// allow template strings, but not interpolations -- see code ahead
+						backticked = true;
+					} else if (first_char !== `'` && first_char !== '"') {
+						// ignore non-literals
+						continue;
+					}
 					start = s + 1;
 					end = e - 1;
 				} else {
@@ -124,6 +131,10 @@ export const postprocess = (
 					end = e;
 				}
 				const specifier = content.substring(start, end);
+				if (backticked) {
+					backticked = false;
+					if (specifier.includes('${')) continue;
+				}
 				if (specifier === 'import.meta') continue;
 				const mapped_specifier = handle_specifier(specifier);
 				if (mapped_specifier !== specifier) {
