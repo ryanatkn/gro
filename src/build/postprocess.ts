@@ -111,9 +111,18 @@ export const postprocess = (
 			let index = 0;
 			// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
 			const [imports] = lexer.parse(content);
+			let start: number;
+			let end: number;
 			for (const {s, e, d} of imports) {
-				const start = d > -1 ? s + 1 : s;
-				const end = d > -1 ? e - 1 : e;
+				if (d > -1) {
+					const first_char = content[s];
+					if (first_char !== `'` && first_char !== '"') continue; // ignore non-literals
+					start = s + 1;
+					end = e - 1;
+				} else {
+					start = s;
+					end = e;
+				}
 				const specifier = content.substring(start, end);
 				if (specifier === 'import.meta') continue;
 				const mapped_specifier = handle_specifier(specifier);

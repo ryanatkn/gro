@@ -1,5 +1,10 @@
 # changelog
 
+## 0.30.2
+
+- fix import parsing to ignore non-literal dynamic imports
+  ([#237](https://github.com/feltcoop/gro/pull/237))
+
 ## 0.30.1
 
 - fix conversion of absolute specifiers to include `./` if bare
