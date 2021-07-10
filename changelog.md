@@ -1,5 +1,12 @@
 # changelog
 
+## 0.31.0
+
+- **break**: change `gro_adapter_node_library` option `type` to boolean `bundle`
+  ([#239](https://github.com/feltcoop/gro/pull/239))
+- support outputting Svelte source files in production builds
+  ([#239](https://github.com/feltcoop/gro/pull/239))
+
 ## 0.30.3
 
 - fix dynamic import parsing to allow non-interpolated template string literals

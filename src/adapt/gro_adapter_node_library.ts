@@ -43,7 +43,7 @@ const source_id_to_library_base_path = (source_id: string, library_rebase_path: 
 			`Source file does not start with library_rebase_path ${library_rebase_path}: ${base_path}`,
 		);
 	}
-	return strip_start(to_build_extension(base_path), library_rebase_path);
+	return strip_start(to_build_extension(base_path, false), library_rebase_path);
 };
 
 // TODO maybe add a `files` option to explicitly include source files,
@@ -56,7 +56,7 @@ export interface Options {
 	package_json: string; // defaults to 'package.json'
 	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 	library_rebase_path: string; // defaults to 'lib/', pass '' to avoid remapping -- TODO do we want to remove this after Gro follows SvelteKit conventions?
-	type: 'unbundled' | 'bundled'; // defaults to 'unbundled'
+	bundle: boolean; // defaults to `false`
 	// TODO currently these options are only available for 'bundled'
 	esm: boolean; // defaults to true
 	cjs: boolean; // defaults to true
@@ -68,7 +68,7 @@ export const create_adapter = ({
 	library_rebase_path = LIBRARY_DIR,
 	package_json = 'package.json',
 	pack = true,
-	type = 'unbundled',
+	bundle = false,
 	esm = true,
 	cjs = true,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
@@ -87,9 +87,8 @@ export const create_adapter = ({
 
 			const files = to_input_files(build_config.input);
 
-			if (type === 'bundled') {
+			if (bundle) {
 				const timing_to_bundle_with_rollup = timings.start('bundle with rollup');
-				if (type !== 'bundled') throw Error();
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
 					log.trace('no input files in', print_build_config_label(build_config));
@@ -131,7 +130,7 @@ export const create_adapter = ({
 			}
 
 			const timing_to_copy_dist = timings.start('copy build to dist');
-			const filter = type === 'bundled' ? bundled_dist_filter : undefined;
+			const filter = bundle ? bundled_dist_filter : undefined;
 			await copy_dist(fs, build_config, dev, dir, log, filter, pack, library_rebase_path);
 			timing_to_copy_dist();
 

@@ -721,28 +721,30 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		}
 		this.building_source_files.delete(source_file.id);
 
-		const newBuild_Files: Build_File[] = result.builds.map((build) =>
-			create_build_file(build, this, result, source_file, build_config),
+		const new_build_files: Build_File[] = await Promise.all(
+			result.builds.map((build) =>
+				create_build_file(build, this, result, source_file, build_config),
+			),
 		);
 
 		// Update the source file with the new build files.
-		await this.update_build_files(source_file, newBuild_Files, build_config);
+		await this.update_build_files(source_file, new_build_files, build_config);
 		await update_source_meta(this, source_file);
 	}
 
 	// Updates the build files in the memory cache and writes to disk.
 	private async update_build_files(
 		source_file: Buildable_Source_File,
-		newBuild_Files: Build_File[],
+		new_build_files: Build_File[],
 		build_config: Build_Config,
 	): Promise<void> {
-		const oldBuild_Files = source_file.build_files.get(build_config) || null;
-		const changes = diff_build_files(newBuild_Files, oldBuild_Files);
-		source_file.build_files.set(build_config, newBuild_Files);
+		const old_build_files = source_file.build_files.get(build_config) || null;
+		const changes = diff_build_files(new_build_files, old_build_files);
+		source_file.build_files.set(build_config, new_build_files);
 		sync_build_files_to_memory_cache(this.files, changes);
 		await Promise.all([
 			sync_build_files_to_disk(this.fs, changes, this.log),
-			this.updateDependencies(source_file, newBuild_Files, oldBuild_Files, build_config),
+			this.updateDependencies(source_file, new_build_files, old_build_files, build_config),
 		]);
 	}
 
@@ -779,14 +781,14 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// meaning the memory cache is updated and the files are deleted from disk for the build config.
 	private async updateDependencies(
 		source_file: Buildable_Source_File,
-		newBuild_Files: readonly Build_File[],
-		oldBuild_Files: readonly Build_File[] | null,
+		new_build_files: readonly Build_File[],
+		old_build_files: readonly Build_File[] | null,
 		build_config: Build_Config,
 	): Promise<void> {
-		if (newBuild_Files === oldBuild_Files) return;
+		if (new_build_files === old_build_files) return;
 
 		const {added_dependencies, removed_dependencies} =
-			diff_dependencies(newBuild_Files, oldBuild_Files) || nulls;
+			diff_dependencies(new_build_files, old_build_files) || nulls;
 
 		let promises: Promise<void>[] | null = null;
 
@@ -799,31 +801,31 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 				const added_source_id = this.map_dependency_to_source_id(added_dependency, this.build_dir);
 				// ignore dependencies on self - happens with common externals
 				if (added_source_id === source_file.id) continue;
-				let addedSource_File = this.files.get(added_source_id);
-				if (addedSource_File !== undefined) assert_buildable_source_file(addedSource_File);
+				let added_source_file = this.files.get(added_source_id);
+				if (added_source_file !== undefined) assert_buildable_source_file(added_source_file);
 				// lazily create external source file if needed
 				if (added_dependency.external) {
-					if (addedSource_File === undefined) {
-						addedSource_File = await this.createExternalsSource_File(source_file.filer_dir);
+					if (added_source_file === undefined) {
+						added_source_file = await this.create_externals_source_file(source_file.filer_dir);
 					}
-					this.update_externals_source_file(addedSource_File, added_dependency, build_config);
+					this.update_externals_source_file(added_source_file, added_dependency, build_config);
 				}
 				// import might point to a nonexistent file, ignore those
-				if (addedSource_File !== undefined) {
+				if (added_source_file !== undefined) {
 					// update `dependents` of the added file
-					add_dependent(source_file, addedSource_File, build_config, added_dependency);
+					add_dependent(source_file, added_source_file, build_config, added_dependency);
 
 					// Add source file to build if needed.
 					// Externals are handled separately by `update_externals_source_file`, not here,
 					// because they're batched for the entire build.
 					// If we waited for externals to build before moving on like the normal process,
 					// then that could cause cascading externals builds as the dependency tree builds.
-					if (!addedSource_File.build_configs.has(build_config) && !added_dependency.external) {
+					if (!added_source_file.build_configs.has(build_config) && !added_dependency.external) {
 						(promises || (promises = [])).push(
 							this.add_source_file_to_build(
-								addedSource_File as Buildable_Source_File,
+								added_source_file as Buildable_Source_File,
 								build_config,
-								is_input_to_build_config(addedSource_File.id, build_config.input),
+								is_input_to_build_config(added_source_file.id, build_config.input),
 							),
 						);
 					}
@@ -834,19 +836,19 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			}
 		}
 		if (removed_dependencies !== null) {
-			for (const removedDependency of removed_dependencies) {
+			for (const removed_dependency of removed_dependencies) {
 				const removed_source_id = this.map_dependency_to_source_id(
-					removedDependency,
+					removed_dependency,
 					this.build_dir,
 				);
 				// ignore dependencies on self - happens with common externals
 				if (removed_source_id === source_file.id) continue;
-				const removedSource_File = this.files.get(removed_source_id);
+				const removed_source_file = this.files.get(removed_source_id);
 				// import might point to a nonexistent file, ignore them completely
-				if (removedSource_File === undefined) continue;
-				assert_buildable_source_file(removedSource_File);
-				if (!removedSource_File.build_configs.has(build_config)) {
-					throw Error(`Expected build config ${build_config.name}: ${removedSource_File.id}`);
+				if (removed_source_file === undefined) continue;
+				assert_buildable_source_file(removed_source_file);
+				if (!removed_source_file.build_configs.has(build_config)) {
+					throw Error(`Expected build config ${build_config.name}: ${removed_source_file.id}`);
 				}
 
 				// update `dependencies` of the source file
@@ -858,30 +860,30 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 				if (dependencies === undefined) {
 					throw Error(`Expected dependencies: ${removed_source_id}: ${source_file.id}`);
 				}
-				dependencies.delete(removedDependency.build_id);
+				dependencies.delete(removed_dependency.build_id);
 				if (dependencies.size === 0) {
 					dependencies_map.delete(removed_source_id);
 				}
 
 				// update `dependents` of the removed file
-				let dependents_map = removedSource_File.dependents.get(build_config);
+				let dependents_map = removed_source_file.dependents.get(build_config);
 				if (dependents_map === undefined) {
-					throw Error(`Expected dependents_map: ${removedSource_File.id}`);
+					throw Error(`Expected dependents_map: ${removed_source_file.id}`);
 				}
 				let dependents = dependents_map.get(source_file.id);
 				if (dependents === undefined) {
-					throw Error(`Expected dependents: ${removedSource_File.id}: ${source_file.id}`);
+					throw Error(`Expected dependents: ${removed_source_file.id}: ${source_file.id}`);
 				}
-				dependents.delete(removedDependency.build_id);
+				dependents.delete(removed_dependency.build_id);
 				if (dependents.size === 0) {
 					dependents_map.delete(source_file.id);
 					if (
 						dependents_map.size === 0 &&
-						!removedSource_File.is_input_to_build_configs?.has(build_config) &&
-						!removedDependency.external // TODO ignoring these for now, would be weird to remove only when it has none, but not handle other removals (maybe it should handle them?)
+						!removed_source_file.is_input_to_build_configs?.has(build_config) &&
+						!removed_dependency.external // TODO ignoring these for now, would be weird to remove only when it has none, but not handle other removals (maybe it should handle them?)
 					) {
 						(promises || (promises = [])).push(
-							this.remove_source_file_from_build(removedSource_File, build_config),
+							this.remove_source_file_from_build(removed_source_file, build_config),
 						);
 					}
 				}
@@ -911,15 +913,15 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		}
 	}
 
-	// TODO can we remove `createExternalsSource_File`, treating externals like all others?
+	// TODO can we remove `create_externals_source_file`, treating externals like all others?
 	// It seems not, because the `Filer` currently does not handle multiple source files
 	// per build, it's 1:N not M:N, and further the externals build lazily,
 	// so we probably need to refactor, ultimately into a plugin system.
-	private creatingExternalsSource_File: Promise<Buildable_Source_File> | undefined;
-	private async createExternalsSource_File(filer_dir: Filer_Dir): Promise<Buildable_Source_File> {
+	private creating_externals_source_file: Promise<Buildable_Source_File> | undefined;
+	private async create_externals_source_file(filer_dir: Filer_Dir): Promise<Buildable_Source_File> {
 		return (
-			this.creatingExternalsSource_File ||
-			(this.creatingExternalsSource_File = (async () => {
+			this.creating_externals_source_file ||
+			(this.creating_externals_source_file = (async () => {
 				const id = EXTERNALS_SOURCE_ID;
 				// this.log.trace('creating external source file', gray(id));
 				if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);

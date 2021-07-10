@@ -1,6 +1,7 @@
 export interface Build_Dependency {
 	readonly specifier: string;
 	readonly mapped_specifier: string;
+	readonly original_specifier: string;
 	readonly build_id: string;
 	readonly external: boolean;
 }
@@ -10,6 +11,7 @@ export interface Build_Dependency {
 export interface Serialized_Build_Dependency {
 	readonly specifier: string;
 	mapped_specifier?: string; // `undefined` implies same as `specifier`
+	original_specifier?: string; // `undefined` implies same as `specifier`
 	build_id?: string; // `undefined` implies same as `specifier`
 	external?: boolean; // `undefined` implies `false`
 }
@@ -17,11 +19,13 @@ export interface Serialized_Build_Dependency {
 export const deserialize_build_dependency = ({
 	specifier,
 	mapped_specifier,
+	original_specifier,
 	build_id,
 	external,
 }: Serialized_Build_Dependency): Build_Dependency => ({
 	specifier,
 	mapped_specifier: mapped_specifier !== undefined ? mapped_specifier : specifier,
+	original_specifier: original_specifier !== undefined ? original_specifier : specifier,
 	build_id: build_id !== undefined ? build_id : specifier,
 	external: external !== undefined ? external : false,
 });
@@ -29,12 +33,16 @@ export const deserialize_build_dependency = ({
 export const serialize_build_dependency = ({
 	specifier,
 	mapped_specifier,
+	original_specifier,
 	build_id,
 	external,
 }: Build_Dependency): Serialized_Build_Dependency => {
 	const serialized: Serialized_Build_Dependency = {specifier};
 	if (mapped_specifier !== specifier) {
 		serialized.mapped_specifier = mapped_specifier;
+	}
+	if (original_specifier !== specifier) {
+		serialized.original_specifier = original_specifier;
 	}
 	if (build_id !== specifier) {
 		serialized.build_id = build_id;

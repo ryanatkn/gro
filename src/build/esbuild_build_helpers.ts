@@ -10,7 +10,7 @@ export interface Esbuild_Transform_Options extends esbuild.TransformOptions {
 	sourcemap: boolean;
 }
 
-export const get_default_esbuild_options = (
+export const to_default_esbuild_options = (
 	dev: boolean,
 	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = dev,
@@ -29,7 +29,7 @@ export const get_default_esbuild_options = (
 			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });
 
-export const get_default_esbuild_preprocess_options = (
+export const to_default_esbuild_preprocess_options = (
 	dev: boolean,
 	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = dev,
