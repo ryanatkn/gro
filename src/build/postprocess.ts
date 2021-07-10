@@ -101,6 +101,14 @@ export const postprocess = (
 			}
 		}
 
+		// Support Svelte in production, outputting the plain `.svelte` but mapping specifiers
+		// TODO this is hacky but seems the least-bad way to do it
+		// 1. compile to JS with the Svelte compiler
+		// 2. use the existing import lexing and path transformation process
+		// 3. hackily replace the import paths in the original Svelte using a regexp
+		// if (source.extension === SVELTE_EXTENSION && build.extension === SVELTE_EXTENSION) {
+		// }
+
 		// Support Svelte CSS for development in the browser.
 		if (source.extension === SVELTE_EXTENSION && build.extension === JS_EXTENSION && browser) {
 			const css_compilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
@@ -112,6 +120,7 @@ export const postprocess = (
 				content = inject_svelte_css_import(content, import_path);
 			}
 		}
+
 		return {content, dependencies_by_build_id};
 	} else {
 		// Handle other encodings like binary.
@@ -210,7 +219,7 @@ const to_relative_specifier_trimmed_by = (
 	return specifier;
 };
 
-const TYPE_IMPORT_MATCHER = /^import type [\s\S]*? from '(.+)';$/gm;
+const TYPE_IMPORT_MATCHER = /^import\s+type\s+[\s\S]*?from\s+'(.+)';$/gm;
 
 const parse_type_imports = (content: string): string[] =>
 	Array.from(content.matchAll(TYPE_IMPORT_MATCHER)).map((v) => v[1]);

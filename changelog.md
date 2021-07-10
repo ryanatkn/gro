@@ -4,7 +4,7 @@
 
 - **break**: change `gro_adapter_node_library` option `type` to boolean `bundle`
   ([#239](https://github.com/feltcoop/gro/pull/239))
-- output Svelte source files in production library builds instead of compiling
+- output Svelte source files in production builds instead of compiling
   ([#239](https://github.com/feltcoop/gro/pull/239))
 
 ## 0.30.3
