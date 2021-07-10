@@ -6,7 +6,7 @@ import {replace_extension} from '@feltcoop/felt/util/path.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
 import type {Ecma_Script_Target, Generate_Types_For_File} from './ts_build_helpers.js';
-import {get_default_esbuild_options} from './esbuild_build_helpers.js';
+import {to_default_esbuild_options} from './esbuild_build_helpers.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
@@ -141,4 +141,4 @@ type Create_Esbuild_Options = (
 ) => esbuild.TransformOptions;
 
 const create_default_esbuild_options: Create_Esbuild_Options = (dev, target, sourcemap) =>
-	get_default_esbuild_options(dev, target, sourcemap);
+	to_default_esbuild_options(dev, target, sourcemap);

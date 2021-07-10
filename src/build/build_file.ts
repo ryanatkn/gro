@@ -32,14 +32,14 @@ export interface Base_Build_File extends Base_Filer_File {
 	readonly dependencies_by_build_id: Map<string, Build_Dependency> | null;
 }
 
-export const create_build_file = (
+export const create_build_file = async (
 	build: Build,
 	ctx: Build_Context,
 	result: Build_Result<Build>,
 	source_file: Buildable_Source_File,
 	build_config: Build_Config,
-): Build_File => {
-	const {content, dependencies_by_build_id} = postprocess(build, ctx, result, source_file);
+): Promise<Build_File> => {
+	const {content, dependencies_by_build_id} = await postprocess(build, ctx, result, source_file);
 	switch (build.encoding) {
 		case 'utf8':
 			return {

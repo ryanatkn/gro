@@ -19,7 +19,8 @@ test_serialize_source_meta('serializes and deserializes source meta without chan
 					{
 						specifier: 'a',
 						mapped_specifier: 'b',
-						build_id: 'c',
+						original_specifier: 'c',
+						build_id: 'd',
 						external: true,
 					},
 				],
@@ -49,6 +50,7 @@ test_serialize_source_meta('optimizes when serializing', () => {
 					{
 						specifier: 'a',
 						mapped_specifier: 'a',
+						original_specifier: 'a',
 						build_id: 'a',
 						external: false,
 					},

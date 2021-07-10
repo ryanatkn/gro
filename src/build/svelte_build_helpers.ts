@@ -1,5 +1,6 @@
 import type {ExistingRawSourceMap, PluginContext} from 'rollup';
 import type {compile} from 'svelte/compiler';
+import * as svelte from 'svelte/compiler';
 import type {
 	CompileOptions as Svelte_Compile_Options,
 	Warning as Svelte_Warning,
@@ -11,7 +12,7 @@ import {yellow} from '@feltcoop/felt/util/terminal.js';
 import {print_key_value, print_ms} from '@feltcoop/felt/util/print.js';
 import type {Omit_Strict} from '@feltcoop/felt/util/types.js';
 
-import {get_default_esbuild_preprocess_options} from './esbuild_build_helpers.js';
+import {to_default_esbuild_preprocess_options} from './esbuild_build_helpers.js';
 import type {Ecma_Script_Target} from './ts_build_helpers.js';
 import {print_path} from '../paths.js';
 
@@ -23,7 +24,7 @@ export type Create_Preprocessor = (
 
 export const create_default_preprocessor: Create_Preprocessor = (dev, target, sourcemap) =>
 	svelte_preprocess_esbuild.typescript(
-		get_default_esbuild_preprocess_options(dev, target, sourcemap),
+		to_default_esbuild_preprocess_options(dev, target, sourcemap),
 	);
 
 // TODO type could be improved, not sure how tho
@@ -102,4 +103,33 @@ export const handle_stats = (
 				print_key_value('create', print_ms(stats.timings['create component'].total)),
 		].filter(Boolean),
 	);
+};
+
+let dependency_preprocessor: PreprocessorGroup | undefined = undefined;
+
+// Extracts a single JS string from Svelte source code for the purpose of parsing its dependencies.
+// This is needed for cases where we build Svelte unmodified but still need its dependencies.
+// TODO could remove this if we do postprocessing inside the builders
+// TODO to support custom preprocessors, we could refactor this to save wasted work
+export const extract_js_from_svelte_for_dependencies = async (content: string): Promise<string> => {
+	let final_content: string | undefined = undefined;
+	if (dependency_preprocessor === undefined) {
+		dependency_preprocessor = svelte_preprocess_esbuild.typescript(
+			to_default_esbuild_preprocess_options(true, 'esnext', false),
+		);
+	}
+	await svelte.preprocess(content, [
+		dependency_preprocessor,
+		{
+			script(options) {
+				if (final_content === undefined) {
+					final_content = options.content;
+				} else {
+					final_content += `\n${options.content}`;
+				}
+				return {code: ''};
+			},
+		},
+	]);
+	return final_content || '';
 };

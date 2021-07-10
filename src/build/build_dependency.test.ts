@@ -13,7 +13,8 @@ test_serialize_build_dependency(
 		const dependency: Build_Dependency = {
 			specifier: 'a',
 			mapped_specifier: 'b',
-			build_id: 'c',
+			original_specifier: 'c',
+			build_id: 'd',
 			external: true,
 		};
 		t.equal(serialize_build_dependency(dependency), dependency);
@@ -25,6 +26,7 @@ test_serialize_build_dependency('optimizes when serializing', () => {
 	const dependency: Build_Dependency = {
 		specifier: 'a',
 		mapped_specifier: 'a',
+		original_specifier: 'a',
 		build_id: 'a',
 		external: false,
 	};
