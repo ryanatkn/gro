@@ -127,10 +127,11 @@ test_to_import_id.run();
 const test_to_build_extension = suite('to_build_extension');
 
 test_to_build_extension('basic behavior', () => {
-	t.is(to_build_extension('foo/bar.ts'), 'foo/bar.js');
-	t.is(to_build_extension('foo/bar.svelte'), 'foo/bar.svelte.js');
-	t.is(to_build_extension('foo/bar.css'), 'foo/bar.css');
-	t.is(to_build_extension('foo/bar.png'), 'foo/bar.png');
+	t.is(to_build_extension('foo/bar.ts', true), 'foo/bar.js');
+	t.is(to_build_extension('foo/bar.svelte', true), 'foo/bar.svelte.js');
+	t.is(to_build_extension('foo/bar.svelte', false), 'foo/bar.svelte');
+	t.is(to_build_extension('foo/bar.css', true), 'foo/bar.css');
+	t.is(to_build_extension('foo/bar.png', true), 'foo/bar.png');
 });
 
 test_to_build_extension.run();

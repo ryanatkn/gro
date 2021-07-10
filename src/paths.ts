@@ -145,7 +145,7 @@ export const replace_root_dir = (id: string, root_dir: string, p = paths): strin
 	join(root_dir, to_root_path(id, p));
 
 // Converts a source id into an id that can be imported.
-// When importing from inside Gro's dist/ directory,
+// When importing from inside Gro's own internal dist/ directory,
 // it returns a relative path and ignores `dev` and `build_name`.
 export const to_import_id = (
 	source_id: string,
@@ -153,20 +153,24 @@ export const to_import_id = (
 	build_name: Build_Name,
 	p = paths_from_id(source_id),
 ): string => {
-	const dir_base_path = strip_start(to_build_extension(source_id), p.source);
+	const dir_base_path = strip_start(to_build_extension(source_id, dev), p.source);
 	return !is_this_project_gro && gro_import_dir === p.dist
 		? join(gro_import_dir, dir_base_path)
 		: to_build_out_path(dev, build_name, dir_base_path, p.build);
 };
 
-// TODO This function loses information. It's also hardcodedd to Gro's default file types.
+// TODO This function loses information,
+// and it's also hardcoded to Gro's default file types and output conventions.
 // Maybe this points to a configurable system? Users can define their own extensions in Gro.
-// Maybe `extensionConfigs: FilerExtensionConfig[]`.
-export const to_build_extension = (source_id: string): string =>
+// Maybe `extension_configs: Filer_Extension_Config[]`.
+// Or maybe just follow the lead of Rollup/esbuild?
+export const to_build_extension = (source_id: string, dev: boolean): string =>
 	source_id.endsWith(TS_EXTENSION)
 		? replace_extension(source_id, JS_EXTENSION)
 		: source_id.endsWith(SVELTE_EXTENSION)
-		? source_id + JS_EXTENSION
+		? dev
+			? source_id + JS_EXTENSION
+			: source_id
 		: source_id;
 
 // This implementation is complicated but it's fast.

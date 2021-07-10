@@ -50,7 +50,7 @@ export const postprocess = (
 			const is_external = is_external_import || is_external_imported_by_external;
 			let mapped_specifier: string;
 			if (is_external) {
-				mapped_specifier = to_build_extension(specifier);
+				mapped_specifier = to_build_extension(specifier, dev);
 				if (is_external_import) {
 					// handle regular externals
 					if (browser) {
@@ -89,8 +89,10 @@ export const postprocess = (
 			} else {
 				// internal import
 				final_specifier = to_relative_specifier(final_specifier, source.dir, paths.source);
-				mapped_specifier =
-					hack_to_build_extension_with_possibly_extensionless_specifier(final_specifier);
+				mapped_specifier = hack_to_build_extension_with_possibly_extensionless_specifier(
+					final_specifier,
+					dev,
+				);
 				build_id = join(build.dir, mapped_specifier);
 			}
 			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
@@ -241,11 +243,12 @@ const should_modify_dot_js = (source_id: string): boolean => {
 // but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
 const hack_to_build_extension_with_possibly_extensionless_specifier = (
 	specifier: string,
+	dev: boolean,
 ): string => {
 	const extension = extname(specifier);
 	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
 		? specifier + JS_EXTENSION
-		: to_build_extension(specifier);
+		: to_build_extension(specifier, dev);
 };
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.

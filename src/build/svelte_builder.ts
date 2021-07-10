@@ -86,6 +86,27 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		}
 		const {id, encoding, content} = source;
 		const out_dir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
+
+		// for production builds, output uncompiled Svelte
+		// TODO what about non-TypeScript preprocessors?
+		if (!dev) {
+			const svelte_id = `${out_dir}${source.filename}`;
+			const result: Build_Result<Text_Build> = {
+				builds: [
+					{
+						id: svelte_id,
+						filename: source.filename,
+						dir: out_dir,
+						extension: SVELTE_EXTENSION,
+						encoding,
+						content: source.content,
+						build_config,
+					},
+				],
+			};
+			return result;
+		}
+
 		let preprocessed_code: string;
 
 		// TODO see rollup-plugin-svelte for how to track deps

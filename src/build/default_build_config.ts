@@ -39,7 +39,7 @@ export const NODE_LIBRARY_BUILD_CONFIG: Build_Config = {
 };
 
 export const API_SERVER_SOURCE_BASE_PATH = 'lib/server/server.ts';
-export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH); // 'lib/server/server.js'
+export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH, false); // 'lib/server/server.js'
 export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/lib/server/server.ts'
 export const has_api_server = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const API_SERVER_BUILD_NAME: Build_Name = 'server';
