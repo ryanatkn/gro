@@ -92,24 +92,12 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		// TODO what about non-TypeScript preprocessors?
 		if (!dev) {
 			const svelte_id = `${out_dir}${source.filename}`;
-
-			// TODO
-			// const {content, dependencies_by_build_id} = await postprocess(
-			// 	dir,
-			// 	extension,
-			// 	encoding,
-			// 	original_content,
-			// 	build_config,
-			// 	ctx,
-			// 	result,
-			// 	source_file,
-			// );
-			return [
+			const build_files: Build_File[] = [
 				{
 					type: 'build',
 					source_id: source.id,
 					build_config,
-					dependencies_by_build_id: null, // TODO
+					dependencies_by_build_id: null,
 					id: svelte_id,
 					filename: source.filename,
 					dir: out_dir,
@@ -122,6 +110,9 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 					mime_type: undefined,
 				},
 			];
+			return Promise.all(
+				build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
+			);
 		}
 
 		let preprocessed_code: string;
@@ -158,24 +149,12 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		const has_js_sourcemap = sourcemap && js.map !== undefined;
 		const has_css_sourcemap = sourcemap && css.map !== undefined;
 
-		// TODO
-		// const {content, dependencies_by_build_id} = await postprocess(
-		// 	dir,
-		// 	extension,
-		// 	encoding,
-		// 	original_content,
-		// 	build_config,
-		// 	ctx,
-		// 	result,
-		// 	source_file,
-		// );
-
 		const build_files: Build_File[] = [
 			{
 				type: 'build',
 				source_id: source.id,
 				build_config,
-				dependencies_by_build_id: null, // TODO
+				dependencies_by_build_id: null,
 				id: js_id,
 				filename: js_filename,
 				dir: out_dir,
@@ -195,7 +174,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				type: 'build',
 				source_id: source.id,
 				build_config,
-				dependencies_by_build_id: null, // TODO
+				dependencies_by_build_id: null,
 				id: js_id + SOURCEMAP_EXTENSION,
 				filename: js_filename + SOURCEMAP_EXTENSION,
 				dir: out_dir,
@@ -213,7 +192,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				type: 'build',
 				source_id: source.id,
 				build_config,
-				dependencies_by_build_id: null, // TODO
+				dependencies_by_build_id: null,
 				id: css_id,
 				filename: css_filename,
 				dir: out_dir,
@@ -232,7 +211,7 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 					type: 'build',
 					source_id: source.id,
 					build_config,
-					dependencies_by_build_id: null, // TODO
+					dependencies_by_build_id: null,
 					id: css_id + SOURCEMAP_EXTENSION,
 					filename: css_filename + SOURCEMAP_EXTENSION,
 					dir: out_dir,

@@ -19,7 +19,7 @@ import type {Builder, Text_Build_Source} from './builder.js';
 import {add_js_sourcemap_footer} from './utils.js';
 import {to_generate_types_for_file} from './ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import type {Text_Build_File} from './build_file.js';
+import type {Build_File} from './build_file.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {
@@ -82,12 +82,12 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): Esbuild_Buil
 		const js_filename = replace_extension(source.filename, JS_EXTENSION);
 		const js_id = `${out_dir}${js_filename}`;
 
-		const build_files: Text_Build_File[] = [
+		const build_files: Build_File[] = [
 			{
 				type: 'build',
 				source_id: source.id,
 				build_config,
-				dependencies_by_build_id: null, // TODO
+				dependencies_by_build_id: null,
 				id: js_id,
 				filename: js_filename,
 				dir: out_dir,

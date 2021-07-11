@@ -115,23 +115,11 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 				...(await Promise.all(
 					Array.from(build_state.specifiers).map(async (specifier): Promise<Build_File> => {
 						const id = join(dest, install_result.importMap.imports[specifier]);
-
-						// TODO
-						// const {content, dependencies_by_build_id} = await postprocess(
-						// 	dir,
-						// 	extension,
-						// 	encoding,
-						// 	original_content,
-						// 	build_config,
-						// 	ctx,
-						// 	result,
-						// 	source_file,
-						// );
 						return {
 							type: 'build',
 							source_id: source.id,
 							build_config,
-							dependencies_by_build_id: null, // TODO
+							dependencies_by_build_id: null,
 							id,
 							filename: basename(id),
 							dir: dirname(id),
