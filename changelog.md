@@ -38,6 +38,8 @@
 
 ## 0.28.3
 
+- add Gro frontend support with `gro_adapter_gro_frontend`
+  ([#231](https://github.com/feltcoop/gro/pull/231))
 - fix buildless builds to handle SvelteKit-only frontend projects
   ([#230](https://github.com/feltcoop/gro/pull/230))
 

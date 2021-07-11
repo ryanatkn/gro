@@ -1,10 +1,18 @@
 import {strip_trailing_slash, to_common_base_dir} from '@feltcoop/felt/util/path.js';
 import {ensure_end} from '@feltcoop/felt/util/string.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
+import type {Plugin as Rollup_Plugin} from 'rollup';
 
 import type {Adapter} from './adapter.js';
+import type {Map_Input_Options} from '../build/rollup.js';
 import {run_rollup} from '../build/rollup.js';
-import {DIST_DIRNAME, source_id_to_base_path, to_import_id} from '../paths.js';
+import {
+	CSS_EXTENSION,
+	DIST_DIRNAME,
+	JS_EXTENSION,
+	source_id_to_base_path,
+	to_import_id,
+} from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import type {Build_Name} from '../build/build_config.js';
 import type {Host_Target} from './utils.js';
@@ -14,17 +22,19 @@ import {BROWSER_BUILD_NAME} from '../build/default_build_config.js';
 export interface Options {
 	build_name: Build_Name;
 	dir: string;
+	minify: boolean;
 	host_target: Host_Target;
 }
 
 export const create_adapter = ({
 	build_name = BROWSER_BUILD_NAME,
 	dir = `${DIST_DIRNAME}/${build_name}`,
+	minify = true,
 	host_target = 'github_pages',
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
-		name: '@feltcoop/gro_adapter_spa_frontend',
+		name: '@feltcoop/gro_adapter_gro_frontend',
 		adapt: async ({config, fs, args, log, dev, timings}) => {
 			await fs.remove(dir);
 
@@ -52,7 +62,24 @@ export const create_adapter = ({
 					sourcemap: config.sourcemap,
 					input,
 					output_dir,
-					map_input_options,
+					map_input_options:
+						map_input_options ||
+						// refactor lol
+						(await (async () => {
+							const plugins: Rollup_Plugin[] = [];
+							if (minify) {
+								plugins.push(
+									(await import('../build/rollup_plugin_gro_terser.js')).rollup_plugin_gro_terser({
+										minify_options: {sourceMap: config.sourcemap},
+									}),
+								);
+							}
+							const map_rollup_input_options: Map_Input_Options = (r) => ({
+								...r,
+								plugins: (r.plugins || []).concat(plugins),
+							});
+							return map_rollup_input_options;
+						})()),
 					map_output_options,
 					map_watch_options,
 				});
@@ -61,13 +88,15 @@ export const create_adapter = ({
 			}
 			timing_to_bundle();
 
-			// copy static prod files into `dist/`
-			await copy_dist(fs, build_config, dev, dir, log);
+			await copy_dist(
+				fs,
+				build_config,
+				dev,
+				dir,
+				log,
+				(id) => !id.endsWith(JS_EXTENSION) && !id.endsWith(CSS_EXTENSION),
+			);
 
-			// GitHub pages processes everything with Jekyll by default,
-			// breaking things like files and dirs prefixed with an underscore.
-			// This adds a `.nojekyll` file to the root of the output
-			// to tell GitHub Pages to treat the outputs as plain static files.
 			if (host_target === 'github_pages') {
 				await ensure_nojekyll(fs, dir);
 			}

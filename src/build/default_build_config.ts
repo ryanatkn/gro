@@ -60,7 +60,7 @@ export const has_sveltekit_frontend = (fs: Filesystem): Promise<boolean> =>
 	every_path_exists(fs, SVELTEKIT_FRONTEND_PATHS);
 
 const GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
-export const has_deprecated_gro_frontend = (fs: Filesystem): Promise<boolean> =>
+export const has_gro_frontend = (fs: Filesystem): Promise<boolean> =>
 	every_path_exists(fs, GRO_FRONTEND_PATHS);
 
 export const BROWSER_BUILD_NAME: Build_Name = 'browser';
@@ -71,6 +71,8 @@ export const to_default_browser_build = (
 	platform: 'browser',
 	input: ['index.ts', createFilter(`**/*.{${asset_paths.join(',')}}`)],
 });
+
+// lazy to pick up any changes to the supported MIME types
 const to_default_asset_paths = (): string[] => Array.from(get_extensions());
 
 const every_path_exists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
