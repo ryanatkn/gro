@@ -140,7 +140,7 @@ const create_http2_stream_listener = (filer: Filer, log: Logger): Http2StreamHan
 	return async (stream, headers) => {
 		const raw_url = headers[':path'] as string;
 		if (!raw_url) return stream.end();
-		const response = await toResponse(raw_url, headers, filer, log);
+		const response = await to_response(raw_url, headers, filer, log);
 		response.headers[':status'] = response.status; // http2 does its own thing
 		stream.respond(response.headers);
 		stream.end(response.data);
@@ -150,7 +150,7 @@ const create_http2_stream_listener = (filer: Filer, log: Logger): Http2StreamHan
 const create_http1_request_listener = (filer: Filer, log: Logger): Http1_Request_Listener => {
 	const request_listener: Http1_Request_Listener = async (req, res) => {
 		if (!req.url) return;
-		const response = await toResponse(req.url, req.headers, filer, log);
+		const response = await to_response(req.url, req.headers, filer, log);
 		res.writeHead(response.status, response.headers);
 		res.end(response.data);
 	};
@@ -163,7 +163,7 @@ interface Gro_Server_Response {
 	data?: string | Buffer | undefined;
 }
 
-const toResponse = async (
+const to_response = async (
 	raw_url: string,
 	headers: IncomingHttpHeaders,
 	filer: Filer,

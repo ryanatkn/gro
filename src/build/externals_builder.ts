@@ -18,7 +18,7 @@ import type {
 	Text_Build,
 } from './builder.js';
 import {load_content} from './load.js';
-import {gro_svelte_plugin} from './rollup_plugin_gro_svelte.js';
+import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './svelte_build_helpers.js';
 import {create_css_cache} from './css_cache.js';
 import {print_build_config} from '../build/build_config.js';
@@ -95,7 +95,7 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 		// const addPlainCss_Build = css_cache.add_css_build.bind(null, 'bundle.plain.css');
 		const add_svelte_css_build = css_cache.add_css_build.bind(null, 'bundle.svelte.css');
 		const plugins: RollupPlugin[] = [
-			gro_svelte_plugin({
+			rollup_plugin_gro_svelte({
 				dev,
 				add_css_build: add_svelte_css_build,
 				preprocessor: create_default_preprocessor(dev, target, sourcemap),

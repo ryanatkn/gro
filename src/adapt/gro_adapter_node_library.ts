@@ -107,8 +107,8 @@ export const create_adapter = ({
 						input,
 						output_dir,
 						map_input_options,
-						map_output_options: (o, b) => ({
-							...(map_output_options ? map_output_options(o, b) : o),
+						map_output_options: (r, o) => ({
+							...(map_output_options ? map_output_options(r, o) : r),
 							format: 'commonjs',
 						}),
 						map_watch_options,

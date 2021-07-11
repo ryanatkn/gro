@@ -42,7 +42,7 @@ export const config: Gro_Config_Creator = async ({fs}) => {
 		builds: [
 			enable_node_library ? NODE_LIBRARY_BUILD_CONFIG : null,
 			enable_api_server ? API_SERVER_BUILD_CONFIG : null,
-			// enable_gro_frontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
+			// enable_gro_frontend ? to_default_browser_build() : null, // TODO configure asset paths
 			// note there's no build for SvelteKit frontends - should there be?
 		],
 		log_level: ENV_LOG_LEVEL ?? Log_Level.Trace,

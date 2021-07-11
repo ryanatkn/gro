@@ -1,7 +1,7 @@
 import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compiler/interfaces';
-import type {Plugin, ExistingRawSourceMap} from 'rollup';
+import type {Plugin as Rollup_Plugin, ExistingRawSourceMap} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/util/terminal.js';
 import {to_path_stem} from '@feltcoop/felt/util/path.js';
@@ -58,13 +58,13 @@ export const init_options = (opts: Initial_Options): Options => ({
 	...omit_undefined(opts),
 });
 
-export interface Gro_Svelte_Plugin extends Plugin {
+export interface Gro_Svelte_Plugin extends Rollup_Plugin {
 	get_compilation: (id: string) => Gro_Svelte_Compilation | undefined;
 }
 
 export const name = '@feltcoop/rollup_plugin_gro_svelte';
 
-export const gro_svelte_plugin = (opts: Initial_Options): Gro_Svelte_Plugin => {
+export const rollup_plugin_gro_svelte = (opts: Initial_Options): Gro_Svelte_Plugin => {
 	const {
 		dev,
 		add_css_build,
