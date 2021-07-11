@@ -1,5 +1,10 @@
 # changelog
 
+## 0.32.0
+
+- **break**: add `gro_adapter_gro_frontend` adapter
+  ([#231](https://github.com/feltcoop/gro/pull/231))
+
 ## 0.31.0
 
 - **break**: change `gro_adapter_node_library` option `type` to boolean `bundle`
