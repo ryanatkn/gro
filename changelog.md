@@ -1,5 +1,10 @@
 # changelog
 
+## 0.33.0
+
+- **break**: refactor `postprocess` into builders and delete `Build` and `Build_Result`
+  ([#243](https://github.com/feltcoop/gro/pull/243))
+
 ## 0.32.1
 
 - change `gro deploy` to infer default `dirname`
