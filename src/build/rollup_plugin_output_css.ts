@@ -1,108 +1,114 @@
 import type {Plugin} from 'rollup';
 import {dirname, join, relative} from 'path';
-import sourcemapCodec from 'sourcemap-codec';
+import sourcemap_codec from 'sourcemap-codec';
 import type {Partial_Except} from '@feltcoop/felt';
+import {blue, gray} from '@feltcoop/felt/util/terminal.js';
+import {System_Logger, print_log_label} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
-import {blue, gray} from '../utils/terminal.js';
-import {SystemLogger, printLogLabel} from '../utils/log.js';
-import type {Logger} from '../utils/log.js';
-import type {GroCssBuild, GroCssBundle} from './types.js';
-import {omitUndefined} from '../utils/object.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import type {Gro_Css_Build, Gro_Css_Bundle} from './gro_css_build.js';
 
 export interface Options {
 	fs: Filesystem;
-	getCssBundles(): Map<string, GroCssBundle>;
-	toFinalCss(build: GroCssBuild, log: Logger): string | null;
+	get_css_bundles(): Map<string, Gro_Css_Bundle>;
+	to_final_css(build: Gro_Css_Build, log: Logger): string | null;
 	sourcemap: boolean; // TODO consider per-bundle options
 }
-export type RequiredOptions = 'fs' | 'getCssBundles';
-export type InitialOptions = Partial_Except<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => ({
-	toFinalCss,
+export type Required_Options = 'fs' | 'get_css_bundles';
+export type Initial_Options = Partial_Except<Options, Required_Options>;
+export const init_options = (opts: Initial_Options): Options => ({
+	to_final_css,
 	sourcemap: false,
-	...omitUndefined(opts),
+	...omit_undefined(opts),
 });
 
 export const name = 'output-css';
 
-export const outputCssPlugin = (opts: InitialOptions): Plugin => {
-	const {fs, getCssBundles, toFinalCss, sourcemap} = initOptions(opts);
+export const rollup_plugin_output_css = (opts: Initial_Options): Plugin => {
+	const {fs, get_css_bundles, to_final_css, sourcemap} = init_options(opts);
 
-	const log = new SystemLogger(printLogLabel(name, blue));
+	const log = new System_Logger(print_log_label(name, blue));
 
 	return {
 		name,
-		async generateBundle(outputOptions, _bundle, isWrite) {
+		async generateBundle(output_options, _bundle, isWrite) {
 			if (!isWrite) return;
 
 			log.info('generateBundle');
 
 			// TODO chunks!
-			const outputDir = outputOptions.dir || dirname(outputOptions.file!);
+			const output_dir = output_options.dir || dirname(output_options.file!);
 
 			// write each changed bundle to disk
-			for (const bundle of getCssBundles().values()) {
-				const {bundleName, buildsById, changedIds} = bundle;
-				if (!changedIds.size) {
-					log.trace(`no changes detected, skipping bundle ${gray(bundleName)}`);
+			for (const bundle of get_css_bundles().values()) {
+				const {bundle_name, builds_by_id, changed_ids} = bundle;
+				if (!changed_ids.size) {
+					log.trace(`no changes detected, skipping bundle ${gray(bundle_name)}`);
 					continue;
 				}
 
-				// TODO try to avoid doing work for the sourcemap and `toFinalCss` by caching stuff that hasn't changed
-				log.info('generating css bundle', blue(bundleName));
-				log.info('changes', Array.from(changedIds)); // TODO trace when !watch
-				changedIds.clear();
+				// TODO try to avoid doing work for the sourcemap and `to_final_css` by caching stuff that hasn't changed
+				log.info('generating css bundle', blue(bundle_name));
+				log.info('changes', Array.from(changed_ids)); // TODO trace when !watch
+				changed_ids.clear();
 
-				const mappings: sourcemapCodec.SourceMapSegment[][] = [];
+				const mappings: sourcemap_codec.SourceMapSegment[][] = [];
 				const sources: string[] = [];
-				const sourcesContent: string[] = [];
+				const sources_content: string[] = [];
 
 				// sort the css builds for determinism and so the cascade works according to import order
-				const builds = Array.from(buildsById.values()).sort((a, b) =>
-					a.sortIndex === b.sortIndex ? (a.id > b.id ? 1 : -1) : a.sortIndex > b.sortIndex ? 1 : -1,
+				const builds = Array.from(builds_by_id.values()).sort((a, b) =>
+					a.sort_index === b.sort_index
+						? a.id > b.id
+							? 1
+							: -1
+						: a.sort_index > b.sort_index
+						? 1
+						: -1,
 				);
 
 				// create the final css and sourcemap
-				let cssStrings: string[] = [];
+				let css_strings: string[] = [];
 				for (const build of builds) {
-					const code = toFinalCss(build, log);
+					const code = to_final_css(build, log);
 					if (!code) continue;
-					cssStrings.push(code);
+					css_strings.push(code);
 
 					// add css sourcemap to later merge
 					// TODO avoid work if there's a single sourcemap
 					// TODO do we we ever want a warning/error if `build.map` is undefined?
 					if (sourcemap && build.map && build.map.sourcesContent) {
-						const sourcesLength = sources.length;
+						const sources_length = sources.length;
 						sources.push(build.map.sources[0]);
-						sourcesContent.push(build.map.sourcesContent[0]);
-						const decoded = sourcemapCodec.decode(build.map.mappings);
-						if (sourcesLength > 0) {
+						sources_content.push(build.map.sourcesContent[0]);
+						const decoded = sourcemap_codec.decode(build.map.mappings);
+						if (sources_length > 0) {
 							for (const line of decoded) {
 								for (const segment of line) {
-									segment[1] = sourcesLength;
+									segment[1] = sources_length;
 								}
 							}
 						}
 						mappings.push(...decoded);
 					}
 				}
-				const css = cssStrings.join('\n');
+				const css = css_strings.join('\n');
 
-				const dest = join(outputDir, bundleName);
+				const dest = join(output_dir, bundle_name);
 
 				if (sources.length) {
-					const sourcemapDest = dest + '.map';
-					const finalCss = css + `\n/*# sourceMappingURL=${bundleName}.map */\n`;
-					const cssSourcemap = JSON.stringify(
+					const sourcemap_dest = dest + '.map';
+					const final_css = css + `\n/*# sourceMappingURL=${bundle_name}.map */\n`;
+					const css_sourcemap = JSON.stringify(
 						{
 							version: 3,
-							file: bundleName,
-							sources: sources.map((s) => relative(outputDir, s)),
-							sourcesContent,
+							file: bundle_name,
+							sources: sources.map((s) => relative(output_dir, s)),
+							sources_content,
 							names: [],
-							mappings: sourcemapCodec.encode(mappings),
+							mappings: sourcemap_codec.encode(mappings),
 						},
 						null,
 						2,
@@ -110,16 +116,16 @@ export const outputCssPlugin = (opts: InitialOptions): Plugin => {
 
 					log.info('writing css bundle and sourcemap', dest);
 					await Promise.all([
-						fs.writeFile(dest, finalCss),
-						fs.writeFile(sourcemapDest, cssSourcemap),
+						fs.write_file(dest, final_css),
+						fs.write_file(sourcemap_dest, css_sourcemap),
 					]);
 				} else {
 					log.info('writing css bundle', dest);
-					await fs.writeFile(dest, css);
+					await fs.write_file(dest, css);
 				}
 			}
 		},
 	};
 };
 
-const toFinalCss = ({code}: GroCssBuild, _log: Logger): string | null => code;
+const to_final_css = ({code}: Gro_Css_Build, _log: Logger): string | null => code;

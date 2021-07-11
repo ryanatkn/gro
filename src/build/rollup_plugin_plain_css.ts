@@ -2,23 +2,23 @@ import type {Plugin} from 'rollup';
 import {resolve, dirname} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 import type {Partial_Except} from '@feltcoop/felt';
+import {green} from '@feltcoop/felt/util/terminal.js';
+import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
+import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
-import {green} from '../utils/terminal.js';
-import {printLogLabel, SystemLogger} from '../utils/log.js';
-import type {GroCssBuild} from './types.js';
-import {omitUndefined} from '../utils/object.js';
+import type {Gro_Css_Build} from './gro_css_build.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface Options {
 	fs: Filesystem;
-	addCssBuild(build: GroCssBuild): boolean;
-	extensions: string[]; // see comments below at `sortIndexById` for why this exists
+	add_css_build(build: Gro_Css_Build): boolean;
+	extensions: string[]; // see comments below at `sort_index_by_id` for why this exists
 	include: string | RegExp | (string | RegExp)[] | null;
 	exclude: string | RegExp | (string | RegExp)[] | null;
 }
-export type RequiredOptions = 'fs' | 'addCssBuild';
-export type InitialOptions = Partial_Except<Options, RequiredOptions>;
-export const initOptions = (opts: InitialOptions): Options => {
+export type Required_Options = 'fs' | 'add_css_build';
+export type Initial_Options = Partial_Except<Options, Required_Options>;
+export const init_options = (opts: Initial_Options): Options => {
 	if (opts.include && !opts.extensions) {
 		throw Error(`The 'extensions' option must be provided along with 'include'`);
 	}
@@ -27,29 +27,29 @@ export const initOptions = (opts: InitialOptions): Options => {
 		extensions,
 		include: opts.include || extensions.map((ext) => `**/*${ext}`),
 		exclude: null,
-		...omitUndefined(opts),
+		...omit_undefined(opts),
 	};
 };
 
 export const name = 'plain-css';
 
-export const plainCssPlugin = (opts: InitialOptions): Plugin => {
-	const {fs, addCssBuild, extensions, include, exclude} = initOptions(opts);
+export const rollup_plugin_plain_css = (opts: Initial_Options): Plugin => {
+	const {fs, add_css_build, extensions, include, exclude} = init_options(opts);
 
-	const log = new SystemLogger(printLogLabel(name, green));
+	const log = new System_Logger(print_log_label(name, green));
 
 	const filter = createFilter(include, exclude);
 
 	// Rollup's `transform` hook executes in non-deterministic order,
 	// so we need to preserve the css import order manually.
 	// Otherwise, the cascade gets randomly shuffled!
-	const sortIndexById = new Map<string, number>();
-	let currentSortIndex = 0;
-	const getSortIndex = (id: string): number => {
+	const sort_index_by_id = new Map<string, number>();
+	let current_sort_index = 0;
+	const get_sort_index = (id: string): number => {
 		// Plain css is always appended to avoid messing up sourcemaps.
 		// Any css id that isn't plain css won't be cached, returning -1 here.
-		// See `sortIndexById` above for why this exists.
-		const index = sortIndexById.get(id);
+		// See `sort_index_by_id` above for why this exists.
+		const index = sort_index_by_id.get(id);
 		if (index === undefined) return -1;
 		return index;
 	};
@@ -59,30 +59,30 @@ export const plainCssPlugin = (opts: InitialOptions): Plugin => {
 		// see comments above for what this is doing
 		async resolveId(importee, importer) {
 			// This is a hack that ignores `include`, but the whole thing is a hack.
-			// See the above comments at `sortIndexById` for the explanation.
+			// See the above comments at `sort_index_by_id` for the explanation.
 			if (!extensions.some((e) => importee.endsWith(e)) || !importer) return null;
 			// Originally this used `this.resolve`,
 			// but it goes into an infinite loop when an importee doesn't exist,
 			// despite using `{skipSelf: true}`. So we manually resolve the id.
-			const resolvedId = resolve(dirname(importer), importee);
-			if (sortIndexById.has(resolvedId)) return resolvedId; // this doesn't account for import order changing while in watch mode
-			if (!(await fs.exists(resolvedId))) return null; // allow node imports like `normalize.css`
-			sortIndexById.set(resolvedId, currentSortIndex);
-			currentSortIndex++;
-			return resolvedId;
+			const resolved_id = resolve(dirname(importer), importee);
+			if (sort_index_by_id.has(resolved_id)) return resolved_id; // this doesn't account for import order changing while in watch mode
+			if (!(await fs.exists(resolved_id))) return null; // allow node imports like `normalize.css`
+			sort_index_by_id.set(resolved_id, current_sort_index);
+			current_sort_index++;
+			return resolved_id;
 		},
 		async transform(code, id) {
 			if (!filter(id)) return;
 			log.info(`transform id`, id);
 
-			const updatedCache = addCssBuild({
+			const updated_cache = add_css_build({
 				id,
-				sourceId: id,
-				sortIndex: getSortIndex(id),
+				source_id: id,
+				sort_index: get_sort_index(id),
 				code,
 				map: undefined,
 			});
-			if (!updatedCache) log.error('Unexpected css cache update failure');
+			if (!updated_cache) log.error('Unexpected css cache update failure');
 
 			return '';
 		},
