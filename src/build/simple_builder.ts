@@ -1,6 +1,6 @@
 import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
-import {noop_builder} from './builder.js';
+import {noop_builder} from './noop_builder.js';
 import type {Build_Context, Builder, Build_Source} from './builder.js';
 import type {Build_Config} from '../build/build_config.js';
 

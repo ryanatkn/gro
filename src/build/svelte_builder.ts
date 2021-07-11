@@ -22,9 +22,11 @@ import {
 	SVELTE_EXTENSION,
 	to_build_out_path,
 } from '../paths.js';
-import type {Builder, Build_Result, Text_Build, Text_Build_Source} from './builder.js';
+import type {Builder, Text_Build_Source} from './builder.js';
 import type {Build_Config} from '../build/build_config.js';
 import {add_css_sourcemap_footer, add_js_sourcemap_footer} from './utils.js';
+import type {Build_File} from './build_file.js';
+import {postprocess} from './postprocess.js';
 
 // TODO build types in production unless `declarations` is `false`,
 // so they'll be automatically copied into unbundled production dists
@@ -51,7 +53,7 @@ export const init_options = (opts: Initial_Options): Options => {
 	};
 };
 
-type SvelteBuilder = Builder<Text_Build_Source, Text_Build>;
+type SvelteBuilder = Builder<Text_Build_Source>;
 
 export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder => {
 	const {log, create_preprocessor, svelte_compile_options, onwarn, onstats} = init_options(opts);
@@ -73,17 +75,16 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		return new_preprocessor;
 	};
 
-	const build: SvelteBuilder['build'] = async (
-		source,
-		build_config,
-		{build_dir, dev, sourcemap, target},
-	) => {
+	const build: SvelteBuilder['build'] = async (source, build_config, ctx) => {
+		const {build_dir, dev, sourcemap, target} = ctx;
+
 		if (source.encoding !== 'utf8') {
 			throw Error(`svelte only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
+
 		const {id, encoding, content} = source;
 		const out_dir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 
@@ -91,20 +92,27 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		// TODO what about non-TypeScript preprocessors?
 		if (!dev) {
 			const svelte_id = `${out_dir}${source.filename}`;
-			const result: Build_Result<Text_Build> = {
-				builds: [
-					{
-						id: svelte_id,
-						filename: source.filename,
-						dir: out_dir,
-						extension: SVELTE_EXTENSION,
-						encoding,
-						content: source.content,
-						build_config,
-					},
-				],
-			};
-			return result;
+			const build_files: Build_File[] = [
+				{
+					type: 'build',
+					source_id: source.id,
+					build_config,
+					dependencies_by_build_id: null,
+					id: svelte_id,
+					filename: source.filename,
+					dir: out_dir,
+					extension: SVELTE_EXTENSION,
+					encoding,
+					content: source.content,
+					content_buffer: undefined,
+					content_hash: undefined,
+					stats: undefined,
+					mime_type: undefined,
+				},
+			];
+			return Promise.all(
+				build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
+			);
 		}
 
 		let preprocessed_code: string;
@@ -141,8 +149,12 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		const has_js_sourcemap = sourcemap && js.map !== undefined;
 		const has_css_sourcemap = sourcemap && css.map !== undefined;
 
-		const builds: Text_Build[] = [
+		const build_files: Build_File[] = [
 			{
+				type: 'build',
+				source_id: source.id,
+				build_config,
+				dependencies_by_build_id: null,
 				id: js_id,
 				filename: js_filename,
 				dir: out_dir,
@@ -151,22 +163,36 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				content: has_js_sourcemap
 					? add_js_sourcemap_footer(js.code, js_filename + SOURCEMAP_EXTENSION)
 					: js.code,
-				build_config,
+				content_buffer: undefined,
+				content_hash: undefined,
+				stats: undefined,
+				mime_type: undefined,
 			},
 		];
 		if (has_js_sourcemap) {
-			builds.push({
+			build_files.push({
+				type: 'build',
+				source_id: source.id,
+				build_config,
+				dependencies_by_build_id: null,
 				id: js_id + SOURCEMAP_EXTENSION,
 				filename: js_filename + SOURCEMAP_EXTENSION,
 				dir: out_dir,
 				extension: SOURCEMAP_EXTENSION,
 				encoding,
 				content: JSON.stringify(js.map), // TODO do we want to also store the object version?
-				build_config,
+				content_buffer: undefined,
+				content_hash: undefined,
+				stats: undefined,
+				mime_type: undefined,
 			});
 		}
 		if (css.code) {
-			builds.push({
+			build_files.push({
+				type: 'build',
+				source_id: source.id,
+				build_config,
+				dependencies_by_build_id: null,
 				id: css_id,
 				filename: css_filename,
 				dir: out_dir,
@@ -175,22 +201,34 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				content: has_css_sourcemap
 					? add_css_sourcemap_footer(css.code, css_filename + SOURCEMAP_EXTENSION)
 					: css.code,
-				build_config,
+				content_buffer: undefined,
+				content_hash: undefined,
+				stats: undefined,
+				mime_type: undefined,
 			});
 			if (has_css_sourcemap) {
-				builds.push({
+				build_files.push({
+					type: 'build',
+					source_id: source.id,
+					build_config,
+					dependencies_by_build_id: null,
 					id: css_id + SOURCEMAP_EXTENSION,
 					filename: css_filename + SOURCEMAP_EXTENSION,
 					dir: out_dir,
 					extension: SOURCEMAP_EXTENSION,
 					encoding,
 					content: JSON.stringify(css.map), // TODO do we want to also store the object version?
-					build_config,
+					content_buffer: undefined,
+					content_hash: undefined,
+					stats: undefined,
+					mime_type: undefined,
 				});
 			}
 		}
-		const result: Build_Result<Text_Build> = {builds};
-		return result;
+
+		return Promise.all(
+			build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
+		);
 	};
 
 	return {name: '@feltcoop/gro_builder_svelte', build};

@@ -68,7 +68,7 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const builder: Builder = {
 		name: '@feltcoop/gro_builder_test',
 		build(_source, _build_config, _ctx) {
-			return {builds: []}; // TODO return a file and verify it below
+			return []; // TODO return a file and verify it below
 		},
 	};
 	const filer = new Filer({

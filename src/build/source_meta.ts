@@ -2,7 +2,7 @@ import {gray} from '@feltcoop/felt/util/terminal.js';
 
 import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, to_build_out_dirname} from '../paths.js';
-import {get_file_content_hash} from './base_filer_file.js';
+import {get_file_content_hash} from './filer_file.js';
 import type {Build_Context} from './builder.js';
 import type {Buildable_Source_File} from './source_file.js';
 import type {Build_Name} from '../build/build_config.js';

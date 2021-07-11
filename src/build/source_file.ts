@@ -5,7 +5,7 @@ import {strip_start} from '@feltcoop/felt/util/string.js';
 import type {Non_Buildable_Filer_Dir, Buildable_Filer_Dir, Filer_Dir} from '../build/filer_dir.js';
 import {reconstruct_build_files} from './build_file.js';
 import type {Build_File} from './build_file.js';
-import type {Base_Filer_File} from './base_filer_file.js';
+import type {Base_Filer_File} from './filer_file.js';
 import {to_hash} from './utils.js';
 import type {Build_Config} from '../build/build_config.js';
 import type {Encoding} from '../fs/encoding.js';

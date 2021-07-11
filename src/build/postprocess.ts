@@ -12,7 +12,7 @@ import {
 	to_build_out_path,
 	TS_EXTENSION,
 } from '../paths.js';
-import type {Build, Build_Context, Build_Result, Build_Source} from './builder.js';
+import type {Build_Context, Build_Source} from './builder.js';
 import {
 	is_external_module,
 	MODULE_PATH_LIB_PREFIX,
@@ -21,91 +21,94 @@ import {
 import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
 import type {Build_Dependency} from './build_dependency.js';
 import {extract_js_from_svelte_for_dependencies} from './svelte_build_helpers.js';
+import type {Build_Config} from './build_config.js';
+import type {Build_File} from './build_file.js';
 
-// TODO this is all hacky and should be refactored, probably following Rollup's lead
+export interface Postprocess {
+	(
+		build_file: Build_File,
+		ctx: Build_Context,
+		build_files: Build_File[],
+		source: Build_Source,
+	): Promise<Build_File>;
+}
 
-export const postprocess = async (
-	build: Build,
-	ctx: Build_Context,
-	result: Build_Result<Build>,
-	source: Build_Source,
-): Promise<{
-	content: Build['content'];
-	dependencies_by_build_id: Map<string, Build_Dependency> | null;
-}> => {
-	if (build.encoding === 'utf8') {
-		const {content: original_content, build_config} = build;
-		let content = original_content;
-		const browser = build_config.platform === 'browser';
-		let dependencies_by_build_id: Map<string, Build_Dependency> | null = null;
+// TODO refactor the TypeScript- and Svelte-specific postprocessing into the builders
+// so this remains generic (maybe remove this completely and just have helpers)
 
-		const handle_specifier: Handle_Specifier = (specifier) => {
-			const build_dependency = to_build_dependency(specifier, build, source, ctx);
-			if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
-			if (!dependencies_by_build_id.has(build_dependency.build_id)) {
-				dependencies_by_build_id.set(build_dependency.build_id, build_dependency);
-			}
-			return build_dependency;
-		};
+export const postprocess: Postprocess = async (build_file, ctx, build_files, source) => {
+	if (build_file.encoding !== 'utf8') return build_file;
 
-		// Map import paths to the built versions.
-		if (build.extension === JS_EXTENSION) {
-			content = parse_dependencies(content, handle_specifier, true);
-		} else if (build.extension === SVELTE_EXTENSION) {
-			// Support Svelte in production, outputting the plain `.svelte`
-			// but extracting and mapping dependencies.
-			// TODO this is hacky but seems the least-bad way to do it
-			// 1. compile to JS with the Svelte preprocessor
-			const extracted_js = await extract_js_from_svelte_for_dependencies(build.content);
-			// 2. use the existing dependency parsing and path transformation process
-			parse_dependencies(extracted_js, handle_specifier, false);
-			// 3. hackily replace the import paths in the original Svelte using a regexp
-			if (dependencies_by_build_id !== null) {
-				// `dependencies_by_build_id` has been set by `handle_specifier`
-				for (const dependency of (
-					dependencies_by_build_id as Map<string, Build_Dependency>
-				).values()) {
-					content = content.replace(
-						new RegExp(`['|"|\`]${dependency.original_specifier}['|"|\`]`, 'g'),
-						`'${dependency.mapped_specifier}'`,
-					);
-				}
+	const {dir, extension, content: original_content, build_config} = build_file;
+
+	let content = original_content;
+	const browser = build_config.platform === 'browser';
+	let dependencies_by_build_id: Map<string, Build_Dependency> | null = null;
+
+	const handle_specifier: Handle_Specifier = (specifier) => {
+		const build_dependency = to_build_dependency(specifier, dir, build_config, source, ctx);
+		if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
+		if (!dependencies_by_build_id.has(build_dependency.build_id)) {
+			dependencies_by_build_id.set(build_dependency.build_id, build_dependency);
+		}
+		return build_dependency;
+	};
+
+	// Map import paths to the built versions.
+	if (extension === JS_EXTENSION) {
+		content = parse_dependencies(content, handle_specifier, true);
+	} else if (extension === SVELTE_EXTENSION) {
+		// Support Svelte in production, outputting the plain `.svelte`
+		// but extracting and mapping dependencies.
+		// TODO this is hacky but seems the least-bad way to do it
+		// 1. compile to JS with the Svelte preprocessor
+		const extracted_js = await extract_js_from_svelte_for_dependencies(original_content);
+		// 2. use the existing dependency parsing and path transformation process
+		parse_dependencies(extracted_js, handle_specifier, false);
+		// 3. hackily replace the import paths in the original Svelte using a regexp
+		if (dependencies_by_build_id !== null) {
+			// `dependencies_by_build_id` has been set by `handle_specifier`
+			for (const dependency of (
+				dependencies_by_build_id as Map<string, Build_Dependency>
+			).values()) {
+				content = content.replace(
+					// TODO try to fix this to match against `import ...` and make sure it's not greedily broken
+					new RegExp(`['|"|\`]${dependency.original_specifier}['|"|\`]`, 'g'),
+					`'${dependency.mapped_specifier}'`,
+				);
 			}
 		}
-
-		// For TS files, we need to separately parse type imports and add them to the dependencies,
-		// because by the time we parse the JS files above with `es-module-lexer`,
-		// we've already lost the `import type` information from the TypeScript source.
-		// TODO probably refactor into Rollup-like plugins
-		if (
-			ctx.types &&
-			((source.extension === TS_EXTENSION && build.extension === JS_EXTENSION) ||
-				(source.extension === SVELTE_EXTENSION &&
-					(build.extension === JS_EXTENSION || build.extension === SVELTE_EXTENSION)))
-		) {
-			const specifiers = parse_type_imports(source.content as string);
-			for (const specifier of specifiers) {
-				handle_specifier(specifier);
-			}
-		}
-
-		// Support Svelte CSS for development in the browser.
-		if (browser && source.extension === SVELTE_EXTENSION && build.extension === JS_EXTENSION) {
-			const css_compilation = result.builds.find((c) => c.extension === CSS_EXTENSION);
-			if (css_compilation !== undefined) {
-				// TODO this is hardcoded to a sibling module, but that may be overly restrictive --
-				// a previous version of this code used the `ctx.served_dirs` to handle any location,
-				// but this coupled the build outputs to the served dirs, which failed and is weird
-				const import_path = `./${basename(css_compilation.filename)}`;
-				content = inject_svelte_css_import(content, import_path, ctx.dev);
-			}
-		}
-
-		return {content, dependencies_by_build_id};
-	} else {
-		// Handle other encodings like binary.
-		return {content: build.content, dependencies_by_build_id: null};
 	}
+
+	// For TS files, we need to separately parse type imports and add them to the dependencies,
+	// because by the time we parse the JS files above with `es-module-lexer`,
+	// we've already lost the `import type` information from the TypeScript source.
+	// TODO probably refactor into Rollup-like plugins
+	if (
+		ctx.types &&
+		((source.extension === TS_EXTENSION && extension === JS_EXTENSION) ||
+			(source.extension === SVELTE_EXTENSION &&
+				(extension === JS_EXTENSION || extension === SVELTE_EXTENSION)))
+	) {
+		const specifiers = parse_type_imports(source.content as string);
+		for (const specifier of specifiers) {
+			handle_specifier(specifier);
+		}
+	}
+
+	// Support Svelte CSS for development in the browser.
+	if (browser && source.extension === SVELTE_EXTENSION && extension === JS_EXTENSION) {
+		const css_build_file = build_files.find((c) => c.extension === CSS_EXTENSION);
+		if (css_build_file !== undefined) {
+			// TODO this is hardcoded to a sibling module, but that may be overly restrictive --
+			// a previous version of this code used the `ctx.served_dirs` to handle any location,
+			// but this coupled the build outputs to the served dirs, which failed and is weird
+			const import_path = `./${basename(css_build_file.filename)}`;
+			content = inject_svelte_css_import(content, import_path, ctx.dev);
+		}
+	}
+
+	return {...build_file, content, dependencies_by_build_id};
 };
 
 interface Handle_Specifier {
@@ -160,12 +163,13 @@ const parse_dependencies = (
 
 const to_build_dependency = (
 	specifier: string,
-	build: Build,
+	dir: string,
+	build_config: Build_Config,
 	source: Build_Source,
 	ctx: Build_Context,
 ): Build_Dependency => {
 	const {dev, externals_aliases, build_dir} = ctx;
-	const browser = build.build_config.platform === 'browser';
+	const browser = build_config.platform === 'browser';
 	let build_id: string;
 	let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
 	const is_external_import = is_external_module(specifier);
@@ -191,14 +195,14 @@ const to_build_dependency = (
 				if (mapped_specifier[0] !== '.') {
 					mapped_specifier = `./${mapped_specifier}`;
 				}
-				build_id = to_build_out_path(dev, build.build_config.name, specifier_base_path, build_dir);
+				build_id = to_build_out_path(dev, build_config.name, specifier_base_path, build_dir);
 			} else {
 				build_id = mapped_specifier;
 			}
 		} else {
 			// handle common externals, imports internal to the externals
 			if (browser) {
-				build_id = join(build.dir, specifier);
+				build_id = join(dir, specifier);
 				// use absolute paths for internal externals specifiers, so we get stable ids
 				final_specifier = build_id;
 			} else {
@@ -213,7 +217,7 @@ const to_build_dependency = (
 			final_specifier,
 			dev,
 		);
-		build_id = join(build.dir, mapped_specifier);
+		build_id = join(dir, mapped_specifier);
 	}
 	return {
 		specifier: final_specifier,
