@@ -3,7 +3,7 @@
 ## 0.32.1
 
 - change `gro deploy` to infer default `dirname`
-  ([#232](https://github.com/feltcoop/gro/pull/232))
+  ([#241](https://github.com/feltcoop/gro/pull/241))
 
 ## 0.32.0
 
