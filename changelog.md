@@ -1,5 +1,10 @@
 # changelog
 
+## 0.32.1
+
+- change `gro deploy` to infer default `dirname`
+  ([#241](https://github.com/feltcoop/gro/pull/241))
+
 ## 0.32.0
 
 - **break**: add `gro_adapter_gro_frontend` adapter

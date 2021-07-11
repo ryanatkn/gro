@@ -4,8 +4,8 @@ import {print_error} from '@feltcoop/felt/util/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
 import type {Task} from './task/task.js';
-import {GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
+import {DIST_DIR, GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
+import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
 import {clean} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
@@ -18,14 +18,13 @@ import {clean} from './fs/clean.js';
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
 export interface Task_Args {
-	dirname?: string; // defaults to `'svelte-kit'` if it exists
+	dirname?: string; // defaults to detecting 'svelte-kit' | 'browser'
 	branch?: string; // optional branch to deploy from; defaults to 'main'
 	dry?: boolean;
 	clean?: boolean; // instead of deploying, just clean the git worktree and Gro cache
 }
 
 // TODO customize
-const DIST_DIR = paths.dist;
 const WORKTREE_DIRNAME = 'worktree';
 const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
 const DEPLOY_BRANCH = 'deploy';
@@ -38,16 +37,14 @@ export const task: Task<Task_Args> = {
 	summary: 'deploy to static hosting',
 	dev: false,
 	run: async ({fs, invoke_task, args, log, dev}): Promise<void> => {
-		const {branch, dry, clean: clean_and_exit} = args;
 		if (dev) {
-			log.warn('building in development mode; normally this is only for diagnostics');
+			log.error('deploy cannot be run in development mode');
+			return;
 		}
 
-		const source_branch = branch || GIT_DEPLOY_BRANCH;
+		const {dirname, branch, dry, clean: clean_and_exit} = args;
 
-		// TODO how to get the deployed build? config property? infer if there's a SvelteKit one and no config?
-		const dirname = args.dirname || SVELTEKIT_DIST_DIRNAME;
-		const dir = `${DIST_DIR}${dirname}`;
+		const source_branch = branch || GIT_DEPLOY_BRANCH;
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
@@ -104,13 +101,27 @@ export const task: Task<Task_Args> = {
 			return;
 		}
 
+		let dir: string;
+
 		try {
 			// Run the build.
 			await invoke_task('build');
 
+			// After the build is ready, set the deployed directory, inferring as needed.
+			if (dirname !== undefined) {
+				dir = `${DIST_DIR}${dirname}`;
+			} else if (await fs.exists(`${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`)) {
+				dir = `${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`;
+			} else if (await fs.exists(`${DIST_DIR}${BROWSER_BUILD_NAME}`)) {
+				dir = `${DIST_DIR}${BROWSER_BUILD_NAME}`;
+			} else {
+				log.error(red('no dirname provided and cannot infer a default'));
+				return;
+			}
+
 			// Make sure the expected dir exists after building.
 			if (!(await fs.exists(dir))) {
-				log.error(red('directory does not exist:'), dir);
+				log.error(red('directory to deploy does not exist after building:'), dir);
 				return;
 			}
 
@@ -119,7 +130,7 @@ export const task: Task<Task_Args> = {
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
 			if (dry) {
-				log.info(red('dry deploy failed:'), 'files are available in', print_path(dir));
+				log.info(red('dry deploy failed'));
 			}
 			throw Error(`Deploy safely canceled due to build failure. See the error above.`);
 		}
