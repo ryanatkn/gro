@@ -84,7 +84,7 @@ export const to_default_browser_build = (
 const to_default_asset_extensions = (): string[] =>
 	Array.from(get_extensions()).filter((extension) => !ignored_asset_extensions.has(extension));
 
-export const ignored_asset_extensions = new Set([
+const ignored_asset_extensions = new Set([
 	JS_EXTENSION,
 	JSON_EXTENSION,
 	// these aren't currently included as MIME types, but that could change in the future
