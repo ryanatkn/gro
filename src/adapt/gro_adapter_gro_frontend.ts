@@ -86,6 +86,7 @@ export const create_adapter = ({
 			}
 			timing_to_bundle();
 
+			// TODO this should actually filter based on the build config input, no?
 			await copy_dist(fs, build_config, dev, dir, log, (id) => asset_extensions.has(extname(id)));
 
 			if (host_target === 'github_pages') {
