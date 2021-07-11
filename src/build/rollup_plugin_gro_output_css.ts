@@ -1,11 +1,9 @@
 import type {Plugin} from 'rollup';
 import {dirname, join, relative} from 'path';
 import sourcemap_codec from 'sourcemap-codec';
-import type {Partial_Except} from '@feltcoop/felt';
 import {blue, gray} from '@feltcoop/felt/util/terminal.js';
 import {System_Logger, print_log_label} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import type {Gro_Css_Build, Gro_Css_Bundle} from './gro_css_build.js';
@@ -13,21 +11,14 @@ import type {Gro_Css_Build, Gro_Css_Bundle} from './gro_css_build.js';
 export interface Options {
 	fs: Filesystem;
 	get_css_bundles(): Map<string, Gro_Css_Bundle>;
-	to_final_css(build: Gro_Css_Build, log: Logger): string | null;
-	sourcemap: boolean; // TODO consider per-bundle options
+	to_final_css?: (build: Gro_Css_Build, log: Logger) => string | null;
+	sourcemap?: boolean;
 }
-export type Required_Options = 'fs' | 'get_css_bundles';
-export type Initial_Options = Partial_Except<Options, Required_Options>;
-export const init_options = (opts: Initial_Options): Options => ({
-	to_final_css,
-	sourcemap: false,
-	...omit_undefined(opts),
-});
 
 export const name = 'output-css';
 
-export const rollup_plugin_output_css = (opts: Initial_Options): Plugin => {
-	const {fs, get_css_bundles, to_final_css, sourcemap} = init_options(opts);
+export const rollup_plugin_output_css = (options: Options): Plugin => {
+	const {fs, get_css_bundles, to_final_css = default_to_final_css, sourcemap = false} = options;
 
 	const log = new System_Logger(print_log_label(name, blue));
 
@@ -128,4 +119,4 @@ export const rollup_plugin_output_css = (opts: Initial_Options): Plugin => {
 	};
 };
 
-const to_final_css = ({code}: Gro_Css_Build, _log: Logger): string | null => code;
+const default_to_final_css = ({code}: Gro_Css_Build, _log: Logger): string | null => code;

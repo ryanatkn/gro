@@ -1,10 +1,8 @@
 import type {Plugin} from 'rollup';
 import {resolve, dirname} from 'path';
 import {createFilter} from '@rollup/pluginutils';
-import type {Partial_Except} from '@feltcoop/felt';
 import {green} from '@feltcoop/felt/util/terminal.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
 import type {Gro_Css_Build} from './gro_css_build.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -12,29 +10,24 @@ import type {Filesystem} from '../fs/filesystem.js';
 export interface Options {
 	fs: Filesystem;
 	add_css_build(build: Gro_Css_Build): boolean;
-	extensions: string[]; // see comments below at `sort_index_by_id` for why this exists
-	include: string | RegExp | (string | RegExp)[] | null;
-	exclude: string | RegExp | (string | RegExp)[] | null;
+	extensions?: string[]; // see comments below at `sort_index_by_id` for why this exists
+	include?: string | RegExp | (string | RegExp)[] | null;
+	exclude?: string | RegExp | (string | RegExp)[] | null;
 }
-export type Required_Options = 'fs' | 'add_css_build';
-export type Initial_Options = Partial_Except<Options, Required_Options>;
-export const init_options = (opts: Initial_Options): Options => {
-	if (opts.include && !opts.extensions) {
-		throw Error(`The 'extensions' option must be provided along with 'include'`);
-	}
-	const extensions = opts.extensions || ['.css'];
-	return {
-		extensions,
-		include: opts.include || extensions.map((ext) => `**/*${ext}`),
-		exclude: null,
-		...omit_undefined(opts),
-	};
-};
 
 export const name = 'plain-css';
 
-export const rollup_plugin_plain_css = (opts: Initial_Options): Plugin => {
-	const {fs, add_css_build, extensions, include, exclude} = init_options(opts);
+export const rollup_plugin_gro_plain_css = (options: Options): Plugin => {
+	if (options.include && !options.extensions) {
+		throw Error(`The 'extensions' option must be provided along with 'include'`);
+	}
+	const fs = options.fs;
+	const add_css_build = options.add_css_build;
+	const {
+		extensions = ['.css'],
+		include = extensions.map((ext) => `**/*${ext}`),
+		exclude = null,
+	} = options;
 
 	const log = new System_Logger(print_log_label(name, green));
 
