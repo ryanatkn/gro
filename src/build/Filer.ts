@@ -17,7 +17,7 @@ import type {Filer_Dir, Filer_Dir_Change_Callback} from '../build/filer_dir.js';
 import {is_input_to_build_config, map_dependency_to_source_id} from './utils.js';
 import type {Map_Dependency_To_Source_Id} from './utils.js';
 import {JS_EXTENSION, paths, to_build_out_path} from '../paths.js';
-import type {Build, Build_Context, Builder, Builder_State, Build_Result} from './builder.js';
+import type {Build_Context, Builder, Builder_State} from './builder.js';
 import {infer_encoding} from '../fs/encoding.js';
 import type {Encoding} from '../fs/encoding.js';
 import {print_build_config_label} from '../build/build_config.js';
@@ -33,7 +33,7 @@ import {
 	create_source_file,
 } from './source_file.js';
 import type {Buildable_Source_File, Source_File} from './source_file.js';
-import {create_build_file, diff_dependencies} from './build_file.js';
+import {diff_dependencies} from './build_file.js';
 import type {Build_File} from './build_file.js';
 import type {Base_Filer_File} from './base_filer_file.js';
 import {load_content} from './load.js';
@@ -710,22 +710,16 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		);
 
 		// Compile the source file.
-		let result: Build_Result<Build>;
+		let new_build_files: Build_File[];
 
 		this.building_source_files.add(source_file.id); // track so we can see what the filer is doing
 		try {
-			result = await this.builder!.build(source_file, build_config, this);
+			new_build_files = await this.builder!.build(source_file, build_config, this);
 		} catch (err) {
 			this.building_source_files.delete(source_file.id);
 			throw err;
 		}
 		this.building_source_files.delete(source_file.id);
-
-		const new_build_files: Build_File[] = await Promise.all(
-			result.builds.map((build) =>
-				create_build_file(build, this, result, source_file, build_config),
-			),
-		);
 
 		// Update the source file with the new build files.
 		await this.update_build_files(source_file, new_build_files, build_config);
@@ -988,7 +982,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	}
 	// TODO this could possibly be changed to explicitly call the build,
 	// instead of waiting with timeouts in places,
-	// and it'd be specific to one ExternalsBuildState, so it'd be per build config.
+	// and it'd be specific to one Externals_Build_State, so it'd be per build config.
 	// we could then remove things like the tracking what's building in the Filer and externalsBuidler
 	private updating_externals: Promise<void>[] = [];
 	private async wait_for_externals(): Promise<void> {

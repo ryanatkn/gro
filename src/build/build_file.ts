@@ -1,13 +1,10 @@
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 
-import type {Build, Build_Context, Build_Result} from './builder.js';
 import type {Base_Filer_File} from './base_filer_file.js';
 import type {Source_Meta} from './source_meta.js';
 import type {Build_Dependency} from './build_dependency.js';
-import {postprocess} from './postprocess.js';
 import {basename, dirname, extname} from 'path';
 import {load_content} from './load.js';
-import type {Buildable_Source_File} from './source_file.js';
 import type {Build_Config} from '../build/build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -31,54 +28,6 @@ export interface Base_Build_File extends Base_Filer_File {
 	// in the future.
 	readonly dependencies_by_build_id: Map<string, Build_Dependency> | null;
 }
-
-export const create_build_file = async (
-	build: Build,
-	ctx: Build_Context,
-	result: Build_Result<Build>,
-	source_file: Buildable_Source_File,
-	build_config: Build_Config,
-): Promise<Build_File> => {
-	const {content, dependencies_by_build_id} = await postprocess(build, ctx, result, source_file);
-	switch (build.encoding) {
-		case 'utf8':
-			return {
-				type: 'build',
-				source_id: source_file.id,
-				build_config,
-				dependencies_by_build_id,
-				id: build.id,
-				filename: build.filename,
-				dir: build.dir,
-				extension: build.extension,
-				encoding: build.encoding,
-				content: content as string,
-				content_buffer: undefined,
-				content_hash: undefined,
-				stats: undefined,
-				mime_type: undefined,
-			};
-		case null:
-			return {
-				type: 'build',
-				source_id: source_file.id,
-				build_config,
-				dependencies_by_build_id,
-				id: build.id,
-				filename: build.filename,
-				dir: build.dir,
-				extension: build.extension,
-				encoding: build.encoding,
-				content: content as Buffer,
-				content_buffer: build.content,
-				content_hash: undefined,
-				stats: undefined,
-				mime_type: undefined,
-			};
-		default:
-			throw new Unreachable_Error(build);
-	}
-};
 
 export const reconstruct_build_files = async (
 	fs: Filesystem,

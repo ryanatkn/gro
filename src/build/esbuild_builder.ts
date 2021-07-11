@@ -15,10 +15,11 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import type {Builder, Build_Result, Text_Build, Text_Build_Source} from './builder.js';
+import type {Builder, Text_Build_Source} from './builder.js';
 import {add_js_sourcemap_footer} from './utils.js';
 import {to_generate_types_for_file} from './ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import type {Build_File} from './build_file.js';
 
 export interface Options {
 	log: Logger;
@@ -34,7 +35,7 @@ export const init_options = (opts: Initial_Options): Options => {
 	};
 };
 
-type EsbuildBuilder = Builder<Text_Build_Source, Text_Build>;
+type EsbuildBuilder = Builder<Text_Build_Source>;
 
 export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuilder => {
 	const {createEsbuildOptions} = init_options(opts);
@@ -80,8 +81,25 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 		const output = await esbuild.transform(source.content, esbuildOptions);
 		const jsFilename = replace_extension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
-		const builds: Text_Build[] = [
+
+		// TODO
+		// const {content, dependencies_by_build_id} = await postprocess(
+		// 	dir,
+		// 	extension,
+		// 	encoding,
+		// 	original_content,
+		// 	build_config,
+		// 	ctx,
+		// 	result,
+		// 	source_file,
+		// );
+
+		const build_files: Build_File[] = [
 			{
+				type: 'build',
+				source_id: source.id,
+				build_config,
+				dependencies_by_build_id: null, // TODO
 				id: jsId,
 				filename: jsFilename,
 				dir: outDir,
@@ -90,45 +108,68 @@ export const create_esbuild_builder = (opts: Initial_Options = {}): EsbuildBuild
 				content: output.map
 					? add_js_sourcemap_footer(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
-				build_config,
+				content_buffer: undefined,
+				content_hash: undefined,
+				stats: undefined,
+				mime_type: undefined,
 			},
 		];
 		if (output.map) {
-			builds.push({
+			build_files.push({
+				type: 'build',
+				source_id: source.id,
+				build_config,
+				dependencies_by_build_id: null, // TODO
 				id: jsId + SOURCEMAP_EXTENSION,
 				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
 				extension: SOURCEMAP_EXTENSION,
 				encoding: source.encoding,
 				content: output.map,
-				build_config,
+				content_buffer: undefined,
+				content_hash: undefined,
+				stats: undefined,
+				mime_type: undefined,
 			});
 		}
 		if (types) {
 			const {types, typemap} = await (await load_generate_types(fs))(source.id);
-			builds.push({
+			build_files.push({
+				type: 'build',
+				source_id: source.id,
+				build_config,
+				dependencies_by_build_id: null, // TODO
 				id: replace_extension(jsId, TS_TYPE_EXTENSION),
 				filename: replace_extension(jsFilename, TS_TYPE_EXTENSION),
 				dir: outDir,
 				extension: TS_TYPE_EXTENSION,
 				encoding: source.encoding,
 				content: types,
-				build_config,
+				content_buffer: undefined,
+				content_hash: undefined,
+				stats: undefined,
+				mime_type: undefined,
 			});
 			if (typemap !== undefined) {
-				builds.push({
+				build_files.push({
+					type: 'build',
+					source_id: source.id,
+					build_config,
+					dependencies_by_build_id: null, // TODO
 					id: replace_extension(jsId, TS_TYPEMAP_EXTENSION),
 					filename: replace_extension(jsFilename, TS_TYPEMAP_EXTENSION),
 					dir: outDir,
 					extension: TS_TYPEMAP_EXTENSION,
 					encoding: source.encoding,
 					content: typemap,
-					build_config,
+					content_buffer: undefined,
+					content_hash: undefined,
+					stats: undefined,
+					mime_type: undefined,
 				});
 			}
 		}
-		const result: Build_Result<Text_Build> = {builds};
-		return result;
+		return build_files;
 	};
 
 	return {name: '@feltcoop/gro_builder_esbuild', build};
