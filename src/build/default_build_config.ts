@@ -1,7 +1,15 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {Build_Config, Build_Config_Partial, Build_Name} from './build_config.js';
-import {to_build_extension, base_path_to_source_id, paths} from '../paths.js';
+import {
+	to_build_extension,
+	base_path_to_source_id,
+	paths,
+	JS_EXTENSION,
+	JSON_EXTENSION,
+	TS_EXTENSION,
+	SVELTE_EXTENSION,
+} from '../paths.js';
 import {get_extensions} from '../fs/mime.js';
 import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -60,18 +68,28 @@ export const has_sveltekit_frontend = (fs: Filesystem): Promise<boolean> =>
 	every_path_exists(fs, SVELTEKIT_FRONTEND_PATHS);
 
 const GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
-export const has_deprecated_gro_frontend = (fs: Filesystem): Promise<boolean> =>
+export const has_gro_frontend = (fs: Filesystem): Promise<boolean> =>
 	every_path_exists(fs, GRO_FRONTEND_PATHS);
 
 export const BROWSER_BUILD_NAME: Build_Name = 'browser';
 export const to_default_browser_build = (
-	asset_paths = to_default_asset_paths(),
+	asset_extensions = to_default_asset_extensions(),
 ): Build_Config_Partial => ({
 	name: BROWSER_BUILD_NAME,
 	platform: 'browser',
-	input: ['index.ts', createFilter(`**/*.{${asset_paths.join(',')}}`)],
+	input: ['index.ts', createFilter(`**/*.{${asset_extensions.join(',')}}`)],
 });
-const to_default_asset_paths = (): string[] => Array.from(get_extensions());
+
+// compute default asset extensions on demand to pick up any changes to the supported MIME types
+const to_default_asset_extensions = (): string[] =>
+	Array.from(get_extensions()).filter((extension) => !ignored_asset_extensions.has(extension));
+const ignored_asset_extensions = new Set([
+	JS_EXTENSION,
+	JSON_EXTENSION,
+	// these aren't currently included as MIME types, but that could change in the future
+	TS_EXTENSION,
+	SVELTE_EXTENSION,
+]);
 
 const every_path_exists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
 	(await Promise.all(paths.map((path) => fs.exists(path)))).every((v) => !!v);

@@ -8,7 +8,6 @@ import {
 	EXTERNALS_BUILD_DIRNAME,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
-	to_build_base_path,
 	to_build_extension,
 	to_build_out_path,
 	TS_EXTENSION,
@@ -98,7 +97,7 @@ export const postprocess = async (
 				// a previous version of this code used the `ctx.served_dirs` to handle any location,
 				// but this coupled the build outputs to the served dirs, which failed and is weird
 				const import_path = `./${basename(css_compilation.filename)}`;
-				content = inject_svelte_css_import(content, import_path);
+				content = inject_svelte_css_import(content, import_path, ctx.dev);
 			}
 		}
 
@@ -185,15 +184,14 @@ const to_build_dependency = (
 				if (has_js_extension && should_modify_dot_js(mapped_specifier)) {
 					mapped_specifier = mapped_specifier.substring(0, mapped_specifier.length - 3) + 'js';
 				}
-				mapped_specifier = `/${join(EXTERNALS_BUILD_DIRNAME, mapped_specifier)}${
+				const specifier_base_path = `${EXTERNALS_BUILD_DIRNAME}/${mapped_specifier}${
 					has_js_extension ? '' : JS_EXTENSION
 				}`;
-				build_id = to_build_out_path(
-					dev,
-					build.build_config.name,
-					mapped_specifier.substring(1),
-					build_dir,
-				);
+				mapped_specifier = relative(source.dir, paths.source + specifier_base_path);
+				if (mapped_specifier[0] !== '.') {
+					mapped_specifier = `./${mapped_specifier}`;
+				}
+				build_id = to_build_out_path(dev, build.build_config.name, specifier_base_path, build_dir);
 			} else {
 				build_id = mapped_specifier;
 			}
@@ -201,10 +199,8 @@ const to_build_dependency = (
 			// handle common externals, imports internal to the externals
 			if (browser) {
 				build_id = join(build.dir, specifier);
-				// map internal externals imports to absolute paths, so we get stable ids
-				final_specifier = `/${to_build_base_path(build_id, build_dir)}${
-					final_specifier.endsWith(JS_EXTENSION) ? '' : JS_EXTENSION
-				}`;
+				// use absolute paths for internal externals specifiers, so we get stable ids
+				final_specifier = build_id;
 			} else {
 				// externals imported in Node builds use Node module resolution
 				build_id = mapped_specifier;
@@ -254,7 +250,7 @@ const parse_type_imports = (content: string): string[] =>
 		(v) => v[1],
 	);
 
-const inject_svelte_css_import = (content: string, import_path: string): string => {
+const inject_svelte_css_import = (content: string, import_path: string, dev: boolean): string => {
 	let newline_index = content.length;
 	for (let i = 0; i < content.length; i++) {
 		if (content[i] === '\n') {
@@ -262,7 +258,9 @@ const inject_svelte_css_import = (content: string, import_path: string): string 
 			break;
 		}
 	}
-	const injected_css_loader_script = `;globalThis.gro.register_css('${import_path}');`; // account for barbaric semicolonness code
+	const injected_css_loader_script = dev
+		? `;globalThis.gro.register_css('${import_path}');`
+		: `;import '${import_path}';`;
 	const new_content = `${content.substring(
 		0,
 		newline_index,

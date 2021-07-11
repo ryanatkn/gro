@@ -3,12 +3,12 @@
 During the [`gro build`](build.md) task,
 Gro uses `Adapter`s to convert production builds into final artifacts.
 
-Gro has a number of builtin adapters. Some are a work in progress:
+Gro has a number of builtin adapters:
 
-- [x] [`gro_adapter_node_library`](../adapt/gro_adapter_node_library.ts)
-- [x] [`gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
-- [x] [`gro_adapter_generic_build`](../adapt/gro_adapter_generic_build.ts)
-- [ ] [`gro_adapter_spa_frontend`](../adapt/gro_adapter_spa_frontend.ts)
+- [`gro_adapter_node_library`](../adapt/gro_adapter_node_library.ts)
+- [`gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
+- [`gro_adapter_gro_frontend`](../adapt/gro_adapter_gro_frontend.ts)
+- [`gro_adapter_generic_build`](../adapt/gro_adapter_generic_build.ts)
 
 ## adapters
 

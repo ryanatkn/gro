@@ -21,28 +21,43 @@ import type {Partial_Except} from '@feltcoop/felt/util/types.js';
 
 import {rollup_plugin_gro_diagnostics} from './rollup_plugin_gro_diagnostics.js';
 import {paths} from '../paths.js';
+import {rollup_plugin_gro_output_css} from './rollup_plugin_gro_output_css.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import {rollup_plugin_gro_plain_css} from './rollup_plugin_gro_plain_css.js';
+import type {Css_Cache} from './css_cache.js';
+import {create_css_cache} from './css_cache.js';
+import type {Gro_Css_Build} from './gro_css_build.js';
+import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
+import {create_default_preprocessor} from './svelte_build_helpers.js';
+import type {Ecma_Script_Target} from './ts_build_helpers.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from './default_build_config.js';
 
 export interface Options {
+	fs: Filesystem;
 	input: Rollup_Input_Option;
 	dev: boolean;
+	target: Ecma_Script_Target;
 	sourcemap: boolean;
 	output_dir: string;
 	watch: boolean;
 	map_input_options: Map_Input_Options;
 	map_output_options: Map_Output_Options;
 	map_watch_options: Map_Watch_Options;
+	css_cache: Css_Cache<Gro_Css_Build>;
 	log: Logger;
 }
-export type Required_Options = 'input';
+export type Required_Options = 'fs' | 'input';
 export type Initial_Options = Partial_Except<Options, Required_Options>;
 export const init_options = (opts: Initial_Options): Options => ({
 	dev: true,
+	target: DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap: opts.dev ?? true,
 	output_dir: paths.dist,
 	watch: false,
 	map_input_options: identity,
 	map_output_options: identity,
 	map_watch_options: identity,
+	css_cache: opts.css_cache || create_css_cache(),
 	...omit_undefined(opts),
 	log: opts.log || new System_Logger(print_log_label('build')),
 });
@@ -90,10 +105,27 @@ export const run_rollup = async (opts: Initial_Options): Promise<void> => {
 };
 
 const create_input_options = async (options: Options): Promise<Rollup_Input_Options> => {
+	const {fs, css_cache, dev, target, sourcemap} = options;
+
+	const add_plain_css_build = css_cache.add_css_build.bind(null, 'bundle.plain.css');
+	const add_svelte_css_build = css_cache.add_css_build.bind(null, 'bundle.svelte.css');
+
 	const unmapped_input_options: Rollup_Input_Options = {
 		input: options.input,
 		plugins: [
 			rollup_plugin_gro_diagnostics(),
+			rollup_plugin_gro_svelte({
+				dev,
+				add_css_build: add_svelte_css_build,
+				preprocessor: create_default_preprocessor(dev, target, sourcemap),
+				compile_options: {},
+			}),
+			rollup_plugin_gro_plain_css({fs, add_css_build: add_plain_css_build}),
+			rollup_plugin_gro_output_css({
+				fs,
+				get_css_bundles: css_cache.get_css_bundles,
+				sourcemap,
+			}),
 			resolve_plugin({preferBuiltins: true}),
 			commonjs_plugin(),
 		],

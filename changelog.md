@@ -1,5 +1,10 @@
 # changelog
 
+## 0.32.0
+
+- **break**: add `gro_adapter_gro_frontend` adapter
+  ([#231](https://github.com/feltcoop/gro/pull/231))
+
 ## 0.31.0
 
 - **break**: change `gro_adapter_node_library` option `type` to boolean `bundle`
@@ -38,6 +43,8 @@
 
 ## 0.28.3
 
+- add Gro frontend support with `gro_adapter_gro_frontend`
+  ([#231](https://github.com/feltcoop/gro/pull/231))
 - fix buildless builds to handle SvelteKit-only frontend projects
   ([#230](https://github.com/feltcoop/gro/pull/230))
 
