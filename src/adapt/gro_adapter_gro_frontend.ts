@@ -7,10 +7,10 @@ import type {Adapter} from './adapter.js';
 import type {Map_Input_Options} from '../build/rollup.js';
 import {run_rollup} from '../build/rollup.js';
 import {
-	CSS_EXTENSION,
 	DIST_DIRNAME,
 	JS_EXTENSION,
 	source_id_to_base_path,
+	SVELTE_EXTENSION,
 	to_import_id,
 } from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
@@ -96,7 +96,7 @@ export const create_adapter = ({
 				dev,
 				dir,
 				log,
-				(id) => !id.endsWith(JS_EXTENSION) && !id.endsWith(CSS_EXTENSION),
+				(id) => !id.endsWith(JS_EXTENSION) && !id.endsWith(SVELTE_EXTENSION),
 			);
 
 			if (host_target === 'github_pages') {
