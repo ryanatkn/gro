@@ -102,6 +102,7 @@ export const create_adapter = ({
 				}
 				if (cjs) {
 					await run_rollup({
+						fs,
 						dev,
 						sourcemap: config.sourcemap,
 						input,
@@ -117,6 +118,7 @@ export const create_adapter = ({
 				}
 				if (esm) {
 					await run_rollup({
+						fs,
 						dev,
 						sourcemap: config.sourcemap,
 						input,

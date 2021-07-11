@@ -57,7 +57,9 @@ export const create_adapter = ({
 					ensure_end(to_common_base_dir(files), '/'),
 				)}`;
 				log.info('building', print_build_config_label(build_config), output_dir, files);
+				console.log('config.sourcemap', config.sourcemap);
 				await run_rollup({
+					fs,
 					dev,
 					sourcemap: config.sourcemap,
 					input,

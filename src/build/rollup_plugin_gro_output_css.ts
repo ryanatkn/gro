@@ -15,9 +15,9 @@ export interface Options {
 	sourcemap?: boolean;
 }
 
-export const name = 'output-css';
+export const name = '@feltcoop/rollup_plugin_gro_output_css';
 
-export const rollup_plugin_output_css = (options: Options): Plugin => {
+export const rollup_plugin_gro_output_css = (options: Options): Plugin => {
 	const {fs, get_css_bundles, to_final_css = default_to_final_css, sourcemap = false} = options;
 
 	const log = new System_Logger(print_log_label(name, blue));
@@ -104,7 +104,6 @@ export const rollup_plugin_output_css = (options: Options): Plugin => {
 						null,
 						2,
 					);
-
 					log.info('writing css bundle and sourcemap', dest);
 					await Promise.all([
 						fs.write_file(dest, final_css),

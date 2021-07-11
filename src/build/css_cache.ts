@@ -15,13 +15,13 @@ export type Css_Bundle<T extends Css_Build = Css_Build> = {
 	changed_ids: Set<string>;
 };
 
-export interface CssCache<T extends Css_Build = Css_Build> {
+export interface Css_Cache<T extends Css_Build = Css_Build> {
 	get_css_bundles(): Map<string, Css_Bundle<T>>;
 	get_css_build(bundle_name: string, id: string): T;
 	add_css_build(bundle_name: string, build: T): boolean;
 }
 
-export const create_css_cache = <T extends Css_Build = Css_Build>(): CssCache<T> => {
+export const create_css_cache = <T extends Css_Build = Css_Build>(): Css_Cache<T> => {
 	const log = new System_Logger(print_log_label('css_cache', green));
 
 	// `bundles` key is an output bundle file name

@@ -15,7 +15,7 @@ export interface Options {
 	exclude?: string | RegExp | (string | RegExp)[] | null;
 }
 
-export const name = 'plain-css';
+export const name = '@feltcoop/rollup_plugin_gro_plain_css';
 
 export const rollup_plugin_gro_plain_css = (options: Options): Plugin => {
 	if (options.include && !options.extensions) {
