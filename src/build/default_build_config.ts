@@ -57,21 +57,21 @@ export const to_api_server_port = (dev: boolean): number =>
 
 const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const has_sveltekit_frontend = (fs: Filesystem): Promise<boolean> =>
-	everyPathExists(fs, SVELTEKIT_FRONTEND_PATHS);
+	every_path_exists(fs, SVELTEKIT_FRONTEND_PATHS);
 
-const DEPRECATED_GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
+const GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
 export const has_deprecated_gro_frontend = (fs: Filesystem): Promise<boolean> =>
-	everyPathExists(fs, DEPRECATED_GRO_FRONTEND_PATHS);
+	every_path_exists(fs, GRO_FRONTEND_PATHS);
 
 export const BROWSER_BUILD_NAME: Build_Name = 'browser';
-export const toDefaultBrowserBuild = (
-	assetPaths = toDefaultAssetPaths(),
+export const to_default_browser_build = (
+	asset_paths = to_default_asset_paths(),
 ): Build_Config_Partial => ({
 	name: BROWSER_BUILD_NAME,
 	platform: 'browser',
-	input: ['index.ts', createFilter(`**/*.{${assetPaths.join(',')}}`)],
+	input: ['index.ts', createFilter(`**/*.{${asset_paths.join(',')}}`)],
 });
-const toDefaultAssetPaths = (): string[] => Array.from(get_extensions());
+const to_default_asset_paths = (): string[] => Array.from(get_extensions());
 
-const everyPathExists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
+const every_path_exists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
 	(await Promise.all(paths.map((path) => fs.exists(path)))).every((v) => !!v);

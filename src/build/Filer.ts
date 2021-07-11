@@ -744,7 +744,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		sync_build_files_to_memory_cache(this.files, changes);
 		await Promise.all([
 			sync_build_files_to_disk(this.fs, changes, this.log),
-			this.updateDependencies(source_file, new_build_files, old_build_files, build_config),
+			this.update_dependencies(source_file, new_build_files, old_build_files, build_config),
 		]);
 	}
 
@@ -763,7 +763,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		}
 		const changes = diff_build_files(build_files, null);
 		sync_build_files_to_memory_cache(this.files, changes);
-		await this.updateDependencies(source_file, build_files, null, build_config);
+		await this.update_dependencies(source_file, build_files, null, build_config);
 	}
 
 	// After building the source file, we need to handle any dependency changes for each build file.
@@ -779,7 +779,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// and it has 0 dependents after the build file is removed,
 	// they're removed for this build,
 	// meaning the memory cache is updated and the files are deleted from disk for the build config.
-	private async updateDependencies(
+	private async update_dependencies(
 		source_file: Buildable_Source_File,
 		new_build_files: readonly Build_File[],
 		old_build_files: readonly Build_File[] | null,
@@ -958,9 +958,10 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		source_file: Buildable_Source_File,
 		added_dependency: Build_Dependency,
 		build_config: Build_Config,
-	): Promise<void> | null {
+	): void | Promise<void> {
 		const {specifier} = added_dependency;
-		if (specifier.startsWith(EXTERNALS_BUILD_DIR_ROOT_PREFIX)) return null;
+		// ignore externals imported by other externals -- their specifiers get mapped to build ids
+		if (specifier[0] === '/') return;
 		const build_state = get_externals_build_state(
 			get_externals_builder_state(this.state),
 			build_config,
@@ -984,7 +985,6 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			this.updating_externals.push(updating);
 			return updating;
 		}
-		return null;
 	}
 	// TODO this could possibly be changed to explicitly call the build,
 	// instead of waiting with timeouts in places,
@@ -1000,7 +1000,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 const sync_build_files_to_disk = async (
 	fs: Filesystem,
-	changes: Build_FileChange[],
+	changes: Build_File_Change[],
 	log: Logger,
 ): Promise<void> => {
 	const build_config = changes[0]?.file?.build_config;
@@ -1043,7 +1043,7 @@ const sync_build_files_to_disk = async (
 
 const sync_build_files_to_memory_cache = (
 	files: Map<string, Filer_File>,
-	changes: Build_FileChange[],
+	changes: Build_File_Change[],
 ): void => {
 	for (const change of changes) {
 		if (change.type === 'added' || change.type === 'updated') {
@@ -1057,7 +1057,7 @@ const sync_build_files_to_memory_cache = (
 };
 
 // TODO hmm how does this fit in?
-type Build_FileChange =
+type Build_File_Change =
 	| {
 			type: 'added';
 			file: Build_File;
@@ -1080,8 +1080,8 @@ type Build_FileChange =
 const diff_build_files = (
 	new_files: readonly Build_File[],
 	old_files: readonly Build_File[] | null,
-): Build_FileChange[] => {
-	let changes: Build_FileChange[];
+): Build_File_Change[] => {
+	let changes: Build_File_Change[];
 	if (old_files === null) {
 		changes = new_files.map((file) => ({type: 'added', file}));
 	} else {
