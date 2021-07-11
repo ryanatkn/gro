@@ -26,6 +26,7 @@ import type {Builder, Text_Build_Source} from './builder.js';
 import type {Build_Config} from '../build/build_config.js';
 import {add_css_sourcemap_footer, add_js_sourcemap_footer} from './utils.js';
 import type {Build_File} from './build_file.js';
+import {postprocess} from './postprocess.js';
 
 // TODO build types in production unless `declarations` is `false`,
 // so they'll be automatically copied into unbundled production dists
@@ -74,17 +75,16 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		return new_preprocessor;
 	};
 
-	const build: SvelteBuilder['build'] = async (
-		source,
-		build_config,
-		{build_dir, dev, sourcemap, target},
-	) => {
+	const build: SvelteBuilder['build'] = async (source, build_config, ctx) => {
+		const {build_dir, dev, sourcemap, target} = ctx;
+
 		if (source.encoding !== 'utf8') {
 			throw Error(`svelte only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== SVELTE_EXTENSION) {
 			throw Error(`svelte only handles ${SVELTE_EXTENSION} files, not ${source.extension}`);
 		}
+
 		const {id, encoding, content} = source;
 		const out_dir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 
@@ -92,6 +92,18 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		// TODO what about non-TypeScript preprocessors?
 		if (!dev) {
 			const svelte_id = `${out_dir}${source.filename}`;
+
+			// TODO
+			// const {content, dependencies_by_build_id} = await postprocess(
+			// 	dir,
+			// 	extension,
+			// 	encoding,
+			// 	original_content,
+			// 	build_config,
+			// 	ctx,
+			// 	result,
+			// 	source_file,
+			// );
 			return [
 				{
 					type: 'build',
@@ -145,6 +157,18 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 		const css_id = `${out_dir}${css_filename}`;
 		const has_js_sourcemap = sourcemap && js.map !== undefined;
 		const has_css_sourcemap = sourcemap && css.map !== undefined;
+
+		// TODO
+		// const {content, dependencies_by_build_id} = await postprocess(
+		// 	dir,
+		// 	extension,
+		// 	encoding,
+		// 	original_content,
+		// 	build_config,
+		// 	ctx,
+		// 	result,
+		// 	source_file,
+		// );
 
 		const build_files: Build_File[] = [
 			{
@@ -222,7 +246,10 @@ export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder
 				});
 			}
 		}
-		return build_files;
+
+		return Promise.all(
+			build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
+		);
 	};
 
 	return {name: '@feltcoop/gro_builder_svelte', build};

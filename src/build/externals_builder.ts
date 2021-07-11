@@ -30,6 +30,7 @@ import {
 import type {Externals_Build_State} from './externals_build_helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {Build_File} from './build_file.js';
+import {postprocess} from './postprocess.js';
 
 /*
 
@@ -67,11 +68,9 @@ const encoding = 'utf8';
 export const create_externals_builder = (opts: Initial_Options = {}): ExternalsBuilder => {
 	const {install, base_path, log} = init_options(opts);
 
-	const build: ExternalsBuilder['build'] = async (
-		source,
-		build_config,
-		{fs, build_dir, dev, sourcemap, target, state, externals_aliases},
-	) => {
+	const build: ExternalsBuilder['build'] = async (source, build_config, ctx) => {
+		const {fs, build_dir, dev, sourcemap, target, state, externals_aliases} = ctx;
+
 		// if (sourcemap) {
 		// 	log.warn('Source maps are not yet supported by the externals builder.');
 		// }
@@ -116,6 +115,18 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 				...(await Promise.all(
 					Array.from(build_state.specifiers).map(async (specifier): Promise<Build_File> => {
 						const id = join(dest, install_result.importMap.imports[specifier]);
+
+						// TODO
+						// const {content, dependencies_by_build_id} = await postprocess(
+						// 	dir,
+						// 	extension,
+						// 	encoding,
+						// 	original_content,
+						// 	build_config,
+						// 	ctx,
+						// 	result,
+						// 	source_file,
+						// );
 						return {
 							type: 'build',
 							source_id: source.id,
@@ -141,7 +152,9 @@ export const create_externals_builder = (opts: Initial_Options = {}): ExternalsB
 			throw err;
 		}
 
-		return build_files;
+		return Promise.all(
+			build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
+		);
 	};
 
 	const init: ExternalsBuilder['init'] = async ({
@@ -234,12 +247,12 @@ const load_common_builds = async (
 	if (!common_dependency_ids.length) return null;
 	// log.trace('loading common dependencies', common_dependency_ids);
 	return Promise.all(
-		common_dependency_ids.map(
-			async (common_dependency_id): Promise<Build_File> => ({
+		common_dependency_ids.map(async (common_dependency_id): Promise<Build_File> => {
+			return {
 				type: 'build',
 				source_id: EXTERNALS_SOURCE_ID,
 				build_config,
-				dependencies_by_build_id: null, // TODO
+				dependencies_by_build_id: null,
 				id: common_dependency_id,
 				filename: basename(common_dependency_id),
 				dir: dirname(common_dependency_id),
@@ -250,7 +263,7 @@ const load_common_builds = async (
 				content_hash: undefined,
 				stats: undefined,
 				mime_type: undefined,
-			}),
-		),
+			};
+		}),
 	);
 };

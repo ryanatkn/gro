@@ -22,8 +22,8 @@ import {
 	get_file_content_buffer,
 	get_file_stats,
 	get_file_content_hash,
-} from '../build/base_filer_file.js';
-import type {Base_Filer_File} from '../build/base_filer_file.js';
+} from '../build/filer_file.js';
+import type {Base_Filer_File} from '../build/filer_file.js';
 import {paths} from '../paths.js';
 import {load_package_json} from '../utils/package_json.js';
 import type {Project_State} from './project_state.js';

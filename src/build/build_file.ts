@@ -1,6 +1,6 @@
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 
-import type {Base_Filer_File} from './base_filer_file.js';
+import type {Base_Filer_File} from './filer_file.js';
 import type {Source_Meta} from './source_meta.js';
 import type {Build_Dependency} from './build_dependency.js';
 import {basename, dirname, extname} from 'path';

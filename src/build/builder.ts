@@ -10,7 +10,7 @@ import type {Ecma_Script_Target} from './ts_build_helpers.js';
 import type {Served_Dir} from './served_dir.js';
 import type {Source_Meta} from './source_meta.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import type {Base_Filer_File} from './base_filer_file.js';
+import type {Base_Filer_File} from './filer_file.js';
 import type {Build_File} from './build_file.js';
 
 export interface Builder<TSource extends Build_Source = Build_Source> {

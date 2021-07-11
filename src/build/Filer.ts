@@ -35,7 +35,7 @@ import {
 import type {Buildable_Source_File, Source_File} from './source_file.js';
 import {diff_dependencies} from './build_file.js';
 import type {Build_File} from './build_file.js';
-import type {Base_Filer_File} from './base_filer_file.js';
+import type {Base_Filer_File} from './filer_file.js';
 import {load_content} from './load.js';
 import {is_external_module} from '../utils/module.js';
 import {
@@ -710,11 +710,11 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		);
 
 		// Compile the source file.
-		let new_build_files: Build_File[];
+		let build_files: Build_File[];
 
 		this.building_source_files.add(source_file.id); // track so we can see what the filer is doing
 		try {
-			new_build_files = await this.builder!.build(source_file, build_config, this);
+			build_files = await this.builder!.build(source_file, build_config, this);
 		} catch (err) {
 			this.building_source_files.delete(source_file.id);
 			throw err;
@@ -722,7 +722,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		this.building_source_files.delete(source_file.id);
 
 		// Update the source file with the new build files.
-		await this.update_build_files(source_file, new_build_files, build_config);
+		await this.update_build_files(source_file, build_files, build_config);
 		await update_source_meta(this, source_file);
 	}
 
