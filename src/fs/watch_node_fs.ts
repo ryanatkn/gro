@@ -3,8 +3,8 @@ import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import type {Partial_Except} from '@feltcoop/felt/util/types.js';
 
 import type {Path_Stats} from 'src/fs/path_data.js';
-import {to_path_filter} from './path_filter.js';
-import type {Path_Filter} from 'src/fs/path_filter.js';
+import {to_path_filter} from './filter.js';
+import type {Path_Filter} from 'src/fs/filter.js';
 import {load_gitignore_filter} from '../utils/gitignore.js';
 
 /*

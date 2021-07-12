@@ -4,7 +4,7 @@ import {strip_end, strip_start} from '@feltcoop/felt/util/string.js';
 
 import type {Build_Config} from 'src/build/build_config.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import type {Path_Stats} from 'src/fs/path_data.js';
+import type {Id_Stats_Filter} from 'src/fs/filter.js';
 import {
 	EXTERNALS_BUILD_DIRNAME,
 	to_build_base_path,
@@ -22,7 +22,7 @@ export const copy_dist = async (
 	dev: boolean,
 	dist_out_dir: string,
 	log: Logger,
-	filter?: (id: string, stats: Path_Stats) => boolean,
+	filter?: Id_Stats_Filter,
 	pack: boolean = true, // TODO reconsider this API, see `gro_adapter_node_library`
 	rebase_path: string = '',
 ): Promise<void> => {
@@ -31,7 +31,7 @@ export const copy_dist = async (
 	log.info(`copying ${print_path(build_out_dir)} to ${print_path(dist_out_dir)}`);
 	const typemap_files: string[] = [];
 	await fs.copy(build_out_dir, dist_out_dir, {
-		// overwrite: false, // TODO this is correct, right?
+		overwrite: false,
 		filter: async (id) => {
 			if (id === externals_dir) return false;
 			const stats = await fs.stat(id);

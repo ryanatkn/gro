@@ -13,19 +13,24 @@ import type {Build_Name} from 'src/build/build_config.js';
 import type {Host_Target} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
 import {BROWSER_BUILD_NAME, non_asset_extensions} from '../build/default_build_config.js';
+import type {Id_Stats_Filter} from 'src/fs/filter.js';
 
 export interface Options {
 	build_name: Build_Name;
 	dir: string;
 	minify: boolean;
 	host_target: Host_Target;
+	filter: Id_Stats_Filter;
 }
+
+const default_filter: Id_Stats_Filter = (id) => !non_asset_extensions.has(extname(id));
 
 export const create_adapter = ({
 	build_name = BROWSER_BUILD_NAME,
 	dir = `${DIST_DIRNAME}/${build_name}`,
 	minify = true,
 	host_target = 'github_pages',
+	filter = default_filter,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
@@ -86,26 +91,7 @@ export const create_adapter = ({
 			timing_to_bundle();
 
 			// TODO this should actually filter based on the build config input, no?
-			await copy_dist(
-				fs,
-				build_config,
-				dev,
-				dir,
-				log,
-
-				// TODO fix this -- I don't think the answer is to make the ignored extensions configurable,
-				// shouldn't it be detectable from the inputs?
-				// should overwrite be false?
-
-				// TODO what if we had the `Filer` instance to look up the build id? could return from `build_source`
-				(id) => !non_asset_extensions.has(extname(id)),
-				// (id, stats) => {
-				// 	if (stats.isDirectory()) return true;
-				// 	const included = is_input_to_build_config(build_id_to_source_id(id), build_config.input);
-				// 	console.log('included id,', included, id);
-				// 	return included;
-				// },
-			);
+			await copy_dist(fs, build_config, dev, dir, log, filter);
 
 			if (host_target === 'github_pages') {
 				await ensure_nojekyll(fs, dir);

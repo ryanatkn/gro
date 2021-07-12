@@ -54,7 +54,7 @@ import {
 	clean_source_meta,
 	init_source_meta,
 } from './source_meta.js';
-import type {Path_Filter} from 'src/fs/path_filter.js';
+import type {Path_Filter} from 'src/fs/filter.js';
 
 /*
 
