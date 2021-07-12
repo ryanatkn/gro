@@ -13,8 +13,8 @@ import {
 	base_svelte_compile_options,
 	handle_warn,
 	handle_stats,
-} from '../build/svelte_build_helpers.js';
-import type {Svelte_Compilation} from 'src/build/svelte_build_helpers.js';
+} from '../build/gro_builder_svelte_utils.js';
+import type {Svelte_Compilation} from 'src/build/gro_builder_svelte_utils.js';
 import {CSS_EXTENSION, print_path} from '../paths.js';
 import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
 

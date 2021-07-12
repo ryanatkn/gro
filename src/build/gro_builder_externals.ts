@@ -13,7 +13,7 @@ import {EXTERNALS_BUILD_DIRNAME, JS_EXTENSION, to_build_out_path} from '../paths
 import type {Builder, Build_Context, Text_Build_Source} from 'src/build/builder.js';
 import {load_content} from './load.js';
 import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
-import {create_default_preprocessor} from './svelte_build_helpers.js';
+import {create_default_preprocessor} from './gro_builder_svelte_utils.js';
 import {create_css_cache} from './css_cache.js';
 import {print_build_config} from '../build/build_config.js';
 import type {Build_Config} from 'src/build/build_config.js';
@@ -26,8 +26,8 @@ import {
 	load_import_map_from_disk,
 	to_specifiers,
 	EXTERNALS_SOURCE_ID,
-} from './externals_build_helpers.js';
-import type {Externals_Build_State} from 'src/build/externals_build_helpers.js';
+} from './gro_builder_externals_utils.js';
+import type {Externals_Build_State} from 'src/build/gro_builder_externals_utils.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import type {Build_File} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
@@ -65,7 +65,7 @@ type ExternalsBuilder = Builder<Text_Build_Source>;
 
 const encoding = 'utf8';
 
-export const create_externals_builder = (opts: Initial_Options = {}): ExternalsBuilder => {
+export const gro_builder_externals = (opts: Initial_Options = {}): ExternalsBuilder => {
 	const {install, base_path, log} = init_options(opts);
 
 	const build: ExternalsBuilder['build'] = async (source, build_config, ctx) => {

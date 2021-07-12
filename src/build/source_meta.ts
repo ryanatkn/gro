@@ -6,7 +6,7 @@ import {get_file_content_hash} from './filer_file.js';
 import type {Build_Context} from 'src/build/builder.js';
 import type {Buildable_Source_File} from 'src/build/source_file.js';
 import type {Build_Name} from 'src/build/build_config.js';
-import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
+import {EXTERNALS_SOURCE_ID} from './gro_builder_externals_utils.js';
 import type {Build_Dependency, Serialized_Build_Dependency} from 'src/build/build_dependency.js';
 import {serialize_build_dependency, deserialize_build_dependency} from './build_dependency.js';
 

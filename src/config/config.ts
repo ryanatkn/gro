@@ -19,7 +19,7 @@ import {
 	NODE_LIBRARY_BUILD_NAME,
 	CONFIG_BUILD_CONFIG,
 } from '../build/default_build_config.js';
-import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 import type {Served_Dir_Partial} from 'src/build/served_dir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 import type {Filesystem} from 'src/fs/filesystem.js';

@@ -18,9 +18,9 @@ import {
 	MODULE_PATH_LIB_PREFIX,
 	MODULE_PATH_SRC_PREFIX,
 } from '../utils/module.js';
-import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
+import {EXTERNALS_SOURCE_ID} from './gro_builder_externals_utils.js';
 import type {Build_Dependency} from 'src/build/build_dependency.js';
-import {extract_js_from_svelte_for_dependencies} from './svelte_build_helpers.js';
+import {extract_js_from_svelte_for_dependencies} from './gro_builder_svelte_utils.js';
 import type {Build_Config} from 'src/build/build_config.js';
 import type {Build_File} from 'src/build/build_file.js';
 

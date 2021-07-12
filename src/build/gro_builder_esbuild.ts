@@ -5,8 +5,8 @@ import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {replace_extension} from '@feltcoop/felt/util/path.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {Ecma_Script_Target, Generate_Types_For_File} from 'src/build/ts_build_helpers.js';
-import {to_default_esbuild_options} from './esbuild_build_helpers.js';
+import type {Ecma_Script_Target, Generate_Types_For_File} from 'src/build/typescript_utils.js';
+import {to_default_esbuild_options} from './gro_builder_esbuild_utils.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
@@ -17,7 +17,7 @@ import {
 } from '../paths.js';
 import type {Builder, Text_Build_Source} from 'src/build/builder.js';
 import {add_js_sourcemap_footer} from './utils.js';
-import {to_generate_types_for_file} from './ts_build_helpers.js';
+import {to_generate_types_for_file} from './typescript_utils.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import type {Build_File} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
@@ -38,7 +38,7 @@ export const init_options = (opts: Initial_Options): Options => {
 
 type Esbuild_Builder = Builder<Text_Build_Source>;
 
-export const create_esbuild_builder = (opts: Initial_Options = {}): Esbuild_Builder => {
+export const gro_builder_esbuild = (opts: Initial_Options = {}): Esbuild_Builder => {
 	const {create_esbuild_options} = init_options(opts);
 
 	const esbuild_options_cache: Map<string, esbuild.TransformOptions> = new Map();

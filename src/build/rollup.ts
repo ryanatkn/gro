@@ -28,8 +28,8 @@ import type {Css_Cache} from 'src/build/css_cache.js';
 import {create_css_cache} from './css_cache.js';
 import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
 import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
-import {create_default_preprocessor} from './svelte_build_helpers.js';
-import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+import {create_default_preprocessor} from './gro_builder_svelte_utils.js';
+import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from './default_build_config.js';
 
 export interface Options {
