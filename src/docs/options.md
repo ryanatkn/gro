@@ -4,37 +4,28 @@ Options to a function or constructor are an incredibly common pattern,
 but their defaults and types are hard to get right.
 Every pattern has tradeoffs of complexity, consistency, and type safety.
 
-For cases where all options are required,
-the options argument's type needs no special handling.
-However when you need partials and defaults,
+In most cases, we can keep it simple:
+
+```ts
+export const keep_it_simple = (options: Options) => {
+	const {required_option, optional_option = 36} = options;
+```
+
+This works too, but it doesn't use `const`, so each variable can be reassigned.
+We generally avoid rebinding (and even allowing it) except in particular circumstances.,
+so you won't see this much in the codebase:
+
+```ts
+export const concise_but_allows_rebinding = ({required_option, optional_option = 36}: Options) => {
+```
+
+In cases where we need the final `options` object --
+for example when you need to pass it to other functions --
 the codebase's conventions are documented below.
 It's not the pattern for every circumstance;
 there is overhead that e.g. hot paths and simple implementations should avoid.
 
-Gro uses a consistent options pattern that has one significant gotcha:
-**if an option can be `undefined`, it must default to `undefined`**
-to ensure type safety for callers.
-All values that are `undefined` are omitted when the options are initialized
-through use of the conventional `omit_undefined` helper.
-The best workaround is to design options interfaces
-to accept `null` in place of `undefined`.
-
-This is slightly unfortunate, but it's a side-effect of the way
-TypeScript makes optional properties, like those in `Partial<Options>`,
-accept `undefined` as values in addition
-to making the property existence optional.
-For more, see the example below and
-[this TypeScript issue](https://github.com/Microsoft/TypeScript/issues/13195).
-
-> TODO this needs to be reworked/simplified some, without losing the good stuff
-
-When possible, keep it simple:
-
-```ts
-export const keepItSimple = ({a = true, b = 36}: Options) => {
-```
-
-But sometimes we need more structure (or want more sugar):
+> TODO should we rework this to stop using the `omit_undefined` helper?
 
 ```ts
 import {omit_undefined} from '@feltcoop/felt/util/object.js';
@@ -79,7 +70,7 @@ export const init_options = (opts: Initial_Options): Options => ({
 	// When possible, prefer `null` to `undefined` when designing options APIs.
 	...omit_undefined(opts),
 
-	// complicatedOverridingValueCanBeComputed: here(opts),
+	// complicated_overriding_value_can_be_computed: here(opts),
 });
 
 // use in a plain function
@@ -95,3 +86,20 @@ export class Thing {
 	}
 }
 ```
+
+## caveats
+
+Importantly, both of Gro's options patterns have one significant gotcha:
+**if an option can be `undefined`, it must default to `undefined`**
+to ensure type safety for callers.
+All values that are `undefined` are omitted when the options are initialized
+through use of the conventional `omit_undefined` helper.
+The best workaround is to design options interfaces
+to accept `null` in place of `undefined`.
+
+This is slightly unfortunate, but it's a side-effect of the way
+TypeScript makes optional properties, like those in `Partial<Options>`,
+accept `undefined` as values in addition
+to making the property existence optional.
+For more, see the example below and
+[this TypeScript issue](https://github.com/Microsoft/TypeScript/issues/13195).
