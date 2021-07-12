@@ -9,6 +9,8 @@
 - **break**: merge `fs/path_filter.ts` and `fs/file.ts` into `fs/filter.ts`,
   rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
   ([#246](https://github.com/feltcoop/gro/pull/246))
+- support importing JSON in Rollup bundles
+  ([#245](https://github.com/feltcoop/gro/pull/245))
 - ignore unwanted assets in frontend build
   ([#242](https://github.com/feltcoop/gro/pull/242),
   [#246](https://github.com/feltcoop/gro/pull/246))
