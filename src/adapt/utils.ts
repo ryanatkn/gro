@@ -31,6 +31,7 @@ export const copy_dist = async (
 	log.info(`copying ${print_path(build_out_dir)} to ${print_path(dist_out_dir)}`);
 	const typemap_files: string[] = [];
 	await fs.copy(build_out_dir, dist_out_dir, {
+		// overwrite: false, // TODO this is correct, right?
 		filter: async (id) => {
 			if (id === externals_dir) return false;
 			const stats = await fs.stat(id);

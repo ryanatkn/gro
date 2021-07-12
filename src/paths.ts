@@ -96,6 +96,12 @@ export const to_root_path = (id: string, p = paths): string => strip_start(id, p
 export const source_id_to_base_path = (source_id: string, p = paths): string =>
 	strip_start(source_id, p.source);
 
+// '/home/me/app/.gro/[prod|dev]/build_name/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
+export const build_id_to_source_id = (build_id: string, build_dir = paths.build): string => {
+	const base_path = to_build_base_path(build_id, build_dir);
+	return base_path_to_source_id(to_source_extension(base_path));
+};
+
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
 export const base_path_to_source_id = (base_path: string, p = paths): string =>
 	`${p.source}${base_path}`;

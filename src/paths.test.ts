@@ -16,6 +16,7 @@ import {
 	to_source_extension,
 	to_build_base_path,
 	EXTERNALS_BUILD_DIRNAME,
+	build_id_to_source_id,
 } from './paths.js';
 
 /* test_create_paths */
@@ -65,6 +66,16 @@ test_source_id_to_base_path('basic behavior', () => {
 
 test_source_id_to_base_path.run();
 /* /test_source_id_to_base_path */
+
+/* test_build_id_to_source_id */
+const test_build_id_to_source_id = suite('build_id_to_source_id');
+
+test_build_id_to_source_id('basic behavior', () => {
+	t.is(build_id_to_source_id(resolve('.gro/dev/somebuild/foo/bar.js')), resolve('src/foo/bar.ts'));
+});
+
+test_build_id_to_source_id.run();
+/* /test_build_id_to_source_id */
 
 /* test_base_path_to_source_id */
 const test_base_path_to_source_id = suite('base_path_to_source_id');

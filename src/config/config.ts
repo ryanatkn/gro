@@ -12,17 +12,17 @@ import {to_array} from '@feltcoop/felt/util/array.js';
 
 import {paths, to_build_out_path, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {normalize_build_configs, validate_build_configs} from '../build/build_config.js';
-import type {To_Config_Adapters} from '../adapt/adapter.js';
-import type {Build_Config, Build_Config_Partial} from '../build/build_config.js';
+import type {To_Config_Adapters} from 'src/adapt/adapter.js';
+import type {Build_Config, Build_Config_Partial} from 'src/build/build_config.js';
 import {
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
 	CONFIG_BUILD_CONFIG,
 } from '../build/default_build_config.js';
-import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
-import type {Served_Dir_Partial} from '../build/served_dir.js';
+import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+import type {Served_Dir_Partial} from 'src/build/served_dir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 import {config as create_default_config} from './gro.config.default.js';
 import type {To_Config_Plugins} from 'src/plugin/plugin.js';
 
