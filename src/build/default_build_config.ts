@@ -80,7 +80,8 @@ export const to_default_browser_build = (
 	input: ['index.ts', createFilter(`**/*.{${asset_extensions.join(',')}}`)],
 });
 
-// compute default asset extensions on demand to pick up any changes to the supported MIME types
+// Compute default asset extensions on demand to pick up any changes to the supported MIME types.
+// Like the MIME type extensions and unlike elsewhere, these are not prefixed with `.` !!
 export const to_default_asset_extensions = (): string[] =>
 	Array.from(get_extensions()).filter(
 		(extension) => !default_non_asset_extensions.has(`.${extension}`),
