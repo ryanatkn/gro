@@ -7,7 +7,7 @@ import {to_fs_id, Fs_Stats} from './filesystem.js';
 import type {Filesystem, Fs_Read_File} from 'src/fs/filesystem.js';
 import type {Fs_Copy_Options, Fs_Id, Fs_Move_Options, Fs_Node} from 'src/fs/filesystem';
 import type {Path_Stats} from 'src/fs/path_data.js';
-import type {Path_Filter} from 'src/fs/path_filter.js';
+import type {Path_Filter} from 'src/fs/filter.js';
 import type {Encoding} from 'src/fs/encoding.js';
 
 // TODO should this module have a more specific name? or a more specific directory, with all other implementations?

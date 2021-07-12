@@ -3,7 +3,7 @@ import {noop} from '@feltcoop/felt/util/function.js';
 import {watch_node_fs} from '../fs/watch_node_fs.js';
 import type {Watch_Node_Fs} from 'src/fs/watch_node_fs.js';
 import type {Path_Stats} from 'src/fs/path_data.js';
-import type {Path_Filter} from 'src/fs/path_filter.js';
+import type {Path_Filter} from 'src/fs/filter.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 // Buildable filer dirs are watched, built, and written to disk.

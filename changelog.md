@@ -6,8 +6,12 @@
   ([#243](https://github.com/feltcoop/gro/pull/243))
 - **break**: rename builders and builder utils
   ([#244](https://github.com/feltcoop/gro/pull/244))
+- **break**: merge `fs/path_filter.ts` and `fs/file.ts` into `fs/filter.ts`,
+  rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
+  ([#246](https://github.com/feltcoop/gro/pull/246))
 - ignore unwanted assets in frontend build
-  ([#242](https://github.com/feltcoop/gro/pull/242))
+  ([#242](https://github.com/feltcoop/gro/pull/242),
+  [#246](https://github.com/feltcoop/gro/pull/246))
 
 ## 0.32.1
 

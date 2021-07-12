@@ -8,7 +8,7 @@ import {
 	NODE_MODULES_DIRNAME,
 	SVELTEKIT_DEV_DIRNAME,
 } from '../paths.js';
-import type {File_Filter} from 'src/fs/file.js';
+import type {Id_Filter} from 'src/fs/filter.js';
 
 /*
 
@@ -18,7 +18,7 @@ If we need support for Gro simultaneously, see ./package_json.ts as an example.
 
 */
 
-let filter: File_Filter | null = null;
+let filter: Id_Filter | null = null;
 
 const DEFAULT_IGNORED_PATHS = [
 	GIT_DIRNAME,
@@ -28,7 +28,7 @@ const DEFAULT_IGNORED_PATHS = [
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const load_gitignore_filter = (force_refresh = false): File_Filter => {
+export const load_gitignore_filter = (force_refresh = false): Id_Filter => {
 	if (force_refresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
