@@ -3,8 +3,8 @@
 
 	import Source_Meta_Raw_Item from './Source_Meta_Raw_Item.svelte';
 	import {filter_selected_metas} from './source_tree.js';
-	import type {Source_Tree} from './source_tree.js';
-	import type {Source_Meta} from '../build/source_meta.js';
+	import type {Source_Tree} from 'src/client/source_tree.js';
+	import type {Source_Meta} from 'src/build/source_meta.js';
 
 	export let source_tree: Source_Tree;
 	export let selected_build_names: string[];

@@ -1,9 +1,9 @@
 import {resolve} from 'path';
 import type {Flavored} from '@feltcoop/felt/util/types.js';
 
-import type {Encoding} from './encoding.js';
-import type {Path_Stats} from './path_data.js';
-import type {Path_Filter} from './path_filter.js';
+import type {Encoding} from 'src/fs/encoding.js';
+import type {Path_Stats} from 'src/fs/path_data.js';
+import type {Path_Filter} from 'src/fs/path_filter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
 export interface Filesystem {

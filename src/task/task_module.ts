@@ -1,10 +1,10 @@
 import {source_id_to_base_path, paths, paths_from_id} from '../paths.js';
 import {load_module, load_modules, find_modules} from '../fs/modules.js';
-import type {Module_Meta, Load_Module_Result} from '../fs/modules.js';
+import type {Module_Meta, Load_Module_Result} from 'src/fs/modules.js';
 import {to_task_name, is_task_path, TASK_FILE_SUFFIX} from './task.js';
-import type {Task} from './task.js';
+import type {Task} from 'src/task/task.js';
 import {get_possible_source_ids} from '../fs/input_path.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export interface TaskModule {
 	task: Task;

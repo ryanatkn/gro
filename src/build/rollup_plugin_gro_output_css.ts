@@ -5,8 +5,8 @@ import {blue, gray} from '@feltcoop/felt/util/terminal.js';
 import {System_Logger, print_log_label} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Filesystem} from '../fs/filesystem.js';
-import type {Gro_Css_Build, Gro_Css_Bundle} from './gro_css_build.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Gro_Css_Build, Gro_Css_Bundle} from 'src/build/gro_css_build.js';
 
 export interface Options {
 	fs: Filesystem;

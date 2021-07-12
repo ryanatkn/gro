@@ -6,7 +6,7 @@ import type {Result, Flavored} from '@feltcoop/felt/util/types.js';
 import {paths} from '../paths.js';
 import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './default_build_config.js';
 import {validate_input_files} from './utils.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 // See `../docs/config.md` for documentation.
 

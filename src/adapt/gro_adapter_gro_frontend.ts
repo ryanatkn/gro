@@ -2,22 +2,17 @@ import {strip_trailing_slash, to_common_base_dir} from '@feltcoop/felt/util/path
 import {ensure_end} from '@feltcoop/felt/util/string.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import type {Plugin as Rollup_Plugin} from 'rollup';
+import {extname} from 'path';
 
-import type {Adapter} from './adapter.js';
-import type {Map_Input_Options} from '../build/rollup.js';
+import type {Adapter} from 'src/adapt/adapter.js';
+import type {Map_Input_Options} from 'src/build/rollup.js';
 import {run_rollup} from '../build/rollup.js';
-import {
-	DIST_DIRNAME,
-	JS_EXTENSION,
-	source_id_to_base_path,
-	SVELTE_EXTENSION,
-	to_import_id,
-} from '../paths.js';
+import {DIST_DIRNAME, source_id_to_base_path, to_import_id} from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
-import type {Build_Name} from '../build/build_config.js';
-import type {Host_Target} from './utils.js';
+import type {Build_Name} from 'src/build/build_config.js';
+import type {Host_Target} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
-import {BROWSER_BUILD_NAME} from '../build/default_build_config.js';
+import {BROWSER_BUILD_NAME, non_asset_extensions} from '../build/default_build_config.js';
 
 export interface Options {
 	build_name: Build_Name;
@@ -90,13 +85,26 @@ export const create_adapter = ({
 			}
 			timing_to_bundle();
 
+			// TODO this should actually filter based on the build config input, no?
 			await copy_dist(
 				fs,
 				build_config,
 				dev,
 				dir,
 				log,
-				(id) => !id.endsWith(JS_EXTENSION) && !id.endsWith(SVELTE_EXTENSION),
+
+				// TODO fix this -- I don't think the answer is to make the ignored extensions configurable,
+				// shouldn't it be detectable from the inputs?
+				// should overwrite be false?
+
+				// TODO what if we had the `Filer` instance to look up the build id? could return from `build_source`
+				(id) => !non_asset_extensions.has(extname(id)),
+				// (id, stats) => {
+				// 	if (stats.isDirectory()) return true;
+				// 	const included = is_input_to_build_config(build_id_to_source_id(id), build_config.input);
+				// 	console.log('included id,', included, id);
+				// 	return included;
+				// },
 			);
 
 			if (host_target === 'github_pages') {

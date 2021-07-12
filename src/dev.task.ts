@@ -1,15 +1,15 @@
 import {print_timings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 
-import type {Task} from './task/task.js';
+import type {Task} from 'src/task/task.js';
 import {Filer} from './build/Filer.js';
 import {create_default_builder} from './build/default_builder.js';
 import {paths, to_build_out_path} from './paths.js';
 import {create_gro_server} from './server/server.js';
-import type {Gro_Server} from './server/server.js';
-import type {Gro_Config} from './config/config.js';
+import type {Gro_Server} from 'src/server/server.js';
+import type {Gro_Config} from 'src/config/config.js';
 import {load_config} from './config/config.js';
-import type {Served_Dir_Partial} from './build/served_dir.js';
+import type {Served_Dir_Partial} from 'src/build/served_dir.js';
 import {load_https_credentials} from './server/https.js';
 import {Plugins} from './plugin/plugin.js';
 

@@ -18,9 +18,9 @@
 	import Source_Meta_Tree_Explorer from './Source_Meta_Tree_Explorer.svelte';
 	import Source_Meta_Tree_Explorers from './Source_Meta_Tree_Explorers.svelte';
 	import {create_source_tree} from './source_tree.js';
-	import type {Source_Tree} from './source_tree.js';
-	import type {Project_State} from '../server/project_state.js';
-	import type {View} from './view.js';
+	import type {Source_Tree} from 'src/client/source_tree.js';
+	import type {Project_State} from 'src/server/project_state.js';
+	import type {View} from 'src/client/view.js';
 	import {set_project_state} from './project_state.js';
 
 	console.log('enter App.svelte');

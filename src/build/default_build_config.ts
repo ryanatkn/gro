@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import type {Build_Config, Build_Config_Partial, Build_Name} from './build_config.js';
+import type {Build_Config, Build_Config_Partial, Build_Name} from 'src/build/build_config.js';
 import {
 	to_build_extension,
 	base_path_to_source_id,
@@ -11,8 +11,8 @@ import {
 	SVELTE_EXTENSION,
 } from '../paths.js';
 import {get_extensions} from '../fs/mime.js';
-import type {Ecma_Script_Target} from '../build/ts_build_helpers.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: Ecma_Script_Target = 'es2020';
 
@@ -82,8 +82,9 @@ export const to_default_browser_build = (
 
 // compute default asset extensions on demand to pick up any changes to the supported MIME types
 const to_default_asset_extensions = (): string[] =>
-	Array.from(get_extensions()).filter((extension) => !ignored_asset_extensions.has(extension));
-const ignored_asset_extensions = new Set([
+	Array.from(get_extensions()).filter((extension) => !non_asset_extensions.has(extension));
+
+export const non_asset_extensions = new Set([
 	JS_EXTENSION,
 	JSON_EXTENSION,
 	// these aren't currently included as MIME types, but that could change in the future

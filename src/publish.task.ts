@@ -5,10 +5,10 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
 
-import type {Task} from './task/task.js';
+import type {Task} from 'src/task/task.js';
 import {load_package_json} from './utils/package_json.js';
 import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
-import type {Filesystem} from './fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
 import {clean} from './fs/clean.js';

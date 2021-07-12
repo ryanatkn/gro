@@ -2,9 +2,9 @@ import {relative, dirname} from 'path';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {strip_end, strip_start} from '@feltcoop/felt/util/string.js';
 
-import type {Build_Config} from '../build/build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
-import type {Path_Stats} from '../fs/path_data.js';
+import type {Build_Config} from 'src/build/build_config.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Path_Stats} from 'src/fs/path_data.js';
 import {
 	EXTERNALS_BUILD_DIRNAME,
 	to_build_base_path,
@@ -31,6 +31,7 @@ export const copy_dist = async (
 	log.info(`copying ${print_path(build_out_dir)} to ${print_path(dist_out_dir)}`);
 	const typemap_files: string[] = [];
 	await fs.copy(build_out_dir, dist_out_dir, {
+		// overwrite: false, // TODO this is correct, right?
 		filter: async (id) => {
 			if (id === externals_dir) return false;
 			const stats = await fs.stat(id);

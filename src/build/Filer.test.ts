@@ -3,9 +3,9 @@ import * as t from 'uvu/assert';
 
 import {Filer} from './Filer.js';
 import {fs as memoryFs} from '../fs/memory.js';
-import type {Memory_Fs} from '../fs/memory.js';
-import type {Builder} from './builder.js';
-import type {Build_Config} from '../build/build_config.js';
+import type {Memory_Fs} from 'src/fs/memory.js';
+import type {Builder} from 'src/build/builder.js';
+import type {Build_Config} from 'src/build/build_config.js';
 
 interface Suite_Context {
 	fs: Memory_Fs;

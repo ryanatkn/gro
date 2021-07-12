@@ -5,7 +5,7 @@ import {create_stopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {print_ms, print_timings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 
-import type {Args} from './task.js';
+import type {Args} from 'src/task/task.js';
 import {run_task} from './run_task.js';
 import {resolve_raw_input_path, get_possible_source_ids} from '../fs/input_path.js';
 import {TASK_FILE_SUFFIX, is_task_path, to_task_name} from './task.js';
@@ -25,7 +25,7 @@ import {find_modules, load_modules} from '../fs/modules.js';
 import {load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../utils/package_json.js';
 import {SYSTEM_BUILD_NAME} from '../build/default_build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 /*
 

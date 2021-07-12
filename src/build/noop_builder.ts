@@ -1,7 +1,7 @@
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 
 import {to_build_out_path} from '../paths.js';
-import type {Builder} from './builder.js';
+import type {Builder} from 'src/build/builder.js';
 
 export const noop_builder: Builder = {
 	name: '@feltcoop/gro_builder_noop',

@@ -10,13 +10,13 @@ import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
 import {to_env_number} from '@feltcoop/felt/util/env.js';
 
 import {EXTERNALS_BUILD_DIRNAME, JS_EXTENSION, to_build_out_path} from '../paths.js';
-import type {Builder, Build_Context, Text_Build_Source} from './builder.js';
+import type {Builder, Build_Context, Text_Build_Source} from 'src/build/builder.js';
 import {load_content} from './load.js';
 import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './svelte_build_helpers.js';
 import {create_css_cache} from './css_cache.js';
 import {print_build_config} from '../build/build_config.js';
-import type {Build_Config} from '../build/build_config.js';
+import type {Build_Config} from 'src/build/build_config.js';
 import {
 	create_delayed_promise,
 	get_externals_builder_state,
@@ -27,9 +27,9 @@ import {
 	to_specifiers,
 	EXTERNALS_SOURCE_ID,
 } from './externals_build_helpers.js';
-import type {Externals_Build_State} from './externals_build_helpers.js';
-import type {Filesystem} from '../fs/filesystem.js';
-import type {Build_File} from './build_file.js';
+import type {Externals_Build_State} from 'src/build/externals_build_helpers.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Build_File} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
 
 /*

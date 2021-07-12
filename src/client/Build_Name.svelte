@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Build_Name} from '../build/build_config.js';
+	import type {Build_Name} from 'src/build/build_config.js';
 
 	export let build_name: Build_Name;
 </script>

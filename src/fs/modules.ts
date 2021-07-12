@@ -8,10 +8,10 @@ import {
 	load_source_path_data_by_input_path,
 	load_source_ids_by_input_path,
 } from '../fs/input_path.js';
-import type {Path_Stats, Path_Data} from './path_data.js';
+import type {Path_Stats, Path_Data} from 'src/fs/path_data.js';
 import {to_import_id, paths_from_id, print_path, print_path_or_gro_path} from '../paths.js';
 import {SYSTEM_BUILD_NAME} from '../build/default_build_config.js';
-import type {Filesystem} from './filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 /*
 

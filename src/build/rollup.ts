@@ -24,12 +24,12 @@ import {paths} from '../paths.js';
 import {rollup_plugin_gro_output_css} from './rollup_plugin_gro_output_css.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {rollup_plugin_gro_plain_css} from './rollup_plugin_gro_plain_css.js';
-import type {Css_Cache} from './css_cache.js';
+import type {Css_Cache} from 'src/build/css_cache.js';
 import {create_css_cache} from './css_cache.js';
-import type {Gro_Css_Build} from './gro_css_build.js';
+import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
 import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './svelte_build_helpers.js';
-import type {Ecma_Script_Target} from './ts_build_helpers.js';
+import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from './default_build_config.js';
 
 export interface Options {

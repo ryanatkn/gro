@@ -2,27 +2,27 @@ import type {Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import type {Build_Config_Input, Input_Filter} from '../build/build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
-import {base_path_to_source_id, paths, to_build_base_path, to_source_extension} from '../paths.js';
+import type {Build_Config_Input} from 'src/build/build_config.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import {build_id_to_source_id, paths} from '../paths.js';
 import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
-import type {Build_Dependency} from './build_dependency.js';
+import type {Build_Dependency} from 'src/build/build_dependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
 export const to_hash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
-interface FilterDirectory {
+interface Filter_Directory {
 	(id: string): boolean;
 }
 
-export const createDirectoryFilter = (dir: string, root_dir = paths.source): FilterDirectory => {
+export const create_directory_filter = (dir: string, root_dir = paths.source): Filter_Directory => {
 	dir = resolve(root_dir, dir);
-	const dirWithTrailingSlash = dir + '/';
-	const filterDirectory: FilterDirectory = (id) =>
-		id === dir || id.startsWith(dirWithTrailingSlash);
-	return filterDirectory;
+	const dir_with_trailing_slash = dir + '/';
+	const filter_directory: Filter_Directory = (id) =>
+		id === dir || id.startsWith(dir_with_trailing_slash);
+	return filter_directory;
 };
 
 export interface Map_Dependency_To_Source_Id {
@@ -33,11 +33,10 @@ export interface Map_Dependency_To_Source_Id {
 export const map_dependency_to_source_id: Map_Dependency_To_Source_Id = (dependency, build_dir) => {
 	// TODO this is failing with build ids like `terser` - should that be the build id? yes?
 	// dependency.external
-	const base_path = to_build_base_path(dependency.build_id, build_dir);
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;
 	} else {
-		return base_path_to_source_id(to_source_extension(base_path));
+		return build_id_to_source_id(dependency.build_id, build_dir);
 	}
 };
 
@@ -46,11 +45,6 @@ export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): st
 
 export const add_css_sourcemap_footer = (code: string, sourcemapPath: string): string =>
 	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;
-
-export interface ResolvedInputFiles {
-	files: string[];
-	filters: Input_Filter[]; // TODO this may be an antipattern, consider removing it
-}
 
 export const validate_input_files = async (
 	fs: Filesystem,

@@ -4,9 +4,9 @@
 	import Build_Name from './Build_Name.svelte';
 	import Platform_Name from './Platform_Name.svelte';
 	import {get_metas_by_build_name} from './source_tree.js';
-	import type {Source_Tree} from './source_tree.js';
-	import type {View} from './view.js';
-	import type {Source_Meta} from '../build/source_meta.js';
+	import type {Source_Tree} from 'src/client/source_tree.js';
+	import type {View} from 'src/client/view.js';
+	import type {Source_Meta} from 'src/build/source_meta.js';
 
 	export let source_tree: Source_Tree;
 	export let selected_build_names: string[];

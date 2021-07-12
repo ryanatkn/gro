@@ -2,8 +2,8 @@ import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
 import {spawn, spawn_process} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 
-import type {Plugin} from './plugin.js';
-import type {Args} from '../task/task.js';
+import type {Plugin} from 'src/plugin/plugin.js';
+import type {Args} from 'src/task/task.js';
 
 export interface Options {}
 

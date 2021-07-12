@@ -12,17 +12,17 @@ import {
 	to_build_out_path,
 	TS_EXTENSION,
 } from '../paths.js';
-import type {Build_Context, Build_Source} from './builder.js';
+import type {Build_Context, Build_Source} from 'src/build/builder.js';
 import {
 	is_external_module,
 	MODULE_PATH_LIB_PREFIX,
 	MODULE_PATH_SRC_PREFIX,
 } from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
-import type {Build_Dependency} from './build_dependency.js';
+import type {Build_Dependency} from 'src/build/build_dependency.js';
 import {extract_js_from_svelte_for_dependencies} from './svelte_build_helpers.js';
-import type {Build_Config} from './build_config.js';
-import type {Build_File} from './build_file.js';
+import type {Build_Config} from 'src/build/build_config.js';
+import type {Build_File} from 'src/build/build_file.js';
 
 export interface Postprocess {
 	(

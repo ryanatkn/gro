@@ -2,7 +2,7 @@ import {basename} from 'path';
 import {to_path_segments} from '@feltcoop/felt/util/path_parsing.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
-import type {Source_Tree_Meta} from './source_tree.js';
+import type {Source_Tree_Meta} from 'src/client/source_tree.js';
 
 export type File_Tree_Node = File_Tree_File | File_Tree_Folder;
 

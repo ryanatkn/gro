@@ -1,12 +1,12 @@
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 
-import type {Base_Filer_File} from './filer_file.js';
-import type {Source_Meta} from './source_meta.js';
-import type {Build_Dependency} from './build_dependency.js';
+import type {Base_Filer_File} from 'src/build/filer_file.js';
+import type {Source_Meta} from 'src/build/source_meta.js';
+import type {Build_Dependency} from 'src/build/build_dependency.js';
 import {basename, dirname, extname} from 'path';
 import {load_content} from './load.js';
-import type {Build_Config} from '../build/build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Build_Config} from 'src/build/build_config.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export type Build_File = Text_Build_File | Binary_Build_File;
 export interface Text_Build_File extends Base_Build_File {

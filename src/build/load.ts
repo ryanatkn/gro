@@ -1,5 +1,5 @@
-import type {Encoding} from '../fs/encoding.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Encoding} from 'src/fs/encoding.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export const load_content = <T extends Encoding>(
 	fs: Filesystem,

@@ -3,7 +3,7 @@ import {print_error} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Gen_Module_Meta} from './gen_module.js';
+import type {Gen_Module_Meta} from 'src/gen/gen_module.js';
 import {
 	Gen_Results,
 	Gen_Module_Result,
@@ -12,7 +12,7 @@ import {
 	Gen_Module_Result_Success,
 	Gen_Module_Result_Failure,
 } from './gen.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 import {print_path} from '../paths.js';
 
 export const run_gen = async (

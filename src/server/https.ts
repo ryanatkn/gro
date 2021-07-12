@@ -2,7 +2,7 @@ import {join} from 'path';
 import {to_env_string} from '@feltcoop/felt/util/env.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export interface HttpsCredentials {
 	cert: string;

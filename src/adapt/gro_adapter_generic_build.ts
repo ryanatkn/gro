@@ -1,10 +1,10 @@
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
-import type {Adapter} from './adapter.js';
-import type {Host_Target} from './utils.js';
+import type {Adapter} from 'src/adapt/adapter.js';
+import type {Host_Target} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
 import {DIST_DIRNAME} from '../paths.js';
-import type {Build_Name} from '../build/build_config.js';
+import type {Build_Name} from 'src/build/build_config.js';
 
 export interface Options {
 	build_name: Build_Name;

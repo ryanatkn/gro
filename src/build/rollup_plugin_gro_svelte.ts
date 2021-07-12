@@ -14,9 +14,9 @@ import {
 	handle_warn,
 	handle_stats,
 } from '../build/svelte_build_helpers.js';
-import type {Svelte_Compilation} from '../build/svelte_build_helpers.js';
+import type {Svelte_Compilation} from 'src/build/svelte_build_helpers.js';
 import {CSS_EXTENSION, print_path} from '../paths.js';
-import type {Gro_Css_Build} from './gro_css_build.js';
+import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190

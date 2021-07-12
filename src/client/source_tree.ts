@@ -1,7 +1,7 @@
 import {deep_equal} from '@feltcoop/felt/util/equal.js';
 
-import type {Source_Meta, Source_Meta_Build} from '../build/source_meta.js';
-import type {Build_Config, Build_Name} from '../build/build_config.js';
+import type {Source_Meta, Source_Meta_Build} from 'src/build/source_meta.js';
+import type {Build_Config, Build_Name} from 'src/build/build_config.js';
 
 export interface Source_Tree {
 	// readonly children: Source_TreeNode[];
