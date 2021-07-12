@@ -12,7 +12,7 @@ import {print_build_config_label, to_input_files} from '../build/build_config.js
 import type {Build_Name} from 'src/build/build_config.js';
 import type {Host_Target} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
-import {BROWSER_BUILD_NAME, non_asset_extensions} from '../build/default_build_config.js';
+import {BROWSER_BUILD_NAME, default_non_asset_extensions} from '../build/default_build_config.js';
 import type {Id_Stats_Filter} from 'src/fs/filter.js';
 
 export interface Options {
@@ -22,8 +22,6 @@ export interface Options {
 	host_target: Host_Target;
 	filter: Id_Stats_Filter;
 }
-
-const default_filter: Id_Stats_Filter = (id) => !non_asset_extensions.has(extname(id));
 
 export const create_adapter = ({
 	build_name = BROWSER_BUILD_NAME,
@@ -99,3 +97,5 @@ export const create_adapter = ({
 		},
 	};
 };
+
+const default_filter: Id_Stats_Filter = (id) => !default_non_asset_extensions.has(extname(id));
