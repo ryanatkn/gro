@@ -10,7 +10,8 @@
   rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
   ([#246](https://github.com/feltcoop/gro/pull/246))
 - ignore unwanted assets in frontend build
-  ([#242](https://github.com/feltcoop/gro/pull/242))
+  ([#242](https://github.com/feltcoop/gro/pull/242),
+  [#246](https://github.com/feltcoop/gro/pull/246))
 
 ## 0.32.1
 

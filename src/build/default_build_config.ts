@@ -82,7 +82,9 @@ export const to_default_browser_build = (
 
 // compute default asset extensions on demand to pick up any changes to the supported MIME types
 const to_default_asset_extensions = (): string[] =>
-	Array.from(get_extensions()).filter((extension) => !default_non_asset_extensions.has(extension));
+	Array.from(get_extensions()).filter(
+		(extension) => !default_non_asset_extensions.has(`.${extension}`),
+	);
 
 export const default_non_asset_extensions = new Set([
 	JS_EXTENSION,

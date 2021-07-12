@@ -1,5 +1,7 @@
 import type {Flavored} from '@feltcoop/felt/util/types';
 
+// TODO the `extensions` here do not have a leading dot, but elsewhere in Gro they do!
+
 /*
 
 This is a minimal set of MIME types
