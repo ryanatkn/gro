@@ -4,7 +4,6 @@ import type {InstallResult} from 'esinstall';
 import type {Plugin as RollupPlugin} from 'rollup';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {cyan, gray} from '@feltcoop/felt/util/terminal.js';
 import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
 import {to_env_number} from '@feltcoop/felt/util/env.js';
@@ -46,27 +45,21 @@ but this isn't a great solution
 */
 
 export interface Options {
-	install: typeof installWithEsinstall;
-	base_path: string;
-	log: Logger;
+	install?: typeof installWithEsinstall;
+	base_path?: string;
+	log?: Logger;
 }
-export type Initial_Options = Partial<Options>;
-export const init_options = (opts: Initial_Options): Options => {
-	const log = opts.log || new System_Logger(print_log_label('externals_builder', cyan));
-	return {
-		install: installWithEsinstall,
-		base_path: EXTERNALS_BUILD_DIRNAME,
-		...omit_undefined(opts),
-		log,
-	};
-};
 
 type ExternalsBuilder = Builder<Text_Build_Source>;
 
 const encoding = 'utf8';
 
-export const gro_builder_externals = (opts: Initial_Options = {}): ExternalsBuilder => {
-	const {install, base_path, log} = init_options(opts);
+export const gro_builder_externals = (options: Options = {}): ExternalsBuilder => {
+	const {
+		install = installWithEsinstall,
+		base_path = EXTERNALS_BUILD_DIRNAME,
+		log = new System_Logger(print_log_label('externals_builder', cyan)),
+	} = options;
 
 	const build: ExternalsBuilder['build'] = async (source, build_config, ctx) => {
 		const {fs, build_dir, dev, sourcemap, target, state, externals_aliases} = ctx;

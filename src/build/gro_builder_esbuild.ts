@@ -1,9 +1,5 @@
 import esbuild from 'esbuild';
-import {System_Logger, print_log_label} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {replace_extension} from '@feltcoop/felt/util/path.js';
-import {cyan} from '@feltcoop/felt/util/terminal.js';
 
 import type {Ecma_Script_Target, Generate_Types_For_File} from 'src/build/typescript_utils.js';
 import {to_default_esbuild_options} from './gro_builder_esbuild_utils.js';
@@ -23,23 +19,14 @@ import type {Build_File} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {
-	log: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	create_esbuild_options: Create_Esbuild_Options;
+	create_esbuild_options?: Create_Esbuild_Options;
 }
-export type Initial_Options = Partial<Options>;
-export const init_options = (opts: Initial_Options): Options => {
-	return {
-		create_esbuild_options: create_default_esbuild_options,
-		...omit_undefined(opts),
-		log: opts.log || new System_Logger(print_log_label('esbuild_builder', cyan)),
-	};
-};
 
 type Esbuild_Builder = Builder<Text_Build_Source>;
 
-export const gro_builder_esbuild = (opts: Initial_Options = {}): Esbuild_Builder => {
-	const {create_esbuild_options} = init_options(opts);
+export const gro_builder_esbuild = (options: Options = {}): Esbuild_Builder => {
+	const {create_esbuild_options = default_create_esbuild_options} = options;
 
 	const esbuild_options_cache: Map<string, esbuild.TransformOptions> = new Map();
 	const get_esbuild_options = (
@@ -172,5 +159,5 @@ type Create_Esbuild_Options = (
 	sourcemap: boolean,
 ) => esbuild.TransformOptions;
 
-const create_default_esbuild_options: Create_Esbuild_Options = (dev, target, sourcemap) =>
+const default_create_esbuild_options: Create_Esbuild_Options = (dev, target, sourcemap) =>
 	to_default_esbuild_options(dev, target, sourcemap);

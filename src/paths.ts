@@ -44,8 +44,8 @@ export const CSS_EXTENSION = '.css';
 export const JSON_EXTENSION = '.json';
 export const JSON_JS_EXTENSION = '.json.js';
 export const SVELTE_EXTENSION = '.svelte';
-export const SVELTE_JS_BUILD_EXTENSION = '.svelte.js';
-export const SVELTE_CSS_BUILD_EXTENSION = '.svelte.css';
+export const SVELTE_JS_EXTENSION = '.svelte.js';
+export const SVELTE_CSS_EXTENSION = '.svelte.css';
 export const SOURCEMAP_EXTENSION = '.map';
 export const JS_SOURCEMAP_EXTENSION = '.js.map';
 export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
@@ -215,8 +215,8 @@ export const to_source_extension = (build_id: string): string => {
 	}
 	switch (extension2) {
 		case JSON_JS_EXTENSION:
-		case SVELTE_JS_BUILD_EXTENSION:
-		case SVELTE_CSS_BUILD_EXTENSION: {
+		case SVELTE_JS_EXTENSION:
+		case SVELTE_CSS_EXTENSION: {
 			return build_id.substring(0, len - extension1!.length);
 		}
 		case JS_SOURCEMAP_EXTENSION:

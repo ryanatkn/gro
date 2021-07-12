@@ -2,32 +2,29 @@ import * as terser from 'terser';
 import type {Plugin as Rollup_Plugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 import {print_error} from '@feltcoop/felt/util/print.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
 
 import {print_path} from '../paths.js';
 
 // TODO speed up with workers
 
 export interface Options {
-	include: string | RegExp | (string | RegExp)[] | null;
-	exclude: string | RegExp | (string | RegExp)[] | null;
-	minify_options: terser.MinifyOptions;
+	include?: string | RegExp | (string | RegExp)[] | null;
+	exclude?: string | RegExp | (string | RegExp)[] | null;
+	minify_options?: terser.MinifyOptions;
+	log?: Logger;
 }
-export type Initial_Options = Partial<Options>;
-export const init_options = (opts: Initial_Options): Options => ({
-	include: null,
-	exclude: null,
-	minify_options: {sourceMap: false},
-	...omit_undefined(opts),
-});
 
 export const name = '@feltcoop/rollup_plugin_gro_terser';
 
-export const rollup_plugin_gro_terser = (opts: Initial_Options = {}): Rollup_Plugin => {
-	const {include, exclude, minify_options} = init_options(opts);
-
-	const log = new System_Logger(print_log_label(name));
+export const rollup_plugin_gro_terser = (options: Options = {}): Rollup_Plugin => {
+	const {
+		include = null,
+		exclude = null,
+		minify_options = {sourceMap: false},
+		log = new System_Logger(print_log_label(name)),
+	} = options;
 
 	const filter = createFilter(include, exclude);
 

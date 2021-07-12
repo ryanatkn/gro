@@ -3,7 +3,6 @@ import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/
 import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compiler/interfaces';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
@@ -32,31 +31,26 @@ import {postprocess} from './postprocess.js';
 // so they'll be automatically copied into unbundled production dists
 
 export interface Options {
-	log: Logger;
+	log?: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	create_preprocessor: Create_Preprocessor;
+	create_preprocessor?: Create_Preprocessor;
 	// TODO how to support options like this without screwing up caching?
 	// maybe compilers need a way to declare their options so they (or a hash) can be cached?
-	svelte_compile_options: Svelte_Compile_Options;
-	onwarn: typeof handle_warn;
-	onstats: typeof handle_stats | null;
+	svelte_compile_options?: Svelte_Compile_Options;
+	onwarn?: typeof handle_warn;
+	onstats?: typeof handle_stats | null;
 }
-export type Initial_Options = Partial<Options>;
-export const init_options = (opts: Initial_Options): Options => {
-	return {
-		onwarn: handle_warn,
-		onstats: null,
-		create_preprocessor: create_default_preprocessor,
-		...omit_undefined(opts),
-		log: opts.log || new System_Logger(print_log_label('svelte_builder', cyan)),
-		svelte_compile_options: opts.svelte_compile_options || {},
-	};
-};
 
 type Svelte_Builder = Builder<Text_Build_Source>;
 
-export const gro_builder_svelte = (opts: Initial_Options = {}): Svelte_Builder => {
-	const {log, create_preprocessor, svelte_compile_options, onwarn, onstats} = init_options(opts);
+export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
+	const {
+		log = new System_Logger(print_log_label('svelte_builder', cyan)),
+		create_preprocessor = create_default_preprocessor,
+		svelte_compile_options,
+		onwarn = handle_warn,
+		onstats = null,
+	} = options;
 
 	const preprocessor_cache: Map<
 		string,

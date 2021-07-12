@@ -6,8 +6,7 @@ import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/util/terminal.js';
 import {to_path_stem} from '@feltcoop/felt/util/path.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
-import type {Partial_Except} from '@feltcoop/felt/util/types.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 
 import {
 	base_svelte_compile_options,
@@ -31,26 +30,15 @@ export type Gro_Svelte_Compilation = Svelte_Compilation & {
 export interface Options {
 	dev: boolean;
 	add_css_build(build: Gro_Css_Build): boolean;
-	include: string | RegExp | (string | RegExp)[] | null;
-	exclude: string | RegExp | (string | RegExp)[] | null;
-	preprocessor: Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null;
-	compile_options: Svelte_Compile_Options;
-	compilations: Map<string, Gro_Svelte_Compilation>;
-	onwarn: typeof handle_warn;
-	onstats: typeof handle_stats;
+	include?: string | RegExp | (string | RegExp)[] | null;
+	exclude?: string | RegExp | (string | RegExp)[] | null;
+	preprocessor?: Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null;
+	compile_options?: Svelte_Compile_Options;
+	compilations?: Map<string, Gro_Svelte_Compilation>;
+	log?: Logger;
+	onwarn?: typeof handle_warn;
+	onstats?: typeof handle_stats;
 }
-export type Required_Options = 'dev' | 'add_css_build';
-export type Initial_Options = Partial_Except<Options, Required_Options>;
-export const init_options = (opts: Initial_Options): Options => ({
-	include: '**/*.svelte',
-	exclude: null,
-	preprocessor: null,
-	compile_options: {},
-	compilations: new Map<string, Gro_Svelte_Compilation>(),
-	onwarn: handle_warn,
-	onstats: handle_stats,
-	...omit_undefined(opts),
-});
 
 export interface Gro_Svelte_Plugin extends Rollup_Plugin {
 	get_compilation: (id: string) => Gro_Svelte_Compilation | undefined;
@@ -58,20 +46,19 @@ export interface Gro_Svelte_Plugin extends Rollup_Plugin {
 
 export const name = '@feltcoop/rollup_plugin_gro_svelte';
 
-export const rollup_plugin_gro_svelte = (opts: Initial_Options): Gro_Svelte_Plugin => {
+export const rollup_plugin_gro_svelte = (options: Options): Gro_Svelte_Plugin => {
 	const {
 		dev,
 		add_css_build,
-		include,
-		exclude,
-		preprocessor,
-		compile_options,
-		compilations,
-		onwarn,
-		onstats,
-	} = init_options(opts);
-
-	const log = new System_Logger(print_log_label(name));
+		include = '**/*.svelte',
+		exclude = null,
+		preprocessor = null,
+		compile_options = {},
+		compilations = new Map<string, Gro_Svelte_Compilation>(),
+		log = new System_Logger(print_log_label(name)),
+		onwarn = handle_warn,
+		onstats = handle_stats,
+	} = options;
 
 	const get_compilation = (id: string): Gro_Svelte_Compilation | undefined => compilations.get(id);
 
