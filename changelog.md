@@ -4,7 +4,7 @@
 
 - **break**: refactor `postprocess` into builders and delete `Build` and `Build_Result`
   ([#243](https://github.com/feltcoop/gro/pull/243))
-- **break**: rename builders and their utils
+- **break**: rename builders and builder utils
   ([#243](https://github.com/feltcoop/gro/pull/243))
 - ignore unwanted assets in frontend build
   ([#242](https://github.com/feltcoop/gro/pull/242))
