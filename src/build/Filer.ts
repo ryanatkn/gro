@@ -1,5 +1,5 @@
 import {resolve, extname, join} from 'path';
-import lexer from 'es-module-lexer';
+import * as lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {nulls, omit_undefined} from '@feltcoop/felt/util/object.js';

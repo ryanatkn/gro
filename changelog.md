@@ -1,5 +1,10 @@
 # changelog
 
+## 0.33.1
+
+- upgrade `es-module-lexer@0.7.1`
+  ([#248](https://github.com/feltcoop/gro/pull/248))
+
 ## 0.33.0
 
 - **break**: refactor `postprocess` into builders and delete `Build` and `Build_Result`
