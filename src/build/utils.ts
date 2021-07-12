@@ -5,7 +5,7 @@ import {resolve} from 'path';
 import type {Build_Config_Input} from 'src/build/build_config.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {build_id_to_source_id, paths} from '../paths.js';
-import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
+import {EXTERNALS_SOURCE_ID} from './gro_builder_externals_utils.js';
 import type {Build_Dependency} from 'src/build/build_dependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.

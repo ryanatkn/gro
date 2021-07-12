@@ -7,14 +7,14 @@ import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 import {
 	base_svelte_compile_options,
 	create_default_preprocessor,
 	handle_stats,
 	handle_warn,
-} from './svelte_build_helpers.js';
-import type {Create_Preprocessor, Svelte_Compilation} from 'src/build/svelte_build_helpers.js';
+} from './gro_builder_svelte_utils.js';
+import type {Create_Preprocessor, Svelte_Compilation} from 'src/build/gro_builder_svelte_utils.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
@@ -55,7 +55,7 @@ export const init_options = (opts: Initial_Options): Options => {
 
 type SvelteBuilder = Builder<Text_Build_Source>;
 
-export const create_svelte_builder = (opts: Initial_Options = {}): SvelteBuilder => {
+export const gro_builder_svelte = (opts: Initial_Options = {}): SvelteBuilder => {
 	const {log, create_preprocessor, svelte_compile_options, onwarn, onstats} = init_options(opts);
 
 	const preprocessor_cache: Map<

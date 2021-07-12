@@ -3,7 +3,7 @@ import {Timings} from '@feltcoop/felt/util/timings.js';
 
 import type {Task} from 'src/task/task.js';
 import {Filer} from './build/Filer.js';
-import {create_default_builder} from './build/default_builder.js';
+import {gro_builder_default} from './build/gro_builder_default.js';
 import {paths, to_build_out_path} from './paths.js';
 import {create_gro_server} from './server/server.js';
 import type {Gro_Server} from 'src/server/server.js';
@@ -56,7 +56,7 @@ export const task: Task<Task_Args, Task_Events> = {
 		const filer = new Filer({
 			fs,
 			dev,
-			builder: create_default_builder(),
+			builder: gro_builder_default(),
 			source_dirs: [paths.source],
 			served_dirs: config.serve || to_default_served_dirs(config),
 			build_configs: config.builds,

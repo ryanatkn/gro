@@ -12,8 +12,8 @@ import {yellow} from '@feltcoop/felt/util/terminal.js';
 import {print_key_value, print_ms} from '@feltcoop/felt/util/print.js';
 import type {Omit_Strict} from '@feltcoop/felt/util/types.js';
 
-import {to_default_esbuild_preprocess_options} from './esbuild_build_helpers.js';
-import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+import {to_default_esbuild_preprocess_options} from './gro_builder_esbuild_utils.js';
+import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 import {print_path} from '../paths.js';
 
 export type Create_Preprocessor = (

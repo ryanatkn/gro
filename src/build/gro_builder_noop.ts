@@ -3,7 +3,7 @@ import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {to_build_out_path} from '../paths.js';
 import type {Builder} from 'src/build/builder.js';
 
-export const noop_builder: Builder = {
+export const gro_builder_noop: Builder = {
 	name: '@feltcoop/gro_builder_noop',
 	build: (source, build_config, {build_dir, dev}) => {
 		const {filename, extension} = source;

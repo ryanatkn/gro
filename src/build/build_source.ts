@@ -5,10 +5,10 @@ import {gray} from '@feltcoop/felt/util/terminal.js';
 
 import {paths, to_types_build_dir} from '../paths.js';
 import {Filer} from '../build/Filer.js';
-import {create_default_builder} from './default_builder.js';
+import {gro_builder_default} from './gro_builder_default.js';
 import type {Gro_Config} from 'src/config/config.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {generate_types} from './ts_build_helpers.js';
+import {generate_types} from './typescript_utils.js';
 
 export const build_source = async (
 	fs: Filesystem,
@@ -39,7 +39,7 @@ export const build_source = async (
 	const filer = new Filer({
 		fs,
 		dev,
-		builder: create_default_builder(),
+		builder: gro_builder_default(),
 		source_dirs: [paths.source],
 		build_configs: config.builds,
 		watch: false,

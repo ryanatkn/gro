@@ -24,7 +24,7 @@ import {print_build_config_label} from '../build/build_config.js';
 import type {Build_Name} from 'src/build/build_config.js';
 import type {Build_Config} from 'src/build/build_config.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
-import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 import {strip_base, to_served_dirs} from './served_dir.js';
 import type {Served_Dir, Served_Dir_Partial} from 'src/build/served_dir.js';
 import {
@@ -43,9 +43,9 @@ import {
 	EXTERNALS_SOURCE_ID,
 	get_externals_builder_state,
 	get_externals_build_state,
-} from './externals_build_helpers.js';
-import type {Externals_Aliases} from 'src/build/externals_build_helpers.js';
-import {queue_externals_build} from './externals_builder.js';
+} from './gro_builder_externals_utils.js';
+import type {Externals_Aliases} from 'src/build/gro_builder_externals_utils.js';
+import {queue_externals_build} from './gro_builder_externals.js';
 import type {Source_Meta} from 'src/build/source_meta.js';
 import type {Build_Dependency} from 'src/build/build_dependency.js';
 import {

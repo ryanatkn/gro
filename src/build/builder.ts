@@ -5,8 +5,8 @@ import type {
 	Externals_Aliases,
 	Externals_Builder_State,
 	EXTERNALS_BUILDER_STATE_KEY,
-} from './externals_build_helpers.js';
-import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
+} from './gro_builder_externals_utils.js';
+import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 import type {Served_Dir} from 'src/build/served_dir.js';
 import type {Source_Meta} from 'src/build/source_meta.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
