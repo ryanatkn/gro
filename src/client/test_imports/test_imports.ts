@@ -9,3 +9,7 @@ console.log('test_nested_imports test_absolute_src_import', test_absolute_src_im
 // test external imports
 import {tick} from 'svelte';
 console.log('test_nested_imports test_external_import', tick);
+
+// // test json imports
+import test_json from './test_json.json';
+console.log('test_json', test_json);

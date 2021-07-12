@@ -53,9 +53,9 @@ export const init_options = (opts: Initial_Options): Options => {
 	};
 };
 
-type SvelteBuilder = Builder<Text_Build_Source>;
+type Svelte_Builder = Builder<Text_Build_Source>;
 
-export const gro_builder_svelte = (opts: Initial_Options = {}): SvelteBuilder => {
+export const gro_builder_svelte = (opts: Initial_Options = {}): Svelte_Builder => {
 	const {log, create_preprocessor, svelte_compile_options, onwarn, onstats} = init_options(opts);
 
 	const preprocessor_cache: Map<
@@ -75,7 +75,7 @@ export const gro_builder_svelte = (opts: Initial_Options = {}): SvelteBuilder =>
 		return new_preprocessor;
 	};
 
-	const build: SvelteBuilder['build'] = async (source, build_config, ctx) => {
+	const build: Svelte_Builder['build'] = async (source, build_config, ctx) => {
 		const {build_dir, dev, sourcemap, target} = ctx;
 
 		if (source.encoding !== 'utf8') {
@@ -91,14 +91,13 @@ export const gro_builder_svelte = (opts: Initial_Options = {}): SvelteBuilder =>
 		// for production builds, output uncompiled Svelte
 		// TODO what about non-TypeScript preprocessors?
 		if (!dev) {
-			const svelte_id = `${out_dir}${source.filename}`;
 			const build_files: Build_File[] = [
 				{
 					type: 'build',
 					source_id: source.id,
 					build_config,
 					dependencies_by_build_id: null,
-					id: svelte_id,
+					id: `${out_dir}${source.filename}`,
 					filename: source.filename,
 					dir: out_dir,
 					extension: SVELTE_EXTENSION,

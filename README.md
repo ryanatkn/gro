@@ -183,7 +183,7 @@ gro build # build for release and update the `gro` CLI
 
 see [contributing.md🌄](./contributing.md)
 
-## credits :turtle:<sub>:turtle:</sub><sub><sub>:turtle:</sub></sub>
+## credits 🐢<sub>🐢</sub><sub><sub>🐢</sub></sub>
 
 Gro builds on
 [TypeScript](https://github.com/microsoft/TypeScript) ∙

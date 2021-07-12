@@ -116,33 +116,27 @@ test_has_source_extension('svelte', () => {
 	t.ok(has_source_extension('foo/bar/baz.svelte'));
 });
 
-test_has_source_extension.run();
-/* /test_has_source_extension */
-
-/* test_to_import_id */
-const test_to_import_id = suite('to_import_id');
-
-test_to_import_id('basic behavior', () => {
-	t.is(to_import_id(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
-	t.is(to_import_id(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
-	t.is(
-		to_import_id(resolve('src/foo/bar.svelte'), true, 'baz'),
-		resolve('.gro/dev/baz/foo/bar.svelte.js'),
-	);
+test_has_source_extension('json', () => {
+	t.ok(has_source_extension('foo/bar/baz.json'));
 });
 
-test_to_import_id.run();
-/* /test_to_import_id */
+test_has_source_extension.run();
+/* /test_has_source_extension */
 
 /* test_to_build_extension */
 const test_to_build_extension = suite('to_build_extension');
 
 test_to_build_extension('basic behavior', () => {
 	t.is(to_build_extension('foo/bar.ts', true), 'foo/bar.js');
+	t.is(to_build_extension('foo/bar.ts', false), 'foo/bar.js');
 	t.is(to_build_extension('foo/bar.svelte', true), 'foo/bar.svelte.js');
 	t.is(to_build_extension('foo/bar.svelte', false), 'foo/bar.svelte');
+	t.is(to_build_extension('foo/bar.json', true), 'foo/bar.json.js');
+	t.is(to_build_extension('foo/bar.json', false), 'foo/bar.json.js');
 	t.is(to_build_extension('foo/bar.css', true), 'foo/bar.css');
+	t.is(to_build_extension('foo/bar.css', false), 'foo/bar.css');
 	t.is(to_build_extension('foo/bar.png', true), 'foo/bar.png');
+	t.is(to_build_extension('foo/bar.png', false), 'foo/bar.png');
 });
 
 test_to_build_extension.run();
@@ -160,6 +154,7 @@ test_to_source_extension('basic behavior', () => {
 	t.is(to_source_extension('foo/bar.svelte.js.map'), 'foo/bar.svelte');
 	t.is(to_source_extension('foo/bar.svelte.css'), 'foo/bar.svelte');
 	t.is(to_source_extension('foo/bar.svelte.css.map'), 'foo/bar.svelte');
+	t.is(to_source_extension('foo/bar.json.js'), 'foo/bar.json');
 	t.is(to_source_extension('foo/bar.css'), 'foo/bar.css');
 	t.is(to_source_extension('foo/bar.css.map'), 'foo/bar.css');
 	t.is(to_source_extension('foo/bar.png'), 'foo/bar.png');
@@ -172,6 +167,25 @@ test_to_source_extension('basic behavior', () => {
 
 test_to_source_extension.run();
 /* /test_to_source_extension */
+
+/* test_to_import_id */
+const test_to_import_id = suite('to_import_id');
+
+test_to_import_id('basic behavior', () => {
+	t.is(to_import_id(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
+	t.is(to_import_id(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
+	t.is(
+		to_import_id(resolve('src/foo/bar.svelte'), true, 'baz'),
+		resolve('.gro/dev/baz/foo/bar.svelte.js'),
+	);
+	t.is(
+		to_import_id(resolve('src/foo/bar.json'), true, 'baz'),
+		resolve('.gro/dev/baz/foo/bar.json.js'),
+	);
+});
+
+test_to_import_id.run();
+/* /test_to_import_id */
 
 /* test_EXTERNALS_BUILD_DIRNAME */
 const test_EXTERNALS_BUILD_DIRNAME = suite('EXTERNALS_BUILD_DIRNAME');
