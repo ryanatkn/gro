@@ -1,6 +1,5 @@
 import {join, extname, relative, basename} from 'path';
-// `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
-import lexer from 'es-module-lexer';
+import * as lexer from 'es-module-lexer';
 
 import {
 	paths,
@@ -122,6 +121,7 @@ const parse_dependencies = (
 ): string => {
 	let transformed_content = '';
 	let index = 0;
+	// `lexer.init` is expected to be awaited elsewhere before `postprocess` is called
 	// TODO what should we pass as the second arg to parse? the id? nothing? `lexer.parse(code, id);`
 	const [imports] = lexer.parse(content);
 	let start: number;
