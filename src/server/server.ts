@@ -12,8 +12,7 @@ import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/util/termi
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {strip_after} from '@feltcoop/felt/util/string.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
-import type {Assignable, Partial_Except} from '@feltcoop/felt/util/types.js';
+import type {Assignable} from '@feltcoop/felt/util/types.js';
 import {to_env_number, to_env_string} from '@feltcoop/felt/util/env.js';
 
 import type {Filer} from 'src/build/Filer.js';
@@ -47,26 +46,20 @@ export const DEFAULT_SERVER_PORT = to_env_number('GRO_PORT', 8999);
 
 export interface Options {
 	filer: Filer;
-	host: string;
-	port: number;
-	https: {cert: string; key: string} | null;
-	log: Logger;
+	host?: string;
+	port?: number;
+	https?: {cert: string; key: string} | null;
+	log?: Logger;
 }
-export type Required_Options = 'filer';
-export type Initial_Options = Partial_Except<Options, Required_Options>;
-export const init_options = (opts: Initial_Options): Options => {
-	return {
-		host: DEFAULT_SERVER_HOST,
-		port: DEFAULT_SERVER_PORT,
-		https: null,
-		...omit_undefined(opts),
-		log: opts.log || new System_Logger(print_log_label('server', cyan)),
-	};
-};
 
-export const create_gro_server = (opts: Initial_Options): Gro_Server => {
-	const options = init_options(opts);
-	const {filer, host, port, https, log} = options;
+export const create_gro_server = (options: Options): Gro_Server => {
+	const {
+		filer,
+		host = DEFAULT_SERVER_HOST,
+		port = DEFAULT_SERVER_PORT,
+		https = null,
+		log = new System_Logger(print_log_label('server', cyan)),
+	} = options;
 
 	let final_port = port;
 	const next_port = () => {

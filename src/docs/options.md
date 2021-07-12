@@ -21,6 +21,7 @@ export const concise_but_allows_rebinding = ({required_option, optional_option =
 
 In cases where we need the final `options` object --
 for example when you need to pass it to other functions --
+and in complex cases that benefit from more structure,
 the codebase's conventions are documented below.
 It's not the pattern for every circumstance;
 there is overhead that e.g. hot paths and simple implementations should avoid.
