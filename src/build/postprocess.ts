@@ -169,9 +169,9 @@ const to_build_dependency = (
 	ctx: Build_Context,
 ): Build_Dependency => {
 	const {dev, externals_aliases, build_dir} = ctx;
-	const browser = build_config.platform === 'browser';
 	let build_id: string;
 	let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
+	const prebundle = dev && build_config.platform === 'browser'; // don't prebundle in production
 	const is_external_import = is_external_module(specifier);
 	const is_external_imported_by_external = source.id === EXTERNALS_SOURCE_ID;
 	const is_external = is_external_import || is_external_imported_by_external;
@@ -180,7 +180,7 @@ const to_build_dependency = (
 		mapped_specifier = to_build_extension(specifier, dev);
 		if (is_external_import) {
 			// handle regular externals
-			if (browser) {
+			if (prebundle) {
 				if (mapped_specifier in externals_aliases) {
 					mapped_specifier = externals_aliases[mapped_specifier];
 				}
@@ -201,12 +201,12 @@ const to_build_dependency = (
 			}
 		} else {
 			// handle common externals, imports internal to the externals
-			if (browser) {
+			if (prebundle) {
 				build_id = join(dir, specifier);
 				// use absolute paths for internal externals specifiers, so we get stable ids
 				final_specifier = build_id;
 			} else {
-				// externals imported in Node builds use Node module resolution
+				// externals imported in production and Node builds use Node module resolution
 				build_id = mapped_specifier;
 			}
 		}
@@ -224,7 +224,7 @@ const to_build_dependency = (
 		mapped_specifier,
 		original_specifier: specifier,
 		build_id,
-		external: browser && is_external,
+		external: prebundle && is_external,
 	};
 };
 
