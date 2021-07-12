@@ -41,10 +41,11 @@ export const TS_EXTENSION = '.ts';
 export const TS_TYPE_EXTENSION = '.d.ts';
 export const TS_TYPEMAP_EXTENSION = '.d.ts.map'; // `declarationMap` -> `typemap` to match `sourcemap`
 export const CSS_EXTENSION = '.css';
+export const JSON_EXTENSION = '.json';
+export const JSON_JS_EXTENSION = '.json.js';
 export const SVELTE_EXTENSION = '.svelte';
 export const SVELTE_JS_BUILD_EXTENSION = '.svelte.js';
 export const SVELTE_CSS_BUILD_EXTENSION = '.svelte.css';
-export const JSON_EXTENSION = '.json';
 export const SOURCEMAP_EXTENSION = '.map';
 export const JS_SOURCEMAP_EXTENSION = '.js.map';
 export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
@@ -144,26 +145,12 @@ export const to_build_base_path = (build_id: string, build_dir = paths.build): s
 // TODO probably change this to use a regexp (benchmark?)
 export const has_source_extension = (path: string): boolean =>
 	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_TYPE_EXTENSION)) ||
-	path.endsWith(SVELTE_EXTENSION);
+	path.endsWith(SVELTE_EXTENSION) ||
+	path.endsWith(JSON_EXTENSION);
 
 // Can be used to map a source id from e.g. the cwd to gro's.
 export const replace_root_dir = (id: string, root_dir: string, p = paths): string =>
 	join(root_dir, to_root_path(id, p));
-
-// Converts a source id into an id that can be imported.
-// When importing from inside Gro's own internal dist/ directory,
-// it returns a relative path and ignores `dev` and `build_name`.
-export const to_import_id = (
-	source_id: string,
-	dev: boolean,
-	build_name: Build_Name,
-	p = paths_from_id(source_id),
-): string => {
-	const dir_base_path = strip_start(to_build_extension(source_id, dev), p.source);
-	return !is_this_project_gro && gro_import_dir === p.dist
-		? join(gro_import_dir, dir_base_path)
-		: to_build_out_path(dev, build_name, dir_base_path, p.build);
-};
 
 // TODO This function loses information,
 // and it's also hardcoded to Gro's default file types and output conventions.
@@ -177,6 +164,8 @@ export const to_build_extension = (source_id: string, dev: boolean): string =>
 		? dev
 			? source_id + JS_EXTENSION
 			: source_id
+		: source_id.endsWith(JSON_EXTENSION)
+		? source_id + JS_EXTENSION
 		: source_id;
 
 // This implementation is complicated but it's fast.
@@ -225,6 +214,7 @@ export const to_source_extension = (build_id: string): string => {
 		// 	break;
 	}
 	switch (extension2) {
+		case JSON_JS_EXTENSION:
 		case SVELTE_JS_BUILD_EXTENSION:
 		case SVELTE_CSS_BUILD_EXTENSION: {
 			return build_id.substring(0, len - extension1!.length);
@@ -251,6 +241,21 @@ export const to_source_extension = (build_id: string): string => {
 		// 	break;
 	}
 	return build_id;
+};
+
+// Converts a source id into an id that can be imported.
+// When importing from inside Gro's own internal dist/ directory,
+// it returns a relative path and ignores `dev` and `build_name`.
+export const to_import_id = (
+	source_id: string,
+	dev: boolean,
+	build_name: Build_Name,
+	p = paths_from_id(source_id),
+): string => {
+	const dir_base_path = strip_start(to_build_extension(source_id, dev), p.source);
+	return !is_this_project_gro && gro_import_dir === p.dist
+		? join(gro_import_dir, dir_base_path)
+		: to_build_out_path(dev, build_name, dir_base_path, p.build);
 };
 
 export const gro_import_dir = join(fileURLToPath(import.meta.url), '../');
