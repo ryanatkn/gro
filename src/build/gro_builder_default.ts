@@ -6,7 +6,7 @@ import type {Initial_Options as Simple_Builder_Options} from 'src/build/gro_buil
 import {gro_builder_esbuild} from './gro_builder_esbuild.js';
 import type {Initial_Options as Esbuild_Builder_Options} from 'src/build/gro_builder_esbuild.js';
 import {gro_builder_svelte} from './gro_builder_svelte.js';
-import type {Initial_Options as Svelte_Builder_Options} from 'src/build/gro_builder_svelte.js';
+import type {Options as Svelte_Builder_Options} from 'src/build/gro_builder_svelte.js';
 import {gro_builder_json} from './gro_builder_json.js';
 import type {Options as Json_Builder_Options} from 'src/build/gro_builder_json.js';
 import {gro_builder_externals} from './gro_builder_externals.js';
