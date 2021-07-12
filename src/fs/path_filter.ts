@@ -1,8 +1,8 @@
 import {join} from 'path';
 
 import {paths} from '../paths.js';
-import type {File_Filter} from './file.js';
-import type {Path_Stats} from './path_data.js';
+import type {File_Filter} from 'src/fs/file.js';
+import type {Path_Stats} from 'src/fs/path_data.js';
 
 // This is a subset of the `cheap-watch` types designed for browser compatibility.
 export interface Path_Filter {

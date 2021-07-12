@@ -5,7 +5,7 @@ import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {replace_extension} from '@feltcoop/felt/util/path.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {Ecma_Script_Target, Generate_Types_For_File} from './ts_build_helpers.js';
+import type {Ecma_Script_Target, Generate_Types_For_File} from 'src/build/ts_build_helpers.js';
 import {to_default_esbuild_options} from './esbuild_build_helpers.js';
 import {
 	JS_EXTENSION,
@@ -15,11 +15,11 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import type {Builder, Text_Build_Source} from './builder.js';
+import type {Builder, Text_Build_Source} from 'src/build/builder.js';
 import {add_js_sourcemap_footer} from './utils.js';
 import {to_generate_types_for_file} from './ts_build_helpers.js';
-import type {Filesystem} from '../fs/filesystem.js';
-import type {Build_File} from './build_file.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Build_File} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {

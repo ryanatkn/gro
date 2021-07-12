@@ -241,7 +241,7 @@ Here's how a task can emit and listen to events:
 // src/some/mytask.task.ts
 import type {Task} from '@feltcoop/gro';
 
-import type {Task_Events as Other_Task_Events} from './othertask.task.ts';
+import type {Task_Events as Other_Task_Events} from 'src/task/othertask.task.ts';
 
 export interface Task_Args {}
 export interface Task_Events extends Other_Task_Events {

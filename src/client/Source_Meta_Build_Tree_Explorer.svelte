@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {filter_selected_metas} from './source_tree.js';
-	import type {Source_Tree} from './source_tree.js';
+	import type {Source_Tree} from 'src/client/source_tree.js';
 	import {get_project_state} from './project_state.js';
 	import File_Tree_Explorer_Folder from './File_Tree_Explorer_Folder.svelte';
 	import {to_file_tree_folder} from './file_tree.js';

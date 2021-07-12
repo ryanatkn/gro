@@ -2,11 +2,11 @@ import type {EventEmitter} from 'events';
 import {cyan, red} from '@feltcoop/felt/util/terminal.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Task_Module_Meta} from './task_module.js';
-import type {Args} from './task.js';
+import type {Task_Module_Meta} from 'src/task/task_module.js';
+import type {Args} from 'src/task/task.js';
 import {Task_Error} from './task.js';
-import type {invoke_task as Invoke_Task_Function} from './invoke_task.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {invoke_task as Invoke_Task_Function} from 'src/task/invoke_task.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export type Run_Task_Result =
 	| {

@@ -1,6 +1,6 @@
-import type {Filesystem} from '../fs/filesystem.js';
-import type {Path_Stats} from '../fs/path_data.js';
-import type {Encoding} from '../fs/encoding.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Path_Stats} from 'src/fs/path_data.js';
+import type {Encoding} from 'src/fs/encoding.js';
 import {get_mime_type_by_extension} from '../fs/mime.js';
 import {to_hash} from './utils.js';
 

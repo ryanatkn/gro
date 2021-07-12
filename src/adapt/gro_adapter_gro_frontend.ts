@@ -4,13 +4,13 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import type {Plugin as Rollup_Plugin} from 'rollup';
 import {extname} from 'path';
 
-import type {Adapter} from './adapter.js';
-import type {Map_Input_Options} from '../build/rollup.js';
+import type {Adapter} from 'src/adapt/adapter.js';
+import type {Map_Input_Options} from 'src/build/rollup.js';
 import {run_rollup} from '../build/rollup.js';
 import {DIST_DIRNAME, source_id_to_base_path, to_import_id} from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
-import type {Build_Name} from '../build/build_config.js';
-import type {Host_Target} from './utils.js';
+import type {Build_Name} from 'src/build/build_config.js';
+import type {Host_Target} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
 import {BROWSER_BUILD_NAME, non_asset_extensions} from '../build/default_build_config.js';
 

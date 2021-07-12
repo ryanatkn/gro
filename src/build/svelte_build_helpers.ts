@@ -13,7 +13,7 @@ import {print_key_value, print_ms} from '@feltcoop/felt/util/print.js';
 import type {Omit_Strict} from '@feltcoop/felt/util/types.js';
 
 import {to_default_esbuild_preprocess_options} from './esbuild_build_helpers.js';
-import type {Ecma_Script_Target} from './ts_build_helpers.js';
+import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
 import {print_path} from '../paths.js';
 
 export type Create_Preprocessor = (

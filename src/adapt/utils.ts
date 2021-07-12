@@ -2,9 +2,9 @@ import {relative, dirname} from 'path';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {strip_end, strip_start} from '@feltcoop/felt/util/string.js';
 
-import type {Build_Config} from '../build/build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
-import type {Path_Stats} from '../fs/path_data.js';
+import type {Build_Config} from 'src/build/build_config.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Path_Stats} from 'src/fs/path_data.js';
 import {
 	EXTERNALS_BUILD_DIRNAME,
 	to_build_base_path,

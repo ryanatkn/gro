@@ -3,7 +3,7 @@
 	import Source_Id from './Source_Id.svelte';
 	import Build_Name from './Build_Name.svelte';
 	import {filter_selected_metas, get_builds_by_build_name} from './source_tree.js';
-	import type {Source_Tree} from './source_tree.js';
+	import type {Source_Tree} from 'src/client/source_tree.js';
 
 	export let source_tree: Source_Tree;
 	export let selected_build_names: string[];

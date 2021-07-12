@@ -4,8 +4,8 @@ import {createFilter} from '@rollup/pluginutils';
 import {green} from '@feltcoop/felt/util/terminal.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Gro_Css_Build} from './gro_css_build.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export interface Options {
 	fs: Filesystem;

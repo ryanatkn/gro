@@ -2,7 +2,7 @@
 	import type {Writable} from 'svelte/store';
 
 	import Source_Id from './Source_Id.svelte';
-	import type {Source_Meta} from '../build/source_meta.js';
+	import type {Source_Meta} from 'src/build/source_meta.js';
 
 	export let source_meta: Source_Meta;
 	export let selected_source_meta: Writable<Source_Meta | null>;

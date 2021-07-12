@@ -9,7 +9,7 @@ import {
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
 } from './input_path.js';
-import type {Path_Stats} from './path_data.js';
+import type {Path_Stats} from 'src/fs/path_data.js';
 import {gro_paths, replace_root_dir, create_paths, paths} from '../paths.js';
 import {fs} from './node.js';
 

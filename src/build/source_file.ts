@@ -2,19 +2,19 @@ import {basename, dirname, join} from 'path';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
-import type {Non_Buildable_Filer_Dir, Buildable_Filer_Dir, Filer_Dir} from '../build/filer_dir.js';
+import type {Non_Buildable_Filer_Dir, Buildable_Filer_Dir, Filer_Dir} from 'src/build/filer_dir.js';
 import {reconstruct_build_files} from './build_file.js';
-import type {Build_File} from './build_file.js';
-import type {Base_Filer_File} from './filer_file.js';
+import type {Build_File} from 'src/build/build_file.js';
+import type {Base_Filer_File} from 'src/build/filer_file.js';
 import {to_hash} from './utils.js';
-import type {Build_Config} from '../build/build_config.js';
-import type {Encoding} from '../fs/encoding.js';
-import type {Filer_File} from './Filer.js';
-import type {Source_Meta} from './source_meta.js';
-import type {Build_Dependency} from './build_dependency.js';
+import type {Build_Config} from 'src/build/build_config.js';
+import type {Encoding} from 'src/fs/encoding.js';
+import type {Filer_File} from 'src/build/Filer.js';
+import type {Source_Meta} from 'src/build/source_meta.js';
+import type {Build_Dependency} from 'src/build/build_dependency.js';
 import {EXTERNALS_BUILD_DIRNAME} from '../paths.js';
 import {is_external_module} from '../utils/module.js';
-import type {Build_Context} from './builder.js';
+import type {Build_Context} from 'src/build/builder.js';
 
 export type Source_File = Buildable_Source_File | Non_Buildable_Source_File;
 export type Buildable_Source_File = Buildable_Text_Source_File | Buildable_Binary_Source_File;

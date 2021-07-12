@@ -1,7 +1,7 @@
 import {join} from 'path';
 import type {Json} from '@feltcoop/felt/util/json.js';
 
-import type {Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 import {paths, gro_paths, is_this_project_gro} from '../paths.js';
 
 // This is a single entrypoint for getting the `package.json` of both the current project and Gro.

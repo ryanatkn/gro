@@ -7,14 +7,14 @@ import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {Ecma_Script_Target} from './ts_build_helpers.js';
+import type {Ecma_Script_Target} from 'src/build/ts_build_helpers.js';
 import {
 	base_svelte_compile_options,
 	create_default_preprocessor,
 	handle_stats,
 	handle_warn,
 } from './svelte_build_helpers.js';
-import type {Create_Preprocessor, Svelte_Compilation} from './svelte_build_helpers.js';
+import type {Create_Preprocessor, Svelte_Compilation} from 'src/build/svelte_build_helpers.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
@@ -22,10 +22,10 @@ import {
 	SVELTE_EXTENSION,
 	to_build_out_path,
 } from '../paths.js';
-import type {Builder, Text_Build_Source} from './builder.js';
-import type {Build_Config} from '../build/build_config.js';
+import type {Builder, Text_Build_Source} from 'src/build/builder.js';
+import type {Build_Config} from 'src/build/build_config.js';
 import {add_css_sourcemap_footer, add_js_sourcemap_footer} from './utils.js';
-import type {Build_File} from './build_file.js';
+import type {Build_File} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
 
 // TODO build types in production unless `declarations` is `false`,

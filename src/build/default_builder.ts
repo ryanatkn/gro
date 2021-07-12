@@ -1,14 +1,14 @@
-import type {Builder} from './builder.js';
+import type {Builder} from 'src/build/builder.js';
 import {EXTERNALS_SOURCE_ID} from './externals_build_helpers.js';
 import {SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {create_simple_builder} from './simple_builder.js';
-import type {Initial_Options as Simple_Builder_Initial_Options} from './simple_builder.js';
+import type {Initial_Options as Simple_Builder_Initial_Options} from 'src/build/simple_builder.js';
 import {create_esbuild_builder} from './esbuild_builder.js';
-import type {Initial_Options as Esbuild_Builder_Initial_Options} from './esbuild_builder.js';
+import type {Initial_Options as Esbuild_Builder_Initial_Options} from 'src/build/esbuild_builder.js';
 import {create_svelte_builder} from './svelte_builder.js';
-import type {Initial_Options as Svelte_Builder_Initial_Options} from './svelte_builder.js';
+import type {Initial_Options as Svelte_Builder_Initial_Options} from 'src/build/svelte_builder.js';
 import {create_externals_builder} from './externals_builder.js';
-import type {Initial_Options as Externals_Builder_Initial_Options} from './externals_builder.js';
+import type {Initial_Options as Externals_Builder_Initial_Options} from 'src/build/externals_builder.js';
 
 export const create_default_builder = (
 	esbuild_builder_options?: Esbuild_Builder_Initial_Options,
