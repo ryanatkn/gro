@@ -2,12 +2,13 @@ import {JS_EXTENSION, to_build_out_path} from '../paths.js';
 import type {Builder, Text_Build_Source} from 'src/build/builder.js';
 
 export interface Options {
-	// optimize: boolean; // TODO implement `JSON.parse(str)`
+	optimize?: boolean; // see `to_json_js_content` below
 }
 
 type Json_Builder = Builder<Text_Build_Source>;
 
-export const gro_builder_json = (_options: Options = {}): Json_Builder => {
+export const gro_builder_json = (options: Options = {}): Json_Builder => {
+	const {optimize = true} = options;
 	return {
 		name: '@feltcoop/gro_builder_json',
 		build: (source, build_config, {build_dir, dev}) => {
@@ -24,7 +25,7 @@ export const gro_builder_json = (_options: Options = {}): Json_Builder => {
 					dir: out_dir,
 					extension: JS_EXTENSION,
 					encoding: 'utf8',
-					content: `export default ${source.content}`,
+					content: to_json_js_content(source.content, optimize),
 					content_buffer: undefined,
 					content_hash: undefined,
 					stats: undefined,
@@ -34,3 +35,9 @@ export const gro_builder_json = (_options: Options = {}): Json_Builder => {
 		},
 	};
 };
+
+// Optimization described here:
+// https://v8.dev/blog/cost-of-javascript-2019#json
+// https://v8.dev/features/subsume-json#embedding-json-parse
+const to_json_js_content = (content: string, optimize: boolean): string =>
+	optimize ? `export default JSON.parse(${JSON.stringify(content)})` : `export default ${content}`;
