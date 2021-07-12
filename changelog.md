@@ -2,7 +2,7 @@
 
 ## 0.33.1
 
-- fix `gro_adapter_gro_frontend` by prebundling externals only for development builds
+- fix `gro_adapter_gro_frontend` by prebundling externals only in development
   ([#249](https://github.com/feltcoop/gro/pull/249))
 - upgrade `es-module-lexer@0.7.1`
   ([#248](https://github.com/feltcoop/gro/pull/248))
