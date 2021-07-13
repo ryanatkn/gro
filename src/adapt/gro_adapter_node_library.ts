@@ -1,6 +1,6 @@
 import {print_spawn_result, spawn} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
+import {replace_extension, strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import type {Adapter} from 'src/adapt/adapt.js';
@@ -138,8 +138,8 @@ export const create_adapter = ({
 				// update package.json with computed values
 				pkg.files = await to_pkg_files(fs, dir);
 				pkg.main = to_pkg_main(pkg);
-				pkg.types = `${pkg.main}${TS_TYPE_EXTENSION}`;
-				pkg.exports = to_pkg_exports(pkg.main, pkg.files, library_rebase_path);
+				pkg.types = replace_extension(pkg.main, TS_TYPE_EXTENSION);
+				pkg.exports = to_pkg_exports(pkg.main, files, library_rebase_path);
 
 				// write the new package.json
 				await fs.write_file(`${dir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
