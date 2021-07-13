@@ -3,7 +3,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
-import type {Adapter} from 'src/adapt/adapter.js';
+import type {Adapter} from 'src/adapt/adapt.js';
 import {Task_Error} from '../task/task.js';
 import {copy_dist} from './utils.js';
 import {

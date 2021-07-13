@@ -1,7 +1,7 @@
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
-import type {Adapter} from 'src/adapt/adapter.js';
+import type {Adapter} from 'src/adapt/adapt.js';
 import type {Host_Target} from 'src/adapt/utils.js';
 import {ensure_nojekyll} from './utils.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';

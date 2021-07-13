@@ -5,7 +5,7 @@ Although Gro is a [@feltcoop](https://github.com/feltcoop) project,
 I am its only developer for now,
 and we have [more important projects](https://github.com/feltcoop/felt)
 that occupy almost all of our time.
-For more you can read about [Gro's current philosophy](src/docs/philosophy.md).
+For more you can read about [Gro's current philosophy](/src/docs/philosophy.md).
 
 I don't want to spend much time on support outside of our needs.
 Some is fine, welcome even 😺 but there is a line 😾 and I don't know where it is yet.

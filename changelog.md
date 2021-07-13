@@ -1,5 +1,10 @@
 # changelog
 
+## 0.33.2
+
+- rename `src/adapt/adapt.ts` module and improve docs for `adapt` and `plugin`
+  ([#250](https://github.com/feltcoop/gro/pull/250))
+
 ## 0.33.1
 
 - fix `gro_adapter_gro_frontend` by prebundling externals only in development
@@ -251,8 +256,8 @@
 
 - **break**: redesign `gro publish` and `gro deploy`
   ([#187](https://github.com/feltcoop/gro/pull/187))
-- **break**: add [`Adapter` system](src/docs/build.md#adapters) and
-  [Node library adapter](src/adapt/gro_adapter_node_library.ts)
+- **break**: add [`Adapter` system](/src/docs/adapt.md) and
+  [Node library adapter](/src/adapt/gro_adapter_node_library.ts)
   ([#187](https://github.com/feltcoop/gro/pull/187))
 - **break**: add a default `"node"` build named `"node"` if one is not defined
   ([#187](https://github.com/feltcoop/gro/pull/187))
