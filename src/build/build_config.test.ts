@@ -4,7 +4,7 @@ import {join} from 'path';
 
 import {normalize_build_configs, validate_build_configs} from './build_config.js';
 import {paths} from '../paths.js';
-import {CONFIG_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './default_build_config.js';
+import {CONFIG_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './build_config_defaults.js';
 import {fs} from '../fs/node.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed

@@ -30,7 +30,7 @@ import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
 import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './gro_builder_svelte_utils.js';
 import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from './default_build_config.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from './build_config_defaults.js';
 
 export interface Options {
 	fs: Filesystem;

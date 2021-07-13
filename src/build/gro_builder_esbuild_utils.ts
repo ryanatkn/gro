@@ -1,7 +1,7 @@
 import type esbuild from 'esbuild';
 import type * as svelte_preprocess_esbuild from 'svelte-preprocess-esbuild';
 
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/build_config_defaults.js';
 import {is_this_project_gro} from '../paths.js';
 import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 

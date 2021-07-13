@@ -24,7 +24,7 @@ import {
 import {find_modules, load_modules} from '../fs/modules.js';
 import {load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../utils/package_json.js';
-import {SYSTEM_BUILD_NAME} from '../build/default_build_config.js';
+import {SYSTEM_BUILD_NAME} from '../build/build_config_defaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 /*

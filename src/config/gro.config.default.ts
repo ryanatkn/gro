@@ -9,7 +9,7 @@ import {
 	API_SERVER_BUILD_CONFIG,
 	has_gro_frontend,
 	to_default_browser_build,
-} from '../build/default_build_config.js';
+} from '../build/build_config_defaults.js';
 
 /*
 

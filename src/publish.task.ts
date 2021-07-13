@@ -6,8 +6,9 @@ import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
 
 import type {Task} from 'src/task/task.js';
+import {Task_Error} from './task/task.js';
 import {load_package_json} from './utils/package_json.js';
-import {GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
+import {GIT_DEPLOY_BRANCH} from './build/build_config_defaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
@@ -36,7 +37,7 @@ export const task: Task<Task_Args> = {
 			log.info(rainbow('dry run!'));
 		}
 		if (dev) {
-			log.warn('building in development mode; normally this is only for diagnostics');
+			throw new Task_Error('Task `gro publish` cannot be run in development mode');
 		}
 
 		const [version_increment] = args._;

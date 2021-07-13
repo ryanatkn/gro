@@ -23,7 +23,7 @@ import type {Encoding} from 'src/fs/encoding.js';
 import {print_build_config_label} from '../build/build_config.js';
 import type {Build_Name} from 'src/build/build_config.js';
 import type {Build_Config} from 'src/build/build_config.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/default_build_config.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/build_config_defaults.js';
 import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
 import {strip_base, to_served_dirs} from './served_dir.js';
 import type {Served_Dir, Served_Dir_Partial} from 'src/build/served_dir.js';

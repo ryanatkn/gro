@@ -4,8 +4,9 @@ import {print_error} from '@feltcoop/felt/util/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
 import type {Task} from 'src/task/task.js';
+import {Task_Error} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/default_build_config.js';
+import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/build_config_defaults.js';
 import {clean} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
@@ -38,8 +39,7 @@ export const task: Task<Task_Args> = {
 	dev: false,
 	run: async ({fs, invoke_task, args, log, dev}): Promise<void> => {
 		if (dev) {
-			log.error('deploy cannot be run in development mode');
-			return;
+			throw new Task_Error('Task `gro deploy` cannot be run in development mode');
 		}
 
 		const {dirname, branch, dry, clean: clean_and_exit} = args;

@@ -14,6 +14,7 @@ export interface Package_Json {
 	main?: string;
 	bin?: {[key: string]: string};
 	files?: string[];
+	exports?: Record<string, string>;
 }
 export interface Gro_Package_Json extends Package_Json {}
 

@@ -15,13 +15,15 @@ import {
 	TS_TYPEMAP_EXTENSION,
 	TS_TYPE_EXTENSION,
 	DIST_DIRNAME,
+	LIB_DIR,
 } from '../paths.js';
-import {NODE_LIBRARY_BUILD_NAME} from '../build/default_build_config.js';
+import {NODE_LIBRARY_BUILD_NAME} from '../build/build_config_defaults.js';
 import type {Build_Name} from 'src/build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {run_rollup} from '../build/rollup.js';
 import type {Path_Stats} from 'src/fs/path_data.js';
 import type {Package_Json} from 'src/utils/package_json.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 const name = '@feltcoop/gro_adapter_node_library';
 
@@ -34,7 +36,6 @@ const name = '@feltcoop/gro_adapter_node_library';
 // Import paths are *not* remapped by the adapter,
 // but Gro's build process does map `$lib/` and `src/` to relative paths.
 // This means all library modules must be under `src/lib` to work without additional transformation.
-const LIBRARY_DIR = 'lib/';
 // This function converts the build config's source file ids to the flattened base paths:
 const source_id_to_library_base_path = (source_id: string, library_rebase_path: string): string => {
 	const base_path = source_id_to_base_path(source_id);
@@ -57,20 +58,15 @@ export interface Options {
 	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 	library_rebase_path: string; // defaults to 'lib/', pass '' to avoid remapping -- TODO do we want to remove this after Gro follows SvelteKit conventions?
 	bundle: boolean; // defaults to `false`
-	// TODO currently these options are only available for 'bundled'
-	esm: boolean; // defaults to true
-	cjs: boolean; // defaults to true
 }
 
 export const create_adapter = ({
 	build_name = NODE_LIBRARY_BUILD_NAME,
 	dir = `${DIST_DIRNAME}/${build_name}`,
-	library_rebase_path = LIBRARY_DIR,
+	library_rebase_path = LIB_DIR,
 	package_json = 'package.json',
 	pack = true,
 	bundle = false,
-	esm = true,
-	cjs = true,
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = strip_trailing_slash(dir);
 	return {
@@ -97,37 +93,16 @@ export const create_adapter = ({
 				const input = files.map((source_id) => to_import_id(source_id, dev, build_config.name));
 				const output_dir = dir;
 				log.info('bundling', print_build_config_label(build_config), output_dir, files);
-				if (!cjs && !esm) {
-					throw Error(`Build must have either cjs or esm or both: ${build_name}`);
-				}
-				if (cjs) {
-					await run_rollup({
-						fs,
-						dev,
-						sourcemap: config.sourcemap,
-						input,
-						output_dir,
-						map_input_options,
-						map_output_options: (r, o) => ({
-							...(map_output_options ? map_output_options(r, o) : r),
-							format: 'commonjs',
-						}),
-						map_watch_options,
-					});
-					await fs.move(`${dir}/index.js`, `${dir}/index.cjs`);
-				}
-				if (esm) {
-					await run_rollup({
-						fs,
-						dev,
-						sourcemap: config.sourcemap,
-						input,
-						output_dir,
-						map_input_options,
-						map_output_options,
-						map_watch_options,
-					});
-				}
+				await run_rollup({
+					fs,
+					dev,
+					sourcemap: config.sourcemap,
+					input,
+					output_dir,
+					map_input_options,
+					map_output_options,
+					map_watch_options,
+				});
 				timing_to_bundle_with_rollup();
 			}
 
@@ -161,27 +136,10 @@ export const create_adapter = ({
 				await fs.copy(paths.source, `${dir}/${SOURCE_DIRNAME}`);
 
 				// update package.json with computed values
-
-				// add the "files" key to package.json
-				const pkg_files = new Set(pkg.files || []);
-				const dir_paths = await fs.read_dir(dir);
-				for (const path of dir_paths) {
-					if (!PACKAGE_FILES.has(path)) {
-						pkg_files.add(path);
-					}
-				}
-				pkg.files = Array.from(pkg_files);
-
-				// add the "exports" key to package.json
-				const pkg_exports: Record<string, string> = {
-					'.': pkg.main!,
-					'./package.json': './package.json',
-				};
-				for (const source_id of files) {
-					const path = `./${source_id_to_library_base_path(source_id, library_rebase_path)}`;
-					pkg_exports[path] = path;
-				}
-				pkg.exports = pkg_exports;
+				pkg.files = await to_pkg_files(fs, dir);
+				pkg.main = to_pkg_main(pkg);
+				pkg.types = `${pkg.main}${TS_TYPE_EXTENSION}`;
+				pkg.exports = to_pkg_exports(pkg.main, pkg.files, library_rebase_path);
 
 				// write the new package.json
 				await fs.write_file(`${dir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
@@ -226,3 +184,42 @@ const PACKAGE_FILES = new Set(
 	['package.json'].concat(to_possible_filenames(['README', 'LICENSE'])),
 );
 const OTHER_PACKAGE_FILES = new Set(to_possible_filenames(['CHANGELOG', 'GOVERNANCE']));
+
+const to_pkg_files = async (fs: Filesystem, dir: string): Promise<string[]> => {
+	const pkg_files: string[] = [];
+	const dir_paths = await fs.read_dir(dir);
+	for (const path of dir_paths) {
+		if (!PACKAGE_FILES.has(path)) {
+			pkg_files.push(path);
+		}
+	}
+	return pkg_files;
+};
+
+const to_pkg_main = (pkg: Package_Json): string => {
+	const pkg_main = pkg.main;
+	if (!pkg_main) {
+		return './index.js';
+	}
+	if (!pkg_main.startsWith('./')) {
+		// this isn't needed for `pkg.main`, but it is for `pkg.exports`, so just normalize
+		return `./${pkg_main}`;
+	}
+	return pkg_main;
+};
+
+const to_pkg_exports = (
+	pkg_main: string,
+	files: string[],
+	library_rebase_path: string,
+): Package_Json['exports'] => {
+	const pkg_exports: Package_Json['exports'] = {
+		'.': pkg_main,
+		'./package.json': './package.json',
+	};
+	for (const source_id of files) {
+		const path = `./${source_id_to_library_base_path(source_id, library_rebase_path)}`;
+		pkg_exports[path] = path;
+	}
+	return pkg_exports;
+};

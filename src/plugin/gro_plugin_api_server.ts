@@ -4,7 +4,7 @@ import {spawn_restartable_process} from '@feltcoop/felt/util/process.js';
 
 import type {Plugin} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
-import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/default_build_config.js';
+import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/build_config_defaults.js';
 import {to_build_out_dir} from '../paths.js';
 import type {Build_Config, Build_Name} from 'src/build/build_config.js';
 
