@@ -3,7 +3,7 @@ import {ENV_LOG_LEVEL, Log_Level} from '@feltcoop/felt/util/log.js';
 
 import type {Gro_Config_Creator, Gro_Config_Partial} from 'src/config/config.js';
 import {to_build_out_path} from './paths.js';
-import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/default_build_config.js';
+import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/build_config_defaults.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.

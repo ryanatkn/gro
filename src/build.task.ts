@@ -24,11 +24,10 @@ export const task: Task<Task_Args, Task_Events> = {
 	dev: false,
 	run: async (ctx): Promise<void> => {
 		const {fs, dev, log, events} = ctx;
-		if (dev) {
-			log.warn('building in development mode; normally this is only for diagnostics');
-		}
 
 		const timings = new Timings(); // TODO belongs in ctx
+
+		// TODO delete prod builds (what about config/system tho?)
 
 		const timing_to_load_config = timings.start('load config');
 		const config = await load_config(fs, dev);

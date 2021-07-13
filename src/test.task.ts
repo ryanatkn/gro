@@ -5,7 +5,7 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 import type {Task} from 'src/task/task.js';
 import {Task_Error} from './task/task.js';
 import {to_build_out_path, to_root_path} from './paths.js';
-import {SYSTEM_BUILD_NAME} from './build/default_build_config.js';
+import {SYSTEM_BUILD_NAME} from './build/build_config_defaults.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
 

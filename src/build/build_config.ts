@@ -4,7 +4,11 @@ import {blue, gray} from '@feltcoop/felt/util/terminal.js';
 import type {Result, Flavored} from '@feltcoop/felt/util/types.js';
 
 import {paths} from '../paths.js';
-import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './default_build_config.js';
+import {
+	CONFIG_BUILD_NAME,
+	SYSTEM_BUILD_CONFIG,
+	SYSTEM_BUILD_NAME,
+} from './build_config_defaults.js';
 import {validate_input_files} from './utils.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 

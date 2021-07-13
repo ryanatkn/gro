@@ -26,9 +26,11 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 export const SOURCE_DIRNAME = 'src';
 export const BUILD_DIRNAME = '.gro';
 export const DIST_DIRNAME = 'dist';
+export const LIB_DIRNAME = 'lib';
 export const SOURCE_DIR = `${SOURCE_DIRNAME}/`;
 export const BUILD_DIR = `${BUILD_DIRNAME}/`;
 export const DIST_DIR = `${DIST_DIRNAME}/`;
+export const LIB_DIR = `${LIB_DIRNAME}/`;
 
 export const CONFIG_SOURCE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_PATH = 'gro.config.js';

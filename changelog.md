@@ -1,7 +1,13 @@
 # changelog
 
-## 0.33.2
+## 0.34.0
 
+- **break**: remove `cjs` and `esm` options from `gro_adapter_node_library`;
+  for now only ESM is supported, to be revisited when we support package exports;
+  in the meantime users can fork the adapter for commonjs outputs
+  ([#251](https://github.com/feltcoop/gro/pull/251))
+- **break**: disallow running some tasks in development: `gro build`, `gro deploy`, `gro publish`
+  ([#251](https://github.com/feltcoop/gro/pull/251))
 - rename `src/adapt/adapt.ts` module and improve docs for `adapt` and `plugin`
   ([#250](https://github.com/feltcoop/gro/pull/250))
 

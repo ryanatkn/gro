@@ -12,7 +12,7 @@ import {print_build_config_label, to_input_files} from '../build/build_config.js
 import type {Build_Name} from 'src/build/build_config.js';
 import type {Host_Target} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
-import {BROWSER_BUILD_NAME, default_non_asset_extensions} from '../build/default_build_config.js';
+import {BROWSER_BUILD_NAME, default_non_asset_extensions} from '../build/build_config_defaults.js';
 import type {Id_Stats_Filter} from 'src/fs/filter.js';
 
 export interface Options {

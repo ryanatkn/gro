@@ -10,7 +10,7 @@ import {
 } from '../fs/input_path.js';
 import type {Path_Stats, Path_Data} from 'src/fs/path_data.js';
 import {to_import_id, paths_from_id, print_path, print_path_or_gro_path} from '../paths.js';
-import {SYSTEM_BUILD_NAME} from '../build/default_build_config.js';
+import {SYSTEM_BUILD_NAME} from '../build/build_config_defaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 /*
