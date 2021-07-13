@@ -32,9 +32,9 @@ It includes:
   - [unbundled development](/src/docs/dev.md)
     inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
     [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
-  - [configurable adapters](src/docs/build.md#adapter) featuring e.g.
+  - [configurable adapters](/src/docs/adapt.md) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
-  - [configurable plugins](src/docs/build.md#plugin) to support SvelteKit,
+  - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
     auto-restarting API servers, and other external build processes
   - fully integrated [TypeScript](https://github.com/microsoft/typescript)
     and [Svelte](https://github.com/sveltejs/svelte)
@@ -49,11 +49,11 @@ It includes:
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - codegen by convention (docs at [`src/gen`](/src/gen))
 - [dev server](/src/server/README.md) with efficient caching and http2/https support
-- integrated platform-independent [`fs`](src/fs/filesystem.ts)
+- integrated platform-independent [`fs`](/src/fs/filesystem.ts)
   (code is parameterized with an `fs` argument)
   - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
     a drop-in replacement for Node's `fs` with better semantics
-  - [memory](src/fs/memory.ts) implementation works everywhere JS runs
+  - [memory](/src/fs/memory.ts) implementation works everywhere JS runs
   - TODO more, like: `localStorage`, GitHub repo, generic keyvalue stores, a composition/proxy API
 - testing with [uvu](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier):
@@ -153,7 +153,7 @@ gro check # typecheck, run tests, and ensure generated files are current
 gro typecheck # just the typechecking
 ```
 
-To publish: (also see [`src/docs/publish.md`](src/docs/publish.md))
+To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))
 
 ```bash
 gro publish patch # bump version, publish to npm, and sync to GitHub

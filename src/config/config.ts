@@ -12,7 +12,7 @@ import {to_array} from '@feltcoop/felt/util/array.js';
 
 import {paths, to_build_out_path, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {normalize_build_configs, validate_build_configs} from '../build/build_config.js';
-import type {To_Config_Adapters} from 'src/adapt/adapter.js';
+import type {To_Config_Adapters} from 'src/adapt/adapt.js';
 import type {Build_Config, Build_Config_Partial} from 'src/build/build_config.js';
 import {
 	DEFAULT_ECMA_SCRIPT_TARGET,

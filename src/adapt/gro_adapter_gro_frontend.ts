@@ -4,7 +4,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import type {Plugin as Rollup_Plugin} from 'rollup';
 import {extname} from 'path';
 
-import type {Adapter} from 'src/adapt/adapter.js';
+import type {Adapter} from 'src/adapt/adapt.js';
 import type {Map_Input_Options} from 'src/build/rollup.js';
 import {run_rollup} from '../build/rollup.js';
 import {DIST_DIRNAME, source_id_to_base_path, to_import_id} from '../paths.js';

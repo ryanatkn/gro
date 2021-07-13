@@ -10,6 +10,9 @@ Gro has a number of builtin adapters:
 - [`gro_adapter_gro_frontend`](../adapt/gro_adapter_gro_frontend.ts)
 - [`gro_adapter_generic_build`](../adapt/gro_adapter_generic_build.ts)
 
+Also see [`config.adapt` in the config docs](config.md#adapt)
+and usage in [the default config](../config/gro.config.default.ts).
+
 ## adapters
 
 Gro borrows the `Adapter` concept from SvelteKit to help us control our builds.
@@ -22,7 +25,7 @@ gro build
 the build process has two discrete steps:
 
 1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{build_name}` for each build
-2. [`Adapter`](../adapt/adapter.ts)s run and output, umm, anything?
+2. [`Adapter`](../adapt/adapt.ts)s run and output, umm, anything?
    like SvelteKit apps, Node libraries, API servers, & more !
 
 > as we're thinking about them, `Adapter`s should not modify the content of `.gro/prod/`;
