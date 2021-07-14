@@ -183,7 +183,9 @@ const to_possible_filenames = (paths: string[]): string[] =>
 const PACKAGE_FILES = new Set(
 	['package.json'].concat(to_possible_filenames(['README', 'LICENSE'])),
 );
-const OTHER_PACKAGE_FILES = new Set(to_possible_filenames(['CHANGELOG', 'GOVERNANCE']));
+const OTHER_PACKAGE_FILES = new Set(
+	to_possible_filenames(['CHANGELOG', 'GOVERNANCE', 'tsconfig.json']),
+);
 
 const to_pkg_files = async (fs: Filesystem, dir: string): Promise<string[]> => {
 	const pkg_files: string[] = [];

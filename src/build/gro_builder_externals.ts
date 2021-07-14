@@ -112,7 +112,7 @@ export const gro_builder_externals = (options: Options = {}): ExternalsBuilder =
 							type: 'build',
 							source_id: source.id,
 							build_config,
-							dependencies_by_build_id: null,
+							dependencies: null,
 							id,
 							filename: basename(id),
 							dir: dirname(id),
@@ -133,9 +133,10 @@ export const gro_builder_externals = (options: Options = {}): ExternalsBuilder =
 			throw err;
 		}
 
-		return Promise.all(
+		await Promise.all(
 			build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
 		);
+		return build_files;
 	};
 
 	const init: ExternalsBuilder['init'] = async ({
@@ -233,7 +234,7 @@ const load_common_builds = async (
 				type: 'build',
 				source_id: EXTERNALS_SOURCE_ID,
 				build_config,
-				dependencies_by_build_id: null,
+				dependencies: null,
 				id: common_dependency_id,
 				filename: basename(common_dependency_id),
 				dir: dirname(common_dependency_id),

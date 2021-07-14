@@ -42,7 +42,8 @@
     "dist",
     "src",
     "changelog.md",
-    "contributing.md"
+    "contributing.md",
+    "tsconfig.json"
   ],
   "engines": {
     "node": ">=14.16.0"

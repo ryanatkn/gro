@@ -90,7 +90,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 					type: 'build',
 					source_id: source.id,
 					build_config,
-					dependencies_by_build_id: null,
+					dependencies: null,
 					id: `${out_dir}${source.filename}`,
 					filename: source.filename,
 					dir: out_dir,
@@ -103,9 +103,10 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 					mime_type: undefined,
 				},
 			];
-			return Promise.all(
+			await Promise.all(
 				build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
 			);
+			return build_files;
 		}
 
 		let preprocessed_code: string;
@@ -147,7 +148,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 				type: 'build',
 				source_id: source.id,
 				build_config,
-				dependencies_by_build_id: null,
+				dependencies: null,
 				id: js_id,
 				filename: js_filename,
 				dir: out_dir,
@@ -167,7 +168,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 				type: 'build',
 				source_id: source.id,
 				build_config,
-				dependencies_by_build_id: null,
+				dependencies: null,
 				id: js_id + SOURCEMAP_EXTENSION,
 				filename: js_filename + SOURCEMAP_EXTENSION,
 				dir: out_dir,
@@ -185,7 +186,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 				type: 'build',
 				source_id: source.id,
 				build_config,
-				dependencies_by_build_id: null,
+				dependencies: null,
 				id: css_id,
 				filename: css_filename,
 				dir: out_dir,
@@ -204,7 +205,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 					type: 'build',
 					source_id: source.id,
 					build_config,
-					dependencies_by_build_id: null,
+					dependencies: null,
 					id: css_id + SOURCEMAP_EXTENSION,
 					filename: css_filename + SOURCEMAP_EXTENSION,
 					dir: out_dir,
@@ -219,9 +220,10 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 			}
 		}
 
-		return Promise.all(
+		await Promise.all(
 			build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
 		);
+		return build_files;
 	};
 
 	return {name: '@feltcoop/gro_builder_svelte', build};
