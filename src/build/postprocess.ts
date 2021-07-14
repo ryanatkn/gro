@@ -84,6 +84,8 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 			}
 		}
 	} else if (extension === TS_TYPE_EXTENSION) {
+		// TODO what if we leveraged the fact that we could have processed the `.js` file first,
+		// so we'd have those lexed and parsed already, along with the original specifiers
 		const specifiers = parse_ts_imports_and_exports(content);
 		console.log('specifiers', specifiers);
 		for (const specifier of specifiers) {
