@@ -51,7 +51,6 @@ const to_sveltekit_args = (command: 'dev' | 'build', args: Task_Args): string[] 
 	const sveltekit_args = ['svelte-kit', command];
 	if (command === 'dev') {
 		if (args.port) {
-			console.log('ARGS', args.port, typeof args.port);
 			sveltekit_args.push('--port', args.port.toString());
 		}
 		if (args.open) {
