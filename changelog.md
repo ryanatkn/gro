@@ -4,6 +4,8 @@
 
 - forward args to `svelte-kit dev` and `svelte-kit build`
   ([#254](https://github.com/feltcoop/gro/pull/254))
+- improve type matcher regexp
+  ([#253](https://github.com/feltcoop/gro/pull/253))
 
 ## 0.34.1
 
