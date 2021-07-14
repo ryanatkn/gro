@@ -37,7 +37,7 @@ export interface Postprocess {
 // TODO refactor the TypeScript- and Svelte-specific postprocessing into the builders
 // so this remains generic (maybe remove this completely and just have helpers)
 
-// Mutates `build_file` with possibly new `content` and `dependencies_by_build_id`.
+// Mutates `build_file` with possibly new `content` and `dependencies`.
 // Defensively clone if upstream clone doesn't want mutation.
 export const postprocess: Postprocess = async (build_file, ctx, build_files, source) => {
 	if (build_file.encoding !== 'utf8') return;
@@ -46,13 +46,13 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 
 	let content = original_content;
 	const browser = build_config.platform === 'browser';
-	let dependencies_by_build_id: Map<string, Build_Dependency> | null = null;
+	let dependencies: Map<string, Build_Dependency> | null = null;
 
 	const handle_specifier: Handle_Specifier = (specifier) => {
 		const build_dependency = to_build_dependency(specifier, dir, build_config, source, ctx);
-		if (dependencies_by_build_id === null) dependencies_by_build_id = new Map();
-		if (!dependencies_by_build_id.has(build_dependency.build_id)) {
-			dependencies_by_build_id.set(build_dependency.build_id, build_dependency);
+		if (dependencies === null) dependencies = new Map();
+		if (!dependencies.has(build_dependency.build_id)) {
+			dependencies.set(build_dependency.build_id, build_dependency);
 		}
 		return build_dependency;
 	};
@@ -77,12 +77,12 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 			if (ctx.types) {
 				parse_type_dependencies(content as string, handle_specifier);
 			}
-			content = replace_dependencies(content, dependencies_by_build_id);
+			content = replace_dependencies(content, dependencies);
 			break;
 		}
 		case TS_TYPE_EXTENSION: {
 			parse_type_dependencies(content, handle_specifier);
-			content = replace_dependencies(content, dependencies_by_build_id);
+			content = replace_dependencies(content, dependencies);
 			break;
 		}
 	}
@@ -100,8 +100,7 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 	}
 
 	(build_file as Assignable<Build_File, 'content'>).content = content;
-	(build_file as Assignable<Build_File, 'dependencies_by_build_id'>).dependencies_by_build_id =
-		dependencies_by_build_id;
+	(build_file as Assignable<Build_File, 'dependencies'>).dependencies = dependencies;
 };
 
 interface Handle_Specifier {
@@ -253,11 +252,11 @@ const parse_type_dependencies = (content: string, handle_specifier: Handle_Speci
 
 const replace_dependencies = (
 	content: string,
-	dependencies_by_build_id: Map<string, Build_Dependency> | null,
+	dependencies: Map<string, Build_Dependency> | null,
 ): string => {
-	if (dependencies_by_build_id === null) return content;
+	if (dependencies === null) return content;
 	let final_content = content;
-	for (const dependency of dependencies_by_build_id.values()) {
+	for (const dependency of dependencies.values()) {
 		if (dependency.original_specifier === dependency.mapped_specifier) {
 			continue;
 		}

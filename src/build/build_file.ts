@@ -26,7 +26,7 @@ export interface Base_Build_File extends Base_Filer_File {
 	// the information of duplicate imports to the same dependency within each build file.
 	// We may want to store more granular dependency info, including imported identifiers,
 	// in the future.
-	readonly dependencies_by_build_id: Map<string, Build_Dependency> | null;
+	readonly dependencies: Map<string, Build_Dependency> | null;
 }
 
 export const reconstruct_build_files = async (
@@ -60,8 +60,7 @@ export const reconstruct_build_files = async (
 						type: 'build',
 						source_id: source_meta.data.source_id,
 						build_config,
-						dependencies_by_build_id:
-							dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
+						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 						id,
 						filename,
 						dir,
@@ -79,8 +78,7 @@ export const reconstruct_build_files = async (
 						type: 'build',
 						source_id: source_meta.data.source_id,
 						build_config,
-						dependencies_by_build_id:
-							dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
+						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 						id,
 						filename,
 						dir,
@@ -135,8 +133,8 @@ export const diff_dependencies = (
 	let new_dependencies: Map<string, Build_Dependency> | null = null;
 	let old_dependencies: Map<string, Build_Dependency> | null = null;
 	for (const new_file of new_files) {
-		if (new_file.dependencies_by_build_id !== null) {
-			for (const dependency of new_file.dependencies_by_build_id.values()) {
+		if (new_file.dependencies !== null) {
+			for (const dependency of new_file.dependencies.values()) {
 				if (new_dependencies === null) new_dependencies = new Map();
 				if (!new_dependencies.has(dependency.build_id)) {
 					new_dependencies.set(dependency.build_id, dependency);
@@ -146,8 +144,8 @@ export const diff_dependencies = (
 	}
 	if (old_files !== null) {
 		for (const old_file of old_files) {
-			if (old_file.dependencies_by_build_id !== null) {
-				for (const dependency of old_file.dependencies_by_build_id.values()) {
+			if (old_file.dependencies !== null) {
+				for (const dependency of old_file.dependencies.values()) {
 					if (old_dependencies === null) old_dependencies = new Map();
 					if (!old_dependencies.has(dependency.build_id)) {
 						old_dependencies.set(dependency.build_id, dependency);

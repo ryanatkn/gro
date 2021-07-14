@@ -65,8 +65,7 @@ export const update_source_meta = async (
 				(file): Source_Meta_Build => ({
 					id: file.id,
 					build_name: file.build_config.name,
-					dependencies:
-						file.dependencies_by_build_id && Array.from(file.dependencies_by_build_id.values()),
+					dependencies: file.dependencies && Array.from(file.dependencies.values()),
 					encoding: file.encoding,
 				}),
 			),
