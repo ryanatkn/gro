@@ -242,9 +242,22 @@ const to_relative_specifier_trimmed_by = (
 	return specifier;
 };
 
+/*
+
+TODO this fails on some input:
+
+export declare type Async_Status = 'initial' | 'pending' | 'success' | 'failure';
+const a = "from './array'";
+
+Some possible improvements:
+
+- add some negating condition to `[\s\S]*?` -- maybe a semicolon should break it?
+- expect a semicolon
+
+*/
 const parse_type_dependencies = (content: string, handle_specifier: Handle_Specifier): void => {
 	for (const matches of content.matchAll(
-		/(import\s+type|export)\s[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm,
+		/(import\s+type|export)[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm,
 	)) {
 		handle_specifier(matches[2]);
 	}
