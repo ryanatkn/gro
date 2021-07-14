@@ -47,9 +47,9 @@ export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<Task_
 	};
 };
 
-const to_sveltekit_args = (command: 'dev' | 'build', args: Task_Args): string[] => {
+const to_sveltekit_args = (command: 'dev' | 'build' | 'preview', args: Task_Args): string[] => {
 	const sveltekit_args = ['svelte-kit', command];
-	if (command === 'dev') {
+	if (command === 'dev' || command === 'preview') {
 		if (args.port) {
 			sveltekit_args.push('--port', args.port.toString());
 		}
