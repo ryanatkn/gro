@@ -1,5 +1,10 @@
 # changelog
 
+## 0.34.1
+
+- fix type publishing
+  ([#252](https://github.com/feltcoop/gro/pull/252))
+
 ## 0.34.0
 
 - **break**: remove `cjs` and `esm` options from `gro_adapter_node_library`;
