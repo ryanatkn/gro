@@ -1,5 +1,10 @@
 # changelog
 
+## 0.34.2
+
+- forward args to `svelte-kit dev` and `svelte-kit build`
+  ([#254](https://github.com/feltcoop/gro/pull/254))
+
 ## 0.34.1
 
 - fix type publishing
