@@ -55,72 +55,29 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 	};
 
 	// Map import paths to the built versions.
-	if (extension === JS_EXTENSION) {
-		content = parse_dependencies(content, handle_specifier, true);
-	} else if (extension === SVELTE_EXTENSION) {
-		// Support Svelte in production, outputting the plain `.svelte`
-		// but extracting and mapping dependencies.
-		// TODO this is hacky but seems the least-bad way to do it
-		// 1. compile to JS with the Svelte preprocessor
-		const extracted_js = await extract_js_from_svelte_for_dependencies(original_content);
-		// 2. use the existing dependency parsing and path transformation process
-		parse_dependencies(extracted_js, handle_specifier, false);
-		// 3. hackily replace the import paths in the original Svelte using a regexp
-		if (dependencies_by_build_id !== null) {
-			// `dependencies_by_build_id` has been set by `handle_specifier`
-			for (const dependency of (
-				dependencies_by_build_id as Map<string, Build_Dependency>
-			).values()) {
-				if (dependency.original_specifier === dependency.mapped_specifier) {
-					continue;
-				}
-				content = content.replace(
-					// TODO doesn't match exports -- probably should?
-					// TODO try to fix this to match against `import ...` and make sure it's not greedily broken
-					// TODO escape interpolated value?
-					new RegExp(`['|"|\`]${escape_regexp(dependency.original_specifier)}['|"|\`]`, 'g'),
-					`'${dependency.mapped_specifier}'`,
-				);
-			}
+	switch (extension) {
+		case JS_EXTENSION: {
+			content = parse_dependencies(content, handle_specifier, true);
+			break;
 		}
-	} else if (extension === TS_TYPE_EXTENSION) {
-		// TODO what if we leveraged the fact that we could have processed the `.js` file first,
-		// so we'd have those lexed and parsed already, along with the original specifiers
-		const specifiers = parse_ts_imports_and_exports(content);
-		console.log('specifiers', specifiers);
-		for (const specifier of specifiers) {
-			handle_specifier(specifier);
+		case SVELTE_EXTENSION: {
+			// Support Svelte in production, outputting the plain `.svelte`
+			// but extracting and mapping dependencies.
+			const extracted_js = await extract_js_from_svelte_for_dependencies(original_content);
+			parse_dependencies(extracted_js, handle_specifier, false);
+			content = replace_dependencies(content, dependencies_by_build_id);
+			break;
 		}
-		// TODO is copypasta from above
-		if (dependencies_by_build_id !== null) {
-			// `dependencies_by_build_id` has been set by `handle_specifier`
-			for (const dependency of (
-				dependencies_by_build_id as Map<string, Build_Dependency>
-			).values()) {
-				if (dependency.original_specifier === dependency.mapped_specifier) {
-					continue;
-				}
-				// TODO short-circuit if dep isn't mapped
-				content = content.replace(
-					// TODO doesn't match exports -- probably should?
-					// TODO try to fix this to match against `import ...` and make sure it's not greedily broken
-					// TODO escape interpolated value?
-					new RegExp(`['|"|\`]${escape_regexp(dependency.original_specifier)}['|"|\`]`, 'g'),
-					`'${dependency.mapped_specifier}'`,
-				);
-			}
+		case TS_TYPE_EXTENSION: {
+			parse_type_dependencies(content, handle_specifier);
+			content = replace_dependencies(content, dependencies_by_build_id);
+			break;
 		}
-		// console.log('build_file.id', build_file.id);
-		// console.log('matches', matches);
-		// TODO try to fix this to match against `import ...` and make sure it's not greedily broken
-		// 	,
-		// 	`$1 $2from '$3'`,
-		// );
 	}
 
-	// For TS files, we need to separately parse type imports and add them to the dependencies,
-	// because by the time we parse the JS files above with `es-module-lexer`,
-	// we've already lost the `import type` information from the TypeScript source.
+	// If types are included in the builds,
+	// and we're handling either TS files compiling to JS, or Svelte files compiling to JS or Svelte,
+	// we need to separately parse type imports and add them to the dependencies.
 	// TODO probably refactor into Rollup-like plugins
 	if (
 		ctx.types &&
@@ -128,10 +85,7 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 			(source.extension === SVELTE_EXTENSION &&
 				(extension === JS_EXTENSION || extension === SVELTE_EXTENSION)))
 	) {
-		const specifiers = parse_type_imports(source.content as string);
-		for (const specifier of specifiers) {
-			handle_specifier(specifier);
-		}
+		parse_type_dependencies(source.content as string, handle_specifier);
 	}
 
 	// Support Svelte CSS for development in the browser.
@@ -288,16 +242,31 @@ const to_relative_specifier_trimmed_by = (
 	return specifier;
 };
 
-const parse_type_imports = (content: string): string[] =>
-	Array.from(content.matchAll(/import\s+type[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm)).map(
-		(v) => v[1],
-	);
+const parse_type_dependencies = (content: string, handle_specifier: Handle_Specifier): void => {
+	for (const matches of content.matchAll(
+		/(import\s+type|export)\s[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm,
+	)) {
+		handle_specifier(matches[2]);
+	}
+};
 
-// TODO is the `from` correct?
-const parse_ts_imports_and_exports = (content: string): string[] =>
-	Array.from(content.matchAll(/[import|export]\s[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm)).map(
-		(v) => v[1],
-	);
+const replace_dependencies = (
+	content: string,
+	dependencies_by_build_id: Map<string, Build_Dependency> | null,
+): string => {
+	if (dependencies_by_build_id === null) return content;
+	let result = content;
+	for (const dependency of (dependencies_by_build_id as Map<string, Build_Dependency>).values()) {
+		if (dependency.original_specifier === dependency.mapped_specifier) {
+			continue;
+		}
+		result = result.replace(
+			new RegExp(`['|"|\`]${escape_regexp(dependency.original_specifier)}['|"|\`]`, 'g'),
+			`'${dependency.mapped_specifier}'`,
+		);
+	}
+	return result;
+};
 
 // TODO upstream to felt probably
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
