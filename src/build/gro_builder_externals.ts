@@ -133,9 +133,10 @@ export const gro_builder_externals = (options: Options = {}): ExternalsBuilder =
 			throw err;
 		}
 
-		return Promise.all(
+		await Promise.all(
 			build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
 		);
+		return build_files;
 	};
 
 	const init: ExternalsBuilder['init'] = async ({

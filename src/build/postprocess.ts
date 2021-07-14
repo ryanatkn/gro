@@ -1,5 +1,6 @@
 import {join, extname, relative, basename} from 'path';
 import * as lexer from 'es-module-lexer';
+import type {Assignable} from '@feltcoop/felt';
 
 import {
 	paths,
@@ -30,14 +31,16 @@ export interface Postprocess {
 		ctx: Build_Context,
 		build_files: Build_File[],
 		source: Build_Source,
-	): Promise<Build_File>;
+	): Promise<void>;
 }
 
 // TODO refactor the TypeScript- and Svelte-specific postprocessing into the builders
 // so this remains generic (maybe remove this completely and just have helpers)
 
+// Mutates `build_file` with possibly new `content` and `dependencies_by_build_id`.
+// Defensively clone if upstream clone doesn't want mutation.
 export const postprocess: Postprocess = async (build_file, ctx, build_files, source) => {
-	if (build_file.encoding !== 'utf8') return build_file;
+	if (build_file.encoding !== 'utf8') return;
 
 	const {dir, extension, content: original_content, build_config} = build_file;
 
@@ -57,14 +60,23 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 	// Map import paths to the built versions.
 	switch (extension) {
 		case JS_EXTENSION: {
-			content = parse_dependencies(content, handle_specifier, true);
+			content = parse_js_dependencies(content, handle_specifier, true);
+			if (
+				ctx.types &&
+				(source.extension === TS_EXTENSION || source.extension === SVELTE_EXTENSION)
+			) {
+				parse_type_dependencies(source.content as string, handle_specifier);
+			}
 			break;
 		}
 		case SVELTE_EXTENSION: {
 			// Support Svelte in production, outputting the plain `.svelte`
 			// but extracting and mapping dependencies.
 			const extracted_js = await extract_js_from_svelte_for_dependencies(original_content);
-			parse_dependencies(extracted_js, handle_specifier, false);
+			parse_js_dependencies(extracted_js, handle_specifier, false);
+			if (ctx.types) {
+				parse_type_dependencies(content as string, handle_specifier);
+			}
 			content = replace_dependencies(content, dependencies_by_build_id);
 			break;
 		}
@@ -73,19 +85,6 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 			content = replace_dependencies(content, dependencies_by_build_id);
 			break;
 		}
-	}
-
-	// If types are included in the builds,
-	// and we're handling either TS files compiling to JS, or Svelte files compiling to JS or Svelte,
-	// we need to separately parse type imports and add them to the dependencies.
-	// TODO probably refactor into Rollup-like plugins
-	if (
-		ctx.types &&
-		((source.extension === TS_EXTENSION && extension === JS_EXTENSION) ||
-			(source.extension === SVELTE_EXTENSION &&
-				(extension === JS_EXTENSION || extension === SVELTE_EXTENSION)))
-	) {
-		parse_type_dependencies(source.content as string, handle_specifier);
 	}
 
 	// Support Svelte CSS for development in the browser.
@@ -100,14 +99,16 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 		}
 	}
 
-	return {...build_file, content, dependencies_by_build_id};
+	(build_file as Assignable<Build_File, 'content'>).content = content;
+	(build_file as Assignable<Build_File, 'dependencies_by_build_id'>).dependencies_by_build_id =
+		dependencies_by_build_id;
 };
 
 interface Handle_Specifier {
 	(specifier: string): Build_Dependency;
 }
 
-const parse_dependencies = (
+const parse_js_dependencies = (
 	content: string,
 	handle_specifier: Handle_Specifier,
 	map_dependencies: boolean,
@@ -255,17 +256,17 @@ const replace_dependencies = (
 	dependencies_by_build_id: Map<string, Build_Dependency> | null,
 ): string => {
 	if (dependencies_by_build_id === null) return content;
-	let result = content;
-	for (const dependency of (dependencies_by_build_id as Map<string, Build_Dependency>).values()) {
+	let final_content = content;
+	for (const dependency of dependencies_by_build_id.values()) {
 		if (dependency.original_specifier === dependency.mapped_specifier) {
 			continue;
 		}
-		result = result.replace(
+		final_content = final_content.replace(
 			new RegExp(`['|"|\`]${escape_regexp(dependency.original_specifier)}['|"|\`]`, 'g'),
 			`'${dependency.mapped_specifier}'`,
 		);
 	}
-	return result;
+	return final_content;
 };
 
 // TODO upstream to felt probably

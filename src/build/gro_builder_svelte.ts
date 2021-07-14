@@ -103,9 +103,10 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 					mime_type: undefined,
 				},
 			];
-			return Promise.all(
+			await Promise.all(
 				build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
 			);
+			return build_files;
 		}
 
 		let preprocessed_code: string;
@@ -219,9 +220,10 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 			}
 		}
 
-		return Promise.all(
+		await Promise.all(
 			build_files.map((build_file) => postprocess(build_file, ctx, build_files, source)),
 		);
+		return build_files;
 	};
 
 	return {name: '@feltcoop/gro_builder_svelte', build};
