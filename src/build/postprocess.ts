@@ -10,6 +10,7 @@ import {
 	to_build_extension,
 	to_build_out_path,
 	TS_EXTENSION,
+	TS_TYPE_EXTENSION,
 } from '../paths.js';
 import type {Build_Context, Build_Source} from 'src/build/builder.js';
 import {
@@ -70,13 +71,49 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 			for (const dependency of (
 				dependencies_by_build_id as Map<string, Build_Dependency>
 			).values()) {
+				if (dependency.original_specifier === dependency.mapped_specifier) {
+					continue;
+				}
 				content = content.replace(
+					// TODO doesn't match exports -- probably should?
 					// TODO try to fix this to match against `import ...` and make sure it's not greedily broken
-					new RegExp(`['|"|\`]${dependency.original_specifier}['|"|\`]`, 'g'),
+					// TODO escape interpolated value?
+					new RegExp(`['|"|\`]${escape_regexp(dependency.original_specifier)}['|"|\`]`, 'g'),
 					`'${dependency.mapped_specifier}'`,
 				);
 			}
 		}
+	} else if (extension === TS_TYPE_EXTENSION) {
+		const specifiers = parse_ts_imports_and_exports(content);
+		console.log('specifiers', specifiers);
+		for (const specifier of specifiers) {
+			handle_specifier(specifier);
+		}
+		// TODO is copypasta from above
+		if (dependencies_by_build_id !== null) {
+			// `dependencies_by_build_id` has been set by `handle_specifier`
+			for (const dependency of (
+				dependencies_by_build_id as Map<string, Build_Dependency>
+			).values()) {
+				if (dependency.original_specifier === dependency.mapped_specifier) {
+					continue;
+				}
+				// TODO short-circuit if dep isn't mapped
+				content = content.replace(
+					// TODO doesn't match exports -- probably should?
+					// TODO try to fix this to match against `import ...` and make sure it's not greedily broken
+					// TODO escape interpolated value?
+					new RegExp(`['|"|\`]${escape_regexp(dependency.original_specifier)}['|"|\`]`, 'g'),
+					`'${dependency.mapped_specifier}'`,
+				);
+			}
+		}
+		// console.log('build_file.id', build_file.id);
+		// console.log('matches', matches);
+		// TODO try to fix this to match against `import ...` and make sure it's not greedily broken
+		// 	,
+		// 	`$1 $2from '$3'`,
+		// );
 	}
 
 	// For TS files, we need to separately parse type imports and add them to the dependencies,
@@ -253,6 +290,16 @@ const parse_type_imports = (content: string): string[] =>
 	Array.from(content.matchAll(/import\s+type[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm)).map(
 		(v) => v[1],
 	);
+
+// TODO is the `from` correct?
+const parse_ts_imports_and_exports = (content: string): string[] =>
+	Array.from(content.matchAll(/[import|export]\s[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm)).map(
+		(v) => v[1],
+	);
+
+// TODO upstream to felt probably
+// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+const escape_regexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const inject_svelte_css_import = (content: string, import_path: string, dev: boolean): string => {
 	let newline_index = content.length;
