@@ -1,6 +1,7 @@
 import {print_timings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
+import {yellow} from '@feltcoop/felt/util/terminal.js';
 
 import type {Task} from 'src/task/task.js';
 import {Task_Error} from './task/task.js';
@@ -39,7 +40,7 @@ export const task: Task = {
 			// and we don't force anything out in that case,
 			// so just exit early if that happens.
 			if (!(await fs.exists(tests_build_dir))) {
-				log.info('no tests found');
+				log.info(yellow('no tests found'));
 				return;
 			}
 		}
