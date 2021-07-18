@@ -8,7 +8,7 @@ import type {Gro_Config} from 'src/config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {build_source} from './build/build_source.js';
 import {Plugins} from './plugin/plugin.js';
-import {clean} from './fs/clean.js';
+import {clean_fs} from './fs/clean.js';
 
 export interface Task_Args {
 	clean?: boolean;
@@ -30,12 +30,12 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		const timings = new Timings(); // TODO belongs in ctx
 
-		const {clean: should_clean = true} = args;
+		const {clean = true} = args;
 
 		// Clean in the default case, but *not* for `gro publish` and `gro deploy`,
 		// because they call clean themselves first.
-		if (should_clean) {
-			await clean(fs, {build_prod: true}, log);
+		if (clean) {
+			await clean_fs(fs, {build_prod: true}, log);
 		}
 
 		// TODO delete prod builds (what about config/system tho?)

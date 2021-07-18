@@ -6,7 +6,7 @@ import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 import type {Args, Task} from 'src/task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/build_config_defaults.js';
-import {clean} from './fs/clean.js';
+import {clean_fs} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
 
@@ -89,7 +89,7 @@ export const task: Task<Task_Args> = {
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Get ready to build from scratch.
-		await clean(fs, {build_prod: true}, log);
+		await clean_fs(fs, {build_prod: true}, log);
 
 		if (clean_and_exit) {
 			log.info(rainbow('all clean'));
