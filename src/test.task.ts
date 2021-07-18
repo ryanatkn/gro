@@ -10,17 +10,13 @@ import {SYSTEM_BUILD_NAME} from './build/build_config_defaults.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
 
-export interface Task_Args {
-	_: string[];
-}
-
 // Runs the project's tests: `gro test [...args]`
 // Args are passed through directly to `uvu`'s CLI:
 // https://github.com/lukeed/uvu/blob/master/docs/cli.md
 
 const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 
-export const task: Task<Task_Args> = {
+export const task: Task = {
 	summary: 'run tests',
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const pattern_count = args._.length;
