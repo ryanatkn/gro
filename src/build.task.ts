@@ -32,8 +32,8 @@ export const task: Task<Task_Args, Task_Events> = {
 
 		const {clean = true} = args;
 
-		// Clean in the default case, but *not* for `gro publish` and `gro deploy`,
-		// because they call clean themselves first.
+		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
+		// This is used by `gro publish` and `gro deploy` because they call `clean_fs` themselves.
 		if (clean) {
 			await clean_fs(fs, {build_prod: true}, log);
 		}
