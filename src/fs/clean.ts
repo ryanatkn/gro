@@ -13,7 +13,7 @@ import {
 } from '../paths.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
-export const clean = async (
+export const clean_fs = async (
 	fs: Filesystem,
 	{
 		build = false,

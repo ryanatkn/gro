@@ -1,5 +1,10 @@
 # changelog
 
+## 0.34.3
+
+- clean during `gro build` except when invoked by `gro publish` and `gro deploy`
+  ([#255](https://github.com/feltcoop/gro/pull/255))
+
 ## 0.34.2
 
 - forward args to `svelte-kit dev` and `svelte-kit build`

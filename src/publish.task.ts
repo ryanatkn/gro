@@ -11,7 +11,7 @@ import {GIT_DEPLOY_BRANCH} from './build/build_config_defaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
-import {clean} from './fs/clean.js';
+import {clean_fs} from './fs/clean.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -48,7 +48,7 @@ export const task: Task<Task_Args> = {
 		await spawn('git', ['checkout', branch]);
 
 		// Clean before loading the config:
-		await clean(fs, {build_prod: true}, log);
+		await clean_fs(fs, {build_prod: true}, log);
 
 		const config = await load_config(fs, dev);
 		if (config.publish === null) {
@@ -68,7 +68,7 @@ export const task: Task<Task_Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build');
+		await invoke_task('build', {...args, clean: false});
 
 		if (dry) {
 			log.info({version_increment, publish: config.publish, branch});
