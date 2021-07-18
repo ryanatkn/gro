@@ -3,7 +3,7 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 import {print_error} from '@feltcoop/felt/util/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
-import type {Task} from 'src/task/task.js';
+import type {Args, Task} from 'src/task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/build_config_defaults.js';
 import {clean} from './fs/clean.js';
@@ -17,7 +17,7 @@ import {clean} from './fs/clean.js';
 // terminal command to clean up while live testing:
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
-export interface Task_Args {
+export interface Task_Args extends Args {
 	dirname?: string; // defaults to detecting 'svelte-kit' | 'browser'
 	branch?: string; // optional branch to deploy from; defaults to 'main'
 	dry?: boolean;
@@ -100,7 +100,7 @@ export const task: Task<Task_Args> = {
 
 		try {
 			// Run the build.
-			await invoke_task('build');
+			await invoke_task('build', {...args, clean: false});
 
 			// After the build is ready, set the deployed directory, inferring as needed.
 			if (dirname !== undefined) {

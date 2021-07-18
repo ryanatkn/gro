@@ -68,7 +68,7 @@ export const task: Task<Task_Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build');
+		await invoke_task('build', {...args, clean: false});
 
 		if (dry) {
 			log.info({version_increment, publish: config.publish, branch});
