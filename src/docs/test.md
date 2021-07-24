@@ -31,7 +31,9 @@ There are some conventions here that we're following
 in the hopes it will pay off down the line:
 
 - double underscore `test__` prefix
-- opening and closing tags `/* test__imported_thing */` to aid readability
+- opening and closing tags `/* test__imported_thing */`
+
+The "why" behind these choices include readability and uniformity to avoid mistakes.
 
 We recommend copy/pasting test files to avoid tedium.
 
