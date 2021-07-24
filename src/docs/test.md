@@ -7,7 +7,7 @@ and it points `uvu` at Gro's compiled JS outputs.
 A typical workflow includes running `gro dev` in one terminal
 and `gro test` in another when you want to check things.
 
-> TODO: add support for automatic test re-running
+> TODO add support for automatic test re-running
 
 ```bash
 gro test # run all tests
