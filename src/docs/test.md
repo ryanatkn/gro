@@ -40,12 +40,11 @@ test__imported_thing.run();
 ```
 
 There are some conventions here that we're following
-in the hopes it will pay off down the line:
+in the hopes they'll aid readability, help avoid mistakes,
+and possibly pay off in more ways down the line:
 
 - double underscore `test__` prefix
 - opening and closing tags `/* test__imported_thing */`
-
-The motivation behind these choices include readability and uniformity to avoid mistakes.
 
 We recommend copy/pasting test files to avoid tedium.
 
