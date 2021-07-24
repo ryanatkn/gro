@@ -4,6 +4,15 @@ Gro uses [`uvu`](https://github.com/lukeed/uvu) for tests.
 Internally, Gro has its own build system for your `src/` files,
 and it points `uvu` at Gro's compiled JS outputs.
 
+A typical workflow includes running `gro dev` in one terminal
+and `gro test` in another when you want to check things.
+There is currently no watcher and automatic re-running. (TODO)
+
+```bash
+gro test # run all tests
+gro test build/Filer.test.js\$ # run tests matching an uvu pattern: https://github.com/lukeed/uvu
+```
+
 The builtin [`gro test`](/src/test.task.ts)
 [task](/src/task/README.md) runs all `*.test.*` files in your project by default.
 (excluding [`*.gen.*` files](/src/gen/README.md))
