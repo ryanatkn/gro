@@ -6,12 +6,15 @@ and it points `uvu` at Gro's compiled JS outputs.
 
 A typical workflow includes running `gro dev` in one terminal
 and `gro test` in another when you want to check things.
-There is currently no watcher with automatic re-running. (TODO)
+
+> TODO: add support for automatic test re-running
 
 ```bash
 gro test # run all tests
 gro test build/Filer.test.js\$ # run tests matching an uvu pattern: https://github.com/lukeed/uvu
 ```
+
+> TODO exclude `.map` files by default, making the `\$` above unnecessary
 
 The builtin [`gro test`](/src/test.task.ts)
 [task](/src/task/README.md) runs all `*.test.*` files in your project by default.
