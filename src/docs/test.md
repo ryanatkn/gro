@@ -4,7 +4,9 @@ Gro uses [`uvu`](https://github.com/lukeed/uvu) for tests.
 Internally, Gro has its own build system for your `src/` files,
 and it points `uvu` at Gro's compiled JS outputs.
 
-The builtin [`gro test`](/src/test.task.ts) task runs all `*.test.*` files in your project by default. (excluding [`*.gen.*` files](/src/gen/README.md))
+The builtin [`gro test`](/src/test.task.ts)
+[task](/src/task/README.md) runs all `*.test.*` files in your project by default.
+(excluding [`*.gen.*` files](/src/gen/README.md))
 So to make new tests, make a new file:
 
 ```ts
@@ -32,3 +34,5 @@ in the hopes it will pay off down the line:
 - opening and closing tags `/* test__imported_thing */` to aid readability
 
 We recommend copy/pasting test files to avoid tedium.
+
+# 🐌
