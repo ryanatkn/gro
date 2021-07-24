@@ -6,7 +6,7 @@ and it points `uvu` at Gro's compiled JS outputs.
 
 A typical workflow includes running `gro dev` in one terminal
 and `gro test` in another when you want to check things.
-There is currently no watcher and automatic re-running. (TODO)
+There is currently no watcher with automatic re-running. (TODO)
 
 ```bash
 gro test # run all tests

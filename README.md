@@ -117,7 +117,7 @@ gro dev # start the dev server in watch mode
 gro build # build everything for production
 ```
 
-Testing with [`uvu`](https://github.com/lukeed/uvu):
+[Testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
