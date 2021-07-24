@@ -70,7 +70,7 @@ It includes:
   - [publish](/src/docs/publish.md)
 - [`task`](/src/task#readme) runner
   - [tasks](/src/docs/tasks.md) list
-- [test](/src/docs/test.md) runner with [`uvu`](https://github.com/lukeed/uvu)
+- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [dev server](/src/server#readme)
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs#readme)
