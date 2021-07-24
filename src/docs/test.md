@@ -44,7 +44,7 @@ in the hopes they'll aid readability, help avoid mistakes,
 and possibly pay off in more ways down the line:
 
 - double underscore `test__` prefix
-- opening and closing tags `/* test__imported_thing */`
+- opening and closing tags `/* test__imported_thing */` around each suite
 
 We recommend copy/pasting test files to avoid tedium.
 
