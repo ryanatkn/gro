@@ -1,9 +1,9 @@
 # changelog
 
-## 0.34.3
+## 0.34.4
 
 - make the dev server a plugin
-  ([#257](https://github.com/feltcoop/gro/pull/257))
+  ([#258](https://github.com/feltcoop/gro/pull/258))
 
 ## 0.34.3
 
