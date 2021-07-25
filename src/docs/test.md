@@ -1,6 +1,7 @@
 # test
 
-Gro uses [`uvu`](https://github.com/lukeed/uvu) for tests and forwards args to it from `gro test`.
+Gro uses [`uvu`](https://github.com/lukeed/uvu) for tests --
+when you run `gro test [...args]`, you're running `uvu [...args]` within Gro's normal task context.
 Internally, Gro has its own build system for your `src/` files,
 and it points `uvu` at Gro's compiled JS outputs.
 
