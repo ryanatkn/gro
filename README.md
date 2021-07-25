@@ -47,15 +47,15 @@ It includes:
 - [task runner](/src/task) that uses the filesystem convention `*.task.ts`
   (docs at [`src/task`](/src/task))
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
-- codegen by convention (docs at [`src/gen`](/src/gen))
+- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [dev server](/src/server/README.md) with efficient caching and http2/https support
+- codegen by convention (docs at [`src/gen`](/src/gen))
 - integrated platform-independent [`fs`](/src/fs/filesystem.ts)
   (code is parameterized with an `fs` argument)
   - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
     a drop-in replacement for Node's `fs` with better semantics
   - [memory](/src/fs/memory.ts) implementation works everywhere JS runs
   - TODO more, like: `localStorage`, GitHub repo, generic keyvalue stores, a composition/proxy API
-- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
 - more to come, exploring what deeply integrated tools enable
