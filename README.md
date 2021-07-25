@@ -55,7 +55,7 @@ It includes:
     a drop-in replacement for Node's `fs` with better semantics
   - [memory](/src/fs/memory.ts) implementation works everywhere JS runs
   - TODO more, like: `localStorage`, GitHub repo, generic keyvalue stores, a composition/proxy API
-- testing with [uvu](https://github.com/lukeed/uvu)
+- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
 - more to come, exploring what deeply integrated tools enable
@@ -70,6 +70,7 @@ It includes:
   - [publish](/src/docs/publish.md)
 - [`task`](/src/task#readme) runner
   - [tasks](/src/docs/tasks.md) list
+- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [dev server](/src/server#readme)
 - [`gen`](/src/gen) code generation
 - other [docs](/src/docs#readme)
@@ -116,7 +117,7 @@ gro dev # start the dev server in watch mode
 gro build # build everything for production
 ```
 
-Testing with [`uvu`](https://github.com/lukeed/uvu):
+[Testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args

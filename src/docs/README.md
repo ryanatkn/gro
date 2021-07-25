@@ -13,6 +13,7 @@
 - [plugin](plugin.md)
 - [publish](publish.md)
 - [tasks](tasks.md)
+- [test](test.md)
 
 > <sub>[gro](/../..) / docs / README.md</sub>
 
