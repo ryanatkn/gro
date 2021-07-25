@@ -2,6 +2,11 @@
 
 ## 0.34.3
 
+- make the dev server a plugin
+  ([#257](https://github.com/feltcoop/gro/pull/257))
+
+## 0.34.3
+
 - clean during `gro build` except when invoked by `gro publish` and `gro deploy`
   ([#255](https://github.com/feltcoop/gro/pull/255))
 
