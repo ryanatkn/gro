@@ -75,7 +75,9 @@
   },
   "peerDependencies": {
     "source-map-support": "^0.5.19",
-    "uvu": "^0.5.1"
+    "uvu": "^0.5.1",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.11",
