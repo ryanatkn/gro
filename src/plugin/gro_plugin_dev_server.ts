@@ -20,6 +20,7 @@ export interface Dev_Server_Plugin_Context {
 export const create_plugin = (): Plugin<
 	Plugin_Context<Task_Args, {}> & Dev_Server_Plugin_Context
 > => {
+	let started_server = false;
 	return {
 		name,
 		setup: async (ctx) => {
@@ -38,10 +39,11 @@ export const create_plugin = (): Plugin<
 				const timing_to_start_gro_server = timings.start('start dev server');
 				await ctx.server.start();
 				timing_to_start_gro_server();
+				started_server = true;
 			}
 		},
 		teardown: async (ctx) => {
-			if (ctx.server) {
+			if (started_server && ctx.server) {
 				await ctx.server.close();
 				ctx.server = undefined;
 			}
