@@ -23,11 +23,11 @@ The builtin [`gro test`](/src/test.task.ts)
 So to make new tests, make a new file:
 
 ```ts
-// src/lib/imported_thing.test.ts testing src/lib/imported_thing.ts
+// src/lib/imported_thing.test.ts <-- make this file to test this one --> src/lib/imported_thing.ts
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {inputed_thing} from '$lib/imported_thing.js';
+import {imported_thing} from '$lib/imported_thing.js';
 
 /* test__imported_thing */
 const test__imported_thing = suite('imported_thing');
