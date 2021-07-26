@@ -14,6 +14,7 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 import {strip_after} from '@feltcoop/felt/util/string.js';
 import type {Assignable} from '@feltcoop/felt/util/types.js';
 import {to_env_number, to_env_string} from '@feltcoop/felt/util/env.js';
+import {promisify} from 'util';
 
 import type {Filer} from 'src/build/Filer.js';
 import {
@@ -37,6 +38,7 @@ type Http2StreamHandler = (
 export interface Gro_Server {
 	readonly server: Http1_Server | Http2Server;
 	start(): Promise<void>;
+	close(): Promise<void>;
 	readonly host: string;
 	readonly port: number;
 }
@@ -124,6 +126,10 @@ export const create_gro_server = (options: Options): Gro_Server => {
 					resolve();
 				});
 			});
+		},
+		close: async () => {
+			await promisify(server.close.bind(server))();
+			log.trace(rainbow('closed'));
 		},
 	};
 	return gro_server;

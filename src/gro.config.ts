@@ -11,6 +11,7 @@ import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/build_confi
 export const config: Gro_Config_Creator = async ({dev}) => {
 	// TODO not this
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
+	const enable_browser_build = dev;
 	const partial: Gro_Config_Partial = {
 		builds: [
 			{
@@ -28,7 +29,7 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 				],
 			},
 			// the Gro browser build is currently an internal experiment
-			dev
+			enable_browser_build
 				? {
 						name: BROWSER_BUILD_NAME,
 						platform: 'browser',
@@ -47,6 +48,11 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 			// then look for files in `$PROJECT/src/`
 			to_build_out_path(true, BROWSER_BUILD_NAME, ''),
 			// then.. no file found
+		],
+		plugin: async () => [
+			enable_browser_build
+				? (await import('./plugin/gro_plugin_dev_server.js')).create_plugin()
+				: null,
 		],
 		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>
