@@ -2,7 +2,7 @@ import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
 import {spawn, spawn_process} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 
-import type {Plugin} from 'src/plugin/plugin.js';
+import type {Plugin, Plugin_Context} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
 
 export interface Options {}
@@ -20,7 +20,9 @@ export interface Task_Args extends Args {
 
 const name = '@feltcoop/gro_adapter_sveltekit_frontend';
 
-export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<Task_Args, {}> => {
+export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
+	Plugin_Context<Task_Args, {}>
+> => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
 		name,

@@ -1,6 +1,7 @@
 # test
 
-Gro uses [`uvu`](https://github.com/lukeed/uvu) for tests and forwards args to it from `gro test`.
+Gro uses [`uvu`](https://github.com/lukeed/uvu) for tests --
+when you run `gro test [...args]`, you're running `uvu [...args]` within Gro's normal task context.
 Internally, Gro has its own build system for your `src/` files,
 and it points `uvu` at Gro's compiled JS outputs.
 
@@ -45,6 +46,7 @@ and possibly pay off in more ways down the line:
 
 - double underscore `test__` prefix
 - opening and closing tags `/* test__imported_thing */` around each suite
+- name each suite according to what it's testing, as much as makes sense
 
 We recommend copy/pasting test files to avoid tedium.
 

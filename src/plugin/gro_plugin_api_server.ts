@@ -2,7 +2,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import type {Restartable_Process} from '@feltcoop/felt/util/process.js';
 import {spawn_restartable_process} from '@feltcoop/felt/util/process.js';
 
-import type {Plugin} from 'src/plugin/plugin.js';
+import type {Plugin, Plugin_Context} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/build_config_defaults.js';
 import {to_build_out_dir} from '../paths.js';
@@ -22,7 +22,7 @@ export interface Task_Args extends Args {
 export const create_plugin = ({
 	build_name = API_SERVER_BUILD_NAME,
 	base_build_path = API_SERVER_BUILD_BASE_PATH,
-}: Partial<Options> = EMPTY_OBJECT): Plugin<Task_Args, {}> => {
+}: Partial<Options> = EMPTY_OBJECT): Plugin<Plugin_Context<Task_Args, {}>> => {
 	let server_process: Restartable_Process | null = null;
 
 	// TODO type
@@ -35,7 +35,7 @@ export const create_plugin = ({
 	};
 
 	return {
-		name: '@feltcoop/gro_plugin_sveltekit_frontend',
+		name: '@feltcoop/gro_plugin_api_server',
 		setup: async ({dev, fs, filer}) => {
 			// When `src/lib/server/server.ts` or any of its dependencies change, restart the API server.
 			const server_build_path = `${to_build_out_dir(dev)}/${build_name}/${base_build_path}`;

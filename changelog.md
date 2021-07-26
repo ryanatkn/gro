@@ -1,5 +1,12 @@
 # changelog
 
+## 0.35.0
+
+- **break**: remove dev task event `dev.create_server` and add `dev.create_context`
+  ([#258](https://github.com/feltcoop/gro/pull/258))
+- make the dev server a plugin
+  ([#258](https://github.com/feltcoop/gro/pull/258))
+
 ## 0.34.3
 
 - clean during `gro build` except when invoked by `gro publish` and `gro deploy`

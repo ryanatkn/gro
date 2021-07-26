@@ -45,7 +45,8 @@ It's trying to say "look out for the opinions: it's normal to disagree; MIT".
 But Gro _is_ more general-purpose than the phrase may suggest.
 But SvelteKit and Vite are _actually designed to be_ general-purpose tools.
 Please set your expectations accordingly 🐢
-I expect we'll see more kits/metaframeworks tailored to needs beyond Gro's scope.
+I expect we'll see more and more kits tailored
+to needs beyond Gro's already-opinionated scope.
 
 > **fun fact**: not every design detail in Gro is an opinion! sometimes it's just an implementation 🐌
 

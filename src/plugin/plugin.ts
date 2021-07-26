@@ -12,16 +12,16 @@ In contrast, `Adapter`s use the results of `gro build` to produce final artifact
 
 */
 
-export interface Plugin<T_Args = any, T_Events = any> {
+export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
 	name: string;
-	setup?: (ctx: Plugin_Context<T_Args, T_Events>) => void | Promise<void>;
-	teardown?: (ctx: Plugin_Context<T_Args, T_Events>) => void | Promise<void>;
+	setup?: (ctx: T_Plugin_Context) => void | Promise<void>;
+	teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
 }
 
-export interface To_Config_Plugins<T_Args = any, T_Events = any> {
-	(ctx: Plugin_Context<T_Args, T_Events>):
-		| (Plugin<T_Args, T_Events> | null | (Plugin<T_Args, T_Events> | null)[])
-		| Promise<Plugin<T_Args, T_Events> | null | (Plugin<T_Args, T_Events> | null)[]>;
+export interface To_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
+	(ctx: T_Plugin_Context):
+		| (Plugin<T_Plugin_Context> | null | (Plugin<T_Plugin_Context> | null)[])
+		| Promise<Plugin<T_Plugin_Context> | null | (Plugin<T_Plugin_Context> | null)[]>;
 }
 
 export interface Plugin_Context<T_Args = any, T_Events = any>
@@ -31,18 +31,18 @@ export interface Plugin_Context<T_Args = any, T_Events = any>
 	timings: Timings;
 }
 
-export class Plugins {
+export class Plugins<T_Plugin_Context extends Plugin_Context> {
 	constructor(
-		private readonly ctx: Plugin_Context,
+		private readonly ctx: T_Plugin_Context,
 		private readonly instances: readonly Plugin[],
 	) {}
 
-	static async create(ctx: Plugin_Context): Promise<Plugins> {
+	static async create<T_Plugin_Context extends Plugin_Context>(
+		ctx: T_Plugin_Context,
+	): Promise<Plugins<T_Plugin_Context>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
-		const instances: Plugin<any, any>[] = to_array(await ctx.config.plugin(ctx)).filter(
-			Boolean,
-		) as Plugin<any, any>[];
+		const instances: Plugin[] = to_array(await ctx.config.plugin(ctx)).filter(Boolean) as any;
 		const plugins = new Plugins(ctx, instances);
 		timing_to_create();
 		return plugins;
