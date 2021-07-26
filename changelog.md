@@ -1,5 +1,11 @@
 # changelog
 
+## 0.36.1
+
+- add some convenience peer dependencies like `@types/source-map-support` --
+  is this a good idea?
+  ([#260](https://github.com/feltcoop/gro/pull/260))
+
 ## 0.36.0
 
 - **break**: fix test sourcemaps by adding
