@@ -28,7 +28,6 @@ export interface Dev_Task_Context
 export interface Task_Events {
 	'dev.create_config': (config: Gro_Config) => void;
 	'dev.create_filer': (filer: Filer) => void;
-	'dev.create_server': (server: Gro_Server) => void;
 	'dev.ready': (ctx: Dev_Task_Context) => void;
 }
 
@@ -71,15 +70,11 @@ export const task: Task<Task_Args, Task_Events> = {
 			timing_to_init_filer();
 		};
 
-		// TODO should this be a Svelte store?
 		const dev_task_context: Dev_Task_Context = {...ctx, config, filer, timings};
-		// events.emit('dev.init_dev_task_context', dev_task_context);
 
 		const plugins = await Plugins.create(dev_task_context);
 
-		if (dev_task_context.server) {
-			events.emit('dev.create_server', dev_task_context.server);
-		}
+		events.emit('dev.ready', dev_task_context);
 
 		await init_filer();
 
@@ -88,9 +83,6 @@ export const task: Task<Task_Args, Task_Events> = {
 		if (!watch) {
 			await plugins.teardown();
 		}
-
-		// const dev_task_context: Dev_Task_Context = {config, server, filer};
-		events.emit('dev.ready', dev_task_context);
 
 		print_timings(timings, log);
 	},
