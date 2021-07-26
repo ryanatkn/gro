@@ -18,6 +18,7 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 				...NODE_LIBRARY_BUILD_CONFIG,
 				input: [
 					'index.ts',
+					'test_setup.test.ts',
 					'cli/gro.ts',
 					'cli/invoke.ts',
 					'client/devtools.ts',
