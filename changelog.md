@@ -2,7 +2,10 @@
 
 ## 0.35.1
 
-- fix sourcemaps for tests internally
+- fix test sourcemaps by adding
+  [`GroConfig` option `main_test`](src/docs/config.md#main_test),
+  which initializes projects with a conventional `lib/main.test.ts`
+  for installing sourcemaps and other global test concerns
   ([#259](https://github.com/feltcoop/gro/pull/259))
 
 ## 0.35.0

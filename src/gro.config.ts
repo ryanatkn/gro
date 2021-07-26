@@ -2,7 +2,7 @@ import {createFilter} from '@rollup/pluginutils';
 import {ENV_LOG_LEVEL, Log_Level} from '@feltcoop/felt/util/log.js';
 
 import type {Gro_Config_Creator, Gro_Config_Partial} from 'src/config/config.js';
-import {to_build_out_path} from './paths.js';
+import {MAIN_TEST_PATH, to_build_out_path} from './paths.js';
 import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/build_config_defaults.js';
 
 // This is the config for the Gro project itself.
@@ -18,7 +18,7 @@ export const config: Gro_Config_Creator = async ({dev}) => {
 				...NODE_LIBRARY_BUILD_CONFIG,
 				input: [
 					'index.ts',
-					'index.test.ts',
+					MAIN_TEST_PATH,
 					'cli/gro.ts',
 					'cli/invoke.ts',
 					'client/devtools.ts',

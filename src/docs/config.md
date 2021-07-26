@@ -55,6 +55,7 @@ export interface Gro_Config_Partial {
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly typemap?: boolean; // defaults to false in `dev`, true for prod
 	readonly types?: boolean; // defaults to false
+	readonly main_test?: string | null; // defaults to 'lib/main.test.ts', set `null` to disable
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
 	readonly log_level?: Log_Level; // env.GRO_LOG_LEVEL
@@ -182,3 +183,10 @@ config = {
 	],
 };
 ```
+
+### `main_test`
+
+Defaults to `'lib/main.test.ts'`, set `null` to disable.
+This is a conventional Gro file that it'll create automatically when `gro test` is invoked.
+Users are encouraged to commit this file and edit it as needed;
+by default it installs test sourcemaps by importing the dependency `source-map-support`.

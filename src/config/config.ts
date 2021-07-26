@@ -9,8 +9,16 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 import {omit_undefined} from '@feltcoop/felt/util/object.js';
 import type {Assignable, Result} from '@feltcoop/felt/util/types.js';
 import {to_array} from '@feltcoop/felt/util/array.js';
+import {resolve} from 'path';
 
-import {paths, to_build_out_path, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
+import {
+	paths,
+	to_build_out_path,
+	CONFIG_BUILD_PATH,
+	DIST_DIRNAME,
+	MAIN_TEST_PATH,
+	SOURCE_DIRNAME,
+} from '../paths.js';
 import {normalize_build_configs, validate_build_configs} from '../build/build_config.js';
 import type {To_Config_Adapters} from 'src/adapt/adapt.js';
 import type {Build_Config, Build_Config_Partial} from 'src/build/build_config.js';
@@ -54,6 +62,7 @@ export interface Gro_Config {
 	readonly sourcemap: boolean;
 	readonly typemap: boolean;
 	readonly types: boolean;
+	readonly main_test: string | null;
 	readonly host: string;
 	readonly port: number;
 	readonly log_level: Log_Level;
@@ -70,6 +79,7 @@ export interface Gro_Config_Partial {
 	readonly sourcemap?: boolean;
 	readonly typemap?: boolean;
 	readonly types?: boolean;
+	readonly main_test?: string | null;
 	readonly host?: string;
 	readonly port?: number;
 	readonly log_level?: Log_Level;
@@ -209,6 +219,7 @@ const to_bootstrap_config = (): Gro_Config => {
 		types: false,
 		host: DEFAULT_SERVER_HOST,
 		port: DEFAULT_SERVER_PORT,
+		main_test: null,
 		log_level: DEFAULT_LOG_LEVEL,
 		plugin: () => null,
 		adapt: () => null,
@@ -250,6 +261,9 @@ const normalize_config = (config: Gro_Config_Partial, dev: boolean): Gro_Config 
 		adapt: () => null,
 		serve: null,
 		...omit_undefined(config),
+		main_test: to_main_test_path(
+			config.main_test === undefined ? MAIN_TEST_PATH : config.main_test,
+		), // TODO better path normalization
 		builds: build_configs,
 		publish:
 			config.publish || config.publish === null
@@ -266,3 +280,7 @@ const to_default_publish_dirs = (build_configs: Build_Config[]): string | null =
 	const build_config_to_publish = build_configs.find((b) => b.name === NODE_LIBRARY_BUILD_NAME);
 	return build_config_to_publish ? `${DIST_DIRNAME}/${build_config_to_publish.name}` : null;
 };
+
+// treats empty string as `null`, making Gro ignoring the `main_path`
+const to_main_test_path = (main_test: string | null): string | null =>
+	main_test ? resolve(SOURCE_DIRNAME, main_test) : null;
