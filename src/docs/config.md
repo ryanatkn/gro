@@ -186,7 +186,8 @@ config = {
 
 ### `main_test`
 
-Defaults to `'lib/main.test.ts'`, set `null` to disable.
-This is a conventional Gro file that it'll create automatically when `gro test` is invoked.
-Users are encouraged to commit this file and edit it as needed;
-by default it installs test sourcemaps by importing the dependency `source-map-support`.
+Defaults to copying [`'lib/main.test.ts'`](/src/lib/main.test.ts) into your project
+when `gro test` is invoked; set `null` to disable.
+It's a Gro convention that by default installs test sourcemaps
+by importing the dependency `source-map-support`,
+and also documents its possibly surprising presence.
