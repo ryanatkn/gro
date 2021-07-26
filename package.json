@@ -74,6 +74,7 @@
     "uvu": "^0.5.1"
   },
   "peerDependencies": {
+    "@types/source-map-support": "^0.5.3",
     "source-map-support": "^0.5.19",
     "uvu": "^0.5.1",
     "tslib": "^2.3.0",
