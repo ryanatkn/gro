@@ -1,8 +1,8 @@
 # changelog
 
-## 0.35.1
+## 0.36.0
 
-- fix test sourcemaps by adding
+- **break**: fix test sourcemaps by adding
   [`GroConfig` option `main_test`](src/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
   for installing sourcemaps and other global test concerns
