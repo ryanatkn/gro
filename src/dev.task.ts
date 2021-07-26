@@ -5,7 +5,6 @@ import type {Task} from 'src/task/task.js';
 import {Filer} from './build/Filer.js';
 import {gro_builder_default} from './build/gro_builder_default.js';
 import {paths, to_build_out_path} from './paths.js';
-import type {Gro_Server} from 'src/server/server.js';
 import type {Gro_Config} from 'src/config/config.js';
 import {load_config} from './config/config.js';
 import type {Served_Dir_Partial} from 'src/build/served_dir.js';
@@ -28,6 +27,7 @@ export interface Dev_Task_Context
 export interface Task_Events {
 	'dev.create_config': (config: Gro_Config) => void;
 	'dev.create_filer': (filer: Filer) => void;
+	'dev.create_context': (ctx: Dev_Task_Context) => void;
 	'dev.ready': (ctx: Dev_Task_Context) => void;
 }
 
@@ -71,14 +71,15 @@ export const task: Task<Task_Args, Task_Events> = {
 		};
 
 		const dev_task_context: Dev_Task_Context = {...ctx, config, filer, timings};
+		events.emit('dev.create_context', dev_task_context);
 
 		const plugins = await Plugins.create(dev_task_context);
-
-		events.emit('dev.ready', dev_task_context);
 
 		await init_filer();
 
 		await plugins.setup();
+
+		events.emit('dev.ready', dev_task_context);
 
 		if (!watch) {
 			await plugins.teardown();
