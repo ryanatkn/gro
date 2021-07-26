@@ -36,7 +36,7 @@ export const config: Gro_Config_Creator = async ({fs}) => {
 			has_sveltekit_frontend(fs),
 			has_gro_frontend(fs),
 		]);
-	const enable_dev_server = enable_node_library || enable_api_server || enable_gro_frontend;
+	const enable_dev_server = enable_gro_frontend;
 	const partial: Gro_Config_Partial = {
 		builds: [
 			enable_node_library ? NODE_LIBRARY_BUILD_CONFIG : null,
