@@ -1,5 +1,10 @@
 # changelog
 
+## 0.35.1
+
+- fix sourcemaps for tests internally
+  ([#259](https://github.com/feltcoop/gro/pull/259))
+
 ## 0.35.0
 
 - **break**: remove dev task event `dev.create_server` and add `dev.create_context`
