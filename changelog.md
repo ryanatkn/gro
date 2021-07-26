@@ -2,7 +2,7 @@
 
 ## 0.36.1
 
-- add some convenience peer dependencies, like `@types/source-map-support` --
+- add some convenience peer dependencies like `@types/source-map-support` --
   is this a good idea?
   ([#260](https://github.com/feltcoop/gro/pull/260))
 
