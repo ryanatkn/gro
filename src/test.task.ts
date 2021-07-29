@@ -1,11 +1,11 @@
 import {print_timings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {rainbow, yellow} from '@feltcoop/felt/util/terminal.js';
+import {yellow} from '@feltcoop/felt/util/terminal.js';
 
 import type {Task} from 'src/task/task.js';
 import {Task_Error} from './task/task.js';
-import {gro_paths, MAIN_TEST_PATH, print_path, to_build_out_path, to_root_path} from './paths.js';
+import {to_build_out_path, to_root_path} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/build_config_defaults.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
@@ -27,15 +27,6 @@ export const task: Task = {
 		const timing_to_load_config = timings.start('load config');
 		const config = await load_config(fs, dev);
 		timing_to_load_config();
-
-		// init the main test file if it's truthy and doesn't exist yet
-		if (config.main_test && !(await fs.exists(config.main_test))) {
-			log.info(
-				rainbow('initializing main_test file'),
-				config.main_test && print_path(config.main_test),
-			);
-			await fs.copy(`${gro_paths.source}${MAIN_TEST_PATH}`, config.main_test);
-		}
 
 		const tests_build_dir = to_build_out_path(dev, SYSTEM_BUILD_NAME);
 

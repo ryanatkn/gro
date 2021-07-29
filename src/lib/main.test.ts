@@ -1,7 +1,4 @@
-// Gro creates this file to help you with sourcemaps and other global test setup and teardown.
-// To customize the file's location,
-// use the Gro config option `main_test: 'lib/main.test.ts'`,
-// or turn it off with `null`.
+// TODO how to properly set up sourcemaps? this file doesn't run when executing specific tests
 
 import sourcemap_support from 'source-map-support';
 
