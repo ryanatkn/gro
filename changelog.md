@@ -1,5 +1,10 @@
 # changelog
 
+## 0.37.0
+
+- **break**: remove `main_test` config option and behavior
+  ([#261](https://github.com/feltcoop/gro/pull/261))
+
 ## 0.36.1
 
 - add some convenience peer dependencies like `@types/source-map-support` --
