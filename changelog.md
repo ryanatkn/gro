@@ -1,5 +1,10 @@
 # changelog
 
+## 0.38.0
+
+- **break**: require Node >=16.6.0
+  ([#262](https://github.com/feltcoop/gro/pull/262))
+
 ## 0.37.0
 
 - **break**: remove `main_test` config option and behavior

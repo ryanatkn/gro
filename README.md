@@ -83,7 +83,7 @@ It includes:
 
 ## install
 
-> depends on node >= 14.16
+> depends on node >= 16.6
 
 Normally you'll want to install Gro as a dev dependency:
 
