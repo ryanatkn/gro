@@ -8,7 +8,7 @@
 ## motivation
 
 The `gro gen` task helps us enhance our projects
-with convention-based code generation (codegen) techniques.
+with convention-based code/data/file generation (codegen) techniques.
 
 Why? Codegen can produce cool results and eternal pain.
 Used well, codegen can improve performance, flexibility, consistency, and development speed.
@@ -52,6 +52,7 @@ Sourcemaps could be added at some point, at least in many cases.
 Inspirations include Lisp macros, the
 [Svelte](https://github.com/sveltejs/svelte) compiler,
 and [Zig](https://github.com/ziglang/zig)'s comptime.
+(but `gen` is far more primitive)
 
 ## usage
 
@@ -228,8 +229,9 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 
 - [x] basic functionality
 - [x] format output with Prettier
+- [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
+- [ ] watch mode and build integration, opt out with `watch: false` for expensive gen use cases
 - [ ] assess libraries for generating types
-- [ ] watch mode and build integration
 - [ ] support gen files authored in languages beyond TypeScript like
       Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc
       to generate html/markdown/etc
