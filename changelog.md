@@ -3,7 +3,8 @@
 ## 0.39.0
 
 - **break**: rename to `PascalCase` from `Proper_Snake_Case`
-  ([#263](https://github.com/feltcoop/gro/pull/263))
+  ([#263](https://github.com/feltcoop/gro/pull/263),
+  [#264](https://github.com/feltcoop/gro/pull/264))
 
 ## 0.38.0
 
