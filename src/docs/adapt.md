@@ -40,9 +40,9 @@ the build process has two discrete steps:
 An adapter is an object with an `adapt` hook:
 
 ```ts
-export interface Adapter<T_Args = any, T_Events = any> {
+export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	adapt: (ctx: AdapterContext<T_Args, T_Events>) => void | Promise<void>;
+	adapt: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
 }
 ```
 
@@ -53,8 +53,7 @@ so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
-export interface AdapterContext<T_Args = any, T_Events = any>
-	extends TaskContext<T_Args, T_Events> {
+export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
 }
 ```

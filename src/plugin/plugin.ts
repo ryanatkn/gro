@@ -12,33 +12,33 @@ In contrast, `Adapter`s use the results of `gro build` to produce final artifact
 
 */
 
-export interface Plugin<T_PluginContext extends PluginContext = PluginContext> {
+export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 	name: string;
-	setup?: (ctx: T_PluginContext) => void | Promise<void>;
-	teardown?: (ctx: T_PluginContext) => void | Promise<void>;
+	setup?: (ctx: TPluginContext) => void | Promise<void>;
+	teardown?: (ctx: TPluginContext) => void | Promise<void>;
 }
 
-export interface ToConfigPlugins<T_PluginContext extends PluginContext = PluginContext> {
-	(ctx: T_PluginContext):
-		| (Plugin<T_PluginContext> | null | (Plugin<T_PluginContext> | null)[])
-		| Promise<Plugin<T_PluginContext> | null | (Plugin<T_PluginContext> | null)[]>;
+export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
+	(ctx: TPluginContext):
+		| (Plugin<TPluginContext> | null | (Plugin<TPluginContext> | null)[])
+		| Promise<Plugin<TPluginContext> | null | (Plugin<TPluginContext> | null)[]>;
 }
 
-export interface PluginContext<T_Args = any, T_Events = any> extends TaskContext<T_Args, T_Events> {
+export interface PluginContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
 	filer: Filer | null;
 	timings: Timings;
 }
 
-export class Plugins<T_PluginContext extends PluginContext> {
+export class Plugins<TPluginContext extends PluginContext> {
 	constructor(
-		private readonly ctx: T_PluginContext,
+		private readonly ctx: TPluginContext,
 		private readonly instances: readonly Plugin[],
 	) {}
 
-	static async create<T_PluginContext extends PluginContext>(
-		ctx: T_PluginContext,
-	): Promise<Plugins<T_PluginContext>> {
+	static async create<TPluginContext extends PluginContext>(
+		ctx: TPluginContext,
+	): Promise<Plugins<TPluginContext>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
 		const instances: Plugin[] = to_array(await ctx.config.plugin(ctx)).filter(Boolean) as any;

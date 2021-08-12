@@ -17,19 +17,18 @@ and interoperability is not a goal yet. (and may never be, can't tell right now)
 
 */
 
-export interface Adapter<T_Args = any, T_Events = any> {
+export interface Adapter<TArgs = any, TEvents = any> {
 	name: string;
-	adapt: (ctx: AdapterContext<T_Args, T_Events>) => void | Promise<void>;
+	adapt: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
 }
 
-export interface ToConfigAdapters<T_Args = any, T_Events = any> {
-	(ctx: AdapterContext<T_Args, T_Events>):
-		| (Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[])
-		| Promise<Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[]>;
+export interface ToConfigAdapters<TArgs = any, TEvents = any> {
+	(ctx: AdapterContext<TArgs, TEvents>):
+		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
+		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
 }
 
-export interface AdapterContext<T_Args = any, T_Events = any>
-	extends TaskContext<T_Args, T_Events> {
+export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
 	timings: Timings;
 }
