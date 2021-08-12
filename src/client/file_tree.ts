@@ -2,20 +2,20 @@ import {basename} from 'path';
 import {to_path_segments} from '@feltcoop/felt/util/path_parsing.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
-import type {Source_Tree_Meta} from 'src/client/source_tree.js';
+import type {SourceTreeMeta} from 'src/client/source_tree.js';
 
-export type File_Tree_Node = File_Tree_File | File_Tree_Folder;
+export type FileTreeNode = FileTreeFile | FileTreeFolder;
 
-export interface File_Tree_File {
+export interface FileTreeFile {
 	type: 'file';
 	name: string;
-	meta: Source_Tree_Meta;
+	meta: SourceTreeMeta;
 }
 
-export interface File_Tree_Folder {
+export interface FileTreeFolder {
 	type: 'folder';
 	name: string;
-	children: File_Tree_Node[];
+	children: FileTreeNode[];
 }
 
 // TODO instead of reconstructing the dirs/files here,
@@ -25,16 +25,16 @@ export interface File_Tree_Folder {
 
 export const to_file_tree_folder = (
 	source_dir: string,
-	source_tree_metas: Source_Tree_Meta[],
-): File_Tree_Folder => {
-	const root: File_Tree_Folder = {type: 'folder', name: basename(source_dir), children: []};
-	const get_file_info = (base_path: string): {folder: File_Tree_Folder; name: string} => {
-		let current: File_Tree_Folder = root;
+	source_tree_metas: SourceTreeMeta[],
+): FileTreeFolder => {
+	const root: FileTreeFolder = {type: 'folder', name: basename(source_dir), children: []};
+	const get_file_info = (base_path: string): {folder: FileTreeFolder; name: string} => {
+		let current: FileTreeFolder = root;
 		const segments = to_path_segments(base_path);
 		// The `source_tree_metas` currently include files only and not directories,
 		// so we just ignore the final segment, and assume everything else is a folder.
 		for (const segment of segments.slice(0, segments.length - 1)) {
-			let next = current.children.find((t) => t.name === segment) as File_Tree_Folder | undefined;
+			let next = current.children.find((t) => t.name === segment) as FileTreeFolder | undefined;
 			if (!next) {
 				next = {type: 'folder', name: segment, children: []};
 				current.children.push(next);
@@ -52,7 +52,7 @@ export const to_file_tree_folder = (
 	return root;
 };
 
-const for_each_folder = (folder: File_Tree_Folder, cb: (folder: File_Tree_Folder) => void) => {
+const for_each_folder = (folder: FileTreeFolder, cb: (folder: FileTreeFolder) => void) => {
 	cb(folder);
 	for (const child of folder.children) {
 		if (child.type === 'folder') {
@@ -62,7 +62,7 @@ const for_each_folder = (folder: File_Tree_Folder, cb: (folder: File_Tree_Folder
 };
 
 // sorts `folder.children` in place, putting files after directories
-const sort_folder_children = (folder: File_Tree_Folder): void => {
+const sort_folder_children = (folder: FileTreeFolder): void => {
 	folder.children.sort((a, b) => {
 		if (a.type === 'folder') {
 			if (b.type !== 'folder') return -1;

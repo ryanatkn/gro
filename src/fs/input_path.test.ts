@@ -9,7 +9,7 @@ import {
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
 } from './input_path.js';
-import type {Path_Stats} from 'src/fs/path_data.js';
+import type {PathStats} from 'src/fs/path_data.js';
 import {gro_paths, replace_root_dir, create_paths, paths} from '../paths.js';
 import {fs} from './node.js';
 
@@ -153,7 +153,7 @@ test_load_source_path_data_by_input_path.run();
 
 /* test_load_source_ids_by_input_path */
 const test_load_source_ids_by_input_path = suite('load_source_ids_by_input_path', async () => {
-	const test_files: Record<string, Map<string, Path_Stats>> = {
+	const test_files: Record<string, Map<string, PathStats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([

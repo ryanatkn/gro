@@ -1,17 +1,17 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {Fs_Stats} from './filesystem.js';
+import {FsStats} from './filesystem.js';
 
-/* test_Fs_Stats */
-const test_Fs_Stats = suite('Fs_Stats');
+/* test_FsStats */
+const test_FsStats = suite('FsStats');
 
-test_Fs_Stats('basic behavior', async () => {
-	const dir_stats = new Fs_Stats(true);
+test_FsStats('basic behavior', async () => {
+	const dir_stats = new FsStats(true);
 	t.ok(dir_stats.isDirectory());
-	const file_stats = new Fs_Stats(false);
+	const file_stats = new FsStats(false);
 	t.ok(!file_stats.isDirectory());
 });
 
-test_Fs_Stats.run();
-/* /test_Fs_Stats */
+test_FsStats.run();
+/* /test_FsStats */

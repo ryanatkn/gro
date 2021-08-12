@@ -4,7 +4,7 @@ import {replace_extension, strip_trailing_slash} from '@feltcoop/felt/util/path.
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
 import type {Adapter} from 'src/adapt/adapt.js';
-import {Task_Error} from '../task/task.js';
+import {TaskError} from '../task/task.js';
 import {copy_dist} from './utils.js';
 import {
 	paths,
@@ -18,11 +18,11 @@ import {
 	LIB_DIR,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/build_config_defaults.js';
-import type {Build_Name} from 'src/build/build_config.js';
+import type {BuildName} from 'src/build/build_config.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
 import {run_rollup} from '../build/rollup.js';
-import type {Path_Stats} from 'src/fs/path_data.js';
-import type {Package_Json} from 'src/utils/package_json.js';
+import type {PathStats} from 'src/fs/path_data.js';
+import type {PackageJson} from 'src/utils/package_json.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 const name = '@feltcoop/gro_adapter_node_library';
@@ -52,7 +52,7 @@ const source_id_to_library_base_path = (source_id: string, library_rebase_path: 
 // (it should probably accept the normal include/exclude filters from @rollup/pluginutils)
 
 export interface Options {
-	build_name: Build_Name; // defaults to 'library'
+	build_name: BuildName; // defaults to 'library'
 	dir: string; // defaults to `dist/${build_name}`
 	package_json: string; // defaults to 'package.json'
 	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
@@ -111,7 +111,7 @@ export const create_adapter = ({
 			await copy_dist(fs, build_config, dev, dir, log, filter, pack, library_rebase_path);
 			timing_to_copy_dist();
 
-			let pkg: Package_Json;
+			let pkg: PackageJson;
 			try {
 				pkg = JSON.parse(await fs.read_file(package_json, 'utf8'));
 			} catch (err) {
@@ -159,7 +159,7 @@ export const create_adapter = ({
 				log.info(`linking`);
 				const link_result = await spawn('npm', ['link']);
 				if (!link_result.ok) {
-					throw new Task_Error(`Failed to link. ${print_spawn_result(link_result)}`);
+					throw new TaskError(`Failed to link. ${print_spawn_result(link_result)}`);
 				}
 				timing_to_npm_link();
 			}
@@ -167,7 +167,7 @@ export const create_adapter = ({
 	};
 };
 
-const bundled_dist_filter = (id: string, stats: Path_Stats): boolean =>
+const bundled_dist_filter = (id: string, stats: PathStats): boolean =>
 	stats.isDirectory() ? true : id.endsWith(TS_TYPE_EXTENSION) || id.endsWith(TS_TYPEMAP_EXTENSION);
 
 // these can be any case and optionally end with `.md`
@@ -198,7 +198,7 @@ const to_pkg_files = async (fs: Filesystem, dir: string): Promise<string[]> => {
 	return pkg_files;
 };
 
-const to_pkg_main = (pkg: Package_Json): string => {
+const to_pkg_main = (pkg: PackageJson): string => {
 	const pkg_main = pkg.main;
 	if (!pkg_main) {
 		return './index.js';
@@ -214,8 +214,8 @@ const to_pkg_exports = (
 	pkg_main: string,
 	files: string[],
 	library_rebase_path: string,
-): Package_Json['exports'] => {
-	const pkg_exports: Package_Json['exports'] = {
+): PackageJson['exports'] => {
+	const pkg_exports: PackageJson['exports'] = {
 		'.': pkg_main,
 		'./package.json': './package.json',
 	};

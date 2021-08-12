@@ -4,7 +4,7 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 import {yellow} from '@feltcoop/felt/util/terminal.js';
 
 import type {Task} from 'src/task/task.js';
-import {Task_Error} from './task/task.js';
+import {TaskError} from './task/task.js';
 import {to_build_out_path, to_root_path} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/build_config_defaults.js';
 import {load_config} from './config/config.js';
@@ -57,7 +57,7 @@ export const task: Task = {
 		print_timings(timings, log);
 
 		if (!test_run_result.ok) {
-			throw new Task_Error('Tests failed.');
+			throw new TaskError('Tests failed.');
 		}
 	},
 };

@@ -1,5 +1,5 @@
 import * as terser from 'terser';
-import type {Plugin as Rollup_Plugin} from 'rollup';
+import type {Plugin as RollupPlugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
@@ -18,7 +18,7 @@ export interface Options {
 
 export const name = '@feltcoop/rollup_plugin_gro_terser';
 
-export const rollup_plugin_gro_terser = (options: Options = {}): Rollup_Plugin => {
+export const rollup_plugin_gro_terser = (options: Options = {}): RollupPlugin => {
 	const {
 		include = null,
 		exclude = null,

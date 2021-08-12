@@ -4,7 +4,7 @@ import {replace_extension, strip_trailing_slash} from '@feltcoop/felt/util/path.
 import {strip_start} from '@feltcoop/felt/util/string.js';
 import {gray} from '@feltcoop/felt/util/terminal.js';
 
-import type {Build_Name} from 'src/build/build_config.js';
+import type {BuildName} from 'src/build/build_config.js';
 
 /*
 
@@ -114,18 +114,18 @@ export const base_path_to_source_id = (base_path: string, p = paths): string =>
 // TODO the `strip_trailing_slash` is a hack
 export const to_build_out_dir = (dev: boolean, build_dir = paths.build): string =>
 	`${strip_trailing_slash(build_dir)}/${to_build_out_dirname(dev)}`;
-export const to_build_out_dirname = (dev: boolean): Build_Out_Dirname =>
+export const to_build_out_dirname = (dev: boolean): BuildOutDirname =>
 	dev ? BUILD_DIRNAME_DEV : BUILD_DIRNAME_PROD;
 export const BUILD_DIRNAME_DEV = 'dev';
 export const BUILD_DIRNAME_PROD = 'prod';
-export type Build_Out_Dirname = 'dev' | 'prod';
+export type BuildOutDirname = 'dev' | 'prod';
 
 export const TYPES_BUILD_DIRNAME = 'types';
 export const to_types_build_dir = (p = paths): string => `${p.build}${TYPES_BUILD_DIRNAME}`;
 
 export const to_build_out_path = (
 	dev: boolean,
-	build_name: Build_Name,
+	build_name: BuildName,
 	base_path = '',
 	build_dir = paths.build,
 ): string => `${to_build_out_dir(dev, build_dir)}/${build_name}/${base_path}`;
@@ -159,7 +159,7 @@ export const replace_root_dir = (id: string, root_dir: string, p = paths): strin
 // TODO This function loses information,
 // and it's also hardcoded to Gro's default file types and output conventions.
 // Maybe this points to a configurable system? Users can define their own extensions in Gro.
-// Maybe `extension_configs: Filer_Extension_Config[]`.
+// Maybe `extension_configs: FilerExtensionConfig[]`.
 // Or maybe just follow the lead of Rollup/esbuild?
 export const to_build_extension = (source_id: string, dev: boolean): string =>
 	source_id.endsWith(TS_EXTENSION)
@@ -253,7 +253,7 @@ export const to_source_extension = (build_id: string): string => {
 export const to_import_id = (
 	source_id: string,
 	dev: boolean,
-	build_name: Build_Name,
+	build_name: BuildName,
 	p = paths_from_id(source_id),
 ): string => {
 	const dir_base_path = strip_start(to_build_extension(source_id, dev), p.source);

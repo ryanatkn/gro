@@ -36,11 +36,11 @@ export interface Options {
 	b: string | null;
 	c: number | undefined; // `undefined` needs special handling! see below
 }
-export type Required_Options = 'a'; // or `'a' | 'b'` or `never`
-export type Initial_Options = Partial_Except<Options, Required_Options>;
+export type RequiredOptions = 'a'; // or `'a' | 'b'` or `never`
+export type InitialOptions = Partial_Except<Options, RequiredOptions>;
 // or the simpler case when there are no required options:
 // export const init_options = (opts: Partial<Options>): Options => ({
-export const init_options = (opts: Initial_Options): Options => ({
+export const init_options = (opts: InitialOptions): Options => ({
 	// Required properties should not be included here,
 	// because their values will always be overwritten.
 	// a: true,
@@ -75,14 +75,14 @@ export const init_options = (opts: Initial_Options): Options => ({
 });
 
 // use in a plain function
-export const create_thing = (opts: Initial_Options) => {
+export const create_thing = (opts: InitialOptions) => {
 	const options = init_options(opts);
 };
 
 // use in a class
 export class Thing {
 	readonly options: Options; // optionally store the reference
-	constructor(opts: Initial_Options) {
+	constructor(opts: InitialOptions) {
 		this.options = init_options(opts);
 	}
 }

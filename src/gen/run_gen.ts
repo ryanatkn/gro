@@ -3,32 +3,32 @@ import {print_error} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Gen_Module_Meta} from 'src/gen/gen_module.js';
+import type {GenModuleMeta} from 'src/gen/gen_module.js';
 import {
-	Gen_Results,
-	Gen_Module_Result,
-	Gen_Context,
+	GenResults,
+	GenModuleResult,
+	GenContext,
 	to_gen_result,
-	Gen_Module_Result_Success,
-	Gen_Module_Result_Failure,
+	GenModuleResultSuccess,
+	GenModuleResultFailure,
 } from './gen.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {print_path} from '../paths.js';
 
 export const run_gen = async (
 	fs: Filesystem,
-	gen_modules: Gen_Module_Meta[],
+	gen_modules: GenModuleMeta[],
 	log: Logger,
 	format_file?: (fs: Filesystem, id: string, content: string) => Promise<string>,
-): Promise<Gen_Results> => {
+): Promise<GenResults> => {
 	let input_count = 0;
 	let output_count = 0;
 	const timings = new Timings();
 	const timing_for_total = timings.start('total');
 	const results = await Promise.all(
-		gen_modules.map(async ({id, mod}): Promise<Gen_Module_Result> => {
+		gen_modules.map(async ({id, mod}): Promise<GenModuleResult> => {
 			input_count++;
-			const genCtx: Gen_Context = {fs, origin_id: id, log};
+			const genCtx: GenContext = {fs, origin_id: id, log};
 			const timing_for_module = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
@@ -80,8 +80,8 @@ export const run_gen = async (
 	);
 	return {
 		results,
-		successes: results.filter((r) => r.ok) as Gen_Module_Result_Success[],
-		failures: results.filter((r) => !r.ok) as Gen_Module_Result_Failure[],
+		successes: results.filter((r) => r.ok) as GenModuleResultSuccess[],
+		failures: results.filter((r) => !r.ok) as GenModuleResultFailure[],
 		input_count,
 		output_count,
 		elapsed: timing_for_total(),

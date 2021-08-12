@@ -2,31 +2,31 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import type {Restartable_Process} from '@feltcoop/felt/util/process.js';
 import {spawn_restartable_process} from '@feltcoop/felt/util/process.js';
 
-import type {Plugin, Plugin_Context} from 'src/plugin/plugin.js';
+import type {Plugin, PluginContext} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/build_config_defaults.js';
 import {to_build_out_dir} from '../paths.js';
-import type {Build_Config, Build_Name} from 'src/build/build_config.js';
+import type {BuildConfig, BuildName} from 'src/build/build_config.js';
 
 // TODO import from felt instead
 
 export interface Options {
-	build_name: Build_Name; // defaults to 'server'
+	build_name: BuildName; // defaults to 'server'
 	base_build_path?: string; // defaults to 'lib/server/server.js'
 }
 
-export interface Task_Args extends Args {
+export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
 export const create_plugin = ({
 	build_name = API_SERVER_BUILD_NAME,
 	base_build_path = API_SERVER_BUILD_BASE_PATH,
-}: Partial<Options> = EMPTY_OBJECT): Plugin<Plugin_Context<Task_Args, {}>> => {
+}: Partial<Options> = EMPTY_OBJECT): Plugin<PluginContext<TaskArgs, {}>> => {
 	let server_process: Restartable_Process | null = null;
 
 	// TODO type
-	const on_filer_build: ({build_config}: {build_config: Build_Config}) => void = ({
+	const on_filer_build: ({build_config}: {build_config: BuildConfig}) => void = ({
 		build_config,
 	}) => {
 		if (server_process && build_config.name === build_name) {

@@ -1,15 +1,15 @@
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from 'src/adapt/adapt.js';
-import type {Host_Target} from 'src/adapt/utils.js';
+import type {HostTarget} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
 import {DIST_DIRNAME} from '../paths.js';
-import type {Build_Name} from 'src/build/build_config.js';
+import type {BuildName} from 'src/build/build_config.js';
 
 export interface Options {
-	build_name: Build_Name;
+	build_name: BuildName;
 	dir?: string; // defaults to `dist/${build_name}`
-	host_target?: Host_Target;
+	host_target?: HostTarget;
 }
 
 export const create_adapter = ({

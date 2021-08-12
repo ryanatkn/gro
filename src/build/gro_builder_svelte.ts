@@ -1,19 +1,19 @@
 import * as svelte from 'svelte/compiler';
-import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/compiler/preprocess';
-import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compiler/interfaces';
+import type {PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
+import type {EcmaScriptTarget} from 'src/build/typescript_utils.js';
 import {
 	base_svelte_compile_options,
 	create_default_preprocessor,
 	handle_stats,
 	handle_warn,
 } from './gro_builder_svelte_utils.js';
-import type {Create_Preprocessor, Svelte_Compilation} from 'src/build/gro_builder_svelte_utils.js';
+import type {CreatePreprocessor, SvelteCompilation} from 'src/build/gro_builder_svelte_utils.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
@@ -21,10 +21,10 @@ import {
 	SVELTE_EXTENSION,
 	to_build_out_path,
 } from '../paths.js';
-import type {Builder, Text_Build_Source} from 'src/build/builder.js';
-import type {Build_Config} from 'src/build/build_config.js';
+import type {Builder, TextBuildSource} from 'src/build/builder.js';
+import type {BuildConfig} from 'src/build/build_config.js';
 import {add_css_sourcemap_footer, add_js_sourcemap_footer} from './utils.js';
-import type {Build_File} from 'src/build/build_file.js';
+import type {BuildFile} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
 
 // TODO build types in production unless `declarations` is `false`,
@@ -33,17 +33,17 @@ import {postprocess} from './postprocess.js';
 export interface Options {
 	log?: Logger;
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	create_preprocessor?: Create_Preprocessor;
+	create_preprocessor?: CreatePreprocessor;
 	// TODO how to support options like this without screwing up caching?
 	// maybe compilers need a way to declare their options so they (or a hash) can be cached?
-	svelte_compile_options?: Svelte_Compile_Options;
+	svelte_compile_options?: SvelteCompileOptions;
 	onwarn?: typeof handle_warn;
 	onstats?: typeof handle_stats | null;
 }
 
-type Svelte_Builder = Builder<Text_Build_Source>;
+type SvelteBuilder = Builder<TextBuildSource>;
 
-export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
+export const gro_builder_svelte = (options: Options = {}): SvelteBuilder => {
 	const {
 		log = new System_Logger(print_log_label('svelte_builder', cyan)),
 		create_preprocessor = create_default_preprocessor,
@@ -54,13 +54,13 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 
 	const preprocessor_cache: Map<
 		string,
-		Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null
+		SveltePreprocessorGroup | SveltePreprocessorGroup[] | null
 	> = new Map();
 	const get_preprocessor = (
-		target: Ecma_Script_Target,
+		target: EcmaScriptTarget,
 		dev: boolean,
 		sourcemap: boolean,
-	): Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null => {
+	): SveltePreprocessorGroup | SveltePreprocessorGroup[] | null => {
 		const key = sourcemap + target;
 		const existing_preprocessor = preprocessor_cache.get(key);
 		if (existing_preprocessor !== undefined) return existing_preprocessor;
@@ -69,7 +69,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 		return new_preprocessor;
 	};
 
-	const build: Svelte_Builder['build'] = async (source, build_config, ctx) => {
+	const build: SvelteBuilder['build'] = async (source, build_config, ctx) => {
 		const {build_dir, dev, sourcemap, target} = ctx;
 
 		if (source.encoding !== 'utf8') {
@@ -85,7 +85,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 		// for production builds, output uncompiled Svelte
 		// TODO what about non-TypeScript preprocessors?
 		if (!dev) {
-			const build_files: Build_File[] = [
+			const build_files: BuildFile[] = [
 				{
 					type: 'build',
 					source_id: source.id,
@@ -122,7 +122,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 			preprocessed_code = content;
 		}
 
-		const output: Svelte_Compilation = svelte.compile(preprocessed_code, {
+		const output: SvelteCompilation = svelte.compile(preprocessed_code, {
 			...base_svelte_compile_options,
 			dev,
 			generate: get_generate_option(build_config),
@@ -143,7 +143,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 		const has_js_sourcemap = sourcemap && js.map !== undefined;
 		const has_css_sourcemap = sourcemap && css.map !== undefined;
 
-		const build_files: Build_File[] = [
+		const build_files: BuildFile[] = [
 			{
 				type: 'build',
 				source_id: source.id,
@@ -229,7 +229,7 @@ export const gro_builder_svelte = (options: Options = {}): Svelte_Builder => {
 	return {name: '@feltcoop/gro_builder_svelte', build};
 };
 
-const get_generate_option = (build_config: Build_Config): 'dom' | 'ssr' | false => {
+const get_generate_option = (build_config: BuildConfig): 'dom' | 'ssr' | false => {
 	switch (build_config.platform) {
 		case 'browser':
 			return 'dom';

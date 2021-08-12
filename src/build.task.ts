@@ -2,27 +2,27 @@ import {Timings} from '@feltcoop/felt/util/timings.js';
 import {print_timings} from '@feltcoop/felt/util/print.js';
 
 import type {Task} from 'src/task/task.js';
-import type {Map_Input_Options, Map_Output_Options, Map_Watch_Options} from 'src/build/rollup.js';
+import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from 'src/build/rollup.js';
 import {load_config} from './config/config.js';
-import type {Gro_Config} from 'src/config/config.js';
+import type {GroConfig} from 'src/config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {build_source} from './build/build_source.js';
 import {Plugins} from './plugin/plugin.js';
 import {clean_fs} from './fs/clean.js';
 
-export interface Task_Args {
+export interface TaskArgs {
 	clean?: boolean;
 	'no-clean'?: boolean;
-	map_input_options?: Map_Input_Options;
-	map_output_options?: Map_Output_Options;
-	map_watch_options?: Map_Watch_Options;
+	map_input_options?: MapInputOptions;
+	map_output_options?: MapOutputOptions;
+	map_watch_options?: MapWatchOptions;
 }
 
-export interface Task_Events {
-	'build.create_config': (config: Gro_Config) => void;
+export interface TaskEvents {
+	'build.create_config': (config: GroConfig) => void;
 }
 
-export const task: Task<Task_Args, Task_Events> = {
+export const task: Task<TaskArgs, TaskEvents> = {
 	summary: 'build the project',
 	dev: false,
 	run: async (ctx): Promise<void> => {

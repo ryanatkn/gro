@@ -1,11 +1,11 @@
 <script lang="ts">
-	import Build_Id from './Build_Id.svelte';
-	import Source_Id from './Source_Id.svelte';
-	import Build_Name from './Build_Name.svelte';
+	import BuildId from './BuildId.svelte';
+	import SourceId from './SourceId.svelte';
+	import BuildName from './BuildName.svelte';
 	import {filter_selected_metas, get_builds_by_build_name} from './source_tree.js';
-	import type {Source_Tree} from 'src/client/source_tree.js';
+	import type {SourceTree} from 'src/client/source_tree.js';
 
-	export let source_tree: Source_Tree;
+	export let source_tree: SourceTree;
 	export let selected_build_names: string[];
 	export const selected_source_meta = undefined;
 	export const hovered_source_meta = undefined;
@@ -33,14 +33,14 @@
 		{#each final_items as {source_meta, build_name, key} (key)}
 			<tr>
 				<td>
-					<Source_Id id={source_meta.data.source_id} />
+					<SourceId id={source_meta.data.source_id} />
 				</td>
 				<td>
-					<Build_Name {build_name} />
+					<BuildName {build_name} />
 				</td>
 				<td>
 					{#each get_builds_by_build_name(source_meta, build_name) as build (build.id)}
-						<Build_Id id={build.id} />
+						<BuildId id={build.id} />
 					{/each}
 				</td>
 			</tr>

@@ -1,5 +1,5 @@
 // TODO maybe rename this to `FrontendDevtools`, `ClientDevtools`, or `BrowserDevtools`?
-export class Gro_Devtools {
+export class GroDevtools {
 	head: HTMLHeadElement;
 	style_elements_by_path: Map<string, HTMLLinkElement> = new Map();
 

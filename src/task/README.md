@@ -30,8 +30,8 @@ and defers composition to the user in regular TypeScript modules.
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
   (tasks are copy-paste friendly! just update the imports)
 - the task execution environment is filesystem agnostic by default; `run` receives a
-  [`Task_Context` argument](#user-content-types-task-and-taskcontext) with an `fs` property
-- the `Task_Context` provides a rich baseline context object
+  [`TaskContext` argument](#user-content-types-task-and-taskcontext) with an `fs` property
+- the `TaskContext` provides a rich baseline context object
   for both dev env and one-off script authoring and execution,
   enriching the APIs of both Gro and userland with its portable and extensibile affordances
 - it's fast because it imports only the modules that your chosen tasks need
@@ -90,19 +90,19 @@ export const task: Task = {
 };
 ```
 
-### types `Task` and `Task_Context`
+### types `Task` and `TaskContext`
 
 ```ts
 // usage:
-// import type {Task, Task_Context} from '@feltcoop/gro';
+// import type {Task, TaskContext} from '@feltcoop/gro';
 
 export interface Task<T_Args = Args, T_Events = {}> {
-	run: (ctx: Task_Context<T_Args, T_Events>) => Promise<unknown>;
+	run: (ctx: TaskContext<T_Args, T_Events>) => Promise<unknown>;
 	summary?: string;
 	dev?: boolean; // set to `false` to run the task and its children in production mode
 }
 
-export interface Task_Context<T_Args = {}, T_Events = {}> {
+export interface TaskContext<T_Args = {}, T_Events = {}> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
@@ -207,17 +207,17 @@ Some Gro tasks use a value mapping pattern convention that we tentatively recomm
 // src/some/file.task.ts
 import type {Task} from '@feltcoop/gro';
 
-import {Task_Args as Other_Task_Args} from './other.task.js';
+import {TaskArgs as OtherTaskArgs} from './other.task.js';
 
-export interface Task_Args extends Other_Task_Args {
+export interface TaskArgs extends OtherTaskArgs {
 	map_something: (thing: string) => string;
-	// this is provided by `Other_Task_Args`:
+	// this is provided by `OtherTaskArgs`:
 	// map_some_number: (other: number) => number;
 }
 
-export const task: Task<Task_Args> = {
+export const task: Task<TaskArgs> = {
 	run: async ({args}) => {
-		// `args` has type `Task_Args`
+		// `args` has type `TaskArgs`
 
 		// other tasks can assign args that this task consumes:
 		const something_cooler = args.map_something('something_cool');
@@ -231,7 +231,7 @@ export const task: Task<Task_Args> = {
 ### task events
 
 The `Task` interface's second generic parameter is `T_Events`
-to type the `events` property of the `Task_Context`.
+to type the `events` property of the `TaskContext`.
 It uses Node's builtin `EventEmitter` with types provided by the types-only dependency
 [`strict-event-emitter-types`](https://github.com/bterlson/strict-event-emitter-types/).
 
@@ -241,20 +241,20 @@ Here's how a task can emit and listen to events:
 // src/some/mytask.task.ts
 import type {Task} from '@feltcoop/gro';
 
-import type {Task_Events as Other_Task_Events} from 'src/task/othertask.task.ts';
+import type {TaskEvents as OtherTaskEvents} from 'src/task/othertask.task.ts';
 
-export interface Task_Args {}
-export interface Task_Events extends Other_Task_Events {
+export interface TaskArgs {}
+export interface TaskEvents extends OtherTaskEvents {
 	'mytask.data': (count: number, thing: string) => void;
 }
 
-export const task: Task<Task_Args, Task_Events> = {
+export const task: Task<TaskArgs, TaskEvents> = {
 	run: async ({events}) => {
-		// `events` has type `StrictEventEmitter<EventEmitter, Task_Events>`
+		// `events` has type `StrictEventEmitter<EventEmitter, TaskEvents>`
 		// see: https://github.com/bterlson/strict-event-emitter-types/
 		events.emit('mytask.data', 2, 'params');
 
-		// This is typed because we extended `Task_Events` by another `othertask`'s events.
+		// This is typed because we extended `TaskEvents` by another `othertask`'s events.
 		// Other listeners and providers can be upstream or downstream of this task.
 		events.once('othertask.eventname', (some: string, things: boolean, rock: object) => {});
 	},
@@ -266,20 +266,20 @@ export const task: Task<Task_Args, Task_Events> = {
 If a task encounters an error, normally it should throw rather than exiting the process.
 This defers control to the caller, like your own parent tasks.
 
-> TODO add support for `Fatal_Error`
+> TODO add support for `FatalError`
 
 Often, errors that tasks encounter do not need a stack trace,
 and we don't want the added noise to be logged.
 To suppress logging the stack trace for an error,
-throw a `Task_Error`.
+throw a `TaskError`.
 
 ```ts
-import {Task, Task_Error} from '@feltcoop/gro';
+import {Task, TaskError} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async () => {
 		if (some_error_condition) {
-			throw new Task_Error('We hit a known error - ignore the stack trace!');
+			throw new TaskError('We hit a known error - ignore the stack trace!');
 		}
 	},
 };

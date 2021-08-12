@@ -2,13 +2,13 @@ import type {EventEmitter} from 'events';
 import {cyan, red} from '@feltcoop/felt/util/terminal.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Task_Module_Meta} from 'src/task/task_module.js';
+import type {TaskModuleMeta} from 'src/task/task_module.js';
 import type {Args} from 'src/task/task.js';
-import {Task_Error} from './task.js';
-import type {invoke_task as Invoke_Task_Function} from 'src/task/invoke_task.js';
+import {TaskError} from './task.js';
+import type {invoke_task as InvokeTaskFunction} from 'src/task/invoke_task.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
-export type Run_Task_Result =
+export type RunTaskResult =
 	| {
 			ok: true;
 			output: unknown;
@@ -21,12 +21,12 @@ export type Run_Task_Result =
 
 export const run_task = async (
 	fs: Filesystem,
-	task_meta: Task_Module_Meta,
+	task_meta: TaskModuleMeta,
 	args: Args,
 	events: EventEmitter,
-	invoke_task: typeof Invoke_Task_Function,
+	invoke_task: typeof InvokeTaskFunction,
 	dev: boolean | undefined, // `undefined` on first task invocation, so it infers from the first task
-): Promise<Run_Task_Result> => {
+): Promise<RunTaskResult> => {
 	const {task} = task_meta.mod;
 	if (dev === undefined) {
 		if (task.dev !== undefined) {
@@ -38,7 +38,7 @@ export const run_task = async (
 	// TODO the `=== false` is needed because we're not normalizing tasks, but we probably should,
 	// but not in this function, when the task is loaded
 	if (dev && task.dev === false) {
-		throw new Task_Error(`The task "${task_meta.name}" cannot be run in development`);
+		throw new TaskError(`The task "${task_meta.name}" cannot be run in development`);
 	}
 	let output: unknown;
 	try {
@@ -60,7 +60,7 @@ export const run_task = async (
 		return {
 			ok: false,
 			reason: red(
-				err instanceof Task_Error
+				err instanceof TaskError
 					? err.message
 					: `Unexpected error running task ${cyan(
 							task_meta.name,

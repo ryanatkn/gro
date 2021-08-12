@@ -1,14 +1,14 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import type {Serialized_Source_Meta_Data, Source_Meta_Data} from 'src/build/source_meta.js';
+import type {SerializedSourceMetaData, SourceMetaData} from 'src/build/source_meta.js';
 import {serialize_source_meta, deserialize_source_meta} from './source_meta.js';
 
 /* test_serialize_source_meta */
 const test_serialize_source_meta = suite('serialize_source_meta');
 
 test_serialize_source_meta('serializes and deserializes source meta without changes', () => {
-	const data: Source_Meta_Data = {
+	const data: SourceMetaData = {
 		source_id: 'a',
 		content_hash: 'b',
 		builds: [
@@ -33,7 +33,7 @@ test_serialize_source_meta('serializes and deserializes source meta without chan
 });
 
 test_serialize_source_meta('optimizes when serializing', () => {
-	const data: Source_Meta_Data = {
+	const data: SourceMetaData = {
 		source_id: 'a',
 		content_hash: 'b',
 		builds: [
@@ -59,7 +59,7 @@ test_serialize_source_meta('optimizes when serializing', () => {
 			},
 		],
 	};
-	const serialized_data: Serialized_Source_Meta_Data = {
+	const serialized_data: SerializedSourceMetaData = {
 		source_id: 'a',
 		content_hash: 'b',
 		builds: [

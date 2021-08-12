@@ -3,44 +3,44 @@
 	import {slide} from 'svelte/transition';
 	import {writable} from 'svelte/store';
 
-	import Filer_Visualizer from './Filer_Visualizer.svelte';
-	import Server_Visualizer from './Server_Visualizer.svelte';
-	import View_Name from './View_Name.svelte';
-	import Source_Tree_Visualizer from './Source_Tree_Visualizer.svelte';
-	import Build_Tree_Visualizer from './Build_Tree_Visualizer.svelte';
-	import Source_Meta_View from './Source_Meta_View.svelte';
-	import Source_Meta_Raw from './Source_Meta_Raw.svelte';
-	import Source_Meta_Expander from './Source_Meta_Expander.svelte';
-	import Source_Meta_Table from './Source_Meta_Table.svelte';
-	import Source_Meta_Builds_Table from './Source_Meta_Builds_Table.svelte';
-	import Source_Meta_Build_Tree from './Source_Meta_Build_Tree.svelte';
-	import Source_Meta_Build_Tree_Explorer from './Source_Meta_Build_Tree_Explorer.svelte';
-	import Source_Meta_Tree_Explorer from './Source_Meta_Tree_Explorer.svelte';
-	import Source_Meta_Tree_Explorers from './Source_Meta_Tree_Explorers.svelte';
+	import FilerVisualizer from './FilerVisualizer.svelte';
+	import ServerVisualizer from './ServerVisualizer.svelte';
+	import ViewName from './ViewName.svelte';
+	import SourceTreeVisualizer from './SourceTreeVisualizer.svelte';
+	import BuildTreeVisualizer from './BuildTreeVisualizer.svelte';
+	import SourceMetaView from './SourceMetaView.svelte';
+	import SourceMetaRaw from './SourceMetaRaw.svelte';
+	import SourceMetaExpander from './SourceMetaExpander.svelte';
+	import SourceMetaTable from './SourceMetaTable.svelte';
+	import SourceMetaBuildsTable from './SourceMetaBuildsTable.svelte';
+	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
+	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
+	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
+	import SourceMetaTreeExplorers from './SourceMetaTreeExplorers.svelte';
 	import {create_source_tree} from './source_tree.js';
-	import type {Source_Tree} from 'src/client/source_tree.js';
-	import type {Project_State} from 'src/server/project_state.js';
+	import type {SourceTree} from 'src/client/source_tree.js';
+	import type {ProjectState} from 'src/server/project_state.js';
 	import type {View} from 'src/client/view.js';
 	import {set_project_state} from './project_state.js';
 
 	console.log('enter App.svelte');
 
 	$: homepage = ($ctx?.package_json.homepage || '') as string;
-	let source_tree: Source_Tree;
+	let source_tree: SourceTree;
 	let selected_build_names: string[] = [];
 
-	const ctx = writable<Project_State>(null!);
+	const ctx = writable<ProjectState>(null!);
 	set_project_state(ctx);
 
 	const source_meta_views: View[] = [
-		Source_Meta_Raw,
-		Source_Meta_Expander,
-		Source_Meta_Table,
-		Source_Meta_Builds_Table,
-		Source_Meta_Build_Tree,
-		Source_Meta_Build_Tree_Explorer,
-		Source_Meta_Tree_Explorer,
-		Source_Meta_Tree_Explorers,
+		SourceMetaRaw,
+		SourceMetaExpander,
+		SourceMetaTable,
+		SourceMetaBuildsTable,
+		SourceMetaBuildTree,
+		SourceMetaBuildTreeExplorer,
+		SourceMetaTreeExplorer,
+		SourceMetaTreeExplorers,
 	];
 	let active_source_meta_view_index = 7;
 	$: active_source_meta_view = source_meta_views[active_source_meta_view_index];
@@ -80,19 +80,19 @@
 					{#if !show_filer_visualizer1}
 						<!-- server filer visualizer -->
 						<button on:pointerdown={() => (show_filer_visualizer1 = !show_filer_visualizer1)}>
-							Filer_Visualizer (server)
+							FilerVisualizer (server)
 						</button>
 					{/if}
 					{#if !show_filer_visualizer2}
 						<!-- client example filer visualizer -->
 						<button on:pointerdown={() => (show_filer_visualizer2 = !show_filer_visualizer2)}>
-							Filer_Visualizer (client)
+							FilerVisualizer (client)
 						</button>
 					{/if}
 					{#if !show_server_visualizer}
 						<!-- gro dev server filer visualizer -->
 						<button on:pointerdown={() => (show_server_visualizer = !show_server_visualizer)}>
-							Server_Visualizer
+							ServerVisualizer
 						</button>
 					{/if}
 					{#if !show_source_tree_visualizer}
@@ -100,7 +100,7 @@
 						<button
 							on:pointerdown={() => (show_source_tree_visualizer = !show_source_tree_visualizer)}
 						>
-							Source_Tree_Visualizer
+							SourceTreeVisualizer
 						</button>
 					{/if}
 					{#if !show_build_tree_visualizer}
@@ -108,7 +108,7 @@
 						<button
 							on:pointerdown={() => (show_build_tree_visualizer = !show_build_tree_visualizer)}
 						>
-							Build_Tree_Visualizer
+							BuildTreeVisualizer
 						</button>
 					{/if}
 				</nav>
@@ -118,36 +118,36 @@
 		{#if show_filer_visualizer1}
 			<section transition:slide>
 				<button on:pointerdown={() => (show_filer_visualizer1 = false)}>🗙</button>
-				<View_Name view={Filer_Visualizer} />
-				<Filer_Visualizer name="server" />
+				<ViewName view={FilerVisualizer} />
+				<FilerVisualizer name="server" />
 			</section>
 		{/if}
 		{#if show_filer_visualizer2}
 			<section transition:slide>
 				<button on:pointerdown={() => (show_filer_visualizer2 = false)}>🗙</button>
-				<View_Name view={Filer_Visualizer} />
-				<Filer_Visualizer name="client example" />
+				<ViewName view={FilerVisualizer} />
+				<FilerVisualizer name="client example" />
 			</section>
 		{/if}
 		{#if show_server_visualizer}
 			<section transition:slide>
 				<button on:pointerdown={() => (show_server_visualizer = false)}>🗙</button>
-				<View_Name view={Server_Visualizer} />
-				<Server_Visualizer name="gro dev server" />
+				<ViewName view={ServerVisualizer} />
+				<ServerVisualizer name="gro dev server" />
 			</section>
 		{/if}
 		{#if show_source_tree_visualizer}
 			<section transition:slide>
 				<button on:pointerdown={() => (show_source_tree_visualizer = false)}>🗙</button>
-				<View_Name view={Source_Tree_Visualizer} />
-				<Source_Tree_Visualizer name="source tree" />
+				<ViewName view={SourceTreeVisualizer} />
+				<SourceTreeVisualizer name="source tree" />
 			</section>
 		{/if}
 		{#if show_build_tree_visualizer}
 			<section transition:slide>
 				<button on:pointerdown={() => (show_build_tree_visualizer = false)}>🗙</button>
-				<View_Name view={Build_Tree_Visualizer} />
-				<Build_Tree_Visualizer name="build tree" />
+				<ViewName view={BuildTreeVisualizer} />
+				<BuildTreeVisualizer name="build tree" />
 			</section>
 		{/if}
 
@@ -166,7 +166,7 @@
 					{/each}
 				</nav>
 
-				<Source_Meta_View
+				<SourceMetaView
 					{source_tree}
 					{selected_build_names}
 					{active_source_meta_view}

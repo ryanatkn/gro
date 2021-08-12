@@ -20,14 +20,14 @@ import {clean_fs} from './fs/clean.js';
 // - publishes to npm from the `main` branch, configurable with `--branch`
 // - syncs commits and tags to the configured main branch
 
-export interface Task_Args {
+export interface TaskArgs {
 	_: string[];
 	branch?: string;
 	dry?: boolean; // run without changing git or npm
 	restricted?: string; // if `true`, package is not public
 }
 
-export const task: Task<Task_Args> = {
+export const task: Task<TaskArgs> = {
 	summary: 'bump version, publish to npm, and sync to GitHub',
 	dev: false,
 	run: async ({fs, args, log, invoke_task, dev}): Promise<void> => {
@@ -94,9 +94,9 @@ const confirm_with_user = async (
 	version_increment: string,
 	dry: boolean,
 	log: Logger,
-): Promise<Publish_Context> => {
+): Promise<PublishContext> => {
 	const readline = create_readline_interface({input: process.stdin, output: process.stdout});
-	return new Promise<Publish_Context>(async (resolve) => {
+	return new Promise<PublishContext>(async (resolve) => {
 		const [[current_changelog_version, previous_changelog_version], current_package_version] =
 			await Promise.all([get_changelog_versions(fs), get_current_package_version(fs)]);
 
@@ -119,7 +119,7 @@ const confirm_with_user = async (
 			);
 		}
 
-		const publish_context: Publish_Context = {
+		const publish_context: PublishContext = {
 			current_package_version,
 			current_changelog_version,
 			previous_changelog_version,
@@ -203,31 +203,31 @@ const get_current_package_version = async (fs: Filesystem): Promise<string> => {
 	return pkg.version;
 };
 
-interface Publish_Context {
+interface PublishContext {
 	readonly current_package_version: string;
 	readonly current_changelog_version: string;
 	readonly previous_changelog_version: string | undefined;
 }
 
 // TODO probably want to extra to version helpers
-type Standard_Version_Increment = 'major' | 'minor' | 'patch';
-type Version_Increment = Flavored<string, 'Version_Increment'>;
-const validate_version_increment: Validate_Version_Increment = (v) => {
+type StandardVersionIncrement = 'major' | 'minor' | 'patch';
+type VersionIncrement = Flavored<string, 'VersionIncrement'>;
+const validate_version_increment: ValidateVersionIncrement = (v) => {
 	if (!v || typeof v !== 'string') {
 		throw Error(
 			`Expected a version increment like one of patch|minor|major, e.g. gro publish patch`,
 		);
 	}
 };
-interface Validate_Version_Increment {
-	(v: unknown): asserts v is Version_Increment;
+interface ValidateVersionIncrement {
+	(v: unknown): asserts v is VersionIncrement;
 }
-const is_standard_version_increment = (v: string): v is Standard_Version_Increment =>
+const is_standard_version_increment = (v: string): v is StandardVersionIncrement =>
 	v === 'major' || v === 'minor' || v === 'patch';
 
 const validate_standard_version_increment_parts = (
-	version_increment: Standard_Version_Increment,
-	{current_changelog_version, current_package_version, previous_changelog_version}: Publish_Context,
+	version_increment: StandardVersionIncrement,
+	{current_changelog_version, current_package_version, previous_changelog_version}: PublishContext,
 ): Result<{}, {reason: string}> => {
 	const current_package_versionParts = to_version_parts(
 		current_package_version,
@@ -262,12 +262,12 @@ const validate_standard_version_increment_parts = (
 	return {ok: true};
 };
 
-type Version_Parts = [number, number, number];
+type VersionParts = [number, number, number];
 const to_version_parts = (
 	version: string,
 	name: string = 'version',
-): Result<{value: Version_Parts}, {reason: string}> => {
-	const value = version.split('.').map((v) => Number(v)) as Version_Parts;
+): Result<{value: VersionParts}, {reason: string}> => {
+	const value = version.split('.').map((v) => Number(v)) as VersionParts;
 	if (!value) {
 		return {ok: false, reason: `expected ${name} to match major.minor.patch: ${version}`};
 	} else if (value.length !== 3) {
@@ -276,8 +276,8 @@ const to_version_parts = (
 	return {ok: true, value};
 };
 const to_expected_next_version = (
-	version_increment: Standard_Version_Increment,
-	[major, minor, patch]: Version_Parts,
+	version_increment: StandardVersionIncrement,
+	[major, minor, patch]: VersionParts,
 ) => {
 	if (version_increment === 'major') {
 		return `${major + 1}.0.0`;

@@ -12,49 +12,49 @@ export const GEN_FILE_PATTERN = GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN
 
 export const is_gen_path = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
 
-export type Gen_Result = {
+export type GenResult = {
 	origin_id: string;
-	files: Gen_File[];
+	files: GenFile[];
 };
-export interface Gen_File {
+export interface GenFile {
 	id: string;
 	content: string;
 	origin_id: string;
 }
 
 export interface Gen {
-	(ctx: Gen_Context): Raw_Gen_Result | Promise<Raw_Gen_Result>;
+	(ctx: GenContext): RawGenResult | Promise<RawGenResult>;
 }
-export interface Gen_Context {
+export interface GenContext {
 	fs: Filesystem;
 	origin_id: string;
 	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
-export type Raw_Gen_Result = string | Raw_Gen_File | Raw_Gen_File[];
-export interface Raw_Gen_File {
+export type RawGenResult = string | RawGenFile | RawGenFile[];
+export interface RawGenFile {
 	content: string;
 	// Defaults to file name without the `.gen`, and can be a relative path.
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
 	filename?: string;
 }
 
-export type Gen_Results = {
-	results: Gen_Module_Result[];
-	successes: Gen_Module_Result_Success[];
-	failures: Gen_Module_Result_Failure[];
+export type GenResults = {
+	results: GenModuleResult[];
+	successes: GenModuleResultSuccess[];
+	failures: GenModuleResultFailure[];
 	input_count: number;
 	output_count: number;
 	elapsed: number;
 };
-export type Gen_Module_Result = Gen_Module_Result_Success | Gen_Module_Result_Failure;
-export type Gen_Module_Result_Success = {
+export type GenModuleResult = GenModuleResultSuccess | GenModuleResultFailure;
+export type GenModuleResultSuccess = {
 	ok: true;
 	id: string;
-	files: Gen_File[];
+	files: GenFile[];
 	elapsed: number;
 };
-export type Gen_Module_Result_Failure = {
+export type GenModuleResultFailure = {
 	ok: false;
 	id: string;
 	reason: string;
@@ -62,7 +62,7 @@ export type Gen_Module_Result_Failure = {
 	elapsed: number;
 };
 
-export const to_gen_result = (origin_id: string, raw_result: Raw_Gen_Result): Gen_Result => {
+export const to_gen_result = (origin_id: string, raw_result: RawGenResult): GenResult => {
 	if (!is_source_id(origin_id)) {
 		throw Error(`origin_id must be a source id: ${origin_id}`);
 	}
@@ -72,7 +72,7 @@ export const to_gen_result = (origin_id: string, raw_result: Raw_Gen_Result): Ge
 	};
 };
 
-const to_gen_files = (origin_id: string, raw_result: Raw_Gen_Result): Gen_File[] => {
+const to_gen_files = (origin_id: string, raw_result: RawGenResult): GenFile[] => {
 	if (typeof raw_result === 'string') {
 		return [to_gen_file(origin_id, {content: raw_result})];
 	} else if (Array.isArray(raw_result)) {
@@ -84,8 +84,8 @@ const to_gen_files = (origin_id: string, raw_result: Raw_Gen_Result): Gen_File[]
 	}
 };
 
-const to_gen_file = (origin_id: string, rawGen_File: Raw_Gen_File): Gen_File => {
-	const {content, filename} = rawGen_File;
+const to_gen_file = (origin_id: string, rawGenFile: RawGenFile): GenFile => {
+	const {content, filename} = rawGenFile;
 	const id = to_output_file_id(origin_id, filename);
 	return {id, content, origin_id};
 };
@@ -132,7 +132,7 @@ export const to_output_file_name = (filename: string): string => {
 	return final_parts.join(GEN_FILE_SEPARATOR);
 };
 
-const validate_gen_files = (files: Gen_File[]) => {
+const validate_gen_files = (files: GenFile[]) => {
 	const ids = new Set();
 	for (const file of files) {
 		if (ids.has(file.id)) {

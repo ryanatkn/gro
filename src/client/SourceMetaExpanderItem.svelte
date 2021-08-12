@@ -1,12 +1,12 @@
 <script lang="ts">
 	import type {Writable} from 'svelte/store';
 
-	import Source_Id from './Source_Id.svelte';
-	import type {Source_Meta} from 'src/build/source_meta.js';
+	import SourceId from './SourceId.svelte';
+	import type {SourceMeta} from 'src/build/source_meta.js';
 
-	export let source_meta: Source_Meta;
-	export let selected_source_meta: Writable<Source_Meta | null>;
-	export let hovered_source_meta: Writable<Source_Meta | null>;
+	export let source_meta: SourceMeta;
+	export let selected_source_meta: Writable<SourceMeta | null>;
+	export let hovered_source_meta: Writable<SourceMeta | null>;
 
 	// this allows you to default stuff to e.g. the selected if there's no hovered
 	$: active_source_meta = $hovered_source_meta || $selected_source_meta;
@@ -28,7 +28,7 @@
 	};
 
 	// TODO need a better data structure for this
-	const is_dependency = (dependency: Source_Meta | null, dependent: Source_Meta | null) =>
+	const is_dependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
@@ -64,7 +64,7 @@
 		class:hovered
 		class:selected
 	>
-		<Source_Id id={source_meta.data.source_id} />
+		<SourceId id={source_meta.data.source_id} />
 	</button>
 </div>
 

@@ -5,14 +5,14 @@ import type {Task} from 'src/task/task.js';
 import {Filer} from './build/Filer.js';
 import {gro_builder_default} from './build/gro_builder_default.js';
 import {paths, to_build_out_path} from './paths.js';
-import type {Gro_Config} from 'src/config/config.js';
+import type {GroConfig} from 'src/config/config.js';
 import {load_config} from './config/config.js';
-import type {Served_Dir_Partial} from 'src/build/served_dir.js';
-import type {Plugin_Context} from './plugin/plugin.js';
+import type {ServedDirPartial} from 'src/build/served_dir.js';
+import type {PluginContext} from './plugin/plugin.js';
 import {Plugins} from './plugin/plugin.js';
-import type {Dev_Server_Plugin_Context} from 'src/plugin/gro_plugin_dev_server.js';
+import type {DevServerPluginContext} from 'src/plugin/gro_plugin_dev_server.js';
 
-export interface Task_Args {
+export interface TaskArgs {
 	watch?: boolean; // defaults to `true`
 	'no-watch'?: boolean; // CLI arg to set `watch: false` -- internally, refer to `watch` not this
 	insecure?: boolean;
@@ -20,18 +20,18 @@ export interface Task_Args {
 	certkey?: string;
 }
 
-export interface Dev_Task_Context
-	extends Dev_Server_Plugin_Context,
-		Plugin_Context<Task_Args, Task_Events> {}
+export interface DevTaskContext
+	extends DevServerPluginContext,
+		PluginContext<TaskArgs, TaskEvents> {}
 
-export interface Task_Events {
-	'dev.create_config': (config: Gro_Config) => void;
+export interface TaskEvents {
+	'dev.create_config': (config: GroConfig) => void;
 	'dev.create_filer': (filer: Filer) => void;
-	'dev.create_context': (ctx: Dev_Task_Context) => void;
-	'dev.ready': (ctx: Dev_Task_Context) => void;
+	'dev.create_context': (ctx: DevTaskContext) => void;
+	'dev.ready': (ctx: DevTaskContext) => void;
 }
 
-export const task: Task<Task_Args, Task_Events> = {
+export const task: Task<TaskArgs, TaskEvents> = {
 	summary: 'start dev server',
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
@@ -70,7 +70,7 @@ export const task: Task<Task_Args, Task_Events> = {
 			timing_to_init_filer();
 		};
 
-		const dev_task_context: Dev_Task_Context = {...ctx, config, filer, timings};
+		const dev_task_context: DevTaskContext = {...ctx, config, filer, timings};
 		events.emit('dev.create_context', dev_task_context);
 
 		const plugins = await Plugins.create(dev_task_context);
@@ -90,7 +90,7 @@ export const task: Task<Task_Args, Task_Events> = {
 };
 
 // TODO rework this when we change the deprecated frontend build process
-const to_default_served_dirs = (config: Gro_Config): Served_Dir_Partial[] | undefined => {
+const to_default_served_dirs = (config: GroConfig): ServedDirPartial[] | undefined => {
 	const build_config_to_serve = config.primary_browser_build_config;
 	if (!build_config_to_serve) return undefined;
 	const build_out_dir_to_serve = to_build_out_path(true, build_config_to_serve.name, '');

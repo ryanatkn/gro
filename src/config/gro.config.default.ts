@@ -1,6 +1,6 @@
 import {ENV_LOG_LEVEL, Log_Level} from '@feltcoop/felt/util/log.js';
 
-import type {Gro_Config_Creator, Gro_Config_Partial} from 'src/config/config.js';
+import type {GroConfigCreator, GroConfigPartial} from 'src/config/config.js';
 import {
 	has_node_library,
 	NODE_LIBRARY_BUILD_CONFIG,
@@ -28,7 +28,7 @@ It looks at the project and tries to do the right thing:
 
 */
 
-export const config: Gro_Config_Creator = async ({fs}) => {
+export const config: GroConfigCreator = async ({fs}) => {
 	const [enable_node_library, enable_api_server, enable_sveltekit_frontend, enable_gro_frontend] =
 		await Promise.all([
 			has_node_library(fs),
@@ -37,7 +37,7 @@ export const config: Gro_Config_Creator = async ({fs}) => {
 			has_gro_frontend(fs),
 		]);
 	const enable_dev_server = enable_gro_frontend;
-	const partial: Gro_Config_Partial = {
+	const partial: GroConfigPartial = {
 		builds: [
 			enable_node_library ? NODE_LIBRARY_BUILD_CONFIG : null,
 			enable_api_server ? API_SERVER_BUILD_CONFIG : null,

@@ -13,29 +13,29 @@ import type {Omit_Strict, Assignable, Partial_Except} from '@feltcoop/felt/util/
 
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {create_filer_dir} from '../build/filer_dir.js';
-import type {Filer_Dir, Filer_Dir_Change_Callback} from 'src/build/filer_dir.js';
+import type {FilerDir, FilerDirChangeCallback} from 'src/build/filer_dir.js';
 import {is_input_to_build_config, map_dependency_to_source_id} from './utils.js';
-import type {Map_Dependency_To_Source_Id} from 'src/build/utils.js';
+import type {MapDependencyToSourceId} from 'src/build/utils.js';
 import {JS_EXTENSION, paths, to_build_out_path} from '../paths.js';
-import type {Build_Context, Builder, Builder_State} from 'src/build/builder.js';
+import type {BuildContext, Builder, BuilderState} from 'src/build/builder.js';
 import {infer_encoding} from '../fs/encoding.js';
 import type {Encoding} from 'src/fs/encoding.js';
 import {print_build_config_label} from '../build/build_config.js';
-import type {Build_Name} from 'src/build/build_config.js';
-import type {Build_Config} from 'src/build/build_config.js';
+import type {BuildName} from 'src/build/build_config.js';
+import type {BuildConfig} from 'src/build/build_config.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/build_config_defaults.js';
-import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
+import type {EcmaScriptTarget} from 'src/build/typescript_utils.js';
 import {strip_base, to_served_dirs} from './served_dir.js';
-import type {Served_Dir, Served_Dir_Partial} from 'src/build/served_dir.js';
+import type {ServedDir, ServedDirPartial} from 'src/build/served_dir.js';
 import {
 	assert_buildable_source_file,
 	assert_source_file,
 	create_source_file,
 } from './source_file.js';
-import type {Buildable_Source_File, Source_File} from 'src/build/source_file.js';
+import type {BuildableSourceFile, SourceFile} from 'src/build/source_file.js';
 import {diff_dependencies} from './build_file.js';
-import type {Build_File} from 'src/build/build_file.js';
-import type {Base_Filer_File} from 'src/build/filer_file.js';
+import type {BuildFile} from 'src/build/build_file.js';
+import type {BaseFilerFile} from 'src/build/filer_file.js';
 import {load_content} from './load.js';
 import {is_external_module} from '../utils/module.js';
 import {
@@ -44,17 +44,17 @@ import {
 	get_externals_builder_state,
 	get_externals_build_state,
 } from './gro_builder_externals_utils.js';
-import type {Externals_Aliases} from 'src/build/gro_builder_externals_utils.js';
+import type {ExternalsAliases} from 'src/build/gro_builder_externals_utils.js';
 import {queue_externals_build} from './gro_builder_externals.js';
-import type {Source_Meta} from 'src/build/source_meta.js';
-import type {Build_Dependency} from 'src/build/build_dependency.js';
+import type {SourceMeta} from 'src/build/source_meta.js';
+import type {BuildDependency} from 'src/build/build_dependency.js';
 import {
 	delete_source_meta,
 	update_source_meta,
 	clean_source_meta,
 	init_source_meta,
 } from './source_meta.js';
-import type {Path_Filter} from 'src/fs/filter.js';
+import type {PathFilter} from 'src/fs/filter.js';
 
 /*
 
@@ -73,40 +73,40 @@ TODO
 */
 
 // The Filer is an `EventEmitter` with the following events:
-type Filer_Emitter = StrictEventEmitter<EventEmitter, Filer_Events>;
-interface Filer_Events {
-	build: {source_file: Source_File; build_config: Build_Config};
+type FilerEmitter = StrictEventEmitter<EventEmitter, FilerEvents>;
+interface FilerEvents {
+	build: {source_file: SourceFile; build_config: BuildConfig};
 }
 
-export type Filer_File = Source_File | Build_File; // TODO or `Directory`?
+export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface Options {
 	fs: Filesystem;
 	dev: boolean;
 	builder: Builder | null;
-	build_configs: Build_Config[] | null;
+	build_configs: BuildConfig[] | null;
 	build_dir: string;
 	source_dirs: string[];
-	served_dirs: Served_Dir[];
-	externals_aliases: Externals_Aliases;
-	map_dependency_to_source_id: Map_Dependency_To_Source_Id;
+	served_dirs: ServedDir[];
+	externals_aliases: ExternalsAliases;
+	map_dependency_to_source_id: MapDependencyToSourceId;
 	sourcemap: boolean;
 	types: boolean;
-	target: Ecma_Script_Target;
+	target: EcmaScriptTarget;
 	watch: boolean;
 	watcher_debounce: number | undefined;
-	filter: Path_Filter | undefined;
+	filter: PathFilter | undefined;
 	clean_output_dirs: boolean;
 	log: Logger;
 }
-export type Required_Options = 'fs';
-export type Initial_Options = Omit_Strict<
-	Partial_Except<Options, Required_Options>,
+export type RequiredOptions = 'fs';
+export type InitialOptions = Omit_Strict<
+	Partial_Except<Options, RequiredOptions>,
 	'served_dirs'
 > & {
-	served_dirs?: Served_Dir_Partial[];
+	served_dirs?: ServedDirPartial[];
 };
-export const init_options = (opts: Initial_Options): Options => {
+export const init_options = (opts: InitialOptions): Options => {
 	const dev = opts.dev ?? true;
 	const build_configs = opts.build_configs || null;
 	if (build_configs?.length === 0) {
@@ -159,38 +159,37 @@ export const init_options = (opts: Initial_Options): Options => {
 	};
 };
 
-export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements Build_Context {
+export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements BuildContext {
 	// TODO think about accessors - I'm currently just making things public when I need them here
-	private readonly files: Map<string, Filer_File> = new Map();
-	private readonly dirs: Filer_Dir[];
+	private readonly files: Map<string, FilerFile> = new Map();
+	private readonly dirs: FilerDir[];
 	private readonly builder: Builder | null;
-	private readonly map_dependency_to_source_id: Map_Dependency_To_Source_Id;
+	private readonly map_dependency_to_source_id: MapDependencyToSourceId;
 
-	// These public `Build_Context` properties are available to e.g. builders, helpers, postprocessors.
+	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
-	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `Build_Context`, probably
-	readonly build_configs: readonly Build_Config[] | null;
-	readonly build_names: Set<Build_Name> | null;
+	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
+	readonly build_configs: readonly BuildConfig[] | null;
+	readonly build_names: Set<BuildName> | null;
 	// TODO if we loosen the restriction of the filer owning the `.gro` directory,
 	// `source_meta` will need to be a shared object --
 	// a global cache is too inflexible, because we still want to support multiple independent filers
-	readonly source_meta_by_id: Map<string, Source_Meta> = new Map();
+	readonly source_meta_by_id: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
 	readonly types: boolean;
-	readonly target: Ecma_Script_Target; // TODO shouldn't build configs have this?
-	readonly served_dirs: readonly Served_Dir[];
-	readonly externals_aliases: Externals_Aliases; // TODO should this allow aliasing anything? not just externals?
-	readonly state: Builder_State = {};
+	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
+	readonly served_dirs: readonly ServedDir[];
+	readonly externals_aliases: ExternalsAliases; // TODO should this allow aliasing anything? not just externals?
+	readonly state: BuilderState = {};
 	readonly building_source_files: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 	// TODO not sure about this
-	readonly find_by_id = (id: string): Base_Filer_File | undefined =>
-		this.files.get(id) || undefined;
+	readonly find_by_id = (id: string): BaseFilerFile | undefined => this.files.get(id) || undefined;
 
-	constructor(opts: Initial_Options) {
+	constructor(opts: InitialOptions) {
 		super();
 		const {
 			fs,
@@ -238,7 +237,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	}
 
 	// Searches for a file matching `path`, limited to the directories that are served.
-	async find_by_path(path: string): Promise<Base_Filer_File | undefined> {
+	async find_by_path(path: string): Promise<BaseFilerFile | undefined> {
 		const {files} = this;
 		for (const served_dir of this.served_dirs) {
 			const id = `${served_dir.root}/${strip_base(path, served_dir.base)}`;
@@ -319,7 +318,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		const promises: Promise<void>[] = [];
 
 		const filters: ((id: string) => boolean)[] = [];
-		const filter_build_configs: Build_Config[] = [];
+		const filter_build_configs: BuildConfig[] = [];
 
 		// Iterate through the build config inputs and initialize their files.
 		for (const build_config of this.build_configs) {
@@ -368,8 +367,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// Adds a build config to a source file.
 	// The caller is expected to check to avoid duplicates.
 	private async add_source_file_to_build(
-		source_file: Buildable_Source_File,
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		build_config: BuildConfig,
 		is_input: boolean,
 	): Promise<void> {
 		// this.log.trace(
@@ -387,7 +386,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			if (source_file.is_input_to_build_configs === null) {
 				// Cast to keep the `readonly` modifier outside of initialization.
 				(
-					source_file as Assignable<Buildable_Source_File, 'is_input_to_build_configs'>
+					source_file as Assignable<BuildableSourceFile, 'is_input_to_build_configs'>
 				).is_input_to_build_configs = new Set();
 			}
 			source_file.is_input_to_build_configs!.add(build_config);
@@ -408,8 +407,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// Removes a build config from a source file.
 	// The caller is expected to check to avoid duplicates.
 	private async remove_source_file_from_build(
-		source_file: Buildable_Source_File,
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		build_config: BuildConfig,
 		should_update_source_meta = true,
 	): Promise<void> {
 		this.log.trace(
@@ -445,7 +444,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		}
 	}
 
-	private on_dir_change: Filer_Dir_Change_Callback = async (change, filer_dir) => {
+	private on_dir_change: FilerDirChangeCallback = async (change, filer_dir) => {
 		const id =
 			change.path === EXTERNALS_SOURCE_ID ? EXTERNALS_SOURCE_ID : join(filer_dir.dir, change.path);
 		// console.log(red(change.type), id); // TODO maybe make an even more verbose log level for this?
@@ -508,10 +507,10 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 	// Initialize a newly created source file's builds.
 	// It currently uses a slow brute force search to find dependents.
-	private async init_source_file(file: Buildable_Source_File): Promise<void> {
+	private async init_source_file(file: BuildableSourceFile): Promise<void> {
 		if (this.build_configs === null) return; // TODO is this right?
 		let promises: Promise<void>[] | null = null;
-		let dependent_build_configs: Set<Build_Config> | null = null;
+		let dependent_build_configs: Set<BuildConfig> | null = null;
 		// TODO could be sped up with some caching data structures
 		for (const f of this.files.values()) {
 			if (f.type !== 'source' || !f.buildable) continue;
@@ -525,7 +524,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 				}
 			}
 		}
-		let input_build_configs: Set<Build_Config> | null = null;
+		let input_build_configs: Set<BuildConfig> | null = null;
 		for (const build_config of this.build_configs) {
 			if (is_input_to_build_config(file.id, build_config.input)) {
 				(input_build_configs || (input_build_configs = new Set())).add(build_config);
@@ -549,7 +548,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// The source file may have been updated or created from a cold cache.
 	// It batches calls together, but unlike `build_source_file`, it don't queue them,
 	// and instead just returns the pending promise.
-	private async update_source_file(id: string, filer_dir: Filer_Dir): Promise<boolean> {
+	private async update_source_file(id: string, filer_dir: FilerDir): Promise<boolean> {
 		const updating = this.updating_source_files.get(id);
 		if (updating !== undefined) return updating;
 		const promise = wrap(async (after) => {
@@ -560,7 +559,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 			if (source_file !== undefined) {
 				assert_source_file(source_file);
 				if (source_file.filer_dir !== filer_dir) {
-					// This can happen when watchers overlap, a file picked up by two `Filer_Dir`s.
+					// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
 					// We might be able to support this,
 					// but more thought needs to be given to the exact desired behavior.
 					// See `validate_dirs` for more.
@@ -640,9 +639,9 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	}
 
 	// These are used to avoid concurrent builds for any given source file.
-	// TODO maybe make these `Map<Build_Config, Set<Buildable_Source_File>>`, initialize during `init` to avoid bookkeeping API overhead or speciality code
-	private pending_builds: Map<Build_Config, Set<string>> = new Map(); // value is source_id
-	private enqueued_builds: Map<Build_Config, Set<string>> = new Map(); // value is source_id
+	// TODO maybe make these `Map<BuildConfig, Set<BuildableSourceFile>>`, initialize during `init` to avoid bookkeeping API overhead or speciality code
+	private pending_builds: Map<BuildConfig, Set<string>> = new Map(); // value is source_id
+	private enqueued_builds: Map<BuildConfig, Set<string>> = new Map(); // value is source_id
 
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent builds.
@@ -652,8 +651,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// The queue stores at most one build per file,
 	// and this is safe given that building accepts no parameters.
 	private async build_source_file(
-		source_file: Buildable_Source_File,
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		build_config: BuildConfig,
 	): Promise<void> {
 		let pending_builds = this.pending_builds.get(build_config);
 		if (pending_builds === undefined) {
@@ -701,8 +700,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	}
 
 	private async _build_source_file(
-		source_file: Buildable_Source_File,
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		build_config: BuildConfig,
 	): Promise<void> {
 		this.log.info(
 			`${print_build_config_label(build_config)} build source file`,
@@ -710,7 +709,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 		);
 
 		// Compile the source file.
-		let build_files: Build_File[];
+		let build_files: BuildFile[];
 
 		this.building_source_files.add(source_file.id); // track so we can see what the filer is doing
 		try {
@@ -728,9 +727,9 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 	// Updates the build files in the memory cache and writes to disk.
 	private async update_build_files(
-		source_file: Buildable_Source_File,
-		new_build_files: Build_File[],
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		new_build_files: BuildFile[],
+		build_config: BuildConfig,
 	): Promise<void> {
 		const old_build_files = source_file.build_files.get(build_config) || null;
 		const changes = diff_build_files(new_build_files, old_build_files);
@@ -747,8 +746,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// This is because the normal build process ending with `update_build_files`
 	// is being short-circuited for efficiency, but parts of that process are still needed.
 	private async hydrate_source_file_from_cache(
-		source_file: Buildable_Source_File,
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		build_config: BuildConfig,
 	): Promise<void> {
 		// this.log.trace('hydrate', gray(source_file.id));
 		const build_files = source_file.build_files.get(build_config);
@@ -774,10 +773,10 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// they're removed for this build,
 	// meaning the memory cache is updated and the files are deleted from disk for the build config.
 	private async update_dependencies(
-		source_file: Buildable_Source_File,
-		new_build_files: readonly Build_File[],
-		old_build_files: readonly Build_File[] | null,
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		new_build_files: readonly BuildFile[],
+		old_build_files: readonly BuildFile[] | null,
+		build_config: BuildConfig,
 	): Promise<void> {
 		if (new_build_files === old_build_files) return;
 
@@ -817,7 +816,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 					if (!added_source_file.build_configs.has(build_config) && !added_dependency.external) {
 						(promises || (promises = [])).push(
 							this.add_source_file_to_build(
-								added_source_file as Buildable_Source_File,
+								added_source_file as BuildableSourceFile,
 								build_config,
 								is_input_to_build_config(added_source_file.id, build_config.input),
 							),
@@ -911,8 +910,8 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// It seems not, because the `Filer` currently does not handle multiple source files
 	// per build, it's 1:N not M:N, and further the externals build lazily,
 	// so we probably need to refactor, ultimately into a plugin system.
-	private creating_externals_source_file: Promise<Buildable_Source_File> | undefined;
-	private async create_externals_source_file(filer_dir: Filer_Dir): Promise<Buildable_Source_File> {
+	private creating_externals_source_file: Promise<BuildableSourceFile> | undefined;
+	private async create_externals_source_file(filer_dir: FilerDir): Promise<BuildableSourceFile> {
 		return (
 			this.creating_externals_source_file ||
 			(this.creating_externals_source_file = (async () => {
@@ -949,9 +948,9 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	// the problem is the builds are recursively depth-first!
 	// so we can't wait til it's "idle", because it's never idle until everything is built.
 	private update_externals_source_file(
-		source_file: Buildable_Source_File,
-		added_dependency: Build_Dependency,
-		build_config: Build_Config,
+		source_file: BuildableSourceFile,
+		added_dependency: BuildDependency,
+		build_config: BuildConfig,
 	): void | Promise<void> {
 		const {specifier} = added_dependency;
 		// ignore externals imported by other externals -- their specifiers get mapped to build ids
@@ -982,7 +981,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 	}
 	// TODO this could possibly be changed to explicitly call the build,
 	// instead of waiting with timeouts in places,
-	// and it'd be specific to one Externals_Build_State, so it'd be per build config.
+	// and it'd be specific to one ExternalsBuildState, so it'd be per build config.
 	// we could then remove things like the tracking what's building in the Filer and externalsBuidler
 	private updating_externals: Promise<void>[] = [];
 	private async wait_for_externals(): Promise<void> {
@@ -994,7 +993,7 @@ export class Filer extends (EventEmitter as {new (): Filer_Emitter}) implements 
 
 const sync_build_files_to_disk = async (
 	fs: Filesystem,
-	changes: Build_File_Change[],
+	changes: BuildFileChange[],
 	log: Logger,
 ): Promise<void> => {
 	const build_config = changes[0]?.file?.build_config;
@@ -1036,8 +1035,8 @@ const sync_build_files_to_disk = async (
 };
 
 const sync_build_files_to_memory_cache = (
-	files: Map<string, Filer_File>,
-	changes: Build_File_Change[],
+	files: Map<string, FilerFile>,
+	changes: BuildFileChange[],
 ): void => {
 	for (const change of changes) {
 		if (change.type === 'added' || change.type === 'updated') {
@@ -1051,19 +1050,19 @@ const sync_build_files_to_memory_cache = (
 };
 
 // TODO hmm how does this fit in?
-type Build_File_Change =
+type BuildFileChange =
 	| {
 			type: 'added';
-			file: Build_File;
+			file: BuildFile;
 	  }
 	| {
 			type: 'updated';
-			file: Build_File;
-			old_file: Build_File;
+			file: BuildFile;
+			old_file: BuildFile;
 	  }
 	| {
 			type: 'removed';
-			file: Build_File;
+			file: BuildFile;
 	  };
 
 // Given `new_files` and `old_files`, returns a description of changes.
@@ -1072,10 +1071,10 @@ type Build_File_Change =
 // but that assumption might change and cause this code to be slow.
 // TODO maybe change to sets or a better data structure for the usage patterns?
 const diff_build_files = (
-	new_files: readonly Build_File[],
-	old_files: readonly Build_File[] | null,
-): Build_File_Change[] => {
-	let changes: Build_File_Change[];
+	new_files: readonly BuildFile[],
+	old_files: readonly BuildFile[] | null,
+): BuildFileChange[] => {
+	let changes: BuildFileChange[];
 	if (old_files === null) {
 		changes = new_files.map((file) => ({type: 'added', file}));
 	} else {
@@ -1129,14 +1128,14 @@ const validate_dirs = (source_dirs: string[]) => {
 const create_filer_dirs = (
 	fs: Filesystem,
 	source_dirs: string[],
-	served_dirs: Served_Dir[],
+	served_dirs: ServedDir[],
 	build_dir: string,
-	on_change: Filer_Dir_Change_Callback,
+	on_change: FilerDirChangeCallback,
 	watch: boolean,
 	watcher_debounce: number | undefined,
-	filter: Path_Filter | undefined,
-): Filer_Dir[] => {
-	const dirs: Filer_Dir[] = [];
+	filter: PathFilter | undefined,
+): FilerDir[] => {
+	const dirs: FilerDir[] = [];
 	for (const source_dir of source_dirs) {
 		dirs.push(create_filer_dir(fs, source_dir, true, on_change, watch, watcher_debounce, filter));
 	}
@@ -1161,10 +1160,10 @@ const create_filer_dirs = (
 };
 
 const add_dependent = (
-	dependent_source_file: Buildable_Source_File,
-	dependency_source_file: Buildable_Source_File,
-	build_config: Build_Config,
-	added_dependency: Build_Dependency,
+	dependent_source_file: BuildableSourceFile,
+	dependency_source_file: BuildableSourceFile,
+	build_config: BuildConfig,
+	added_dependency: BuildDependency,
 ) => {
 	let dependents_map = dependency_source_file.dependents.get(build_config);
 	if (dependents_map === undefined) {
@@ -1178,10 +1177,10 @@ const add_dependent = (
 };
 
 const add_dependency = (
-	dependent_source_file: Buildable_Source_File,
+	dependent_source_file: BuildableSourceFile,
 	dependency_source_id: string,
-	build_config: Build_Config,
-	added_dependency: Build_Dependency,
+	build_config: BuildConfig,
+	added_dependency: BuildDependency,
 ) => {
 	let dependencies_map = dependent_source_file.dependencies.get(build_config);
 	if (dependencies_map === undefined) {

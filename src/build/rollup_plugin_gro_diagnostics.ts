@@ -1,4 +1,4 @@
-import type {Plugin as Rollup_Plugin} from 'rollup';
+import type {Plugin as RollupPlugin} from 'rollup';
 import {gray} from '@feltcoop/felt/util/terminal.js';
 import {System_Logger} from '@feltcoop/felt/util/log.js';
 import {print_key_value, print_ms} from '@feltcoop/felt/util/print.js';
@@ -10,7 +10,7 @@ export const name = 'gro_diagnostics';
 
 const tag = (s: string) => s; // maybe color this
 
-export const rollup_plugin_gro_diagnostics = (): Rollup_Plugin => {
+export const rollup_plugin_gro_diagnostics = (): RollupPlugin => {
 	const log = new System_Logger(gray(`[${name}]`));
 
 	const stopwatch = create_stopwatch();

@@ -14,51 +14,51 @@ import type {Filesystem} from 'src/fs/filesystem.js';
 
 // See `../docs/config.md` for documentation.
 
-export type Build_Name = Flavored<string, 'Build_Name'>;
+export type BuildName = Flavored<string, 'BuildName'>;
 
-export interface Build_Config<T_Platform_Target extends string = Platform_Target> {
-	readonly name: Build_Name;
-	readonly platform: T_Platform_Target;
-	readonly input: readonly Build_Config_Input[];
+export interface BuildConfig<T_PlatformTarget extends string = PlatformTarget> {
+	readonly name: BuildName;
+	readonly platform: T_PlatformTarget;
+	readonly input: readonly BuildConfigInput[];
 }
 
 // `string` inputs must be a relative or absolute path to a source file
-export type Build_Config_Input = string | Input_Filter;
+export type BuildConfigInput = string | InputFilter;
 
-export interface Input_Filter {
+export interface InputFilter {
 	(id: string): boolean;
 }
 
-export const to_input_files = (input: readonly Build_Config_Input[]): string[] =>
+export const to_input_files = (input: readonly BuildConfigInput[]): string[] =>
 	input.filter((input) => typeof input === 'string') as string[];
 
-export const to_input_filters = (input: readonly Build_Config_Input[]): Input_Filter[] =>
-	input.filter((input) => typeof input !== 'string') as Input_Filter[];
+export const to_input_filters = (input: readonly BuildConfigInput[]): InputFilter[] =>
+	input.filter((input) => typeof input !== 'string') as InputFilter[];
 
 // The partial was originally this calculated type, but it's a lot less readable.
-// export type Build_Config_Partial = Partial_Except<
-// 	Omit_Strict<Build_Config, 'input'> & {readonly input: string | string[]},
+// export type BuildConfigPartial = Partial_Except<
+// 	Omit_Strict<BuildConfig, 'input'> & {readonly input: string | string[]},
 // 	'name' | 'platform'
 // >;
-export interface Build_Config_Partial {
-	readonly name: Build_Name;
-	readonly platform: Platform_Target;
-	readonly input: Build_Config_Input | readonly Build_Config_Input[];
+export interface BuildConfigPartial {
+	readonly name: BuildName;
+	readonly platform: PlatformTarget;
+	readonly input: BuildConfigInput | readonly BuildConfigInput[];
 }
 
-export type Platform_Target = 'node' | 'browser';
+export type PlatformTarget = 'node' | 'browser';
 
 export const normalize_build_configs = (
-	partials: readonly (Build_Config_Partial | null)[],
+	partials: readonly (BuildConfigPartial | null)[],
 	dev: boolean,
-): Build_Config[] => {
+): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	// The system build is ignored for dev mode.
-	const build_configs: Build_Config[] = [];
+	const build_configs: BuildConfig[] = [];
 	let should_add_system_build_config = dev; // add system build only for dev, not prod
 	for (const partial of partials) {
 		if (!partial) continue;
-		const build_config: Build_Config = {
+		const build_config: BuildConfig = {
 			name: partial.name,
 			platform: partial.platform,
 			input: normalize_build_config_input(partial.input),
@@ -74,15 +74,13 @@ export const normalize_build_configs = (
 	return build_configs;
 };
 
-const normalize_build_config_input = (
-	input: Build_Config_Partial['input'],
-): Build_Config['input'] =>
+const normalize_build_config_input = (input: BuildConfigPartial['input']): BuildConfig['input'] =>
 	to_array(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
 export const validate_build_configs = async (
 	fs: Filesystem,
-	build_configs: Build_Config[],
+	build_configs: BuildConfig[],
 	dev: boolean,
 ): Promise<Result<{}, {reason: string}>> => {
 	if (!Array.isArray(build_configs)) {
@@ -110,7 +108,7 @@ export const validate_build_configs = async (
 				' for production but it is valid only in development',
 		};
 	}
-	const names: Set<Build_Name> = new Set();
+	const names: Set<BuildName> = new Set();
 	for (const build_config of build_configs) {
 		if (
 			!build_config ||
@@ -121,7 +119,7 @@ export const validate_build_configs = async (
 				ok: false,
 				reason:
 					`The field 'gro.builds' in package.json has an item` +
-					` that does not match the Build_Config interface: ${JSON.stringify(build_config)}`,
+					` that does not match the BuildConfig interface: ${JSON.stringify(build_config)}`,
 			};
 		}
 		if (names.has(build_config.name)) {
@@ -139,6 +137,6 @@ export const validate_build_configs = async (
 	return {ok: true};
 };
 
-export const print_build_config = (build_config: Build_Config): string => blue(build_config.name);
-export const print_build_config_label = (build_config: Build_Config): string =>
+export const print_build_config = (build_config: BuildConfig): string => blue(build_config.name);
+export const print_build_config_label = (build_config: BuildConfig): string =>
 	`${gray('build:')}${print_build_config(build_config)}`;

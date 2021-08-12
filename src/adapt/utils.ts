@@ -2,9 +2,9 @@ import {relative, dirname} from 'path';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {strip_end, strip_start} from '@feltcoop/felt/util/string.js';
 
-import type {Build_Config} from 'src/build/build_config.js';
+import type {BuildConfig} from 'src/build/build_config.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import type {Id_Stats_Filter} from 'src/fs/filter.js';
+import type {IdStatsFilter} from 'src/fs/filter.js';
 import {
 	EXTERNALS_BUILD_DIRNAME,
 	to_build_base_path,
@@ -18,11 +18,11 @@ import {
 
 export const copy_dist = async (
 	fs: Filesystem,
-	build_config: Build_Config,
+	build_config: BuildConfig,
 	dev: boolean,
 	dist_out_dir: string,
 	log: Logger,
-	filter?: Id_Stats_Filter,
+	filter?: IdStatsFilter,
 	pack: boolean = true, // TODO reconsider this API, see `gro_adapter_node_library`
 	rebase_path: string = '',
 ): Promise<void> => {
@@ -64,7 +64,7 @@ export const copy_dist = async (
 	);
 };
 
-export type Host_Target = 'github_pages' | 'static';
+export type HostTarget = 'github_pages' | 'static';
 
 const NOJEKYLL_FILENAME = '.nojekyll';
 

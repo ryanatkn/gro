@@ -4,7 +4,7 @@ import {plural} from '@feltcoop/felt/util/string.js';
 import {create_stopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 
 import type {Task} from 'src/task/task.js';
-import {Task_Error} from './task/task.js';
+import {TaskError} from './task/task.js';
 import {run_gen} from './gen/run_gen.js';
 import {load_gen_module, check_gen_modules, find_gen_modules} from './gen/gen_module.js';
 import {resolve_raw_input_paths} from './fs/input_path.js';
@@ -12,14 +12,14 @@ import {load_modules} from './fs/modules.js';
 import {format_file} from './build/format_file.js';
 import {print_path} from './paths.js';
 
-export interface Task_Args {
+export interface TaskArgs {
 	_: string[];
 	check?: boolean;
 }
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
-export const task: Task<Task_Args> = {
+export const task: Task<TaskArgs> = {
 	summary: 'run code generation scripts',
 	run: async ({fs, log, args}): Promise<void> => {
 		const rawInputPaths = args._;
@@ -37,7 +37,7 @@ export const task: Task<Task_Args> = {
 			for (const reason of find_modules_result.reasons) {
 				log.error(reason);
 			}
-			throw new Task_Error('Failed to find gen modules.');
+			throw new TaskError('Failed to find gen modules.');
 		}
 		timings.merge(find_modules_result.timings);
 		const load_modules_result = await load_modules(
@@ -49,7 +49,7 @@ export const task: Task<Task_Args> = {
 			for (const reason of load_modules_result.reasons) {
 				log.error(reason);
 			}
-			throw new Task_Error('Failed to load gen modules.');
+			throw new TaskError('Failed to load gen modules.');
 		}
 		timings.merge(load_modules_result.timings);
 
@@ -81,7 +81,7 @@ export const task: Task<Task_Args> = {
 					);
 				}
 				if (has_unexpected_changes) {
-					throw new Task_Error(
+					throw new TaskError(
 						'Failed gen check. Some generated files have unexpectedly changed.' +
 							' Run `gro gen` and try again.',
 					);
@@ -131,7 +131,7 @@ export const task: Task<Task_Args> = {
 			for (const result of gen_results.failures) {
 				log.error(result.reason, '\n', print_error(result.error));
 			}
-			throw new Task_Error(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
+			throw new TaskError(`Failed to generate ${fail_count} file${plural(fail_count)}.`);
 		}
 	},
 };

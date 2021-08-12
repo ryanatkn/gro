@@ -4,12 +4,12 @@ import {createFilter} from '@rollup/pluginutils';
 import {green} from '@feltcoop/felt/util/terminal.js';
 import {print_log_label, System_Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
+import type {GroCssBuild} from 'src/build/gro_css_build.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 export interface Options {
 	fs: Filesystem;
-	add_css_build(build: Gro_Css_Build): boolean;
+	add_css_build(build: GroCssBuild): boolean;
 	extensions?: string[]; // see comments below at `sort_index_by_id` for why this exists
 	include?: string | RegExp | (string | RegExp)[] | null;
 	exclude?: string | RegExp | (string | RegExp)[] | null;

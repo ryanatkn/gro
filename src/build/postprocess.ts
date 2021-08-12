@@ -13,24 +13,24 @@ import {
 	TS_EXTENSION,
 	TS_TYPE_EXTENSION,
 } from '../paths.js';
-import type {Build_Context, Build_Source} from 'src/build/builder.js';
+import type {BuildContext, BuildSource} from 'src/build/builder.js';
 import {
 	is_external_module,
 	MODULE_PATH_LIB_PREFIX,
 	MODULE_PATH_SRC_PREFIX,
 } from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID} from './gro_builder_externals_utils.js';
-import type {Build_Dependency} from 'src/build/build_dependency.js';
+import type {BuildDependency} from 'src/build/build_dependency.js';
 import {extract_js_from_svelte_for_dependencies} from './gro_builder_svelte_utils.js';
-import type {Build_Config} from 'src/build/build_config.js';
-import type {Build_File} from 'src/build/build_file.js';
+import type {BuildConfig} from 'src/build/build_config.js';
+import type {BuildFile} from 'src/build/build_file.js';
 
 export interface Postprocess {
 	(
-		build_file: Build_File,
-		ctx: Build_Context,
-		build_files: Build_File[],
-		source: Build_Source,
+		build_file: BuildFile,
+		ctx: BuildContext,
+		build_files: BuildFile[],
+		source: BuildSource,
 	): Promise<void>;
 }
 
@@ -46,9 +46,9 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 
 	let content = original_content;
 	const browser = build_config.platform === 'browser';
-	let dependencies: Map<string, Build_Dependency> | null = null;
+	let dependencies: Map<string, BuildDependency> | null = null;
 
-	const handle_specifier: Handle_Specifier = (specifier) => {
+	const handle_specifier: HandleSpecifier = (specifier) => {
 		const build_dependency = to_build_dependency(specifier, dir, build_config, source, ctx);
 		if (dependencies === null) dependencies = new Map();
 		if (!dependencies.has(build_dependency.build_id)) {
@@ -99,17 +99,17 @@ export const postprocess: Postprocess = async (build_file, ctx, build_files, sou
 		}
 	}
 
-	(build_file as Assignable<Build_File, 'content'>).content = content;
-	(build_file as Assignable<Build_File, 'dependencies'>).dependencies = dependencies;
+	(build_file as Assignable<BuildFile, 'content'>).content = content;
+	(build_file as Assignable<BuildFile, 'dependencies'>).dependencies = dependencies;
 };
 
-interface Handle_Specifier {
-	(specifier: string): Build_Dependency;
+interface HandleSpecifier {
+	(specifier: string): BuildDependency;
 }
 
 const parse_js_dependencies = (
 	content: string,
-	handle_specifier: Handle_Specifier,
+	handle_specifier: HandleSpecifier,
 	map_dependencies: boolean,
 ): string => {
 	let transformed_content = '';
@@ -157,10 +157,10 @@ const parse_js_dependencies = (
 const to_build_dependency = (
 	specifier: string,
 	dir: string,
-	build_config: Build_Config,
-	source: Build_Source,
-	ctx: Build_Context,
-): Build_Dependency => {
+	build_config: BuildConfig,
+	source: BuildSource,
+	ctx: BuildContext,
+): BuildDependency => {
 	const {dev, externals_aliases, build_dir} = ctx;
 	let build_id: string;
 	let final_specifier = specifier; // this is the raw specifier, but pre-mapped for common externals
@@ -246,7 +246,7 @@ const to_relative_specifier_trimmed_by = (
 
 TODO this fails on some input:
 
-export declare type Async_Status = 'initial' | 'pending' | 'success' | 'failure';
+export declare type AsyncStatus = 'initial' | 'pending' | 'success' | 'failure';
 const a = "from './array'";
 
 Some possible improvements:
@@ -255,7 +255,7 @@ Some possible improvements:
 - expect a semicolon
 
 */
-const parse_type_dependencies = (content: string, handle_specifier: Handle_Specifier): void => {
+const parse_type_dependencies = (content: string, handle_specifier: HandleSpecifier): void => {
 	for (const matches of content.matchAll(
 		/(import\s+type|export)[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm,
 	)) {
@@ -265,7 +265,7 @@ const parse_type_dependencies = (content: string, handle_specifier: Handle_Speci
 
 const replace_dependencies = (
 	content: string,
-	dependencies: Map<string, Build_Dependency> | null,
+	dependencies: Map<string, BuildDependency> | null,
 ): string => {
 	if (dependencies === null) return content;
 	let final_content = content;
@@ -282,7 +282,7 @@ const replace_dependencies = (
 };
 
 // TODO upstream to felt probably
-// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/RegularExpressions
 const escape_regexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const inject_svelte_css_import = (content: string, import_path: string, dev: boolean): string => {

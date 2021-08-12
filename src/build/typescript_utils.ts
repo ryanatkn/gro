@@ -19,7 +19,7 @@ and then `to_generate_types_for_file` looks up those cached results.
 
 */
 
-export type Ecma_Script_Target =
+export type EcmaScriptTarget =
 	| 'es3'
 	| 'es5'
 	| 'es2015'
@@ -56,11 +56,11 @@ export const generate_types = async (
 	}
 };
 
-export interface Generate_Types_For_File {
-	(id: string): Promise<Generated_Types>;
+export interface GenerateTypesForFile {
+	(id: string): Promise<GeneratedTypes>;
 }
 
-export interface Generated_Types {
+export interface GeneratedTypes {
 	types: string;
 	typemap?: string;
 }
@@ -71,13 +71,11 @@ export interface Generated_Types {
 // when it compiles type declarations for individual files compared to an entire project at once.
 // (there may be dramatic improvements to the individual file building strategy,
 // but I couldn't find them in a reasonable amount of time)
-export const to_generate_types_for_file = async (
-	fs: Filesystem,
-): Promise<Generate_Types_For_File> => {
-	const results: Map<string, Generated_Types> = new Map();
+export const to_generate_types_for_file = async (fs: Filesystem): Promise<GenerateTypesForFile> => {
+	const results: Map<string, GeneratedTypes> = new Map();
 	return async (id) => {
 		if (results.has(id)) return results.get(id)!;
-		const root_path = `${to_types_build_dir()}/${source_id_to_base_path(id)}`; // TODO pass through `paths`, maybe from the `Build_Context`
+		const root_path = `${to_types_build_dir()}/${source_id_to_base_path(id)}`; // TODO pass through `paths`, maybe from the `BuildContext`
 		const types_id = replace_extension(root_path, TS_TYPE_EXTENSION);
 		const typemap_id = replace_extension(root_path, TS_TYPEMAP_EXTENSION);
 		const [types, typemap] = await Promise.all([
@@ -85,7 +83,7 @@ export const to_generate_types_for_file = async (
 			(async () =>
 				(await fs.exists(typemap_id)) ? fs.read_file(typemap_id, 'utf8') : undefined)(),
 		]);
-		const result: Generated_Types = {types, typemap};
+		const result: GeneratedTypes = {types, typemap};
 		results.set(id, result);
 		return result;
 	};

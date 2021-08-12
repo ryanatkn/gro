@@ -17,7 +17,7 @@ import {clean_fs} from './fs/clean.js';
 // terminal command to clean up while live testing:
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
-export interface Task_Args extends Args {
+export interface TaskArgs extends Args {
 	dirname?: string; // defaults to detecting 'svelte-kit' | 'browser'
 	branch?: string; // optional branch to deploy from; defaults to 'main'
 	dry?: boolean;
@@ -33,7 +33,7 @@ const INITIAL_FILE = 'package.json'; // this is a single file that's copied into
 const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 
-export const task: Task<Task_Args> = {
+export const task: Task<TaskArgs> = {
 	summary: 'deploy to static hosting',
 	dev: false,
 	run: async ({fs, invoke_task, args, log}): Promise<void> => {

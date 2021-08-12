@@ -1,22 +1,22 @@
 import {join} from 'path';
 
 import {paths} from '../paths.js';
-import type {Path_Stats} from 'src/fs/path_data.js';
+import type {PathStats} from 'src/fs/path_data.js';
 
 // This is a subset of the `cheap-watch` types designed for browser compatibility.
-export interface Path_Filter {
-	(file: {path: string; stats: Path_Stats}): boolean;
+export interface PathFilter {
+	(file: {path: string; stats: PathStats}): boolean;
 }
 
 export const to_path_filter =
-	(exclude: Id_Stats_Filter, root = paths.root): Path_Filter =>
+	(exclude: IdStatsFilter, root = paths.root): PathFilter =>
 	({path, stats}) =>
 		!exclude(join(root, path), stats);
 
-export interface Id_Stats_Filter {
-	(id: string, stats: Path_Stats): boolean;
+export interface IdStatsFilter {
+	(id: string, stats: PathStats): boolean;
 }
 
-export interface Id_Filter {
+export interface IdFilter {
 	(id: string): boolean;
 }

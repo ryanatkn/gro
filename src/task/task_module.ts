@@ -1,6 +1,6 @@
 import {source_id_to_base_path, paths, paths_from_id} from '../paths.js';
 import {load_module, load_modules, find_modules} from '../fs/modules.js';
-import type {Module_Meta, Load_Module_Result} from 'src/fs/modules.js';
+import type {ModuleMeta, LoadModuleResult} from 'src/fs/modules.js';
 import {to_task_name, is_task_path, TASK_FILE_SUFFIX} from './task.js';
 import type {Task} from 'src/task/task.js';
 import {get_possible_source_ids} from '../fs/input_path.js';
@@ -10,7 +10,7 @@ export interface TaskModule {
 	task: Task;
 }
 
-export interface Task_Module_Meta extends Module_Meta<TaskModule> {
+export interface TaskModuleMeta extends ModuleMeta<TaskModule> {
 	name: string;
 }
 
@@ -20,7 +20,7 @@ export const validate_task_module = (mod: Record<string, any>): mod is TaskModul
 export const load_task_module = async (
 	id: string,
 	dev: boolean,
-): Promise<Load_Module_Result<Task_Module_Meta>> => {
+): Promise<LoadModuleResult<TaskModuleMeta>> => {
 	const result = await load_module(id, dev, validate_task_module);
 	if (!result.ok) return result;
 	return {

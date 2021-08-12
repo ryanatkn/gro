@@ -4,28 +4,28 @@ import {print_key_value} from '@feltcoop/felt/util/print.js';
 
 import {print_path} from '../paths.js';
 
-export interface Css_Build {
+export interface CssBuild {
 	id: string;
 	code: string | null;
 }
 
-export type Css_Bundle<T extends Css_Build = Css_Build> = {
+export type CssBundle<T extends CssBuild = CssBuild> = {
 	bundle_name: string;
 	builds_by_id: Map<string, T>;
 	changed_ids: Set<string>;
 };
 
-export interface Css_Cache<T extends Css_Build = Css_Build> {
-	get_css_bundles(): Map<string, Css_Bundle<T>>;
+export interface CssCache<T extends CssBuild = CssBuild> {
+	get_css_bundles(): Map<string, CssBundle<T>>;
 	get_css_build(bundle_name: string, id: string): T;
 	add_css_build(bundle_name: string, build: T): boolean;
 }
 
-export const create_css_cache = <T extends Css_Build = Css_Build>(): Css_Cache<T> => {
+export const create_css_cache = <T extends CssBuild = CssBuild>(): CssCache<T> => {
 	const log = new System_Logger(print_log_label('css_cache', green));
 
 	// `bundles` key is an output bundle file name
-	const bundles = new Map<string, Css_Bundle<T>>();
+	const bundles = new Map<string, CssBundle<T>>();
 
 	return {
 		get_css_bundles: () => bundles,

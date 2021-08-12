@@ -1,11 +1,11 @@
 <script lang="ts">
 	import {filter_selected_metas} from './source_tree.js';
-	import type {Source_Tree} from 'src/client/source_tree.js';
+	import type {SourceTree} from 'src/client/source_tree.js';
 	import {get_project_state} from './project_state.js';
-	import File_Tree_Explorer_Folder from './File_Tree_Explorer_Folder.svelte';
+	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
 	import {to_file_tree_folder} from './file_tree.js';
 
-	export let source_tree: Source_Tree;
+	export let source_tree: SourceTree;
 	export let selected_build_names: string[];
 	export const selected_source_meta = undefined;
 	export const hovered_source_meta = undefined;
@@ -18,7 +18,7 @@
 
 <div class="build-explorer">
 	{#if filtered_source_metas.length}
-		<File_Tree_Explorer_Folder folder={file_tree_folder} />
+		<FileTreeExplorerFolder folder={file_tree_folder} />
 	{:else}<small><em>no builds selected</em></small>{/if}
 </div>
 

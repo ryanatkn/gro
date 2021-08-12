@@ -1,25 +1,23 @@
-import type {Plugin, Plugin_Context} from 'src/plugin/plugin.js';
+import type {Plugin, PluginContext} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
-import type {Gro_Server} from 'src/server/server.js';
+import type {GroServer} from 'src/server/server.js';
 import {load_https_credentials} from '../server/https.js';
 import {create_gro_server} from '../server/server.js';
 
 const name = '@feltcoop/gro_plugin_dev_server';
 
-export interface Task_Args extends Args {
+export interface TaskArgs extends Args {
 	insecure?: boolean;
 	cert?: string;
 	certkey?: string;
 	watch?: boolean;
 }
 
-export interface Dev_Server_Plugin_Context {
-	server?: Gro_Server; // TODO how to make this work with a plugin?
+export interface DevServerPluginContext {
+	server?: GroServer; // TODO how to make this work with a plugin?
 }
 
-export const create_plugin = (): Plugin<
-	Plugin_Context<Task_Args, {}> & Dev_Server_Plugin_Context
-> => {
+export const create_plugin = (): Plugin<PluginContext<TaskArgs, {}> & DevServerPluginContext> => {
 	let started_server = false;
 	return {
 		name,

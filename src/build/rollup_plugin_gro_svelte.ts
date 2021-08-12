@@ -1,7 +1,7 @@
 import * as svelte from 'svelte/compiler';
-import type {PreprocessorGroup as Svelte_Preprocessor_Group} from 'svelte/types/compiler/preprocess';
-import type {CompileOptions as Svelte_Compile_Options} from 'svelte/types/compiler/interfaces';
-import type {Plugin as Rollup_Plugin} from 'rollup';
+import type {PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import type {Plugin as RollupPlugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/util/terminal.js';
 import {to_path_stem} from '@feltcoop/felt/util/path.js';
@@ -13,14 +13,14 @@ import {
 	handle_warn,
 	handle_stats,
 } from '../build/gro_builder_svelte_utils.js';
-import type {Svelte_Compilation} from 'src/build/gro_builder_svelte_utils.js';
+import type {SvelteCompilation} from 'src/build/gro_builder_svelte_utils.js';
 import {CSS_EXTENSION, print_path} from '../paths.js';
-import type {Gro_Css_Build} from 'src/build/gro_css_build.js';
+import type {GroCssBuild} from 'src/build/gro_css_build.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190
 
-export type Gro_Svelte_Compilation = Svelte_Compilation & {
+export type GroSvelteCompilation = SvelteCompilation & {
 	id: string;
 	css_id: string | undefined;
 	code: string; // may be preprocessed or equal to `original_code`
@@ -29,24 +29,24 @@ export type Gro_Svelte_Compilation = Svelte_Compilation & {
 
 export interface Options {
 	dev: boolean;
-	add_css_build(build: Gro_Css_Build): boolean;
+	add_css_build(build: GroCssBuild): boolean;
 	include?: string | RegExp | (string | RegExp)[] | null;
 	exclude?: string | RegExp | (string | RegExp)[] | null;
-	preprocessor?: Svelte_Preprocessor_Group | Svelte_Preprocessor_Group[] | null;
-	compile_options?: Svelte_Compile_Options;
-	compilations?: Map<string, Gro_Svelte_Compilation>;
+	preprocessor?: SveltePreprocessorGroup | SveltePreprocessorGroup[] | null;
+	compile_options?: SvelteCompileOptions;
+	compilations?: Map<string, GroSvelteCompilation>;
 	log?: Logger;
 	onwarn?: typeof handle_warn;
 	onstats?: typeof handle_stats;
 }
 
-export interface Gro_Svelte_Plugin extends Rollup_Plugin {
-	get_compilation: (id: string) => Gro_Svelte_Compilation | undefined;
+export interface GroSveltePlugin extends RollupPlugin {
+	get_compilation: (id: string) => GroSvelteCompilation | undefined;
 }
 
 export const name = '@feltcoop/rollup_plugin_gro_svelte';
 
-export const rollup_plugin_gro_svelte = (options: Options): Gro_Svelte_Plugin => {
+export const rollup_plugin_gro_svelte = (options: Options): GroSveltePlugin => {
 	const {
 		dev,
 		add_css_build,
@@ -54,13 +54,13 @@ export const rollup_plugin_gro_svelte = (options: Options): Gro_Svelte_Plugin =>
 		exclude = null,
 		preprocessor = null,
 		compile_options = {},
-		compilations = new Map<string, Gro_Svelte_Compilation>(),
+		compilations = new Map<string, GroSvelteCompilation>(),
 		log = new System_Logger(print_log_label(name)),
 		onwarn = handle_warn,
 		onstats = handle_stats,
 	} = options;
 
-	const get_compilation = (id: string): Gro_Svelte_Compilation | undefined => compilations.get(id);
+	const get_compilation = (id: string): GroSvelteCompilation | undefined => compilations.get(id);
 
 	const filter = createFilter(include, exclude);
 
@@ -85,7 +85,7 @@ export const rollup_plugin_gro_svelte = (options: Options): Gro_Svelte_Plugin =>
 			}
 
 			log.trace('compile', print_path(id));
-			let svelte_compilation: Svelte_Compilation;
+			let svelte_compilation: SvelteCompilation;
 			try {
 				svelte_compilation = svelte.compile(preprocessed_code, {
 					...base_svelte_compile_options,
@@ -116,7 +116,7 @@ export const rollup_plugin_gro_svelte = (options: Options): Gro_Svelte_Plugin =>
 			});
 
 			// save the compilation so other plugins can use it
-			const compilation: Gro_Svelte_Compilation = {
+			const compilation: GroSvelteCompilation = {
 				...svelte_compilation,
 				id,
 				css_id,

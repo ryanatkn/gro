@@ -4,7 +4,7 @@ import {dirname, resolve} from 'path';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 import {to_path_parts} from '@feltcoop/felt/util/path_parsing.js';
 
-import {fs as memory_fs, Memory_Fs} from './memory.js';
+import {fs as memory_fs, MemoryFs} from './memory.js';
 import {to_fs_id} from './filesystem.js';
 import {to_root_path} from '../paths.js';
 
@@ -19,11 +19,11 @@ const test_paths = ['a', 'a/b', 'a/b/c']
 	.flatMap((p) => [p, resolve(p)])
 	.flatMap((p) => [p, `${p}/`]);
 
-interface Suite_Context {
-	fs: Memory_Fs;
+interface SuiteContext {
+	fs: MemoryFs;
 }
-const suite_context: Suite_Context = {fs: memory_fs};
-const reset_memory_fs = ({fs}: Suite_Context) => fs._reset();
+const suite_context: SuiteContext = {fs: memory_fs};
+const reset_memory_fs = ({fs}: SuiteContext) => fs._reset();
 
 const fake_ts_content = 'export const a = 5;';
 

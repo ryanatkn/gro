@@ -1,4 +1,4 @@
-export interface Build_Dependency {
+export interface BuildDependency {
 	readonly specifier: string;
 	readonly mapped_specifier: string;
 	readonly original_specifier: string;
@@ -8,7 +8,7 @@ export interface Build_Dependency {
 
 // The optional properties in the following serialized types
 // are not `readonly` in order to simplify object creation.
-export interface Serialized_Build_Dependency {
+export interface SerializedBuildDependency {
 	readonly specifier: string;
 	mapped_specifier?: string; // `undefined` implies same as `specifier`
 	original_specifier?: string; // `undefined` implies same as `specifier`
@@ -22,7 +22,7 @@ export const deserialize_build_dependency = ({
 	original_specifier,
 	build_id,
 	external,
-}: Serialized_Build_Dependency): Build_Dependency => ({
+}: SerializedBuildDependency): BuildDependency => ({
 	specifier,
 	mapped_specifier: mapped_specifier !== undefined ? mapped_specifier : specifier,
 	original_specifier: original_specifier !== undefined ? original_specifier : specifier,
@@ -36,8 +36,8 @@ export const serialize_build_dependency = ({
 	original_specifier,
 	build_id,
 	external,
-}: Build_Dependency): Serialized_Build_Dependency => {
-	const serialized: Serialized_Build_Dependency = {specifier};
+}: BuildDependency): SerializedBuildDependency => {
+	const serialized: SerializedBuildDependency = {specifier};
 	if (mapped_specifier !== specifier) {
 		serialized.mapped_specifier = mapped_specifier;
 	}

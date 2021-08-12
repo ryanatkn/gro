@@ -2,22 +2,22 @@ import type {Builder} from 'src/build/builder.js';
 import {EXTERNALS_SOURCE_ID} from './gro_builder_externals_utils.js';
 import {JSON_EXTENSION, SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {gro_builder_simple} from './gro_builder_simple.js';
-import type {Options as Simple_Builder_Options} from 'src/build/gro_builder_simple.js';
+import type {Options as SimpleBuilderOptions} from 'src/build/gro_builder_simple.js';
 import {gro_builder_esbuild} from './gro_builder_esbuild.js';
-import type {Options as Esbuild_Builder_Options} from 'src/build/gro_builder_esbuild.js';
+import type {Options as EsbuildBuilderOptions} from 'src/build/gro_builder_esbuild.js';
 import {gro_builder_svelte} from './gro_builder_svelte.js';
-import type {Options as Svelte_Builder_Options} from 'src/build/gro_builder_svelte.js';
+import type {Options as SvelteBuilderOptions} from 'src/build/gro_builder_svelte.js';
 import {gro_builder_json} from './gro_builder_json.js';
-import type {Options as Json_Builder_Options} from 'src/build/gro_builder_json.js';
+import type {Options as JsonBuilderOptions} from 'src/build/gro_builder_json.js';
 import {gro_builder_externals} from './gro_builder_externals.js';
-import type {Options as Externals_Builder_Options} from 'src/build/gro_builder_externals.js';
+import type {Options as ExternalsBuilderOptions} from 'src/build/gro_builder_externals.js';
 
 export interface Options {
-	esbuild_builder_options?: Esbuild_Builder_Options;
-	svelte_builder_options?: Svelte_Builder_Options;
-	json_builder_options?: Json_Builder_Options;
-	externals_builder_options?: Externals_Builder_Options;
-	simple_builder_options?: Simple_Builder_Options;
+	esbuild_builder_options?: EsbuildBuilderOptions;
+	svelte_builder_options?: SvelteBuilderOptions;
+	json_builder_options?: JsonBuilderOptions;
+	externals_builder_options?: ExternalsBuilderOptions;
+	simple_builder_options?: SimpleBuilderOptions;
 }
 
 export const gro_builder_default = (options: Options = {}): Builder => {

@@ -6,13 +6,13 @@ import {gray} from '@feltcoop/felt/util/terminal.js';
 import {paths, to_types_build_dir} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {gro_builder_default} from './gro_builder_default.js';
-import type {Gro_Config} from 'src/config/config.js';
+import type {GroConfig} from 'src/config/config.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {generate_types} from './typescript_utils.js';
 
 export const build_source = async (
 	fs: Filesystem,
-	config: Gro_Config,
+	config: GroConfig,
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {

@@ -1,8 +1,8 @@
 import {to_array} from '@feltcoop/felt/util/array.js';
 import type {Timings} from '@feltcoop/felt/util/timings.js';
 
-import type {Task_Context} from 'src/task/task.js';
-import type {Gro_Config} from 'src/config/config.js';
+import type {TaskContext} from 'src/task/task.js';
+import type {GroConfig} from 'src/config/config.js';
 import type {Filer} from 'src/build/Filer.js';
 
 /*
@@ -12,34 +12,33 @@ In contrast, `Adapter`s use the results of `gro build` to produce final artifact
 
 */
 
-export interface Plugin<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
+export interface Plugin<T_PluginContext extends PluginContext = PluginContext> {
 	name: string;
-	setup?: (ctx: T_Plugin_Context) => void | Promise<void>;
-	teardown?: (ctx: T_Plugin_Context) => void | Promise<void>;
+	setup?: (ctx: T_PluginContext) => void | Promise<void>;
+	teardown?: (ctx: T_PluginContext) => void | Promise<void>;
 }
 
-export interface To_Config_Plugins<T_Plugin_Context extends Plugin_Context = Plugin_Context> {
-	(ctx: T_Plugin_Context):
-		| (Plugin<T_Plugin_Context> | null | (Plugin<T_Plugin_Context> | null)[])
-		| Promise<Plugin<T_Plugin_Context> | null | (Plugin<T_Plugin_Context> | null)[]>;
+export interface ToConfigPlugins<T_PluginContext extends PluginContext = PluginContext> {
+	(ctx: T_PluginContext):
+		| (Plugin<T_PluginContext> | null | (Plugin<T_PluginContext> | null)[])
+		| Promise<Plugin<T_PluginContext> | null | (Plugin<T_PluginContext> | null)[]>;
 }
 
-export interface Plugin_Context<T_Args = any, T_Events = any>
-	extends Task_Context<T_Args, T_Events> {
-	config: Gro_Config;
+export interface PluginContext<T_Args = any, T_Events = any> extends TaskContext<T_Args, T_Events> {
+	config: GroConfig;
 	filer: Filer | null;
 	timings: Timings;
 }
 
-export class Plugins<T_Plugin_Context extends Plugin_Context> {
+export class Plugins<T_PluginContext extends PluginContext> {
 	constructor(
-		private readonly ctx: T_Plugin_Context,
+		private readonly ctx: T_PluginContext,
 		private readonly instances: readonly Plugin[],
 	) {}
 
-	static async create<T_Plugin_Context extends Plugin_Context>(
-		ctx: T_Plugin_Context,
-	): Promise<Plugins<T_Plugin_Context>> {
+	static async create<T_PluginContext extends PluginContext>(
+		ctx: T_PluginContext,
+	): Promise<Plugins<T_PluginContext>> {
 		const {timings} = ctx;
 		const timing_to_create = timings.start('plugins.create');
 		const instances: Plugin[] = to_array(await ctx.config.plugin(ctx)).filter(Boolean) as any;

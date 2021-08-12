@@ -1,26 +1,26 @@
 import {strip_trailing_slash, to_common_base_dir} from '@feltcoop/felt/util/path.js';
 import {ensure_end} from '@feltcoop/felt/util/string.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import type {Plugin as Rollup_Plugin} from 'rollup';
+import type {Plugin as RollupPlugin} from 'rollup';
 import {extname} from 'path';
 
 import type {Adapter} from 'src/adapt/adapt.js';
-import type {Map_Input_Options} from 'src/build/rollup.js';
+import type {MapInputOptions} from 'src/build/rollup.js';
 import {run_rollup} from '../build/rollup.js';
 import {DIST_DIRNAME, source_id_to_base_path, to_import_id} from '../paths.js';
 import {print_build_config_label, to_input_files} from '../build/build_config.js';
-import type {Build_Name} from 'src/build/build_config.js';
-import type {Host_Target} from 'src/adapt/utils.js';
+import type {BuildName} from 'src/build/build_config.js';
+import type {HostTarget} from 'src/adapt/utils.js';
 import {copy_dist, ensure_nojekyll} from './utils.js';
 import {BROWSER_BUILD_NAME, default_non_asset_extensions} from '../build/build_config_defaults.js';
-import type {Id_Stats_Filter} from 'src/fs/filter.js';
+import type {IdStatsFilter} from 'src/fs/filter.js';
 
 export interface Options {
-	build_name: Build_Name;
+	build_name: BuildName;
 	dir: string;
 	minify: boolean;
-	host_target: Host_Target;
-	filter: Id_Stats_Filter;
+	host_target: HostTarget;
+	filter: IdStatsFilter;
 }
 
 export const create_adapter = ({
@@ -66,7 +66,7 @@ export const create_adapter = ({
 						map_input_options ||
 						// refactor lol
 						(await (async () => {
-							const plugins: Rollup_Plugin[] = [];
+							const plugins: RollupPlugin[] = [];
 							if (minify) {
 								plugins.push(
 									(await import('../build/rollup_plugin_gro_terser.js')).rollup_plugin_gro_terser({
@@ -74,7 +74,7 @@ export const create_adapter = ({
 									}),
 								);
 							}
-							const map_rollup_input_options: Map_Input_Options = (r) => ({
+							const map_rollup_input_options: MapInputOptions = (r) => ({
 								...r,
 								plugins: (r.plugins || []).concat(plugins),
 							});
@@ -98,4 +98,4 @@ export const create_adapter = ({
 	};
 };
 
-const default_filter: Id_Stats_Filter = (id) => !default_non_asset_extensions.has(extname(id));
+const default_filter: IdStatsFilter = (id) => !default_non_asset_extensions.has(extname(id));

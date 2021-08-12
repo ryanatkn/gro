@@ -42,20 +42,20 @@ An adapter is an object with an `adapt` hook:
 ```ts
 export interface Adapter<T_Args = any, T_Events = any> {
 	name: string;
-	adapt: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	adapt: (ctx: AdapterContext<T_Args, T_Events>) => void | Promise<void>;
 }
 ```
 
-The `Adapter_Context` extends
-[Gro's `Task_Context`](../task/README.md#user-content-types-task-and-taskcontext)
+The `AdapterContext` extends
+[Gro's `TaskContext`](../task/README.md#user-content-types-task-and-taskcontext)
 with additional properties,
 so the `Adapter` hooks and `adapt` config property both have access to
 [the normal task environment](../task/README.md) and more:
 
 ```ts
-export interface Adapter_Context<T_Args = any, T_Events = any>
-	extends Task_Context<T_Args, T_Events> {
-	config: Gro_Config;
+export interface AdapterContext<T_Args = any, T_Events = any>
+	extends TaskContext<T_Args, T_Events> {
+	config: GroConfig;
 }
 ```
 
@@ -73,9 +73,9 @@ In Gro, there's the `adapt` function property,
 a function that returns `Adapter` instances:
 
 ```ts
-import type {Gro_Config_Creator} from '@feltcoop/gro';
+import type {GroConfigCreator} from '@feltcoop/gro';
 
-export const config: Gro_Config_Creator = async () => {
+export const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
 			(await import('@feltcoop/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),

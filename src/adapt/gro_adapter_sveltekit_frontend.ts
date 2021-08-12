@@ -2,14 +2,14 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {strip_trailing_slash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from 'src/adapt/adapt.js';
-import type {Host_Target} from 'src/adapt/utils.js';
+import type {HostTarget} from 'src/adapt/utils.js';
 import {ensure_nojekyll} from './utils.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';
 
 export interface Options {
 	dir: string;
 	sveltekit_dir: string;
-	host_target: Host_Target;
+	host_target: HostTarget;
 }
 
 // TODO this hacks around the fact that we don't create a proper Gro build for SvelteKit frontends

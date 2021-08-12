@@ -16,7 +16,7 @@ The implementation is at [`src/plugin/plugin.ts`](../plugin/plugin.ts) with more
 ```ts
 export interface Plugin<T_Args = any, T_Events = any> {
 	name: string;
-	setup?: (ctx: Plugin_Context<T_Args, T_Events>) => void | Promise<void>;
-	teardown?: (ctx: Plugin_Context<T_Args, T_Events>) => void | Promise<void>;
+	setup?: (ctx: PluginContext<T_Args, T_Events>) => void | Promise<void>;
+	teardown?: (ctx: PluginContext<T_Args, T_Events>) => void | Promise<void>;
 }
 ```
