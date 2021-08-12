@@ -1,11 +1,11 @@
 <script lang="ts">
 	import {filter_selected_metas} from './source_tree.js';
-	import type {Source_Tree} from 'src/client/source_tree.js';
-	import Build_Id from './Build_Id.svelte';
-	import Source_Id from './Source_Id.svelte';
+	import type {SourceTree} from 'src/client/source_tree.js';
+	import BuildId from './BuildId.svelte';
+	import SourceId from './SourceId.svelte';
 	import {get_builds_by_build_name} from './source_tree.js';
 
-	export let source_tree: Source_Tree;
+	export let source_tree: SourceTree;
 	export let selected_build_names: string[];
 	export const selected_source_meta = undefined;
 	export const hovered_source_meta = undefined;
@@ -19,19 +19,19 @@
 			{#if selected_build_names.includes(build_name)}
 				<div class="root item bg">
 					<div class="content">
-						<Source_Id id={source_meta.data.source_id} />
+						<SourceId id={source_meta.data.source_id} />
 					</div>
 					<div>
 						{#each get_builds_by_build_name(source_meta, build_name) as build (build.id)}
 							<div class="item bg">
 								<div class="content">
-									<Build_Id id={build.id} />
+									<BuildId id={build.id} />
 								</div>
 								{#if build.dependencies}
 									<div class="content bg">
 										<div>
 											{#each build.dependencies as dependency (dependency.build_id)}
-												<Build_Id id={dependency.build_id} />
+												<BuildId id={dependency.build_id} />
 											{/each}
 										</div>
 									</div>

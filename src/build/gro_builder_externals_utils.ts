@@ -1,20 +1,20 @@
 import type {ImportMap} from 'esinstall';
 
 import {EXTERNALS_BUILD_DIRNAME, to_build_out_path} from '../paths.js';
-import type {Builder_State, Build_Context} from 'src/build/builder.js';
-import type {Build_Config} from 'src/build/build_config.js';
+import type {BuilderState, BuildContext} from 'src/build/builder.js';
+import type {BuildConfig} from 'src/build/build_config.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
-export interface Externals_Builder_State {
-	readonly build_states: Map<Build_Config, Externals_Build_State>;
+export interface ExternalsBuilderState {
+	readonly build_states: Map<BuildConfig, ExternalsBuildState>;
 }
 
 // extends `filer.state.externals`
 // TODO remove any of this that possibly can be removed via refactoring
-export interface Externals_Build_State {
+export interface ExternalsBuildState {
 	import_map: ImportMap | undefined;
 	specifiers: Set<string>;
-	installing: Delayed_Promise<void> | null;
+	installing: DelayedPromise<void> | null;
 	installing_cb: (() => Promise<void>) | null;
 	idle_timer: number;
 	resetter_interval: NodeJS.Timeout | null;
@@ -25,7 +25,7 @@ export const EXTERNALS_SOURCE_ID = EXTERNALS_BUILD_DIRNAME;
 export const EXTERNALS_BUILDER_STATE_KEY = EXTERNALS_SOURCE_ID;
 
 // throws if it can't find it
-export const get_externals_builder_state = (state: Builder_State): Externals_Builder_State => {
+export const get_externals_builder_state = (state: BuilderState): ExternalsBuilderState => {
 	const builder_state = state[EXTERNALS_BUILDER_STATE_KEY];
 	if (builder_state === undefined) {
 		throw Error(`Expected builder state to exist: ${EXTERNALS_BUILDER_STATE_KEY}`);
@@ -34,7 +34,7 @@ export const get_externals_builder_state = (state: Builder_State): Externals_Bui
 };
 
 // this throws if the state already exists
-export const init_externals_builder_state = (state: Builder_State): Externals_Builder_State => {
+export const init_externals_builder_state = (state: BuilderState): ExternalsBuilderState => {
 	let builder_state = state[EXTERNALS_BUILDER_STATE_KEY];
 	if (builder_state !== undefined) throw Error('Builder state already initialized');
 	builder_state = {build_states: new Map()};
@@ -44,9 +44,9 @@ export const init_externals_builder_state = (state: Builder_State): Externals_Bu
 
 // throws if it can't find it
 export const get_externals_build_state = (
-	builder_state: Externals_Builder_State,
-	build_config: Build_Config,
-): Externals_Build_State => {
+	builder_state: ExternalsBuilderState,
+	build_config: BuildConfig,
+): ExternalsBuildState => {
 	const build_state = builder_state.build_states.get(build_config);
 	if (build_state === undefined) {
 		throw Error(`Expected build state to exist: ${build_config.name}`);
@@ -55,10 +55,10 @@ export const get_externals_build_state = (
 };
 
 // this throws if the state already exists
-export const initExternals_Build_State = (
-	builder_state: Externals_Builder_State,
-	build_config: Build_Config,
-): Externals_Build_State => {
+export const initExternalsBuildState = (
+	builder_state: ExternalsBuilderState,
+	build_config: BuildConfig,
+): ExternalsBuildState => {
 	let build_state = builder_state.build_states.get(build_config);
 	if (build_state !== undefined) throw Error('Build state already initialized');
 	build_state = {
@@ -88,15 +88,15 @@ export const load_import_map_from_disk = async (
 	return import_map;
 };
 
-export interface Externals_Aliases {
+export interface ExternalsAliases {
 	[key: string]: string;
 }
-export const DEFAULT_EXTERNALS_ALIASES: Externals_Aliases = {
+export const DEFAULT_EXTERNALS_ALIASES: ExternalsAliases = {
 	path: 'path-browserify',
 };
 
 // TODO extract to felt?
-export interface Delayed_Promise<T> {
+export interface DelayedPromise<T> {
 	promise: Promise<T>;
 	reset(): void;
 }
@@ -104,11 +104,11 @@ export interface Delayed_Promise<T> {
 export const create_delayed_promise = <T>(
 	cb: () => Promise<T>,
 	duration: number,
-): Delayed_Promise<T> => {
+): DelayedPromise<T> => {
 	let resolve: any, reject: any;
 	const promise = new Promise<T>((rs, rj) => ((resolve = rs), (reject = rj)));
 	let timeout: NodeJS.Timeout | null = null;
-	const delayed: Delayed_Promise<T> = {
+	const delayed: DelayedPromise<T> = {
 		promise,
 		reset() {
 			if (timeout !== null) {
@@ -131,8 +131,8 @@ export const create_delayed_promise = <T>(
 // Externals are Node imports referenced in browser builds.
 export const is_external_build_id = (
 	id: string,
-	build_config: Build_Config,
-	ctx: Build_Context,
+	build_config: BuildConfig,
+	ctx: BuildContext,
 ): boolean =>
 	build_config.platform === 'browser'
 		? id.startsWith(

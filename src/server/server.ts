@@ -1,7 +1,7 @@
 import {createServer as create_http1_server} from 'http';
 import type {
-	Server as Http1_Server,
-	RequestListener as Http1_Request_Listener,
+	Server as Http1Server,
+	RequestListener as Http1RequestListener,
 	IncomingHttpHeaders,
 	OutgoingHttpHeaders,
 } from 'http';
@@ -23,10 +23,10 @@ import {
 	get_file_stats,
 	get_file_content_hash,
 } from '../build/filer_file.js';
-import type {Base_Filer_File} from 'src/build/filer_file.js';
+import type {BaseFilerFile} from 'src/build/filer_file.js';
 import {paths} from '../paths.js';
 import {load_package_json} from '../utils/package_json.js';
-import type {Project_State} from 'src/server/project_state.js';
+import type {ProjectState} from 'src/server/project_state.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 type Http2StreamHandler = (
@@ -35,8 +35,8 @@ type Http2StreamHandler = (
 	flags: number,
 ) => void;
 
-export interface Gro_Server {
-	readonly server: Http1_Server | Http2Server;
+export interface GroServer {
+	readonly server: Http1Server | Http2Server;
 	start(): Promise<void>;
 	close(): Promise<void>;
 	readonly host: string;
@@ -54,7 +54,7 @@ export interface Options {
 	log?: Logger;
 }
 
-export const create_gro_server = (options: Options): Gro_Server => {
+export const create_gro_server = (options: Options): GroServer => {
 	const {
 		filer,
 		host = DEFAULT_SERVER_HOST,
@@ -68,7 +68,7 @@ export const create_gro_server = (options: Options): Gro_Server => {
 		// hacky but w/e - these values are not final until `gro_server.start` resolves
 		final_port--;
 		listen_options.port = final_port;
-		(gro_server as Assignable<Gro_Server>).port = final_port;
+		(gro_server as Assignable<GroServer>).port = final_port;
 	};
 
 	const listen_options: ListenOptions = {
@@ -81,7 +81,7 @@ export const create_gro_server = (options: Options): Gro_Server => {
 		// writableAll?: boolean;
 		// ipv6Only?: boolean;
 	};
-	let server: Http1_Server | Http2Server;
+	let server: Http1Server | Http2Server;
 	if (https) {
 		server = create_http2_server(https);
 		server.on('error', (err) => log.error(err));
@@ -105,7 +105,7 @@ export const create_gro_server = (options: Options): Gro_Server => {
 
 	let started = false;
 
-	const gro_server: Gro_Server = {
+	const gro_server: GroServer = {
 		server,
 		host,
 		port, // this value is not valid until `start` is complete
@@ -146,8 +146,8 @@ const create_http2_stream_listener = (filer: Filer, log: Logger): Http2StreamHan
 	};
 };
 
-const create_http1_request_listener = (filer: Filer, log: Logger): Http1_Request_Listener => {
-	const request_listener: Http1_Request_Listener = async (req, res) => {
+const create_http1_request_listener = (filer: Filer, log: Logger): Http1RequestListener => {
+	const request_listener: Http1RequestListener = async (req, res) => {
 		if (!req.url) return;
 		const response = await to_response(req.url, req.headers, filer, log);
 		res.writeHead(response.status, response.headers);
@@ -156,7 +156,7 @@ const create_http1_request_listener = (filer: Filer, log: Logger): Http1_Request
 	return request_listener;
 };
 
-interface Gro_Server_Response {
+interface GroServerResponse {
 	status: 200 | 304 | 404;
 	headers: OutgoingHttpHeaders;
 	data?: string | Buffer | undefined;
@@ -167,7 +167,7 @@ const to_response = async (
 	headers: IncomingHttpHeaders,
 	filer: Filer,
 	log: Logger,
-): Promise<Gro_Server_Response> => {
+): Promise<GroServerResponse> => {
 	const url = parse_url(raw_url);
 	const local_path = to_local_path(url);
 	log.trace('serving', gray(raw_url), '→', gray(local_path));
@@ -177,7 +177,7 @@ const to_response = async (
 	// also, `src/` is hardcoded below in `paths.source`s
 	const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
 	if (SOURCE_ROOT_MATCHER.test(url)) {
-		const project_state: Project_State = {
+		const project_state: ProjectState = {
 			build_dir: filer.build_dir,
 			source_dir: paths.source,
 			items: Array.from(filer.source_meta_by_id.values()),
@@ -237,11 +237,11 @@ const to_local_path = (url: string): string => {
 	return relative_path;
 };
 
-const to_etag = (file: Base_Filer_File): string => `"${get_file_content_hash(file)}"`;
+const to_etag = (file: BaseFilerFile): string => `"${get_file_content_hash(file)}"`;
 
 const to_200_headers = async (
 	fs: Filesystem,
-	file: Base_Filer_File,
+	file: BaseFilerFile,
 ): Promise<OutgoingHttpHeaders> => {
 	// TODO where do we get fs? the server? the filer?
 	const stats = await get_file_stats(fs, file);

@@ -2,15 +2,15 @@ import {resolve} from 'path';
 import type {Partial_Except} from '@feltcoop/felt/util/types.js';
 import {strip_start} from '@feltcoop/felt/util/string.js';
 
-export interface Served_Dir {
+export interface ServedDir {
 	path: string;
 	root: string;
 	base: string; // relative path stripped from requests; for GitHub pages, this is the repo name
 }
 
-export type Served_Dir_Partial = string | Partial_Except<Served_Dir, 'path'>;
+export type ServedDirPartial = string | Partial_Except<ServedDir, 'path'>;
 
-export const to_served_dir = (dir: Served_Dir_Partial): Served_Dir => {
+export const to_served_dir = (dir: ServedDirPartial): ServedDir => {
 	if (typeof dir === 'string') dir = {path: dir};
 	const resolved_dir = resolve(dir.path);
 	return {
@@ -20,7 +20,7 @@ export const to_served_dir = (dir: Served_Dir_Partial): Served_Dir => {
 	};
 };
 
-export const to_served_dirs = (partials: Served_Dir_Partial[]): Served_Dir[] => {
+export const to_served_dirs = (partials: ServedDirPartial[]): ServedDir[] => {
 	const dirs = partials.map((d) => to_served_dir(d));
 	const unique_dirs = new Set<string>();
 	for (const dir of dirs) {
@@ -34,7 +34,7 @@ export const to_served_dirs = (partials: Served_Dir_Partial[]): Served_Dir[] => 
 	return dirs;
 };
 
-// `base` is the same as in `Served_Dir` above
+// `base` is the same as in `ServedDir` above
 export const strip_base = (path: string, base: string) => strip_start(strip_start(path, base), '/');
 
 // for compatibility with SvelteKit, the incoming `base` value may have a leading / or ./ or be a .

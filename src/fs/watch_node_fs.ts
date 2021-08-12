@@ -1,8 +1,8 @@
-import Cheap_Watch from 'cheap-watch';
+import CheapWatch from 'cheap-watch';
 
-import type {Path_Stats} from 'src/fs/path_data.js';
+import type {PathStats} from 'src/fs/path_data.js';
 import {to_path_filter} from './filter.js';
-import type {Path_Filter} from 'src/fs/filter.js';
+import type {PathFilter} from 'src/fs/filter.js';
 import {load_gitignore_filter} from '../utils/gitignore.js';
 
 /*
@@ -12,32 +12,32 @@ import {load_gitignore_filter} from '../utils/gitignore.js';
 
 */
 
-export interface Watch_Node_Fs {
-	init: () => Promise<Map<string, Path_Stats>>;
+export interface WatchNodeFs {
+	init: () => Promise<Map<string, PathStats>>;
 	close: () => void;
 }
 
-export interface Watcher_Change {
-	type: Watcher_Change_Type;
+export interface WatcherChange {
+	type: WatcherChangeType;
 	path: string;
-	stats: Path_Stats;
+	stats: PathStats;
 }
-export type Watcher_Change_Type = 'create' | 'update' | 'delete';
-export interface Watcher_Change_Callback {
-	(change: Watcher_Change): void;
+export type WatcherChangeType = 'create' | 'update' | 'delete';
+export interface WatcherChangeCallback {
+	(change: WatcherChange): void;
 }
 
 export const DEBOUNCE_DEFAULT = 10;
 
 export interface Options {
 	dir: string;
-	on_change: Watcher_Change_Callback;
-	filter?: Path_Filter | null | undefined;
+	on_change: WatcherChangeCallback;
+	filter?: PathFilter | null | undefined;
 	watch?: boolean;
 	debounce?: number;
 }
 
-export const watch_node_fs = (options: Options): Watch_Node_Fs => {
+export const watch_node_fs = (options: Options): WatchNodeFs => {
 	const {
 		dir,
 		on_change,
@@ -45,7 +45,7 @@ export const watch_node_fs = (options: Options): Watch_Node_Fs => {
 		watch = true,
 		debounce = DEBOUNCE_DEFAULT,
 	} = options;
-	const watcher = new Cheap_Watch({dir, filter, watch, debounce});
+	const watcher = new CheapWatch({dir, filter, watch, debounce});
 	if (watch) {
 		watcher.on('+', ({path, stats, is_new}) => {
 			on_change({type: is_new ? 'create' : 'update', path, stats});
@@ -66,4 +66,4 @@ export const watch_node_fs = (options: Options): Watch_Node_Fs => {
 	};
 };
 
-const to_default_filter = (): Path_Filter => to_path_filter(load_gitignore_filter());
+const to_default_filter = (): PathFilter => to_path_filter(load_gitignore_filter());

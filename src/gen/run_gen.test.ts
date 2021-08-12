@@ -3,7 +3,7 @@ import * as t from 'uvu/assert';
 import {resolve, join} from 'path';
 import {Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Gen_Module_Meta} from 'src/gen/gen_module.js';
+import type {GenModuleMeta} from 'src/gen/gen_module.js';
 import {run_gen} from './run_gen.js';
 import {fs} from '../fs/node.js';
 
@@ -19,7 +19,7 @@ test_gen('basic behavior', async () => {
 	let file_b: undefined | {filename: string; content: string};
 	let file_c1: undefined | {filename: string; content: string};
 	let file_c2: undefined | {filename: string; content: string};
-	let mod_a: Gen_Module_Meta = {
+	let mod_a: GenModuleMeta = {
 		id: source_id_a,
 		mod: {
 			gen: async (ctx) => {
@@ -33,7 +33,7 @@ test_gen('basic behavior', async () => {
 			},
 		},
 	};
-	let mod_b: Gen_Module_Meta = {
+	let mod_b: GenModuleMeta = {
 		id: join(source_id_b_c, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -47,7 +47,7 @@ test_gen('basic behavior', async () => {
 			},
 		},
 	};
-	let mod_c: Gen_Module_Meta = {
+	let mod_c: GenModuleMeta = {
 		id: join(source_id_b_c, 'mod_c.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -125,7 +125,7 @@ test_gen('failing gen function', async () => {
 	let gen_error; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	let mod_a: Gen_Module_Meta = {
+	let mod_a: GenModuleMeta = {
 		id: source_id_a,
 		mod: {
 			gen: async () => {
@@ -134,7 +134,7 @@ test_gen('failing gen function', async () => {
 			},
 		},
 	};
-	let mod_b: Gen_Module_Meta = {
+	let mod_b: GenModuleMeta = {
 		id: join(source_id_b, 'mod_b.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -148,7 +148,7 @@ test_gen('failing gen function', async () => {
 			},
 		},
 	};
-	const gen_modules_by_input_path: Gen_Module_Meta[] = [mod_a, mod_b];
+	const gen_modules_by_input_path: GenModuleMeta[] = [mod_a, mod_b];
 	const gen_results = await run_gen(fs, gen_modules_by_input_path, log);
 	t.is(gen_results.input_count, 2);
 	t.is(gen_results.output_count, 1);

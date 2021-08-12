@@ -3,18 +3,18 @@ import type * as svelte_preprocess_esbuild from 'svelte-preprocess-esbuild';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/build_config_defaults.js';
 import {is_this_project_gro} from '../paths.js';
-import type {Ecma_Script_Target} from 'src/build/typescript_utils.js';
+import type {EcmaScriptTarget} from 'src/build/typescript_utils.js';
 
-export interface Esbuild_Transform_Options extends esbuild.TransformOptions {
-	target: Ecma_Script_Target;
+export interface EsbuildTransformOptions extends esbuild.TransformOptions {
+	target: EcmaScriptTarget;
 	sourcemap: boolean;
 }
 
 export const to_default_esbuild_options = (
 	dev: boolean,
-	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
+	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = dev,
-): Esbuild_Transform_Options => ({
+): EsbuildTransformOptions => ({
 	target,
 	sourcemap,
 	format: 'esm',
@@ -31,7 +31,7 @@ export const to_default_esbuild_options = (
 
 export const to_default_esbuild_preprocess_options = (
 	dev: boolean,
-	target: Ecma_Script_Target = DEFAULT_ECMA_SCRIPT_TARGET,
+	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = dev,
 ): Partial<svelte_preprocess_esbuild.Options> => ({
 	target,

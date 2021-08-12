@@ -3,15 +3,15 @@ import * as t from 'uvu/assert';
 
 import {Filer} from './Filer.js';
 import {fs as memoryFs} from '../fs/memory.js';
-import type {Memory_Fs} from 'src/fs/memory.js';
+import type {MemoryFs} from 'src/fs/memory.js';
 import type {Builder} from 'src/build/builder.js';
-import type {Build_Config} from 'src/build/build_config.js';
+import type {BuildConfig} from 'src/build/build_config.js';
 
-interface Suite_Context {
-	fs: Memory_Fs;
+interface SuiteContext {
+	fs: MemoryFs;
 }
-const suite_context: Suite_Context = {fs: memoryFs};
-const reset_memory_fs = ({fs}: Suite_Context) => fs._reset();
+const suite_context: SuiteContext = {fs: memoryFs};
+const reset_memory_fs = ({fs}: SuiteContext) => fs._reset();
 
 /* test_Filer */
 const test_Filer = suite('Filer', suite_context);
@@ -60,7 +60,7 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const entrypointFilename = 'entrypoint.ts';
 	const entryId = `${rootId}/${entrypointFilename}`;
 	fs.write_file(entryId, 'export const a: number = 5;', 'utf8');
-	const build_config: Build_Config = {
+	const build_config: BuildConfig = {
 		name: 'test_build_config',
 		platform: 'node',
 		input: [entryId],

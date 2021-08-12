@@ -3,40 +3,40 @@ import {gray} from '@feltcoop/felt/util/terminal.js';
 import type {Encoding} from 'src/fs/encoding.js';
 import {JSON_EXTENSION, to_build_out_dirname} from '../paths.js';
 import {get_file_content_hash} from './filer_file.js';
-import type {Build_Context} from 'src/build/builder.js';
-import type {Buildable_Source_File} from 'src/build/source_file.js';
-import type {Build_Name} from 'src/build/build_config.js';
+import type {BuildContext} from 'src/build/builder.js';
+import type {BuildableSourceFile} from 'src/build/source_file.js';
+import type {BuildName} from 'src/build/build_config.js';
 import {EXTERNALS_SOURCE_ID} from './gro_builder_externals_utils.js';
-import type {Build_Dependency, Serialized_Build_Dependency} from 'src/build/build_dependency.js';
+import type {BuildDependency, SerializedBuildDependency} from 'src/build/build_dependency.js';
 import {serialize_build_dependency, deserialize_build_dependency} from './build_dependency.js';
 
-export interface Source_Meta {
+export interface SourceMeta {
 	readonly cache_id: string; // path to the cached JSON file on disk
-	readonly data: Source_Meta_Data; // the plain JSON written to disk
+	readonly data: SourceMetaData; // the plain JSON written to disk
 }
-export interface Source_Meta_Data {
+export interface SourceMetaData {
 	readonly source_id: string;
 	readonly content_hash: string;
-	readonly builds: Source_Meta_Build[];
+	readonly builds: SourceMetaBuild[];
 }
-export interface Source_Meta_Build {
+export interface SourceMetaBuild {
 	readonly id: string;
-	readonly build_name: Build_Name;
-	readonly dependencies: Build_Dependency[] | null;
+	readonly build_name: BuildName;
+	readonly dependencies: BuildDependency[] | null;
 	readonly encoding: Encoding;
 }
 
 // The optional properties in the following serialized types
 // are not `readonly` in order to simplify object creation.
-export interface Serialized_Source_Meta_Data {
+export interface SerializedSourceMetaData {
 	readonly source_id: string;
 	readonly content_hash: string;
-	readonly builds: Serialized_Source_Meta_Build[];
+	readonly builds: SerializedSourceMetaBuild[];
 }
-export interface Serialized_Source_Meta_Build {
+export interface SerializedSourceMetaBuild {
 	readonly id: string;
-	readonly build_name: Build_Name;
-	dependencies?: Serialized_Build_Dependency[] | null; // `undefined` implies `null`
+	readonly build_name: BuildName;
+	dependencies?: SerializedBuildDependency[] | null; // `undefined` implies `null`
 	encoding?: Encoding; // `undefined` implies `'utf8'`
 }
 
@@ -47,8 +47,8 @@ export const to_source_meta_dir = (build_dir: string, dev: boolean): string =>
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
 export const update_source_meta = async (
-	ctx: Build_Context,
-	file: Buildable_Source_File,
+	ctx: BuildContext,
+	file: BuildableSourceFile,
 ): Promise<void> => {
 	const {fs, source_meta_by_id, dev, build_dir, build_names} = ctx;
 	if (file.build_configs.size === 0) {
@@ -57,12 +57,12 @@ export const update_source_meta = async (
 
 	// create the new meta, not mutating the old
 	const cache_id = to_source_meta_id(file, build_dir, dev);
-	const data: Source_Meta_Data = {
+	const data: SourceMetaData = {
 		source_id: file.id,
 		content_hash: get_file_content_hash(file),
 		builds: Array.from(file.build_files.values()).flatMap((files) =>
 			files.map(
-				(file): Source_Meta_Build => ({
+				(file): SourceMetaBuild => ({
 					id: file.id,
 					build_name: file.build_config.name,
 					dependencies: file.dependencies && Array.from(file.dependencies.values()),
@@ -71,7 +71,7 @@ export const update_source_meta = async (
 			),
 		),
 	};
-	const source_meta: Source_Meta = {cache_id, data};
+	const source_meta: SourceMeta = {cache_id, data};
 
 	// preserve the builds that aren't in this build config set
 	// TODO maybe just cache these on the source meta in a separate field (not written to disk)
@@ -90,7 +90,7 @@ export const update_source_meta = async (
 };
 
 export const delete_source_meta = async (
-	{fs, source_meta_by_id}: Build_Context,
+	{fs, source_meta_by_id}: BuildContext,
 	source_id: string,
 ): Promise<void> => {
 	const meta = source_meta_by_id.get(source_id);
@@ -99,7 +99,7 @@ export const delete_source_meta = async (
 	await fs.remove(meta.cache_id);
 };
 
-const to_source_meta_id = (file: Buildable_Source_File, build_dir: string, dev: boolean): string =>
+const to_source_meta_id = (file: BuildableSourceFile, build_dir: string, dev: boolean): string =>
 	`${to_source_meta_dir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
 
 // TODO optimize to load meta only for the build configs
@@ -108,7 +108,7 @@ export const init_source_meta = async ({
 	source_meta_by_id,
 	build_dir,
 	dev,
-}: Build_Context): Promise<void> => {
+}: BuildContext): Promise<void> => {
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
 	if (!(await fs.exists(source_meta_dir))) return;
 	const files = await fs.find_files(source_meta_dir, undefined, null);
@@ -127,7 +127,7 @@ export const init_source_meta = async ({
 // We can simply delete any cached meta that doesn't map back to a source file.
 // It might appear that we could use the already-loaded source files to do this check in memory,
 // but that doesn't work if the Filer is created with only a subset of the build configs.
-export const clean_source_meta = async (ctx: Build_Context): Promise<void> => {
+export const clean_source_meta = async (ctx: BuildContext): Promise<void> => {
 	const {fs, source_meta_by_id, log} = ctx;
 	await Promise.all(
 		Array.from(source_meta_by_id.keys()).map(async (source_id) => {
@@ -144,7 +144,7 @@ export const deserialize_source_meta = ({
 	source_id,
 	content_hash,
 	builds,
-}: Serialized_Source_Meta_Data): Source_Meta_Data => ({
+}: SerializedSourceMetaData): SourceMetaData => ({
 	source_id,
 	content_hash,
 	builds: builds.map((b) => deserialize_source_meta_build(b)),
@@ -154,7 +154,7 @@ export const deserialize_source_meta_build = ({
 	build_name,
 	dependencies,
 	encoding,
-}: Serialized_Source_Meta_Build): Source_Meta_Build => ({
+}: SerializedSourceMetaBuild): SourceMetaBuild => ({
 	id,
 	build_name,
 	dependencies: dependencies ? dependencies.map((d) => deserialize_build_dependency(d)) : null,
@@ -165,7 +165,7 @@ export const serialize_source_meta = ({
 	source_id,
 	content_hash,
 	builds,
-}: Source_Meta_Data): Serialized_Source_Meta_Data => ({
+}: SourceMetaData): SerializedSourceMetaData => ({
 	source_id: source_id,
 	content_hash: content_hash,
 	builds: builds.map((b) => serialize_source_meta_build(b)),
@@ -175,8 +175,8 @@ export const serialize_source_meta_build = ({
 	build_name,
 	dependencies,
 	encoding,
-}: Source_Meta_Build): Serialized_Source_Meta_Build => {
-	const serialized: Serialized_Source_Meta_Build = {id, build_name};
+}: SourceMetaBuild): SerializedSourceMetaBuild => {
+	const serialized: SerializedSourceMetaBuild = {id, build_name};
 	if (dependencies) {
 		serialized.dependencies = dependencies.map((d) => serialize_build_dependency(d));
 	}

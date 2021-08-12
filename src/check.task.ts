@@ -1,5 +1,5 @@
 import type {Task} from 'src/task/task.js';
-import {Task_Error} from './task/task.js';
+import {TaskError} from './task/task.js';
 import {find_gen_modules} from './gen/gen_module.js';
 
 export const task: Task = {
@@ -18,7 +18,7 @@ export const task: Task = {
 			for (const reason of find_gen_modules_result.reasons) {
 				log.error(reason);
 			}
-			throw new Task_Error('Failed to find gen modules.');
+			throw new TaskError('Failed to find gen modules.');
 		}
 
 		await invoke_task('format', {...args, check: true});

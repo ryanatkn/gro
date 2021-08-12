@@ -3,11 +3,11 @@ import type {Assignable} from '@feltcoop/felt/util/types.js';
 import {to_path_parts} from '@feltcoop/felt/util/path_parsing.js';
 import {ensure_end, strip_start} from '@feltcoop/felt/util/string.js';
 
-import {to_fs_id, Fs_Stats} from './filesystem.js';
-import type {Filesystem, Fs_Read_File} from 'src/fs/filesystem.js';
-import type {Fs_Copy_Options, Fs_Id, Fs_Move_Options, Fs_Node} from 'src/fs/filesystem';
-import type {Path_Stats} from 'src/fs/path_data.js';
-import type {Path_Filter} from 'src/fs/filter.js';
+import {to_fs_id, FsStats} from './filesystem.js';
+import type {Filesystem, FsReadFile} from 'src/fs/filesystem.js';
+import type {FsCopyOptions, FsId, FsMoveOptions, FsNode} from 'src/fs/filesystem';
+import type {PathStats} from 'src/fs/path_data.js';
+import type {PathFilter} from 'src/fs/filter.js';
 import type {Encoding} from 'src/fs/encoding.js';
 
 // TODO should this module have a more specific name? or a more specific directory, with all other implementations?
@@ -18,45 +18,45 @@ import type {Encoding} from 'src/fs/encoding.js';
 
 const ROOT = '/';
 
-export class Memory_Fs implements Filesystem {
+export class MemoryFs implements Filesystem {
 	_root = to_fs_id('.');
 
 	// TODO for now we're prefixing all non-Fs API with an underscore for clarity, maybe compose better?
-	_files: Map<Fs_Id, Fs_Node> = new Map();
+	_files: Map<FsId, FsNode> = new Map();
 	_exists(path: string): boolean {
 		return this._files.has(to_fs_id(path));
 	}
-	_find(id: Fs_Id): Fs_Node | undefined {
+	_find(id: FsId): FsNode | undefined {
 		return this._files.get(id);
 	}
 	// finds nodes within `id`, not including `id`; includes all descendents
-	_filter(id: Fs_Id): Fs_Node[] {
-		const nodes: Fs_Node[] = [];
+	_filter(id: FsId): FsNode[] {
+		const nodes: FsNode[] = [];
 		const node = this._find(id);
 		if (!node || !node.is_directory) return []; // TODO or throw?
 		const prefix = id === ROOT ? ROOT : `${id}/`;
 		// TODO instead of searching the whole space, could have a better data structure
 		// TODO to search just children quickly, we need a better data structure
-		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `Base_Buildable_File`s)
+		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `BaseBuildableFile`s)
 		for (const node_id of this._files.keys()) {
 			if (!node_id.startsWith(prefix) || node_id === ROOT) continue;
 			nodes.push(this._files.get(node_id)!);
 		}
 		return nodes;
 	}
-	_update(id: Fs_Id, node: Fs_Node): void {
+	_update(id: FsId, node: FsNode): void {
 		// TODO should this merge? or always expect that upstream? or maybe `_merge`
 		// const existing = this._find(id);
 		this._files.set(id, node);
 	}
-	_add(node: Fs_Node): void {
+	_add(node: FsNode): void {
 		const path_parts = to_path_parts(node.id);
 		path_parts.unshift(ROOT); // TODO hacky
 		// skip the last one, that's what's created above
 		for (let i = 0; i < path_parts.length - 1; i++) {
 			const pathPart = path_parts[i];
 			const is_directory = true;
-			const stats = new Fs_Stats(is_directory);
+			const stats = new FsStats(is_directory);
 			this._update(pathPart, {
 				id: pathPart,
 				is_directory,
@@ -69,7 +69,7 @@ export class Memory_Fs implements Filesystem {
 		}
 		this._update(node.id, node);
 	}
-	_remove(id: Fs_Id): void {
+	_remove(id: FsId): void {
 		this._files.delete(id);
 	}
 	// delete everything, a very safe and cool `rm -rf /`
@@ -77,7 +77,7 @@ export class Memory_Fs implements Filesystem {
 		this._files.clear();
 	}
 
-	stat = async (path: string): Promise<Path_Stats> => {
+	stat = async (path: string): Promise<PathStats> => {
 		const id = to_fs_id(path);
 		const file = this._find(id);
 		if (!file) {
@@ -90,7 +90,7 @@ export class Memory_Fs implements Filesystem {
 		return this._files.has(id);
 	};
 	// TODO the `any` fixes a type error, not sure how to fix properly
-	read_file: Fs_Read_File = async (path: string, encoding?: Encoding): Promise<any> => {
+	read_file: FsReadFile = async (path: string, encoding?: Encoding): Promise<any> => {
 		const id = to_fs_id(path);
 		const file = this._find(id);
 		if (!file) {
@@ -107,12 +107,12 @@ export class Memory_Fs implements Filesystem {
 		// does the file already exist? update if so
 		const file = this._find(id);
 		if (file) {
-			(file as Assignable<Fs_Node, 'content'>).content = data;
+			(file as Assignable<FsNode, 'content'>).content = data;
 			return;
 		}
 
 		// doesn't exist, so create it
-		const stats = new Fs_Stats(false);
+		const stats = new FsStats(false);
 		this._add({
 			id,
 			is_directory: false,
@@ -136,13 +136,13 @@ export class Memory_Fs implements Filesystem {
 		this._remove(id); // remove children above first
 	};
 	// doing the simple thing: copy+remove (much simpler especially when caches get complex)
-	move = async (src_path: string, dest_path: string, options?: Fs_Move_Options): Promise<void> => {
+	move = async (src_path: string, dest_path: string, options?: FsMoveOptions): Promise<void> => {
 		const src_id = to_fs_id(src_path);
 		await this.stat(src_id); // throws with the same error as `fs-extra` if it doesn't exist
 		await this.copy(src_id, dest_path, {overwrite: options?.overwrite});
 		await this.remove(src_id);
 	};
-	copy = async (src_path: string, dest_path: string, options?: Fs_Copy_Options): Promise<void> => {
+	copy = async (src_path: string, dest_path: string, options?: FsCopyOptions): Promise<void> => {
 		const overwrite = options?.overwrite;
 		const filter = options?.filter;
 		const src_id = to_fs_id(src_path);
@@ -176,7 +176,7 @@ export class Memory_Fs implements Filesystem {
 		const id = to_fs_id(path);
 		if (this._find(path)) return;
 		const is_directory = true;
-		const stats = new Fs_Stats(is_directory);
+		const stats = new FsStats(is_directory);
 		this._add({
 			id,
 			is_directory,
@@ -202,9 +202,9 @@ export class Memory_Fs implements Filesystem {
 	};
 	find_files = async (
 		dir: string,
-		filter?: Path_Filter,
+		filter?: PathFilter,
 		sort: typeof compare_simple_map_entries | null = compare_simple_map_entries,
-	): Promise<Map<string, Path_Stats>> => {
+	): Promise<Map<string, PathStats>> => {
 		// TODO wait so in the dir .. we can now find this dir and all of its subdirs
 		// cache the subdirs somehow (backlink to parent node? do we have stable references? we do ya?)
 
@@ -222,4 +222,4 @@ export class Memory_Fs implements Filesystem {
 	};
 }
 
-export const fs = new Memory_Fs();
+export const fs = new MemoryFs();

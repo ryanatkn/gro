@@ -1,36 +1,36 @@
 import {deep_equal} from '@feltcoop/felt/util/equal.js';
 
-import type {Source_Meta, Source_Meta_Build} from 'src/build/source_meta.js';
-import type {Build_Config, Build_Name} from 'src/build/build_config.js';
+import type {SourceMeta, SourceMetaBuild} from 'src/build/source_meta.js';
+import type {BuildConfig, BuildName} from 'src/build/build_config.js';
 
-export interface Source_Tree {
-	// readonly children: Source_TreeNode[];
-	readonly metas: Source_Tree_Meta[];
-	readonly metas_by_build_name: Map<string, Source_Tree_Meta[]>;
-	readonly builds_by_build_name: Map<string, Source_Meta_Build[]>;
-	readonly build_configs: readonly Build_Config[];
+export interface SourceTree {
+	// readonly children: SourceTreeNode[];
+	readonly metas: SourceTreeMeta[];
+	readonly metas_by_build_name: Map<string, SourceTreeMeta[]>;
+	readonly builds_by_build_name: Map<string, SourceMetaBuild[]>;
+	readonly build_configs: readonly BuildConfig[];
 	readonly build_names: string[]; // for convenience, same as keys of `builds_by_build_name`
-	readonly builds: Source_Meta_Build[];
+	readonly builds: SourceMetaBuild[];
 }
 
-export interface Source_Tree_Meta extends Source_Meta {
-	readonly builds_by_build_name: Map<string, Source_Meta_Build[]>;
+export interface SourceTreeMeta extends SourceMeta {
+	readonly builds_by_build_name: Map<string, SourceMetaBuild[]>;
 	readonly build_names: string[]; // for convenience, same as keys of `builds_by_build_name`
 }
 
-// export interface Source_TreeNode {
-// 	children?: Source_TreeNode[];
+// export interface SourceTreeNode {
+// 	children?: SourceTreeNode[];
 // }
 
 export const create_source_tree = (
-	source_meta: Source_Meta[],
-	build_configs: readonly Build_Config[],
-): Source_Tree => {
+	source_meta: SourceMeta[],
+	build_configs: readonly BuildConfig[],
+): SourceTree => {
 	const metas = to_source_tree_meta(
 		source_meta.sort((a, b) => (a.data.source_id > b.data.source_id ? 1 : -1)),
 	);
-	const builds: Source_Meta_Build[] = [];
-	const builds_by_build_name: Map<string, Source_Meta_Build[]> = new Map();
+	const builds: SourceMetaBuild[] = [];
+	const builds_by_build_name: Map<string, SourceMetaBuild[]> = new Map();
 	for (const source_tree_meta of metas) {
 		for (const source_meta_builds of source_tree_meta.builds_by_build_name.values()) {
 			for (const source_meta_build of source_meta_builds) {
@@ -52,7 +52,7 @@ export const create_source_tree = (
 			build_names_from_configs,
 		);
 	}
-	const metas_by_build_name: Map<string, Source_Tree_Meta[]> = new Map(
+	const metas_by_build_name: Map<string, SourceTreeMeta[]> = new Map(
 		build_names.map((build_name) => [
 			build_name,
 			metas.filter((meta) => meta.builds_by_build_name.has(build_name)),
@@ -68,9 +68,9 @@ export const create_source_tree = (
 	};
 };
 
-export const to_source_tree_meta = (metas: Source_Meta[]): Source_Tree_Meta[] => {
+export const to_source_tree_meta = (metas: SourceMeta[]): SourceTreeMeta[] => {
 	return metas.map((source_meta) => {
-		const builds_by_build_name: Map<string, Source_Meta_Build[]> = new Map();
+		const builds_by_build_name: Map<string, SourceMetaBuild[]> = new Map();
 		for (const build of source_meta.data.builds) {
 			let builds = builds_by_build_name.get(build.build_name);
 			if (builds === undefined) {
@@ -78,7 +78,7 @@ export const to_source_tree_meta = (metas: Source_Meta[]): Source_Tree_Meta[] =>
 			}
 			builds.push(build);
 		}
-		const tree_meta: Source_Tree_Meta = {
+		const tree_meta: SourceTreeMeta = {
 			...source_meta,
 			builds_by_build_name,
 			build_names: Array.from(builds_by_build_name.keys()).sort(),
@@ -89,24 +89,24 @@ export const to_source_tree_meta = (metas: Source_Meta[]): Source_Tree_Meta[] =>
 
 // filters those meta items that have some selected build, based on `selected_build_names`
 export const filter_selected_metas = (
-	source_tree: Source_Tree,
+	source_tree: SourceTree,
 	selected_build_names: string[],
-): Source_Tree_Meta[] =>
+): SourceTreeMeta[] =>
 	source_tree.metas.filter((m) => selected_build_names.some((n) => m.builds_by_build_name.has(n)));
 
 export const get_metas_by_build_name = (
-	source_tree: Source_Tree,
-	build_name: Build_Name,
-): Source_Tree_Meta[] => {
+	source_tree: SourceTree,
+	build_name: BuildName,
+): SourceTreeMeta[] => {
 	const metas = source_tree.metas_by_build_name.get(build_name)!;
 	if (!metas) throw Error(`Expected to find meta:s ${build_name}`);
 	return metas;
 };
 
 export const get_builds_by_build_name = (
-	source_meta: Source_Tree_Meta,
-	build_name: Build_Name,
-): Source_Meta_Build[] => {
+	source_meta: SourceTreeMeta,
+	build_name: BuildName,
+): SourceMetaBuild[] => {
 	const builds = source_meta.builds_by_build_name.get(build_name)!;
 	if (!builds) throw Error(`Expected to find builds: ${build_name}`);
 	return builds;

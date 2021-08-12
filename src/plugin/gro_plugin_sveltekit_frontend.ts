@@ -2,12 +2,12 @@ import type {Spawned_Process} from '@feltcoop/felt/util/process.js';
 import {spawn, spawn_process} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 
-import type {Plugin, Plugin_Context} from 'src/plugin/plugin.js';
+import type {Plugin, PluginContext} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
 
 export interface Options {}
 
-export interface Task_Args extends Args {
+export interface TaskArgs extends Args {
 	watch?: boolean;
 	// `svelte-kit dev` and `svelte-kit preview` args
 	port?: number;
@@ -21,7 +21,7 @@ export interface Task_Args extends Args {
 const name = '@feltcoop/gro_adapter_sveltekit_frontend';
 
 export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
-	Plugin_Context<Task_Args, {}>
+	PluginContext<TaskArgs, {}>
 > => {
 	let sveltekit_process: Spawned_Process | null = null;
 	return {
@@ -49,7 +49,7 @@ export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	};
 };
 
-const to_sveltekit_args = (command: 'dev' | 'build' | 'preview', args: Task_Args): string[] => {
+const to_sveltekit_args = (command: 'dev' | 'build' | 'preview', args: TaskArgs): string[] => {
 	const sveltekit_args = ['svelte-kit', command];
 	if (command === 'dev' || command === 'preview') {
 		if (args.port) {

@@ -1,40 +1,40 @@
 import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
 
-import type {Base_Filer_File} from 'src/build/filer_file.js';
-import type {Source_Meta} from 'src/build/source_meta.js';
-import type {Build_Dependency} from 'src/build/build_dependency.js';
+import type {BaseFilerFile} from 'src/build/filer_file.js';
+import type {SourceMeta} from 'src/build/source_meta.js';
+import type {BuildDependency} from 'src/build/build_dependency.js';
 import {basename, dirname, extname} from 'path';
 import {load_content} from './load.js';
-import type {Build_Config} from 'src/build/build_config.js';
+import type {BuildConfig} from 'src/build/build_config.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
-export type Build_File = Text_Build_File | Binary_Build_File;
-export interface Text_Build_File extends Base_Build_File {
+export type BuildFile = TextBuildFile | BinaryBuildFile;
+export interface TextBuildFile extends BaseBuildFile {
 	readonly encoding: 'utf8';
 	readonly content: string;
 }
-export interface Binary_Build_File extends Base_Build_File {
+export interface BinaryBuildFile extends BaseBuildFile {
 	readonly encoding: null;
 	readonly content: Buffer;
 	readonly content_buffer: Buffer;
 }
-export interface Base_Build_File extends Base_Filer_File {
+export interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
 	readonly source_id: string;
-	readonly build_config: Build_Config;
+	readonly build_config: BuildConfig;
 	// This data structure de-dupes by build id, because we can throw away
 	// the information of duplicate imports to the same dependency within each build file.
 	// We may want to store more granular dependency info, including imported identifiers,
 	// in the future.
-	readonly dependencies: Map<string, Build_Dependency> | null;
+	readonly dependencies: Map<string, BuildDependency> | null;
 }
 
 export const reconstruct_build_files = async (
 	fs: Filesystem,
-	source_meta: Source_Meta,
-	build_configs: readonly Build_Config[],
-): Promise<Map<Build_Config, Build_File[]>> => {
-	const build_files: Map<Build_Config, Build_File[]> = new Map();
+	source_meta: SourceMeta,
+	build_configs: readonly BuildConfig[],
+): Promise<Map<BuildConfig, BuildFile[]>> => {
+	const build_files: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(
 		source_meta.data.builds.map(async (build): Promise<void> => {
 			const {id, build_name, dependencies, encoding} = build;
@@ -53,7 +53,7 @@ export const reconstruct_build_files = async (
 				// We rely on this behavior to have the separate bootstrap config.
 				return;
 			}
-			let build_file: Build_File;
+			let build_file: BuildFile;
 			switch (encoding) {
 				case 'utf8':
 					build_file = {
@@ -101,9 +101,9 @@ export const reconstruct_build_files = async (
 };
 
 const add_build_file = (
-	build_file: Build_File,
-	build_files: Map<Build_Config, Build_File[]>,
-	build_config: Build_Config,
+	build_file: BuildFile,
+	build_files: Map<BuildConfig, BuildFile[]>,
+	build_config: BuildConfig,
 ): void => {
 	let files = build_files.get(build_config);
 	if (files === undefined) {
@@ -113,25 +113,25 @@ const add_build_file = (
 	files.push(build_file);
 };
 
-// TODO maybe this should take in cached aggregated data from the source file, not `oldBuild_Files`?
+// TODO maybe this should take in cached aggregated data from the source file, not `oldBuildFiles`?
 
 // Returns the dependency changes between two sets of build files.
 // Lazily instantiate the collections as a small optimization -
 // this function is expected to return `null` most of the time.
 export const diff_dependencies = (
-	new_files: readonly Build_File[],
-	old_files: readonly Build_File[] | null,
+	new_files: readonly BuildFile[],
+	old_files: readonly BuildFile[] | null,
 ): {
-	added_dependencies: Build_Dependency[] | null;
-	removed_dependencies: Build_Dependency[] | null;
+	added_dependencies: BuildDependency[] | null;
+	removed_dependencies: BuildDependency[] | null;
 } | null => {
 	if (new_files === old_files) return null;
-	let added_dependencies: Build_Dependency[] | null = null;
-	let removed_dependencies: Build_Dependency[] | null = null;
+	let added_dependencies: BuildDependency[] | null = null;
+	let removed_dependencies: BuildDependency[] | null = null;
 
 	// Aggregate all of the dependencies for each source file. The map de-dupes by build id.
-	let new_dependencies: Map<string, Build_Dependency> | null = null;
-	let old_dependencies: Map<string, Build_Dependency> | null = null;
+	let new_dependencies: Map<string, BuildDependency> | null = null;
+	let old_dependencies: Map<string, BuildDependency> | null = null;
 	for (const new_file of new_files) {
 		if (new_file.dependencies !== null) {
 			for (const dependency of new_file.dependencies.values()) {

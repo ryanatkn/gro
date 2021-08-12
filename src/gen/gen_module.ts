@@ -1,5 +1,5 @@
-import {Module_Meta, load_module, Load_Module_Result, find_modules} from '../fs/modules.js';
-import {Gen, Gen_Results, Gen_File, is_gen_path, GEN_FILE_PATTERN} from './gen.js';
+import {ModuleMeta, load_module, LoadModuleResult, find_modules} from '../fs/modules.js';
+import {Gen, GenResults, GenFile, is_gen_path, GEN_FILE_PATTERN} from './gen.js';
 import {get_possible_source_ids} from '../fs/input_path.js';
 import {paths} from '../paths.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
@@ -8,23 +8,23 @@ export interface GenModule {
 	gen: Gen;
 }
 
-export interface Gen_Module_Meta extends Module_Meta<GenModule> {}
+export interface GenModuleMeta extends ModuleMeta<GenModule> {}
 
 export const validate_gen_module = (mod: Record<string, any>): mod is GenModule =>
 	typeof mod.gen === 'function';
 
-export const load_gen_module = (id: string): Promise<Load_Module_Result<Gen_Module_Meta>> =>
+export const load_gen_module = (id: string): Promise<LoadModuleResult<GenModuleMeta>> =>
 	load_module(id, true, validate_gen_module);
 
-export type Check_Gen_Module_Result =
+export type CheckGenModuleResult =
 	| {
-			file: Gen_File;
+			file: GenFile;
 			existing_content: string;
 			is_new: false;
 			has_changed: boolean;
 	  }
 	| {
-			file: Gen_File;
+			file: GenFile;
 			existing_content: null;
 			is_new: true;
 			has_changed: true;
@@ -32,8 +32,8 @@ export type Check_Gen_Module_Result =
 
 export const check_gen_modules = async (
 	fs: Filesystem,
-	gen_results: Gen_Results,
-): Promise<Check_Gen_Module_Result[]> => {
+	gen_results: GenResults,
+): Promise<CheckGenModuleResult[]> => {
 	return Promise.all(
 		gen_results.successes
 			.map((result) => result.files.map((file) => check_gen_module(fs, file)))
@@ -43,8 +43,8 @@ export const check_gen_modules = async (
 
 export const check_gen_module = async (
 	fs: Filesystem,
-	file: Gen_File,
-): Promise<Check_Gen_Module_Result> => {
+	file: GenFile,
+): Promise<CheckGenModuleResult> => {
 	if (!(await fs.exists(file.id))) {
 		return {
 			file,

@@ -1,8 +1,8 @@
 import {to_array} from '@feltcoop/felt/util/array.js';
 import type {Timings} from '@feltcoop/felt/util/timings.js';
 
-import type {Task_Context} from 'src/task/task.js';
-import type {Gro_Config} from 'src/config/config.js';
+import type {TaskContext} from 'src/task/task.js';
+import type {GroConfig} from 'src/config/config.js';
 
 /*
 
@@ -19,22 +19,22 @@ and interoperability is not a goal yet. (and may never be, can't tell right now)
 
 export interface Adapter<T_Args = any, T_Events = any> {
 	name: string;
-	adapt: (ctx: Adapter_Context<T_Args, T_Events>) => void | Promise<void>;
+	adapt: (ctx: AdapterContext<T_Args, T_Events>) => void | Promise<void>;
 }
 
-export interface To_Config_Adapters<T_Args = any, T_Events = any> {
-	(ctx: Adapter_Context<T_Args, T_Events>):
+export interface ToConfigAdapters<T_Args = any, T_Events = any> {
+	(ctx: AdapterContext<T_Args, T_Events>):
 		| (Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[])
 		| Promise<Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[]>;
 }
 
-export interface Adapter_Context<T_Args = any, T_Events = any>
-	extends Task_Context<T_Args, T_Events> {
-	config: Gro_Config;
+export interface AdapterContext<T_Args = any, T_Events = any>
+	extends TaskContext<T_Args, T_Events> {
+	config: GroConfig;
 	timings: Timings;
 }
 
-export const adapt = async (ctx: Adapter_Context): Promise<readonly Adapter[]> => {
+export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
 	const timing_to_create_adapters = timings.start('create adapters');
 	const adapters: Adapter<any, any>[] = to_array(await config.adapt(ctx)).filter(

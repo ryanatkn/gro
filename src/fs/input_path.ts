@@ -11,7 +11,7 @@ import {
 } from '../paths.js';
 import type {Paths} from 'src/paths.js';
 import {to_path_data} from './path_data.js';
-import type {Path_Data, Path_Stats} from 'src/fs/path_data.js';
+import type {PathData, PathStats} from 'src/fs/path_data.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 /*
@@ -106,14 +106,14 @@ export const load_source_path_data_by_input_path = async (
 	input_paths: string[],
 	get_possible_source_idsForInputPath?: (input_path: string) => string[],
 ): Promise<{
-	source_id_path_data_by_input_path: Map<string, Path_Data>;
+	source_id_path_data_by_input_path: Map<string, PathData>;
 	unmapped_input_paths: string[];
 }> => {
-	const source_id_path_data_by_input_path = new Map<string, Path_Data>();
+	const source_id_path_data_by_input_path = new Map<string, PathData>();
 	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
-		let file_path_data: Path_Data | null = null;
-		let dir_path_data: Path_Data | null = null;
+		let file_path_data: PathData | null = null;
+		let dir_path_data: PathData | null = null;
 		const possible_source_ids = get_possible_source_idsForInputPath
 			? get_possible_source_idsForInputPath(input_path)
 			: [input_path];
@@ -146,8 +146,8 @@ De-dupes source ids.
 
 */
 export const load_source_ids_by_input_path = async (
-	source_id_path_data_by_input_path: Map<string, Path_Data>,
-	find_files: (id: string) => Promise<Map<string, Path_Stats>>,
+	source_id_path_data_by_input_path: Map<string, PathData>,
+	find_files: (id: string) => Promise<Map<string, PathStats>>,
 ): Promise<{
 	source_ids_by_input_path: Map<string, string[]>;
 	input_directories_with_no_files: string[];

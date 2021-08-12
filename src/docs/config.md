@@ -30,9 +30,9 @@ See [`src/config/config.ts`](/src/config/config.ts) for the config types and imp
 Here's a config for a simple Node project:
 
 ```ts
-import type {Gro_Config_Creator} from '@feltcoop/gro';
+import type {GroConfigCreator} from '@feltcoop/gro';
 
-export const config: Gro_Config_Creator = async () => {
+export const config: GroConfigCreator = async () => {
 	return {
 		builds: [{name: 'server', platform: 'node', input: 'index.ts'}],
 	};
@@ -43,22 +43,22 @@ Here's [Gro's own internal config](/src/gro.config.ts) and
 here's [the default config](/src/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
 
-The [`Gro_Config_Partial`](/src/gro.config.ts) is the return value of config files:
+The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files:
 
 ```ts
-export interface Gro_Config_Partial {
-	readonly builds: (Build_Config_Partial | null)[] | Build_Config_Partial | null;
+export interface GroConfigPartial {
+	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
 	readonly publish?: string | null; // dir for `gro publish`, defaults to 'dist/library' if it exists
-	readonly plugin?: To_Config_Plugins;
-	readonly adapt?: To_Config_Adapters;
-	readonly target?: Ecma_Script_Target; // defaults to 'es2020'
+	readonly plugin?: ToConfigPlugins;
+	readonly adapt?: ToConfigAdapters;
+	readonly target?: EcmaScriptTarget; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly typemap?: boolean; // defaults to false in `dev`, true for prod
 	readonly types?: boolean; // defaults to false
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
 	readonly log_level?: Log_Level; // env.GRO_LOG_LEVEL
-	readonly serve?: Served_Dir_Partial[];
+	readonly serve?: ServedDirPartial[];
 }
 ```
 
@@ -66,14 +66,14 @@ export interface Gro_Config_Partial {
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`Build_Config_Partial`](/src/build/build_config.ts) type,
-which is the user-facing version of the [`Build_Config`](/src/build/build_config.ts):
+Here's the [`BuildConfigPartial`](/src/build/build_config.ts) type,
+which is the user-facing version of the [`BuildConfig`](/src/build/build_config.ts):
 
 ```ts
-export interface Build_Config_Partial {
+export interface BuildConfigPartial {
 	readonly name: string;
-	readonly platform: Platform_Target; // 'node' | 'browser'
-	readonly input: Build_Config_Input | Build_Config_Input[];
+	readonly platform: PlatformTarget; // 'node' | 'browser'
+	readonly input: BuildConfigInput | BuildConfigInput[];
 }
 ```
 
@@ -108,8 +108,8 @@ Read more about `plugin` and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
-export interface To_Config_Plugins<T_Args = any, T_Events = any> {
-	(ctx: Plugin_Context<T_Args, T_Events>):
+export interface ToConfigPlugins<T_Args = any, T_Events = any> {
+	(ctx: PluginContext<T_Args, T_Events>):
 		| (Plugin<T_Args, T_Events> | null | (Plugin<T_Args, T_Events> | null)[])
 		| Promise<Plugin<T_Args, T_Events> | null | (Plugin<T_Args, T_Events> | null)[]>;
 }
@@ -121,8 +121,8 @@ The `adapt` property is a function that returns any number of `Adapter` instance
 Read more about `adapt` and the `Adapter` in [adapt.md](adapt.md) and [build.md](build.md#adapt).
 
 ```ts
-export interface To_Config_Adapters<T_Args = any, T_Events = any> {
-	(ctx: Adapter_Context<T_Args, T_Events>):
+export interface ToConfigAdapters<T_Args = any, T_Events = any> {
+	(ctx: AdapterContext<T_Args, T_Events>):
 		| (Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[])
 		| Promise<Adapter<T_Args, T_Events> | null | (Adapter<T_Args, T_Events> | null)[]>;
 }
@@ -138,7 +138,7 @@ serve: [to_build_out_path(true, 'browser', 'client'), to_build_out_path(true, 'b
 ```
 
 ```ts
-type Served_Dir_Partial =
+type ServedDirPartial =
 	| string
 	| {
 			path: string;

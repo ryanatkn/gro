@@ -6,12 +6,12 @@ import {System_Logger, print_log_label} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 
 import type {Filesystem} from 'src/fs/filesystem.js';
-import type {Gro_Css_Build, Gro_Css_Bundle} from 'src/build/gro_css_build.js';
+import type {GroCssBuild, GroCssBundle} from 'src/build/gro_css_build.js';
 
 export interface Options {
 	fs: Filesystem;
-	get_css_bundles(): Map<string, Gro_Css_Bundle>;
-	to_final_css?: (build: Gro_Css_Build, log: Logger) => string | null;
+	get_css_bundles(): Map<string, GroCssBundle>;
+	to_final_css?: (build: GroCssBuild, log: Logger) => string | null;
 	sourcemap?: boolean;
 }
 
@@ -118,4 +118,4 @@ export const rollup_plugin_gro_output_css = (options: Options): Plugin => {
 	};
 };
 
-const default_to_final_css = ({code}: Gro_Css_Build, _log: Logger): string | null => code;
+const default_to_final_css = ({code}: GroCssBuild, _log: Logger): string | null => code;

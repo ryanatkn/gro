@@ -1,18 +1,18 @@
 import {createFilter} from '@rollup/pluginutils';
 import {ENV_LOG_LEVEL, Log_Level} from '@feltcoop/felt/util/log.js';
 
-import type {Gro_Config_Creator, Gro_Config_Partial} from 'src/config/config.js';
+import type {GroConfigCreator, GroConfigPartial} from 'src/config/config.js';
 import {MAIN_TEST_PATH, to_build_out_path} from './paths.js';
 import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/build_config_defaults.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
-export const config: Gro_Config_Creator = async ({dev}) => {
+export const config: GroConfigCreator = async ({dev}) => {
 	// TODO not this
 	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
 	const enable_browser_build = dev;
-	const partial: Gro_Config_Partial = {
+	const partial: GroConfigPartial = {
 		builds: [
 			{
 				...NODE_LIBRARY_BUILD_CONFIG,

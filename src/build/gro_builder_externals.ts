@@ -9,26 +9,26 @@ import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
 import {to_env_number} from '@feltcoop/felt/util/env.js';
 
 import {EXTERNALS_BUILD_DIRNAME, JS_EXTENSION, to_build_out_path} from '../paths.js';
-import type {Builder, Build_Context, Text_Build_Source} from 'src/build/builder.js';
+import type {Builder, BuildContext, TextBuildSource} from 'src/build/builder.js';
 import {load_content} from './load.js';
 import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
 import {create_default_preprocessor} from './gro_builder_svelte_utils.js';
 import {create_css_cache} from './css_cache.js';
 import {print_build_config} from '../build/build_config.js';
-import type {Build_Config} from 'src/build/build_config.js';
+import type {BuildConfig} from 'src/build/build_config.js';
 import {
 	create_delayed_promise,
 	get_externals_builder_state,
 	get_externals_build_state,
 	init_externals_builder_state,
-	initExternals_Build_State,
+	initExternalsBuildState,
 	load_import_map_from_disk,
 	to_specifiers,
 	EXTERNALS_SOURCE_ID,
 } from './gro_builder_externals_utils.js';
-import type {Externals_Build_State} from 'src/build/gro_builder_externals_utils.js';
+import type {ExternalsBuildState} from 'src/build/gro_builder_externals_utils.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import type {Build_File} from 'src/build/build_file.js';
+import type {BuildFile} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
 
 /*
@@ -50,7 +50,7 @@ export interface Options {
 	log?: Logger;
 }
 
-type ExternalsBuilder = Builder<Text_Build_Source>;
+type ExternalsBuilder = Builder<TextBuildSource>;
 
 const encoding = 'utf8';
 
@@ -80,7 +80,7 @@ export const gro_builder_externals = (options: Options = {}): ExternalsBuilder =
 
 		// TODO this is legacy stuff that we need to rethink when we handle CSS better
 		const css_cache = create_css_cache();
-		// const addPlainCss_Build = css_cache.add_css_build.bind(null, 'bundle.plain.css');
+		// const addPlainCssBuild = css_cache.add_css_build.bind(null, 'bundle.plain.css');
 		const add_svelte_css_build = css_cache.add_css_build.bind(null, 'bundle.svelte.css');
 		const plugins: RollupPlugin[] = [
 			rollup_plugin_gro_svelte({
@@ -91,7 +91,7 @@ export const gro_builder_externals = (options: Options = {}): ExternalsBuilder =
 			}),
 		];
 
-		let build_files: Build_File[];
+		let build_files: BuildFile[];
 		let install_result: InstallResult;
 		try {
 			log.info('installing externals', build_state.specifiers);
@@ -106,7 +106,7 @@ export const gro_builder_externals = (options: Options = {}): ExternalsBuilder =
 			build_state.import_map = install_result.importMap;
 			build_files = [
 				...(await Promise.all(
-					Array.from(build_state.specifiers).map(async (specifier): Promise<Build_File> => {
+					Array.from(build_state.specifiers).map(async (specifier): Promise<BuildFile> => {
 						const id = join(dest, install_result.importMap.imports[specifier]);
 						return {
 							type: 'build',
@@ -145,14 +145,14 @@ export const gro_builder_externals = (options: Options = {}): ExternalsBuilder =
 		dev,
 		build_configs,
 		build_dir,
-	}: Build_Context): Promise<void> => {
-		// initialize the externals builder state, which is stored on the `Build_Context` (the filer)
+	}: BuildContext): Promise<void> => {
+		// initialize the externals builder state, which is stored on the `BuildContext` (the filer)
 		const builder_state = init_externals_builder_state(state);
 		// mutate the build state with any available initial values
 		await Promise.all(
 			build_configs!.map(async (build_config) => {
 				if (build_config.platform !== 'browser') return;
-				const build_state = initExternals_Build_State(builder_state, build_config);
+				const build_state = initExternalsBuildState(builder_state, build_config);
 				const dest = to_build_out_path(dev, build_config.name, base_path, build_dir);
 				const import_map = await load_import_map_from_disk(fs, dest);
 				if (import_map !== undefined) {
@@ -176,7 +176,7 @@ const IDLE_TIME_LIMIT = to_env_number('GRO_IDLE_TIME_LIMIT', 20_000); // TODO ha
 // TODO this hackily guesses if the filer is idle enough to start installing externals
 export const queue_externals_build = async (
 	source_id: string,
-	state: Externals_Build_State,
+	state: ExternalsBuildState,
 	building_source_files: Set<string>,
 	log: Logger,
 	cb: () => Promise<void>, // last cb wins!
@@ -221,15 +221,15 @@ const load_common_builds = async (
 	fs: Filesystem,
 	install_result: InstallResult,
 	dest: string,
-	build_config: Build_Config,
-): Promise<Build_File[] | null> => {
+	build_config: BuildConfig,
+): Promise<BuildFile[] | null> => {
 	const common_dependency_ids = Object.keys(install_result.stats.common).map((path) =>
 		join(dest, path),
 	);
 	if (!common_dependency_ids.length) return null;
 	// log.trace('loading common dependencies', common_dependency_ids);
 	return Promise.all(
-		common_dependency_ids.map(async (common_dependency_id): Promise<Build_File> => {
+		common_dependency_ids.map(async (common_dependency_id): Promise<BuildFile> => {
 			return {
 				type: 'build',
 				source_id: EXTERNALS_SOURCE_ID,

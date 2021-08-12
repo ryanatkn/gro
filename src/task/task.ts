@@ -5,12 +5,12 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
 export interface Task<T_Args = Args, T_Events = {}> {
-	run: (ctx: Task_Context<T_Args, T_Events>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
+	run: (ctx: TaskContext<T_Args, T_Events>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
 	dev?: boolean;
 }
 
-export interface Task_Context<T_Args = {}, T_Events = {}> {
+export interface TaskContext<T_Args = {}, T_Events = {}> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
@@ -38,7 +38,7 @@ export const to_task_name = (base_path: string): string => base_path.replace(TAS
 // This is used by tasks to signal a known failure.
 // It's useful for cleaning up logging because
 // we usually don't need their stack trace.
-export class Task_Error extends Error {}
+export class TaskError extends Error {}
 
 // These extend the CLI args for tasks.
 // Anything can be assigned to a task's `args`. It's just a mutable POJO dictionary.

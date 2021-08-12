@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type {Writable} from 'svelte/store';
 
-	import Source_Id from './Source_Id.svelte';
-	import type {Source_Meta} from 'src/build/source_meta.js';
+	import SourceId from './SourceId.svelte';
+	import type {SourceMeta} from 'src/build/source_meta.js';
 
-	export let source_meta: Source_Meta;
-	export let hovered_source_meta: Writable<Source_Meta | null>;
+	export let source_meta: SourceMeta;
+	export let hovered_source_meta: Writable<SourceMeta | null>;
 
 	let expanded = false;
 	$: expanded_text = expanded ? '–' : '+';
@@ -22,7 +22,7 @@
 	};
 
 	// TODO probably want to do a better data structure than this
-	const is_dependency = (dependency: Source_Meta | null, dependent: Source_Meta | null) =>
+	const is_dependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
@@ -55,7 +55,7 @@
 		class:hovering
 	>
 		<span class="icon">{expanded_text}</span>
-		<Source_Id id={source_meta.data.source_id} />
+		<SourceId id={source_meta.data.source_id} />
 	</button>
 </div>
 {#if expanded}

@@ -1,7 +1,7 @@
 import esbuild from 'esbuild';
 import {replace_extension} from '@feltcoop/felt/util/path.js';
 
-import type {Ecma_Script_Target, Generate_Types_For_File} from 'src/build/typescript_utils.js';
+import type {EcmaScriptTarget, GenerateTypesForFile} from 'src/build/typescript_utils.js';
 import {to_default_esbuild_options} from './gro_builder_esbuild_utils.js';
 import {
 	JS_EXTENSION,
@@ -11,26 +11,26 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import type {Builder, Text_Build_Source} from 'src/build/builder.js';
+import type {Builder, TextBuildSource} from 'src/build/builder.js';
 import {add_js_sourcemap_footer} from './utils.js';
 import {to_generate_types_for_file} from './typescript_utils.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import type {Build_File} from 'src/build/build_file.js';
+import type {BuildFile} from 'src/build/build_file.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	create_esbuild_options?: Create_Esbuild_Options;
+	create_esbuild_options?: CreateEsbuildOptions;
 }
 
-type Esbuild_Builder = Builder<Text_Build_Source>;
+type EsbuildBuilder = Builder<TextBuildSource>;
 
-export const gro_builder_esbuild = (options: Options = {}): Esbuild_Builder => {
+export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 	const {create_esbuild_options = default_create_esbuild_options} = options;
 
 	const esbuild_options_cache: Map<string, esbuild.TransformOptions> = new Map();
 	const get_esbuild_options = (
-		target: Ecma_Script_Target,
+		target: EcmaScriptTarget,
 		dev: boolean,
 		sourcemap: boolean,
 	): esbuild.TransformOptions => {
@@ -42,15 +42,15 @@ export const gro_builder_esbuild = (options: Options = {}): Esbuild_Builder => {
 		return new_esbuild_options;
 	};
 
-	let cached_generate_types: Map<Filesystem, Promise<Generate_Types_For_File>> = new Map();
-	const load_generate_types = (fs: Filesystem): Promise<Generate_Types_For_File> => {
+	let cached_generate_types: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
+	const load_generate_types = (fs: Filesystem): Promise<GenerateTypesForFile> => {
 		if (cached_generate_types.has(fs)) return cached_generate_types.get(fs)!;
 		const promise = to_generate_types_for_file(fs);
 		cached_generate_types.set(fs, promise);
 		return promise;
 	};
 
-	const build: Esbuild_Builder['build'] = async (source, build_config, ctx) => {
+	const build: EsbuildBuilder['build'] = async (source, build_config, ctx) => {
 		const {build_dir, dev, sourcemap, types, target, fs} = ctx;
 
 		if (source.encoding !== 'utf8') {
@@ -69,7 +69,7 @@ export const gro_builder_esbuild = (options: Options = {}): Esbuild_Builder => {
 		const js_filename = replace_extension(source.filename, JS_EXTENSION);
 		const js_id = `${out_dir}${js_filename}`;
 
-		const build_files: Build_File[] = [
+		const build_files: BuildFile[] = [
 			{
 				type: 'build',
 				source_id: source.id,
@@ -154,11 +154,11 @@ export const gro_builder_esbuild = (options: Options = {}): Esbuild_Builder => {
 	return {name: '@feltcoop/gro_builder_esbuild', build};
 };
 
-type Create_Esbuild_Options = (
+type CreateEsbuildOptions = (
 	dev: boolean,
-	target: Ecma_Script_Target,
+	target: EcmaScriptTarget,
 	sourcemap: boolean,
 ) => esbuild.TransformOptions;
 
-const default_create_esbuild_options: Create_Esbuild_Options = (dev, target, sourcemap) =>
+const default_create_esbuild_options: CreateEsbuildOptions = (dev, target, sourcemap) =>
 	to_default_esbuild_options(dev, target, sourcemap);

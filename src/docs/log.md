@@ -59,14 +59,14 @@ const logB = new Logger(print_log_label('party invitations')); // default color 
 ```
 
 ```ts
-export class Logger extends Dev_Logger {
+export class Logger extends DevLogger {
 	// default logger for user code
 
 	// see the implementation for more: /src/utils/log.ts
 	// defaults to `process.env.GRO_LOG_LEVEL`
 	static level: Log_Level = DEFAULT_LOG_LEVEL;
 }
-export class System_Logger extends Dev_Logger {
+export class System_Logger extends DevLogger {
 	// default logger for gro internal code
 }
 
@@ -79,7 +79,7 @@ export enum Log_Level {
 }
 ```
 
-The `Dev_Logger` can be extended with your own custom loggers
+The `DevLogger` can be extended with your own custom loggers
 that have state separate from the builtins.
 Your loggers don't have to follow Gro's global configuration pattern, either.
 

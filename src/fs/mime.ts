@@ -20,24 +20,24 @@ References:
 
 */
 
-export type Mime_Type = Flavored<string, 'Mime_Type'>;
-export type File_Extension = Flavored<string, 'File_Extension'>; // excluding leading `.`
+export type MimeType = Flavored<string, 'MimeType'>;
+export type FileExtension = Flavored<string, 'FileExtension'>; // excluding leading `.`
 
 // global cache
-const mime_type_by_extension = new Map<File_Extension, Mime_Type>();
-const extensions_by_mime_type = new Map<Mime_Type, File_Extension[]>();
+const mime_type_by_extension = new Map<FileExtension, MimeType>();
+const extensions_by_mime_type = new Map<MimeType, FileExtension[]>();
 
-export const get_mime_type_by_extension = (ext: File_Extension): Mime_Type | null =>
+export const get_mime_type_by_extension = (ext: FileExtension): MimeType | null =>
 	mime_type_by_extension.get(ext) || null;
 
-export const get_extensions_by_mime_type = (mime_type: Mime_Type): File_Extension[] | null =>
+export const get_extensions_by_mime_type = (mime_type: MimeType): FileExtension[] | null =>
 	extensions_by_mime_type.get(mime_type) || null;
 
 export const get_extensions = () => mime_type_by_extension.keys();
 export const get_mime_types = () => extensions_by_mime_type.keys();
 
 // Overrides anything that might already be cached.
-export const add_mime_type_extension = (mime_type: Mime_Type, extension: File_Extension): void => {
+export const add_mime_type_extension = (mime_type: MimeType, extension: FileExtension): void => {
 	const existing_mime_type = mime_type_by_extension.get(extension);
 	if (existing_mime_type === mime_type) return;
 	if (existing_mime_type) remove_mime_type_extension(extension);
@@ -49,7 +49,7 @@ export const add_mime_type_extension = (mime_type: Mime_Type, extension: File_Ex
 };
 
 // Returns a boolean indicating if the extension was removed for the mime type.
-export const remove_mime_type_extension = (extension: File_Extension): boolean => {
+export const remove_mime_type_extension = (extension: FileExtension): boolean => {
 	const mime_type = mime_type_by_extension.get(extension);
 	if (!mime_type) return false;
 	const new_extensions = extensions_by_mime_type.get(mime_type)!.filter((e) => e !== extension);
@@ -63,7 +63,7 @@ export const remove_mime_type_extension = (extension: File_Extension): boolean =
 };
 
 (() => {
-	const types: [Mime_Type, File_Extension[]][] = [
+	const types: [MimeType, FileExtension[]][] = [
 		// Since 'application/octet-stream' is the default, we don't include it.
 		['application/json', ['json', 'map']],
 		['application/schema+json', ['json']],

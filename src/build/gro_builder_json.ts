@@ -1,13 +1,13 @@
 import {JS_EXTENSION, to_build_out_path} from '../paths.js';
-import type {Builder, Text_Build_Source} from 'src/build/builder.js';
+import type {Builder, TextBuildSource} from 'src/build/builder.js';
 
 export interface Options {
 	optimize?: boolean; // see `to_json_js_content` below
 }
 
-type Json_Builder = Builder<Text_Build_Source>;
+type JsonBuilder = Builder<TextBuildSource>;
 
-export const gro_builder_json = (options: Options = {}): Json_Builder => {
+export const gro_builder_json = (options: Options = {}): JsonBuilder => {
 	const {optimize = true} = options;
 	return {
 		name: '@feltcoop/gro_builder_json',

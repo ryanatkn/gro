@@ -8,7 +8,7 @@ import {paths, gro_paths, is_this_project_gro} from '../paths.js';
 // It's cached but can be reloaded with `force_refresh` flag.
 
 // TODO fill out this type
-export interface Package_Json {
+export interface PackageJson {
 	[key: string]: Json | undefined;
 	name: string;
 	main?: string;
@@ -16,15 +16,15 @@ export interface Package_Json {
 	files?: string[];
 	exports?: Record<string, string>;
 }
-export interface Gro_Package_Json extends Package_Json {}
+export interface GroPackageJson extends PackageJson {}
 
-let package_json: Package_Json | undefined;
-let gro_package_json: Gro_Package_Json | undefined;
+let package_json: PackageJson | undefined;
+let gro_package_json: GroPackageJson | undefined;
 
 export const load_package_json = async (
 	fs: Filesystem,
 	force_refresh = false,
-): Promise<Package_Json> => {
+): Promise<PackageJson> => {
 	if (is_this_project_gro) return load_gro_package_json(fs, force_refresh);
 	if (!package_json || force_refresh) {
 		package_json = JSON.parse(await fs.read_file(join(paths.root, 'package.json'), 'utf8'));
@@ -34,7 +34,7 @@ export const load_package_json = async (
 export const load_gro_package_json = async (
 	fs: Filesystem,
 	force_refresh = false,
-): Promise<Gro_Package_Json> => {
+): Promise<GroPackageJson> => {
 	if (!gro_package_json || force_refresh) {
 		gro_package_json = JSON.parse(await fs.read_file(join(gro_paths.root, 'package.json'), 'utf8'));
 	}
@@ -42,5 +42,5 @@ export const load_gro_package_json = async (
 };
 
 // gets the "b" of "@a/b" for namespaced packages
-export const to_package_repo_name = (pkg: Package_Json): string =>
+export const to_package_repo_name = (pkg: PackageJson): string =>
 	pkg.name.includes('/') ? pkg.name.split('/').slice(1).join('/') : pkg.name;
