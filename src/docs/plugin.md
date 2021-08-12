@@ -14,9 +14,9 @@ and usage in [the default config](../config/gro.config.default.ts).
 The implementation is at [`src/plugin/plugin.ts`](../plugin/plugin.ts) with more details.
 
 ```ts
-export interface Plugin<T_Args = any, T_Events = any> {
+export interface Plugin<TArgs = any, TEvents = any> {
 	name: string;
-	setup?: (ctx: PluginContext<T_Args, T_Events>) => void | Promise<void>;
-	teardown?: (ctx: PluginContext<T_Args, T_Events>) => void | Promise<void>;
+	setup?: (ctx: PluginContext<TArgs, TEvents>) => void | Promise<void>;
+	teardown?: (ctx: PluginContext<TArgs, TEvents>) => void | Promise<void>;
 }
 ```

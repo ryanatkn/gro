@@ -16,9 +16,9 @@ import type {Filesystem} from 'src/fs/filesystem.js';
 
 export type BuildName = Flavored<string, 'BuildName'>;
 
-export interface BuildConfig<T_PlatformTarget extends string = PlatformTarget> {
+export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
 	readonly name: BuildName;
-	readonly platform: T_PlatformTarget;
+	readonly platform: TPlatformTarget;
 	readonly input: readonly BuildConfigInput[];
 }
 
