@@ -71,9 +71,7 @@ export interface GeneratedTypes {
 // when it compiles type declarations for individual files compared to an entire project at once.
 // (there may be dramatic improvements to the individual file building strategy,
 // but I couldn't find them in a reasonable amount of time)
-export const to_generate_types_for_file = async (
-	fs: Filesystem,
-): Promise<GenerateTypesForFile> => {
+export const to_generate_types_for_file = async (fs: Filesystem): Promise<GenerateTypesForFile> => {
 	const results: Map<string, GeneratedTypes> = new Map();
 	return async (id) => {
 		if (results.has(id)) return results.get(id)!;

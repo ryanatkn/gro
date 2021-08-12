@@ -17,9 +17,7 @@ export interface DevServerPluginContext {
 	server?: GroServer; // TODO how to make this work with a plugin?
 }
 
-export const create_plugin = (): Plugin<
-	PluginContext<TaskArgs, {}> & DevServerPluginContext
-> => {
+export const create_plugin = (): Plugin<PluginContext<TaskArgs, {}> & DevServerPluginContext> => {
 	let started_server = false;
 	return {
 		name,

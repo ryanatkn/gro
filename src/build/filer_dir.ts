@@ -30,10 +30,7 @@ export interface FilerDirChange {
 	stats: PathStats;
 }
 export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
-export type FilerDirChangeCallback = (
-	change: FilerDirChange,
-	filer_dir: FilerDir,
-) => Promise<void>;
+export type FilerDirChangeCallback = (change: FilerDirChange, filer_dir: FilerDir) => Promise<void>;
 
 export const create_filer_dir = (
 	fs: Filesystem,

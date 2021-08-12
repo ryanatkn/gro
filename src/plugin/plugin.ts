@@ -24,8 +24,7 @@ export interface ToConfigPlugins<T_PluginContext extends PluginContext = PluginC
 		| Promise<Plugin<T_PluginContext> | null | (Plugin<T_PluginContext> | null)[]>;
 }
 
-export interface PluginContext<T_Args = any, T_Events = any>
-	extends TaskContext<T_Args, T_Events> {
+export interface PluginContext<T_Args = any, T_Events = any> extends TaskContext<T_Args, T_Events> {
 	config: GroConfig;
 	filer: Filer | null;
 	timings: Timings;
