@@ -1,5 +1,10 @@
 # changelog
 
+## 0.39.1
+
+- fix dev server plugin defaults to not load for prod builds
+  ([#265](https://github.com/feltcoop/gro/pull/265)
+
 ## 0.39.0
 
 - **break**: rename to `PascalCase` from `Proper_Snake_Case`

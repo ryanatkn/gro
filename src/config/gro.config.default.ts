@@ -28,7 +28,7 @@ It looks at the project and tries to do the right thing:
 
 */
 
-export const config: GroConfigCreator = async ({fs}) => {
+export const config: GroConfigCreator = async ({fs, dev}) => {
 	const [enable_node_library, enable_api_server, enable_sveltekit_frontend, enable_gro_frontend] =
 		await Promise.all([
 			has_node_library(fs),
@@ -36,7 +36,7 @@ export const config: GroConfigCreator = async ({fs}) => {
 			has_sveltekit_frontend(fs),
 			has_gro_frontend(fs),
 		]);
-	const enable_dev_server = enable_gro_frontend;
+	const enable_dev_server = dev && enable_gro_frontend;
 	const partial: GroConfigPartial = {
 		builds: [
 			enable_node_library ? NODE_LIBRARY_BUILD_CONFIG : null,
