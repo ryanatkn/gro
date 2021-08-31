@@ -13,6 +13,7 @@
 - [philosophy](philosophy.md)
 - [plugin](plugin.md)
 - [publish](publish.md)
+- [sveltekit](sveltekit.md)
 - [tasks](tasks.md)
 - [test](test.md)
 

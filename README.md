@@ -27,7 +27,9 @@ Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
 for making web frontends, servers, and libraries.
 It includes:
 
-- limited but functional [building](/src/docs/build.md),
+- limited but functional
+  [developing](/src/docs/dev.md),
+  [building](/src/docs/build.md),
   [deploying](/src/docs/deploy.md),
   and [publishing](/src/docs/publish.md)
   for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit) UIs,

@@ -10,6 +10,11 @@ Gro is designed to be a most-in-one development tool for both Node projects and
 During development, we use `gro dev` and its "unbundled" development system
 to get simple and speedy builds.
 
+Gro supports both SvelteKit/Vite as well as its own independent system for frontend development,
+but Gro's frontend system does not currently support HMR, code splitting, routing,
+and many other things provided by SvelteKit.
+Here's [more about Gro's relationship with SvelteKit](./sveltekit.md).
+
 Inspired by [Snowpack](https://github.com/pikapkg/snowpack),
 [Vite](https://github.com/vitejs/vite), and [WMR](https://github.com/preactjs/wmr),
 Gro leverages ES modules during development
