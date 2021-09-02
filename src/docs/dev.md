@@ -2,8 +2,7 @@
 
 > please note: Gro's SPA behavior is deprecated for
 > [SvelteKit](https://github.com/sveltejs/kit) -
-> eventually Gro plans to
-> [offer an alternative to Vite in SvelteKit](https://github.com/feltcoop/gro/issues/106)
+> see [Gro's SvelteKit docs](sveltekit.md) for more
 
 Gro is designed to be a most-in-one development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte) user inferfaces.
