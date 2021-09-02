@@ -180,9 +180,7 @@ const toPossibleFilenames = (paths: string[]): string[] =>
 
 // these are a subset of the files npm includes by default --
 // unlike npm, the only extension we support is `.md`
-const PACKAGE_FILES = new Set(
-	['package.json'].concat(toPossibleFilenames(['README', 'LICENSE'])),
-);
+const PACKAGE_FILES = new Set(['package.json'].concat(toPossibleFilenames(['README', 'LICENSE'])));
 const OTHER_PACKAGE_FILES = new Set(
 	toPossibleFilenames(['CHANGELOG', 'GOVERNANCE', 'tsconfig.json']),
 );

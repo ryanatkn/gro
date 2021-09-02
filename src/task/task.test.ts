@@ -1,13 +1,7 @@
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {
-	TASK_FILE_PATTERN,
-	TASK_FILE_SUFFIX,
-	isTaskPath,
-	toTaskPath,
-	toTaskName,
-} from './task.js';
+import {TASK_FILE_PATTERN, TASK_FILE_SUFFIX, isTaskPath, toTaskPath, toTaskName} from './task.js';
 
 /* test_TASK_FILE_PATTERN */
 // TODO this is awkward with the other naming conventions because it's actually 2 things being tested

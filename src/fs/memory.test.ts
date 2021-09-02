@@ -332,10 +332,7 @@ testEnsureDir('normalize paths', async ({fs}) => {
 		const endsWithSlash = path.endsWith('/');
 		// TODO maybe add a `stripLast` instead of this
 		const testPath2 = endsWithSlash ? stripTrailingSlash(path) : `${path}/`;
-		await testNormalizePaths(
-			endsWithSlash ? path : testPath2,
-			endsWithSlash ? testPath2 : path,
-		);
+		await testNormalizePaths(endsWithSlash ? path : testPath2, endsWithSlash ? testPath2 : path);
 	}
 });
 

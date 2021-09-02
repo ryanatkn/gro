@@ -122,31 +122,28 @@ testGetPossibleSourceIds.run();
 /* testLoadSourcePathDataByInputPath */
 const testLoadSourcePathDataByInputPath = suite('loadSourcePathDataByInputPath');
 
-testLoadSourcePathDataByInputPath(
-	'loads source path data and handles missing paths',
-	async () => {
-		const result = await loadSourcePathDataByInputPath(
-			{
-				...fs,
-				exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
-				stat: async (path) =>
-					({
-						isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
-					} as any),
-			},
-			['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
-			(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
-		);
-		t.equal(result, {
-			sourceIdPathDataByInputPath: new Map([
-				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
-				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
-				['fake/test3', {id: 'fake/test3', isDirectory: true}],
-			]),
-			unmappedInputPaths: ['fake/missing'],
-		});
-	},
-);
+testLoadSourcePathDataByInputPath('loads source path data and handles missing paths', async () => {
+	const result = await loadSourcePathDataByInputPath(
+		{
+			...fs,
+			exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
+			stat: async (path) =>
+				({
+					isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
+				} as any),
+		},
+		['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
+		(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
+	);
+	t.equal(result, {
+		sourceIdPathDataByInputPath: new Map([
+			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
+			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
+			['fake/test3', {id: 'fake/test3', isDirectory: true}],
+		]),
+		unmappedInputPaths: ['fake/missing'],
+	});
+});
 
 testLoadSourcePathDataByInputPath.run();
 /* /testLoadSourcePathDataByInputPath */

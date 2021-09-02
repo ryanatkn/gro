@@ -14,11 +14,7 @@ import {
 	TS_TYPE_EXTENSION,
 } from '../paths.js';
 import type {BuildContext, BuildSource} from 'src/build/builder.js';
-import {
-	isExternalModule,
-	MODULE_PATH_LIB_PREFIX,
-	MODULE_PATH_SRC_PREFIX,
-} from '../utils/module.js';
+import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
 import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
@@ -206,10 +202,7 @@ const toBuildDependency = (
 	} else {
 		// internal import
 		finalSpecifier = toRelativeSpecifier(finalSpecifier, source.dir, paths.source);
-		mappedSpecifier = hackToBuildExtensionWithPossiblyExtensionlessSpecifier(
-			finalSpecifier,
-			dev,
-		);
+		mappedSpecifier = hackToBuildExtensionWithPossiblyExtensionlessSpecifier(finalSpecifier, dev);
 		buildId = join(dir, mappedSpecifier);
 	}
 	return {

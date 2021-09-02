@@ -74,9 +74,9 @@ export const task: Task<TaskArgs> = {
 					hasUnexpectedChanges = true;
 					log.error(
 						red(
-							`Generated file ${printPath(result.file.id)} via ${printPath(
-								result.file.originId,
-							)} ${result.isNew ? 'is new' : 'has changed'}.`,
+							`Generated file ${printPath(result.file.id)} via ${printPath(result.file.originId)} ${
+								result.isNew ? 'is new' : 'has changed'
+							}.`,
 						),
 					);
 				}
@@ -96,12 +96,7 @@ export const task: Task<TaskArgs> = {
 				genResults.successes
 					.map((result) =>
 						result.files.map((file) => {
-							log.info(
-								'writing',
-								printPath(file.id),
-								'generated from',
-								printPath(file.originId),
-							);
+							log.info('writing', printPath(file.id), 'generated from', printPath(file.originId));
 							return fs.writeFile(file.id, file.content);
 						}),
 					)

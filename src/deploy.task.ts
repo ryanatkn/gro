@@ -49,12 +49,7 @@ export const task: Task<TaskArgs> = {
 			log.error(red('git has unstaged changes: please commit or stash to proceed'));
 			return;
 		}
-		const gitDiffStagedResult = await spawn('git', [
-			'diff',
-			'--exit-code',
-			'--cached',
-			'--quiet',
-		]);
+		const gitDiffStagedResult = await spawn('git', ['diff', '--exit-code', '--cached', '--quiet']);
 		if (!gitDiffStagedResult.ok) {
 			log.error(red('git has staged but uncommitted changes: please commit or stash to proceed'));
 			return;
@@ -153,9 +148,7 @@ export const task: Task<TaskArgs> = {
 				).map((path) => (path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`))),
 			);
 			await Promise.all(
-				(
-					await fs.readDir(dir)
-				).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
+				(await fs.readDir(dir)).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
 			);
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);

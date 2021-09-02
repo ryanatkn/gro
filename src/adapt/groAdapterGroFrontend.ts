@@ -51,9 +51,7 @@ export const createAdapter = ({
 			const files = toInputFiles(buildConfig.input);
 			if (files.length) {
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildName));
-				const outputDir = `${dir}/${sourceIdToBasePath(
-					ensureEnd(toCommonBaseDir(files), '/'),
-				)}`;
+				const outputDir = `${dir}/${sourceIdToBasePath(ensureEnd(toCommonBaseDir(files), '/'))}`;
 				log.info('building', printBuildConfigLabel(buildConfig), outputDir, files);
 				console.log('config.sourcemap', config.sourcemap);
 				await runRollup({

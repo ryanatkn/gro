@@ -80,8 +80,7 @@ export const toGenerateTypesForFile = async (fs: Filesystem): Promise<GenerateTy
 		const typemapId = replaceExtension(rootPath, TS_TYPEMAP_EXTENSION);
 		const [types, typemap] = await Promise.all([
 			fs.readFile(typesId, 'utf8'),
-			(async () =>
-				(await fs.exists(typemapId)) ? fs.readFile(typemapId, 'utf8') : undefined)(),
+			(async () => ((await fs.exists(typemapId)) ? fs.readFile(typemapId, 'utf8') : undefined))(),
 		]);
 		const result: GeneratedTypes = {types, typemap};
 		results.set(id, result);

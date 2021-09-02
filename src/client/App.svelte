@@ -97,17 +97,13 @@
 					{/if}
 					{#if !showSourceTreeVisualizer}
 						<!-- source tree visualizer -->
-						<button
-							on:pointerdown={() => (showSourceTreeVisualizer = !showSourceTreeVisualizer)}
-						>
+						<button on:pointerdown={() => (showSourceTreeVisualizer = !showSourceTreeVisualizer)}>
 							SourceTreeVisualizer
 						</button>
 					{/if}
 					{#if !showBuildTreeVisualizer}
 						<!-- build tree visualizer -->
-						<button
-							on:pointerdown={() => (showBuildTreeVisualizer = !showBuildTreeVisualizer)}
-						>
+						<button on:pointerdown={() => (showBuildTreeVisualizer = !showBuildTreeVisualizer)}>
 							BuildTreeVisualizer
 						</button>
 					{/if}

@@ -64,10 +64,7 @@ export const validateInputFiles = async (
 	return {ok: true};
 };
 
-export const isInputToBuildConfig = (
-	id: string,
-	inputs: readonly BuildConfigInput[],
-): boolean => {
+export const isInputToBuildConfig = (id: string, inputs: readonly BuildConfigInput[]): boolean => {
 	for (const input of inputs) {
 		if (typeof input === 'string' ? id === input : input(id)) {
 			return true;
