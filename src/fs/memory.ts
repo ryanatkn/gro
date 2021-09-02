@@ -1,12 +1,12 @@
-import {compare_simple_map_entries, sort_map} from '@feltcoop/felt/util/map.js';
+import {compareSimpleMapEntries, sortMap} from '@feltcoop/felt/util/map.js';
 import type {Assignable} from '@feltcoop/felt/util/types.js';
-import {to_path_parts} from '@feltcoop/felt/util/path_parsing.js';
-import {ensure_end, strip_start} from '@feltcoop/felt/util/string.js';
+import {toPathParts} from '@feltcoop/felt/util/pathParsing.js';
+import {ensureEnd, stripStart} from '@feltcoop/felt/util/string.js';
 
-import {to_fs_id, FsStats} from './filesystem.js';
+import {toFsId, FsStats} from './filesystem.js';
 import type {Filesystem, FsReadFile} from 'src/fs/filesystem.js';
 import type {FsCopyOptions, FsId, FsMoveOptions, FsNode} from 'src/fs/filesystem';
-import type {PathStats} from 'src/fs/path_data.js';
+import type {PathStats} from 'src/fs/pathData.js';
 import type {PathFilter} from 'src/fs/filter.js';
 import type {Encoding} from 'src/fs/encoding.js';
 
@@ -19,12 +19,12 @@ import type {Encoding} from 'src/fs/encoding.js';
 const ROOT = '/';
 
 export class MemoryFs implements Filesystem {
-	_root = to_fs_id('.');
+	_root = toFsId('.');
 
 	// TODO for now we're prefixing all non-Fs API with an underscore for clarity, maybe compose better?
 	_files: Map<FsId, FsNode> = new Map();
 	_exists(path: string): boolean {
-		return this._files.has(to_fs_id(path));
+		return this._files.has(toFsId(path));
 	}
 	_find(id: FsId): FsNode | undefined {
 		return this._files.get(id);
@@ -33,14 +33,14 @@ export class MemoryFs implements Filesystem {
 	_filter(id: FsId): FsNode[] {
 		const nodes: FsNode[] = [];
 		const node = this._find(id);
-		if (!node || !node.is_directory) return []; // TODO or throw?
+		if (!node || !node.isDirectory) return []; // TODO or throw?
 		const prefix = id === ROOT ? ROOT : `${id}/`;
 		// TODO instead of searching the whole space, could have a better data structure
 		// TODO to search just children quickly, we need a better data structure
 		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `BaseBuildableFile`s)
-		for (const node_id of this._files.keys()) {
-			if (!node_id.startsWith(prefix) || node_id === ROOT) continue;
-			nodes.push(this._files.get(node_id)!);
+		for (const nodeId of this._files.keys()) {
+			if (!nodeId.startsWith(prefix) || nodeId === ROOT) continue;
+			nodes.push(this._files.get(nodeId)!);
 		}
 		return nodes;
 	}
@@ -50,21 +50,21 @@ export class MemoryFs implements Filesystem {
 		this._files.set(id, node);
 	}
 	_add(node: FsNode): void {
-		const path_parts = to_path_parts(node.id);
-		path_parts.unshift(ROOT); // TODO hacky
+		const pathParts = toPathParts(node.id);
+		pathParts.unshift(ROOT); // TODO hacky
 		// skip the last one, that's what's created above
-		for (let i = 0; i < path_parts.length - 1; i++) {
-			const pathPart = path_parts[i];
-			const is_directory = true;
-			const stats = new FsStats(is_directory);
+		for (let i = 0; i < pathParts.length - 1; i++) {
+			const pathPart = pathParts[i];
+			const isDirectory = true;
+			const stats = new FsStats(isDirectory);
 			this._update(pathPart, {
 				id: pathPart,
-				is_directory,
+				isDirectory,
 				encoding: null,
 				content: null,
-				// content_buffer: null,
+				// contentBuffer: null,
 				stats,
-				// path_data: to_path_data(pathPart, stats),
+				// pathData: toPathData(pathPart, stats),
 			});
 		}
 		this._update(node.id, node);
@@ -78,7 +78,7 @@ export class MemoryFs implements Filesystem {
 	}
 
 	stat = async (path: string): Promise<PathStats> => {
-		const id = to_fs_id(path);
+		const id = toFsId(path);
 		const file = this._find(id);
 		if (!file) {
 			throw Error(`ENOENT: no such file or directory, stat '${id}'`);
@@ -86,12 +86,12 @@ export class MemoryFs implements Filesystem {
 		return file.stats;
 	};
 	exists = async (path: string): Promise<boolean> => {
-		const id = to_fs_id(path);
+		const id = toFsId(path);
 		return this._files.has(id);
 	};
 	// TODO the `any` fixes a type error, not sure how to fix properly
-	read_file: FsReadFile = async (path: string, encoding?: Encoding): Promise<any> => {
-		const id = to_fs_id(path);
+	readFile: FsReadFile = async (path: string, encoding?: Encoding): Promise<any> => {
+		const id = toFsId(path);
 		const file = this._find(id);
 		if (!file) {
 			throw Error(`ENOENT: no such file or directory, open '${id}'`);
@@ -101,8 +101,8 @@ export class MemoryFs implements Filesystem {
 		}
 		return file.content || '';
 	};
-	write_file = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
-		const id = to_fs_id(path);
+	writeFile = async (path: string, data: any, encoding: Encoding = 'utf8'): Promise<void> => {
+		const id = toFsId(path);
 
 		// does the file already exist? update if so
 		const file = this._find(id);
@@ -115,19 +115,19 @@ export class MemoryFs implements Filesystem {
 		const stats = new FsStats(false);
 		this._add({
 			id,
-			is_directory: false,
+			isDirectory: false,
 			encoding,
 			content: data,
-			// content_buffer: data, // TODO lazily load this?
+			// contentBuffer: data, // TODO lazily load this?
 			stats,
-			// path_data: to_path_data(id, stats),
+			// pathData: toPathData(id, stats),
 		});
 	};
 	remove = async (path: string): Promise<void> => {
-		const id = to_fs_id(path);
+		const id = toFsId(path);
 		const file = this._find(id);
 		if (!file) return; // silent no-op like `fs-extra`
-		if (file.is_directory) {
+		if (file.isDirectory) {
 			// this search finds all descendent nodes, no need to recurse
 			for (const node of this._filter(id)) {
 				this._remove(node.id);
@@ -136,89 +136,89 @@ export class MemoryFs implements Filesystem {
 		this._remove(id); // remove children above first
 	};
 	// doing the simple thing: copy+remove (much simpler especially when caches get complex)
-	move = async (src_path: string, dest_path: string, options?: FsMoveOptions): Promise<void> => {
-		const src_id = to_fs_id(src_path);
-		await this.stat(src_id); // throws with the same error as `fs-extra` if it doesn't exist
-		await this.copy(src_id, dest_path, {overwrite: options?.overwrite});
-		await this.remove(src_id);
+	move = async (srcPath: string, destPath: string, options?: FsMoveOptions): Promise<void> => {
+		const srcId = toFsId(srcPath);
+		await this.stat(srcId); // throws with the same error as `fs-extra` if it doesn't exist
+		await this.copy(srcId, destPath, {overwrite: options?.overwrite});
+		await this.remove(srcId);
 	};
-	copy = async (src_path: string, dest_path: string, options?: FsCopyOptions): Promise<void> => {
+	copy = async (srcPath: string, destPath: string, options?: FsCopyOptions): Promise<void> => {
 		const overwrite = options?.overwrite;
 		const filter = options?.filter;
-		const src_id = to_fs_id(src_path);
+		const srcId = toFsId(srcPath);
 		// first grab the nodes and delete the src
-		const src_nodes = this._filter(src_id);
-		src_nodes.push(this._find(src_id)!); // calling `stat` above so the assertion is safe
-		src_nodes.sort((a, b) => a.id.localeCompare(b.id)); // TODO do this elsewhere? maybe in `_filter`?
-		const destId = to_fs_id(dest_path);
+		const srcNodes = this._filter(srcId);
+		srcNodes.push(this._find(srcId)!); // calling `stat` above so the assertion is safe
+		srcNodes.sort((a, b) => a.id.localeCompare(b.id)); // TODO do this elsewhere? maybe in `_filter`?
+		const destId = toFsId(destPath);
 		// create a new node at the new location
-		for (const src_node of src_nodes) {
-			const node_dest_id = `${destId === ROOT ? '' : destId}${strip_start(src_node.id, src_id)}`;
-			if (filter && !(await filter(src_node.id, node_dest_id))) continue;
-			const exists = this._files.has(node_dest_id);
+		for (const srcNode of srcNodes) {
+			const nodeDestId = `${destId === ROOT ? '' : destId}${stripStart(srcNode.id, srcId)}`;
+			if (filter && !(await filter(srcNode.id, nodeDestId))) continue;
+			const exists = this._files.has(nodeDestId);
 			let output = false;
 			if (exists) {
 				if (overwrite) {
-					await this.remove(node_dest_id);
+					await this.remove(nodeDestId);
 					output = true;
 				} else {
-					throw Error(`dest already exists: ${node_dest_id}`);
+					throw Error(`dest already exists: ${nodeDestId}`);
 				}
 			} else {
 				output = true;
 			}
 			if (output) {
-				await this.write_file(node_dest_id, src_node.content, src_node.encoding);
+				await this.writeFile(nodeDestId, srcNode.content, srcNode.encoding);
 			}
 		}
 	};
-	ensure_dir = async (path: string): Promise<void> => {
-		const id = to_fs_id(path);
+	ensureDir = async (path: string): Promise<void> => {
+		const id = toFsId(path);
 		if (this._find(path)) return;
-		const is_directory = true;
-		const stats = new FsStats(is_directory);
+		const isDirectory = true;
+		const stats = new FsStats(isDirectory);
 		this._add({
 			id,
-			is_directory,
+			isDirectory,
 			encoding: null,
 			content: null,
-			// content_buffer: null,
+			// contentBuffer: null,
 			stats,
-			// path_data: to_path_data(id, stats),
+			// pathData: toPathData(id, stats),
 		});
 	};
-	read_dir = async (path: string): Promise<string[]> => {
+	readDir = async (path: string): Promise<string[]> => {
 		// TODO use `_filter` - does it return relative? what behavior for missing, or file?
-		const id = to_fs_id(path);
-		const id_slash = ensure_end(id, ROOT);
+		const id = toFsId(path);
+		const idSlash = ensureEnd(id, ROOT);
 		const nodes = this._filter(id);
-		return nodes.map((node) => strip_start(node.id, id_slash));
+		return nodes.map((node) => stripStart(node.id, idSlash));
 	};
-	empty_dir = async (path: string): Promise<void> => {
-		const id = to_fs_id(path);
+	emptyDir = async (path: string): Promise<void> => {
+		const id = toFsId(path);
 		for (const node of this._filter(id)) {
 			await this.remove(node.id);
 		}
 	};
-	find_files = async (
+	findFiles = async (
 		dir: string,
 		filter?: PathFilter,
-		sort: typeof compare_simple_map_entries | null = compare_simple_map_entries,
+		sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
 	): Promise<Map<string, PathStats>> => {
 		// TODO wait so in the dir .. we can now find this dir and all of its subdirs
 		// cache the subdirs somehow (backlink to parent node? do we have stable references? we do ya?)
 
 		const found = new Map();
-		const base_dir = to_fs_id(dir);
-		const base_dir_slash = ensure_end(base_dir, ROOT);
+		const baseDir = toFsId(dir);
+		const baseDirSlash = ensureEnd(baseDir, ROOT);
 		for (const file of this._files.values()) {
-			if (file.id === base_dir || !file.id.startsWith(base_dir)) continue;
-			const path = strip_start(file.id, base_dir_slash);
+			if (file.id === baseDir || !file.id.startsWith(baseDir)) continue;
+			const path = stripStart(file.id, baseDirSlash);
 			if (!filter || filter({path, stats: file.stats})) {
 				found.set(path, file.stats);
 			}
 		}
-		return sort ? sort_map(found, sort) : found;
+		return sort ? sortMap(found, sort) : found;
 	};
 }
 

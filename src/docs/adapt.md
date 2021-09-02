@@ -5,10 +5,10 @@ Gro uses `Adapter`s to convert production builds into final artifacts.
 
 Gro has a number of builtin adapters:
 
-- [`gro_adapter_node_library`](../adapt/gro_adapter_node_library.ts)
-- [`gro_adapter_sveltekit_frontend `](../adapt/gro_adapter_sveltekit_frontend.ts)
-- [`gro_adapter_gro_frontend`](../adapt/gro_adapter_gro_frontend.ts)
-- [`gro_adapter_generic_build`](../adapt/gro_adapter_generic_build.ts)
+- [`groAdapterNodeLibrary`](../adapt/groAdapterNodeLibrary.ts)
+- [`groAdapterSveltekitFrontend `](../adapt/groAdapterSveltekitFrontend.ts)
+- [`groAdapterGroFrontend`](../adapt/groAdapterGroFrontend.ts)
+- [`groAdapterGenericBuild`](../adapt/groAdapterGenericBuild.ts)
 
 Also see [`config.adapt` in the config docs](config.md#adapt)
 and usage in [the default config](../config/gro.config.default.ts).
@@ -24,7 +24,7 @@ gro build
 
 the build process has two discrete steps:
 
-1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{build_name}` for each build
+1. [`Builder`](../build/builder.ts)s run and output production artifacts to `.gro/prod/{buildName}` for each build
 2. [`Adapter`](../adapt/adapt.ts)s run and output, umm, anything?
    like SvelteKit apps, Node libraries, API servers, & more !
 
@@ -77,9 +77,9 @@ import type {GroConfigCreator} from '@feltcoop/gro';
 export const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
-			(await import('@feltcoop/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),
-			(await import('@feltcoop/gro/gro_adapter_node_library.js')).create_adapter(),
-			(await import('@feltcoop/gro/gro_adapter_api_server.js')).create_adapter(),
+			(await import('@feltcoop/gro/groAdapterSveltekitFrontend.js')).createAdapter(),
+			(await import('@feltcoop/gro/groAdapterNodeLibrary.js')).createAdapter(),
+			(await import('@feltcoop/gro/groAdapterApiServer.js')).createAdapter(),
 		],
 
 		// this **does not work**, even though it's simpler!
@@ -98,7 +98,7 @@ export const config: GroConfigCreator = async () => {
 							fs.copy(/**/);
 						},
 				  }
-				: to_prod_adapters(config);
+				: toProdAdapters(config);
 		},
 
 		// it's ok to return nothing

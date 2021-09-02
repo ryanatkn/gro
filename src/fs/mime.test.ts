@@ -2,54 +2,54 @@ import {test} from 'uvu';
 import * as t from 'uvu/assert';
 
 import {
-	get_mime_type_by_extension,
-	get_extensions_by_mime_type,
-	add_mime_type_extension,
-	remove_mime_type_extension,
-	get_extensions,
-	get_mime_types,
+	getMimeTypeByExtension,
+	getExtensionsByMimeType,
+	addMimeTypeExtension,
+	removeMimeTypeExtension,
+	getExtensions,
+	getMimeTypes,
 } from './mime.js';
 
-test('get_mime_type_by_extension', () => {
-	t.is(get_mime_type_by_extension('txt'), 'text/plain');
-	t.is(get_mime_type_by_extension('log'), 'text/plain');
-	t.is(get_mime_type_by_extension('js'), 'text/javascript');
-	t.is(get_mime_type_by_extension('mjs'), 'text/javascript');
-	t.is(get_mime_type_by_extension('json'), 'application/json');
-	t.is(get_mime_type_by_extension('fakeext'), null);
+test('getMimeTypeByExtension', () => {
+	t.is(getMimeTypeByExtension('txt'), 'text/plain');
+	t.is(getMimeTypeByExtension('log'), 'text/plain');
+	t.is(getMimeTypeByExtension('js'), 'text/javascript');
+	t.is(getMimeTypeByExtension('mjs'), 'text/javascript');
+	t.is(getMimeTypeByExtension('json'), 'application/json');
+	t.is(getMimeTypeByExtension('fakeext'), null);
 });
 
-test('get_extensions_by_mime_type', () => {
-	t.equal(get_extensions_by_mime_type('text/plain'), ['txt', 'log']);
-	t.equal(get_extensions_by_mime_type('application/json'), ['json', 'map']);
-	t.equal(get_extensions_by_mime_type('text/javascript'), ['js', 'mjs']);
-	t.equal(get_extensions_by_mime_type('fake/test-type'), null);
+test('getExtensionsByMimeType', () => {
+	t.equal(getExtensionsByMimeType('text/plain'), ['txt', 'log']);
+	t.equal(getExtensionsByMimeType('application/json'), ['json', 'map']);
+	t.equal(getExtensionsByMimeType('text/javascript'), ['js', 'mjs']);
+	t.equal(getExtensionsByMimeType('fake/test-type'), null);
 });
 
-test('get_extensions', () => {
-	t.ok(Array.from(get_extensions()).length);
+test('getExtensions', () => {
+	t.ok(Array.from(getExtensions()).length);
 });
 
-test('get_mime_types', () => {
-	t.ok(Array.from(get_mime_types()).length);
+test('getMimeTypes', () => {
+	t.ok(Array.from(getMimeTypes()).length);
 });
 
-test('add_mime_type_extension', () => {
-	add_mime_type_extension('test/type', 'foo');
-	add_mime_type_extension('test/type', 'bar');
-	add_mime_type_extension('test/type', 'bar'); // add twice to make sure that's not a problem
-	t.is(get_mime_type_by_extension('foo'), 'test/type');
-	t.is(get_mime_type_by_extension('bar'), 'test/type');
-	t.equal(get_extensions_by_mime_type('test/type'), ['foo', 'bar']);
-	t.ok(remove_mime_type_extension('foo'));
-	t.is(get_mime_type_by_extension('foo'), null);
-	t.is(get_mime_type_by_extension('bar'), 'test/type');
-	t.equal(get_extensions_by_mime_type('test/type'), ['bar']);
-	t.ok(remove_mime_type_extension('bar'));
-	t.is(get_mime_type_by_extension('foo'), null);
-	t.is(get_mime_type_by_extension('bar'), null);
-	t.equal(get_extensions_by_mime_type('test/type'), null);
-	t.not.ok(remove_mime_type_extension('bar'));
+test('addMimeTypeExtension', () => {
+	addMimeTypeExtension('test/type', 'foo');
+	addMimeTypeExtension('test/type', 'bar');
+	addMimeTypeExtension('test/type', 'bar'); // add twice to make sure that's not a problem
+	t.is(getMimeTypeByExtension('foo'), 'test/type');
+	t.is(getMimeTypeByExtension('bar'), 'test/type');
+	t.equal(getExtensionsByMimeType('test/type'), ['foo', 'bar']);
+	t.ok(removeMimeTypeExtension('foo'));
+	t.is(getMimeTypeByExtension('foo'), null);
+	t.is(getMimeTypeByExtension('bar'), 'test/type');
+	t.equal(getExtensionsByMimeType('test/type'), ['bar']);
+	t.ok(removeMimeTypeExtension('bar'));
+	t.is(getMimeTypeByExtension('foo'), null);
+	t.is(getMimeTypeByExtension('bar'), null);
+	t.equal(getExtensionsByMimeType('test/type'), null);
+	t.not.ok(removeMimeTypeExtension('bar'));
 });
 
 test.run();

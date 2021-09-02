@@ -1,8 +1,8 @@
 <script lang="ts">
-	export let platform_name: string;
+	export let platformName: string;
 </script>
 
-<span>{platform_name}</span>
+<span>{platformName}</span>
 
 <style>
 	span {

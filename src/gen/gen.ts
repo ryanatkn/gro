@@ -2,24 +2,24 @@ import type {Logger} from '@feltcoop/felt/util/log';
 import {join, basename, dirname} from 'path';
 
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {is_source_id} from '../paths.js';
+import {isSourceId} from '../paths.js';
 
 // TODO consider splitting the primitive data/helpers/types
-// out of this module like how `task` is separated from `run_task`
+// out of this module like how `task` is separated from `runTask`
 export const GEN_FILE_SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN_FILE_SEPARATOR; // TODO regexp?
 
-export const is_gen_path = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
+export const isGenPath = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
 
 export type GenResult = {
-	origin_id: string;
+	originId: string;
 	files: GenFile[];
 };
 export interface GenFile {
 	id: string;
 	content: string;
-	origin_id: string;
+	originId: string;
 }
 
 export interface Gen {
@@ -27,7 +27,7 @@ export interface Gen {
 }
 export interface GenContext {
 	fs: Filesystem;
-	origin_id: string;
+	originId: string;
 	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
@@ -43,8 +43,8 @@ export type GenResults = {
 	results: GenModuleResult[];
 	successes: GenModuleResultSuccess[];
 	failures: GenModuleResultFailure[];
-	input_count: number;
-	output_count: number;
+	inputCount: number;
+	outputCount: number;
 	elapsed: number;
 };
 export type GenModuleResult = GenModuleResultSuccess | GenModuleResultFailure;
@@ -62,77 +62,77 @@ export type GenModuleResultFailure = {
 	elapsed: number;
 };
 
-export const to_gen_result = (origin_id: string, raw_result: RawGenResult): GenResult => {
-	if (!is_source_id(origin_id)) {
-		throw Error(`origin_id must be a source id: ${origin_id}`);
+export const toGenResult = (originId: string, rawResult: RawGenResult): GenResult => {
+	if (!isSourceId(originId)) {
+		throw Error(`originId must be a source id: ${originId}`);
 	}
 	return {
-		origin_id,
-		files: to_gen_files(origin_id, raw_result),
+		originId,
+		files: toGenFiles(originId, rawResult),
 	};
 };
 
-const to_gen_files = (origin_id: string, raw_result: RawGenResult): GenFile[] => {
-	if (typeof raw_result === 'string') {
-		return [to_gen_file(origin_id, {content: raw_result})];
-	} else if (Array.isArray(raw_result)) {
-		const files = raw_result.map((f) => to_gen_file(origin_id, f));
-		validate_gen_files(files);
+const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
+	if (typeof rawResult === 'string') {
+		return [toGenFile(originId, {content: rawResult})];
+	} else if (Array.isArray(rawResult)) {
+		const files = rawResult.map((f) => toGenFile(originId, f));
+		validateGenFiles(files);
 		return files;
 	} else {
-		return [to_gen_file(origin_id, raw_result)];
+		return [toGenFile(originId, rawResult)];
 	}
 };
 
-const to_gen_file = (origin_id: string, rawGenFile: RawGenFile): GenFile => {
+const toGenFile = (originId: string, rawGenFile: RawGenFile): GenFile => {
 	const {content, filename} = rawGenFile;
-	const id = to_output_file_id(origin_id, filename);
-	return {id, content, origin_id};
+	const id = toOutputFileId(originId, filename);
+	return {id, content, originId};
 };
 
-const to_output_file_id = (origin_id: string, raw_file_name: string | undefined): string => {
-	if (raw_file_name === '') {
+const toOutputFileId = (originId: string, rawFileName: string | undefined): string => {
+	if (rawFileName === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
-	const filename = raw_file_name || to_output_file_name(basename(origin_id));
-	const dir = dirname(origin_id);
-	const output_file_id = join(dir, filename);
-	if (output_file_id === origin_id) {
+	const filename = rawFileName || toOutputFileName(basename(originId));
+	const dir = dirname(originId);
+	const outputFileId = join(dir, filename);
+	if (outputFileId === originId) {
 		throw Error('Gen origin and output file ids cannot be the same');
 	}
-	return output_file_id;
+	return outputFileId;
 };
 
-export const to_output_file_name = (filename: string): string => {
+export const toOutputFileName = (filename: string): string => {
 	const parts = filename.split(GEN_FILE_SEPARATOR);
-	const gen_pattern_index = parts.indexOf(GEN_FILE_PATTERN_TEXT);
-	if (gen_pattern_index === -1) {
+	const genPatternIndex = parts.indexOf(GEN_FILE_PATTERN_TEXT);
+	if (genPatternIndex === -1) {
 		throw Error(`Invalid gen file name - '${GEN_FILE_PATTERN_TEXT}' not found in '${filename}'`);
 	}
-	if (gen_pattern_index !== parts.lastIndexOf(GEN_FILE_PATTERN_TEXT)) {
+	if (genPatternIndex !== parts.lastIndexOf(GEN_FILE_PATTERN_TEXT)) {
 		throw Error(
 			`Invalid gen file name - multiple instances of '${GEN_FILE_PATTERN_TEXT}' found in '${filename}'`,
 		);
 	}
-	if (gen_pattern_index < parts.length - 3) {
+	if (genPatternIndex < parts.length - 3) {
 		// This check is technically unneccessary,
 		// but ensures a consistent file naming convention.
 		throw Error(
 			`Invalid gen file name - only one additional extension is allowed to follow '${GEN_FILE_PATTERN}' in '${filename}'`,
 		);
 	}
-	const final_parts: string[] = [];
-	const has_different_ext = gen_pattern_index === parts.length - 3;
-	const length = has_different_ext ? parts.length - 1 : parts.length;
+	const finalParts: string[] = [];
+	const hasDifferentExt = genPatternIndex === parts.length - 3;
+	const length = hasDifferentExt ? parts.length - 1 : parts.length;
 	for (let i = 0; i < length; i++) {
-		if (i === gen_pattern_index) continue; // skip the `.gen.` pattern
+		if (i === genPatternIndex) continue; // skip the `.gen.` pattern
 		if (i === length - 1 && parts[i] === '') continue; // allow empty extension
-		final_parts.push(parts[i]);
+		finalParts.push(parts[i]);
 	}
-	return final_parts.join(GEN_FILE_SEPARATOR);
+	return finalParts.join(GEN_FILE_SEPARATOR);
 };
 
-const validate_gen_files = (files: GenFile[]) => {
+const validateGenFiles = (files: GenFile[]) => {
 	const ids = new Set();
 	for (const file of files) {
 		if (ids.has(file.id)) {

@@ -1,4 +1,4 @@
-import {to_array} from '@feltcoop/felt/util/array.js';
+import {toArray} from '@feltcoop/felt/util/array.js';
 import type {Timings} from '@feltcoop/felt/util/timings.js';
 
 import type {TaskContext} from 'src/task/task.js';
@@ -40,10 +40,10 @@ export class Plugins<TPluginContext extends PluginContext> {
 		ctx: TPluginContext,
 	): Promise<Plugins<TPluginContext>> {
 		const {timings} = ctx;
-		const timing_to_create = timings.start('plugins.create');
-		const instances: Plugin[] = to_array(await ctx.config.plugin(ctx)).filter(Boolean) as any;
+		const timingToCreate = timings.start('plugins.create');
+		const instances: Plugin[] = toArray(await ctx.config.plugin(ctx)).filter(Boolean) as any;
 		const plugins = new Plugins(ctx, instances);
-		timing_to_create();
+		timingToCreate();
 		return plugins;
 	}
 
@@ -51,27 +51,27 @@ export class Plugins<TPluginContext extends PluginContext> {
 		const {ctx, instances} = this;
 		if (!this.instances.length) return;
 		const {timings} = ctx;
-		const timing_to_setup = timings.start('plugins.setup');
+		const timingToSetup = timings.start('plugins.setup');
 		for (const plugin of instances) {
 			if (!plugin.setup) continue;
 			const timing = timings.start(`setup:${plugin.name}`);
 			await plugin.setup(ctx);
 			timing();
 		}
-		timing_to_setup();
+		timingToSetup();
 	}
 
 	async teardown(): Promise<void> {
 		const {ctx, instances} = this;
 		if (!this.instances.length) return;
 		const {timings} = ctx;
-		const timing_to_teardown = timings.start('plugins.teardown');
+		const timingToTeardown = timings.start('plugins.teardown');
 		for (const plugin of instances) {
 			if (!plugin.teardown) continue;
 			const timing = timings.start(`teardown:${plugin.name}`);
 			await plugin.teardown(ctx);
 			timing();
 		}
-		timing_to_teardown();
+		timingToTeardown();
 	}
 }

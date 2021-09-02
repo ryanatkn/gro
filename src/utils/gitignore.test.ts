@@ -2,13 +2,13 @@ import {resolve} from 'path';
 import {suite} from 'uvu';
 import * as t from 'uvu/assert';
 
-import {load_gitignore_filter} from './gitignore.js';
+import {loadGitignoreFilter} from './gitignore.js';
 
-/* test_load_gitignore_filter */
-const test_load_gitignore_filter = suite('load_gitignore_filter');
+/* testLoadGitignoreFilter */
+const testLoadGitignoreFilter = suite('loadGitignoreFilter');
 
-test_load_gitignore_filter('basic behavior', () => {
-	const filter = load_gitignore_filter();
+testLoadGitignoreFilter('basic behavior', () => {
+	const filter = loadGitignoreFilter();
 	t.ok(filter(resolve('dist')));
 	t.ok(!filter(resolve('a/dist')));
 	t.ok(filter(resolve('node_modules')));
@@ -21,17 +21,17 @@ test_load_gitignore_filter('basic behavior', () => {
 	t.ok(!filter(resolve('a/node_module/b')));
 });
 
-test_load_gitignore_filter('caching and force_refresh', () => {
-	const filter1 = load_gitignore_filter();
-	const filter2 = load_gitignore_filter();
+testLoadGitignoreFilter('caching and forceRefresh', () => {
+	const filter1 = loadGitignoreFilter();
+	const filter2 = loadGitignoreFilter();
 	t.is(filter1, filter2);
-	const filter3 = load_gitignore_filter(true);
+	const filter3 = loadGitignoreFilter(true);
 	t.is.not(filter1, filter3);
-	const filter4 = load_gitignore_filter(false);
+	const filter4 = loadGitignoreFilter(false);
 	t.is(filter3, filter4);
-	const filter5 = load_gitignore_filter(true);
+	const filter5 = loadGitignoreFilter(true);
 	t.is.not(filter4, filter5);
 });
 
-test_load_gitignore_filter.run();
-/* /test_load_gitignore_filter */
+testLoadGitignoreFilter.run();
+/* /testLoadGitignoreFilter */

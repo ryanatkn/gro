@@ -49,25 +49,25 @@ When using the global CLI, this uses the global Gro installation.
 */
 
 const main = (): Promise<void> => {
-	const gro_bin_path = resolve('node_modules/.bin/gro');
-	if (existsSync(gro_bin_path)) {
+	const groBinPath = resolve('node_modules/.bin/gro');
+	if (existsSync(groBinPath)) {
 		// case 1
 		// Prefer any locally installed version of Gro.
-		return import(join(realpathSync(gro_bin_path), '../invoke.js'));
+		return import(join(realpathSync(groBinPath), '../invoke.js'));
 	} else {
 		// case 2
 		// If running Gro inside its own repo, require the local development build.
 		// If the local build is not available,
 		// the global version can be used to build the project.
-		const file_path = fileURLToPath(import.meta.url);
+		const filePath = fileURLToPath(import.meta.url);
 		// This detection is not airtight, but seems good enough.
-		const base_path = '.gro/dev/library/cli';
-		if (existsSync(`${base_path}/gro.js`) && existsSync(`${base_path}/invoke.js`)) {
-			return import(join(file_path, `../../../${base_path}/invoke.js`));
+		const basePath = '.gro/dev/library/cli';
+		if (existsSync(`${basePath}/gro.js`) && existsSync(`${basePath}/invoke.js`)) {
+			return import(join(filePath, `../../../${basePath}/invoke.js`));
 		}
 		// case 3
 		// Fall back to the version associated with the running CLI.
-		return import(join(file_path, '../invoke.js'));
+		return import(join(filePath, '../invoke.js'));
 	}
 };
 

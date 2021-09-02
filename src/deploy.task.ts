@@ -1,12 +1,12 @@
 import {join} from 'path';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {print_error} from '@feltcoop/felt/util/print.js';
+import {printError} from '@feltcoop/felt/util/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
 import type {Args, Task} from 'src/task/task.js';
-import {DIST_DIR, GIT_DIRNAME, paths, print_path, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/build_config_defaults.js';
-import {clean_fs} from './fs/clean.js';
+import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
+import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
+import {cleanFs} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
 
@@ -36,34 +36,29 @@ const GIT_ARGS = {cwd: WORKTREE_DIR};
 export const task: Task<TaskArgs> = {
 	summary: 'deploy to static hosting',
 	dev: false,
-	run: async ({fs, invoke_task, args, log}): Promise<void> => {
-		const {dirname, branch, dry, clean: clean_and_exit} = args;
+	run: async ({fs, invokeTask, args, log}): Promise<void> => {
+		const {dirname, branch, dry, clean: cleanAndExit} = args;
 
-		const source_branch = branch || GIT_DEPLOY_BRANCH;
+		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
 		// staged uncommitted changes: `git diff --exit-code --cached`
-		const git_diff_unstaged_result = await spawn('git', ['diff', '--exit-code', '--quiet']);
-		if (!git_diff_unstaged_result.ok) {
+		const gitDiffUnstagedResult = await spawn('git', ['diff', '--exit-code', '--quiet']);
+		if (!gitDiffUnstagedResult.ok) {
 			log.error(red('git has unstaged changes: please commit or stash to proceed'));
 			return;
 		}
-		const git_diff_staged_result = await spawn('git', [
-			'diff',
-			'--exit-code',
-			'--cached',
-			'--quiet',
-		]);
-		if (!git_diff_staged_result.ok) {
+		const gitDiffStagedResult = await spawn('git', ['diff', '--exit-code', '--cached', '--quiet']);
+		if (!gitDiffStagedResult.ok) {
 			log.error(red('git has staged but uncommitted changes: please commit or stash to proceed'));
 			return;
 		}
 
 		// Ensure we're on the right branch.
-		const git_checkout_result = await spawn('git', ['checkout', source_branch]);
-		if (!git_checkout_result.ok) {
-			log.error(red(`failed git checkout with exit code ${git_checkout_result.code}`));
+		const gitCheckoutResult = await spawn('git', ['checkout', sourceBranch]);
+		if (!gitCheckoutResult.ok) {
+			log.error(red(`failed git checkout with exit code ${gitCheckoutResult.code}`));
 			return;
 		}
 
@@ -78,20 +73,20 @@ export const task: Task<TaskArgs> = {
 				`git rm -rf . && ` +
 				`mv ${TEMP_PREFIX}${INITIAL_FILE} ${INITIAL_FILE} && ` +
 				`git add ${INITIAL_FILE} && ` +
-				`git commit -m "setup" && git checkout ${source_branch}`,
+				`git commit -m "setup" && git checkout ${sourceBranch}`,
 			[],
 			// this uses `shell: true` because the above is unwieldy with standard command construction
 			{shell: true},
 		);
 
 		// Clean up any existing worktree.
-		await clean_git_worktree();
+		await cleanGitWorktree();
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Get ready to build from scratch.
-		await clean_fs(fs, {build_prod: true}, log);
+		await cleanFs(fs, {buildProd: true}, log);
 
-		if (clean_and_exit) {
+		if (cleanAndExit) {
 			log.info(rainbow('all clean'));
 			return;
 		}
@@ -100,7 +95,7 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Run the build.
-			await invoke_task('build', {...args, clean: false});
+			await invokeTask('build', {...args, clean: false});
 
 			// After the build is ready, set the deployed directory, inferring as needed.
 			if (dirname !== undefined) {
@@ -123,7 +118,7 @@ export const task: Task<TaskArgs> = {
 			// Update the initial file.
 			await fs.copy(INITIAL_FILE, join(dir, INITIAL_FILE));
 		} catch (err) {
-			log.error(red('build failed'), 'but', green('no changes were made to git'), print_error(err));
+			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
 				log.info(red('dry deploy failed'));
 			}
@@ -132,7 +127,7 @@ export const task: Task<TaskArgs> = {
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
-			log.info(green('dry deploy complete:'), 'files are available in', print_path(dir));
+			log.info(green('dry deploy complete:'), 'files are available in', printPath(dir));
 			return;
 		}
 
@@ -149,35 +144,33 @@ export const task: Task<TaskArgs> = {
 			// TODO there is be a better way but what is it
 			await Promise.all(
 				(
-					await fs.read_dir(WORKTREE_DIR)
+					await fs.readDir(WORKTREE_DIR)
 				).map((path) => (path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`))),
 			);
 			await Promise.all(
-				(
-					await fs.read_dir(dir)
-				).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
+				(await fs.readDir(dir)).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
 			);
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
 			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
 			await spawn('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
 		} catch (err) {
-			log.error(red('updating git failed:'), print_error(err));
-			await clean_git_worktree();
+			log.error(red('updating git failed:'), printError(err));
+			await cleanGitWorktree();
 			throw Error(`Deploy failed in a bad state: built but not pushed. See the error above.`);
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
 		await fs.remove(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
 		await fs.move(WORKTREE_DIR, dir, {overwrite: true});
-		await clean_git_worktree();
+		await cleanGitWorktree();
 
 		log.info(rainbow('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };
 
 // TODO like above, these cause some misleading logging
-const clean_git_worktree = async (): Promise<void> => {
+const cleanGitWorktree = async (): Promise<void> => {
 	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force']);
 	await spawn('git', ['worktree', 'prune']);
 };

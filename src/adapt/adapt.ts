@@ -1,4 +1,4 @@
-import {to_array} from '@feltcoop/felt/util/array.js';
+import {toArray} from '@feltcoop/felt/util/array.js';
 import type {Timings} from '@feltcoop/felt/util/timings.js';
 
 import type {TaskContext} from 'src/task/task.js';
@@ -35,21 +35,22 @@ export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<
 
 export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
-	const timing_to_create_adapters = timings.start('create adapters');
-	const adapters: Adapter<any, any>[] = to_array(await config.adapt(ctx)).filter(
-		Boolean,
-	) as Adapter<any, any>[];
-	timing_to_create_adapters();
+	const timingToCreateAdapters = timings.start('create adapters');
+	const adapters: Adapter<any, any>[] = toArray(await config.adapt(ctx)).filter(Boolean) as Adapter<
+		any,
+		any
+	>[];
+	timingToCreateAdapters();
 
 	if (adapters.length) {
-		const timing_to_run_adapters = timings.start('adapt');
+		const timingToRunAdapters = timings.start('adapt');
 		for (const adapter of adapters) {
 			if (!adapter.adapt) continue;
 			const timing = timings.start(`adapt:${adapter.name}`);
 			await adapter.adapt(ctx);
 			timing();
 		}
-		timing_to_run_adapters();
+		timingToRunAdapters();
 	}
 
 	return adapters;

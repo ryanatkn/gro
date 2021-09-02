@@ -7,8 +7,8 @@ Every pattern has tradeoffs of complexity, consistency, and type safety.
 In most cases, we can keep it simple:
 
 ```ts
-export const keep_it_simple = (options: Options) => {
-	const {required_option, optional_option = 36} = options;
+export const keepItSimple = (options: Options) => {
+	const {requiredOption, optionalOption = 36} = options;
 ```
 
 This works too, but it doesn't use `const`, so each variable can be reassigned.
@@ -16,7 +16,7 @@ We generally avoid rebinding (and even allowing it) except in particular circums
 so you won't see this much in the codebase:
 
 ```ts
-export const concise_but_allows_rebinding = ({required_option, optional_option = 36}: Options) => {
+export const conciseButAllowsRebinding = ({requiredOption, optionalOption = 36}: Options) => {
 ```
 
 In cases where we need the final `options` object --
@@ -26,10 +26,10 @@ the codebase's conventions are documented below.
 It's not the pattern for every circumstance;
 there is overhead that e.g. hot paths and simple implementations should avoid.
 
-> TODO should we rework this to stop using the `omit_undefined` helper?
+> TODO should we rework this to stop using the `omitUndefined` helper?
 
 ```ts
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
+import {omitUndefined} from '@feltcoop/felt/util/object.js';
 
 export interface Options {
 	a: boolean;
@@ -37,10 +37,10 @@ export interface Options {
 	c: number | undefined; // `undefined` needs special handling! see below
 }
 export type RequiredOptions = 'a'; // or `'a' | 'b'` or `never`
-export type InitialOptions = Partial_Except<Options, RequiredOptions>;
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 // or the simpler case when there are no required options:
-// export const init_options = (opts: Partial<Options>): Options => ({
-export const init_options = (opts: InitialOptions): Options => ({
+// export const initOptions = (opts: Partial<Options>): Options => ({
+export const initOptions = (opts: InitialOptions): Options => ({
 	// Required properties should not be included here,
 	// because their values will always be overwritten.
 	// a: true,
@@ -69,21 +69,21 @@ export const init_options = (opts: InitialOptions): Options => ({
 	// This is a lot of documentation for a deceptively simple pattern,
 	// but standardizing the conventions is a big win.
 	// When possible, prefer `null` to `undefined` when designing options APIs.
-	...omit_undefined(opts),
+	...omitUndefined(opts),
 
-	// complicated_overriding_value_can_be_computed: here(opts),
+	// complicatedOverridingValueCanBeComputed: here(opts),
 });
 
 // use in a plain function
-export const create_thing = (opts: InitialOptions) => {
-	const options = init_options(opts);
+export const createThing = (opts: InitialOptions) => {
+	const options = initOptions(opts);
 };
 
 // use in a class
 export class Thing {
 	readonly options: Options; // optionally store the reference
 	constructor(opts: InitialOptions) {
-		this.options = init_options(opts);
+		this.options = initOptions(opts);
 	}
 }
 ```
@@ -94,7 +94,7 @@ Importantly, both of Gro's options patterns have one significant gotcha:
 **if an option can be `undefined`, it must default to `undefined`**
 to ensure type safety for callers.
 All values that are `undefined` are omitted when the options are initialized
-through use of the conventional `omit_undefined` helper.
+through use of the conventional `omitUndefined` helper.
 The best workaround is to design options interfaces
 to accept `null` in place of `undefined`.
 
