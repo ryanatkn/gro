@@ -1,7 +1,8 @@
 # SvelteKit and Vite
 
 Today, Gro sits atop SvelteKit and Vite to provide additional functionality
-like tasks, developing Node servers, publishing to Node, and deploying to branches.
+like [tasks](./tasks.md), [codegen](./gen.md),
+developing Node servers, publishing to npm, and deploying to branches.
 Gro's current plan is to integrate with SvelteKit as an alternative to Vite,
 but that goal may change.
 
