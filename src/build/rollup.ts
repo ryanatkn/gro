@@ -7,30 +7,30 @@ import type {
 	RollupBuild as RollupBuild,
 } from 'rollup';
 import {rollup, watch} from 'rollup';
-import resolve_plugin from '@rollup/plugin-node-resolve';
-import commonjs_plugin from '@rollup/plugin-commonjs';
+import resolvePlugin from '@rollup/plugin-node-resolve';
+import commonjsPlugin from '@rollup/plugin-commonjs';
 import {rainbow} from '@feltcoop/felt/util/terminal.js';
-import {System_Logger} from '@feltcoop/felt/util/log.js';
-import {print_log_label} from '@feltcoop/felt/util/log.js';
+import {SystemLogger} from '@feltcoop/felt/util/log.js';
+import {printLogLabel} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {deindent} from '@feltcoop/felt/util/string.js';
-import {omit_undefined} from '@feltcoop/felt/util/object.js';
-import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
+import {omitUndefined} from '@feltcoop/felt/util/object.js';
+import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {identity} from '@feltcoop/felt/util/function.js';
-import type {Partial_Except} from '@feltcoop/felt/util/types.js';
+import type {PartialExcept} from '@feltcoop/felt/util/types.js';
 
-import {rollup_plugin_gro_diagnostics} from './rollup_plugin_gro_diagnostics.js';
+import {rollupPluginGroDiagnostics} from './rollupPluginGroDiagnostics.js';
 import {paths} from '../paths.js';
-import {rollup_plugin_gro_output_css} from './rollup_plugin_gro_output_css.js';
+import {rollupPluginGroOutputCss} from './rollupPluginGroOutputCss.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {rollup_plugin_gro_plain_css} from './rollup_plugin_gro_plain_css.js';
-import type {CssCache} from 'src/build/css_cache.js';
-import {create_css_cache} from './css_cache.js';
-import type {GroCssBuild} from 'src/build/gro_css_build.js';
-import {rollup_plugin_gro_svelte} from './rollup_plugin_gro_svelte.js';
-import {create_default_preprocessor} from './gro_builder_svelte_utils.js';
-import type {EcmaScriptTarget} from 'src/build/typescript_utils.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from './build_config_defaults.js';
+import {rollupPluginGroPlainCss} from './rollupPluginGroPlainCss.js';
+import type {CssCache} from 'src/build/cssCache.js';
+import {createCssCache} from './cssCache.js';
+import type {GroCssBuild} from 'src/build/groCssBuild.js';
+import {rollupPluginGroSvelte} from './rollupPluginGroSvelte.js';
+import {createDefaultPreprocessor} from './groBuilderSvelteUtils.js';
+import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from './buildConfigDefaults.js';
 
 export interface Options {
 	fs: Filesystem;
@@ -38,28 +38,28 @@ export interface Options {
 	dev: boolean;
 	target: EcmaScriptTarget;
 	sourcemap: boolean;
-	output_dir: string;
+	outputDir: string;
 	watch: boolean;
-	map_input_options: MapInputOptions;
-	map_output_options: MapOutputOptions;
-	map_watch_options: MapWatchOptions;
-	css_cache: CssCache<GroCssBuild>;
+	mapInputOptions: MapInputOptions;
+	mapOutputOptions: MapOutputOptions;
+	mapWatchOptions: MapWatchOptions;
+	cssCache: CssCache<GroCssBuild>;
 	log: Logger;
 }
 export type RequiredOptions = 'fs' | 'input';
-export type InitialOptions = Partial_Except<Options, RequiredOptions>;
-export const init_options = (opts: InitialOptions): Options => ({
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
+export const initOptions = (opts: InitialOptions): Options => ({
 	dev: true,
 	target: DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap: opts.dev ?? true,
-	output_dir: paths.dist,
+	outputDir: paths.dist,
 	watch: false,
-	map_input_options: identity,
-	map_output_options: identity,
-	map_watch_options: identity,
-	css_cache: opts.css_cache || create_css_cache(),
-	...omit_undefined(opts),
-	log: opts.log || new System_Logger(print_log_label('build')),
+	mapInputOptions: identity,
+	mapOutputOptions: identity,
+	mapWatchOptions: identity,
+	cssCache: opts.cssCache || createCssCache(),
+	...omitUndefined(opts),
+	log: opts.log || new SystemLogger(printLogLabel('build')),
 });
 
 export type MapInputOptions = (
@@ -75,8 +75,8 @@ export type MapWatchOptions = (
 	o: Options,
 ) => RollupWatchOptions | Promise<RollupWatchOptions>;
 
-export const run_rollup = async (opts: InitialOptions): Promise<void> => {
-	const options = init_options(opts);
+export const runRollup = async (opts: InitialOptions): Promise<void> => {
+	const options = initOptions(opts);
 	const {log} = options;
 
 	log.info(`building for ${options.dev ? 'development' : 'production'}`);
@@ -85,12 +85,12 @@ export const run_rollup = async (opts: InitialOptions): Promise<void> => {
 	if (options.watch) {
 		// run the watcher
 		log.info('building and watching');
-		await run_rollup_watcher(options, log);
+		await runRollupWatcher(options, log);
 		log.info('stopped watching');
 	} else {
 		// build without watching
 		log.info('building');
-		await run_rollup_build(options, log);
+		await runRollupBuild(options, log);
 		log.info(
 			'\n' +
 				rainbow(
@@ -104,55 +104,55 @@ export const run_rollup = async (opts: InitialOptions): Promise<void> => {
 	}
 };
 
-const create_input_options = async (options: Options): Promise<RollupInputOptions> => {
-	const {fs, css_cache, dev, target, sourcemap} = options;
+const createInputOptions = async (options: Options): Promise<RollupInputOptions> => {
+	const {fs, cssCache, dev, target, sourcemap} = options;
 
-	const add_plain_css_build = css_cache.add_css_build.bind(null, 'bundle.plain.css');
-	const add_svelte_css_build = css_cache.add_css_build.bind(null, 'bundle.svelte.css');
+	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
+	const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
 
-	const unmapped_input_options: RollupInputOptions = {
+	const unmappedInputOptions: RollupInputOptions = {
 		input: options.input,
 		plugins: [
-			rollup_plugin_gro_diagnostics(),
-			rollup_plugin_gro_svelte({
+			rollupPluginGroDiagnostics(),
+			rollupPluginGroSvelte({
 				dev,
-				add_css_build: add_svelte_css_build,
-				preprocessor: create_default_preprocessor(dev, target, sourcemap),
-				compile_options: {},
+				addCssBuild: addSvelteCssBuild,
+				preprocessor: createDefaultPreprocessor(dev, target, sourcemap),
+				compileOptions: {},
 			}),
-			rollup_plugin_gro_plain_css({fs, add_css_build: add_plain_css_build}),
-			rollup_plugin_gro_output_css({
+			rollupPluginGroPlainCss({fs, addCssBuild: addPlainCssBuild}),
+			rollupPluginGroOutputCss({
 				fs,
-				get_css_bundles: css_cache.get_css_bundles,
+				getCssBundles: cssCache.getCssBundles,
 				sourcemap,
 			}),
-			resolve_plugin({preferBuiltins: true}),
-			commonjs_plugin(),
+			resolvePlugin({preferBuiltins: true}),
+			commonjsPlugin(),
 		],
 	};
-	return options.map_input_options(unmapped_input_options, options);
+	return options.mapInputOptions(unmappedInputOptions, options);
 };
 
-const create_output_options = async (options: Options): Promise<RollupOutputOptions> => {
-	const unmapped_output_options: RollupOutputOptions = {
-		dir: options.output_dir,
+const createOutputOptions = async (options: Options): Promise<RollupOutputOptions> => {
+	const unmappedOutputOptions: RollupOutputOptions = {
+		dir: options.outputDir,
 		format: 'esm',
 		name: 'app',
 		sourcemap: options.sourcemap,
 	};
-	return options.map_output_options(unmapped_output_options, options);
+	return options.mapOutputOptions(unmappedOutputOptions, options);
 };
 
-const create_watch_options = async (options: Options): Promise<RollupWatchOptions> => {
-	const unmapped_watch_options: RollupWatchOptions = {
-		...create_input_options(options),
-		output: await create_output_options(options),
+const createWatchOptions = async (options: Options): Promise<RollupWatchOptions> => {
+	const unmappedWatchOptions: RollupWatchOptions = {
+		...createInputOptions(options),
+		output: await createOutputOptions(options),
 		watch: {
 			clearScreen: false,
 			exclude: ['node_modules/**'],
 		},
 	};
-	return options.map_watch_options(unmapped_watch_options, options);
+	return options.mapWatchOptions(unmappedWatchOptions, options);
 };
 
 interface RollupBuildResult {
@@ -160,20 +160,20 @@ interface RollupBuildResult {
 	output: RollupOutput;
 }
 
-const run_rollup_build = async (options: Options, log: Logger): Promise<RollupBuildResult> => {
-	const input_options = await create_input_options(options);
-	const output_options = await create_output_options(options);
-	log.trace('input_options', input_options);
-	log.trace('output_options', output_options);
-	const build = await rollup(input_options);
-	const output = await build.write(output_options);
+const runRollupBuild = async (options: Options, log: Logger): Promise<RollupBuildResult> => {
+	const inputOptions = await createInputOptions(options);
+	const outputOptions = await createOutputOptions(options);
+	log.trace('inputOptions', inputOptions);
+	log.trace('outputOptions', outputOptions);
+	const build = await rollup(inputOptions);
+	const output = await build.write(outputOptions);
 	return {build, output};
 };
 
-const run_rollup_watcher = async (options: Options, log: Logger): Promise<void> => {
+const runRollupWatcher = async (options: Options, log: Logger): Promise<void> => {
 	return new Promise(async (_resolve, reject) => {
-		const watch_options = await create_watch_options(options);
-		const watcher = watch(watch_options);
+		const watchOptions = await createWatchOptions(options);
+		const watcher = watch(watchOptions);
 
 		watcher.on('event', (event) => {
 			log.info(`rollup event: ${event.code}`);
@@ -190,7 +190,7 @@ const run_rollup_watcher = async (options: Options, log: Logger): Promise<void> 
 					reject(`Error: ${event.error.message}`);
 					break;
 				default:
-					throw new Unreachable_Error(event);
+					throw new UnreachableError(event);
 			}
 		});
 

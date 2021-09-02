@@ -2,18 +2,18 @@
 	import type {Writable} from 'svelte/store';
 
 	import SourceMetaRawItem from './SourceMetaRawItem.svelte';
-	import {filter_selected_metas} from './source_tree.js';
-	import type {SourceTree} from 'src/client/source_tree.js';
-	import type {SourceMeta} from 'src/build/source_meta.js';
+	import {filterSelectedMetas} from './sourceTree.js';
+	import type {SourceTree} from 'src/client/sourceTree.js';
+	import type {SourceMeta} from 'src/build/sourceMeta.js';
 
-	export let source_tree: SourceTree;
-	export let selected_build_names: string[];
-	export const selected_source_meta = undefined;
-	export let hovered_source_meta: Writable<SourceMeta | null>;
+	export let sourceTree: SourceTree;
+	export let selectedBuildNames: string[];
+	export const selectedSourceMeta = undefined;
+	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
-	$: filtered_source_metas = filter_selected_metas(source_tree, selected_build_names);
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
 </script>
 
-{#each filtered_source_metas as source_meta (source_meta.cache_id)}
-	<SourceMetaRawItem {source_meta} {hovered_source_meta} />
+{#each filteredSourceMetas as sourceMeta (sourceMeta.cacheId)}
+	<SourceMetaRawItem {sourceMeta} {hoveredSourceMeta} />
 {:else}<small><em>no builds selected</em></small>{/each}

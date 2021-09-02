@@ -22,7 +22,7 @@ and defers composition to the user in regular TypeScript modules.
   no configuration or scaffolding commands needed!
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
-  (but there's also the helper `invoke_task`: see more below)
+  (but there's also the helper `invokeTask`: see more below)
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args
@@ -60,7 +60,7 @@ $ gro some/dir
 ```
 
 > To learn more about the Gro CLI path conventions,
-> see [the `input_paths` comments](../fs/input_path.ts)
+> see [the `inputPaths` comments](../fs/inputPath.ts)
 
 ### run a task
 
@@ -108,8 +108,8 @@ export interface TaskContext<TArgs = {}, TEvents = {}> {
 	log: Logger;
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
-	invoke_task: (
-		task_name: string,
+	invokeTask: (
+		taskName: string,
 		args?: Args,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
 		dev?: boolean,
@@ -118,20 +118,20 @@ export interface TaskContext<TArgs = {}, TEvents = {}> {
 }
 ```
 
-### run a task inside another task with `invoke_task`
+### run a task inside another task with `invokeTask`
 
 Because Gro tasks are just functions,
 you can directly import them from within other tasks and run them.
-However, we recommend using the `invoke_task` helper
+However, we recommend using the `invokeTask` helper
 for its ergonomics and automatic logging and diagnostics.
 
-The `invoke_task` helper uses Gro's task resolution rules
+The `invokeTask` helper uses Gro's task resolution rules
 to allow user code to override builtin tasks.
-For example, Gro's `check.task.ts` calls `invoke_task('test')`
+For example, Gro's `check.task.ts` calls `invokeTask('test')`
 so that it calls your `src/test.task.ts` if it exists
 and falls back to `gro/src/test.task.ts` if not.
 
-It's less important to use `invoke_task` over explicit imports in user code
+It's less important to use `invokeTask` over explicit imports in user code
 because you don't need to rely on the task override rules to get desired behavior,
 but the logging and diagnostics it provides are nice to have.
 
@@ -144,24 +144,24 @@ gro some/file
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	run: async ({args, invoke_task}) => {
+	run: async ({args, invokeTask}) => {
 		// runs `src/some/file.task.ts`, automatically forwarding `args`
-		await invoke_task('some/file');
+		await invokeTask('some/file');
 		// as documented above, the following is similar but lacks nice features:
 		// await (await import('./some/file.task.js')).run(ctx);
 
 		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
 		// forwarding both custom args and a different event emitter (warning: spaghetti)
-		await invoke_task(
+		await invokeTask(
 			'other/file',
 			{...args, optionally: 'extended'},
-			optional_event_emitter_for_subtree,
-			optional_dev_flag_for_subtree,
-			optional_fs_for_subtree,
+			optionalEventEmitterForSubtree,
+			optionalDevFlagForSubtree,
+			optionalFsForSubtree,
 		);
 
 		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
-		await invoke_task('gro/other/file');
+		await invokeTask('gro/other/file');
 	},
 };
 ```
@@ -179,15 +179,15 @@ $ gro test
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	run: async ({args, invoke_task}) => {
-		await do_something_first();
-		// As discussed in the `invoke_task` section above,
+	run: async ({args, invokeTask}) => {
+		await doSomethingFirst();
+		// As discussed in the `invokeTask` section above,
 		// it's possible to `import {task as groBuiltinTestTask} from '@feltcoop/gro/dist/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
-		await invoke_task('gro/test', {...args, optionally: 'extended'}, new_event_emitter_for_subtree);
-		await email_everyone_with_test_results();
+		await invokeTask('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
+		await emailEveryoneWithTestResults();
 	},
 };
 ```
@@ -210,9 +210,9 @@ import type {Task} from '@feltcoop/gro';
 import {TaskArgs as OtherTaskArgs} from './other.task.js';
 
 export interface TaskArgs extends OtherTaskArgs {
-	map_something: (thing: string) => string;
+	mapSomething: (thing: string) => string;
 	// this is provided by `OtherTaskArgs`:
-	// map_some_number: (other: number) => number;
+	// mapSomeNumber: (other: number) => number;
 }
 
 export const task: Task<TaskArgs> = {
@@ -220,10 +220,10 @@ export const task: Task<TaskArgs> = {
 		// `args` has type `TaskArgs`
 
 		// other tasks can assign args that this task consumes:
-		const something_cooler = args.map_something('something_cool');
+		const somethingCooler = args.mapSomething('somethingCool');
 
 		// and this task can provide args for others:
-		args.map_some_number = (n) => n * ((1 + Math.sqrt(5)) / 2);
+		args.mapSomeNumber = (n) => n * ((1 + Math.sqrt(5)) / 2);
 	},
 };
 ```
@@ -278,7 +278,7 @@ import {Task, TaskError} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async () => {
-		if (some_error_condition) {
+		if (someErrorCondition) {
 			throw new TaskError('We hit a known error - ignore the stack trace!');
 		}
 	},
@@ -293,10 +293,10 @@ import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	dev: false, // tell the task runner to set `dev` to false, updating `process.env.NODE_ENV`
-	run: async ({dev, invoke_task}) => {
+	run: async ({dev, invokeTask}) => {
 		// `dev` is `false` because it's defined two lines up in the task definition,
-		// unless an ancestor task called `invoke_task` with a `true` value, like this:
-		invoke_task('descendent_task_with_flipped_dev_value', undefined, undefined, !dev);
+		// unless an ancestor task called `invokeTask` with a `true` value, like this:
+		invokeTask('descendentTaskWithFlippedDevValue', undefined, undefined, !dev);
 	},
 };
 ```
@@ -307,7 +307,7 @@ export const task: Task = {
 
 ## why?
 
-Gro usage on the command line (`gro <task_or_directory> [...flags]`)
+Gro usage on the command line (`gro <taskOrDirectory> [...flags]`)
 looks a lot like using `node`.
 What makes Gro different?
 

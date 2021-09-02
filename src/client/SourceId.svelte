@@ -1,12 +1,12 @@
 <script lang="ts">
-	import {get_project_state} from './project_state.js';
+	import {getProjectState} from './projectState.js';
 
-	const project = get_project_state();
+	const project = getProjectState();
 
 	export let id: string;
 
-	$: displayed = id.startsWith($project.source_dir)
-		? id.substring($project.source_dir.length - 1)
+	$: displayed = id.startsWith($project.sourceDir)
+		? id.substring($project.sourceDir.length - 1)
 		: id;
 </script>
 

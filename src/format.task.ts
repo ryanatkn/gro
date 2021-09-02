@@ -1,8 +1,8 @@
-import {print_spawn_result} from '@feltcoop/felt/util/process.js';
+import {printSpawnResult} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from 'src/task/task.js';
 import {TaskError} from './task/task.js';
-import {format_directory} from './build/format_directory.js';
+import {formatDirectory} from './build/formatDirectory.js';
 import {paths} from './paths.js';
 
 export interface TaskArgs {
@@ -13,10 +13,10 @@ export const task: Task<TaskArgs> = {
 	summary: 'format source files',
 	run: async ({args}) => {
 		const check = !!args.check;
-		const format_result = await format_directory(paths.source, check);
-		if (!format_result.ok) {
+		const formatResult = await formatDirectory(paths.source, check);
+		if (!formatResult.ok) {
 			throw new TaskError(
-				`Failed ${check ? 'formatting check' : 'to format'}. ${print_spawn_result(format_result)}`,
+				`Failed ${check ? 'formatting check' : 'to format'}. ${printSpawnResult(formatResult)}`,
 			);
 		}
 	},

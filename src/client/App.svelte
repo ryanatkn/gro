@@ -17,22 +17,22 @@
 	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import SourceMetaTreeExplorers from './SourceMetaTreeExplorers.svelte';
-	import {create_source_tree} from './source_tree.js';
-	import type {SourceTree} from 'src/client/source_tree.js';
-	import type {ProjectState} from 'src/server/project_state.js';
+	import {createSourceTree} from './sourceTree.js';
+	import type {SourceTree} from 'src/client/sourceTree.js';
+	import type {ProjectState} from 'src/server/projectState.js';
 	import type {View} from 'src/client/view.js';
-	import {set_project_state} from './project_state.js';
+	import {setProjectState} from './projectState.js';
 
 	console.log('enter App.svelte');
 
-	$: homepage = ($ctx?.package_json.homepage || '') as string;
-	let source_tree: SourceTree;
-	let selected_build_names: string[] = [];
+	$: homepage = ($ctx?.packageJson.homepage || '') as string;
+	let sourceTree: SourceTree;
+	let selectedBuildNames: string[] = [];
 
 	const ctx = writable<ProjectState>(null!);
-	set_project_state(ctx);
+	setProjectState(ctx);
 
-	const source_meta_views: View[] = [
+	const sourceMetaViews: View[] = [
 		SourceMetaRaw,
 		SourceMetaExpander,
 		SourceMetaTable,
@@ -42,71 +42,71 @@
 		SourceMetaTreeExplorer,
 		SourceMetaTreeExplorers,
 	];
-	let active_source_meta_view_index = 7;
-	$: active_source_meta_view = source_meta_views[active_source_meta_view_index];
-	const set_active_source_meta_view = (view: View) =>
-		(active_source_meta_view_index = source_meta_views.indexOf(view)); // TODO handle error?
+	let activeSourceMetaViewIndex = 7;
+	$: activeSourceMetaView = sourceMetaViews[activeSourceMetaViewIndex];
+	const setActiveSourceMetaView = (view: View) =>
+		(activeSourceMetaViewIndex = sourceMetaViews.indexOf(view)); // TODO handle error?
 
-	const selected_source_meta = writable(null);
-	const hovered_source_meta = writable(null);
+	const selectedSourceMeta = writable(null);
+	const hoveredSourceMeta = writable(null);
 
 	onMount(async () => {
 		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
 		$ctx = await (await fetch(SOURCE_META_PATH)).json(); // TODO handle errors
-		console.log('fetched project_state', $ctx);
-		source_tree = create_source_tree($ctx.items, $ctx.build_configs);
-		selected_build_names = source_tree.build_names;
-		console.log('source_tree', source_tree);
+		console.log('fetched projectState', $ctx);
+		sourceTree = createSourceTree($ctx.items, $ctx.buildConfigs);
+		selectedBuildNames = sourceTree.buildNames;
+		console.log('sourceTree', sourceTree);
 	});
 
-	let show_source_meta = true;
-	let show_filer_visualizer1 = false;
-	let show_filer_visualizer2 = false;
-	let show_server_visualizer = false;
-	let show_source_tree_visualizer = false;
-	let show_build_tree_visualizer = false;
+	let showSourceMeta = true;
+	let showFilerVisualizer1 = false;
+	let showFilerVisualizer2 = false;
+	let showServerVisualizer = false;
+	let showSourceTreeVisualizer = false;
+	let showBuildTreeVisualizer = false;
 </script>
 
 <div class="app">
-	{#if source_tree}
+	{#if sourceTree}
 		<section>
 			<header>
 				<span class="logo">
-					{#if $ctx.package_json.homepage}
-						<a href={homepage}>{$ctx.package_json.name}</a>
-					{:else}{$ctx.package_json.name}{/if}
+					{#if $ctx.packageJson.homepage}
+						<a href={homepage}>{$ctx.packageJson.name}</a>
+					{:else}{$ctx.packageJson.name}{/if}
 				</span>
 				<nav>
-					{#if !show_filer_visualizer1}
+					{#if !showFilerVisualizer1}
 						<!-- server filer visualizer -->
-						<button on:pointerdown={() => (show_filer_visualizer1 = !show_filer_visualizer1)}>
+						<button on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}>
 							FilerVisualizer (server)
 						</button>
 					{/if}
-					{#if !show_filer_visualizer2}
+					{#if !showFilerVisualizer2}
 						<!-- client example filer visualizer -->
-						<button on:pointerdown={() => (show_filer_visualizer2 = !show_filer_visualizer2)}>
+						<button on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}>
 							FilerVisualizer (client)
 						</button>
 					{/if}
-					{#if !show_server_visualizer}
+					{#if !showServerVisualizer}
 						<!-- gro dev server filer visualizer -->
-						<button on:pointerdown={() => (show_server_visualizer = !show_server_visualizer)}>
+						<button on:pointerdown={() => (showServerVisualizer = !showServerVisualizer)}>
 							ServerVisualizer
 						</button>
 					{/if}
-					{#if !show_source_tree_visualizer}
+					{#if !showSourceTreeVisualizer}
 						<!-- source tree visualizer -->
 						<button
-							on:pointerdown={() => (show_source_tree_visualizer = !show_source_tree_visualizer)}
+							on:pointerdown={() => (showSourceTreeVisualizer = !showSourceTreeVisualizer)}
 						>
 							SourceTreeVisualizer
 						</button>
 					{/if}
-					{#if !show_build_tree_visualizer}
+					{#if !showBuildTreeVisualizer}
 						<!-- build tree visualizer -->
 						<button
-							on:pointerdown={() => (show_build_tree_visualizer = !show_build_tree_visualizer)}
+							on:pointerdown={() => (showBuildTreeVisualizer = !showBuildTreeVisualizer)}
 						>
 							BuildTreeVisualizer
 						</button>
@@ -115,65 +115,65 @@
 			</header>
 		</section>
 
-		{#if show_filer_visualizer1}
+		{#if showFilerVisualizer1}
 			<section transition:slide>
-				<button on:pointerdown={() => (show_filer_visualizer1 = false)}>🗙</button>
+				<button on:pointerdown={() => (showFilerVisualizer1 = false)}>🗙</button>
 				<ViewName view={FilerVisualizer} />
 				<FilerVisualizer name="server" />
 			</section>
 		{/if}
-		{#if show_filer_visualizer2}
+		{#if showFilerVisualizer2}
 			<section transition:slide>
-				<button on:pointerdown={() => (show_filer_visualizer2 = false)}>🗙</button>
+				<button on:pointerdown={() => (showFilerVisualizer2 = false)}>🗙</button>
 				<ViewName view={FilerVisualizer} />
 				<FilerVisualizer name="client example" />
 			</section>
 		{/if}
-		{#if show_server_visualizer}
+		{#if showServerVisualizer}
 			<section transition:slide>
-				<button on:pointerdown={() => (show_server_visualizer = false)}>🗙</button>
+				<button on:pointerdown={() => (showServerVisualizer = false)}>🗙</button>
 				<ViewName view={ServerVisualizer} />
 				<ServerVisualizer name="gro dev server" />
 			</section>
 		{/if}
-		{#if show_source_tree_visualizer}
+		{#if showSourceTreeVisualizer}
 			<section transition:slide>
-				<button on:pointerdown={() => (show_source_tree_visualizer = false)}>🗙</button>
+				<button on:pointerdown={() => (showSourceTreeVisualizer = false)}>🗙</button>
 				<ViewName view={SourceTreeVisualizer} />
 				<SourceTreeVisualizer name="source tree" />
 			</section>
 		{/if}
-		{#if show_build_tree_visualizer}
+		{#if showBuildTreeVisualizer}
 			<section transition:slide>
-				<button on:pointerdown={() => (show_build_tree_visualizer = false)}>🗙</button>
+				<button on:pointerdown={() => (showBuildTreeVisualizer = false)}>🗙</button>
 				<ViewName view={BuildTreeVisualizer} />
 				<BuildTreeVisualizer name="build tree" />
 			</section>
 		{/if}
 
 		<section>
-			{#if show_source_meta}
+			{#if showSourceMeta}
 				<nav>
-					<button on:pointerdown={() => (show_source_meta = false)}>🗙</button>
-					{#each source_meta_views as source_metaView (source_metaView.name)}
+					<button on:pointerdown={() => (showSourceMeta = false)}>🗙</button>
+					{#each sourceMetaViews as sourceMetaView (sourceMetaView.name)}
 						<button
-							on:pointerdown={() => set_active_source_meta_view(source_metaView)}
-							class:active={source_metaView === active_source_meta_view}
-							disabled={source_metaView === active_source_meta_view}
+							on:pointerdown={() => setActiveSourceMetaView(sourceMetaView)}
+							class:active={sourceMetaView === activeSourceMetaView}
+							disabled={sourceMetaView === activeSourceMetaView}
 						>
-							{source_metaView.name}
+							{sourceMetaView.name}
 						</button>
 					{/each}
 				</nav>
 
 				<SourceMetaView
-					{source_tree}
-					{selected_build_names}
-					{active_source_meta_view}
-					{selected_source_meta}
-					{hovered_source_meta}
+					{sourceTree}
+					{selectedBuildNames}
+					{activeSourceMetaView}
+					{selectedSourceMeta}
+					{hoveredSourceMeta}
 				/>
-			{:else}<button on:pointerdown={() => (show_source_meta = true)}>show source meta</button>{/if}
+			{:else}<button on:pointerdown={() => (showSourceMeta = true)}>show source meta</button>{/if}
 		</section>
 	{:else}
 		<div class="loading">...</div>

@@ -7,10 +7,10 @@ import {FsStats} from './filesystem.js';
 const test_FsStats = suite('FsStats');
 
 test_FsStats('basic behavior', async () => {
-	const dir_stats = new FsStats(true);
-	t.ok(dir_stats.isDirectory());
-	const file_stats = new FsStats(false);
-	t.ok(!file_stats.isDirectory());
+	const dirStats = new FsStats(true);
+	t.ok(dirStats.isDirectory());
+	const fileStats = new FsStats(false);
+	t.ok(!fileStats.isDirectory());
 });
 
 test_FsStats.run();

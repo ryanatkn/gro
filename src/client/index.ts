@@ -1,6 +1,6 @@
 import './devtools.js';
 import App from './App.svelte';
-import './test_imports/test_imports.js';
+import './testImports/testImports.js';
 
 const root = document.getElementById('root');
 if (!root) throw Error('Cannot find root element');

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {FileTreeNode} from 'src/client/file_tree.js';
+	import type {FileTreeNode} from 'src/client/fileTree.js';
 
 	export let node: FileTreeNode;
 </script>

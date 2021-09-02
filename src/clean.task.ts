@@ -1,7 +1,7 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from 'src/task/task.js';
-import {clean_fs} from './fs/clean.js';
+import {cleanFs} from './fs/clean.js';
 
 export interface TaskArgs {
 	build?: boolean; // !`/.gro`
@@ -20,7 +20,7 @@ export const task: Task<TaskArgs> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	run: async ({fs, log, args}): Promise<void> => {
 		// TODO document with mdsvex
-		await clean_fs(
+		await cleanFs(
 			fs,
 			{
 				build: !args.build,

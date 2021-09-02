@@ -14,7 +14,7 @@ import type {IdFilter} from 'src/fs/filter.js';
 
 This only handles the `gitignore` for the current working directory.
 
-If we need support for Gro simultaneously, see ./package_json.ts as an example.
+If we need support for Gro simultaneously, see ./packageJson.ts as an example.
 
 */
 
@@ -28,8 +28,8 @@ const DEFAULT_IGNORED_PATHS = [
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const load_gitignore_filter = (force_refresh = false): IdFilter => {
-	if (force_refresh) filter = null;
+export const loadGitignoreFilter = (forceRefresh = false): IdFilter => {
+	if (forceRefresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
 	try {
@@ -42,28 +42,28 @@ export const load_gitignore_filter = (force_refresh = false): IdFilter => {
 	} catch (err) {
 		lines = DEFAULT_IGNORED_PATHS;
 	}
-	filter = createFilter(lines.map((line) => to_pattern(line)));
+	filter = createFilter(lines.map((line) => toPattern(line)));
 	return filter;
 };
 
-export const is_gitignored = (path: string, root = process.cwd(), force_refresh?: boolean) =>
-	load_gitignore_filter(force_refresh)(join(root, path));
+export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean) =>
+	loadGitignoreFilter(forceRefresh)(join(root, path));
 
 // TODO What's the better way to do this?
 // This is a quick hacky mapping for one use case between
 // `.gitignore` and picomatch: https://github.com/micromatch/picomatch
 // This code definitely fails for valid patterns!
-const to_pattern = (line: string): string => {
-	const first_char = line[0];
-	if (first_char === '/') {
+const toPattern = (line: string): string => {
+	const firstChar = line[0];
+	if (firstChar === '/') {
 		line = line.substring(1);
-	} else if (first_char !== '*') {
+	} else if (firstChar !== '*') {
 		line = `**/${line}`;
 	}
-	const last_char = line[line.length - 1];
-	if (last_char === '/') {
+	const lastChar = line[line.length - 1];
+	if (lastChar === '/') {
 		line = `${line}**`;
-	} else if (last_char !== '*') {
+	} else if (lastChar !== '*') {
 		line = `${line}/**`;
 	}
 	return line;

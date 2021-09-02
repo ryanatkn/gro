@@ -8,10 +8,10 @@ Gro has an [unbundled build system](dev.md)
 that tries to be flexible for many use cases.
 During development, we use it with `gro dev`.
 
-For production, we use `gro build` to output builds to `.gro/prod/{build_name}`,
+For production, we use `gro build` to output builds to `.gro/prod/{buildName}`,
 which then get _adapted_ — to use terminology of SvelteKit — to their final form.
 Adapting can be as simple as copying
-the directory of files in `.gro/prod/{build_name}` to `dist/`,
+the directory of files in `.gro/prod/{buildName}` to `dist/`,
 or it may be more complex, like a SvelteKit build,
 or a Node library bundled into sibling `.js` and `.cjs` outputs.
 Adapting is designed to be powerful and open ended.

@@ -2,22 +2,22 @@ import {resolve} from 'path';
 import type {Flavored} from '@feltcoop/felt/util/types.js';
 
 import type {Encoding} from 'src/fs/encoding.js';
-import type {PathStats} from 'src/fs/path_data.js';
+import type {PathStats} from 'src/fs/pathData.js';
 import type {PathFilter} from 'src/fs/filter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
 export interface Filesystem {
 	stat: FsStat;
 	exists: FsExists;
-	find_files: FsFindFiles;
-	read_file: FsReadFile;
-	write_file: FsWriteFile;
+	findFiles: FsFindFiles;
+	readFile: FsReadFile;
+	writeFile: FsWriteFile;
 	remove: FsRemove;
 	move: FsMove;
 	copy: FsCopy;
-	read_dir: FsReadDir;
-	empty_dir: FsEmptyDir;
-	ensure_dir: FsEnsureDir;
+	readDir: FsReadDir;
+	emptyDir: FsEmptyDir;
+	ensureDir: FsEnsureDir;
 }
 
 export interface FsStat {
@@ -79,17 +79,17 @@ export type FsCopyFilterSync = (src: string, dest: string) => boolean;
 export type FsCopyFilterAsync = (src: string, dest: string) => Promise<boolean>;
 
 export class FsStats implements PathStats {
-	constructor(private readonly _is_directory: boolean) {}
+	constructor(private readonly _isDirectory: boolean) {}
 	isDirectory() {
-		// TODO maybe cache as `is_directory`?
-		return this._is_directory;
+		// TODO maybe cache as `isDirectory`?
+		return this._isDirectory;
 	}
 }
 
 export type FsId = Flavored<string, 'FsId'>;
 
 // The `resolve` looks magic and hardcoded - it's matching how `fs` and `fs-extra` resolve paths.
-export const to_fs_id = (path: string): FsId => resolve(path);
+export const toFsId = (path: string): FsId => resolve(path);
 
 // TODO extract these? - how do they intersect with Filer types? and smaller interfaces like `PathData`?
 export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;
@@ -103,15 +103,15 @@ export type FsNode = TextFileNode | BinaryFileNode | DirectoryNode;
 
 export interface BaseNode {
 	readonly id: FsId;
-	readonly is_directory: boolean;
+	readonly isDirectory: boolean;
 	readonly encoding: Encoding;
 	readonly content: string | Buffer | null;
-	// readonly content_buffer: Buffer | null;
+	// readonly contentBuffer: Buffer | null;
 	readonly stats: PathStats;
-	// readonly path_data: PathData; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
+	// readonly pathData: PathData; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
 export interface BaseFileNode extends BaseNode {
-	readonly is_directory: false;
+	readonly isDirectory: false;
 	readonly content: string | Buffer;
 }
 export interface TextFileNode extends BaseFileNode {
@@ -121,10 +121,10 @@ export interface TextFileNode extends BaseFileNode {
 export interface BinaryFileNode extends BaseFileNode {
 	readonly encoding: null;
 	readonly content: Buffer;
-	// readonly content_buffer: Buffer;
+	// readonly contentBuffer: Buffer;
 }
 export interface DirectoryNode extends BaseNode {
-	readonly is_directory: true;
+	readonly isDirectory: true;
 	readonly content: null;
-	// readonly content_buffer: null;
+	// readonly contentBuffer: null;
 }

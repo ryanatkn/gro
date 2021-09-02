@@ -1,7 +1,7 @@
 <script lang="ts">
 	import FileTreeExplorerFile from './FileTreeExplorerFile.svelte';
 	import FileTreeExplorerNode from './FileTreeExplorerNode.svelte';
-	import type {FileTreeFolder} from 'src/client/file_tree.js';
+	import type {FileTreeFolder} from 'src/client/fileTree.js';
 
 	export let folder: FileTreeFolder;
 </script>

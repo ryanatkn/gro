@@ -1,17 +1,17 @@
-import {createInterface as create_readline_interface} from 'readline';
+import {createInterface as createReadlineInterface} from 'readline';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {green, black_bg, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
+import {green, blackBg, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
-import {Unreachable_Error} from '@feltcoop/felt/util/error.js';
+import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
 
 import type {Task} from 'src/task/task.js';
-import {load_package_json} from './utils/package_json.js';
-import {GIT_DEPLOY_BRANCH} from './build/build_config_defaults.js';
+import {loadPackageJson} from './utils/packageJson.js';
+import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {load_config} from './config/config.js';
-import {build_source} from './build/build_source.js';
-import {clean_fs} from './fs/clean.js';
+import {loadConfig} from './config/config.js';
+import {buildSource} from './build/buildSource.js';
+import {cleanFs} from './fs/clean.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -30,17 +30,17 @@ export interface TaskArgs {
 export const task: Task<TaskArgs> = {
 	summary: 'bump version, publish to npm, and sync to GitHub',
 	dev: false,
-	run: async ({fs, args, log, invoke_task, dev}): Promise<void> => {
+	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
 		}
 
-		const [version_increment] = args._;
-		validate_version_increment(version_increment);
+		const [versionIncrement] = args._;
+		validateVersionIncrement(versionIncrement);
 
 		// Confirm with the user that we're doing what they expect:
-		const publish_context = await confirm_with_user(fs, version_increment, dry, log);
+		const publishContext = await confirmWithUser(fs, versionIncrement, dry, log);
 
 		// Make sure we're on the right branch:
 		// TODO see how the deploy task uses git, probably do that instead
@@ -48,87 +48,87 @@ export const task: Task<TaskArgs> = {
 		await spawn('git', ['checkout', branch]);
 
 		// Clean before loading the config:
-		await clean_fs(fs, {build_prod: true}, log);
+		await cleanFs(fs, {buildProd: true}, log);
 
-		const config = await load_config(fs, dev);
+		const config = await loadConfig(fs, dev);
 		if (config.publish === null) {
 			throw Error('config.publish is null, so this package cannot be published');
 		}
 
 		// Check in dev mode before proceeding:
-		await build_source(fs, config, true, log);
-		await invoke_task('check', {...args, _: []}, undefined, true);
+		await buildSource(fs, config, true, log);
+		await invokeTask('check', {...args, _: []}, undefined, true);
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {
-			const npmVersionResult = await spawn('npm', ['version', version_increment]);
+			const npmVersionResult = await spawn('npm', ['version', versionIncrement]);
 			if (!npmVersionResult.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build', {...args, clean: false});
+		await invokeTask('build', {...args, clean: false});
 
 		if (dry) {
-			log.info({version_increment, publish: config.publish, branch});
+			log.info({versionIncrement, publish: config.publish, branch});
 			log.info(rainbow('dry run complete!'));
 			return;
 		}
 
 		await spawn('git', ['push']);
 		await spawn('git', ['push', '--tags']);
-		const publish_args = ['publish'];
-		if (!publish_context.previous_changelog_version) {
-			publish_args.push('--access', restricted ? 'restricted' : 'public');
+		const publishArgs = ['publish'];
+		if (!publishContext.previousChangelogVersion) {
+			publishArgs.push('--access', restricted ? 'restricted' : 'public');
 		}
-		const npm_publish_result = await spawn('npm', publish_args, {cwd: config.publish});
-		if (!npm_publish_result.ok) {
+		const npmPublishResult = await spawn('npm', publishArgs, {cwd: config.publish});
+		if (!npmPublishResult.ok) {
 			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
 		}
 	},
 };
 
-const confirm_with_user = async (
+const confirmWithUser = async (
 	fs: Filesystem,
-	version_increment: string,
+	versionIncrement: string,
 	dry: boolean,
 	log: Logger,
 ): Promise<PublishContext> => {
-	const readline = create_readline_interface({input: process.stdin, output: process.stdout});
+	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
 	return new Promise<PublishContext>(async (resolve) => {
-		const [[current_changelog_version, previous_changelog_version], current_package_version] =
-			await Promise.all([get_changelog_versions(fs), get_current_package_version(fs)]);
+		const [[currentChangelogVersion, previousChangelogVersion], currentPackageVersion] =
+			await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
 
 		let errored = false;
-		const log_error: Logger['error'] = (...args) => {
+		const logError: Logger['error'] = (...args) => {
 			errored = true;
 			log.error(...args);
 		};
 
-		if (current_changelog_version === current_package_version) {
-			log_error(
+		if (currentChangelogVersion === currentPackageVersion) {
+			logError(
 				red('New changelog version matches old package version.'),
 				'Is the changelog updated?',
 			);
 		}
-		if (previous_changelog_version && previous_changelog_version !== current_package_version) {
-			log_error(
+		if (previousChangelogVersion && previousChangelogVersion !== currentPackageVersion) {
+			logError(
 				red('Old changelog version does not match old package version.'),
 				'Is there an unpublished version in the changelog?',
 			);
 		}
 
-		const publish_context: PublishContext = {
-			current_package_version,
-			current_changelog_version,
-			previous_changelog_version,
+		const publishContext: PublishContext = {
+			currentPackageVersion,
+			currentChangelogVersion,
+			previousChangelogVersion,
 		};
 
-		if (is_standard_version_increment(version_increment)) {
-			const result = validate_standard_version_increment_parts(version_increment, publish_context);
+		if (isStandardVersionIncrement(versionIncrement)) {
+			const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
 			if (!result.ok) {
-				log_error(
+				logError(
 					red('Failed to validate standard version increment compared to changelog:'),
 					result.reason,
 				);
@@ -136,36 +136,36 @@ const confirm_with_user = async (
 		} else {
 			errored = true;
 			log.warn(
-				red(`Unknown version increment "${version_increment}":`),
+				red(`Unknown version increment "${versionIncrement}":`),
 				'gro supports only major|minor|patch:',
 				yellow('please review the following carefully:'),
 			);
 		}
 
 		const color = errored ? yellow : green;
-		log.info(color(version_increment), '← version increment');
-		log.info(color(current_changelog_version || '<empty>'), '← new changelog version');
-		log.info(color(previous_changelog_version || '<empty>'), '← old changelog version');
-		log.info(color(current_package_version), '← old package version');
+		log.info(color(versionIncrement), '← version increment');
+		log.info(color(currentChangelogVersion || '<empty>'), '← new changelog version');
+		log.info(color(previousChangelogVersion || '<empty>'), '← old changelog version');
+		log.info(color(currentPackageVersion), '← old package version');
 
-		const expected_answer = errored ? 'yes!!' : 'y';
+		const expectedAnswer = errored ? 'yes!!' : 'y';
 		if (errored) {
 			log.warn(yellow(`there's an error or uncheckable condition above`));
 		}
 		readline.question(
-			black_bg(
+			blackBg(
 				`does this look correct? ${
 					errored ? red(`if you're sure `) : ''
-				}type "${expected_answer}" to proceed`,
+				}type "${expectedAnswer}" to proceed`,
 			) + ' ',
 			(answer) => {
-				if (answer.toLowerCase() !== expected_answer.toLowerCase()) {
+				if (answer.toLowerCase() !== expectedAnswer.toLowerCase()) {
 					log.info('exiting with', cyan('no changes'));
 					process.exit();
 				}
 				log.info(rainbow('proceeding' + (dry ? ' with dry run' : '')));
 				readline.close();
-				resolve(publish_context);
+				resolve(publishContext);
 			},
 		);
 	});
@@ -176,27 +176,27 @@ const CHANGELOG_PATH = 'changelog.md';
 // TODO document this better
 // TODO move where?
 // TODO refactor? this code is quick & worky
-const get_changelog_versions = async (
+const getChangelogVersions = async (
 	fs: Filesystem,
-): Promise<[current_changelog_version: string, previous_changelog_version?: string]> => {
+): Promise<[currentChangelogVersion: string, previousChangelogVersion?: string]> => {
 	if (!(await fs.exists(CHANGELOG_PATH))) {
 		throw Error(`Publishing requires ${CHANGELOG_PATH} - please create it to continue`);
 	}
-	const changelog_matcher = /##.+/g;
-	const changelog = await fs.read_file(CHANGELOG_PATH, 'utf8');
-	const match_current = changelog.match(changelog_matcher);
-	if (!match_current) {
+	const changelogMatcher = /##.+/g;
+	const changelog = await fs.readFile(CHANGELOG_PATH, 'utf8');
+	const matchCurrent = changelog.match(changelogMatcher);
+	if (!matchCurrent) {
 		throw Error(`Changelog must have at least one version header, e.g. ## 0.1.0`);
 	}
-	return match_current.slice(0, 2).map((line) => line.slice(2).trim()) as [
+	return matchCurrent.slice(0, 2).map((line) => line.slice(2).trim()) as [
 		string,
 		string | undefined,
 	];
 };
 
 // TODO move where?
-const get_current_package_version = async (fs: Filesystem): Promise<string> => {
-	const pkg = await load_package_json(fs);
+const getCurrentPackageVersion = async (fs: Filesystem): Promise<string> => {
+	const pkg = await loadPackageJson(fs);
 	if (!pkg.version || typeof pkg.version !== 'string') {
 		throw Error(`Expected package.json to have a valid version: ${pkg.version}`);
 	}
@@ -204,15 +204,15 @@ const get_current_package_version = async (fs: Filesystem): Promise<string> => {
 };
 
 interface PublishContext {
-	readonly current_package_version: string;
-	readonly current_changelog_version: string;
-	readonly previous_changelog_version: string | undefined;
+	readonly currentPackageVersion: string;
+	readonly currentChangelogVersion: string;
+	readonly previousChangelogVersion: string | undefined;
 }
 
 // TODO probably want to extra to version helpers
 type StandardVersionIncrement = 'major' | 'minor' | 'patch';
 type VersionIncrement = Flavored<string, 'VersionIncrement'>;
-const validate_version_increment: ValidateVersionIncrement = (v) => {
+const validateVersionIncrement: ValidateVersionIncrement = (v) => {
 	if (!v || typeof v !== 'string') {
 		throw Error(
 			`Expected a version increment like one of patch|minor|major, e.g. gro publish patch`,
@@ -222,40 +222,37 @@ const validate_version_increment: ValidateVersionIncrement = (v) => {
 interface ValidateVersionIncrement {
 	(v: unknown): asserts v is VersionIncrement;
 }
-const is_standard_version_increment = (v: string): v is StandardVersionIncrement =>
+const isStandardVersionIncrement = (v: string): v is StandardVersionIncrement =>
 	v === 'major' || v === 'minor' || v === 'patch';
 
-const validate_standard_version_increment_parts = (
-	version_increment: StandardVersionIncrement,
-	{current_changelog_version, current_package_version, previous_changelog_version}: PublishContext,
+const validateStandardVersionIncrementParts = (
+	versionIncrement: StandardVersionIncrement,
+	{currentChangelogVersion, currentPackageVersion, previousChangelogVersion}: PublishContext,
 ): Result<{}, {reason: string}> => {
-	const current_package_versionParts = to_version_parts(
-		current_package_version,
-		'current_package_version',
-	);
-	if (!current_package_versionParts.ok) {
-		return current_package_versionParts;
+	const currentPackageVersionParts = toVersionParts(currentPackageVersion, 'currentPackageVersion');
+	if (!currentPackageVersionParts.ok) {
+		return currentPackageVersionParts;
 	}
 
-	const previous_changelog_version_parts =
-		previous_changelog_version === undefined
+	const previousChangelogVersionParts =
+		previousChangelogVersion === undefined
 			? null
-			: to_version_parts(previous_changelog_version, 'previous_changelog_version');
-	if (previous_changelog_version_parts && !previous_changelog_version_parts.ok) {
-		return previous_changelog_version_parts;
+			: toVersionParts(previousChangelogVersion, 'previousChangelogVersion');
+	if (previousChangelogVersionParts && !previousChangelogVersionParts.ok) {
+		return previousChangelogVersionParts;
 	}
 
-	const expected_next_version = to_expected_next_version(
-		version_increment,
-		current_package_versionParts.value,
+	const expectedNextVersion = toExpectedNextVersion(
+		versionIncrement,
+		currentPackageVersionParts.value,
 	);
-	if (expected_next_version !== current_changelog_version) {
+	if (expectedNextVersion !== currentChangelogVersion) {
 		return {
 			ok: false,
 			reason:
-				`\n\n${yellow(expected_next_version)} ← expected changelog version\n` +
-				`${yellow(current_changelog_version)} ← actual changelog version\n` +
-				`${red(version_increment)} ← specified version increment\n`,
+				`\n\n${yellow(expectedNextVersion)} ← expected changelog version\n` +
+				`${yellow(currentChangelogVersion)} ← actual changelog version\n` +
+				`${red(versionIncrement)} ← specified version increment\n`,
 		};
 	}
 
@@ -263,7 +260,7 @@ const validate_standard_version_increment_parts = (
 };
 
 type VersionParts = [number, number, number];
-const to_version_parts = (
+const toVersionParts = (
 	version: string,
 	name: string = 'version',
 ): Result<{value: VersionParts}, {reason: string}> => {
@@ -275,17 +272,17 @@ const to_version_parts = (
 	}
 	return {ok: true, value};
 };
-const to_expected_next_version = (
-	version_increment: StandardVersionIncrement,
+const toExpectedNextVersion = (
+	versionIncrement: StandardVersionIncrement,
 	[major, minor, patch]: VersionParts,
 ) => {
-	if (version_increment === 'major') {
+	if (versionIncrement === 'major') {
 		return `${major + 1}.0.0`;
-	} else if (version_increment === 'minor') {
+	} else if (versionIncrement === 'minor') {
 		return `${major}.${minor + 1}.0`;
-	} else if (version_increment === 'patch') {
+	} else if (versionIncrement === 'patch') {
 		return `${major}.${minor}.${patch + 1}`;
 	} else {
-		throw new Unreachable_Error(version_increment);
+		throw new UnreachableError(versionIncrement);
 	}
 };

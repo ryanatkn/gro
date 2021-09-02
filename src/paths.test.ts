@@ -3,189 +3,189 @@ import * as t from 'uvu/assert';
 import {resolve, join, sep} from 'path';
 
 import {
-	create_paths,
+	createPaths,
 	paths,
-	gro_paths,
-	is_gro_id,
-	to_root_path,
-	source_id_to_base_path,
-	base_path_to_source_id,
-	has_source_extension,
-	to_import_id,
-	to_build_extension,
-	to_source_extension,
-	to_build_base_path,
+	groPaths,
+	isGroId,
+	toRootPath,
+	sourceIdToBasePath,
+	basePathToSourceId,
+	hasSourceExtension,
+	toImportId,
+	toBuildExtension,
+	toSourceExtension,
+	toBuildBasePath,
 	EXTERNALS_BUILD_DIRNAME,
-	build_id_to_source_id,
+	buildIdToSourceId,
 } from './paths.js';
 
-/* test_create_paths */
-const test_create_paths = suite('create_paths');
+/* testCreatePaths */
+const testCreatePaths = suite('createPaths');
 
-test_create_paths('basic behavior', () => {
+testCreatePaths('basic behavior', () => {
 	const root = resolve('../fake');
-	const p = create_paths(root);
+	const p = createPaths(root);
 	t.is(p.root, join(root, sep));
 	t.is(p.source, join(root, 'src/'));
 });
 
-test_create_paths('paths object has the same identity as the gro_paths object', () => {
-	t.is(paths, gro_paths); // because we're testing inside the Gro project
+testCreatePaths('paths object has the same identity as the groPaths object', () => {
+	t.is(paths, groPaths); // because we're testing inside the Gro project
 });
 
-test_create_paths.run();
-/* /test_create_paths */
+testCreatePaths.run();
+/* /testCreatePaths */
 
-/* test_is_gro_id */
-const test_is_gro_id = suite('is_gro_id');
+/* testIsGroId */
+const testIsGroId = suite('isGroId');
 
-test_is_gro_id('basic behavior', () => {
-	t.ok(is_gro_id(resolve(paths.source)));
-	t.not.ok(is_gro_id(resolve('../fake/src')));
+testIsGroId('basic behavior', () => {
+	t.ok(isGroId(resolve(paths.source)));
+	t.not.ok(isGroId(resolve('../fake/src')));
 });
 
-test_is_gro_id.run();
-/* /test_is_gro_id */
+testIsGroId.run();
+/* /testIsGroId */
 
-/* test_to_root_path */
-const test_to_root_path = suite('to_root_path');
+/* testToRootPath */
+const testToRootPath = suite('toRootPath');
 
-test_to_root_path('basic behavior', () => {
-	t.is(to_root_path(resolve('foo/bar')), 'foo/bar');
+testToRootPath('basic behavior', () => {
+	t.is(toRootPath(resolve('foo/bar')), 'foo/bar');
 });
 
-test_to_root_path.run();
-/* /test_to_root_path */
+testToRootPath.run();
+/* /testToRootPath */
 
-/* test_source_id_to_base_path */
-const test_source_id_to_base_path = suite('source_id_to_base_path');
+/* testSourceIdToBasePath */
+const testSourceIdToBasePath = suite('sourceIdToBasePath');
 
-test_source_id_to_base_path('basic behavior', () => {
-	t.is(source_id_to_base_path(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
+testSourceIdToBasePath('basic behavior', () => {
+	t.is(sourceIdToBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
 });
 
-test_source_id_to_base_path.run();
-/* /test_source_id_to_base_path */
+testSourceIdToBasePath.run();
+/* /testSourceIdToBasePath */
 
-/* test_build_id_to_source_id */
-const test_build_id_to_source_id = suite('build_id_to_source_id');
+/* testBuildIdToSourceId */
+const testBuildIdToSourceId = suite('buildIdToSourceId');
 
-test_build_id_to_source_id('basic behavior', () => {
-	t.is(build_id_to_source_id(resolve('.gro/dev/somebuild/foo/bar.js')), resolve('src/foo/bar.ts'));
+testBuildIdToSourceId('basic behavior', () => {
+	t.is(buildIdToSourceId(resolve('.gro/dev/somebuild/foo/bar.js')), resolve('src/foo/bar.ts'));
 });
 
-test_build_id_to_source_id.run();
-/* /test_build_id_to_source_id */
+testBuildIdToSourceId.run();
+/* /testBuildIdToSourceId */
 
-/* test_base_path_to_source_id */
-const test_base_path_to_source_id = suite('base_path_to_source_id');
+/* testBasePathToSourceId */
+const testBasePathToSourceId = suite('basePathToSourceId');
 
-test_base_path_to_source_id('basic behavior', () => {
-	t.is(base_path_to_source_id('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
+testBasePathToSourceId('basic behavior', () => {
+	t.is(basePathToSourceId('foo/bar/baz.ts'), resolve('src/foo/bar/baz.ts'));
 });
 
-test_base_path_to_source_id('does not change extension', () => {
-	t.is(base_path_to_source_id('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
+testBasePathToSourceId('does not change extension', () => {
+	t.is(basePathToSourceId('foo/bar/baz.js'), resolve('src/foo/bar/baz.js'));
 });
 
-test_base_path_to_source_id.run();
-/* /test_base_path_to_source_id */
+testBasePathToSourceId.run();
+/* /testBasePathToSourceId */
 
 // TODO !
-// to_build_out_dir
-// to_build_out_path
+// toBuildOutDir
+// toBuildOutPath
 
-/* test_to_build_base_path */
-const test_to_build_base_path = suite('to_build_base_path');
+/* testToBuildBasePath */
+const testToBuildBasePath = suite('toBuildBasePath');
 
-test_to_build_base_path('basic behavior', () => {
-	t.is(to_build_base_path(resolve('.gro/dev/build_name/foo/bar/baz.js')), 'foo/bar/baz.js');
+testToBuildBasePath('basic behavior', () => {
+	t.is(toBuildBasePath(resolve('.gro/dev/buildName/foo/bar/baz.js')), 'foo/bar/baz.js');
 });
 
-test_to_build_base_path.run();
-/* /test_to_build_base_path */
+testToBuildBasePath.run();
+/* /testToBuildBasePath */
 
-/* test_has_source_extension */
-const test_has_source_extension = suite('has_source_extension');
+/* testHasSourceExtension */
+const testHasSourceExtension = suite('hasSourceExtension');
 
-test_has_source_extension('typescript', () => {
-	t.ok(has_source_extension('foo/bar/baz.ts'));
+testHasSourceExtension('typescript', () => {
+	t.ok(hasSourceExtension('foo/bar/baz.ts'));
 });
 
-test_has_source_extension('svelte', () => {
-	t.ok(has_source_extension('foo/bar/baz.svelte'));
+testHasSourceExtension('svelte', () => {
+	t.ok(hasSourceExtension('foo/bar/baz.svelte'));
 });
 
-test_has_source_extension('json', () => {
-	t.ok(has_source_extension('foo/bar/baz.json'));
+testHasSourceExtension('json', () => {
+	t.ok(hasSourceExtension('foo/bar/baz.json'));
 });
 
-test_has_source_extension.run();
-/* /test_has_source_extension */
+testHasSourceExtension.run();
+/* /testHasSourceExtension */
 
-/* test_to_build_extension */
-const test_to_build_extension = suite('to_build_extension');
+/* testToBuildExtension */
+const testToBuildExtension = suite('toBuildExtension');
 
-test_to_build_extension('basic behavior', () => {
-	t.is(to_build_extension('foo/bar.ts', true), 'foo/bar.js');
-	t.is(to_build_extension('foo/bar.ts', false), 'foo/bar.js');
-	t.is(to_build_extension('foo/bar.svelte', true), 'foo/bar.svelte.js');
-	t.is(to_build_extension('foo/bar.svelte', false), 'foo/bar.svelte');
-	t.is(to_build_extension('foo/bar.json', true), 'foo/bar.json.js');
-	t.is(to_build_extension('foo/bar.json', false), 'foo/bar.json.js');
-	t.is(to_build_extension('foo/bar.css', true), 'foo/bar.css');
-	t.is(to_build_extension('foo/bar.css', false), 'foo/bar.css');
-	t.is(to_build_extension('foo/bar.png', true), 'foo/bar.png');
-	t.is(to_build_extension('foo/bar.png', false), 'foo/bar.png');
+testToBuildExtension('basic behavior', () => {
+	t.is(toBuildExtension('foo/bar.ts', true), 'foo/bar.js');
+	t.is(toBuildExtension('foo/bar.ts', false), 'foo/bar.js');
+	t.is(toBuildExtension('foo/bar.svelte', true), 'foo/bar.svelte.js');
+	t.is(toBuildExtension('foo/bar.svelte', false), 'foo/bar.svelte');
+	t.is(toBuildExtension('foo/bar.json', true), 'foo/bar.json.js');
+	t.is(toBuildExtension('foo/bar.json', false), 'foo/bar.json.js');
+	t.is(toBuildExtension('foo/bar.css', true), 'foo/bar.css');
+	t.is(toBuildExtension('foo/bar.css', false), 'foo/bar.css');
+	t.is(toBuildExtension('foo/bar.png', true), 'foo/bar.png');
+	t.is(toBuildExtension('foo/bar.png', false), 'foo/bar.png');
 });
 
-test_to_build_extension.run();
-/* /test_to_build_extension */
+testToBuildExtension.run();
+/* /testToBuildExtension */
 
-/* test_to_source_extension */
-const test_to_source_extension = suite('to_source_extension');
+/* testToSourceExtension */
+const testToSourceExtension = suite('toSourceExtension');
 
-test_to_source_extension('basic behavior', () => {
-	t.is(to_source_extension('foo/bar.js'), 'foo/bar.ts');
-	t.is(to_source_extension('foo/bar.js.map'), 'foo/bar.ts');
-	t.is(to_source_extension('foo/bar.d.ts'), 'foo/bar.ts');
-	t.is(to_source_extension('foo/bar.d.ts.map'), 'foo/bar.ts');
-	t.is(to_source_extension('foo/bar.svelte.js'), 'foo/bar.svelte');
-	t.is(to_source_extension('foo/bar.svelte.js.map'), 'foo/bar.svelte');
-	t.is(to_source_extension('foo/bar.svelte.css'), 'foo/bar.svelte');
-	t.is(to_source_extension('foo/bar.svelte.css.map'), 'foo/bar.svelte');
-	t.is(to_source_extension('foo/bar.json.js'), 'foo/bar.json');
-	t.is(to_source_extension('foo/bar.css'), 'foo/bar.css');
-	t.is(to_source_extension('foo/bar.css.map'), 'foo/bar.css');
-	t.is(to_source_extension('foo/bar.png'), 'foo/bar.png');
-	t.is(to_source_extension('foo/bar.png.map'), 'foo/bar.png');
-	t.is(to_source_extension('foo/bar/'), 'foo/bar/');
-	t.is(to_source_extension('foo/bar'), 'foo/bar');
-	t.is(to_source_extension('foo/'), 'foo/');
-	t.is(to_source_extension('foo'), 'foo');
+testToSourceExtension('basic behavior', () => {
+	t.is(toSourceExtension('foo/bar.js'), 'foo/bar.ts');
+	t.is(toSourceExtension('foo/bar.js.map'), 'foo/bar.ts');
+	t.is(toSourceExtension('foo/bar.d.ts'), 'foo/bar.ts');
+	t.is(toSourceExtension('foo/bar.d.ts.map'), 'foo/bar.ts');
+	t.is(toSourceExtension('foo/bar.svelte.js'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.svelte.js.map'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.svelte.css'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.svelte.css.map'), 'foo/bar.svelte');
+	t.is(toSourceExtension('foo/bar.json.js'), 'foo/bar.json');
+	t.is(toSourceExtension('foo/bar.css'), 'foo/bar.css');
+	t.is(toSourceExtension('foo/bar.css.map'), 'foo/bar.css');
+	t.is(toSourceExtension('foo/bar.png'), 'foo/bar.png');
+	t.is(toSourceExtension('foo/bar.png.map'), 'foo/bar.png');
+	t.is(toSourceExtension('foo/bar/'), 'foo/bar/');
+	t.is(toSourceExtension('foo/bar'), 'foo/bar');
+	t.is(toSourceExtension('foo/'), 'foo/');
+	t.is(toSourceExtension('foo'), 'foo');
 });
 
-test_to_source_extension.run();
-/* /test_to_source_extension */
+testToSourceExtension.run();
+/* /testToSourceExtension */
 
-/* test_to_import_id */
-const test_to_import_id = suite('to_import_id');
+/* testToImportId */
+const testToImportId = suite('toImportId');
 
-test_to_import_id('basic behavior', () => {
-	t.is(to_import_id(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
-	t.is(to_import_id(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
+testToImportId('basic behavior', () => {
+	t.is(toImportId(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
+	t.is(toImportId(resolve('src/foo/bar.ts'), false, 'baz'), resolve('.gro/prod/baz/foo/bar.js'));
 	t.is(
-		to_import_id(resolve('src/foo/bar.svelte'), true, 'baz'),
+		toImportId(resolve('src/foo/bar.svelte'), true, 'baz'),
 		resolve('.gro/dev/baz/foo/bar.svelte.js'),
 	);
 	t.is(
-		to_import_id(resolve('src/foo/bar.json'), true, 'baz'),
+		toImportId(resolve('src/foo/bar.json'), true, 'baz'),
 		resolve('.gro/dev/baz/foo/bar.json.js'),
 	);
 });
 
-test_to_import_id.run();
-/* /test_to_import_id */
+testToImportId.run();
+/* /testToImportId */
 
 /* test_EXTERNALS_BUILD_DIRNAME */
 const test_EXTERNALS_BUILD_DIRNAME = suite('EXTERNALS_BUILD_DIRNAME');

@@ -1,17 +1,17 @@
 <script lang="ts">
 	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
-	import type {SourceTree} from 'src/client/source_tree.js';
+	import type {SourceTree} from 'src/client/sourceTree.js';
 
-	export let source_tree: SourceTree;
-	export let selected_build_names: string[];
-	export const selected_source_meta = undefined;
-	export const hovered_source_meta = undefined;
+	export let sourceTree: SourceTree;
+	export let selectedBuildNames: string[];
+	export const selectedSourceMeta = undefined;
+	export const hoveredSourceMeta = undefined;
 </script>
 
 <div class="explorers">
-	<SourceMetaBuildTreeExplorer {source_tree} {selected_build_names} />
-	<SourceMetaTreeExplorer {source_tree} {selected_build_names} />
+	<SourceMetaBuildTreeExplorer {sourceTree} {selectedBuildNames} />
+	<SourceMetaTreeExplorer {sourceTree} {selectedBuildNames} />
 </div>
 
 <style>

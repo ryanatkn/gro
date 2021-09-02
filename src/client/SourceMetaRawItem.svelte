@@ -2,72 +2,72 @@
 	import type {Writable} from 'svelte/store';
 
 	import SourceId from './SourceId.svelte';
-	import type {SourceMeta} from 'src/build/source_meta.js';
+	import type {SourceMeta} from 'src/build/sourceMeta.js';
 
-	export let source_meta: SourceMeta;
-	export let hovered_source_meta: Writable<SourceMeta | null>;
+	export let sourceMeta: SourceMeta;
+	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
 	let expanded = false;
-	$: expanded_text = expanded ? '–' : '+';
+	$: expandedText = expanded ? '–' : '+';
 
 	let hovering = false;
 
-	const on_pointer_enter = () => {
+	const onPointerEnter = () => {
 		hovering = true;
-		$hovered_source_meta = source_meta;
+		$hoveredSourceMeta = sourceMeta;
 	};
-	const on_pointer_leave = () => {
+	const onPointerLeave = () => {
 		hovering = false;
-		if ($hovered_source_meta === source_meta) $hovered_source_meta = null;
+		if ($hoveredSourceMeta === sourceMeta) $hoveredSourceMeta = null;
 	};
 
 	// TODO probably want to do a better data structure than this
-	const is_dependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
+	const isDependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
 		// omg this is a big O WTF
 		dependent.data.builds.find((build1) =>
 			build1.dependencies?.find((d) =>
-				dependency.data.builds.find((build2) => build2.id === d.build_id),
+				dependency.data.builds.find((build2) => build2.id === d.buildId),
 			),
 		);
 
-	$: hovered_is_dependency = is_dependency($hovered_source_meta, source_meta);
-	$: hovered_is_dependent = is_dependency(source_meta, $hovered_source_meta);
+	$: hoveredIsDependency = isDependency($hoveredSourceMeta, sourceMeta);
+	$: hoveredIsDependent = isDependency(sourceMeta, $hoveredSourceMeta);
 	$: deemphasized =
-		$hovered_source_meta &&
+		$hoveredSourceMeta &&
 		!hovering &&
-		!(hovered_is_dependency || hovered_is_dependent || $hovered_source_meta === source_meta);
+		!(hoveredIsDependency || hoveredIsDependent || $hoveredSourceMeta === sourceMeta);
 </script>
 
 <div class="summary" class:deemphasized>
 	<div class="dep">
-		{#if hovered_is_dependency}↤{/if}
+		{#if hoveredIsDependency}↤{/if}
 	</div>
 	<div class="dep">
-		{#if hovered_is_dependent}↦{/if}
+		{#if hoveredIsDependent}↦{/if}
 	</div>
 	<button
 		on:pointerdown={() => (expanded = !expanded)}
-		on:pointerenter={on_pointer_enter}
-		on:pointerleave={on_pointer_leave}
+		on:pointerenter={onPointerEnter}
+		on:pointerleave={onPointerLeave}
 		class:hovering
 	>
-		<span class="icon">{expanded_text}</span>
-		<SourceId id={source_meta.data.source_id} />
+		<span class="icon">{expandedText}</span>
+		<SourceId id={sourceMeta.data.sourceId} />
 	</button>
 </div>
 {#if expanded}
 	<pre>
-      {JSON.stringify(source_meta, null, 2)}
+      {JSON.stringify(sourceMeta, null, 2)}
     </pre>
 	<button
 		on:pointerdown={() => (expanded = !expanded)}
-		on:pointerenter={on_pointer_enter}
-		on:pointerleave={on_pointer_leave}
+		on:pointerenter={onPointerEnter}
+		on:pointerleave={onPointerLeave}
 	>
-		{expanded_text}
+		{expandedText}
 	</button>
 {/if}
 

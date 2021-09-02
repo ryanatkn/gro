@@ -1,45 +1,45 @@
 import {relative, dirname} from 'path';
 import type {Logger} from '@feltcoop/felt/util/log.js';
-import {strip_end, strip_start} from '@feltcoop/felt/util/string.js';
+import {stripEnd, stripStart} from '@feltcoop/felt/util/string.js';
 
-import type {BuildConfig} from 'src/build/build_config.js';
+import type {BuildConfig} from 'src/build/buildConfig.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import type {IdStatsFilter} from 'src/fs/filter.js';
 import {
 	EXTERNALS_BUILD_DIRNAME,
-	to_build_base_path,
-	to_build_out_path,
+	toBuildBasePath,
+	toBuildOutPath,
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
-	print_path,
+	printPath,
 	SOURCE_DIRNAME,
 	paths,
 } from '../paths.js';
 
-export const copy_dist = async (
+export const copyDist = async (
 	fs: Filesystem,
-	build_config: BuildConfig,
+	buildConfig: BuildConfig,
 	dev: boolean,
-	dist_out_dir: string,
+	distOutDir: string,
 	log: Logger,
 	filter?: IdStatsFilter,
-	pack: boolean = true, // TODO reconsider this API, see `gro_adapter_node_library`
-	rebase_path: string = '',
+	pack: boolean = true, // TODO reconsider this API, see `groAdapterNodeLibrary`
+	rebasePath: string = '',
 ): Promise<void> => {
-	const build_out_dir = to_build_out_path(dev, build_config.name, rebase_path);
-	const externals_dir = build_out_dir + EXTERNALS_BUILD_DIRNAME;
-	log.info(`copying ${print_path(build_out_dir)} to ${print_path(dist_out_dir)}`);
-	const typemap_files: string[] = [];
-	await fs.copy(build_out_dir, dist_out_dir, {
+	const buildOutDir = toBuildOutPath(dev, buildConfig.name, rebasePath);
+	const externalsDir = buildOutDir + EXTERNALS_BUILD_DIRNAME;
+	log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);
+	const typemapFiles: string[] = [];
+	await fs.copy(buildOutDir, distOutDir, {
 		overwrite: false,
 		filter: async (id) => {
-			if (id === externals_dir) return false;
+			if (id === externalsDir) return false;
 			const stats = await fs.stat(id);
 			if (filter && !filter(id, stats)) return false;
 			if (stats.isDirectory()) return true;
 			// typemaps are edited before copying, see below
 			if (id.endsWith(TS_TYPEMAP_EXTENSION)) {
-				typemap_files.push(id);
+				typemapFiles.push(id);
 				return false;
 			}
 			return true;
@@ -49,22 +49,22 @@ export const copy_dist = async (
 	// typemap files (.d.ts.map) need their `sources` property mapped back to the source directory
 	// based on the relative change from the build to the dist
 	await Promise.all(
-		typemap_files.map(async (id) => {
-			const base_path = to_build_base_path(id);
-			const source_base_path = `${strip_end(base_path, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
-			const dist_source_id = pack
-				? `${dist_out_dir}/${SOURCE_DIRNAME}/${source_base_path}`
-				: `${paths.source}${source_base_path}`;
-			const dist_out_path = `${dist_out_dir}/${strip_start(base_path, rebase_path)}`;
-			const typemap_source_path = relative(dirname(dist_out_path), dist_source_id);
-			const typemap = JSON.parse(await fs.read_file(id, 'utf8'));
-			typemap.sources[0] = typemap_source_path; // haven't seen any exceptions that would break this
-			return fs.write_file(dist_out_path, JSON.stringify(typemap));
+		typemapFiles.map(async (id) => {
+			const basePath = toBuildBasePath(id);
+			const sourceBasePath = `${stripEnd(basePath, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
+			const distSourceId = pack
+				? `${distOutDir}/${SOURCE_DIRNAME}/${sourceBasePath}`
+				: `${paths.source}${sourceBasePath}`;
+			const distOutPath = `${distOutDir}/${stripStart(basePath, rebasePath)}`;
+			const typemapSourcePath = relative(dirname(distOutPath), distSourceId);
+			const typemap = JSON.parse(await fs.readFile(id, 'utf8'));
+			typemap.sources[0] = typemapSourcePath; // haven't seen any exceptions that would break this
+			return fs.writeFile(distOutPath, JSON.stringify(typemap));
 		}),
 	);
 };
 
-export type HostTarget = 'github_pages' | 'static';
+export type HostTarget = 'githubPages' | 'static';
 
 const NOJEKYLL_FILENAME = '.nojekyll';
 
@@ -72,9 +72,9 @@ const NOJEKYLL_FILENAME = '.nojekyll';
 // breaking things like files and dirs prefixed with an underscore.
 // This adds a `.nojekyll` file to the root of the output
 // to tell GitHub Pages to treat the outputs as plain static files.
-export const ensure_nojekyll = async (fs: Filesystem, dir: string): Promise<void> => {
-	const nojekyll_path = `${dir}/${NOJEKYLL_FILENAME}`;
-	if (!(await fs.exists(nojekyll_path))) {
-		await fs.write_file(nojekyll_path, '', 'utf8');
+export const ensureNojekyll = async (fs: Filesystem, dir: string): Promise<void> => {
+	const nojekyllPath = `${dir}/${NOJEKYLL_FILENAME}`;
+	if (!(await fs.exists(nojekyllPath))) {
+		await fs.writeFile(nojekyllPath, '', 'utf8');
 	}
 };

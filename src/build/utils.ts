@@ -2,51 +2,51 @@ import type {Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 
-import type {BuildConfigInput} from 'src/build/build_config.js';
+import type {BuildConfigInput} from 'src/build/buildConfig.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {build_id_to_source_id, paths} from '../paths.js';
-import {EXTERNALS_SOURCE_ID} from './gro_builder_externals_utils.js';
-import type {BuildDependency} from 'src/build/build_dependency.js';
+import {buildIdToSourceId, paths} from '../paths.js';
+import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
+import type {BuildDependency} from 'src/build/buildDependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
-export const to_hash = (buf: Buffer): string =>
+export const toHash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
 interface FilterDirectory {
 	(id: string): boolean;
 }
 
-export const create_directory_filter = (dir: string, root_dir = paths.source): FilterDirectory => {
-	dir = resolve(root_dir, dir);
-	const dir_with_trailing_slash = dir + '/';
-	const filter_directory: FilterDirectory = (id) =>
-		id === dir || id.startsWith(dir_with_trailing_slash);
-	return filter_directory;
+export const createDirectoryFilter = (dir: string, rootDir = paths.source): FilterDirectory => {
+	dir = resolve(rootDir, dir);
+	const dirWithTrailingSlash = dir + '/';
+	const filterDirectory: FilterDirectory = (id) =>
+		id === dir || id.startsWith(dirWithTrailingSlash);
+	return filterDirectory;
 };
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, build_dir: string): string;
+	(dependency: BuildDependency, buildDir: string): string;
 }
 
-// TODO this could be `MapBuildIdToSourceId` and infer externals from the `base_path`
-export const map_dependency_to_source_id: MapDependencyToSourceId = (dependency, build_dir) => {
+// TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
+export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildDir) => {
 	// TODO this is failing with build ids like `terser` - should that be the build id? yes?
 	// dependency.external
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;
 	} else {
-		return build_id_to_source_id(dependency.build_id, build_dir);
+		return buildIdToSourceId(dependency.buildId, buildDir);
 	}
 };
 
-export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): string =>
+export const addJsSourcemapFooter = (code: string, sourcemapPath: string): string =>
 	`${code}\n//# sourceMappingURL=${sourcemapPath}`;
 
-export const add_css_sourcemap_footer = (code: string, sourcemapPath: string): string =>
+export const addCssSourcemapFooter = (code: string, sourcemapPath: string): string =>
 	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;
 
-export const validate_input_files = async (
+export const validateInputFiles = async (
 	fs: Filesystem,
 	files: string[],
 ): Promise<Result<{}, {reason: string}>> => {
@@ -64,7 +64,7 @@ export const validate_input_files = async (
 	return {ok: true};
 };
 
-export const is_input_to_build_config = (
+export const isInputToBuildConfig = (
 	id: string,
 	inputs: readonly BuildConfigInput[],
 ): boolean => {

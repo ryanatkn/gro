@@ -2,69 +2,69 @@
 	import type {Writable} from 'svelte/store';
 
 	import SourceId from './SourceId.svelte';
-	import type {SourceMeta} from 'src/build/source_meta.js';
+	import type {SourceMeta} from 'src/build/sourceMeta.js';
 
-	export let source_meta: SourceMeta;
-	export let selected_source_meta: Writable<SourceMeta | null>;
-	export let hovered_source_meta: Writable<SourceMeta | null>;
+	export let sourceMeta: SourceMeta;
+	export let selectedSourceMeta: Writable<SourceMeta | null>;
+	export let hoveredSourceMeta: Writable<SourceMeta | null>;
 
 	// this allows you to default stuff to e.g. the selected if there's no hovered
-	$: active_source_meta = $hovered_source_meta || $selected_source_meta;
-	$: active = $hovered_source_meta ? hovered : selected;
+	$: activeSourceMeta = $hoveredSourceMeta || $selectedSourceMeta;
+	$: active = $hoveredSourceMeta ? hovered : selected;
 
-	$: hovered = source_meta === $hovered_source_meta;
-	$: selected = source_meta === $selected_source_meta;
+	$: hovered = sourceMeta === $hoveredSourceMeta;
+	$: selected = sourceMeta === $selectedSourceMeta;
 
-	const on_pointer_down = (e: PointerEvent) => {
+	const onPointerDown = (e: PointerEvent) => {
 		// TODO this needs to be done for all of the handlers..
 		if (e.button !== 0) return;
-		$selected_source_meta = selected ? null : source_meta;
+		$selectedSourceMeta = selected ? null : sourceMeta;
 	};
-	const on_pointer_enter = () => {
-		$hovered_source_meta = source_meta;
+	const onPointerEnter = () => {
+		$hoveredSourceMeta = sourceMeta;
 	};
-	const on_pointer_leave = () => {
-		if ($hovered_source_meta === source_meta) $hovered_source_meta = null;
+	const onPointerLeave = () => {
+		if ($hoveredSourceMeta === sourceMeta) $hoveredSourceMeta = null;
 	};
 
 	// TODO need a better data structure for this
-	const is_dependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
+	const isDependency = (dependency: SourceMeta | null, dependent: SourceMeta | null) =>
 		dependent &&
 		dependency &&
 		dependent !== dependency &&
 		// omg this is a big O WTF
 		dependent.data.builds.find((build1) =>
 			build1.dependencies?.find((d) =>
-				dependency.data.builds.find((build2) => build2.id === d.build_id),
+				dependency.data.builds.find((build2) => build2.id === d.buildId),
 			),
 		);
 
-	$: active_is_dependency = is_dependency(active_source_meta, source_meta);
-	$: active_is_dependent = is_dependency(source_meta, active_source_meta);
-	$: emphasized = active_is_dependency || active_is_dependent || active;
-	$: deemphasized = active_source_meta && !emphasized;
-	$: data = active_source_meta?.data!; // TODO this is a workaround for not having `!` in templates
+	$: activeIsDependency = isDependency(activeSourceMeta, sourceMeta);
+	$: activeIsDependent = isDependency(sourceMeta, activeSourceMeta);
+	$: emphasized = activeIsDependency || activeIsDependent || active;
+	$: deemphasized = activeSourceMeta && !emphasized;
+	$: data = activeSourceMeta?.data!; // TODO this is a workaround for not having `!` in templates
 </script>
 
 <div class="summary" class:deemphasized class:emphasized>
 	<div class="dep">
-		{#if active_is_dependency}
-			<span title="{source_meta.data.source_id} has a dependency on {data.source_id}">↤</span>
+		{#if activeIsDependency}
+			<span title="{sourceMeta.data.sourceId} has a dependency on {data.sourceId}">↤</span>
 		{/if}
 	</div>
 	<div class="dep">
-		{#if active_is_dependent}
-			<span title="{source_meta.data.source_id} is a dependency of {data.source_id}">↦</span>
+		{#if activeIsDependent}
+			<span title="{sourceMeta.data.sourceId} is a dependency of {data.sourceId}">↦</span>
 		{/if}
 	</div>
 	<button
-		on:pointerdown={on_pointer_down}
-		on:pointerenter={on_pointer_enter}
-		on:pointerleave={on_pointer_leave}
+		on:pointerdown={onPointerDown}
+		on:pointerenter={onPointerEnter}
+		on:pointerleave={onPointerLeave}
 		class:hovered
 		class:selected
 	>
-		<SourceId id={source_meta.data.source_id} />
+		<SourceId id={sourceMeta.data.sourceId} />
 	</button>
 </div>
 

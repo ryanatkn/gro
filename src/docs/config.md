@@ -57,7 +57,7 @@ export interface GroConfigPartial {
 	readonly types?: boolean; // defaults to false
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
-	readonly log_level?: Log_Level; // env.GRO_LOG_LEVEL
+	readonly logLevel?: LogLevel; // env.GRO_LOG_LEVEL
 	readonly serve?: ServedDirPartial[];
 }
 ```
@@ -66,8 +66,8 @@ export interface GroConfigPartial {
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`BuildConfigPartial`](/src/build/build_config.ts) type,
-which is the user-facing version of the [`BuildConfig`](/src/build/build_config.ts):
+Here's the [`BuildConfigPartial`](/src/build/buildConfig.ts) type,
+which is the user-facing version of the [`BuildConfig`](/src/build/buildConfig.ts):
 
 ```ts
 export interface BuildConfigPartial {
@@ -99,7 +99,7 @@ or a filter function with the signature `(id: string) => boolean`.
 To define filters, it's convenient to use the
 [`createFilter` helper](https://github.com/rollup/plugins/tree/master/packages/pluginutils#createFilter)
 from `@rollup/pluginutils` and
-Gro's own [`create_directory_filter` helper](../build/utils.ts).
+Gro's own [`createDirectoryFilter` helper](../build/utils.ts).
 
 ### `plugin`
 
@@ -134,7 +134,7 @@ export interface ToConfigAdapters<TArgs = any, TEvents = any> {
 to serve the content of both `src/` and `src/client/` off of the root directory.
 
 ```ts
-serve: [to_build_out_path(true, 'browser', 'client'), to_build_out_path(true, 'browser', '')],
+serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
 ```
 
 ```ts

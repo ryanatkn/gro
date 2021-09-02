@@ -1,28 +1,28 @@
 <script lang="ts">
-	import {filter_selected_metas} from './source_tree.js';
-	import type {SourceTree} from 'src/client/source_tree.js';
+	import {filterSelectedMetas} from './sourceTree.js';
+	import type {SourceTree} from 'src/client/sourceTree.js';
 	import BuildId from './BuildId.svelte';
 	import SourceId from './SourceId.svelte';
-	import {get_builds_by_build_name} from './source_tree.js';
+	import {getBuildsByBuildName} from './sourceTree.js';
 
-	export let source_tree: SourceTree;
-	export let selected_build_names: string[];
-	export const selected_source_meta = undefined;
-	export const hovered_source_meta = undefined;
+	export let sourceTree: SourceTree;
+	export let selectedBuildNames: string[];
+	export const selectedSourceMeta = undefined;
+	export const hoveredSourceMeta = undefined;
 
-	$: filtered_source_metas = filter_selected_metas(source_tree, selected_build_names);
+	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
 </script>
 
 <div>
-	{#each filtered_source_metas as source_meta (source_meta.cache_id)}
-		{#each source_meta.build_names as build_name (build_name)}
-			{#if selected_build_names.includes(build_name)}
+	{#each filteredSourceMetas as sourceMeta (sourceMeta.cacheId)}
+		{#each sourceMeta.buildNames as buildName (buildName)}
+			{#if selectedBuildNames.includes(buildName)}
 				<div class="root item bg">
 					<div class="content">
-						<SourceId id={source_meta.data.source_id} />
+						<SourceId id={sourceMeta.data.sourceId} />
 					</div>
 					<div>
-						{#each get_builds_by_build_name(source_meta, build_name) as build (build.id)}
+						{#each getBuildsByBuildName(sourceMeta, buildName) as build (build.id)}
 							<div class="item bg">
 								<div class="content">
 									<BuildId id={build.id} />
@@ -30,8 +30,8 @@
 								{#if build.dependencies}
 									<div class="content bg">
 										<div>
-											{#each build.dependencies as dependency (dependency.build_id)}
-												<BuildId id={dependency.build_id} />
+											{#each build.dependencies as dependency (dependency.buildId)}
+												<BuildId id={dependency.buildId} />
 											{/each}
 										</div>
 									</div>

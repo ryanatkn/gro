@@ -1,15 +1,15 @@
-import {ENV_LOG_LEVEL, Log_Level} from '@feltcoop/felt/util/log.js';
+import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from 'src/config/config.js';
 import {
-	has_node_library,
+	hasNodeLibrary,
 	NODE_LIBRARY_BUILD_CONFIG,
-	has_sveltekit_frontend,
-	has_api_server,
+	hasSveltekitFrontend,
+	hasApiServer,
 	API_SERVER_BUILD_CONFIG,
-	has_gro_frontend,
-	to_default_browser_build,
-} from '../build/build_config_defaults.js';
+	hasGroFrontend,
+	toDefaultBrowserBuild,
+} from '../build/buildConfigDefaults.js';
 
 /*
 
@@ -29,48 +29,44 @@ It looks at the project and tries to do the right thing:
 */
 
 export const config: GroConfigCreator = async ({fs, dev}) => {
-	const [enable_node_library, enable_api_server, enable_sveltekit_frontend, enable_gro_frontend] =
+	const [enableNodeLibrary, enableApiServer, enableSveltekitFrontend, enableGroFrontend] =
 		await Promise.all([
-			has_node_library(fs),
-			has_api_server(fs),
-			has_sveltekit_frontend(fs),
-			has_gro_frontend(fs),
+			hasNodeLibrary(fs),
+			hasApiServer(fs),
+			hasSveltekitFrontend(fs),
+			hasGroFrontend(fs),
 		]);
-	const enable_dev_server = dev && enable_gro_frontend;
+	const enableDevServer = dev && enableGroFrontend;
 	const partial: GroConfigPartial = {
 		builds: [
-			enable_node_library ? NODE_LIBRARY_BUILD_CONFIG : null,
-			enable_api_server ? API_SERVER_BUILD_CONFIG : null,
+			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
+			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			// note there's no build for SvelteKit frontends - should there be?
-			enable_gro_frontend ? to_default_browser_build() : null, // TODO configure asset paths
+			enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
-		log_level: ENV_LOG_LEVEL ?? Log_Level.Trace,
-		types: enable_node_library,
+		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
+		types: enableNodeLibrary,
 		plugin: async () => [
-			enable_dev_server
-				? (await import('../plugin/gro_plugin_dev_server.js')).create_plugin()
-				: null,
-			enable_api_server
-				? (await import('../plugin/gro_plugin_api_server.js')).create_plugin()
-				: null,
-			enable_sveltekit_frontend
-				? (await import('../plugin/gro_plugin_sveltekit_frontend.js')).create_plugin()
+			enableDevServer ? (await import('../plugin/groPluginDevServer.js')).createPlugin() : null,
+			enableApiServer ? (await import('../plugin/groPluginApiServer.js')).createPlugin() : null,
+			enableSveltekitFrontend
+				? (await import('../plugin/groPluginSveltekitFrontend.js')).createPlugin()
 				: null,
 		],
 		adapt: async () => [
-			enable_node_library
-				? (await import('../adapt/gro_adapter_node_library.js')).create_adapter()
+			enableNodeLibrary
+				? (await import('../adapt/groAdapterNodeLibrary.js')).createAdapter()
 				: null,
-			enable_api_server
-				? (await import('../adapt/gro_adapter_generic_build.js')).create_adapter({
-						build_name: API_SERVER_BUILD_CONFIG.name,
+			enableApiServer
+				? (await import('../adapt/groAdapterGenericBuild.js')).createAdapter({
+						buildName: API_SERVER_BUILD_CONFIG.name,
 				  })
 				: null,
-			enable_gro_frontend
-				? (await import('../adapt/gro_adapter_gro_frontend.js')).create_adapter()
+			enableGroFrontend
+				? (await import('../adapt/groAdapterGroFrontend.js')).createAdapter()
 				: null,
-			enable_sveltekit_frontend
-				? (await import('../adapt/gro_adapter_sveltekit_frontend.js')).create_adapter()
+			enableSveltekitFrontend
+				? (await import('../adapt/groAdapterSveltekitFrontend.js')).createAdapter()
 				: null,
 		],
 	};

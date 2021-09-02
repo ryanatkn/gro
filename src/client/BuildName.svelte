@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type {BuildName} from 'src/build/build_config.js';
+	import type {BuildName} from 'src/build/buildConfig.js';
 
-	export let build_name: BuildName;
+	export let buildName: BuildName;
 </script>
 
-<span>{build_name}</span>
+<span>{buildName}</span>
 
 <style>
 	span {
