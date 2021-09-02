@@ -1,5 +1,10 @@
 # changelog
 
+## 0.40.0
+
+- rename to `camelCase` from `snake_case`
+  ([#267](https://github.com/feltcoop/gro/pull/267)
+
 ## 0.39.1
 
 - fix dev server plugin defaults to not load for prod builds
