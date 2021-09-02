@@ -6,8 +6,10 @@ developing Node servers, publishing to npm, and deploying to branches.
 Gro's current plan is to integrate with SvelteKit as an alternative to Vite,
 but that goal may change.
 
-Gro currently ignores SvelteKit's library publishing capabilities for its own,
-but other than that, Gro mostly stays out of SvelteKit's way.
+Gro currently ignores SvelteKit's [library packaging](https://kit.svelte.dev/docs#packaging)
+capabilities for its own, but other than that, Gro mostly stays out of SvelteKit's way.
+You can still use `svelte-kit package`
+but it doesn't currently integrate with Gro's other systems like `gro publish`.
 
 Gro's supplemental role is still a work in progress --
 in the current implementation, user projects manage their own SvelteKit dependencies,
