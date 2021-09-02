@@ -18,7 +18,7 @@ gro test build/Filer.test.js\$ # run tests matching an uvu pattern: https://gith
 > TODO exclude `.map` files by default, making the `\$` above unnecessary
 
 The builtin [`gro test`](/src/test.task.ts)
-[task](/src/task/README.md) runs all `*.test.*` files in your project by default.
+[task](/src/docs/task.md) runs all `*.test.*` files in your project by default.
 (excluding [`*.gen.*` files](/src/docs/gen.md))
 So to make new tests, make a new file:
 

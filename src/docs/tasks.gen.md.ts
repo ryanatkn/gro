@@ -59,7 +59,7 @@ export const gen: Gen = async ({fs, originId, log}) => {
 
 ${breadcrumbs}
 
-What is a \`Task\`? See [\`src/tasks/README.md\`](../task).
+What is a \`Task\`? See [\`tasks.md\`](./task.md).
 
 ## all tasks
 

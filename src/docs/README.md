@@ -14,6 +14,7 @@
 - [plugin](plugin.md)
 - [publish](publish.md)
 - [sveltekit](sveltekit.md)
+- [task](task.md)
 - [tasks](tasks.md)
 - [test](test.md)
 

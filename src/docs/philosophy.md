@@ -31,7 +31,7 @@ and Gro's philosophy will change over time.
     and provide userland plugin points for reading/writing data and monitoring behavior efficiently
   - two examples of good efforts here include the
     [build system](https://github.com/feltcoop/gro/blob/main/src/docs/dev.md)
-    and [task resolution and composition](https://github.com/feltcoop/gro/tree/main/src/task)
+    and [task resolution and composition](https://github.com/feltcoop/gro/tree/main/src/docs/task.md)
 - **built to evolve and grow for the long run**:
   - patiently search for best-of-all-worlds tradeoffs, or at least better ones
   - pay technical debt sooner rather than later; the evergreen web lets us leave legacy in the past

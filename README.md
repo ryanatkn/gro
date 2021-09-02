@@ -49,8 +49,7 @@ It includes:
     [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
     with long term plans to
     [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
-- [task runner](/src/task) that uses the filesystem convention `*.task.ts`
-  (docs at [`src/task`](/src/task))
+- [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [dev server](/src/server/README.md) with efficient caching and http2/https support
@@ -73,7 +72,7 @@ It includes:
   - [config](/src/docs/config.md)
   - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/docs/publish.md)
-- [`task`](/src/task#readme) runner
+- [`task`](/src/docs/task.md) runner
   - [tasks](/src/docs/tasks.md) list
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [dev server](/src/server#readme)
@@ -111,7 +110,7 @@ gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
-To learn more [see the task docs](/src/task)
+To learn more [see the task docs](/src/docs/task.md)
 and [the generated task index](/src/docs/tasks.md).
 
 ```bash
