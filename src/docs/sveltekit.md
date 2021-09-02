@@ -13,7 +13,7 @@ but it doesn't currently integrate with Gro's other systems like `gro publish`.
 
 Gro's supplemental role is still a work in progress --
 in the current implementation, user projects manage their own SvelteKit dependencies,
-and commands like `gro dev` and `gro build` automatically detect SvelteKit projects
+and commands like `gro dev` and `gro build` automatically detect SvelteKit projects.
 
 Gro supports SvelteKit+Vite along with its own non-conflicting system for frontend development,
 but Gro's frontend system does not currently support HMR, code splitting, routing,
