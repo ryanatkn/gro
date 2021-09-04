@@ -1,5 +1,10 @@
 # changelog
 
+## 0.40.1
+
+- make `gro deploy` safer by excluding branches `'main'` and `'master'` unless `--force`
+  ([#268](https://github.com/feltcoop/gro/pull/268)
+
 ## 0.40.0
 
 - rename to `camelCase` from `snake_case`

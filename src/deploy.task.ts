@@ -22,6 +22,7 @@ export interface TaskArgs extends Args {
 	branch?: string; // optional branch to deploy from; defaults to 'main'
 	dry?: boolean;
 	clean?: boolean; // instead of deploying, just clean the git worktree and Gro cache
+	force?: boolean; // allow deploying to excluded branches like main/master
 }
 
 // TODO customize
@@ -33,11 +34,19 @@ const INITIAL_FILE = 'package.json'; // this is a single file that's copied into
 const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 
+const EXCLUDED_BRANCHES = ['main', 'master'];
+
 export const task: Task<TaskArgs> = {
 	summary: 'deploy to static hosting',
 	dev: false,
 	run: async ({fs, invokeTask, args, log}): Promise<void> => {
-		const {dirname, branch, dry, clean: cleanAndExit} = args;
+		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
+
+		if (!force && EXCLUDED_BRANCHES.includes(branch as string)) {
+			throw Error(
+				`For safety reasons, cannot deploy to branch '${branch}'. Pass --force to override.`,
+			);
+		}
 
 		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
