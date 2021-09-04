@@ -42,13 +42,13 @@ export const task: Task<TaskArgs> = {
 	run: async ({fs, invokeTask, args, log}): Promise<void> => {
 		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
 
-		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
-
-		if (!force && EXCLUDED_BRANCHES.includes(sourceBranch)) {
+		if (!force && EXCLUDED_BRANCHES.includes(branch as string)) {
 			throw Error(
-				`For safety reasons, cannot deploy to branch '${sourceBranch}'. Pass --force to override.`,
+				`For safety reasons, cannot deploy to branch '${branch}'. Pass --force to override.`,
 			);
 		}
+
+		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
