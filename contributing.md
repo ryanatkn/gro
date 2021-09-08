@@ -3,11 +3,14 @@ hey! thanks for your interest in contributing! Welcome, but it's complicated!;;;
 So, Gro is a project that I, a developer of quantity 1, use to support my other work.
 Although Gro is a [@feltcoop](https://github.com/feltcoop) project,
 I am its only developer for now,
-and we have [more important projects](https://github.com/feltcoop/felt)
+and we have
+[more](https://github.com/feltcoop/felt)
+[important](https://github.com/feltcoop/felt-server)
+[projects](https://github.com/feltcoop/felt.social)
 that occupy almost all of our time.
 For more you can read about [Gro's current philosophy](/src/docs/philosophy.md).
 
-I don't want to spend much time on support outside of our needs.
+I'm wary of spending too much time on support outside of our needs.
 Some is fine, welcome even 😺 but there is a line 😾 and I don't know where it is yet.
 And I want to give away the source code because I think it's useful and cool.
 The license is MIT, so you're free to use and repurpose it.
@@ -36,7 +39,7 @@ I would enjoy discussing your issues,
 along with any questions or pointers you may have
 for improving the usefulness of the software gracefully.
 Big caveat though, I also can't guarantee that Gro will work for your use cases,
-and at times it's quite possible I may look, gasp, inflexible, myself.
+and at times it's I may look inflexible. (it's ok to push back, but please be kind!)
 This is why Gro's tagline is:
 
 > opinionated tools for web development
