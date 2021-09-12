@@ -14,6 +14,8 @@
 		"isolatedModules": true,
 		"importsNotUsedAsValues": "error",
 		"strict": true,
+		"useUnknownInCatchVariables": false,
+		"exactOptionalPropertyTypes": false,
 		"forceConsistentCasingInFileNames": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
