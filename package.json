@@ -75,7 +75,6 @@
     "uvu": "^0.5.1"
   },
   "peerDependencies": {
-    "@types/prettier": "^2.3.1",
     "uvu": "^0.5.1"
   },
   "devDependencies": {
