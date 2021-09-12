@@ -1,7 +1,9 @@
 # changelog
 
-## 0.40.1
+## 0.41.0
 
+- **break**: update deps and remove most peer deps
+  ([#269](https://github.com/feltcoop/gro/pull/269)
 - make `gro deploy` safer by excluding branches `'main'` and `'master'` unless `--force`
   ([#268](https://github.com/feltcoop/gro/pull/268)
 

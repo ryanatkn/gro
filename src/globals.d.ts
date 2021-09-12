@@ -1,5 +1,3 @@
-declare module 'mri';
-
 // TODO https://github.com/lukeed/uvu/pull/105
 // experiment with the other types too!
 declare module 'uvu/assert' {
