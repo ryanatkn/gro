@@ -27,6 +27,7 @@ It's not the pattern for every circumstance;
 there is overhead that e.g. hot paths and simple implementations should avoid.
 
 > TODO should we rework this to stop using the `omitUndefined` helper?
+> see `exactOptionalPropertyTypes` and the note below about it too
 
 ```ts
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
@@ -54,6 +55,8 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	// We always omit `undefined` values from the initial options
 	// so callers can be assured type safety.
 	// TypeScript allows `undefined` to be passed for optional properties
+	// (TODO this can now be customized with `exactOptionalPropertyTypes`
+	// but we have it disabled for now)
 	// (https://github.com/Microsoft/TypeScript/issues/13195),
 	// allowing callers to pass `undefined` without TypeScript complaining and
 	// override properties whose types don't include `undefined`, causing errors!
