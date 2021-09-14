@@ -3,19 +3,19 @@
 ## 0.41.0
 
 - **break**: update deps and remove most peer deps
-  ([#269](https://github.com/feltcoop/gro/pull/269)
+  ([#269](https://github.com/feltcoop/gro/pull/269))
 - make `gro deploy` safer by excluding branches `'main'` and `'master'` unless `--force`
-  ([#268](https://github.com/feltcoop/gro/pull/268)
+  ([#268](https://github.com/feltcoop/gro/pull/268))
 
 ## 0.40.0
 
 - rename to `camelCase` from `snake_case`
-  ([#267](https://github.com/feltcoop/gro/pull/267)
+  ([#267](https://github.com/feltcoop/gro/pull/267))
 
 ## 0.39.1
 
 - fix dev server plugin defaults to not load for prod builds
-  ([#265](https://github.com/feltcoop/gro/pull/265)
+  ([#265](https://github.com/feltcoop/gro/pull/265))
 
 ## 0.39.0
 
