@@ -7,7 +7,7 @@
 
 ## motivation
 
-The `gro gen` task helps us enhance our projects
+The [`gro gen` task](/src/gen.task.ts) helps us enhance our projects
 with convention-based code/data/file generation (codegen) techniques.
 
 Why? Codegen can produce cool results and eternal pain.
@@ -42,7 +42,7 @@ The goal is to leverage automation to increase the power we wield over our code
 with a straightforward developer experience.
 Ergonomics are key to unlocking codegen's full potential.
 
-**Be aware** — this is a sharp tool!
+**Be aware** — this is a sharp tool! It should be used sparingly, only when it's a clear win.
 It adds a layer of indirection between the code you write and run.
 Also, you could introduce security vulnerabilities
 if you fail to escape certain inputs.
@@ -52,7 +52,7 @@ Sourcemaps could be added at some point, at least in many cases.
 Inspirations include Lisp macros, the
 [Svelte](https://github.com/sveltejs/svelte) compiler,
 and [Zig](https://github.com/ziglang/zig)'s comptime.
-(but `gen` is far more primitive)
+(but `gro gen` is far more primitive)
 
 ## usage
 
