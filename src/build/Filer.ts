@@ -771,7 +771,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			for (const addedDependency of addedDependencies) {
 				// `external` will be false for Node imports in non-browser contexts -
 				// we create no source file for them
-				if (!addedDependency.external && isExternalModule(addedDependency.buildId)) continue; // TODO !! huh? also below for removed?
+				if (!addedDependency.external && isExternalModule(addedDependency.buildId)) continue;
 				// TODO !! instead of `await`, resolve the source file upstream and cache on the `Dependency`?
 				const addedSourceId = await this.mapDependencyToSourceId(
 					addedDependency,
