@@ -1,5 +1,10 @@
 # changelog
 
+## 0.41.1
+
+- support js imports
+  ([#270](https://github.com/feltcoop/gro/pull/270))
+
 ## 0.41.0
 
 - **break**: update deps and remove most peer deps
