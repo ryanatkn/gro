@@ -13,3 +13,7 @@ console.log('testNestedImports testExternalImport', tick);
 // // test json imports
 import testJson from './testJson.json';
 console.log('testJson', testJson);
+
+// test js imports
+import {js} from './testJs.js';
+console.log('testJs', js);

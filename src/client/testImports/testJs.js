@@ -1,1 +1,1 @@
-export const js = 'yes';
+export const js = 'supported';

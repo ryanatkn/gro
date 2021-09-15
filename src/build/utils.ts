@@ -1,10 +1,11 @@
 import type {Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
+import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import type {BuildConfigInput} from 'src/build/buildConfig.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {buildIdToSourceId, paths} from '../paths.js';
+import {buildIdToSourceId, JS_EXTENSION, paths} from '../paths.js';
 import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 
@@ -26,17 +27,26 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 };
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, buildDir: string): string;
+	(dependency: BuildDependency, buildDir: string, fs: Filesystem): Promise<string>;
 }
 
 // TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
-export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildDir) => {
+export const mapDependencyToSourceId: MapDependencyToSourceId = async (
+	dependency,
+	buildDir,
+	fs,
+) => {
 	// TODO this is failing with build ids like `terser` - should that be the build id? yes?
 	// dependency.external
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;
 	} else {
-		return buildIdToSourceId(dependency.buildId, buildDir);
+		const sourceId = buildIdToSourceId(dependency.buildId, buildDir);
+		if (await fs.exists(sourceId)) return sourceId;
+		// TODO !! hacky to see it working -- we probably want to resolve upstream,
+		// but what about the case where no file exists at all, and then later a `.js` file is added?
+		const otherPossibleSourceId = replaceExtension(sourceId, JS_EXTENSION);
+		return (await fs.exists(otherPossibleSourceId)) ? otherPossibleSourceId : sourceId;
 	}
 };
 
