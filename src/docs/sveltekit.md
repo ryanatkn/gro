@@ -7,9 +7,15 @@ and [deploying](./deploy.md) to branches.
 Gro's current plan is to integrate with SvelteKit as an alternative to Vite,
 but that goal may change.
 
-Gro currently ignores SvelteKit's [library packaging](https://kit.svelte.dev/docs#packaging)
-capabilities for its own with [`gro publish`](./publish.md),
-but other than that, Gro mostly stays out of SvelteKit's way.
+Gro has two important differences from SvelteKit:
+
+- Gro outputs production builds to `/dist`,
+  copying from SvelteKit's output `/build` without modifying it,
+  and then tasks like `gro deploy` and `gro publish` read from `/dist`, not `/build`
+- Gro ignores SvelteKit's [library packaging](https://kit.svelte.dev/docs#packaging)
+  capabilities for its own with [`gro publish`](./publish.md)
+
+Beyond this, Gro mostly stays out of SvelteKit's way.
 You can still use `svelte-kit package`
 but it doesn't currently integrate with Gro's other systems, checks, and conventions.
 
