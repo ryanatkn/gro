@@ -5,7 +5,7 @@ import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import type {BuildConfigInput} from 'src/build/buildConfig.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {buildIdToSourceId, JS_EXTENSION, paths} from '../paths.js';
+import {buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
 import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 
@@ -30,7 +30,6 @@ export interface MapDependencyToSourceId {
 	(dependency: BuildDependency, buildDir: string, fs: Filesystem): Promise<string>;
 }
 
-// TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
 // TODO this was changed from sync to async to support JS:
 // https://github.com/feltcoop/gro/pull/270/files
 // There's a problem though -- the build system as written wants to resolve source ids up front,
@@ -53,11 +52,10 @@ export const mapDependencyToSourceId: MapDependencyToSourceId = async (
 		return EXTERNALS_SOURCE_ID;
 	} else {
 		const sourceId = buildIdToSourceId(dependency.buildId, buildDir);
-		if (await fs.exists(sourceId)) return sourceId;
-		// TODO !! hacky to see it working -- we probably want to resolve upstream,
-		// but what about the case where no file exists at all, and then later a `.js` file is added?
-		const otherPossibleSourceId = replaceExtension(sourceId, JS_EXTENSION);
-		return (await fs.exists(otherPossibleSourceId)) ? otherPossibleSourceId : sourceId;
+		// TODO hacky -- see comments above
+		if ((await fs.exists(sourceId)) || !sourceId.endsWith(TS_EXTENSION)) return sourceId;
+		const hackyOtherPossibleSourceId = replaceExtension(sourceId, JS_EXTENSION);
+		return (await fs.exists(hackyOtherPossibleSourceId)) ? hackyOtherPossibleSourceId : sourceId;
 	}
 };
 
