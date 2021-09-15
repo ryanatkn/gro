@@ -229,8 +229,8 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 
 - [x] basic functionality
 - [x] format output with Prettier
-- [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] watch mode and build integration, opt out with `watch: false` for expensive gen use cases
+- [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types
 - [ ] support gen files authored in languages beyond TypeScript like
       Svelte/[MDSveX](https://github.com/pngwn/MDsveX)/etc

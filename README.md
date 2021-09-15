@@ -77,7 +77,7 @@ It includes:
   - [tasks](/src/docs/tasks.md) list
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [dev server](/src/server#readme)
-- [`gen`](/src/gen) code generation
+- [`gen`](/src/docs/gen.md) code generation
 - other [docs](/src/docs#readme)
   - [log](/src/docs/log.md)
   - [options](/src/docs/options.md) pattern
