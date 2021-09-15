@@ -23,6 +23,8 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"skipLibCheck": true,
+		"allowJs": true,
+		"checkJs": true,
 		"moduleResolution": "node",
 		"types": ["svelte"],
 		"allowSyntheticDefaultImports": true,

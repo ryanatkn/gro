@@ -10,6 +10,20 @@ console.log('testNestedImports testAbsoluteSrcImport', testAbsoluteSrcImport);
 import {tick} from 'svelte';
 console.log('testNestedImports testExternalImport', tick);
 
-// // test json imports
+// test json imports
 import testJson from './testJson.json';
 console.log('testJson', testJson);
+
+// test js imports
+import {js} from './testJs.js';
+console.log('testJs', js);
+
+// test missing file imports
+(async () => {
+	try {
+		// @ts-expect-error
+		await import('./testNonExistentFile.js');
+	} catch (err) {
+		console.log('expected err', err);
+	}
+})();

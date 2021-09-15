@@ -1,10 +1,11 @@
 import type {Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
+import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import type {BuildConfigInput} from 'src/build/buildConfig.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
-import {buildIdToSourceId, paths} from '../paths.js';
+import {buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
 import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 
@@ -26,17 +27,35 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 };
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, buildDir: string): string;
+	(dependency: BuildDependency, buildDir: string, fs: Filesystem): Promise<string>;
 }
 
-// TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
-export const mapDependencyToSourceId: MapDependencyToSourceId = (dependency, buildDir) => {
+// TODO this was changed from sync to async to support JS:
+// https://github.com/feltcoop/gro/pull/270/files
+// There's a problem though -- the build system as written wants to resolve source ids up front,
+// but in the case of supporting JS we need to defer resolving them to some downstream moment,
+// because we can't know if we are talking about a TS or JS file until it's read from disk.
+// This is likely going to fit into a larger redesign of the system
+// towards a Rollup-compatible API, but this gets basic JS file support working for now.
+// The key issues are that 1) this shouldn't be async,
+// and 2) JS files may cause errors in rare cases,
+// like if the intended source file changes its extension.
+// (not a big deal, but points to a system design flaw)
+export const mapDependencyToSourceId: MapDependencyToSourceId = async (
+	dependency,
+	buildDir,
+	fs,
+) => {
 	// TODO this is failing with build ids like `terser` - should that be the build id? yes?
 	// dependency.external
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;
 	} else {
-		return buildIdToSourceId(dependency.buildId, buildDir);
+		const sourceId = buildIdToSourceId(dependency.buildId, buildDir);
+		// TODO hacky -- see comments above
+		if ((await fs.exists(sourceId)) || !sourceId.endsWith(TS_EXTENSION)) return sourceId;
+		const hackyOtherPossibleSourceId = replaceExtension(sourceId, JS_EXTENSION);
+		return (await fs.exists(hackyOtherPossibleSourceId)) ? hackyOtherPossibleSourceId : sourceId;
 	}
 };
 
