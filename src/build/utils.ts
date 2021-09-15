@@ -31,6 +31,17 @@ export interface MapDependencyToSourceId {
 }
 
 // TODO this could be `MapBuildIdToSourceId` and infer externals from the `basePath`
+// TODO this was changed from sync to async to support JS:
+// https://github.com/feltcoop/gro/pull/270/files
+// There's a problem though -- the build system as written wants to resolve source ids up front,
+// but in the case of supporting JS we need to defer resolving them to some downstream moment,
+// because we can't know if we are talking about a TS or JS file until it's read from disk.
+// This is likely going to fit into a larger redesign of the system
+// towards a Rollup-compatible API, but this gets basic JS file support working for now.
+// The key issues are that 1) this shouldn't be async,
+// and 2) JS files may cause errors in rare cases,
+// like if the intended source file changes its extension.
+// (not a big deal, but points to a system design flaw)
 export const mapDependencyToSourceId: MapDependencyToSourceId = async (
 	dependency,
 	buildDir,
