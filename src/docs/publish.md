@@ -23,7 +23,8 @@ so to bump the minor version run `gro publish minor`.
 It builds, bumps the version, publishes to npm, and syncs commits and tags to GitHub.
 
 Projects are expected to conform to particular changelog format.
-See </changelog.md> for an example.
+See [changelog.md](/changelog.md) for an example.
+The `gro publish` task should explain what's wrong and offer an override.
 
 If `npm publish` fails during `gro publish`, nothing else should be affected;
 a common reason is not being logged into npm. (`npm adduser`)
