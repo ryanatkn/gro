@@ -1,5 +1,10 @@
 # changelog
 
+## 0.42.0
+
+- **break**: add `svelte-check` and typecheck Svelte files in `gro typecheck` and `gro check`
+  ([#271](https://github.com/feltcoop/gro/pull/271))
+
 ## 0.41.1
 
 - support js imports

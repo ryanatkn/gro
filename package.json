@@ -68,6 +68,7 @@
     "sourcemap-codec": "^1.4.8",
     "strict-event-emitter-types": "^2.0.0",
     "svelte": "^3.42.5",
+    "svelte-check": "^2.2.6",
     "svelte-preprocess-esbuild": "^2.0.0",
     "terser": "^5.7.2",
     "tslib": "^2.3.1",
@@ -75,7 +76,6 @@
     "uvu": "^0.5.1"
   },
   "peerDependencies": {
-    "uvu": "^0.5.1",
     "@types/source-map-support": "^0.5.4",
     "source-map-support": "^0.5.20"
   },
