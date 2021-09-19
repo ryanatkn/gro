@@ -200,6 +200,7 @@ Gro builds on
 [uvu](https://github.com/lukeed/uvu) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
+[svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) ∙
 [@lukeed\/\*](https://github.com/lukeed) ∙
 [Node](https://nodejs.org) & [more](package.json)
 

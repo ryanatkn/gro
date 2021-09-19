@@ -8,7 +8,7 @@
 	export const selectedSourceMeta = undefined;
 	export const hoveredSourceMeta = undefined;
 
-	$: filteredBuilds = sourceTree.builds.filter((b) => selectedBuildNames.includes(b.name));
+	$: filteredBuilds = sourceTree.builds.filter((b) => selectedBuildNames.includes(b.buildName));
 </script>
 
 {#if filteredBuilds.length}
@@ -24,7 +24,7 @@
 					<BuildId id={build.id} />
 				</td>
 				<td>
-					<BuildName buildName={build.name} />
+					<BuildName buildName={build.buildName} />
 				</td>
 				<td>
 					{#if build.dependencies}
