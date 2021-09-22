@@ -1,5 +1,10 @@
 # changelog
 
+## 0.42.1
+
+- upgrade `rollup@2.57.0`
+  ([#272](https://github.com/feltcoop/gro/pull/272))
+
 ## 0.42.0
 
 - **break**: add `svelte-check` and typecheck Svelte files in `gro typecheck` and `gro check`
