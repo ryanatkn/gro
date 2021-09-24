@@ -139,13 +139,7 @@ const createOutputOptions = async (options: Options): Promise<RollupOutputOption
 		format: 'esm',
 		name: 'app',
 		sourcemap: options.sourcemap,
-		generatedCode: {
-			preset: 'es2015',
-			arrowFunctions: true,
-			constBindings: true,
-			objectShorthand: true,
-			reservedNamesAsProps: true,
-		},
+		generatedCode: 'es2015',
 	};
 	return options.mapOutputOptions(unmappedOutputOptions, options);
 };
