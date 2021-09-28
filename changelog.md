@@ -2,7 +2,7 @@
 
 ## 0.42.1
 
-- upgrade `rollup@2.57.0`
+- upgrade `rollup@2.57.0` and `@feltcoop/felt@0.12.0`
   ([#272](https://github.com/feltcoop/gro/pull/272))
 
 ## 0.42.0
