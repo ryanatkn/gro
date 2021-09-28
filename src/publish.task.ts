@@ -1,6 +1,6 @@
 import {createInterface as createReadlineInterface} from 'readline';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {green, blackBg, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
+import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
@@ -153,7 +153,7 @@ const confirmWithUser = async (
 			log.warn(yellow(`there's an error or uncheckable condition above`));
 		}
 		readline.question(
-			blackBg(
+			bgBlack(
 				`does this look correct? ${
 					errored ? red(`if you're sure `) : ''
 				}type "${expectedAnswer}" to proceed`,
