@@ -1,8 +1,8 @@
 # changelog
 
-## 0.42.1
+## 0.43.0
 
-- upgrade `rollup@2.57.0` and `@feltcoop/felt@0.12.0`
+- **break**: upgrade `@feltcoop/felt@0.12.0` and `rollup@2.57.0`
   ([#272](https://github.com/feltcoop/gro/pull/272))
 
 ## 0.42.0
