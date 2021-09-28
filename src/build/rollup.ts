@@ -139,6 +139,7 @@ const createOutputOptions = async (options: Options): Promise<RollupOutputOption
 		format: 'esm',
 		name: 'app',
 		sourcemap: options.sourcemap,
+		generatedCode: 'es2015',
 	};
 	return options.mapOutputOptions(unmappedOutputOptions, options);
 };

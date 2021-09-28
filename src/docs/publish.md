@@ -15,7 +15,8 @@ npm login # and follow the instructions
 
 ## `gro publish`
 
-Gro offers the `gro publish` task to push a project to a package registry;
+Gro offers [the `gro publish` task](https://github.com/feltcoop/gro/blob/upgrade/src/publish.task.ts)
+to push a project to a package registry;
 currently only npm is supported.
 The task passes its args through to
 [`npm version`](https://docs.npmjs.com/cli/v6/commands/npm-version),
