@@ -71,4 +71,4 @@ We want to maintain a growth mindset, accepting imperfection and enjoying the ef
     saying "this is the dependency we're standardizing on"
     (this _sometimes_ forces choices on users;
     prefer options when elegant but beware compromising important qualities for flexibility)
-- **foster experimentation**: create environments that encourage us to try new things
+- **foster experimentation**: create environments that encourage us to try new good and fun things
