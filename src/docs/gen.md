@@ -78,15 +78,15 @@ Given `src/script.gen.ts`:
 import {Gen} from '@feltcoop/gro';
 
 export const gen: Gen = () => {
-	const message = 'generated!';
-	return `console.log('${message}')`;
+	const message = 'generated';
+	return `console.log('${message} a ${typeof message}')`;
 };
 ```
 
 Outputs `src/script.ts`:
 
 ```ts
-console.log('generated!');
+console.log('generated a string');
 ```
 
 ### generate other filetypes
