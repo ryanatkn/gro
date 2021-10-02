@@ -1,5 +1,10 @@
 # changelog
 
+## 0.43.1
+
+- fix `svelte-check` to scope to `src/`
+  ([#273](https://github.com/feltcoop/gro/pull/273))
+
 ## 0.43.0
 
 - **break**: upgrade `@feltcoop/felt@0.12.0` and `rollup@2.57.0`

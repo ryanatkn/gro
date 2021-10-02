@@ -1,6 +1,7 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from 'src/task/task.js';
+import {SOURCE_DIRNAME} from './paths.js';
 import {TaskError} from './task/task.js';
 
 export const task: Task = {
@@ -10,7 +11,7 @@ export const task: Task = {
 		if (!tscTypecheckResult.ok) {
 			throw new TaskError(`Failed to typecheck. ${printSpawnResult(tscTypecheckResult)}`);
 		}
-		const svelteCheckResult = await spawn('npx', ['svelte-check']);
+		const svelteCheckResult = await spawn('npx', ['svelte-check', '--workspace', SOURCE_DIRNAME]);
 		if (!svelteCheckResult.ok) {
 			throw new TaskError(`Failed to typecheck Svelte. ${printSpawnResult(svelteCheckResult)}`);
 		}
