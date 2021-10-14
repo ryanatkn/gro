@@ -1,5 +1,10 @@
 # changelog
 
+## 0.44.0
+
+- **break**: upgrade `@feltcoop/felt@0.13.0` and make it a peer dependency
+  ([#274](https://github.com/feltcoop/gro/pull/274))
+
 ## 0.43.0
 
 - **break**: upgrade `@feltcoop/felt@0.12.0` and `rollup@2.57.0`
