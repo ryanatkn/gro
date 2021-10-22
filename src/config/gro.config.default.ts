@@ -48,6 +48,9 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 		types: enableNodeLibrary,
 		plugin: async () => [
 			enableDevServer ? (await import('../plugin/groPluginDevServer.js')).createPlugin() : null,
+			// TODO some usecases may need to run the API server during the build,
+			// but it's currently disabled because the adapter-node usecase has the production API server
+			// depend on the middleware created later in the adapt step of the build
 			enableApiServer && dev
 				? (await import('../plugin/groPluginApiServer.js')).createPlugin()
 				: null,
