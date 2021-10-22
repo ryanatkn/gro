@@ -71,7 +71,9 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 				? (await import('../adapt/groAdapterGroFrontend.js')).createAdapter()
 				: null,
 			enableSveltekitFrontend
-				? (await import('../adapt/groAdapterSveltekitFrontend.js')).createAdapter()
+				? (await import('../adapt/groAdapterSveltekitFrontend.js')).createAdapter({
+						hostTarget: enableApiServer ? 'node' : 'githubPages',
+				  })
 				: null,
 		],
 	};

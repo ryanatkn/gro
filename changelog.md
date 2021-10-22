@@ -3,7 +3,7 @@
 ## 0.44.1
 
 - change default config to not run the api server during build
-  ([#274](https://github.com/feltcoop/gro/pull/274))
+  ([#275](https://github.com/feltcoop/gro/pull/275))
 
 ## 0.44.0
 

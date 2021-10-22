@@ -10,6 +10,7 @@ export interface Options {
 	dir: string;
 	sveltekitDir: string;
 	hostTarget: HostTarget;
+	deploymentMode: 'server' | 'middleware' | 'both'; // TODO hacky option that works around `@sveltejs/adapter-node`'s lack of configurable outputs
 }
 
 // TODO this hacks around the fact that we don't create a proper Gro build for SvelteKit frontends
@@ -17,6 +18,7 @@ export const createAdapter = ({
 	dir = `${DIST_DIRNAME}/${SVELTEKIT_DIST_DIRNAME}`,
 	sveltekitDir = SVELTEKIT_BUILD_DIRNAME,
 	hostTarget = 'githubPages',
+	deploymentMode = 'middleware',
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	dir = stripTrailingSlash(dir);
 	return {
@@ -26,8 +28,19 @@ export const createAdapter = ({
 
 			await fs.copy(sveltekitDir, dir);
 
-			if (hostTarget === 'githubPages') {
-				await ensureNojekyll(fs, dir);
+			switch (hostTarget) {
+				case 'githubPages': {
+					await ensureNojekyll(fs, dir);
+					break;
+				}
+				case 'node': {
+					if (deploymentMode === 'middleware') {
+						await fs.remove(`${dir}/index.js`);
+					} else if (deploymentMode === 'server') {
+						await fs.remove(`${dir}/middlewares.js`);
+					}
+					break;
+				}
 			}
 		},
 	};

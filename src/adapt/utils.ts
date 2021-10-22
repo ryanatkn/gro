@@ -64,7 +64,7 @@ export const copyDist = async (
 	);
 };
 
-export type HostTarget = 'githubPages' | 'static';
+export type HostTarget = 'githubPages' | 'static' | 'node';
 
 const NOJEKYLL_FILENAME = '.nojekyll';
 
