@@ -48,7 +48,9 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 		types: enableNodeLibrary,
 		plugin: async () => [
 			enableDevServer ? (await import('../plugin/groPluginDevServer.js')).createPlugin() : null,
-			enableApiServer ? (await import('../plugin/groPluginApiServer.js')).createPlugin() : null,
+			enableApiServer && dev
+				? (await import('../plugin/groPluginApiServer.js')).createPlugin()
+				: null,
 			enableSveltekitFrontend
 				? (await import('../plugin/groPluginSveltekitFrontend.js')).createPlugin()
 				: null,
