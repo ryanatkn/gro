@@ -1,5 +1,10 @@
 # changelog
 
+## 0.44.1
+
+- change default config to not run the api server during build
+  ([#275](https://github.com/feltcoop/gro/pull/275))
+
 ## 0.44.0
 
 - **break**: upgrade `@feltcoop/felt@0.13.0` and make it a peer dependency
