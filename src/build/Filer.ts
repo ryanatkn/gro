@@ -244,13 +244,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 	}
 
-	private initializing: Promise<void> | null = null;
+	private initialized = false;
 
 	async init(): Promise<void> {
-		if (this.initializing) return this.initializing;
+		if (this.initialized) throw Error('Filer already initialized');
+		this.initialized = true;
+
 		this.log.trace('init', gray(this.dev ? 'development' : 'production'));
-		let finishInitializing: () => void;
-		this.initializing = new Promise((r) => (finishInitializing = r));
 
 		await Promise.all([initSourceMeta(this), lexer.init]);
 		// this.log.trace('inited cache');
@@ -288,8 +288,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
 		// this.log.trace(blue('initialized!'));
-
-		finishInitializing!();
 	}
 
 	// During initialization, after all files are loaded into memory,

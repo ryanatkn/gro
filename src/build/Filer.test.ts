@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import {Filer} from './Filer.js';
@@ -36,21 +36,21 @@ test_Filer('basic serve usage', async ({fs}) => {
 		servedDirs: ['/served'],
 		watch: false,
 	});
-	t.ok(filer);
+	assert.ok(filer);
 
 	await filer.init();
 
 	const a = await filer.findByPath('a.html');
-	t.is(a?.id, aId);
+	assert.is(a?.id, aId);
 	const b = await filer.findByPath('b.svelte');
-	t.is(b?.id, bId);
+	assert.is(b?.id, bId);
 	const c = await filer.findByPath('c/c.svelte.md');
-	t.is(c?.id, cId);
+	assert.is(c?.id, cId);
 
-	t.is(fs._files.size, 6);
-	t.ok(fs._files.has(aId));
-	t.ok(fs._files.has(bId));
-	t.ok(fs._files.has(cId));
+	assert.is(fs._files.size, 6);
+	assert.ok(fs._files.has(aId));
+	assert.ok(fs._files.has(bId));
+	assert.ok(fs._files.has(cId));
 
 	filer.close();
 });
@@ -98,20 +98,30 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 		mapDependencyToSourceId: async (dependency) =>
 			`${rootId}/${replaceExtension(dependency.mappedSpecifier.substring(2), TS_EXTENSION)}`,
 	});
-	t.ok(filer);
+	assert.ok(filer);
 	await filer.init();
 
-	t.equal(Array.from(filer.sourceMetaById.values()), sourceMetaSnapshot);
+	// disallow calling `filer.init()` more than once
+	// TODO use `t.rejects` when it lands
+	let initError;
+	try {
+		await filer.init();
+	} catch (err) {
+		initError = err;
+	}
+	assert.ok(initError);
+
+	assert.equal(Array.from(filer.sourceMetaById.values()), sourceMetaSnapshot);
 
 	const entryFile = await filer.findByPath(entryFilename);
-	t.is(entryFile?.id, entryId);
+	assert.is(entryFile?.id, entryId);
 	const dep1File = await filer.findByPath(dep1Filename);
-	t.is(dep1File?.id, dep1Id);
+	assert.is(dep1File?.id, dep1Id);
 	const dep2File = await filer.findByPath(dep2Filename);
-	t.is(dep2File?.id, dep2Id);
+	assert.is(dep2File?.id, dep2Id);
 
-	t.equal(Array.from(fs._files.keys()), filesKeysSnapshot);
-	t.ok(fs._files.has(entryId));
+	assert.equal(Array.from(fs._files.keys()), filesKeysSnapshot);
+	assert.ok(fs._files.has(entryId));
 
 	filer.close();
 });
