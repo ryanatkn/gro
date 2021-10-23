@@ -102,9 +102,9 @@ export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 	stripStart(sourceId, p.source);
 
 // '/home/me/app/.gro/[prod|dev]/buildName/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
-export const buildIdToSourceId = (buildId: string, buildDir = paths.build): string => {
+export const buildIdToSourceId = (buildId: string, buildDir = paths.build, p = paths): string => {
 	const basePath = toBuildBasePath(buildId, buildDir);
-	return basePathToSourceId(toSourceExtension(basePath));
+	return basePathToSourceId(toSourceExtension(basePath), p);
 };
 
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'

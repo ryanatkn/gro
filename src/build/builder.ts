@@ -12,6 +12,7 @@ import type {SourceMeta} from 'src/build/sourceMeta.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import type {BaseFilerFile} from 'src/build/filerFile.js';
 import type {BuildFile} from 'src/build/buildFile.js';
+import type {Paths} from 'src/paths.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource> {
 	name: string;
@@ -27,6 +28,7 @@ export interface Builder<TSource extends BuildSource = BuildSource> {
 // For docs on these, see where they're implemented in the `Filer`.
 export interface BuildContext {
 	readonly fs: Filesystem;
+	readonly paths: Paths;
 	readonly buildConfigs: readonly BuildConfig[] | null;
 	readonly buildNames: Set<BuildName> | null;
 	readonly sourceMetaById: Map<string, SourceMeta>;

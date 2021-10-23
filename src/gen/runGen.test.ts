@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 import {resolve, join} from 'path';
 import {Logger} from '@feltcoop/felt/util/log.js';
 
@@ -7,12 +7,12 @@ import type {GenModuleMeta} from 'src/gen/genModule.js';
 import {runGen} from './runGen.js';
 import {fs} from '../fs/node.js';
 
-const log = new Logger('testGen'); // TODO test logger?
+const log = new Logger('test__gen'); // TODO test logger?
 
-/* testGen */
-const testGen = suite('gen');
+/* test__gen */
+const test__gen = suite('gen');
 
-testGen('basic behavior', async () => {
+test__gen('basic behavior', async () => {
 	const sourceIdA = resolve('src/foo.gen.ts');
 	const sourceIdBC = resolve('src/bar/bc');
 	let fileA: undefined | {filename: string; content: string};
@@ -23,7 +23,7 @@ testGen('basic behavior', async () => {
 		id: sourceIdA,
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, sourceIdA);
+				assert.is(ctx.originId, sourceIdA);
 				if (fileA) throw Error('Already generated fileA');
 				fileA = {
 					filename: 'foo.ts',
@@ -37,7 +37,7 @@ testGen('basic behavior', async () => {
 		id: join(sourceIdBC, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, modB.id);
+				assert.is(ctx.originId, modB.id);
 				if (fileB) throw Error('Already generated fileB');
 				fileB = {
 					filename: 'outputB.ts',
@@ -51,7 +51,7 @@ testGen('basic behavior', async () => {
 		id: join(sourceIdBC, 'modC.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, modC.id);
+				assert.is(ctx.originId, modC.id);
 				if (fileC1) throw Error('Already generated fileC1');
 				if (fileC2) throw Error('Already generated fileC2');
 				fileC1 = {
@@ -70,19 +70,19 @@ testGen('basic behavior', async () => {
 	const genResults = await runGen(fs, genModulesByInputPath, log, async (_fs, id, content) =>
 		id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content,
 	);
-	t.is(genResults.inputCount, 3);
-	t.is(genResults.outputCount, 4);
-	t.is(genResults.successes.length, 3);
-	t.is(genResults.failures.length, 0);
-	t.is(genResults.results.length, 3);
-	t.is(genResults.results[0], genResults.successes[0]);
-	t.is(genResults.results[1], genResults.successes[1]);
-	t.is(genResults.results[2], genResults.successes[2]);
+	assert.is(genResults.inputCount, 3);
+	assert.is(genResults.outputCount, 4);
+	assert.is(genResults.successes.length, 3);
+	assert.is(genResults.failures.length, 0);
+	assert.is(genResults.results.length, 3);
+	assert.is(genResults.results[0], genResults.successes[0]);
+	assert.is(genResults.results[1], genResults.successes[1]);
+	assert.is(genResults.results[2], genResults.successes[2]);
 
 	const resultA = genResults.results[0];
-	t.ok(resultA?.ok);
-	t.ok(fileA);
-	t.equal(resultA.files, [
+	assert.ok(resultA?.ok);
+	assert.ok(fileA);
+	assert.equal(resultA.files, [
 		{
 			content: fileA.content,
 			id: join(modA.id, '../', fileA.filename),
@@ -91,9 +91,9 @@ testGen('basic behavior', async () => {
 	]);
 
 	const resultB = genResults.results[1];
-	t.ok(resultB?.ok);
-	t.ok(fileB);
-	t.equal(resultB.files, [
+	assert.ok(resultB?.ok);
+	assert.ok(fileB);
+	assert.equal(resultB.files, [
 		{
 			content: `${fileB.content}/*FORMATTED*/`,
 			id: join(modB.id, '../', fileB.filename),
@@ -101,10 +101,10 @@ testGen('basic behavior', async () => {
 		},
 	]);
 	const resultC = genResults.results[2];
-	t.ok(resultC?.ok);
-	t.ok(fileC1);
-	t.ok(fileC2);
-	t.equal(resultC.files, [
+	assert.ok(resultC?.ok);
+	assert.ok(fileC1);
+	assert.ok(fileC2);
+	assert.equal(resultC.files, [
 		{
 			content: fileC1.content,
 			id: join(modC.id, '../', fileC1.filename),
@@ -118,7 +118,7 @@ testGen('basic behavior', async () => {
 	]);
 });
 
-testGen('failing gen function', async () => {
+test__gen('failing gen function', async () => {
 	const sourceIdA = resolve('src/foo.gen.ts');
 	const sourceIdB = resolve('src/bar/baz');
 	let fileB: undefined | {filename: string; content: string}; // no fileA because it's never generated
@@ -138,7 +138,7 @@ testGen('failing gen function', async () => {
 		id: join(sourceIdB, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				t.is(ctx.originId, modB.id);
+				assert.is(ctx.originId, modB.id);
 				if (fileB) throw Error('Already generated fileB');
 				fileB = {
 					filename: 'outputB.ts',
@@ -150,24 +150,24 @@ testGen('failing gen function', async () => {
 	};
 	const genModulesByInputPath: GenModuleMeta[] = [modA, modB];
 	const genResults = await runGen(fs, genModulesByInputPath, log);
-	t.is(genResults.inputCount, 2);
-	t.is(genResults.outputCount, 1);
-	t.is(genResults.successes.length, 1);
-	t.is(genResults.failures.length, 1);
-	t.is(genResults.results.length, 2);
-	t.is(genResults.results[0], genResults.failures[0]);
-	t.is(genResults.results[1], genResults.successes[0]);
+	assert.is(genResults.inputCount, 2);
+	assert.is(genResults.outputCount, 1);
+	assert.is(genResults.successes.length, 1);
+	assert.is(genResults.failures.length, 1);
+	assert.is(genResults.results.length, 2);
+	assert.is(genResults.results[0], genResults.failures[0]);
+	assert.is(genResults.results[1], genResults.successes[0]);
 
 	const resultA = genResults.results[0];
-	t.ok(resultA);
-	t.not.ok(resultA?.ok);
-	t.ok(resultA.reason);
-	t.ok(resultA.error);
+	assert.ok(resultA);
+	assert.not.ok(resultA?.ok);
+	assert.ok(resultA.reason);
+	assert.ok(resultA.error);
 
 	const resultB = genResults.results[1];
-	t.ok(resultB?.ok);
-	t.ok(fileB);
-	t.equal(resultB.files, [
+	assert.ok(resultB?.ok);
+	assert.ok(fileB);
+	assert.equal(resultB.files, [
 		{
 			content: fileB.content,
 			id: join(modB.id, '../', fileB.filename),
@@ -176,5 +176,5 @@ testGen('failing gen function', async () => {
 	]);
 });
 
-testGen.run();
-/* /testGen */
+test__gen.run();
+/* test__gen */

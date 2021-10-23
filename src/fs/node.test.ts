@@ -1,12 +1,12 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import {fs as nodeFs} from './node.js';
 
-/* testFindFiles */
-const testFindFiles = suite('findFiles', {fs: nodeFs});
+/* test__findFiles */
+const test__findFiles = suite('findFiles', {fs: nodeFs});
 
-testFindFiles('basic behavior', async ({fs}) => {
+test__findFiles('basic behavior', async ({fs}) => {
 	const ignoredPath = 'test1.foo.ts';
 	let hasIgnoredPath = false;
 	const result = await fs.findFiles(
@@ -17,8 +17,8 @@ testFindFiles('basic behavior', async ({fs}) => {
 		},
 		(a, b) => -a[0].localeCompare(b[0]),
 	);
-	t.ok(hasIgnoredPath); // makes sure the test isn't wrong
-	t.equal(Array.from(result.keys()), [
+	assert.ok(hasIgnoredPath); // makes sure the test isn't wrong
+	assert.equal(Array.from(result.keys()), [
 		'test2.foo.ts',
 		'baz2/test2.baz.ts',
 		'baz2',
@@ -33,5 +33,5 @@ testFindFiles('basic behavior', async ({fs}) => {
 
 // TODO more tests
 
-testFindFiles.run();
-/* /testFindFiles */
+test__findFiles.run();
+/* test__findFiles */

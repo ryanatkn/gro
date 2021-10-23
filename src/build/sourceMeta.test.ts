@@ -1,13 +1,13 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import type {SerializedSourceMetaData, SourceMetaData} from 'src/build/sourceMeta.js';
 import {serializeSourceMeta, deserializeSourceMeta} from './sourceMeta.js';
 
-/* testSerializeSourceMeta */
-const testSerializeSourceMeta = suite('serializeSourceMeta');
+/* test__serializeSourceMeta */
+const test__serializeSourceMeta = suite('serializeSourceMeta');
 
-testSerializeSourceMeta('serializes and deserializes source meta without changes', () => {
+test__serializeSourceMeta('serializes and deserializes source meta without changes', () => {
 	const data: SourceMetaData = {
 		sourceId: 'a',
 		contentHash: 'b',
@@ -28,11 +28,11 @@ testSerializeSourceMeta('serializes and deserializes source meta without changes
 			},
 		],
 	};
-	t.equal(serializeSourceMeta(data), data);
-	t.equal(deserializeSourceMeta(data), data);
+	assert.equal(serializeSourceMeta(data), data);
+	assert.equal(deserializeSourceMeta(data), data);
 });
 
-testSerializeSourceMeta('optimizes when serializing', () => {
+test__serializeSourceMeta('optimizes when serializing', () => {
 	const data: SourceMetaData = {
 		sourceId: 'a',
 		contentHash: 'b',
@@ -67,9 +67,9 @@ testSerializeSourceMeta('optimizes when serializing', () => {
 			{id: 'a', buildName: 'b', dependencies: [{specifier: 'a'}]},
 		],
 	};
-	t.equal(serializeSourceMeta(data), serializedData);
-	t.equal(deserializeSourceMeta(serializedData), data);
+	assert.equal(serializeSourceMeta(data), serializedData);
+	assert.equal(deserializeSourceMeta(serializedData), data);
 });
 
-testSerializeSourceMeta.run();
-/* /testSerializeSourceMeta */
+test__serializeSourceMeta.run();
+/* test__serializeSourceMeta */

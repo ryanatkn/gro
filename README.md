@@ -128,6 +128,8 @@ gro build # build everything for production
 gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
 ```
 
+Formatting with [`prettier`](https://github.com/prettier/prettier):
+
 ```bash
 gro format # format all of the source files using Prettier
 gro format --check # check that all source files are formatted
@@ -157,6 +159,12 @@ Codegen with [`gen`](/src/docs/gen.md):
 ```bash
 gro gen # run codegen for all `*.gen.*` files
 gro gen --check # error if any generated files are new or different
+```
+
+To deploy: (also see [`src/docs/deploy.md`](/src/docs/deploy.md))
+
+```bash
+gro deploy # build and push to the `deploy` branch
 ```
 
 To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))

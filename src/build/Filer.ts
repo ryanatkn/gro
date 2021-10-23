@@ -16,7 +16,8 @@ import {createFilerDir} from '../build/filerDir.js';
 import type {FilerDir, FilerDirChangeCallback} from 'src/build/filerDir.js';
 import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
 import type {MapDependencyToSourceId} from 'src/build/utils.js';
-import {JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
+import {JS_EXTENSION, paths as defaultPaths, toBuildOutPath} from '../paths.js';
+import type {Paths} from 'src/paths.js';
 import type {BuildContext, Builder, BuilderState} from 'src/build/builder.js';
 import {inferEncoding} from '../fs/encoding.js';
 import type {Encoding} from 'src/fs/encoding.js';
@@ -73,6 +74,7 @@ export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface Options {
 	fs: Filesystem;
+	paths: Paths;
 	dev: boolean;
 	builder: Builder | null;
 	buildConfigs: BuildConfig[] | null;
@@ -95,6 +97,7 @@ export type InitialOptions = OmitStrict<PartialExcept<Options, RequiredOptions>,
 	servedDirs?: ServedDirPartial[];
 };
 export const initOptions = (opts: InitialOptions): Options => {
+	const paths = opts.paths ?? defaultPaths;
 	const dev = opts.dev ?? true;
 	const buildConfigs = opts.buildConfigs || null;
 	if (buildConfigs?.length === 0) {
@@ -127,7 +130,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		}
 	}
 	return {
-		dev,
 		externalsAliases: DEFAULT_EXTERNALS_ALIASES,
 		mapDependencyToSourceId,
 		sourcemap: true,
@@ -138,6 +140,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
+		paths,
+		dev,
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
 		builder,
 		buildConfigs,
@@ -158,11 +162,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
+	readonly paths: Paths;
 	readonly buildConfigs: readonly BuildConfig[] | null;
 	readonly buildNames: Set<BuildName> | null;
-	// TODO if we loosen the restriction of the filer owning the `.gro` directory,
-	// `sourceMeta` will need to be a shared object --
-	// a global cache is too inflexible, because we still want to support multiple independent filers
 	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly buildDir: string;
@@ -181,6 +183,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		super();
 		const {
 			fs,
+			paths,
 			dev,
 			builder,
 			buildConfigs,
@@ -198,6 +201,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			log,
 		} = initOptions(opts);
 		this.fs = fs;
+		this.paths = paths;
 		this.dev = dev;
 		this.builder = builder;
 		this.buildConfigs = buildConfigs;
@@ -247,13 +251,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 	}
 
-	private initializing: Promise<void> | null = null;
+	private initialized = false;
 
 	async init(): Promise<void> {
-		if (this.initializing) return this.initializing;
+		if (this.initialized) throw Error('Filer already initialized');
+		this.initialized = true;
+
 		this.log.trace('init', gray(this.dev ? 'development' : 'production'));
-		let finishInitializing: () => void;
-		this.initializing = new Promise((r) => (finishInitializing = r));
 
 		await Promise.all([initSourceMeta(this), lexer.init]);
 		// this.log.trace('inited cache');
@@ -261,7 +265,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
-		// because it creates source files, which need `this.sourceMeta` to be populated.
+		// because it creates source files, which need `this.sourceMetaById` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.trace('inited files');
 
@@ -282,7 +286,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 		}
 
-		// This performs initial source file build, traces deps,
+		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
 		// this.log.trace('inited builds');
@@ -291,8 +295,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
 		// this.log.trace(blue('initialized!'));
-
-		finishInitializing!();
 	}
 
 	// During initialization, after all files are loaded into memory,
@@ -776,6 +778,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					addedDependency,
 					this.buildDir,
 					this.fs,
+					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
 				if (addedSourceId === sourceFile.id) continue;
@@ -819,6 +822,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					removedDependency,
 					this.buildDir,
 					this.fs,
+					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
 				if (removedSourceId === sourceFile.id) continue;
