@@ -6,7 +6,7 @@ import {Filer} from './Filer.js';
 import {fs as memoryFs} from '../fs/memory.js';
 import type {MemoryFs} from 'src/fs/memory.js';
 import type {BuildConfig} from 'src/build/buildConfig.js';
-import {JS_EXTENSION, TS_EXTENSION} from 'src/paths.js';
+import {createPaths, JS_EXTENSION} from 'src/paths.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 
 interface SuiteContext {
@@ -20,8 +20,6 @@ const test__Filer = suite('Filer', suiteContext);
 test__Filer.before.each(resetMemoryFs);
 
 test__Filer('basic serve usage', async ({fs}) => {
-	const dev = true;
-
 	const aId = '/served/a.html';
 	const bId = '/served/b.svelte';
 	const cId = '/served/c/c.svelte.md';
@@ -32,7 +30,6 @@ test__Filer('basic serve usage', async ({fs}) => {
 
 	const filer = new Filer({
 		fs,
-		dev,
 		servedDirs: ['/served'],
 		watch: false,
 	});
@@ -56,15 +53,14 @@ test__Filer('basic serve usage', async ({fs}) => {
 });
 
 test__Filer('basic build usage with no watch', async ({fs}) => {
-	const dev = true;
-	// TODO add a TypeScript file with a dependency
-	const rootId = '/a/b/src';
+	const rootId = '/a/b';
+	const paths = createPaths(rootId);
 	const entryFilename = 'entry.ts';
 	const dep1Filename = 'dep1.ts';
 	const dep2Filename = 'dep2.ts';
-	const entryId = `${rootId}/${entryFilename}`;
-	const dep1Id = `${rootId}/${dep1Filename}`;
-	const dep2Id = `${rootId}/${dep2Filename}`;
+	const entryId = paths.source + entryFilename;
+	const dep1Id = paths.source + dep1Filename;
+	const dep2Id = paths.source + dep2Filename;
 	await fs.writeFile(
 		entryId,
 		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}'; export {a};`,
@@ -83,20 +79,13 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	};
 	const filer = new Filer({
 		fs,
-		dev,
+		paths,
 		buildDir: '/c/',
 		builder: groBuilderDefault(),
 		buildConfigs: [buildConfig],
-		sourceDirs: [rootId],
-		servedDirs: [rootId], // normally gets served out of the Gro build dirs, but we override
+		sourceDirs: [paths.source],
+		servedDirs: [paths.source], // normally gets served out of the Gro build dirs, but we override
 		watch: false,
-		// TODO this is hacky to work around the fact that the default implementation of this
-		// assumes the current working directory  we could change the test paths to avoid this,
-		// but we want to test arbitrary absolute paths,
-		// so instead we probably want to make a new pluggable `Filer` option like `paths`,
-		// which would make customizable what's currently hardcoded at `src/paths.ts`.
-		mapDependencyToSourceId: async (dependency) =>
-			`${rootId}/${replaceExtension(dependency.mappedSpecifier.substring(2), TS_EXTENSION)}`,
 	});
 	assert.ok(filer);
 	await filer.init();
@@ -111,8 +100,10 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	}
 	assert.ok(initError);
 
+	// snapshot test the entire sourceMeta
 	assert.equal(Array.from(filer.sourceMetaById.entries()), sourceMetaSnapshot);
 
+	// ensure we can find files like we'd expect
 	const entryFile = await filer.findByPath(entryFilename);
 	assert.is(entryFile?.id, entryId);
 	const dep1File = await filer.findByPath(dep1Filename);

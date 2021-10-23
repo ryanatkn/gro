@@ -16,7 +16,8 @@ import {createFilerDir} from '../build/filerDir.js';
 import type {FilerDir, FilerDirChangeCallback} from 'src/build/filerDir.js';
 import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
 import type {MapDependencyToSourceId} from 'src/build/utils.js';
-import {JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
+import {JS_EXTENSION, paths as defaultPaths, toBuildOutPath} from '../paths.js';
+import type {Paths} from 'src/paths.js';
 import type {BuildContext, Builder, BuilderState} from 'src/build/builder.js';
 import {inferEncoding} from '../fs/encoding.js';
 import type {Encoding} from 'src/fs/encoding.js';
@@ -73,6 +74,7 @@ export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface Options {
 	fs: Filesystem;
+	paths: Paths;
 	dev: boolean;
 	builder: Builder | null;
 	buildConfigs: BuildConfig[] | null;
@@ -95,6 +97,7 @@ export type InitialOptions = OmitStrict<PartialExcept<Options, RequiredOptions>,
 	servedDirs?: ServedDirPartial[];
 };
 export const initOptions = (opts: InitialOptions): Options => {
+	const paths = opts.paths ?? defaultPaths;
 	const dev = opts.dev ?? true;
 	const buildConfigs = opts.buildConfigs || null;
 	if (buildConfigs?.length === 0) {
@@ -127,7 +130,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		}
 	}
 	return {
-		dev,
 		externalsAliases: DEFAULT_EXTERNALS_ALIASES,
 		mapDependencyToSourceId,
 		sourcemap: true,
@@ -138,6 +140,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
+		paths,
+		dev,
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
 		builder,
 		buildConfigs,
@@ -158,6 +162,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
+	readonly paths: Paths;
 	readonly buildConfigs: readonly BuildConfig[] | null;
 	readonly buildNames: Set<BuildName> | null;
 	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
@@ -178,6 +183,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		super();
 		const {
 			fs,
+			paths,
 			dev,
 			builder,
 			buildConfigs,
@@ -195,6 +201,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			log,
 		} = initOptions(opts);
 		this.fs = fs;
+		this.paths = paths;
 		this.dev = dev;
 		this.builder = builder;
 		this.buildConfigs = buildConfigs;
@@ -771,6 +778,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					addedDependency,
 					this.buildDir,
 					this.fs,
+					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
 				if (addedSourceId === sourceFile.id) continue;
@@ -814,6 +822,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					removedDependency,
 					this.buildDir,
 					this.fs,
+					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
 				if (removedSourceId === sourceFile.id) continue;

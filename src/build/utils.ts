@@ -6,6 +6,7 @@ import {replaceExtension} from '@feltcoop/felt/util/path.js';
 import type {BuildConfigInput} from 'src/build/buildConfig.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
+import type {Paths} from 'src/paths.js';
 import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 
@@ -27,7 +28,7 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 };
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, buildDir: string, fs: Filesystem): Promise<string>;
+	(dependency: BuildDependency, buildDir: string, fs: Filesystem, paths: Paths): Promise<string>;
 }
 
 // TODO this was changed from sync to async to support JS:
@@ -45,13 +46,14 @@ export const mapDependencyToSourceId: MapDependencyToSourceId = async (
 	dependency,
 	buildDir,
 	fs,
+	paths,
 ) => {
 	// TODO this is failing with build ids like `terser` - should that be the build id? yes?
 	// dependency.external
 	if (dependency.external) {
 		return EXTERNALS_SOURCE_ID;
 	} else {
-		const sourceId = buildIdToSourceId(dependency.buildId, buildDir);
+		const sourceId = buildIdToSourceId(dependency.buildId, buildDir, paths);
 		// TODO hacky -- see comments above
 		if ((await fs.exists(sourceId)) || !sourceId.endsWith(TS_EXTENSION)) return sourceId;
 		const hackyOtherPossibleSourceId = replaceExtension(sourceId, JS_EXTENSION);
