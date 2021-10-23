@@ -60,15 +60,22 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	// TODO add a TypeScript file with a dependency
 	const rootId = '/a/b/src';
 	const entryFilename = 'entry.ts';
-	const depFilename = 'dep.ts';
+	const dep1Filename = 'dep1.ts';
+	const dep2Filename = 'dep2.ts';
 	const entryId = `${rootId}/${entryFilename}`;
-	const depId = `${rootId}/${depFilename}`;
+	const dep1Id = `${rootId}/${dep1Filename}`;
+	const dep2Id = `${rootId}/${dep2Filename}`;
 	await fs.writeFile(
 		entryId,
-		`import {a} from './${replaceExtension(depFilename, JS_EXTENSION)}'; export {a};`,
+		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}'; export {a};`,
 		'utf8',
 	);
-	await fs.writeFile(depId, 'export const a: number = 5;', 'utf8');
+	await fs.writeFile(
+		dep1Id,
+		`import {a} from './${replaceExtension(dep2Filename, JS_EXTENSION)}'; export {a};`,
+		'utf8',
+	);
+	await fs.writeFile(dep2Id, 'export const a: number = 5;', 'utf8');
 	const buildConfig: BuildConfig = {
 		name: 'testBuildConfig',
 		platform: 'node',
@@ -97,9 +104,10 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 
 	const entryFile = await filer.findByPath(entryFilename);
 	t.is(entryFile?.id, entryId);
-
-	const depFile = await filer.findByPath(depFilename);
-	t.is(depFile?.id, depId);
+	const dep1File = await filer.findByPath(dep1Filename);
+	t.is(dep1File?.id, dep1Id);
+	const dep2File = await filer.findByPath(dep2Filename);
+	t.is(dep2File?.id, dep2Id);
 
 	t.equal(Array.from(fs._files.keys()), [
 		'/',
@@ -107,16 +115,20 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 		'/a/b',
 		'/a/b/src',
 		'/a/b/src/entry.ts',
-		'/a/b/src/dep.ts',
+		'/a/b/src/dep1.ts',
+		'/a/b/src/dep2.ts',
 		'/c',
 		'/c/dev',
 		'/c/dev/testBuildConfig',
 		'/c/dev/testBuildConfig/entry.js',
 		'/c/dev/testBuildConfig/entry.js.map',
-		'/c/dev/testBuildConfig/dep.js',
-		'/c/dev/testBuildConfig/dep.js.map',
+		'/c/dev/testBuildConfig/dep1.js',
+		'/c/dev/testBuildConfig/dep1.js.map',
+		'/c/dev/testBuildConfig/dep2.js',
+		'/c/dev/testBuildConfig/dep2.js.map',
 		'/c/dev_meta',
-		'/c/dev_meta/dep.ts.json',
+		'/c/dev_meta/dep2.ts.json',
+		'/c/dev_meta/dep1.ts.json',
 		'/c/dev_meta/entry.ts.json',
 	]);
 	t.ok(fs._files.has(entryId));
