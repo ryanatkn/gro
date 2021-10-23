@@ -159,6 +159,12 @@ gro gen # run codegen for all `*.gen.*` files
 gro gen --check # error if any generated files are new or different
 ```
 
+To deploy: (also see [`src/docs/deploy.md`](/src/docs/deploy.md))
+
+```bash
+gro deploy # build and push to the `deploy` branch
+```
+
 To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))
 
 ```bash
