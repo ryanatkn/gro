@@ -52,7 +52,7 @@ export const task: Task = {
 			...testFilePatterns,
 			...process.argv.slice(3 + patternCount),
 			'-i',
-			'.map$', // ignore sourcemap files so patterns don't need `.js\$`
+			'.map$', // ignore sourcemap files so patterns don't need `.js$`
 		]);
 		timeToRunUvu();
 

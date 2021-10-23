@@ -4,7 +4,7 @@
 
 - add optional `paths` to `Filer` and improve its tests
   ([#276](https://github.com/feltcoop/gro/pull/276))
-- make `gro test` ignore sourcemap files by default so patterns don't need `.js\$`
+- make `gro test` ignore sourcemap files by default so patterns don't need `.js$`
   ([#277](https://github.com/feltcoop/gro/pull/277))
 
 ## 0.44.1
