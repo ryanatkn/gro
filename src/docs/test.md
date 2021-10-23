@@ -13,10 +13,8 @@ and `gro test` in another when you want to check things.
 
 ```bash
 gro test # run all tests
-gro test build/Filer.test.js\$ # run tests matching an uvu pattern: https://github.com/lukeed/uvu
+gro test Filer.test # run tests matching an uvu pattern: https://github.com/lukeed/uvu
 ```
-
-> TODO exclude `.map` files by default, making the `\$` above unnecessary
 
 The builtin [`gro test`](/src/test.task.ts)
 [task](/src/docs/task.md) runs all `*.test.*` files in your project by default.
