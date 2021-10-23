@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import type {SerializedSourceMetaData, SourceMetaData} from 'src/build/sourceMeta.js';
 import {serializeSourceMeta, deserializeSourceMeta} from './sourceMeta.js';
@@ -28,8 +28,8 @@ testSerializeSourceMeta('serializes and deserializes source meta without changes
 			},
 		],
 	};
-	t.equal(serializeSourceMeta(data), data);
-	t.equal(deserializeSourceMeta(data), data);
+	assert.equal(serializeSourceMeta(data), data);
+	assert.equal(deserializeSourceMeta(data), data);
 });
 
 testSerializeSourceMeta('optimizes when serializing', () => {
@@ -67,8 +67,8 @@ testSerializeSourceMeta('optimizes when serializing', () => {
 			{id: 'a', buildName: 'b', dependencies: [{specifier: 'a'}]},
 		],
 	};
-	t.equal(serializeSourceMeta(data), serializedData);
-	t.equal(deserializeSourceMeta(serializedData), data);
+	assert.equal(serializeSourceMeta(data), serializedData);
+	assert.equal(deserializeSourceMeta(serializedData), data);
 });
 
 testSerializeSourceMeta.run();

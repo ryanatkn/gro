@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 import {resolve, join} from 'path';
 
 import {findModules, loadModules, loadModule} from './modules.js';
@@ -19,18 +19,18 @@ testLoadModule('basic behavior', async () => {
 		validatedMod = mod;
 		return true;
 	}) as any);
-	t.ok(result.ok);
-	t.is(result.mod.id, id);
-	t.is(result.mod.mod, validatedMod);
-	t.is(result.mod.mod, modTest1);
+	assert.ok(result.ok);
+	assert.is(result.mod.id, id);
+	assert.is(result.mod.mod, validatedMod);
+	assert.is(result.mod.mod, modTest1);
 });
 
 testLoadModule('without validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	const result = await loadModule(id, true);
-	t.ok(result.ok);
-	t.is(result.mod.id, id);
-	t.is(result.mod.mod, modTest1);
+	assert.ok(result.ok);
+	assert.is(result.mod.id, id);
+	assert.is(result.mod.mod, modTest1);
 });
 
 testLoadModule('fails validation', async () => {
@@ -41,12 +41,12 @@ testLoadModule('fails validation', async () => {
 		return false;
 	};
 	const result = await loadModule(id, true, testValidation as any);
-	t.not.ok(result.ok);
+	assert.not.ok(result.ok);
 	if (result.type === 'invalid') {
-		t.is(result.validation, testValidation.name);
-		t.is(result.id, id);
-		t.is(result.mod, validatedMod);
-		t.is(result.mod, modTest1);
+		assert.is(result.validation, testValidation.name);
+		assert.is(result.id, id);
+		assert.is(result.mod, validatedMod);
+		assert.is(result.mod, modTest1);
 	} else {
 		throw Error('Should be invalid');
 	}
@@ -55,10 +55,10 @@ testLoadModule('fails validation', async () => {
 testLoadModule('fails to import', async () => {
 	const id = resolve('foo/test/failure');
 	const result = await loadModule(id, true);
-	t.not.ok(result.ok);
+	assert.not.ok(result.ok);
 	if (result.type === 'importFailed') {
-		t.is(result.id, id);
-		t.ok(result.error instanceof Error);
+		assert.is(result.id, id);
+		assert.ok(result.error instanceof Error);
 	} else {
 		throw Error('Should fail to import');
 	}
@@ -80,15 +80,15 @@ testFindModules('with and without extension', async () => {
 		(id) => fs.findFiles(id),
 		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
 	);
-	t.ok(result.ok);
-	t.equal(
+	assert.ok(result.ok);
+	assert.equal(
 		result.sourceIdsByInputPath,
 		new Map([
 			[path1, [id1]],
 			[id2, [id2]],
 		]),
 	);
-	t.equal(
+	assert.equal(
 		result.sourceIdPathDataByInputPath,
 		new Map([
 			[path1, {id: id1, isDirectory: false}],
@@ -102,12 +102,12 @@ testFindModules('directory', async () => {
 	const result = await findModules(fs, [id], (id) =>
 		fs.findFiles(id, ({path}) => path.includes('.foo.')),
 	);
-	t.ok(result.ok);
-	t.equal(
+	assert.ok(result.ok);
+	assert.equal(
 		result.sourceIdsByInputPath,
 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 	);
-	t.equal(result.sourceIdPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
+	assert.equal(result.sourceIdPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
 });
 
 testFindModules('fail with unmappedInputPaths', async () => {
@@ -122,10 +122,10 @@ testFindModules('fail with unmappedInputPaths', async () => {
 		(id) => fs.findFiles(id),
 		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
 	);
-	t.not.ok(result.ok);
-	t.ok(result.reasons.length);
+	assert.not.ok(result.ok);
+	assert.ok(result.reasons.length);
 	if (result.type === 'unmappedInputPaths') {
-		t.equal(result.unmappedInputPaths, [
+		assert.equal(result.unmappedInputPaths, [
 			resolve('src/fs/fixtures/failme1'),
 			resolve('src/fs/fixtures/failme2'),
 		]);
@@ -145,10 +145,10 @@ testFindModules('fail with inputDirectoriesWithNoFiles', async () => {
 		],
 		(id) => fs.findFiles(id, ({path}) => !path.includes('.bar.')),
 	);
-	t.not.ok(result.ok);
-	t.ok(result.reasons.length);
+	assert.not.ok(result.ok);
+	assert.ok(result.reasons.length);
 	if (result.type === 'inputDirectoriesWithNoFiles') {
-		t.equal(result.inputDirectoriesWithNoFiles, [
+		assert.equal(result.inputDirectoriesWithNoFiles, [
 			resolve('src/fs/fixtures/bar1'),
 			resolve('src/fs/fixtures/bar2'),
 		]);
@@ -192,29 +192,29 @@ testLoadModules('fail with loadModuleFailures', async () => {
 			return loadModule(id, true, testValidation);
 		},
 	);
-	t.not.ok(result.ok);
-	t.ok(result.reasons.length);
+	assert.not.ok(result.ok);
+	assert.ok(result.reasons.length);
 	if (result.type !== 'loadModuleFailures') {
 		throw Error('Expected to fail with loadModuleFailures');
 	}
-	t.is(result.loadModuleFailures.length, 2);
+	assert.is(result.loadModuleFailures.length, 2);
 	const [failure1, failure2] = result.loadModuleFailures;
 	if (failure1.type !== 'invalid') {
 		throw Error('Expected to fail with invalid');
 	}
-	t.is(failure1.id, idBar1);
-	t.ok(failure1.mod);
-	t.is(failure1.validation, testValidation.name);
+	assert.is(failure1.id, idBar1);
+	assert.ok(failure1.mod);
+	assert.is(failure1.validation, testValidation.name);
 	if (failure2.type !== 'importFailed') {
 		throw Error('Expected to fail with importFailed');
 	}
-	t.is(failure2.id, idBar2);
-	t.is(failure2.error, error);
-	t.is(result.modules.length, 2);
-	t.is(result.modules[0].id, idBaz1);
-	t.is(result.modules[0].mod, modTestBaz1);
-	t.is(result.modules[1].id, idBaz2);
-	t.is(result.modules[1].mod, modTestBaz2);
+	assert.is(failure2.id, idBar2);
+	assert.is(failure2.error, error);
+	assert.is(result.modules.length, 2);
+	assert.is(result.modules[0].id, idBaz1);
+	assert.is(result.modules[0].mod, modTestBaz1);
+	assert.is(result.modules[1].id, idBaz2);
+	assert.is(result.modules[1].mod, modTestBaz2);
 });
 
 testLoadModules.run();

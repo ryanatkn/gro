@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 import {join} from 'path';
 
 import {validateGenModule, findGenModules} from './genModule.js';
@@ -10,12 +10,12 @@ import {fs} from '../fs/node.js';
 const testValidateGenModule = suite('validateGenModule');
 
 testValidateGenModule('minimal interface', () => {
-	t.ok(validateGenModule({gen: () => {}}));
+	assert.ok(validateGenModule({gen: () => {}}));
 });
 
 testValidateGenModule('invalid module', () => {
-	t.not.ok(validateGenModule({gen: {}}));
-	t.not.ok(validateGenModule({task: {run: {}}}));
+	assert.not.ok(validateGenModule({gen: {}}));
+	assert.not.ok(validateGenModule({task: {run: {}}}));
 });
 
 testValidateGenModule.run();
@@ -26,8 +26,8 @@ const testFindGenModules = suite('findGenModules');
 
 testFindGenModules('finds gen modules in a directory', async () => {
 	const findGenModulesResult = await findGenModules(fs, [join(paths.source, 'docs/')]);
-	t.ok(findGenModulesResult.ok);
-	t.ok(findGenModulesResult.sourceIdPathDataByInputPath.size);
+	assert.ok(findGenModulesResult.ok);
+	assert.ok(findGenModulesResult.sourceIdPathDataByInputPath.size);
 });
 
 testFindGenModules.run();

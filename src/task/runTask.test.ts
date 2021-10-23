@@ -1,6 +1,6 @@
 import {EventEmitter} from 'events';
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import {runTask} from './runTask.js';
 import {fs} from '../fs/node.js';
@@ -26,8 +26,8 @@ testRunTask('passes args and returns output', async () => {
 		async () => {},
 		true,
 	);
-	t.ok(result.ok);
-	t.is(result.output, args);
+	assert.ok(result.ok);
+	assert.is(result.output, args);
 });
 
 testRunTask('invokes a sub task', async () => {
@@ -56,10 +56,10 @@ testRunTask('invokes a sub task', async () => {
 		},
 		true,
 	);
-	t.ok(result.ok);
-	t.is(invokedTaskName, 'bar/testTask');
-	t.is(invokedArgs, args);
-	t.is(result.output, args);
+	assert.ok(result.ok);
+	assert.is(invokedTaskName, 'bar/testTask');
+	assert.is(invokedArgs, args);
+	assert.is(result.output, args);
 });
 
 testRunTask('failing task', async () => {
@@ -83,9 +83,9 @@ testRunTask('failing task', async () => {
 		async () => {},
 		true,
 	);
-	t.not.ok(result.ok);
-	t.ok(result.reason);
-	t.is(result.error, err);
+	assert.not.ok(result.ok);
+	assert.ok(result.reason);
+	assert.is(result.error, err);
 });
 
 testRunTask.run();

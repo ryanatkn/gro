@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import {TASK_FILE_PATTERN, TASK_FILE_SUFFIX, isTaskPath, toTaskPath, toTaskName} from './task.js';
 
@@ -8,7 +8,7 @@ import {TASK_FILE_PATTERN, TASK_FILE_SUFFIX, isTaskPath, toTaskPath, toTaskName}
 const test_TASK_FILE_PATTERN = suite('TASK_FILE_PATTERN');
 
 test_TASK_FILE_PATTERN('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', () => {
-	t.ok(TASK_FILE_PATTERN.test('file' + TASK_FILE_SUFFIX));
+	assert.ok(TASK_FILE_PATTERN.test('file' + TASK_FILE_SUFFIX));
 });
 
 test_TASK_FILE_PATTERN.run();
@@ -18,11 +18,11 @@ test_TASK_FILE_PATTERN.run();
 const testIsTaskPath = suite('isTaskPath');
 
 testIsTaskPath('basic behavior', () => {
-	t.ok(isTaskPath('foo.task.ts'));
-	t.not.ok(isTaskPath('foo.ts'));
-	t.not.ok(isTaskPath('foo.task.js'));
-	t.ok(isTaskPath('bar/baz/foo.task.ts'));
-	t.not.ok(isTaskPath('bar/baz/foo.ts'));
+	assert.ok(isTaskPath('foo.task.ts'));
+	assert.not.ok(isTaskPath('foo.ts'));
+	assert.not.ok(isTaskPath('foo.task.js'));
+	assert.ok(isTaskPath('bar/baz/foo.task.ts'));
+	assert.not.ok(isTaskPath('bar/baz/foo.ts'));
 });
 
 testIsTaskPath.run();
@@ -32,12 +32,12 @@ testIsTaskPath.run();
 const testToTaskPath = suite('toTaskPath');
 
 testToTaskPath('basic behavior', () => {
-	t.is(toTaskPath('foo'), 'foo.task.ts');
-	t.is(toTaskPath('bar/baz/foo'), 'bar/baz/foo.task.ts');
+	assert.is(toTaskPath('foo'), 'foo.task.ts');
+	assert.is(toTaskPath('bar/baz/foo'), 'bar/baz/foo.task.ts');
 });
 
 testToTaskPath('performs no special checks', () => {
-	t.is(toTaskPath('bar/baz/foo.task.ts'), 'bar/baz/foo.task.ts.task.ts');
+	assert.is(toTaskPath('bar/baz/foo.task.ts'), 'bar/baz/foo.task.ts.task.ts');
 });
 
 testToTaskPath.run();
@@ -47,8 +47,8 @@ testToTaskPath.run();
 const testToTaskName = suite('toTaskName');
 
 testToTaskName('basic behavior', () => {
-	t.is(toTaskName('foo.task.ts'), 'foo');
-	t.is(toTaskName('bar/baz/foo.task.ts'), 'bar/baz/foo');
+	assert.is(toTaskName('foo.task.ts'), 'foo');
+	assert.is(toTaskName('bar/baz/foo.task.ts'), 'bar/baz/foo');
 });
 
 testToTaskName.run();

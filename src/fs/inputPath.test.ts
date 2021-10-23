@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 import {resolve, sep, join} from 'path';
 
 import {
@@ -18,46 +18,46 @@ const testResolveRawInputPath = suite('resolveRawInputPath');
 
 testResolveRawInputPath('basic behavior', () => {
 	const target = resolve('src/foo/bar.ts');
-	t.is(resolveRawInputPath('foo/bar.ts'), target);
-	t.is(resolveRawInputPath('src/foo/bar.ts'), target);
-	t.is(resolveRawInputPath('./src/foo/bar.ts'), target);
-	t.is(resolveRawInputPath('./foo/bar.ts'), target); // questionable
-	t.is(resolveRawInputPath(target), target);
-	t.is.not(resolveRawInputPath('bar.ts'), target);
+	assert.is(resolveRawInputPath('foo/bar.ts'), target);
+	assert.is(resolveRawInputPath('src/foo/bar.ts'), target);
+	assert.is(resolveRawInputPath('./src/foo/bar.ts'), target);
+	assert.is(resolveRawInputPath('./foo/bar.ts'), target); // questionable
+	assert.is(resolveRawInputPath(target), target);
+	assert.is.not(resolveRawInputPath('bar.ts'), target);
 });
 
 testResolveRawInputPath('source directory', () => {
 	const targetDir = resolve('src') + '/'; // inferred as directory
-	t.is(resolveRawInputPath('src'), targetDir);
-	t.is(resolveRawInputPath('src/'), targetDir);
-	t.is(resolveRawInputPath('./src'), targetDir);
-	t.is(resolveRawInputPath('./src/'), targetDir);
-	t.is(resolveRawInputPath('./srcTest'), targetDir + 'srcTest');
-	t.is(resolveRawInputPath('srcTest'), targetDir + 'srcTest');
-	t.is.not(resolveRawInputPath('.gro'), targetDir);
+	assert.is(resolveRawInputPath('src'), targetDir);
+	assert.is(resolveRawInputPath('src/'), targetDir);
+	assert.is(resolveRawInputPath('./src'), targetDir);
+	assert.is(resolveRawInputPath('./src/'), targetDir);
+	assert.is(resolveRawInputPath('./srcTest'), targetDir + 'srcTest');
+	assert.is(resolveRawInputPath('srcTest'), targetDir + 'srcTest');
+	assert.is.not(resolveRawInputPath('.gro'), targetDir);
 });
 
 testResolveRawInputPath('forced gro directory', () => {
 	const fakeDir = resolve('../fake') + sep;
 	const fakePaths = createPaths(fakeDir);
 	const groTarget = resolve('src/foo/bar.ts');
-	t.is(resolveRawInputPath('gro/foo/bar.ts'), groTarget);
-	t.is(resolveRawInputPath('foo/bar.ts', fakePaths), join(fakeDir, 'src/foo/bar.ts'));
-	t.is(resolveRawInputPath('gro/foo/bar.ts', fakePaths), join(fakeDir, 'src/gro/foo/bar.ts'));
-	t.is(resolveRawInputPath('foo/bar.ts'), groTarget);
-	t.is(resolveRawInputPath('foo/bar.ts', groPaths), groTarget);
-	t.is(resolveRawInputPath('gro'), resolve('src') + sep);
+	assert.is(resolveRawInputPath('gro/foo/bar.ts'), groTarget);
+	assert.is(resolveRawInputPath('foo/bar.ts', fakePaths), join(fakeDir, 'src/foo/bar.ts'));
+	assert.is(resolveRawInputPath('gro/foo/bar.ts', fakePaths), join(fakeDir, 'src/gro/foo/bar.ts'));
+	assert.is(resolveRawInputPath('foo/bar.ts'), groTarget);
+	assert.is(resolveRawInputPath('foo/bar.ts', groPaths), groTarget);
+	assert.is(resolveRawInputPath('gro'), resolve('src') + sep);
 });
 
 testResolveRawInputPath('directories', () => {
 	const targetDir = resolve('src/foo/bar');
-	t.is(resolveRawInputPath('foo/bar'), targetDir);
-	t.is(resolveRawInputPath('foo/bar/'), targetDir + '/');
-	t.is(resolveRawInputPath('src/foo/bar'), targetDir);
-	t.is(resolveRawInputPath('src/foo/bar/'), targetDir + '/');
-	t.is(resolveRawInputPath('./src/foo/bar'), targetDir);
-	t.is(resolveRawInputPath('./src/foo/bar/'), targetDir + '/');
-	t.is.not(resolveRawInputPath('bar'), targetDir);
+	assert.is(resolveRawInputPath('foo/bar'), targetDir);
+	assert.is(resolveRawInputPath('foo/bar/'), targetDir + '/');
+	assert.is(resolveRawInputPath('src/foo/bar'), targetDir);
+	assert.is(resolveRawInputPath('src/foo/bar/'), targetDir + '/');
+	assert.is(resolveRawInputPath('./src/foo/bar'), targetDir);
+	assert.is(resolveRawInputPath('./src/foo/bar/'), targetDir + '/');
+	assert.is.not(resolveRawInputPath('bar'), targetDir);
 });
 
 testResolveRawInputPath.run();
@@ -67,7 +67,7 @@ testResolveRawInputPath.run();
 const testResolveRawInputPaths = suite('resolveRawInputPaths');
 
 testResolveRawInputPaths('resolves multiple input path forms', () => {
-	t.equal(resolveRawInputPaths(['foo/bar.ts', 'baz', './']), [
+	assert.equal(resolveRawInputPaths(['foo/bar.ts', 'baz', './']), [
 		resolve('src/foo/bar.ts'),
 		resolve('src/baz'),
 		resolve('src') + sep,
@@ -75,7 +75,7 @@ testResolveRawInputPaths('resolves multiple input path forms', () => {
 });
 
 testResolveRawInputPaths('default to src', () => {
-	t.equal(resolveRawInputPaths([]), [resolve('src') + sep]);
+	assert.equal(resolveRawInputPaths([]), [resolve('src') + sep]);
 });
 
 testResolveRawInputPaths.run();
@@ -86,29 +86,29 @@ const testGetPossibleSourceIds = suite('getPossibleSourceIds');
 
 testGetPossibleSourceIds('in the gro directory', () => {
 	const inputPath = resolve('src/foo/bar');
-	t.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath, inputPath + '.baz.ts']);
+	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath, inputPath + '.baz.ts']);
 });
 
 testGetPossibleSourceIds('does not repeat the extension', () => {
 	const inputPath = resolve('src/foo/bar.baz.ts');
-	t.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
+	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
 });
 
 testGetPossibleSourceIds('does not repeat with the same root directory', () => {
 	const inputPath = resolve('src/foo/bar.baz.ts');
-	t.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [paths.root, paths.root]), [inputPath]);
+	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [paths.root, paths.root]), [inputPath]);
 });
 
 testGetPossibleSourceIds('implied to be a directory by trailing slash', () => {
 	const inputPath = resolve('src/foo/bar') + sep;
-	t.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
+	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
 });
 
 testGetPossibleSourceIds('in both another directory and gro', () => {
 	const fakeDir = resolve('../fake') + sep;
 	const fakePaths = createPaths(fakeDir);
 	const inputPath = join(fakeDir, 'src/foo/bar');
-	t.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [groPaths.root], fakePaths), [
+	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [groPaths.root], fakePaths), [
 		inputPath,
 		inputPath + '.baz.ts',
 		replaceRootDir(inputPath, groPaths.root, fakePaths),
@@ -135,7 +135,7 @@ testLoadSourcePathDataByInputPath('loads source path data and handles missing pa
 		['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
 		(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
 	);
-	t.equal(result, {
+	assert.equal(result, {
 		sourceIdPathDataByInputPath: new Map([
 			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
 			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
@@ -182,7 +182,7 @@ const testLoadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async () 
 		]),
 		async (id) => testFiles[id],
 	);
-	t.equal(result, {
+	assert.equal(result, {
 		sourceIdsByInputPath: new Map([
 			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
 			['fake/test2', ['fake/test2.bar.ts']],

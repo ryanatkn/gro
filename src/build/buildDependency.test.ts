@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
 import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
@@ -17,8 +17,8 @@ testSerializeBuildDependency(
 			buildId: 'd',
 			external: true,
 		};
-		t.equal(serializeBuildDependency(dependency), dependency);
-		t.equal(deserializeBuildDependency(dependency), dependency);
+		assert.equal(serializeBuildDependency(dependency), dependency);
+		assert.equal(deserializeBuildDependency(dependency), dependency);
 	},
 );
 
@@ -31,8 +31,8 @@ testSerializeBuildDependency('optimizes when serializing', () => {
 		external: false,
 	};
 	const serializedDependency: SerializedBuildDependency = {specifier: 'a'};
-	t.equal(serializeBuildDependency(dependency), serializedDependency);
-	t.equal(deserializeBuildDependency(serializedDependency), dependency);
+	assert.equal(serializeBuildDependency(dependency), serializedDependency);
+	assert.equal(deserializeBuildDependency(serializedDependency), dependency);
 });
 
 testSerializeBuildDependency.run();

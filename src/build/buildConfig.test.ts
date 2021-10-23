@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 import {join} from 'path';
 
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
@@ -22,7 +22,7 @@ testNormalizeBuildConfigs('normalizes a plain config', () => {
 		],
 		true,
 	);
-	t.equal(buildConfig, [
+	assert.equal(buildConfig, [
 		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
 		{name: 'system', platform: 'node', input},
 	]);
@@ -44,7 +44,7 @@ testNormalizeBuildConfigs('normalizes inputs', () => {
 		],
 		true,
 	);
-	t.equal(buildConfig, [
+	assert.equal(buildConfig, [
 		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
 		{name: 'system', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
@@ -81,7 +81,7 @@ testNormalizeBuildConfigs('adds missing system config', () => {
 		],
 		true,
 	);
-	t.equal(buildConfig, [
+	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
@@ -98,7 +98,7 @@ testNormalizeBuildConfigs('declares a single dist', () => {
 		],
 		true,
 	);
-	t.equal(buildConfig, [
+	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
@@ -117,7 +117,7 @@ testNormalizeBuildConfigs('ensures a primary config for each platform', () => {
 		],
 		true,
 	);
-	t.equal(buildConfig, [
+	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
@@ -138,7 +138,7 @@ testNormalizeBuildConfigs('makes all dist when none is', () => {
 		],
 		true,
 	);
-	t.equal(buildConfig, [
+	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', platform: 'node', input},
 		{name: 'node2', platform: 'node', input},
@@ -149,7 +149,7 @@ testNormalizeBuildConfigs('makes all dist when none is', () => {
 });
 
 testNormalizeBuildConfigs('throws without an array', () => {
-	t.throws(() => normalizeBuildConfigs({name: 'node', platform: 'node'} as any, true));
+	assert.throws(() => normalizeBuildConfigs({name: 'node', platform: 'node'} as any, true));
 });
 
 testNormalizeBuildConfigs.run();
@@ -159,8 +159,8 @@ testNormalizeBuildConfigs.run();
 const testValidateBuildConfigs = suite('validateBuildConfigs');
 
 testValidateBuildConfigs('basic behavior', async () => {
-	t.ok((await validateBuildConfigs(fs, normalizeBuildConfigs([], true), true)).ok);
-	t.ok(
+	assert.ok((await validateBuildConfigs(fs, normalizeBuildConfigs([], true), true)).ok);
+	assert.ok(
 		(
 			await validateBuildConfigs(
 				fs,
@@ -169,7 +169,7 @@ testValidateBuildConfigs('basic behavior', async () => {
 			)
 		).ok,
 	);
-	t.ok(
+	assert.ok(
 		(
 			await validateBuildConfigs(
 				fs,
@@ -186,7 +186,7 @@ testValidateBuildConfigs('basic behavior', async () => {
 			)
 		).ok,
 	);
-	t.ok(
+	assert.ok(
 		(
 			await validateBuildConfigs(
 				fs,
@@ -207,7 +207,7 @@ testValidateBuildConfigs('basic behavior', async () => {
 });
 
 testValidateBuildConfigs('fails with input path that does not exist', async () => {
-	t.not.ok(
+	assert.not.ok(
 		(
 			await validateBuildConfigs(
 				fs,
@@ -219,14 +219,14 @@ testValidateBuildConfigs('fails with input path that does not exist', async () =
 });
 
 testValidateBuildConfigs('fails with undefined', async () => {
-	t.not.ok((await validateBuildConfigs(fs, undefined as any, true)).ok);
-	t.not.ok(
+	assert.not.ok((await validateBuildConfigs(fs, undefined as any, true)).ok);
+	assert.not.ok(
 		(await validateBuildConfigs(fs, {name: 'node', platform: 'node', input} as any, true)).ok,
 	);
 });
 
 testValidateBuildConfigs('fails with an invalid name', async () => {
-	t.not.ok(
+	assert.not.ok(
 		(
 			await validateBuildConfigs(
 				fs,
@@ -235,7 +235,7 @@ testValidateBuildConfigs('fails with an invalid name', async () => {
 			)
 		).ok,
 	);
-	t.not.ok(
+	assert.not.ok(
 		(
 			await validateBuildConfigs(
 				fs,
@@ -247,7 +247,7 @@ testValidateBuildConfigs('fails with an invalid name', async () => {
 });
 
 testValidateBuildConfigs('fails with duplicate names', async () => {
-	t.ok(
+	assert.ok(
 		!(
 			await validateBuildConfigs(
 				fs,
@@ -262,7 +262,7 @@ testValidateBuildConfigs('fails with duplicate names', async () => {
 			)
 		).ok,
 	);
-	t.ok(
+	assert.ok(
 		!(
 			await validateBuildConfigs(
 				fs,
@@ -280,15 +280,15 @@ testValidateBuildConfigs('fails with duplicate names', async () => {
 });
 
 testValidateBuildConfigs('fails with a config build in production mode', async () => {
-	t.not.ok((await validateBuildConfigs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
+	assert.not.ok((await validateBuildConfigs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
 });
 
 testValidateBuildConfigs('fails with a system build in production mode', async () => {
-	t.not.ok((await validateBuildConfigs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
+	assert.not.ok((await validateBuildConfigs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
 });
 
 testValidateBuildConfigs('fails with an invalid platform', async () => {
-	t.not.ok(
+	assert.not.ok(
 		(
 			await validateBuildConfigs(
 				fs,
@@ -297,7 +297,7 @@ testValidateBuildConfigs('fails with an invalid platform', async () => {
 			)
 		).ok,
 	);
-	t.ok(
+	assert.ok(
 		!(
 			await validateBuildConfigs(
 				fs,

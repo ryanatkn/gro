@@ -26,7 +26,7 @@ So to make new tests, make a new file:
 ```ts
 // src/lib/importedThing.test.ts <-- make this file to test this one --> src/lib/importedThing.ts
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import {importedThing} from '$lib/importedThing.js';
 
@@ -34,7 +34,7 @@ import {importedThing} from '$lib/importedThing.js';
 const test___importedThing = suite('importedThing');
 
 test___importedThing('basic behavior', async () => {
-	t.equal(importedThing, {expected: true});
+	assert.equal(importedThing, {expected: true});
 });
 
 test___importedThing.run();

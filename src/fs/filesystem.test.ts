@@ -1,5 +1,5 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import {FsStats} from './filesystem.js';
 
@@ -8,9 +8,9 @@ const test_FsStats = suite('FsStats');
 
 test_FsStats('basic behavior', async () => {
 	const dirStats = new FsStats(true);
-	t.ok(dirStats.isDirectory());
+	assert.ok(dirStats.isDirectory());
 	const fileStats = new FsStats(false);
-	t.ok(!fileStats.isDirectory());
+	assert.ok(!fileStats.isDirectory());
 });
 
 test_FsStats.run();
