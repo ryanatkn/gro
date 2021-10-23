@@ -103,36 +103,23 @@ const toSourceMetaId = (file: BuildableSourceFile, buildDir: string, dev: boolea
 	`${toSourceMetaDir(buildDir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 // TODO optimize to load meta only for the build configs
-// TODO optimize to load meta only for the build configs
-// TODO optimize to load meta only for the build configs
-// TODO optimize to load meta only for the build configs
-// TODO optimize to load meta only for the build configs
-// TODO optimize to load meta only for the build configs
-// TODO optimize to load meta only for the build configs
-// TODO optimize to load meta only for the build configs
 export const initSourceMeta = async ({
 	fs,
 	sourceMetaById,
 	buildDir,
 	dev,
-	buildConfigs,
 }: BuildContext): Promise<void> => {
 	const sourceMetaDir = toSourceMetaDir(buildDir, dev);
 	if (!(await fs.exists(sourceMetaDir))) return;
 	const files = await fs.findFiles(sourceMetaDir, undefined, null);
-	console.log('buildConfigs', buildConfigs);
-	let count = 0;
 	await Promise.all(
 		Array.from(files.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
 			const cacheId = `${sourceMetaDir}/${path}`;
 			const data = deserializeSourceMeta(JSON.parse(await fs.readFile(cacheId, 'utf8')));
 			sourceMetaById.set(data.sourceId, {cacheId, data});
-			console.log('loaded sourceMeta', data.sourceId);
-			count++;
 		}),
 	);
-	console.log('sourceMeta count', count);
 };
 
 // Cached source meta may be stale if any source files were moved or deleted
