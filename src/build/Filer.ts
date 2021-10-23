@@ -160,9 +160,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
 	readonly buildConfigs: readonly BuildConfig[] | null;
 	readonly buildNames: Set<BuildName> | null;
-	// TODO if we loosen the restriction of the filer owning the `.gro` directory,
-	// `sourceMeta` will need to be a shared object --
-	// a global cache is too inflexible, because we still want to support multiple independent filers
 	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly buildDir: string;
@@ -261,7 +258,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
-		// because it creates source files, which need `this.sourceMeta` to be populated.
+		// because it creates source files, which need `this.sourceMetaById` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.trace('inited files');
 
@@ -282,7 +279,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 		}
 
-		// This performs initial source file build, traces deps,
+		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
 		// this.log.trace('inited builds');

@@ -128,6 +128,8 @@ gro build # build everything for production
 gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
 ```
 
+Formatting with [`prettier`](https://github.com/prettier/prettier):
+
 ```bash
 gro format # format all of the source files using Prettier
 gro format --check # check that all source files are formatted
