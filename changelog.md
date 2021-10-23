@@ -1,5 +1,10 @@
 # changelog
 
+## 0.44.2
+
+- add optional `paths` to `Filer` and improve its tests
+  ([#276](https://github.com/feltcoop/gro/pull/276))
+
 ## 0.44.1
 
 - change default config to not run the api server during build
