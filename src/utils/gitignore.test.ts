@@ -4,10 +4,10 @@ import * as assert from 'uvu/assert';
 
 import {loadGitignoreFilter} from './gitignore.js';
 
-/* testLoadGitignoreFilter */
-const testLoadGitignoreFilter = suite('loadGitignoreFilter');
+/* test__loadGitignoreFilter */
+const test__loadGitignoreFilter = suite('loadGitignoreFilter');
 
-testLoadGitignoreFilter('basic behavior', () => {
+test__loadGitignoreFilter('basic behavior', () => {
 	const filter = loadGitignoreFilter();
 	assert.ok(filter(resolve('dist')));
 	assert.ok(!filter(resolve('a/dist')));
@@ -21,7 +21,7 @@ testLoadGitignoreFilter('basic behavior', () => {
 	assert.ok(!filter(resolve('a/node_module/b')));
 });
 
-testLoadGitignoreFilter('caching and forceRefresh', () => {
+test__loadGitignoreFilter('caching and forceRefresh', () => {
 	const filter1 = loadGitignoreFilter();
 	const filter2 = loadGitignoreFilter();
 	assert.is(filter1, filter2);
@@ -33,5 +33,5 @@ testLoadGitignoreFilter('caching and forceRefresh', () => {
 	assert.is.not(filter4, filter5);
 });
 
-testLoadGitignoreFilter.run();
-/* /testLoadGitignoreFilter */
+test__loadGitignoreFilter.run();
+/* test__loadGitignoreFilter */

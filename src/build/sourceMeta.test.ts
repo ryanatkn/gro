@@ -4,10 +4,10 @@ import * as assert from 'uvu/assert';
 import type {SerializedSourceMetaData, SourceMetaData} from 'src/build/sourceMeta.js';
 import {serializeSourceMeta, deserializeSourceMeta} from './sourceMeta.js';
 
-/* testSerializeSourceMeta */
-const testSerializeSourceMeta = suite('serializeSourceMeta');
+/* test__serializeSourceMeta */
+const test__serializeSourceMeta = suite('serializeSourceMeta');
 
-testSerializeSourceMeta('serializes and deserializes source meta without changes', () => {
+test__serializeSourceMeta('serializes and deserializes source meta without changes', () => {
 	const data: SourceMetaData = {
 		sourceId: 'a',
 		contentHash: 'b',
@@ -32,7 +32,7 @@ testSerializeSourceMeta('serializes and deserializes source meta without changes
 	assert.equal(deserializeSourceMeta(data), data);
 });
 
-testSerializeSourceMeta('optimizes when serializing', () => {
+test__serializeSourceMeta('optimizes when serializing', () => {
 	const data: SourceMetaData = {
 		sourceId: 'a',
 		contentHash: 'b',
@@ -71,5 +71,5 @@ testSerializeSourceMeta('optimizes when serializing', () => {
 	assert.equal(deserializeSourceMeta(serializedData), data);
 });
 
-testSerializeSourceMeta.run();
-/* /testSerializeSourceMeta */
+test__serializeSourceMeta.run();
+/* test__serializeSourceMeta */

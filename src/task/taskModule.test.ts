@@ -8,22 +8,22 @@ import * as testTaskModule from './fixtures/testTaskModule.taskFixture.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
 import {fs} from '../fs/node.js';
 
-/* testValidateTaskModule */
-const testValidateTaskModule = suite('validateTaskModule');
+/* test__validateTaskModule */
+const test__validateTaskModule = suite('validateTaskModule');
 
-testValidateTaskModule('basic behavior', () => {
+test__validateTaskModule('basic behavior', () => {
 	assert.ok(validateTaskModule(testTaskModule));
 	assert.not.ok(validateTaskModule(testInvalidTaskModule));
 	assert.not.ok(validateTaskModule({task: {run: {}}}));
 });
 
-testValidateTaskModule.run();
-/* /testValidateTaskModule */
+test__validateTaskModule.run();
+/* test__validateTaskModule */
 
-/* testLoadTaskModule */
-const testLoadTaskModule = suite('loadTaskModule');
+/* test__loadTaskModule */
+const test__loadTaskModule = suite('loadTaskModule');
 
-testLoadTaskModule('basic behavior', async () => {
+test__loadTaskModule('basic behavior', async () => {
 	const name = 'task/fixtures/testTaskModule.taskFixture.js';
 	const id = resolve('src/' + name);
 	const result = await loadTaskModule(id, true);
@@ -34,7 +34,7 @@ testLoadTaskModule('basic behavior', async () => {
 	assert.is(result.mod.mod, testTaskModule);
 });
 
-testLoadTaskModule('invalid module', async () => {
+test__loadTaskModule('invalid module', async () => {
 	const id = resolve('src/task/fixtures/testInvalidTaskModule.js');
 	const result = await loadTaskModule(id, true);
 	assert.not.ok(result.ok);
@@ -47,7 +47,7 @@ testLoadTaskModule('invalid module', async () => {
 	}
 });
 
-testLoadTaskModule('failing module', async () => {
+test__loadTaskModule('failing module', async () => {
 	const id = resolve('src/task/fixtures/testFailingTaskModule.js');
 	const result = await loadTaskModule(id, true);
 	assert.not.ok(result.ok);
@@ -59,18 +59,18 @@ testLoadTaskModule('failing module', async () => {
 	}
 });
 
-testLoadTaskModule.run();
-/* /testLoadTaskModule */
+test__loadTaskModule.run();
+/* test__loadTaskModule */
 
-/* testLoadTaskModules */
-const testLoadTaskModules = suite('loadTaskModules');
+/* test__loadTaskModules */
+const test__loadTaskModules = suite('loadTaskModules');
 
-testLoadTaskModules('basic behavior', async () => {
+test__loadTaskModules('basic behavior', async () => {
 	const result = await loadTaskModules(fs, [resolve('src/test'), resolve('src/test.task.ts')]);
 	assert.ok(result.ok);
 	assert.is(result.modules.length, 1);
 	assert.is(result.modules[0].mod, actualTestTaskModule);
 });
 
-testLoadTaskModules.run();
-/* /testLoadTaskModules */
+test__loadTaskModules.run();
+/* test__loadTaskModules */

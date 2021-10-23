@@ -4,10 +4,10 @@ import * as assert from 'uvu/assert';
 import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
 import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
 
-/* testSerializeBuildDependency */
-const testSerializeBuildDependency = suite('serializeBuildDependency');
+/* test__serializeBuildDependency */
+const test__serializeBuildDependency = suite('serializeBuildDependency');
 
-testSerializeBuildDependency(
+test__serializeBuildDependency(
 	'serializes and deserializes a build dependency without changes',
 	() => {
 		const dependency: BuildDependency = {
@@ -22,7 +22,7 @@ testSerializeBuildDependency(
 	},
 );
 
-testSerializeBuildDependency('optimizes when serializing', () => {
+test__serializeBuildDependency('optimizes when serializing', () => {
 	const dependency: BuildDependency = {
 		specifier: 'a',
 		mappedSpecifier: 'a',
@@ -35,5 +35,5 @@ testSerializeBuildDependency('optimizes when serializing', () => {
 	assert.equal(deserializeBuildDependency(serializedDependency), dependency);
 });
 
-testSerializeBuildDependency.run();
-/* /testSerializeBuildDependency */
+test__serializeBuildDependency.run();
+/* test__serializeBuildDependency */

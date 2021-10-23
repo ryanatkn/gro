@@ -30,23 +30,23 @@ import * as assert from 'uvu/assert';
 
 import {importedThing} from '$lib/importedThing.js';
 
-/* test___importedThing */
-const test___importedThing = suite('importedThing');
+/* test__importedThing */
+const test__importedThing = suite('importedThing');
 
-test___importedThing('basic behavior', async () => {
+test__importedThing('basic behavior', async () => {
 	assert.equal(importedThing, {expected: true});
 });
 
-test___importedThing.run();
-/* test___importedThing */
+test__importedThing.run();
+/* test__importedThing */
 ```
 
 There are some conventions here that we're following
 in the hopes they'll aid readability, help avoid mistakes,
 and possibly pay off in more ways down the line:
 
-- double underscore `test___` prefix
-- opening and closing tags `/* test___importedThing */` around each suite
+- double underscore `test__` prefix
+- opening and closing tags `/* test__importedThing */` around each suite
 - name each suite according to what it's testing, as much as makes sense
 
 We recommend copy/pasting test files to avoid tedium.

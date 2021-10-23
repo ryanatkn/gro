@@ -27,11 +27,11 @@ const resetMemoryFs = ({fs}: SuiteContext) => fs._reset();
 
 const fakeTsContent = 'export const a = 5;';
 
-/* testWriteFile */
-const testWriteFile = suite('writeFile', suiteContext);
-testWriteFile.before.each(resetMemoryFs);
+/* test__writeFile */
+const test__writeFile = suite('writeFile', suiteContext);
+test__writeFile.before.each(resetMemoryFs);
 
-testWriteFile('basic behavior', async ({fs}) => {
+test__writeFile('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		assert.is(fs._files.size, 0);
@@ -42,7 +42,7 @@ testWriteFile('basic behavior', async ({fs}) => {
 	}
 });
 
-testWriteFile('updates an existing file', async ({fs}) => {
+test__writeFile('updates an existing file', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		assert.is(fs._files.size, 0);
@@ -63,14 +63,14 @@ testWriteFile('updates an existing file', async ({fs}) => {
 // TODO test that it creates the in-between directories
 // this will break the `length` checks!! can use the new length checks to check segment creation
 
-testWriteFile.run();
-/* /testWriteFile */
+test__writeFile.run();
+/* test__writeFile */
 
-/* testReadFile */
-const testReadFile = suite('readFile', suiteContext);
-testReadFile.before.each(resetMemoryFs);
+/* test__readFile */
+const test__readFile = suite('readFile', suiteContext);
+test__readFile.before.each(resetMemoryFs);
 
-testReadFile('basic behavior', async ({fs}) => {
+test__readFile('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		const content = 'content';
@@ -80,7 +80,7 @@ testReadFile('basic behavior', async ({fs}) => {
 	}
 });
 
-testReadFile('missing file throws', async ({fs}) => {
+test__readFile('missing file throws', async ({fs}) => {
 	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		fs._reset();
@@ -91,14 +91,14 @@ testReadFile('missing file throws', async ({fs}) => {
 	throw Error();
 });
 
-testReadFile.run();
-/* /testReadFile */
+test__readFile.run();
+/* test__readFile */
 
-/* testRemove */
-const testRemove = suite('remove', suiteContext);
-testRemove.before.each(resetMemoryFs);
+/* test_remove */
+const test_remove = suite('remove', suiteContext);
+test_remove.before.each(resetMemoryFs);
 
-testRemove('basic behavior', async ({fs}) => {
+test_remove('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
@@ -108,7 +108,7 @@ testRemove('basic behavior', async ({fs}) => {
 	}
 });
 
-testRemove('removes contained files and dirs', async ({fs}) => {
+test_remove('removes contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContent);
 	await fs.writeFile(`${path}/dir1/b/c.ts`, fakeTsContent);
@@ -118,18 +118,18 @@ testRemove('removes contained files and dirs', async ({fs}) => {
 	assert.is(fs._files.size, 6);
 });
 
-testRemove('missing file fails silently', async ({fs}) => {
+test_remove('missing file fails silently', async ({fs}) => {
 	await fs.remove('/missing/file');
 });
 
-testRemove.run();
-/* /testRemove */
+test_remove.run();
+/* test_remove */
 
-/* testMove */
-const testMove = suite('move', suiteContext);
-testMove.before.each(resetMemoryFs);
+/* test__move */
+const test__move = suite('move', suiteContext);
+test__move.before.each(resetMemoryFs);
 
-testMove('basic behavior', async ({fs}) => {
+test__move('basic behavior', async ({fs}) => {
 	const dest = '/testdest';
 	for (const path of testPaths) {
 		fs._reset();
@@ -142,7 +142,7 @@ testMove('basic behavior', async ({fs}) => {
 	}
 });
 
-testMove('moves contained files and dirs', async ({fs}) => {
+test__move('moves contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContent);
 	await fs.writeFile(`${path}/dir1/b/c.ts`, fakeTsContent);
@@ -162,7 +162,7 @@ testMove('moves contained files and dirs', async ({fs}) => {
 	assert.is(fs._files.size, 11); // add the one new base dir
 });
 
-testMove('handles move conflict with overwrite false', async ({fs}) => {
+test__move('handles move conflict with overwrite false', async ({fs}) => {
 	const dir = '/a/b';
 	const filename1 = '1.ts';
 	const filename2 = '2.ts';
@@ -184,7 +184,7 @@ testMove('handles move conflict with overwrite false', async ({fs}) => {
 	assert.is(fs._files.size, 5);
 });
 
-testMove('handles move conflict with overwrite true', async ({fs}) => {
+test__move('handles move conflict with overwrite true', async ({fs}) => {
 	const dir = '/a/b';
 	const filename1 = '1.ts';
 	const filename2 = '2.ts';
@@ -199,7 +199,7 @@ testMove('handles move conflict with overwrite true', async ({fs}) => {
 	assert.is(fs._files.size, 4);
 });
 
-testMove('missing source path throws', async ({fs}) => {
+test__move('missing source path throws', async ({fs}) => {
 	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		await fs.move('/missing/file', '/');
@@ -209,14 +209,14 @@ testMove('missing source path throws', async ({fs}) => {
 	throw Error();
 });
 
-testMove.run();
-/* /testMove */
+test__move.run();
+/* test__move */
 
-/* testCopy */
-const testCopy = suite('copy', suiteContext);
-testCopy.before.each(resetMemoryFs);
+/* test__copy */
+const test__copy = suite('copy', suiteContext);
+test__copy.before.each(resetMemoryFs);
 
-testCopy('basic behavior', async ({fs}) => {
+test__copy('basic behavior', async ({fs}) => {
 	const dest = '/testdest';
 	for (const path of testPaths) {
 		fs._reset();
@@ -229,7 +229,7 @@ testCopy('basic behavior', async ({fs}) => {
 	}
 });
 
-testCopy('copies contained files and dirs', async ({fs}) => {
+test__copy('copies contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContent);
 	await fs.writeFile(`${path}/dir1/b/c.ts`, fakeTsContent);
@@ -255,7 +255,7 @@ testCopy('copies contained files and dirs', async ({fs}) => {
 	assert.is(fs._files.size, 16); // add the one new base dir
 });
 
-testCopy('handles copy conflict with overwrite false', async ({fs}) => {
+test__copy('handles copy conflict with overwrite false', async ({fs}) => {
 	const dir = '/a/b';
 	const filename1 = '1.ts';
 	const filename2 = '2.ts';
@@ -277,7 +277,7 @@ testCopy('handles copy conflict with overwrite false', async ({fs}) => {
 	assert.is(fs._files.size, 5);
 });
 
-testCopy('handles copy conflict with overwrite true', async ({fs}) => {
+test__copy('handles copy conflict with overwrite true', async ({fs}) => {
 	const dir = '/a/b';
 	const filename1 = '1.ts';
 	const filename2 = '2.ts';
@@ -292,7 +292,7 @@ testCopy('handles copy conflict with overwrite true', async ({fs}) => {
 	assert.is(fs._files.size, 5);
 });
 
-testCopy('missing source path throws', async ({fs}) => {
+test__copy('missing source path throws', async ({fs}) => {
 	// TODO async `t.throws` or `t.rejects` ?
 	try {
 		await fs.copy('/missing/file', '/');
@@ -302,14 +302,14 @@ testCopy('missing source path throws', async ({fs}) => {
 	throw Error();
 });
 
-testCopy.run();
-/* /testCopy */
+test__copy.run();
+/* test__copy */
 
-/* testEnsureDir */
-const testEnsureDir = suite('ensureDir', suiteContext);
-testEnsureDir.before.each(resetMemoryFs);
+/* test__ensureDir */
+const test__ensureDir = suite('ensureDir', suiteContext);
+test__ensureDir.before.each(resetMemoryFs);
 
-testEnsureDir('basic behavior', async ({fs}) => {
+test__ensureDir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		assert.ok(!fs._exists(path));
@@ -318,7 +318,7 @@ testEnsureDir('basic behavior', async ({fs}) => {
 	}
 });
 
-testEnsureDir('normalize paths', async ({fs}) => {
+test__ensureDir('normalize paths', async ({fs}) => {
 	for (const path of testPaths) {
 		const testNormalizePaths = async (path1: string, path2: string) => {
 			fs._reset();
@@ -336,14 +336,14 @@ testEnsureDir('normalize paths', async ({fs}) => {
 	}
 });
 
-testEnsureDir.run();
-/* /testEnsureDir */
+test__ensureDir.run();
+/* test__ensureDir */
 
-/* testReadDir */
-const testReadDir = suite('readDir', suiteContext);
-testReadDir.before.each(resetMemoryFs);
+/* test__readDir */
+const test__readDir = suite('readDir', suiteContext);
+test__readDir.before.each(resetMemoryFs);
 
-testReadDir('basic behavior', async ({fs}) => {
+test__readDir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
@@ -354,7 +354,7 @@ testReadDir('basic behavior', async ({fs}) => {
 	}
 });
 
-testReadDir('readDirs contained files and dirs', async ({fs}) => {
+test__readDir('readDirs contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContent);
 	await fs.writeFile(`${path}/dir1/b/c1.ts`, fakeTsContent);
@@ -365,20 +365,20 @@ testReadDir('readDirs contained files and dirs', async ({fs}) => {
 	assert.equal(paths, ['a.ts', 'b', 'b/c1.ts', 'b/c2.ts', 'b/c3.ts', 'd']);
 });
 
-testReadDir('missing file fails silently', async ({fs}) => {
+test__readDir('missing file fails silently', async ({fs}) => {
 	const paths = await fs.readDir('/missing/file');
 	assert.equal(paths, []);
 	assert.is(fs._files.size, 0);
 });
 
-testReadDir.run();
-/* /testReadDir */
+test__readDir.run();
+/* test__readDir */
 
-/* testEmptyDir */
-const testEmptyDir = suite('emptyDir', suiteContext);
-testEmptyDir.before.each(resetMemoryFs);
+/* test__emptyDir */
+const test__emptyDir = suite('emptyDir', suiteContext);
+test__emptyDir.before.each(resetMemoryFs);
 
-testEmptyDir('basic behavior', async ({fs}) => {
+test__emptyDir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
@@ -393,7 +393,7 @@ testEmptyDir('basic behavior', async ({fs}) => {
 	}
 });
 
-testEmptyDir('emptyDirs contained files and dirs', async ({fs}) => {
+test__emptyDir('emptyDirs contained files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	await fs.writeFile(`${path}/dir1/a.ts`, fakeTsContent);
 	await fs.writeFile(`${path}/dir1/b/c1.ts`, fakeTsContent);
@@ -406,18 +406,18 @@ testEmptyDir('emptyDirs contained files and dirs', async ({fs}) => {
 	assert.ok(fs._exists(`${path}/dir1`));
 });
 
-testEmptyDir('missing file fails silently', async ({fs}) => {
+test__emptyDir('missing file fails silently', async ({fs}) => {
 	await fs.emptyDir('/missing/file');
 });
 
-testEmptyDir.run();
-/* /testEmptyDir */
+test__emptyDir.run();
+/* test__emptyDir */
 
-/* testFindFiles */
-const testFindFiles = suite('findFiles', suiteContext);
-testFindFiles.before.each(resetMemoryFs);
+/* test__findFiles */
+const test__findFiles = suite('findFiles', suiteContext);
+test__findFiles.before.each(resetMemoryFs);
 
-testFindFiles('basic behavior', async ({fs}) => {
+test__findFiles('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		const content = 'content';
@@ -431,7 +431,7 @@ testFindFiles('basic behavior', async ({fs}) => {
 	}
 });
 
-testFindFiles('find a bunch of files and dirs', async ({fs}) => {
+test__findFiles('find a bunch of files and dirs', async ({fs}) => {
 	const path = '/a/b/c';
 	const ignoredPath = 'b/c2.ts';
 	let hasIgnoredPath = false;
@@ -454,5 +454,5 @@ testFindFiles('find a bunch of files and dirs', async ({fs}) => {
 	assert.equal(Array.from(found.keys()), ['e/f', 'e', 'd', 'b/c3.ts', 'b/c1.ts', 'b', 'a.ts']);
 });
 
-testFindFiles.run();
-/* /testFindFiles */
+test__findFiles.run();
+/* test__findFiles */

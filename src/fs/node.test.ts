@@ -3,10 +3,10 @@ import * as assert from 'uvu/assert';
 
 import {fs as nodeFs} from './node.js';
 
-/* testFindFiles */
-const testFindFiles = suite('findFiles', {fs: nodeFs});
+/* test__findFiles */
+const test__findFiles = suite('findFiles', {fs: nodeFs});
 
-testFindFiles('basic behavior', async ({fs}) => {
+test__findFiles('basic behavior', async ({fs}) => {
 	const ignoredPath = 'test1.foo.ts';
 	let hasIgnoredPath = false;
 	const result = await fs.findFiles(
@@ -33,5 +33,5 @@ testFindFiles('basic behavior', async ({fs}) => {
 
 // TODO more tests
 
-testFindFiles.run();
-/* /testFindFiles */
+test__findFiles.run();
+/* test__findFiles */

@@ -15,11 +15,11 @@ interface SuiteContext {
 const suiteContext: SuiteContext = {fs: memoryFs};
 const resetMemoryFs = ({fs}: SuiteContext) => fs._reset();
 
-/* test_Filer */
-const test_Filer = suite('Filer', suiteContext);
-test_Filer.before.each(resetMemoryFs);
+/* test__Filer */
+const test__Filer = suite('Filer', suiteContext);
+test__Filer.before.each(resetMemoryFs);
 
-test_Filer('basic serve usage', async ({fs}) => {
+test__Filer('basic serve usage', async ({fs}) => {
 	const dev = true;
 
 	const aId = '/served/a.html';
@@ -55,7 +55,7 @@ test_Filer('basic serve usage', async ({fs}) => {
 	filer.close();
 });
 
-test_Filer('basic build usage with no watch', async ({fs}) => {
+test__Filer('basic build usage with no watch', async ({fs}) => {
 	const dev = true;
 	// TODO add a TypeScript file with a dependency
 	const rootId = '/a/b/src';
@@ -233,5 +233,5 @@ const sourceMetaSnapshot = [
 
 // TODO more tests
 
-test_Filer.run();
-/* /test_Filer */
+test__Filer.run();
+/* test__Filer */

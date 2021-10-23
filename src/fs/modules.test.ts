@@ -9,10 +9,10 @@ import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
 import {getPossibleSourceIds} from './inputPath.js';
 
-/* testLoadModule */
-const testLoadModule = suite('loadModule');
+/* test__loadModule */
+const test__loadModule = suite('loadModule');
 
-testLoadModule('basic behavior', async () => {
+test__loadModule('basic behavior', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	let validatedMod;
 	const result = await loadModule(id, true, ((mod: any) => {
@@ -25,7 +25,7 @@ testLoadModule('basic behavior', async () => {
 	assert.is(result.mod.mod, modTest1);
 });
 
-testLoadModule('without validation', async () => {
+test__loadModule('without validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	const result = await loadModule(id, true);
 	assert.ok(result.ok);
@@ -33,7 +33,7 @@ testLoadModule('without validation', async () => {
 	assert.is(result.mod.mod, modTest1);
 });
 
-testLoadModule('fails validation', async () => {
+test__loadModule('fails validation', async () => {
 	const id = resolve('src/fs/fixtures/test1.foo.js');
 	let validatedMod;
 	const testValidation = (mod: Record<string, any>) => {
@@ -52,7 +52,7 @@ testLoadModule('fails validation', async () => {
 	}
 });
 
-testLoadModule('fails to import', async () => {
+test__loadModule('fails to import', async () => {
 	const id = resolve('foo/test/failure');
 	const result = await loadModule(id, true);
 	assert.not.ok(result.ok);
@@ -64,13 +64,13 @@ testLoadModule('fails to import', async () => {
 	}
 });
 
-testLoadModule.run();
-/* /testLoadModule */
+test__loadModule.run();
+/* test__loadModule */
 
-/* testFindModules */
-const testFindModules = suite('findModules');
+/* test__findModules */
+const test__findModules = suite('findModules');
 
-testFindModules('with and without extension', async () => {
+test__findModules('with and without extension', async () => {
 	const path1 = resolve('src/fs/fixtures/test1');
 	const id1 = resolve('src/fs/fixtures/test1.foo.ts');
 	const id2 = resolve('src/fs/fixtures/test2.foo.ts');
@@ -97,7 +97,7 @@ testFindModules('with and without extension', async () => {
 	);
 });
 
-testFindModules('directory', async () => {
+test__findModules('directory', async () => {
 	const id = resolve('src/fs/fixtures/');
 	const result = await findModules(fs, [id], (id) =>
 		fs.findFiles(id, ({path}) => path.includes('.foo.')),
@@ -110,7 +110,7 @@ testFindModules('directory', async () => {
 	assert.equal(result.sourceIdPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
 });
 
-testFindModules('fail with unmappedInputPaths', async () => {
+test__findModules('fail with unmappedInputPaths', async () => {
 	const result = await findModules(
 		fs,
 		[
@@ -134,7 +134,7 @@ testFindModules('fail with unmappedInputPaths', async () => {
 	}
 });
 
-testFindModules('fail with inputDirectoriesWithNoFiles', async () => {
+test__findModules('fail with inputDirectoriesWithNoFiles', async () => {
 	const result = await findModules(
 		fs,
 		[
@@ -157,13 +157,13 @@ testFindModules('fail with inputDirectoriesWithNoFiles', async () => {
 	}
 });
 
-testFindModules.run();
-/* /testFindModules */
+test__findModules.run();
+/* test__findModules */
 
-/* testLoadModules */
-const testLoadModules = suite('loadModules');
+/* test__loadModules */
+const test__loadModules = suite('loadModules');
 
-testLoadModules('fail with loadModuleFailures', async () => {
+test__loadModules('fail with loadModuleFailures', async () => {
 	const pathBar1 = resolve('src/fs/fixtures/bar1');
 	const pathBar2 = resolve('src/fs/fixtures/bar2');
 	const pathBaz1 = resolve('src/fs/fixtures/baz1');
@@ -217,5 +217,5 @@ testLoadModules('fail with loadModuleFailures', async () => {
 	assert.is(result.modules[1].mod, modTestBaz2);
 });
 
-testLoadModules.run();
-/* /testLoadModules */
+test__loadModules.run();
+/* test__loadModules */

@@ -5,10 +5,10 @@ import * as assert from 'uvu/assert';
 import {runTask} from './runTask.js';
 import {fs} from '../fs/node.js';
 
-/* testRunTask */
-const testRunTask = suite('runTask');
+/* test__runTask */
+const test__runTask = suite('runTask');
 
-testRunTask('passes args and returns output', async () => {
+test__runTask('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
 	const result = await runTask(
 		fs,
@@ -30,7 +30,7 @@ testRunTask('passes args and returns output', async () => {
 	assert.is(result.output, args);
 });
 
-testRunTask('invokes a sub task', async () => {
+test__runTask('invokes a sub task', async () => {
 	const args = {a: 1, _: []};
 	let invokedTaskName;
 	let invokedArgs;
@@ -62,7 +62,7 @@ testRunTask('invokes a sub task', async () => {
 	assert.is(result.output, args);
 });
 
-testRunTask('failing task', async () => {
+test__runTask('failing task', async () => {
 	let err;
 	const result = await runTask(
 		fs,
@@ -88,5 +88,5 @@ testRunTask('failing task', async () => {
 	assert.is(result.error, err);
 });
 
-testRunTask.run();
-/* /testRunTask */
+test__runTask.run();
+/* test__runTask */

@@ -11,10 +11,10 @@ const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix 
 const FAKE_CONFIG_INPUT_RAW = 'otherGro.config2.ts';
 const FAKE_CONFIG_INPUT_NORMALIZED = [`${paths.source}otherGro.config2.ts`];
 
-/* testNormalizeBuildConfigs */
-const testNormalizeBuildConfigs = suite('normalizeBuildConfigs');
+/* test__normalizeBuildConfigs */
+const test__normalizeBuildConfigs = suite('normalizeBuildConfigs');
 
-testNormalizeBuildConfigs('normalizes a plain config', () => {
+test__normalizeBuildConfigs('normalizes a plain config', () => {
 	const buildConfig = normalizeBuildConfigs(
 		[
 			{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_RAW},
@@ -28,7 +28,7 @@ testNormalizeBuildConfigs('normalizes a plain config', () => {
 	]);
 });
 
-testNormalizeBuildConfigs('normalizes inputs', () => {
+test__normalizeBuildConfigs('normalizes inputs', () => {
 	const inputPath = join(paths.source, 'foo');
 	const inputFilter = () => true;
 	const buildConfig = normalizeBuildConfigs(
@@ -72,7 +72,7 @@ testNormalizeBuildConfigs('normalizes inputs', () => {
 	]);
 });
 
-testNormalizeBuildConfigs('adds missing system config', () => {
+test__normalizeBuildConfigs('adds missing system config', () => {
 	const buildConfig = normalizeBuildConfigs(
 		[
 			{name: 'node1', platform: 'node', input},
@@ -89,7 +89,7 @@ testNormalizeBuildConfigs('adds missing system config', () => {
 	]);
 });
 
-testNormalizeBuildConfigs('declares a single dist', () => {
+test__normalizeBuildConfigs('declares a single dist', () => {
 	const buildConfig = normalizeBuildConfigs(
 		[
 			{name: 'node1', platform: 'node', input},
@@ -106,7 +106,7 @@ testNormalizeBuildConfigs('declares a single dist', () => {
 	]);
 });
 
-testNormalizeBuildConfigs('ensures a primary config for each platform', () => {
+test__normalizeBuildConfigs('ensures a primary config for each platform', () => {
 	const buildConfig = normalizeBuildConfigs(
 		[
 			{name: 'node1', platform: 'node', input},
@@ -127,7 +127,7 @@ testNormalizeBuildConfigs('ensures a primary config for each platform', () => {
 	]);
 });
 
-testNormalizeBuildConfigs('makes all dist when none is', () => {
+test__normalizeBuildConfigs('makes all dist when none is', () => {
 	const buildConfig = normalizeBuildConfigs(
 		[
 			{name: 'node1', platform: 'node', input},
@@ -148,17 +148,17 @@ testNormalizeBuildConfigs('makes all dist when none is', () => {
 	]);
 });
 
-testNormalizeBuildConfigs('throws without an array', () => {
+test__normalizeBuildConfigs('throws without an array', () => {
 	assert.throws(() => normalizeBuildConfigs({name: 'node', platform: 'node'} as any, true));
 });
 
-testNormalizeBuildConfigs.run();
-/* /testNormalizeBuildConfigs */
+test__normalizeBuildConfigs.run();
+/* test__normalizeBuildConfigs */
 
-/* testValidateBuildConfigs */
-const testValidateBuildConfigs = suite('validateBuildConfigs');
+/* test__validateBuildConfigs */
+const test__validateBuildConfigs = suite('validateBuildConfigs');
 
-testValidateBuildConfigs('basic behavior', async () => {
+test__validateBuildConfigs('basic behavior', async () => {
 	assert.ok((await validateBuildConfigs(fs, normalizeBuildConfigs([], true), true)).ok);
 	assert.ok(
 		(
@@ -206,7 +206,7 @@ testValidateBuildConfigs('basic behavior', async () => {
 	);
 });
 
-testValidateBuildConfigs('fails with input path that does not exist', async () => {
+test__validateBuildConfigs('fails with input path that does not exist', async () => {
 	assert.not.ok(
 		(
 			await validateBuildConfigs(
@@ -218,14 +218,14 @@ testValidateBuildConfigs('fails with input path that does not exist', async () =
 	);
 });
 
-testValidateBuildConfigs('fails with undefined', async () => {
+test__validateBuildConfigs('fails with undefined', async () => {
 	assert.not.ok((await validateBuildConfigs(fs, undefined as any, true)).ok);
 	assert.not.ok(
 		(await validateBuildConfigs(fs, {name: 'node', platform: 'node', input} as any, true)).ok,
 	);
 });
 
-testValidateBuildConfigs('fails with an invalid name', async () => {
+test__validateBuildConfigs('fails with an invalid name', async () => {
 	assert.not.ok(
 		(
 			await validateBuildConfigs(
@@ -246,7 +246,7 @@ testValidateBuildConfigs('fails with an invalid name', async () => {
 	);
 });
 
-testValidateBuildConfigs('fails with duplicate names', async () => {
+test__validateBuildConfigs('fails with duplicate names', async () => {
 	assert.ok(
 		!(
 			await validateBuildConfigs(
@@ -279,15 +279,15 @@ testValidateBuildConfigs('fails with duplicate names', async () => {
 	);
 });
 
-testValidateBuildConfigs('fails with a config build in production mode', async () => {
+test__validateBuildConfigs('fails with a config build in production mode', async () => {
 	assert.not.ok((await validateBuildConfigs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
 });
 
-testValidateBuildConfigs('fails with a system build in production mode', async () => {
+test__validateBuildConfigs('fails with a system build in production mode', async () => {
 	assert.not.ok((await validateBuildConfigs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
 });
 
-testValidateBuildConfigs('fails with an invalid platform', async () => {
+test__validateBuildConfigs('fails with an invalid platform', async () => {
 	assert.not.ok(
 		(
 			await validateBuildConfigs(
@@ -308,5 +308,5 @@ testValidateBuildConfigs('fails with an invalid platform', async () => {
 	);
 });
 
-testValidateBuildConfigs.run();
-/* /testValidateBuildConfigs */
+test__validateBuildConfigs.run();
+/* test__validateBuildConfigs */

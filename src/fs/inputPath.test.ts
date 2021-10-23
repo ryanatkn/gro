@@ -13,10 +13,10 @@ import type {PathStats} from 'src/fs/pathData.js';
 import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
 import {fs} from './node.js';
 
-/* testResolveRawInputPath */
-const testResolveRawInputPath = suite('resolveRawInputPath');
+/* test__resolveRawInputPath */
+const test__resolveRawInputPath = suite('resolveRawInputPath');
 
-testResolveRawInputPath('basic behavior', () => {
+test__resolveRawInputPath('basic behavior', () => {
 	const target = resolve('src/foo/bar.ts');
 	assert.is(resolveRawInputPath('foo/bar.ts'), target);
 	assert.is(resolveRawInputPath('src/foo/bar.ts'), target);
@@ -26,7 +26,7 @@ testResolveRawInputPath('basic behavior', () => {
 	assert.is.not(resolveRawInputPath('bar.ts'), target);
 });
 
-testResolveRawInputPath('source directory', () => {
+test__resolveRawInputPath('source directory', () => {
 	const targetDir = resolve('src') + '/'; // inferred as directory
 	assert.is(resolveRawInputPath('src'), targetDir);
 	assert.is(resolveRawInputPath('src/'), targetDir);
@@ -37,7 +37,7 @@ testResolveRawInputPath('source directory', () => {
 	assert.is.not(resolveRawInputPath('.gro'), targetDir);
 });
 
-testResolveRawInputPath('forced gro directory', () => {
+test__resolveRawInputPath('forced gro directory', () => {
 	const fakeDir = resolve('../fake') + sep;
 	const fakePaths = createPaths(fakeDir);
 	const groTarget = resolve('src/foo/bar.ts');
@@ -49,7 +49,7 @@ testResolveRawInputPath('forced gro directory', () => {
 	assert.is(resolveRawInputPath('gro'), resolve('src') + sep);
 });
 
-testResolveRawInputPath('directories', () => {
+test__resolveRawInputPath('directories', () => {
 	const targetDir = resolve('src/foo/bar');
 	assert.is(resolveRawInputPath('foo/bar'), targetDir);
 	assert.is(resolveRawInputPath('foo/bar/'), targetDir + '/');
@@ -60,13 +60,13 @@ testResolveRawInputPath('directories', () => {
 	assert.is.not(resolveRawInputPath('bar'), targetDir);
 });
 
-testResolveRawInputPath.run();
-/* /testResolveRawInputPath */
+test__resolveRawInputPath.run();
+/* test__resolveRawInputPath */
 
-/* testResolveRawInputPaths */
-const testResolveRawInputPaths = suite('resolveRawInputPaths');
+/* test__resolveRawInputPaths */
+const test__resolveRawInputPaths = suite('resolveRawInputPaths');
 
-testResolveRawInputPaths('resolves multiple input path forms', () => {
+test__resolveRawInputPaths('resolves multiple input path forms', () => {
 	assert.equal(resolveRawInputPaths(['foo/bar.ts', 'baz', './']), [
 		resolve('src/foo/bar.ts'),
 		resolve('src/baz'),
@@ -74,37 +74,37 @@ testResolveRawInputPaths('resolves multiple input path forms', () => {
 	]);
 });
 
-testResolveRawInputPaths('default to src', () => {
+test__resolveRawInputPaths('default to src', () => {
 	assert.equal(resolveRawInputPaths([]), [resolve('src') + sep]);
 });
 
-testResolveRawInputPaths.run();
-/* /testResolveRawInputPaths */
+test__resolveRawInputPaths.run();
+/* test__resolveRawInputPaths */
 
-/* testGetPossibleSourceIds */
-const testGetPossibleSourceIds = suite('getPossibleSourceIds');
+/* test__getPossibleSourceIds */
+const test__getPossibleSourceIds = suite('getPossibleSourceIds');
 
-testGetPossibleSourceIds('in the gro directory', () => {
+test__getPossibleSourceIds('in the gro directory', () => {
 	const inputPath = resolve('src/foo/bar');
 	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath, inputPath + '.baz.ts']);
 });
 
-testGetPossibleSourceIds('does not repeat the extension', () => {
+test__getPossibleSourceIds('does not repeat the extension', () => {
 	const inputPath = resolve('src/foo/bar.baz.ts');
 	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
 });
 
-testGetPossibleSourceIds('does not repeat with the same root directory', () => {
+test__getPossibleSourceIds('does not repeat with the same root directory', () => {
 	const inputPath = resolve('src/foo/bar.baz.ts');
 	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [paths.root, paths.root]), [inputPath]);
 });
 
-testGetPossibleSourceIds('implied to be a directory by trailing slash', () => {
+test__getPossibleSourceIds('implied to be a directory by trailing slash', () => {
 	const inputPath = resolve('src/foo/bar') + sep;
 	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
 });
 
-testGetPossibleSourceIds('in both another directory and gro', () => {
+test__getPossibleSourceIds('in both another directory and gro', () => {
 	const fakeDir = resolve('../fake') + sep;
 	const fakePaths = createPaths(fakeDir);
 	const inputPath = join(fakeDir, 'src/foo/bar');
@@ -116,40 +116,43 @@ testGetPossibleSourceIds('in both another directory and gro', () => {
 	]);
 });
 
-testGetPossibleSourceIds.run();
-/* /testGetPossibleSourceIds */
+test__getPossibleSourceIds.run();
+/* test__getPossibleSourceIds */
 
-/* testLoadSourcePathDataByInputPath */
-const testLoadSourcePathDataByInputPath = suite('loadSourcePathDataByInputPath');
+/* test__loadSourcePathDataByInputPath */
+const test__loadSourcePathDataByInputPath = suite('loadSourcePathDataByInputPath');
 
-testLoadSourcePathDataByInputPath('loads source path data and handles missing paths', async () => {
-	const result = await loadSourcePathDataByInputPath(
-		{
-			...fs,
-			exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
-			stat: async (path) =>
-				({
-					isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
-				} as any),
-		},
-		['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
-		(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
-	);
-	assert.equal(result, {
-		sourceIdPathDataByInputPath: new Map([
-			['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
-			['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
-			['fake/test3', {id: 'fake/test3', isDirectory: true}],
-		]),
-		unmappedInputPaths: ['fake/missing'],
-	});
-});
+test__loadSourcePathDataByInputPath(
+	'loads source path data and handles missing paths',
+	async () => {
+		const result = await loadSourcePathDataByInputPath(
+			{
+				...fs,
+				exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
+				stat: async (path) =>
+					({
+						isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
+					} as any),
+			},
+			['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
+			(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
+		);
+		assert.equal(result, {
+			sourceIdPathDataByInputPath: new Map([
+				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
+				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
+				['fake/test3', {id: 'fake/test3', isDirectory: true}],
+			]),
+			unmappedInputPaths: ['fake/missing'],
+		});
+	},
+);
 
-testLoadSourcePathDataByInputPath.run();
-/* /testLoadSourcePathDataByInputPath */
+test__loadSourcePathDataByInputPath.run();
+/* test__loadSourcePathDataByInputPath */
 
-/* testLoadSourceIdsByInputPath */
-const testLoadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async () => {
+/* test__loadSourceIdsByInputPath */
+const test__loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async () => {
 	const testFiles: Record<string, Map<string, PathStats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
@@ -193,5 +196,5 @@ const testLoadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async () 
 	});
 });
 
-testLoadSourceIdsByInputPath.run();
-/* /testLoadSourceIdsByInputPath */
+test__loadSourceIdsByInputPath.run();
+/* test__loadSourceIdsByInputPath */

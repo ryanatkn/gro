@@ -7,12 +7,12 @@ import type {GenModuleMeta} from 'src/gen/genModule.js';
 import {runGen} from './runGen.js';
 import {fs} from '../fs/node.js';
 
-const log = new Logger('testGen'); // TODO test logger?
+const log = new Logger('test__gen'); // TODO test logger?
 
-/* testGen */
-const testGen = suite('gen');
+/* test__gen */
+const test__gen = suite('gen');
 
-testGen('basic behavior', async () => {
+test__gen('basic behavior', async () => {
 	const sourceIdA = resolve('src/foo.gen.ts');
 	const sourceIdBC = resolve('src/bar/bc');
 	let fileA: undefined | {filename: string; content: string};
@@ -118,7 +118,7 @@ testGen('basic behavior', async () => {
 	]);
 });
 
-testGen('failing gen function', async () => {
+test__gen('failing gen function', async () => {
 	const sourceIdA = resolve('src/foo.gen.ts');
 	const sourceIdB = resolve('src/bar/baz');
 	let fileB: undefined | {filename: string; content: string}; // no fileA because it's never generated
@@ -176,5 +176,5 @@ testGen('failing gen function', async () => {
 	]);
 });
 
-testGen.run();
-/* /testGen */
+test__gen.run();
+/* test__gen */
