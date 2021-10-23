@@ -102,7 +102,7 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	await filer.init();
 
 	// disallow calling `filer.init()` more than once
-	// TODO use `t.rejects` when it lands
+	// TODO use `assert.rejects` when it lands: https://github.com/lukeed/uvu/pull/132
 	let initError;
 	try {
 		await filer.init();
