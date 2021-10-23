@@ -91,16 +91,17 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 		servedDirs: [rootId], // normally gets served out of the Gro build dirs, but we override
 		watch: false,
 		// TODO this is hacky to work around the fact that the default implementation of this
-		// assumes the current working directory -- we could change the test paths to avoid this,
+		// assumes the current working directory  we could change the test paths to avoid this,
 		// but we want to test arbitrary absolute paths,
 		// so instead we probably want to make a new pluggable `Filer` option like `paths`,
 		// which would make customizable what's currently hardcoded at `src/paths.ts`.
-		mapDependencyToSourceId: async (dependency) => {
-			return `${rootId}/${replaceExtension(dependency.mappedSpecifier.substring(2), TS_EXTENSION)}`;
-		},
+		mapDependencyToSourceId: async (dependency) =>
+			`${rootId}/${replaceExtension(dependency.mappedSpecifier.substring(2), TS_EXTENSION)}`,
 	});
 	t.ok(filer);
 	await filer.init();
+
+	t.equal(Array.from(filer.sourceMetaById.values()), sourceMetaSnapshot);
 
 	const entryFile = await filer.findByPath(entryFilename);
 	t.is(entryFile?.id, entryId);
@@ -109,32 +110,116 @@ test_Filer('basic build usage with no watch', async ({fs}) => {
 	const dep2File = await filer.findByPath(dep2Filename);
 	t.is(dep2File?.id, dep2Id);
 
-	t.equal(Array.from(fs._files.keys()), [
-		'/',
-		'/a',
-		'/a/b',
-		'/a/b/src',
-		'/a/b/src/entry.ts',
-		'/a/b/src/dep1.ts',
-		'/a/b/src/dep2.ts',
-		'/c',
-		'/c/dev',
-		'/c/dev/testBuildConfig',
-		'/c/dev/testBuildConfig/entry.js',
-		'/c/dev/testBuildConfig/entry.js.map',
-		'/c/dev/testBuildConfig/dep1.js',
-		'/c/dev/testBuildConfig/dep1.js.map',
-		'/c/dev/testBuildConfig/dep2.js',
-		'/c/dev/testBuildConfig/dep2.js.map',
-		'/c/dev_meta',
-		'/c/dev_meta/dep2.ts.json',
-		'/c/dev_meta/dep1.ts.json',
-		'/c/dev_meta/entry.ts.json',
-	]);
+	t.equal(Array.from(fs._files.keys()), filesKeysSnapshot);
 	t.ok(fs._files.has(entryId));
 
 	filer.close();
 });
+
+const filesKeysSnapshot = [
+	'/',
+	'/a',
+	'/a/b',
+	'/a/b/src',
+	'/a/b/src/entry.ts',
+	'/a/b/src/dep1.ts',
+	'/a/b/src/dep2.ts',
+	'/c',
+	'/c/dev',
+	'/c/dev/testBuildConfig',
+	'/c/dev/testBuildConfig/entry.js',
+	'/c/dev/testBuildConfig/entry.js.map',
+	'/c/dev/testBuildConfig/dep1.js',
+	'/c/dev/testBuildConfig/dep1.js.map',
+	'/c/dev/testBuildConfig/dep2.js',
+	'/c/dev/testBuildConfig/dep2.js.map',
+	'/c/dev_meta',
+	'/c/dev_meta/dep2.ts.json',
+	'/c/dev_meta/dep1.ts.json',
+	'/c/dev_meta/entry.ts.json',
+];
+
+const sourceMetaSnapshot = [
+	{
+		cacheId: '/c/dev_meta/dep2.ts.json',
+		data: {
+			sourceId: '/a/b/src/dep2.ts',
+			contentHash: '8658aba51e656a918d4768bfbd6cdbf1',
+			builds: [
+				{
+					id: '/c/dev/testBuildConfig/dep2.js',
+					buildName: 'testBuildConfig',
+					dependencies: null,
+					encoding: 'utf8',
+				},
+				{
+					id: '/c/dev/testBuildConfig/dep2.js.map',
+					buildName: 'testBuildConfig',
+					dependencies: null,
+					encoding: 'utf8',
+				},
+			],
+		},
+	},
+	{
+		cacheId: '/c/dev_meta/dep1.ts.json',
+		data: {
+			sourceId: '/a/b/src/dep1.ts',
+			contentHash: '5f8c0c9016e8afd8b9575889a9e9226b',
+			builds: [
+				{
+					id: '/c/dev/testBuildConfig/dep1.js',
+					buildName: 'testBuildConfig',
+					dependencies: [
+						{
+							specifier: './dep2.js',
+							mappedSpecifier: './dep2.js',
+							originalSpecifier: './dep2.js',
+							buildId: '/c/dev/testBuildConfig/dep2.js',
+							external: false,
+						},
+					],
+					encoding: 'utf8',
+				},
+				{
+					id: '/c/dev/testBuildConfig/dep1.js.map',
+					buildName: 'testBuildConfig',
+					dependencies: null,
+					encoding: 'utf8',
+				},
+			],
+		},
+	},
+	{
+		cacheId: '/c/dev_meta/entry.ts.json',
+		data: {
+			sourceId: '/a/b/src/entry.ts',
+			contentHash: '216225ec7cebcb5c2cf443df2050b2a0',
+			builds: [
+				{
+					id: '/c/dev/testBuildConfig/entry.js',
+					buildName: 'testBuildConfig',
+					dependencies: [
+						{
+							specifier: './dep1.js',
+							mappedSpecifier: './dep1.js',
+							originalSpecifier: './dep1.js',
+							buildId: '/c/dev/testBuildConfig/dep1.js',
+							external: false,
+						},
+					],
+					encoding: 'utf8',
+				},
+				{
+					id: '/c/dev/testBuildConfig/entry.js.map',
+					buildName: 'testBuildConfig',
+					dependencies: null,
+					encoding: 'utf8',
+				},
+			],
+		},
+	},
+];
 
 // TODO more tests
 
