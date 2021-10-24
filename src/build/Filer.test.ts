@@ -53,6 +53,7 @@ test__Filer('basic serve usage', async ({fs}) => {
 });
 
 test__Filer('basic build usage with no watch', async ({fs}) => {
+	const buildDir = '/c/';
 	const rootId = '/a/b';
 	const paths = createPaths(rootId);
 	const entryFilename = 'entry.ts';
@@ -80,7 +81,7 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	const filer = new Filer({
 		fs,
 		paths,
-		buildDir: '/c/',
+		buildDir,
 		builder: groBuilderDefault(),
 		buildConfigs: [buildConfig],
 		sourceDirs: [paths.source],
@@ -232,6 +233,7 @@ const sourceMetaSnapshot = [
 ];
 
 test__Filer('multiple build configs', async ({fs}) => {
+	const buildDir = '/c/';
 	const rootId = '/a/b';
 	const paths = createPaths(rootId);
 	const entry1Filename = 'entry1.ts';
@@ -254,7 +256,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 		entry2Id,
 		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}';
 		import {b} from './${replaceExtension(dep3Filename, JS_EXTENSION)}';
-		export {a};`,
+		export {a, b};`,
 		'utf8',
 	);
 	await fs.writeFile(
@@ -276,16 +278,20 @@ test__Filer('multiple build configs', async ({fs}) => {
 		input: [entry2Id],
 	};
 
-	// filer1 has the first build config
-	const filer1 = new Filer({
+	const filerOptions = {
 		fs,
 		paths,
-		buildDir: '/c/',
+		buildDir,
 		builder: groBuilderDefault(),
-		buildConfigs: [buildConfig1],
 		sourceDirs: [paths.source],
 		servedDirs: [paths.source],
 		watch: false,
+	};
+
+	// filer1 has the first build config
+	const filer1 = new Filer({
+		...filerOptions,
+		buildConfigs: [buildConfig1],
 	});
 	assert.ok(filer1);
 	await filer1.init();
@@ -302,18 +308,12 @@ test__Filer('multiple build configs', async ({fs}) => {
 
 	// filer2 has the second build config
 	const filer2 = new Filer({
-		fs,
-		paths,
-		buildDir: '/c/',
-		builder: groBuilderDefault(),
+		...filerOptions,
 		buildConfigs: [buildConfig2],
-		sourceDirs: [paths.source],
-		servedDirs: [paths.source],
-		watch: false,
 	});
 	assert.ok(filer2);
 	await filer2.init();
-	assert.is(filer2.sourceMetaById.size, 4);
+	assert.is(filer2.sourceMetaById.size, 5);
 	const entry2File = await filer2.findByPath(entry2Filename);
 	assert.is(entry2File?.id, entry2Id);
 	const dep1FileB = await filer2.findByPath(dep1Filename);
@@ -322,45 +322,66 @@ test__Filer('multiple build configs', async ({fs}) => {
 	assert.is(dep2FileB?.id, dep2Id);
 	const dep3FileB = await filer2.findByPath(dep3Filename);
 	assert.is(dep3FileB?.id, dep3Id);
-	assert.is(fs._files.size, 25);
+	assert.is(fs._files.size, 28);
 	assert.ok(fs._files.has(entry2Id));
 	filer2.close();
 
 	// load filer1 again, and make sure it loads only the necessary source meta
 	const filer1B = new Filer({
-		fs,
-		paths,
-		buildDir: '/c/',
-		builder: groBuilderDefault(),
+		...filerOptions,
 		buildConfigs: [buildConfig1],
-		sourceDirs: [paths.source],
-		servedDirs: [paths.source],
-		watch: false,
 	});
 	assert.ok(filer1B);
 	await filer1B.init();
-	assert.is(filer1B.sourceMetaById.size, 4); // TODO should be `3` after changing it to lazy load
-	assert.is(fs._files.size, 25);
+	assert.is(filer1B.sourceMetaById.size, 5); // TODO should be `3` after changing it to lazy load
+	assert.is(fs._files.size, 28);
 	filer1B.close();
 
 	// filer3 has both build configs
 	const filer3 = new Filer({
-		fs,
-		paths,
-		buildDir: '/c/',
-		builder: groBuilderDefault(),
+		...filerOptions,
 		buildConfigs: [buildConfig1, buildConfig2],
-		sourceDirs: [paths.source],
-		servedDirs: [paths.source],
-		watch: false,
 	});
 	assert.ok(filer3);
 	await filer3.init();
-	assert.is(filer3.sourceMetaById.size, 4);
-	assert.is(fs._files.size, 25);
+	assert.is(filer3.sourceMetaById.size, 5);
+	assert.is(fs._files.size, 28);
 	filer3.close();
 
-	// TODO change the source file imports to cause deletion of sourceMeta
+	// load filer1 again after deleting a source file dependency
+	await fs.remove(dep3Id);
+	const filer1C = new Filer({
+		...filerOptions,
+		buildConfigs: [buildConfig1],
+	});
+	assert.ok(filer1C);
+	await filer1C.init();
+	assert.is(filer1C.sourceMetaById.size, 4);
+	assert.is(fs._files.size, 26);
+	filer1C.close();
+
+	// load filer2 again with its still-deleted dependency
+	const filer2B = new Filer({
+		...filerOptions,
+		buildConfigs: [buildConfig2],
+	});
+	assert.ok(filer2B);
+	await filer2B.init();
+	assert.is(filer2B.sourceMetaById.size, 4);
+	assert.is(fs._files.size, 26);
+	filer2B.close();
+
+	// load filer2 again after recreating its previously deleted source file
+	await fs.writeFile(dep3Id, 'export const b: number = 5;', 'utf8');
+	const filer2C = new Filer({
+		...filerOptions,
+		buildConfigs: [buildConfig2],
+	});
+	assert.ok(filer2C);
+	await filer2C.init();
+	assert.is(filer2C.sourceMetaById.size, 5);
+	assert.is(fs._files.size, 28);
+	filer2C.close();
 
 	// TODO test cleanSourceMeta of moved and deleted files
 });
