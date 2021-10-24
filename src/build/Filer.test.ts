@@ -84,7 +84,7 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 		builder: groBuilderDefault(),
 		buildConfigs: [buildConfig],
 		sourceDirs: [paths.source],
-		servedDirs: [paths.source], // normally gets served out of the Gro build dirs, but we override
+		servedDirs: [paths.source],
 		watch: false,
 	});
 	assert.ok(filer);
@@ -231,7 +231,135 @@ const sourceMetaSnapshot = [
 	],
 ];
 
-// TODO more tests
+test__Filer('loads only the necessary sourceMeta', async ({fs}) => {
+	const rootId = '/a/b';
+	const paths = createPaths(rootId);
+	const entry1Filename = 'entry1.ts';
+	const entry2Filename = 'entry2.ts';
+	const dep1Filename = 'dep1.ts';
+	const dep2Filename = 'dep2.ts';
+	const dep3Filename = 'dep3.ts';
+	const entry1Id = paths.source + entry1Filename;
+	const entry2Id = paths.source + entry2Filename;
+	const dep1Id = paths.source + dep1Filename;
+	const dep2Id = paths.source + dep2Filename;
+	const dep3Id = paths.source + dep3Filename;
+	await fs.writeFile(
+		entry1Id,
+		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}';
+		export {a};`,
+		'utf8',
+	);
+	await fs.writeFile(
+		entry2Id,
+		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}';
+		import {b} from './${replaceExtension(dep3Filename, JS_EXTENSION)}';
+		export {a};`,
+		'utf8',
+	);
+	await fs.writeFile(
+		dep1Id,
+		`import {a} from './${replaceExtension(dep2Filename, JS_EXTENSION)}';
+		export {a};`,
+		'utf8',
+	);
+	await fs.writeFile(dep2Id, 'export const a: number = 5;', 'utf8');
+	await fs.writeFile(dep3Id, 'export const b: number = 5;', 'utf8');
+	const buildConfig1: BuildConfig = {
+		name: 'testBuildConfig',
+		platform: 'node',
+		input: [entry1Id],
+	};
+	const buildConfig2: BuildConfig = {
+		name: 'testBuildConfig',
+		platform: 'node',
+		input: [entry2Id],
+	};
+
+	// filer1 has the first build config
+	const filer1 = new Filer({
+		fs,
+		paths,
+		buildDir: '/c/',
+		builder: groBuilderDefault(),
+		buildConfigs: [buildConfig1],
+		sourceDirs: [paths.source],
+		servedDirs: [paths.source],
+		watch: false,
+	});
+	assert.ok(filer1);
+	await filer1.init();
+	assert.is(filer1.sourceMetaById.size, 3);
+	const entry1File = await filer1.findByPath(entry1Filename);
+	assert.is(entry1File?.id, entry1Id);
+	const dep1File = await filer1.findByPath(dep1Filename);
+	assert.is(dep1File?.id, dep1Id);
+	const dep2File = await filer1.findByPath(dep2Filename);
+	assert.is(dep2File?.id, dep2Id);
+	assert.is(fs._files.size, 22);
+	assert.ok(fs._files.has(entry1Id));
+	filer1.close();
+
+	// filer2 has the second build config
+	const filer2 = new Filer({
+		fs,
+		paths,
+		buildDir: '/c/',
+		builder: groBuilderDefault(),
+		buildConfigs: [buildConfig2],
+		sourceDirs: [paths.source],
+		servedDirs: [paths.source],
+		watch: false,
+	});
+	assert.ok(filer2);
+	await filer2.init();
+	assert.is(filer2.sourceMetaById.size, 4);
+	const entry2File = await filer2.findByPath(entry2Filename);
+	assert.is(entry2File?.id, entry2Id);
+	const dep1FileB = await filer2.findByPath(dep1Filename);
+	assert.is(dep1FileB?.id, dep1Id);
+	const dep2FileB = await filer2.findByPath(dep2Filename);
+	assert.is(dep2FileB?.id, dep2Id);
+	const dep3FileB = await filer2.findByPath(dep3Filename);
+	assert.is(dep3FileB?.id, dep3Id);
+	assert.is(fs._files.size, 25);
+	assert.ok(fs._files.has(entry2Id));
+	filer2.close();
+
+	// load filer1 again, and make sure it loads only the necessary source meta
+	const filer1B = new Filer({
+		fs,
+		paths,
+		buildDir: '/c/',
+		builder: groBuilderDefault(),
+		buildConfigs: [buildConfig1],
+		sourceDirs: [paths.source],
+		servedDirs: [paths.source],
+		watch: false,
+	});
+	assert.ok(filer1B);
+	await filer1B.init();
+	assert.is(filer1B.sourceMetaById.size, 3);
+	assert.is(fs._files.size, 25);
+	filer1B.close();
+
+	// filer3 has both build configs
+	const filer3 = new Filer({
+		fs,
+		paths,
+		buildDir: '/c/',
+		builder: groBuilderDefault(),
+		buildConfigs: [buildConfig1, buildConfig2],
+		sourceDirs: [paths.source],
+		servedDirs: [paths.source],
+		watch: false,
+	});
+	assert.ok(filer3);
+	await filer3.init();
+	assert.is(filer3.sourceMetaById.size, 4);
+	assert.is(fs._files.size, 25);
+	filer3.close();
+});
 
 test__Filer.run();
 /* test__Filer */
