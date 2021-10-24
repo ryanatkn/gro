@@ -9,7 +9,7 @@ import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
-import {formatFile} from './build/formatFile.js';
+import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
 
 export interface TaskArgs {
