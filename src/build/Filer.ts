@@ -8,7 +8,6 @@ import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {gray, red, cyan} from '@feltcoop/felt/util/terminal.js';
 import {printError} from '@feltcoop/felt/util/print.js';
-import {wrap} from '@feltcoop/felt/util/async.js';
 import type {OmitStrict, Assignable, PartialExcept} from '@feltcoop/felt/util/types.js';
 
 import type {Filesystem} from 'src/fs/filesystem.js';
@@ -539,86 +538,96 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
 		const updating = this.updatingSourceFiles.get(id);
 		if (updating) return updating;
-		const promise = wrap(async (after) => {
-			after(() => this.updatingSourceFiles.delete(id));
+		const done = () => this.updatingSourceFiles.delete(id);
+		const promise: Promise<boolean> = Promise.resolve()
+			.then(async () => {
+				// this.log.trace(`updating source file ${gray(id)}`);
+				const sourceFile = this.files.get(id);
+				if (sourceFile) {
+					assertSourceFile(sourceFile);
+					if (sourceFile.filerDir !== filerDir) {
+						// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
+						// We might be able to support this,
+						// but more thought needs to be given to the exact desired behavior.
+						// See `validateDirs` for more.
+						throw Error(
+							'Source file filerDir unexpectedly changed: ' +
+								`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+						);
+					}
+				}
 
-			// this.log.trace(`updating source file ${gray(id)}`);
-			const sourceFile = this.files.get(id);
-			if (sourceFile) {
-				assertSourceFile(sourceFile);
-				if (sourceFile.filerDir !== filerDir) {
-					// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
-					// We might be able to support this,
-					// but more thought needs to be given to the exact desired behavior.
-					// See `validateDirs` for more.
-					throw Error(
-						'Source file filerDir unexpectedly changed: ' +
-							`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+				const external = sourceFile ? sourceFile.id === EXTERNALS_SOURCE_ID : isExternalModule(id);
+
+				let extension: string;
+				let encoding: Encoding;
+				if (sourceFile) {
+					extension = sourceFile.extension;
+					encoding = sourceFile.encoding;
+				} else if (external) {
+					extension = JS_EXTENSION;
+					encoding = 'utf8';
+				} else {
+					extension = extname(id);
+					encoding = inferEncoding(extension);
+				}
+				const newSourceContent = external
+					? // TODO doesn't seem we can make this a key derived from the specifiers,
+					  // because they're potentially different each build
+					  ''
+					: await loadContent(this.fs, encoding, id); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
+
+				if (!sourceFile) {
+					// Memory cache is cold.
+					const newSourceFile = await createSourceFile(
+						id,
+						encoding,
+						extension,
+						newSourceContent,
+						filerDir,
+						this.sourceMetaById.get(id), // TODO should this lazy load the source meta?
+						this,
 					);
-				}
-			}
-
-			const external = sourceFile ? sourceFile.id === EXTERNALS_SOURCE_ID : isExternalModule(id);
-
-			let extension: string;
-			let encoding: Encoding;
-			if (sourceFile) {
-				extension = sourceFile.extension;
-				encoding = sourceFile.encoding;
-			} else if (external) {
-				extension = JS_EXTENSION;
-				encoding = 'utf8';
-			} else {
-				extension = extname(id);
-				encoding = inferEncoding(extension);
-			}
-			const newSourceContent = external
-				? // TODO doesn't seem we can make this a key derived from the specifiers,
-				  // because they're potentially different each build
-				  ''
-				: await loadContent(this.fs, encoding, id);
-
-			if (!sourceFile) {
-				// Memory cache is cold.
-				const newSourceFile = await createSourceFile(
-					id,
-					encoding,
-					extension,
-					newSourceContent,
-					filerDir,
-					this.sourceMetaById.get(id), // TODO should this lazy load the source meta?
-					this,
-				);
-				this.files.set(id, newSourceFile);
-				// If the created source file has its build files hydrated from the cache,
-				// we assume it doesn't need to be built.
-				if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
+					this.files.set(id, newSourceFile);
+					// If the created source file has its build files hydrated from the cache,
+					// we assume it doesn't need to be built.
+					if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
+						return false;
+					}
+				} else if (areContentEqual(encoding, sourceFile.content, newSourceContent)) {
+					// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 					return false;
+				} else {
+					// Memory cache is warm, but content have changed.
+					switch (sourceFile.encoding) {
+						case 'utf8':
+							sourceFile.content = newSourceContent as string;
+							sourceFile.stats = undefined;
+							sourceFile.contentBuffer = undefined;
+							sourceFile.contentHash = undefined;
+							break;
+						case null:
+							sourceFile.content = newSourceContent as Buffer;
+							sourceFile.stats = undefined;
+							sourceFile.contentBuffer = newSourceContent as Buffer;
+							sourceFile.contentHash = undefined;
+							break;
+						default:
+							throw new UnreachableError(sourceFile);
+					}
 				}
-			} else if (areContentEqual(encoding, sourceFile.content, newSourceContent)) {
-				// Memory cache is warm and source code hasn't changed, do nothing and exit early!
-				return false;
-			} else {
-				// Memory cache is warm, but content have changed.
-				switch (sourceFile.encoding) {
-					case 'utf8':
-						sourceFile.content = newSourceContent as string;
-						sourceFile.stats = undefined;
-						sourceFile.contentBuffer = undefined;
-						sourceFile.contentHash = undefined;
-						break;
-					case null:
-						sourceFile.content = newSourceContent as Buffer;
-						sourceFile.stats = undefined;
-						sourceFile.contentBuffer = newSourceContent as Buffer;
-						sourceFile.contentHash = undefined;
-						break;
-					default:
-						throw new UnreachableError(sourceFile);
-				}
-			}
-			return filerDir.buildable;
-		});
+				return filerDir.buildable;
+			})
+			.then(
+				(value) => {
+					done();
+					return value;
+				},
+				(err) => {
+					done();
+					throw err;
+				},
+			);
 		this.updatingSourceFiles.set(id, promise);
 		return promise;
 	}
