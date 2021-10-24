@@ -177,7 +177,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly state: BuilderState = {};
 	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 	// TODO not sure about this
-	readonly findById = (id: string): BaseFilerFile | undefined => this.files.get(id) || undefined;
+	readonly findById = (id: string): BaseFilerFile | undefined => this.files.get(id);
 
 	constructor(opts: InitialOptions) {
 		super();
@@ -538,13 +538,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// and instead just returns the pending promise.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
 		const updating = this.updatingSourceFiles.get(id);
-		if (updating !== undefined) return updating;
+		if (updating) return updating;
 		const promise = wrap(async (after) => {
 			after(() => this.updatingSourceFiles.delete(id));
 
 			// this.log.trace(`updating source file ${gray(id)}`);
 			const sourceFile = this.files.get(id);
-			if (sourceFile !== undefined) {
+			if (sourceFile) {
 				assertSourceFile(sourceFile);
 				if (sourceFile.filerDir !== filerDir) {
 					// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
@@ -558,12 +558,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				}
 			}
 
-			const external =
-				sourceFile === undefined ? isExternalModule(id) : sourceFile.id === EXTERNALS_SOURCE_ID;
+			const external = sourceFile ? sourceFile.id === EXTERNALS_SOURCE_ID : isExternalModule(id);
 
 			let extension: string;
 			let encoding: Encoding;
-			if (sourceFile !== undefined) {
+			if (sourceFile) {
 				extension = sourceFile.extension;
 				encoding = sourceFile.encoding;
 			} else if (external) {
@@ -579,7 +578,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				  ''
 				: await loadContent(this.fs, encoding, id);
 
-			if (sourceFile === undefined) {
+			if (!sourceFile) {
 				// Memory cache is cold.
 				const newSourceFile = await createSourceFile(
 					id,
@@ -587,7 +586,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					extension,
 					newSourceContent,
 					filerDir,
-					this.sourceMetaById.get(id),
+					this.sourceMetaById.get(id), // TODO should this lazy load the source meta?
 					this,
 				);
 				this.files.set(id, newSourceFile);
@@ -890,6 +889,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					),
 				);
 			}
+			// TODO instead of batching like this here, make that concern internal to the sourceMeta
 			// passing `false` above to avoid writing `sourceMeta` to disk for each build -
 			// batch delete it now:
 			await deleteSourceMeta(this, sourceFile.id);
