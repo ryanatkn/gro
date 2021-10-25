@@ -6,6 +6,8 @@
   ([#276](https://github.com/feltcoop/gro/pull/276))
 - make `gro test` ignore sourcemap files by default so patterns don't need `.js$`
   ([#277](https://github.com/feltcoop/gro/pull/277))
+- make `gro gen` build before running
+  ([#279](https://github.com/feltcoop/gro/pull/279))
 
 ## 0.44.1
 
