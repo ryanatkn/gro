@@ -188,7 +188,6 @@ export class MemoryFs implements Filesystem {
 		});
 	};
 	readDir = async (path: string): Promise<string[]> => {
-		// TODO use `_filter` - does it return relative? what behavior for missing, or file?
 		const id = toFsId(path);
 		const idSlash = ensureEnd(id, ROOT);
 		const nodes = this._filter(id);

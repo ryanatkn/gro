@@ -102,9 +102,9 @@ test_remove('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
-		assert.ok(fs._exists(path));
+		assert.ok(await fs.exists(path));
 		await fs.remove(path);
-		assert.ok(!fs._exists(path));
+		assert.ok(!(await fs.exists(path)));
 	}
 });
 
@@ -134,11 +134,11 @@ test__move('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
-		assert.ok(fs._exists(path));
-		assert.ok(!fs._exists(dest));
+		assert.ok(await fs.exists(path));
+		assert.ok(!(await fs.exists(dest)));
 		await fs.move(path, dest);
-		assert.ok(!fs._exists(path));
-		assert.ok(fs._exists(dest));
+		assert.ok(!(await fs.exists(path)));
+		assert.ok(await fs.exists(dest));
 	}
 });
 
@@ -150,15 +150,15 @@ test__move('moves contained files and dirs', async ({fs}) => {
 	assert.is(fs._files.size, 10);
 	const newPath = '/a/e';
 	await fs.move(`${path}/dir1`, `${newPath}/dir1`); // TODO any special merge behavior?
-	assert.ok(fs._exists(`${newPath}/dir1`));
-	assert.ok(fs._exists(`${newPath}/dir1/a.ts`));
-	assert.ok(fs._exists(`${newPath}/dir1/b`));
-	assert.ok(fs._exists(`${newPath}/dir1/b/c.ts`));
-	assert.ok(fs._exists(`${path}/dir2/d.ts`));
-	assert.ok(!fs._exists(`${path}/dir1`));
-	assert.ok(!fs._exists(`${path}/dir1/a.ts`));
-	assert.ok(!fs._exists(`${path}/dir1/b`));
-	assert.ok(!fs._exists(`${path}/dir1/b/c.ts`));
+	assert.ok(await fs.exists(`${newPath}/dir1`));
+	assert.ok(await fs.exists(`${newPath}/dir1/a.ts`));
+	assert.ok(await fs.exists(`${newPath}/dir1/b`));
+	assert.ok(await fs.exists(`${newPath}/dir1/b/c.ts`));
+	assert.ok(await fs.exists(`${path}/dir2/d.ts`));
+	assert.ok(!(await fs.exists(`${path}/dir1`)));
+	assert.ok(!(await fs.exists(`${path}/dir1/a.ts`)));
+	assert.ok(!(await fs.exists(`${path}/dir1/b`)));
+	assert.ok(!(await fs.exists(`${path}/dir1/b/c.ts`)));
 	assert.is(fs._files.size, 11); // add the one new base dir
 });
 
@@ -179,8 +179,8 @@ test__move('handles move conflict with overwrite false', async ({fs}) => {
 		failed = false;
 	}
 	if (failed) throw Error();
-	assert.ok(fs._exists(path1));
-	assert.ok(fs._exists(path2));
+	assert.ok(await fs.exists(path1));
+	assert.ok(await fs.exists(path2));
 	assert.is(fs._files.size, 5);
 });
 
@@ -194,8 +194,8 @@ test__move('handles move conflict with overwrite true', async ({fs}) => {
 	await fs.writeFile(path2, fakeTsContent);
 	assert.is(fs._files.size, 5);
 	await fs.move(path1, path2, {overwrite: true});
-	assert.ok(!fs._exists(path1));
-	assert.ok(fs._exists(path2));
+	assert.ok(!(await fs.exists(path1)));
+	assert.ok(await fs.exists(path2));
 	assert.is(fs._files.size, 4);
 });
 
@@ -221,11 +221,11 @@ test__copy('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
-		assert.ok(fs._exists(path));
-		assert.ok(!fs._exists(dest));
+		assert.ok(await fs.exists(path));
+		assert.ok(!(await fs.exists(dest)));
 		await fs.copy(path, dest);
-		assert.ok(fs._exists(path));
-		assert.ok(fs._exists(dest));
+		assert.ok(await fs.exists(path));
+		assert.ok(await fs.exists(dest));
 	}
 });
 
@@ -240,18 +240,18 @@ test__copy('copies contained files and dirs', async ({fs}) => {
 	await fs.copy(`${path}/dir1`, `${newPath}/dir1`, {
 		filter: (id) => Promise.resolve(!id.endsWith('/IGNORE.ts')),
 	});
-	assert.ok(fs._exists(`${newPath}/dir1`));
-	assert.ok(fs._exists(`${newPath}/dir1/a.ts`));
-	assert.ok(fs._exists(`${newPath}/dir1/b`));
-	assert.ok(fs._exists(`${newPath}/dir1/b/c.ts`));
-	assert.ok(!fs._exists(`${newPath}/dir1/b/IGNORE.ts`));
-	assert.ok(!fs._exists(`${newPath}/dir2/d.ts`));
-	assert.ok(fs._exists(`${path}/dir2/d.ts`));
-	assert.ok(fs._exists(`${path}/dir1`));
-	assert.ok(fs._exists(`${path}/dir1/a.ts`));
-	assert.ok(fs._exists(`${path}/dir1/b`));
-	assert.ok(fs._exists(`${path}/dir1/b/c.ts`));
-	assert.ok(fs._exists(`${path}/dir1/b/IGNORE.ts`));
+	assert.ok(await fs.exists(`${newPath}/dir1`));
+	assert.ok(await fs.exists(`${newPath}/dir1/a.ts`));
+	assert.ok(await fs.exists(`${newPath}/dir1/b`));
+	assert.ok(await fs.exists(`${newPath}/dir1/b/c.ts`));
+	assert.ok(!(await fs.exists(`${newPath}/dir1/b/IGNORE.ts`)));
+	assert.ok(!(await fs.exists(`${newPath}/dir2/d.ts`)));
+	assert.ok(await fs.exists(`${path}/dir2/d.ts`));
+	assert.ok(await fs.exists(`${path}/dir1`));
+	assert.ok(await fs.exists(`${path}/dir1/a.ts`));
+	assert.ok(await fs.exists(`${path}/dir1/b`));
+	assert.ok(await fs.exists(`${path}/dir1/b/c.ts`));
+	assert.ok(await fs.exists(`${path}/dir1/b/IGNORE.ts`));
 	assert.is(fs._files.size, 16); // add the one new base dir
 });
 
@@ -272,8 +272,8 @@ test__copy('handles copy conflict with overwrite false', async ({fs}) => {
 		failed = false;
 	}
 	if (failed) throw Error();
-	assert.ok(fs._exists(path1));
-	assert.ok(fs._exists(path2));
+	assert.ok(await fs.exists(path1));
+	assert.ok(await fs.exists(path2));
 	assert.is(fs._files.size, 5);
 });
 
@@ -287,8 +287,8 @@ test__copy('handles copy conflict with overwrite true', async ({fs}) => {
 	await fs.writeFile(path2, fakeTsContent);
 	assert.is(fs._files.size, 5);
 	await fs.copy(path1, path2, {overwrite: true});
-	assert.ok(fs._exists(path1));
-	assert.ok(fs._exists(path2));
+	assert.ok(await fs.exists(path1));
+	assert.ok(await fs.exists(path2));
 	assert.is(fs._files.size, 5);
 });
 
@@ -312,9 +312,9 @@ test__ensureDir.before.each(resetMemoryFs);
 test__ensureDir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
-		assert.ok(!fs._exists(path));
+		assert.ok(!(await fs.exists(path)));
 		await fs.ensureDir(path);
-		assert.ok(fs._exists(path));
+		assert.ok(await fs.exists(path));
 	}
 });
 
@@ -322,11 +322,11 @@ test__ensureDir('normalize paths', async ({fs}) => {
 	for (const path of testPaths) {
 		const testNormalizePaths = async (path1: string, path2: string) => {
 			fs._reset();
-			assert.ok(!fs._exists(path1));
-			assert.ok(!fs._exists(path2));
+			assert.ok(!(await fs.exists(path1)));
+			assert.ok(!(await fs.exists(path2)));
 			await fs.ensureDir(path1);
-			assert.ok(fs._exists(path1));
-			assert.ok(fs._exists(path2));
+			assert.ok(await fs.exists(path1));
+			assert.ok(await fs.exists(path2));
 		};
 
 		const endsWithSlash = path.endsWith('/');
@@ -347,7 +347,7 @@ test__readDir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
-		assert.ok(fs._exists(path));
+		assert.ok(await fs.exists(path));
 		const dir = dirname(path);
 		const paths = await fs.readDir(dir);
 		assert.ok(paths.length);
@@ -382,12 +382,12 @@ test__emptyDir('basic behavior', async ({fs}) => {
 	for (const path of testPaths) {
 		fs._reset();
 		await fs.writeFile(path, 'content', 'utf8');
-		assert.ok(fs._exists(path));
+		assert.ok(await fs.exists(path));
 		const {size} = fs._files;
 		const dir = dirname(path);
 		await fs.emptyDir(dir);
-		assert.ok(fs._exists(dir));
-		assert.ok(!fs._exists(path));
+		assert.ok(await fs.exists(dir));
+		assert.ok(!(await fs.exists(path)));
 		assert.ok(size > fs._files.size);
 		assert.ok(fs._files.size);
 	}
@@ -403,7 +403,7 @@ test__emptyDir('emptyDirs contained files and dirs', async ({fs}) => {
 	assert.is(fs._files.size, 12);
 	await fs.emptyDir(`${path}/dir1`);
 	assert.is(fs._files.size, 7);
-	assert.ok(fs._exists(`${path}/dir1`));
+	assert.ok(await fs.exists(`${path}/dir1`));
 });
 
 test__emptyDir('missing file fails silently', async ({fs}) => {
