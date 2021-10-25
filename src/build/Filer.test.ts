@@ -382,8 +382,6 @@ test__Filer('multiple build configs', async ({fs}) => {
 	assert.is(filer2C.sourceMetaById.size, 5);
 	assert.is(fs._files.size, 28);
 	filer2C.close();
-
-	// TODO test cleanSourceMeta of moved and deleted files
 });
 
 test__Filer.run();
