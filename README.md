@@ -4,7 +4,11 @@
 
 > opinionated tools for web development
 
-> **_warning!_** You should not use Gro today
+> **pre-alpha**: suitable only for those who are unafraid of bad code and docs
+
+> **Windows is not yet supported.** WSL works well enough
+
+> _warning!_ You should not use Gro today
 > unless you're willing to take ownership of the code.
 > For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
@@ -18,8 +22,6 @@
 > All that out of the way: you might find some interesting or useful things here!
 > Please open issues for questions or discussion
 > and [see contributing.md](contributing.md) for more.
-
-> **Windows is not yet supported.** WSL works well enough
 
 ## about
 
