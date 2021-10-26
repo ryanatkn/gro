@@ -38,8 +38,10 @@ It includes:
   for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit) UIs,
   Node servers, JS/TS/Svelte libraries, and other things
   - [unbundled development](/src/docs/dev.md)
-    inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
-    [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
+    inspired by [Snowpack](https://github.com/pikapkg/snowpack)
+    - Gro supports its own form of SPA on the frontend,
+      but it's deprecated-ish for
+      [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
   - [configurable adapters](/src/docs/adapt.md) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
   - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
@@ -47,11 +49,6 @@ It includes:
   - fully integrated [TypeScript](https://github.com/microsoft/typescript)
     and [Svelte](https://github.com/sveltejs/svelte)
     using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
-  - Gro supports its own form of SPA on the frontend,
-    but that functionality is now deprecated-ish for
-    [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
-    with long term plans to
-    [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
 - [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
@@ -204,6 +201,7 @@ see [contributing.md🌄](./contributing.md)
 Gro builds on
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
 [Svelte](https://github.com/sveltejs/svelte) ∙
+[SvelteKit](https://github.com/sveltejs/kit) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
 [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
 [Rollup](https://github.com/rollup/rollup) ∙
