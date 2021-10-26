@@ -57,9 +57,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
 		}
 		if (source.extension !== TS_EXTENSION && source.extension !== JS_EXTENSION) {
-			throw Error(
-				`esbuild only handles ${TS_EXTENSION} and ${JS_EXTENSION} files, not ${source.extension}`,
-			);
+			throw Error(`esbuild cannot handled file with extension ${source.extension}`);
 		}
 
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
