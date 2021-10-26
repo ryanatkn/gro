@@ -15,7 +15,10 @@ Some is fine, welcome even 😺 but there is a line 😾 and I don't know where 
 And I want to give away the source code because I think it's useful and cool.
 The license is MIT, so you're free to use and repurpose it.
 We have much work to do and Gro is just a low level tool.
-time is precious🌄
+time is precious 🌄
+I'm slowly making progress toward getting Gro to be more usable for others,
+but if you're into this sort of thing and unafraid of bad code and docs,
+you are invited to scour Gro's markdown documents and see what you think.
 
 Example: Gro doesn't support Windows. That's not great.
 It excludes many people out there who don't know what a WSL is.
@@ -24,20 +27,20 @@ but I also don't want to promote open source Node projects that don't support Wi
 
 So Gro sits in a pre-alpha limbo. For other reasons too —
 things may change dramatically and I don't want the friction of breaking external users this early.
-I value your time too!! There probably won't be too much chaos-churn,
-but some % of dev users will have stability expectations I can't meet yet.
+I value your time too!! There may be more churn than some significant % of dev users can tolerate.
 
 All that said: **if you draw inside its lines, Gro is a good development tool today IMO**.
 (I think its task runner alone is worth the dependency)
 I am happy to take contributions in any form,
 but **please open [issues](https://github.com/feltcoop/gro/issues)**
-**before attempting work that you expect to be merged.**
+**before attempting work that you _expect_ to be merged.**
+If you're reasonably sure it's an straightforward improvement or don't mind being turned down,
+I don't mind if you only send a PR and no issue.
 
 Also, Gro can't work for everyone's needs and still be Gro.
 I'm trying to make it flexible, and if it doesn't work for you,
-I would enjoy discussing your issues,
-along with any questions or pointers you may have
-for improving the usefulness of the software gracefully.
+I would enjoy discussing your issues and questions and merging PRs,
+tho probably open an issue on big stuff.
 Big caveat though, I also can't guarantee that Gro will work for your use cases,
 and at times it's I may look inflexible. (it's ok to push back, but please be kind!)
 This is why Gro's tagline is:
