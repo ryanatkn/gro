@@ -1,5 +1,10 @@
 # changelog
 
+## 0.44.3
+
+- process `.js` files with the esbuild builder
+  ([#280](https://github.com/feltcoop/gro/pull/280))
+
 ## 0.44.2
 
 - add optional `paths` to `Filer` and improve its tests

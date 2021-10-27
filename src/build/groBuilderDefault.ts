@@ -1,6 +1,6 @@
 import type {Builder} from 'src/build/builder.js';
 import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
-import {JSON_EXTENSION, SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
+import {JSON_EXTENSION, JS_EXTENSION, SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {groBuilderSimple} from './groBuilderSimple.js';
 import type {Options as SimpleBuilderOptions} from 'src/build/groBuilderSimple.js';
 import {groBuilderEsbuild} from './groBuilderEsbuild.js';
@@ -46,6 +46,7 @@ export const groBuilderDefault = (options: Options = {}): Builder => {
 				}
 				switch (source.extension) {
 					case TS_EXTENSION:
+					case JS_EXTENSION:
 						return esbuildBuilder;
 					case SVELTE_EXTENSION:
 						return svelteBuilder;
