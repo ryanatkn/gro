@@ -17,20 +17,23 @@
 	import SourceMetaBuildTreeExplorer from '$lib/app/SourceMetaBuildTreeExplorer.svelte';
 	import SourceMetaTreeExplorer from '$lib/app/SourceMetaTreeExplorer.svelte';
 	import SourceMetaTreeExplorers from '$lib/app/SourceMetaTreeExplorers.svelte';
-	// import {createSourceTree} from '$lib/app/sourceTree';
+	import {createSourceTree} from '$lib/app/sourceTree';
 	import type {SourceTree} from '$lib/app/sourceTree.js';
 	import type {ProjectState} from 'src/server/projectState.js';
 	import type {View} from '$lib/app/view.js';
-	// import {setProjectState} from '$lib/app/projectState';
+	import {setProjectState} from '$lib/app/projectState';
 
 	console.log('enter App.svelte');
 
-	$: homepage = ($ctx?.packageJson.homepage || '') as string;
 	let sourceTree: SourceTree;
 	let selectedBuildNames: string[] = [];
 
 	const ctx = writable<ProjectState>(null!);
-	// setProjectState(ctx);
+	setProjectState(ctx);
+
+	$: homepage = ($ctx?.packageJson.homepage || '') as string;
+	$: console.log('$ctx', $ctx);
+	$: console.log('sourceTree', sourceTree);
 
 	const sourceMetaViews: View[] = [
 		SourceMetaRaw,
@@ -51,12 +54,10 @@
 	const hoveredSourceMeta = writable(null);
 
 	onMount(async () => {
-		// const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
-		// $ctx = await (await fetch(SOURCE_META_PATH)).json(); // TODO handle errors
-		// 	console.log('fetched projectState', $ctx);
-		// sourceTree = createSourceTree($ctx.items, $ctx.buildConfigs);
-		// selectedBuildNames = sourceTree.buildNames;
-		// 	console.log('sourceTree', sourceTree);
+		const SOURCE_META_PATH = '/api/src'; // TODO move, share with `src/server/server.ts`
+		$ctx = await (await fetch(SOURCE_META_PATH)).json(); // TODO handle errors
+		sourceTree = createSourceTree($ctx.items, $ctx.buildConfigs);
+		selectedBuildNames = sourceTree.buildNames;
 	});
 
 	let showSourceMeta = true;

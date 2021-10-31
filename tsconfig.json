@@ -5,9 +5,11 @@
 		"module": "esnext",
 		"lib": ["esnext", "dom"],
 		"outDir": ".gro/tsc",
+		"baseUrl": ".",
 		"paths": {
-			"src/*": ["./src/*"],
-			"$lib/*": ["./src/lib/*"]
+			"src/*": ["src/*"],
+			"$lib": ["src/lib"],
+			"$lib/*": ["src/lib/*"]
 		},
 		"isolatedModules": true,
 		"importsNotUsedAsValues": "error",
@@ -24,7 +26,7 @@
 		"allowJs": true,
 		"checkJs": true,
 		"moduleResolution": "node",
-		"types": ["svelte"],
+		"types": ["@sveltejs/kit"],
 		"allowSyntheticDefaultImports": true,
 		"resolveJsonModule": true,
 		"declaration": true,

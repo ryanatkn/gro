@@ -12,6 +12,11 @@ export default {
 		target: '#root',
 		files: {assets: 'src/static'},
 		vite: {
+			server: {
+				proxy: {
+					'/api': 'http://localhost:8999',
+				},
+			},
 			ssr: {
 				noExternal: ['@feltcoop/felt'],
 			},
