@@ -18,7 +18,6 @@ export const config: GroConfigCreator = async ({dev}) => {
 					MAIN_TEST_PATH,
 					'cli/gro.ts',
 					'cli/invoke.ts',
-					'client/devtools.ts',
 					'config/gro.config.default.ts',
 					// TODO probably extract these to another repo, felt or gen utils or something
 					'gen/helpers/html.ts',

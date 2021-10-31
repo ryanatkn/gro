@@ -1,11 +1,11 @@
 <script lang="ts">
-	import '$lib/app/style.css';
 	import '@feltcoop/felt/ui/style.css';
-	// import {setDevmode} from '@feltcoop/felt/ui/devmode.js';
-	// import Devmode from '@feltcoop/felt/ui/Devmode.svelte';
+	import '$lib/app/style.css';
+	import {setDevmode} from '@feltcoop/felt/ui/devmode.js';
+	import Devmode from '@feltcoop/felt/ui/Devmode.svelte';
 	// import LinkPath from '@feltcoop/felt/ui/LinkPath.svelte';
 
-	// const devmode = setDevmode(false);
+	const devmode = setDevmode(false);
 </script>
 
 <svelte:head>
@@ -23,7 +23,8 @@
 	<slot />
 </main>
 
-<!-- <Devmode {devmode} /> -->
+<Devmode {devmode} />
+
 <style>
 	main {
 		display: flex;

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import {getProjectState} from './projectState';
-	import {toRootPath} from './pathHelpers';
+	import {getProjectState} from '$lib/app/projectState';
+	import {toRootPath} from '$lib/app/pathHelpers';
 
 	const project = getProjectState();
 

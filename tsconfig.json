@@ -5,11 +5,9 @@
 		"module": "esnext",
 		"lib": ["esnext", "dom"],
 		"outDir": ".gro/tsc",
-		"rootDir": "src",
-		"baseUrl": "src",
 		"paths": {
-			"src/*": ["*"],
-			"$lib/*": ["lib/*"]
+			"src/*": ["./src/*"],
+			"$lib/*": ["./src/lib/*"]
 		},
 		"isolatedModules": true,
 		"importsNotUsedAsValues": "error",
