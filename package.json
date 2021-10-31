@@ -56,7 +56,6 @@
     "cheap-watch": "^1.0.4",
     "es-module-lexer": "^0.7.1",
     "esbuild": "^0.12.26",
-    "esinstall": "1.0.5",
     "fs-extra": "^10.0.0",
     "mri": "^1.2.0",
     "path-browserify": "^1.0.1",
