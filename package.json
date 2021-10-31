@@ -65,7 +65,7 @@
     "source-map-support": "^0.5.20",
     "sourcemap-codec": "^1.4.8",
     "strict-event-emitter-types": "^2.0.0",
-    "svelte": "^3.42.6",
+    "svelte": "^3.0.0",
     "svelte-check": "^2.2.6",
     "svelte-preprocess-esbuild": "^2.0.0",
     "terser": "^5.7.2",
@@ -86,6 +86,7 @@
     "@sveltejs/kit": "^1.0.0-next.192",
     "@types/fs-extra": "^9.0.11",
     "@types/node": "^14.17.6",
+    "@types/path-browserify": "^1.0.0",
     "@types/prettier": "^2.3.2"
   },
   "prettier": {

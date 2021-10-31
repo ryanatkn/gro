@@ -12,6 +12,8 @@
 
 	const project = getProjectState();
 
+	$: console.log('$project', $project);
+
 	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
 	$: fileTreeFolder = toFileTreeFolder($project.sourceDir, filteredSourceMetas);
 </script>
