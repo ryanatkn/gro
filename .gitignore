@@ -1,11 +1,11 @@
 .DS_Store
-node_modules
+/node_modules
+/.svelte-kit
+/build
 
 /.gro
 /dist
-
-/*.pem
-
 *.ignore
 *.ignore.*
 ignore/
+*.pem

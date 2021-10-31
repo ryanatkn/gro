@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {filterSelectedMetas} from './sourceTree.js';
+	import {filterSelectedMetas} from './sourceTree';
 	import type {SourceTree} from 'src/client/sourceTree.js';
-	import {getProjectState} from './projectState.js';
+	import {getProjectState} from './projectState';
 	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
-	import {toFileTreeFolder} from './fileTree.js';
+	import {toFileTreeFolder} from './fileTree';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

@@ -5,7 +5,7 @@ import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
 import type {Args, Task} from 'src/task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
+import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import {cleanFs} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
@@ -111,8 +111,6 @@ export const task: Task<TaskArgs> = {
 				dir = `${DIST_DIR}${dirname}`;
 			} else if (await fs.exists(`${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`)) {
 				dir = `${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`;
-			} else if (await fs.exists(`${DIST_DIR}${BROWSER_BUILD_NAME}`)) {
-				dir = `${DIST_DIR}${BROWSER_BUILD_NAME}`;
 			} else {
 				log.error(red('no dirname provided and cannot infer a default'));
 				return;

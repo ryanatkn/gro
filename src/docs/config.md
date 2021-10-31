@@ -130,11 +130,10 @@ export interface ToConfigAdapters<TArgs = any, TEvents = any> {
 
 ### `serve`
 
-[Gro's internal config](/src/gro.config.ts) uses the `serve` property
-to serve the content of both `src/` and `src/client/` off of the root directory.
+Gro serves static files according to the `serve` property:
 
 ```ts
-serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
+serve: [toBuildOutPath(true, 'library', '')],
 ```
 
 ```ts

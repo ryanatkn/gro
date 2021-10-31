@@ -67,19 +67,6 @@ const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const hasSveltekitFrontend = (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, SVELTEKIT_FRONTEND_PATHS);
 
-const GRO_FRONTEND_PATHS = ['src/index.html', 'src/index.ts'];
-export const hasGroFrontend = (fs: Filesystem): Promise<boolean> =>
-	everyPathExists(fs, GRO_FRONTEND_PATHS);
-
-export const BROWSER_BUILD_NAME: BuildName = 'browser';
-export const toDefaultBrowserBuild = (
-	assetExtensions = toDefaultAssetExtensions(),
-): BuildConfigPartial => ({
-	name: BROWSER_BUILD_NAME,
-	platform: 'browser',
-	input: ['index.ts', createFilter(`**/*.{${assetExtensions.join(',')}}`)],
-});
-
 // Compute default asset extensions on demand to pick up any changes to the supported MIME types.
 // Like the MIME type extensions and unlike elsewhere, these are not prefixed with `.` !!
 export const toDefaultAssetExtensions = (): string[] =>

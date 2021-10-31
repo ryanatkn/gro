@@ -43,6 +43,6 @@ See [plugin.md](plugin.md) to learn more.
 
 <p align="center">
   <a href="https://github.com/feltcoop/gro">
-    <img src="/src/client/favicon.png" width="192" height="192">
+    <img src="/src/static/favicon.png" width="192" height="192">
   </a>
 </p>

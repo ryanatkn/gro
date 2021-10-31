@@ -1,4 +1,3 @@
-import {basename} from 'path';
 import {toPathSegments} from '@feltcoop/felt/util/pathParsing.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 
@@ -17,6 +16,9 @@ export interface FileTreeFolder {
 	name: string;
 	children: FileTreeNode[];
 }
+
+// TODO hack because need to swap for `path-browserify`
+const basename = (s: string): string => s.match(/.+\/(.+)\..+/)![1];
 
 // TODO instead of reconstructing the dirs/files here,
 // probably push this upstream - filer dirs are probably the prereq

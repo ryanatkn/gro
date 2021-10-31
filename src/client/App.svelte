@@ -17,11 +17,11 @@
 	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
 	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
 	import SourceMetaTreeExplorers from './SourceMetaTreeExplorers.svelte';
-	import {createSourceTree} from './sourceTree.js';
+	import {createSourceTree} from './sourceTree';
 	import type {SourceTree} from 'src/client/sourceTree.js';
 	import type {ProjectState} from 'src/server/projectState.js';
 	import type {View} from 'src/client/view.js';
-	import {setProjectState} from './projectState.js';
+	import {setProjectState} from './projectState';
 
 	console.log('enter App.svelte');
 

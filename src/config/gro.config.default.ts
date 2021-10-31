@@ -7,8 +7,6 @@ import {
 	hasSveltekitFrontend,
 	hasApiServer,
 	API_SERVER_BUILD_CONFIG,
-	hasGroFrontend,
-	toDefaultBrowserBuild,
 } from '../build/buildConfigDefaults.js';
 
 /*
@@ -29,25 +27,22 @@ It looks at the project and tries to do the right thing:
 */
 
 export const config: GroConfigCreator = async ({fs, dev}) => {
-	const [enableNodeLibrary, enableApiServer, enableSveltekitFrontend, enableGroFrontend] =
-		await Promise.all([
-			hasNodeLibrary(fs),
-			hasApiServer(fs),
-			hasSveltekitFrontend(fs),
-			hasGroFrontend(fs),
-		]);
-	const enableDevServer = dev && enableGroFrontend;
+	const [enableNodeLibrary, enableApiServer, enableSveltekitFrontend] = await Promise.all([
+		hasNodeLibrary(fs),
+		hasApiServer(fs),
+		hasSveltekitFrontend(fs),
+	]);
 	const partial: GroConfigPartial = {
 		builds: [
 			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
 			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			// note there's no build for SvelteKit frontends - should there be?
-			enableGroFrontend ? toDefaultBrowserBuild() : null, // TODO configure asset paths
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		types: enableNodeLibrary,
 		plugin: async () => [
-			enableDevServer ? (await import('../plugin/groPluginDevServer.js')).createPlugin() : null,
+			// TODO dev server?
+			// enableDevServer ? (await import('../plugin/groPluginDevServer.js')).createPlugin() : null,
 			// TODO some usecases may need to run the API server during the build for e.g. prerendering,
 			// but it's currently disabled because the adapter-node usecase has the production API server
 			// depend on the middleware created later in the adapt step of the build
@@ -66,9 +61,6 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 				? (await import('../adapt/groAdapterGenericBuild.js')).createAdapter({
 						buildName: API_SERVER_BUILD_CONFIG.name,
 				  })
-				: null,
-			enableGroFrontend
-				? (await import('../adapt/groAdapterGroFrontend.js')).createAdapter()
 				: null,
 			enableSveltekitFrontend
 				? (await import('../adapt/groAdapterSveltekitFrontend.js')).createAdapter({

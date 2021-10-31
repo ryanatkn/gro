@@ -2,7 +2,7 @@
 	import type {Writable} from 'svelte/store';
 
 	import SourceMetaExpanderItem from './SourceMetaExpanderItem.svelte';
-	import {filterSelectedMetas} from './sourceTree.js';
+	import {filterSelectedMetas} from './sourceTree';
 	import type {SourceTree} from 'src/client/sourceTree.js';
 	import type {SourceMeta} from 'src/build/sourceMeta.js';
 

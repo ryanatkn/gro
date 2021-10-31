@@ -1,6 +1,6 @@
-# gro <img src="src/client/favicon.png" width="32" height="32">
+# gro <img src="src/static/favicon.png" width="32" height="32">
 
-<img src="src/client/favicon.png" align="right" width="192" height="192">
+<img src="src/static/favicon.png" align="right" width="192" height="192">
 
 > opinionated tools for web development
 

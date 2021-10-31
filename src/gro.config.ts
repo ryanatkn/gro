@@ -2,16 +2,13 @@ import {createFilter} from '@rollup/pluginutils';
 import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from 'src/config/config.js';
-import {MAIN_TEST_PATH, toBuildOutPath} from './paths.js';
-import {BROWSER_BUILD_NAME, NODE_LIBRARY_BUILD_CONFIG} from './build/buildConfigDefaults.js';
+import {MAIN_TEST_PATH} from './paths.js';
+import {NODE_LIBRARY_BUILD_CONFIG} from './build/buildConfigDefaults.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
 export const config: GroConfigCreator = async ({dev}) => {
-	// TODO not this
-	const ASSET_PATHS = ['html', 'css', 'json', 'ico', 'png', 'jpg', 'webp', 'webm', 'mp3'];
-	const enableBrowserBuild = dev;
 	const partial: GroConfigPartial = {
 		builds: [
 			{
@@ -29,14 +26,6 @@ export const config: GroConfigCreator = async ({dev}) => {
 					createFilter(['**/*.task.ts']),
 				],
 			},
-			// the Gro browser build is currently an internal experiment
-			enableBrowserBuild
-				? {
-						name: BROWSER_BUILD_NAME,
-						platform: 'browser',
-						input: ['client/index.ts', createFilter(`**/*.{${ASSET_PATHS.join(',')}}`)],
-				  }
-				: null,
 		],
 		publish: '.',
 		sourcemap: dev,
@@ -44,18 +33,16 @@ export const config: GroConfigCreator = async ({dev}) => {
 		types: !dev,
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		serve: [
-			// first try to fulfill requests with files in `$PROJECT/src/client/` as if it were `/`
-			toBuildOutPath(true, BROWSER_BUILD_NAME, 'client'),
-			// then look for files in `$PROJECT/src/`
-			toBuildOutPath(true, BROWSER_BUILD_NAME, ''),
-			// then.. no file found
+			// TODO previously served the browser build, but that's now handled by SvelteKit,
+			// but maybe we want to serve the system build or others?
 		],
-		plugin: async () => [
-			enableBrowserBuild ? (await import('./plugin/groPluginDevServer.js')).createPlugin() : null,
-		],
+		plugin: async () => [(await import('./plugin/groPluginSveltekitFrontend.js')).createPlugin()],
 		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>
 			Promise.all([
+				(await import('./adapt/groAdapterSveltekitFrontend.js')).createAdapter({
+					hostTarget: 'githubPages',
+				}),
 				(await import('./adapt/groAdapterNodeLibrary.js')).createAdapter({
 					dir: 'dist',
 					// TODO temp hack - unlike most libraries, Gro ships its dist/ as a sibling to src/,
