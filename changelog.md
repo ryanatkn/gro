@@ -1,5 +1,10 @@
 # changelog
 
+## 0.45.1
+
+- fix peer dependency versions
+  ([#282](https://github.com/feltcoop/gro/pull/282))
+
 ## 0.45.0
 
 - **break**: remove frontend build support in favor of SvelteKit

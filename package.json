@@ -74,14 +74,14 @@
     "uvu": "^0.5.2"
   },
   "peerDependencies": {
-    "@feltcoop/felt": "^0.13.0",
+    "@feltcoop/felt": ">=0.14.0",
     "@sveltejs/kit": "next",
-    "@types/source-map-support": "^0.5.4",
-    "source-map-support": "^0.5.20",
+    "@types/source-map-support": ">=0.5.4",
+    "source-map-support": ">=0.5.20",
     "svelte": "^3.0.0"
   },
   "devDependencies": {
-    "@feltcoop/felt": "^0.13.0",
+    "@feltcoop/felt": "^0.14.0",
     "@sveltejs/adapter-static": "^1.0.0-next.21",
     "@sveltejs/kit": "^1.0.0-next.192",
     "@types/fs-extra": "^9.0.11",
