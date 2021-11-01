@@ -15,7 +15,6 @@ import {
 	toBuildExtension,
 	toSourceExtension,
 	toBuildBasePath,
-	EXTERNALS_BUILD_DIRNAME,
 	buildIdToSourceId,
 } from './paths.js';
 
@@ -189,13 +188,3 @@ test__toImportId('basic behavior', () => {
 
 test__toImportId.run();
 /* test__toImportId */
-
-/* test__EXTERNALS_BUILD_DIRNAME */
-const test__EXTERNALS_BUILD_DIRNAME = suite('EXTERNALS_BUILD_DIRNAME');
-
-test__EXTERNALS_BUILD_DIRNAME('has no slash', () => {
-	assert.not.ok(EXTERNALS_BUILD_DIRNAME.includes('/'));
-});
-
-test__EXTERNALS_BUILD_DIRNAME.run();
-/* test__EXTERNALS_BUILD_DIRNAME */

@@ -172,10 +172,11 @@ const toResponse = async (
 	const localPath = toLocalPath(url);
 	log.trace('serving', gray(rawUrl), '→', gray(localPath));
 
+	// returning the project state allows us to do all sorts of helpful visualization
 	// TODO refactor - see `./projectState.ts` for more
 	// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
 	// also, `src/` is hardcoded below in `paths.source`s
-	const SOURCE_ROOT_MATCHER = /^\/src\/?$/;
+	const SOURCE_ROOT_MATCHER = /^\/api\/src\/?$/;
 	if (SOURCE_ROOT_MATCHER.test(url)) {
 		const projectState: ProjectState = {
 			buildDir: filer.buildDir,

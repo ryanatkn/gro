@@ -6,7 +6,6 @@ import type {BuildConfig} from 'src/build/buildConfig.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import type {IdStatsFilter} from 'src/fs/filter.js';
 import {
-	EXTERNALS_BUILD_DIRNAME,
 	toBuildBasePath,
 	toBuildOutPath,
 	TS_EXTENSION,
@@ -27,13 +26,11 @@ export const copyDist = async (
 	rebasePath: string = '',
 ): Promise<void> => {
 	const buildOutDir = toBuildOutPath(dev, buildConfig.name, rebasePath);
-	const externalsDir = buildOutDir + EXTERNALS_BUILD_DIRNAME;
 	log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);
 	const typemapFiles: string[] = [];
 	await fs.copy(buildOutDir, distOutDir, {
 		overwrite: false,
 		filter: async (id) => {
-			if (id === externalsDir) return false;
 			const stats = await fs.stat(id);
 			if (filter && !filter(id, stats)) return false;
 			if (stats.isDirectory()) return true;

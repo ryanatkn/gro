@@ -87,11 +87,11 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 
 The `platform` property can currently be `"node"` or `"browser"` and
 is used by Gro's default builders to customize the output.
-When building for the browser, dependencies in `node_modules/` are imported via Snowpack's
-[`esinstall`](https://github.com/snowpackjs/snowpack/tree/master/esinstall).
 When building for Node, the Svelte compiler outputs
 [SSR components](https://svelte.dev/docs#Server-side_component_API)
 instead of the normal DOM ones.
+
+> TODO add SvelteKit builder
 
 The `input` property specifies the source code entry points for the build.
 Each input must be a file path (absolute or relative to `src/`),
@@ -130,11 +130,10 @@ export interface ToConfigAdapters<TArgs = any, TEvents = any> {
 
 ### `serve`
 
-[Gro's internal config](/src/gro.config.ts) uses the `serve` property
-to serve the content of both `src/` and `src/client/` off of the root directory.
+Gro serves static files according to the `serve` property:
 
 ```ts
-serve: [toBuildOutPath(true, 'browser', 'client'), toBuildOutPath(true, 'browser', '')],
+serve: [toBuildOutPath(true, 'library', '')],
 ```
 
 ```ts

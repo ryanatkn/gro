@@ -5,20 +5,16 @@ import type {Assignable} from '@feltcoop/felt';
 import {
 	paths,
 	CSS_EXTENSION,
-	EXTERNALS_BUILD_DIRNAME,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildExtension,
-	toBuildOutPath,
 	TS_EXTENSION,
 	TS_TYPE_EXTENSION,
 } from '../paths.js';
 import type {BuildContext, BuildSource} from 'src/build/builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
-import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
 import type {BuildFile} from 'src/build/buildFile.js';
 
 export interface Postprocess {
@@ -45,7 +41,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, buildFiles, sourc
 	let dependencies: Map<string, BuildDependency> | null = null;
 
 	const handleSpecifier: HandleSpecifier = (specifier) => {
-		const buildDependency = toBuildDependency(specifier, dir, buildConfig, source, ctx);
+		const buildDependency = toBuildDependency(specifier, dir, source, ctx);
 		if (dependencies === null) dependencies = new Map();
 		if (!dependencies.has(buildDependency.buildId)) {
 			dependencies.set(buildDependency.buildId, buildDependency);
@@ -153,52 +149,17 @@ const parseJsDependencies = (
 const toBuildDependency = (
 	specifier: string,
 	dir: string,
-	buildConfig: BuildConfig,
 	source: BuildSource,
 	ctx: BuildContext,
 ): BuildDependency => {
-	const {dev, externalsAliases, buildDir} = ctx;
+	const {dev} = ctx;
 	let buildId: string;
-	let finalSpecifier = specifier; // this is the raw specifier, but pre-mapped for common externals
-	const prebundle = dev && buildConfig.platform === 'browser'; // don't prebundle in production
-	const isExternalImport = isExternalModule(specifier);
-	const isExternalImportedByExternal = source.id === EXTERNALS_SOURCE_ID;
-	const isExternal = isExternalImport || isExternalImportedByExternal;
+	let finalSpecifier = specifier;
+	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;
-	if (isExternal) {
+	if (external) {
 		mappedSpecifier = toBuildExtension(specifier, dev);
-		if (isExternalImport) {
-			// handle regular externals
-			if (prebundle) {
-				if (mappedSpecifier in externalsAliases) {
-					mappedSpecifier = externalsAliases[mappedSpecifier];
-				}
-				const hasJsExtension = mappedSpecifier.endsWith(JS_EXTENSION);
-				if (hasJsExtension && shouldModifyDotJs(mappedSpecifier)) {
-					mappedSpecifier = mappedSpecifier.substring(0, mappedSpecifier.length - 3) + 'js';
-				}
-				const specifierBasePath = `${EXTERNALS_BUILD_DIRNAME}/${mappedSpecifier}${
-					hasJsExtension ? '' : JS_EXTENSION
-				}`;
-				mappedSpecifier = relative(source.dir, paths.source + specifierBasePath);
-				if (mappedSpecifier[0] !== '.') {
-					mappedSpecifier = `./${mappedSpecifier}`;
-				}
-				buildId = toBuildOutPath(dev, buildConfig.name, specifierBasePath, buildDir);
-			} else {
-				buildId = mappedSpecifier;
-			}
-		} else {
-			// handle common externals, imports internal to the externals
-			if (prebundle) {
-				buildId = join(dir, specifier);
-				// use absolute paths for internal externals specifiers, so we get stable ids
-				finalSpecifier = buildId;
-			} else {
-				// externals imported in production and Node builds use Node module resolution
-				buildId = mappedSpecifier;
-			}
-		}
+		buildId = mappedSpecifier;
 	} else {
 		// internal import
 		finalSpecifier = toRelativeSpecifier(finalSpecifier, source.dir, paths.source);
@@ -210,7 +171,7 @@ const toBuildDependency = (
 		mappedSpecifier,
 		originalSpecifier: specifier,
 		buildId,
-		external: prebundle && isExternal,
+		external,
 	};
 };
 
@@ -294,21 +255,6 @@ const injectSvelteCssImport = (content: string, importPath: string, dev: boolean
 		newlineIndex,
 	)}${injectedCssLoaderScript}${content.substring(newlineIndex)}`;
 	return newContent;
-};
-
-// TODO tests as docs
-const shouldModifyDotJs = (sourceId: string): boolean => {
-	const maxSlashCount = sourceId[0] === '@' ? 1 : 0;
-	let slashCount = 0;
-	for (let i = 0; i < sourceId.length; i++) {
-		if (sourceId[i] === '/') {
-			slashCount++;
-			if (slashCount > maxSlashCount) {
-				return false;
-			}
-		}
-	}
-	return true;
 };
 
 // This is a temporary hack to allow importing `to/thing` as equivalent to `to/thing.js`,

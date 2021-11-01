@@ -3,34 +3,37 @@
 	import {slide} from 'svelte/transition';
 	import {writable} from 'svelte/store';
 
-	import FilerVisualizer from './FilerVisualizer.svelte';
-	import ServerVisualizer from './ServerVisualizer.svelte';
-	import ViewName from './ViewName.svelte';
-	import SourceTreeVisualizer from './SourceTreeVisualizer.svelte';
-	import BuildTreeVisualizer from './BuildTreeVisualizer.svelte';
-	import SourceMetaView from './SourceMetaView.svelte';
-	import SourceMetaRaw from './SourceMetaRaw.svelte';
-	import SourceMetaExpander from './SourceMetaExpander.svelte';
-	import SourceMetaTable from './SourceMetaTable.svelte';
-	import SourceMetaBuildsTable from './SourceMetaBuildsTable.svelte';
-	import SourceMetaBuildTree from './SourceMetaBuildTree.svelte';
-	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
-	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
-	import SourceMetaTreeExplorers from './SourceMetaTreeExplorers.svelte';
-	import {createSourceTree} from './sourceTree.js';
-	import type {SourceTree} from 'src/client/sourceTree.js';
+	import FilerVisualizer from '$lib/app/FilerVisualizer.svelte';
+	import ServerVisualizer from '$lib/app/ServerVisualizer.svelte';
+	import ViewName from '$lib/app/ViewName.svelte';
+	import SourceTreeVisualizer from '$lib/app/SourceTreeVisualizer.svelte';
+	import BuildTreeVisualizer from '$lib/app/BuildTreeVisualizer.svelte';
+	import SourceMetaView from '$lib/app/SourceMetaView.svelte';
+	import SourceMetaRaw from '$lib/app/SourceMetaRaw.svelte';
+	import SourceMetaExpander from '$lib/app/SourceMetaExpander.svelte';
+	import SourceMetaTable from '$lib/app/SourceMetaTable.svelte';
+	import SourceMetaBuildsTable from '$lib/app/SourceMetaBuildsTable.svelte';
+	import SourceMetaBuildTree from '$lib/app/SourceMetaBuildTree.svelte';
+	import SourceMetaBuildTreeExplorer from '$lib/app/SourceMetaBuildTreeExplorer.svelte';
+	import SourceMetaTreeExplorer from '$lib/app/SourceMetaTreeExplorer.svelte';
+	import SourceMetaTreeExplorers from '$lib/app/SourceMetaTreeExplorers.svelte';
+	import {createSourceTree} from '$lib/app/sourceTree';
+	import type {SourceTree} from '$lib/app/sourceTree.js';
 	import type {ProjectState} from 'src/server/projectState.js';
-	import type {View} from 'src/client/view.js';
-	import {setProjectState} from './projectState.js';
+	import type {View} from '$lib/app/view.js';
+	import {setProjectState} from '$lib/app/projectState';
 
 	console.log('enter App.svelte');
 
-	$: homepage = ($ctx?.packageJson.homepage || '') as string;
 	let sourceTree: SourceTree;
 	let selectedBuildNames: string[] = [];
 
 	const ctx = writable<ProjectState>(null!);
 	setProjectState(ctx);
+
+	$: homepage = ($ctx?.packageJson.homepage || '') as string;
+	$: console.log('$ctx', $ctx);
+	$: console.log('sourceTree', sourceTree);
 
 	const sourceMetaViews: View[] = [
 		SourceMetaRaw,
@@ -51,12 +54,10 @@
 	const hoveredSourceMeta = writable(null);
 
 	onMount(async () => {
-		const SOURCE_META_PATH = '/src'; // TODO move, share with `src/server/server.ts`
+		const SOURCE_META_PATH = '/api/src'; // TODO move, share with `src/server/server.ts`
 		$ctx = await (await fetch(SOURCE_META_PATH)).json(); // TODO handle errors
-		console.log('fetched projectState', $ctx);
 		sourceTree = createSourceTree($ctx.items, $ctx.buildConfigs);
 		selectedBuildNames = sourceTree.buildNames;
-		console.log('sourceTree', sourceTree);
 	});
 
 	let showSourceMeta = true;
@@ -78,31 +79,26 @@
 				</span>
 				<nav>
 					{#if !showFilerVisualizer1}
-						<!-- server filer visualizer -->
 						<button on:pointerdown={() => (showFilerVisualizer1 = !showFilerVisualizer1)}>
 							FilerVisualizer (server)
 						</button>
 					{/if}
 					{#if !showFilerVisualizer2}
-						<!-- client example filer visualizer -->
 						<button on:pointerdown={() => (showFilerVisualizer2 = !showFilerVisualizer2)}>
 							FilerVisualizer (client)
 						</button>
 					{/if}
 					{#if !showServerVisualizer}
-						<!-- gro dev server filer visualizer -->
 						<button on:pointerdown={() => (showServerVisualizer = !showServerVisualizer)}>
 							ServerVisualizer
 						</button>
 					{/if}
 					{#if !showSourceTreeVisualizer}
-						<!-- source tree visualizer -->
 						<button on:pointerdown={() => (showSourceTreeVisualizer = !showSourceTreeVisualizer)}>
 							SourceTreeVisualizer
 						</button>
 					{/if}
 					{#if !showBuildTreeVisualizer}
-						<!-- build tree visualizer -->
 						<button on:pointerdown={() => (showBuildTreeVisualizer = !showBuildTreeVisualizer)}>
 							BuildTreeVisualizer
 						</button>

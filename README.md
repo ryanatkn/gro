@@ -1,6 +1,6 @@
-# gro <img src="src/client/favicon.png" width="32" height="32">
+# gro <img src="src/static/favicon.png" width="32" height="32">
 
-<img src="src/client/favicon.png" align="right" width="192" height="192">
+<img src="src/static/favicon.png" align="right" width="192" height="192">
 
 > opinionated tools for web development
 
@@ -204,7 +204,6 @@ Gro builds on
 [Svelte](https://github.com/sveltejs/svelte) ∙
 [SvelteKit](https://github.com/sveltejs/kit) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
-[esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
 [Rollup](https://github.com/rollup/rollup) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙

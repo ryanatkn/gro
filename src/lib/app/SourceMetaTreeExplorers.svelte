@@ -1,7 +1,7 @@
 <script lang="ts">
-	import SourceMetaBuildTreeExplorer from './SourceMetaBuildTreeExplorer.svelte';
-	import SourceMetaTreeExplorer from './SourceMetaTreeExplorer.svelte';
-	import type {SourceTree} from 'src/client/sourceTree.js';
+	import SourceMetaBuildTreeExplorer from '$lib/app/SourceMetaBuildTreeExplorer.svelte';
+	import SourceMetaTreeExplorer from '$lib/app/SourceMetaTreeExplorer.svelte';
+	import type {SourceTree} from '$lib/app/sourceTree.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

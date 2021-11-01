@@ -1,9 +1,9 @@
 <script lang="ts">
-	import BuildId from './BuildId.svelte';
-	import SourceId from './SourceId.svelte';
-	import BuildName from './BuildName.svelte';
-	import {filterSelectedMetas, getBuildsByBuildName} from './sourceTree.js';
-	import type {SourceTree} from 'src/client/sourceTree.js';
+	import BuildId from '$lib/app/BuildId.svelte';
+	import SourceId from '$lib/app/SourceId.svelte';
+	import BuildName from '$lib/app/BuildName.svelte';
+	import {filterSelectedMetas, getBuildsByBuildName} from '$lib/app/sourceTree';
+	import type {SourceTree} from '$lib/app/sourceTree.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

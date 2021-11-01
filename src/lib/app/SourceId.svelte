@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {getProjectState} from './projectState.js';
+	import {getProjectState} from '$lib/app/projectState';
 
 	const project = getProjectState();
 

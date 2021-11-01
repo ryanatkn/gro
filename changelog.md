@@ -1,5 +1,10 @@
 # changelog
 
+## 0.45.0
+
+- **break**: remove frontend build support in favor of SvelteKit
+  ([#281](https://github.com/feltcoop/gro/pull/281))
+
 ## 0.44.3
 
 - process `.js` files with the esbuild builder

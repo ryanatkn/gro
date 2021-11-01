@@ -6,7 +6,6 @@ import {getFileContentHash} from './filerFile.js';
 import type {BuildContext} from 'src/build/builder.js';
 import type {BuildableSourceFile} from 'src/build/sourceFile.js';
 import type {BuildName} from 'src/build/buildConfig.js';
-import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
 import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
 
@@ -131,7 +130,7 @@ export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 	const {fs, sourceMetaById, log} = ctx;
 	await Promise.all(
 		Array.from(sourceMetaById.keys()).map(async (sourceId) => {
-			if (sourceId !== EXTERNALS_SOURCE_ID && !(await fs.exists(sourceId))) {
+			if (!(await fs.exists(sourceId))) {
 				log.trace('deleting unknown source meta', gray(sourceId));
 				await deleteSourceMeta(ctx, sourceId);
 			}
