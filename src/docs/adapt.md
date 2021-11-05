@@ -7,7 +7,6 @@ Gro has a number of builtin adapters:
 
 - [`groAdapterNodeLibrary`](../adapt/groAdapterNodeLibrary.ts)
 - [`groAdapterSveltekitFrontend `](../adapt/groAdapterSveltekitFrontend.ts)
-- [`groAdapterGroFrontend`](../adapt/groAdapterGroFrontend.ts)
 - [`groAdapterGenericBuild`](../adapt/groAdapterGenericBuild.ts)
 
 Also see [`config.adapt` in the config docs](config.md#adapt)
