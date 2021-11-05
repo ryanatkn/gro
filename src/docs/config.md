@@ -17,11 +17,11 @@ If a project does not define a config, Gro imports a default config from
 which looks at your project for familiar patterns (like Node libraries and SvelteKit apps)
 and tries to do the right thing.
 
-> The default config detects
-> [Gro's deprecated SPA mode](https://github.com/feltcoop/gro/issues/106)
-> if it sees both a `src/index.html` and `src/index.ts`.
-> It also looks for a Node server entry point at `src/lib/server/server.ts`.
-> Both are no-ops if not detected.
+> The [default config](/src/config/gro.config.default.ts)
+> detects three types of projects that can coexist:
+> SvelteKit projects, Node API servers, and Node libraries with Svelte support
+> (using a different system than `svelte-kit package` --
+> [learn more about the SvelteKit integration](/src/docs/sveltekit.md))
 
 See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
 

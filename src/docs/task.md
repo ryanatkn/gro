@@ -25,15 +25,17 @@ and defers composition to the user in regular TypeScript modules.
   (but there's also the helper `invokeTask`: see more below)
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
-  and in code the task object's `run` function has access to CLI args
+  and in code the task object's `run` function has access to CLI args;
+  to view [the available tasks](https://github.com/feltcoop/gro/blob/main/src/docs/tasks.md)
+  run `gro` with no arguments
 - it's easy to hook into or override any of Gro's builtin tasks,
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
   (tasks are copy-paste friendly! just update the imports)
 - the task execution environment is filesystem agnostic by default; `run` receives a
   [`TaskContext` argument](#user-content-types-task-and-taskcontext) with an `fs` property
 - the `TaskContext` provides a rich baseline context object
-  for both dev env and one-off script authoring and execution,
-  enriching the APIs of both Gro and userland with its portable and extensibile affordances
+  for both development/build tasks and one-off script authoring/execution;
+  it attempts to be portable and extensibile, but there's a _lot_ of room for improvement
 - it's fast because it imports only the modules that your chosen tasks need
 
 The task runner's purpose is to provide an ergonomic interface

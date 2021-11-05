@@ -37,12 +37,8 @@ It includes:
   and [publishing](/src/docs/publish.md)
   for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
   UIs along with Node servers, JS/TS/Svelte libraries, and other things
-  (see [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts))
-  - [unbundled development](/src/docs/dev.md)
-    inspired by [Snowpack](https://github.com/pikapkg/snowpack)
-    - Gro supports its own form of SPA on the frontend,
-      but it's deprecated-ish for
-      [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
+  (see the [config docs](/src/docs/config.md) and
+  [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts))
   - [configurable adapters](/src/docs/adapt.md) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
   - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
