@@ -18,7 +18,7 @@ export interface TaskArgs extends Args {
 // TODO wip - this isn't implemented yet
 // TODO wip - this isn't implemented yet
 export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
-	let listener: (e: FilerEvents['build']) => void;
+	let listener: ((e: FilerEvents['build']) => void) | undefined;
 	const queuedFiles: Set<string> = new Set();
 	const queueGen = (genFileNames: string) => {
 		queuedFiles.add(genFileNames);
@@ -27,13 +27,20 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 	const flushGenQueue = async () => {
 		const files = Array.from(queuedFiles);
 		queuedFiles.clear();
-		await spawn('npx', ['gro', 'gen', ...files]);
+		await gen(files);
 	};
+	const gen = (files: string[]) => spawn('npx', ['gro', 'gen', ...files]);
 	return {
 		name,
 		setup: async (ctx) => {
-			const {filer} = ctx;
+			const {
+				filer,
+				args: {watch},
+			} = ctx;
 			if (!filer) throw Error(`${name} expects a filer arg`);
+			if (!watch) {
+				return flushGenQueue();
+			}
 
 			listener = async ({buildConfig, sourceFile}) => {
 				console.log('sourceFile, buildConfig', sourceFile.id, buildConfig.name);
@@ -46,7 +53,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 			filer.on('build', listener);
 		},
 		teardown: async (ctx) => {
-			ctx.filer!.off('build', listener);
+			if (listener) ctx.filer!.off('build', listener);
 		},
 	};
 };
