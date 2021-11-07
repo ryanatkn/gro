@@ -26,6 +26,7 @@
 ## about
 
 Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
+that complements [SvelteKit](https://github.com/sveltejs/kit)
 for making web frontends, servers, and libraries.
 It includes:
 
@@ -37,7 +38,7 @@ It includes:
   and [publishing](/src/docs/publish.md)
   for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
   UIs along with Node servers, JS/TS/Svelte libraries, and other things
-  (see the [config docs](/src/docs/config.md) and
+  (see the [config docs](/src/docs/config.md), the [SvelteKit integration docs](/src/docs/sveltekit.md), and
   [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts))
   - [configurable adapters](/src/docs/adapt.md) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
