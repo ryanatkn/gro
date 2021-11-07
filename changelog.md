@@ -1,5 +1,10 @@
 # changelog
 
+## 0.45.2
+
+- make `gen` a plugin that defaults to watch mode
+  ([#283](https://github.com/feltcoop/gro/pull/283))
+
 ## 0.45.1
 
 - fix peer dependency versions
