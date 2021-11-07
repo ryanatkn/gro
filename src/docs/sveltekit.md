@@ -1,11 +1,14 @@
 # SvelteKit and Vite
 
-Today, Gro sits atop SvelteKit and Vite to provide additional functionality
+Gro is designed to extend SvelteKit and Vite with additional functionality
 like [tasks](./task.md), [codegen](./gen.md),
 [developing](./dev.md) Node servers,
 and [deploying](./deploy.md) to branches.
-Gro's current plan is to integrate with SvelteKit as an alternative to Vite,
-but that goal may change.
+
+Gro was created in August 2019 and it has evolved and changed scope substantially,
+multiple times. Today, it has decent integration with SvelteKit,
+but there's a lot of room for improvement, both to further reduce Gro's scope,
+and to add new features and capabilities.
 
 Gro has two important differences from SvelteKit:
 
