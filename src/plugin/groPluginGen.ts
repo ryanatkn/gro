@@ -7,12 +7,16 @@ import type {Args} from 'src/task/task.js';
 const name = '@feltcoop/groPluginGen';
 
 export interface TaskArgs extends Args {
-	insecure?: boolean;
-	cert?: string;
-	certkey?: string;
 	watch?: boolean;
 }
 
+// TODO wip - this isn't implemented yet
+// TODO wip - this isn't implemented yet
+// TODO wip - this isn't implemented yet
+// TODO wip - this isn't implemented yet
+// TODO wip - this isn't implemented yet
+// TODO wip - this isn't implemented yet
+// TODO wip - this isn't implemented yet
 export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 	let listener: (e: FilerEvents['build']) => void;
 	const queuedFiles: Set<string> = new Set();
@@ -27,13 +31,6 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 	};
 	return {
 		name,
-		// TODO wip - this isn't really implemented yet
-		// TODO wip - this isn't really implemented yet
-		// TODO wip - this isn't really implemented yet
-		// TODO wip - this isn't really implemented yet
-		// TODO wip - this isn't really implemented yet
-		// TODO wip - this isn't really implemented yet
-		// TODO wip - this isn't really implemented yet
 		setup: async (ctx) => {
 			const {filer} = ctx;
 			if (!filer) throw Error(`${name} expects a filer arg`);
