@@ -1,5 +1,10 @@
 # changelog
 
+## 0.45.2
+
+- fix `process.env.NODE_ENV` for production tasks
+  ([#283](https://github.com/feltcoop/gro/pull/283))
+
 ## 0.45.1
 
 - fix peer dependency versions

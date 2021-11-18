@@ -55,7 +55,14 @@ export const invokeTask = async (
 	dev?: boolean,
 ): Promise<void> => {
 	// TODO not sure about this -- the idea is that imported modules need the updated `NODE_ENV`
-	process.env['NODE_ENV'] = dev || dev === undefined ? 'development' : 'production';
+	process.env['NODE_ENV'] =
+		dev === undefined
+			? process.env['NODE_ENV'] === 'production'
+				? 'production'
+				: 'development'
+			: dev
+			? 'development'
+			: 'production';
 
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 
