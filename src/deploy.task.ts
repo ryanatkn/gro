@@ -104,7 +104,7 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Run the build.
-			await invokeTask('build', {...args, clean: false});
+			await invokeTask('build');
 
 			// After the build is ready, set the deployed directory, inferring as needed.
 			if (dirname !== undefined) {
