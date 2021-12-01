@@ -4,6 +4,7 @@ import {EventEmitter} from 'events';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Args} from 'src/task/task.js';
 import {runTask} from './runTask.js';
@@ -47,6 +48,15 @@ The comments describe each condition.
 
 */
 
+const serializeArgs = (args: Args): string[] => {
+	const result: string[] = [];
+	for (const [key, value] of Object.entries(args)) {
+		result.push(`--${key}`);
+		result.push((value as any).toString());
+	}
+	return result;
+};
+
 export const invokeTask = async (
 	fs: Filesystem,
 	taskName: string,
@@ -63,6 +73,27 @@ export const invokeTask = async (
 			: dev
 			? 'development'
 			: 'production';
+	// TODO If `dev` doesn't match the `NODE_ENV`,
+	// run the task in a separate process,
+	// to ensure all modules have the correct `NODE_ENV` at initialization.
+	// TODO problem with this design is that events won't work when new processes are spawned,
+	// but I don't see a better way to ensure running tasks with the correct `NODE_ENV`
+	// TODO another issue is that this introduces a dependency on `npx`
+	// to an otherwise abstracted function. but is it needed to ensure
+	// Can we instead fix this by using `spawn` for `gro build` instead of invoking?
+	// if (
+	// 	dev !== undefined &&
+	// 	((dev && process.env['NODE_ENV'] === 'production') ||
+	// 		(!dev && process.env['NODE_ENV'] !== 'production'))
+	// ) {
+	// 	await spawn('npx', ['gro', taskName, ...serializeArgs(args)], {
+	// 		env: {
+	// 			// TODO include `...process.env`?
+	// 			NODE_ENV: dev ? 'development' : 'production',
+	// 		},
+	// 	});
+	// 	return;
+	// }
 
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 
