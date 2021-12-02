@@ -69,6 +69,9 @@ export const removeMimeTypeExtension = (extension: FileExtension): boolean => {
 		['application/schema+json', ['json']],
 		['application/schema-instance+json', ['json']],
 		['application/ld+json', ['jsonld']],
+		// next 2 are equivalent in ActivityStreams: https://www.w3.org/TR/activitystreams-core/#media-type
+		['application/activity+json', ['json']],
+		['application/ld+json; profile="https://www.w3.org/ns/activitystreams"', ['json']], // TODO is this correct/necessary?
 		['application/xml', ['xml']],
 		['application/xhtml+xml', ['xhtml']],
 		['application/pdf', ['pdf']],
