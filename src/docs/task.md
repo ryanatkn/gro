@@ -12,7 +12,7 @@
 
 ## what
 
-A Gro task is just a function with some optional metadata.
+A Gro `Task` is just an object with a `run` function and some optional metadata.
 Gro prefers conventions and code over configuration,
 and its task runner leverages the filesystem as the API
 and defers composition to the user in regular TypeScript modules.
