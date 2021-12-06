@@ -1,5 +1,10 @@
 # changelog
 
+## 0.45.2
+
+- clean dist for production builds
+  ([#285](https://github.com/feltcoop/gro/pull/285))
+
 ## 0.45.1
 
 - fix peer dependency versions
