@@ -24,8 +24,6 @@ export const createAdapter = ({
 	return {
 		name: '@feltcoop/groAdapterSveltekitFrontend',
 		adapt: async ({fs}) => {
-			await fs.remove(dir);
-
 			await fs.copy(sveltekitDir, dir);
 
 			switch (hostTarget) {

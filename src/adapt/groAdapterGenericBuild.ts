@@ -21,8 +21,6 @@ export const createAdapter = ({
 	return {
 		name: '@feltcoop/groAdapterGenericBuild',
 		adapt: async ({config, fs, dev, log}) => {
-			await fs.remove(dir);
-
 			const buildConfig = config.builds.find((b) => b.name === buildName);
 			if (!buildConfig) {
 				throw Error(`Unknown build config: ${buildName}`);
