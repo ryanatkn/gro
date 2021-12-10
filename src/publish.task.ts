@@ -66,6 +66,14 @@ export const task: Task<TaskArgs> = {
 		});
 		if (!checkResult.ok) throw Error('gro check failed');
 
+		// Bump the version so the package.json is updated before building:
+		if (!dry) {
+			const npmVersionResult = await spawn('npm', ['version', versionIncrement]);
+			if (!npmVersionResult.ok) {
+				throw Error('npm version failed: no commits were made: see the error above');
+			}
+		}
+
 		// Build to create the final artifacts:
 		// TODO this doesn't use `invokeTask('build')` for Gro self hosting needs, but it's fine?
 		const buildResult = await spawn('npx', ['gro', 'build']);
@@ -80,12 +88,6 @@ export const task: Task<TaskArgs> = {
 			log.info({versionIncrement, publish: config.publish, branch});
 			log.info(rainbow('dry run complete!'));
 			return;
-		}
-
-		// Bump the version so the package.json is updated before building:
-		const npmVersionResult = await spawn('npm', ['version', versionIncrement]);
-		if (!npmVersionResult.ok) {
-			throw Error('npm version failed: no commits were made: see the error above');
 		}
 
 		await spawn('git', ['push']);
