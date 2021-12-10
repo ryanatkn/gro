@@ -94,7 +94,6 @@
     "singleQuote": true,
     "trailingComma": "all",
     "bracketSpacing": false,
-    "svelteBracketNewLine": true,
     "overrides": [
       {
         "files": "package.json",
