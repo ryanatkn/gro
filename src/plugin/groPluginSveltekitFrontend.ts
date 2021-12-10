@@ -18,7 +18,7 @@ export interface TaskArgs extends Args {
 	verbose?: boolean;
 }
 
-const name = '@feltcoop/groAdapterSveltekitFrontend';
+const name = '@feltcoop/groPluginSveltekitFrontend';
 
 export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	PluginContext<TaskArgs, {}>
