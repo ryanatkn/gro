@@ -52,7 +52,6 @@ export const task: Task<TaskArgs> = {
 
 		if (isThisProjectGro) {
 			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
-			console.log('bootstrapResult', bootstrapResult);
 			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
 		}
 
@@ -67,13 +66,10 @@ export const task: Task<TaskArgs> = {
 		});
 		if (!checkResult.ok) throw Error('gro check failed');
 
-		// TODO why is spawn needed here, and `invokeTask` doesn't work? Is it because of cleaning above?
 		// Build to create the final artifacts:
-		// await buildSource(fs, config, false, log);
-		const buildResult = await spawn('npx', ['gro', 'build']); // TODO serialize any/all args?
+		// TODO this doesn't use `invokeTask('build')` for Gro self hosting needs, but it's fine?
+		const buildResult = await spawn('npx', ['gro', 'build']);
 		if (!buildResult.ok) throw Error('gro build failed');
-
-		// await invokeTask('build');
 
 		const config = await loadConfig(fs, dev);
 		if (config.publish === null) {
