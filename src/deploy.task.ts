@@ -104,7 +104,6 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Run the build.
-			// TODO should this `spawn` and set `NODE_ENV`?
 			await invokeTask('build');
 
 			// After the build is ready, set the deployed directory, inferring as needed.
