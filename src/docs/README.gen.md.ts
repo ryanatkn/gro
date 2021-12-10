@@ -3,7 +3,8 @@ import {toPathParts, toPathSegments} from '@feltcoop/felt/util/pathParsing.js';
 import {last} from '@feltcoop/felt/util/array.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 
-import {Gen, toOutputFileName} from '../gen/gen.js';
+import type {Gen} from '../gen/gen.js';
+import {toOutputFileName} from '../gen/gen.js';
 import {paths, basePathToSourceId} from '../paths.js';
 
 // This renders a simple index of a possibly nested directory of files.

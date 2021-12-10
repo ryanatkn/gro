@@ -4,14 +4,14 @@ import {Timings} from '@feltcoop/felt/util/timings.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 
 import type {GenModuleMeta} from 'src/gen/genModule.js';
-import {
+import type {
 	GenResults,
 	GenModuleResult,
 	GenContext,
-	toGenResult,
 	GenModuleResultSuccess,
 	GenModuleResultFailure,
 } from './gen.js';
+import {toGenResult} from './gen.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {printPath} from '../paths.js';
 
