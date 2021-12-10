@@ -24,7 +24,7 @@ export interface TaskEvents {
 
 export const task: Task<TaskArgs, TaskEvents> = {
 	summary: 'build the project',
-	dev: false,
+	production: true,
 	run: async (ctx): Promise<void> => {
 		const {fs, dev, log, events, args} = ctx;
 

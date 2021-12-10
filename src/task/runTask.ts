@@ -25,19 +25,10 @@ export const runTask = async (
 	args: Args,
 	events: EventEmitter,
 	invokeTask: typeof InvokeTaskFunction,
-	dev: boolean | undefined, // `undefined` on first task invocation, so it infers from the first task
 ): Promise<RunTaskResult> => {
 	const {task} = taskMeta.mod;
-	if (dev === undefined) {
-		if (task.dev !== undefined) {
-			dev = task.dev;
-		} else {
-			dev = process.env.NODE_ENV !== 'production';
-		}
-	}
-	// TODO the `=== false` is needed because we're not normalizing tasks, but we probably should,
-	// but not in this function, when the task is loaded
-	if (dev && task.dev === false) {
+	const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
+	if (dev && task.production) {
 		throw new TaskError(`The task "${taskMeta.name}" cannot be run in development`);
 	}
 	let output: unknown;
@@ -48,13 +39,8 @@ export const runTask = async (
 			args,
 			events,
 			log: new SystemLogger(printLogLabel(taskMeta.name)),
-			invokeTask: (
-				invokedTaskName,
-				invokedArgs = args,
-				invokedEvents = events,
-				invokedDev = dev,
-				invokedFs = fs,
-			) => invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents, invokedDev),
+			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedFs = fs) =>
+				invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents),
 		});
 	} catch (err) {
 		return {

@@ -50,11 +50,16 @@ The comments describe each condition.
 
 const serializeArgs = (args: Args): string[] => {
 	const result: string[] = [];
+	let _: string[] | null = null;
 	for (const [key, value] of Object.entries(args)) {
-		result.push(`--${key}`);
-		result.push((value as any).toString());
+		if (key === '_') {
+			_ = (value as any[]).map((v) => v.toString());
+		} else {
+			result.push(`--${key}`);
+			result.push((value as any).toString());
+		}
 	}
-	return result;
+	return _ ? [...result, ..._] : result;
 };
 
 export const invokeTask = async (
@@ -62,39 +67,7 @@ export const invokeTask = async (
 	taskName: string,
 	args: Args,
 	events = new EventEmitter(),
-	dev?: boolean,
 ): Promise<void> => {
-	// TODO not sure about this -- the idea is that imported modules need the updated `NODE_ENV`
-	process.env['NODE_ENV'] =
-		dev === undefined
-			? process.env['NODE_ENV'] === 'production'
-				? 'production'
-				: 'development'
-			: dev
-			? 'development'
-			: 'production';
-	// TODO If `dev` doesn't match the `NODE_ENV`,
-	// run the task in a separate process,
-	// to ensure all modules have the correct `NODE_ENV` at initialization.
-	// TODO problem with this design is that events won't work when new processes are spawned,
-	// but I don't see a better way to ensure running tasks with the correct `NODE_ENV`
-	// TODO another issue is that this introduces a dependency on `npx`
-	// to an otherwise abstracted function. but is it needed to ensure
-	// Can we instead fix this by using `spawn` for `gro build` instead of invoking?
-	// if (
-	// 	dev !== undefined &&
-	// 	((dev && process.env['NODE_ENV'] === 'production') ||
-	// 		(!dev && process.env['NODE_ENV'] !== 'production'))
-	// ) {
-	// 	await spawn('npx', ['gro', taskName, ...serializeArgs(args)], {
-	// 		env: {
-	// 			// TODO include `...process.env`?
-	// 			NODE_ENV: dev ? 'development' : 'production',
-	// 		},
-	// 	});
-	// 	return;
-	// }
-
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 
 	// Check if the caller just wants to see the version.
@@ -131,13 +104,6 @@ export const invokeTask = async (
 			if (await shouldBuildProject(fs, pathData.id)) {
 				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 				// every time a task is invoked.
-				if (dev !== undefined) {
-					// TODO include this?
-					throw Error(
-						'Invalid `invokeTask` call with a `dev` argument and unbuilt project.' +
-							' This probably means Gro or a task made something weird happen.',
-					);
-				}
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				// TODO probably do this as a separate process
@@ -167,14 +133,31 @@ export const invokeTask = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const result = await runTask(fs, task, args, events, invokeTask, dev);
-				timingToRunTask();
-				if (result.ok) {
-					log.info(`✓ ${cyan(task.name)}`);
+				const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
+				if (dev && task.mod.task.production) {
+					const result = await spawn('npx', ['gro', taskName, ...serializeArgs(args)], {
+						env: {...process.env, NODE_ENV: 'production'},
+					});
+					timingToRunTask();
+					if (result.ok) {
+						log.info(`✓ ${cyan(task.name)}`);
+					} else {
+						log.info(`${red('🞩')} ${cyan(task.name)}`);
+						logErrorReasons(log, [
+							`spawned task exited with code ${result.code}: ${result.signal}`,
+						]);
+						throw Error('Spawned task failed');
+					}
 				} else {
-					log.info(`${red('🞩')} ${cyan(task.name)}`);
-					logErrorReasons(log, [result.reason]);
-					throw result.error;
+					const result = await runTask(fs, task, args, events, invokeTask);
+					timingToRunTask();
+					if (result.ok) {
+						log.info(`✓ ${cyan(task.name)}`);
+					} else {
+						log.info(`${red('🞩')} ${cyan(task.name)}`);
+						logErrorReasons(log, [result.reason]);
+						throw result.error;
+					}
 				}
 			} else {
 				logErrorReasons(log, loadModulesResult.reasons);

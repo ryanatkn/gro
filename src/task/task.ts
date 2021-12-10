@@ -7,7 +7,7 @@ import type {Filesystem} from 'src/fs/filesystem.js';
 export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
-	dev?: boolean;
+	production?: boolean;
 }
 
 export interface TaskContext<TArgs = {}, TEvents = {}> {
@@ -21,7 +21,6 @@ export interface TaskContext<TArgs = {}, TEvents = {}> {
 		taskName: string,
 		args?: Args,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
-		dev?: boolean,
 		fs?: Filesystem,
 	) => Promise<void>;
 }

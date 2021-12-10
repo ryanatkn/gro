@@ -38,7 +38,7 @@ const EXCLUDED_BRANCHES = ['main', 'master'];
 
 export const task: Task<TaskArgs> = {
 	summary: 'deploy to static hosting',
-	dev: false,
+	production: true,
 	run: async ({fs, invokeTask, args, log}): Promise<void> => {
 		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
 

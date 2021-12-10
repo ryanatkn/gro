@@ -29,7 +29,7 @@ export interface TaskArgs {
 
 export const task: Task<TaskArgs> = {
 	summary: 'bump version, publish to npm, and sync to GitHub',
-	dev: false,
+	production: true,
 	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
 		if (dry) {
@@ -57,7 +57,7 @@ export const task: Task<TaskArgs> = {
 
 		// Check in dev mode before proceeding:
 		await buildSource(fs, config, true, log);
-		await invokeTask('check', {...args, _: []}, undefined, true);
+		await invokeTask('check', {...args, _: []}, undefined);
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {

@@ -294,7 +294,7 @@ export const task: Task = {
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	dev: false, // tell the task runner to set `dev` to false, updating `process.env.NODE_ENV`
+	production: true, // task runner will spawn a new process if `process.env.NODE_ENV` isn't 'production'
 	run: async ({dev, invokeTask}) => {
 		// `dev` is `false` because it's defined two lines up in the task definition,
 		// unless an ancestor task called `invokeTask` with a `true` value, like this:
