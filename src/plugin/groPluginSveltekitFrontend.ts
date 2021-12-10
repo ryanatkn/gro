@@ -18,7 +18,7 @@ export interface TaskArgs extends Args {
 	verbose?: boolean;
 }
 
-const name = '@feltcoop/groAdapterSveltekitFrontend';
+const name = '@feltcoop/groPluginSveltekitFrontend';
 
 export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	PluginContext<TaskArgs, {}>
@@ -31,7 +31,7 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 				if (args.watch) {
 					sveltekitProcess = spawnProcess('npx', toSveltekitArgs('dev', args));
 				} else {
-					log.warn(
+					log.trace(
 						`${name} is loaded but will not output anything` +
 							' because `dev` is true and `watch` is false',
 					);
