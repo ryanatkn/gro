@@ -56,7 +56,9 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Check in dev mode before proceeding:
-		// TODO ideally running `gro dev` shouldn't be needed
+		// TODO ideally `buildSource` should be used instead of `gro dev`,
+		// but this avoids issues where the Gro config imports code
+		// that uses `NODE_ENV` and incorrectly assumes production because of the task env
 		const devResult = await spawn('npx', ['gro', 'dev', '--no-watch'], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
