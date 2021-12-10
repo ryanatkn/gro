@@ -39,7 +39,7 @@ const EXCLUDED_BRANCHES = ['main', 'master'];
 export const task: Task<TaskArgs> = {
 	summary: 'deploy to static hosting',
 	production: true,
-	run: async ({fs, invokeTask, args, log}): Promise<void> => {
+	run: async ({fs, args, log}): Promise<void> => {
 		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
 
 		if (!force && EXCLUDED_BRANCHES.includes(branch as string)) {
@@ -92,8 +92,8 @@ export const task: Task<TaskArgs> = {
 		await cleanGitWorktree();
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
-		// Get ready to build from scratch.
-		await cleanFs(fs, {buildProd: true, dist: true}, log);
+		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
+		await cleanFs(fs, {build: true, dist: true}, log);
 
 		if (cleanAndExit) {
 			log.info(rainbow('all clean'));
@@ -104,7 +104,8 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Run the build.
-			await invokeTask('build');
+			const buildResult = await spawn('npx', ['gro', 'build']);
+			if (!buildResult.ok) throw Error('gro build failed');
 
 			// After the build is ready, set the deployed directory, inferring as needed.
 			if (dirname !== undefined) {

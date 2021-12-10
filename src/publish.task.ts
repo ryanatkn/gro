@@ -47,18 +47,18 @@ export const task: Task<TaskArgs> = {
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
 
+		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
+		await cleanFs(fs, {build: true, dist: true}, log);
+		if (isThisProjectGro) {
+			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
+			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
+		}
+
 		// Check in dev mode before proceeding.
 		const checkResult = await spawn('npx', ['gro', 'check'], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
 		if (!checkResult.ok) throw Error('gro check failed');
-
-		// Clean before building:
-		await cleanFs(fs, {buildProd: true, dist: true}, log);
-		if (isThisProjectGro) {
-			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
-			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
-		}
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {
@@ -69,7 +69,6 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Build to create the final artifacts:
-		// TODO this doesn't use `invokeTask('build')` for Gro self hosting needs, but it's fine?
 		const buildResult = await spawn('npx', ['gro', 'build']);
 		if (!buildResult.ok) throw Error('gro build failed');
 

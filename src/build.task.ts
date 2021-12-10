@@ -26,6 +26,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 	summary: 'build the project',
 	production: true,
 	run: async (ctx): Promise<void> => {
+		console.log('BUILD', ctx);
 		const {fs, dev, log, events, args} = ctx;
 
 		const timings = new Timings(); // TODO belongs in ctx
