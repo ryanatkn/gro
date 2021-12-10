@@ -57,7 +57,10 @@ export const task: Task<TaskArgs> = {
 
 		// Check in dev mode before proceeding:
 		await buildSource(fs, config, true, log);
-		await invokeTask('check', {...args, _: []}, undefined);
+		const checkResult = await spawn('npx', ['gro', 'check']); // TODO serialize any/all args?
+		if (!checkResult.ok) {
+			throw Error(`Check failed`);
+		}
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {
