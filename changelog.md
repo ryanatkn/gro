@@ -3,9 +3,9 @@
 ## 0.46.0
 
 - **break**: change task `dev` property to `production`
-  ([#283](https://github.com/feltcoop/gro/pull/283))
+  ([#284](https://github.com/feltcoop/gro/pull/284))
 - fix `process.env.NODE_ENV` for production tasks
-  ([#283](https://github.com/feltcoop/gro/pull/283))
+  ([#284](https://github.com/feltcoop/gro/pull/284))
 
 ## 0.45.1
 
