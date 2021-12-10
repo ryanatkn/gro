@@ -31,7 +31,7 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 				if (args.watch) {
 					sveltekitProcess = spawnProcess('npx', toSveltekitArgs('dev', args));
 				} else {
-					log.warn(
+					log.trace(
 						`${name} is loaded but will not output anything` +
 							' because `dev` is true and `watch` is false',
 					);
