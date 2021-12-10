@@ -10,8 +10,8 @@ import {loadPackageJson} from './utils/packageJson.js';
 import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {loadConfig} from './config/config.js';
-import {buildSource} from './build/buildSource.js';
 import {cleanFs} from './fs/clean.js';
+import {isThisProjectGro} from './paths.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -30,7 +30,7 @@ export interface TaskArgs {
 export const task: Task<TaskArgs> = {
 	summary: 'bump version, publish to npm, and sync to GitHub',
 	production: true,
-	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
+	run: async ({fs, args, log, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
@@ -55,28 +55,41 @@ export const task: Task<TaskArgs> = {
 			throw Error('config.publish is null, so this package cannot be published');
 		}
 
+		if (isThisProjectGro) {
+			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
+			console.log('bootstrapResult', bootstrapResult);
+			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
+		}
+
 		// Check in dev mode before proceeding:
-		await buildSource(fs, config, true, log);
-		const checkResult = await spawn('npx', ['gro', 'check']); // TODO serialize any/all args?
+		const checkResult = await spawn('npx', ['gro', 'check'], {
+			env: {...process.env, NODE_ENV: 'development'},
+		}); // TODO serialize any/all args?
 		if (!checkResult.ok) {
 			throw Error(`Check failed`);
 		}
 
-		// Bump the version so the package.json is updated before building:
-		if (!dry) {
-			const npmVersionResult = await spawn('npm', ['version', versionIncrement]);
-			if (!npmVersionResult.ok) {
-				throw Error('npm version failed: no commits were made: see the error above');
-			}
-		}
-
 		// Build to create the final artifacts:
-		await invokeTask('build');
+		console.log('building1');
+		// await buildSource(fs, config, false, log);
+		// TODO can this be improved?
+		const buildResult = await spawn('npx', ['gro', 'build']); // TODO serialize any/all args?
+		// await invokeTask('build');
+		if (!buildResult.ok) {
+			throw Error(`Build failed`);
+		}
+		console.log('building3');
 
 		if (dry) {
 			log.info({versionIncrement, publish: config.publish, branch});
 			log.info(rainbow('dry run complete!'));
 			return;
+		}
+
+		// Bump the version so the package.json is updated before building:
+		const npmVersionResult = await spawn('npm', ['version', versionIncrement]);
+		if (!npmVersionResult.ok) {
+			throw Error('npm version failed: no commits were made: see the error above');
 		}
 
 		await spawn('git', ['push']);
