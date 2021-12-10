@@ -47,14 +47,6 @@ export const task: Task<TaskArgs> = {
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
 
-		// Clean before building anything:
-		await cleanFs(fs, {buildProd: true, dist: true}, log);
-
-		if (isThisProjectGro) {
-			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
-			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
-		}
-
 		// Check in dev mode before proceeding:
 		// TODO ideally `buildSource` should be used instead of `gro dev`,
 		// but this avoids issues where the Gro config imports code
@@ -74,6 +66,13 @@ export const task: Task<TaskArgs> = {
 			if (!npmVersionResult.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
+		}
+
+		// Clean before building anything:
+		await cleanFs(fs, {buildProd: true, dist: true}, log);
+		if (isThisProjectGro) {
+			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
+			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
 		}
 
 		// Build to create the final artifacts:
