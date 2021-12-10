@@ -8,7 +8,7 @@
 
 > **Windows is not yet supported.** WSL works well enough
 
-> _warning!_ You should not use Gro today
+> _warning_: You should not use Gro today
 > unless you're willing to take ownership of the code.
 > For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
