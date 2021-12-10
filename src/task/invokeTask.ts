@@ -7,6 +7,7 @@ import {plural} from '@feltcoop/felt/util/string.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Args} from 'src/task/task.js';
+import {serializeArgs} from 'src/task/task.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
@@ -47,20 +48,6 @@ there are some subtle differences in the complex logical branches.
 The comments describe each condition.
 
 */
-
-const serializeArgs = (args: Args): string[] => {
-	const result: string[] = [];
-	let _: string[] | null = null;
-	for (const [key, value] of Object.entries(args)) {
-		if (key === '_') {
-			_ = (value as any[]).map((v) => v.toString());
-		} else {
-			result.push(`--${key}`);
-			result.push((value as any).toString());
-		}
-	}
-	return _ ? [...result, ..._] : result;
-};
 
 export const invokeTask = async (
 	fs: Filesystem,

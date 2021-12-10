@@ -50,3 +50,17 @@ export interface Args {
 	_: string[];
 	[key: string]: unknown; // can assign anything to `args` in tasks
 }
+
+export const serializeArgs = (args: Args): string[] => {
+	const result: string[] = [];
+	let _: string[] | null = null;
+	for (const [key, value] of Object.entries(args)) {
+		if (key === '_') {
+			_ = (value as any[]).map((v) => v.toString());
+		} else {
+			result.push(`--${key}`);
+			result.push((value as any).toString());
+		}
+	}
+	return _ ? [...result, ..._] : result;
+};
