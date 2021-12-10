@@ -48,7 +48,7 @@ export const task: Task<TaskArgs> = {
 		await spawn('git', ['checkout', branch]);
 
 		// Clean before loading the config:
-		await cleanFs(fs, {buildProd: true}, log);
+		await cleanFs(fs, {buildProd: true, dist: true}, log);
 
 		const config = await loadConfig(fs, dev);
 		if (config.publish === null) {

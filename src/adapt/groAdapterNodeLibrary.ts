@@ -72,8 +72,6 @@ export const createAdapter = ({
 	return {
 		name,
 		adapt: async ({config, fs, dev, log, args, timings}) => {
-			await fs.remove(dir);
-
 			const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
 
 			const buildConfig = config.builds.find((b) => b.name === buildName);

@@ -93,7 +93,7 @@ export const task: Task<TaskArgs> = {
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Get ready to build from scratch.
-		await cleanFs(fs, {buildProd: true}, log);
+		await cleanFs(fs, {buildProd: true, dist: true}, log);
 
 		if (cleanAndExit) {
 			log.info(rainbow('all clean'));
