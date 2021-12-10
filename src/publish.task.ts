@@ -47,10 +47,10 @@ export const task: Task<TaskArgs> = {
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
 
-		// Check in dev mode before proceeding:
-		// TODO ideally `buildSource` should be used instead of `gro dev`,
+		// Check in dev mode before proceeding.
+		// Ideally `buildSource` should be used instead of `gro dev`,
 		// but this avoids issues where the Gro config imports code
-		// that uses `NODE_ENV` and incorrectly assumes production because of the task env
+		// that uses `NODE_ENV` and incorrectly assumes production because of the task env.
 		const devResult = await spawn('npx', ['gro', 'dev', '--no-watch'], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
