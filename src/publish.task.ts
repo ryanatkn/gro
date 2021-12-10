@@ -12,7 +12,6 @@ import type {Filesystem} from 'src/fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
-import {buildSource} from './build/buildSource.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -48,14 +47,8 @@ export const task: Task<TaskArgs> = {
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
 
-		// Clean before loading the config:
+		// Clean before building anything:
 		await cleanFs(fs, {buildProd: true, dist: true}, log);
-
-		// TODO wait this config isn't right
-		const config = await loadConfig(fs, dev);
-		if (config.publish === null) {
-			throw Error('config.publish is null, so this package cannot be published');
-		}
 
 		if (isThisProjectGro) {
 			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
@@ -64,22 +57,28 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Check in dev mode before proceeding:
-		await buildSource(fs, config, true, log); // TODO ideally shouldn't be needed
+		// TODO ideally running `gro dev` shouldn't be needed
+		const devResult = await spawn('npx', ['gro', 'dev', '--no-watch'], {
+			env: {...process.env, NODE_ENV: 'development'},
+		});
+		if (!devResult.ok) throw Error('gro dev failed');
 		const checkResult = await spawn('npx', ['gro', 'check'], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
-		if (!checkResult.ok) {
-			throw Error('gro check failed');
-		}
+		if (!checkResult.ok) throw Error('gro check failed');
 
-		// TODO why is spawn needed here, and `invokeTask` doesn't work?
+		// TODO why is spawn needed here, and `invokeTask` doesn't work? Is it because of cleaning above?
 		// Build to create the final artifacts:
 		// await buildSource(fs, config, false, log);
 		const buildResult = await spawn('npx', ['gro', 'build']); // TODO serialize any/all args?
-		if (!buildResult.ok) {
-			throw Error('gro build failed');
-		}
+		if (!buildResult.ok) throw Error('gro build failed');
+
 		// await invokeTask('build');
+
+		const config = await loadConfig(fs, dev);
+		if (config.publish === null) {
+			throw Error('config.publish is null, so this package cannot be published');
+		}
 
 		if (dry) {
 			log.info({versionIncrement, publish: config.publish, branch});
