@@ -7,7 +7,7 @@ import {plural} from '@feltcoop/felt/util/string.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Args} from 'src/task/task.js';
-import {serializeArgs} from 'src/task/task.js';
+import {serializeArgs} from '../task/task.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
