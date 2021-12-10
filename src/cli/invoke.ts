@@ -22,7 +22,7 @@ const main = async () => {
 
 	// install sourcemaps for Gro development
 	if (process.env.NODE_ENV !== 'production') {
-		const sourcemapSupport = await import('source-map-support');
+		const sourcemapSupport = await import('source-map-support'); // is a peer dependency
 		sourcemapSupport.install({
 			handleUncaughtExceptions: false,
 		});

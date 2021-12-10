@@ -24,7 +24,6 @@ test__runTask('passes args and returns output', async () => {
 		args,
 		new EventEmitter(),
 		async () => {},
-		true,
 	);
 	assert.ok(result.ok);
 	assert.is(result.output, args);
@@ -54,7 +53,6 @@ test__runTask('invokes a sub task', async () => {
 			invokedTaskName = invokingTaskName;
 			invokedArgs = invokingArgs;
 		},
-		true,
 	);
 	assert.ok(result.ok);
 	assert.is(invokedTaskName, 'bar/testTask');
@@ -81,7 +79,6 @@ test__runTask('failing task', async () => {
 		{_: []},
 		new EventEmitter(),
 		async () => {},
-		true,
 	);
 	assert.not.ok(result.ok);
 	assert.ok(result.reason);

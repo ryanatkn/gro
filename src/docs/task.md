@@ -12,14 +12,14 @@
 
 ## what
 
-A Gro task is just a function with some optional metadata.
+A Gro `Task` is just an object with a `run` function and some optional metadata.
 Gro prefers conventions and code over configuration,
 and its task runner leverages the filesystem as the API
 and defers composition to the user in regular TypeScript modules.
 
 - Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
   in your source directory, so creating a new task is as simple as creating a new file -
-  no configuration or scaffolding commands needed!
+  no configuration needed
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
   (but there's also the helper `invokeTask`: see more below)
@@ -294,7 +294,7 @@ export const task: Task = {
 import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
-	dev: false, // tell the task runner to set `dev` to false, updating `process.env.NODE_ENV`
+	production: true, // task runner will spawn a new process if `process.env.NODE_ENV` isn't 'production'
 	run: async ({dev, invokeTask}) => {
 		// `dev` is `false` because it's defined two lines up in the task definition,
 		// unless an ancestor task called `invokeTask` with a `true` value, like this:

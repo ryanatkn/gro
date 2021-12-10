@@ -38,7 +38,7 @@ const EXCLUDED_BRANCHES = ['main', 'master'];
 
 export const task: Task<TaskArgs> = {
 	summary: 'deploy to static hosting',
-	dev: false,
+	production: true,
 	run: async ({fs, invokeTask, args, log}): Promise<void> => {
 		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
 
@@ -104,7 +104,7 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Run the build.
-			await invokeTask('build', {...args, clean: false});
+			await invokeTask('build');
 
 			// After the build is ready, set the deployed directory, inferring as needed.
 			if (dirname !== undefined) {
