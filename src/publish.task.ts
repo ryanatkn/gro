@@ -12,6 +12,7 @@ import type {Filesystem} from 'src/fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
+import {buildSource} from './build/buildSource.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -50,6 +51,7 @@ export const task: Task<TaskArgs> = {
 		// Clean before loading the config:
 		await cleanFs(fs, {buildProd: true, dist: true}, log);
 
+		// TODO wait this config isn't right
 		const config = await loadConfig(fs, dev);
 		if (config.publish === null) {
 			throw Error('config.publish is null, so this package cannot be published');
@@ -62,23 +64,22 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Check in dev mode before proceeding:
+		await buildSource(fs, config, true, log); // TODO ideally shouldn't be needed
 		const checkResult = await spawn('npx', ['gro', 'check'], {
 			env: {...process.env, NODE_ENV: 'development'},
-		}); // TODO serialize any/all args?
+		});
 		if (!checkResult.ok) {
-			throw Error(`Check failed`);
+			throw Error('gro check failed');
 		}
 
+		// TODO why is spawn needed here, and `invokeTask` doesn't work?
 		// Build to create the final artifacts:
-		console.log('building1');
 		// await buildSource(fs, config, false, log);
-		// TODO can this be improved?
 		const buildResult = await spawn('npx', ['gro', 'build']); // TODO serialize any/all args?
-		// await invokeTask('build');
 		if (!buildResult.ok) {
-			throw Error(`Build failed`);
+			throw Error('gro build failed');
 		}
-		console.log('building3');
+		// await invokeTask('build');
 
 		if (dry) {
 			log.info({versionIncrement, publish: config.publish, branch});
