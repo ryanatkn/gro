@@ -5,12 +5,12 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 
 import type {GenModuleMeta} from 'src/gen/genModule.js';
 import {
-	GenResults,
-	GenModuleResult,
-	GenContext,
+	type GenResults,
+	type GenModuleResult,
+	type GenContext,
+	type GenModuleResultSuccess,
+	type GenModuleResultFailure,
 	toGenResult,
-	GenModuleResultSuccess,
-	GenModuleResultFailure,
 } from './gen.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {printPath} from '../paths.js';

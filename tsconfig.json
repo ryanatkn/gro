@@ -12,6 +12,7 @@
 			"$lib/*": ["src/lib/*"]
 		},
 		"isolatedModules": true,
+		"preserveValueImports": true,
 		"importsNotUsedAsValues": "error",
 		"strict": true,
 		"useUnknownInCatchVariables": false,

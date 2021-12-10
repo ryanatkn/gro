@@ -1,5 +1,10 @@
 # changelog
 
+## 0.47.0
+
+- **break**: update deps
+  ([#286](https://github.com/feltcoop/gro/pull/286))
+
 ## 0.46.0
 
 - **break**: change task `dev` property to `production`
