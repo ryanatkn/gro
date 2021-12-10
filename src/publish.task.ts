@@ -10,8 +10,8 @@ import {loadPackageJson} from './utils/packageJson.js';
 import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 import {loadConfig} from './config/config.js';
-import {buildSource} from './build/buildSource.js';
 import {cleanFs} from './fs/clean.js';
+import {isThisProjectGro} from './paths.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -29,8 +29,8 @@ export interface TaskArgs {
 
 export const task: Task<TaskArgs> = {
 	summary: 'bump version, publish to npm, and sync to GitHub',
-	dev: false,
-	run: async ({fs, args, log, invokeTask, dev}): Promise<void> => {
+	production: true,
+	run: async ({fs, args, log, dev}): Promise<void> => {
 		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
@@ -47,17 +47,18 @@ export const task: Task<TaskArgs> = {
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
 
-		// Clean before loading the config:
-		await cleanFs(fs, {buildProd: true, dist: true}, log);
-
-		const config = await loadConfig(fs, dev);
-		if (config.publish === null) {
-			throw Error('config.publish is null, so this package cannot be published');
+		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
+		await cleanFs(fs, {build: true, dist: true}, log);
+		if (isThisProjectGro) {
+			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
+			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
 		}
 
-		// Check in dev mode before proceeding:
-		await buildSource(fs, config, true, log);
-		await invokeTask('check', {...args, _: []}, undefined, true);
+		// Check in dev mode before proceeding.
+		const checkResult = await spawn('npx', ['gro', 'check'], {
+			env: {...process.env, NODE_ENV: 'development'},
+		});
+		if (!checkResult.ok) throw Error('gro check failed');
 
 		// Bump the version so the package.json is updated before building:
 		if (!dry) {
@@ -68,7 +69,13 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Build to create the final artifacts:
-		await invokeTask('build', {...args, clean: false});
+		const buildResult = await spawn('npx', ['gro', 'build']);
+		if (!buildResult.ok) throw Error('gro build failed');
+
+		const config = await loadConfig(fs, dev);
+		if (config.publish === null) {
+			throw Error('config.publish is null, so this package cannot be published');
+		}
 
 		if (dry) {
 			log.info({versionIncrement, publish: config.publish, branch});

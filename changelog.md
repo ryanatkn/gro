@@ -1,9 +1,17 @@
 # changelog
 
-## 0.46.0
+## 0.47.0
 
 - **break**: update deps
   ([#286](https://github.com/feltcoop/gro/pull/286))
+
+## 0.46.0
+
+- **break**: change task `dev` property to `production`
+  ([#284](https://github.com/feltcoop/gro/pull/284))
+- fix `process.env.NODE_ENV` for production tasks
+  ([#284](https://github.com/feltcoop/gro/pull/284),
+  [#287](https://github.com/feltcoop/gro/pull/287))
 
 ## 0.45.2
 
