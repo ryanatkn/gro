@@ -1,7 +1,5 @@
-import {loadModule, findModules} from '../fs/modules.js';
-import type {ModuleMeta, LoadModuleResult} from '../fs/modules.js';
-import {isGenPath, GEN_FILE_PATTERN} from './gen.js';
-import type {Gen, GenResults, GenFile} from './gen.js';
+import {type ModuleMeta, loadModule, type LoadModuleResult, findModules} from '../fs/modules.js';
+import {type Gen, type GenResults, type GenFile, isGenPath, GEN_FILE_PATTERN} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
