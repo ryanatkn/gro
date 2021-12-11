@@ -1,9 +1,61 @@
 # changelog
 
-## 0.43.1
+## 0.47.1
 
 - fix `svelte-check` to scope to `src/`
   ([#273](https://github.com/feltcoop/gro/pull/273))
+
+## 0.47.0
+
+- **break**: update deps
+  ([#286](https://github.com/feltcoop/gro/pull/286))
+
+## 0.46.0
+
+- **break**: change task `dev` property to `production`
+  ([#284](https://github.com/feltcoop/gro/pull/284))
+- fix `process.env.NODE_ENV` for production tasks
+  ([#284](https://github.com/feltcoop/gro/pull/284),
+  [#287](https://github.com/feltcoop/gro/pull/287))
+
+## 0.45.2
+
+- clean dist for production builds
+  ([#285](https://github.com/feltcoop/gro/pull/285))
+
+## 0.45.1
+
+- fix peer dependency versions
+  ([#282](https://github.com/feltcoop/gro/pull/282))
+
+## 0.45.0
+
+- **break**: remove frontend build support in favor of SvelteKit
+  ([#281](https://github.com/feltcoop/gro/pull/281))
+
+## 0.44.3
+
+- process `.js` files with the esbuild builder
+  ([#280](https://github.com/feltcoop/gro/pull/280))
+
+## 0.44.2
+
+- add optional `paths` to `Filer` and improve its tests
+  ([#276](https://github.com/feltcoop/gro/pull/276))
+- make `gro test` ignore sourcemap files by default so patterns don't need `.js$`
+  ([#277](https://github.com/feltcoop/gro/pull/277))
+- make `gro gen` build before running
+  ([#279](https://github.com/feltcoop/gro/pull/279))
+
+## 0.44.1
+
+- change default config to not run the api server during build
+  ([#275](https://github.com/feltcoop/gro/pull/275))
+
+## 0.44.0
+
+- **break**: upgrade `@feltcoop/felt@0.13.0` and make it a peer dependency
+  ([#274](https://github.com/feltcoop/gro/pull/274))
 
 ## 0.43.0
 

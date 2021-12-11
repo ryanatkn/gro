@@ -37,9 +37,6 @@ export const CONFIG_BUILD_PATH = 'gro.config.js';
 
 export const MAIN_TEST_PATH = `${LIB_DIRNAME}/main.test.ts`;
 
-export const EXTERNALS_BUILD_DIRNAME = 'externals'; // TODO breaks the above trailing slash convention - revisit with trailing-slash branch
-export const EXTERNALS_BUILD_DIR_ROOT_PREFIX = `/${EXTERNALS_BUILD_DIRNAME}/`;
-
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
 export const TS_TYPE_EXTENSION = '.d.ts';
@@ -102,9 +99,9 @@ export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 	stripStart(sourceId, p.source);
 
 // '/home/me/app/.gro/[prod|dev]/buildName/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
-export const buildIdToSourceId = (buildId: string, buildDir = paths.build): string => {
+export const buildIdToSourceId = (buildId: string, buildDir = paths.build, p = paths): string => {
 	const basePath = toBuildBasePath(buildId, buildDir);
-	return basePathToSourceId(toSourceExtension(basePath));
+	return basePathToSourceId(toSourceExtension(basePath), p);
 };
 
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'

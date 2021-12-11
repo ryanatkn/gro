@@ -9,8 +9,10 @@ import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
-import {formatFile} from './build/formatFile.js';
+import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
+import {loadConfig} from './config/config.js';
+import {buildSource} from './build/buildSource.js';
 
 export interface TaskArgs {
 	_: string[];
@@ -21,12 +23,21 @@ export interface TaskArgs {
 // if there's any validation or import errors
 export const task: Task<TaskArgs> = {
 	summary: 'run code generation scripts',
-	run: async ({fs, log, args}): Promise<void> => {
+	run: async ({fs, log, args, dev}): Promise<void> => {
 		const rawInputPaths = args._;
 		const check = !!args.check;
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();
+
+		// TODO won't need to build if `gen` becomes a builder
+		// first build everything
+		const timingToLoadConfig = timings.start('load config');
+		const config = await loadConfig(fs, dev);
+		timingToLoadConfig();
+		const timingToBuildSource = timings.start('buildSource');
+		await buildSource(fs, config, dev, log);
+		timingToBuildSource();
 
 		// resolve the input paths relative to src/
 		const inputPaths = resolveRawInputPaths(rawInputPaths);

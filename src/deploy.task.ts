@@ -5,7 +5,7 @@ import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
 import type {Args, Task} from 'src/task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {BROWSER_BUILD_NAME, GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
+import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import {cleanFs} from './fs/clean.js';
 
 // docs at ./docs/deploy.md
@@ -38,8 +38,8 @@ const EXCLUDED_BRANCHES = ['main', 'master'];
 
 export const task: Task<TaskArgs> = {
 	summary: 'deploy to static hosting',
-	dev: false,
-	run: async ({fs, invokeTask, args, log}): Promise<void> => {
+	production: true,
+	run: async ({fs, args, log}): Promise<void> => {
 		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
 
 		if (!force && EXCLUDED_BRANCHES.includes(branch as string)) {
@@ -92,8 +92,8 @@ export const task: Task<TaskArgs> = {
 		await cleanGitWorktree();
 		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
-		// Get ready to build from scratch.
-		await cleanFs(fs, {buildProd: true}, log);
+		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
+		await cleanFs(fs, {build: true, dist: true}, log);
 
 		if (cleanAndExit) {
 			log.info(rainbow('all clean'));
@@ -104,15 +104,14 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Run the build.
-			await invokeTask('build', {...args, clean: false});
+			const buildResult = await spawn('npx', ['gro', 'build']);
+			if (!buildResult.ok) throw Error('gro build failed');
 
 			// After the build is ready, set the deployed directory, inferring as needed.
 			if (dirname !== undefined) {
 				dir = `${DIST_DIR}${dirname}`;
 			} else if (await fs.exists(`${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`)) {
 				dir = `${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`;
-			} else if (await fs.exists(`${DIST_DIR}${BROWSER_BUILD_NAME}`)) {
-				dir = `${DIST_DIR}${BROWSER_BUILD_NAME}`;
 			} else {
 				log.error(red('no dirname provided and cannot infer a default'));
 				return;

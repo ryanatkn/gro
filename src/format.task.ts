@@ -2,7 +2,7 @@ import {printSpawnResult} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from 'src/task/task.js';
 import {TaskError} from './task/task.js';
-import {formatDirectory} from './build/formatDirectory.js';
+import {formatDirectory} from './format/formatDirectory.js';
 import {paths} from './paths.js';
 
 export interface TaskArgs {

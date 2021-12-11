@@ -1,10 +1,14 @@
-# gro <img src="src/client/favicon.png" width="32" height="32">
+# gro <img src="src/static/favicon.png" width="32" height="32">
 
-<img src="src/client/favicon.png" align="right" width="192" height="192">
+<img src="src/static/favicon.png" align="right" width="192" height="192">
 
 > opinionated tools for web development
 
-> **_warning!_** You should not use Gro today
+> **pre-alpha**: suitable only for those who are unafraid of bad code and docs
+
+> **Windows is not yet supported.** WSL works well enough
+
+> _warning_: You should not use Gro today
 > unless you're willing to take ownership of the code.
 > For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
@@ -19,11 +23,10 @@
 > Please open issues for questions or discussion
 > and [see contributing.md](contributing.md) for more.
 
-> **Windows is not yet supported.** WSL works well enough
-
 ## about
 
 Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
+that complements [SvelteKit](https://github.com/sveltejs/kit)
 for making web frontends, servers, and libraries.
 It includes:
 
@@ -33,23 +36,17 @@ It includes:
   [testing](/src/docs/test.md),
   [deploying](/src/docs/deploy.md),
   and [publishing](/src/docs/publish.md)
-  for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit) UIs,
-  Node servers, JS/TS/Svelte libraries, and other things
-  - [unbundled development](/src/docs/dev.md)
-    inspired by [Snowpack](https://github.com/pikapkg/snowpack) and using its
-    [esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall)
+  for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
+  UIs along with Node servers, JS/TS/Svelte libraries, and other things
+  (see the [config docs](/src/docs/config.md), the [SvelteKit integration docs](/src/docs/sveltekit.md), and
+  [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts))
+  - fully integrated [TypeScript](https://github.com/microsoft/typescript)
+    and [Svelte](https://github.com/sveltejs/svelte)
+    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
   - [configurable adapters](/src/docs/adapt.md) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
   - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
     auto-restarting API servers, and other external build processes
-  - fully integrated [TypeScript](https://github.com/microsoft/typescript)
-    and [Svelte](https://github.com/sveltejs/svelte)
-    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
-  - Gro supports its own form of SPA on the frontend,
-    but that functionality is now deprecated-ish for
-    [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
-    with long term plans to
-    [offer an alternative to Vite](https://github.com/feltcoop/gro/issues/106)
 - [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
@@ -128,6 +125,8 @@ gro build # build everything for production
 gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
 ```
 
+Formatting with [`prettier`](https://github.com/prettier/prettier):
+
 ```bash
 gro format # format all of the source files using Prettier
 gro format --check # check that all source files are formatted
@@ -157,6 +156,12 @@ Codegen with [`gen`](/src/docs/gen.md):
 ```bash
 gro gen # run codegen for all `*.gen.*` files
 gro gen --check # error if any generated files are new or different
+```
+
+To deploy: (also see [`src/docs/deploy.md`](/src/docs/deploy.md))
+
+```bash
+gro deploy # build and push to the `deploy` branch
 ```
 
 To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))
@@ -194,8 +199,8 @@ see [contributing.md🌄](./contributing.md)
 Gro builds on
 [TypeScript](https://github.com/microsoft/TypeScript) ∙
 [Svelte](https://github.com/sveltejs/svelte) ∙
+[SvelteKit](https://github.com/sveltejs/kit) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
-[esinstall](https://github.com/snowpackjs/snowpack/tree/main/esinstall) ∙
 [Rollup](https://github.com/rollup/rollup) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙

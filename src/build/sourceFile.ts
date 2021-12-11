@@ -1,4 +1,4 @@
-import {basename, dirname, join} from 'path';
+import {basename, dirname} from 'path';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 
@@ -12,8 +12,6 @@ import type {Encoding} from 'src/fs/encoding.js';
 import type {FilerFile} from 'src/build/Filer.js';
 import type {SourceMeta} from 'src/build/sourceMeta.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
-import {EXTERNALS_BUILD_DIRNAME} from '../paths.js';
-import {isExternalModule} from '../utils/module.js';
 import type {BuildContext} from 'src/build/builder.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
@@ -87,40 +85,6 @@ export const createSourceFile = async (
 		// or if it should be more widely used?
 		dirty = contentHash !== sourceMeta.data.contentHash;
 		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!);
-	}
-	if (isExternalModule(id)) {
-		// externals
-		if (encoding !== 'utf8') {
-			throw Error(`Externals sources must have utf8 encoding, not '${encoding}': ${id}`);
-		}
-		if (!filerDir.buildable) {
-			throw Error(`Expected filer dir to be buildable: ${filerDir.dir} - ${id}`);
-		}
-		let filename = 'index' + (id.endsWith(extension) ? '' : extension);
-		const dir = join(filerDir.dir, EXTERNALS_BUILD_DIRNAME, dirname(id)) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
-		const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
-		return {
-			type: 'source',
-			buildConfigs: new Set(),
-			isInputToBuildConfigs: null,
-			dependencies: new Map(),
-			dependents: new Map(),
-			buildable: true,
-			dirty,
-			id,
-			filename,
-			dir,
-			dirBasePath,
-			extension,
-			encoding,
-			content: content as string,
-			contentBuffer,
-			contentHash,
-			filerDir,
-			buildFiles: reconstructedBuildFiles || new Map(),
-			stats: undefined,
-			mimeType: undefined,
-		};
 	}
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems

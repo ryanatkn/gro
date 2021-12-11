@@ -64,18 +64,14 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		timingToCreateFiler();
 		events.emit('dev.createFiler', filer);
 
-		const initFiler = async (): Promise<void> => {
-			const timingToInitFiler = timings.start('init filer');
-			await filer.init();
-			timingToInitFiler();
-		};
-
 		const devTaskContext: DevTaskContext = {...ctx, config, filer, timings};
 		events.emit('dev.createContext', devTaskContext);
 
 		const plugins = await Plugins.create(devTaskContext);
 
-		await initFiler();
+		const timingToInitFiler = timings.start('init filer');
+		await filer.init();
+		timingToInitFiler();
 
 		await plugins.setup();
 

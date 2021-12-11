@@ -8,7 +8,6 @@ import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {gray, red, cyan} from '@feltcoop/felt/util/terminal.js';
 import {printError} from '@feltcoop/felt/util/print.js';
-import {wrap} from '@feltcoop/felt/util/async.js';
 import type {OmitStrict, Assignable, PartialExcept} from '@feltcoop/felt/util/types.js';
 
 import type {Filesystem} from 'src/fs/filesystem.js';
@@ -16,8 +15,9 @@ import {createFilerDir} from '../build/filerDir.js';
 import type {FilerDir, FilerDirChangeCallback} from 'src/build/filerDir.js';
 import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
 import type {MapDependencyToSourceId} from 'src/build/utils.js';
-import {JS_EXTENSION, paths, toBuildOutPath} from '../paths.js';
-import type {BuildContext, Builder, BuilderState} from 'src/build/builder.js';
+import {paths as defaultPaths, toBuildOutPath} from '../paths.js';
+import type {Paths} from 'src/paths.js';
+import type {BuildContext, Builder} from 'src/build/builder.js';
 import {inferEncoding} from '../fs/encoding.js';
 import type {Encoding} from 'src/fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
@@ -33,19 +33,11 @@ import {diffDependencies} from './buildFile.js';
 import type {BuildFile} from 'src/build/buildFile.js';
 import type {BaseFilerFile} from 'src/build/filerFile.js';
 import {loadContent} from './load.js';
-import {isExternalModule} from '../utils/module.js';
-import {
-	DEFAULT_EXTERNALS_ALIASES,
-	EXTERNALS_SOURCE_ID,
-	getExternalsBuilderState,
-	getExternalsBuildState,
-} from './groBuilderExternalsUtils.js';
-import type {ExternalsAliases} from 'src/build/groBuilderExternalsUtils.js';
-import {queueExternalsBuild} from './groBuilderExternals.js';
 import type {SourceMeta} from 'src/build/sourceMeta.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
 import type {PathFilter} from 'src/fs/filter.js';
+import {isExternalModule} from '../utils/module.js';
 
 /*
 
@@ -73,13 +65,13 @@ export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface Options {
 	fs: Filesystem;
+	paths: Paths;
 	dev: boolean;
 	builder: Builder | null;
 	buildConfigs: BuildConfig[] | null;
 	buildDir: string;
 	sourceDirs: string[];
 	servedDirs: ServedDir[];
-	externalsAliases: ExternalsAliases;
 	mapDependencyToSourceId: MapDependencyToSourceId;
 	sourcemap: boolean;
 	types: boolean;
@@ -95,6 +87,7 @@ export type InitialOptions = OmitStrict<PartialExcept<Options, RequiredOptions>,
 	servedDirs?: ServedDirPartial[];
 };
 export const initOptions = (opts: InitialOptions): Options => {
+	const paths = opts.paths ?? defaultPaths;
 	const dev = opts.dev ?? true;
 	const buildConfigs = opts.buildConfigs || null;
 	if (buildConfigs?.length === 0) {
@@ -127,8 +120,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		}
 	}
 	return {
-		dev,
-		externalsAliases: DEFAULT_EXTERNALS_ALIASES,
 		mapDependencyToSourceId,
 		sourcemap: true,
 		types: !dev,
@@ -138,6 +129,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
+		paths,
+		dev,
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
 		builder,
 		buildConfigs,
@@ -158,11 +151,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
+	readonly paths: Paths;
 	readonly buildConfigs: readonly BuildConfig[] | null;
 	readonly buildNames: Set<BuildName> | null;
-	// TODO if we loosen the restriction of the filer owning the `.gro` directory,
-	// `sourceMeta` will need to be a shared object --
-	// a global cache is too inflexible, because we still want to support multiple independent filers
 	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly buildDir: string;
@@ -171,23 +162,21 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly types: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
 	readonly servedDirs: readonly ServedDir[];
-	readonly externalsAliases: ExternalsAliases; // TODO should this allow aliasing anything? not just externals?
-	readonly state: BuilderState = {};
 	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 	// TODO not sure about this
-	readonly findById = (id: string): BaseFilerFile | undefined => this.files.get(id) || undefined;
+	readonly findById = (id: string): BaseFilerFile | undefined => this.files.get(id);
 
 	constructor(opts: InitialOptions) {
 		super();
 		const {
 			fs,
+			paths,
 			dev,
 			builder,
 			buildConfigs,
 			buildDir,
 			sourceDirs,
 			servedDirs,
-			externalsAliases,
 			mapDependencyToSourceId,
 			sourcemap,
 			types,
@@ -198,13 +187,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			log,
 		} = initOptions(opts);
 		this.fs = fs;
+		this.paths = paths;
 		this.dev = dev;
 		this.builder = builder;
 		this.buildConfigs = buildConfigs;
 		this.buildNames = buildConfigs ? new Set(buildConfigs.map((b) => b.name)) : null;
 		this.buildDir = buildDir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
-		this.externalsAliases = externalsAliases;
 		this.sourcemap = sourcemap;
 		this.types = types;
 		this.target = target;
@@ -247,13 +236,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 	}
 
-	private initializing: Promise<void> | null = null;
+	private initialized = false;
 
 	async init(): Promise<void> {
-		if (this.initializing) return this.initializing;
+		if (this.initialized) throw Error('Filer already initialized');
+		this.initialized = true;
+
 		this.log.trace('init', gray(this.dev ? 'development' : 'production'));
-		let finishInitializing: () => void;
-		this.initializing = new Promise((r) => (finishInitializing = r));
 
 		await Promise.all([initSourceMeta(this), lexer.init]);
 		// this.log.trace('inited cache');
@@ -261,7 +250,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
-		// because it creates source files, which need `this.sourceMeta` to be populated.
+		// because it creates source files, which need `this.sourceMetaById` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.trace('inited files');
 
@@ -282,7 +271,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 		}
 
-		// This performs initial source file build, traces deps,
+		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
 		// this.log.trace('inited builds');
@@ -291,8 +280,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
 		// this.log.trace(blue('initialized!'));
-
-		finishInitializing!();
 	}
 
 	// During initialization, after all files are loaded into memory,
@@ -333,7 +320,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Iterate through the files once and apply the filters to all source files.
 		if (filters.length) {
 			for (const file of this.files.values()) {
-				if (file.type !== 'source' || file.id === EXTERNALS_SOURCE_ID) continue;
+				if (file.type !== 'source') continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
@@ -349,7 +336,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 
 		await Promise.all(promises);
-		await this.waitForExternals(); // because they currently build without blocking the main source file builds (due to constraints TODO fix?)
 	}
 
 	// Adds a build config to a source file.
@@ -433,8 +419,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	}
 
 	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
-		const id =
-			change.path === EXTERNALS_SOURCE_ID ? EXTERNALS_SOURCE_ID : join(filerDir.dir, change.path);
+		const id = join(filerDir.dir, change.path);
 		// console.log(red(change.type), id); // TODO maybe make an even more verbose log level for this?
 		switch (change.type) {
 			case 'init':
@@ -536,88 +521,91 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// and instead just returns the pending promise.
 	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
 		const updating = this.updatingSourceFiles.get(id);
-		if (updating !== undefined) return updating;
-		const promise = wrap(async (after) => {
-			after(() => this.updatingSourceFiles.delete(id));
+		if (updating) return updating;
+		const done = () => this.updatingSourceFiles.delete(id);
+		const promise: Promise<boolean> = Promise.resolve()
+			.then(async () => {
+				// this.log.trace(`updating source file ${gray(id)}`);
+				const sourceFile = this.files.get(id);
+				if (sourceFile) {
+					assertSourceFile(sourceFile);
+					if (sourceFile.filerDir !== filerDir) {
+						// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
+						// We might be able to support this,
+						// but more thought needs to be given to the exact desired behavior.
+						// See `validateDirs` for more.
+						throw Error(
+							'Source file filerDir unexpectedly changed: ' +
+								`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+						);
+					}
+				}
 
-			// this.log.trace(`updating source file ${gray(id)}`);
-			const sourceFile = this.files.get(id);
-			if (sourceFile !== undefined) {
-				assertSourceFile(sourceFile);
-				if (sourceFile.filerDir !== filerDir) {
-					// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
-					// We might be able to support this,
-					// but more thought needs to be given to the exact desired behavior.
-					// See `validateDirs` for more.
-					throw Error(
-						'Source file filerDir unexpectedly changed: ' +
-							`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+				let extension: string;
+				let encoding: Encoding;
+				if (sourceFile) {
+					extension = sourceFile.extension;
+					encoding = sourceFile.encoding;
+				} else {
+					extension = extname(id);
+					encoding = inferEncoding(extension);
+				}
+				const newSourceContent = await loadContent(this.fs, encoding, id); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
+
+				if (!sourceFile) {
+					// Memory cache is cold.
+					if (isExternalModule(id)) {
+						throw Error('TODO unexpected');
+					}
+					const newSourceFile = await createSourceFile(
+						id,
+						encoding,
+						extension,
+						newSourceContent,
+						filerDir,
+						this.sourceMetaById.get(id), // TODO should this lazy load the source meta?
+						this,
 					);
-				}
-			}
-
-			const external =
-				sourceFile === undefined ? isExternalModule(id) : sourceFile.id === EXTERNALS_SOURCE_ID;
-
-			let extension: string;
-			let encoding: Encoding;
-			if (sourceFile !== undefined) {
-				extension = sourceFile.extension;
-				encoding = sourceFile.encoding;
-			} else if (external) {
-				extension = JS_EXTENSION;
-				encoding = 'utf8';
-			} else {
-				extension = extname(id);
-				encoding = inferEncoding(extension);
-			}
-			const newSourceContent = external
-				? // TODO doesn't seem we can make this a key derived from the specifiers,
-				  // because they're potentially different each build
-				  ''
-				: await loadContent(this.fs, encoding, id);
-
-			if (sourceFile === undefined) {
-				// Memory cache is cold.
-				const newSourceFile = await createSourceFile(
-					id,
-					encoding,
-					extension,
-					newSourceContent,
-					filerDir,
-					this.sourceMetaById.get(id),
-					this,
-				);
-				this.files.set(id, newSourceFile);
-				// If the created source file has its build files hydrated from the cache,
-				// we assume it doesn't need to be built.
-				if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
+					this.files.set(id, newSourceFile);
+					// If the created source file has its build files hydrated from the cache,
+					// we assume it doesn't need to be built.
+					if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
+						return false;
+					}
+				} else if (areContentEqual(encoding, sourceFile.content, newSourceContent)) {
+					// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 					return false;
+				} else {
+					// Memory cache is warm, but content have changed.
+					switch (sourceFile.encoding) {
+						case 'utf8':
+							sourceFile.content = newSourceContent as string;
+							sourceFile.stats = undefined;
+							sourceFile.contentBuffer = undefined;
+							sourceFile.contentHash = undefined;
+							break;
+						case null:
+							sourceFile.content = newSourceContent as Buffer;
+							sourceFile.stats = undefined;
+							sourceFile.contentBuffer = newSourceContent as Buffer;
+							sourceFile.contentHash = undefined;
+							break;
+						default:
+							throw new UnreachableError(sourceFile);
+					}
 				}
-			} else if (areContentEqual(encoding, sourceFile.content, newSourceContent)) {
-				// Memory cache is warm and source code hasn't changed, do nothing and exit early!
-				return false;
-			} else {
-				// Memory cache is warm, but content have changed.
-				switch (sourceFile.encoding) {
-					case 'utf8':
-						sourceFile.content = newSourceContent as string;
-						sourceFile.stats = undefined;
-						sourceFile.contentBuffer = undefined;
-						sourceFile.contentHash = undefined;
-						break;
-					case null:
-						sourceFile.content = newSourceContent as Buffer;
-						sourceFile.stats = undefined;
-						sourceFile.contentBuffer = newSourceContent as Buffer;
-						sourceFile.contentHash = undefined;
-						break;
-					default:
-						throw new UnreachableError(sourceFile);
-				}
-			}
-			return filerDir.buildable;
-		});
+				return filerDir.buildable;
+			})
+			.then(
+				(value) => {
+					done();
+					return value;
+				},
+				(err) => {
+					done();
+					throw err;
+				},
+			);
 		this.updatingSourceFiles.set(id, promise);
 		return promise;
 	}
@@ -769,25 +757,18 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
-				// `external` will be false for Node imports in non-browser contexts -
-				// we create no source file for them
-				if (!addedDependency.external && isExternalModule(addedDependency.buildId)) continue;
+				// we create no source file for externals
+				if (addedDependency.external) continue;
 				const addedSourceId = await this.mapDependencyToSourceId(
 					addedDependency,
 					this.buildDir,
 					this.fs,
+					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
 				if (addedSourceId === sourceFile.id) continue;
 				let addedSourceFile = this.files.get(addedSourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
-				// lazily create external source file if needed
-				if (addedDependency.external) {
-					if (addedSourceFile === undefined) {
-						addedSourceFile = await this.createExternalsSourceFile(sourceFile.filerDir);
-					}
-					this.updateExternalsSourceFile(addedSourceFile, addedDependency, buildConfig);
-				}
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
 					// update `dependents` of the added file
@@ -798,7 +779,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// because they're batched for the entire build.
 					// If we waited for externals to build before moving on like the normal process,
 					// then that could cause cascading externals builds as the dependency tree builds.
-					if (!addedSourceFile.buildConfigs.has(buildConfig) && !addedDependency.external) {
+					if (!addedSourceFile.buildConfigs.has(buildConfig)) {
 						(promises || (promises = [])).push(
 							this.addSourceFileToBuild(
 								addedSourceFile as BuildableSourceFile,
@@ -819,6 +800,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					removedDependency,
 					this.buildDir,
 					this.fs,
+					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
 				if (removedSourceId === sourceFile.id) continue;
@@ -858,8 +840,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					dependentsMap.delete(sourceFile.id);
 					if (
 						dependentsMap.size === 0 &&
-						!removedSourceFile.isInputToBuildConfigs?.has(buildConfig) &&
-						!removedDependency.external // TODO ignoring these for now, would be weird to remove only when it has none, but not handle other removals (maybe it should handle them?)
+						!removedSourceFile.isInputToBuildConfigs?.has(buildConfig)
 					) {
 						(promises || (promises = [])).push(
 							this.removeSourceFileFromBuild(removedSourceFile, buildConfig),
@@ -886,91 +867,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					),
 				);
 			}
+			// TODO instead of batching like this here, make that concern internal to the sourceMeta
 			// passing `false` above to avoid writing `sourceMeta` to disk for each build -
 			// batch delete it now:
 			await deleteSourceMeta(this, sourceFile.id);
 		}
-	}
-
-	// TODO can we remove `createExternalsSourceFile`, treating externals like all others?
-	// It seems not, because the `Filer` currently does not handle multiple source files
-	// per build, it's 1:N not M:N, and further the externals build lazily,
-	// so we probably need to refactor, ultimately into a plugin system.
-	private creatingExternalsSourceFile: Promise<BuildableSourceFile> | undefined;
-	private async createExternalsSourceFile(filerDir: FilerDir): Promise<BuildableSourceFile> {
-		return (
-			this.creatingExternalsSourceFile ||
-			(this.creatingExternalsSourceFile = (async () => {
-				const id = EXTERNALS_SOURCE_ID;
-				// this.log.trace('creating external source file', gray(id));
-				if (this.files.has(id)) throw Error(`Expected to create source file: ${id}`);
-				await this.updateSourceFile(id, filerDir);
-				const sourceFile = this.files.get(id);
-				assertBuildableSourceFile(sourceFile);
-				// TODO why is this needed for the client to work in the browser?
-				// shouldn't it be taken care of through the normal externals update?
-				// it's duplicating the work of `addSourceFileToBuild`
-				if (sourceFile.buildFiles.size > 0) {
-					await Promise.all(
-						Array.from(sourceFile.buildFiles.keys()).map(
-							(buildConfig) => (
-								// TODO this is weird because we're hydrating but not building.
-								// and we're not adding to the build either - see comments above for more
-								sourceFile.buildConfigs.add(buildConfig),
-								this.hydrateSourceFileFromCache(sourceFile, buildConfig)
-							),
-						),
-					);
-				}
-				return sourceFile;
-			})())
-		);
-	}
-
-	// TODO try to refactor this, maybe merge into `updateSourceFile`?
-	// TODO basically..what we want, is when a file is finished building,
-	// we want some callback logic to run - the logic is like,
-	// "if there are no other pending builds other than this one, proceed with the externals build"
-	// the problem is the builds are recursively depth-first!
-	// so we can't wait til it's "idle", because it's never idle until everything is built.
-	private updateExternalsSourceFile(
-		sourceFile: BuildableSourceFile,
-		addedDependency: BuildDependency,
-		buildConfig: BuildConfig,
-	): void | Promise<void> {
-		const {specifier} = addedDependency;
-		// ignore externals imported by other externals -- their specifiers get mapped to build ids
-		if (specifier[0] === '/') return;
-		const buildState = getExternalsBuildState(getExternalsBuilderState(this.state), buildConfig);
-		if (!buildState.specifiers.has(specifier)) {
-			buildState.specifiers.add(specifier);
-			const updating = queueExternalsBuild(
-				sourceFile.id,
-				buildState,
-				this.buildingSourceFiles,
-				this.log,
-				async () => {
-					if (sourceFile.buildConfigs.has(buildConfig)) {
-						await this.buildSourceFile(sourceFile, buildConfig);
-					} else {
-						sourceFile.dirty = true; // force it to build
-						await this.addSourceFileToBuild(sourceFile, buildConfig, false);
-					}
-				},
-			);
-			this.updatingExternals.push(updating);
-			return updating;
-		}
-	}
-	// TODO this could possibly be changed to explicitly call the build,
-	// instead of waiting with timeouts in places,
-	// and it'd be specific to one ExternalsBuildState, so it'd be per build config.
-	// we could then remove things like the tracking what's building in the Filer and externalsBuidler
-	private updatingExternals: Promise<void>[] = [];
-	private async waitForExternals(): Promise<void> {
-		if (!this.updatingExternals.length) return;
-		await Promise.all(this.updatingExternals);
-		this.updatingExternals.length = 0;
 	}
 }
 

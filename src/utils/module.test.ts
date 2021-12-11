@@ -1,46 +1,46 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 
 import {isExternalModule} from './module.js';
 
-/* testIsExternalModule */
-const testIsExternalModule = suite('isExternalModule');
+/* test__isExternalModule */
+const test__isExternalModule = suite('isExternalModule');
 
-testIsExternalModule('internal browser module patterns', () => {
-	t.is(isExternalModule('./foo'), false);
-	t.is(isExternalModule('./foo.js'), false);
-	t.is(isExternalModule('../foo'), false);
-	t.is(isExternalModule('../foo.js'), false);
-	t.is(isExternalModule('../../../foo'), false);
-	t.is(isExternalModule('../../../foo.js'), false);
-	t.is(isExternalModule('/foo'), false);
-	t.is(isExternalModule('/foo.js'), false);
-	t.is(isExternalModule('src/foo'), false);
-	t.is(isExternalModule('src/foo.js'), false);
-	t.is(isExternalModule('$lib/foo'), false);
-	t.is(isExternalModule('$lib/foo.js'), false);
-	t.is(isExternalModule('./foo/bar/baz'), false);
-	t.is(isExternalModule('./foo/bar/baz.js'), false);
-	t.is(isExternalModule('../foo/bar/baz'), false);
-	t.is(isExternalModule('../foo/bar/baz.js'), false);
-	t.is(isExternalModule('../../../foo/bar/baz'), false);
-	t.is(isExternalModule('../../../foo/bar/baz.js'), false);
-	t.is(isExternalModule('/foo/bar/baz'), false);
-	t.is(isExternalModule('/foo/bar/baz.js'), false);
-	t.is(isExternalModule('src/foo/bar/baz'), false);
-	t.is(isExternalModule('src/foo/bar/baz.js'), false);
-	t.is(isExternalModule('$lib/foo/bar/baz'), false);
-	t.is(isExternalModule('$lib/foo/bar/baz.js'), false);
+test__isExternalModule('internal browser module patterns', () => {
+	assert.is(isExternalModule('./foo'), false);
+	assert.is(isExternalModule('./foo.js'), false);
+	assert.is(isExternalModule('../foo'), false);
+	assert.is(isExternalModule('../foo.js'), false);
+	assert.is(isExternalModule('../../../foo'), false);
+	assert.is(isExternalModule('../../../foo.js'), false);
+	assert.is(isExternalModule('/foo'), false);
+	assert.is(isExternalModule('/foo.js'), false);
+	assert.is(isExternalModule('src/foo'), false);
+	assert.is(isExternalModule('src/foo.js'), false);
+	assert.is(isExternalModule('$lib/foo'), false);
+	assert.is(isExternalModule('$lib/foo.js'), false);
+	assert.is(isExternalModule('./foo/bar/baz'), false);
+	assert.is(isExternalModule('./foo/bar/baz.js'), false);
+	assert.is(isExternalModule('../foo/bar/baz'), false);
+	assert.is(isExternalModule('../foo/bar/baz.js'), false);
+	assert.is(isExternalModule('../../../foo/bar/baz'), false);
+	assert.is(isExternalModule('../../../foo/bar/baz.js'), false);
+	assert.is(isExternalModule('/foo/bar/baz'), false);
+	assert.is(isExternalModule('/foo/bar/baz.js'), false);
+	assert.is(isExternalModule('src/foo/bar/baz'), false);
+	assert.is(isExternalModule('src/foo/bar/baz.js'), false);
+	assert.is(isExternalModule('$lib/foo/bar/baz'), false);
+	assert.is(isExternalModule('$lib/foo/bar/baz.js'), false);
 });
 
-testIsExternalModule('external browser module patterns', () => {
-	t.is(isExternalModule('foo'), true);
-	t.is(isExternalModule('foo.js'), true);
-	t.is(isExternalModule('foo/bar/baz'), true);
-	t.is(isExternalModule('foo/bar/baz.js'), true);
-	t.is(isExternalModule('@foo/bar/baz'), true);
-	t.is(isExternalModule('@foo/bar/baz.js'), true);
+test__isExternalModule('external browser module patterns', () => {
+	assert.is(isExternalModule('foo'), true);
+	assert.is(isExternalModule('foo.js'), true);
+	assert.is(isExternalModule('foo/bar/baz'), true);
+	assert.is(isExternalModule('foo/bar/baz.js'), true);
+	assert.is(isExternalModule('@foo/bar/baz'), true);
+	assert.is(isExternalModule('@foo/bar/baz.js'), true);
 });
 
-testIsExternalModule.run();
-/* /testIsExternalModule */
+test__isExternalModule.run();
+/* test__isExternalModule */

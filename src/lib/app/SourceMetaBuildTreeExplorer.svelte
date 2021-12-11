@@ -1,9 +1,9 @@
 <script lang="ts">
-	import {filterSelectedMetas} from './sourceTree.js';
-	import type {SourceTree} from 'src/client/sourceTree.js';
-	import {getProjectState} from './projectState.js';
-	import FileTreeExplorerFolder from './FileTreeExplorerFolder.svelte';
-	import {toFileTreeFolder} from './fileTree.js';
+	import {filterSelectedMetas} from '$lib/app/sourceTree';
+	import type {SourceTree} from '$lib/app/sourceTree.js';
+	import {getProjectState} from '$lib/app/projectState';
+	import FileTreeExplorerFolder from '$lib/app/FileTreeExplorerFolder.svelte';
+	import {toFileTreeFolder} from '$lib/app/fileTree';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
@@ -11,6 +11,8 @@
 	export const hoveredSourceMeta = undefined;
 
 	const project = getProjectState();
+
+	$: console.log('$project', $project);
 
 	$: filteredSourceMetas = filterSelectedMetas(sourceTree, selectedBuildNames);
 	$: fileTreeFolder = toFileTreeFolder($project.sourceDir, filteredSourceMetas);

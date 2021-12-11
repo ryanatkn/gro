@@ -28,21 +28,18 @@ export const task: Task = {
 		const config = await loadConfig(fs, dev);
 		timingToLoadConfig();
 
-		const testsBuildDir = toBuildOutPath(dev, SYSTEM_BUILD_NAME);
-
 		// TODO cleaner way to detect & rebuild?
-		if (!(await fs.exists(testsBuildDir))) {
-			const timingToPrebuild = timings.start('prebuild');
-			await buildSource(fs, config, dev, log);
-			timingToPrebuild();
+		const timingToPrebuild = timings.start('prebuild');
+		await buildSource(fs, config, dev, log);
+		timingToPrebuild();
 
-			// Projects may not define any artifacts for the Node build,
-			// and we don't force anything out in that case,
-			// so just exit early if that happens.
-			if (!(await fs.exists(testsBuildDir))) {
-				log.info(yellow('no tests found'));
-				return;
-			}
+		// Projects may not define any artifacts for the Node build,
+		// and we don't force anything out in that case,
+		// so just exit early if that happens.
+		const testsBuildDir = toBuildOutPath(dev, SYSTEM_BUILD_NAME);
+		if (!(await fs.exists(testsBuildDir))) {
+			log.info(yellow('no tests found'));
+			return;
 		}
 
 		const timeToRunUvu = timings.start('run test with uvu');
@@ -51,6 +48,8 @@ export const task: Task = {
 			toRootPath(testsBuildDir),
 			...testFilePatterns,
 			...process.argv.slice(3 + patternCount),
+			'-i',
+			'.map$', // ignore sourcemap files so patterns don't need `.js$`
 		]);
 		timeToRunUvu();
 

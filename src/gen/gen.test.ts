@@ -1,42 +1,42 @@
 import {suite} from 'uvu';
-import * as t from 'uvu/assert';
+import * as assert from 'uvu/assert';
 import {resolve} from 'path';
 
 import {toGenResult} from './gen.js';
 
 const originId = resolve('src/foo.gen.ts');
 
-/* testToGenResult */
-const testToGenResult = suite('toGenResult');
+/* test__toGenResult */
+const test__toGenResult = suite('toGenResult');
 
-testToGenResult('plain string', () => {
-	t.equal(toGenResult(originId, '/**/'), {
+test__toGenResult('plain string', () => {
+	assert.equal(toGenResult(originId, '/**/'), {
 		originId,
 		files: [{id: resolve('src/foo.ts'), content: '/**/', originId}],
 	});
 });
 
-testToGenResult('object with a content string', () => {
-	t.equal(toGenResult(originId, {content: '/**/'}), {
+test__toGenResult('object with a content string', () => {
+	assert.equal(toGenResult(originId, {content: '/**/'}), {
 		originId,
 		files: [{id: resolve('src/foo.ts'), content: '/**/', originId}],
 	});
 });
 
-testToGenResult('fail with an unresolved id', () => {
-	t.throws(() => toGenResult('src/foo.ts', {content: '/**/'}));
+test__toGenResult('fail with an unresolved id', () => {
+	assert.throws(() => toGenResult('src/foo.ts', {content: '/**/'}));
 });
 
-testToGenResult('fail with a build id', () => {
-	t.throws(() => toGenResult(resolve('.gro/foo.js'), {content: '/**/'}));
+test__toGenResult('fail with a build id', () => {
+	assert.throws(() => toGenResult(resolve('.gro/foo.js'), {content: '/**/'}));
 });
 
-testToGenResult('fail with an empty id', () => {
-	t.throws(() => toGenResult('', {content: '/**/'}));
+test__toGenResult('fail with an empty id', () => {
+	assert.throws(() => toGenResult('', {content: '/**/'}));
 });
 
-testToGenResult('custom file name', () => {
-	t.equal(
+test__toGenResult('custom file name', () => {
+	assert.equal(
 		toGenResult(originId, {
 			filename: 'fooz.ts',
 			content: '/**/',
@@ -48,8 +48,8 @@ testToGenResult('custom file name', () => {
 	);
 });
 
-testToGenResult('custom file name that matches the default file name', () => {
-	t.equal(
+test__toGenResult('custom file name that matches the default file name', () => {
+	assert.equal(
 		toGenResult(originId, {
 			filename: 'foo.ts',
 			content: '/**/',
@@ -61,8 +61,8 @@ testToGenResult('custom file name that matches the default file name', () => {
 	);
 });
 
-testToGenResult('fail when custom file name explicitly matches the origin', () => {
-	t.throws(() => {
+test__toGenResult('fail when custom file name explicitly matches the origin', () => {
+	assert.throws(() => {
 		toGenResult(originId, {
 			filename: 'foo.gen.ts',
 			content: '/**/',
@@ -70,18 +70,18 @@ testToGenResult('fail when custom file name explicitly matches the origin', () =
 	});
 });
 
-testToGenResult('fail when file name implicitly matches the origin', () => {
-	t.throws(() => {
+test__toGenResult('fail when file name implicitly matches the origin', () => {
+	assert.throws(() => {
 		toGenResult(resolve('src/foo.ts'), {content: '/**/'});
 	});
 });
 
-testToGenResult('fail with an empty file name', () => {
-	t.throws(() => toGenResult(originId, {filename: '', content: '/**/'}));
+test__toGenResult('fail with an empty file name', () => {
+	assert.throws(() => toGenResult(originId, {filename: '', content: '/**/'}));
 });
 
-testToGenResult('additional file name parts', () => {
-	t.equal(toGenResult(resolve('src/foo.bar.gen.ts'), {content: '/**/'}), {
+test__toGenResult('additional file name parts', () => {
+	assert.equal(toGenResult(resolve('src/foo.bar.gen.ts'), {content: '/**/'}), {
 		originId: resolve('src/foo.bar.gen.ts'),
 		files: [
 			{
@@ -93,8 +93,8 @@ testToGenResult('additional file name parts', () => {
 	});
 });
 
-testToGenResult('js', () => {
-	t.equal(
+test__toGenResult('js', () => {
+	assert.equal(
 		toGenResult(originId, {
 			filename: 'foo.js',
 			content: '/**/',
@@ -106,8 +106,8 @@ testToGenResult('js', () => {
 	);
 });
 
-testToGenResult('implicit custom file extension', () => {
-	t.equal(toGenResult(resolve('src/foo.gen.json.ts'), '[/**/]'), {
+test__toGenResult('implicit custom file extension', () => {
+	assert.equal(toGenResult(resolve('src/foo.gen.json.ts'), '[/**/]'), {
 		originId: resolve('src/foo.gen.json.ts'),
 		files: [
 			{
@@ -119,8 +119,8 @@ testToGenResult('implicit custom file extension', () => {
 	});
 });
 
-testToGenResult('implicit empty file extension', () => {
-	t.equal(toGenResult(resolve('src/foo.gen..ts'), '[/**/]'), {
+test__toGenResult('implicit empty file extension', () => {
+	assert.equal(toGenResult(resolve('src/foo.gen..ts'), '[/**/]'), {
 		originId: resolve('src/foo.gen..ts'),
 		files: [
 			{
@@ -132,8 +132,8 @@ testToGenResult('implicit empty file extension', () => {
 	});
 });
 
-testToGenResult('implicit custom file extension with additional file name parts', () => {
-	t.equal(toGenResult(resolve('src/foo.bar.gen.json.ts'), {content: '[/**/]'}), {
+test__toGenResult('implicit custom file extension with additional file name parts', () => {
+	assert.equal(toGenResult(resolve('src/foo.bar.gen.json.ts'), {content: '[/**/]'}), {
 		originId: resolve('src/foo.bar.gen.json.ts'),
 		files: [
 			{
@@ -145,8 +145,8 @@ testToGenResult('implicit custom file extension with additional file name parts'
 	});
 });
 
-testToGenResult('implicit custom file extension with many dots in between', () => {
-	t.equal(toGenResult(resolve('src/foo...gen.ts'), '[/**/]'), {
+test__toGenResult('implicit custom file extension with many dots in between', () => {
+	assert.equal(toGenResult(resolve('src/foo...gen.ts'), '[/**/]'), {
 		originId: resolve('src/foo...gen.ts'),
 		files: [
 			{
@@ -158,45 +158,45 @@ testToGenResult('implicit custom file extension with many dots in between', () =
 	});
 });
 
-testToGenResult('fail with two parts following the .gen. pattern in the file name', () => {
+test__toGenResult('fail with two parts following the .gen. pattern in the file name', () => {
 	// This just ensures consistent file names - maybe loosen the restriction?
 	// You can still implicitly name files like this,
 	// but you have to move ".bar" before ".gen".
-	t.throws(() => toGenResult(resolve('src/foo.gen.bar.json.ts'), '/**/'));
+	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.json.ts'), '/**/'));
 });
 
-testToGenResult('fail implicit file extension ending with a dot', () => {
+test__toGenResult('fail implicit file extension ending with a dot', () => {
 	// This just ensures consistent file names - maybe loosen the restriction?
 	// This one is more restrictive than the above,
 	// because to have a file ending with a dot
 	// you have to use an explicit file name.
-	t.throws(() => toGenResult(resolve('src/foo.gen...ts'), '[/**/]'));
+	assert.throws(() => toGenResult(resolve('src/foo.gen...ts'), '[/**/]'));
 });
 
-testToGenResult('fail without a .gen. pattern in the file name', () => {
-	t.throws(() => {
+test__toGenResult('fail without a .gen. pattern in the file name', () => {
+	assert.throws(() => {
 		toGenResult(resolve('src/foo.ts'), '/**/');
 	});
 });
 
-testToGenResult(
+test__toGenResult(
 	'fail without a .gen. pattern in a file name that has multiple other patterns',
 	() => {
-		t.throws(() => {
+		assert.throws(() => {
 			toGenResult(resolve('src/foo.bar.baz.ts'), '/**/');
 		});
 	},
 );
 
-testToGenResult('fail with two .gen. patterns in the file name', () => {
-	t.throws(() => toGenResult(resolve('src/gen.gen.ts'), '/**/'));
-	t.throws(() => toGenResult(resolve('src/foo.gen.gen.ts'), '/**/'));
-	t.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.ts'), '/**/'));
-	t.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.baz.ts'), '/**/'));
+test__toGenResult('fail with two .gen. patterns in the file name', () => {
+	assert.throws(() => toGenResult(resolve('src/gen.gen.ts'), '/**/'));
+	assert.throws(() => toGenResult(resolve('src/foo.gen.gen.ts'), '/**/'));
+	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.ts'), '/**/'));
+	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.baz.ts'), '/**/'));
 });
 
-testToGenResult('explicit custom file extension', () => {
-	t.equal(
+test__toGenResult('explicit custom file extension', () => {
+	assert.equal(
 		toGenResult(originId, {
 			filename: 'foo.json',
 			content: '[/**/]',
@@ -208,8 +208,8 @@ testToGenResult('explicit custom file extension', () => {
 	);
 });
 
-testToGenResult('explicit custom empty file extension', () => {
-	t.equal(
+test__toGenResult('explicit custom empty file extension', () => {
+	assert.equal(
 		toGenResult(originId, {
 			filename: 'foo',
 			content: '[/**/]',
@@ -221,8 +221,8 @@ testToGenResult('explicit custom empty file extension', () => {
 	);
 });
 
-testToGenResult('explicit custom file extension ending with a dot', () => {
-	t.equal(
+test__toGenResult('explicit custom file extension ending with a dot', () => {
+	assert.equal(
 		toGenResult(originId, {
 			filename: 'foo.',
 			content: '[/**/]',
@@ -234,18 +234,21 @@ testToGenResult('explicit custom file extension ending with a dot', () => {
 	);
 });
 
-testToGenResult('simple array of raw files', () => {
-	t.equal(toGenResult(originId, [{content: '/*1*/'}, {filename: 'foo2.ts', content: '/*2*/'}]), {
-		originId,
-		files: [
-			{id: resolve('src/foo.ts'), content: '/*1*/', originId},
-			{id: resolve('src/foo2.ts'), content: '/*2*/', originId},
-		],
-	});
+test__toGenResult('simple array of raw files', () => {
+	assert.equal(
+		toGenResult(originId, [{content: '/*1*/'}, {filename: 'foo2.ts', content: '/*2*/'}]),
+		{
+			originId,
+			files: [
+				{id: resolve('src/foo.ts'), content: '/*1*/', originId},
+				{id: resolve('src/foo2.ts'), content: '/*2*/', originId},
+			],
+		},
+	);
 });
 
-testToGenResult('complex array of raw files', () => {
-	t.equal(
+test__toGenResult('complex array of raw files', () => {
+	assert.equal(
 		toGenResult(originId, [
 			{content: '/*1*/'},
 			{filename: 'foo2.ts', content: '/*2*/'},
@@ -266,14 +269,14 @@ testToGenResult('complex array of raw files', () => {
 	);
 });
 
-testToGenResult('fail with duplicate names because of omissions', () => {
-	t.throws(() => {
+test__toGenResult('fail with duplicate names because of omissions', () => {
+	assert.throws(() => {
 		toGenResult(originId, [{content: '/*1*/'}, {content: '/*2*/'}]);
 	});
 });
 
-testToGenResult('fail with duplicate explicit names', () => {
-	t.throws(() => {
+test__toGenResult('fail with duplicate explicit names', () => {
+	assert.throws(() => {
 		toGenResult(originId, [
 			{filename: 'foo.ts', content: '/*1*/'},
 			{filename: 'foo.ts', content: '/*2*/'},
@@ -281,11 +284,11 @@ testToGenResult('fail with duplicate explicit names', () => {
 	});
 });
 
-testToGenResult('fail with duplicate explicit and implicit names', () => {
-	t.throws(() => {
+test__toGenResult('fail with duplicate explicit and implicit names', () => {
+	assert.throws(() => {
 		toGenResult(originId, [{content: '/*1*/'}, {filename: 'foo.ts', content: '/*2*/'}]);
 	});
 });
 
-testToGenResult.run();
-/* /testToGenResult */
+test__toGenResult.run();
+/* test__toGenResult */

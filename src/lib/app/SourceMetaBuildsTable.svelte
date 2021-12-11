@@ -1,7 +1,7 @@
 <script lang="ts">
-	import BuildId from './BuildId.svelte';
-	import BuildName from './BuildName.svelte';
-	import type {SourceTree} from 'src/client/sourceTree.js';
+	import BuildId from '$lib/app/BuildId.svelte';
+	import BuildName from '$lib/app/BuildName.svelte';
+	import type {SourceTree} from '$lib/app/sourceTree.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

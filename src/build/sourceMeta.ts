@@ -6,7 +6,6 @@ import {getFileContentHash} from './filerFile.js';
 import type {BuildContext} from 'src/build/builder.js';
 import type {BuildableSourceFile} from 'src/build/sourceFile.js';
 import type {BuildName} from 'src/build/buildConfig.js';
-import {EXTERNALS_SOURCE_ID} from './groBuilderExternalsUtils.js';
 import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
 import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
 
@@ -51,12 +50,9 @@ export const updateSourceMeta = async (
 	file: BuildableSourceFile,
 ): Promise<void> => {
 	const {fs, sourceMetaById, dev, buildDir, buildNames} = ctx;
-	if (file.buildConfigs.size === 0) {
-		return deleteSourceMeta(ctx, file.id);
-	}
 
 	// create the new meta, not mutating the old
-	const cacheId = toSourceMetaId(file, buildDir, dev);
+	const cacheId = toSourceMetaCacheId(file, buildDir, dev);
 	const data: SourceMetaData = {
 		sourceId: file.id,
 		contentHash: getFileContentHash(file),
@@ -74,7 +70,6 @@ export const updateSourceMeta = async (
 	const sourceMeta: SourceMeta = {cacheId, data};
 
 	// preserve the builds that aren't in this build config set
-	// TODO maybe just cache these on the source meta in a separate field (not written to disk)
 	const existingSourceMeta = sourceMetaById.get(file.id);
 	if (existingSourceMeta) {
 		for (const build of existingSourceMeta.data.builds) {
@@ -82,6 +77,10 @@ export const updateSourceMeta = async (
 				data.builds.push(build);
 			}
 		}
+	}
+
+	if (!data.builds) {
+		return deleteSourceMeta(ctx, file.id);
 	}
 
 	sourceMetaById.set(file.id, sourceMeta);
@@ -99,7 +98,7 @@ export const deleteSourceMeta = async (
 	await fs.remove(meta.cacheId);
 };
 
-const toSourceMetaId = (file: BuildableSourceFile, buildDir: string, dev: boolean): string =>
+const toSourceMetaCacheId = (file: BuildableSourceFile, buildDir: string, dev: boolean): string =>
 	`${toSourceMetaDir(buildDir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 // TODO optimize to load meta only for the build configs
@@ -131,7 +130,7 @@ export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 	const {fs, sourceMetaById, log} = ctx;
 	await Promise.all(
 		Array.from(sourceMetaById.keys()).map(async (sourceId) => {
-			if (sourceId !== EXTERNALS_SOURCE_ID && !(await fs.exists(sourceId))) {
+			if (!(await fs.exists(sourceId))) {
 				log.trace('deleting unknown source meta', gray(sourceId));
 				await deleteSourceMeta(ctx, sourceId);
 			}

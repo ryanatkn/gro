@@ -24,7 +24,7 @@ export interface TaskEvents {
 
 export const task: Task<TaskArgs, TaskEvents> = {
 	summary: 'build the project',
-	dev: false,
+	production: true,
 	run: async (ctx): Promise<void> => {
 		const {fs, dev, log, events, args} = ctx;
 
@@ -35,7 +35,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
 		// This is used by `gro publish` and `gro deploy` because they call `cleanFs` themselves.
 		if (clean) {
-			await cleanFs(fs, {buildProd: true}, log);
+			await cleanFs(fs, {buildProd: true, dist: true}, log);
 		}
 
 		// TODO delete prod builds (what about config/system tho?)
