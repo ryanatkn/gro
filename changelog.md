@@ -1,5 +1,10 @@
 # changelog
 
+## 0.47.1
+
+- fix `svelte-check` to scope to `src/`
+  ([#273](https://github.com/feltcoop/gro/pull/273))
+
 ## 0.47.0
 
 - **break**: update deps
