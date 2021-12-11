@@ -21,6 +21,8 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 
 */
 
+export const TESTME = 548;
+
 // TODO pass these to `createPaths` and override from gro config
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIRNAME = 'src';

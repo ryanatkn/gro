@@ -40,6 +40,7 @@ export const config: GroConfigCreator = async ({dev}) => {
 		plugin: async () => [
 			(await import('./plugin/groPluginSveltekitFrontend.js')).createPlugin(),
 			dev ? (await import('./plugin/groPluginDevServer.js')).createPlugin() : null,
+			(await import('./plugin/groPluginGen.js')).createPlugin(),
 		],
 		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>

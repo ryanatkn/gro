@@ -68,6 +68,7 @@ export const task: Task<TaskArgs, TaskEvents> = {
 		events.emit('dev.createContext', devTaskContext);
 
 		const plugins = await Plugins.create(devTaskContext);
+		console.log('plugins', plugins);
 
 		const timingToInitFiler = timings.start('init filer');
 		await filer.init();

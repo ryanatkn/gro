@@ -1,34 +1,32 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
-import type {FilerEvents} from 'src/build/Filer.js';
+import {debounce} from 'throttle-debounce';
 
+import type {FilerEvents} from 'src/build/Filer.js';
 import type {Plugin, PluginContext} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
 
 const name = '@feltcoop/groPluginGen';
 
+const FLUSH_DEBOUNCE_DELAY = 500; // TODO name?
+
 export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
-// TODO wip - this isn't implemented yet
-// TODO wip - this isn't implemented yet
-// TODO wip - this isn't implemented yet
-// TODO wip - this isn't implemented yet
-// TODO wip - this isn't implemented yet
-// TODO wip - this isn't implemented yet
-// TODO wip - this isn't implemented yet
 export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 	let listener: ((e: FilerEvents['build']) => void) | undefined;
 	const queuedFiles: Set<string> = new Set();
-	const queueGen = (genFileNames: string) => {
-		queuedFiles.add(genFileNames);
+	const queueGen = (genFileName: string) => {
+		console.log('queue genFileName', genFileName);
+		queuedFiles.add(genFileName);
 		flushGenQueue();
 	};
-	const flushGenQueue = async () => {
+	const flushGenQueue = debounce(FLUSH_DEBOUNCE_DELAY, async () => {
+		console.log('flushGenQueue!!!!!!!!!!!!!!!!!!!');
 		const files = Array.from(queuedFiles);
 		queuedFiles.clear();
 		await gen(files);
-	};
+	});
 	const gen = (files: string[]) => spawn('npx', ['gro', 'gen', ...files]);
 	return {
 		name,
@@ -44,10 +42,10 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 
 			listener = async ({buildConfig, sourceFile}) => {
 				console.log('sourceFile, buildConfig', sourceFile.id, buildConfig.name);
-				const genFileNames = 'tasks.gen.md.ts'; // TODO
+				const genFileName = 'tasks.gen.md.ts'; // TODO
 				// TODO debounce
-				if (genFileNames) {
-					queueGen(genFileNames);
+				if (genFileName) {
+					queueGen(genFileName);
 				}
 			};
 			filer.on('build', listener);
