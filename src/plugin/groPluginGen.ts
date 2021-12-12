@@ -47,13 +47,16 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 
 			onBuild = async ({sourceFile, buildConfig}) => {
 				console.log('onBuild sourceFile', sourceFile.id);
+				// TODO needs to handle if the sourceFile.id itself matches the filter,
+				// at the moment it only checks the dependents
+				// if (isGenPath(sourceFile.id))
 				const genFileDependents = filterDependents(
 					sourceFile,
 					buildConfig,
 					filer.findById as any,
 					isGenPath,
 				); // TODO see `filterDependents` for more about the type cast
-				for (const genFileDependent of genFileDependents.keys()) {
+				for (const genFileDependent of genFileDependents) {
 					queueGen(sourceIdToBasePath(genFileDependent));
 				}
 			};
@@ -72,9 +75,9 @@ const filterDependents = (
 	findFileById: (id: string) => SourceFile | undefined, // TODO SourceFile vs BaseFilerFile
 	filter: IdFilter,
 	// TODO return string id or SourceFile?
-	results: Map<string, SourceFile> = new Map(), // TODO strings only? set?
+	results: Set<string> = new Set(), // TODO strings only? set?
 	searched: Set<string> = new Set(),
-): Map<string, SourceFile> => {
+): Set<string> => {
 	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
 	if (!dependentsForConfig) return results;
 	console.log('buildConfig.name', buildConfig.name);
@@ -84,7 +87,7 @@ const filterDependents = (
 		console.log('searched dependentId', dependentId);
 		const dependentSourceFile = findFileById(dependentId)!;
 		if (filter(dependentId)) {
-			results.set(dependentId, dependentSourceFile);
+			results.add(dependentId);
 		}
 		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
 		// TODO search each of
