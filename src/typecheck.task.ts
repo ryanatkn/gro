@@ -10,7 +10,7 @@ export const task: Task = {
 		if (!tscTypecheckResult.ok) {
 			throw new TaskError(`Failed to typecheck. ${printSpawnResult(tscTypecheckResult)}`);
 		}
-		const svelteCheckResult = await spawn('npx', ['svelte-check']);
+		const svelteCheckResult = await spawn('npx', ['svelte-check', '--tsconfig', 'tsconfig.json']);
 		if (!svelteCheckResult.ok) {
 			throw new TaskError(`Failed to typecheck Svelte. ${printSpawnResult(svelteCheckResult)}`);
 		}

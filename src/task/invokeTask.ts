@@ -4,8 +4,10 @@ import {EventEmitter} from 'events';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
+import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Args} from 'src/task/task.js';
+import {serializeArgs} from '../task/task.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
@@ -52,11 +54,7 @@ export const invokeTask = async (
 	taskName: string,
 	args: Args,
 	events = new EventEmitter(),
-	dev?: boolean,
 ): Promise<void> => {
-	// TODO not sure about this -- the idea is that imported modules need the updated `NODE_ENV`
-	process.env['NODE_ENV'] = dev || dev === undefined ? 'development' : 'production';
-
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 
 	// Check if the caller just wants to see the version.
@@ -93,13 +91,6 @@ export const invokeTask = async (
 			if (await shouldBuildProject(fs, pathData.id)) {
 				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 				// every time a task is invoked.
-				if (dev !== undefined) {
-					// TODO include this?
-					throw Error(
-						'Invalid `invokeTask` call with a `dev` argument and unbuilt project.' +
-							' This probably means Gro or a task made something weird happen.',
-					);
-				}
 				log.info('building project to run task');
 				const timingToLoadConfig = timings.start('load config');
 				// TODO probably do this as a separate process
@@ -129,14 +120,31 @@ export const invokeTask = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const result = await runTask(fs, task, args, events, invokeTask, dev);
-				timingToRunTask();
-				if (result.ok) {
-					log.info(`✓ ${cyan(task.name)}`);
+				const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
+				if (dev && task.mod.task.production) {
+					const result = await spawn('npx', ['gro', taskName, ...serializeArgs(args)], {
+						env: {...process.env, NODE_ENV: 'production'},
+					});
+					timingToRunTask();
+					if (result.ok) {
+						log.info(`✓ ${cyan(task.name)}`);
+					} else {
+						log.info(`${red('🞩')} ${cyan(task.name)}`);
+						logErrorReasons(log, [
+							`spawned task exited with code ${result.code}: ${result.signal}`,
+						]);
+						throw Error('Spawned task failed');
+					}
 				} else {
-					log.info(`${red('🞩')} ${cyan(task.name)}`);
-					logErrorReasons(log, [result.reason]);
-					throw result.error;
+					const result = await runTask(fs, task, args, events, invokeTask);
+					timingToRunTask();
+					if (result.ok) {
+						log.info(`✓ ${cyan(task.name)}`);
+					} else {
+						log.info(`${red('🞩')} ${cyan(task.name)}`);
+						logErrorReasons(log, [result.reason]);
+						throw result.error;
+					}
 				}
 			} else {
 				logErrorReasons(log, loadModulesResult.reasons);

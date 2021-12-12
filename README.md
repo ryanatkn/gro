@@ -8,7 +8,7 @@
 
 > **Windows is not yet supported.** WSL works well enough
 
-> _warning!_ You should not use Gro today
+> _warning_: You should not use Gro today
 > unless you're willing to take ownership of the code.
 > For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
@@ -40,13 +40,13 @@ It includes:
   UIs along with Node servers, JS/TS/Svelte libraries, and other things
   (see the [config docs](/src/docs/config.md), the [SvelteKit integration docs](/src/docs/sveltekit.md), and
   [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts))
+  - fully integrated [TypeScript](https://github.com/microsoft/typescript)
+    and [Svelte](https://github.com/sveltejs/svelte)
+    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
   - [configurable adapters](/src/docs/adapt.md) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
   - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
     auto-restarting API servers, and other external build processes
-  - fully integrated [TypeScript](https://github.com/microsoft/typescript)
-    and [Svelte](https://github.com/sveltejs/svelte)
-    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
 - [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)

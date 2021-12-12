@@ -30,7 +30,7 @@
 			<th>build name</th>
 			<th>build ids</th>
 		</thead>
-		{#each finalItems as {sourceMeta, buildName, key} (key)}
+		{#each finalItems as { sourceMeta, buildName, key } (key)}
 			<tr>
 				<td>
 					<SourceId id={sourceMeta.data.sourceId} />

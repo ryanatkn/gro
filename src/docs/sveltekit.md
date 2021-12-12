@@ -18,21 +18,11 @@ Gro has two important differences from SvelteKit:
 - Gro ignores SvelteKit's [library packaging](https://kit.svelte.dev/docs#packaging)
   capabilities for its own with [`gro publish`](./publish.md)
 
-Beyond this, Gro mostly stays out of SvelteKit's way.
+Beyond this, Gro mostly stays out of SvelteKit's way,
+and the eventual goal is to defer to SvelteKit as much as possible.
 You can still use `svelte-kit package`
 but it doesn't currently integrate with Gro's other systems, checks, and conventions.
 
 Gro's supplemental role is still a work in progress --
 in the current implementation, user projects manage their own SvelteKit dependencies,
 and commands like `gro dev` and `gro build` automatically detect SvelteKit projects.
-
-Gro supports SvelteKit+Vite along with its own non-conflicting system for frontend development,
-but Gro's frontend system does not currently support HMR, code splitting, routing,
-and many other things provided by SvelteKit+Vite.
-It's appropriate only for a small number of specific usecases
-and can be wholly replaced with SvelteKit.
-SvelteKit should be preferred by users today,
-and Gro's frontend conventions are currently undocumented.
-If you're curious, examples of Gro's frontend functionality include Gro's
-[`src/client`](/src/client) and
-[`ryanatkn/mirror-twin-gro`](https://github.com/ryanatkn/mirror-twin-gro).

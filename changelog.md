@@ -1,9 +1,29 @@
 # changelog
 
-## 0.45.2
+## 0.47.1
 
 - add `gen` plugin that defaults to watch mode
   ([#283](https://github.com/feltcoop/gro/pull/283))
+- fix `svelte-check` to scope to `src/`
+  ([#273](https://github.com/feltcoop/gro/pull/273))
+
+## 0.47.0
+
+- **break**: update deps
+  ([#286](https://github.com/feltcoop/gro/pull/286))
+
+## 0.46.0
+
+- **break**: change task `dev` property to `production`
+  ([#284](https://github.com/feltcoop/gro/pull/284))
+- fix `process.env.NODE_ENV` for production tasks
+  ([#284](https://github.com/feltcoop/gro/pull/284),
+  [#287](https://github.com/feltcoop/gro/pull/287))
+
+## 0.45.2
+
+- clean dist for production builds
+  ([#285](https://github.com/feltcoop/gro/pull/285))
 
 ## 0.45.1
 
