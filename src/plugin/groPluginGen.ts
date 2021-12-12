@@ -8,6 +8,7 @@ import {sourceIdToBasePath} from '../paths.js';
 import {isGenPath} from '../gen/gen.js';
 import type {SourceFile} from 'src/build/sourceFile.js';
 import type {IdFilter} from 'src/fs/filter.js';
+import type {BuildConfig} from 'src/index.js';
 
 const name = '@feltcoop/groPluginGen';
 
@@ -44,13 +45,16 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 				return flushGenQueue(); // TODO how should this work?
 			}
 
-			onBuild = async ({sourceFile}) => {
+			onBuild = async ({sourceFile, buildConfig}) => {
 				console.log('onBuild sourceFile', sourceFile.id);
-				const genFileDependents = filterDependents(sourceFile, filer.findById as any, isGenPath); // TODO see `filterDependents` for more about the type cast
-				if (genFileDependents) {
-					for (const genFileDependent of genFileDependents) {
-						queueGen(sourceIdToBasePath(genFileDependent.id));
-					}
+				const genFileDependents = filterDependents(
+					sourceFile,
+					buildConfig,
+					filer.findById as any,
+					isGenPath,
+				); // TODO see `filterDependents` for more about the type cast
+				for (const genFileDependent of genFileDependents.keys()) {
+					queueGen(sourceIdToBasePath(genFileDependent));
 				}
 			};
 			filer.on('build', onBuild);
@@ -61,16 +65,29 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 	};
 };
 
+// TODO move this
 const filterDependents = (
 	sourceFile: SourceFile,
+	buildConfig: BuildConfig,
 	findFileById: (id: string) => SourceFile | undefined, // TODO SourceFile vs BaseFilerFile
 	filter: IdFilter,
 	// TODO return string id or SourceFile?
-): Set<SourceFile> | null => {
-	if (!sourceFile.dependents) return null;
-	const dependents: Set<SourceFile> = new Set(); // TODO better data structure?
-	for (const [buildConfig, dependents] of sourceFile.dependents) {
-		console.log('buildConfig.name', buildConfig.name, dependents);
+	results: Map<string, SourceFile> = new Map(), // TODO strings only? set?
+	searched: Set<string> = new Set(),
+): Map<string, SourceFile> => {
+	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
+	if (!dependentsForConfig) return results;
+	console.log('buildConfig.name', buildConfig.name);
+	for (const dependentId of dependentsForConfig.keys()) {
+		if (searched.has(dependentId)) continue;
+		searched.add(dependentId);
+		console.log('searched dependentId', dependentId);
+		const dependentSourceFile = findFileById(dependentId)!;
+		if (filter(dependentId)) {
+			results.set(dependentId, dependentSourceFile);
+		}
+		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
+		// TODO search each of
 	}
-	return dependents;
+	return results;
 };

@@ -6,6 +6,8 @@ import type {Task} from 'src/task/task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
+export const a = 5;
+
 export interface TaskModule {
 	task: Task;
 }
