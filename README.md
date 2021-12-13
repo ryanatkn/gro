@@ -2,7 +2,7 @@
 
 <img src="src/static/favicon.png" align="right" width="192" height="192">
 
-> opinionated tools for web development
+> opinionated webdev toolkit
 
 > **pre-alpha**: suitable only for those who are unafraid of bad code and docs
 

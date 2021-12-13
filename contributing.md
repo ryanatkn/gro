@@ -45,7 +45,7 @@ Big caveat though, I also can't guarantee that Gro will work for your use cases,
 and at times it's I may look inflexible. (it's ok to push back, but please be kind!)
 This is why Gro's tagline is:
 
-> opinionated tools for web development
+> opinionated webdev toolkit
 
 It's trying to say "look out for the opinions: it's normal to disagree; MIT".
 But Gro _is_ more general-purpose than the phrase may suggest.
