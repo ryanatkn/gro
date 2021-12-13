@@ -116,7 +116,7 @@
 - **break**: fix test sourcemaps by adding
   [`GroConfig` option `main_test`](src/docs/config.md#main_test),
   which initializes projects with a conventional `lib/main.test.ts`
-  for installing sourcemaps and other global test concerns
+  for installing sourcemaps and other global test concerns (update: reverted in 0.37.0)
   ([#259](https://github.com/feltcoop/gro/pull/259))
 - add some peer deps
   ([#259](https://github.com/feltcoop/gro/pull/259))

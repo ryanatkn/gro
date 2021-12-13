@@ -35,8 +35,6 @@ export const LIB_DIR = `${LIB_DIRNAME}/`;
 export const CONFIG_SOURCE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_PATH = 'gro.config.js';
 
-export const MAIN_TEST_PATH = `${LIB_DIRNAME}/main.test.ts`;
-
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
 export const TS_TYPE_EXTENSION = '.d.ts';
