@@ -6,9 +6,7 @@ import type {Plugin, PluginContext} from 'src/plugin/plugin.js';
 import type {Args} from 'src/task/task.js';
 import {sourceIdToBasePath} from '../paths.js';
 import {isGenPath} from '../gen/gen.js';
-import type {SourceFile} from 'src/build/sourceFile.js';
-import type {IdFilter} from 'src/fs/filter.js';
-import type {BuildConfig} from 'src/index.js';
+import {filterDependents} from '../build/sourceFile.js';
 
 const name = '@feltcoop/groPluginGen';
 
@@ -31,6 +29,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 		const files = Array.from(queuedFiles);
 		queuedFiles.clear();
 		await gen(files);
+		// TODO should this block additional `gen` calls until ready?
 	});
 	const gen = (files: string[]) => spawn('npx', ['gro', 'gen', ...files]);
 	return {
@@ -45,19 +44,20 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 				return flushGenQueue(); // TODO how should this work?
 			}
 
+			// When a file builds, check it and its tree of dependents
+			// for any `.gen.` files that need to run.
 			onBuild = async ({sourceFile, buildConfig}) => {
-				console.log('onBuild sourceFile', sourceFile.id);
-				// TODO needs to handle if the sourceFile.id itself matches the filter,
-				// at the moment it only checks the dependents
-				// if (isGenPath(sourceFile.id))
-				const genFileDependents = filterDependents(
+				if (isGenPath(sourceFile.id)) {
+					queueGen(sourceIdToBasePath(sourceFile.id));
+				}
+				const dependentGenFileIds = filterDependents(
 					sourceFile,
 					buildConfig,
-					filer.findById as any,
+					filer.findById as any, // cast because we can assume they're all `SourceFile`s
 					isGenPath,
-				); // TODO see `filterDependents` for more about the type cast
-				for (const genFileDependent of genFileDependents) {
-					queueGen(sourceIdToBasePath(genFileDependent));
+				);
+				for (const dependentGenFileId of dependentGenFileIds) {
+					queueGen(sourceIdToBasePath(dependentGenFileId));
 				}
 			};
 			filer.on('build', onBuild);
@@ -66,31 +66,4 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 			if (onBuild) ctx.filer!.off('build', onBuild);
 		},
 	};
-};
-
-// TODO move this
-const filterDependents = (
-	sourceFile: SourceFile,
-	buildConfig: BuildConfig,
-	findFileById: (id: string) => SourceFile | undefined, // TODO SourceFile vs BaseFilerFile
-	filter: IdFilter,
-	// TODO return string id or SourceFile?
-	results: Set<string> = new Set(), // TODO strings only? set?
-	searched: Set<string> = new Set(),
-): Set<string> => {
-	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
-	if (!dependentsForConfig) return results;
-	console.log('buildConfig.name', buildConfig.name);
-	for (const dependentId of dependentsForConfig.keys()) {
-		if (searched.has(dependentId)) continue;
-		searched.add(dependentId);
-		console.log('searched dependentId', dependentId);
-		const dependentSourceFile = findFileById(dependentId)!;
-		if (filter(dependentId)) {
-			results.add(dependentId);
-		}
-		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
-		// TODO search each of
-	}
-	return results;
 };

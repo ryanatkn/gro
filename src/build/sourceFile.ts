@@ -13,6 +13,7 @@ import type {FilerFile} from 'src/build/Filer.js';
 import type {SourceMeta} from 'src/build/sourceMeta.js';
 import type {BuildDependency} from 'src/build/buildDependency.js';
 import type {BuildContext} from 'src/build/builder.js';
+import type {IdFilter} from 'src/fs/filter.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
 export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
@@ -204,3 +205,25 @@ export function assertBuildableSourceFile(
 		throw Error(`Expected file to be buildable: ${file.id}`);
 	}
 }
+
+export const filterDependents = (
+	sourceFile: SourceFile,
+	buildConfig: BuildConfig,
+	findFileById: (id: string) => SourceFile | undefined,
+	filter: IdFilter,
+	results: Set<string> = new Set(),
+	searched: Set<string> = new Set(),
+): Set<string> => {
+	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
+	if (!dependentsForConfig) return results;
+	for (const dependentId of dependentsForConfig.keys()) {
+		if (searched.has(dependentId)) continue;
+		searched.add(dependentId);
+		if (filter(dependentId)) {
+			results.add(dependentId);
+		}
+		const dependentSourceFile = findFileById(dependentId)!;
+		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
+	}
+	return results;
+};
