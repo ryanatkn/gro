@@ -167,7 +167,7 @@ gro deploy # build and push to the `deploy` branch
 To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))
 
 ```bash
-gro publish patch # bump version, publish to npm, and sync to GitHub
+gro publish patch # bump version, publish to npm, and git push
 gro publish major --and args --are forwarded --to 'npm version'
 ```
 
