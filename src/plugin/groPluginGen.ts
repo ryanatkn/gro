@@ -34,7 +34,8 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 		generating = true;
 		const files = Array.from(queuedFiles);
 		queuedFiles.clear();
-		await gen(files);
+		await gen(files); // TODO the `flushGenQueue` doesn't wait
+		console.log('GENERATED');
 		generating = false;
 		if (regen) {
 			regen = false;
@@ -51,7 +52,8 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 			} = ctx;
 			if (!filer) throw Error(`${name} expects a filer arg`);
 			if (!watch) {
-				await flushGenQueue();
+				await flushGenQueue(); // TODO the `flushGenQueue` doesn't wait
+				console.log('FLUSHED');
 				return;
 			}
 
