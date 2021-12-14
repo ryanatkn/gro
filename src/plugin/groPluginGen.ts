@@ -42,7 +42,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
 			flushGenQueue();
 		}
 	});
-	const gen = (files: string[]) => spawn('npx', ['gro', 'gen', ...files]);
+	const gen = (files: string[]) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
 		name,
 		setup: async (ctx) => {

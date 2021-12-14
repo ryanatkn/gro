@@ -17,6 +17,8 @@ import {buildSource} from './build/buildSource.js';
 export interface TaskArgs {
 	_: string[];
 	check?: boolean;
+	rebuild?: boolean; // TODO hacky -- see below
+	'no-rebuild'?: boolean; // TODO hacky -- see below
 }
 
 // TODO test - especially making sure nothing gets genned
@@ -24,20 +26,23 @@ export interface TaskArgs {
 export const task: Task<TaskArgs> = {
 	summary: 'run code generation scripts',
 	run: async ({fs, log, args, dev}): Promise<void> => {
-		const rawInputPaths = args._;
+		const {_: rawInputPaths, rebuild = true} = args;
 		const check = !!args.check;
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();
 
-		// TODO won't need to build if `gen` becomes a builder
-		// first build everything
-		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
-		timingToLoadConfig();
-		const timingToBuildSource = timings.start('buildSource');
-		await buildSource(fs, config, dev, log);
-		timingToBuildSource();
+		// TODO hacky -- running `gro gen` from the command line
+		// currently causes it to rebuild by default,
+		// but running `gro gen` from dev/build tasks will not want to rebuild.
+		if (rebuild) {
+			const timingToLoadConfig = timings.start('load config');
+			const config = await loadConfig(fs, dev);
+			timingToLoadConfig();
+			const timingToBuildSource = timings.start('buildSource');
+			await buildSource(fs, config, dev, log);
+			timingToBuildSource();
+		}
 
 		// resolve the input paths relative to src/
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
