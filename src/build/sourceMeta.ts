@@ -8,6 +8,7 @@ import type {BuildableSourceFile} from 'src/build/sourceFile.js';
 import type {BuildName} from 'src/build/buildConfig.js';
 import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
 import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
+import type {Filesystem} from 'src/fs/filesystem.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk
@@ -85,7 +86,29 @@ export const updateSourceMeta = async (
 
 	sourceMetaById.set(file.id, sourceMeta);
 	// this.log.trace('outputting source meta', gray(cacheId));
-	await fs.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2));
+	await writeSourceMeta(fs, cacheId, data);
+};
+
+const writingSourceMeta: Map<string, Promise<void>> = new Map();
+
+const writeSourceMeta = async (
+	fs: Filesystem,
+	cacheId: string,
+	data: SourceMetaData,
+): Promise<void> => {
+	if (writingSourceMeta.has(cacheId)) {
+		await writingSourceMeta.get(cacheId);
+	}
+	if (writingSourceMeta.has(cacheId)) throw Error('TODO bug here');
+	const promise = fs
+		.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2))
+		.then(() => {
+			if (writingSourceMeta.get(cacheId) === promise) {
+				writingSourceMeta.delete(cacheId);
+			}
+		});
+	writingSourceMeta.set(cacheId, promise);
+	await promise;
 };
 
 export const deleteSourceMeta = async (
