@@ -99,6 +99,9 @@ const writeSourceMeta = async (
 	if (writingSourceMeta.has(cacheId)) {
 		await writingSourceMeta.get(cacheId);
 	}
+	// TODO when B finishes, if C came along, return its promise
+	// TODO last value wins, so we can throw away B
+	// TODO async debouncing
 	if (writingSourceMeta.has(cacheId)) throw Error('TODO bug here');
 	const promise = fs
 		.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2))
