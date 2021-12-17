@@ -1,7 +1,6 @@
-// TODO maybe support return values? gets tricky: what should it return for the skipped ones?
-// TODO delay? Is tricky because we'd want to return to the caller ASAP, but delay subsequent
-
 import {wait} from '@feltcoop/felt';
+
+// TODO maybe support return values? gets tricky: what should it return for the skipped ones?
 
 /**
  * Throttles calls to a promise-returning function.
