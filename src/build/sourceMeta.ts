@@ -89,28 +89,37 @@ export const updateSourceMeta = async (
 	await writeSourceMeta(fs, cacheId, data);
 };
 
-const writingSourceMeta: Map<string, Promise<void>> = new Map();
+// TODO extract to something like `throttleAsync`
+// TODO delay?
+// Throttles the call to a promise-returning function.
+// If the throttled function is called while the promise is pending,
+// it's queued up to run after the promise completes,
+// and only the last call is executed;
+// calls except the most recent made during the pending promise are discarded.
+// This is distinct from a queue where every call to the throttled function eventually runs.
+const writingSourceMeta: Map<string, {callId: number; promise: Promise<void>}> = new Map();
+let _callId = 0;
 
 const writeSourceMeta = async (
 	fs: Filesystem,
 	cacheId: string,
 	data: SourceMetaData,
 ): Promise<void> => {
+	const callId = _callId++;
 	if (writingSourceMeta.has(cacheId)) {
-		await writingSourceMeta.get(cacheId);
+		const cached = writingSourceMeta.get(cacheId)!;
+		cached.callId = callId;
+		await cached.promise;
+		if (cached.callId !== callId) return;
 	}
-	// TODO when B finishes, if C came along, return its promise
-	// TODO last value wins, so we can throw away B
-	// TODO async debouncing
-	if (writingSourceMeta.has(cacheId)) throw Error('TODO bug here');
 	const promise = fs
 		.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2))
 		.then(() => {
-			if (writingSourceMeta.get(cacheId) === promise) {
+			if (callId === writingSourceMeta.get(cacheId)!.callId) {
 				writingSourceMeta.delete(cacheId);
 			}
 		});
-	writingSourceMeta.set(cacheId, promise);
+	writingSourceMeta.set(cacheId, {promise, callId}); // TODO does this work? make it mutable? set as `cached`?
 	await promise;
 };
 
