@@ -615,6 +615,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private pendingBuilds: Map<BuildConfig, Set<string>> = new Map(); // value is sourceId
 	private enqueuedBuilds: Map<BuildConfig, Set<string>> = new Map(); // value is sourceId
 
+	// TODO probably use `throttleAsync` here
 	// This wrapper function protects against race conditions
 	// that could occur with concurrent builds.
 	// If a file is currently being build, it enqueues the file id,
