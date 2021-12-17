@@ -91,7 +91,7 @@ export const updateSourceMeta = async (
 };
 
 const writeSourceMeta = throttleAsync(
-	async (fs: Filesystem, cacheId: string, data: SourceMetaData): Promise<void> =>
+	(fs: Filesystem, cacheId: string, data: SourceMetaData): Promise<void> =>
 		fs.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2)),
 	(_, cacheId) => cacheId,
 );
