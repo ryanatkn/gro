@@ -4,6 +4,10 @@
 
 - fix `svelte-check` to scope to `src/`
   ([#273](https://github.com/feltcoop/gro/pull/273))
+- fix writing source meta concurrently
+  ([#288](https://github.com/feltcoop/gro/pull/288))
+- add `utils/throttleAsync.ts`
+  ([#288](https://github.com/feltcoop/gro/pull/288))
 
 ## 0.47.0
 
