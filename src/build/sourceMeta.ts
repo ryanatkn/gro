@@ -9,6 +9,7 @@ import type {BuildName} from 'src/build/buildConfig.js';
 import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
 import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
+import {throttleAsync} from '../utils/throttleAsync.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk
@@ -89,42 +90,11 @@ export const updateSourceMeta = async (
 	await writeSourceMeta(fs, cacheId, data);
 };
 
-// TODO extract to something like `throttleAsync`
-// TODO delay?
-// Throttles the call to a promise-returning function.
-// If the throttled function is called while the promise is pending,
-// it's queued up to run after the promise completes,
-// and only the last call is executed;
-// calls except the most recent made during the pending promise are discarded.
-// This is distinct from a queue where every call to the throttled function eventually runs.
-const writingSourceMeta: Map<string, {callId: number; promise: Promise<void>}> = new Map();
-let _callId = 0;
-
-const writeSourceMeta = async (
-	fs: Filesystem,
-	cacheId: string,
-	data: SourceMetaData,
-): Promise<void> => {
-	const callId = _callId++;
-	let cached = writingSourceMeta.get(cacheId);
-	if (cached) {
-		cached.callId = callId;
-		await cached.promise;
-		if (cached.callId !== callId) return; // a later call supercedes this one
-	}
-	const promise = fs
-		.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2))
-		.then(() => {
-			if (callId === cached!.callId) {
-				writingSourceMeta.delete(cacheId);
-			}
-		});
-	if (!cached) {
-		cached = {promise, callId};
-		writingSourceMeta.set(cacheId, cached);
-	}
-	await promise;
-};
+const writeSourceMeta = throttleAsync(
+	async (fs: Filesystem, cacheId: string, data: SourceMetaData): Promise<void> =>
+		fs.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2)),
+	(_, cacheId) => cacheId,
+);
 
 export const deleteSourceMeta = async (
 	{fs, sourceMetaById}: BuildContext,
