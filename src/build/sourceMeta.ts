@@ -106,20 +106,23 @@ const writeSourceMeta = async (
 	data: SourceMetaData,
 ): Promise<void> => {
 	const callId = _callId++;
-	if (writingSourceMeta.has(cacheId)) {
-		const cached = writingSourceMeta.get(cacheId)!;
+	let cached = writingSourceMeta.get(cacheId);
+	if (cached) {
 		cached.callId = callId;
 		await cached.promise;
-		if (cached.callId !== callId) return;
+		if (cached.callId !== callId) return; // a later call supercedes this one
 	}
 	const promise = fs
 		.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2))
 		.then(() => {
-			if (callId === writingSourceMeta.get(cacheId)!.callId) {
+			if (callId === cached!.callId) {
 				writingSourceMeta.delete(cacheId);
 			}
 		});
-	writingSourceMeta.set(cacheId, {promise, callId}); // TODO does this work? make it mutable? set as `cached`?
+	if (!cached) {
+		cached = {promise, callId};
+		writingSourceMeta.set(cacheId, cached);
+	}
 	await promise;
 };
 
