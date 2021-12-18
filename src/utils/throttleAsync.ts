@@ -29,6 +29,8 @@ export const throttleAsync = <TArgs extends any[]>(
 			cached.id = id; // queue this one up
 			await cached.promise;
 			if (cached.id !== id) return; // a later call supercedes this one
+			// TODO subtle issue here where it doesn't actually enforce this delay between calls
+			// if the second call is made in the delay window after the first completes
 			if (delay) await wait(delay);
 		}
 		const promise = fn(...args).then(() => {
@@ -40,6 +42,6 @@ export const throttleAsync = <TArgs extends any[]>(
 			cached = {promise, id};
 			cache.set(cacheKey, cached);
 		}
-		await promise;
+		return promise;
 	};
 };
