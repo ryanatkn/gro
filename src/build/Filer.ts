@@ -626,7 +626,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				);
 			}
 		},
-		(sourceFile, buildConfig) => buildConfig.name + ':' + sourceFile.id,
+		(sourceFile, buildConfig) => buildConfig.name + '::' + sourceFile.id,
 	);
 
 	private async _buildSourceFile(
