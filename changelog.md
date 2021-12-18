@@ -1,5 +1,10 @@
 # changelog
 
+## 0.47.2
+
+- fix bug with the `throttleAsync` `delay` option
+  ([#289](https://github.com/feltcoop/gro/pull/289))
+
 ## 0.47.1
 
 - fix `svelte-check` to scope to `src/`
