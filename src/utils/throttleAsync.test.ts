@@ -24,7 +24,7 @@ test__throttleAsync('discards all but one concurrent call', async () => {
 	const promiseA4 = fn('a', 0, '4');
 	assert.equal(results, ['a1_run', 'b1_run']);
 	await promiseA1;
-	assert.equal(results, ['a1_run', 'b1_run', 'a1_done', 'a4_run']);
+	assert.equal(results, ['a1_run', 'b1_run', 'a1_done']);
 	await promiseB1;
 	await promiseA2;
 	await promiseA3;
@@ -36,6 +36,27 @@ test__throttleAsync('discards all but one concurrent call', async () => {
 	const promiseB1b = fn('b', 0, '1');
 	await promiseA1b;
 	await promiseB1b;
+});
+
+test__throttleAsync('throttles with a delay', async () => {
+	const results: string[] = [];
+	const fn = throttleAsync(
+		async (a: string, _b: number, c: string) => {
+			results.push(a + c + '_run');
+			await wait();
+			results.push(a + c + '_done');
+		},
+		(a, b) => a + b,
+		1,
+	);
+	const promise1 = fn('a', 0, '1');
+	assert.equal(results, ['a1_run']);
+	await promise1;
+	assert.equal(results, ['a1_run', 'a1_done']);
+	const promise2 = fn('a', 0, '2');
+	assert.equal(results, ['a1_run', 'a1_done']); // due to the delay, this does not have 'a2_run'
+	await promise2;
+	assert.equal(results, ['a1_run', 'a1_done', 'a2_run', 'a2_done']);
 });
 
 test__throttleAsync.run();
