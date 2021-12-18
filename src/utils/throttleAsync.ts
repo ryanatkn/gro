@@ -29,9 +29,10 @@ export const throttleAsync = <TArgs extends any[]>(
 			cached.id = id; // queue this one up
 			await cached.promise;
 			if (cached.id !== id) return; // a later call supercedes this one
-			if (delay) await wait(delay);
 		}
-		const promise = fn(...args).then(() => {
+		const result = fn(...args);
+		const promise = result.then(async () => {
+			if (delay) await wait(delay);
 			if (id === cached!.id) {
 				cache.delete(cacheKey); // delete only when we're done with this `cacheKey`
 			}
@@ -40,6 +41,6 @@ export const throttleAsync = <TArgs extends any[]>(
 			cached = {promise, id};
 			cache.set(cacheKey, cached);
 		}
-		await promise;
+		return result;
 	};
 };

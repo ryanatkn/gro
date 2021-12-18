@@ -38,6 +38,7 @@ import type {BuildDependency} from 'src/build/buildDependency.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
 import type {PathFilter} from 'src/fs/filter.js';
 import {isExternalModule} from '../utils/module.js';
+import {throttleAsync} from '../utils/throttleAsync.js';
 
 /*
 
@@ -572,7 +573,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
 						return false;
 					}
-				} else if (areContentEqual(encoding, sourceFile.content, newSourceContent)) {
+				} else if (isContentEqual(encoding, sourceFile.content, newSourceContent)) {
 					// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 					return false;
 				} else {
@@ -610,67 +611,23 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		return promise;
 	}
 
-	// These are used to avoid concurrent builds for any given source file.
-	// TODO maybe make these `Map<BuildConfig, Set<BuildableSourceFile>>`, initialize during `init` to avoid bookkeeping API overhead or speciality code
-	private pendingBuilds: Map<BuildConfig, Set<string>> = new Map(); // value is sourceId
-	private enqueuedBuilds: Map<BuildConfig, Set<string>> = new Map(); // value is sourceId
-
-	// TODO probably use `throttleAsync` here
-	// This wrapper function protects against race conditions
-	// that could occur with concurrent builds.
-	// If a file is currently being build, it enqueues the file id,
-	// and when the current build finishes,
-	// it removes the item from the queue and rebuilds the file.
-	// The queue stores at most one build per file,
-	// and this is safe given that building accepts no parameters.
-	private async buildSourceFile(
-		sourceFile: BuildableSourceFile,
-		buildConfig: BuildConfig,
-	): Promise<void> {
-		let pendingBuilds = this.pendingBuilds.get(buildConfig);
-		if (pendingBuilds === undefined) {
-			pendingBuilds = new Set();
-			this.pendingBuilds.set(buildConfig, pendingBuilds);
-		}
-		let enqueuedBuilds = this.enqueuedBuilds.get(buildConfig);
-		if (enqueuedBuilds === undefined) {
-			enqueuedBuilds = new Set();
-			this.enqueuedBuilds.set(buildConfig, enqueuedBuilds);
-		}
-
-		const {id} = sourceFile;
-		if (pendingBuilds.has(id)) {
-			enqueuedBuilds.add(id);
-			return;
-		}
-		pendingBuilds.add(id);
-		try {
-			await this._buildSourceFile(sourceFile, buildConfig);
-			this.emit('build', {sourceFile, buildConfig});
-		} catch (err) {
-			this.log.error(
-				printBuildConfigLabel(buildConfig),
-				red('build failed'),
-				gray(id),
-				printError(err),
-			);
-			// TODO probably want to track this failure data
-		}
-		pendingBuilds.delete(id);
-		if (enqueuedBuilds.has(id)) {
-			enqueuedBuilds.delete(id);
-			// Something changed during the build for this file, so recurse.
-			// This sequencing ensures that any awaiting callers always see the final version.
-			// TODO do we need to detect cycles? if we run into any, probably
-			// TODO this is wasteful - we could get the previous source file's content by adding a var above,
-			// but `updateSourceFile` loads the content from disk -
-			// however I'd rather optimize this only after tests are in place.
-			const shouldBuild = await this.updateSourceFile(id, sourceFile.filerDir);
-			if (shouldBuild) {
-				await this.buildSourceFile(sourceFile, buildConfig);
+	private buildSourceFile = throttleAsync(
+		async (sourceFile: BuildableSourceFile, buildConfig: BuildConfig): Promise<void> => {
+			try {
+				await this._buildSourceFile(sourceFile, buildConfig);
+				this.emit('build', {sourceFile, buildConfig});
+			} catch (err) {
+				// TODO probably want to track this failure data
+				this.log.error(
+					printBuildConfigLabel(buildConfig),
+					red('build failed'),
+					gray(sourceFile.id),
+					printError(err),
+				);
 			}
-		}
-	}
+		},
+		(sourceFile, buildConfig) => buildConfig.name + '::' + sourceFile.id,
+	);
 
 	private async _buildSourceFile(
 		sourceFile: BuildableSourceFile,
@@ -893,7 +850,7 @@ const syncBuildFilesToDisk = async (
 					shouldOutputNewFile = true;
 				} else {
 					const existingContent = await loadContent(fs, file.encoding, file.id);
-					if (!areContentEqual(file.encoding, file.content, existingContent)) {
+					if (!isContentEqual(file.encoding, file.content, existingContent)) {
 						log.trace(label, 'updating stale build file on disk', gray(file.id));
 						shouldOutputNewFile = true;
 					} // ...else the build file on disk already matches what's in memory.
@@ -902,7 +859,7 @@ const syncBuildFilesToDisk = async (
 					// but it avoids unnecessary writing to disk and misleadingly updated file stats.
 				}
 			} else if (change.type === 'updated') {
-				if (!areContentEqual(file.encoding, file.content, change.oldFile.content)) {
+				if (!isContentEqual(file.encoding, file.content, change.oldFile.content)) {
 					log.trace(label, 'updating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				}
@@ -981,7 +938,7 @@ const diffBuildFiles = (
 	return changes;
 };
 
-const areContentEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
+const isContentEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
 		case 'utf8':
 			return a === b;
