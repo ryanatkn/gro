@@ -573,7 +573,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
 						return false;
 					}
-				} else if (areContentEqual(encoding, sourceFile.content, newSourceContent)) {
+				} else if (isContentEqual(encoding, sourceFile.content, newSourceContent)) {
 					// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 					return false;
 				} else {
@@ -850,7 +850,7 @@ const syncBuildFilesToDisk = async (
 					shouldOutputNewFile = true;
 				} else {
 					const existingContent = await loadContent(fs, file.encoding, file.id);
-					if (!areContentEqual(file.encoding, file.content, existingContent)) {
+					if (!isContentEqual(file.encoding, file.content, existingContent)) {
 						log.trace(label, 'updating stale build file on disk', gray(file.id));
 						shouldOutputNewFile = true;
 					} // ...else the build file on disk already matches what's in memory.
@@ -859,7 +859,7 @@ const syncBuildFilesToDisk = async (
 					// but it avoids unnecessary writing to disk and misleadingly updated file stats.
 				}
 			} else if (change.type === 'updated') {
-				if (!areContentEqual(file.encoding, file.content, change.oldFile.content)) {
+				if (!isContentEqual(file.encoding, file.content, change.oldFile.content)) {
 					log.trace(label, 'updating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				}
@@ -938,7 +938,7 @@ const diffBuildFiles = (
 	return changes;
 };
 
-const areContentEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
+const isContentEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
 	switch (encoding) {
 		case 'utf8':
 			return a === b;
