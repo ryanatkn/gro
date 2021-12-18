@@ -32,10 +32,12 @@ test__throttleAsync('discards all but one concurrent call', async () => {
 	await promiseA4;
 	assert.equal(results, ['a1_run', 'b1_run', 'a1_done', 'a4_run', 'b1_done', 'a4_done']);
 	// run once more just to ensure nothing is off
+	results.length = 0;
 	const promiseA1b = fn('a', 0, '1');
-	const promiseB1b = fn('b', 0, '1');
 	await promiseA1b;
+	const promiseB1b = fn('b', 0, '1');
 	await promiseB1b;
+	assert.equal(results, ['a1_run', 'a1_done', 'b1_run', 'b1_done']);
 });
 
 test__throttleAsync('throttles with a delay', async () => {
