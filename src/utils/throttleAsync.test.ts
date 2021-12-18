@@ -31,6 +31,11 @@ test__throttleAsync('discards all but one concurrent call', async () => {
 	assert.equal(results, ['a1_run', 'b1_run', 'a1_done', 'a4_run', 'b1_done']);
 	await promiseA4;
 	assert.equal(results, ['a1_run', 'b1_run', 'a1_done', 'a4_run', 'b1_done', 'a4_done']);
+	// run once more just to ensure nothing is off
+	const promiseA1b = fn('a', 0, '1');
+	const promiseB1b = fn('b', 0, '1');
+	await promiseA1b;
+	await promiseB1b;
 });
 
 test__throttleAsync.run();
