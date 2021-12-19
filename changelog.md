@@ -1,5 +1,10 @@
 # changelog
 
+## 0.47.3
+
+- make the `throttleAsync` cache key optional
+  ([#290](https://github.com/feltcoop/gro/pull/290))
+
 ## 0.47.2
 
 - fix bug with the `throttleAsync` `delay` option
