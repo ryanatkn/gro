@@ -16,14 +16,11 @@ test__throttleAsync('throttles all calls', async () => {
 	});
 	const promiseA = fn('a');
 	const promiseB = fn('b');
-	const promiseC = fn('c');
 	assert.equal(results, ['a_run']);
 	await promiseA;
 	assert.equal(results, ['a_run', 'a_done']);
 	await promiseB;
 	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done']);
-	await promiseC;
-	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done', 'c_run', 'c_done']);
 });
 
 test__throttleAsync('discards all but one concurrent call', async () => {
