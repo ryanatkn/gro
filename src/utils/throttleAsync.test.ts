@@ -14,15 +14,15 @@ test__throttleAsync('throttles all calls', async () => {
 		await wait();
 		results.push(name + '_done');
 	});
-	const promiseA1 = fn('a');
-	const promiseA2 = fn('b');
+	const promiseA = fn('a');
+	const promiseB = fn('b');
+	const promiseC = fn('c');
 	assert.equal(results, ['a_run']);
-	await promiseA1;
+	await promiseA;
 	assert.equal(results, ['a_run', 'a_done']);
-	await promiseA2;
+	await promiseB;
 	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done']);
-	const promiseA3 = fn('c');
-	await promiseA3;
+	await promiseC;
 	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done', 'c_run', 'c_done']);
 });
 
