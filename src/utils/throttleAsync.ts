@@ -16,14 +16,14 @@ import {wait} from '@feltcoop/felt';
  */
 export const throttleAsync = <TArgs extends any[]>(
 	fn: (...args: TArgs) => Promise<void>,
-	toCacheKey: (...args: TArgs) => any,
+	toCacheKey?: (...args: TArgs) => any,
 	delay: number = 0,
 ): ((...args: TArgs) => Promise<void>) => {
 	const cache: Map<string, {id: number; promise: Promise<void>}> = new Map();
 	let _id = 0;
 	return async (...args) => {
 		const id = _id++;
-		const cacheKey = toCacheKey(...args);
+		const cacheKey = toCacheKey ? toCacheKey(...args) : null;
 		let cached = cache.get(cacheKey);
 		if (cached) {
 			cached.id = id; // queue this one up

@@ -8,15 +8,13 @@
 
 > **Windows is not yet supported.** WSL works well enough
 
-> _warning_: You should not use Gro today
-> unless you're willing to take ownership of the code.
-> For now, consider Gro's free software
+> _heads up_: For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
 > meaning you're aware it's a lot of work to maintain,
 > and you're inviting it into your home anyway.
 > Docs are lacking, some things are in progress, and it might pee on your stuff.
 > ([caveat emptor](https://en.wikipedia.org/wiki/Caveat_emptor):
-> it's darn cute and quickly becomes a member of the family)
+> it's awwfully cute and quickly becomes a member of the family)
 > [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
 > are probably what you're looking for.
 > All that out of the way: you might find some interesting or useful things here!

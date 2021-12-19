@@ -7,6 +7,25 @@ import {throttleAsync} from './throttleAsync.js';
 /* test__throttleAsync */
 const test__throttleAsync = suite('throttleAsync');
 
+test__throttleAsync('throttles all calls', async () => {
+	const results: string[] = [];
+	const fn = throttleAsync(async (name: string) => {
+		results.push(name + '_run');
+		await wait();
+		results.push(name + '_done');
+	});
+	const promiseA1 = fn('a');
+	const promiseA2 = fn('b');
+	assert.equal(results, ['a_run']);
+	await promiseA1;
+	assert.equal(results, ['a_run', 'a_done']);
+	await promiseA2;
+	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done']);
+	const promiseA3 = fn('c');
+	await promiseA3;
+	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done', 'c_run', 'c_done']);
+});
+
 test__throttleAsync('discards all but one concurrent call', async () => {
 	const results: string[] = [];
 	const fn = throttleAsync(
