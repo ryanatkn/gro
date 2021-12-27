@@ -50,12 +50,11 @@
   },
   "dependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-node-resolve": "^13.1.1",
     "@rollup/pluginutils": "^4.1.1",
     "@types/source-map-support": ">=0.5.4",
     "cheap-watch": "^1.0.4",
     "es-module-lexer": "^0.9.3",
-    "esbuild": "^0.14.2",
     "fs-extra": "^10.0.0",
     "mri": "^1.2.0",
     "path-browserify": "^1.0.1",
@@ -65,28 +64,31 @@
     "source-map-support": ">=0.5.20",
     "sourcemap-codec": "^1.4.8",
     "strict-event-emitter-types": "^2.0.0",
-    "svelte": "^3.44.2",
     "svelte-check": "^2.2.10",
-    "svelte-preprocess-esbuild": "^2.0.0",
     "terser": "^5.10.0",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.3",
     "uvu": "^0.5.2"
   },
   "peerDependencies": {
-    "@feltcoop/felt": ">=0.14.0",
-    "@sveltejs/kit": "next",
-    "@types/source-map-support": ">=0.5.4",
-    "source-map-support": ">=0.5.20"
+    "@feltcoop/felt": ">=0.15.0",
+    "@sveltejs/kit": "*",
+    "esbuild": ">=0.9.0",
+    "svelte": ">=3.44.0",
+    "svelte-preprocess-esbuild": ">=2.0.0",
+    "typescript": ">=4.5.0"
   },
   "devDependencies": {
-    "@feltcoop/felt": "^0.14.1",
-    "@sveltejs/adapter-static": "^1.0.0-next.21",
-    "@sveltejs/kit": "^1.0.0-next.201",
+    "@feltcoop/felt": "^0.15.2",
+    "@sveltejs/adapter-static": "^1.0.0-next.23",
+    "@sveltejs/kit": "^1.0.0-next.203",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.12",
     "@types/path-browserify": "^1.0.0",
-    "@types/prettier": "^2.4.2"
+    "@types/prettier": "^2.4.2",
+    "esbuild": "^0.14.8",
+    "svelte": "^3.44.3",
+    "svelte-preprocess-esbuild": "^2.0.0",
+    "typescript": "^4.5.4"
   },
   "prettier": {
     "useTabs": true,
