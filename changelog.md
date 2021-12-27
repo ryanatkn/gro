@@ -4,6 +4,8 @@
 
 - make the `throttleAsync` cache key optional
   ([#290](https://github.com/feltcoop/gro/pull/290))
+- attempt to fix deps broken by [#286](https://github.com/feltcoop/gro/pull/286)
+  ([#291](https://github.com/feltcoop/gro/pull/291))
 
 ## 0.47.2
 
