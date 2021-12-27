@@ -71,7 +71,7 @@
   },
   "peerDependencies": {
     "@feltcoop/felt": ">=0.15.0",
-    "@sveltejs/kit": "*",
+    "@sveltejs/kit": ">=1.0.0-next.203",
     "esbuild": ">=0.9.0",
     "svelte": ">=3.44.0",
     "svelte-preprocess-esbuild": ">=2.0.0",
