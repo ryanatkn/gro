@@ -84,5 +84,6 @@ export const move404 = async (fs: Filesystem, dir: string): Promise<void> => {
 	const missingPath = `${dir}/404`;
 	if (await fs.exists(missingPath)) {
 		await fs.move(`${missingPath}/index.html`, `${dir}/404.html`);
+		await fs.remove(missingPath);
 	}
 };
