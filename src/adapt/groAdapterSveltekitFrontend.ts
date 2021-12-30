@@ -2,7 +2,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
 
 import type {Adapter} from 'src/adapt/adapt.js';
-import type {HostTarget} from 'src/adapt/utils.js';
+import {move404, type HostTarget} from 'src/adapt/utils.js';
 import {ensureNojekyll} from './utils.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';
 
@@ -28,7 +28,7 @@ export const createAdapter = ({
 
 			switch (hostTarget) {
 				case 'githubPages': {
-					await ensureNojekyll(fs, dir);
+					await Promise.all([ensureNojekyll(fs, dir), move404(fs, dir)]);
 					break;
 				}
 				case 'node': {
