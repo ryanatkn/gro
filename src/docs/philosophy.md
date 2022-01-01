@@ -18,7 +18,7 @@ and Gro's philosophy will change over time.
 ### we want tools that are:
 
 - **specific**: designed for our use cases and workflows; natural fits for the domain
-- **adaptable**: useful in novel situations, interoperable; often at tension with specificity
+- **adaptable**: useful in novel situations, interoperable; often at tension with domain specificity
 - **sharp**: powerful, efficient, productive, lean, integrated, wieldy
 - **automated**: leverage laziness to its full potential, with wisdom; see prior _point_
 - **customizable**: happypath defaults and full control when you need it; hypermodular
