@@ -23,7 +23,7 @@
 
 ## about
 
-Gro is an opin**i**ona**t**ed app framewor**k** or **kit**
+Gro is an opinionated webdev toolkit
 that complements [SvelteKit](https://github.com/sveltejs/kit)
 for making web frontends, servers, and libraries.
 It includes:
