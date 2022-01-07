@@ -3,7 +3,7 @@
 ## 0.47.5
 
 - mock SvelteKit imports like `'$app/navigation'` for tests
-  ([#293](https://github.com/feltcoop/gro/pull/293))
+  ([#294](https://github.com/feltcoop/gro/pull/294))
 
 ## 0.47.4
 
