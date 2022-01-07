@@ -25,10 +25,12 @@ export const config: GroConfigCreator = async ({dev}) => {
 					createFilter(['**/*.task.ts']),
 				],
 			},
-			{
-				...SYSTEM_BUILD_CONFIG,
-				input: SYSTEM_BUILD_CONFIG.input.concat('utils/sveltekitImportMocks.ts'),
-			},
+			dev
+				? {
+						...SYSTEM_BUILD_CONFIG,
+						input: SYSTEM_BUILD_CONFIG.input.concat('utils/sveltekitImportMocks.ts'),
+				  }
+				: null,
 		],
 		publish: '.',
 		sourcemap: dev,
