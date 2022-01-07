@@ -3,7 +3,7 @@ import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from 'src/config/config.js';
 import {toBuildOutPath} from './paths.js';
-import {NODE_LIBRARY_BUILD_CONFIG} from './build/buildConfigDefaults.js';
+import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './build/buildConfigDefaults.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
@@ -21,8 +21,13 @@ export const config: GroConfigCreator = async ({dev}) => {
 					// TODO probably extract these to another repo, felt or gen utils or something
 					'gen/helpers/html.ts',
 					'gen/helpers/ts.ts',
+					'utils/sveltekitImportMocks.ts',
 					createFilter(['**/*.task.ts']),
 				],
+			},
+			{
+				...SYSTEM_BUILD_CONFIG,
+				input: SYSTEM_BUILD_CONFIG.input.concat('utils/sveltekitImportMocks.ts'),
 			},
 		],
 		publish: '.',

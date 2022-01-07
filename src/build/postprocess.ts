@@ -10,6 +10,7 @@ import {
 	toBuildExtension,
 	TS_EXTENSION,
 	TS_TYPE_EXTENSION,
+	isThisProjectGro,
 } from '../paths.js';
 import type {BuildContext, BuildSource} from 'src/build/builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
@@ -158,7 +159,9 @@ const toBuildDependency = (
 	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;
 	if (external) {
-		mappedSpecifier = toBuildExtension(specifier, dev);
+		mappedSpecifier = hackToSveltekitImportMocks(toBuildExtension(specifier, dev));
+		// TODO is this needed?
+		finalSpecifier = hackToSveltekitImportMocks(finalSpecifier);
 		buildId = mappedSpecifier;
 	} else {
 		// internal import
@@ -178,9 +181,9 @@ const toBuildDependency = (
 // Maps absolute `$lib/` and `src/` imports to relative specifiers.
 const toRelativeSpecifier = (specifier: string, dir: string, sourceDir: string): string => {
 	if (specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
-		specifier = toRelativeSpecifierTrimmedBy(1, specifier, dir, sourceDir);
+		return toRelativeSpecifierTrimmedBy(1, specifier, dir, sourceDir);
 	} else if (specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
-		specifier = toRelativeSpecifierTrimmedBy(3, specifier, dir, sourceDir);
+		return toRelativeSpecifierTrimmedBy(3, specifier, dir, sourceDir);
 	}
 	return specifier;
 };
@@ -276,3 +279,16 @@ const hackToBuildExtensionWithPossiblyExtensionlessSpecifier = (
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.
 const HACK_EXTENSIONLESS_EXTENSIONS = new Set([SVELTE_EXTENSION, JS_EXTENSION, TS_EXTENSION]);
+
+// TODO extract this so it's configurable (this whole module is hacky and needs rethinking)
+const hackToSveltekitImportMocks = (specifier: string): string =>
+	sveltekitMockedSpecifiers.has(specifier) ? sveltekitMockedSpecifiers.get(specifier)! : specifier;
+const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
+	? '../../utils/sveltekitImportMocks.js'
+	: '@feltcoop/gro/dist/utils/sveltekitImportMocks.js';
+const sveltekitMockedSpecifiers = new Map([
+	['$app/env', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/navigation', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/paths', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/stores', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+]);
