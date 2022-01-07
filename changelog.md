@@ -1,5 +1,10 @@
 # changelog
 
+## 0.47.5
+
+- mock SvelteKit imports like `'$app/navigation'` for tests
+  ([#294](https://github.com/feltcoop/gro/pull/294))
+
 ## 0.47.4
 
 - fix 404 page for GitHub pages with SvelteKit adapter
