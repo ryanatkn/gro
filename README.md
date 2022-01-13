@@ -4,7 +4,7 @@
 
 > opinionated webdev toolkit
 
-> **pre-alpha**: suitable only for those who are unafraid of bad code and docs
+> **pre-alpha**: suitable only for the curious and reckless
 
 > **Windows is not yet supported.** WSL works well enough
 
