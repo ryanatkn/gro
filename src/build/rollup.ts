@@ -12,7 +12,7 @@ import commonjsPlugin from '@rollup/plugin-commonjs';
 import {rainbow} from '@feltcoop/felt/util/terminal.js';
 import {SystemLogger} from '@feltcoop/felt/util/log.js';
 import {printLogLabel} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {deindent} from '@feltcoop/felt/util/string.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';

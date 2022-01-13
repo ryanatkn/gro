@@ -5,7 +5,7 @@ import {
 	printLogLabel,
 	DEFAULT_LOG_LEVEL,
 } from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
 import type {Assignable, Result} from '@feltcoop/felt/util/types.js';
 import {toArray} from '@feltcoop/felt/util/array.js';

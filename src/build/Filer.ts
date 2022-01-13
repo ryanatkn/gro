@@ -5,7 +5,7 @@ import type StrictEventEmitter from 'strict-event-emitter-types';
 import {nulls, omitUndefined} from '@feltcoop/felt/util/object.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {gray, red, cyan} from '@feltcoop/felt/util/terminal.js';
 import {printError} from '@feltcoop/felt/util/print.js';
 import type {OmitStrict, Assignable, PartialExcept} from '@feltcoop/felt/util/types.js';

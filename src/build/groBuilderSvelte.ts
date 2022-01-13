@@ -2,7 +2,7 @@ import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 

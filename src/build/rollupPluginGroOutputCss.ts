@@ -3,7 +3,7 @@ import {dirname, join, relative} from 'path';
 import sourcemapCodec from 'sourcemap-codec';
 import {blue, gray} from '@feltcoop/felt/util/terminal.js';
 import {SystemLogger, printLogLabel} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 
 import type {Filesystem} from 'src/fs/filesystem.js';
 import type {GroCssBuild, GroCssBundle} from 'src/build/groCssBuild.js';

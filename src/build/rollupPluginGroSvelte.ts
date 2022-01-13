@@ -6,7 +6,7 @@ import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/util/terminal.js';
 import {toPathStem} from '@feltcoop/felt/util/path.js';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/groBuilderSvelteUtils.js';
 import type {SvelteCompilation} from 'src/build/groBuilderSvelteUtils.js';

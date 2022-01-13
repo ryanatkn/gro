@@ -7,7 +7,7 @@ import type {
 } from 'svelte/types/compiler/interfaces';
 import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {yellow} from '@feltcoop/felt/util/terminal.js';
 import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';
 import type {OmitStrict} from '@feltcoop/felt/util/types.js';

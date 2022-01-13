@@ -1,6 +1,6 @@
 import {join} from 'path';
 import {toEnvString} from '@feltcoop/felt/util/env.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 
 import type {Filesystem} from 'src/fs/filesystem.js';
 

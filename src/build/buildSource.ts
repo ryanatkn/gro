@@ -1,5 +1,5 @@
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {gray} from '@feltcoop/felt/util/terminal.js';
 

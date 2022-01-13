@@ -1,7 +1,7 @@
 import {createInterface as createReadlineInterface} from 'readline';
 import {spawn} from '@feltcoop/felt/util/process.js';
 import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
 
