@@ -26,5 +26,5 @@ You can still use `svelte-kit package`
 but it doesn't currently integrate with Gro's other systems, checks, and conventions.
 
 Gro's supplemental role is still a work in progress --
-in the current implementation, user projects manage their own SvelteKit dependencies,
-and commands like `gro dev` and `gro build` automatically detect SvelteKit projects.
+if you have questions or want to help, please feel invited to open issues
+or email me at ryan at felt dot social.

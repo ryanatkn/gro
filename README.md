@@ -36,7 +36,8 @@ It includes:
   and [publishing](/src/docs/publish.md)
   for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
   UIs along with Node servers, JS/TS/Svelte libraries, and other things
-  (see the [config docs](/src/docs/config.md), the [SvelteKit integration docs](/src/docs/sveltekit.md), and
+  (see the [SvelteKit integration docs](/src/docs/sveltekit.md),
+  the [Gro config docs](/src/docs/config.md), and
   [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts))
   - fully integrated [TypeScript](https://github.com/microsoft/typescript)
     and [Svelte](https://github.com/sveltejs/svelte)
