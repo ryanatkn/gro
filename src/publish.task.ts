@@ -5,7 +5,7 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
 
-import type {Task} from 'src/task/task.js';
+import {type Task} from 'src/task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import type {Filesystem} from 'src/fs/filesystem.js';

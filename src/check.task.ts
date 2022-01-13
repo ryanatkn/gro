@@ -1,4 +1,4 @@
-import type {Task} from 'src/task/task.js';
+import {type Task} from 'src/task/task.js';
 import {TaskError} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
 

@@ -1,4 +1,4 @@
-import type {Task} from 'src/task/task.js';
+import {type Task} from 'src/task/task.js';
 import {createGroServer, DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {loadHttpsCredentials} from './server/https.js';

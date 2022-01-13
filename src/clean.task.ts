@@ -1,6 +1,6 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
 
-import type {Task} from 'src/task/task.js';
+import {type Task} from 'src/task/task.js';
 import {cleanFs} from './fs/clean.js';
 
 export interface TaskArgs {

@@ -3,7 +3,7 @@ import {printMs, printError, printTimings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 
-import type {Task} from 'src/task/task.js';
+import {type Task} from 'src/task/task.js';
 import {TaskError} from './task/task.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';

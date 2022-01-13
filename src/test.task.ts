@@ -3,7 +3,7 @@ import {Timings} from '@feltcoop/felt/util/timings.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 import {yellow} from '@feltcoop/felt/util/terminal.js';
 
-import type {Task} from 'src/task/task.js';
+import {type Task} from 'src/task/task.js';
 import {TaskError} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';

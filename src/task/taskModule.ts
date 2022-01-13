@@ -2,7 +2,7 @@ import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
 import {loadModule, loadModules, findModules} from '../fs/modules.js';
 import type {ModuleMeta, LoadModuleResult} from 'src/fs/modules.js';
 import {toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
-import type {Task} from 'src/task/task.js';
+import {type Task} from 'src/task/task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import type {Filesystem} from 'src/fs/filesystem.js';
 
