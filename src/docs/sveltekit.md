@@ -28,3 +28,4 @@ but it doesn't currently integrate with Gro's other systems, checks, and convent
 Gro's supplemental role is still a work in progress --
 if you have questions or want to help, please feel invited to open issues
 or email me at ryan at felt dot social.
+For more see [contributing.md](/contributing.md).
