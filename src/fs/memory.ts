@@ -1,14 +1,14 @@
 import {compareSimpleMapEntries, sortMap} from '@feltcoop/felt/util/map.js';
-import type {Assignable} from '@feltcoop/felt/util/types.js';
+import {type Assignable} from '@feltcoop/felt/util/types.js';
 import {toPathParts} from '@feltcoop/felt/util/pathParsing.js';
 import {ensureEnd, stripStart} from '@feltcoop/felt/util/string.js';
 
 import {toFsId, FsStats} from './filesystem.js';
 import type {Filesystem, FsReadFile} from 'src/fs/filesystem.js';
 import type {FsCopyOptions, FsId, FsMoveOptions, FsNode} from 'src/fs/filesystem';
-import type {PathStats} from 'src/fs/pathData.js';
-import type {PathFilter} from 'src/fs/filter.js';
-import type {Encoding} from 'src/fs/encoding.js';
+import {type PathStats} from 'src/fs/pathData.js';
+import {type PathFilter} from 'src/fs/filter.js';
+import {type Encoding} from 'src/fs/encoding.js';
 
 // TODO should this module have a more specific name? or a more specific directory, with all other implementations?
 

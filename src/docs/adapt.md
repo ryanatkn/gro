@@ -71,7 +71,7 @@ In Gro, there's the `adapt` function property,
 a function that returns `Adapter` instances:
 
 ```ts
-import type {GroConfigCreator} from '@feltcoop/gro';
+import {type GroConfigCreator} from '@feltcoop/gro';
 
 export const config: GroConfigCreator = async () => {
 	return {

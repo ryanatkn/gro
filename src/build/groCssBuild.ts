@@ -1,4 +1,4 @@
-import type {ExistingRawSourceMap} from 'rollup';
+import {type ExistingRawSourceMap} from 'rollup';
 
 import type {CssBuild, CssBundle} from 'src/build/cssCache.js';
 

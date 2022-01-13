@@ -1,13 +1,13 @@
-import type {Result} from '@feltcoop/felt/util/types';
+import {type Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
-import type {BuildConfigInput} from 'src/build/buildConfig.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type BuildConfigInput} from 'src/build/buildConfig.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 import {buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
-import type {Paths} from 'src/paths.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
+import {type Paths} from 'src/paths.js';
+import {type BuildDependency} from 'src/build/buildDependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.

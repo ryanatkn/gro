@@ -6,7 +6,7 @@ import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
-import type {Args} from 'src/task/task.js';
+import {type Args} from 'src/task/task.js';
 import {serializeArgs} from '../task/task.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
@@ -27,7 +27,7 @@ import {findModules, loadModules} from '../fs/modules.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 
 /*
 

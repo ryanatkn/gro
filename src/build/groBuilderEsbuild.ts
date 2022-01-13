@@ -14,8 +14,8 @@ import {
 import type {Builder, TextBuildSource} from 'src/build/builder.js';
 import {addJsSourcemapFooter} from './utils.js';
 import {toGenerateTypesForFile} from './typescriptUtils.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
-import type {BuildFile} from 'src/build/buildFile.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
+import {type BuildFile} from 'src/build/buildFile.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {

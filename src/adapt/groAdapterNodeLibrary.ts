@@ -3,7 +3,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {replaceExtension, stripTrailingSlash} from '@feltcoop/felt/util/path.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 
-import type {Adapter} from 'src/adapt/adapt.js';
+import {type Adapter} from 'src/adapt/adapt.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from './utils.js';
 import {
@@ -18,12 +18,12 @@ import {
 	LIB_DIR,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import type {BuildName} from 'src/build/buildConfig.js';
+import {type BuildName} from 'src/build/buildConfig.js';
 import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
 import {runRollup} from '../build/rollup.js';
-import type {PathStats} from 'src/fs/pathData.js';
-import type {PackageJson} from 'src/utils/packageJson.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type PathStats} from 'src/fs/pathData.js';
+import {type PackageJson} from 'src/utils/packageJson.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 
 const name = '@feltcoop/groAdapterNodeLibrary';
 

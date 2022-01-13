@@ -6,7 +6,7 @@ import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {type EcmaScriptTarget} from 'src/build/typescriptUtils.js';
 import {
 	baseSvelteCompileOptions,
 	createDefaultPreprocessor,
@@ -22,9 +22,9 @@ import {
 	toBuildOutPath,
 } from '../paths.js';
 import type {Builder, TextBuildSource} from 'src/build/builder.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
+import {type BuildConfig} from 'src/build/buildConfig.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
-import type {BuildFile} from 'src/build/buildFile.js';
+import {type BuildFile} from 'src/build/buildFile.js';
 import {postprocess} from './postprocess.js';
 
 // TODO build types in production unless `declarations` is `false`,

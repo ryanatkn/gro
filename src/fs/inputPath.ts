@@ -9,10 +9,10 @@ import {
 	groDirBasename,
 	groPaths,
 } from '../paths.js';
-import type {Paths} from 'src/paths.js';
+import {type Paths} from 'src/paths.js';
 import {toPathData} from './pathData.js';
 import type {PathData, PathStats} from 'src/fs/pathData.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 
 /*
 

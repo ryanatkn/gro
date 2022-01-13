@@ -9,9 +9,9 @@ import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/groBuilderSvelteUtils.js';
-import type {SvelteCompilation} from 'src/build/groBuilderSvelteUtils.js';
+import {type SvelteCompilation} from 'src/build/groBuilderSvelteUtils.js';
 import {CSS_EXTENSION, printPath} from '../paths.js';
-import type {GroCssBuild} from 'src/build/groCssBuild.js';
+import {type GroCssBuild} from 'src/build/groCssBuild.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190

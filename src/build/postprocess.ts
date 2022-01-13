@@ -1,6 +1,6 @@
 import {join, extname, relative, basename} from 'path';
 import * as lexer from 'es-module-lexer';
-import type {Assignable} from '@feltcoop/felt';
+import {type Assignable} from '@feltcoop/felt';
 
 import {
 	paths,
@@ -13,9 +13,9 @@ import {
 } from '../paths.js';
 import type {BuildContext, BuildSource} from 'src/build/builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
+import {type BuildDependency} from 'src/build/buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
-import type {BuildFile} from 'src/build/buildFile.js';
+import {type BuildFile} from 'src/build/buildFile.js';
 
 export interface Postprocess {
 	(

@@ -8,7 +8,7 @@ import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
 import {type Task} from 'src/task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';

@@ -4,15 +4,15 @@ import {stripStart} from '@feltcoop/felt/util/string.js';
 
 import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from 'src/build/filerDir.js';
 import {reconstructBuildFiles} from './buildFile.js';
-import type {BuildFile} from 'src/build/buildFile.js';
-import type {BaseFilerFile} from 'src/build/filerFile.js';
+import {type BuildFile} from 'src/build/buildFile.js';
+import {type BaseFilerFile} from 'src/build/filerFile.js';
 import {toHash} from './utils.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
-import type {Encoding} from 'src/fs/encoding.js';
-import type {FilerFile} from 'src/build/Filer.js';
-import type {SourceMeta} from 'src/build/sourceMeta.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
-import type {BuildContext} from 'src/build/builder.js';
+import {type BuildConfig} from 'src/build/buildConfig.js';
+import {type Encoding} from 'src/fs/encoding.js';
+import {type FilerFile} from 'src/build/Filer.js';
+import {type SourceMeta} from 'src/build/sourceMeta.js';
+import {type BuildDependency} from 'src/build/buildDependency.js';
+import {type BuildContext} from 'src/build/builder.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
 export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;

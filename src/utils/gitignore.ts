@@ -8,7 +8,7 @@ import {
 	NODE_MODULES_DIRNAME,
 	SVELTEKIT_DEV_DIRNAME,
 } from '../paths.js';
-import type {IdFilter} from 'src/fs/filter.js';
+import {type IdFilter} from 'src/fs/filter.js';
 
 /*
 

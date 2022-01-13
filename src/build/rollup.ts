@@ -17,19 +17,19 @@ import {deindent} from '@feltcoop/felt/util/string.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {identity} from '@feltcoop/felt/util/function.js';
-import type {PartialExcept} from '@feltcoop/felt/util/types.js';
+import {type PartialExcept} from '@feltcoop/felt/util/types.js';
 
 import {rollupPluginGroDiagnostics} from './rollupPluginGroDiagnostics.js';
 import {paths} from '../paths.js';
 import {rollupPluginGroOutputCss} from './rollupPluginGroOutputCss.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 import {rollupPluginGroPlainCss} from './rollupPluginGroPlainCss.js';
-import type {CssCache} from 'src/build/cssCache.js';
+import {type CssCache} from 'src/build/cssCache.js';
 import {createCssCache} from './cssCache.js';
-import type {GroCssBuild} from 'src/build/groCssBuild.js';
+import {type GroCssBuild} from 'src/build/groCssBuild.js';
 import {rollupPluginGroSvelte} from './rollupPluginGroSvelte.js';
 import {createDefaultPreprocessor} from './groBuilderSvelteUtils.js';
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {type EcmaScriptTarget} from 'src/build/typescriptUtils.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from './buildConfigDefaults.js';
 
 export interface Options {

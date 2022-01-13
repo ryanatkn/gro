@@ -11,8 +11,8 @@ import {
 	SVELTE_EXTENSION,
 } from '../paths.js';
 import {getExtensions} from '../fs/mime.js';
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 

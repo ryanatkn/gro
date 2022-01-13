@@ -2,7 +2,7 @@ import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
 import {replaceExtension} from '@feltcoop/felt/util/path.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from 'src/fs/filesystem.js';
 import {
 	sourceIdToBasePath,
 	toTypesBuildDir,

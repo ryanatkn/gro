@@ -1,9 +1,9 @@
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import type {RestartableProcess} from '@feltcoop/felt/util/process.js';
+import {type RestartableProcess} from '@feltcoop/felt/util/process.js';
 import {spawnRestartableProcess} from '@feltcoop/felt/util/process.js';
 
 import type {Plugin, PluginContext} from 'src/plugin/plugin.js';
-import type {Args} from 'src/task/task.js';
+import {type Args} from 'src/task/task.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {toBuildOutDir} from '../paths.js';
 import type {BuildConfig, BuildName} from 'src/build/buildConfig.js';

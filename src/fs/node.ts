@@ -3,8 +3,8 @@ import fsExtra from 'fs-extra';
 import {sortMap, compareSimpleMapEntries} from '@feltcoop/felt/util/map.js';
 
 import type {Filesystem, FsWriteFile} from 'src/fs/filesystem.js';
-import type {PathStats} from 'src/fs/pathData.js';
-import type {PathFilter} from 'src/fs/filter.js';
+import {type PathStats} from 'src/fs/pathData.js';
+import {type PathFilter} from 'src/fs/filter.js';
 
 // This uses `CheapWatch` which probably isn't the fastest, but it works fine for now.
 // TODO should this API be changed to only include files and not directories?
