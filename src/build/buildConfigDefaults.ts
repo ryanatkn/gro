@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import type {BuildConfig, BuildName} from 'src/build/buildConfig.js';
+import {type BuildConfig, type BuildName} from './buildConfig.js';
 import {
 	toBuildExtension,
 	basePathToSourceId,
@@ -11,8 +11,8 @@ import {
 	SVELTE_EXTENSION,
 } from '../paths.js';
 import {getExtensions} from '../fs/mime.js';
-import {type EcmaScriptTarget} from 'src/build/typescriptUtils.js';
-import {type Filesystem} from 'src/fs/filesystem.js';
+import {type EcmaScriptTarget} from './typescriptUtils.js';
+import {type Filesystem} from '../fs/filesystem.js';
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 

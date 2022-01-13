@@ -3,7 +3,7 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 import {printError} from '@feltcoop/felt/util/print.js';
 import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
 
-import type {Args, Task} from 'src/task/task.js';
+import {type Args, type Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import {cleanFs} from './fs/clean.js';
