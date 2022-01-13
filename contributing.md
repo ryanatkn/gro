@@ -40,8 +40,8 @@ All that said: IMO and IME, **if you draw inside its lines, Gro is a good develo
 I am happy to take contributions in any form,
 but **please open [issues](https://github.com/feltcoop/gro/issues)**
 **before attempting work that you _expect_ to be merged.**
-If you're reasonably sure it's an straightforward improvement or don't mind being turned down,
-I don't mind if you only send a PR and no issue.
+If you're reasonably sure it's a straightforward improvement or don't mind being turned down,
+I don't mind if you send a PR and no issue.
 
 A standard caveat for this kind of toolkit: Gro can't work for everyone's needs and still be Gro.
 I'm trying to make it small, flexible, and batteries-included,
