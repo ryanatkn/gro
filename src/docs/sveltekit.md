@@ -5,8 +5,10 @@ like [tasks](./task.md), [codegen](./gen.md),
 [developing](./dev.md) Node servers,
 and [deploying](./deploy.md) to branches.
 
-Gro was created in August 2019 and it has evolved and changed scope substantially,
-multiple times. Today, it has decent integration with SvelteKit,
+Gro was created in August 2019 and it has evolved and changed scope substantially, multiple times.
+[SvelteKit was announced](https://www.youtube.com/watch?v=qSfdtmcZ4d0)
+in October 2020, over a year after Gro broke ground.
+Today, Gro has decent integration with SvelteKit,
 but there's a lot of room for improvement, both to further reduce Gro's scope,
 and to add new features and capabilities.
 
@@ -24,5 +26,6 @@ You can still use `svelte-kit package`
 but it doesn't currently integrate with Gro's other systems, checks, and conventions.
 
 Gro's supplemental role is still a work in progress --
-in the current implementation, user projects manage their own SvelteKit dependencies,
-and commands like `gro dev` and `gro build` automatically detect SvelteKit projects.
+if you have questions or want to help, please feel invited to open issues
+or email me: ryan at felt dot social.
+For more see [contributing.md](/contributing.md).

@@ -75,3 +75,15 @@ export const ensureNojekyll = async (fs: Filesystem, dir: string): Promise<void>
 		await fs.writeFile(nojekyllPath, '', 'utf8');
 	}
 };
+
+// GitHub fallback pages requires a `/404.html`,
+// but SvelteKit currently builds to `/404/index.html`.
+// This moves the file if it exists.
+// TODO remove when fixed: https://github.com/sveltejs/kit/issues/1209
+export const move404 = async (fs: Filesystem, dir: string): Promise<void> => {
+	const missingPath = `${dir}/404`;
+	if (await fs.exists(missingPath)) {
+		await fs.move(`${missingPath}/index.html`, `${dir}/404.html`);
+		await fs.remove(missingPath);
+	}
+};
