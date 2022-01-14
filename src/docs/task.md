@@ -96,7 +96,7 @@ export const task: Task = {
 
 ```ts
 // usage:
-// import type {Task, TaskContext} from '@feltcoop/gro';
+// import {type Task, type TaskContext} from '@feltcoop/gro';
 
 export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
@@ -243,7 +243,7 @@ Here's how a task can emit and listen to events:
 // src/some/mytask.task.ts
 import {type Task} from '@feltcoop/gro';
 
-import type {TaskEvents as OtherTaskEvents} from 'src/task/othertask.task.ts';
+import {type TaskEvents as OtherTaskEvents} from '../task/othertask.task.ts';
 
 export interface TaskArgs {}
 export interface TaskEvents extends OtherTaskEvents {

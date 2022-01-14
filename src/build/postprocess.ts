@@ -12,11 +12,11 @@ import {
 	TS_TYPE_EXTENSION,
 	isThisProjectGro,
 } from '../paths.js';
-import type {BuildContext, BuildSource} from 'src/build/builder.js';
+import {type BuildContext, type BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
-import {type BuildDependency} from 'src/build/buildDependency.js';
+import {type BuildDependency} from './buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
-import {type BuildFile} from 'src/build/buildFile.js';
+import {type BuildFile} from './buildFile.js';
 
 export interface Postprocess {
 	(

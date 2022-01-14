@@ -1,5 +1,5 @@
 import * as terser from 'terser';
-import type {Plugin as RollupPlugin} from 'rollup';
+import {type Plugin as RollupPlugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';

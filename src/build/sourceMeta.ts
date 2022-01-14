@@ -1,14 +1,18 @@
 import {gray} from '@feltcoop/felt/util/terminal.js';
 
-import {type Encoding} from 'src/fs/encoding.js';
+import {type Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
 import {getFileContentHash} from './filerFile.js';
-import {type BuildContext} from 'src/build/builder.js';
-import {type BuildableSourceFile} from 'src/build/sourceFile.js';
-import {type BuildName} from 'src/build/buildConfig.js';
-import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
-import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
-import {type Filesystem} from 'src/fs/filesystem.js';
+import {type BuildContext} from './builder.js';
+import {type BuildableSourceFile} from './sourceFile.js';
+import {type BuildName} from './buildConfig.js';
+import {
+	serializeBuildDependency,
+	deserializeBuildDependency,
+	type BuildDependency,
+	type SerializedBuildDependency,
+} from './buildDependency.js';
+import {type Filesystem} from '../fs/filesystem.js';
 import {throttleAsync} from '../utils/throttleAsync.js';
 
 export interface SourceMeta {

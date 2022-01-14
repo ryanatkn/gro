@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import type {SerializedSourceMetaData, SourceMetaData} from 'src/build/sourceMeta.js';
+import {type SerializedSourceMetaData, type SourceMetaData} from './sourceMeta.js';
 import {serializeSourceMeta, deserializeSourceMeta} from './sourceMeta.js';
 
 /* test__serializeSourceMeta */

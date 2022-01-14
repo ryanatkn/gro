@@ -7,24 +7,24 @@ import {
 } from '@feltcoop/felt/util/log.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
-import type {Assignable, Result} from '@feltcoop/felt/util/types.js';
+import {type Assignable, type Result} from '@feltcoop/felt/util/types.js';
 import {toArray} from '@feltcoop/felt/util/array.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {normalizeBuildConfigs, validateBuildConfigs} from '../build/buildConfig.js';
-import {type ToConfigAdapters} from 'src/adapt/adapt.js';
-import type {BuildConfig, BuildConfigPartial} from 'src/build/buildConfig.js';
+import {type ToConfigAdapters} from '../adapt/adapt.js';
+import {type BuildConfig, type BuildConfigPartial} from '../build/buildConfig.js';
 import {
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
 	CONFIG_BUILD_CONFIG,
 } from '../build/buildConfigDefaults.js';
-import {type EcmaScriptTarget} from 'src/build/typescriptUtils.js';
-import {type ServedDirPartial} from 'src/build/servedDir.js';
+import {type EcmaScriptTarget} from '../build/typescriptUtils.js';
+import {type ServedDirPartial} from '../build/servedDir.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
-import {type Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from '../fs/filesystem.js';
 import {config as createDefaultConfig} from './gro.config.default.js';
-import {type ToConfigPlugins} from 'src/plugin/plugin.js';
+import {type ToConfigPlugins} from '../plugin/plugin.js';
 
 /*
 

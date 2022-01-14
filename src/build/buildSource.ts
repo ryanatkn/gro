@@ -6,8 +6,8 @@ import {gray} from '@feltcoop/felt/util/terminal.js';
 import {paths, toTypesBuildDir} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
-import {type GroConfig} from 'src/config/config.js';
-import {type Filesystem} from 'src/fs/filesystem.js';
+import {type GroConfig} from '../config/config.js';
+import {type Filesystem} from '../fs/filesystem.js';
 import {generateTypes} from './typescriptUtils.js';
 
 export const buildSource = async (

@@ -1,6 +1,6 @@
-import {type SourceMeta} from 'src/build/sourceMeta.js';
-import {type BuildConfig} from 'src/build/buildConfig.js';
-import {type PackageJson} from 'src/utils/packageJson.js';
+import {type SourceMeta} from '../build/sourceMeta.js';
+import {type BuildConfig} from '../build/buildConfig.js';
+import {type PackageJson} from '../utils/packageJson.js';
 
 // TODO rename?
 // ProjectState (current)

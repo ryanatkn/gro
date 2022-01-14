@@ -1,9 +1,9 @@
-import type {ExistingRawSourceMap, PluginContext} from 'rollup';
+import {type ExistingRawSourceMap, type PluginContext} from 'rollup';
 import {type compile} from 'svelte/compiler';
 import * as svelte from 'svelte/compiler';
-import type {
-	CompileOptions as SvelteCompileOptions,
-	Warning as SvelteWarning,
+import {
+	type CompileOptions as SvelteCompileOptions,
+	type Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
 import {type PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
@@ -13,7 +13,7 @@ import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';
 import {type OmitStrict} from '@feltcoop/felt/util/types.js';
 
 import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
-import {type EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {type EcmaScriptTarget} from './typescriptUtils.js';
 import {printPath} from '../paths.js';
 
 export type CreatePreprocessor = (

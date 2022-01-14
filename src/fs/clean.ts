@@ -11,7 +11,7 @@ import {
 	SVELTEKIT_VITE_CACHE_PATH,
 	printPath,
 } from '../paths.js';
-import {type Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from './filesystem.js';
 
 export const cleanFs = async (
 	fs: Filesystem,

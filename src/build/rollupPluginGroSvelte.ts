@@ -1,7 +1,7 @@
 import * as svelte from 'svelte/compiler';
-import type {PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
-import type {Plugin as RollupPlugin} from 'rollup';
+import {type PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import {type CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import {type Plugin as RollupPlugin} from 'rollup';
 import {createFilter} from '@rollup/pluginutils';
 import {red} from '@feltcoop/felt/util/terminal.js';
 import {toPathStem} from '@feltcoop/felt/util/path.js';
@@ -9,9 +9,9 @@ import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 
 import {baseSvelteCompileOptions, handleWarn, handleStats} from '../build/groBuilderSvelteUtils.js';
-import {type SvelteCompilation} from 'src/build/groBuilderSvelteUtils.js';
+import {type SvelteCompilation} from './groBuilderSvelteUtils.js';
 import {CSS_EXTENSION, printPath} from '../paths.js';
-import {type GroCssBuild} from 'src/build/groCssBuild.js';
+import {type GroCssBuild} from './groCssBuild.js';
 
 // TODO support `package.json` "svelte" field
 // see reference here https://github.com/rollup/rollup-plugin-svelte/blob/master/index.js#L190

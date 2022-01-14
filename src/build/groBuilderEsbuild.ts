@@ -1,7 +1,6 @@
 import esbuild from 'esbuild';
 import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
-import type {EcmaScriptTarget, GenerateTypesForFile} from 'src/build/typescriptUtils.js';
 import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
 import {
 	JS_EXTENSION,
@@ -11,11 +10,15 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import type {Builder, TextBuildSource} from 'src/build/builder.js';
+import {type Builder, type TextBuildSource} from './builder.js';
 import {addJsSourcemapFooter} from './utils.js';
-import {toGenerateTypesForFile} from './typescriptUtils.js';
-import {type Filesystem} from 'src/fs/filesystem.js';
-import {type BuildFile} from 'src/build/buildFile.js';
+import {
+	toGenerateTypesForFile,
+	type EcmaScriptTarget,
+	type GenerateTypesForFile,
+} from './typescriptUtils.js';
+import {type Filesystem} from '../fs/filesystem.js';
+import {type BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {

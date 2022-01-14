@@ -6,7 +6,7 @@
 	import {getMetasByBuildName} from '$lib/app/sourceTree';
 	import {type SourceTree} from '$lib/app/sourceTree.js';
 	import {type View} from '$lib/app/view.js';
-	import {type SourceMeta} from 'src/build/sourceMeta.js';
+	import {type SourceMeta} from '../../build/sourceMeta.js';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
