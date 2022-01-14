@@ -44,3 +44,20 @@ export const toDefaultEsbuildPreprocessOptions = (
 			? undefined
 			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
 });
+
+export const toDefaultEsbuildBundleOptions = (
+	dev: boolean,
+	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
+	sourcemap = dev,
+): EsbuildTransformOptions => ({
+	target,
+	sourcemap,
+	format: 'esm',
+	charset: 'utf8', // following `svelte-preprocess-esbuild` here
+	// TODO hacky but trying to get dev build and publishing stuff figured out
+	// the more correct way is probably making a `define` option for user configs
+	define:
+		dev || isThisProjectGro
+			? undefined
+			: {'process.env.NODE_ENV': dev ? '"development"' : '"production"'},
+});

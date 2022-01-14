@@ -25,6 +25,7 @@ import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
 import {type PathStats} from '../fs/pathData.js';
 import {type PackageJson} from '../utils/packageJson.js';
 import {type Filesystem} from '../fs/filesystem.js';
+import {toDefaultEsbuildBundleOptions} from '../build/groBuilderEsbuildUtils.js';
 
 const name = '@feltcoop/groAdapterNodeLibrary';
 
@@ -94,8 +95,9 @@ export const createAdapter = ({
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
 				esbuild.build(
 					mapBundleOptions({
-						entryPoints: input,
+						...toDefaultEsbuildBundleOptions(dev, config.target, config.sourcemap),
 						bundle: true,
+						entryPoints: input,
 						outfile: outputDir + '/index.js',
 					}),
 				);
