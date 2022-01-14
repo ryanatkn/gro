@@ -7,7 +7,7 @@
 		"outDir": ".gro/tsc",
 		"baseUrl": ".",
 		"paths": {
-			"$lib/*": ["src/lib/*"]
+			"$lib/*": ["./src/lib/*"]
 		},
 		"isolatedModules": true,
 		"preserveValueImports": true,

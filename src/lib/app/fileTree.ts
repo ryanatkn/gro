@@ -2,7 +2,7 @@ import {toPathSegments} from '@feltcoop/felt/util/pathParsing.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 import {basename} from 'path-browserify';
 
-import {type SourceTreeMeta} from '$lib/app/sourceTree.js';
+import {type SourceTreeMeta} from '$lib/app/sourceTree';
 
 export type FileTreeNode = FileTreeFile | FileTreeFolder;
 
