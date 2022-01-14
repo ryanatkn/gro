@@ -9,7 +9,13 @@ const transformOptions = {
 	format: 'esm',
 	loader: 'ts',
 	charset: 'utf8',
-	// tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
+	tsconfigRaw: {
+		compilerOptions: {
+			importsNotUsedAsValues: 'remove',
+			// TODO why does this need to be disabled? behaves differently than `tsc`?
+			// preserveValueImports: true,
+		},
+	},
 };
 
 const bootstrap = async () => {
@@ -22,19 +28,22 @@ const bootstrap = async () => {
 	});
 	await fs.remove(outDir);
 
+	let count = 0;
+	let startTime = Date.now();
+
 	await watcher.init();
 	await Promise.all(
 		Array.from(watcher.paths.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
-			console.log('join(dir, path)', join(dir, path));
+			count++;
 			const contents = await fs.readFile(join(dir, path), 'utf8');
-			console.log('a', path);
 			const transformed = esbuild.transformSync(contents, transformOptions);
 			const outPath = join(outDir, path).slice(0, -2) + 'js';
-			console.log('outPath', outPath);
 			await fs.outputFile(outPath, transformed.code);
 		}),
 	);
+
+	console.log(`transformed ${count} files in ${Date.now() - startTime}ms`);
 };
 
 bootstrap().catch((err) => {
