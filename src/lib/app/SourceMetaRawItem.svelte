@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type {Writable} from 'svelte/store';
+	import {type Writable} from 'svelte/store';
 
 	import SourceId from '$lib/app/SourceId.svelte';
-	import type {SourceMeta} from 'src/build/sourceMeta.js';
+	import type {SourceMeta} from '../../build/sourceMeta';
 
 	export let sourceMeta: SourceMeta;
 	export let hoveredSourceMeta: Writable<SourceMeta | null>;

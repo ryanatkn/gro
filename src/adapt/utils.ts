@@ -1,10 +1,10 @@
 import {relative, dirname} from 'path';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {stripEnd, stripStart} from '@feltcoop/felt/util/string.js';
 
-import type {BuildConfig} from 'src/build/buildConfig.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
-import type {IdStatsFilter} from 'src/fs/filter.js';
+import {type BuildConfig} from '../build/buildConfig.js';
+import {type Filesystem} from '../fs/filesystem.js';
+import {type IdStatsFilter} from '../fs/filter.js';
 import {
 	toBuildBasePath,
 	toBuildOutPath,

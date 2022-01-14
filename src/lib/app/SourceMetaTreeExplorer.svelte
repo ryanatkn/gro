@@ -1,6 +1,5 @@
 <script lang="ts">
-	import {filterSelectedMetas} from '$lib/app/sourceTree';
-	import type {SourceTree} from '$lib/app/sourceTree.js';
+	import {filterSelectedMetas, type SourceTree} from '$lib/app/sourceTree';
 	import {toFileTreeFolder} from '$lib/app/fileTree';
 	import FileTreeExplorerFolder from '$lib/app/FileTreeExplorerFolder.svelte';
 	import {getProjectState} from '$lib/app/projectState';

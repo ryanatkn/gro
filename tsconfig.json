@@ -4,16 +4,14 @@
 		"target": "es2020",
 		"module": "esnext",
 		"lib": ["esnext", "dom"],
-		"outDir": ".gro/tsc",
+		"outDir": "./dist",
 		"baseUrl": ".",
 		"paths": {
-			"src/*": ["src/*"],
-			"$lib": ["src/lib"],
-			"$lib/*": ["src/lib/*"]
+			"$lib/*": ["./src/lib/*"]
 		},
 		"isolatedModules": true,
 		"preserveValueImports": true,
-		"importsNotUsedAsValues": "error",
+		"importsNotUsedAsValues": "remove",
 		"strict": true,
 		"useUnknownInCatchVariables": false,
 		"exactOptionalPropertyTypes": false,

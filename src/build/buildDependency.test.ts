@@ -1,8 +1,12 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
-import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
+import {
+	serializeBuildDependency,
+	deserializeBuildDependency,
+	type BuildDependency,
+	type SerializedBuildDependency,
+} from './buildDependency.js';
 
 /* test__serializeBuildDependency */
 const test__serializeBuildDependency = suite('serializeBuildDependency');

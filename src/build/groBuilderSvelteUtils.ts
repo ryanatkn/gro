@@ -1,19 +1,17 @@
-import type {ExistingRawSourceMap, PluginContext} from 'rollup';
-import type {compile} from 'svelte/compiler';
+import {type compile} from 'svelte/compiler';
 import * as svelte from 'svelte/compiler';
-import type {
-	CompileOptions as SvelteCompileOptions,
-	Warning as SvelteWarning,
+import {
+	type CompileOptions as SvelteCompileOptions,
+	type Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
-import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import {type PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {yellow} from '@feltcoop/felt/util/terminal.js';
 import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';
-import type {OmitStrict} from '@feltcoop/felt/util/types.js';
 
 import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {type EcmaScriptTarget} from './typescriptUtils.js';
 import {printPath} from '../paths.js';
 
 export type CreatePreprocessor = (
@@ -34,17 +32,7 @@ export interface SvelteCompileStats {
 	};
 }
 // TODO type belongs upstream - augmented for better safety
-export type SvelteCompilation = OmitStrict<ReturnType<typeof compile>, 'js' | 'css' | 'stats'> & {
-	js: {
-		code: string;
-		map: ExistingRawSourceMap | undefined;
-	};
-	css: {
-		code: string | null;
-		map: ExistingRawSourceMap | undefined;
-	};
-	stats: SvelteCompileStats;
-};
+export type SvelteCompilation = ReturnType<typeof compile>;
 
 // Commented-out values are the same as the defaults.
 export const baseSvelteCompileOptions: SvelteCompileOptions = {
@@ -74,7 +62,6 @@ export const handleWarn = (
 	warning: SvelteWarning,
 	_handleWarn: (id: string, warning: SvelteWarning, ...args: any[]) => void,
 	log: Logger,
-	_pluginOntext?: PluginContext,
 ): void => {
 	const warnArgs: any[] = [printPath(id)];
 	if (warning.frame) {
@@ -90,7 +77,6 @@ export const handleStats = (
 	stats: SvelteCompileStats,
 	_handleStats: (id: string, stats: SvelteCompileStats, ...args: any[]) => void,
 	log: Logger,
-	_pluginOntext?: PluginContext,
 ): void => {
 	log.trace(
 		printKeyValue('stats', printPath(id)),

@@ -1,8 +1,8 @@
 import type StrictEventEmitter from 'strict-event-emitter-types';
-import type {EventEmitter} from 'events';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type EventEmitter} from 'events';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from '../fs/filesystem.js';
 
 export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)

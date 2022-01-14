@@ -1,10 +1,10 @@
-import type {
-	OutputOptions as RollupOutputOptions,
-	InputOptions as RollupInputOptions,
-	InputOption as RollupInputOption,
-	RollupWatchOptions as RollupWatchOptions,
-	RollupOutput as RollupOutput,
-	RollupBuild as RollupBuild,
+import {
+	type OutputOptions as RollupOutputOptions,
+	type InputOptions as RollupInputOptions,
+	type InputOption as RollupInputOption,
+	type RollupWatchOptions as RollupWatchOptions,
+	type RollupOutput as RollupOutput,
+	type RollupBuild as RollupBuild,
 } from 'rollup';
 import {rollup, watch} from 'rollup';
 import resolvePlugin from '@rollup/plugin-node-resolve';
@@ -12,24 +12,17 @@ import commonjsPlugin from '@rollup/plugin-commonjs';
 import {rainbow} from '@feltcoop/felt/util/terminal.js';
 import {SystemLogger} from '@feltcoop/felt/util/log.js';
 import {printLogLabel} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {deindent} from '@feltcoop/felt/util/string.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {identity} from '@feltcoop/felt/util/function.js';
-import type {PartialExcept} from '@feltcoop/felt/util/types.js';
+import {type PartialExcept} from '@feltcoop/felt/util/types.js';
 
 import {rollupPluginGroDiagnostics} from './rollupPluginGroDiagnostics.js';
 import {paths} from '../paths.js';
-import {rollupPluginGroOutputCss} from './rollupPluginGroOutputCss.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
-import {rollupPluginGroPlainCss} from './rollupPluginGroPlainCss.js';
-import type {CssCache} from 'src/build/cssCache.js';
-import {createCssCache} from './cssCache.js';
-import type {GroCssBuild} from 'src/build/groCssBuild.js';
-import {rollupPluginGroSvelte} from './rollupPluginGroSvelte.js';
-import {createDefaultPreprocessor} from './groBuilderSvelteUtils.js';
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {type Filesystem} from '../fs/filesystem.js';
+import {type EcmaScriptTarget} from './typescriptUtils.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from './buildConfigDefaults.js';
 
 export interface Options {
@@ -43,7 +36,6 @@ export interface Options {
 	mapInputOptions: MapInputOptions;
 	mapOutputOptions: MapOutputOptions;
 	mapWatchOptions: MapWatchOptions;
-	cssCache: CssCache<GroCssBuild>;
 	log: Logger;
 }
 export type RequiredOptions = 'fs' | 'input';
@@ -57,7 +49,6 @@ export const initOptions = (opts: InitialOptions): Options => ({
 	mapInputOptions: identity,
 	mapOutputOptions: identity,
 	mapWatchOptions: identity,
-	cssCache: opts.cssCache || createCssCache(),
 	...omitUndefined(opts),
 	log: opts.log || new SystemLogger(printLogLabel('build')),
 });
@@ -105,27 +96,10 @@ export const runRollup = async (opts: InitialOptions): Promise<void> => {
 };
 
 const createInputOptions = async (options: Options): Promise<RollupInputOptions> => {
-	const {fs, cssCache, dev, target, sourcemap} = options;
-
-	const addPlainCssBuild = cssCache.addCssBuild.bind(null, 'bundle.plain.css');
-	const addSvelteCssBuild = cssCache.addCssBuild.bind(null, 'bundle.svelte.css');
-
 	const unmappedInputOptions: RollupInputOptions = {
 		input: options.input,
 		plugins: [
 			rollupPluginGroDiagnostics(),
-			rollupPluginGroSvelte({
-				dev,
-				addCssBuild: addSvelteCssBuild,
-				preprocessor: createDefaultPreprocessor(dev, target, sourcemap),
-				compileOptions: {},
-			}),
-			rollupPluginGroPlainCss({fs, addCssBuild: addPlainCssBuild}),
-			rollupPluginGroOutputCss({
-				fs,
-				getCssBundles: cssCache.getCssBundles,
-				sourcemap,
-			}),
 			resolvePlugin({preferBuiltins: true}),
 			commonjsPlugin(),
 		],

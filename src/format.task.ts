@@ -1,7 +1,6 @@
 import {printSpawnResult} from '@feltcoop/felt/util/process.js';
 
-import type {Task} from 'src/task/task.js';
-import {TaskError} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
 import {formatDirectory} from './format/formatDirectory.js';
 import {paths} from './paths.js';
 

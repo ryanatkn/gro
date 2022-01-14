@@ -4,7 +4,7 @@ attachProcessErrorHandlers();
 
 import mri from 'mri';
 
-import type {Args} from 'src/task/task.js';
+import {type Args} from '../task/task.js';
 import {invokeTask} from '../task/invokeTask.js';
 import {fs as nodeFs} from '../fs/node.js';
 

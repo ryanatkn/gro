@@ -1,10 +1,9 @@
-import {join, extname, relative, basename} from 'path';
+import {join, extname, relative} from 'path';
 import * as lexer from 'es-module-lexer';
-import type {Assignable} from '@feltcoop/felt';
+import {type Assignable} from '@feltcoop/felt';
 
 import {
 	paths,
-	CSS_EXTENSION,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildExtension,
@@ -12,19 +11,14 @@ import {
 	TS_TYPE_EXTENSION,
 	isThisProjectGro,
 } from '../paths.js';
-import type {BuildContext, BuildSource} from 'src/build/builder.js';
+import {type BuildContext, type BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
+import {type BuildDependency} from './buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
-import type {BuildFile} from 'src/build/buildFile.js';
+import {type BuildFile} from './buildFile.js';
 
 export interface Postprocess {
-	(
-		buildFile: BuildFile,
-		ctx: BuildContext,
-		buildFiles: BuildFile[],
-		source: BuildSource,
-	): Promise<void>;
+	(buildFile: BuildFile, ctx: BuildContext, source: BuildSource): Promise<void>;
 }
 
 // TODO refactor the TypeScript- and Svelte-specific postprocessing into the builders
@@ -32,13 +26,12 @@ export interface Postprocess {
 
 // Mutates `buildFile` with possibly new `content` and `dependencies`.
 // Defensively clone if upstream clone doesn't want mutation.
-export const postprocess: Postprocess = async (buildFile, ctx, buildFiles, source) => {
+export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 	if (buildFile.encoding !== 'utf8') return;
 
-	const {dir, extension, content: originalContent, buildConfig} = buildFile;
+	const {dir, extension, content: originalContent} = buildFile;
 
 	let content = originalContent;
-	const browser = buildConfig.platform === 'browser';
 	let dependencies: Map<string, BuildDependency> | null = null;
 
 	const handleSpecifier: HandleSpecifier = (specifier) => {
@@ -77,18 +70,6 @@ export const postprocess: Postprocess = async (buildFile, ctx, buildFiles, sourc
 			parseTypeDependencies(content, handleSpecifier);
 			content = replaceDependencies(content, dependencies);
 			break;
-		}
-	}
-
-	// Support Svelte CSS for development in the browser.
-	if (browser && source.extension === SVELTE_EXTENSION && extension === JS_EXTENSION) {
-		const cssBuildFile = buildFiles.find((c) => c.extension === CSS_EXTENSION);
-		if (cssBuildFile !== undefined) {
-			// TODO this is hardcoded to a sibling module, but that may be overly restrictive --
-			// a previous version of this code used the `ctx.servedDirs` to handle any location,
-			// but this coupled the build outputs to the served dirs, which failed and is weird
-			const importPath = `./${basename(cssBuildFile.filename)}`;
-			content = injectSvelteCssImport(content, importPath, ctx.dev);
 		}
 	}
 
@@ -240,24 +221,6 @@ const replaceDependencies = (
 // TODO upstream to felt probably
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/RegularExpressions
 const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const injectSvelteCssImport = (content: string, importPath: string, dev: boolean): string => {
-	let newlineIndex = content.length;
-	for (let i = 0; i < content.length; i++) {
-		if (content[i] === '\n') {
-			newlineIndex = i;
-			break;
-		}
-	}
-	const injectedCssLoaderScript = dev
-		? `;globalThis.gro.registerCss('${importPath}');`
-		: `;import '${importPath}';`;
-	const newContent = `${content.substring(
-		0,
-		newlineIndex,
-	)}${injectedCssLoaderScript}${content.substring(newlineIndex)}`;
-	return newContent;
-};
 
 // This is a temporary hack to allow importing `to/thing` as equivalent to `to/thing.js`,
 // despite it being off-spec, because of this combination of problems with TypeScript and Vite:

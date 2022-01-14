@@ -1,19 +1,20 @@
 import * as svelte from 'svelte/compiler';
-import type {PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import {type PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import {type CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {cyan} from '@feltcoop/felt/util/terminal.js';
 
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import {type EcmaScriptTarget} from './typescriptUtils.js';
 import {
 	baseSvelteCompileOptions,
 	createDefaultPreprocessor,
 	handleStats,
 	handleWarn,
+	type CreatePreprocessor,
+	type SvelteCompilation,
 } from './groBuilderSvelteUtils.js';
-import type {CreatePreprocessor, SvelteCompilation} from 'src/build/groBuilderSvelteUtils.js';
 import {
 	CSS_EXTENSION,
 	JS_EXTENSION,
@@ -21,10 +22,10 @@ import {
 	SVELTE_EXTENSION,
 	toBuildOutPath,
 } from '../paths.js';
-import type {Builder, TextBuildSource} from 'src/build/builder.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
+import {type Builder, type TextBuildSource} from './builder.js';
+import {type BuildConfig} from './buildConfig.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
-import type {BuildFile} from 'src/build/buildFile.js';
+import {type BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
 
 // TODO build types in production unless `declarations` is `false`,
@@ -101,9 +102,7 @@ export const groBuilderSvelte = (options: Options = {}): SvelteBuilder => {
 					mimeType: undefined,
 				},
 			];
-			await Promise.all(
-				buildFiles.map((buildFile) => postprocess(buildFile, ctx, buildFiles, source)),
-			);
+			await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));
 			return buildFiles;
 		}
 
@@ -218,9 +217,7 @@ export const groBuilderSvelte = (options: Options = {}): SvelteBuilder => {
 			}
 		}
 
-		await Promise.all(
-			buildFiles.map((buildFile) => postprocess(buildFile, ctx, buildFiles, source)),
-		);
+		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));
 		return buildFiles;
 	};
 

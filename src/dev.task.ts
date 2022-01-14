@@ -1,16 +1,15 @@
 import {printTimings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 
-import type {Task} from 'src/task/task.js';
+import {type Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {groBuilderDefault} from './build/groBuilderDefault.js';
 import {paths, toBuildOutPath} from './paths.js';
-import type {GroConfig} from 'src/config/config.js';
-import {loadConfig} from './config/config.js';
-import type {ServedDirPartial} from 'src/build/servedDir.js';
-import type {PluginContext} from './plugin/plugin.js';
+import {loadConfig, type GroConfig} from './config/config.js';
+import {type ServedDirPartial} from './build/servedDir.js';
+import {type PluginContext} from './plugin/plugin.js';
 import {Plugins} from './plugin/plugin.js';
-import type {DevServerPluginContext} from 'src/plugin/groPluginDevServer.js';
+import {type DevServerPluginContext} from './plugin/groPluginDevServer.js';
 
 export interface TaskArgs {
 	watch?: boolean; // defaults to `true`

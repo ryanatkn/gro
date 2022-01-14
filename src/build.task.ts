@@ -1,10 +1,9 @@
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {printTimings} from '@feltcoop/felt/util/print.js';
 
-import type {Task} from 'src/task/task.js';
-import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from 'src/build/rollup.js';
-import {loadConfig} from './config/config.js';
-import type {GroConfig} from 'src/config/config.js';
+import {type Task} from './task/task.js';
+import {type MapInputOptions, type MapOutputOptions, type MapWatchOptions} from './build/rollup.js';
+import {loadConfig, type GroConfig} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
 import {Plugins} from './plugin/plugin.js';

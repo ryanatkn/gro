@@ -82,7 +82,7 @@ $ gro gro/some/file
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import {type Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -96,7 +96,7 @@ export const task: Task = {
 
 ```ts
 // usage:
-// import type {Task, TaskContext} from '@feltcoop/gro';
+// import {type Task, type TaskContext} from '@feltcoop/gro';
 
 export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
@@ -143,7 +143,7 @@ gro some/file
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import {type Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
@@ -178,7 +178,7 @@ $ gro test
 
 ```ts
 // src/test.task.ts
-import type {Task} from '@feltcoop/gro';
+import {type Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
@@ -207,7 +207,7 @@ Some Gro tasks use a value mapping pattern convention that we tentatively recomm
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import {type Task} from '@feltcoop/gro';
 
 import {TaskArgs as OtherTaskArgs} from './other.task.js';
 
@@ -241,9 +241,9 @@ Here's how a task can emit and listen to events:
 
 ```ts
 // src/some/mytask.task.ts
-import type {Task} from '@feltcoop/gro';
+import {type Task} from '@feltcoop/gro';
 
-import type {TaskEvents as OtherTaskEvents} from 'src/task/othertask.task.ts';
+import {type TaskEvents as OtherTaskEvents} from '../task/othertask.task.ts';
 
 export interface TaskArgs {}
 export interface TaskEvents extends OtherTaskEvents {
@@ -291,7 +291,7 @@ export const task: Task = {
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import {type Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	production: true, // task runner will spawn a new process if `process.env.NODE_ENV` isn't 'production'

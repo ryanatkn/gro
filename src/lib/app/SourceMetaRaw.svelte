@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type {Writable} from 'svelte/store';
+	import {type Writable} from 'svelte/store';
 
 	import SourceMetaRawItem from '$lib/app/SourceMetaRawItem.svelte';
-	import {filterSelectedMetas} from '$lib/app/sourceTree';
-	import type {SourceTree} from '$lib/app/sourceTree.js';
-	import type {SourceMeta} from 'src/build/sourceMeta.js';
+	import {filterSelectedMetas, type SourceTree} from '$lib/app/sourceTree';
+	import type {SourceMeta} from '../../build/sourceMeta';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

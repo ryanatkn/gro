@@ -4,7 +4,7 @@ import {replaceExtension, stripTrailingSlash} from '@feltcoop/felt/util/path.js'
 import {stripStart} from '@feltcoop/felt/util/string.js';
 import {gray} from '@feltcoop/felt/util/terminal.js';
 
-import type {BuildName} from 'src/build/buildConfig.js';
+import {type BuildName} from './build/buildConfig.js';
 
 /*
 

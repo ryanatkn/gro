@@ -2,17 +2,17 @@ import {basename, dirname} from 'path';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 
-import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from 'src/build/filerDir.js';
+import {type NonBuildableFilerDir, type BuildableFilerDir, type FilerDir} from './filerDir.js';
 import {reconstructBuildFiles} from './buildFile.js';
-import type {BuildFile} from 'src/build/buildFile.js';
-import type {BaseFilerFile} from 'src/build/filerFile.js';
+import {type BuildFile} from './buildFile.js';
+import {type BaseFilerFile} from './filerFile.js';
 import {toHash} from './utils.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
-import type {Encoding} from 'src/fs/encoding.js';
-import type {FilerFile} from 'src/build/Filer.js';
-import type {SourceMeta} from 'src/build/sourceMeta.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
-import type {BuildContext} from 'src/build/builder.js';
+import {type BuildConfig} from './buildConfig.js';
+import {type Encoding} from '../fs/encoding.js';
+import {type FilerFile} from './Filer.js';
+import {type SourceMeta} from './sourceMeta.js';
+import {type BuildDependency} from './buildDependency.js';
+import {type BuildContext} from './builder.js';
 
 export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
 export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;

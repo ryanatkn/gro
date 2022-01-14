@@ -1,7 +1,7 @@
 import {setContext, getContext} from 'svelte';
-import type {Writable} from 'svelte/store';
+import {type Writable} from 'svelte/store';
 
-import type {ProjectState} from 'src/server/projectState.js';
+import type {ProjectState} from '../../server/projectState';
 
 const contextKey = Symbol();
 

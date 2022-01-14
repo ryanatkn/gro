@@ -5,38 +5,41 @@ import type StrictEventEmitter from 'strict-event-emitter-types';
 import {nulls, omitUndefined} from '@feltcoop/felt/util/object.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 import {gray, red, cyan} from '@feltcoop/felt/util/terminal.js';
 import {printError} from '@feltcoop/felt/util/print.js';
-import type {OmitStrict, Assignable, PartialExcept} from '@feltcoop/felt/util/types.js';
+import {type OmitStrict, type Assignable, type PartialExcept} from '@feltcoop/felt/util/types.js';
 
-import type {Filesystem} from 'src/fs/filesystem.js';
-import {createFilerDir} from '../build/filerDir.js';
-import type {FilerDir, FilerDirChangeCallback} from 'src/build/filerDir.js';
+import {type Filesystem} from '../fs/filesystem.js';
+import {createFilerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';
 import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
-import type {MapDependencyToSourceId} from 'src/build/utils.js';
+import {type MapDependencyToSourceId} from './utils.js';
 import {paths as defaultPaths, toBuildOutPath} from '../paths.js';
-import type {Paths} from 'src/paths.js';
-import type {BuildContext, Builder} from 'src/build/builder.js';
+import {type Paths} from '../paths.js';
+import {type BuildContext, type Builder} from './builder.js';
 import {inferEncoding} from '../fs/encoding.js';
-import type {Encoding} from 'src/fs/encoding.js';
+import {type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
-import type {BuildName} from 'src/build/buildConfig.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
+import {type BuildName} from './buildConfig.js';
+import {type BuildConfig} from './buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
-import {stripBase, toServedDirs} from './servedDir.js';
-import type {ServedDir, ServedDirPartial} from 'src/build/servedDir.js';
-import {assertBuildableSourceFile, assertSourceFile, createSourceFile} from './sourceFile.js';
-import type {BuildableSourceFile, SourceFile} from 'src/build/sourceFile.js';
+import {type EcmaScriptTarget} from './typescriptUtils.js';
+import {stripBase, toServedDirs, type ServedDir, type ServedDirPartial} from './servedDir.js';
+import {
+	assertBuildableSourceFile,
+	assertSourceFile,
+	createSourceFile,
+	type BuildableSourceFile,
+	type SourceFile,
+} from './sourceFile.js';
 import {diffDependencies} from './buildFile.js';
-import type {BuildFile} from 'src/build/buildFile.js';
-import type {BaseFilerFile} from 'src/build/filerFile.js';
+import {type BuildFile} from './buildFile.js';
+import {type BaseFilerFile} from './filerFile.js';
 import {loadContent} from './load.js';
-import type {SourceMeta} from 'src/build/sourceMeta.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
+import {type SourceMeta} from './sourceMeta.js';
+import {type BuildDependency} from './buildDependency.js';
 import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
-import type {PathFilter} from 'src/fs/filter.js';
+import {type PathFilter} from '../fs/filter.js';
 import {isExternalModule} from '../utils/module.js';
 import {throttleAsync} from '../utils/throttleAsync.js';
 

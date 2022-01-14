@@ -1,12 +1,12 @@
 import {resolve} from 'path';
 import {toArray} from '@feltcoop/felt/util/array.js';
 import {blue, gray} from '@feltcoop/felt/util/terminal.js';
-import type {Result, Flavored} from '@feltcoop/felt/util/types.js';
+import {type Result, type Flavored} from '@feltcoop/felt/util/types.js';
 
 import {paths} from '../paths.js';
 import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';
 import {validateInputFiles} from './utils.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type Filesystem} from '../fs/filesystem.js';
 
 // See `../docs/config.md` for documentation.
 

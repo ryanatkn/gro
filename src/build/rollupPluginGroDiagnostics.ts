@@ -1,4 +1,4 @@
-import type {Plugin as RollupPlugin} from 'rollup';
+import {type Plugin as RollupPlugin} from 'rollup';
 import {gray} from '@feltcoop/felt/util/terminal.js';
 import {SystemLogger} from '@feltcoop/felt/util/log.js';
 import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';

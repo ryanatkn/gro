@@ -1,13 +1,9 @@
-import type {Builder} from 'src/build/builder.js';
+import {type Builder} from './builder.js';
 import {JSON_EXTENSION, JS_EXTENSION, SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
-import {groBuilderSimple} from './groBuilderSimple.js';
-import type {Options as SimpleBuilderOptions} from 'src/build/groBuilderSimple.js';
-import {groBuilderEsbuild} from './groBuilderEsbuild.js';
-import type {Options as EsbuildBuilderOptions} from 'src/build/groBuilderEsbuild.js';
-import {groBuilderSvelte} from './groBuilderSvelte.js';
-import type {Options as SvelteBuilderOptions} from 'src/build/groBuilderSvelte.js';
-import {groBuilderJson} from './groBuilderJson.js';
-import type {Options as JsonBuilderOptions} from 'src/build/groBuilderJson.js';
+import {groBuilderSimple, type Options as SimpleBuilderOptions} from './groBuilderSimple.js';
+import {groBuilderEsbuild, type Options as EsbuildBuilderOptions} from './groBuilderEsbuild.js';
+import {groBuilderSvelte, type Options as SvelteBuilderOptions} from './groBuilderSvelte.js';
+import {groBuilderJson, type Options as JsonBuilderOptions} from './groBuilderJson.js';
 
 export interface Options {
 	esbuildBuilderOptions?: EsbuildBuilderOptions;

@@ -2,8 +2,7 @@
 	import BuildId from '$lib/app/BuildId.svelte';
 	import SourceId from '$lib/app/SourceId.svelte';
 	import BuildName from '$lib/app/BuildName.svelte';
-	import {filterSelectedMetas, getBuildsByBuildName} from '$lib/app/sourceTree';
-	import type {SourceTree} from '$lib/app/sourceTree.js';
+	import {filterSelectedMetas, getBuildsByBuildName, type SourceTree} from '$lib/app/sourceTree';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

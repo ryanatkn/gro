@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {View} from '$lib/app/view.js';
+	import {type View} from '$lib/app/view';
 
 	// TODO maybe change this data structure?
 	// just accept a string? class name in a registry? a file path? url?

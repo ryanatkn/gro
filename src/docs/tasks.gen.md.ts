@@ -3,7 +3,7 @@ import {toPathParts, toPathSegments} from '@feltcoop/felt/util/pathParsing.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 import {last} from '@feltcoop/felt/util/array.js';
 
-import type {Gen} from '../gen/gen.js';
+import {type Gen} from '../gen/gen.js';
 import {toOutputFileName} from '../gen/gen.js';
 import {paths, basePathToSourceId} from '../paths.js';
 import {loadTaskModules} from '../task/taskModule.js';

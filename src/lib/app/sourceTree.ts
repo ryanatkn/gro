@@ -1,7 +1,7 @@
 import {deepEqual} from '@feltcoop/felt/util/equal.js';
 
-import type {SourceMeta, SourceMetaBuild} from 'src/build/sourceMeta.js';
-import type {BuildConfig, BuildName} from 'src/build/buildConfig.js';
+import type {SourceMeta, SourceMetaBuild} from '../../build/sourceMeta';
+import type {BuildConfig, BuildName} from '../../build/buildConfig';
 
 export interface SourceTree {
 	// readonly children: SourceTreeNode[];

@@ -1,12 +1,11 @@
-import type {EventEmitter} from 'events';
+import {type EventEmitter} from 'events';
 import {cyan, red} from '@feltcoop/felt/util/terminal.js';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 
-import type {TaskModuleMeta} from 'src/task/taskModule.js';
-import type {Args} from 'src/task/task.js';
-import {TaskError} from './task.js';
-import type {invokeTask as InvokeTaskFunction} from 'src/task/invokeTask.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import {type TaskModuleMeta} from './taskModule.js';
+import {TaskError, type Args} from './task.js';
+import {type invokeTask as InvokeTaskFunction} from './invokeTask.js';
+import {type Filesystem} from '../fs/filesystem.js';
 
 export type RunTaskResult =
 	| {
