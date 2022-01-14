@@ -1,8 +1,8 @@
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {printTimings} from '@feltcoop/felt/util/print.js';
+import type esbuild from 'esbuild';
 
 import {type Task} from './task/task.js';
-import {type MapInputOptions, type MapOutputOptions, type MapWatchOptions} from './build/rollup.js';
 import {loadConfig, type GroConfig} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
@@ -12,9 +12,7 @@ import {cleanFs} from './fs/clean.js';
 export interface TaskArgs {
 	clean?: boolean;
 	'no-clean'?: boolean;
-	mapInputOptions?: MapInputOptions;
-	mapOutputOptions?: MapOutputOptions;
-	mapWatchOptions?: MapWatchOptions;
+	mapBundleOptions?: esbuild.BuildOptions;
 }
 
 export interface TaskEvents {

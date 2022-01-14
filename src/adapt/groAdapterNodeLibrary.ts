@@ -2,6 +2,8 @@ import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {replaceExtension, stripTrailingSlash} from '@feltcoop/felt/util/path.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
+import esbuild from 'esbuild';
+import {identity} from '@feltcoop/felt/util/function.js';
 
 import {type Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
@@ -20,7 +22,6 @@ import {
 import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {type BuildName} from '../build/buildConfig.js';
 import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
-import {runRollup} from '../build/rollup.js';
 import {type PathStats} from '../fs/pathData.js';
 import {type PackageJson} from '../utils/packageJson.js';
 import {type Filesystem} from '../fs/filesystem.js';
@@ -72,7 +73,7 @@ export const createAdapter = ({
 	return {
 		name,
 		adapt: async ({config, fs, dev, log, args, timings}) => {
-			const {mapInputOptions, mapOutputOptions, mapWatchOptions} = args;
+			const {mapBundleOptions = identity} = args;
 
 			const buildConfig = config.builds.find((b) => b.name === buildName);
 			if (!buildConfig) {
@@ -82,7 +83,7 @@ export const createAdapter = ({
 			const files = toInputFiles(buildConfig.input);
 
 			if (bundle) {
-				const timingToBundleWithRollup = timings.start('bundle with rollup');
+				const timingToBundle = timings.start('bundle with rollup');
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
 					log.trace('no input files in', printBuildConfigLabel(buildConfig));
@@ -91,17 +92,14 @@ export const createAdapter = ({
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 				const outputDir = dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				await runRollup({
-					fs,
-					dev,
-					sourcemap: config.sourcemap,
-					input,
-					outputDir,
-					mapInputOptions,
-					mapOutputOptions,
-					mapWatchOptions,
-				});
-				timingToBundleWithRollup();
+				esbuild.build(
+					mapBundleOptions({
+						entryPoints: input,
+						bundle: true,
+						outfile: 'TODO', // `outputDir`
+					}),
+				);
+				timingToBundle();
 			}
 
 			const timingToCopyDist = timings.start('copy build to dist');

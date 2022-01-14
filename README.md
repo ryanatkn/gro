@@ -200,7 +200,6 @@ Gro builds on
 [Svelte](https://github.com/sveltejs/svelte) ∙
 [SvelteKit](https://github.com/sveltejs/kit) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
-[Rollup](https://github.com/rollup/rollup) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
