@@ -14,7 +14,6 @@
     "start": "gro",
     "test": "gro test",
     "bootstrap": "node src/bootstrap.js",
-    "bootstrapOLD": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=dist; npm link",
     "dev": "clear && npm run bootstrap && gro dev",
     "build": "clear && npm run bootstrap && gro build"
   },
