@@ -21,6 +21,7 @@ const transformOptions = {
 const bootstrap = async () => {
 	const dir = resolve('src');
 	const outDir = resolve('dist');
+	await fs.remove(outDir);
 	const watcher = new CheapWatch({
 		dir,
 		filter: ({path, stats}) => stats.isDirectory() || path.endsWith('.ts'),
