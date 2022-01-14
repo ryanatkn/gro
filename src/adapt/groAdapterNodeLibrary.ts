@@ -96,7 +96,7 @@ export const createAdapter = ({
 					mapBundleOptions({
 						entryPoints: input,
 						bundle: true,
-						outfile: 'TODO', // `outputDir`
+						outfile: outputDir,
 					}),
 				);
 				timingToBundle();
