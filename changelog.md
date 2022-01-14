@@ -1,8 +1,14 @@
 # changelog
 
+## 0.49.0
+
+- **break**: remove `svelte-check` as a dependency,
+  but still call it in `gro typecheck` if installed
+  ([#296](https://github.com/feltcoop/gro/pull/296))
+
 ## 0.48.0
 
-- remove Rollup and its plugins as a dependency, and use esbuild for bundling instead;
+- **break**: remove Rollup and its plugins as a dependency, and use esbuild for bundling instead;
   this changes the Node library adapter interface to use `mapBundleOptions`
   and removes the Rollup mapping functions
   ([#295](https://github.com/feltcoop/gro/pull/295))
