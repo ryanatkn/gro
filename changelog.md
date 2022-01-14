@@ -2,7 +2,7 @@
 
 ## 0.47.6
 
-- remove Rollup and its plugins as a dependency, and use `esbuild` for bundling instead
+- remove Rollup and its plugins as a dependency, and use esbuild for bundling instead
   ([#295](https://github.com/feltcoop/gro/pull/295))
 
 ## 0.47.5
