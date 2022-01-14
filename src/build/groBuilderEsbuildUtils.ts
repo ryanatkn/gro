@@ -7,7 +7,6 @@ import {type EcmaScriptTarget} from './typescriptUtils.js';
 
 export interface EsbuildTransformOptions extends esbuild.TransformOptions {
 	target: EcmaScriptTarget;
-	sourcemap: boolean;
 }
 
 export const toDefaultEsbuildOptions = (
@@ -49,7 +48,7 @@ export const toDefaultEsbuildBundleOptions = (
 	dev: boolean,
 	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = dev,
-): EsbuildTransformOptions => ({
+): esbuild.BuildOptions => ({
 	target,
 	sourcemap,
 	format: 'esm',

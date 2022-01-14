@@ -62,6 +62,10 @@ export interface Options {
 	bundle: boolean; // defaults to `false`
 }
 
+export interface AdapterArgs {
+	mapBundleOptions?(options: esbuild.BuildOptions): esbuild.BuildOptions;
+}
+
 export const createAdapter = ({
 	buildName = NODE_LIBRARY_BUILD_NAME,
 	dir = `${DIST_DIRNAME}/${buildName}`,
@@ -69,7 +73,7 @@ export const createAdapter = ({
 	packageJson = 'package.json',
 	pack = true,
 	bundle = false,
-}: Partial<Options> = EMPTY_OBJECT): Adapter => {
+}: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
 	dir = stripTrailingSlash(dir);
 	return {
 		name,
