@@ -13,7 +13,8 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "bootstrap": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=dist; npm link",
+    "bootstrap": "node src/bootstrap.js",
+    "bootstrapOLD": "rm -rf .gro dist && esbuild src/**/*.ts src/*.ts --outdir=dist; npm link",
     "dev": "clear && npm run bootstrap && gro dev",
     "build": "clear && npm run bootstrap && gro build"
   },
@@ -72,7 +73,7 @@
   "peerDependencies": {
     "@feltcoop/felt": ">=0.15.0",
     "@sveltejs/kit": ">=1.0.0-next.203",
-    "esbuild": ">=0.9.0",
+    "esbuild": ">=0.14.0",
     "svelte": ">=3.44.0",
     "svelte-preprocess-esbuild": ">=2.0.0",
     "typescript": ">=4.5.0"
