@@ -3,7 +3,7 @@
 
 	import SourceMetaExpanderItem from '$lib/app/SourceMetaExpanderItem.svelte';
 	import {filterSelectedMetas, type SourceTree} from '$lib/app/sourceTree';
-	import {type SourceMeta} from '../../build/sourceMeta';
+	import type {SourceMeta} from '../../build/sourceMeta';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];

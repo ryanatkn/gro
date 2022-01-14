@@ -1,10 +1,23 @@
 import {test} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {amp, browser, dev, mode, prerendering} from './testSvelteKitImports';
-import {goto, invalidate, prefetch, prefetchRoutes} from './testSvelteKitImports';
-import {assets, base} from './testSvelteKitImports';
-import {getStores, navigating, page, session} from './testSvelteKitImports';
+import {
+	amp,
+	browser,
+	dev,
+	mode,
+	prerendering,
+	goto,
+	invalidate,
+	prefetch,
+	prefetchRoutes,
+	assets,
+	base,
+	getStores,
+	navigating,
+	page,
+	session,
+} from './testSvelteKitImports';
 
 // see this issue: https://github.com/sveltejs/kit/issues/1485
 

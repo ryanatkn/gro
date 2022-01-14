@@ -5,7 +5,7 @@
 	import PlatformName from '$lib/app/PlatformName.svelte';
 	import {getMetasByBuildName, type SourceTree} from '$lib/app/sourceTree';
 	import {type View} from '$lib/app/view';
-	import {type SourceMeta} from '../../build/sourceMeta';
+	import type {SourceMeta} from '../../build/sourceMeta';
 
 	export let sourceTree: SourceTree;
 	export let selectedBuildNames: string[];
