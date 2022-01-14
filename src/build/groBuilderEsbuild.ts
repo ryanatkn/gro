@@ -148,9 +148,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			}
 		}
 
-		await Promise.all(
-			buildFiles.map((buildFile) => postprocess(buildFile, ctx, buildFiles, source)),
-		);
+		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));
 		return buildFiles;
 	};
 

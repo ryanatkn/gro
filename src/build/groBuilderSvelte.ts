@@ -102,9 +102,7 @@ export const groBuilderSvelte = (options: Options = {}): SvelteBuilder => {
 					mimeType: undefined,
 				},
 			];
-			await Promise.all(
-				buildFiles.map((buildFile) => postprocess(buildFile, ctx, buildFiles, source)),
-			);
+			await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));
 			return buildFiles;
 		}
 
@@ -219,9 +217,7 @@ export const groBuilderSvelte = (options: Options = {}): SvelteBuilder => {
 			}
 		}
 
-		await Promise.all(
-			buildFiles.map((buildFile) => postprocess(buildFile, ctx, buildFiles, source)),
-		);
+		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));
 		return buildFiles;
 	};
 
