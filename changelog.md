@@ -1,5 +1,12 @@
 # changelog
 
+## 0.48.0
+
+- remove Rollup and its plugins as a dependency, and use esbuild for bundling instead;
+  this changes the Node library adapter interface to use `mapBundleOptions`
+  and removes the Rollup mapping functions
+  ([#295](https://github.com/feltcoop/gro/pull/295))
+
 ## 0.47.5
 
 - mock SvelteKit imports like `'$app/navigation'` for tests
