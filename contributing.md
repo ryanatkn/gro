@@ -12,7 +12,8 @@ that occupy almost all of our time.
 [Gro extends SvelteKit](https://github.com/feltcoop/gro/blob/main/src/docs/sveltekit.md)
 with additional things we find useful,
 but today it's not a well-designed superset of functionality.
-Gro has its own build and publishing systems that are less flexible than they ought to be.
+Gro has its own build (non-frontend) and publishing systems
+that are less flexible than and duplicate functionality of SvelteKit and Vite.
 It mostly avoids interfering with SvelteKit, and generally complements it,
 but I need to reduce its scope and
 [rely more on SvelteKit and Vite](https://github.com/feltcoop/gro/blob/main/src/docs/sveltekit.md).
@@ -21,7 +22,12 @@ Gro's unfortunate design qualities are partially due to the fact that
 it predates both SvelteKit and the game-changing speed of
 [`esbuild`](https://github.com/evanw/esbuild).
 (the speed is truly game-changing, I'm not being dramatic)
-Gro uses `esbuild`, but some design decisions were made in a world with slow TypeScript compilation.
+Gro uses `esbuild`, but some design decisions
+were made in a world with slow TypeScript transpilation.
+For example, Gro aggressively caches transpiled files,
+which means it deals with difficult cache invalidation problems,
+and I'm considering using [`tsm`](https://github.com/lukeed/tsm/)
+to replace large chunks of behavior for what's probably a negligible drop in performance.
 ([swc](https://github.com/swc-project/swc) predates Gro but I didn't know what was coming;
 at one point Gro used swc, but I switched to `esbuild` for alignment with SvelteKit)
 So while the goal is to shrink Gro, it'll take time and a lot of thought.
