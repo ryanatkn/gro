@@ -25,3 +25,8 @@ See [`src/deploy.task.ts`](/src/deploy.task.ts) for the details.
 
 For needs more advanced than pushing to a remote branch,
 projects can implement a custom `src/deploy.task.ts`.
+
+## todo
+
+- support a target branch other than `deploy`;
+  include safety checks to avoid force pushing to main/master and destroying the world!
