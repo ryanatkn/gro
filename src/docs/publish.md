@@ -1,6 +1,6 @@
 # publish
 
-Here's how to publish a new version of Gro.
+Here's how to publish a new version of a repo with Gro, including for Gro itself.
 
 ## login to npm
 
@@ -15,7 +15,7 @@ npm login # and follow the instructions
 
 ## `gro publish`
 
-Gro offers [the `gro publish` task](https://github.com/feltcoop/gro/blob/upgrade/src/publish.task.ts)
+Gro offers [the `gro publish` task](https://github.com/feltcoop/gro/blob/main/src/publish.task.ts)
 to push a project to a package registry;
 currently only npm is supported.
 The task passes its args through to
