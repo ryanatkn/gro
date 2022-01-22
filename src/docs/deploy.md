@@ -4,9 +4,10 @@ The [`gro deploy`](/src/deploy.task.ts)
 task is designed to support static deployments to
 [GitHub pages](https://pages.github.com/),
 but what it actually does is just push builds to a branch.
-By default it pushes to the `deploy` branch —
-**importantly**, it force pushes; this is because Gro treats your deployment
+**Importantly, Gro force pushes to the `deploy` branch**;
+this is because Gro treats your deployment
 branch as disposable, able to be deleted or squashed or whatever whenever.
+(see [the todo](#todo) below for future work to customize the target branch)
 Internally, `gro deploy` uses [git worktree](https://git-scm.com/docs/git-worktree)
 for tidiness.
 
