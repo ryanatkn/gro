@@ -4,7 +4,7 @@ import {type CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import {cyan} from '@feltcoop/felt/util/terminal.js';
+import {cyan} from 'kleur/colors';
 
 import {type EcmaScriptTarget} from './typescriptUtils.js';
 import {

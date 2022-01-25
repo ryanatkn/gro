@@ -1,4 +1,4 @@
-import {cyan, red, gray} from '@feltcoop/felt/util/terminal.js';
+import {cyan, red, gray} from 'kleur/colors';
 import {SystemLogger, Logger, printLogLabel} from '@feltcoop/felt/util/log.js';
 import {EventEmitter} from 'events';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';

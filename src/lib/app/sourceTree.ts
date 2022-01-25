@@ -1,4 +1,4 @@
-import {deepEqual} from '@feltcoop/felt/util/equal.js';
+import {dequal} from 'dequal';
 
 import type {SourceMeta, SourceMetaBuild} from '../../build/sourceMeta';
 import type {BuildConfig, BuildName} from '../../build/buildConfig';
@@ -45,7 +45,7 @@ export const createSourceTree = (
 	}
 	const buildNames = Array.from(buildsByBuildName.keys()).sort();
 	const buildNamesFromConfigs = buildConfigs.map((b) => b.name).sort();
-	if (!deepEqual(buildNames, buildNamesFromConfigs)) {
+	if (!dequal(buildNames, buildNamesFromConfigs)) {
 		console.warn(
 			'build names differ between builds and configs',
 			buildNames,

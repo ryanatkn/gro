@@ -1,7 +1,7 @@
 import {printTimings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {yellow} from '@feltcoop/felt/util/terminal.js';
+import {yellow} from 'kleur/colors';
 
 import {TaskError, type Task} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './paths.js';

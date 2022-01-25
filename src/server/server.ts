@@ -11,7 +11,7 @@ import {
 	type ServerHttp2Stream,
 } from 'http2';
 import {type ListenOptions} from 'net';
-import {cyan, yellow, gray, red, rainbow, green} from '@feltcoop/felt/util/terminal.js';
+import {cyan, yellow, gray, red, green} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {stripAfter} from '@feltcoop/felt/util/string.js';
@@ -19,6 +19,7 @@ import {type Assignable} from '@feltcoop/felt/util/types.js';
 import {toEnvNumber, toEnvString} from '@feltcoop/felt/util/env.js';
 import {promisify} from 'util';
 
+import {rainbow} from '../utils/colors.js';
 import {type Filer} from '../build/Filer.js';
 import {
 	getFileMimeType,

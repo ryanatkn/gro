@@ -1,4 +1,4 @@
-import {red} from '@feltcoop/felt/util/terminal.js';
+import {red} from 'kleur/colors';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {type Result} from '@feltcoop/felt/util/types.js';

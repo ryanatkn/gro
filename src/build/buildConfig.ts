@@ -1,6 +1,6 @@
 import {resolve} from 'path';
 import {toArray} from '@feltcoop/felt/util/array.js';
-import {blue, gray} from '@feltcoop/felt/util/terminal.js';
+import {blue, gray} from 'kleur/colors';
 import {type Result, type Flavored} from '@feltcoop/felt/util/types.js';
 
 import {paths} from '../paths.js';
