@@ -38,14 +38,13 @@ const bootstrap = async () => {
 	const dir = resolve('src');
 	const distDir = './dist';
 	const outDir = resolve(distDir);
-	await fs.remove(outDir);
+	await Promise.all([fs.remove(outDir), fs.remove(resolve('./.gro'))]);
 	const watcher = new CheapWatch({
 		dir,
 		// @ts-ignore
 		filter: ({path, stats}) => stats.isDirectory() || path.endsWith('.ts'),
 		watch: false,
 	});
-	await fs.remove(outDir);
 
 	let count = 0;
 	let startTime = Date.now();

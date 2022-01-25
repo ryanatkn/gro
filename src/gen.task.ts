@@ -1,4 +1,4 @@
-import {red, green, gray} from '@feltcoop/felt/util/terminal.js';
+import {red, green, gray} from 'kleur/colors';
 import {printMs, printError, printTimings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';

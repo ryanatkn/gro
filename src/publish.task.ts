@@ -1,10 +1,11 @@
 import {createInterface as createReadlineInterface} from 'readline';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
+import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {type Flavored, type Result} from '@feltcoop/felt/util/types.js';
 
+import {rainbow} from './utils/colors.js';
 import {type Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
 import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';

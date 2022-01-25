@@ -1,5 +1,5 @@
 import {type EventEmitter} from 'events';
-import {cyan, red} from '@feltcoop/felt/util/terminal.js';
+import {cyan, red} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 
 import {type TaskModuleMeta} from './taskModule.js';

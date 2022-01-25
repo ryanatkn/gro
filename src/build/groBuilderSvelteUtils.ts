@@ -7,7 +7,7 @@ import {
 import {type PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 import {type Logger} from '@feltcoop/felt/util/log.js';
-import {yellow} from '@feltcoop/felt/util/terminal.js';
+import {yellow} from 'kleur/colors';
 import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';
 
 import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
