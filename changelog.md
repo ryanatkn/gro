@@ -1,5 +1,10 @@
 # changelog
 
+## 0.50.0
+
+- **break**: upgrade `@feltcoop/felt@0.18.0`
+  ([#297](https://github.com/feltcoop/gro/pull/297))
+
 ## 0.49.0
 
 - **break**: remove `svelte-check` as a dependency,

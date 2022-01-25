@@ -65,7 +65,7 @@
     "uvu": "^0.5.2"
   },
   "peerDependencies": {
-    "@feltcoop/felt": ">=0.15.0",
+    "@feltcoop/felt": ">=0.18.0",
     "@sveltejs/kit": ">=1.0.0-next.203",
     "esbuild": ">=0.14.0",
     "svelte": ">=3.44.0",
@@ -73,7 +73,7 @@
     "typescript": ">=4.5.0"
   },
   "devDependencies": {
-    "@feltcoop/felt": "^0.16.0",
+    "@feltcoop/felt": "^0.18.0",
     "@sveltejs/adapter-static": "^1.0.0-next.26",
     "@sveltejs/kit": "^1.0.0-next.229",
     "@types/fs-extra": "^9.0.13",
