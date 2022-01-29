@@ -56,15 +56,14 @@ const isSchema = (value: unknown): value is SchemaObject =>
 
 // TODO upstream to Felt?
 /**
- * Performs a depth-first traversal of an object, calling `cb` for every key and value.
- * @param obj Any value, but only useful for objects with enumerable properties.
+ * Performs a depth-first traversal of a value, calling `cb` for every key and value.
+ * @param value Any value, but only useful for values with enumerable properties.
  * @param cb Receives the key and value for every enumerable property on `obj` and its descendents.
  * @returns
  */
-const traverse = (obj: any, cb: (key: string, value: any) => void): void => {
-	if (!obj || typeof obj !== 'object') return;
-	for (const k in obj) {
-		const v = obj[k];
+const traverse = (value: any, cb: (key: string, value: any) => void): void => {
+	for (const k in value) {
+		const v = value[k];
 		cb(k, v);
 		traverse(v, cb);
 	}
