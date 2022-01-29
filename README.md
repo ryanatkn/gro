@@ -51,6 +51,8 @@ It includes:
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [dev server](/src/server/README.md) with efficient caching and http2/https support
 - codegen by convention with [`gen`](/src/docs/gen.md)
+  - includes automatic type generation using [JSON Schema](https://json-schema.org/) and
+    [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 - integrated platform-independent [`fs`](/src/fs/filesystem.ts)
   (code is parameterized with an `fs` argument)
   - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
@@ -201,11 +203,13 @@ Gro builds on
 [SvelteKit](https://github.com/sveltejs/kit) ∙
 [esbuild](https://github.com/evanw/esbuild) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
+[mri](https://github.com/lukeed/mri) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) ∙
-[@lukeed\/\*](https://github.com/lukeed) ∙
-[Node](https://nodejs.org) & [more](package.json)
+[JSON Schema](https://json-schema.org/) ∙
+[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) &
+[more](package.json)
 
 [Gro's strategy](/src/docs/dev.md) of pairing unbundled ES modules during development
 with optimized bundles for production
