@@ -1,5 +1,5 @@
 export const SomeTestObjectSchema = {
-	$id: 'https://grocode.org/schemas/SomeTestSchema.json',
+	$id: 'https://grocode.org/schemas/SomeTestObject.json',
 	type: 'object',
 	properties: {
 		a: {type: 'number'},
@@ -11,6 +11,6 @@ export const SomeTestObjectSchema = {
 };
 
 export const SomeTestPrimitiveSchema = {
-	$id: 'https://grocode.org/schemas/SomeTestPrimitiveSchema.json',
+	$id: 'https://grocode.org/schemas/SomeTestPrimitive.json',
 	type: 'number',
 };
