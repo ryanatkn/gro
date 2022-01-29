@@ -3,6 +3,7 @@ import {type Gen, type GenResults, type GenFile} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
 import {type Filesystem} from '../fs/filesystem.js';
+import {type SchemaObject} from './genSchemas.js';
 
 // TODO consider splitting the primitive data/helpers/types
 // out of this module like how `task` is separated from `runTask`
@@ -21,12 +22,6 @@ export interface BasicGenModule {
 }
 export interface SchemaGenModule {
 	[key: string]: SchemaObject | unknown;
-}
-// TODO where does this live? it's a superset of the ajv type,
-// and we don't want ajv as a dependency if it's not needed, which it isn't yet
-interface SchemaObject {
-	$id: string;
-	[key: string]: unknown;
 }
 
 export const toGenModuleType = (filename: string): GenModuleType =>
