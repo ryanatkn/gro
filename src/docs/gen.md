@@ -25,6 +25,7 @@ More flexibility is available when needed
 including multiple custom output files.
 
 To bridge the worlds of types and runtimes, `gro gen` has a feature that uses
+[JSON Schema](https://json-schema.org/) and
 [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 to generate types for all `.schema.` files in your project. See below for more.
 
