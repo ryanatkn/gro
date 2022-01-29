@@ -24,6 +24,10 @@ that returns the content of the output file.
 More flexibility is available when needed
 including multiple custom output files.
 
+To bridge the worlds of types and runtimes, `gro gen` has a feature that uses
+[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
+to generate types for all `.schema.` files in your project. See below for more.
+
 Normally you'll want to commit generated files to git,
 but you can always gitignore a specific pattern like `*.ignore.*`
 and name the output files accordingly.
@@ -70,7 +74,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 > note that importing the `Gen` type is optional,
 > but it makes for a better DX
 
-### generate TypeScript
+### generate arbitrary TypeScript
 
 Given `src/script.gen.ts`:
 
@@ -88,6 +92,51 @@ Outputs `src/script.ts`:
 ```ts
 console.log('generated a string');
 ```
+
+### generate TypeScript types from schemas
+
+In addition to `.gen.` files, `gro gen` also looks for `.schema.` files
+to automatically generate TypeScript types using
+[JSON Schema](https://json-schema.org/) and
+[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript).
+
+Given `src/something.schema.ts`:
+
+```ts
+export const SomeObjectSchema = {
+	$id: 'https://grocode.org/schemas/SomeObject.json',
+	type: 'object',
+	properties: {
+		a: {type: 'number'},
+		b: {type: 'string'},
+		c: {type: 'object', tsType: 'Dep', tsImport: `import {type Dep} from '../dep.js'`},
+	},
+	required: ['a', 'b'],
+	additionalProperties: false,
+};
+```
+
+Outputs `src/something.ts`:
+
+```ts
+import {type Dep} from '../dep.js';
+
+export interface SomeObject {
+	a: number;
+	b: string;
+	c?: Dep;
+```
+
+Some details:
+
+- `.schema.` modules may export any number of schemas:
+  all top-level exports with an `$id` property
+  are considered to be schemas (this detection may need tweaking)
+- schemas suffixed with `Schema` will output types without the suffix,
+  as a convenience to avoid name collisions
+  (note that your declared `$id` should omit the suffix)
+- `tsType` is specific to json-schema-to-typescript
+- `tsImport` is specific to Gro
 
 ### generate other filetypes
 
@@ -229,6 +278,7 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 
 - [x] basic functionality
 - [x] format output with Prettier
+- [x] add type generation for `.schema.` files
 - [ ] watch mode and build integration, opt out with `watch: false` for expensive gen use cases
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types
