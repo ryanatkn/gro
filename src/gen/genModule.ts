@@ -5,8 +5,6 @@ import {paths} from '../paths.js';
 import {type Filesystem} from '../fs/filesystem.js';
 import {type SchemaObject} from './genSchemas.js';
 
-// TODO consider splitting the primitive data/helpers/types
-// out of this module like how `task` is separated from `runTask`
 export const SEPARATOR = '.';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
