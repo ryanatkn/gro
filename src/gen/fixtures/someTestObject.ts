@@ -6,7 +6,6 @@ export interface SomeTestObject {
 	a: number;
 	b: string;
 	c?: Gen;
-	d?: 1;
 }
 export type SomeTestPrimitive = number;
 
