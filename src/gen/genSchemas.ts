@@ -27,9 +27,16 @@ export const runSchemaGen = async (
 	for (const identifier in mod) {
 		const value = mod[identifier];
 		if (!isSchema(value)) continue;
+
+		// Compile the schema to TypeScript.
 		const finalIdentifier = stripEnd(identifier, 'Schema'); // convenient to avoid name collisions
 		const result = await compile(value, finalIdentifier, {bannerComment: '', format: false});
 		types.push(result);
+
+		// Traverse the schema and add any imports with `tsImport`.
+		traverse(value, (key, value) => {
+			if (key === 'tsImport') imports.push(value);
+		});
 	}
 
 	return {imports, types};
@@ -46,3 +53,19 @@ export interface SchemaObject {
 
 const isSchema = (value: unknown): value is SchemaObject =>
 	!!value && typeof value === 'object' && '$id' in value;
+
+// TODO upstream to Felt?
+/**
+ * Performs a depth-first traversal of an object, calling `cb` for every key and value.
+ * @param obj Anything, but only useful for objects.
+ * @param cb Receives the key and value for everything on `obj`.
+ * @returns
+ */
+const traverse = (obj: any, cb: (key: string, value: any) => void): void => {
+	if (!obj || typeof obj !== 'object') return;
+	for (const k in obj) {
+		const v = obj[k];
+		cb(k, v);
+		traverse(v, cb);
+	}
+};
