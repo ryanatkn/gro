@@ -3,14 +3,7 @@ import {join, basename, dirname} from 'path';
 
 import {type Filesystem} from '../fs/filesystem.js';
 import {isSourceId} from '../paths.js';
-
-// TODO consider splitting the primitive data/helpers/types
-// out of this module like how `task` is separated from `runTask`
-export const GEN_FILE_SEPARATOR = '.';
-export const GEN_FILE_PATTERN_TEXT = 'gen';
-export const GEN_FILE_PATTERN = GEN_FILE_SEPARATOR + GEN_FILE_PATTERN_TEXT + GEN_FILE_SEPARATOR; // TODO regexp?
-
-export const isGenPath = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
+import {genModuleMeta, toGenModuleType} from './genModule.js';
 
 export type GenResult = {
 	originId: string;
@@ -34,7 +27,7 @@ export interface GenContext {
 export type RawGenResult = string | RawGenFile | RawGenFile[];
 export interface RawGenFile {
 	content: string;
-	// Defaults to file name without the `.gen`, and can be a relative path.
+	// Defaults to file name without the `.gen` or `.schema`, and can be a relative path.
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
 	filename?: string;
 }
@@ -104,32 +97,31 @@ const toOutputFileId = (originId: string, rawFileName: string | undefined): stri
 };
 
 export const toOutputFileName = (filename: string): string => {
-	const parts = filename.split(GEN_FILE_SEPARATOR);
-	const genPatternIndex = parts.indexOf(GEN_FILE_PATTERN_TEXT);
+	const {pattern, text, sep} = genModuleMeta[toGenModuleType(filename)];
+	const parts = filename.split(sep);
+	const genPatternIndex = parts.indexOf(text);
 	if (genPatternIndex === -1) {
-		throw Error(`Invalid gen file name - '${GEN_FILE_PATTERN_TEXT}' not found in '${filename}'`);
+		throw Error(`Invalid gen file name - '${text}' not found in '${filename}'`);
 	}
-	if (genPatternIndex !== parts.lastIndexOf(GEN_FILE_PATTERN_TEXT)) {
-		throw Error(
-			`Invalid gen file name - multiple instances of '${GEN_FILE_PATTERN_TEXT}' found in '${filename}'`,
-		);
+	if (genPatternIndex !== parts.lastIndexOf(text)) {
+		throw Error(`Invalid gen file name - multiple instances of '${text}' found in '${filename}'`);
 	}
 	if (genPatternIndex < parts.length - 3) {
 		// This check is technically unneccessary,
 		// but ensures a consistent file naming convention.
 		throw Error(
-			`Invalid gen file name - only one additional extension is allowed to follow '${GEN_FILE_PATTERN}' in '${filename}'`,
+			`Invalid gen file name - only one additional extension is allowed to follow '${pattern}' in '${filename}'`,
 		);
 	}
 	const finalParts: string[] = [];
 	const hasDifferentExt = genPatternIndex === parts.length - 3;
 	const length = hasDifferentExt ? parts.length - 1 : parts.length;
 	for (let i = 0; i < length; i++) {
-		if (i === genPatternIndex) continue; // skip the `.gen.` pattern
+		if (i === genPatternIndex) continue; // skip the `.gen.` or `.schema.` pattern
 		if (i === length - 1 && parts[i] === '') continue; // allow empty extension
 		finalParts.push(parts[i]);
 	}
-	return finalParts.join(GEN_FILE_SEPARATOR);
+	return finalParts.join(sep);
 };
 
 const validateGenFiles = (files: GenFile[]) => {
