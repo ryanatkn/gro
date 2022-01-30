@@ -111,6 +111,14 @@ export const SomeObjectSchema = {
 		a: {type: 'number'},
 		b: {type: 'string'},
 		c: {type: 'object', tsType: 'Dep', tsImport: `import {type Dep} from '../dep.js'`},
+		d: {
+			type: 'object',
+			tsType: 'SomeGeneric<Dep>',
+			tsImport: [
+				`import {type Dep} from '../dep.js'`,
+				`import {type SomeGeneric} from './generic.js'`,
+			],
+		},
 	},
 	required: ['a', 'b'],
 	additionalProperties: false,
@@ -121,11 +129,13 @@ Outputs `src/something.ts`:
 
 ```ts
 import {type Dep} from '../dep.js';
+import {type SomeGeneric} from './generic.js';
 
 export interface SomeObject {
 	a: number;
 	b: string;
 	c?: Dep;
+	d?: SomeGeneric<Dep>
 ```
 
 Some details:
@@ -137,7 +147,9 @@ Some details:
   as a convenience to avoid name collisions
   (note that your declared `$id` should omit the suffix)
 - `tsType` is specific to json-schema-to-typescript
-- `tsImport` is specific to Gro
+- `tsImport` is specific to Gro; it can be a string or array of strings,
+  and individual statements are de-duped but not currently grouped into single statements,
+  so to properly de-dupe you can't yet import multiple identifiers in the same line
 
 ### generate other filetypes
 
@@ -280,6 +292,7 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 - [x] basic functionality
 - [x] format output with Prettier
 - [x] add type generation for `.schema.` files
+- [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files
 - [ ] watch mode and build integration, opt out with `watch: false` for expensive gen use cases
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types

@@ -4,7 +4,19 @@ export const SomeTestObjectSchema = {
 	properties: {
 		a: {type: 'number'},
 		b: {type: 'string'},
-		c: {type: 'object', tsType: 'Gen', tsImport: `import {type Gen} from '../gen.js'`},
+		c: {
+			type: 'object',
+			tsType: 'A',
+			tsImport: `import {type A} from './someTestTypes.js';`, // has a semicolon, single quotes
+		},
+		d: {
+			type: 'object',
+			tsType: 'A<B>',
+			tsImport: [
+				` import {type A} from "./someTestTypes.js" `, // no semicolon, double quotes, whitespace
+				`import {type B} from "./someTestTypes.js"`,
+			],
+		},
 	},
 	required: ['a', 'b'],
 	additionalProperties: false,
