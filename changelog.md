@@ -1,5 +1,10 @@
 # changelog
 
+## 0.50.3
+
+- fix default config to build types only for production
+  ([#300](https://github.com/feltcoop/gro/pull/300))
+
 ## 0.50.2
 
 - add `.schema.` files to system build

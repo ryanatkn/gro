@@ -34,7 +34,7 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 			// note there's no build for SvelteKit frontends - should there be?
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
-		types: enableNodeLibrary,
+		types: !dev && enableNodeLibrary,
 		plugin: async () => [
 			// TODO dev server?
 			// enableDevServer ? (await import('../plugin/groPluginDevServer.js')).createPlugin() : null,
