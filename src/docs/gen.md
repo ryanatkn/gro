@@ -136,7 +136,8 @@ export interface SomeObject {
 	a: number;
 	b: string;
 	c?: Dep;
-	d?: SomeGeneric<Dep>
+	d?: SomeGeneric<Dep>;
+}
 ```
 
 Some details:
