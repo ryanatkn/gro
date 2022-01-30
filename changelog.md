@@ -1,5 +1,10 @@
 # changelog
 
+## 0.50.2
+
+- add `.schema.` files to system build
+  ([#299](https://github.com/feltcoop/gro/pull/299))
+
 ## 0.50.1
 
 - add `gro gen` support for `.schema.` files with automatically generated types
