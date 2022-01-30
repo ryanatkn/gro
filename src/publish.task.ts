@@ -44,10 +44,9 @@ export const task: Task<TaskArgs> = {
 		const publishContext = await confirmWithUser(fs, versionIncrement, dry, log);
 
 		// Make sure we're on the right branch:
-		// TODO see how the deploy task uses git, probably do that instead
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
-		// TODO pull latest? or cancel if not up to date?
+		await spawn('git', ['pull', 'origin', branch]);
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
 		await cleanFs(fs, {build: true, dist: true}, log);
