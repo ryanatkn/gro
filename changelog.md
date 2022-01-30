@@ -1,5 +1,10 @@
 # changelog
 
+## 0.50.4
+
+- run `eslint` in `gro check` if it's available
+  ([#301](https://github.com/feltcoop/gro/pull/301))
+
 ## 0.50.3
 
 - fix default config to build types only for production

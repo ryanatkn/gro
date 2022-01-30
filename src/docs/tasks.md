@@ -14,6 +14,7 @@ What is a `Task`? See [`tasks.md`](./task.md).
 - [dev](../dev.task.ts) - start dev server
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
+- [lint](../lint.task.ts) - run eslint on the source files
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [serve](../serve.task.ts) - start static file server
 - [test](../test.task.ts) - run tests

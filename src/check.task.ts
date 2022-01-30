@@ -6,6 +6,7 @@ export const task: Task = {
 	summary: 'check that everything is ready to commit',
 	run: async ({fs, log, args, invokeTask}) => {
 		await invokeTask('typecheck');
+		await invokeTask('lint');
 
 		await invokeTask('test');
 
