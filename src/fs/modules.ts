@@ -22,9 +22,9 @@ TODO now that `Filer` is here, integrate it further
 
 */
 
-export interface ModuleMeta<ModuleType = Record<string, any>> {
+export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
 	id: string;
-	mod: ModuleType;
+	mod: TModule;
 }
 
 export type LoadModuleResult<T> = Result<{mod: T}, LoadModuleFailure>;

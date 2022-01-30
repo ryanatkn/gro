@@ -2,6 +2,7 @@ import {red} from 'kleur/colors';
 import {printError} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
+import {UnreachableError} from '@feltcoop/felt/util/error.js';
 
 import {type GenModuleMeta} from './genModule.js';
 import {
@@ -11,9 +12,11 @@ import {
 	type GenModuleResultSuccess,
 	type GenModuleResultFailure,
 	toGenResult,
+	type RawGenResult,
 } from './gen.js';
 import {type Filesystem} from '../fs/filesystem.js';
 import {printPath} from '../paths.js';
+import {genSchemas} from './genSchemas.js';
 
 export const runGen = async (
 	fs: Filesystem,
@@ -26,15 +29,28 @@ export const runGen = async (
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
 	const results = await Promise.all(
-		genModules.map(async ({id, mod}): Promise<GenModuleResult> => {
+		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
 			inputCount++;
-			const genCtx: GenContext = {fs, originId: id, log};
+			const {id} = moduleMeta;
 			const timingForModule = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			let rawGenResult;
+			const genCtx: GenContext = {fs, originId: id, log};
+			let rawGenResult: RawGenResult;
 			try {
-				rawGenResult = await mod.gen(genCtx);
+				switch (moduleMeta.type) {
+					case 'basic': {
+						rawGenResult = await moduleMeta.mod.gen(genCtx);
+						break;
+					}
+					case 'schema': {
+						rawGenResult = await genSchemas(moduleMeta.mod, genCtx);
+						break;
+					}
+					default: {
+						throw new UnreachableError(moduleMeta);
+					}
+				}
 			} catch (err) {
 				return {
 					ok: false,

@@ -1,5 +1,10 @@
 # changelog
 
+## 0.50.1
+
+- add `gro gen` support for `.schema.` files with automatically generated types
+  ([#298](https://github.com/feltcoop/gro/pull/298))
+
 ## 0.50.0
 
 - **break**: upgrade `@feltcoop/felt@0.18.0`

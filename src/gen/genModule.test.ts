@@ -7,15 +7,31 @@ import {paths} from '../paths.js';
 import {fs} from '../fs/node.js';
 
 /* test__validateGenModule */
-const test__validateGenModule = suite('validateGenModule');
+const test__validateGenModule = suite('validateBasicGenModule');
 
-test__validateGenModule('minimal interface', () => {
-	assert.ok(validateGenModule({gen: () => {}}));
+test__validateGenModule('basic minimal interface', () => {
+	assert.ok(validateGenModule.basic({gen: () => {}}));
 });
 
-test__validateGenModule('invalid module', () => {
-	assert.not.ok(validateGenModule({gen: {}}));
-	assert.not.ok(validateGenModule({task: {run: {}}}));
+test__validateGenModule('basic invalid module', () => {
+	assert.not.ok(validateGenModule.basic({gen: {}}));
+	assert.not.ok(validateGenModule.basic({task: {run: {}}}));
+	assert.not.ok(validateGenModule.basic(undefined as any));
+	assert.not.ok(validateGenModule.basic(null as any));
+	assert.not.ok(validateGenModule.basic(false as any));
+});
+
+test__validateGenModule('schema minimal interface', () => {
+	assert.ok(validateGenModule.schema({}));
+	assert.ok(
+		validateGenModule.schema({SomeSchema: {$id: 'https://grocode.org/schemas/SomeSchema.json'}}),
+	);
+});
+
+test__validateGenModule('schema invalid module', () => {
+	assert.not.ok(validateGenModule.schema(undefined as any));
+	assert.not.ok(validateGenModule.schema(null as any));
+	assert.not.ok(validateGenModule.schema(false as any));
 });
 
 test__validateGenModule.run();
