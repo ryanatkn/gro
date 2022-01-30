@@ -13,7 +13,7 @@ export const GEN_FILE_PATTERN = SEPARATOR + GEN_FILE_PATTERN_TEXT + SEPARATOR;
 export const GEN_SCHEMA_FILE_PATTERN_TEXT = 'schema';
 export const GEN_SCHEMA_FILE_PATTERN = SEPARATOR + GEN_SCHEMA_FILE_PATTERN_TEXT + SEPARATOR;
 
-export type GenModuleType = 'basic' | 'schema'; // TODO put this on `GenModule` types
+export type GenModuleType = 'basic' | 'schema';
 export type GenModule = BasicGenModule | SchemaGenModule;
 export interface BasicGenModule {
 	gen: Gen;
@@ -35,14 +35,28 @@ export const validateGenModule = {
 	schema: (mod: Record<string, any>): mod is SchemaGenModule => !!mod,
 };
 
-export interface GenModuleMeta extends ModuleMeta<GenModule> {}
+export type GenModuleMeta = BasicGenModuleMeta | SchemaGenModuleMeta;
+export interface BasicGenModuleMeta extends ModuleMeta<GenModule> {
+	type: 'basic';
+	mod: BasicGenModule;
+}
+export interface SchemaGenModuleMeta extends ModuleMeta<GenModule> {
+	type: 'schema';
+	mod: SchemaGenModule;
+}
 
-export const loadGenModule = (id: string): Promise<LoadModuleResult<GenModuleMeta>> =>
-	loadModule(
+export const loadGenModule = async (id: string): Promise<LoadModuleResult<GenModuleMeta>> => {
+	const type = toGenModuleType(id);
+	const result = await loadModule(
 		id,
 		true,
-		validateGenModule[toGenModuleType(id)] as any, // TODO why the typecast?
+		validateGenModule[type] as any, // TODO why the typecast?
 	);
+	if (result.ok) {
+		(result.mod as GenModuleMeta).type = type;
+	}
+	return result as LoadModuleResult<GenModuleMeta>;
+};
 
 export type CheckGenModuleResult =
 	| {

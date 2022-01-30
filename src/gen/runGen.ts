@@ -4,12 +4,7 @@ import {Timings} from '@feltcoop/felt/util/timings.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 
-import {
-	toGenModuleType,
-	type BasicGenModule,
-	type GenModuleMeta,
-	type SchemaGenModule,
-} from './genModule.js';
+import {type GenModuleMeta} from './genModule.js';
 import {
 	type GenResults,
 	type GenModuleResult,
@@ -34,26 +29,26 @@ export const runGen = async (
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
 	const results = await Promise.all(
-		genModules.map(async ({id, mod}): Promise<GenModuleResult> => {
+		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
 			inputCount++;
+			const {id} = moduleMeta;
 			const timingForModule = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
 			const genCtx: GenContext = {fs, originId: id, log};
 			let rawGenResult: RawGenResult;
 			try {
-				const moduleType = toGenModuleType(id);
-				switch (moduleType) {
+				switch (moduleMeta.type) {
 					case 'basic': {
-						rawGenResult = await (mod as BasicGenModule).gen(genCtx);
+						rawGenResult = await moduleMeta.mod.gen(genCtx);
 						break;
 					}
 					case 'schema': {
-						rawGenResult = await genSchemas(mod as SchemaGenModule, genCtx);
+						rawGenResult = await genSchemas(moduleMeta.mod, genCtx);
 						break;
 					}
 					default: {
-						throw new UnreachableError(moduleType);
+						throw new UnreachableError(moduleMeta);
 					}
 				}
 			} catch (err) {
