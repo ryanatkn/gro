@@ -293,7 +293,7 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 - [x] basic functionality
 - [x] format output with Prettier
 - [x] add type generation for `.schema.` files
-- [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files
+- [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
 - [ ] watch mode and build integration, opt out with `watch: false` for expensive gen use cases
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types
