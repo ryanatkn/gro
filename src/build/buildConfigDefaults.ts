@@ -32,7 +32,7 @@ export const SYSTEM_BUILD_NAME: BuildName = 'system';
 export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 	name: SYSTEM_BUILD_NAME,
 	platform: 'node',
-	input: [createFilter(['**/*.{task,test,gen,gen.*}.ts', '**/fixtures/**'])],
+	input: [createFilter(['**/*.{task,test,gen,gen.*,schema}.ts', '**/fixtures/**'])],
 };
 
 const NODE_LIBRARY_PATH = 'lib/index.ts';
