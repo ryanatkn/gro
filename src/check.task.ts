@@ -1,14 +1,13 @@
 import {type Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
-import {SOURCE_DIRNAME} from './paths.js';
 
 export const task: Task = {
 	summary: 'check that everything is ready to commit',
 	run: async ({fs, log, args, invokeTask}) => {
 		await invokeTask('typecheck');
 
-		await invokeTask('lint', {_: [SOURCE_DIRNAME], 'max-warnings': 0});
+		await invokeTask('lint', {_: [], 'max-warnings': 0});
 
 		await invokeTask('test');
 
