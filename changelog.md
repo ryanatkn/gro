@@ -1,6 +1,6 @@
 # changelog
 
-## 0.50.4
+## 0.50.5
 
 - make `gro check` fail on lint warnings
   ([#302](https://github.com/feltcoop/gro/pull/302))
