@@ -1,5 +1,12 @@
 # changelog
 
+## 0.50.5
+
+- make `gro check` fail on lint warnings
+  ([#302](https://github.com/feltcoop/gro/pull/302))
+- pass through args in `gro lint` to `eslint`
+  ([#302](https://github.com/feltcoop/gro/pull/302))
+
 ## 0.50.4
 
 - run `eslint` in `gro check` if it's available

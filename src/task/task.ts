@@ -56,10 +56,10 @@ export const serializeArgs = (args: Args): string[] => {
 	let _: string[] | null = null;
 	for (const [key, value] of Object.entries(args)) {
 		if (key === '_') {
-			_ = (value as any[]).map((v) => v.toString());
+			_ = (value as any[]).map((v) => (v === undefined ? '' : v + ''));
 		} else {
-			result.push(`--${key}`);
-			result.push((value as any).toString());
+			result.push(`${key.length === 1 ? '-' : '--'}${key}`);
+			if (value !== undefined) result.push((value as any) + '');
 		}
 	}
 	return _ ? [...result, ..._] : result;
