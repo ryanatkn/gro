@@ -47,4 +47,4 @@ test__findGenModules('finds gen modules in a directory', async () => {
 });
 
 test__findGenModules.run();
-/* /findGenModulesResult */
+/* findGenModulesResult */
