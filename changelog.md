@@ -1,5 +1,10 @@
 # changelog
 
+## 0.50.6
+
+- combine imports in generated schema types
+  ([#304](https://github.com/feltcoop/gro/pull/304))
+
 ## 0.50.5
 
 - make `gro check` fail on lint warnings
