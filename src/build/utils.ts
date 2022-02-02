@@ -5,8 +5,7 @@ import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import {type BuildConfigInput} from './buildConfig.js';
 import {type Filesystem} from '../fs/filesystem.js';
-import {buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
-import {type Paths} from '../paths.js';
+import {type Paths, buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
 import {type BuildDependency} from './buildDependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.

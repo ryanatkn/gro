@@ -80,7 +80,7 @@ export class MemoryFs implements Filesystem {
 		this._files.delete(id);
 	}
 	// delete everything, a very safe and cool `rm -rf /`
-	_reset() {
+	_reset(): void {
 		this._files.clear();
 	}
 

@@ -7,8 +7,7 @@ import {groBuilderDefault} from './build/groBuilderDefault.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {loadConfig, type GroConfig} from './config/config.js';
 import {type ServedDirPartial} from './build/servedDir.js';
-import {type PluginContext} from './plugin/plugin.js';
-import {Plugins} from './plugin/plugin.js';
+import {Plugins, type PluginContext} from './plugin/plugin.js';
 import {type DevServerPluginContext} from './plugin/groPluginDevServer.js';
 
 export interface TaskArgs {

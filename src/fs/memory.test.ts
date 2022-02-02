@@ -4,7 +4,7 @@ import {dirname, resolve} from 'path';
 import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
 import {toPathParts} from '@feltcoop/felt/util/pathParsing.js';
 
-import {fs as memoryFs, MemoryFs} from './memory.js';
+import {fs as memoryFs, type MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
 import {toRootPath} from '../paths.js';
 

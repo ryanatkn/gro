@@ -71,4 +71,7 @@ const main = (): Promise<void> => {
 	}
 };
 
-main();
+main().catch((err) => {
+	console.error('Gro failed to invoke', err);
+	throw err;
+});

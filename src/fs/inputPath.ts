@@ -158,7 +158,7 @@ export const loadSourceIdsByInputPath = async (
 		if (pathData.isDirectory) {
 			const files = await findFiles(pathData.id);
 			if (files.size) {
-				let sourceIds: string[] = [];
+				const sourceIds: string[] = [];
 				let hasFiles = false;
 				for (const [path, stats] of files) {
 					if (!stats.isDirectory()) {

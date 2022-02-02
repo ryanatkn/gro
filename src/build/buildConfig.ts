@@ -45,7 +45,7 @@ export interface BuildConfigPartial {
 export type PlatformTarget = 'node' | 'browser';
 
 export const normalizeBuildConfigs = (
-	partials: readonly (BuildConfigPartial | null)[],
+	partials: ReadonlyArray<BuildConfigPartial | null>,
 	dev: boolean,
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.

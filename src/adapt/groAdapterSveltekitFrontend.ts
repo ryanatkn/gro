@@ -2,8 +2,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
 
 import {type Adapter} from './adapt.js';
-import {move404, type HostTarget} from './utils.js';
-import {ensureNojekyll} from './utils.js';
+import {ensureNojekyll, move404, type HostTarget} from './utils.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';
 
 export interface Options {
@@ -39,6 +38,8 @@ export const createAdapter = ({
 					}
 					break;
 				}
+				default:
+					break;
 			}
 		},
 	};

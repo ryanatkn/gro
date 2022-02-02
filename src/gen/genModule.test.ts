@@ -10,7 +10,7 @@ import {fs} from '../fs/node.js';
 const test__validateGenModule = suite('validateBasicGenModule');
 
 test__validateGenModule('basic minimal interface', () => {
-	assert.ok(validateGenModule.basic({gen: () => {}}));
+	assert.ok(validateGenModule.basic({gen: Function.prototype}));
 });
 
 test__validateGenModule('basic invalid module', () => {

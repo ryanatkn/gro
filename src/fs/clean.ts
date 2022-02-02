@@ -31,7 +31,7 @@ export const cleanFs = async (
 		nodemodules?: boolean;
 	},
 	log: SystemLogger,
-) =>
+): Promise<any[]> =>
 	Promise.all([
 		build ? removeDir(fs, paths.build, log) : null,
 		...(!build && buildDev

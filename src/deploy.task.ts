@@ -43,7 +43,7 @@ export const task: Task<TaskArgs> = {
 	run: async ({fs, args, log}): Promise<void> => {
 		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
 
-		if (!force && EXCLUDED_BRANCHES.includes(branch as string)) {
+		if (!force && EXCLUDED_BRANCHES.includes(branch!)) {
 			throw Error(
 				`For safety reasons, cannot deploy to branch '${branch}'. Pass --force to override.`,
 			);

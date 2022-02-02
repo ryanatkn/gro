@@ -36,7 +36,7 @@ export const generateTypes = async (
 	sourcemap: boolean,
 	typemap: boolean,
 	tscArgs: string[] = EMPTY_ARRAY,
-) => {
+): Promise<void> => {
 	const tscResult = await spawn('npx', [
 		'tsc',
 		'--outDir',

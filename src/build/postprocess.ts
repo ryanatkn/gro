@@ -61,7 +61,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 			const extractedJs = await extractJsFromSvelteForDependencies(originalContent);
 			parseJsDependencies(extractedJs, handleSpecifier, false);
 			if (ctx.types) {
-				parseTypeDependencies(content as string, handleSpecifier);
+				parseTypeDependencies(content, handleSpecifier);
 			}
 			content = replaceDependencies(content, dependencies);
 			break;
@@ -175,7 +175,7 @@ const toRelativeSpecifierTrimmedBy = (
 	sourceDir: string,
 ): string => {
 	specifier = relative(dir, sourceDir + specifier.substring(charsToTrim));
-	if (specifier[0] !== '.') specifier = './' + specifier;
+	if (!specifier.startsWith('.')) specifier = './' + specifier;
 	return specifier;
 };
 

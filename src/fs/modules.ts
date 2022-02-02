@@ -72,9 +72,9 @@ export type FindModulesResult = Result<
 >;
 type FindModulesTimings = 'map input paths' | 'find files';
 
-export type LoadModulesResult<ModuleMetaType extends ModuleMeta> = Result<
+export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 	{
-		modules: ModuleMetaType[];
+		modules: TModuleMeta[];
 		timings: Timings<LoadModulesTimings>;
 	},
 	{
@@ -82,7 +82,7 @@ export type LoadModulesResult<ModuleMetaType extends ModuleMeta> = Result<
 		loadModuleFailures: LoadModuleFailure[];
 		reasons: string[];
 		// still return the modules and timings, deferring to the caller
-		modules: ModuleMetaType[];
+		modules: TModuleMeta[];
 		timings: Timings<LoadModulesTimings>;
 	}
 >;
@@ -163,14 +163,14 @@ linking the current file with the module's initial execution.
 TODO parallelize..how? Separate functions? `loadModulesSerially`?
 
 */
-export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<ModuleType>>(
+export const loadModules = async <ModuleType, TModuleMeta extends ModuleMeta<ModuleType>>(
 	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	dev: boolean,
-	loadModuleById: (sourceId: string, dev: boolean) => Promise<LoadModuleResult<ModuleMetaType>>,
-): Promise<LoadModulesResult<ModuleMetaType>> => {
+	loadModuleById: (sourceId: string, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	const timingToLoadModules = timings.start('load modules');
-	const modules: ModuleMetaType[] = [];
+	const modules: TModuleMeta[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
 	for (const [inputPath, sourceIds] of sourceIdsByInputPath) {

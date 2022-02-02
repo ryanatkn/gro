@@ -24,8 +24,8 @@ export interface Adapter<TArgs = any, TEvents = any> {
 
 export interface ToConfigAdapters<TArgs = any, TEvents = any> {
 	(ctx: AdapterContext<TArgs, TEvents>):
-		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
-		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
+		| (Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>)
+		| Promise<Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>>;
 }
 
 export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
@@ -36,10 +36,9 @@ export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<
 export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
 	const timingToCreateAdapters = timings.start('create adapters');
-	const adapters: Adapter<any, any>[] = toArray(await config.adapt(ctx)).filter(Boolean) as Adapter<
-		any,
-		any
-	>[];
+	const adapters: Array<Adapter<any, any>> = toArray(await config.adapt(ctx)).filter(
+		Boolean,
+	) as Array<Adapter<any, any>>;
 	timingToCreateAdapters();
 
 	if (adapters.length) {

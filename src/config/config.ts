@@ -1,19 +1,23 @@
 import {
-	LogLevel,
+	type LogLevel,
 	SystemLogger,
 	configureLogLevel,
 	printLogLabel,
 	DEFAULT_LOG_LEVEL,
+	type Logger,
 } from '@feltcoop/felt/util/log.js';
-import {type Logger} from '@feltcoop/felt/util/log.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
 import {type Assignable, type Result} from '@feltcoop/felt/util/types.js';
 import {toArray} from '@feltcoop/felt/util/array.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
-import {normalizeBuildConfigs, validateBuildConfigs} from '../build/buildConfig.js';
+import {
+	normalizeBuildConfigs,
+	validateBuildConfigs,
+	type BuildConfig,
+	type BuildConfigPartial,
+} from '../build/buildConfig.js';
 import {type ToConfigAdapters} from '../adapt/adapt.js';
-import {type BuildConfig, type BuildConfigPartial} from '../build/buildConfig.js';
 import {
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
@@ -62,7 +66,7 @@ export interface GroConfig {
 }
 
 export interface GroConfigPartial {
-	readonly builds?: (BuildConfigPartial | null)[] | BuildConfigPartial | null; // allow `null` for convenience
+	readonly builds?: Array<BuildConfigPartial | null> | BuildConfigPartial | null; // allow `null` for convenience
 	readonly publish?: string | null; // dir to publish: defaults to 'dist/library', or null if it doesn't exist -- TODO support multiple
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;

@@ -1,5 +1,4 @@
-import {type Task} from './task/task.js';
-import {TaskError} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
 
 export const task: Task = {

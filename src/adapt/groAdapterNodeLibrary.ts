@@ -20,8 +20,7 @@ import {
 	LIB_DIR,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import {type BuildName} from '../build/buildConfig.js';
-import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
+import {type BuildName, printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
 import {type PathStats} from '../fs/pathData.js';
 import {type PackageJson} from '../utils/packageJson.js';
 import {type Filesystem} from '../fs/filesystem.js';
@@ -63,7 +62,7 @@ export interface Options {
 }
 
 export interface AdapterArgs {
-	mapBundleOptions?(options: esbuild.BuildOptions): esbuild.BuildOptions;
+	mapBundleOptions?: (options: esbuild.BuildOptions) => esbuild.BuildOptions;
 }
 
 export const createAdapter = ({
@@ -97,7 +96,7 @@ export const createAdapter = ({
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
 				const outputDir = dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				esbuild.build(
+				await esbuild.build(
 					mapBundleOptions({
 						...toDefaultEsbuildBundleOptions(dev, config.target, config.sourcemap),
 						bundle: true,
@@ -127,11 +126,14 @@ export const createAdapter = ({
 				await Promise.all(
 					(
 						await fs.readDir('.')
-					).map((path): void | Promise<void> => {
-						if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
-							return fs.copy(path, `${dir}/${path}`, {overwrite: false});
-						}
-					}),
+					)
+						.map((path): null | Promise<void> => {
+							if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
+								return fs.copy(path, `${dir}/${path}`, {overwrite: false});
+							}
+							return null;
+						})
+						.filter(Boolean),
 				);
 
 				// copy src

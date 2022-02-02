@@ -1,7 +1,6 @@
 import {noop} from '@feltcoop/felt/util/function.js';
 
-import {watchNodeFs} from '../fs/watchNodeFs.js';
-import {type WatchNodeFs} from '../fs/watchNodeFs.js';
+import {watchNodeFs, type WatchNodeFs} from '../fs/watchNodeFs.js';
 import {type PathStats} from '../fs/pathData.js';
 import {type PathFilter} from '../fs/filter.js';
 import {type Filesystem} from '../fs/filesystem.js';
