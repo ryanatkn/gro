@@ -1,6 +1,6 @@
 import {compile} from '@ryanatkn/json-schema-to-typescript';
 import {stripEnd} from '@feltcoop/felt/util/string.js';
-// import * as lexer from 'es-module-lexer';
+import * as lexer from 'es-module-lexer';
 
 import {type GenContext, type RawGenResult} from './gen.js';
 import {type SchemaGenModule} from './genModule.js';
@@ -53,14 +53,19 @@ export const runSchemaGen = async (
 		});
 	}
 
-	const formattedImports = formatFile(fs, 'types.ts', rawImports.join(';'));
+	const formattedImports = await formatFile(fs, 'virtualSchemaImports.ts', rawImports.join(';'));
 	console.log('formattedImports', formattedImports);
 
 	// TODO format and concatenate first?
-	// await lexer.init;
+	await lexer.init;
 	// console.log('imports', imports);
-	// const [parsed] = lexer.parse(imports[0]);
-	// console.log('parsed', parsed);
+	const [parsed] = lexer.parse(formattedImports);
+	console.log('parsed', parsed);
+
+	// TODO ignore dynamic imports
+	// if (i.d > -1) {
+	// }
+
 	// for (const v of parsed) {
 	// 	console.log('v.s, v.e);', imports[0].substring(v.s, v.e));
 	// 	console.log('v.ss, v.ee);', imports[0].substring(v.ss, v.se));
