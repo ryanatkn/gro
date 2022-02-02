@@ -1,6 +1,7 @@
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {type EventEmitter} from 'events';
 import {type Logger} from '@feltcoop/felt/util/log.js';
+import {stripEnd} from '@feltcoop/felt/util/string.js';
 
 import {type Filesystem} from '../fs/filesystem.js';
 
@@ -25,14 +26,13 @@ export interface TaskContext<TArgs = {}, TEvents = {}> {
 	) => Promise<void>;
 }
 
-export const TASK_FILE_PATTERN = /\.task\.ts$/;
 export const TASK_FILE_SUFFIX = '.task.ts';
 
-export const isTaskPath = (path: string): boolean => TASK_FILE_PATTERN.test(path);
+export const isTaskPath = (path: string): boolean => path.endsWith(TASK_FILE_SUFFIX);
 
 export const toTaskPath = (taskName: string): string => taskName + TASK_FILE_SUFFIX;
 
-export const toTaskName = (basePath: string): string => basePath.replace(TASK_FILE_PATTERN, '');
+export const toTaskName = (basePath: string): string => stripEnd(basePath, TASK_FILE_SUFFIX);
 
 // This is used by tasks to signal a known failure.
 // It's useful for cleaning up logging because
