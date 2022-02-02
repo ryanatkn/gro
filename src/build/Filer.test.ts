@@ -3,8 +3,7 @@ import * as assert from 'uvu/assert';
 import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import {Filer} from './Filer.js';
-import {fs as memoryFs} from '../fs/memory.js';
-import {type MemoryFs} from '../fs/memory.js';
+import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
 import {type BuildConfig} from './buildConfig.js';
 import {createPaths, JS_EXTENSION} from '../paths.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
@@ -24,9 +23,9 @@ test__Filer('basic serve usage', async ({fs}) => {
 	const bId = '/served/b.svelte';
 	const cId = '/served/c/c.svelte.md';
 
-	fs.writeFile(aId, 'a', 'utf8');
-	fs.writeFile(bId, 'b', 'utf8');
-	fs.writeFile(cId, 'c', 'utf8');
+	await fs.writeFile(aId, 'a', 'utf8');
+	await fs.writeFile(bId, 'b', 'utf8');
+	await fs.writeFile(cId, 'c', 'utf8');
 
 	const filer = new Filer({
 		fs,
