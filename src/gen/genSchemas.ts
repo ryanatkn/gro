@@ -10,8 +10,7 @@ export const genSchemas = async (mod: SchemaGenModule, ctx: GenContext): Promise
 	const {imports, types} = await runSchemaGen(ctx, mod);
 	return renderTsHeaderAndFooter(
 		ctx,
-		`
-    ${(await normalizeTsImports(ctx.fs, imports, ctx.originId)).join('\n;\n')}
+		`${imports.join('\n;\n')}
 
     ${types.join(';\n\n')}
   `,
@@ -46,10 +45,7 @@ export const runSchemaGen = async (
 		});
 	}
 
-	const finalImports = normalizeTsImports(ctx.fs, rawImports, ctx.originId);
-	console.log('finalImports', finalImports);
-
-	const imports = rawImports; // TODO
+	const imports = await normalizeTsImports(ctx.fs, rawImports, ctx.originId);
 
 	return {imports, types};
 };
