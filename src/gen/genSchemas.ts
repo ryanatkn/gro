@@ -33,7 +33,7 @@ export const runSchemaGen = async (
 		const result = await compile(value, finalIdentifier, {bannerComment: '', format: false});
 		types.push(result);
 
-		// Traverse the schema and add any imports with `tsImport`.
+		// Walk the entire schema and add any imports with `tsImport`.
 		traverse(value, (key, value) => {
 			if (key === 'tsImport') {
 				if (typeof value === 'string') {
