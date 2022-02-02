@@ -20,8 +20,8 @@ export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 
 export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
 	(ctx: TPluginContext):
-		| (Plugin<TPluginContext> | null | (Plugin<TPluginContext> | null)[])
-		| Promise<Plugin<TPluginContext> | null | (Plugin<TPluginContext> | null)[]>;
+		| (Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>)
+		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
 }
 
 export interface PluginContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {

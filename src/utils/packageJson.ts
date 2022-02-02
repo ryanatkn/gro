@@ -16,7 +16,7 @@ export interface PackageJson {
 	files?: string[];
 	exports?: Record<string, string>;
 }
-export interface GroPackageJson extends PackageJson {}
+export interface GroPackageJson extends PackageJson {} // eslint-disable-line
 
 let packageJson: PackageJson | undefined;
 let groPackageJson: GroPackageJson | undefined;

@@ -46,7 +46,7 @@ export const loadGitignoreFilter = (forceRefresh = false): IdFilter => {
 	return filter;
 };
 
-export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean) =>
+export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean): boolean =>
 	loadGitignoreFilter(forceRefresh)(join(root, path));
 
 // TODO What's the better way to do this?

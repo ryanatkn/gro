@@ -270,27 +270,32 @@ const validateStandardVersionIncrementParts = (
 type VersionParts = [number, number, number];
 const toVersionParts = (
 	version: string,
-	name: string = 'version',
+	name = 'version',
 ): Result<{value: VersionParts}, {reason: string}> => {
-	const value = version.split('.').map((v) => Number(v)) as VersionParts;
-	if (!value) {
+	const value = version.split('.').map((v) => Number(v));
+	if (!value.length) {
 		return {ok: false, reason: `expected ${name} to match major.minor.patch: ${version}`};
 	} else if (value.length !== 3) {
 		return {ok: false, reason: `malformed ${name}: ${version}`};
 	}
-	return {ok: true, value};
+	return {ok: true, value: value as VersionParts};
 };
 const toExpectedNextVersion = (
 	versionIncrement: StandardVersionIncrement,
 	[major, minor, patch]: VersionParts,
 ) => {
-	if (versionIncrement === 'major') {
-		return `${major + 1}.0.0`;
-	} else if (versionIncrement === 'minor') {
-		return `${major}.${minor + 1}.0`;
-	} else if (versionIncrement === 'patch') {
-		return `${major}.${minor}.${patch + 1}`;
-	} else {
-		throw new UnreachableError(versionIncrement);
+	switch (versionIncrement) {
+		case 'major': {
+			return `${major + 1}.0.0`;
+		}
+		case 'minor': {
+			return `${major}.${minor + 1}.0`;
+		}
+		case 'patch': {
+			return `${major}.${minor}.${patch + 1}`;
+		}
+		default: {
+			throw new UnreachableError(versionIncrement);
+		}
 	}
 };

@@ -1,6 +1,5 @@
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import {type RestartableProcess} from '@feltcoop/felt/util/process.js';
-import {spawnRestartableProcess} from '@feltcoop/felt/util/process.js';
+import {spawnRestartableProcess, type RestartableProcess} from '@feltcoop/felt/util/process.js';
 
 import {type Plugin, type PluginContext} from './plugin.js';
 import {type Args} from '../task/task.js';

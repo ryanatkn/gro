@@ -17,13 +17,13 @@ test__runTask('passes args and returns output', async () => {
 			id: 'foo/testTask',
 			mod: {
 				task: {
-					run: async ({args}) => args,
+					run: ({args}) => Promise.resolve(args),
 				},
 			},
 		},
 		args,
 		new EventEmitter(),
-		async () => {},
+		() => Promise.resolve(),
 	);
 	assert.ok(result.ok);
 	assert.is(result.output, args);
@@ -41,7 +41,7 @@ test__runTask('invokes a sub task', async () => {
 			mod: {
 				task: {
 					run: async ({args, invokeTask}) => {
-						invokeTask('bar/testTask', args);
+						await invokeTask('bar/testTask', args);
 						return args;
 					},
 				},
@@ -78,7 +78,7 @@ test__runTask('failing task', async () => {
 		},
 		{_: []},
 		new EventEmitter(),
-		async () => {},
+		async () => {}, // eslint-disable-line
 	);
 	assert.not.ok(result.ok);
 	assert.ok(result.reason);

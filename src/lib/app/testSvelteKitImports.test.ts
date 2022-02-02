@@ -21,14 +21,14 @@ import {
 
 // see this issue: https://github.com/sveltejs/kit/issues/1485
 
-test('testSvelteKitImports', () => {
+test('testSvelteKitImports', async () => {
 	assert.not.ok(amp);
 	assert.not.ok(browser);
 	assert.ok(dev);
 	assert.is(mode, 'development');
 	assert.not.ok(prerendering);
 
-	goto('');
+	await goto('');
 	assert.ok(invalidate(''));
 	assert.ok(prefetch(''));
 	assert.ok(prefetchRoutes());

@@ -169,7 +169,7 @@ export const toBuildExtension = (sourceId: string, dev: boolean): string =>
 // This implementation is complicated but it's fast.
 // TODO see `toBuildExtension` comments for discussion about making this generic and configurable
 export const toSourceExtension = (buildId: string): string => {
-	let len = buildId.length;
+	const len = buildId.length;
 	let i = len;
 	let extensionCount = 1;
 	let char: string | undefined;
@@ -200,43 +200,31 @@ export const toSourceExtension = (buildId: string): string => {
 	}
 	switch (extension3) {
 		case SVELTE_JS_SOURCEMAP_EXTENSION:
-		case SVELTE_CSS_SOURCEMAP_EXTENSION: {
+		case SVELTE_CSS_SOURCEMAP_EXTENSION:
 			return buildId.substring(0, len - extension2!.length);
-		}
-		case TS_TYPEMAP_EXTENSION: {
+		case TS_TYPEMAP_EXTENSION:
 			return buildId.substring(0, len - extension3.length) + TS_EXTENSION;
-		}
-		// case undefined:
-		// default:
-		// 	return buildId;
-		// 	break;
+		default:
+			break;
 	}
 	switch (extension2) {
 		case JSON_JS_EXTENSION:
 		case SVELTE_JS_EXTENSION:
-		case SVELTE_CSS_EXTENSION: {
+		case SVELTE_CSS_EXTENSION:
 			return buildId.substring(0, len - extension1!.length);
-		}
 		case JS_SOURCEMAP_EXTENSION:
-		case TS_TYPE_EXTENSION: {
+		case TS_TYPE_EXTENSION:
 			return buildId.substring(0, len - extension2.length) + TS_EXTENSION;
-		}
-		// case undefined:
-		// default:
-		// 	return buildId;
-		// 	break;
+		default:
+			break;
 	}
 	switch (extension1) {
-		case SOURCEMAP_EXTENSION: {
+		case SOURCEMAP_EXTENSION:
 			return buildId.substring(0, len - extension1.length);
-		}
-		case JS_EXTENSION: {
+		case JS_EXTENSION:
 			return buildId.substring(0, len - extension1.length) + TS_EXTENSION;
-		}
-		// case undefined:
-		// default:
-		// 	return buildId;
-		// 	break;
+		default:
+			break;
 	}
 	return buildId;
 };

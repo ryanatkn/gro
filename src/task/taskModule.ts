@@ -5,9 +5,10 @@ import {
 	findModules,
 	type ModuleMeta,
 	type LoadModuleResult,
+	type LoadModulesResult,
+	type FindModulesResult,
 } from '../fs/modules.js';
-import {toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
-import {type Task} from './task.js';
+import {toTaskName, isTaskPath, TASK_FILE_SUFFIX, type Task} from './task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {type Filesystem} from '../fs/filesystem.js';
 
@@ -39,7 +40,7 @@ export const loadTaskModules = async (
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [TASK_FILE_SUFFIX],
 	rootDirs: string[] = [],
-) => {
+): Promise<FindModulesResult | LoadModulesResult<TaskModuleMeta>> => {
 	const findModulesResult = await findModules(
 		fs,
 		inputPaths,
