@@ -2,27 +2,63 @@ import {type Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
 
-export const task: Task = {
+interface TaskArgs {
+	_: string[];
+	typecheck?: boolean;
+	'no-typecheck'?: boolean;
+	test?: boolean;
+	'no-test'?: boolean;
+	gen?: boolean;
+	'no-gen'?: boolean;
+	format?: boolean;
+	'no-format'?: boolean;
+	lint?: boolean;
+	'no-lint'?: boolean;
+}
+
+export const task: Task<TaskArgs> = {
 	summary: 'check that everything is ready to commit',
 	run: async ({fs, log, args, invokeTask}) => {
-		await invokeTask('typecheck');
+		const {
+			typecheck = true,
+			test = true,
+			gen = true,
+			format = true,
+			lint = true,
+			...restArgs
+		} = args;
 
-		await invokeTask('lint', {_: [], 'max-warnings': 0});
-
-		await invokeTask('test');
-
-		// Check for stale code generation if the project has any gen files.
-		const findGenModulesResult = await findGenModules(fs);
-		if (findGenModulesResult.ok) {
-			log.info('checking that generated files have not changed');
-			await invokeTask('gen', {...args, check: true});
-		} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
-			for (const reason of findGenModulesResult.reasons) {
-				log.error(reason);
-			}
-			throw new TaskError('Failed to find gen modules.');
+		if (typecheck) {
+			await invokeTask('typecheck');
 		}
 
-		await invokeTask('format', {...args, check: true});
+		if (test) {
+			await invokeTask('test');
+		}
+
+		if (gen) {
+			// Check for stale code generation if the project has any gen files.
+			const findGenModulesResult = await findGenModules(fs);
+			if (findGenModulesResult.ok) {
+				log.info('checking that generated files have not changed');
+				await invokeTask('gen', {...restArgs, check: true});
+			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
+				for (const reason of findGenModulesResult.reasons) {
+					log.error(reason);
+				}
+				throw new TaskError('Failed to find gen modules.');
+			}
+		}
+
+		if (format) {
+			await invokeTask('format', {...restArgs, check: true});
+		}
+
+		// Run the linter last to surface every other kind of problem first.
+		// It's not the ideal order when the linter would catch errors that cause failing tests,
+		// but it's better for most usage.
+		if (lint) {
+			await invokeTask('lint', {_: [], 'max-warnings': 0});
+		}
 	},
 };

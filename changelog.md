@@ -4,6 +4,8 @@
 
 - combine imports in generated schema types
   ([#304](https://github.com/feltcoop/gro/pull/304))
+- add CLI opt-outs to `gro check` for `no-typecheck`, `no-test`, `no-gen`, `no-format`, & `no-lint`
+  ([#305](https://github.com/feltcoop/gro/pull/305))
 
 ## 0.50.5
 
