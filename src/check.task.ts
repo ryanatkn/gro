@@ -2,9 +2,11 @@ import {type Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
 import {type CheckTaskArgs} from './check.js';
+import {CheckTaskArgsSchema} from './check.schema.js';
 
 export const task: Task<CheckTaskArgs> = {
 	summary: 'check that everything is ready to commit',
+	args: CheckTaskArgsSchema,
 	run: async ({fs, log, args, invokeTask}) => {
 		const {
 			typecheck = true,
