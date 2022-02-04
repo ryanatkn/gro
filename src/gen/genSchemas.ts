@@ -5,6 +5,7 @@ import {type GenContext, type RawGenResult} from './gen.js';
 import {type SchemaGenModule} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTsImports} from './helpers/tsImport.js';
+import {isSchema} from '../utils/schema.js';
 
 export const genSchemas = async (mod: SchemaGenModule, ctx: GenContext): Promise<RawGenResult> => {
 	const {imports, types} = await runSchemaGen(ctx, mod);
