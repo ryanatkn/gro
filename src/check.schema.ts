@@ -1,3 +1,6 @@
+// TODO what if `.task.` files were used by `gro gen` automatically
+// so we could simply export the schema there instead of needing this file?
+
 export const CheckTaskArgsSchema = {
 	$id: '/schemas/CheckTaskArgs.json',
 	type: 'object',
