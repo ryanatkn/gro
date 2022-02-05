@@ -61,7 +61,7 @@ export const printTaskHelp = (meta: TaskModuleMeta): string[] => {
 				' ',
 				gray(property.schema.type),
 				' ',
-				printValue(property.schema.default) as string,
+				printValue(property.schema.default) + '',
 				' ',
 				property.schema.description || '(no description available)',
 			);
