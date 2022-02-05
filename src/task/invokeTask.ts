@@ -1,21 +1,18 @@
 import {cyan, red, gray} from 'kleur/colors';
-import {SystemLogger, Logger, printLogLabel} from '@feltcoop/felt/util/log.js';
+import {SystemLogger, printLogLabel} from '@feltcoop/felt/util/log.js';
 import {EventEmitter} from 'events';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
-import {plural} from '@feltcoop/felt/util/string.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
 import {serializeArgs, type Args} from '../task/task.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
-import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
+import {TASK_FILE_SUFFIX, isTaskPath} from './task.js';
 import {
 	paths,
 	groPaths,
-	sourceIdToBasePath,
 	replaceRootDir,
-	pathsFromId,
 	isGroId,
 	toImportId,
 	isThisProjectGro,
@@ -27,6 +24,7 @@ import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {type Filesystem} from '../fs/filesystem.js';
+import {logAvailableTasks, logErrorReasons} from './logTask.js';
 
 /*
 
@@ -159,6 +157,7 @@ export const invokeTask = async (
 					log,
 					printPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
+					args,
 				);
 			} else if (isGroId(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
@@ -166,6 +165,7 @@ export const invokeTask = async (
 					log,
 					printPathOrGroPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
+					args,
 				);
 			} else {
 				// The Gro directory is not the same as the cwd
@@ -186,6 +186,7 @@ export const invokeTask = async (
 						log,
 						printPathOrGroPath(groPathData.id),
 						groDirFindModulesResult.sourceIdsByInputPath,
+						args,
 					);
 				}
 				// Then log the current working directory matches.
@@ -193,6 +194,7 @@ export const invokeTask = async (
 					log,
 					printPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
+					args,
 				);
 			}
 		}
@@ -222,6 +224,7 @@ export const invokeTask = async (
 					log,
 					printPathOrGroPath(groPathData.id),
 					groDirFindModulesResult.sourceIdsByInputPath,
+					args,
 				);
 			} else {
 				// Log the original errors, not the Gro-specific ones.
@@ -238,37 +241,6 @@ export const invokeTask = async (
 
 	printTimings(timings, log);
 	log.info(`🕒 ${printMs(totalTiming())}`);
-};
-
-const logAvailableTasks = async (
-	log: Logger,
-	dirLabel: string,
-	sourceIdsByInputPath: Map<string, string[]>,
-): Promise<void> => {
-	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
-	if (sourceIds.length) {
-		// Load all of the tasks so we can print their decription.
-		const loadModulesResult = await loadModules(sourceIdsByInputPath, true, loadTaskModule);
-		if (!loadModulesResult.ok) {
-			logErrorReasons(log, loadModulesResult.reasons);
-			process.exit(1);
-		}
-		log.info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
-		for (const mod of loadModulesResult.modules) {
-			log.info(
-				'   ' + cyan(toTaskName(sourceIdToBasePath(mod.id, pathsFromId(mod.id)))),
-				mod.mod.task.summary || '',
-			);
-		}
-	} else {
-		log.info(`No tasks found in ${dirLabel}.`);
-	}
-};
-
-const logErrorReasons = (log: Logger, reasons: string[]): void => {
-	for (const reason of reasons) {
-		log.error(reason);
-	}
 };
 
 // This is a best-effort heuristic that quickly detects if

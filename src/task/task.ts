@@ -50,6 +50,7 @@ export class TaskError extends Error {}
 // The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
 export interface Args {
 	_: string[];
+	help?: boolean;
 	[key: string]: unknown; // can assign anything to `args` in tasks
 }
 
@@ -82,3 +83,17 @@ export interface ArgSchema extends JSONSchema {
 	// TODO how to use this?
 	default: boolean | string | number | any[];
 }
+
+interface ArgSchemaProperty {
+	name: string;
+	schema: ArgSchema;
+}
+
+export const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
+	const properties: ArgSchemaProperty[] = [];
+	for (const name in schema.properties) {
+		if ('no-' + name in schema.properties) continue;
+		properties.push({name, schema: schema.properties[name]});
+	}
+	return properties;
+};
