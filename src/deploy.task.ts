@@ -4,10 +4,12 @@ import {printError} from '@feltcoop/felt/util/print.js';
 import {magenta, green, red} from 'kleur/colors';
 
 import {rainbow} from './utils/colors.js';
-import {type Args, type Task} from './task/task.js';
+import {type Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
+import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 import {cleanFs} from './fs/clean.js';
+import {type DeployTaskArgs} from './deploy.js';
+import {DeployTaskArgsSchema} from './deploy.schema.js';
 
 // docs at ./docs/deploy.md
 
@@ -18,18 +20,9 @@ import {cleanFs} from './fs/clean.js';
 // terminal command to clean up while live testing:
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
-export interface TaskArgs extends Args {
-	dirname?: string; // defaults to detecting 'svelte-kit' | 'browser'
-	branch?: string; // optional branch to deploy from; defaults to 'main'
-	dry?: boolean;
-	clean?: boolean; // instead of deploying, just clean the git worktree and Gro cache
-	force?: boolean; // allow deploying to excluded branches like main/master
-}
-
 // TODO customize
 const WORKTREE_DIRNAME = 'worktree';
 const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
-const DEPLOY_BRANCH = 'deploy';
 const ORIGIN = 'origin';
 const INITIAL_FILE = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
@@ -37,19 +30,23 @@ const GIT_ARGS = {cwd: WORKTREE_DIR};
 
 const EXCLUDED_BRANCHES = ['main', 'master'];
 
-export const task: Task<TaskArgs> = {
+export const task: Task<DeployTaskArgs> = {
 	summary: 'deploy to static hosting',
 	production: true,
+	args: DeployTaskArgsSchema,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
+		const {
+			dirname,
+			source = GIT_DEPLOY_SOURCE_BRANCH,
+			target = GIT_DEPLOY_TARGET_BRANCH,
+			dry = false,
+			clean: cleanAndExit = false,
+			force = false,
+		} = args;
 
-		if (!force && EXCLUDED_BRANCHES.includes(branch as string)) {
-			throw Error(
-				`For safety reasons, cannot deploy to branch '${branch}'. Pass --force to override.`,
-			);
+		if (!force && EXCLUDED_BRANCHES.includes(target)) {
+			throw Error(`For safety, you cannot deploy to branch '${target}'. Pass --force to override.`);
 		}
-
-		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
@@ -66,7 +63,7 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Ensure we're on the right branch.
-		const gitCheckoutResult = await spawn('git', ['checkout', sourceBranch]);
+		const gitCheckoutResult = await spawn('git', ['checkout', source]);
 		if (!gitCheckoutResult.ok) {
 			log.error(red(`failed git checkout with exit code ${gitCheckoutResult.code}`));
 			return;
@@ -77,13 +74,13 @@ export const task: Task<TaskArgs> = {
 		// If the `deploymentBranch` already exists, this is a no-op.
 		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
 		await spawn(
-			`git checkout --orphan ${DEPLOY_BRANCH} && ` +
+			`git checkout --orphan ${target} && ` +
 				// TODO there's definitely a better way to do this
 				`cp ${INITIAL_FILE} ${TEMP_PREFIX}${INITIAL_FILE} && ` +
 				`git rm -rf . && ` +
 				`mv ${TEMP_PREFIX}${INITIAL_FILE} ${INITIAL_FILE} && ` +
 				`git add ${INITIAL_FILE} && ` +
-				`git commit -m "setup" && git checkout ${sourceBranch}`,
+				`git commit -m "setup" && git checkout ${source}`,
 			[],
 			// this uses `shell: true` because the above is unwieldy with standard command construction
 			{shell: true},
@@ -142,11 +139,11 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Fetch the remote deploy branch
-			await spawn('git', ['fetch', ORIGIN, DEPLOY_BRANCH]);
+			await spawn('git', ['fetch', ORIGIN, target]);
 			// Set up the deployment worktree
-			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
+			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 			// Pull the remote deploy branch, ignoring failures
-			await spawn('git', ['pull', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
+			await spawn('git', ['pull', ORIGIN, target], GIT_ARGS);
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
@@ -162,7 +159,7 @@ export const task: Task<TaskArgs> = {
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
 			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
-			await spawn('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
+			await spawn('git', ['push', ORIGIN, target, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
 			await cleanGitWorktree();

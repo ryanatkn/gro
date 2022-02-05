@@ -1,32 +1,14 @@
 import {type Task} from './task/task.js';
 import {TaskError} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
+import {type CheckTaskArgs} from './check.js';
+import {CheckTaskArgsSchema} from './check.schema.js';
 
-interface TaskArgs {
-	_: string[];
-	typecheck?: boolean;
-	'no-typecheck'?: boolean;
-	test?: boolean;
-	'no-test'?: boolean;
-	gen?: boolean;
-	'no-gen'?: boolean;
-	format?: boolean;
-	'no-format'?: boolean;
-	lint?: boolean;
-	'no-lint'?: boolean;
-}
-
-export const task: Task<TaskArgs> = {
+export const task: Task<CheckTaskArgs> = {
 	summary: 'check that everything is ready to commit',
+	args: CheckTaskArgsSchema,
 	run: async ({fs, log, args, invokeTask}) => {
-		const {
-			typecheck = true,
-			test = true,
-			gen = true,
-			format = true,
-			lint = true,
-			...restArgs
-		} = args;
+		const {typecheck = true, test = true, gen = true, format = true, lint = true} = args;
 
 		if (typecheck) {
 			await invokeTask('typecheck');
@@ -41,7 +23,7 @@ export const task: Task<TaskArgs> = {
 			const findGenModulesResult = await findGenModules(fs);
 			if (findGenModulesResult.ok) {
 				log.info('checking that generated files have not changed');
-				await invokeTask('gen', {...restArgs, check: true});
+				await invokeTask('gen', {_: [], check: true});
 			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
 				for (const reason of findGenModulesResult.reasons) {
 					log.error(reason);
@@ -51,7 +33,7 @@ export const task: Task<TaskArgs> = {
 		}
 
 		if (format) {
-			await invokeTask('format', {...restArgs, check: true});
+			await invokeTask('format', {_: [], check: true});
 		}
 
 		// Run the linter last to surface every other kind of problem first.

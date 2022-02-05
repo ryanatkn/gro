@@ -1,6 +1,7 @@
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {type EventEmitter} from 'events';
 import {type Logger} from '@feltcoop/felt/util/log.js';
+import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 
 import {type Filesystem} from '../fs/filesystem.js';
 
@@ -8,6 +9,7 @@ export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
 	production?: boolean;
+	args?: ArgsSchema;
 }
 
 export interface TaskContext<TArgs = {}, TEvents = {}> {
@@ -64,3 +66,19 @@ export const serializeArgs = (args: Args): string[] => {
 	}
 	return _ ? [...result, ..._] : result;
 };
+
+export type ArgsProperties = Record<string, ArgSchema> & {
+	_?: {type: 'array'; items: {type: 'string'}; default: any[]; description: string};
+};
+
+// TODO should this extend `VocabSchema` so we get `$id`?
+export interface ArgsSchema extends JSONSchema {
+	type: 'object';
+	properties: ArgsProperties;
+}
+
+export interface ArgSchema extends JSONSchema {
+	type: 'boolean' | 'string' | 'number' | 'array';
+	// TODO how to use this?
+	default: boolean | string | number | any[] | undefined;
+}

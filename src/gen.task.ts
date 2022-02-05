@@ -12,16 +12,14 @@ import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
-
-export interface TaskArgs {
-	_: string[];
-	check?: boolean;
-}
+import {type GenTaskArgs} from './gen.js';
+import {GenTaskArgsSchema} from './gen.schema.js';
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
-export const task: Task<TaskArgs> = {
+export const task: Task<GenTaskArgs> = {
 	summary: 'run code generation scripts',
+	args: GenTaskArgsSchema,
 	run: async ({fs, log, args, dev}): Promise<void> => {
 		const rawInputPaths = args._;
 		const check = !!args.check;
