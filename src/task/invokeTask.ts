@@ -120,6 +120,7 @@ export const invokeTask = async (
 				);
 				const timingToRunTask = timings.start('run task');
 				const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
+				// If we're in dev mode but the task is only for production, run it in a new process.
 				if (dev && task.mod.task.production) {
 					const result = await spawn('npx', ['gro', taskName, ...serializeArgs(args)], {
 						env: {...process.env, NODE_ENV: 'production'},
@@ -135,6 +136,7 @@ export const invokeTask = async (
 						throw Error('Spawned task failed');
 					}
 				} else {
+					// Run the task in the current process.
 					const result = await runTask(fs, task, args, events, invokeTask);
 					timingToRunTask();
 					if (result.ok) {
@@ -153,10 +155,14 @@ export const invokeTask = async (
 			// The input path matches a directory. Log the tasks but don't run them.
 			if (isThisProjectGro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
-				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
+				await logAvailableTasks(
+					log,
+					printPath(pathData.id),
+					findModulesResult.sourceIdsByInputPath,
+				);
 			} else if (isGroId(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
-				logAvailableTasks(
+				await logAvailableTasks(
 					log,
 					printPathOrGroPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
@@ -176,14 +182,18 @@ export const invokeTask = async (
 					const groPathData =
 						groDirFindModulesResult.sourceIdPathDataByInputPath.get(groDirInputPath)!;
 					// First log the Gro matches.
-					logAvailableTasks(
+					await logAvailableTasks(
 						log,
 						printPathOrGroPath(groPathData.id),
 						groDirFindModulesResult.sourceIdsByInputPath,
 					);
 				}
 				// Then log the current working directory matches.
-				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
+				await logAvailableTasks(
+					log,
+					printPath(pathData.id),
+					findModulesResult.sourceIdsByInputPath,
+				);
 			}
 		}
 	} else if (findModulesResult.type === 'inputDirectoriesWithNoFiles') {
@@ -208,7 +218,7 @@ export const invokeTask = async (
 				const groPathData =
 					groDirFindModulesResult.sourceIdPathDataByInputPath.get(groDirInputPath)!;
 				// Log the Gro matches.
-				logAvailableTasks(
+				await logAvailableTasks(
 					log,
 					printPathOrGroPath(groPathData.id),
 					groDirFindModulesResult.sourceIdsByInputPath,
@@ -230,16 +240,25 @@ export const invokeTask = async (
 	log.info(`🕒 ${printMs(totalTiming())}`);
 };
 
-const logAvailableTasks = (
+const logAvailableTasks = async (
 	log: Logger,
 	dirLabel: string,
 	sourceIdsByInputPath: Map<string, string[]>,
-): void => {
+): Promise<void> => {
 	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
 	if (sourceIds.length) {
+		// Load all of the tasks so we can print their decription.
+		const loadModulesResult = await loadModules(sourceIdsByInputPath, true, loadTaskModule);
+		if (!loadModulesResult.ok) {
+			logErrorReasons(log, loadModulesResult.reasons);
+			process.exit(1);
+		}
 		log.info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
-		for (const sourceId of sourceIds) {
-			log.info('\t' + cyan(toTaskName(sourceIdToBasePath(sourceId, pathsFromId(sourceId)))));
+		for (const mod of loadModulesResult.modules) {
+			log.info(
+				'   ' + cyan(toTaskName(sourceIdToBasePath(mod.id, pathsFromId(mod.id)))),
+				mod.mod.task.summary || '',
+			);
 		}
 	} else {
 		log.info(`No tasks found in ${dirLabel}.`);
