@@ -107,7 +107,7 @@ gro some/dir # list all tasks inside `src/some/dir`
 gro some/file # run `src/some/file.task.ts`
 gro some/file.task.ts # same as above
 gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
-gro test --help # print info about the "test" task
+gro test --help # print info about the "test" task; works for every task
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
