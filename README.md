@@ -95,17 +95,19 @@ It's handy to install globally too:
 
 ```bash
 npm i -g @feltcoop/gro
-gro # should print some stuff - defers to the project's locally installed version of Gro
+gro # prints available tasks - defers to the project's locally installed version of Gro
 ```
 
 ## usage
 
 ```bash
-gro # list all available tasks with the pattern `*.task.ts`
+gro # print all available tasks with the pattern `*.task.ts`
+gro --help # print more info about each available task
 gro some/dir # list all tasks inside `src/some/dir`
 gro some/file # run `src/some/file.task.ts`
 gro some/file.task.ts # same as above
 gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
+gro test --help # print info about the "test" task
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
