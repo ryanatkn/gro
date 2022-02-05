@@ -1,12 +1,12 @@
 import {type EventEmitter} from 'events';
-import {cyan, gray, green, red} from 'kleur/colors';
-import {type Logger, printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import {printValue} from '@feltcoop/felt/util/print.js';
+import {cyan, red} from 'kleur/colors';
+import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 
 import {type TaskModuleMeta} from './taskModule.js';
-import {TaskError, type Args, type ArgSchema, type ArgsSchema} from './task.js';
+import {TaskError, type Args} from './task.js';
 import {type invokeTask as InvokeTaskFunction} from './invokeTask.js';
 import {type Filesystem} from '../fs/filesystem.js';
+import {printTaskHelp} from './logTask.js';
 
 export type RunTaskResult =
 	| {
@@ -33,7 +33,7 @@ export const runTask = async (
 		throw new TaskError(`The task "${taskMeta.name}" cannot be run in development`);
 	}
 	if (args.help) {
-		logTaskHelp(log, taskMeta);
+		log.info(...printTaskHelp(taskMeta));
 		return {ok: true, output: null};
 	}
 	let output: unknown;
@@ -61,42 +61,4 @@ export const runTask = async (
 		};
 	}
 	return {ok: true, output};
-};
-
-// TODO format output in a table
-const logTaskHelp = (log: Logger, meta: TaskModuleMeta) => {
-	const {
-		name,
-		mod: {task},
-	} = meta;
-	const strs: string[] = ['help', '\n', cyan(name), '\n', task.summary || '(no summary available)'];
-	if (!task.args) {
-		strs.push('\n', '(no args schema available)');
-	} else {
-		for (const property of toArgProperties(task.args)) {
-			const name = property.name === '_' ? '[...args]' : property.name;
-			strs.push(
-				'\n',
-				green(name),
-				gray(property.schema.type),
-				printValue(property.schema.default) as string,
-				property.schema.description || '(no description available)',
-			);
-		}
-	}
-	log.info(...strs);
-};
-
-interface ArgSchemaProperty {
-	name: string;
-	schema: ArgSchema;
-}
-
-const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
-	const properties: ArgSchemaProperty[] = [];
-	for (const name in schema.properties) {
-		if ('no-' + name in schema.properties) continue;
-		properties.push({name, schema: schema.properties[name]});
-	}
-	return properties;
 };

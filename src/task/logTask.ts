@@ -3,7 +3,7 @@ import {Logger} from '@feltcoop/felt/util/log.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 import {printValue} from '@feltcoop/felt/util/print.js';
 
-import {toArgProperties, type Args} from './task.js';
+import {type Args, type ArgSchema, type ArgsSchema} from './task.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
 
@@ -68,4 +68,18 @@ export const printTaskHelp = (meta: TaskModuleMeta): string[] => {
 		}
 	}
 	return printed;
+};
+
+interface ArgSchemaProperty {
+	name: string;
+	schema: ArgSchema;
+}
+
+const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
+	const properties: ArgSchemaProperty[] = [];
+	for (const name in schema.properties) {
+		if ('no-' + name in schema.properties) continue;
+		properties.push({name, schema: schema.properties[name]});
+	}
+	return properties;
 };
