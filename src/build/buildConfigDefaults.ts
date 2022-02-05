@@ -16,7 +16,8 @@ import {type Filesystem} from '../fs/filesystem.js';
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
-export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
+export const GIT_DEPLOY_SOURCE_BRANCH = 'main'; // deploy and publish FROM this branch
+export const GIT_DEPLOY_TARGET_BRANCH = 'deploy'; // deploy TO this branch
 
 export const CONFIG_BUILD_NAME: BuildName = 'config';
 export const CONFIG_BUILD_CONFIG: BuildConfig = {

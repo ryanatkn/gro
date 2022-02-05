@@ -1,7 +1,15 @@
 # changelog
 
-## 0.50.6
+## 0.51.0
 
+- **break**: rename the `gro publish` `branch` arg to `source` and add `target` branch arg
+  ([#306](https://github.com/feltcoop/gro/pull/306))
+- **break**: move `mapBundleOptions` from args to the Node library adapter options
+  ([#306](https://github.com/feltcoop/gro/pull/306))
+- add schema information to task args
+  ([#306](https://github.com/feltcoop/gro/pull/306))
+- add `--help` flag to `gro` and `gro taskname`, along with `gro help` alias
+  ([#306](https://github.com/feltcoop/gro/pull/306))
 - combine imports in generated schema types
   ([#304](https://github.com/feltcoop/gro/pull/304))
 - add CLI opt-outs to `gro check` for `no-typecheck`, `no-test`, `no-gen`, `no-format`, & `no-lint`

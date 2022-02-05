@@ -8,14 +8,7 @@ export const task: Task<CheckTaskArgs> = {
 	summary: 'check that everything is ready to commit',
 	args: CheckTaskArgsSchema,
 	run: async ({fs, log, args, invokeTask}) => {
-		const {
-			typecheck = true,
-			test = true,
-			gen = true,
-			format = true,
-			lint = true,
-			...restArgs // TODO change this, is unsafe and not explicit
-		} = args;
+		const {typecheck = true, test = true, gen = true, format = true, lint = true} = args;
 
 		if (typecheck) {
 			await invokeTask('typecheck');
@@ -30,7 +23,7 @@ export const task: Task<CheckTaskArgs> = {
 			const findGenModulesResult = await findGenModules(fs);
 			if (findGenModulesResult.ok) {
 				log.info('checking that generated files have not changed');
-				await invokeTask('gen', {...restArgs, check: true});
+				await invokeTask('gen', {_: [], check: true});
 			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
 				for (const reason of findGenModulesResult.reasons) {
 					log.error(reason);
@@ -40,7 +33,7 @@ export const task: Task<CheckTaskArgs> = {
 		}
 
 		if (format) {
-			await invokeTask('format', {...restArgs, check: true});
+			await invokeTask('format', {_: [], check: true});
 		}
 
 		// Run the linter last to surface every other kind of problem first.

@@ -1,13 +1,12 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
 
 import {type Task} from './task/task.js';
+import {type CertTaskArgs} from './cert.js';
+import {CertTaskArgsSchema} from './cert.schema.js';
 
-export interface TaskArgs {
-	host?: string;
-}
-
-export const task: Task<TaskArgs> = {
+export const task: Task<CertTaskArgs> = {
 	summary: 'creates a self-signed cert for https with openssl',
+	args: CertTaskArgsSchema,
 	run: async ({fs, args}) => {
 		const host = args.host || 'localhost';
 		const certFile = `${host}-cert.pem`;

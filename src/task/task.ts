@@ -69,7 +69,7 @@ export const serializeArgs = (args: Args): string[] => {
 };
 
 export type ArgsProperties = Record<string, ArgSchema> & {
-	_?: {type: 'array'; items: {type: 'string'}; default: []};
+	_?: {type: 'array'; items: {type: 'string'}; default: any[]; description: string};
 };
 
 // TODO should this extend `VocabSchema` so we get `$id`?
@@ -81,19 +81,5 @@ export interface ArgsSchema extends JSONSchema {
 export interface ArgSchema extends JSONSchema {
 	type: 'boolean' | 'string' | 'number' | 'array';
 	// TODO how to use this?
-	default: boolean | string | number | any[];
+	default: boolean | string | number | any[] | undefined;
 }
-
-interface ArgSchemaProperty {
-	name: string;
-	schema: ArgSchema;
-}
-
-export const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
-	const properties: ArgSchemaProperty[] = [];
-	for (const name in schema.properties) {
-		if ('no-' + name in schema.properties) continue;
-		properties.push({name, schema: schema.properties[name]});
-	}
-	return properties;
-};

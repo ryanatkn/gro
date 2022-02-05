@@ -1,8 +1,5 @@
 import type {ArgsSchema} from './task/task.js';
 
-// TODO what if `.task.` files were used by `gro gen` automatically
-// so we could simply export the schema there instead of needing this file?
-
 export const CheckTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/CheckTaskArgs.json',
 	type: 'object',
@@ -18,6 +15,5 @@ export const CheckTaskArgsSchema: ArgsSchema = {
 		lint: {type: 'boolean', default: true, description: ''},
 		'no-lint': {type: 'boolean', default: false, description: 'opt out of linting'},
 	},
-	required: ['_'],
 	additionalProperties: false,
 };

@@ -8,6 +8,8 @@ import {toBuildOutPath, toRootPath} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
+import {type TestTaskArgs} from './test.js';
+import {TestTaskArgsSchema} from './test.schema.js';
 
 // Runs the project's tests: `gro test [...args]`
 // Args are passed through directly to `uvu`'s CLI:
@@ -15,8 +17,9 @@ import {buildSource} from './build/buildSource.js';
 
 const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 
-export const task: Task = {
+export const task: Task<TestTaskArgs> = {
 	summary: 'run tests',
+	args: TestTaskArgsSchema,
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const patternCount = args._.length;
 		const testFilePatterns = patternCount ? args._ : DEFAULT_TEST_FILE_PATTERNS;
