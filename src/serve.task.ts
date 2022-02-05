@@ -3,19 +3,12 @@ import {createGroServer, DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from './serve
 import {Filer} from './build/Filer.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {type ServedDirPartial} from './build/servedDir.js';
+import {type ServeTaskArgs} from './serve.js';
+import {ServeTaskArgsSchema} from './serve.schema.js';
 
-export interface TaskArgs {
-	_: string[];
-	serve?: ServedDirPartial[]; // takes priority over the CLI arg "_" above
-	host?: string;
-	port?: string | number;
-	insecure?: boolean;
-	cert?: string;
-	certkey?: string;
-}
-
-export const task: Task<TaskArgs> = {
+export const task: Task<ServeTaskArgs> = {
 	summary: 'start static file server',
+	args: ServeTaskArgsSchema,
 	run: async ({fs, log, args, dev}): Promise<void> => {
 		const host = args.host || DEFAULT_SERVER_HOST;
 		const port = Number(args.port) || DEFAULT_SERVER_PORT;

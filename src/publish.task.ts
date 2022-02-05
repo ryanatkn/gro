@@ -8,11 +8,13 @@ import {type Flavored, type Result} from '@feltcoop/felt/util/types.js';
 import {rainbow} from './utils/colors.js';
 import {type Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
-import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
+import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 import {type Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
+import {type PublishTaskArgs} from './publish.js';
+import {PublishTaskArgsSchema} from './publish.schema.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -21,18 +23,12 @@ import {isThisProjectGro} from './paths.js';
 // - publishes to npm from the `main` branch, configurable with `--branch`
 // - syncs commits and tags to the configured main branch
 
-export interface TaskArgs {
-	_: string[];
-	branch?: string;
-	dry?: boolean; // run without changing git or npm
-	restricted?: string; // if `true`, package is not public
-}
-
-export const task: Task<TaskArgs> = {
+export const task: Task<PublishTaskArgs> = {
 	summary: 'bump version, publish to npm, and git push',
 	production: true,
+	args: PublishTaskArgsSchema,
 	run: async ({fs, args, log, dev}): Promise<void> => {
-		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
+		const {branch = GIT_DEPLOY_SOURCE_BRANCH, dry = false, restricted = false} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
 		}

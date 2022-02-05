@@ -60,11 +60,10 @@ export interface Options {
 	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
 	libraryRebasePath: string; // defaults to 'lib/', pass '' to avoid remapping -- TODO do we want to remove this after Gro follows SvelteKit conventions?
 	bundle: boolean; // defaults to `false`
+	mapBundleOptions: (options: esbuild.BuildOptions) => esbuild.BuildOptions;
 }
 
-export interface AdapterArgs {
-	mapBundleOptions?(options: esbuild.BuildOptions): esbuild.BuildOptions;
-}
+export interface AdapterArgs {}
 
 export const createAdapter = ({
 	buildName = NODE_LIBRARY_BUILD_NAME,
@@ -73,13 +72,12 @@ export const createAdapter = ({
 	packageJson = 'package.json',
 	pack = true,
 	bundle = false,
+	mapBundleOptions = identity,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
 	dir = stripTrailingSlash(dir);
 	return {
 		name,
-		adapt: async ({config, fs, dev, log, args, timings}) => {
-			const {mapBundleOptions = identity} = args;
-
+		adapt: async ({config, fs, dev, log, timings}) => {
 			const buildConfig = config.builds.find((b) => b.name === buildName);
 			if (!buildConfig) {
 				throw Error(`Unknown build config: ${buildName}`);
