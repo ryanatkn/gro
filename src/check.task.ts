@@ -14,7 +14,7 @@ export const task: Task<CheckTaskArgs> = {
 			gen = true,
 			format = true,
 			lint = true,
-			...restArgs
+			...restArgs // TODO change this, is unsafe and not explicit
 		} = args;
 
 		if (typecheck) {
