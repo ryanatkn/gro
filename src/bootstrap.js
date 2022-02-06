@@ -66,14 +66,14 @@ const bootstrap = async () => {
 
 	// @ts-expect-error
 	let done, promise, ps;
-	promise = new Promise((r) => (done = r)); // eslint-disable-line no-promise-executor-return
+	promise = new Promise((r) => (done = r));
 	ps = spawn('chmod', ['+x', distDir + '/cli/gro.js']);
 	ps.on('error', (err) => console.error('err', err));
 	// @ts-expect-error
 	ps.on('close', () => done());
 	await promise;
 
-	promise = new Promise((r) => (done = r)); // eslint-disable-line no-promise-executor-return
+	promise = new Promise((r) => (done = r));
 	ps = spawn('npm', ['link']);
 	ps.on('error', (err) => console.error('err', err));
 	// @ts-expect-error
