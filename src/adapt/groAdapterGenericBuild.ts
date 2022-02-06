@@ -16,7 +16,7 @@ export const createAdapter = ({
 	dir = `${DIST_DIRNAME}/${buildName}`,
 	hostTarget = 'static',
 }: Options): Adapter => {
-	dir = stripTrailingSlash(dir);
+	const outputDir = stripTrailingSlash(dir);
 	return {
 		name: '@feltcoop/groAdapterGenericBuild',
 		adapt: async ({config, fs, dev, log}) => {
@@ -25,10 +25,10 @@ export const createAdapter = ({
 				throw Error(`Unknown build config: ${buildName}`);
 			}
 
-			await copyDist(fs, buildConfig, dev, dir, log);
+			await copyDist(fs, buildConfig, dev, outputDir, log);
 
 			if (hostTarget === 'githubPages') {
-				await ensureNojekyll(fs, dir);
+				await ensureNojekyll(fs, outputDir);
 			}
 		},
 	};

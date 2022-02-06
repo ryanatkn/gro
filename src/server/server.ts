@@ -179,7 +179,7 @@ const toResponse = async (
 	// TODO refactor - see `./projectState.ts` for more
 	// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
 	// also, `src/` is hardcoded below in `paths.source`s
-	const SOURCE_ROOT_MATCHER = /^\/api\/src\/?$/;
+	const SOURCE_ROOT_MATCHER = /^\/api\/src\/?$/u;
 	if (SOURCE_ROOT_MATCHER.test(url)) {
 		const projectState: ProjectState = {
 			buildDir: filer.buildDir,

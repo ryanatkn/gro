@@ -95,9 +95,6 @@ export interface GroConfigCreatorOptions {
 	readonly config: GroConfig; // default config is available for user config code
 }
 
-let cachedDevConfig: GroConfig | undefined;
-let cachedProdConfig: GroConfig | undefined;
-
 /*
 
 Loading the config is a fairly complex process.
@@ -138,17 +135,27 @@ const applyConfig = (config: GroConfig) => {
 	configureLogLevel(config.logLevel);
 };
 
+let cachedDevConfig: Promise<GroConfig> | undefined;
+let cachedProdConfig: Promise<GroConfig> | undefined;
+
 export const loadConfig = async (
 	fs: Filesystem,
 	dev: boolean,
 	applyConfigToSystem = true,
 ): Promise<GroConfig> => {
-	const cachedConfig = dev ? cachedDevConfig : cachedProdConfig;
-	if (cachedConfig) {
-		if (applyConfigToSystem) applyConfig(cachedConfig);
-		return cachedConfig;
+	if (dev) {
+		if (cachedDevConfig) return cachedDevConfig;
+		return (cachedDevConfig = _loadConfig(fs, dev, applyConfigToSystem));
 	}
+	if (cachedProdConfig) return cachedProdConfig;
+	return (cachedProdConfig = _loadConfig(fs, dev, applyConfigToSystem));
+};
 
+const _loadConfig = async (
+	fs: Filesystem,
+	dev: boolean,
+	applyConfigToSystem = true,
+): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
 	const options: GroConfigCreatorOptions = {fs, log, dev, config: null as any};
@@ -175,11 +182,6 @@ export const loadConfig = async (
 		config = await toConfig(configModule.config, options, configSourceId, defaultConfig);
 	} else {
 		config = defaultConfig;
-	}
-	if (dev) {
-		cachedDevConfig = config;
-	} else {
-		cachedProdConfig = config;
 	}
 	if (applyConfigToSystem) applyConfig(config);
 	return config;
@@ -224,7 +226,7 @@ const toBootstrapConfig = (): GroConfig => {
 	};
 };
 
-const validateConfigModule = (configModule: any): Result<{}, {reason: string}> => {
+const validateConfigModule = (configModule: any): Result<object, {reason: string}> => {
 	if (!(typeof configModule.config === 'function' || typeof configModule.config === 'object')) {
 		throw Error(`Invalid Gro config module. Expected a 'config' export.`);
 	}
@@ -235,7 +237,7 @@ const validateConfig = async (
 	fs: Filesystem,
 	config: GroConfig,
 	dev: boolean,
-): Promise<Result<{}, {reason: string}>> => {
+): Promise<Result<object, {reason: string}>> => {
 	const buildConfigsResult = await validateBuildConfigs(fs, config.builds, dev);
 	if (!buildConfigsResult.ok) return buildConfigsResult;
 	return {ok: true};

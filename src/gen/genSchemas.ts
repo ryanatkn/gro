@@ -30,7 +30,7 @@ export const runSchemaGen = async (
 
 		// Compile the schema to TypeScript.
 		const finalIdentifier = stripEnd(identifier, 'Schema'); // convenient to avoid name collisions
-		const result = await compile(value, finalIdentifier, {bannerComment: '', format: false});
+		const result = await compile(value, finalIdentifier, {bannerComment: '', format: false}); // eslint-disable-line no-await-in-loop
 		types.push(result);
 
 		// Walk the entire schema and add any imports with `tsImport`.

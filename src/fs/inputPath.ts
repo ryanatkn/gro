@@ -38,13 +38,14 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 	if (isAbsolute(rawInputPath)) return rawInputPath;
 	// Allow prefix `./` and just remove it if it's there.
 	let basePath = stripStart(rawInputPath, './');
-	if (!fromPaths) {
+	let paths = fromPaths;
+	if (!paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 		if (basePath.startsWith(groDirBasename)) {
-			fromPaths = groPaths;
+			paths = groPaths;
 			basePath = stripStart(basePath, groDirBasename);
 		} else if (basePath + sep === groDirBasename) {
-			fromPaths = groPaths;
+			paths = groPaths;
 			basePath = '';
 		}
 	}
@@ -52,7 +53,7 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 	if (basePath === SOURCE_DIRNAME) basePath = '';
 	// Allow prefix `src/` and just remove it if it's there.
 	basePath = stripStart(basePath, SOURCE_DIR);
-	return basePathToSourceId(basePath, fromPaths);
+	return basePathToSourceId(basePath, paths);
 };
 
 export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
@@ -117,8 +118,8 @@ export const loadSourcePathDataByInputPath = async (
 			? getPossibleSourceIdsForInputPath(inputPath)
 			: [inputPath];
 		for (const possibleSourceId of possibleSourceIds) {
-			if (!(await fs.exists(possibleSourceId))) continue;
-			const stats = await fs.stat(possibleSourceId);
+			if (!(await fs.exists(possibleSourceId))) continue; // eslint-disable-line no-await-in-loop
+			const stats = await fs.stat(possibleSourceId); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				if (!dirPathData) {
 					dirPathData = toPathData(possibleSourceId, stats);
@@ -156,7 +157,7 @@ export const loadSourceIdsByInputPath = async (
 	const existingSourceIds = new Set<string>();
 	for (const [inputPath, pathData] of sourceIdPathDataByInputPath) {
 		if (pathData.isDirectory) {
-			const files = await findFiles(pathData.id);
+			const files = await findFiles(pathData.id); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const sourceIds: string[] = [];
 				let hasFiles = false;
@@ -180,11 +181,9 @@ export const loadSourceIdsByInputPath = async (
 			} else {
 				inputDirectoriesWithNoFiles.push(inputPath);
 			}
-		} else {
-			if (!existingSourceIds.has(pathData.id)) {
-				existingSourceIds.add(pathData.id);
-				sourceIdsByInputPath.set(inputPath, [pathData.id]);
-			}
+		} else if (!existingSourceIds.has(pathData.id)) {
+			existingSourceIds.add(pathData.id);
+			sourceIdsByInputPath.set(inputPath, [pathData.id]);
 		}
 	}
 	return {sourceIdsByInputPath, inputDirectoriesWithNoFiles};

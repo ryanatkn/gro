@@ -78,7 +78,7 @@ test__runTask('failing task', async () => {
 		},
 		{_: []},
 		new EventEmitter(),
-		async () => {}, // eslint-disable-line
+		async () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
 	);
 	assert.not.ok(result.ok);
 	assert.ok(result.reason);

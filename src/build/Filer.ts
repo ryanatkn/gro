@@ -269,13 +269,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
 		// what data is not yet ready? does this belong inside `initBuilds`?
-		if (this.buildConfigs !== null) {
-			for (const dir of this.dirs) {
-				if (!dir.buildable) continue;
-				if (this.builder!.init !== undefined) {
-					await this.builder!.init(this);
-				}
-			}
+		if (this.builder?.init && this.buildConfigs !== null && this.dirs.some((d) => d.buildable)) {
+			await this.builder.init(this);
 		}
 
 		// This performs the initial source file build, traces deps,
@@ -381,7 +376,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const {dirty} = sourceFile;
 		if (!hasBuildConfig || dirty) {
 			await this.buildSourceFile(sourceFile, buildConfig);
-			if (dirty) sourceFile.dirty = false;
+			if (dirty) sourceFile.dirty = false; // eslint-disable-line require-atomic-updates
 		}
 	}
 
@@ -723,6 +718,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			for (const addedDependency of addedDependencies) {
 				// we create no source file for externals
 				if (addedDependency.external) continue;
+				// eslint-disable-next-line no-await-in-loop
 				const addedSourceId = await this.mapDependencyToSourceId(
 					addedDependency,
 					this.buildDir,
@@ -760,6 +756,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
+				// eslint-disable-next-line no-await-in-loop
 				const removedSourceId = await this.mapDependencyToSourceId(
 					removedDependency,
 					this.buildDir,

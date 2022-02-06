@@ -6,7 +6,7 @@ import {type Filesystem} from '../fs/filesystem.js';
 import {
 	sourceIdToBasePath,
 	toTypesBuildDir,
-	TS_TYPE_EXTENSION as TS_TYPE_EXTENSION,
+	TS_TYPE_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
 

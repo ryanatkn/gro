@@ -72,9 +72,8 @@ const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
 		const files = rawResult.map((f) => toGenFile(originId, f));
 		validateGenFiles(files);
 		return files;
-	} else {
-		return [toGenFile(originId, rawResult)];
 	}
+	return [toGenFile(originId, rawResult)];
 };
 
 const toGenFile = (originId: string, rawGenFile: RawGenFile): GenFile => {

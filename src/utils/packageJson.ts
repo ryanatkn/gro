@@ -16,10 +16,10 @@ export interface PackageJson {
 	files?: string[];
 	exports?: Record<string, string>;
 }
-export interface GroPackageJson extends PackageJson {} // eslint-disable-line
+export interface GroPackageJson extends PackageJson {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
-let packageJson: PackageJson | undefined;
-let groPackageJson: GroPackageJson | undefined;
+let packageJson: Promise<PackageJson> | undefined;
+let groPackageJson: Promise<GroPackageJson> | undefined;
 
 export const loadPackageJson = async (
 	fs: Filesystem,
@@ -27,18 +27,20 @@ export const loadPackageJson = async (
 ): Promise<PackageJson> => {
 	if (isThisProjectGro) return loadGroPackageJson(fs, forceRefresh);
 	if (!packageJson || forceRefresh) {
-		packageJson = JSON.parse(await fs.readFile(join(paths.root, 'package.json'), 'utf8'));
+		packageJson = fs.readFile(join(paths.root, 'package.json'), 'utf8').then((f) => JSON.parse(f));
 	}
-	return packageJson!;
+	return packageJson;
 };
 export const loadGroPackageJson = async (
 	fs: Filesystem,
 	forceRefresh = false,
 ): Promise<GroPackageJson> => {
 	if (!groPackageJson || forceRefresh) {
-		groPackageJson = JSON.parse(await fs.readFile(join(groPaths.root, 'package.json'), 'utf8'));
+		groPackageJson = fs
+			.readFile(join(groPaths.root, 'package.json'), 'utf8')
+			.then((f) => JSON.parse(f));
 	}
-	return groPackageJson!;
+	return groPackageJson;
 };
 
 // gets the "b" of "@a/b" for namespaced packages

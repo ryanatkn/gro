@@ -73,7 +73,7 @@ export const createAdapter = ({
 	pack = true,
 	bundle = false,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
-	dir = stripTrailingSlash(dir);
+	const outputDir = stripTrailingSlash(dir);
 	return {
 		name,
 		adapt: async ({config, fs, dev, log, args, timings}) => {
@@ -94,7 +94,6 @@ export const createAdapter = ({
 					return;
 				}
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
-				const outputDir = dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
 				await esbuild.build(
 					mapBundleOptions({
@@ -109,7 +108,7 @@ export const createAdapter = ({
 
 			const timingToCopyDist = timings.start('copy build to dist');
 			const filter = bundle ? bundledDistFilter : undefined;
-			await copyDist(fs, buildConfig, dev, dir, log, filter, pack, libraryRebasePath);
+			await copyDist(fs, buildConfig, dev, outputDir, log, filter, pack, libraryRebasePath);
 			timingToCopyDist();
 
 			let pkg: PackageJson;
@@ -129,7 +128,7 @@ export const createAdapter = ({
 					)
 						.map((path): null | Promise<void> => {
 							if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
-								return fs.copy(path, `${dir}/${path}`, {overwrite: false});
+								return fs.copy(path, `${outputDir}/${path}`, {overwrite: false});
 							}
 							return null;
 						})
@@ -137,16 +136,16 @@ export const createAdapter = ({
 				);
 
 				// copy src
-				await fs.copy(paths.source, `${dir}/${SOURCE_DIRNAME}`);
+				await fs.copy(paths.source, `${outputDir}/${SOURCE_DIRNAME}`);
 
 				// update package.json with computed values
-				pkg.files = await toPkgFiles(fs, dir);
+				pkg.files = await toPkgFiles(fs, outputDir);
 				pkg.main = toPkgMain(pkg);
 				pkg.types = replaceExtension(pkg.main, TS_TYPE_EXTENSION);
 				pkg.exports = toPkgExports(pkg.main, files, libraryRebasePath);
 
 				// write the new package.json
-				await fs.writeFile(`${dir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
+				await fs.writeFile(`${outputDir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
 
 				timingToPackDist();
 			}

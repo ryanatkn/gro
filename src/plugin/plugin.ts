@@ -55,7 +55,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 		for (const plugin of instances) {
 			if (!plugin.setup) continue;
 			const timing = timings.start(`setup:${plugin.name}`);
-			await plugin.setup(ctx);
+			await plugin.setup(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
 		timingToSetup();
@@ -69,7 +69,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 		for (const plugin of instances) {
 			if (!plugin.teardown) continue;
 			const timing = timings.start(`teardown:${plugin.name}`);
-			await plugin.teardown(ctx);
+			await plugin.teardown(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
 		timingToTeardown();

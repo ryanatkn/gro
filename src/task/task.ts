@@ -5,13 +5,13 @@ import {stripEnd} from '@feltcoop/felt/util/string.js';
 
 import {type Filesystem} from '../fs/filesystem.js';
 
-export interface Task<TArgs = Args, TEvents = {}> {
+export interface Task<TArgs = Args, TEvents = object> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
 	production?: boolean;
 }
 
-export interface TaskContext<TArgs = {}, TEvents = {}> {
+export interface TaskContext<TArgs = object, TEvents = object> {
 	fs: Filesystem;
 	dev: boolean;
 	log: Logger;

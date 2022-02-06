@@ -38,4 +38,4 @@ const main = async () => {
 };
 
 // see `attachProcessErrorHandlers` above for why we don't catch here
-main(); // eslint-disable-line
+main(); // eslint-disable-line @typescript-eslint/no-floating-promises

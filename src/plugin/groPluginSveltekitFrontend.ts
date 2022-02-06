@@ -5,7 +5,7 @@ import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {type Plugin, type PluginContext} from './plugin.js';
 import {type Args} from '../task/task.js';
 
-export interface Options {} // eslint-disable-line
+export interface Options {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
 export interface TaskArgs extends Args {
 	watch?: boolean;
@@ -20,8 +20,9 @@ export interface TaskArgs extends Args {
 
 const name = '@feltcoop/groPluginSveltekitFrontend';
 
+// eslint-disable-next-line no-empty-pattern
 export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
-	PluginContext<TaskArgs, {}>
+	PluginContext<TaskArgs, object>
 > => {
 	let sveltekitProcess: SpawnedProcess | null = null;
 	return {

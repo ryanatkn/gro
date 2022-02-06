@@ -159,25 +159,27 @@ export class MemoryFs implements Filesystem {
 		srcNodes.sort((a, b) => a.id.localeCompare(b.id)); // TODO do this elsewhere? maybe in `_filter`?
 		const destId = toFsId(destPath);
 		// create a new node at the new location
-		for (const srcNode of srcNodes) {
-			const nodeDestId = `${destId === ROOT ? '' : destId}${stripStart(srcNode.id, srcId)}`;
-			if (filter && !(await filter(srcNode.id, nodeDestId))) continue;
-			const exists = this._files.has(nodeDestId);
-			let output = false;
-			if (exists) {
-				if (overwrite) {
-					await this.remove(nodeDestId);
-					output = true;
+		await Promise.all(
+			srcNodes.map(async (srcNode) => {
+				const nodeDestId = `${destId === ROOT ? '' : destId}${stripStart(srcNode.id, srcId)}`;
+				if (filter && !(await filter(srcNode.id, nodeDestId))) return;
+				const exists = this._files.has(nodeDestId);
+				let output = false;
+				if (exists) {
+					if (overwrite) {
+						await this.remove(nodeDestId);
+						output = true;
+					} else {
+						throw Error(`dest already exists: ${nodeDestId}`);
+					}
 				} else {
-					throw Error(`dest already exists: ${nodeDestId}`);
+					output = true;
 				}
-			} else {
-				output = true;
-			}
-			if (output) {
-				await this.writeFile(nodeDestId, srcNode.content, srcNode.encoding);
-			}
-		}
+				if (output) {
+					await this.writeFile(nodeDestId, srcNode.content, srcNode.encoding);
+				}
+			}),
+		);
 	};
 	ensureDir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
@@ -202,9 +204,7 @@ export class MemoryFs implements Filesystem {
 	};
 	emptyDir = async (path: string): Promise<void> => {
 		const id = toFsId(path);
-		for (const node of this._filter(id)) {
-			await this.remove(node.id);
-		}
+		await Promise.all(this._filter(id).map((node) => this.remove(node.id)));
 	};
 	findFiles = async (
 		dir: string,

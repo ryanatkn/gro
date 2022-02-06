@@ -12,10 +12,8 @@ export const task: Task = {
 			log.info('ESLint is not installed; skipping linting');
 			return;
 		}
-		if (!args._.length) {
-			args = {...args, _: [SOURCE_DIRNAME]};
-		}
-		const eslintResult = await spawn('npx', ['eslint', ...serializeArgs(args)]);
+		const eslintArgs = args._.length ? args : {...args, _: [SOURCE_DIRNAME]};
+		const eslintResult = await spawn('npx', ['eslint', ...serializeArgs(eslintArgs)]);
 		if (!eslintResult.ok) {
 			throw new TaskError(`ESLint found some problems. ${printSpawnResult(eslintResult)}`);
 		}

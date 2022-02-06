@@ -10,8 +10,8 @@ export interface ServedDir {
 
 export type ServedDirPartial = string | PartialExcept<ServedDir, 'path'>;
 
-export const toServedDir = (dir: ServedDirPartial): ServedDir => {
-	if (typeof dir === 'string') dir = {path: dir};
+export const toServedDir = (partial: ServedDirPartial): ServedDir => {
+	const dir = typeof partial === 'string' ? {path: partial} : partial;
 	const resolvedDir = resolve(dir.path);
 	return {
 		path: resolvedDir,

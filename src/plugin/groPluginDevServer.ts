@@ -16,7 +16,9 @@ export interface DevServerPluginContext {
 	server?: GroServer; // TODO how to make this work with a plugin?
 }
 
-export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}> & DevServerPluginContext> => {
+export const createPlugin = (): Plugin<
+	PluginContext<TaskArgs, object> & DevServerPluginContext
+> => {
 	let startedServer = false;
 	return {
 		name,
@@ -28,7 +30,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}> & DevServerPl
 			const https = args.insecure
 				? null
 				: await loadHttpsCredentials(fs, log, args.cert, args.certkey);
-			ctx.server = createGroServer({filer, host: config.host, port: config.port, https});
+			ctx.server = createGroServer({filer, host: config.host, port: config.port, https}); // eslint-disable-line require-atomic-updates
 			// TODO set on context and return context, right?
 			timingToCreateGroServer();
 
@@ -42,7 +44,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}> & DevServerPl
 		teardown: async (ctx) => {
 			if (startedServer && ctx.server) {
 				await ctx.server.close();
-				ctx.server = undefined;
+				ctx.server = undefined; // eslint-disable-line require-atomic-updates
 			}
 		},
 	};

@@ -46,7 +46,7 @@ export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> =>
 		for (const adapter of adapters) {
 			if (!adapter.adapt) continue;
 			const timing = timings.start(`adapt:${adapter.name}`);
-			await adapter.adapt(ctx);
+			await adapter.adapt(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
 		timingToRunAdapters();

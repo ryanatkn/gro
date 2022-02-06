@@ -158,9 +158,8 @@ export const findModules = async (
 /*
 
 Load modules by source id.
-This runs serially because importing test files requires
-linking the current file with the module's initial execution.
-TODO parallelize..how? Separate functions? `loadModulesSerially`?
+
+TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
 
 */
 export const loadModules = async <ModuleType, TModuleMeta extends ModuleMeta<ModuleType>>(
@@ -175,7 +174,7 @@ export const loadModules = async <ModuleType, TModuleMeta extends ModuleMeta<Mod
 	const reasons: string[] = [];
 	for (const [inputPath, sourceIds] of sourceIdsByInputPath) {
 		for (const id of sourceIds) {
-			const result = await loadModuleById(id, dev);
+			const result = await loadModuleById(id, dev); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
 				modules.push(result.mod);
 			} else {

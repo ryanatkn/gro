@@ -71,8 +71,8 @@ export interface Paths {
 	configSourceId: string;
 }
 
-export const createPaths = (root: string): Paths => {
-	root = stripTrailingSlash(root) + '/';
+export const createPaths = (rootDir: string): Paths => {
+	const root = stripTrailingSlash(rootDir) + '/';
 	const source = `${root}${SOURCE_DIR}`;
 	const build = `${root}${BUILD_DIR}`;
 	return {
@@ -261,7 +261,6 @@ export const printPathOrGroPath = (path: string, fromPaths = paths): string => {
 	const inferredPaths = pathsFromId(path);
 	if (fromPaths === groPaths || inferredPaths === fromPaths) {
 		return printPath(path, inferredPaths, '');
-	} else {
-		return gray(groDirBasename) + printPath(path, groPaths, '');
 	}
+	return gray(groDirBasename) + printPath(path, groPaths, '');
 };

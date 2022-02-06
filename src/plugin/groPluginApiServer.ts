@@ -21,7 +21,7 @@ export interface TaskArgs extends Args {
 export const createPlugin = ({
 	buildName = API_SERVER_BUILD_NAME,
 	baseBuildPath = API_SERVER_BUILD_BASE_PATH,
-}: Partial<Options> = EMPTY_OBJECT): Plugin<PluginContext<TaskArgs, {}>> => {
+}: Partial<Options> = EMPTY_OBJECT): Plugin<PluginContext<TaskArgs, object>> => {
 	let serverProcess: RestartableProcess | null = null;
 
 	// TODO type
@@ -54,7 +54,7 @@ export const createPlugin = ({
 		teardown: async ({filer}) => {
 			if (serverProcess) {
 				await serverProcess.kill();
-				serverProcess = null;
+				serverProcess = null; // eslint-disable-line require-atomic-updates
 				if (filer) {
 					filer.off('build', onFilerBuild);
 				}

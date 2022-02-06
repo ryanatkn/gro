@@ -63,17 +63,16 @@ export const createFilerDir = (
 		};
 		const filerDir: FilerDir = {buildable, dir, onChange, init, close, watcher};
 		return filerDir;
-	} else {
-		const init = async () => {
-			await fs.ensureDir(dir);
-			const statsBySourcePath = await fs.findFiles(dir, filter);
-			await Promise.all(
-				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
-				),
-			);
-		};
-		const filerDir: FilerDir = {buildable, dir, onChange, init, close: noop, watcher: null};
-		return filerDir;
 	}
+	const init = async () => {
+		await fs.ensureDir(dir);
+		const statsBySourcePath = await fs.findFiles(dir, filter);
+		await Promise.all(
+			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
+				stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+			),
+		);
+	};
+	const filerDir: FilerDir = {buildable, dir, onChange, init, close: noop, watcher: null};
+	return filerDir;
 };

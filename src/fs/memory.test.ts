@@ -8,6 +8,8 @@ import {fs as memoryFs, type MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
 import {toRootPath} from '../paths.js';
 
+/* eslint-disable no-await-in-loop */
+
 // TODO organize these test suites better
 // TODO generic fs test suite
 

@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs';
+import {readFileSync} from 'fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 import {join} from 'path';
 import {createFilter} from '@rollup/pluginutils';
 
@@ -54,17 +54,18 @@ export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: 
 // `.gitignore` and picomatch: https://github.com/micromatch/picomatch
 // This code definitely fails for valid patterns!
 const toPattern = (line: string): string => {
-	const firstChar = line[0];
+	let l = line;
+	const firstChar = l[0];
 	if (firstChar === '/') {
-		line = line.substring(1);
+		l = l.substring(1);
 	} else if (firstChar !== '*') {
-		line = `**/${line}`;
+		l = `**/${l}`;
 	}
-	const lastChar = line[line.length - 1];
+	const lastChar = l[l.length - 1];
 	if (lastChar === '/') {
-		line = `${line}**`;
+		l = `${l}**`;
 	} else if (lastChar !== '*') {
-		line = `${line}/**`;
+		l = `${l}/**`;
 	}
-	return line;
+	return l;
 };
