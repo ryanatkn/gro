@@ -30,7 +30,7 @@ export const createPlugin = (): Plugin<
 			const https = args.insecure
 				? null
 				: await loadHttpsCredentials(fs, log, args.cert, args.certkey);
-			ctx.server = createGroServer({filer, host: config.host, port: config.port, https}); // eslint-disable-line require-atomic-updates
+			ctx.server = createGroServer({filer, host: config.host, port: config.port, https});
 			// TODO set on context and return context, right?
 			timingToCreateGroServer();
 
@@ -44,7 +44,7 @@ export const createPlugin = (): Plugin<
 		teardown: async (ctx) => {
 			if (startedServer && ctx.server) {
 				await ctx.server.close();
-				ctx.server = undefined; // eslint-disable-line require-atomic-updates
+				ctx.server = undefined;
 			}
 		},
 	};

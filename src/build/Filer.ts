@@ -376,7 +376,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const {dirty} = sourceFile;
 		if (!hasBuildConfig || dirty) {
 			await this.buildSourceFile(sourceFile, buildConfig);
-			if (dirty) sourceFile.dirty = false; // eslint-disable-line require-atomic-updates
+			if (dirty) sourceFile.dirty = false;
 		}
 	}
 

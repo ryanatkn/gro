@@ -54,7 +54,7 @@ export const createPlugin = ({
 		teardown: async ({filer}) => {
 			if (serverProcess) {
 				await serverProcess.kill();
-				serverProcess = null; // eslint-disable-line require-atomic-updates
+				serverProcess = null;
 				if (filer) {
 					filer.off('build', onFilerBuild);
 				}
