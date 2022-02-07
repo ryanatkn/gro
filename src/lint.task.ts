@@ -2,11 +2,12 @@ import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import {serializeArgs, TaskError, type Task} from './task/task.js';
 import {SOURCE_DIRNAME} from './paths.js';
+import {type LintTaskArgs} from './lint';
+import {LintTaskArgsSchema} from './lint.schema.js';
 
-// TODO how to pass through args from `gro check`?
-
-export const task: Task = {
+export const task: Task<LintTaskArgs> = {
 	summary: 'run eslint on the source files',
+	args: LintTaskArgsSchema,
 	run: async ({fs, log, args}): Promise<void> => {
 		if (!(await fs.exists('node_modules/.bin/eslint'))) {
 			log.info('ESLint is not installed; skipping linting');

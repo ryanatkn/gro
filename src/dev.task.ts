@@ -9,18 +9,12 @@ import {loadConfig, type GroConfig} from './config/config.js';
 import {type ServedDirPartial} from './build/servedDir.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
 import {type DevServerPluginContext} from './plugin/groPluginDevServer.js';
-
-export interface TaskArgs {
-	watch?: boolean; // defaults to `true`
-	'no-watch'?: boolean; // CLI arg to set `watch: false` -- internally, refer to `watch` not this
-	insecure?: boolean;
-	cert?: string;
-	certkey?: string;
-}
+import {type DevTaskArgs} from './dev.js';
+import {DevTaskArgsSchema} from './dev.schema.js';
 
 export interface DevTaskContext
 	extends DevServerPluginContext,
-		PluginContext<TaskArgs, TaskEvents> {}
+		PluginContext<DevTaskArgs, TaskEvents> {}
 
 export interface TaskEvents {
 	'dev.createConfig': (config: GroConfig) => void;
@@ -29,8 +23,9 @@ export interface TaskEvents {
 	'dev.ready': (ctx: DevTaskContext) => void;
 }
 
-export const task: Task<TaskArgs, TaskEvents> = {
+export const task: Task<DevTaskArgs, TaskEvents> = {
 	summary: 'start dev server',
+	args: DevTaskArgsSchema,
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
 

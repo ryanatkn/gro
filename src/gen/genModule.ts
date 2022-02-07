@@ -1,3 +1,5 @@
+import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
+
 import {
 	type ModuleMeta,
 	loadModule,
@@ -9,7 +11,6 @@ import {type Gen, type GenResults, type GenFile} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
 import {type Filesystem} from '../fs/filesystem.js';
-import {type SchemaObject} from './genSchemas.js';
 
 export const SEPARATOR = '.';
 
@@ -25,7 +26,7 @@ export interface BasicGenModule {
 	gen: Gen;
 }
 export interface SchemaGenModule {
-	[key: string]: SchemaObject | unknown;
+	[key: string]: JSONSchema | unknown;
 }
 
 export const toGenModuleType = (filename: string): GenModuleType =>
