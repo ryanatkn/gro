@@ -50,9 +50,7 @@ export const printTaskHelp = (meta: TaskModuleMeta): string[] => {
 		mod: {task},
 	} = meta;
 	const printed: string[] = [cyan(name), '\n', task.summary || '(no summary available)'];
-	if (!task.args) {
-		printed.push('\n', '(no args schema available)');
-	} else {
+	if (task.args) {
 		for (const property of toArgProperties(task.args)) {
 			const name = property.name === '_' ? '[...args]' : property.name;
 			printed.push(
