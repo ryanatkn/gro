@@ -37,4 +37,5 @@ const main = async () => {
 	await invokeTask(nodeFs, taskName, args);
 };
 
-main(); // see `attachProcessErrorHandlers` above for why we don't catch here
+// see `attachProcessErrorHandlers` above for why we don't catch here
+main(); // eslint-disable-line @typescript-eslint/no-floating-promises

@@ -5,8 +5,7 @@ import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import {type BuildConfigInput} from './buildConfig.js';
 import {type Filesystem} from '../fs/filesystem.js';
-import {buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
-import {type Paths} from '../paths.js';
+import {type Paths, buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
 import {type BuildDependency} from './buildDependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
@@ -19,10 +18,10 @@ interface FilterDirectory {
 }
 
 export const createDirectoryFilter = (dir: string, rootDir = paths.source): FilterDirectory => {
-	dir = resolve(rootDir, dir);
-	const dirWithTrailingSlash = dir + '/';
+	const resolvedDir = resolve(rootDir, dir);
+	const dirWithTrailingSlash = resolvedDir + '/';
 	const filterDirectory: FilterDirectory = (id) =>
-		id === dir || id.startsWith(dirWithTrailingSlash);
+		id === resolvedDir || id.startsWith(dirWithTrailingSlash);
 	return filterDirectory;
 };
 
@@ -63,7 +62,7 @@ export const addCssSourcemapFooter = (code: string, sourcemapPath: string): stri
 export const validateInputFiles = async (
 	fs: Filesystem,
 	files: string[],
-): Promise<Result<{}, {reason: string}>> => {
+): Promise<Result<object, {reason: string}>> => {
 	const results = await Promise.all(
 		files.map(async (input): Promise<null | {ok: false; reason: string}> => {
 			if (!(await fs.exists(input))) {

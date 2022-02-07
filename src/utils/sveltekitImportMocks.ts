@@ -11,13 +11,13 @@ export const prerendering = false;
 export const assets = ''; // TODO read from Svelte config
 export const base = ''; // TODO read from Svelte config
 
-// TODO what return values?
-export const goto = () => {};
-export const invalidate = (_href: string) => Promise.resolve({});
-export const prefetch = (_href: string) => Promise.resolve({});
-export const prefetchRoutes = (_routes: string[] | undefined) => Promise.resolve({});
+export const goto = (): Promise<void> => Promise.resolve();
+export const invalidate = (_href: string): Promise<object> => Promise.resolve({});
+export const prefetch = (_href: string): Promise<object> => Promise.resolve({});
+export const prefetchRoutes = (_routes: string[] | undefined): Promise<object> =>
+	Promise.resolve({});
 
 export const navigating = readable(null);
 export const page = readable({host: '', path: '', params: new URLSearchParams(), query: {}});
 export const session = writable({});
-export const getStores = () => ({navigating, page, session});
+export const getStores = () => ({navigating, page, session} as const);

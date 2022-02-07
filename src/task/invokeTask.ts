@@ -1,5 +1,5 @@
 import {cyan, red, gray} from 'kleur/colors';
-import {SystemLogger, Logger, printLogLabel} from '@feltcoop/felt/util/log.js';
+import {SystemLogger, type Logger, printLogLabel} from '@feltcoop/felt/util/log.js';
 import {EventEmitter} from 'events';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
@@ -151,6 +151,7 @@ export const invokeTask = async (
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
+			// eslint-disable-next-line no-lonely-if
 			if (isThisProjectGro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);

@@ -86,14 +86,14 @@ const toImportInfo = (imp: ParsedImport, fileId: string): ImportInfo => {
 			openingSlashIndex === -1
 				? -1
 				: rawBeforePath.substring(openingSlashIndex).indexOf('}') + openingSlashIndex;
-		const fromMatch = /\sfrom\s/.test(
+		const fromMatch = /\sfrom\s/u.test(
 			openingSlashIndex === -1 ? rawBeforePath : rawBeforePath.substring(closingSlashIndex + 1),
 		);
 		const rawBeforeOpeningSlash =
 			openingSlashIndex === -1 ? rawBeforePath : rawBeforePath.substring(0, openingSlashIndex);
 		const toDefaultImport = (importStr: string): string =>
 			stripEnd(
-				rawBeforeOpeningSlash.substring(importStr.length).split(/\s/).filter(Boolean)[0] || '',
+				rawBeforeOpeningSlash.substring(importStr.length).split(/\s/u).filter(Boolean)[0] || '',
 				',',
 			);
 		if (fromMatch) {

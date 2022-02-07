@@ -12,8 +12,7 @@ import {
 } from 'http2';
 import {type ListenOptions} from 'net';
 import {cyan, yellow, gray, red, green} from 'kleur/colors';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import {printLogLabel, SystemLogger, type Logger} from '@feltcoop/felt/util/log.js';
 import {stripAfter} from '@feltcoop/felt/util/string.js';
 import {type Assignable} from '@feltcoop/felt/util/types.js';
 import {toEnvNumber, toEnvString} from '@feltcoop/felt/util/env.js';
@@ -26,8 +25,8 @@ import {
 	getFileContentBuffer,
 	getFileStats,
 	getFileContentHash,
+	type BaseFilerFile,
 } from '../build/filerFile.js';
-import {type BaseFilerFile} from '../build/filerFile.js';
 import {paths} from '../paths.js';
 import {loadPackageJson} from '../utils/packageJson.js';
 import {type ProjectState} from './projectState.js';
@@ -41,8 +40,8 @@ type Http2StreamHandler = (
 
 export interface GroServer {
 	readonly server: Http1Server | Http2Server;
-	start(): Promise<void>;
-	close(): Promise<void>;
+	start: () => Promise<void>;
+	close: () => Promise<void>;
 	readonly host: string;
 	readonly port: number;
 }
@@ -95,7 +94,7 @@ export const createGroServer = (options: Options): GroServer => {
 	}
 	let reject: (err: Error) => void;
 	server.on('error', (err) => {
-		if ((err as any).code === 'EADDRINUSE') {
+		if (err.code === 'EADDRINUSE') {
 			log.trace(`port ${yellow(finalPort)} is busy, trying next`);
 			nextPort();
 			setTimeout(() => {
@@ -180,7 +179,7 @@ const toResponse = async (
 	// TODO refactor - see `./projectState.ts` for more
 	// can we get a virtual source file with an etag? (might need to sort files if they're not stable?)
 	// also, `src/` is hardcoded below in `paths.source`s
-	const SOURCE_ROOT_MATCHER = /^\/api\/src\/?$/;
+	const SOURCE_ROOT_MATCHER = /^\/api\/src\/?$/u;
 	if (SOURCE_ROOT_MATCHER.test(url)) {
 		const projectState: ProjectState = {
 			buildDir: filer.buildDir,
@@ -236,7 +235,7 @@ const parseUrl = (raw: string): string => decodeURI(stripAfter(raw, '?'));
 
 // TODO need to rethink this
 const toLocalPath = (url: string): string => {
-	const relativeUrl = url[0] === '/' ? url.substring(1) : url;
+	const relativeUrl = url.startsWith('/') ? url.substring(1) : url;
 	const relativePath =
 		!relativeUrl || relativeUrl.endsWith('/') ? `${relativeUrl}index.html` : relativeUrl;
 	return relativePath;

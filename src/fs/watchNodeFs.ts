@@ -1,8 +1,7 @@
 import CheapWatch from 'cheap-watch';
 
 import {type PathStats} from './pathData.js';
-import {toPathFilter} from './filter.js';
-import {type PathFilter} from './filter.js';
+import {toPathFilter, type PathFilter} from './filter.js';
 import {loadGitignoreFilter} from '../utils/gitignore.js';
 
 /*

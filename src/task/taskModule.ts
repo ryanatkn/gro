@@ -6,8 +6,7 @@ import {
 	type ModuleMeta,
 	type LoadModuleResult,
 } from '../fs/modules.js';
-import {toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
-import {type Task} from './task.js';
+import {toTaskName, isTaskPath, TASK_FILE_SUFFIX, type Task} from './task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {type Filesystem} from '../fs/filesystem.js';
 
@@ -34,6 +33,7 @@ export const loadTaskModule = async (
 	};
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const loadTaskModules = async (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],

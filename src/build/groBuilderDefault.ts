@@ -20,7 +20,7 @@ export const groBuilderDefault = (options: Options = {}): Builder => {
 		const esbuildBuilder = groBuilderEsbuild(esbuildBuilderOptions);
 		const svelteBuilder = groBuilderSvelte(svelteBuilderOptions);
 		const jsonBuilder = groBuilderJson(jsonBuilderOptions);
-		const builders: Builder[] = [esbuildBuilder, svelteBuilder];
+		const builders: Builder[] = [esbuildBuilder as Builder, svelteBuilder as Builder]; // TODO why the typecast?
 		finalSimpleBuilderOptions = {
 			...simpleBuilderOptions,
 			toBuilder: (source) => {
@@ -33,7 +33,7 @@ export const groBuilderDefault = (options: Options = {}): Builder => {
 					case JSON_EXTENSION:
 						return jsonBuilder;
 					default:
-						return null;
+						return null as any; // TODO why the typecast? see above too
 				}
 			},
 			toBuilders: () => builders,

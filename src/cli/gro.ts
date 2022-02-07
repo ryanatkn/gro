@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {existsSync, realpathSync} from 'fs';
+import {existsSync, realpathSync} from 'fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 import {join, resolve} from 'path';
 import {fileURLToPath} from 'url';
 
@@ -54,21 +54,23 @@ const main = (): Promise<void> => {
 		// case 1
 		// Prefer any locally installed version of Gro.
 		return import(join(realpathSync(groBinPath), '../invoke.js'));
-	} else {
-		// case 2
-		// If running Gro inside its own repo, require the local development build.
-		// If the local build is not available,
-		// the global version can be used to build the project.
-		const filePath = fileURLToPath(import.meta.url);
-		// This detection is not airtight, but seems good enough.
-		const basePath = '.gro/dev/library/cli';
-		if (existsSync(`${basePath}/gro.js`) && existsSync(`${basePath}/invoke.js`)) {
-			return import(join(filePath, `../../../${basePath}/invoke.js`));
-		}
-		// case 3
-		// Fall back to the version associated with the running CLI.
-		return import(join(filePath, '../invoke.js'));
 	}
+	// case 2
+	// If running Gro inside its own repo, require the local development build.
+	// If the local build is not available,
+	// the global version can be used to build the project.
+	const filePath = fileURLToPath(import.meta.url);
+	// This detection is not airtight, but seems good enough.
+	const basePath = '.gro/dev/library/cli';
+	if (existsSync(`${basePath}/gro.js`) && existsSync(`${basePath}/invoke.js`)) {
+		return import(join(filePath, `../../../${basePath}/invoke.js`));
+	}
+	// case 3
+	// Fall back to the version associated with the running CLI.
+	return import(join(filePath, '../invoke.js'));
 };
 
-main();
+main().catch((err) => {
+	console.error('Gro failed to invoke', err);
+	throw err;
+});

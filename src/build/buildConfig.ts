@@ -45,7 +45,7 @@ export interface BuildConfigPartial {
 export type PlatformTarget = 'node' | 'browser';
 
 export const normalizeBuildConfigs = (
-	partials: readonly (BuildConfigPartial | null)[],
+	partials: ReadonlyArray<BuildConfigPartial | null>,
 	dev: boolean,
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
@@ -78,7 +78,7 @@ export const validateBuildConfigs = async (
 	fs: Filesystem,
 	buildConfigs: BuildConfig[],
 	dev: boolean,
-): Promise<Result<{}, {reason: string}>> => {
+): Promise<Result<object, {reason: string}>> => {
 	if (!Array.isArray(buildConfigs)) {
 		return {
 			ok: false,
@@ -127,7 +127,7 @@ export const validateBuildConfigs = async (
 			};
 		}
 		names.add(buildConfig.name);
-		const validatedInput = await validateInputFiles(fs, toInputFiles(buildConfig.input));
+		const validatedInput = await validateInputFiles(fs, toInputFiles(buildConfig.input)); // eslint-disable-line no-await-in-loop
 		if (!validatedInput.ok) return validatedInput;
 	}
 	return {ok: true};

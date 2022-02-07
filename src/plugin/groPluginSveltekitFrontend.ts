@@ -1,11 +1,11 @@
-import {type SpawnedProcess} from '@feltcoop/felt/util/process.js';
-import {spawn, spawnProcess} from '@feltcoop/felt/util/process.js';
+import {spawn, spawnProcess, type SpawnedProcess} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
+import {UnreachableError} from '@feltcoop/felt/util/error.js';
 
 import {type Plugin, type PluginContext} from './plugin.js';
 import {type Args} from '../task/task.js';
 
-export interface Options {}
+export interface Options {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
 export interface TaskArgs extends Args {
 	watch?: boolean;
@@ -20,8 +20,9 @@ export interface TaskArgs extends Args {
 
 const name = '@feltcoop/groPluginSveltekitFrontend';
 
+// eslint-disable-next-line no-empty-pattern
 export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
-	PluginContext<TaskArgs, {}>
+	PluginContext<TaskArgs, object>
 > => {
 	let sveltekitProcess: SpawnedProcess | null = null;
 	return {
@@ -51,22 +52,31 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 
 const toSveltekitArgs = (command: 'dev' | 'build' | 'preview', args: TaskArgs): string[] => {
 	const sveltekitArgs = ['svelte-kit', command];
-	if (command === 'dev' || command === 'preview') {
-		if (args.port) {
-			sveltekitArgs.push('--port', args.port.toString());
+	switch (command) {
+		case 'dev':
+		case 'preview': {
+			if (args.port) {
+				sveltekitArgs.push('--port', args.port.toString());
+			}
+			if (args.open) {
+				sveltekitArgs.push('--open');
+			}
+			if (args.host) {
+				sveltekitArgs.push('--host', args.host);
+			}
+			if (args.https) {
+				sveltekitArgs.push('--https');
+			}
+			break;
 		}
-		if (args.open) {
-			sveltekitArgs.push('--open');
+		case 'build': {
+			if (args.verbose) {
+				sveltekitArgs.push('--verbose');
+			}
+			break;
 		}
-		if (args.host) {
-			sveltekitArgs.push('--host', args.host);
-		}
-		if (args.https) {
-			sveltekitArgs.push('--https');
-		}
-	} else if (command === 'build') {
-		if (args.verbose) {
-			sveltekitArgs.push('--verbose');
+		default: {
+			throw new UnreachableError(command);
 		}
 	}
 	return sveltekitArgs;

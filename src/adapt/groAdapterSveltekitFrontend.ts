@@ -2,8 +2,7 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
 
 import {type Adapter} from './adapt.js';
-import {move404, type HostTarget} from './utils.js';
-import {ensureNojekyll} from './utils.js';
+import {ensureNojekyll, move404, type HostTarget} from './utils.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';
 
 export interface Options {
@@ -20,25 +19,27 @@ export const createAdapter = ({
 	hostTarget = 'githubPages',
 	deploymentMode = 'middleware',
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
-	dir = stripTrailingSlash(dir);
+	const outputDir = stripTrailingSlash(dir);
 	return {
 		name: '@feltcoop/groAdapterSveltekitFrontend',
 		adapt: async ({fs}) => {
-			await fs.copy(sveltekitDir, dir);
+			await fs.copy(sveltekitDir, outputDir);
 
 			switch (hostTarget) {
 				case 'githubPages': {
-					await Promise.all([ensureNojekyll(fs, dir), move404(fs, dir)]);
+					await Promise.all([ensureNojekyll(fs, outputDir), move404(fs, outputDir)]);
 					break;
 				}
 				case 'node': {
 					if (deploymentMode === 'middleware') {
-						await fs.remove(`${dir}/index.js`);
+						await fs.remove(`${outputDir}/index.js`);
 					} else if (deploymentMode === 'server') {
-						await fs.remove(`${dir}/middlewares.js`);
+						await fs.remove(`${outputDir}/middlewares.js`);
 					}
 					break;
 				}
+				default:
+					break;
 			}
 		},
 	};

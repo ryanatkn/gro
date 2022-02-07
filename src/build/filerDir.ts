@@ -1,7 +1,6 @@
 import {noop} from '@feltcoop/felt/util/function.js';
 
-import {watchNodeFs} from '../fs/watchNodeFs.js';
-import {type WatchNodeFs} from '../fs/watchNodeFs.js';
+import {watchNodeFs, type WatchNodeFs} from '../fs/watchNodeFs.js';
 import {type PathStats} from '../fs/pathData.js';
 import {type PathFilter} from '../fs/filter.js';
 import {type Filesystem} from '../fs/filesystem.js';
@@ -64,17 +63,16 @@ export const createFilerDir = (
 		};
 		const filerDir: FilerDir = {buildable, dir, onChange, init, close, watcher};
 		return filerDir;
-	} else {
-		const init = async () => {
-			await fs.ensureDir(dir);
-			const statsBySourcePath = await fs.findFiles(dir, filter);
-			await Promise.all(
-				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
-				),
-			);
-		};
-		const filerDir: FilerDir = {buildable, dir, onChange, init, close: noop, watcher: null};
-		return filerDir;
 	}
+	const init = async () => {
+		await fs.ensureDir(dir);
+		const statsBySourcePath = await fs.findFiles(dir, filter);
+		await Promise.all(
+			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
+				stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+			),
+		);
+	};
+	const filerDir: FilerDir = {buildable, dir, onChange, init, close: noop, watcher: null};
+	return filerDir;
 };

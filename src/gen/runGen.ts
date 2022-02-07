@@ -65,25 +65,21 @@ export const runGen = async (
 			const genResult = toGenResult(id, rawGenResult);
 
 			// Format the files if needed.
-			let files;
-			if (formatFile) {
-				files = [];
-				for (const file of genResult.files) {
-					let content: string;
-					try {
-						content = await formatFile(fs, file.id, file.content);
-					} catch (err) {
-						content = file.content;
-						log?.error(
-							red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
-							printError(err),
-						);
-					}
-					files.push({...file, content});
-				}
-			} else {
-				files = genResult.files;
-			}
+			const files = formatFile
+				? await Promise.all(
+						genResult.files.map(async (file) => {
+							try {
+								return {...file, content: await formatFile(fs, file.id, file.content)};
+							} catch (err) {
+								log.error(
+									red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
+									printError(err),
+								);
+								return file;
+							}
+						}),
+				  )
+				: genResult.files;
 
 			outputCount += files.length;
 			return {

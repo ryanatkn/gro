@@ -19,7 +19,7 @@ test__gen('basic behavior', async () => {
 	let fileB: undefined | {filename: string; content: string};
 	let fileC1: undefined | {filename: string; content: string};
 	let fileC2: undefined | {filename: string; content: string};
-	let modA: GenModuleMeta = {
+	const modA: GenModuleMeta = {
 		type: 'basic',
 		id: sourceIdA,
 		mod: {
@@ -34,7 +34,7 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	let modB: GenModuleMeta = {
+	const modB: GenModuleMeta = {
 		type: 'basic',
 		id: join(sourceIdBC, 'modB.gen.ts'),
 		mod: {
@@ -49,7 +49,7 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	let modC: GenModuleMeta = {
+	const modC: GenModuleMeta = {
 		type: 'basic',
 		id: join(sourceIdBC, 'modC.gen.ts'),
 		mod: {
@@ -128,7 +128,7 @@ test__gen('failing gen function', async () => {
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	let modA: GenModuleMeta = {
+	const modA: GenModuleMeta = {
 		type: 'basic',
 		id: sourceIdA,
 		mod: {
@@ -138,7 +138,7 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	let modB: GenModuleMeta = {
+	const modB: GenModuleMeta = {
 		type: 'basic',
 		id: join(sourceIdB, 'modB.gen.ts'),
 		mod: {
