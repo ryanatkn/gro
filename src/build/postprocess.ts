@@ -195,7 +195,7 @@ This only works decently well because we're assuming things are formatted with P
 */
 const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier): void => {
 	for (const matches of content.matchAll(
-		/(import\s+type|export|import\s+[\s\S]*?\{[\s\S]*?\Wtype\s)[\s\S]*?from\s*['|"](.+)['|"];/gmu,
+		/^(import\stype\s|export\s|import\s[\s\S]*?\{[\s\S]*?\Wtype\s)[\s\S]*?from\s*?['|"](.+)['|"]/gmu,
 	)) {
 		handleSpecifier(matches[2]);
 	}
