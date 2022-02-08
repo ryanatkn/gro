@@ -41,13 +41,13 @@ const bootstrap = async () => {
 	await Promise.all([fs.remove(outDir), fs.remove(resolve('./.gro'))]);
 	const watcher = new CheapWatch({
 		dir,
-		// @ts-ignore
+		// @ts-expect-error
 		filter: ({path, stats}) => stats.isDirectory() || path.endsWith('.ts'),
 		watch: false,
 	});
 
 	let count = 0;
-	let startTime = Date.now();
+	const startTime = Date.now();
 
 	await watcher.init();
 	await Promise.all(
@@ -55,7 +55,7 @@ const bootstrap = async () => {
 			if (stats.isDirectory()) return;
 			count++;
 			const contents = await fs.readFile(join(dir, path), 'utf8');
-			// @ts-ignore
+			// @ts-expect-error
 			const transformed = esbuild.transformSync(contents, transformOptions);
 			const outPath = join(outDir, path).slice(0, -2) + 'js';
 			await fs.outputFile(outPath, transformed.code);
@@ -64,19 +64,19 @@ const bootstrap = async () => {
 
 	console.log(`transformed ${count} files in ${Date.now() - startTime}ms`);
 
-	// @ts-ignore
+	// @ts-expect-error
 	let done, promise, ps;
 	promise = new Promise((r) => (done = r));
 	ps = spawn('chmod', ['+x', distDir + '/cli/gro.js']);
 	ps.on('error', (err) => console.error('err', err));
-	// @ts-ignore
+	// @ts-expect-error
 	ps.on('close', () => done());
 	await promise;
 
 	promise = new Promise((r) => (done = r));
 	ps = spawn('npm', ['link']);
 	ps.on('error', (err) => console.error('err', err));
-	// @ts-ignore
+	// @ts-expect-error
 	ps.on('close', () => done());
 	await promise;
 };

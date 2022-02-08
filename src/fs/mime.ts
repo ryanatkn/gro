@@ -33,8 +33,8 @@ export const getMimeTypeByExtension = (ext: FileExtension): MimeType | null =>
 export const getExtensionsByMimeType = (mimeType: MimeType): FileExtension[] | null =>
 	extensionsByMimeType.get(mimeType) || null;
 
-export const getExtensions = () => mimeTypeByExtension.keys();
-export const getMimeTypes = () => extensionsByMimeType.keys();
+export const getExtensions = (): IterableIterator<FileExtension> => mimeTypeByExtension.keys();
+export const getMimeTypes = (): IterableIterator<MimeType> => extensionsByMimeType.keys();
 
 // Overrides anything that might already be cached.
 export const addMimeTypeExtension = (mimeType: MimeType, extension: FileExtension): void => {
@@ -63,7 +63,7 @@ export const removeMimeTypeExtension = (extension: FileExtension): boolean => {
 };
 
 (() => {
-	const types: [MimeType, FileExtension[]][] = [
+	const types: Array<[MimeType, FileExtension[]]> = [
 		// Since 'application/octet-stream' is the default, we don't include it.
 		['application/json', ['json', 'map']],
 		['application/schema+json', ['json']],

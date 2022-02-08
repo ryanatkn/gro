@@ -20,8 +20,7 @@ import {
 	LIB_DIR,
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import {type BuildName} from '../build/buildConfig.js';
-import {printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
+import {type BuildName, printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
 import {type PathStats} from '../fs/pathData.js';
 import {type PackageJson} from '../utils/packageJson.js';
 import {type Filesystem} from '../fs/filesystem.js';
@@ -63,7 +62,7 @@ export interface Options {
 	mapBundleOptions: (options: esbuild.BuildOptions) => esbuild.BuildOptions;
 }
 
-export interface AdapterArgs {}
+export interface AdapterArgs {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
 export const createAdapter = ({
 	buildName = NODE_LIBRARY_BUILD_NAME,
@@ -74,7 +73,7 @@ export const createAdapter = ({
 	bundle = false,
 	mapBundleOptions = identity,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
-	dir = stripTrailingSlash(dir);
+	const outputDir = stripTrailingSlash(dir);
 	return {
 		name,
 		adapt: async ({config, fs, dev, log, timings}) => {
@@ -93,9 +92,8 @@ export const createAdapter = ({
 					return;
 				}
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
-				const outputDir = dir;
 				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				esbuild.build(
+				await esbuild.build(
 					mapBundleOptions({
 						...toDefaultEsbuildBundleOptions(dev, config.target, config.sourcemap),
 						bundle: true,
@@ -108,7 +106,7 @@ export const createAdapter = ({
 
 			const timingToCopyDist = timings.start('copy build to dist');
 			const filter = bundle ? bundledDistFilter : undefined;
-			await copyDist(fs, buildConfig, dev, dir, log, filter, pack, libraryRebasePath);
+			await copyDist(fs, buildConfig, dev, outputDir, log, filter, pack, libraryRebasePath);
 			timingToCopyDist();
 
 			let pkg: PackageJson;
@@ -125,24 +123,27 @@ export const createAdapter = ({
 				await Promise.all(
 					(
 						await fs.readDir('.')
-					).map((path): void | Promise<void> => {
-						if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
-							return fs.copy(path, `${dir}/${path}`, {overwrite: false});
-						}
-					}),
+					)
+						.map((path): null | Promise<void> => {
+							if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
+								return fs.copy(path, `${outputDir}/${path}`, {overwrite: false});
+							}
+							return null;
+						})
+						.filter(Boolean),
 				);
 
 				// copy src
-				await fs.copy(paths.source, `${dir}/${SOURCE_DIRNAME}`);
+				await fs.copy(paths.source, `${outputDir}/${SOURCE_DIRNAME}`);
 
 				// update package.json with computed values
-				pkg.files = await toPkgFiles(fs, dir);
+				pkg.files = await toPkgFiles(fs, outputDir);
 				pkg.main = toPkgMain(pkg);
 				pkg.types = replaceExtension(pkg.main, TS_TYPE_EXTENSION);
 				pkg.exports = toPkgExports(pkg.main, files, libraryRebasePath);
 
 				// write the new package.json
-				await fs.writeFile(`${dir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
+				await fs.writeFile(`${outputDir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
 
 				timingToPackDist();
 			}

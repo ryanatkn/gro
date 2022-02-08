@@ -3,8 +3,7 @@ import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
 
 import {type NonBuildableFilerDir, type BuildableFilerDir, type FilerDir} from './filerDir.js';
-import {reconstructBuildFiles} from './buildFile.js';
-import {type BuildFile} from './buildFile.js';
+import {reconstructBuildFiles, type BuildFile} from './buildFile.js';
 import {type BaseFilerFile} from './filerFile.js';
 import {toHash} from './utils.js';
 import {type BuildConfig} from './buildConfig.js';
@@ -153,7 +152,7 @@ export const createSourceFile = async (
 						extension,
 						encoding,
 						content: content as Buffer,
-						contentBuffer: contentBuffer as Buffer,
+						contentBuffer: contentBuffer!,
 						contentHash,
 						filerDir,
 						buildFiles: reconstructedBuildFiles || new Map(),
@@ -175,7 +174,7 @@ export const createSourceFile = async (
 						extension,
 						encoding,
 						content: content as Buffer,
-						contentBuffer: contentBuffer as Buffer,
+						contentBuffer: contentBuffer!,
 						contentHash,
 						filerDir,
 						buildFiles: null,

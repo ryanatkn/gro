@@ -6,7 +6,7 @@ import {type Filesystem} from '../fs/filesystem.js';
 import {
 	sourceIdToBasePath,
 	toTypesBuildDir,
-	TS_TYPE_EXTENSION as TS_TYPE_EXTENSION,
+	TS_TYPE_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
 
@@ -36,7 +36,7 @@ export const generateTypes = async (
 	sourcemap: boolean,
 	typemap: boolean,
 	tscArgs: string[] = EMPTY_ARRAY,
-) => {
+): Promise<void> => {
 	const tscResult = await spawn('npx', [
 		'tsc',
 		'--outDir',

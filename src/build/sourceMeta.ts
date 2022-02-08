@@ -177,8 +177,8 @@ export const serializeSourceMeta = ({
 	contentHash,
 	builds,
 }: SourceMetaData): SerializedSourceMetaData => ({
-	sourceId: sourceId,
-	contentHash: contentHash,
+	sourceId,
+	contentHash,
 	builds: builds.map((b) => serializeSourceMetaBuild(b)),
 });
 export const serializeSourceMetaBuild = ({

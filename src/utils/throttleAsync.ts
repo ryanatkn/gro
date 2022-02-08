@@ -17,7 +17,7 @@ import {wait} from '@feltcoop/felt';
 export const throttleAsync = <TArgs extends any[]>(
 	fn: (...args: TArgs) => Promise<void>,
 	toCacheKey?: (...args: TArgs) => any,
-	delay: number = 0,
+	delay = 0,
 ): ((...args: TArgs) => Promise<void>) => {
 	const cache: Map<string, {id: number; promise: Promise<void>}> = new Map();
 	let _id = 0;

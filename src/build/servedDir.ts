@@ -10,8 +10,8 @@ export interface ServedDir {
 
 export type ServedDirPartial = string | PartialExcept<ServedDir, 'path'>;
 
-export const toServedDir = (dir: ServedDirPartial): ServedDir => {
-	if (typeof dir === 'string') dir = {path: dir};
+export const toServedDir = (partial: ServedDirPartial): ServedDir => {
+	const dir = typeof partial === 'string' ? {path: partial} : partial;
 	const resolvedDir = resolve(dir.path);
 	return {
 		path: resolvedDir,
@@ -35,7 +35,8 @@ export const toServedDirs = (partials: ServedDirPartial[]): ServedDir[] => {
 };
 
 // `base` is the same as in `ServedDir` above
-export const stripBase = (path: string, base: string) => stripStart(stripStart(path, base), '/');
+export const stripBase = (path: string, base: string): string =>
+	stripStart(stripStart(path, base), '/');
 
 // for compatibility with SvelteKit, the incoming `base` value may have a leading / or ./ or be a .
 const baseToRelativePath = (base: string): string => stripStart(stripStart(base, '.'), '/');

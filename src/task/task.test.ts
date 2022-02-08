@@ -1,18 +1,7 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {TASK_FILE_PATTERN, TASK_FILE_SUFFIX, isTaskPath, toTaskPath, toTaskName} from './task.js';
-
-/* test__TASK_FILE_PATTERN */
-// TODO this is awkward with the other naming conventions because it's actually 2 things being tested
-const test__TASK_FILE_PATTERN = suite('TASK_FILE_PATTERN');
-
-test__TASK_FILE_PATTERN('TASK_FILE_PATTERN and TASK_FILE_SUFFIX are in sync', () => {
-	assert.ok(TASK_FILE_PATTERN.test('file' + TASK_FILE_SUFFIX));
-});
-
-test__TASK_FILE_PATTERN.run();
-/* test__TASK_FILE_PATTERN */
+import {isTaskPath, toTaskPath, toTaskName} from './task.js';
 
 /* test__isTaskPath */
 const test__isTaskPath = suite('isTaskPath');

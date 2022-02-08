@@ -14,5 +14,5 @@ export const toPathData = (id: string, stats: PathStats): PathData => {
 // TODO the `size` ? should we always support it?
 export interface PathStats {
 	size?: number;
-	isDirectory(): boolean; // TODO maybe cache as `isDirectory`?
+	isDirectory: () => boolean; // TODO maybe cache as `isDirectory`?
 }

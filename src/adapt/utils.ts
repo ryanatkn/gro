@@ -22,8 +22,8 @@ export const copyDist = async (
 	distOutDir: string,
 	log: Logger,
 	filter?: IdStatsFilter,
-	pack: boolean = true, // TODO reconsider this API, see `groAdapterNodeLibrary`
-	rebasePath: string = '',
+	pack = true, // TODO reconsider this API, see `groAdapterNodeLibrary`
+	rebasePath = '',
 ): Promise<void> => {
 	const buildOutDir = toBuildOutPath(dev, buildConfig.name, rebasePath);
 	log.info(`copying ${printPath(buildOutDir)} to ${printPath(distOutDir)}`);

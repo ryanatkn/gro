@@ -1,8 +1,7 @@
 import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
 
 import {type Adapter} from './adapt.js';
-import {type HostTarget} from './utils.js';
-import {copyDist, ensureNojekyll} from './utils.js';
+import {type HostTarget, copyDist, ensureNojekyll} from './utils.js';
 import {DIST_DIRNAME} from '../paths.js';
 import {type BuildName} from '../build/buildConfig.js';
 
@@ -17,7 +16,7 @@ export const createAdapter = ({
 	dir = `${DIST_DIRNAME}/${buildName}`,
 	hostTarget = 'static',
 }: Options): Adapter => {
-	dir = stripTrailingSlash(dir);
+	const outputDir = stripTrailingSlash(dir);
 	return {
 		name: '@feltcoop/groAdapterGenericBuild',
 		adapt: async ({config, fs, dev, log}) => {
@@ -26,10 +25,10 @@ export const createAdapter = ({
 				throw Error(`Unknown build config: ${buildName}`);
 			}
 
-			await copyDist(fs, buildConfig, dev, dir, log);
+			await copyDist(fs, buildConfig, dev, outputDir, log);
 
 			if (hostTarget === 'githubPages') {
-				await ensureNojekyll(fs, dir);
+				await ensureNojekyll(fs, outputDir);
 			}
 		},
 	};

@@ -40,10 +40,7 @@ export const groBuilderSimple = (options: Options = {}): Required<Builder> => {
 	};
 
 	const init: Builder['init'] = async (ctx: BuildContext) => {
-		for (const builder of toBuilders()) {
-			if (builder.init === undefined) continue;
-			await builder.init(ctx);
-		}
+		await Promise.all(toBuilders().map((builder) => builder.init?.(ctx)));
 	};
 
 	return {name: '@feltcoop/groBuilderSimple', build, onRemove, init};

@@ -1,19 +1,23 @@
 import {
-	LogLevel,
+	type LogLevel,
 	SystemLogger,
 	configureLogLevel,
 	printLogLabel,
 	DEFAULT_LOG_LEVEL,
+	type Logger,
 } from '@feltcoop/felt/util/log.js';
-import {type Logger} from '@feltcoop/felt/util/log.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
 import {type Assignable, type Result} from '@feltcoop/felt/util/types.js';
 import {toArray} from '@feltcoop/felt/util/array.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
-import {normalizeBuildConfigs, validateBuildConfigs} from '../build/buildConfig.js';
+import {
+	normalizeBuildConfigs,
+	validateBuildConfigs,
+	type BuildConfig,
+	type BuildConfigPartial,
+} from '../build/buildConfig.js';
 import {type ToConfigAdapters} from '../adapt/adapt.js';
-import {type BuildConfig, type BuildConfigPartial} from '../build/buildConfig.js';
 import {
 	DEFAULT_ECMA_SCRIPT_TARGET,
 	NODE_LIBRARY_BUILD_NAME,
@@ -62,7 +66,7 @@ export interface GroConfig {
 }
 
 export interface GroConfigPartial {
-	readonly builds?: (BuildConfigPartial | null)[] | BuildConfigPartial | null; // allow `null` for convenience
+	readonly builds?: Array<BuildConfigPartial | null> | BuildConfigPartial | null; // allow `null` for convenience
 	readonly publish?: string | null; // dir to publish: defaults to 'dist/library', or null if it doesn't exist -- TODO support multiple
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;
@@ -90,9 +94,6 @@ export interface GroConfigCreatorOptions {
 	readonly log: Logger;
 	readonly config: GroConfig; // default config is available for user config code
 }
-
-let cachedDevConfig: GroConfig | undefined;
-let cachedProdConfig: GroConfig | undefined;
 
 /*
 
@@ -134,17 +135,27 @@ const applyConfig = (config: GroConfig) => {
 	configureLogLevel(config.logLevel);
 };
 
+let cachedDevConfig: Promise<GroConfig> | undefined;
+let cachedProdConfig: Promise<GroConfig> | undefined;
+
 export const loadConfig = async (
 	fs: Filesystem,
 	dev: boolean,
 	applyConfigToSystem = true,
 ): Promise<GroConfig> => {
-	const cachedConfig = dev ? cachedDevConfig : cachedProdConfig;
-	if (cachedConfig) {
-		if (applyConfigToSystem) applyConfig(cachedConfig);
-		return cachedConfig;
+	if (dev) {
+		if (cachedDevConfig) return cachedDevConfig;
+		return (cachedDevConfig = _loadConfig(fs, dev, applyConfigToSystem));
 	}
+	if (cachedProdConfig) return cachedProdConfig;
+	return (cachedProdConfig = _loadConfig(fs, dev, applyConfigToSystem));
+};
 
+const _loadConfig = async (
+	fs: Filesystem,
+	dev: boolean,
+	applyConfigToSystem = true,
+): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
 	const options: GroConfigCreatorOptions = {fs, log, dev, config: null as any};
@@ -171,11 +182,6 @@ export const loadConfig = async (
 		config = await toConfig(configModule.config, options, configSourceId, defaultConfig);
 	} else {
 		config = defaultConfig;
-	}
-	if (dev) {
-		cachedDevConfig = config;
-	} else {
-		cachedProdConfig = config;
 	}
 	if (applyConfigToSystem) applyConfig(config);
 	return config;
@@ -220,7 +226,7 @@ const toBootstrapConfig = (): GroConfig => {
 	};
 };
 
-const validateConfigModule = (configModule: any): Result<{}, {reason: string}> => {
+const validateConfigModule = (configModule: any): Result<object, {reason: string}> => {
 	if (!(typeof configModule.config === 'function' || typeof configModule.config === 'object')) {
 		throw Error(`Invalid Gro config module. Expected a 'config' export.`);
 	}
@@ -231,7 +237,7 @@ const validateConfig = async (
 	fs: Filesystem,
 	config: GroConfig,
 	dev: boolean,
-): Promise<Result<{}, {reason: string}>> => {
+): Promise<Result<object, {reason: string}>> => {
 	const buildConfigsResult = await validateBuildConfigs(fs, config.builds, dev);
 	if (!buildConfigsResult.ok) return buildConfigsResult;
 	return {ok: true};

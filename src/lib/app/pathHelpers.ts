@@ -3,7 +3,7 @@
 const toBasePathCache: Record<string, string> = {};
 
 export const toBasePath = (id: string, buildDir: string): string => {
-	if (id[0] !== '/') return id;
+	if (!id.startsWith('/')) return id;
 	const cacheKey = id + buildDir;
 	const cached = toBasePathCache[cacheKey];
 	if (cached !== undefined) return cached;

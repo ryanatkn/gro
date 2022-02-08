@@ -11,13 +11,13 @@ import {type Paths} from '../paths.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource> {
 	name: string;
-	build(
+	build: (
 		source: TSource,
 		buildConfig: BuildConfig,
 		ctx: BuildContext,
-	): BuildFile[] | Promise<BuildFile[]>; // TODO should this be forced async?
-	onRemove?(source: TSource, buildConfig: BuildConfig, ctx: BuildContext): Promise<void>;
-	init?(ctx: BuildContext): Promise<void>;
+	) => BuildFile[] | Promise<BuildFile[]>; // TODO should this be forced async?
+	onRemove?: (source: TSource, buildConfig: BuildConfig, ctx: BuildContext) => Promise<void>;
+	init?: (ctx: BuildContext) => Promise<void>;
 }
 
 // For docs on these, see where they're implemented in the `Filer`.

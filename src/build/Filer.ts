@@ -4,24 +4,23 @@ import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {nulls, omitUndefined} from '@feltcoop/felt/util/object.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import {printLogLabel, SystemLogger, type Logger} from '@feltcoop/felt/util/log.js';
 import {gray, red, cyan} from 'kleur/colors';
 import {printError} from '@feltcoop/felt/util/print.js';
 import {type OmitStrict, type Assignable, type PartialExcept} from '@feltcoop/felt/util/types.js';
 
 import {type Filesystem} from '../fs/filesystem.js';
 import {createFilerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';
-import {isInputToBuildConfig, mapDependencyToSourceId} from './utils.js';
-import {type MapDependencyToSourceId} from './utils.js';
-import {paths as defaultPaths, toBuildOutPath} from '../paths.js';
-import {type Paths} from '../paths.js';
+import {
+	isInputToBuildConfig,
+	mapDependencyToSourceId,
+	type MapDependencyToSourceId,
+} from './utils.js';
+import {paths as defaultPaths, toBuildOutPath, type Paths} from '../paths.js';
 import {type BuildContext, type Builder} from './builder.js';
-import {inferEncoding} from '../fs/encoding.js';
-import {type Encoding} from '../fs/encoding.js';
+import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
-import {type BuildName} from './buildConfig.js';
-import {type BuildConfig} from './buildConfig.js';
+import {type BuildName, type BuildConfig} from './buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
 import {type EcmaScriptTarget} from './typescriptUtils.js';
 import {stripBase, toServedDirs, type ServedDir, type ServedDirPartial} from './servedDir.js';
@@ -32,13 +31,17 @@ import {
 	type BuildableSourceFile,
 	type SourceFile,
 } from './sourceFile.js';
-import {diffDependencies} from './buildFile.js';
-import {type BuildFile} from './buildFile.js';
+import {diffDependencies, type BuildFile} from './buildFile.js';
 import {type BaseFilerFile} from './filerFile.js';
 import {loadContent} from './load.js';
-import {type SourceMeta} from './sourceMeta.js';
+import {
+	type SourceMeta,
+	deleteSourceMeta,
+	updateSourceMeta,
+	cleanSourceMeta,
+	initSourceMeta,
+} from './sourceMeta.js';
 import {type BuildDependency} from './buildDependency.js';
-import {deleteSourceMeta, updateSourceMeta, cleanSourceMeta, initSourceMeta} from './sourceMeta.js';
 import {type PathFilter} from '../fs/filter.js';
 import {isExternalModule} from '../utils/module.js';
 import {throttleAsync} from '../utils/throttleAsync.js';
@@ -266,13 +269,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
 		// what data is not yet ready? does this belong inside `initBuilds`?
-		if (this.buildConfigs !== null) {
-			for (const dir of this.dirs) {
-				if (!dir.buildable) continue;
-				if (this.builder!.init !== undefined) {
-					await this.builder!.init(this);
-				}
-			}
+		if (this.builder?.init && this.buildConfigs !== null && this.dirs.some((d) => d.buildable)) {
+			await this.builder.init(this);
 		}
 
 		// This performs the initial source file build, traces deps,
@@ -294,9 +292,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private async initBuilds(): Promise<void> {
 		if (this.buildConfigs === null) return;
 
-		const promises: Promise<void>[] = [];
+		const promises: Array<Promise<void>> = [];
 
-		const filters: ((id: string) => boolean)[] = [];
+		const filters: Array<(id: string) => boolean> = [];
 		const filterBuildConfigs: BuildConfig[] = [];
 
 		// Iterate through the build config inputs and initialize their files.
@@ -486,7 +484,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// It currently uses a slow brute force search to find dependents.
 	private async initSourceFile(file: BuildableSourceFile): Promise<void> {
 		if (this.buildConfigs === null) return; // TODO is this right?
-		let promises: Promise<void>[] | null = null;
+		let promises: Array<Promise<void>> | null = null;
 		let dependentBuildConfigs: Set<BuildConfig> | null = null;
 		// TODO could be sped up with some caching data structures
 		for (const f of this.files.values()) {
@@ -713,13 +711,14 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const {addedDependencies, removedDependencies} =
 			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
 
-		let promises: Promise<void>[] | null = null;
+		let promises: Array<Promise<void>> | null = null;
 
 		// handle added dependencies
 		if (addedDependencies !== null) {
 			for (const addedDependency of addedDependencies) {
 				// we create no source file for externals
 				if (addedDependency.external) continue;
+				// eslint-disable-next-line no-await-in-loop
 				const addedSourceId = await this.mapDependencyToSourceId(
 					addedDependency,
 					this.buildDir,
@@ -728,7 +727,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				);
 				// ignore dependencies on self - happens with common externals
 				if (addedSourceId === sourceFile.id) continue;
-				let addedSourceFile = this.files.get(addedSourceId);
+				const addedSourceFile = this.files.get(addedSourceId);
 				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
@@ -757,6 +756,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		if (removedDependencies !== null) {
 			for (const removedDependency of removedDependencies) {
+				// eslint-disable-next-line no-await-in-loop
 				const removedSourceId = await this.mapDependencyToSourceId(
 					removedDependency,
 					this.buildDir,
@@ -774,11 +774,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				}
 
 				// update `dependencies` of the source file
-				let dependenciesMap = sourceFile.dependencies.get(buildConfig);
+				const dependenciesMap = sourceFile.dependencies.get(buildConfig);
 				if (dependenciesMap === undefined) {
 					throw Error(`Expected dependenciesMap: ${sourceFile.id}`);
 				}
-				let dependencies = dependenciesMap.get(removedSourceId);
+				const dependencies = dependenciesMap.get(removedSourceId);
 				if (dependencies === undefined) {
 					throw Error(`Expected dependencies: ${removedSourceId}: ${sourceFile.id}`);
 				}
@@ -788,11 +788,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				}
 
 				// update `dependents` of the removed file
-				let dependentsMap = removedSourceFile.dependents.get(buildConfig);
+				const dependentsMap = removedSourceFile.dependents.get(buildConfig);
 				if (dependentsMap === undefined) {
 					throw Error(`Expected dependentsMap: ${removedSourceFile.id}`);
 				}
-				let dependents = dependentsMap.get(sourceFile.id);
+				const dependents = dependentsMap.get(sourceFile.id);
 				if (dependents === undefined) {
 					throw Error(`Expected dependents: ${removedSourceFile.id}: ${sourceFile.id}`);
 				}

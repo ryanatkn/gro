@@ -45,7 +45,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		return newEsbuildOptions;
 	};
 
-	let cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
+	const cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
 	const loadGenerateTypes = (fs: Filesystem): Promise<GenerateTypesForFile> => {
 		if (cachedGenerateTypes.has(fs)) return cachedGenerateTypes.get(fs)!;
 		const promise = toGenerateTypesForFile(fs);

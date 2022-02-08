@@ -98,7 +98,7 @@ export const getMetasByBuildName = (
 	sourceTree: SourceTree,
 	buildName: BuildName,
 ): SourceTreeMeta[] => {
-	const metas = sourceTree.metasByBuildName.get(buildName)!;
+	const metas = sourceTree.metasByBuildName.get(buildName);
 	if (!metas) throw Error(`Expected to find meta:s ${buildName}`);
 	return metas;
 };
@@ -107,7 +107,7 @@ export const getBuildsByBuildName = (
 	sourceMeta: SourceTreeMeta,
 	buildName: BuildName,
 ): SourceMetaBuild[] => {
-	const builds = sourceMeta.buildsByBuildName.get(buildName)!;
+	const builds = sourceMeta.buildsByBuildName.get(buildName);
 	if (!builds) throw Error(`Expected to find builds: ${buildName}`);
 	return builds;
 };

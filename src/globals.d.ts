@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 // TODO https://github.com/lukeed/uvu/pull/105
 // experiment with the other types too!
 declare module 'uvu/assert' {

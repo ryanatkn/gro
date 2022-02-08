@@ -61,7 +61,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 			const extractedJs = await extractJsFromSvelteForDependencies(originalContent);
 			parseJsDependencies(extractedJs, handleSpecifier, false);
 			if (ctx.types) {
-				parseTypeDependencies(content as string, handleSpecifier);
+				parseTypeDependencies(content, handleSpecifier);
 			}
 			content = replaceDependencies(content, dependencies);
 			break;
@@ -122,10 +122,13 @@ const parseJsDependencies = (
 			index = end;
 		}
 	}
-	if (mapDependencies && index > 0) {
-		content = transformedContent + content.substring(index);
+	if (mapDependencies) {
+		if (index > 0) {
+			return transformedContent + content.substring(index);
+		}
+		return content;
 	}
-	return mapDependencies ? content : '';
+	return '';
 };
 
 const toBuildDependency = (
@@ -174,9 +177,8 @@ const toRelativeSpecifierTrimmedBy = (
 	dir: string,
 	sourceDir: string,
 ): string => {
-	specifier = relative(dir, sourceDir + specifier.substring(charsToTrim));
-	if (specifier[0] !== '.') specifier = './' + specifier;
-	return specifier;
+	const s = relative(dir, sourceDir + specifier.substring(charsToTrim));
+	return s.startsWith('.') ? s : './' + s;
 };
 
 /*
@@ -194,7 +196,7 @@ Some possible improvements:
 */
 const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier): void => {
 	for (const matches of content.matchAll(
-		/(import\s+type|export)[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm,
+		/(import\s+type|export)[\s\S]*?from\s*['|"|`](.+)['|"|`]/gmu,
 	)) {
 		handleSpecifier(matches[2]);
 	}
@@ -211,7 +213,7 @@ const replaceDependencies = (
 			continue;
 		}
 		finalContent = finalContent.replace(
-			new RegExp(`['|"|\`]${escapeRegexp(dependency.originalSpecifier)}['|"|\`]`, 'g'),
+			new RegExp(`['|"|\`]${escapeRegexp(dependency.originalSpecifier)}['|"|\`]`, 'gu'),
 			`'${dependency.mappedSpecifier}'`,
 		);
 	}
@@ -220,7 +222,7 @@ const replaceDependencies = (
 
 // TODO upstream to felt probably
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/RegularExpressions
-const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 
 // This is a temporary hack to allow importing `to/thing` as equivalent to `to/thing.js`,
 // despite it being off-spec, because of this combination of problems with TypeScript and Vite:

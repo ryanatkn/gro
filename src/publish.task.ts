@@ -100,62 +100,61 @@ const confirmWithUser = async (
 	log: Logger,
 ): Promise<PublishContext> => {
 	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
-	return new Promise<PublishContext>(async (resolve) => {
-		const [[currentChangelogVersion, previousChangelogVersion], currentPackageVersion] =
-			await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
+	const [[currentChangelogVersion, previousChangelogVersion], currentPackageVersion] =
+		await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
+	let errored = false;
+	const logError: Logger['error'] = (...args) => {
+		errored = true;
+		log.error(...args);
+	};
 
-		let errored = false;
-		const logError: Logger['error'] = (...args) => {
-			errored = true;
-			log.error(...args);
-		};
+	if (currentChangelogVersion === currentPackageVersion) {
+		logError(
+			red('New changelog version matches old package version.'),
+			'Is the changelog updated?',
+		);
+	}
+	if (previousChangelogVersion && previousChangelogVersion !== currentPackageVersion) {
+		logError(
+			red('Old changelog version does not match old package version.'),
+			'Is there an unpublished version in the changelog?',
+		);
+	}
 
-		if (currentChangelogVersion === currentPackageVersion) {
+	const publishContext: PublishContext = {
+		currentPackageVersion,
+		currentChangelogVersion,
+		previousChangelogVersion,
+	};
+
+	if (isStandardVersionIncrement(versionIncrement)) {
+		const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
+		if (!result.ok) {
 			logError(
-				red('New changelog version matches old package version.'),
-				'Is the changelog updated?',
+				red('Failed to validate standard version increment compared to changelog:'),
+				result.reason,
 			);
 		}
-		if (previousChangelogVersion && previousChangelogVersion !== currentPackageVersion) {
-			logError(
-				red('Old changelog version does not match old package version.'),
-				'Is there an unpublished version in the changelog?',
-			);
-		}
+	} else {
+		errored = true;
+		log.warn(
+			red(`Unknown version increment "${versionIncrement}":`),
+			'gro supports only major|minor|patch:',
+			yellow('please review the following carefully:'),
+		);
+	}
 
-		const publishContext: PublishContext = {
-			currentPackageVersion,
-			currentChangelogVersion,
-			previousChangelogVersion,
-		};
+	const color = errored ? yellow : green;
+	log.info(color(versionIncrement), '← version increment');
+	log.info(color(currentChangelogVersion || '<empty>'), '← new changelog version');
+	log.info(color(previousChangelogVersion || '<empty>'), '← old changelog version');
+	log.info(color(currentPackageVersion), '← old package version');
 
-		if (isStandardVersionIncrement(versionIncrement)) {
-			const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
-			if (!result.ok) {
-				logError(
-					red('Failed to validate standard version increment compared to changelog:'),
-					result.reason,
-				);
-			}
-		} else {
-			errored = true;
-			log.warn(
-				red(`Unknown version increment "${versionIncrement}":`),
-				'gro supports only major|minor|patch:',
-				yellow('please review the following carefully:'),
-			);
-		}
-
-		const color = errored ? yellow : green;
-		log.info(color(versionIncrement), '← version increment');
-		log.info(color(currentChangelogVersion || '<empty>'), '← new changelog version');
-		log.info(color(previousChangelogVersion || '<empty>'), '← old changelog version');
-		log.info(color(currentPackageVersion), '← old package version');
-
-		const expectedAnswer = errored ? 'yes!!' : 'y';
-		if (errored) {
-			log.warn(yellow(`there's an error or uncheckable condition above`));
-		}
+	const expectedAnswer = errored ? 'yes!!' : 'y';
+	if (errored) {
+		log.warn(yellow(`there's an error or uncheckable condition above`));
+	}
+	return new Promise<PublishContext>((resolve) => {
 		readline.question(
 			bgBlack(
 				`does this look correct? ${
@@ -186,7 +185,7 @@ const getChangelogVersions = async (
 	if (!(await fs.exists(CHANGELOG_PATH))) {
 		throw Error(`Publishing requires ${CHANGELOG_PATH} - please create it to continue`);
 	}
-	const changelogMatcher = /##.+/g;
+	const changelogMatcher = /##.+/gu;
 	const changelog = await fs.readFile(CHANGELOG_PATH, 'utf8');
 	const matchCurrent = changelog.match(changelogMatcher);
 	if (!matchCurrent) {
@@ -232,7 +231,7 @@ const isStandardVersionIncrement = (v: string): v is StandardVersionIncrement =>
 const validateStandardVersionIncrementParts = (
 	versionIncrement: StandardVersionIncrement,
 	{currentChangelogVersion, currentPackageVersion, previousChangelogVersion}: PublishContext,
-): Result<{}, {reason: string}> => {
+): Result<object, {reason: string}> => {
 	const currentPackageVersionParts = toVersionParts(currentPackageVersion, 'currentPackageVersion');
 	if (!currentPackageVersionParts.ok) {
 		return currentPackageVersionParts;
@@ -266,27 +265,32 @@ const validateStandardVersionIncrementParts = (
 type VersionParts = [number, number, number];
 const toVersionParts = (
 	version: string,
-	name: string = 'version',
+	name = 'version',
 ): Result<{value: VersionParts}, {reason: string}> => {
-	const value = version.split('.').map((v) => Number(v)) as VersionParts;
-	if (!value) {
+	const value = version.split('.').map((v) => Number(v));
+	if (!value.length) {
 		return {ok: false, reason: `expected ${name} to match major.minor.patch: ${version}`};
 	} else if (value.length !== 3) {
 		return {ok: false, reason: `malformed ${name}: ${version}`};
 	}
-	return {ok: true, value};
+	return {ok: true, value: value as VersionParts};
 };
 const toExpectedNextVersion = (
 	versionIncrement: StandardVersionIncrement,
 	[major, minor, patch]: VersionParts,
 ) => {
-	if (versionIncrement === 'major') {
-		return `${major + 1}.0.0`;
-	} else if (versionIncrement === 'minor') {
-		return `${major}.${minor + 1}.0`;
-	} else if (versionIncrement === 'patch') {
-		return `${major}.${minor}.${patch + 1}`;
-	} else {
-		throw new UnreachableError(versionIncrement);
+	switch (versionIncrement) {
+		case 'major': {
+			return `${major + 1}.0.0`;
+		}
+		case 'minor': {
+			return `${major}.${minor + 1}.0`;
+		}
+		case 'patch': {
+			return `${major}.${minor}.${patch + 1}`;
+		}
+		default: {
+			throw new UnreachableError(versionIncrement);
+		}
 	}
 };

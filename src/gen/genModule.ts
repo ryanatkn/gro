@@ -1,6 +1,12 @@
 import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 
-import {type ModuleMeta, loadModule, type LoadModuleResult, findModules} from '../fs/modules.js';
+import {
+	type ModuleMeta,
+	loadModule,
+	type LoadModuleResult,
+	findModules,
+	type FindModulesResult,
+} from '../fs/modules.js';
 import {type Gen, type GenResults, type GenFile} from './gen.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
 import {paths} from '../paths.js';
@@ -110,7 +116,7 @@ export const findGenModules = (
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN],
 	rootDirs: string[] = [],
-) =>
+): Promise<FindModulesResult> =>
 	findModules(
 		fs,
 		inputPaths,

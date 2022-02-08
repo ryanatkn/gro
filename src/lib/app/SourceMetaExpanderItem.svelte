@@ -43,17 +43,17 @@
 	$: activeIsDependent = isDependency(sourceMeta, activeSourceMeta);
 	$: emphasized = activeIsDependency || activeIsDependent || active;
 	$: deemphasized = activeSourceMeta && !emphasized;
-	$: data = activeSourceMeta?.data!; // TODO this is a workaround for not having `!` in templates
+	$: data = activeSourceMeta?.data;
 </script>
 
 <div class="summary" class:deemphasized class:emphasized>
 	<div class="dep">
-		{#if activeIsDependency}
+		{#if activeIsDependency && data}
 			<span title="{sourceMeta.data.sourceId} has a dependency on {data.sourceId}">↤</span>
 		{/if}
 	</div>
 	<div class="dep">
-		{#if activeIsDependent}
+		{#if activeIsDependent && data}
 			<span title="{sourceMeta.data.sourceId} is a dependency of {data.sourceId}">↦</span>
 		{/if}
 	</div>
