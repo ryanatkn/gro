@@ -22,14 +22,14 @@ export const logAvailableTasks = async (
 			process.exit(1);
 		}
 		const printed: string[] = [
-			`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:${args.help ? '' : '\n'}`,
+			`\n\n${gray('Run a task:')} gro [name]`,
+			`\n${gray('View help:')}  gro [name] --help`,
+			`\n\n${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:${
+				args.help ? '' : '\n'
+			}`,
 		];
 		for (const meta of loadModulesResult.modules) {
-			if (args.help) {
-				printed.push('\n\n' + printTaskHelp(meta).join(''));
-			} else {
-				printed.push('\n' + cyan(meta.name), ' ', meta.mod.task.summary || '');
-			}
+			printed.push('\n' + cyan(meta.name), ' ', meta.mod.task.summary || '');
 		}
 		log.info(printed.join('') + '\n');
 	} else {
