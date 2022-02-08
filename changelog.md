@@ -9,7 +9,7 @@
 - add schema information to task args
   ([#306](https://github.com/feltcoop/gro/pull/306))
 - add `--help` flag to `gro` and `gro taskname`, along with `gro help` alias
-  ([#306](https://github.com/feltcoop/gro/pull/306))
+  ([#306](https://github.com/feltcoop/gro/pull/306), [#307](https://github.com/feltcoop/gro/pull/307))
 - combine imports in generated schema types
   ([#304](https://github.com/feltcoop/gro/pull/304))
 - add CLI opt-outs to `gro check` for `no-typecheck`, `no-test`, `no-gen`, `no-format`, & `no-lint`
