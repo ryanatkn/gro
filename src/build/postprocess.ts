@@ -188,15 +188,14 @@ TODO this fails on some input:
 export declare type AsyncStatus = 'initial' | 'pending' | 'success' | 'failure';
 const a = "from './array'";
 
-Some possible improvements:
-
-- add some negating condition to `[\s\S]*?` -- maybe a semicolon should break it?
-- expect a semicolon
+`es-module-lexer` does work for TypeScript so we should use it instead of a RegExp,
+or really, we should just use the TS compiler and do real parsing.
+This only works decently well because we're assuming things are formatted with Prettier.
 
 */
 const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier): void => {
 	for (const matches of content.matchAll(
-		/(import\s+type|export)[\s\S]*?from\s*['|"|`](.+)['|"|`]/gmu,
+		/^(import\stype\s|export\s|import\s[\s\S]*?\{[\s\S]*?\Wtype\s)[\s\S]*?from\s*?['|"](.+)['|"]/gmu,
 	)) {
 		handleSpecifier(matches[2]);
 	}
@@ -213,7 +212,7 @@ const replaceDependencies = (
 			continue;
 		}
 		finalContent = finalContent.replace(
-			new RegExp(`['|"|\`]${escapeRegexp(dependency.originalSpecifier)}['|"|\`]`, 'gu'),
+			new RegExp(`['|"]${escapeRegexp(dependency.originalSpecifier)}['|"]`, 'gu'),
 			`'${dependency.mappedSpecifier}'`,
 		);
 	}
