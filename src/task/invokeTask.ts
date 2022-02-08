@@ -192,6 +192,7 @@ export const invokeTask = async (
 					log,
 					printPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
+					!groDirFindModulesResult.ok,
 				);
 			}
 		}

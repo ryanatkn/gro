@@ -11,6 +11,7 @@ export const logAvailableTasks = async (
 	log: Logger,
 	dirLabel: string,
 	sourceIdsByInputPath: Map<string, string[]>,
+	printIntro = true,
 ): Promise<void> => {
 	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
 	if (sourceIds.length) {
@@ -21,15 +22,21 @@ export const logAvailableTasks = async (
 			process.exit(1);
 		}
 		const printed: string[] = [
-			`\n\n${gray('Run a task:')} gro [name]`,
-			`\n${gray('View help:')}  gro [name] --help`,
-			`\n\n${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:\n`,
+			`${printIntro ? '\n\n' : ''}${sourceIds.length} task${plural(
+				sourceIds.length,
+			)} in ${dirLabel}:\n`,
 		];
+		if (printIntro) {
+			printed.unshift(
+				`\n\n${gray('Run a task:')} gro [name]`,
+				`\n${gray('View help:')}  gro [name] --help`,
+			);
+		}
 		const longestTaskName = toMaxLength(loadModulesResult.modules, (m) => m.name);
 		for (const meta of loadModulesResult.modules) {
 			printed.push('\n' + cyan(pad(meta.name, longestTaskName)), '  ', meta.mod.task.summary || '');
 		}
-		log.info(printed.join('') + '\n');
+		log[printIntro ? 'info' : 'plain'](printed.join('') + '\n');
 	} else {
 		log.info(`No tasks found in ${dirLabel}.`);
 	}
@@ -44,12 +51,13 @@ export const logErrorReasons = (log: Logger, reasons: string[]): void => {
 const ARGS_PROPERTY_NAME = '[...args]';
 
 // TODO format output in a table
-export const printTaskHelp = (meta: TaskModuleMeta): string[] => {
+export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	const {
 		name,
 		mod: {task},
 	} = meta;
-	const printed: string[] = [cyan(name), '\n' + task.summary || '(no summary available)'];
+	const printed: string[] = [];
+	printed.push(cyan(name), '\n' + task.summary || '(no summary available)');
 	if (task.args) {
 		const properties = toArgProperties(task.args);
 		const longestTaskName = Math.max(
@@ -61,17 +69,14 @@ export const printTaskHelp = (meta: TaskModuleMeta): string[] => {
 		for (const property of properties) {
 			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
 			printed.push(
-				`\n${green(pad(name, longestTaskName))}`,
-				' ',
-				gray(pad(property.schema.type, longestType)),
-				' ',
-				pad(printValue(property.schema.default) as string, longestDefault),
-				' ',
+				`\n${green(pad(name, longestTaskName))} `,
+				gray(pad(property.schema.type, longestType)) + ' ',
+				pad(printValue(property.schema.default) as string, longestDefault) + ' ',
 				property.schema.description || '(no description available)',
 			);
 		}
 	}
-	return printed;
+	log.info(...printed);
 };
 
 interface ArgSchemaProperty {

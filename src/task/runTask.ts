@@ -6,7 +6,7 @@ import {type TaskModuleMeta} from './taskModule.js';
 import {TaskError, type Args} from './task.js';
 import {type invokeTask as InvokeTaskFunction} from './invokeTask.js';
 import {type Filesystem} from '../fs/filesystem.js';
-import {printTaskHelp} from './logTask.js';
+import {logTaskHelp} from './logTask.js';
 
 export type RunTaskResult =
 	| {
@@ -33,7 +33,7 @@ export const runTask = async (
 		throw new TaskError(`The task "${taskMeta.name}" cannot be run in development`);
 	}
 	if (args.help) {
-		log.info(...printTaskHelp(taskMeta));
+		logTaskHelp(log, taskMeta);
 		return {ok: true, output: null};
 	}
 	let output: unknown;
