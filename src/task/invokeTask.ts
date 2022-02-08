@@ -1,21 +1,18 @@
 import {cyan, red, gray} from 'kleur/colors';
-import {SystemLogger, type Logger, printLogLabel} from '@feltcoop/felt/util/log.js';
+import {SystemLogger, printLogLabel} from '@feltcoop/felt/util/log.js';
 import {EventEmitter} from 'events';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
-import {plural} from '@feltcoop/felt/util/string.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
 import {serializeArgs, type Args} from '../task/task.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
-import {TASK_FILE_SUFFIX, isTaskPath, toTaskName} from './task.js';
+import {TASK_FILE_SUFFIX, isTaskPath} from './task.js';
 import {
 	paths,
 	groPaths,
-	sourceIdToBasePath,
 	replaceRootDir,
-	pathsFromId,
 	isGroId,
 	toImportId,
 	isThisProjectGro,
@@ -27,6 +24,7 @@ import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {type Filesystem} from '../fs/filesystem.js';
+import {logAvailableTasks, logErrorReasons} from './logTask.js';
 
 /*
 
@@ -120,6 +118,7 @@ export const invokeTask = async (
 				);
 				const timingToRunTask = timings.start('run task');
 				const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
+				// If we're in dev mode but the task is only for production, run it in a new process.
 				if (dev && task.mod.task.production) {
 					const result = await spawn('npx', ['gro', taskName, ...serializeArgs(args)], {
 						env: {...process.env, NODE_ENV: 'production'},
@@ -135,6 +134,7 @@ export const invokeTask = async (
 						throw Error('Spawned task failed');
 					}
 				} else {
+					// Run the task in the current process.
 					const result = await runTask(fs, task, args, events, invokeTask);
 					timingToRunTask();
 					if (result.ok) {
@@ -154,10 +154,14 @@ export const invokeTask = async (
 			// eslint-disable-next-line no-lonely-if
 			if (isThisProjectGro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
-				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
+				await logAvailableTasks(
+					log,
+					printPath(pathData.id),
+					findModulesResult.sourceIdsByInputPath,
+				);
 			} else if (isGroId(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
-				logAvailableTasks(
+				await logAvailableTasks(
 					log,
 					printPathOrGroPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
@@ -177,14 +181,19 @@ export const invokeTask = async (
 					const groPathData =
 						groDirFindModulesResult.sourceIdPathDataByInputPath.get(groDirInputPath)!;
 					// First log the Gro matches.
-					logAvailableTasks(
+					await logAvailableTasks(
 						log,
 						printPathOrGroPath(groPathData.id),
 						groDirFindModulesResult.sourceIdsByInputPath,
 					);
 				}
 				// Then log the current working directory matches.
-				logAvailableTasks(log, printPath(pathData.id), findModulesResult.sourceIdsByInputPath);
+				await logAvailableTasks(
+					log,
+					printPath(pathData.id),
+					findModulesResult.sourceIdsByInputPath,
+					!groDirFindModulesResult.ok,
+				);
 			}
 		}
 	} else if (findModulesResult.type === 'inputDirectoriesWithNoFiles') {
@@ -209,7 +218,7 @@ export const invokeTask = async (
 				const groPathData =
 					groDirFindModulesResult.sourceIdPathDataByInputPath.get(groDirInputPath)!;
 				// Log the Gro matches.
-				logAvailableTasks(
+				await logAvailableTasks(
 					log,
 					printPathOrGroPath(groPathData.id),
 					groDirFindModulesResult.sourceIdsByInputPath,
@@ -229,28 +238,6 @@ export const invokeTask = async (
 
 	printTimings(timings, log);
 	log.info(`🕒 ${printMs(totalTiming())}`);
-};
-
-const logAvailableTasks = (
-	log: Logger,
-	dirLabel: string,
-	sourceIdsByInputPath: Map<string, string[]>,
-): void => {
-	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
-	if (sourceIds.length) {
-		log.info(`${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:`);
-		for (const sourceId of sourceIds) {
-			log.info('\t' + cyan(toTaskName(sourceIdToBasePath(sourceId, pathsFromId(sourceId)))));
-		}
-	} else {
-		log.info(`No tasks found in ${dirLabel}.`);
-	}
-};
-
-const logErrorReasons = (log: Logger, reasons: string[]): void => {
-	for (const reason of reasons) {
-		log.error(reason);
-	}
 };
 
 // This is a best-effort heuristic that quickly detects if
