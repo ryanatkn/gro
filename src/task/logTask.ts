@@ -3,7 +3,7 @@ import {Logger} from '@feltcoop/felt/util/log.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 import {printValue} from '@feltcoop/felt/util/print.js';
 
-import {type Args, type ArgSchema, type ArgsSchema} from './task.js';
+import {type ArgSchema, type ArgsSchema} from './task.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
 
@@ -11,7 +11,6 @@ export const logAvailableTasks = async (
 	log: Logger,
 	dirLabel: string,
 	sourceIdsByInputPath: Map<string, string[]>,
-	args: Args,
 ): Promise<void> => {
 	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
 	if (sourceIds.length) {
@@ -26,8 +25,9 @@ export const logAvailableTasks = async (
 			`\n${gray('View help:')}  gro [name] --help`,
 			`\n\n${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:\n`,
 		];
+		const longestTaskName = toMaxLength(loadModulesResult.modules, (m) => m.name);
 		for (const meta of loadModulesResult.modules) {
-			printed.push('\n' + cyan(meta.name), ' ', meta.mod.task.summary || '');
+			printed.push('\n' + cyan(pad(meta.name, longestTaskName)), '  ', meta.mod.task.summary || '');
 		}
 		log.info(printed.join('') + '\n');
 	} else {
@@ -41,23 +41,31 @@ export const logErrorReasons = (log: Logger, reasons: string[]): void => {
 	}
 };
 
+const ARGS_PROPERTY_NAME = '[...args]';
+
 // TODO format output in a table
 export const printTaskHelp = (meta: TaskModuleMeta): string[] => {
 	const {
 		name,
 		mod: {task},
 	} = meta;
-	const printed: string[] = [cyan(name), '\n', task.summary || '(no summary available)'];
+	const printed: string[] = [cyan(name), '\n' + task.summary || '(no summary available)'];
 	if (task.args) {
-		for (const property of toArgProperties(task.args)) {
-			const name = property.name === '_' ? '[...args]' : property.name;
+		const properties = toArgProperties(task.args);
+		const longestTaskName = Math.max(
+			ARGS_PROPERTY_NAME.length,
+			toMaxLength(properties, (p) => p.name),
+		);
+		const longestType = toMaxLength(properties, (p) => p.schema.type);
+		const longestDefault = toMaxLength(properties, (p) => p.schema.default + '');
+		for (const property of properties) {
+			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
 			printed.push(
-				'\n',
-				green(name),
+				`\n${green(pad(name, longestTaskName))}`,
 				' ',
-				gray(property.schema.type),
+				gray(pad(property.schema.type, longestType)),
 				' ',
-				printValue(property.schema.default) as string,
+				pad(printValue(property.schema.default) as string, longestDefault),
 				' ',
 				property.schema.description || '(no description available)',
 			);
@@ -79,3 +87,8 @@ const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
 	}
 	return properties;
 };
+
+// quick n dirty padding logic
+const pad = (s: string, n: number): string => s + ' '.repeat(n - s.length);
+const toMaxLength = <T>(items: T[], toString: (item: T) => string) =>
+	items.reduce((max, m) => Math.max(toString(m).length, max), 0);

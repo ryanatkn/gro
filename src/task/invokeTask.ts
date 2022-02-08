@@ -158,7 +158,6 @@ export const invokeTask = async (
 					log,
 					printPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
-					args,
 				);
 			} else if (isGroId(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
@@ -166,7 +165,6 @@ export const invokeTask = async (
 					log,
 					printPathOrGroPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
-					args,
 				);
 			} else {
 				// The Gro directory is not the same as the cwd
@@ -187,7 +185,6 @@ export const invokeTask = async (
 						log,
 						printPathOrGroPath(groPathData.id),
 						groDirFindModulesResult.sourceIdsByInputPath,
-						args,
 					);
 				}
 				// Then log the current working directory matches.
@@ -195,7 +192,6 @@ export const invokeTask = async (
 					log,
 					printPath(pathData.id),
 					findModulesResult.sourceIdsByInputPath,
-					args,
 				);
 			}
 		}
@@ -225,7 +221,6 @@ export const invokeTask = async (
 					log,
 					printPathOrGroPath(groPathData.id),
 					groDirFindModulesResult.sourceIdsByInputPath,
-					args,
 				);
 			} else {
 				// Log the original errors, not the Gro-specific ones.
