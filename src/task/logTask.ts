@@ -24,9 +24,7 @@ export const logAvailableTasks = async (
 		const printed: string[] = [
 			`\n\n${gray('Run a task:')} gro [name]`,
 			`\n${gray('View help:')}  gro [name] --help`,
-			`\n\n${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:${
-				args.help ? '' : '\n'
-			}`,
+			`\n\n${sourceIds.length} task${plural(sourceIds.length)} in ${dirLabel}:\n`,
 		];
 		for (const meta of loadModulesResult.modules) {
 			printed.push('\n' + cyan(meta.name), ' ', meta.mod.task.summary || '');
