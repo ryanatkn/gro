@@ -196,6 +196,7 @@ Some possible improvements:
 */
 const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier): void => {
 	for (const matches of content.matchAll(
+		// TODO needs to work for inline `type` imports
 		/(import\s+type|export)[\s\S]*?from\s*['|"|`](.+)['|"|`]/gmu,
 	)) {
 		handleSpecifier(matches[2]);
