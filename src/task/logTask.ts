@@ -65,7 +65,7 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 			toMaxLength(properties, (p) => p.name),
 		);
 		const longestType = toMaxLength(properties, (p) => p.schema.type);
-		const longestDefault = toMaxLength(properties, (p) => p.schema.default + '');
+		const longestDefault = toMaxLength(properties, (p) => printValue(p.schema.default));
 		for (const property of properties) {
 			const name = property.name === '_' ? ARGS_PROPERTY_NAME : property.name;
 			printed.push(
@@ -94,7 +94,6 @@ const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
 };
 
 // quick n dirty padding logic
-const pad = (s: any, n: number): string =>
-	s && 'length' in s ? s + ' '.repeat(n - s.length) : ' '.repeat(n);
+const pad = (s: string, n: number): string => s + ' '.repeat(n - s.length);
 const toMaxLength = <T>(items: T[], toString: (item: T) => string) =>
 	items.reduce((max, m) => Math.max(toString(m).length, max), 0);

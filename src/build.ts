@@ -3,7 +3,7 @@
 export interface BuildTaskArgs {
 	clean?: boolean;
 	/**
-	 * opt out of cleaning before building; be aware this may break your build!
+	 * opt out of cleaning before building; warning! this may break your build!
 	 */
 	'no-clean'?: boolean;
 }

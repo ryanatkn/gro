@@ -8,7 +8,7 @@ export const BuildTaskArgsSchema: ArgsSchema = {
 		'no-clean': {
 			type: 'boolean',
 			default: false,
-			description: 'opt out of cleaning before building; be aware this may break your build!',
+			description: 'opt out of cleaning before building; warning! this may break your build!',
 		},
 	},
 	additionalProperties: false,
