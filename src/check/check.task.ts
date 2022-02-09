@@ -1,5 +1,5 @@
-import {TaskError, type Task} from './task/task.js';
-import {findGenModules} from './gen/genModule.js';
+import {TaskError, type Task} from '../task/task.js';
+import {findGenModules} from '../gen/genModule.js';
 import {type CheckTaskArgs} from './check.js';
 import {CheckTaskArgsSchema} from './check.schema.js';
 

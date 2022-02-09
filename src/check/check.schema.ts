@@ -1,4 +1,4 @@
-import type {ArgsSchema} from './task/task.js';
+import type {ArgsSchema} from '../task/task.js';
 
 export const CheckTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/CheckTaskArgs.json',

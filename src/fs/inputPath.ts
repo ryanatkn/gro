@@ -1,5 +1,5 @@
-import {join, sep, isAbsolute} from 'path';
-import {stripStart} from '@feltcoop/felt/util/string.js';
+import {join, sep, isAbsolute, basename} from 'path';
+import {stripEnd, stripStart} from '@feltcoop/felt/util/string.js';
 
 import {
 	basePathToSourceId,
@@ -35,9 +35,9 @@ In the future we may want to support globbing or regexps.
 
 */
 export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
-	if (isAbsolute(rawInputPath)) return rawInputPath;
+	if (isAbsolute(rawInputPath)) return stripEnd(rawInputPath, '/');
 	// Allow prefix `./` and just remove it if it's there.
-	let basePath = stripStart(rawInputPath, './');
+	let basePath = stripEnd(stripStart(rawInputPath, './'), '/');
 	let paths = fromPaths;
 	if (!paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
@@ -78,6 +78,8 @@ export const getPossibleSourceIds = (
 		for (const extension of extensions) {
 			if (!inputPath.endsWith(extension)) {
 				possibleSourceIds.push(inputPath + extension);
+				// Support task directories, so `src/a/a.task.ts` works like `src/a.task.ts`.
+				possibleSourceIds.push(inputPath + '/' + basename(inputPath) + extension);
 			}
 		}
 	}

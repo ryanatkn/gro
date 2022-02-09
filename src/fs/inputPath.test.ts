@@ -52,11 +52,11 @@ test__resolveRawInputPath('forced gro directory', () => {
 test__resolveRawInputPath('directories', () => {
 	const targetDir = resolve('src/foo/bar');
 	assert.is(resolveRawInputPath('foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('foo/bar/'), targetDir + '/');
+	assert.is(resolveRawInputPath('foo/bar/'), targetDir);
 	assert.is(resolveRawInputPath('src/foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('src/foo/bar/'), targetDir + '/');
+	assert.is(resolveRawInputPath('src/foo/bar/'), targetDir);
 	assert.is(resolveRawInputPath('./src/foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('./src/foo/bar/'), targetDir + '/');
+	assert.is(resolveRawInputPath('./src/foo/bar/'), targetDir);
 	assert.is.not(resolveRawInputPath('bar'), targetDir);
 });
 
@@ -86,7 +86,11 @@ const test__getPossibleSourceIds = suite('getPossibleSourceIds');
 
 test__getPossibleSourceIds('in the gro directory', () => {
 	const inputPath = resolve('src/foo/bar');
-	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath, inputPath + '.baz.ts']);
+	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [
+		inputPath,
+		inputPath + '.baz.ts',
+		inputPath + '/bar.baz.ts',
+	]);
 });
 
 test__getPossibleSourceIds('does not repeat the extension', () => {
@@ -111,8 +115,10 @@ test__getPossibleSourceIds('in both another directory and gro', () => {
 	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [groPaths.root], fakePaths), [
 		inputPath,
 		inputPath + '.baz.ts',
+		inputPath + '/bar.baz.ts',
 		replaceRootDir(inputPath, groPaths.root, fakePaths),
 		replaceRootDir(inputPath, groPaths.root, fakePaths) + '.baz.ts',
+		replaceRootDir(inputPath, groPaths.root, fakePaths) + '/bar.baz.ts',
 	]);
 });
 
@@ -128,20 +134,26 @@ test__loadSourcePathDataByInputPath(
 		const result = await loadSourcePathDataByInputPath(
 			{
 				...fs,
-				exists: async (path) => path !== 'fake/test3.bar.ts' && !path.startsWith('fake/missing'),
+				exists: async (path) =>
+					path !== 'fake/test3.bar.ts' &&
+					path !== 'fake/test4.bar.ts' &&
+					path !== 'fake/test4/test4.bar.ts' &&
+					!path.startsWith('fake/missing'),
 				stat: async (path) =>
 					({
-						isDirectory: () => path === 'fake/test2' || path === 'fake/test3',
+						isDirectory: () =>
+							path === 'fake/test2' || path === 'fake/test3' || path === 'fake/test4',
 					} as any),
 			},
-			['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/missing'],
+			['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/test4', 'fake/missing'],
 			(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
 		);
 		assert.equal(result, {
 			sourceIdPathDataByInputPath: new Map([
 				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
 				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
-				['fake/test3', {id: 'fake/test3', isDirectory: true}],
+				['fake/test3', {id: 'fake/test3/test3.bar.ts', isDirectory: false}],
+				['fake/test4', {id: 'fake/test4', isDirectory: true}],
 			]),
 			unmappedInputPaths: ['fake/missing'],
 		});
