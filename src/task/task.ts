@@ -35,7 +35,7 @@ export const isTaskPath = (path: string): boolean => path.endsWith(TASK_FILE_SUF
 export const toTaskName = (basePath: string): string => {
 	const stripped = stripEnd(basePath, TASK_FILE_SUFFIX);
 	if (stripped === basePath) return basePath;
-	// Handle task directories, so `src/a/a.task` outputs `a` instead of `a/a`.
+	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.
 	const s = stripped.split('/');
 	return s[s.length - 1] === s[s.length - 2] ? s.slice(-1).join('/') : stripped;
 };
