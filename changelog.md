@@ -1,5 +1,10 @@
 # changelog
 
+## 0.51.1
+
+- fix value printing in args logging
+  ([#310](https://github.com/feltcoop/gro/pull/310))
+
 ## 0.51.0
 
 - **break**: rename the `gro publish` `branch` arg to `source` and add `target` branch arg
