@@ -1,7 +1,6 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import {serializeArgs, TaskError, type Task} from './task/task.js';
-import {SOURCE_DIRNAME} from './paths.js';
 import {type LintTaskArgs} from './lintTask';
 import {LintTaskArgsSchema} from './lintTask.schema.js';
 
@@ -13,8 +12,13 @@ export const task: Task<LintTaskArgs> = {
 			log.info('ESLint is not installed; skipping linting');
 			return;
 		}
-		const eslintArgs = args._.length ? args : {...args, _: [SOURCE_DIRNAME]};
-		const eslintResult = await spawn('npx', ['eslint', ...serializeArgs(eslintArgs)]);
+		const eslintResult = await spawn('npx', [
+			'eslint',
+			// TODO forwarding all args like this won't work,
+			// the `--` or `__` pattern needs to be used
+			// or both? because then invokers can choose to pass args forward
+			...serializeArgs({'max-warnings': 0, ...args}),
+		]);
 		if (!eslintResult.ok) {
 			throw new TaskError(`ESLint found some problems. ${printSpawnResult(eslintResult)}`);
 		}

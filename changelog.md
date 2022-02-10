@@ -1,5 +1,12 @@
 # changelog
 
+## 0.52.0
+
+- **break**: validate task `args` from schemas, disallowing additional properties
+  ([#313](https://github.com/feltcoop/gro/pull/313))
+- **break**: change `invokeTask` to no longer forward `args` automatically
+  ([#313](https://github.com/feltcoop/gro/pull/313))
+
 ## 0.51.3
 
 - fix task name printing for task directories

@@ -6,10 +6,6 @@ import {paths} from './paths.js';
 import {type FormatTaskArgs} from './formatTask.js';
 import {FormatTaskArgsSchema} from './formatTask.schema.js';
 
-export interface TaskArgs {
-	check?: boolean;
-}
-
 export const task: Task<FormatTaskArgs> = {
 	summary: 'format source files',
 	args: FormatTaskArgsSchema,

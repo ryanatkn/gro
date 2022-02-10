@@ -73,7 +73,7 @@ export const runTask = async (
 			args,
 			events,
 			log,
-			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedFs = fs) =>
+			invokeTask: (invokedTaskName, invokedArgs = {}, invokedEvents = events, invokedFs = fs) =>
 				invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents),
 		});
 	} catch (err) {
