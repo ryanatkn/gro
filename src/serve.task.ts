@@ -3,8 +3,8 @@ import {createGroServer, DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from './serve
 import {Filer} from './build/Filer.js';
 import {loadHttpsCredentials} from './server/https.js';
 import {type ServedDirPartial} from './build/servedDir.js';
-import {type ServeTaskArgs} from './serve.js';
-import {ServeTaskArgsSchema} from './serve.schema.js';
+import {type ServeTaskArgs} from './serveTask.js';
+import {ServeTaskArgsSchema} from './serveTask.schema.js';
 
 export const task: Task<ServeTaskArgs> = {
 	summary: 'start static file server',

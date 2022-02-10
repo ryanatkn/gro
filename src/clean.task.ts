@@ -2,8 +2,8 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 
 import {type Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
-import {type CleanTaskArgs} from './clean.js';
-import {CleanTaskArgsSchema} from './clean.schema.js';
+import {type CleanTaskArgs} from './cleanTask.js';
+import {CleanTaskArgsSchema} from './cleanTask.schema.js';
 
 // TODO customize
 const ORIGIN = 'origin';

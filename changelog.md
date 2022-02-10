@@ -1,5 +1,10 @@
 # changelog
 
+## 0.51.2
+
+- support task dirs
+  ([#311](https://github.com/feltcoop/gro/pull/311))
+
 ## 0.51.1
 
 - fix value printing in args logging

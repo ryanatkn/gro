@@ -1,7 +1,7 @@
 import {TaskError, type Task} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
-import {type CheckTaskArgs} from './check.js';
-import {CheckTaskArgsSchema} from './check.schema.js';
+import {type CheckTaskArgs} from './checkTask.js';
+import {CheckTaskArgsSchema} from './checkTask.schema.js';
 
 export const task: Task<CheckTaskArgs> = {
 	summary: 'check that everything is ready to commit',

@@ -8,8 +8,8 @@ import {toBuildOutPath, toRootPath} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
-import {type TestTaskArgs} from './test.js';
-import {TestTaskArgsSchema} from './test.schema.js';
+import {type TestTaskArgs} from './testTask.js';
+import {TestTaskArgsSchema} from './testTask.schema.js';
 
 // Runs the project's tests: `gro test [...args]`
 // Args are passed through directly to `uvu`'s CLI:

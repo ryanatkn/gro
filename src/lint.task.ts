@@ -2,8 +2,8 @@ import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import {serializeArgs, TaskError, type Task} from './task/task.js';
 import {SOURCE_DIRNAME} from './paths.js';
-import {type LintTaskArgs} from './lint';
-import {LintTaskArgsSchema} from './lint.schema.js';
+import {type LintTaskArgs} from './lintTask';
+import {LintTaskArgsSchema} from './lintTask.schema.js';
 
 export const task: Task<LintTaskArgs> = {
 	summary: 'run eslint on the source files',

@@ -32,9 +32,13 @@ export const TASK_FILE_SUFFIX = '.task.ts';
 
 export const isTaskPath = (path: string): boolean => path.endsWith(TASK_FILE_SUFFIX);
 
-export const toTaskPath = (taskName: string): string => taskName + TASK_FILE_SUFFIX;
-
-export const toTaskName = (basePath: string): string => stripEnd(basePath, TASK_FILE_SUFFIX);
+export const toTaskName = (basePath: string): string => {
+	const stripped = stripEnd(basePath, TASK_FILE_SUFFIX);
+	if (stripped === basePath) return basePath;
+	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.
+	const s = stripped.split('/');
+	return s[s.length - 1] === s[s.length - 2] ? s.slice(-1).join('/') : stripped;
+};
 
 // This is used by tasks to signal a known failure.
 // It's useful for cleaning up logging because
@@ -68,15 +72,16 @@ export const serializeArgs = (args: Args): string[] => {
 	return _ ? [...result, ..._] : result;
 };
 
-export type ArgsProperties = Record<string, ArgSchema> & {
-	_?: {type: 'array'; items: {type: 'string'}; default: any[]; description: string};
-};
-
+// TODO allow schema composition with things like `allOf` instead of requiring properties
 // TODO should this extend `VocabSchema` so we get `$id`?
 export interface ArgsSchema extends JSONSchema {
 	type: 'object';
 	properties: ArgsProperties;
 }
+
+export type ArgsProperties = Record<string, ArgSchema> & {
+	_?: {type: 'array'; items: {type: 'string'}; default: any[]; description: string};
+};
 
 export interface ArgSchema extends JSONSchema {
 	type: 'boolean' | 'string' | 'number' | 'array';
