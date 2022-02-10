@@ -102,7 +102,8 @@ gro # prints available tasks - defers to the project's locally installed version
 
 ```bash
 gro # print all available tasks with the pattern `*.task.ts`
-gro --help # print more info about each available task
+gro help # same as `gro`
+gro --help # same as `gro`
 gro some/dir # list all tasks inside `src/some/dir`
 gro some/file # run `src/some/file.task.ts`
 gro some/file.task.ts # same as above
