@@ -8,7 +8,7 @@ What is a `Task`? See [`tasks.md`](./task.md).
 
 - [build](../build.task.ts) - build the project
 - [cert](../cert.task.ts) - creates a self-signed cert for https with openssl
-- [check](../check/check.task.ts) - check that everything is ready to commit
+- [check](../check.task.ts) - check that everything is ready to commit
 - [clean](../clean.task.ts) - remove temporary dev and build files, and optionally prune git branches
 - [deploy](../deploy.task.ts) - deploy to static hosting
 - [dev](../dev.task.ts) - start dev server
