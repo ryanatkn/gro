@@ -1,5 +1,5 @@
 import {type EventEmitter} from 'events';
-import {cyan, red} from 'kleur/colors';
+import {cyan, red, yellow} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 
 import {type TaskModuleMeta} from './taskModule.js';
@@ -48,9 +48,19 @@ export const runTask = async (
 			const count = validate.errors.length;
 			log.error(
 				red(`Args validation failed:`),
-				...validate.errors.flatMap((e, i) => [red(`\nerror${count > 1 ? ' ' + i : ''}:`), e]),
+				...validate.errors.flatMap((e, i) => {
+					const {missingProperty} = e.params;
+					return [
+						missingProperty
+							? `${red(`\nProperty '${missingProperty}' is missing:`)} ${yellow(
+									task.args!.properties[missingProperty].description + ':\n',
+							  )}`
+							: red(`\nerror${count > 1 ? ' ' + i : ''}:`),
+						e,
+					];
+				}),
 			);
-			throw new TaskError(`Task args failed validation.`);
+			throw new TaskError(`Task args failed validation`);
 		}
 	}
 

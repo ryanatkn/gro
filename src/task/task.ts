@@ -90,6 +90,6 @@ export type ArgsProperties = Record<string, ArgSchema> & {
 
 export interface ArgSchema extends JSONSchema {
 	type: 'boolean' | 'string' | 'number' | 'array';
-	// TODO how to use this?
 	default: boolean | string | number | any[] | undefined;
+	description: string;
 }

@@ -29,6 +29,6 @@ export const PublishTaskArgsSchema: ArgsSchema = {
 				'if true, the package is published privately instead of the public default, using `npm publish --access restricted`',
 		},
 	},
-	required: ['_'],
+	required: ['_', 'branch', 'dry', 'restricted'],
 	additionalProperties: false,
 };

@@ -8,7 +8,6 @@ import {type Flavored, type Result} from '@feltcoop/felt/util/types.js';
 import {rainbow} from './utils/colors.js';
 import {type Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
-import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 import {type Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
@@ -28,7 +27,7 @@ export const task: Task<PublishTaskArgs> = {
 	production: true,
 	args: PublishTaskArgsSchema,
 	run: async ({fs, args, log, dev}): Promise<void> => {
-		const {branch = GIT_DEPLOY_SOURCE_BRANCH, dry = false, restricted = false} = args;
+		const {branch, dry, restricted} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
 		}

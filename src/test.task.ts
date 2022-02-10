@@ -15,6 +15,7 @@ import {TestTaskArgsSchema} from './testTask.schema.js';
 // Args are passed through directly to `uvu`'s CLI:
 // https://github.com/lukeed/uvu/blob/master/docs/cli.md
 
+// TODO ideally this is on the schema, but it's tricky because we use `process.argv` below
 const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
 
 export const task: Task<TestTaskArgs> = {
