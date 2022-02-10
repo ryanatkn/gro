@@ -231,8 +231,7 @@ providing some benefits:
 
 - print helpful text on the CLI with `gro` and `gro taskname --help`
 - type safety with an automatically generated type
-- **TODO:** args validation using the schema
-- **TODO:** default args values using a schema-generated parser
+- args validation using the schema with initialized defaults
 
 ```ts
 // src/dosomething.task.ts
