@@ -20,6 +20,5 @@ export const ServeTaskArgsSchema: ArgsSchema = {
 		cert: {type: 'string', default: undefined, description: 'https certificate file'},
 		certkey: {type: 'string', default: undefined, description: 'https certificate key file'},
 	},
-	required: ['_'],
 	additionalProperties: false,
 };

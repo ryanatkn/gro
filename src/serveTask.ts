@@ -4,7 +4,7 @@ export interface ServeTaskArgs {
 	/**
 	 * paths to serve
 	 */
-	_: string[];
+	_?: string[];
 	/**
 	 * paths to serve
 	 */

@@ -11,6 +11,5 @@ export const GenTaskArgsSchema: ArgsSchema = {
 			description: 'exit with a nonzero code if any files need to be generated',
 		},
 	},
-	required: ['_'],
 	additionalProperties: false,
 };

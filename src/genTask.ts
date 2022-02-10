@@ -4,7 +4,7 @@ export interface GenTaskArgs {
 	/**
 	 * paths to generate
 	 */
-	_: string[];
+	_?: string[];
 	/**
 	 * exit with a nonzero code if any files need to be generated
 	 */

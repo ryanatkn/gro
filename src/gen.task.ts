@@ -21,7 +21,7 @@ export const task: Task<GenTaskArgs> = {
 	summary: 'run code generation scripts',
 	args: GenTaskArgsSchema,
 	run: async ({fs, log, args, dev}): Promise<void> => {
-		const rawInputPaths = args._;
+		const rawInputPaths = args._ || [];
 		const check = !!args.check;
 
 		const totalTiming = createStopwatch();

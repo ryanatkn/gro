@@ -8,7 +8,7 @@ export const PublishTaskArgsSchema: ArgsSchema = {
 		_: {
 			type: 'array',
 			items: {type: 'string'},
-			default: [],
+			default: undefined,
 			description: 'npm version increment, like major|minor|patch',
 		},
 		branch: {
