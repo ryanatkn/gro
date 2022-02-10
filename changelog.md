@@ -1,5 +1,10 @@
 # changelog
 
+## 0.51.3
+
+- fix task name printing for task directories
+  ([#312](https://github.com/feltcoop/gro/pull/312))
+
 ## 0.51.2
 
 - support task dirs
