@@ -223,7 +223,7 @@ export const task: Task<{something: boolean}> = {
 };
 ```
 
-The `args` property of each `Task` (not the task context param described above!)
+The **`args` property** of each `Task` (not the task context **`args` param** described above!)
 is an optional schema.
 When combined with [Gro's schema generation](./gen.md#generate-typescript-types-from-schemas),
 we can define a schema for the args and use it along with its generated type,

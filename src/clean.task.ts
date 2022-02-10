@@ -12,20 +12,13 @@ export const task: Task<CleanTaskArgs> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	args: CleanTaskArgsSchema,
 	run: async ({fs, log, args}): Promise<void> => {
+		const {build, dist, sveltekit, nodemodules, git} = args;
+
 		// TODO document with mdsvex
-		await cleanFs(
-			fs,
-			{
-				build: !args.build,
-				dist: !args.dist,
-				sveltekit: !!args.sveltekit,
-				nodemodules: !!args.nodemodules,
-			},
-			log,
-		);
+		await cleanFs(fs, {build, dist, sveltekit, nodemodules}, log);
 
 		// lop off unwanted git branches
-		if (args.git) {
+		if (git) {
 			await spawn('git', ['remote', 'prune', ORIGIN]);
 		}
 	},

@@ -33,5 +33,6 @@ export const CleanTaskArgsSchema: ArgsSchema = {
 				'run "git remote prune" to delete local branches referencing nonexistent remote branches',
 		},
 	},
+	required: ['build', 'dist', 'sveltekit', 'nodemodules', 'git'],
 	additionalProperties: false,
 };
