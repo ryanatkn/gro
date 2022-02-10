@@ -8,7 +8,7 @@ export const task: Task<TypecheckTaskArgs> = {
 	summary: 'typecheck the project without emitting any files',
 	args: TypecheckTaskArgsSchema,
 	run: async ({fs, args}): Promise<void> => {
-		const {tsconfig = 'tsconfig.json'} = args;
+		const {tsconfig} = args;
 
 		const tscTypecheckResult = await spawn('npx', ['tsc', '--noEmit']);
 		if (!tscTypecheckResult.ok) {

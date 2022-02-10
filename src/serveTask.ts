@@ -4,19 +4,15 @@ export interface ServeTaskArgs {
 	/**
 	 * paths to serve
 	 */
-	_?: string[];
-	/**
-	 * paths to serve
-	 */
-	serve?: string[];
+	_: string[];
 	/**
 	 * network address host
 	 */
-	host?: string;
+	host: string;
 	/**
 	 * network address port
 	 */
-	port?: number;
+	port: number;
 	/**
 	 * ignore https credentials
 	 */

@@ -6,5 +6,6 @@ export const TypecheckTaskArgsSchema: ArgsSchema = {
 	properties: {
 		tsconfig: {type: 'string', default: 'tsconfig.json', description: 'path to tsconfig.json'},
 	},
+	required: ['tsconfig'],
 	additionalProperties: false,
 };

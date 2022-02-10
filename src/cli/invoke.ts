@@ -25,7 +25,10 @@ const main = async () => {
 		});
 	}
 
-	return invokeTask(nodeFs, args._.shift() || '', args);
+	const taskName = args._.shift() || '';
+	if (args._.length === 0) args._ = undefined as any; // enable schema defaults
+
+	return invokeTask(nodeFs, taskName, args);
 };
 
 // see below for why we don't catch here

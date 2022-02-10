@@ -80,7 +80,12 @@ export interface ArgsSchema extends JSONSchema {
 }
 
 export type ArgsProperties = Record<string, ArgSchema> & {
-	_?: {type: 'array'; items: {type: 'string'}; default: any[] | undefined; description: string};
+	_?: {
+		type: 'array';
+		items: {type: 'string'};
+		default: any[] | undefined;
+		description: string;
+	} & JSONSchema;
 };
 
 export interface ArgSchema extends JSONSchema {
