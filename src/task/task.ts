@@ -66,7 +66,9 @@ export const serializeArgs = (args: Args): string[] => {
 			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v + '')) : [];
 		} else {
 			result.push(`${key.length === 1 ? '-' : '--'}${key}`);
-			if (value !== undefined) result.push((value as any) + '');
+			if (value !== undefined && typeof value !== 'boolean') {
+				result.push((value as any) + '');
+			}
 		}
 	}
 	return _ ? [...result, ..._] : result;
