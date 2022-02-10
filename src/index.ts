@@ -1,4 +1,4 @@
-export type {Task, TaskContext} from './task/task.js';
+export type {Task, TaskContext, Args, ArgsSchema, ArgSchema, ArgsProperties} from './task/task.js';
 export type {Gen, GenContext} from './gen/gen.js';
 
 // export all of the main config helpers and types
