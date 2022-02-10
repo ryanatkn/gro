@@ -15,8 +15,6 @@ When the CLI is invoked it passes the first CLI arg as `taskName` to `invokeTask
 
 */
 const main = async () => {
-	const args = mri(process.argv.slice(2));
-
 	// install sourcemaps for Gro development
 	if (process.env.NODE_ENV !== 'production') {
 		const sourcemapSupport = await import('source-map-support'); // is a peer dependency
@@ -25,8 +23,11 @@ const main = async () => {
 		});
 	}
 
+	const {argv} = process;
+	const forwardedIndex = argv.indexOf('--');
+	const args = mri(forwardedIndex === -1 ? argv.slice(2) : argv.slice(2, forwardedIndex));
 	const taskName = args._.shift() || '';
-	if (args._.length === 0) args._ = undefined as any; // enable schema defaults
+	if (args._.length === 0) delete (args as any)._; // enable schema defaults
 
 	return invokeTask(nodeFs, taskName, args);
 };
