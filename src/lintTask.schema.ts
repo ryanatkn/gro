@@ -5,7 +5,6 @@ export const LintTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/LintTaskArgs.json',
 	type: 'object',
 	properties: {
-		// TODO defaulting here needs special casing because MRI gives an empty array
 		_: {
 			type: 'array',
 			items: {type: 'string'},
@@ -13,6 +12,10 @@ export const LintTaskArgsSchema: ArgsSchema = {
 			description: 'paths to serve',
 		},
 	},
+	// TODO
+	// patternProperties: {
+
+	// }
 	required: ['_'],
 	// TODO would be cool if we could add eslint CLI options here
 	// additionalProperties: false,
