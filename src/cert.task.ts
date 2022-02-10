@@ -8,7 +8,7 @@ export const task: Task<CertTaskArgs> = {
 	summary: 'creates a self-signed cert for https with openssl',
 	args: CertTaskArgsSchema,
 	run: async ({fs, args}) => {
-		const host = args.host || 'localhost';
+		const {host} = args;
 		const certFile = `${host}-cert.pem`;
 		const keyFile = `${host}-privkey.pem`;
 		if (await fs.exists(certFile)) throw Error(`File ${certFile} already exists.`);

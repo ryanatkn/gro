@@ -11,5 +11,6 @@ export const BuildTaskArgsSchema: ArgsSchema = {
 			description: 'opt out of cleaning before building; warning! this may break your build!',
 		},
 	},
+	required: ['clean'],
 	additionalProperties: false,
 };

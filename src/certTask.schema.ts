@@ -10,5 +10,6 @@ export const CertTaskArgsSchema: ArgsSchema = {
 			description: "the certificate host aka the common name, OpenSSL's CN arg",
 		},
 	},
+	required: ['host'],
 	additionalProperties: false,
 };

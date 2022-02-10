@@ -19,11 +19,15 @@ export const task: Task<BuildTaskArgs, TaskEvents> = {
 	production: true,
 	args: BuildTaskArgsSchema,
 	run: async (ctx): Promise<void> => {
-		const {fs, dev, log, events, args} = ctx;
+		const {
+			fs,
+			dev,
+			log,
+			events,
+			args: {clean},
+		} = ctx;
 
 		const timings = new Timings(); // TODO belongs in ctx
-
-		const {clean = true} = args;
 
 		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
 		// This is used by `gro publish` and `gro deploy` because they call `cleanFs` themselves.
