@@ -14,7 +14,8 @@ export const task: Task<FormatTaskArgs> = {
 	summary: 'format source files',
 	args: FormatTaskArgsSchema,
 	run: async ({args}) => {
-		const {check = false} = args;
+		const {check} = args;
+		// TODO forward prettier args
 		const formatResult = await formatDirectory(paths.source, check);
 		if (!formatResult.ok) {
 			throw new TaskError(

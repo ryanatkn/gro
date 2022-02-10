@@ -6,7 +6,6 @@ import {magenta, green, red} from 'kleur/colors';
 import {rainbow} from './utils/colors.js';
 import {type Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 import {cleanFs} from './fs/clean.js';
 import {type DeployTaskArgs} from './deployTask.js';
 import {DeployTaskArgsSchema} from './deployTask.schema.js';
@@ -35,14 +34,7 @@ export const task: Task<DeployTaskArgs> = {
 	production: true,
 	args: DeployTaskArgsSchema,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {
-			dirname,
-			source = GIT_DEPLOY_SOURCE_BRANCH,
-			target = GIT_DEPLOY_TARGET_BRANCH,
-			dry = false,
-			clean: cleanAndExit = false,
-			force = false,
-		} = args;
+		const {dirname, source, target, dry, clean: cleanAndExit, force} = args;
 
 		if (!force && EXCLUDED_BRANCHES.includes(target)) {
 			throw Error(`For safety, you cannot deploy to branch '${target}'. Pass --force to override.`);

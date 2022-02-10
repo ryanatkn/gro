@@ -37,5 +37,6 @@ export const DeployTaskArgsSchema: ArgsSchema = {
 			description: 'caution!! enable deploying and force pushing to branches like main and master',
 		},
 	},
+	required: ['source', 'target', 'dry', 'clean', 'force'],
 	additionalProperties: false,
 };

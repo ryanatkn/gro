@@ -28,11 +28,6 @@ export const task: Task<DevTaskArgs, TaskEvents> = {
 	args: DevTaskArgsSchema,
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
-
-		// Mutate `args` with the resolved `watch` value so plugins can use it.
-		if (args.watch === undefined) {
-			args.watch = true;
-		}
 		const {watch} = args;
 
 		const timings = new Timings();

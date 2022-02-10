@@ -15,5 +15,6 @@ export const DevTaskArgsSchema: ArgsSchema = {
 		cert: {type: 'string', default: undefined, description: 'https certificate file'},
 		certkey: {type: 'string', default: undefined, description: 'https certificate key file'},
 	},
+	required: ['watch'],
 	additionalProperties: false,
 };

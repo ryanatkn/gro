@@ -10,5 +10,6 @@ export const FormatTaskArgsSchema: ArgsSchema = {
 			description: 'exit with a nonzero code if any files are unformatted',
 		},
 	},
+	required: ['check'],
 	additionalProperties: false,
 };
