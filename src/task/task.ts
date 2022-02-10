@@ -53,7 +53,7 @@ export class TaskError extends Error {}
 // It's a beautiful mutable spaghetti mess. cant get enough
 // The raw CLI ares are handled by `mri` - https://github.com/lukeed/mri
 export interface Args {
-	_: string[];
+	_?: string[];
 	help?: boolean;
 	[key: string]: unknown; // can assign anything to `args` in tasks
 }
