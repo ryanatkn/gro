@@ -1,6 +1,6 @@
 # changelog
 
-## UNRELEASED
+## 0.51.2
 
 - support task dirs
   ([#311](https://github.com/feltcoop/gro/pull/311))
