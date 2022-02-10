@@ -13,8 +13,8 @@ import {type Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
-import {type PublishTaskArgs} from './publish.js';
-import {PublishTaskArgsSchema} from './publish.schema.js';
+import {type PublishTaskArgs} from './publishTask.js';
+import {PublishTaskArgsSchema} from './publishTask.schema.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`

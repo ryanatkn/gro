@@ -1,8 +1,8 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import {TaskError, type Task} from './task/task.js';
-import {type TypecheckTaskArgs} from './typecheck.js';
-import {TypecheckTaskArgsSchema} from './typecheck.schema.js';
+import {type TypecheckTaskArgs} from './typecheckTask.js';
+import {TypecheckTaskArgsSchema} from './typecheckTask.schema.js';
 
 export const task: Task<TypecheckTaskArgs> = {
 	summary: 'typecheck the project without emitting any files',

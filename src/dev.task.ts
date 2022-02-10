@@ -9,8 +9,8 @@ import {loadConfig, type GroConfig} from './config/config.js';
 import {type ServedDirPartial} from './build/servedDir.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
 import {type DevServerPluginContext} from './plugin/groPluginDevServer.js';
-import {type DevTaskArgs} from './dev.js';
-import {DevTaskArgsSchema} from './dev.schema.js';
+import {type DevTaskArgs} from './devTask.js';
+import {DevTaskArgsSchema} from './devTask.schema.js';
 
 export interface DevTaskContext
 	extends DevServerPluginContext,

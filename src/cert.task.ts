@@ -1,8 +1,8 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
 
 import {type Task} from './task/task.js';
-import {type CertTaskArgs} from './cert.js';
-import {CertTaskArgsSchema} from './cert.schema.js';
+import {type CertTaskArgs} from './certTask.js';
+import {CertTaskArgsSchema} from './certTask.schema.js';
 
 export const task: Task<CertTaskArgs> = {
 	summary: 'creates a self-signed cert for https with openssl',

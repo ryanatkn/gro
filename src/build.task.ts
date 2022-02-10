@@ -7,8 +7,8 @@ import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
 import {Plugins} from './plugin/plugin.js';
 import {cleanFs} from './fs/clean.js';
-import {type BuildTaskArgs} from './build.js';
-import {BuildTaskArgsSchema} from './build.schema.js';
+import {type BuildTaskArgs} from './buildTask.js';
+import {BuildTaskArgsSchema} from './buildTask.schema.js';
 
 export interface TaskEvents {
 	'build.createConfig': (config: GroConfig) => void;

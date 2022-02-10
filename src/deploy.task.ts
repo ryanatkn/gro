@@ -8,8 +8,8 @@ import {type Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 import {cleanFs} from './fs/clean.js';
-import {type DeployTaskArgs} from './deploy.js';
-import {DeployTaskArgsSchema} from './deploy.schema.js';
+import {type DeployTaskArgs} from './deployTask.js';
+import {DeployTaskArgsSchema} from './deployTask.schema.js';
 
 // docs at ./docs/deploy.md
 

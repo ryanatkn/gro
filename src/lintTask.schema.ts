@@ -1,4 +1,4 @@
-import type {ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './task/task.js';
 import {SOURCE_DIRNAME} from './paths.js';
 
 export const LintTaskArgsSchema: ArgsSchema = {
