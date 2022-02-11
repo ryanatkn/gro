@@ -163,4 +163,4 @@ export const addArg = (
 };
 
 export const printCommandArgs = (serializedArgs: string[]): string =>
-	magenta('running command:') + serializedArgs.join(' ');
+	magenta('running command: ') + serializedArgs.join(' ');
