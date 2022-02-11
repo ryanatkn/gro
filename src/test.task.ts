@@ -10,7 +10,7 @@ import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
 import {type TestTaskArgs} from './testTask.js';
 import {TestTaskArgsSchema} from './testTask.schema.js';
-import {serializeArgs, toForwardedArgs} from './utils/args.js';
+import {addArg, serializeArgs, toForwardedArgs} from './utils/args.js';
 
 // Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
 // Args following any `-- uvu` are passed through to `uvu`'s CLI:
@@ -49,10 +49,8 @@ export const task: Task<TestTaskArgs> = {
 		if (!forwardedArgs._) {
 			forwardedArgs._ = [toRootPath(testsBuildDir), ...testFilePatterns];
 		}
-		// TODO BLOCK handle arrays
-		if (!forwardedArgs.i && !forwardedArgs.ignore) {
-			forwardedArgs.i = '.map$'; // ignore sourcemap files so patterns don't need `.js$`
-		}
+		// ignore sourcemap files so patterns don't need `.js$`
+		addArg(forwardedArgs, '.map$', 'i', 'ignore');
 		const serializedArgs = ['uvu', ...serializeArgs(forwardedArgs)];
 		log.info(magenta('running command:'), serializedArgs.join(' '));
 		const testRunResult = await spawn('npx', serializedArgs);

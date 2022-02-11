@@ -128,3 +128,20 @@ export const toForwardedArgsByCommand = (reset = false): Record<string, Args> =>
 	}
 	return _forwardedArgsByCommand;
 };
+
+/**
+ * Mutates `args` to add `value` on either key `a` or `b`. (to handle shorthands)
+ * @param args
+ */
+export const addArg = (args: Args, value: string | number | boolean, a: string, b = a): void => {
+	if (args[a] === undefined && args[b] === undefined) {
+		args[a] = value;
+	} else {
+		const arg = args[a] !== undefined ? a : b;
+		if (Array.isArray(args[arg])) {
+			(args as any)[arg].push(value);
+		} else {
+			args[arg] = [(args as any)[arg], value];
+		}
+	}
+};

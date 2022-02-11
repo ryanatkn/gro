@@ -14,6 +14,7 @@ import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
 import {type PublishTaskArgs} from './publishTask.js';
 import {PublishTaskArgsSchema} from './publishTask.schema.js';
+import {toRawRestArgs} from './utils/args.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -51,8 +52,7 @@ export const task: Task<PublishTaskArgs> = {
 		}
 
 		// Check in dev mode before proceeding.
-		// TODO BLOCK
-		const checkResult = await spawn('npx', ['gro', 'check'], {
+		const checkResult = await spawn('npx', ['gro', 'check', ...toRawRestArgs()], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
 		if (!checkResult.ok) throw Error('gro check failed');
@@ -66,8 +66,7 @@ export const task: Task<PublishTaskArgs> = {
 		}
 
 		// Build to create the final artifacts:
-		// TODO BLOCK
-		const buildResult = await spawn('npx', ['gro', 'build']);
+		const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
 		if (!buildResult.ok) throw Error('gro build failed');
 
 		const config = await loadConfig(fs, dev);

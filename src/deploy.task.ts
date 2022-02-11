@@ -9,6 +9,7 @@ import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from '.
 import {cleanFs} from './fs/clean.js';
 import {type DeployTaskArgs} from './deployTask.js';
 import {DeployTaskArgsSchema} from './deployTask.schema.js';
+import {toRawRestArgs} from './utils/args.js';
 
 // docs at ./docs/deploy.md
 
@@ -94,8 +95,7 @@ export const task: Task<DeployTaskArgs> = {
 
 		try {
 			// Run the build.
-			// TODO BLOCK
-			const buildResult = await spawn('npx', ['gro', 'build']);
+			const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
 			if (!buildResult.ok) throw Error('gro build failed');
 
 			// After the build is ready, set the deployed directory, inferring as needed.

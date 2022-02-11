@@ -15,11 +15,10 @@ export const task: Task<LintTaskArgs> = {
 			return;
 		}
 		const {_} = args;
-		const forwardedEslintArgs = toForwardedArgs('eslint');
-		const eslintArgs = {_, 'max-warnings': 0, ...forwardedEslintArgs};
-		const serializedEslintArgs = ['eslint', ...serializeArgs(eslintArgs)];
-		log.info(magenta('running command:'), serializedEslintArgs.join(' '));
-		const eslintResult = await spawn('npx', serializedEslintArgs);
+		const forwardedArgs = {_, 'max-warnings': 0, ...toForwardedArgs('eslint')};
+		const serializedArgs = ['eslint', ...serializeArgs(forwardedArgs)];
+		log.info(magenta('running command:'), serializedArgs.join(' '));
+		const eslintResult = await spawn('npx', serializedArgs);
 		if (!eslintResult.ok) {
 			throw new TaskError(`ESLint found some problems. ${printSpawnResult(eslintResult)}`);
 		}
