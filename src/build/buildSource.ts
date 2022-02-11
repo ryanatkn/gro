@@ -30,7 +30,7 @@ export const buildSource = async (
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
 		const timingToTypes = timings.start('types');
-		await generateTypes(paths.source, toTypesBuildDir(), config.sourcemap, config.typemap);
+		await generateTypes(paths.source, toTypesBuildDir(), config.sourcemap, config.typemap, log);
 		timingToTypes();
 	}
 
