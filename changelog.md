@@ -10,6 +10,8 @@
 - **break**: add generic agnostic command args forwarding
   [using the `--` pattern](src/docs/task.md#task-args-forwarding)
   ([#313](https://github.com/feltcoop/gro/pull/313))
+- **break**: remove `-v` alias for `gro --version`
+  ([#313](https://github.com/feltcoop/gro/pull/313))
 
 ## 0.51.3
 

@@ -55,7 +55,7 @@ export const invokeTask = async (
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 
 	// Check if the caller just wants to see the version.
-	if (!taskName && (args.version || args.v)) {
+	if (!taskName && args.version) {
 		const groPackageJson = await loadGroPackageJson(fs);
 		log.info(`${gray('v')}${cyan(groPackageJson.version as string)}`);
 		return;

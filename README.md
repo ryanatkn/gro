@@ -147,7 +147,7 @@ gro serve some/dir and/another/dir # serve some directories
 ```
 
 ```bash
-gro -v # aka `--version`: print the Gro version
+gro --version # print the Gro version
 ```
 
 ```bash
