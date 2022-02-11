@@ -294,11 +294,14 @@ Some builtin Gro tasks call external commands like
 [`uvu`](https://github.com/lukeed/uvu),
 [`tsc`](https://github.com/microsoft/typescript),
 and [`prettier`](https://github.com/prettier/prettier).
-Gro supports generic agnostic args forwarding to these tasks via the `--` pattern.
+Gro supports generic agnostic args forwarding to these tasks via the `--` pattern:
+for example, to forward args to `svelte-kit` and `uvu`, no matter which task invokes them,
+use `gro taskname --taskname-arg -- uvu --arg1 neat --arg2 22 -- svelte-kit --arg3`.
+
 Any number of sections separated by `--` may be defined, and the first arg
 that appears after each `--` is assumed to be the CLI command.
-For example, to forward args to `svelte-kit` and `uvu`, no matter which task invokes them,
-use something like `gro taskname --taskname-arg -- uvu --arg1 neat --arg2 22 -- svelte-kit --arg3`.
+If `gro taskname` or its invoked tasks don't call `uvu` or `svelte-kit`,
+the `--` args will be ignored.
 
 ### task events
 
