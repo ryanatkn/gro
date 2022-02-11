@@ -5,7 +5,7 @@ import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
-import {serializeArgs, type Args} from '../utils/args.js';
+import {serializeArgs, toRawRestArgs, type Args} from '../utils/args.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath} from './task.js';
@@ -120,10 +120,11 @@ export const invokeTask = async (
 				const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
 				// If we're in dev mode but the task is only for production, run it in a new process.
 				if (dev && task.mod.task.production) {
-					// TODO BLOCK
-					const result = await spawn('npx', ['gro', taskName, ...serializeArgs(args)], {
-						env: {...process.env, NODE_ENV: 'production'},
-					});
+					const result = await spawn(
+						'npx',
+						['gro', taskName, ...serializeArgs(args), ...toRawRestArgs()],
+						{env: {...process.env, NODE_ENV: 'production'}},
+					);
 					timingToRunTask();
 					if (result.ok) {
 						log.info(`✓ ${cyan(task.name)}`);

@@ -67,6 +67,15 @@ export const toTaskArgs = (): {taskName: string; args: Args} => {
 };
 
 /**
+ * Gets the array of raw string args starting with the first `--`, if any.
+ */
+export const toRawRestArgs = (): string[] => {
+	const {argv} = process;
+	const forwardedIndex = argv.indexOf('--');
+	return forwardedIndex === -1 ? [] : argv.slice(forwardedIndex);
+};
+
+/**
  * Parses `process.argv` for the specified `command`, so given
  * `gro taskname arg1 --arg2 -- eslint eslintarg1 --eslintarg2 -- tsc --tscarg1 --tscarg2`
  * the `command` `'eslint'` returns `eslintarg1 --eslintarg2`
@@ -82,14 +91,14 @@ export const toForwardedArgsByCommand = (reset = false): Record<string, Args> =>
 	// Parse each segment of `argv` separated by `--`.
 	const argvs: string[][] = [];
 	let arr: string[] | undefined;
-	for (const a of process.argv) {
-		if (a === '--') {
+	for (const arg of toRawRestArgs()) {
+		if (arg === '--') {
 			if (arr?.length) argvs.push(arr);
 			arr = [];
 		} else if (!arr) {
 			continue;
 		} else {
-			arr.push(a);
+			arr.push(arg);
 		}
 	}
 	if (arr?.length) argvs.push(arr);
