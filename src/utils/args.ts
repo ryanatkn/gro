@@ -130,15 +130,30 @@ export const toForwardedArgsByCommand = (reset = false): Record<string, Args> =>
 };
 
 /**
- * Mutates `args` to add `value` on either key `a` or `b`. (to handle shorthands)
+ * Mutates `args` to add `value` on either key `a` or `b`. (to handle shorthand/longhand form)
+ * If `value` is a boolean, it always overwrites the existing value.
+ * If `value` is a string or number, it'll be added to an array.
+ * To treat `value` as a primitive in all cases, pass `array` `false`.
  * @param args
+ * @param value
+ * @param a
+ * @param b
+ * @param array
  */
-export const addArg = (args: Args, value: string | number | boolean, a: string, b = a): void => {
+export const addArg = (
+	args: Args,
+	value: string | number | boolean,
+	a: string,
+	b = a,
+	array = typeof value !== 'boolean',
+): void => {
 	if (args[a] === undefined && args[b] === undefined) {
 		args[a] = value;
 	} else {
 		const arg = args[a] !== undefined ? a : b;
-		if (Array.isArray(args[arg])) {
+		if (!array) {
+			args[arg] = value;
+		} else if (Array.isArray(args[arg])) {
 			(args as any)[arg].push(value);
 		} else {
 			args[arg] = [(args as any)[arg], value];
