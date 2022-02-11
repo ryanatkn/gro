@@ -11,20 +11,30 @@ import mri from 'mri';
 export interface Args {
 	_?: string[];
 	help?: boolean;
-	[key: string]: string | number | boolean | undefined | string[];
+	[key: string]: ArgValue;
 }
+
+export type ArgValue = string | number | boolean | undefined | Array<string | number | boolean>;
 
 export const serializeArgs = (args: Args): string[] => {
 	const result: string[] = [];
+	const addValue = (name: string, value: string | number | boolean | undefined): void => {
+		if (value === undefined) return;
+		result.push(name);
+		if (typeof value !== 'boolean') {
+			result.push((value as any) + '');
+		}
+	};
 	let _: string[] | null = null;
 	for (const [key, value] of Object.entries(args)) {
 		if (key === '_') {
 			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v + '')) : [];
 		} else {
-			// TODO BLOCK handle arrays
-			result.push(`${key.length === 1 ? '-' : '--'}${key}`);
-			if (value !== undefined && typeof value !== 'boolean') {
-				result.push((value as any) + '');
+			const name = `${key.length === 1 ? '-' : '--'}${key}`;
+			if (Array.isArray(value)) {
+				for (const v of value) addValue(name, v);
+			} else {
+				addValue(name, value);
 			}
 		}
 	}
@@ -49,7 +59,7 @@ export type ArgsProperties = Record<string, ArgSchema> & {
 
 export interface ArgSchema extends JSONSchema {
 	type: 'boolean' | 'string' | 'number' | 'array';
-	default: boolean | string | number | any[] | undefined;
+	default: ArgValue;
 	description: string;
 }
 
