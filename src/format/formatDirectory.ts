@@ -1,4 +1,5 @@
 import {spawn, type SpawnResult} from '@feltcoop/felt/util/process.js';
+import {type Logger} from '@feltcoop/felt/util/log.js';
 
 import {
 	GITHUB_DIRNAME,
@@ -7,7 +8,7 @@ import {
 	SVELTEKIT_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
 } from '../paths.js';
-import {serializeArgs, toForwardedArgs} from '../utils/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
 const DEFAULT_ROOT_PATHS = `${[
@@ -22,6 +23,7 @@ const DEFAULT_ROOT_PATHS = `${[
 // This is separated from `./formatFile` to avoid importing all of the `prettier` code
 // inside modules that import this one. (which has a nontrivial cost)
 export const formatDirectory = (
+	log: Logger,
 	directory: string,
 	check = false,
 	extensions = DEFAULT_EXTENSIONS,
@@ -29,10 +31,11 @@ export const formatDirectory = (
 ): Promise<SpawnResult> => {
 	const forwardedArgs = toForwardedArgs('prettier');
 	forwardedArgs[check ? 'check' : 'write'] = true;
-	const prettierArgs = ['prettier', ...serializeArgs(forwardedArgs)];
-	prettierArgs.push(`${directory}**/*.{${extensions}}`);
+	const serializedArgs = ['prettier', ...serializeArgs(forwardedArgs)];
+	serializedArgs.push(`${directory}**/*.{${extensions}}`);
 	if (directory === paths.source) {
-		prettierArgs.push(`${paths.root}{${rootPaths}}`);
+		serializedArgs.push(`${paths.root}{${rootPaths}}`);
 	}
-	return spawn('npx', prettierArgs);
+	log.info(printCommandArgs(serializedArgs));
+	return spawn('npx', serializedArgs);
 };

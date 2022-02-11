@@ -1,7 +1,7 @@
 import {printTimings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
-import {magenta, yellow} from 'kleur/colors';
+import {yellow} from 'kleur/colors';
 
 import {TaskError, type Task} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
@@ -10,7 +10,7 @@ import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
 import {type TestTaskArgs} from './testTask.js';
 import {TestTaskArgsSchema} from './testTask.schema.js';
-import {addArg, serializeArgs, toForwardedArgs} from './utils/args.js';
+import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 
 // Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
 // Args following any `-- uvu` are passed through to `uvu`'s CLI:
@@ -52,7 +52,7 @@ export const task: Task<TestTaskArgs> = {
 		// ignore sourcemap files so patterns don't need `.js$`
 		addArg(forwardedArgs, '.map$', 'i', 'ignore');
 		const serializedArgs = ['uvu', ...serializeArgs(forwardedArgs)];
-		log.info(magenta('running command:'), serializedArgs.join(' '));
+		log.info(printCommandArgs(serializedArgs));
 		const testRunResult = await spawn('npx', serializedArgs);
 		timeToRunUvu();
 

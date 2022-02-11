@@ -1,9 +1,8 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import {magenta} from 'kleur/colors';
 
 import {type Plugin, type PluginContext} from './plugin.js';
-import {serializeArgs, toForwardedArgs, type Args} from '../utils/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs, type Args} from '../utils/args.js';
 
 export interface Options {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
@@ -25,7 +24,7 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 				if (args.watch) {
 					const forwardedArgs = toForwardedArgs('svelte-kit');
 					const serializedArgs = ['svelte-kit', 'dev', ...serializeArgs(forwardedArgs)];
-					log.info(magenta('running command:'), serializedArgs.join(' '));
+					log.info(printCommandArgs(serializedArgs));
 					sveltekitProcess = spawnProcess('npx', serializedArgs);
 				} else {
 					log.trace(
@@ -36,7 +35,7 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 			} else {
 				const forwardedArgs = toForwardedArgs('svelte-kit');
 				const serializedArgs = ['svelte-kit', 'build', ...serializeArgs(forwardedArgs)];
-				log.info(magenta('running command:'), serializedArgs.join(' '));
+				log.info(printCommandArgs(serializedArgs));
 				await spawn('npx', serializedArgs);
 			}
 		},

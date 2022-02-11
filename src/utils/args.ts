@@ -1,4 +1,5 @@
 import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
+import {magenta} from 'kleur/colors';
 import mri from 'mri';
 
 // These extend the CLI args for tasks.
@@ -160,3 +161,6 @@ export const addArg = (
 		}
 	}
 };
+
+export const printCommandArgs = (serializedArgs: string[]): string =>
+	magenta('running command:') + serializedArgs.join(' ');

@@ -9,10 +9,10 @@ import {FormatTaskArgsSchema} from './formatTask.schema.js';
 export const task: Task<FormatTaskArgs> = {
 	summary: 'format source files',
 	args: FormatTaskArgsSchema,
-	run: async ({args}) => {
+	run: async ({args, log}) => {
 		const {check} = args;
 		// TODO forward prettier args
-		const formatResult = await formatDirectory(paths.source, check);
+		const formatResult = await formatDirectory(log, paths.source, check);
 		if (!formatResult.ok) {
 			throw new TaskError(
 				`Failed ${check ? 'formatting check' : 'to format'}. ${printSpawnResult(formatResult)}`,

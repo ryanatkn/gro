@@ -1,8 +1,7 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
-import {magenta} from 'kleur/colors';
 
 import {TaskError, type Task} from './task/task.js';
-import {serializeArgs, toForwardedArgs} from './utils/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 import {type LintTaskArgs} from './lintTask';
 import {LintTaskArgsSchema} from './lintTask.schema.js';
 
@@ -17,7 +16,7 @@ export const task: Task<LintTaskArgs> = {
 		const {_} = args;
 		const forwardedArgs = {_, 'max-warnings': 0, ...toForwardedArgs('eslint')};
 		const serializedArgs = ['eslint', ...serializeArgs(forwardedArgs)];
-		log.info(magenta('running command:'), serializedArgs.join(' '));
+		log.info(printCommandArgs(serializedArgs));
 		const eslintResult = await spawn('npx', serializedArgs);
 		if (!eslintResult.ok) {
 			throw new TaskError(`ESLint found some problems. ${printSpawnResult(eslintResult)}`);
