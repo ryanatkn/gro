@@ -68,8 +68,7 @@ export interface ArgSchema extends JSONSchema {
  * Parses `taskName` and `args` from `process.argv` using `mri`,
  * ignoring anything after any `--`.
  */
-export const toTaskArgs = (): {taskName: string; args: Args} => {
-	const {argv} = process;
+export const toTaskArgs = (argv = process.argv): {taskName: string; args: Args} => {
 	const forwardedIndex = argv.indexOf('--');
 	const args = mri(forwardedIndex === -1 ? argv.slice(2) : argv.slice(2, forwardedIndex));
 	const taskName = args._.shift() || '';
@@ -80,8 +79,7 @@ export const toTaskArgs = (): {taskName: string; args: Args} => {
 /**
  * Gets the array of raw string args starting with the first `--`, if any.
  */
-export const toRawRestArgs = (): string[] => {
-	const {argv} = process;
+export const toRawRestArgs = (argv = process.argv): string[] => {
 	const forwardedIndex = argv.indexOf('--');
 	return forwardedIndex === -1 ? [] : argv.slice(forwardedIndex);
 };
@@ -92,23 +90,30 @@ export const toRawRestArgs = (): string[] => {
  * the `command` `'eslint'` returns `eslintarg1 --eslintarg2`
  * and `'tsc'` returns `--tscarg1` and `--tscarg2`.
  */
-export const toForwardedArgs = (command: string): Args => toForwardedArgsByCommand()[command] || {};
+export const toForwardedArgs = (
+	command: string,
+	reset = false,
+	rawRestArgs = toRawRestArgs(),
+): Args => toForwardedArgsByCommand(reset, rawRestArgs)[command] || {};
 
 let _forwardedArgsByCommand: Record<string, Args> | undefined;
 
-export const toForwardedArgsByCommand = (reset = false): Record<string, Args> => {
+export const toForwardedArgsByCommand = (
+	reset = false,
+	rawRestArgs = toRawRestArgs(),
+): Record<string, Args> => {
 	if (reset) _forwardedArgsByCommand = undefined;
 	if (_forwardedArgsByCommand) return _forwardedArgsByCommand;
 	// Parse each segment of `argv` separated by `--`.
 	const argvs: string[][] = [];
 	let arr: string[] | undefined;
-	for (const arg of toRawRestArgs()) {
+	for (const arg of rawRestArgs) {
 		if (arg === '--') {
 			if (arr?.length) argvs.push(arr);
 			arr = [];
 		} else if (!arr) {
 			continue;
-		} else {
+		} else if (arg) {
 			arr.push(arg);
 		}
 	}
@@ -118,11 +123,20 @@ export const toForwardedArgsByCommand = (reset = false): Record<string, Args> =>
 	_forwardedArgsByCommand = {};
 	for (const argv of argvs) {
 		const args = mri(argv);
-		const command = args._.shift();
+		let command = args._.shift();
 		if (!command) {
 			throw Error(
 				`Malformed args following a \`--\`. Expected a rest arg command: \`${argv.join(' ')}\``,
 			);
+		}
+		// Gro commands get combined with their task name.
+		if (command === 'gro') {
+			if (!args._.length) {
+				throw Error(
+					`Malformed args following a \`--\`. Expected gro taskname: \`${argv.join(' ')}\``,
+				);
+			}
+			command += ' ' + args._.shift();
 		}
 		if (!args._.length) delete (args as Args)._;
 		_forwardedArgsByCommand[command] = args;

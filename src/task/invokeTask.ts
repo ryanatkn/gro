@@ -5,7 +5,7 @@ import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
-import {serializeArgs, toRawRestArgs, type Args} from '../utils/args.js';
+import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../utils/args.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath} from './task.js';
@@ -137,7 +137,8 @@ export const invokeTask = async (
 					}
 				} else {
 					// Run the task in the current process.
-					const result = await runTask(fs, task, args, events, invokeTask);
+					const finalArgs = {...args, ...toForwardedArgs(`gro ${task.name}`)};
+					const result = await runTask(fs, task, finalArgs, events, invokeTask);
 					timingToRunTask();
 					if (result.ok) {
 						log.info(`✓ ${cyan(task.name)}`);

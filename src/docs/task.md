@@ -303,6 +303,13 @@ that appears after each `--` is assumed to be the CLI command.
 If `gro taskname` or its invoked tasks don't call `uvu` or `svelte-kit`,
 the `--` args will be ignored.
 
+There's one special case for task args forwarding: running Gro tasks.
+If `gro` is the command following a `--`, e.g. the second `gro` of
+`gro taskname -- gro taskname2 --a --b`,
+then `--a` and `--b` will be forwarded to `taskname2`.
+Forwarded args to Gro tasks override direct args, including args to `invokeTask`,
+so `gro taskname --a 1 -- gro taskname --a 2` will invoke `taskname` with `{a: 2}`.
+
 ### task events
 
 The `Task` interface's second generic parameter is `TEvents`
