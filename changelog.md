@@ -1,5 +1,10 @@
 # changelog
 
+## 0.52.1
+
+- fix args type for `invokeTask`
+  ([#314](https://github.com/feltcoop/gro/pull/314))
+
 ## 0.52.0
 
 - **break**: validate task `args` from schemas,

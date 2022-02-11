@@ -75,7 +75,7 @@ export const runTask = async (
 			events,
 			log,
 			invokeTask: (invokedTaskName, invokedArgs = {}, invokedEvents = events, invokedFs = fs) =>
-				invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents),
+				invokeTask(invokedFs, invokedTaskName, invokedArgs as Args, invokedEvents), // TODO typecast
 		});
 	} catch (err) {
 		return {
