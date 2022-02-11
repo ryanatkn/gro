@@ -6,6 +6,9 @@
   ([#313](https://github.com/feltcoop/gro/pull/313))
 - **break**: change `invokeTask` to no longer forward `args` automatically
   ([#313](https://github.com/feltcoop/gro/pull/313))
+- **break**: add generic agnostic command args forwarding
+  [using the `--` pattern](src/docs/task.md#task-args-forwarding)
+  ([#313](https://github.com/feltcoop/gro/pull/313))
 
 ## 0.51.3
 
