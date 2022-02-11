@@ -7,6 +7,7 @@ import {
 	SVELTEKIT_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
 } from '../paths.js';
+import {serializeArgs, toForwardedArgs} from '../utils/args.js';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
 const DEFAULT_ROOT_PATHS = `${[
@@ -26,8 +27,9 @@ export const formatDirectory = (
 	extensions = DEFAULT_EXTENSIONS,
 	rootPaths = DEFAULT_ROOT_PATHS,
 ): Promise<SpawnResult> => {
-	// TODO BLOCK
-	const prettierArgs = ['prettier', check ? '--check' : '--write'];
+	const forwardedArgs = toForwardedArgs('prettier');
+	forwardedArgs[check ? 'check' : 'write'] = true;
+	const prettierArgs = ['prettier', ...serializeArgs(forwardedArgs)];
 	prettierArgs.push(`${directory}**/*.{${extensions}}`);
 	if (directory === paths.source) {
 		prettierArgs.push(`${paths.root}{${rootPaths}}`);
