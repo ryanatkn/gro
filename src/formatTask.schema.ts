@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 
 export const FormatTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/FormatTaskArgs.json',

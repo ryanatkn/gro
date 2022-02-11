@@ -47,6 +47,7 @@ export const task: Task<TestTaskArgs> = {
 
 		const timeToRunUvu = timings.start('run test with uvu');
 		const testRunResult = await spawn('npx', [
+			// TODO BLOCK
 			'uvu',
 			toRootPath(testsBuildDir),
 			...testFilePatterns,

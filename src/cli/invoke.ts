@@ -2,7 +2,8 @@ import {attachProcessErrorHandlers} from '@feltcoop/felt/util/process.js';
 
 import {invokeTask} from '../task/invokeTask.js';
 import {fs as nodeFs} from '../fs/node.js';
-import {TaskError, toTaskArgs} from '../task/task.js';
+import {TaskError} from '../task/task.js';
+import {toTaskArgs} from '../utils/args.js';
 
 /*
 

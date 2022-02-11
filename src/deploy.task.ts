@@ -94,6 +94,7 @@ export const task: Task<DeployTaskArgs> = {
 
 		try {
 			// Run the build.
+			// TODO BLOCK
 			const buildResult = await spawn('npx', ['gro', 'build']);
 			if (!buildResult.ok) throw Error('gro build failed');
 

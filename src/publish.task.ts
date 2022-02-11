@@ -51,6 +51,7 @@ export const task: Task<PublishTaskArgs> = {
 		}
 
 		// Check in dev mode before proceeding.
+		// TODO BLOCK
 		const checkResult = await spawn('npx', ['gro', 'check'], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
@@ -65,6 +66,7 @@ export const task: Task<PublishTaskArgs> = {
 		}
 
 		// Build to create the final artifacts:
+		// TODO BLOCK
 		const buildResult = await spawn('npx', ['gro', 'build']);
 		if (!buildResult.ok) throw Error('gro build failed');
 

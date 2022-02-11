@@ -1,7 +1,8 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 import {magenta} from 'kleur/colors';
 
-import {serializeArgs, TaskError, toForwardedArgs, type Task} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
+import {serializeArgs, toForwardedArgs} from './utils/args.js';
 import {type LintTaskArgs} from './lintTask';
 import {LintTaskArgsSchema} from './lintTask.schema.js';
 

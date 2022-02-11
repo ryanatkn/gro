@@ -26,6 +26,7 @@ export const formatDirectory = (
 	extensions = DEFAULT_EXTENSIONS,
 	rootPaths = DEFAULT_ROOT_PATHS,
 ): Promise<SpawnResult> => {
+	// TODO BLOCK
 	const prettierArgs = ['prettier', check ? '--check' : '--write'];
 	prettierArgs.push(`${directory}**/*.{${extensions}}`);
 	if (directory === paths.source) {

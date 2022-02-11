@@ -37,6 +37,7 @@ export const generateTypes = async (
 	typemap: boolean,
 	tscArgs: string[] = EMPTY_ARRAY,
 ): Promise<void> => {
+	// TODO BLOCK
 	const tscResult = await spawn('npx', [
 		'tsc',
 		'--outDir',

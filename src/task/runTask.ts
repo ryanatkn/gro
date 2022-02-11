@@ -3,7 +3,8 @@ import {cyan, red, yellow} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 
 import {type TaskModuleMeta} from './taskModule.js';
-import {TaskError, type Args} from './task.js';
+import {TaskError} from './task.js';
+import {type Args} from '../utils/args.js';
 import {type invokeTask as InvokeTaskFunction} from './invokeTask.js';
 import {type Filesystem} from '../fs/filesystem.js';
 import {logTaskHelp} from './logTask.js';
