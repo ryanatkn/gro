@@ -1,6 +1,7 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
+import {magenta} from 'kleur/colors';
 
-import {serializeArgs, TaskError, type Task} from './task/task.js';
+import {serializeArgs, TaskError, toForwardedArgs, type Task} from './task/task.js';
 import {type LintTaskArgs} from './lintTask';
 import {LintTaskArgsSchema} from './lintTask.schema.js';
 
@@ -12,13 +13,12 @@ export const task: Task<LintTaskArgs> = {
 			log.info('ESLint is not installed; skipping linting');
 			return;
 		}
-		const eslintResult = await spawn('npx', [
-			'eslint',
-			// TODO forwarding all args like this won't work,
-			// the `--` or `__` pattern needs to be used
-			// or both? because then invokers can choose to pass args forward
-			...serializeArgs({'max-warnings': 0, ...args}),
-		]);
+		const {_} = args;
+		const forwardedEslintArgs = toForwardedArgs('eslint');
+		const eslintArgs = {_, 'max-warnings': 0, ...forwardedEslintArgs};
+		const serializedEslintArgs = ['eslint', ...serializeArgs(eslintArgs)];
+		log.info(magenta('running command:'), serializedEslintArgs.join(' '));
+		const eslintResult = await spawn('npx', serializedEslintArgs);
 		if (!eslintResult.ok) {
 			throw new TaskError(`ESLint found some problems. ${printSpawnResult(eslintResult)}`);
 		}

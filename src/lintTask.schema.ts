@@ -4,6 +4,8 @@ import {SOURCE_DIRNAME} from './paths.js';
 export const LintTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/LintTaskArgs.json',
 	type: 'object',
+	// TODO how to specify that this takes an `eslint` command and args after the `--`?
+	// At least for the help text?
 	properties: {
 		_: {
 			type: 'array',
@@ -12,11 +14,6 @@ export const LintTaskArgsSchema: ArgsSchema = {
 			description: 'paths to serve',
 		},
 	},
-	// TODO
-	// patternProperties: {
-
-	// }
 	required: ['_'],
-	// TODO would be cool if we could add eslint CLI options here
-	// additionalProperties: false,
+	additionalProperties: false,
 };

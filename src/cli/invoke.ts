@@ -1,9 +1,8 @@
-import mri from 'mri';
 import {attachProcessErrorHandlers} from '@feltcoop/felt/util/process.js';
 
 import {invokeTask} from '../task/invokeTask.js';
 import {fs as nodeFs} from '../fs/node.js';
-import {TaskError} from '../task/task.js';
+import {TaskError, toTaskArgs} from '../task/task.js';
 
 /*
 
@@ -18,22 +17,14 @@ const main = async () => {
 	// install sourcemaps for Gro development
 	if (process.env.NODE_ENV !== 'production') {
 		const sourcemapSupport = await import('source-map-support'); // is a peer dependency
-		sourcemapSupport.install({
-			handleUncaughtExceptions: false,
-		});
+		sourcemapSupport.install({handleUncaughtExceptions: false});
 	}
-
-	const {argv} = process;
-	const forwardedIndex = argv.indexOf('--');
-	const args = mri(forwardedIndex === -1 ? argv.slice(2) : argv.slice(2, forwardedIndex));
-	const taskName = args._.shift() || '';
-	if (args._.length === 0) delete (args as any)._; // enable schema defaults
-
+	const {taskName, args} = toTaskArgs();
 	return invokeTask(nodeFs, taskName, args);
 };
 
-// see below for why we don't catch here
-main(); // eslint-disable-line @typescript-eslint/no-floating-promises
-
 // handle uncaught errors
 attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : null));
+
+// see above for why we don't catch here
+main(); // eslint-disable-line @typescript-eslint/no-floating-promises

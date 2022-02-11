@@ -3,6 +3,7 @@ import {type EventEmitter} from 'events';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {stripEnd} from '@feltcoop/felt/util/string.js';
 import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
+import mri from 'mri';
 
 import {type Filesystem} from '../fs/filesystem.js';
 
@@ -55,7 +56,7 @@ export class TaskError extends Error {}
 export interface Args {
 	_?: string[];
 	help?: boolean;
-	[key: string]: unknown; // can assign anything to `args` in tasks
+	[key: string]: string | number | boolean | undefined | string[];
 }
 
 export const serializeArgs = (args: Args): string[] => {
@@ -95,3 +96,60 @@ export interface ArgSchema extends JSONSchema {
 	default: boolean | string | number | any[] | undefined;
 	description: string;
 }
+
+/**
+ * Parses `taskName` and `args` from `process.argv` using `mri`,
+ * ignoring anything after any `--`.
+ */
+export const toTaskArgs = (): {taskName: string; args: Args} => {
+	const {argv} = process;
+	const forwardedIndex = argv.indexOf('--');
+	const args = mri(forwardedIndex === -1 ? argv.slice(2) : argv.slice(2, forwardedIndex));
+	const taskName = args._.shift() || '';
+	if (args._.length === 0) delete (args as Args)._; // enable schema defaults
+	return {taskName, args};
+};
+
+/**
+ * Parses `process.argv` for the specified `command`, so given
+ * `gro taskname arg1 --arg2 -- eslint eslintarg1 --eslintarg2 -- tsc --tscarg1 --tscarg2`
+ * the `command` `'eslint'` returns `eslintarg1 --eslintarg2`
+ * and `'tsc'` returns `--tscarg1` and `--tscarg2`.
+ */
+export const toForwardedArgs = (command: string): Args => toForwardedArgsByCommand()[command] || {};
+
+let _forwardedArgsByCommand: Record<string, Args> | undefined;
+
+export const toForwardedArgsByCommand = (reset = false): Record<string, Args> => {
+	if (reset) _forwardedArgsByCommand = undefined;
+	if (_forwardedArgsByCommand) return _forwardedArgsByCommand;
+	// Parse each segment of `argv` separated by `--`.
+	const argvs: string[][] = [];
+	let arr: string[] | undefined;
+	for (const a of process.argv) {
+		if (a === '--') {
+			if (arr?.length) argvs.push(arr);
+			arr = [];
+		} else if (!arr) {
+			continue;
+		} else {
+			arr.push(a);
+		}
+	}
+	if (arr?.length) argvs.push(arr);
+	// Add each segment of parsed `argv` keyed by the first rest arg,
+	// which is assumed to be the CLI command that gets forwarded the args.
+	_forwardedArgsByCommand = {};
+	for (const argv of argvs) {
+		const args = mri(argv);
+		const command = args._.shift();
+		if (!command) {
+			throw Error(
+				`Malformed args following a \`--\`. Expected a rest arg command: \`${argv.join(' ')}\``,
+			);
+		}
+		if (!args._.length) delete (args as Args)._;
+		_forwardedArgsByCommand[command] = args;
+	}
+	return _forwardedArgsByCommand;
+};
