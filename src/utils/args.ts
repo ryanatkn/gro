@@ -21,13 +21,14 @@ export const serializeArgs = (args: Args): string[] => {
 		if (key === '_') {
 			_ = value ? (value as any[]).map((v) => (v === undefined ? '' : v + '')) : [];
 		} else {
+			// TODO BLOCK handle arrays
 			result.push(`${key.length === 1 ? '-' : '--'}${key}`);
 			if (value !== undefined && typeof value !== 'boolean') {
 				result.push((value as any) + '');
 			}
 		}
 	}
-	return _ ? [...result, ..._] : result;
+	return _ ? [..._, ...result] : result;
 };
 
 // TODO allow schema composition with things like `allOf` instead of requiring properties

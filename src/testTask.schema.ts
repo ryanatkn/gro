@@ -7,7 +7,7 @@ export const TestTaskArgsSchema: ArgsSchema = {
 		_: {
 			type: 'array',
 			items: {type: 'string'},
-			default: [],
+			default: ['.+\\.test\\.js$'],
 			description: 'file patterns to test',
 		},
 	},
