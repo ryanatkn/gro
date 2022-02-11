@@ -1,12 +1,16 @@
 import {type EventEmitter} from 'events';
-import {cyan, red} from 'kleur/colors';
+import {cyan, red, yellow} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 
 import {type TaskModuleMeta} from './taskModule.js';
-import {TaskError, type Args} from './task.js';
+import {TaskError} from './task.js';
+import {type Args} from '../utils/args.js';
 import {type invokeTask as InvokeTaskFunction} from './invokeTask.js';
 import {type Filesystem} from '../fs/filesystem.js';
 import {logTaskHelp} from './logTask.js';
+import {ajv, validateSchema} from '../utils/ajv.js';
+
+ajv({useDefaults: true});
 
 export type RunTaskResult =
 	| {
@@ -36,6 +40,32 @@ export const runTask = async (
 		logTaskHelp(log, taskMeta);
 		return {ok: true, output: null};
 	}
+
+	// Parse and validate args.
+	if (task.args) {
+		const validate = validateSchema(task.args);
+		validate(args);
+		if (validate.errors) {
+			const count = validate.errors.length;
+			log.error(
+				red(`Args validation failed:`),
+				...validate.errors.flatMap((e, i) => {
+					const {missingProperty} = e.params;
+					return [
+						missingProperty
+							? `${red(`\nProperty '${missingProperty}' is missing:`)} ${yellow(
+									task.args!.properties[missingProperty].description + ':\n',
+							  )}`
+							: red(`\nerror${count > 1 ? ' ' + i : ''}:`),
+						e,
+					];
+				}),
+			);
+			throw new TaskError(`Task args failed validation`);
+		}
+	}
+
+	// Run the task.
 	let output: unknown;
 	try {
 		output = await task.run({
@@ -44,7 +74,7 @@ export const runTask = async (
 			args,
 			events,
 			log,
-			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedFs = fs) =>
+			invokeTask: (invokedTaskName, invokedArgs = {}, invokedEvents = events, invokedFs = fs) =>
 				invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents),
 		});
 	} catch (err) {

@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 
 export const PublishTaskArgsSchema: ArgsSchema = {
@@ -8,7 +8,7 @@ export const PublishTaskArgsSchema: ArgsSchema = {
 		_: {
 			type: 'array',
 			items: {type: 'string'},
-			default: [],
+			default: undefined,
 			description: 'npm version increment, like major|minor|patch',
 		},
 		branch: {
@@ -29,6 +29,6 @@ export const PublishTaskArgsSchema: ArgsSchema = {
 				'if true, the package is published privately instead of the public default, using `npm publish --access restricted`',
 		},
 	},
-	required: ['_'],
+	required: ['_', 'branch', 'dry', 'restricted'],
 	additionalProperties: false,
 };

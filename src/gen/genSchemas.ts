@@ -29,18 +29,23 @@ export const runSchemaGen = async (
 		const value = mod[identifier];
 		if (!isVocabSchema(value)) continue;
 
+		// `json-schema-to-typescript` adds an `id` property,
+		// which causes `ajv` to fail to compile,
+		// so instead of adding `id` as an `ajv` keyword we shallow clone the schema.
+		const schema = {...value};
+
 		// Compile the schema to TypeScript.
 		const finalIdentifier = stripEnd(identifier, 'Schema'); // convenient to avoid name collisions
-		const result = await compile(value, finalIdentifier, {bannerComment: '', format: false}); // eslint-disable-line no-await-in-loop
+		const result = await compile(schema, finalIdentifier, {bannerComment: '', format: false}); // eslint-disable-line no-await-in-loop
 		types.push(result);
 
 		// Walk the entire schema and add any imports with `tsImport`.
-		traverse(value, (key, value) => {
+		traverse(schema, (key, v) => {
 			if (key === 'tsImport') {
-				if (typeof value === 'string') {
-					rawImports.push(value);
-				} else if (Array.isArray(value)) {
-					rawImports.push(...value);
+				if (typeof v === 'string') {
+					rawImports.push(v);
+				} else if (Array.isArray(v)) {
+					rawImports.push(...v);
 				}
 			}
 		});

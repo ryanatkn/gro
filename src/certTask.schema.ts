@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 
 export const CertTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/CertTaskArgs.json',
@@ -10,5 +10,6 @@ export const CertTaskArgsSchema: ArgsSchema = {
 			description: "the certificate host aka the common name, OpenSSL's CN arg",
 		},
 	},
+	required: ['host'],
 	additionalProperties: false,
 };

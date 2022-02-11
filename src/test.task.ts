@@ -10,19 +10,19 @@ import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
 import {type TestTaskArgs} from './testTask.js';
 import {TestTaskArgsSchema} from './testTask.schema.js';
+import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 
-// Runs the project's tests: `gro test [...args]`
-// Args are passed through directly to `uvu`'s CLI:
+// Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
+// Args following any `-- uvu` are passed through to `uvu`'s CLI:
 // https://github.com/lukeed/uvu/blob/master/docs/cli.md
-
-const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
+// If the `uvu` segment's args contain any rest arg patterns,
+// the base patterns are ignored.
 
 export const task: Task<TestTaskArgs> = {
 	summary: 'run tests',
 	args: TestTaskArgsSchema,
 	run: async ({fs, dev, log, args}): Promise<void> => {
-		const patternCount = args._.length;
-		const testFilePatterns = patternCount ? args._ : DEFAULT_TEST_FILE_PATTERNS;
+		const {_: testFilePatterns} = args;
 
 		const timings = new Timings();
 
@@ -44,15 +44,16 @@ export const task: Task<TestTaskArgs> = {
 			return;
 		}
 
-		const timeToRunUvu = timings.start('run test with uvu');
-		const testRunResult = await spawn('npx', [
-			'uvu',
-			toRootPath(testsBuildDir),
-			...testFilePatterns,
-			...process.argv.slice(3 + patternCount),
-			'-i',
-			'.map$', // ignore sourcemap files so patterns don't need `.js$`
-		]);
+		const timeToRunUvu = timings.start('run tests with uvu');
+		const forwardedArgs = toForwardedArgs('uvu');
+		if (!forwardedArgs._) {
+			forwardedArgs._ = [toRootPath(testsBuildDir), ...testFilePatterns];
+		}
+		// ignore sourcemap files so patterns don't need `.js$`
+		addArg(forwardedArgs, '.map$', 'i', 'ignore');
+		const serializedArgs = ['uvu', ...serializeArgs(forwardedArgs)];
+		log.info(printCommandArgs(serializedArgs));
+		const testRunResult = await spawn('npx', serializedArgs);
 		timeToRunUvu();
 
 		printTimings(timings, log);

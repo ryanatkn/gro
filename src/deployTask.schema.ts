@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 
 export const DeployTaskArgsSchema: ArgsSchema = {
@@ -37,5 +37,6 @@ export const DeployTaskArgsSchema: ArgsSchema = {
 			description: 'caution!! enable deploying and force pushing to branches like main and master',
 		},
 	},
+	required: ['source', 'target', 'dry', 'clean', 'force'],
 	additionalProperties: false,
 };

@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 
 export const FormatTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/FormatTaskArgs.json',
@@ -10,5 +10,6 @@ export const FormatTaskArgsSchema: ArgsSchema = {
 			description: 'exit with a nonzero code if any files are unformatted',
 		},
 	},
+	required: ['check'],
 	additionalProperties: false,
 };

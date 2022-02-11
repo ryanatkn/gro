@@ -8,13 +8,13 @@ import {type Flavored, type Result} from '@feltcoop/felt/util/types.js';
 import {rainbow} from './utils/colors.js';
 import {type Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
-import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 import {type Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
 import {type PublishTaskArgs} from './publishTask.js';
 import {PublishTaskArgsSchema} from './publishTask.schema.js';
+import {toRawRestArgs} from './utils/args.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -28,7 +28,7 @@ export const task: Task<PublishTaskArgs> = {
 	production: true,
 	args: PublishTaskArgsSchema,
 	run: async ({fs, args, log, dev}): Promise<void> => {
-		const {branch = GIT_DEPLOY_SOURCE_BRANCH, dry = false, restricted = false} = args;
+		const {branch, dry, restricted} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
 		}
@@ -52,7 +52,7 @@ export const task: Task<PublishTaskArgs> = {
 		}
 
 		// Check in dev mode before proceeding.
-		const checkResult = await spawn('npx', ['gro', 'check'], {
+		const checkResult = await spawn('npx', ['gro', 'check', ...toRawRestArgs()], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
 		if (!checkResult.ok) throw Error('gro check failed');
@@ -66,7 +66,7 @@ export const task: Task<PublishTaskArgs> = {
 		}
 
 		// Build to create the final artifacts:
-		const buildResult = await spawn('npx', ['gro', 'build']);
+		const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
 		if (!buildResult.ok) throw Error('gro build failed');
 
 		const config = await loadConfig(fs, dev);

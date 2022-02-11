@@ -2,7 +2,6 @@ import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {spawnRestartableProcess, type RestartableProcess} from '@feltcoop/felt/util/process.js';
 
 import {type Plugin, type PluginContext} from './plugin.js';
-import {type Args} from '../task/task.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {toBuildOutDir} from '../paths.js';
 import {type BuildConfig, type BuildName} from '../build/buildConfig.js';
@@ -14,14 +13,10 @@ export interface Options {
 	baseBuildPath?: string; // defaults to 'lib/server/server.js'
 }
 
-export interface TaskArgs extends Args {
-	watch?: boolean;
-}
-
 export const createPlugin = ({
 	buildName = API_SERVER_BUILD_NAME,
 	baseBuildPath = API_SERVER_BUILD_BASE_PATH,
-}: Partial<Options> = EMPTY_OBJECT): Plugin<PluginContext<TaskArgs, object>> => {
+}: Partial<Options> = EMPTY_OBJECT): Plugin<PluginContext<object, object>> => {
 	let serverProcess: RestartableProcess | null = null;
 
 	// TODO type

@@ -1,11 +1,12 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 import {SOURCE_DIRNAME} from './paths.js';
 
 export const LintTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/LintTaskArgs.json',
 	type: 'object',
+	// TODO how to specify that this takes an `eslint` command and args after the `--`?
+	// At least for the help text?
 	properties: {
-		// TODO defaulting here needs special casing because MRI gives an empty array
 		_: {
 			type: 'array',
 			items: {type: 'string'},
@@ -14,6 +15,5 @@ export const LintTaskArgsSchema: ArgsSchema = {
 		},
 	},
 	required: ['_'],
-	// TODO would be cool if we could add eslint CLI options here
-	// additionalProperties: false,
+	additionalProperties: false,
 };

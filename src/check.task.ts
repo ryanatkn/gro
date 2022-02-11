@@ -7,7 +7,7 @@ export const task: Task<CheckTaskArgs> = {
 	summary: 'check that everything is ready to commit',
 	args: CheckTaskArgsSchema,
 	run: async ({fs, log, args, invokeTask}) => {
-		const {typecheck = true, test = true, gen = true, format = true, lint = true} = args;
+		const {typecheck, test, gen, format, lint} = args;
 
 		if (typecheck) {
 			await invokeTask('typecheck');
@@ -22,7 +22,7 @@ export const task: Task<CheckTaskArgs> = {
 			const findGenModulesResult = await findGenModules(fs);
 			if (findGenModulesResult.ok) {
 				log.info('checking that generated files have not changed');
-				await invokeTask('gen', {_: [], check: true});
+				await invokeTask('gen', {check: true});
 			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
 				for (const reason of findGenModulesResult.reasons) {
 					log.error(reason);
@@ -32,14 +32,14 @@ export const task: Task<CheckTaskArgs> = {
 		}
 
 		if (format) {
-			await invokeTask('format', {_: [], check: true});
+			await invokeTask('format', {check: true});
 		}
 
 		// Run the linter last to surface every other kind of problem first.
 		// It's not the ideal order when the linter would catch errors that cause failing tests,
 		// but it's better for most usage.
 		if (lint) {
-			await invokeTask('lint', {_: [], 'max-warnings': 0});
+			await invokeTask('lint');
 		}
 	},
 };

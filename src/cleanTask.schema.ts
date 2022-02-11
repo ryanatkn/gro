@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 
 export const CleanTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/CleanTaskArgs.json',
@@ -33,5 +33,6 @@ export const CleanTaskArgsSchema: ArgsSchema = {
 				'run "git remote prune" to delete local branches referencing nonexistent remote branches',
 		},
 	},
+	required: ['build', 'dist', 'sveltekit', 'nodemodules', 'git'],
 	additionalProperties: false,
 };

@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 
 export const BuildTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/BuildTaskArgs.json',
@@ -11,5 +11,6 @@ export const BuildTaskArgsSchema: ArgsSchema = {
 			description: 'opt out of cleaning before building; warning! this may break your build!',
 		},
 	},
+	required: ['clean'],
 	additionalProperties: false,
 };

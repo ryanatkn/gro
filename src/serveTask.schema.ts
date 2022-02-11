@@ -1,16 +1,14 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from './server/server.js';
 
 export const ServeTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/ServeTaskArgs.json',
 	type: 'object',
 	properties: {
-		_: {type: 'array', items: {type: 'string'}, default: ['.'], description: 'paths to serve'},
-		// TODO this has a strange overlap with `_`
-		serve: {
+		_: {
 			type: 'array',
 			items: {type: 'string'},
-			default: undefined,
+			default: ['.'],
 			description: 'paths to serve',
 		},
 		host: {type: 'string', default: DEFAULT_SERVER_HOST, description: 'network address host'},
@@ -20,6 +18,6 @@ export const ServeTaskArgsSchema: ArgsSchema = {
 		cert: {type: 'string', default: undefined, description: 'https certificate file'},
 		certkey: {type: 'string', default: undefined, description: 'https certificate key file'},
 	},
-	required: ['_'],
+	required: ['_', 'host', 'port'],
 	additionalProperties: false,
 };

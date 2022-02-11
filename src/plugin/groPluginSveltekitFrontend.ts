@@ -1,21 +1,13 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import {UnreachableError} from '@feltcoop/felt/util/error.js';
 
 import {type Plugin, type PluginContext} from './plugin.js';
-import {type Args} from '../task/task.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs, type Args} from '../utils/args.js';
 
 export interface Options {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
 export interface TaskArgs extends Args {
 	watch?: boolean;
-	// `svelte-kit dev` and `svelte-kit preview` args
-	port?: number;
-	open?: boolean;
-	host?: string;
-	https?: boolean;
-	// `svelte-kit build` args
-	verbose?: boolean;
 }
 
 const name = '@feltcoop/groPluginSveltekitFrontend';
@@ -30,7 +22,10 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 		setup: async ({dev, args, log}) => {
 			if (dev) {
 				if (args.watch) {
-					sveltekitProcess = spawnProcess('npx', toSveltekitArgs('dev', args));
+					const forwardedArgs = toForwardedArgs('svelte-kit');
+					const serializedArgs = ['svelte-kit', 'dev', ...serializeArgs(forwardedArgs)];
+					log.info(printCommandArgs(serializedArgs));
+					sveltekitProcess = spawnProcess('npx', serializedArgs);
 				} else {
 					log.trace(
 						`${name} is loaded but will not output anything` +
@@ -38,7 +33,10 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 					);
 				}
 			} else {
-				await spawn('npx', toSveltekitArgs('build', args));
+				const forwardedArgs = toForwardedArgs('svelte-kit');
+				const serializedArgs = ['svelte-kit', 'build', ...serializeArgs(forwardedArgs)];
+				log.info(printCommandArgs(serializedArgs));
+				await spawn('npx', serializedArgs);
 			}
 		},
 		teardown: async () => {
@@ -48,36 +46,4 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 			}
 		},
 	};
-};
-
-const toSveltekitArgs = (command: 'dev' | 'build' | 'preview', args: TaskArgs): string[] => {
-	const sveltekitArgs = ['svelte-kit', command];
-	switch (command) {
-		case 'dev':
-		case 'preview': {
-			if (args.port) {
-				sveltekitArgs.push('--port', args.port.toString());
-			}
-			if (args.open) {
-				sveltekitArgs.push('--open');
-			}
-			if (args.host) {
-				sveltekitArgs.push('--host', args.host);
-			}
-			if (args.https) {
-				sveltekitArgs.push('--https');
-			}
-			break;
-		}
-		case 'build': {
-			if (args.verbose) {
-				sveltekitArgs.push('--verbose');
-			}
-			break;
-		}
-		default: {
-			throw new UnreachableError(command);
-		}
-	}
-	return sveltekitArgs;
 };

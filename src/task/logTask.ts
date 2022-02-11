@@ -3,7 +3,7 @@ import {Logger} from '@feltcoop/felt/util/log.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 import {printValue} from '@feltcoop/felt/util/print.js';
 
-import {type ArgSchema, type ArgsSchema} from './task.js';
+import {type ArgSchema, type ArgsSchema} from '../utils/args.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
 

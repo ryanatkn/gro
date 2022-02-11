@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './task/task.js';
+import {type ArgsSchema} from './utils/args.js';
 
 export const DevTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/DevTaskArgs.json',
@@ -15,5 +15,6 @@ export const DevTaskArgsSchema: ArgsSchema = {
 		cert: {type: 'string', default: undefined, description: 'https certificate file'},
 		certkey: {type: 'string', default: undefined, description: 'https certificate key file'},
 	},
+	required: ['watch'],
 	additionalProperties: false,
 };
