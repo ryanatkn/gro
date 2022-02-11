@@ -72,7 +72,7 @@ export const toTaskArgs = (argv = process.argv): {taskName: string; args: Args} 
 	const forwardedIndex = argv.indexOf('--');
 	const args = mri(forwardedIndex === -1 ? argv.slice(2) : argv.slice(2, forwardedIndex));
 	const taskName = args._.shift() || '';
-	if (args._.length === 0) delete (args as Args)._; // enable schema defaults
+	if (!args._.length) delete (args as Args)._; // enable schema defaults
 	return {taskName, args};
 };
 
