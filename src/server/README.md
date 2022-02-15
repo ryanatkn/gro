@@ -1,5 +1,8 @@
 # dev server
 
+- [`/server/server.ts`](../server/server.ts)
+- [`/plugin/groPluginDevServer.ts`](../plugin/groPluginDevServer.ts)
+
 To enable `http2` on the dev server,
 you'll need to generate a self-signed certificate and private key,
 because browsers require a secure `https` connection for `http2`.
