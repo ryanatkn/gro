@@ -129,6 +129,13 @@ gro build # build everything for production
 gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
 ```
 
+Check all the things:
+
+```bash
+gro check # typecheck TS and Svelte, run tests, lint, and ensure generated files are current
+gro typecheck # just the typechecking
+```
+
 Formatting with [`prettier`](https://github.com/prettier/prettier):
 
 ```bash
@@ -148,11 +155,6 @@ gro serve some/dir and/another/dir # serve some directories
 
 ```bash
 gro --version # print the Gro version
-```
-
-```bash
-gro check # typecheck, run tests, and ensure generated files are current
-gro typecheck # just the typechecking
 ```
 
 Codegen with [`gen`](/src/docs/gen.md):

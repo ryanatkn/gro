@@ -34,7 +34,12 @@ export const DeployTaskArgsSchema: ArgsSchema = {
 		force: {
 			type: 'boolean',
 			default: false,
-			description: 'caution!! enable deploying and force pushing to branches like main and master',
+			description: 'caution!! destroys the target branch both locally and remotely',
+		},
+		dangerous: {
+			type: 'boolean',
+			default: false,
+			description: 'caution!! enables destruction of branches like main and master',
 		},
 	},
 	required: ['source', 'target', 'dry', 'clean', 'force'],

@@ -27,18 +27,32 @@ const ORIGIN = 'origin';
 const INITIAL_FILE = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
-
-const EXCLUDED_BRANCHES = ['main', 'master'];
+const DANGEROUS_BRANCHES = ['main', 'master'];
 
 export const task: Task<DeployTaskArgs> = {
 	summary: 'deploy to static hosting',
 	production: true,
 	args: DeployTaskArgsSchema,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {dirname, source, target, dry, clean: cleanAndExit, force} = args;
+		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous} = args;
 
-		if (!force && EXCLUDED_BRANCHES.includes(target)) {
-			throw Error(`For safety, you cannot deploy to branch '${target}'. Pass --force to override.`);
+		const defaultTargetBranch = task.args?.properties.target.default;
+		if (!force && target !== defaultTargetBranch) {
+			throw Error(
+				`Warning! You are deploying to a custom target branch '${target}',` +
+					` instead of the default '${defaultTargetBranch}' branch.` +
+					` This will destroy your '${target}' branch!` +
+					` If you understand and are OK with deleting your branch '${target}',` +
+					` both locally and remotely, pass --force to suppress this error.`,
+			);
+		}
+		if (!dangerous && DANGEROUS_BRANCHES.includes(target)) {
+			throw Error(
+				`Warning! You are deploying to a custom target branch '${target}'` +
+					` and that appears very dangerous: it will destroy your '${target}' branch!` +
+					` If you understand and are OK with deleting your branch '${target}',` +
+					` both locally and remotely, pass --dangerous to suppress this error.`,
+			);
 		}
 
 		// Exit early if the git working directory has any unstaged or staged changes.

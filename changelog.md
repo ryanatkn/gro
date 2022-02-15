@@ -1,5 +1,10 @@
 # changelog
 
+## 0.52.2
+
+- improve safety of `gro deploy` and update its docs
+  ([#315](https://github.com/feltcoop/gro/pull/315))
+
 ## 0.52.1
 
 - fix args type for `invokeTask`
