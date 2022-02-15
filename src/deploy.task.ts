@@ -36,7 +36,6 @@ export const task: Task<DeployTaskArgs> = {
 	run: async ({fs, args, log}): Promise<void> => {
 		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous} = args;
 
-		// TODO force this in all cases
 		const defaultTargetBranch = task.args?.properties.target.default;
 		if (!force && target !== defaultTargetBranch) {
 			throw Error(
