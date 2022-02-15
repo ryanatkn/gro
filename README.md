@@ -147,20 +147,6 @@ gro format # format all of the source files using Prettier
 gro format --check # check that all source files are formatted
 ```
 
-```bash
-gro clean # delete all build artifacts from the filesystem
-gro clean --svelte --nodemodules --git # also deletes dirs and prunes git branches
-```
-
-```bash
-gro serve # serve the current directory
-gro serve some/dir and/another/dir # serve some directories
-```
-
-```bash
-gro --version # print the Gro version
-```
-
 Codegen with [`gen`](/src/docs/gen.md):
 
 ```bash
@@ -179,6 +165,22 @@ To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))
 ```bash
 gro publish patch # bump version, publish to npm, and git push
 gro publish major --and args --are forwarded --to 'npm version'
+```
+
+Etc:
+
+```bash
+gro clean # delete all build artifacts from the filesystem
+gro clean --svelte --nodemodules --git # also deletes dirs and prunes git branches
+```
+
+```bash
+gro serve # serve the current directory
+gro serve some/dir and/another/dir # serve some directories
+```
+
+```bash
+gro --version # print the Gro version
 ```
 
 ## develop
