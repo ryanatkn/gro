@@ -132,8 +132,12 @@ gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
 Check all the things:
 
 ```bash
-gro check # typecheck TS and Svelte, run tests, lint, and ensure generated files are current
-gro typecheck # just the typechecking
+gro check # does all of the following:
+gro typecheck # typecheck JS/TypeScript and Svelte
+gro test # run tests
+gro gen --check # ensure generated files are current
+gro format --check # ensure everything is formatted
+gro lint # eslint
 ```
 
 Formatting with [`prettier`](https://github.com/prettier/prettier):
