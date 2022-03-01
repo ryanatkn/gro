@@ -7,7 +7,7 @@ import {
 	type Logger,
 } from '@feltcoop/felt/util/log.js';
 import {omitUndefined} from '@feltcoop/felt/util/object.js';
-import {type Assignable, type Result} from '@feltcoop/felt/util/types.js';
+import {type Assignable, type Result} from '@feltcoop/felt';
 import {toArray} from '@feltcoop/felt/util/array.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';

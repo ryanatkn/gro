@@ -1,4 +1,4 @@
-import {type Result} from '@feltcoop/felt/util/types.js';
+import {type Result} from '@feltcoop/felt';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
 import {replaceExtension} from '@feltcoop/felt/util/path.js';

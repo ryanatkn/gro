@@ -57,7 +57,7 @@ export interface GroConfigPartial {
 	readonly types?: boolean; // defaults to false
 	readonly host?: string; // env.GRO_HOST
 	readonly port?: number; // env.GRO_PORT
-	readonly logLevel?: LogLevel; // env.GRO_LOG_LEVEL
+	readonly logLevel?: LogLevel; // env.VITE_LOG_LEVEL
 	readonly serve?: ServedDirPartial[];
 }
 ```

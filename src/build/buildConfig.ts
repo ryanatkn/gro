@@ -1,7 +1,7 @@
 import {resolve} from 'path';
 import {toArray} from '@feltcoop/felt/util/array.js';
 import {blue, gray} from 'kleur/colors';
-import {type Result, type Flavored} from '@feltcoop/felt/util/types.js';
+import {type Result, type Flavored} from '@feltcoop/felt';
 
 import {paths} from '../paths.js';
 import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';

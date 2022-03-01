@@ -3,7 +3,7 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import {type Flavored, type Result} from '@feltcoop/felt/util/types.js';
+import {type Flavored, type Result} from '@feltcoop/felt';
 
 import {rainbow} from './utils/colors.js';
 import {type Task} from './task/task.js';
