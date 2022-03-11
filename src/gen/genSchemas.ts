@@ -94,7 +94,7 @@ export const toSchemasFromModules = (genModules: GenModuleMeta[]): VocabSchema[]
 	return schemas;
 };
 
-export const toSchemaInfoFromModule = (
+const toSchemaInfoFromModule = (
 	mod: SchemaGenModule,
 ): Array<{identifier: string; schema: VocabSchema}> => {
 	const schemaInfo: Array<{identifier: string; schema: VocabSchema}> = [];

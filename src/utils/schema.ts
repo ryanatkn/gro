@@ -18,9 +18,7 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 	canRead: true,
 	read: (file) => {
 		const schema = schemas.find((s) => s.$id === file.url);
-		if (!schema) {
-			throw new Error(`Unable to find schema: "${file.url}".`);
-		}
+		if (!schema) throw new Error(`Unable to find schema: "${file.url}".`);
 		return JSON.stringify(schema);
 	},
 });
