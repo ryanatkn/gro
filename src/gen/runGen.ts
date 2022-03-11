@@ -18,6 +18,7 @@ import {
 import {type Filesystem} from '../fs/filesystem.js';
 import {printPath} from '../paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
+import {toVocabSchemaResolver} from '../utils/schema.js';
 
 export const runGen = async (
 	fs: Filesystem,
@@ -102,7 +103,6 @@ export const runGen = async (
 	};
 };
 
-// TODO copy-pasted from felt-server, should it use this helper instead?
 const toGenSchemasOptions = (
 	genModules: GenModuleMeta[],
 ): Partial<JsonSchemaToTypeScriptOptions> => {
@@ -111,17 +111,7 @@ const toGenSchemasOptions = (
 		$refOptions: {
 			resolve: {
 				http: false, // disable web resolution
-				file: {
-					read: (file) => {
-						const schema = schemas.find((s) => s.$id === file.url);
-						if (!schema)
-							throw Error(
-								`Unable to find schema: "${file.url}".` +
-									' Is it unregistered in $lib/app/schemas.ts, or a typo, or outdated?',
-							);
-						return JSON.stringify(schema);
-					},
-				},
+				vocab: toVocabSchemaResolver(schemas),
 			},
 		},
 	};

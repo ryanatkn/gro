@@ -2,7 +2,7 @@
 
 ## 0.52.3
 
-- register schemas for schema gen
+- **break**: register schemas for gen and search for them before the file resolver
   ([#316](https://github.com/feltcoop/gro/pull/316))
 
 ## 0.52.2

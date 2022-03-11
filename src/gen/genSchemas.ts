@@ -1,4 +1,7 @@
-import {compile, type Options} from '@ryanatkn/json-schema-to-typescript';
+import {
+	compile,
+	type Options as JsonSchemaToTypeScriptOptions,
+} from '@ryanatkn/json-schema-to-typescript';
 import {stripEnd} from '@feltcoop/felt/util/string.js';
 
 import {type GenContext, type RawGenResult} from './gen.js';
@@ -10,7 +13,7 @@ import {isVocabSchema, type VocabSchema} from '../utils/schema.js';
 export const genSchemas = async (
 	mod: SchemaGenModule,
 	ctx: GenContext,
-	options: Partial<Options>,
+	options: Partial<JsonSchemaToTypeScriptOptions>,
 ): Promise<RawGenResult> => {
 	const {imports, types} = await runSchemaGen(ctx, mod, options);
 	return renderTsHeaderAndFooter(
@@ -25,7 +28,7 @@ export const genSchemas = async (
 const runSchemaGen = async (
 	ctx: GenContext,
 	mod: SchemaGenModule,
-	options: Partial<Options>,
+	options: Partial<JsonSchemaToTypeScriptOptions>,
 ): Promise<{imports: string[]; types: string[]}> => {
 	const rawImports: string[] = [];
 	const types: string[] = [];
