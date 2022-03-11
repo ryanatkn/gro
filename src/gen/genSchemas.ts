@@ -3,6 +3,7 @@ import {
 	type Options as JsonSchemaToTypeScriptOptions,
 } from '@ryanatkn/json-schema-to-typescript';
 import {stripEnd} from '@feltcoop/felt/util/string.js';
+import {traverse} from '@feltcoop/felt/util/object.js';
 
 import {type GenContext, type RawGenResult} from './gen.js';
 import {type GenModuleMeta, type SchemaGenModule} from './genModule.js';
@@ -64,23 +65,6 @@ const runSchemaGen = async (
 	const imports = await normalizeTsImports(ctx.fs, rawImports, ctx.originId);
 
 	return {imports, types};
-};
-
-// TODO upstream to Felt?
-/**
- * Performs a depth-first traversal of an object's enumerable properties,
- * calling `cb` for every key and value.
- * @param obj Any object with enumerable properties.
- * @param cb Receives the key and value for every enumerable property on `obj` and its descendents.
- * @returns
- */
-const traverse = (obj: any, cb: (key: string, value: any, obj: any) => void): void => {
-	if (!obj || typeof obj !== 'object') return;
-	for (const k in obj) {
-		const v = obj[k];
-		cb(k, v, obj);
-		traverse(v, cb);
-	}
 };
 
 export const toSchemasFromModules = (genModules: GenModuleMeta[]): VocabSchema[] => {
