@@ -1,5 +1,10 @@
 # changelog
 
+## 0.52.3
+
+- register schemas for schema gen
+  ([#316](https://github.com/feltcoop/gro/pull/316))
+
 ## 0.52.2
 
 - improve safety of `gro deploy` and update its docs

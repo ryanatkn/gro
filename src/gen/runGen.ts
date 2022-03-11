@@ -3,6 +3,7 @@ import {printError} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
+import {type Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
 
 import {type GenModuleMeta} from './genModule.js';
 import {
@@ -16,7 +17,7 @@ import {
 } from './gen.js';
 import {type Filesystem} from '../fs/filesystem.js';
 import {printPath} from '../paths.js';
-import {genSchemas} from './genSchemas.js';
+import {genSchemas, toSchemasFromModules} from './genSchemas.js';
 
 export const runGen = async (
 	fs: Filesystem,
@@ -28,6 +29,7 @@ export const runGen = async (
 	let outputCount = 0;
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
+	const genSchemasOptions = toGenSchemasOptions(genModules);
 	const results = await Promise.all(
 		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
 			inputCount++;
@@ -44,7 +46,7 @@ export const runGen = async (
 						break;
 					}
 					case 'schema': {
-						rawGenResult = await genSchemas(moduleMeta.mod, genCtx);
+						rawGenResult = await genSchemas(moduleMeta.mod, genCtx, genSchemasOptions);
 						break;
 					}
 					default: {
@@ -97,5 +99,30 @@ export const runGen = async (
 		inputCount,
 		outputCount,
 		elapsed: timingForTotal(),
+	};
+};
+
+// TODO copy-pasted from felt-server, should it use this helper instead?
+const toGenSchemasOptions = (
+	genModules: GenModuleMeta[],
+): Partial<JsonSchemaToTypeScriptOptions> => {
+	const schemas = toSchemasFromModules(genModules);
+	return {
+		$refOptions: {
+			resolve: {
+				http: false, // disable web resolution
+				file: {
+					read: (file) => {
+						const schema = schemas.find((s) => s.$id === file.url);
+						if (!schema)
+							throw Error(
+								`Unable to find schema: "${file.url}".` +
+									' Is it unregistered in $lib/app/schemas.ts, or a typo, or outdated?',
+							);
+						return JSON.stringify(schema);
+					},
+				},
+			},
+		},
 	};
 };
