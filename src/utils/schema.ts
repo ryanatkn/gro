@@ -1,5 +1,5 @@
 import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
-import {ResolverError, type ResolverOptions} from 'json-schema-ref-parser';
+import {type ResolverOptions} from 'json-schema-ref-parser';
 
 export interface VocabSchema extends JSONSchema {
 	$id: string;
@@ -19,7 +19,7 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 	read: (file) => {
 		const schema = schemas.find((s) => s.$id === file.url);
 		if (!schema) {
-			throw new ResolverError(new Error(`Unable to find schema: "${file.url}".`), file.url);
+			throw new Error(`Unable to find schema: "${file.url}".`);
 		}
 		return JSON.stringify(schema);
 	},
