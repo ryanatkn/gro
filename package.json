@@ -69,7 +69,7 @@
   },
   "peerDependencies": {
     "@feltcoop/felt": ">=0.22.1",
-    "@sveltejs/kit": ">=1.0.0-next.203",
+    "@sveltejs/kit": ">=1.0.0-next.298",
     "esbuild": ">=0.14.0",
     "svelte": ">=3.44.0",
     "svelte-preprocess-esbuild": ">=2.0.0",
@@ -79,8 +79,8 @@
   "devDependencies": {
     "@feltcoop/eslint-config": "^0.1.0",
     "@feltcoop/felt": "^0.22.1",
-    "@sveltejs/adapter-static": "^1.0.0-next.26",
-    "@sveltejs/kit": "^1.0.0-next.229",
+    "@sveltejs/adapter-static": "^1.0.0-next.29",
+    "@sveltejs/kit": "^1.0.0-next.298",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.12",
     "@types/path-browserify": "^1.0.0",
@@ -99,14 +99,9 @@
   "eslintConfig": {
     "root": true,
     "extends": "@feltcoop",
-    "parserOptions": {
-      "project": [
-        "./tsconfig.json"
-      ],
-      "extraFileExtensions": [
-        ".svelte"
-      ]
-    }
+    "ignorePatterns": [
+      "svelte.config.js"
+    ]
   },
   "prettier": {
     "useTabs": true,
