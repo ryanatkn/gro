@@ -1,7 +1,7 @@
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 import {join, basename, dirname} from 'path';
 
-import {type Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {isSourceId} from '../paths.js';
 import {genModuleMeta, toGenModuleType} from './genModule.js';
 

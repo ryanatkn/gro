@@ -1,5 +1,5 @@
 import {JS_EXTENSION, toBuildOutPath} from '../paths.js';
-import {type Builder, type TextBuildSource} from './builder.js';
+import type {Builder, TextBuildSource} from './builder.js';
 
 export interface Options {
 	optimize?: boolean; // see `toJsonJsContent` below

@@ -111,13 +111,13 @@ export const SomeObjectSchema = {
 	properties: {
 		a: {type: 'number'},
 		b: {type: 'string'},
-		c: {type: 'object', tsType: 'Dep', tsImport: `import {type Dep} from '../dep.js'`},
+		c: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from '../dep.js'`},
 		d: {
 			type: 'object',
 			tsType: 'SomeGeneric<Dep>',
 			tsImport: [
-				`import {type Dep} from '../dep.js'`,
-				`import {type SomeGeneric} from './generic.js'`,
+				`import type {Dep} from '../dep.js'`,
+				`import type {SomeGeneric} from './generic.js'`,
 			],
 		},
 	},
@@ -129,8 +129,8 @@ export const SomeObjectSchema = {
 Outputs `src/something.ts`:
 
 ```ts
-import {type Dep} from '../dep.js';
-import {type SomeGeneric} from './generic.js';
+import type {Dep} from '../dep.js';
+import type {SomeGeneric} from './generic.js';
 
 export interface SomeObject {
 	a: number;
@@ -276,7 +276,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 or in code:
 
 ```ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {

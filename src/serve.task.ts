@@ -1,8 +1,8 @@
-import {type Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {createGroServer} from './server/server.js';
 import {Filer} from './build/Filer.js';
 import {loadHttpsCredentials} from './server/https.js';
-import {type ServeTaskArgs} from './serveTask.js';
+import type {ServeTaskArgs} from './serveTask.js';
 import {ServeTaskArgsSchema} from './serveTask.schema.js';
 
 export const task: Task<ServeTaskArgs> = {

@@ -1,4 +1,4 @@
-import {type Builder} from './builder.js';
+import type {Builder} from './builder.js';
 import {JSON_EXTENSION, JS_EXTENSION, SVELTE_EXTENSION, TS_EXTENSION} from '../paths.js';
 import {groBuilderSimple, type Options as SimpleBuilderOptions} from './groBuilderSimple.js';
 import {groBuilderEsbuild, type Options as EsbuildBuilderOptions} from './groBuilderEsbuild.js';

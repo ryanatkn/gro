@@ -82,7 +82,7 @@ $ gro gro/some/file
 
 ```ts
 // src/some/file.task.ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -152,7 +152,7 @@ gro some/file
 
 ```ts
 // src/some/file.task.ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
@@ -187,7 +187,7 @@ $ gro test
 
 ```ts
 // src/test.task.ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
@@ -214,7 +214,7 @@ The `Task` interface is generic, and its first param is the type of the task con
 
 ```ts
 // src/some/file.task.ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task<{something: boolean}> = {
 	run: async ({args}) => {
@@ -235,10 +235,10 @@ providing some benefits:
 
 ```ts
 // src/dosomething.task.ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 import {DosomethingArgsSchema} from './dosomethingTask.schema.js';
-import {type DosomethingArgs} from './dosomethingTask.js'; // this is generated
+import type {DosomethingArgs} from './dosomethingTask.js'; // this is generated
 
 export const task: Task<DosomethingArgs> = {
 	args: DosomethingArgsSchema,
@@ -252,7 +252,7 @@ export const task: Task<DosomethingArgs> = {
 
 ```ts
 // src/dosomethingTask.schema.ts
-import {type ArgsSchema} from '@feltcoop/gro';
+import type {ArgsSchema} from '@feltcoop/gro';
 
 export const DosomethingArgsSchema: ArgsSchema = {
 	$id: '/schemas/DosomethingArgs.json',
@@ -324,7 +324,7 @@ Here's how a task can emit and listen to events:
 
 ```ts
 // src/some/mytask.task.ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 import {type TaskEvents as OtherTaskEvents} from '../task/othertask.task.ts';
 
@@ -374,7 +374,7 @@ export const task: Task = {
 
 ```ts
 // src/some/file.task.ts
-import {type Task} from '@feltcoop/gro';
+import type {Task} from '@feltcoop/gro';
 
 export const task: Task = {
 	production: true, // task runner will spawn a new process if `process.env.NODE_ENV` isn't 'production'

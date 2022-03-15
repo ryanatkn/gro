@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {type Writable} from 'svelte/store';
+	import type {Writable} from 'svelte/store';
 
 	import BuildName from '$lib/app/BuildName.svelte';
 	import PlatformName from '$lib/app/PlatformName.svelte';
 	import {getMetasByBuildName, type SourceTree} from '$lib/app/sourceTree';
-	import {type View} from '$lib/app/view';
+	import type {View} from '$lib/app/view';
 	import type {SourceMeta} from '../../build/sourceMeta';
 
 	export let sourceTree: SourceTree;

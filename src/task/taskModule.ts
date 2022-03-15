@@ -8,7 +8,7 @@ import {
 } from '../fs/modules.js';
 import {toTaskName, isTaskPath, TASK_FILE_SUFFIX, type Task} from './task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
-import {type Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface TaskModule {
 	task: Task;

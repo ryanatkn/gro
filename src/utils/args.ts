@@ -1,4 +1,4 @@
-import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
+import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import {magenta} from 'kleur/colors';
 import mri from 'mri';
 

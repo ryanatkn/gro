@@ -1,8 +1,8 @@
-import {Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 import {replaceExtension} from '@feltcoop/felt/util/path.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 
-import {type Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {
 	sourceIdToBasePath,
 	toTypesBuildDir,

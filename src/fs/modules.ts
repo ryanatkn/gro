@@ -1,14 +1,14 @@
 import {red} from 'kleur/colors';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import {type Result} from '@feltcoop/felt';
+import type {Result} from '@feltcoop/felt';
 import {printError} from '@feltcoop/felt/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
-import {type PathStats, type PathData} from './pathData.js';
+import type {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId, printPath, printPathOrGroPath} from '../paths.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import {type Filesystem} from './filesystem.js';
+import type {Filesystem} from './filesystem.js';
 
 /*
 

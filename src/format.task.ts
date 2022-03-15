@@ -3,7 +3,7 @@ import {printSpawnResult} from '@feltcoop/felt/util/process.js';
 import {TaskError, type Task} from './task/task.js';
 import {formatDirectory} from './format/formatDirectory.js';
 import {paths} from './paths.js';
-import {type FormatTaskArgs} from './formatTask.js';
+import type {FormatTaskArgs} from './formatTask.js';
 import {FormatTaskArgsSchema} from './formatTask.schema.js';
 
 export const task: Task<FormatTaskArgs> = {

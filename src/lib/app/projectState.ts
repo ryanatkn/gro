@@ -1,5 +1,5 @@
 import {setContext, getContext} from 'svelte';
-import {type Writable} from 'svelte/store';
+import type {Writable} from 'svelte/store';
 
 import type {ProjectState} from '../../server/projectState';
 

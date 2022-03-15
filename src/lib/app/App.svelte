@@ -19,7 +19,7 @@
 	import SourceMetaTreeExplorers from '$lib/app/SourceMetaTreeExplorers.svelte';
 	import {createSourceTree, type SourceTree} from '$lib/app/sourceTree';
 	import type {ProjectState} from '../../server/projectState';
-	import {type View} from '$lib/app/view';
+	import type {View} from '$lib/app/view';
 	import {setProjectState} from '$lib/app/projectState';
 
 	console.log('enter App.svelte');

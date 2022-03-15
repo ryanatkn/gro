@@ -4,10 +4,10 @@ import {printError} from '@feltcoop/felt/util/print.js';
 import {magenta, green, red} from 'kleur/colors';
 
 import {rainbow} from './utils/colors.js';
-import {type Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {cleanFs} from './fs/clean.js';
-import {type DeployTaskArgs} from './deployTask.js';
+import type {DeployTaskArgs} from './deployTask.js';
 import {DeployTaskArgsSchema} from './deployTask.schema.js';
 import {toRawRestArgs} from './utils/args.js';
 

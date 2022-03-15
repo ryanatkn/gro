@@ -2,7 +2,7 @@ import {stripEnd} from '@feltcoop/felt/util/string.js';
 import * as lexer from 'es-module-lexer';
 
 import {formatFile} from '../../format/formatFile.js';
-import {type Filesystem} from '../../fs/filesystem.js';
+import type {Filesystem} from '../../fs/filesystem.js';
 
 // This module hackily combines imports into single lines.
 // A proper implementation would parse with TypeScript;

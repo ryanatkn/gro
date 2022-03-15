@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './utils/args.js';
+import type {ArgsSchema} from './utils/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 
 export const PublishTaskArgsSchema: ArgsSchema = {

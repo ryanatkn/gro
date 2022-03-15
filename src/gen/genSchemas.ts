@@ -5,8 +5,8 @@ import {
 import {stripEnd} from '@feltcoop/felt/util/string.js';
 import {traverse} from '@feltcoop/felt/util/object.js';
 
-import {type GenContext, type RawGenResult} from './gen.js';
-import {type GenModuleMeta, type SchemaGenModule} from './genModule.js';
+import type {GenContext, RawGenResult} from './gen.js';
+import type {GenModuleMeta, SchemaGenModule} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTsImports} from './helpers/tsImport.js';
 import {isVocabSchema, type VocabSchema} from '../utils/schema.js';

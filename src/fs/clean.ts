@@ -1,5 +1,5 @@
 import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
-import {type SystemLogger} from '@feltcoop/felt/util/log.js';
+import type {SystemLogger} from '@feltcoop/felt/util/log.js';
 
 import {toSourceMetaDir} from '../build/sourceMeta.js';
 import {
@@ -11,7 +11,7 @@ import {
 	SVELTEKIT_VITE_CACHE_PATH,
 	printPath,
 } from '../paths.js';
-import {type Filesystem} from './filesystem.js';
+import type {Filesystem} from './filesystem.js';
 
 export const cleanFs = async (
 	fs: Filesystem,

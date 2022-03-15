@@ -1,7 +1,7 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@feltcoop/felt/util/process.js';
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 
-import {type Plugin, type PluginContext} from './plugin.js';
+import type {Plugin, PluginContext} from './plugin.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs, type Args} from '../utils/args.js';
 
 export interface Options {} // eslint-disable-line @typescript-eslint/no-empty-interface

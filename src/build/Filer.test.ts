@@ -4,7 +4,7 @@ import {replaceExtension} from '@feltcoop/felt/util/path.js';
 
 import {Filer} from './Filer.js';
 import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
-import {type BuildConfig} from './buildConfig.js';
+import type {BuildConfig} from './buildConfig.js';
 import {createPaths, JS_EXTENSION} from '../paths.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 

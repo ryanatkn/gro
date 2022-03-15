@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import {resolve, join} from 'path';
 import {Logger} from '@feltcoop/felt/util/log.js';
 
-import {type GenModuleMeta} from './genModule.js';
+import type {GenModuleMeta} from './genModule.js';
 import {runGen} from './runGen.js';
 import {fs} from '../fs/node.js';
 

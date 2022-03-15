@@ -1,15 +1,15 @@
 import {printTimings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 
-import {type Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {groBuilderDefault} from './build/groBuilderDefault.js';
 import {paths, toBuildOutPath} from './paths.js';
 import {loadConfig, type GroConfig} from './config/config.js';
-import {type ServedDirPartial} from './build/servedDir.js';
+import type {ServedDirPartial} from './build/servedDir.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
-import {type DevServerPluginContext} from './plugin/groPluginDevServer.js';
-import {type DevTaskArgs} from './devTask.js';
+import type {DevServerPluginContext} from './plugin/groPluginDevServer.js';
+import type {DevTaskArgs} from './devTask.js';
 import {DevTaskArgsSchema} from './devTask.schema.js';
 
 export interface DevTaskContext

@@ -23,7 +23,7 @@ import {findModules, loadModules} from '../fs/modules.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import {type Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {logAvailableTasks, logErrorReasons} from './logTask.js';
 
 /*

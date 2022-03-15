@@ -1,10 +1,10 @@
 import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
 import {spawnRestartableProcess, type RestartableProcess} from '@feltcoop/felt/util/process.js';
 
-import {type Plugin, type PluginContext} from './plugin.js';
+import type {Plugin, PluginContext} from './plugin.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {toBuildOutDir} from '../paths.js';
-import {type BuildConfig, type BuildName} from '../build/buildConfig.js';
+import type {BuildConfig, BuildName} from '../build/buildConfig.js';
 
 // TODO import from felt instead
 

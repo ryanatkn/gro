@@ -1,7 +1,7 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import {TaskError, type Task} from './task/task.js';
-import {type TypecheckTaskArgs} from './typecheckTask.js';
+import type {TypecheckTaskArgs} from './typecheckTask.js';
 import {TypecheckTaskArgsSchema} from './typecheckTask.schema.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 

@@ -11,7 +11,7 @@ import {
 	type Paths,
 } from '../paths.js';
 import {toPathData, type PathData, type PathStats} from './pathData.js';
-import {type Filesystem} from './filesystem.js';
+import type {Filesystem} from './filesystem.js';
 
 /*
 
