@@ -14,29 +14,12 @@ import E, {
 import E3 from './someTestExports2.js';
 import type E4 from './someTestExports3.js';
 import './someTestSideEffect.js'; // hmm
-import json from './someTestJson.json' assert {type: 'json'}; // hmm
 
 export interface SomeTestObject {
 	a: number;
 	b: string;
 	c?: A;
-	d?: A<
-		B<
-			C<
-				D<
-					typeof E,
-					B2,
-					C2,
-					C3,
-					typeof F,
-					typeof E22222222222222222,
-					typeof E3,
-					typeof E4,
-					typeof json
-				>
-			>
-		>
-	>;
+	d?: A<B<C<D<typeof E, B2, C2, C3, typeof F, typeof E22222222222222222, typeof E3, typeof E4>>>>;
 }
 export type SomeTestPrimitive = number;
 
