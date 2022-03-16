@@ -146,23 +146,21 @@ const toImportInfo = (imp: ParsedImport, fileId: string): ImportInfo => {
 
 const printImportInfo = (info: ImportInfo): string => {
 	let result = '';
-	const end = info.end ? info.end + '\n' : '';
+	const append = (str: string): void => {
+		if (result) result += '\n';
+		result += str;
+	};
+	const {end = ''} = info;
 	const hasDefault = !!info.defaultValue;
 	if (!hasDefault && !info.values.length) {
-		result += `import '${info.path}';` + end;
+		append(`import '${info.path}';` + end);
 	}
 	if (hasDefault) {
-		result +=
-			'import type ' + stripStart(info.defaultValue, 'type ') + ` from '${info.path}';` + end;
+		append('import type ' + stripStart(info.defaultValue, 'type ') + ` from '${info.path}';` + end);
 	}
 	if (info.values.length) {
 		const strippedTypeValues = info.values.map((v) => stripStart(v, 'type '));
-		result +=
-			(hasDefault ? '\n' : '') +
-			'import type ' +
-			('{' + strippedTypeValues.join(', ') + '}') +
-			` from '${info.path}';` +
-			end;
+		append(`import type { ${strippedTypeValues.join(', ')} } from '${info.path}';` + end);
 	}
 	return result;
 };
