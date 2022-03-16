@@ -9,6 +9,7 @@ import {groBuilderDefault} from './groBuilderDefault.js';
 import type {GroConfig} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {generateTypes} from './typescriptUtils.js';
+import {sveltekitSync} from '../utils/sveltekit.js';
 
 export const buildSource = async (
 	fs: Filesystem,
@@ -17,6 +18,8 @@ export const buildSource = async (
 	log: Logger,
 ): Promise<void> => {
 	log.info('building source', gray(dev ? 'development' : 'production'));
+
+	await sveltekitSync(fs);
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
