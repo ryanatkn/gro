@@ -10,15 +10,15 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import {type Builder, type TextBuildSource} from './builder.js';
+import type {Builder, TextBuildSource} from './builder.js';
 import {addJsSourcemapFooter} from './utils.js';
 import {
 	toGenerateTypesForFile,
 	type EcmaScriptTarget,
 	type GenerateTypesForFile,
 } from './typescriptUtils.js';
-import {type Filesystem} from '../fs/filesystem.js';
-import {type BuildFile} from './buildFile.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import type {BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {

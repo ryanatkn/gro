@@ -1,4 +1,4 @@
-import {type Task} from '../task.js';
+import type {Task} from '../task.js';
 
 export const task: Task = {
 	summary: 'a test task for basic task behavior',

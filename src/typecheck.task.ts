@@ -1,15 +1,18 @@
 import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import {TaskError, type Task} from './task/task.js';
-import {type TypecheckTaskArgs} from './typecheckTask.js';
+import type {TypecheckTaskArgs} from './typecheckTask.js';
 import {TypecheckTaskArgsSchema} from './typecheckTask.schema.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
+import {sveltekitSync} from './utils/sveltekit.js';
 
 export const task: Task<TypecheckTaskArgs> = {
 	summary: 'typecheck the project without emitting any files',
 	args: TypecheckTaskArgsSchema,
 	run: async ({fs, args, log}): Promise<void> => {
 		const {tsconfig} = args;
+
+		await sveltekitSync(fs);
 
 		const forwardedTscArgs = toForwardedArgs('tsc');
 		if (!forwardedTscArgs.noEmit) forwardedTscArgs.noEmit = true;

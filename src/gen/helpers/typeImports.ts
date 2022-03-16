@@ -1,10 +1,10 @@
-import {stripEnd} from '@feltcoop/felt/util/string.js';
+import {stripEnd, stripStart} from '@feltcoop/felt/util/string.js';
 import * as lexer from 'es-module-lexer';
 
 import {formatFile} from '../../format/formatFile.js';
-import {type Filesystem} from '../../fs/filesystem.js';
+import type {Filesystem} from '../../fs/filesystem.js';
 
-// This module hackily combines imports into single lines.
+// This module hackily merges type imports into a minimal set of normalized declarations.
 // A proper implementation would parse with TypeScript;
 // this one should handle most imports but will fail with comments inline in import statements,
 // which, given the usecases, users should be able to notice and fix for themselves
@@ -15,7 +15,7 @@ import {type Filesystem} from '../../fs/filesystem.js';
 // Prettier makes this less gnarly than it appears because
 // it gives good parse errors and makes formatting consistent.
 
-export const normalizeTsImports = async (
+export const normalizeTypeImports = async (
 	fs: Filesystem,
 	rawImports: string[],
 	fileId: string,
@@ -145,12 +145,22 @@ const toImportInfo = (imp: ParsedImport, fileId: string): ImportInfo => {
 };
 
 const printImportInfo = (info: ImportInfo): string => {
-	return (
-		'import ' +
-		(info.defaultValue ? info.defaultValue + (info.values.length ? ', ' : '') : '') +
-		(info.values.length ? '{' + info.values.join(', ') + '}' : '') +
-		(info.defaultValue || info.values.length ? ' from ' : '') +
-		`'${info.path}'` +
-		(info.end ? ' ' + info.end : '')
-	);
+	let result = '';
+	const append = (str: string): void => {
+		if (result) result += '\n';
+		result += str;
+	};
+	const {end = ''} = info;
+	const hasDefault = !!info.defaultValue;
+	if (!hasDefault && !info.values.length) {
+		append(`import '${info.path}';` + end);
+	}
+	if (hasDefault) {
+		append('import type ' + stripStart(info.defaultValue, 'type ') + ` from '${info.path}';` + end);
+	}
+	if (info.values.length) {
+		const strippedTypeValues = info.values.map((v) => stripStart(v, 'type '));
+		append(`import type { ${strippedTypeValues.join(', ')} } from '${info.path}';` + end);
+	}
+	return result;
 };

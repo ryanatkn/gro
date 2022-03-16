@@ -5,7 +5,7 @@ import {stripStart} from '@feltcoop/felt/util/string.js';
 import esbuild from 'esbuild';
 import {identity} from '@feltcoop/felt/util/function.js';
 
-import {type Adapter} from './adapt.js';
+import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from './utils.js';
 import {
@@ -21,9 +21,9 @@ import {
 } from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {type BuildName, printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
-import {type PathStats} from '../fs/pathData.js';
-import {type PackageJson} from '../utils/packageJson.js';
-import {type Filesystem} from '../fs/filesystem.js';
+import type {PathStats} from '../fs/pathData.js';
+import type {PackageJson} from '../utils/packageJson.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {toDefaultEsbuildBundleOptions} from '../build/groBuilderEsbuildUtils.js';
 
 const name = '@feltcoop/groAdapterNodeLibrary';

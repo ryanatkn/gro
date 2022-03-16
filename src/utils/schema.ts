@@ -1,5 +1,5 @@
-import {type JSONSchema} from '@ryanatkn/json-schema-to-typescript';
-import {type ResolverOptions} from 'json-schema-ref-parser';
+import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
+import type {ResolverOptions} from 'json-schema-ref-parser';
 
 export interface VocabSchema extends JSONSchema {
 	$id: string;

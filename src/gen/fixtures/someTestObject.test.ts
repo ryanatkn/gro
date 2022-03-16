@@ -5,7 +5,7 @@ import {Logger} from '@feltcoop/felt/util/log.js';
 import {red} from 'kleur/colors';
 
 import {SomeTestObjectSchema, SomeTestPrimitiveSchema} from './someTestObject.schema.js';
-import {type SomeTestObject, type SomeTestPrimitive} from './someTestObject.js';
+import type {SomeTestObject, SomeTestPrimitive} from './someTestObject.js';
 
 const log = new Logger('test__someTestObject'); // TODO test logger?
 

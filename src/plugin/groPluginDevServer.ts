@@ -1,7 +1,7 @@
-import {type Plugin, type PluginContext} from './plugin.js';
+import type {Plugin, PluginContext} from './plugin.js';
 import {loadHttpsCredentials} from '../server/https.js';
 import {createGroServer, type GroServer} from '../server/server.js';
-import {type DevTaskArgs} from '../devTask.js';
+import type {DevTaskArgs} from '../devTask.js';
 
 const name = '@feltcoop/groPluginDevServer';
 

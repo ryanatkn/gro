@@ -2,7 +2,7 @@ import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 
 import {TaskError, type Task} from './task/task.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
-import {type LintTaskArgs} from './lintTask';
+import type {LintTaskArgs} from './lintTask';
 import {LintTaskArgsSchema} from './lintTask.schema.js';
 
 export const task: Task<LintTaskArgs> = {

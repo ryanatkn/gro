@@ -8,7 +8,7 @@ import {toBuildOutPath, toRootPath} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
-import {type TestTaskArgs} from './testTask.js';
+import type {TestTaskArgs} from './testTask.js';
 import {TestTaskArgsSchema} from './testTask.schema.js';
 import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 

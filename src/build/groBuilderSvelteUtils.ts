@@ -1,17 +1,17 @@
-import {type compile} from 'svelte/compiler';
+import type {compile} from 'svelte/compiler';
 import * as svelte from 'svelte/compiler';
-import {
-	type CompileOptions as SvelteCompileOptions,
-	type Warning as SvelteWarning,
+import type {
+	CompileOptions as SvelteCompileOptions,
+	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
-import {type PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 import {yellow} from 'kleur/colors';
 import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';
 
 import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
-import {type EcmaScriptTarget} from './typescriptUtils.js';
+import type {EcmaScriptTarget} from './typescriptUtils.js';
 import {printPath} from '../paths.js';
 
 export type CreatePreprocessor = (

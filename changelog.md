@@ -1,5 +1,10 @@
 # changelog
 
+## 0.53.0
+
+- **break**: upgrade `@sveltejs/kit@1.0.0-next.298` and run `svelte-kit sync` before typechecking
+  ([#317](https://github.com/feltcoop/gro/pull/317))
+
 ## 0.52.3
 
 - register schemas for gen and search for them before the file resolver

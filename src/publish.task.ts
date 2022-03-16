@@ -1,18 +1,18 @@
 import {createInterface as createReadlineInterface} from 'readline';
 import {spawn} from '@feltcoop/felt/util/process.js';
 import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import {type Flavored, type Result} from '@feltcoop/felt';
+import type {Flavored, Result} from '@feltcoop/felt';
 
 import {rainbow} from './utils/colors.js';
-import {type Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
-import {type Filesystem} from './fs/filesystem.js';
+import type {Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
-import {type PublishTaskArgs} from './publishTask.js';
+import type {PublishTaskArgs} from './publishTask.js';
 import {PublishTaskArgsSchema} from './publishTask.schema.js';
 import {toRawRestArgs} from './utils/args.js';
 

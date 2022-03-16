@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './utils/args.js';
+import type {ArgsSchema} from './utils/args.js';
 import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from './server/server.js';
 
 export const ServeTaskArgsSchema: ArgsSchema = {

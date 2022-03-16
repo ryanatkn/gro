@@ -1,13 +1,13 @@
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {printTimings} from '@feltcoop/felt/util/print.js';
 
-import {type Task} from './task/task.js';
+import type {Task} from './task/task.js';
 import {loadConfig, type GroConfig} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
 import {Plugins} from './plugin/plugin.js';
 import {cleanFs} from './fs/clean.js';
-import {type BuildTaskArgs} from './buildTask.js';
+import type {BuildTaskArgs} from './buildTask.js';
 import {BuildTaskArgsSchema} from './buildTask.schema.js';
 
 export interface TaskEvents {

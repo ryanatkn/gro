@@ -1,4 +1,4 @@
-import {type ArgsSchema} from './utils/args.js';
+import type {ArgsSchema} from './utils/args.js';
 
 export const CleanTaskArgsSchema: ArgsSchema = {
 	$id: '/schemas/CleanTaskArgs.json',

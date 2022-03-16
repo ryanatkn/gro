@@ -1,11 +1,11 @@
 import * as svelte from 'svelte/compiler';
-import {type PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
-import {type CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
+import type {PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
 import {printLogLabel, SystemLogger, type Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {cyan} from 'kleur/colors';
 
-import {type EcmaScriptTarget} from './typescriptUtils.js';
+import type {EcmaScriptTarget} from './typescriptUtils.js';
 import {
 	baseSvelteCompileOptions,
 	createDefaultPreprocessor,
@@ -21,10 +21,10 @@ import {
 	SVELTE_EXTENSION,
 	toBuildOutPath,
 } from '../paths.js';
-import {type Builder, type TextBuildSource} from './builder.js';
-import {type BuildConfig} from './buildConfig.js';
+import type {Builder, TextBuildSource} from './builder.js';
+import type {BuildConfig} from './buildConfig.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
-import {type BuildFile} from './buildFile.js';
+import type {BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
 
 // TODO build types in production unless `declarations` is `false`,

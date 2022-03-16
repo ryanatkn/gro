@@ -1,14 +1,15 @@
 import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
 import {gray} from 'kleur/colors';
 
 import {paths, toTypesBuildDir} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
-import {type GroConfig} from '../config/config.js';
-import {type Filesystem} from '../fs/filesystem.js';
+import type {GroConfig} from '../config/config.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {generateTypes} from './typescriptUtils.js';
+import {sveltekitSync} from '../utils/sveltekit.js';
 
 export const buildSource = async (
 	fs: Filesystem,
@@ -17,6 +18,8 @@ export const buildSource = async (
 	log: Logger,
 ): Promise<void> => {
 	log.info('building source', gray(dev ? 'development' : 'production'));
+
+	await sveltekitSync(fs);
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();

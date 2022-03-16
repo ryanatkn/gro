@@ -1,13 +1,13 @@
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 
-import {type BuildConfig, type BuildName} from './buildConfig.js';
-import {type EcmaScriptTarget} from './typescriptUtils.js';
-import {type ServedDir} from './servedDir.js';
-import {type SourceMeta} from './sourceMeta.js';
-import {type Filesystem} from '../fs/filesystem.js';
-import {type BaseFilerFile} from './filerFile.js';
-import {type BuildFile} from './buildFile.js';
-import {type Paths} from '../paths.js';
+import type {BuildConfig, BuildName} from './buildConfig.js';
+import type {EcmaScriptTarget} from './typescriptUtils.js';
+import type {ServedDir} from './servedDir.js';
+import type {SourceMeta} from './sourceMeta.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import type {BaseFilerFile} from './filerFile.js';
+import type {BuildFile} from './buildFile.js';
+import type {Paths} from '../paths.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource> {
 	name: string;

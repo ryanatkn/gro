@@ -1,11 +1,11 @@
 import {red} from 'kleur/colors';
 import {printError} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
-import {type Logger} from '@feltcoop/felt/util/log.js';
+import type {Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import {type Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
+import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
 
-import {type GenModuleMeta} from './genModule.js';
+import type {GenModuleMeta} from './genModule.js';
 import {
 	type GenResults,
 	type GenModuleResult,
@@ -15,7 +15,7 @@ import {
 	toGenResult,
 	type RawGenResult,
 } from './gen.js';
-import {type Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {printPath} from '../paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
 import {toVocabSchemaResolver} from '../utils/schema.js';

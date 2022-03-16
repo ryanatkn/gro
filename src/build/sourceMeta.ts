@@ -1,18 +1,18 @@
 import {gray} from 'kleur/colors';
 
-import {type Encoding} from '../fs/encoding.js';
+import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
 import {getFileContentHash} from './filerFile.js';
-import {type BuildContext} from './builder.js';
-import {type BuildableSourceFile} from './sourceFile.js';
-import {type BuildName} from './buildConfig.js';
+import type {BuildContext} from './builder.js';
+import type {BuildableSourceFile} from './sourceFile.js';
+import type {BuildName} from './buildConfig.js';
 import {
 	serializeBuildDependency,
 	deserializeBuildDependency,
 	type BuildDependency,
 	type SerializedBuildDependency,
 } from './buildDependency.js';
-import {type Filesystem} from '../fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {throttleAsync} from '../utils/throttleAsync.js';
 
 export interface SourceMeta {

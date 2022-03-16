@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {type Writable} from 'svelte/store';
+	import type {Writable} from 'svelte/store';
 
 	import SourceMetaRawItem from '$lib/app/SourceMetaRawItem.svelte';
 	import {filterSelectedMetas, type SourceTree} from '$lib/app/sourceTree';
