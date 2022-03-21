@@ -154,7 +154,6 @@ export const invokeTask = async (
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
-			// eslint-disable-next-line no-lonely-if
 			if (isThisProjectGro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				await logAvailableTasks(
