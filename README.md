@@ -6,7 +6,8 @@
 
 > **pre-alpha**: suitable only for the curious and reckless
 
-> **Windows is not yet supported.** WSL works well enough
+> [Windows is not yet supported.](https://github.com/feltcoop/gro/issues/319)
+> WSL works well enough
 
 > _heads up_: For now, consider Gro's free software
 > [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
