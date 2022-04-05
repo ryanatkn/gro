@@ -1,5 +1,12 @@
 # changelog
 
+## 0.54.0
+
+- **break**: upgrade deps including peer dep for `@feltcoop/felt@0.26.0`
+  ([#320](https://github.com/feltcoop/gro/pull/320))
+- **break**: remove `deploymentMode` option from SvelteKit frontend adapter
+  ([#320](https://github.com/feltcoop/gro/pull/320))
+
 ## 0.53.0
 
 - **break**: upgrade `@sveltejs/kit@1.0.0-next.298` and run `svelte-kit sync` before typechecking
