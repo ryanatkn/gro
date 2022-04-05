@@ -1,5 +1,10 @@
 # changelog
 
+## 0.54.0
+
+- **break**: remove `deploymentMode` option from SvelteKit frontend adapter
+  ([#318](https://github.com/feltcoop/gro/pull/318))
+
 ## 0.53.0
 
 - **break**: upgrade `@sveltejs/kit@1.0.0-next.298` and run `svelte-kit sync` before typechecking
