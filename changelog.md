@@ -2,6 +2,8 @@
 
 ## 0.54.0
 
+- **break**: upgrade deps including peer deps for `@feltcoop/felt@0.26.0`
+  ([#318](https://github.com/feltcoop/gro/pull/318))
 - **break**: remove `deploymentMode` option from SvelteKit frontend adapter
   ([#318](https://github.com/feltcoop/gro/pull/318))
 
