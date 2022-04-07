@@ -223,12 +223,6 @@ Gro builds on
 [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) &
 [more](package.json)
 
-[Gro's strategy](/src/docs/dev.md) of pairing unbundled ES modules during development
-with optimized bundles for production
-was inspired by [Snowpack](https://github.com/pikapkg/snowpack).
-
-Gro's buildtime antics were inspired by [Svelte](https://github.com/sveltejs/svelte).
-
 ## license [🐦](https://en.wikipedia.org/wiki/Free_and_open-source_software)
 
 [MIT](LICENSE)
