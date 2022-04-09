@@ -28,4 +28,4 @@ const main = async () => {
 attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : null));
 
 // see above for why we don't catch here
-main(); // eslint-disable-line @typescript-eslint/no-floating-promises
+void main();
