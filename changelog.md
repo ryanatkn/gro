@@ -1,5 +1,10 @@
 # changelog
 
+## 0.55.0
+
+- **break**: remove the devserver, including `gro serve` and project metadata
+  ([#321](https://github.com/feltcoop/gro/pull/321))
+
 ## 0.54.0
 
 - **break**: upgrade deps including peer dep for `@feltcoop/felt@0.26.0`
