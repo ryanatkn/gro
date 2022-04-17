@@ -176,11 +176,6 @@ gro clean --svelte --nodemodules --git # also deletes dirs and prunes git branch
 ```
 
 ```bash
-gro serve # serve the current directory
-gro serve some/dir and/another/dir # serve some directories
-```
-
-```bash
 gro --version # print the Gro version
 ```
 
