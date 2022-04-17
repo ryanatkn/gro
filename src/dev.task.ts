@@ -21,7 +21,7 @@ export interface TaskEvents {
 }
 
 export const task: Task<DevTaskArgs, TaskEvents> = {
-	summary: 'start dev server',
+	summary: 'start SvelteKit and other dev plugins',
 	args: DevTaskArgsSchema,
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
