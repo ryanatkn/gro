@@ -36,7 +36,7 @@ export const toTaskName = (basePath: string): string => {
 	if (stripped === basePath) return basePath;
 	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.
 	const s = stripped.split('/');
-	return s[s.length - 1] === s[s.length - 2] ? s.slice(0, -1).join('/') : stripped;
+	return s.at(-1) === s.at(-2) ? s.slice(0, -1).join('/') : stripped;
 };
 
 // This is used by tasks to signal a known failure.
