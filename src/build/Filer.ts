@@ -67,8 +67,8 @@ export interface Options {
 	fs: Filesystem;
 	paths: Paths;
 	dev: boolean;
-	builder: Builder | null;
-	buildConfigs: BuildConfig[] | null;
+	builder: Builder;
+	buildConfigs: BuildConfig[];
 	buildDir: string;
 	sourceDirs: string[];
 	mapDependencyToSourceId: MapDependencyToSourceId;
@@ -81,37 +81,19 @@ export interface Options {
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
-export type RequiredOptions = 'fs';
+export type RequiredOptions = 'fs' | 'builder' | 'buildConfigs' | 'sourceDirs';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const paths = opts.paths ?? defaultPaths;
 	const dev = opts.dev ?? true;
-	const buildConfigs = opts.buildConfigs || null;
-	if (buildConfigs?.length === 0) {
+	if (opts.buildConfigs.length === 0) {
 		throw Error(
 			'Filer created with an empty array of buildConfigs.' +
 				' Omit the value or provide `null` if this was intended.',
 		);
 	}
 	const buildDir = opts.buildDir || paths.build; // TODO assumes trailing slash
-	const sourceDirs = opts.sourceDirs ? opts.sourceDirs.map((d) => resolve(d)) : [];
-	validateDirs(sourceDirs);
-	const builder = opts.builder || null;
-	if (sourceDirs.length) {
-		if (!buildConfigs) {
-			throw Error('Filer created with directories to build but no build configs were provided.');
-		}
-		if (!builder) {
-			throw Error('Filer created with directories to build but no builder was provided.');
-		}
-	} else {
-		if (builder) {
-			throw Error('Filer created with a builder but no directories to build.');
-		}
-		if (buildConfigs) {
-			throw Error('Filer created with build configs but no builder was provided.');
-		}
-	}
+	const sourceDirs = validateDirs(opts.sourceDirs);
 	return {
 		mapDependencyToSourceId,
 		sourcemap: true,
@@ -125,8 +107,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		paths,
 		dev,
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
-		builder,
-		buildConfigs,
 		buildDir,
 		sourceDirs,
 	};
@@ -136,7 +116,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// TODO think about accessors - I'm currently just making things public when I need them here
 	private readonly files: Map<string, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
-	private readonly builder: Builder | null;
+	private readonly builder: Builder;
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
 
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
@@ -144,8 +124,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
 	readonly paths: Paths;
-	readonly buildConfigs: readonly BuildConfig[] | null; // TODO BLOCK should this be non-nullable? also see the checks in initOptions and null checks below
-	readonly buildNames: Set<BuildName> | null;
+	readonly buildConfigs: readonly BuildConfig[];
+	readonly buildNames: Set<BuildName>;
 	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly buildDir: string;
@@ -181,7 +161,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.dev = dev;
 		this.builder = builder;
 		this.buildConfigs = buildConfigs;
-		this.buildNames = buildConfigs ? new Set(buildConfigs.map((b) => b.name)) : null;
+		this.buildNames = new Set(buildConfigs.map((b) => b.name));
 		this.buildDir = buildDir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
 		this.sourcemap = sourcemap;
@@ -228,7 +208,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
 		// what data is not yet ready? does this belong inside `initBuilds`?
-		if (this.builder?.init && this.buildConfigs !== null) {
+		if (this.builder.init) {
 			await this.builder.init(this);
 		}
 
@@ -249,8 +229,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// building each input source file and populating its `buildConfigs`,
 	// recursively until all dependencies have been handled.
 	private async initBuilds(): Promise<void> {
-		if (this.buildConfigs === null) return;
-
 		const promises: Array<Promise<void>> = [];
 
 		const filters: Array<(id: string) => boolean> = [];
@@ -358,7 +336,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		sourceFile.dependencies.delete(buildConfig);
 		sourceFile.dependents.delete(buildConfig);
-		const {onRemove} = this.builder!;
+		const {onRemove} = this.builder;
 		if (onRemove) {
 			try {
 				await onRemove(sourceFile, buildConfig, this);
@@ -410,20 +388,18 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					if (this.buildConfigs !== null) {
-						// TODO This is weird because we're blindly deleting
-						// the directory for all build configs,
-						// whether or not they apply for this id.
-						// It could be improved by tracking tracking dirs in the Filer
-						// and looking up the correct build configs.
-						await Promise.all(
-							this.buildConfigs.map((buildConfig) =>
-								this.fs.remove(
-									toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildDir),
-								),
+					// TODO This is weird because we're blindly deleting
+					// the directory for all build configs,
+					// whether or not they apply for this id.
+					// It could be improved by tracking tracking dirs in the Filer
+					// and looking up the correct build configs.
+					await Promise.all(
+						this.buildConfigs.map((buildConfig) =>
+							this.fs.remove(
+								toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildDir),
 							),
-						);
-					}
+						),
+					);
 				} else {
 					await this.destroySourceId(id);
 				}
@@ -437,7 +413,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// Initialize a newly created source file's builds.
 	// It currently uses a slow brute force search to find dependents.
 	private async initSourceFile(file: SourceFile): Promise<void> {
-		if (this.buildConfigs === null) return; // TODO is this right?
 		let promises: Array<Promise<void>> | null = null;
 		let dependentBuildConfigs: Set<BuildConfig> | null = null;
 		// TODO could be sped up with some caching data structures
@@ -592,7 +567,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 		this.buildingSourceFiles.add(sourceFile.id); // track so we can see what the filer is doing
 		try {
-			buildFiles = await this.builder!.build(sourceFile, buildConfig, this);
+			buildFiles = await this.builder.build(sourceFile, buildConfig, this);
 		} catch (err) {
 			this.buildingSourceFiles.delete(sourceFile.id);
 			throw err;
@@ -769,15 +744,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		assertSourceFile(sourceFile);
 		this.log.trace('destroying file', gray(id));
 		this.files.delete(id);
-		if (this.buildConfigs !== null) {
-			await Promise.all(
-				this.buildConfigs.map((b) =>
-					sourceFile.buildConfigs.has(b)
-						? this.removeSourceFileFromBuild(sourceFile, b, false)
-						: null,
-				),
-			);
-		}
+		await Promise.all(
+			this.buildConfigs.map((b) =>
+				sourceFile.buildConfigs.has(b)
+					? this.removeSourceFileFromBuild(sourceFile, b, false)
+					: null,
+			),
+		);
 		// TODO instead of batching like this here, make that concern internal to the sourceMeta
 		// passing `false` above to avoid writing `sourceMeta` to disk for each build -
 		// batch delete it now:
@@ -905,9 +878,11 @@ const isContentEqual = (encoding: Encoding, a: string | Buffer, b: string | Buff
 // to avoid undefined behavior at the cost of flexibility.
 // Some of these conditions like nested sourceDirs could be fixed
 // but there are inefficiencies and possibly some subtle bugs.
-const validateDirs = (sourceDirs: string[]) => {
-	for (const sourceDir of sourceDirs) {
-		const nestedSourceDir = sourceDirs.find((d) => d !== sourceDir && sourceDir.startsWith(d));
+const validateDirs = (sourceDirs: string[]): string[] => {
+	if (!sourceDirs.length) throw Error('No source dirs provided');
+	const dirs = sourceDirs.map((d) => resolve(d));
+	for (const sourceDir of dirs) {
+		const nestedSourceDir = dirs.find((d) => d !== sourceDir && sourceDir.startsWith(d));
 		if (nestedSourceDir) {
 			throw Error(
 				'A sourceDir cannot be inside another sourceDir: ' +
@@ -915,6 +890,7 @@ const validateDirs = (sourceDirs: string[]) => {
 			);
 		}
 	}
+	return dirs;
 };
 
 const addDependent = (
