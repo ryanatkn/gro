@@ -4,6 +4,8 @@
 
 - **break**: remove the devserver, including `gro serve` and project metadata
   ([#321](https://github.com/feltcoop/gro/pull/321))
+- always build before running tasks
+  ([#322](https://github.com/feltcoop/gro/pull/322))
 
 ## 0.54.0
 
