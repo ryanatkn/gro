@@ -10,8 +10,6 @@ import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
-import {loadConfig} from './config/config.js';
-import {buildSource} from './build/buildSource.js';
 import type {GenTaskArgs} from './genTask.js';
 import {GenTaskArgsSchema} from './genTask.schema.js';
 
