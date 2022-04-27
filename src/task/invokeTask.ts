@@ -14,7 +14,6 @@ import {
 	groPaths,
 	replaceRootDir,
 	isGroId,
-	toImportId,
 	isThisProjectGro,
 	printPath,
 	printPathOrGroPath,
@@ -22,7 +21,6 @@ import {
 import {findModules, loadModules} from '../fs/modules.js';
 import {loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../utils/packageJson.js';
-import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logAvailableTasks, logErrorReasons} from './logTask.js';
 
@@ -83,24 +81,30 @@ export const invokeTask = async (
 		if (!pathData.isDirectory) {
 			// The input path matches a file, so load and run it.
 
-			// First ensure that the project has been built.
-			// This is useful for initial project setup and CI.
-			if (await shouldBuildProject(fs, pathData.id)) {
-				// Import these lazily to avoid importing their comparatively heavy transitive dependencies
-				// every time a task is invoked.
-				log.info('building project to run task');
-				const timingToLoadConfig = timings.start('load config');
-				// TODO probably do this as a separate process
-				// also this is messy, the `loadConfig` does some hacky config loading,
-				// and then we end up building twice - can it be done in a single pass?
-				const {loadConfig} = await import('../config/config.js');
-				const config = await loadConfig(fs, true);
-				timingToLoadConfig();
-				const timingToBuildProject = timings.start('build project');
-				const {buildSource} = await import('../build/buildSource.js');
-				await buildSource(fs, config, true, log);
-				timingToBuildProject();
-			}
+			// First build the project. Gro used to try to detect if it should build,
+			// but since the advent of Very fast TypeScript transpilers
+			// (we're using esbuild because of SvelteKit)
+			// it's a better UX to always build first,
+			// because it usually takes less than a few hundred milliseconds.
+			// Over time we'll remove much of Gro's functionality and use something like `tsm`:
+			// https://github.com/feltcoop/gro/issues/319
+
+			// TODO BLOCK should this run in a separate process?
+
+			// Import these lazily to avoid importing their comparatively heavy transitive dependencies
+			// every time a task is invoked.
+			log.info('building project to run task');
+			const timingToLoadConfig = timings.start('load config');
+			// TODO probably do this as a separate process
+			// also this is messy, the `loadConfig` does some hacky config loading,
+			// and then we end up building twice - can it be done in a single pass?
+			const {loadConfig} = await import('../config/config.js');
+			const config = await loadConfig(fs, true);
+			timingToLoadConfig();
+			const timingToBuildProject = timings.start('build project');
+			const {buildSource} = await import('../build/buildSource.js');
+			await buildSource(fs, config, true, log);
+			timingToBuildProject();
 
 			// Load and run the task.
 			const loadModulesResult = await loadModules(
@@ -240,19 +244,4 @@ export const invokeTask = async (
 
 	printTimings(timings, log);
 	log.info(`🕒 ${printMs(totalTiming())}`);
-};
-
-// This is a best-effort heuristic that quickly detects if
-// we should compile a project's TypeScript when invoking a task.
-// Properly detecting this is too expensive and would slow task startup time significantly.
-// Generally speaking, the developer is expected to be running `gro dev` to keep the build fresh.
-// TODO improve this, possibly using `mtime` with the Filer updating directory `mtime` on compile
-const shouldBuildProject = async (fs: Filesystem, sourceId: string): Promise<boolean> => {
-	// don't try to compile Gro's own codebase from outside of it
-	if (!isThisProjectGro && isGroId(sourceId)) return false;
-	// if this is Gro, ensure the build directory exists, because tests aren't in dist/
-	if (isThisProjectGro && !(await fs.exists(paths.build))) return true;
-	// ensure the build file for the source id exists in the default dev build
-	const buildId = toImportId(sourceId, true, SYSTEM_BUILD_NAME);
-	return !(await fs.exists(buildId));
 };

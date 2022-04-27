@@ -1,5 +1,10 @@
 # changelog
 
+## 0.54.1
+
+- always build before running tasks
+  ([#321](https://github.com/feltcoop/gro/pull/321))
+
 ## 0.54.0
 
 - **break**: upgrade deps including peer dep for `@feltcoop/felt@0.26.0`
