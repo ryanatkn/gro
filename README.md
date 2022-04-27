@@ -115,7 +115,7 @@ To learn more [see the task docs](/src/docs/task.md)
 and [the generated task index](/src/docs/tasks.md).
 
 ```bash
-gro dev # start the dev server in watch mode
+gro dev # start developing in watch mode
 ```
 
 ```bash
