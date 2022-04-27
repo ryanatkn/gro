@@ -15,20 +15,18 @@ import type {BuildContext} from './builder.js';
 
 export type SourceFile = TextSourceFile | BinarySourceFile;
 
-export interface BaseSourceFile extends BaseFilerFile {
-	readonly type: 'source';
-	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
-}
-export interface TextSourceFile extends BaseSourceFile, BaseFile {
+export interface TextSourceFile extends BaseSourceFile {
 	readonly encoding: 'utf8';
 	content: string;
 }
-export interface BinarySourceFile extends BaseSourceFile, BaseFile {
+export interface BinarySourceFile extends BaseSourceFile {
 	readonly encoding: null;
 	content: Buffer;
 	contentBuffer: Buffer;
 }
-export interface BaseFile {
+export interface BaseSourceFile extends BaseFilerFile {
+	readonly type: 'source';
+	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
