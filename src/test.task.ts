@@ -26,15 +26,6 @@ export const task: Task<TestTaskArgs> = {
 
 		const timings = new Timings();
 
-		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
-		timingToLoadConfig();
-
-		// TODO cleaner way to detect & rebuild?
-		const timingToPrebuild = timings.start('prebuild');
-		await buildSource(fs, config, dev, log);
-		timingToPrebuild();
-
 		// Projects may not define any artifacts for the Node build,
 		// and we don't force anything out in that case,
 		// so just exit early if that happens.

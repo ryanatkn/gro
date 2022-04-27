@@ -20,20 +20,11 @@ import {GenTaskArgsSchema} from './genTask.schema.js';
 export const task: Task<GenTaskArgs> = {
 	summary: 'run code generation scripts',
 	args: GenTaskArgsSchema,
-	run: async ({fs, log, args, dev}): Promise<void> => {
+	run: async ({fs, log, args}): Promise<void> => {
 		const {_: rawInputPaths, check} = args;
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();
-
-		// TODO won't need to build if `gen` becomes a builder
-		// first build everything
-		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
-		timingToLoadConfig();
-		const timingToBuildSource = timings.start('buildSource');
-		await buildSource(fs, config, dev, log);
-		timingToBuildSource();
 
 		// resolve the input paths relative to src/
 		const inputPaths = resolveRawInputPaths(rawInputPaths);

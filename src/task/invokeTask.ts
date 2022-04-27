@@ -89,8 +89,6 @@ export const invokeTask = async (
 			// Over time we'll remove much of Gro's functionality and use something like `tsm`:
 			// https://github.com/feltcoop/gro/issues/319
 
-			// TODO BLOCK should this run in a separate process?
-
 			// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 			// every time a task is invoked.
 			log.info('building project to run task');
