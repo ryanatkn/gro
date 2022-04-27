@@ -13,23 +13,22 @@ import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
 
-export type SourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
-export interface TextSourceFile extends BaseSourceFile {
-	readonly encoding: 'utf8';
-	content: string;
-}
-export interface BinarySourceFile extends BaseSourceFile {
-	readonly encoding: null;
-	content: Buffer;
-	contentBuffer: Buffer;
-}
+export type SourceFile = TextSourceFile | BinarySourceFile;
+
 export interface BaseSourceFile extends BaseFilerFile {
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
 }
-export interface BuildableTextSourceFile extends TextSourceFile, BaseBuildableFile {}
-export interface BuildableBinarySourceFile extends BinarySourceFile, BaseBuildableFile {}
-export interface BaseBuildableFile {
+export interface TextSourceFile extends BaseSourceFile, BaseFile {
+	readonly encoding: 'utf8';
+	content: string;
+}
+export interface BinarySourceFile extends BaseSourceFile, BaseFile {
+	readonly encoding: null;
+	content: Buffer;
+	contentBuffer: Buffer;
+}
+export interface BaseFile {
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;

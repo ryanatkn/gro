@@ -44,7 +44,7 @@ export class MemoryFs implements Filesystem {
 		const prefix = id === ROOT ? ROOT : `${id}/`;
 		// TODO instead of searching the whole space, could have a better data structure
 		// TODO to search just children quickly, we need a better data structure
-		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `BaseBuildableFile`s)
+		// how should this be tracked? sets/maps on each? (see the dependents/dependencies of `BaseFile`s)
 		for (const nodeId of this._files.keys()) {
 			if (!nodeId.startsWith(prefix) || nodeId === ROOT) continue;
 			nodes.push(this._files.get(nodeId)!);
