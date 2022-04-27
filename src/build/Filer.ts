@@ -7,7 +7,7 @@ import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import {printLogLabel, SystemLogger, type Logger} from '@feltcoop/felt/util/log.js';
 import {gray, red, cyan} from 'kleur/colors';
 import {printError} from '@feltcoop/felt/util/print.js';
-import type {OmitStrict, Assignable, PartialExcept} from '@feltcoop/felt/util/types.js';
+import type {Assignable, PartialExcept} from '@feltcoop/felt/util/types.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {createFilerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';
@@ -23,9 +23,7 @@ import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName, BuildConfig} from './buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
-import {stripBase, toServedDirs, type ServedDir, type ServedDirPartial} from './servedDir.js';
 import {
-	assertBuildableSourceFile,
 	assertSourceFile,
 	createSourceFile,
 	type BuildableSourceFile,
@@ -78,7 +76,6 @@ export interface Options {
 	buildConfigs: BuildConfig[] | null;
 	buildDir: string;
 	sourceDirs: string[];
-	servedDirs: ServedDir[];
 	mapDependencyToSourceId: MapDependencyToSourceId;
 	sourcemap: boolean;
 	types: boolean;
@@ -90,9 +87,7 @@ export interface Options {
 	log: Logger;
 }
 export type RequiredOptions = 'fs';
-export type InitialOptions = OmitStrict<PartialExcept<Options, RequiredOptions>, 'servedDirs'> & {
-	servedDirs?: ServedDirPartial[];
-};
+export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const paths = opts.paths ?? defaultPaths;
 	const dev = opts.dev ?? true;
@@ -106,7 +101,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const buildDir = opts.buildDir || paths.build; // TODO assumes trailing slash
 	const sourceDirs = opts.sourceDirs ? opts.sourceDirs.map((d) => resolve(d)) : [];
 	validateDirs(sourceDirs);
-	const servedDirs = opts.servedDirs ? toServedDirs(opts.servedDirs) : [];
 	const builder = opts.builder || null;
 	if (sourceDirs.length) {
 		if (!buildConfigs) {
@@ -116,9 +110,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 			throw Error('Filer created with directories to build but no builder was provided.');
 		}
 	} else {
-		if (!servedDirs.length) {
-			throw Error('Filer created with no directories to build or serve.');
-		}
 		if (builder) {
 			throw Error('Filer created with a builder but no directories to build.');
 		}
@@ -143,7 +134,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		buildConfigs,
 		buildDir,
 		sourceDirs,
-		servedDirs,
 	};
 };
 
@@ -159,7 +149,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
 	readonly paths: Paths;
-	readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly buildConfigs: readonly BuildConfig[] | null; // TODO BLOCK should this be non-nullable? also see the checks in initOptions and null checks below
 	readonly buildNames: Set<BuildName> | null;
 	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
 	readonly log: Logger;
@@ -168,7 +158,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly sourcemap: boolean;
 	readonly types: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
-	readonly servedDirs: readonly ServedDir[];
 	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 	// TODO not sure about this
 	readonly findById = (id: string): BaseFilerFile | undefined => this.files.get(id);
@@ -183,7 +172,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			buildConfigs,
 			buildDir,
 			sourceDirs,
-			servedDirs,
 			mapDependencyToSourceId,
 			sourcemap,
 			types,
@@ -205,36 +193,12 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.types = types;
 		this.target = target;
 		this.log = log;
-		this.dirs = createFilerDirs(
-			fs,
-			sourceDirs,
-			servedDirs,
-			buildDir,
-			this.onDirChange,
-			watch,
-			watcherDebounce,
-			filter,
+		// Creates objects to load a directory's content and sync filesystem changes in memory.
+		// The order of objects in the returned array is meaningless.
+		this.dirs = sourceDirs.map((sourceDir) =>
+			createFilerDir(fs, sourceDir, this.onDirChange, watch, watcherDebounce, filter),
 		);
-		this.servedDirs = servedDirs;
 		log.trace(cyan('buildConfigs'), buildConfigs);
-		log.trace(cyan('servedDirs'), servedDirs);
-	}
-
-	// Searches for a file matching `path`, limited to the directories that are served.
-	async findByPath(path: string): Promise<BaseFilerFile | undefined> {
-		const {files} = this;
-		for (const servedDir of this.servedDirs) {
-			const id = `${servedDir.root}/${stripBase(path, servedDir.base)}`;
-			const file = files.get(id);
-			if (file === undefined) {
-				this.log.trace(`findByPath: miss: ${id}`);
-			} else {
-				this.log.trace(`findByPath: found: ${id}`);
-				return file;
-			}
-		}
-		this.log.trace(`findByPath: not found: ${path}`);
-		return undefined;
 	}
 
 	close(): void {
@@ -269,7 +233,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
 		// what data is not yet ready? does this belong inside `initBuilds`?
-		if (this.builder?.init && this.buildConfigs !== null && this.dirs.some((d) => d.buildable)) {
+		if (this.builder?.init && this.buildConfigs !== null) {
 			await this.builder.init(this);
 		}
 
@@ -308,7 +272,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				const file = this.files.get(input);
 				// TODO this assert throws with a bad error - should print `input`
 				try {
-					assertBuildableSourceFile(file);
+					assertSourceFile(file);
 				} catch (_err) {
 					this.log.error(printBuildConfigLabel(buildConfig), red('missing input'), input);
 					throw Error('Missing input: check the build config and source files for the above input');
@@ -325,9 +289,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				if (file.type !== 'source') continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
-						// TODO this error condition may be hit if the `filerDir` is not buildable, correct?
-						// give a better error message if that's the case!
-						if (!file.buildable) throw Error(`Expected file to be buildable: ${file.id}`);
 						const buildConfig = filterBuildConfigs[i];
 						if (!file.buildConfigs.has(buildConfig)) {
 							promises.push(this.addSourceFileToBuild(file, buildConfig, true));
@@ -436,11 +397,10 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 						shouldBuild &&
 						// When initializing, building is deferred to `initBuilds`
 						// so that deps are determined in the correct order.
-						change.type !== 'init' &&
-						filerDir.buildable // only needed for types, doing this instead of casting for type safety
+						change.type !== 'init'
 					) {
 						const file = this.files.get(id);
-						assertBuildableSourceFile(file);
+						assertSourceFile(file);
 						if (change.type === 'create') {
 							await this.initSourceFile(file);
 						} else {
@@ -456,7 +416,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 			case 'delete': {
 				if (change.stats.isDirectory()) {
-					if (this.buildConfigs !== null && filerDir.buildable) {
+					if (this.buildConfigs !== null) {
 						// TODO This is weird because we're blindly deleting
 						// the directory for all build configs,
 						// whether or not they apply for this id.
@@ -488,7 +448,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		let dependentBuildConfigs: Set<BuildConfig> | null = null;
 		// TODO could be sped up with some caching data structures
 		for (const f of this.files.values()) {
-			if (f.type !== 'source' || !f.buildable) continue;
+			if (f.type !== 'source') continue;
 			for (const [buildConfig, dependenciesMap] of f.dependencies) {
 				if (dependenciesMap.has(file.id)) {
 					const dependencies = dependenciesMap.get(file.id)!;
@@ -571,7 +531,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					this.files.set(id, newSourceFile);
 					// If the created source file has its build files hydrated from the cache,
 					// we assume it doesn't need to be built.
-					if (newSourceFile.buildable && newSourceFile.buildFiles.size !== 0) {
+					if (newSourceFile.buildFiles.size !== 0) {
 						return false;
 					}
 				} else if (isContentEqual(encoding, sourceFile.content, newSourceContent)) {
@@ -596,7 +556,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 							throw new UnreachableError(sourceFile);
 					}
 				}
-				return filerDir.buildable;
+				return true;
 			})
 			.then(
 				(value) => {
@@ -728,7 +688,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				// ignore dependencies on self - happens with common externals
 				if (addedSourceId === sourceFile.id) continue;
 				const addedSourceFile = this.files.get(addedSourceId);
-				if (addedSourceFile !== undefined) assertBuildableSourceFile(addedSourceFile);
+				if (addedSourceFile !== undefined) assertSourceFile(addedSourceFile);
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
 					// update `dependents` of the added file
@@ -768,7 +728,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				const removedSourceFile = this.files.get(removedSourceId);
 				// import might point to a nonexistent file, ignore them completely
 				if (removedSourceFile === undefined) continue;
-				assertBuildableSourceFile(removedSourceFile);
+				assertSourceFile(removedSourceFile);
 				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
 					throw Error(`Expected build config ${buildConfig.name}: ${removedSourceFile.id}`);
 				}
@@ -818,21 +778,19 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		assertSourceFile(sourceFile);
 		this.log.trace('destroying file', gray(id));
 		this.files.delete(id);
-		if (sourceFile.buildable) {
-			if (this.buildConfigs !== null) {
-				await Promise.all(
-					this.buildConfigs.map((b) =>
-						sourceFile.buildConfigs.has(b)
-							? this.removeSourceFileFromBuild(sourceFile, b, false)
-							: null,
-					),
-				);
-			}
-			// TODO instead of batching like this here, make that concern internal to the sourceMeta
-			// passing `false` above to avoid writing `sourceMeta` to disk for each build -
-			// batch delete it now:
-			await deleteSourceMeta(this, sourceFile.id);
+		if (this.buildConfigs !== null) {
+			await Promise.all(
+				this.buildConfigs.map((b) =>
+					sourceFile.buildConfigs.has(b)
+						? this.removeSourceFileFromBuild(sourceFile, b, false)
+						: null,
+				),
+			);
 		}
+		// TODO instead of batching like this here, make that concern internal to the sourceMeta
+		// passing `false` above to avoid writing `sourceMeta` to disk for each build -
+		// batch delete it now:
+		await deleteSourceMeta(this, sourceFile.id);
 	}
 }
 
@@ -966,42 +924,6 @@ const validateDirs = (sourceDirs: string[]) => {
 			);
 		}
 	}
-};
-
-// Creates objects to load a directory's content and sync filesystem changes in memory.
-// The order of objects in the returned array is meaningless.
-const createFilerDirs = (
-	fs: Filesystem,
-	sourceDirs: string[],
-	servedDirs: ServedDir[],
-	buildDir: string,
-	onChange: FilerDirChangeCallback,
-	watch: boolean,
-	watcherDebounce: number | undefined,
-	filter: PathFilter | undefined,
-): FilerDir[] => {
-	const dirs: FilerDir[] = [];
-	for (const sourceDir of sourceDirs) {
-		dirs.push(createFilerDir(fs, sourceDir, true, onChange, watch, watcherDebounce, filter));
-	}
-	for (const servedDir of servedDirs) {
-		// If a `servedDir` is inside a source or externals directory,
-		// it's already in the Filer's memory cache and does not need to be loaded as a directory.
-		// Additionally, the same is true for `servedDir`s that are inside other `servedDir`s.
-		if (
-			// TODO I think these are bugged with trailing slashes -
-			// note the `servedDir.dir` of `servedDir.dir.startsWith` could also not have a trailing slash!
-			// so I think you add `{dir} + '/'` to both?
-			!sourceDirs.find((d) => servedDir.path.startsWith(d)) &&
-			!servedDirs.find((d) => d !== servedDir && servedDir.path.startsWith(d.path)) &&
-			!servedDir.path.startsWith(buildDir)
-		) {
-			dirs.push(
-				createFilerDir(fs, servedDir.path, false, onChange, watch, watcherDebounce, filter),
-			);
-		}
-	}
-	return dirs;
 };
 
 const addDependent = (

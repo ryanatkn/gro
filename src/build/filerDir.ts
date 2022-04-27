@@ -5,18 +5,9 @@ import type {PathStats} from '../fs/pathData.js';
 import type {PathFilter} from '../fs/filter.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-// Buildable filer dirs are watched, built, and written to disk.
-// For non-buildable dirs, the `dir` is only watched and nothing is written to the filesystem.
-export type FilerDir = BuildableFilerDir | NonBuildableFilerDir;
-export interface BuildableFilerDir extends BaseFilerDir {
-	readonly buildable: true;
-}
-export interface NonBuildableFilerDir extends BaseFilerDir {
-	readonly buildable: false;
-}
-interface BaseFilerDir {
+// Filer dirs are watched, built, and written to disk.
+export interface FilerDir {
 	readonly dir: string;
-	readonly buildable: boolean;
 	readonly onChange: FilerDirChangeCallback;
 	readonly init: () => Promise<void>;
 	readonly close: () => void;
@@ -34,7 +25,6 @@ export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir
 export const createFilerDir = (
 	fs: Filesystem,
 	dir: string,
-	buildable: boolean,
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
 	watcherDebounce: number | undefined,
@@ -61,7 +51,7 @@ export const createFilerDir = (
 				),
 			);
 		};
-		const filerDir: FilerDir = {buildable, dir, onChange, init, close, watcher};
+		const filerDir: FilerDir = {dir, onChange, init, close, watcher};
 		return filerDir;
 	}
 	const init = async () => {
@@ -73,6 +63,6 @@ export const createFilerDir = (
 			),
 		);
 	};
-	const filerDir: FilerDir = {buildable, dir, onChange, init, close: noop, watcher: null};
+	const filerDir: FilerDir = {dir, onChange, init, close: noop, watcher: null};
 	return filerDir;
 };

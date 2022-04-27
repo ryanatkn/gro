@@ -24,7 +24,6 @@ import {
 	CONFIG_BUILD_CONFIG,
 } from '../build/buildConfigDefaults.js';
 import type {EcmaScriptTarget} from '../build/typescriptUtils.js';
-import type {ServedDirPartial} from '../build/servedDir.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {config as createDefaultConfig} from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
@@ -58,7 +57,6 @@ export interface GroConfig {
 	readonly typemap: boolean;
 	readonly types: boolean;
 	readonly logLevel: LogLevel;
-	readonly serve: ServedDirPartial[] | null;
 	readonly primaryBrowserBuildConfig: BuildConfig | null; // TODO improve this, too rigid
 }
 
@@ -72,7 +70,6 @@ export interface GroConfigPartial {
 	readonly typemap?: boolean;
 	readonly types?: boolean;
 	readonly logLevel?: LogLevel;
-	readonly serve?: ServedDirPartial[] | null;
 }
 
 export interface GroConfigModule {
@@ -214,7 +211,6 @@ const toBootstrapConfig = (): GroConfig => {
 		builds: [CONFIG_BUILD_CONFIG],
 		publish: null,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
-		serve: null,
 		primaryBrowserBuildConfig: null,
 	};
 };
@@ -245,7 +241,6 @@ const normalizeConfig = (config: GroConfigPartial, dev: boolean): GroConfig => {
 		logLevel: DEFAULT_LOG_LEVEL,
 		plugin: () => null,
 		adapt: () => null,
-		serve: null,
 		...omitUndefined(config),
 		builds: buildConfigs,
 		publish:
