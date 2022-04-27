@@ -23,12 +23,7 @@ import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName, BuildConfig} from './buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
-import {
-	assertSourceFile,
-	createSourceFile,
-	type BuildableSourceFile,
-	type SourceFile,
-} from './sourceFile.js';
+import {assertSourceFile, createSourceFile, type SourceFile} from './sourceFile.js';
 import {diffDependencies, type BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './filerFile.js';
 import {loadContent} from './load.js';
@@ -304,7 +299,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// Adds a build config to a source file.
 	// The caller is expected to check to avoid duplicates.
 	private async addSourceFileToBuild(
-		sourceFile: BuildableSourceFile,
+		sourceFile: SourceFile,
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
@@ -322,9 +317,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		if (isInput) {
 			if (sourceFile.isInputToBuildConfigs === null) {
 				// Cast to keep the `readonly` modifier outside of initialization.
-				(
-					sourceFile as Assignable<BuildableSourceFile, 'isInputToBuildConfigs'>
-				).isInputToBuildConfigs = new Set();
+				(sourceFile as Assignable<SourceFile, 'isInputToBuildConfigs'>).isInputToBuildConfigs =
+					new Set();
 			}
 			sourceFile.isInputToBuildConfigs!.add(buildConfig);
 		}
@@ -344,7 +338,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// Removes a build config from a source file.
 	// The caller is expected to check to avoid duplicates.
 	private async removeSourceFileFromBuild(
-		sourceFile: BuildableSourceFile,
+		sourceFile: SourceFile,
 		buildConfig: BuildConfig,
 		shouldUpdateSourceMeta = true,
 	): Promise<void> {
@@ -442,7 +436,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	// Initialize a newly created source file's builds.
 	// It currently uses a slow brute force search to find dependents.
-	private async initSourceFile(file: BuildableSourceFile): Promise<void> {
+	private async initSourceFile(file: SourceFile): Promise<void> {
 		if (this.buildConfigs === null) return; // TODO is this right?
 		let promises: Array<Promise<void>> | null = null;
 		let dependentBuildConfigs: Set<BuildConfig> | null = null;
@@ -573,7 +567,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	}
 
 	private buildSourceFile = throttleAsync(
-		async (sourceFile: BuildableSourceFile, buildConfig: BuildConfig): Promise<void> => {
+		async (sourceFile: SourceFile, buildConfig: BuildConfig): Promise<void> => {
 			try {
 				await this._buildSourceFile(sourceFile, buildConfig);
 				this.emit('build', {sourceFile, buildConfig});
@@ -590,10 +584,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		(sourceFile, buildConfig) => buildConfig.name + '::' + sourceFile.id,
 	);
 
-	private async _buildSourceFile(
-		sourceFile: BuildableSourceFile,
-		buildConfig: BuildConfig,
-	): Promise<void> {
+	private async _buildSourceFile(sourceFile: SourceFile, buildConfig: BuildConfig): Promise<void> {
 		this.log.info(`${printBuildConfigLabel(buildConfig)} build source file`, gray(sourceFile.id));
 
 		// Compile the source file.
@@ -615,7 +606,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	// Updates the build files in the memory cache and writes to disk.
 	private async updateBuildFiles(
-		sourceFile: BuildableSourceFile,
+		sourceFile: SourceFile,
 		newBuildFiles: BuildFile[],
 		buildConfig: BuildConfig,
 	): Promise<void> {
@@ -634,7 +625,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// This is because the normal build process ending with `updateBuildFiles`
 	// is being short-circuited for efficiency, but parts of that process are still needed.
 	private async hydrateSourceFileFromCache(
-		sourceFile: BuildableSourceFile,
+		sourceFile: SourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
 		// this.log.trace('hydrate', gray(sourceFile.id));
@@ -661,7 +652,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// they're removed for this build,
 	// meaning the memory cache is updated and the files are deleted from disk for the build config.
 	private async updateDependencies(
-		sourceFile: BuildableSourceFile,
+		sourceFile: SourceFile,
 		newBuildFiles: readonly BuildFile[],
 		oldBuildFiles: readonly BuildFile[] | null,
 		buildConfig: BuildConfig,
@@ -702,7 +693,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					if (!addedSourceFile.buildConfigs.has(buildConfig)) {
 						(promises || (promises = [])).push(
 							this.addSourceFileToBuild(
-								addedSourceFile as BuildableSourceFile,
+								addedSourceFile as SourceFile,
 								buildConfig,
 								isInputToBuildConfig(addedSourceFile.id, buildConfig.input),
 							),
@@ -927,8 +918,8 @@ const validateDirs = (sourceDirs: string[]) => {
 };
 
 const addDependent = (
-	dependentSourceFile: BuildableSourceFile,
-	dependencySourceFile: BuildableSourceFile,
+	dependentSourceFile: SourceFile,
+	dependencySourceFile: SourceFile,
 	buildConfig: BuildConfig,
 	addedDependency: BuildDependency,
 ) => {
@@ -944,7 +935,7 @@ const addDependent = (
 };
 
 const addDependency = (
-	dependentSourceFile: BuildableSourceFile,
+	dependentSourceFile: SourceFile,
 	dependencySourceId: string,
 	buildConfig: BuildConfig,
 	addedDependency: BuildDependency,

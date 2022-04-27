@@ -13,10 +13,7 @@ import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
 
-// TODO BLOCK try to delete "Buildable" and "buildable" everywhere (it's always buildable now)
-
-export type SourceFile = BuildableSourceFile;
-export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
+export type SourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
 export interface TextSourceFile extends BaseSourceFile {
 	readonly encoding: 'utf8';
 	content: string;
