@@ -4,7 +4,7 @@ import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
 import {getFileContentHash} from './filerFile.js';
 import type {BuildContext} from './builder.js';
-import type {BuildableSourceFile} from './sourceFile.js';
+import type {SourceFile} from './sourceFile.js';
 import type {BuildName} from './buildConfig.js';
 import {
 	serializeBuildDependency,
@@ -51,10 +51,7 @@ export const toSourceMetaDir = (buildDir: string, dev: boolean): string =>
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
-export const updateSourceMeta = async (
-	ctx: BuildContext,
-	file: BuildableSourceFile,
-): Promise<void> => {
+export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Promise<void> => {
 	const {fs, sourceMetaById, dev, buildDir, buildNames} = ctx;
 
 	// create the new meta, not mutating the old
@@ -110,7 +107,7 @@ export const deleteSourceMeta = async (
 	await fs.remove(meta.cacheId);
 };
 
-const toSourceMetaCacheId = (file: BuildableSourceFile, buildDir: string, dev: boolean): string =>
+const toSourceMetaCacheId = (file: SourceFile, buildDir: string, dev: boolean): string =>
 	`${toSourceMetaDir(buildDir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 // TODO optimize to load meta only for the build configs

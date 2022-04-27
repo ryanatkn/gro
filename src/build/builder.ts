@@ -2,7 +2,6 @@ import type {Logger} from '@feltcoop/felt/util/log.js';
 
 import type {BuildConfig, BuildName} from './buildConfig.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
-import type {ServedDir} from './servedDir.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './filerFile.js';
@@ -33,7 +32,6 @@ export interface BuildContext {
 	readonly sourcemap: boolean;
 	readonly types: boolean;
 	readonly target: EcmaScriptTarget;
-	readonly servedDirs: readonly ServedDir[];
 	readonly buildingSourceFiles: Set<string>;
 	readonly findById: (id: string) => BaseFilerFile | undefined;
 }
@@ -48,7 +46,6 @@ export interface BinaryBuildSource extends BaseBuildSource {
 	content: Buffer;
 }
 interface BaseBuildSource {
-	buildable: true;
 	id: string;
 	filename: string;
 	dir: string;

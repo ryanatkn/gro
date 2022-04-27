@@ -18,7 +18,7 @@ to get simple and speedy builds.
 
 ```bash
 gro dev
-gro dev --no-watch # outputs dev artifacts and exits without starting the dev server
+gro dev --no-watch # outputs dev artifacts and exits without watch mode
 ```
 
 To configure a project, see [the config docs](config.md).

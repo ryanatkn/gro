@@ -61,7 +61,7 @@ const toPattern = (line: string): string => {
 	} else if (firstChar !== '*') {
 		l = `**/${l}`;
 	}
-	const lastChar = l[l.length - 1];
+	const lastChar = l.at(-1);
 	if (lastChar === '/') {
 		l = `${l}**`;
 	} else if (lastChar !== '*') {

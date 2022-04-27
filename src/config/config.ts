@@ -24,8 +24,6 @@ import {
 	CONFIG_BUILD_CONFIG,
 } from '../build/buildConfigDefaults.js';
 import type {EcmaScriptTarget} from '../build/typescriptUtils.js';
-import type {ServedDirPartial} from '../build/servedDir.js';
-import {DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT} from '../server/server.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {config as createDefaultConfig} from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
@@ -58,10 +56,7 @@ export interface GroConfig {
 	readonly sourcemap: boolean;
 	readonly typemap: boolean;
 	readonly types: boolean;
-	readonly host: string;
-	readonly port: number;
 	readonly logLevel: LogLevel;
-	readonly serve: ServedDirPartial[] | null;
 	readonly primaryBrowserBuildConfig: BuildConfig | null; // TODO improve this, too rigid
 }
 
@@ -74,10 +69,7 @@ export interface GroConfigPartial {
 	readonly sourcemap?: boolean;
 	readonly typemap?: boolean;
 	readonly types?: boolean;
-	readonly host?: string;
-	readonly port?: number;
 	readonly logLevel?: LogLevel;
-	readonly serve?: ServedDirPartial[] | null;
 }
 
 export interface GroConfigModule {
@@ -213,15 +205,12 @@ const toBootstrapConfig = (): GroConfig => {
 		sourcemap: false,
 		typemap: false,
 		types: false,
-		host: DEFAULT_SERVER_HOST,
-		port: DEFAULT_SERVER_PORT,
 		logLevel: DEFAULT_LOG_LEVEL,
 		plugin: () => null,
 		adapt: () => null,
 		builds: [CONFIG_BUILD_CONFIG],
 		publish: null,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
-		serve: null,
 		primaryBrowserBuildConfig: null,
 	};
 };
@@ -249,12 +238,9 @@ const normalizeConfig = (config: GroConfigPartial, dev: boolean): GroConfig => {
 		sourcemap: dev,
 		typemap: !dev,
 		types: false,
-		host: DEFAULT_SERVER_HOST,
-		port: DEFAULT_SERVER_PORT,
 		logLevel: DEFAULT_LOG_LEVEL,
 		plugin: () => null,
 		adapt: () => null,
-		serve: null,
 		...omitUndefined(config),
 		builds: buildConfigs,
 		publish:

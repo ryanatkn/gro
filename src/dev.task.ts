@@ -4,17 +4,13 @@ import {Timings} from '@feltcoop/felt/util/timings.js';
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {groBuilderDefault} from './build/groBuilderDefault.js';
-import {paths, toBuildOutPath} from './paths.js';
+import {paths} from './paths.js';
 import {loadConfig, type GroConfig} from './config/config.js';
-import type {ServedDirPartial} from './build/servedDir.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
-import type {DevServerPluginContext} from './plugin/groPluginDevServer.js';
 import type {DevTaskArgs} from './devTask.js';
 import {DevTaskArgsSchema} from './devTask.schema.js';
 
-export interface DevTaskContext
-	extends DevServerPluginContext,
-		PluginContext<DevTaskArgs, TaskEvents> {}
+export type DevTaskContext = PluginContext<DevTaskArgs, TaskEvents>;
 
 export interface TaskEvents {
 	'dev.createConfig': (config: GroConfig) => void;
@@ -24,7 +20,7 @@ export interface TaskEvents {
 }
 
 export const task: Task<DevTaskArgs, TaskEvents> = {
-	summary: 'start dev server',
+	summary: 'start SvelteKit and other dev plugins',
 	args: DevTaskArgsSchema,
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
@@ -43,7 +39,6 @@ export const task: Task<DevTaskArgs, TaskEvents> = {
 			dev,
 			builder: groBuilderDefault(),
 			sourceDirs: [paths.source],
-			servedDirs: config.serve || toDefaultServedDirs(config),
 			buildConfigs: config.builds,
 			target: config.target,
 			sourcemap: config.sourcemap,
@@ -71,12 +66,4 @@ export const task: Task<DevTaskArgs, TaskEvents> = {
 
 		printTimings(timings, log);
 	},
-};
-
-// TODO rework this when we change the deprecated frontend build process
-const toDefaultServedDirs = (config: GroConfig): ServedDirPartial[] | undefined => {
-	const buildConfigToServe = config.primaryBrowserBuildConfig;
-	if (!buildConfigToServe) return undefined;
-	const buildOutDirToServe = toBuildOutPath(true, buildConfigToServe.name, '');
-	return [buildOutDirToServe];
 };

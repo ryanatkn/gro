@@ -50,7 +50,6 @@ It includes:
 - [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
-- [dev server](/src/server/README.md) with efficient caching and http2/https support
 - codegen by convention with [`gen`](/src/docs/gen.md)
   - includes automatic type generation using [JSON Schema](https://json-schema.org/) and
     [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
@@ -75,7 +74,6 @@ It includes:
 - [`task`](/src/docs/task.md) runner
   - [tasks](/src/docs/tasks.md) list
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
-- [dev server](/src/server#readme)
 - [`gen`](/src/docs/gen.md) code generation
 - other [docs](/src/docs#readme)
   - [log](/src/docs/log.md)
@@ -117,7 +115,7 @@ To learn more [see the task docs](/src/docs/task.md)
 and [the generated task index](/src/docs/tasks.md).
 
 ```bash
-gro dev # start the dev server in watch mode
+gro dev # start developing in watch mode
 ```
 
 ```bash
@@ -176,11 +174,6 @@ gro clean --svelte --nodemodules --git # also deletes dirs and prunes git branch
 ```
 
 ```bash
-gro serve # serve the current directory
-gro serve some/dir and/another/dir # serve some directories
-```
-
-```bash
 gro --version # print the Gro version
 ```
 
@@ -192,7 +185,7 @@ npm run bootstrap # build and link `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
 # development
-gro dev # start dev server in watch mode; it's designed as a long-running process
+gro dev # start SvelteKit and other plugins, like API servers; usually you'll keep this running
 gro build # update the `gro` CLI locally
 
 # use your development version of `gro` locally in another project

@@ -55,10 +55,7 @@ export interface GroConfigPartial {
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly typemap?: boolean; // defaults to false in `dev`, true for prod
 	readonly types?: boolean; // defaults to false
-	readonly host?: string; // env.GRO_HOST
-	readonly port?: number; // env.GRO_PORT
 	readonly logLevel?: LogLevel; // env.VITE_LOG_LEVEL
-	readonly serve?: ServedDirPartial[];
 }
 ```
 
@@ -126,58 +123,4 @@ export interface ToConfigAdapters<TArgs = any, TEvents = any> {
 		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
 		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
 }
-```
-
-### `serve`
-
-Gro serves static files according to the `serve` property:
-
-```ts
-serve: [toBuildOutPath(true, 'library', '')],
-```
-
-```ts
-type ServedDirPartial =
-	| string
-	| {
-			path: string;
-			root?: string;
-			base?: string;
-	  };
-```
-
-The optional `root` property can be paired with the directories passed to `serve`:
-
-```ts
-config = {
-	serve: [
-		{path: '/some/path', root: '/some'},
-
-		// no root by default; these are all equivalent:
-		'/a',
-		{path: '/a'},
-		{path: '/a', root: ''},
-		{path: '/a', root: '.'},
-		{path: '/a', root: './'},
-	],
-};
-```
-
-The optional `base` property is used by `serve` to mimic the production behavior
-of static deployments like GitHub pages:
-
-```ts
-config = {
-	serve: [
-		{path: '/', base: 'my-package-name'}, // served at e.g. `myname.github.io/my-package-name`
-
-		// no base by default; these are all equivalent:
-		'/a',
-		{path: '/a'},
-		{path: '/a', base: ''},
-		{path: '/a', base: '/'},
-		{path: '/a', base: '.'},
-		{path: '/a', base: './'},
-	],
-};
 ```

@@ -2,7 +2,6 @@ import {createFilter} from '@rollup/pluginutils';
 import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from './config/config.js';
-import {toBuildOutPath} from './paths.js';
 import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './build/buildConfigDefaults.js';
 
 // This is the config for the Gro project itself.
@@ -37,16 +36,7 @@ export const config: GroConfigCreator = async ({dev}) => {
 		typemap: !dev,
 		types: !dev,
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
-		serve: [
-			// TODO previously served the browser build, but that's now handled by SvelteKit,
-			// but maybe we want to serve the system build or others?
-			// serve files in `$PROJECT/src/`
-			toBuildOutPath(true, NODE_LIBRARY_BUILD_CONFIG.name, ''),
-		],
-		plugin: async () => [
-			(await import('./plugin/groPluginSveltekitFrontend.js')).createPlugin(),
-			dev ? (await import('./plugin/groPluginDevServer.js')).createPlugin() : null,
-		],
+		plugin: async () => [(await import('./plugin/groPluginSveltekitFrontend.js')).createPlugin()],
 		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>
 			Promise.all([

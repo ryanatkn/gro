@@ -11,13 +11,12 @@ What is a `Task`? See [`tasks.md`](./task.md).
 - [check](../check.task.ts) - check that everything is ready to commit
 - [clean](../clean.task.ts) - remove temporary dev and build files, and optionally prune git branches
 - [deploy](../deploy.task.ts) - deploy to static hosting
-- [dev](../dev.task.ts) - start dev server
+- [dev](../dev.task.ts) - start SvelteKit and other dev plugins
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
 - [help](../help.task.ts) - alias for `gro` with no task name provided
 - [lint](../lint.task.ts) - run eslint on the source files
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
-- [serve](../serve.task.ts) - start static file server
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
 
