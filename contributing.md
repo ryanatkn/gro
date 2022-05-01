@@ -1,18 +1,18 @@
-hey! thanks for your interest in contributing! Welcome, but it's complicated!;;;;
+hey! thanks for your interest in contributing! It's a little complicated.
 
-So, Gro is a project that I, a developer of quantity 1, use to support my other work.
+Gro is a project that I, a developer of quantity 1, use to support my other work.
 Although Gro is a [@feltcoop](https://github.com/feltcoop) project,
 I am its only developer for now,
 and we have
-[more](https://github.com/feltcoop/felt)
+[several](https://github.com/feltcoop/felt)
 [important](https://github.com/feltcoop/felt-server)
 [projects](https://github.com/feltcoop/felt.social)
-that occupy almost all of our time.
+that occupy our time.
 
 [Gro extends SvelteKit](https://github.com/feltcoop/gro/blob/main/src/docs/sveltekit.md)
 with additional things we find useful,
 but today it's not a well-designed superset of functionality.
-Gro has its own build (non-frontend) and publishing systems
+Gro has its own build (non-frontend, no longer) and publishing systems
 that are less flexible than and duplicate functionality of SvelteKit and Vite.
 It mostly avoids interfering with SvelteKit, and generally complements it,
 but I need to reduce its scope and
@@ -34,15 +34,18 @@ So while the goal is to shrink Gro, it'll take time and a lot of thought.
 I would absolutely welcome your input!
 Please feel invited to open issues or email me: ryan at felt dot social.
 
-Another issue is that Gro doesn't support Windows. That's not great.
+Another issue is that [Gro doesn't yet support Windows](https://github.com/feltcoop/gro/issues/319).
+That's not great.
 It excludes many people out there who don't know what a WSL is.
 I have many other things to prioritize,
 but I also don't want to promote open source Node projects that don't support Windows.
 
 So Gro sits in a pre-alpha limbo.
 
-All that said: IMO and IME, **if you draw inside its lines, Gro is a good development tool today**.
-(I think its task runner alone is worth the dependency, though it's bloated for a task runner)
+With those caveats in mind: IMO and IME,
+**if you draw inside its lines, Gro today is a nice complement to SvelteKit**.
+(I think its task runner alone is worth the dependency
+if 40 transitive dependencies is an acceptable to you)
 I am happy to take contributions in any form,
 but **please open [issues](https://github.com/feltcoop/gro/issues)**
 **before attempting work that you _expect_ to be merged.**

@@ -15,10 +15,10 @@
 > and you're inviting it into your home anyway.
 > Docs are lacking, some things are in progress, and it might pee on your stuff.
 > ([caveat emptor](https://en.wikipedia.org/wiki/Caveat_emptor):
-> it's awwfully cute and quickly becomes a member of the family)
+> it's cute and quickly becomes a member of the family)
 > [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
-> are probably what you're looking for.
-> All that out of the way: you might find some interesting or useful things here!
+> are probably what you're looking for, but!
+> you might find some interesting or useful things here!
 > Please open issues for questions or discussion
 > and [see contributing.md](contributing.md) for more.
 
