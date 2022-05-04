@@ -21,15 +21,15 @@ but I need to reduce its scope and
 Gro's unfortunate design qualities are partially due to the fact that
 it predates both SvelteKit and the game-changing speed of
 [`esbuild`](https://github.com/evanw/esbuild).
-(the speed is truly game-changing, I'm not being dramatic)
+(the speed is truly game-changing, I'm not being dramatic;
+[swc](https://github.com/swc-project/swc) predates Gro but I didn't know what was coming;
+at one point Gro used `swc`, but I switched to `esbuild` for alignment with SvelteKit)
 Gro uses `esbuild`, but some design decisions
 were made in a world with slow TypeScript transpilation.
 For example, Gro aggressively caches transpiled files,
 which means it deals with difficult cache invalidation problems,
 and I'm considering using [`tsm`](https://github.com/lukeed/tsm/)
 to replace large chunks of behavior for what's probably a negligible drop in performance.
-([swc](https://github.com/swc-project/swc) predates Gro but I didn't know what was coming;
-at one point Gro used swc, but I switched to `esbuild` for alignment with SvelteKit)
 So while the goal is to shrink Gro, it'll take time and a lot of thought.
 I would absolutely welcome your input!
 Please feel invited to open issues or email me: ryan at felt dot social.
@@ -45,7 +45,7 @@ So Gro sits in a pre-alpha limbo.
 With those caveats in mind: IMO and IME,
 **if you draw inside its lines, Gro today is a nice complement to SvelteKit**.
 (I think its task runner alone is worth the dependency
-if 40 transitive dependencies is an acceptable to you)
+if 40 popular transitive dependencies is an acceptable to you)
 I am happy to take contributions in any form,
 but **please open [issues](https://github.com/feltcoop/gro/issues)**
 **before attempting work that you _expect_ to be merged.**
