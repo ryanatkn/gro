@@ -59,7 +59,6 @@
     "fs-extra": "^10.0.1",
     "kleur": "^4.1.4",
     "mri": "^1.2.0",
-    "path-browserify": "^1.0.1",
     "prettier": "^2.6.2",
     "prettier-plugin-svelte": "^2.6.0",
     "source-map-support": "^0.5.21",
