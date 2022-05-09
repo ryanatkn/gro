@@ -3,7 +3,7 @@
 ## 0.55.1
 
 - add `format` option to gen files, defaults to `true`
-  ([#322](https://github.com/feltcoop/gro/pull/322))
+  ([#324](https://github.com/feltcoop/gro/pull/324))
 
 ## 0.55.0
 
