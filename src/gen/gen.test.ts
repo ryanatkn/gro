@@ -12,14 +12,14 @@ const test__toGenResult = suite('toGenResult');
 test__toGenResult('plain string', () => {
 	assert.equal(toGenResult(originId, '/**/'), {
 		originId,
-		files: [{id: resolve('src/foo.ts'), content: '/**/', originId}],
+		files: [{id: resolve('src/foo.ts'), content: '/**/', originId, format: true}],
 	});
 });
 
 test__toGenResult('object with a content string', () => {
 	assert.equal(toGenResult(originId, {content: '/**/'}), {
 		originId,
-		files: [{id: resolve('src/foo.ts'), content: '/**/', originId}],
+		files: [{id: resolve('src/foo.ts'), content: '/**/', originId, format: true}],
 	});
 });
 
@@ -43,7 +43,7 @@ test__toGenResult('custom file name', () => {
 		}),
 		{
 			originId,
-			files: [{id: resolve('src/fooz.ts'), content: '/**/', originId}],
+			files: [{id: resolve('src/fooz.ts'), content: '/**/', originId, format: true}],
 		},
 	);
 });
@@ -56,7 +56,7 @@ test__toGenResult('custom file name that matches the default file name', () => {
 		}),
 		{
 			originId,
-			files: [{id: resolve('src/foo.ts'), content: '/**/', originId}],
+			files: [{id: resolve('src/foo.ts'), content: '/**/', originId, format: true}],
 		},
 	);
 });
@@ -88,6 +88,7 @@ test__toGenResult('additional file name parts', () => {
 				id: resolve('src/foo.bar.ts'),
 				content: '/**/',
 				originId: resolve('src/foo.bar.gen.ts'),
+				format: true,
 			},
 		],
 	});
@@ -101,7 +102,7 @@ test__toGenResult('js', () => {
 		}),
 		{
 			originId,
-			files: [{id: resolve('src/foo.js'), content: '/**/', originId}],
+			files: [{id: resolve('src/foo.js'), content: '/**/', originId, format: true}],
 		},
 	);
 });
@@ -114,6 +115,7 @@ test__toGenResult('implicit custom file extension', () => {
 				id: resolve('src/foo.json'),
 				content: '[/**/]',
 				originId: resolve('src/foo.gen.json.ts'),
+				format: true,
 			},
 		],
 	});
@@ -127,6 +129,7 @@ test__toGenResult('implicit empty file extension', () => {
 				id: resolve('src/foo'),
 				content: '[/**/]',
 				originId: resolve('src/foo.gen..ts'),
+				format: true,
 			},
 		],
 	});
@@ -140,6 +143,7 @@ test__toGenResult('implicit custom file extension with additional file name part
 				id: resolve('src/foo.bar.json'),
 				content: '[/**/]',
 				originId: resolve('src/foo.bar.gen.json.ts'),
+				format: true,
 			},
 		],
 	});
@@ -153,6 +157,7 @@ test__toGenResult('implicit custom file extension with many dots in between', ()
 				id: resolve('src/foo...ts'),
 				content: '[/**/]',
 				originId: resolve('src/foo...gen.ts'),
+				format: true,
 			},
 		],
 	});
@@ -203,7 +208,7 @@ test__toGenResult('explicit custom file extension', () => {
 		}),
 		{
 			originId,
-			files: [{id: resolve('src/foo.json'), content: '[/**/]', originId}],
+			files: [{id: resolve('src/foo.json'), content: '[/**/]', originId, format: true}],
 		},
 	);
 });
@@ -216,7 +221,7 @@ test__toGenResult('explicit custom empty file extension', () => {
 		}),
 		{
 			originId,
-			files: [{id: resolve('src/foo'), content: '[/**/]', originId}],
+			files: [{id: resolve('src/foo'), content: '[/**/]', originId, format: true}],
 		},
 	);
 });
@@ -229,7 +234,7 @@ test__toGenResult('explicit custom file extension ending with a dot', () => {
 		}),
 		{
 			originId,
-			files: [{id: resolve('src/foo.'), content: '[/**/]', originId}],
+			files: [{id: resolve('src/foo.'), content: '[/**/]', originId, format: true}],
 		},
 	);
 });
@@ -240,8 +245,8 @@ test__toGenResult('simple array of raw files', () => {
 		{
 			originId,
 			files: [
-				{id: resolve('src/foo.ts'), content: '/*1*/', originId},
-				{id: resolve('src/foo2.ts'), content: '/*2*/', originId},
+				{id: resolve('src/foo.ts'), content: '/*1*/', originId, format: true},
+				{id: resolve('src/foo2.ts'), content: '/*2*/', originId, format: true},
 			],
 		},
 	);
@@ -259,11 +264,11 @@ test__toGenResult('complex array of raw files', () => {
 		{
 			originId,
 			files: [
-				{id: resolve('src/foo.ts'), content: '/*1*/', originId},
-				{id: resolve('src/foo2.ts'), content: '/*2*/', originId},
-				{id: resolve('src/foo3.ts'), content: '/*3*/', originId},
-				{id: resolve('src/foo4.ts'), content: '/*4*/', originId},
-				{id: resolve('src/foo5.json'), content: '[/*5*/]', originId},
+				{id: resolve('src/foo.ts'), content: '/*1*/', originId, format: true},
+				{id: resolve('src/foo2.ts'), content: '/*2*/', originId, format: true},
+				{id: resolve('src/foo3.ts'), content: '/*3*/', originId, format: true},
+				{id: resolve('src/foo4.ts'), content: '/*4*/', originId, format: true},
+				{id: resolve('src/foo5.json'), content: '[/*5*/]', originId, format: true},
 			],
 		},
 	);

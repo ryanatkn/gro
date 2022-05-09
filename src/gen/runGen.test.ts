@@ -90,6 +90,7 @@ test__gen('basic behavior', async () => {
 			content: fileA.content,
 			id: join(modA.id, '../', fileA.filename),
 			originId: modA.id,
+			format: true,
 		},
 	]);
 
@@ -101,6 +102,7 @@ test__gen('basic behavior', async () => {
 			content: `${fileB.content}/*FORMATTED*/`,
 			id: join(modB.id, '../', fileB.filename),
 			originId: modB.id,
+			format: true,
 		},
 	]);
 	const resultC = genResults.results[2];
@@ -112,11 +114,13 @@ test__gen('basic behavior', async () => {
 			content: fileC1.content,
 			id: join(modC.id, '../', fileC1.filename),
 			originId: modC.id,
+			format: true,
 		},
 		{
 			content: fileC2.content,
 			id: join(modC.id, '../', fileC2.filename),
 			originId: modC.id,
+			format: true,
 		},
 	]);
 });
@@ -177,6 +181,7 @@ test__gen('failing gen function', async () => {
 			content: fileB.content,
 			id: join(modB.id, '../', fileB.filename),
 			originId: modB.id,
+			format: true,
 		},
 	]);
 });

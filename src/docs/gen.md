@@ -200,6 +200,7 @@ export const gen: Gen = () => {
 	return {
 		content: `console.log('${message}')`,
 		filename: '../elsewhere/otherName.ts',
+		format: optional_boolean_that_defaults_to_true,
 	};
 };
 ```

@@ -13,6 +13,7 @@ export interface GenFile {
 	id: string;
 	content: string;
 	originId: string;
+	format: boolean;
 }
 
 export interface Gen {
@@ -30,6 +31,7 @@ export interface RawGenFile {
 	// Defaults to file name without the `.gen` or `.schema`, and can be a relative path.
 	// TODO maybe support a transform pattern or callback fn? like '[stem].thing.[ext]'
 	filename?: string;
+	format?: boolean; // defaults to `true`
 }
 
 export type GenResults = {
@@ -77,9 +79,9 @@ const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
 };
 
 const toGenFile = (originId: string, rawGenFile: RawGenFile): GenFile => {
-	const {content, filename} = rawGenFile;
+	const {content, filename, format = true} = rawGenFile;
 	const id = toOutputFileId(originId, filename);
-	return {id, content, originId};
+	return {id, content, originId, format};
 };
 
 const toOutputFileId = (originId: string, rawFileName: string | undefined): string => {

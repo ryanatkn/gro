@@ -71,6 +71,7 @@ export const runGen = async (
 			const files = formatFile
 				? await Promise.all(
 						genResult.files.map(async (file) => {
+							if (!file.format) return file;
 							try {
 								return {...file, content: await formatFile(fs, file.id, file.content)};
 							} catch (err) {
