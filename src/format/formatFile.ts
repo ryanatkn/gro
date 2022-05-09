@@ -25,7 +25,8 @@ const inferParser = (id: string): prettier.BuiltInParserName | null => {
 		case 'css': {
 			return extension;
 		}
-		case 'svelte': {
+		case 'svelte':
+		case 'xml': {
 			return extension as any;
 		}
 		case 'md': {
