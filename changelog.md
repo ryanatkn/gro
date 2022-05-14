@@ -1,5 +1,10 @@
 # changelog
 
+## 0.55.2
+
+- build only the included TypeScript files to `dist/src/`
+  ([#325](https://github.com/feltcoop/gro/pull/325))
+
 ## 0.55.1
 
 - add `format` option to gen files, defaults to `true`
