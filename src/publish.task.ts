@@ -157,9 +157,11 @@ const confirmWithUser = async (
 	return new Promise<PublishContext>((resolve) => {
 		readline.question(
 			bgBlack(
-				`does this look correct? ${
-					errored ? red(`if you're sure `) : ''
-				}type "${expectedAnswer}" to proceed`,
+				`${
+					errored
+						? red(`Looks like there may be problems! See above. If you're sure`)
+						: 'Does this look correct?'
+				} Type "${expectedAnswer}" to proceed`,
 			) + ' ',
 			(answer) => {
 				if (answer.toLowerCase() !== expectedAnswer.toLowerCase()) {
