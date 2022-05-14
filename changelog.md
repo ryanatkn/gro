@@ -1,5 +1,10 @@
 # changelog
 
+## 0.55.1
+
+- add `format` option to gen files, defaults to `true`
+  ([#324](https://github.com/feltcoop/gro/pull/324))
+
 ## 0.55.0
 
 - **break**: remove the dev server, including `gro serve` and project metadata

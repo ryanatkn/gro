@@ -1,6 +1,6 @@
 {
   "name": "@feltcoop/gro",
-  "version": "0.55.0",
+  "version": "0.55.1",
   "description": "opinionated webdev toolkit",
   "type": "module",
   "main": "./dist/index.js",
@@ -59,7 +59,6 @@
     "fs-extra": "^10.0.1",
     "kleur": "^4.1.4",
     "mri": "^1.2.0",
-    "path-browserify": "^1.0.1",
     "prettier": "^2.6.2",
     "prettier-plugin-svelte": "^2.6.0",
     "source-map-support": "^0.5.21",

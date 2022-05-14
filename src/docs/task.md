@@ -108,7 +108,7 @@ and putting them into a directory together can help make projects easier to navi
 
 export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
-	summary?: string;
+	summary?: string; // prints as help text to the terminal
 	dev?: boolean; // set to `false` to run the task and its children in production mode
 	args?: ArgsSchema; // a JSON schema -- TODO this is currently a subset that requires `properties`
 }
@@ -430,3 +430,4 @@ Gro's task runner has many inspirations:
 - [Gulp](https://github.com/gulpjs/gulp)
 - [@mgutz](https://github.com/mgutz)' [Projmate](https://github.com/projmate/projmate-core)
 - [Grunt](https://github.com/gruntjs/grunt)
+- [npm scripts](https://docs.npmjs.com/cli/v8/using-npm/scripts)
