@@ -49,14 +49,16 @@ export const copyDist = async (
 		typemapFiles.map(async (id) => {
 			const basePath = toBuildBasePath(id);
 			const sourceBasePath = `${stripEnd(basePath, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
-			const distSourceId = pack
-				? `${distOutDir}/${SOURCE_DIRNAME}/${sourceBasePath}`
-				: `${paths.source}${sourceBasePath}`;
+			const sourceId = `${SOURCE_DIRNAME}/${sourceBasePath}`;
+			const distSourceId = pack ? `${distOutDir}/${sourceId}` : `${paths.source}${sourceBasePath}`;
 			const distOutPath = `${distOutDir}/${stripStart(basePath, rebasePath)}`;
 			const typemapSourcePath = relative(dirname(distOutPath), distSourceId);
 			const typemap = JSON.parse(await fs.readFile(id, 'utf8'));
 			typemap.sources[0] = typemapSourcePath; // haven't seen any exceptions that would break this
-			return fs.writeFile(distOutPath, JSON.stringify(typemap));
+			return Promise.all([
+				fs.copy(sourceId, `${distOutDir}/${sourceId}`), // copy source TypeScript files (but not other filetypes)
+				fs.writeFile(distOutPath, JSON.stringify(typemap)),
+			]);
 		}),
 	);
 };

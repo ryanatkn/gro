@@ -9,9 +9,7 @@ import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
 import {copyDist} from './utils.js';
 import {
-	paths,
 	sourceIdToBasePath,
-	SOURCE_DIRNAME,
 	toBuildExtension,
 	toImportId,
 	TS_TYPEMAP_EXTENSION,
@@ -132,9 +130,6 @@ export const createAdapter = ({
 						})
 						.filter(Boolean),
 				);
-
-				// copy src
-				await fs.copy(paths.source, `${outputDir}/${SOURCE_DIRNAME}`);
 
 				// update package.json with computed values
 				pkg.files = await toPkgFiles(fs, outputDir);
