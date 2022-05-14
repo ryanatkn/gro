@@ -50,6 +50,7 @@ export const copyDist = async (
 			const basePath = toBuildBasePath(id);
 			const sourceBasePath = `${stripEnd(basePath, TS_TYPEMAP_EXTENSION)}${TS_EXTENSION}`;
 			const sourceId = `${SOURCE_DIRNAME}/${sourceBasePath}`;
+			// TODO when the `pack` hack is removed, use `distSourceId` below instead of reconstructing it
 			const distSourceId = pack ? `${distOutDir}/${sourceId}` : `${paths.source}${sourceBasePath}`;
 			const distOutPath = `${distOutDir}/${stripStart(basePath, rebasePath)}`;
 			const typemapSourcePath = relative(dirname(distOutPath), distSourceId);
