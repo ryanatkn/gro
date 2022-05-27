@@ -158,6 +158,7 @@ Some details:
 Files with any extension can be generated without configuration.
 If the origin file name ends with the pattern `.gen.*.ts`,
 the default output file name is stripped of its trailing `.ts`.
+
 Given `src/markup.gen.html.ts`:
 
 ```ts
@@ -190,6 +191,7 @@ Outputs `src/markup.html`:
 ### generate a custom file name or write to a different directory
 
 The `gen` function can return an object with custom configuration.
+
 Given `src/somewhere/originalName.gen.ts`:
 
 ```ts
@@ -214,6 +216,7 @@ console.log('output path can be relative and name can be anything');
 ### generate multiple custom files
 
 The `gen` function can also return an array of files.
+
 Given `src/thing.gen.ts`:
 
 ```ts
