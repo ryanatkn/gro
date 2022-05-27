@@ -15,7 +15,7 @@
 > and you're inviting it into your home anyway.
 > Docs are lacking, some things are in progress, and it might pee on your stuff.
 > ([caveat emptor](https://en.wikipedia.org/wiki/Caveat_emptor):
-> it's cute and quickly becomes a member of the family)
+> it may quickly become a member of the family)
 > [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
 > are probably what you're looking for, but!
 > you might find some interesting or useful things here!
