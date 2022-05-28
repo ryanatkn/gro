@@ -1,5 +1,8 @@
 # adapt
 
+> note: this system is likely going to change as we improve
+> [SvelteKit integration](/src/docs/sveltekit.md)
+
 During the [`gro build`](build.md) task,
 Gro uses `Adapter`s to convert production builds into final artifacts.
 
