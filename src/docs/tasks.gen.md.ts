@@ -1,7 +1,6 @@
 import {dirname, relative, basename} from 'path';
 import {toPathParts, toPathSegments} from '@feltcoop/felt/util/pathParsing.js';
 import {stripStart} from '@feltcoop/felt/util/string.js';
-import {last} from '@feltcoop/felt/util/array.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, basePathToSourceId} from '../paths.js';
@@ -29,7 +28,7 @@ export const gen: Gen = async ({fs, originId, log}) => {
 	const tasks = result.modules;
 
 	// TODO need to get this from project config or something
-	const rootPath = last(toPathSegments(paths.root));
+	const rootPath = toPathSegments(paths.root).at(-1);
 
 	const originDir = dirname(originId);
 	const originBase = basename(originId);
@@ -48,7 +47,7 @@ export const gen: Gen = async ({fs, originId, log}) => {
 	// because GitHub works with them and it simplifies the code?
 	const pathParts = toPathParts(relativeDir).map(
 		(relativePathPart) =>
-			`[${last(toPathSegments(relativePathPart))}](${
+			`[${toPathSegments(relativePathPart).at(-1)}](${
 				relative(originDir, basePathToSourceId(relativePathPart)) || './'
 			})`,
 	);
