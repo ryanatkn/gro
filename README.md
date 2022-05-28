@@ -11,6 +11,7 @@ limitations:
 - Gro is actively used but has few users,
   so you'll likely find problems and undesirable limitations --
   please open issues! or contact us directly
+  - example: there are definitely things that should be configurable that currently are not
 
 ## about
 
