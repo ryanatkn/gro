@@ -38,6 +38,8 @@ It includes:
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
   - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
     auto-restarting API servers, and other external build processes
+  - example usage in a starter project:
+    [`@feltcoop/felt-template`](https://github.com/feltcoop/felt-template)
 - [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
