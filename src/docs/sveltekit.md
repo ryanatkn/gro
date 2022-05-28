@@ -8,13 +8,12 @@ and [deploying](./deploy.md) to branches.
 Gro was created in August 2019 and it has evolved and changed scope substantially, multiple times.
 [SvelteKit was announced](https://www.youtube.com/watch?v=qSfdtmcZ4d0)
 in October 2020, over a year after Gro broke ground,
-and when I started Gro [I didn't anticipate](/contributing.md)
-`swc` and `esbuild` being so fast.
+and when I started Gro I didn't expect transpilers like `swc` and `esbuild` to be so fast.
 Today, Gro has decent integration with SvelteKit,
 but there's a lot of room for improvement, both to further reduce Gro's scope,
 and to add new features and capabilities.
 
-Gro has (at least?) two important differences from SvelteKit:
+Gro has at least two important differences from SvelteKit:
 
 - Gro outputs production builds to `/dist`,
   copying from SvelteKit's output `/build` without modifying it,
@@ -30,4 +29,3 @@ but it doesn't currently integrate with Gro's other systems, checks, and convent
 Gro's supplemental role is still a work in progress --
 if you have questions or want to help, please feel invited to open issues
 or email me: ryan at felt dot social.
-For more see [contributing.md](/contributing.md).

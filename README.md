@@ -4,23 +4,13 @@
 
 > opinionated webdev toolkit
 
-> **pre-alpha**: suitable only for the curious and reckless
+limitations:
 
-> [Windows is not yet supported.](https://github.com/feltcoop/gro/issues/319)
-> WSL works well enough
-
-> _heads up_: For now, consider Gro's free software
-> [free as in puppy](https://twitter.com/GalaxyKate/status/1371159136684105728),
-> meaning you're aware it's a lot of work to maintain,
-> and you're inviting it into your home anyway.
-> Docs are lacking, some things are in progress, and it might pee on your stuff.
-> ([caveat emptor](https://en.wikipedia.org/wiki/Caveat_emptor):
-> it may quickly become a member of the family)
-> [SvelteKit](https://github.com/sveltejs/kit) and [Vite](https://github.com/vitejs/vite)
-> are probably what you're looking for, but!
-> you might find some interesting or useful things here!
-> Please open issues for questions or discussion
-> and [see contributing.md](contributing.md) for more.
+- [Windows is not yet supported](https://github.com/feltcoop/gro/issues/319)
+- [SvelteKit integration](/src/docs/sveltekit.md) is incomplete
+- Gro is actively used but it currently has few users,
+  so you'll likely find problems and undesirable limitations --
+  please open issues! or email ryan at felt dot social
 
 ## about
 
@@ -126,7 +116,9 @@ gro build # build everything for production
 [Testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
-gro test # run all tests for `*.test.ts` files with `uvu`, forwarding CLI args
+gro test # run all tests for `*.test.ts` files with `uvu`
+gro test filepattern1 filepatternB
+gro test -- uvu --forwarded_args 'to uvu'
 ```
 
 Check all the things:
@@ -196,10 +188,6 @@ npm link ../gro
 # release
 gro build # build for release and update the `gro` CLI
 ```
-
-## contributing
-
-see [contributing.md🌄](./contributing.md)
 
 ## credits 🐢<sub>🐢</sub><sub><sub>🐢</sub></sub>
 

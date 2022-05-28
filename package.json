@@ -42,7 +42,6 @@
     "dist",
     "src",
     "changelog.md",
-    "contributing.md",
     "tsconfig.json"
   ],
   "engines": {
