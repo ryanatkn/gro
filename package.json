@@ -98,7 +98,21 @@
     "extends": "@feltcoop",
     "ignorePatterns": [
       "svelte.config.js"
-    ]
+    ],
+    "rules": {
+      "@typescript-eslint/no-restricted-imports": [
+        1,
+        {
+          "paths": [
+            {
+              "name": "fs",
+              "message": "Please use 'fs-extra' instead, or a local `fs` argument if available.",
+              "allowTypeImports": true
+            }
+          ]
+        }
+      ]
+    }
   },
   "prettier": {
     "useTabs": true,
