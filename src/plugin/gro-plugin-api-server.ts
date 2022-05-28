@@ -27,7 +27,7 @@ export const createPlugin = ({
 	};
 
 	return {
-		name: '@feltcoop/groPluginApiServer',
+		name: '@feltcoop/gro-plugin-api-server',
 		setup: async ({dev, fs, filer}) => {
 			// When `src/lib/server/server.ts` or any of its dependencies change, restart the API server.
 			const serverBuildPath = `${toBuildOutDir(dev)}/${buildName}/${baseBuildPath}`;
