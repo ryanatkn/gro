@@ -1,5 +1,12 @@
 # changelog
 
+## 0.56.0
+
+- **break**: rename adapter and plugin modules to use dash-case
+  ([#327](https://github.com/feltcoop/gro/pull/327))
+- upgrade some deps
+  ([#326](https://github.com/feltcoop/gro/pull/326))
+
 ## 0.55.2
 
 - build only the included TypeScript files to `dist/src/`
