@@ -67,7 +67,6 @@ It includes:
 - [`gen`](/src/docs/gen.md) code generation
 - other [docs](/src/docs#readme)
   - [log](/src/docs/log.md)
-  - [options](/src/docs/options.md) pattern
   - [philosophy](/src/docs/philosophy.md)
 
 ## install
