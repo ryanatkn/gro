@@ -40,23 +40,23 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 			// but it's currently disabled because the adapter-node usecase has the production API server
 			// depend on the middleware created later in the adapt step of the build
 			enableApiServer && dev
-				? (await import('../plugin/groPluginApiServer.js')).createPlugin()
+				? (await import('../plugin/gro-plugin-api-server.js')).createPlugin()
 				: null,
 			enableSveltekitFrontend
-				? (await import('../plugin/groPluginSveltekitFrontend.js')).createPlugin()
+				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).createPlugin()
 				: null,
 		],
 		adapt: async () => [
 			enableNodeLibrary
-				? (await import('../adapt/groAdapterNodeLibrary.js')).createAdapter()
+				? (await import('../adapt/gro-adapter-node-library.js')).createAdapter()
 				: null,
 			enableApiServer
-				? (await import('../adapt/groAdapterGenericBuild.js')).createAdapter({
+				? (await import('../adapt/gro-adapter-generic-build.js')).createAdapter({
 						buildName: API_SERVER_BUILD_CONFIG.name,
 				  })
 				: null,
 			enableSveltekitFrontend
-				? (await import('../adapt/groAdapterSveltekitFrontend.js')).createAdapter({
+				? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
 						hostTarget: enableApiServer ? 'node' : 'githubPages',
 				  })
 				: null,

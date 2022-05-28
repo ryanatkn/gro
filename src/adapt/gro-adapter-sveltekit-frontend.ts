@@ -19,7 +19,7 @@ export const createAdapter = ({
 }: Partial<Options> = EMPTY_OBJECT): Adapter => {
 	const outputDir = stripTrailingSlash(dir);
 	return {
-		name: '@feltcoop/groAdapterSveltekitFrontend',
+		name: '@feltcoop/gro-adapter-sveltekit-frontend',
 		adapt: async ({fs}) => {
 			await fs.copy(sveltekitDir, outputDir);
 

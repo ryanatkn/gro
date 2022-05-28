@@ -22,7 +22,7 @@ export const copyDist = async (
 	distOutDir: string,
 	log: Logger,
 	filter?: IdStatsFilter,
-	pack = true, // TODO reconsider this API, see `groAdapterNodeLibrary`
+	pack = true, // TODO reconsider this API, see `gro-adapter-node-library`
 	rebasePath = '',
 ): Promise<void> => {
 	const buildOutDir = toBuildOutPath(dev, buildConfig.name, rebasePath);

@@ -10,7 +10,7 @@ limitations:
 - [SvelteKit integration](/src/docs/sveltekit.md) is incomplete
 - Gro is actively used but has few users,
   so you'll likely find problems and undesirable limitations --
-  please open issues! or email ryan at felt dot social
+  please open issues! or contact us directly
 
 ## about
 
@@ -67,7 +67,6 @@ It includes:
 - [`gen`](/src/docs/gen.md) code generation
 - other [docs](/src/docs#readme)
   - [log](/src/docs/log.md)
-  - [options](/src/docs/options.md) pattern
   - [philosophy](/src/docs/philosophy.md)
 
 ## install
