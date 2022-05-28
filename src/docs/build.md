@@ -1,5 +1,8 @@
 # build
 
+> note: this system is likely going to change as we improve
+> [SvelteKit integration](/src/docs/sveltekit.md)
+
 This document describes how to go from `gro build` to live websites and npm packages.
 
 > this is for production builds; for development, see [dev.md](dev.md)
@@ -33,6 +36,9 @@ See [plugin.md](plugin.md) to learn more.
 See [adapt.md](adapt.md) to learn more.
 
 ## deploying and publishing
+
+> note: this system is likely going to change as we improve
+> [SvelteKit integration](/src/docs/sveltekit.md)
 
 Now that we can make builds and then adapt them, how do we, like, make them go?
 You know, to the web or whatever?

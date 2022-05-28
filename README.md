@@ -26,13 +26,13 @@ It includes:
   [deploying](/src/docs/deploy.md),
   and [publishing](/src/docs/publish.md)
   for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
-  UIs along with Node servers, JS/TS/Svelte libraries, and other things
-  (see the [SvelteKit integration docs](/src/docs/sveltekit.md),
-  the [Gro config docs](/src/docs/config.md), and
-  [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts))
-  - fully integrated [TypeScript](https://github.com/microsoft/typescript)
-    and [Svelte](https://github.com/sveltejs/svelte)
-    using [esbuild](https://github.com/evanw/esbuild) in dev mode for speed
+  apps along with Node servers, JS/TS/Svelte libraries, and other things
+  - integrated [TypeScript](https://github.com/microsoft/typescript),
+    [Svelte](https://github.com/sveltejs/svelte),
+    and [SvelteKit](https://github.com/sveltejs/kit)
+  - see the [SvelteKit integration docs](/src/docs/sveltekit.md),
+    the [Gro config docs](/src/docs/config.md), and
+    [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts)
   - [configurable adapters](/src/docs/adapt.md) featuring e.g.
     optional production bundling with [Rollup](https://github.com/rollup/rollup)
   - [configurable plugins](/src/docs/plugin.md) to support SvelteKit,
