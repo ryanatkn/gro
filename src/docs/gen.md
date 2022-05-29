@@ -246,7 +246,7 @@ export const gen: Gen = () => {
 Outputs `src/thing.ts`:
 
 ```ts
-import {Thing} from './index.js';
+import type {Thing} from './index.js';
 export const isThing = (t: any): t is Thing => t?.field === 1;
 ```
 
