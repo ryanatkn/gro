@@ -1,9 +1,9 @@
 # deploy
 
 The [`gro deploy`](/src/deploy.task.ts)
-task is designed to support static deployments to
+task was originally designed to support static deployments to
 [GitHub pages](https://pages.github.com/),
-but what it actually does is just push builds to a branch.
+but what it actually does is just [build](./build.md) and push to a branch.
 **Importantly, Gro force pushes to the `deploy` branch**;
 this is because Gro treats your deployment
 branch as disposable, able to be deleted or squashed or whatever whenever.
