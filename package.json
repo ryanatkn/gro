@@ -51,7 +51,7 @@
     "@rollup/pluginutils": "^4.2.1",
     "@ryanatkn/json-schema-to-typescript": "^11.1.2",
     "@types/source-map-support": "^0.5.4",
-    "ajv": "^8.10.0",
+    "ajv": "^8.11.0",
     "cheap-watch": "^1.0.4",
     "dequal": "^2.0.2",
     "es-module-lexer": "^0.10.5",
