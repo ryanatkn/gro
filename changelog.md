@@ -1,5 +1,10 @@
 # changelog
 
+## 0.57.0
+
+- **break**: upgrade deps
+  ([#330](https://github.com/feltcoop/gro/pull/330))
+
 ## 0.56.0
 
 - **break**: rename adapter and plugin modules to use dash-case
