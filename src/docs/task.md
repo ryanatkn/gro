@@ -291,6 +291,7 @@ export interface DosomethingArgs {
 
 Some builtin Gro tasks call external commands like
 [`svelte-kit`](https://github.com/sveltejs/kit),
+[`vite`](https://github.com/vitejs/vite),
 [`uvu`](https://github.com/lukeed/uvu),
 [`tsc`](https://github.com/microsoft/typescript),
 and [`prettier`](https://github.com/prettier/prettier).

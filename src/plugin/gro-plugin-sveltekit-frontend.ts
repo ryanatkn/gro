@@ -22,8 +22,8 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 		setup: async ({dev, args, log}) => {
 			if (dev) {
 				if (args.watch) {
-					const forwardedArgs = toForwardedArgs('svelte-kit');
-					const serializedArgs = ['svelte-kit', 'dev', ...serializeArgs(forwardedArgs)];
+					const forwardedArgs = toForwardedArgs('vite');
+					const serializedArgs = ['vite', 'dev', ...serializeArgs(forwardedArgs)];
 					log.info(printCommandArgs(serializedArgs));
 					sveltekitProcess = spawnProcess('npx', serializedArgs);
 				} else {
@@ -33,8 +33,8 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 					);
 				}
 			} else {
-				const forwardedArgs = toForwardedArgs('svelte-kit');
-				const serializedArgs = ['svelte-kit', 'build', ...serializeArgs(forwardedArgs)];
+				const forwardedArgs = toForwardedArgs('vite');
+				const serializedArgs = ['vite', 'build', ...serializeArgs(forwardedArgs)];
 				log.info(printCommandArgs(serializedArgs));
 				await spawn('npx', serializedArgs);
 			}

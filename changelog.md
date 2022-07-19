@@ -1,5 +1,10 @@
 # changelog
 
+## 0.58.0
+
+- **break**: upgrade deps
+  ([#331](https://github.com/feltcoop/gro/pull/331))
+
 ## 0.57.0
 
 - **break**: upgrade deps
