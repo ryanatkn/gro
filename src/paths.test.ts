@@ -40,7 +40,7 @@ const test__isGroId = suite('isGroId');
 
 test__isGroId('basic behavior', () => {
 	assert.ok(isGroId(resolve(paths.source)));
-	assert.not.ok(isGroId(resolve('../fake/src')));
+	assert.ok(!isGroId(resolve('../fake/src')));
 });
 
 test__isGroId.run();

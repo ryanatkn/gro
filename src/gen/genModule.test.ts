@@ -14,11 +14,11 @@ test__validateGenModule('basic minimal interface', () => {
 });
 
 test__validateGenModule('basic invalid module', () => {
-	assert.not.ok(validateGenModule.basic({gen: {}}));
-	assert.not.ok(validateGenModule.basic({task: {run: {}}}));
-	assert.not.ok(validateGenModule.basic(undefined as any));
-	assert.not.ok(validateGenModule.basic(null as any));
-	assert.not.ok(validateGenModule.basic(false as any));
+	assert.ok(!validateGenModule.basic({gen: {}}));
+	assert.ok(!validateGenModule.basic({task: {run: {}}}));
+	assert.ok(!validateGenModule.basic(undefined as any));
+	assert.ok(!validateGenModule.basic(null as any));
+	assert.ok(!validateGenModule.basic(false as any));
 });
 
 test__validateGenModule('schema minimal interface', () => {
@@ -29,9 +29,9 @@ test__validateGenModule('schema minimal interface', () => {
 });
 
 test__validateGenModule('schema invalid module', () => {
-	assert.not.ok(validateGenModule.schema(undefined as any));
-	assert.not.ok(validateGenModule.schema(null as any));
-	assert.not.ok(validateGenModule.schema(false as any));
+	assert.ok(!validateGenModule.schema(undefined as any));
+	assert.ok(!validateGenModule.schema(null as any));
+	assert.ok(!validateGenModule.schema(false as any));
 });
 
 test__validateGenModule.run();

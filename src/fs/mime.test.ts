@@ -49,7 +49,7 @@ test('addMimeTypeExtension', () => {
 	assert.is(getMimeTypeByExtension('foo'), null);
 	assert.is(getMimeTypeByExtension('bar'), null);
 	assert.equal(getExtensionsByMimeType('test/type'), null);
-	assert.not.ok(removeMimeTypeExtension('bar'));
+	assert.ok(!removeMimeTypeExtension('bar'));
 });
 
 test.run();

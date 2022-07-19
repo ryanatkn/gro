@@ -207,8 +207,8 @@ test__validateBuildConfigs('basic behavior', async () => {
 });
 
 test__validateBuildConfigs('fails with input path that does not exist', async () => {
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{name: 'node', platform: 'node', input: 'noSuchFile.ts'}], true),
@@ -219,15 +219,15 @@ test__validateBuildConfigs('fails with input path that does not exist', async ()
 });
 
 test__validateBuildConfigs('fails with undefined', async () => {
-	assert.not.ok((await validateBuildConfigs(fs, undefined as any, true)).ok);
-	assert.not.ok(
-		(await validateBuildConfigs(fs, {name: 'node', platform: 'node', input} as any, true)).ok,
+	assert.ok(!(await validateBuildConfigs(fs, undefined as any, true)).ok);
+	assert.ok(
+		!(await validateBuildConfigs(fs, {name: 'node', platform: 'node', input} as any, true)).ok,
 	);
 });
 
 test__validateBuildConfigs('fails with an invalid name', async () => {
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{platform: 'node', input} as any], true),
@@ -235,8 +235,8 @@ test__validateBuildConfigs('fails with an invalid name', async () => {
 			)
 		).ok,
 	);
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{name: '', platform: 'node', input}], true),
@@ -280,16 +280,16 @@ test__validateBuildConfigs('fails with duplicate names', async () => {
 });
 
 test__validateBuildConfigs('fails with a config build in production mode', async () => {
-	assert.not.ok((await validateBuildConfigs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
+	assert.ok(!(await validateBuildConfigs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
 });
 
 test__validateBuildConfigs('fails with a system build in production mode', async () => {
-	assert.not.ok((await validateBuildConfigs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
+	assert.ok(!(await validateBuildConfigs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
 });
 
 test__validateBuildConfigs('fails with an invalid platform', async () => {
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{name: 'node', input} as any], true),

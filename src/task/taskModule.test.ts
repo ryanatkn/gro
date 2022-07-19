@@ -13,8 +13,8 @@ const test__validateTaskModule = suite('validateTaskModule');
 
 test__validateTaskModule('basic behavior', () => {
 	assert.ok(validateTaskModule(testTaskModule));
-	assert.not.ok(validateTaskModule(testInvalidTaskModule));
-	assert.not.ok(validateTaskModule({task: {run: {}}}));
+	assert.ok(!validateTaskModule(testInvalidTaskModule));
+	assert.ok(!validateTaskModule({task: {run: {}}}));
 });
 
 test__validateTaskModule.run();
@@ -37,7 +37,7 @@ test__loadTaskModule('basic behavior', async () => {
 test__loadTaskModule('invalid module', async () => {
 	const id = resolve('src/task/fixtures/testInvalidTaskModule.js');
 	const result = await loadTaskModule(id, true);
-	assert.not.ok(result.ok);
+	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
 		assert.is(result.id, id);
 		assert.is(result.mod, testInvalidTaskModule);
@@ -50,7 +50,7 @@ test__loadTaskModule('invalid module', async () => {
 test__loadTaskModule('failing module', async () => {
 	const id = resolve('src/task/fixtures/testFailingTaskModule.js');
 	const result = await loadTaskModule(id, true);
-	assert.not.ok(result.ok);
+	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {
 		assert.is(result.id, id);
 		assert.ok(result.error);

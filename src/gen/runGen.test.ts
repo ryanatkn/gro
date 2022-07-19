@@ -169,7 +169,7 @@ test__gen('failing gen function', async () => {
 
 	const resultA = genResults.results[0];
 	assert.ok(resultA);
-	assert.not.ok(resultA?.ok);
+	assert.ok(!resultA?.ok);
 	assert.ok(resultA.reason);
 	assert.ok(resultA.error);
 
