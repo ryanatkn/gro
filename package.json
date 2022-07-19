@@ -45,7 +45,7 @@
     "tsconfig.json"
   ],
   "engines": {
-    "node": ">=16.6.0"
+    "node": ">=18.6.0"
   },
   "dependencies": {
     "@rollup/pluginutils": "^4.2.1",
