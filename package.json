@@ -76,8 +76,8 @@
   "devDependencies": {
     "@feltcoop/eslint-config": "^0.1.7",
     "@feltcoop/felt": "^0.34.0",
-    "@sveltejs/adapter-static": "^1.0.0-next.37",
-    "@sveltejs/kit": "^1.0.0-next.379",
+    "@sveltejs/adapter-static": "^1.0.0-next.38",
+    "@sveltejs/kit": "^1.0.0-next.380",
     "@types/estree": "^0.0.51",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.12",
