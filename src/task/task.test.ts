@@ -8,10 +8,10 @@ const test__isTaskPath = suite('isTaskPath');
 
 test__isTaskPath('basic behavior', () => {
 	assert.ok(isTaskPath('foo.task.ts'));
-	assert.not.ok(isTaskPath('foo.ts'));
-	assert.not.ok(isTaskPath('foo.task.js'));
+	assert.ok(!isTaskPath('foo.ts'));
+	assert.ok(!isTaskPath('foo.task.js'));
 	assert.ok(isTaskPath('bar/baz/foo.task.ts'));
-	assert.not.ok(isTaskPath('bar/baz/foo.ts'));
+	assert.ok(!isTaskPath('bar/baz/foo.ts'));
 });
 
 test__isTaskPath.run();

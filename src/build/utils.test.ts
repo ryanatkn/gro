@@ -28,32 +28,32 @@ test__createDirectoryFilter('relative source path', () => {
 	const filter = createDirectoryFilter('foo');
 	assert.ok(filter(join(paths.source, 'foo')));
 	assert.ok(filter(join(paths.source, 'foo/')));
-	assert.not.ok(filter(join(paths.source, 'fo')));
-	assert.not.ok(filter(join(paths.source, 'fo/')));
+	assert.ok(!filter(join(paths.source, 'fo')));
+	assert.ok(!filter(join(paths.source, 'fo/')));
 });
 
 test__createDirectoryFilter('absolute source path', () => {
 	const filter = createDirectoryFilter(join(paths.source, 'foo'));
 	assert.ok(filter(join(paths.source, 'foo')));
 	assert.ok(filter(join(paths.source, 'foo/')));
-	assert.not.ok(filter(join(paths.source, 'fo')));
-	assert.not.ok(filter(join(paths.source, 'fo/')));
+	assert.ok(!filter(join(paths.source, 'fo')));
+	assert.ok(!filter(join(paths.source, 'fo/')));
 });
 
 test__createDirectoryFilter('relative path with custom root', ({rootDir}) => {
 	const filter = createDirectoryFilter('foo', rootDir);
 	assert.ok(filter(join(rootDir, 'foo')));
 	assert.ok(filter(join(rootDir, 'foo/')));
-	assert.not.ok(filter(join(rootDir, 'fo')));
-	assert.not.ok(filter(join(rootDir, 'fo/')));
+	assert.ok(!filter(join(rootDir, 'fo')));
+	assert.ok(!filter(join(rootDir, 'fo/')));
 });
 
 test__createDirectoryFilter('absolute path with custom root', ({rootDir}) => {
 	const filter = createDirectoryFilter(join(rootDir, 'foo'), rootDir);
 	assert.ok(filter(join(rootDir, 'foo')));
 	assert.ok(filter(join(rootDir, 'foo/')));
-	assert.not.ok(filter(join(rootDir, 'fo')));
-	assert.not.ok(filter(join(rootDir, 'fo/')));
+	assert.ok(!filter(join(rootDir, 'fo')));
+	assert.ok(!filter(join(rootDir, 'fo/')));
 });
 
 test__createDirectoryFilter.run();
