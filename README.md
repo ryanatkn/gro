@@ -111,7 +111,7 @@ and [the generated task index](/src/docs/tasks.md).
 
 ```bash
 gro dev # start developing in watch mode
-gro dev -- svelte-kit --port 3003 # forward args by separating sections with --
+gro dev -- vite --port 3003 # forward args by separating sections with --
 ```
 
 ```bash

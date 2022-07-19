@@ -11,18 +11,5 @@ export default {
 		adapter: staticAdapter(),
 		files: {assets: 'src/static'},
 		prerender: {default: true},
-		vite: {
-			server: {
-				proxy: {
-					'/api': 'http://localhost:8999',
-				},
-			},
-			ssr: {
-				noExternal: ['@feltcoop/felt'],
-			},
-			optimizeDeps: {
-				exclude: ['@feltcoop/felt'],
-			},
-		},
 	},
 };
