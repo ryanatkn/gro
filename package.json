@@ -97,9 +97,6 @@
   "eslintConfig": {
     "root": true,
     "extends": "@feltcoop",
-    "ignorePatterns": [
-      "svelte.config.js"
-    ],
     "rules": {
       "@typescript-eslint/no-restricted-imports": [
         1,
