@@ -1,5 +1,3 @@
-import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
-
 import {
 	type ModuleMeta,
 	loadModule,
@@ -26,7 +24,7 @@ export interface BasicGenModule {
 	gen: Gen;
 }
 export interface SchemaGenModule {
-	[key: string]: JSONSchema | unknown;
+	[key: string]: unknown;
 }
 
 export const toGenModuleType = (filename: string): GenModuleType =>

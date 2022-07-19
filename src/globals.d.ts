@@ -26,7 +26,7 @@ declare module 'uvu/assert' {
 		function ok(
 			actual: any,
 			msg?: Message,
-		): asserts actual is false | '' | null | undefined | 0 | -0 | typeof NaN;
+		): asserts actual is false | '' | null | undefined | 0 | -0;
 		function equal(actual: any, expects: any, msg?: Message): void;
 		function type(actual: any, expects: Types, msg?: Message): void;
 		function instance(actual: any, expects: any, msg?: Message): void;
