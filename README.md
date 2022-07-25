@@ -37,7 +37,7 @@ It includes:
   - see the [SvelteKit integration docs](/src/docs/sveltekit.md),
     the [Gro config docs](/src/docs/config.md), and
     [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts)
-  - [configurable plugins](/src/docs/plugin.md) and [configurable adapters](/src/docs/adapt.md)
+  - [configurable plugins](/src/docs/plugin.md) and [adapters](/src/docs/adapt.md)
     to support SvelteKit, auto-restarting API servers, and other external build processes
   - example usage in a starter project:
     [`@feltcoop/felt-template`](https://github.com/feltcoop/felt-template)
