@@ -2,7 +2,7 @@
 
 <img src="src/static/favicon.png" align="right" width="192" height="192">
 
-> opinionated webdev toolkit 🌰 [grogarden.org](https://www.grogarden.org/)
+> opinionated webdev toolkit 🌰
 
 limitations:
 
