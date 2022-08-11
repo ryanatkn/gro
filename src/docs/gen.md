@@ -299,7 +299,8 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 - [x] format output with Prettier
 - [x] add type generation for `.schema.` files
 - [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
-- [ ] [watch mode and build integration](https://github.com/feltcoop/gro/pull/283), opt out with `watch: false` for expensive gen use cases
+- [ ] [watch mode and build integration](https://github.com/feltcoop/gro/pull/283),
+      opt out with `watch: false` for expensive gen use cases
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types
 - [ ] support gen files authored in languages beyond TypeScript like
