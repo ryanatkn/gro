@@ -12,8 +12,7 @@ https://kit.svelte.dev/docs#adapters
 The general idea is the same:
 adapters are little plugins that take production builds as inputs and produce final outputs.
 
-Despite the similarity, Gro's adapter API differs from SvelteKit's,
-and interoperability is not a goal yet. (and may never be, can't tell right now)
+The goal is to remove all of this from Gro: see https://github.com/feltcoop/gro/issues/329
 
 */
 
