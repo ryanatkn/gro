@@ -8,7 +8,7 @@
   "bin": {
     "gro": "./dist/cli/gro.js"
   },
-  "license": "MIT",
+  "license": "Unlicense",
   "homepage": "https://github.com/feltcoop/gro#readme",
   "scripts": {
     "start": "gro",

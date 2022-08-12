@@ -210,6 +210,6 @@ Gro builds on
 [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript) &
 [more](package.json)
 
-## license [🐦](https://en.wikipedia.org/wiki/Free_and_open-source_software)
+## license [🐦](https://wikipedia.org/wiki/Free_and_open-source_software)
 
-[MIT](LICENSE)
+public domain ⚘ [The Unlicense](license)
