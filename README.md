@@ -69,7 +69,7 @@ It includes:
   - [tasks](/src/docs/tasks.md) list
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [`gen`](/src/docs/gen.md) code generation
-- all the [docs](/src/docs#readme)
+- all [the docs](/src/docs#readme)
 
 ## install
 
