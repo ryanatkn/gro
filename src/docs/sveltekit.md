@@ -25,6 +25,7 @@ Gro has at least two important differences from SvelteKit:
 - Gro outputs production builds to `/dist`,
   copying from SvelteKit's output `/build` without modifying it,
   and then tasks like `gro deploy` and `gro publish` read from `/dist`, not `/build`
+  (see [issue #333](https://github.com/feltcoop/gro/issues/333))
 - Gro ignores SvelteKit's [library packaging](https://kit.svelte.dev/docs#packaging)
   capabilities for its own with [`gro publish`](./publish.md)
   (see [issue #329](https://github.com/feltcoop/gro/issues/329))
