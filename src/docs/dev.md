@@ -8,6 +8,10 @@ user inferfaces.
 - Svelte apps that also have a server
 - Node modules, like libraries and standalone servers
 
+[The integration with SvelteKit and Vite](https://github.com/feltcoop/gro/blob/main/src/docs/sveltekit.md)
+is currently incomplete.
+Gro's goal is to defer to them as much as possible.
+
 ## usage
 
 ```bash

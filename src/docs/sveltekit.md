@@ -13,7 +13,9 @@ in October 2020, over a year after Gro broke ground,
 and Gro now wants to extend SvelteKit and stay completely out of its way.
 SvelteKit uses [Vite](https://github.com/vitejs/vite),
 an amazing piece of software that allows us to
-[cut much of Gro's current scope](https://github.com/feltcoop/gro/issues/329).
+cut much of Gro's current scope
+([329](https://github.com/feltcoop/gro/issues/329),
+[333](https://github.com/feltcoop/gro/issues/333)).
 Today, Gro has decent integration with SvelteKit and Vite,
 but there's a lot of room for improvement, both to further reduce Gro's scope
 and to add new features and capabilities.
