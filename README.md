@@ -53,6 +53,7 @@ It includes:
     a drop-in replacement for Node's `fs` with better semantics
   - [memory](/src/fs/memory.ts) implementation works everywhere JS runs
   - TODO more, like: `localStorage`, GitHub repo, generic keyvalue stores, a composition/proxy API
+- linting with [ESLint](https://github.com/eslint/eslint)
 - formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
 - more to come, exploring what deeply integrated tools enable
