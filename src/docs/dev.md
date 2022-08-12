@@ -1,12 +1,10 @@
 # dev
 
-Gro is designed to be a most-in-one development tool for both Node projects and
+Gro is designed to be an extensible development tool for both Node projects and
 [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
 user inferfaces.
-During development, we use `gro dev` and its "unbundled" development system
-to get simple and speedy builds.
 
-- frontends with SvelteKit/Vite
+- frontends with SvelteKit/[Vite](https://github.com/vitejs/vite)
 - Svelte apps that also have a server
 - Node modules, like libraries and standalone servers
 
