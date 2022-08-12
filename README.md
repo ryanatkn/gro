@@ -70,8 +70,6 @@ It includes:
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [`gen`](/src/docs/gen.md) code generation
 - other [docs](/src/docs#readme)
-  - [log](/src/docs/log.md)
-  - [philosophy](/src/docs/philosophy.md)
 
 ## install
 
