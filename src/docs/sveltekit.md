@@ -7,7 +7,7 @@ and [deploying](./deploy.md) to branches.
 
 Gro was created in August 2019 and it has evolved and changed scope substantially, multiple times.
 When I started Gro I didn't expect transpilers like `swc` and `esbuild` to be so fast,
-and so [its efficient caching build system](./build.md) is no longer needed for things like tasks.
+and so [its efficient caching build system](./config.md) is no longer needed for things like tasks.
 [SvelteKit was announced](https://www.youtube.com/watch?v=qSfdtmcZ4d0)
 in October 2020, over a year after Gro broke ground,
 and Gro now wants to extend SvelteKit and stay completely out of its way.
