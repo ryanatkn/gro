@@ -7,7 +7,7 @@
 limitations:
 
 - [Windows is not yet supported](https://github.com/feltcoop/gro/issues/319)
-- [SvelteKit integration](/src/docs/sveltekit.md) is incomplete
+- [SvelteKit and Vite integration](/src/docs/sveltekit.md) is incomplete
 - Gro is actively used but has few users,
   so you'll likely find problems and undesirable limitations --
   please open issues! or contact us directly
