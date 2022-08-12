@@ -7,9 +7,7 @@ This document describes how to go from `gro build` to live websites and npm pack
 
 > this is for production builds; for development, see [dev.md](dev.md)
 
-Gro has an [unbundled build system](dev.md)
-that tries to be flexible for many use cases.
-During development, we use it with `gro dev`.
+For development, see [the `gro dev` docs](dev.md).
 
 For production, we use `gro build` to output builds to `.gro/prod/{buildName}`,
 which then get _adapted_ — to use terminology of SvelteKit — to their final form.
