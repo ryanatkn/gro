@@ -11,7 +11,7 @@ and so [its efficient caching build system](./config.md) is no longer needed for
 [SvelteKit was announced](https://www.youtube.com/watch?v=qSfdtmcZ4d0)
 in October 2020, over a year after Gro broke ground,
 and Gro now wants to extend SvelteKit and stay completely out of its way.
-SvelteKit uses [Vite](https://github.com/vitejs/vite),
+SvelteKit uses [Vite](https://github.com/vitejs/vite) (April 2020),
 an amazing piece of software that allows us to
 cut much of Gro's current scope
 ([#329](https://github.com/feltcoop/gro/issues/329),
