@@ -19,6 +19,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
+- [upgrade](../upgrade.task.ts) - upgrade deps
 
 ## usage
 
