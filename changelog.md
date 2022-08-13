@@ -1,7 +1,9 @@
 # changelog
 
-## 0.59.1
+## 0.60.0
 
+- **break**: upgrade deps
+  ([#334](https://github.com/feltcoop/gro/pull/334))
 - add upgrade task
   ([#334](https://github.com/feltcoop/gro/pull/334))
 
