@@ -23,6 +23,8 @@ export const task: Task<UpgradeTaskArgs> = {
 			return;
 		}
 
+		console.log(`upgrading:`, upgradeItems.join(' '));
+
 		await spawn('npm', ['i'].concat(upgradeItems));
 	},
 };
