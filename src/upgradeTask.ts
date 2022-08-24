@@ -2,6 +2,10 @@
 
 export interface UpgradeTaskArgs {
 	/**
+	 * names of deps to exclude from the upgrade
+	 */
+	_: string[];
+	/**
 	 * if true, print out the planned upgrades
 	 */
 	dry?: boolean;

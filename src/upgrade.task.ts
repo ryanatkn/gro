@@ -9,11 +9,11 @@ export const task: Task<UpgradeTaskArgs> = {
 	summary: 'upgrade deps',
 	args: UpgradeTaskArgsSchema,
 	run: async ({fs, args}): Promise<void> => {
-		const {dry} = args;
+		const {_, dry} = args;
 
 		const pkg = await loadPackageJson(fs);
 
-		const deps = toDeps(pkg);
+		const deps = toDeps(pkg).filter((d) => !_.includes(d.key));
 
 		const upgradeItems = toUpgradeItems(deps);
 
