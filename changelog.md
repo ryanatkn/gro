@@ -1,5 +1,10 @@
 # changelog
 
+## 0.60.1
+
+- add exclude functionality to the upgrade task: `gro upgrade foo bar`
+  ([#335](https://github.com/feltcoop/gro/pull/335))
+
 ## 0.60.0
 
 - **break**: upgrade deps
