@@ -20,6 +20,7 @@ limitations:
 
 Gro is an opinionated webdev toolkit
 that complements [SvelteKit](https://github.com/sveltejs/kit)
+and [Vite](https://github.com/vitejs/vite)
 for making web frontends, servers, and libraries.
 It includes:
 
