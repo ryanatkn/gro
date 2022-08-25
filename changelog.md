@@ -1,5 +1,10 @@
 # changelog
 
+## 0.60.2
+
+- fix `gro deploy` when the deployment branch isn't loaded locally
+  ([#335](https://github.com/feltcoop/gro/pull/335))
+
 ## 0.60.1
 
 - add exclude functionality to the upgrade task: `gro upgrade foo bar`
