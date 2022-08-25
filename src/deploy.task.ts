@@ -76,6 +76,9 @@ export const task: Task<DeployTaskArgs> = {
 			return;
 		}
 
+		// Fetch the remote deploy branch.
+		await spawn('git', ['fetch', ORIGIN, target]);
+
 		// TODO filter stdout? `--quiet` didn't work
 		// Set up the deployment branch if necessary.
 		// If the `deploymentBranch` already exists, this is a no-op.
@@ -145,8 +148,6 @@ export const task: Task<DeployTaskArgs> = {
 		}
 
 		try {
-			// Fetch the remote deploy branch
-			await spawn('git', ['fetch', ORIGIN, target]);
 			// Set up the deployment worktree
 			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 			// Pull the remote deploy branch, ignoring failures
