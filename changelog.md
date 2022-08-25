@@ -3,7 +3,7 @@
 ## 0.60.2
 
 - fix `gro deploy` when the deployment branch isn't loaded locally
-  ([#335](https://github.com/feltcoop/gro/pull/335))
+  ([#336](https://github.com/feltcoop/gro/pull/336))
 
 ## 0.60.1
 
