@@ -80,8 +80,8 @@ export const task: Task<DeployTaskArgs> = {
 		await spawn('git', ['fetch', ORIGIN, target]);
 
 		// TODO filter stdout? `--quiet` didn't work
-		// Set up the deployment branch if necessary.
-		// If the `deploymentBranch` already exists, this is a no-op.
+		// Set up the deployment `target` branch if necessary.
+		// If the branch already exists, this is a no-op.
 		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
 		await spawn(
 			`git checkout --orphan ${target} && ` +
