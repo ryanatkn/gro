@@ -1,5 +1,10 @@
 # changelog
 
+## 0.61.0
+
+- **break**: upgrade deps and remove peer deps for `@sveltejs/kit`, `uvu`, and `typescript`
+  ([#337](https://github.com/feltcoop/gro/pull/337))
+
 ## 0.60.2
 
 - fix `gro deploy` when the deployment branch isn't loaded locally
