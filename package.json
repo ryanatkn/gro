@@ -65,9 +65,8 @@
     "tslib": "^2.4.0"
   },
   "peerDependencies": {
-    "@feltcoop/felt": ">=0.35.0",
-    "@sveltejs/kit": ">=1.0.0-next.405",
-    "esbuild": ">=0.15.2",
+    "@feltcoop/felt": ">=0.38.0",
+    "esbuild": ">=0.14.0",
     "svelte": ">=3.49.0",
     "svelte-preprocess-esbuild": ">=3.0.0",
     "typescript": ">=4.7.0",
@@ -75,24 +74,23 @@
   },
   "devDependencies": {
     "@feltcoop/eslint-config": "^0.2.1",
-    "@feltcoop/felt": "^0.35.2",
+    "@feltcoop/felt": "^0.38.0",
     "@sveltejs/adapter-static": "^1.0.0-next.39",
-    "@sveltejs/kit": "^1.0.0-next.405",
+    "@sveltejs/kit": "^1.0.0-next.454",
     "@types/estree": "^1.0.0",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.7.3",
     "@types/prettier": "^2.7.0",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
-    "esbuild": "^0.15.2",
+    "esbuild": "^0.14.54",
     "eslint": "^8.21.0",
     "eslint-plugin-svelte3": "^4.0.0",
     "svelte": "^3.49.0",
     "svelte-check": "^2.8.0",
     "svelte-preprocess-esbuild": "^3.0.0",
     "typescript": "^4.7.4",
-    "uvu": "^0.5.6",
-    "vite": "^3.0.7"
+    "uvu": "^0.5.6"
   },
   "eslintConfig": {
     "root": true,
