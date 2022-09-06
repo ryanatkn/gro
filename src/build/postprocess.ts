@@ -253,7 +253,7 @@ const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
 	? '../../utils/sveltekitImportMocks.js'
 	: '@feltcoop/gro/dist/utils/sveltekitImportMocks.js';
 const sveltekitMockedSpecifiers = new Map([
-	['$app/env', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/environment', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/navigation', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/paths', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/stores', SVELTEKIT_IMPORT_MOCK_SPECIFIER],

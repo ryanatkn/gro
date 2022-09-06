@@ -1,4 +1,4 @@
-import {readable, writable} from 'svelte/store';
+import {readable} from 'svelte/store';
 
 // see this issue: https://github.com/sveltejs/kit/issues/1485
 
@@ -19,5 +19,4 @@ export const prefetchRoutes = (_routes: string[] | undefined): Promise<object> =
 
 export const navigating = readable(null);
 export const page = readable({host: '', path: '', params: new URLSearchParams(), query: {}});
-export const session = writable({});
-export const getStores = () => ({navigating, page, session} as const);
+export const getStores = () => ({navigating, page} as const);
