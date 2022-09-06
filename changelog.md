@@ -1,5 +1,10 @@
 # changelog
 
+## 0.61.1
+
+- upgrade SvelteKit import mocks
+  ([#338](https://github.com/feltcoop/gro/pull/338))
+
 ## 0.61.0
 
 - **break**: upgrade deps and remove peer deps for `@sveltejs/kit`, `uvu`, and `typescript`
