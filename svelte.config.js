@@ -8,7 +8,7 @@ export default {
 		immutable: true,
 	},
 	kit: {
-		adapter: staticAdapter({fallback: '404.html'}),
+		adapter: staticAdapter(),
 		files: {assets: 'src/static'},
 	},
 };

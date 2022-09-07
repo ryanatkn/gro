@@ -4,8 +4,6 @@
 	import {setDevmode} from '@feltcoop/felt/ui/devmode.js';
 	import DevmodeControls from '@feltcoop/felt/ui/DevmodeControls.svelte';
 
-	export const prerender = true;
-
 	const devmode = setDevmode(false);
 </script>
 
