@@ -38,7 +38,7 @@ export const task: Task<TypecheckTaskArgs> = {
 		}
 		if (svelteCheckResult && !svelteCheckResult.ok) {
 			if (errorMessage) errorMessage += ' ';
-			errorMessage = printSpawnResult(svelteCheckResult);
+			errorMessage += printSpawnResult(svelteCheckResult);
 		}
 		if (errorMessage) {
 			throw new TaskError(`Failed to typecheck. ${errorMessage}`);
