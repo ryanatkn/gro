@@ -1,5 +1,11 @@
 # changelog
 
+## 0.61.2
+
+- change `gro typecheck` to always run both `tsc` and `svelte-check`
+  instead of stopping when `tsc` finds an error
+  ([#339](https://github.com/feltcoop/gro/pull/339))
+
 ## 0.61.1
 
 - upgrade SvelteKit import mocks
