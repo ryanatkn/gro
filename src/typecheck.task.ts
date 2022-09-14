@@ -1,4 +1,4 @@
-import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
+import {printSpawnResult, spawn, type SpawnResult} from '@feltcoop/felt/util/process.js';
 
 import {TaskError, type Task} from './task/task.js';
 import type {TypecheckTaskArgs} from './typecheckTask.js';
@@ -19,10 +19,8 @@ export const task: Task<TypecheckTaskArgs> = {
 		const serializedTscArgs = ['tsc', ...serializeArgs(forwardedTscArgs)];
 		log.info(printCommandArgs(serializedTscArgs));
 		const tscTypecheckResult = await spawn('npx', serializedTscArgs);
-		if (!tscTypecheckResult.ok) {
-			throw new TaskError(`Failed to typecheck. ${printSpawnResult(tscTypecheckResult)}`);
-		}
 
+		let svelteCheckResult: SpawnResult | undefined;
 		if (await fs.exists('node_modules/.bin/svelte-check')) {
 			const forwardedSvelteCheckArgs = toForwardedArgs('svelte-check');
 			if (!forwardedSvelteCheckArgs.tsconfig) forwardedSvelteCheckArgs.tsconfig = tsconfig;
@@ -31,10 +29,19 @@ export const task: Task<TypecheckTaskArgs> = {
 				...serializeArgs(forwardedSvelteCheckArgs),
 			];
 			log.info(printCommandArgs(serializedSvelteCheckArgs));
-			const svelteCheckResult = await spawn('npx', serializedSvelteCheckArgs);
-			if (!svelteCheckResult.ok) {
-				throw new TaskError(`Failed to typecheck Svelte. ${printSpawnResult(svelteCheckResult)}`);
-			}
+			svelteCheckResult = await spawn('npx', serializedSvelteCheckArgs);
+		}
+
+		let errorMessage = '';
+		if (!tscTypecheckResult.ok) {
+			errorMessage = printSpawnResult(tscTypecheckResult);
+		}
+		if (svelteCheckResult && !svelteCheckResult.ok) {
+			if (errorMessage) errorMessage += ' ';
+			errorMessage = printSpawnResult(svelteCheckResult);
+		}
+		if (errorMessage) {
+			throw new TaskError(`Failed to typecheck. ${errorMessage}`);
 		}
 	},
 };
