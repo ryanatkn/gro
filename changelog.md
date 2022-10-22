@@ -1,5 +1,10 @@
 # changelog
 
+## 0.61.3
+
+- fix type parsing for Svelte files
+  ([#340](https://github.com/feltcoop/gro/pull/340))
+
 ## 0.61.2
 
 - change `gro typecheck` to always run both `tsc` and `svelte-check`
