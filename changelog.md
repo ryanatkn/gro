@@ -1,5 +1,12 @@
 # changelog
 
+## 0.62.0
+
+- **break**: upgrade deps
+  ([#341](https://github.com/feltcoop/gro/pull/341))
+- respect the `types` config property for Svelte files
+  ([#341](https://github.com/feltcoop/gro/pull/341))
+
 ## 0.61.3
 
 - fix type parsing for Svelte files

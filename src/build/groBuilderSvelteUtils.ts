@@ -4,7 +4,7 @@ import type {
 	CompileOptions as SvelteCompileOptions,
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
-import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {PreprocessorGroup, Processed} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {yellow} from 'kleur/colors';
@@ -95,25 +95,24 @@ let dependencyPreprocessor: PreprocessorGroup | undefined = undefined;
 // This is needed for cases where we build Svelte unmodified but still need its dependencies.
 // TODO could remove this if we do postprocessing inside the builders
 // TODO to support custom preprocessors, we could refactor this to save wasted work
-export const extractJsFromSvelteForDependencies = async (content: string): Promise<string> => {
-	let finalContent: string | undefined = undefined;
+export const extractJsFromSvelteForDependencies = async (
+	content: string,
+): Promise<{processed: Processed; js: string}> => {
+	let js = '';
 	if (dependencyPreprocessor === undefined) {
 		dependencyPreprocessor = sveltePreprocessEsbuild.typescript(
 			toDefaultEsbuildPreprocessOptions(true, 'esnext', false),
 		);
 	}
-	await svelte.preprocess(content, [
+	const processed = await svelte.preprocess(content, [
 		dependencyPreprocessor,
+		// Extract the JS but return nothing, passing through `processed`.
 		{
 			script(options) {
-				if (finalContent === undefined) {
-					finalContent = options.content;
-				} else {
-					finalContent += `\n${options.content}`;
-				}
-				return {code: ''};
+				// Handle multiple script tags, e.g. for `context="module"`.
+				js += `\n${options.content}`;
 			},
 		},
 	]);
-	return finalContent || '';
+	return {processed, js};
 };
