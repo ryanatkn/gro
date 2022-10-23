@@ -58,10 +58,16 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 		case SVELTE_EXTENSION: {
 			// Support Svelte in production, outputting the plain `.svelte`
 			// but extracting and mapping dependencies.
-			const extractedJs = await extractJsFromSvelteForDependencies(originalContent);
-			parseJsDependencies(extractedJs, handleSpecifier, false);
+			const {processed, js} = await extractJsFromSvelteForDependencies(originalContent);
+			parseJsDependencies(js, handleSpecifier, false);
 			if (ctx.types) {
 				parseTypeDependencies(content, handleSpecifier);
+			} else {
+				// Replace the Svelte content containing types with the processed code stripped of types.
+				content = processed.code;
+				// TODO shouldn't be needed: https://github.com/sveltejs/svelte-preprocess/issues/260
+				// A problem is this doesn't work for `<script` declarations that span multiple lines.
+				content = content.replace(/(<script.+)lang=["']ts["']/giu, '$1');
 			}
 			content = replaceDependencies(content, dependencies);
 			break;
