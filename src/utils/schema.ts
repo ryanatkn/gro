@@ -1,5 +1,7 @@
 import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
+import type z from 'zod';
+import {zodToJsonSchema} from 'zod-to-json-schema';
 
 export interface VocabSchema extends JSONSchema {
 	$id: string;
@@ -22,3 +24,9 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 		return JSON.stringify(schema);
 	},
 });
+
+export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, name: string): VocabSchema => {
+	const args = zodToJsonSchema(t, name).definitions[name] as VocabSchema;
+	args.$id = `/schemas/${name}.json`;
+	return args;
+};

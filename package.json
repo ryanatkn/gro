@@ -62,7 +62,9 @@
     "prettier-plugin-svelte": "^2.8.0",
     "source-map-support": "^0.5.21",
     "strict-event-emitter-types": "^2.0.0",
-    "tslib": "^2.4.0"
+    "tslib": "^2.4.0",
+    "zod": "^3.19.1",
+    "zod-to-json-schema": "^3.18.1"
   },
   "peerDependencies": {
     "@feltcoop/felt": ">=0.41.0",
