@@ -2,14 +2,20 @@ import type StrictEventEmitter from 'strict-event-emitter-types';
 import type {EventEmitter} from 'events';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {stripEnd} from '@feltcoop/felt/util/string.js';
+import type {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import type {Args, ArgsSchema} from '../utils/args.js';
 
-export interface Task<TArgs = Args, TEvents = object> {
+export interface Task<
+	TArgs = Args,
+	TEvents = object,
+	TArgsSchema extends z.ZodType<any, z.ZodTypeDef, any> = z.ZodType<any, z.ZodTypeDef, any>,
+> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
 	production?: boolean;
+	Args?: TArgsSchema;
 	args?: ArgsSchema;
 }
 
