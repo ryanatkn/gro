@@ -5,16 +5,16 @@ import {findGenModules} from './gen/genModule.js';
 
 const Args = z
 	.object({
-		typecheck: z.boolean({description: ''}).default(true).optional(),
-		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).default(false).optional(),
-		test: z.boolean({description: ''}).default(true).optional(),
-		'no-test': z.boolean({description: 'opt out of running tests'}).default(false).optional(),
-		gen: z.boolean({description: ''}).default(true).optional(),
-		'no-gen': z.boolean({description: 'opt out of gen check'}).default(false).optional(),
-		format: z.boolean({description: ''}).default(true).optional(),
-		'no-format': z.boolean({description: 'opt out of format check'}).default(false).optional(),
-		lint: z.boolean({description: ''}).default(true).optional(),
-		'no-lint': z.boolean({description: 'opt out of linting'}).default(false).optional(),
+		typecheck: z.boolean({description: ''}).optional().default(true),
+		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).optional().default(false),
+		test: z.boolean({description: ''}).optional().default(true),
+		'no-test': z.boolean({description: 'opt out of running tests'}).optional().default(false),
+		gen: z.boolean({description: ''}).optional().default(true),
+		'no-gen': z.boolean({description: 'opt out of gen check'}).optional().default(false),
+		format: z.boolean({description: ''}).optional().default(true),
+		'no-format': z.boolean({description: 'opt out of format check'}).optional().default(false),
+		lint: z.boolean({description: ''}).optional().default(true),
+		'no-lint': z.boolean({description: 'opt out of linting'}).optional().default(false),
 	})
 	.strict();
 type Args = z.infer<typeof Args>;

@@ -1,5 +1,9 @@
 # changelog
 
+## 0.62.2
+
+- fix task arg definitions
+
 ## 0.62.1
 
 - upgrade deps

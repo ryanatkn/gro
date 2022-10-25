@@ -12,13 +12,13 @@ const Args = z
 		build: z.boolean({description: ''}).default(true),
 		'no-build': z
 			.boolean({description: 'opt out of deleting the Gro build directory .gro/'})
-			.default(false)
-			.optional(),
+			.optional()
+			.default(false),
 		dist: z.boolean({description: ''}).default(true),
 		'no-dist': z
 			.boolean({description: 'opt out of deleting the Gro dist directory dist/'})
-			.default(false)
-			.optional(),
+			.optional()
+			.default(false),
 		sveltekit: z
 			.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
 			.default(false),
