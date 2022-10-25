@@ -9,6 +9,8 @@ import type {SomeTestObject, SomeTestPrimitive} from './someTestObject.js';
 
 const log = new Logger('test__someTestObject'); // TODO test logger?
 
+// TODO BLOCK remove ajv as dev dep and use `zod` to parse these instead
+
 const ajv = new Ajv();
 ajv.addKeyword('tsType');
 ajv.addKeyword('tsImport');
