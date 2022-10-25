@@ -71,6 +71,7 @@ export const task: Task<Args> = {
 	run: async ({fs, args, log}): Promise<void> => {
 		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous} = args;
 
+		// TODO BLOCK use `task.Args` instead of `task.args`
 		const defaultTargetBranch = task.args?.properties.target.default;
 		if (!force && target !== defaultTargetBranch) {
 			throw Error(
