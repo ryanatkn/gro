@@ -2,6 +2,7 @@ import {red, green, gray} from 'kleur/colors';
 import {printMs, printError, printTimings} from '@feltcoop/felt/util/print.js';
 import {plural} from '@feltcoop/felt/util/string.js';
 import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
+import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {runGen} from './gen/runGen.js';
@@ -10,14 +11,25 @@ import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
-import type {GenTaskArgs} from './genTask.js';
-import {GenTaskArgsSchema} from './genTask.schema.js';
+import type {ArgsSchema} from './utils/args.js';
+import {toVocabSchema} from './utils/schema.js';
+
+const Args = z
+	.object({
+		_: z.array(z.string(), {description: 'paths to generate'}).default([]),
+		check: z
+			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
-export const task: Task<GenTaskArgs> = {
+export const task: Task<Args> = {
 	summary: 'run code generation scripts',
-	args: GenTaskArgsSchema,
+	Args,
+	args: toVocabSchema(Args, 'GenTaskArgs') as ArgsSchema,
 	run: async ({fs, log, args}): Promise<void> => {
 		const {_: rawInputPaths, check} = args;
 
