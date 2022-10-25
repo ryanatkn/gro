@@ -2,13 +2,19 @@ import {printTimings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {spawn} from '@feltcoop/felt/util/process.js';
 import {yellow} from 'kleur/colors';
+import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
-import type {TestTaskArgs} from './testTask.js';
-import {TestTaskArgsSchema} from './testTask.schema.js';
-import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
+import {
+	addArg,
+	printCommandArgs,
+	serializeArgs,
+	toForwardedArgs,
+	type ArgsSchema,
+} from './utils/args.js';
+import {toVocabSchema} from './utils/schema.js';
 
 // Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
 // Args following any `-- uvu` are passed through to `uvu`'s CLI:
@@ -16,9 +22,17 @@ import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './utils/
 // If the `uvu` segment's args contain any rest arg patterns,
 // the base patterns are ignored.
 
-export const task: Task<TestTaskArgs> = {
+const Args = z
+	.object({
+		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.js$']),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'run tests',
-	args: TestTaskArgsSchema,
+	Args,
+	args: toVocabSchema(Args, 'TestTaskArgs') as ArgsSchema,
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const {_: testFilePatterns} = args;
 
