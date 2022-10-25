@@ -58,6 +58,7 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	} = meta;
 	const printed: string[] = [];
 	printed.push(cyan(name), 'help', '\n' + task.summary || '(no summary available)');
+	// TODO BLOCK use `task.Args` instead of `task.args`
 	if (task.args) {
 		const properties = toArgProperties(task.args);
 		const longestTaskName = Math.max(
