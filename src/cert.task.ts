@@ -1,12 +1,21 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
+import {z} from 'zod';
 
 import type {Task} from './task/task.js';
-import type {CertTaskArgs} from './certTask.js';
-import {CertTaskArgsSchema} from './certTask.schema.js';
+import type {ArgsSchema} from './utils/args.js';
+import {toVocabSchema} from './utils/schema.js';
 
-export const task: Task<CertTaskArgs> = {
+const Args = z.object({
+	host: z
+		.string({description: "the certificate host aka the common name, OpenSSL's CN arg"})
+		.default('localhost'),
+});
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'creates a self-signed cert for https with openssl',
-	args: CertTaskArgsSchema,
+	Args,
+	args: toVocabSchema(Args, 'LintTaskArgs') as ArgsSchema,
 	run: async ({fs, args}) => {
 		const {host} = args;
 		const certFile = `${host}-cert.pem`;
