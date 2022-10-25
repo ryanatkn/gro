@@ -2,14 +2,14 @@ import {join} from 'path';
 import {spawn} from '@feltcoop/felt/util/process.js';
 import {printError} from '@feltcoop/felt/util/print.js';
 import {magenta, green, red} from 'kleur/colors';
+import {z} from 'zod';
 
 import {rainbow} from './utils/colors.js';
 import type {Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {cleanFs} from './fs/clean.js';
-import type {DeployTaskArgs} from './deployTask.js';
-import {DeployTaskArgsSchema} from './deployTask.schema.js';
 import {toRawRestArgs} from './utils/args.js';
+import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 
 // docs at ./docs/deploy.md
 
@@ -29,18 +29,50 @@ const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const DANGEROUS_BRANCHES = ['main', 'master'];
 
-export const task: Task<DeployTaskArgs> = {
+const Args = z
+	.object({
+		dirname: z
+			.string({
+				description: "output directory in dist/ - defaults to detecting 'svelte-kit' | 'browser'",
+			})
+			.optional(),
+		source: z
+			.string({description: 'source branch to build and deploy from'})
+			.default(GIT_DEPLOY_SOURCE_BRANCH),
+		target: z.string({description: 'target branch to deploy to'}).default(GIT_DEPLOY_TARGET_BRANCH),
+		dry: z
+			.boolean({
+				description:
+					'build and prepare to deploy without actually deploying, for diagnostic and testing purposes',
+			})
+			.default(false),
+		clean: z
+			.boolean({
+				description: 'instead of building and deploying, just clean the git worktree and Gro cache',
+			})
+			.default(false),
+		force: z
+			.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
+			.default(false),
+		dangerous: z
+			.boolean({description: 'caution!! enables destruction of branches like main and master'})
+			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'deploy to static hosting',
 	production: true,
-	args: DeployTaskArgsSchema,
+	Args,
 	run: async ({fs, args, log}): Promise<void> => {
 		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous} = args;
 
-		const defaultTargetBranch = task.args?.properties.target.default;
-		if (!force && target !== defaultTargetBranch) {
+		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
 				`Warning! You are deploying to a custom target branch '${target}',` +
-					` instead of the default '${defaultTargetBranch}' branch.` +
+					` instead of the default '${GIT_DEPLOY_TARGET_BRANCH}' branch.` +
 					` This will destroy your '${target}' branch!` +
 					` If you understand and are OK with deleting your branch '${target}',` +
 					` both locally and remotely, pass --force to suppress this error.`,

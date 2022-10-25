@@ -1,13 +1,23 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
+import {z} from 'zod';
 
 import type {Task} from './task/task.js';
 import {loadPackageJson, type PackageJson} from './utils/packageJson.js';
-import type {UpgradeTaskArgs} from './upgradeTask';
-import {UpgradeTaskArgsSchema} from './upgradeTask.schema';
 
-export const task: Task<UpgradeTaskArgs> = {
+const Args = z
+	.object({
+		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
+		dry: z
+			.boolean({description: 'if true, print out the planned upgrades'})
+			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'upgrade deps',
-	args: UpgradeTaskArgsSchema,
+	Args,
 	run: async ({fs, args}): Promise<void> => {
 		const {_, dry} = args;
 

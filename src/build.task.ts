@@ -1,5 +1,6 @@
 import {Timings} from '@feltcoop/felt/util/timings.js';
 import {printTimings} from '@feltcoop/felt/util/print.js';
+import {z} from 'zod';
 
 import type {Task} from './task/task.js';
 import {loadConfig, type GroConfig} from './config/config.js';
@@ -7,17 +8,28 @@ import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
 import {Plugins} from './plugin/plugin.js';
 import {cleanFs} from './fs/clean.js';
-import type {BuildTaskArgs} from './buildTask.js';
-import {BuildTaskArgsSchema} from './buildTask.schema.js';
 
 export interface TaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
 }
 
-export const task: Task<BuildTaskArgs, TaskEvents> = {
+const Args = z
+	.object({
+		clean: z.boolean({description: ''}).default(true),
+		'no-clean': z
+			.boolean({
+				description: 'opt out of cleaning before building; warning! this may break your build!',
+			})
+			.default(false)
+			.optional(),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args, TaskEvents> = {
 	summary: 'build the project',
 	production: true,
-	args: BuildTaskArgsSchema,
+	Args,
 	run: async (ctx): Promise<void> => {
 		const {
 			fs,

@@ -5,7 +5,7 @@ import {stripEnd} from '@feltcoop/felt/util/string.js';
 import type {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import type {Args, ArgsSchema} from '../utils/args.js';
+import type {Args} from '../utils/args.js';
 
 export interface Task<
 	TArgs = Args,
@@ -16,7 +16,6 @@ export interface Task<
 	summary?: string;
 	production?: boolean;
 	Args?: TArgsSchema;
-	args?: ArgsSchema;
 }
 
 export interface TaskContext<TArgs = object, TEvents = object> {
