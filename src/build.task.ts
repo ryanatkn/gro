@@ -8,8 +8,6 @@ import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
 import {Plugins} from './plugin/plugin.js';
 import {cleanFs} from './fs/clean.js';
-import {toVocabSchema} from './utils/schema.js';
-import type {ArgsSchema} from './utils/args.js';
 
 export interface TaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
@@ -32,7 +30,6 @@ export const task: Task<Args, TaskEvents> = {
 	summary: 'build the project',
 	production: true,
 	Args,
-	args: toVocabSchema(Args, 'BuildTaskArgs') as ArgsSchema,
 	run: async (ctx): Promise<void> => {
 		const {
 			fs,

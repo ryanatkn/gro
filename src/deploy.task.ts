@@ -8,8 +8,7 @@ import {rainbow} from './utils/colors.js';
 import type {Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
 import {cleanFs} from './fs/clean.js';
-import {toRawRestArgs, type ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
+import {toRawRestArgs} from './utils/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 
 // docs at ./docs/deploy.md
@@ -67,16 +66,13 @@ export const task: Task<Args> = {
 	summary: 'deploy to static hosting',
 	production: true,
 	Args,
-	args: toVocabSchema(Args, 'DeployTaskArgs') as ArgsSchema,
 	run: async ({fs, args, log}): Promise<void> => {
 		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous} = args;
 
-		// TODO BLOCK use `task.Args` instead of `task.args`
-		const defaultTargetBranch = task.args?.properties.target.default;
-		if (!force && target !== defaultTargetBranch) {
+		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
 				`Warning! You are deploying to a custom target branch '${target}',` +
-					` instead of the default '${defaultTargetBranch}' branch.` +
+					` instead of the default '${GIT_DEPLOY_TARGET_BRANCH}' branch.` +
 					` This will destroy your '${target}' branch!` +
 					` If you understand and are OK with deleting your branch '${target}',` +
 					` both locally and remotely, pass --force to suppress this error.`,

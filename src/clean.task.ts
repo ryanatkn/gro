@@ -2,8 +2,6 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
-import type {ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
 import {z} from 'zod';
 
 // TODO customize
@@ -38,7 +36,6 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	Args,
-	args: toVocabSchema(Args, 'CleanTaskArgs') as ArgsSchema,
 	run: async ({fs, log, args}): Promise<void> => {
 		const {build, dist, sveltekit, nodemodules, git} = args;
 

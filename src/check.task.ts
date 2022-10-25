@@ -2,8 +2,6 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
-import type {ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
 
 const Args = z
 	.object({
@@ -24,7 +22,6 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
-	args: toVocabSchema(Args, 'CheckTaskArgs') as ArgsSchema,
 	run: async ({fs, log, args, invokeTask}) => {
 		const {typecheck, test, gen, format, lint} = args;
 

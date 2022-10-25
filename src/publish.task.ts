@@ -13,8 +13,7 @@ import type {Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
-import {toRawRestArgs, type ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
+import {toRawRestArgs} from './utils/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 
 // publish.task.ts
@@ -50,7 +49,6 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	production: true,
 	Args,
-	args: toVocabSchema(Args, 'PublishTaskArgs') as ArgsSchema,
 	run: async ({fs, args, log, dev}): Promise<void> => {
 		const {branch, dry, restricted} = args;
 		if (dry) {

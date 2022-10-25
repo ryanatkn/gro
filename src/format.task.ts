@@ -4,8 +4,6 @@ import {z} from 'zod';
 import {TaskError, type Task} from './task/task.js';
 import {formatDirectory} from './format/formatDirectory.js';
 import {paths} from './paths.js';
-import type {ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
 
 const Args = z
 	.object({
@@ -19,7 +17,6 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'format source files',
 	Args,
-	args: toVocabSchema(Args, 'FormatTaskArgs') as ArgsSchema,
 	run: async ({args, log}) => {
 		const {check} = args;
 		// TODO forward prettier args

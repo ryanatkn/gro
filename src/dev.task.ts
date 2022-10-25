@@ -8,8 +8,6 @@ import {groBuilderDefault} from './build/groBuilderDefault.js';
 import {paths} from './paths.js';
 import {loadConfig, type GroConfig} from './config/config.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
-import type {ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
 
 export interface TaskEvents {
 	'dev.createConfig': (config: GroConfig) => void;
@@ -41,7 +39,6 @@ export type DevTaskContext = PluginContext<Args, TaskEvents>;
 export const task: Task<Args, TaskEvents> = {
 	summary: 'start SvelteKit and other dev plugins',
 	Args,
-	args: toVocabSchema(Args, 'DevTaskArgs') as ArgsSchema,
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
 		const {watch} = args;

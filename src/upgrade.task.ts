@@ -3,8 +3,6 @@ import {z} from 'zod';
 
 import type {Task} from './task/task.js';
 import {loadPackageJson, type PackageJson} from './utils/packageJson.js';
-import type {ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
 
 const Args = z
 	.object({
@@ -20,7 +18,6 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
-	args: toVocabSchema(Args, 'UpgradeTaskArgs') as ArgsSchema,
 	run: async ({fs, args}): Promise<void> => {
 		const {_, dry} = args;
 

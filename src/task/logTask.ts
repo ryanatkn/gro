@@ -6,6 +6,7 @@ import {printValue} from '@feltcoop/felt/util/print.js';
 import type {ArgSchema, ArgsSchema} from '../utils/args.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
+import {toVocabSchema} from 'src/utils/schema.js';
 
 export const logAvailableTasks = async (
 	log: Logger,
@@ -58,9 +59,10 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	} = meta;
 	const printed: string[] = [];
 	printed.push(cyan(name), 'help', '\n' + task.summary || '(no summary available)');
-	// TODO BLOCK use `task.Args` instead of `task.args`
-	if (task.args) {
-		const properties = toArgProperties(task.args);
+	if (task.Args) {
+		// TODO BLOCK avoid using `toVocabSchema`, and then remove the `zodToJsonSchema` dep
+		const args = toVocabSchema(task.Args, 'Args') as ArgsSchema;
+		const properties = toArgProperties(args);
 		const longestTaskName = Math.max(
 			ARGS_PROPERTY_NAME.length,
 			toMaxLength(properties, (p) => p.name),

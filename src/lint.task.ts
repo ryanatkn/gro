@@ -2,9 +2,8 @@ import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs, type ArgsSchema} from './utils/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 import {SOURCE_DIRNAME} from './paths.js';
-import {toVocabSchema} from './utils/schema.js';
 
 const Args = z
 	.object({
@@ -16,7 +15,6 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run eslint on the source files',
 	Args,
-	args: toVocabSchema(Args, 'LintTaskArgs') as ArgsSchema,
 	run: async ({fs, log, args}): Promise<void> => {
 		if (!(await fs.exists('node_modules/.bin/eslint'))) {
 			log.info('ESLint is not installed; skipping linting');

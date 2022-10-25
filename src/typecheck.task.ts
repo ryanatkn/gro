@@ -2,9 +2,8 @@ import {printSpawnResult, spawn, type SpawnResult} from '@feltcoop/felt/util/pro
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs, type ArgsSchema} from './utils/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 import {sveltekitSync} from './utils/sveltekit.js';
-import {toVocabSchema} from './utils/schema.js';
 
 const Args = z
 	.object({
@@ -16,7 +15,6 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'typecheck the project without emitting any files',
 	Args,
-	args: toVocabSchema(Args, 'TypecheckTaskArgs') as ArgsSchema,
 	run: async ({fs, args, log}): Promise<void> => {
 		const {tsconfig} = args;
 

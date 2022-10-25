@@ -11,8 +11,6 @@ import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
-import type {ArgsSchema} from './utils/args.js';
-import {toVocabSchema} from './utils/schema.js';
 
 const Args = z
 	.object({
@@ -29,7 +27,6 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	args: toVocabSchema(Args, 'GenTaskArgs') as ArgsSchema,
 	run: async ({fs, log, args}): Promise<void> => {
 		const {_: rawInputPaths, check} = args;
 
