@@ -15,7 +15,7 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'creates a self-signed cert for https with openssl',
 	Args,
-	args: toVocabSchema(Args, 'LintTaskArgs') as ArgsSchema,
+	args: toVocabSchema(Args, 'CertTaskArgs') as ArgsSchema,
 	run: async ({fs, args}) => {
 		const {host} = args;
 		const certFile = `${host}-cert.pem`;
