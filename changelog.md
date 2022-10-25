@@ -2,8 +2,10 @@
 
 ## 0.62.1
 
-- **break**: upgrade deps
+- upgrade deps
   ([#342](https://github.com/feltcoop/gro/pull/342))
+- use [zod](https://github.com/colinhacks/zod) for task schemas
+  ([#344](https://github.com/feltcoop/gro/pull/344))
 
 ## 0.62.0
 
