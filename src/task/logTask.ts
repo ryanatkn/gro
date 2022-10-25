@@ -60,7 +60,7 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	const printed: string[] = [];
 	printed.push(cyan(name), 'help', '\n' + task.summary || '(no summary available)');
 	if (task.Args) {
-		// TODO BLOCK avoid using `toVocabSchema`, and then remove the `zodToJsonSchema` dep
+		// TODO refactor to avoid using `toVocabSchema`, and then remove the `zodToJsonSchema` dep
 		const args = toVocabSchema(task.Args, 'Args') as ArgsSchema;
 		const properties = toArgProperties(args);
 		const longestTaskName = Math.max(
