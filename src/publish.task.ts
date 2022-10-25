@@ -4,6 +4,7 @@ import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
 import type {Logger} from '@feltcoop/felt/util/log.js';
 import {UnreachableError} from '@feltcoop/felt/util/error.js';
 import type {Flavored, Result} from '@feltcoop/felt';
+import {z} from 'zod';
 
 import {rainbow} from './utils/colors.js';
 import type {Task} from './task/task.js';
@@ -12,9 +13,9 @@ import type {Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
-import type {PublishTaskArgs} from './publishTask.js';
-import {PublishTaskArgsSchema} from './publishTask.schema.js';
-import {toRawRestArgs} from './utils/args.js';
+import {toRawRestArgs, type ArgsSchema} from './utils/args.js';
+import {toVocabSchema} from './utils/schema.js';
+import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -23,10 +24,33 @@ import {toRawRestArgs} from './utils/args.js';
 // - publishes to npm from the `main` branch, configurable with `--branch`
 // - syncs commits and tags to the configured main branch
 
-export const task: Task<PublishTaskArgs> = {
+const Args = z
+	.object({
+		_: z
+			.array(z.string(), {description: 'npm version increment, like major|minor|patch'})
+			.default([]),
+		branch: z.string({description: 'branch to publish from'}).default(GIT_DEPLOY_SOURCE_BRANCH),
+		dry: z
+			.boolean({
+				description:
+					'build and prepare to publish without actually publishing, for diagnostic and testing purposes',
+			})
+			.default(false),
+		restricted: z
+			.boolean({
+				description:
+					'if true, the package is published privately instead of the public default, using `npm publish --access restricted`',
+			})
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	production: true,
-	args: PublishTaskArgsSchema,
+	Args,
+	args: toVocabSchema(Args, 'PublishTaskArgs') as ArgsSchema,
 	run: async ({fs, args, log, dev}): Promise<void> => {
 		const {branch, dry, restricted} = args;
 		if (dry) {
