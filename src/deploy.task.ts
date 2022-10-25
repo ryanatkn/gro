@@ -30,35 +30,37 @@ const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const DANGEROUS_BRANCHES = ['main', 'master'];
 
-const Args = z.object({
-	dirname: z
-		.string({
-			description: "output directory in dist/ - defaults to detecting 'svelte-kit' | 'browser'",
-		})
-		.optional(),
-	source: z
-		.string({description: 'source branch to build and deploy from'})
-		.default(GIT_DEPLOY_SOURCE_BRANCH),
-	target: z.string({description: 'target branch to deploy to'}).default(GIT_DEPLOY_TARGET_BRANCH),
-	dry: z
-		.boolean({
-			description:
-				'build and prepare to deploy without actually deploying, for diagnostic and testing purposes',
-		})
-		.default(false),
-	clean: z
-		.boolean({
-			description: 'instead of building and deploying, just clean the git worktree and Gro cache',
-		})
-		.default(false),
-	force: z
-		.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
-		.default(false),
-	dangerous: z
-		.boolean({description: 'caution!! enables destruction of branches like main and master'})
-		.optional() // TODO behavior differs now with zod, because of `default` this does nothing
-		.default(false),
-});
+const Args = z
+	.object({
+		dirname: z
+			.string({
+				description: "output directory in dist/ - defaults to detecting 'svelte-kit' | 'browser'",
+			})
+			.optional(),
+		source: z
+			.string({description: 'source branch to build and deploy from'})
+			.default(GIT_DEPLOY_SOURCE_BRANCH),
+		target: z.string({description: 'target branch to deploy to'}).default(GIT_DEPLOY_TARGET_BRANCH),
+		dry: z
+			.boolean({
+				description:
+					'build and prepare to deploy without actually deploying, for diagnostic and testing purposes',
+			})
+			.default(false),
+		clean: z
+			.boolean({
+				description: 'instead of building and deploying, just clean the git worktree and Gro cache',
+			})
+			.default(false),
+		force: z
+			.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
+			.default(false),
+		dangerous: z
+			.boolean({description: 'caution!! enables destruction of branches like main and master'})
+			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
+			.default(false),
+	})
+	.strict();
 type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

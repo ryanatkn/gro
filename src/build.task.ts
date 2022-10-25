@@ -15,15 +15,17 @@ export interface TaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
 }
 
-const Args = z.object({
-	clean: z.boolean({description: ''}).default(true),
-	'no-clean': z
-		.boolean({
-			description: 'opt out of cleaning before building; warning! this may break your build!',
-		})
-		.default(false)
-		.optional(),
-});
+const Args = z
+	.object({
+		clean: z.boolean({description: ''}).default(true),
+		'no-clean': z
+			.boolean({
+				description: 'opt out of cleaning before building; warning! this may break your build!',
+			})
+			.default(false)
+			.optional(),
+	})
+	.strict();
 type Args = z.infer<typeof Args>;
 
 export const task: Task<Args, TaskEvents> = {

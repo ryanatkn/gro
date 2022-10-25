@@ -6,9 +6,11 @@ import {printCommandArgs, serializeArgs, toForwardedArgs, type ArgsSchema} from 
 import {SOURCE_DIRNAME} from './paths.js';
 import {toVocabSchema} from './utils/schema.js';
 
-const Args = z.object({
-	_: z.array(z.string(), {description: 'paths to serve'}).default([SOURCE_DIRNAME]),
-});
+const Args = z
+	.object({
+		_: z.array(z.string(), {description: 'paths to serve'}).default([SOURCE_DIRNAME]),
+	})
+	.strict();
 type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

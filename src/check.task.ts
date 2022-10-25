@@ -5,18 +5,20 @@ import {findGenModules} from './gen/genModule.js';
 import type {ArgsSchema} from './utils/args.js';
 import {toVocabSchema} from './utils/schema.js';
 
-const Args = z.object({
-	typecheck: z.boolean({description: ''}).default(true).optional(),
-	'no-typecheck': z.boolean({description: 'opt out of typechecking'}).default(false).optional(),
-	test: z.boolean({description: ''}).default(true).optional(),
-	'no-test': z.boolean({description: 'opt out of running tests'}).default(false).optional(),
-	gen: z.boolean({description: ''}).default(true).optional(),
-	'no-gen': z.boolean({description: 'opt out of gen check'}).default(false).optional(),
-	format: z.boolean({description: ''}).default(true).optional(),
-	'no-format': z.boolean({description: 'opt out of format check'}).default(false).optional(),
-	lint: z.boolean({description: ''}).default(true).optional(),
-	'no-lint': z.boolean({description: 'opt out of linting'}).default(false).optional(),
-});
+const Args = z
+	.object({
+		typecheck: z.boolean({description: ''}).default(true).optional(),
+		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).default(false).optional(),
+		test: z.boolean({description: ''}).default(true).optional(),
+		'no-test': z.boolean({description: 'opt out of running tests'}).default(false).optional(),
+		gen: z.boolean({description: ''}).default(true).optional(),
+		'no-gen': z.boolean({description: 'opt out of gen check'}).default(false).optional(),
+		format: z.boolean({description: ''}).default(true).optional(),
+		'no-format': z.boolean({description: 'opt out of format check'}).default(false).optional(),
+		lint: z.boolean({description: ''}).default(true).optional(),
+		'no-lint': z.boolean({description: 'opt out of linting'}).default(false).optional(),
+	})
+	.strict();
 type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

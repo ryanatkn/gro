@@ -5,11 +5,13 @@ import type {Task} from './task/task.js';
 import type {ArgsSchema} from './utils/args.js';
 import {toVocabSchema} from './utils/schema.js';
 
-const Args = z.object({
-	host: z
-		.string({description: "the certificate host aka the common name, OpenSSL's CN arg"})
-		.default('localhost'),
-});
+const Args = z
+	.object({
+		host: z
+			.string({description: "the certificate host aka the common name, OpenSSL's CN arg"})
+			.default('localhost'),
+	})
+	.strict();
 type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

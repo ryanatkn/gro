@@ -9,28 +9,30 @@ import {z} from 'zod';
 // TODO customize
 const ORIGIN = 'origin';
 
-const Args = z.object({
-	build: z.boolean({description: ''}).default(true),
-	'no-build': z
-		.boolean({description: 'opt out of deleting the Gro build directory .gro/'})
-		.default(false)
-		.optional(),
-	dist: z.boolean({description: ''}).default(true),
-	'no-dist': z
-		.boolean({description: 'opt out of deleting the Gro dist directory dist/'})
-		.default(false)
-		.optional(),
-	sveltekit: z
-		.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
-		.default(false),
-	nodemodules: z.boolean({description: 'delete node_modules/'}).default(false),
-	git: z
-		.boolean({
-			description:
-				'run "git remote prune" to delete local branches referencing nonexistent remote branches',
-		})
-		.default(false),
-});
+const Args = z
+	.object({
+		build: z.boolean({description: ''}).default(true),
+		'no-build': z
+			.boolean({description: 'opt out of deleting the Gro build directory .gro/'})
+			.default(false)
+			.optional(),
+		dist: z.boolean({description: ''}).default(true),
+		'no-dist': z
+			.boolean({description: 'opt out of deleting the Gro dist directory dist/'})
+			.default(false)
+			.optional(),
+		sveltekit: z
+			.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
+			.default(false),
+		nodemodules: z.boolean({description: 'delete node_modules/'}).default(false),
+		git: z
+			.boolean({
+				description:
+					'run "git remote prune" to delete local branches referencing nonexistent remote branches',
+			})
+			.default(false),
+	})
+	.strict();
 type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {

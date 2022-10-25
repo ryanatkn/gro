@@ -26,7 +26,7 @@ export type RunTaskResult =
 export const runTask = async (
 	fs: Filesystem,
 	taskMeta: TaskModuleMeta,
-	args: Args,
+	unparsedArgs: Args,
 	events: EventEmitter,
 	invokeTask: typeof InvokeTaskFunction,
 ): Promise<RunTaskResult> => {
@@ -36,14 +36,29 @@ export const runTask = async (
 	if (dev && task.production) {
 		throw new TaskError(`The task "${taskMeta.name}" cannot be run in development`);
 	}
-	if (args.help) {
+	if (unparsedArgs.help) {
 		logTaskHelp(log, taskMeta);
 		return {ok: true, output: null};
 	}
 
+	let args = unparsedArgs; // may be reassigned to parsed version ahead
+
 	// Parse and validate args.
-	if (task.args) {
-		// TODO BLOCK use zod instead
+	if (task.Args) {
+		const parsed = task.Args.safeParse(args);
+		if (parsed.success) {
+			args = parsed.data;
+		} else {
+			const formatted = parsed.error.format();
+			log.error(
+				red(`Args validation failed:`),
+				...formatted._errors.map((e) => '\n\n' + red(e)),
+				'\n\n',
+			);
+			throw new TaskError(`Task args failed validation`);
+		}
+	} else if (task.args) {
+		// TODO remove this block and ajv
 		const validate = validateSchema(task.args);
 		validate(args);
 		if (validate.errors) {
