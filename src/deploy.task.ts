@@ -55,9 +55,7 @@ const Args = z.object({
 		.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
 		.default(false),
 	dangerous: z
-		.boolean({
-			description: 'caution!! enables destruction of branches like main and master',
-		})
+		.boolean({description: 'caution!! enables destruction of branches like main and master'})
 		.optional() // TODO behavior differs now with zod, because of `default` this does nothing
 		.default(false),
 });

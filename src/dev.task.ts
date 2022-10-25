@@ -1,5 +1,6 @@
 import {printTimings} from '@feltcoop/felt/util/print.js';
 import {Timings} from '@feltcoop/felt/util/timings.js';
+import {z} from 'zod';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
@@ -7,10 +8,8 @@ import {groBuilderDefault} from './build/groBuilderDefault.js';
 import {paths} from './paths.js';
 import {loadConfig, type GroConfig} from './config/config.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
-import type {DevTaskArgs} from './devTask.js';
-import {DevTaskArgsSchema} from './devTask.schema.js';
-
-export type DevTaskContext = PluginContext<DevTaskArgs, TaskEvents>;
+import type {ArgsSchema} from './utils/args.js';
+import {toVocabSchema} from './utils/schema.js';
 
 export interface TaskEvents {
 	'dev.createConfig': (config: GroConfig) => void;
@@ -19,9 +18,27 @@ export interface TaskEvents {
 	'dev.ready': (ctx: DevTaskContext) => void;
 }
 
-export const task: Task<DevTaskArgs, TaskEvents> = {
+const Args = z.object({
+	watch: z.boolean({description: ''}).default(true),
+	'no-watch': z
+		.boolean({
+			description: 'opt out of running a long-lived process to watch files and rebuild on changes',
+		})
+		.optional() // TODO behavior differs now with zod, because of `default` this does nothing
+		.default(false),
+	// TODO this flag is weird, it detects https credentials but should probably be explicit and fail if not available
+	insecure: z.boolean({description: 'ignore https credentials'}).optional(),
+	cert: z.string({description: 'https certificate file'}).optional(),
+	certkey: z.string({description: 'https certificate key file'}).optional(),
+});
+type Args = z.infer<typeof Args>;
+
+export type DevTaskContext = PluginContext<Args, TaskEvents>;
+
+export const task: Task<Args, TaskEvents> = {
 	summary: 'start SvelteKit and other dev plugins',
-	args: DevTaskArgsSchema,
+	Args,
+	args: toVocabSchema(Args, 'DevTaskArgs') as ArgsSchema,
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
 		const {watch} = args;
