@@ -43,6 +43,7 @@ export const runTask = async (
 
 	// Parse and validate args.
 	if (task.args) {
+		// TODO BLOCK use zod instead
 		const validate = validateSchema(task.args);
 		validate(args);
 		if (validate.errors) {
