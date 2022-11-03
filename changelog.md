@@ -1,5 +1,10 @@
 # changelog
 
+## 0.60.3
+
+- do not run `tsc` in `gro check` if `svelte-check` is available
+  ([#337](https://github.com/feltcoop/gro/pull/337))
+
 ## 0.60.2
 
 - fix `gro deploy` when the deployment branch isn't loaded locally
