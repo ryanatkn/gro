@@ -1,8 +1,47 @@
 # changelog
 
-## 0.60.3
+## 0.62.3
 
 - do not run `tsc` in `gro check` if `svelte-check` is available
+  ([#345](https://github.com/feltcoop/gro/pull/345))
+
+## 0.62.2
+
+- fix task arg definitions
+
+## 0.62.1
+
+- upgrade deps
+  ([#342](https://github.com/feltcoop/gro/pull/342))
+- use [zod](https://github.com/colinhacks/zod) for task schemas
+  ([#344](https://github.com/feltcoop/gro/pull/344))
+
+## 0.62.0
+
+- **break**: upgrade deps
+  ([#341](https://github.com/feltcoop/gro/pull/341))
+- respect the `types` config property for Svelte files
+  ([#341](https://github.com/feltcoop/gro/pull/341))
+
+## 0.61.3
+
+- fix type parsing for Svelte files
+  ([#340](https://github.com/feltcoop/gro/pull/340))
+
+## 0.61.2
+
+- change `gro typecheck` to always run both `tsc` and `svelte-check`
+  instead of stopping when `tsc` finds an error
+  ([#339](https://github.com/feltcoop/gro/pull/339))
+
+## 0.61.1
+
+- upgrade SvelteKit import mocks
+  ([#338](https://github.com/feltcoop/gro/pull/338))
+
+## 0.61.0
+
+- **break**: upgrade deps and remove peer deps for `@sveltejs/kit`, `uvu`, and `typescript`
   ([#337](https://github.com/feltcoop/gro/pull/337))
 
 ## 0.60.2

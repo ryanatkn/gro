@@ -1,5 +1,7 @@
 import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
+import type z from 'zod';
+import {zodToJsonSchema} from 'zod-to-json-schema';
 
 export interface VocabSchema extends JSONSchema {
 	$id: string;
@@ -7,6 +9,12 @@ export interface VocabSchema extends JSONSchema {
 
 export const isVocabSchema = (value: unknown): value is VocabSchema =>
 	!!value && typeof value === 'object' && '$id' in value;
+
+export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, name: string): VocabSchema => {
+	const args = zodToJsonSchema(t, name).definitions[name] as VocabSchema;
+	args.$id = `/schemas/${name}.json`;
+	return args;
+};
 
 /**
  * Creates a custom resolver for `VocabSchema`s supporting paths like "/schemas/Something.json".

@@ -2,15 +2,40 @@ import {spawn} from '@feltcoop/felt/util/process.js';
 
 import type {Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
-import type {CleanTaskArgs} from './cleanTask.js';
-import {CleanTaskArgsSchema} from './cleanTask.schema.js';
+import {z} from 'zod';
 
 // TODO customize
 const ORIGIN = 'origin';
 
-export const task: Task<CleanTaskArgs> = {
+const Args = z
+	.object({
+		build: z.boolean({description: ''}).default(true),
+		'no-build': z
+			.boolean({description: 'opt out of deleting the Gro build directory .gro/'})
+			.optional()
+			.default(false),
+		dist: z.boolean({description: ''}).default(true),
+		'no-dist': z
+			.boolean({description: 'opt out of deleting the Gro dist directory dist/'})
+			.optional()
+			.default(false),
+		sveltekit: z
+			.boolean({description: 'delete the SvelteKit directory .svelte-kit/ and Vite cache'})
+			.default(false),
+		nodemodules: z.boolean({description: 'delete node_modules/'}).default(false),
+		git: z
+			.boolean({
+				description:
+					'run "git remote prune" to delete local branches referencing nonexistent remote branches',
+			})
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
-	args: CleanTaskArgsSchema,
+	Args,
 	run: async ({fs, log, args}): Promise<void> => {
 		const {build, dist, sveltekit, nodemodules, git} = args;
 

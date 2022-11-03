@@ -1,5 +1,5 @@
 import type {EventEmitter} from 'events';
-import {cyan, red, yellow} from 'kleur/colors';
+import {cyan, red} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
 
 import type {TaskModuleMeta} from './taskModule.js';
@@ -8,9 +8,6 @@ import type {Args} from '../utils/args.js';
 import type {invokeTask as InvokeTaskFunction} from './invokeTask.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logTaskHelp} from './logTask.js';
-import {ajv, validateSchema} from '../utils/ajv.js';
-
-ajv({useDefaults: true});
 
 export type RunTaskResult =
 	| {
@@ -26,7 +23,7 @@ export type RunTaskResult =
 export const runTask = async (
 	fs: Filesystem,
 	taskMeta: TaskModuleMeta,
-	args: Args,
+	unparsedArgs: Args,
 	events: EventEmitter,
 	invokeTask: typeof InvokeTaskFunction,
 ): Promise<RunTaskResult> => {
@@ -36,30 +33,24 @@ export const runTask = async (
 	if (dev && task.production) {
 		throw new TaskError(`The task "${taskMeta.name}" cannot be run in development`);
 	}
-	if (args.help) {
+	if (unparsedArgs.help) {
 		logTaskHelp(log, taskMeta);
 		return {ok: true, output: null};
 	}
 
+	let args = unparsedArgs; // may be reassigned to parsed version ahead
+
 	// Parse and validate args.
-	if (task.args) {
-		const validate = validateSchema(task.args);
-		validate(args);
-		if (validate.errors) {
-			const count = validate.errors.length;
+	if (task.Args) {
+		const parsed = task.Args.safeParse(args);
+		if (parsed.success) {
+			args = parsed.data;
+		} else {
+			const formatted = parsed.error.format();
 			log.error(
 				red(`Args validation failed:`),
-				...validate.errors.flatMap((e, i) => {
-					const {missingProperty} = e.params;
-					return [
-						missingProperty
-							? `${red(`\nProperty '${missingProperty}' is missing:`)} ${yellow(
-									task.args!.properties[missingProperty].description + ':\n',
-							  )}`
-							: red(`\nerror${count > 1 ? ' ' + i : ''}:`),
-						e,
-					];
-				}),
+				...formatted._errors.map((e) => '\n\n' + red(e)),
+				'\n\n',
 			);
 			throw new TaskError(`Task args failed validation`);
 		}

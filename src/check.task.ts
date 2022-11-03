@@ -1,11 +1,27 @@
+import {z} from 'zod';
+
 import {TaskError, type Task} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
-import type {CheckTaskArgs} from './checkTask.js';
-import {CheckTaskArgsSchema} from './checkTask.schema.js';
 
-export const task: Task<CheckTaskArgs> = {
+const Args = z
+	.object({
+		typecheck: z.boolean({description: ''}).optional().default(true),
+		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).optional().default(false),
+		test: z.boolean({description: ''}).optional().default(true),
+		'no-test': z.boolean({description: 'opt out of running tests'}).optional().default(false),
+		gen: z.boolean({description: ''}).optional().default(true),
+		'no-gen': z.boolean({description: 'opt out of gen check'}).optional().default(false),
+		format: z.boolean({description: ''}).optional().default(true),
+		'no-format': z.boolean({description: 'opt out of format check'}).optional().default(false),
+		lint: z.boolean({description: ''}).optional().default(true),
+		'no-lint': z.boolean({description: 'opt out of linting'}).optional().default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
-	args: CheckTaskArgsSchema,
+	Args,
 	run: async ({fs, log, args, invokeTask}) => {
 		const {typecheck, test, gen, format, lint} = args;
 

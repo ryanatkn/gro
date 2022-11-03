@@ -32,7 +32,7 @@ export type LoadModuleFailure =
 	| {ok: false; type: 'importFailed'; id: string; error: Error}
 	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
 
-export const loadModule = async <T>(
+export const loadModule = async <T extends Record<string, any>>(
 	id: string,
 	dev: boolean,
 	validate?: (mod: Record<string, any>) => mod is T,
@@ -162,7 +162,10 @@ Load modules by source id.
 TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
 
 */
-export const loadModules = async <ModuleType, TModuleMeta extends ModuleMeta<ModuleType>>(
+export const loadModules = async <
+	ModuleType extends Record<string, any>,
+	TModuleMeta extends ModuleMeta<ModuleType>,
+>(
 	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	dev: boolean,
 	loadModuleById: (sourceId: string, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,

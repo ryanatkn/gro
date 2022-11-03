@@ -58,10 +58,16 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 		case SVELTE_EXTENSION: {
 			// Support Svelte in production, outputting the plain `.svelte`
 			// but extracting and mapping dependencies.
-			const extractedJs = await extractJsFromSvelteForDependencies(originalContent);
-			parseJsDependencies(extractedJs, handleSpecifier, false);
+			const {processed, js} = await extractJsFromSvelteForDependencies(originalContent);
+			parseJsDependencies(js, handleSpecifier, false);
 			if (ctx.types) {
 				parseTypeDependencies(content, handleSpecifier);
+			} else {
+				// Replace the Svelte content containing types with the processed code stripped of types.
+				content = processed.code;
+				// TODO shouldn't be needed: https://github.com/sveltejs/svelte-preprocess/issues/260
+				// A problem is this doesn't work for `<script` declarations that span multiple lines.
+				content = content.replace(/(<script.+)lang=["']ts["']/giu, '$1');
 			}
 			content = replaceDependencies(content, dependencies);
 			break;
@@ -195,7 +201,7 @@ This only works decently well because we're assuming things are formatted with P
 */
 const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier): void => {
 	for (const matches of content.matchAll(
-		/^(import\stype\s|export\s|import\s[\s\S]*?\{[\s\S]*?\Wtype\s)[\s\S]*?from\s*?['|"](.+)['|"]/gmu,
+		/^\s*(import\stype\s|export\s|import\s[\s\S]*?\{[\s\S]*?\Wtype\s)[\s\S]*?from\s*?['|"](.+)['|"]/gmu,
 	)) {
 		handleSpecifier(matches[2]);
 	}
@@ -253,7 +259,8 @@ const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
 	? '../../utils/sveltekitImportMocks.js'
 	: '@feltcoop/gro/dist/utils/sveltekitImportMocks.js';
 const sveltekitMockedSpecifiers = new Map([
-	['$app/env', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/environment', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/forms', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/navigation', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/paths', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/stores', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
