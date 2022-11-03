@@ -1,4 +1,4 @@
-import {printSpawnResult, spawn, type SpawnResult} from '@feltcoop/felt/util/process.js';
+import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
@@ -20,14 +20,8 @@ export const task: Task<Args> = {
 
 		await sveltekitSync(fs);
 
-		const forwardedTscArgs = toForwardedArgs('tsc');
-		if (!forwardedTscArgs.noEmit) forwardedTscArgs.noEmit = true;
-		const serializedTscArgs = ['tsc', ...serializeArgs(forwardedTscArgs)];
-		log.info(printCommandArgs(serializedTscArgs));
-		const tscTypecheckResult = await spawn('npx', serializedTscArgs);
-
-		let svelteCheckResult: SpawnResult | undefined;
 		if (await fs.exists('node_modules/.bin/svelte-check')) {
+			// svelte-check
 			const forwardedSvelteCheckArgs = toForwardedArgs('svelte-check');
 			if (!forwardedSvelteCheckArgs.tsconfig) forwardedSvelteCheckArgs.tsconfig = tsconfig;
 			const serializedSvelteCheckArgs = [
@@ -35,19 +29,20 @@ export const task: Task<Args> = {
 				...serializeArgs(forwardedSvelteCheckArgs),
 			];
 			log.info(printCommandArgs(serializedSvelteCheckArgs));
-			svelteCheckResult = await spawn('npx', serializedSvelteCheckArgs);
-		}
-
-		let errorMessage = '';
-		if (!tscTypecheckResult.ok) {
-			errorMessage = printSpawnResult(tscTypecheckResult);
-		}
-		if (svelteCheckResult && !svelteCheckResult.ok) {
-			if (errorMessage) errorMessage += ' ';
-			errorMessage += printSpawnResult(svelteCheckResult);
-		}
-		if (errorMessage) {
-			throw new TaskError(`Failed to typecheck. ${errorMessage}`);
+			const tscResult = await spawn('npx', serializedSvelteCheckArgs);
+			if (!tscResult.ok) {
+				throw new TaskError(`Failed to typecheck. ${printSpawnResult(tscResult)}`);
+			}
+		} else {
+			// tsc
+			const forwardedTscArgs = toForwardedArgs('tsc');
+			if (!forwardedTscArgs.noEmit) forwardedTscArgs.noEmit = true;
+			const serializedTscArgs = ['tsc', ...serializeArgs(forwardedTscArgs)];
+			log.info(printCommandArgs(serializedTscArgs));
+			const svelteCheckResult = await spawn('npx', serializedTscArgs);
+			if (svelteCheckResult && !svelteCheckResult.ok) {
+				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult)}`);
+			}
 		}
 	},
 };
