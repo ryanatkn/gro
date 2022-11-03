@@ -1,5 +1,10 @@
 # changelog
 
+## 0.62.3
+
+- do not run `tsc` in `gro check` if `svelte-check` is available
+  ([#345](https://github.com/feltcoop/gro/pull/345))
+
 ## 0.62.2
 
 - fix task arg definitions
