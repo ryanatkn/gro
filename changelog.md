@@ -1,5 +1,10 @@
 # changelog
 
+## 0.62.4
+
+- skip `gro test` if `uvu` is not installed, and log a warning
+  ([#346](https://github.com/feltcoop/gro/pull/346))
+
 ## 0.62.3
 
 - do not run `tsc` in `gro check` if `svelte-check` is available
