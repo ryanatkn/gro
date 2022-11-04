@@ -57,7 +57,7 @@ TODO
 
 // The Filer is an `EventEmitter` with the following events:
 type FilerEmitter = StrictEventEmitter<EventEmitter, FilerEvents>;
-interface FilerEvents {
+export interface FilerEvents {
 	build: {sourceFile: SourceFile; buildConfig: BuildConfig};
 }
 

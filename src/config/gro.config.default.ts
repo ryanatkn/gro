@@ -36,12 +36,7 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		types: !dev && enableNodeLibrary,
 		plugin: async () => [
-			// TODO some usecases may need to run the API server during the build for e.g. prerendering,
-			// but it's currently disabled because the adapter-node usecase has the production API server
-			// depend on the middleware created later in the adapt step of the build
-			enableApiServer && dev
-				? (await import('../plugin/gro-plugin-api-server.js')).createPlugin()
-				: null,
+			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).createPlugin() : null,
 			enableSveltekitFrontend
 				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).createPlugin()
 				: null,
