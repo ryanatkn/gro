@@ -2,7 +2,7 @@
 
 ## 0.63.0
 
-- **break**: change `plugin/gro-plugin-api-server.ts` to do nothing in dev mode
+- **break**: change `plugin/gro-plugin-api-server.ts` to a no-op outside of dev mode
   ([#347](https://github.com/feltcoop/gro/pull/347))
 
 ## 0.62.4
