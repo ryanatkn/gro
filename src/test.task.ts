@@ -28,6 +28,11 @@ export const task: Task<Args> = {
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const {_: testFilePatterns} = args;
 
+		if (!(await fs.exists('node_modules/.bin/uvu'))) {
+			log.warn(yellow('uvu is not installed, skipping tests'));
+			return;
+		}
+
 		const timings = new Timings();
 
 		// Projects may not define any artifacts for the Node build,
