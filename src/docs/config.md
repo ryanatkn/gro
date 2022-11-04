@@ -32,11 +32,13 @@ Here's a config for a simple Node project:
 ```ts
 import type {GroConfigCreator} from '@feltcoop/gro';
 
-export const config: GroConfigCreator = async () => {
+const config: GroConfigCreator = async () => {
 	return {
 		builds: [{name: 'server', platform: 'node', input: 'index.ts'}],
 	};
 };
+
+export default config;
 ```
 
 Here's [Gro's own internal config](/src/gro.config.ts) and

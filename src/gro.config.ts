@@ -7,7 +7,7 @@ import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './build/buildConfi
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./config/gro.config.default.ts`.
 
-export const config: GroConfigCreator = async ({dev}) => {
+const config: GroConfigCreator = async ({dev}) => {
 	const partial: GroConfigPartial = {
 		builds: [
 			{
@@ -56,3 +56,5 @@ export const config: GroConfigCreator = async ({dev}) => {
 	};
 	return partial;
 };
+
+export default config;
