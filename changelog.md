@@ -2,6 +2,8 @@
 
 ## 0.63.0
 
+- **break**: change `src/gro.config.ts` to export a default value instead of a `config` property
+  ([#348](https://github.com/feltcoop/gro/pull/348))
 - **break**: change `plugin/gro-plugin-api-server.ts` to a no-op outside of dev mode
   ([#347](https://github.com/feltcoop/gro/pull/347))
 

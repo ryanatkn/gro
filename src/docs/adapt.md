@@ -76,7 +76,7 @@ a function that returns `Adapter` instances:
 ```ts
 import type {GroConfigCreator} from '@feltcoop/gro';
 
-export const config: GroConfigCreator = async () => {
+const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
 			(await import('@feltcoop/gro/gro-adapter-sveltekit-frontend.js')).createAdapter(),
@@ -109,6 +109,8 @@ export const config: GroConfigCreator = async () => {
 		adapt: () => [null],
 	};
 };
+
+export default config;
 ```
 
 Why must `adapt` be a function, and not just one or more `Adapter` instances?

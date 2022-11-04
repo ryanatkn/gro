@@ -25,7 +25,7 @@ import {
 } from '../build/buildConfigDefaults.js';
 import type {EcmaScriptTarget} from '../build/typescriptUtils.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {config as createDefaultConfig} from './gro.config.default.js';
+import createDefaultConfig from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
 
 /*
@@ -73,7 +73,7 @@ export interface GroConfigPartial {
 }
 
 export interface GroConfigModule {
-	readonly config: GroConfigPartial | GroConfigCreator;
+	readonly default: GroConfigPartial | GroConfigCreator;
 }
 
 export interface GroConfigCreator {
@@ -167,11 +167,8 @@ const _loadConfig = async (
 			throw Error(`Cannot find config build id: ${configBuildId} from ${configSourceId}`);
 		}
 		const configModule = await import(configBuildId);
-		const validated = validateConfigModule(configModule);
-		if (!validated.ok) {
-			throw Error(`Invalid Gro config module at '${configSourceId}': ${validated.reason}`);
-		}
-		config = await toConfig(configModule.config, options, configSourceId, defaultConfig);
+		validateConfigModule(configModule, configSourceId);
+		config = await toConfig(configModule.default, options, configSourceId, defaultConfig);
 	} else {
 		config = defaultConfig;
 	}
@@ -215,11 +212,18 @@ const toBootstrapConfig = (): GroConfig => {
 	};
 };
 
-const validateConfigModule = (configModule: any): Result<object, {reason: string}> => {
-	if (!(typeof configModule.config === 'function' || typeof configModule.config === 'object')) {
-		throw Error(`Invalid Gro config module. Expected a 'config' export.`);
+const validateConfigModule: (
+	configModule: any,
+	configSourceId: string,
+) => asserts configModule is GroConfigModule = (configModule, configSourceId) => {
+	const config = configModule.default;
+	if (!config) {
+		throw Error(`Invalid Gro config module at ${configSourceId}: expected a default export`);
+	} else if (!(typeof config === 'function' || typeof config === 'object')) {
+		throw Error(
+			`Invalid Gro config module at ${configSourceId}: the default export must be a function or object`,
+		);
 	}
-	return {ok: true};
 };
 
 const validateConfig = async (

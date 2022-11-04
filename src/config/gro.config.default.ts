@@ -21,7 +21,7 @@ It looks at the project and tries to do the right thing:
 
 */
 
-export const config: GroConfigCreator = async ({fs, dev}) => {
+const config: GroConfigCreator = async ({fs, dev}) => {
 	const [enableNodeLibrary, enableApiServer, enableSveltekitFrontend] = await Promise.all([
 		hasNodeLibrary(fs),
 		hasApiServer(fs),
@@ -59,3 +59,5 @@ export const config: GroConfigCreator = async ({fs, dev}) => {
 	};
 	return partial;
 };
+
+export default config;
