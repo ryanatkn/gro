@@ -4,7 +4,8 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltcoop/felt/u
 import type {Plugin, PluginContext} from './plugin.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {toBuildOutDir} from '../paths.js';
-import type {BuildConfig, BuildName} from '../build/buildConfig.js';
+import type {BuildName} from '../build/buildConfig.js';
+import type {FilerEvents} from 'src/build/Filer.js';
 
 // TODO import from felt instead
 
@@ -19,8 +20,7 @@ export const createPlugin = ({
 }: Partial<Options> = EMPTY_OBJECT): Plugin<PluginContext<object, object>> => {
 	let serverProcess: RestartableProcess | null = null;
 
-	// TODO type
-	const onFilerBuild: ({buildConfig}: {buildConfig: BuildConfig}) => void = ({buildConfig}) => {
+	const onFilerBuild: ({buildConfig}: FilerEvents['build']) => void = ({buildConfig}) => {
 		if (serverProcess && buildConfig.name === buildName) {
 			serverProcess.restart();
 		}
@@ -29,6 +29,8 @@ export const createPlugin = ({
 	return {
 		name: '@feltcoop/gro-plugin-api-server',
 		setup: async ({dev, fs, filer}) => {
+			if (!dev) return;
+
 			// When `src/lib/server/server.ts` or any of its dependencies change, restart the API server.
 			const serverBuildPath = `${toBuildOutDir(dev)}/${buildName}/${baseBuildPath}`;
 
@@ -46,7 +48,9 @@ export const createPlugin = ({
 				filer.on('build', onFilerBuild);
 			}
 		},
-		teardown: async ({filer}) => {
+		teardown: async ({dev, filer}) => {
+			if (!dev) return;
+
 			if (serverProcess) {
 				await serverProcess.kill();
 				serverProcess = null;

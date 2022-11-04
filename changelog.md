@@ -1,5 +1,10 @@
 # changelog
 
+## 0.63.0
+
+- **break**: change `plugin/gro-plugin-api-server.ts` to a no-op outside of dev mode
+  ([#347](https://github.com/feltcoop/gro/pull/347))
+
 ## 0.62.4
 
 - skip `gro test` if `uvu` is not installed, and log a warning
