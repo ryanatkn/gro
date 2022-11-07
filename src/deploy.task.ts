@@ -151,7 +151,6 @@ export const task: Task<Args> = {
 
 		// Set up the deployment `target` branch if necessary.
 		// If the branch already exists, this is a no-op.
-		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
 		await spawn(
 			`git checkout --orphan ${target} && ` +
 				// TODO there's definitely a better way to do this
@@ -169,7 +168,6 @@ export const task: Task<Args> = {
 
 		// Clean up any existing worktree.
 		await cleanGitWorktree();
-		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
 		await cleanFs(fs, {build: true, dist: true}, log);
