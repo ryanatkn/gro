@@ -8,6 +8,8 @@
   ([#347](https://github.com/feltcoop/gro/pull/347))
 - fix `gro deploy` for unfetched branches
   ([#350](https://github.com/feltcoop/gro/pull/350))
+- upgrade deps
+  ([#351](https://github.com/feltcoop/gro/pull/351))
 
 ## 0.62.4
 
