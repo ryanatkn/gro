@@ -112,7 +112,7 @@ export const task: Task<Args> = {
 		// If the branch already exists, this is a no-op.
 		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
 		await spawn(
-			`git fetch ${ORIGIN} ${target} && ` +
+			`git fetch ${ORIGIN} ${target} || ` +
 				`git checkout --orphan ${target} && ` +
 				// TODO there's definitely a better way to do this
 				`cp ${INITIAL_FILE} ${TEMP_PREFIX}${INITIAL_FILE} && ` +
