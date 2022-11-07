@@ -13,7 +13,6 @@ import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildC
 
 // docs at ./docs/deploy.md
 
-// TODO there's a bug where sometimes you have to run `gro deploy` twice.. hm
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
@@ -108,15 +107,13 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		// Fetch the remote deploy branch.
-		await spawn('git', ['fetch', ORIGIN, target]);
-
 		// TODO filter stdout? `--quiet` didn't work
 		// Set up the deployment `target` branch if necessary.
 		// If the branch already exists, this is a no-op.
 		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
 		await spawn(
-			`git checkout --orphan ${target} && ` +
+			`git fetch ${ORIGIN} ${target} && ` +
+				`git checkout --orphan ${target} && ` +
 				// TODO there's definitely a better way to do this
 				`cp ${INITIAL_FILE} ${TEMP_PREFIX}${INITIAL_FILE} && ` +
 				`git rm -rf . && ` +
