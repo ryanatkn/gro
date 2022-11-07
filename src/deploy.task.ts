@@ -13,7 +13,6 @@ import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildC
 
 // docs at ./docs/deploy.md
 
-// TODO there's a bug where sometimes you have to run `gro deploy` twice.. hm
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
@@ -101,17 +100,55 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		// Ensure we're on the right branch.
-		const gitCheckoutResult = await spawn('git', ['checkout', source]);
-		if (!gitCheckoutResult.ok) {
-			log.error(red(`failed git checkout with exit code ${gitCheckoutResult.code}`));
+		const gitTargetExistsResult = await spawn('git', [
+			'ls-remote',
+			'--exit-code',
+			'--heads',
+			ORIGIN,
+			target,
+		]);
+		if (gitTargetExistsResult.ok) {
+			// Target branch exists on remote.
+
+			// Fetch the remote target deploy branch.
+			const gitFetchTargetResult = await spawn('git', ['fetch', ORIGIN, target]);
+			if (!gitFetchTargetResult.ok) {
+				log.error(
+					red(`failed to fetch target branch ${target} code(${gitFetchTargetResult.code})`),
+				);
+				return;
+			}
+
+			// Checkout the target branch to ensure tracking.
+			const gitCheckoutTargetResult = await spawn('git', ['checkout', target]);
+			if (!gitCheckoutTargetResult.ok) {
+				log.error(
+					red(`failed to checkout target branch ${target} code(${gitCheckoutTargetResult.code})`),
+				);
+				return;
+			}
+		} else if (gitTargetExistsResult.code === 2) {
+			// Target branch does not exist remotely.
+
+			// Create and checkout the target branch. Ignore eroors in case it already exists locally.
+			await spawn('git', ['checkout', '-b', target]);
+		} else {
+			// Something went wrong.
+			log.error(
+				red(`failed to checkout target branch ${target} code(${gitTargetExistsResult.code})`),
+			);
 			return;
 		}
 
-		// Fetch the remote deploy branch.
-		await spawn('git', ['fetch', ORIGIN, target]);
+		// Checkout the source branch to deploy.
+		const gitCheckoutSourceResult = await spawn('git', ['checkout', source]);
+		if (!gitCheckoutSourceResult.ok) {
+			log.error(
+				red(`failed to checkout source branch ${source} code(${gitCheckoutSourceResult.code})`),
+			);
+			return;
+		}
 
-		// TODO filter stdout? `--quiet` didn't work
 		// Set up the deployment `target` branch if necessary.
 		// If the branch already exists, this is a no-op.
 		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
@@ -124,8 +161,10 @@ export const task: Task<Args> = {
 				`git add ${INITIAL_FILE} && ` +
 				`git commit -m "setup" && git checkout ${source}`,
 			[],
-			// this uses `shell: true` because the above is unwieldy with standard command construction
-			{shell: true},
+			{
+				shell: true, // use `shell: true` because the above is unwieldy with standard command construction
+				stdio: 'pipe', // silence the output
+			},
 		);
 
 		// Clean up any existing worktree.
@@ -215,8 +254,8 @@ export const task: Task<Args> = {
 	},
 };
 
-// TODO like above, these cause some misleading logging
+// `{stdio: 'pipe'}` silences the output
 const cleanGitWorktree = async (): Promise<void> => {
-	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force']);
-	await spawn('git', ['worktree', 'prune']);
+	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force'], {stdio: 'pipe'});
+	await spawn('git', ['worktree', 'prune'], {stdio: 'pipe'});
 };

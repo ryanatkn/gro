@@ -6,6 +6,8 @@
   ([#348](https://github.com/feltcoop/gro/pull/348))
 - **break**: change `plugin/gro-plugin-api-server.ts` to a no-op outside of dev mode
   ([#347](https://github.com/feltcoop/gro/pull/347))
+- fix `gro deploy` for unfetched branches
+  ([#350](https://github.com/feltcoop/gro/pull/350))
 
 ## 0.62.4
 
