@@ -130,8 +130,7 @@ export const task: Task<Args> = {
 		} else if (gitTargetExistsResult.code === 2) {
 			// Target branch does not exist remotely.
 
-			// Create and checkout the target branch.
-			// Ignore eroors in case  it already exists locally.
+			// Create and checkout the target branch. Ignore eroors in case it already exists locally.
 			await spawn('git', ['checkout', '-b', target]);
 		} else {
 			// Something went wrong.
