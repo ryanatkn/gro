@@ -21,6 +21,7 @@
 		"sourceMap": true,
 		"importHelpers": true,
 		"checkJs": true,
+		"skipLibCheck": true,
 		"preserveValueImports": true
 	}
 }
