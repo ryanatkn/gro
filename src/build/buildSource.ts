@@ -19,7 +19,7 @@ export const buildSource = async (
 ): Promise<void> => {
 	log.info('building source', gray(dev ? 'development' : 'production'));
 
-	await sveltekitSync();
+	await sveltekitSync(fs);
 
 	const totalTiming = createStopwatch();
 	const timings = new Timings();

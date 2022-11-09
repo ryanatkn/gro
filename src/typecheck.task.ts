@@ -18,7 +18,7 @@ export const task: Task<Args> = {
 	run: async ({fs, args, log}): Promise<void> => {
 		const {tsconfig} = args;
 
-		await sveltekitSync();
+		await sveltekitSync(fs);
 
 		if (await fs.exists('node_modules/.bin/svelte-check')) {
 			// svelte-check
