@@ -66,16 +66,16 @@
     "zod-to-json-schema": "^3.18.1"
   },
   "peerDependencies": {
-    "@feltcoop/felt": ">=0.41.0",
+    "@feltcoop/felt": ">=0.42.0",
     "esbuild": ">=0.15.0",
     "svelte": ">=3.49.0",
     "svelte-preprocess-esbuild": ">=3.0.1"
   },
   "devDependencies": {
     "@feltcoop/eslint-config": "^0.2.1",
-    "@feltcoop/felt": "^0.41.5",
+    "@feltcoop/felt": "^0.42.0",
     "@sveltejs/adapter-static": "^1.0.0-next.48",
-    "@sveltejs/kit": "^1.0.0-next.538",
+    "@sveltejs/kit": "^1.0.0-next.539",
     "@types/estree": "^1.0.0",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.11.9",
@@ -85,7 +85,7 @@
     "esbuild": "^0.15.13",
     "eslint": "^8.27.0",
     "eslint-plugin-svelte3": "^4.0.0",
-    "svelte": "^3.52.0",
+    "svelte": "^3.53.0",
     "svelte-check": "^2.9.2",
     "svelte-preprocess-esbuild": "^3.0.1",
     "typescript": "^4.8.4",
