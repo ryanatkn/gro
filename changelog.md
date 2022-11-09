@@ -1,5 +1,10 @@
 # changelog
 
+## 0.63.2
+
+- call `svelte-kit sync` only if it's installed
+  ([#353](https://github.com/feltcoop/gro/pull/353))
+
 ## 0.63.1
 
 - pass `--skipLibCheck` to `tsc` on `gro build` so it can be disabled in dependents' tsconfigs
