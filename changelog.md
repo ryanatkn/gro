@@ -1,5 +1,12 @@
 # changelog
 
+## 0.63.1
+
+- pass `--skipLibCheck` to `tsc` on `gro build` so it can be disabled in dependents' tsconfigs
+  ([#352](https://github.com/feltcoop/gro/pull/352))
+- always run `svelte-kit sync` instead of checking for the directory first
+  ([#352](https://github.com/feltcoop/gro/pull/352))
+
 ## 0.63.0
 
 - **break**: change `src/gro.config.ts` to export a default value instead of a `config` property

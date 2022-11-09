@@ -46,6 +46,7 @@ export const generateTypes = async (
 		declarationMap: typemap,
 		declaration: true,
 		emitDeclarationOnly: true,
+		skipLibCheck: true,
 	};
 	const serializedArgs = ['tsc', ...serializeArgs(forwardedArgs)];
 	log.info(printCommandArgs(serializedArgs));
