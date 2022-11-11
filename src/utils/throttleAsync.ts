@@ -1,4 +1,4 @@
-import {wait} from '@feltcoop/felt/util/async.js';
+import {wait} from '@feltcoop/util';
 
 // TODO maybe support return values? gets tricky: what should it return for the skipped ones?
 

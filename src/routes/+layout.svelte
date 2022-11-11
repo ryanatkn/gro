@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '@feltcoop/felt/ui/style.css';
-	import '$lib/app/style.css';
 	import {setDevmode} from '@feltcoop/felt/ui/devmode.js';
 	import DevmodeControls from '@feltcoop/felt/ui/DevmodeControls.svelte';
 

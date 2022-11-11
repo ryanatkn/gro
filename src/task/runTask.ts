@@ -1,6 +1,6 @@
 import type {EventEmitter} from 'events';
 import {cyan, red} from 'kleur/colors';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
+import {printLogLabel, SystemLogger} from '@feltcoop/util';
 
 import type {TaskModuleMeta} from './taskModule.js';
 import {TaskError} from './task.js';

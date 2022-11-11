@@ -1,4 +1,4 @@
-import {UnreachableError} from '@feltcoop/felt/util/error.js';
+import {UnreachableError} from '@feltcoop/util';
 
 import type {BaseFilerFile} from './filerFile.js';
 import type {SourceMeta} from './sourceMeta.js';

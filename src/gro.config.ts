@@ -1,5 +1,5 @@
 import {createFilter} from '@rollup/pluginutils';
-import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/felt/util/log.js';
+import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/util';
 
 import type {GroConfigCreator, GroConfigPartial} from './config/config.js';
 import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './build/buildConfigDefaults.js';

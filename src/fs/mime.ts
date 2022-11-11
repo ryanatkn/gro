@@ -1,4 +1,4 @@
-import type {Flavored} from '@feltcoop/felt/util/types.js';
+import type {Flavored} from '@feltcoop/util';
 
 // TODO the `extensions` here do not have a leading dot, but elsewhere in Gro they do!
 

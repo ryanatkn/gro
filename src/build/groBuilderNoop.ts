@@ -1,4 +1,4 @@
-import {UnreachableError} from '@feltcoop/felt/util/error.js';
+import {UnreachableError} from '@feltcoop/util';
 
 import {toBuildOutPath} from '../paths.js';
 import type {Builder} from './builder.js';
