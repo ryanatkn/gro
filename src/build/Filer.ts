@@ -2,17 +2,12 @@ import {resolve, extname, join} from 'path';
 import * as lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
-import {
-	nulls,
-	omitUndefined,
-	UnreachableError,
-	printError,
-	printLogLabel,
-	SystemLogger,
-	type Logger,
-} from '@feltcoop/util';
+import {nulls, omitUndefined} from '@feltcoop/util/object.js';
+import {UnreachableError} from '@feltcoop/util/error.js';
+import {printLogLabel, SystemLogger, type Logger} from '@feltcoop/util/log.js';
 import {gray, red, cyan} from 'kleur/colors';
-import type {Assignable, PartialExcept} from '@feltcoop/util';
+import {printError} from '@feltcoop/util/print.js';
+import type {Assignable, PartialExcept} from '@feltcoop/util/types.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {createFilerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';

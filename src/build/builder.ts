@@ -1,4 +1,4 @@
-import type {Logger} from '@feltcoop/util';
+import type {Logger} from '@feltcoop/util/log.js';
 
 import type {BuildConfig, BuildName} from './buildConfig.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';

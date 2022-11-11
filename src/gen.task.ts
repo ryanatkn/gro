@@ -1,5 +1,7 @@
 import {red, green, gray} from 'kleur/colors';
-import {printMs, printError, printTimings, plural, createStopwatch, Timings} from '@feltcoop/util';
+import {printMs, printError, printTimings} from '@feltcoop/util/print.js';
+import {plural} from '@feltcoop/util/string.js';
+import {createStopwatch, Timings} from '@feltcoop/util/timings.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';

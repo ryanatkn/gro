@@ -1,5 +1,5 @@
-import {spawn, type SpawnResult} from '@feltcoop/util';
-import type {Logger} from '@feltcoop/util';
+import {spawn, type SpawnResult} from '@feltcoop/util/process.js';
+import type {Logger} from '@feltcoop/util/log.js';
 
 import {
 	GITHUB_DIRNAME,

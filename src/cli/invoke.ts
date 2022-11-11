@@ -1,4 +1,4 @@
-import {attachProcessErrorHandlers} from '@feltcoop/util';
+import {attachProcessErrorHandlers} from '@feltcoop/util/process.js';
 
 import {invokeTask} from '../task/invokeTask.js';
 import {fs as nodeFs} from '../fs/node.js';

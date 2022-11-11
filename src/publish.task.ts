@@ -1,6 +1,9 @@
 import {createInterface as createReadlineInterface} from 'readline';
 import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
-import {type Flavored, type Result, spawn, UnreachableError, type Logger} from '@feltcoop/util';
+import type {Logger} from '@feltcoop/util/log.js';
+import {UnreachableError} from '@feltcoop/util/error.js';
+import type {Flavored, Result} from '@feltcoop/felt';
+import {spawn} from '@feltcoop/util/process.js';
 import {z} from 'zod';
 
 import {rainbow} from './utils/colors.js';

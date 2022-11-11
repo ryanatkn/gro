@@ -1,5 +1,10 @@
 # changelog
 
+## 0.66.0
+
+- **break**: upgrade `@feltcoop/util`
+  ([#356](https://github.com/feltcoop/gro/pull/356))
+
 ## 0.65.0
 
 - **break**: depend on `@feltcoop/util` instead of `@feltcoop/felt`
