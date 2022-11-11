@@ -40,7 +40,10 @@ is a simple idea with vast potential.
 It lets us have a single source of truth for data
 that would otherwise be scattered throughout our codebases
 without compromising any of our code's runtime characteristics.
-We can generate documentation, types, validators, tests, fakes,
+We can generate documentation, types,
+`index.ts` files exporting directories,
+data for a UI,
+validators, tests, fakes,
 and more by introspecting our data at buildtime,
 which speeds up development
 and helps us write code that's easier to understand and change.
