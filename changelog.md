@@ -2,6 +2,11 @@
 
 ## 0.64.0
 
+- **break**: depend on `@feltcoop/util` instead of `@feltcoop/felt`
+  ([#355](https://github.com/feltcoop/gro/pull/355))
+
+## 0.64.0
+
 - **break**: upgrade peer dep `@feltcoop/felt@0.42.0`
   ([#354](https://github.com/feltcoop/gro/pull/354))
 
