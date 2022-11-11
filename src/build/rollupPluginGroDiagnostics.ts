@@ -1,8 +1,6 @@
 import type {Plugin as RollupPlugin} from 'rollup';
 import {gray} from 'kleur/colors';
-import {SystemLogger} from '@feltcoop/util/log.js';
-import {printKeyValue, printMs} from '@feltcoop/util/print.js';
-import {createStopwatch} from '@feltcoop/util/timings.js';
+import {SystemLogger, printKeyValue, printMs, createStopwatch} from '@feltcoop/util';
 
 import {printPath} from '../paths.js';
 

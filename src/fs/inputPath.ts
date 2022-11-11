@@ -1,5 +1,5 @@
 import {join, sep, isAbsolute, basename} from 'path';
-import {stripEnd, stripStart} from '@feltcoop/util/string.js';
+import {stripEnd, stripStart} from '@feltcoop/util';
 
 import {
 	basePathToSourceId,

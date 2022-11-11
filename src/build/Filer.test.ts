@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {replaceExtension} from '@feltcoop/util/path.js';
+import {replaceExtension} from '@feltcoop/util';
 
 import {Filer} from './Filer.js';
 import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';

@@ -1,6 +1,4 @@
-import {printTimings} from '@feltcoop/util/print.js';
-import {Timings} from '@feltcoop/util/timings.js';
-import {spawn} from '@feltcoop/util/process.js';
+import {printTimings, Timings, spawn} from '@feltcoop/util';
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 

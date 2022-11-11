@@ -1,5 +1,5 @@
 import {resolve} from 'path';
-import type {Flavored} from '@feltcoop/util/types.js';
+import type {Flavored} from '@feltcoop/util';
 
 import type {Encoding} from './encoding.js';
 import type {PathStats} from './pathData.js';

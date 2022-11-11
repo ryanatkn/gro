@@ -1,8 +1,7 @@
 import * as svelte from 'svelte/compiler';
 import type {PreprocessorGroup as SveltePreprocessorGroup} from 'svelte/types/compiler/preprocess';
 import type {CompileOptions as SvelteCompileOptions} from 'svelte/types/compiler/interfaces';
-import {printLogLabel, SystemLogger, type Logger} from '@feltcoop/util/log.js';
-import {UnreachableError} from '@feltcoop/util/error.js';
+import {UnreachableError, printLogLabel, SystemLogger, type Logger} from '@feltcoop/util';
 import {cyan} from 'kleur/colors';
 
 import type {EcmaScriptTarget} from './typescriptUtils.js';

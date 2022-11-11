@@ -1,7 +1,6 @@
 import {join, basename} from 'path';
 import {fileURLToPath} from 'url';
-import {replaceExtension, stripTrailingSlash} from '@feltcoop/util/path.js';
-import {stripStart} from '@feltcoop/util/string.js';
+import {stripStart, replaceExtension, stripTrailingSlash} from '@feltcoop/util';
 import {gray} from 'kleur/colors';
 
 import type {BuildName} from './build/buildConfig.js';

@@ -6,9 +6,9 @@ import type {
 } from 'svelte/types/compiler/interfaces';
 import type {PreprocessorGroup, Processed} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
-import type {Logger} from '@feltcoop/util/log.js';
+import type {Logger} from '@feltcoop/util';
 import {yellow} from 'kleur/colors';
-import {printKeyValue, printMs} from '@feltcoop/util/print.js';
+import {printKeyValue, printMs} from '@feltcoop/util';
 
 import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';

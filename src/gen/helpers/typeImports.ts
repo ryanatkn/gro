@@ -1,4 +1,4 @@
-import {stripEnd, stripStart} from '@feltcoop/util/string.js';
+import {stripEnd, stripStart} from '@feltcoop/util';
 import * as lexer from 'es-module-lexer';
 
 import {formatFile} from '../../format/formatFile.js';
