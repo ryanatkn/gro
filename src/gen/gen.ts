@@ -1,4 +1,4 @@
-import type {Logger} from '@feltcoop/util';
+import type {Logger} from '@feltcoop/util/log.js';
 import {join, basename, dirname} from 'path';
 
 import type {Filesystem} from '../fs/filesystem.js';

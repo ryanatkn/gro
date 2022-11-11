@@ -2,7 +2,8 @@ import {
 	compile,
 	type Options as JsonSchemaToTypeScriptOptions,
 } from '@ryanatkn/json-schema-to-typescript';
-import {stripEnd, traverse} from '@feltcoop/util';
+import {stripEnd} from '@feltcoop/util/string.js';
+import {traverse} from '@feltcoop/util/object.js';
 
 import type {GenContext, RawGenResult} from './gen.js';
 import type {GenModuleMeta, SchemaGenModule} from './genModule.js';

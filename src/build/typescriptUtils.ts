@@ -1,4 +1,6 @@
-import {type Logger, spawn, replaceExtension} from '@feltcoop/util';
+import type {Logger} from '@feltcoop/util/log.js';
+import {replaceExtension} from '@feltcoop/util/path.js';
+import {spawn} from '@feltcoop/util/process.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {

@@ -1,12 +1,8 @@
-import {
-	printSpawnResult,
-	spawn,
-	EMPTY_OBJECT,
-	identity,
-	stripStart,
-	replaceExtension,
-	stripTrailingSlash,
-} from '@feltcoop/util';
+import {printSpawnResult, spawn} from '@feltcoop/util/process.js';
+import {EMPTY_OBJECT} from '@feltcoop/util/object.js';
+import {replaceExtension, stripTrailingSlash} from '@feltcoop/util/path.js';
+import {stripStart} from '@feltcoop/util/string.js';
+import {identity} from '@feltcoop/util/function.js';
 import esbuild from 'esbuild';
 
 import type {Adapter} from './adapt.js';

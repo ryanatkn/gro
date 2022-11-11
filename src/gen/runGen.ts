@@ -1,5 +1,8 @@
 import {red} from 'kleur/colors';
-import {printError, UnreachableError, Timings, type Logger} from '@feltcoop/util';
+import {printError} from '@feltcoop/util/print.js';
+import {Timings} from '@feltcoop/util/timings.js';
+import type {Logger} from '@feltcoop/util/log.js';
+import {UnreachableError} from '@feltcoop/util/error.js';
 import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
 
 import type {GenModuleMeta} from './genModule.js';

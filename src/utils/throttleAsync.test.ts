@@ -1,4 +1,4 @@
-import {wait} from '@feltcoop/util';
+import {wait} from '@feltcoop/util/async.js';
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 

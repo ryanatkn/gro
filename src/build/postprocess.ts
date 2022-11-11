@@ -1,6 +1,6 @@
 import {join, extname, relative} from 'path';
 import * as lexer from 'es-module-lexer';
-import type {Assignable} from '@feltcoop/util';
+import type {Assignable} from '@feltcoop/felt';
 
 import {
 	paths,

@@ -1,6 +1,7 @@
 import {createHash} from 'crypto';
 import {resolve} from 'path';
-import {replaceExtension, type Result} from '@feltcoop/util';
+import type {Result} from '@feltcoop/felt';
+import {replaceExtension} from '@feltcoop/util/path.js';
 
 import type {BuildConfigInput} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';

@@ -4,12 +4,11 @@ import {
 	configureLogLevel,
 	printLogLabel,
 	DEFAULT_LOG_LEVEL,
-	type Logger,
-	omitUndefined,
-	toArray,
-	type Assignable,
-	type Result,
-} from '@feltcoop/util';
+} from '@feltcoop/util/log.js';
+import {omitUndefined} from '@feltcoop/util/object.js';
+import type {Assignable, Result} from '@feltcoop/felt';
+import {toArray} from '@feltcoop/util/array.js';
+import type {Logger} from '@feltcoop/util/log.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {
