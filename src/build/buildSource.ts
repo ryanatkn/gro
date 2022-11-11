@@ -1,6 +1,6 @@
-import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
-import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
+import {printMs, printTimings} from '@feltcoop/util/print.js';
+import type {Logger} from '@feltcoop/util/log.js';
+import {createStopwatch, Timings} from '@feltcoop/util/timings.js';
 import {gray} from 'kleur/colors';
 
 import {paths, toTypesBuildDir} from '../paths.js';

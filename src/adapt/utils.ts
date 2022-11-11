@@ -1,6 +1,6 @@
 import {relative, dirname} from 'path';
-import type {Logger} from '@feltcoop/felt/util/log.js';
-import {stripEnd, stripStart} from '@feltcoop/felt/util/string.js';
+import type {Logger} from '@feltcoop/util/log.js';
+import {stripEnd, stripStart} from '@feltcoop/util/string.js';
 
 import type {BuildConfig} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';

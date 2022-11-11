@@ -1,5 +1,5 @@
-import {spawn, spawnProcess, type SpawnedProcess} from '@feltcoop/felt/util/process.js';
-import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
+import {spawn, spawnProcess, type SpawnedProcess} from '@feltcoop/util/process.js';
+import {EMPTY_OBJECT} from '@feltcoop/util/object.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs, type Args} from '../utils/args.js';

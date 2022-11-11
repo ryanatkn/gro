@@ -1,7 +1,7 @@
-import {compareSimpleMapEntries, sortMap} from '@feltcoop/felt/util/map.js';
-import type {Assignable} from '@feltcoop/felt/util/types.js';
-import {toPathParts} from '@feltcoop/felt/util/pathParsing.js';
-import {ensureEnd, stripStart} from '@feltcoop/felt/util/string.js';
+import {compareSimpleMapEntries, sortMap} from '@feltcoop/util/map.js';
+import type {Assignable} from '@feltcoop/util/types.js';
+import {toPathParts} from '@feltcoop/util/pathParsing.js';
+import {ensureEnd, stripStart} from '@feltcoop/util/string.js';
 
 import {
 	toFsId,

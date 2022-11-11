@@ -1,4 +1,4 @@
-import {spawn} from '@feltcoop/felt/util/process.js';
+import {spawn} from '@feltcoop/util/process.js';
 
 import type {Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';

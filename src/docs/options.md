@@ -30,7 +30,7 @@ there is overhead that e.g. hot paths and simple implementations should avoid.
 > see `exactOptionalPropertyTypes` and the note below about it too
 
 ```ts
-import {omitUndefined} from '@feltcoop/felt/util/object.js';
+import {omitUndefined} from '@feltcoop/util/object.js';
 
 export interface Options {
 	a: boolean;

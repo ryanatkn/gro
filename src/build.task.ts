@@ -1,5 +1,5 @@
-import {Timings} from '@feltcoop/felt/util/timings.js';
-import {printTimings} from '@feltcoop/felt/util/print.js';
+import {Timings} from '@feltcoop/util/timings.js';
+import {printTimings} from '@feltcoop/util/print.js';
 import {z} from 'zod';
 
 import type {Task} from './task/task.js';

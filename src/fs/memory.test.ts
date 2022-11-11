@@ -1,8 +1,8 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {dirname, resolve} from 'path';
-import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
-import {toPathParts} from '@feltcoop/felt/util/pathParsing.js';
+import {stripTrailingSlash} from '@feltcoop/util/path.js';
+import {toPathParts} from '@feltcoop/util/pathParsing.js';
 
 import {fs as memoryFs, type MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';

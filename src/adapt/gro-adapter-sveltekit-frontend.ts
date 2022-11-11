@@ -1,5 +1,5 @@
-import {EMPTY_OBJECT} from '@feltcoop/felt/util/object.js';
-import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
+import {EMPTY_OBJECT} from '@feltcoop/util/object.js';
+import {stripTrailingSlash} from '@feltcoop/util/path.js';
 
 import type {Adapter} from './adapt.js';
 import {ensureNojekyll, move404, type HostTarget} from './utils.js';

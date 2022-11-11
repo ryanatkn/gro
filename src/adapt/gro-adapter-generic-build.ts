@@ -1,4 +1,4 @@
-import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
+import {stripTrailingSlash} from '@feltcoop/util/path.js';
 
 import type {Adapter} from './adapt.js';
 import {type HostTarget, copyDist, ensureNojekyll} from './utils.js';
