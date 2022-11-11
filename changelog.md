@@ -3,7 +3,7 @@
 ## 0.66.0
 
 - **break**: upgrade `@feltcoop/util`
-  ([#355](https://github.com/feltcoop/gro/pull/355))
+  ([#356](https://github.com/feltcoop/gro/pull/356))
 
 ## 0.65.0
 
