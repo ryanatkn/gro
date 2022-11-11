@@ -10,7 +10,7 @@
 The [`gro gen` task](/src/gen.task.ts) helps us enhance our projects
 with convention-based code/data/file generation (codegen) techniques.
 
-Why? Codegen can produce cool results and eternal pain.
+Why? Codegen can produce cool results and unhalting pain.
 Used well, codegen can improve performance, flexibility, consistency, and development speed.
 As developers, automating our work is a natural thing to do,
 and whether or not it's a wise thing to do,
