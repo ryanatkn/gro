@@ -6,7 +6,7 @@ import {
 	DEFAULT_LOG_LEVEL,
 } from '@feltcoop/util/log.js';
 import {omitUndefined} from '@feltcoop/util/object.js';
-import type {Assignable, Result} from '@feltcoop/felt';
+import type {Assignable, Result} from '@feltcoop/util';
 import {toArray} from '@feltcoop/util/array.js';
 import type {Logger} from '@feltcoop/util/log.js';
 

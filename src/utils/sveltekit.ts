@@ -1,4 +1,4 @@
-import {unwrap} from '@feltcoop/felt';
+import {unwrap} from '@feltcoop/util';
 import {spawn} from '@feltcoop/util/process.js';
 
 import type {Filesystem} from '../fs/filesystem.js';

@@ -1,7 +1,7 @@
 import {red} from 'kleur/colors';
 import {Timings} from '@feltcoop/util/timings.js';
 import {UnreachableError} from '@feltcoop/util/error.js';
-import type {Result} from '@feltcoop/felt';
+import type {Result} from '@feltcoop/util';
 import {printError} from '@feltcoop/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
