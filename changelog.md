@@ -1,5 +1,9 @@
 # changelog
 
+## 0.67.0
+
+- upgrade `@feltcoop/util@0.3.0`
+
 ## 0.66.1
 
 - fix imports
