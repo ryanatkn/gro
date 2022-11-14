@@ -92,7 +92,7 @@ npm i -g @feltcoop/gro
 
 ## usage
 
-Gro is a task runner that discovers and runs TypeScript modules with the `.task.` subextension.
+Gro has a task runner that discovers and runs TypeScript modules with the `.task.` subextension.
 Running `gro` with no args prints the tasks
 it finds in the current directory along with its default tasks:
 
