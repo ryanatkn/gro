@@ -1,4 +1,3 @@
-import type {Navigation} from '@sveltejs/kit';
 import {readable, type Readable} from 'svelte/store';
 
 // see this issue: https://github.com/sveltejs/kit/issues/1485
@@ -37,3 +36,19 @@ export const updated: Readable<boolean> & {
 } = readable(true) as any;
 updated.check = () => true;
 export const getStores = () => ({navigating, page, updated} as const);
+
+// TODO currently copypasted from kit to avoid the import dependency
+// import type {Navigation} from '@sveltejs/kit';
+interface Navigation {
+	from: NavigationTarget | null;
+	to: NavigationTarget | null;
+	type: Omit<NavigationType, 'enter'>;
+	willUnload: boolean;
+	delta?: number;
+}
+interface NavigationTarget {
+	params: Record<string, string> | null;
+	route: {id: string | null};
+	url: URL;
+}
+type NavigationType = 'enter' | 'leave' | 'link' | 'goto' | 'popstate';
