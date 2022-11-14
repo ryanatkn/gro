@@ -107,7 +107,7 @@ gro # prints available tasks - defers to the project's locally installed version
 Run a task: gro [name]
 View help:  gro [name] --help
 
-14 tasks in ./src:
+14 tasks in gro/src:
 
 build      build the project
 cert       creates a self-signed cert for https with openssl
