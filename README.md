@@ -212,6 +212,8 @@ gro clean --svelte --nodemodules --git # also deletes dirs and prunes git branch
 gro --version # print the Gro version
 ```
 
+For more see [`src/docs`](/src/docs);
+
 ## develop
 
 ```bash
