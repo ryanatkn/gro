@@ -101,7 +101,7 @@ gro # prints available tasks - defers to the project's locally installed version
 ```
 
 <details>
-<summary>[click to see output of running <code>gro</code> on the CLI]</summary>
+<summary>[click to see <code>gro</code> output]</summary>
 
 ```
 Run a task: gro [name]
