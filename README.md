@@ -246,7 +246,7 @@ Gro builds on
 [uvu](https://github.com/lukeed/uvu) ∙
 [mri](https://github.com/lukeed/mri) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
-[`@feltcoop/util`](https://github.com/feltcoop/util) ∙
+[@feltcoop/util](https://github.com/feltcoop/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
 [svelte-check](https://github.com/sveltejs/language-tools/tree/master/packages/svelte-check) ∙
