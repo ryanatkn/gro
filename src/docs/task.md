@@ -18,8 +18,8 @@ and its task runner leverages the filesystem as the API
 and defers composition to the user in regular TypeScript modules.
 
 - Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
-  in your source directory, so creating a new task is as simple as creating a new file -
-  no configuration needed
+  in your source directory, so creating a new task
+  is as simple as [creating a new file](#define-a-task), no config needed
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
   (but there's also the helper `invokeTask`: see more below)
