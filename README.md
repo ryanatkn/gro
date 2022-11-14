@@ -207,7 +207,7 @@ Etc:
 gro clean # delete all build artifacts from the filesystem
 gro clean --svelte --nodemodules --git # also deletes dirs and prunes git branches
 gro cert # uses openssl to create a self-signed certificate for local https testing
-gro upgrade excluded-dep-1 excluded-dep-2
+gro upgrade excluded-dep-1 excluded-dep-2 # npm updates to the latest everything
 ```
 
 ```bash
