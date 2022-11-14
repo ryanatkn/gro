@@ -88,8 +88,42 @@ It's handy to install globally too:
 
 ```bash
 npm i -g @feltcoop/gro
+```
+
+Gro is a task runner that discovers and runs TypeScript modules with the `.task.` subextension.
+Running `gro` with no args prints the tasks
+it finds in the current directory along with its default tasks:
+
+```bash
 gro # prints available tasks - defers to the project's locally installed version of Gro
 ```
+
+<details>
+<summary>Outputs the following when there are no user tasks found:</summary>
+
+```
+Run a task: gro [name]
+View help:  gro [name] --help
+
+14 tasks in ./src:
+
+build      build the project
+cert       creates a self-signed cert for https with openssl
+check      check that everything is ready to commit
+clean      remove temporary dev and build files, and optionally prune git branches
+deploy     deploy to static hosting
+dev        start SvelteKit and other dev plugins
+format     format source files
+gen        run code generation scripts
+help       alias for `gro` with no task name provided
+lint       run eslint on the source files
+publish    bump version, publish to npm, and git push
+test       run tests
+typecheck  typecheck the project without emitting any files
+upgrade    upgrade deps
+```
+
+</details>
 
 ## usage
 
