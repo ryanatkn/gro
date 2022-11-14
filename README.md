@@ -90,6 +90,8 @@ It's handy to install globally too:
 npm i -g @feltcoop/gro
 ```
 
+## usage
+
 Gro is a task runner that discovers and runs TypeScript modules with the `.task.` subextension.
 Running `gro` with no args prints the tasks
 it finds in the current directory along with its default tasks:
@@ -124,8 +126,6 @@ upgrade    upgrade deps
 ```
 
 </details>
-
-## usage
 
 ```bash
 gro # print all available tasks with the pattern `*.task.ts`
