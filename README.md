@@ -127,6 +127,8 @@ upgrade    upgrade deps
 
 </details>
 
+Gro tries to match your CLI input against filesystem conventions:
+
 ```bash
 gro # print all available tasks with the pattern `*.task.ts`
 gro help # same as `gro`
