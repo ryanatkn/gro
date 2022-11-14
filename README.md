@@ -99,7 +99,7 @@ gro # prints available tasks - defers to the project's locally installed version
 ```
 
 <details>
-<summary>Outputs the following when there are no user tasks found:</summary>
+<summary><button>see output</button></summary>
 
 ```
 Run a task: gro [name]
