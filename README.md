@@ -214,7 +214,7 @@ gro upgrade excluded-dep-1 excluded-dep-2 # npm updates to the latest everything
 gro --version # print the Gro version
 ```
 
-For more see [`src/docs`](/src/docs).
+For more see [`src/docs/task.md`](/src/docs/task.md) and [`src/docs`](/src/docs).
 
 ## develop
 
