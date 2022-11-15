@@ -107,8 +107,7 @@ export const validateBuildConfigs = async (
 	const names: Set<BuildName> = new Set();
 	for (const buildConfig of buildConfigs) {
 		if (
-			!buildConfig ||
-			!buildConfig.name ||
+			!buildConfig?.name ||
 			!(buildConfig.platform === 'node' || buildConfig.platform === 'browser')
 		) {
 			return {

@@ -40,7 +40,7 @@ export class MemoryFs implements Filesystem {
 	_filter(id: FsId): FsNode[] {
 		const nodes: FsNode[] = [];
 		const node = this._find(id);
-		if (!node || !node.isDirectory) return []; // TODO or throw?
+		if (!node?.isDirectory) return []; // TODO or throw?
 		const prefix = id === ROOT ? ROOT : `${id}/`;
 		// TODO instead of searching the whole space, could have a better data structure
 		// TODO to search just children quickly, we need a better data structure
