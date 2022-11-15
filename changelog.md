@@ -1,5 +1,9 @@
 # changelog
 
+## 0.67.1
+
+- fix `$app/environment` `dev` import
+
 ## 0.67.0
 
 - upgrade `@feltcoop/util@0.3.0`

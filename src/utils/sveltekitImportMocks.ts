@@ -4,7 +4,7 @@ import {readable, type Readable} from 'svelte/store';
 
 // $app/environment
 export const browser = false;
-export const dev = true;
+export const dev = import.meta.env?.DEV ?? process.env.NODE_ENV !== 'production';
 export const prerendering = false;
 
 // $app/paths
