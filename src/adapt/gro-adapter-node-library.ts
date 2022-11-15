@@ -134,6 +134,9 @@ export const createAdapter = ({
 				// update package.json with computed values
 				pkg.files = await toPkgFiles(fs, outputDir);
 				pkg.main = toPkgMain(pkg);
+				if (files.find((f) => f.endsWith('.svelte'))) {
+					pkg.svelte = pkg.main;
+				}
 				pkg.types = replaceExtension(pkg.main, TS_TYPE_EXTENSION);
 				pkg.exports = toPkgExports(pkg.main, files, libraryRebasePath);
 

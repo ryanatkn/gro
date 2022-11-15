@@ -1,5 +1,10 @@
 # changelog
 
+## 0.67.3
+
+- add `svelte` property of published `package.json`
+- upgrade deps
+
 ## 0.67.2
 
 - remove `readonly` from `BuildConfigInput[]` usage
