@@ -15,7 +15,7 @@ export type BuildName = Flavored<string, 'BuildName'>;
 export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
 	readonly name: BuildName;
 	readonly platform: TPlatformTarget;
-	readonly input: readonly BuildConfigInput[];
+	readonly input: BuildConfigInput[];
 }
 
 // `string` inputs must be a relative or absolute path to a source file
@@ -25,10 +25,10 @@ export interface InputFilter {
 	(id: string): boolean;
 }
 
-export const toInputFiles = (input: readonly BuildConfigInput[]): string[] =>
+export const toInputFiles = (input: BuildConfigInput[]): string[] =>
 	input.filter((input) => typeof input === 'string') as string[];
 
-export const toInputFilters = (input: readonly BuildConfigInput[]): InputFilter[] =>
+export const toInputFilters = (input: BuildConfigInput[]): InputFilter[] =>
 	input.filter((input) => typeof input !== 'string') as InputFilter[];
 
 // The partial was originally this calculated type, but it's a lot less readable.
@@ -39,7 +39,7 @@ export const toInputFilters = (input: readonly BuildConfigInput[]): InputFilter[
 export interface BuildConfigPartial {
 	readonly name: BuildName;
 	readonly platform: PlatformTarget;
-	readonly input: BuildConfigInput | readonly BuildConfigInput[];
+	readonly input: BuildConfigInput | BuildConfigInput[];
 }
 
 export type PlatformTarget = 'node' | 'browser';

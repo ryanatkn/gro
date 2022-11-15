@@ -1,5 +1,9 @@
 # changelog
 
+## 0.67.2
+
+- remove `readonly` from `BuildConfigInput[]` usage
+
 ## 0.67.1
 
 - fix `$app/environment` `dev` import
