@@ -24,6 +24,7 @@ export const CONFIG_BUILD_CONFIG: BuildConfig = {
 	name: CONFIG_BUILD_NAME,
 	platform: 'node',
 	input: [`${paths.source}gro.config.ts`],
+	types: false,
 };
 
 // Gro currently requires this system build config for Node tasks and tests.
@@ -34,6 +35,7 @@ export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 	name: SYSTEM_BUILD_NAME,
 	platform: 'node',
 	input: [createFilter(['**/*.{task,test,gen,gen.*,schema}.ts', '**/fixtures/**'])],
+	types: false,
 };
 
 const NODE_LIBRARY_PATH = 'lib/index.ts';
@@ -41,11 +43,12 @@ const NODE_LIBRARY_SOURCE_ID = basePathToSourceId(NODE_LIBRARY_PATH);
 export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> =>
 	fs.exists(NODE_LIBRARY_SOURCE_ID);
 export const NODE_LIBRARY_BUILD_NAME: BuildName = 'library';
-export const NODE_LIBRARY_BUILD_CONFIG: BuildConfig = {
+export const NODE_LIBRARY_BUILD_CONFIG = (dev: boolean): BuildConfig => ({
 	name: NODE_LIBRARY_BUILD_NAME,
 	platform: 'node',
 	input: [NODE_LIBRARY_PATH],
-};
+	types: !dev,
+});
 
 export const API_SERVER_SOURCE_BASE_PATH = 'lib/server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH, false); // 'lib/server/server.js'
@@ -56,6 +59,7 @@ export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_NAME,
 	platform: 'node',
 	input: [API_SERVER_SOURCE_BASE_PATH],
+	types: false,
 };
 // the first of these matches SvelteKit, the second is just close for convenience
 // TODO change to remove the second, search upwards for an open port

@@ -54,7 +54,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 	};
 
 	const build: EsbuildBuilder['build'] = async (source, buildConfig, ctx) => {
-		const {buildDir, dev, sourcemap, types, target, fs} = ctx;
+		const {buildDir, dev, sourcemap, target, fs} = ctx;
 
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
@@ -110,7 +110,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 				mimeType: undefined,
 			});
 		}
-		if (types && source.extension === TS_EXTENSION) {
+		if (buildConfig.types && source.extension === TS_EXTENSION) {
 			const {types, typemap} = await (await loadGenerateTypes(fs))(source.id);
 			buildFiles.push({
 				type: 'build',

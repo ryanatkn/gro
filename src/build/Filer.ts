@@ -131,7 +131,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly buildDir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
-	readonly types: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
 	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 	// TODO not sure about this
@@ -149,7 +148,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			sourceDirs,
 			mapDependencyToSourceId,
 			sourcemap,
-			types,
 			target,
 			watch,
 			watcherDebounce,
@@ -165,7 +163,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.buildDir = buildDir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
 		this.sourcemap = sourcemap;
-		this.types = types;
 		this.target = target;
 		this.log = log;
 		// Creates objects to load a directory's content and sync filesystem changes in memory.

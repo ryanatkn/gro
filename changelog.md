@@ -1,5 +1,10 @@
 # changelog
 
+## 0.68.0
+
+- **break**: move `types` from the main config to the build config
+  ([#358](https://github.com/feltcoop/gro/pull/358))
+
 ## 0.67.3
 
 - add `svelte` property of published `package.json`

@@ -55,7 +55,6 @@ export interface GroConfig {
 	readonly target: EcmaScriptTarget;
 	readonly sourcemap: boolean;
 	readonly typemap: boolean;
-	readonly types: boolean;
 	readonly logLevel: LogLevel;
 	readonly primaryBrowserBuildConfig: BuildConfig | null; // TODO improve this, too rigid
 }
@@ -68,7 +67,6 @@ export interface GroConfigPartial {
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly typemap?: boolean;
-	readonly types?: boolean;
 	readonly logLevel?: LogLevel;
 }
 
@@ -201,7 +199,6 @@ const toBootstrapConfig = (): GroConfig => {
 	return {
 		sourcemap: false,
 		typemap: false,
-		types: false,
 		logLevel: DEFAULT_LOG_LEVEL,
 		plugin: () => null,
 		adapt: () => null,
@@ -241,7 +238,6 @@ const normalizeConfig = (config: GroConfigPartial, dev: boolean): GroConfig => {
 	return {
 		sourcemap: dev,
 		typemap: !dev,
-		types: false,
 		logLevel: DEFAULT_LOG_LEVEL,
 		plugin: () => null,
 		adapt: () => null,

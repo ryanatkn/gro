@@ -11,7 +11,7 @@ const config: GroConfigCreator = async ({dev}) => {
 	const partial: GroConfigPartial = {
 		builds: [
 			{
-				...NODE_LIBRARY_BUILD_CONFIG,
+				...NODE_LIBRARY_BUILD_CONFIG(dev),
 				input: [
 					'index.ts',
 					'cli/gro.ts',
@@ -34,7 +34,6 @@ const config: GroConfigCreator = async ({dev}) => {
 		publish: '.',
 		sourcemap: dev,
 		typemap: !dev,
-		types: !dev,
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
 		plugin: async () => [
 			(await import('./plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),

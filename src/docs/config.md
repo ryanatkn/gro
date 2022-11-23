@@ -56,7 +56,6 @@ export interface GroConfigPartial {
 	readonly target?: EcmaScriptTarget; // defaults to 'es2020'
 	readonly sourcemap?: boolean; // defaults to true in `dev`, false for prod
 	readonly typemap?: boolean; // defaults to false in `dev`, true for prod
-	readonly types?: boolean; // defaults to false
 	readonly logLevel?: LogLevel; // env.VITE_LOG_LEVEL
 }
 ```
