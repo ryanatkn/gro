@@ -29,12 +29,11 @@ const config: GroConfigCreator = async ({fs, dev}) => {
 	]);
 	const partial: GroConfigPartial = {
 		builds: [
-			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG : null,
+			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG(dev) : null,
 			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			// note there's no build for SvelteKit frontends - should there be?
 		],
 		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
-		types: !dev && enableNodeLibrary,
 		plugin: async () => [
 			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).createPlugin() : null,
 			enableSveltekitFrontend

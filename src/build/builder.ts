@@ -30,7 +30,6 @@ export interface BuildContext {
 	readonly buildDir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
-	readonly types: boolean;
 	readonly target: EcmaScriptTarget;
 	readonly buildingSourceFiles: Set<string>;
 	readonly findById: (id: string) => BaseFilerFile | undefined;

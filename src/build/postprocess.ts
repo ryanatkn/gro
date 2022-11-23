@@ -43,14 +43,13 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 		return buildDependency;
 	};
 
+	const types = ctx.buildConfigs?.some((b) => b.types);
+
 	// Map import paths to the built versions.
 	switch (extension) {
 		case JS_EXTENSION: {
 			content = parseJsDependencies(content, handleSpecifier, true);
-			if (
-				ctx.types &&
-				(source.extension === TS_EXTENSION || source.extension === SVELTE_EXTENSION)
-			) {
+			if (types && (source.extension === TS_EXTENSION || source.extension === SVELTE_EXTENSION)) {
 				parseTypeDependencies(source.content as string, handleSpecifier);
 			}
 			break;
@@ -60,7 +59,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 			// but extracting and mapping dependencies.
 			const {processed, js} = await extractJsFromSvelteForDependencies(originalContent);
 			parseJsDependencies(js, handleSpecifier, false);
-			if (ctx.types) {
+			if (types) {
 				parseTypeDependencies(content, handleSpecifier);
 			} else {
 				// Replace the Svelte content containing types with the processed code stripped of types.

@@ -48,7 +48,6 @@ export const buildSource = async (
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,
-		types: config.types,
 	});
 	timingToCreateFiler();
 
