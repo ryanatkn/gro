@@ -13,9 +13,10 @@ import type {Filesystem} from '../fs/filesystem.js';
 export type BuildName = Flavored<string, 'BuildName'>;
 
 export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
-	readonly name: BuildName;
-	readonly platform: TPlatformTarget;
-	readonly input: BuildConfigInput[];
+	name: BuildName;
+	platform: TPlatformTarget;
+	input: BuildConfigInput[];
+	types: boolean;
 }
 
 // `string` inputs must be a relative or absolute path to a source file
@@ -31,15 +32,11 @@ export const toInputFiles = (input: BuildConfigInput[]): string[] =>
 export const toInputFilters = (input: BuildConfigInput[]): InputFilter[] =>
 	input.filter((input) => typeof input !== 'string') as InputFilter[];
 
-// The partial was originally this calculated type, but it's a lot less readable.
-// export type BuildConfigPartial = PartialExcept<
-// 	OmitStrict<BuildConfig, 'input'> & {readonly input: string | string[]},
-// 	'name' | 'platform'
-// >;
 export interface BuildConfigPartial {
-	readonly name: BuildName;
-	readonly platform: PlatformTarget;
-	readonly input: BuildConfigInput | BuildConfigInput[];
+	name: BuildName;
+	platform: PlatformTarget;
+	input: BuildConfigInput | BuildConfigInput[];
+	types?: boolean;
 }
 
 export type PlatformTarget = 'node' | 'browser';
@@ -58,6 +55,7 @@ export const normalizeBuildConfigs = (
 			name: partial.name,
 			platform: partial.platform,
 			input: normalizeBuildConfigInput(partial.input),
+			types: partial.types ?? false,
 		};
 		buildConfigs.push(buildConfig);
 		if (shouldAddSystemBuildConfig && buildConfig.name === SYSTEM_BUILD_NAME) {

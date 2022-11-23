@@ -28,7 +28,7 @@ export const buildSource = async (
 		log.info(`🕒 built in ${printMs(totalTiming())}`);
 	};
 
-	if (config.types) {
+	if (config.builds.some((b) => b.types)) {
 		log.info('building types');
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them

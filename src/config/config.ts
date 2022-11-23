@@ -55,7 +55,6 @@ export interface GroConfig {
 	readonly target: EcmaScriptTarget;
 	readonly sourcemap: boolean;
 	readonly typemap: boolean;
-	readonly types: boolean;
 	readonly logLevel: LogLevel;
 	readonly primaryBrowserBuildConfig: BuildConfig | null; // TODO improve this, too rigid
 }
@@ -68,7 +67,6 @@ export interface GroConfigPartial {
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
 	readonly typemap?: boolean;
-	readonly types?: boolean;
 	readonly logLevel?: LogLevel;
 }
 
