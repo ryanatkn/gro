@@ -1,6 +1,6 @@
 {
   "name": "@feltcoop/gro",
-  "version": "0.67.3",
+  "version": "0.68.0",
   "description": "opinionated webdev toolkit",
   "type": "module",
   "main": "./dist/index.js",
