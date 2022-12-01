@@ -19,7 +19,8 @@ and defers composition to the user in regular TypeScript modules.
 
 - Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
   in your source directory, so creating a new task
-  is as simple as [creating a new file](#define-a-task), no config needed
+  is as simple as [creating a new file](#define-a-task), no config needed,
+  but part of the convention is that Gro expects all source code to be in `src/`
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
   (but there's also the helper `invokeTask`: see more below)
@@ -52,6 +53,9 @@ while deferring to your code and facilitating buildtime development processes.
 # and Gro's source for all files matching `*.task.ts` and logs them out.
 $ gro
 ```
+
+> notice that Gro is hardcoded to expect all tasks to be in `src/` --
+> it would be nice to loosen this up
 
 ### show tasks in a directory
 
