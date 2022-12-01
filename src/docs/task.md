@@ -55,7 +55,7 @@ $ gro
 ```
 
 > notice that Gro is hardcoded to expect all tasks to be in `src/` --
-> it would be nice to loosen this up
+> it would be nice to loosen this up, but the API isn't obvious to me right now
 
 ### show tasks in a directory
 
