@@ -68,7 +68,7 @@ It includes:
   - [config](/src/docs/config.md)
   - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
   - [publish](/src/docs/publish.md)
-- [`task`](/src/docs/task.md) runner
+- [`Task`](/src/docs/task.md) runner
   - [tasks](/src/docs/tasks.md) list
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
 - [`gen`](/src/docs/gen.md) code generation
