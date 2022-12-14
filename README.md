@@ -113,7 +113,7 @@ build      build the project
 cert       creates a self-signed cert for https with openssl
 check      check that everything is ready to commit
 clean      remove temporary dev and build files, and optionally prune git branches
-deploy     deploy to static hosting
+deploy     deploy to a branch
 dev        start SvelteKit and other dev plugins
 format     format source files
 gen        run code generation scripts
