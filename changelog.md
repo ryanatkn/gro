@@ -1,5 +1,9 @@
 # changelog
 
+## 0.68.2
+
+- **break**: relax the type of `RawGenResult` to let the array have any value
+
 ## 0.68.1
 
 - **break**: relax the type of `RawGenResult` to include an ignored `null`
