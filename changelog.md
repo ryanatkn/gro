@@ -1,5 +1,9 @@
 # changelog
 
+## 0.68.1
+
+- **break**: relax the type of `RawGenResult` to include an ignored `null`
+
 ## 0.68.0
 
 - **break**: move `types` from the main config to the build config

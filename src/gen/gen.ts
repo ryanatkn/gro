@@ -25,7 +25,7 @@ export interface GenContext {
 	log: Logger;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
-export type RawGenResult = string | RawGenFile | RawGenFile[];
+export type RawGenResult = string | RawGenFile | RawGenFile[] | null;
 export interface RawGenFile {
 	content: string;
 	// Defaults to file name without the `.gen` or `.schema`, and can be a relative path.
@@ -68,7 +68,9 @@ export const toGenResult = (originId: string, rawResult: RawGenResult): GenResul
 };
 
 const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
-	if (typeof rawResult === 'string') {
+	if (rawResult === null) {
+		return [];
+	} else if (typeof rawResult === 'string') {
 		return [toGenFile(originId, {content: rawResult})];
 	} else if (Array.isArray(rawResult)) {
 		const files = rawResult.map((f) => toGenFile(originId, f));
