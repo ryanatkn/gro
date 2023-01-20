@@ -1,5 +1,5 @@
 import {createFilter} from '@rollup/pluginutils';
-import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/util/log.js';
+import {Logger} from '@feltcoop/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from './config/config.js';
 import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './build/buildConfigDefaults.js';
@@ -34,7 +34,7 @@ const config: GroConfigCreator = async ({dev}) => {
 		publish: '.',
 		sourcemap: dev,
 		typemap: !dev,
-		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
+		logLevel: Logger.level,
 		plugin: async () => [
 			(await import('./plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),
 		],

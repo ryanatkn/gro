@@ -8,7 +8,6 @@
 - [deploy](deploy.md)
 - [dev](dev.md)
 - [gen](gen.md)
-- [log](log.md)
 - [options](options.md)
 - [philosophy](philosophy.md)
 - [plugin](plugin.md)

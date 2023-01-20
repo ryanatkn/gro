@@ -1,14 +1,13 @@
 import {
 	type LogLevel,
+	Logger,
 	SystemLogger,
 	configureLogLevel,
 	printLogLabel,
-	DEFAULT_LOG_LEVEL,
 } from '@feltcoop/util/log.js';
 import {omitUndefined} from '@feltcoop/util/object.js';
 import type {Assignable, Result} from '@feltcoop/util';
 import {toArray} from '@feltcoop/util/array.js';
-import type {Logger} from '@feltcoop/util/log.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
 import {
@@ -199,7 +198,7 @@ const toBootstrapConfig = (): GroConfig => {
 	return {
 		sourcemap: false,
 		typemap: false,
-		logLevel: DEFAULT_LOG_LEVEL,
+		logLevel: Logger.level,
 		plugin: () => null,
 		adapt: () => null,
 		builds: [CONFIG_BUILD_CONFIG],
@@ -238,7 +237,7 @@ const normalizeConfig = (config: GroConfigPartial, dev: boolean): GroConfig => {
 	return {
 		sourcemap: dev,
 		typemap: !dev,
-		logLevel: DEFAULT_LOG_LEVEL,
+		logLevel: Logger.level,
 		plugin: () => null,
 		adapt: () => null,
 		...omitUndefined(config),

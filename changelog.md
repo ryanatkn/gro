@@ -1,12 +1,17 @@
 # changelog
 
+## 0.69.0
+
+- **break**: upgrade deps including SvelteKit 1.0
+  ([#359](https://github.com/feltcoop/gro/pull/359))
+
 ## 0.68.2
 
-- **break**: relax the type of `RawGenResult` to let the array have any value
+- relax the type of `RawGenResult` to let the array have any value
 
 ## 0.68.1
 
-- **break**: relax the type of `RawGenResult` to include an ignored `null`
+- relax the type of `RawGenResult` to include an ignored `null`
 
 ## 0.68.0
 

@@ -5,7 +5,7 @@ import type {Plugin, PluginContext} from './plugin.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import {toBuildOutDir} from '../paths.js';
 import type {BuildName} from '../build/buildConfig.js';
-import type {FilerEvents} from 'src/build/Filer.js';
+import type {FilerEvents} from '../build/Filer.js';
 
 // TODO import from felt instead
 

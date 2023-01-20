@@ -1,4 +1,4 @@
-import {ENV_LOG_LEVEL, LogLevel} from '@feltcoop/util/log.js';
+import {Logger} from '@feltcoop/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {
@@ -33,7 +33,7 @@ const config: GroConfigCreator = async ({fs, dev}) => {
 			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			// note there's no build for SvelteKit frontends - should there be?
 		],
-		logLevel: ENV_LOG_LEVEL ?? LogLevel.Trace,
+		logLevel: Logger.level,
 		plugin: async () => [
 			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).createPlugin() : null,
 			enableSveltekitFrontend
