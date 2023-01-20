@@ -5,25 +5,18 @@ import {TaskError, type Task} from './task/task.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 import {sveltekitSync} from './utils/sveltekit.js';
 
-const Args = z
-	.object({
-		tsconfig: z.string({description: 'path to tsconfig.json'}).default('tsconfig.json'),
-	})
-	.strict();
+const Args = z.object({}).strict();
 type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'typecheck the project without emitting any files',
 	Args,
-	run: async ({fs, args, log}): Promise<void> => {
-		const {tsconfig} = args;
-
+	run: async ({fs, log}): Promise<void> => {
 		await sveltekitSync(fs);
 
 		if (await fs.exists('node_modules/.bin/svelte-check')) {
 			// svelte-check
 			const forwardedSvelteCheckArgs = toForwardedArgs('svelte-check');
-			if (!forwardedSvelteCheckArgs.tsconfig) forwardedSvelteCheckArgs.tsconfig = tsconfig;
 			const serializedSvelteCheckArgs = [
 				'svelte-check',
 				...serializeArgs(forwardedSvelteCheckArgs),
