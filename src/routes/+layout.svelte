@@ -1,7 +1,7 @@
 <script lang="ts">
-	import '@feltcoop/felt/ui/style.css';
-	import {setDevmode} from '@feltcoop/felt/ui/devmode.js';
-	import DevmodeControls from '@feltcoop/felt/ui/DevmodeControls.svelte';
+	import '@feltcoop/felt/style.css';
+	import {setDevmode} from '@feltcoop/felt/devmode.js';
+	import DevmodeControls from '@feltcoop/felt/DevmodeControls.svelte';
 
 	const devmode = setDevmode(false);
 </script>
