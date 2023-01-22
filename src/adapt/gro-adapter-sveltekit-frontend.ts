@@ -21,7 +21,7 @@ export const createAdapter = ({
 	return {
 		name: '@feltcoop/gro-adapter-sveltekit-frontend',
 		adapt: async ({fs}) => {
-			await fs.copy(sveltekitDir, outputDir);
+			await fs.move(sveltekitDir, outputDir);
 
 			switch (hostTarget) {
 				case 'githubPages': {

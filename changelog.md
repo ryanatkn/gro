@@ -4,6 +4,7 @@
 
 - **break**: remove `tsconfig` arg from `gro typecheck` since `svelte-check` 3 no longer needs it
   ([#360](https://github.com/feltcoop/gro/pull/360))
+- **break**: move the SvelteKit build instead of copying it
 
 ## 0.69.0
 
