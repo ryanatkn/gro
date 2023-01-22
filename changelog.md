@@ -5,6 +5,7 @@
 - **break**: remove `tsconfig` arg from `gro typecheck` since `svelte-check` 3 no longer needs it
   ([#360](https://github.com/feltcoop/gro/pull/360))
 - **break**: move the SvelteKit build instead of copying it
+  ([5719273](https://github.com/feltcoop/gro/commit/5719273aba7b3634fdd6c4f8a6d4714a1512b8d4))
 
 ## 0.69.0
 
@@ -14,10 +15,12 @@
 ## 0.68.2
 
 - relax the type of `RawGenResult` to let the array have any value
+  ([6faf95b](https://github.com/feltcoop/gro/commit/6faf95b36bc0769aee45d0c96454a445ebb8485c))
 
 ## 0.68.1
 
 - relax the type of `RawGenResult` to include an ignored `null`
+  ([a8cf511](https://github.com/feltcoop/gro/commit/a8cf51129ff53a4d8257c1f2e728aee2ffd7f2ac))
 
 ## 0.68.0
 
