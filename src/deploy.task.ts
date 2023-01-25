@@ -1,6 +1,6 @@
 import {join} from 'path';
-import {spawn} from '@feltcoop/util/process.js';
-import {printError} from '@feltcoop/util/print.js';
+import {spawn} from '@feltjs/util/process.js';
+import {printError} from '@feltjs/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 

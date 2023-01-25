@@ -1,4 +1,4 @@
-import {Logger} from '@feltcoop/util/log.js';
+import {Logger} from '@feltjs/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {

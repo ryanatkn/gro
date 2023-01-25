@@ -1,7 +1,7 @@
 import {cyan, gray, green} from 'kleur/colors';
-import type {Logger} from '@feltcoop/util/log.js';
-import {plural} from '@feltcoop/util/string.js';
-import {printValue} from '@feltcoop/util/print.js';
+import type {Logger} from '@feltjs/util/log.js';
+import {plural} from '@feltjs/util/string.js';
+import {printValue} from '@feltjs/util/print.js';
 
 import type {ArgSchema, ArgsSchema} from '../utils/args.js';
 import {loadModules} from '../fs/modules.js';

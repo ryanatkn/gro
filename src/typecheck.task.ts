@@ -1,4 +1,4 @@
-import {printSpawnResult, spawn} from '@feltcoop/util/process.js';
+import {printSpawnResult, spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
