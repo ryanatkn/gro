@@ -73,8 +73,8 @@
     "svelte-preprocess-esbuild": ">=3.0.1"
   },
   "devDependencies": {
-    "@feltcoop/eslint-config": "^0.2.1",
     "@feltcoop/felt": "^0.45.1",
+    "@feltjs/eslint-config": "^0.2.1",
     "@sveltejs/adapter-static": "^1.0.5",
     "@sveltejs/kit": "^1.2.0",
     "@types/estree": "^1.0.0",
@@ -94,7 +94,7 @@
   },
   "eslintConfig": {
     "root": true,
-    "extends": "@feltcoop",
+    "extends": "@feltjs",
     "rules": {
       "@typescript-eslint/no-restricted-imports": [
         1,

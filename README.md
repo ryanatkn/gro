@@ -42,7 +42,7 @@ It includes:
     to support SvelteKit, auto-restarting API servers, and other external build processes -
     ideally would use SvelteKit/Vite instead
   - example usage in a starter project:
-    [`@feltcoop/felt-template`](https://github.com/feltcoop/felt-template)
+    [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
 - [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
   - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
 - [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
@@ -56,7 +56,7 @@ It includes:
   - [memory](/src/fs/memory.ts) implementation works everywhere JS runs
   - TODO more, like: `localStorage`, GitHub repo, generic keyvalue stores, a composition/proxy API
 - linting with [ESLint](https://github.com/eslint/eslint)
-  (we also maintain [`@feltcoop/eslint-config`](https://github.com/feltcoop/eslint-config))
+  (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
 - more to come, exploring what deeply integrated tools enable
