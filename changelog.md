@@ -3,7 +3,7 @@
 ## 0.70.2
 
 - fix production types for builds that don't specify a value
-  ([#361](https://github.com/feltjs/gro/pull/361))
+  ([#363](https://github.com/feltjs/gro/pull/363))
 
 ## 0.70.1
 
