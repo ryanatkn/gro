@@ -61,7 +61,7 @@
 
 ## 0.67.0
 
-- upgrade `@feltcoop/util@0.3.0`
+- upgrade `@feltjs/util@0.3.0`
 
 ## 0.66.1
 
