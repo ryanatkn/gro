@@ -1,5 +1,5 @@
-import {EMPTY_OBJECT} from '@feltcoop/util/object.js';
-import {spawnRestartableProcess, type RestartableProcess} from '@feltcoop/util/process.js';
+import {EMPTY_OBJECT} from '@feltjs/util/object.js';
+import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/buildConfigDefaults.js';

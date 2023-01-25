@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve, join} from 'path';
-import {Logger} from '@feltcoop/util/log.js';
+import {Logger} from '@feltjs/util/log.js';
 
 import type {GenModuleMeta} from './genModule.js';
 import {runGen} from './runGen.js';

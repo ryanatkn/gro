@@ -1,5 +1,5 @@
-import {unwrap} from '@feltcoop/util';
-import {spawn} from '@feltcoop/util/process.js';
+import {unwrap} from '@feltjs/util';
+import {spawn} from '@feltjs/util/process.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
 

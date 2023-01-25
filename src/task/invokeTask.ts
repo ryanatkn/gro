@@ -1,9 +1,9 @@
 import {cyan, red, gray} from 'kleur/colors';
 import {EventEmitter} from 'events';
-import {SystemLogger, printLogLabel} from '@feltcoop/util/log.js';
-import {createStopwatch, Timings} from '@feltcoop/util/timings.js';
-import {printMs, printTimings} from '@feltcoop/util/print.js';
-import {spawn} from '@feltcoop/util/process.js';
+import {SystemLogger, printLogLabel} from '@feltjs/util/log.js';
+import {createStopwatch, Timings} from '@feltjs/util/timings.js';
+import {printMs, printTimings} from '@feltjs/util/print.js';
+import {spawn} from '@feltjs/util/process.js';
 
 import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../utils/args.js';
 import {runTask} from './runTask.js';

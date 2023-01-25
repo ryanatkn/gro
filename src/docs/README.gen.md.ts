@@ -1,6 +1,6 @@
 import {dirname, relative, basename} from 'path';
-import {toPathParts, toPathSegments} from '@feltcoop/util/path-parsing.js';
-import {stripStart} from '@feltcoop/util/string.js';
+import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
+import {stripStart} from '@feltjs/util/string.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, basePathToSourceId} from '../paths.js';

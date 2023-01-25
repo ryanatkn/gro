@@ -1,5 +1,5 @@
 import esbuild from 'esbuild';
-import {replaceExtension} from '@feltcoop/util/path.js';
+import {replaceExtension} from '@feltjs/util/path.js';
 
 import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
 import {
