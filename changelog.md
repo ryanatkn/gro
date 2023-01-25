@@ -1,5 +1,9 @@
 # changelog
 
+## 0.70.1
+
+- add TypeScript as a peer dependency
+
 ## 0.70.0
 
 - **break**: remove `tsconfig` arg from `gro typecheck` since `svelte-check` 3 no longer needs it
