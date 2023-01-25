@@ -1,5 +1,10 @@
 # changelog
 
+## 0.70.1
+
+- upgrade `@feltjs/util`
+  ([#362](https://github.com/feltjs/gro/pull/362))
+
 ## 0.70.0
 
 - **break**: remove `tsconfig` arg from `gro typecheck` since `svelte-check` 3 no longer needs it
