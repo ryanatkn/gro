@@ -74,12 +74,12 @@
 
 ## 0.65.0
 
-- **break**: depend on `@feltjs/util` instead of `@feltcoop/felt`
+- **break**: depend on `@feltjs/util` instead of `@feltjs/felt-ui`
   ([#355](https://github.com/feltjs/gro/pull/355))
 
 ## 0.64.0
 
-- **break**: upgrade peer dep `@feltcoop/felt@0.42.0`
+- **break**: upgrade peer dep `@feltjs/felt-ui@0.42.0`
   ([#354](https://github.com/feltjs/gro/pull/354))
 
 ## 0.63.2
@@ -212,7 +212,7 @@
 
 ## 0.54.0
 
-- **break**: upgrade deps including peer dep for `@feltcoop/felt@0.26.0`
+- **break**: upgrade deps including peer dep for `@feltjs/felt-ui@0.26.0`
   ([#320](https://github.com/feltjs/gro/pull/320))
 - **break**: remove `deploymentMode` option from SvelteKit frontend adapter
   ([#320](https://github.com/feltjs/gro/pull/320))
@@ -311,7 +311,7 @@
 
 ## 0.50.0
 
-- **break**: upgrade `@feltcoop/felt@0.18.0`
+- **break**: upgrade `@feltjs/felt-ui@0.18.0`
   ([#297](https://github.com/feltjs/gro/pull/297))
 
 ## 0.49.0
@@ -407,12 +407,12 @@
 
 ## 0.44.0
 
-- **break**: upgrade `@feltcoop/felt@0.13.0` and make it a peer dependency
+- **break**: upgrade `@feltjs/felt-ui@0.13.0` and make it a peer dependency
   ([#274](https://github.com/feltjs/gro/pull/274))
 
 ## 0.43.0
 
-- **break**: upgrade `@feltcoop/felt@0.12.0` and `rollup@2.57.0`
+- **break**: upgrade `@feltjs/felt-ui@0.12.0` and `rollup@2.57.0`
   ([#272](https://github.com/feltjs/gro/pull/272))
 
 ## 0.42.0
@@ -586,7 +586,7 @@
 
 ## 0.28.2
 
-- upgrade to `@feltcoop/felt@0.3.0`
+- upgrade to `@feltjs/felt-ui@0.3.0`
   ([#229](https://github.com/feltjs/gro/pull/229))
 
 ## 0.28.1
@@ -672,7 +672,7 @@
 
 ## 0.26.0
 
-- **break**: move utils to `@feltcoop/felt` and add it as a dependency
+- **break**: move utils to `@feltjs/felt-ui` and add it as a dependency
   ([#206](https://github.com/feltjs/gro/pull/206))
 
 ## 0.25.2
