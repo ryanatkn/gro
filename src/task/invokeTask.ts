@@ -87,7 +87,7 @@ export const invokeTask = async (
 			// it's a better UX to always build first,
 			// because it usually takes less than a few hundred milliseconds.
 			// Over time we'll remove much of Gro's functionality and use something like `tsm`:
-			// https://github.com/feltcoop/gro/issues/319
+			// https://github.com/feltjs/gro/issues/319
 
 			// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 			// every time a task is invoked.

@@ -30,7 +30,7 @@ export interface MapDependencyToSourceId {
 }
 
 // TODO this was changed from sync to async to support JS:
-// https://github.com/feltcoop/gro/pull/270/files
+// https://github.com/feltjs/gro/pull/270/files
 // There's a problem though -- the build system as written wants to resolve source ids up front,
 // but in the case of supporting JS we need to defer resolving them to some downstream moment,
 // because we can't know if we are talking about a TS or JS file until it's read from disk.

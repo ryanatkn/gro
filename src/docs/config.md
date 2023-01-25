@@ -30,7 +30,7 @@ See [`src/config/config.ts`](/src/config/config.ts) for the config types and imp
 Here's a config for a simple Node project:
 
 ```ts
-import type {GroConfigCreator} from '@feltcoop/gro';
+import type {GroConfigCreator} from '@feltjs/gro';
 
 const config: GroConfigCreator = async () => {
 	return {

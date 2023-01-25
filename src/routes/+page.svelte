@@ -4,7 +4,7 @@
 		build data.
 	</p>
 	<p>
-		It was removed in <a href="https://github.com/feltcoop/gro/pull/321">PR #321</a> and is archived
+		It was removed in <a href="https://github.com/feltjs/gro/pull/321">PR #321</a> and is archived
 		here:
 		<a href="https://github.com/spiderspace/gro/tree/archive/devserver"
 			>https://github.com/spiderspace/gro/tree/archive/devserver</a

@@ -8,9 +8,9 @@ Gro uses `Adapter`s to convert production builds into final artifacts.
 
 Gro has a number of builtin adapters:
 
-- [`@feltcoop/gro-adapter-node-library`](../adapt/gro-adapter-node-library.ts)
-- [`@feltcoop/gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend.ts)
-- [`@feltcoop/gro-adapter-generic-build`](../adapt/gro-adapter-generic-build.ts)
+- [`@feltjs/gro-adapter-node-library`](../adapt/gro-adapter-node-library.ts)
+- [`@feltjs/gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend.ts)
+- [`@feltjs/gro-adapter-generic-build`](../adapt/gro-adapter-generic-build.ts)
 
 Also see [`config.adapt` in the config docs](config.md#adapt)
 and usage in [the default config](../config/gro.config.default.ts).
@@ -74,14 +74,14 @@ In Gro, there's the `adapt` function property,
 a function that returns `Adapter` instances:
 
 ```ts
-import type {GroConfigCreator} from '@feltcoop/gro';
+import type {GroConfigCreator} from '@feltjs/gro';
 
 const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
-			(await import('@feltcoop/gro/gro-adapter-sveltekit-frontend.js')).createAdapter(),
-			(await import('@feltcoop/gro/gro-adapter-node-library.js')).createAdapter(),
-			(await import('@feltcoop/gro/groAdapterApiServer.js')).createAdapter(),
+			(await import('@feltjs/gro/gro-adapter-sveltekit-frontend.js')).createAdapter(),
+			(await import('@feltjs/gro/gro-adapter-node-library.js')).createAdapter(),
+			(await import('@feltjs/gro/groAdapterApiServer.js')).createAdapter(),
 		],
 
 		// this **does not work**, even though it's simpler!

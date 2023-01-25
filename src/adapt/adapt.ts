@@ -12,7 +12,7 @@ https://kit.svelte.dev/docs#adapters
 The general idea is the same:
 adapters are little plugins that take production builds as inputs and produce final outputs.
 
-The goal is to remove all of this from Gro: see https://github.com/feltcoop/gro/issues/329
+The goal is to remove all of this from Gro: see https://github.com/feltjs/gro/issues/329
 
 */
 
