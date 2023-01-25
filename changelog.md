@@ -4,6 +4,7 @@
 
 - fix production types for builds that don't specify a value
   ([#363](https://github.com/feltjs/gro/pull/363))
+- undo adding TypeScript as a peer dependency
 
 ## 0.70.1
 
