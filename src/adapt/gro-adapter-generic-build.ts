@@ -18,7 +18,7 @@ export const createAdapter = ({
 }: Options): Adapter => {
 	const outputDir = stripTrailingSlash(dir);
 	return {
-		name: '@feltcoop/gro-adapter-generic-build',
+		name: '@feltjs/gro-adapter-generic-build',
 		adapt: async ({config, fs, dev, log}) => {
 			const buildConfig = config.builds.find((b) => b.name === buildName);
 			if (!buildConfig) {

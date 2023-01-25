@@ -1,7 +1,7 @@
 # gen
 
 > automated codegen by convention for
-> [Gro](https://github.com/feltcoop/gro)
+> [Gro](https://github.com/feltjs/gro)
 
 **note**: this is one of the more experimental parts of Gro, and significant changes are planned
 
@@ -84,7 +84,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 Given `src/script.gen.ts`:
 
 ```ts
-import type {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const message = 'generated';
@@ -165,7 +165,7 @@ the default output file name is stripped of its trailing `.ts`.
 Given `src/markup.gen.html.ts`:
 
 ```ts
-import type {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const body = 'hi';
@@ -198,7 +198,7 @@ The `gen` function can return an object with custom configuration.
 Given `src/somewhere/originalName.gen.ts`:
 
 ```ts
-import type {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
@@ -223,7 +223,7 @@ The `gen` function can also return an array of files.
 Given `src/thing.gen.ts`:
 
 ```ts
-import type {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const fieldValue = 1;
@@ -283,7 +283,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 or in code:
 
 ```ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
@@ -302,7 +302,7 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 - [x] format output with Prettier
 - [x] add type generation for `.schema.` files
 - [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
-- [ ] [watch mode and build integration](https://github.com/feltcoop/gro/pull/283),
+- [ ] [watch mode and build integration](https://github.com/feltjs/gro/pull/283),
       opt out with `watch: false` for expensive gen use cases
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types

@@ -152,7 +152,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		return buildFiles;
 	};
 
-	return {name: '@feltcoop/groBuilderEsbuild', build};
+	return {name: '@feltjs/groBuilderEsbuild', build};
 };
 
 type CreateEsbuildOptions = (

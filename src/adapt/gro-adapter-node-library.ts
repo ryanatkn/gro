@@ -24,7 +24,7 @@ import type {PackageJson} from '../utils/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {toDefaultEsbuildBundleOptions} from '../build/groBuilderEsbuildUtils.js';
 
-const name = '@feltcoop/gro-adapter-node-library';
+const name = '@feltjs/gro-adapter-node-library';
 
 // In normal circumstances, this adapter expects to handle
 // only code scoped to `src/lib`, following SvelteKit conventions.

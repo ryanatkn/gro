@@ -8,7 +8,7 @@ user inferfaces.
 - Svelte apps that also have a server
 - Node modules, like libraries and standalone servers
 
-[The integration with SvelteKit and Vite](https://github.com/feltcoop/gro/blob/main/src/docs/sveltekit.md)
+[The integration with SvelteKit and Vite](https://github.com/feltjs/gro/blob/main/src/docs/sveltekit.md)
 is currently incomplete.
 Gro's goal is to defer to them as much as possible.
 
@@ -32,7 +32,7 @@ See [plugin.md](plugin.md) to learn more.
 - [ ] add API using esbuild to optionally bundle specific pieces to speed up development
 - [ ] livereload CSS (and fix pop-in during dev)
 - [ ] HMR
-- [ ] [support SvelteKit](https://github.com/feltcoop/gro/issues/106) as an alternative to Vite
+- [ ] [support SvelteKit](https://github.com/feltjs/gro/issues/106) as an alternative to Vite
 - [ ] probably support Rollup plugins in development, but how?
 - [ ] improve loading speed with `cache-control: immutable` and
       [import maps](https://github.com/WICG/import-maps/)
@@ -40,7 +40,7 @@ See [plugin.md](plugin.md) to learn more.
       handling a module import waterfall, locally, and http2 didn't help)
 
 <p align="center">
-  <a href="https://github.com/feltcoop/gro">
+  <a href="https://github.com/feltjs/gro">
     <img src="/src/static/favicon.png" width="192" height="192">
   </a>
 </p>

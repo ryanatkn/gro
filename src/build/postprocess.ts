@@ -230,7 +230,7 @@ const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/gu
 
 // This is a temporary hack to allow importing `to/thing` as equivalent to `to/thing.js`,
 // despite it being off-spec, because of this combination of problems with TypeScript and Vite:
-// https://github.com/feltcoop/gro/pull/186
+// https://github.com/feltjs/gro/pull/186
 // The main problem this causes is breaking the ability to infer file extensions automatically,
 // because now we can't extract the extension from a user-provided specifier. Gack!
 // Exposing this hack to user config is something that's probably needed,
@@ -256,7 +256,7 @@ const hackToSveltekitImportMocks = (specifier: string, dev: boolean): string =>
 		: specifier;
 const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
 	? '../../utils/sveltekitImportMocks.js'
-	: '@feltcoop/gro/dist/utils/sveltekitImportMocks.js';
+	: '@feltjs/gro/dist/utils/sveltekitImportMocks.js';
 const sveltekitMockedSpecifiers = new Map([
 	['$app/environment', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/forms', SVELTEKIT_IMPORT_MOCK_SPECIFIER],

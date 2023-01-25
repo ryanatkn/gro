@@ -1,28 +1,37 @@
 {
-  "name": "@feltcoop/gro",
-  "version": "0.70.0",
+  "name": "@feltjs/gro",
   "description": "opinionated webdev toolkit",
-  "type": "module",
+  "version": "0.70.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
     "gro": "./dist/cli/gro.js"
   },
   "license": "Unlicense",
-  "homepage": "https://github.com/feltcoop/gro#readme",
+  "homepage": "https://github.com/feltjs/gro#readme",
+  "author": {
+    "name": "Felt Co-op",
+    "email": "team@felt.social",
+    "url": "https://felt.social"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feltjs/gro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/feltjs/gro/issues",
+    "email": "team@felt.social"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18.6.0"
+  },
   "scripts": {
     "start": "gro",
     "test": "gro test",
     "bootstrap": "node src/bootstrap.js",
     "dev": "clear && npm run bootstrap && gro dev",
     "build": "clear && npm run bootstrap && gro build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/feltcoop/gro.git"
-  },
-  "bugs": {
-    "url": "https://github.com/feltcoop/gro/issues"
   },
   "keywords": [
     "web",
@@ -33,20 +42,12 @@
     "svelte",
     "typescript"
   ],
-  "author": {
-    "name": "Felt.coop",
-    "email": "team@felt.social",
-    "url": "https://felt.social"
-  },
   "files": [
     "dist",
     "src",
     "changelog.md",
     "tsconfig.json"
   ],
-  "engines": {
-    "node": ">=18.6.0"
-  },
   "dependencies": {
     "@feltcoop/util": "^0.5.0",
     "@rollup/pluginutils": "^5.0.2",

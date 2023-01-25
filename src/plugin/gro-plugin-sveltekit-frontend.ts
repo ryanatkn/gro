@@ -10,7 +10,7 @@ export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
-const name = '@feltcoop/gro-plugin-sveltekit-frontend';
+const name = '@feltjs/gro-plugin-sveltekit-frontend';
 
 // eslint-disable-next-line no-empty-pattern
 export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<

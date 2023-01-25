@@ -1,7 +1,7 @@
 # task
 
 > task runner for
-> [Gro](https://github.com/feltcoop/gro)
+> [Gro](https://github.com/feltjs/gro)
 
 ## contents
 
@@ -27,7 +27,7 @@ and defers composition to the user in regular TypeScript modules.
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args;
-  to view [the available tasks](https://github.com/feltcoop/gro/blob/main/src/docs/tasks.md)
+  to view [the available tasks](https://github.com/feltjs/gro/blob/main/src/docs/tasks.md)
   run `gro` with no arguments
 - it's easy to hook into or override any of Gro's builtin tasks,
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
@@ -86,7 +86,7 @@ $ gro gro/some/file
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -108,7 +108,7 @@ and putting them into a directory together can help make projects easier to navi
 
 ```ts
 // usage:
-// import {type Task, type TaskContext} from '@feltcoop/gro';
+// import {type Task, type TaskContext} from '@feltjs/gro';
 
 export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
@@ -156,7 +156,7 @@ gro some/file
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
@@ -191,13 +191,13 @@ $ gro test
 
 ```ts
 // src/test.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
 		await doSomethingFirst();
 		// As discussed in the `invokeTask` section above,
-		// it's possible to `import {task as groBuiltinTestTask} from '@feltcoop/gro/dist/test.task.js'`
+		// it's possible to `import {task as groBuiltinTestTask} from '@feltjs/gro/dist/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
@@ -218,7 +218,7 @@ The `Task` interface is generic, and its first param is the type of the task con
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task<{something: boolean}> = {
 	run: async ({args}) => {
@@ -239,7 +239,7 @@ providing some benefits:
 
 ```ts
 // src/dosomething.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 import {DosomethingArgsSchema} from './dosomethingTask.schema.js';
 import type {DosomethingArgs} from './dosomethingTask.js'; // this is generated
@@ -256,7 +256,7 @@ export const task: Task<DosomethingArgs> = {
 
 ```ts
 // src/dosomethingTask.schema.ts
-import type {ArgsSchema} from '@feltcoop/gro';
+import type {ArgsSchema} from '@feltjs/gro';
 
 export const DosomethingArgsSchema: ArgsSchema = {
 	$id: '/schemas/DosomethingArgs.json',
@@ -329,7 +329,7 @@ Here's how a task can emit and listen to events:
 
 ```ts
 // src/some/mytask.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 import {type TaskEvents as OtherTaskEvents} from '../task/othertask.task.ts';
 
@@ -364,7 +364,7 @@ To suppress logging the stack trace for an error,
 throw a `TaskError`.
 
 ```ts
-import {Task, TaskError} from '@feltcoop/gro';
+import {Task, TaskError} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async () => {
@@ -379,7 +379,7 @@ export const task: Task = {
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	production: true, // task runner will spawn a new process if `process.env.NODE_ENV` isn't 'production'

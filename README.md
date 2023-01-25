@@ -6,7 +6,7 @@
 
 limitations:
 
-- [Windows is not yet supported](https://github.com/feltcoop/gro/issues/319)
+- [Windows is not yet supported](https://github.com/feltjs/gro/issues/319)
 - [SvelteKit and Vite integration](/src/docs/sveltekit.md) is incomplete
 - Gro is actively used but has few users,
   so you'll likely find problems and undesirable limitations --
@@ -37,7 +37,7 @@ It includes:
     and [SvelteKit](https://github.com/sveltejs/kit)
   - see the [SvelteKit integration docs](/src/docs/sveltekit.md),
     the [Gro config docs](/src/docs/config.md), and
-    [the default config](https://github.com/feltcoop/gro/blob/main/src/config/gro.config.default.ts)
+    [the default config](https://github.com/feltjs/gro/blob/main/src/config/gro.config.default.ts)
   - [configurable plugins](/src/docs/plugin.md) and [adapters](/src/docs/adapt.md)
     to support SvelteKit, auto-restarting API servers, and other external build processes -
     ideally would use SvelteKit/Vite instead
@@ -82,13 +82,13 @@ It includes:
 Normally you'll want to install Gro as a dev dependency:
 
 ```bash
-npm i -D @feltcoop/gro
+npm i -D @feltjs/gro
 ```
 
 It's handy to install globally too:
 
 ```bash
-npm i -g @feltcoop/gro
+npm i -g @feltjs/gro
 ```
 
 ## usage

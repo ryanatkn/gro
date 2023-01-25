@@ -16,7 +16,7 @@ Seems likely it's the former. But as far as I can tell,
 its behavior isn't matching what `tsc` outputs.
 
 So we have this rather complex file to bootstrap the project.
-See this issue for more: https://github.com/feltcoop/gro/pull/292
+See this issue for more: https://github.com/feltjs/gro/pull/292
 
 */
 

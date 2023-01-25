@@ -220,7 +220,7 @@ export const groBuilderSvelte = (options: Options = {}): SvelteBuilder => {
 		return buildFiles;
 	};
 
-	return {name: '@feltcoop/groBuilderSvelte', build};
+	return {name: '@feltjs/groBuilderSvelte', build};
 };
 
 const getGenerateOption = (buildConfig: BuildConfig): 'dom' | 'ssr' | false => {
