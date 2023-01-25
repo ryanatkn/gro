@@ -55,7 +55,7 @@ export const normalizeBuildConfigs = (
 			name: partial.name,
 			platform: partial.platform,
 			input: normalizeBuildConfigInput(partial.input),
-			types: partial.types ?? false,
+			types: partial.types ?? !dev,
 		};
 		buildConfigs.push(buildConfig);
 		if (shouldAddSystemBuildConfig && buildConfig.name === SYSTEM_BUILD_NAME) {

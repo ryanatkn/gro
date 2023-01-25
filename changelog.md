@@ -1,9 +1,19 @@
 # changelog
 
-## 0.70.1
+## 0.70.3
 
 - upgrade `@feltjs/util`
   ([#362](https://github.com/feltjs/gro/pull/362))
+
+## 0.70.2
+
+- fix production types for builds that don't specify a value
+  ([#363](https://github.com/feltjs/gro/pull/363))
+- undo adding TypeScript as a peer dependency
+
+## 0.70.1
+
+- add TypeScript as a peer dependency
 
 ## 0.70.0
 
