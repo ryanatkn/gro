@@ -50,12 +50,12 @@
 
 ## 0.66.0
 
-- **break**: upgrade `@feltcoop/util`
+- **break**: upgrade `@feltjs/util`
   ([#356](https://github.com/feltjs/gro/pull/356))
 
 ## 0.65.0
 
-- **break**: depend on `@feltcoop/util` instead of `@feltcoop/felt`
+- **break**: depend on `@feltjs/util` instead of `@feltcoop/felt`
   ([#355](https://github.com/feltjs/gro/pull/355))
 
 ## 0.64.0
