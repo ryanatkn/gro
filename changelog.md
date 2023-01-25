@@ -1,5 +1,9 @@
 # changelog
 
+## 0.70.4
+
+- bump package-lock version to 3after npm upgrade
+
 ## 0.70.3
 
 - upgrade `@feltjs/util`
