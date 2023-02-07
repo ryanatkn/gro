@@ -557,7 +557,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	);
 
 	private async _buildSourceFile(sourceFile: SourceFile, buildConfig: BuildConfig): Promise<void> {
-		this.log.info(`${printBuildConfigLabel(buildConfig)} build source file`, gray(sourceFile.id));
+		this.log.trace(`${printBuildConfigLabel(buildConfig)} build source file`, gray(sourceFile.id));
 
 		// Compile the source file.
 		let buildFiles: BuildFile[];
