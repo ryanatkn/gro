@@ -94,6 +94,10 @@
   "eslintConfig": {
     "root": true,
     "extends": "@feltjs",
+    "ignorePatterns": [
+      "svelte.config.js",
+      "vite.config.js"
+    ],
     "rules": {
       "@typescript-eslint/no-restricted-imports": [
         1,
