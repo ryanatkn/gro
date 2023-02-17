@@ -1,5 +1,10 @@
 # changelog
 
+## 0.71.0
+
+- **break**: upgrade dep `@feltjs/util@0.6.0`
+  ([#364](https://github.com/feltjs/gro/pull/364))
+
 ## 0.70.5
 
 - quieter logging
