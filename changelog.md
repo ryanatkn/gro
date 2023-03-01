@@ -3,6 +3,7 @@
 ## 0.72.0
 
 - **break**: upgrade dep `@feltjs/util@0.7.4`
+  ([commit](https://github.com/feltjs/gro/commit/731007d1533f981e524e318c00af3a6fa861e909))
 
 ## 0.71.0
 
