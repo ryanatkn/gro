@@ -1,5 +1,9 @@
 # changelog
 
+## 0.72.0
+
+- **break**: upgrade dep `@feltjs/util@0.7.4`
+
 ## 0.71.0
 
 - **break**: upgrade dep `@feltjs/util@0.6.0`
