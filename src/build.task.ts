@@ -1,6 +1,7 @@
 import {Timings} from '@feltjs/util/timings.js';
 import {printTimings} from '@feltjs/util/print.js';
 import {z} from 'zod';
+import {spawn} from '@feltjs/util/process.js';
 
 import type {Task} from './task/task.js';
 import {loadConfig, type GroConfig} from './config/config.js';
@@ -22,6 +23,13 @@ const Args = z
 			})
 			.default(false)
 			.optional(),
+		install: z.boolean({description: ''}).default(true),
+		'no-install': z
+			.boolean({
+				description: 'opt out of npm installing before building',
+			})
+			.default(false)
+			.optional(),
 	})
 	.strict();
 type Args = z.infer<typeof Args>;
@@ -36,10 +44,15 @@ export const task: Task<Args, TaskEvents> = {
 			dev,
 			log,
 			events,
-			args: {clean},
+			args: {clean, install},
 		} = ctx;
 
 		const timings = new Timings(); // TODO belongs in ctx
+
+		console.log(`install`, install);
+		if (install) {
+			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
+		}
 
 		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
 		// This is used by `gro publish` and `gro deploy` because they call `cleanFs` themselves.
