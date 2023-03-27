@@ -49,7 +49,6 @@ export const task: Task<Args, TaskEvents> = {
 
 		const timings = new Timings(); // TODO belongs in ctx
 
-		console.log(`install`, install);
 		if (install) {
 			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
 		}
