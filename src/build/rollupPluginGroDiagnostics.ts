@@ -42,7 +42,7 @@ export const rollupPluginGroDiagnostics = (): RollupPlugin => {
 			return null;
 		},
 		options(_o) {
-			// trace(tag('options'), o);
+			// log.debug(tag('options'), o);
 			return null;
 		},
 		// outputOptions(o) {
