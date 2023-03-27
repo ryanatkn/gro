@@ -16,20 +16,20 @@ export interface TaskEvents {
 
 const Args = z
 	.object({
-		clean: z.boolean({description: ''}).default(true),
+		clean: z.boolean({description: ''}).optional().default(true),
 		'no-clean': z
 			.boolean({
 				description: 'opt out of cleaning before building; warning! this may break your build!',
 			})
-			.default(false)
-			.optional(),
-		install: z.boolean({description: ''}).default(true),
+			.optional()
+			.default(false),
+		install: z.boolean({description: ''}).optional().default(true),
 		'no-install': z
 			.boolean({
 				description: 'opt out of npm installing before building',
 			})
-			.default(false)
-			.optional(),
+			.optional()
+			.default(false),
 	})
 	.strict();
 type Args = z.infer<typeof Args>;
