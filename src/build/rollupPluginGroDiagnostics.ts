@@ -38,7 +38,7 @@ export const rollupPluginGroDiagnostics = (): RollupPlugin => {
 		},
 		// intro() {}
 		load(_id) {
-			// log.trace(tag('load'), printPath(id));
+			// log.debugtag('load'), printPath(id));
 			return null;
 		},
 		options(_o) {
@@ -66,16 +66,16 @@ export const rollupPluginGroDiagnostics = (): RollupPlugin => {
 		// resolveDynamicImport(_specifier, _importer) {}
 		// resolveFileUrl(_asset) {}
 		resolveId(_importee, _importer) {
-			// log.trace(tag('resolveId'), gray(importee), (importer && '<- ' + printPath(importer)) || '');
+			// log.debugtag('resolveId'), gray(importee), (importer && '<- ' + printPath(importer)) || '');
 			return null;
 		},
 		// resolveImportMeta(_property, _asset) {}
 		transform(_code, _id) {
-			// log.trace(tag('transform'), printPath(id), printKeyValue('len', (code && code.length) || 0));
+			// log.debugtag('transform'), printPath(id), printKeyValue('len', (code && code.length) || 0));
 			return null;
 		},
 		watchChange(id) {
-			log.trace(tag('watchChange'), gray(id));
+			log.debugtag('watchChange'), gray(id));
 		},
 		writeBundle(_bundle) {
 			log.info(

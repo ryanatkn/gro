@@ -26,7 +26,7 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 					log.info(printCommandArgs(serializedArgs));
 					sveltekitProcess = spawnProcess('npx', serializedArgs);
 				} else {
-					log.trace(
+					log.debug
 						`${name} is loaded but will not output anything` +
 							' because `dev` is true and `watch` is false',
 					);

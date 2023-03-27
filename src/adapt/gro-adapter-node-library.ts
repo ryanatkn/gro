@@ -86,7 +86,7 @@ export const createAdapter = ({
 				const timingToBundle = timings.start('bundle with rollup');
 				// TODO use `filters` to select the others..right?
 				if (!files.length) {
-					log.trace('no input files in', printBuildConfigLabel(buildConfig));
+					log.debug'no input files in', printBuildConfigLabel(buildConfig));
 					return;
 				}
 				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
