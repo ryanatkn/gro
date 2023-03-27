@@ -46,12 +46,8 @@ export const runTask = async (
 		if (parsed.success) {
 			args = parsed.data;
 		} else {
-			const formatted = parsed.error.format();
-			log.error(
-				red(`Args validation failed:`),
-				...formatted._errors.map((e) => '\n\n' + red(e)),
-				'\n\n',
-			);
+			// TODO this is really messy
+			log.error(red(`Args validation failed:`), '\n', parsed.error.format());
 			throw new TaskError(`Task args failed validation`);
 		}
 	}
