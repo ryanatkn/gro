@@ -1,8 +1,11 @@
 # changelog
 
-## 0.72.1
+## 0.73.0
 
+- **break**: upgrade dep `@feltjs/util@0.8.0` and `esbuild@0.17.0`
+  ([#366](https://github.com/feltjs/gro/pull/366))
 - `npm i` before `gro build`, add `--no-install` flag to override
+  ([#365](https://github.com/feltjs/gro/pull/365))
 
 ## 0.72.0
 
