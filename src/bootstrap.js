@@ -20,8 +20,6 @@ See this issue for more: https://github.com/feltjs/gro/pull/292
 
 */
 
-console.log('LOADED');
-
 const transformOptions = {
 	target: 'es2020',
 	sourcemap: false,
@@ -40,7 +38,6 @@ const bootstrap = async () => {
 	const dir = resolve('src');
 	const distDir = './dist';
 	const outDir = resolve(distDir);
-	console.log(`dir, outDir`, dir, outDir);
 	await Promise.all([fs.remove(outDir), fs.remove(resolve('./.gro'))]);
 	const watcher = new CheapWatch({
 		dir,
@@ -50,11 +47,9 @@ const bootstrap = async () => {
 	});
 
 	let count = 0;
-	console.log(`count`, count);
 	const startTime = Date.now();
 
 	await watcher.init();
-	console.log('C');
 	await Promise.all(
 		Array.from(watcher.paths.entries()).map(async ([path, stats]) => {
 			if (stats.isDirectory()) return;
@@ -66,7 +61,6 @@ const bootstrap = async () => {
 			await fs.outputFile(outPath, transformed.code);
 		}),
 	);
-	console.log('E');
 
 	console.log(`transformed ${count} files in ${Date.now() - startTime}ms`);
 
