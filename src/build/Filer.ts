@@ -170,7 +170,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.dirs = sourceDirs.map((sourceDir) =>
 			createFilerDir(fs, sourceDir, this.onDirChange, watch, watcherDebounce, filter),
 		);
-		log.trace(cyan('buildConfigs'), buildConfigs);
+		log.debug(cyan('buildConfigs'), buildConfigs);
 	}
 
 	close(): void {
@@ -185,22 +185,22 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		if (this.initialized) throw Error('Filer already initialized');
 		this.initialized = true;
 
-		this.log.trace('init', gray(this.dev ? 'development' : 'production'));
+		this.log.debug('init', gray(this.dev ? 'development' : 'production'));
 
 		await Promise.all([initSourceMeta(this), lexer.init]);
-		// this.log.trace('inited cache');
+		// this.log.debug('inited cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
 		// because it creates source files, which need `this.sourceMetaById` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
-		// this.log.trace('inited files');
+		// this.log.debug('inited files');
 
 		// Now that the source meta and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
 		await cleanSourceMeta(this);
-		// this.log.trace('cleaned');
+		// this.log.debug('cleaned');
 
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
@@ -212,12 +212,12 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
-		// this.log.trace('inited builds');
+		// this.log.debug('inited builds');
 		// this.log.info('buildConfigs', this.buildConfigs);
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
-		// this.log.trace(blue('initialized!'));
+		// this.log.debug(blue('initialized!'));
 	}
 
 	// During initialization, after all files are loaded into memory,
@@ -278,7 +278,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		buildConfig: BuildConfig,
 		isInput: boolean,
 	): Promise<void> {
-		// this.log.trace(
+		// this.log.debug(
 		// 	`adding source file to build ${printBuildConfigLabel(buildConfig)} ${gray(sourceFile.id)}`,
 		// );
 		if (sourceFile.buildConfigs.has(buildConfig)) {
@@ -317,7 +317,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		buildConfig: BuildConfig,
 		shouldUpdateSourceMeta = true,
 	): Promise<void> {
-		this.log.trace(
+		this.log.debug(
 			`${printBuildConfigLabel(buildConfig)} removing source file ${gray(sourceFile.id)}`,
 		);
 
@@ -453,7 +453,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const done = () => this.updatingSourceFiles.delete(id);
 		const promise: Promise<boolean> = Promise.resolve()
 			.then(async () => {
-				// this.log.trace(`updating source file ${gray(id)}`);
+				// this.log.debug(`updating source file ${gray(id)}`);
 				const sourceFile = this.files.get(id);
 				if (sourceFile) {
 					assertSourceFile(sourceFile);
@@ -557,7 +557,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	);
 
 	private async _buildSourceFile(sourceFile: SourceFile, buildConfig: BuildConfig): Promise<void> {
-		this.log.trace(`${printBuildConfigLabel(buildConfig)} build source file`, gray(sourceFile.id));
+		this.log.debug(`${printBuildConfigLabel(buildConfig)} build source file`, gray(sourceFile.id));
 
 		// Compile the source file.
 		let buildFiles: BuildFile[];
@@ -600,7 +600,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		sourceFile: SourceFile,
 		buildConfig: BuildConfig,
 	): Promise<void> {
-		// this.log.trace('hydrate', gray(sourceFile.id));
+		// this.log.debug('hydrate', gray(sourceFile.id));
 		const buildFiles = sourceFile.buildFiles.get(buildConfig);
 		if (buildFiles === undefined) {
 			throw Error(`Expected to find build files when hydrating from cache.`);
@@ -739,7 +739,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private async destroySourceId(id: string): Promise<void> {
 		const sourceFile = this.files.get(id);
 		assertSourceFile(sourceFile);
-		this.log.trace('destroying file', gray(id));
+		this.log.debug('destroying file', gray(id));
 		this.files.delete(id);
 		await Promise.all(
 			this.buildConfigs.map((b) =>
@@ -768,12 +768,12 @@ const syncBuildFilesToDisk = async (
 			let shouldOutputNewFile = false;
 			if (change.type === 'added') {
 				if (!(await fs.exists(file.id))) {
-					// log.trace(label, 'creating build file on disk', gray(file.id));
+					// log.debug(label, 'creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {
 					const existingContent = await loadContent(fs, file.encoding, file.id);
 					if (!isContentEqual(file.encoding, file.content, existingContent)) {
-						log.trace(label, 'updating stale build file on disk', gray(file.id));
+						log.debug(label, 'updating stale build file on disk', gray(file.id));
 						shouldOutputNewFile = true;
 					} // ...else the build file on disk already matches what's in memory.
 					// This can happen if the source file changed but this particular build file did not.
@@ -782,11 +782,11 @@ const syncBuildFilesToDisk = async (
 				}
 			} else if (change.type === 'updated') {
 				if (!isContentEqual(file.encoding, file.content, change.oldFile.content)) {
-					log.trace(label, 'updating build file on disk', gray(file.id));
+					log.debug(label, 'updating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				}
 			} else if (change.type === 'removed') {
-				log.trace(label, 'deleting build file on disk', gray(file.id));
+				log.debug(label, 'deleting build file on disk', gray(file.id));
 				return fs.remove(file.id);
 			} else {
 				throw new UnreachableError(change);
