@@ -87,7 +87,7 @@ export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Pro
 	}
 
 	sourceMetaById.set(file.id, sourceMeta);
-	// this.log.debug'outputting source meta', gray(cacheId));
+	// this.log.debug('outputting source meta', gray(cacheId));
 	await writeSourceMeta(fs, cacheId, data);
 };
 
@@ -140,7 +140,7 @@ export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 	await Promise.all(
 		Array.from(sourceMetaById.keys()).map(async (sourceId) => {
 			if (!(await fs.exists(sourceId))) {
-				log.debug'deleting unknown source meta', gray(sourceId));
+				log.debug('deleting unknown source meta', gray(sourceId));
 				await deleteSourceMeta(ctx, sourceId);
 			}
 		}),

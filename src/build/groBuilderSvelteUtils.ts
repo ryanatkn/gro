@@ -78,7 +78,7 @@ export const handleStats = (
 	_handleStats: (id: string, stats: SvelteCompileStats, ...args: any[]) => void,
 	log: Logger,
 ): void => {
-	log.debug
+	log.debug(
 		printKeyValue('stats', printPath(id)),
 		...[
 			printKeyValue('total', printMs(stats.timings.total)),
