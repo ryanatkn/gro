@@ -49,7 +49,7 @@ const runSchemaGen = async (
 		types.push(result);
 
 		// Walk the original schema and add any imports with `tsImport`.
-		// We don't walk `schema` because json-schema-to-typescript mutates it to expand references.
+		// We don't walk `schema` because we don't include the types of expanded schema references.
 		traverse(originalSchema, (key, v) => {
 			if (key === 'tsImport') {
 				if (typeof v === 'string') {
