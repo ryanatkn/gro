@@ -1,5 +1,10 @@
 # changelog
 
+## 0.74.0
+
+- **break**: fix schema type generation to be shallow, excluding the types of referenced schemas
+  ([#367](https://github.com/feltjs/gro/pull/367))
+
 ## 0.73.0
 
 - **break**: upgrade dep `@feltjs/util@0.8.0` and `esbuild@0.17.0`
