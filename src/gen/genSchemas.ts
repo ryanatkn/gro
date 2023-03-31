@@ -10,6 +10,7 @@ import type {GenModuleMeta, SchemaGenModule} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
 import {isVocabSchema, type VocabSchema} from '../utils/schema.js';
+import {red} from 'kleur/colors'; // TODO BLOCK remove
 
 export const genSchemas = async (
 	mod: SchemaGenModule,
@@ -35,10 +36,8 @@ const runSchemaGen = async (
 	const types: string[] = [];
 
 	for (const {identifier, schema: originalSchema} of toSchemaInfoFromModule(mod)) {
-		// `json-schema-to-typescript` adds an `id` property,
-		// which causes `ajv` to fail to compile,
-		// so instead of adding `id` as an `ajv` keyword we shallow clone the schema.
-		const schema = {...originalSchema};
+		// `json-schema-to-typescript` mutates the schema, so clone first
+		const schema = structuredClone(originalSchema);
 
 		// Compile the schema to TypeScript.
 		const finalIdentifier = stripEnd(identifier, 'Schema'); // convenient to avoid name collisions
@@ -50,8 +49,9 @@ const runSchemaGen = async (
 		});
 		types.push(result);
 
-		// Walk the entire schema and add any imports with `tsImport`.
-		traverse(schema, (key, v) => {
+		// Walk the original schema and add any imports with `tsImport`.
+		// We don't walk `schema` because json-schema-to-typescript mutates it to expand references.
+		traverse(originalSchema, (key, v) => {
 			if (key === 'tsImport') {
 				if (typeof v === 'string') {
 					rawImports.push(v);
