@@ -10,7 +10,6 @@ import type {GenModuleMeta, SchemaGenModule} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
 import {isVocabSchema, type VocabSchema} from '../utils/schema.js';
-import {red} from 'kleur/colors'; // TODO BLOCK remove
 
 export const genSchemas = async (
 	mod: SchemaGenModule,
