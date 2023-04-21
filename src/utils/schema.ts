@@ -37,6 +37,7 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 const toSchemaName = ($id: string) =>
 	$id.startsWith('/schemas/') && $id.endsWith('.json') ? $id.substring(9, $id.length - 5) : $id;
 
+// TODO might want to add `tsType` for `instanceof`, for e.g. `type: 'object', instanceof: 'Date', tsType: 'Date'`
 /**
  * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
  * @param schema
