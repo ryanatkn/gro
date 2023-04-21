@@ -46,6 +46,8 @@ export const inferSchemaTypes = (schema: VocabSchema): void => {
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref' && !('tsType' in obj)) {
 			obj.tsType = toSchemaName(value);
+		} else if (key === 'instanceof' && !('tsType' in obj)) {
+			obj.tsType = value;
 		}
 	});
 };
