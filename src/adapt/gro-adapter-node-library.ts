@@ -156,7 +156,7 @@ export const createAdapter = ({
 					}),
 				);
 				log.info(`linking`);
-				const linkResult = await spawn('npm', ['link']);
+				const linkResult = await spawn('npm', ['link', '-f']);
 				if (!linkResult.ok) {
 					throw new TaskError(`Failed to link. ${printSpawnResult(linkResult)}`);
 				}
