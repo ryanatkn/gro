@@ -4,6 +4,8 @@
 
 - **break**: change schema type generation to infer `tsType` and `tsImport` from `$ref` and `instanceof`
   ([#370](https://github.com/feltjs/gro/pull/370))
+- **break**: bump peer dep `svelte@0.58.0`
+  ([#370](https://github.com/feltjs/gro/pull/370))
 
 ## 0.74.0
 
