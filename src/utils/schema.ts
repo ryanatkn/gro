@@ -1,3 +1,4 @@
+import {traverse} from '@feltjs/util/object.js';
 import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
 import type z from 'zod';
@@ -31,3 +32,19 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 		return JSON.stringify(schema);
 	},
 });
+
+// TODO do this more robustly (handle `/`?)
+const toSchemaName = ($id: string) =>
+	$id.startsWith('/schemas/') && $id.endsWith('.json') ? $id.substring(9, $id.length - 5) : $id;
+
+/**
+ * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
+ * @param schema
+ */
+export const inferSchemaTypes = (schema: VocabSchema): void => {
+	traverse(schema, (key, value, obj) => {
+		if (key === '$ref' && !('tsType' in obj)) {
+			obj.tsType = toSchemaName(value);
+		}
+	});
+};
