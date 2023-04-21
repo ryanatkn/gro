@@ -1,5 +1,10 @@
 # changelog
 
+## 0.75.0
+
+- **break**: change schema type generation to infer `tsType` and `tsImport` from `$ref` and `instanceof`
+  ([#370](https://github.com/feltjs/gro/pull/370))
+
 ## 0.74.0
 
 - **break**: fix schema type generation to be shallow, excluding the types of referenced schemas
