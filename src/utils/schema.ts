@@ -59,7 +59,6 @@ export const inferSchemaTypes = (schema: VocabSchema): void => {
 			}
 			if (!('tsImport' in obj)) {
 				const tsImport = toSchemaImport(value);
-				console.log(`tsImport, value`, tsImport, value);
 				if (tsImport) obj.tsImport = tsImport;
 			}
 		} else if (key === 'instanceof') {

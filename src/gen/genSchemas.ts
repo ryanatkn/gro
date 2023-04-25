@@ -35,9 +35,9 @@ const runSchemaGen = async (
 	const types: string[] = [];
 
 	for (const {identifier, schema: originalSchema} of toSchemaInfoFromModule(mod)) {
+		inferSchemaTypes(originalSchema); // process the schema, adding inferred data
 		// `json-schema-to-typescript` mutates the schema, so clone first
 		const schema = structuredClone(originalSchema);
-		inferSchemaTypes(schema);
 
 		// Compile the schema to TypeScript.
 		const finalIdentifier = stripEnd(identifier, 'Schema'); // convenient to avoid name collisions
