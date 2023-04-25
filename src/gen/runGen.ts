@@ -128,7 +128,7 @@ const toGenSchemasOptions = (
 export const toGenImportPath = (id: string): string =>
 	'$' + stripEnd(sourceIdToBasePath(id), GEN_SCHEMA_PATH_SUFFIX);
 
-const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
+export const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};
 	for (const genModule of genModules) {
 		if (genModule.type === 'schema') {
