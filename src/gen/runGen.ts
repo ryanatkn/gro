@@ -6,7 +6,7 @@ import {UnreachableError} from '@feltjs/util/error.js';
 import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
 import {stripEnd} from '@feltjs/util/string.js';
 
-import {SCHEMA_IDENTIFIER_SUFFIX, type GenModuleMeta} from './genModule.js';
+import {SCHEMA_IDENTIFIER_SUFFIX, type GenModuleMeta, SCHEMA_PATH_SUFFIX} from './genModule.js';
 import {
 	type GenResults,
 	type GenModuleResult,
@@ -122,7 +122,8 @@ const toGenSchemasOptions = (
 };
 
 // TODO configurable
-const toImportPath = (id: string): string => '$' + stripEnd(sourceIdToBasePath(id), '.schema.ts');
+const toImportPath = (id: string): string =>
+	'$' + stripEnd(sourceIdToBasePath(id), SCHEMA_PATH_SUFFIX);
 
 const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};
