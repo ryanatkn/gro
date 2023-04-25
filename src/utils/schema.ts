@@ -3,6 +3,7 @@ import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
 import type z from 'zod';
 import {zodToJsonSchema} from 'zod-to-json-schema';
+import type {GenConfig} from '../gen/gen';
 
 export interface VocabSchema extends JSONSchema {
 	$id: string;
@@ -38,19 +39,17 @@ const parseSchemaName = ($id: string): string | null =>
 	$id.startsWith('/schemas/') && $id.endsWith('.json') ? $id.substring(9, $id.length - 5) : null;
 
 // TODO make an option, is very hardcoded
-const toSchemaImport = ($id: string): string | null => {
+const toSchemaImport = ($id: string, config: GenConfig): string | null => {
 	if (!$id.startsWith('/schemas/') || !$id.endsWith('.json')) return null;
 	const name = $id.substring(9, $id.length - 5);
-	if (!name.endsWith('Id')) return null;
-	const n = name.slice(0, -2).toLowerCase();
-	return `import type {${name}} from '$lib/vocab/${n}/${n}';`;
+	return name in config.imports ? config.imports[name] : null;
 };
 
 /**
  * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
  * @param schema
  */
-export const inferSchemaTypes = (schema: VocabSchema): void => {
+export const inferSchemaTypes = (schema: VocabSchema, config: GenConfig): void => {
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref') {
 			if (!('tsType' in obj)) {
@@ -58,7 +57,7 @@ export const inferSchemaTypes = (schema: VocabSchema): void => {
 				if (tsType) obj.tsType = tsType;
 			}
 			if (!('tsImport' in obj)) {
-				const tsImport = toSchemaImport(value);
+				const tsImport = toSchemaImport(value, config);
 				if (tsImport) obj.tsImport = tsImport;
 			}
 		} else if (key === 'instanceof') {

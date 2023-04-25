@@ -14,6 +14,7 @@ import {
 	type GenModuleResultFailure,
 	toGenResult,
 	type RawGenResult,
+	type GenConfig,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {printPath} from '../paths.js';
@@ -23,6 +24,7 @@ import {toVocabSchemaResolver} from '../utils/schema.js';
 export const runGen = async (
 	fs: Filesystem,
 	genModules: GenModuleMeta[],
+	genConfig: GenConfig,
 	log: Logger,
 	formatFile?: (fs: Filesystem, id: string, content: string) => Promise<string>,
 ): Promise<GenResults> => {
@@ -31,6 +33,7 @@ export const runGen = async (
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
 	const genSchemasOptions = toGenSchemasOptions(genModules);
+	console.log(`genModules`, genModules);
 	const results = await Promise.all(
 		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
 			inputCount++;
@@ -47,7 +50,7 @@ export const runGen = async (
 						break;
 					}
 					case 'schema': {
-						rawGenResult = await genSchemas(moduleMeta.mod, genCtx, genSchemasOptions);
+						rawGenResult = await genSchemas(moduleMeta.mod, genCtx, genSchemasOptions, genConfig);
 						break;
 					}
 					default: {

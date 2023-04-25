@@ -26,6 +26,7 @@ import type {EcmaScriptTarget} from '../build/typescriptUtils.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import createDefaultConfig from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
+import {GenConfig} from '../gen/gen.js';
 
 /*
 
@@ -55,6 +56,7 @@ export interface GroConfig {
 	readonly sourcemap: boolean;
 	readonly typemap: boolean;
 	readonly logLevel: LogLevel;
+	readonly gen: GenConfig;
 	readonly primaryBrowserBuildConfig: BuildConfig | null; // TODO improve this, too rigid
 }
 
@@ -67,6 +69,7 @@ export interface GroConfigPartial {
 	readonly sourcemap?: boolean;
 	readonly typemap?: boolean;
 	readonly logLevel?: LogLevel;
+	readonly gen?: Partial<GenConfig>;
 }
 
 export interface GroConfigModule {
@@ -199,6 +202,7 @@ const toBootstrapConfig = (): GroConfig => {
 		sourcemap: false,
 		typemap: false,
 		logLevel: Logger.level,
+		gen: {imports: {}},
 		plugin: () => null,
 		adapt: () => null,
 		builds: [CONFIG_BUILD_CONFIG],
@@ -247,6 +251,7 @@ const normalizeConfig = (config: GroConfigPartial, dev: boolean): GroConfig => {
 				? config.publish
 				: toDefaultPublishDirs(buildConfigs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
+		gen: GenConfig.parse(config.gen || {}),
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
 		primaryBrowserBuildConfig: buildConfigs.find((b) => b.platform === 'browser') || null,
