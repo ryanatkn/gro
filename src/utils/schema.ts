@@ -35,11 +35,11 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 });
 
 // TODO do this more robustly (handle `/`?)
-const parseSchemaName = ($id: string): string | null =>
+const parse_schema_name = ($id: string): string | null =>
 	$id.startsWith('/schemas/') && $id.endsWith('.json') ? $id.substring(9, $id.length - 5) : null;
 
 // TODO make an option, is very hardcoded
-const toSchemaImport = ($id: string, ctx: GenContext): string | null => {
+const to_schema_import = ($id: string, ctx: GenContext): string | null => {
 	if (!$id.startsWith('/schemas/') || !$id.endsWith('.json')) return null;
 	const name = $id.substring(9, $id.length - 5);
 	return name in ctx.imports ? ctx.imports[name] : null;
@@ -49,15 +49,15 @@ const toSchemaImport = ($id: string, ctx: GenContext): string | null => {
  * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
  * @param schema
  */
-export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => {
+export const infer_schema_types = (schema: VocabSchema, ctx: GenContext): void => {
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref') {
 			if (!('tsType' in obj)) {
-				const tsType = parseSchemaName(value);
+				const tsType = parse_schema_name(value);
 				if (tsType) obj.tsType = tsType;
 			}
 			if (!('tsImport' in obj)) {
-				const tsImport = toSchemaImport(value, ctx);
+				const tsImport = to_schema_import(value, ctx);
 				if (tsImport) obj.tsImport = tsImport;
 			}
 		} else if (key === 'instanceof') {

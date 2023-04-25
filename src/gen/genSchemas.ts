@@ -9,7 +9,7 @@ import type {GenContext, RawGenResult} from './gen.js';
 import {SCHEMA_IDENTIFIER_SUFFIX, type GenModuleMeta, type SchemaGenModule} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
-import {inferSchemaTypes, isVocabSchema, type VocabSchema} from '../utils/schema.js';
+import {infer_schema_types, isVocabSchema, type VocabSchema} from '../utils/schema.js';
 
 export const genSchemas = async (
 	mod: SchemaGenModule,
@@ -35,7 +35,7 @@ const runSchemaGen = async (
 	const types: string[] = [];
 
 	for (const {identifier, schema: originalSchema} of toSchemaInfoFromModule(mod)) {
-		inferSchemaTypes(originalSchema, ctx); // process the schema, adding inferred data
+		infer_schema_types(originalSchema, ctx); // process the schema, adding inferred data
 		// `json-schema-to-typescript` mutates the schema, so clone first
 		const schema = structuredClone(originalSchema);
 
