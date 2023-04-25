@@ -17,6 +17,8 @@ export const GEN_FILE_PATTERN = SEPARATOR + GEN_FILE_PATTERN_TEXT + SEPARATOR;
 
 export const GEN_SCHEMA_FILE_PATTERN_TEXT = 'schema';
 export const GEN_SCHEMA_FILE_PATTERN = SEPARATOR + GEN_SCHEMA_FILE_PATTERN_TEXT + SEPARATOR;
+export const GEN_SCHEMA_PATH_SUFFIX = GEN_SCHEMA_FILE_PATTERN + 'ts';
+export const GEN_SCHEMA_IDENTIFIER_SUFFIX = 'Schema';
 
 export type GenModuleType = 'basic' | 'schema';
 export type GenModule = BasicGenModule | SchemaGenModule;
@@ -49,9 +51,6 @@ export interface SchemaGenModuleMeta extends ModuleMeta<GenModule> {
 	type: 'schema';
 	mod: SchemaGenModule;
 }
-
-export const SCHEMA_IDENTIFIER_SUFFIX = 'Schema';
-export const SCHEMA_PATH_SUFFIX = '.schema.ts';
 
 export const loadGenModule = async (id: string): Promise<LoadModuleResult<GenModuleMeta>> => {
 	const type = toGenModuleType(id);

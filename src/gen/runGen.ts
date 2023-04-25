@@ -6,7 +6,11 @@ import {UnreachableError} from '@feltjs/util/error.js';
 import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
 import {stripEnd} from '@feltjs/util/string.js';
 
-import {SCHEMA_IDENTIFIER_SUFFIX, type GenModuleMeta, SCHEMA_PATH_SUFFIX} from './genModule.js';
+import {
+	GEN_SCHEMA_IDENTIFIER_SUFFIX,
+	type GenModuleMeta,
+	GEN_SCHEMA_PATH_SUFFIX,
+} from './genModule.js';
 import {
 	type GenResults,
 	type GenModuleResult,
@@ -32,7 +36,6 @@ export const runGen = async (
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
 	const genSchemasOptions = toGenSchemasOptions(genModules);
-	console.log(`genModules`, genModules);
 	const imports = toGenContextImports(genModules);
 	const results = await Promise.all(
 		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
@@ -122,16 +125,16 @@ const toGenSchemasOptions = (
 };
 
 // TODO configurable
-const toImportPath = (id: string): string =>
-	'$' + stripEnd(sourceIdToBasePath(id), SCHEMA_PATH_SUFFIX);
+export const toGenImportPath = (id: string): string =>
+	'$' + stripEnd(sourceIdToBasePath(id), GEN_SCHEMA_PATH_SUFFIX);
 
 const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};
 	for (const genModule of genModules) {
 		if (genModule.type === 'schema') {
-			const importPath = toImportPath(genModule.id);
+			const importPath = toGenImportPath(genModule.id);
 			for (const identifier of Object.keys(genModule.mod)) {
-				const name = stripEnd(identifier, SCHEMA_IDENTIFIER_SUFFIX);
+				const name = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
 				imports[name] = `import type {${name}} from '${importPath}';`;
 			}
 		}

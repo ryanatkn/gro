@@ -6,7 +6,11 @@ import {stripEnd} from '@feltjs/util/string.js';
 import {traverse} from '@feltjs/util/object.js';
 
 import type {GenContext, RawGenResult} from './gen.js';
-import {SCHEMA_IDENTIFIER_SUFFIX, type GenModuleMeta, type SchemaGenModule} from './genModule.js';
+import {
+	GEN_SCHEMA_IDENTIFIER_SUFFIX,
+	type GenModuleMeta,
+	type SchemaGenModule,
+} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
 import {inferSchemaTypes, isVocabSchema, type VocabSchema} from '../utils/schema.js';
@@ -40,7 +44,7 @@ const runSchemaGen = async (
 		const schema = structuredClone(originalSchema);
 
 		// Compile the schema to TypeScript.
-		const finalIdentifier = stripEnd(identifier, SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
+		const finalIdentifier = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
 		// eslint-disable-next-line no-await-in-loop
 		const result = await compile(schema, finalIdentifier, {
 			bannerComment: '',
@@ -51,6 +55,7 @@ const runSchemaGen = async (
 
 		// Walk the original schema and add any imports with `tsImport`.
 		// We don't walk `schema` because we don't include the types of expanded schema references.
+		// TODO is this still true after the tsType/tsImport inference?
 		traverse(originalSchema, (key, v) => {
 			if (key === 'tsImport') {
 				if (typeof v === 'string') {
