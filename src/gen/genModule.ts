@@ -50,6 +50,8 @@ export interface SchemaGenModuleMeta extends ModuleMeta<GenModule> {
 	mod: SchemaGenModule;
 }
 
+export const SCHEMA_IDENTIFIER_SUFFIX = 'Schema';
+
 export const loadGenModule = async (id: string): Promise<LoadModuleResult<GenModuleMeta>> => {
 	const type = toGenModuleType(id);
 	const result = await loadModule(

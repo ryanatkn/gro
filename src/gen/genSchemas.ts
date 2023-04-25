@@ -6,7 +6,7 @@ import {stripEnd} from '@feltjs/util/string.js';
 import {traverse} from '@feltjs/util/object.js';
 
 import type {GenContext, RawGenResult} from './gen.js';
-import type {GenModuleMeta, SchemaGenModule} from './genModule.js';
+import {SCHEMA_IDENTIFIER_SUFFIX, type GenModuleMeta, type SchemaGenModule} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
 import {inferSchemaTypes, isVocabSchema, type VocabSchema} from '../utils/schema.js';
@@ -40,7 +40,7 @@ const runSchemaGen = async (
 		const schema = structuredClone(originalSchema);
 
 		// Compile the schema to TypeScript.
-		const finalIdentifier = stripEnd(identifier, 'Schema'); // convenient to avoid name collisions
+		const finalIdentifier = stripEnd(identifier, SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
 		// eslint-disable-next-line no-await-in-loop
 		const result = await compile(schema, finalIdentifier, {
 			bannerComment: '',
