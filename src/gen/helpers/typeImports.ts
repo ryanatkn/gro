@@ -21,9 +21,10 @@ export const normalizeTypeImports = async (
 	rawImports: string[],
 	fileId: string,
 ): Promise<string[]> => {
-	const formattedImports = (
-		await Promise.all(rawImports.map((i) => formatFile(fs, fileId, i)))
-	).map((s) => s.trim());
+	const imports = Array.from(new Set(rawImports));
+	const formattedImports = (await Promise.all(imports.map((i) => formatFile(fs, fileId, i)))).map(
+		(s) => s.trim(),
+	);
 
 	const imps = new Map<string, ParsedImport>();
 	const path = toGenImportPath(fileId);
@@ -33,11 +34,11 @@ export const normalizeTypeImports = async (
 		const formattedImport = stripEnd(formattedImports[i].trim(), ';');
 		const [parsed] = lexer.parse(formattedImport);
 		if (!parsed.length) {
-			throw Error(`No import found in tsImport: index ${i} in file ${fileId}: ${rawImports[i]}`);
+			throw Error(`No import found in tsImport: index ${i} in file ${fileId}: ${imports[i]}`);
 		}
 		if (parsed.length > 1) {
 			throw Error(
-				`Only one import is allowed in each tsImport: index ${i} in file ${fileId}: ${rawImports[i]}`,
+				`Only one import is allowed in each tsImport: index ${i} in file ${fileId}: ${imports[i]}`,
 			);
 		}
 

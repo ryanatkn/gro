@@ -1,5 +1,9 @@
 # changelog
 
+## 0.75.2
+
+- de-dupe when generating types
+
 ## 0.75.1
 
 - export `toGenContextImports` from `lib/runGen`
