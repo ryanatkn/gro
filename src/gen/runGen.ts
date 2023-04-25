@@ -4,8 +4,13 @@ import {Timings} from '@feltjs/util/timings.js';
 import type {Logger} from '@feltjs/util/log.js';
 import {UnreachableError} from '@feltjs/util/error.js';
 import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
+import {stripEnd} from '@feltjs/util/string.js';
 
-import type {GenModuleMeta} from './genModule.js';
+import {
+	GEN_SCHEMA_IDENTIFIER_SUFFIX,
+	type GenModuleMeta,
+	GEN_SCHEMA_PATH_SUFFIX,
+} from './genModule.js';
 import {
 	type GenResults,
 	type GenModuleResult,
@@ -16,7 +21,7 @@ import {
 	type RawGenResult,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {printPath} from '../paths.js';
+import {printPath, sourceIdToBasePath} from '../paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
 import {toVocabSchemaResolver} from '../utils/schema.js';
 
@@ -31,6 +36,7 @@ export const runGen = async (
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
 	const genSchemasOptions = toGenSchemasOptions(genModules);
+	const imports = toGenContextImports(genModules);
 	const results = await Promise.all(
 		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
 			inputCount++;
@@ -38,7 +44,7 @@ export const runGen = async (
 			const timingForModule = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			const genCtx: GenContext = {fs, originId: id, log};
+			const genCtx: GenContext = {fs, originId: id, log, imports};
 			let rawGenResult: RawGenResult;
 			try {
 				switch (moduleMeta.type) {
@@ -116,4 +122,22 @@ const toGenSchemasOptions = (
 			},
 		},
 	};
+};
+
+// TODO configurable
+export const toGenImportPath = (id: string): string =>
+	'$' + stripEnd(sourceIdToBasePath(id), GEN_SCHEMA_PATH_SUFFIX);
+
+const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
+	const imports: Record<string, string> = {};
+	for (const genModule of genModules) {
+		if (genModule.type === 'schema') {
+			const importPath = toGenImportPath(genModule.id);
+			for (const identifier of Object.keys(genModule.mod)) {
+				const name = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
+				imports[name] = `import type {${name}} from '${importPath}';`;
+			}
+		}
+	}
+	return imports;
 };

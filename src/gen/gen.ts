@@ -1,5 +1,6 @@
 import type {Logger} from '@feltjs/util/log.js';
 import {join, basename, dirname} from 'path';
+import {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {isSourceId} from '../paths.js';
@@ -23,6 +24,7 @@ export interface GenContext {
 	fs: Filesystem;
 	originId: string;
 	log: Logger;
+	imports: Record<string, string>;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
 export type RawGenResult = string | RawGenFile | null | RawGenResult[];
@@ -33,6 +35,11 @@ export interface RawGenFile {
 	filename?: string;
 	format?: boolean; // defaults to `true`
 }
+
+export const GenConfig = z.object({
+	imports: z.record(z.string(), z.string()).default({}),
+});
+export type GenConfig = z.infer<typeof GenConfig>;
 
 export type GenResults = {
 	results: GenModuleResult[];

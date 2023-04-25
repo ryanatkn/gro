@@ -6,10 +6,14 @@ import {stripEnd} from '@feltjs/util/string.js';
 import {traverse} from '@feltjs/util/object.js';
 
 import type {GenContext, RawGenResult} from './gen.js';
-import type {GenModuleMeta, SchemaGenModule} from './genModule.js';
+import {
+	GEN_SCHEMA_IDENTIFIER_SUFFIX,
+	type GenModuleMeta,
+	type SchemaGenModule,
+} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
-import {isVocabSchema, type VocabSchema} from '../utils/schema.js';
+import {inferSchemaTypes, isVocabSchema, type VocabSchema} from '../utils/schema.js';
 
 export const genSchemas = async (
 	mod: SchemaGenModule,
@@ -20,7 +24,7 @@ export const genSchemas = async (
 	return renderTsHeaderAndFooter(
 		ctx,
 		`${imports.join('\n;\n')}
-
+		
     ${types.join(';\n\n')}
   `,
 	);
@@ -35,11 +39,12 @@ const runSchemaGen = async (
 	const types: string[] = [];
 
 	for (const {identifier, schema: originalSchema} of toSchemaInfoFromModule(mod)) {
+		inferSchemaTypes(originalSchema, ctx); // process the schema, adding inferred data
 		// `json-schema-to-typescript` mutates the schema, so clone first
 		const schema = structuredClone(originalSchema);
 
 		// Compile the schema to TypeScript.
-		const finalIdentifier = stripEnd(identifier, 'Schema'); // convenient to avoid name collisions
+		const finalIdentifier = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
 		// eslint-disable-next-line no-await-in-loop
 		const result = await compile(schema, finalIdentifier, {
 			bannerComment: '',
@@ -50,6 +55,7 @@ const runSchemaGen = async (
 
 		// Walk the original schema and add any imports with `tsImport`.
 		// We don't walk `schema` because we don't include the types of expanded schema references.
+		// TODO is this still true after the tsType/tsImport inference?
 		traverse(originalSchema, (key, v) => {
 			if (key === 'tsImport') {
 				if (typeof v === 'string') {
