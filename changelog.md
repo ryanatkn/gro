@@ -3,6 +3,7 @@
 ## 0.75.2
 
 - de-dupe when generating types
+  ([commit](https://github.com/feltjs/gro/commit/01d02a17a5b050b63d7699371e559802fed6407d))
 
 ## 0.75.1
 
