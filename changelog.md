@@ -1,5 +1,10 @@
 # changelog
 
+## 0.75.1
+
+- export toGenContextImports from `$lib/runGen`
+  ([commit](https://github.com/feltjs/gro/commit/980f75bf43f77cb3107b446c079cc401c88b3f94))
+
 ## 0.75.0
 
 - **break**: change schema type generation to infer `tsType` and `tsImport` from `$ref` and `instanceof`
