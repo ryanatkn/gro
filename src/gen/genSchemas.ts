@@ -5,7 +5,7 @@ import {
 import {stripEnd} from '@feltjs/util/string.js';
 import {traverse} from '@feltjs/util/object.js';
 
-import type {GenContext, GenConfig, RawGenResult} from './gen.js';
+import type {GenContext, RawGenResult} from './gen.js';
 import type {GenModuleMeta, SchemaGenModule} from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
@@ -15,9 +15,8 @@ export const genSchemas = async (
 	mod: SchemaGenModule,
 	ctx: GenContext,
 	options: Partial<JsonSchemaToTypeScriptOptions>,
-	config: GenConfig,
 ): Promise<RawGenResult> => {
-	const {imports, types} = await runSchemaGen(ctx, mod, options, config);
+	const {imports, types} = await runSchemaGen(ctx, mod, options);
 	return renderTsHeaderAndFooter(
 		ctx,
 		`${imports.join('\n;\n')}
@@ -31,13 +30,12 @@ const runSchemaGen = async (
 	ctx: GenContext,
 	mod: SchemaGenModule,
 	options: Partial<JsonSchemaToTypeScriptOptions>,
-	config: GenConfig,
 ): Promise<{imports: string[]; types: string[]}> => {
 	const rawImports: string[] = [];
 	const types: string[] = [];
 
 	for (const {identifier, schema: originalSchema} of toSchemaInfoFromModule(mod)) {
-		inferSchemaTypes(originalSchema, config); // process the schema, adding inferred data
+		inferSchemaTypes(originalSchema, ctx); // process the schema, adding inferred data
 		// `json-schema-to-typescript` mutates the schema, so clone first
 		const schema = structuredClone(originalSchema);
 

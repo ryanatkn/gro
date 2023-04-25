@@ -24,6 +24,7 @@ export interface GenContext {
 	fs: Filesystem;
 	originId: string;
 	log: Logger;
+	imports: Record<string, string>;
 }
 // TODO consider other return data - metadata? effects? non-file build artifacts?
 export type RawGenResult = string | RawGenFile | null | RawGenResult[];

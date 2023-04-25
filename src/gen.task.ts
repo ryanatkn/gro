@@ -11,7 +11,6 @@ import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
-import {loadConfig} from './config/config.js';
 
 const Args = z
 	.object({
@@ -28,7 +27,7 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({fs, log, args, dev}): Promise<void> => {
+	run: async ({fs, log, args}): Promise<void> => {
 		const {_: rawInputPaths, check} = args;
 
 		const totalTiming = createStopwatch();
@@ -59,11 +58,9 @@ export const task: Task<Args> = {
 		}
 		timings.merge(loadModulesResult.timings);
 
-		const config = await loadConfig(fs, dev);
-
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(fs, loadModulesResult.modules, config.gen, log, formatFile);
+		const genResults = await runGen(fs, loadModulesResult.modules, log, formatFile);
 		stopTimingToGenerateCode();
 
 		const failCount = genResults.failures.length;

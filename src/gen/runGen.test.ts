@@ -6,7 +6,6 @@ import {Logger} from '@feltjs/util/log.js';
 import type {GenModuleMeta} from './genModule.js';
 import {runGen} from './runGen.js';
 import {fs} from '../fs/node.js';
-import {GenConfig} from './gen.js';
 
 const log = new Logger('test__gen'); // TODO test logger?
 
@@ -71,12 +70,8 @@ test__gen('basic behavior', async () => {
 		},
 	};
 	const genModulesByInputPath = [modA, modB, modC];
-	const genResults = await runGen(
-		fs,
-		genModulesByInputPath,
-		GenConfig.parse({}),
-		log,
-		async (_fs, id, content) => (id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content),
+	const genResults = await runGen(fs, genModulesByInputPath, log, async (_fs, id, content) =>
+		id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content,
 	);
 	assert.is(genResults.inputCount, 3);
 	assert.is(genResults.outputCount, 4);
@@ -163,7 +158,7 @@ test__gen('failing gen function', async () => {
 		},
 	};
 	const genModulesByInputPath: GenModuleMeta[] = [modA, modB];
-	const genResults = await runGen(fs, genModulesByInputPath, GenConfig.parse({}), log);
+	const genResults = await runGen(fs, genModulesByInputPath, log);
 	assert.is(genResults.inputCount, 2);
 	assert.is(genResults.outputCount, 1);
 	assert.is(genResults.successes.length, 1);
