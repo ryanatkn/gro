@@ -34,8 +34,17 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 });
 
 // TODO do this more robustly (handle `/`?)
-const toSchemaName = ($id: string) =>
-	$id.startsWith('/schemas/') && $id.endsWith('.json') ? $id.substring(9, $id.length - 5) : $id;
+const parseSchemaName = ($id: string): string | null =>
+	$id.startsWith('/schemas/') && $id.endsWith('.json') ? $id.substring(9, $id.length - 5) : null;
+
+// TODO make an option, is very hardcoded
+const toSchemaImport = ($id: string): string | null => {
+	if (!$id.startsWith('/schemas/') || !$id.endsWith('.json')) return null;
+	const name = $id.substring(9, $id.length - 5);
+	if (!name.endsWith('Id')) return null;
+	const n = name.slice(0, -2).toLowerCase();
+	return `import type {${name}} from '$lib/vocab/${n}/${n}';`;
+};
 
 /**
  * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
@@ -43,10 +52,18 @@ const toSchemaName = ($id: string) =>
  */
 export const inferSchemaTypes = (schema: VocabSchema): void => {
 	traverse(schema, (key, value, obj) => {
-		if (key === '$ref' && !('tsType' in obj)) {
-			obj.tsType = toSchemaName(value);
-		} else if (key === 'instanceof' && !('tsType' in obj)) {
-			obj.tsType = value;
+		if (key === '$ref') {
+			if (!('tsType' in obj)) {
+				const tsType = parseSchemaName(value);
+				if (tsType) obj.tsType = tsType;
+			}
+			if (!('tsImport' in obj)) {
+				const tsImport = toSchemaImport(value);
+				console.log(`tsImport, value`, tsImport, value);
+				if (tsImport) obj.tsImport = tsImport;
+			}
+		} else if (key === 'instanceof') {
+			if (!('tsType' in obj)) obj.tsType = value;
 		}
 	});
 };
