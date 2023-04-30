@@ -5,7 +5,7 @@ task was originally designed to support static deployments to
 [GitHub pages](https://pages.github.com/),
 but what it actually does is just [build](./build.md) and push to a branch.
 
-Importantly, Gro **destructively force pushes** to the `deploy` branch.
+Importantly, Gro **destructively force pushes** to the `--target` branch, `deploy` by default.
 This is because Gro treats your deployment
 branch as disposable, able to be deleted or squashed or whatever whenever.
 Internally, `gro deploy` uses [git worktree](https://git-scm.com/docs/git-worktree)
