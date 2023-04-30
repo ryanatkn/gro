@@ -19,6 +19,9 @@ Needs design work for its scope to be clear.
 gro deploy # prepare dist/ and commit it to the `deploy` branch, then push to go live
 gro deploy --source my-branch # deploy from `my-branch` instead of the default `main`
 gro deploy --target custom-deploy-branch # deploy to `custom-deploy-branch` instead of the default `deploy` -- WARNING! this force pushes to the target branch!
+# the above actually fails because force pushing is destructive, so add `--force` to be extra clear:
+gro deploy --target custom-deploy-branch --force
+# TODO maybe it should be `--dangerous-target-branch` instead of `--target` and `--force`?
 gro deploy --dry # prepare dist/ but don't commit or push
 gro deploy --clean # if something goes wrong, use this to reset git and gro state
 ```
