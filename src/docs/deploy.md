@@ -13,7 +13,7 @@ for tidiness.
 
 `gro deploy` needs some refactoring to be more generic,
 but it works for simple cases beyond "static deployments".
-Needs more work for its scope to be clear.
+Needs design work for its scope to be clear.
 
 ```bash
 gro deploy # prepare dist/ and commit it to the `deploy` branch, then push to go live
