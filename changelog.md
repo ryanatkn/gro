@@ -1,5 +1,10 @@
 # changelog
 
+## 0.75.3
+
+- upgrade deps
+  ([#371](https://github.com/feltjs/gro/pull/371))
+
 ## 0.75.2
 
 - de-dupe when generating types
