@@ -1,6 +1,7 @@
 export type {Task, TaskContext} from './task/task.js';
 export type {Args, ArgsSchema, ArgSchema, ArgsProperties} from './utils/args.js';
 export type {Gen, GenContext} from './gen/gen.js';
+export type {VocabSchema} from './utils/schema.js';
 
 // export all of the main config helpers and types
 export {loadConfig, toConfig} from './config/config.js';

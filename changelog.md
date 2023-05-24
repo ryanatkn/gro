@@ -1,5 +1,9 @@
 # changelog
 
+## 0.75.4
+
+- export `VocabSchema` type from root
+
 ## 0.75.3
 
 - upgrade deps
