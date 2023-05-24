@@ -3,6 +3,7 @@
 ## 0.75.4
 
 - export `VocabSchema` type from root
+  ([commit](https://github.com/feltjs/gro/commit/8b3956994060165cccf7c0d6b692ea8e89b7e63a))
 
 ## 0.75.3
 
