@@ -2,8 +2,9 @@
 
 ## 0.75.5
 
-- update `@ryanatkn/json-schema-to-typescript` dep,
+- upgrade `@ryanatkn/json-schema-to-typescript` dep,
   changing `tsImport` type from `string` to `string | string[]`
+  ([commit](https://github.com/feltjs/gro/commit/ff088ae789486fb1348d894078c3a1c2bbb2974a))
 
 ## 0.75.4
 
