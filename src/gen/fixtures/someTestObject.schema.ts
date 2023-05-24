@@ -1,6 +1,6 @@
-import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
+import type {VocabSchema} from '../../utils/schema.js';
 
-export const SomeTestObjectSchema: JSONSchema = {
+export const SomeTestObjectSchema: VocabSchema = {
 	$id: 'https://grocode.org/schemas/SomeTestObject.json',
 	type: 'object',
 	properties: {
