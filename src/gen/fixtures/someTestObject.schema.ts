@@ -31,6 +31,7 @@ export const SomeTestObjectSchema: VocabSchema = {
 		},
 	},
 	required: ['a', 'b'],
+	tsImport: [],
 	additionalProperties: false,
 };
 

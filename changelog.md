@@ -1,5 +1,10 @@
 # changelog
 
+## 0.75.5
+
+- update `@ryanatkn/json-schema-to-typescript` dep,
+  changing `tsImport` type from `string` to `string | string[]`
+
 ## 0.75.4
 
 - export `VocabSchema` type from root
