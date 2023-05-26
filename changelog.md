@@ -3,6 +3,7 @@
 ## 0.77.0
 
 - **break**: move `toVocabSchema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`
+  ([commit](https://github.com/feltjs/gro/commit/21a107633f950ffb540b180b57fc3227146993c5))
 
 ## 0.76.1
 
