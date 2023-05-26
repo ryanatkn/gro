@@ -33,7 +33,12 @@ export const bundleSchemas = (
 		$id,
 		$schema,
 		title,
-		$defs: structuredClone(schemas).sort((a, b) => a.$anchor.localeCompare(b.$anchor)),
+		$defs: structuredClone(schemas)
+			.sort((a, b) => a.$anchor.localeCompare(b.$anchor))
+			.reduce(($defs, schema) => {
+				$defs[schema.$anchor] = schema;
+				return $defs;
+			}, {} as Record<string, VocabSchema>),
 	};
 	return schema;
 };
