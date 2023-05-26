@@ -259,7 +259,7 @@ export const task: Task<DosomethingArgs> = {
 import type {ArgsSchema} from '@feltjs/gro';
 
 export const DosomethingArgsSchema: ArgsSchema = {
-	$id: '/schemas/DosomethingArgs.json',
+	$anchor: 'DosomethingArgs',
 	type: 'object',
 	properties: {
 		yepyep: {type: 'string', default: 'ya', description: 'helpful info'},

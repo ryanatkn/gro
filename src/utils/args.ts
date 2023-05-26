@@ -43,7 +43,6 @@ export const serializeArgs = (args: Args): string[] => {
 };
 
 // TODO allow schema composition with things like `allOf` instead of requiring properties
-// TODO should this extend `VocabSchema` so we get `$id`?
 export interface ArgsSchema extends JSONSchema {
 	type: 'object';
 	properties: ArgsProperties;

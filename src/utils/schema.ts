@@ -7,14 +7,16 @@ import type {GenContext} from '../gen/gen';
 
 /**
  * Vocab schemas have `$anchor` instead of `$id`,
- * and are expected to be transformed or bundled with `bundleSchemas`.
+ * and are expected to be transformed or bundled with `bundleSchemas`
+ * to produce a spec-compliant JSONSchema with `$id` and everything.
  */
 export interface VocabSchema extends JSONSchema {
 	$anchor: string;
 }
 
 /**
- * Bundles an array of `VocabSchema`s into a single spec-compliant `JSONSchema`.
+ * Bundles an array of `VocabSchema`s into a single spec-compliant `JSONSchema`
+ * with the given `$id` and `title`.
  * @param schemas
  * @param $id - @example 'https://app.felt.dev/schemas/vocab.json'
  * @param title - @example '@feltjs/felt-server vocab'
@@ -37,7 +39,7 @@ export const bundleSchemas = (
 };
 
 export const isVocabSchema = (value: unknown): value is VocabSchema =>
-	!!value && typeof value === 'object' && '$id' in value;
+	!!value && typeof value === 'object' && '$anchor' in value;
 
 export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, name: string): VocabSchema => {
 	const schema = zodToJsonSchema(t, name);
@@ -46,10 +48,9 @@ export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, name: string
 	return args;
 };
 
-// TODO BLOCK remove all /schemas/ and $id usage
 // TODO BLOCK try to delete this resolver
 /**
- * Creates a custom resolver for `VocabSchema`s supporting paths like "/schemas/Something.json".
+ * Creates a custom resolver for `VocabSchema`s supporting anchor refs like "#Something".
  * @param schemas
  * @returns
  */
@@ -57,22 +58,11 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 	order: 1,
 	canRead: true,
 	read: (file) => {
-		const schema = schemas.find((s) => s.$id === file.url);
+		const schema = schemas.find((s) => s.$anchor === file.url);
 		if (!schema) throw new Error(`Unable to find schema: "${file.url}".`);
 		return JSON.stringify(schema);
 	},
 });
-
-// TODO do this more robustly (handle `/`?)
-const parseSchemaName = ($id: string): string | null =>
-	$id.startsWith('/schemas/') && $id.endsWith('.json') ? $id.substring(9, $id.length - 5) : null;
-
-// TODO make an option, is very hardcoded
-const toSchemaImport = ($id: string, ctx: GenContext): string | null => {
-	if (!$id.startsWith('/schemas/') || !$id.endsWith('.json')) return null;
-	const name = $id.substring(9, $id.length - 5);
-	return name in ctx.imports ? ctx.imports[name] : null;
-};
 
 /**
  * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
@@ -82,8 +72,7 @@ export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => 
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref') {
 			if (!('tsType' in obj)) {
-				const tsType = parseSchemaName(value);
-				if (tsType) obj.tsType = tsType;
+				obj.tsType = value;
 			}
 			if (!('tsImport' in obj)) {
 				const tsImport = toSchemaImport(value, ctx);
@@ -93,4 +82,9 @@ export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => 
 			if (!('tsType' in obj)) obj.tsType = value;
 		}
 	});
+};
+
+// TODO make an option, is very hardcoded
+const toSchemaImport = ($ref: string, ctx: GenContext): string | null => {
+	return $ref in ctx.imports ? ctx.imports[$ref] : null;
 };

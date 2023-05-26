@@ -36,6 +36,6 @@ export const SomeTestObjectSchema: VocabSchema = {
 };
 
 export const SomeTestPrimitiveSchema = {
-	$id: 'https://grocode.org/schemas/SomeTestPrimitive.json',
+	$anchor: 'SomeTestPrimitive',
 	type: 'number',
 };
