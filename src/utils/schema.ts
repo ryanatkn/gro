@@ -48,7 +48,6 @@ export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, name: string
 	return args;
 };
 
-// TODO BLOCK try to delete this resolver
 /**
  * Creates a custom resolver for `VocabSchema`s supporting anchor refs like "#Something".
  * @param schemas

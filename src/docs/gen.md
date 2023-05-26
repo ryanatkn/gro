@@ -149,7 +149,7 @@ Some details:
 - `.schema.` modules may export any number of schemas:
   all top-level exports with the JSONSchema
   [`$anchor`](https://json-schema.org/draft/2020-12/json-schema-core.html#anchor) property
-  are considered to be vocab schemas (this detection may need tweaking)
+  are considered to be vocab schemas by `isVocabSchema` (this detection may need tweaking)
 - vocab schemas suffixed with `Schema` will output types without the suffix,
   as a convenience to avoid name collisions
   (note that your declared `$anchor` should omit the suffix)
