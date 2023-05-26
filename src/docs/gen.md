@@ -114,7 +114,7 @@ export const SomeObjectSchema: VocabSchema = {
 	properties: {
 		a: {type: 'number'},
 		b: {type: 'string'},
-		c: {$ref: '#SomeOtherObject'},
+		c: {$ref: '/schemas/SomeOtherObject'},
 		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from '../dep.js'`},
 		e: {
 			type: 'object',
