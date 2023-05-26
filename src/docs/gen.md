@@ -108,14 +108,15 @@ to automatically generate TypeScript types using
 Given `src/something.schema.ts`:
 
 ```ts
-export const SomeObjectSchema = {
-	$id: 'https://grocode.org/schemas/SomeObject.json',
+export const SomeObjectSchema: VocabSchema = {
+	$id: '/schemas/SomeObject',
 	type: 'object',
 	properties: {
 		a: {type: 'number'},
 		b: {type: 'string'},
-		c: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from '../dep.js'`},
-		d: {
+		c: {$ref: '/schemas/SomeOtherObject'},
+		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from '../dep.js'`},
+		e: {
 			type: 'object',
 			tsType: 'SomeGeneric<Dep>',
 			tsImport: [
@@ -146,15 +147,17 @@ export interface SomeObject {
 Some details:
 
 - `.schema.` modules may export any number of schemas:
-  all top-level exports with an `$id` property
-  are considered to be schemas (this detection may need tweaking)
-- schemas suffixed with `Schema` will output types without the suffix,
+  all top-level exports with the JSONSchema
+  [`$id`](https://json-schema.org/draft/2020-12/json-schema-core.html#anchor) property
+  are considered to be vocab schemas by `isVocabSchema` (this detection may need tweaking)
+- vocab schemas suffixed with `Schema` will output types without the suffix,
   as a convenience to avoid name collisions
   (note that your declared `$id` should omit the suffix)
-- `tsType` is specific to json-schema-to-typescript
-- `tsImport` is specific to Gro; it can be a string or array of strings,
-  and individual statements are de-duped but not currently grouped into single statements,
-  so to properly de-dupe you can't yet import multiple identifiers in the same line
+- `tsType` is specific to
+  [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
+- `tsImport` is specific to the fork
+  [@ryanatkn/json-schema-to-typescript](https://github.com/ryanatkn/json-schema-to-typescript) -
+  it can be a string or array of strings
 
 ### generate other filetypes
 

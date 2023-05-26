@@ -1,5 +1,10 @@
 # changelog
 
+## 0.76.0
+
+- **break**: change `toVocabSchema` to not suffix with `.json`, and add the `bundleSchemas` helper
+  ([#372](https://github.com/feltjs/gro/pull/372))
+
 ## 0.75.5
 
 - upgrade `@ryanatkn/json-schema-to-typescript` dep,

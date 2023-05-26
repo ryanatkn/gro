@@ -1,7 +1,7 @@
 import type {VocabSchema} from '../../utils/schema.js';
 
 export const SomeTestObjectSchema: VocabSchema = {
-	$id: 'https://grocode.org/schemas/SomeTestObject.json',
+	$id: '/schemas/SomeTestObject',
 	type: 'object',
 	properties: {
 		a: {type: 'number'},
@@ -35,7 +35,7 @@ export const SomeTestObjectSchema: VocabSchema = {
 	additionalProperties: false,
 };
 
-export const SomeTestPrimitiveSchema = {
-	$id: 'https://grocode.org/schemas/SomeTestPrimitive.json',
+export const SomeTestPrimitiveSchema: VocabSchema = {
+	$id: '/schemas/SomeTestPrimitive',
 	type: 'number',
 };
