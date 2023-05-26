@@ -1,7 +1,7 @@
 import type {VocabSchema} from '../../utils/schema.js';
 
 export const SomeTestObjectSchema: VocabSchema = {
-	$id: 'https://grocode.org/schemas/SomeTestObject.json',
+	$anchor: 'SomeTestObject',
 	type: 'object',
 	properties: {
 		a: {type: 'number'},
