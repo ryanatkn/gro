@@ -25,8 +25,8 @@ export interface VocabSchema extends JSONSchema {
  */
 export const bundleSchemas = (
 	schemas: VocabSchema[],
-	title: string,
 	$id: string,
+	title: string,
 	$schema = 'https://json-schema.org/draft/2020-12/schema',
 ): JSONSchema => {
 	const schema: JSONSchema = {
