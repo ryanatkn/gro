@@ -35,7 +35,7 @@ export const SomeTestObjectSchema: VocabSchema = {
 	additionalProperties: false,
 };
 
-export const SomeTestPrimitiveSchema = {
+export const SomeTestPrimitiveSchema: VocabSchema = {
 	$id: '/schemas/SomeTestPrimitive',
 	type: 'number',
 };
