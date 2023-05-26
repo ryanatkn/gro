@@ -1,5 +1,9 @@
 # changelog
 
+## 0.76.1
+
+- upgrade deps
+
 ## 0.76.0
 
 - **break**: change `toVocabSchema` to not suffix with `.json`, and add the `bundleSchemas` helper
