@@ -46,10 +46,13 @@ export const bundleSchemas = (
 export const isVocabSchema = (value: unknown): value is VocabSchema =>
 	!!value && typeof value === 'object' && '$anchor' in value;
 
-export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, name: string): VocabSchema => {
-	const schema = zodToJsonSchema(t, name);
-	const args = (schema.definitions ? schema.definitions[name] : {}) as VocabSchema;
-	args.$anchor = '#' + name;
+export const toVocabSchema = (
+	t: z.ZodType<any, z.ZodTypeDef, any>,
+	$anchor: string,
+): VocabSchema => {
+	const schema = zodToJsonSchema(t, $anchor);
+	const args = (schema.definitions ? schema.definitions[$anchor] : {}) as VocabSchema;
+	args.$anchor = $anchor;
 	return args;
 };
 
