@@ -3,6 +3,7 @@
 ## 0.76.1
 
 - upgrade deps
+  ([commit](https://github.com/feltjs/gro/commit/538bff4b8f092c0e176fc242cab9da7bfa3f2db9))
 
 ## 0.76.0
 
