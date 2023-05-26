@@ -154,10 +154,10 @@ Some details:
   as a convenience to avoid name collisions
   (note that your declared `$id` should omit the suffix)
 - `tsType` is specific to
-  [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript/)
-- `tsImport` is specific to Gro; it can be a string or array of strings,
-  and individual statements are de-duped but not currently grouped into single statements,
-  so to properly de-dupe you can't yet import multiple identifiers in the same line
+  [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
+- `tsImport` is specific to the fork
+  [@ryanatkn/json-schema-to-typescript](https://github.com/ryanatkn/json-schema-to-typescript) -
+  it can be a string or array of strings
 
 ### generate other filetypes
 
