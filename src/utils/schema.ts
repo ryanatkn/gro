@@ -79,7 +79,7 @@ export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => 
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref') {
 			if (!('tsType' in obj)) {
-				obj.tsType = value;
+				obj.tsType = value.substring(1);
 			}
 			if (!('tsImport' in obj)) {
 				const tsImport = toSchemaImport(value, ctx);
@@ -93,5 +93,6 @@ export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => 
 
 // TODO make an option, is very hardcoded
 const toSchemaImport = ($ref: string, ctx: GenContext): string | null => {
-	return $ref in ctx.imports ? ctx.imports[$ref] : null;
+	const $anchor = $ref.substring(1);
+	return $anchor in ctx.imports ? ctx.imports[$anchor] : null;
 };
