@@ -1,5 +1,9 @@
 # changelog
 
+## 0.78.0
+
+- **break**: change schema bundling to use the parsed name in `$defs` instead of the `$id`
+
 ## 0.77.0
 
 - **break**: move `toVocabSchema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`

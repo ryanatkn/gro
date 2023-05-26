@@ -29,7 +29,9 @@ export const bundleSchemas = (
 	schema.$defs = structuredClone(schemas)
 		.sort((a, b) => a.$id.localeCompare(b.$id))
 		.reduce(($defs, schema) => {
-			$defs[schema.$id] = schema;
+			const name = parseSchemaName(schema.$id);
+			if (!name) throw Error(`Unable to parse schema name: "${schema.$id}"`);
+			$defs[name] = schema;
 			return $defs;
 		}, {} as Record<string, VocabSchema>);
 	return schema;
