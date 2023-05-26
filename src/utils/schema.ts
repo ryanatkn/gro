@@ -17,8 +17,10 @@ export interface VocabSchema extends JSONSchema {
 /**
  * Bundles an array of `VocabSchema`s into a single spec-compliant `JSONSchema`
  * with the given `$id` and `title`.
+ * @see https://json-schema.org/draft/2020-12/json-schema-core.html#name-bundling
+ * @see https://json-schema.org/understanding-json-schema/structuring.html#bundling
  * @param schemas
- * @param $id - @example 'https://app.felt.dev/schemas/vocab.json'
+ * @param $id - @example '/schemas/vocab.json'
  * @param title - @example '@feltjs/felt-server vocab'
  * @param $schema - Defaults to version 2020-12.
  * @returns
