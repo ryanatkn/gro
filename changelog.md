@@ -3,6 +3,7 @@
 ## 0.78.0
 
 - **break**: change schema bundling to use the parsed name in `$defs` instead of the `$id`
+  ([commit](https://github.com/feltjs/gro/commit/b5623e2867196823bb146c4794dde035ce6e7fc5))
 
 ## 0.77.0
 
