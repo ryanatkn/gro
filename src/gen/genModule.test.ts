@@ -23,7 +23,7 @@ test__validateGenModule('basic invalid module', () => {
 
 test__validateGenModule('schema minimal interface', () => {
 	assert.ok(validateGenModule.schema({}));
-	assert.ok(validateGenModule.schema({SomeSchema: {$anchor: '#SomeSchema'}}));
+	assert.ok(validateGenModule.schema({SomeSchema: {$id: '#SomeSchema'}}));
 });
 
 test__validateGenModule('schema invalid module', () => {

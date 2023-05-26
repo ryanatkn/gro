@@ -5,13 +5,8 @@ import type z from 'zod';
 import {zodToJsonSchema} from 'zod-to-json-schema';
 import type {GenContext} from '../gen/gen';
 
-/**
- * Vocab schemas have `$anchor` instead of `$id`,
- * and are expected to be transformed or bundled with `bundleSchemas`
- * to produce a spec-compliant JSONSchema with `$id` and everything.
- */
 export interface VocabSchema extends JSONSchema {
-	$anchor: string;
+	$id: string;
 }
 
 /**
@@ -34,24 +29,21 @@ export const bundleSchemas = (
 	const schema: JSONSchema = {$id, $schema};
 	if (title) schema.title = title;
 	schema.$defs = structuredClone(schemas)
-		.sort((a, b) => a.$anchor.localeCompare(b.$anchor))
+		.sort((a, b) => a.$id.localeCompare(b.$id))
 		.reduce(($defs, schema) => {
-			$defs[schema.$anchor] = schema;
+			$defs[schema.$id] = schema;
 			return $defs;
 		}, {} as Record<string, VocabSchema>);
 	return schema;
 };
 
 export const isVocabSchema = (value: unknown): value is VocabSchema =>
-	!!value && typeof value === 'object' && '$anchor' in value;
+	!!value && typeof value === 'object' && '$id' in value;
 
-export const toVocabSchema = (
-	t: z.ZodType<any, z.ZodTypeDef, any>,
-	$anchor: string,
-): VocabSchema => {
-	const schema = zodToJsonSchema(t, $anchor);
-	const args = (schema.definitions ? schema.definitions[$anchor] : {}) as VocabSchema;
-	args.$anchor = $anchor;
+export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, $id: string): VocabSchema => {
+	const schema = zodToJsonSchema(t, $id);
+	const args = (schema.definitions ? schema.definitions[$id] : {}) as VocabSchema;
+	args.$id = $id;
 	return args;
 };
 
@@ -64,7 +56,7 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
 	order: 1,
 	canRead: true,
 	read: (file) => {
-		const schema = schemas.find((s) => s.$anchor === file.url);
+		const schema = schemas.find((s) => s.$id === file.url);
 		if (!schema) throw new Error(`Unable to find schema: "${file.url}".`);
 		return JSON.stringify(schema);
 	},
@@ -92,6 +84,6 @@ export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => 
 
 // TODO make an option, is very hardcoded
 const toSchemaImport = ($ref: string, ctx: GenContext): string | null => {
-	const $anchor = $ref.substring(1);
-	return $anchor in ctx.imports ? ctx.imports[$anchor] : null;
+	const $id = $ref.substring(1);
+	return $id in ctx.imports ? ctx.imports[$id] : null;
 };

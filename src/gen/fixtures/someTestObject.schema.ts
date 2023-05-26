@@ -1,7 +1,7 @@
 import type {VocabSchema} from '../../utils/schema.js';
 
 export const SomeTestObjectSchema: VocabSchema = {
-	$anchor: 'SomeTestObject',
+	$id: 'SomeTestObject',
 	type: 'object',
 	properties: {
 		a: {type: 'number'},
@@ -36,6 +36,6 @@ export const SomeTestObjectSchema: VocabSchema = {
 };
 
 export const SomeTestPrimitiveSchema = {
-	$anchor: 'SomeTestPrimitive',
+	$id: 'SomeTestPrimitive',
 	type: 'number',
 };

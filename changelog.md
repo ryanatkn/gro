@@ -1,9 +1,8 @@
 # changelog
 
-## 0.76.0
+## 0.75.6
 
-- **break**: replace `$id` on `VocabSchema` with `$anchor`,
-  and add the `bundleSchemas` helper
+- add the `bundleSchemas` helper
   ([#372](https://github.com/feltjs/gro/pull/372))
 
 ## 0.75.5
