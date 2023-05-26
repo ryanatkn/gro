@@ -28,20 +28,17 @@ export interface VocabSchema extends JSONSchema {
 export const bundleSchemas = (
 	schemas: VocabSchema[],
 	$id: string,
-	title: string,
+	title: string | undefined = undefined,
 	$schema = 'https://json-schema.org/draft/2020-12/schema',
 ): JSONSchema => {
-	const schema: JSONSchema = {
-		$id,
-		$schema,
-		title,
-		$defs: structuredClone(schemas)
-			.sort((a, b) => a.$anchor.localeCompare(b.$anchor))
-			.reduce(($defs, schema) => {
-				$defs[schema.$anchor] = schema;
-				return $defs;
-			}, {} as Record<string, VocabSchema>),
-	};
+	const schema: JSONSchema = {$id, $schema};
+	if (title) schema.title = title;
+	schema.$defs = structuredClone(schemas)
+		.sort((a, b) => a.$anchor.localeCompare(b.$anchor))
+		.reduce(($defs, schema) => {
+			$defs[schema.$anchor] = schema;
+			return $defs;
+		}, {} as Record<string, VocabSchema>);
 	return schema;
 };
 
