@@ -1,8 +1,6 @@
 import {traverse} from '@feltjs/util/object.js';
 import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
-import type z from 'zod';
-import {zodToJsonSchema} from 'zod-to-json-schema';
 import type {GenContext} from '../gen/gen';
 
 export interface VocabSchema extends JSONSchema {
@@ -39,13 +37,6 @@ export const bundleSchemas = (
 
 export const isVocabSchema = (value: unknown): value is VocabSchema =>
 	!!value && typeof value === 'object' && '$id' in value;
-
-export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, name: string): VocabSchema => {
-	const schema = zodToJsonSchema(t, name);
-	const args = (schema.definitions ? schema.definitions[name] : {}) as VocabSchema;
-	args.$id = `/schemas/${name}`;
-	return args;
-};
 
 /**
  * Creates a custom resolver for `VocabSchema`s supporting refs like `/schemas/Something`.

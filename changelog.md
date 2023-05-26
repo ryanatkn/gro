@@ -1,5 +1,9 @@
 # changelog
 
+## 0.77.0
+
+- **break**: move `toVocabSchema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`
+
 ## 0.76.1
 
 - upgrade deps

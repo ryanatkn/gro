@@ -6,7 +6,7 @@ import {printValue} from '@feltjs/util/print.js';
 import type {ArgSchema, ArgsSchema} from '../utils/args.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
-import {toVocabSchema} from '../utils/schema.js';
+import {toVocabSchema} from '../utils/schemaHelpers.js';
 
 export const logAvailableTasks = async (
 	log: Logger,
