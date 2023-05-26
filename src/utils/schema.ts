@@ -48,7 +48,7 @@ export const toVocabSchema = (t: z.ZodType<any, z.ZodTypeDef, any>, $id: string)
 };
 
 /**
- * Creates a custom resolver for `VocabSchema`s supporting anchor refs like "#Something".
+ * Creates a custom resolver for `VocabSchema`s supporting refs like `/schemas/Something`.
  * @param schemas
  * @returns
  */
@@ -70,7 +70,8 @@ export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => 
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref') {
 			if (!('tsType' in obj)) {
-				obj.tsType = value.substring(1);
+				const tsType = parseSchemaName(value);
+				if (tsType) obj.tsType = tsType;
 			}
 			if (!('tsImport' in obj)) {
 				const tsImport = toSchemaImport(value, ctx);
@@ -82,8 +83,13 @@ export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => 
 	});
 };
 
+const VOCAB_SCHEMA_ID_MATCHER = /^\/schemas\/(\w+)$/u;
+
+export const parseSchemaName = ($id: string): string | null =>
+	VOCAB_SCHEMA_ID_MATCHER.exec($id)?.[1] || null;
+
 // TODO make an option, is very hardcoded
-const toSchemaImport = ($ref: string, ctx: GenContext): string | null => {
-	const $id = $ref.substring(1);
-	return $id in ctx.imports ? ctx.imports[$id] : null;
+const toSchemaImport = ($id: string, ctx: GenContext): string | null => {
+	const name = parseSchemaName($id);
+	return name && name in ctx.imports ? ctx.imports[name] : null;
 };
