@@ -12,7 +12,7 @@ import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
-import type { IdFilter } from '../fs/filter.js';
+import type {IdFilter} from '../fs/filter.js';
 
 export type SourceFile = TextSourceFile | BinarySourceFile;
 
