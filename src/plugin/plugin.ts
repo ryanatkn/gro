@@ -1,9 +1,9 @@
-import {toArray} from '@feltcoop/felt/util/array.js';
-import type {Timings} from '@feltcoop/felt/util/timings.js';
+import {toArray} from '@feltjs/util/array.js';
+import type {Timings} from '@feltjs/util/timings.js';
 
-import type {TaskContext} from 'src/task/task.js';
-import type {GroConfig} from 'src/config/config.js';
-import type {Filer} from 'src/build/Filer.js';
+import type {TaskContext} from '../task/task.js';
+import type {GroConfig} from '../config/config.js';
+import type {Filer} from '../build/Filer.js';
 
 /*
 
@@ -20,8 +20,8 @@ export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 
 export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
 	(ctx: TPluginContext):
-		| (Plugin<TPluginContext> | null | (Plugin<TPluginContext> | null)[])
-		| Promise<Plugin<TPluginContext> | null | (Plugin<TPluginContext> | null)[]>;
+		| (Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>)
+		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
 }
 
 export interface PluginContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
@@ -55,7 +55,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 		for (const plugin of instances) {
 			if (!plugin.setup) continue;
 			const timing = timings.start(`setup:${plugin.name}`);
-			await plugin.setup(ctx);
+			await plugin.setup(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
 		timingToSetup();
@@ -69,7 +69,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 		for (const plugin of instances) {
 			if (!plugin.teardown) continue;
 			const timing = timings.start(`teardown:${plugin.name}`);
-			await plugin.teardown(ctx);
+			await plugin.teardown(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
 		timingToTeardown();

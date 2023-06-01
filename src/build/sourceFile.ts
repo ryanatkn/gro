@@ -1,23 +1,21 @@
 import {basename, dirname} from 'path';
-import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import {stripStart} from '@feltcoop/felt/util/string.js';
+import {UnreachableError} from '@feltjs/util/error.js';
+import {stripStart} from '@feltjs/util/string.js';
 
-import type {NonBuildableFilerDir, BuildableFilerDir, FilerDir} from 'src/build/filerDir.js';
-import {reconstructBuildFiles} from './buildFile.js';
-import type {BuildFile} from 'src/build/buildFile.js';
-import type {BaseFilerFile} from 'src/build/filerFile.js';
+import type {FilerDir} from './filerDir.js';
+import {reconstructBuildFiles, type BuildFile} from './buildFile.js';
+import type {BaseFilerFile} from './filerFile.js';
 import {toHash} from './utils.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
-import type {Encoding} from 'src/fs/encoding.js';
-import type {FilerFile} from 'src/build/Filer.js';
-import type {SourceMeta} from 'src/build/sourceMeta.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
-import type {BuildContext} from 'src/build/builder.js';
-import type {IdFilter} from 'src/fs/filter.js';
+import type {BuildConfig} from './buildConfig.js';
+import type {Encoding} from '../fs/encoding.js';
+import type {FilerFile} from './Filer.js';
+import type {SourceMeta} from './sourceMeta.js';
+import type {BuildDependency} from './buildDependency.js';
+import type {BuildContext} from './builder.js';
+import type { IdFilter } from '../fs/filter.js';
 
-export type SourceFile = BuildableSourceFile | NonBuildableSourceFile;
-export type BuildableSourceFile = BuildableTextSourceFile | BuildableBinarySourceFile;
-export type NonBuildableSourceFile = NonBuildableTextSourceFile | NonBuildableBinarySourceFile;
+export type SourceFile = TextSourceFile | BinarySourceFile;
+
 export interface TextSourceFile extends BaseSourceFile {
 	readonly encoding: 'utf8';
 	content: string;
@@ -30,34 +28,13 @@ export interface BinarySourceFile extends BaseSourceFile {
 export interface BaseSourceFile extends BaseFilerFile {
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
-}
-export interface BuildableTextSourceFile extends TextSourceFile, BaseBuildableFile {
-	readonly filerDir: BuildableFilerDir;
-}
-export interface BuildableBinarySourceFile extends BinarySourceFile, BaseBuildableFile {
-	readonly filerDir: BuildableFilerDir;
-}
-export interface BaseBuildableFile {
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 	readonly dependencies: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
 	readonly dependents: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
-	readonly buildable: true;
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
-}
-export interface NonBuildableTextSourceFile extends TextSourceFile, BaseNonBuildableFile {}
-export interface NonBuildableBinarySourceFile extends BinarySourceFile, BaseNonBuildableFile {}
-export interface BaseNonBuildableFile {
-	readonly filerDir: NonBuildableFilerDir;
-	readonly buildFiles: null;
-	readonly buildConfigs: null;
-	readonly isInputToBuildConfigs: null;
-	readonly dependencies: null;
-	readonly dependents: null;
-	readonly buildable: false;
-	readonly dirty: false;
 }
 
 export const createSourceFile = async (
@@ -73,7 +50,7 @@ export const createSourceFile = async (
 	let contentHash: string | undefined = undefined;
 	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
 	let dirty = false;
-	if (filerDir.buildable && sourceMeta !== undefined) {
+	if (sourceMeta !== undefined) {
 		// TODO why the source meta guard here for `contentBuffer` and `contentHash`?
 		if (encoding === 'utf8') {
 			contentBuffer = Buffer.from(content);
@@ -92,97 +69,49 @@ export const createSourceFile = async (
 	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 	switch (encoding) {
 		case 'utf8':
-			return filerDir.buildable
-				? {
-						type: 'source',
-						buildConfigs: new Set(),
-						isInputToBuildConfigs: null,
-						dependencies: new Map(),
-						dependents: new Map(),
-						buildable: true,
-						dirty,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						content: content as string,
-						contentBuffer,
-						contentHash,
-						filerDir,
-						buildFiles: reconstructedBuildFiles || new Map(),
-						stats: undefined,
-						mimeType: undefined,
-				  }
-				: {
-						type: 'source',
-						buildConfigs: null,
-						isInputToBuildConfigs: null,
-						dependencies: null,
-						dependents: null,
-						buildable: false,
-						dirty: false,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						content: content as string,
-						contentBuffer,
-						contentHash,
-						filerDir,
-						buildFiles: null,
-						stats: undefined,
-						mimeType: undefined,
-				  };
+			return {
+				type: 'source',
+				buildConfigs: new Set(),
+				isInputToBuildConfigs: null,
+				dependencies: new Map(),
+				dependents: new Map(),
+				dirty,
+				id,
+				filename,
+				dir,
+				dirBasePath,
+				extension,
+				encoding,
+				content: content as string,
+				contentBuffer,
+				contentHash,
+				filerDir,
+				buildFiles: reconstructedBuildFiles || new Map(),
+				stats: undefined,
+				mimeType: undefined,
+			};
 		case null:
-			return filerDir.buildable
-				? {
-						type: 'source',
-						buildConfigs: new Set(),
-						isInputToBuildConfigs: null,
-						dependencies: new Map(),
-						dependents: new Map(),
-						buildable: true,
-						dirty,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						content: content as Buffer,
-						contentBuffer: contentBuffer as Buffer,
-						contentHash,
-						filerDir,
-						buildFiles: reconstructedBuildFiles || new Map(),
-						stats: undefined,
-						mimeType: undefined,
-				  }
-				: {
-						type: 'source',
-						buildConfigs: null,
-						isInputToBuildConfigs: null,
-						dependencies: null,
-						dependents: null,
-						buildable: false,
-						dirty: false,
-						id,
-						filename,
-						dir,
-						dirBasePath,
-						extension,
-						encoding,
-						content: content as Buffer,
-						contentBuffer: contentBuffer as Buffer,
-						contentHash,
-						filerDir,
-						buildFiles: null,
-						stats: undefined,
-						mimeType: undefined,
-				  };
+			return {
+				type: 'source',
+				buildConfigs: new Set(),
+				isInputToBuildConfigs: null,
+				dependencies: new Map(),
+				dependents: new Map(),
+				dirty,
+				id,
+				filename,
+				dir,
+				dirBasePath,
+				extension,
+				encoding,
+				content: content as Buffer,
+				contentBuffer: contentBuffer!,
+				contentHash,
+				filerDir,
+				buildFiles: reconstructedBuildFiles || new Map(),
+				stats: undefined,
+				mimeType: undefined,
+			};
 		default:
 			throw new UnreachableError(encoding);
 	}
@@ -194,15 +123,6 @@ export function assertSourceFile(file: FilerFile | undefined | null): asserts fi
 	}
 	if (file.type !== 'source') {
 		throw Error(`Expected a source file, but type is ${file.type}: ${file.id}`);
-	}
-}
-
-export function assertBuildableSourceFile(
-	file: FilerFile | undefined | null,
-): asserts file is BuildableSourceFile {
-	assertSourceFile(file);
-	if (!file.buildable) {
-		throw Error(`Expected file to be buildable: ${file.id}`);
 	}
 }
 

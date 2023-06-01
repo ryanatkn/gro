@@ -1,17 +1,20 @@
 import {createInterface as createReadlineInterface} from 'readline';
-import {spawn} from '@feltcoop/felt/util/process.js';
-import {green, bgBlack, rainbow, cyan, red, yellow} from '@feltcoop/felt/util/terminal.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
-import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import type {Flavored, Result} from '@feltcoop/felt/util/types.js';
+import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
+import type {Logger} from '@feltjs/util/log.js';
+import {UnreachableError} from '@feltjs/util/error.js';
+import type {Flavored, Result} from '@feltjs/util';
+import {spawn} from '@feltjs/util/process.js';
+import {z} from 'zod';
 
-import type {Task} from 'src/task/task.js';
+import {rainbow} from './utils/colors.js';
+import type {Task} from './task/task.js';
 import {loadPackageJson} from './utils/packageJson.js';
-import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Filesystem} from './fs/filesystem.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
+import {toRawRestArgs} from './utils/args.js';
+import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -20,18 +23,34 @@ import {isThisProjectGro} from './paths.js';
 // - publishes to npm from the `main` branch, configurable with `--branch`
 // - syncs commits and tags to the configured main branch
 
-export interface TaskArgs {
-	_: string[];
-	branch?: string;
-	dry?: boolean; // run without changing git or npm
-	restricted?: string; // if `true`, package is not public
-}
+const Args = z
+	.object({
+		_: z
+			.array(z.string(), {description: 'npm version increment, like major|minor|patch'})
+			.default([]),
+		branch: z.string({description: 'branch to publish from'}).default(GIT_DEPLOY_SOURCE_BRANCH),
+		dry: z
+			.boolean({
+				description:
+					'build and prepare to publish without actually publishing, for diagnostic and testing purposes',
+			})
+			.default(false),
+		restricted: z
+			.boolean({
+				description:
+					'if true, the package is published privately instead of the public default, using `npm publish --access restricted`',
+			})
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
 
-export const task: Task<TaskArgs> = {
-	summary: 'bump version, publish to npm, and sync to GitHub',
+export const task: Task<Args> = {
+	summary: 'bump version, publish to npm, and git push',
 	production: true,
+	Args,
 	run: async ({fs, args, log, dev}): Promise<void> => {
-		const {branch = GIT_DEPLOY_BRANCH, dry = false, restricted = false} = args;
+		const {branch, dry, restricted} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
 		}
@@ -43,9 +62,9 @@ export const task: Task<TaskArgs> = {
 		const publishContext = await confirmWithUser(fs, versionIncrement, dry, log);
 
 		// Make sure we're on the right branch:
-		// TODO see how the deploy task uses git, probably do that instead
 		await spawn('git', ['fetch', 'origin', branch]);
 		await spawn('git', ['checkout', branch]);
+		await spawn('git', ['pull', 'origin', branch]);
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
 		await cleanFs(fs, {build: true, dist: true}, log);
@@ -55,7 +74,7 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Check in dev mode before proceeding.
-		const checkResult = await spawn('npx', ['gro', 'check'], {
+		const checkResult = await spawn('npx', ['gro', 'check', ...toRawRestArgs()], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
 		if (!checkResult.ok) throw Error('gro check failed');
@@ -69,7 +88,7 @@ export const task: Task<TaskArgs> = {
 		}
 
 		// Build to create the final artifacts:
-		const buildResult = await spawn('npx', ['gro', 'build']);
+		const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
 		if (!buildResult.ok) throw Error('gro build failed');
 
 		const config = await loadConfig(fs, dev);
@@ -103,67 +122,68 @@ const confirmWithUser = async (
 	log: Logger,
 ): Promise<PublishContext> => {
 	const readline = createReadlineInterface({input: process.stdin, output: process.stdout});
-	return new Promise<PublishContext>(async (resolve) => {
-		const [[currentChangelogVersion, previousChangelogVersion], currentPackageVersion] =
-			await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
+	const [[currentChangelogVersion, previousChangelogVersion], currentPackageVersion] =
+		await Promise.all([getChangelogVersions(fs), getCurrentPackageVersion(fs)]);
+	let errored = false;
+	const logError: Logger['error'] = (...args) => {
+		errored = true;
+		log.error(...args);
+	};
 
-		let errored = false;
-		const logError: Logger['error'] = (...args) => {
-			errored = true;
-			log.error(...args);
-		};
+	if (currentChangelogVersion === currentPackageVersion) {
+		logError(
+			red('New changelog version matches old package version.'),
+			'Is the changelog updated?',
+		);
+	}
+	if (previousChangelogVersion && previousChangelogVersion !== currentPackageVersion) {
+		logError(
+			red('Old changelog version does not match old package version.'),
+			'Is there an unpublished version in the changelog?',
+		);
+	}
 
-		if (currentChangelogVersion === currentPackageVersion) {
+	const publishContext: PublishContext = {
+		currentPackageVersion,
+		currentChangelogVersion,
+		previousChangelogVersion,
+	};
+
+	if (isStandardVersionIncrement(versionIncrement)) {
+		const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
+		if (!result.ok) {
 			logError(
-				red('New changelog version matches old package version.'),
-				'Is the changelog updated?',
+				red('Failed to validate standard version increment compared to changelog:'),
+				result.reason,
 			);
 		}
-		if (previousChangelogVersion && previousChangelogVersion !== currentPackageVersion) {
-			logError(
-				red('Old changelog version does not match old package version.'),
-				'Is there an unpublished version in the changelog?',
-			);
-		}
+	} else {
+		errored = true;
+		log.warn(
+			red(`Unknown version increment "${versionIncrement}":`),
+			'gro supports only major|minor|patch:',
+			yellow('please review the following carefully:'),
+		);
+	}
 
-		const publishContext: PublishContext = {
-			currentPackageVersion,
-			currentChangelogVersion,
-			previousChangelogVersion,
-		};
+	const color = errored ? yellow : green;
+	log.info(color(versionIncrement), '← version increment');
+	log.info(color(currentChangelogVersion || '<empty>'), '← new changelog version');
+	log.info(color(previousChangelogVersion || '<empty>'), '← old changelog version');
+	log.info(color(currentPackageVersion), '← old package version');
 
-		if (isStandardVersionIncrement(versionIncrement)) {
-			const result = validateStandardVersionIncrementParts(versionIncrement, publishContext);
-			if (!result.ok) {
-				logError(
-					red('Failed to validate standard version increment compared to changelog:'),
-					result.reason,
-				);
-			}
-		} else {
-			errored = true;
-			log.warn(
-				red(`Unknown version increment "${versionIncrement}":`),
-				'gro supports only major|minor|patch:',
-				yellow('please review the following carefully:'),
-			);
-		}
-
-		const color = errored ? yellow : green;
-		log.info(color(versionIncrement), '← version increment');
-		log.info(color(currentChangelogVersion || '<empty>'), '← new changelog version');
-		log.info(color(previousChangelogVersion || '<empty>'), '← old changelog version');
-		log.info(color(currentPackageVersion), '← old package version');
-
-		const expectedAnswer = errored ? 'yes!!' : 'y';
-		if (errored) {
-			log.warn(yellow(`there's an error or uncheckable condition above`));
-		}
+	const expectedAnswer = errored ? 'yes!!' : 'y';
+	if (errored) {
+		log.warn(yellow(`there's an error or uncheckable condition above`));
+	}
+	return new Promise<PublishContext>((resolve) => {
 		readline.question(
 			bgBlack(
-				`does this look correct? ${
-					errored ? red(`if you're sure `) : ''
-				}type "${expectedAnswer}" to proceed`,
+				`${
+					errored
+						? red(`Looks like there may be problems! See above. If you're sure`)
+						: 'Does this look correct?'
+				} Type "${expectedAnswer}" to proceed`,
 			) + ' ',
 			(answer) => {
 				if (answer.toLowerCase() !== expectedAnswer.toLowerCase()) {
@@ -189,7 +209,7 @@ const getChangelogVersions = async (
 	if (!(await fs.exists(CHANGELOG_PATH))) {
 		throw Error(`Publishing requires ${CHANGELOG_PATH} - please create it to continue`);
 	}
-	const changelogMatcher = /##.+/g;
+	const changelogMatcher = /##.+/gu;
 	const changelog = await fs.readFile(CHANGELOG_PATH, 'utf8');
 	const matchCurrent = changelog.match(changelogMatcher);
 	if (!matchCurrent) {
@@ -235,7 +255,7 @@ const isStandardVersionIncrement = (v: string): v is StandardVersionIncrement =>
 const validateStandardVersionIncrementParts = (
 	versionIncrement: StandardVersionIncrement,
 	{currentChangelogVersion, currentPackageVersion, previousChangelogVersion}: PublishContext,
-): Result<{}, {reason: string}> => {
+): Result<object, {reason: string}> => {
 	const currentPackageVersionParts = toVersionParts(currentPackageVersion, 'currentPackageVersion');
 	if (!currentPackageVersionParts.ok) {
 		return currentPackageVersionParts;
@@ -269,27 +289,32 @@ const validateStandardVersionIncrementParts = (
 type VersionParts = [number, number, number];
 const toVersionParts = (
 	version: string,
-	name: string = 'version',
+	name = 'version',
 ): Result<{value: VersionParts}, {reason: string}> => {
-	const value = version.split('.').map((v) => Number(v)) as VersionParts;
-	if (!value) {
+	const value = version.split('.').map((v) => Number(v));
+	if (!value.length) {
 		return {ok: false, reason: `expected ${name} to match major.minor.patch: ${version}`};
 	} else if (value.length !== 3) {
 		return {ok: false, reason: `malformed ${name}: ${version}`};
 	}
-	return {ok: true, value};
+	return {ok: true, value: value as VersionParts};
 };
 const toExpectedNextVersion = (
 	versionIncrement: StandardVersionIncrement,
 	[major, minor, patch]: VersionParts,
 ) => {
-	if (versionIncrement === 'major') {
-		return `${major + 1}.0.0`;
-	} else if (versionIncrement === 'minor') {
-		return `${major}.${minor + 1}.0`;
-	} else if (versionIncrement === 'patch') {
-		return `${major}.${minor}.${patch + 1}`;
-	} else {
-		throw new UnreachableError(versionIncrement);
+	switch (versionIncrement) {
+		case 'major': {
+			return `${major + 1}.0.0`;
+		}
+		case 'minor': {
+			return `${major}.${minor + 1}.0`;
+		}
+		case 'patch': {
+			return `${major}.${minor}.${patch + 1}`;
+		}
+		default: {
+			throw new UnreachableError(versionIncrement);
+		}
 	}
 };

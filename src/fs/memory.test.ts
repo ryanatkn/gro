@@ -1,12 +1,14 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {dirname, resolve} from 'path';
-import {stripTrailingSlash} from '@feltcoop/felt/util/path.js';
-import {toPathParts} from '@feltcoop/felt/util/pathParsing.js';
+import {stripTrailingSlash} from '@feltjs/util/path.js';
+import {toPathParts} from '@feltjs/util/path-parsing.js';
 
-import {fs as memoryFs, MemoryFs} from './memory.js';
+import {fs as memoryFs, type MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
 import {toRootPath} from '../paths.js';
+
+/* eslint-disable no-await-in-loop */
 
 // TODO organize these test suites better
 // TODO generic fs test suite

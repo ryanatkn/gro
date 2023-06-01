@@ -1,14 +1,15 @@
-import {EMPTY_ARRAY} from '@feltcoop/felt/util/array.js';
-import {replaceExtension} from '@feltcoop/felt/util/path.js';
-import {spawn} from '@feltcoop/felt/util/process.js';
+import type {Logger} from '@feltjs/util/log.js';
+import {replaceExtension} from '@feltjs/util/path.js';
+import {spawn} from '@feltjs/util/process.js';
 
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {
 	sourceIdToBasePath,
 	toTypesBuildDir,
-	TS_TYPE_EXTENSION as TS_TYPE_EXTENSION,
+	TS_TYPE_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
 
 /*
 
@@ -35,22 +36,21 @@ export const generateTypes = async (
 	dest: string,
 	sourcemap: boolean,
 	typemap: boolean,
-	tscArgs: string[] = EMPTY_ARRAY,
-) => {
-	const tscResult = await spawn('npx', [
-		'tsc',
-		'--outDir',
-		dest,
-		'--rootDir',
-		src,
-		'--sourceMap',
-		sourcemap ? 'true' : 'false',
-		'--declarationMap',
-		typemap ? 'true' : 'false',
-		'--declaration',
-		'--emitDeclarationOnly',
-		...tscArgs,
-	]);
+	log: Logger,
+): Promise<void> => {
+	const forwardedArgs = {
+		...toForwardedArgs('tsc'),
+		outDir: dest,
+		rootDir: src,
+		sourceMap: sourcemap,
+		declarationMap: typemap,
+		declaration: true,
+		emitDeclarationOnly: true,
+		skipLibCheck: true,
+	};
+	const serializedArgs = ['tsc', ...serializeArgs(forwardedArgs)];
+	log.info(printCommandArgs(serializedArgs));
+	const tscResult = await spawn('npx', serializedArgs);
 	if (!tscResult.ok) {
 		throw Error(`TypeScript failed to compile with code ${tscResult.code}`);
 	}

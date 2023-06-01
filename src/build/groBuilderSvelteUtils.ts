@@ -1,19 +1,17 @@
-import type {ExistingRawSourceMap, PluginContext} from 'rollup';
 import type {compile} from 'svelte/compiler';
 import * as svelte from 'svelte/compiler';
 import type {
 	CompileOptions as SvelteCompileOptions,
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
-import type {PreprocessorGroup} from 'svelte/types/compiler/preprocess';
+import type {PreprocessorGroup, Processed} from 'svelte/types/compiler/preprocess';
 import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
-import type {Logger} from '@feltcoop/felt/util/log.js';
-import {yellow} from '@feltcoop/felt/util/terminal.js';
-import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';
-import type {OmitStrict} from '@feltcoop/felt/util/types.js';
+import type {Logger} from '@feltjs/util/log.js';
+import {yellow} from 'kleur/colors';
+import {printKeyValue, printMs} from '@feltjs/util/print.js';
 
 import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
+import type {EcmaScriptTarget} from './typescriptUtils.js';
 import {printPath} from '../paths.js';
 
 export type CreatePreprocessor = (
@@ -34,17 +32,7 @@ export interface SvelteCompileStats {
 	};
 }
 // TODO type belongs upstream - augmented for better safety
-export type SvelteCompilation = OmitStrict<ReturnType<typeof compile>, 'js' | 'css' | 'stats'> & {
-	js: {
-		code: string;
-		map: ExistingRawSourceMap | undefined;
-	};
-	css: {
-		code: string | null;
-		map: ExistingRawSourceMap | undefined;
-	};
-	stats: SvelteCompileStats;
-};
+export type SvelteCompilation = ReturnType<typeof compile>;
 
 // Commented-out values are the same as the defaults.
 export const baseSvelteCompileOptions: SvelteCompileOptions = {
@@ -74,7 +62,6 @@ export const handleWarn = (
 	warning: SvelteWarning,
 	_handleWarn: (id: string, warning: SvelteWarning, ...args: any[]) => void,
 	log: Logger,
-	_pluginOntext?: PluginContext,
 ): void => {
 	const warnArgs: any[] = [printPath(id)];
 	if (warning.frame) {
@@ -90,9 +77,8 @@ export const handleStats = (
 	stats: SvelteCompileStats,
 	_handleStats: (id: string, stats: SvelteCompileStats, ...args: any[]) => void,
 	log: Logger,
-	_pluginOntext?: PluginContext,
 ): void => {
-	log.trace(
+	log.debug(
 		printKeyValue('stats', printPath(id)),
 		...[
 			printKeyValue('total', printMs(stats.timings.total)),
@@ -109,25 +95,24 @@ let dependencyPreprocessor: PreprocessorGroup | undefined = undefined;
 // This is needed for cases where we build Svelte unmodified but still need its dependencies.
 // TODO could remove this if we do postprocessing inside the builders
 // TODO to support custom preprocessors, we could refactor this to save wasted work
-export const extractJsFromSvelteForDependencies = async (content: string): Promise<string> => {
-	let finalContent: string | undefined = undefined;
+export const extractJsFromSvelteForDependencies = async (
+	content: string,
+): Promise<{processed: Processed; js: string}> => {
+	let js = '';
 	if (dependencyPreprocessor === undefined) {
 		dependencyPreprocessor = sveltePreprocessEsbuild.typescript(
 			toDefaultEsbuildPreprocessOptions(true, 'esnext', false),
 		);
 	}
-	await svelte.preprocess(content, [
+	const processed = await svelte.preprocess(content, [
 		dependencyPreprocessor,
+		// Extract the JS but return nothing, passing through `processed`.
 		{
 			script(options) {
-				if (finalContent === undefined) {
-					finalContent = options.content;
-				} else {
-					finalContent += `\n${options.content}`;
-				}
-				return {code: ''};
+				// Handle multiple script tags, e.g. for `context="module"`.
+				js += `\n${options.content}`;
 			},
 		},
 	]);
-	return finalContent || '';
+	return {processed, js};
 };

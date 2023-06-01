@@ -1,9 +1,16 @@
-import {red} from '@feltcoop/felt/util/terminal.js';
-import {printError} from '@feltcoop/felt/util/print.js';
-import {Timings} from '@feltcoop/felt/util/timings.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
+import {red} from 'kleur/colors';
+import {printError} from '@feltjs/util/print.js';
+import {Timings} from '@feltjs/util/timings.js';
+import type {Logger} from '@feltjs/util/log.js';
+import {UnreachableError} from '@feltjs/util/error.js';
+import type {Options as JsonSchemaToTypeScriptOptions} from '@ryanatkn/json-schema-to-typescript';
+import {stripEnd} from '@feltjs/util/string.js';
 
-import type {GenModuleMeta} from 'src/gen/genModule.js';
+import {
+	GEN_SCHEMA_IDENTIFIER_SUFFIX,
+	type GenModuleMeta,
+	GEN_SCHEMA_PATH_SUFFIX,
+} from './genModule.js';
 import {
 	type GenResults,
 	type GenModuleResult,
@@ -11,9 +18,12 @@ import {
 	type GenModuleResultSuccess,
 	type GenModuleResultFailure,
 	toGenResult,
+	type RawGenResult,
 } from './gen.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
-import {printPath} from '../paths.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import {printPath, sourceIdToBasePath} from '../paths.js';
+import {genSchemas, toSchemasFromModules} from './genSchemas.js';
+import {toVocabSchemaResolver} from '../utils/schema.js';
 
 export const runGen = async (
 	fs: Filesystem,
@@ -25,16 +35,31 @@ export const runGen = async (
 	let outputCount = 0;
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
+	const genSchemasOptions = toGenSchemasOptions(genModules);
+	const imports = toGenContextImports(genModules);
 	const results = await Promise.all(
-		genModules.map(async ({id, mod}): Promise<GenModuleResult> => {
+		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
 			inputCount++;
-			const genCtx: GenContext = {fs, originId: id, log};
+			const {id} = moduleMeta;
 			const timingForModule = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			let rawGenResult;
+			const genCtx: GenContext = {fs, originId: id, log, imports};
+			let rawGenResult: RawGenResult;
 			try {
-				rawGenResult = await mod.gen(genCtx);
+				switch (moduleMeta.type) {
+					case 'basic': {
+						rawGenResult = await moduleMeta.mod.gen(genCtx);
+						break;
+					}
+					case 'schema': {
+						rawGenResult = await genSchemas(moduleMeta.mod, genCtx, genSchemasOptions);
+						break;
+					}
+					default: {
+						throw new UnreachableError(moduleMeta);
+					}
+				}
 			} catch (err) {
 				return {
 					ok: false,
@@ -49,25 +74,22 @@ export const runGen = async (
 			const genResult = toGenResult(id, rawGenResult);
 
 			// Format the files if needed.
-			let files;
-			if (formatFile) {
-				files = [];
-				for (const file of genResult.files) {
-					let content: string;
-					try {
-						content = await formatFile(fs, file.id, file.content);
-					} catch (err) {
-						content = file.content;
-						log?.error(
-							red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
-							printError(err),
-						);
-					}
-					files.push({...file, content});
-				}
-			} else {
-				files = genResult.files;
-			}
+			const files = formatFile
+				? await Promise.all(
+						genResult.files.map(async (file) => {
+							if (!file.format) return file;
+							try {
+								return {...file, content: await formatFile(fs, file.id, file.content)};
+							} catch (err) {
+								log.error(
+									red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
+									printError(err),
+								);
+								return file;
+							}
+						}),
+				  )
+				: genResult.files;
 
 			outputCount += files.length;
 			return {
@@ -86,4 +108,36 @@ export const runGen = async (
 		outputCount,
 		elapsed: timingForTotal(),
 	};
+};
+
+const toGenSchemasOptions = (
+	genModules: GenModuleMeta[],
+): Partial<JsonSchemaToTypeScriptOptions> => {
+	const schemas = toSchemasFromModules(genModules);
+	return {
+		$refOptions: {
+			resolve: {
+				http: false, // disable web resolution
+				vocab: toVocabSchemaResolver(schemas),
+			},
+		},
+	};
+};
+
+// TODO configurable
+export const toGenImportPath = (id: string): string =>
+	'$' + stripEnd(sourceIdToBasePath(id), GEN_SCHEMA_PATH_SUFFIX);
+
+export const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
+	const imports: Record<string, string> = {};
+	for (const genModule of genModules) {
+		if (genModule.type === 'schema') {
+			const importPath = toGenImportPath(genModule.id);
+			for (const identifier of Object.keys(genModule.mod)) {
+				const name = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
+				imports[name] = `import type {${name}} from '${importPath}';`;
+			}
+		}
+	}
+	return imports;
 };

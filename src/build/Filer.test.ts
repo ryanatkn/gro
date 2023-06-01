@@ -1,12 +1,11 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {replaceExtension} from '@feltcoop/felt/util/path.js';
+import {replaceExtension} from '@feltjs/util/path.js';
 
 import {Filer} from './Filer.js';
-import {fs as memoryFs} from '../fs/memory.js';
-import type {MemoryFs} from 'src/fs/memory.js';
-import type {BuildConfig} from 'src/build/buildConfig.js';
-import {createPaths, JS_EXTENSION} from 'src/paths.js';
+import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
+import type {BuildConfig} from './buildConfig.js';
+import {createPaths, JS_EXTENSION} from '../paths.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 
 interface SuiteContext {
@@ -18,39 +17,6 @@ const resetMemoryFs = ({fs}: SuiteContext) => fs._reset();
 /* test__Filer */
 const test__Filer = suite('Filer', suiteContext);
 test__Filer.before.each(resetMemoryFs);
-
-test__Filer('basic serve usage', async ({fs}) => {
-	const aId = '/served/a.html';
-	const bId = '/served/b.svelte';
-	const cId = '/served/c/c.svelte.md';
-
-	fs.writeFile(aId, 'a', 'utf8');
-	fs.writeFile(bId, 'b', 'utf8');
-	fs.writeFile(cId, 'c', 'utf8');
-
-	const filer = new Filer({
-		fs,
-		servedDirs: ['/served'],
-		watch: false,
-	});
-	assert.ok(filer);
-
-	await filer.init();
-
-	const a = await filer.findByPath('a.html');
-	assert.is(a?.id, aId);
-	const b = await filer.findByPath('b.svelte');
-	assert.is(b?.id, bId);
-	const c = await filer.findByPath('c/c.svelte.md');
-	assert.is(c?.id, cId);
-
-	assert.is(fs._files.size, 6);
-	assert.ok(fs._files.has(aId));
-	assert.ok(fs._files.has(bId));
-	assert.ok(fs._files.has(cId));
-
-	filer.close();
-});
 
 test__Filer('basic build usage with no watch', async ({fs}) => {
 	const buildDir = '/c/';
@@ -77,6 +43,7 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 		name: 'testBuildConfig',
 		platform: 'node',
 		input: [entryId],
+		types: false,
 	};
 	const filer = new Filer({
 		fs,
@@ -85,7 +52,6 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 		builder: groBuilderDefault(),
 		buildConfigs: [buildConfig],
 		sourceDirs: [paths.source],
-		servedDirs: [paths.source],
 		watch: false,
 	});
 	assert.ok(filer);
@@ -103,14 +69,6 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 
 	// snapshot test the entire sourceMeta
 	assert.equal(Array.from(filer.sourceMetaById.entries()), sourceMetaSnapshot);
-
-	// ensure we can find files like we'd expect
-	const entryFile = await filer.findByPath(entryFilename);
-	assert.is(entryFile?.id, entryId);
-	const dep1File = await filer.findByPath(dep1Filename);
-	assert.is(dep1File?.id, dep1Id);
-	const dep2File = await filer.findByPath(dep2Filename);
-	assert.is(dep2File?.id, dep2Id);
 
 	assert.equal(Array.from(fs._files.keys()), filesKeysSnapshot);
 	assert.ok(fs._files.has(entryId));
@@ -271,11 +229,13 @@ test__Filer('multiple build configs', async ({fs}) => {
 		name: 'testBuildConfig',
 		platform: 'node',
 		input: [entry1Id],
+		types: false,
 	};
 	const buildConfig2: BuildConfig = {
 		name: 'testBuildConfig',
 		platform: 'node',
 		input: [entry2Id],
+		types: false,
 	};
 
 	const filerOptions = {
@@ -284,7 +244,6 @@ test__Filer('multiple build configs', async ({fs}) => {
 		buildDir,
 		builder: groBuilderDefault(),
 		sourceDirs: [paths.source],
-		servedDirs: [paths.source],
 		watch: false,
 	};
 
@@ -296,12 +255,6 @@ test__Filer('multiple build configs', async ({fs}) => {
 	assert.ok(filer1);
 	await filer1.init();
 	assert.is(filer1.sourceMetaById.size, 3);
-	const entry1File = await filer1.findByPath(entry1Filename);
-	assert.is(entry1File?.id, entry1Id);
-	const dep1File = await filer1.findByPath(dep1Filename);
-	assert.is(dep1File?.id, dep1Id);
-	const dep2File = await filer1.findByPath(dep2Filename);
-	assert.is(dep2File?.id, dep2Id);
 	assert.is(fs._files.size, 22);
 	assert.ok(fs._files.has(entry1Id));
 	filer1.close();
@@ -314,14 +267,6 @@ test__Filer('multiple build configs', async ({fs}) => {
 	assert.ok(filer2);
 	await filer2.init();
 	assert.is(filer2.sourceMetaById.size, 5);
-	const entry2File = await filer2.findByPath(entry2Filename);
-	assert.is(entry2File?.id, entry2Id);
-	const dep1FileB = await filer2.findByPath(dep1Filename);
-	assert.is(dep1FileB?.id, dep1Id);
-	const dep2FileB = await filer2.findByPath(dep2Filename);
-	assert.is(dep2FileB?.id, dep2Id);
-	const dep3FileB = await filer2.findByPath(dep3Filename);
-	assert.is(dep3FileB?.id, dep3Id);
 	assert.is(fs._files.size, 28);
 	assert.ok(fs._files.has(entry2Id));
 	filer2.close();

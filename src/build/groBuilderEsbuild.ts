@@ -1,7 +1,6 @@
 import esbuild from 'esbuild';
-import {replaceExtension} from '@feltcoop/felt/util/path.js';
+import {replaceExtension} from '@feltjs/util/path.js';
 
-import type {EcmaScriptTarget, GenerateTypesForFile} from 'src/build/typescriptUtils.js';
 import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
 import {
 	JS_EXTENSION,
@@ -11,11 +10,15 @@ import {
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import type {Builder, TextBuildSource} from 'src/build/builder.js';
+import type {Builder, TextBuildSource} from './builder.js';
 import {addJsSourcemapFooter} from './utils.js';
-import {toGenerateTypesForFile} from './typescriptUtils.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
-import type {BuildFile} from 'src/build/buildFile.js';
+import {
+	toGenerateTypesForFile,
+	type EcmaScriptTarget,
+	type GenerateTypesForFile,
+} from './typescriptUtils.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import type {BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
 
 export interface Options {
@@ -42,7 +45,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		return newEsbuildOptions;
 	};
 
-	let cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
+	const cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
 	const loadGenerateTypes = (fs: Filesystem): Promise<GenerateTypesForFile> => {
 		if (cachedGenerateTypes.has(fs)) return cachedGenerateTypes.get(fs)!;
 		const promise = toGenerateTypesForFile(fs);
@@ -51,7 +54,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 	};
 
 	const build: EsbuildBuilder['build'] = async (source, buildConfig, ctx) => {
-		const {buildDir, dev, sourcemap, types, target, fs} = ctx;
+		const {buildDir, dev, sourcemap, target, fs} = ctx;
 
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
@@ -107,7 +110,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 				mimeType: undefined,
 			});
 		}
-		if (types && source.extension === TS_EXTENSION) {
+		if (buildConfig.types && source.extension === TS_EXTENSION) {
 			const {types, typemap} = await (await loadGenerateTypes(fs))(source.id);
 			buildFiles.push({
 				type: 'build',
@@ -145,13 +148,11 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			}
 		}
 
-		await Promise.all(
-			buildFiles.map((buildFile) => postprocess(buildFile, ctx, buildFiles, source)),
-		);
+		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));
 		return buildFiles;
 	};
 
-	return {name: '@feltcoop/groBuilderEsbuild', build};
+	return {name: '@feltjs/groBuilderEsbuild', build};
 };
 
 type CreateEsbuildOptions = (

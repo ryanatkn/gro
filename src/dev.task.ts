@@ -1,28 +1,13 @@
-import {printTimings} from '@feltcoop/felt/util/print.js';
-import {Timings} from '@feltcoop/felt/util/timings.js';
+import {printTimings} from '@feltjs/util/print.js';
+import {Timings} from '@feltjs/util/timings.js';
+import {z} from 'zod';
 
-import type {Task} from 'src/task/task.js';
+import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {groBuilderDefault} from './build/groBuilderDefault.js';
-import {paths, toBuildOutPath} from './paths.js';
-import type {GroConfig} from 'src/config/config.js';
-import {loadConfig} from './config/config.js';
-import type {ServedDirPartial} from 'src/build/servedDir.js';
-import type {PluginContext} from './plugin/plugin.js';
-import {Plugins} from './plugin/plugin.js';
-import type {DevServerPluginContext} from 'src/plugin/groPluginDevServer.js';
-
-export interface TaskArgs {
-	watch?: boolean; // defaults to `true`
-	'no-watch'?: boolean; // CLI arg to set `watch: false` -- internally, refer to `watch` not this
-	insecure?: boolean;
-	cert?: string;
-	certkey?: string;
-}
-
-export interface DevTaskContext
-	extends DevServerPluginContext,
-		PluginContext<TaskArgs, TaskEvents> {}
+import {paths} from './paths.js';
+import {loadConfig, type GroConfig} from './config/config.js';
+import {Plugins, type PluginContext} from './plugin/plugin.js';
 
 export interface TaskEvents {
 	'dev.createConfig': (config: GroConfig) => void;
@@ -31,15 +16,31 @@ export interface TaskEvents {
 	'dev.ready': (ctx: DevTaskContext) => void;
 }
 
-export const task: Task<TaskArgs, TaskEvents> = {
-	summary: 'start dev server',
+const Args = z
+	.object({
+		watch: z.boolean({description: ''}).default(true),
+		'no-watch': z
+			.boolean({
+				description:
+					'opt out of running a long-lived process to watch files and rebuild on changes',
+			})
+			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
+			.default(false),
+		// TODO this flag is weird, it detects https credentials but should probably be explicit and fail if not available
+		insecure: z.boolean({description: 'ignore https credentials'}).optional(),
+		cert: z.string({description: 'https certificate file'}).optional(),
+		certkey: z.string({description: 'https certificate key file'}).optional(),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export type DevTaskContext = PluginContext<Args, TaskEvents>;
+
+export const task: Task<Args, TaskEvents> = {
+	summary: 'start SvelteKit and other dev plugins',
+	Args,
 	run: async (ctx) => {
 		const {fs, dev, log, args, events} = ctx;
-
-		// Mutate `args` with the resolved `watch` value so plugins can use it.
-		if (args.watch === undefined) {
-			args.watch = true;
-		}
 		const {watch} = args;
 
 		const timings = new Timings();
@@ -55,7 +56,6 @@ export const task: Task<TaskArgs, TaskEvents> = {
 			dev,
 			builder: groBuilderDefault(),
 			sourceDirs: [paths.source],
-			servedDirs: config.serve || toDefaultServedDirs(config),
 			buildConfigs: config.builds,
 			target: config.target,
 			sourcemap: config.sourcemap,
@@ -83,12 +83,4 @@ export const task: Task<TaskArgs, TaskEvents> = {
 
 		printTimings(timings, log);
 	},
-};
-
-// TODO rework this when we change the deprecated frontend build process
-const toDefaultServedDirs = (config: GroConfig): ServedDirPartial[] | undefined => {
-	const buildConfigToServe = config.primaryBrowserBuildConfig;
-	if (!buildConfigToServe) return undefined;
-	const buildOutDirToServe = toBuildOutPath(true, buildConfigToServe.name, '');
-	return [buildOutDirToServe];
 };

@@ -1,13 +1,19 @@
-import {gray} from '@feltcoop/felt/util/terminal.js';
+import {gray} from 'kleur/colors';
 
-import type {Encoding} from 'src/fs/encoding.js';
+import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
 import {getFileContentHash} from './filerFile.js';
-import type {BuildContext} from 'src/build/builder.js';
-import type {BuildableSourceFile} from 'src/build/sourceFile.js';
-import type {BuildName} from 'src/build/buildConfig.js';
-import type {BuildDependency, SerializedBuildDependency} from 'src/build/buildDependency.js';
-import {serializeBuildDependency, deserializeBuildDependency} from './buildDependency.js';
+import type {BuildContext} from './builder.js';
+import type {SourceFile} from './sourceFile.js';
+import type {BuildName} from './buildConfig.js';
+import {
+	serializeBuildDependency,
+	deserializeBuildDependency,
+	type BuildDependency,
+	type SerializedBuildDependency,
+} from './buildDependency.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import {throttleAsync} from '../utils/throttleAsync.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk
@@ -45,10 +51,7 @@ export const toSourceMetaDir = (buildDir: string, dev: boolean): string =>
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
-export const updateSourceMeta = async (
-	ctx: BuildContext,
-	file: BuildableSourceFile,
-): Promise<void> => {
+export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Promise<void> => {
 	const {fs, sourceMetaById, dev, buildDir, buildNames} = ctx;
 
 	// create the new meta, not mutating the old
@@ -84,9 +87,15 @@ export const updateSourceMeta = async (
 	}
 
 	sourceMetaById.set(file.id, sourceMeta);
-	// this.log.trace('outputting source meta', gray(cacheId));
-	await fs.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2));
+	// this.log.debug('outputting source meta', gray(cacheId));
+	await writeSourceMeta(fs, cacheId, data);
 };
+
+const writeSourceMeta = throttleAsync(
+	(fs: Filesystem, cacheId: string, data: SourceMetaData): Promise<void> =>
+		fs.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2)),
+	(_, cacheId) => cacheId,
+);
 
 export const deleteSourceMeta = async (
 	{fs, sourceMetaById}: BuildContext,
@@ -98,7 +107,7 @@ export const deleteSourceMeta = async (
 	await fs.remove(meta.cacheId);
 };
 
-const toSourceMetaCacheId = (file: BuildableSourceFile, buildDir: string, dev: boolean): string =>
+const toSourceMetaCacheId = (file: SourceFile, buildDir: string, dev: boolean): string =>
 	`${toSourceMetaDir(buildDir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 // TODO optimize to load meta only for the build configs
@@ -131,7 +140,7 @@ export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 	await Promise.all(
 		Array.from(sourceMetaById.keys()).map(async (sourceId) => {
 			if (!(await fs.exists(sourceId))) {
-				log.trace('deleting unknown source meta', gray(sourceId));
+				log.debug('deleting unknown source meta', gray(sourceId));
 				await deleteSourceMeta(ctx, sourceId);
 			}
 		}),
@@ -165,8 +174,8 @@ export const serializeSourceMeta = ({
 	contentHash,
 	builds,
 }: SourceMetaData): SerializedSourceMetaData => ({
-	sourceId: sourceId,
-	contentHash: contentHash,
+	sourceId,
+	contentHash,
 	builds: builds.map((b) => serializeSourceMetaBuild(b)),
 });
 export const serializeSourceMetaBuild = ({

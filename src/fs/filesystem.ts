@@ -1,9 +1,9 @@
 import {resolve} from 'path';
-import type {Flavored} from '@feltcoop/felt/util/types.js';
+import type {Flavored} from '@feltjs/util/types.js';
 
-import type {Encoding} from 'src/fs/encoding.js';
-import type {PathStats} from 'src/fs/pathData.js';
-import type {PathFilter} from 'src/fs/filter.js';
+import type {Encoding} from './encoding.js';
+import type {PathStats} from './pathData.js';
+import type {PathFilter} from './filter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
 export interface Filesystem {
@@ -80,7 +80,7 @@ export type FsCopyFilterAsync = (src: string, dest: string) => Promise<boolean>;
 
 export class FsStats implements PathStats {
 	constructor(private readonly _isDirectory: boolean) {}
-	isDirectory() {
+	isDirectory(): boolean {
 		// TODO maybe cache as `isDirectory`?
 		return this._isDirectory;
 	}

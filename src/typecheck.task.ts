@@ -1,18 +1,41 @@
-import {printSpawnResult, spawn} from '@feltcoop/felt/util/process.js';
+import {printSpawnResult, spawn} from '@feltjs/util/process.js';
+import {z} from 'zod';
 
-import type {Task} from 'src/task/task.js';
-import {TaskError} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
+import {sveltekitSync} from './utils/sveltekit.js';
 
-export const task: Task = {
+const Args = z.object({}).strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args> = {
 	summary: 'typecheck the project without emitting any files',
-	run: async (): Promise<void> => {
-		const tscTypecheckResult = await spawn('npx', ['tsc', '--noEmit']);
-		if (!tscTypecheckResult.ok) {
-			throw new TaskError(`Failed to typecheck. ${printSpawnResult(tscTypecheckResult)}`);
-		}
-		const svelteCheckResult = await spawn('npx', ['svelte-check', '--tsconfig', 'tsconfig.json']);
-		if (!svelteCheckResult.ok) {
-			throw new TaskError(`Failed to typecheck Svelte. ${printSpawnResult(svelteCheckResult)}`);
+	Args,
+	run: async ({fs, log}): Promise<void> => {
+		await sveltekitSync(fs);
+
+		if (await fs.exists('node_modules/.bin/svelte-check')) {
+			// svelte-check
+			const forwardedSvelteCheckArgs = toForwardedArgs('svelte-check');
+			const serializedSvelteCheckArgs = [
+				'svelte-check',
+				...serializeArgs(forwardedSvelteCheckArgs),
+			];
+			log.info(printCommandArgs(serializedSvelteCheckArgs));
+			const tscResult = await spawn('npx', serializedSvelteCheckArgs);
+			if (!tscResult.ok) {
+				throw new TaskError(`Failed to typecheck. ${printSpawnResult(tscResult)}`);
+			}
+		} else {
+			// tsc
+			const forwardedTscArgs = toForwardedArgs('tsc');
+			if (!forwardedTscArgs.noEmit) forwardedTscArgs.noEmit = true;
+			const serializedTscArgs = ['tsc', ...serializeArgs(forwardedTscArgs)];
+			log.info(printCommandArgs(serializedTscArgs));
+			const svelteCheckResult = await spawn('npx', serializedTscArgs);
+			if (svelteCheckResult && !svelteCheckResult.ok) {
+				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult)}`);
+			}
 		}
 	},
 };

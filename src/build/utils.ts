@@ -1,13 +1,12 @@
-import type {Result} from '@feltcoop/felt/util/types';
 import {createHash} from 'crypto';
 import {resolve} from 'path';
-import {replaceExtension} from '@feltcoop/felt/util/path.js';
+import type {Result} from '@feltjs/util';
+import {replaceExtension} from '@feltjs/util/path.js';
 
-import type {BuildConfigInput} from 'src/build/buildConfig.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
-import {buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
-import type {Paths} from 'src/paths.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
+import type {BuildConfigInput} from './buildConfig.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import {type Paths, buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
+import type {BuildDependency} from './buildDependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -19,10 +18,10 @@ interface FilterDirectory {
 }
 
 export const createDirectoryFilter = (dir: string, rootDir = paths.source): FilterDirectory => {
-	dir = resolve(rootDir, dir);
-	const dirWithTrailingSlash = dir + '/';
+	const resolvedDir = resolve(rootDir, dir);
+	const dirWithTrailingSlash = resolvedDir + '/';
 	const filterDirectory: FilterDirectory = (id) =>
-		id === dir || id.startsWith(dirWithTrailingSlash);
+		id === resolvedDir || id.startsWith(dirWithTrailingSlash);
 	return filterDirectory;
 };
 
@@ -31,7 +30,7 @@ export interface MapDependencyToSourceId {
 }
 
 // TODO this was changed from sync to async to support JS:
-// https://github.com/feltcoop/gro/pull/270/files
+// https://github.com/feltjs/gro/pull/270/files
 // There's a problem though -- the build system as written wants to resolve source ids up front,
 // but in the case of supporting JS we need to defer resolving them to some downstream moment,
 // because we can't know if we are talking about a TS or JS file until it's read from disk.
@@ -63,7 +62,7 @@ export const addCssSourcemapFooter = (code: string, sourcemapPath: string): stri
 export const validateInputFiles = async (
 	fs: Filesystem,
 	files: string[],
-): Promise<Result<{}, {reason: string}>> => {
+): Promise<Result<object, {reason: string}>> => {
 	const results = await Promise.all(
 		files.map(async (input): Promise<null | {ok: false; reason: string}> => {
 			if (!(await fs.exists(input))) {
@@ -78,7 +77,7 @@ export const validateInputFiles = async (
 	return {ok: true};
 };
 
-export const isInputToBuildConfig = (id: string, inputs: readonly BuildConfigInput[]): boolean => {
+export const isInputToBuildConfig = (id: string, inputs: BuildConfigInput[]): boolean => {
 	for (const input of inputs) {
 		if (typeof input === 'string' ? id === input : input(id)) {
 			return true;

@@ -1,37 +1,39 @@
-import {printTimings} from '@feltcoop/felt/util/print.js';
-import {Timings} from '@feltcoop/felt/util/timings.js';
-import {spawn} from '@feltcoop/felt/util/process.js';
-import {yellow} from '@feltcoop/felt/util/terminal.js';
+import {printTimings} from '@feltjs/util/print.js';
+import {Timings} from '@feltjs/util/timings.js';
+import {spawn} from '@feltjs/util/process.js';
+import {yellow} from 'kleur/colors';
+import {z} from 'zod';
 
-import type {Task} from 'src/task/task.js';
-import {TaskError} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
-import {loadConfig} from './config/config.js';
-import {buildSource} from './build/buildSource.js';
+import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 
-// Runs the project's tests: `gro test [...args]`
-// Args are passed through directly to `uvu`'s CLI:
+// Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
+// Args following any `-- uvu` are passed through to `uvu`'s CLI:
 // https://github.com/lukeed/uvu/blob/master/docs/cli.md
+// If the `uvu` segment's args contain any rest arg patterns,
+// the base patterns are ignored.
 
-const DEFAULT_TEST_FILE_PATTERNS = ['.+\\.test\\.js$'];
+const Args = z
+	.object({
+		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.js$']),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
 
-export const task: Task = {
+export const task: Task<Args> = {
 	summary: 'run tests',
+	Args,
 	run: async ({fs, dev, log, args}): Promise<void> => {
-		const patternCount = args._.length;
-		const testFilePatterns = patternCount ? args._ : DEFAULT_TEST_FILE_PATTERNS;
+		const {_: testFilePatterns} = args;
+
+		if (!(await fs.exists('node_modules/.bin/uvu'))) {
+			log.warn(yellow('uvu is not installed, skipping tests'));
+			return;
+		}
 
 		const timings = new Timings();
-
-		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
-		timingToLoadConfig();
-
-		// TODO cleaner way to detect & rebuild?
-		const timingToPrebuild = timings.start('prebuild');
-		await buildSource(fs, config, dev, log);
-		timingToPrebuild();
 
 		// Projects may not define any artifacts for the Node build,
 		// and we don't force anything out in that case,
@@ -42,15 +44,16 @@ export const task: Task = {
 			return;
 		}
 
-		const timeToRunUvu = timings.start('run test with uvu');
-		const testRunResult = await spawn('npx', [
-			'uvu',
-			toRootPath(testsBuildDir),
-			...testFilePatterns,
-			...process.argv.slice(3 + patternCount),
-			'-i',
-			'.map$', // ignore sourcemap files so patterns don't need `.js$`
-		]);
+		const timeToRunUvu = timings.start('run tests with uvu');
+		const forwardedArgs = toForwardedArgs('uvu');
+		if (!forwardedArgs._) {
+			forwardedArgs._ = [toRootPath(testsBuildDir), ...testFilePatterns];
+		}
+		// ignore sourcemap files so patterns don't need `.js$`
+		addArg(forwardedArgs, '.map$', 'i', 'ignore');
+		const serializedArgs = ['uvu', ...serializeArgs(forwardedArgs)];
+		log.info(printCommandArgs(serializedArgs));
+		const testRunResult = await spawn('npx', serializedArgs);
 		timeToRunUvu();
 
 		printTimings(timings, log);

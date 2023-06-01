@@ -1,29 +1,24 @@
-import {join, extname, relative, basename} from 'path';
+import {join, extname, relative} from 'path';
 import * as lexer from 'es-module-lexer';
-import type {Assignable} from '@feltcoop/felt';
+import type {Assignable} from '@feltjs/util';
 
 import {
 	paths,
-	CSS_EXTENSION,
 	JS_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildExtension,
 	TS_EXTENSION,
 	TS_TYPE_EXTENSION,
+	isThisProjectGro,
 } from '../paths.js';
-import type {BuildContext, BuildSource} from 'src/build/builder.js';
+import type {BuildContext, BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
-import type {BuildDependency} from 'src/build/buildDependency.js';
+import type {BuildDependency} from './buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
-import type {BuildFile} from 'src/build/buildFile.js';
+import type {BuildFile} from './buildFile.js';
 
 export interface Postprocess {
-	(
-		buildFile: BuildFile,
-		ctx: BuildContext,
-		buildFiles: BuildFile[],
-		source: BuildSource,
-	): Promise<void>;
+	(buildFile: BuildFile, ctx: BuildContext, source: BuildSource): Promise<void>;
 }
 
 // TODO refactor the TypeScript- and Svelte-specific postprocessing into the builders
@@ -31,13 +26,12 @@ export interface Postprocess {
 
 // Mutates `buildFile` with possibly new `content` and `dependencies`.
 // Defensively clone if upstream clone doesn't want mutation.
-export const postprocess: Postprocess = async (buildFile, ctx, buildFiles, source) => {
+export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 	if (buildFile.encoding !== 'utf8') return;
 
-	const {dir, extension, content: originalContent, buildConfig} = buildFile;
+	const {dir, extension, content: originalContent} = buildFile;
 
 	let content = originalContent;
-	const browser = buildConfig.platform === 'browser';
 	let dependencies: Map<string, BuildDependency> | null = null;
 
 	const handleSpecifier: HandleSpecifier = (specifier) => {
@@ -49,14 +43,13 @@ export const postprocess: Postprocess = async (buildFile, ctx, buildFiles, sourc
 		return buildDependency;
 	};
 
+	const types = ctx.buildConfigs?.some((b) => b.types);
+
 	// Map import paths to the built versions.
 	switch (extension) {
 		case JS_EXTENSION: {
 			content = parseJsDependencies(content, handleSpecifier, true);
-			if (
-				ctx.types &&
-				(source.extension === TS_EXTENSION || source.extension === SVELTE_EXTENSION)
-			) {
+			if (types && (source.extension === TS_EXTENSION || source.extension === SVELTE_EXTENSION)) {
 				parseTypeDependencies(source.content as string, handleSpecifier);
 			}
 			break;
@@ -64,10 +57,16 @@ export const postprocess: Postprocess = async (buildFile, ctx, buildFiles, sourc
 		case SVELTE_EXTENSION: {
 			// Support Svelte in production, outputting the plain `.svelte`
 			// but extracting and mapping dependencies.
-			const extractedJs = await extractJsFromSvelteForDependencies(originalContent);
-			parseJsDependencies(extractedJs, handleSpecifier, false);
-			if (ctx.types) {
-				parseTypeDependencies(content as string, handleSpecifier);
+			const {processed, js} = await extractJsFromSvelteForDependencies(originalContent);
+			parseJsDependencies(js, handleSpecifier, false);
+			if (types) {
+				parseTypeDependencies(content, handleSpecifier);
+			} else {
+				// Replace the Svelte content containing types with the processed code stripped of types.
+				content = processed.code;
+				// TODO shouldn't be needed: https://github.com/sveltejs/svelte-preprocess/issues/260
+				// A problem is this doesn't work for `<script` declarations that span multiple lines.
+				content = content.replace(/(<script.+)lang=["']ts["']/giu, '$1');
 			}
 			content = replaceDependencies(content, dependencies);
 			break;
@@ -76,18 +75,6 @@ export const postprocess: Postprocess = async (buildFile, ctx, buildFiles, sourc
 			parseTypeDependencies(content, handleSpecifier);
 			content = replaceDependencies(content, dependencies);
 			break;
-		}
-	}
-
-	// Support Svelte CSS for development in the browser.
-	if (browser && source.extension === SVELTE_EXTENSION && extension === JS_EXTENSION) {
-		const cssBuildFile = buildFiles.find((c) => c.extension === CSS_EXTENSION);
-		if (cssBuildFile !== undefined) {
-			// TODO this is hardcoded to a sibling module, but that may be overly restrictive --
-			// a previous version of this code used the `ctx.servedDirs` to handle any location,
-			// but this coupled the build outputs to the served dirs, which failed and is weird
-			const importPath = `./${basename(cssBuildFile.filename)}`;
-			content = injectSvelteCssImport(content, importPath, ctx.dev);
 		}
 	}
 
@@ -140,25 +127,29 @@ const parseJsDependencies = (
 			index = end;
 		}
 	}
-	if (mapDependencies && index > 0) {
-		content = transformedContent + content.substring(index);
+	if (mapDependencies) {
+		if (index > 0) {
+			return transformedContent + content.substring(index);
+		}
+		return content;
 	}
-	return mapDependencies ? content : '';
+	return '';
 };
 
 const toBuildDependency = (
 	specifier: string,
 	dir: string,
 	source: BuildSource,
-	ctx: BuildContext,
+	{dev}: BuildContext,
 ): BuildDependency => {
-	const {dev} = ctx;
 	let buildId: string;
 	let finalSpecifier = specifier;
 	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;
 	if (external) {
-		mappedSpecifier = toBuildExtension(specifier, dev);
+		mappedSpecifier = hackToSveltekitImportMocks(toBuildExtension(specifier, dev), dev);
+		// TODO is this needed?
+		finalSpecifier = hackToSveltekitImportMocks(finalSpecifier, dev);
 		buildId = mappedSpecifier;
 	} else {
 		// internal import
@@ -178,9 +169,9 @@ const toBuildDependency = (
 // Maps absolute `$lib/` and `src/` imports to relative specifiers.
 const toRelativeSpecifier = (specifier: string, dir: string, sourceDir: string): string => {
 	if (specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
-		specifier = toRelativeSpecifierTrimmedBy(1, specifier, dir, sourceDir);
+		return toRelativeSpecifierTrimmedBy(1, specifier, dir, sourceDir);
 	} else if (specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
-		specifier = toRelativeSpecifierTrimmedBy(3, specifier, dir, sourceDir);
+		return toRelativeSpecifierTrimmedBy(3, specifier, dir, sourceDir);
 	}
 	return specifier;
 };
@@ -191,9 +182,8 @@ const toRelativeSpecifierTrimmedBy = (
 	dir: string,
 	sourceDir: string,
 ): string => {
-	specifier = relative(dir, sourceDir + specifier.substring(charsToTrim));
-	if (specifier[0] !== '.') specifier = './' + specifier;
-	return specifier;
+	const s = relative(dir, sourceDir + specifier.substring(charsToTrim));
+	return s.startsWith('.') ? s : './' + s;
 };
 
 /*
@@ -203,15 +193,14 @@ TODO this fails on some input:
 export declare type AsyncStatus = 'initial' | 'pending' | 'success' | 'failure';
 const a = "from './array'";
 
-Some possible improvements:
-
-- add some negating condition to `[\s\S]*?` -- maybe a semicolon should break it?
-- expect a semicolon
+`es-module-lexer` does work for TypeScript so we should use it instead of a RegExp,
+or really, we should just use the TS compiler and do real parsing.
+This only works decently well because we're assuming things are formatted with Prettier.
 
 */
 const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier): void => {
 	for (const matches of content.matchAll(
-		/(import\s+type|export)[\s\S]*?from\s*['|"|\`](.+)['|"|\`]/gm,
+		/^\s*(import\stype\s|export\s|import\s[\s\S]*?\{[\s\S]*?\Wtype\s)[\s\S]*?from\s*?['|"](.+)['|"]/gmu,
 	)) {
 		handleSpecifier(matches[2]);
 	}
@@ -228,7 +217,7 @@ const replaceDependencies = (
 			continue;
 		}
 		finalContent = finalContent.replace(
-			new RegExp(`['|"|\`]${escapeRegexp(dependency.originalSpecifier)}['|"|\`]`, 'g'),
+			new RegExp(`['|"]${escapeRegexp(dependency.originalSpecifier)}['|"]`, 'gu'),
 			`'${dependency.mappedSpecifier}'`,
 		);
 	}
@@ -237,29 +226,11 @@ const replaceDependencies = (
 
 // TODO upstream to felt probably
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/RegularExpressions
-const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-const injectSvelteCssImport = (content: string, importPath: string, dev: boolean): string => {
-	let newlineIndex = content.length;
-	for (let i = 0; i < content.length; i++) {
-		if (content[i] === '\n') {
-			newlineIndex = i;
-			break;
-		}
-	}
-	const injectedCssLoaderScript = dev
-		? `;globalThis.gro.registerCss('${importPath}');`
-		: `;import '${importPath}';`;
-	const newContent = `${content.substring(
-		0,
-		newlineIndex,
-	)}${injectedCssLoaderScript}${content.substring(newlineIndex)}`;
-	return newContent;
-};
+const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 
 // This is a temporary hack to allow importing `to/thing` as equivalent to `to/thing.js`,
 // despite it being off-spec, because of this combination of problems with TypeScript and Vite:
-// https://github.com/feltcoop/gro/pull/186
+// https://github.com/feltjs/gro/pull/186
 // The main problem this causes is breaking the ability to infer file extensions automatically,
 // because now we can't extract the extension from a user-provided specifier. Gack!
 // Exposing this hack to user config is something that's probably needed,
@@ -276,3 +247,20 @@ const hackToBuildExtensionWithPossiblyExtensionlessSpecifier = (
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.
 const HACK_EXTENSIONLESS_EXTENSIONS = new Set([SVELTE_EXTENSION, JS_EXTENSION, TS_EXTENSION]);
+
+// TODO substitutes SvelteKit-specific paths for Gro's mocked version for testing purposes.
+// should extract this so it's configurable. (this whole module is hacky and needs rethinking)
+const hackToSveltekitImportMocks = (specifier: string, dev: boolean): string =>
+	dev && sveltekitMockedSpecifiers.has(specifier)
+		? sveltekitMockedSpecifiers.get(specifier)!
+		: specifier;
+const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
+	? '../../utils/sveltekitImportMocks.js'
+	: '@feltjs/gro/dist/utils/sveltekitImportMocks.js';
+const sveltekitMockedSpecifiers = new Map([
+	['$app/environment', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/forms', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/navigation', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/paths', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/stores', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+]);

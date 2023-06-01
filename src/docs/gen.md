@@ -1,7 +1,7 @@
 # gen
 
 > automated codegen by convention for
-> [Gro](https://github.com/feltcoop/gro)
+> [Gro](https://github.com/feltjs/gro)
 
 **note**: this is one of the more experimental parts of Gro, and significant changes are planned
 
@@ -10,7 +10,7 @@
 The [`gro gen` task](/src/gen.task.ts) helps us enhance our projects
 with convention-based code/data/file generation (codegen) techniques.
 
-Why? Codegen can produce cool results and eternal pain.
+Why? Codegen can produce cool results and unhalting pain.
 Used well, codegen can improve performance, flexibility, consistency, and development speed.
 As developers, automating our work is a natural thing to do,
 and whether or not it's a wise thing to do,
@@ -24,6 +24,12 @@ that returns the content of the output file.
 More flexibility is available when needed
 including multiple custom output files.
 
+To bridge the worlds of types and runtimes, `gro gen` has a feature that uses
+[JSON Schema](https://json-schema.org/) and
+[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
+to generate types for all `.schema.` files in your project.
+[See below](#generate-typescript-types-from-schemas) for more.
+
 Normally you'll want to commit generated files to git,
 but you can always gitignore a specific pattern like `*.ignore.*`
 and name the output files accordingly.
@@ -34,7 +40,10 @@ is a simple idea with vast potential.
 It lets us have a single source of truth for data
 that would otherwise be scattered throughout our codebases
 without compromising any of our code's runtime characteristics.
-We can generate documentation, types, validators, tests, fakes,
+We can generate documentation, types,
+`index.ts` files exporting directories,
+data for a UI,
+validators, tests, fakes,
 and more by introspecting our data at buildtime,
 which speeds up development
 and helps us write code that's easier to understand and change.
@@ -70,12 +79,12 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 > note that importing the `Gen` type is optional,
 > but it makes for a better DX
 
-### generate TypeScript
+### generate arbitrary TypeScript
 
 Given `src/script.gen.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const message = 'generated';
@@ -89,15 +98,77 @@ Outputs `src/script.ts`:
 console.log('generated a string');
 ```
 
+### generate TypeScript types from schemas
+
+In addition to `.gen.` files, `gro gen` also looks for `.schema.` files
+to automatically generate TypeScript types using
+[JSON Schema](https://json-schema.org/) and
+[json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript).
+
+Given `src/something.schema.ts`:
+
+```ts
+export const SomeObjectSchema: VocabSchema = {
+	$id: '/schemas/SomeObject',
+	type: 'object',
+	properties: {
+		a: {type: 'number'},
+		b: {type: 'string'},
+		c: {$ref: '/schemas/SomeOtherObject'},
+		d: {type: 'object', tsType: 'Dep', tsImport: `import type {Dep} from '../dep.js'`},
+		e: {
+			type: 'object',
+			tsType: 'SomeGeneric<Dep>',
+			tsImport: [
+				`import type {Dep} from '../dep.js'`,
+				`import type {SomeGeneric} from './generic.js'`,
+			],
+		},
+	},
+	required: ['a', 'b'],
+	additionalProperties: false,
+};
+```
+
+Outputs `src/something.ts`:
+
+```ts
+import type {Dep} from '../dep.js';
+import type {SomeGeneric} from './generic.js';
+
+export interface SomeObject {
+	a: number;
+	b: string;
+	c?: Dep;
+	d?: SomeGeneric<Dep>;
+}
+```
+
+Some details:
+
+- `.schema.` modules may export any number of schemas:
+  all top-level exports with the JSONSchema
+  [`$id`](https://json-schema.org/draft/2020-12/json-schema-core.html#anchor) property
+  are considered to be vocab schemas by `isVocabSchema` (this detection may need tweaking)
+- vocab schemas suffixed with `Schema` will output types without the suffix,
+  as a convenience to avoid name collisions
+  (note that your declared `$id` should omit the suffix)
+- `tsType` is specific to
+  [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
+- `tsImport` is specific to the fork
+  [@ryanatkn/json-schema-to-typescript](https://github.com/ryanatkn/json-schema-to-typescript) -
+  it can be a string or array of strings
+
 ### generate other filetypes
 
 Files with any extension can be generated without configuration.
 If the origin file name ends with the pattern `.gen.*.ts`,
 the default output file name is stripped of its trailing `.ts`.
+
 Given `src/markup.gen.html.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const body = 'hi';
@@ -126,16 +197,18 @@ Outputs `src/markup.html`:
 ### generate a custom file name or write to a different directory
 
 The `gen` function can return an object with custom configuration.
+
 Given `src/somewhere/originalName.gen.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const message = 'output path can be relative and name can be anything';
 	return {
 		content: `console.log('${message}')`,
 		filename: '../elsewhere/otherName.ts',
+		format: optional_boolean_that_defaults_to_true,
 	};
 };
 ```
@@ -149,10 +222,11 @@ console.log('output path can be relative and name can be anything');
 ### generate multiple custom files
 
 The `gen` function can also return an array of files.
+
 Given `src/thing.gen.ts`:
 
 ```ts
-import {Gen} from '@feltcoop/gro';
+import type {Gen} from '@feltjs/gro';
 
 export const gen: Gen = () => {
 	const fieldValue = 1;
@@ -178,7 +252,7 @@ export const gen: Gen = () => {
 Outputs `src/thing.ts`:
 
 ```ts
-import {Thing} from './index.js';
+import type {Thing} from './index.js';
 export const isThing = (t: any): t is Thing => t?.field === 1;
 ```
 
@@ -212,7 +286,7 @@ gro gen --check # exits with error code 1 if anything is new or different; no-op
 or in code:
 
 ```ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
@@ -229,7 +303,10 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 
 - [x] basic functionality
 - [x] format output with Prettier
-- [x] watch mode and build integration, opt out with `watch: false` for expensive gen use cases
+- [x] add type generation for `.schema.` files
+- [x] [watch mode and build integration](https://github.com/feltjs/gro/pull/283),
+      opt out with `watch: false` for expensive gen use cases
+- [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types
 - [ ] support gen files authored in languages beyond TypeScript like

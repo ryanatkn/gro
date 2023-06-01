@@ -18,7 +18,7 @@ and Gro's philosophy will change over time.
 ### we want tools that are:
 
 - **specific**: designed for our use cases and workflows; natural fits for the domain
-- **adaptable**: useful in novel situations, interoperable; often at tension with specificity
+- **adaptable**: useful in novel situations, interoperable; often at tension with domain specificity
 - **sharp**: powerful, efficient, productive, lean, integrated, wieldy
 - **automated**: leverage laziness to its full potential, with wisdom; see prior _point_
 - **customizable**: happypath defaults and full control when you need it; hypermodular
@@ -31,8 +31,8 @@ and Gro's philosophy will change over time.
     output tool data in common formats using human-friendly APIs, like JSON to the filesystem,
     and provide userland plugin points for reading/writing data and monitoring behavior efficiently
   - two examples of good efforts here include the
-    [build system](https://github.com/feltcoop/gro/blob/main/src/docs/dev.md)
-    and [task resolution and composition](https://github.com/feltcoop/gro/tree/main/src/docs/task.md)
+    [build system](https://github.com/feltjs/gro/blob/main/src/docs/dev.md)
+    and [task resolution and composition](https://github.com/feltjs/gro/tree/main/src/docs/task.md)
 - **built to evolve and grow for the long run**:
   - patiently search for best-of-all-worlds tradeoffs, or at least better ones
   - pay technical debt sooner rather than later; the evergreen web lets us leave legacy in the past
@@ -66,7 +66,7 @@ We want to maintain a growth mindset, accepting imperfection and enjoying the ef
     this is part of the "taking responsibility" in the prior point
   - be smart about taking on dependencies versus re-implementing;
     Gro and Felt lean more towards re-invention but draw a bright line
-    around TypeScript, Svelte, SvelteKit, Rollup, esbuild,
+    around TypeScript, Svelte, SvelteKit, Vite, esbuild,
     any of @lukeed's modules, and many other technologies,
     saying "this is the dependency we're standardizing on"
     (this _sometimes_ forces choices on users;

@@ -1,8 +1,8 @@
 import type {Plugin as RollupPlugin} from 'rollup';
-import {gray} from '@feltcoop/felt/util/terminal.js';
-import {SystemLogger} from '@feltcoop/felt/util/log.js';
-import {printKeyValue, printMs} from '@feltcoop/felt/util/print.js';
-import {createStopwatch} from '@feltcoop/felt/util/timings.js';
+import {gray} from 'kleur/colors';
+import {SystemLogger} from '@feltjs/util/log.js';
+import {printKeyValue, printMs} from '@feltjs/util/print.js';
+import {createStopwatch} from '@feltjs/util/timings.js';
 
 import {printPath} from '../paths.js';
 
@@ -38,11 +38,11 @@ export const rollupPluginGroDiagnostics = (): RollupPlugin => {
 		},
 		// intro() {}
 		load(_id) {
-			// log.trace(tag('load'), printPath(id));
+			// log.debug(tag('load'), printPath(id));
 			return null;
 		},
 		options(_o) {
-			// trace(tag('options'), o);
+			// log.debug(tag('options'), o);
 			return null;
 		},
 		// outputOptions(o) {
@@ -66,16 +66,16 @@ export const rollupPluginGroDiagnostics = (): RollupPlugin => {
 		// resolveDynamicImport(_specifier, _importer) {}
 		// resolveFileUrl(_asset) {}
 		resolveId(_importee, _importer) {
-			// log.trace(tag('resolveId'), gray(importee), (importer && '<- ' + printPath(importer)) || '');
+			// log.debug(tag('resolveId'), gray(importee), (importer && '<- ' + printPath(importer)) || '');
 			return null;
 		},
 		// resolveImportMeta(_property, _asset) {}
 		transform(_code, _id) {
-			// log.trace(tag('transform'), printPath(id), printKeyValue('len', (code && code.length) || 0));
+			// log.debug(tag('transform'), printPath(id), printKeyValue('len', (code && code.length) || 0));
 			return null;
 		},
 		watchChange(id) {
-			log.trace(tag('watchChange'), gray(id));
+			log.debug(tag('watchChange'), gray(id));
 		},
 		writeBundle(_bundle) {
 			log.info(

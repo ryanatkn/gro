@@ -1,15 +1,22 @@
-import {spawn} from '@feltcoop/felt/util/process.js';
+import {spawn} from '@feltjs/util/process.js';
+import {z} from 'zod';
 
-import type {Task} from 'src/task/task.js';
+import type {Task} from './task/task.js';
 
-export interface TaskArgs {
-	host?: string;
-}
+const Args = z
+	.object({
+		host: z
+			.string({description: "the certificate host aka the common name, OpenSSL's CN arg"})
+			.default('localhost'),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
 
-export const task: Task<TaskArgs> = {
+export const task: Task<Args> = {
 	summary: 'creates a self-signed cert for https with openssl',
+	Args,
 	run: async ({fs, args}) => {
-		const host = args.host || 'localhost';
+		const {host} = args;
 		const certFile = `${host}-cert.pem`;
 		const keyFile = `${host}-privkey.pem`;
 		if (await fs.exists(certFile)) throw Error(`File ${certFile} already exists.`);

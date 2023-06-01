@@ -1,36 +1,57 @@
-import {Timings} from '@feltcoop/felt/util/timings.js';
-import {printTimings} from '@feltcoop/felt/util/print.js';
+import {Timings} from '@feltjs/util/timings.js';
+import {printTimings} from '@feltjs/util/print.js';
+import {z} from 'zod';
+import {spawn} from '@feltjs/util/process.js';
 
-import type {Task} from 'src/task/task.js';
-import type {MapInputOptions, MapOutputOptions, MapWatchOptions} from 'src/build/rollup.js';
-import {loadConfig} from './config/config.js';
-import type {GroConfig} from 'src/config/config.js';
+import type {Task} from './task/task.js';
+import {loadConfig, type GroConfig} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
 import {Plugins} from './plugin/plugin.js';
 import {cleanFs} from './fs/clean.js';
 
-export interface TaskArgs {
-	clean?: boolean;
-	'no-clean'?: boolean;
-	mapInputOptions?: MapInputOptions;
-	mapOutputOptions?: MapOutputOptions;
-	mapWatchOptions?: MapWatchOptions;
-}
-
 export interface TaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
 }
 
-export const task: Task<TaskArgs, TaskEvents> = {
+const Args = z
+	.object({
+		clean: z.boolean({description: ''}).optional().default(true),
+		'no-clean': z
+			.boolean({
+				description: 'opt out of cleaning before building; warning! this may break your build!',
+			})
+			.optional()
+			.default(false),
+		install: z.boolean({description: ''}).optional().default(true),
+		'no-install': z
+			.boolean({
+				description: 'opt out of npm installing before building',
+			})
+			.optional()
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
+
+export const task: Task<Args, TaskEvents> = {
 	summary: 'build the project',
 	production: true,
+	Args,
 	run: async (ctx): Promise<void> => {
-		const {fs, dev, log, events, args} = ctx;
+		const {
+			fs,
+			dev,
+			log,
+			events,
+			args: {clean, install},
+		} = ctx;
 
 		const timings = new Timings(); // TODO belongs in ctx
 
-		const {clean = true} = args;
+		if (install) {
+			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
+		}
 
 		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
 		// This is used by `gro publish` and `gro deploy` because they call `cleanFs` themselves.

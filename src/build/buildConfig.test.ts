@@ -23,8 +23,8 @@ test__normalizeBuildConfigs('normalizes a plain config', () => {
 		true,
 	);
 	assert.equal(buildConfig, [
-		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
-		{name: 'system', platform: 'node', input},
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED, types: false},
+		{name: 'system', platform: 'node', input, types: false},
 	]);
 });
 
@@ -45,29 +45,33 @@ test__normalizeBuildConfigs('normalizes inputs', () => {
 		true,
 	);
 	assert.equal(buildConfig, [
-		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
-		{name: 'system', platform: 'node', input},
-		{name: 'node2', platform: 'node', input},
-		{name: 'node3', platform: 'node', input},
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED, types: false},
+		{name: 'system', platform: 'node', input, types: false},
+		{name: 'node2', platform: 'node', input, types: false},
+		{name: 'node3', platform: 'node', input, types: false},
 		{
 			name: 'node4',
 			platform: 'node',
 			input: [inputPath],
+			types: false,
 		},
 		{
 			name: 'node5',
 			platform: 'node',
 			input: [inputPath],
+			types: false,
 		},
 		{
 			name: 'node6',
 			platform: 'node',
 			input: [inputFilter],
+			types: false,
 		},
 		{
 			name: 'node7',
 			platform: 'node',
 			input: [inputPath, inputFilter],
+			types: false,
 		},
 	]);
 });
@@ -83,9 +87,9 @@ test__normalizeBuildConfigs('adds missing system config', () => {
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input},
-		{name: 'node2', platform: 'node', input},
-		{name: 'node3', platform: 'node', input},
+		{name: 'node1', platform: 'node', input, types: false},
+		{name: 'node2', platform: 'node', input, types: false},
+		{name: 'node3', platform: 'node', input, types: false},
 	]);
 });
 
@@ -100,9 +104,9 @@ test__normalizeBuildConfigs('declares a single dist', () => {
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input},
-		{name: 'node2', platform: 'node', input},
-		{name: 'node3', platform: 'node', input},
+		{name: 'node1', platform: 'node', input, types: false},
+		{name: 'node2', platform: 'node', input, types: false},
+		{name: 'node3', platform: 'node', input, types: false},
 	]);
 });
 
@@ -119,11 +123,11 @@ test__normalizeBuildConfigs('ensures a primary config for each platform', () => 
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input},
-		{name: 'node2', platform: 'node', input},
-		{name: 'browser1', platform: 'browser', input},
-		{name: 'browser2', platform: 'browser', input},
-		{name: 'browser3', platform: 'browser', input},
+		{name: 'node1', platform: 'node', input, types: false},
+		{name: 'node2', platform: 'node', input, types: false},
+		{name: 'browser1', platform: 'browser', input, types: false},
+		{name: 'browser2', platform: 'browser', input, types: false},
+		{name: 'browser3', platform: 'browser', input, types: false},
 	]);
 });
 
@@ -140,11 +144,11 @@ test__normalizeBuildConfigs('makes all dist when none is', () => {
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input},
-		{name: 'node2', platform: 'node', input},
-		{name: 'node3', platform: 'node', input},
-		{name: 'browser1', platform: 'browser', input},
-		{name: 'browser2', platform: 'browser', input},
+		{name: 'node1', platform: 'node', input, types: false},
+		{name: 'node2', platform: 'node', input, types: false},
+		{name: 'node3', platform: 'node', input, types: false},
+		{name: 'browser1', platform: 'browser', input, types: false},
+		{name: 'browser2', platform: 'browser', input, types: false},
 	]);
 });
 
@@ -207,8 +211,8 @@ test__validateBuildConfigs('basic behavior', async () => {
 });
 
 test__validateBuildConfigs('fails with input path that does not exist', async () => {
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{name: 'node', platform: 'node', input: 'noSuchFile.ts'}], true),
@@ -219,15 +223,15 @@ test__validateBuildConfigs('fails with input path that does not exist', async ()
 });
 
 test__validateBuildConfigs('fails with undefined', async () => {
-	assert.not.ok((await validateBuildConfigs(fs, undefined as any, true)).ok);
-	assert.not.ok(
-		(await validateBuildConfigs(fs, {name: 'node', platform: 'node', input} as any, true)).ok,
+	assert.ok(!(await validateBuildConfigs(fs, undefined as any, true)).ok);
+	assert.ok(
+		!(await validateBuildConfigs(fs, {name: 'node', platform: 'node', input} as any, true)).ok,
 	);
 });
 
 test__validateBuildConfigs('fails with an invalid name', async () => {
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{platform: 'node', input} as any], true),
@@ -235,8 +239,8 @@ test__validateBuildConfigs('fails with an invalid name', async () => {
 			)
 		).ok,
 	);
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{name: '', platform: 'node', input}], true),
@@ -280,16 +284,16 @@ test__validateBuildConfigs('fails with duplicate names', async () => {
 });
 
 test__validateBuildConfigs('fails with a config build in production mode', async () => {
-	assert.not.ok((await validateBuildConfigs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
+	assert.ok(!(await validateBuildConfigs(fs, [CONFIG_BUILD_CONFIG], false)).ok);
 });
 
 test__validateBuildConfigs('fails with a system build in production mode', async () => {
-	assert.not.ok((await validateBuildConfigs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
+	assert.ok(!(await validateBuildConfigs(fs, [SYSTEM_BUILD_CONFIG], false)).ok);
 });
 
 test__validateBuildConfigs('fails with an invalid platform', async () => {
-	assert.not.ok(
-		(
+	assert.ok(
+		!(
 			await validateBuildConfigs(
 				fs,
 				normalizeBuildConfigs([{name: 'node', input} as any], true),

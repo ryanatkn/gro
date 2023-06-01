@@ -1,33 +1,41 @@
-import {red, green, gray} from '@feltcoop/felt/util/terminal.js';
-import {printMs, printError, printTimings} from '@feltcoop/felt/util/print.js';
-import {plural} from '@feltcoop/felt/util/string.js';
-import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
+import {red, green, gray} from 'kleur/colors';
+import {printMs, printError, printTimings} from '@feltjs/util/print.js';
+import {plural} from '@feltjs/util/string.js';
+import {createStopwatch, Timings} from '@feltjs/util/timings.js';
+import {z} from 'zod';
 
-import type {Task} from 'src/task/task.js';
-import {TaskError} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
-import {loadConfig} from './config/config.js';
-import {buildSource} from './build/buildSource.js';
+import { loadConfig } from './config/config.js';
+import { buildSource } from './build/buildSource.js';
 
-export interface TaskArgs {
-	_: string[];
-	check?: boolean;
-	rebuild?: boolean; // TODO hacky -- see below
-	'no-rebuild'?: boolean; // TODO hacky -- see below
-}
+const Args = z
+	.object({
+		_: z.array(z.string(), {description: 'paths to generate'}).default([]),
+		check: z
+			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
+			.default(false),
+			rebuild: z.boolean({description: ''}).optional().default(true),
+			'no-rebuild': z.boolean({description: 'opt out of rebuilding the code for efficiency'}).optional().default(false),
+	
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors
-export const task: Task<TaskArgs> = {
+export const task: Task<Args> = {
 	summary: 'run code generation scripts',
-	run: async ({fs, log, args, dev}): Promise<void> => {
-		const {_: rawInputPaths, rebuild = true} = args;
-		const check = !!args.check;
+	Args,
+	run: async ({fs, log, args,dev}): Promise<void> => {
+		const {_: rawInputPaths, check ,rebuild} = args;
+
+		if (!dev) throw Error('gen cannot be run in production'); // TODO is this right?
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();

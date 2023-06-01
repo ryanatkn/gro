@@ -1,12 +1,13 @@
 import type {EventEmitter} from 'events';
-import {cyan, red} from '@feltcoop/felt/util/terminal.js';
-import {printLogLabel, SystemLogger} from '@feltcoop/felt/util/log.js';
+import {cyan, red} from 'kleur/colors';
+import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 
-import type {TaskModuleMeta} from 'src/task/taskModule.js';
-import type {Args} from 'src/task/task.js';
+import type {TaskModuleMeta} from './taskModule.js';
 import {TaskError} from './task.js';
-import type {invokeTask as InvokeTaskFunction} from 'src/task/invokeTask.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Args} from '../utils/args.js';
+import type {invokeTask as InvokeTaskFunction} from './invokeTask.js';
+import type {Filesystem} from '../fs/filesystem.js';
+import {logTaskHelp} from './logTask.js';
 
 export type RunTaskResult =
 	| {
@@ -22,15 +23,36 @@ export type RunTaskResult =
 export const runTask = async (
 	fs: Filesystem,
 	taskMeta: TaskModuleMeta,
-	args: Args,
+	unparsedArgs: Args,
 	events: EventEmitter,
 	invokeTask: typeof InvokeTaskFunction,
 ): Promise<RunTaskResult> => {
 	const {task} = taskMeta.mod;
+	const log = new SystemLogger(printLogLabel(taskMeta.name));
 	const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
 	if (dev && task.production) {
 		throw new TaskError(`The task "${taskMeta.name}" cannot be run in development`);
 	}
+	if (unparsedArgs.help) {
+		logTaskHelp(log, taskMeta);
+		return {ok: true, output: null};
+	}
+
+	let args = unparsedArgs; // may be reassigned to parsed version ahead
+
+	// Parse and validate args.
+	if (task.Args) {
+		const parsed = task.Args.safeParse(args);
+		if (parsed.success) {
+			args = parsed.data;
+		} else {
+			// TODO this is really messy
+			log.error(red(`Args validation failed:`), '\n', parsed.error.format());
+			throw new TaskError(`Task args failed validation`);
+		}
+	}
+
+	// Run the task.
 	let output: unknown;
 	try {
 		output = await task.run({
@@ -38,9 +60,9 @@ export const runTask = async (
 			dev,
 			args,
 			events,
-			log: new SystemLogger(printLogLabel(taskMeta.name)),
-			invokeTask: (invokedTaskName, invokedArgs = args, invokedEvents = events, invokedFs = fs) =>
-				invokeTask(invokedFs, invokedTaskName, invokedArgs, invokedEvents),
+			log,
+			invokeTask: (invokedTaskName, invokedArgs = {}, invokedEvents = events, invokedFs = fs) =>
+				invokeTask(invokedFs, invokedTaskName, invokedArgs as Args, invokedEvents), // TODO typecast
 		});
 	} catch (err) {
 		return {

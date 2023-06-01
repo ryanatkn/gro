@@ -1,9 +1,9 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve, join} from 'path';
-import {Logger} from '@feltcoop/felt/util/log.js';
+import {Logger} from '@feltjs/util/log.js';
 
-import type {GenModuleMeta} from 'src/gen/genModule.js';
+import type {GenModuleMeta} from './genModule.js';
 import {runGen} from './runGen.js';
 import {fs} from '../fs/node.js';
 
@@ -19,7 +19,8 @@ test__gen('basic behavior', async () => {
 	let fileB: undefined | {filename: string; content: string};
 	let fileC1: undefined | {filename: string; content: string};
 	let fileC2: undefined | {filename: string; content: string};
-	let modA: GenModuleMeta = {
+	const modA: GenModuleMeta = {
+		type: 'basic',
 		id: sourceIdA,
 		mod: {
 			gen: async (ctx) => {
@@ -33,7 +34,8 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	let modB: GenModuleMeta = {
+	const modB: GenModuleMeta = {
+		type: 'basic',
 		id: join(sourceIdBC, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -47,7 +49,8 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	let modC: GenModuleMeta = {
+	const modC: GenModuleMeta = {
+		type: 'basic',
 		id: join(sourceIdBC, 'modC.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -87,6 +90,7 @@ test__gen('basic behavior', async () => {
 			content: fileA.content,
 			id: join(modA.id, '../', fileA.filename),
 			originId: modA.id,
+			format: true,
 		},
 	]);
 
@@ -98,6 +102,7 @@ test__gen('basic behavior', async () => {
 			content: `${fileB.content}/*FORMATTED*/`,
 			id: join(modB.id, '../', fileB.filename),
 			originId: modB.id,
+			format: true,
 		},
 	]);
 	const resultC = genResults.results[2];
@@ -109,11 +114,13 @@ test__gen('basic behavior', async () => {
 			content: fileC1.content,
 			id: join(modC.id, '../', fileC1.filename),
 			originId: modC.id,
+			format: true,
 		},
 		{
 			content: fileC2.content,
 			id: join(modC.id, '../', fileC2.filename),
 			originId: modC.id,
+			format: true,
 		},
 	]);
 });
@@ -125,7 +132,8 @@ test__gen('failing gen function', async () => {
 	let genError; // this error should be passed through to the result
 	// This is the failing gen module.
 	// It's ordered first to test that its failure doesn't cascade.
-	let modA: GenModuleMeta = {
+	const modA: GenModuleMeta = {
+		type: 'basic',
 		id: sourceIdA,
 		mod: {
 			gen: async () => {
@@ -134,7 +142,8 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	let modB: GenModuleMeta = {
+	const modB: GenModuleMeta = {
+		type: 'basic',
 		id: join(sourceIdB, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
@@ -160,7 +169,7 @@ test__gen('failing gen function', async () => {
 
 	const resultA = genResults.results[0];
 	assert.ok(resultA);
-	assert.not.ok(resultA?.ok);
+	assert.ok(!resultA?.ok);
 	assert.ok(resultA.reason);
 	assert.ok(resultA.error);
 
@@ -172,6 +181,7 @@ test__gen('failing gen function', async () => {
 			content: fileB.content,
 			id: join(modB.id, '../', fileB.filename),
 			originId: modB.id,
+			format: true,
 		},
 	]);
 });

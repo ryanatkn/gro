@@ -1,21 +1,22 @@
 import {resolve} from 'path';
-import {toArray} from '@feltcoop/felt/util/array.js';
-import {blue, gray} from '@feltcoop/felt/util/terminal.js';
-import type {Result, Flavored} from '@feltcoop/felt/util/types.js';
+import {toArray} from '@feltjs/util/array.js';
+import {blue, gray} from 'kleur/colors';
+import type {Result, Flavored} from '@feltjs/util';
 
 import {paths} from '../paths.js';
 import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';
 import {validateInputFiles} from './utils.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 // See `../docs/config.md` for documentation.
 
 export type BuildName = Flavored<string, 'BuildName'>;
 
 export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
-	readonly name: BuildName;
-	readonly platform: TPlatformTarget;
-	readonly input: readonly BuildConfigInput[];
+	name: BuildName;
+	platform: TPlatformTarget;
+	input: BuildConfigInput[];
+	types: boolean;
 }
 
 // `string` inputs must be a relative or absolute path to a source file
@@ -25,27 +26,23 @@ export interface InputFilter {
 	(id: string): boolean;
 }
 
-export const toInputFiles = (input: readonly BuildConfigInput[]): string[] =>
+export const toInputFiles = (input: BuildConfigInput[]): string[] =>
 	input.filter((input) => typeof input === 'string') as string[];
 
-export const toInputFilters = (input: readonly BuildConfigInput[]): InputFilter[] =>
+export const toInputFilters = (input: BuildConfigInput[]): InputFilter[] =>
 	input.filter((input) => typeof input !== 'string') as InputFilter[];
 
-// The partial was originally this calculated type, but it's a lot less readable.
-// export type BuildConfigPartial = PartialExcept<
-// 	OmitStrict<BuildConfig, 'input'> & {readonly input: string | string[]},
-// 	'name' | 'platform'
-// >;
 export interface BuildConfigPartial {
-	readonly name: BuildName;
-	readonly platform: PlatformTarget;
-	readonly input: BuildConfigInput | readonly BuildConfigInput[];
+	name: BuildName;
+	platform: PlatformTarget;
+	input: BuildConfigInput | BuildConfigInput[];
+	types?: boolean;
 }
 
 export type PlatformTarget = 'node' | 'browser';
 
 export const normalizeBuildConfigs = (
-	partials: readonly (BuildConfigPartial | null)[],
+	partials: ReadonlyArray<BuildConfigPartial | null>,
 	dev: boolean,
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
@@ -58,6 +55,7 @@ export const normalizeBuildConfigs = (
 			name: partial.name,
 			platform: partial.platform,
 			input: normalizeBuildConfigInput(partial.input),
+			types: partial.types ?? !dev,
 		};
 		buildConfigs.push(buildConfig);
 		if (shouldAddSystemBuildConfig && buildConfig.name === SYSTEM_BUILD_NAME) {
@@ -78,7 +76,7 @@ export const validateBuildConfigs = async (
 	fs: Filesystem,
 	buildConfigs: BuildConfig[],
 	dev: boolean,
-): Promise<Result<{}, {reason: string}>> => {
+): Promise<Result<object, {reason: string}>> => {
 	if (!Array.isArray(buildConfigs)) {
 		return {
 			ok: false,
@@ -107,8 +105,7 @@ export const validateBuildConfigs = async (
 	const names: Set<BuildName> = new Set();
 	for (const buildConfig of buildConfigs) {
 		if (
-			!buildConfig ||
-			!buildConfig.name ||
+			!buildConfig?.name ||
 			!(buildConfig.platform === 'node' || buildConfig.platform === 'browser')
 		) {
 			return {
@@ -127,7 +124,7 @@ export const validateBuildConfigs = async (
 			};
 		}
 		names.add(buildConfig.name);
-		const validatedInput = await validateInputFiles(fs, toInputFiles(buildConfig.input));
+		const validatedInput = await validateInputFiles(fs, toInputFiles(buildConfig.input)); // eslint-disable-line no-await-in-loop
 		if (!validatedInput.ok) return validatedInput;
 	}
 	return {ok: true};

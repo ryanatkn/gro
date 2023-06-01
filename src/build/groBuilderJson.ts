@@ -1,5 +1,5 @@
 import {JS_EXTENSION, toBuildOutPath} from '../paths.js';
-import type {Builder, TextBuildSource} from 'src/build/builder.js';
+import type {Builder, TextBuildSource} from './builder.js';
 
 export interface Options {
 	optimize?: boolean; // see `toJsonJsContent` below
@@ -10,7 +10,7 @@ type JsonBuilder = Builder<TextBuildSource>;
 export const groBuilderJson = (options: Options = {}): JsonBuilder => {
 	const {optimize = true} = options;
 	return {
-		name: '@feltcoop/groBuilderJson',
+		name: '@feltjs/groBuilderJson',
 		build: (source, buildConfig, {buildDir, dev}) => {
 			const {filename} = source;
 			const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);

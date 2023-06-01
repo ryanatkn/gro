@@ -1,10 +1,14 @@
 import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
-import {loadModule, loadModules, findModules} from '../fs/modules.js';
-import type {ModuleMeta, LoadModuleResult} from 'src/fs/modules.js';
-import {toTaskName, isTaskPath, TASK_FILE_SUFFIX} from './task.js';
-import type {Task} from 'src/task/task.js';
+import {
+	loadModule,
+	loadModules,
+	findModules,
+	type ModuleMeta,
+	type LoadModuleResult,
+} from '../fs/modules.js';
+import {toTaskName, isTaskPath, TASK_FILE_SUFFIX, type Task} from './task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export interface TaskModule {
 	task: Task;
@@ -29,6 +33,7 @@ export const loadTaskModule = async (
 	};
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const loadTaskModules = async (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],

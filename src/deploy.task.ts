@@ -1,54 +1,90 @@
 import {join} from 'path';
-import {spawn} from '@feltcoop/felt/util/process.js';
-import {printError} from '@feltcoop/felt/util/print.js';
-import {magenta, green, rainbow, red} from '@feltcoop/felt/util/terminal.js';
+import {spawn} from '@feltjs/util/process.js';
+import {printError} from '@feltjs/util/print.js';
+import {green, red} from 'kleur/colors';
+import {z} from 'zod';
 
-import type {Args, Task} from 'src/task/task.js';
+import {rainbow} from './utils/colors.js';
+import type {Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
-import {GIT_DEPLOY_BRANCH} from './build/buildConfigDefaults.js';
 import {cleanFs} from './fs/clean.js';
+import {toRawRestArgs} from './utils/args.js';
+import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 
 // docs at ./docs/deploy.md
 
-// TODO there's a bug where sometimes you have to run `gro deploy` twice.. hm
 // TODO support other kinds of deployments
 // TODO add a flag to delete the existing deployment branch to avoid bloat (and maybe run `git gc --auto`)
 
 // terminal command to clean up while live testing:
 // gro deploy --clean && gro clean -b && gb -D deploy && git push origin :deploy
 
-export interface TaskArgs extends Args {
-	dirname?: string; // defaults to detecting 'svelte-kit' | 'browser'
-	branch?: string; // optional branch to deploy from; defaults to 'main'
-	dry?: boolean;
-	clean?: boolean; // instead of deploying, just clean the git worktree and Gro cache
-	force?: boolean; // allow deploying to excluded branches like main/master
-}
-
 // TODO customize
 const WORKTREE_DIRNAME = 'worktree';
 const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
-const DEPLOY_BRANCH = 'deploy';
 const ORIGIN = 'origin';
 const INITIAL_FILE = 'package.json'; // this is a single file that's copied into the new branch to bootstrap it
 const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
+const DANGEROUS_BRANCHES = ['main', 'master'];
 
-const EXCLUDED_BRANCHES = ['main', 'master'];
+const Args = z
+	.object({
+		dirname: z
+			.string({
+				description: "output directory in dist/ - defaults to detecting 'svelte-kit' | 'browser'",
+			})
+			.optional(),
+		source: z
+			.string({description: 'source branch to build and deploy from'})
+			.default(GIT_DEPLOY_SOURCE_BRANCH),
+		target: z.string({description: 'target branch to deploy to'}).default(GIT_DEPLOY_TARGET_BRANCH),
+		dry: z
+			.boolean({
+				description:
+					'build and prepare to deploy without actually deploying, for diagnostic and testing purposes',
+			})
+			.default(false),
+		clean: z
+			.boolean({
+				description: 'instead of building and deploying, just clean the git worktree and Gro cache',
+			})
+			.default(false),
+		force: z
+			.boolean({description: 'caution!! destroys the target branch both locally and remotely'})
+			.default(false),
+		dangerous: z
+			.boolean({description: 'caution!! enables destruction of branches like main and master'})
+			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
+			.default(false),
+	})
+	.strict();
+type Args = z.infer<typeof Args>;
 
-export const task: Task<TaskArgs> = {
-	summary: 'deploy to static hosting',
+export const task: Task<Args> = {
+	summary: 'deploy to a branch',
 	production: true,
+	Args,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {dirname, branch, dry, clean: cleanAndExit, force} = args;
+		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous} = args;
 
-		if (!force && EXCLUDED_BRANCHES.includes(branch as string)) {
+		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
-				`For safety reasons, cannot deploy to branch '${branch}'. Pass --force to override.`,
+				`Warning! You are deploying to a custom target branch '${target}',` +
+					` instead of the default '${GIT_DEPLOY_TARGET_BRANCH}' branch.` +
+					` This will destroy your '${target}' branch!` +
+					` If you understand and are OK with deleting your branch '${target}',` +
+					` both locally and remotely, pass --force to suppress this error.`,
 			);
 		}
-
-		const sourceBranch = branch || GIT_DEPLOY_BRANCH;
+		if (!dangerous && DANGEROUS_BRANCHES.includes(target)) {
+			throw Error(
+				`Warning! You are deploying to a custom target branch '${target}'` +
+					` and that appears very dangerous: it will destroy your '${target}' branch!` +
+					` If you understand and are OK with deleting your branch '${target}',` +
+					` both locally and remotely, pass --dangerous to suppress this error.`,
+			);
+		}
 
 		// Exit early if the git working directory has any unstaged or staged changes.
 		// unstaged changes: `git diff --exit-code`
@@ -64,33 +100,74 @@ export const task: Task<TaskArgs> = {
 			return;
 		}
 
-		// Ensure we're on the right branch.
-		const gitCheckoutResult = await spawn('git', ['checkout', sourceBranch]);
-		if (!gitCheckoutResult.ok) {
-			log.error(red(`failed git checkout with exit code ${gitCheckoutResult.code}`));
+		const gitTargetExistsResult = await spawn('git', [
+			'ls-remote',
+			'--exit-code',
+			'--heads',
+			ORIGIN,
+			target,
+		]);
+		if (gitTargetExistsResult.ok) {
+			// Target branch exists on remote.
+
+			// Fetch the remote target deploy branch.
+			const gitFetchTargetResult = await spawn('git', ['fetch', ORIGIN, target]);
+			if (!gitFetchTargetResult.ok) {
+				log.error(
+					red(`failed to fetch target branch ${target} code(${gitFetchTargetResult.code})`),
+				);
+				return;
+			}
+
+			// Checkout the target branch to ensure tracking.
+			const gitCheckoutTargetResult = await spawn('git', ['checkout', target]);
+			if (!gitCheckoutTargetResult.ok) {
+				log.error(
+					red(`failed to checkout target branch ${target} code(${gitCheckoutTargetResult.code})`),
+				);
+				return;
+			}
+		} else if (gitTargetExistsResult.code === 2) {
+			// Target branch does not exist remotely.
+
+			// Create and checkout the target branch. Ignore eroors in case it already exists locally.
+			await spawn('git', ['checkout', '-b', target]);
+		} else {
+			// Something went wrong.
+			log.error(
+				red(`failed to checkout target branch ${target} code(${gitTargetExistsResult.code})`),
+			);
 			return;
 		}
 
-		// TODO filter stdout? `--quiet` didn't work
-		// Set up the deployment branch if necessary.
-		// If the `deploymentBranch` already exists, this is a no-op.
-		log.info(magenta('↓↓↓↓↓↓↓'), green('ignore any errors in here'), magenta('↓↓↓↓↓↓↓'));
+		// Checkout the source branch to deploy.
+		const gitCheckoutSourceResult = await spawn('git', ['checkout', source]);
+		if (!gitCheckoutSourceResult.ok) {
+			log.error(
+				red(`failed to checkout source branch ${source} code(${gitCheckoutSourceResult.code})`),
+			);
+			return;
+		}
+
+		// Set up the deployment `target` branch if necessary.
+		// If the branch already exists, this is a no-op.
 		await spawn(
-			`git checkout --orphan ${DEPLOY_BRANCH} && ` +
+			`git checkout --orphan ${target} && ` +
 				// TODO there's definitely a better way to do this
 				`cp ${INITIAL_FILE} ${TEMP_PREFIX}${INITIAL_FILE} && ` +
 				`git rm -rf . && ` +
 				`mv ${TEMP_PREFIX}${INITIAL_FILE} ${INITIAL_FILE} && ` +
 				`git add ${INITIAL_FILE} && ` +
-				`git commit -m "setup" && git checkout ${sourceBranch}`,
+				`git commit -m "setup" && git checkout ${source}`,
 			[],
-			// this uses `shell: true` because the above is unwieldy with standard command construction
-			{shell: true},
+			{
+				shell: true, // use `shell: true` because the above is unwieldy with standard command construction
+				stdio: 'pipe', // silence the output
+			},
 		);
 
 		// Clean up any existing worktree.
 		await cleanGitWorktree();
-		log.info(magenta('↑↑↑↑↑↑↑'), green('ignore any errors in here'), magenta('↑↑↑↑↑↑↑'));
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
 		await cleanFs(fs, {build: true, dist: true}, log);
@@ -104,7 +181,7 @@ export const task: Task<TaskArgs> = {
 
 		try {
 			// Run the build.
-			const buildResult = await spawn('npx', ['gro', 'build']);
+			const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
 			if (!buildResult.ok) throw Error('gro build failed');
 
 			// After the build is ready, set the deployed directory, inferring as needed.
@@ -140,12 +217,10 @@ export const task: Task<TaskArgs> = {
 		}
 
 		try {
-			// Fetch the remote deploy branch
-			await spawn('git', ['fetch', ORIGIN, DEPLOY_BRANCH]);
 			// Set up the deployment worktree
-			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, DEPLOY_BRANCH]);
+			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 			// Pull the remote deploy branch, ignoring failures
-			await spawn('git', ['pull', ORIGIN, DEPLOY_BRANCH], GIT_ARGS);
+			await spawn('git', ['pull', ORIGIN, target], GIT_ARGS);
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
@@ -161,7 +236,7 @@ export const task: Task<TaskArgs> = {
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
 			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
-			await spawn('git', ['push', ORIGIN, DEPLOY_BRANCH, '-f'], GIT_ARGS);
+			await spawn('git', ['push', ORIGIN, target, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
 			await cleanGitWorktree();
@@ -177,8 +252,8 @@ export const task: Task<TaskArgs> = {
 	},
 };
 
-// TODO like above, these cause some misleading logging
+// `{stdio: 'pipe'}` silences the output
 const cleanGitWorktree = async (): Promise<void> => {
-	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force']);
-	await spawn('git', ['worktree', 'prune']);
+	await spawn('git', ['worktree', 'remove', WORKTREE_DIRNAME, '--force'], {stdio: 'pipe'});
+	await spawn('git', ['worktree', 'prune'], {stdio: 'pipe'});
 };

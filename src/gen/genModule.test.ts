@@ -7,15 +7,29 @@ import {paths} from '../paths.js';
 import {fs} from '../fs/node.js';
 
 /* test__validateGenModule */
-const test__validateGenModule = suite('validateGenModule');
+const test__validateGenModule = suite('validateBasicGenModule');
 
-test__validateGenModule('minimal interface', () => {
-	assert.ok(validateGenModule({gen: () => {}}));
+test__validateGenModule('basic minimal interface', () => {
+	assert.ok(validateGenModule.basic({gen: Function.prototype}));
 });
 
-test__validateGenModule('invalid module', () => {
-	assert.not.ok(validateGenModule({gen: {}}));
-	assert.not.ok(validateGenModule({task: {run: {}}}));
+test__validateGenModule('basic invalid module', () => {
+	assert.ok(!validateGenModule.basic({gen: {}}));
+	assert.ok(!validateGenModule.basic({task: {run: {}}}));
+	assert.ok(!validateGenModule.basic(undefined as any));
+	assert.ok(!validateGenModule.basic(null as any));
+	assert.ok(!validateGenModule.basic(false as any));
+});
+
+test__validateGenModule('schema minimal interface', () => {
+	assert.ok(validateGenModule.schema({}));
+	assert.ok(validateGenModule.schema({SomeSchema: {$id: '/schemas/SomeSchema'}}));
+});
+
+test__validateGenModule('schema invalid module', () => {
+	assert.ok(!validateGenModule.schema(undefined as any));
+	assert.ok(!validateGenModule.schema(null as any));
+	assert.ok(!validateGenModule.schema(false as any));
 });
 
 test__validateGenModule.run();
@@ -31,4 +45,4 @@ test__findGenModules('finds gen modules in a directory', async () => {
 });
 
 test__findGenModules.run();
-/* /findGenModulesResult */
+/* findGenModulesResult */

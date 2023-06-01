@@ -9,20 +9,7 @@ export default {
 	},
 	kit: {
 		adapter: staticAdapter(),
-		target: '#root',
 		files: {assets: 'src/static'},
-		vite: {
-			server: {
-				proxy: {
-					'/api': 'http://localhost:8999',
-				},
-			},
-			ssr: {
-				noExternal: ['@feltcoop/felt'],
-			},
-			optimizeDeps: {
-				exclude: ['@feltcoop/felt'],
-			},
-		},
+		alias: {$routes: 'src/routes'},
 	},
 };

@@ -1,10 +1,10 @@
-import {UnreachableError} from '@feltcoop/felt/util/error.js';
+import {UnreachableError} from '@feltjs/util/error.js';
 
 import {toBuildOutPath} from '../paths.js';
-import type {Builder} from 'src/build/builder.js';
+import type {Builder} from './builder.js';
 
 export const groBuilderNoop: Builder = {
-	name: '@feltcoop/groBuilderNoop',
+	name: '@feltjs/groBuilderNoop',
 	build: (source, buildConfig, {buildDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);

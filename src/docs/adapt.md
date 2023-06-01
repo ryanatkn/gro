@@ -1,13 +1,16 @@
 # adapt
 
+> note: this system is likely going to change as we improve
+> [SvelteKit integration](/src/docs/sveltekit.md)
+
 During the [`gro build`](build.md) task,
 Gro uses `Adapter`s to convert production builds into final artifacts.
 
 Gro has a number of builtin adapters:
 
-- [`groAdapterNodeLibrary`](../adapt/groAdapterNodeLibrary.ts)
-- [`groAdapterSveltekitFrontend `](../adapt/groAdapterSveltekitFrontend.ts)
-- [`groAdapterGenericBuild`](../adapt/groAdapterGenericBuild.ts)
+- [`@feltjs/gro-adapter-node-library`](../adapt/gro-adapter-node-library.ts)
+- [`@feltjs/gro-adapter-sveltekit-frontend `](../adapt/gro-adapter-sveltekit-frontend.ts)
+- [`@feltjs/gro-adapter-generic-build`](../adapt/gro-adapter-generic-build.ts)
 
 Also see [`config.adapt` in the config docs](config.md#adapt)
 and usage in [the default config](../config/gro.config.default.ts).
@@ -71,14 +74,14 @@ In Gro, there's the `adapt` function property,
 a function that returns `Adapter` instances:
 
 ```ts
-import type {GroConfigCreator} from '@feltcoop/gro';
+import type {GroConfigCreator} from '@feltjs/gro';
 
-export const config: GroConfigCreator = async () => {
+const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
-			(await import('@feltcoop/gro/groAdapterSveltekitFrontend.js')).createAdapter(),
-			(await import('@feltcoop/gro/groAdapterNodeLibrary.js')).createAdapter(),
-			(await import('@feltcoop/gro/groAdapterApiServer.js')).createAdapter(),
+			(await import('@feltjs/gro/gro-adapter-sveltekit-frontend.js')).createAdapter(),
+			(await import('@feltjs/gro/gro-adapter-node-library.js')).createAdapter(),
+			(await import('@feltjs/gro/groAdapterApiServer.js')).createAdapter(),
 		],
 
 		// this **does not work**, even though it's simpler!
@@ -106,6 +109,8 @@ export const config: GroConfigCreator = async () => {
 		adapt: () => [null],
 	};
 };
+
+export default config;
 ```
 
 Why must `adapt` be a function, and not just one or more `Adapter` instances?

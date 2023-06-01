@@ -1,14 +1,14 @@
-import {red} from '@feltcoop/felt/util/terminal.js';
-import {Timings} from '@feltcoop/felt/util/timings.js';
-import {UnreachableError} from '@feltcoop/felt/util/error.js';
-import type {Result} from '@feltcoop/felt/util/types.js';
-import {printError} from '@feltcoop/felt/util/print.js';
+import {red} from 'kleur/colors';
+import {Timings} from '@feltjs/util/timings.js';
+import {UnreachableError} from '@feltjs/util/error.js';
+import type {Result} from '@feltjs/util';
+import {printError} from '@feltjs/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
-import type {PathStats, PathData} from 'src/fs/pathData.js';
+import type {PathStats, PathData} from './pathData.js';
 import {toImportId, pathsFromId, printPath, printPathOrGroPath} from '../paths.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {Filesystem} from './filesystem.js';
 
 /*
 
@@ -22,9 +22,9 @@ TODO now that `Filer` is here, integrate it further
 
 */
 
-export interface ModuleMeta<ModuleType = Record<string, any>> {
+export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
 	id: string;
-	mod: ModuleType;
+	mod: TModule;
 }
 
 export type LoadModuleResult<T> = Result<{mod: T}, LoadModuleFailure>;
@@ -32,7 +32,7 @@ export type LoadModuleFailure =
 	| {ok: false; type: 'importFailed'; id: string; error: Error}
 	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
 
-export const loadModule = async <T>(
+export const loadModule = async <T extends Record<string, any>>(
 	id: string,
 	dev: boolean,
 	validate?: (mod: Record<string, any>) => mod is T,
@@ -72,9 +72,9 @@ export type FindModulesResult = Result<
 >;
 type FindModulesTimings = 'map input paths' | 'find files';
 
-export type LoadModulesResult<ModuleMetaType extends ModuleMeta> = Result<
+export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 	{
-		modules: ModuleMetaType[];
+		modules: TModuleMeta[];
 		timings: Timings<LoadModulesTimings>;
 	},
 	{
@@ -82,7 +82,7 @@ export type LoadModulesResult<ModuleMetaType extends ModuleMeta> = Result<
 		loadModuleFailures: LoadModuleFailure[];
 		reasons: string[];
 		// still return the modules and timings, deferring to the caller
-		modules: ModuleMetaType[];
+		modules: TModuleMeta[];
 		timings: Timings<LoadModulesTimings>;
 	}
 >;
@@ -158,24 +158,26 @@ export const findModules = async (
 /*
 
 Load modules by source id.
-This runs serially because importing test files requires
-linking the current file with the module's initial execution.
-TODO parallelize..how? Separate functions? `loadModulesSerially`?
+
+TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
 
 */
-export const loadModules = async <ModuleType, ModuleMetaType extends ModuleMeta<ModuleType>>(
+export const loadModules = async <
+	ModuleType extends Record<string, any>,
+	TModuleMeta extends ModuleMeta<ModuleType>,
+>(
 	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	dev: boolean,
-	loadModuleById: (sourceId: string, dev: boolean) => Promise<LoadModuleResult<ModuleMetaType>>,
-): Promise<LoadModulesResult<ModuleMetaType>> => {
+	loadModuleById: (sourceId: string, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	const timingToLoadModules = timings.start('load modules');
-	const modules: ModuleMetaType[] = [];
+	const modules: TModuleMeta[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
 	for (const [inputPath, sourceIds] of sourceIdsByInputPath) {
 		for (const id of sourceIds) {
-			const result = await loadModuleById(id, dev);
+			const result = await loadModuleById(id, dev); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
 				modules.push(result.mod);
 			} else {

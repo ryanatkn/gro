@@ -1,6 +1,6 @@
 import {createFilter} from '@rollup/pluginutils';
 
-import type {BuildConfig, BuildName} from 'src/build/buildConfig.js';
+import type {BuildConfig, BuildName} from './buildConfig.js';
 import {
 	toBuildExtension,
 	basePathToSourceId,
@@ -11,18 +11,20 @@ import {
 	SVELTE_EXTENSION,
 } from '../paths.js';
 import {getExtensions} from '../fs/mime.js';
-import type {EcmaScriptTarget} from 'src/build/typescriptUtils.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {EcmaScriptTarget} from './typescriptUtils.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
 
-export const GIT_DEPLOY_BRANCH = 'main'; // deploy and publish from this branch
+export const GIT_DEPLOY_SOURCE_BRANCH = 'main'; // deploy and publish FROM this branch
+export const GIT_DEPLOY_TARGET_BRANCH = 'deploy'; // deploy TO this branch
 
 export const CONFIG_BUILD_NAME: BuildName = 'config';
 export const CONFIG_BUILD_CONFIG: BuildConfig = {
 	name: CONFIG_BUILD_NAME,
 	platform: 'node',
 	input: [`${paths.source}gro.config.ts`],
+	types: false,
 };
 
 // Gro currently requires this system build config for Node tasks and tests.
@@ -32,7 +34,8 @@ export const SYSTEM_BUILD_NAME: BuildName = 'system';
 export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 	name: SYSTEM_BUILD_NAME,
 	platform: 'node',
-	input: [createFilter(['**/*.{task,test,gen,gen.*}.ts', '**/fixtures/**'])],
+	input: [createFilter(['**/*.{task,test,gen,gen.*,schema}.ts', '**/fixtures/**'])],
+	types: false,
 };
 
 const NODE_LIBRARY_PATH = 'lib/index.ts';
@@ -40,11 +43,12 @@ const NODE_LIBRARY_SOURCE_ID = basePathToSourceId(NODE_LIBRARY_PATH);
 export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> =>
 	fs.exists(NODE_LIBRARY_SOURCE_ID);
 export const NODE_LIBRARY_BUILD_NAME: BuildName = 'library';
-export const NODE_LIBRARY_BUILD_CONFIG: BuildConfig = {
+export const NODE_LIBRARY_BUILD_CONFIG = (dev: boolean): BuildConfig => ({
 	name: NODE_LIBRARY_BUILD_NAME,
 	platform: 'node',
 	input: [NODE_LIBRARY_PATH],
-};
+	types: !dev,
+});
 
 export const API_SERVER_SOURCE_BASE_PATH = 'lib/server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH, false); // 'lib/server/server.js'
@@ -55,6 +59,7 @@ export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_NAME,
 	platform: 'node',
 	input: [API_SERVER_SOURCE_BASE_PATH],
+	types: false,
 };
 // the first of these matches SvelteKit, the second is just close for convenience
 // TODO change to remove the second, search upwards for an open port

@@ -1,7 +1,7 @@
 # task
 
 > task runner for
-> [Gro](https://github.com/feltcoop/gro)
+> [Gro](https://github.com/feltjs/gro)
 
 ## contents
 
@@ -18,15 +18,16 @@ and its task runner leverages the filesystem as the API
 and defers composition to the user in regular TypeScript modules.
 
 - Gro automatically discovers [all `*.task.ts` files](../docs/tasks.md)
-  in your source directory, so creating a new task is as simple as creating a new file -
-  no configuration needed
+  in your source directory, so creating a new task
+  is as simple as [creating a new file](#define-a-task), no config needed,
+  but part of the convention is that Gro expects all source code to be in `src/`
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
   (but there's also the helper `invokeTask`: see more below)
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args;
-  to view [the available tasks](https://github.com/feltcoop/gro/blob/main/src/docs/tasks.md)
+  to view [the available tasks](https://github.com/feltjs/gro/blob/main/src/docs/tasks.md)
   run `gro` with no arguments
 - it's easy to hook into or override any of Gro's builtin tasks,
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)
@@ -52,6 +53,9 @@ while deferring to your code and facilitating buildtime development processes.
 # and Gro's source for all files matching `*.task.ts` and logs them out.
 $ gro
 ```
+
+> notice that Gro is hardcoded to expect all tasks to be in `src/` --
+> it would be nice to loosen this up, but the API isn't obvious to me right now
 
 ### show tasks in a directory
 
@@ -82,7 +86,7 @@ $ gro gro/some/file
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({log, args}) => {
@@ -92,16 +96,25 @@ export const task: Task = {
 };
 ```
 
+### task directories
+
+As a convenience, Gro interprets `src/some/taskname/taskname.task.ts`
+the same as `src/some/taskname.task.ts`,
+so instead of running `gro some/taskname/taskname` you simply run `gro some/taskname`.
+This is useful because tasks may have associated files (see the args docs below),
+and putting them into a directory together can help make projects easier to navigate.
+
 ### types `Task` and `TaskContext`
 
 ```ts
 // usage:
-// import type {Task, TaskContext} from '@feltcoop/gro';
+// import {type Task, type TaskContext} from '@feltjs/gro';
 
 export interface Task<TArgs = Args, TEvents = {}> {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
-	summary?: string;
+	summary?: string; // prints as help text to the terminal
 	dev?: boolean; // set to `false` to run the task and its children in production mode
+	args?: ArgsSchema; // a JSON schema -- TODO this is currently a subset that requires `properties`
 }
 
 export interface TaskContext<TArgs = {}, TEvents = {}> {
@@ -143,7 +156,7 @@ gro some/file
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
@@ -178,13 +191,13 @@ $ gro test
 
 ```ts
 // src/test.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({args, invokeTask}) => {
 		await doSomethingFirst();
 		// As discussed in the `invokeTask` section above,
-		// it's possible to `import {task as groBuiltinTestTask} from '@feltcoop/gro/dist/test.task.js'`
+		// it's possible to `import {task as groBuiltinTestTask} from '@feltjs/gro/dist/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
@@ -199,36 +212,108 @@ like `test.task.ts` above, you don't have to call its version.
 You can copy/paste an existing task and customize it,
 rewrite a task from scratch, compose them together, or whatever is needed for each project.
 
-### task arg types
+### task `args`
 
-The `Task` interface is generic. Its first param is the type of the task context `args`.
-
-Some Gro tasks use a value mapping pattern convention that we tentatively recommend:
+The `Task` interface is generic, and its first param is the type of the task context `args`.
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
-import {TaskArgs as OtherTaskArgs} from './other.task.js';
-
-export interface TaskArgs extends OtherTaskArgs {
-	mapSomething: (thing: string) => string;
-	// this is provided by `OtherTaskArgs`:
-	// mapSomeNumber: (other: number) => number;
-}
-
-export const task: Task<TaskArgs> = {
+export const task: Task<{something: boolean}> = {
 	run: async ({args}) => {
-		// `args` has type `TaskArgs`
-
-		// other tasks can assign args that this task consumes:
-		const somethingCooler = args.mapSomething('somethingCool');
-
-		// and this task can provide args for others:
-		args.mapSomeNumber = (n) => n * ((1 + Math.sqrt(5)) / 2);
+		args.something; // boolean
 	},
 };
 ```
+
+The **`args` property** of each `Task` (not the task context **`args` param** described above!)
+is an optional schema.
+When combined with [Gro's schema generation](./gen.md#generate-typescript-types-from-schemas),
+we can define a schema for the args and use it along with its generated type,
+providing some benefits:
+
+- print helpful text on the CLI with `gro` and `gro taskname --help`
+- type safety with an automatically generated type
+- args validation using the schema with initialized defaults
+
+```ts
+// src/dosomething.task.ts
+import type {Task} from '@feltjs/gro';
+
+import {DosomethingArgsSchema} from './dosomethingTask.schema.js';
+import type {DosomethingArgs} from './dosomethingTask.js'; // this is generated
+
+export const task: Task<DosomethingArgs> = {
+	args: DosomethingArgsSchema,
+	run: async ({args}) => {
+		args.yepyep; // string
+		args.okcool; // number
+		args.maybee; // boolean | undefined
+	},
+};
+```
+
+```ts
+// src/dosomethingTask.schema.ts
+import type {ArgsSchema} from '@feltjs/gro';
+
+export const DosomethingArgsSchema: ArgsSchema = {
+	$id: '/schemas/DosomethingArgs',
+	type: 'object',
+	properties: {
+		yepyep: {type: 'string', default: 'ya', description: 'helpful info'},
+		okcool: {type: 'number', default: 1234, description: 'that prints to the CLI'},
+		maybee: {type: 'boolean', description: 'and optional args work too'},
+	},
+	required: ['yepyep', 'okcool'],
+};
+```
+
+```ts
+// generated by src/dosomethingTask.schema.ts
+
+export interface DosomethingArgs {
+	/**
+	 * helpful info
+	 */
+	yepyep: string;
+	/**
+	 * that prints to the CLI
+	 */
+	okcool: number;
+	/**
+	 * and optional args work too
+	 */
+	maybee?: boolean;
+}
+
+// generated by src/dosomethingTask.schema.ts
+```
+
+### task args forwarding
+
+Some builtin Gro tasks call external commands like
+[`svelte-kit`](https://github.com/sveltejs/kit),
+[`vite`](https://github.com/vitejs/vite),
+[`uvu`](https://github.com/lukeed/uvu),
+[`tsc`](https://github.com/microsoft/typescript),
+and [`prettier`](https://github.com/prettier/prettier).
+Gro supports generic agnostic args forwarding to these tasks via the `--` pattern:
+for example, to forward args to `svelte-kit` and `uvu`, no matter which task invokes them,
+use `gro taskname --taskname-arg -- uvu --arg1 neat --arg2 22 -- svelte-kit --arg3`.
+
+Any number of sections separated by `--` may be defined, and the first arg
+that appears after each `--` is assumed to be the CLI command.
+If `gro taskname` or its invoked tasks don't call `uvu` or `svelte-kit`,
+the `--` args will be ignored.
+
+There's one special case for task args forwarding: running Gro tasks.
+If `gro` is the command following a `--`, e.g. the second `gro` of
+`gro taskname -- gro taskname2 --a --b`,
+then `--a` and `--b` will be forwarded to `taskname2`.
+Forwarded args to Gro tasks override direct args, including args to `invokeTask`,
+so `gro taskname --a 1 -- gro taskname --a 2` will invoke `taskname` with `{a: 2}`.
 
 ### task events
 
@@ -237,13 +322,16 @@ to type the `events` property of the `TaskContext`.
 It uses Node's builtin `EventEmitter` with types provided by the types-only dependency
 [`strict-event-emitter-types`](https://github.com/bterlson/strict-event-emitter-types/).
 
+> Task events are designed as an escape hatch for cross-task communication.
+> Use wisely! Using events like this can make code more difficult to comprehend.
+
 Here's how a task can emit and listen to events:
 
 ```ts
 // src/some/mytask.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
-import type {TaskEvents as OtherTaskEvents} from 'src/task/othertask.task.ts';
+import {type TaskEvents as OtherTaskEvents} from '../task/othertask.task.ts';
 
 export interface TaskArgs {}
 export interface TaskEvents extends OtherTaskEvents {
@@ -276,7 +364,7 @@ To suppress logging the stack trace for an error,
 throw a `TaskError`.
 
 ```ts
-import {Task, TaskError} from '@feltcoop/gro';
+import {Task, TaskError} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async () => {
@@ -291,7 +379,7 @@ export const task: Task = {
 
 ```ts
 // src/some/file.task.ts
-import type {Task} from '@feltcoop/gro';
+import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	production: true, // task runner will spawn a new process if `process.env.NODE_ENV` isn't 'production'
@@ -347,3 +435,4 @@ Gro's task runner has many inspirations:
 - [Gulp](https://github.com/gulpjs/gulp)
 - [@mgutz](https://github.com/mgutz)' [Projmate](https://github.com/projmate/projmate-core)
 - [Grunt](https://github.com/gruntjs/grunt)
+- [npm scripts](https://docs.npmjs.com/cli/v8/using-npm/scripts)

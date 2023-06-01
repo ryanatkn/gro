@@ -1,14 +1,15 @@
-import {printMs, printTimings} from '@feltcoop/felt/util/print.js';
-import type {Logger} from '@feltcoop/felt/util/log.js';
-import {createStopwatch, Timings} from '@feltcoop/felt/util/timings.js';
-import {gray} from '@feltcoop/felt/util/terminal.js';
+import {printMs, printTimings} from '@feltjs/util/print.js';
+import type {Logger} from '@feltjs/util/log.js';
+import {createStopwatch, Timings} from '@feltjs/util/timings.js';
+import {gray} from 'kleur/colors';
 
 import {paths, toTypesBuildDir} from '../paths.js';
 import {Filer} from '../build/Filer.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
-import type {GroConfig} from 'src/config/config.js';
-import type {Filesystem} from 'src/fs/filesystem.js';
+import type {GroConfig} from '../config/config.js';
+import type {Filesystem} from '../fs/filesystem.js';
 import {generateTypes} from './typescriptUtils.js';
+import {sveltekitSync} from '../utils/sveltekit.js';
 
 export const buildSource = async (
 	fs: Filesystem,
@@ -18,6 +19,8 @@ export const buildSource = async (
 ): Promise<void> => {
 	log.info('building source', gray(dev ? 'development' : 'production'));
 
+	await sveltekitSync(fs);
+
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
 	const logTimings = () => {
@@ -25,12 +28,12 @@ export const buildSource = async (
 		log.info(`🕒 built in ${printMs(totalTiming())}`);
 	};
 
-	if (config.types) {
+	if (config.builds.some((b) => b.types)) {
 		log.info('building types');
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
 		const timingToTypes = timings.start('types');
-		await generateTypes(paths.source, toTypesBuildDir(), config.sourcemap, config.typemap);
+		await generateTypes(paths.source, toTypesBuildDir(), config.sourcemap, config.typemap, log);
 		timingToTypes();
 	}
 
@@ -45,7 +48,6 @@ export const buildSource = async (
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,
-		types: config.types,
 	});
 	timingToCreateFiler();
 

@@ -1,8 +1,8 @@
-import {toArray} from '@feltcoop/felt/util/array.js';
-import type {Timings} from '@feltcoop/felt/util/timings.js';
+import {toArray} from '@feltjs/util/array.js';
+import type {Timings} from '@feltjs/util/timings.js';
 
-import type {TaskContext} from 'src/task/task.js';
-import type {GroConfig} from 'src/config/config.js';
+import type {TaskContext} from '../task/task.js';
+import type {GroConfig} from '../config/config.js';
 
 /*
 
@@ -12,8 +12,7 @@ https://kit.svelte.dev/docs#adapters
 The general idea is the same:
 adapters are little plugins that take production builds as inputs and produce final outputs.
 
-Despite the similarity, Gro's adapter API differs from SvelteKit's,
-and interoperability is not a goal yet. (and may never be, can't tell right now)
+The goal is to remove all of this from Gro: see https://github.com/feltjs/gro/issues/329
 
 */
 
@@ -24,8 +23,8 @@ export interface Adapter<TArgs = any, TEvents = any> {
 
 export interface ToConfigAdapters<TArgs = any, TEvents = any> {
 	(ctx: AdapterContext<TArgs, TEvents>):
-		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
-		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
+		| (Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>)
+		| Promise<Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>>;
 }
 
 export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
@@ -36,10 +35,9 @@ export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<
 export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
 	const timingToCreateAdapters = timings.start('create adapters');
-	const adapters: Adapter<any, any>[] = toArray(await config.adapt(ctx)).filter(Boolean) as Adapter<
-		any,
-		any
-	>[];
+	const adapters: Array<Adapter<any, any>> = toArray(await config.adapt(ctx)).filter(
+		Boolean,
+	) as Array<Adapter<any, any>>;
 	timingToCreateAdapters();
 
 	if (adapters.length) {
@@ -47,7 +45,7 @@ export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> =>
 		for (const adapter of adapters) {
 			if (!adapter.adapt) continue;
 			const timing = timings.start(`adapt:${adapter.name}`);
-			await adapter.adapt(ctx);
+			await adapter.adapt(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
 		timingToRunAdapters();

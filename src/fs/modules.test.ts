@@ -41,7 +41,7 @@ test__loadModule('fails validation', async () => {
 		return false;
 	};
 	const result = await loadModule(id, true, testValidation as any);
-	assert.not.ok(result.ok);
+	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
 		assert.is(result.validation, testValidation.name);
 		assert.is(result.id, id);
@@ -55,7 +55,7 @@ test__loadModule('fails validation', async () => {
 test__loadModule('fails to import', async () => {
 	const id = resolve('foo/test/failure');
 	const result = await loadModule(id, true);
-	assert.not.ok(result.ok);
+	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {
 		assert.is(result.id, id);
 		assert.ok(result.error instanceof Error);
@@ -122,7 +122,7 @@ test__findModules('fail with unmappedInputPaths', async () => {
 		(id) => fs.findFiles(id),
 		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
 	);
-	assert.not.ok(result.ok);
+	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
 	if (result.type === 'unmappedInputPaths') {
 		assert.equal(result.unmappedInputPaths, [
@@ -145,7 +145,7 @@ test__findModules('fail with inputDirectoriesWithNoFiles', async () => {
 		],
 		(id) => fs.findFiles(id, ({path}) => !path.includes('.bar.')),
 	);
-	assert.not.ok(result.ok);
+	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
 	if (result.type === 'inputDirectoriesWithNoFiles') {
 		assert.equal(result.inputDirectoriesWithNoFiles, [
@@ -192,7 +192,7 @@ test__loadModules('fail with loadModuleFailures', async () => {
 			return loadModule(id, true, testValidation);
 		},
 	);
-	assert.not.ok(result.ok);
+	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
 	if (result.type !== 'loadModuleFailures') {
 		throw Error('Expected to fail with loadModuleFailures');

@@ -2,7 +2,7 @@
 
 > <sub>[gro](/../..) / [docs](./) / tasks.md</sub>
 
-What is a `Task`? See [`tasks.md`](./task.md).
+What is a `Task`? See [`task.md`](./task.md).
 
 ## all tasks
 
@@ -10,14 +10,16 @@ What is a `Task`? See [`tasks.md`](./task.md).
 - [cert](../cert.task.ts) - creates a self-signed cert for https with openssl
 - [check](../check.task.ts) - check that everything is ready to commit
 - [clean](../clean.task.ts) - remove temporary dev and build files, and optionally prune git branches
-- [deploy](../deploy.task.ts) - deploy to static hosting
-- [dev](../dev.task.ts) - start dev server
+- [deploy](../deploy.task.ts) - deploy to a branch
+- [dev](../dev.task.ts) - start SvelteKit and other dev plugins
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
-- [publish](../publish.task.ts) - bump version, publish to npm, and sync to GitHub
-- [serve](../serve.task.ts) - start static file server
+- [help](../help.task.ts) - alias for `gro` with no task name provided
+- [lint](../lint.task.ts) - run eslint on the source files
+- [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [test](../test.task.ts) - run tests
 - [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
+- [upgrade](../upgrade.task.ts) - upgrade deps
 
 ## usage
 
