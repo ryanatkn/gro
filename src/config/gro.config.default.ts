@@ -39,7 +39,7 @@ const config: GroConfigCreator = async ({fs, dev}) => {
 			enableSveltekitFrontend
 				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).createPlugin()
 				: null,
-			(await import('../plugin/groPluginGen.js')).createPlugin(),
+			(await import('../plugin/gro-plugin-gen.js')).createPlugin(),
 		],
 		adapt: async () => [
 			enableNodeLibrary

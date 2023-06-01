@@ -1,14 +1,14 @@
 import {spawn} from '@feltcoop/felt/util/process.js';
 import {debounce} from 'throttle-debounce';
 
-import type {FilerEvents} from 'src/build/Filer.js';
-import type {Plugin, PluginContext} from 'src/plugin/plugin.js';
-import type {Args} from 'src/task/task.js';
+import type {FilerEvents} from '../build/Filer.js';
+import type {Plugin, PluginContext} from './plugin.js';
+import type {Args} from '../task/task.js';
 import {sourceIdToBasePath} from '../paths.js';
 import {isGenPath} from '../gen/gen.js';
 import {filterDependents} from '../build/sourceFile.js';
 
-const name = '@feltcoop/groPluginGen';
+const name = '@feltcoop/gro-plugin-gen';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -16,7 +16,7 @@ export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
-export const createPlugin = (): Plugin<PluginContext<TaskArgs, {}>> => {
+export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	let generating = false;
 	let regen = false;
 	let onBuildFile: ((e: FilerEvents['build']) => void) | undefined;
