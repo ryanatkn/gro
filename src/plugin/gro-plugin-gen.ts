@@ -5,7 +5,7 @@ import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../utils/args.js';
 import {sourceIdToBasePath} from '../paths.js';
-import {isGenPath} from '../gen/gen.js';
+import {isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 
 const name = '@feltcoop/gro-plugin-gen';
