@@ -11,8 +11,8 @@ import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
-import { loadConfig } from './config/config.js';
-import { buildSource } from './build/buildSource.js';
+import {loadConfig} from './config/config.js';
+import {buildSource} from './build/buildSource.js';
 
 const Args = z
 	.object({
@@ -20,9 +20,11 @@ const Args = z
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
 			.default(false),
-			rebuild: z.boolean({description: ''}).optional().default(true),
-			'no-rebuild': z.boolean({description: 'opt out of rebuilding the code for efficiency'}).optional().default(false),
-	
+		rebuild: z.boolean({description: ''}).optional().default(true),
+		'no-rebuild': z
+			.boolean({description: 'opt out of rebuilding the code for efficiency'})
+			.optional()
+			.default(false),
 	})
 	.strict();
 type Args = z.infer<typeof Args>;
@@ -32,8 +34,8 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({fs, log, args,dev}): Promise<void> => {
-		const {_: rawInputPaths, check ,rebuild} = args;
+	run: async ({fs, log, args, dev}): Promise<void> => {
+		const {_: rawInputPaths, check, rebuild} = args;
 
 		if (!dev) throw Error('gen cannot be run in production'); // TODO is this right?
 
