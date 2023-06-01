@@ -49,9 +49,10 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 				filer,
 				args: {watch},
 			} = ctx;
-			if (!filer) throw Error(`${name} expects a filer arg`);
-			if (!watch) {
-				flushGenQueue();
+
+			// Do we need to just generate everything once and exit?
+			if (!filer || !watch) {
+				await gen([]);
 				return;
 			}
 
@@ -74,7 +75,9 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			filer.on('build', onBuildFile);
 		},
 		teardown: async (ctx) => {
-			if (onBuildFile) ctx.filer!.off('build', onBuildFile);
+			if (onBuildFile && ctx.filer) {
+				ctx.filer.off('build', onBuildFile);
+			}
 		},
 	};
 };
