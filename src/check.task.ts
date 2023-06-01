@@ -25,18 +25,6 @@ export const task: Task<Args> = {
 	run: async ({fs, log, args, invokeTask}) => {
 		const {typecheck, test, gen, format, lint} = args;
 
-		// Check for stale code generation if the project has any gen files.
-		const findGenModulesResult = await findGenModules(fs);
-		if (findGenModulesResult.ok) {
-			log.info('checking that generated files have not changed');
-			await invokeTask('gen', {...args, check: true, rebuild: false});
-		} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
-			for (const reason of findGenModulesResult.reasons) {
-				log.error(reason);
-			}
-			throw new TaskError('Failed to find gen modules.');
-		}
-
 		if (typecheck) {
 			await invokeTask('typecheck');
 		}
@@ -50,7 +38,7 @@ export const task: Task<Args> = {
 			const findGenModulesResult = await findGenModules(fs);
 			if (findGenModulesResult.ok) {
 				log.info('checking that generated files have not changed');
-				await invokeTask('gen', {check: true});
+				await invokeTask('gen', {check: true, rebuild: false});
 			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
 				for (const reason of findGenModulesResult.reasons) {
 					log.error(reason);
