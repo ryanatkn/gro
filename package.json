@@ -53,6 +53,7 @@
     "@rollup/pluginutils": "^5.0.2",
     "@ryanatkn/json-schema-to-typescript": "^11.1.5",
     "@types/source-map-support": "^0.5.6",
+    "@types/throttle-debounce": "^5.0.0",
     "cheap-watch": "^1.0.4",
     "es-module-lexer": "^1.2.1",
     "fs-extra": "^11.1.1",

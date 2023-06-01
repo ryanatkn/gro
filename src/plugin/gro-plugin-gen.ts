@@ -1,4 +1,4 @@
-import {spawn} from '@feltcoop/felt/util/process.js';
+import {spawn} from '@feltjs/util/process.js';
 import {debounce} from 'throttle-debounce';
 
 import type {FilerEvents} from '../build/Filer.js';
@@ -8,7 +8,7 @@ import {sourceIdToBasePath} from '../paths.js';
 import {isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 
-const name = '@feltcoop/gro-plugin-gen';
+const name = '@feltjs/gro-plugin-gen';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
