@@ -20,6 +20,8 @@ See this issue for more: https://github.com/feltjs/gro/pull/292
 
 */
 
+/* eslint-disable no-console */
+
 const transformOptions = {
 	target: 'es2020',
 	sourcemap: false,

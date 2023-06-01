@@ -18,7 +18,7 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
-	run: async ({fs, args}): Promise<void> => {
+	run: async ({fs, args, log}): Promise<void> => {
 		const {_, dry} = args;
 
 		const pkg = await loadPackageJson(fs);
@@ -28,12 +28,12 @@ export const task: Task<Args> = {
 		const upgradeItems = toUpgradeItems(deps);
 
 		if (dry) {
-			console.log(`deps`, deps);
-			console.log(`upgradeItems`, upgradeItems);
+			log.info(`deps`, deps);
+			log.info(`upgradeItems`, upgradeItems);
 			return;
 		}
 
-		console.log(`upgrading:`, upgradeItems.join(' '));
+		log.info(`upgrading:`, upgradeItems.join(' '));
 
 		await spawn('npm', ['i'].concat(upgradeItems));
 	},
