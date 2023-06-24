@@ -1,5 +1,10 @@
 # changelog
 
+## 0.78.1
+
+- add build config option to mock SvelteKit paths in production
+  ([#374](https://github.com/feltjs/gro/pull/374))
+
 ## 0.78.0
 
 - **break**: change schema bundling to use the parsed name in `$defs` instead of the `$id`
