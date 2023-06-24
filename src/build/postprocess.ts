@@ -43,6 +43,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 		return buildDependency;
 	};
 
+	// TODO BLOCK dev + types + mockSvelteKitPaths
 	const types = ctx.buildConfigs?.some((b) => b.types);
 
 	// Map import paths to the built versions.
