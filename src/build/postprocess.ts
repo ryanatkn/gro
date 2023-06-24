@@ -147,9 +147,9 @@ const toBuildDependency = (
 	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;
 	if (external) {
-		mappedSpecifier = hackToSveltekitImportMocks(toBuildExtension(specifier, dev), dev);
+		mappedSpecifier = hackToSveltekitImportMocks(toBuildExtension(specifier, dev));
 		// TODO is this needed?
-		finalSpecifier = hackToSveltekitImportMocks(finalSpecifier, dev);
+		finalSpecifier = hackToSveltekitImportMocks(finalSpecifier);
 		buildId = mappedSpecifier;
 	} else {
 		// internal import
@@ -250,10 +250,8 @@ const HACK_EXTENSIONLESS_EXTENSIONS = new Set([SVELTE_EXTENSION, JS_EXTENSION, T
 
 // TODO substitutes SvelteKit-specific paths for Gro's mocked version for testing purposes.
 // should extract this so it's configurable. (this whole module is hacky and needs rethinking)
-const hackToSveltekitImportMocks = (specifier: string, dev: boolean): string =>
-	dev && sveltekitMockedSpecifiers.has(specifier)
-		? sveltekitMockedSpecifiers.get(specifier)!
-		: specifier;
+const hackToSveltekitImportMocks = (specifier: string): string =>
+	sveltekitMockedSpecifiers.get(specifier) ?? specifier;
 const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
 	? '../../utils/sveltekitImportMocks.js'
 	: '@feltjs/gro/dist/utils/sveltekitImportMocks.js';
