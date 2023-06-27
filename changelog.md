@@ -1,5 +1,10 @@
 # changelog
 
+## 0.78.1
+
+- upgrade deps
+  ([#373](https://github.com/feltjs/gro/pull/373))
+
 ## 0.78.0
 
 - **break**: change schema bundling to use the parsed name in `$defs` instead of the `$id`
