@@ -3,7 +3,7 @@
 ## 0.78.1
 
 - upgrade deps
-  ([#373](https://github.com/feltjs/gro/pull/373))
+  ([#376](https://github.com/feltjs/gro/pull/376))
 
 ## 0.78.0
 
