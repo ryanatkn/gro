@@ -1,5 +1,10 @@
 # changelog
 
+## 0.78.2
+
+- upgrade deps
+  ([#377](https://github.com/feltjs/gro/pull/377))
+
 ## 0.78.1
 
 - upgrade deps
