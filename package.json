@@ -49,7 +49,7 @@
     "tsconfig.json"
   ],
   "dependencies": {
-    "@feltjs/util": "^0.8.1",
+    "@feltjs/util": "^0.9.0",
     "@rollup/pluginutils": "^5.0.2",
     "@ryanatkn/json-schema-to-typescript": "^11.1.5",
     "@types/source-map-support": "^0.5.6",

@@ -6,7 +6,8 @@ import {
 	printLogLabel,
 } from '@feltjs/util/log.js';
 import {omitUndefined} from '@feltjs/util/object.js';
-import type {Assignable, Result} from '@feltjs/util';
+import type {Result} from '@feltjs/util/result.js';
+import type {Assignable} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
 
 import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';

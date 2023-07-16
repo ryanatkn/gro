@@ -2,7 +2,8 @@ import {createInterface as createReadlineInterface} from 'readline';
 import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {UnreachableError} from '@feltjs/util/error.js';
-import type {Flavored, Result} from '@feltjs/util';
+import type {Result} from '@feltjs/util/result.js';
+import type {Flavored} from '@feltjs/util/types.js';
 import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 

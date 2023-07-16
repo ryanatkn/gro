@@ -1,7 +1,8 @@
 import {resolve} from 'path';
 import {toArray} from '@feltjs/util/array.js';
 import {blue, gray} from 'kleur/colors';
-import type {Result, Flavored} from '@feltjs/util';
+import type {Result} from '@feltjs/util/result.js';
+import type {Flavored} from '@feltjs/util/types.js';
 
 import {paths} from '../paths.js';
 import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';

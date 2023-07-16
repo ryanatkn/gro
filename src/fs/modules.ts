@@ -1,7 +1,7 @@
 import {red} from 'kleur/colors';
 import {Timings} from '@feltjs/util/timings.js';
 import {UnreachableError} from '@feltjs/util/error.js';
-import type {Result} from '@feltjs/util';
+import type {Result} from '@feltjs/util/result.js';
 import {printError} from '@feltjs/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';

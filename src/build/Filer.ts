@@ -2,7 +2,7 @@ import {resolve, extname, join} from 'path';
 import * as lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
-import {nulls, omitUndefined} from '@feltjs/util/object.js';
+import {omitUndefined} from '@feltjs/util/object.js';
 import {UnreachableError} from '@feltjs/util/error.js';
 import {printLogLabel, SystemLogger, type Logger} from '@feltjs/util/log.js';
 import {gray, red, cyan} from 'kleur/colors';
@@ -923,3 +923,18 @@ const addDependency = (
 	}
 	dependencies.set(addedDependency.buildId, addedDependency);
 };
+
+/**
+ * Allows easier destructuring of `null`s from potentially error-causing values:
+ * `const {a, b} = maybeDestructurable() || nulls;`
+ * If `maybeDestructurable()` returns a non-destructurable value,
+ * the `|| nulls` ensures `a` and `b` default to `null`.
+ */
+export const nulls: {[key: string]: null} = new Proxy(
+	{},
+	{
+		get() {
+			return null;
+		},
+	},
+);
