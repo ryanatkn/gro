@@ -17,7 +17,7 @@ export const task: Task<Args> = {
 	summary: 'commit and push to a new branch',
 	production: true,
 	Args,
-	run: async ({args}): Promise<void> => {
+	run: async ({args, log}): Promise<void> => {
 		console.log(`args`, args);
 		const {_: rest} = args;
 
