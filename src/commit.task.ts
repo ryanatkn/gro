@@ -3,12 +3,6 @@ import {z} from 'zod';
 import {exec} from 'child_process';
 
 import {TaskError, type Task} from './task/task.js';
-import {paths} from './paths.js';
-
-// TODO customize
-const WORKTREE_DIRNAME = 'worktree';
-const WORKTREE_DIR = `${paths.root}${WORKTREE_DIRNAME}`;
-const GIT_ARGS = {cwd: WORKTREE_DIR};
 
 const Args = z
 	.object({
@@ -30,8 +24,8 @@ export const task: Task<Args> = {
 		exec('git rev-parse --abbrev-ref HEAD', async (err, stdout, stderr) => {
 			console.log(`stdout`, stdout);
 			if (err) throw new TaskError('error: ' + stderr);
-			await spawn('git', ['commit', '-am', ...rest], GIT_ARGS);
-			await spawn('git', ['push', '-u', 'origin', stdout], GIT_ARGS);
+			await spawn('git', ['commit', '-am', ...rest]);
+			await spawn('git', ['push', '-u', 'origin', stdout]);
 		});
 	},
 };
