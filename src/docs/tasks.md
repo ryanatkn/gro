@@ -10,6 +10,7 @@ What is a `Task`? See [`task.md`](./task.md).
 - [cert](../cert.task.ts) - creates a self-signed cert for https with openssl
 - [check](../check.task.ts) - check that everything is ready to commit
 - [clean](../clean.task.ts) - remove temporary dev and build files, and optionally prune git branches
+- [commit](../commit.task.ts) - commit to a branch
 - [deploy](../deploy.task.ts) - deploy to a branch
 - [dev](../dev.task.ts) - start SvelteKit and other dev plugins
 - [format](../format.task.ts) - format source files
