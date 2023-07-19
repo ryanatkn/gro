@@ -19,11 +19,13 @@ export const task: Task<Args> = {
 	Args,
 	run: async ({args, log}): Promise<void> => {
 		console.log(`args`, args);
-		const {_: rest} = args;
+		const {
+			_: [message],
+		} = args;
 
 		const branch = execSync('git rev-parse --abbrev-ref HEAD').toString();
-		console.log(`rest`, rest);
-		await spawn('git', ['commit', '-am', rest.join(' ')]);
+		console.log(`message`, message);
+		await spawn('git', ['commit', '-am', message]);
 		await spawn('git', ['push', '-u', 'origin', branch]);
 	},
 };
