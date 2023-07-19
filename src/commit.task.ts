@@ -22,7 +22,7 @@ export const task: Task<Args> = {
 		const {_: rest} = args;
 
 		const branch = execSync('git rev-parse --abbrev-ref HEAD').toString();
-		await spawn('git', ['commit', '-am', `"${rest.join(' ')}"`]);
+		await spawn('git', ['commit', '-am', rest.join(' ')]);
 		await spawn('git', ['push', '-u', 'origin', branch]);
 	},
 };
