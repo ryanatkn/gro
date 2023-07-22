@@ -4,6 +4,8 @@
 
 - add `gro commit` task
   ([#379](https://github.com/feltjs/gro/pull/379))
+- add `gen` plugin that defaults to watch mode
+  ([#283](https://github.com/feltjs/gro/pull/283))
 
 ## 0.79.0
 
@@ -451,8 +453,6 @@
 
 ## 0.47.1
 
-- add `gen` plugin that defaults to watch mode
-  ([#283](https://github.com/feltjs/gro/pull/283))
 - fix `svelte-check` to scope to `src/`
   ([#273](https://github.com/feltjs/gro/pull/273))
 - fix writing source meta concurrently

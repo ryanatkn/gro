@@ -2,6 +2,8 @@ import {wait} from '@feltjs/util/async.js';
 
 // TODO maybe support return values? gets tricky: what should it return for the skipped ones?
 
+// TODO BLOCK
+
 /**
  * Throttles calls to a promise-returning function.
  * If the throttled function is called while the promise is pending,
