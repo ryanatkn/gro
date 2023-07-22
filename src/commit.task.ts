@@ -28,7 +28,7 @@ export const task: Task<Args> = {
 		await spawn(
 			`git push -u origin ${branch}`,
 			[],
-			{shell: true}, // use `shell: true` because the above is failing with standard command construction
+			{shell: true}, // TODO using `shell: true` because it's failing with standard command construction - why?
 		);
 	},
 };
