@@ -1,10 +1,15 @@
 # changelog
 
+## 0.79.1
+
+- add `gro commit` task
+  ([#379](https://github.com/feltjs/gro/pull/379))
+
 ## 0.79.0
 
 - **break**: upgrade to `@feltjs/util@0.9.0` and peer dep `svelte@4`,
   and change peer deps to avoid breaking changes
-  ([#377](https://github.com/feltjs/gro/pull/377))
+  ([#378](https://github.com/feltjs/gro/pull/378))
 
 ## 0.78.2
 
