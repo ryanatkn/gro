@@ -26,7 +26,7 @@ export const task: Task<Args> = {
 		await spawn('git', ['commit', '-a', '-m', message]);
 		setTimeout(async () => {
 
-			await spawn('git', ['push', '-u', 'origin', `'${branch}'`]);
+			await spawn('git', ['push', '-u', 'origin', `"${branch}"`]);
 		}, 100)
 	},
 };
