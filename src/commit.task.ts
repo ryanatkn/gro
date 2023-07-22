@@ -24,6 +24,9 @@ export const task: Task<Args> = {
 
 		const branch = execSync('git rev-parse --abbrev-ref HEAD').toString();
 		await spawn('git', ['commit', '-a', '-m', message]);
-		await spawn('git', ['push', '-u', 'origin', branch]);
+		setTimeout(async () => {
+
+			await spawn('git', ['push', '-u', 'origin', branch]);
+		}, 100)
 	},
 };
