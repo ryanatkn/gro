@@ -1,5 +1,26 @@
 # changelog
 
+## 0.79.1
+
+- add `gro commit` task
+  ([#379](https://github.com/feltjs/gro/pull/379))
+
+## 0.79.0
+
+- **break**: upgrade to `@feltjs/util@0.9.0` and peer dep `svelte@4`,
+  and change peer deps to avoid breaking changes
+  ([#378](https://github.com/feltjs/gro/pull/378))
+
+## 0.78.2
+
+- upgrade deps
+  ([#377](https://github.com/feltjs/gro/pull/377))
+
+## 0.78.1
+
+- upgrade deps
+  ([#376](https://github.com/feltjs/gro/pull/376))
+
 ## 0.78.0
 
 - **break**: change schema bundling to use the parsed name in `$defs` instead of the `$id`

@@ -1,6 +1,6 @@
 import {createHash} from 'crypto';
 import {resolve} from 'path';
-import type {Result} from '@feltjs/util';
+import type {Result} from '@feltjs/util/result.js';
 import {replaceExtension} from '@feltjs/util/path.js';
 
 import type {BuildConfigInput} from './buildConfig.js';
