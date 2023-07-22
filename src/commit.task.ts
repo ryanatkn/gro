@@ -17,15 +17,12 @@ export const task: Task<Args> = {
 	summary: 'commit and push to a new branch',
 	production: true,
 	Args,
-	run: async ({args, log}): Promise<void> => {
-		console.log(`args`, args);
+	run: async ({args}): Promise<void> => {
 		const {
 			_: [message],
 		} = args;
 
 		const branch = execSync('git rev-parse --abbrev-ref HEAD').toString();
-		console.log(`branch`, branch);
-		console.log(`message`, message);
 		await spawn('git', ['commit', '-am', message]);
 		await spawn('git', ['push', '-u', 'origin', branch]);
 	},
