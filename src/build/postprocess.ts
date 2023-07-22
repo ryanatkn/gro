@@ -1,6 +1,6 @@
 import {join, extname, relative} from 'path';
 import * as lexer from 'es-module-lexer';
-import type {Assignable} from '@feltjs/util';
+import type {Assignable} from '@feltjs/util/types.js';
 
 import {
 	paths,

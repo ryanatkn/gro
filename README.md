@@ -10,7 +10,7 @@ limitations:
 - [SvelteKit and Vite integration](/src/docs/sveltekit.md) is incomplete
 - Gro is actively used but has few users,
   so you'll likely find problems and undesirable limitations --
-  please open issues! or contact us directly
+  please open issues!
   - example: there are definitely things that should be configurable that aren't
   - gro wants all source code and assets to be in `src/` or `node_modules/`,
     which may annoy
