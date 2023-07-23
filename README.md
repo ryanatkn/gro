@@ -14,7 +14,6 @@ limitations:
   - example: there are definitely things that should be configurable that aren't
   - gro wants all source code and assets to be in `src/` or `node_modules/`,
     which may annoy
-  - please open issues with questions, bugs, thoughts, etc
 
 ## about
 
