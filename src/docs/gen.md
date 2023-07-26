@@ -24,16 +24,19 @@ that returns the content of the output file.
 More flexibility is available when needed
 including multiple custom output files.
 
+`gen` is implemented as [a task](/src/gen.task.ts)
+and [a plugin](/src/plugin/gro-plugin-gen.ts),
+and runs only during development, not for production builds.
+
+Normally you'll want to commit generated files to git,
+but you can always gitignore a specific pattern like `*.ignore.*`
+and name the output files accordingly.
+
 To bridge the worlds of types and runtimes, `gro gen` has a feature that uses
 [JSON Schema](https://json-schema.org/) and
 [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 to generate types for all `.schema.` files in your project.
 [See below](#generate-typescript-types-from-schemas) for more.
-
-Normally you'll want to commit generated files to git,
-but you can always gitignore a specific pattern like `*.ignore.*`
-and name the output files accordingly.
-We may want to smooth out this use case in the future.
 
 Integrating codegen into our development process
 is a simple idea with vast potential.
@@ -304,9 +307,9 @@ which is called in the npm [`"preversion"`](../../package.json) script.
 - [x] basic functionality
 - [x] format output with Prettier
 - [x] add type generation for `.schema.` files
-- [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
-- [ ] [watch mode and build integration](https://github.com/feltjs/gro/pull/283),
+- [x] [watch mode and build integration](https://github.com/feltjs/gro/pull/283),
       opt out with `watch: false` for expensive gen use cases
+- [ ] properly de-dupe and combine `tsImport` statements for `.schema.` files instead of hacks
 - [ ] change the exported `gen` function to an object with a `summary` and other properties like `watch`
 - [ ] assess libraries for generating types
 - [ ] support gen files authored in languages beyond TypeScript like

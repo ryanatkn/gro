@@ -5,15 +5,18 @@ import {findGenModules} from './gen/genModule.js';
 
 const Args = z
 	.object({
-		typecheck: z.boolean({description: ''}).optional().default(true),
+		typecheck: z
+			.boolean({description: 'read this instead of no-typecheck'})
+			.optional()
+			.default(true),
 		'no-typecheck': z.boolean({description: 'opt out of typechecking'}).optional().default(false),
-		test: z.boolean({description: ''}).optional().default(true),
+		test: z.boolean({description: 'read this instead of no-test'}).optional().default(true),
 		'no-test': z.boolean({description: 'opt out of running tests'}).optional().default(false),
-		gen: z.boolean({description: ''}).optional().default(true),
+		gen: z.boolean({description: 'read this instead of no-gen'}).optional().default(true),
 		'no-gen': z.boolean({description: 'opt out of gen check'}).optional().default(false),
-		format: z.boolean({description: ''}).optional().default(true),
+		format: z.boolean({description: 'read this instead of no-format'}).optional().default(true),
 		'no-format': z.boolean({description: 'opt out of format check'}).optional().default(false),
-		lint: z.boolean({description: ''}).optional().default(true),
+		lint: z.boolean({description: 'read this instead of no-lint'}).optional().default(true),
 		'no-lint': z.boolean({description: 'opt out of linting'}).optional().default(false),
 	})
 	.strict();
@@ -38,7 +41,7 @@ export const task: Task<Args> = {
 			const findGenModulesResult = await findGenModules(fs);
 			if (findGenModulesResult.ok) {
 				log.info('checking that generated files have not changed');
-				await invokeTask('gen', {check: true});
+				await invokeTask('gen', {check: true, rebuild: false});
 			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
 				for (const reason of findGenModulesResult.reasons) {
 					log.error(reason);

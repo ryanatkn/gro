@@ -1,5 +1,4 @@
 import {createFilter} from '@rollup/pluginutils';
-import {Logger} from '@feltjs/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from './config/config.js';
 import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './build/buildConfigDefaults.js';
@@ -34,9 +33,10 @@ const config: GroConfigCreator = async ({dev}) => {
 		publish: '.',
 		sourcemap: dev,
 		typemap: !dev,
-		logLevel: Logger.level,
+		logLevel: 'debug',
 		plugin: async () => [
 			(await import('./plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),
+			dev ? (await import('./plugin/gro-plugin-gen.js')).createPlugin() : null,
 		],
 		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>

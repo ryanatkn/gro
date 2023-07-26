@@ -18,7 +18,7 @@ export interface TaskEvents {
 
 const Args = z
 	.object({
-		watch: z.boolean({description: ''}).default(true),
+		watch: z.boolean({description: 'read this instead of no-watch'}).default(true),
 		'no-watch': z
 			.boolean({
 				description:
@@ -69,11 +69,11 @@ export const task: Task<Args, TaskEvents> = {
 
 		const plugins = await Plugins.create(devTaskContext);
 
+		await plugins.setup();
+
 		const timingToInitFiler = timings.start('init filer');
 		await filer.init();
 		timingToInitFiler();
-
-		await plugins.setup();
 
 		events.emit('dev.ready', devTaskContext);
 

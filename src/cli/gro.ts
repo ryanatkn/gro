@@ -71,6 +71,6 @@ const main = (): Promise<void> => {
 };
 
 main().catch((err) => {
-	console.error('Gro failed to invoke', err);
+	console.error('Gro failed to invoke', err); // eslint-disable-line no-console
 	throw err;
 });

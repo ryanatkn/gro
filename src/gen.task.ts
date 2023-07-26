@@ -5,18 +5,25 @@ import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {runGen} from './gen/runGen.js';
+import {GEN_NO_PROD_MESSAGE, runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {printPath} from './paths.js';
+import {loadConfig} from './config/config.js';
+import {buildSource} from './build/buildSource.js';
 
 const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'paths to generate'}).default([]),
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
+			.default(false),
+		rebuild: z.boolean({description: 'read this instead of no-rebuild'}).optional().default(true),
+		'no-rebuild': z
+			.boolean({description: 'opt out of rebuilding the code for efficiency'})
+			.optional()
 			.default(false),
 	})
 	.strict();
@@ -27,11 +34,25 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({fs, log, args}): Promise<void> => {
-		const {_: rawInputPaths, check} = args;
+	run: async ({fs, log, args, dev}): Promise<void> => {
+		const {_: rawInputPaths, check, rebuild} = args;
+
+		if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();
+
+		// TODO hacky -- running `gro gen` from the command line
+		// currently causes it to rebuild by default,
+		// but running `gro gen` from dev/build tasks will not want to rebuild.
+		if (rebuild) {
+			const timingToLoadConfig = timings.start('load config');
+			const config = await loadConfig(fs, dev);
+			timingToLoadConfig();
+			const timingToBuildSource = timings.start('buildSource');
+			await buildSource(fs, config, dev, log);
+			timingToBuildSource();
+		}
 
 		// resolve the input paths relative to src/
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
@@ -44,6 +65,7 @@ export const task: Task<Args> = {
 			}
 			throw new TaskError('Failed to find gen modules.');
 		}
+		log.info('gen files', Array.from(findModulesResult.sourceIdsByInputPath.values()).flat());
 		timings.merge(findModulesResult.timings);
 		const loadModulesResult = await loadModules(
 			findModulesResult.sourceIdsByInputPath,

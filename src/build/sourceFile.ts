@@ -12,6 +12,7 @@ import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
+import type {IdFilter} from '../fs/filter.js';
 
 export type SourceFile = TextSourceFile | BinarySourceFile;
 
@@ -124,3 +125,25 @@ export function assertSourceFile(file: FilerFile | undefined | null): asserts fi
 		throw Error(`Expected a source file, but type is ${file.type}: ${file.id}`);
 	}
 }
+
+export const filterDependents = (
+	sourceFile: SourceFile,
+	buildConfig: BuildConfig,
+	findFileById: (id: string) => SourceFile | undefined,
+	filter: IdFilter,
+	results: Set<string> = new Set(),
+	searched: Set<string> = new Set(),
+): Set<string> => {
+	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
+	if (!dependentsForConfig) return results;
+	for (const dependentId of dependentsForConfig.keys()) {
+		if (searched.has(dependentId)) continue;
+		searched.add(dependentId);
+		if (filter(dependentId)) {
+			results.add(dependentId);
+		}
+		const dependentSourceFile = findFileById(dependentId)!;
+		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
+	}
+	return results;
+};
