@@ -37,7 +37,7 @@ export const task: Task<Args> = {
 	run: async ({fs, log, args, dev}): Promise<void> => {
 		const {_: rawInputPaths, check, rebuild} = args;
 
-		if (!dev) throw Error('gen cannot be run in production'); // TODO is this right?
+		if (!dev) throw Error('gen cannot be run in production');
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();
