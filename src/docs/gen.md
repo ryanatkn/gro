@@ -24,16 +24,19 @@ that returns the content of the output file.
 More flexibility is available when needed
 including multiple custom output files.
 
+`gen` is implemented as [a task](/src/gen.task.ts)
+and [a plugin](/src/plugin/gro-plugin-gen.ts),
+and runs only during development, not for production builds.
+
+Normally you'll want to commit generated files to git,
+but you can always gitignore a specific pattern like `*.ignore.*`
+and name the output files accordingly.
+
 To bridge the worlds of types and runtimes, `gro gen` has a feature that uses
 [JSON Schema](https://json-schema.org/) and
 [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 to generate types for all `.schema.` files in your project.
 [See below](#generate-typescript-types-from-schemas) for more.
-
-Normally you'll want to commit generated files to git,
-but you can always gitignore a specific pattern like `*.ignore.*`
-and name the output files accordingly.
-We may want to smooth out this use case in the future.
 
 Integrating codegen into our development process
 is a simple idea with vast potential.
