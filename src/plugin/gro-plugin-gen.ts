@@ -41,7 +41,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			flushGenQueue();
 		}
 	});
-	const gen = (files: string[]) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
+	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
 		name,
 		setup: async (ctx) => {
@@ -52,7 +52,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 
 			// Do we need to just generate everything once and exit?
 			if (!filer || !watch) {
-				await gen([]);
+				await gen();
 				return;
 			}
 
