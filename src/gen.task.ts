@@ -5,7 +5,7 @@ import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {runGen} from './gen/runGen.js';
+import {GEN_NO_PROD_MESSAGE, runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './fs/inputPath.js';
 import {loadModules} from './fs/modules.js';
@@ -37,7 +37,7 @@ export const task: Task<Args> = {
 	run: async ({fs, log, args, dev}): Promise<void> => {
 		const {_: rawInputPaths, check, rebuild} = args;
 
-		if (!dev) throw Error('gen cannot be run in production');
+		if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();

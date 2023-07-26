@@ -7,6 +7,7 @@ import type {Args} from '../utils/args.js';
 import {sourceIdToBasePath} from '../paths.js';
 import {isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
+import {GEN_NO_PROD_MESSAGE} from '../gen/runGen.js';
 
 const name = '@feltjs/gro-plugin-gen';
 
@@ -44,11 +45,8 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
 		name,
-		setup: async (ctx) => {
-			const {
-				filer,
-				args: {watch},
-			} = ctx;
+		setup: async ({filer, args: {watch}, dev}) => {
+			if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
 			// Do we need to just generate everything once and exit?
 			if (!filer || !watch) {
@@ -74,9 +72,9 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			};
 			filer.on('build', onBuildFile);
 		},
-		teardown: async (ctx) => {
-			if (onBuildFile && ctx.filer) {
-				ctx.filer.off('build', onBuildFile);
+		teardown: async ({filer}) => {
+			if (onBuildFile && filer) {
+				filer.off('build', onBuildFile);
 			}
 		},
 	};
