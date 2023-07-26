@@ -1,5 +1,4 @@
 import {spawn} from '@feltjs/util/process.js';
-import {debounce} from 'throttle-debounce';
 
 import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
@@ -8,6 +7,7 @@ import {sourceIdToBasePath} from '../paths.js';
 import {isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 import {GEN_NO_PROD_MESSAGE} from '../gen/runGen.js';
+import {throttleAsync} from '../utils/throttleAsync.js';
 
 const name = '@feltjs/gro-plugin-gen';
 
@@ -24,24 +24,28 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	const queuedFiles: Set<string> = new Set();
 	const queueGen = (genFileName: string) => {
 		queuedFiles.add(genFileName);
-		flushGenQueue();
+		void flushGenQueue();
 	};
-	const flushGenQueue = debounce(FLUSH_DEBOUNCE_DELAY, async () => {
-		// hacky way to avoid concurrent `gro gen` calls
-		if (generating) {
-			regen = true;
-			return;
-		}
-		generating = true;
-		const files = Array.from(queuedFiles);
-		queuedFiles.clear();
-		await gen(files);
-		generating = false;
-		if (regen) {
-			regen = false;
-			flushGenQueue();
-		}
-	});
+	const flushGenQueue = throttleAsync(
+		async () => {
+			// hacky way to avoid concurrent `gro gen` calls
+			if (generating) {
+				regen = true;
+				return;
+			}
+			generating = true;
+			const files = Array.from(queuedFiles);
+			queuedFiles.clear();
+			await gen(files);
+			generating = false;
+			if (regen) {
+				regen = false;
+				void flushGenQueue();
+			}
+		},
+		undefined,
+		FLUSH_DEBOUNCE_DELAY,
+	);
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
 		name,
