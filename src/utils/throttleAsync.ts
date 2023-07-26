@@ -6,8 +6,8 @@ import {wait} from '@feltjs/util/async.js';
  * Throttles calls to a promise-returning function.
  * If the throttled function is called while the promise is pending,
  * it's queued up to run after the promise completes,
- * and only the last call is executed;
- * calls except the most recent made during the pending promise are discarded.
+ * and only the last call is executed.
+ * Calls except the most recent made during the pending promise are discarded.
  * This is distinct from a queue where every call to the throttled function eventually runs.
  * @param fn Any promise-returning function.
  * @param toCacheKey Throttled calls are grouped by the `Map` key returned from this function.

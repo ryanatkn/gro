@@ -9,12 +9,12 @@ const ORIGIN = 'origin';
 
 const Args = z
 	.object({
-		build: z.boolean({description: ''}).default(true),
+		build: z.boolean({description: 'read this instead of no-build'}).default(true),
 		'no-build': z
 			.boolean({description: 'opt out of deleting the Gro build directory .gro/'})
 			.optional()
 			.default(false),
-		dist: z.boolean({description: ''}).default(true),
+		dist: z.boolean({description: 'read this instead of no-dist'}).default(true),
 		'no-dist': z
 			.boolean({description: 'opt out of deleting the Gro dist directory dist/'})
 			.optional()

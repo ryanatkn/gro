@@ -16,14 +16,14 @@ export interface TaskEvents {
 
 const Args = z
 	.object({
-		clean: z.boolean({description: ''}).optional().default(true),
+		clean: z.boolean({description: 'read this instead of no-clean'}).optional().default(true),
 		'no-clean': z
 			.boolean({
 				description: 'opt out of cleaning before building; warning! this may break your build!',
 			})
 			.optional()
 			.default(false),
-		install: z.boolean({description: ''}).optional().default(true),
+		install: z.boolean({description: 'read this instead of no-install'}).optional().default(true),
 		'no-install': z
 			.boolean({
 				description: 'opt out of npm installing before building',

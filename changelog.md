@@ -4,6 +4,8 @@
 
 - add `gro commit` task
   ([#379](https://github.com/feltjs/gro/pull/379))
+- add `gen` plugin that defaults to watch mode
+  ([#283](https://github.com/feltjs/gro/pull/283))
 - add build config option to mock SvelteKit paths in production
   ([#374](https://github.com/feltjs/gro/pull/374))
 

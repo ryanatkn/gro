@@ -15,6 +15,8 @@ export const SEPARATOR = '.';
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = SEPARATOR + GEN_FILE_PATTERN_TEXT + SEPARATOR;
 
+export const isGenPath = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
+
 export const GEN_SCHEMA_FILE_PATTERN_TEXT = 'schema';
 export const GEN_SCHEMA_FILE_PATTERN = SEPARATOR + GEN_SCHEMA_FILE_PATTERN_TEXT + SEPARATOR;
 export const GEN_SCHEMA_PATH_SUFFIX = GEN_SCHEMA_FILE_PATTERN + 'ts';

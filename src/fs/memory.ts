@@ -104,7 +104,7 @@ export class MemoryFs implements Filesystem {
 			throw Error(`ENOENT: no such file or directory, open '${id}'`);
 		}
 		if (file.encoding !== encoding) {
-			console.error('unexpected encoding mismatch', encoding, file);
+			console.error('unexpected encoding mismatch', encoding, file); // eslint-disable-line no-console
 		}
 		return file.content || '';
 	};
