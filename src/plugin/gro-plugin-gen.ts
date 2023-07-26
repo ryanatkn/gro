@@ -57,6 +57,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			onBuildFile = async ({sourceFile, buildConfig}) => {
+				if (buildConfig.name !== 'system') return;
 				if (isGenPath(sourceFile.id)) {
 					queueGen(sourceIdToBasePath(sourceFile.id));
 				}
