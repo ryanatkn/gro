@@ -18,7 +18,7 @@ export interface TaskEvents {
 
 const Args = z
 	.object({
-		watch: z.boolean({description: ''}).default(true),
+		watch: z.boolean({description: 'read this instead of no-watch'}).default(true),
 		'no-watch': z
 			.boolean({
 				description:

@@ -20,7 +20,7 @@ const Args = z
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
 			.default(false),
-		rebuild: z.boolean({description: ''}).optional().default(true),
+		rebuild: z.boolean({description: 'read this instead of no-rebuild'}).optional().default(true),
 		'no-rebuild': z
 			.boolean({description: 'opt out of rebuilding the code for efficiency'})
 			.optional()
