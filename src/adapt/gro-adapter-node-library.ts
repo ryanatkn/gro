@@ -80,6 +80,8 @@ export const createAdapter = ({
 				throw Error(`Unknown build config: ${buildName}`);
 			}
 
+			// TODO BLOCK use `svelte-kit package`
+
 			const files = toInputFiles(buildConfig.input);
 
 			if (bundle) {
