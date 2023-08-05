@@ -140,7 +140,7 @@ export const task: Task<Args> = {
 					'git rev-list --max-parents=0 --abbrev-commit HEAD',
 				).toString();
 				await spawn('git', ['reset', '--hard', first_commit_hash]);
-				await spawn('git', ['push', '--force']);
+				await spawn('git', ['push', ORIGIN, target, '--force']);
 			}
 		} else if (gitTargetExistsResult.code === 2) {
 			// Target branch does not exist remotely.
