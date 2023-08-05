@@ -1,4 +1,4 @@
-import type {EventEmitter} from 'events';
+import type {EventEmitter} from 'node:events';
 import {cyan, red} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 

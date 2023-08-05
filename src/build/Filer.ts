@@ -1,6 +1,6 @@
 import {resolve, extname, join} from 'node:path';
 import * as lexer from 'es-module-lexer';
-import {EventEmitter} from 'events';
+import {EventEmitter} from 'node:events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {omitUndefined} from '@feltjs/util/object.js';
 import {UnreachableError} from '@feltjs/util/error.js';
