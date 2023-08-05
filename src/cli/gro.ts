@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {existsSync, realpathSync} from 'fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
-import {join, resolve} from 'path';
+import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'url';
 
 /*

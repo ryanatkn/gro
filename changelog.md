@@ -6,6 +6,8 @@
   ([#379](https://github.com/feltjs/gro/pull/379))
 - add `gen` plugin that defaults to watch mode
   ([#283](https://github.com/feltjs/gro/pull/283))
+- add `--reset` and `--origin` flags to `gro deploy`
+  ([#383](https://github.com/feltjs/gro/pull/383))
 
 ## 0.79.0
 

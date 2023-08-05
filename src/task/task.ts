@@ -1,5 +1,5 @@
 import type StrictEventEmitter from 'strict-event-emitter-types';
-import type {EventEmitter} from 'events';
+import type {EventEmitter} from 'node:events';
 import type {Logger} from '@feltjs/util/log.js';
 import {stripEnd} from '@feltjs/util/string.js';
 import type {z} from 'zod';

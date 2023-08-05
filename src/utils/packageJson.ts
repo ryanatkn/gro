@@ -1,4 +1,4 @@
-import {join} from 'path';
+import {join} from 'node:path';
 import type {Json} from '@feltjs/util/json.js';
 
 import type {Filesystem} from '../fs/filesystem.js';

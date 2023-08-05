@@ -1,4 +1,4 @@
-import {join, basename} from 'path';
+import {join, basename} from 'node:path';
 import {fileURLToPath} from 'url';
 import {replaceExtension, stripTrailingSlash} from '@feltjs/util/path.js';
 import {stripStart} from '@feltjs/util/string.js';

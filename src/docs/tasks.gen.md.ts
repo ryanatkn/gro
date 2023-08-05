@@ -1,4 +1,4 @@
-import {dirname, relative, basename} from 'path';
+import {dirname, relative, basename} from 'node:path';
 import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
