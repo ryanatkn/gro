@@ -1,8 +1,9 @@
-import {join} from 'path';
+import {join} from 'node:path';
 import {spawn} from '@feltjs/util/process.js';
 import {printError} from '@feltjs/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
+import {execSync} from 'node:child_process';
 
 import {rainbow} from './utils/colors.js';
 import type {Task} from './task/task.js';
@@ -57,6 +58,11 @@ const Args = z
 			.boolean({description: 'caution!! enables destruction of branches like main and master'})
 			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
 			.default(false),
+		reset: z
+			.boolean({
+				description: 'if true, resets the target branch back to the first commit before deploying',
+			})
+			.default(false),
 	})
 	.strict();
 type Args = z.infer<typeof Args>;
@@ -66,7 +72,7 @@ export const task: Task<Args> = {
 	production: true,
 	Args,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous} = args;
+		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous, reset} = args;
 
 		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
@@ -126,6 +132,15 @@ export const task: Task<Args> = {
 					red(`failed to checkout target branch ${target} code(${gitCheckoutTargetResult.code})`),
 				);
 				return;
+			}
+
+			// Reset the target branch?
+			if (reset) {
+				const first_commit_hash = execSync(
+					'git rev-list --max-parents=0 --abbrev-commit HEAD',
+				).toString();
+				await spawn('git', ['reset', '--hard', first_commit_hash]);
+				await spawn('git', ['push', '--force']);
 			}
 		} else if (gitTargetExistsResult.code === 2) {
 			// Target branch does not exist remotely.

@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {dirname, resolve} from 'path';
+import {dirname, resolve} from 'node:path';
 import {stripTrailingSlash} from '@feltjs/util/path.js';
 import {toPathParts} from '@feltjs/util/path-parsing.js';
 

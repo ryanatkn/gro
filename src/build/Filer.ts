@@ -1,4 +1,4 @@
-import {resolve, extname, join} from 'path';
+import {resolve, extname, join} from 'node:path';
 import * as lexer from 'es-module-lexer';
 import {EventEmitter} from 'events';
 import type StrictEventEmitter from 'strict-event-emitter-types';

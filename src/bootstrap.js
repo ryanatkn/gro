@@ -1,8 +1,8 @@
 import CheapWatch from 'cheap-watch';
-import {resolve, join} from 'path';
+import {resolve, join} from 'node:path';
 import esbuild from 'esbuild';
 import fs from 'fs-extra';
-import {spawn} from 'child_process';
+import {spawn} from 'node:child_process';
 
 /*
 

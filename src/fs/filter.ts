@@ -1,4 +1,4 @@
-import {join} from 'path';
+import {join} from 'node:path';
 
 import {paths} from '../paths.js';
 import type {PathStats} from './pathData.js';

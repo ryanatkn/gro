@@ -1,4 +1,4 @@
-import {relative, dirname} from 'path';
+import {relative, dirname} from 'node:path';
 import type {Logger} from '@feltjs/util/log.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 

@@ -1,4 +1,4 @@
-import {resolve} from 'path';
+import {resolve} from 'node:path';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import type {Encoding} from './encoding.js';

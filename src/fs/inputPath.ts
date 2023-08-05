@@ -1,4 +1,4 @@
-import {join, sep, isAbsolute, basename} from 'path';
+import {join, sep, isAbsolute, basename} from 'node:path';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
 import {

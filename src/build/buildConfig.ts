@@ -1,4 +1,4 @@
-import {resolve} from 'path';
+import {resolve} from 'node:path';
 import {toArray} from '@feltjs/util/array.js';
 import {blue, gray} from 'kleur/colors';
 import type {Result} from '@feltjs/util/result.js';
