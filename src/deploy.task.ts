@@ -40,6 +40,7 @@ const Args = z
 			.string({description: 'source branch to build and deploy from'})
 			.default(GIT_DEPLOY_SOURCE_BRANCH),
 		target: z.string({description: 'target branch to deploy to'}).default(GIT_DEPLOY_TARGET_BRANCH),
+		origin: z.string({description: 'git origin to deploy to'}).default(ORIGIN),
 		dry: z
 			.boolean({
 				description:
@@ -72,7 +73,17 @@ export const task: Task<Args> = {
 	production: true,
 	Args,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {dirname, source, target, dry, clean: cleanAndExit, force, dangerous, reset} = args;
+		const {
+			dirname,
+			source,
+			target,
+			origin,
+			dry,
+			clean: cleanAndExit,
+			force,
+			dangerous,
+			reset,
+		} = args;
 
 		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
@@ -110,14 +121,14 @@ export const task: Task<Args> = {
 			'ls-remote',
 			'--exit-code',
 			'--heads',
-			ORIGIN,
+			origin,
 			target,
 		]);
 		if (gitTargetExistsResult.ok) {
 			// Target branch exists on remote.
 
 			// Fetch the remote target deploy branch.
-			const gitFetchTargetResult = await spawn('git', ['fetch', ORIGIN, target]);
+			const gitFetchTargetResult = await spawn('git', ['fetch', origin, target]);
 			if (!gitFetchTargetResult.ok) {
 				log.error(
 					red(`failed to fetch target branch ${target} code(${gitFetchTargetResult.code})`),
@@ -140,7 +151,7 @@ export const task: Task<Args> = {
 					'git rev-list --max-parents=0 --abbrev-commit HEAD',
 				).toString();
 				await spawn('git', ['reset', '--hard', first_commit_hash]);
-				await spawn('git', ['push', ORIGIN, target, '--force']);
+				await spawn('git', ['push', origin, target, '--force']);
 			}
 		} else if (gitTargetExistsResult.code === 2) {
 			// Target branch does not exist remotely.
@@ -235,7 +246,7 @@ export const task: Task<Args> = {
 			// Set up the deployment worktree
 			await spawn('git', ['worktree', 'add', WORKTREE_DIRNAME, target]);
 			// Pull the remote deploy branch, ignoring failures
-			await spawn('git', ['pull', ORIGIN, target], GIT_ARGS);
+			await spawn('git', ['pull', origin, target], GIT_ARGS);
 			// Populate the worktree dir with the new files.
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
@@ -251,7 +262,7 @@ export const task: Task<Args> = {
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
 			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
-			await spawn('git', ['push', ORIGIN, target, '-f'], GIT_ARGS);
+			await spawn('git', ['push', origin, target, '-f'], GIT_ARGS);
 		} catch (err) {
 			log.error(red('updating git failed:'), printError(err));
 			await cleanGitWorktree();
