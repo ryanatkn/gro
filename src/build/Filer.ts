@@ -165,7 +165,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.dirs = sourceDirs.map((sourceDir) =>
 			createFilerDir(fs, sourceDir, this.onDirChange, watch, watcherDebounce, filter),
 		);
-		log.debug(cyan('buildConfigs'), buildConfigs);
+		log.debug(cyan('created Filer with buildConfigs'), Array.from(this.buildNames).join(', '));
 	}
 
 	close(): void {
@@ -207,8 +207,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
-		this.log.debug('inited builds');
-		this.log.info('buildConfigs', this.buildConfigs);
+		this.log.debug('inited builds:', Array.from(this.buildNames).join(', '));
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
