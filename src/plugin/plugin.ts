@@ -26,6 +26,9 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 
 export interface PluginContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
+	/**
+	 * `filer` is `null` for production builds, but it's not clear if that's good design.
+	 */
 	filer: Filer | null;
 	timings: Timings;
 }

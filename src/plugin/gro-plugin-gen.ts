@@ -53,7 +53,6 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
 			// Do we need to just generate everything once and exit?
-			// TODO BLOCK this seems to be a problem
 			if (!filer || !watch) {
 				log.info('generating and exiting early');
 				await gen();
