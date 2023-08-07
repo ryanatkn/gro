@@ -20,7 +20,7 @@ export interface TaskArgs extends Args {
 export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	let generating = false;
 	let regen = false;
-	let onBuildFile: ((e: FilerEvents['build']) => void) | undefined;
+	let onFilerBuild: ((e: FilerEvents['build']) => void) | undefined;
 	const queuedFiles: Set<string> = new Set();
 	const queueGen = (genFileName: string) => {
 		queuedFiles.add(genFileName);
@@ -49,18 +49,20 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
 		name,
-		setup: async ({filer, args: {watch}, dev}) => {
+		setup: async ({filer, args: {watch}, dev, log}) => {
 			if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
 			// Do we need to just generate everything once and exit?
+			// TODO BLOCK this seems to be a problem
 			if (!filer || !watch) {
+				log.info('generating and exiting early');
 				await gen();
 				return;
 			}
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			onBuildFile = async ({sourceFile, buildConfig}) => {
+			onFilerBuild = async ({sourceFile, buildConfig}) => {
 				if (buildConfig.name !== 'system') return;
 				if (isGenPath(sourceFile.id)) {
 					queueGen(sourceIdToBasePath(sourceFile.id));
@@ -75,11 +77,11 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 					queueGen(sourceIdToBasePath(dependentGenFileId));
 				}
 			};
-			filer.on('build', onBuildFile);
+			filer.on('build', onFilerBuild);
 		},
 		teardown: async ({filer}) => {
-			if (onBuildFile && filer) {
-				filer.off('build', onBuildFile);
+			if (onFilerBuild && filer) {
+				filer.off('build', onFilerBuild);
 			}
 		},
 	};
