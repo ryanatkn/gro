@@ -52,17 +52,20 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 		setup: async ({filer, args: {watch}, dev, log}) => {
 			if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
+			// Some parts of the build may have already happened,
+			// making us miss `build` events for gen dependencies,
+			// so we run `gen` here even if it's usually wasteful.
+			await gen();
+
 			// Do we need to just generate everything once and exit?
 			if (!filer || !watch) {
 				log.info('generating and exiting early');
-				await gen();
 				return;
 			}
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			onFilerBuild = async ({sourceFile, buildConfig}) => {
-				console.log(`build sourceFile`, sourceFile.id, sourceFile.dir);
 				if (buildConfig.name !== 'system') return;
 				if (isGenPath(sourceFile.id)) {
 					queueGen(sourceIdToBasePath(sourceFile.id));
