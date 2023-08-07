@@ -48,11 +48,6 @@ If any files or directories change inside it without going through the `Filer`,
 it may go into a corrupted state.
 Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
 
-TODO
-
-- add tests (fully modularize as they're added, running tests for host interfaces both in memory and on the filesystem)
-- probably silence a lot of the logging (or add `debug` log level?) once tests are added
-
 */
 
 // The Filer is an `EventEmitter` with the following events:
@@ -188,19 +183,19 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.log.debug('init', gray(this.dev ? 'development' : 'production'));
 
 		await Promise.all([initSourceMeta(this), lexer.init]);
-		// this.log.debug('inited cache');
+		this.log.debug('inited cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
 		// because it creates source files, which need `this.sourceMetaById` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
-		// this.log.debug('inited files');
+		this.log.debug('inited files');
 
 		// Now that the source meta and source files are loaded into memory,
 		// check if any source files have been deleted since the last run.
 		await cleanSourceMeta(this);
-		// this.log.debug('cleaned');
+		this.log.debug('cleaned');
 
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
@@ -212,12 +207,12 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
-		// this.log.debug('inited builds');
-		// this.log.info('buildConfigs', this.buildConfigs);
+		this.log.debug('inited builds');
+		this.log.info('buildConfigs', this.buildConfigs);
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
-		// this.log.debug(blue('initialized!'));
+		this.log.debug('initialized!');
 	}
 
 	// During initialization, after all files are loaded into memory,
