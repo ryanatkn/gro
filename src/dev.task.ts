@@ -71,6 +71,8 @@ export const task: Task<Args, TaskEvents> = {
 
 		await plugins.setup();
 
+		// TODO BLOCK init filer .. when?
+
 		const timingToInitFiler = timings.start('init filer');
 		await filer.init();
 		timingToInitFiler();
