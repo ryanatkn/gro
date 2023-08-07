@@ -1,4 +1,4 @@
-import {resolve} from 'path';
+import {resolve} from 'node:path';
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 

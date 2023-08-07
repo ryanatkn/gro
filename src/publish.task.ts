@@ -1,4 +1,4 @@
-import {createInterface as createReadlineInterface} from 'readline';
+import {createInterface as createReadlineInterface} from 'node:readline';
 import {green, bgBlack, cyan, red, yellow} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {UnreachableError} from '@feltjs/util/error.js';

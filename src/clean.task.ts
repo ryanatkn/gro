@@ -1,8 +1,8 @@
 import {spawn} from '@feltjs/util/process.js';
+import {z} from 'zod';
 
 import type {Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
-import {z} from 'zod';
 
 // TODO customize
 const ORIGIN = 'origin';

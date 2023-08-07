@@ -1,4 +1,4 @@
-import {basename, dirname} from 'path';
+import {basename, dirname} from 'node:path';
 import {UnreachableError} from '@feltjs/util/error.js';
 import {stripStart} from '@feltjs/util/string.js';
 

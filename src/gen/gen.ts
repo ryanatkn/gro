@@ -1,5 +1,5 @@
 import type {Logger} from '@feltjs/util/log.js';
-import {join, basename, dirname} from 'path';
+import {join, basename, dirname} from 'node:path';
 import {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';

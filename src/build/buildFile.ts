@@ -3,7 +3,7 @@ import {UnreachableError} from '@feltjs/util/error.js';
 import type {BaseFilerFile} from './filerFile.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
-import {basename, dirname, extname} from 'path';
+import {basename, dirname, extname} from 'node:path';
 import {loadContent} from './load.js';
 import type {BuildConfig} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';

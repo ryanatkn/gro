@@ -1,5 +1,5 @@
 import {createHash} from 'crypto';
-import {resolve} from 'path';
+import {resolve} from 'node:path';
 import type {Result} from '@feltjs/util/result.js';
 import {replaceExtension} from '@feltjs/util/path.js';
 

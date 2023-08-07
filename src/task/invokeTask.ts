@@ -1,5 +1,5 @@
 import {cyan, red, gray} from 'kleur/colors';
-import {EventEmitter} from 'events';
+import {EventEmitter} from 'node:events';
 import {SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
