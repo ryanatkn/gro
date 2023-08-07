@@ -91,7 +91,7 @@ export const invokeTask = async (
 
 			// Import these lazily to avoid importing their comparatively heavy transitive dependencies
 			// every time a task is invoked.
-			log.info('building project to run task');
+			log.debug('building project to run task');
 			const timingToLoadConfig = timings.start('load config');
 			// TODO probably do this as a separate process
 			// also this is messy, the `loadConfig` does some hacky config loading,

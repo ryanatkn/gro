@@ -17,7 +17,7 @@ export const buildSource = async (
 	dev: boolean,
 	log: Logger,
 ): Promise<void> => {
-	log.info('building source', gray(dev ? 'development' : 'production'));
+	log.debug('building source', gray(dev ? 'development' : 'production'));
 
 	await sveltekitSync(fs);
 
@@ -25,11 +25,11 @@ export const buildSource = async (
 	const timings = new Timings();
 	const logTimings = () => {
 		printTimings(timings, log);
-		log.info(`🕒 built in ${printMs(totalTiming())}`);
+		log.debug(`🕒 built in ${printMs(totalTiming())}`);
 	};
 
 	if (config.builds.some((b) => b.types)) {
-		log.info('building types');
+		log.debug('building types');
 		// Build all types so they're available.
 		// TODO refactor? maybe lazily build types only when a builder wants them
 		const timingToTypes = timings.start('types');
@@ -37,7 +37,7 @@ export const buildSource = async (
 		timingToTypes();
 	}
 
-	log.info('building files');
+	log.debug('building files');
 	const timingToCreateFiler = timings.start('create filer');
 	const filer = new Filer({
 		fs,
