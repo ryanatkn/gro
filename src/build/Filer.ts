@@ -48,11 +48,6 @@ If any files or directories change inside it without going through the `Filer`,
 it may go into a corrupted state.
 Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
 
-TODO
-
-- add tests (fully modularize as they're added, running tests for host interfaces both in memory and on the filesystem)
-- probably silence a lot of the logging (or add `debug` log level?) once tests are added
-
 */
 
 // The Filer is an `EventEmitter` with the following events:
@@ -170,7 +165,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.dirs = sourceDirs.map((sourceDir) =>
 			createFilerDir(fs, sourceDir, this.onDirChange, watch, watcherDebounce, filter),
 		);
-		log.debug(cyan('buildConfigs'), buildConfigs);
+		log.debug(cyan('created Filer with buildConfigs'), Array.from(this.buildNames).join(', '));
 	}
 
 	close(): void {
@@ -212,12 +207,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
-		// this.log.debug('inited builds');
-		// this.log.info('buildConfigs', this.buildConfigs);
+		// this.log.debug('inited builds:', Array.from(this.buildNames).join(', '));
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
-		// this.log.debug(blue('initialized!'));
+		// this.log.debug('initialized!');
 	}
 
 	// During initialization, after all files are loaded into memory,

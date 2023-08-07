@@ -130,7 +130,7 @@ export const filterDependents = (
 	sourceFile: SourceFile,
 	buildConfig: BuildConfig,
 	findFileById: (id: string) => SourceFile | undefined,
-	filter: IdFilter,
+	filter?: IdFilter | undefined,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 ): Set<string> => {
@@ -139,7 +139,7 @@ export const filterDependents = (
 	for (const dependentId of dependentsForConfig.keys()) {
 		if (searched.has(dependentId)) continue;
 		searched.add(dependentId);
-		if (filter(dependentId)) {
+		if (!filter || filter(dependentId)) {
 			results.add(dependentId);
 		}
 		const dependentSourceFile = findFileById(dependentId)!;

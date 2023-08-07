@@ -5,7 +5,8 @@
 - add `gro commit` task
   ([#379](https://github.com/feltjs/gro/pull/379))
 - add `gen` plugin that defaults to watch mode
-  ([#283](https://github.com/feltjs/gro/pull/283))
+  ([#283](https://github.com/feltjs/gro/pull/283),
+  [#381](https://github.com/feltjs/gro/pull/381))
 - add `--reset` and `--origin` flags to `gro deploy`
   ([#383](https://github.com/feltjs/gro/pull/383))
 
