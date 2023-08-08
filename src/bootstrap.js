@@ -3,7 +3,7 @@ import esbuild from 'esbuild';
 import fs from 'fs-extra';
 import fg from 'fast-glob';
 import {spawn} from 'node:child_process';
-import { stripStart } from '@feltjs/util/string.js';
+import {stripStart} from '@feltjs/util/string.js';
 
 /*
 
@@ -46,17 +46,17 @@ const bootstrap = async () => {
 	const startTime = Date.now();
 
 	const globbed = await fg.glob(dir + '/**/*.ts');
-	const paths = globbed.map(g => stripStart(g, dir));
 
-	for (const path of paths) {
+	for (const g of globbed) {
+		const path = stripStart(g, dir);
 		const contents = fs.readFileSync(join(dir, path), 'utf8');
 		// @ts-expect-error
 		const transformed = esbuild.transformSync(contents, transformOptions);
 		const outPath = join(outDir, path).slice(0, -2) + 'js';
 		fs.outputFileSync(outPath, transformed.code);
-	};
+	}
 
-	console.log(`transformed ${paths.length} files in ${Date.now() - startTime}ms`);
+	console.log(`transformed ${globbed.length} files in ${Date.now() - startTime}ms`);
 
 	// @ts-expect-error
 	let done, promise, ps;
