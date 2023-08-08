@@ -1,8 +1,8 @@
 # changelog
 
-## 0.79.2
+## 0.80.0
 
-- remove `cheap-watch` for `chokidar` and `fast-glob`
+- **break**: remove `cheap-watch` for `chokidar` and `fast-glob`
   ([#386](https://github.com/feltjs/gro/pull/386))
 
 ## 0.79.1
