@@ -30,8 +30,8 @@ export const gen: Gen = async ({fs, originId}) => {
 
 	const docFiles = await fs.findFiles(originDir);
 	const docPaths: string[] = [];
-	for (const [path, stats] of docFiles) {
-		if (stats.isDirectory() || path === outputFileName || !path.endsWith('.md')) {
+	for (const path of docFiles.keys()) {
+		if (path === outputFileName || !path.endsWith('.md')) {
 			continue;
 		}
 		docPaths.push(path);

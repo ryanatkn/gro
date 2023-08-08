@@ -45,7 +45,7 @@ export const createFilerDir = (
 			const statsBySourcePath = await fs.findFiles(dir, filter);
 			await Promise.all(
 				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+					onChange({type: 'init', path, stats}, filerDir),
 				),
 			);
 		};
@@ -57,7 +57,7 @@ export const createFilerDir = (
 		const statsBySourcePath = await fs.findFiles(dir, filter);
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-				stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
+				onChange({type: 'init', path, stats}, filerDir),
 			),
 		);
 	};
