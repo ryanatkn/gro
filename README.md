@@ -52,8 +52,6 @@ It includes:
   (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
-- more to come, exploring what deeply integrated tools enable
-  for developer power, ergonomics, and productivity
 
 ## docs
 
