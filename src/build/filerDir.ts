@@ -29,31 +29,24 @@ export const createFilerDir = (
 	watch: boolean,
 	filter: PathFilter | undefined,
 ): FilerDir => {
+	let close = noop;
+	let watcher: WatchNodeFs | null = null;
+
 	if (watch) {
 		// TODO abstract this from the Node filesystem
-		const watcher = watchNodeFs({
+		watcher = watchNodeFs({
 			dir,
 			onChange: (change) => onChange(change, filerDir),
 			filter,
 		});
-		const close = async () => {
-			await watcher.close();
+		close = async () => {
+			await watcher!.close();
 		};
-		const init = async () => {
-			await fs.ensureDir(dir);
-			await watcher.init();
-			const statsBySourcePath = await fs.findFiles(dir, filter);
-			await Promise.all(
-				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-					onChange({type: 'init', path, stats}, filerDir),
-				),
-			);
-		};
-		const filerDir: FilerDir = {dir, onChange, init, close, watcher};
-		return filerDir;
 	}
+
 	const init = async () => {
 		await fs.ensureDir(dir);
+		if (watcher) await watcher.init();
 		const statsBySourcePath = await fs.findFiles(dir, filter);
 		await Promise.all(
 			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
@@ -61,6 +54,6 @@ export const createFilerDir = (
 			),
 		);
 	};
-	const filerDir: FilerDir = {dir, onChange, init, close: noop, watcher: null};
+	const filerDir: FilerDir = {dir, onChange, init, close, watcher};
 	return filerDir;
 };
