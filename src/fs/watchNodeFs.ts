@@ -44,18 +44,18 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 		init: async () => {
 			watcher = chokidar.watch(dir);
 
-			watcher.on('add', (path, stats) => {
-				stats = stats || statSync(path); // eslint-disable-line no-param-reassign
+			watcher.on('add', (path, s) => {
+				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
 				onChange({type: 'create', path, stats});
 			});
-			watcher.on('addDir', (path, stats) => {
-				stats = stats || statSync(path); // eslint-disable-line no-param-reassign
+			watcher.on('addDir', (path, s) => {
+				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
 				onChange({type: 'create', path, stats});
 			});
-			watcher.on('change', (path, stats) => {
-				stats = stats || statSync(path); // eslint-disable-line no-param-reassign
+			watcher.on('change', (path, s) => {
+				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
 				onChange({type: 'update', path, stats});
 			});
