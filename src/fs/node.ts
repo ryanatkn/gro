@@ -1,7 +1,7 @@
 import fg from 'fast-glob';
 import fsExtra from 'fs-extra';
 import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
-import {stripStart} from '@feltjs/util/string.js';
+import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
 import type {Filesystem, FsWriteFile} from './filesystem.js';
 import type {PathStats} from './pathData.js';
@@ -13,10 +13,11 @@ const findFiles = async (
 	// pass `null` to speed things up at the risk of rare misorderings
 	sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
 ): Promise<Map<string, PathStats>> => {
-	const globbed = await fg.glob(dir + '/**/*');
+	const finalDir = stripEnd(dir, '/');
+	const globbed = await fg.glob(finalDir + '/**/*');
 	const paths: Map<string, PathStats> = new Map();
 	for (const g of globbed) {
-		const path = stripStart(g, dir + '/');
+		const path = stripStart(g, finalDir + '/');
 		const stats = fsExtra.statSync(g);
 		if (!filter || stats.isDirectory() || filter(path, stats)) {
 			paths.set(path, stats);
