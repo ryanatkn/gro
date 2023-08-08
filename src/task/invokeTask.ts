@@ -70,7 +70,7 @@ export const invokeTask = async (
 	const findModulesResult = await findModules(
 		fs,
 		[inputPath],
-		(id) => fs.findFiles(id, (file) => isTaskPath(file.path)),
+		(id) => fs.findFiles(id, (path) => isTaskPath(path)),
 		(inputPath) => getPossibleSourceIds(inputPath, [TASK_FILE_SUFFIX], [groPaths.root]),
 	);
 
@@ -177,7 +177,7 @@ export const invokeTask = async (
 				// and log everything out.
 				const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
 				const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
-					fs.findFiles(id, (file) => isTaskPath(file.path)),
+					fs.findFiles(id, (path) => isTaskPath(path)),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (groDirFindModulesResult.ok) {
@@ -215,7 +215,7 @@ export const invokeTask = async (
 			// but it has no matching files, we still want to search Gro's directory.
 			const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
 			const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
-				fs.findFiles(id, (file) => isTaskPath(file.path)),
+				fs.findFiles(id, (path) => isTaskPath(path)),
 			);
 			if (groDirFindModulesResult.ok) {
 				timings.merge(groDirFindModulesResult.timings);

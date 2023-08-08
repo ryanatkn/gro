@@ -446,7 +446,7 @@ test__findFiles('find a bunch of files and dirs', async ({fs}) => {
 	await fs.writeFile(`${path}/dir2/2.ts`, fakeTsContent);
 	const found = await fs.findFiles(
 		`${path}/dir1`,
-		({path}) => {
+		(path) => {
 			if (!hasIgnoredPath) hasIgnoredPath = path === ignoredPath;
 			return path !== ignoredPath;
 		},

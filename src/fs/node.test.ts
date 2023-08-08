@@ -11,7 +11,7 @@ test__findFiles('basic behavior', async ({fs}) => {
 	let hasIgnoredPath = false;
 	const result = await fs.findFiles(
 		'./src/fs/fixtures',
-		({path}) => {
+		(path) => {
 			if (!hasIgnoredPath) hasIgnoredPath = path === ignoredPath;
 			return path !== ignoredPath;
 		},

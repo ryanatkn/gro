@@ -43,7 +43,7 @@ export const loadTaskModules = async (
 	const findModulesResult = await findModules(
 		fs,
 		inputPaths,
-		(id) => fs.findFiles(id, (file) => isTaskPath(file.path)),
+		(id) => fs.findFiles(id, (path) => isTaskPath(path)),
 		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);
 	if (!findModulesResult.ok) return findModulesResult;
