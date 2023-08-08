@@ -4,14 +4,13 @@ import {paths} from '../paths.js';
 import type {PathStats} from './pathData.js';
 
 // exists for browser compatibility
-// TODO BLOCK change this to be 2 args
 export interface PathFilter {
-	(file: {path: string; stats: PathStats}): boolean;
+	(path: string, stats: PathStats): boolean;
 }
 
 export const toPathFilter =
 	(exclude: IdStatsFilter, root = paths.root): PathFilter =>
-	({path, stats}) =>
+	(path, stats) =>
 		!exclude(join(root, path), stats);
 
 export interface IdStatsFilter {

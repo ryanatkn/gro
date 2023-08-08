@@ -21,8 +21,7 @@ const findFiles = async (
 	for (const g of globbed) {
 		const path = stripStart(g, dir);
 		const stats = fsExtra.statSync(g);
-		const file: {path: string; stats: PathStats} = {path, stats};
-		if (!filter || stats.isDirectory() || filter(file)) {
+		if (!filter || stats.isDirectory() || filter(path, stats)) {
 			paths.set(path, stats);
 		}
 	}

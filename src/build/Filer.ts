@@ -71,7 +71,6 @@ export interface Options {
 	types: boolean;
 	target: EcmaScriptTarget;
 	watch: boolean;
-	watcherDebounce: number | undefined;
 	filter: PathFilter | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
@@ -95,7 +94,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		types: !dev,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
-		watcherDebounce: undefined,
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
@@ -145,7 +143,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			sourcemap,
 			target,
 			watch,
-			watcherDebounce,
 			filter,
 			log,
 		} = initOptions(opts);
@@ -163,7 +160,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Creates objects to load a directory's content and sync filesystem changes in memory.
 		// The order of objects in the returned array is meaningless.
 		this.dirs = sourceDirs.map((sourceDir) =>
-			createFilerDir(fs, sourceDir, this.onDirChange, watch, watcherDebounce, filter),
+			createFilerDir(fs, sourceDir, this.onDirChange, watch, filter),
 		);
 		log.debug(cyan('created Filer with buildConfigs'), Array.from(this.buildNames).join(', '));
 	}

@@ -27,7 +27,6 @@ export const createFilerDir = (
 	dir: string,
 	onChange: FilerDirChangeCallback,
 	watch: boolean,
-	watcherDebounce: number | undefined,
 	filter: PathFilter | undefined,
 ): FilerDir => {
 	if (watch) {
@@ -35,16 +34,15 @@ export const createFilerDir = (
 		const watcher = watchNodeFs({
 			dir,
 			onChange: (change) => onChange(change, filerDir),
-			watch,
-			debounce: watcherDebounce,
 			filter,
 		});
-		const close = () => {
-			watcher.close();
+		const close = async () => {
+			await watcher.close();
 		};
 		const init = async () => {
 			await fs.ensureDir(dir);
-			const statsBySourcePath = await watcher.init();
+			await watcher.init();
+			const statsBySourcePath = await fs.findFiles(dir, filter);
 			await Promise.all(
 				Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
 					stats.isDirectory() ? null : onChange({type: 'init', path, stats}, filerDir),
