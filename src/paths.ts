@@ -1,5 +1,5 @@
 import {join, basename} from 'node:path';
-import {fileURLToPath} from 'url';
+import {fileURLToPath} from 'node:url';
 import {replaceExtension, stripTrailingSlash} from '@feltjs/util/path.js';
 import {stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
