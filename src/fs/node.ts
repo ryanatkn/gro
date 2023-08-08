@@ -7,9 +7,6 @@ import type {Filesystem, FsWriteFile} from './filesystem.js';
 import type {PathStats} from './pathData.js';
 import type {PathFilter} from './filter.js';
 
-// TODO BLOCK should this API be changed to only include files and not directories?
-// or maybe change the name so it's not misleading?
-// The API only made sense when we were tied to cheap-watch.
 const findFiles = async (
 	dir: string,
 	filter?: PathFilter,
