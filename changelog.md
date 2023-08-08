@@ -1,5 +1,10 @@
 # changelog
 
+## 0.79.2
+
+- remove `cheap-watch` for `chokidar`
+  ([#386](https://github.com/feltjs/gro/pull/386))
+
 ## 0.79.1
 
 - add `gro commit` task
