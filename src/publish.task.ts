@@ -17,6 +17,8 @@ import {isThisProjectGro} from './paths.js';
 import {toRawRestArgs} from './utils/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 
+// TODO BLOCK changesets
+
 // publish.task.ts
 // - usage: `gro publish patch`
 // - forwards args to `npm version`: https://docs.npmjs.com/cli/v6/commands/npm-version

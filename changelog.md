@@ -1,5 +1,10 @@
 # changelog
 
+## 0.80.0
+
+- **break**: support changesets and remove the old `gro publish` and changelog workflow
+  ([#385](https://github.com/feltjs/gro/pull/385))
+
 ## 0.79.1
 
 - add `gro commit` task
