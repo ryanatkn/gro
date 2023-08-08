@@ -19,7 +19,7 @@ const findFiles = async (
 	const globbed = await fg.glob(dir + '/**/*');
 	const paths: Map<string, PathStats> = new Map();
 	for (const g of globbed) {
-		const path = stripStart(g, dir);
+		const path = stripStart(g, dir + '/');
 		const stats = fsExtra.statSync(g);
 		if (!filter || stats.isDirectory() || filter(path, stats)) {
 			paths.set(path, stats);

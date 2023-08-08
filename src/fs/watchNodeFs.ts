@@ -45,25 +45,30 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 			watcher = chokidar.watch(dir);
 
 			watcher.on('add', (path, stats) => {
+				console.log(`path`, path);
 				stats = stats || statSync(path); // eslint-disable-line no-param-reassign
 				if (filter && !filter(path, stats)) return;
 				onChange({type: 'create', path, stats});
 			});
 			watcher.on('addDir', (path, stats) => {
+				console.log(`path`, path);
 				stats = stats || statSync(path); // eslint-disable-line no-param-reassign
 				if (filter && !filter(path, stats)) return;
 				onChange({type: 'create', path, stats});
 			});
 			watcher.on('change', (path, stats) => {
+				console.log(`path`, path);
 				stats = stats || statSync(path); // eslint-disable-line no-param-reassign
 				if (filter && !filter(path, stats)) return;
 				onChange({type: 'update', path, stats});
 			});
 			watcher.on('unlink', (path) => {
+				console.log(`path`, path);
 				if (filter && !filter(path, FILE_STATS)) return;
 				onChange({type: 'delete', path, stats: FILE_STATS});
 			});
 			watcher.on('unlinkDir', (path) => {
+				console.log(`path`, path);
 				if (filter && !filter(path, DIR_STATS)) return;
 				onChange({type: 'delete', path, stats: DIR_STATS});
 			});
