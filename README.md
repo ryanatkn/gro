@@ -224,7 +224,6 @@ npm run bootstrap # build and link `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
 # development
-gro dev # start SvelteKit and other plugins, like API servers; usually you'll keep this running
 gro build # update the `gro` CLI locally
 
 # use your development version of `gro` locally in another project
