@@ -3,7 +3,8 @@ import {join} from 'node:path';
 import {paths} from '../paths.js';
 import type {PathStats} from './pathData.js';
 
-// This is a subset of the `cheap-watch` types designed for browser compatibility.
+// exists for browser compatibility
+// TODO BLOCK change this to be 2 args
 export interface PathFilter {
 	(file: {path: string; stats: PathStats}): boolean;
 }

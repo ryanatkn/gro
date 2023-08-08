@@ -43,24 +43,20 @@ const bootstrap = async () => {
 	const outDir = resolve(distDir);
 	await Promise.all([fs.remove(outDir), fs.remove(resolve('./.gro'))]);
 
-	let count = 0;
 	const startTime = Date.now();
 
 	const globbed = await fg.glob(dir + '/**/*.ts');
 	const paths = globbed.map(g => stripStart(g, dir));
 
-	await Promise.all(
-		paths.map(async (path) => {
-			count++;
-			const contents = await fs.readFile(join(dir, path), 'utf8');
-			// @ts-expect-error
-			const transformed = esbuild.transformSync(contents, transformOptions);
-			const outPath = join(outDir, path).slice(0, -2) + 'js';
-			await fs.outputFile(outPath, transformed.code);
-		})
-	);
+	for (const path of paths) {
+		const contents = fs.readFileSync(join(dir, path), 'utf8');
+		// @ts-expect-error
+		const transformed = esbuild.transformSync(contents, transformOptions);
+		const outPath = join(outDir, path).slice(0, -2) + 'js';
+		fs.outputFileSync(outPath, transformed.code);
+	};
 
-	console.log(`transformed ${count} files in ${Date.now() - startTime}ms`);
+	console.log(`transformed ${paths.length} files in ${Date.now() - startTime}ms`);
 
 	// @ts-expect-error
 	let done, promise, ps;
