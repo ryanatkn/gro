@@ -33,6 +33,9 @@ export interface Options {
 	filter?: PathFilter | null | undefined;
 }
 
+const FILE_STATS = {isDirectory: () => false};
+const DIR_STATS = {isDirectory: () => true};
+
 export const watchNodeFs = (options: Options): WatchNodeFs => {
 	const {dir, onChange, filter = toDefaultFilter()} = options;
 	let watcher: chokidar.FSWatcher | undefined;
@@ -57,14 +60,12 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 				onChange({type: 'update', path, stats});
 			});
 			watcher.on('unlink', (path) => {
-				const stats = {isDirectory: () => false}; // TODO BLOCK hoist if working
-				if (filter && !filter(path, stats)) return;
-				onChange({type: 'delete', path, stats});
+				if (filter && !filter(path, FILE_STATS)) return;
+				onChange({type: 'delete', path, stats: FILE_STATS});
 			});
 			watcher.on('unlinkDir', (path) => {
-				const stats = {isDirectory: () => true}; // TODO BLOCK hoist if working
-				if (filter && !filter(path, stats)) return;
-				onChange({type: 'delete', path, stats});
+				if (filter && !filter(path, DIR_STATS)) return;
+				onChange({type: 'delete', path, stats: DIR_STATS});
 			});
 		},
 		close: async () => {
