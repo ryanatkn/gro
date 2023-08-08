@@ -6,6 +6,7 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import type {Filesystem, FsWriteFile} from './filesystem.js';
 import type {PathStats} from './pathData.js';
 import type {PathFilter} from './filter.js';
+import {sourceIdToBasePath} from '../paths.js';
 
 const findFiles = async (
 	dir: string,
@@ -17,7 +18,7 @@ const findFiles = async (
 	const globbed = await fg.glob(finalDir + '/**/*');
 	const paths: Map<string, PathStats> = new Map();
 	for (const g of globbed) {
-		const path = stripStart(g, finalDir + '/');
+		const path = stripStart(sourceIdToBasePath(g), finalDir + '/');
 		const stats = fsExtra.statSync(g);
 		if (!filter || stats.isDirectory() || filter(path, stats)) {
 			paths.set(path, stats);
