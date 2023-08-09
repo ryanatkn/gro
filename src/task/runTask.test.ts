@@ -1,4 +1,4 @@
-import {EventEmitter} from 'events';
+import {EventEmitter} from 'node:events';
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 

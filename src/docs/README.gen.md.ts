@@ -1,4 +1,4 @@
-import {dirname, relative, basename} from 'path';
+import {dirname, relative, basename} from 'node:path';
 import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
@@ -27,11 +27,10 @@ export const gen: Gen = async ({fs, originId}) => {
 
 	// TODO this is GitHub-specific
 	const rootLink = `[${rootPath}](/../..)`;
-
 	const docFiles = await fs.findFiles(originDir);
 	const docPaths: string[] = [];
-	for (const [path, stats] of docFiles) {
-		if (stats.isDirectory() || path === outputFileName || !path.endsWith('.md')) {
+	for (const path of docFiles.keys()) {
+		if (path === outputFileName || !path.endsWith('.md')) {
 			continue;
 		}
 		docPaths.push(path);

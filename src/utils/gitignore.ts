@@ -1,5 +1,5 @@
-import {readFileSync} from 'fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
-import {join} from 'path';
+import {readFileSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
+import {join} from 'node:path';
 import {createFilter} from '@rollup/pluginutils';
 
 import {

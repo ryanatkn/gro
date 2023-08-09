@@ -1,4 +1,4 @@
-import {join, extname, relative} from 'path';
+import {join, extname, relative} from 'node:path';
 import * as lexer from 'es-module-lexer';
 import type {Assignable} from '@feltjs/util/types.js';
 

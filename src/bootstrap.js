@@ -1,8 +1,9 @@
-import CheapWatch from 'cheap-watch';
-import {resolve, join} from 'path';
+import {resolve, join} from 'node:path';
 import esbuild from 'esbuild';
 import fs from 'fs-extra';
-import {spawn} from 'child_process';
+import fg from 'fast-glob';
+import {spawn} from 'node:child_process';
+import {stripStart} from '@feltjs/util/string.js';
 
 /*
 
@@ -41,30 +42,21 @@ const bootstrap = async () => {
 	const distDir = './dist';
 	const outDir = resolve(distDir);
 	await Promise.all([fs.remove(outDir), fs.remove(resolve('./.gro'))]);
-	const watcher = new CheapWatch({
-		dir,
-		// @ts-expect-error
-		filter: ({path, stats}) => stats.isDirectory() || path.endsWith('.ts'),
-		watch: false,
-	});
 
-	let count = 0;
 	const startTime = Date.now();
 
-	await watcher.init();
-	await Promise.all(
-		Array.from(watcher.paths.entries()).map(async ([path, stats]) => {
-			if (stats.isDirectory()) return;
-			count++;
-			const contents = await fs.readFile(join(dir, path), 'utf8');
-			// @ts-expect-error
-			const transformed = esbuild.transformSync(contents, transformOptions);
-			const outPath = join(outDir, path).slice(0, -2) + 'js';
-			await fs.outputFile(outPath, transformed.code);
-		}),
-	);
+	const globbed = await fg.glob(dir + '/**/*.ts');
 
-	console.log(`transformed ${count} files in ${Date.now() - startTime}ms`);
+	for (const g of globbed) {
+		const path = stripStart(g, dir);
+		const contents = fs.readFileSync(join(dir, path), 'utf8');
+		// @ts-expect-error
+		const transformed = esbuild.transformSync(contents, transformOptions);
+		const outPath = join(outDir, path).slice(0, -2) + 'js';
+		fs.outputFileSync(outPath, transformed.code);
+	}
+
+	console.log(`transformed ${globbed.length} files in ${Date.now() - startTime}ms`);
 
 	// @ts-expect-error
 	let done, promise, ps;

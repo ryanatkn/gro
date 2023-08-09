@@ -220,7 +220,7 @@ export class MemoryFs implements Filesystem {
 		for (const file of this._files.values()) {
 			if (file.id === baseDir || !file.id.startsWith(baseDir)) continue;
 			const path = stripStart(file.id, baseDirSlash);
-			if (!filter || filter({path, stats: file.stats})) {
+			if (!filter || filter(path, file.stats)) {
 				found.set(path, file.stats);
 			}
 		}

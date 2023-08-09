@@ -11,7 +11,7 @@ test__findFiles('basic behavior', async ({fs}) => {
 	let hasIgnoredPath = false;
 	const result = await fs.findFiles(
 		'./src/fs/fixtures',
-		({path}) => {
+		(path) => {
 			if (!hasIgnoredPath) hasIgnoredPath = path === ignoredPath;
 			return path !== ignoredPath;
 		},
@@ -21,13 +21,9 @@ test__findFiles('basic behavior', async ({fs}) => {
 	assert.equal(Array.from(result.keys()), [
 		'test2.foo.ts',
 		'baz2/test2.baz.ts',
-		'baz2',
 		'baz1/test1.baz.ts',
-		'baz1',
 		'bar2/test2.bar.ts',
-		'bar2',
 		'bar1/test1.bar.ts',
-		'bar1',
 	]);
 });
 

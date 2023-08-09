@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve, join} from 'path';
+import {resolve, join} from 'node:path';
 import {Logger} from '@feltjs/util/log.js';
 
 import type {GenModuleMeta} from './genModule.js';

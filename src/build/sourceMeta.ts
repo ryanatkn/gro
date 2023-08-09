@@ -121,8 +121,7 @@ export const initSourceMeta = async ({
 	if (!(await fs.exists(sourceMetaDir))) return;
 	const files = await fs.findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(
-		Array.from(files.entries()).map(async ([path, stats]) => {
-			if (stats.isDirectory()) return;
+		Array.from(files.keys()).map(async (path) => {
 			const cacheId = `${sourceMetaDir}/${path}`;
 			const data = deserializeSourceMeta(JSON.parse(await fs.readFile(cacheId, 'utf8')));
 			sourceMetaById.set(data.sourceId, {cacheId, data});
