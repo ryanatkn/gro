@@ -27,11 +27,13 @@ export const gen: Gen = async ({fs, originId}) => {
 
 	// TODO this is GitHub-specific
 	const rootLink = `[${rootPath}](/../..)`;
-
+	console.log(`outputFileName`, outputFileName);
 	const docFiles = await fs.findFiles(originDir);
+	console.log(`docFiles`, docFiles.keys());
 	const docPaths: string[] = [];
 	for (const path of docFiles.keys()) {
 		if (path === outputFileName || !path.endsWith('.md')) {
+			console.log(`ignoring path`, path);
 			continue;
 		}
 		docPaths.push(path);

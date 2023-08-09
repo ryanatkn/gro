@@ -2,20 +2,19 @@
 
 > <sub>[gro](/../..) / docs / README.md</sub>
 
-- [adapt](docs/adapt.md)
-- [build](docs/build.md)
-- [config](docs/config.md)
-- [deploy](docs/deploy.md)
-- [dev](docs/dev.md)
-- [gen](docs/gen.md)
-- [options](docs/options.md)
-- [plugin](docs/plugin.md)
-- [publish](docs/publish.md)
-- [README](docs/README.md)
-- [sveltekit](docs/sveltekit.md)
-- [task](docs/task.md)
-- [tasks](docs/tasks.md)
-- [test](docs/test.md)
+- [adapt](adapt.md)
+- [build](build.md)
+- [config](config.md)
+- [deploy](deploy.md)
+- [dev](dev.md)
+- [gen](gen.md)
+- [options](options.md)
+- [plugin](plugin.md)
+- [publish](publish.md)
+- [sveltekit](sveltekit.md)
+- [task](task.md)
+- [tasks](tasks.md)
+- [test](test.md)
 
 > <sub>[gro](/../..) / docs / README.md</sub>
 
