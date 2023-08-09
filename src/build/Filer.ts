@@ -125,7 +125,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
-	readonly buildingSourceFiles: Set<string> = new Set(); // needed by hacky externals code, used to check if the filer is busy
+	readonly buildingSourceFiles: Set<SourceId> = new Set(); // needed by hacky externals code, used to check if the filer is busy
 	// TODO not sure about this
 	readonly findById = (id: string): BaseFilerFile | undefined => this.files.get(id);
 

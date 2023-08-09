@@ -27,6 +27,7 @@ export interface BinarySourceFile extends BaseSourceFile {
 	contentBuffer: Buffer;
 }
 export interface BaseSourceFile extends BaseFilerFile {
+	readonly id: SourceId;
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
 	readonly filerDir: FilerDir;
