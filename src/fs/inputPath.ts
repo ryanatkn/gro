@@ -158,19 +158,18 @@ export const loadSourceIdsByInputPath = async (
 	const inputDirectoriesWithNoFiles: string[] = [];
 	const existingSourceIds = new Set<string>();
 	for (const [inputPath, pathData] of sourceIdPathDataByInputPath) {
+		const {id} = pathData;
 		if (pathData.isDirectory) {
-			const files = await findFiles(pathData.id); // eslint-disable-line no-await-in-loop
+			const files = await findFiles(id); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const sourceIds: string[] = [];
 				let hasFiles = false;
-				for (const [path, stats] of files) {
-					if (!stats.isDirectory()) {
-						hasFiles = true;
-						const sourceId = join(pathData.id, path);
-						if (!existingSourceIds.has(sourceId)) {
-							existingSourceIds.add(sourceId);
-							sourceIds.push(sourceId);
-						}
+				for (const path of files.keys()) {
+					hasFiles = true;
+					const sourceId = join(id, path);
+					if (!existingSourceIds.has(sourceId)) {
+						existingSourceIds.add(sourceId);
+						sourceIds.push(sourceId);
 					}
 				}
 				if (sourceIds.length) {
@@ -183,9 +182,9 @@ export const loadSourceIdsByInputPath = async (
 			} else {
 				inputDirectoriesWithNoFiles.push(inputPath);
 			}
-		} else if (!existingSourceIds.has(pathData.id)) {
-			existingSourceIds.add(pathData.id);
-			sourceIdsByInputPath.set(inputPath, [pathData.id]);
+		} else if (!existingSourceIds.has(id)) {
+			existingSourceIds.add(id);
+			sourceIdsByInputPath.set(inputPath, [id]);
 		}
 	}
 	return {sourceIdsByInputPath, inputDirectoriesWithNoFiles};

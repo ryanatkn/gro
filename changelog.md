@@ -1,5 +1,10 @@
 # changelog
 
+## 0.80.0
+
+- **break**: replace `cheap-watch` with `chokidar` and `fast-glob`
+  ([#386](https://github.com/feltjs/gro/pull/386))
+
 ## 0.79.1
 
 - add `gro commit` task

@@ -48,18 +48,10 @@ It includes:
 - codegen by convention with [`gen`](/src/docs/gen.md)
   - includes automatic type generation using [JSON Schema](https://json-schema.org/) and
     [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
-- integrated platform-independent [`fs`](/src/fs/filesystem.ts)
-  (code is parameterized with an `fs` argument)
-  - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
-    a drop-in replacement for Node's `fs` with better semantics
-  - [memory](/src/fs/memory.ts) implementation works everywhere JS runs
-  - TODO more, like: `localStorage`, GitHub repo, generic keyvalue stores, a composition/proxy API
 - linting with [ESLint](https://github.com/eslint/eslint)
   (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
-- more to come, exploring what deeply integrated tools enable
-  for developer power, ergonomics, and productivity
 
 ## docs
 
