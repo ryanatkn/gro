@@ -242,6 +242,7 @@ Gro builds on
 [mri](https://github.com/lukeed/mri) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
+[zod](https://github.com/colinhacks/zod) ∙
 [@feltjs/util](https://github.com/feltjs/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
