@@ -241,6 +241,7 @@ Gro builds on
 [uvu](https://github.com/lukeed/uvu) ∙
 [mri](https://github.com/lukeed/mri) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
+[chokidar](https://github.com/paulmillr/chokidar) ∙
 [@feltjs/util](https://github.com/feltjs/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
