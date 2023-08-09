@@ -8,7 +8,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 import type {Args} from '../utils/args.js';
 
 export interface Task<
-	TArgs = Args,
+	TArgs = Args, // same as `z.infer<typeof Args>`
 	TEvents = object,
 	TArgsSchema extends z.ZodType<any, z.ZodTypeDef, any> = z.ZodType<any, z.ZodTypeDef, any>,
 > {

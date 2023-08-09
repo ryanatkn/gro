@@ -111,11 +111,11 @@ and putting them into a directory together can help make projects easier to navi
 // import {type Task, type TaskContext} from '@feltjs/gro';
 
 export interface Task<
-	TArgs = Args,
+	TArgs = Args, // same as `z.infer<typeof Args>`
 	TEvents = object,
 	TArgsSchema extends z.ZodType<any, z.ZodTypeDef, any> = z.ZodType<any, z.ZodTypeDef, any>,
 > {
-	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
+	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
 	summary?: string;
 	Args?: TArgsSchema;
 	production?: boolean;
