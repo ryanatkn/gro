@@ -14,8 +14,8 @@ export interface Task<
 > {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
-	production?: boolean;
 	Args?: TArgsSchema;
+	production?: boolean;
 }
 
 export interface TaskContext<TArgs = object, TEvents = object> {
