@@ -69,7 +69,7 @@
   },
   "peerDependencies": {
     "esbuild": "^0.17.0",
-    "svelte": "^4",
+    "svelte": ">=3",
     "svelte-preprocess-esbuild": "^3.0.1"
   },
   "devDependencies": {
