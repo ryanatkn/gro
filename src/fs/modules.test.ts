@@ -103,8 +103,6 @@ test__findModules('directory', async () => {
 		fs.findFiles(id, (path) => path.includes('.foo.')),
 	);
 	assert.ok(result.ok);
-	console.log(`result.sourceIdsByInputPath`, result.sourceIdsByInputPath, id);
-	console.log(`join(id, 'test1.foo.ts')`, join(id, 'test1.foo.ts'));
 	assert.equal(
 		result.sourceIdsByInputPath,
 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),

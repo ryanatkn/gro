@@ -164,11 +164,8 @@ export const loadSourceIdsByInputPath = async (
 			if (files.size) {
 				const sourceIds: string[] = [];
 				let hasFiles = false;
-				console.log(`files.keys()`, Array.from(files.keys()));
 				for (const path of files.keys()) {
 					hasFiles = true;
-					console.log(`id`, id);
-					console.log(`path`, path);
 					const sourceId = join(id, path);
 					if (!existingSourceIds.has(sourceId)) {
 						existingSourceIds.add(sourceId);
