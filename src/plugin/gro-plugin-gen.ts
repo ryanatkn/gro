@@ -4,7 +4,7 @@ import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../utils/args.js';
 import {sourceIdToBasePath} from '../paths.js';
-import {isGenPath} from '../gen/genModule.js';
+import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 import {GEN_NO_PROD_MESSAGE} from '../gen/runGen.js';
 import {throttleAsync} from '../utils/throttleAsync.js';
@@ -49,13 +49,17 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
 		name,
-		setup: async ({filer, args: {watch}, dev, log}) => {
+		setup: async ({filer, args: {watch}, dev, log, fs}) => {
 			if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
+			// Run `gen`, first checking if there are any modules to avoid a console error.
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
-			await gen();
+			const found = await findGenModules(fs);
+			if (found.ok && found.sourceIdsByInputPath.size > 0) {
+				await gen();
+			}
 
 			// Do we need to just generate everything once and exit?
 			if (!filer || !watch) {
