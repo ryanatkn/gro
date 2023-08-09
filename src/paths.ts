@@ -1,5 +1,5 @@
 import {join, basename} from 'node:path';
-import {fileURLToPath} from 'url';
+import {fileURLToPath} from 'node:url';
 import {replaceExtension, stripTrailingSlash} from '@feltjs/util/path.js';
 import {stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
@@ -93,6 +93,7 @@ export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.so
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
 
+// TODO this is more like `toBasePath`
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
 export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
 	stripStart(sourceId, p.source);

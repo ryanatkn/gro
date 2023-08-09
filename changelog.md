@@ -4,6 +4,8 @@
 
 - **break**: support changesets and remove the old `gro publish` and changelog workflow
   ([#385](https://github.com/feltjs/gro/pull/385))
+- **break**: replace `cheap-watch` with `chokidar` and `fast-glob`
+  ([#386](https://github.com/feltjs/gro/pull/386))
 
 ## 0.79.1
 

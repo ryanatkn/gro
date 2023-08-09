@@ -100,7 +100,7 @@ test__findModules('with and without extension', async () => {
 test__findModules('directory', async () => {
 	const id = resolve('src/fs/fixtures/');
 	const result = await findModules(fs, [id], (id) =>
-		fs.findFiles(id, ({path}) => path.includes('.foo.')),
+		fs.findFiles(id, (path) => path.includes('.foo.')),
 	);
 	assert.ok(result.ok);
 	assert.equal(
@@ -143,7 +143,7 @@ test__findModules('fail with inputDirectoriesWithNoFiles', async () => {
 			resolve('src/fs/fixtures/bar2'),
 			resolve('src/fs/fixtures/baz2'),
 		],
-		(id) => fs.findFiles(id, ({path}) => !path.includes('.bar.')),
+		(id) => fs.findFiles(id, (path) => !path.includes('.bar.')),
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);

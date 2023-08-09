@@ -48,18 +48,10 @@ It includes:
 - codegen by convention with [`gen`](/src/docs/gen.md)
   - includes automatic type generation using [JSON Schema](https://json-schema.org/) and
     [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
-- integrated platform-independent [`fs`](/src/fs/filesystem.ts)
-  (code is parameterized with an `fs` argument)
-  - modeled & implemented with [`fs-extra`](https://github.com/jprichardson/node-fs-extra),
-    a drop-in replacement for Node's `fs` with better semantics
-  - [memory](/src/fs/memory.ts) implementation works everywhere JS runs
-  - TODO more, like: `localStorage`, GitHub repo, generic keyvalue stores, a composition/proxy API
 - linting with [ESLint](https://github.com/eslint/eslint)
   (we also maintain [`@feltjs/eslint-config`](https://github.com/feltjs/eslint-config))
 - formatting with [Prettier](https://github.com/prettier/prettier):
   it's not always pretty, but it's always formatted
-- more to come, exploring what deeply integrated tools enable
-  for developer power, ergonomics, and productivity
 
 ## docs
 
@@ -223,12 +215,16 @@ npm i
 npm run bootstrap # build and link `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
-# development
-gro build # update the `gro` CLI locally
+# develop directly on gro:
+gro dev
+gro test # in another terminal
+gro test some.test
 
-# use your development version of `gro` locally in another project
+# use your development version of `gro` locally in another project:
+gro build # updates the `gro` CLI
 cd ../otherproject
-npm link ../gro
+npm link ../gro # from `otherproject/`
+gro build # from `gro/` on changes
 
 # release
 gro build # build for release and update the `gro` CLI
