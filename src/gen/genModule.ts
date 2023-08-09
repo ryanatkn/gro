@@ -122,6 +122,6 @@ export const findGenModules = (
 	findModules(
 		fs,
 		inputPaths,
-		(id) => fs.findFiles(id, (file) => extensions.some((e) => file.path.includes(e))),
+		(id) => fs.findFiles(id, (path) => extensions.some((e) => path.includes(e))),
 		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);

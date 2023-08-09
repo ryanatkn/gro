@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve, sep, join} from 'path';
+import {resolve, sep, join} from 'node:path';
 
 import {
 	resolveRawInputPath,

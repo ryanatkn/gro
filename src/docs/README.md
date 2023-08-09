@@ -9,7 +9,6 @@
 - [dev](dev.md)
 - [gen](gen.md)
 - [options](options.md)
-- [philosophy](philosophy.md)
 - [plugin](plugin.md)
 - [publish](publish.md)
 - [sveltekit](sveltekit.md)

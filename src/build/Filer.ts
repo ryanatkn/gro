@@ -1,6 +1,6 @@
-import {resolve, extname, join} from 'path';
+import {resolve, extname, join} from 'node:path';
 import * as lexer from 'es-module-lexer';
-import {EventEmitter} from 'events';
+import {EventEmitter} from 'node:events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {omitUndefined} from '@feltjs/util/object.js';
 import {UnreachableError} from '@feltjs/util/error.js';
@@ -48,11 +48,6 @@ If any files or directories change inside it without going through the `Filer`,
 it may go into a corrupted state.
 Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
 
-TODO
-
-- add tests (fully modularize as they're added, running tests for host interfaces both in memory and on the filesystem)
-- probably silence a lot of the logging (or add `debug` log level?) once tests are added
-
 */
 
 // The Filer is an `EventEmitter` with the following events:
@@ -76,7 +71,6 @@ export interface Options {
 	types: boolean;
 	target: EcmaScriptTarget;
 	watch: boolean;
-	watcherDebounce: number | undefined;
 	filter: PathFilter | undefined;
 	cleanOutputDirs: boolean;
 	log: Logger;
@@ -100,7 +94,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 		types: !dev,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		watch: true,
-		watcherDebounce: undefined,
 		filter: undefined,
 		cleanOutputDirs: true,
 		...omitUndefined(opts),
@@ -150,7 +143,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			sourcemap,
 			target,
 			watch,
-			watcherDebounce,
 			filter,
 			log,
 		} = initOptions(opts);
@@ -168,9 +160,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Creates objects to load a directory's content and sync filesystem changes in memory.
 		// The order of objects in the returned array is meaningless.
 		this.dirs = sourceDirs.map((sourceDir) =>
-			createFilerDir(fs, sourceDir, this.onDirChange, watch, watcherDebounce, filter),
+			createFilerDir(fs, sourceDir, this.onDirChange, watch, filter),
 		);
-		log.debug(cyan('buildConfigs'), buildConfigs);
+		log.debug(cyan('created Filer with buildConfigs'), Array.from(this.buildNames).join(', '));
 	}
 
 	close(): void {
@@ -212,12 +204,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// This performs the initial source file build, traces deps,
 		// and populates the `buildConfigs` property of all source files.
 		await this.initBuilds();
-		// this.log.debug('inited builds');
-		// this.log.info('buildConfigs', this.buildConfigs);
+		// this.log.debug('inited builds:', Array.from(this.buildNames).join(', '));
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
 
-		// this.log.debug(blue('initialized!'));
+		// this.log.debug('initialized!');
 	}
 
 	// During initialization, after all files are loaded into memory,

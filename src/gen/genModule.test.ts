@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {join} from 'path';
+import {join} from 'node:path';
 
 import {validateGenModule, findGenModules} from './genModule.js';
 import {paths} from '../paths.js';

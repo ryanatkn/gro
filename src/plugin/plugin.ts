@@ -26,11 +26,15 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 
 export interface PluginContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
+	/**
+	 * `filer` is `null` for production builds, but it's not clear if that's good design.
+	 */
 	filer: Filer | null;
 	timings: Timings;
 }
 
 export class Plugins<TPluginContext extends PluginContext> {
+	/* prefer `Plugins.create` to the constructor */
 	constructor(
 		private readonly ctx: TPluginContext,
 		private readonly instances: readonly Plugin[],
@@ -50,10 +54,11 @@ export class Plugins<TPluginContext extends PluginContext> {
 	async setup(): Promise<void> {
 		const {ctx, instances} = this;
 		if (!this.instances.length) return;
-		const {timings} = ctx;
+		const {timings, log} = ctx;
 		const timingToSetup = timings.start('plugins.setup');
 		for (const plugin of instances) {
 			if (!plugin.setup) continue;
+			log.debug('setup plugin', plugin.name);
 			const timing = timings.start(`setup:${plugin.name}`);
 			await plugin.setup(ctx); // eslint-disable-line no-await-in-loop
 			timing();
@@ -64,10 +69,11 @@ export class Plugins<TPluginContext extends PluginContext> {
 	async teardown(): Promise<void> {
 		const {ctx, instances} = this;
 		if (!this.instances.length) return;
-		const {timings} = ctx;
+		const {timings, log} = ctx;
 		const timingToTeardown = timings.start('plugins.teardown');
 		for (const plugin of instances) {
 			if (!plugin.teardown) continue;
+			log.debug('teardown plugin', plugin.name);
 			const timing = timings.start(`teardown:${plugin.name}`);
 			await plugin.teardown(ctx); // eslint-disable-line no-await-in-loop
 			timing();

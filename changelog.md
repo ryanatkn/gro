@@ -1,11 +1,19 @@
 # changelog
 
+## 0.80.0
+
+- **break**: replace `cheap-watch` with `chokidar` and `fast-glob`
+  ([#386](https://github.com/feltjs/gro/pull/386))
+
 ## 0.79.1
 
 - add `gro commit` task
   ([#379](https://github.com/feltjs/gro/pull/379))
 - add `gen` plugin that defaults to watch mode
-  ([#283](https://github.com/feltjs/gro/pull/283))
+  ([#283](https://github.com/feltjs/gro/pull/283),
+  [#381](https://github.com/feltjs/gro/pull/381))
+- add `--reset` and `--origin` flags to `gro deploy`
+  ([#383](https://github.com/feltjs/gro/pull/383))
 
 ## 0.79.0
 

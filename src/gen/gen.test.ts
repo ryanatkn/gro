@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve} from 'path';
+import {resolve} from 'node:path';
 
 import {toGenResult} from './gen.js';
 
