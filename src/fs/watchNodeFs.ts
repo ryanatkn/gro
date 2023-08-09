@@ -4,6 +4,7 @@ import {statSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-r
 import type {PathStats} from './pathData.js';
 import {toPathFilter, type PathFilter} from './filter.js';
 import {loadGitignoreFilter} from '../utils/gitignore.js';
+import {SOURCE_DIRNAME, paths, sourceIdToBasePath} from '../paths.js';
 
 /*
 
@@ -47,25 +48,25 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 			watcher.on('add', (path, s) => {
 				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
-				onChange({type: 'create', path, stats});
+				onChange({type: 'create', path: toBasePath(path), stats});
 			});
 			watcher.on('addDir', (path, s) => {
 				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
-				onChange({type: 'create', path, stats});
+				onChange({type: 'create', path: toBasePath(path), stats});
 			});
 			watcher.on('change', (path, s) => {
 				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
-				onChange({type: 'update', path, stats});
+				onChange({type: 'update', path: toBasePath(path), stats});
 			});
 			watcher.on('unlink', (path) => {
 				if (filter && !filter(path, FILE_STATS)) return;
-				onChange({type: 'delete', path, stats: FILE_STATS});
+				onChange({type: 'delete', path: toBasePath(path), stats: FILE_STATS});
 			});
 			watcher.on('unlinkDir', (path) => {
 				if (filter && !filter(path, DIR_STATS)) return;
-				onChange({type: 'delete', path, stats: DIR_STATS});
+				onChange({type: 'delete', path: toBasePath(path), stats: DIR_STATS});
 			});
 		},
 		close: async () => {
@@ -76,3 +77,9 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 };
 
 const toDefaultFilter = (): PathFilter => toPathFilter(loadGitignoreFilter());
+
+const toBasePath = (p: string): string => {
+	// TODO this is terrible
+	if (paths.source.startsWith(p)) return SOURCE_DIRNAME;
+	return sourceIdToBasePath(p);
+};
