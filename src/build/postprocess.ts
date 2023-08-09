@@ -33,7 +33,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 	const {dir, extension, content: originalContent} = buildFile;
 
 	let content = originalContent;
-	let dependencies: Map<string, BuildDependency> | null = null;
+	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
 	const handleSpecifier: HandleSpecifier = (specifier) => {
 		const buildDependency = toBuildDependency(specifier, dir, source, ctx);
@@ -209,7 +209,7 @@ const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier
 
 const replaceDependencies = (
 	content: string,
-	dependencies: Map<string, BuildDependency> | null,
+	dependencies: Map<BuildId, BuildDependency> | null,
 ): string => {
 	if (dependencies === null) return content;
 	let finalContent = content;

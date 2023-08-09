@@ -16,7 +16,7 @@ import {
 	mapDependencyToSourceId,
 	type MapDependencyToSourceId,
 } from './utils.js';
-import {paths as defaultPaths, toBuildOutPath, type Paths} from '../paths.js';
+import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../paths.js';
 import type {BuildContext, Builder} from './builder.js';
 import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
@@ -107,7 +107,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements BuildContext {
 	// TODO think about accessors - I'm currently just making things public when I need them here
-	private readonly files: Map<string, FilerFile> = new Map();
+	private readonly files: Map<SourceId, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly builder: Builder;
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
@@ -119,7 +119,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly paths: Paths;
 	readonly buildConfigs: readonly BuildConfig[];
 	readonly buildNames: Set<BuildName>;
-	readonly sourceMetaById: Map<string, SourceMeta> = new Map();
+	readonly sourceMetaById: Map<SourceId, SourceMeta> = new Map();
 	readonly log: Logger;
 	readonly buildDir: string;
 	readonly dev: boolean;
@@ -432,13 +432,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		if (promises !== null) await Promise.all(promises);
 	}
 
-	updatingSourceFiles: Map<string, Promise<boolean>> = new Map();
+	updatingSourceFiles: Map<SourceId, Promise<boolean>> = new Map();
 
 	// Returns a boolean indicating if the source file should be built.
 	// The source file may have been updated or created from a cold cache.
 	// It batches calls together, but unlike `buildSourceFile`, it don't queue them,
 	// and instead just returns the pending promise.
-	private async updateSourceFile(id: string, filerDir: FilerDir): Promise<boolean> {
+	private async updateSourceFile(id: SourceId, filerDir: FilerDir): Promise<boolean> {
 		const updating = this.updatingSourceFiles.get(id);
 		if (updating) return updating;
 		const done = () => this.updatingSourceFiles.delete(id);
@@ -727,7 +727,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `updateBuildFiles()`)?
 	}
 
-	private async destroySourceId(id: string): Promise<void> {
+	private async destroySourceId(id: SourceId): Promise<void> {
 		const sourceFile = this.files.get(id);
 		assertSourceFile(sourceFile);
 		this.log.debug('destroying file', gray(id));
