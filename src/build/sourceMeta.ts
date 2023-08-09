@@ -1,7 +1,7 @@
 import {gray} from 'kleur/colors';
 
 import type {Encoding} from '../fs/encoding.js';
-import {JSON_EXTENSION, toBuildOutDirname} from '../paths.js';
+import {JSON_EXTENSION, toBuildOutDirname, type SourceId} from '../paths.js';
 import {getFileContentHash} from './filerFile.js';
 import type {BuildContext} from './builder.js';
 import type {SourceFile} from './sourceFile.js';
@@ -20,7 +20,7 @@ export interface SourceMeta {
 	readonly data: SourceMetaData; // the plain JSON written to disk
 }
 export interface SourceMetaData {
-	readonly sourceId: string;
+	readonly sourceId: SourceId;
 	readonly contentHash: string;
 	readonly builds: SourceMetaBuild[];
 }
@@ -34,7 +34,7 @@ export interface SourceMetaBuild {
 // The optional properties in the following serialized types
 // are not `readonly` in order to simplify object creation.
 export interface SerializedSourceMetaData {
-	readonly sourceId: string;
+	readonly sourceId: SourceId;
 	readonly contentHash: string;
 	readonly builds: SerializedSourceMetaBuild[];
 }
@@ -99,7 +99,7 @@ const writeSourceMeta = throttleAsync(
 
 export const deleteSourceMeta = async (
 	{fs, sourceMetaById}: BuildContext,
-	sourceId: string,
+	sourceId: SourceId,
 ): Promise<void> => {
 	const meta = sourceMetaById.get(sourceId);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache

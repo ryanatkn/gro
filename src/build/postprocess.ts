@@ -10,6 +10,7 @@ import {
 	TS_EXTENSION,
 	TS_TYPE_EXTENSION,
 	isThisProjectGro,
+	type BuildId,
 } from '../paths.js';
 import type {BuildContext, BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
@@ -142,7 +143,7 @@ const toBuildDependency = (
 	source: BuildSource,
 	{dev}: BuildContext,
 ): BuildDependency => {
-	let buildId: string;
+	let buildId: BuildId;
 	let finalSpecifier = specifier;
 	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;

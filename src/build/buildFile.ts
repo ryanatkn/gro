@@ -7,6 +7,7 @@ import {basename, dirname, extname} from 'node:path';
 import {loadContent} from './load.js';
 import type {BuildConfig} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import type {SourceId} from '../paths.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
@@ -20,7 +21,7 @@ export interface BinaryBuildFile extends BaseBuildFile {
 }
 export interface BaseBuildFile extends BaseFilerFile {
 	readonly type: 'build';
-	readonly sourceId: string;
+	readonly sourceId: SourceId;
 	readonly buildConfig: BuildConfig;
 	// This data structure de-dupes by build id, because we can throw away
 	// the information of duplicate imports to the same dependency within each build file.
