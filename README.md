@@ -218,10 +218,10 @@ gro test # make sure everything looks good - same as `npm test`
 # develop directly on gro:
 gro dev
 gro test # in another terminal
-gro test some.specific.testterminal
+gro test some.test
 
 # use your development version of `gro` locally in another project:
-gro build # updates the `gro` CLI locally
+gro build # updates the `gro` CLI
 cd ../otherproject
 npm link ../gro # from `otherproject/`
 gro build # from `gro/` on changes
