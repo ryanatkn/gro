@@ -21,6 +21,7 @@ const findFiles = async (
 		const path = stripStart(sourceIdToBasePath(g), finalDir + '/'); // converting back to what cheap-watch did
 		const stats = fsExtra.statSync(g);
 		if (!filter || stats.isDirectory() || filter(path, stats)) {
+			console.log(`setting path`, path);
 			paths.set(path, stats);
 		}
 	}

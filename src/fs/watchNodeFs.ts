@@ -4,7 +4,7 @@ import {statSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-r
 import type {PathStats} from './pathData.js';
 import {toPathFilter, type PathFilter} from './filter.js';
 import {loadGitignoreFilter} from '../utils/gitignore.js';
-import {SOURCE_DIRNAME, paths, sourceIdToBasePath} from '../paths.js';
+import {SOURCE_DIR, SOURCE_DIRNAME, paths, sourceIdToBasePath} from '../paths.js';
 
 /*
 
@@ -79,7 +79,9 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 const toDefaultFilter = (): PathFilter => toPathFilter(loadGitignoreFilter());
 
 const toBasePath = (p: string): string => {
-	// TODO this is terrible
-	if (paths.source.startsWith(p)) return SOURCE_DIRNAME;
+	// TODO this is terrible, handles the `src/` case having different
+	if (p.endsWith(SOURCE_DIR) && paths.source.startsWith(p)) {
+		return SOURCE_DIRNAME;
+	}
 	return sourceIdToBasePath(p);
 };

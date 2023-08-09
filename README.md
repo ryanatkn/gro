@@ -215,12 +215,16 @@ npm i
 npm run bootstrap # build and link `gro` - needed only once
 gro test # make sure everything looks good - same as `npm test`
 
-# development
-gro build # update the `gro` CLI locally
+# develop directly on gro:
+gro dev
+gro test # in another terminal
+gro test some.specific.testterminal
 
-# use your development version of `gro` locally in another project
+# use your development version of `gro` locally in another project:
+gro build # updates the `gro` CLI locally
 cd ../otherproject
-npm link ../gro
+npm link ../gro # from `otherproject/`
+gro build # from `gro/` on changes
 
 # release
 gro build # build for release and update the `gro` CLI
