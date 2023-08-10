@@ -6,7 +6,7 @@ import {printError} from '@feltjs/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
 import type {PathStats, PathData} from './pathData.js';
-import {toImportId, pathsFromId, printPath, printPathOrGroPath} from '../paths.js';
+import {toImportId, pathsFromId, printPath, printPathOrGroPath, type SourceId} from '../paths.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import type {Filesystem} from './filesystem.js';
 
@@ -168,7 +168,7 @@ export const loadModules = async <
 >(
 	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	dev: boolean,
-	loadModuleById: (sourceId: string, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+	loadModuleById: (sourceId: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	const timingToLoadModules = timings.start('load modules');

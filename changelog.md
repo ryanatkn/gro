@@ -4,6 +4,8 @@
 
 - **break**: replace `cheap-watch` with `chokidar` and `fast-glob`
   ([#386](https://github.com/feltjs/gro/pull/386))
+- fix `gen` error on startup for projects with no gen modules
+  ([#387](https://github.com/feltjs/gro/pull/387))
 
 ## 0.79.1
 

@@ -5,7 +5,14 @@ import {replaceExtension} from '@feltjs/util/path.js';
 
 import type {BuildConfigInput} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {type Paths, buildIdToSourceId, JS_EXTENSION, paths, TS_EXTENSION} from '../paths.js';
+import {
+	type Paths,
+	buildIdToSourceId,
+	JS_EXTENSION,
+	paths,
+	TS_EXTENSION,
+	type SourceId,
+} from '../paths.js';
 import type {BuildDependency} from './buildDependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
@@ -26,7 +33,7 @@ export const createDirectoryFilter = (dir: string, rootDir = paths.source): Filt
 };
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, buildDir: string, fs: Filesystem, paths: Paths): Promise<string>;
+	(dependency: BuildDependency, buildDir: string, fs: Filesystem, paths: Paths): Promise<SourceId>;
 }
 
 // TODO this was changed from sync to async to support JS:
