@@ -233,7 +233,7 @@ import type {z} from 'zod';
 
 const Args = z
 	.object({
-		_: z.array(z.string(), {description: 'paths to generate'}).default([]),
+		_: z.array(z.string(), {description: 'rest args'}).default([]),
 		yepyep: z.string({description: 'helpful info'}).default('ya'),
 		okcool: z.number({description: 'that prints to the CLI'}).default(1234),
 		maybee: z.boolean({description: 'and optional args work too'}),
@@ -244,6 +244,7 @@ type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	Args,
 	run: async ({args}) => {
+		args._; // string[]
 		args.yepyep; // string
 		args.okcool; // number
 		args.maybee; // boolean | undefined
