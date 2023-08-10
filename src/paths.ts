@@ -5,6 +5,7 @@ import {stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
 
 import type {BuildName} from './build/buildConfig.js';
+import type {Flavored} from '@feltjs/util/types.js';
 
 /*
 
@@ -72,6 +73,9 @@ export interface Paths {
 	configSourceId: string;
 }
 
+export type SourceId = Flavored<string, 'SourceId'>;
+export type BuildId = Flavored<string, 'BuildId'>;
+
 export const createPaths = (rootDir: string): Paths => {
 	const root = stripTrailingSlash(rootDir) + '/';
 	const source = `${root}${SOURCE_DIR}`;
@@ -95,17 +99,22 @@ export const toRootPath = (id: string, p = paths): string => stripStart(id, p.ro
 
 // TODO this is more like `toBasePath`
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
-export const sourceIdToBasePath = (sourceId: string, p = paths): string =>
+export const sourceIdToBasePath = (sourceId: SourceId, p = paths): string =>
 	stripStart(sourceId, p.source);
 
 // '/home/me/app/.gro/[prod|dev]/buildName/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
-export const buildIdToSourceId = (buildId: string, buildDir = paths.build, p = paths): string => {
+export const buildIdToSourceId = (
+	buildId: BuildId,
+	buildDir = paths.build,
+	p = paths,
+): SourceId => {
 	const basePath = toBuildBasePath(buildId, buildDir);
 	return basePathToSourceId(toSourceExtension(basePath), p);
 };
 
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
-export const basePathToSourceId = (basePath: string, p = paths): string => `${p.source}${basePath}`;
+export const basePathToSourceId = (basePath: string, p = paths): SourceId =>
+	`${p.source}${basePath}`;
 
 // TODO the `stripTrailingSlash` is a hack
 export const toBuildOutDir = (dev: boolean, buildDir = paths.build): string =>
@@ -126,7 +135,7 @@ export const toBuildOutPath = (
 	buildDir = paths.build,
 ): string => `${toBuildOutDir(dev, buildDir)}/${buildName}/${basePath}`;
 
-export const toBuildBasePath = (buildId: string, buildDir = paths.build): string => {
+export const toBuildBasePath = (buildId: BuildId, buildDir = paths.build): string => {
 	const rootPath = stripStart(buildId, buildDir);
 	let separatorCount = 0;
 	for (let i = 0; i < rootPath.length; i++) {
@@ -157,7 +166,7 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 // Maybe this points to a configurable system? Users can define their own extensions in Gro.
 // Maybe `extensionConfigs: FilerExtensionConfig[]`.
 // Or maybe just follow the lead of Rollup/esbuild?
-export const toBuildExtension = (sourceId: string, dev: boolean): string =>
+export const toBuildExtension = (sourceId: SourceId, dev: boolean): string =>
 	sourceId.endsWith(TS_EXTENSION)
 		? replaceExtension(sourceId, JS_EXTENSION)
 		: sourceId.endsWith(SVELTE_EXTENSION)
@@ -170,7 +179,7 @@ export const toBuildExtension = (sourceId: string, dev: boolean): string =>
 
 // This implementation is complicated but it's fast.
 // TODO see `toBuildExtension` comments for discussion about making this generic and configurable
-export const toSourceExtension = (buildId: string): string => {
+export const toSourceExtension = (buildId: BuildId): string => {
 	const len = buildId.length;
 	let i = len;
 	let extensionCount = 1;
@@ -235,7 +244,7 @@ export const toSourceExtension = (buildId: string): string => {
 // When importing from inside Gro's own internal dist/ directory,
 // it returns a relative path and ignores `dev` and `buildName`.
 export const toImportId = (
-	sourceId: string,
+	sourceId: SourceId,
 	dev: boolean,
 	buildName: BuildName,
 	p = pathsFromId(sourceId),

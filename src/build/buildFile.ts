@@ -7,6 +7,7 @@ import {basename, dirname, extname} from 'node:path';
 import {loadContent} from './load.js';
 import type {BuildConfig} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
+import type {BuildId, SourceId} from '../paths.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
@@ -19,14 +20,15 @@ export interface BinaryBuildFile extends BaseBuildFile {
 	readonly contentBuffer: Buffer;
 }
 export interface BaseBuildFile extends BaseFilerFile {
+	readonly id: BuildId;
 	readonly type: 'build';
-	readonly sourceId: string;
+	readonly sourceId: SourceId;
 	readonly buildConfig: BuildConfig;
 	// This data structure de-dupes by build id, because we can throw away
 	// the information of duplicate imports to the same dependency within each build file.
 	// We may want to store more granular dependency info, including imported identifiers,
 	// in the future.
-	readonly dependencies: Map<string, BuildDependency> | null;
+	readonly dependencies: Map<BuildId, BuildDependency> | null;
 }
 
 export const reconstructBuildFiles = async (
@@ -129,9 +131,9 @@ export const diffDependencies = (
 	let addedDependencies: BuildDependency[] | null = null;
 	let removedDependencies: BuildDependency[] | null = null;
 
-	// Aggregate all of the dependencies for each source file. The map de-dupes by build id.
-	let newDependencies: Map<string, BuildDependency> | null = null;
-	let oldDependencies: Map<string, BuildDependency> | null = null;
+	// Aggregate all of the dependencies for each source file. The maps de-dupe by build id.
+	let newDependencies: Map<BuildId, BuildDependency> | null = null;
+	let oldDependencies: Map<BuildId, BuildDependency> | null = null;
 	for (const newFile of newFiles) {
 		if (newFile.dependencies !== null) {
 			for (const dependency of newFile.dependencies.values()) {

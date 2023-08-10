@@ -151,7 +151,7 @@ gro build # build everything for production
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`
-gro test filepattern1 filepatternB
+gro test filepattern1 some.test another.test
 gro test -- uvu --forwarded_args 'to uvu'
 ```
 
@@ -241,6 +241,8 @@ Gro builds on
 [uvu](https://github.com/lukeed/uvu) ∙
 [mri](https://github.com/lukeed/mri) ∙
 [fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
+[chokidar](https://github.com/paulmillr/chokidar) ∙
+[zod](https://github.com/colinhacks/zod) ∙
 [@feltjs/util](https://github.com/feltjs/util) ∙
 [ESLint](https://github.com/eslint/eslint) ∙
 [Prettier](https://github.com/prettier/prettier) ∙
