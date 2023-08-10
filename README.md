@@ -151,7 +151,7 @@ gro build # build everything for production
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`
-gro test filepattern1 filepatternB
+gro test filepattern1 some.test another.test
 gro test -- uvu --forwarded_args 'to uvu'
 ```
 
