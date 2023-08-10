@@ -8,14 +8,14 @@ import type {Filesystem} from '../fs/filesystem.js';
 import type {Args} from '../utils/args.js';
 
 export interface Task<
-	TArgs = Args,
+	TArgs = Args, // same as `z.infer<typeof Args>`
 	TEvents = object,
 	TArgsSchema extends z.ZodType<any, z.ZodTypeDef, any> = z.ZodType<any, z.ZodTypeDef, any>,
 > {
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
-	production?: boolean;
 	Args?: TArgsSchema;
+	production?: boolean;
 }
 
 export interface TaskContext<TArgs = object, TEvents = object> {

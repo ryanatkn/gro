@@ -1,8 +1,10 @@
+import type {BuildId} from '../paths.js';
+
 export interface BuildDependency {
 	readonly specifier: string;
 	readonly mappedSpecifier: string;
 	readonly originalSpecifier: string;
-	readonly buildId: string;
+	readonly buildId: BuildId;
 	readonly external: boolean;
 }
 

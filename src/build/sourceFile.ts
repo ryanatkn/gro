@@ -13,6 +13,7 @@ import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
 import type {IdFilter} from '../fs/filter.js';
+import type {BuildId, SourceId} from '../paths.js';
 
 export type SourceFile = TextSourceFile | BinarySourceFile;
 
@@ -26,14 +27,15 @@ export interface BinarySourceFile extends BaseSourceFile {
 	contentBuffer: Buffer;
 }
 export interface BaseSourceFile extends BaseFilerFile {
+	readonly id: SourceId;
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
-	readonly dependencies: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
-	readonly dependents: Map<BuildConfig, Map<string, Map<string, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
+	readonly dependencies: Map<BuildConfig, Map<SourceId, Map<BuildId, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
+	readonly dependents: Map<BuildConfig, Map<SourceId, Map<BuildId, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }
 

@@ -10,6 +10,7 @@ import {
 	TS_EXTENSION,
 	TS_TYPE_EXTENSION,
 	isThisProjectGro,
+	type BuildId,
 } from '../paths.js';
 import type {BuildContext, BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
@@ -32,7 +33,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 	const {dir, extension, content: originalContent} = buildFile;
 
 	let content = originalContent;
-	let dependencies: Map<string, BuildDependency> | null = null;
+	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
 	const handleSpecifier: HandleSpecifier = (specifier) => {
 		const buildDependency = toBuildDependency(specifier, dir, source, ctx);
@@ -142,7 +143,7 @@ const toBuildDependency = (
 	source: BuildSource,
 	{dev}: BuildContext,
 ): BuildDependency => {
-	let buildId: string;
+	let buildId: BuildId;
 	let finalSpecifier = specifier;
 	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;
@@ -208,7 +209,7 @@ const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier
 
 const replaceDependencies = (
 	content: string,
-	dependencies: Map<string, BuildDependency> | null,
+	dependencies: Map<BuildId, BuildDependency> | null,
 ): string => {
 	if (dependencies === null) return content;
 	let finalContent = content;
