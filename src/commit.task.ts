@@ -6,9 +6,9 @@ import type {Task} from './task/task';
 
 const Args = z
 	.object({
-		_: z.array(
-			z.string({description: 'the git commit message, the same as git commit -m or --message'}),
-		),
+		_: z.array(z.string(), {
+			description: 'the git commit message, the same as git commit -m or --message',
+		}),
 	})
 	.strict();
 type Args = z.infer<typeof Args>;
