@@ -194,15 +194,6 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		// Reset the target branch?
-		if (reset) {
-			const first_commit_hash = execSync(
-				'git rev-list --max-parents=0 --abbrev-commit HEAD',
-			).toString();
-			await spawn('git', ['reset', '--hard', first_commit_hash]);
-			await spawn('git', ['push', origin, target, '--force']);
-		}
-
 		let dir: string;
 
 		try {
@@ -240,6 +231,15 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info(green('dry deploy complete:'), 'files are available in', printPath(dir));
 			return;
+		}
+
+		// Reset the target branch?
+		if (reset) {
+			const first_commit_hash = execSync(
+				'git rev-list --max-parents=0 --abbrev-commit HEAD',
+			).toString();
+			await spawn('git', ['reset', '--hard', first_commit_hash]);
+			await spawn('git', ['push', origin, target, '--force']);
 		}
 
 		try {
