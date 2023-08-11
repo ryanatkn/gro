@@ -144,15 +144,6 @@ export const task: Task<Args> = {
 				);
 				return;
 			}
-
-			// Reset the target branch?
-			if (reset) {
-				const first_commit_hash = execSync(
-					'git rev-list --max-parents=0 --abbrev-commit HEAD',
-				).toString();
-				await spawn('git', ['reset', '--hard', first_commit_hash]);
-				await spawn('git', ['push', origin, target, '--force']);
-			}
 		} else if (gitTargetExistsResult.code === 2) {
 			// Target branch does not exist remotely.
 
@@ -201,6 +192,15 @@ export const task: Task<Args> = {
 		if (cleanAndExit) {
 			log.info(rainbow('all clean'));
 			return;
+		}
+
+		// Reset the target branch?
+		if (reset) {
+			const first_commit_hash = execSync(
+				'git rev-list --max-parents=0 --abbrev-commit HEAD',
+			).toString();
+			await spawn('git', ['reset', '--hard', first_commit_hash]);
+			await spawn('git', ['push', origin, target, '--force']);
 		}
 
 		let dir: string;

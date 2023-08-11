@@ -1,5 +1,10 @@
 # changelog
 
+## 0.80.1
+
+- fix `gro deploy --reset` flag
+  ([#388](https://github.com/feltjs/gro/pull/388))
+
 ## 0.80.0
 
 - **break**: replace `cheap-watch` with `chokidar` and `fast-glob`
