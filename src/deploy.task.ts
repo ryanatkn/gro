@@ -235,9 +235,9 @@ export const task: Task<Args> = {
 
 		// Reset the target branch?
 		if (reset) {
-			const first_commit_hash = execSync(
-				'git rev-list --max-parents=0 --abbrev-commit HEAD',
-			).toString();
+			const first_commit_hash = execSync('git rev-list --max-parents=0 --abbrev-commit HEAD')
+				.toString()
+				.trim();
 			await spawn('git', ['reset', '--hard', first_commit_hash]);
 			await spawn('git', ['push', origin, target, '--force']);
 		}
