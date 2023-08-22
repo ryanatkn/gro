@@ -69,7 +69,7 @@ export const task: Task<Args> = {
 		}
 
 		// Check in dev mode before proceeding.
-		const checkResult = await spawn('npx', ['gro', 'check', ...toRawRestArgs()], {
+		const checkResult = await spawn('npx', ['gro', 'check'], {
 			env: {...process.env, NODE_ENV: 'development'},
 		});
 		if (!checkResult.ok) throw Error('gro check failed');
