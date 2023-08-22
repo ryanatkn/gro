@@ -21,7 +21,7 @@ to publish packages to [npm](https://npmjs.com/). The task calls both
 [`changeset version`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#version)
 and
 [`changeset publish`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#publish)
-and publishes from `main` by default.
+and publishes from the `main` branch by default.
 
 Gro does not include Changesets as a dependency.
 Install it globally or local to your project:
