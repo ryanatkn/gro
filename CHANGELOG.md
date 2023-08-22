@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.81.1
+
+### Patch Changes
+
+- edf3214: detect changeset version failure
+
 ## 0.81.0
 
 ### Minor Changes
