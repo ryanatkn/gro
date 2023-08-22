@@ -17,7 +17,7 @@ npm login # and follow the instructions
 
 The [`gro publish` task](https://github.com/feltjs/gro/blob/main/src/publish.task.ts)
 integrates with [Changesets](https://github.com/changesets/changesets)
-to publish a project to [npm](https://npmjs.com/). The task calls both
+to publish packages to [npm](https://npmjs.com/). The task calls both
 [`changeset version`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#version)
 and
 [`changeset publish`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#publish).
