@@ -58,7 +58,9 @@ export const task: Task<Args> = {
 		if (!checkResult.ok) throw Error('gro check failed');
 
 		// Bump the version so the package.json is updated before building:
-		if (!dry) {
+		if (dry) {
+			log.info('dry run, skipping changeset version');
+		} else {
 			const npmVersionResult = await spawn('changeset', ['version']);
 			if (!npmVersionResult.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
