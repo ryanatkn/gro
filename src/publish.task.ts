@@ -20,6 +20,12 @@ import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 const Args = z
 	.object({
 		branch: z.string({description: 'branch to publish from'}).default(GIT_DEPLOY_SOURCE_BRANCH),
+		message: z
+			.string({description: 'commit message for the changelog and version'})
+			.default('publish'),
+		changelog: z
+			.string({description: 'file name and path of the changelog'})
+			.default('CHANGELOG.md'),
 		dry: z
 			.boolean({
 				description:
@@ -35,10 +41,12 @@ export const task: Task<Args> = {
 	production: true,
 	Args,
 	run: async ({fs, args, log, dev}): Promise<void> => {
-		const {branch, dry} = args;
+		const {branch, message, changelog, dry} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
 		}
+
+		const changelogExists = await fs.exists(changelog);
 
 		// Ensure Changesets is installed:
 		try {
@@ -91,10 +99,15 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		await spawn('git', ['push', '--follow-tags']);
 		const npmPublishResult = await spawn('changeset', ['publish'], {cwd: config.publish});
 		if (!npmPublishResult.ok) {
 			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
 		}
+
+		if (!changelogExists && (await fs.exists(changelog))) {
+			await spawn('git', ['add', changelog]);
+		}
+		await spawn('git', ['commit', '-a', '-m', message]);
+		await spawn('git', ['push', '--follow-tags']);
 	},
 };
