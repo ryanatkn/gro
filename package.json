@@ -73,6 +73,7 @@
     "svelte-preprocess-esbuild": "^3.0.1"
   },
   "devDependencies": {
+    "@changesets/changelog-git": "^0.1.14",
     "@feltjs/eslint-config": "^0.3.0",
     "@sveltejs/adapter-static": "^2.0.2",
     "@sveltejs/kit": "^1.22.3",
