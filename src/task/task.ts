@@ -44,7 +44,9 @@ export const toTaskName = (basePath: string): string => {
 	return s.at(-1) === s.at(-2) ? s.slice(0, -1).join('/') : stripped;
 };
 
-// This is used by tasks to signal a known failure.
-// It's useful for cleaning up logging because
-// we usually don't need their stack trace.
+/**
+ * This is used by tasks to signal a known failure.
+ * It's useful for cleaning up logging because
+ * we usually don't need their stack trace.
+ */
 export class TaskError extends Error {}
