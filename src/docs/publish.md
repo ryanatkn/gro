@@ -36,7 +36,7 @@ First run
 changeset init
 ```
 
-If your package is public, configure the changeset `access` property:
+If your package is public, configure the `access` property:
 
 ```diff
 # .changeset/config.json
