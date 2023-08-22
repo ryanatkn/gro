@@ -82,8 +82,7 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		await spawn('git', ['push']);
-		await spawn('git', ['push', '--tags']);
+		await spawn('git', ['push', '--follow-tags']);
 		const npmPublishResult = await spawn('changeset', ['publish'], {cwd: config.publish});
 		if (!npmPublishResult.ok) {
 			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
