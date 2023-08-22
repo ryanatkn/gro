@@ -45,6 +45,7 @@ export const task: Task<Args> = {
 		}
 
 		const changelogExists = await fs.exists(changelog);
+		let version!: string;
 
 		// Ensure Changesets is installed:
 		try {
@@ -76,9 +77,20 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
+			const pkgBefore = await loadPackageJson(fs);
+			if (typeof pkgBefore.version !== 'string') {
+				throw new TaskError('failed to find package.json version');
+			}
+
 			const npmVersionResult = await spawn('changeset', ['version']);
 			if (!npmVersionResult.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
+			}
+
+			const pkgAfter = await loadPackageJson(fs, true);
+			version = pkgAfter.version as string;
+			if (pkgBefore.version === version) {
+				throw new TaskError('changeset version failed: are there any changes?');
 			}
 		}
 
@@ -107,11 +119,7 @@ export const task: Task<Args> = {
 		if (!changelogExists && (await fs.exists(changelog))) {
 			await spawn('git', ['add', changelog]);
 		}
-		const pkg = await loadPackageJson(fs, true);
-		if (typeof pkg.version !== 'string') {
-			throw new TaskError('failed to find package.json version');
-		}
-		await spawn('git', ['commit', '-a', '-m', `publish v${pkg.version}`]);
+		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);
 		await spawn('git', ['push', '--follow-tags']);
 	},
 };
