@@ -44,19 +44,6 @@ If your package is public, configure the `access` property:
 + "access": "public",
 ```
 
-Optionally install a custom changelog generator like
-[`@svitejs/changesets-changelog-github-compact`](https://github.com/svitejs/changesets-changelog-github-compact):
-
-```bash
-npm i -D @svitejs/changesets-changelog-github-compact
-```
-
-```diff
-# .changeset/config.json
-- "changelog": "@changesets/cli/changelog",
-+ "changelog": ["@svitejs/changesets-changelog-github-compact", {"repo": "org/repo"}],
-```
-
 To [add](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#add) a changeset:
 
 ```bash
