@@ -75,8 +75,7 @@ gro publish
 gro publish --help # view the options
 ```
 
-If `changeset publish` fails during `gro publish`, nothing else should be affected.
-A common failure is not being logged into npm. (see the instructions above)
+A common failure running `gro publish` is not being logged into npm. (see the instructions above)
 If the builds are correct but `changeset publish` failed,
 and you don't want to undo the version commit and tag,
 you can continue manually with `changeset publish` or `npm publish` in `/dist`.
