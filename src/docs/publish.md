@@ -17,11 +17,10 @@ npm login # and follow the instructions
 
 The [`gro publish` task](https://github.com/feltjs/gro/blob/main/src/publish.task.ts)
 integrates with [Changesets](https://github.com/changesets/changesets)
-to publish packages to [npm](https://npmjs.com/). The task calls both
+to publish packages to [npm](https://npmjs.com/). Internally the task calls both
 [`changeset version`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#version)
 and
-[`changeset publish`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#publish)
-and publishes from the `main` branch by default.
+[`changeset publish`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#publish).
 
 Gro does not include Changesets as a dependency.
 Install it globally or local to your project:
@@ -30,7 +29,7 @@ Install it globally or local to your project:
 npm i -g @changesets/cli
 ```
 
-To set Changesets up in a project, first run
+First run
 [init](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#init):
 
 ```bash
