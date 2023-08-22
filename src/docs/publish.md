@@ -36,7 +36,7 @@ To set Changesets up in a project, first run
 changeset init
 ```
 
-If your package is public, be sure to set its access to "public":
+If your package is public, configure the changeset `access` property:
 
 ```diff
 # .changeset/config.json
