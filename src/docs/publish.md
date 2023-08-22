@@ -23,13 +23,13 @@ and
 [`changeset publish`](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#publish).
 
 Gro does not include Changesets as a dependency.
-Install it globally or local to your project:
+Install it globally or local to your repo:
 
 ```bash
 npm i -g @changesets/cli
 ```
 
-First run
+In your repo, first run
 [init](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#init):
 
 ```bash
