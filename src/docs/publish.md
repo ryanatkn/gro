@@ -37,7 +37,7 @@ changeset init
 ```
 
 Optionally install a custom changelog generator like
-[@svitejs/changesets-changelog-github-compact](https://github.com/svitejs/changesets-changelog-github-compact/blob/main/packages/changesets-changelog-github-compact/README.md):
+[@svitejs/changesets-changelog-github-compact](https://github.com/svitejs/changesets-changelog-github-compact):
 
 ```bash
 npm i -D @svitejs/changesets-changelog-github-compact
