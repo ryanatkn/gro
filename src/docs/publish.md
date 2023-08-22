@@ -45,7 +45,7 @@ If your package is public, configure the `access` property:
 ```
 
 Optionally install a custom changelog generator like
-[@svitejs/changesets-changelog-github-compact](https://github.com/svitejs/changesets-changelog-github-compact):
+[`@svitejs/changesets-changelog-github-compact`](https://github.com/svitejs/changesets-changelog-github-compact):
 
 ```bash
 npm i -D @svitejs/changesets-changelog-github-compact
