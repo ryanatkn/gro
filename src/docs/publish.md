@@ -29,7 +29,7 @@ Install it globally or local to your repo:
 npm i -g @changesets/cli
 ```
 
-In your repo, first run
+To set up a repo, first run
 [init](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#init):
 
 ```bash
