@@ -36,6 +36,14 @@ To set Changesets up in a project, first run
 changeset init
 ```
 
+If your package is public, be sure to set its access to "public":
+
+```diff
+# .changeset/config.json
+- "access": "restricted",
++ "access": "public",
+```
+
 Optionally install a custom changelog generator like
 [@svitejs/changesets-changelog-github-compact](https://github.com/svitejs/changesets-changelog-github-compact):
 
@@ -44,6 +52,7 @@ npm i -D @svitejs/changesets-changelog-github-compact
 ```
 
 ```diff
+# .changeset/config.json
 - "changelog": "@changesets/cli/changelog",
 + "changelog": ["@svitejs/changesets-changelog-github-compact", {"repo": "org/repo"}],
 ```
