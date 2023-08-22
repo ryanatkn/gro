@@ -36,6 +36,18 @@ To set Changesets up in a project, first run
 changeset init
 ```
 
+Optionally use a custom changelog generator like
+[@svitejs/changesets-changelog-github-compact](https://github.com/svitejs/changesets-changelog-github-compact/blob/main/packages/changesets-changelog-github-compact/README.md):
+
+```bash
+npm i -D @svitejs/changesets-changelog-github-compact
+```
+
+```diff
+- "changelog": "@changesets/cli/changelog",
++ "changelog": ["@svitejs/changesets-changelog-github-compact", {"repo": "org/repo"}],
+```
+
 To [add](https://github.com/changesets/changesets/blob/main/packages/cli/README.md#add) a changeset:
 
 ```bash

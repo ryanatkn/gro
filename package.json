@@ -76,6 +76,7 @@
     "@feltjs/eslint-config": "^0.3.0",
     "@sveltejs/adapter-static": "^2.0.2",
     "@sveltejs/kit": "^1.22.3",
+    "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@types/estree": "^1.0.1",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^20.3.2",
