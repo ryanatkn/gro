@@ -2,8 +2,6 @@
 
 ## 0.80.0
 
-- **break**: support changesets in `gro publish` and the changelog workflow
-  ([#385](https://github.com/feltjs/gro/pull/385))
 - **break**: replace `cheap-watch` with `chokidar` and `fast-glob`
   ([#386](https://github.com/feltjs/gro/pull/386))
 - fix `gen` error on startup for projects with no gen modules
