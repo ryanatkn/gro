@@ -54,7 +54,7 @@ See [the Changesets docs](https://github.com/changesets/changesets) for more.
 
 ## `gro publish`
 
-The publish task builds, updates the version, publishes to npm,
+The publish task builds the project, updates the version, publishes to npm,
 and syncs commits and tags to GitHub.
 
 ```bash
