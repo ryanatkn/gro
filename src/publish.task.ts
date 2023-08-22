@@ -3,12 +3,13 @@ import {z} from 'zod';
 import {execSync} from 'node:child_process';
 
 import {rainbow} from './utils/colors.js';
-import type {Task} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
 import {toRawRestArgs} from './utils/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
+import {loadPackageJson} from './utils/packageJson.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -20,9 +21,6 @@ import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 const Args = z
 	.object({
 		branch: z.string({description: 'branch to publish from'}).default(GIT_DEPLOY_SOURCE_BRANCH),
-		message: z
-			.string({description: 'commit message for the changelog and version'})
-			.default('publish'),
 		changelog: z
 			.string({description: 'file name and path of the changelog'})
 			.default('CHANGELOG.md'),
@@ -41,7 +39,7 @@ export const task: Task<Args> = {
 	production: true,
 	Args,
 	run: async ({fs, args, log, dev}): Promise<void> => {
-		const {branch, message, changelog, dry} = args;
+		const {branch, changelog, dry} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
 		}
@@ -101,13 +99,19 @@ export const task: Task<Args> = {
 
 		const npmPublishResult = await spawn('changeset', ['publish'], {cwd: config.publish});
 		if (!npmPublishResult.ok) {
-			throw Error('npm publish failed: revert the version commits or run "npm publish" manually');
+			throw new TaskError(
+				'changeset publish failed - revert the version tag or run it again manually',
+			);
 		}
 
 		if (!changelogExists && (await fs.exists(changelog))) {
 			await spawn('git', ['add', changelog]);
 		}
-		await spawn('git', ['commit', '-a', '-m', message]);
+		const pkg = await loadPackageJson(fs, true);
+		if (typeof pkg.version !== 'string') {
+			throw new TaskError('failed to find package.json version');
+		}
+		await spawn('git', ['commit', '-a', '-m', `publish v${pkg.version}`]);
 		await spawn('git', ['push', '--follow-tags']);
 	},
 };
