@@ -1,5 +1,6 @@
 import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
+import {execSync} from 'node:child_process';
 
 import {rainbow} from './utils/colors.js';
 import type {Task} from './task/task.js';
@@ -37,6 +38,14 @@ export const task: Task<Args> = {
 		const {branch, dry} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
+		}
+
+		// Ensure Changesets is installed:
+		try {
+			execSync('command -v changeset > /dev/null 2>&1');
+		} catch (err) {
+			log.error('changeset command not found, install with npm i -g @changesets/cli');
+			return;
 		}
 
 		// Make sure we're on the right branch:
