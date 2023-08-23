@@ -1,6 +1,5 @@
 import {printTimings} from '@feltjs/util/print.js';
 import {Timings} from '@feltjs/util/timings.js';
-import {spawn} from '@feltjs/util/process.js';
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 
@@ -8,6 +7,7 @@ import {TaskError, type Task} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
 import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
+import {findCli, spawnCli} from './utils/cli.js';
 
 // Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
 // Args following any `-- uvu` are passed through to `uvu`'s CLI:
@@ -28,7 +28,7 @@ export const task: Task<Args> = {
 	run: async ({fs, dev, log, args}): Promise<void> => {
 		const {_: testFilePatterns} = args;
 
-		if (!(await fs.exists('node_modules/.bin/uvu'))) {
+		if (!(await findCli(fs, 'uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
 			return;
 		}
@@ -51,14 +51,14 @@ export const task: Task<Args> = {
 		}
 		// ignore sourcemap files so patterns don't need `.js$`
 		addArg(forwardedArgs, '.map$', 'i', 'ignore');
-		const serializedArgs = ['uvu', ...serializeArgs(forwardedArgs)];
-		log.info(printCommandArgs(serializedArgs));
-		const testRunResult = await spawn('npx', serializedArgs);
+		const serializedArgs = serializeArgs(forwardedArgs);
+		log.info(printCommandArgs(['uvu'].concat(serializedArgs)));
+		const testRunResult = await spawnCli(fs, 'uvu', serializedArgs);
 		timeToRunUvu();
 
 		printTimings(timings, log);
 
-		if (!testRunResult.ok) {
+		if (!testRunResult?.ok) {
 			throw new TaskError('Tests failed.');
 		}
 	},
