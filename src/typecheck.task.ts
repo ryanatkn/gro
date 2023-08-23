@@ -1,9 +1,10 @@
-import {printSpawnResult, spawn} from '@feltjs/util/process.js';
+import {printSpawnResult} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
 import {sveltekitSync} from './utils/sveltekit.js';
+import {findCli, spawnCli} from './utils/cli.js';
 
 const Args = z.object({}).strict();
 type Args = z.infer<typeof Args>;
@@ -14,27 +15,23 @@ export const task: Task<Args> = {
 	run: async ({fs, log}): Promise<void> => {
 		await sveltekitSync(fs);
 
-		if (await fs.exists('node_modules/.bin/svelte-check')) {
+		if (await findCli(fs, 'svelte-check')) {
 			// svelte-check
-			const forwardedSvelteCheckArgs = toForwardedArgs('svelte-check');
-			const serializedSvelteCheckArgs = [
-				'svelte-check',
-				...serializeArgs(forwardedSvelteCheckArgs),
-			];
-			log.info(printCommandArgs(serializedSvelteCheckArgs));
-			const tscResult = await spawn('npx', serializedSvelteCheckArgs);
-			if (!tscResult.ok) {
-				throw new TaskError(`Failed to typecheck. ${printSpawnResult(tscResult)}`);
+			const serialized = serializeArgs(toForwardedArgs('svelte-check'));
+			log.info(printCommandArgs(['svelte-check'].concat(serialized)));
+			const svelteCheckResult = await spawnCli(fs, 'svelte-check', serialized);
+			if (!svelteCheckResult?.ok) {
+				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
 			}
 		} else {
 			// tsc
-			const forwardedTscArgs = toForwardedArgs('tsc');
-			if (!forwardedTscArgs.noEmit) forwardedTscArgs.noEmit = true;
-			const serializedTscArgs = ['tsc', ...serializeArgs(forwardedTscArgs)];
-			log.info(printCommandArgs(serializedTscArgs));
-			const svelteCheckResult = await spawn('npx', serializedTscArgs);
-			if (svelteCheckResult && !svelteCheckResult.ok) {
-				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult)}`);
+			const forwarded = toForwardedArgs('tsc');
+			if (!forwarded.noEmit) forwarded.noEmit = true;
+			const serialized = serializeArgs(forwarded);
+			log.info(printCommandArgs(['tsc'].concat(serialized)));
+			const svelteCheckResult = await spawnCli(fs, 'tsc', serialized);
+			if (!svelteCheckResult?.ok) {
+				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
 			}
 		}
 	},

@@ -11,7 +11,7 @@ export const findCli = async (fs: Filesystem, name: string): Promise<'local' | '
 		return 'local';
 	}
 	try {
-		execSync('command -v changeset > /dev/null 2>&1');
+		execSync(`command -v ${name} > /dev/null 2>&1`);
 		return 'global';
 	} catch (err) {
 		return null;
@@ -21,7 +21,7 @@ export const findCli = async (fs: Filesystem, name: string): Promise<'local' | '
 /**
  * Calls the CLI `name` if available, first local to the cwd and then globally.
  */
-export const execCli = async (
+export const spawnCli = async (
 	fs: Filesystem,
 	name: string,
 	args: any[] = [],
