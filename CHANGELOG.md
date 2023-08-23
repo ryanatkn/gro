@@ -1,5 +1,11 @@
 # @feltjs/gro
 
+## 0.81.2
+
+### Patch Changes
+
+- af8d5e1: prefer project-local changeset command if available
+
 ## 0.81.1
 
 ### Patch Changes
