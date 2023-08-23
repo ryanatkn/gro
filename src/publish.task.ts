@@ -48,7 +48,7 @@ export const task: Task<Args> = {
 		let version!: string;
 
 		// Ensure Changesets is installed:
-		if (await findCli(fs, 'changeset')) {
+		if (!(await findCli(fs, 'changeset'))) {
 			log.error('changeset command not found: install @changesets/cli locally or globally');
 			return;
 		}
