@@ -26,7 +26,8 @@ Gro does not include Changesets as a dependency.
 Install it globally or local to your repo:
 
 ```bash
-npm i -g @changesets/cli
+npm i -g @changesets/cli # install globally
+npm i -D @changesets/cli # install local to your project
 ```
 
 To set up a repo, first run
