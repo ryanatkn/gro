@@ -49,6 +49,7 @@ export const task: Task<Args> = {
 
 		// Ensure Changesets is installed:
 		try {
+			// TODO BLOCK needs to look locally first and use npx if available, falling back to global -- refactor a helper with similar code too
 			execSync('command -v changeset > /dev/null 2>&1');
 		} catch (err) {
 			log.error('changeset command not found, install with npm i -g @changesets/cli');
