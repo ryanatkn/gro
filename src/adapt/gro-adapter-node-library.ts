@@ -16,14 +16,12 @@ const name = '@feltjs/gro-adapter-node-library';
 
 export interface Options {
 	buildName: BuildName; // defaults to 'library'
-	packageJson: string; // defaults to 'package.json'
 }
 
 export interface AdapterArgs {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
 export const createAdapter = ({
 	buildName = NODE_LIBRARY_BUILD_NAME,
-	packageJson = 'package.json',
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
 	return {
 		name,
@@ -73,9 +71,9 @@ export const createAdapter = ({
 
 			let pkg: PackageJson;
 			try {
-				pkg = JSON.parse(await fs.readFile(packageJson, 'utf8'));
+				pkg = JSON.parse(await fs.readFile('package.json', 'utf8'));
 			} catch (err) {
-				throw Error(`Adapter ${name} failed to load packageJson at path ${packageJson}: ${err}`);
+				throw Error(`Adapter ${name} failed to load package.json: ${err}`);
 			}
 
 			// If the output is treated as a package, it needs some special handling to get it ready.
