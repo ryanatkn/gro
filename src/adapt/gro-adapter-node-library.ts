@@ -7,6 +7,7 @@ import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import type {BuildName} from '../build/buildConfig.js';
 import type {PackageJson} from '../utils/packageJson.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
+import {spawnCli} from '../utils/cli.js';
 
 const name = '@feltjs/gro-adapter-node-library';
 
@@ -31,14 +32,10 @@ export const createAdapter = ({
 				throw Error(`Unknown build config: ${buildName}`);
 			}
 
-			// TODO BLOCK use `svelte-kit package`
-			const serializedArgs = [
-				'svelte-kit',
-				'package',
-				...serializeArgs(toForwardedArgs('svelte-kit')),
-			];
+			// TODO BLOCK implement
+			const serializedArgs = serializeArgs(toForwardedArgs('svelte-package'));
 			log.info(printCommandArgs(serializedArgs));
-			await spawn('npx', serializedArgs);
+			await spawnCli(fs, 'svelte-package', serializedArgs);
 
 			// TODO BLOCK try to move Gro's dist to `.gro` to resolve the conflict
 
