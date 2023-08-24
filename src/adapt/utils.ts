@@ -85,8 +85,9 @@ export const ensureNojekyll = async (fs: Filesystem, dir: string): Promise<void>
 // TODO remove when fixed: https://github.com/sveltejs/kit/issues/1209
 export const move404 = async (fs: Filesystem, dir: string): Promise<void> => {
 	const missingPath = `${dir}/404`;
-	if (await fs.exists(missingPath)) {
-		await fs.move(`${missingPath}/index.html`, `${dir}/404.html`);
+	const indexPath = `${missingPath}/index.html`;
+	if (await fs.exists(indexPath)) {
+		await fs.move(indexPath, `${dir}/404.html`);
 		await fs.remove(missingPath);
 	}
 };
