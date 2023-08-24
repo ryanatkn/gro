@@ -23,6 +23,7 @@ import type {PathStats} from '../fs/pathData.js';
 import type {PackageJson} from '../utils/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {toDefaultEsbuildBundleOptions} from '../build/groBuilderEsbuildUtils.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
 
 const name = '@feltjs/gro-adapter-node-library';
 
@@ -81,33 +82,42 @@ export const createAdapter = ({
 			}
 
 			// TODO BLOCK use `svelte-kit package`
+			const serializedArgs = [
+				'svelte-kit',
+				'package',
+				...serializeArgs(toForwardedArgs('svelte-kit')),
+			];
+			log.info(printCommandArgs(serializedArgs));
+			await spawn('npx', serializedArgs);
 
-			const files = toInputFiles(buildConfig.input);
+			// TODO BLOCK try to move Gro's dist to `.gro` to resolve the conflict
 
-			if (bundle) {
-				const timingToBundle = timings.start('bundle with rollup');
-				// TODO use `filters` to select the others..right?
-				if (!files.length) {
-					log.debug('no input files in', printBuildConfigLabel(buildConfig));
-					return;
-				}
-				const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
-				log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
-				await esbuild.build(
-					mapBundleOptions({
-						...toDefaultEsbuildBundleOptions(dev, config.target, config.sourcemap),
-						bundle: true,
-						entryPoints: input,
-						outfile: outputDir + '/index.js',
-					}),
-				);
-				timingToBundle();
-			}
+			// const files = toInputFiles(buildConfig.input);
 
-			const timingToCopyDist = timings.start('copy build to dist');
-			const filter = bundle ? bundledDistFilter : undefined;
-			await copyDist(fs, buildConfig, dev, outputDir, log, filter, pack, libraryRebasePath);
-			timingToCopyDist();
+			// if (bundle) {
+			// 	const timingToBundle = timings.start('bundle with rollup');
+			// 	// TODO use `filters` to select the others..right?
+			// 	if (!files.length) {
+			// 		log.debug('no input files in', printBuildConfigLabel(buildConfig));
+			// 		return;
+			// 	}
+			// 	const input = files.map((sourceId) => toImportId(sourceId, dev, buildConfig.name));
+			// 	log.info('bundling', printBuildConfigLabel(buildConfig), outputDir, files);
+			// 	await esbuild.build(
+			// 		mapBundleOptions({
+			// 			...toDefaultEsbuildBundleOptions(dev, config.target, config.sourcemap),
+			// 			bundle: true,
+			// 			entryPoints: input,
+			// 			outfile: outputDir + '/index.js',
+			// 		}),
+			// 	);
+			// 	timingToBundle();
+			// }
+
+			// const timingToCopyDist = timings.start('copy build to dist');
+			// const filter = bundle ? bundledDistFilter : undefined;
+			// await copyDist(fs, buildConfig, dev, outputDir, log, filter, pack, libraryRebasePath);
+			// timingToCopyDist();
 
 			let pkg: PackageJson;
 			try {
@@ -117,36 +127,36 @@ export const createAdapter = ({
 			}
 
 			// If the output is treated as a package, it needs some special handling to get it ready.
-			if (pack) {
-				const timingToPackDist = timings.start('pack dist');
-				// copy files from the project root to the dist, but don't overwrite anything in the build
-				await Promise.all(
-					(
-						await fs.readDir('.')
-					)
-						.map((path): null | Promise<void> => {
-							if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
-								return fs.copy(path, `${outputDir}/${path}`, {overwrite: false});
-							}
-							return null;
-						})
-						.filter(Boolean),
-				);
+			// if (pack) {
+			// 	const timingToPackDist = timings.start('pack dist');
+			// 	// copy files from the project root to the dist, but don't overwrite anything in the build
+			// 	await Promise.all(
+			// 		(
+			// 			await fs.readDir('.')
+			// 		)
+			// 			.map((path): null | Promise<void> => {
+			// 				if (PACKAGE_FILES.has(path) || OTHER_PACKAGE_FILES.has(path)) {
+			// 					return fs.copy(path, `${outputDir}/${path}`, {overwrite: false});
+			// 				}
+			// 				return null;
+			// 			})
+			// 			.filter(Boolean),
+			// 	);
 
-				// update package.json with computed values
-				pkg.files = await toPkgFiles(fs, outputDir);
-				pkg.main = toPkgMain(pkg);
-				if (files.find((f) => f.endsWith('.svelte'))) {
-					pkg.svelte = pkg.main;
-				}
-				pkg.types = replaceExtension(pkg.main, TS_TYPE_EXTENSION);
-				pkg.exports = toPkgExports(pkg.main, files, libraryRebasePath);
+			// 	// update package.json with computed values
+			// 	pkg.files = await toPkgFiles(fs, outputDir);
+			// 	pkg.main = toPkgMain(pkg);
+			// 	if (files.find((f) => f.endsWith('.svelte'))) {
+			// 		pkg.svelte = pkg.main;
+			// 	}
+			// 	pkg.types = replaceExtension(pkg.main, TS_TYPE_EXTENSION);
+			// 	pkg.exports = toPkgExports(pkg.main, files, libraryRebasePath);
 
-				// write the new package.json
-				await fs.writeFile(`${outputDir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
+			// 	// write the new package.json
+			// 	await fs.writeFile(`${outputDir}/package.json`, JSON.stringify(pkg, null, 2), 'utf8');
 
-				timingToPackDist();
-			}
+			// 	timingToPackDist();
+			// }
 
 			// `npm link`
 			if (pkg.bin) {
