@@ -1,4 +1,22 @@
-# changelog
+# @feltjs/gro
+
+## 0.81.2
+
+### Patch Changes
+
+- af8d5e1: prefer project-local changeset command if available
+
+## 0.81.1
+
+### Patch Changes
+
+- edf3214: detect changeset version failure
+
+## 0.81.0
+
+### Minor Changes
+
+- 2daaee0: change gro publish to use changesets
 
 ## 0.80.0
 
