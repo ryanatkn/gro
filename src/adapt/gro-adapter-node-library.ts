@@ -7,7 +7,7 @@ import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import type {BuildName} from '../build/buildConfig.js';
 import type {PackageJson} from '../utils/packageJson.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
-import {spawnCli} from '../utils/cli.js';
+import {findCli, spawnCli} from '../utils/cli.js';
 
 const name = '@feltjs/gro-adapter-node-library';
 
@@ -33,6 +33,9 @@ export const createAdapter = ({
 			}
 
 			// TODO BLOCK implement
+			if (!(await findCli(fs, 'svelte-package'))) {
+				throw Error(`Failed to find svelte-package: install @sveltejs/package locally or globally`);
+			}
 			const serializedArgs = serializeArgs(toForwardedArgs('svelte-package'));
 			log.info(printCommandArgs(serializedArgs));
 			await spawnCli(fs, 'svelte-package', serializedArgs);
