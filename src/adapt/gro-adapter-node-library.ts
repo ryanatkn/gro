@@ -1,51 +1,14 @@
 import {printSpawnResult, spawn} from '@feltjs/util/process.js';
 import {EMPTY_OBJECT} from '@feltjs/util/object.js';
-import {replaceExtension, stripTrailingSlash} from '@feltjs/util/path.js';
-import {stripStart} from '@feltjs/util/string.js';
-import {identity} from '@feltjs/util/function.js';
-import esbuild from 'esbuild';
 
 import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
-import {copyDist} from './utils.js';
-import {
-	sourceIdToBasePath,
-	toBuildExtension,
-	toImportId,
-	TS_TYPEMAP_EXTENSION,
-	TS_TYPE_EXTENSION,
-	DIST_DIRNAME,
-	LIB_DIR,
-} from '../paths.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import {type BuildName, printBuildConfigLabel, toInputFiles} from '../build/buildConfig.js';
-import type {PathStats} from '../fs/pathData.js';
+import type {BuildName} from '../build/buildConfig.js';
 import type {PackageJson} from '../utils/packageJson.js';
-import type {Filesystem} from '../fs/filesystem.js';
-import {toDefaultEsbuildBundleOptions} from '../build/groBuilderEsbuildUtils.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
 
 const name = '@feltjs/gro-adapter-node-library';
-
-// In normal circumstances, this adapter expects to handle
-// only code scoped to `src/lib`, following SvelteKit conventions.
-// It also supports Gro's current usecase that doesn't put anything under `lib/`,
-// but that functionality may be removed to have one hardcoded happy path.
-// In the normal case, the final package is flattened to the root directory,
-// so `src/lib/index.ts` becomes `index.ts`.
-// Import paths are *not* remapped by the adapter,
-// but Gro's build process does map `$lib/` and `src/` to relative paths.
-// This means all library modules must be under `src/lib` to work without additional transformation.
-// This function converts the build config's source file ids to the flattened base paths:
-const sourceIdToLibraryBasePath = (sourceId: string, libraryRebasePath: string): string => {
-	const basePath = sourceIdToBasePath(sourceId);
-	if (!basePath.startsWith(libraryRebasePath)) {
-		throw Error(
-			`Source file does not start with libraryRebasePath ${libraryRebasePath}: ${basePath}`,
-		);
-	}
-	return stripStart(toBuildExtension(basePath, false), libraryRebasePath);
-};
 
 // TODO maybe add a `files` option to explicitly include source files,
 // and fall back to inferring from the build config
@@ -53,29 +16,18 @@ const sourceIdToLibraryBasePath = (sourceId: string, libraryRebasePath: string):
 
 export interface Options {
 	buildName: BuildName; // defaults to 'library'
-	dir: string; // defaults to `dist/${buildName}`
 	packageJson: string; // defaults to 'package.json'
-	pack: boolean; // TODO temp hack for Gro's build -- treat the dist as a package to be published - defaults to true
-	libraryRebasePath: string; // defaults to 'lib/', pass '' to avoid remapping -- TODO do we want to remove this after Gro follows SvelteKit conventions?
-	bundle: boolean; // defaults to `false`
-	mapBundleOptions: (options: esbuild.BuildOptions) => esbuild.BuildOptions;
 }
 
 export interface AdapterArgs {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
 export const createAdapter = ({
 	buildName = NODE_LIBRARY_BUILD_NAME,
-	dir = `${DIST_DIRNAME}/${buildName}`,
-	libraryRebasePath = LIB_DIR,
 	packageJson = 'package.json',
-	pack = true,
-	bundle = false,
-	mapBundleOptions = identity,
 }: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
-	const outputDir = stripTrailingSlash(dir);
 	return {
 		name,
-		adapt: async ({config, fs, dev, log, timings}) => {
+		adapt: async ({config, fs, log, timings}) => {
 			const buildConfig = config.builds.find((b) => b.name === buildName);
 			if (!buildConfig) {
 				throw Error(`Unknown build config: ${buildName}`);
@@ -176,61 +128,4 @@ export const createAdapter = ({
 			}
 		},
 	};
-};
-
-const bundledDistFilter = (id: string, stats: PathStats): boolean =>
-	stats.isDirectory() ? true : id.endsWith(TS_TYPE_EXTENSION) || id.endsWith(TS_TYPEMAP_EXTENSION);
-
-// these can be any case and optionally end with `.md`
-const toPossibleFilenames = (paths: string[]): string[] =>
-	paths.flatMap((path) => {
-		const lower = path.toLowerCase();
-		const upper = path.toUpperCase();
-		return [lower, `${lower}.md`, upper, `${upper}.md`];
-	});
-
-// these are a subset of the files npm includes by default --
-// unlike npm, the only extension we support is `.md`
-const PACKAGE_FILES = new Set(['package.json'].concat(toPossibleFilenames(['readme', 'license'])));
-const OTHER_PACKAGE_FILES = new Set(
-	toPossibleFilenames(['changelog', 'contributing', 'governance', 'tsconfig.json']),
-);
-
-const toPkgFiles = async (fs: Filesystem, dir: string): Promise<string[]> => {
-	const pkgFiles: string[] = [];
-	const dirPaths = await fs.readDir(dir);
-	for (const path of dirPaths) {
-		if (!PACKAGE_FILES.has(path)) {
-			pkgFiles.push(path);
-		}
-	}
-	return pkgFiles;
-};
-
-const toPkgMain = (pkg: PackageJson): string => {
-	const pkgMain = pkg.main;
-	if (!pkgMain) {
-		return './index.js';
-	}
-	if (!pkgMain.startsWith('./')) {
-		// this isn't needed for `pkg.main`, but it is for `pkg.exports`, so just normalize
-		return `./${pkgMain}`;
-	}
-	return pkgMain;
-};
-
-const toPkgExports = (
-	pkgMain: string,
-	files: string[],
-	libraryRebasePath: string,
-): PackageJson['exports'] => {
-	const pkgExports: PackageJson['exports'] = {
-		'.': pkgMain,
-		'./package.json': './package.json',
-	};
-	for (const sourceId of files) {
-		const path = `./${sourceIdToLibraryBasePath(sourceId, libraryRebasePath)}`;
-		pkgExports[path] = path;
-	}
-	return pkgExports;
 };
