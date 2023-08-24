@@ -44,13 +44,7 @@ const config: GroConfigCreator = async ({dev}) => {
 				(await import('./adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
 					hostTarget: 'githubPages',
 				}),
-				(await import('./adapt/gro-adapter-node-library.js')).createAdapter({
-					dir: 'dist',
-					// TODO temp hack - unlike most libraries, Gro ships its dist/ as a sibling to src/,
-					// and this flag opts out of the default library behavior
-					pack: false,
-					libraryRebasePath: '',
-				}),
+				(await import('./adapt/gro-adapter-node-library.js')).createAdapter(),
 			]),
 	};
 	return partial;
