@@ -5,6 +5,7 @@ import {
 	findModules,
 	type ModuleMeta,
 	type LoadModuleResult,
+	type FindModulesFailure,
 } from '../fs/modules.js';
 import {toTaskName, isTaskPath, TASK_FILE_SUFFIX, type Task} from './task.js';
 import {getPossibleSourceIds} from '../fs/inputPath.js';
@@ -33,18 +34,28 @@ export const loadTaskModule = async (
 	};
 };
 
-export const loadTaskModules = async (
+export const findTaskModules = async (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [TASK_FILE_SUFFIX],
 	rootDirs: string[] = [],
-): Promise<ReturnType<typeof findModules> | ReturnType<typeof loadModules>> => {
-	const findModulesResult = await findModules(
+): Promise<ReturnType<typeof findModules>> =>
+	findModules(
 		fs,
 		inputPaths,
 		(id) => fs.findFiles(id, (path) => isTaskPath(path)),
 		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
 	);
+
+export const loadTaskModules = async (
+	fs: Filesystem,
+	inputPaths: string[] = [paths.source],
+	extensions?: string[],
+	rootDirs?: string[],
+): Promise<
+	ReturnType<typeof loadModules<TaskModule, TaskModuleMeta>> | ({ok: false} & FindModulesFailure)
+> => {
+	const findModulesResult = await findTaskModules(fs, inputPaths, extensions, rootDirs);
 	if (!findModulesResult.ok) return findModulesResult;
 	return loadModules(findModulesResult.sourceIdsByInputPath, true, loadTaskModule);
 };

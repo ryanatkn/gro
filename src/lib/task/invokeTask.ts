@@ -7,8 +7,8 @@ import {spawn} from '@feltjs/util/process.js';
 
 import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../util/args.js';
 import {runTask} from './runTask.js';
-import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
-import {TASK_FILE_SUFFIX, isTaskPath} from './task.js';
+import {resolveRawInputPath} from '../fs/inputPath.js';
+import {isTaskPath} from './task.js';
 import {
 	paths,
 	groPaths,
@@ -19,7 +19,7 @@ import {
 	printPathOrGroPath,
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
-import {loadTaskModule} from './taskModule.js';
+import {findTaskModules, loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../util/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logAvailableTasks, logErrorReasons} from './logTask.js';
@@ -67,12 +67,7 @@ export const invokeTask = async (
 
 	// Find the task or directory specified by the `inputPath`.
 	// Fall back to searching the Gro directory as well.
-	const findModulesResult = await findModules(
-		fs,
-		[inputPath],
-		(id) => fs.findFiles(id, (path) => isTaskPath(path)),
-		(inputPath) => getPossibleSourceIds(inputPath, [TASK_FILE_SUFFIX], [groPaths.root]),
-	);
+	const findModulesResult = await findTaskModules(fs, [inputPath], undefined, [groPaths.root]);
 
 	if (findModulesResult.ok) {
 		timings.merge(findModulesResult.timings);

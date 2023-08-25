@@ -56,6 +56,9 @@ export type FindModulesResult = Result<
 		sourceIdPathDataByInputPath: Map<string, PathData>;
 		timings: Timings<FindModulesTimings>;
 	},
+	FindModulesFailure
+>;
+export type FindModulesFailure =
 	| {
 			type: 'unmappedInputPaths';
 			sourceIdPathDataByInputPath: Map<string, PathData>;
@@ -68,8 +71,7 @@ export type FindModulesResult = Result<
 			sourceIdPathDataByInputPath: Map<string, PathData>;
 			inputDirectoriesWithNoFiles: string[];
 			reasons: string[];
-	  }
->;
+	  };
 type FindModulesTimings = 'map input paths' | 'find files';
 
 export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<

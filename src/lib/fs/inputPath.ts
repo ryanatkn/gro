@@ -70,7 +70,7 @@ It's the helper used in implementations of `getPossibleSourceIdsForInputPath` be
 export const getPossibleSourceIds = (
 	inputPath: string,
 	extensions: string[],
-	rootDirs: string[] = [],
+	rootDirs?: string[],
 	paths?: Paths,
 ): string[] => {
 	const possibleSourceIds = [inputPath];
@@ -83,7 +83,7 @@ export const getPossibleSourceIds = (
 			}
 		}
 	}
-	if (rootDirs.length) {
+	if (rootDirs?.length) {
 		const ids = possibleSourceIds.slice(); // make a copy or infinitely loop!
 		for (const rootDir of rootDirs) {
 			if (inputPath.startsWith(rootDir)) continue; // avoid duplicates
