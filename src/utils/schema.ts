@@ -3,12 +3,12 @@ import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
 import type {GenContext} from '../gen/gen';
 
-export interface VocabSchema extends JSONSchema {
+export interface JsonSchema extends JSONSchema {
 	$id: string;
 }
 
 /**
- * Bundles an array of `VocabSchema`s into a single spec-compliant `JSONSchema`
+ * Bundles an array of `JsonSchema`s into a single spec-compliant `JSONSchema`
  * with the given `$id` and `title`.
  * @see https://json-schema.org/draft/2020-12/json-schema-core.html#name-bundling
  * @see https://json-schema.org/understanding-json-schema/structuring.html#bundling
@@ -19,7 +19,7 @@ export interface VocabSchema extends JSONSchema {
  * @returns
  */
 export const bundleSchemas = (
-	schemas: VocabSchema[],
+	schemas: JsonSchema[],
 	$id: string,
 	title: string | undefined = undefined,
 	$schema = 'https://json-schema.org/draft/2020-12/schema',
@@ -33,19 +33,19 @@ export const bundleSchemas = (
 			if (!name) throw Error(`Unable to parse schema name: "${schema.$id}"`);
 			$defs[name] = schema;
 			return $defs;
-		}, {} as Record<string, VocabSchema>);
+		}, {} as Record<string, JsonSchema>);
 	return schema;
 };
 
-export const isVocabSchema = (value: unknown): value is VocabSchema =>
+export const isJsonSchema = (value: unknown): value is JsonSchema =>
 	!!value && typeof value === 'object' && '$id' in value;
 
 /**
- * Creates a custom resolver for `VocabSchema`s supporting refs like `/schemas/Something`.
+ * Creates a custom resolver for `JsonSchema`s supporting refs like `/schemas/Something`.
  * @param schemas
  * @returns
  */
-export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions => ({
+export const toJsonSchemaResolver = (schemas: JsonSchema[]): ResolverOptions => ({
 	order: 1,
 	canRead: true,
 	read: (file) => {
@@ -59,7 +59,7 @@ export const toVocabSchemaResolver = (schemas: VocabSchema[]): ResolverOptions =
  * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
  * @param schema
  */
-export const inferSchemaTypes = (schema: VocabSchema, ctx: GenContext): void => {
+export const inferSchemaTypes = (schema: JsonSchema, ctx: GenContext): void => {
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref') {
 			if (!('tsType' in obj)) {

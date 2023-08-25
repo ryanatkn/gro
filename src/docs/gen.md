@@ -111,7 +111,7 @@ to automatically generate TypeScript types using
 Given `src/something.schema.ts`:
 
 ```ts
-export const SomeObjectSchema: VocabSchema = {
+export const SomeObjectSchema: JsonSchema = {
 	$id: '/schemas/SomeObject',
 	type: 'object',
 	properties: {
@@ -152,7 +152,7 @@ Some details:
 - `.schema.` modules may export any number of schemas:
   all top-level exports with the JSONSchema
   [`$id`](https://json-schema.org/draft/2020-12/json-schema-core.html#anchor) property
-  are considered to be vocab schemas by `isVocabSchema` (this detection may need tweaking)
+  are considered to be vocab schemas by `isJsonSchema` (this detection may need tweaking)
 - vocab schemas suffixed with `Schema` will output types without the suffix,
   as a convenience to avoid name collisions
   (note that your declared `$id` should omit the suffix)

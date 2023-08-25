@@ -23,7 +23,7 @@ import {
 import type {Filesystem} from '../fs/filesystem.js';
 import {printPath, sourceIdToBasePath} from '../paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
-import {toVocabSchemaResolver} from '../utils/schema.js';
+import {toJsonSchemaResolver} from '../utils/schema.js';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
@@ -120,7 +120,7 @@ const toGenSchemasOptions = (
 		$refOptions: {
 			resolve: {
 				http: false, // disable web resolution
-				vocab: toVocabSchemaResolver(schemas),
+				vocab: toJsonSchemaResolver(schemas),
 			},
 		},
 	};
