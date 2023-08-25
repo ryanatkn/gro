@@ -58,7 +58,7 @@
 
 ## 0.77.0
 
-- **break**: move `toVocabSchema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`
+- **break**: move `toJsonSchema` to `$lib/schemaHelpers.ts` and export all of `$lib/schema.ts`
   ([commit](https://github.com/feltjs/gro/commit/21a107633f950ffb540b180b57fc3227146993c5))
 
 ## 0.76.1
@@ -68,7 +68,7 @@
 
 ## 0.76.0
 
-- **break**: change `toVocabSchema` to not suffix with `.json`, and add the `bundleSchemas` helper
+- **break**: change `toJsonSchema` to not suffix with `.json`, and add the `bundleSchemas` helper
   ([#372](https://github.com/feltjs/gro/pull/372))
 
 ## 0.75.5
@@ -79,7 +79,7 @@
 
 ## 0.75.4
 
-- export `VocabSchema` type from root
+- export `JsonSchema` type from root
   ([commit](https://github.com/feltjs/gro/commit/8b3956994060165cccf7c0d6b692ea8e89b7e63a))
 
 ## 0.75.3

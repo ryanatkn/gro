@@ -6,7 +6,7 @@ import {printValue} from '@feltjs/util/print.js';
 import type {ArgSchema, ArgsSchema} from '../utils/args.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
-import {toVocabSchema} from '../utils/schemaHelpers.js';
+import {toJsonSchema} from '../utils/schemaHelpers.js';
 
 export const logAvailableTasks = async (
 	log: Logger,
@@ -60,8 +60,8 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	const printed: string[] = [];
 	printed.push(cyan(name), 'help', '\n' + task.summary || '(no summary available)');
 	if (task.Args) {
-		// TODO refactor to avoid using `toVocabSchema`, and then remove the `zodToJsonSchema` dep
-		const args = toVocabSchema(task.Args, 'Args') as ArgsSchema;
+		// TODO refactor to avoid using `toJsonSchema`, and then remove the `zodToJsonSchema` dep
+		const args = toJsonSchema(task.Args, 'Args') as ArgsSchema;
 		const properties = toArgProperties(args);
 		const longestTaskName = Math.max(
 			ARGS_PROPERTY_NAME.length,

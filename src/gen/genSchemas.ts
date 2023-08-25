@@ -13,7 +13,7 @@ import {
 } from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
-import {inferSchemaTypes, isVocabSchema, type VocabSchema} from '../utils/schema.js';
+import {inferSchemaTypes, isJsonSchema, type JsonSchema} from '../utils/schema.js';
 
 export const genSchemas = async (
 	mod: SchemaGenModule,
@@ -72,8 +72,8 @@ const runSchemaGen = async (
 	return {imports, types};
 };
 
-export const toSchemasFromModules = (genModules: GenModuleMeta[]): VocabSchema[] => {
-	const schemas: VocabSchema[] = [];
+export const toSchemasFromModules = (genModules: GenModuleMeta[]): JsonSchema[] => {
+	const schemas: JsonSchema[] = [];
 	for (const genModule of genModules) {
 		if (genModule.type !== 'schema') continue;
 		for (const schemaInfo of toSchemaInfoFromModule(genModule.mod)) {
@@ -85,11 +85,11 @@ export const toSchemasFromModules = (genModules: GenModuleMeta[]): VocabSchema[]
 
 const toSchemaInfoFromModule = (
 	mod: SchemaGenModule,
-): Array<{identifier: string; schema: VocabSchema}> => {
-	const schemaInfo: Array<{identifier: string; schema: VocabSchema}> = [];
+): Array<{identifier: string; schema: JsonSchema}> => {
+	const schemaInfo: Array<{identifier: string; schema: JsonSchema}> = [];
 	for (const identifier in mod) {
 		const value = mod[identifier];
-		if (isVocabSchema(value)) schemaInfo.push({identifier, schema: value});
+		if (isJsonSchema(value)) schemaInfo.push({identifier, schema: value});
 	}
 	return schemaInfo;
 };
