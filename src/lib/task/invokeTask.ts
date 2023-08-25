@@ -5,7 +5,7 @@ import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
 import {spawn} from '@feltjs/util/process.js';
 
-import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../utils/args.js';
+import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../util/args.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath, getPossibleSourceIds} from '../fs/inputPath.js';
 import {TASK_FILE_SUFFIX, isTaskPath} from './task.js';
@@ -20,7 +20,7 @@ import {
 } from '../paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {loadTaskModule} from './taskModule.js';
-import {loadGroPackageJson} from '../utils/packageJson.js';
+import {loadGroPackageJson} from '../util/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logAvailableTasks, logErrorReasons} from './logTask.js';
 

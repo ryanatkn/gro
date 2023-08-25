@@ -1,8 +1,8 @@
 export type {Task, TaskContext} from './task/task.js';
-export type {Args, ArgsSchema, ArgSchema, ArgsProperties} from './utils/args.js';
+export type {Args, ArgsSchema, ArgSchema, ArgsProperties} from './util/args.js';
 export type {Gen, GenContext} from './gen/gen.js';
 
-export * from './utils/schema.js';
+export * from './util/schema.js';
 
 // export all of the main config helpers and types
 export {loadConfig, toConfig} from './config/config.js';
@@ -19,4 +19,4 @@ export type {BuildConfig, BuildName, BuildConfigPartial} from './build/buildConf
 
 // these seem useful and generic enough to export to users
 export {TaskError} from './task/task.js';
-export {loadPackageJson} from './utils/packageJson.js';
+export {loadPackageJson} from './util/packageJson.js';

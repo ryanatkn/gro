@@ -1,7 +1,7 @@
 import {spawn} from '@feltjs/util/process.js';
 
 import type {Task} from './task/task.js';
-import {toRawRestArgs} from './utils/args.js';
+import {toRawRestArgs} from './util/args.js';
 
 export const task: Task = {
 	summary: 'alias for `gro` with no task name provided',

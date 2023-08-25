@@ -1,4 +1,4 @@
-import type {JsonSchema} from '../../utils/schema.js';
+import type {JsonSchema} from '../../util/schema.js';
 
 export const SomeTestObjectSchema: JsonSchema = {
 	$id: '/schemas/SomeTestObject',

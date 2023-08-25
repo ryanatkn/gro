@@ -23,7 +23,7 @@ import {
 import type {Filesystem} from '../fs/filesystem.js';
 import {printPath, sourceIdToBasePath} from '../paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
-import {toJsonSchemaResolver} from '../utils/schema.js';
+import {toJsonSchemaResolver} from '../util/schema.js';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 

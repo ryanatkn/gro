@@ -3,7 +3,7 @@ import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
 import {invokeTask} from '../task/invokeTask.js';
 import {fs as nodeFs} from '../fs/node.js';
 import {TaskError} from '../task/task.js';
-import {toTaskArgs} from '../utils/args.js';
+import {toTaskArgs} from '../util/args.js';
 
 /*
 

@@ -19,14 +19,14 @@ const config: GroConfigCreator = async ({dev}) => {
 					// TODO probably extract these to another repo, felt or gen utils or something
 					'lib/gen/helpers/html.ts',
 					'lib/gen/helpers/ts.ts',
-					'lib/utils/sveltekitImportMocks.ts',
+					'lib/util/sveltekitImportMocks.ts',
 					createFilter(['lib/**/*.task.ts']),
 				],
 			},
 			dev
 				? {
 						...SYSTEM_BUILD_CONFIG,
-						input: SYSTEM_BUILD_CONFIG.input.concat('lib/utils/sveltekitImportMocks.ts'),
+						input: SYSTEM_BUILD_CONFIG.input.concat('lib/util/sveltekitImportMocks.ts'),
 				  }
 				: null,
 		],

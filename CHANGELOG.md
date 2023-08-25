@@ -485,7 +485,7 @@
   ([#273](https://github.com/feltjs/gro/pull/273))
 - fix writing source meta concurrently
   ([#288](https://github.com/feltjs/gro/pull/288))
-- add `utils/throttleAsync.ts`
+- add `util/throttleAsync.ts`
   ([#288](https://github.com/feltjs/gro/pull/288))
 
 ## 0.47.0
@@ -650,7 +650,7 @@
 
 - **break**: refactor `postprocess` into builders and delete `Build` and `Build_Result`
   ([#243](https://github.com/feltjs/gro/pull/243))
-- **break**: rename builders and builder utils
+- **break**: rename builders and builder util
   ([#244](https://github.com/feltjs/gro/pull/244))
 - **break**: merge `fs/path_filter.ts` and `fs/file.ts` into `fs/filter.ts`,
   rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
@@ -802,7 +802,7 @@
 
 ## 0.26.0
 
-- **break**: move utils to `@feltjs/felt-ui` and add it as a dependency
+- **break**: move util to `@feltjs/felt-ui` and add it as a dependency
   ([#206](https://github.com/feltjs/gro/pull/206))
 
 ## 0.25.2
@@ -914,7 +914,7 @@
 
 ## 0.21.4
 
-- export `UnreachableError` and time utils from root
+- export `UnreachableError` and time util from root
   ([#184](https://github.com/feltjs/gro/pull/184))
 
 ## 0.21.3
@@ -978,7 +978,7 @@
 - **break**: extract the `Filesystem` interface and
   thread it everywhere from `src/lib/cli/invoke.ts` and tests
   ([#171](https://github.com/feltjs/gro/pull/171))
-- **break**: replace `src/lib/utils/gitignore.ts` helper `is_gitignored`
+- **break**: replace `src/lib/util/gitignore.ts` helper `is_gitignored`
   with `src/lib/fs/path_filter.ts` helper `to_path_filter`
   ([#172](https://github.com/feltjs/gro/pull/172))
 
@@ -1008,14 +1008,14 @@
 
 ## 0.17.0
 
-- **break**: rename `src/lib/utils/equal.ts` module from `deepEqual.ts`
+- **break**: rename `src/lib/util/equal.ts` module from `deepEqual.ts`
   ([#162](https://github.com/feltjs/gro/pull/162))
 - **break**: rename `Gro_Config_Partial` from `PartialGro_Config`
   and `Build_Config_Partial` from `PartialBuild_Config`
   ([#164](https://github.com/feltjs/gro/pull/164))
 - make serve task work for production SvelteKit builds
   ([#163](https://github.com/feltjs/gro/pull/163))
-- add `src/lib/utils/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
+- add `src/lib/util/gitignore.ts` with `is_gitignored` and `load_gitignore_filter`
   ([#165](https://github.com/feltjs/gro/pull/165))
 - add helper `to_sveltekit_base_path` to `src/lib/build/sveltekit_helpers.ts`
   ([#163](https://github.com/feltjs/gro/pull/163))
@@ -1053,7 +1053,7 @@
 
 - **break**: rename `src/lib/fs/node.ts` from `src/lib/fs/nodeFs.ts`
   ([#154](https://github.com/feltjs/gro/pull/154))
-- **break**: rename `src/lib/fs/clean.ts` from `src/lib/utils/clean.ts`
+- **break**: rename `src/lib/fs/clean.ts` from `src/lib/util/clean.ts`
   ([#155](https://github.com/feltjs/gro/pull/155))
 - **break**: rename `to_array` from `ensureArray`
   ([#117](https://github.com/feltjs/gro/pull/117))
@@ -1115,7 +1115,7 @@
 
 ## 0.11.1
 
-- track and clean up child processes in `src/lib/utils/process.ts` helpers
+- track and clean up child processes in `src/lib/util/process.ts` helpers
   and expose the functionality to users as `registerGlobalSpawn`
   ([#141](https://github.com/feltjs/gro/pull/141))
 - add a confirmation prompt to `gro version`
@@ -1173,7 +1173,7 @@
 - **break**: separate the default server and primary Node builds
   in `src/lib/config/gro.config.default.ts`
   ([#131](https://github.com/feltjs/gro/pull/131))
-- **break**: rename `src/lib/utils/toObtainable.ts` to `src/lib/utils/obtainable.ts` to fit convention
+- **break**: rename `src/lib/util/toObtainable.ts` to `src/lib/util/obtainable.ts` to fit convention
   ([#131](https://github.com/feltjs/gro/pull/131))
 - add server auto-restart to `src/dev.task.ts`
   ([#129](https://github.com/feltjs/gro/pull/129))
@@ -1226,9 +1226,9 @@
 
 ## 0.7.1
 
-- rename `src/types.ts` to `src/lib/utils/types.ts`
+- rename `src/types.ts` to `src/lib/util/types.ts`
   ([#115](https://github.com/feltjs/gro/pull/115))
-- add `unwrap` helper to `src/lib/utils/types.ts`
+- add `unwrap` helper to `src/lib/util/types.ts`
   ([#116](https://github.com/feltjs/gro/pull/116))
 
 ## 0.7.0
@@ -1316,7 +1316,7 @@
   ([#86](https://github.com/feltjs/gro/pull/86),
   [#87](https://github.com/feltjs/gro/pull/87),
   [#90](https://github.com/feltjs/gro/pull/90))
-- move terminal color module to src/lib/utils
+- move terminal color module to src/lib/util
   ([#93](https://github.com/feltjs/gro/pull/93))
 - add server caching
   ([#77](https://github.com/feltjs/gro/pull/77))
@@ -1398,12 +1398,12 @@
 ## 0.2.3
 
 - fix external module type declarations by merging
-  `src/lib/utils/globalTypes.d.ts` into `src/globalTypes.ts`
+  `src/lib/util/globalTypes.d.ts` into `src/globalTypes.ts`
   ([#28](https://github.com/feltjs/gro/pull/28))
 
 ## 0.2.2
 
-- export `kleur/colors` from `src/lib/utils/terminal.js`
+- export `kleur/colors` from `src/lib/util/terminal.js`
   ([#27](https://github.com/feltjs/gro/pull/27))
 
 ## 0.2.1
@@ -1439,7 +1439,7 @@
 ## 0.1.11
 
 - fix `terser` import
-- export `Unobtain` type from `utils/obtainable.ts`
+- export `Unobtain` type from `util/obtainable.ts`
 
 ## 0.1.10
 
@@ -1487,12 +1487,12 @@
 ## 0.1.3
 
 - upgrade TypeScript minor version
-- rename `utils/random.ts` functions, expanding "rand" prefix to "random"
+- rename `util/random.ts` functions, expanding "rand" prefix to "random"
 
 ## 0.1.2
 
 - upgrade TypeScript dep
-- add `utils/obtainable.ts` for decoupled lifecycle management
+- add `util/obtainable.ts` for decoupled lifecycle management
 
 ## 0.1.1
 

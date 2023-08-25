@@ -1,7 +1,7 @@
 import {stripTrailingSlash} from '@feltjs/util/path.js';
 
 import type {Adapter} from './adapt.js';
-import {type HostTarget, copyDist, ensureNojekyll} from './utils.js';
+import {type HostTarget, copyDist, ensureNojekyll} from './helpers.js';
 import {DIST_DIRNAME} from '../paths.js';
 import type {BuildName} from '../build/buildConfig.js';
 

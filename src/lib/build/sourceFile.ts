@@ -5,7 +5,7 @@ import {stripStart} from '@feltjs/util/string.js';
 import type {FilerDir} from './filerDir.js';
 import {reconstructBuildFiles, type BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './filerFile.js';
-import {toHash} from './utils.js';
+import {toHash} from './helpers.js';
 import type {BuildConfig} from './buildConfig.js';
 import type {Encoding} from '../fs/encoding.js';
 import type {FilerFile} from './Filer.js';

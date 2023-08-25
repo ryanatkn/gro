@@ -2,12 +2,12 @@ import {spawn} from '@feltjs/util/process.js';
 
 import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
-import type {Args} from '../utils/args.js';
+import type {Args} from '../util/args.js';
 import {sourceIdToBasePath} from '../paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 import {GEN_NO_PROD_MESSAGE} from '../gen/runGen.js';
-import {throttleAsync} from '../utils/throttleAsync.js';
+import {throttleAsync} from '../util/throttleAsync.js';
 
 const name = '@feltjs/gro-plugin-gen';
 

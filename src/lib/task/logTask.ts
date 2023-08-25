@@ -3,10 +3,10 @@ import type {Logger} from '@feltjs/util/log.js';
 import {plural} from '@feltjs/util/string.js';
 import {printValue} from '@feltjs/util/print.js';
 
-import type {ArgSchema, ArgsSchema} from '../utils/args.js';
+import type {ArgSchema, ArgsSchema} from '../util/args.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
-import {toJsonSchema} from '../utils/schemaHelpers.js';
+import {toJsonSchema} from '../util/schemaHelpers.js';
 
 export const logAvailableTasks = async (
 	log: Logger,

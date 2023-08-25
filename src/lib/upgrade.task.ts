@@ -2,7 +2,7 @@ import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
 import type {Task} from './task/task.js';
-import {loadPackageJson, type PackageJson} from './utils/packageJson.js';
+import {loadPackageJson, type PackageJson} from './util/packageJson.js';
 
 const Args = z
 	.object({

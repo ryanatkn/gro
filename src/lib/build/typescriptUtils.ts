@@ -9,7 +9,7 @@ import {
 	TS_TYPE_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
 } from '../paths.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from '../util/args.js';
 
 /*
 

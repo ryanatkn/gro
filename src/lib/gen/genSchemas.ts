@@ -13,7 +13,7 @@ import {
 } from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
-import {inferSchemaTypes, isJsonSchema, type JsonSchema} from '../utils/schema.js';
+import {inferSchemaTypes, isJsonSchema, type JsonSchema} from '../util/schema.js';
 
 export const genSchemas = async (
 	mod: SchemaGenModule,

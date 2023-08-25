@@ -2,7 +2,7 @@ import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 import {stripTrailingSlash} from '@feltjs/util/path.js';
 
 import type {Adapter} from './adapt.js';
-import {ensureNojekyll, move404, type HostTarget} from './utils.js';
+import {ensureNojekyll, move404, type HostTarget} from './helpers.js';
 import {DIST_DIRNAME, SVELTEKIT_BUILD_DIRNAME, SVELTEKIT_DIST_DIRNAME} from '../paths.js';
 
 export interface Options {

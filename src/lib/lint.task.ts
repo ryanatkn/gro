@@ -2,9 +2,9 @@ import {printSpawnResult} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs} from './utils/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from './util/args.js';
 import {SOURCE_DIRNAME} from './paths.js';
-import {findCli, spawnCli} from './utils/cli.js';
+import {findCli, spawnCli} from './util/cli.js';
 
 const Args = z
 	.object({

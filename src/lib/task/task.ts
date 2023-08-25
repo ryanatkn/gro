@@ -5,7 +5,7 @@ import {stripEnd} from '@feltjs/util/string.js';
 import type {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import type {Args} from '../utils/args.js';
+import type {Args} from '../util/args.js';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`

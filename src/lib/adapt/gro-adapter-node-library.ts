@@ -5,9 +5,9 @@ import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
 import {NODE_LIBRARY_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import type {BuildName} from '../build/buildConfig.js';
-import type {PackageJson} from '../utils/packageJson.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs} from '../utils/args.js';
-import {findCli, spawnCli} from '../utils/cli.js';
+import type {PackageJson} from '../util/packageJson.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from '../util/args.js';
+import {findCli, spawnCli} from '../util/cli.js';
 
 const name = '@feltjs/gro-adapter-node-library';
 

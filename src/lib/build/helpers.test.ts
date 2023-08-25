@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
 
 import {paths} from '../paths.js';
-import {toHash, createDirectoryFilter} from './utils.js';
+import {toHash, createDirectoryFilter} from './helpers.js';
 
 /* test__toHash */
 const test__toHash = suite('toHash');

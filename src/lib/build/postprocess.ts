@@ -13,7 +13,7 @@ import {
 	type BuildId,
 } from '../paths.js';
 import type {BuildContext, BuildSource} from './builder.js';
-import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../utils/module.js';
+import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../util/module.js';
 import type {BuildDependency} from './buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
 import type {BuildFile} from './buildFile.js';
@@ -256,7 +256,7 @@ const hackToSveltekitImportMocks = (specifier: string, dev: boolean): string =>
 		? sveltekitMockedSpecifiers.get(specifier)!
 		: specifier;
 const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
-	? '../../utils/sveltekitImportMocks.js'
+	? '../../util/sveltekitImportMocks.js'
 	: '@feltjs/gro/dist/utils/sveltekitImportMocks.js';
 const sveltekitMockedSpecifiers = new Map([
 	['$app/environment', SVELTEKIT_IMPORT_MOCK_SPECIFIER],

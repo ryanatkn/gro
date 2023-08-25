@@ -13,7 +13,7 @@ import {
 	type SerializedBuildDependency,
 } from './buildDependency.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {throttleAsync} from '../utils/throttleAsync.js';
+import {throttleAsync} from '../util/throttleAsync.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk

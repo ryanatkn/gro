@@ -15,7 +15,7 @@ import {
 	isInputToBuildConfig,
 	mapDependencyToSourceId,
 	type MapDependencyToSourceId,
-} from './utils.js';
+} from './helpers.js';
 import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../paths.js';
 import type {BuildContext, Builder} from './builder.js';
 import {inferEncoding, type Encoding} from '../fs/encoding.js';
@@ -36,8 +36,8 @@ import {
 } from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {PathFilter} from '../fs/filter.js';
-import {isExternalModule} from '../utils/module.js';
-import {throttleAsync} from '../utils/throttleAsync.js';
+import {isExternalModule} from '../util/module.js';
+import {throttleAsync} from '../util/throttleAsync.js';
 
 /*
 

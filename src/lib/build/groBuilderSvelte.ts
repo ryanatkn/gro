@@ -23,7 +23,7 @@ import {
 } from '../paths.js';
 import type {Builder, TextBuildSource} from './builder.js';
 import type {BuildConfig} from './buildConfig.js';
-import {addCssSourcemapFooter, addJsSourcemapFooter} from './utils.js';
+import {addCssSourcemapFooter, addJsSourcemapFooter} from './helpers.js';
 import type {BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
 

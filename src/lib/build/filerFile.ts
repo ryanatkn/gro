@@ -2,7 +2,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 import type {PathStats} from '../fs/pathData.js';
 import type {Encoding} from '../fs/encoding.js';
 import {getMimeTypeByExtension} from '../fs/mime.js';
-import {toHash} from './utils.js';
+import {toHash} from './helpers.js';
 
 // TODO rename this module? or move this code elsewhere?
 

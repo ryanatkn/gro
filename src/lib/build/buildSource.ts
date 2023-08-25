@@ -9,7 +9,7 @@ import {groBuilderDefault} from './groBuilderDefault.js';
 import type {GroConfig} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {generateTypes} from './typescriptUtils.js';
-import {sveltekitSync} from '../utils/sveltekit.js';
+import {sveltekitSync} from '../util/sveltekit.js';
 
 export const buildSource = async (
 	fs: Filesystem,

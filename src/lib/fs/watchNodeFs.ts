@@ -3,7 +3,7 @@ import {statSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-r
 
 import type {PathStats} from './pathData.js';
 import {toPathFilter, type PathFilter} from './filter.js';
-import {loadGitignoreFilter} from '../utils/gitignore.js';
+import {loadGitignoreFilter} from '../util/gitignore.js';
 import {SOURCE_DIR, SOURCE_DIRNAME, paths, sourceIdToBasePath} from '../paths.js';
 
 /*

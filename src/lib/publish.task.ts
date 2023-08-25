@@ -1,15 +1,15 @@
 import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
-import {rainbow} from './utils/colors.js';
+import {rainbow} from './util/colors.js';
 import {TaskError, type Task} from './task/task.js';
 import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
-import {toRawRestArgs} from './utils/args.js';
+import {toRawRestArgs} from './util/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
-import {loadPackageJson} from './utils/packageJson.js';
-import {findCli, spawnCli} from './utils/cli.js';
+import {loadPackageJson} from './util/packageJson.js';
+import {findCli, spawnCli} from './util/cli.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
