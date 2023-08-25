@@ -27,7 +27,7 @@ and defers composition to the user in regular TypeScript modules.
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args;
-  to view [the available tasks](https://github.com/feltjs/gro/blob/main/src/docs/tasks.md)
+  to view [the available tasks](https://github.com/feltjs/gro/blob/main/src/lib/docs/tasks.md)
   run `gro` with no arguments
 - it's easy to hook into or override any of Gro's builtin tasks,
   like [`gro test`](../test.task.ts) and [`gro gen`](../gen.task.ts)

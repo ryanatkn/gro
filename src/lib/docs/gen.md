@@ -7,7 +7,7 @@
 
 ## motivation
 
-The [`gro gen` task](/src/gen.task.ts) helps us enhance our projects
+The [`gro gen` task](/src/lib/gen.task.ts) helps us enhance our projects
 with convention-based code/data/file generation (codegen) techniques.
 
 Why? Codegen can produce cool results and unhalting pain.
@@ -24,8 +24,8 @@ that returns the content of the output file.
 More flexibility is available when needed
 including multiple custom output files.
 
-`gen` is implemented as [a task](/src/gen.task.ts)
-and [a plugin](/src/plugin/gro-plugin-gen.ts),
+`gen` is implemented as [a task](/src/lib/gen.task.ts)
+and [a plugin](/src/lib/plugin/gro-plugin-gen.ts),
 and runs only during development, not for production builds.
 
 Normally you'll want to commit generated files to git,

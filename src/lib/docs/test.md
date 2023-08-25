@@ -2,7 +2,7 @@
 
 Gro uses [`uvu`](https://github.com/lukeed/uvu) for tests --
 when you run `gro test [...args]`, you're running `uvu [...args]` inside
-Gro's normal [task context](/src/docs/task.md).
+Gro's normal [task context](/src/lib/docs/task.md).
 Internally, Gro has its own build system for your `src/` files,
 and it points `uvu` at Gro's compiled JS outputs.
 
@@ -17,8 +17,8 @@ gro test Filer.test # run tests matching an uvu pattern: https://github.com/luke
 ```
 
 The builtin [`gro test`](/src/test.task.ts)
-[task](/src/docs/task.md) runs all `*.test.*` files in your project by default.
-(excluding [`*.gen.*` files](/src/docs/gen.md))
+[task](/src/lib/docs/task.md) runs all `*.test.*` files in your project by default.
+(excluding [`*.gen.*` files](/src/lib/docs/gen.md))
 So to make new tests, make a new file:
 
 ```ts

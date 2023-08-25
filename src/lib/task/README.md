@@ -1,3 +1,3 @@
 # task
 
-- [task docs](/src/docs/task.md)
+- [task docs](/src/lib/docs/task.md)

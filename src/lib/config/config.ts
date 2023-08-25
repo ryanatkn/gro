@@ -34,7 +34,7 @@ See `../docs/config.md` for documentation.
 
 The Gro config tells Gro how to build and manage a project.
 Dependent projects can optionally define one at `src/gro.config.ts`.
-If none is provided, the fallback is located at `gro/src/config/gro.config.default.ts`.
+If none is provided, the fallback is located at `gro/src/lib/config/gro.config.default.ts`.
 
 The prevailing pattern in web development is to put config files like this in the root directory,
 but Gro opts to put it in `src/`.

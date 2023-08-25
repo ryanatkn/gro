@@ -194,7 +194,7 @@ test__toGenResult(
 );
 
 test__toGenResult('fail with two .gen. patterns in the file name', () => {
-	assert.throws(() => toGenResult(resolve('src/gen.gen.ts'), '/**/'));
+	assert.throws(() => toGenResult(resolve('src/lib/gen.gen.ts'), '/**/'));
 	assert.throws(() => toGenResult(resolve('src/foo.gen.gen.ts'), '/**/'));
 	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.ts'), '/**/'));
 	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.baz.ts'), '/**/'));

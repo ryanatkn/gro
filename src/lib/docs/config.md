@@ -13,17 +13,17 @@ It's designed for a variety of needs:
 
 To accomplish this, Gro has an optional config file that lives at `$PROJECT/src/gro.config.ts`.
 If a project does not define a config, Gro imports a default config from
-[`src/config/gro.config.default.ts`](/src/config/gro.config.default.ts),
+[`src/lib/config/gro.config.default.ts`](/src/lib/config/gro.config.default.ts),
 which looks at your project for familiar patterns (like Node libraries and SvelteKit apps)
 and tries to do the right thing.
 
-> The [default config](/src/config/gro.config.default.ts)
+> The [default config](/src/lib/config/gro.config.default.ts)
 > detects three types of projects that can coexist:
 > SvelteKit projects, Node API servers, and Node libraries with Svelte support
 > (using a different system than `svelte-kit package` --
-> [learn more about the SvelteKit integration](/src/docs/sveltekit.md))
+> [learn more about the SvelteKit integration](/src/lib/docs/sveltekit.md))
 
-See [`src/config/config.ts`](/src/config/config.ts) for the config types and implementation.
+See [`src/lib/config/config.ts`](/src/lib/config/config.ts) for the config types and implementation.
 
 ## examples
 
@@ -42,7 +42,7 @@ export default config;
 ```
 
 Here's [Gro's own internal config](/src/gro.config.ts) and
-here's [the default config](/src/config/gro.config.default.ts)
+here's [the default config](/src/lib/config/gro.config.default.ts)
 that's used for projects that do not define one at `src/gro.config.ts`.
 
 The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files:
@@ -64,8 +64,8 @@ export interface GroConfigPartial {
 
 The `builds` property of the Gro config
 is an array of build configs that describe a project's outputs.
-Here's the [`BuildConfigPartial`](/src/build/buildConfig.ts) type,
-which is the user-facing version of the [`BuildConfig`](/src/build/buildConfig.ts):
+Here's the [`BuildConfigPartial`](/src/lib/build/buildConfig.ts) type,
+which is the user-facing version of the [`BuildConfig`](/src/lib/build/buildConfig.ts):
 
 ```ts
 export interface BuildConfigPartial {

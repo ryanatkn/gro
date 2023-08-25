@@ -31,7 +31,7 @@ This module invokes Gro tasks by name using the filesystem as the source.
 When a task is invoked,
 it first searches for tasks in the current working directory.
 and falls back to searching Gro's directory, if the two are different.
-See `src/fs/inputPath.ts` for info about what "taskName" can refer to.
+See `src/lib/fs/inputPath.ts` for info about what "taskName" can refer to.
 If it matches a directory, all of the tasks within it are logged,
 both in the current working directory and Gro.
 

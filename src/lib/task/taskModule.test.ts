@@ -35,7 +35,7 @@ test__loadTaskModule('basic behavior', async () => {
 });
 
 test__loadTaskModule('invalid module', async () => {
-	const id = resolve('src/task/fixtures/testInvalidTaskModule.js');
+	const id = resolve('src/lib/task/fixtures/testInvalidTaskModule.js');
 	const result = await loadTaskModule(id, true);
 	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
@@ -48,7 +48,7 @@ test__loadTaskModule('invalid module', async () => {
 });
 
 test__loadTaskModule('failing module', async () => {
-	const id = resolve('src/task/fixtures/testFailingTaskModule.js');
+	const id = resolve('src/lib/task/fixtures/testFailingTaskModule.js');
 	const result = await loadTaskModule(id, true);
 	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {

@@ -7,7 +7,7 @@
 limitations:
 
 - [Windows is not yet supported](https://github.com/feltjs/gro/issues/319)
-- [SvelteKit and Vite integration](/src/docs/sveltekit.md) is incomplete
+- [SvelteKit and Vite integration](/src/lib/docs/sveltekit.md) is incomplete
 - Gro is actively used but has few users,
   so you'll likely find problems and undesirable limitations --
   please open issues!
@@ -24,28 +24,28 @@ for making web frontends, servers, and libraries.
 It includes:
 
 - limited but functional
-  [developing](/src/docs/dev.md),
-  [building](/src/docs/build.md),
-  [testing](/src/docs/test.md),
-  [deploying](/src/docs/deploy.md),
-  and [publishing](/src/docs/publish.md)
+  [developing](/src/lib/docs/dev.md),
+  [building](/src/lib/docs/build.md),
+  [testing](/src/lib/docs/test.md),
+  [deploying](/src/lib/docs/deploy.md),
+  and [publishing](/src/lib/docs/publish.md)
   for [Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
   apps along with Node servers, JS/TS/Svelte libraries, and other things
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
-  - see the [SvelteKit integration docs](/src/docs/sveltekit.md),
-    the [Gro config docs](/src/docs/config.md), and
-    [the default config](https://github.com/feltjs/gro/blob/main/src/config/gro.config.default.ts)
-  - [configurable plugins](/src/docs/plugin.md) and [adapters](/src/docs/adapt.md)
+  - see the [SvelteKit integration docs](/src/lib/docs/sveltekit.md),
+    the [Gro config docs](/src/lib/docs/config.md), and
+    [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
+  - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
     to support SvelteKit, auto-restarting API servers, and other external build processes -
     ideally would use SvelteKit/Vite instead
   - example usage in a starter project:
     [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)
-- [task runner](/src/docs/task.md) that uses the filesystem convention `*.task.ts`
-  - lots of [common default tasks](/src/docs/tasks.md) that projects can easily override and compose
-- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
-- codegen by convention with [`gen`](/src/docs/gen.md)
+- [task runner](/src/lib/docs/task.md) that uses the filesystem convention `*.task.ts`
+  - lots of [common default tasks](/src/lib/docs/tasks.md) that projects can easily override and compose
+- [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
+- codegen by convention with [`gen`](/src/lib/docs/gen.md)
   - includes automatic type generation using [JSON Schema](https://json-schema.org/) and
     [json-schema-to-typescript](https://github.com/bcherny/json-schema-to-typescript)
 - linting with [ESLint](https://github.com/eslint/eslint)
@@ -55,16 +55,16 @@ It includes:
 
 ## docs
 
-- [build](/src/docs/build.md) web frontends, servers, and libraries
-  - [unbundled development](/src/docs/dev.md)
-  - [config](/src/docs/config.md)
-  - [deploy](/src/docs/deploy.md) to a branch, like for GitHub pages
-  - [publish](/src/docs/publish.md)
-- [`Task`](/src/docs/task.md) runner
-  - [tasks](/src/docs/tasks.md) list
-- [testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
-- [`gen`](/src/docs/gen.md) code generation
-- all [the docs](/src/docs#readme)
+- [build](/src/lib/docs/build.md) web frontends, servers, and libraries
+  - [unbundled development](/src/lib/docs/dev.md)
+  - [config](/src/lib/docs/config.md)
+  - [deploy](/src/lib/docs/deploy.md) to a branch, like for GitHub pages
+  - [publish](/src/lib/docs/publish.md)
+- [`Task`](/src/lib/docs/task.md) runner
+  - [tasks](/src/lib/docs/tasks.md) list
+- [testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu)
+- [`gen`](/src/lib/docs/gen.md) code generation
+- all [the docs](/src/lib/docs#readme)
 
 ## install
 
@@ -135,8 +135,8 @@ gro test --help # print info about the "test" task; works for every task
 ```
 
 Gro has a number of builtin tasks that you can run with the CLI.
-To learn more [see the task docs](/src/docs/task.md)
-and [the generated task index](/src/docs/tasks.md).
+To learn more [see the task docs](/src/lib/docs/task.md)
+and [the generated task index](/src/lib/docs/tasks.md).
 
 ```bash
 gro dev # start developing in watch mode
@@ -147,7 +147,7 @@ gro dev -- vite --port 3003 # forward args by separating sections with --
 gro build # build everything for production
 ```
 
-[Testing](/src/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
+[Testing](/src/lib/docs/test.md) with [`uvu`](https://github.com/lukeed/uvu):
 
 ```bash
 gro test # run all tests for `*.test.ts` files with `uvu`
@@ -173,20 +173,20 @@ gro format # format all of the source files using Prettier
 gro format --check # check that all source files are formatted
 ```
 
-Codegen with [`gen`](/src/docs/gen.md):
+Codegen with [`gen`](/src/lib/docs/gen.md):
 
 ```bash
 gro gen # run codegen for all `*.gen.*` files
 gro gen --check # error if any generated files are new or different
 ```
 
-To deploy: (also see [`src/docs/deploy.md`](/src/docs/deploy.md))
+To deploy: (also see [`src/lib/docs/deploy.md`](/src/lib/docs/deploy.md))
 
 ```bash
 gro deploy # build and push to the `deploy` branch
 ```
 
-To publish: (also see [`src/docs/publish.md`](/src/docs/publish.md))
+To publish: (also see [`src/lib/docs/publish.md`](/src/lib/docs/publish.md))
 
 ```bash
 gro publish patch # bump version, publish to npm, and git push
@@ -206,7 +206,7 @@ gro upgrade excluded-dep-1 excluded-dep-2 # npm updates to the latest everything
 gro --version # print the Gro version
 ```
 
-For more see [`src/docs/task.md`](/src/docs/task.md) and [`src/docs`](/src/docs).
+For more see [`src/lib/docs/task.md`](/src/lib/docs/task.md) and [`src/lib/docs`](/src/lib/docs).
 
 ## develop
 

@@ -1,3 +1,3 @@
 # gen
 
-- [gen docs](/src/docs/gen.md)
+- [gen docs](/src/lib/docs/gen.md)
