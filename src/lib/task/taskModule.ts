@@ -33,13 +33,12 @@ export const loadTaskModule = async (
 	};
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const loadTaskModules = async (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [TASK_FILE_SUFFIX],
 	rootDirs: string[] = [],
-) => {
+): Promise<ReturnType<typeof findModules> | ReturnType<typeof loadModules>> => {
 	const findModulesResult = await findModules(
 		fs,
 		inputPaths,
