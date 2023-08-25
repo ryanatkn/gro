@@ -8,25 +8,14 @@ import {fileURLToPath} from 'node:url';
 
 This file is a loader for the Gro CLI.
 Its only purpose is to import the `invoke.js` script in the correct directory.
-It lets the global Gro CLI defer to a local installation
-of Gro if one is available,
+It lets the global Gro CLI defer to a local installation of Gro if one is available,
 and it also provides special handling for the case
 where we're running Gro inside Gro's own repo for development.
 
 case 1:
 
-We're in a directory that has a local installation of Gro.
-Use the local version instead of the global.
-
-TODO This only finds the local version of Gro
-when the current working directory has `node_modules/.bin/gro`.
-Should being nested directories be supported? How?
-I couldn't find a way to do that with Node
-without using undocumented behavior like this does:
-https://github.com/sindresorhus/resolve-from
-Another option is to search recursively upwards,
-but we won't try to fix this until we have an immediate need
-and we're sure it's a good idea.
+We're in a directory that has a local installation of Gro at `node_modules/.bin/gro`.
+Use this local version instead of the global.
 
 case 2:
 
