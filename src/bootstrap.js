@@ -2,13 +2,15 @@ import {resolve, join} from 'node:path';
 import esbuild from 'esbuild';
 import fs from 'fs-extra';
 import fg from 'fast-glob';
-import {spawn} from 'node:child_process';
+import {execSync} from 'node:child_process';
 import {stripStart} from '@feltjs/util/string.js';
+
+// TODO BLOCK replace with `svelte-package` (npm script)
 
 /*
 
-This file was previous a one-liner npm script,
-but changing use TypeScript 4.5's `type` import modifier
+This file was previously a one-liner npm script,
+but changing to use TypeScript 4.5's `type` import modifier
 causes esbuild to fail with `preserveValueInputs: true`,
 which is different than the TypeScript's compiler behavior.
 
@@ -38,7 +40,7 @@ const transformOptions = {
 };
 
 const bootstrap = async () => {
-	const dir = resolve('src');
+	const dir = resolve('src/lib');
 	const distDir = './dist';
 	const outDir = resolve(distDir);
 	await Promise.all([fs.remove(outDir), fs.remove(resolve('./.gro'))]);
@@ -58,21 +60,8 @@ const bootstrap = async () => {
 
 	console.log(`transformed ${globbed.length} files in ${Date.now() - startTime}ms`);
 
-	// @ts-expect-error
-	let done, promise, ps;
-	promise = new Promise((r) => (done = r));
-	ps = spawn('chmod', ['+x', distDir + '/cli/gro.js']);
-	ps.on('error', (err) => console.error('err', err));
-	// @ts-expect-error
-	ps.on('close', () => done());
-	await promise;
-
-	promise = new Promise((r) => (done = r));
-	ps = spawn('npm', ['link']);
-	ps.on('error', (err) => console.error('err', err));
-	// @ts-expect-error
-	ps.on('close', () => done());
-	await promise;
+	execSync(`chmod +x ${distDir}/cli/gro.js`);
+	execSync('npm link');
 };
 
 bootstrap().catch((err) => {

@@ -976,7 +976,7 @@
 ## 0.19.0
 
 - **break**: extract the `Filesystem` interface and
-  thread it everywhere from `src/cli/invoke.ts` and tests
+  thread it everywhere from `src/lib/cli/invoke.ts` and tests
   ([#171](https://github.com/feltjs/gro/pull/171))
 - **break**: replace `src/utils/gitignore.ts` helper `is_gitignored`
   with `src/fs/path_filter.ts` helper `to_path_filter`
