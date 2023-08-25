@@ -26,12 +26,12 @@ the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 // TODO this is kinda gross - do we want to maintain the convention to have the trailing slash in most usage?
 export const SOURCE_DIRNAME = 'src';
 export const BUILD_DIRNAME = '.gro';
-export const DIST_DIRNAME = 'dist';
 export const LIB_DIRNAME = 'lib';
-export const SOURCE_DIR = `${SOURCE_DIRNAME}/`;
-export const BUILD_DIR = `${BUILD_DIRNAME}/`;
-export const DIST_DIR = `${DIST_DIRNAME}/`;
-export const LIB_DIR = `${LIB_DIRNAME}/`;
+export const DIST_DIRNAME = BUILD_DIRNAME + '/dist';
+export const SOURCE_DIR = SOURCE_DIRNAME + '/';
+export const BUILD_DIR = BUILD_DIRNAME + '/';
+export const DIST_DIR = DIST_DIRNAME + '/';
+export const LIB_DIR = LIB_DIRNAME + '/';
 
 export const CONFIG_SOURCE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_PATH = 'gro.config.js';

@@ -29,7 +29,7 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "bootstrap": "node src/bootstrap.js",
+    "bootstrap": "svelte-package && chmod +x ./dist/cli/gro.js && npm link",
     "dev": "clear && npm run bootstrap && gro dev",
     "build": "clear && npm run bootstrap && gro build"
   },
