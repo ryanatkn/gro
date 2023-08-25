@@ -9,6 +9,7 @@ import {
 	JSON_EXTENSION,
 	TS_EXTENSION,
 	SVELTE_EXTENSION,
+	LIB_DIR,
 } from '../paths.js';
 import {getExtensions} from '../fs/mime.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
@@ -38,17 +39,7 @@ export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 	types: false,
 };
 
-const NODE_LIBRARY_PATH = 'lib/index.ts';
-const NODE_LIBRARY_SOURCE_ID = basePathToSourceId(NODE_LIBRARY_PATH);
-export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> =>
-	fs.exists(NODE_LIBRARY_SOURCE_ID);
-export const NODE_LIBRARY_BUILD_NAME: BuildName = 'library';
-export const NODE_LIBRARY_BUILD_CONFIG = (dev: boolean): BuildConfig => ({
-	name: NODE_LIBRARY_BUILD_NAME,
-	platform: 'node',
-	input: [NODE_LIBRARY_PATH],
-	types: !dev,
-});
+export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> => fs.exists(LIB_DIR);
 
 export const API_SERVER_SOURCE_BASE_PATH = 'lib/server/server.ts';
 export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH, false); // 'lib/server/server.js'

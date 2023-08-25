@@ -10,7 +10,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Assignable} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
 
-import {paths, toBuildOutPath, CONFIG_BUILD_PATH, DIST_DIRNAME} from '../paths.js';
+import {paths, toBuildOutPath, CONFIG_BUILD_PATH} from '../paths.js';
 import {
 	normalizeBuildConfigs,
 	validateBuildConfigs,
@@ -18,11 +18,7 @@ import {
 	type BuildConfigPartial,
 } from '../build/buildConfig.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
-import {
-	DEFAULT_ECMA_SCRIPT_TARGET,
-	NODE_LIBRARY_BUILD_NAME,
-	CONFIG_BUILD_CONFIG,
-} from '../build/buildConfigDefaults.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET, CONFIG_BUILD_CONFIG} from '../build/buildConfigDefaults.js';
 import type {EcmaScriptTarget} from '../build/typescriptUtils.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import createDefaultConfig from './gro.config.default.js';
@@ -49,7 +45,6 @@ This choice keeps things simple and flexible because:
 
 export interface GroConfig {
 	readonly builds: BuildConfig[];
-	readonly publish: string | null;
 	readonly plugin: ToConfigPlugins;
 	readonly adapt: ToConfigAdapters;
 	readonly target: EcmaScriptTarget;
@@ -61,7 +56,6 @@ export interface GroConfig {
 
 export interface GroConfigPartial {
 	readonly builds?: Array<BuildConfigPartial | null> | BuildConfigPartial | null; // allow `null` for convenience
-	readonly publish?: string | null; // dir to publish: defaults to 'dist/library', or null if it doesn't exist -- TODO support multiple
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;
 	readonly target?: EcmaScriptTarget;
@@ -203,7 +197,6 @@ const toBootstrapConfig = (): GroConfig => {
 		plugin: () => null,
 		adapt: () => null,
 		builds: [CONFIG_BUILD_CONFIG],
-		publish: null,
 		target: DEFAULT_ECMA_SCRIPT_TARGET,
 		primaryBrowserBuildConfig: null,
 	};
@@ -243,18 +236,9 @@ const normalizeConfig = (config: GroConfigPartial, dev: boolean): GroConfig => {
 		adapt: () => null,
 		...omitUndefined(config),
 		builds: buildConfigs,
-		publish:
-			config.publish || config.publish === null
-				? config.publish
-				: toDefaultPublishDirs(buildConfigs),
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
 		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
 		// so this is a temp hack that just chooses the first browser build
 		primaryBrowserBuildConfig: buildConfigs.find((b) => b.platform === 'browser') || null,
 	};
-};
-
-const toDefaultPublishDirs = (buildConfigs: BuildConfig[]): string | null => {
-	const buildConfigToPublish = buildConfigs.find((b) => b.name === NODE_LIBRARY_BUILD_NAME);
-	return buildConfigToPublish ? `${DIST_DIRNAME}/${buildConfigToPublish.name}` : null;
 };

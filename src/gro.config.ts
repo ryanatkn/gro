@@ -1,7 +1,5 @@
-import {createFilter} from '@rollup/pluginutils';
-
 import type {GroConfigCreator, GroConfigPartial} from './lib/config/config.js';
-import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './lib/build/buildConfigDefaults.js';
+import {SYSTEM_BUILD_CONFIG} from './lib/build/buildConfigDefaults.js';
 
 // This is the config for the Gro project itself.
 // The default config for dependent projects is located at `./lib/config/gro.config.default.ts`.
@@ -9,20 +7,6 @@ import {NODE_LIBRARY_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './lib/build/buildC
 const config: GroConfigCreator = async ({dev}) => {
 	const partial: GroConfigPartial = {
 		builds: [
-			{
-				...NODE_LIBRARY_BUILD_CONFIG(dev), // TODO BLOCK remove/disable
-				input: [
-					'lib/index.ts',
-					'lib/cli/gro.ts',
-					'lib/cli/invoke.ts',
-					'lib/config/gro.config.default.ts',
-					// TODO probably extract these to another repo, felt or gen utils or something
-					'lib/gen/helpers/html.ts',
-					'lib/gen/helpers/ts.ts',
-					'lib/util/sveltekitImportMocks.ts',
-					createFilter(['lib/**/*.task.ts']),
-				],
-			},
 			dev
 				? {
 						...SYSTEM_BUILD_CONFIG,
@@ -30,7 +14,6 @@ const config: GroConfigCreator = async ({dev}) => {
 				  }
 				: null,
 		],
-		publish: '.',
 		sourcemap: dev,
 		typemap: !dev,
 		logLevel: 'debug',

@@ -257,7 +257,7 @@ const hackToSveltekitImportMocks = (specifier: string, dev: boolean): string =>
 		: specifier;
 const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
 	? '../../util/sveltekitImportMocks.js'
-	: '@feltjs/gro/dist/utils/sveltekitImportMocks.js';
+	: '@feltjs/gro/util/sveltekitImportMocks.js';
 const sveltekitMockedSpecifiers = new Map([
 	['$app/environment', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
 	['$app/forms', SVELTEKIT_IMPORT_MOCK_SPECIFIER],

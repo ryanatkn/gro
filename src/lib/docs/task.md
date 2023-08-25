@@ -200,7 +200,7 @@ export const task: Task = {
 	run: async ({args, invokeTask}) => {
 		await doSomethingFirst();
 		// As discussed in the `invokeTask` section above,
-		// it's possible to `import {task as groBuiltinTestTask} from '@feltjs/gro/dist/test.task.js'`
+		// it's possible to `import {task as groBuiltinTestTask} from '@feltjs/gro/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!

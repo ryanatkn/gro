@@ -3,7 +3,6 @@ import {z} from 'zod';
 
 import {rainbow} from './util/colors.js';
 import {TaskError, type Task} from './task/task.js';
-import {loadConfig} from './config/config.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './paths.js';
 import {toRawRestArgs} from './util/args.js';
@@ -38,7 +37,7 @@ export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	production: true,
 	Args,
-	run: async ({fs, args, log, dev}): Promise<void> => {
+	run: async ({fs, args, log}): Promise<void> => {
 		const {branch, changelog, dry} = args;
 		if (dry) {
 			log.info(rainbow('dry run!'));
@@ -96,18 +95,13 @@ export const task: Task<Args> = {
 		const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
 		if (!buildResult.ok) throw Error('gro build failed');
 
-		const config = await loadConfig(fs, dev);
-		if (config.publish === null) {
-			throw Error('config.publish is null, so this package cannot be published');
-		}
-
 		if (dry) {
-			log.info({publish: config.publish, branch});
+			log.info('publishing branch ' + branch);
 			log.info(rainbow('dry run complete!'));
 			return;
 		}
 
-		const npmPublishResult = await spawnCli(fs, 'changeset', ['publish'], {cwd: config.publish});
+		const npmPublishResult = await spawnCli(fs, 'changeset', ['publish']);
 		if (!npmPublishResult?.ok) {
 			throw new TaskError(
 				'changeset publish failed - revert the version tag or run it again manually',

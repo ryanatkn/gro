@@ -2,11 +2,10 @@ import {Logger} from '@feltjs/util/log.js';
 
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {
-	hasNodeLibrary,
-	NODE_LIBRARY_BUILD_CONFIG,
 	hasSveltekitFrontend,
 	hasApiServer,
 	API_SERVER_BUILD_CONFIG,
+	hasNodeLibrary,
 } from '../build/buildConfigDefaults.js';
 
 /*
@@ -29,7 +28,6 @@ const config: GroConfigCreator = async ({fs, dev}) => {
 	]);
 	const partial: GroConfigPartial = {
 		builds: [
-			enableNodeLibrary ? NODE_LIBRARY_BUILD_CONFIG(dev) : null,
 			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
 			// note there's no build for SvelteKit frontends - should there be?
 		],
