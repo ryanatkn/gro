@@ -93,8 +93,92 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./cli/gro.js": {
+      "default": "./dist/cli/gro.js",
+      "types": "./dist/cli/gro.d.ts"
+    },
+    "./cli/invoke.js": {
+      "default": "./dist/cli/invoke.js",
+      "types": "./dist/cli/invoke.d.ts"
+    },
+    "./config/gro.config.default.js": {
+      "default": "./dist/config/gro.config.default.js",
+      "types": "./dist/config/gro.config.default.d.ts"
+    },
+    "./gen/helpers/html.js": {
+      "default": "./dist/gen/helpers/html.js",
+      "types": "./dist/gen/helpers/html.d.ts"
+    },
+    "./gen/helpers/ts.js": {
+      "default": "./dist/gen/helpers/ts.js",
+      "types": "./dist/gen/helpers/ts.d.ts"
+    },
+    "./util/sveltekitImportMocks.js": {
+      "default": "./dist/util/sveltekitImportMocks.js",
+      "types": "./dist/util/sveltekitImportMocks.d.ts"
+    },
+    "./build.task.ts": {
+      "default": "./dist/build.task.js",
+      "types": "./dist/build.task.d.ts"
+    },
+    "./cert.task.ts": {
+      "default": "./dist/cert.task.js",
+      "types": "./dist/cert.task.d.ts"
+    },
+    "./check.task.ts": {
+      "default": "./dist/check.task.js",
+      "types": "./dist/check.task.d.ts"
+    },
+    "./clean.task.ts": {
+      "default": "./dist/clean.task.js",
+      "types": "./dist/clean.task.d.ts"
+    },
+    "./commit.task.ts": {
+      "default": "./dist/commit.task.js",
+      "types": "./dist/commit.task.d.ts"
+    },
+    "./deploy.task.ts": {
+      "default": "./dist/deploy.task.js",
+      "types": "./dist/deploy.task.d.ts"
+    },
+    "./dev.task.ts": {
+      "default": "./dist/dev.task.js",
+      "types": "./dist/dev.task.d.ts"
+    },
+    "./format.task.ts": {
+      "default": "./dist/format.task.js",
+      "types": "./dist/format.task.d.ts"
+    },
+    "./gen.task.ts": {
+      "default": "./dist/gen.task.js",
+      "types": "./dist/gen.task.d.ts"
+    },
+    "./help.task.ts": {
+      "default": "./dist/help.task.js",
+      "types": "./dist/help.task.d.ts"
+    },
+    "./lint.task.ts": {
+      "default": "./dist/lint.task.js",
+      "types": "./dist/lint.task.d.ts"
+    },
+    "./publish.task.ts": {
+      "default": "./dist/publish.task.js",
+      "types": "./dist/publish.task.d.ts"
+    },
+    "./test.task.ts": {
+      "default": "./dist/test.task.js",
+      "types": "./dist/test.task.d.ts"
+    },
+    "./typecheck.task.ts": {
+      "default": "./dist/typecheck.task.js",
+      "types": "./dist/typecheck.task.d.ts"
+    },
+    "./upgrade.task.ts": {
+      "default": "./dist/upgrade.task.js",
+      "types": "./dist/upgrade.task.d.ts"
     }
   },
   "eslintConfig": {

@@ -10,7 +10,7 @@ const config: GroConfigCreator = async ({dev}) => {
 	const partial: GroConfigPartial = {
 		builds: [
 			{
-				...NODE_LIBRARY_BUILD_CONFIG(dev),
+				...NODE_LIBRARY_BUILD_CONFIG(dev), // TODO BLOCK remove/disable
 				input: [
 					'lib/index.ts',
 					'lib/cli/gro.ts',
