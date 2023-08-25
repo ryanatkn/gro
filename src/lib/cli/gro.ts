@@ -45,12 +45,10 @@ const main = (): Promise<void> => {
 		return import(join(realpathSync(groBinPath), '../invoke.js'));
 	}
 	// case 2
-	// If running Gro inside its own repo, require the local development build.
-	// If the local build is not available,
-	// the global version can be used to build the project.
+	// If running Gro inside its own repo, require the local dist.
+	// If the local dist is not yet built it will fall back to the global.
 	const filePath = fileURLToPath(import.meta.url);
-	// This detection is not airtight, but seems good enough.
-	const basePath = '.gro/dev/library/cli';
+	const basePath = 'dist/cli';
 	if (existsSync(`${basePath}/gro.js`) && existsSync(`${basePath}/invoke.js`)) {
 		return import(join(filePath, `../../../${basePath}/invoke.js`));
 	}
