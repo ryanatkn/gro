@@ -187,8 +187,7 @@ gro deploy # build and push to the `deploy` branch
 To publish: (also see [`src/lib/docs/publish.md`](/src/lib/docs/publish.md))
 
 ```bash
-gro publish patch # bump version, publish to npm, and git push
-gro publish major --and args --are forwarded --to 'npm version'
+gro publish # flush changesets, bump version, publish to npm, and git push
 ```
 
 Etc:
@@ -210,7 +209,8 @@ For more see [`src/lib/docs/task.md`](/src/lib/docs/task.md) and [`src/lib/docs`
 
 ```bash
 npm i
-npm run bootstrap # build and link `gro` - needed only once
+npm run build # build and link `gro` - needed only once
+gro build # same as `npm run build` when the `gro` CLI is available
 gro test # make sure everything looks good - same as `npm test`
 
 # develop directly on gro:
@@ -219,13 +219,10 @@ gro test # in another terminal
 gro test some.test
 
 # use your development version of `gro` locally in another project:
-gro build # updates the `gro` CLI
+gro build # updates the `gro` CLI, same as `npm run build`
 cd ../otherproject
 npm link ../gro # from `otherproject/`
-gro build # from `gro/` on changes
-
-# release
-gro build # build for release and update the `gro` CLI
+gro build # from `../gro` on changes
 ```
 
 ## credits 🐢<sub>🐢</sub><sub><sub>🐢</sub></sub>
