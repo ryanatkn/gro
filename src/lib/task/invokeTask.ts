@@ -97,7 +97,7 @@ export const invokeTask = async (
 			await buildSource(fs, config, true, log);
 			timingToBuildProject();
 
-			// Load and run the task.
+			// Try to load the task module.
 			const loadModulesResult = await loadModules(
 				findModulesResult.sourceIdsByInputPath,
 				true,
