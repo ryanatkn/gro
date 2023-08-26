@@ -104,8 +104,8 @@ export const invokeTask = async (
 				loadTaskModule,
 			);
 			if (loadModulesResult.ok) {
+				// We found a task module. Run it!
 				timings.merge(loadModulesResult.timings);
-				// Run the task!
 				// `pathData` is not a directory, so there's a single task module here.
 				const task = loadModulesResult.modules[0];
 				log.info(
