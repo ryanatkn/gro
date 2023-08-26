@@ -89,6 +89,7 @@ export const getPossibleSourceIds = (
 			}
 		}
 	}
+	console.log(`possibleSourceIds`, possibleSourceIds);
 	return possibleSourceIds;
 };
 
