@@ -137,30 +137,6 @@
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./cli/gro.js": {
-      "default": "./dist/cli/gro.js",
-      "types": "./dist/cli/gro.d.ts"
-    },
-    "./cli/invoke.js": {
-      "default": "./dist/cli/invoke.js",
-      "types": "./dist/cli/invoke.d.ts"
-    },
-    "./config/gro.config.default.js": {
-      "default": "./dist/config/gro.config.default.js",
-      "types": "./dist/config/gro.config.default.d.ts"
-    },
-    "./gen/helpers/html.js": {
-      "default": "./dist/gen/helpers/html.js",
-      "types": "./dist/gen/helpers/html.d.ts"
-    },
-    "./gen/helpers/ts.js": {
-      "default": "./dist/gen/helpers/ts.js",
-      "types": "./dist/gen/helpers/ts.d.ts"
-    },
-    "./util/sveltekitImportMocks.js": {
-      "default": "./dist/util/sveltekitImportMocks.js",
-      "types": "./dist/util/sveltekitImportMocks.d.ts"
-    },
     "./build.task.ts": {
       "default": "./dist/build.task.js",
       "types": "./dist/build.task.d.ts"
@@ -221,6 +197,26 @@
       "default": "./dist/upgrade.task.js",
       "types": "./dist/upgrade.task.d.ts"
     },
+    "./cli/gro.js": {
+      "default": "./dist/cli/gro.js",
+      "types": "./dist/cli/gro.d.ts"
+    },
+    "./cli/invoke.js": {
+      "default": "./dist/cli/invoke.js",
+      "types": "./dist/cli/invoke.d.ts"
+    },
+    "./config/gro.config.default.js": {
+      "default": "./dist/config/gro.config.default.js",
+      "types": "./dist/config/gro.config.default.d.ts"
+    },
+    "./gen/helpers/html.js": {
+      "default": "./dist/gen/helpers/html.js",
+      "types": "./dist/gen/helpers/html.d.ts"
+    },
+    "./gen/helpers/ts.js": {
+      "default": "./dist/gen/helpers/ts.js",
+      "types": "./dist/gen/helpers/ts.d.ts"
+    },
     "./path/inputPath.ts": {
       "default": "./dist/path/inputPath.js",
       "types": "./dist/path/inputPath.d.ts"
@@ -232,6 +228,10 @@
     "./path/paths.ts": {
       "default": "./dist/path/paths.js",
       "types": "./dist/path/paths.d.ts"
+    },
+    "./util/sveltekitImportMocks.js": {
+      "default": "./dist/util/sveltekitImportMocks.js",
+      "types": "./dist/util/sveltekitImportMocks.d.ts"
     }
   }
 }
