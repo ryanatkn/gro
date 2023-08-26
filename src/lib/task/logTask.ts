@@ -62,7 +62,9 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	if (task.Args) {
 		// TODO BLOCK refactor to avoid using `toJsonSchema`, and then remove the `zodToJsonSchema` dep
 		const args = toJsonSchema(task.Args, 'Args') as ArgsSchema;
+		console.log(`args`, args);
 		const properties = toArgProperties(args);
+		console.log(`properties`, properties);
 		const longestTaskName = Math.max(
 			ARGS_PROPERTY_NAME.length,
 			toMaxLength(properties, (p) => p.name),
