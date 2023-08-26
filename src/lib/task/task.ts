@@ -1,11 +1,12 @@
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import type {EventEmitter} from 'node:events';
 import type {Logger} from '@feltjs/util/log.js';
-import {stripEnd} from '@feltjs/util/string.js';
+import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import type {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import type {Args} from '../util/args.js';
+import {LIB_DIRNAME} from '../paths.js';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`
@@ -37,7 +38,7 @@ export const TASK_FILE_SUFFIX = '.task.ts';
 export const isTaskPath = (path: string): boolean => path.endsWith(TASK_FILE_SUFFIX);
 
 export const toTaskName = (basePath: string): string => {
-	const stripped = stripEnd(basePath, TASK_FILE_SUFFIX);
+	const stripped = stripStart(stripEnd(basePath, TASK_FILE_SUFFIX), LIB_DIRNAME + '/');
 	if (stripped === basePath) return basePath;
 	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.
 	const s = stripped.split('/');
