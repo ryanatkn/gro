@@ -13,27 +13,25 @@ import {
 import {toPathData, type PathData, type PathStats} from './pathData.js';
 import type {Filesystem} from './filesystem.js';
 
-/*
-
-Raw input paths are paths that users provide to Gro to reference files
-enhanced with Gro's conventions like `.test.`, `.task.`, and `.gen.`.
-
-A raw input path can be:
-
-- a relative path to a file, e.g. `src/foo/bar.test.ts`
-- a file without an extension, e.g. `src/foo/bar` if `extensions` is `.test.ts`
-- a directory containing any number of files, e.g. `src/foo`
-- any of the above without the leading `src/` or with a leading `./`
-- any of the above but leading with `gro/` to ignore the local directory
-- an absolute path to a file or directory in the current directory or Gro's
-
-The input path API lets the caller customize the allowable extensions.
-That means that the caller can look for `.test.` files but not `.gen.`,
-or both, or neither, depending on its needs.
-
-In the future we may want to support globbing or regexps.
-
-*/
+/**
+ * Raw input paths are paths that users provide to Gro to reference files
+ * enhanced with Gro's conventions like `.test.`, `.task.`, and `.gen.`.
+ *
+ * A raw input path can be:
+ *
+ * - a relative path to a file, e.g. `src/foo/bar.test.ts`
+ * - a file without an extension, e.g. `src/foo/bar` if `extensions` is `.test.ts`
+ * - a directory containing any number of files, e.g. `src/foo`
+ * - any of the above without the leading `src/` or with a leading `./`
+ * - any of the above but leading with `gro/` to ignore the local directory
+ * - an absolute path to a file or directory in the current directory or Gro's
+ *
+ * The input path API lets the caller customize the allowable extensions.
+ * That means that the caller can look for `.test.` files but not `.gen.`,
+ * or both, or neither, depending on its needs.
+ *
+ * In the future we may want to support globbing or regexps.
+ */
 export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
 	if (isAbsolute(rawInputPath)) return stripEnd(rawInputPath, '/');
 	// Allow prefix `./` and just remove it if it's there.
