@@ -1,7 +1,7 @@
 import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
 
 import {invokeTask} from '../task/invokeTask.js';
-import {fs as nodeFs} from '../fs/node.js';
+import {fs } from '../fs/node.js';
 import {TaskError} from '../task/task.js';
 import {toTaskArgs} from '../util/args.js';
 
@@ -26,4 +26,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const {taskName, args} = toTaskArgs();
-await invokeTask(nodeFs, taskName, args);
+await invokeTask(fs, taskName, args);
