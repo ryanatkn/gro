@@ -68,8 +68,8 @@ export const invokeTask = async (
 	const findModulesResult = await findTaskModules(fs, [inputPath], undefined, [groPaths.root]);
 
 	if (findModulesResult.ok) {
-		timings.merge(findModulesResult.timings);
 		// Found a match either in the current working directory or Gro's directory.
+		timings.merge(findModulesResult.timings);
 		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
 		if (!pathData.isDirectory) {
 			// The input path matches a file, so load and run it.
