@@ -61,12 +61,10 @@ export const invokeTask = async (
 
 	// Resolve the input path for the provided task name.
 	const inputPath = resolveRawInputPath(taskName || paths.lib);
-	console.log(`inputPath`, inputPath);
 
 	// Find the task or directory specified by the `inputPath`.
 	// Fall back to searching the Gro directory as well.
 	const findModulesResult = await findTaskModules(fs, [inputPath], undefined, [groPaths.root]);
-	console.log(`findModulesResult`, findModulesResult);
 
 	if (findModulesResult.ok) {
 		// Found a match either in the current working directory or Gro's directory.
