@@ -113,8 +113,8 @@ export const invokeTask = async (
 				);
 				const timingToRunTask = timings.start('run task');
 				const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
-				// If we're in dev mode but the task is only for production, run it in a new process.
 				if (dev && task.mod.task.production) {
+					// We're in dev mode but the task is only for production, so run it in a new process.
 					const result = await spawn(
 						'npx',
 						['gro', taskName, ...serializeArgs(args), ...toRawRestArgs()],
