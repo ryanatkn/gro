@@ -6,21 +6,21 @@ What is a `Task`? See [`task.md`](./task.md).
 
 ## all tasks
 
-- [lib/build](../build.task.ts) - build the project
-- [lib/cert](../cert.task.ts) - creates a self-signed cert for https with openssl
-- [lib/check](../check.task.ts) - check that everything is ready to commit
-- [lib/clean](../clean.task.ts) - remove temporary dev and build files, and optionally prune git branches
-- [lib/commit](../commit.task.ts) - commit and push to a new branch
-- [lib/deploy](../deploy.task.ts) - deploy to a branch
-- [lib/dev](../dev.task.ts) - start SvelteKit and other dev plugins
-- [lib/format](../format.task.ts) - format source files
-- [lib/gen](../gen.task.ts) - run code generation scripts
-- [lib/help](../help.task.ts) - alias for `gro` with no task name provided
-- [lib/lint](../lint.task.ts) - run eslint on the source files
-- [lib/publish](../publish.task.ts) - bump version, publish to npm, and git push
-- [lib/test](../test.task.ts) - run tests
-- [lib/typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
-- [lib/upgrade](../upgrade.task.ts) - upgrade deps
+- [build](../build.task.ts) - build the project
+- [cert](../cert.task.ts) - creates a self-signed cert for https with openssl
+- [check](../check.task.ts) - check that everything is ready to commit
+- [clean](../clean.task.ts) - remove temporary dev and build files, and optionally prune git branches
+- [commit](../commit.task.ts) - commit and push to a new branch
+- [deploy](../deploy.task.ts) - deploy to a branch
+- [dev](../dev.task.ts) - start SvelteKit and other dev plugins
+- [format](../format.task.ts) - format source files
+- [gen](../gen.task.ts) - run code generation scripts
+- [help](../help.task.ts) - alias for `gro` with no task name provided
+- [lint](../lint.task.ts) - run eslint on the source files
+- [publish](../publish.task.ts) - bump version, publish to npm, and git push
+- [test](../test.task.ts) - run tests
+- [typecheck](../typecheck.task.ts) - typecheck the project without emitting any files
+- [upgrade](../upgrade.task.ts) - upgrade deps
 
 ## usage
 
