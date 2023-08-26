@@ -15,7 +15,7 @@ if it exists in the current project, and if not, this is the final config.
 It looks at the project and tries to do the right thing:
 
 - if `src/routes` and `src/app.html`, assumes a SvelteKit frontend
-- if `src/lib/index.ts`, assumes a Node library
+- if `src/lib`, assumes a Node library
 - if `src/lib/server/server.ts`, assumes a Node API server
 
 */
@@ -27,10 +27,7 @@ const config: GroConfigCreator = async ({fs, dev}) => {
 		hasSveltekitFrontend(fs),
 	]);
 	const partial: GroConfigPartial = {
-		builds: [
-			enableApiServer ? API_SERVER_BUILD_CONFIG : null,
-			// note there's no build for SvelteKit frontends - should there be?
-		],
+		builds: [enableApiServer ? API_SERVER_BUILD_CONFIG : null],
 		logLevel: Logger.level,
 		plugin: async () => [
 			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).createPlugin() : null,
