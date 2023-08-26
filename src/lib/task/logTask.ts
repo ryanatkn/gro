@@ -60,6 +60,8 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	const printed: string[] = [];
 	printed.push(cyan(name), 'help', '\n' + task.summary || '(no summary available)');
 	if (task.Args) {
+		console.log(`task.Args`, task.Args);
+		console.log(`shape`, task.Args._def.shape());
 		// TODO BLOCK refactor to avoid using `toJsonSchema`, and then remove the `zodToJsonSchema` dep
 		const args = toJsonSchema(task.Args, 'Args') as ArgsSchema;
 		console.log(`args`, args);
