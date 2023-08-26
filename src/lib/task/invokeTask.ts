@@ -24,26 +24,23 @@ import {loadGroPackageJson} from '../util/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logAvailableTasks, logErrorReasons} from './logTask.js';
 
-/*
-
-This module invokes Gro tasks by name using the filesystem as the source.
-
-When a task is invoked,
-it first searches for tasks in the current working directory.
-and falls back to searching Gro's directory, if the two are different.
-See `src/lib/fs/inputPath.ts` for info about what "taskName" can refer to.
-If it matches a directory, all of the tasks within it are logged,
-both in the current working directory and Gro.
-
-This code is particularly hairy because
-we're accepting a wide range of user input
-and trying to do the right thing.
-Precise error messages are especially difficult and
-there are some subtle differences in the complex logical branches.
-The comments describe each condition.
-
-*/
-
+/**
+ * Invokes Gro tasks by name using the filesystem as the source.
+ *
+ * When a task is invoked,
+ * it first searches for tasks in the current working directory.
+ * and falls back to searching Gro's directory, if the two are different.
+ * See `src/lib/fs/inputPath.ts` for info about what "taskName" can refer to.
+ * If it matches a directory, all of the tasks within it are logged,
+ * both in the current working directory and Gro.
+ *
+ * This code is particularly hairy because
+ * we're accepting a wide range of user input
+ * and trying to do the right thing.
+ * Precise error messages are especially difficult and
+ * there are some subtle differences in the complex logical branches.
+ * The comments describe each condition.
+ */
 export const invokeTask = async (
 	fs: Filesystem,
 	taskName: string,
