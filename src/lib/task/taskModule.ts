@@ -38,7 +38,7 @@ export const findTaskModules = async (
 	fs: Filesystem,
 	inputPaths: string[] = [paths.source],
 	extensions: string[] = [TASK_FILE_SUFFIX],
-	rootDirs: string[] = [],
+	rootDirs?: string[],
 ): Promise<ReturnType<typeof findModules>> =>
 	findModules(
 		fs,
@@ -49,7 +49,7 @@ export const findTaskModules = async (
 
 export const loadTaskModules = async (
 	fs: Filesystem,
-	inputPaths: string[] = [paths.source],
+	inputPaths?: string[],
 	extensions?: string[],
 	rootDirs?: string[],
 ): Promise<
