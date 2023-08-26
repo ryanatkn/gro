@@ -11,7 +11,7 @@ import {
 	TS_TYPE_EXTENSION,
 	isThisProjectGro,
 	type BuildId,
-} from '../paths.js';
+} from '../path/paths.js';
 import type {BuildContext, BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../util/module.js';
 import type {BuildDependency} from './buildDependency.js';

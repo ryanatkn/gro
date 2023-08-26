@@ -7,7 +7,7 @@ import {spawn} from '@feltjs/util/process.js';
 
 import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../util/args.js';
 import {runTask} from './runTask.js';
-import {resolveRawInputPath} from '../fs/inputPath.js';
+import {resolveRawInputPath} from '../path/inputPath.js';
 import {isTaskPath} from './task.js';
 import {
 	paths,
@@ -17,7 +17,7 @@ import {
 	isThisProjectGro,
 	printPath,
 	printPathOrGroPath,
-} from '../paths.js';
+} from '../path/paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {findTaskModules, loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../util/packageJson.js';
@@ -30,7 +30,7 @@ import {logAvailableTasks, logErrorReasons} from './logTask.js';
  * When a task is invoked,
  * Gro first searches for tasks in the current working directory.
  * and falls back to searching Gro's directory, if the two are different.
- * See `src/lib/fs/inputPath.ts` for info about what "taskName" can refer to.
+ * See `src/lib/path/inputPath.ts` for info about what "taskName" can refer to.
  * If it matches a directory, all of the tasks within it are logged,
  * both in the current working directory and Gro.
  *

@@ -7,7 +7,7 @@ import {
 	README_FILENAME,
 	SVELTEKIT_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
-} from '../paths.js';
+} from '../path/paths.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from '../util/args.js';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';

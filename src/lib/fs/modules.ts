@@ -4,9 +4,15 @@ import {UnreachableError} from '@feltjs/util/error.js';
 import type {Result} from '@feltjs/util/result.js';
 import {printError} from '@feltjs/util/print.js';
 
-import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../fs/inputPath.js';
-import type {PathStats, PathData} from './pathData.js';
-import {toImportId, pathsFromId, printPath, printPathOrGroPath, type SourceId} from '../paths.js';
+import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../path/inputPath.js';
+import type {PathStats, PathData} from '../path/pathData.js';
+import {
+	toImportId,
+	pathsFromId,
+	printPath,
+	printPathOrGroPath,
+	type SourceId,
+} from '../path/paths.js';
 import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
 import type {Filesystem} from './filesystem.js';
 
@@ -92,7 +98,7 @@ type LoadModulesTimings = 'load modules';
 
 /*
 
-Finds modules from input paths. (see `src/lib/fs/inputPath.ts` for more)
+Finds modules from input paths. (see `src/lib/path/inputPath.ts` for more)
 
 */
 export const findModules = async (

@@ -6,7 +6,7 @@ import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './filerFile.js';
 import type {BuildFile} from './buildFile.js';
-import type {Paths} from '../paths.js';
+import type {Paths} from '../path/paths.js';
 
 export interface Builder<TSource extends BuildSource = BuildSource> {
 	name: string;

@@ -10,9 +10,9 @@ import {
 	LIB_DIR,
 	LIB_PATH,
 	LIB_DIRNAME,
-} from '../paths.js';
+} from './paths.js';
 import {toPathData, type PathData, type PathStats} from './pathData.js';
-import type {Filesystem} from './filesystem.js';
+import type {Filesystem} from '../fs/filesystem.js';
 
 /**
  * Raw input paths are paths that users provide to Gro to reference files

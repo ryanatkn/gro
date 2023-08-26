@@ -1,6 +1,6 @@
 import {UnreachableError} from '@feltjs/util/error.js';
 
-import {toBuildOutPath} from '../paths.js';
+import {toBuildOutPath} from '../path/paths.js';
 import type {Builder} from './builder.js';
 
 export const groBuilderNoop: Builder = {

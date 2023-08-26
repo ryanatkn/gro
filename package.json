@@ -89,6 +89,49 @@
     "typescript": "^5.1.6",
     "uvu": "^0.5.6"
   },
+  "eslintConfig": {
+    "root": true,
+    "extends": "@feltjs",
+    "ignorePatterns": [
+      "svelte.config.js",
+      "vite.config.js"
+    ],
+    "rules": {
+      "no-console": 1,
+      "@typescript-eslint/no-restricted-imports": [
+        1,
+        {
+          "paths": [
+            {
+              "name": "fs",
+              "message": "Please use 'fs-extra' instead, or a local `fs` argument if available.",
+              "allowTypeImports": true
+            },
+            {
+              "name": "node:fs",
+              "message": "Please use 'fs-extra' instead, or a local `fs` argument if available.",
+              "allowTypeImports": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "prettier": {
+    "useTabs": true,
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "overrides": [
+      {
+        "files": "package.json",
+        "options": {
+          "useTabs": false
+        }
+      }
+    ]
+  },
   "exports": {
     ".": {
       "default": "./dist/index.js",
@@ -177,49 +220,18 @@
     "./upgrade.task.ts": {
       "default": "./dist/upgrade.task.js",
       "types": "./dist/upgrade.task.d.ts"
+    },
+    "./path/inputPath.ts": {
+      "default": "./dist/path/inputPath.js",
+      "types": "./dist/path/inputPath.d.ts"
+    },
+    "./path/pathData.ts": {
+      "default": "./dist/path/pathData.js",
+      "types": "./dist/path/pathData.d.ts"
+    },
+    "./path/paths.ts": {
+      "default": "./dist/path/paths.js",
+      "types": "./dist/path/paths.d.ts"
     }
-  },
-  "eslintConfig": {
-    "root": true,
-    "extends": "@feltjs",
-    "ignorePatterns": [
-      "svelte.config.js",
-      "vite.config.js"
-    ],
-    "rules": {
-      "no-console": 1,
-      "@typescript-eslint/no-restricted-imports": [
-        1,
-        {
-          "paths": [
-            {
-              "name": "fs",
-              "message": "Please use 'fs-extra' instead, or a local `fs` argument if available.",
-              "allowTypeImports": true
-            },
-            {
-              "name": "node:fs",
-              "message": "Please use 'fs-extra' instead, or a local `fs` argument if available.",
-              "allowTypeImports": true
-            }
-          ]
-        }
-      ]
-    }
-  },
-  "prettier": {
-    "useTabs": true,
-    "printWidth": 100,
-    "singleQuote": true,
-    "trailingComma": "all",
-    "bracketSpacing": false,
-    "overrides": [
-      {
-        "files": "package.json",
-        "options": {
-          "useTabs": false
-        }
-      }
-    ]
   }
 }

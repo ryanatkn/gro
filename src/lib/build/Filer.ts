@@ -16,7 +16,7 @@ import {
 	mapDependencyToSourceId,
 	type MapDependencyToSourceId,
 } from './helpers.js';
-import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../paths.js';
+import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../path/paths.js';
 import type {BuildContext, Builder} from './builder.js';
 import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';

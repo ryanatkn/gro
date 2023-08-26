@@ -4,7 +4,7 @@ import {blue, gray} from 'kleur/colors';
 import type {Result} from '@feltjs/util/result.js';
 import type {Flavored} from '@feltjs/util/types.js';
 
-import {paths} from '../paths.js';
+import {paths} from '../path/paths.js';
 import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';
 import {validateInputFiles} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';

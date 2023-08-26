@@ -6,8 +6,8 @@ import {
 	type FindModulesResult,
 } from '../fs/modules.js';
 import type {Gen, GenResults, GenFile} from './gen.js';
-import {getPossibleSourceIds} from '../fs/inputPath.js';
-import {paths} from '../paths.js';
+import {getPossibleSourceIds} from '../path/inputPath.js';
+import {paths} from '../path/paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export const SEPARATOR = '.';

@@ -4,7 +4,7 @@ import {SystemLogger} from '@feltjs/util/log.js';
 import {printKeyValue, printMs} from '@feltjs/util/print.js';
 import {createStopwatch} from '@feltjs/util/timings.js';
 
-import {printPath} from '../paths.js';
+import {printPath} from '../path/paths.js';
 
 export const name = 'groDiagnostics';
 

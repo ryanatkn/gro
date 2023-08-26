@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import {join} from 'node:path';
 
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
-import {paths} from '../paths.js';
+import {paths} from '../path/paths.js';
 import {CONFIG_BUILD_CONFIG, SYSTEM_BUILD_CONFIG} from './buildConfigDefaults.js';
 import {fs} from '../fs/node.js';
 

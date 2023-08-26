@@ -7,10 +7,10 @@ import {z} from 'zod';
 import {TaskError, type Task} from './task/task.js';
 import {GEN_NO_PROD_MESSAGE, runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
-import {resolveRawInputPaths} from './fs/inputPath.js';
+import {resolveRawInputPaths} from './path/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
-import {printPath} from './paths.js';
+import {printPath} from './path/paths.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
 

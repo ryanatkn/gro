@@ -13,7 +13,7 @@ import {
 	type FsMoveOptions,
 	type FsNode,
 } from './filesystem.js';
-import type {PathStats} from './pathData.js';
+import type {PathStats} from '../path/pathData.js';
 import type {PathFilter} from './filter.js';
 import type {Encoding} from './encoding.js';
 

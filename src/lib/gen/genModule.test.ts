@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import {join} from 'node:path';
 
 import {validateGenModule, findGenModules} from './genModule.js';
-import {paths} from '../paths.js';
+import {paths} from '../path/paths.js';
 import {fs} from '../fs/node.js';
 
 /* test__validateGenModule */

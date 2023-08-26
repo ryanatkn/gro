@@ -1,4 +1,4 @@
-import {JS_EXTENSION, toBuildOutPath} from '../paths.js';
+import {JS_EXTENSION, toBuildOutPath} from '../path/paths.js';
 import type {Builder, TextBuildSource} from './builder.js';
 
 export interface Options {

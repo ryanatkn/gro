@@ -7,7 +7,7 @@ import {basename, dirname, extname} from 'node:path';
 import {loadContent} from './load.js';
 import type {BuildConfig} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import type {BuildId, SourceId} from '../paths.js';
+import type {BuildId, SourceId} from '../path/paths.js';
 
 export type BuildFile = TextBuildFile | BinaryBuildFile;
 export interface TextBuildFile extends BaseBuildFile {

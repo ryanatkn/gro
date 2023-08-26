@@ -1,7 +1,7 @@
 import {gray} from 'kleur/colors';
 
 import type {Encoding} from '../fs/encoding.js';
-import {JSON_EXTENSION, toBuildOutDirname, type SourceId} from '../paths.js';
+import {JSON_EXTENSION, toBuildOutDirname, type SourceId} from '../path/paths.js';
 import {getFileContentHash} from './filerFile.js';
 import type {BuildContext} from './builder.js';
 import type {SourceFile} from './sourceFile.js';

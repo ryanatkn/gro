@@ -9,7 +9,7 @@ import {
 	TS_TYPE_EXTENSION,
 	TS_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
-} from '../paths.js';
+} from '../path/paths.js';
 import type {Builder, TextBuildSource} from './builder.js';
 import {addJsSourcemapFooter} from './helpers.js';
 import {

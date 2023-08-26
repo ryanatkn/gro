@@ -1,4 +1,4 @@
-import {sourceIdToBasePath, paths, pathsFromId} from '../paths.js';
+import {sourceIdToBasePath, paths, pathsFromId} from '../path/paths.js';
 import {
 	loadModule,
 	loadModules,
@@ -8,7 +8,7 @@ import {
 	type FindModulesFailure,
 } from '../fs/modules.js';
 import {toTaskName, isTaskPath, TASK_FILE_SUFFIX, type Task} from './task.js';
-import {getPossibleSourceIds} from '../fs/inputPath.js';
+import {getPossibleSourceIds} from '../path/inputPath.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface TaskModule {

@@ -7,7 +7,7 @@ import {execSync} from 'node:child_process';
 
 import {rainbow} from './util/colors.js';
 import type {Task} from './task/task.js';
-import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './paths.js';
+import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './path/paths.js';
 import {cleanFs} from './fs/clean.js';
 import {toRawRestArgs} from './util/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';

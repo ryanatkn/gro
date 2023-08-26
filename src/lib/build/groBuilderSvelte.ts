@@ -20,7 +20,7 @@ import {
 	SOURCEMAP_EXTENSION,
 	SVELTE_EXTENSION,
 	toBuildOutPath,
-} from '../paths.js';
+} from '../path/paths.js';
 import type {Builder, TextBuildSource} from './builder.js';
 import type {BuildConfig} from './buildConfig.js';
 import {addCssSourcemapFooter, addJsSourcemapFooter} from './helpers.js';

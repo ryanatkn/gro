@@ -11,7 +11,7 @@ import {
 	SVELTE_EXTENSION,
 	LIB_DIR,
 	LIB_DIRNAME,
-} from '../paths.js';
+} from '../path/paths.js';
 import {getExtensions} from '../fs/mime.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
 import type {Filesystem} from '../fs/filesystem.js';

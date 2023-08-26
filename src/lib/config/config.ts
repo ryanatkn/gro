@@ -10,7 +10,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Assignable} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
 
-import {paths, toBuildOutPath, CONFIG_BUILD_PATH} from '../paths.js';
+import {paths, toBuildOutPath, CONFIG_BUILD_PATH} from '../path/paths.js';
 import {
 	normalizeBuildConfigs,
 	validateBuildConfigs,

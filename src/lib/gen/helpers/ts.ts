@@ -1,4 +1,4 @@
-import {toRootPath} from '../../paths.js';
+import {toRootPath} from '../../path/paths.js';
 
 export const renderTsHeaderAndFooter = (
 	{originId}: {originId: string},

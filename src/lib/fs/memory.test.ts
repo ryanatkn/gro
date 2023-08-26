@@ -6,7 +6,7 @@ import {toPathParts} from '@feltjs/util/path-parsing.js';
 
 import {fs as memoryFs, type MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
-import {toRootPath} from '../paths.js';
+import {toRootPath} from '../path/paths.js';
 
 /* eslint-disable no-await-in-loop */
 

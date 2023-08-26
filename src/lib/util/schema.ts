@@ -1,6 +1,7 @@
 import {traverse} from '@feltjs/util/object.js';
 import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import type {ResolverOptions} from 'json-schema-ref-parser';
+
 import type {GenContext} from '../gen/gen';
 
 export interface JsonSchema extends JSONSchema {

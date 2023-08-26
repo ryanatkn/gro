@@ -2,7 +2,7 @@ import {resolve} from 'node:path';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import type {Encoding} from './encoding.js';
-import type {PathStats} from './pathData.js';
+import type {PathStats} from '../path/pathData.js';
 import type {PathFilter} from './filter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/

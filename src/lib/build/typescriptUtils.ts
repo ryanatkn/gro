@@ -8,7 +8,7 @@ import {
 	toTypesBuildDir,
 	TS_TYPE_EXTENSION,
 	TS_TYPEMAP_EXTENSION,
-} from '../paths.js';
+} from '../path/paths.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from '../util/args.js';
 
 /*

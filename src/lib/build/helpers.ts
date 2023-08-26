@@ -10,7 +10,7 @@ import {
 	JS_EXTENSION,
 	TS_EXTENSION,
 	type SourceId,
-} from '../paths.js';
+} from '../path/paths.js';
 import type {BuildDependency} from './buildDependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.

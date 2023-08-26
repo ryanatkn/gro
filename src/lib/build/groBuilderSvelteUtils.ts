@@ -12,7 +12,7 @@ import {printKeyValue, printMs} from '@feltjs/util/print.js';
 
 import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
-import {printPath} from '../paths.js';
+import {printPath} from '../path/paths.js';
 
 export type CreatePreprocessor = (
 	dev: boolean,

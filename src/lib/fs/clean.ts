@@ -10,7 +10,7 @@ import {
 	toBuildOutDir,
 	SVELTEKIT_VITE_CACHE_PATH,
 	printPath,
-} from '../paths.js';
+} from '../path/paths.js';
 import type {Filesystem} from './filesystem.js';
 
 export const cleanFs = async (

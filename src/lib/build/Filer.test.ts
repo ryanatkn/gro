@@ -5,7 +5,7 @@ import {replaceExtension} from '@feltjs/util/path.js';
 import {Filer} from './Filer.js';
 import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
 import type {BuildConfig} from './buildConfig.js';
-import {createPaths, JS_EXTENSION} from '../paths.js';
+import {createPaths, JS_EXTENSION} from '../path/paths.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 
 interface SuiteContext {

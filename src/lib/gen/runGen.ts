@@ -21,7 +21,7 @@ import {
 	type RawGenResult,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {printPath, sourceIdToBasePath} from '../paths.js';
+import {printPath, sourceIdToBasePath} from '../path/paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
 import {toJsonSchemaResolver} from '../util/schema.js';
 

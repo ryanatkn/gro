@@ -2,7 +2,7 @@ import type esbuild from 'esbuild';
 import type * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
-import {isThisProjectGro} from '../paths.js';
+import {isThisProjectGro} from '../path/paths.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
 
 export interface EsbuildTransformOptions extends esbuild.TransformOptions {

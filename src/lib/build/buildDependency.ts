@@ -1,4 +1,4 @@
-import type {BuildId} from '../paths.js';
+import type {BuildId} from '../path/paths.js';
 
 export interface BuildDependency {
 	readonly specifier: string;

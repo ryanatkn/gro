@@ -7,7 +7,7 @@ import {
 	GIT_DIRNAME,
 	NODE_MODULES_DIRNAME,
 	SVELTEKIT_DEV_DIRNAME,
-} from '../paths.js';
+} from '../path/paths.js';
 import type {IdFilter} from '../fs/filter.js';
 
 /*

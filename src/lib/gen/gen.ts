@@ -3,7 +3,7 @@ import {join, basename, dirname} from 'node:path';
 import {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {isSourceId} from '../paths.js';
+import {isSourceId} from '../path/paths.js';
 import {genModuleMeta, toGenModuleType} from './genModule.js';
 
 export type GenResult = {

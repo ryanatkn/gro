@@ -13,7 +13,7 @@ import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
 import type {IdFilter} from '../fs/filter.js';
-import type {BuildId, SourceId} from '../paths.js';
+import type {BuildId, SourceId} from '../path/paths.js';
 
 export type SourceFile = TextSourceFile | BinarySourceFile;
 

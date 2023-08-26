@@ -13,7 +13,7 @@ import {
 	printPath,
 	SOURCE_DIRNAME,
 	paths,
-} from '../paths.js';
+} from '../path/paths.js';
 
 export const copyDist = async (
 	fs: Filesystem,

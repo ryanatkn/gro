@@ -3,7 +3,7 @@ import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
-import {paths, basePathToSourceId} from '../paths.js';
+import {paths, basePathToSourceId} from '../path/paths.js';
 import {loadTaskModules} from '../task/taskModule.js';
 
 // This is the first simple implementation of Gro's automated docs.

@@ -3,7 +3,7 @@ import type {Logger} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {gray} from 'kleur/colors';
 
-import {paths, toTypesBuildDir} from '../paths.js';
+import {paths, toTypesBuildDir} from '../path/paths.js';
 import {Filer} from '../build/Filer.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 import type {GroConfig} from '../config/config.js';

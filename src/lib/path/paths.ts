@@ -3,9 +3,9 @@ import {fileURLToPath} from 'node:url';
 import {replaceExtension, stripTrailingSlash} from '@feltjs/util/path.js';
 import {stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
-
-import type {BuildName} from './build/buildConfig.js';
 import type {Flavored} from '@feltjs/util/types.js';
+
+import type {BuildName} from '../build/buildConfig.js';
 
 /*
 

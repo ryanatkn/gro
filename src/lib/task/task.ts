@@ -6,7 +6,7 @@ import type {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import type {Args} from '../util/args.js';
-import {LIB_DIRNAME} from '../paths.js';
+import {LIB_DIRNAME} from '../path/paths.js';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`

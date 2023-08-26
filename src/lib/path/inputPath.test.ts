@@ -11,8 +11,8 @@ import {
 	getPossibleSourceIds,
 } from './inputPath.js';
 import type {PathStats} from './pathData.js';
-import {groPaths, replaceRootDir, createPaths, paths} from '../paths.js';
-import {fs} from './node.js';
+import {groPaths, replaceRootDir, createPaths, paths} from './paths.js';
+import {fs} from '../fs/node.js';
 
 /* test__resolveRawInputPath */
 const test__resolveRawInputPath = suite('resolveRawInputPath');

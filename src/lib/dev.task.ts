@@ -5,7 +5,7 @@ import {z} from 'zod';
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
 import {groBuilderDefault} from './build/groBuilderDefault.js';
-import {paths} from './paths.js';
+import {paths} from './path/paths.js';
 import {loadConfig, type GroConfig} from './config/config.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
 

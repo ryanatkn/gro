@@ -7,7 +7,7 @@ import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
-import {getPossibleSourceIds} from './inputPath.js';
+import {getPossibleSourceIds} from '../path/inputPath.js';
 
 /* test__loadModule */
 const test__loadModule = suite('loadModule');

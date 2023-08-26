@@ -4,7 +4,7 @@ import {z} from 'zod';
 import {rainbow} from './util/colors.js';
 import {TaskError, type Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
-import {isThisProjectGro} from './paths.js';
+import {isThisProjectGro} from './path/paths.js';
 import {toRawRestArgs} from './util/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 import {loadPackageJson} from './util/packageJson.js';
