@@ -14,7 +14,8 @@ This module invokes the Gro CLI which in turn invokes tasks.
 Tasks are the CLI's primary concept.
 To learn more about them, see `src/lib/docs/task.md`.
 
-When the CLI is invoked it passes the first CLI arg as `taskName` to `invokeTask`.
+When the CLI is invoked it passes the first CLI arg as `taskName` to `invokeTask`,
+and the rest of the args are forwarded to the task's `run` function.
 
 */
 
