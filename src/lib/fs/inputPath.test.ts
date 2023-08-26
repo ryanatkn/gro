@@ -17,21 +17,21 @@ import {fs} from './node.js';
 const test__resolveRawInputPath = suite('resolveRawInputPath');
 
 test__resolveRawInputPath('basic behavior', () => {
-	const target = resolve('src/foo/bar.ts');
+	const target = resolve('src/lib/foo/bar.ts');
 	assert.is(resolveRawInputPath('foo/bar.ts'), target);
-	assert.is(resolveRawInputPath('src/foo/bar.ts'), target);
-	assert.is(resolveRawInputPath('./src/foo/bar.ts'), target);
+	assert.is(resolveRawInputPath('src/lib/foo/bar.ts'), target);
+	assert.is(resolveRawInputPath('./src/lib/foo/bar.ts'), target);
 	assert.is(resolveRawInputPath('./foo/bar.ts'), target); // questionable
 	assert.is(resolveRawInputPath(target), target);
 	assert.is.not(resolveRawInputPath('bar.ts'), target);
 });
 
 test__resolveRawInputPath('source directory', () => {
-	const targetDir = resolve('src') + '/'; // inferred as directory
-	assert.is(resolveRawInputPath('src'), targetDir);
-	assert.is(resolveRawInputPath('src/'), targetDir);
-	assert.is(resolveRawInputPath('./src'), targetDir);
-	assert.is(resolveRawInputPath('./src/'), targetDir);
+	const targetDir = resolve('src/lib') + '/'; // inferred as directory
+	assert.is(resolveRawInputPath('src/lib'), targetDir);
+	assert.is(resolveRawInputPath('src/lib/'), targetDir);
+	assert.is(resolveRawInputPath('./src/lib'), targetDir);
+	assert.is(resolveRawInputPath('./src/lib/'), targetDir);
 	assert.is(resolveRawInputPath('./srcTest'), targetDir + 'srcTest');
 	assert.is(resolveRawInputPath('srcTest'), targetDir + 'srcTest');
 	assert.is.not(resolveRawInputPath('.gro'), targetDir);
@@ -50,13 +50,13 @@ test__resolveRawInputPath('forced gro directory', () => {
 });
 
 test__resolveRawInputPath('directories', () => {
-	const targetDir = resolve('src/foo/bar');
+	const targetDir = resolve('src/lib/foo/bar');
 	assert.is(resolveRawInputPath('foo/bar'), targetDir);
 	assert.is(resolveRawInputPath('foo/bar/'), targetDir);
-	assert.is(resolveRawInputPath('src/foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('src/foo/bar/'), targetDir);
-	assert.is(resolveRawInputPath('./src/foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('./src/foo/bar/'), targetDir);
+	assert.is(resolveRawInputPath('src/lib/foo/bar'), targetDir);
+	assert.is(resolveRawInputPath('src/lib/foo/bar/'), targetDir);
+	assert.is(resolveRawInputPath('./src/lib/foo/bar'), targetDir);
+	assert.is(resolveRawInputPath('./src/lib/foo/bar/'), targetDir);
 	assert.is.not(resolveRawInputPath('bar'), targetDir);
 });
 
@@ -68,14 +68,14 @@ const test__resolveRawInputPaths = suite('resolveRawInputPaths');
 
 test__resolveRawInputPaths('resolves multiple input path forms', () => {
 	assert.equal(resolveRawInputPaths(['foo/bar.ts', 'baz', './']), [
-		resolve('src/foo/bar.ts'),
-		resolve('src/baz'),
-		resolve('src') + sep,
+		resolve('src/lib/foo/bar.ts'),
+		resolve('src/lib/baz'),
+		resolve('src/lib') + sep,
 	]);
 });
 
-test__resolveRawInputPaths('default to src', () => {
-	assert.equal(resolveRawInputPaths([]), [resolve('src') + sep]);
+test__resolveRawInputPaths('default to src/lib', () => {
+	assert.equal(resolveRawInputPaths([]), [resolve('src/lib') + sep]);
 });
 
 test__resolveRawInputPaths.run();

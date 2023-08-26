@@ -34,6 +34,7 @@ import type {Filesystem} from './filesystem.js';
  * In the future we may want to support globbing or regexps.
  */
 export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
+	console.log(`rawInputPath!`, rawInputPath!);
 	if (isAbsolute(rawInputPath)) return stripEnd(rawInputPath, '/');
 	// Allow prefix `./` and just remove it if it's there.
 	let basePath = stripEnd(stripStart(rawInputPath, './'), '/');
@@ -49,6 +50,7 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 		}
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
+	console.log(`basePath`, basePath);
 	if (basePath === LIB_PATH) basePath = '';
 	// Allow prefix `src/lib/` and just remove it if it's there.
 	basePath = stripStart(basePath, LIB_DIR);
