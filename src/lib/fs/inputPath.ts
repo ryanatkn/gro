@@ -3,12 +3,13 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
 import {
 	basePathToSourceId,
-	SOURCE_DIR,
-	SOURCE_DIRNAME,
 	replaceRootDir,
 	groDirBasename,
 	groPaths,
 	type Paths,
+	LIB_DIR,
+	LIB_PATH,
+	LIB_DIRNAME,
 } from '../paths.js';
 import {toPathData, type PathData, type PathStats} from './pathData.js';
 import type {Filesystem} from './filesystem.js';
@@ -47,24 +48,22 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 			basePath = '';
 		}
 	}
-	// Handle `src` by itself without conflicting with `srcFoo` names.
-	if (basePath === SOURCE_DIRNAME) basePath = '';
-	// Allow prefix `src/` and just remove it if it's there.
-	basePath = stripStart(basePath, SOURCE_DIR);
-	return basePathToSourceId(basePath, paths);
+	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
+	if (basePath === LIB_PATH) basePath = '';
+	// Allow prefix `src/lib/` and just remove it if it's there.
+	basePath = stripStart(basePath, LIB_DIR);
+	return basePathToSourceId(LIB_DIRNAME + '/' + basePath, paths);
 };
 
 export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
 	(rawInputPaths.length ? rawInputPaths : ['./']).map((p) => resolveRawInputPath(p));
 
-/*
-
-Gets a list of possible source ids for each input path with `extensions`,
-duplicating each under `rootDirs`.
-This is first used to fall back to the Gro dir to search for tasks.
-It's the helper used in implementations of `getPossibleSourceIdsForInputPath` below.
-
-*/
+/**
+ * Gets a list of possible source ids for each input path with `extensions`,
+ * duplicating each under `rootDirs`.
+ * This is first used to fall back to the Gro dir to search for tasks.
+ * It's the helper used in implementations of `getPossibleSourceIdsForInputPath` below.
+ */
 export const getPossibleSourceIds = (
 	inputPath: string,
 	extensions: string[],
@@ -93,14 +92,12 @@ export const getPossibleSourceIds = (
 	return possibleSourceIds;
 };
 
-/*
-
-Gets the path data for each input path,
-searching for the possibilities based on `extensions`
-and stopping at the first match.
-Parameterized by `exists` and `stat` so it's fs-agnostic.
-
-*/
+/**
+ * Gets the path data for each input path,
+ * searching for the possibilities based on `extensions`
+ * and stopping at the first match.
+ * Parameterized by `exists` and `stat` so it's fs-agnostic.
+ */
 export const loadSourcePathDataByInputPath = async (
 	fs: Filesystem,
 	inputPaths: string[],
@@ -138,13 +135,11 @@ export const loadSourcePathDataByInputPath = async (
 	return {sourceIdPathDataByInputPath, unmappedInputPaths};
 };
 
-/*
-
-Finds all of the matching files for the given input paths.
-Parameterized by `findFiles` so it's fs-agnostic.
-De-dupes source ids.
-
-*/
+/**
+ * Finds all of the matching files for the given input paths.
+ * Parameterized by `findFiles` so it's fs-agnostic.
+ * De-dupes source ids.
+ */
 export const loadSourceIdsByInputPath = async (
 	sourceIdPathDataByInputPath: Map<string, PathData>,
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,

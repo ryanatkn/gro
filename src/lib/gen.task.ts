@@ -54,7 +54,7 @@ export const task: Task<Args> = {
 			timingToBuildSource();
 		}
 
-		// resolve the input paths relative to src/
+		// resolve the input paths relative to src/lib/
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
 		// load all of the gen modules

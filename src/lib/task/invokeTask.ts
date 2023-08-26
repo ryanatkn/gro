@@ -60,7 +60,7 @@ export const invokeTask = async (
 	const timings = new Timings();
 
 	// Resolve the input path for the provided task name.
-	const inputPath = resolveRawInputPath(taskName || paths.source);
+	const inputPath = resolveRawInputPath(taskName || paths.lib);
 	console.log(`inputPath`, inputPath);
 
 	// Find the task or directory specified by the `inputPath`.

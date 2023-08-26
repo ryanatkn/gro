@@ -31,7 +31,8 @@ export const DIST_DIRNAME = BUILD_DIRNAME + '/dist';
 export const SOURCE_DIR = SOURCE_DIRNAME + '/';
 export const BUILD_DIR = BUILD_DIRNAME + '/';
 export const DIST_DIR = DIST_DIRNAME + '/';
-export const LIB_DIR = LIB_DIRNAME + '/';
+export const LIB_PATH = SOURCE_DIR + LIB_DIRNAME;
+export const LIB_DIR = LIB_PATH + '/';
 
 export const CONFIG_SOURCE_PATH = 'gro.config.ts';
 export const CONFIG_BUILD_PATH = 'gro.config.js';
@@ -68,6 +69,7 @@ export const TSCONFIG_FILENAME = 'tsconfig.json';
 export interface Paths {
 	root: string;
 	source: string;
+	lib: string;
 	build: string;
 	dist: string;
 	configSourceId: string;
@@ -78,14 +80,15 @@ export type BuildId = Flavored<string, 'BuildId'>;
 
 export const createPaths = (rootDir: string): Paths => {
 	const root = stripTrailingSlash(rootDir) + '/';
-	const source = `${root}${SOURCE_DIR}`;
-	const build = `${root}${BUILD_DIR}`;
+	const source = root + SOURCE_DIR;
+	const build = root + BUILD_DIR;
 	return {
 		root,
 		source,
+		lib: root + LIB_DIR,
 		build,
-		dist: `${root}${DIST_DIR}`,
-		configSourceId: `${source}${CONFIG_SOURCE_PATH}`,
+		dist: root + DIST_DIR,
+		configSourceId: source + CONFIG_SOURCE_PATH,
 	};
 };
 

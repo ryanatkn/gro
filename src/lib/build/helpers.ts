@@ -1,5 +1,4 @@
 import {createHash} from 'crypto';
-import {resolve} from 'node:path';
 import type {Result} from '@feltjs/util/result.js';
 import {replaceExtension} from '@feltjs/util/path.js';
 
@@ -9,7 +8,6 @@ import {
 	type Paths,
 	buildIdToSourceId,
 	JS_EXTENSION,
-	paths,
 	TS_EXTENSION,
 	type SourceId,
 } from '../paths.js';
@@ -19,18 +17,6 @@ import type {BuildDependency} from './buildDependency.js';
 // It's fine for now, but some use cases may need security.
 export const toHash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
-
-interface FilterDirectory {
-	(id: string): boolean;
-}
-
-export const createDirectoryFilter = (dir: string, rootDir = paths.source): FilterDirectory => {
-	const resolvedDir = resolve(rootDir, dir);
-	const dirWithTrailingSlash = resolvedDir + '/';
-	const filterDirectory: FilterDirectory = (id) =>
-		id === resolvedDir || id.startsWith(dirWithTrailingSlash);
-	return filterDirectory;
-};
 
 export interface MapDependencyToSourceId {
 	(dependency: BuildDependency, buildDir: string, fs: Filesystem, paths: Paths): Promise<SourceId>;
