@@ -1,22 +1,15 @@
 # build
 
-> note: this system is likely going to change as we improve
-> [SvelteKit and Vite integration](sveltekit.md)
-
 This document describes how to go from `gro build` to live websites and npm packages.
 
 > this is for production builds; for development, see [dev.md](dev.md)
 
 For production, we use `gro build` to output builds to `.gro/prod/{buildName}`,
 which then get _adapted_ — to use terminology of SvelteKit — to their final form.
-Adapting can be as simple as copying
-the directory of files in `.gro/prod/{buildName}` to `dist/`,
-or it may be more complex, like a SvelteKit build,
-or a Node library bundled into sibling `.js` and `.cjs` outputs.
-Adapting is designed to be powerful and open ended.
-For more on why this duplicates the behavior of SvelteKit and Vite,
-and how we plan to fix the situation and defer to them as much as possible,
-see [the SvelteKit and Vite integration docs](sveltekit.md).
+Adapting can be as simple as copying the files to a different location,
+or it may involve bundling or other arbitrary operations.
+The Node library adapter internally uses
+[`svelte-package`](https://kit.svelte.dev/docs/packaging).
 
 ## contents
 
@@ -35,9 +28,6 @@ See [plugin.md](plugin.md) to learn more.
 See [adapt.md](adapt.md) to learn more.
 
 ## deploying and publishing
-
-> note: this system is likely going to change as we improve
-> [SvelteKit integration](sveltekit.md)
 
 Now that we can make builds and then adapt them, how do we, like, make them go?
 You know, to the web or whatever?

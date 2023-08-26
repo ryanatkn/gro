@@ -7,7 +7,6 @@
 limitations:
 
 - [Windows is not yet supported](https://github.com/feltjs/gro/issues/319)
-- [SvelteKit and Vite integration](/src/lib/docs/sveltekit.md) is incomplete
 - Gro is actively used but has few users,
   so you'll likely find problems and undesirable limitations --
   please open issues!
@@ -34,8 +33,7 @@ It includes:
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
-  - see the [SvelteKit integration docs](/src/lib/docs/sveltekit.md),
-    the [Gro config docs](/src/lib/docs/config.md), and
+  - see the [Gro config docs](/src/lib/docs/config.md) and
     [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
   - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
     to support SvelteKit, auto-restarting API servers, and other external build processes -

@@ -19,9 +19,7 @@ and tries to do the right thing.
 
 > The [default config](/src/lib/config/gro.config.default.ts)
 > detects three types of projects that can coexist:
-> SvelteKit projects, Node API servers, and Node libraries with Svelte support
-> (using a different system than `svelte-kit package` --
-> [learn more about the SvelteKit integration](/src/lib/docs/sveltekit.md))
+> SvelteKit frontends, Node libraries published with SvelteKit, and Node API servers.
 
 See [`src/lib/config/config.ts`](/src/lib/config/config.ts) for the config types and implementation.
 
@@ -50,7 +48,6 @@ The [`GroConfigPartial`](/src/gro.config.ts) is the return value of config files
 ```ts
 export interface GroConfigPartial {
 	readonly builds: (BuildConfigPartial | null)[] | BuildConfigPartial | null;
-	readonly publish?: string | null; // dir for `gro publish`, defaults to 'dist/library' if it exists
 	readonly plugin?: ToConfigPlugins;
 	readonly adapt?: ToConfigAdapters;
 	readonly target?: EcmaScriptTarget; // defaults to 'es2020'

@@ -1,16 +1,11 @@
 # dev
 
-Gro is designed to be an extensible development tool for both Node projects and
-[Svelte](https://github.com/sveltejs/svelte)/[SvelteKit](https://github.com/sveltejs/kit)
-user inferfaces.
+Gro is designed to extend [SvelteKit](https://github.com/sveltejs/kit)
+with helpful tools. It supports:
 
-- frontends with SvelteKit/[Vite](https://github.com/vitejs/vite)
-- Svelte apps that also have a server
-- Node modules, like libraries and standalone servers
-
-[The integration with SvelteKit and Vite](https://github.com/feltjs/gro/blob/main/src/lib/docs/sveltekit.md)
-is currently incomplete.
-Gro's goal is to defer to them as much as possible.
+- frontends with SvelteKit and [Vite](https://github.com/vitejs/vite)
+- Node libraries
+- Node API servers
 
 ## usage
 
@@ -32,7 +27,6 @@ See [plugin.md](plugin.md) to learn more.
 - [ ] add API using esbuild to optionally bundle specific pieces to speed up development
 - [ ] livereload CSS (and fix pop-in during dev)
 - [ ] HMR
-- [ ] [support SvelteKit](https://github.com/feltjs/gro/issues/106) as an alternative to Vite
 - [ ] probably support Rollup plugins in development, but how?
 - [ ] improve loading speed with `cache-control: immutable` and
       [import maps](https://github.com/WICG/import-maps/)

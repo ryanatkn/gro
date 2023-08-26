@@ -69,4 +69,4 @@ It does however create the version commit and tag.
 A common failure is not being logged into npm. (see the instructions above)
 If the builds are correct but `changeset publish` failed,
 and you don't want to undo the version commit and tag,
-you can continue manually with `changeset publish` or `npm publish` in `/dist/library`.
+you can continue manually with `changeset publish` or `npm publish`.

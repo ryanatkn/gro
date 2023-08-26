@@ -1,8 +1,5 @@
 # plugin
 
-> note: this system is likely going to change as we improve
-> [SvelteKit integration](/src/lib/docs/sveltekit.md)
-
 During the [`gro dev`](dev.md) and [`gro build`](build.md) tasks,
 Gro uses `Plugin`s to support custom usecases outside of the normal build pipeline.
 
