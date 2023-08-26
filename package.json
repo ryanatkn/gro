@@ -27,8 +27,8 @@
   "scripts": {
     "start": "gro",
     "test": "gro test",
-    "build": "clear && svelte-package && chmod +x ./dist/cli/gro.js && node ./dist/cli/gro.js lib/build",
-    "dev": "clear && npm run build && gro dev"
+    "build": "svelte-package && chmod +x ./dist/cli/gro.js && node ./dist/cli/gro.js lib/build",
+    "dev": "npm run build && gro dev"
   },
   "keywords": [
     "web",

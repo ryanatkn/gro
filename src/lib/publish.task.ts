@@ -60,8 +60,8 @@ export const task: Task<Args> = {
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
 		await cleanFs(fs, {build: true, dist: true}, log);
 		if (isThisProjectGro) {
-			const bootstrapResult = await spawn('npm', ['run', 'bootstrap']); // TODO serialize any/all args?
-			if (!bootstrapResult.ok) throw Error('Failed to bootstrap Gro');
+			const buildResult = await spawn('npm', ['run', 'build']);
+			if (!buildResult.ok) throw Error('Failed to build Gro');
 		}
 
 		// Check in dev mode before proceeding.
