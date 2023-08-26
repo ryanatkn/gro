@@ -51,8 +51,6 @@ export const task: Task<Args> = {
 		}
 		// ignore sourcemap files so patterns don't need `.js$`
 		addArg(forwardedArgs, '.map$', 'i', 'ignore');
-		// TODO BLOCK
-		// addArg(forwardedArgs, 'source-map-support/register.js', 'import');
 		const serializedArgs = serializeArgs(forwardedArgs);
 		log.info(printCommandArgs(['uvu'].concat(serializedArgs)));
 		const testRunResult = await spawnCli(fs, 'uvu', serializedArgs);

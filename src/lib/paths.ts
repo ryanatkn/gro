@@ -261,9 +261,9 @@ export const toImportId = (
 export const groImportDir = join(fileURLToPath(import.meta.url), '../');
 export const groDir = join(
 	groImportDir,
-	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
+	join(groImportDir, '../../../').endsWith(BUILD_DIR) ? '../../../../' : '../', // TODO BLOCK check the second one
 );
-console.log(`join(groImportDir, '../../')`, join(groImportDir, '../../'));
+console.log(`join(groImportDir, '../../../')`, join(groImportDir, '../../../'));
 console.log(`groImportDir`, groImportDir);
 console.log(`groDir`, groDir);
 export const groDirBasename = `${basename(groDir)}/`;

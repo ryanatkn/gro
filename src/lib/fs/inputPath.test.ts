@@ -1,6 +1,7 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve, sep, join} from 'node:path';
+import {resolve, join} from 'node:path';
+import 'source-map-support/register.js'; // TODO do this generically (how to pass to uvu as CLI arg?)
 
 import {
 	resolveRawInputPath,
@@ -37,8 +38,8 @@ test__resolveRawInputPath('source directory', () => {
 	assert.is.not(resolveRawInputPath('.gro'), targetDir);
 });
 
-test__resolveRawInputPath.only('forced gro directory', () => {
-	const fakeDir = resolve('../fake') + sep;
+test__resolveRawInputPath('forced gro directory', () => {
+	const fakeDir = resolve('../fake') + '/';
 	const fakePaths = createPaths(fakeDir);
 	const groTarget = resolve('src/lib/foo/bar.ts');
 	assert.is(resolveRawInputPath('gro/foo/bar.ts'), groTarget);
@@ -49,7 +50,7 @@ test__resolveRawInputPath.only('forced gro directory', () => {
 	);
 	assert.is(resolveRawInputPath('foo/bar.ts'), groTarget);
 	assert.is(resolveRawInputPath('foo/bar.ts', groPaths), groTarget);
-	assert.is(resolveRawInputPath('gro'), resolve('src') + sep);
+	assert.is(resolveRawInputPath('gro'), resolve('src/lib') + '/');
 });
 
 test__resolveRawInputPath('directories', () => {
@@ -73,12 +74,12 @@ test__resolveRawInputPaths('resolves multiple input path forms', () => {
 	assert.equal(resolveRawInputPaths(['foo/bar.ts', 'baz', './']), [
 		resolve('src/lib/foo/bar.ts'),
 		resolve('src/lib/baz'),
-		resolve('src/lib') + sep,
+		resolve('src/lib') + '/',
 	]);
 });
 
 test__resolveRawInputPaths('default to src/lib', () => {
-	assert.equal(resolveRawInputPaths([]), [resolve('src/lib') + sep]);
+	assert.equal(resolveRawInputPaths([]), [resolve('src/lib') + '/']);
 });
 
 test__resolveRawInputPaths.run();
@@ -107,12 +108,12 @@ test__getPossibleSourceIds('does not repeat with the same root directory', () =>
 });
 
 test__getPossibleSourceIds('implied to be a directory by trailing slash', () => {
-	const inputPath = resolve('src/foo/bar') + sep;
+	const inputPath = resolve('src/foo/bar') + '/';
 	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts']), [inputPath]);
 });
 
 test__getPossibleSourceIds('in both another directory and gro', () => {
-	const fakeDir = resolve('../fake') + sep;
+	const fakeDir = resolve('../fake') + '/';
 	const fakePaths = createPaths(fakeDir);
 	const inputPath = join(fakeDir, 'src/foo/bar');
 	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [groPaths.root], fakePaths), [

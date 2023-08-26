@@ -34,12 +34,14 @@ import type {Filesystem} from './filesystem.js';
  * In the future we may want to support globbing or regexps.
  */
 export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
-	console.log(`rawInputPath!`, rawInputPath!);
+	console.log(`rawInputPath!!`, rawInputPath!);
 	if (isAbsolute(rawInputPath)) return stripEnd(rawInputPath, '/');
 	// Allow prefix `./` and just remove it if it's there.
 	let basePath = stripEnd(stripStart(rawInputPath, './'), '/');
 	let paths = fromPaths;
 	if (!paths) {
+		console.log(`basePath`, basePath);
+		console.log(`groDirBasename`, groDirBasename);
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 		if (basePath.startsWith(groDirBasename)) {
 			paths = groPaths;
