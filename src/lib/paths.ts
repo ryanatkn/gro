@@ -263,7 +263,11 @@ export const groDir = join(
 	groImportDir,
 	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../', // yikes lol
 );
+console.log(`join(groImportDir, '../../')`, join(groImportDir, '../../'));
+console.log(`groImportDir`, groImportDir);
+console.log(`groDir`, groDir);
 export const groDirBasename = `${basename(groDir)}/`;
+console.log(`groDirBasename`, groDirBasename);
 export const paths = createPaths(`${process.cwd()}/`);
 export const isThisProjectGro = groDir === paths.root;
 export const groPaths = isThisProjectGro ? paths : createPaths(groDir);

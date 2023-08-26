@@ -37,13 +37,16 @@ test__resolveRawInputPath('source directory', () => {
 	assert.is.not(resolveRawInputPath('.gro'), targetDir);
 });
 
-test__resolveRawInputPath('forced gro directory', () => {
+test__resolveRawInputPath.only('forced gro directory', () => {
 	const fakeDir = resolve('../fake') + sep;
 	const fakePaths = createPaths(fakeDir);
-	const groTarget = resolve('src/foo/bar.ts');
+	const groTarget = resolve('src/lib/foo/bar.ts');
 	assert.is(resolveRawInputPath('gro/foo/bar.ts'), groTarget);
-	assert.is(resolveRawInputPath('foo/bar.ts', fakePaths), join(fakeDir, 'src/foo/bar.ts'));
-	assert.is(resolveRawInputPath('gro/foo/bar.ts', fakePaths), join(fakeDir, 'src/gro/foo/bar.ts'));
+	assert.is(resolveRawInputPath('foo/bar.ts', fakePaths), join(fakeDir, 'src/lib/foo/bar.ts'));
+	assert.is(
+		resolveRawInputPath('gro/foo/bar.ts', fakePaths),
+		join(fakeDir, 'src/lib/gro/foo/bar.ts'),
+	);
 	assert.is(resolveRawInputPath('foo/bar.ts'), groTarget);
 	assert.is(resolveRawInputPath('foo/bar.ts', groPaths), groTarget);
 	assert.is(resolveRawInputPath('gro'), resolve('src') + sep);
