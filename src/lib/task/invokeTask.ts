@@ -61,6 +61,7 @@ export const invokeTask = async (
 
 	// Resolve the input path for the provided task name.
 	const inputPath = resolveRawInputPath(taskName || paths.source);
+	console.log(`inputPath`, inputPath);
 
 	// Find the task or directory specified by the `inputPath`.
 	// Fall back to searching the Gro directory as well.
