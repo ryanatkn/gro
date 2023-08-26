@@ -469,14 +469,14 @@
 
 ## 0.47.3
 
-- make the `throttleAsync` cache key optional
+- make the `throttle` cache key optional
   ([#290](https://github.com/feltjs/gro/pull/290))
 - attempt to fix deps broken by [#286](https://github.com/feltjs/gro/pull/286)
   ([#291](https://github.com/feltjs/gro/pull/291))
 
 ## 0.47.2
 
-- fix bug with the `throttleAsync` `delay` option
+- fix bug with the `throttle` `delay` option
   ([#289](https://github.com/feltjs/gro/pull/289))
 
 ## 0.47.1
@@ -485,7 +485,7 @@
   ([#273](https://github.com/feltjs/gro/pull/273))
 - fix writing source meta concurrently
   ([#288](https://github.com/feltjs/gro/pull/288))
-- add `util/throttleAsync.ts`
+- add `util/throttle.ts`
   ([#288](https://github.com/feltjs/gro/pull/288))
 
 ## 0.47.0

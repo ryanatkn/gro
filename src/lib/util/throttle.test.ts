@@ -2,14 +2,14 @@ import {wait} from '@feltjs/util/async.js';
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {throttleAsync} from './throttleAsync.js';
+import {throttle} from './throttle.js';
 
-/* test__throttleAsync */
-const test__throttleAsync = suite('throttleAsync');
+/* test__throttle */
+const test__throttle = suite('throttle');
 
-test__throttleAsync('throttles all calls', async () => {
+test__throttle('throttles all calls', async () => {
 	const results: string[] = [];
-	const fn = throttleAsync(async (name: string) => {
+	const fn = throttle(async (name: string) => {
 		results.push(name + '_run');
 		await wait();
 		results.push(name + '_done');
@@ -23,9 +23,9 @@ test__throttleAsync('throttles all calls', async () => {
 	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done']);
 });
 
-test__throttleAsync('discards all but one concurrent call', async () => {
+test__throttle('discards all but one concurrent call', async () => {
 	const results: string[] = [];
-	const fn = throttleAsync(
+	const fn = throttle(
 		async (a: string, _b: number, c: string) => {
 			results.push(a + c + '_run');
 			await wait();
@@ -56,9 +56,9 @@ test__throttleAsync('discards all but one concurrent call', async () => {
 	assert.equal(results, ['a1_run', 'a1_done', 'b1_run', 'b1_done']);
 });
 
-test__throttleAsync('throttles with a delay', async () => {
+test__throttle('throttles with a delay', async () => {
 	const results: string[] = [];
-	const fn = throttleAsync(
+	const fn = throttle(
 		async (a: string, _b: number, c: string) => {
 			results.push(a + c + '_run');
 			await wait();
@@ -77,5 +77,5 @@ test__throttleAsync('throttles with a delay', async () => {
 	assert.equal(results, ['a1_run', 'a1_done', 'a2_run', 'a2_done']);
 });
 
-test__throttleAsync.run();
-/* test__throttleAsync */
+test__throttle.run();
+/* test__throttle */

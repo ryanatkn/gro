@@ -13,7 +13,7 @@ import {
 	type BuildId,
 } from '../path/paths.js';
 import type {BuildContext, BuildSource} from './builder.js';
-import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../util/module.js';
+import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../path/module.js';
 import type {BuildDependency} from './buildDependency.js';
 import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
 import type {BuildFile} from './buildFile.js';

@@ -13,7 +13,7 @@ import {
 	type SerializedBuildDependency,
 } from './buildDependency.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {throttleAsync} from '../util/throttleAsync.js';
+import {throttle} from '../util/throttle.js';
 
 export interface SourceMeta {
 	readonly cacheId: string; // path to the cached JSON file on disk
@@ -91,7 +91,7 @@ export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Pro
 	await writeSourceMeta(fs, cacheId, data);
 };
 
-const writeSourceMeta = throttleAsync(
+const writeSourceMeta = throttle(
 	(fs: Filesystem, cacheId: string, data: SourceMetaData): Promise<void> =>
 		fs.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2)),
 	(_, cacheId) => cacheId,

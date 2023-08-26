@@ -14,7 +14,7 @@ import {wait} from '@feltjs/util/async.js';
  * @param delay Throttled calls delay this many milliseconds after the previous call finishes.
  * @returns Same as `fn`.
  */
-export const throttleAsync = <TArgs extends any[]>(
+export const throttle = <TArgs extends any[]>(
 	fn: (...args: TArgs) => Promise<void>,
 	toCacheKey?: (...args: TArgs) => any,
 	delay = 0,

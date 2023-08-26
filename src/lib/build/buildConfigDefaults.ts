@@ -1,18 +1,7 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, BuildName} from './buildConfig.js';
-import {
-	toBuildExtension,
-	basePathToSourceId,
-	paths,
-	JS_EXTENSION,
-	JSON_EXTENSION,
-	TS_EXTENSION,
-	SVELTE_EXTENSION,
-	LIB_DIR,
-	LIB_DIRNAME,
-} from '../path/paths.js';
-import {getExtensions} from '../fs/mime.js';
+import {toBuildExtension, basePathToSourceId, paths, LIB_DIR, LIB_DIRNAME} from '../path/paths.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -63,20 +52,6 @@ export const toApiServerPort = (dev: boolean): number =>
 const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];
 export const hasSveltekitFrontend = (fs: Filesystem): Promise<boolean> =>
 	everyPathExists(fs, SVELTEKIT_FRONTEND_PATHS);
-
-// Compute default asset extensions on demand to pick up any changes to the supported MIME types.
-// Like the MIME type extensions and unlike elsewhere, these are not prefixed with `.` !!
-export const toDefaultAssetExtensions = (): string[] =>
-	Array.from(getExtensions()).filter(
-		(extension) => !defaultNonAssetExtensions.has(`.${extension}`),
-	);
-
-export const defaultNonAssetExtensions = new Set([
-	JS_EXTENSION,
-	JSON_EXTENSION,
-	TS_EXTENSION,
-	SVELTE_EXTENSION,
-]);
 
 const everyPathExists = async (fs: Filesystem, paths: string[]): Promise<boolean> =>
 	(await Promise.all(paths.map((path) => fs.exists(path)))).every((v) => !!v);

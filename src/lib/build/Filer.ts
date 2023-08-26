@@ -36,8 +36,8 @@ import {
 } from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {PathFilter} from '../fs/filter.js';
-import {isExternalModule} from '../util/module.js';
-import {throttleAsync} from '../util/throttleAsync.js';
+import {isExternalModule} from '../path/module.js';
+import {throttle} from '../util/throttle.js';
 
 /*
 
@@ -529,7 +529,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		return promise;
 	}
 
-	private buildSourceFile = throttleAsync(
+	private buildSourceFile = throttle(
 		async (sourceFile: SourceFile, buildConfig: BuildConfig): Promise<void> => {
 			try {
 				await this._buildSourceFile(sourceFile, buildConfig);

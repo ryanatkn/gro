@@ -7,7 +7,7 @@ import {sourceIdToBasePath} from '../path/paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 import {GEN_NO_PROD_MESSAGE} from '../gen/runGen.js';
-import {throttleAsync} from '../util/throttleAsync.js';
+import {throttle} from '../util/throttle.js';
 
 const name = '@feltjs/gro-plugin-gen';
 
@@ -26,7 +26,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 		queuedFiles.add(genFileName);
 		void flushGenQueue();
 	};
-	const flushGenQueue = throttleAsync(
+	const flushGenQueue = throttle(
 		async () => {
 			// hacky way to avoid concurrent `gro gen` calls
 			if (generating) {
