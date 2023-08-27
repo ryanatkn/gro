@@ -1,5 +1,4 @@
 import {printSpawnResult, spawn} from '@feltjs/util/process.js';
-import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 
 import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
@@ -9,11 +8,7 @@ import {findCli, spawnCli} from '../util/cli.js';
 
 const name = '@feltjs/gro-adapter-node-library';
 
-export interface Options {} // eslint-disable-line @typescript-eslint/no-empty-interface
-
-export interface AdapterArgs {} // eslint-disable-line @typescript-eslint/no-empty-interface
-
-export const createAdapter = (_opts: Partial<Options> = EMPTY_OBJECT): Adapter<AdapterArgs> => {
+export const createAdapter = (): Adapter => {
 	return {
 		name,
 		adapt: async ({fs, log, timings}) => {

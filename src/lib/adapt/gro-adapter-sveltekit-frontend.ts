@@ -1,4 +1,3 @@
-import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 import {stripTrailingSlash} from '@feltjs/util/path.js';
 
 import type {Adapter} from './adapt.js';
@@ -13,7 +12,7 @@ export interface Options {
 export const createAdapter = ({
 	dir = SVELTEKIT_BUILD_DIRNAME,
 	hostTarget = 'github_pages',
-}: Partial<Options> = EMPTY_OBJECT): Adapter => {
+}: Partial<Options> = {}): Adapter => {
 	const outputDir = stripTrailingSlash(dir);
 	return {
 		name: '@feltjs/gro-adapter-sveltekit-frontend',
