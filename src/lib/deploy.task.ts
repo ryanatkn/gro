@@ -6,7 +6,7 @@ import {z} from 'zod';
 import {execSync} from 'node:child_process';
 
 import type {Task} from './task/task.js';
-import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './path/paths.js';
+import {GIT_DIRNAME, paths, printPath, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
 import {cleanFs} from './fs/clean.js';
 import {toRawRestArgs} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
@@ -30,11 +30,6 @@ const DANGEROUS_BRANCHES = ['main', 'master'];
 
 const Args = z
 	.object({
-		dirname: z
-			.string({
-				description: "output directory in dist/ - defaults to detecting 'svelte-kit' | 'browser'",
-			})
-			.optional(),
 		source: z
 			.string({description: 'source branch to build and deploy from'})
 			.default(GIT_DEPLOY_SOURCE_BRANCH),
@@ -72,17 +67,7 @@ export const task: Task<Args> = {
 	production: true,
 	Args,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {
-			dirname,
-			source,
-			target,
-			origin,
-			dry,
-			clean: cleanAndExit,
-			force,
-			dangerous,
-			reset,
-		} = args;
+		const {source, target, origin, dry, clean: cleanAndExit, force, dangerous, reset} = args;
 
 		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
@@ -202,22 +187,12 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		let dir: string;
+		const dir = SVELTEKIT_BUILD_DIRNAME;
 
 		try {
 			// Run the build.
 			const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
 			if (!buildResult.ok) throw Error('gro build failed');
-
-			// After the build is ready, set the deployed directory, inferring as needed.
-			if (dirname !== undefined) {
-				dir = `${DIST_DIR}${dirname}`;
-			} else if (await fs.exists(`${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`)) {
-				dir = `${DIST_DIR}${SVELTEKIT_DIST_DIRNAME}`;
-			} else {
-				log.error(red('no dirname provided and cannot infer a default'));
-				return;
-			}
 
 			// Make sure the expected dir exists after building.
 			if (!(await fs.exists(dir))) {
@@ -251,9 +226,9 @@ export const task: Task<Args> = {
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
-				(await fs.readDir(WORKTREE_DIR)).map((path) =>
-					path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`),
-				),
+				(
+					await fs.readDir(WORKTREE_DIR)
+				).map((path) => (path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`))),
 			);
 			await Promise.all(
 				(await fs.readDir(dir)).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),

@@ -40,23 +40,17 @@ export const CONFIG_BUILD_PATH = 'gro.config.js';
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
 export const TS_TYPE_EXTENSION = '.d.ts';
-export const TS_TYPEMAP_EXTENSION = '.d.ts.map'; // `declarationMap` -> `typemap` to match `sourcemap`
 export const CSS_EXTENSION = '.css';
 export const JSON_EXTENSION = '.json';
 export const JSON_JS_EXTENSION = '.json.js';
-export const SVELTE_JS_EXTENSION = '.svelte.js';
-export const SVELTE_CSS_EXTENSION = '.svelte.css';
 export const SOURCEMAP_EXTENSION = '.map';
 export const JS_SOURCEMAP_EXTENSION = '.js.map';
-export const SVELTE_JS_SOURCEMAP_EXTENSION = '.svelte.js.map';
-export const SVELTE_CSS_SOURCEMAP_EXTENSION = '.svelte.css.map';
 
 export const README_FILENAME = 'README.md';
 export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.cjs';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
 export const SVELTEKIT_TSCONFIG = '.svelte-kit/tsconfig.json';
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
-export const SVELTEKIT_DIST_DIRNAME = 'svelte-kit'; // TODO maybe make SvelteKit frontend a proper build config, and delete this line
 export const SVELTEKIT_APP_DIRNAME = 'app'; // same as /svelte.config.cjs `kit.appDir`
 export const SVELTEKIT_VITE_CACHE_PATH = 'node_modules/.vite';
 export const NODE_MODULES_DIRNAME = 'node_modules';
@@ -183,7 +177,6 @@ export const toSourceExtension = (buildId: BuildId): string => {
 	let char: string | undefined;
 	let extension1: string | null = null;
 	let extension2: string | null = null;
-	let extension3: string | null = null;
 	while (true) {
 		i--;
 		if (i < 0) break;
@@ -197,28 +190,14 @@ export const toSourceExtension = (buildId: BuildId): string => {
 			} else if (extensionCount === 2) {
 				extension2 = currentExtension;
 				extensionCount = 3;
-			} else if (extensionCount === 3) {
-				extension3 = currentExtension;
-				extensionCount = 4;
 			} else {
 				// don't handle any more extensions
 				break;
 			}
 		}
 	}
-	switch (extension3) {
-		case SVELTE_JS_SOURCEMAP_EXTENSION:
-		case SVELTE_CSS_SOURCEMAP_EXTENSION:
-			return buildId.substring(0, len - extension2!.length);
-		case TS_TYPEMAP_EXTENSION:
-			return buildId.substring(0, len - extension3.length) + TS_EXTENSION;
-		default:
-			break;
-	}
 	switch (extension2) {
 		case JSON_JS_EXTENSION:
-		case SVELTE_JS_EXTENSION:
-		case SVELTE_CSS_EXTENSION:
 			return buildId.substring(0, len - extension1!.length);
 		case JS_SOURCEMAP_EXTENSION:
 		case TS_TYPE_EXTENSION:
