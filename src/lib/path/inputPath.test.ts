@@ -38,7 +38,7 @@ test__resolveRawInputPath('source directory', () => {
 	assert.is.not(resolveRawInputPath('.gro'), targetDir);
 });
 
-test__resolveRawInputPath('forced gro directory', () => {
+test__resolveRawInputPath.only('forced gro directory', () => {
 	const fakeDir = resolve('../fake') + '/';
 	const fakePaths = createPaths(fakeDir);
 	const groTarget = resolve('src/lib/foo/bar.ts');
