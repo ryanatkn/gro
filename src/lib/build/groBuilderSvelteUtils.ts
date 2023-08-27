@@ -5,12 +5,11 @@ import type {
 	Warning as SvelteWarning,
 } from 'svelte/types/compiler/interfaces';
 import type {PreprocessorGroup, Processed} from 'svelte/types/compiler/preprocess';
-import * as sveltePreprocessEsbuild from 'svelte-preprocess-esbuild';
+import preprocess from 'svelte-preprocess';
 import type {Logger} from '@feltjs/util/log.js';
 import {yellow} from 'kleur/colors';
 import {printKeyValue, printMs} from '@feltjs/util/print.js';
 
-import {toDefaultEsbuildPreprocessOptions} from './groBuilderEsbuildUtils.js';
 import type {EcmaScriptTarget} from './typescriptUtils.js';
 import {printPath} from '../path/paths.js';
 
@@ -20,9 +19,8 @@ export type CreatePreprocessor = (
 	sourcemap: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
-// TODO BLOCK replace with svelte-preprocess and uninstall svelte-preprocess-esbuild
-export const createDefaultPreprocessor: CreatePreprocessor = (dev, target, sourcemap) =>
-	sveltePreprocessEsbuild.typescript(toDefaultEsbuildPreprocessOptions(dev, target, sourcemap));
+export const createDefaultPreprocessor: CreatePreprocessor = (_dev, target, sourcemap) =>
+	preprocess.typescript({compilerOptions: {target, sourceMap: sourcemap}});
 
 // TODO type could be improved, not sure how tho
 export interface SvelteCompileStats {
@@ -84,9 +82,9 @@ export const extractJsFromSvelteForDependencies = async (
 ): Promise<{processed: Processed; js: string}> => {
 	let js = '';
 	if (dependencyPreprocessor === undefined) {
-		dependencyPreprocessor = sveltePreprocessEsbuild.typescript(
-			toDefaultEsbuildPreprocessOptions(true, 'esnext', false),
-		);
+		dependencyPreprocessor = preprocess.typescript({
+			compilerOptions: {target: 'esnext', sourceMap: false},
+		});
 	}
 	const processed = await svelte.preprocess(content, [
 		dependencyPreprocessor,
