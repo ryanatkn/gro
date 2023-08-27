@@ -205,10 +205,6 @@
       "default": "./dist/config/gro.config.default.js",
       "types": "./dist/config/gro.config.default.d.ts"
     },
-    "./gen/helpers/html.js": {
-      "default": "./dist/gen/helpers/html.js",
-      "types": "./dist/gen/helpers/html.d.ts"
-    },
     "./gen/helpers/ts.js": {
       "default": "./dist/gen/helpers/ts.js",
       "types": "./dist/gen/helpers/ts.d.ts"
