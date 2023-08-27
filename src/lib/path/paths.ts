@@ -252,18 +252,15 @@ export const toImportId = (
 		: toBuildOutPath(dev, buildName, dirBasePath, p.build);
 };
 
-export const groImportDir = join(fileURLToPath(import.meta.url), '../');
+export const groImportDir = join(fileURLToPath(import.meta.url), '../../../');
 export const groDir = join(
 	groImportDir,
-	join(groImportDir, '../../../').endsWith(BUILD_DIR) ? '../../../../' : '../',
+	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : './',
 );
 export const groDirBasename = `${basename(groDir)}/`;
 export const paths = createPaths(`${process.cwd()}/`);
 export const isThisProjectGro = groDir === paths.root;
 export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
-console.log(`groDir`, groDir);
-console.log(`groDirBasename`, groDirBasename);
-console.log(`isThisProjectGro`, isThisProjectGro);
 
 export const printPath = (path: string, p = paths, prefix = './'): string =>
 	gray(`${prefix}${toRootPath(path, p)}`);

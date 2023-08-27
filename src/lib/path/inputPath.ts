@@ -39,8 +39,6 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 	let basePath = stripEnd(stripStart(rawInputPath, './'), '/');
 	let paths = fromPaths;
 	if (!paths) {
-		console.log(`basePath`, basePath);
-		console.log(`groDirBasename`, groDirBasename);
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 		if (basePath.startsWith(groDirBasename)) {
 			paths = groPaths;
