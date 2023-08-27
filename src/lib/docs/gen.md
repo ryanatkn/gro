@@ -189,7 +189,7 @@ export const gen: Gen = () => {
 Outputs `src/markup.html`:
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
 	<body>
 		hi

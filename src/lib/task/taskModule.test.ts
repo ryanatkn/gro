@@ -66,7 +66,10 @@ test__loadTaskModule.run();
 const test__loadTaskModules = suite('loadTaskModules');
 
 test__loadTaskModules('basic behavior', async () => {
-	const result = await loadTaskModules(fs, [resolve('src/lib/test'), resolve('src/lib/test.task.ts')]);
+	const result = await loadTaskModules(fs, [
+		resolve('src/lib/test'),
+		resolve('src/lib/test.task.ts'),
+	]);
 	assert.ok(result.ok);
 	assert.is(result.modules.length, 1);
 	assert.is(result.modules[0].mod, actualTestTaskModule);

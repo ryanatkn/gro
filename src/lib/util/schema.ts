@@ -29,12 +29,15 @@ export const bundleSchemas = (
 	if (title) schema.title = title;
 	schema.$defs = structuredClone(schemas)
 		.sort((a, b) => a.$id.localeCompare(b.$id))
-		.reduce(($defs, schema) => {
-			const name = parseSchemaName(schema.$id);
-			if (!name) throw Error(`Unable to parse schema name: "${schema.$id}"`);
-			$defs[name] = schema;
-			return $defs;
-		}, {} as Record<string, JsonSchema>);
+		.reduce(
+			($defs, schema) => {
+				const name = parseSchemaName(schema.$id);
+				if (!name) throw Error(`Unable to parse schema name: "${schema.$id}"`);
+				$defs[name] = schema;
+				return $defs;
+			},
+			{} as Record<string, JsonSchema>,
+		);
 	return schema;
 };
 

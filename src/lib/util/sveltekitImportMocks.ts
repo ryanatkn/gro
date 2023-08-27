@@ -35,7 +35,7 @@ export const updated: Readable<boolean> & {
 	check: () => boolean;
 } = readable(true) as any;
 updated.check = () => true;
-export const getStores = () => ({navigating, page, updated} as const);
+export const getStores = () => ({navigating, page, updated}) as const;
 
 // TODO currently copypasted from kit to avoid the import dependency
 // import type {Navigation} from '@sveltejs/kit';
