@@ -20,6 +20,7 @@ export type CreatePreprocessor = (
 	sourcemap: boolean,
 ) => PreprocessorGroup | PreprocessorGroup[] | null;
 
+// TODO BLOCK replace with svelte-preprocess and uninstall svelte-preprocess-esbuild
 export const createDefaultPreprocessor: CreatePreprocessor = (dev, target, sourcemap) =>
 	sveltePreprocessEsbuild.typescript(toDefaultEsbuildPreprocessOptions(dev, target, sourcemap));
 
