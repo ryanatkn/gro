@@ -32,7 +32,7 @@ export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> => fs.exists(LIB_DIR);
 
 export const API_SERVER_SOURCE_BASE_PATH = LIB_DIRNAME + '/server/server.ts';
-export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH, false); // 'lib/server/server.js'
+export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH); // 'lib/server/server.js'
 export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/lib/server/server.ts'
 export const hasApiServer = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const API_SERVER_BUILD_NAME: BuildName = 'server';

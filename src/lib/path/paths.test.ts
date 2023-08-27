@@ -126,16 +126,10 @@ test__hasSourceExtension.run();
 const test__toBuildExtension = suite('toBuildExtension');
 
 test__toBuildExtension('basic behavior', () => {
-	assert.is(toBuildExtension('foo/bar.ts', true), 'foo/bar.js');
-	assert.is(toBuildExtension('foo/bar.ts', false), 'foo/bar.js');
-	assert.is(toBuildExtension('foo/bar.svelte', true), 'foo/bar.svelte.js');
-	assert.is(toBuildExtension('foo/bar.svelte', false), 'foo/bar.svelte');
-	assert.is(toBuildExtension('foo/bar.json', true), 'foo/bar.json.js');
-	assert.is(toBuildExtension('foo/bar.json', false), 'foo/bar.json.js');
-	assert.is(toBuildExtension('foo/bar.css', true), 'foo/bar.css');
-	assert.is(toBuildExtension('foo/bar.css', false), 'foo/bar.css');
-	assert.is(toBuildExtension('foo/bar.png', true), 'foo/bar.png');
-	assert.is(toBuildExtension('foo/bar.png', false), 'foo/bar.png');
+	assert.is(toBuildExtension('foo/bar.ts'), 'foo/bar.js');
+	assert.is(toBuildExtension('foo/bar.json'), 'foo/bar.json.js');
+	assert.is(toBuildExtension('foo/bar.css'), 'foo/bar.css');
+	assert.is(toBuildExtension('foo/bar.png'), 'foo/bar.png');
 });
 
 test__toBuildExtension.run();

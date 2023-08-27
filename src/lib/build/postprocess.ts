@@ -5,7 +5,6 @@ import type {Assignable} from '@feltjs/util/types.js';
 import {
 	paths,
 	JS_EXTENSION,
-	SVELTE_EXTENSION,
 	toBuildExtension,
 	TS_EXTENSION,
 	TS_TYPE_EXTENSION,
@@ -15,7 +14,6 @@ import {
 import type {BuildContext, BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../path/module.js';
 import type {BuildDependency} from './buildDependency.js';
-import {extractJsFromSvelteForDependencies} from './groBuilderSvelteUtils.js';
 import type {BuildFile} from './buildFile.js';
 
 export interface Postprocess {
@@ -50,26 +48,9 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 	switch (extension) {
 		case JS_EXTENSION: {
 			content = parseJsDependencies(content, handleSpecifier, true);
-			if (types && (source.extension === TS_EXTENSION || source.extension === SVELTE_EXTENSION)) {
+			if (types && source.extension === TS_EXTENSION) {
 				parseTypeDependencies(source.content as string, handleSpecifier);
 			}
-			break;
-		}
-		case SVELTE_EXTENSION: {
-			// Support Svelte in production, outputting the plain `.svelte`
-			// but extracting and mapping dependencies.
-			const {processed, js} = await extractJsFromSvelteForDependencies(originalContent);
-			parseJsDependencies(js, handleSpecifier, false);
-			if (types) {
-				parseTypeDependencies(content, handleSpecifier);
-			} else {
-				// Replace the Svelte content containing types with the processed code stripped of types.
-				content = processed.code;
-				// TODO shouldn't be needed: https://github.com/sveltejs/svelte-preprocess/issues/260
-				// A problem is this doesn't work for `<script` declarations that span multiple lines.
-				content = content.replace(/(<script.+)lang=["']ts["']/giu, '$1');
-			}
-			content = replaceDependencies(content, dependencies);
 			break;
 		}
 		case TS_TYPE_EXTENSION: {
@@ -148,14 +129,14 @@ const toBuildDependency = (
 	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;
 	if (external) {
-		mappedSpecifier = hackToSveltekitImportMocks(toBuildExtension(specifier, dev), dev);
+		mappedSpecifier = hackToSveltekitImportMocks(toBuildExtension(specifier), dev);
 		// TODO is this needed?
 		finalSpecifier = hackToSveltekitImportMocks(finalSpecifier, dev);
 		buildId = mappedSpecifier;
 	} else {
 		// internal import
 		finalSpecifier = toRelativeSpecifier(finalSpecifier, source.dir, paths.source);
-		mappedSpecifier = hackToBuildExtensionWithPossiblyExtensionlessSpecifier(finalSpecifier, dev);
+		mappedSpecifier = hackToBuildExtensionWithPossiblyExtensionlessSpecifier(finalSpecifier);
 		buildId = join(dir, mappedSpecifier);
 	}
 	return {
@@ -236,18 +217,15 @@ const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/gu
 // because now we can't extract the extension from a user-provided specifier. Gack!
 // Exposing this hack to user config is something that's probably needed,
 // but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
-const hackToBuildExtensionWithPossiblyExtensionlessSpecifier = (
-	specifier: string,
-	dev: boolean,
-): string => {
+const hackToBuildExtensionWithPossiblyExtensionlessSpecifier = (specifier: string): string => {
 	const extension = extname(specifier);
 	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
 		? specifier + JS_EXTENSION
-		: toBuildExtension(specifier, dev);
+		: toBuildExtension(specifier);
 };
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.
-const HACK_EXTENSIONLESS_EXTENSIONS = new Set([SVELTE_EXTENSION, JS_EXTENSION, TS_EXTENSION]);
+const HACK_EXTENSIONLESS_EXTENSIONS = new Set([JS_EXTENSION, TS_EXTENSION]);
 
 // TODO substitutes SvelteKit-specific paths for Gro's mocked version for testing purposes.
 // should extract this so it's configurable. (this whole module is hacky and needs rethinking)

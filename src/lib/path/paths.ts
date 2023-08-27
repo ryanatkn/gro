@@ -44,7 +44,6 @@ export const TS_TYPEMAP_EXTENSION = '.d.ts.map'; // `declarationMap` -> `typemap
 export const CSS_EXTENSION = '.css';
 export const JSON_EXTENSION = '.json';
 export const JSON_JS_EXTENSION = '.json.js';
-export const SVELTE_EXTENSION = '.svelte';
 export const SVELTE_JS_EXTENSION = '.svelte.js';
 export const SVELTE_CSS_EXTENSION = '.svelte.css';
 export const SOURCEMAP_EXTENSION = '.map';
@@ -157,7 +156,6 @@ export const toBuildBasePath = (buildId: BuildId, buildDir = paths.build): strin
 // TODO probably change this to use a regexp (benchmark?)
 export const hasSourceExtension = (path: string): boolean =>
 	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_TYPE_EXTENSION)) ||
-	path.endsWith(SVELTE_EXTENSION) ||
 	path.endsWith(JSON_EXTENSION);
 
 // Can be used to map a source id from e.g. the cwd to gro's.
@@ -169,13 +167,9 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 // Maybe this points to a configurable system? Users can define their own extensions in Gro.
 // Maybe `extensionConfigs: FilerExtensionConfig[]`.
 // Or maybe just follow the lead of Rollup/esbuild?
-export const toBuildExtension = (sourceId: SourceId, dev: boolean): string =>
+export const toBuildExtension = (sourceId: SourceId): string =>
 	sourceId.endsWith(TS_EXTENSION)
 		? replaceExtension(sourceId, JS_EXTENSION)
-		: sourceId.endsWith(SVELTE_EXTENSION)
-		? dev
-			? sourceId + JS_EXTENSION
-			: sourceId
 		: sourceId.endsWith(JSON_EXTENSION)
 		? sourceId + JS_EXTENSION
 		: sourceId;
@@ -252,7 +246,7 @@ export const toImportId = (
 	buildName: BuildName,
 	p = pathsFromId(sourceId),
 ): string => {
-	const dirBasePath = stripStart(toBuildExtension(sourceId, dev), p.source);
+	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
 	return !isThisProjectGro && groImportDir === p.dist
 		? join(groImportDir, dirBasePath)
 		: toBuildOutPath(dev, buildName, dirBasePath, p.build);
