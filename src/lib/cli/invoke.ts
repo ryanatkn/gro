@@ -3,7 +3,7 @@ import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
 import {invokeTask} from '../task/invokeTask.js';
 import {fs} from '../fs/node.js';
 import {TaskError} from '../task/task.js';
-import {toTaskArgs} from '../util/args.js';
+import {toTaskArgs} from '../task/args.js';
 
 // handle uncaught errors
 attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : null));

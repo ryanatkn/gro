@@ -5,7 +5,7 @@ import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
 import {spawn} from '@feltjs/util/process.js';
 
-import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../util/args.js';
+import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../task/args.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath} from '../path/inputPath.js';
 import {isTaskPath} from './task.js';

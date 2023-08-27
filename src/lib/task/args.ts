@@ -1,4 +1,3 @@
-import type {JSONSchema} from '@ryanatkn/json-schema-to-typescript';
 import {magenta} from 'kleur/colors';
 import mri from 'mri';
 
@@ -16,6 +15,12 @@ export interface Args {
 }
 
 export type ArgValue = string | number | boolean | undefined | Array<string | number | boolean>;
+
+export interface ArgSchema {
+	type: 'boolean' | 'string' | 'number' | 'array';
+	default: ArgValue;
+	description: string;
+}
 
 export const serializeArgs = (args: Args): string[] => {
 	const result: string[] = [];
@@ -41,27 +46,6 @@ export const serializeArgs = (args: Args): string[] => {
 	}
 	return _ ? [..._, ...result] : result;
 };
-
-// TODO allow schema composition with things like `allOf` instead of requiring properties
-export interface ArgsSchema extends JSONSchema {
-	type: 'object';
-	properties: ArgsProperties;
-}
-
-export type ArgsProperties = Record<string, ArgSchema> & {
-	_?: {
-		type: 'array';
-		items: {type: 'string'};
-		default: any[] | undefined;
-		description: string;
-	} & JSONSchema;
-};
-
-export interface ArgSchema extends JSONSchema {
-	type: 'boolean' | 'string' | 'number' | 'array';
-	default: ArgValue;
-	description: string;
-}
 
 /**
  * Parses `taskName` and `args` from `process.argv` using `mri`,

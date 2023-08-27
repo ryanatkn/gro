@@ -1,11 +1,11 @@
 import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
+import {green, cyan} from 'kleur/colors';
 
-import {rainbow} from './util/colors.js';
 import {TaskError, type Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
 import {isThisProjectGro} from './path/paths.js';
-import {toRawRestArgs} from './util/args.js';
+import {toRawRestArgs} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 import {loadPackageJson} from './util/packageJson.js';
 import {findCli, spawnCli} from './util/cli.js';
@@ -40,7 +40,7 @@ export const task: Task<Args> = {
 	run: async ({fs, args, log}): Promise<void> => {
 		const {branch, changelog, dry} = args;
 		if (dry) {
-			log.info(rainbow('dry run!'));
+			log.info(green('dry run!'));
 		}
 
 		const changelogExists = await fs.exists(changelog);
@@ -97,7 +97,7 @@ export const task: Task<Args> = {
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
-			log.info(rainbow('dry run complete!'));
+			log.info(green('dry run complete!'));
 			return;
 		}
 
@@ -113,5 +113,7 @@ export const task: Task<Args> = {
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);
 		await spawn('git', ['push', '--follow-tags']);
+
+		log.info(green(`published to branch ${cyan(branch)}!`));
 	},
 };

@@ -4,7 +4,7 @@ import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 
 import type {TaskModuleMeta} from './taskModule.js';
 import {TaskError} from './task.js';
-import type {Args} from '../util/args.js';
+import type {Args} from '../task/args.js';
 import type {invokeTask as defaultInvokeTask} from './invokeTask.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logTaskHelp} from './logTask.js';

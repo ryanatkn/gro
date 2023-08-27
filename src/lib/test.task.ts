@@ -6,7 +6,7 @@ import {z} from 'zod';
 import {TaskError, type Task} from './task/task.js';
 import {toBuildOutPath, toRootPath} from './path/paths.js';
 import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
-import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './util/args.js';
+import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
 import {findCli, spawnCli} from './util/cli.js';
 
 // Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.

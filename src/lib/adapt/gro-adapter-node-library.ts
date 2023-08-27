@@ -4,7 +4,7 @@ import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
 import type {PackageJson} from '../util/packageJson.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs} from '../util/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from '../task/args.js';
 import {findCli, spawnCli} from '../util/cli.js';
 
 const name = '@feltjs/gro-adapter-node-library';

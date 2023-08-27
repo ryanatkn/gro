@@ -1,5 +1,5 @@
 export type {Task, TaskContext} from './task/task.js';
-export type {Args, ArgsSchema, ArgSchema, ArgsProperties} from './util/args.js';
+export type {Args, ArgSchema} from './task/args.js';
 export type {Gen, GenContext} from './gen/gen.js';
 
 export * from './util/schema.js';

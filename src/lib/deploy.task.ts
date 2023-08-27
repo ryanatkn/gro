@@ -5,11 +5,10 @@ import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
 
-import {rainbow} from './util/colors.js';
 import type {Task} from './task/task.js';
 import {DIST_DIR, GIT_DIRNAME, paths, printPath, SVELTEKIT_DIST_DIRNAME} from './path/paths.js';
 import {cleanFs} from './fs/clean.js';
-import {toRawRestArgs} from './util/args.js';
+import {toRawRestArgs} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 
 // docs at ./docs/deploy.md
@@ -199,7 +198,7 @@ export const task: Task<Args> = {
 		await cleanFs(fs, {build: true, dist: true}, log);
 
 		if (cleanAndExit) {
-			log.info(rainbow('all clean'));
+			log.info(green('all clean'));
 			return;
 		}
 
@@ -274,7 +273,7 @@ export const task: Task<Args> = {
 		await fs.move(WORKTREE_DIR, dir, {overwrite: true});
 		await cleanGitWorktree();
 
-		log.info(rainbow('deployed')); // TODO log a different message if "Everything up-to-date"
+		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"
 	},
 };
 

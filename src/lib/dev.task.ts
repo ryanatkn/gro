@@ -26,10 +26,6 @@ const Args = z
 			})
 			.optional() // TODO behavior differs now with zod, because of `default` this does nothing
 			.default(false),
-		// TODO this flag is weird, it detects https credentials but should probably be explicit and fail if not available
-		insecure: z.boolean({description: 'ignore https credentials'}).optional(),
-		cert: z.string({description: 'https certificate file'}).optional(),
-		certkey: z.string({description: 'https certificate key file'}).optional(),
 	})
 	.strict();
 type Args = z.infer<typeof Args>;

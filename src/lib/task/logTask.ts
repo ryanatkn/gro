@@ -2,11 +2,11 @@ import {cyan, gray, green} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {plural} from '@feltjs/util/string.js';
 import {printValue} from '@feltjs/util/print.js';
+import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
-import type {ArgSchema, ArgsSchema} from '../util/args.js';
+import type {ArgSchema} from '../task/args.js';
 import {loadModules} from '../fs/modules.js';
 import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
-import {toJsonSchema} from '../util/schemaHelpers.js';
 
 export const logAvailableTasks = async (
 	log: Logger,
@@ -60,13 +60,7 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 	const printed: string[] = [];
 	printed.push(cyan(name), 'help', '\n' + task.summary || '(no summary available)');
 	if (task.Args) {
-		console.log(`task.Args`, task.Args);
-		console.log(`shape`, task.Args._def.shape());
-		// TODO BLOCK refactor to avoid using `toJsonSchema`, and then remove the `zodToJsonSchema` dep
-		const args = toJsonSchema(task.Args, 'Args') as ArgsSchema;
-		console.log(`args`, args);
-		const properties = toArgProperties(args);
-		console.log(`properties`, properties);
+		const properties = toArgProperties(task.Args._def, meta);
 		const longestTaskName = Math.max(
 			ARGS_PROPERTY_NAME.length,
 			toMaxLength(properties, (p) => p.name),
@@ -91,11 +85,24 @@ interface ArgSchemaProperty {
 	schema: ArgSchema;
 }
 
-const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
+const toArgProperties = (def: ZodTypeDef, meta: TaskModuleMeta): ArgSchemaProperty[] => {
+	const typeName = toTypeName(def);
+	if (typeName !== ZodFirstPartyTypeKind.ZodObject) {
+		throw Error(
+			`Expected Args for task "${meta.name}" to be a ZodObject schema but got ${typeName}`,
+		);
+	}
+	const shape = (def as ZodObjectDef).shape();
 	const properties: ArgSchemaProperty[] = [];
-	for (const name in schema.properties) {
-		if ('no-' + name in schema.properties) continue;
-		properties.push({name, schema: schema.properties[name]});
+	for (const name in shape) {
+		if ('no-' + name in shape) continue;
+		const s = shape[name];
+		const schema: ArgSchema = {
+			type: toArgsSchemaType(s),
+			description: toArgsSchemaDescription(s),
+			default: toArgsSchemaDefault(s),
+		};
+		properties.push({name, schema});
 	}
 	return properties;
 };
@@ -104,3 +111,41 @@ const toArgProperties = (schema: ArgsSchema): ArgSchemaProperty[] => {
 const pad = (s: string, n: number): string => s + ' '.repeat(n - s.length);
 const toMaxLength = <T>(items: T[], toString: (item: T) => string) =>
 	items.reduce((max, m) => Math.max(toString(m).length, max), 0);
+
+// The following Zod helpers only need to support single-depth schemas for CLI args,
+// but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
+const toTypeName = (def: ZodTypeDef): ZodFirstPartyTypeKind => (def as any).typeName;
+const toArgsSchemaType = ({_def}: ZodTypeAny): ArgSchema['type'] => {
+	const t = toTypeName(_def);
+	switch (t) {
+		case ZodFirstPartyTypeKind.ZodBoolean:
+			return 'boolean';
+		case ZodFirstPartyTypeKind.ZodString:
+			return 'string';
+		case ZodFirstPartyTypeKind.ZodNumber:
+			return 'number';
+		case ZodFirstPartyTypeKind.ZodArray:
+			return 'array';
+		default: {
+			if ('innerType' in _def) {
+				return toArgsSchemaType(_def.innerType);
+			} else {
+				throw Error('Unknown zod type ' + t);
+			}
+		}
+	}
+};
+const toArgsSchemaDescription = ({_def}: ZodTypeAny): string => {
+	if (_def.description) return _def.description;
+	if ('innerType' in _def) {
+		return toArgsSchemaDescription(_def.innerType);
+	}
+	return '';
+};
+const toArgsSchemaDefault = ({_def}: ZodTypeAny): any => {
+	if (_def.defaultValue) return _def.defaultValue();
+	if ('innerType' in _def) {
+		return toArgsSchemaDefault(_def.innerType);
+	}
+	return undefined;
+};

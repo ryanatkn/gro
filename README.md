@@ -100,9 +100,9 @@ View help:  gro [name] --help
 14 tasks in gro/src:
 
 build      build the project
-cert       creates a self-signed cert for https with openssl
 check      check that everything is ready to commit
 clean      remove temporary dev and build files, and optionally prune git branches
+commit     commit and push to a new branch
 deploy     deploy to a branch
 dev        start SvelteKit and other dev plugins
 format     format source files
@@ -195,7 +195,6 @@ Etc:
 ```bash
 gro clean # delete all build artifacts from the filesystem
 gro clean --sveltekit --nodemodules --git # also deletes dirs and prunes git branches
-gro cert # uses openssl to create a self-signed certificate for local https testing
 gro upgrade excluded-dep-1 excluded-dep-2 # npm updates to the latest everything
 ```
 

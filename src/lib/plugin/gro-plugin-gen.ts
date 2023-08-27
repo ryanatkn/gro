@@ -2,7 +2,7 @@ import {spawn} from '@feltjs/util/process.js';
 
 import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
-import type {Args} from '../util/args.js';
+import type {Args} from '../task/args.js';
 import {sourceIdToBasePath} from '../path/paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
