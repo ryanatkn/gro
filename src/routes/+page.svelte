@@ -1,3 +1,7 @@
+<script lang="ts">
+	//
+</script>
+
 <div class="markup">
 	<p>
 		Gro previously had a dev server with an experimental frontend for visualizing and working with
