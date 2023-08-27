@@ -47,7 +47,7 @@ const config: GroConfigCreator = async ({fs, dev}) => {
 				: null,
 			enableSveltekitFrontend
 				? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
-						hostTarget: enableApiServer ? 'node' : 'githubPages',
+						hostTarget: enableApiServer ? 'node' : 'github_pages',
 				  })
 				: null,
 		],

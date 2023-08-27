@@ -27,7 +27,7 @@ export const createAdapter = ({
 
 			await copyDist(fs, buildConfig, dev, outputDir, log);
 
-			if (hostTarget === 'githubPages') {
+			if (hostTarget === 'github_pages') {
 				await ensureNojekyll(fs, outputDir);
 			}
 		},
