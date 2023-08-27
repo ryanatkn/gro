@@ -2,7 +2,7 @@ import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 import {stripTrailingSlash} from '@feltjs/util/path.js';
 
 import type {Adapter} from './adapt.js';
-import {ensureNojekyll, move404, type HostTarget} from './helpers.js';
+import {ensureNojekyll, type HostTarget} from './helpers.js';
 import {SVELTEKIT_BUILD_DIRNAME} from '../path/paths.js';
 
 export interface Options {
@@ -10,7 +10,6 @@ export interface Options {
 	hostTarget: HostTarget;
 }
 
-// TODO this hacks around the fact that we don't create a proper Gro build for SvelteKit frontends
 export const createAdapter = ({
 	dir = SVELTEKIT_BUILD_DIRNAME,
 	hostTarget = 'github_pages',
@@ -21,7 +20,7 @@ export const createAdapter = ({
 		adapt: async ({fs}) => {
 			switch (hostTarget) {
 				case 'github_pages': {
-					await Promise.all([ensureNojekyll(fs, outputDir), move404(fs, outputDir)]);
+					await Promise.all([ensureNojekyll(fs, outputDir)]);
 					break;
 				}
 				case 'node':
