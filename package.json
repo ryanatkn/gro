@@ -75,7 +75,7 @@
     "@types/estree": "^1.0.1",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^20.3.2",
-    "@types/prettier": "^2.7.3",
+    "@types/prettier": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "esbuild": "^0.18.0",
