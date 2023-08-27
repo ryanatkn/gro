@@ -39,7 +39,6 @@ export const CONFIG_BUILD_PATH = 'gro.config.js';
 
 export const JS_EXTENSION = '.js';
 export const TS_EXTENSION = '.ts';
-export const TS_TYPE_EXTENSION = '.d.ts';
 export const CSS_EXTENSION = '.css';
 export const JSON_EXTENSION = '.json';
 export const JSON_JS_EXTENSION = '.json.js';
@@ -149,8 +148,7 @@ export const toBuildBasePath = (buildId: BuildId, buildDir = paths.build): strin
 
 // TODO probably change this to use a regexp (benchmark?)
 export const hasSourceExtension = (path: string): boolean =>
-	(path.endsWith(TS_EXTENSION) && !path.endsWith(TS_TYPE_EXTENSION)) ||
-	path.endsWith(JSON_EXTENSION);
+	path.endsWith(TS_EXTENSION) || path.endsWith(JSON_EXTENSION);
 
 // Can be used to map a source id from e.g. the cwd to gro's.
 export const replaceRootDir = (id: string, rootDir: string, p = paths): string =>
@@ -200,7 +198,6 @@ export const toSourceExtension = (buildId: BuildId): string => {
 		case JSON_JS_EXTENSION:
 			return buildId.substring(0, len - extension1!.length);
 		case JS_SOURCEMAP_EXTENSION:
-		case TS_TYPE_EXTENSION:
 			return buildId.substring(0, len - extension2.length) + TS_EXTENSION;
 		default:
 			break;

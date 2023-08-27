@@ -23,8 +23,8 @@ test__normalizeBuildConfigs('normalizes a plain config', () => {
 		true,
 	);
 	assert.equal(buildConfig, [
-		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED, types: false},
-		{name: 'system', platform: 'node', input, types: false},
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
+		{name: 'system', platform: 'node', input},
 	]);
 });
 
@@ -45,34 +45,14 @@ test__normalizeBuildConfigs('normalizes inputs', () => {
 		true,
 	);
 	assert.equal(buildConfig, [
-		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED, types: false},
-		{name: 'system', platform: 'node', input, types: false},
-		{name: 'node2', platform: 'node', input, types: false},
-		{name: 'node3', platform: 'node', input, types: false},
-		{
-			name: 'node4',
-			platform: 'node',
-			input: [inputPath],
-			types: false,
-		},
-		{
-			name: 'node5',
-			platform: 'node',
-			input: [inputPath],
-			types: false,
-		},
-		{
-			name: 'node6',
-			platform: 'node',
-			input: [inputFilter],
-			types: false,
-		},
-		{
-			name: 'node7',
-			platform: 'node',
-			input: [inputPath, inputFilter],
-			types: false,
-		},
+		{name: 'config', platform: 'node', input: FAKE_CONFIG_INPUT_NORMALIZED},
+		{name: 'system', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+		{name: 'node4', platform: 'node', input: [inputPath]},
+		{name: 'node5', platform: 'node', input: [inputPath]},
+		{name: 'node6', platform: 'node', input: [inputFilter]},
+		{name: 'node7', platform: 'node', input: [inputPath, inputFilter]},
 	]);
 });
 
@@ -87,9 +67,9 @@ test__normalizeBuildConfigs('adds missing system config', () => {
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input, types: false},
-		{name: 'node2', platform: 'node', input, types: false},
-		{name: 'node3', platform: 'node', input, types: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
 	]);
 });
 
@@ -104,9 +84,9 @@ test__normalizeBuildConfigs('declares a single dist', () => {
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input, types: false},
-		{name: 'node2', platform: 'node', input, types: false},
-		{name: 'node3', platform: 'node', input, types: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
 	]);
 });
 
@@ -123,11 +103,11 @@ test__normalizeBuildConfigs('ensures a primary config for each platform', () => 
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input, types: false},
-		{name: 'node2', platform: 'node', input, types: false},
-		{name: 'browser1', platform: 'browser', input, types: false},
-		{name: 'browser2', platform: 'browser', input, types: false},
-		{name: 'browser3', platform: 'browser', input, types: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'browser1', platform: 'browser', input},
+		{name: 'browser2', platform: 'browser', input},
+		{name: 'browser3', platform: 'browser', input},
 	]);
 });
 
@@ -144,11 +124,11 @@ test__normalizeBuildConfigs('makes all dist when none is', () => {
 	);
 	assert.equal(buildConfig, [
 		SYSTEM_BUILD_CONFIG,
-		{name: 'node1', platform: 'node', input, types: false},
-		{name: 'node2', platform: 'node', input, types: false},
-		{name: 'node3', platform: 'node', input, types: false},
-		{name: 'browser1', platform: 'browser', input, types: false},
-		{name: 'browser2', platform: 'browser', input, types: false},
+		{name: 'node1', platform: 'node', input},
+		{name: 'node2', platform: 'node', input},
+		{name: 'node3', platform: 'node', input},
+		{name: 'browser1', platform: 'browser', input},
+		{name: 'browser2', platform: 'browser', input},
 	]);
 });
 

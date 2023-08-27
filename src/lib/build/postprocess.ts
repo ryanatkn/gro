@@ -7,7 +7,6 @@ import {
 	JS_EXTENSION,
 	toBuildExtension,
 	TS_EXTENSION,
-	TS_TYPE_EXTENSION,
 	isThisProjectGro,
 	type BuildId,
 } from '../path/paths.js';
@@ -43,16 +42,8 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 	};
 
 	// Map import paths to the built versions.
-	switch (extension) {
-		case JS_EXTENSION: {
-			content = parseJsDependencies(content, handleSpecifier, true);
-			break;
-		}
-		case TS_TYPE_EXTENSION: {
-			parseTypeDependencies(content, handleSpecifier);
-			content = replaceDependencies(content, dependencies);
-			break;
-		}
+	if (extension === JS_EXTENSION) {
+		content = parseJsDependencies(content, handleSpecifier, true);
 	}
 
 	(buildFile as Assignable<BuildFile, 'content'>).content = content;

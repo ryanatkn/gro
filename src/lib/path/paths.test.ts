@@ -137,8 +137,6 @@ const test__toSourceExtension = suite('toSourceExtension');
 test__toSourceExtension('basic behavior', () => {
 	assert.is(toSourceExtension('foo/bar.js'), 'foo/bar.ts');
 	assert.is(toSourceExtension('foo/bar.js.map'), 'foo/bar.ts');
-	assert.is(toSourceExtension('foo/bar.d.ts'), 'foo/bar.ts');
-	assert.is(toSourceExtension('foo/bar.d.ts.map'), 'foo/bar.ts');
 	assert.is(toSourceExtension('foo/bar.json.js'), 'foo/bar.json');
 	assert.is(toSourceExtension('foo/bar.css'), 'foo/bar.css');
 	assert.is(toSourceExtension('foo/bar.css.map'), 'foo/bar.css');
