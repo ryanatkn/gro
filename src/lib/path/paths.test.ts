@@ -111,10 +111,6 @@ test__hasSourceExtension('typescript', () => {
 	assert.ok(hasSourceExtension('foo/bar/baz.ts'));
 });
 
-test__hasSourceExtension('svelte', () => {
-	assert.ok(hasSourceExtension('foo/bar/baz.svelte'));
-});
-
 test__hasSourceExtension('json', () => {
 	assert.ok(hasSourceExtension('foo/bar/baz.json'));
 });
@@ -143,10 +139,6 @@ test__toSourceExtension('basic behavior', () => {
 	assert.is(toSourceExtension('foo/bar.js.map'), 'foo/bar.ts');
 	assert.is(toSourceExtension('foo/bar.d.ts'), 'foo/bar.ts');
 	assert.is(toSourceExtension('foo/bar.d.ts.map'), 'foo/bar.ts');
-	assert.is(toSourceExtension('foo/bar.svelte.js'), 'foo/bar.svelte');
-	assert.is(toSourceExtension('foo/bar.svelte.js.map'), 'foo/bar.svelte');
-	assert.is(toSourceExtension('foo/bar.svelte.css'), 'foo/bar.svelte');
-	assert.is(toSourceExtension('foo/bar.svelte.css.map'), 'foo/bar.svelte');
 	assert.is(toSourceExtension('foo/bar.json.js'), 'foo/bar.json');
 	assert.is(toSourceExtension('foo/bar.css'), 'foo/bar.css');
 	assert.is(toSourceExtension('foo/bar.css.map'), 'foo/bar.css');
@@ -169,10 +161,6 @@ test__toImportId('basic behavior', () => {
 	assert.is(
 		toImportId(resolve('src/foo/bar.ts'), false, 'baz'),
 		resolve('.gro/prod/baz/foo/bar.js'),
-	);
-	assert.is(
-		toImportId(resolve('src/foo/bar.svelte'), true, 'baz'),
-		resolve('.gro/dev/baz/foo/bar.svelte.js'),
 	);
 	assert.is(
 		toImportId(resolve('src/foo/bar.json'), true, 'baz'),
