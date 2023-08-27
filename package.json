@@ -22,7 +22,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.5.0"
   },
   "scripts": {
     "start": "gro",
