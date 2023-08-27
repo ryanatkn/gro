@@ -18,13 +18,8 @@ export const createAdapter = ({
 	return {
 		name: '@feltjs/gro-adapter-sveltekit-frontend',
 		adapt: async ({fs}) => {
-			switch (hostTarget) {
-				case 'github_pages': {
-					await Promise.all([ensureNojekyll(fs, outputDir)]);
-					break;
-				}
-				default:
-					break;
+			if (hostTarget === 'github_pages') {
+				await Promise.all([ensureNojekyll(fs, outputDir)]);
 			}
 		},
 	};
