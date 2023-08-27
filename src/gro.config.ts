@@ -15,7 +15,6 @@ const config: GroConfigCreator = async ({dev}) => {
 				: null,
 		],
 		sourcemap: dev,
-		typemap: !dev,
 		logLevel: 'debug',
 		plugin: async () => [
 			(await import('./lib/plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),
