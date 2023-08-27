@@ -23,7 +23,6 @@ export const createAdapter = ({
 					await Promise.all([ensureNojekyll(fs, outputDir)]);
 					break;
 				}
-				case 'node':
 				default:
 					break;
 			}
