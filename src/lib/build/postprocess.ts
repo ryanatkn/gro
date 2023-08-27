@@ -154,48 +154,6 @@ const toRelativeSpecifierTrimmedBy = (
 	return s.startsWith('.') ? s : './' + s;
 };
 
-/*
-
-TODO this fails on some input:
-
-export declare type AsyncStatus = 'initial' | 'pending' | 'success' | 'failure';
-const a = "from './array'";
-
-`es-module-lexer` does work for TypeScript so we should use it instead of a RegExp,
-or really, we should just use the TS compiler and do real parsing.
-This only works decently well because we're assuming things are formatted with Prettier.
-
-*/
-const parseTypeDependencies = (content: string, handleSpecifier: HandleSpecifier): void => {
-	for (const matches of content.matchAll(
-		/^\s*(import\stype\s|export\s|import\s[\s\S]*?\{[\s\S]*?\Wtype\s)[\s\S]*?from\s*?['|"](.+)['|"]/gmu,
-	)) {
-		handleSpecifier(matches[2]);
-	}
-};
-
-const replaceDependencies = (
-	content: string,
-	dependencies: Map<BuildId, BuildDependency> | null,
-): string => {
-	if (dependencies === null) return content;
-	let finalContent = content;
-	for (const dependency of dependencies.values()) {
-		if (dependency.originalSpecifier === dependency.mappedSpecifier) {
-			continue;
-		}
-		finalContent = finalContent.replace(
-			new RegExp(`['|"]${escapeRegexp(dependency.originalSpecifier)}['|"]`, 'gu'),
-			`'${dependency.mappedSpecifier}'`,
-		);
-	}
-	return finalContent;
-};
-
-// TODO upstream to felt probably
-// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/RegularExpressions
-const escapeRegexp = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
-
 // This is a temporary hack to allow importing `to/thing` as equivalent to `to/thing.js`,
 // despite it being off-spec, because of this combination of problems with TypeScript and Vite:
 // https://github.com/feltjs/gro/pull/186
