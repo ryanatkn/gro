@@ -1,7 +1,7 @@
 import type {Logger} from '@feltjs/util/log.js';
 
 import type {BuildConfig, BuildName} from './buildConfig.js';
-import type {EcmaScriptTarget} from './typescriptUtils.js';
+import type {EcmaScriptTarget} from './helpers.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './filerFile.js';

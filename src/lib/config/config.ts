@@ -19,7 +19,7 @@ import {
 } from '../build/buildConfig.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET, CONFIG_BUILD_CONFIG} from '../build/buildConfigDefaults.js';
-import type {EcmaScriptTarget} from '../build/typescriptUtils.js';
+import type {EcmaScriptTarget} from '../build/helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import createDefaultConfig from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';

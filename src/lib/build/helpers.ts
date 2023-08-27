@@ -78,3 +78,14 @@ export const isInputToBuildConfig = (id: string, inputs: BuildConfigInput[]): bo
 	}
 	return false;
 };
+
+export type EcmaScriptTarget =
+	| 'es3'
+	| 'es5'
+	| 'es2015'
+	| 'es2016'
+	| 'es2017'
+	| 'es2018'
+	| 'es2019'
+	| 'es2020'
+	| 'esnext';

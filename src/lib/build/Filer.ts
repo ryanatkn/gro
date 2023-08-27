@@ -14,6 +14,7 @@ import {createFilerDir, type FilerDir, type FilerDirChangeCallback} from '../bui
 import {
 	isInputToBuildConfig,
 	mapDependencyToSourceId,
+	type EcmaScriptTarget,
 	type MapDependencyToSourceId,
 } from './helpers.js';
 import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../path/paths.js';
@@ -22,7 +23,6 @@ import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
 import type {BuildName, BuildConfig} from './buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
-import type {EcmaScriptTarget} from './typescriptUtils.js';
 import {assertSourceFile, createSourceFile, type SourceFile} from './sourceFile.js';
 import {diffDependencies, type BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './filerFile.js';

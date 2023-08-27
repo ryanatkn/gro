@@ -3,12 +3,11 @@ import type {Logger} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {gray} from 'kleur/colors';
 
-import {paths, toTypesBuildDir} from '../path/paths.js';
+import {paths} from '../path/paths.js';
 import {Filer} from '../build/Filer.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 import type {GroConfig} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {generateTypes} from './typescriptUtils.js';
 import {sveltekitSync} from '../util/sveltekit.js';
 
 export const buildSource = async (
@@ -27,15 +26,6 @@ export const buildSource = async (
 		printTimings(timings, log);
 		log.debug(`🕒 built in ${printMs(totalTiming())}`);
 	};
-
-	if (config.builds.some((b) => b.types)) {
-		log.debug('building types');
-		// Build all types so they're available.
-		// TODO refactor? maybe lazily build types only when a builder wants them
-		const timingToTypes = timings.start('types');
-		await generateTypes(paths.source, toTypesBuildDir(), config.sourcemap, config.typemap, log);
-		timingToTypes();
-	}
 
 	log.debug('building files');
 	const timingToCreateFiler = timings.start('create filer');

@@ -2,7 +2,7 @@ import type esbuild from 'esbuild';
 
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
 import {isThisProjectGro} from '../path/paths.js';
-import type {EcmaScriptTarget} from './typescriptUtils.js';
+import type {EcmaScriptTarget} from './helpers.js';
 
 // TODO remove all of this and the related code
 

@@ -2,22 +2,9 @@ import esbuild from 'esbuild';
 import {replaceExtension} from '@feltjs/util/path.js';
 
 import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
-import {
-	JS_EXTENSION,
-	SOURCEMAP_EXTENSION,
-	toBuildOutPath,
-	TS_TYPE_EXTENSION,
-	TS_EXTENSION,
-	TS_TYPEMAP_EXTENSION,
-} from '../path/paths.js';
+import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../path/paths.js';
 import type {Builder, TextBuildSource} from './builder.js';
-import {addJsSourcemapFooter} from './helpers.js';
-import {
-	toGenerateTypesForFile,
-	type EcmaScriptTarget,
-	type GenerateTypesForFile,
-} from './typescriptUtils.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import {addJsSourcemapFooter, type EcmaScriptTarget} from './helpers.js';
 import type {BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
 
@@ -45,16 +32,8 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		return newEsbuildOptions;
 	};
 
-	const cachedGenerateTypes: Map<Filesystem, Promise<GenerateTypesForFile>> = new Map();
-	const loadGenerateTypes = (fs: Filesystem): Promise<GenerateTypesForFile> => {
-		if (cachedGenerateTypes.has(fs)) return cachedGenerateTypes.get(fs)!;
-		const promise = toGenerateTypesForFile(fs);
-		cachedGenerateTypes.set(fs, promise);
-		return promise;
-	};
-
 	const build: EsbuildBuilder['build'] = async (source, buildConfig, ctx) => {
-		const {buildDir, dev, sourcemap, target, fs} = ctx;
+		const {buildDir, dev, sourcemap, target} = ctx;
 
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
@@ -109,43 +88,6 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 				stats: undefined,
 				mimeType: undefined,
 			});
-		}
-		if (buildConfig.types && source.extension === TS_EXTENSION) {
-			const {types, typemap} = await (await loadGenerateTypes(fs))(source.id);
-			buildFiles.push({
-				type: 'build',
-				sourceId: source.id,
-				buildConfig,
-				dependencies: null,
-				id: replaceExtension(jsId, TS_TYPE_EXTENSION),
-				filename: replaceExtension(jsFilename, TS_TYPE_EXTENSION),
-				dir: outDir,
-				extension: TS_TYPE_EXTENSION,
-				encoding: source.encoding,
-				content: types,
-				contentBuffer: undefined,
-				contentHash: undefined,
-				stats: undefined,
-				mimeType: undefined,
-			});
-			if (typemap !== undefined) {
-				buildFiles.push({
-					type: 'build',
-					sourceId: source.id,
-					buildConfig,
-					dependencies: null,
-					id: replaceExtension(jsId, TS_TYPEMAP_EXTENSION),
-					filename: replaceExtension(jsFilename, TS_TYPEMAP_EXTENSION),
-					dir: outDir,
-					extension: TS_TYPEMAP_EXTENSION,
-					encoding: source.encoding,
-					content: typemap,
-					contentBuffer: undefined,
-					contentHash: undefined,
-					stats: undefined,
-					mimeType: undefined,
-				});
-			}
 		}
 
 		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));

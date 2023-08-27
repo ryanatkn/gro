@@ -42,15 +42,10 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 		return buildDependency;
 	};
 
-	const types = ctx.buildConfigs?.some((b) => b.types);
-
 	// Map import paths to the built versions.
 	switch (extension) {
 		case JS_EXTENSION: {
 			content = parseJsDependencies(content, handleSpecifier, true);
-			if (types && source.extension === TS_EXTENSION) {
-				parseTypeDependencies(source.content as string, handleSpecifier);
-			}
 			break;
 		}
 		case TS_TYPE_EXTENSION: {

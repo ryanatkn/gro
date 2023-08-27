@@ -2,7 +2,7 @@ import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, BuildName} from './buildConfig.js';
 import {toBuildExtension, basePathToSourceId, paths, LIB_DIR, LIB_DIRNAME} from '../path/paths.js';
-import type {EcmaScriptTarget} from './typescriptUtils.js';
+import type {EcmaScriptTarget} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export const DEFAULT_ECMA_SCRIPT_TARGET: EcmaScriptTarget = 'es2020';
@@ -15,7 +15,6 @@ export const CONFIG_BUILD_CONFIG: BuildConfig = {
 	name: CONFIG_BUILD_NAME,
 	platform: 'node',
 	input: [paths.source + 'gro.config.ts'],
-	types: false,
 };
 
 // Gro currently requires this system build config for Node tasks and tests.
@@ -26,7 +25,6 @@ export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 	name: SYSTEM_BUILD_NAME,
 	platform: 'node',
 	input: [createFilter(['**/*.{task,test,gen,gen.*,schema}.ts', '**/fixtures/**'])],
-	types: false,
 };
 
 export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> => fs.exists(LIB_DIR);
@@ -40,7 +38,6 @@ export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_NAME,
 	platform: 'node',
 	input: [API_SERVER_SOURCE_BASE_PATH],
-	types: false,
 };
 // the first of these matches SvelteKit, the second is just close for convenience
 // TODO change to remove the second, search upwards for an open port

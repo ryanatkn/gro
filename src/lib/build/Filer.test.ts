@@ -43,7 +43,6 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 		name: 'testBuildConfig',
 		platform: 'node',
 		input: [entryId],
-		types: false,
 	};
 	const filer = new Filer({
 		fs,
@@ -229,13 +228,11 @@ test__Filer('multiple build configs', async ({fs}) => {
 		name: 'testBuildConfig',
 		platform: 'node',
 		input: [entry1Id],
-		types: false,
 	};
 	const buildConfig2: BuildConfig = {
 		name: 'testBuildConfig',
 		platform: 'node',
 		input: [entry2Id],
-		types: false,
 	};
 
 	const filerOptions = {
