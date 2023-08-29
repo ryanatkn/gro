@@ -19,12 +19,10 @@ and the rest of the args are forwarded to the task's `run` function.
 
 */
 
+// TODO BLOCK maybe remove this? was being a process.env.NODE_ENV check that no longer worked
 // install sourcemaps for Gro development
-// TODO BLOCK
-if (process.env.NODE_ENV !== 'production') {
-	const sourcemapSupport = await import('source-map-support'); // is a peer dependency
-	sourcemapSupport.install({handleUncaughtExceptions: false});
-}
+const sourcemapSupport = await import('source-map-support'); // is a peer dependency
+sourcemapSupport.install({handleUncaughtExceptions: false});
 
 const {taskName, args} = toTaskArgs();
 await invokeTask(fs, taskName, args);

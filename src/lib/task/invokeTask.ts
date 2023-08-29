@@ -62,40 +62,43 @@ export const invokeTask = async (
 
 	// Resolve the input path for the provided task name.
 	const inputPath = resolveRawInputPath(taskName || paths.lib);
+	console.log(`inputPath`, inputPath);
 
 	// Find the task or directory specified by the `inputPath`.
 	// Fall back to searching the Gro directory as well.
 	const findModulesResult = await findTaskModules(fs, [inputPath], undefined, [groPaths.root]);
-
+	console.log(`findModulesResult`, findModulesResult);
 	if (findModulesResult.ok) {
 		// Found a match either in the current working directory or Gro's directory.
 		timings.merge(findModulesResult.timings);
 		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
+		console.log(`pathData`, pathData);
+
+		// First build the project. Gro used to try to detect if it should build,
+		// but since the advent of Very fast TypeScript transpilers
+		// (we're using esbuild because of SvelteKit)
+		// it's a better UX to always build first,
+		// because it usually takes less than a few hundred milliseconds.
+		// Over time we'll remove much of Gro's functionality and use something like `tsm`:
+		// https://github.com/feltjs/gro/issues/319
+
+		// Import these lazily to avoid importing their comparatively heavy transitive dependencies
+		// every time a task is invoked.
+		log.debug('building project to run task');
+		const timingToLoadConfig = timings.start('load config');
+		// TODO probably do this as a separate process
+		// also this is messy, the `loadConfig` does some hacky config loading,
+		// and then we end up building twice - can it be done in a single pass?
+		const {loadConfig} = await import('../config/config.js');
+		const config = await loadConfig(fs, true);
+		timingToLoadConfig();
+		const timingToBuildProject = timings.start('build project');
+		const {buildSource} = await import('../build/buildSource.js');
+		await buildSource(fs, config, true, log);
+		timingToBuildProject();
+
 		if (!pathData.isDirectory) {
 			// The input path matches a file, so load and run it.
-
-			// First build the project. Gro used to try to detect if it should build,
-			// but since the advent of Very fast TypeScript transpilers
-			// (we're using esbuild because of SvelteKit)
-			// it's a better UX to always build first,
-			// because it usually takes less than a few hundred milliseconds.
-			// Over time we'll remove much of Gro's functionality and use something like `tsm`:
-			// https://github.com/feltjs/gro/issues/319
-
-			// Import these lazily to avoid importing their comparatively heavy transitive dependencies
-			// every time a task is invoked.
-			log.debug('building project to run task');
-			const timingToLoadConfig = timings.start('load config');
-			// TODO probably do this as a separate process
-			// also this is messy, the `loadConfig` does some hacky config loading,
-			// and then we end up building twice - can it be done in a single pass?
-			const {loadConfig} = await import('../config/config.js');
-			const config = await loadConfig(fs, true);
-			timingToLoadConfig();
-			const timingToBuildProject = timings.start('build project');
-			const {buildSource} = await import('../build/buildSource.js');
-			await buildSource(fs, config, true, log);
-			timingToBuildProject();
 
 			// Try to load the task module.
 			// TODO BLOCK why not loadTaskModules ? get good error messages too
