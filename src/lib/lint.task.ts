@@ -6,12 +6,12 @@ import {printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
 import {SOURCE_DIRNAME} from './path/paths.js';
 import {findCli, spawnCli} from './util/cli.js';
 
-const Args = z
+export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'paths to serve'}).default([SOURCE_DIRNAME]),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'run eslint on the source files',

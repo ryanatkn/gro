@@ -17,7 +17,7 @@ import {findCli, spawnCli} from './util/cli.js';
 // - publishes to npm from the `main` branch, configurable with `--branch`
 // - syncs commits and tags to the configured main branch
 
-const Args = z
+export const Args = z
 	.object({
 		branch: z.string({description: 'branch to publish from'}).default(GIT_DEPLOY_SOURCE_BRANCH),
 		changelog: z
@@ -31,7 +31,7 @@ const Args = z
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',

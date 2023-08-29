@@ -4,7 +4,7 @@ import {z} from 'zod';
 import type {Task} from './task/task.js';
 import {loadPackageJson, type PackageJson} from './util/packageJson.js';
 
-const Args = z
+export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'names of deps to exclude from the upgrade'}).default([]),
 		dry: z
@@ -13,7 +13,7 @@ const Args = z
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'upgrade deps',

@@ -28,7 +28,7 @@ const TEMP_PREFIX = '__TEMP__';
 const GIT_ARGS = {cwd: WORKTREE_DIR};
 const DANGEROUS_BRANCHES = ['main', 'master'];
 
-const Args = z
+export const Args = z
 	.object({
 		source: z
 			.string({description: 'source branch to build and deploy from'})
@@ -60,7 +60,7 @@ const Args = z
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'deploy to a branch',

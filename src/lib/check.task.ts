@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {TaskError, type Task} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
 
-const Args = z
+export const Args = z
 	.object({
 		typecheck: z
 			.boolean({description: 'read this instead of no-typecheck'})
@@ -20,7 +20,7 @@ const Args = z
 		'no-lint': z.boolean({description: 'opt out of linting'}).optional().default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',

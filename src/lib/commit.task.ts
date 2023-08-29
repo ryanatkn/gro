@@ -4,14 +4,14 @@ import {execSync} from 'node:child_process';
 
 import type {Task} from './task/task';
 
-const Args = z
+export const Args = z
 	.object({
 		_: z.array(z.string(), {
 			description: 'the git commit message, the same as git commit -m or --message',
 		}),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'commit and push to a new branch',

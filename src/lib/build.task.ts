@@ -14,7 +14,7 @@ export interface TaskEvents {
 	'build.createConfig': (config: GroConfig) => void;
 }
 
-const Args = z
+export const Args = z
 	.object({
 		clean: z.boolean({description: 'read this instead of no-clean'}).optional().default(true),
 		'no-clean': z
@@ -32,7 +32,7 @@ const Args = z
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args, TaskEvents> = {
 	summary: 'build the project',

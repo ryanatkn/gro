@@ -15,12 +15,12 @@ import {findCli, spawnCli} from './util/cli.js';
 // If the `uvu` segment's args contain any rest arg patterns,
 // the base patterns are ignored.
 
-const Args = z
+export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.js$']),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'run tests',

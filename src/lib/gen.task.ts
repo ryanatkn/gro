@@ -14,7 +14,7 @@ import {printPath} from './path/paths.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
 
-const Args = z
+export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'paths to generate'}).default([]),
 		check: z
@@ -27,7 +27,7 @@ const Args = z
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 // TODO test - especially making sure nothing gets genned
 // if there's any validation or import errors

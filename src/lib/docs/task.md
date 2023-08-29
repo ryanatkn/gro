@@ -96,6 +96,15 @@ export const task: Task = {
 };
 ```
 
+The minimum:
+
+```ts
+// src/some/minimal.task.ts
+export const task = {
+	run: () => console.log('a minimal example'),
+};
+```
+
 ### task directories
 
 As a convenience, Gro interprets `src/some/taskname/taskname.task.ts`
@@ -231,7 +240,7 @@ Using zod has some benefits:
 import type {Task} from '@feltjs/gro';
 import type {z} from 'zod';
 
-const Args = z
+export const Args = z
 	.object({
 		_: z.array(z.string(), {description: 'rest args'}).default([]),
 		yepyep: z.string({description: 'helpful info'}).default('ya'),
@@ -239,7 +248,7 @@ const Args = z
 		maybee: z.boolean({description: 'and optional args work too'}),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	Args,

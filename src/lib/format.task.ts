@@ -5,14 +5,14 @@ import {TaskError, type Task} from './task/task.js';
 import {formatDirectory} from './format/formatDirectory.js';
 import {paths} from './path/paths.js';
 
-const Args = z
+export const Args = z
 	.object({
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files are unformatted'})
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'format source files',

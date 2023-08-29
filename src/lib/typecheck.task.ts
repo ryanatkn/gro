@@ -6,8 +6,8 @@ import {printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
 import {sveltekitSync} from './util/sveltekit.js';
 import {findCli, spawnCli} from './util/cli.js';
 
-const Args = z.object({}).strict();
-type Args = z.infer<typeof Args>;
+export const Args = z.object({}).strict();
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'typecheck the project without emitting any files',

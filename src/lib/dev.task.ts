@@ -16,7 +16,7 @@ export interface TaskEvents {
 	'dev.ready': (ctx: DevTaskContext) => void;
 }
 
-const Args = z
+export const Args = z
 	.object({
 		watch: z.boolean({description: 'read this instead of no-watch'}).default(true),
 		'no-watch': z
@@ -28,7 +28,7 @@ const Args = z
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export type DevTaskContext = PluginContext<Args, TaskEvents>;
 

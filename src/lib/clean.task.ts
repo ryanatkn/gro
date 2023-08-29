@@ -7,7 +7,7 @@ import {cleanFs} from './fs/clean.js';
 // TODO customize
 const ORIGIN = 'origin';
 
-const Args = z
+export const Args = z
 	.object({
 		build: z.boolean({description: 'read this instead of no-build'}).default(true),
 		'no-build': z
@@ -31,7 +31,7 @@ const Args = z
 			.default(false),
 	})
 	.strict();
-type Args = z.infer<typeof Args>;
+export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
