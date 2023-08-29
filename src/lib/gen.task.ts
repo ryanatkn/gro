@@ -13,6 +13,7 @@ import {formatFile} from './format/formatFile.js';
 import {printPath} from './path/paths.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
+import {logErrorReasons} from './task/logTask.js';
 
 export const Args = z
 	.object({
@@ -60,9 +61,7 @@ export const task: Task<Args> = {
 		// load all of the gen modules
 		const findModulesResult = await findGenModules(fs, inputPaths);
 		if (!findModulesResult.ok) {
-			for (const reason of findModulesResult.reasons) {
-				log.error(reason);
-			}
+			logErrorReasons(log, findModulesResult.reasons);
 			throw new TaskError('Failed to find gen modules.');
 		}
 		log.info('gen files', Array.from(findModulesResult.sourceIdsByInputPath.values()).flat());
@@ -73,9 +72,7 @@ export const task: Task<Args> = {
 			loadGenModule,
 		);
 		if (!loadModulesResult.ok) {
-			for (const reason of loadModulesResult.reasons) {
-				log.error(reason);
-			}
+			logErrorReasons(log, loadModulesResult.reasons);
 			throw new TaskError('Failed to load gen modules.');
 		}
 		timings.merge(loadModulesResult.timings);

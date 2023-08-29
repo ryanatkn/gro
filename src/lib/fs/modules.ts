@@ -193,22 +193,17 @@ export const loadModules = async <
 				switch (result.type) {
 					case 'importFailed': {
 						reasons.push(
-							red(
-								`Module import ${printPath(id, pathsFromId(id))} failed from input ${printPath(
-									inputPath,
-									pathsFromId(inputPath),
-								)}: ${printError(result.error)}`,
-							),
+							`Module import ${printPath(id, pathsFromId(id))} failed from input ${printPath(
+								inputPath,
+								pathsFromId(inputPath),
+							)}: ${printError(result.error)}`,
 						);
 						break;
 					}
 					case 'invalid': {
+						// TODO BLOCK try to make this a good error message for the task case
 						reasons.push(
-							red(
-								`Module ${printPath(id, pathsFromId(id))} failed validation '${
-									result.validation
-								}'.`,
-							),
+							`Module ${printPath(id, pathsFromId(id))} failed validation '${result.validation}'.`,
 						);
 						break;
 					}

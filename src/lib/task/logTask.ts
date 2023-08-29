@@ -1,4 +1,4 @@
-import {cyan, gray, green} from 'kleur/colors';
+import {cyan, gray, green, red} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 import {plural} from '@feltjs/util/string.js';
 import {printValue} from '@feltjs/util/print.js';
@@ -45,7 +45,7 @@ export const logAvailableTasks = async (
 
 export const logErrorReasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {
-		log.error(reason);
+		log.error(red(reason));
 	}
 };
 

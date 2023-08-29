@@ -2,6 +2,7 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
+import {logErrorReasons} from './task/logTask.js';
 
 export const Args = z
 	.object({
@@ -43,9 +44,7 @@ export const task: Task<Args> = {
 				log.info('checking that generated files have not changed');
 				await invokeTask('gen', {check: true, rebuild: false});
 			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
-				for (const reason of findGenModulesResult.reasons) {
-					log.error(reason);
-				}
+				logErrorReasons(log, findGenModulesResult.reasons);
 				throw new TaskError('Failed to find gen modules.');
 			}
 		}

@@ -97,6 +97,7 @@ export const invokeTask = async (
 			timingToBuildProject();
 
 			// Try to load the task module.
+			// TODO BLOCK why not loadTaskModules ? get good error messages too
 			const loadModulesResult = await loadModules(
 				findModulesResult.sourceIdsByInputPath,
 				true,
