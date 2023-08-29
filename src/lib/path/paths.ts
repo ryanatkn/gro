@@ -214,7 +214,7 @@ export const toSourceExtension = (buildId: BuildId): string => {
 };
 
 // Converts a source id into an id that can be imported.
-// When importing from inside Gro's own internal dist/ directory,
+// When importing from inside Gro's own internal .gro/dist/ directory,
 // it returns a relative path and ignores `dev` and `buildName`.
 export const toImportId = (
 	sourceId: SourceId,

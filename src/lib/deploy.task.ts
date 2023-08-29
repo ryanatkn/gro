@@ -35,6 +35,7 @@ export const Args = z
 			.default(GIT_DEPLOY_SOURCE_BRANCH),
 		target: z.string({description: 'target branch to deploy to'}).default(GIT_DEPLOY_TARGET_BRANCH),
 		origin: z.string({description: 'git origin to deploy to'}).default(ORIGIN),
+		dir: z.string({description: 'the SvelteKit build directory'}).default(SVELTEKIT_BUILD_DIRNAME),
 		dry: z
 			.boolean({
 				description:
@@ -67,7 +68,7 @@ export const task: Task<Args> = {
 	production: true,
 	Args,
 	run: async ({fs, args, log}): Promise<void> => {
-		const {source, target, origin, dry, clean: cleanAndExit, force, dangerous, reset} = args;
+		const {source, target, origin, dir, dry, clean: cleanAndExit, force, dangerous, reset} = args;
 
 		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
 			throw Error(
@@ -186,8 +187,6 @@ export const task: Task<Args> = {
 			log.info(green('all clean'));
 			return;
 		}
-
-		const dir = SVELTEKIT_BUILD_DIRNAME;
 
 		try {
 			// Run the build.

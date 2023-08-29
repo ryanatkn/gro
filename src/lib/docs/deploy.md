@@ -11,12 +11,8 @@ branch as disposable, able to be deleted or squashed or whatever whenever.
 Internally, `gro deploy` uses [git worktree](https://git-scm.com/docs/git-worktree)
 for tidiness.
 
-`gro deploy` needs some refactoring to be more generic,
-but it works for simple cases beyond "static deployments".
-Needs design work for its scope to be clear.
-
 ```bash
-gro deploy # prepare dist/ and commit it to the `deploy` branch, then push to go live
+gro deploy # prepare build/ and commit it to the `deploy` branch, then push to go live
 gro deploy --source my-branch # deploy from `my-branch` instead of the default `main`
 
 # deploy to `custom-deploy-branch` instead of the default `deploy`
@@ -26,11 +22,11 @@ gro deploy --target custom-deploy-branch
 gro deploy --target custom-deploy-branch --force
 # TODO maybe it should be `--dangerous-target-branch` instead of `--target` and `--force`?
 
-gro deploy --dry # prepare dist/ but don't commit or push
+gro deploy --dry # prepare build/ but don't commit or push
 gro deploy --clean # if something goes wrong, use this to reset git and gro state
 ```
 
-See [`src/deploy.task.ts`](/src/deploy.task.ts) for the details.
+Run `gro deploy --help` or see [`src/deploy.task.ts`](/src/deploy.task.ts) for the details.
 
 For needs more advanced than pushing to a remote branch,
 projects can implement a custom `src/deploy.task.ts`.
