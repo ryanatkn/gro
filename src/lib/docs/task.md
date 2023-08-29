@@ -105,6 +105,28 @@ export const task = {
 };
 ```
 
+Minimum with [`Args`](#task-args):
+
+```ts
+// src/some/withargs.task.ts
+import type {Task} from '@feltjs/gro';
+import {z} from 'zod';
+
+export const Args = z
+	.object({
+		arg: z.number({description: 'example number arg'}).default(2),
+	})
+	.strict();
+export type Args = z.infer<typeof Args>;
+
+export const task: Task = {
+	Args,
+	run: async ({args}) => {
+		args.arg; // `number` that defaults to `2`
+	},
+};
+```
+
 ### task directories
 
 As a convenience, Gro interprets `src/some/taskname/taskname.task.ts`
