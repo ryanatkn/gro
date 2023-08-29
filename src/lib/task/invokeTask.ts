@@ -112,13 +112,13 @@ export const invokeTask = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
+				const dev = process.env.NODE_ENV !== 'production'; // TODO BLOCK
 				if (dev && task.mod.task.production) {
 					// We're in dev mode but the task is only for production, so run it in a new process.
 					const result = await spawn(
 						'npx',
 						['gro', taskName, ...serializeArgs(args), ...toRawRestArgs()],
-						{env: {...process.env, NODE_ENV: 'production'}},
+						{env: {...process.env, NODE_ENV: 'production'}}, // TODO BLOCK
 					);
 					timingToRunTask();
 					if (result.ok) {
