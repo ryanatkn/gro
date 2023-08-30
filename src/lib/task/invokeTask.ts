@@ -23,6 +23,10 @@ import {findTaskModules, loadTaskModule} from './taskModule.js';
 import {loadGroPackageJson} from '../util/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logAvailableTasks, logErrorReasons} from './logTask.js';
+import {loadConfig} from '../config/config.js';
+import {buildSource} from '../build/buildSource.js';
+
+let built = false;
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -74,28 +78,18 @@ export const invokeTask = async (
 		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
 		console.log(`pathData`, pathData);
 
-		// First build the project. Gro used to try to detect if it should build,
-		// but since the advent of Very fast TypeScript transpilers
-		// (we're using esbuild because of SvelteKit)
-		// it's a better UX to always build first,
-		// because it usually takes less than a few hundred milliseconds.
-		// Over time we'll remove much of Gro's functionality and use something like `tsm`:
-		// https://github.com/feltjs/gro/issues/319
-
-		// Import these lazily to avoid importing their comparatively heavy transitive dependencies
-		// every time a task is invoked.
-		log.debug('building project to run task');
-		const timingToLoadConfig = timings.start('load config');
-		// TODO probably do this as a separate process
-		// also this is messy, the `loadConfig` does some hacky config loading,
-		// and then we end up building twice - can it be done in a single pass?
-		const {loadConfig} = await import('../config/config.js');
-		const config = await loadConfig(fs, true);
-		timingToLoadConfig();
-		const timingToBuildProject = timings.start('build project');
-		const {buildSource} = await import('../build/buildSource.js');
-		await buildSource(fs, config, true, log);
-		timingToBuildProject();
+		// First build the project if needed.
+		// This will be removed in favor of using an esm loader with esbuild.
+		if (!built) {
+			built = true;
+			log.debug('building project to run task');
+			const timingToLoadConfig = timings.start('load config');
+			const config = await loadConfig(fs, true);
+			timingToLoadConfig();
+			const timingToBuildProject = timings.start('build project');
+			await buildSource(fs, config, true, log);
+			timingToBuildProject();
+		}
 
 		if (!pathData.isDirectory) {
 			// The input path matches a file, so load and run it.
