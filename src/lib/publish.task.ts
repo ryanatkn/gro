@@ -67,6 +67,9 @@ export const task: Task<Args> = {
 		await invokeTask('check');
 
 		// Bump the version so the package.json is updated before building:
+		// TODO problem here is build may fail and put us in a bad state,
+		// but I don't see how we could do this to robustly
+		// have the new version in the build without building twice
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
@@ -88,7 +91,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invokeTask('build');
+		await invokeTask('build', toRawRestArgs());
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
