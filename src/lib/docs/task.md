@@ -149,7 +149,6 @@ export interface Task<
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>;
 	summary?: string;
 	Args?: TArgsSchema;
-	production?: boolean;
 }
 
 export interface TaskContext<TArgs = object, TEvents = object> {
@@ -364,22 +363,6 @@ export const task: Task = {
 		if (someErrorCondition) {
 			throw new TaskError('We hit a known error - ignore the stack trace!');
 		}
-	},
-};
-```
-
-### `dev` forwarding through the task invocation tree
-
-```ts
-// src/some/file.task.ts
-import type {Task} from '@feltjs/gro';
-
-export const task: Task = {
-	production: true, // task runner will spawn a new process if `process.env.NODE_ENV` isn't 'production'
-	run: async ({dev, invokeTask}) => {
-		// `dev` is `false` because it's defined two lines up in the task definition,
-		// unless an ancestor task called `invokeTask` with a `true` value, like this:
-		invokeTask('descendentTaskWithFlippedDevValue', undefined, undefined, !dev);
 	},
 };
 ```

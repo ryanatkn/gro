@@ -16,12 +16,10 @@ export interface Task<
 	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
 	Args?: TArgsSchema;
-	production?: boolean;
 }
 
 export interface TaskContext<TArgs = object, TEvents = object> {
 	fs: Filesystem;
-	dev: boolean;
 	log: Logger;
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;

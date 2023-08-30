@@ -25,7 +25,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run tests',
 	Args,
-	run: async ({fs, dev, log, args}): Promise<void> => {
+	run: async ({fs, log, args}): Promise<void> => {
 		const {_: testFilePatterns} = args;
 
 		if (!(await findCli(fs, 'uvu'))) {
@@ -38,7 +38,7 @@ export const task: Task<Args> = {
 		// Projects may not define any artifacts for the Node build,
 		// and we don't force anything out in that case,
 		// so just exit early if that happens.
-		const testsBuildDir = toBuildOutPath(dev, SYSTEM_BUILD_NAME);
+		const testsBuildDir = toBuildOutPath(true, SYSTEM_BUILD_NAME);
 		if (!(await fs.exists(testsBuildDir))) {
 			log.info(yellow('no tests found'));
 			return;

@@ -15,7 +15,6 @@ export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'commit and push to a new branch',
-	production: true,
 	Args,
 	run: async ({args}): Promise<void> => {
 		const {

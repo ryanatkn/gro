@@ -65,7 +65,6 @@ export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
 	summary: 'deploy to a branch',
-	production: true,
 	Args,
 	run: async ({fs, args, log}): Promise<void> => {
 		const {source, target, origin, dir, dry, clean: cleanAndExit, force, dangerous, reset} = args;

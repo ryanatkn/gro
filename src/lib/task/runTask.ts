@@ -29,11 +29,7 @@ export const runTask = async (
 ): Promise<RunTaskResult> => {
 	const {task} = taskMeta.mod;
 	const log = new SystemLogger(printLogLabel(taskMeta.name));
-	// TODO BLOCK
-	const dev = process.env.NODE_ENV !== 'production'; // TODO should this use `fromEnv`? '$app/env'?
-	if (dev && task.production) {
-		throw new TaskError(`The task "${taskMeta.name}" cannot be run in development`);
-	}
+
 	if (unparsedArgs.help) {
 		logTaskHelp(log, taskMeta);
 		return {ok: true, output: null};
@@ -58,7 +54,6 @@ export const runTask = async (
 	try {
 		output = await task.run({
 			fs,
-			dev,
 			args,
 			events,
 			log,

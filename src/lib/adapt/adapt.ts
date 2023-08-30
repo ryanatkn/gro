@@ -31,6 +31,7 @@ export interface ToConfigAdapters<TArgs = any, TEvents = any> {
 
 export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
 	config: GroConfig;
+	dev: boolean;
 	timings: Timings;
 }
 

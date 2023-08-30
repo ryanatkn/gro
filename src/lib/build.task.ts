@@ -36,12 +36,10 @@ export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args, TaskEvents> = {
 	summary: 'build the project',
-	production: true,
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
 			fs,
-			dev,
 			log,
 			events,
 			args: {clean, install},
@@ -62,11 +60,11 @@ export const task: Task<Args, TaskEvents> = {
 		// TODO delete prod builds (what about config/system tho?)
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, dev);
+		const config = await loadConfig(fs, false);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 
-		const plugins = await Plugins.create({...ctx, config, filer: null, timings});
+		const plugins = await Plugins.create({...ctx, config, dev: false, filer: null, timings});
 
 		// Build everything with esbuild and Gro's `Filer` first.
 		// These production artifacts are then available to all adapters.
@@ -74,7 +72,7 @@ export const task: Task<Args, TaskEvents> = {
 		// so just don't build in that case.
 		if (config.builds.length) {
 			const timingToBuildSource = timings.start('buildSource');
-			await buildSource(fs, config, dev, log);
+			await buildSource(fs, config, false, log);
 			timingToBuildSource();
 		}
 
@@ -82,7 +80,7 @@ export const task: Task<Args, TaskEvents> = {
 		await plugins.teardown();
 
 		// Adapt the build to final ouputs.
-		const adapters = await adapt({...ctx, config, timings});
+		const adapters = await adapt({...ctx, config, dev: false, timings});
 		if (!adapters.length) log.info('no adapters to `adapt`');
 
 		printTimings(timings, log);

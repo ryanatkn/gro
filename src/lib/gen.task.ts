@@ -5,7 +5,7 @@ import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {GEN_NO_PROD_MESSAGE, runGen} from './gen/runGen.js';
+import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './path/inputPath.js';
 import {loadModules} from './fs/modules.js';
@@ -35,10 +35,8 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({fs, log, args, dev}): Promise<void> => {
+	run: async ({fs, log, args}): Promise<void> => {
 		const {_: rawInputPaths, check, rebuild} = args;
-
-		if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
 
 		const totalTiming = createStopwatch();
 		const timings = new Timings();
@@ -48,10 +46,10 @@ export const task: Task<Args> = {
 		// but running `gro gen` from dev/build tasks will not want to rebuild.
 		if (rebuild) {
 			const timingToLoadConfig = timings.start('load config');
-			const config = await loadConfig(fs, dev);
+			const config = await loadConfig(fs, true);
 			timingToLoadConfig();
 			const timingToBuildSource = timings.start('buildSource');
-			await buildSource(fs, config, dev, log);
+			await buildSource(fs, config, true, log);
 			timingToBuildSource();
 		}
 

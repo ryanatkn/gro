@@ -3,9 +3,8 @@ import {EventEmitter} from 'node:events';
 import {SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
-import {spawn} from '@feltjs/util/process.js';
 
-import {serializeArgs, toForwardedArgs, toRawRestArgs, type Args} from '../task/args.js';
+import {toForwardedArgs, type Args} from '../task/args.js';
 import {runTask} from './runTask.js';
 import {resolveRawInputPath} from '../path/inputPath.js';
 import {isTaskPath} from './task.js';
@@ -111,36 +110,21 @@ export const invokeTask = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				const dev = process.env.NODE_ENV !== 'production'; // TODO BLOCK
-				if (dev && task.mod.task.production) {
-					// We're in dev mode but the task is only for production, so run it in a new process.
-					const result = await spawn(
-						'npx',
-						['gro', taskName, ...serializeArgs(args), ...toRawRestArgs()],
-						{env: {...process.env, NODE_ENV: 'production'}}, // TODO BLOCK
-					);
-					timingToRunTask();
-					if (result.ok) {
-						log.info(`✓ ${cyan(task.name)}`);
-					} else {
-						log.info(`${red('🞩')} ${cyan(task.name)}`);
-						logErrorReasons(log, [
-							`spawned task exited with code ${result.code}: ${result.signal}`,
-						]);
-						throw Error('Spawned task failed');
-					}
+				console.log(`toForwardedArgs`, toForwardedArgs(`gro ${task.name}`));
+				const result = await runTask(
+					fs,
+					task,
+					{...args, ...toForwardedArgs(`gro ${task.name}`)},
+					events,
+					invokeTask,
+				);
+				timingToRunTask();
+				if (result.ok) {
+					log.info(`✓ ${cyan(task.name)}`);
 				} else {
-					// Run the task in the current process.
-					const finalArgs = {...args, ...toForwardedArgs(`gro ${task.name}`)};
-					const result = await runTask(fs, task, finalArgs, events, invokeTask);
-					timingToRunTask();
-					if (result.ok) {
-						log.info(`✓ ${cyan(task.name)}`);
-					} else {
-						log.info(`${red('🞩')} ${cyan(task.name)}`);
-						logErrorReasons(log, [result.reason]);
-						throw result.error;
-					}
+					log.info(`${red('🞩')} ${cyan(task.name)}`);
+					logErrorReasons(log, [result.reason]);
+					throw result.error;
 				}
 			} else {
 				logErrorReasons(log, loadModulesResult.reasons);
