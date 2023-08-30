@@ -1,10 +1,11 @@
 import {readable, type Readable} from 'svelte/store';
+import {DEV, BROWSER} from 'esm-env';
 
 // see this issue: https://github.com/sveltejs/kit/issues/1485
 
 // $app/environment
-export const browser = false;
-export const dev = import.meta.env?.DEV ?? process.env.NODE_ENV !== 'production';
+export const browser = BROWSER;
+export const dev = DEV;
 export const prerendering = false;
 
 // $app/paths
