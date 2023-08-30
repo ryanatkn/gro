@@ -51,8 +51,8 @@ export const invokeTask = async (
 	args: Args,
 	events = new EventEmitter(),
 ): Promise<void> => {
-	console.log(`taskName, args`, taskName, args);
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
+	SystemLogger.level = 'debug'; // TODO BLOCK remove this
 
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {
