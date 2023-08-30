@@ -36,7 +36,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
-	run: async ({fs, args, log}): Promise<void> => {
+	run: async ({fs, args, log, invokeTask}): Promise<void> => {
 		const {branch, changelog, dry} = args;
 		if (dry) {
 			log.info(green('dry run!'));
@@ -63,11 +63,8 @@ export const task: Task<Args> = {
 			if (!buildResult.ok) throw Error('Failed to build Gro');
 		}
 
-		// Check in dev mode before proceeding.
-		const checkResult = await spawn('npx', ['gro', 'check'], {
-			env: {...process.env, NODE_ENV: 'development'},
-		});
-		if (!checkResult.ok) throw Error('gro check failed');
+		// Check before proceeding.
+		await invokeTask('check');
 
 		// Bump the version so the package.json is updated before building:
 		if (dry) {
@@ -91,8 +88,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		const buildResult = await spawn('npx', ['gro', 'build', ...toRawRestArgs()]);
-		if (!buildResult.ok) throw Error('gro build failed');
+		await invokeTask('build');
 
 		if (dry) {
 			log.info('publishing branch ' + branch);

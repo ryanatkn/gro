@@ -123,8 +123,6 @@ with some magic but not too much:
 
 ```bash
 gro # print all available tasks with the pattern `*.task.ts`
-gro help # same as `gro`
-gro --help # same as `gro`
 gro some/dir # list all tasks inside `src/some/dir`
 gro some/file # run `src/some/file.task.ts`
 gro some/file.task.ts # same as above

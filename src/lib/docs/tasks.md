@@ -14,7 +14,6 @@ What is a `Task`? See [`task.md`](./task.md).
 - [dev](../dev.task.ts) - start SvelteKit and other dev plugins
 - [format](../format.task.ts) - format source files
 - [gen](../gen.task.ts) - run code generation scripts
-- [help](../help.task.ts) - alias for `gro` with no task name provided
 - [lint](../lint.task.ts) - run eslint on the source files
 - [publish](../publish.task.ts) - bump version, publish to npm, and git push
 - [test](../test.task.ts) - run tests
