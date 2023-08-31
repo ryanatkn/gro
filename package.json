@@ -207,9 +207,33 @@
       "default": "./dist/config/gro.config.default.js",
       "types": "./dist/config/gro.config.default.d.ts"
     },
+    "./fs/filesystem.js": {
+      "default": "./dist/fs/filesystem.js",
+      "types": "./dist/fs/filesystem.d.ts"
+    },
+    "./fs/inputPath.js": {
+      "default": "./dist/fs/inputPath.js",
+      "types": "./dist/fs/inputPath.d.ts"
+    },
+    "./fs/modules.js": {
+      "default": "./dist/fs/modules.js",
+      "types": "./dist/fs/modules.d.ts"
+    },
+    "./gen/genModule.js": {
+      "default": "./dist/gen/genModule.js",
+      "types": "./dist/gen/genModule.d.ts"
+    },
+    "./gen/runGen.js": {
+      "default": "./dist/gen/runGen.js",
+      "types": "./dist/gen/runGen.d.ts"
+    },
     "./gen/helpers/ts.js": {
       "default": "./dist/gen/helpers/ts.js",
       "types": "./dist/gen/helpers/ts.d.ts"
+    },
+    "./gen/helpers/typeImports.js": {
+      "default": "./dist/gen/helpers/typeImports.js",
+      "types": "./dist/gen/helpers/typeImports.d.ts"
     },
     "./path/inputPath.js": {
       "default": "./dist/path/inputPath.js",
