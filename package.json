@@ -56,8 +56,8 @@
     "fs-extra": "^11.1.1",
     "kleur": "^4.1.5",
     "mri": "^1.2.0",
-    "prettier": "^3.0.2",
-    "prettier-plugin-svelte": "^3.0.3",
+    "prettier": "^2.8.8",
+    "prettier-plugin-svelte": "^2.10.1",
     "source-map-support": "^0.5.21",
     "strict-event-emitter-types": "^2.0.0",
     "tslib": "^2.6.0",
@@ -76,6 +76,7 @@
     "@types/estree": "^1.0.1",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^20.3.2",
+    "@types/prettier": "^2.7.3",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "esbuild": "^0.18.0",
@@ -138,59 +139,59 @@
       "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./build.task.ts": {
+    "./build.task.js": {
       "default": "./dist/build.task.js",
       "types": "./dist/build.task.d.ts"
     },
-    "./check.task.ts": {
+    "./check.task.js": {
       "default": "./dist/check.task.js",
       "types": "./dist/check.task.d.ts"
     },
-    "./clean.task.ts": {
+    "./clean.task.js": {
       "default": "./dist/clean.task.js",
       "types": "./dist/clean.task.d.ts"
     },
-    "./commit.task.ts": {
+    "./commit.task.js": {
       "default": "./dist/commit.task.js",
       "types": "./dist/commit.task.d.ts"
     },
-    "./deploy.task.ts": {
+    "./deploy.task.js": {
       "default": "./dist/deploy.task.js",
       "types": "./dist/deploy.task.d.ts"
     },
-    "./dev.task.ts": {
+    "./dev.task.js": {
       "default": "./dist/dev.task.js",
       "types": "./dist/dev.task.d.ts"
     },
-    "./format.task.ts": {
+    "./format.task.js": {
       "default": "./dist/format.task.js",
       "types": "./dist/format.task.d.ts"
     },
-    "./gen.task.ts": {
+    "./gen.task.js": {
       "default": "./dist/gen.task.js",
       "types": "./dist/gen.task.d.ts"
     },
-    "./help.task.ts": {
+    "./help.task.js": {
       "default": "./dist/help.task.js",
       "types": "./dist/help.task.d.ts"
     },
-    "./lint.task.ts": {
+    "./lint.task.js": {
       "default": "./dist/lint.task.js",
       "types": "./dist/lint.task.d.ts"
     },
-    "./publish.task.ts": {
+    "./publish.task.js": {
       "default": "./dist/publish.task.js",
       "types": "./dist/publish.task.d.ts"
     },
-    "./test.task.ts": {
+    "./test.task.js": {
       "default": "./dist/test.task.js",
       "types": "./dist/test.task.d.ts"
     },
-    "./typecheck.task.ts": {
+    "./typecheck.task.js": {
       "default": "./dist/typecheck.task.js",
       "types": "./dist/typecheck.task.d.ts"
     },
-    "./upgrade.task.ts": {
+    "./upgrade.task.js": {
       "default": "./dist/upgrade.task.js",
       "types": "./dist/upgrade.task.d.ts"
     },
@@ -210,15 +211,15 @@
       "default": "./dist/gen/helpers/ts.js",
       "types": "./dist/gen/helpers/ts.d.ts"
     },
-    "./path/inputPath.ts": {
+    "./path/inputPath.js": {
       "default": "./dist/path/inputPath.js",
       "types": "./dist/path/inputPath.d.ts"
     },
-    "./path/pathData.ts": {
+    "./path/pathData.js": {
       "default": "./dist/path/pathData.js",
       "types": "./dist/path/pathData.d.ts"
     },
-    "./path/paths.ts": {
+    "./path/paths.js": {
       "default": "./dist/path/paths.js",
       "types": "./dist/path/paths.d.ts"
     },

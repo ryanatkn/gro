@@ -1,12 +1,10 @@
 import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
+import sourcemapSupport from 'source-map-support';
 
 import {invokeTask} from '../task/invokeTask.js';
 import {fs} from '../fs/node.js';
 import {TaskError} from '../task/task.js';
 import {toTaskArgs} from '../task/args.js';
-
-// handle uncaught errors
-attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : null));
 
 /*
 
@@ -19,10 +17,12 @@ and the rest of the args are forwarded to the task's `run` function.
 
 */
 
-// TODO BLOCK maybe remove this? or always include it?
-// install sourcemaps for Gro development
-// const sourcemapSupport = await import('source-map-support'); // is a peer dependency
-// sourcemapSupport.install({handleUncaughtExceptions: false});
+// handle uncaught errors
+attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : null));
+
+// install sourcemaps for user tasks
+// TODO remove after changing to runtime compilation
+sourcemapSupport.install({handleUncaughtExceptions: false});
 
 const {taskName, args} = toTaskArgs();
 await invokeTask(fs, taskName, args);

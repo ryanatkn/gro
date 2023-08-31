@@ -6,7 +6,6 @@ import type {Args} from '../task/args.js';
 import {sourceIdToBasePath} from '../path/paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
-import {GEN_NO_PROD_MESSAGE} from '../gen/runGen.js';
 import {throttle} from '../util/throttle.js';
 
 const name = '@feltjs/gro-plugin-gen';
@@ -50,7 +49,9 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	return {
 		name,
 		setup: async ({filer, args: {watch}, dev, log, fs}) => {
-			if (!dev) throw Error(GEN_NO_PROD_MESSAGE);
+			// For production builds, we assume `gen` is already fresh,
+			// which should be checked by CI via `gro check` which calls `gro gen --check`.
+			if (!dev) return;
 
 			// Run `gen`, first checking if there are any modules to avoid a console error.
 			// Some parts of the build may have already happened,

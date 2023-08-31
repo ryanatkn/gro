@@ -60,7 +60,7 @@ export const task: Task<Args, TaskEvents> = {
 		// TODO delete prod builds (what about config/system tho?)
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, false);
+		const config = await loadConfig(fs);
 		timingToLoadConfig();
 		events.emit('build.createConfig', config);
 

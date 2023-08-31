@@ -42,7 +42,7 @@ export const task: Task<Args, TaskEvents> = {
 		const timings = new Timings();
 
 		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs, true);
+		const config = await loadConfig(fs);
 		timingToLoadConfig();
 		events.emit('dev.createConfig', config);
 

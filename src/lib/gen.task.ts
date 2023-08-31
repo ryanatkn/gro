@@ -46,7 +46,7 @@ export const task: Task<Args> = {
 		// but running `gro gen` from dev/build tasks will not want to rebuild.
 		if (rebuild) {
 			const timingToLoadConfig = timings.start('load config');
-			const config = await loadConfig(fs, true);
+			const config = await loadConfig(fs);
 			timingToLoadConfig();
 			const timingToBuildSource = timings.start('buildSource');
 			await buildSource(fs, config, true, log);

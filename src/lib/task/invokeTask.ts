@@ -83,7 +83,7 @@ export const invokeTask = async (
 			built = true;
 			log.debug('building project to run task');
 			const timingToLoadConfig = timings.start('load config');
-			const config = await loadConfig(fs, true);
+			const config = await loadConfig(fs);
 			timingToLoadConfig();
 			const timingToBuildProject = timings.start('build project');
 			await buildSource(fs, config, true, log);

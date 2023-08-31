@@ -5,7 +5,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import {paths} from '../path/paths.js';
-import {CONFIG_BUILD_NAME, SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';
+import {SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';
 import {validateInputFiles} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -43,12 +43,10 @@ export type PlatformTarget = 'node' | 'browser';
 
 export const normalizeBuildConfigs = (
 	partials: ReadonlyArray<BuildConfigPartial | null>,
-	dev: boolean,
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	// The system build is ignored for dev mode.
 	const buildConfigs: BuildConfig[] = [];
-	let shouldAddSystemBuildConfig = dev; // add system build only for dev, not prod
 	for (const partial of partials) {
 		if (!partial) continue;
 		const buildConfig: BuildConfig = {
@@ -57,11 +55,8 @@ export const normalizeBuildConfigs = (
 			input: normalizeBuildConfigInput(partial.input),
 		};
 		buildConfigs.push(buildConfig);
-		if (shouldAddSystemBuildConfig && buildConfig.name === SYSTEM_BUILD_NAME) {
-			shouldAddSystemBuildConfig = false;
-		}
 	}
-	if (shouldAddSystemBuildConfig) {
+	if (!buildConfigs.some((c) => c.name === SYSTEM_BUILD_NAME)) {
 		buildConfigs.unshift(SYSTEM_BUILD_CONFIG);
 	}
 	return buildConfigs;
@@ -74,31 +69,11 @@ const normalizeBuildConfigInput = (input: BuildConfigPartial['input']): BuildCon
 export const validateBuildConfigs = async (
 	fs: Filesystem,
 	buildConfigs: BuildConfig[],
-	dev: boolean,
 ): Promise<Result<object, {reason: string}>> => {
 	if (!Array.isArray(buildConfigs)) {
 		return {
 			ok: false,
 			reason: `The field 'gro.builds' in package.json must be an array`,
-		};
-	}
-	const configBuildConfig = buildConfigs.find((c) => c.name === CONFIG_BUILD_NAME);
-	if (configBuildConfig) {
-		return {
-			ok: false,
-			reason:
-				`The field 'gro.builds' in package.json has` +
-				` a 'node' config with reserved name '${CONFIG_BUILD_NAME}'`,
-		};
-	}
-	const systemBuildConfig = buildConfigs.find((c) => c.name === SYSTEM_BUILD_NAME);
-	if (!dev && systemBuildConfig) {
-		return {
-			ok: false,
-			reason:
-				`The field 'gro.builds' in package.json has` +
-				` a 'node' config named '${SYSTEM_BUILD_NAME}'` +
-				' for production but it is valid only in development',
 		};
 	}
 	const names: Set<BuildName> = new Set();

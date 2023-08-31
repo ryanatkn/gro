@@ -20,7 +20,7 @@ It looks at the project and tries to do the right thing:
 
 */
 
-const config: GroConfigCreator = async ({fs, dev}) => {
+const config: GroConfigCreator = async ({fs}) => {
 	const [enableNodeLibrary, enableApiServer, enableSveltekitFrontend] = await Promise.all([
 		hasNodeLibrary(fs),
 		hasApiServer(fs),
@@ -34,7 +34,7 @@ const config: GroConfigCreator = async ({fs, dev}) => {
 			enableSveltekitFrontend
 				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).createPlugin()
 				: null,
-			dev ? (await import('../plugin/gro-plugin-gen.js')).createPlugin() : null,
+			(await import('../plugin/gro-plugin-gen.js')).createPlugin(),
 		],
 		adapt: async () => [
 			enableNodeLibrary
