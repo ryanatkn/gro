@@ -223,6 +223,10 @@
       "default": "./dist/path/paths.js",
       "types": "./dist/path/paths.d.ts"
     },
+    "./util/schema.js": {
+      "default": "./dist/util/schema.js",
+      "types": "./dist/util/schema.d.ts"
+    },
     "./util/sveltekitImportMocks.js": {
       "default": "./dist/util/sveltekitImportMocks.js",
       "types": "./dist/util/sveltekitImportMocks.d.ts"
