@@ -136,7 +136,6 @@ const toBuildDependency = (
 
 // Maps absolute `$lib/` and `src/` imports to relative specifiers.
 const toRelativeSpecifier = (specifier: string, dir: string, sourceDir: string): string => {
-	console.log(`toRelativeSpecifier`, specifier, dir, sourceDir);
 	if (specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
 		return toRelativeSpecifierTrimmedBy(1, specifier, dir, sourceDir);
 	} else if (specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
