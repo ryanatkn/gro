@@ -4,7 +4,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Assignable} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
 
-import {paths, toBuildOutPath, CONFIG_BUILD_PATH} from '../path/paths.js';
+import {paths, toBuildOutPath, CONFIG_BUILD_BASE_PATH} from '../path/paths.js';
 import {
 	normalizeBuildConfigs,
 	validateBuildConfigs,
@@ -117,7 +117,7 @@ const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
 
 	const options: GroConfigCreatorOptions = {fs, log, config: null as any};
 	const defaultConfig = await toConfig(createDefaultConfig, options, '');
-	console.log(`defaultConfig`, defaultConfig);
+	console.log(`defaultConfig`, defaultConfig, defaultConfig.builds[0]);
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
 
 	const {configSourceId} = paths;
@@ -128,7 +128,7 @@ const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
 		// TODO BLOCK this is a hack, may be acceptable for now, we were previously erroring if `configBuildId` isn't found
 		// The project has a `gro.config.ts`, so import it.
 		// If it's not already built, we need to bootstrap the config and use it to compile everything.
-		const configBuildId = toBuildOutPath(true, SYSTEM_BUILD_NAME, CONFIG_BUILD_PATH);
+		const configBuildId = toBuildOutPath(true, SYSTEM_BUILD_NAME, CONFIG_BUILD_BASE_PATH);
 		if (await fs.exists(configBuildId)) {
 			console.log('_loadConfig EXISTS AND FOUND');
 			const configModule = await import(configBuildId);
@@ -142,7 +142,7 @@ const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
 		console.log('_loadConfig DOESNT EXIST');
 		config = defaultConfig;
 	}
-	console.log(`config`, config);
+	console.log(`config`, config, config.builds[0]);
 	return config;
 };
 

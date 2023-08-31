@@ -1,7 +1,13 @@
 import {createFilter} from '@rollup/pluginutils';
 
 import type {BuildConfig, BuildName} from './buildConfig.js';
-import {toBuildExtension, basePathToSourceId, LIB_DIR, LIB_DIRNAME} from '../path/paths.js';
+import {
+	toBuildExtension,
+	basePathToSourceId,
+	LIB_DIR,
+	LIB_DIRNAME,
+	CONFIG_SOURCE_PATH,
+} from '../path/paths.js';
 import type {EcmaScriptTarget} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -17,7 +23,13 @@ export const SYSTEM_BUILD_NAME: BuildName = 'system';
 export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 	name: SYSTEM_BUILD_NAME,
 	platform: 'node',
-	input: [createFilter(['**/*.{task,test,gen,gen.*,schema,gro.config}.ts', '**/fixtures/**'])],
+	input: [
+		createFilter([
+			'**/' + CONFIG_SOURCE_PATH,
+			'**/*.{task,test,gen,gen.*,schema}.ts',
+			'**/fixtures/**',
+		]),
+	],
 };
 
 export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> => fs.exists(LIB_DIR);

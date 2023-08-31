@@ -19,9 +19,7 @@ export interface Plugin<TPluginContext extends PluginContext = PluginContext> {
 }
 
 export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
-	(
-		ctx: TPluginContext,
-	):
+	(ctx: TPluginContext):
 		| (Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>)
 		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
 }

@@ -22,9 +22,7 @@ export interface Adapter<TArgs = any, TEvents = any> {
 }
 
 export interface ToConfigAdapters<TArgs = any, TEvents = any> {
-	(
-		ctx: AdapterContext<TArgs, TEvents>,
-	):
+	(ctx: AdapterContext<TArgs, TEvents>):
 		| (Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>)
 		| Promise<Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>>;
 }

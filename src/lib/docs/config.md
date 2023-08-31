@@ -102,9 +102,7 @@ Read more about `plugin` and the `Plugin` in
 
 ```ts
 export interface ToConfigPlugins<TArgs = any, TEvents = any> {
-	(
-		ctx: PluginContext<TArgs, TEvents>,
-	):
+	(ctx: PluginContext<TArgs, TEvents>):
 		| (Plugin<TArgs, TEvents> | null | (Plugin<TArgs, TEvents> | null)[])
 		| Promise<Plugin<TArgs, TEvents> | null | (Plugin<TArgs, TEvents> | null)[]>;
 }
@@ -117,9 +115,7 @@ Read more about `adapt` and the `Adapter` in [adapt.md](adapt.md) and [build.md]
 
 ```ts
 export interface ToConfigAdapters<TArgs = any, TEvents = any> {
-	(
-		ctx: AdapterContext<TArgs, TEvents>,
-	):
+	(ctx: AdapterContext<TArgs, TEvents>):
 		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
 		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
 }
