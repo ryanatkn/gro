@@ -116,7 +116,6 @@ const toBuildDependency = (
 	let mappedSpecifier: string;
 	if (external) {
 		mappedSpecifier = hack_to_sveltekit_import_shims(toBuildExtension(specifier), dev);
-		// TODO is this needed?
 		finalSpecifier = hack_to_sveltekit_import_shims(finalSpecifier, dev);
 		buildId = mappedSpecifier;
 	} else {

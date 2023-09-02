@@ -1,4 +1,4 @@
-import fg from 'fast-glob';
+import glob from 'tiny-glob';
 import fsExtra from 'fs-extra';
 import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
@@ -14,7 +14,7 @@ const findFiles = async (
 	sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
 ): Promise<Map<string, PathStats>> => {
 	const finalDir = stripEnd(dir, '/');
-	const globbed = await fg.glob(finalDir + '/**/*');
+	const globbed = await glob(finalDir + '/**/*', {absolute: true});
 	const paths: Map<string, PathStats> = new Map();
 	for (const g of globbed) {
 		const path = stripStart(g, finalDir + '/'); // converting back to what cheap-watch did
