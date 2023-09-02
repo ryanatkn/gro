@@ -1,4 +1,5 @@
 // shim for $app/stores
+// @see https://github.com/sveltejs/kit/issues/1485
 
 import type {
 	getStores as base_getStores,

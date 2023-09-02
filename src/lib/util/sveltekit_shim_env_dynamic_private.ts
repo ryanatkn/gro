@@ -1,6 +1,12 @@
-import {DEV} from 'esm-env';
-import {loadEnv} from 'vite';
+// shim for $env/dynamic/private
+// @see https://github.com/sveltejs/kit/issues/1485
 
-const env = loadEnv(DEV ? 'development' : 'production', '');
+import {loadEnv} from 'vite';
+import { stripEnd } from '@feltjs/util/string.js';
+
+import { paths } from '../path/paths.js';
+
+console.log(`loading paths.root`, stripEnd(paths.root, '/'));
+const env = loadEnv('development', stripEnd(paths.root, '/'));
 
 console.log(`LOADED VITE env`, env);
