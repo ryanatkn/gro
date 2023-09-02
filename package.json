@@ -271,6 +271,22 @@
       "default": "./dist/util/sveltekit_shim_app_stores.js",
       "types": "./dist/util/sveltekit_shim_app_stores.d.ts"
     },
+    "./util/sveltekit_shim_env_dynamic_private.js": {
+      "default": "./dist/util/sveltekit_shim_env_dynamic_private.js",
+      "types": "./dist/util/sveltekit_shim_env_dynamic_private.d.ts"
+    },
+    "./util/sveltekit_shim_env_dynamic_public.js": {
+      "default": "./dist/util/sveltekit_shim_env_dynamic_public.js",
+      "types": "./dist/util/sveltekit_shim_env_dynamic_public.d.ts"
+    },
+    "./util/sveltekit_shim_env_static_private.js": {
+      "default": "./dist/util/sveltekit_shim_env_static_private.js",
+      "types": "./dist/util/sveltekit_shim_env_static_private.d.ts"
+    },
+    "./util/sveltekit_shim_env_static_public.js": {
+      "default": "./dist/util/sveltekit_shim_env_static_public.js",
+      "types": "./dist/util/sveltekit_shim_env_static_public.d.ts"
+    },
     "./util/sveltekit_sync.js": {
       "default": "./dist/util/sveltekit_sync.js",
       "types": "./dist/util/sveltekit_sync.d.ts"

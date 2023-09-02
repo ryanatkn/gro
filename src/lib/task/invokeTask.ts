@@ -53,6 +53,8 @@ export const invokeTask = async (
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
 
+	await import('../util/sveltekit_shim_env_dynamic_private.js');
+
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {
 		const groPackageJson = await loadGroPackageJson(fs);

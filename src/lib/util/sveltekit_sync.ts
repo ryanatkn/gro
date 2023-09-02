@@ -2,7 +2,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 import {findCli, spawnCli} from './cli.js';
 import {TaskError} from '../task/task.js';
 
-export const sveltekit_sync = async (fs: Filesystem): Promise<void> => {
+export const sveltekitSync = async (fs: Filesystem): Promise<void> => {
 	if (!(await findCli(fs, 'svelte-kit'))) {
 		return;
 	}
