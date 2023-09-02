@@ -115,14 +115,14 @@ const toBuildDependency = (
 	const external = isExternalModule(specifier); // TODO should this be tracked?
 	let mappedSpecifier: string;
 	if (external) {
-		mappedSpecifier = hackToSveltekitImportMocks(toBuildExtension(specifier), dev);
+		mappedSpecifier = hack_to_sveltekit_import_shims(toBuildExtension(specifier), dev);
 		// TODO is this needed?
-		finalSpecifier = hackToSveltekitImportMocks(finalSpecifier, dev);
+		finalSpecifier = hack_to_sveltekit_import_shims(finalSpecifier, dev);
 		buildId = mappedSpecifier;
 	} else {
 		// internal import
 		finalSpecifier = toRelativeSpecifier(finalSpecifier, source.dir, paths.source);
-		mappedSpecifier = hackToBuildExtensionWithPossiblyExtensionlessSpecifier(finalSpecifier);
+		mappedSpecifier = hack_to_build_extension_with_possibly_extensionless_specifier(finalSpecifier);
 		buildId = join(dir, mappedSpecifier);
 	}
 	return {
@@ -161,7 +161,9 @@ const toRelativeSpecifierTrimmedBy = (
 // because now we can't extract the extension from a user-provided specifier. Gack!
 // Exposing this hack to user config is something that's probably needed,
 // but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
-const hackToBuildExtensionWithPossiblyExtensionlessSpecifier = (specifier: string): string => {
+const hack_to_build_extension_with_possibly_extensionless_specifier = (
+	specifier: string,
+): string => {
 	const extension = extname(specifier);
 	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
 		? specifier + JS_EXTENSION
@@ -173,17 +175,18 @@ const HACK_EXTENSIONLESS_EXTENSIONS = new Set([JS_EXTENSION, TS_EXTENSION]);
 
 // TODO substitutes SvelteKit-specific paths for Gro's mocked version for testing purposes.
 // should extract this so it's configurable. (this whole module is hacky and needs rethinking)
-const hackToSveltekitImportMocks = (specifier: string, dev: boolean): string =>
+const hack_to_sveltekit_import_shims = (specifier: string, dev: boolean): string =>
 	dev && sveltekitMockedSpecifiers.has(specifier)
 		? sveltekitMockedSpecifiers.get(specifier)!
 		: specifier;
-const SVELTEKIT_IMPORT_MOCK_SPECIFIER = isThisProjectGro
-	? '../../util/sveltekitImportMocks.js'
-	: '@feltjs/gro/util/sveltekitImportMocks.js';
+
+const to_sveltekit_shim_specifier = (filename: string) =>
+	(isThisProjectGro ? '../../util/' : '@feltjs/gro/util/') + filename;
+
 const sveltekitMockedSpecifiers = new Map([
-	['$app/environment', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
-	['$app/forms', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
-	['$app/navigation', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
-	['$app/paths', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
-	['$app/stores', SVELTEKIT_IMPORT_MOCK_SPECIFIER],
+	['$app/environment', to_sveltekit_shim_specifier('sveltekit_shim_app_environment.js')],
+	['$app/forms', to_sveltekit_shim_specifier('sveltekit_shim_app_forms.js')],
+	['$app/navigation', to_sveltekit_shim_specifier('sveltekit_shim_app_navigation.js')],
+	['$app/paths', to_sveltekit_shim_specifier('sveltekit_shim_app_paths.js')],
+	['$app/stores', to_sveltekit_shim_specifier('sveltekit_shim_app_stores.js')],
 ]);

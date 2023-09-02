@@ -379,10 +379,12 @@ What makes Gro different?
 
 - The `*.task.ts` file name convention signals to Gro that your application
   contains task modules that conform to some interface.
-  This allows them to be discoverable and puts generic handles on them,
+  This allows them to be discoverable,
+  so running `gro` displays them all without any config,
+  and it puts generic handles on them,
   enabling various verbs (e.g. "run") and
   structured metadata (e.g. "summary").
-- Tasks can be imported, inspected, combined, and manipulated in code.
+- Tasks aren't just a script, they can be inspected, composed, and manipulated in code.
   Task modules do not have any side effects when imported,
   while Node scripts just execute when imported -
   their primary purpose is to cause side effects.
@@ -390,10 +392,9 @@ What makes Gro different?
   - When a task name is given to Gro,
     it first searches the current working directory and
     falls back to searching the Gro directory.
-    This allows your code to use Gro's builtin tasks or override them,
-    and you can make your own tasks using the same conventions that Gro uses.
+    This allows your code to use Gro's builtin tasks or override them by covention.
     Gro reserves no special behavior for its own commands -
-    `gro test` and all the rest are just tasks that all follow the same rules.
+    `gro test`, `gro gen`, and all the rest are just tasks that all follow the same rules.
     (see its task at [`src/test.task.ts`](../test.task.ts))
   - When a directory is given to Gro,
     it prints all of the tasks found inside it,

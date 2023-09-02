@@ -251,9 +251,25 @@
       "default": "./dist/util/schema.js",
       "types": "./dist/util/schema.d.ts"
     },
-    "./util/sveltekitImportMocks.js": {
-      "default": "./dist/util/sveltekitImportMocks.js",
-      "types": "./dist/util/sveltekitImportMocks.d.ts"
+    "./util/sveltekit_shim_app_environment.js": {
+      "default": "./dist/util/sveltekit_shim_app_environment.js",
+      "types": "./dist/util/sveltekit_shim_app_environment.d.ts"
+    },
+    "./util/sveltekit_shim_app_forms.js": {
+      "default": "./dist/util/sveltekit_shim_app_forms.js",
+      "types": "./dist/util/sveltekit_shim_app_forms.d.ts"
+    },
+    "./util/sveltekit_shim_app_navigation.js": {
+      "default": "./dist/util/sveltekit_shim_app_navigation.js",
+      "types": "./dist/util/sveltekit_shim_app_navigation.d.ts"
+    },
+    "./util/sveltekit_shim_app_paths.js": {
+      "default": "./dist/util/sveltekit_shim_app_paths.js",
+      "types": "./dist/util/sveltekit_shim_app_paths.d.ts"
+    },
+    "./util/sveltekit_shim_app_stores.js": {
+      "default": "./dist/util/sveltekit_shim_app_stores.js",
+      "types": "./dist/util/sveltekit_shim_app_stores.d.ts"
     }
   }
 }
