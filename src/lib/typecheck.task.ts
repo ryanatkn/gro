@@ -3,7 +3,7 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
-import {sveltekitSync} from './util/sveltekit.js';
+import {sveltekitSync} from './util/sveltekit_sync.js';
 import {findCli, spawnCli} from './util/cli.js';
 
 export const Args = z.object({}).strict();

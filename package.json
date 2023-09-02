@@ -270,6 +270,10 @@
     "./util/sveltekit_shim_app_stores.js": {
       "default": "./dist/util/sveltekit_shim_app_stores.js",
       "types": "./dist/util/sveltekit_shim_app_stores.d.ts"
+    },
+    "./util/sveltekit_sync.js": {
+      "default": "./dist/util/sveltekit_sync.js",
+      "types": "./dist/util/sveltekit_sync.d.ts"
     }
   }
 }
