@@ -19,11 +19,9 @@ export const load_env = (
 };
 
 export const load = (path: string): null | Record<string, string> => {
-	if (!existsSync(path)) console.log(`>>>>>>>>>NOT FOUND`, path);
 	if (!existsSync(path)) return null;
 	const content = readFileSync(path, 'utf8');
 	const parsed = dotenv.parse(content);
-	console.log(`>>>>>>>>>LOAD parsed`, path, parsed);
 	return parsed;
 };
 
@@ -37,7 +35,6 @@ export const merge_envs = (
 
 	for (const e of envs) {
 		for (const key in e) {
-			console.log(`key`, key, e[key], visibility, public_prefix, private_prefix);
 			if (
 				(visibility === 'private' &&
 					key.startsWith(private_prefix) &&
