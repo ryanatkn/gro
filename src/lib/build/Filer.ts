@@ -17,7 +17,13 @@ import {
 	type EcmaScriptTarget,
 	type MapDependencyToSourceId,
 } from './helpers.js';
-import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../path/paths.js';
+import {
+	paths as defaultPaths,
+	toBuildOutPath,
+	type Paths,
+	type SourceId,
+	isThisProjectGro,
+} from '../path/paths.js';
 import type {BuildContext, Builder} from './builder.js';
 import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
@@ -38,6 +44,7 @@ import type {BuildDependency} from './buildDependency.js';
 import type {PathFilter} from '../fs/filter.js';
 import {isExternalModule} from '../path/module.js';
 import {throttle} from '../util/throttle.js';
+import {load_env} from '../util/env.js';
 
 /*
 
@@ -242,8 +249,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 
 			// Add the virtual shim files to support SvelteKit $env imports.
-			// TODO BLOCK refactor
-			promises.push(this.add_sveltekit_env_shim_files(buildConfig));
+			// We don't do this for Gro because it doesn't use env vars internally for development,
+			// and we don't want to ship these virtual modules in the library.
+			if (!isThisProjectGro) {
+				promises.push(this.add_sveltekit_env_shim_files(buildConfig));
+			}
 		}
 
 		// Iterate through the files once and apply the filters to all source files.
@@ -993,24 +1003,26 @@ export const nulls: {[key: string]: null} = new Proxy(
 	},
 );
 
+// TODO BLOCK support all of process.env like SvelteKit?
 const create_env_shim_module = (
 	dev: boolean,
 	staticOrDynamic: 'static' | 'dynamic',
 	visibility: 'public' | 'private',
 ): string => {
-	const env_filename = '.env.' + (dev ? 'development' : 'production');
+	const path = '.env.' + (dev ? 'development' : 'production');
+	const loaded = load_env(path);
+	console.log(`loaded>>>>>>>>>>>>>>>`, loaded);
 	return `// shim for $env/${staticOrDynamic}/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
 
-import {loadEnv} from 'vite';
-
+import {load_env} from '@feltjs/gro/util/env.js';
 import {paths} from '@feltjs/gro/path/paths.js';
 
 export const PUBLIC_ADMIN_EMAIL_ADDRESS = 'TODO@email.com';
 
-console.log(\`loading paths.root\`, paths.root);
-const env = loadEnv('development', paths.root, '');
+const env = load_env('${path}');
+// const env = load_env('development', paths.root, '');
 
-console.log(\`LOADED VITEDDD env\`, env);
+console.log('----------------------LOADED env', env);
 	`;
 };

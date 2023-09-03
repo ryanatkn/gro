@@ -248,6 +248,10 @@
       "default": "./dist/path/paths.js",
       "types": "./dist/path/paths.d.ts"
     },
+    "./util/env.js": {
+      "default": "./dist/util/env.js",
+      "types": "./dist/util/env.d.ts"
+    },
     "./util/schema.js": {
       "default": "./dist/util/schema.js",
       "types": "./dist/util/schema.d.ts"
