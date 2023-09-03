@@ -27,7 +27,7 @@ export const createPlugin = ({
 	};
 
 	return {
-		name: '@feltjs/gro-plugin-api-server',
+		name: 'gro-plugin-api-server',
 		setup: async ({dev, fs, filer}) => {
 			if (!dev) return;
 

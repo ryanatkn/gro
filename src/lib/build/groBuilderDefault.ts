@@ -36,6 +36,6 @@ export const groBuilderDefault = (options: Options = {}): Builder => {
 
 	return {
 		...groBuilderSimple(finalSimpleBuilderOptions),
-		name: '@feltjs/groBuilderDefault',
+		name: 'groBuilderDefault',
 	};
 };

@@ -90,11 +90,11 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			});
 		}
 
-		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, ctx, source)));
+		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, source)));
 		return buildFiles;
 	};
 
-	return {name: '@feltjs/groBuilderEsbuild', build};
+	return {name: 'groBuilderEsbuild', build};
 };
 
 type CreateEsbuildOptions = (

@@ -31,7 +31,7 @@ import type {BuildName, BuildConfig} from './buildConfig.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
 import {assertSourceFile, createSourceFile, type SourceFile} from './sourceFile.js';
 import {diffDependencies, type BuildFile} from './buildFile.js';
-import type {BaseFilerFile} from './filerFile.js';
+import type {BaseFilerFile, FilerFile, FilerFileId} from './filerFile.js';
 import {loadContent} from './load.js';
 import {
 	type SourceMeta,
@@ -111,8 +111,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements BuildContext {
 	// TODO think about accessors - I'm currently just making things public when I need them here
-	private readonly files: Map<SourceId, SourceFile> = new Map();
-	private readonly buildFiles: Map<BuildId, BuildFile> = new Map(); // TODO currently unused
+	private readonly files: Map<FilerFileId, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly builder: Builder;
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
@@ -254,7 +253,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			for (const dir of this.dirs) {
 				// eslint-disable-next-line no-await-in-loop
 				const envSourceFile = await createSourceFile(
-					this.paths.lib + '/util/sveltekit_shim_env_static_public.ts',
+					this.paths.lib + '/sveltekit_shim_env_static_public.ts',
 					'utf8',
 					'.ts',
 					`// shim for $env/static/public
@@ -262,7 +261,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					
 					import {loadEnv} from 'vite';
 					
-					import {paths} from '../path/paths.js';
+					import {paths} from '@feltjs/gro/path/paths.js';
+
+					export const PUBLIC_ADMIN_EMAIL_ADDRESS = 'TODO@email.com';
 					
 					console.log(\`loading paths.root\`, paths.root);
 					const env = loadEnv('development', paths.root, '');
@@ -285,6 +286,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Iterate through the files once and apply the filters to all source files.
 		if (filters.length) {
 			for (const file of this.files.values()) {
+				if (file.type !== 'source') continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						const buildConfig = filterBuildConfigs[i];
@@ -442,8 +444,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		let dependentBuildConfigs: Set<BuildConfig> | null = null;
 		// TODO could be sped up with some caching data structures
 		for (const f of this.files.values()) {
+			if (f.type !== 'source') continue;
 			for (const [buildConfig, dependenciesMap] of f.dependencies) {
-				if (!dependenciesMap?.has) console.log(`f`, f);
 				if (dependenciesMap.has(file.id)) {
 					const dependencies = dependenciesMap.get(file.id)!;
 					for (const dependency of dependencies.values()) {
@@ -613,7 +615,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
 		const changes = diffBuildFiles(newBuildFiles, oldBuildFiles);
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
-		syncBuildFilesToMemoryCache(this.buildFiles, changes);
+		syncBuildFilesToMemoryCache(this.files, changes);
 		await Promise.all([
 			syncBuildFilesToDisk(this.fs, changes, this.log),
 			this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig),
@@ -634,7 +636,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			throw Error(`Expected to find build files when hydrating from cache.`);
 		}
 		const changes = diffBuildFiles(buildFiles, null);
-		syncBuildFilesToMemoryCache(this.buildFiles, changes);
+		syncBuildFilesToMemoryCache(this.files, changes);
 		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
 	}
 
@@ -827,7 +829,7 @@ const syncBuildFilesToDisk = async (
 };
 
 const syncBuildFilesToMemoryCache = (
-	buildFiles: Map<BuildId, BuildFile>,
+	buildFiles: Map<FilerFileId, FilerFile>,
 	changes: BuildFileChange[],
 ): void => {
 	for (const change of changes) {

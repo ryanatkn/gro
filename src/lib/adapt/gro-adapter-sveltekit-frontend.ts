@@ -15,7 +15,7 @@ export const createAdapter = ({
 }: Partial<Options> = {}): Adapter => {
 	const outputDir = stripTrailingSlash(dir);
 	return {
-		name: '@feltjs/gro-adapter-sveltekit-frontend',
+		name: 'gro-adapter-sveltekit-frontend',
 		adapt: async ({fs}) => {
 			if (hostTarget === 'github_pages') {
 				await Promise.all([ensureNojekyll(fs, outputDir)]);

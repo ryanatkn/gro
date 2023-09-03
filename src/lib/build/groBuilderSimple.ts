@@ -43,5 +43,5 @@ export const groBuilderSimple = (options: Options = {}): Required<Builder> => {
 		await Promise.all(toBuilders().map((builder) => builder.init?.(ctx)));
 	};
 
-	return {name: '@feltjs/groBuilderSimple', build, onRemove, init};
+	return {name: 'groBuilderSimple', build, onRemove, init};
 };

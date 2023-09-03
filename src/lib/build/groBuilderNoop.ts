@@ -4,7 +4,7 @@ import {toBuildOutPath} from '../path/paths.js';
 import type {Builder} from './builder.js';
 
 export const groBuilderNoop: Builder = {
-	name: '@feltjs/groBuilderNoop',
+	name: 'groBuilderNoop',
 	build: (source, buildConfig, {buildDir, dev}) => {
 		const {filename, extension} = source;
 		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);

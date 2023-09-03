@@ -2,8 +2,15 @@ import type {Filesystem} from '../fs/filesystem.js';
 import type {PathStats} from '../path/pathData.js';
 import type {Encoding} from '../fs/encoding.js';
 import {toHash} from './helpers.js';
+import type {SourceFile} from './sourceFile.js';
+import type {BuildFile} from './buildFile.js';
+import type {BuildId, SourceId} from '../path/paths.js';
 
 // TODO rename this module? or move this code elsewhere?
+
+export type FilerFile = SourceFile | BuildFile;
+
+export type FilerFileId = SourceId | BuildId;
 
 export interface BaseFilerFile {
 	readonly id: string;
