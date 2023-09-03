@@ -250,6 +250,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 			// Add the virtual shim files to support SvelteKit $env imports.
 			// TODO BLOCK refactor
+			this.add_sveltekit_env_shim_files();
+			this.add_virtual_source_file();
 			for (const dir of this.dirs) {
 				// eslint-disable-next-line no-await-in-loop
 				const envSourceFile = await createSourceFile(
