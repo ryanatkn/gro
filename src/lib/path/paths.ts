@@ -242,7 +242,6 @@ export const printPath = (path: string, p = paths, prefix = './'): string =>
 export const printPathOrGroPath = (path: string, fromPaths = paths): string => {
 	const inferredPaths = pathsFromId(path);
 	if (fromPaths === groPaths || inferredPaths === fromPaths) {
-		console.log(`printPathOrGroPath path`, path);
 		return printPath(path, inferredPaths, '');
 	}
 	return gray(groDirBasename) + printPath(path, groPaths, '');
