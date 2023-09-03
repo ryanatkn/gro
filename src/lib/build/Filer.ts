@@ -104,7 +104,6 @@ export const initOptions = (opts: InitialOptions): Options => {
 };
 
 export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements BuildContext {
-	// TODO think about accessors - I'm currently just making things public when I need them here
 	private readonly files: Map<FilerFileId, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly builder: Builder;
@@ -267,12 +266,12 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	private async add_virtual_source_files(
 		buildConfig: BuildConfig,
-		files: Array<Pick<SourceFile, 'id' | 'encoding' | 'extension' | 'content'>>,
+		files: Array<{id: string; content: string | Buffer; encoding?: Encoding; extension?: string}>,
 	): Promise<void> {
 		await Promise.all(
 			this.dirs
 				.map((dir) =>
-					files.map(({id, encoding, extension, content}) =>
+					files.map(({id, content, encoding = 'utf8', extension = '.ts'}) =>
 						this.add_virtual_source_file(buildConfig, dir, id, encoding, extension, content),
 					),
 				)
@@ -309,22 +308,19 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		await this.add_virtual_source_files(buildConfig, [
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_static_public.ts',
-				encoding: 'utf8',
-				extension: '.ts',
-				content: `// shim for $env/static/public
-					// @see https://github.com/sveltejs/kit/issues/1485
-					
-					import {loadEnv} from 'vite';
-					
-					import {paths} from '@feltjs/gro/path/paths.js';
-		
-					export const PUBLIC_ADMIN_EMAIL_ADDRESS = 'TODO@email.com';
-					
-					console.log(\`loading paths.root\`, paths.root);
-					const env = loadEnv('development', paths.root, '');
-					
-					console.log(\`LOADED VITEDDD env\`, env);
-				`,
+				content: create_env_shim_module(this.dev, 'static', 'public'),
+			},
+			{
+				id: this.paths.lib + '/sveltekit_shim_env_static_private.ts',
+				content: create_env_shim_module(this.dev, 'static', 'private'),
+			},
+			{
+				id: this.paths.lib + '/sveltekit_shim_env_dynamic_public.ts',
+				content: create_env_shim_module(this.dev, 'dynamic', 'public'),
+			},
+			{
+				id: this.paths.lib + '/sveltekit_shim_env_dynamic_private.ts',
+				content: create_env_shim_module(this.dev, 'dynamic', 'private'),
 			},
 		]);
 	}
@@ -996,3 +992,25 @@ export const nulls: {[key: string]: null} = new Proxy(
 		},
 	},
 );
+
+const create_env_shim_module = (
+	dev: boolean,
+	staticOrDynamic: 'static' | 'dynamic',
+	visibility: 'public' | 'private',
+): string => {
+	const env_filename = '.env.' + (dev ? 'development' : 'production');
+	return `// shim for $env/${staticOrDynamic}/${visibility}
+// @see https://github.com/sveltejs/kit/issues/1485
+
+import {loadEnv} from 'vite';
+
+import {paths} from '@feltjs/gro/path/paths.js';
+
+export const PUBLIC_ADMIN_EMAIL_ADDRESS = 'TODO@email.com';
+
+console.log(\`loading paths.root\`, paths.root);
+const env = loadEnv('development', paths.root, '');
+
+console.log(\`LOADED VITEDDD env\`, env);
+	`;
+};
