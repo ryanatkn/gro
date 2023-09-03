@@ -30,6 +30,13 @@ export const Args = z
 			})
 			.optional()
 			.default(false),
+		preserve: z
+			.boolean({
+				description:
+					'keeps the production build artifacts in the cache directory instead of deleting them',
+			})
+			.optional()
+			.default(false),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -42,7 +49,7 @@ export const task: Task<Args, TaskEvents> = {
 			fs,
 			log,
 			events,
-			args: {clean, install},
+			args: {clean, install, preserve},
 		} = ctx;
 
 		const timings = new Timings(); // TODO belongs in ctx
@@ -82,6 +89,11 @@ export const task: Task<Args, TaskEvents> = {
 		// Adapt the build to final ouputs.
 		const adapters = await adapt({...ctx, config, dev: false, timings});
 		if (!adapters.length) log.info('no adapters to `adapt`');
+
+		// Delete the production build artifacts unless the caller asks to preserve them.
+		if (!preserve) {
+			await cleanFs(fs, {buildProd: true}, log);
+		}
 
 		printTimings(timings, log);
 	},
