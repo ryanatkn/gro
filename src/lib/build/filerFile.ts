@@ -12,6 +12,7 @@ export interface BaseFilerFile {
 	readonly extension: string;
 	readonly encoding: Encoding;
 	readonly content: string | Buffer;
+	readonly type: string;
 	contentBuffer: Buffer | undefined; // `undefined` and mutable for lazy loading
 	contentHash: string | undefined; // `undefined` and mutable for lazy loading
 	stats: PathStats | undefined; // `undefined` and mutable for lazy loading

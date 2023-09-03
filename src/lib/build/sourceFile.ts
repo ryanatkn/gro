@@ -8,7 +8,6 @@ import type {BaseFilerFile} from './filerFile.js';
 import {toHash} from './helpers.js';
 import type {BuildConfig} from './buildConfig.js';
 import type {Encoding} from '../fs/encoding.js';
-import type {FilerFile} from './Filer.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
@@ -119,7 +118,9 @@ export const createSourceFile = async (
 	}
 };
 
-export function assertSourceFile(file: FilerFile | undefined | null): asserts file is SourceFile {
+export function assertSourceFile(
+	file: BaseFilerFile | undefined | null,
+): asserts file is SourceFile {
 	if (file == null) {
 		throw Error(`Expected a file but got ${file}`);
 	}

@@ -8,15 +8,17 @@ const config: GroConfigCreator = async () => {
 		sourcemap: true,
 		logLevel: 'debug',
 		plugin: async () => [
-			(await import('./lib/plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),
+			// TODO BLOCK enable
+			// (await import('./lib/plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),
 			(await import('./lib/plugin/gro-plugin-gen.js')).createPlugin(),
 		],
 		// TODO maybe adapters should have flags for whether they run in dev or not? and allow overriding or something?
 		adapt: async () =>
 			Promise.all([
-				(await import('./lib/adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
-					hostTarget: 'github_pages',
-				}),
+				// TODO BLOCK enable
+				// (await import('./lib/adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
+				// 	hostTarget: 'github_pages',
+				// }),
 				(await import('./lib/adapt/gro-adapter-node-library.js')).createAdapter(),
 			]),
 	};

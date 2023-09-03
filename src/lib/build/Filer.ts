@@ -17,7 +17,13 @@ import {
 	type EcmaScriptTarget,
 	type MapDependencyToSourceId,
 } from './helpers.js';
-import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../path/paths.js';
+import {
+	paths as defaultPaths,
+	toBuildOutPath,
+	type Paths,
+	type SourceId,
+	type BuildId,
+} from '../path/paths.js';
 import type {BuildContext, Builder} from './builder.js';
 import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
@@ -55,8 +61,6 @@ type FilerEmitter = StrictEventEmitter<EventEmitter, FilerEvents>;
 export interface FilerEvents {
 	build: {sourceFile: SourceFile; buildConfig: BuildConfig};
 }
-
-export type FilerFile = SourceFile | BuildFile; // TODO or `Directory`?
 
 export interface Options {
 	fs: Filesystem;
@@ -107,7 +111,8 @@ export const initOptions = (opts: InitialOptions): Options => {
 
 export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements BuildContext {
 	// TODO think about accessors - I'm currently just making things public when I need them here
-	private readonly files: Map<SourceId, FilerFile> = new Map();
+	private readonly files: Map<SourceId, SourceFile> = new Map();
+	private readonly buildFiles: Map<BuildId, BuildFile> = new Map(); // TODO currently unused
 	private readonly dirs: FilerDir[];
 	private readonly builder: Builder;
 	private readonly mapDependencyToSourceId: MapDependencyToSourceId;
@@ -186,6 +191,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// including files to be served, source files, and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
 		// because it creates source files, which need `this.sourceMetaById` to be populated.
+		console.log(`this.dirs`, this.dirs);
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.debug('inited files');
 
@@ -242,12 +248,43 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					promises.push(this.addSourceFileToBuild(file, buildConfig, true));
 				}
 			}
+
+			// Add the virtual shim files to support SvelteKit $env imports.
+			// TODO BLOCK refactor
+			for (const dir of this.dirs) {
+				// eslint-disable-next-line no-await-in-loop
+				const envSourceFile = await createSourceFile(
+					this.paths.lib + '/util/sveltekit_shim_env_static_public.ts',
+					'utf8',
+					'.ts',
+					`// shim for $env/static/public
+					// @see https://github.com/sveltejs/kit/issues/1485
+					
+					import {loadEnv} from 'vite';
+					
+					import {paths} from '../path/paths.js';
+					
+					console.log(\`loading paths.root\`, paths.root);
+					const env = loadEnv('development', paths.root, '');
+					
+					console.log(\`LOADED VITE env\`, env);
+					`,
+					dir,
+					undefined, // TODO BLOCK pass sourceMeta?
+					// TODO BLOCK do we need to create source meta? not sure which is cleaner
+					// this.sourceMetaById.get(id),
+					this,
+				);
+				// TODO BLOCK this is failing because
+				// eslint-disable-next-line no-await-in-loop
+				await this.initSourceFile(envSourceFile);
+				promises.push(this.addSourceFileToBuild(envSourceFile, buildConfig, true));
+			}
 		}
 
 		// Iterate through the files once and apply the filters to all source files.
 		if (filters.length) {
 			for (const file of this.files.values()) {
-				if (file.type !== 'source') continue;
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						const buildConfig = filterBuildConfigs[i];
@@ -405,8 +442,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		let dependentBuildConfigs: Set<BuildConfig> | null = null;
 		// TODO could be sped up with some caching data structures
 		for (const f of this.files.values()) {
-			if (f.type !== 'source') continue;
 			for (const [buildConfig, dependenciesMap] of f.dependencies) {
+				if (!dependenciesMap?.has) console.log(`f`, f);
 				if (dependenciesMap.has(file.id)) {
 					const dependencies = dependenciesMap.get(file.id)!;
 					for (const dependency of dependencies.values()) {
@@ -576,7 +613,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const oldBuildFiles = sourceFile.buildFiles.get(buildConfig) || null;
 		const changes = diffBuildFiles(newBuildFiles, oldBuildFiles);
 		sourceFile.buildFiles.set(buildConfig, newBuildFiles);
-		syncBuildFilesToMemoryCache(this.files, changes);
+		syncBuildFilesToMemoryCache(this.buildFiles, changes);
 		await Promise.all([
 			syncBuildFilesToDisk(this.fs, changes, this.log),
 			this.updateDependencies(sourceFile, newBuildFiles, oldBuildFiles, buildConfig),
@@ -597,7 +634,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			throw Error(`Expected to find build files when hydrating from cache.`);
 		}
 		const changes = diffBuildFiles(buildFiles, null);
-		syncBuildFilesToMemoryCache(this.files, changes);
+		syncBuildFilesToMemoryCache(this.buildFiles, changes);
 		await this.updateDependencies(sourceFile, buildFiles, null, buildConfig);
 	}
 
@@ -790,14 +827,14 @@ const syncBuildFilesToDisk = async (
 };
 
 const syncBuildFilesToMemoryCache = (
-	files: Map<string, FilerFile>,
+	buildFiles: Map<BuildId, BuildFile>,
 	changes: BuildFileChange[],
 ): void => {
 	for (const change of changes) {
 		if (change.type === 'added' || change.type === 'updated') {
-			files.set(change.file.id, change.file);
+			buildFiles.set(change.file.id, change.file);
 		} else if (change.type === 'removed') {
-			files.delete(change.file.id);
+			buildFiles.delete(change.file.id);
 		} else {
 			throw new UnreachableError(change);
 		}
