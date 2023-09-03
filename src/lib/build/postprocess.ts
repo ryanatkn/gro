@@ -19,8 +19,7 @@ export interface Postprocess {
 	(buildFile: BuildFile, ctx: BuildContext, source: BuildSource): Promise<void>;
 }
 
-// TODO refactor the TypeScript- and Svelte-specific postprocessing into the builders
-// so this remains generic (maybe remove this completely and just have helpers)
+// TODO rethink this with the Rollup API
 
 // Mutates `buildFile` with possibly new `content` and `dependencies`.
 // Defensively clone if upstream clone doesn't want mutation.
@@ -32,8 +31,8 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 	let content = originalContent;
 	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
-	const handleSpecifier: HandleSpecifier = (specifier) => {
-		const buildDependency = toBuildDependency(specifier, dir, source, ctx);
+	const handle_specifier: HandleSpecifier = (specifier) => {
+		const buildDependency = to_build_dependency(specifier, dir, source, ctx);
 		if (dependencies === null) dependencies = new Map();
 		if (!dependencies.has(buildDependency.buildId)) {
 			dependencies.set(buildDependency.buildId, buildDependency);
@@ -43,7 +42,7 @@ export const postprocess: Postprocess = async (buildFile, ctx, source) => {
 
 	// Map import paths to the built versions.
 	if (extension === JS_EXTENSION) {
-		content = parseJsDependencies(content, handleSpecifier, true);
+		content = parse_js_dependencies(content, handle_specifier, true);
 	}
 
 	(buildFile as Assignable<BuildFile, 'content'>).content = content;
@@ -54,7 +53,7 @@ interface HandleSpecifier {
 	(specifier: string): BuildDependency;
 }
 
-const parseJsDependencies = (
+const parse_js_dependencies = (
 	content: string,
 	handleSpecifier: HandleSpecifier,
 	mapDependencies: boolean,
@@ -104,7 +103,7 @@ const parseJsDependencies = (
 	return '';
 };
 
-const toBuildDependency = (
+const to_build_dependency = (
 	specifier: string,
 	dir: string,
 	source: BuildSource,
@@ -120,7 +119,7 @@ const toBuildDependency = (
 		buildId = mappedSpecifier;
 	} else {
 		// internal import
-		finalSpecifier = toRelativeSpecifier(finalSpecifier, source.dir, paths.source);
+		finalSpecifier = to_relative_specifier(finalSpecifier, source.dir, paths.source);
 		mappedSpecifier = hack_to_build_extension_with_possibly_extensionless_specifier(finalSpecifier);
 		buildId = join(dir, mappedSpecifier);
 	}
@@ -134,16 +133,16 @@ const toBuildDependency = (
 };
 
 // Maps absolute `$lib/` and `src/` imports to relative specifiers.
-const toRelativeSpecifier = (specifier: string, dir: string, sourceDir: string): string => {
+const to_relative_specifier = (specifier: string, dir: string, sourceDir: string): string => {
 	if (specifier.startsWith(MODULE_PATH_LIB_PREFIX)) {
-		return toRelativeSpecifierTrimmedBy(1, specifier, dir, sourceDir);
+		return to_relative_specifier_trimmed_by(1, specifier, dir, sourceDir);
 	} else if (specifier.startsWith(MODULE_PATH_SRC_PREFIX)) {
-		return toRelativeSpecifierTrimmedBy(3, specifier, dir, sourceDir);
+		return to_relative_specifier_trimmed_by(3, specifier, dir, sourceDir);
 	}
 	return specifier;
 };
 
-const toRelativeSpecifierTrimmedBy = (
+const to_relative_specifier_trimmed_by = (
 	charsToTrim: number,
 	specifier: string,
 	dir: string,
