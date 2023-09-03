@@ -19,7 +19,7 @@ export interface Postprocess {
 	(buildFile: BuildFile, ctx: BuildContext, source: BuildSource): Promise<void>;
 }
 
-// TODO rethink this with the Rollup API
+// TODO rethink this with the Rollup/Vite APIs, or remove it completely using SvelteKit/Vite
 
 // Mutates `buildFile` with possibly new `content` and `dependencies`.
 // Defensively clone if upstream clone doesn't want mutation.
