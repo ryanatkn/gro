@@ -187,4 +187,8 @@ const sveltekitMockedSpecifiers = new Map([
 	['$app/navigation', to_sveltekit_shim_specifier('sveltekit_shim_app_navigation.js')],
 	['$app/paths', to_sveltekit_shim_specifier('sveltekit_shim_app_paths.js')],
 	['$app/stores', to_sveltekit_shim_specifier('sveltekit_shim_app_stores.js')],
+	['$env/static/public', to_sveltekit_shim_specifier('sveltekit_shim_env_static_public.js')],
+	['$env/static/private', to_sveltekit_shim_specifier('sveltekit_shim_env_static_private.js')],
+	['$env/dynamic/public', to_sveltekit_shim_specifier('sveltekit_shim_env_dynamic_public.js')],
+	['$env/dynamic/private', to_sveltekit_shim_specifier('sveltekit_shim_env_dynamic_private.js')],
 ]);
