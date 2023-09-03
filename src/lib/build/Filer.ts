@@ -17,13 +17,7 @@ import {
 	type EcmaScriptTarget,
 	type MapDependencyToSourceId,
 } from './helpers.js';
-import {
-	paths as defaultPaths,
-	toBuildOutPath,
-	type Paths,
-	type SourceId,
-	type BuildId,
-} from '../path/paths.js';
+import {paths as defaultPaths, toBuildOutPath, type Paths, type SourceId} from '../path/paths.js';
 import type {BuildContext, Builder} from './builder.js';
 import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {printBuildConfigLabel} from '../build/buildConfig.js';
@@ -250,39 +244,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 			// Add the virtual shim files to support SvelteKit $env imports.
 			// TODO BLOCK refactor
-			this.add_sveltekit_env_shim_files();
-			this.add_virtual_source_file();
-			for (const dir of this.dirs) {
-				// eslint-disable-next-line no-await-in-loop
-				const envSourceFile = await createSourceFile(
-					this.paths.lib + '/sveltekit_shim_env_static_public.ts',
-					'utf8',
-					'.ts',
-					`// shim for $env/static/public
-					// @see https://github.com/sveltejs/kit/issues/1485
-					
-					import {loadEnv} from 'vite';
-					
-					import {paths} from '@feltjs/gro/path/paths.js';
-
-					export const PUBLIC_ADMIN_EMAIL_ADDRESS = 'TODO@email.com';
-					
-					console.log(\`loading paths.root\`, paths.root);
-					const env = loadEnv('development', paths.root, '');
-					
-					console.log(\`LOADED VITE env\`, env);
-					`,
-					dir,
-					undefined, // TODO BLOCK pass sourceMeta?
-					// TODO BLOCK do we need to create source meta? not sure which is cleaner
-					// this.sourceMetaById.get(id),
-					this,
-				);
-				// TODO BLOCK this is failing because
-				// eslint-disable-next-line no-await-in-loop
-				await this.initSourceFile(envSourceFile);
-				promises.push(this.addSourceFileToBuild(envSourceFile, buildConfig, true));
-			}
+			promises.push(this.add_sveltekit_env_shim_files(buildConfig));
 		}
 
 		// Iterate through the files once and apply the filters to all source files.
@@ -301,6 +263,70 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 
 		await Promise.all(promises);
+	}
+
+	private async add_virtual_source_files(
+		buildConfig: BuildConfig,
+		files: Array<Pick<SourceFile, 'id' | 'encoding' | 'extension' | 'content'>>,
+	): Promise<void> {
+		await Promise.all(
+			this.dirs
+				.map((dir) =>
+					files.map(({id, encoding, extension, content}) =>
+						this.add_virtual_source_file(buildConfig, dir, id, encoding, extension, content),
+					),
+				)
+				.flat(),
+		);
+	}
+
+	private async add_virtual_source_file(
+		buildConfig: BuildConfig,
+		dir: FilerDir,
+		id: string,
+		encoding: Encoding,
+		extension: string,
+		content: string | Buffer,
+	): Promise<void> {
+		const envSourceFile = await createSourceFile(
+			id,
+			encoding,
+			extension,
+			content,
+			dir,
+			undefined, // TODO BLOCK pass sourceMeta?
+			// TODO BLOCK do we need to create source meta? not sure which is cleaner
+			// this.sourceMetaById.get(id),
+			this,
+		);
+		// TODO BLOCK this is failing because
+		await this.initSourceFile(envSourceFile);
+		await this.addSourceFileToBuild(envSourceFile, buildConfig, true);
+		await updateSourceMeta(this, envSourceFile); // TODO BLOCK is this right?
+	}
+
+	private async add_sveltekit_env_shim_files(buildConfig: BuildConfig): Promise<void> {
+		await this.add_virtual_source_files(buildConfig, [
+			{
+				id: this.paths.lib + '/sveltekit_shim_env_static_public.ts',
+				encoding: 'utf8',
+				extension: '.ts',
+				content: `// shim for $env/static/public
+					// @see https://github.com/sveltejs/kit/issues/1485
+					
+					import {loadEnv} from 'vite';
+					
+					import {paths} from '@feltjs/gro/path/paths.js';
+		
+					export const PUBLIC_ADMIN_EMAIL_ADDRESS = 'TODO@email.com';
+					
+					console.log(\`loading paths.root\`, paths.root);
+					const env = loadEnv('development', paths.root, '');
+					
+					console.log(\`LOADED VITEDDD env\`, env);
+				`,
+			},
+		]);
 	}
 
 	// Adds a build config to a source file.
