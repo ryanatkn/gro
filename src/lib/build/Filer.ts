@@ -183,6 +183,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 		this.log.debug('init', gray(this.dev ? 'development' : 'production'));
 
+		// TODO BLOCK clean initSourceMeta before loading? (check against source files and vice-versa?)
 		await Promise.all([initSourceMeta(this), lexer.init]);
 		// this.log.debug('inited cache');
 
@@ -315,22 +316,49 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	}
 
 	private async add_sveltekit_env_shim_files(buildConfig: BuildConfig): Promise<void> {
+		// TODO BLOCK source these two from SvelteKit config - ValidatedKitConfig['env'].publicPrefix/privatePrefix
+		const public_prefix = 'PUBLIC_';
+		const private_prefix = '';
 		await this.add_virtual_source_files(buildConfig, [
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_static_public.ts',
-				content: create_env_shim_module(this.dev, 'static', 'public'),
+				content: create_env_shim_module(
+					this.dev,
+					'static',
+					'public',
+					public_prefix,
+					private_prefix,
+				),
 			},
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_static_private.ts',
-				content: create_env_shim_module(this.dev, 'static', 'private'),
+				content: create_env_shim_module(
+					this.dev,
+					'static',
+					'private',
+					public_prefix,
+					private_prefix,
+				),
 			},
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_dynamic_public.ts',
-				content: create_env_shim_module(this.dev, 'dynamic', 'public'),
+				content: create_env_shim_module(
+					this.dev,
+					'dynamic',
+					'public',
+					public_prefix,
+					private_prefix,
+				),
 			},
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_dynamic_private.ts',
-				content: create_env_shim_module(this.dev, 'dynamic', 'private'),
+				content: create_env_shim_module(
+					this.dev,
+					'dynamic',
+					'private',
+					public_prefix,
+					private_prefix,
+				),
 			},
 		]);
 	}
@@ -1003,26 +1031,33 @@ export const nulls: {[key: string]: null} = new Proxy(
 	},
 );
 
+// TODO BLOCK turn off sourcemaps for virtual files
+// TODO BLOCK include only when imported
 // TODO BLOCK support all of process.env like SvelteKit?
 const create_env_shim_module = (
 	dev: boolean,
-	staticOrDynamic: 'static' | 'dynamic',
+	when: 'static' | 'dynamic',
 	visibility: 'public' | 'private',
+	public_prefix: string,
+	private_prefix: string,
 ): string => {
-	const path = '.env.' + (dev ? 'development' : 'production');
-	const loaded = load_env(path);
-	console.log(`loaded>>>>>>>>>>>>>>>`, loaded);
-	return `// shim for $env/${staticOrDynamic}/${visibility}
+	const env = load_env(dev, visibility, public_prefix, private_prefix);
+	console.log(`loaded>>>>>>>>>>>>>>>`, env);
+	if (when === 'static') {
+		return `// shim for $env/${when}/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
-
+${Object.entries(env)
+	.map(([k, v]) => `export const ${k} = '${v}';`)
+	.join('\n')}
+		`;
+	} else {
+		return `// shim for $env/${when}/${visibility}
+// @see https://github.com/sveltejs/kit/issues/1485
 import {load_env} from '@feltjs/gro/util/env.js';
-import {paths} from '@feltjs/gro/path/paths.js';
-
-export const PUBLIC_ADMIN_EMAIL_ADDRESS = 'TODO@email.com';
-
-const env = load_env('${path}');
-// const env = load_env('development', paths.root, '');
-
-console.log('----------------------LOADED env', env);
-	`;
+const env = load_env(${dev}, '${visibility}', '${public_prefix}', '${private_prefix}');
+${Object.keys(env)
+	.map((k) => `export const ${k} = env.${k};`)
+	.join('\n')}
+		`;
+	}
 };
