@@ -7,7 +7,6 @@ It's designed for a variety of needs:
 - support multiple use cases in one source project
   like SvelteKit apps, Node libraries, and API servers
 - support multiple build targets like legacy/modern ES versions and mobile/desktop frontends
-- support multiple platform targets like Node and browsers, including server-side rendering
 - support multiple packages created from one source project to be published separately
 - support dev and prod builds that coexist on the filesystem
 
@@ -32,7 +31,7 @@ import type {GroConfigCreator} from '@feltjs/gro';
 
 const config: GroConfigCreator = async () => {
 	return {
-		builds: [{name: 'server', platform: 'node', input: 'index.ts'}],
+		builds: [{name: 'server', input: 'index.ts'}],
 	};
 };
 
@@ -66,7 +65,6 @@ which is the user-facing version of the [`BuildConfig`](/src/lib/build/buildConf
 ```ts
 export interface BuildConfigPartial {
 	readonly name: string;
-	readonly platform: PlatformTarget; // 'node' | 'browser'
 	readonly input: BuildConfigInput | BuildConfigInput[];
 }
 ```
@@ -78,14 +76,6 @@ in `.gro/dev/foo/` and `.gro/prod/foo/`, respectively.
 > Importantly, **Gro requires a Node build named `"node"`**
 > that it uses to run things like tests, tasks, and codegen.
 > Ideally this would be configurable, but doing so would slow Gro down in many cases.
-
-The `platform` property can currently be `"node"` or `"browser"` and
-is used by Gro's default builders to customize the output.
-When building for Node, the Svelte compiler outputs
-[SSR components](https://svelte.dev/docs#Server-side_component_API)
-instead of the normal DOM ones.
-
-> TODO add SvelteKit builder
 
 The `input` property specifies the source code entry points for the build.
 Each input must be a file path (absolute or relative to `src/`),

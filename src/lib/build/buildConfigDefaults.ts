@@ -22,7 +22,6 @@ export const GIT_DEPLOY_TARGET_BRANCH = 'deploy'; // deploy TO this branch
 export const SYSTEM_BUILD_NAME: BuildName = 'system';
 export const SYSTEM_BUILD_CONFIG: BuildConfig = {
 	name: SYSTEM_BUILD_NAME,
-	platform: 'node',
 	input: [
 		createFilter([
 			'**/' + CONFIG_SOURCE_PATH,
@@ -41,7 +40,6 @@ export const hasApiServer = (fs: Filesystem): Promise<boolean> => fs.exists(API_
 export const API_SERVER_BUILD_NAME: BuildName = 'server';
 export const API_SERVER_BUILD_CONFIG: BuildConfig = {
 	name: API_SERVER_BUILD_NAME,
-	platform: 'node',
 	input: [API_SERVER_SOURCE_BASE_PATH],
 };
 // the first of these matches SvelteKit, the second is just close for convenience

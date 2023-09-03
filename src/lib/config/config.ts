@@ -44,7 +44,6 @@ export interface GroConfig {
 	readonly target: EcmaScriptTarget;
 	readonly sourcemap: boolean;
 	readonly logLevel: LogLevel;
-	readonly primaryBrowserBuildConfig: BuildConfig | null; // TODO improve this, too rigid
 }
 
 export interface GroConfigPartial {
@@ -200,8 +199,5 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 		...omitUndefined(config),
 		builds: buildConfigs,
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
-		// TODO instead of `primary` build configs, we want to be able to mount any number of them at once,
-		// so this is a temp hack that just chooses the first browser build
-		primaryBrowserBuildConfig: buildConfigs.find((b) => b.platform === 'browser') || null,
 	};
 };

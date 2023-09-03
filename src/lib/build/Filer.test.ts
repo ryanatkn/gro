@@ -41,7 +41,6 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	await fs.writeFile(dep2Id, 'export const a: number = 5;', 'utf8');
 	const buildConfig: BuildConfig = {
 		name: 'testBuildConfig',
-		platform: 'node',
 		input: [entryId],
 	};
 	const filer = new Filer({
@@ -226,12 +225,10 @@ test__Filer('multiple build configs', async ({fs}) => {
 	await fs.writeFile(dep3Id, 'export const b: number = 5;', 'utf8');
 	const buildConfig1: BuildConfig = {
 		name: 'testBuildConfig',
-		platform: 'node',
 		input: [entry1Id],
 	};
 	const buildConfig2: BuildConfig = {
 		name: 'testBuildConfig',
-		platform: 'node',
 		input: [entry2Id],
 	};
 

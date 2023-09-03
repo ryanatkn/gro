@@ -13,9 +13,8 @@ import type {Filesystem} from '../fs/filesystem.js';
 
 export type BuildName = Flavored<string, 'BuildName'>;
 
-export interface BuildConfig<TPlatformTarget extends string = PlatformTarget> {
+export interface BuildConfig {
 	name: BuildName;
-	platform: TPlatformTarget;
 	input: BuildConfigInput[];
 }
 
@@ -34,12 +33,9 @@ export const toInputFilters = (input: BuildConfigInput[]): InputFilter[] =>
 
 export interface BuildConfigPartial {
 	name: BuildName;
-	platform: PlatformTarget;
 	input: BuildConfigInput | BuildConfigInput[];
 	types?: boolean;
 }
-
-export type PlatformTarget = 'node' | 'browser';
 
 export const normalizeBuildConfigs = (
 	partials: ReadonlyArray<BuildConfigPartial | null>,
@@ -51,7 +47,6 @@ export const normalizeBuildConfigs = (
 		if (!partial) continue;
 		const buildConfig: BuildConfig = {
 			name: partial.name,
-			platform: partial.platform,
 			input: normalizeBuildConfigInput(partial.input),
 		};
 		buildConfigs.push(buildConfig);
@@ -78,10 +73,7 @@ export const validateBuildConfigs = async (
 	}
 	const names: Set<BuildName> = new Set();
 	for (const buildConfig of buildConfigs) {
-		if (
-			!buildConfig?.name ||
-			!(buildConfig.platform === 'node' || buildConfig.platform === 'browser')
-		) {
+		if (!buildConfig?.name) {
 			return {
 				ok: false,
 				reason:
