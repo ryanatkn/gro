@@ -46,7 +46,7 @@ export const SOURCEMAP_EXTENSION = '.map';
 export const JS_SOURCEMAP_EXTENSION = '.js.map';
 
 export const README_FILENAME = 'README.md';
-export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.cjs';
+export const SVELTEKIT_CONFIG_FILENAME = 'svelte.config.js';
 export const SVELTEKIT_DEV_DIRNAME = '.svelte-kit';
 export const SVELTEKIT_TSCONFIG = '.svelte-kit/tsconfig.json';
 export const SVELTEKIT_BUILD_DIRNAME = 'build';
