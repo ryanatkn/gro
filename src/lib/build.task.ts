@@ -90,7 +90,15 @@ export const task: Task<Args, TaskEvents> = {
 		const adapters = await adapt({...ctx, config, dev: false, timings});
 		if (!adapters.length) log.info('no adapters to `adapt`');
 
-		// Delete the production build artifacts unless the caller asks to preserve them.
+		// Delete the production build artifacts at `.gro/prod` unless the caller asks to preserve them.
+		// The main reason for this is to delete any imported-and-baked static environment variables,
+		// which may be surprising to some users and could potentially lead to secret leaks
+		// if the cache directory is mishandled. We may want to move `.gro/dist` to the root
+		// so it's more visible, and so the entire `.gro` directory remains free of secrets,
+		// but that may be even more error prone, because users would
+		// have to gitignore a new root dist directory.
+		// Dynamic variable imports can be used to avoid this problem completely.
+		// For more see the SvelteKit docs - https://kit.svelte.dev/docs/modules#$env-dynamic-private
 		if (!preserve) {
 			await cleanFs(fs, {buildProd: true}, log);
 		}
