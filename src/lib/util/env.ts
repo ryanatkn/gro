@@ -1,17 +1,20 @@
 import dotenv from 'dotenv';
 import {readFileSync, existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
+import {resolve} from 'node:path';
 
 export const load_env = (
 	dev: boolean,
 	visibility: 'public' | 'private',
 	public_prefix: string,
 	private_prefix: string,
+	env_dir?: string,
 	ambient_env = process.env,
 	paths = ['.env', '.env.' + (dev ? 'development' : 'production')],
 ): Record<string, string> => {
 	const envs: Array<Record<string, string | undefined>> = [];
 	for (const path of paths) {
-		const loaded = load(path);
+		const resolved = env_dir === undefined ? path : resolve(env_dir, path);
+		const loaded = load(resolved);
 		if (loaded) envs.push(loaded);
 	}
 	envs.push(ambient_env);

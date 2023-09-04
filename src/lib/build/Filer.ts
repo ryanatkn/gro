@@ -319,15 +319,15 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private async add_sveltekit_env_shim_files(buildConfig: BuildConfig): Promise<void> {
 		let public_prefix = 'PUBLIC_';
 		let private_prefix = '';
+		let env_dir: string | undefined = undefined;
 		try {
 			// TODO ideally this would be `ValidatedConfig` but SvelteKit doesn't expose its load config helper
 			const config: Config = (await import(this.paths.root + 'svelte.config.js')).default;
 			const env = config.kit?.env;
 			if (env) {
-				// TODO BLOCK use this
-				config.kit?.env?.dir;
 				if (env.publicPrefix !== undefined) public_prefix = env.publicPrefix;
 				if (env.privatePrefix !== undefined) private_prefix = env.privatePrefix;
+				if (env.dir !== undefined) env_dir = env.dir;
 			}
 		} catch (err) {}
 		await this.add_virtual_source_files(buildConfig, [
@@ -339,6 +339,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					'public',
 					public_prefix,
 					private_prefix,
+					env_dir,
 				),
 			},
 			{
@@ -349,6 +350,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					'private',
 					public_prefix,
 					private_prefix,
+					env_dir,
 				),
 			},
 			{
@@ -359,6 +361,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					'public',
 					public_prefix,
 					private_prefix,
+					env_dir,
 				),
 			},
 			{
@@ -369,6 +372,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					'private',
 					public_prefix,
 					private_prefix,
+					env_dir,
 				),
 			},
 		]);
@@ -1049,8 +1053,9 @@ const create_env_shim_module = (
 	visibility: 'public' | 'private',
 	public_prefix: string,
 	private_prefix: string,
+	env_dir: string | undefined,
 ): string => {
-	const env = load_env(dev, visibility, public_prefix, private_prefix);
+	const env = load_env(dev, visibility, public_prefix, private_prefix, env_dir);
 	if (mode === 'static') {
 		return `// shim for $env/${mode}/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
@@ -1062,7 +1067,9 @@ ${Object.entries(env)
 		return `// shim for $env/${mode}/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
 import {load_env} from '@feltjs/gro/util/env.js';
-const env = load_env(${dev}, '${visibility}', '${public_prefix}', '${private_prefix}');
+const env = load_env(${dev}, '${visibility}', '${public_prefix}', '${private_prefix}'${
+			env_dir !== undefined ? `, '${env_dir}'` : ''
+		});
 ${Object.keys(env)
 	.map((k) => `export const ${k} = env.${k};`)
 	.join('\n')}
