@@ -9,7 +9,7 @@ import type {
 } from '$app/stores';
 import {readable} from 'svelte/store';
 
-export const getStores: typeof base_getStores = () => ({navigating, page, updated} as const);
+export const getStores: typeof base_getStores = () => ({navigating, page, updated}) as const;
 export const navigating: typeof base_navigating = readable(null);
 export const page: typeof base_page = readable({
 	url: new URL('https://www.grogarden.org/TODO'),

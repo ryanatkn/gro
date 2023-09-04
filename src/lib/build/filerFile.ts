@@ -32,7 +32,10 @@ export const getFileContentBuffer = (file: BaseFilerFile): Buffer =>
 		: (file.contentBuffer = Buffer.from(file.content));
 
 // PathStats are currently lazily loaded. Should they be?
-export const getFileStats = (fs: Filesystem, file: BaseFilerFile): PathStats | Promise<PathStats> =>
+export const getFileStats = (
+	fs: Filesystem,
+	file: BaseFilerFile,
+): PathStats | Promise<PathStats> =>
 	file.stats !== undefined
 		? file.stats
 		: fs.stat(file.id).then((stats) => {
