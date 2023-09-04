@@ -52,6 +52,7 @@ export const invokeTask = async (
 ): Promise<void> => {
 	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
+	log.info('invoking ' + taskName);
 
 	// Check if the caller just wants to see the version.
 	if (!taskName && (args.version || args.v)) {
