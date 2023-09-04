@@ -33,6 +33,11 @@ It includes:
   - integrated [TypeScript](https://github.com/microsoft/typescript),
     [Svelte](https://github.com/sveltejs/svelte),
     and [SvelteKit](https://github.com/sveltejs/kit)
+  - defers completely to SvelteKit for the frontend build and
+    [`@sveltejs/package`](https://kit.svelte.dev/docs/packaging) for the library build
+  - supports [SvelteKit module imports](https://kit.svelte.dev/docs/modules) for
+    `$lib`, `$env`, and `$app` in tasks, tests, Node server builds,
+    and other code outside of the SvelteKit frontend (`$app` is mocked to best effort)
   - see the [Gro config docs](/src/lib/docs/config.md) and
     [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
   - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
