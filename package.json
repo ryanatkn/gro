@@ -5,7 +5,7 @@
   "bin": {
     "gro": "./dist/cli/gro.js"
   },
-  "license": "Unlicense",
+  "license": "MIT",
   "homepage": "https://github.com/feltjs/gro#readme",
   "author": {
     "name": "Felt Co-op",
