@@ -25,11 +25,8 @@ const transformOptions: TransformOptions = {
 
 const matcher = /\.(ts|tsx|mts|cts)$/u;
 
-console.log('ENTRY loader');
-
 export const load = async (url: string, context: any, nextLoad: any): Promise<any> => {
 	if (matcher.test(url)) {
-		console.log(`context`, context);
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		const transformed = transformSync(loaded.source.toString(), transformOptions);
 		return {
