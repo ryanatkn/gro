@@ -34,7 +34,9 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 	};
 
 	const build: EsbuildBuilder['build'] = async (source, buildConfig, ctx) => {
-		const {buildDir, dev, sourcemap, target} = ctx;
+		const {buildDir, dev, target} = ctx;
+
+		const sourcemap = ctx.sourcemap && !source.virtual;
 
 		if (source.encoding !== 'utf8') {
 			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);

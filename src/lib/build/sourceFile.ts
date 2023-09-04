@@ -35,6 +35,7 @@ export interface BaseSourceFile extends BaseFilerFile {
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 	readonly dependencies: Map<BuildConfig, Map<SourceId, Map<BuildId, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
 	readonly dependents: Map<BuildConfig, Map<SourceId, Map<BuildId, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
+	readonly virtual: boolean;
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }
 
@@ -45,6 +46,7 @@ export const createSourceFile = async (
 	content: string | Buffer,
 	filerDir: FilerDir,
 	sourceMeta: SourceMeta | undefined,
+	virtual: boolean,
 	{fs, buildConfigs}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentBuffer: Buffer | undefined = encoding === null ? (content as Buffer) : undefined;
@@ -76,6 +78,7 @@ export const createSourceFile = async (
 				isInputToBuildConfigs: null,
 				dependencies: new Map(),
 				dependents: new Map(),
+				virtual,
 				dirty,
 				id,
 				filename,
@@ -98,6 +101,7 @@ export const createSourceFile = async (
 				isInputToBuildConfigs: null,
 				dependencies: new Map(),
 				dependents: new Map(),
+				virtual,
 				dirty,
 				id,
 				filename,

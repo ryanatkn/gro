@@ -304,17 +304,17 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			extension,
 			content,
 			dir,
-			undefined, // TODO BLOCK pass sourceMeta?
-			// TODO BLOCK do we need to create source meta? not sure which is cleaner
-			// this.sourceMetaById.get(id),
+			this.sourceMetaById.get(id), // always `undefined` atm but seems more correct for the future
+			true,
 			this,
 		);
-		// TODO BLOCK this is failing because
+		// TODO BLOCK proper order of these 3?
 		await this.initSourceFile(envSourceFile);
 		await this.addSourceFileToBuild(envSourceFile, buildConfig, true);
-		await updateSourceMeta(this, envSourceFile); // TODO BLOCK is this right?
+		await updateSourceMeta(this, envSourceFile);
 	}
 
+	// TODO BLOCK include only when imported, and keep in sync at runtime
 	private async add_sveltekit_env_shim_files(buildConfig: BuildConfig): Promise<void> {
 		// TODO BLOCK source these two from SvelteKit config - ValidatedKitConfig['env'].publicPrefix/privatePrefix
 		const public_prefix = 'PUBLIC_';
@@ -584,6 +584,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 						newSourceContent,
 						filerDir,
 						this.sourceMetaById.get(id), // TODO should this lazy load the source meta?
+						false,
 						this,
 					);
 					this.files.set(id, newSourceFile);
@@ -1031,8 +1032,6 @@ export const nulls: {[key: string]: null} = new Proxy(
 	},
 );
 
-// TODO BLOCK turn off sourcemaps for virtual files
-// TODO BLOCK include only when imported
 const create_env_shim_module = (
 	dev: boolean,
 	mode: 'static' | 'dynamic',
