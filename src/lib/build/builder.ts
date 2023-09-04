@@ -7,8 +7,9 @@ import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './filerFile.js';
 import type {BuildFile} from './buildFile.js';
 import type {Paths} from '../path/paths.js';
+import type {SourceFile} from './sourceFile.js';
 
-export interface Builder<TSource extends BuildSource = BuildSource> {
+export interface Builder<TSource extends SourceFile = SourceFile> {
 	name: string;
 	build: (
 		source: TSource,
@@ -33,21 +34,4 @@ export interface BuildContext {
 	readonly target: EcmaScriptTarget;
 	readonly buildingSourceFiles: Set<string>;
 	readonly findById: (id: string) => BaseFilerFile | undefined;
-}
-
-export type BuildSource = TextBuildSource | BinaryBuildSource;
-export interface TextBuildSource extends BaseBuildSource {
-	encoding: 'utf8';
-	content: string;
-}
-export interface BinaryBuildSource extends BaseBuildSource {
-	encoding: null;
-	content: Buffer;
-}
-interface BaseBuildSource {
-	id: string;
-	filename: string;
-	dir: string;
-	dirBasePath: string;
-	extension: string;
 }

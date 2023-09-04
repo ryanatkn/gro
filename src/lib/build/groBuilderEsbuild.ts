@@ -3,17 +3,18 @@ import {replaceExtension} from '@feltjs/util/path.js';
 
 import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../path/paths.js';
-import type {Builder, TextBuildSource} from './builder.js';
+import type {Builder} from './builder.js';
 import {addJsSourcemapFooter, type EcmaScriptTarget} from './helpers.js';
 import type {BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
+import type {TextSourceFile} from './sourceFile.js';
 
 export interface Options {
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
 	createEsbuildOptions?: CreateEsbuildOptions;
 }
 
-type EsbuildBuilder = Builder<TextBuildSource>;
+type EsbuildBuilder = Builder<TextSourceFile>;
 
 export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 	const {createEsbuildOptions = defaultCreateEsbuildOptions} = options;

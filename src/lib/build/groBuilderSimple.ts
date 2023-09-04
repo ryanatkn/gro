@@ -1,9 +1,10 @@
 import {groBuilderNoop} from './groBuilderNoop.js';
-import type {BuildContext, Builder, BuildSource} from './builder.js';
+import type {BuildContext, Builder} from './builder.js';
 import type {BuildConfig} from './buildConfig.js';
+import type {SourceFile} from './sourceFile.js';
 
 export interface GetBuilder {
-	(source: BuildSource, buildConfig: BuildConfig): Builder | null;
+	(source: SourceFile, buildConfig: BuildConfig): Builder | null;
 }
 export interface GetBuilders {
 	(): Builder[];
@@ -30,7 +31,7 @@ export const groBuilderSimple = (options: Options = {}): Required<Builder> => {
 	};
 
 	const onRemove: Builder['onRemove'] = async (
-		source: BuildSource,
+		source: SourceFile,
 		buildConfig: BuildConfig,
 		ctx: BuildContext,
 	) => {

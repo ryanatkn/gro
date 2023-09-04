@@ -10,13 +10,13 @@ import {
 	isThisProjectGro,
 	type BuildId,
 } from '../path/paths.js';
-import type {BuildSource} from './builder.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../path/module.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildFile} from './buildFile.js';
+import type {SourceFile} from './sourceFile.js';
 
 export interface Postprocess {
-	(buildFile: BuildFile, source: BuildSource): Promise<void>;
+	(buildFile: BuildFile, source: SourceFile): Promise<void>;
 }
 
 // TODO rethink this with the Rollup/Vite APIs, or remove it completely using SvelteKit/Vite
@@ -105,7 +105,7 @@ const parse_js_dependencies = (
 const to_build_dependency = (
 	specifier: string,
 	dir: string,
-	source: BuildSource,
+	source: SourceFile,
 ): BuildDependency => {
 	let buildId: BuildId;
 	let finalSpecifier = specifier;
