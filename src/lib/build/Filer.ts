@@ -8,6 +8,7 @@ import {printLogLabel, SystemLogger, type Logger} from '@feltjs/util/log.js';
 import {gray, red, cyan} from 'kleur/colors';
 import {printError} from '@feltjs/util/print.js';
 import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
+import type {Config} from '@sveltejs/kit';
 
 import type {Filesystem} from '../fs/filesystem.js';
 import {createFilerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';
@@ -316,9 +317,19 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	// TODO BLOCK include only when imported, and keep in sync at runtime
 	private async add_sveltekit_env_shim_files(buildConfig: BuildConfig): Promise<void> {
-		// TODO BLOCK source these two from SvelteKit config - ValidatedKitConfig['env'].publicPrefix/privatePrefix
-		const public_prefix = 'PUBLIC_';
-		const private_prefix = '';
+		let public_prefix = 'PUBLIC_';
+		let private_prefix = '';
+		try {
+			// TODO ideally this would be `ValidatedConfig` but SvelteKit doesn't expose its load config helper
+			const config: Config = (await import(this.paths.root + 'svelte.config.js')).default;
+			const env = config.kit?.env;
+			if (env) {
+				// TODO BLOCK use this
+				config.kit?.env?.dir;
+				if (env.publicPrefix !== undefined) public_prefix = env.publicPrefix;
+				if (env.privatePrefix !== undefined) private_prefix = env.privatePrefix;
+			}
+		} catch (err) {}
 		await this.add_virtual_source_files(buildConfig, [
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_static_public.ts',
