@@ -6,7 +6,6 @@ import type {GroConfigCreator, GroConfigPartial} from './lib/config/config.js';
 const config: GroConfigCreator = async () => {
 	const partial: GroConfigPartial = {
 		sourcemap: true,
-		logLevel: 'debug',
 		plugin: async () => [
 			// TODO BLOCK enable
 			// (await import('./lib/plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),

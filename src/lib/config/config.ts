@@ -43,7 +43,6 @@ export interface GroConfig {
 	readonly adapt: ToConfigAdapters;
 	readonly target: EcmaScriptTarget;
 	readonly sourcemap: boolean;
-	readonly logLevel: LogLevel;
 }
 
 export interface GroConfigPartial {
@@ -52,7 +51,6 @@ export interface GroConfigPartial {
 	readonly adapt?: ToConfigAdapters;
 	readonly target?: EcmaScriptTarget;
 	readonly sourcemap?: boolean;
-	readonly logLevel?: LogLevel;
 }
 
 export interface GroConfigModule {
@@ -141,7 +139,7 @@ const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
 		console.log('_loadConfig DOESNT EXIST');
 		config = defaultConfig;
 	}
-	console.log(`config`, config, config.builds[0]);
+	console.log(`_loadConfig final config`, config, config.builds[0]);
 	return config;
 };
 
@@ -193,7 +191,6 @@ const normalizeConfig = (config: GroConfigPartial): GroConfig => {
 	const buildConfigs = normalizeBuildConfigs(toArray(config.builds || null));
 	return {
 		sourcemap: true,
-		logLevel: Logger.level,
 		plugin: () => null,
 		adapt: () => null,
 		...omitUndefined(config),

@@ -1,5 +1,3 @@
-import {Logger} from '@feltjs/util/log.js';
-
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {
 	hasSveltekitFrontend,
@@ -25,7 +23,6 @@ const config: GroConfigCreator = async ({fs}) => {
 	]);
 	const partial: GroConfigPartial = {
 		builds: [enableApiServer ? API_SERVER_BUILD_CONFIG : null],
-		logLevel: Logger.level,
 		plugin: async () => [
 			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).createPlugin() : null,
 			enableSveltekitFrontend
