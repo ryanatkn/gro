@@ -178,6 +178,10 @@
       "default": "./dist/lint.task.js",
       "types": "./dist/lint.task.d.ts"
     },
+    "./loader.js": {
+      "default": "./dist/loader.js",
+      "types": "./dist/loader.d.ts"
+    },
     "./publish.task.js": {
       "default": "./dist/publish.task.js",
       "types": "./dist/publish.task.d.ts"
