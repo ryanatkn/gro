@@ -1,11 +1,8 @@
 /*
 
 usage: node --loader @grogarden/gro/loader.js foo.ts
+
 usage in Gro: node --loader ./dist/loader.js foo.ts
-
-TODO
-
-- transpile TS to JS with esbuild
 
 */
 
