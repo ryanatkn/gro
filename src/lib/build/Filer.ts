@@ -1033,25 +1033,23 @@ export const nulls: {[key: string]: null} = new Proxy(
 
 // TODO BLOCK turn off sourcemaps for virtual files
 // TODO BLOCK include only when imported
-// TODO BLOCK support all of process.env like SvelteKit?
 const create_env_shim_module = (
 	dev: boolean,
-	when: 'static' | 'dynamic',
+	mode: 'static' | 'dynamic',
 	visibility: 'public' | 'private',
 	public_prefix: string,
 	private_prefix: string,
 ): string => {
 	const env = load_env(dev, visibility, public_prefix, private_prefix);
-	console.log(`loaded>>>>>>>>>>>>>>>`, env);
-	if (when === 'static') {
-		return `// shim for $env/${when}/${visibility}
+	if (mode === 'static') {
+		return `// shim for $env/${mode}/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
 ${Object.entries(env)
 	.map(([k, v]) => `export const ${k} = '${v}';`)
 	.join('\n')}
 		`;
 	} else {
-		return `// shim for $env/${when}/${visibility}
+		return `// shim for $env/${mode}/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
 import {load_env} from '@feltjs/gro/util/env.js';
 const env = load_env(${dev}, '${visibility}', '${public_prefix}', '${private_prefix}');
