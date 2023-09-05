@@ -37,16 +37,13 @@ export const load = async (
 ): Promise<LoadReturn> => {
 	// TODO BLOCK how to shim $env? does the specifier need to be modified in `resolve`, or just shortCircuited?
 	console.log(`load ` + url);
-	console.log(`context`, context);
 	if (matcher.test(url)) {
-		const path = fileURLToPath(url);
-		const dir = dirname(path) + '/';
+		// const path = fileURLToPath(url);
+		// const dir = dirname(path) + '/';
 		const loaded = await nextLoad(url, {...context, format: 'module'});
+		// TODO BLOCK maybe do path mapping in a plugin here instead of the resolve hook?
 		const transformed = transformSync(loaded.source.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
-		// TODO change this to an esbuild plugin, assuming it can be
-		// TODO BLOCK change to helpers without the deps portion
-		const processed = postprocess(transformed.code, dir, dir, '.ts');
-		return {format: 'module', shortCircuit: true, source: processed.content};
+		return {format: 'module', shortCircuit: true, source: transformed.code};
 	}
 
 	return nextLoad(url, context);
@@ -57,19 +54,18 @@ export const resolve = async (
 	context: ResolveContext,
 	nextResolve: NextResolve,
 ): Promise<ResolveReturn> => {
-	console.log(`specifier`, specifier, context.parentURL);
-	if (specifier.endsWith('static_public.js')) {
-		const url = pathToFileURL(
-			join(
-				fileURLToPath(context.parentURL),
-				'../../../.gro/dev/system/lib/sveltekit_shim_env_static_public.js',
-			),
-		).href;
-		console.log(`url`, url);
-		return {url, format: 'module', shortCircuit: true};
+	// handle $lib imports relative to the parent
+	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
+	console.log(`specifier, parent_path`, specifier, parent_path);
+	if (context.parentURL !== undefined) {
+		console.log(`specifier`, specifier, parent_path);
+		if (specifier.startsWith('$lib/')) {
+			console.log(`LIB`);
+		}
 	}
+
 	if (specifier[0] === '.' && specifier.endsWith('.js')) {
-		const js_url = join(fileURLToPath(context.parentURL), '../', specifier);
+		const js_url = parent_path ? join(parent_path, '../', specifier) : specifier;
 		// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
 		// await import.meta.resolve(specifier);
 		if (existsSync(js_url)) {
@@ -85,7 +81,10 @@ export const resolve = async (
 };
 
 interface ResolveContext {
-	parentURL: string;
+	/**
+	 * Is `undefined` for the entry module.
+	 */
+	parentURL?: string;
 	conditions: string[];
 	importAssertions: object;
 }
