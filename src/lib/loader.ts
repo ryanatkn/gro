@@ -69,6 +69,7 @@ export const resolve = (
 	}
 	if (specifier[0] === '.' && specifier.endsWith('.js')) {
 		const js_url = join(fileURLToPath(context.parentURL), '../', specifier);
+		console.log(`js_url`, js_url, await import.meta.resolve(specifier));
 		if (existsSync(js_url)) {
 			return {url: pathToFileURL(js_url).href, format: 'module', shortCircuit: true};
 		}
