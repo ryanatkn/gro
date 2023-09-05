@@ -46,6 +46,7 @@ export const load = async (
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	}
 
+	console.log('LOAD DEFAULT', url);
 	return nextLoad(url, context);
 };
 
