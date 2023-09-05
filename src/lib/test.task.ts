@@ -4,7 +4,7 @@ import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {SOURCE_DIR} from './path/paths.js';
+import {SOURCE_DIR, is_this_project_gro} from './path/paths.js';
 import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
 import {findCli, spawnCli} from './util/cli.js';
 
@@ -37,8 +37,9 @@ export const task: Task<Args> = {
 		const timeToRunUvu = timings.start('run tests with uvu');
 		const forwardedArgs = toForwardedArgs('uvu');
 		if (!forwardedArgs._) {
+			const loader_path = is_this_project_gro ? './dist/loader.js' : '@feltjs/gro/loader.js';
 			// TODO BLOCK `SOURCE_DIR` used to be `toRootPath(testsBuildDir)`, may be wrong
-			forwardedArgs._ = [SOURCE_DIR, ...testFilePatterns];
+			forwardedArgs._ = ['--loader', loader_path, SOURCE_DIR, ...testFilePatterns];
 		}
 		// ignore sourcemap files so patterns don't need `.js$`
 		addArg(forwardedArgs, '.map$', 'i', 'ignore');

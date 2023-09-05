@@ -8,11 +8,11 @@ export const load_env = (
 	public_prefix: string,
 	private_prefix: string,
 	env_dir?: string,
+	env_files = ['.env', '.env.' + (dev ? 'development' : 'production')],
 	ambient_env = process.env,
-	paths = ['.env', '.env.' + (dev ? 'development' : 'production')],
 ): Record<string, string> => {
 	const envs: Array<Record<string, string | undefined>> = [];
-	for (const path of paths) {
+	for (const path of env_files) {
 		const resolved = env_dir === undefined ? path : resolve(env_dir, path);
 		const loaded = load(resolved);
 		if (loaded) envs.push(loaded);

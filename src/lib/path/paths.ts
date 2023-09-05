@@ -71,6 +71,7 @@ export type BuildId = Flavored<string, 'BuildId'>;
 
 export const createPaths = (rootDir: string): Paths => {
 	const root = stripTrailingSlash(rootDir) + '/';
+	console.log(`rootDir`, rootDir);
 	return {
 		root,
 		source: root + SOURCE_DIR,
@@ -225,14 +226,17 @@ export const toImportId = (
 		: toBuildOutPath(dev, buildName, dirBasePath, p.build);
 };
 
-export const groImportDir = join(fileURLToPath(import.meta.url), '../../../');
+const groImportDir = join(fileURLToPath(import.meta.url), '../../../');
+console.log(`groImportDir`, groImportDir);
 export const groDir = join(
 	groImportDir,
 	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : './',
 );
+console.log(`groDir`, groDir);
 export const groDirBasename = `${basename(groDir)}/`;
 export const paths = createPaths(`${process.cwd()}/`);
 export const is_this_project_gro = groDir === paths.root;
+console.log(`is_this_project_gro`, is_this_project_gro, groDir, paths.root);
 export const groPaths = is_this_project_gro ? paths : createPaths(groDir);
 
 export const printPath = (path: string, p = paths, prefix = './'): string =>

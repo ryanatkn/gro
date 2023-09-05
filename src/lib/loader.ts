@@ -8,10 +8,11 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 
 import {transformSync, type TransformOptions} from 'esbuild';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {dirname, join} from 'node:path';
+import {join} from 'node:path';
 import {existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
+import {DEV} from 'esm-env';
 
-import {postprocess} from './build/postprocess.js';
+import {render_env_shim_module} from './util/sveltekit_shims.js';
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
@@ -28,7 +29,8 @@ const transformOptions: TransformOptions = {
 	},
 };
 
-const matcher = /\.(ts|tsx|mts|cts)$/u;
+const env_matcher = /^file:\/\/\$env\/(static|dynamic)\/(public|private)$/u;
+const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 
 export const load = async (
 	url: string,
@@ -37,7 +39,16 @@ export const load = async (
 ): Promise<LoadReturn> => {
 	// TODO BLOCK how to shim $env? does the specifier need to be modified in `resolve`, or just shortCircuited?
 	console.log(`load ` + url);
-	if (matcher.test(url)) {
+	const matched_env = env_matcher.exec(url);
+	if (matched_env) {
+		const mode: 'static' | 'dynamic' = matched_env[1] as any;
+		const visibility: 'public' | 'private' = matched_env[2] as any;
+		return {
+			format: 'module',
+			shortCircuit: true,
+			source: render_env_shim_module(DEV, mode, visibility, 'PUBLIC_', ''), // TODO BLOCK source from svelte.config.js with a helper that caches
+		};
+	} else if (ts_matcher.test(url)) {
 		// const path = fileURLToPath(url);
 		// const dir = dirname(path) + '/';
 		const loaded = await nextLoad(url, {...context, format: 'module'});
@@ -67,13 +78,15 @@ export const resolve = async (
 			}
 		}
 
-		if (specifier === '$env/static/public') {
-			// TODO BLOCk rebase to `$lib` and use the same logic?
-			return {
-				url: pathToFileURL(join(parent_path, '../', specifier)).href,
-				format: 'module',
-				shortCircuit: true,
-			};
+		if (
+			specifier === '$env/static/public' ||
+			specifier === '$env/static/private' ||
+			specifier === '$env/dynamic/public' ||
+			specifier === '$env/dynamic/private'
+		) {
+			// The returned `url` is validated before `load` is called,
+			// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
+			return {url: 'file://' + specifier, format: 'module', shortCircuit: true};
 		}
 
 		if (specifier[0] === '.' && specifier.endsWith('.js')) {

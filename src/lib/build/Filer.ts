@@ -44,7 +44,7 @@ import type {BuildDependency} from './buildDependency.js';
 import type {PathFilter} from '../fs/filter.js';
 import {isExternalModule} from '../path/module.js';
 import {throttle} from '../util/throttle.js';
-import {load_env} from '../util/env.js';
+import {render_env_shim_module} from '../util/sveltekit_shims.js';
 
 /*
 
@@ -329,7 +329,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		await this.add_virtual_source_files(buildConfig, [
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_static_public.ts',
-				content: create_env_shim_module(
+				content: render_env_shim_module(
 					this.dev,
 					'static',
 					'public',
@@ -340,7 +340,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			},
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_static_private.ts',
-				content: create_env_shim_module(
+				content: render_env_shim_module(
 					this.dev,
 					'static',
 					'private',
@@ -351,7 +351,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			},
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_dynamic_public.ts',
-				content: create_env_shim_module(
+				content: render_env_shim_module(
 					this.dev,
 					'dynamic',
 					'public',
@@ -362,7 +362,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			},
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_dynamic_private.ts',
-				content: create_env_shim_module(
+				content: render_env_shim_module(
 					this.dev,
 					'dynamic',
 					'private',
@@ -1042,33 +1042,3 @@ export const nulls: {[key: string]: null} = new Proxy(
 		},
 	},
 );
-
-const create_env_shim_module = (
-	dev: boolean,
-	mode: 'static' | 'dynamic',
-	visibility: 'public' | 'private',
-	public_prefix: string,
-	private_prefix: string,
-	env_dir: string | undefined,
-): string => {
-	const env = load_env(dev, visibility, public_prefix, private_prefix, env_dir);
-	if (mode === 'static') {
-		return `// shim for $env/${mode}/${visibility}
-// @see https://github.com/sveltejs/kit/issues/1485
-${Object.entries(env)
-	.map(([k, v]) => `export const ${k} = '${v}';`)
-	.join('\n')}
-		`;
-	} else {
-		return `// shim for $env/${mode}/${visibility}
-// @see https://github.com/sveltejs/kit/issues/1485
-import {load_env} from '@feltjs/gro/util/env.js';
-const env = load_env(${dev}, '${visibility}', '${public_prefix}', '${private_prefix}'${
-			env_dir !== undefined ? `, '${env_dir}'` : ''
-		});
-${Object.keys(env)
-	.map((k) => `export const ${k} = env.${k};`)
-	.join('\n')}
-		`;
-	}
-};
