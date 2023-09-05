@@ -1,5 +1,4 @@
 import {resolve, extname, join} from 'node:path';
-import * as lexer from 'es-module-lexer';
 import {EventEmitter} from 'node:events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {omitUndefined} from '@feltjs/util/object.js';
@@ -185,7 +184,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.log.debug('init', gray(this.dev ? 'development' : 'production'));
 
 		// TODO BLOCK clean initSourceMeta before loading? (check against source files and vice-versa?)
-		await Promise.all([initSourceMeta(this), lexer.init]);
+		await initSourceMeta(this);
 		// this.log.debug('inited cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,

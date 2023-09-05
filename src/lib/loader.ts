@@ -7,7 +7,6 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 */
 
 import {transformSync, type TransformOptions} from 'esbuild';
-import * as lexer from 'es-module-lexer';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {cwd} from 'node:process';
 
@@ -17,8 +16,6 @@ console.log(`cwd()`, cwd());
 console.log(`pathToFileURL(cwd() + '/').href`, pathToFileURL(cwd() + '/').href);
 console.log(`import.meta.url`, import.meta.url);
 console.log(`fileURLToPath(import.meta.url)`, fileURLToPath(import.meta.url));
-
-await lexer.init;
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',

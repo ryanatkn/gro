@@ -16,6 +16,8 @@ import {
 } from '../path/module.js';
 import type {BuildDependency} from './buildDependency.js';
 
+await lexer.init;
+
 export interface Postprocess {
 	(
 		content: string,

@@ -5,6 +5,8 @@ import {formatFile} from '../../format/formatFile.js';
 import type {Filesystem} from '../../fs/filesystem.js';
 import {toGenImportPath} from '../runGen.js';
 
+await lexer.init;
+
 // This module hackily merges type imports into a minimal set of normalized declarations.
 // A proper implementation would parse with TypeScript;
 // this one should handle most imports but will fail with comments inline in import statements,
@@ -29,7 +31,6 @@ export const normalizeTypeImports = async (
 	const imps = new Map<string, ParsedImport>();
 	const path = toGenImportPath(fileId);
 
-	await lexer.init;
 	for (let i = 0; i < formattedImports.length; i++) {
 		const formattedImport = stripEnd(formattedImports[i].trim(), ';');
 		const [parsed] = lexer.parse(formattedImport);
