@@ -1,5 +1,6 @@
 import esbuild from 'esbuild';
 import {replaceExtension} from '@feltjs/util/path.js';
+import type {Assignable} from '@feltjs/util/types.js';
 
 import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
 import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../path/paths.js';
@@ -93,7 +94,15 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			});
 		}
 
-		await Promise.all(buildFiles.map((buildFile) => postprocess(buildFile, source)));
+		await Promise.all(
+			buildFiles.map(async (buildFile) => {
+				const {content, extension, dir} = buildFile;
+				if (typeof content !== 'string' || extension !== JS_EXTENSION) return;
+				const processed = postprocess(content, dir, source);
+				(buildFile as Assignable<BuildFile, 'content'>).content = processed.content;
+				(buildFile as Assignable<BuildFile, 'dependencies'>).dependencies = processed.dependencies;
+			}),
+		);
 		return buildFiles;
 	};
 

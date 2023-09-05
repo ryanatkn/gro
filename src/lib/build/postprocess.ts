@@ -1,6 +1,5 @@
 import {join, extname, relative} from 'node:path';
 import * as lexer from 'es-module-lexer';
-import type {Assignable} from '@feltjs/util/types.js';
 
 import {
 	paths,
@@ -12,40 +11,32 @@ import {
 } from '../path/paths.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../path/module.js';
 import type {BuildDependency} from './buildDependency.js';
-import type {BuildFile} from './buildFile.js';
 import type {SourceFile} from './sourceFile.js';
 
 export interface Postprocess {
-	(buildFile: BuildFile, source: SourceFile): Promise<void>;
+	(
+		content: string,
+		dir: string,
+		source: SourceFile,
+	): {content: string; dependencies: Map<BuildId, BuildDependency> | null};
 }
 
-// TODO rethink this with the Rollup/Vite APIs, or remove it completely using SvelteKit/Vite
-
-// Mutates `buildFile` with possibly new `content` and `dependencies`.
-// Defensively clone if upstream clone doesn't want mutation.
-export const postprocess: Postprocess = async (buildFile, source) => {
-	if (buildFile.encoding !== 'utf8') return;
-
-	const {dir, extension, content: originalContent} = buildFile;
-
+export const postprocess: Postprocess = (originalContent, dir, source) => {
 	let content = originalContent;
 	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
 	// Map import paths to the built versions.
-	if (extension === JS_EXTENSION) {
-		const handle_specifier: HandleSpecifier = (specifier) => {
-			const buildDependency = to_build_dependency(specifier, dir, source);
-			if (dependencies === null) dependencies = new Map();
-			if (!dependencies.has(buildDependency.buildId)) {
-				dependencies.set(buildDependency.buildId, buildDependency);
-			}
-			return buildDependency;
-		};
-		content = parse_js_dependencies(content, handle_specifier, true);
-	}
+	const handle_specifier: HandleSpecifier = (specifier) => {
+		const buildDependency = to_build_dependency(specifier, dir, source);
+		if (dependencies === null) dependencies = new Map();
+		if (!dependencies.has(buildDependency.buildId)) {
+			dependencies.set(buildDependency.buildId, buildDependency);
+		}
+		return buildDependency;
+	};
+	content = parse_js_dependencies(content, handle_specifier, true);
 
-	(buildFile as Assignable<BuildFile, 'content'>).content = content;
-	(buildFile as Assignable<BuildFile, 'dependencies'>).dependencies = dependencies;
+	return {content, dependencies};
 };
 
 interface HandleSpecifier {

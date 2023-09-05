@@ -1,4 +1,4 @@
-import {type LogLevel, Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
+import {Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {omitUndefined} from '@feltjs/util/object.js';
 import type {Result} from '@feltjs/util/result.js';
 import type {Assignable} from '@feltjs/util/types.js';

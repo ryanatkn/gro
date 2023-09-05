@@ -7,6 +7,9 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 */
 
 import {transformSync, type TransformOptions} from 'esbuild';
+import * as lexer from 'es-module-lexer';
+
+await lexer.init;
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
