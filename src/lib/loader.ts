@@ -51,11 +51,11 @@ export const load = async (
 	return nextLoad(url);
 };
 
-export const resolve = (
+export const resolve = async (
 	specifier: string,
 	context: ResolveContext,
 	nextResolve: NextResolve,
-): ResolveReturn | Promise<ResolveReturn> => {
+): Promise<ResolveReturn> => {
 	console.log(`specifier`, specifier, context.parentURL);
 	if (specifier.endsWith('static_public.js')) {
 		const url = pathToFileURL(
@@ -69,7 +69,8 @@ export const resolve = (
 	}
 	if (specifier[0] === '.' && specifier.endsWith('.js')) {
 		const js_url = join(fileURLToPath(context.parentURL), '../', specifier);
-		console.log(`js_url`, js_url, await import.meta.resolve(specifier));
+		// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
+		// await import.meta.resolve(specifier);
 		if (existsSync(js_url)) {
 			return {url: pathToFileURL(js_url).href, format: 'module', shortCircuit: true};
 		}
