@@ -49,7 +49,7 @@ export const load = async (
 		return {format: 'module', shortCircuit: true, source: processed.content};
 	}
 
-	return nextLoad(url);
+	return nextLoad(url, context);
 };
 
 export const resolve = async (
@@ -81,7 +81,7 @@ export const resolve = async (
 		}
 	}
 
-	return nextResolve(specifier);
+	return nextResolve(specifier, context);
 };
 
 interface ResolveContext {
@@ -90,7 +90,7 @@ interface ResolveContext {
 	importAssertions: object;
 }
 interface NextResolve {
-	(specifier: string, context?: ResolveContext): ResolveReturn | Promise<ResolveReturn>;
+	(specifier: string, context: ResolveContext): ResolveReturn | Promise<ResolveReturn>;
 }
 interface ResolveReturn {
 	url: string;
@@ -105,7 +105,7 @@ interface LoadContext {
 	importAssertions: object;
 }
 interface NextLoad {
-	(specifier: string, context?: LoadContext): Promise<LoadReturn>;
+	(specifier: string, context: LoadContext): Promise<LoadReturn>;
 }
 interface LoadReturn {
 	source: string | ArrayBuffer | TypedArray;
