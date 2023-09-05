@@ -35,6 +35,7 @@ export const load = async (url: string, context: any, nextLoad: any): Promise<an
 		const dir = dirname(path) + '/';
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		const transformed = transformSync(loaded.source.toString(), transformOptions);
+		// TODO change this to an esbuild plugin, assuming it can be
 		const processed = postprocess(transformed.code, dir, dir);
 		return {
 			format: 'module',
