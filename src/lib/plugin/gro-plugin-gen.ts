@@ -71,7 +71,8 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			onFilerBuild = async ({sourceFile, buildConfig}) => {
-				if (buildConfig.name !== 'system') return;
+				// TODO BLOCK how to handle this now? the loader traces deps for us with `parentPath`
+				// if (buildConfig.name !== 'system') return;
 				if (isGenPath(sourceFile.id)) {
 					queueGen(source_idToBasePath(sourceFile.id));
 				}

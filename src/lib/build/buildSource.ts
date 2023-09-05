@@ -20,6 +20,12 @@ export const buildSource = async (
 
 	await sveltekitSync(fs);
 
+	if (!config.builds.length) {
+		// TODO BLOCK
+		console.log('NO BUILDS< RETURNING EARLY');
+		return;
+	}
+
 	const totalTiming = createStopwatch();
 	const timings = new Timings();
 	const logTimings = () => {

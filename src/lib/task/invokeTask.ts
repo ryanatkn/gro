@@ -18,14 +18,10 @@ import {
 	printPathOrGroPath,
 } from '../path/paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
-import {findTaskModules, loadTaskModule} from './taskModule.js';
+import {findTaskModules, load_task_module} from './taskModule.js';
 import {loadGroPackageJson} from '../util/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logAvailableTasks, logErrorReasons} from './logTask.js';
-import {loadConfig} from '../config/config.js';
-import {buildSource} from '../build/buildSource.js';
-
-let built = false;
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -78,19 +74,6 @@ export const invokeTask = async (
 		const pathData = findModulesResult.source_idPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
 		console.log(`pathData`, pathData);
 
-		// First build the project if needed.
-		// This will be removed in favor of using an esm loader with esbuild.
-		if (!built) {
-			built = true;
-			log.debug('building project to run task');
-			const timingToLoadConfig = timings.start('load config');
-			const config = await loadConfig(fs);
-			timingToLoadConfig();
-			const timingToBuildProject = timings.start('build project');
-			await buildSource(fs, config, true, log);
-			timingToBuildProject();
-		}
-
 		if (!pathData.isDirectory) {
 			// The input path matches a file, so load and run it.
 
@@ -100,7 +83,7 @@ export const invokeTask = async (
 			const loadModulesResult = await loadModules(
 				findModulesResult.source_idsByInputPath,
 				true,
-				loadTaskModule,
+				load_task_module,
 			);
 			if (loadModulesResult.ok) {
 				// We found a task module. Run it!

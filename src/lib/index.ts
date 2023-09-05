@@ -5,7 +5,7 @@ export type {Gen, GenContext} from './gen/gen.js';
 export * from './util/schema.js';
 
 // export all of the main config helpers and types
-export {loadConfig, toConfig} from './config/config.js';
+export {loadConfig, create_config} from './config/config.js';
 export type {
 	GroConfig,
 	GroConfigPartial,

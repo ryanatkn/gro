@@ -22,11 +22,8 @@ export interface TaskModuleMeta extends ModuleMeta<TaskModule> {
 export const validateTaskModule = (mod: Record<string, any>): mod is TaskModule =>
 	!!mod.task && typeof mod.task.run === 'function';
 
-export const loadTaskModule = async (
-	id: string,
-	dev: boolean,
-): Promise<LoadModuleResult<TaskModuleMeta>> => {
-	const result = await loadModule(id, dev, validateTaskModule);
+export const load_task_module = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {
+	const result = await loadModule(id, validateTaskModule);
 	if (!result.ok) return result;
 	return {
 		...result,
@@ -58,5 +55,5 @@ export const loadTaskModules = async (
 > => {
 	const findModulesResult = await findTaskModules(fs, inputPaths, extensions, rootDirs);
 	if (!findModulesResult.ok) return findModulesResult;
-	return loadModules(findModulesResult.source_idsByInputPath, true, loadTaskModule);
+	return loadModules(findModulesResult.source_idsByInputPath, true, load_task_module);
 };

@@ -27,7 +27,7 @@ export type GenModule = BasicGenModule | SchemaGenModule;
 export interface BasicGenModule {
 	gen: Gen;
 }
-export interface SchemaGenModule {
+export interface SchemaGenModule extends BasicGenModule {
 	[key: string]: unknown;
 }
 
@@ -56,11 +56,7 @@ export interface SchemaGenModuleMeta extends ModuleMeta<GenModule> {
 
 export const loadGenModule = async (id: string): Promise<LoadModuleResult<GenModuleMeta>> => {
 	const type = toGenModuleType(id);
-	const result = await loadModule(
-		id,
-		true,
-		validateGenModule[type] as any, // TODO why the typecast?
-	);
+	const result = await loadModule(id, validateGenModule[type]);
 	if (result.ok) {
 		(result.mod as GenModuleMeta).type = type;
 	}

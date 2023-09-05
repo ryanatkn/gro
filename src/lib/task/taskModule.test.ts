@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {validateTaskModule, loadTaskModule, loadTaskModules} from './taskModule.js';
+import {validateTaskModule, load_task_module, loadTaskModules} from './taskModule.js';
 import * as actualTestTaskModule from '../test.task.js';
 import * as testTaskModule from './fixtures/testTaskModule.taskFixture.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
@@ -26,7 +26,7 @@ const test__loadTaskModule = suite('loadTaskModule');
 test__loadTaskModule('basic behavior', async () => {
 	const name = 'task/fixtures/testTaskModule.taskFixture.js';
 	const id = resolve('src/lib/' + name);
-	const result = await loadTaskModule(id, true);
+	const result = await load_task_module(id);
 	assert.ok(result.ok);
 	assert.is(result.mod.id, id);
 	assert.is(result.mod.id, id);
@@ -36,7 +36,7 @@ test__loadTaskModule('basic behavior', async () => {
 
 test__loadTaskModule('invalid module', async () => {
 	const id = resolve('src/lib/task/fixtures/testInvalidTaskModule.js');
-	const result = await loadTaskModule(id, true);
+	const result = await load_task_module(id);
 	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
 		assert.is(result.id, id);
@@ -49,7 +49,7 @@ test__loadTaskModule('invalid module', async () => {
 
 test__loadTaskModule('failing module', async () => {
 	const id = resolve('src/lib/task/fixtures/testFailingTaskModule.js');
-	const result = await loadTaskModule(id, true);
+	const result = await load_task_module(id);
 	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {
 		assert.is(result.id, id);

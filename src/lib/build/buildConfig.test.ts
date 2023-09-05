@@ -4,7 +4,6 @@ import {join} from 'node:path';
 
 import {normalizeBuildConfigs, validateBuildConfigs} from './buildConfig.js';
 import {paths} from '../path/paths.js';
-import {SYSTEM_BUILD_CONFIG} from './buildConfigDefaults.js';
 import {fs} from '../fs/node.js';
 
 const input = [paths.source.substring(0, paths.source.length - 1)]; // TODO fix when trailing slash is removed
@@ -57,7 +56,7 @@ test__normalizeBuildConfigs('adds missing system config', () => {
 		{name: 'node3', input},
 	]);
 	assert.equal(buildConfig, [
-		SYSTEM_BUILD_CONFIG,
+		'system',
 		{name: 'node1', input},
 		{name: 'node2', input},
 		{name: 'node3', input},
@@ -71,7 +70,6 @@ test__normalizeBuildConfigs('declares a single dist', () => {
 		{name: 'node3', input},
 	]);
 	assert.equal(buildConfig, [
-		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', input},
 		{name: 'node2', input},
 		{name: 'node3', input},
@@ -83,7 +81,10 @@ test__normalizeBuildConfigs('ensures a primary config', () => {
 		{name: 'node1', input},
 		{name: 'node2', input},
 	]);
-	assert.equal(buildConfig, [SYSTEM_BUILD_CONFIG, {name: 'node1', input}, {name: 'node2', input}]);
+	assert.equal(buildConfig, [
+		{name: 'node1', input},
+		{name: 'node2', input},
+	]);
 });
 
 test__normalizeBuildConfigs('makes all dist when none is', () => {
@@ -93,7 +94,6 @@ test__normalizeBuildConfigs('makes all dist when none is', () => {
 		{name: 'node3', input},
 	]);
 	assert.equal(buildConfig, [
-		SYSTEM_BUILD_CONFIG,
 		{name: 'node1', input},
 		{name: 'node2', input},
 		{name: 'node3', input},

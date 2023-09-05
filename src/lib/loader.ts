@@ -9,6 +9,7 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 import {transformSync, type TransformOptions} from 'esbuild';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {dirname, join} from 'node:path';
+import {existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 
 import {postprocess} from './build/postprocess.js';
 
@@ -34,7 +35,7 @@ export const load = async (
 	context: LoadContext,
 	nextLoad: NextLoad,
 ): Promise<LoadReturn> => {
-	// TODO BLOCK how to shim $env?
+	// TODO BLOCK how to shim $env? does the specifier need to be modified in `resolve`, or just shortCircuited?
 	console.log(`load ` + url);
 	console.log(`context`, context);
 	if (matcher.test(url)) {
@@ -44,11 +45,7 @@ export const load = async (
 		const transformed = transformSync(loaded.source.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
 		// TODO change this to an esbuild plugin, assuming it can be
 		const processed = postprocess(transformed.code, dir, dir, '.ts');
-		return {
-			format: 'module',
-			shortCircuit: true,
-			source: processed.content,
-		};
+		return {format: 'module', shortCircuit: true, source: processed.content};
 	}
 
 	return nextLoad(url);
@@ -68,11 +65,17 @@ export const resolve = (
 			),
 		).href;
 		console.log(`url`, url);
-		return {
-			url,
-			format: 'module',
-			shortCircuit: true,
-		};
+		return {url, format: 'module', shortCircuit: true};
+	}
+	if (specifier[0] === '.' && specifier.endsWith('.js')) {
+		const js_url = join(fileURLToPath(context.parentURL), '../', specifier);
+		if (existsSync(js_url)) {
+			return {url: pathToFileURL(js_url).href, format: 'module', shortCircuit: true};
+		}
+		const ts_url = js_url.slice(0, -3) + '.ts';
+		if (existsSync(ts_url)) {
+			return {url: pathToFileURL(ts_url).href, format: 'module', shortCircuit: true};
+		}
 	}
 
 	return nextResolve(specifier);

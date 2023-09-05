@@ -4,8 +4,7 @@ import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {toBuildOutPath, toRootPath} from './path/paths.js';
-import {SYSTEM_BUILD_NAME} from './build/buildConfigDefaults.js';
+import {SOURCE_DIR} from './path/paths.js';
 import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
 import {findCli, spawnCli} from './util/cli.js';
 
@@ -35,19 +34,11 @@ export const task: Task<Args> = {
 
 		const timings = new Timings();
 
-		// Projects may not define any artifacts for the Node build,
-		// and we don't force anything out in that case,
-		// so just exit early if that happens.
-		const testsBuildDir = toBuildOutPath(true, SYSTEM_BUILD_NAME);
-		if (!(await fs.exists(testsBuildDir))) {
-			log.info(yellow('no tests found'));
-			return;
-		}
-
 		const timeToRunUvu = timings.start('run tests with uvu');
 		const forwardedArgs = toForwardedArgs('uvu');
 		if (!forwardedArgs._) {
-			forwardedArgs._ = [toRootPath(testsBuildDir), ...testFilePatterns];
+			// TODO BLOCK `SOURCE_DIR` used to be `toRootPath(testsBuildDir)`, may be wrong
+			forwardedArgs._ = [SOURCE_DIR, ...testFilePatterns];
 		}
 		// ignore sourcemap files so patterns don't need `.js$`
 		addArg(forwardedArgs, '.map$', 'i', 'ignore');

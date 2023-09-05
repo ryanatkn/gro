@@ -4,7 +4,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Assignable} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
 
-import {paths, toBuildOutPath, CONFIG_BUILD_BASE_PATH} from '../path/paths.js';
+import {paths} from '../path/paths.js';
 import {
 	normalizeBuildConfigs,
 	validateBuildConfigs,
@@ -12,7 +12,7 @@ import {
 	type BuildConfigPartial,
 } from '../build/buildConfig.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET, SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
 import type {EcmaScriptTarget} from '../build/helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import createDefaultConfig from './gro.config.default.js';
@@ -113,28 +113,18 @@ const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
 	const options: GroConfigCreatorOptions = {fs, log, config: null as any};
-	const defaultConfig = await toConfig(createDefaultConfig, options, '');
+	const defaultConfig = await create_config(createDefaultConfig, options, '');
 	console.log(`defaultConfig`, defaultConfig, defaultConfig.builds[0]);
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
 
-	const {configSourceId} = paths;
+	const config_path = paths.config;
 	let config: GroConfig;
-	console.log(`_loadConfig configSourceId`, configSourceId);
-	if (await fs.exists(configSourceId)) {
+	console.log(`_loadConfig configSourceId`, config_path);
+	if (await fs.exists(config_path)) {
 		console.log('_loadConfig EXISTS');
-		// TODO BLOCK this is a hack, may be acceptable for now, we were previously erroring if `configBuildId` isn't found
-		// The project has a `gro.config.ts`, so import it.
-		// If it's not already built, we need to bootstrap the config and use it to compile everything.
-		const configBuildId = toBuildOutPath(true, SYSTEM_BUILD_NAME, CONFIG_BUILD_BASE_PATH);
-		if (await fs.exists(configBuildId)) {
-			console.log('_loadConfig EXISTS AND FOUND');
-			const configModule = await import(configBuildId);
-			validateConfigModule(configModule, configSourceId);
-			config = await toConfig(configModule.default, options, configSourceId, defaultConfig);
-		} else {
-			console.log('_loadConfig EXISTS BUT NOT FOUND');
-			config = defaultConfig;
-		}
+		const config_module = await import(config_path);
+		validate_config_module(config_module, config_path);
+		config = await create_config(config_module.default, options, config_path, defaultConfig);
 	} else {
 		console.log('_loadConfig DOESNT EXIST');
 		config = defaultConfig;
@@ -143,7 +133,7 @@ const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
 	return config;
 };
 
-export const toConfig = async (
+export const create_config = async (
 	configOrCreator: GroConfigPartial | GroConfigCreator,
 	options: GroConfigCreatorOptions,
 	path: string,
@@ -154,9 +144,9 @@ export const toConfig = async (
 
 	const extendedConfig = baseConfig ? {...baseConfig, ...configPartial} : configPartial;
 
-	const config = normalizeConfig(extendedConfig);
+	const config = normalize_config(extendedConfig);
 
-	const validateResult = await validateConfig(options.fs, config);
+	const validateResult = await validate_config(options.fs, config);
 	if (!validateResult.ok) {
 		throw Error(`Invalid Gro config at '${path}': ${validateResult.reason}`);
 	}
@@ -164,21 +154,21 @@ export const toConfig = async (
 	return config;
 };
 
-const validateConfigModule: (
-	configModule: any,
-	configSourceId: string,
-) => asserts configModule is GroConfigModule = (configModule, configSourceId) => {
-	const config = configModule.default;
+export const validate_config_module: (
+	config_module: any,
+	config_path: string,
+) => asserts config_module is GroConfigModule = (config_module, config_path) => {
+	const config = config_module.default;
 	if (!config) {
-		throw Error(`Invalid Gro config module at ${configSourceId}: expected a default export`);
+		throw Error(`Invalid Gro config module at ${config_path}: expected a default export`);
 	} else if (!(typeof config === 'function' || typeof config === 'object')) {
 		throw Error(
-			`Invalid Gro config module at ${configSourceId}: the default export must be a function or object`,
+			`Invalid Gro config module at ${config_path}: the default export must be a function or object`,
 		);
 	}
 };
 
-const validateConfig = async (
+export const validate_config = async (
 	fs: Filesystem,
 	config: GroConfig,
 ): Promise<Result<object, {reason: string}>> => {
@@ -187,7 +177,7 @@ const validateConfig = async (
 	return {ok: true};
 };
 
-const normalizeConfig = (config: GroConfigPartial): GroConfig => {
+export const normalize_config = (config: GroConfigPartial): GroConfig => {
 	const buildConfigs = normalizeBuildConfigs(toArray(config.builds || null));
 	return {
 		sourcemap: true,

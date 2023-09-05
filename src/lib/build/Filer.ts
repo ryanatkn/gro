@@ -86,10 +86,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const paths = opts.paths ?? defaultPaths;
 	const dev = opts.dev ?? true;
 	if (opts.buildConfigs.length === 0) {
-		throw Error(
-			'Filer created with an empty array of buildConfigs.' +
-				' Omit the value or provide `null` if this was intended.',
-		);
+		throw Error('Filer created with an empty array of buildConfigs.');
 	}
 	const buildDir = opts.buildDir || paths.build; // TODO assumes trailing slash
 	const sourceDirs = validateDirs(opts.sourceDirs);

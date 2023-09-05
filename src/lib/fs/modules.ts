@@ -6,14 +6,7 @@ import {printError} from '@feltjs/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../path/inputPath.js';
 import type {PathStats, PathData} from '../path/pathData.js';
-import {
-	toImportId,
-	pathsFromId,
-	printPath,
-	printPathOrGroPath,
-	type SourceId,
-} from '../path/paths.js';
-import {SYSTEM_BUILD_NAME} from '../build/buildConfigDefaults.js';
+import {pathsFromId, printPath, printPathOrGroPath, type SourceId} from '../path/paths.js';
 import type {Filesystem} from './filesystem.js';
 
 /*
@@ -40,13 +33,12 @@ export type LoadModuleFailure =
 
 export const loadModule = async <T extends Record<string, any>>(
 	id: string,
-	dev: boolean,
 	validate?: (mod: Record<string, any>) => mod is T,
-	buildName = SYSTEM_BUILD_NAME,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
+	console.log(`loadModule`, id);
 	let mod;
 	try {
-		mod = await import(toImportId(id, dev, buildName));
+		mod = await import(id); // TODO BLOCK is this right?
 	} catch (err) {
 		return {ok: false, type: 'importFailed', id, error: err};
 	}

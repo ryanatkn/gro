@@ -15,7 +15,7 @@ const test__loadModule = suite('loadModule');
 test__loadModule('basic behavior', async () => {
 	const id = resolve('src/lib/fs/fixtures/test1.foo.js');
 	let validatedMod;
-	const result = await loadModule(id, true, ((mod: any) => {
+	const result = await loadModule(id, ((mod: any) => {
 		validatedMod = mod;
 		return true;
 	}) as any);
@@ -27,7 +27,7 @@ test__loadModule('basic behavior', async () => {
 
 test__loadModule('without validation', async () => {
 	const id = resolve('src/lib/fs/fixtures/test1.foo.js');
-	const result = await loadModule(id, true);
+	const result = await loadModule(id);
 	assert.ok(result.ok);
 	assert.is(result.mod.id, id);
 	assert.is(result.mod.mod, modTest1);
@@ -40,7 +40,7 @@ test__loadModule('fails validation', async () => {
 		validatedMod = mod;
 		return false;
 	};
-	const result = await loadModule(id, true, testValidation as any);
+	const result = await loadModule(id, testValidation as any);
 	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
 		assert.is(result.validation, testValidation.name);
@@ -54,7 +54,7 @@ test__loadModule('fails validation', async () => {
 
 test__loadModule('fails to import', async () => {
 	const id = resolve('foo/test/failure');
-	const result = await loadModule(id, true);
+	const result = await loadModule(id);
 	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {
 		assert.is(result.id, id);
@@ -189,7 +189,7 @@ test__loadModules('fail with loadModuleFailures', async () => {
 					error: (error = new Error('Test failed import')),
 				};
 			}
-			return loadModule(id, true, testValidation);
+			return loadModule(id, testValidation);
 		},
 	);
 	assert.ok(!result.ok);

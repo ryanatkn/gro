@@ -5,7 +5,6 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import {paths} from '../path/paths.js';
-import {SYSTEM_BUILD_CONFIG, SYSTEM_BUILD_NAME} from './buildConfigDefaults.js';
 import {validateInputFiles} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -50,9 +49,6 @@ export const normalizeBuildConfigs = (
 			input: normalizeBuildConfigInput(partial.input),
 		};
 		buildConfigs.push(buildConfig);
-	}
-	if (!buildConfigs.some((c) => c.name === SYSTEM_BUILD_NAME)) {
-		buildConfigs.unshift(SYSTEM_BUILD_CONFIG);
 	}
 	return buildConfigs;
 };

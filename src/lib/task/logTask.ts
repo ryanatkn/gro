@@ -6,7 +6,7 @@ import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeD
 
 import type {ArgSchema} from '../task/args.js';
 import {loadModules} from '../fs/modules.js';
-import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
+import {load_task_module, type TaskModuleMeta} from './taskModule.js';
 
 export const logAvailableTasks = async (
 	log: Logger,
@@ -17,7 +17,7 @@ export const logAvailableTasks = async (
 	const source_ids = Array.from(source_idsByInputPath.values()).flat();
 	if (source_ids.length) {
 		// Load all of the tasks so we can print their summary, and args for the `--help` flag.
-		const loadModulesResult = await loadModules(source_idsByInputPath, true, loadTaskModule);
+		const loadModulesResult = await loadModules(source_idsByInputPath, true, load_task_module);
 		if (!loadModulesResult.ok) {
 			logErrorReasons(log, loadModulesResult.reasons);
 			process.exit(1);
