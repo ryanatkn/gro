@@ -3,6 +3,7 @@
 import {existsSync, realpathSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {spawn} from '@feltjs/util/process.js';
 
 /*
 
@@ -37,7 +38,7 @@ When using the global CLI, this uses the global Gro installation.
 
 */
 
-const main = (): Promise<void> => {
+const main = async (): Promise<void> => {
 	let path;
 
 	const groBinPath = resolve('node_modules/.bin/gro');
@@ -60,7 +61,9 @@ const main = (): Promise<void> => {
 		}
 	}
 
-	return import(path);
+	console.log(`process.argv.slice(1)`, process.argv);
+
+	await spawn('node', ['--loader', join(path, '../../loader.js'), path, ...process.argv.slice(2)]);
 };
 
 main().catch((err) => {

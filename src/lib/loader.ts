@@ -59,7 +59,7 @@ export const resolve = (
 	context: ResolveContext,
 	nextResolve: NextResolve,
 ): ResolveReturn | Promise<ResolveReturn> => {
-	console.log(`specifier`, specifier, context);
+	console.log(`specifier`, specifier, context.parentURL);
 	if (specifier.endsWith('static_public.js')) {
 		const url = pathToFileURL(
 			join(
