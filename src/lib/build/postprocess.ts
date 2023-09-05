@@ -11,30 +11,29 @@ import {
 } from '../path/paths.js';
 import {isExternalModule, MODULE_PATH_LIB_PREFIX, MODULE_PATH_SRC_PREFIX} from '../path/module.js';
 import type {BuildDependency} from './buildDependency.js';
-import type {SourceFile} from './sourceFile.js';
 
 export interface Postprocess {
 	(
 		content: string,
-		dir: string,
-		source: SourceFile,
+		buildDir: string,
+		sourceDir: string,
 	): {content: string; dependencies: Map<BuildId, BuildDependency> | null};
 }
 
-export const postprocess: Postprocess = (originalContent, dir, source) => {
-	let content = originalContent;
+export const postprocess: Postprocess = (originalContent, buildDir, sourceDir) => {
 	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
 	// Map import paths to the built versions.
 	const handle_specifier: HandleSpecifier = (specifier) => {
-		const buildDependency = to_build_dependency(specifier, dir, source);
+		const buildDependency = to_build_dependency(specifier, buildDir, sourceDir);
 		if (dependencies === null) dependencies = new Map();
 		if (!dependencies.has(buildDependency.buildId)) {
 			dependencies.set(buildDependency.buildId, buildDependency);
 		}
 		return buildDependency;
 	};
-	content = parse_js_dependencies(content, handle_specifier, true);
+
+	const content = parse_js_dependencies(originalContent, handle_specifier, true);
 
 	return {content, dependencies};
 };
@@ -95,8 +94,8 @@ const parse_js_dependencies = (
 
 const to_build_dependency = (
 	specifier: string,
-	dir: string,
-	source: SourceFile,
+	buildDir: string,
+	sourceDir: string,
 ): BuildDependency => {
 	let buildId: BuildId;
 	let finalSpecifier = specifier;
@@ -105,20 +104,20 @@ const to_build_dependency = (
 	if (external) {
 		mappedSpecifier = to_relative_specifier(
 			hack_to_sveltekit_import_shims(toBuildExtension(specifier)),
-			source.dir,
+			sourceDir,
 			paths.source,
 		);
 		finalSpecifier = to_relative_specifier(
 			hack_to_sveltekit_import_shims(finalSpecifier),
-			source.dir,
+			sourceDir,
 			paths.source,
 		);
 		buildId = mappedSpecifier;
 	} else {
 		// internal import
-		finalSpecifier = to_relative_specifier(finalSpecifier, source.dir, paths.source);
+		finalSpecifier = to_relative_specifier(finalSpecifier, sourceDir, paths.source);
 		mappedSpecifier = hack_to_build_extension_with_possibly_extensionless_specifier(finalSpecifier);
-		buildId = join(dir, mappedSpecifier);
+		buildId = join(buildDir, mappedSpecifier);
 	}
 	return {
 		specifier: finalSpecifier,
