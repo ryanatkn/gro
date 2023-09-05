@@ -7,8 +7,8 @@ usage in Gro: node --loader ./dist/loader.js foo.ts
 */
 
 import {transformSync, type TransformOptions} from 'esbuild';
-import {fileURLToPath} from 'node:url';
-import {dirname} from 'path';
+import {fileURLToPath, pathToFileURL} from 'node:url';
+import {dirname, join} from 'node:path';
 
 import {postprocess} from './build/postprocess.js';
 
@@ -37,12 +37,6 @@ export const load = async (
 	// TODO BLOCK how to shim $env?
 	console.log(`load ` + url);
 	console.log(`context`, context);
-	if (url.includes('shim_'))
-		return {
-			format: 'module',
-			shortCircuit: true,
-			source: 'console.log("SHIM");',
-		};
 	if (matcher.test(url)) {
 		const path = fileURLToPath(url);
 		const dir = dirname(path) + '/';
@@ -64,42 +58,53 @@ export const resolve = (
 	specifier: string,
 	context: ResolveContext,
 	nextResolve: NextResolve,
-): ResolveReturn => {
+): ResolveReturn | Promise<ResolveReturn> => {
 	console.log(`specifier`, specifier, context);
 	if (specifier.endsWith('static_public.js')) {
-		return nextResolve('../../.gro/dev/system/lib/sveltekit_shim_env_static_public.js');
+		const url = pathToFileURL(
+			join(
+				fileURLToPath(context.parentURL),
+				'../../../.gro/dev/system/lib/sveltekit_shim_env_static_public.js',
+			),
+		).href;
+		console.log(`url`, url);
+		return {
+			url,
+			format: 'module',
+			shortCircuit: true,
+		};
 	}
 
 	return nextResolve(specifier);
 };
 
 interface ResolveContext {
+	parentURL: string;
 	conditions: string[];
 	importAssertions: object;
-	parentURL: string;
 }
 interface NextResolve {
-	(specifier: string, context?: ResolveContext): ResolveReturn;
+	(specifier: string, context?: ResolveContext): ResolveReturn | Promise<ResolveReturn>;
 }
 interface ResolveReturn {
+	url: string;
 	format?: ModuleFormat | null;
 	importAssertions?: object;
 	shortCircuit?: boolean;
-	url: string;
 }
 
 interface LoadContext {
-	conditions: string[];
 	format?: ModuleFormat;
+	conditions: string[];
 	importAssertions: object;
 }
 interface NextLoad {
 	(specifier: string, context?: LoadContext): Promise<LoadReturn>;
 }
 interface LoadReturn {
+	source: string | ArrayBuffer | TypedArray;
 	format: ModuleFormat;
 	shortCircuit?: boolean;
-	source: string | ArrayBuffer | TypedArray;
 }
 
 type ModuleFormat = 'builtin' | 'commonjs' | 'json' | 'module' | 'wasm';
