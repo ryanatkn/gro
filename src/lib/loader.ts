@@ -30,6 +30,8 @@ const transformOptions: TransformOptions = {
 const matcher = /\.(ts|tsx|mts|cts)$/u;
 
 export const load = async (url: string, context: any, nextLoad: any): Promise<any> => {
+	// TODO BLOCK how to shim $env?
+	console.log(`load`, url);
 	if (matcher.test(url)) {
 		const path = fileURLToPath(url);
 		const dir = dirname(path) + '/';
