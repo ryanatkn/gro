@@ -57,24 +57,36 @@ export const resolve = async (
 ): Promise<ResolveReturn> => {
 	// handle $lib imports relative to the parent
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
-	console.log(`specifier, parent_path`, specifier, parent_path);
-	if (context.parentURL !== undefined) {
-		console.log(`specifier`, specifier, parent_path);
-		if (specifier.startsWith('$lib/')) {
-			console.log(`LIB`);
-		}
-	}
 
-	if (specifier[0] === '.' && specifier.endsWith('.js')) {
-		const js_url = parent_path ? join(parent_path, '../', specifier) : specifier;
-		// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
-		// await import.meta.resolve(specifier);
-		if (existsSync(js_url)) {
-			return {url: pathToFileURL(js_url).href, format: 'module', shortCircuit: true};
+	if (parent_path) {
+		console.log(`specifier, parent_path`, specifier, parent_path);
+		if (context.parentURL !== undefined) {
+			console.log(`specifier`, specifier, parent_path);
+			if (specifier.startsWith('$lib/')) {
+				console.log(`LIB`);
+			}
 		}
-		const ts_url = js_url.slice(0, -3) + '.ts';
-		if (existsSync(ts_url)) {
-			return {url: pathToFileURL(ts_url).href, format: 'module', shortCircuit: true};
+
+		if (specifier === '$env/static/public') {
+			// TODO BLOCk rebase to `$lib` and use the same logic?
+			return {
+				url: pathToFileURL(join(parent_path, '../', specifier)).href,
+				format: 'module',
+				shortCircuit: true,
+			};
+		}
+
+		if (specifier[0] === '.' && specifier.endsWith('.js')) {
+			const js_url = join(parent_path, '../', specifier);
+			// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
+			// await import.meta.resolve(specifier);
+			if (existsSync(js_url)) {
+				return {url: pathToFileURL(js_url).href, format: 'module', shortCircuit: true};
+			}
+			const ts_url = js_url.slice(0, -3) + '.ts';
+			if (existsSync(ts_url)) {
+				return {url: pathToFileURL(ts_url).href, format: 'module', shortCircuit: true};
+			}
 		}
 	}
 
