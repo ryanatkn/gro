@@ -11,12 +11,12 @@ import * as lexer from 'es-module-lexer';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {cwd} from 'node:process';
 
+import {postprocess} from './build/postprocess.js';
+
 console.log(`cwd()`, cwd());
 console.log(`pathToFileURL(cwd() + '/').href`, pathToFileURL(cwd() + '/').href);
 console.log(`import.meta.url`, import.meta.url);
 console.log(`fileURLToPath(import.meta.url)`, fileURLToPath(import.meta.url));
-
-import {postprocess} from './build/postprocess.js';
 
 await lexer.init;
 
