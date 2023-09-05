@@ -211,21 +211,6 @@ export const toSourceExtension = (build_id: BuildId): string => {
 	return build_id;
 };
 
-// Converts a source id into an id that can be imported.
-// When importing from inside Gro's own internal .gro/dist/ directory,
-// it returns a relative path and ignores `dev` and `buildName`.
-export const toImportId = (
-	source_id: SourceId,
-	dev: boolean,
-	buildName: BuildName,
-	p = pathsFromId(source_id),
-): string => {
-	const dirBasePath = stripStart(toBuildExtension(source_id), p.source);
-	return !is_this_project_gro && groImportDir === p.dist
-		? join(groImportDir, dirBasePath)
-		: toBuildOutPath(dev, buildName, dirBasePath, p.build);
-};
-
 const groImportDir = join(fileURLToPath(import.meta.url), '../../../');
 console.log(`groImportDir`, groImportDir);
 export const groDir = join(

@@ -11,7 +11,6 @@ import {
 	source_idToBasePath,
 	basePathToSourceId,
 	hasSourceExtension,
-	toImportId,
 	toBuildExtension,
 	toSourceExtension,
 	toBuildBasePath,
@@ -153,21 +152,3 @@ test__toSourceExtension('basic behavior', () => {
 
 test__toSourceExtension.run();
 /* test__toSourceExtension */
-
-/* test__toImportId */
-const test__toImportId = suite('toImportId');
-
-test__toImportId('basic behavior', () => {
-	assert.is(toImportId(resolve('src/foo/bar.ts'), true, 'baz'), resolve('.gro/dev/baz/foo/bar.js'));
-	assert.is(
-		toImportId(resolve('src/foo/bar.ts'), false, 'baz'),
-		resolve('.gro/prod/baz/foo/bar.js'),
-	);
-	assert.is(
-		toImportId(resolve('src/foo/bar.json'), true, 'baz'),
-		resolve('.gro/dev/baz/foo/bar.json.js'),
-	);
-});
-
-test__toImportId.run();
-/* test__toImportId */
