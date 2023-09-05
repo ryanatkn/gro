@@ -3,7 +3,7 @@ import {spawn} from '@feltjs/util/process.js';
 import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../task/args.js';
-import {sourceIdToBasePath} from '../path/paths.js';
+import {source_idToBasePath} from '../path/paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 import {throttle} from '../util/throttle.js';
@@ -58,7 +58,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
 			const found = await findGenModules(fs);
-			if (found.ok && found.sourceIdsByInputPath.size > 0) {
+			if (found.ok && found.source_idsByInputPath.size > 0) {
 				await gen();
 			}
 
@@ -73,7 +73,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			onFilerBuild = async ({sourceFile, buildConfig}) => {
 				if (buildConfig.name !== 'system') return;
 				if (isGenPath(sourceFile.id)) {
-					queueGen(sourceIdToBasePath(sourceFile.id));
+					queueGen(source_idToBasePath(sourceFile.id));
 				}
 				const dependentGenFileIds = filterDependents(
 					sourceFile,
@@ -82,7 +82,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 					isGenPath,
 				);
 				for (const dependentGenFileId of dependentGenFileIds) {
-					queueGen(sourceIdToBasePath(dependentGenFileId));
+					queueGen(source_idToBasePath(dependentGenFileId));
 				}
 			};
 			filer.on('build', onFilerBuild);

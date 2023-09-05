@@ -103,10 +103,10 @@ export const loadSourcePathDataByInputPath = async (
 	inputPaths: string[],
 	getPossibleSourceIdsForInputPath?: (inputPath: string) => string[],
 ): Promise<{
-	sourceIdPathDataByInputPath: Map<string, PathData>;
+	source_idPathDataByInputPath: Map<string, PathData>;
 	unmappedInputPaths: string[];
 }> => {
-	const sourceIdPathDataByInputPath = new Map<string, PathData>();
+	const source_idPathDataByInputPath = new Map<string, PathData>();
 	const unmappedInputPaths: string[] = [];
 	for (const inputPath of inputPaths) {
 		let filePathData: PathData | null = null;
@@ -127,12 +127,12 @@ export const loadSourcePathDataByInputPath = async (
 			}
 		}
 		if (filePathData || dirPathData) {
-			sourceIdPathDataByInputPath.set(inputPath, filePathData || dirPathData!); // the ! is needed because TypeScript inference fails
+			source_idPathDataByInputPath.set(inputPath, filePathData || dirPathData!); // the ! is needed because TypeScript inference fails
 		} else {
 			unmappedInputPaths.push(inputPath);
 		}
 	}
-	return {sourceIdPathDataByInputPath, unmappedInputPaths};
+	return {source_idPathDataByInputPath, unmappedInputPaths};
 };
 
 /**
@@ -141,32 +141,32 @@ export const loadSourcePathDataByInputPath = async (
  * De-dupes source ids.
  */
 export const loadSourceIdsByInputPath = async (
-	sourceIdPathDataByInputPath: Map<string, PathData>,
+	source_idPathDataByInputPath: Map<string, PathData>,
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
 ): Promise<{
-	sourceIdsByInputPath: Map<string, string[]>;
+	source_idsByInputPath: Map<string, string[]>;
 	inputDirectoriesWithNoFiles: string[];
 }> => {
-	const sourceIdsByInputPath = new Map<string, string[]>();
+	const source_idsByInputPath = new Map<string, string[]>();
 	const inputDirectoriesWithNoFiles: string[] = [];
 	const existingSourceIds = new Set<string>();
-	for (const [inputPath, pathData] of sourceIdPathDataByInputPath) {
+	for (const [inputPath, pathData] of source_idPathDataByInputPath) {
 		const {id} = pathData;
 		if (pathData.isDirectory) {
 			const files = await findFiles(id); // eslint-disable-line no-await-in-loop
 			if (files.size) {
-				const sourceIds: string[] = [];
+				const source_ids: string[] = [];
 				let hasFiles = false;
 				for (const path of files.keys()) {
 					hasFiles = true;
-					const sourceId = join(id, path);
-					if (!existingSourceIds.has(sourceId)) {
-						existingSourceIds.add(sourceId);
-						sourceIds.push(sourceId);
+					const source_id = join(id, path);
+					if (!existingSourceIds.has(source_id)) {
+						existingSourceIds.add(source_id);
+						source_ids.push(source_id);
 					}
 				}
-				if (sourceIds.length) {
-					sourceIdsByInputPath.set(inputPath, sourceIds);
+				if (source_ids.length) {
+					source_idsByInputPath.set(inputPath, source_ids);
 				}
 				if (!hasFiles) {
 					inputDirectoriesWithNoFiles.push(inputPath);
@@ -177,8 +177,8 @@ export const loadSourceIdsByInputPath = async (
 			}
 		} else if (!existingSourceIds.has(id)) {
 			existingSourceIds.add(id);
-			sourceIdsByInputPath.set(inputPath, [id]);
+			source_idsByInputPath.set(inputPath, [id]);
 		}
 	}
-	return {sourceIdsByInputPath, inputDirectoriesWithNoFiles};
+	return {source_idsByInputPath, inputDirectoriesWithNoFiles};
 };

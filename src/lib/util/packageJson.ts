@@ -2,7 +2,7 @@ import {join} from 'node:path';
 import type {Json} from '@feltjs/util/json.js';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {paths, groPaths, isThisProjectGro} from '../path/paths.js';
+import {paths, groPaths, is_this_project_gro} from '../path/paths.js';
 
 // This is a single entrypoint for getting the `package.json` of both the current project and Gro.
 // It's cached but can be reloaded with `forceRefresh` flag.
@@ -25,7 +25,7 @@ export const loadPackageJson = async (
 	fs: Filesystem,
 	forceRefresh = false,
 ): Promise<PackageJson> => {
-	if (isThisProjectGro) return loadGroPackageJson(fs, forceRefresh);
+	if (is_this_project_gro) return loadGroPackageJson(fs, forceRefresh);
 	if (!packageJson || forceRefresh) {
 		packageJson = fs.readFile(join(paths.root, 'package.json'), 'utf8').then((f) => JSON.parse(f));
 	}

@@ -1,4 +1,4 @@
-import {sourceIdToBasePath, paths, pathsFromId} from '../path/paths.js';
+import {source_idToBasePath, paths, pathsFromId} from '../path/paths.js';
 import {
 	loadModule,
 	loadModules,
@@ -30,7 +30,7 @@ export const loadTaskModule = async (
 	if (!result.ok) return result;
 	return {
 		...result,
-		mod: {...result.mod, name: toTaskName(sourceIdToBasePath(id, pathsFromId(id)))},
+		mod: {...result.mod, name: toTaskName(source_idToBasePath(id, pathsFromId(id)))},
 	};
 };
 
@@ -58,5 +58,5 @@ export const loadTaskModules = async (
 > => {
 	const findModulesResult = await findTaskModules(fs, inputPaths, extensions, rootDirs);
 	if (!findModulesResult.ok) return findModulesResult;
-	return loadModules(findModulesResult.sourceIdsByInputPath, true, loadTaskModule);
+	return loadModules(findModulesResult.source_idsByInputPath, true, loadTaskModule);
 };

@@ -153,7 +153,7 @@ test__loadSourcePathDataByInputPath(
 			(inputPath) => getPossibleSourceIds(inputPath, ['.bar.ts']),
 		);
 		assert.equal(result, {
-			sourceIdPathDataByInputPath: new Map([
+			source_idPathDataByInputPath: new Map([
 				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
 				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
 				['fake/test3', {id: 'fake/test3/test3.bar.ts', isDirectory: false}],
@@ -202,7 +202,7 @@ const test__loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async (
 		async (id) => testFiles[id],
 	);
 	assert.equal(result, {
-		sourceIdsByInputPath: new Map([
+		source_idsByInputPath: new Map([
 			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
 			['fake/test2', ['fake/test2.bar.ts']],
 			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],

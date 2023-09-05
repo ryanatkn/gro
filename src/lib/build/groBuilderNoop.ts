@@ -14,7 +14,7 @@ export const groBuilderNoop: Builder = {
 				return [
 					{
 						type: 'build',
-						sourceId: source.id,
+						source_id: source.id,
 						buildConfig,
 						dependencies: null,
 						id,
@@ -33,7 +33,7 @@ export const groBuilderNoop: Builder = {
 				return [
 					{
 						type: 'build',
-						sourceId: source.id,
+						source_id: source.id,
 						buildConfig,
 						dependencies: null,
 						id,

@@ -11,20 +11,20 @@ import {loadTaskModule, type TaskModuleMeta} from './taskModule.js';
 export const logAvailableTasks = async (
 	log: Logger,
 	dirLabel: string,
-	sourceIdsByInputPath: Map<string, string[]>,
+	source_idsByInputPath: Map<string, string[]>,
 	printIntro = true,
 ): Promise<void> => {
-	const sourceIds = Array.from(sourceIdsByInputPath.values()).flat();
-	if (sourceIds.length) {
+	const source_ids = Array.from(source_idsByInputPath.values()).flat();
+	if (source_ids.length) {
 		// Load all of the tasks so we can print their summary, and args for the `--help` flag.
-		const loadModulesResult = await loadModules(sourceIdsByInputPath, true, loadTaskModule);
+		const loadModulesResult = await loadModules(source_idsByInputPath, true, loadTaskModule);
 		if (!loadModulesResult.ok) {
 			logErrorReasons(log, loadModulesResult.reasons);
 			process.exit(1);
 		}
 		const printed: string[] = [
-			`${printIntro ? '\n\n' : ''}${sourceIds.length} task${plural(
-				sourceIds.length,
+			`${printIntro ? '\n\n' : ''}${source_ids.length} task${plural(
+				source_ids.length,
 			)} in ${dirLabel}:\n`,
 		];
 		if (printIntro) {

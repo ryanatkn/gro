@@ -68,7 +68,7 @@ export const createSourceFile = async (
 		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!);
 	}
 	const filename = basename(id);
-	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
 	switch (encoding) {
 		case 'utf8':

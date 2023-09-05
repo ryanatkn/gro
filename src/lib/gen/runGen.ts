@@ -21,7 +21,7 @@ import {
 	type RawGenResult,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {printPath, sourceIdToBasePath} from '../path/paths.js';
+import {printPath, source_idToBasePath} from '../path/paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
 import {toJsonSchemaResolver} from '../util/schema.js';
 
@@ -128,7 +128,7 @@ const toGenSchemasOptions = (
 
 // TODO configurable
 export const toGenImportPath = (id: string): string =>
-	'$' + stripEnd(sourceIdToBasePath(id), GEN_SCHEMA_PATH_SUFFIX);
+	'$' + stripEnd(source_idToBasePath(id), GEN_SCHEMA_PATH_SUFFIX);
 
 export const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};

@@ -22,7 +22,7 @@ export interface BinaryBuildFile extends BaseBuildFile {
 export interface BaseBuildFile extends BaseFilerFile {
 	readonly id: BuildId;
 	readonly type: 'build';
-	readonly sourceId: SourceId;
+	readonly source_id: SourceId;
 	readonly buildConfig: BuildConfig;
 	// This data structure de-dupes by build id, because we can throw away
 	// the information of duplicate imports to the same dependency within each build file.
@@ -41,7 +41,7 @@ export const reconstructBuildFiles = async (
 		sourceMeta.data.builds.map(async (build): Promise<void> => {
 			const {id, buildName, dependencies, encoding} = build;
 			const filename = basename(id);
-			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.sourceId and the rest have a trailing slash, but this may cause other problems
+			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 			const extension = extname(id);
 			const content = await loadContent(fs, encoding, id);
 			const buildConfig = buildConfigs.find((b) => b.name === buildName)!; // is a bit awkward, but probably not inefficient enough to change
@@ -60,9 +60,9 @@ export const reconstructBuildFiles = async (
 				case 'utf8':
 					buildFile = {
 						type: 'build',
-						sourceId: sourceMeta.data.sourceId,
+						source_id: sourceMeta.data.source_id,
 						buildConfig,
-						dependencies: dependencies && new Map(dependencies.map((d) => [d.buildId, d])),
+						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 						id,
 						filename,
 						dir,
@@ -78,9 +78,9 @@ export const reconstructBuildFiles = async (
 				case null:
 					buildFile = {
 						type: 'build',
-						sourceId: sourceMeta.data.sourceId,
+						source_id: sourceMeta.data.source_id,
 						buildConfig,
-						dependencies: dependencies && new Map(dependencies.map((d) => [d.buildId, d])),
+						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 						id,
 						filename,
 						dir,
@@ -138,8 +138,8 @@ export const diffDependencies = (
 		if (newFile.dependencies !== null) {
 			for (const dependency of newFile.dependencies.values()) {
 				if (newDependencies === null) newDependencies = new Map();
-				if (!newDependencies.has(dependency.buildId)) {
-					newDependencies.set(dependency.buildId, dependency);
+				if (!newDependencies.has(dependency.build_id)) {
+					newDependencies.set(dependency.build_id, dependency);
 				}
 			}
 		}
@@ -149,8 +149,8 @@ export const diffDependencies = (
 			if (oldFile.dependencies !== null) {
 				for (const dependency of oldFile.dependencies.values()) {
 					if (oldDependencies === null) oldDependencies = new Map();
-					if (!oldDependencies.has(dependency.buildId)) {
-						oldDependencies.set(dependency.buildId, dependency);
+					if (!oldDependencies.has(dependency.build_id)) {
+						oldDependencies.set(dependency.build_id, dependency);
 					}
 				}
 			}
@@ -160,7 +160,7 @@ export const diffDependencies = (
 	// Figure out which dependencies were added and removed.
 	if (newDependencies !== null) {
 		for (const newDependency of newDependencies.values()) {
-			if (oldDependencies === null || !oldDependencies.has(newDependency.buildId)) {
+			if (oldDependencies === null || !oldDependencies.has(newDependency.build_id)) {
 				if (addedDependencies === null) addedDependencies = [];
 				addedDependencies.push(newDependency);
 			}
@@ -168,7 +168,7 @@ export const diffDependencies = (
 	}
 	if (oldDependencies !== null) {
 		for (const oldDependency of oldDependencies.values()) {
-			if (newDependencies === null || !newDependencies.has(oldDependency.buildId)) {
+			if (newDependencies === null || !newDependencies.has(oldDependency.build_id)) {
 				if (removedDependencies === null) removedDependencies = [];
 				removedDependencies.push(oldDependency);
 			}

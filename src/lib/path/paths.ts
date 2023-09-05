@@ -92,16 +92,16 @@ export const toRootPath = (id: string, p = paths): string => stripStart(id, p.ro
 
 // TODO this is more like `toBasePath`
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
-export const sourceIdToBasePath = (sourceId: SourceId, p = paths): string =>
-	stripStart(sourceId, p.source);
+export const source_idToBasePath = (source_id: SourceId, p = paths): string =>
+	stripStart(source_id, p.source);
 
 // '/home/me/app/.gro/[prod|dev]/buildName/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
-export const buildIdToSourceId = (
-	buildId: BuildId,
+export const build_idToSourceId = (
+	build_id: BuildId,
 	buildDir = paths.build,
 	p = paths,
 ): SourceId => {
-	const basePath = toBuildBasePath(buildId, buildDir);
+	const basePath = toBuildBasePath(build_id, buildDir);
 	return basePathToSourceId(toSourceExtension(basePath), p);
 };
 
@@ -128,8 +128,8 @@ export const toBuildOutPath = (
 	buildDir = paths.build,
 ): string => `${toBuildOutDir(dev, buildDir)}/${buildName}/${basePath}`;
 
-export const toBuildBasePath = (buildId: BuildId, buildDir = paths.build): string => {
-	const rootPath = stripStart(buildId, buildDir);
+export const toBuildBasePath = (build_id: BuildId, buildDir = paths.build): string => {
+	const rootPath = stripStart(build_id, buildDir);
 	let separatorCount = 0;
 	for (let i = 0; i < rootPath.length; i++) {
 		if (rootPath[i] === '/') separatorCount++;
@@ -138,10 +138,10 @@ export const toBuildBasePath = (buildId: BuildId, buildDir = paths.build): strin
 			return rootPath.substring(i + 1);
 		}
 	}
-	// TODO ? errors on inputs like `terser` - should that be allowed to be a `buildId`??
+	// TODO ? errors on inputs like `terser` - should that be allowed to be a `build_id`??
 	// can reproduce by removing a dependency (when turned off I think?)
-	// throw Error(`Invalid build id, cannot convert to build base path: ${buildId}`);
-	return buildId;
+	// throw Error(`Invalid build id, cannot convert to build base path: ${build_id}`);
+	return build_id;
 };
 
 // TODO probably change this to use a regexp (benchmark?)
@@ -157,17 +157,17 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 // Maybe this points to a configurable system? Users can define their own extensions in Gro.
 // Maybe `extensionConfigs: FilerExtensionConfig[]`.
 // Or maybe just follow the lead of Rollup/esbuild?
-export const toBuildExtension = (sourceId: SourceId): string =>
-	sourceId.endsWith(TS_EXTENSION)
-		? replaceExtension(sourceId, JS_EXTENSION)
-		: sourceId.endsWith(JSON_EXTENSION)
-		? sourceId + JS_EXTENSION
-		: sourceId;
+export const toBuildExtension = (source_id: SourceId): string =>
+	source_id.endsWith(TS_EXTENSION)
+		? replaceExtension(source_id, JS_EXTENSION)
+		: source_id.endsWith(JSON_EXTENSION)
+		? source_id + JS_EXTENSION
+		: source_id;
 
 // This implementation is complicated but it's fast.
 // TODO see `toBuildExtension` comments for discussion about making this generic and configurable
-export const toSourceExtension = (buildId: BuildId): string => {
-	const len = buildId.length;
+export const toSourceExtension = (build_id: BuildId): string => {
+	const len = build_id.length;
 	let i = len;
 	let extensionCount = 1;
 	let char: string | undefined;
@@ -176,10 +176,10 @@ export const toSourceExtension = (buildId: BuildId): string => {
 	while (true) {
 		i--;
 		if (i < 0) break;
-		char = buildId[i];
+		char = build_id[i];
 		if (char === '/') break;
 		if (char === '.') {
-			const currentExtension = buildId.substring(i);
+			const currentExtension = build_id.substring(i);
 			if (extensionCount === 1) {
 				extension1 = currentExtension;
 				extensionCount = 2;
@@ -194,34 +194,34 @@ export const toSourceExtension = (buildId: BuildId): string => {
 	}
 	switch (extension2) {
 		case JSON_JS_EXTENSION:
-			return buildId.substring(0, len - extension1!.length);
+			return build_id.substring(0, len - extension1!.length);
 		case JS_SOURCEMAP_EXTENSION:
-			return buildId.substring(0, len - extension2.length) + TS_EXTENSION;
+			return build_id.substring(0, len - extension2.length) + TS_EXTENSION;
 		default:
 			break;
 	}
 	switch (extension1) {
 		case SOURCEMAP_EXTENSION:
-			return buildId.substring(0, len - extension1.length);
+			return build_id.substring(0, len - extension1.length);
 		case JS_EXTENSION:
-			return buildId.substring(0, len - extension1.length) + TS_EXTENSION;
+			return build_id.substring(0, len - extension1.length) + TS_EXTENSION;
 		default:
 			break;
 	}
-	return buildId;
+	return build_id;
 };
 
 // Converts a source id into an id that can be imported.
 // When importing from inside Gro's own internal .gro/dist/ directory,
 // it returns a relative path and ignores `dev` and `buildName`.
 export const toImportId = (
-	sourceId: SourceId,
+	source_id: SourceId,
 	dev: boolean,
 	buildName: BuildName,
-	p = pathsFromId(sourceId),
+	p = pathsFromId(source_id),
 ): string => {
-	const dirBasePath = stripStart(toBuildExtension(sourceId), p.source);
-	return !isThisProjectGro && groImportDir === p.dist
+	const dirBasePath = stripStart(toBuildExtension(source_id), p.source);
+	return !is_this_project_gro && groImportDir === p.dist
 		? join(groImportDir, dirBasePath)
 		: toBuildOutPath(dev, buildName, dirBasePath, p.build);
 };
@@ -233,8 +233,8 @@ export const groDir = join(
 );
 export const groDirBasename = `${basename(groDir)}/`;
 export const paths = createPaths(`${process.cwd()}/`);
-export const isThisProjectGro = groDir === paths.root;
-export const groPaths = isThisProjectGro ? paths : createPaths(groDir);
+export const is_this_project_gro = groDir === paths.root;
+export const groPaths = is_this_project_gro ? paths : createPaths(groDir);
 
 export const printPath = (path: string, p = paths, prefix = './'): string =>
 	gray(`${prefix}${toRootPath(path, p)}`);

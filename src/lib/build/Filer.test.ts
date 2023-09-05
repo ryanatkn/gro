@@ -103,7 +103,7 @@ const sourceMetaSnapshot = [
 		{
 			cacheId: '/c/dev_meta/dep2.ts.json',
 			data: {
-				sourceId: '/a/b/src/dep2.ts',
+				source_id: '/a/b/src/dep2.ts',
 				contentHash: '8658aba51e656a918d4768bfbd6cdbf1',
 				builds: [
 					{
@@ -127,7 +127,7 @@ const sourceMetaSnapshot = [
 		{
 			cacheId: '/c/dev_meta/dep1.ts.json',
 			data: {
-				sourceId: '/a/b/src/dep1.ts',
+				source_id: '/a/b/src/dep1.ts',
 				contentHash: '5f8c0c9016e8afd8b9575889a9e9226b',
 				builds: [
 					{
@@ -136,9 +136,9 @@ const sourceMetaSnapshot = [
 						dependencies: [
 							{
 								specifier: './dep2.js',
-								mappedSpecifier: './dep2.js',
-								originalSpecifier: './dep2.js',
-								buildId: '/c/dev/testBuildConfig/dep2.js',
+								mapped_specifier: './dep2.js',
+								original_specifier: './dep2.js',
+								build_id: '/c/dev/testBuildConfig/dep2.js',
 								external: false,
 							},
 						],
@@ -159,7 +159,7 @@ const sourceMetaSnapshot = [
 		{
 			cacheId: '/c/dev_meta/entry.ts.json',
 			data: {
-				sourceId: '/a/b/src/entry.ts',
+				source_id: '/a/b/src/entry.ts',
 				contentHash: '216225ec7cebcb5c2cf443df2050b2a0',
 				builds: [
 					{
@@ -168,9 +168,9 @@ const sourceMetaSnapshot = [
 						dependencies: [
 							{
 								specifier: './dep1.js',
-								mappedSpecifier: './dep1.js',
-								originalSpecifier: './dep1.js',
-								buildId: '/c/dev/testBuildConfig/dep1.js',
+								mapped_specifier: './dep1.js',
+								original_specifier: './dep1.js',
+								build_id: '/c/dev/testBuildConfig/dep1.js',
 								external: false,
 							},
 						],

@@ -4,7 +4,7 @@ import {statSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-r
 import type {PathStats} from '../path/pathData.js';
 import {toPathFilter, type PathFilter} from './filter.js';
 import {loadGitignoreFilter} from '../util/gitignore.js';
-import {SOURCE_DIR, SOURCE_DIRNAME, paths, sourceIdToBasePath} from '../path/paths.js';
+import {SOURCE_DIR, SOURCE_DIRNAME, paths, source_idToBasePath} from '../path/paths.js';
 
 /*
 
@@ -83,5 +83,5 @@ const toBasePath = (p: string): string => {
 	if (p.endsWith(SOURCE_DIR) && paths.source.startsWith(p)) {
 		return SOURCE_DIRNAME;
 	}
-	return sourceIdToBasePath(p);
+	return source_idToBasePath(p);
 };

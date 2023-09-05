@@ -18,7 +18,7 @@ export const groBuilderJson = (options: Options = {}): JsonBuilder => {
 			return [
 				{
 					type: 'build',
-					sourceId: source.id,
+					source_id: source.id,
 					buildConfig,
 					dependencies: null,
 					id: `${outDir}${filename}${JS_EXTENSION}`,

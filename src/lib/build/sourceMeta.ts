@@ -7,8 +7,8 @@ import type {BuildContext} from './builder.js';
 import type {SourceFile} from './sourceFile.js';
 import type {BuildName} from './buildConfig.js';
 import {
-	serializeBuildDependency,
-	deserializeBuildDependency,
+	serialize_build_dependency,
+	deserialize_build_dependency,
 	type BuildDependency,
 	type SerializedBuildDependency,
 } from './buildDependency.js';
@@ -20,7 +20,7 @@ export interface SourceMeta {
 	readonly data: SourceMetaData; // the plain JSON written to disk
 }
 export interface SourceMetaData {
-	readonly sourceId: SourceId;
+	readonly source_id: SourceId;
 	readonly contentHash: string;
 	readonly builds: SourceMetaBuild[];
 }
@@ -34,7 +34,7 @@ export interface SourceMetaBuild {
 // The optional properties in the following serialized types
 // are not `readonly` in order to simplify object creation.
 export interface SerializedSourceMetaData {
-	readonly sourceId: SourceId;
+	readonly source_id: SourceId;
 	readonly contentHash: string;
 	readonly builds: SerializedSourceMetaBuild[];
 }
@@ -57,7 +57,7 @@ export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Pro
 	// create the new meta, not mutating the old
 	const cacheId = toSourceMetaCacheId(file, buildDir, dev);
 	const data: SourceMetaData = {
-		sourceId: file.id,
+		source_id: file.id,
 		contentHash: getFileContentHash(file),
 		builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 			files.map(
@@ -99,11 +99,11 @@ const writeSourceMeta = throttle(
 
 export const deleteSourceMeta = async (
 	{fs, sourceMetaById}: BuildContext,
-	sourceId: SourceId,
+	source_id: SourceId,
 ): Promise<void> => {
-	const meta = sourceMetaById.get(sourceId);
+	const meta = sourceMetaById.get(source_id);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache
-	sourceMetaById.delete(sourceId);
+	sourceMetaById.delete(source_id);
 	await fs.remove(meta.cacheId);
 };
 
@@ -124,7 +124,7 @@ export const initSourceMeta = async ({
 		Array.from(files.keys()).map(async (path) => {
 			const cacheId = `${sourceMetaDir}/${path}`;
 			const data = deserializeSourceMeta(JSON.parse(await fs.readFile(cacheId, 'utf8')));
-			sourceMetaById.set(data.sourceId, {cacheId, data});
+			sourceMetaById.set(data.source_id, {cacheId, data});
 		}),
 	);
 };
@@ -137,10 +137,10 @@ export const initSourceMeta = async ({
 export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 	const {fs, sourceMetaById, log} = ctx;
 	await Promise.all(
-		Array.from(sourceMetaById.keys()).map(async (sourceId) => {
-			if (!(await fs.exists(sourceId))) {
-				log.debug('deleting unknown source meta', gray(sourceId));
-				await deleteSourceMeta(ctx, sourceId);
+		Array.from(sourceMetaById.keys()).map(async (source_id) => {
+			if (!(await fs.exists(source_id))) {
+				log.debug('deleting unknown source meta', gray(source_id));
+				await deleteSourceMeta(ctx, source_id);
 			}
 		}),
 	);
@@ -148,11 +148,11 @@ export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 
 // these are optimizations to write less data to disk
 export const deserializeSourceMeta = ({
-	sourceId,
+	source_id,
 	contentHash,
 	builds,
 }: SerializedSourceMetaData): SourceMetaData => ({
-	sourceId,
+	source_id,
 	contentHash,
 	builds: builds.map((b) => deserializeSourceMetaBuild(b)),
 });
@@ -164,16 +164,16 @@ export const deserializeSourceMetaBuild = ({
 }: SerializedSourceMetaBuild): SourceMetaBuild => ({
 	id,
 	buildName,
-	dependencies: dependencies ? dependencies.map((d) => deserializeBuildDependency(d)) : null,
+	dependencies: dependencies ? dependencies.map((d) => deserialize_build_dependency(d)) : null,
 	encoding: encoding !== undefined ? encoding : 'utf8',
 });
 
 export const serializeSourceMeta = ({
-	sourceId,
+	source_id,
 	contentHash,
 	builds,
 }: SourceMetaData): SerializedSourceMetaData => ({
-	sourceId,
+	source_id,
 	contentHash,
 	builds: builds.map((b) => serializeSourceMetaBuild(b)),
 });
@@ -185,7 +185,7 @@ export const serializeSourceMetaBuild = ({
 }: SourceMetaBuild): SerializedSourceMetaBuild => {
 	const serialized: SerializedSourceMetaBuild = {id, buildName};
 	if (dependencies) {
-		serialized.dependencies = dependencies.map((d) => serializeBuildDependency(d));
+		serialized.dependencies = dependencies.map((d) => serialize_build_dependency(d));
 	}
 	if (encoding !== 'utf8') {
 		serialized.encoding = encoding;

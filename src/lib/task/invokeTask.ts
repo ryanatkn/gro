@@ -13,7 +13,7 @@ import {
 	groPaths,
 	replaceRootDir,
 	isGroId,
-	isThisProjectGro,
+	is_this_project_gro,
 	printPath,
 	printPathOrGroPath,
 } from '../path/paths.js';
@@ -75,7 +75,7 @@ export const invokeTask = async (
 	if (findModulesResult.ok) {
 		// Found a match either in the current working directory or Gro's directory.
 		timings.merge(findModulesResult.timings);
-		const pathData = findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
+		const pathData = findModulesResult.source_idPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
 		console.log(`pathData`, pathData);
 
 		// First build the project if needed.
@@ -96,9 +96,9 @@ export const invokeTask = async (
 
 			// Try to load the task module.
 			// TODO BLOCK why not loadTaskModules ? get good error messages too
-			console.log('LOADING', Array.from(findModulesResult.sourceIdsByInputPath.entries()));
+			console.log('LOADING', Array.from(findModulesResult.source_idsByInputPath.entries()));
 			const loadModulesResult = await loadModules(
-				findModulesResult.sourceIdsByInputPath,
+				findModulesResult.source_idsByInputPath,
 				true,
 				loadTaskModule,
 			);
@@ -133,19 +133,19 @@ export const invokeTask = async (
 			}
 		} else {
 			// The input path matches a directory. Log the tasks but don't run them.
-			if (isThisProjectGro) {
+			if (is_this_project_gro) {
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				await logAvailableTasks(
 					log,
 					printPath(pathData.id),
-					findModulesResult.sourceIdsByInputPath,
+					findModulesResult.source_idsByInputPath,
 				);
 			} else if (isGroId(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
 				await logAvailableTasks(
 					log,
 					printPathOrGroPath(pathData.id),
-					findModulesResult.sourceIdsByInputPath,
+					findModulesResult.source_idsByInputPath,
 				);
 			} else {
 				// The Gro directory is not the same as the cwd
@@ -160,19 +160,19 @@ export const invokeTask = async (
 				if (groDirFindModulesResult.ok) {
 					timings.merge(groDirFindModulesResult.timings);
 					const groPathData =
-						groDirFindModulesResult.sourceIdPathDataByInputPath.get(groDirInputPath)!;
+						groDirFindModulesResult.source_idPathDataByInputPath.get(groDirInputPath)!;
 					// First log the Gro matches.
 					await logAvailableTasks(
 						log,
 						printPathOrGroPath(groPathData.id),
-						groDirFindModulesResult.sourceIdsByInputPath,
+						groDirFindModulesResult.source_idsByInputPath,
 					);
 				}
 				// Then log the current working directory matches.
 				await logAvailableTasks(
 					log,
 					printPath(pathData.id),
-					findModulesResult.sourceIdsByInputPath,
+					findModulesResult.source_idsByInputPath,
 					!groDirFindModulesResult.ok,
 				);
 			}
@@ -180,9 +180,9 @@ export const invokeTask = async (
 	} else if (findModulesResult.type === 'inputDirectoriesWithNoFiles') {
 		// The input path matched a directory, but it contains no matching files.
 		if (
-			isThisProjectGro ||
+			is_this_project_gro ||
 			// this is null safe because of the failure type
-			isGroId(findModulesResult.sourceIdPathDataByInputPath.get(inputPath)!.id)
+			isGroId(findModulesResult.source_idPathDataByInputPath.get(inputPath)!.id)
 		) {
 			// If the directory is inside Gro, just log the errors.
 			logErrorReasons(log, findModulesResult.reasons);
@@ -197,12 +197,12 @@ export const invokeTask = async (
 			if (groDirFindModulesResult.ok) {
 				timings.merge(groDirFindModulesResult.timings);
 				const groPathData =
-					groDirFindModulesResult.sourceIdPathDataByInputPath.get(groDirInputPath)!;
+					groDirFindModulesResult.source_idPathDataByInputPath.get(groDirInputPath)!;
 				// Log the Gro matches.
 				await logAvailableTasks(
 					log,
 					printPathOrGroPath(groPathData.id),
-					groDirFindModulesResult.sourceIdsByInputPath,
+					groDirFindModulesResult.source_idsByInputPath,
 				);
 			} else {
 				// Log the original errors, not the Gro-specific ones.

@@ -6,7 +6,7 @@ import type {BuildConfigInput} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {
 	type Paths,
-	buildIdToSourceId,
+	build_idToSourceId,
 	JS_EXTENSION,
 	TS_EXTENSION,
 	type SourceId,
@@ -39,11 +39,11 @@ export const mapDependencyToSourceId: MapDependencyToSourceId = async (
 	fs,
 	paths,
 ) => {
-	const sourceId = buildIdToSourceId(dependency.buildId, buildDir, paths);
+	const source_id = build_idToSourceId(dependency.build_id, buildDir, paths);
 	// TODO hacky -- see comments above
-	if ((await fs.exists(sourceId)) || !sourceId.endsWith(TS_EXTENSION)) return sourceId;
-	const hackyOtherPossibleSourceId = replaceExtension(sourceId, JS_EXTENSION);
-	return (await fs.exists(hackyOtherPossibleSourceId)) ? hackyOtherPossibleSourceId : sourceId;
+	if ((await fs.exists(source_id)) || !source_id.endsWith(TS_EXTENSION)) return source_id;
+	const hackyOtherPossibleSourceId = replaceExtension(source_id, JS_EXTENSION);
+	return (await fs.exists(hackyOtherPossibleSourceId)) ? hackyOtherPossibleSourceId : source_id;
 };
 
 export const addJsSourcemapFooter = (code: string, sourcemapPath: string): string =>

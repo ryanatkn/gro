@@ -23,7 +23,7 @@ import {
 	toBuildOutPath,
 	type Paths,
 	type SourceId,
-	isThisProjectGro,
+	is_this_project_gro,
 } from '../path/paths.js';
 import type {BuildContext, Builder} from './builder.js';
 import {inferEncoding, type Encoding} from '../fs/encoding.js';
@@ -253,7 +253,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			// Add the virtual shim files to support SvelteKit $env imports.
 			// We don't do this for Gro because it doesn't use env vars internally for development,
 			// and we don't want to ship these virtual modules in the library.
-			if (!isThisProjectGro) {
+			if (!is_this_project_gro) {
 				promises.push(this.add_sveltekit_env_shim_files(buildConfig));
 			}
 		}
@@ -813,7 +813,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				if (dependencies === undefined) {
 					throw Error(`Expected dependencies: ${removedSourceId}: ${sourceFile.id}`);
 				}
-				dependencies.delete(removedDependency.buildId);
+				dependencies.delete(removedDependency.build_id);
 				if (dependencies.size === 0) {
 					dependenciesMap.delete(removedSourceId);
 				}
@@ -827,7 +827,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				if (dependents === undefined) {
 					throw Error(`Expected dependents: ${removedSourceFile.id}: ${sourceFile.id}`);
 				}
-				dependents.delete(removedDependency.buildId);
+				dependents.delete(removedDependency.build_id);
 				if (dependents.size === 0) {
 					dependentsMap.delete(sourceFile.id);
 					if (
@@ -1012,7 +1012,7 @@ const addDependent = (
 	if (dependents === undefined) {
 		dependentsMap.set(dependentSourceFile.id, (dependents = new Map()));
 	}
-	dependents.set(addedDependency.buildId, addedDependency);
+	dependents.set(addedDependency.build_id, addedDependency);
 };
 
 const addDependency = (
@@ -1029,7 +1029,7 @@ const addDependency = (
 	if (dependencies === undefined) {
 		dependenciesMap.set(dependencySourceId, (dependencies = new Map()));
 	}
-	dependencies.set(addedDependency.buildId, addedDependency);
+	dependencies.set(addedDependency.build_id, addedDependency);
 };
 
 /**

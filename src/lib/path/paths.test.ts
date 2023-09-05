@@ -8,14 +8,14 @@ import {
 	groPaths,
 	isGroId,
 	toRootPath,
-	sourceIdToBasePath,
+	source_idToBasePath,
 	basePathToSourceId,
 	hasSourceExtension,
 	toImportId,
 	toBuildExtension,
 	toSourceExtension,
 	toBuildBasePath,
-	buildIdToSourceId,
+	build_idToSourceId,
 } from './paths.js';
 
 /* test__createPaths */
@@ -56,25 +56,28 @@ test__toRootPath('basic behavior', () => {
 test__toRootPath.run();
 /* test__toRootPath */
 
-/* test__sourceIdToBasePath */
-const test__sourceIdToBasePath = suite('sourceIdToBasePath');
+/* test__source_idToBasePath */
+const test__source_idToBasePath = suite('source_idToBasePath');
 
-test__sourceIdToBasePath('basic behavior', () => {
-	assert.is(sourceIdToBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
+test__source_idToBasePath('basic behavior', () => {
+	assert.is(source_idToBasePath(resolve('src/foo/bar/baz.ts')), 'foo/bar/baz.ts');
 });
 
-test__sourceIdToBasePath.run();
-/* test__sourceIdToBasePath */
+test__source_idToBasePath.run();
+/* test__source_idToBasePath */
 
-/* test__buildIdToSourceId */
-const test__buildIdToSourceId = suite('buildIdToSourceId');
+/* test__build_idToSourceId */
+const test__build_idToSourceId = suite('build_idToSourceId');
 
-test__buildIdToSourceId('basic behavior', () => {
-	assert.is(buildIdToSourceId(resolve('.gro/dev/somebuild/foo/bar.js')), resolve('src/foo/bar.ts'));
+test__build_idToSourceId('basic behavior', () => {
+	assert.is(
+		build_idToSourceId(resolve('.gro/dev/somebuild/foo/bar.js')),
+		resolve('src/foo/bar.ts'),
+	);
 });
 
-test__buildIdToSourceId.run();
-/* test__buildIdToSourceId */
+test__build_idToSourceId.run();
+/* test__build_idToSourceId */
 
 /* test__basePathToSourceId */
 const test__basePathToSourceId = suite('basePathToSourceId');

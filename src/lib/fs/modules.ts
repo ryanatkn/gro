@@ -58,8 +58,8 @@ export const loadModule = async <T extends Record<string, any>>(
 
 export type FindModulesResult = Result<
 	{
-		sourceIdsByInputPath: Map<string, string[]>;
-		sourceIdPathDataByInputPath: Map<string, PathData>;
+		source_idsByInputPath: Map<string, string[]>;
+		source_idPathDataByInputPath: Map<string, PathData>;
 		timings: Timings<FindModulesTimings>;
 	},
 	FindModulesFailure
@@ -67,14 +67,14 @@ export type FindModulesResult = Result<
 export type FindModulesFailure =
 	| {
 			type: 'unmappedInputPaths';
-			sourceIdPathDataByInputPath: Map<string, PathData>;
+			source_idPathDataByInputPath: Map<string, PathData>;
 			unmappedInputPaths: string[];
 			reasons: string[];
 	  }
 	| {
 			type: 'inputDirectoriesWithNoFiles';
-			sourceIdsByInputPath: Map<string, string[]>;
-			sourceIdPathDataByInputPath: Map<string, PathData>;
+			source_idsByInputPath: Map<string, string[]>;
+			source_idPathDataByInputPath: Map<string, PathData>;
 			inputDirectoriesWithNoFiles: string[];
 			reasons: string[];
 	  };
@@ -110,7 +110,7 @@ export const findModules = async (
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
 	const timingToMapInputPaths = timings.start('map input paths');
-	const {sourceIdPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
+	const {source_idPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
 		fs,
 		inputPaths,
 		getPossibleSourceIds,
@@ -122,7 +122,7 @@ export const findModules = async (
 		return {
 			ok: false,
 			type: 'unmappedInputPaths',
-			sourceIdPathDataByInputPath,
+			source_idPathDataByInputPath,
 			unmappedInputPaths,
 			reasons: unmappedInputPaths.map((inputPath) =>
 				red(
@@ -137,8 +137,8 @@ export const findModules = async (
 
 	// Find all of the files for any directories.
 	const timingToFindFiles = timings.start('find files');
-	const {sourceIdsByInputPath, inputDirectoriesWithNoFiles} = await loadSourceIdsByInputPath(
-		sourceIdPathDataByInputPath,
+	const {source_idsByInputPath, inputDirectoriesWithNoFiles} = await loadSourceIdsByInputPath(
+		source_idPathDataByInputPath,
 		(id) => findFiles(id),
 	);
 	timingToFindFiles();
@@ -148,19 +148,19 @@ export const findModules = async (
 		? {
 				ok: false,
 				type: 'inputDirectoriesWithNoFiles',
-				sourceIdPathDataByInputPath,
-				sourceIdsByInputPath,
+				source_idPathDataByInputPath,
+				source_idsByInputPath,
 				inputDirectoriesWithNoFiles,
 				reasons: inputDirectoriesWithNoFiles.map((inputPath) =>
 					red(
 						`Input directory ${printPathOrGroPath(
-							sourceIdPathDataByInputPath.get(inputPath)!.id,
+							source_idPathDataByInputPath.get(inputPath)!.id,
 							pathsFromId(inputPath),
 						)} contains no matching files.`,
 					),
 				),
 		  }
-		: {ok: true, sourceIdsByInputPath, sourceIdPathDataByInputPath, timings};
+		: {ok: true, source_idsByInputPath, source_idPathDataByInputPath, timings};
 };
 
 /*
@@ -174,17 +174,17 @@ export const loadModules = async <
 	ModuleType extends Record<string, any>,
 	TModuleMeta extends ModuleMeta<ModuleType>,
 >(
-	sourceIdsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
+	source_idsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	dev: boolean,
-	loadModuleById: (sourceId: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+	loadModuleById: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	const timingToLoadModules = timings.start('load modules');
 	const modules: TModuleMeta[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
-	for (const [inputPath, sourceIds] of sourceIdsByInputPath) {
-		for (const id of sourceIds) {
+	for (const [inputPath, source_ids] of source_idsByInputPath) {
+		for (const id of source_ids) {
 			const result = await loadModuleById(id, dev); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
 				modules.push(result.mod);

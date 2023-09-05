@@ -58,7 +58,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		const buildFiles: BuildFile[] = [
 			{
 				type: 'build',
-				sourceId: source.id,
+				source_id: source.id,
 				buildConfig,
 				dependencies: null,
 				id: jsId,
@@ -78,7 +78,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		if (output.map) {
 			buildFiles.push({
 				type: 'build',
-				sourceId: source.id,
+				source_id: source.id,
 				buildConfig,
 				dependencies: null,
 				id: jsId + SOURCEMAP_EXTENSION,

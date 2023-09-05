@@ -4,7 +4,7 @@ import {green, cyan} from 'kleur/colors';
 
 import {TaskError, type Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
-import {isThisProjectGro} from './path/paths.js';
+import {is_this_project_gro} from './path/paths.js';
 import {toRawRestArgs} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
 import {loadPackageJson} from './util/packageJson.js';
@@ -58,7 +58,7 @@ export const task: Task<Args> = {
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
 		await cleanFs(fs, {build: true, dist: true}, log);
-		if (isThisProjectGro) {
+		if (is_this_project_gro) {
 			const buildResult = await spawn('npm', ['run', 'build']);
 			if (!buildResult.ok) throw Error('Failed to build Gro');
 		}
