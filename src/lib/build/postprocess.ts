@@ -25,7 +25,7 @@ export interface Postprocess {
 }
 
 /**
- * Transforms the content of a JS file to one that supports SvelteKit patterns
+ * Transforms the content of a JS file to support SvelteKit patterns
  * including $lib imports and shims for $app and $env imports.
  * TODO ideally this would be an esbuild plugin
  */
