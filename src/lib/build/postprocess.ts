@@ -33,11 +33,9 @@ export interface Postprocess {
  * TODO remove the hacked in support for extensionless imports (tsconfig `"module": "NodeNext"` doesn't work with `"moduleResolution": "bundler"` though?)
  */
 export const postprocess: Postprocess = (original_content, build_dir, source_dir) => {
-	console.log(`build_dir, source_dir`, build_dir, source_dir);
 	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
-	// Map import paths to the built versions.
-	const handle_specifier: HandleSpecifier = (specifier) => {
+	const map_specifier_to_build_dependency: Map_Specifier_To_Build_Dependency = (specifier) => {
 		const build_dependency = to_build_dependency(specifier, build_dir, source_dir);
 		if (dependencies === null) dependencies = new Map();
 		if (!dependencies.has(build_dependency.build_id)) {
@@ -46,19 +44,18 @@ export const postprocess: Postprocess = (original_content, build_dir, source_dir
 		return build_dependency;
 	};
 
-	const content = parse_js_dependencies(original_content, handle_specifier, true);
+	const content = map_js_dependencies(original_content, map_specifier_to_build_dependency);
 
 	return {content, dependencies};
 };
 
-interface HandleSpecifier {
+interface Map_Specifier_To_Build_Dependency {
 	(specifier: string): BuildDependency;
 }
 
-const parse_js_dependencies = (
+const map_js_dependencies = (
 	content: string,
-	handle_specifier: HandleSpecifier,
-	map_dependencies: boolean,
+	map_specifier_to_build_dependency: Map_Specifier_To_Build_Dependency,
 ): string => {
 	let transformed = '';
 	let index = 0;
@@ -90,19 +87,16 @@ const parse_js_dependencies = (
 			if (specifier.includes('${')) continue;
 		}
 		if (specifier === 'import.meta') continue;
-		const build_dependency = handle_specifier(specifier);
-		if (map_dependencies && build_dependency.mapped_specifier !== specifier) {
+		const build_dependency = map_specifier_to_build_dependency(specifier);
+		if (build_dependency.mapped_specifier !== specifier) {
 			transformed += content.substring(index, start) + build_dependency.mapped_specifier;
 			index = end;
 		}
 	}
-	if (map_dependencies) {
-		if (index > 0) {
-			return transformed + content.substring(index);
-		}
-		return content;
+	if (index > 0) {
+		return transformed + content.substring(index);
 	}
-	return '';
+	return content;
 };
 
 const to_build_dependency = (
