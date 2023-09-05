@@ -23,6 +23,7 @@ export interface Postprocess {
 		content: string,
 		build_dir: string,
 		source_dir: string,
+		mapped_extension: string,
 	): {content: string; dependencies: Map<BuildId, BuildDependency> | null};
 }
 
@@ -32,11 +33,21 @@ export interface Postprocess {
  * TODO ideally this would be an esbuild plugin
  * TODO remove the hacked in support for extensionless imports (tsconfig `"module": "NodeNext"` doesn't work with `"moduleResolution": "bundler"` though?)
  */
-export const postprocess: Postprocess = (original_content, build_dir, source_dir) => {
+export const postprocess: Postprocess = (
+	original_content,
+	build_dir,
+	source_dir,
+	mapped_extension,
+) => {
 	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
 	const map_specifier_to_build_dependency: Map_Specifier_To_Build_Dependency = (specifier) => {
-		const build_dependency = to_build_dependency(specifier, build_dir, source_dir);
+		const build_dependency = to_build_dependency(
+			specifier,
+			build_dir,
+			source_dir,
+			mapped_extension,
+		);
 		if (dependencies === null) dependencies = new Map();
 		if (!dependencies.has(build_dependency.build_id)) {
 			dependencies.set(build_dependency.build_id, build_dependency);
@@ -103,6 +114,7 @@ const to_build_dependency = (
 	specifier: string,
 	build_dir: string,
 	source_dir: string,
+	mapped_extension: string,
 ): BuildDependency => {
 	let build_id: BuildId;
 	let final_specifier = specifier;
@@ -123,8 +135,10 @@ const to_build_dependency = (
 	} else {
 		// internal import
 		final_specifier = to_relative_specifier(final_specifier, source_dir, paths.source);
-		mapped_specifier =
-			hack_to_build_extension_with_possibly_extensionless_specifier(final_specifier);
+		mapped_specifier = hack_to_build_extension_with_possibly_extensionless_specifier(
+			final_specifier,
+			mapped_extension,
+		);
 		build_id = join(build_dir, mapped_specifier);
 	}
 	return {
@@ -165,10 +179,11 @@ const to_relative_specifier_trimmed_by = (
 // but we'd much prefer to remove it completely, and force internal import paths to conform to spec.
 const hack_to_build_extension_with_possibly_extensionless_specifier = (
 	specifier: string,
+	mapped_extension: string,
 ): string => {
 	const extension = extname(specifier);
 	return !extension || !HACK_EXTENSIONLESS_EXTENSIONS.has(extension)
-		? specifier + JS_EXTENSION
+		? specifier + mapped_extension
 		: to_build_extension(specifier);
 };
 

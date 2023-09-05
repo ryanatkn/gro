@@ -98,7 +98,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			buildFiles.map(async (buildFile) => {
 				const {content, extension, dir} = buildFile;
 				if (typeof content !== 'string' || extension !== JS_EXTENSION) return;
-				const processed = postprocess(content, dir, source.dir);
+				const processed = postprocess(content, dir, source.dir, JS_EXTENSION);
 				(buildFile as Assignable<BuildFile, 'content'>).content = processed.content;
 				(buildFile as Assignable<BuildFile, 'dependencies'>).dependencies = processed.dependencies;
 			}),
