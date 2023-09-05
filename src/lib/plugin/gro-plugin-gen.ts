@@ -3,7 +3,7 @@ import {spawn} from '@feltjs/util/process.js';
 import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../task/args.js';
-import {source_idToBasePath} from '../path/paths.js';
+import {source_id_to_base_path} from '../path/paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 import {throttle} from '../util/throttle.js';
@@ -74,7 +74,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 				// TODO BLOCK how to handle this now? the loader traces deps for us with `parentPath`
 				// if (buildConfig.name !== 'system') return;
 				if (isGenPath(sourceFile.id)) {
-					queueGen(source_idToBasePath(sourceFile.id));
+					queueGen(source_id_to_base_path(sourceFile.id));
 				}
 				const dependentGenFileIds = filterDependents(
 					sourceFile,
@@ -83,7 +83,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 					isGenPath,
 				);
 				for (const dependentGenFileId of dependentGenFileIds) {
-					queueGen(source_idToBasePath(dependentGenFileId));
+					queueGen(source_id_to_base_path(dependentGenFileId));
 				}
 			};
 			filer.on('build', onFilerBuild);

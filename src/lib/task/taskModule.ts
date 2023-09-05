@@ -1,4 +1,4 @@
-import {source_idToBasePath, paths, pathsFromId} from '../path/paths.js';
+import {source_id_to_base_path, paths, pathsFromId} from '../path/paths.js';
 import {
 	loadModule,
 	loadModules,
@@ -27,7 +27,7 @@ export const load_task_module = async (id: string): Promise<LoadModuleResult<Tas
 	if (!result.ok) return result;
 	return {
 		...result,
-		mod: {...result.mod, name: toTaskName(source_idToBasePath(id, pathsFromId(id)))},
+		mod: {...result.mod, name: toTaskName(source_id_to_base_path(id, pathsFromId(id)))},
 	};
 };
 

@@ -85,18 +85,16 @@ export const createPaths = (rootDir: string): Paths => {
 export const pathsFromId = (id: string): Paths => (isGroId(id) ? gro_paths : paths);
 export const isGroId = (id: string): boolean => id.startsWith(gro_paths.root);
 
-export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.source);
-
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
 
 // TODO this is more like `toBasePath`
 // '/home/me/app/src/foo/bar/baz.ts' → 'foo/bar/baz.ts'
-export const source_idToBasePath = (source_id: SourceId, p = paths): string =>
+export const source_id_to_base_path = (source_id: SourceId, p = paths): string =>
 	stripStart(source_id, p.source);
 
 // '/home/me/app/.gro/[prod|dev]/buildName/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
-export const build_idToSourceId = (
+export const build_id_to_source_id = (
 	build_id: BuildId,
 	buildDir = paths.build,
 	p = paths,

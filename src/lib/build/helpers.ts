@@ -6,7 +6,7 @@ import type {BuildConfigInput} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {
 	type Paths,
-	build_idToSourceId,
+	build_id_to_source_id,
 	JS_EXTENSION,
 	TS_EXTENSION,
 	type SourceId,
@@ -39,7 +39,7 @@ export const mapDependencyToSourceId: MapDependencyToSourceId = async (
 	fs,
 	paths,
 ) => {
-	const source_id = build_idToSourceId(dependency.build_id, buildDir, paths);
+	const source_id = build_id_to_source_id(dependency.build_id, buildDir, paths);
 	// TODO hacky -- see comments above
 	if ((await fs.exists(source_id)) || !source_id.endsWith(TS_EXTENSION)) return source_id;
 	const hackyOtherPossibleSourceId = replaceExtension(source_id, JS_EXTENSION);

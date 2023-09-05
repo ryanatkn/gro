@@ -3,8 +3,8 @@ import {join, basename, dirname} from 'node:path';
 import {z} from 'zod';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {isSourceId} from '../path/paths.js';
 import {genModuleMeta, toGenModuleType} from './genModule.js';
+import type {SourceId} from '../path/paths.js';
 
 export type GenResult = {
 	originId: string;
@@ -64,17 +64,14 @@ export type GenModuleResultFailure = {
 	elapsed: number;
 };
 
-export const toGenResult = (originId: string, rawResult: RawGenResult): GenResult => {
-	if (!isSourceId(originId)) {
-		throw Error(`originId must be a source id: ${originId}`);
-	}
+export const toGenResult = (originId: SourceId, rawResult: RawGenResult): GenResult => {
 	return {
 		originId,
 		files: toGenFiles(originId, rawResult),
 	};
 };
 
-const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
+const toGenFiles = (originId: SourceId, rawResult: RawGenResult): GenFile[] => {
 	if (rawResult === null) {
 		return [];
 	} else if (typeof rawResult === 'string') {
@@ -87,13 +84,13 @@ const toGenFiles = (originId: string, rawResult: RawGenResult): GenFile[] => {
 	return [toGenFile(originId, rawResult)];
 };
 
-const toGenFile = (originId: string, rawGenFile: RawGenFile): GenFile => {
+const toGenFile = (originId: SourceId, rawGenFile: RawGenFile): GenFile => {
 	const {content, filename, format = true} = rawGenFile;
 	const id = toOutputFileId(originId, filename);
 	return {id, content, originId, format};
 };
 
-const toOutputFileId = (originId: string, rawFileName: string | undefined): string => {
+const toOutputFileId = (originId: SourceId, rawFileName: string | undefined): string => {
 	if (rawFileName === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}

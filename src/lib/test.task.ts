@@ -16,7 +16,7 @@ import {findCli, spawnCli} from './util/cli.js';
 
 export const Args = z
 	.object({
-		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.js$']),
+		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.ts$']),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -39,7 +39,8 @@ export const task: Task<Args> = {
 		if (!forwardedArgs._) {
 			const loader_path = is_this_project_gro ? './dist/loader.js' : '@feltjs/gro/loader.js';
 			// TODO BLOCK `SOURCE_DIR` used to be `toRootPath(testsBuildDir)`, may be wrong
-			forwardedArgs._ = ['--loader', loader_path, SOURCE_DIR, ...testFilePatterns];
+			// '--loader', loader_path,
+			forwardedArgs._ = [SOURCE_DIR, ...testFilePatterns];
 		}
 		// ignore sourcemap files so patterns don't need `.js$`
 		addArg(forwardedArgs, '.map$', 'i', 'ignore');
