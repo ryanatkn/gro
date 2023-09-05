@@ -16,7 +16,7 @@ import {findCli, spawnCli} from './util/cli.js';
 
 export const Args = z
 	.object({
-		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.ts$']),
+		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.js$']),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
