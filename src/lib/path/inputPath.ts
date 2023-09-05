@@ -5,7 +5,7 @@ import {
 	basePathToSourceId,
 	replaceRootDir,
 	groDirBasename,
-	groPaths,
+	gro_paths,
 	type Paths,
 	LIB_DIR,
 	LIB_PATH,
@@ -41,10 +41,10 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 	if (!paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 		if (basePath.startsWith(groDirBasename)) {
-			paths = groPaths;
+			paths = gro_paths;
 			basePath = stripStart(basePath, groDirBasename);
 		} else if (basePath + sep === groDirBasename) {
-			paths = groPaths;
+			paths = gro_paths;
 			basePath = '';
 		}
 	}

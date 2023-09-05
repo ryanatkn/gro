@@ -5,7 +5,7 @@ import {resolve, join, sep} from 'node:path';
 import {
 	createPaths,
 	paths,
-	groPaths,
+	gro_paths,
 	isGroId,
 	toRootPath,
 	source_idToBasePath,
@@ -28,8 +28,8 @@ test__createPaths('basic behavior', () => {
 	assert.is(p.source, join(root, 'src/'));
 });
 
-test__createPaths('paths object has the same identity as the groPaths object', () => {
-	assert.is(paths, groPaths); // because we're testing inside the Gro project
+test__createPaths('paths object has the same identity as the gro_paths object', () => {
+	assert.is(paths, gro_paths); // because we're testing inside the Gro project
 });
 
 test__createPaths.run();

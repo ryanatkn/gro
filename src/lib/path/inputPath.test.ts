@@ -11,7 +11,7 @@ import {
 	getPossibleSourceIds,
 } from './inputPath.js';
 import type {PathStats} from './pathData.js';
-import {groPaths, replaceRootDir, createPaths, paths} from './paths.js';
+import {gro_paths, replaceRootDir, createPaths, paths} from './paths.js';
 import {fs} from '../fs/node.js';
 
 /* test__resolveRawInputPath */
@@ -49,7 +49,7 @@ test__resolveRawInputPath('forced gro directory', () => {
 		join(fakeDir, 'src/lib/gro/foo/bar.ts'),
 	);
 	assert.is(resolveRawInputPath('foo/bar.ts'), groTarget);
-	assert.is(resolveRawInputPath('foo/bar.ts', groPaths), groTarget);
+	assert.is(resolveRawInputPath('foo/bar.ts', gro_paths), groTarget);
 	assert.is(resolveRawInputPath('gro'), resolve('src/lib') + '/');
 });
 
@@ -116,13 +116,13 @@ test__getPossibleSourceIds('in both another directory and gro', () => {
 	const fakeDir = resolve('../fake') + '/';
 	const fakePaths = createPaths(fakeDir);
 	const inputPath = join(fakeDir, 'src/foo/bar');
-	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [groPaths.root], fakePaths), [
+	assert.equal(getPossibleSourceIds(inputPath, ['.baz.ts'], [gro_paths.root], fakePaths), [
 		inputPath,
 		inputPath + '.baz.ts',
 		inputPath + '/bar.baz.ts',
-		replaceRootDir(inputPath, groPaths.root, fakePaths),
-		replaceRootDir(inputPath, groPaths.root, fakePaths) + '.baz.ts',
-		replaceRootDir(inputPath, groPaths.root, fakePaths) + '/bar.baz.ts',
+		replaceRootDir(inputPath, gro_paths.root, fakePaths),
+		replaceRootDir(inputPath, gro_paths.root, fakePaths) + '.baz.ts',
+		replaceRootDir(inputPath, gro_paths.root, fakePaths) + '/bar.baz.ts',
 	]);
 });
 

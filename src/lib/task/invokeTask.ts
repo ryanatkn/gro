@@ -10,7 +10,7 @@ import {resolveRawInputPath} from '../path/inputPath.js';
 import {isTaskPath} from './task.js';
 import {
 	paths,
-	groPaths,
+	gro_paths,
 	replaceRootDir,
 	isGroId,
 	is_this_project_gro,
@@ -66,7 +66,7 @@ export const invokeTask = async (
 
 	// Find the task or directory specified by the `inputPath`.
 	// Fall back to searching the Gro directory as well.
-	const findModulesResult = await findTaskModules(fs, [inputPath], undefined, [groPaths.root]);
+	const findModulesResult = await findTaskModules(fs, [inputPath], undefined, [gro_paths.root]);
 	console.log(`findModulesResult`, findModulesResult);
 	if (findModulesResult.ok) {
 		// Found a match either in the current working directory or Gro's directory.
@@ -135,7 +135,7 @@ export const invokeTask = async (
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
-				const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
+				const groDirInputPath = replaceRootDir(inputPath, gro_paths.root);
 				const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
 					fs.findFiles(id, (path) => isTaskPath(path)),
 				);
@@ -173,7 +173,7 @@ export const invokeTask = async (
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
-			const groDirInputPath = replaceRootDir(inputPath, groPaths.root);
+			const groDirInputPath = replaceRootDir(inputPath, gro_paths.root);
 			const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
 				fs.findFiles(id, (path) => isTaskPath(path)),
 			);

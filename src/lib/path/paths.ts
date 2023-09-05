@@ -82,8 +82,8 @@ export const createPaths = (rootDir: string): Paths => {
 	};
 };
 
-export const pathsFromId = (id: string): Paths => (isGroId(id) ? groPaths : paths);
-export const isGroId = (id: string): boolean => id.startsWith(groPaths.root);
+export const pathsFromId = (id: string): Paths => (isGroId(id) ? gro_paths : paths);
+export const isGroId = (id: string): boolean => id.startsWith(gro_paths.root);
 
 export const isSourceId = (id: string, p = paths): boolean => id.startsWith(p.source);
 
@@ -230,22 +230,28 @@ const groImportDir = join(fileURLToPath(import.meta.url), '../../../');
 console.log(`groImportDir`, groImportDir);
 export const groDir = join(
 	groImportDir,
-	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : './',
+	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
 );
 console.log(`groDir`, groDir);
 export const groDirBasename = `${basename(groDir)}/`;
 export const paths = createPaths(`${process.cwd()}/`);
 export const is_this_project_gro = groDir === paths.root;
 console.log(`is_this_project_gro`, is_this_project_gro, groDir, paths.root);
-export const groPaths = is_this_project_gro ? paths : createPaths(groDir);
+export const gro_paths = is_this_project_gro ? paths : createPaths(groDir);
+console.log(`{.......................}`, {
+	groImportDir,
+	groDir,
+	groDirBasename,
+	is_this_project_gro,
+});
 
 export const printPath = (path: string, p = paths, prefix = './'): string =>
 	gray(`${prefix}${toRootPath(path, p)}`);
 
 export const printPathOrGroPath = (path: string, fromPaths = paths): string => {
 	const inferredPaths = pathsFromId(path);
-	if (fromPaths === groPaths || inferredPaths === fromPaths) {
+	if (fromPaths === gro_paths || inferredPaths === fromPaths) {
 		return printPath(path, inferredPaths, '');
 	}
-	return gray(groDirBasename) + printPath(path, groPaths, '');
+	return gray(groDirBasename) + printPath(path, gro_paths, '');
 };
