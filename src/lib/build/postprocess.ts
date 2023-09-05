@@ -24,6 +24,11 @@ export interface Postprocess {
 	): {content: string; dependencies: Map<BuildId, BuildDependency> | null};
 }
 
+/**
+ * Transforms the content of a JS file to one that supports SvelteKit patterns
+ * including $lib imports and shims for $app and $env imports.
+ * TODO ideally this would be an esbuild plugin
+ */
 export const postprocess: Postprocess = (original_content, build_dir, source_dir) => {
 	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
