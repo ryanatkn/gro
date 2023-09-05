@@ -44,6 +44,7 @@ export const load = async (
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		const transformed = transformSync(loaded.source.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
 		// TODO change this to an esbuild plugin, assuming it can be
+		// TODO BLOCK change to helpers without the deps portion
 		const processed = postprocess(transformed.code, dir, dir, '.ts');
 		return {format: 'module', shortCircuit: true, source: processed.content};
 	}
