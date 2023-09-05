@@ -31,6 +31,7 @@ export interface Postprocess {
  * TODO remove the hacked in support for extensionless imports (tsconfig `"module": "NodeNext"` doesn't work with `"moduleResolution": "bundler"` though?)
  */
 export const postprocess: Postprocess = (original_content, build_dir, source_dir) => {
+	console.log(`build_dir, source_dir`, build_dir, source_dir);
 	let dependencies: Map<BuildId, BuildDependency> | null = null;
 
 	// Map import paths to the built versions.
