@@ -1,6 +1,6 @@
 /*
 
-usage: node --loader @grogarden/gro/loader.js foo.ts
+usage: node --loader @feltjs/gro/loader.js foo.ts
 
 usage in Gro: node --loader ./dist/loader.js foo.ts
 
