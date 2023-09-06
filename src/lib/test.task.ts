@@ -34,6 +34,7 @@ export const task: Task<Args> = {
 		const timeToRunUvu = timings.start('run tests with uvu');
 
 		// uvu doesn't work with esm loaders, so this unfortunately duplicates some of its runner logic.
+		// TODO BLOCK import from uvu/run
 		globalThis.UVU_DEFER = 1;
 		for (const pattern of patterns) {
 			const files = await glob(pattern, {filesOnly: true, absolute: true});
