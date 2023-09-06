@@ -21,7 +21,7 @@ export const load_env = (
 	return merge_envs(envs, visibility, public_prefix, private_prefix);
 };
 
-export const load = (path: string): null | Record<string, string> => {
+const load = (path: string): null | Record<string, string> => {
 	if (!existsSync(path)) return null;
 	const content = readFileSync(path, 'utf8');
 	const parsed = dotenv.parse(content);
@@ -39,12 +39,8 @@ export const merge_envs = (
 	for (const e of envs) {
 		for (const key in e) {
 			if (
-				(visibility === 'private' &&
-					key.startsWith(private_prefix) &&
-					(public_prefix === '' || !key.startsWith(public_prefix))) ||
-				(visibility === 'public' &&
-					key.startsWith(public_prefix) &&
-					(private_prefix === '' || !key.startsWith(private_prefix)))
+				(visibility === 'private' && is_private_env(key, public_prefix, private_prefix)) ||
+				(visibility === 'public' && is_public_env(key, public_prefix, private_prefix))
 			) {
 				const value = e[key];
 				if (value !== undefined) env[key] = value;
@@ -54,3 +50,17 @@ export const merge_envs = (
 
 	return env;
 };
+
+export const is_private_env = (
+	key: string,
+	public_prefix: string,
+	private_prefix: string,
+): boolean =>
+	key.startsWith(private_prefix) && (public_prefix === '' || !key.startsWith(public_prefix));
+
+export const is_public_env = (
+	key: string,
+	public_prefix: string,
+	private_prefix: string,
+): boolean =>
+	key.startsWith(public_prefix) && (private_prefix === '' || !key.startsWith(private_prefix));

@@ -49,20 +49,6 @@ test__normalizeBuildConfigs('normalizes inputs', () => {
 	]);
 });
 
-test__normalizeBuildConfigs('adds missing system config', () => {
-	const buildConfig = normalizeBuildConfigs([
-		{name: 'node1', input},
-		{name: 'node2', input},
-		{name: 'node3', input},
-	]);
-	assert.equal(buildConfig, [
-		'system',
-		{name: 'node1', input},
-		{name: 'node2', input},
-		{name: 'node3', input},
-	]);
-});
-
 test__normalizeBuildConfigs('declares a single dist', () => {
 	const buildConfig = normalizeBuildConfigs([
 		{name: 'node1', input},

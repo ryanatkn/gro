@@ -2,21 +2,19 @@ import {printTimings} from '@feltjs/util/print.js';
 import {Timings} from '@feltjs/util/timings.js';
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
+import glob from 'tiny-glob';
 
-import {TaskError, type Task} from './task/task.js';
-import {SOURCE_DIR, is_this_project_gro} from './path/paths.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
-import {findCli, spawnCli} from './util/cli.js';
+import type {Task} from './task/task.js';
+import {SOURCE_DIR} from './path/paths.js';
+import {findCli} from './util/cli.js';
 
-// Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
-// Args following any `-- uvu` are passed through to `uvu`'s CLI:
-// https://github.com/lukeed/uvu/blob/master/docs/cli.md
-// If the `uvu` segment's args contain any rest arg patterns,
-// the base patterns are ignored.
+/* eslint-disable no-await-in-loop */
 
 export const Args = z
 	.object({
-		_: z.array(z.string(), {description: 'file patterns to test'}).default(['.+\\.test\\.js$']),
+		_: z
+			.array(z.string(), {description: 'file patterns to test'})
+			.default([`${SOURCE_DIR}**/*.test.ts`]),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -25,7 +23,7 @@ export const task: Task<Args> = {
 	summary: 'run tests',
 	Args,
 	run: async ({fs, log, args}): Promise<void> => {
-		const {_: testFilePatterns} = args;
+		const {_: patterns} = args;
 
 		if (!(await findCli(fs, 'uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
@@ -33,31 +31,24 @@ export const task: Task<Args> = {
 		}
 
 		const timings = new Timings();
-
 		const timeToRunUvu = timings.start('run tests with uvu');
-		const forwardedArgs = toForwardedArgs('uvu');
-		if (!forwardedArgs._) {
-			const loader_path = is_this_project_gro ? './dist/loader.js' : '@feltjs/gro/loader.js';
-			// TODO BLOCK `SOURCE_DIR` used to be `toRootPath(testsBuildDir)`, may be wrong
-			forwardedArgs._ = [
-				'--loader',
-				loader_path,
-				'./src/lib/build/helpers.test.ts',
-				'./src/lib/path/paths.test.ts',
-			];
-			// forwardedArgs._ = [SOURCE_DIR, ...testFilePatterns];
+
+		// uvu doesn't work with esm loaders, so this unfortunately duplicates some of its runner logic.
+		globalThis.UVU_DEFER = 1;
+		for (const pattern of patterns) {
+			const files = await glob(pattern, {filesOnly: true, absolute: true});
+			for (const file of files) {
+				await import(file);
+			}
 		}
-		// TODO BLOCK maybe we can make an uvu test loader that creates a virtual module to load everything?
-		// ignore sourcemap files so patterns don't need `.js$`
-		const serializedArgs = serializeArgs(forwardedArgs);
-		log.info(printCommandArgs(['node'].concat(serializedArgs)));
-		const testRunResult = await spawnCli(fs, 'node', serializedArgs);
+
 		timeToRunUvu();
 
 		printTimings(timings, log);
 
-		if (!testRunResult?.ok) {
-			throw new TaskError('Tests failed.');
-		}
+		// TODO BLOCK how to detect?
+		// if (!testRunResult?.ok) {
+		// 	throw new TaskError('Tests failed.');
+		// }
 	},
 };

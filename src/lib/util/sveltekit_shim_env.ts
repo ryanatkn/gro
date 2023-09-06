@@ -28,7 +28,7 @@ export const render_env_shim_module = (
 		return `// shim for $env/static/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
 ${Object.entries(env)
-	.map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`)
+	.map(([k, v]) => `export let ${k} = ${JSON.stringify(v)};`)
 	.join('\n')}
 		`;
 	} else {

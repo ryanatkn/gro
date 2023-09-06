@@ -52,7 +52,7 @@ export const load = async (
 	context: LoadContext,
 	nextLoad: NextLoad,
 ): Promise<LoadReturn> => {
-	console.log(`load ` + url);
+	// console.log(`load ` + url);
 	const matched_env = env_matcher.exec(url);
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
@@ -75,7 +75,7 @@ export const load = async (
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	}
 
-	console.log('LOAD DEFAULT', url);
+	// console.log('LOAD DEFAULT', url);
 	return nextLoad(url, context);
 };
 
@@ -91,7 +91,7 @@ export const resolve = async (
 	const external = specifier[0] !== '.' && specifier[0] !== '$'; // TODO BLOCK scan for $lib, $routes, and the other config
 	if (external) return nextResolve(specifier, context);
 
-	console.log(`specifier`, specifier, parent_path);
+	// console.log(`specifier`, specifier, parent_path);
 
 	if (
 		specifier === '$env/static/public' ||
@@ -113,7 +113,7 @@ export const resolve = async (
 	if (path.startsWith('$lib')) {
 		// TODO BLOCK read svelte.config.js and map $routes, etc
 		path = dir + '/src/' + path.substring(1);
-		console.log(`path`, path);
+		// console.log(`path`, path);
 	}
 
 	const relative = path[0] === '.';
@@ -146,7 +146,7 @@ export const resolve = async (
 			}
 		}
 	}
-	console.log(`final path`, path);
+	// console.log(`final path`, path);
 
 	return {url: pathToFileURL(path).href, format: 'module', shortCircuit: true};
 };

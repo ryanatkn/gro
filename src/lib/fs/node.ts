@@ -13,11 +13,11 @@ const findFiles = async (
 	// pass `null` to speed things up at the risk of rare misorderings
 	sort: typeof compareSimpleMapEntries | null = compareSimpleMapEntries,
 ): Promise<Map<string, PathStats>> => {
-	const finalDir = stripEnd(dir, '/');
-	const globbed = await glob(finalDir + '/**/*', {absolute: true, filesOnly: true});
+	const final_dir = stripEnd(dir, '/');
+	const globbed = await glob(final_dir + '/**/*', {absolute: true, filesOnly: true});
 	const paths: Map<string, PathStats> = new Map();
 	for (const g of globbed) {
-		const path = stripStart(g, finalDir + '/');
+		const path = stripStart(g, final_dir + '/');
 		const stats = fsExtra.statSync(g);
 		if (!filter || stats.isDirectory() || filter(path, stats)) {
 			paths.set(path, stats);
