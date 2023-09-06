@@ -5,7 +5,7 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {SOURCE_DIR, is_this_project_gro} from './path/paths.js';
-import {addArg, printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
+import {printCommandArgs, serializeArgs, toForwardedArgs} from './task/args.js';
 import {findCli, spawnCli} from './util/cli.js';
 
 // Runs the project's tests: `gro test [...patterns] [-- uvu [...args]]`.
@@ -39,14 +39,19 @@ export const task: Task<Args> = {
 		if (!forwardedArgs._) {
 			const loader_path = is_this_project_gro ? './dist/loader.js' : '@feltjs/gro/loader.js';
 			// TODO BLOCK `SOURCE_DIR` used to be `toRootPath(testsBuildDir)`, may be wrong
-			// '--loader', loader_path,
-			forwardedArgs._ = [SOURCE_DIR, ...testFilePatterns];
+			forwardedArgs._ = [
+				'--loader',
+				loader_path,
+				'./src/lib/build/helpers.test.ts',
+				'./src/lib/path/paths.test.ts',
+			];
+			// forwardedArgs._ = [SOURCE_DIR, ...testFilePatterns];
 		}
+		// TODO BLOCK maybe we can make an uvu test loader that creates a virtual module to load everything?
 		// ignore sourcemap files so patterns don't need `.js$`
-		addArg(forwardedArgs, '.map$', 'i', 'ignore');
 		const serializedArgs = serializeArgs(forwardedArgs);
-		log.info(printCommandArgs(['uvu'].concat(serializedArgs)));
-		const testRunResult = await spawnCli(fs, 'uvu', serializedArgs);
+		log.info(printCommandArgs(['node'].concat(serializedArgs)));
+		const testRunResult = await spawnCli(fs, 'node', serializedArgs);
 		timeToRunUvu();
 
 		printTimings(timings, log);

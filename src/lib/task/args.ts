@@ -127,16 +127,12 @@ export const toForwardedArgsByCommand = (
 	return _forwardedArgsByCommand;
 };
 
+// TODO curretly unused
 /**
  * Mutates `args` to add `value` on either key `a` or `b`. (to handle shorthand/longhand form)
  * If `value` is a boolean, it always overwrites the existing value.
  * If `value` is a string or number, it'll be added to an array.
  * To treat `value` as a primitive in all cases, pass `array` `false`.
- * @param args
- * @param value
- * @param a
- * @param b
- * @param array
  */
 export const addArg = (
 	args: Args,
