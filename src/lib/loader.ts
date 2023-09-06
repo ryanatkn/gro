@@ -32,7 +32,7 @@ const transformOptions: TransformOptions = {
 	},
 };
 
-const env_matcher = /^file:\/\/\$env\/(static|dynamic)\/(public|private)$/u;
+const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 
 export const load = async (
@@ -90,7 +90,7 @@ export const resolve = async (
 	) {
 		// The returned `url` is validated before `load` is called,
 		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
-		return {url: 'file://' + specifier, format: 'module', shortCircuit: true};
+		return {url: 'file:///' + dir + '/src/lib/' + specifier, format: 'module', shortCircuit: true};
 	}
 
 	let path = specifier;
