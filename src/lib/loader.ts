@@ -106,10 +106,7 @@ export const resolve = async (
 
 	let path = specifier;
 
-	// TODO BLOCK handle:
-	// $lib
-	// ending with .js or .ts or no path and then try .ts and then .js
-
+	// TODO BLOCK alias from config
 	if (path.startsWith('$lib')) {
 		// TODO BLOCK read svelte.config.js and map $routes, etc
 		path = dir + '/src/' + path.substring(1);
