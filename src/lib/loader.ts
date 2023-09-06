@@ -18,16 +18,15 @@ import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 
 const dir = cwd();
 
-let config: Config | null | undefined;
-const load_sveltekit_config = async (): Promise<Config | null | undefined> => {
-	if (config !== undefined) return config;
+const load_sveltekit_config = async (): Promise<Config | null> => {
 	try {
-		config = (await import(dir + '/svelte.config.js')).default;
+		return (await import(dir + '/svelte.config.js')).default;
 	} catch (err) {
-		config = null;
+		return null;
 	}
-	return config;
 };
+
+const config = await load_sveltekit_config(); // was lazy-loaded, but can't be imported during `resolve`, fails silently
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
@@ -57,7 +56,6 @@ export const load = async (
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
 		const visibility: 'public' | 'private' = matched_env[2] as any;
-		const config = await load_sveltekit_config();
 		const public_prefix = config?.kit?.env?.publicPrefix;
 		const private_prefix = config?.kit?.env?.privatePrefix;
 		const env_dir = config?.kit?.env?.dir;
@@ -91,7 +89,7 @@ export const resolve = async (
 	const external = specifier[0] !== '.' && specifier[0] !== '$'; // TODO BLOCK scan for $lib, $routes, and the other config
 	if (external) return nextResolve(specifier, context);
 
-	// console.log(`specifier`, specifier, parent_path);
+	console.log(`specifier`, specifier, parent_path);
 
 	if (
 		specifier === '$env/static/public' ||
@@ -106,11 +104,17 @@ export const resolve = async (
 
 	let path = specifier;
 
-	// TODO BLOCK alias from config
 	if (path.startsWith('$lib')) {
-		// TODO BLOCK read svelte.config.js and map $routes, etc
 		path = dir + '/src/' + path.substring(1);
-		// console.log(`path`, path);
+	}
+
+	const alias = config?.kit?.alias;
+	if (alias) {
+		for (const [from, to] of Object.entries(alias)) {
+			if (path.startsWith(from)) {
+				path = dir + '/' + to + path.substring(from.length);
+			}
+		}
 	}
 
 	const relative = path[0] === '.';
