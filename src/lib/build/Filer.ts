@@ -313,19 +313,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	// TODO BLOCK include only when imported, and keep in sync at runtime
 	private async add_sveltekit_env_shim_files(buildConfig: BuildConfig): Promise<void> {
-		let public_prefix = 'PUBLIC_';
-		let private_prefix = '';
-		let env_dir: string | undefined = undefined;
+		let config: Config | undefined; // TODO ideally this would be `ValidatedConfig` but SvelteKit doesn't expose its load config helper
 		try {
-			// TODO ideally this would be `ValidatedConfig` but SvelteKit doesn't expose its load config helper
-			const config: Config = (await import(this.paths.root + 'svelte.config.js')).default;
-			const env = config.kit?.env;
-			if (env) {
-				if (env.publicPrefix !== undefined) public_prefix = env.publicPrefix;
-				if (env.privatePrefix !== undefined) private_prefix = env.privatePrefix;
-				if (env.dir !== undefined) env_dir = env.dir;
-			}
+			config = (await import(this.paths.root + 'svelte.config.js')).default;
 		} catch (err) {}
+		const public_prefix = config?.kit?.env?.publicPrefix;
+		const private_prefix = config?.kit?.env?.privatePrefix;
+		const env_dir = config?.kit?.env?.dir;
 		await this.add_virtual_source_files(buildConfig, [
 			{
 				id: this.paths.lib + '/sveltekit_shim_env_static_public.ts',

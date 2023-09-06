@@ -12,10 +12,22 @@ import {join} from 'node:path';
 import {existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 import {DEV} from 'esm-env';
 import {cwd} from 'node:process';
+import type {Config} from '@sveltejs/kit';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 
 const dir = cwd();
+
+let config: Config | null | undefined;
+const load_sveltekit_config = async (): Promise<Config | null | undefined> => {
+	if (config !== undefined) return config;
+	try {
+		config = (await import(dir + '/svelte.config.js')).default;
+	} catch (err) {
+		config = null;
+	}
+	return config;
+};
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
@@ -40,20 +52,19 @@ export const load = async (
 	context: LoadContext,
 	nextLoad: NextLoad,
 ): Promise<LoadReturn> => {
-	// TODO BLOCK how to shim $env? does the specifier need to be modified in `resolve`, or just shortCircuited?
 	console.log(`load ` + url);
 	const matched_env = env_matcher.exec(url);
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
 		const visibility: 'public' | 'private' = matched_env[2] as any;
-		console.log(
-			`render_env_shim_module(DEV, mode, visibility, 'PUBLIC_', '')`,
-			render_env_shim_module(DEV, mode, visibility, 'PUBLIC_', ''),
-		);
+		const config = await load_sveltekit_config();
+		const public_prefix = config?.kit?.env?.publicPrefix;
+		const private_prefix = config?.kit?.env?.privatePrefix;
+		const env_dir = config?.kit?.env?.dir;
 		return {
 			format: 'module',
 			shortCircuit: true,
-			source: render_env_shim_module(DEV, mode, visibility, 'PUBLIC_', ''), // TODO BLOCK source from svelte.config.js with a helper that caches
+			source: render_env_shim_module(DEV, mode, visibility, public_prefix, private_prefix, env_dir),
 		};
 	} else if (ts_matcher.test(url)) {
 		// const path = fileURLToPath(url);

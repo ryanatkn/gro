@@ -50,7 +50,7 @@ export const createSourceFile = async (
 	{fs, buildConfigs}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentBuffer: Buffer | undefined = encoding === null ? (content as Buffer) : undefined;
-	let contentHash: string | undefined = undefined;
+	let contentHash: string | undefined;
 	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
 	let dirty = false;
 	if (sourceMeta !== undefined) {
