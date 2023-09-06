@@ -11,8 +11,11 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
 import {existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 import {DEV} from 'esm-env';
+import {cwd} from 'node:process';
 
-import {render_env_shim_module} from './util/sveltekit_shims.js';
+import {render_env_shim_module} from './util/sveltekit_shim_env.js';
+
+const dir = cwd();
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
@@ -43,6 +46,10 @@ export const load = async (
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
 		const visibility: 'public' | 'private' = matched_env[2] as any;
+		console.log(
+			`render_env_shim_module(DEV, mode, visibility, 'PUBLIC_', '')`,
+			render_env_shim_module(DEV, mode, visibility, 'PUBLIC_', ''),
+		);
 		return {
 			format: 'module',
 			shortCircuit: true,
@@ -68,42 +75,69 @@ export const resolve = async (
 ): Promise<ResolveReturn> => {
 	// handle $lib imports relative to the parent
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
+	if (!parent_path) return nextResolve(specifier, context);
 
-	if (parent_path) {
-		console.log(`specifier, parent_path`, specifier, parent_path);
-		if (context.parentURL !== undefined) {
-			console.log(`specifier`, specifier, parent_path);
-			if (specifier.startsWith('$lib/')) {
-				console.log(`LIB`);
-			}
-		}
+	const external = specifier[0] !== '.' && specifier[0] !== '$'; // TODO BLOCK scan for $lib, $routes, and the other config
+	if (external) return nextResolve(specifier, context);
 
-		if (
-			specifier === '$env/static/public' ||
-			specifier === '$env/static/private' ||
-			specifier === '$env/dynamic/public' ||
-			specifier === '$env/dynamic/private'
-		) {
-			// The returned `url` is validated before `load` is called,
-			// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
-			return {url: 'file://' + specifier, format: 'module', shortCircuit: true};
-		}
+	console.log(`specifier`, specifier, parent_path);
 
-		if (specifier[0] === '.' && specifier.endsWith('.js')) {
-			const js_url = join(parent_path, '../', specifier);
+	if (
+		specifier === '$env/static/public' ||
+		specifier === '$env/static/private' ||
+		specifier === '$env/dynamic/public' ||
+		specifier === '$env/dynamic/private'
+	) {
+		// The returned `url` is validated before `load` is called,
+		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
+		return {url: 'file://' + specifier, format: 'module', shortCircuit: true};
+	}
+
+	let path = specifier;
+
+	// TODO BLOCK handle:
+	// $lib
+	// ending with .js or .ts or no path and then try .ts and then .js
+
+	if (path.startsWith('$lib')) {
+		// TODO BLOCK read svelte.config.js and map $routes, etc
+		path = dir + '/src/' + path.substring(1);
+		console.log(`path`, path);
+	}
+
+	const relative = path[0] === '.';
+	const absolute = path[0] === '/';
+	if (!relative && !absolute) throw Error('UNEXPECTED path: ' + path); // TODO BLOCK
+
+	if (relative || absolute) {
+		if (path.endsWith('.js')) {
+			const js_path = relative ? join(parent_path, '../', path) : path;
 			// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
-			// await import.meta.resolve(specifier);
-			if (existsSync(js_url)) {
-				return {url: pathToFileURL(js_url).href, format: 'module', shortCircuit: true};
+			// await import.meta.resolve(path);
+			if (existsSync(js_path)) {
+				path = js_path;
+			} else {
+				const ts_path = js_path.slice(0, -3) + '.ts';
+				if (existsSync(ts_path)) {
+					path = ts_path;
+				}
 			}
-			const ts_url = js_url.slice(0, -3) + '.ts';
-			if (existsSync(ts_url)) {
-				return {url: pathToFileURL(ts_url).href, format: 'module', shortCircuit: true};
+		} else {
+			// TODO BLOCK refactor with the above
+			const js_path = (relative ? join(parent_path, '../', path) : path) + '.js';
+			if (existsSync(js_path)) {
+				path = js_path;
+			} else {
+				const ts_path = js_path.slice(0, -3) + '.ts';
+				if (existsSync(ts_path)) {
+					path = ts_path;
+				}
 			}
 		}
 	}
+	console.log(`final path`, path);
 
-	return nextResolve(specifier, context);
+	return {url: pathToFileURL(path).href, format: 'module', shortCircuit: true};
 };
 
 interface ResolveContext {

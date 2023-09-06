@@ -11,13 +11,13 @@ import type {
 	preloadCode as base_preloadCode,
 	preloadData as base_preloadData,
 } from '$app/navigation';
-import {noop} from '@feltjs/util/function.js';
+import {noop, noop_async} from '@feltjs/util/function.js';
 
 export const afterNavigate: typeof base_afterNavigate = noop;
 export const beforeNavigate: typeof base_beforeNavigate = noop;
 export const disableScrollHandling: typeof base_disableScrollHandling = noop;
-export const goto: typeof base_goto = () => Promise.resolve();
-export const invalidate: typeof base_invalidate = () => Promise.resolve();
-export const invalidateAll: typeof base_invalidateAll = () => Promise.resolve();
-export const preloadCode: typeof base_preloadCode = () => Promise.resolve();
-export const preloadData: typeof base_preloadData = () => Promise.resolve();
+export const goto: typeof base_goto = noop_async;
+export const invalidate: typeof base_invalidate = noop_async;
+export const invalidateAll: typeof base_invalidateAll = noop_async;
+export const preloadCode: typeof base_preloadCode = noop_async;
+export const preloadData: typeof base_preloadData = noop_async;

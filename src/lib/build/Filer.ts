@@ -44,7 +44,7 @@ import type {BuildDependency} from './buildDependency.js';
 import type {PathFilter} from '../fs/filter.js';
 import {isExternalModule} from '../path/module.js';
 import {throttle} from '../util/throttle.js';
-import {render_env_shim_module} from '../util/sveltekit_shims.js';
+import {render_env_shim_module} from '../util/sveltekit_shim_env.js';
 
 /*
 

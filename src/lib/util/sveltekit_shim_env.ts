@@ -25,24 +25,21 @@ export const render_env_shim_module = (
 		ambient_env,
 	);
 	if (mode === 'static') {
-		return `// shim for $env/${mode}/${visibility}
+		return `// shim for $env/static/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
 ${Object.entries(env)
 	.map(([k, v]) => `export const ${k} = ${JSON.stringify(v)};`)
 	.join('\n')}
 		`;
 	} else {
-		return `// shim for $env/${mode}/${visibility}
+		return `// shim for $env/dynamic/${visibility}
 // @see https://github.com/sveltejs/kit/issues/1485
 import {load_env} from '@feltjs/gro/util/env.js';
-const env = load_env(${dev}, ${JSON.stringify(visibility)}, ${JSON.stringify(
+export const env = load_env(${dev}, ${JSON.stringify(visibility)}, ${JSON.stringify(
 			public_prefix,
 		)}, ${JSON.stringify(private_prefix)}, ${JSON.stringify(env_dir)}, ${JSON.stringify(
 			env_files,
 		)}, ${JSON.stringify(ambient_env)});
-${Object.keys(env)
-	.map((k) => `export const ${k} = env.${k};`)
-	.join('\n')}
 		`;
 	}
 };

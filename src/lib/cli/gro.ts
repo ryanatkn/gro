@@ -61,8 +61,6 @@ const main = async (): Promise<void> => {
 		}
 	}
 
-	console.log(`process.argv.slice(1)`, process.argv);
-
 	await spawn('node', ['--loader', join(path, '../../loader.js'), path, ...process.argv.slice(2)]);
 };
 
