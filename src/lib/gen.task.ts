@@ -13,7 +13,7 @@ import {formatFile} from './format/formatFile.js';
 import {print_path} from './path/paths.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
-import {logErrorReasons} from './task/logTask.js';
+import {log_error_reasons} from './task/logTask.js';
 
 export const Args = z
 	.object({
@@ -38,7 +38,7 @@ export const task: Task<Args> = {
 	run: async ({fs, log, args}): Promise<void> => {
 		const {_: rawInputPaths, check, rebuild} = args;
 
-		const totalTiming = createStopwatch();
+		const total_timing = createStopwatch();
 		const timings = new Timings();
 
 		// TODO hacky -- running `gro gen` from the command line
@@ -57,20 +57,20 @@ export const task: Task<Args> = {
 		const inputPaths = resolveRawInputPaths(rawInputPaths);
 
 		// load all of the gen modules
-		const findModulesResult = await findGenModules(fs, inputPaths);
-		if (!findModulesResult.ok) {
-			logErrorReasons(log, findModulesResult.reasons);
+		const find_modules_result = await findGenModules(fs, inputPaths);
+		if (!find_modules_result.ok) {
+			log_error_reasons(log, find_modules_result.reasons);
 			throw new TaskError('Failed to find gen modules.');
 		}
-		log.info('gen files', Array.from(findModulesResult.source_idsByInputPath.values()).flat());
-		timings.merge(findModulesResult.timings);
+		log.info('gen files', Array.from(find_modules_result.source_idsByInputPath.values()).flat());
+		timings.merge(find_modules_result.timings);
 		const loadModulesResult = await loadModules(
-			findModulesResult.source_idsByInputPath,
+			find_modules_result.source_idsByInputPath,
 			true,
 			loadGenModule,
 		);
 		if (!loadModulesResult.ok) {
-			logErrorReasons(log, loadModulesResult.reasons);
+			log_error_reasons(log, loadModulesResult.reasons);
 			throw new TaskError('Failed to load gen modules.');
 		}
 		timings.merge(loadModulesResult.timings);
@@ -142,7 +142,7 @@ export const task: Task<Args> = {
 			),
 		);
 		printTimings(timings, log);
-		log.info(`🕒 ${printMs(totalTiming())}`);
+		log.info(`🕒 ${printMs(total_timing())}`);
 
 		if (failCount) {
 			for (const result of genResults.failures) {

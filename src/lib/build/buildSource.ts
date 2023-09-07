@@ -26,11 +26,11 @@ export const buildSource = async (
 		return;
 	}
 
-	const totalTiming = createStopwatch();
+	const total_timing = createStopwatch();
 	const timings = new Timings();
 	const logTimings = () => {
 		printTimings(timings, log);
-		log.debug(`🕒 built in ${printMs(totalTiming())}`);
+		log.debug(`🕒 built in ${printMs(total_timing())}`);
 	};
 
 	log.debug('building files');

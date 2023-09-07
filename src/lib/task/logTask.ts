@@ -8,7 +8,7 @@ import type {ArgSchema} from '../task/args.js';
 import {loadModules} from '../fs/modules.js';
 import {load_task_module, type TaskModuleMeta} from './taskModule.js';
 
-export const logAvailableTasks = async (
+export const log_available_tasks = async (
 	log: Logger,
 	dirLabel: string,
 	source_idsByInputPath: Map<string, string[]>,
@@ -19,7 +19,7 @@ export const logAvailableTasks = async (
 		// Load all of the tasks so we can print their summary, and args for the `--help` flag.
 		const loadModulesResult = await loadModules(source_idsByInputPath, true, load_task_module);
 		if (!loadModulesResult.ok) {
-			logErrorReasons(log, loadModulesResult.reasons);
+			log_error_reasons(log, loadModulesResult.reasons);
 			process.exit(1);
 		}
 		const printed: string[] = [
@@ -43,7 +43,7 @@ export const logAvailableTasks = async (
 	}
 };
 
-export const logErrorReasons = (log: Logger, reasons: string[]): void => {
+export const log_error_reasons = (log: Logger, reasons: string[]): void => {
 	for (const reason of reasons) {
 		log.error(red(reason));
 	}

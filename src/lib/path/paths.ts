@@ -222,10 +222,10 @@ console.log(`{.......................}`, {
 export const print_path = (path: string, p = paths, prefix = './'): string =>
 	gray(`${prefix}${to_root_path(path, p)}`);
 
-export const print_path_or_gro_path = (path: string, fromPaths = paths): string => {
-	const inferredPaths = paths_from_id(path);
-	if (fromPaths === gro_paths || inferredPaths === fromPaths) {
-		return print_path(path, inferredPaths, '');
+export const print_path_or_gro_path = (path: string, from_paths = paths): string => {
+	const inferred_paths = paths_from_id(path);
+	if (from_paths === gro_paths || inferred_paths === from_paths) {
+		return print_path(path, inferred_paths, '');
 	}
 	return gray(gro_dir_basename) + print_path(path, gro_paths, '');
 };

@@ -5,7 +5,7 @@ import {stripStart} from '@feltjs/util/string.js';
 import {type Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../path/paths.js';
 import {loadTaskModules} from '../task/taskModule.js';
-import {logErrorReasons} from '../task/logTask.js';
+import {log_error_reasons} from '../task/logTask.js';
 
 // This is the first simple implementation of Gro's automated docs.
 // It combines Gro's gen and task systems
@@ -21,7 +21,7 @@ import {logErrorReasons} from '../task/logTask.js';
 export const gen: Gen = async ({fs, originId, log}) => {
 	const result = await loadTaskModules(fs);
 	if (!result.ok) {
-		logErrorReasons(log, result.reasons);
+		log_error_reasons(log, result.reasons);
 		throw new Error(result.type);
 	}
 	const tasks = result.modules;

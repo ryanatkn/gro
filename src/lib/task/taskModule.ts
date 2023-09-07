@@ -53,7 +53,7 @@ export const loadTaskModules = async (
 ): Promise<
 	ReturnType<typeof loadModules<TaskModule, TaskModuleMeta>> | ({ok: false} & FindModulesFailure)
 > => {
-	const findModulesResult = await findTaskModules(fs, inputPaths, extensions, rootDirs);
-	if (!findModulesResult.ok) return findModulesResult;
-	return loadModules(findModulesResult.source_idsByInputPath, true, load_task_module);
+	const find_modules_result = await findTaskModules(fs, inputPaths, extensions, rootDirs);
+	if (!find_modules_result.ok) return find_modules_result;
+	return loadModules(find_modules_result.source_idsByInputPath, true, load_task_module);
 };
