@@ -66,7 +66,7 @@ $ gro some/dir
 ```
 
 > To learn more about the Gro CLI path conventions,
-> see [the `inputPaths` comments](../path/inputPath.ts)
+> see [the `input_paths` comments](../path/inputPath.ts)
 
 ### run a task
 
@@ -158,7 +158,7 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
 	invoke_task: (
-		taskName: string,
+		task_name: string,
 		args?: object,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
 		fs?: Filesystem,

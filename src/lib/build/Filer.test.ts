@@ -5,7 +5,7 @@ import {Filer} from './Filer.js';
 import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
 import type {BuildConfig} from './buildConfig.js';
 import {create_paths, JS_EXTENSION, replace_extension} from '../path/paths.js';
-import {groBuilderDefault} from './groBuilderDefault.js';
+import {gro_builder_default} from './gro_builder_default.js';
 
 interface SuiteContext {
 	fs: MemoryFs;
@@ -46,9 +46,9 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 		fs,
 		paths,
 		build_dir,
-		builder: groBuilderDefault(),
-		buildConfigs: [buildConfig],
-		sourceDirs: [paths.source],
+		builder: gro_builder_default(),
+		build_configs: [buildConfig],
+		source_dirs: [paths.source],
 		watch: false,
 	});
 	assert.ok(filer);
@@ -235,15 +235,15 @@ test__Filer('multiple build configs', async ({fs}) => {
 		fs,
 		paths,
 		build_dir,
-		builder: groBuilderDefault(),
-		sourceDirs: [paths.source],
+		builder: gro_builder_default(),
+		source_dirs: [paths.source],
 		watch: false,
 	};
 
 	// filer1 has the first build config
 	const filer1 = new Filer({
 		...filerOptions,
-		buildConfigs: [buildConfig1],
+		build_configs: [buildConfig1],
 	});
 	assert.ok(filer1);
 	await filer1.init();
@@ -255,7 +255,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 	// filer2 has the second build config
 	const filer2 = new Filer({
 		...filerOptions,
-		buildConfigs: [buildConfig2],
+		build_configs: [buildConfig2],
 	});
 	assert.ok(filer2);
 	await filer2.init();
@@ -267,7 +267,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 	// load filer1 again, and make sure it loads only the necessary source meta
 	const filer1B = new Filer({
 		...filerOptions,
-		buildConfigs: [buildConfig1],
+		build_configs: [buildConfig1],
 	});
 	assert.ok(filer1B);
 	await filer1B.init();
@@ -278,7 +278,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 	// filer3 has both build configs
 	const filer3 = new Filer({
 		...filerOptions,
-		buildConfigs: [buildConfig1, buildConfig2],
+		build_configs: [buildConfig1, buildConfig2],
 	});
 	assert.ok(filer3);
 	await filer3.init();
@@ -290,7 +290,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 	await fs.remove(dep3Id);
 	const filer1C = new Filer({
 		...filerOptions,
-		buildConfigs: [buildConfig1],
+		build_configs: [buildConfig1],
 	});
 	assert.ok(filer1C);
 	await filer1C.init();
@@ -301,7 +301,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 	// load filer2 again with its still-deleted dependency
 	const filer2B = new Filer({
 		...filerOptions,
-		buildConfigs: [buildConfig2],
+		build_configs: [buildConfig2],
 	});
 	assert.ok(filer2B);
 	await filer2B.init();
@@ -313,7 +313,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 	await fs.writeFile(dep3Id, 'export const b: number = 5;', 'utf8');
 	const filer2C = new Filer({
 		...filerOptions,
-		buildConfigs: [buildConfig2],
+		build_configs: [buildConfig2],
 	});
 	assert.ok(filer2C);
 	await filer2C.init();

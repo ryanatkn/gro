@@ -11,7 +11,7 @@ import type {Filesystem} from './filesystem.js';
 
 /*
 
-The main functions here, `findModules` and `loadModules`/`loadModule`,
+The main functions here, `find_modules` and `load_modules`/`load_module`,
 cleanly separate finding from loading.
 This has significant performance consequences and is friendly to future changes.
 Currently the implementations only use the filesystem,
@@ -31,11 +31,11 @@ export type LoadModuleFailure =
 	| {ok: false; type: 'importFailed'; id: string; error: Error}
 	| {ok: false; type: 'invalid'; id: string; mod: Record<string, any>; validation: string};
 
-export const loadModule = async <T extends Record<string, any>>(
+export const load_module = async <T extends Record<string, any>>(
 	id: string,
 	validate?: (mod: Record<string, any>) => mod is T,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
-	console.log(`loadModule`, id);
+	console.log(`load_module`, id);
 	let mod;
 	try {
 		mod = await import(id); // TODO BLOCK is this right?
@@ -78,8 +78,8 @@ export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 		timings: Timings<LoadModulesTimings>;
 	},
 	{
-		type: 'loadModuleFailures';
-		loadModuleFailures: LoadModuleFailure[];
+		type: 'load_moduleFailures';
+		load_moduleFailures: LoadModuleFailure[];
 		reasons: string[];
 		// still return the modules and timings, deferring to the caller
 		modules: TModuleMeta[];
@@ -93,19 +93,19 @@ type LoadModulesTimings = 'load modules';
 Finds modules from input paths. (see `src/lib/path/inputPath.ts` for more)
 
 */
-export const findModules = async (
+export const find_modules = async (
 	fs: Filesystem,
-	inputPaths: string[],
+	input_paths: string[],
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
-	getPossibleSourceIds?: (inputPath: string) => string[],
+	get_possible_source_ids?: (inputPath: string) => string[],
 ): Promise<FindModulesResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
 	const timingToMapInputPaths = timings.start('map input paths');
 	const {source_idPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
 		fs,
-		inputPaths,
-		getPossibleSourceIds,
+		input_paths,
+		get_possible_source_ids,
 	);
 	timingToMapInputPaths();
 
@@ -162,26 +162,26 @@ Load modules by source id.
 TODO parallelize, originally it needed to be serial for a specific usecase we no longer have
 
 */
-export const loadModules = async <
+export const load_modules = async <
 	ModuleType extends Record<string, any>,
 	TModuleMeta extends ModuleMeta<ModuleType>,
 >(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	dev: boolean,
-	loadModuleById: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+	load_moduleById: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timings = new Timings<LoadModulesTimings>();
 	const timingToLoadModules = timings.start('load modules');
 	const modules: TModuleMeta[] = [];
-	const loadModuleFailures: LoadModuleFailure[] = [];
+	const load_moduleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
 	for (const [inputPath, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
-			const result = await loadModuleById(id, dev); // eslint-disable-line no-await-in-loop
+			const result = await load_moduleById(id, dev); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
 				modules.push(result.mod);
 			} else {
-				loadModuleFailures.push(result);
+				load_moduleFailures.push(result);
 				switch (result.type) {
 					case 'importFailed': {
 						reasons.push(
@@ -209,11 +209,11 @@ export const loadModules = async <
 	}
 	timingToLoadModules();
 
-	return loadModuleFailures.length
+	return load_moduleFailures.length
 		? {
 				ok: false,
-				type: 'loadModuleFailures',
-				loadModuleFailures,
+				type: 'load_moduleFailures',
+				load_moduleFailures,
 				reasons,
 				modules,
 				timings,

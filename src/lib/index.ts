@@ -5,7 +5,7 @@ export type {Gen, GenContext} from './gen/gen.js';
 export * from './util/schema.js';
 
 // export all of the main config helpers and types
-export {loadConfig, create_config} from './config/config.js';
+export {load_config, create_config} from './config/config.js';
 export type {
 	GroConfig,
 	GroConfigPartial,
@@ -19,4 +19,4 @@ export type {BuildConfig, BuildName, BuildConfigPartial} from './build/buildConf
 
 // these seem useful and generic enough to export to users
 export {TaskError} from './task/task.js';
-export {loadPackageJson} from './util/packageJson.js';
+export {load_package_json} from './util/package_json.js';

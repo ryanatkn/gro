@@ -4,14 +4,14 @@ import {z} from 'zod';
 import {spawn} from '@feltjs/util/process.js';
 
 import type {Task} from './task/task.js';
-import {loadConfig, type GroConfig} from './config/config.js';
+import {load_config, type GroConfig} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {buildSource} from './build/buildSource.js';
 import {Plugins} from './plugin/plugin.js';
 import {cleanFs} from './fs/clean.js';
 
 export interface TaskEvents {
-	'build.createConfig': (config: GroConfig) => void;
+	'build.create_config': (config: GroConfig) => void;
 }
 
 export const Args = z
@@ -66,12 +66,12 @@ export const task: Task<Args, TaskEvents> = {
 
 		// TODO delete prod builds (what about config/system tho?)
 
-		const timingToLoadConfig = timings.start('load config');
+		const timing_to_load_config = timings.start('load config');
 		console.log('LOADING CONFIG');
-		const config = await loadConfig(fs);
+		const config = await load_config(fs);
 		console.log('LOADED CONFIG');
-		timingToLoadConfig();
-		events.emit('build.createConfig', config);
+		timing_to_load_config();
+		events.emit('build.create_config', config);
 
 		const plugins = await Plugins.create({...ctx, config, dev: false, filer: null, timings});
 

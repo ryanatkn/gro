@@ -14,12 +14,12 @@ test__throttle('throttles all calls', async () => {
 		await wait();
 		results.push(name + '_done');
 	});
-	const promiseA = fn('a');
-	const promiseB = fn('b');
+	const promise_a = fn('a');
+	const promise_b = fn('b');
 	assert.equal(results, ['a_run']);
-	await promiseA;
+	await promise_a;
 	assert.equal(results, ['a_run', 'a_done']);
-	await promiseB;
+	await promise_b;
 	assert.equal(results, ['a_run', 'a_done', 'b_run', 'b_done']);
 });
 
@@ -33,26 +33,26 @@ test__throttle('discards all but one concurrent call', async () => {
 		},
 		(a, b) => a + b,
 	);
-	const promiseA1 = fn('a', 0, '1');
-	const promiseA2 = fn('a', 0, '2'); // discarded
-	const promiseA3 = fn('a', 0, '3'); // discarded
-	const promiseB1 = fn('b', 0, '1'); // not discarded because it has a different key
-	const promiseA4 = fn('a', 0, '4');
+	const promise_a1 = fn('a', 0, '1');
+	const promise_a2 = fn('a', 0, '2'); // discarded
+	const promise_a3 = fn('a', 0, '3'); // discarded
+	const promise_b1 = fn('b', 0, '1'); // not discarded because it has a different key
+	const promise_a4 = fn('a', 0, '4');
 	assert.equal(results, ['a1_run', 'b1_run']);
-	await promiseA1;
+	await promise_a1;
 	assert.equal(results, ['a1_run', 'b1_run', 'a1_done']);
-	await promiseB1;
-	await promiseA2;
-	await promiseA3;
+	await promise_b1;
+	await promise_a2;
+	await promise_a3;
 	assert.equal(results, ['a1_run', 'b1_run', 'a1_done', 'a4_run', 'b1_done']);
-	await promiseA4;
+	await promise_a4;
 	assert.equal(results, ['a1_run', 'b1_run', 'a1_done', 'a4_run', 'b1_done', 'a4_done']);
 	// run once more just to ensure nothing is off
 	results.length = 0;
-	const promiseA1b = fn('a', 0, '1');
-	await promiseA1b;
-	const promiseB1b = fn('b', 0, '1');
-	await promiseB1b;
+	const promise_a1b = fn('a', 0, '1');
+	await promise_a1b;
+	const promise_b1b = fn('b', 0, '1');
+	await promise_b1b;
 	assert.equal(results, ['a1_run', 'a1_done', 'b1_run', 'b1_done']);
 });
 

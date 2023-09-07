@@ -34,7 +34,7 @@ export interface BaseBuildFile extends BaseFilerFile {
 export const reconstructBuildFiles = async (
 	fs: Filesystem,
 	sourceMeta: SourceMeta,
-	buildConfigs: readonly BuildConfig[],
+	build_configs: readonly BuildConfig[],
 ): Promise<Map<BuildConfig, BuildFile[]>> => {
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(
@@ -44,7 +44,7 @@ export const reconstructBuildFiles = async (
 			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 			const extension = extname(id);
 			const content = await loadContent(fs, encoding, id);
-			const buildConfig = buildConfigs.find((b) => b.name === buildName)!; // is a bit awkward, but probably not inefficient enough to change
+			const buildConfig = build_configs.find((b) => b.name === buildName)!; // is a bit awkward, but probably not inefficient enough to change
 			if (!buildConfig) {
 				// TODO wait no this build needs to be preserved somehow,
 				// otherwise running the filer with different build configs fails to preserve

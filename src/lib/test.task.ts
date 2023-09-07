@@ -7,7 +7,7 @@ import {parse} from 'uvu/parse';
 
 import {TaskError, type Task} from './task/task.js';
 import {paths} from './path/paths.js';
-import {findCli} from './util/cli.js';
+import {find_cli} from './util/cli.js';
 
 export const Args = z
 	.object({
@@ -29,7 +29,7 @@ export const task: Task<Args> = {
 	run: async ({fs, log, args}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
-		if (!(await findCli(fs, 'uvu'))) {
+		if (!(await find_cli(fs, 'uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
 			return;
 		}

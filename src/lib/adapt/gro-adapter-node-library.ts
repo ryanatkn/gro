@@ -2,9 +2,9 @@ import {printSpawnResult, spawn} from '@feltjs/util/process.js';
 
 import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
-import type {PackageJson} from '../util/packageJson.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs} from '../task/args.js';
-import {findCli, spawnCli} from '../util/cli.js';
+import type {PackageJson} from '../util/package_json.js';
+import {print_command_args, serialize_args, to_forwarded_args} from '../task/args.js';
+import {find_cli, spawn_cli} from '../util/cli.js';
 
 const name = '@feltjs/gro-adapter-node-library';
 
@@ -12,12 +12,12 @@ export const createAdapter = (): Adapter => {
 	return {
 		name,
 		adapt: async ({fs, log, timings}) => {
-			if (!(await findCli(fs, 'svelte-package'))) {
+			if (!(await find_cli(fs, 'svelte-package'))) {
 				throw Error(`Failed to find svelte-package: install @sveltejs/package locally or globally`);
 			}
-			const serializedArgs = serializeArgs(toForwardedArgs('svelte-package'));
-			log.info(printCommandArgs(serializedArgs));
-			await spawnCli(fs, 'svelte-package', serializedArgs);
+			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
+			log.info(print_command_args(serialized_args));
+			await spawn_cli(fs, 'svelte-package', serialized_args);
 
 			let pkg: PackageJson;
 			try {

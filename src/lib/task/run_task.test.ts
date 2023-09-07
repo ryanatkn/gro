@@ -31,8 +31,8 @@ test__run_task('passes args and returns output', async () => {
 
 test__run_task('invokes a sub task', async () => {
 	const args = {a: 1, _: []};
-	let invokedTaskName;
-	let invokedArgs;
+	let invoked_task_name;
+	let invoked_args;
 	const result = await run_task(
 		fs,
 		{
@@ -50,13 +50,13 @@ test__run_task('invokes a sub task', async () => {
 		args,
 		new EventEmitter(),
 		async (_fs, invokingTaskName, invokingArgs) => {
-			invokedTaskName = invokingTaskName;
-			invokedArgs = invokingArgs;
+			invoked_task_name = invokingTaskName;
+			invoked_args = invokingArgs;
 		},
 	);
 	assert.ok(result.ok);
-	assert.is(invokedTaskName, 'bar/testTask');
-	assert.is(invokedArgs, args);
+	assert.is(invoked_task_name, 'bar/testTask');
+	assert.is(invoked_args, args);
 	assert.is(result.output, args);
 });
 

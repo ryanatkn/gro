@@ -6,7 +6,10 @@ import type {Filesystem} from '../fs/filesystem.js';
 /**
  * Looks for the CLI `name`, first local to the cwd and then globally.
  */
-export const findCli = async (fs: Filesystem, name: string): Promise<'local' | 'global' | null> => {
+export const find_cli = async (
+	fs: Filesystem,
+	name: string,
+): Promise<'local' | 'global' | null> => {
 	if (await fs.exists(`node_modules/.bin/${name}`)) {
 		return 'local';
 	}
@@ -21,13 +24,13 @@ export const findCli = async (fs: Filesystem, name: string): Promise<'local' | '
 /**
  * Calls the CLI `name` if available, first local to the cwd and then globally.
  */
-export const spawnCli = async (
+export const spawn_cli = async (
 	fs: Filesystem,
 	name: string,
 	args: any[] = [],
 	options?: SpawnOptions | undefined,
 ): Promise<SpawnResult | undefined> => {
-	const found = await findCli(fs, name);
+	const found = await find_cli(fs, name);
 	if (!found) return;
 	const command = found === 'local' ? 'npx' : name;
 	const finalArgs = found === 'local' ? [name].concat(args) : args;

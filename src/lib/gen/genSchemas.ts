@@ -13,7 +13,7 @@ import {
 } from './genModule.js';
 import {renderTsHeaderAndFooter} from './helpers/ts.js';
 import {normalizeTypeImports} from './helpers/typeImports.js';
-import {inferSchemaTypes, isJsonSchema, type JsonSchema} from '../util/schema.js';
+import {infer_schema_types, is_json_schema, type JsonSchema} from '../util/schema.js';
 
 export const genSchemas = async (
 	mod: SchemaGenModule,
@@ -39,7 +39,7 @@ const runSchemaGen = async (
 	const types: string[] = [];
 
 	for (const {identifier, schema: originalSchema} of toSchemaInfoFromModule(mod)) {
-		inferSchemaTypes(originalSchema, ctx); // process the schema, adding inferred data
+		infer_schema_types(originalSchema, ctx); // process the schema, adding inferred data
 		// `json-schema-to-typescript` mutates the schema, so clone first
 		const schema = structuredClone(originalSchema);
 
@@ -89,7 +89,7 @@ const toSchemaInfoFromModule = (
 	const schemaInfo: Array<{identifier: string; schema: JsonSchema}> = [];
 	for (const identifier in mod) {
 		const value = mod[identifier];
-		if (isJsonSchema(value)) schemaInfo.push({identifier, schema: value});
+		if (is_json_schema(value)) schemaInfo.push({identifier, schema: value});
 	}
 	return schemaInfo;
 };

@@ -10,7 +10,7 @@ import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {createFilerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';
+import {create_filerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';
 import {
 	isInputToBuildConfig,
 	mapDependencyToSourceId,
@@ -68,9 +68,9 @@ export interface Options {
 	paths: Paths;
 	dev: boolean;
 	builder: Builder;
-	buildConfigs: BuildConfig[];
+	build_configs: BuildConfig[];
 	build_dir: string;
-	sourceDirs: string[];
+	source_dirs: string[];
 	mapDependencyToSourceId: MapDependencyToSourceId;
 	sourcemap: boolean;
 	types: boolean;
@@ -80,16 +80,16 @@ export interface Options {
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
-export type RequiredOptions = 'fs' | 'builder' | 'buildConfigs' | 'sourceDirs';
+export type RequiredOptions = 'fs' | 'builder' | 'build_configs' | 'source_dirs';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const paths = opts.paths ?? defaultPaths;
 	const dev = opts.dev ?? true;
-	if (opts.buildConfigs.length === 0) {
-		throw Error('Filer created with an empty array of buildConfigs.');
+	if (opts.build_configs.length === 0) {
+		throw Error('Filer created with an empty array of build_configs.');
 	}
 	const build_dir = opts.build_dir || paths.build; // TODO assumes trailing slash
-	const sourceDirs = validateDirs(opts.sourceDirs);
+	const source_dirs = validateDirs(opts.source_dirs);
 	return {
 		mapDependencyToSourceId,
 		sourcemap: true,
@@ -103,7 +103,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		dev,
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
 		build_dir,
-		sourceDirs,
+		source_dirs,
 	};
 };
 
@@ -118,7 +118,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// without constantly destructuring and handling long argument lists.
 	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
 	readonly paths: Paths;
-	readonly buildConfigs: readonly BuildConfig[];
+	readonly build_configs: readonly BuildConfig[];
 	readonly buildNames: Set<BuildName>;
 	readonly sourceMetaById: Map<SourceId, SourceMeta> = new Map();
 	readonly log: Logger;
@@ -137,9 +137,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			paths,
 			dev,
 			builder,
-			buildConfigs,
+			build_configs,
 			build_dir,
-			sourceDirs,
+			source_dirs,
 			mapDependencyToSourceId,
 			sourcemap,
 			target,
@@ -151,8 +151,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.paths = paths;
 		this.dev = dev;
 		this.builder = builder;
-		this.buildConfigs = buildConfigs;
-		this.buildNames = new Set(buildConfigs.map((b) => b.name));
+		this.build_configs = build_configs;
+		this.buildNames = new Set(build_configs.map((b) => b.name));
 		this.build_dir = build_dir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
 		this.sourcemap = sourcemap;
@@ -160,10 +160,10 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.log = log;
 		// Creates objects to load a directory's content and sync filesystem changes in memory.
 		// The order of objects in the returned array is meaningless.
-		this.dirs = sourceDirs.map((sourceDir) =>
-			createFilerDir(fs, sourceDir, this.onDirChange, watch, filter),
+		this.dirs = source_dirs.map((sourceDir) =>
+			create_filerDir(fs, sourceDir, this.onDirChange, watch, filter),
 		);
-		log.debug(cyan('created Filer with buildConfigs'), Array.from(this.buildNames).join(', '));
+		log.debug(cyan('created Filer with build_configs'), Array.from(this.buildNames).join(', '));
 	}
 
 	close(): void {
@@ -205,7 +205,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 
 		// This performs the initial source file build, traces deps,
-		// and populates the `buildConfigs` property of all source files.
+		// and populates the `build_configs` property of all source files.
 		await this.initBuilds();
 		// this.log.debug('inited builds:', Array.from(this.buildNames).join(', '));
 
@@ -215,9 +215,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	}
 
 	// During initialization, after all files are loaded into memory,
-	// this is called to populate the `buildConfigs` property of all source files.
+	// this is called to populate the `build_configs` property of all source files.
 	// It traces the dependencies starting from each `buildConfig.input`,
-	// building each input source file and populating its `buildConfigs`,
+	// building each input source file and populating its `build_configs`,
 	// recursively until all dependencies have been handled.
 	private async initBuilds(): Promise<void> {
 		const promises: Array<Promise<void>> = [];
@@ -226,7 +226,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const filterBuildConfigs: BuildConfig[] = [];
 
 		// Iterate through the build config inputs and initialize their files.
-		for (const buildConfig of this.buildConfigs) {
+		for (const buildConfig of this.build_configs) {
 			for (const input of buildConfig.input) {
 				if (typeof input === 'function') {
 					filters.push(input);
@@ -241,7 +241,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					this.log.error(printBuildConfigLabel(buildConfig), red('missing input'), input);
 					throw Error('Missing input: check the build config and source files for the above input');
 				}
-				if (!file.buildConfigs.has(buildConfig)) {
+				if (!file.build_configs.has(buildConfig)) {
 					promises.push(this.addSourceFileToBuild(file, buildConfig, true));
 				}
 			}
@@ -261,7 +261,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				for (let i = 0; i < filters.length; i++) {
 					if (filters[i](file.id)) {
 						const buildConfig = filterBuildConfigs[i];
-						if (!file.buildConfigs.has(buildConfig)) {
+						if (!file.build_configs.has(buildConfig)) {
 							promises.push(this.addSourceFileToBuild(file, buildConfig, true));
 						}
 					}
@@ -378,11 +378,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// this.log.debug(
 		// 	`adding source file to build ${printBuildConfigLabel(buildConfig)} ${gray(sourceFile.id)}`,
 		// );
-		if (sourceFile.buildConfigs.has(buildConfig)) {
+		if (sourceFile.build_configs.has(buildConfig)) {
 			throw Error(`Already has buildConfig ${buildConfig.name}: ${gray(sourceFile.id)}`);
 		}
 		// Add the build config. The caller is expected to check to avoid duplicates.
-		sourceFile.buildConfigs.add(buildConfig);
+		sourceFile.build_configs.add(buildConfig);
 		// Add the build config as an input if appropriate, initializing the set if needed.
 		// We need to determine `isInputToBuildConfig` independently of the caller,
 		// because the caller may not
@@ -420,7 +420,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 		await this.updateBuildFiles(sourceFile, [], buildConfig);
 
-		const deleted = sourceFile.buildConfigs.delete(buildConfig);
+		const deleted = sourceFile.build_configs.delete(buildConfig);
 		if (!deleted) {
 			throw Error(`Expected to delete buildConfig ${buildConfig.name}: ${sourceFile.id}`);
 		}
@@ -471,7 +471,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 							await this.initSourceFile(file);
 						} else {
 							await Promise.all(
-								Array.from(file.buildConfigs).map((buildConfig) =>
+								Array.from(file.build_configs).map((buildConfig) =>
 									this.buildSourceFile(file, buildConfig),
 								),
 							);
@@ -488,7 +488,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// It could be improved by tracking tracking dirs in the Filer
 					// and looking up the correct build configs.
 					await Promise.all(
-						this.buildConfigs.map((buildConfig) =>
+						this.build_configs.map((buildConfig) =>
 							this.fs.remove(
 								to_build_out_path(this.dev, buildConfig.name, change.path, this.build_dir),
 							),
@@ -523,7 +523,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			}
 		}
 		let inputBuildConfigs: Set<BuildConfig> | null = null;
-		for (const buildConfig of this.buildConfigs) {
+		for (const buildConfig of this.build_configs) {
 			if (isInputToBuildConfig(file.id, buildConfig.input)) {
 				(inputBuildConfigs || (inputBuildConfigs = new Set())).add(buildConfig);
 				(promises || (promises = [])).push(this.addSourceFileToBuild(file, buildConfig, true));
@@ -760,7 +760,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// because they're batched for the entire build.
 					// If we waited for externals to build before moving on like the normal process,
 					// then that could cause cascading externals builds as the dependency tree builds.
-					if (!addedSourceFile.buildConfigs.has(buildConfig)) {
+					if (!addedSourceFile.build_configs.has(buildConfig)) {
 						(promises || (promises = [])).push(
 							this.addSourceFileToBuild(
 								addedSourceFile as SourceFile,
@@ -790,7 +790,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				// import might point to a nonexistent file, ignore them completely
 				if (removedSourceFile === undefined) continue;
 				assertSourceFile(removedSourceFile);
-				if (!removedSourceFile.buildConfigs.has(buildConfig)) {
+				if (!removedSourceFile.build_configs.has(buildConfig)) {
 					throw Error(`Expected build config ${buildConfig.name}: ${removedSourceFile.id}`);
 				}
 
@@ -840,8 +840,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.log.debug('destroying file', gray(id));
 		this.files.delete(id);
 		await Promise.all(
-			this.buildConfigs.map((b) =>
-				sourceFile.buildConfigs.has(b)
+			this.build_configs.map((b) =>
+				sourceFile.build_configs.has(b)
 					? this.removeSourceFileFromBuild(sourceFile, b, false)
 					: null,
 			),
@@ -971,11 +971,11 @@ const isContentEqual = (encoding: Encoding, a: string | Buffer, b: string | Buff
 
 // TODO Revisit these restrictions - the goal right now is to set limits
 // to avoid undefined behavior at the cost of flexibility.
-// Some of these conditions like nested sourceDirs could be fixed
+// Some of these conditions like nested source_dirs could be fixed
 // but there are inefficiencies and possibly some subtle bugs.
-const validateDirs = (sourceDirs: string[]): string[] => {
-	if (!sourceDirs.length) throw Error('No source dirs provided');
-	const dirs = sourceDirs.map((d) => resolve(d));
+const validateDirs = (source_dirs: string[]): string[] => {
+	if (!source_dirs.length) throw Error('No source dirs provided');
+	const dirs = source_dirs.map((d) => resolve(d));
 	for (const sourceDir of dirs) {
 		const nestedSourceDir = dirs.find((d) => d !== sourceDir && sourceDir.startsWith(d));
 		if (nestedSourceDir) {

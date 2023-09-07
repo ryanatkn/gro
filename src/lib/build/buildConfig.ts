@@ -41,16 +41,16 @@ export const normalizeBuildConfigs = (
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
 	// The system build is ignored for dev mode.
-	const buildConfigs: BuildConfig[] = [];
+	const build_configs: BuildConfig[] = [];
 	for (const partial of partials) {
 		if (!partial) continue;
 		const buildConfig: BuildConfig = {
 			name: partial.name,
 			input: normalizeBuildConfigInput(partial.input),
 		};
-		buildConfigs.push(buildConfig);
+		build_configs.push(buildConfig);
 	}
-	return buildConfigs;
+	return build_configs;
 };
 
 const normalizeBuildConfigInput = (input: BuildConfigPartial['input']): BuildConfig['input'] =>
@@ -59,16 +59,16 @@ const normalizeBuildConfigInput = (input: BuildConfigPartial['input']): BuildCon
 // TODO replace this with JSON schema validation (or most of it at least)
 export const validateBuildConfigs = async (
 	fs: Filesystem,
-	buildConfigs: BuildConfig[],
+	build_configs: BuildConfig[],
 ): Promise<Result<object, {reason: string}>> => {
-	if (!Array.isArray(buildConfigs)) {
+	if (!Array.isArray(build_configs)) {
 		return {
 			ok: false,
 			reason: `The field 'gro.builds' in package.json must be an array`,
 		};
 	}
 	const names: Set<BuildName> = new Set();
-	for (const buildConfig of buildConfigs) {
+	for (const buildConfig of build_configs) {
 		if (!buildConfig?.name) {
 			return {
 				ok: false,

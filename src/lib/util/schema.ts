@@ -19,7 +19,7 @@ export interface JsonSchema extends JSONSchema {
  * @param $schema - Defaults to version 2020-12.
  * @returns
  */
-export const bundleSchemas = (
+export const bundle_schemas = (
 	schemas: JsonSchema[],
 	$id: string,
 	title: string | undefined = undefined,
@@ -31,7 +31,7 @@ export const bundleSchemas = (
 		.sort((a, b) => a.$id.localeCompare(b.$id))
 		.reduce(
 			($defs, schema) => {
-				const name = parseSchemaName(schema.$id);
+				const name = parse_schema_name(schema.$id);
 				if (!name) throw Error(`Unable to parse schema name: "${schema.$id}"`);
 				$defs[name] = schema;
 				return $defs;
@@ -41,7 +41,7 @@ export const bundleSchemas = (
 	return schema;
 };
 
-export const isJsonSchema = (value: unknown): value is JsonSchema =>
+export const is_json_schema = (value: unknown): value is JsonSchema =>
 	!!value && typeof value === 'object' && '$id' in value;
 
 /**
@@ -49,7 +49,7 @@ export const isJsonSchema = (value: unknown): value is JsonSchema =>
  * @param schemas
  * @returns
  */
-export const toJsonSchemaResolver = (schemas: JsonSchema[]): ResolverOptions => ({
+export const to_json_schema_resolver = (schemas: JsonSchema[]): ResolverOptions => ({
 	order: 1,
 	canRead: true,
 	read: (file) => {
@@ -63,15 +63,15 @@ export const toJsonSchemaResolver = (schemas: JsonSchema[]): ResolverOptions => 
  * Mutates `schema` with `tsType` and `tsImport`, if appropriate.
  * @param schema
  */
-export const inferSchemaTypes = (schema: JsonSchema, ctx: GenContext): void => {
+export const infer_schema_types = (schema: JsonSchema, ctx: GenContext): void => {
 	traverse(schema, (key, value, obj) => {
 		if (key === '$ref') {
 			if (!('tsType' in obj)) {
-				const tsType = parseSchemaName(value);
+				const tsType = parse_schema_name(value);
 				if (tsType) obj.tsType = tsType;
 			}
 			if (!('tsImport' in obj)) {
-				const tsImport = toSchemaImport(value, ctx);
+				const tsImport = to_schema_import(value, ctx);
 				if (tsImport) obj.tsImport = tsImport;
 			}
 		} else if (key === 'instanceof') {
@@ -82,11 +82,11 @@ export const inferSchemaTypes = (schema: JsonSchema, ctx: GenContext): void => {
 
 const VOCAB_SCHEMA_ID_MATCHER = /^\/schemas\/(\w+)$/u;
 
-export const parseSchemaName = ($id: string): string | null =>
+export const parse_schema_name = ($id: string): string | null =>
 	VOCAB_SCHEMA_ID_MATCHER.exec($id)?.[1] || null;
 
 // TODO make an option, is very hardcoded
-const toSchemaImport = ($id: string, ctx: GenContext): string | null => {
-	const name = parseSchemaName($id);
+const to_schema_import = ($id: string, ctx: GenContext): string | null => {
+	const name = parse_schema_name($id);
 	return name && name in ctx.imports ? ctx.imports[name] : null;
 };

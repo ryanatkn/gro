@@ -8,7 +8,7 @@ import {
 	SVELTEKIT_CONFIG_FILENAME,
 	TSCONFIG_FILENAME,
 } from '../path/paths.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs} from '../task/args.js';
+import {print_command_args, serialize_args, to_forwarded_args} from '../task/args.js';
 
 const DEFAULT_EXTENSIONS = 'ts,js,json,svelte,html,css,md,yml';
 const DEFAULT_ROOT_PATHS = `${[
@@ -29,13 +29,13 @@ export const formatDirectory = (
 	extensions = DEFAULT_EXTENSIONS,
 	root_paths = DEFAULT_ROOT_PATHS,
 ): Promise<SpawnResult> => {
-	const forwardedArgs = toForwardedArgs('prettier');
+	const forwardedArgs = to_forwarded_args('prettier');
 	forwardedArgs[check ? 'check' : 'write'] = true;
-	const serializedArgs = ['prettier', ...serializeArgs(forwardedArgs)];
-	serializedArgs.push(`${directory}**/*.{${extensions}}`);
+	const serialized_args = ['prettier', ...serialize_args(forwardedArgs)];
+	serialized_args.push(`${directory}**/*.{${extensions}}`);
 	if (directory === paths.source) {
-		serializedArgs.push(`${paths.root}{${root_paths}}`);
+		serialized_args.push(`${paths.root}{${root_paths}}`);
 	}
-	log.info(printCommandArgs(serializedArgs));
-	return spawn('npx', serializedArgs);
+	log.info(print_command_args(serialized_args));
+	return spawn('npx', serialized_args);
 };

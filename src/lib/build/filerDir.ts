@@ -22,7 +22,7 @@ export interface FilerDirChange {
 export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
 export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir) => Promise<void>;
 
-export const createFilerDir = (
+export const create_filerDir = (
 	fs: Filesystem,
 	dir: string,
 	onChange: FilerDirChangeCallback,

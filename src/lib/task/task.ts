@@ -24,7 +24,7 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
 	invoke_task: (
-		taskName: string,
+		task_name: string,
 		args?: object,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
 		fs?: Filesystem,
@@ -33,9 +33,9 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 
 export const TASK_FILE_SUFFIX = '.task.ts';
 
-export const isTaskPath = (path: string): boolean => path.endsWith(TASK_FILE_SUFFIX);
+export const is_task_path = (path: string): boolean => path.endsWith(TASK_FILE_SUFFIX);
 
-export const toTaskName = (base_path: string): string => {
+export const to_task_name = (base_path: string): string => {
 	const stripped = stripStart(stripEnd(base_path, TASK_FILE_SUFFIX), LIB_DIRNAME + '/');
 	if (stripped === base_path) return base_path;
 	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.

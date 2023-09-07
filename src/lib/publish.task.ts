@@ -5,10 +5,10 @@ import {green, cyan} from 'kleur/colors';
 import {TaskError, type Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
 import {is_this_project_gro} from './path/paths.js';
-import {toRawRestArgs} from './task/args.js';
+import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
-import {loadPackageJson} from './util/packageJson.js';
-import {findCli, spawnCli} from './util/cli.js';
+import {load_package_json} from './util/package_json.js';
+import {find_cli, spawn_cli} from './util/cli.js';
 
 // publish.task.ts
 // - usage: `gro publish patch`
@@ -46,7 +46,7 @@ export const task: Task<Args> = {
 		let version!: string;
 
 		// Ensure Changesets is installed:
-		if (!(await findCli(fs, 'changeset'))) {
+		if (!(await find_cli(fs, 'changeset'))) {
 			log.error('changeset command not found: install @changesets/cli locally or globally');
 			return;
 		}
@@ -73,17 +73,17 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
-			const pkgBefore = await loadPackageJson(fs);
+			const pkgBefore = await load_package_json(fs);
 			if (typeof pkgBefore.version !== 'string') {
 				throw new TaskError('failed to find package.json version');
 			}
 
-			const npmVersionResult = await spawnCli(fs, 'changeset', ['version']);
+			const npmVersionResult = await spawn_cli(fs, 'changeset', ['version']);
 			if (!npmVersionResult?.ok) {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
 
-			const pkgAfter = await loadPackageJson(fs, true);
+			const pkgAfter = await load_package_json(fs, true);
 			version = pkgAfter.version as string;
 			if (pkgBefore.version === version) {
 				throw new TaskError('changeset version failed: are there any changes?');
@@ -91,7 +91,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invoke_task('build', toRawRestArgs());
+		await invoke_task('build', to_raw_rest_args());
 
 		if (dry) {
 			log.info('publishing branch ' + branch);
@@ -99,7 +99,7 @@ export const task: Task<Args> = {
 			return;
 		}
 
-		const npmPublishResult = await spawnCli(fs, 'changeset', ['publish']);
+		const npmPublishResult = await spawn_cli(fs, 'changeset', ['publish']);
 		if (!npmPublishResult?.ok) {
 			throw new TaskError(
 				'changeset publish failed - revert the version tag or run it again manually',

@@ -5,7 +5,7 @@ import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 import type {TaskModuleMeta} from './task_module.js';
 import {TaskError} from './task.js';
 import type {Args} from './args.js';
-import type {invoke_task as defaultInvokeTask} from './invoke_task.js';
+import type {invoke_task as base_invoke_task} from './invoke_task.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {log_task_help} from './log_task.js';
 
@@ -22,20 +22,20 @@ export type RunTaskResult =
 
 export const run_task = async (
 	fs: Filesystem,
-	taskMeta: TaskModuleMeta,
-	unparsedArgs: Args,
+	task_meta: TaskModuleMeta,
+	unparsed_args: Args,
 	events: EventEmitter,
-	invoke_task: typeof defaultInvokeTask,
+	invoke_task: typeof base_invoke_task,
 ): Promise<RunTaskResult> => {
-	const {task} = taskMeta.mod;
-	const log = new SystemLogger(printLogLabel(taskMeta.name));
+	const {task} = task_meta.mod;
+	const log = new SystemLogger(printLogLabel(task_meta.name));
 
-	if (unparsedArgs.help) {
-		log_task_help(log, taskMeta);
+	if (unparsed_args.help) {
+		log_task_help(log, task_meta);
 		return {ok: true, output: null};
 	}
 
-	let args = unparsedArgs; // may be reassigned to parsed version ahead
+	let args = unparsed_args; // may be reassigned to parsed version ahead
 
 	// Parse and validate args.
 	if (task.Args) {
@@ -57,8 +57,12 @@ export const run_task = async (
 			args,
 			events,
 			log,
-			invoke_task: (invokedTaskName, invokedArgs = {}, invokedEvents = events, invokedFs = fs) =>
-				invoke_task(invokedFs, invokedTaskName, invokedArgs as Args, invokedEvents), // TODO typecast
+			invoke_task: (
+				invoked_task_name,
+				invoked_args = {},
+				invoked_events = events,
+				invoked_fs = fs,
+			) => invoke_task(invoked_fs, invoked_task_name, invoked_args as Args, invoked_events), // TODO typecast
 		});
 	} catch (err) {
 		return {
@@ -67,7 +71,7 @@ export const run_task = async (
 				err instanceof TaskError
 					? err.message
 					: `Unexpected error running task ${cyan(
-							taskMeta.name,
+							task_meta.name,
 					  )}. If this is unexpected try running \`gro clean\`.`,
 			),
 			error: err,

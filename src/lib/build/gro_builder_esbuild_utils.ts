@@ -9,7 +9,7 @@ export interface EsbuildTransformOptions extends esbuild.TransformOptions {
 	target: EcmaScriptTarget;
 }
 
-export const toDefaultEsbuildOptions = (
+export const to_default_esbuild_options = (
 	dev: boolean,
 	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
 	sourcemap = dev,
@@ -20,15 +20,4 @@ export const toDefaultEsbuildOptions = (
 	loader: 'ts',
 	charset: 'utf8',
 	tsconfigRaw: {compilerOptions: {importsNotUsedAsValues: 'remove'}},
-});
-
-export const toDefaultEsbuildBundleOptions = (
-	dev: boolean,
-	target: EcmaScriptTarget = DEFAULT_ECMA_SCRIPT_TARGET,
-	sourcemap = dev,
-): esbuild.BuildOptions => ({
-	target,
-	sourcemap,
-	format: 'esm',
-	charset: 'utf8',
 });

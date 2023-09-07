@@ -4,10 +4,10 @@ import {SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
 
-import {toForwardedArgs, type Args} from './args.js';
+import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
 import {resolveRawInputPath} from '../path/inputPath.js';
-import {isTaskPath} from './task.js';
+import {is_task_path} from './task.js';
 import {
 	paths,
 	gro_paths,
@@ -17,9 +17,9 @@ import {
 	print_path,
 	print_path_or_gro_path,
 } from '../path/paths.js';
-import {findModules, loadModules} from '../fs/modules.js';
-import {findTaskModules, load_task_module} from './task_module.js';
-import {loadGroPackageJson} from '../util/packageJson.js';
+import {find_modules, load_modules} from '../fs/modules.js';
+import {find_task_modules, load_task_module} from './task_module.js';
+import {load_gro_package_json} from '../util/package_json.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {log_available_tasks, log_error_reasons} from './log_task.js';
 
@@ -29,7 +29,7 @@ import {log_available_tasks, log_error_reasons} from './log_task.js';
  * When a task is invoked,
  * Gro first searches for tasks in the current working directory.
  * and falls back to searching Gro's directory, if the two are different.
- * See `src/lib/path/inputPath.ts` for info about what "taskName" can refer to.
+ * See `src/lib/path/inputPath.ts` for info about what "task_name" can refer to.
  * If it matches a directory, all of the tasks within it are logged,
  * both in the current working directory and Gro.
  *
@@ -42,18 +42,18 @@ import {log_available_tasks, log_error_reasons} from './log_task.js';
  */
 export const invoke_task = async (
 	fs: Filesystem,
-	taskName: string,
+	task_name: string,
 	args: Args,
 	events = new EventEmitter(),
 ): Promise<void> => {
-	const log = new SystemLogger(printLogLabel(taskName || 'gro'));
+	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
 	log.info('invoking');
 
 	// Check if the caller just wants to see the version.
-	if (!taskName && (args.version || args.v)) {
-		const groPackageJson = await loadGroPackageJson(fs);
-		log.info(`${gray('v')}${cyan(groPackageJson.version as string)}`);
+	if (!task_name && (args.version || args.v)) {
+		const gro_package_json = await load_gro_package_json(fs);
+		log.info(`${gray('v')}${cyan(gro_package_json.version as string)}`);
 		return;
 	}
 
@@ -61,12 +61,12 @@ export const invoke_task = async (
 	const timings = new Timings();
 
 	// Resolve the input path for the provided task name.
-	const inputPath = resolveRawInputPath(taskName || paths.lib);
+	const inputPath = resolveRawInputPath(task_name || paths.lib);
 	console.log(`inputPath`, inputPath);
 
 	// Find the task or directory specified by the `inputPath`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await findTaskModules(fs, [inputPath], undefined, [gro_paths.root]);
+	const find_modules_result = await find_task_modules(fs, [inputPath], undefined, [gro_paths.root]);
 	console.log(`find_modules_result`, find_modules_result);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
@@ -80,7 +80,7 @@ export const invoke_task = async (
 			// Try to load the task module.
 			// TODO BLOCK why not loadTaskModules ? get good error messages too
 			console.log('LOADING', Array.from(find_modules_result.source_ids_by_input_path.entries()));
-			const load_modules_result = await loadModules(
+			const load_modules_result = await load_modules(
 				find_modules_result.source_ids_by_input_path,
 				true,
 				load_task_module,
@@ -94,11 +94,11 @@ export const invoke_task = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				console.log(`toForwardedArgs`, toForwardedArgs(`gro ${task.name}`));
+				console.log(`to_forwarded_args`, to_forwarded_args(`gro ${task.name}`));
 				const result = await run_task(
 					fs,
 					task,
-					{...args, ...toForwardedArgs(`gro ${task.name}`)},
+					{...args, ...to_forwarded_args(`gro ${task.name}`)},
 					events,
 					invoke_task,
 				);
@@ -136,8 +136,8 @@ export const invoke_task = async (
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
 				const gro_dir_input_path = replace_root_dir(inputPath, gro_paths.root);
-				const gro_dir_find_modules_result = await findModules(fs, [gro_dir_input_path], (id) =>
-					fs.findFiles(id, (path) => isTaskPath(path)),
+				const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
+					fs.findFiles(id, (path) => is_task_path(path)),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (gro_dir_find_modules_result.ok) {
@@ -174,8 +174,8 @@ export const invoke_task = async (
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
 			const gro_dir_input_path = replace_root_dir(inputPath, gro_paths.root);
-			const gro_dir_find_modules_result = await findModules(fs, [gro_dir_input_path], (id) =>
-				fs.findFiles(id, (path) => isTaskPath(path)),
+			const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
+				fs.findFiles(id, (path) => is_task_path(path)),
 			);
 			if (gro_dir_find_modules_result.ok) {
 				timings.merge(gro_dir_find_modules_result.timings);

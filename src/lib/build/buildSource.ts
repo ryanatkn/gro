@@ -5,10 +5,10 @@ import {gray} from 'kleur/colors';
 
 import {paths} from '../path/paths.js';
 import {Filer} from '../build/Filer.js';
-import {groBuilderDefault} from './groBuilderDefault.js';
+import {gro_builder_default} from './gro_builder_default.js';
 import type {GroConfig} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {sveltekitSync} from '../util/sveltekit_sync.js';
+import {sveltekit_sync} from '../util/sveltekit_sync.js';
 
 export const buildSource = async (
 	fs: Filesystem,
@@ -18,7 +18,7 @@ export const buildSource = async (
 ): Promise<void> => {
 	log.debug('building source', gray(dev ? 'development' : 'production'));
 
-	await sveltekitSync(fs);
+	await sveltekit_sync(fs);
 
 	if (!config.builds.length) {
 		// TODO BLOCK
@@ -34,22 +34,22 @@ export const buildSource = async (
 	};
 
 	log.debug('building files');
-	const timingToCreateFiler = timings.start('create filer');
+	const timing_to_create_filer = timings.start('create filer');
 	const filer = new Filer({
 		fs,
 		dev,
-		builder: groBuilderDefault(),
-		sourceDirs: [paths.source],
-		buildConfigs: config.builds,
+		builder: gro_builder_default(),
+		source_dirs: [paths.source],
+		build_configs: config.builds,
 		watch: false,
 		target: config.target,
 		sourcemap: config.sourcemap,
 	});
-	timingToCreateFiler();
+	timing_to_create_filer();
 
-	const timingToInitFiler = timings.start('init filer');
+	const timing_to_init_filer = timings.start('init filer');
 	await filer.init();
-	timingToInitFiler();
+	timing_to_init_filer();
 
 	filer.close();
 

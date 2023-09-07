@@ -2,7 +2,7 @@ import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
 import type {Task} from './task/task.js';
-import {loadPackageJson, type PackageJson} from './util/packageJson.js';
+import {load_package_json, type PackageJson} from './util/package_json.js';
 
 export const Args = z
 	.object({
@@ -21,7 +21,7 @@ export const task: Task<Args> = {
 	run: async ({fs, args, log}): Promise<void> => {
 		const {_, dry} = args;
 
-		const pkg = await loadPackageJson(fs);
+		const pkg = await load_package_json(fs);
 
 		const deps = toDeps(pkg).filter((d) => !_.includes(d.key));
 

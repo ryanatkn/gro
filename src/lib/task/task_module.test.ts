@@ -2,23 +2,23 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {validateTaskModule, load_task_module, loadTaskModules} from './task_module.js';
+import {validate_task_module, load_task_module, loadTaskModules} from './task_module.js';
 import * as actualTestTaskModule from '../test.task.js';
 import * as testTaskModule from './fixtures/testTaskModule.taskFixture.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
 import {fs} from '../fs/node.js';
 
-/* test__validateTaskModule */
-const test__validateTaskModule = suite('validateTaskModule');
+/* test__validate_task_module */
+const test__validate_task_module = suite('validate_task_module');
 
-test__validateTaskModule('basic behavior', () => {
-	assert.ok(validateTaskModule(testTaskModule));
-	assert.ok(!validateTaskModule(testInvalidTaskModule));
-	assert.ok(!validateTaskModule({task: {run: {}}}));
+test__validate_task_module('basic behavior', () => {
+	assert.ok(validate_task_module(testTaskModule));
+	assert.ok(!validate_task_module(testInvalidTaskModule));
+	assert.ok(!validate_task_module({task: {run: {}}}));
 });
 
-test__validateTaskModule.run();
-/* test__validateTaskModule */
+test__validate_task_module.run();
+/* test__validate_task_module */
 
 /* test__loadTaskModule */
 const test__loadTaskModule = suite('loadTaskModule');
@@ -41,7 +41,7 @@ test__loadTaskModule('invalid module', async () => {
 	if (result.type === 'invalid') {
 		assert.is(result.id, id);
 		assert.is(result.mod, testInvalidTaskModule);
-		assert.is(result.validation, 'validateTaskModule');
+		assert.is(result.validation, 'validate_task_module');
 	} else {
 		throw Error('should be invalid');
 	}

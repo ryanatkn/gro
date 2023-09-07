@@ -4,7 +4,7 @@ import sourcemapSupport from 'source-map-support';
 import {invoke_task} from '../task/invoke_task.js';
 import {fs} from '../fs/node.js';
 import {TaskError} from '../task/task.js';
-import {toTaskArgs} from '../task/args.js';
+import {to_task_args} from '../task/args.js';
 
 /*
 
@@ -12,7 +12,7 @@ This module invokes the Gro CLI which in turn invokes tasks.
 Tasks are the CLI's primary concept.
 To learn more about them, see `src/lib/docs/task.md`.
 
-When the CLI is invoked it passes the first CLI arg as `taskName` to `invoke_task`,
+When the CLI is invoked it passes the first CLI arg as `task_name` to `invoke_task`,
 and the rest of the args are forwarded to the task's `run` function.
 
 */
@@ -24,5 +24,5 @@ attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : nu
 // TODO remove after changing to runtime compilation
 sourcemapSupport.install({handleUncaughtExceptions: false});
 
-const {taskName, args} = toTaskArgs();
-await invoke_task(fs, taskName, args);
+const {task_name, args} = to_task_args();
+await invoke_task(fs, task_name, args);

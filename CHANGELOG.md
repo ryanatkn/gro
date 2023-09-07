@@ -68,7 +68,7 @@
 
 ## 0.76.0
 
-- **break**: change `toJsonSchema` to not suffix with `.json`, and add the `bundleSchemas` helper
+- **break**: change `toJsonSchema` to not suffix with `.json`, and add the `bundle_schemas` helper
   ([#372](https://github.com/feltjs/gro/pull/372))
 
 ## 0.75.5

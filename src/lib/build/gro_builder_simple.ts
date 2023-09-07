@@ -1,4 +1,4 @@
-import {groBuilderNoop} from './groBuilderNoop.js';
+import {gro_builder_noop} from './gro_builder_noop.js';
 import type {BuildContext, Builder} from './builder.js';
 import type {BuildConfig} from './buildConfig.js';
 import type {SourceFile} from './sourceFile.js';
@@ -9,8 +9,8 @@ export interface GetBuilder {
 export interface GetBuilders {
 	(): Builder[];
 }
-const toGroBuilderNoop: GetBuilder = () => groBuilderNoop;
-const toGroBuilderNoops: GetBuilders = () => [groBuilderNoop];
+const toGroBuilderNoop: GetBuilder = () => gro_builder_noop;
+const toGroBuilderNoops: GetBuilders = () => [gro_builder_noop];
 
 export interface Options {
 	toBuilder?: GetBuilder;
@@ -22,11 +22,11 @@ export interface Options {
 // allowing user code to defer to the decision to the moment of action at runtime,
 // which usually includes more useful contextual information.
 // Because it proxies all calls, it implements all of `Builder`, hence `Required`.
-export const groBuilderSimple = (options: Options = {}): Required<Builder> => {
+export const gro_builder_simple = (options: Options = {}): Required<Builder> => {
 	const {toBuilder = toGroBuilderNoop, toBuilders = toGroBuilderNoops} = options;
 
 	const build: Builder['build'] = (source, buildConfig, ctx) => {
-		const builder = toBuilder(source, buildConfig) || groBuilderNoop;
+		const builder = toBuilder(source, buildConfig) || gro_builder_noop;
 		return builder.build(source, buildConfig, ctx);
 	};
 
@@ -35,7 +35,7 @@ export const groBuilderSimple = (options: Options = {}): Required<Builder> => {
 		buildConfig: BuildConfig,
 		ctx: BuildContext,
 	) => {
-		const builder = toBuilder(source, buildConfig) || groBuilderNoop;
+		const builder = toBuilder(source, buildConfig) || gro_builder_noop;
 		if (builder.onRemove === undefined) return;
 		await builder.onRemove(source, buildConfig, ctx);
 	};
@@ -44,5 +44,5 @@ export const groBuilderSimple = (options: Options = {}): Required<Builder> => {
 		await Promise.all(toBuilders().map((builder) => builder.init?.(ctx)));
 	};
 
-	return {name: 'groBuilderSimple', build, onRemove, init};
+	return {name: 'gro_builder_simple', build, onRemove, init};
 };

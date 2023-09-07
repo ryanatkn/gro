@@ -1,12 +1,12 @@
 import {
 	type ModuleMeta,
-	loadModule,
+	load_module,
 	type LoadModuleResult,
-	findModules,
+	find_modules,
 	type FindModulesResult,
 } from '../fs/modules.js';
 import type {Gen, GenResults, GenFile} from './gen.js';
-import {getPossibleSourceIds} from '../path/inputPath.js';
+import {get_possible_source_ids} from '../path/inputPath.js';
 import {paths} from '../path/paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -54,7 +54,7 @@ export interface SchemaGenModuleMeta extends ModuleMeta<GenModule> {
 
 export const loadGenModule = async (id: string): Promise<LoadModuleResult<GenModuleMeta>> => {
 	const type = toGenModuleType(id);
-	const result = await loadModule(id, validateGenModule[type]);
+	const result = await load_module(id, validateGenModule[type]);
 	if (result.ok) {
 		(result.mod as GenModuleMeta).type = type;
 	}
@@ -109,13 +109,13 @@ export const checkGenModule = async (
 
 export const findGenModules = (
 	fs: Filesystem,
-	inputPaths: string[] = [paths.source],
+	input_paths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN],
-	rootDirs: string[] = [],
+	root_dirs: string[] = [],
 ): Promise<FindModulesResult> =>
-	findModules(
+	find_modules(
 		fs,
-		inputPaths,
+		input_paths,
 		(id) => fs.findFiles(id, (path) => extensions.some((e) => path.includes(e))),
-		(inputPath) => getPossibleSourceIds(inputPath, extensions, rootDirs),
+		(inputPath) => get_possible_source_ids(inputPath, extensions, root_dirs),
 	);

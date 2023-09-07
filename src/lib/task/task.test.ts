@@ -1,29 +1,29 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {isTaskPath, toTaskName} from './task.js';
+import {is_task_path, to_task_name} from './task.js';
 
-/* test__isTaskPath */
-const test__isTaskPath = suite('isTaskPath');
+/* test__is_task_path */
+const test__is_task_path = suite('is_task_path');
 
-test__isTaskPath('basic behavior', () => {
-	assert.ok(isTaskPath('foo.task.ts'));
-	assert.ok(!isTaskPath('foo.ts'));
-	assert.ok(!isTaskPath('foo.task.js'));
-	assert.ok(isTaskPath('bar/baz/foo.task.ts'));
-	assert.ok(!isTaskPath('bar/baz/foo.ts'));
+test__is_task_path('basic behavior', () => {
+	assert.ok(is_task_path('foo.task.ts'));
+	assert.ok(!is_task_path('foo.ts'));
+	assert.ok(!is_task_path('foo.task.js'));
+	assert.ok(is_task_path('bar/baz/foo.task.ts'));
+	assert.ok(!is_task_path('bar/baz/foo.ts'));
 });
 
-test__isTaskPath.run();
-/* test__isTaskPath */
+test__is_task_path.run();
+/* test__is_task_path */
 
-/* test__toTaskName */
-const test__toTaskName = suite('toTaskName');
+/* test__to_task_name */
+const test__to_task_name = suite('to_task_name');
 
-test__toTaskName('basic behavior', () => {
-	assert.is(toTaskName('foo.task.ts'), 'foo');
-	assert.is(toTaskName('bar/baz/foo.task.ts'), 'bar/baz/foo');
+test__to_task_name('basic behavior', () => {
+	assert.is(to_task_name('foo.task.ts'), 'foo');
+	assert.is(to_task_name('bar/baz/foo.task.ts'), 'bar/baz/foo');
 });
 
-test__toTaskName.run();
-/* test__toTaskName */
+test__to_task_name.run();
+/* test__to_task_name */

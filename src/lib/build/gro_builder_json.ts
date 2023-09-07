@@ -8,10 +8,10 @@ export interface Options {
 
 type JsonBuilder = Builder<TextSourceFile>;
 
-export const groBuilderJson = (options: Options = {}): JsonBuilder => {
+export const gro_builder_json = (options: Options = {}): JsonBuilder => {
 	const {optimize = true} = options;
 	return {
-		name: 'groBuilderJson',
+		name: 'gro_builder_json',
 		build: (source, buildConfig, {build_dir, dev}) => {
 			const {filename} = source;
 			const outDir = to_build_out_path(dev, buildConfig.name, source.dirBasePath, build_dir);

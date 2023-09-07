@@ -8,7 +8,7 @@ import {execSync} from 'node:child_process';
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
 import {cleanFs} from './fs/clean.js';
-import {toRawRestArgs} from './task/args.js';
+import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
 
 // docs at ./docs/deploy.md
@@ -189,7 +189,7 @@ export const task: Task<Args> = {
 
 		try {
 			// Run the build.
-			await invoke_task('build', toRawRestArgs());
+			await invoke_task('build', to_raw_rest_args());
 
 			// Make sure the expected dir exists after building.
 			if (!(await fs.exists(dir))) {

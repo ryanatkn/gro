@@ -24,7 +24,7 @@ export interface Builder<TSource extends SourceFile = SourceFile> {
 export interface BuildContext {
 	readonly fs: Filesystem;
 	readonly paths: Paths;
-	readonly buildConfigs: readonly BuildConfig[] | null;
+	readonly build_configs: readonly BuildConfig[] | null;
 	readonly buildNames: Set<BuildName> | null;
 	readonly sourceMetaById: Map<string, SourceMeta>;
 	readonly log: Logger;

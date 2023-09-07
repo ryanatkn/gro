@@ -5,7 +5,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 import {paths, gro_paths, is_this_project_gro} from '../path/paths.js';
 
 // This is a single entrypoint for getting the `package.json` of both the current project and Gro.
-// It's cached but can be reloaded with `forceRefresh` flag.
+// It's cached but can be reloaded with `force_refresh` flag.
 
 // TODO fill out this type
 export interface PackageJson {
@@ -18,31 +18,27 @@ export interface PackageJson {
 }
 export interface GroPackageJson extends PackageJson {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
-let packageJson: Promise<PackageJson> | undefined;
-let groPackageJson: Promise<GroPackageJson> | undefined;
+let package_json: Promise<PackageJson> | undefined;
+let gro_package_json: Promise<GroPackageJson> | undefined;
 
-export const loadPackageJson = async (
+export const load_package_json = async (
 	fs: Filesystem,
-	forceRefresh = false,
+	force_refresh = false,
 ): Promise<PackageJson> => {
-	if (is_this_project_gro) return loadGroPackageJson(fs, forceRefresh);
-	if (!packageJson || forceRefresh) {
-		packageJson = fs.readFile(join(paths.root, 'package.json'), 'utf8').then((f) => JSON.parse(f));
+	if (is_this_project_gro) return load_gro_package_json(fs, force_refresh);
+	if (!package_json || force_refresh) {
+		package_json = fs.readFile(join(paths.root, 'package.json'), 'utf8').then((f) => JSON.parse(f));
 	}
-	return packageJson;
+	return package_json;
 };
-export const loadGroPackageJson = async (
+export const load_gro_package_json = async (
 	fs: Filesystem,
-	forceRefresh = false,
+	force_refresh = false,
 ): Promise<GroPackageJson> => {
-	if (!groPackageJson || forceRefresh) {
-		groPackageJson = fs
+	if (!gro_package_json || force_refresh) {
+		gro_package_json = fs
 			.readFile(join(gro_paths.root, 'package.json'), 'utf8')
 			.then((f) => JSON.parse(f));
 	}
-	return groPackageJson;
+	return gro_package_json;
 };
-
-// gets the "b" of "@a/b" for namespaced packages
-export const toPackageRepoName = (pkg: PackageJson): string =>
-	pkg.name.includes('/') ? pkg.name.split('/').slice(1).join('/') : pkg.name;

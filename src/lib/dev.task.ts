@@ -4,15 +4,15 @@ import {z} from 'zod';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
-import {groBuilderDefault} from './build/groBuilderDefault.js';
+import {gro_builder_default} from './build/gro_builder_default.js';
 import {paths} from './path/paths.js';
-import {loadConfig, type GroConfig} from './config/config.js';
+import {load_config, type GroConfig} from './config/config.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
 
 export interface TaskEvents {
-	'dev.createConfig': (config: GroConfig) => void;
-	'dev.createFiler': (filer: Filer) => void;
-	'dev.createContext': (ctx: DevTaskContext) => void;
+	'dev.create_config': (config: GroConfig) => void;
+	'dev.create_filer': (filer: Filer) => void;
+	'dev.create_context': (ctx: DevTaskContext) => void;
 	'dev.ready': (ctx: DevTaskContext) => void;
 }
 
@@ -41,37 +41,37 @@ export const task: Task<Args, TaskEvents> = {
 
 		const timings = new Timings();
 
-		const timingToLoadConfig = timings.start('load config');
-		const config = await loadConfig(fs);
-		timingToLoadConfig();
-		events.emit('dev.createConfig', config);
+		const timing_to_load_config = timings.start('load config');
+		const config = await load_config(fs);
+		timing_to_load_config();
+		events.emit('dev.create_config', config);
 
-		const timingToCreateFiler = timings.start('create filer');
+		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
 			fs,
 			dev: true,
-			builder: groBuilderDefault(),
-			sourceDirs: [paths.source],
-			buildConfigs: config.builds,
+			builder: gro_builder_default(),
+			source_dirs: [paths.source],
+			build_configs: config.builds,
 			target: config.target,
 			sourcemap: config.sourcemap,
 			watch,
 		});
-		timingToCreateFiler();
-		events.emit('dev.createFiler', filer);
+		timing_to_create_filer();
+		events.emit('dev.create_filer', filer);
 
-		const devTaskContext: DevTaskContext = {...ctx, config, dev: true, filer, timings};
-		events.emit('dev.createContext', devTaskContext);
+		const dev_task_context: DevTaskContext = {...ctx, config, dev: true, filer, timings};
+		events.emit('dev.create_context', dev_task_context);
 
-		const plugins = await Plugins.create(devTaskContext);
+		const plugins = await Plugins.create(dev_task_context);
 
 		await plugins.setup();
 
-		const timingToInitFiler = timings.start('init filer');
+		const timing_to_init_filer = timings.start('init filer');
 		await filer.init();
-		timingToInitFiler();
+		timing_to_init_filer();
 
-		events.emit('dev.ready', devTaskContext);
+		events.emit('dev.ready', dev_task_context);
 
 		if (!watch) {
 			await plugins.teardown();

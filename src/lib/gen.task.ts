@@ -8,10 +8,10 @@ import {TaskError, type Task} from './task/task.js';
 import {runGen} from './gen/runGen.js';
 import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
 import {resolveRawInputPaths} from './path/inputPath.js';
-import {loadModules} from './fs/modules.js';
+import {load_modules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {print_path} from './path/paths.js';
-import {loadConfig} from './config/config.js';
+import {load_config} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
 import {log_error_reasons} from './task/log_task.js';
 
@@ -45,26 +45,26 @@ export const task: Task<Args> = {
 		// currently causes it to rebuild by default,
 		// but running `gro gen` from dev/build tasks will not want to rebuild.
 		if (rebuild) {
-			const timingToLoadConfig = timings.start('load config');
-			const config = await loadConfig(fs);
-			timingToLoadConfig();
+			const timing_to_load_config = timings.start('load config');
+			const config = await load_config(fs);
+			timing_to_load_config();
 			const timingToBuildSource = timings.start('buildSource');
 			await buildSource(fs, config, true, log);
 			timingToBuildSource();
 		}
 
 		// resolve the input paths relative to src/lib/
-		const inputPaths = resolveRawInputPaths(rawInputPaths);
+		const input_paths = resolveRawInputPaths(rawInputPaths);
 
 		// load all of the gen modules
-		const find_modules_result = await findGenModules(fs, inputPaths);
+		const find_modules_result = await findGenModules(fs, input_paths);
 		if (!find_modules_result.ok) {
 			log_error_reasons(log, find_modules_result.reasons);
 			throw new TaskError('Failed to find gen modules.');
 		}
 		log.info('gen files', Array.from(find_modules_result.source_ids_by_input_path.values()).flat());
 		timings.merge(find_modules_result.timings);
-		const load_modules_result = await loadModules(
+		const load_modules_result = await load_modules(
 			find_modules_result.source_ids_by_input_path,
 			true,
 			loadGenModule,

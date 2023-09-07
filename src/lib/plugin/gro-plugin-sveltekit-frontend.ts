@@ -2,7 +2,7 @@ import {spawn, spawnProcess, type SpawnedProcess} from '@feltjs/util/process.js'
 import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
-import {printCommandArgs, serializeArgs, toForwardedArgs, type Args} from '../task/args.js';
+import {print_command_args, serialize_args, to_forwarded_args, type Args} from '../task/args.js';
 
 export interface Options {} // eslint-disable-line @typescript-eslint/no-empty-interface
 
@@ -22,9 +22,9 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 		setup: async ({dev, args, log}) => {
 			if (dev) {
 				if (args.watch) {
-					const serializedArgs = ['vite', 'dev', ...serializeArgs(toForwardedArgs('vite'))];
-					log.info(printCommandArgs(serializedArgs));
-					sveltekitProcess = spawnProcess('npx', serializedArgs);
+					const serialized_args = ['vite', 'dev', ...serialize_args(to_forwarded_args('vite'))];
+					log.info(print_command_args(serialized_args));
+					sveltekitProcess = spawnProcess('npx', serialized_args);
 				} else {
 					log.debug(
 						`${name} is loaded but will not output anything` +
@@ -32,9 +32,9 @@ export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 					);
 				}
 			} else {
-				const serializedArgs = ['vite', 'build', ...serializeArgs(toForwardedArgs('vite'))];
-				log.info(printCommandArgs(serializedArgs));
-				await spawn('npx', serializedArgs);
+				const serialized_args = ['vite', 'build', ...serialize_args(to_forwarded_args('vite'))];
+				log.info(print_command_args(serialized_args));
+				await spawn('npx', serialized_args);
 			}
 		},
 		teardown: async () => {

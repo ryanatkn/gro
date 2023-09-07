@@ -1,7 +1,7 @@
 import esbuild from 'esbuild';
 import type {Assignable} from '@feltjs/util/types.js';
 
-import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
+import {to_default_esbuild_options} from './gro_builder_esbuild_utils.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
@@ -17,13 +17,13 @@ import type {TextSourceFile} from './sourceFile.js';
 
 export interface Options {
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
-	createEsbuildOptions?: CreateEsbuildOptions;
+	create_esbuild_options?: CreateEsbuildOptions;
 }
 
 type EsbuildBuilder = Builder<TextSourceFile>;
 
-export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
-	const {createEsbuildOptions = defaultCreateEsbuildOptions} = options;
+export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
+	const {create_esbuild_options = default_create_esbuild_options} = options;
 
 	const esbuildOptionsCache: Map<string, esbuild.TransformOptions> = new Map();
 	const getEsbuildOptions = (
@@ -34,7 +34,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		const key = sourcemap + target;
 		const existingEsbuildOptions = esbuildOptionsCache.get(key);
 		if (existingEsbuildOptions !== undefined) return existingEsbuildOptions;
-		const newEsbuildOptions = createEsbuildOptions(dev, target, sourcemap);
+		const newEsbuildOptions = create_esbuild_options(dev, target, sourcemap);
 		esbuildOptionsCache.set(key, newEsbuildOptions);
 		return newEsbuildOptions;
 	};
@@ -111,7 +111,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 		return buildFiles;
 	};
 
-	return {name: 'groBuilderEsbuild', build};
+	return {name: 'gro_builder_esbuild', build};
 };
 
 type CreateEsbuildOptions = (
@@ -120,5 +120,5 @@ type CreateEsbuildOptions = (
 	sourcemap: boolean,
 ) => esbuild.TransformOptions;
 
-const defaultCreateEsbuildOptions: CreateEsbuildOptions = (dev, target, sourcemap) =>
-	toDefaultEsbuildOptions(dev, target, sourcemap);
+const default_create_esbuild_options: CreateEsbuildOptions = (dev, target, sourcemap) =>
+	to_default_esbuild_options(dev, target, sourcemap);

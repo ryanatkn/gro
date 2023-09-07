@@ -31,7 +31,7 @@ export interface BaseSourceFile extends BaseFilerFile {
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `base_path` too?
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
-	readonly buildConfigs: Set<BuildConfig>;
+	readonly build_configs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
 	readonly dependencies: Map<BuildConfig, Map<SourceId, Map<BuildId, BuildDependency>>>; // `dependencies` are sets of build ids by source file ids, that this one imports or otherwise depends on (they may point to nonexistent files!)
 	readonly dependents: Map<BuildConfig, Map<SourceId, Map<BuildId, BuildDependency>>>; // `dependents` are sets of build ids by buildable source file ids, that import or otherwise depend on this one
@@ -47,7 +47,7 @@ export const createSourceFile = async (
 	filerDir: FilerDir,
 	sourceMeta: SourceMeta | undefined,
 	virtual: boolean,
-	{fs, buildConfigs}: BuildContext,
+	{fs, build_configs}: BuildContext,
 ): Promise<SourceFile> => {
 	let contentBuffer: Buffer | undefined = encoding === null ? (content as Buffer) : undefined;
 	let contentHash: string | undefined;
@@ -65,7 +65,7 @@ export const createSourceFile = async (
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
 		dirty = contentHash !== sourceMeta.data.contentHash;
-		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, buildConfigs!);
+		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, build_configs!);
 	}
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
@@ -74,7 +74,7 @@ export const createSourceFile = async (
 		case 'utf8':
 			return {
 				type: 'source',
-				buildConfigs: new Set(),
+				build_configs: new Set(),
 				isInputToBuildConfigs: null,
 				dependencies: new Map(),
 				dependents: new Map(),
@@ -97,7 +97,7 @@ export const createSourceFile = async (
 		case null:
 			return {
 				type: 'source',
-				buildConfigs: new Set(),
+				build_configs: new Set(),
 				isInputToBuildConfigs: null,
 				dependencies: new Map(),
 				dependents: new Map(),

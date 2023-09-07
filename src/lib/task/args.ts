@@ -22,9 +22,9 @@ export interface ArgSchema {
 	description: string;
 }
 
-export const serializeArgs = (args: Args): string[] => {
+export const serialize_args = (args: Args): string[] => {
 	const result: string[] = [];
-	const addValue = (name: string, value: string | number | boolean | undefined): void => {
+	const add_value = (name: string, value: string | number | boolean | undefined): void => {
 		if (value === undefined) return;
 		result.push(name);
 		if (typeof value !== 'boolean') {
@@ -38,9 +38,9 @@ export const serializeArgs = (args: Args): string[] => {
 		} else {
 			const name = `${key.length === 1 ? '-' : '--'}${key}`;
 			if (Array.isArray(value)) {
-				for (const v of value) addValue(name, v);
+				for (const v of value) add_value(name, v);
 			} else {
-				addValue(name, value);
+				add_value(name, value);
 			}
 		}
 	}
@@ -48,23 +48,23 @@ export const serializeArgs = (args: Args): string[] => {
 };
 
 /**
- * Parses `taskName` and `args` from `process.argv` using `mri`,
+ * Parses `task_name` and `args` from `process.argv` using `mri`,
  * ignoring anything after any `--`.
  */
-export const toTaskArgs = (argv = process.argv): {taskName: string; args: Args} => {
-	const forwardedIndex = argv.indexOf('--');
-	const args = mri(forwardedIndex === -1 ? argv.slice(2) : argv.slice(2, forwardedIndex));
-	const taskName = args._.shift() || '';
+export const to_task_args = (argv = process.argv): {task_name: string; args: Args} => {
+	const forwarded_index = argv.indexOf('--');
+	const args = mri(forwarded_index === -1 ? argv.slice(2) : argv.slice(2, forwarded_index));
+	const task_name = args._.shift() || '';
 	if (!args._.length) delete (args as Args)._; // enable schema defaults
-	return {taskName, args};
+	return {task_name, args};
 };
 
 /**
  * Gets the array of raw string args starting with the first `--`, if any.
  */
-export const toRawRestArgs = (argv = process.argv): string[] => {
-	const forwardedIndex = argv.indexOf('--');
-	return forwardedIndex === -1 ? [] : argv.slice(forwardedIndex);
+export const to_raw_rest_args = (argv = process.argv): string[] => {
+	const forwarded_index = argv.indexOf('--');
+	return forwarded_index === -1 ? [] : argv.slice(forwarded_index);
 };
 
 /**
@@ -73,24 +73,24 @@ export const toRawRestArgs = (argv = process.argv): string[] => {
  * the `command` `'eslint'` returns `eslintarg1 --eslintarg2`
  * and `'tsc'` returns `--tscarg1` and `--tscarg2`.
  */
-export const toForwardedArgs = (
+export const to_forwarded_args = (
 	command: string,
 	reset = false,
-	rawRestArgs = toRawRestArgs(),
-): Args => toForwardedArgsByCommand(reset, rawRestArgs)[command] || {};
+	raw_rest_args = to_raw_rest_args(),
+): Args => to_forwarded_args_by_command(reset, raw_rest_args)[command] || {};
 
-let _forwardedArgsByCommand: Record<string, Args> | undefined;
+let forwarded_args_by_command: Record<string, Args> | undefined;
 
-export const toForwardedArgsByCommand = (
+export const to_forwarded_args_by_command = (
 	reset = false,
-	rawRestArgs = toRawRestArgs(),
+	raw_rest_args = to_raw_rest_args(),
 ): Record<string, Args> => {
-	if (reset) _forwardedArgsByCommand = undefined;
-	if (_forwardedArgsByCommand) return _forwardedArgsByCommand;
+	if (reset) forwarded_args_by_command = undefined;
+	if (forwarded_args_by_command) return forwarded_args_by_command;
 	// Parse each segment of `argv` separated by `--`.
 	const argvs: string[][] = [];
 	let arr: string[] | undefined;
-	for (const arg of rawRestArgs) {
+	for (const arg of raw_rest_args) {
 		if (arg === '--') {
 			if (arr?.length) argvs.push(arr);
 			arr = [];
@@ -103,7 +103,7 @@ export const toForwardedArgsByCommand = (
 	if (arr?.length) argvs.push(arr);
 	// Add each segment of parsed `argv` keyed by the first rest arg,
 	// which is assumed to be the CLI command that gets forwarded the args.
-	_forwardedArgsByCommand = {};
+	forwarded_args_by_command = {};
 	for (const argv of argvs) {
 		const args = mri(argv);
 		let command = args._.shift();
@@ -122,38 +122,10 @@ export const toForwardedArgsByCommand = (
 			command += ' ' + args._.shift();
 		}
 		if (!args._.length) delete (args as Args)._;
-		_forwardedArgsByCommand[command] = args;
+		forwarded_args_by_command[command] = args;
 	}
-	return _forwardedArgsByCommand;
+	return forwarded_args_by_command;
 };
 
-// TODO curretly unused
-/**
- * Mutates `args` to add `value` on either key `a` or `b`. (to handle shorthand/longhand form)
- * If `value` is a boolean, it always overwrites the existing value.
- * If `value` is a string or number, it'll be added to an array.
- * To treat `value` as a primitive in all cases, pass `array` `false`.
- */
-export const addArg = (
-	args: Args,
-	value: string | number | boolean,
-	a: string,
-	b = a,
-	array = typeof value !== 'boolean',
-): void => {
-	if (args[a] === undefined && args[b] === undefined) {
-		args[a] = value;
-	} else {
-		const arg = args[a] !== undefined ? a : b;
-		if (!array) {
-			args[arg] = value;
-		} else if (Array.isArray(args[arg])) {
-			(args as any)[arg].push(value);
-		} else {
-			args[arg] = [(args as any)[arg], value];
-		}
-	}
-};
-
-export const printCommandArgs = (serializedArgs: string[]): string =>
-	magenta('running command: ') + serializedArgs.join(' ');
+export const print_command_args = (serialized_args: string[]): string =>
+	magenta('running command: ') + serialized_args.join(' ');

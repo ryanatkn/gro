@@ -21,7 +21,7 @@ test__loadGitignoreFilter('basic behavior', () => {
 	assert.ok(!filter(resolve('a/node_module/b')));
 });
 
-test__loadGitignoreFilter('caching and forceRefresh', () => {
+test__loadGitignoreFilter('caching and force_refresh', () => {
 	const filter1 = loadGitignoreFilter();
 	const filter2 = loadGitignoreFilter();
 	assert.is(filter1, filter2);

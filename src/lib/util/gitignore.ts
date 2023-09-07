@@ -14,7 +14,7 @@ import type {IdFilter} from '../fs/filter.js';
 
 This only handles the `gitignore` for the current working directory.
 
-If we need support for Gro simultaneously, see ./packageJson.ts as an example.
+If we need support for Gro simultaneously, see ./package_json.ts as an example.
 
 */
 
@@ -28,8 +28,8 @@ const DEFAULT_IGNORED_PATHS = [
 ];
 
 // TODO need some mapping to match gitignore behavior correctly with nested directories
-export const loadGitignoreFilter = (forceRefresh = false): IdFilter => {
-	if (forceRefresh) filter = null;
+export const loadGitignoreFilter = (force_refresh = false): IdFilter => {
+	if (force_refresh) filter = null;
 	if (filter) return filter;
 	let lines: string[];
 	try {
@@ -46,8 +46,11 @@ export const loadGitignoreFilter = (forceRefresh = false): IdFilter => {
 	return filter;
 };
 
-export const isGitignored = (path: string, root = process.cwd(), forceRefresh?: boolean): boolean =>
-	loadGitignoreFilter(forceRefresh)(join(root, path));
+export const isGitignored = (
+	path: string,
+	root = process.cwd(),
+	force_refresh?: boolean,
+): boolean => loadGitignoreFilter(force_refresh)(join(root, path));
 
 // TODO What's the better way to do this?
 // This is a quick hacky mapping for one use case between

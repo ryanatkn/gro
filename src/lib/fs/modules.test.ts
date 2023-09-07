@@ -2,20 +2,20 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
 
-import {findModules, loadModules, loadModule} from './modules.js';
+import {find_modules, load_modules, load_module} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
-import {getPossibleSourceIds} from '../path/inputPath.js';
+import {get_possible_source_ids} from '../path/inputPath.js';
 
-/* test__loadModule */
-const test__loadModule = suite('loadModule');
+/* test__load_module */
+const test__load_module = suite('load_module');
 
-test__loadModule('basic behavior', async () => {
+test__load_module('basic behavior', async () => {
 	const id = resolve('src/lib/fs/fixtures/test1.foo.js');
 	let validatedMod;
-	const result = await loadModule(id, ((mod: any) => {
+	const result = await load_module(id, ((mod: any) => {
 		validatedMod = mod;
 		return true;
 	}) as any);
@@ -25,22 +25,22 @@ test__loadModule('basic behavior', async () => {
 	assert.is(result.mod.mod, modTest1);
 });
 
-test__loadModule('without validation', async () => {
+test__load_module('without validation', async () => {
 	const id = resolve('src/lib/fs/fixtures/test1.foo.js');
-	const result = await loadModule(id);
+	const result = await load_module(id);
 	assert.ok(result.ok);
 	assert.is(result.mod.id, id);
 	assert.is(result.mod.mod, modTest1);
 });
 
-test__loadModule('fails validation', async () => {
+test__load_module('fails validation', async () => {
 	const id = resolve('src/lib/fs/fixtures/test1.foo.js');
 	let validatedMod;
 	const testValidation = (mod: Record<string, any>) => {
 		validatedMod = mod;
 		return false;
 	};
-	const result = await loadModule(id, testValidation as any);
+	const result = await load_module(id, testValidation as any);
 	assert.ok(!result.ok);
 	if (result.type === 'invalid') {
 		assert.is(result.validation, testValidation.name);
@@ -52,9 +52,9 @@ test__loadModule('fails validation', async () => {
 	}
 });
 
-test__loadModule('fails to import', async () => {
+test__load_module('fails to import', async () => {
 	const id = resolve('foo/test/failure');
-	const result = await loadModule(id);
+	const result = await load_module(id);
 	assert.ok(!result.ok);
 	if (result.type === 'importFailed') {
 		assert.is(result.id, id);
@@ -64,21 +64,21 @@ test__loadModule('fails to import', async () => {
 	}
 });
 
-test__loadModule.run();
-/* test__loadModule */
+test__load_module.run();
+/* test__load_module */
 
-/* test__findModules */
-const test__findModules = suite('findModules');
+/* test__find_modules */
+const test__find_modules = suite('find_modules');
 
-test__findModules('with and without extension', async () => {
+test__find_modules('with and without extension', async () => {
 	const path1 = resolve('src/lib/fs/fixtures/test1');
 	const id1 = resolve('src/lib/fs/fixtures/test1.foo.ts');
 	const id2 = resolve('src/lib/fs/fixtures/test2.foo.ts');
-	const result = await findModules(
+	const result = await find_modules(
 		fs,
 		[path1, id2],
 		(id) => fs.findFiles(id),
-		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
+		(inputPath) => get_possible_source_ids(inputPath, ['.foo.ts']),
 	);
 	assert.ok(result.ok);
 	assert.equal(
@@ -97,9 +97,9 @@ test__findModules('with and without extension', async () => {
 	);
 });
 
-test__findModules('directory', async () => {
+test__find_modules('directory', async () => {
 	const id = resolve('src/lib/fs/fixtures/');
-	const result = await findModules(fs, [id], (id) =>
+	const result = await find_modules(fs, [id], (id) =>
 		fs.findFiles(id, (path) => path.includes('.foo.')),
 	);
 	assert.ok(result.ok);
@@ -110,8 +110,8 @@ test__findModules('directory', async () => {
 	assert.equal(result.source_idPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
 });
 
-test__findModules('fail with unmappedInputPaths', async () => {
-	const result = await findModules(
+test__find_modules('fail with unmappedInputPaths', async () => {
+	const result = await find_modules(
 		fs,
 		[
 			resolve('src/lib/fs/fixtures/bar1'),
@@ -120,7 +120,7 @@ test__findModules('fail with unmappedInputPaths', async () => {
 			resolve('src/lib/fs/fixtures/failme2'),
 		],
 		(id) => fs.findFiles(id),
-		(inputPath) => getPossibleSourceIds(inputPath, ['.foo.ts']),
+		(inputPath) => get_possible_source_ids(inputPath, ['.foo.ts']),
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
@@ -134,8 +134,8 @@ test__findModules('fail with unmappedInputPaths', async () => {
 	}
 });
 
-test__findModules('fail with inputDirectoriesWithNoFiles', async () => {
-	const result = await findModules(
+test__find_modules('fail with inputDirectoriesWithNoFiles', async () => {
+	const result = await find_modules(
 		fs,
 		[
 			resolve('src/lib/fs/fixtures/baz1'),
@@ -157,13 +157,13 @@ test__findModules('fail with inputDirectoriesWithNoFiles', async () => {
 	}
 });
 
-test__findModules.run();
-/* test__findModules */
+test__find_modules.run();
+/* test__find_modules */
 
-/* test__loadModules */
-const test__loadModules = suite('loadModules');
+/* test__load_modules */
+const test__load_modules = suite('load_modules');
 
-test__loadModules('fail with loadModuleFailures', async () => {
+test__load_modules('fail with load_moduleFailures', async () => {
 	const pathBar1 = resolve('src/lib/fs/fixtures/bar1');
 	const pathBar2 = resolve('src/lib/fs/fixtures/bar2');
 	const pathBaz1 = resolve('src/lib/fs/fixtures/baz1');
@@ -174,7 +174,7 @@ test__loadModules('fail with loadModuleFailures', async () => {
 	const idBaz2 = join(pathBaz2, 'test2.baz.ts');
 	const testValidation = ((mod: Record<string, any>) => mod.bar !== 1) as any;
 	let error;
-	const result = await loadModules(
+	const result = await load_modules(
 		new Map([
 			[pathBar1, [idBar1, idBar2]],
 			[pathBaz1, [idBaz1, idBaz2]],
@@ -189,16 +189,16 @@ test__loadModules('fail with loadModuleFailures', async () => {
 					error: (error = new Error('Test failed import')),
 				};
 			}
-			return loadModule(id, testValidation);
+			return load_module(id, testValidation);
 		},
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
-	if (result.type !== 'loadModuleFailures') {
-		throw Error('Expected to fail with loadModuleFailures');
+	if (result.type !== 'load_moduleFailures') {
+		throw Error('Expected to fail with load_moduleFailures');
 	}
-	assert.is(result.loadModuleFailures.length, 2);
-	const [failure1, failure2] = result.loadModuleFailures;
+	assert.is(result.load_moduleFailures.length, 2);
+	const [failure1, failure2] = result.load_moduleFailures;
 	if (failure1.type !== 'invalid') {
 		throw Error('Expected to fail with invalid');
 	}
@@ -217,5 +217,5 @@ test__loadModules('fail with loadModuleFailures', async () => {
 	assert.is(result.modules[1].mod, modTestBaz2);
 });
 
-test__loadModules.run();
-/* test__loadModules */
+test__load_modules.run();
+/* test__load_modules */

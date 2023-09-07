@@ -1,8 +1,8 @@
 import type {Builder} from './builder.js';
 import {JSON_EXTENSION, JS_EXTENSION, TS_EXTENSION} from '../path/paths.js';
-import {groBuilderSimple, type Options as SimpleBuilderOptions} from './groBuilderSimple.js';
-import {groBuilderEsbuild, type Options as EsbuildBuilderOptions} from './groBuilderEsbuild.js';
-import {groBuilderJson, type Options as JsonBuilderOptions} from './groBuilderJson.js';
+import {gro_builder_simple, type Options as SimpleBuilderOptions} from './gro_builder_simple.js';
+import {gro_builder_esbuild, type Options as EsbuildBuilderOptions} from './gro_builder_esbuild.js';
+import {gro_builder_json, type Options as JsonBuilderOptions} from './gro_builder_json.js';
 
 export interface Options {
 	esbuildBuilderOptions?: EsbuildBuilderOptions;
@@ -10,12 +10,12 @@ export interface Options {
 	simpleBuilderOptions?: SimpleBuilderOptions;
 }
 
-export const groBuilderDefault = (options: Options = {}): Builder => {
+export const gro_builder_default = (options: Options = {}): Builder => {
 	const {esbuildBuilderOptions, jsonBuilderOptions, simpleBuilderOptions} = options;
 	let finalSimpleBuilderOptions = simpleBuilderOptions;
 	if (!simpleBuilderOptions?.toBuilder) {
-		const esbuildBuilder = groBuilderEsbuild(esbuildBuilderOptions);
-		const jsonBuilder = groBuilderJson(jsonBuilderOptions);
+		const esbuildBuilder = gro_builder_esbuild(esbuildBuilderOptions);
+		const jsonBuilder = gro_builder_json(jsonBuilderOptions);
 		const builders: Builder[] = [esbuildBuilder as Builder]; // TODO why the typecast?
 		finalSimpleBuilderOptions = {
 			...simpleBuilderOptions,
@@ -35,7 +35,7 @@ export const groBuilderDefault = (options: Options = {}): Builder => {
 	}
 
 	return {
-		...groBuilderSimple(finalSimpleBuilderOptions),
-		name: 'groBuilderDefault',
+		...gro_builder_simple(finalSimpleBuilderOptions),
+		name: 'gro_builder_default',
 	};
 };

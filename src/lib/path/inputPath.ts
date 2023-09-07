@@ -60,14 +60,14 @@ export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
 
 /**
  * Gets a list of possible source ids for each input path with `extensions`,
- * duplicating each under `rootDirs`.
+ * duplicating each under `root_dirs`.
  * This is first used to fall back to the Gro dir to search for tasks.
- * It's the helper used in implementations of `getPossibleSourceIdsForInputPath` below.
+ * It's the helper used in implementations of `get_possible_source_idsForInputPath` below.
  */
-export const getPossibleSourceIds = (
+export const get_possible_source_ids = (
 	inputPath: string,
 	extensions: string[],
-	rootDirs?: string[],
+	root_dirs?: string[],
 	paths?: Paths,
 ): string[] => {
 	const possibleSourceIds = [inputPath];
@@ -80,9 +80,9 @@ export const getPossibleSourceIds = (
 			}
 		}
 	}
-	if (rootDirs?.length) {
+	if (root_dirs?.length) {
 		const ids = possibleSourceIds.slice(); // make a copy or infinitely loop!
-		for (const rootDir of rootDirs) {
+		for (const rootDir of root_dirs) {
 			if (inputPath.startsWith(rootDir)) continue; // avoid duplicates
 			for (const possibleSourceId of ids) {
 				possibleSourceIds.push(replace_root_dir(possibleSourceId, rootDir, paths));
@@ -100,19 +100,19 @@ export const getPossibleSourceIds = (
  */
 export const loadSourcePathDataByInputPath = async (
 	fs: Filesystem,
-	inputPaths: string[],
-	getPossibleSourceIdsForInputPath?: (inputPath: string) => string[],
+	input_paths: string[],
+	get_possible_source_idsForInputPath?: (inputPath: string) => string[],
 ): Promise<{
 	source_idPathDataByInputPath: Map<string, PathData>;
 	unmappedInputPaths: string[];
 }> => {
 	const source_idPathDataByInputPath = new Map<string, PathData>();
 	const unmappedInputPaths: string[] = [];
-	for (const inputPath of inputPaths) {
+	for (const inputPath of input_paths) {
 		let filePathData: PathData | null = null;
 		let dirPathData: PathData | null = null;
-		const possibleSourceIds = getPossibleSourceIdsForInputPath
-			? getPossibleSourceIdsForInputPath(inputPath)
+		const possibleSourceIds = get_possible_source_idsForInputPath
+			? get_possible_source_idsForInputPath(inputPath)
 			: [inputPath];
 		for (const possibleSourceId of possibleSourceIds) {
 			if (!(await fs.exists(possibleSourceId))) continue; // eslint-disable-line no-await-in-loop

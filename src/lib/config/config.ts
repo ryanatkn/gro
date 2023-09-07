@@ -104,12 +104,12 @@ Caveats
 
 let cachedConfig: Promise<GroConfig> | undefined;
 
-export const loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
+export const load_config = async (fs: Filesystem): Promise<GroConfig> => {
 	if (cachedConfig) return cachedConfig;
-	return (cachedConfig = _loadConfig(fs));
+	return (cachedConfig = _load_config(fs));
 };
 
-const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
+const _load_config = async (fs: Filesystem): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
 	const options: GroConfigCreatorOptions = {fs, log, config: null as any};
@@ -119,17 +119,17 @@ const _loadConfig = async (fs: Filesystem): Promise<GroConfig> => {
 
 	const config_path = paths.config;
 	let config: GroConfig;
-	console.log(`_loadConfig configSourceId`, config_path);
+	console.log(`_load_config configSourceId`, config_path);
 	if (await fs.exists(config_path)) {
-		console.log('_loadConfig EXISTS');
+		console.log('_load_config EXISTS');
 		const config_module = await import(config_path);
 		validate_config_module(config_module, config_path);
 		config = await create_config(config_module.default, options, config_path, defaultConfig);
 	} else {
-		console.log('_loadConfig DOESNT EXIST');
+		console.log('_load_config DOESNT EXIST');
 		config = defaultConfig;
 	}
-	console.log(`_loadConfig final config`, config, config.builds[0]);
+	console.log(`_load_config final config`, config, config.builds[0]);
 	return config;
 };
 
@@ -172,19 +172,19 @@ export const validate_config = async (
 	fs: Filesystem,
 	config: GroConfig,
 ): Promise<Result<object, {reason: string}>> => {
-	const buildConfigsResult = await validateBuildConfigs(fs, config.builds);
-	if (!buildConfigsResult.ok) return buildConfigsResult;
+	const build_configsResult = await validateBuildConfigs(fs, config.builds);
+	if (!build_configsResult.ok) return build_configsResult;
 	return {ok: true};
 };
 
 export const normalize_config = (config: GroConfigPartial): GroConfig => {
-	const buildConfigs = normalizeBuildConfigs(toArray(config.builds || null));
+	const build_configs = normalizeBuildConfigs(toArray(config.builds || null));
 	return {
 		sourcemap: true,
 		plugin: () => null,
 		adapt: () => null,
 		...omitUndefined(config),
-		builds: buildConfigs,
+		builds: build_configs,
 		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
 	};
 };
