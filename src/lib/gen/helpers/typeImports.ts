@@ -72,7 +72,7 @@ interface ParsedImport {
 
 interface ImportInfo {
 	path: string;
-	defaultValue: string;
+	default_value: string;
 	values: string[];
 	end: string;
 }
@@ -80,7 +80,7 @@ interface ImportInfo {
 const toImportInfo = (imp: ParsedImport, fileId: string): ImportInfo => {
 	const {path} = imp;
 
-	let defaultValue = '';
+	let default_value = '';
 	const values: string[] = [];
 	let end = ''; // preserves stuff after the lexed import
 
@@ -130,23 +130,23 @@ const toImportInfo = (imp: ParsedImport, fileId: string): ImportInfo => {
 			}
 		}
 		const currentEnd = raw.substring(parsed.e + 1);
-		if (newDefaultValue && defaultValue && newDefaultValue !== defaultValue) {
+		if (newDefaultValue && default_value && newDefaultValue !== default_value) {
 			// This is a limitation that ensures we can combine all imports to the same file.
 			// Can't think of reasons why you'd want two names for the same default import.
 			throw Error(
 				'Imported the same default value with two different names:' +
-					` ${fileId} -- ${newDefaultValue} and ${defaultValue}`,
+					` ${fileId} -- ${newDefaultValue} and ${default_value}`,
 			);
 		}
 		if (newDefaultValue) {
-			defaultValue = newDefaultValue;
+			default_value = newDefaultValue;
 		}
 		if (currentEnd.length > end.length) end = currentEnd;
 	}
 
 	return {
 		path,
-		defaultValue,
+		default_value,
 		values: Array.from(new Set(values)),
 		end,
 	};
@@ -159,12 +159,14 @@ const printImportInfo = (info: ImportInfo): string => {
 		result += str;
 	};
 	const {end = ''} = info;
-	const hasDefault = !!info.defaultValue;
+	const hasDefault = !!info.default_value;
 	if (!hasDefault && !info.values.length) {
 		append(`import '${info.path}';` + end);
 	}
 	if (hasDefault) {
-		append('import type ' + stripStart(info.defaultValue, 'type ') + ` from '${info.path}';` + end);
+		append(
+			'import type ' + stripStart(info.default_value, 'type ') + ` from '${info.path}';` + end,
+		);
 	}
 	if (info.values.length) {
 		const strippedTypeValues = info.values.map((v) => stripStart(v, 'type '));

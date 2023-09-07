@@ -144,10 +144,10 @@ export const loadSourceIdsByInputPath = async (
 	source_idPathDataByInputPath: Map<string, PathData>,
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
 ): Promise<{
-	source_idsByInputPath: Map<string, string[]>;
+	source_ids_by_input_path: Map<string, string[]>;
 	inputDirectoriesWithNoFiles: string[];
 }> => {
-	const source_idsByInputPath = new Map<string, string[]>();
+	const source_ids_by_input_path = new Map<string, string[]>();
 	const inputDirectoriesWithNoFiles: string[] = [];
 	const existingSourceIds = new Set<string>();
 	for (const [inputPath, pathData] of source_idPathDataByInputPath) {
@@ -166,7 +166,7 @@ export const loadSourceIdsByInputPath = async (
 					}
 				}
 				if (source_ids.length) {
-					source_idsByInputPath.set(inputPath, source_ids);
+					source_ids_by_input_path.set(inputPath, source_ids);
 				}
 				if (!hasFiles) {
 					inputDirectoriesWithNoFiles.push(inputPath);
@@ -177,8 +177,8 @@ export const loadSourceIdsByInputPath = async (
 			}
 		} else if (!existingSourceIds.has(id)) {
 			existingSourceIds.add(id);
-			source_idsByInputPath.set(inputPath, [id]);
+			source_ids_by_input_path.set(inputPath, [id]);
 		}
 	}
-	return {source_idsByInputPath, inputDirectoriesWithNoFiles};
+	return {source_ids_by_input_path, inputDirectoriesWithNoFiles};
 };

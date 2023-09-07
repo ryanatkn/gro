@@ -2,7 +2,7 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {findGenModules} from './gen/genModule.js';
-import {log_error_reasons} from './task/logTask.js';
+import {log_error_reasons} from './task/log_task.js';
 
 export const Args = z
 	.object({

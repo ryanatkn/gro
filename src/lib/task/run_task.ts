@@ -2,12 +2,12 @@ import type {EventEmitter} from 'node:events';
 import {cyan, red} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 
-import type {TaskModuleMeta} from './taskModule.js';
+import type {TaskModuleMeta} from './task_module.js';
 import {TaskError} from './task.js';
 import type {Args} from './args.js';
 import type {invoke_task as defaultInvokeTask} from './invoke_task.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {logTaskHelp} from './logTask.js';
+import {log_task_help} from './log_task.js';
 
 export type RunTaskResult =
 	| {
@@ -31,7 +31,7 @@ export const run_task = async (
 	const log = new SystemLogger(printLogLabel(taskMeta.name));
 
 	if (unparsedArgs.help) {
-		logTaskHelp(log, taskMeta);
+		log_task_help(log, taskMeta);
 		return {ok: true, output: null};
 	}
 

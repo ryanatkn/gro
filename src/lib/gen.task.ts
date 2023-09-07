@@ -13,7 +13,7 @@ import {formatFile} from './format/formatFile.js';
 import {print_path} from './path/paths.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
-import {log_error_reasons} from './task/logTask.js';
+import {log_error_reasons} from './task/log_task.js';
 
 export const Args = z
 	.object({
@@ -62,22 +62,22 @@ export const task: Task<Args> = {
 			log_error_reasons(log, find_modules_result.reasons);
 			throw new TaskError('Failed to find gen modules.');
 		}
-		log.info('gen files', Array.from(find_modules_result.source_idsByInputPath.values()).flat());
+		log.info('gen files', Array.from(find_modules_result.source_ids_by_input_path.values()).flat());
 		timings.merge(find_modules_result.timings);
-		const loadModulesResult = await loadModules(
-			find_modules_result.source_idsByInputPath,
+		const load_modules_result = await loadModules(
+			find_modules_result.source_ids_by_input_path,
 			true,
 			loadGenModule,
 		);
-		if (!loadModulesResult.ok) {
-			log_error_reasons(log, loadModulesResult.reasons);
+		if (!load_modules_result.ok) {
+			log_error_reasons(log, load_modules_result.reasons);
 			throw new TaskError('Failed to load gen modules.');
 		}
-		timings.merge(loadModulesResult.timings);
+		timings.merge(load_modules_result.timings);
 
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(fs, loadModulesResult.modules, log, formatFile);
+		const genResults = await runGen(fs, load_modules_result.modules, log, formatFile);
 		stopTimingToGenerateCode();
 
 		const failCount = genResults.failures.length;

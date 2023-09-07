@@ -82,7 +82,7 @@ test__findModules('with and without extension', async () => {
 	);
 	assert.ok(result.ok);
 	assert.equal(
-		result.source_idsByInputPath,
+		result.source_ids_by_input_path,
 		new Map([
 			[path1, [id1]],
 			[id2, [id2]],
@@ -104,7 +104,7 @@ test__findModules('directory', async () => {
 	);
 	assert.ok(result.ok);
 	assert.equal(
-		result.source_idsByInputPath,
+		result.source_ids_by_input_path,
 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 	);
 	assert.equal(result.source_idPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));

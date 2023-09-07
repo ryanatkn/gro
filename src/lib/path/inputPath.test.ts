@@ -202,7 +202,7 @@ const test__loadSourceIdsByInputPath = suite('loadSourceIdsByInputPath', async (
 		async (id) => testFiles[id],
 	);
 	assert.equal(result, {
-		source_idsByInputPath: new Map([
+		source_ids_by_input_path: new Map([
 			['fake/test1.bar.ts', ['fake/test1.bar.ts']],
 			['fake/test2', ['fake/test2.bar.ts']],
 			['fake/test3', ['fake/test3/a.ts', 'fake/test3/b.ts']],

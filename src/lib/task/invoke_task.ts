@@ -18,10 +18,10 @@ import {
 	print_path_or_gro_path,
 } from '../path/paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
-import {findTaskModules, load_task_module} from './taskModule.js';
+import {findTaskModules, load_task_module} from './task_module.js';
 import {loadGroPackageJson} from '../util/packageJson.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {log_available_tasks, log_error_reasons} from './logTask.js';
+import {log_available_tasks, log_error_reasons} from './log_task.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -79,17 +79,17 @@ export const invoke_task = async (
 
 			// Try to load the task module.
 			// TODO BLOCK why not loadTaskModules ? get good error messages too
-			console.log('LOADING', Array.from(find_modules_result.source_idsByInputPath.entries()));
-			const loadModulesResult = await loadModules(
-				find_modules_result.source_idsByInputPath,
+			console.log('LOADING', Array.from(find_modules_result.source_ids_by_input_path.entries()));
+			const load_modules_result = await loadModules(
+				find_modules_result.source_ids_by_input_path,
 				true,
 				load_task_module,
 			);
-			if (loadModulesResult.ok) {
+			if (load_modules_result.ok) {
 				// We found a task module. Run it!
-				timings.merge(loadModulesResult.timings);
+				timings.merge(load_modules_result.timings);
 				// `pathData` is not a directory, so there's a single task module here.
-				const task = loadModulesResult.modules[0];
+				const task = load_modules_result.modules[0];
 				log.info(
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
@@ -111,7 +111,7 @@ export const invoke_task = async (
 					throw result.error;
 				}
 			} else {
-				log_error_reasons(log, loadModulesResult.reasons);
+				log_error_reasons(log, load_modules_result.reasons);
 				process.exit(1);
 			}
 		} else {
@@ -121,14 +121,14 @@ export const invoke_task = async (
 				await log_available_tasks(
 					log,
 					print_path(pathData.id),
-					find_modules_result.source_idsByInputPath,
+					find_modules_result.source_ids_by_input_path,
 				);
 			} else if (is_gro_id(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
 				await log_available_tasks(
 					log,
 					print_path_or_gro_path(pathData.id),
-					find_modules_result.source_idsByInputPath,
+					find_modules_result.source_ids_by_input_path,
 				);
 			} else {
 				// The Gro directory is not the same as the cwd
@@ -148,14 +148,14 @@ export const invoke_task = async (
 					await log_available_tasks(
 						log,
 						print_path_or_gro_path(groPathData.id),
-						gro_dir_find_modules_result.source_idsByInputPath,
+						gro_dir_find_modules_result.source_ids_by_input_path,
 					);
 				}
 				// Then log the current working directory matches.
 				await log_available_tasks(
 					log,
 					print_path(pathData.id),
-					find_modules_result.source_idsByInputPath,
+					find_modules_result.source_ids_by_input_path,
 					!gro_dir_find_modules_result.ok,
 				);
 			}
@@ -185,7 +185,7 @@ export const invoke_task = async (
 				await log_available_tasks(
 					log,
 					print_path_or_gro_path(groPathData.id),
-					gro_dir_find_modules_result.source_idsByInputPath,
+					gro_dir_find_modules_result.source_ids_by_input_path,
 				);
 			} else {
 				// Log the original errors, not the Gro-specific ones.

@@ -50,7 +50,7 @@ export const loadModule = async <T extends Record<string, any>>(
 
 export type FindModulesResult = Result<
 	{
-		source_idsByInputPath: Map<string, string[]>;
+		source_ids_by_input_path: Map<string, string[]>;
 		source_idPathDataByInputPath: Map<string, PathData>;
 		timings: Timings<FindModulesTimings>;
 	},
@@ -65,7 +65,7 @@ export type FindModulesFailure =
 	  }
 	| {
 			type: 'inputDirectoriesWithNoFiles';
-			source_idsByInputPath: Map<string, string[]>;
+			source_ids_by_input_path: Map<string, string[]>;
 			source_idPathDataByInputPath: Map<string, PathData>;
 			inputDirectoriesWithNoFiles: string[];
 			reasons: string[];
@@ -129,7 +129,7 @@ export const findModules = async (
 
 	// Find all of the files for any directories.
 	const timingToFindFiles = timings.start('find files');
-	const {source_idsByInputPath, inputDirectoriesWithNoFiles} = await loadSourceIdsByInputPath(
+	const {source_ids_by_input_path, inputDirectoriesWithNoFiles} = await loadSourceIdsByInputPath(
 		source_idPathDataByInputPath,
 		(id) => findFiles(id),
 	);
@@ -141,7 +141,7 @@ export const findModules = async (
 				ok: false,
 				type: 'inputDirectoriesWithNoFiles',
 				source_idPathDataByInputPath,
-				source_idsByInputPath,
+				source_ids_by_input_path,
 				inputDirectoriesWithNoFiles,
 				reasons: inputDirectoriesWithNoFiles.map((inputPath) =>
 					red(
@@ -152,7 +152,7 @@ export const findModules = async (
 					),
 				),
 		  }
-		: {ok: true, source_idsByInputPath, source_idPathDataByInputPath, timings};
+		: {ok: true, source_ids_by_input_path, source_idPathDataByInputPath, timings};
 };
 
 /*
@@ -166,7 +166,7 @@ export const loadModules = async <
 	ModuleType extends Record<string, any>,
 	TModuleMeta extends ModuleMeta<ModuleType>,
 >(
-	source_idsByInputPath: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
+	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
 	dev: boolean,
 	loadModuleById: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
@@ -175,7 +175,7 @@ export const loadModules = async <
 	const modules: TModuleMeta[] = [];
 	const loadModuleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
-	for (const [inputPath, source_ids] of source_idsByInputPath) {
+	for (const [inputPath, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
 			const result = await loadModuleById(id, dev); // eslint-disable-line no-await-in-loop
 			if (result.ok) {

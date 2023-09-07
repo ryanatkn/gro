@@ -58,7 +58,7 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
 			const found = await findGenModules(fs);
-			if (found.ok && found.source_idsByInputPath.size > 0) {
+			if (found.ok && found.source_ids_by_input_path.size > 0) {
 				await gen();
 			}
 
