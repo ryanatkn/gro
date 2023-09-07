@@ -16,7 +16,6 @@ export const Args = z
 			.boolean({description: 'the bail option to uvu run, exit immediately on failure'})
 			.default(false),
 		cwd: z.string({description: 'the cwd option to uvu parse'}).optional(),
-		// TOOD BLOCK support `gro test --help` with unions
 		ignore: z
 			.union([z.string(), z.array(z.string())], {description: 'the ignore option to uvu parse'})
 			.optional(),
