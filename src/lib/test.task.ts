@@ -2,12 +2,11 @@ import {printTimings} from '@feltjs/util/print.js';
 import {Timings} from '@feltjs/util/timings.js';
 import {yellow} from 'kleur/colors';
 import {z} from 'zod';
-import glob from 'tiny-glob';
 import {run} from 'uvu/run';
 import {parse} from 'uvu/parse';
 
 import type {Task} from './task/task.js';
-import {paths, source_id_to_base_path} from './path/paths.js';
+import {paths} from './path/paths.js';
 import {findCli} from './util/cli.js';
 
 export const Args = z
@@ -16,8 +15,10 @@ export const Args = z
 			.array(z.string(), {description: 'file patterns to test'})
 			.default([`\\.test\\.ts`]), // TODO maybe use uvu's default instead of being restrictive?
 		bail: z
-			.boolean({description: 'the uvu bail option, exit immediately on failure'})
+			.boolean({description: 'the bail option to uvu run, exit immediately on failure'})
 			.default(false),
+			cwd: z
+			.string({description: 'the cwd option to uvu parse'})
 			// TODO BLOCK support ignore
 	})
 	.strict();
@@ -27,7 +28,7 @@ export const task: Task<Args> = {
 	summary: 'run tests',
 	Args,
 	run: async ({fs, log, args}): Promise<void> => {
-		const {_: patterns, bail} = args;
+		const {_: patterns, bail, cwd} = args;
 
 		if (!(await findCli(fs, 'uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
@@ -39,7 +40,7 @@ export const task: Task<Args> = {
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `parse` and `run` APIs directly instead of its CLI
-		const parsed = await parse(paths.source, patterns[0])
+		const parsed = await parse(paths.source, patterns[0], {cwd})
 		await run(parsed.suites, {bail});
 
 		timeToRunUvu();
