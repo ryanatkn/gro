@@ -4,8 +4,8 @@ import {SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
 
-import {toForwardedArgs, type Args} from '../task/args.js';
-import {runTask} from './runTask.js';
+import {toForwardedArgs, type Args} from './args.js';
+import {run_task} from './run_task.js';
 import {resolveRawInputPath} from '../path/inputPath.js';
 import {isTaskPath} from './task.js';
 import {
@@ -40,7 +40,7 @@ import {log_available_tasks, log_error_reasons} from './logTask.js';
  * there are some subtle differences in the complex logical branches.
  * The comments describe each condition.
  */
-export const invokeTask = async (
+export const invoke_task = async (
 	fs: Filesystem,
 	taskName: string,
 	args: Args,
@@ -95,12 +95,12 @@ export const invokeTask = async (
 				);
 				const timingToRunTask = timings.start('run task');
 				console.log(`toForwardedArgs`, toForwardedArgs(`gro ${task.name}`));
-				const result = await runTask(
+				const result = await run_task(
 					fs,
 					task,
 					{...args, ...toForwardedArgs(`gro ${task.name}`)},
 					events,
-					invokeTask,
+					invoke_task,
 				);
 				timingToRunTask();
 				if (result.ok) {

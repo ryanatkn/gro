@@ -2,15 +2,15 @@ import {EventEmitter} from 'node:events';
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {runTask} from './runTask.js';
+import {run_task} from './run_task.js';
 import {fs} from '../fs/node.js';
 
-/* test__runTask */
-const test__runTask = suite('runTask');
+/* test__run_task */
+const test__run_task = suite('run_task');
 
-test__runTask('passes args and returns output', async () => {
+test__run_task('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
-	const result = await runTask(
+	const result = await run_task(
 		fs,
 		{
 			name: 'testTask',
@@ -29,19 +29,19 @@ test__runTask('passes args and returns output', async () => {
 	assert.is(result.output, args);
 });
 
-test__runTask('invokes a sub task', async () => {
+test__run_task('invokes a sub task', async () => {
 	const args = {a: 1, _: []};
 	let invokedTaskName;
 	let invokedArgs;
-	const result = await runTask(
+	const result = await run_task(
 		fs,
 		{
 			name: 'testTask',
 			id: 'foo/testTask',
 			mod: {
 				task: {
-					run: async ({args, invokeTask}) => {
-						await invokeTask('bar/testTask', args);
+					run: async ({args, invoke_task}) => {
+						await invoke_task('bar/testTask', args);
 						return args;
 					},
 				},
@@ -60,9 +60,9 @@ test__runTask('invokes a sub task', async () => {
 	assert.is(result.output, args);
 });
 
-test__runTask('failing task', async () => {
+test__run_task('failing task', async () => {
 	let err;
-	const result = await runTask(
+	const result = await run_task(
 		fs,
 		{
 			name: 'testTask',
@@ -85,5 +85,5 @@ test__runTask('failing task', async () => {
 	assert.is(result.error, err);
 });
 
-test__runTask.run();
-/* test__runTask */
+test__run_task.run();
+/* test__run_task */

@@ -66,7 +66,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
-	run: async ({fs, args, log, invokeTask}): Promise<void> => {
+	run: async ({fs, args, log, invoke_task}): Promise<void> => {
 		const {source, target, origin, dir, dry, clean: cleanAndExit, force, dangerous, reset} = args;
 
 		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
@@ -189,7 +189,7 @@ export const task: Task<Args> = {
 
 		try {
 			// Run the build.
-			await invokeTask('build', toRawRestArgs());
+			await invoke_task('build', toRawRestArgs());
 
 			// Make sure the expected dir exists after building.
 			if (!(await fs.exists(dir))) {

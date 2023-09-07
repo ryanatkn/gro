@@ -26,15 +26,15 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
-	run: async ({fs, log, args, invokeTask}) => {
+	run: async ({fs, log, args, invoke_task}) => {
 		const {typecheck, test, gen, format, lint} = args;
 
 		if (typecheck) {
-			await invokeTask('typecheck');
+			await invoke_task('typecheck');
 		}
 
 		if (test) {
-			await invokeTask('test');
+			await invoke_task('test');
 		}
 
 		if (gen) {
@@ -42,7 +42,7 @@ export const task: Task<Args> = {
 			const findGenModulesResult = await findGenModules(fs);
 			if (findGenModulesResult.ok) {
 				log.info('checking that generated files have not changed');
-				await invokeTask('gen', {check: true, rebuild: false});
+				await invoke_task('gen', {check: true, rebuild: false});
 			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
 				log_error_reasons(log, findGenModulesResult.reasons);
 				throw new TaskError('Failed to find gen modules.');
@@ -50,14 +50,14 @@ export const task: Task<Args> = {
 		}
 
 		if (format) {
-			await invokeTask('format', {check: true});
+			await invoke_task('format', {check: true});
 		}
 
 		// Run the linter last to surface every other kind of problem first.
 		// It's not the ideal order when the linter would catch errors that cause failing tests,
 		// but it's better for most usage.
 		if (lint) {
-			await invokeTask('lint');
+			await invoke_task('lint');
 		}
 	},
 };

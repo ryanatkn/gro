@@ -23,7 +23,7 @@ and defers composition to the user in regular TypeScript modules.
   but part of the convention is that Gro expects all source code to be in `src/`
 - task definitions are just objects with an async `run` function and some optional properties,
   so composing tasks is explicit in your code, just like any other module
-  (but there's also the helper `invokeTask`: see more below)
+  (but there's also the helper `invoke_task`: see more below)
 - on the command line, tasks replace the concept of commands,
   so running them is as simple as `gro <task>`,
   and in code the task object's `run` function has access to CLI args;
@@ -157,7 +157,7 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 	log: Logger;
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
-	invokeTask: (
+	invoke_task: (
 		taskName: string,
 		args?: object,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
@@ -166,20 +166,20 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 }
 ```
 
-### run a task inside another task with `invokeTask`
+### run a task inside another task with `invoke_task`
 
 Because Gro tasks are just functions,
 you can directly import them from within other tasks and run them.
-However, we recommend using the `invokeTask` helper
+However, we recommend using the `invoke_task` helper
 for its ergonomics and automatic logging and diagnostics.
 
-The `invokeTask` helper uses Gro's task resolution rules
+The `invoke_task` helper uses Gro's task resolution rules
 to allow user code to override builtin tasks.
-For example, Gro's `check.task.ts` calls `invokeTask('test')`
+For example, Gro's `check.task.ts` calls `invoke_task('test')`
 so that it calls your `src/test.task.ts` if it exists
 and falls back to `gro/src/test.task.ts` if not.
 
-It's less important to use `invokeTask` over explicit imports in user code
+It's less important to use `invoke_task` over explicit imports in user code
 because you don't need to rely on the task override rules to get desired behavior,
 but the logging and diagnostics it provides are nice to have.
 
@@ -192,15 +192,15 @@ gro some/file
 import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
-	run: async ({args, invokeTask}) => {
+	run: async ({args, invoke_task}) => {
 		// runs `src/some/file.task.ts`, automatically forwarding `args`
-		await invokeTask('some/file');
+		await invoke_task('some/file');
 		// as documented above, the following is similar but lacks nice features:
 		// await (await import('./some/file.task.js')).run(ctx);
 
 		// runs `src/other/file.task.ts` and falls back to `gro/src/other/file.task.ts`,
 		// forwarding both custom args and a different event emitter (warning: spaghetti)
-		await invokeTask(
+		await invoke_task(
 			'other/file',
 			{...args, optionally: 'extended'},
 			optionalEventEmitterForSubtree,
@@ -209,7 +209,7 @@ export const task: Task = {
 		);
 
 		// runs `gro/src/other/file.task.ts` directly, bypassing any local version
-		await invokeTask('gro/other/file');
+		await invoke_task('gro/other/file');
 	},
 };
 ```
@@ -227,14 +227,14 @@ $ gro test
 import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
-	run: async ({args, invokeTask}) => {
+	run: async ({args, invoke_task}) => {
 		await doSomethingFirst();
-		// As discussed in the `invokeTask` section above,
+		// As discussed in the `invoke_task` section above,
 		// it's possible to `import {task as groBuiltinTestTask} from '@feltjs/gro/test.task.js'`
 		// and then call `groBuiltinTestTask.run` directly,
 		// but that loses some important benefits.
 		// Still, the task is available to import if you want it for any reason!
-		await invokeTask('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
+		await invoke_task('gro/test', {...args, optionally: 'extended'}, newEventEmitterForSubtree);
 		await emailEveryoneWithTestResults();
 	},
 };
@@ -305,7 +305,7 @@ There's one special case for task args forwarding: running Gro tasks.
 If `gro` is the command following a `--`, e.g. the second `gro` of
 `gro taskname -- gro taskname2 --a --b`,
 then `--a` and `--b` will be forwarded to `taskname2`.
-Forwarded args to Gro tasks override direct args, including args to `invokeTask`,
+Forwarded args to Gro tasks override direct args, including args to `invoke_task`,
 so `gro taskname --a 1 -- gro taskname --a 2` will invoke `taskname` with `{a: 2}`.
 
 ### task events

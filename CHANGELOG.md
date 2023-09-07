@@ -364,7 +364,7 @@
 
 ## 0.52.1
 
-- fix args type for `invokeTask`
+- fix args type for `invoke_task`
   ([#314](https://github.com/feltjs/gro/pull/314))
 
 ## 0.52.0
@@ -372,7 +372,7 @@
 - **break**: validate task `args` from schemas,
   setting defaults automatically and disallowing additional properties
   ([#313](https://github.com/feltjs/gro/pull/313))
-- **break**: change `invokeTask` to no longer forward `args` automatically
+- **break**: change `invoke_task` to no longer forward `args` automatically
   ([#313](https://github.com/feltjs/gro/pull/313))
 - **break**: add generic agnostic command args forwarding
   [using the `--` pattern](src/lib/docs/task.md#task-args-forwarding)

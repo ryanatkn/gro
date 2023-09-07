@@ -36,7 +36,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'bump version, publish to npm, and git push',
 	Args,
-	run: async ({fs, args, log, invokeTask}): Promise<void> => {
+	run: async ({fs, args, log, invoke_task}): Promise<void> => {
 		const {branch, changelog, dry} = args;
 		if (dry) {
 			log.info(green('dry run!'));
@@ -64,7 +64,7 @@ export const task: Task<Args> = {
 		}
 
 		// Check before proceeding.
-		await invokeTask('check');
+		await invoke_task('check');
 
 		// Bump the version so the package.json is updated before building:
 		// TODO problem here is build may fail and put us in a bad state,
@@ -91,7 +91,7 @@ export const task: Task<Args> = {
 		}
 
 		// Build to create the final artifacts:
-		await invokeTask('build', toRawRestArgs());
+		await invoke_task('build', toRawRestArgs());
 
 		if (dry) {
 			log.info('publishing branch ' + branch);

@@ -23,7 +23,7 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 	log: Logger;
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
-	invokeTask: (
+	invoke_task: (
 		taskName: string,
 		args?: object,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,

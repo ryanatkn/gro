@@ -4,8 +4,8 @@ import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 
 import type {TaskModuleMeta} from './taskModule.js';
 import {TaskError} from './task.js';
-import type {Args} from '../task/args.js';
-import type {invokeTask as defaultInvokeTask} from './invokeTask.js';
+import type {Args} from './args.js';
+import type {invoke_task as defaultInvokeTask} from './invoke_task.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {logTaskHelp} from './logTask.js';
 
@@ -20,12 +20,12 @@ export type RunTaskResult =
 			error: Error;
 	  };
 
-export const runTask = async (
+export const run_task = async (
 	fs: Filesystem,
 	taskMeta: TaskModuleMeta,
 	unparsedArgs: Args,
 	events: EventEmitter,
-	invokeTask: typeof defaultInvokeTask,
+	invoke_task: typeof defaultInvokeTask,
 ): Promise<RunTaskResult> => {
 	const {task} = taskMeta.mod;
 	const log = new SystemLogger(printLogLabel(taskMeta.name));
@@ -57,8 +57,8 @@ export const runTask = async (
 			args,
 			events,
 			log,
-			invokeTask: (invokedTaskName, invokedArgs = {}, invokedEvents = events, invokedFs = fs) =>
-				invokeTask(invokedFs, invokedTaskName, invokedArgs as Args, invokedEvents), // TODO typecast
+			invoke_task: (invokedTaskName, invokedArgs = {}, invokedEvents = events, invokedFs = fs) =>
+				invoke_task(invokedFs, invokedTaskName, invokedArgs as Args, invokedEvents), // TODO typecast
 		});
 	} catch (err) {
 		return {
