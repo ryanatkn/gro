@@ -11,17 +11,15 @@ import {findCli} from './util/cli.js';
 
 export const Args = z
 	.object({
-		_: z
-			.array(z.string(), {description: 'file patterns to test'})
-			.default([`\\.test\\.ts`]), // TODO maybe use uvu's default instead of being restrictive?
+		_: z.array(z.string(), {description: 'file patterns to test'}).default([`\\.test\\.ts`]), // TODO maybe use uvu's default instead of being restrictive?
 		bail: z
 			.boolean({description: 'the bail option to uvu run, exit immediately on failure'})
 			.default(false),
-			cwd: z
-			.string({description: 'the cwd option to uvu parse'}).optional(),
-			// TOOD BLOCK support `gro test --help` with unions
+		cwd: z.string({description: 'the cwd option to uvu parse'}).optional(),
+		// TOOD BLOCK support `gro test --help` with unions
 		ignore: z
-		.union([z.string(),z.array(z.string())], {description: 'the ignore option to uvu parse'}).optional()
+			.union([z.string(), z.array(z.string())], {description: 'the ignore option to uvu parse'})
+			.optional(),
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -43,7 +41,7 @@ export const task: Task<Args> = {
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `parse` and `run` APIs directly instead of its CLI
-		const parsed = await parse(paths.source, patterns[0], {cwd,ignore})
+		const parsed = await parse(paths.source, patterns[0], {cwd, ignore});
 		await run(parsed.suites, {bail});
 
 		timeToRunUvu();

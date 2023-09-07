@@ -84,7 +84,9 @@ export const resolve = async (
 	nextResolve: NextResolve,
 ): Promise<ResolveReturn> => {
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
-	if ( !parent_path?.startsWith(dir) || parent_path.startsWith(dir + 'node_modules/')) {return nextResolve(specifier, context);}
+	if (!parent_path?.startsWith(dir) || parent_path.startsWith(dir + 'node_modules/')) {
+		return nextResolve(specifier, context);
+	}
 
 	console.log(`specifier`, specifier, parent_path);
 
@@ -108,7 +110,7 @@ export const resolve = async (
 	if (alias) {
 		for (const [from, to] of Object.entries(alias)) {
 			if (path.startsWith(from)) {
-				path = dir  + to + path.substring(from.length);
+				path = dir + to + path.substring(from.length);
 			}
 		}
 	}
