@@ -104,8 +104,8 @@ const toOutputFileId = (originId: SourceId, rawFileName: string | undefined): st
 };
 
 export const toOutputFileName = (filename: string): string => {
-	const {pattern, text, sep} = genModuleMeta[toGenModuleType(filename)];
-	const parts = filename.split(sep);
+	const {pattern, text} = genModuleMeta[toGenModuleType(filename)];
+	const parts = filename.split('.');
 	const genPatternIndex = parts.indexOf(text);
 	if (genPatternIndex === -1) {
 		throw Error(`Invalid gen file name - '${text}' not found in '${filename}'`);
@@ -128,7 +128,7 @@ export const toOutputFileName = (filename: string): string => {
 		if (i === length - 1 && parts[i] === '') continue; // allow empty extension
 		finalParts.push(parts[i]);
 	}
-	return finalParts.join(sep);
+	return finalParts.join('.');
 };
 
 const validateGenFiles = (files: GenFile[]) => {

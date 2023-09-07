@@ -211,7 +211,7 @@ export const toSourceExtension = (build_id: BuildId): string => {
 
 const groImportDir = join(fileURLToPath(import.meta.url), '../../../');
 console.log(`groImportDir`, groImportDir);
-export const groDir = join(
+const groDir = join(
 	groImportDir,
 	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
 );

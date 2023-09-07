@@ -10,15 +10,13 @@ import {getPossibleSourceIds} from '../path/inputPath.js';
 import {paths} from '../path/paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
-export const SEPARATOR = '.';
-
 export const GEN_FILE_PATTERN_TEXT = 'gen';
-export const GEN_FILE_PATTERN = SEPARATOR + GEN_FILE_PATTERN_TEXT + SEPARATOR;
+export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
 
 export const isGenPath = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
 
 export const GEN_SCHEMA_FILE_PATTERN_TEXT = 'schema';
-export const GEN_SCHEMA_FILE_PATTERN = SEPARATOR + GEN_SCHEMA_FILE_PATTERN_TEXT + SEPARATOR;
+export const GEN_SCHEMA_FILE_PATTERN = '.' + GEN_SCHEMA_FILE_PATTERN_TEXT + '.';
 export const GEN_SCHEMA_PATH_SUFFIX = GEN_SCHEMA_FILE_PATTERN + 'ts';
 export const GEN_SCHEMA_IDENTIFIER_SUFFIX = 'Schema';
 
@@ -34,9 +32,9 @@ export interface SchemaGenModule extends BasicGenModule {
 export const toGenModuleType = (filename: string): GenModuleType =>
 	filename.includes(GEN_SCHEMA_FILE_PATTERN) ? 'schema' : 'basic';
 
-export const genModuleMeta: Record<GenModuleType, {pattern: string; text: string; sep: string}> = {
-	basic: {pattern: GEN_FILE_PATTERN, text: GEN_FILE_PATTERN_TEXT, sep: SEPARATOR},
-	schema: {pattern: GEN_SCHEMA_FILE_PATTERN, text: GEN_SCHEMA_FILE_PATTERN_TEXT, sep: SEPARATOR},
+export const genModuleMeta: Record<GenModuleType, {pattern: string; text: string}> = {
+	basic: {pattern: GEN_FILE_PATTERN, text: GEN_FILE_PATTERN_TEXT},
+	schema: {pattern: GEN_SCHEMA_FILE_PATTERN, text: GEN_SCHEMA_FILE_PATTERN_TEXT},
 };
 
 export const validateGenModule = {

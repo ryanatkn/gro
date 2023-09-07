@@ -1,4 +1,4 @@
-import {join, sep, isAbsolute, basename} from 'node:path';
+import {join, isAbsolute, basename} from 'node:path';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
 import {
@@ -43,7 +43,7 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 		if (basePath.startsWith(groDirBasename)) {
 			paths = gro_paths;
 			basePath = stripStart(basePath, groDirBasename);
-		} else if (basePath + sep === groDirBasename) {
+		} else if (basePath + '/' === groDirBasename) {
 			paths = gro_paths;
 			basePath = '';
 		}
@@ -71,7 +71,7 @@ export const getPossibleSourceIds = (
 	paths?: Paths,
 ): string[] => {
 	const possibleSourceIds = [inputPath];
-	if (!inputPath.endsWith(sep)) {
+	if (!inputPath.endsWith('/')) {
 		for (const extension of extensions) {
 			if (!inputPath.endsWith(extension)) {
 				possibleSourceIds.push(inputPath + extension);

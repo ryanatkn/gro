@@ -1,6 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve, join, sep} from 'node:path';
+import {resolve, join} from 'node:path';
 
 import {
 	createPaths,
@@ -23,7 +23,7 @@ const test__createPaths = suite('createPaths');
 test__createPaths('basic behavior', () => {
 	const root = resolve('../fake');
 	const p = createPaths(root);
-	assert.is(p.root, join(root, sep));
+	assert.is(p.root, join(root, '/'));
 	assert.is(p.source, join(root, 'src/'));
 });
 
