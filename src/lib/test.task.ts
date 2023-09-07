@@ -4,16 +4,17 @@ import {yellow} from 'kleur/colors';
 import {z} from 'zod';
 import glob from 'tiny-glob';
 import {run} from 'uvu/run';
+import {parse} from 'uvu/parse';
 
 import type {Task} from './task/task.js';
-import {SOURCE_DIR, source_id_to_base_path} from './path/paths.js';
+import {paths, source_id_to_base_path} from './path/paths.js';
 import {findCli} from './util/cli.js';
 
 export const Args = z
 	.object({
 		_: z
 			.array(z.string(), {description: 'file patterns to test'})
-			.default([`${SOURCE_DIR}**/*.test.ts`]),
+			.default([`\\.test\\.ts`]), // TODO maybe use uvu's default instead of being restrictive?
 		bail: z
 			.boolean({description: 'the uvu bail option, exit immediately on failure'})
 			.default(false),
@@ -39,8 +40,10 @@ export const task: Task<Args> = {
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `run` API directly instead of its CLI
-		const suites = await collect(patterns);
-		await run(suites, {bail});
+		const parsed = await parse(paths.source, patterns[0])
+		console.log(`parsed`, parsed);
+		// const suites = await collect(patterns);
+		await run(parsed.suites, {bail});
 
 		timeToRunUvu();
 
