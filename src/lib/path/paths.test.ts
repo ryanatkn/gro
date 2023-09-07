@@ -6,7 +6,7 @@ import {
 	createPaths,
 	paths,
 	gro_paths,
-	isGroId,
+	is_gro_id,
 	toRootPath,
 	source_id_to_base_path,
 	basePathToSourceId,
@@ -38,8 +38,8 @@ test__createPaths.run();
 const test__isGroId = suite('isGroId');
 
 test__isGroId('basic behavior', () => {
-	assert.ok(isGroId(resolve(paths.source)));
-	assert.ok(!isGroId(resolve('../fake/src')));
+	assert.ok(is_gro_id(resolve(paths.source)));
+	assert.ok(!is_gro_id(resolve('../fake/src')));
 });
 
 test__isGroId.run();

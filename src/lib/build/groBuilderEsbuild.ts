@@ -1,9 +1,14 @@
 import esbuild from 'esbuild';
-import {replaceExtension} from '@feltjs/util/path.js';
 import type {Assignable} from '@feltjs/util/types.js';
 
 import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
-import {JS_EXTENSION, SOURCEMAP_EXTENSION, toBuildOutPath, TS_EXTENSION} from '../path/paths.js';
+import {
+	JS_EXTENSION,
+	SOURCEMAP_EXTENSION,
+	toBuildOutPath,
+	TS_EXTENSION,
+	replace_extension,
+} from '../path/paths.js';
 import type {Builder} from './builder.js';
 import {addJsSourcemapFooter, type EcmaScriptTarget} from './helpers.js';
 import type {BuildFile} from './buildFile.js';
@@ -52,7 +57,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			sourcefile: source.id,
 		};
 		const output = await esbuild.transform(source.content, esbuildOptions);
-		const jsFilename = replaceExtension(source.filename, JS_EXTENSION);
+		const jsFilename = replace_extension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
 
 		const buildFiles: BuildFile[] = [

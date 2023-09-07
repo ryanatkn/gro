@@ -10,7 +10,7 @@ import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js
 import {resolveRawInputPaths} from './path/inputPath.js';
 import {loadModules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
-import {printPath} from './path/paths.js';
+import {print_path} from './path/paths.js';
 import {loadConfig} from './config/config.js';
 import {buildSource} from './build/buildSource.js';
 import {logErrorReasons} from './task/logTask.js';
@@ -96,9 +96,9 @@ export const task: Task<Args> = {
 					hasUnexpectedChanges = true;
 					log.error(
 						red(
-							`Generated file ${printPath(result.file.id)} via ${printPath(result.file.originId)} ${
-								result.isNew ? 'is new' : 'has changed'
-							}.`,
+							`Generated file ${print_path(result.file.id)} via ${print_path(
+								result.file.originId,
+							)} ${result.isNew ? 'is new' : 'has changed'}.`,
 						),
 					);
 				}
@@ -118,7 +118,7 @@ export const task: Task<Args> = {
 				genResults.successes
 					.map((result) =>
 						result.files.map((file) => {
-							log.info('writing', printPath(file.id), 'generated from', printPath(file.originId));
+							log.info('writing', print_path(file.id), 'generated from', print_path(file.originId));
 							return fs.writeFile(file.id, file.content);
 						}),
 					)
@@ -131,7 +131,7 @@ export const task: Task<Args> = {
 		for (const result of genResults.results) {
 			logResult += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
-			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${printPath(result.id)}`;
+			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
 		}
 		log.info(logResult);
 		log.info(

@@ -6,7 +6,7 @@ import {z} from 'zod';
 import {execSync} from 'node:child_process';
 
 import type {Task} from './task/task.js';
-import {GIT_DIRNAME, paths, printPath, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
+import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
 import {cleanFs} from './fs/clean.js';
 import {toRawRestArgs} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
@@ -209,7 +209,7 @@ export const task: Task<Args> = {
 
 		// At this point, `dist/` is ready to be committed and deployed!
 		if (dry) {
-			log.info(green('dry deploy complete:'), 'files are available in', printPath(dir));
+			log.info(green('dry deploy complete:'), 'files are available in', print_path(dir));
 			return;
 		}
 

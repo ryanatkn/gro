@@ -1,7 +1,7 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {dirname, resolve} from 'node:path';
-import {stripTrailingSlash} from '@feltjs/util/path.js';
+import {stripEnd} from '@feltjs/util/string.js';
 import {toPathParts} from '@feltjs/util/path-parsing.js';
 
 import {fs as memoryFs, type MemoryFs} from './memory.js';
@@ -333,7 +333,7 @@ test__ensureDir('normalize paths', async ({fs}) => {
 
 		const endsWithSlash = path.endsWith('/');
 		// TODO maybe add a `stripLast` instead of this
-		const testPath2 = endsWithSlash ? stripTrailingSlash(path) : `${path}/`;
+		const testPath2 = endsWithSlash ? stripEnd(path, '/') : `${path}/`;
 		await testNormalizePaths(endsWithSlash ? path : testPath2, endsWithSlash ? testPath2 : path);
 	}
 });

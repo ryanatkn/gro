@@ -12,10 +12,10 @@ import {
 	paths,
 	gro_paths,
 	replaceRootDir,
-	isGroId,
+	is_gro_id,
 	is_this_project_gro,
-	printPath,
-	printPathOrGroPath,
+	print_path,
+	print_path_or_gro_path,
 } from '../path/paths.js';
 import {findModules, loadModules} from '../fs/modules.js';
 import {findTaskModules, load_task_module} from './taskModule.js';
@@ -120,14 +120,14 @@ export const invokeTask = async (
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				await logAvailableTasks(
 					log,
-					printPath(pathData.id),
+					print_path(pathData.id),
 					findModulesResult.source_idsByInputPath,
 				);
-			} else if (isGroId(pathData.id)) {
+			} else if (is_gro_id(pathData.id)) {
 				// Does the Gro directory contain the matching files? Log them.
 				await logAvailableTasks(
 					log,
-					printPathOrGroPath(pathData.id),
+					print_path_or_gro_path(pathData.id),
 					findModulesResult.source_idsByInputPath,
 				);
 			} else {
@@ -147,14 +147,14 @@ export const invokeTask = async (
 					// First log the Gro matches.
 					await logAvailableTasks(
 						log,
-						printPathOrGroPath(groPathData.id),
+						print_path_or_gro_path(groPathData.id),
 						groDirFindModulesResult.source_idsByInputPath,
 					);
 				}
 				// Then log the current working directory matches.
 				await logAvailableTasks(
 					log,
-					printPath(pathData.id),
+					print_path(pathData.id),
 					findModulesResult.source_idsByInputPath,
 					!groDirFindModulesResult.ok,
 				);
@@ -165,7 +165,7 @@ export const invokeTask = async (
 		if (
 			is_this_project_gro ||
 			// this is null safe because of the failure type
-			isGroId(findModulesResult.source_idPathDataByInputPath.get(inputPath)!.id)
+			is_gro_id(findModulesResult.source_idPathDataByInputPath.get(inputPath)!.id)
 		) {
 			// If the directory is inside Gro, just log the errors.
 			logErrorReasons(log, findModulesResult.reasons);
@@ -184,7 +184,7 @@ export const invokeTask = async (
 				// Log the Gro matches.
 				await logAvailableTasks(
 					log,
-					printPathOrGroPath(groPathData.id),
+					print_path_or_gro_path(groPathData.id),
 					groDirFindModulesResult.source_idsByInputPath,
 				);
 			} else {

@@ -6,7 +6,7 @@ import {printError} from '@feltjs/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../path/inputPath.js';
 import type {PathStats, PathData} from '../path/pathData.js';
-import {pathsFromId, printPath, printPathOrGroPath, type SourceId} from '../path/paths.js';
+import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
 import type {Filesystem} from './filesystem.js';
 
 /*
@@ -118,9 +118,9 @@ export const findModules = async (
 			unmappedInputPaths,
 			reasons: unmappedInputPaths.map((inputPath) =>
 				red(
-					`Input path ${printPathOrGroPath(
+					`Input path ${print_path_or_gro_path(
 						inputPath,
-						pathsFromId(inputPath),
+						paths_from_id(inputPath),
 					)} cannot be mapped to a file or directory.`,
 				),
 			),
@@ -145,9 +145,9 @@ export const findModules = async (
 				inputDirectoriesWithNoFiles,
 				reasons: inputDirectoriesWithNoFiles.map((inputPath) =>
 					red(
-						`Input directory ${printPathOrGroPath(
+						`Input directory ${print_path_or_gro_path(
 							source_idPathDataByInputPath.get(inputPath)!.id,
-							pathsFromId(inputPath),
+							paths_from_id(inputPath),
 						)} contains no matching files.`,
 					),
 				),
@@ -185,9 +185,9 @@ export const loadModules = async <
 				switch (result.type) {
 					case 'importFailed': {
 						reasons.push(
-							`Module import ${printPath(id, pathsFromId(id))} failed from input ${printPath(
+							`Module import ${print_path(id, paths_from_id(id))} failed from input ${print_path(
 								inputPath,
-								pathsFromId(inputPath),
+								paths_from_id(inputPath),
 							)}: ${printError(result.error)}`,
 						);
 						break;
@@ -195,7 +195,9 @@ export const loadModules = async <
 					case 'invalid': {
 						// TODO BLOCK try to make this a good error message for the task case
 						reasons.push(
-							`Module ${printPath(id, pathsFromId(id))} failed validation '${result.validation}'.`,
+							`Module ${print_path(id, paths_from_id(id))} failed validation '${
+								result.validation
+							}'.`,
 						);
 						break;
 					}

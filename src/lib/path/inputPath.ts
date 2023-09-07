@@ -4,7 +4,7 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {
 	basePathToSourceId,
 	replaceRootDir,
-	groDirBasename,
+	gro_dir_basename,
 	gro_paths,
 	type Paths,
 	LIB_DIR,
@@ -40,10 +40,10 @@ export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): st
 	let paths = fromPaths;
 	if (!paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-		if (basePath.startsWith(groDirBasename)) {
+		if (basePath.startsWith(gro_dir_basename)) {
 			paths = gro_paths;
-			basePath = stripStart(basePath, groDirBasename);
-		} else if (basePath + '/' === groDirBasename) {
+			basePath = stripStart(basePath, gro_dir_basename);
+		} else if (basePath + '/' === gro_dir_basename) {
 			paths = gro_paths;
 			basePath = '';
 		}

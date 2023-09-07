@@ -1,4 +1,4 @@
-import {stripTrailingSlash} from '@feltjs/util/path.js';
+import {stripEnd} from '@feltjs/util/string.js';
 
 import type {Adapter} from './adapt.js';
 import {type HostTarget, copyDist, ensureNojekyll} from './helpers.js';
@@ -16,7 +16,7 @@ export const createAdapter = ({
 	dir = `${DIST_DIRNAME}/${buildName}`,
 	hostTarget = 'static',
 }: Options): Adapter => {
-	const outputDir = stripTrailingSlash(dir);
+	const outputDir = stripEnd(dir, '/');
 	return {
 		name: 'gro-adapter-generic-build',
 		adapt: async ({config, fs, dev, log}) => {

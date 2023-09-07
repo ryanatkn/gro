@@ -9,7 +9,7 @@ import {
 	SVELTEKIT_BUILD_DIRNAME,
 	toBuildOutDir,
 	SVELTEKIT_VITE_CACHE_PATH,
-	printPath,
+	print_path,
 } from '../path/paths.js';
 import type {Filesystem} from './filesystem.js';
 
@@ -59,7 +59,7 @@ export const cleanFs = async (
 
 export const removeDir = async (fs: Filesystem, path: string, log: SystemLogger): Promise<void> => {
 	if (await fs.exists(path)) {
-		log.info('removing', printPath(path));
+		log.info('removing', print_path(path));
 		await fs.remove(path);
 	}
 };

@@ -1,11 +1,10 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {replaceExtension} from '@feltjs/util/path.js';
 
 import {Filer} from './Filer.js';
 import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
 import type {BuildConfig} from './buildConfig.js';
-import {createPaths, JS_EXTENSION} from '../path/paths.js';
+import {createPaths, JS_EXTENSION, replace_extension} from '../path/paths.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 
 interface SuiteContext {
@@ -30,12 +29,12 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	const dep2Id = paths.source + dep2Filename;
 	await fs.writeFile(
 		entryId,
-		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}'; export {a};`,
+		`import {a} from './${replace_extension(dep1Filename, JS_EXTENSION)}'; export {a};`,
 		'utf8',
 	);
 	await fs.writeFile(
 		dep1Id,
-		`import {a} from './${replaceExtension(dep2Filename, JS_EXTENSION)}'; export {a};`,
+		`import {a} from './${replace_extension(dep2Filename, JS_EXTENSION)}'; export {a};`,
 		'utf8',
 	);
 	await fs.writeFile(dep2Id, 'export const a: number = 5;', 'utf8');
@@ -204,20 +203,20 @@ test__Filer('multiple build configs', async ({fs}) => {
 	const dep3Id = paths.source + dep3Filename;
 	await fs.writeFile(
 		entry1Id,
-		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}';
+		`import {a} from './${replace_extension(dep1Filename, JS_EXTENSION)}';
 		export {a};`,
 		'utf8',
 	);
 	await fs.writeFile(
 		entry2Id,
-		`import {a} from './${replaceExtension(dep1Filename, JS_EXTENSION)}';
-		import {b} from './${replaceExtension(dep3Filename, JS_EXTENSION)}';
+		`import {a} from './${replace_extension(dep1Filename, JS_EXTENSION)}';
+		import {b} from './${replace_extension(dep3Filename, JS_EXTENSION)}';
 		export {a, b};`,
 		'utf8',
 	);
 	await fs.writeFile(
 		dep1Id,
-		`import {a} from './${replaceExtension(dep2Filename, JS_EXTENSION)}';
+		`import {a} from './${replace_extension(dep2Filename, JS_EXTENSION)}';
 		export {a};`,
 		'utf8',
 	);

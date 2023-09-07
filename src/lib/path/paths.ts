@@ -1,7 +1,6 @@
-import {join, basename} from 'node:path';
+import {join, basename, extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {replaceExtension, stripTrailingSlash} from '@feltjs/util/path.js';
-import {stripStart} from '@feltjs/util/string.js';
+import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {gray} from 'kleur/colors';
 import type {Flavored} from '@feltjs/util/types.js';
 
@@ -70,7 +69,7 @@ export type SourceId = Flavored<string, 'SourceId'>;
 export type BuildId = Flavored<string, 'BuildId'>;
 
 export const createPaths = (rootDir: string): Paths => {
-	const root = stripTrailingSlash(rootDir) + '/';
+	const root = stripEnd(rootDir, '/') + '/';
 	console.log(`rootDir`, rootDir);
 	return {
 		root,
@@ -82,8 +81,8 @@ export const createPaths = (rootDir: string): Paths => {
 	};
 };
 
-export const pathsFromId = (id: string): Paths => (isGroId(id) ? gro_paths : paths);
-export const isGroId = (id: string): boolean => id.startsWith(gro_paths.root);
+export const paths_from_id = (id: string): Paths => (is_gro_id(id) ? gro_paths : paths);
+export const is_gro_id = (id: string): boolean => id.startsWith(gro_paths.root);
 
 // '/home/me/app/src/foo/bar/baz.ts' → 'src/foo/bar/baz.ts'
 export const toRootPath = (id: string, p = paths): string => stripStart(id, p.root);
@@ -104,12 +103,10 @@ export const build_id_to_source_id = (
 };
 
 // 'foo/bar/baz.ts' → '/home/me/app/src/foo/bar/baz.ts'
-export const basePathToSourceId = (basePath: string, p = paths): SourceId =>
-	`${p.source}${basePath}`;
+export const basePathToSourceId = (basePath: string, p = paths): SourceId => p.source + basePath;
 
-// TODO the `stripTrailingSlash` is a hack
 export const toBuildOutDir = (dev: boolean, buildDir = paths.build): string =>
-	`${stripTrailingSlash(buildDir)}/${toBuildOutDirname(dev)}`;
+	stripEnd(buildDir, '/') + '/' + toBuildOutDirname(dev);
 export const toBuildOutDirname = (dev: boolean): BuildOutDirname =>
 	dev ? BUILD_DIRNAME_DEV : BUILD_DIRNAME_PROD;
 export const BUILD_DIRNAME_DEV = 'dev';
@@ -157,7 +154,7 @@ export const replaceRootDir = (id: string, rootDir: string, p = paths): string =
 // Or maybe just follow the lead of Rollup/esbuild?
 export const toBuildExtension = (source_id: SourceId): string =>
 	source_id.endsWith(TS_EXTENSION)
-		? replaceExtension(source_id, JS_EXTENSION)
+		? replace_extension(source_id, JS_EXTENSION)
 		: source_id.endsWith(JSON_EXTENSION)
 		? source_id + JS_EXTENSION
 		: source_id;
@@ -167,7 +164,7 @@ export const toBuildExtension = (source_id: SourceId): string =>
 export const toSourceExtension = (build_id: BuildId): string => {
 	const len = build_id.length;
 	let i = len;
-	let extensionCount = 1;
+	let extension_count = 1;
 	let char: string | undefined;
 	let extension1: string | null = null;
 	let extension2: string | null = null;
@@ -177,13 +174,13 @@ export const toSourceExtension = (build_id: BuildId): string => {
 		char = build_id[i];
 		if (char === '/') break;
 		if (char === '.') {
-			const currentExtension = build_id.substring(i);
-			if (extensionCount === 1) {
-				extension1 = currentExtension;
-				extensionCount = 2;
-			} else if (extensionCount === 2) {
-				extension2 = currentExtension;
-				extensionCount = 3;
+			const current_extension = build_id.substring(i);
+			if (extension_count === 1) {
+				extension1 = current_extension;
+				extension_count = 2;
+			} else if (extension_count === 2) {
+				extension2 = current_extension;
+				extension_count = 3;
 			} else {
 				// don't handle any more extensions
 				break;
@@ -209,32 +206,37 @@ export const toSourceExtension = (build_id: BuildId): string => {
 	return build_id;
 };
 
-const groImportDir = join(fileURLToPath(import.meta.url), '../../../');
-console.log(`groImportDir`, groImportDir);
+const gro_import_dir = join(fileURLToPath(import.meta.url), '../../../');
+console.log(`gro_import_dir`, gro_import_dir);
 const groDir = join(
-	groImportDir,
-	join(groImportDir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
+	gro_import_dir,
+	join(gro_import_dir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
 );
 console.log(`groDir`, groDir);
-export const groDirBasename = `${basename(groDir)}/`;
+export const gro_dir_basename = `${basename(groDir)}/`;
 export const paths = createPaths(`${process.cwd()}/`);
 export const is_this_project_gro = groDir === paths.root;
 console.log(`is_this_project_gro`, is_this_project_gro, groDir, paths.root);
 export const gro_paths = is_this_project_gro ? paths : createPaths(groDir);
 console.log(`{.......................}`, {
-	groImportDir,
+	gro_import_dir,
 	groDir,
-	groDirBasename,
+	gro_dir_basename,
 	is_this_project_gro,
 });
 
-export const printPath = (path: string, p = paths, prefix = './'): string =>
+export const print_path = (path: string, p = paths, prefix = './'): string =>
 	gray(`${prefix}${toRootPath(path, p)}`);
 
-export const printPathOrGroPath = (path: string, fromPaths = paths): string => {
-	const inferredPaths = pathsFromId(path);
+export const print_path_or_gro_path = (path: string, fromPaths = paths): string => {
+	const inferredPaths = paths_from_id(path);
 	if (fromPaths === gro_paths || inferredPaths === fromPaths) {
-		return printPath(path, inferredPaths, '');
+		return print_path(path, inferredPaths, '');
 	}
-	return gray(groDirBasename) + printPath(path, gro_paths, '');
+	return gray(gro_dir_basename) + print_path(path, gro_paths, '');
+};
+
+export const replace_extension = (path: string, new_extension: string): string => {
+	const {length} = extname(path);
+	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
 };

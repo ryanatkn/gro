@@ -21,7 +21,7 @@ import {
 	type RawGenResult,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {printPath, source_id_to_base_path} from '../path/paths.js';
+import {print_path, source_id_to_base_path} from '../path/paths.js';
 import {genSchemas, toSchemasFromModules} from './genSchemas.js';
 import {toJsonSchemaResolver} from '../util/schema.js';
 
@@ -67,7 +67,7 @@ export const runGen = async (
 					ok: false,
 					id,
 					error: err,
-					reason: red(`Error generating ${printPath(id)}`),
+					reason: red(`Error generating ${print_path(id)}`),
 					elapsed: timingForModule(),
 				};
 			}
@@ -84,7 +84,7 @@ export const runGen = async (
 								return {...file, content: await formatFile(fs, file.id, file.content)};
 							} catch (err) {
 								log.error(
-									red(`Error formatting ${printPath(file.id)} via ${printPath(id)}`),
+									red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
 									printError(err),
 								);
 								return file;

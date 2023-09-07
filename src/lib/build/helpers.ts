@@ -1,6 +1,5 @@
 import {createHash} from 'crypto';
 import type {Result} from '@feltjs/util/result.js';
-import {replaceExtension} from '@feltjs/util/path.js';
 
 import type {BuildConfigInput} from './buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -10,6 +9,7 @@ import {
 	JS_EXTENSION,
 	TS_EXTENSION,
 	type SourceId,
+	replace_extension,
 } from '../path/paths.js';
 import type {BuildDependency} from './buildDependency.js';
 
@@ -42,7 +42,7 @@ export const mapDependencyToSourceId: MapDependencyToSourceId = async (
 	const source_id = build_id_to_source_id(dependency.build_id, buildDir, paths);
 	// TODO hacky -- see comments above
 	if ((await fs.exists(source_id)) || !source_id.endsWith(TS_EXTENSION)) return source_id;
-	const hackyOtherPossibleSourceId = replaceExtension(source_id, JS_EXTENSION);
+	const hackyOtherPossibleSourceId = replace_extension(source_id, JS_EXTENSION);
 	return (await fs.exists(hackyOtherPossibleSourceId)) ? hackyOtherPossibleSourceId : source_id;
 };
 
