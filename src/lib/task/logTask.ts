@@ -58,7 +58,7 @@ export const logTaskHelp = (log: Logger, meta: TaskModuleMeta): void => {
 		mod: {task},
 	} = meta;
 	const printed: string[] = [];
-	printed.push(cyan(name), 'help', '\n' + task.summary || '(no summary available)');
+	printed.push(cyan(name), 'help', `\n${name}: ${task.summary || '(no summary available)'}`);
 	if (task.Args) {
 		const properties = toArgProperties(task.Args._def, meta);
 		const longestTaskName = Math.max(
