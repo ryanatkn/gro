@@ -39,7 +39,7 @@ export const task: Task<Args> = {
 		const timeToRunUvu = timings.start('run tests with uvu');
 
 		// uvu doesn't work with esm loaders and TypeScript files,
-		// so we use its `parse` and `run` APIs directly instead of its CLI
+		// so we use its `parse` and `run` APIs directly instead of its CLI.
 		// To avoid surprises, we allow any number of patterns in the rest args,
 		// so we call `parse` multiple times because it supports only one.
 		const suites = [];
