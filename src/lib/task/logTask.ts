@@ -125,7 +125,9 @@ const toArgsSchemaType = ({_def}: ZodTypeAny): ArgSchema['type'] => {
 		case ZodFirstPartyTypeKind.ZodNumber:
 			return 'number';
 		case ZodFirstPartyTypeKind.ZodArray:
-			return 'array';
+			return 'string[]'; // TODO support arrays of arbitrary types, or more hardcoded ones as needed
+		case ZodFirstPartyTypeKind.ZodUnion:
+			return 'string | string[]'; // TODO support unions of arbitrary types, or more hardcoded ones as needed
 		default: {
 			if ('innerType' in _def) {
 				return toArgsSchemaType(_def.innerType);
