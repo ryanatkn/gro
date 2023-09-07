@@ -29,7 +29,6 @@ export const task: Task<Args> = {
 	Args,
 	run: async ({fs, log, args}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
-		console.log(`ignore`, ignore);
 
 		if (!(await findCli(fs, 'uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
@@ -41,8 +40,14 @@ export const task: Task<Args> = {
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `parse` and `run` APIs directly instead of its CLI
-		const parsed = await parse(paths.source, patterns[0], {cwd, ignore});
-		await run(parsed.suites, {bail});
+		// To avoid surprises, we allow any number of patterns in the rest args,
+		// so we call `parse` multiple times because it supports only one.
+		const suites = [];
+		for (const pattern of patterns) {
+			const parsed = await parse(paths.source, pattern, {cwd, ignore}); // eslint-disable-line no-await-in-loop
+			suites.push(...parsed.suites);
+		}
+		await run(suites, {bail});
 
 		timeToRunUvu();
 

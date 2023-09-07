@@ -24,7 +24,7 @@ test__createPaths('basic behavior', () => {
 	const root = resolve('../fake');
 	const p = createPaths(root);
 	assert.is(p.root, join(root, sep));
-	assert.is(p.source, join(root, 'src/'));
+	assert.is(p.source, join(root, 'src/2'));
 });
 
 test__createPaths('paths object has the same identity as the gro_paths object', () => {
