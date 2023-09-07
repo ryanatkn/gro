@@ -27,6 +27,10 @@ const load_sveltekit_config = async (): Promise<Config | null> => {
 };
 
 const config = await load_sveltekit_config(); // was lazy-loaded, but can't be imported during `resolve`, fails silently
+const alias = config?.kit?.alias;
+const public_prefix = config?.kit?.env?.publicPrefix;
+const private_prefix = config?.kit?.env?.privatePrefix;
+const env_dir = config?.kit?.env?.dir;
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
@@ -56,9 +60,6 @@ export const load = async (
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
 		const visibility: 'public' | 'private' = matched_env[2] as any;
-		const public_prefix = config?.kit?.env?.publicPrefix;
-		const private_prefix = config?.kit?.env?.privatePrefix;
-		const env_dir = config?.kit?.env?.dir;
 		return {
 			format: 'module',
 			shortCircuit: true,
@@ -68,7 +69,7 @@ export const load = async (
 		// const path = fileURLToPath(url);
 		// const dir = dirname(path) + '/';
 		const loaded = await nextLoad(url, {...context, format: 'module'});
-		// TODO BLOCK maybe do path mapping in a plugin here instead of the resolve hook?
+		// TODO maybe do path mapping in an esbuild plugin here instead of the resolve hook?
 		const transformed = transformSync(loaded.source.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	}
@@ -82,12 +83,8 @@ export const resolve = async (
 	context: ResolveContext,
 	nextResolve: NextResolve,
 ): Promise<ResolveReturn> => {
-	// handle $lib imports relative to the parent
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
 	if (!parent_path) return nextResolve(specifier, context);
-
-	const external = specifier[0] !== '.' && specifier[0] !== '$'; // TODO BLOCK scan for $lib, $routes, and the other config
-	if (external) return nextResolve(specifier, context);
 
 	console.log(`specifier`, specifier, parent_path);
 
@@ -108,7 +105,6 @@ export const resolve = async (
 		path = dir + '/src/' + path.substring(1);
 	}
 
-	const alias = config?.kit?.alias;
 	if (alias) {
 		for (const [from, to] of Object.entries(alias)) {
 			if (path.startsWith(from)) {
@@ -119,31 +115,31 @@ export const resolve = async (
 
 	const relative = path[0] === '.';
 	const absolute = path[0] === '/';
-	if (!relative && !absolute) throw Error('UNEXPECTED path: ' + path); // TODO BLOCK
+	if (!relative && !absolute) {
+		return nextResolve(specifier, context);
+	}
 
-	if (relative || absolute) {
-		if (path.endsWith('.js')) {
-			const js_path = relative ? join(parent_path, '../', path) : path;
-			// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
-			// await import.meta.resolve(path);
-			if (existsSync(js_path)) {
-				path = js_path;
-			} else {
-				const ts_path = js_path.slice(0, -3) + '.ts';
-				if (existsSync(ts_path)) {
-					path = ts_path;
-				}
-			}
+	if (path.endsWith('.js')) {
+		const js_path = relative ? join(parent_path, '../', path) : path;
+		// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
+		// await import.meta.resolve(path);
+		if (existsSync(js_path)) {
+			path = js_path;
 		} else {
-			// TODO BLOCK refactor with the above
-			const js_path = (relative ? join(parent_path, '../', path) : path) + '.js';
-			if (existsSync(js_path)) {
-				path = js_path;
-			} else {
-				const ts_path = js_path.slice(0, -3) + '.ts';
-				if (existsSync(ts_path)) {
-					path = ts_path;
-				}
+			const ts_path = js_path.slice(0, -3) + '.ts';
+			if (existsSync(ts_path)) {
+				path = ts_path;
+			}
+		}
+	} else {
+		// TODO BLOCK refactor with the above
+		const js_path = (relative ? join(parent_path, '../', path) : path) + '.js';
+		if (existsSync(js_path)) {
+			path = js_path;
+		} else {
+			const ts_path = js_path.slice(0, -3) + '.ts';
+			if (existsSync(ts_path)) {
+				path = ts_path;
 			}
 		}
 	}
