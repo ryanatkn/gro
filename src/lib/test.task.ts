@@ -5,7 +5,7 @@ import {z} from 'zod';
 import {run} from 'uvu/run';
 import {parse} from 'uvu/parse';
 
-import type {Task} from './task/task.js';
+import {TaskError, type Task} from './task/task.js';
 import {paths} from './path/paths.js';
 import {findCli} from './util/cli.js';
 
@@ -53,9 +53,8 @@ export const task: Task<Args> = {
 
 		printTimings(timings, log);
 
-		// TODO BLOCK how to detect?
-		// if (!testRunResult?.ok) {
-		// 	throw new TaskError('Tests failed.');
-		// }
+		if (process.exitCode) {
+			throw new TaskError('Tests failed.');
+		}
 	},
 };
