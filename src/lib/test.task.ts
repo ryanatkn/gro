@@ -11,7 +11,7 @@ import {findCli} from './util/cli.js';
 
 export const Args = z
 	.object({
-		_: z.array(z.string(), {description: 'file patterns to test'}).default([`\\.test\\.ts`]), // TODO maybe use uvu's default instead of being restrictive?
+		_: z.array(z.string(), {description: 'file patterns to test'}).default([`\\.test\\.ts$`]), // TODO maybe use uvu's default instead of being restrictive?
 		bail: z
 			.boolean({description: 'the bail option to uvu run, exit immediately on failure'})
 			.default(false),
