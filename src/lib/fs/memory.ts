@@ -12,10 +12,10 @@ import {
 	type FsId,
 	type FsMoveOptions,
 	type FsNode,
+	type Encoding,
 } from './filesystem.js';
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from './filter.js';
-import type {Encoding} from './encoding.js';
 
 // TODO should this module have a more specific name? or a more specific directory, with all other implementations?
 
@@ -69,7 +69,7 @@ export class MemoryFs implements Filesystem {
 				isDirectory,
 				encoding: null,
 				content: null,
-				// contentBuffer: null,
+				// content_buffer: null,
 				stats,
 			});
 		}
@@ -124,7 +124,7 @@ export class MemoryFs implements Filesystem {
 			isDirectory: false,
 			encoding,
 			content: data,
-			// contentBuffer: data, // TODO lazily load this?
+			// content_buffer: data, // TODO lazily load this?
 			stats,
 		});
 	};
@@ -189,7 +189,7 @@ export class MemoryFs implements Filesystem {
 			isDirectory,
 			encoding: null,
 			content: null,
-			// contentBuffer: null,
+			// content_buffer: null,
 			stats,
 		});
 	};

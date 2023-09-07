@@ -44,9 +44,6 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 
 		const sourcemap = ctx.sourcemap && !source.virtual;
 
-		if (source.encoding !== 'utf8') {
-			throw Error(`esbuild only handles utf8 encoding, not ${source.encoding}`);
-		}
 		if (source.extension !== TS_EXTENSION && source.extension !== JS_EXTENSION) {
 			throw Error(`esbuild cannot handled file with extension ${source.extension}`);
 		}
@@ -70,14 +67,12 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 				filename: jsFilename,
 				dir: outDir,
 				extension: JS_EXTENSION,
-				encoding: source.encoding,
 				content: output.map
 					? addJsSourcemapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
-				contentBuffer: undefined,
-				contentHash: undefined,
+				content_buffer: undefined,
+				content_hash: undefined,
 				stats: undefined,
-				mimeType: undefined,
 			},
 		];
 		if (output.map) {
@@ -90,12 +85,10 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 				filename: jsFilename + SOURCEMAP_EXTENSION,
 				dir: outDir,
 				extension: SOURCEMAP_EXTENSION,
-				encoding: source.encoding,
 				content: output.map,
-				contentBuffer: undefined,
-				contentHash: undefined,
+				content_buffer: undefined,
+				content_hash: undefined,
 				stats: undefined,
-				mimeType: undefined,
 			});
 		}
 

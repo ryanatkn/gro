@@ -8,7 +8,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 // Filer dirs are watched, built, and written to disk.
 export interface FilerDir {
 	readonly dir: string;
-	readonly onChange: FilerDirChangeCallback;
+	readonly on_change: FilerDirChangeCallback;
 	readonly init: () => Promise<void>;
 	readonly close: () => void;
 	readonly watcher: WatchNodeFs | null;
@@ -20,12 +20,12 @@ export interface FilerDirChange {
 	stats: PathStats;
 }
 export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
-export type FilerDirChangeCallback = (change: FilerDirChange, filerDir: FilerDir) => Promise<void>;
+export type FilerDirChangeCallback = (change: FilerDirChange, filer_dir: FilerDir) => Promise<void>;
 
-export const create_filerDir = (
+export const create_filer_dir = (
 	fs: Filesystem,
 	dir: string,
-	onChange: FilerDirChangeCallback,
+	on_change: FilerDirChangeCallback,
 	watch: boolean,
 	filter: PathFilter | undefined,
 ): FilerDir => {
@@ -36,7 +36,7 @@ export const create_filerDir = (
 		// TODO abstract this from the Node filesystem
 		watcher = watchNodeFs({
 			dir,
-			onChange: (change) => onChange(change, filerDir),
+			on_change: (change) => on_change(change, filer_dir),
 			filter,
 		});
 		close = async () => {
@@ -47,13 +47,13 @@ export const create_filerDir = (
 	const init = async () => {
 		await fs.ensureDir(dir);
 		if (watcher) await watcher.init();
-		const statsBySourcePath = await fs.findFiles(dir, filter);
+		const stats_by_source_path = await fs.findFiles(dir, filter);
 		await Promise.all(
-			Array.from(statsBySourcePath.entries()).map(([path, stats]) =>
-				onChange({type: 'init', path, stats}, filerDir),
+			Array.from(stats_by_source_path.entries()).map(([path, stats]) =>
+				on_change({type: 'init', path, stats}, filer_dir),
 			),
 		);
 	};
-	const filerDir: FilerDir = {dir, onChange, init, close, watcher};
-	return filerDir;
+	const filer_dir: FilerDir = {dir, on_change, init, close, watcher};
+	return filer_dir;
 };

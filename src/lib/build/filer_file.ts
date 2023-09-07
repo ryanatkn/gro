@@ -1,6 +1,5 @@
 import type {Filesystem} from '../fs/filesystem.js';
 import type {PathStats} from '../path/path_data.js';
-import type {Encoding} from '../fs/encoding.js';
 import {toHash} from './helpers.js';
 import type {SourceFile} from './sourceFile.js';
 import type {BuildFile} from './buildFile.js';
@@ -17,19 +16,17 @@ export interface BaseFilerFile {
 	readonly filename: string;
 	readonly dir: string;
 	readonly extension: string;
-	readonly encoding: Encoding;
-	readonly content: string | Buffer;
+	readonly content: string;
 	readonly type: string;
-	contentBuffer: Buffer | undefined; // `undefined` and mutable for lazy loading
-	contentHash: string | undefined; // `undefined` and mutable for lazy loading
+	content_buffer: Buffer | undefined; // `undefined` and mutable for lazy loading
+	content_hash: string | undefined; // `undefined` and mutable for lazy loading
 	stats: PathStats | undefined; // `undefined` and mutable for lazy loading
-	mimeType: string | null | undefined; // `null` means unknown, `undefined` and mutable for lazy loading
 }
 
-export const getFileContentBuffer = (file: BaseFilerFile): Buffer =>
-	file.contentBuffer !== undefined
-		? file.contentBuffer
-		: (file.contentBuffer = Buffer.from(file.content));
+export const get_file_content_buffer = (file: BaseFilerFile): Buffer =>
+	file.content_buffer !== undefined
+		? file.content_buffer
+		: (file.content_buffer = Buffer.from(file.content));
 
 // PathStats are currently lazily loaded. Should they be?
 export const getFileStats = (
@@ -43,7 +40,7 @@ export const getFileStats = (
 				return stats;
 		  });
 
-export const getFileContentHash = (file: BaseFilerFile): string =>
-	file.contentHash !== undefined
-		? file.contentHash
-		: (file.contentHash = toHash(getFileContentBuffer(file)));
+export const get_file_content_hash = (file: BaseFilerFile): string =>
+	file.content_hash !== undefined
+		? file.content_hash
+		: (file.content_hash = toHash(get_file_content_buffer(file)));

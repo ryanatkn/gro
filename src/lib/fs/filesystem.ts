@@ -1,7 +1,6 @@
 import {resolve} from 'node:path';
 import type {Flavored} from '@feltjs/util/types.js';
 
-import type {Encoding} from './encoding.js';
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from './filter.js';
 
@@ -106,9 +105,7 @@ export interface BaseNode {
 	readonly isDirectory: boolean;
 	readonly encoding: Encoding;
 	readonly content: string | Buffer | null;
-	// readonly contentBuffer: Buffer | null;
 	readonly stats: PathStats;
-	// readonly path_data: PathData; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
 export interface BaseFileNode extends BaseNode {
 	readonly isDirectory: false;
@@ -121,10 +118,10 @@ export interface TextFileNode extends BaseFileNode {
 export interface BinaryFileNode extends BaseFileNode {
 	readonly encoding: null;
 	readonly content: Buffer;
-	// readonly contentBuffer: Buffer;
 }
 export interface DirectoryNode extends BaseNode {
 	readonly isDirectory: true;
 	readonly content: null;
-	// readonly contentBuffer: null;
 }
+
+export type Encoding = 'utf8' | null; // `null` means binary buffer

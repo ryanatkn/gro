@@ -13,13 +13,13 @@ export interface Options {
 export const gro_builder_default = (options: Options = {}): Builder => {
 	const {esbuildBuilderOptions, jsonBuilderOptions, simpleBuilderOptions} = options;
 	let finalSimpleBuilderOptions = simpleBuilderOptions;
-	if (!simpleBuilderOptions?.toBuilder) {
+	if (!simpleBuilderOptions?.to_builder) {
 		const esbuildBuilder = gro_builder_esbuild(esbuildBuilderOptions);
 		const jsonBuilder = gro_builder_json(jsonBuilderOptions);
 		const builders: Builder[] = [esbuildBuilder as Builder]; // TODO why the typecast?
 		finalSimpleBuilderOptions = {
 			...simpleBuilderOptions,
-			toBuilder: (source) => {
+			to_builder: (source) => {
 				switch (source.extension) {
 					case TS_EXTENSION:
 					case JS_EXTENSION:
@@ -30,7 +30,7 @@ export const gro_builder_default = (options: Options = {}): Builder => {
 						return null as any; // TODO why the typecast? see above too
 				}
 			},
-			toBuilders: () => builders,
+			to_builders: () => builders,
 		};
 	}
 

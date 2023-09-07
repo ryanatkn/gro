@@ -30,7 +30,7 @@ export interface WatcherChangeCallback {
 
 export interface Options {
 	dir: string;
-	onChange: WatcherChangeCallback;
+	on_change: WatcherChangeCallback;
 	filter?: PathFilter | null | undefined;
 }
 
@@ -38,7 +38,7 @@ const FILE_STATS = {isDirectory: () => false};
 const DIR_STATS = {isDirectory: () => true};
 
 export const watchNodeFs = (options: Options): WatchNodeFs => {
-	const {dir, onChange, filter = toDefaultFilter()} = options;
+	const {dir, on_change, filter = toDefaultFilter()} = options;
 	let watcher: chokidar.FSWatcher | undefined;
 
 	return {
@@ -48,25 +48,25 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 			watcher.on('add', (path, s) => {
 				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
-				onChange({type: 'create', path: toBasePath(path), stats});
+				on_change({type: 'create', path: toBasePath(path), stats});
 			});
 			watcher.on('addDir', (path, s) => {
 				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
-				onChange({type: 'create', path: toBasePath(path), stats});
+				on_change({type: 'create', path: toBasePath(path), stats});
 			});
 			watcher.on('change', (path, s) => {
 				const stats = s || statSync(path);
 				if (filter && !filter(path, stats)) return;
-				onChange({type: 'update', path: toBasePath(path), stats});
+				on_change({type: 'update', path: toBasePath(path), stats});
 			});
 			watcher.on('unlink', (path) => {
 				if (filter && !filter(path, FILE_STATS)) return;
-				onChange({type: 'delete', path: toBasePath(path), stats: FILE_STATS});
+				on_change({type: 'delete', path: toBasePath(path), stats: FILE_STATS});
 			});
 			watcher.on('unlinkDir', (path) => {
 				if (filter && !filter(path, DIR_STATS)) return;
-				onChange({type: 'delete', path: toBasePath(path), stats: DIR_STATS});
+				on_change({type: 'delete', path: toBasePath(path), stats: DIR_STATS});
 			});
 		},
 		close: async () => {

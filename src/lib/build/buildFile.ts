@@ -1,23 +1,14 @@
-import {UnreachableError} from '@feltjs/util/error.js';
-
-import type {BaseFilerFile} from './filerFile.js';
+import type {BaseFilerFile} from './filer_file.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import {basename, dirname, extname} from 'node:path';
-import {loadContent} from './load.js';
 import type {BuildConfig} from './build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
-export type BuildFile = TextBuildFile | BinaryBuildFile;
+export type BuildFile = TextBuildFile;
 export interface TextBuildFile extends BaseBuildFile {
-	readonly encoding: 'utf8';
 	readonly content: string;
-}
-export interface BinaryBuildFile extends BaseBuildFile {
-	readonly encoding: null;
-	readonly content: Buffer;
-	readonly contentBuffer: Buffer;
 }
 export interface BaseBuildFile extends BaseFilerFile {
 	readonly id: BuildId;
@@ -31,7 +22,7 @@ export interface BaseBuildFile extends BaseFilerFile {
 	readonly dependencies: Map<BuildId, BuildDependency> | null;
 }
 
-export const reconstructBuildFiles = async (
+export const reconstruct_build_files = async (
 	fs: Filesystem,
 	sourceMeta: SourceMeta,
 	build_configs: readonly BuildConfig[],
@@ -39,11 +30,11 @@ export const reconstructBuildFiles = async (
 	const buildFiles: Map<BuildConfig, BuildFile[]> = new Map();
 	await Promise.all(
 		sourceMeta.data.builds.map(async (build): Promise<void> => {
-			const {id, buildName, dependencies, encoding} = build;
+			const {id, buildName, dependencies} = build;
 			const filename = basename(id);
 			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 			const extension = extname(id);
-			const content = await loadContent(fs, encoding, id);
+			const content = await fs.readFile(id, 'utf8');
 			const build_config = build_configs.find((b) => b.name === buildName)!; // is a bit awkward, but probably not inefficient enough to change
 			if (!build_config) {
 				// TODO wait no this build needs to be preserved somehow,
@@ -55,47 +46,20 @@ export const reconstructBuildFiles = async (
 				// We rely on this behavior to have the separate bootstrap config.
 				return;
 			}
-			let buildFile: BuildFile;
-			switch (encoding) {
-				case 'utf8':
-					buildFile = {
-						type: 'build',
-						source_id: sourceMeta.data.source_id,
-						build_config,
-						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
-						id,
-						filename,
-						dir,
-						extension,
-						encoding,
-						content: content as string,
-						contentBuffer: undefined,
-						contentHash: undefined,
-						stats: undefined,
-						mimeType: undefined,
-					};
-					break;
-				case null:
-					buildFile = {
-						type: 'build',
-						source_id: sourceMeta.data.source_id,
-						build_config,
-						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
-						id,
-						filename,
-						dir,
-						extension,
-						encoding,
-						content: content as Buffer,
-						contentBuffer: content as Buffer,
-						contentHash: undefined,
-						stats: undefined,
-						mimeType: undefined,
-					};
-					break;
-				default:
-					throw new UnreachableError(encoding);
-			}
+			const buildFile: BuildFile = {
+				type: 'build',
+				source_id: sourceMeta.data.source_id,
+				build_config,
+				dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
+				id,
+				filename,
+				dir,
+				extension,
+				content: content as string,
+				content_buffer: undefined,
+				content_hash: undefined,
+				stats: undefined,
+			};
 			addBuildFile(buildFile, buildFiles, build_config);
 		}),
 	);
@@ -120,7 +84,7 @@ const addBuildFile = (
 // Returns the dependency changes between two sets of build files.
 // Lazily instantiate the collections as a small optimization -
 // this function is expected to return `null` most of the time.
-export const diffDependencies = (
+export const diff_dependencies = (
 	newFiles: readonly BuildFile[],
 	oldFiles: readonly BuildFile[] | null,
 ): {

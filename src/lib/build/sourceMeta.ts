@@ -1,8 +1,7 @@
 import {gray} from 'kleur/colors';
 
-import type {Encoding} from '../fs/encoding.js';
 import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths.js';
-import {getFileContentHash} from './filerFile.js';
+import {get_file_content_hash} from './filer_file.js';
 import type {BuildContext} from './builder.js';
 import type {SourceFile} from './sourceFile.js';
 import type {BuildName} from './build_config.js';
@@ -21,28 +20,26 @@ export interface SourceMeta {
 }
 export interface SourceMetaData {
 	readonly source_id: SourceId;
-	readonly contentHash: string;
+	readonly content_hash: string;
 	readonly builds: SourceMetaBuild[];
 }
 export interface SourceMetaBuild {
 	readonly id: string;
 	readonly buildName: BuildName;
 	readonly dependencies: BuildDependency[] | null;
-	readonly encoding: Encoding;
 }
 
 // The optional properties in the following serialized types
 // are not `readonly` in order to simplify object creation.
 export interface SerializedSourceMetaData {
 	readonly source_id: SourceId;
-	readonly contentHash: string;
+	readonly content_hash: string;
 	readonly builds: SerializedSourceMetaBuild[];
 }
 export interface SerializedSourceMetaBuild {
 	readonly id: string;
 	readonly buildName: BuildName;
 	dependencies?: SerializedBuildDependency[] | null; // `undefined` implies `null`
-	encoding?: Encoding; // `undefined` implies `'utf8'`
 }
 
 const CACHED_SOURCE_INFO_DIR_SUFFIX = '_meta'; // so `/.gro/devMeta` is metadata for `/.gro/dev`
@@ -58,14 +55,13 @@ export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Pro
 	const cacheId = toSourceMetaCacheId(file, build_dir, dev);
 	const data: SourceMetaData = {
 		source_id: file.id,
-		contentHash: getFileContentHash(file),
+		content_hash: get_file_content_hash(file),
 		builds: Array.from(file.buildFiles.values()).flatMap((files) =>
 			files.map(
 				(file): SourceMetaBuild => ({
 					id: file.id,
 					buildName: file.build_config.name,
 					dependencies: file.dependencies && Array.from(file.dependencies.values()),
-					encoding: file.encoding,
 				}),
 			),
 		),
@@ -149,46 +145,40 @@ export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 // these are optimizations to write less data to disk
 export const deserializeSourceMeta = ({
 	source_id,
-	contentHash,
+	content_hash,
 	builds,
 }: SerializedSourceMetaData): SourceMetaData => ({
 	source_id,
-	contentHash,
+	content_hash,
 	builds: builds.map((b) => deserializeSourceMetaBuild(b)),
 });
 export const deserializeSourceMetaBuild = ({
 	id,
 	buildName,
 	dependencies,
-	encoding,
 }: SerializedSourceMetaBuild): SourceMetaBuild => ({
 	id,
 	buildName,
 	dependencies: dependencies ? dependencies.map((d) => deserialize_build_dependency(d)) : null,
-	encoding: encoding !== undefined ? encoding : 'utf8',
 });
 
 export const serializeSourceMeta = ({
 	source_id,
-	contentHash,
+	content_hash,
 	builds,
 }: SourceMetaData): SerializedSourceMetaData => ({
 	source_id,
-	contentHash,
+	content_hash,
 	builds: builds.map((b) => serializeSourceMetaBuild(b)),
 });
 export const serializeSourceMetaBuild = ({
 	id,
 	buildName,
 	dependencies,
-	encoding,
 }: SourceMetaBuild): SerializedSourceMetaBuild => {
 	const serialized: SerializedSourceMetaBuild = {id, buildName};
 	if (dependencies) {
 		serialized.dependencies = dependencies.map((d) => serialize_build_dependency(d));
-	}
-	if (encoding !== 'utf8') {
-		serialized.encoding = encoding;
 	}
 	return serialized;
 };

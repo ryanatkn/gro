@@ -1,35 +1,27 @@
 import {basename, dirname} from 'node:path';
-import {UnreachableError} from '@feltjs/util/error.js';
 import {stripStart} from '@feltjs/util/string.js';
 
-import type {FilerDir} from './filerDir.js';
-import {reconstructBuildFiles, type BuildFile} from './buildFile.js';
-import type {BaseFilerFile} from './filerFile.js';
+import type {FilerDir} from './filer_dir.js';
+import {reconstruct_build_files, type BuildFile} from './buildFile.js';
+import type {BaseFilerFile} from './filer_file.js';
 import {toHash} from './helpers.js';
 import type {BuildConfig} from './build_config.js';
-import type {Encoding} from '../fs/encoding.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {BuildContext} from './builder.js';
 import type {IdFilter} from '../fs/filter.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
-export type SourceFile = TextSourceFile | BinarySourceFile;
+export type SourceFile = TextSourceFile;
 
 export interface TextSourceFile extends BaseSourceFile {
-	readonly encoding: 'utf8';
 	content: string;
-}
-export interface BinarySourceFile extends BaseSourceFile {
-	readonly encoding: null;
-	content: Buffer;
-	contentBuffer: Buffer;
 }
 export interface BaseSourceFile extends BaseFilerFile {
 	readonly id: SourceId;
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `base_path` too?
-	readonly filerDir: FilerDir;
+	readonly filer_dir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly build_configs: Set<BuildConfig>;
 	readonly isInputToBuildConfigs: null | Set<BuildConfig>;
@@ -39,90 +31,55 @@ export interface BaseSourceFile extends BaseFilerFile {
 	dirty: boolean; // will be `true` for source files with hydrated files that need to rebuild (like detected changes since the filer last ran)
 }
 
-export const createSourceFile = async (
+export const create_source_file = async (
 	id: string,
-	encoding: Encoding,
 	extension: string,
-	content: string | Buffer,
-	filerDir: FilerDir,
+	content: string,
+	filer_dir: FilerDir,
 	sourceMeta: SourceMeta | undefined,
 	virtual: boolean,
 	{fs, build_configs}: BuildContext,
 ): Promise<SourceFile> => {
-	let contentBuffer: Buffer | undefined = encoding === null ? (content as Buffer) : undefined;
-	let contentHash: string | undefined;
+	let content_buffer: Buffer | undefined;
+	let content_hash: string | undefined;
 	let reconstructedBuildFiles: Map<BuildConfig, BuildFile[]> | null = null;
 	let dirty = false;
 	if (sourceMeta !== undefined) {
-		// TODO why the source meta guard here for `contentBuffer` and `contentHash`?
-		if (encoding === 'utf8') {
-			contentBuffer = Buffer.from(content);
-		} else if (encoding !== null) {
-			throw new UnreachableError(encoding);
-		}
-		contentHash = toHash(contentBuffer!);
+		content_buffer = Buffer.from(content);
+		content_hash = toHash(content_buffer);
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
-		dirty = contentHash !== sourceMeta.data.contentHash;
-		reconstructedBuildFiles = await reconstructBuildFiles(fs, sourceMeta, build_configs!);
+		dirty = content_hash !== sourceMeta.data.content_hash;
+		reconstructedBuildFiles = await reconstruct_build_files(fs, sourceMeta, build_configs!);
 	}
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
-	const dirBasePath = stripStart(dir, filerDir.dir + '/'); // TODO see above comment about `+ '/'`
-	switch (encoding) {
-		case 'utf8':
-			return {
-				type: 'source',
-				build_configs: new Set(),
-				isInputToBuildConfigs: null,
-				dependencies: new Map(),
-				dependents: new Map(),
-				virtual,
-				dirty,
-				id,
-				filename,
-				dir,
-				dirBasePath,
-				extension,
-				encoding,
-				content: content as string,
-				contentBuffer,
-				contentHash,
-				filerDir,
-				buildFiles: reconstructedBuildFiles || new Map(),
-				stats: undefined,
-				mimeType: undefined,
-			};
-		case null:
-			return {
-				type: 'source',
-				build_configs: new Set(),
-				isInputToBuildConfigs: null,
-				dependencies: new Map(),
-				dependents: new Map(),
-				virtual,
-				dirty,
-				id,
-				filename,
-				dir,
-				dirBasePath,
-				extension,
-				encoding,
-				content: content as Buffer,
-				contentBuffer: contentBuffer!,
-				contentHash,
-				filerDir,
-				buildFiles: reconstructedBuildFiles || new Map(),
-				stats: undefined,
-				mimeType: undefined,
-			};
-		default:
-			throw new UnreachableError(encoding);
-	}
+	const dirBasePath = stripStart(dir, filer_dir.dir + '/'); // TODO see above comment about `+ '/'`
+
+	return {
+		type: 'source',
+		build_configs: new Set(),
+		isInputToBuildConfigs: null,
+		dependencies: new Map(),
+		dependents: new Map(),
+		virtual,
+		dirty,
+		id,
+		filename,
+		dir,
+		dirBasePath,
+		extension,
+		content,
+		content_buffer,
+		content_hash,
+		filer_dir,
+		buildFiles: reconstructedBuildFiles || new Map(),
+		stats: undefined,
+	};
 };
 
-export function assertSourceFile(
+export function assert_source_file(
 	file: BaseFilerFile | undefined | null,
 ): asserts file is SourceFile {
 	if (file == null) {

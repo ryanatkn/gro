@@ -103,19 +103,17 @@ const sourceMetaSnapshot = [
 			cacheId: '/c/dev_meta/dep2.ts.json',
 			data: {
 				source_id: '/a/b/src/dep2.ts',
-				contentHash: '8658aba51e656a918d4768bfbd6cdbf1',
+				content_hash: '8658aba51e656a918d4768bfbd6cdbf1',
 				builds: [
 					{
 						id: '/c/dev/testBuildConfig/dep2.js',
 						buildName: 'testBuildConfig',
 						dependencies: null,
-						encoding: 'utf8',
 					},
 					{
 						id: '/c/dev/testBuildConfig/dep2.js.map',
 						buildName: 'testBuildConfig',
 						dependencies: null,
-						encoding: 'utf8',
 					},
 				],
 			},
@@ -127,7 +125,7 @@ const sourceMetaSnapshot = [
 			cacheId: '/c/dev_meta/dep1.ts.json',
 			data: {
 				source_id: '/a/b/src/dep1.ts',
-				contentHash: '5f8c0c9016e8afd8b9575889a9e9226b',
+				content_hash: '5f8c0c9016e8afd8b9575889a9e9226b',
 				builds: [
 					{
 						id: '/c/dev/testBuildConfig/dep1.js',
@@ -141,13 +139,11 @@ const sourceMetaSnapshot = [
 								external: false,
 							},
 						],
-						encoding: 'utf8',
 					},
 					{
 						id: '/c/dev/testBuildConfig/dep1.js.map',
 						buildName: 'testBuildConfig',
 						dependencies: null,
-						encoding: 'utf8',
 					},
 				],
 			},
@@ -159,7 +155,7 @@ const sourceMetaSnapshot = [
 			cacheId: '/c/dev_meta/entry.ts.json',
 			data: {
 				source_id: '/a/b/src/entry.ts',
-				contentHash: '216225ec7cebcb5c2cf443df2050b2a0',
+				content_hash: '216225ec7cebcb5c2cf443df2050b2a0',
 				builds: [
 					{
 						id: '/c/dev/testBuildConfig/entry.js',
@@ -173,13 +169,11 @@ const sourceMetaSnapshot = [
 								external: false,
 							},
 						],
-						encoding: 'utf8',
 					},
 					{
 						id: '/c/dev/testBuildConfig/entry.js.map',
 						buildName: 'testBuildConfig',
 						dependencies: null,
-						encoding: 'utf8',
 					},
 				],
 			},

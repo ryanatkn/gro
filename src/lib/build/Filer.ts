@@ -10,7 +10,7 @@ import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
 
 import type {Filesystem} from '../fs/filesystem.js';
-import {create_filerDir, type FilerDir, type FilerDirChangeCallback} from '../build/filerDir.js';
+import {create_filer_dir, type FilerDir, type FilerDirChangeCallback} from '../build/filer_dir.js';
 import {
 	isInputToBuildConfig,
 	mapDependencyToSourceId,
@@ -25,14 +25,12 @@ import {
 	is_this_project_gro,
 } from '../path/paths.js';
 import type {BuildContext, Builder} from './builder.js';
-import {inferEncoding, type Encoding} from '../fs/encoding.js';
 import {print_build_config_label} from '../build/build_config.js';
 import type {BuildName, BuildConfig} from './build_config.js';
 import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/build_config_defaults.js';
-import {assertSourceFile, createSourceFile, type SourceFile} from './sourceFile.js';
-import {diffDependencies, type BuildFile} from './buildFile.js';
-import type {BaseFilerFile, FilerFile, FilerFileId} from './filerFile.js';
-import {loadContent} from './load.js';
+import {assert_source_file, create_source_file, type SourceFile} from './sourceFile.js';
+import {diff_dependencies, type BuildFile} from './buildFile.js';
+import type {BaseFilerFile, FilerFile, FilerFileId} from './filer_file.js';
 import {
 	type SourceMeta,
 	deleteSourceMeta,
@@ -161,7 +159,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Creates objects to load a directory's content and sync filesystem changes in memory.
 		// The order of objects in the returned array is meaningless.
 		this.dirs = source_dirs.map((sourceDir) =>
-			create_filerDir(fs, sourceDir, this.onDirChange, watch, filter),
+			create_filer_dir(fs, sourceDir, this.onDirChange, watch, filter),
 		);
 		log.debug(cyan('created Filer with build_configs'), Array.from(this.build_names).join(', '));
 	}
@@ -236,7 +234,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				const file = this.files.get(input);
 				// TODO this assert throws with a bad error - should print `input`
 				try {
-					assertSourceFile(file);
+					assert_source_file(file);
 				} catch (_err) {
 					this.log.error(print_build_config_label(build_config), red('missing input'), input);
 					throw Error('Missing input: check the build config and source files for the above input');
@@ -274,13 +272,13 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	private async add_virtual_source_files(
 		build_config: BuildConfig,
-		files: Array<{id: string; content: string | Buffer; encoding?: Encoding; extension?: string}>,
+		files: Array<{id: string; content: string; extension?: string}>,
 	): Promise<void> {
 		await Promise.all(
 			this.dirs
 				.map((dir) =>
-					files.map(({id, content, encoding = 'utf8', extension = '.ts'}) =>
-						this.add_virtual_source_file(build_config, dir, id, encoding, extension, content),
+					files.map(({id, content, extension = '.ts'}) =>
+						this.add_virtual_source_file(build_config, dir, id, extension, content),
 					),
 				)
 				.flat(),
@@ -291,13 +289,11 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		build_config: BuildConfig,
 		dir: FilerDir,
 		id: string,
-		encoding: Encoding,
 		extension: string,
-		content: string | Buffer,
+		content: string,
 	): Promise<void> {
-		const envSourceFile = await createSourceFile(
+		const envSourceFile = await create_source_file(
 			id,
-			encoding,
 			extension,
 			content,
 			dir,
@@ -447,8 +443,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 	}
 
-	private onDirChange: FilerDirChangeCallback = async (change, filerDir) => {
-		const id = join(filerDir.dir, change.path);
+	private onDirChange: FilerDirChangeCallback = async (change, filer_dir) => {
+		const id = join(filer_dir.dir, change.path);
 		// console.log(red(change.type), id); // TODO maybe make an even more verbose log level for this?
 		switch (change.type) {
 			case 'init':
@@ -458,7 +454,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// We could ensure the directory, but it's usually wasted work,
 					// and `fs-extra` takes care of adding missing directories when writing to disk.
 				} else {
-					const shouldBuild = await this.updateSourceFile(id, filerDir);
+					const shouldBuild = await this.updateSourceFile(id, filer_dir);
 					if (
 						shouldBuild &&
 						// When initializing, building is deferred to `initBuilds`
@@ -466,7 +462,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 						change.type !== 'init'
 					) {
 						const file = this.files.get(id);
-						assertSourceFile(file);
+						assert_source_file(file);
 						if (change.type === 'create') {
 							await this.initSourceFile(file);
 						} else {
@@ -544,7 +540,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// The source file may have been updated or created from a cold cache.
 	// It batches calls together, but unlike `buildSourceFile`, it don't queue them,
 	// and instead just returns the pending promise.
-	private async updateSourceFile(id: SourceId, filerDir: FilerDir): Promise<boolean> {
+	private async updateSourceFile(id: SourceId, filer_dir: FilerDir): Promise<boolean> {
 		const updating = this.updatingSourceFiles.get(id);
 		if (updating) return updating;
 		const done = () => this.updatingSourceFiles.delete(id);
@@ -553,41 +549,34 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				// this.log.debug(`updating source file ${gray(id)}`);
 				const sourceFile = this.files.get(id);
 				if (sourceFile) {
-					assertSourceFile(sourceFile);
-					if (sourceFile.filerDir !== filerDir) {
+					assert_source_file(sourceFile);
+					if (sourceFile.filer_dir !== filer_dir) {
 						// This can happen when watchers overlap, a file picked up by two `FilerDir`s.
 						// We might be able to support this,
 						// but more thought needs to be given to the exact desired behavior.
 						// See `validateDirs` for more.
 						throw Error(
-							'Source file filerDir unexpectedly changed: ' +
-								`${gray(sourceFile.id)} changed from ${sourceFile.filerDir.dir} to ${filerDir.dir}`,
+							'Source file filer_dir unexpectedly changed: ' +
+								`${gray(sourceFile.id)} changed from ${sourceFile.filer_dir.dir} to ${
+									filer_dir.dir
+								}`,
 						);
 					}
 				}
 
-				let extension: string;
-				let encoding: Encoding;
-				if (sourceFile) {
-					extension = sourceFile.extension;
-					encoding = sourceFile.encoding;
-				} else {
-					extension = extname(id);
-					encoding = inferEncoding(extension);
-				}
-				const newSourceContent = await loadContent(this.fs, encoding, id); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
+				const extension = sourceFile ? sourceFile.extension : extname(id);
+				const newSourceContent = await this.fs.readFile(id, 'utf8'); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
 
 				if (!sourceFile) {
 					// Memory cache is cold.
 					if (is_external_module(id)) {
 						throw Error('TODO unexpected');
 					}
-					const newSourceFile = await createSourceFile(
+					const newSourceFile = await create_source_file(
 						id,
-						encoding,
 						extension,
 						newSourceContent,
-						filerDir,
+						filer_dir,
 						this.source_meta_by_id.get(id), // TODO should this lazy load the source meta?
 						false,
 						this,
@@ -598,27 +587,15 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					if (newSourceFile.buildFiles.size !== 0) {
 						return false;
 					}
-				} else if (isContentEqual(encoding, sourceFile.content, newSourceContent)) {
+				} else if (sourceFile.content === newSourceContent) {
 					// Memory cache is warm and source code hasn't changed, do nothing and exit early!
 					return false;
 				} else {
 					// Memory cache is warm, but content have changed.
-					switch (sourceFile.encoding) {
-						case 'utf8':
-							sourceFile.content = newSourceContent as string;
-							sourceFile.stats = undefined;
-							sourceFile.contentBuffer = undefined;
-							sourceFile.contentHash = undefined;
-							break;
-						case null:
-							sourceFile.content = newSourceContent as Buffer;
-							sourceFile.stats = undefined;
-							sourceFile.contentBuffer = newSourceContent as Buffer;
-							sourceFile.contentHash = undefined;
-							break;
-						default:
-							throw new UnreachableError(sourceFile);
-					}
+					sourceFile.content = newSourceContent as string;
+					sourceFile.stats = undefined;
+					sourceFile.content_buffer = undefined;
+					sourceFile.content_hash = undefined;
 				}
 				return true;
 			})
@@ -733,7 +710,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		if (newBuildFiles === oldBuildFiles) return;
 
 		const {addedDependencies, removedDependencies} =
-			diffDependencies(newBuildFiles, oldBuildFiles) || nulls;
+			diff_dependencies(newBuildFiles, oldBuildFiles) || nulls;
 
 		let promises: Array<Promise<void>> | null = null;
 
@@ -752,7 +729,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				// ignore dependencies on self - happens with common externals
 				if (addedSourceId === sourceFile.id) continue;
 				const addedSourceFile = this.files.get(addedSourceId);
-				if (addedSourceFile !== undefined) assertSourceFile(addedSourceFile);
+				if (addedSourceFile !== undefined) assert_source_file(addedSourceFile);
 				// import might point to a nonexistent file, ignore those
 				if (addedSourceFile !== undefined) {
 					// update `dependents` of the added file
@@ -792,7 +769,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				const removedSourceFile = this.files.get(removedSourceId);
 				// import might point to a nonexistent file, ignore them completely
 				if (removedSourceFile === undefined) continue;
-				assertSourceFile(removedSourceFile);
+				assert_source_file(removedSourceFile);
 				if (!removedSourceFile.build_configs.has(build_config)) {
 					throw Error(`Expected build config ${build_config.name}: ${removedSourceFile.id}`);
 				}
@@ -839,7 +816,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	private async destroySourceId(id: SourceId): Promise<void> {
 		const sourceFile = this.files.get(id);
-		assertSourceFile(sourceFile);
+		assert_source_file(sourceFile);
 		this.log.debug('destroying file', gray(id));
 		this.files.delete(id);
 		await Promise.all(
@@ -872,8 +849,8 @@ const syncBuildFilesToDisk = async (
 					// log.debug(label, 'creating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				} else {
-					const existingContent = await loadContent(fs, file.encoding, file.id);
-					if (!isContentEqual(file.encoding, file.content, existingContent)) {
+					const existingContent = await fs.readFile(file.id, 'utf8');
+					if (file.content !== existingContent) {
 						log.debug(label, 'updating stale build file on disk', gray(file.id));
 						shouldOutputNewFile = true;
 					} // ...else the build file on disk already matches what's in memory.
@@ -882,7 +859,7 @@ const syncBuildFilesToDisk = async (
 					// but it avoids unnecessary writing to disk and misleadingly updated file stats.
 				}
 			} else if (change.type === 'updated') {
-				if (!isContentEqual(file.encoding, file.content, change.oldFile.content)) {
+				if (file.content !== change.oldFile.content) {
 					log.debug(label, 'updating build file on disk', gray(file.id));
 					shouldOutputNewFile = true;
 				}
@@ -959,17 +936,6 @@ const diffBuildFiles = (
 		}
 	}
 	return changes;
-};
-
-const isContentEqual = (encoding: Encoding, a: string | Buffer, b: string | Buffer): boolean => {
-	switch (encoding) {
-		case 'utf8':
-			return a === b;
-		case null:
-			return (a as Buffer).equals(b as Buffer);
-		default:
-			throw new UnreachableError(encoding);
-	}
 };
 
 // TODO Revisit these restrictions - the goal right now is to set limits

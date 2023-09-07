@@ -4,7 +4,7 @@ import type {BuildConfig, BuildName} from './build_config.js';
 import type {EcmaScriptTarget} from './helpers.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import type {BaseFilerFile} from './filerFile.js';
+import type {BaseFilerFile} from './filer_file.js';
 import type {BuildFile} from './buildFile.js';
 import type {Paths} from '../path/paths.js';
 import type {SourceFile} from './sourceFile.js';
