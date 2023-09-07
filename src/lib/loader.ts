@@ -16,11 +16,11 @@ import type {Config} from '@sveltejs/kit';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 
-const dir = cwd();
+const dir = cwd() + '/';
 
 const load_sveltekit_config = async (): Promise<Config | null> => {
 	try {
-		return (await import(dir + '/svelte.config.js')).default;
+		return (await import(dir + 'svelte.config.js')).default;
 	} catch (err) {
 		return null;
 	}
@@ -84,7 +84,7 @@ export const resolve = async (
 	nextResolve: NextResolve,
 ): Promise<ResolveReturn> => {
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
-	if (!parent_path) return nextResolve(specifier, context);
+	if ( !parent_path?.startsWith(dir) || parent_path.startsWith(dir + 'node_modules/')) {return nextResolve(specifier, context);}
 
 	console.log(`specifier`, specifier, parent_path);
 
@@ -96,26 +96,28 @@ export const resolve = async (
 	) {
 		// The returned `url` is validated before `load` is called,
 		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
-		return {url: 'file:///' + dir + '/src/lib/' + specifier, format: 'module', shortCircuit: true};
+		return {url: 'file:///' + dir + 'src/lib/' + specifier, format: 'module', shortCircuit: true};
 	}
 
 	let path = specifier;
 
 	if (path.startsWith('$lib')) {
-		path = dir + '/src/' + path.substring(1);
+		path = dir + 'src/' + path.substring(1);
 	}
 
 	if (alias) {
 		for (const [from, to] of Object.entries(alias)) {
 			if (path.startsWith(from)) {
-				path = dir + '/' + to + path.substring(from.length);
+				path = dir  + to + path.substring(from.length);
 			}
 		}
 	}
 
+	// the specifier `path` has now been mapped to its final form, so we can inspect it
 	const relative = path[0] === '.';
 	const absolute = path[0] === '/';
 	if (!relative && !absolute) {
+		// handle external specifiers imported by internal code
 		return nextResolve(specifier, context);
 	}
 
