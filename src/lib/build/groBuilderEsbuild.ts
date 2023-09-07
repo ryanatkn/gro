@@ -5,7 +5,7 @@ import {toDefaultEsbuildOptions} from './groBuilderEsbuildUtils.js';
 import {
 	JS_EXTENSION,
 	SOURCEMAP_EXTENSION,
-	toBuildOutPath,
+	to_build_out_path,
 	TS_EXTENSION,
 	replace_extension,
 } from '../path/paths.js';
@@ -40,7 +40,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 	};
 
 	const build: EsbuildBuilder['build'] = async (source, buildConfig, ctx) => {
-		const {buildDir, dev, target} = ctx;
+		const {build_dir, dev, target} = ctx;
 
 		const sourcemap = ctx.sourcemap && !source.virtual;
 
@@ -51,7 +51,7 @@ export const groBuilderEsbuild = (options: Options = {}): EsbuildBuilder => {
 			throw Error(`esbuild cannot handled file with extension ${source.extension}`);
 		}
 
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
+		const outDir = to_build_out_path(dev, buildConfig.name, source.dirBasePath, build_dir);
 		const esbuildOptions = {
 			...getEsbuildOptions(target, dev, sourcemap),
 			sourcefile: source.id,

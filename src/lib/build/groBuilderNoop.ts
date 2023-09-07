@@ -1,13 +1,13 @@
 import {UnreachableError} from '@feltjs/util/error.js';
 
-import {toBuildOutPath} from '../path/paths.js';
+import {to_build_out_path} from '../path/paths.js';
 import type {Builder} from './builder.js';
 
 export const groBuilderNoop: Builder = {
 	name: 'groBuilderNoop',
-	build: (source, buildConfig, {buildDir, dev}) => {
+	build: (source, buildConfig, {build_dir, dev}) => {
 		const {filename, extension} = source;
-		const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
+		const outDir = to_build_out_path(dev, buildConfig.name, source.dirBasePath, build_dir);
 		const id = `${outDir}${filename}`;
 		switch (source.encoding) {
 			case 'utf8':

@@ -3,7 +3,7 @@ import type {Logger} from '@feltjs/util/log.js';
 import type {BuildConfig} from '../build/buildConfig.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {IdStatsFilter} from '../fs/filter.js';
-import {toBuildOutPath, print_path} from '../path/paths.js';
+import {to_build_out_path, print_path} from '../path/paths.js';
 
 export const copyDist = async (
 	fs: Filesystem,
@@ -12,9 +12,9 @@ export const copyDist = async (
 	distOutDir: string,
 	log: Logger,
 	filter?: IdStatsFilter,
-	rebasePath = '',
+	rebase_path = '',
 ): Promise<void> => {
-	const buildOutDir = toBuildOutPath(dev, buildConfig.name, rebasePath);
+	const buildOutDir = to_build_out_path(dev, buildConfig.name, rebase_path);
 	log.info(`copying ${print_path(buildOutDir)} to ${print_path(distOutDir)}`);
 	await fs.copy(buildOutDir, distOutDir, {
 		overwrite: false,

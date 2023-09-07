@@ -3,7 +3,7 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/buildConfigDefaults.js';
-import {toBuildOutDir} from '../path/paths.js';
+import {to_build_out_dir} from '../path/paths.js';
 import type {BuildName} from '../build/buildConfig.js';
 import type {FilerEvents} from '../build/Filer.js';
 
@@ -32,7 +32,7 @@ export const createPlugin = ({
 			if (!dev) return;
 
 			// When `src/lib/server/server.ts` or any of its dependencies change, restart the API server.
-			const serverBuildPath = `${toBuildOutDir(dev)}/${buildName}/${baseBuildPath}`;
+			const serverBuildPath = `${to_build_out_dir(dev)}/${buildName}/${baseBuildPath}`;
 
 			if (!(await fs.exists(serverBuildPath))) {
 				throw Error(`API server failed to start due to missing file: ${serverBuildPath}`);

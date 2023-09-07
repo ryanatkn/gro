@@ -35,9 +35,9 @@ export const TASK_FILE_SUFFIX = '.task.ts';
 
 export const isTaskPath = (path: string): boolean => path.endsWith(TASK_FILE_SUFFIX);
 
-export const toTaskName = (basePath: string): string => {
-	const stripped = stripStart(stripEnd(basePath, TASK_FILE_SUFFIX), LIB_DIRNAME + '/');
-	if (stripped === basePath) return basePath;
+export const toTaskName = (base_path: string): string => {
+	const stripped = stripStart(stripEnd(base_path, TASK_FILE_SUFFIX), LIB_DIRNAME + '/');
+	if (stripped === base_path) return base_path;
 	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.
 	const s = stripped.split('/');
 	return s.at(-1) === s.at(-2) ? s.slice(0, -1).join('/') : stripped;

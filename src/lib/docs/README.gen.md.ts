@@ -3,7 +3,7 @@ import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
-import {paths, basePathToSourceId} from '../path/paths.js';
+import {paths, base_path_to_source_id} from '../path/paths.js';
 
 // This renders a simple index of a possibly nested directory of files.
 
@@ -13,7 +13,7 @@ import {paths, basePathToSourceId} from '../path/paths.js';
 
 export const gen: Gen = async ({fs, originId}) => {
 	// TODO need to get this from project config or something
-	const rootPath = toPathSegments(paths.root).at(-1);
+	const root_path = toPathSegments(paths.root).at(-1);
 
 	const originDir = dirname(originId);
 	const originBase = basename(originId);
@@ -26,7 +26,7 @@ export const gen: Gen = async ({fs, originId}) => {
 	const outputFileName = toOutputFileName(originBase);
 
 	// TODO this is GitHub-specific
-	const rootLink = `[${rootPath}](/../..)`;
+	const rootLink = `[${root_path}](/../..)`;
 	const docFiles = await fs.findFiles(originDir);
 	const docPaths: string[] = [];
 	for (const path of docFiles.keys()) {
@@ -43,7 +43,7 @@ export const gen: Gen = async ({fs, originId}) => {
 		isIndexFile && relativePathPart === relativeDir
 			? relativePathPart
 			: `[${toPathSegments(relativePathPart).at(-1)}](${
-					relative(originDir, basePathToSourceId(relativePathPart)) || './'
+					relative(originDir, base_path_to_source_id(relativePathPart)) || './'
 			  })`,
 	);
 	const breadcrumbs = '> <sub>' + [rootLink, ...pathParts, outputFileName].join(' / ') + '</sub>';

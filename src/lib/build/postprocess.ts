@@ -4,7 +4,7 @@ import * as lexer from 'es-module-lexer';
 import {
 	paths,
 	JS_EXTENSION,
-	toBuildExtension as to_build_extension,
+	to_build_extension as to_build_extension,
 	TS_EXTENSION,
 	is_this_project_gro,
 	type BuildId,

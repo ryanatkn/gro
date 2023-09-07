@@ -1,7 +1,7 @@
 import {gray} from 'kleur/colors';
 
 import type {Encoding} from '../fs/encoding.js';
-import {JSON_EXTENSION, toBuildOutDirname, type SourceId} from '../path/paths.js';
+import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths.js';
 import {getFileContentHash} from './filerFile.js';
 import type {BuildContext} from './builder.js';
 import type {SourceFile} from './sourceFile.js';
@@ -46,16 +46,16 @@ export interface SerializedSourceMetaBuild {
 }
 
 const CACHED_SOURCE_INFO_DIR_SUFFIX = '_meta'; // so `/.gro/devMeta` is metadata for `/.gro/dev`
-export const toSourceMetaDir = (buildDir: string, dev: boolean): string =>
-	`${buildDir}${toBuildOutDirname(dev)}${CACHED_SOURCE_INFO_DIR_SUFFIX}`;
+export const toSourceMetaDir = (build_dir: string, dev: boolean): string =>
+	`${build_dir}${to_build_out_dirname(dev)}${CACHED_SOURCE_INFO_DIR_SUFFIX}`;
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
 export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Promise<void> => {
-	const {fs, sourceMetaById, dev, buildDir, buildNames} = ctx;
+	const {fs, sourceMetaById, dev, build_dir, buildNames} = ctx;
 
 	// create the new meta, not mutating the old
-	const cacheId = toSourceMetaCacheId(file, buildDir, dev);
+	const cacheId = toSourceMetaCacheId(file, build_dir, dev);
 	const data: SourceMetaData = {
 		source_id: file.id,
 		contentHash: getFileContentHash(file),
@@ -107,17 +107,17 @@ export const deleteSourceMeta = async (
 	await fs.remove(meta.cacheId);
 };
 
-const toSourceMetaCacheId = (file: SourceFile, buildDir: string, dev: boolean): string =>
-	`${toSourceMetaDir(buildDir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
+const toSourceMetaCacheId = (file: SourceFile, build_dir: string, dev: boolean): string =>
+	`${toSourceMetaDir(build_dir, dev)}/${file.dirBasePath}${file.filename}${JSON_EXTENSION}`;
 
 // TODO optimize to load meta only for the build configs
 export const initSourceMeta = async ({
 	fs,
 	sourceMetaById,
-	buildDir,
+	build_dir,
 	dev,
 }: BuildContext): Promise<void> => {
-	const sourceMetaDir = toSourceMetaDir(buildDir, dev);
+	const sourceMetaDir = toSourceMetaDir(build_dir, dev);
 	if (!(await fs.exists(sourceMetaDir))) return;
 	const files = await fs.findFiles(sourceMetaDir, undefined, null);
 	await Promise.all(

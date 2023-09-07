@@ -19,7 +19,7 @@ import {
 } from './helpers.js';
 import {
 	paths as defaultPaths,
-	toBuildOutPath,
+	to_build_out_path,
 	type Paths,
 	type SourceId,
 	is_this_project_gro,
@@ -50,7 +50,7 @@ import {render_env_shim_module} from '../util/sveltekit_shim_env.js';
 
 The `Filer` is at the heart of the build system.
 
-The `Filer` wholly owns its `buildDir`, `./.gro` by default.
+The `Filer` wholly owns its `build_dir`, `./.gro` by default.
 If any files or directories change inside it without going through the `Filer`,
 it may go into a corrupted state.
 Corrupted states can be fixed by turning off the `Filer` and running `gro clean`.
@@ -69,7 +69,7 @@ export interface Options {
 	dev: boolean;
 	builder: Builder;
 	buildConfigs: BuildConfig[];
-	buildDir: string;
+	build_dir: string;
 	sourceDirs: string[];
 	mapDependencyToSourceId: MapDependencyToSourceId;
 	sourcemap: boolean;
@@ -88,7 +88,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	if (opts.buildConfigs.length === 0) {
 		throw Error('Filer created with an empty array of buildConfigs.');
 	}
-	const buildDir = opts.buildDir || paths.build; // TODO assumes trailing slash
+	const build_dir = opts.build_dir || paths.build; // TODO assumes trailing slash
 	const sourceDirs = validateDirs(opts.sourceDirs);
 	return {
 		mapDependencyToSourceId,
@@ -102,7 +102,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 		paths,
 		dev,
 		log: opts.log || new SystemLogger(printLogLabel('filer')),
-		buildDir,
+		build_dir,
 		sourceDirs,
 	};
 };
@@ -122,7 +122,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	readonly buildNames: Set<BuildName>;
 	readonly sourceMetaById: Map<SourceId, SourceMeta> = new Map();
 	readonly log: Logger;
-	readonly buildDir: string;
+	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
 	readonly target: EcmaScriptTarget; // TODO shouldn't build configs have this?
@@ -138,7 +138,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			dev,
 			builder,
 			buildConfigs,
-			buildDir,
+			build_dir,
 			sourceDirs,
 			mapDependencyToSourceId,
 			sourcemap,
@@ -153,7 +153,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.builder = builder;
 		this.buildConfigs = buildConfigs;
 		this.buildNames = new Set(buildConfigs.map((b) => b.name));
-		this.buildDir = buildDir;
+		this.build_dir = build_dir;
 		this.mapDependencyToSourceId = mapDependencyToSourceId;
 		this.sourcemap = sourcemap;
 		this.target = target;
@@ -490,7 +490,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					await Promise.all(
 						this.buildConfigs.map((buildConfig) =>
 							this.fs.remove(
-								toBuildOutPath(this.dev, buildConfig.name, change.path, this.buildDir),
+								to_build_out_path(this.dev, buildConfig.name, change.path, this.build_dir),
 							),
 						),
 					);
@@ -742,7 +742,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				// eslint-disable-next-line no-await-in-loop
 				const addedSourceId = await this.mapDependencyToSourceId(
 					addedDependency,
-					this.buildDir,
+					this.build_dir,
 					this.fs,
 					this.paths,
 				);
@@ -780,7 +780,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				// eslint-disable-next-line no-await-in-loop
 				const removedSourceId = await this.mapDependencyToSourceId(
 					removedDependency,
-					this.buildDir,
+					this.build_dir,
 					this.fs,
 					this.paths,
 				);

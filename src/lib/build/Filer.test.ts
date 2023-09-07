@@ -4,7 +4,7 @@ import * as assert from 'uvu/assert';
 import {Filer} from './Filer.js';
 import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
 import type {BuildConfig} from './buildConfig.js';
-import {createPaths, JS_EXTENSION, replace_extension} from '../path/paths.js';
+import {create_paths, JS_EXTENSION, replace_extension} from '../path/paths.js';
 import {groBuilderDefault} from './groBuilderDefault.js';
 
 interface SuiteContext {
@@ -18,9 +18,9 @@ const test__Filer = suite('Filer', suiteContext);
 test__Filer.before.each(resetMemoryFs);
 
 test__Filer('basic build usage with no watch', async ({fs}) => {
-	const buildDir = '/c/';
+	const build_dir = '/c/';
 	const rootId = '/a/b';
-	const paths = createPaths(rootId);
+	const paths = create_paths(rootId);
 	const entryFilename = 'entry.ts';
 	const dep1Filename = 'dep1.ts';
 	const dep2Filename = 'dep2.ts';
@@ -45,7 +45,7 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	const filer = new Filer({
 		fs,
 		paths,
-		buildDir,
+		build_dir,
 		builder: groBuilderDefault(),
 		buildConfigs: [buildConfig],
 		sourceDirs: [paths.source],
@@ -188,9 +188,9 @@ const sourceMetaSnapshot = [
 ];
 
 test__Filer('multiple build configs', async ({fs}) => {
-	const buildDir = '/c/';
+	const build_dir = '/c/';
 	const rootId = '/a/b';
-	const paths = createPaths(rootId);
+	const paths = create_paths(rootId);
 	const entry1Filename = 'entry1.ts';
 	const entry2Filename = 'entry2.ts';
 	const dep1Filename = 'dep1.ts';
@@ -234,7 +234,7 @@ test__Filer('multiple build configs', async ({fs}) => {
 	const filerOptions = {
 		fs,
 		paths,
-		buildDir,
+		build_dir,
 		builder: groBuilderDefault(),
 		sourceDirs: [paths.source],
 		watch: false,

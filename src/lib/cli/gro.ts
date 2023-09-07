@@ -51,9 +51,9 @@ const main = async (): Promise<void> => {
 		// If running Gro inside its own repo, require the local dist.
 		// If the local dist is not yet built it will fall back to the global.
 		const filePath = fileURLToPath(import.meta.url);
-		const basePath = 'dist/cli';
-		if (existsSync(`${basePath}/gro.js`) && existsSync(`${basePath}/invoke.js`)) {
-			path = join(filePath, `../../../${basePath}/invoke.js`);
+		const base_path = 'dist/cli';
+		if (existsSync(`${base_path}/gro.js`) && existsSync(`${base_path}/invoke.js`)) {
+			path = join(filePath, `../../../${base_path}/invoke.js`);
 		} else {
 			// case 3
 			// Fall back to the version associated with the running CLI.

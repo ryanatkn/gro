@@ -7,7 +7,7 @@ import {
 	paths,
 	SVELTEKIT_DEV_DIRNAME,
 	SVELTEKIT_BUILD_DIRNAME,
-	toBuildOutDir,
+	to_build_out_dir,
 	SVELTEKIT_VITE_CACHE_PATH,
 	print_path,
 } from '../path/paths.js';
@@ -36,13 +36,13 @@ export const cleanFs = async (
 		build ? removeDir(fs, paths.build, log) : null,
 		...(!build && buildDev
 			? [
-					removeDir(fs, toBuildOutDir(true), log),
+					removeDir(fs, to_build_out_dir(true), log),
 					removeDir(fs, toSourceMetaDir(paths.build, true), log),
 			  ]
 			: EMPTY_ARRAY),
 		...(!build && buildProd
 			? [
-					removeDir(fs, toBuildOutDir(false), log),
+					removeDir(fs, to_build_out_dir(false), log),
 					removeDir(fs, toSourceMetaDir(paths.build, false), log),
 			  ]
 			: EMPTY_ARRAY),

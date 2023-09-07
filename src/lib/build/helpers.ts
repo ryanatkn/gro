@@ -19,7 +19,7 @@ export const toHash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, buildDir: string, fs: Filesystem, paths: Paths): Promise<SourceId>;
+	(dependency: BuildDependency, build_dir: string, fs: Filesystem, paths: Paths): Promise<SourceId>;
 }
 
 // TODO this was changed from sync to async to support JS:
@@ -35,11 +35,11 @@ export interface MapDependencyToSourceId {
 // (not a big deal, but points to a system design flaw)
 export const mapDependencyToSourceId: MapDependencyToSourceId = async (
 	dependency,
-	buildDir,
+	build_dir,
 	fs,
 	paths,
 ) => {
-	const source_id = build_id_to_source_id(dependency.build_id, buildDir, paths);
+	const source_id = build_id_to_source_id(dependency.build_id, build_dir, paths);
 	// TODO hacky -- see comments above
 	if ((await fs.exists(source_id)) || !source_id.endsWith(TS_EXTENSION)) return source_id;
 	const hackyOtherPossibleSourceId = replace_extension(source_id, JS_EXTENSION);

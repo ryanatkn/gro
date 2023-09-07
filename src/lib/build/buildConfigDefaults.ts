@@ -1,5 +1,5 @@
 import type {BuildConfig, BuildName} from './buildConfig.js';
-import {toBuildExtension, basePathToSourceId, LIB_DIR, LIB_DIRNAME} from '../path/paths.js';
+import {to_build_extension, base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../path/paths.js';
 import type {EcmaScriptTarget} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -11,8 +11,8 @@ export const GIT_DEPLOY_TARGET_BRANCH = 'deploy'; // deploy TO this branch
 export const hasNodeLibrary = (fs: Filesystem): Promise<boolean> => fs.exists(LIB_DIR);
 
 export const API_SERVER_SOURCE_BASE_PATH = LIB_DIRNAME + '/server/server.ts';
-export const API_SERVER_BUILD_BASE_PATH = toBuildExtension(API_SERVER_SOURCE_BASE_PATH); // 'lib/server/server.js'
-export const API_SERVER_SOURCE_ID = basePathToSourceId(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/lib/server/server.ts'
+export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH); // 'lib/server/server.js'
+export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/lib/server/server.ts'
 export const hasApiServer = (fs: Filesystem): Promise<boolean> => fs.exists(API_SERVER_SOURCE_ID);
 export const API_SERVER_BUILD_NAME: BuildName = 'server';
 export const API_SERVER_BUILD_CONFIG: BuildConfig = {

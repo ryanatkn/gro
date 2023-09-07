@@ -11,7 +11,7 @@ import {isTaskPath} from './task.js';
 import {
 	paths,
 	gro_paths,
-	replaceRootDir,
+	replace_root_dir,
 	is_gro_id,
 	is_this_project_gro,
 	print_path,
@@ -135,7 +135,7 @@ export const invokeTask = async (
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
-				const groDirInputPath = replaceRootDir(inputPath, gro_paths.root);
+				const groDirInputPath = replace_root_dir(inputPath, gro_paths.root);
 				const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
 					fs.findFiles(id, (path) => isTaskPath(path)),
 				);
@@ -173,7 +173,7 @@ export const invokeTask = async (
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
-			const groDirInputPath = replaceRootDir(inputPath, gro_paths.root);
+			const groDirInputPath = replace_root_dir(inputPath, gro_paths.root);
 			const groDirFindModulesResult = await findModules(fs, [groDirInputPath], (id) =>
 				fs.findFiles(id, (path) => isTaskPath(path)),
 			);

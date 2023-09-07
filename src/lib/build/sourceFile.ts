@@ -28,7 +28,7 @@ export interface BinarySourceFile extends BaseSourceFile {
 export interface BaseSourceFile extends BaseFilerFile {
 	readonly id: SourceId;
 	readonly type: 'source';
-	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `basePath` too?
+	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `base_path` too?
 	readonly filerDir: FilerDir;
 	readonly buildFiles: Map<BuildConfig, readonly BuildFile[]>;
 	readonly buildConfigs: Set<BuildConfig>;

@@ -27,14 +27,14 @@ export const formatDirectory = (
 	directory: string,
 	check = false,
 	extensions = DEFAULT_EXTENSIONS,
-	rootPaths = DEFAULT_ROOT_PATHS,
+	root_paths = DEFAULT_ROOT_PATHS,
 ): Promise<SpawnResult> => {
 	const forwardedArgs = toForwardedArgs('prettier');
 	forwardedArgs[check ? 'check' : 'write'] = true;
 	const serializedArgs = ['prettier', ...serializeArgs(forwardedArgs)];
 	serializedArgs.push(`${directory}**/*.{${extensions}}`);
 	if (directory === paths.source) {
-		serializedArgs.push(`${paths.root}{${rootPaths}}`);
+		serializedArgs.push(`${paths.root}{${root_paths}}`);
 	}
 	log.info(printCommandArgs(serializedArgs));
 	return spawn('npx', serializedArgs);

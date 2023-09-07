@@ -1,4 +1,4 @@
-import {JS_EXTENSION, toBuildOutPath} from '../path/paths.js';
+import {JS_EXTENSION, to_build_out_path} from '../path/paths.js';
 import type {Builder} from './builder.js';
 import type {TextSourceFile} from './sourceFile.js';
 
@@ -12,9 +12,9 @@ export const groBuilderJson = (options: Options = {}): JsonBuilder => {
 	const {optimize = true} = options;
 	return {
 		name: 'groBuilderJson',
-		build: (source, buildConfig, {buildDir, dev}) => {
+		build: (source, buildConfig, {build_dir, dev}) => {
 			const {filename} = source;
-			const outDir = toBuildOutPath(dev, buildConfig.name, source.dirBasePath, buildDir);
+			const outDir = to_build_out_path(dev, buildConfig.name, source.dirBasePath, build_dir);
 			return [
 				{
 					type: 'build',

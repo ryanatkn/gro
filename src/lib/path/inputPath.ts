@@ -2,8 +2,8 @@ import {join, isAbsolute, basename} from 'node:path';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
 import {
-	basePathToSourceId,
-	replaceRootDir,
+	base_path_to_source_id,
+	replace_root_dir,
 	gro_dir_basename,
 	gro_paths,
 	type Paths,
@@ -36,23 +36,23 @@ import type {Filesystem} from '../fs/filesystem.js';
 export const resolveRawInputPath = (rawInputPath: string, fromPaths?: Paths): string => {
 	if (isAbsolute(rawInputPath)) return stripEnd(rawInputPath, '/');
 	// Allow prefix `./` and just remove it if it's there.
-	let basePath = stripEnd(stripStart(rawInputPath, './'), '/');
+	let base_path = stripEnd(stripStart(rawInputPath, './'), '/');
 	let paths = fromPaths;
 	if (!paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-		if (basePath.startsWith(gro_dir_basename)) {
+		if (base_path.startsWith(gro_dir_basename)) {
 			paths = gro_paths;
-			basePath = stripStart(basePath, gro_dir_basename);
-		} else if (basePath + '/' === gro_dir_basename) {
+			base_path = stripStart(base_path, gro_dir_basename);
+		} else if (base_path + '/' === gro_dir_basename) {
 			paths = gro_paths;
-			basePath = '';
+			base_path = '';
 		}
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
-	if (basePath === LIB_PATH) basePath = '';
+	if (base_path === LIB_PATH) base_path = '';
 	// Allow prefix `src/lib/` and just remove it if it's there.
-	basePath = stripStart(basePath, LIB_DIR);
-	return basePathToSourceId(LIB_DIRNAME + '/' + basePath, paths);
+	base_path = stripStart(base_path, LIB_DIR);
+	return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, paths);
 };
 
 export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
@@ -85,7 +85,7 @@ export const getPossibleSourceIds = (
 		for (const rootDir of rootDirs) {
 			if (inputPath.startsWith(rootDir)) continue; // avoid duplicates
 			for (const possibleSourceId of ids) {
-				possibleSourceIds.push(replaceRootDir(possibleSourceId, rootDir, paths));
+				possibleSourceIds.push(replace_root_dir(possibleSourceId, rootDir, paths));
 			}
 		}
 	}

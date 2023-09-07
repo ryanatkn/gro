@@ -6,7 +6,7 @@ import {toPathParts} from '@feltjs/util/path-parsing.js';
 
 import {fs as memoryFs, type MemoryFs} from './memory.js';
 import {toFsId} from './filesystem.js';
-import {toRootPath} from '../path/paths.js';
+import {to_root_path} from '../path/paths.js';
 
 /* eslint-disable no-await-in-loop */
 
@@ -426,10 +426,10 @@ test__findFiles('basic behavior', async ({fs}) => {
 		await fs.writeFile(path, content, 'utf8');
 		let filterCallCount = 0;
 		const files = await fs.findFiles('.', () => (filterCallCount++, true));
-		const rootPath = toRootPath(toFsId(path));
+		const root_path = to_root_path(toFsId(path));
 		assert.is(filterCallCount, files.size);
-		assert.is(files.size, rootPath.split('/').length);
-		assert.ok(files.has(rootPath));
+		assert.is(files.size, root_path.split('/').length);
+		assert.ok(files.has(root_path));
 	}
 });
 

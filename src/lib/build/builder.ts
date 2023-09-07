@@ -28,7 +28,7 @@ export interface BuildContext {
 	readonly buildNames: Set<BuildName> | null;
 	readonly sourceMetaById: Map<string, SourceMeta>;
 	readonly log: Logger;
-	readonly buildDir: string;
+	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
 	readonly target: EcmaScriptTarget;

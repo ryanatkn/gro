@@ -3,7 +3,7 @@ import {toPathParts, toPathSegments} from '@feltjs/util/path-parsing.js';
 import {stripStart} from '@feltjs/util/string.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
-import {paths, basePathToSourceId} from '../path/paths.js';
+import {paths, base_path_to_source_id} from '../path/paths.js';
 import {loadTaskModules} from '../task/taskModule.js';
 import {logErrorReasons} from '../task/logTask.js';
 
@@ -27,7 +27,7 @@ export const gen: Gen = async ({fs, originId, log}) => {
 	const tasks = result.modules;
 
 	// TODO need to get this from project config or something
-	const rootPath = toPathSegments(paths.root).at(-1);
+	const root_path = toPathSegments(paths.root).at(-1);
 
 	const originDir = dirname(originId);
 	const originBase = basename(originId);
@@ -40,14 +40,14 @@ export const gen: Gen = async ({fs, originId, log}) => {
 	const outputFileName = toOutputFileName(originBase);
 
 	// TODO this is GitHub-specific
-	const rootLink = `[${rootPath}](/../..)`;
+	const rootLink = `[${root_path}](/../..)`;
 
 	// TODO do we want to use absolute paths instead of relative paths,
 	// because GitHub works with them and it simplifies the code?
 	const pathParts = toPathParts(relativeDir).map(
 		(relativePathPart) =>
 			`[${toPathSegments(relativePathPart).at(-1)}](${
-				relative(originDir, basePathToSourceId(relativePathPart)) || './'
+				relative(originDir, base_path_to_source_id(relativePathPart)) || './'
 			})`,
 	);
 	const breadcrumbs = '> <sub>' + [rootLink, ...pathParts, outputFileName].join(' / ') + '</sub>';
