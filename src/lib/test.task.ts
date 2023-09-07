@@ -18,8 +18,10 @@ export const Args = z
 			.boolean({description: 'the bail option to uvu run, exit immediately on failure'})
 			.default(false),
 			cwd: z
-			.string({description: 'the cwd option to uvu parse'})
-			// TODO BLOCK support ignore
+			.string({description: 'the cwd option to uvu parse'}).optional(),
+			// TOOD BLOCK support `gro test --help` with unions
+		ignore: z
+		.union([z.string(),z.array(z.string())], {description: 'the ignore option to uvu parse'}).optional()
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -28,7 +30,8 @@ export const task: Task<Args> = {
 	summary: 'run tests',
 	Args,
 	run: async ({fs, log, args}): Promise<void> => {
-		const {_: patterns, bail, cwd} = args;
+		const {_: patterns, bail, cwd, ignore} = args;
+		console.log(`ignore`, ignore);
 
 		if (!(await findCli(fs, 'uvu'))) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
@@ -40,7 +43,7 @@ export const task: Task<Args> = {
 
 		// uvu doesn't work with esm loaders and TypeScript files,
 		// so we use its `parse` and `run` APIs directly instead of its CLI
-		const parsed = await parse(paths.source, patterns[0], {cwd})
+		const parsed = await parse(paths.source, patterns[0], {cwd,ignore})
 		await run(parsed.suites, {bail});
 
 		timeToRunUvu();
