@@ -4,7 +4,7 @@ import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
 import type {Filesystem, FsWriteFile} from './filesystem.js';
-import type {PathStats} from '../path/pathData.js';
+import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from './filter.js';
 
 const findFiles = async (

@@ -13,7 +13,7 @@ import {
 	type FsMoveOptions,
 	type FsNode,
 } from './filesystem.js';
-import type {PathStats} from '../path/pathData.js';
+import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from './filter.js';
 import type {Encoding} from './encoding.js';
 
@@ -71,7 +71,6 @@ export class MemoryFs implements Filesystem {
 				content: null,
 				// contentBuffer: null,
 				stats,
-				// pathData: toPathData(pathPart, stats),
 			});
 		}
 		this._update(node.id, node);
@@ -127,7 +126,6 @@ export class MemoryFs implements Filesystem {
 			content: data,
 			// contentBuffer: data, // TODO lazily load this?
 			stats,
-			// pathData: toPathData(id, stats),
 		});
 	};
 	remove = async (path: string): Promise<void> => {
@@ -193,7 +191,6 @@ export class MemoryFs implements Filesystem {
 			content: null,
 			// contentBuffer: null,
 			stats,
-			// pathData: toPathData(id, stats),
 		});
 	};
 	readDir = async (path: string): Promise<string[]> => {

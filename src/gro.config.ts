@@ -9,8 +9,8 @@ const config: GroConfigCreator = async () => {
 		sourcemap: true,
 		plugin: async () => [
 			// TODO BLOCK enable
-			// (await import('./lib/plugin/gro-plugin-sveltekit-frontend.js')).create_plugin(),
-			(await import('./lib/plugin/gro-plugin-gen.js')).create_plugin(),
+			// (await import('./lib/plugin/gro_plugin_sveltekit_frontend.js')).create_plugin(),
+			(await import('./lib/plugin/gro_plugin_gen.js')).create_plugin(),
 		],
 		adapt: async () =>
 			Promise.all([
@@ -18,7 +18,7 @@ const config: GroConfigCreator = async () => {
 				// (await import('./lib/adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
 				// 	hostTarget: 'github_pages',
 				// }),
-				(await import('./lib/adapt/gro-adapter-node-library.js')).createAdapter(),
+				(await import('./lib/adapt/gro_adapter_node_library.js')).createAdapter(),
 			]),
 	};
 	return partial;

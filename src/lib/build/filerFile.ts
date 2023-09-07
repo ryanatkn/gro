@@ -1,5 +1,5 @@
 import type {Filesystem} from '../fs/filesystem.js';
-import type {PathStats} from '../path/pathData.js';
+import type {PathStats} from '../path/path_data.js';
 import type {Encoding} from '../fs/encoding.js';
 import {toHash} from './helpers.js';
 import type {SourceFile} from './sourceFile.js';

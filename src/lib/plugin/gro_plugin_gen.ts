@@ -8,7 +8,7 @@ import {findGenModules, isGenPath} from '../gen/genModule.js';
 import {filterDependents} from '../build/sourceFile.js';
 import {throttle} from '../util/throttle.js';
 
-const name = '@feltjs/gro-plugin-gen';
+const name = 'gro_plugin_gen';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 

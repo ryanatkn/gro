@@ -6,7 +6,7 @@ import type {PackageJson} from '../util/package_json.js';
 import {print_command_args, serialize_args, to_forwarded_args} from '../task/args.js';
 import {find_cli, spawn_cli} from '../util/cli.js';
 
-const name = '@feltjs/gro-adapter-node-library';
+const name = 'gro_adapter_node_library';
 
 export const createAdapter = (): Adapter => {
 	return {

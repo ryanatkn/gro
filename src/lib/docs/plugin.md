@@ -5,9 +5,9 @@ Gro uses `Plugin`s to support custom usecases outside of the normal build pipeli
 
 Gro's builtin plugins:
 
-- [`@feltjs/gro-plugin-api-server`](../plugin/gro-plugin-api-server.ts)
-- [`@feltjs/gro-plugin-sveltekit-frontend`](../plugin/gro-plugin-sveltekit-frontend.ts)
-- [`@feltjs/gro-plugin-gen`](../plugin/gro-plugin-gen.ts)
+- [`@feltjs/gro_plugin_node_server`](../plugin/gro_plugin_node_server.ts)
+- [`@feltjs/gro_plugin_sveltekit_frontend`](../plugin/gro_plugin_sveltekit_frontend.ts)
+- [`@feltjs/gro_plugin_gen`](../plugin/gro_plugin_gen.ts)
 
 Also see [`config.plugin` in the config docs](config.md#plugin)
 and usage in [the default config](../config/gro.config.default.ts).

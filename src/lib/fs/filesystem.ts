@@ -2,7 +2,7 @@ import {resolve} from 'node:path';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import type {Encoding} from './encoding.js';
-import type {PathStats} from '../path/pathData.js';
+import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from './filter.js';
 
 // API is modeled after `fs-extra`: https://github.com/jprichardson/node-fs-extra/
@@ -108,7 +108,7 @@ export interface BaseNode {
 	readonly content: string | Buffer | null;
 	// readonly contentBuffer: Buffer | null;
 	readonly stats: PathStats;
-	// readonly pathData: PathData; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
+	// readonly path_data: PathData; // TODO currently isn't used - rename? `PathInfo`? `PathMeta`? `Path`?
 }
 export interface BaseFileNode extends BaseNode {
 	readonly isDirectory: false;

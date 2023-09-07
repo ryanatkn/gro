@@ -1,9 +1,9 @@
 import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {
-	hasSveltekitFrontend,
-	hasApiServer,
+	has_sveltekit_frontend,
+	has_node_server,
 	API_SERVER_BUILD_CONFIG,
-	hasNodeLibrary,
+	has_node_library,
 } from '../build/build_config_defaults.js';
 
 /**
@@ -16,32 +16,34 @@ import {
  * - if `src/lib/server/server.ts`, assumes a Node API server
  */
 const config: GroConfigCreator = async ({fs}) => {
-	const [enableNodeLibrary, enableApiServer, enableSveltekitFrontend] = await Promise.all([
-		hasNodeLibrary(fs),
-		hasApiServer(fs),
-		hasSveltekitFrontend(fs),
+	const [enable_node_library, enable_node_server, enable_sveltekit_frontend] = await Promise.all([
+		has_node_library(fs),
+		has_node_server(fs),
+		has_sveltekit_frontend(fs),
 	]);
 	const partial: GroConfigPartial = {
-		builds: [enableApiServer ? API_SERVER_BUILD_CONFIG : null],
+		builds: [enable_node_server ? API_SERVER_BUILD_CONFIG : null],
 		plugin: async () => [
-			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).create_plugin() : null,
-			enableSveltekitFrontend
-				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).create_plugin()
+			enable_node_server
+				? (await import('../plugin/gro_plugin_node_server.js')).create_plugin()
 				: null,
-			(await import('../plugin/gro-plugin-gen.js')).create_plugin(),
+			enable_sveltekit_frontend
+				? (await import('../plugin/gro_plugin_sveltekit_frontend.js')).create_plugin()
+				: null,
+			(await import('../plugin/gro_plugin_gen.js')).create_plugin(),
 		],
 		adapt: async () => [
-			enableNodeLibrary
-				? (await import('../adapt/gro-adapter-node-library.js')).createAdapter()
+			enable_node_library
+				? (await import('../adapt/gro_adapter_node_library.js')).createAdapter()
 				: null,
-			enableApiServer
-				? (await import('../adapt/gro-adapter-generic-build.js')).createAdapter({
+			enable_node_server
+				? (await import('../adapt/gro_adapter_generic_build.js')).createAdapter({
 						buildName: API_SERVER_BUILD_CONFIG.name,
 				  })
 				: null,
-			enableSveltekitFrontend
-				? (await import('../adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
-						hostTarget: enableApiServer ? 'node' : 'github_pages',
+			enable_sveltekit_frontend
+				? (await import('../adapt/gro_adapter_sveltekit_frontend.js')).createAdapter({
+						hostTarget: enable_node_server ? 'node' : 'github_pages',
 				  })
 				: null,
 		],

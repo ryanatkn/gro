@@ -242,9 +242,9 @@
       "default": "./dist/path/inputPath.js",
       "types": "./dist/path/inputPath.d.ts"
     },
-    "./path/pathData.js": {
-      "default": "./dist/path/pathData.js",
-      "types": "./dist/path/pathData.d.ts"
+    "./path/path_data.js": {
+      "default": "./dist/path/path_data.js",
+      "types": "./dist/path/path_data.d.ts"
     },
     "./path/paths.js": {
       "default": "./dist/path/paths.js",

@@ -25,7 +25,7 @@ More flexibility is available when needed
 including multiple custom output files.
 
 `gen` is implemented as [a task](/src/lib/gen.task.ts)
-and [a plugin](/src/lib/plugin/gro-plugin-gen.ts),
+and [a plugin](/src/lib/plugin/gro_plugin_gen.ts),
 and runs only during development, not for production builds.
 
 Normally you'll want to commit generated files to git,

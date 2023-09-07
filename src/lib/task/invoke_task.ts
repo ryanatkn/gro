@@ -71,10 +71,10 @@ export const invoke_task = async (
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
 		timings.merge(find_modules_result.timings);
-		const pathData = find_modules_result.source_idPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
-		console.log(`pathData`, pathData);
+		const path_data = find_modules_result.source_idPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
+		console.log(`path_data`, path_data);
 
-		if (!pathData.isDirectory) {
+		if (!path_data.isDirectory) {
 			// The input path matches a file, so load and run it.
 
 			// Try to load the task module.
@@ -88,7 +88,7 @@ export const invoke_task = async (
 			if (load_modules_result.ok) {
 				// We found a task module. Run it!
 				timings.merge(load_modules_result.timings);
-				// `pathData` is not a directory, so there's a single task module here.
+				// `path_data` is not a directory, so there's a single task module here.
 				const task = load_modules_result.modules[0];
 				log.info(
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
@@ -120,14 +120,14 @@ export const invoke_task = async (
 				// Is the Gro directory the same as the cwd? Log the matching files.
 				await log_available_tasks(
 					log,
-					print_path(pathData.id),
+					print_path(path_data.id),
 					find_modules_result.source_ids_by_input_path,
 				);
-			} else if (is_gro_id(pathData.id)) {
+			} else if (is_gro_id(path_data.id)) {
 				// Does the Gro directory contain the matching files? Log them.
 				await log_available_tasks(
 					log,
-					print_path_or_gro_path(pathData.id),
+					print_path_or_gro_path(path_data.id),
 					find_modules_result.source_ids_by_input_path,
 				);
 			} else {
@@ -154,7 +154,7 @@ export const invoke_task = async (
 				// Then log the current working directory matches.
 				await log_available_tasks(
 					log,
-					print_path(pathData.id),
+					print_path(path_data.id),
 					find_modules_result.source_ids_by_input_path,
 					!gro_dir_find_modules_result.ok,
 				);

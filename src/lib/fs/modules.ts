@@ -5,7 +5,7 @@ import type {Result} from '@feltjs/util/result.js';
 import {printError} from '@feltjs/util/print.js';
 
 import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../path/inputPath.js';
-import type {PathStats, PathData} from '../path/pathData.js';
+import type {PathStats, PathData} from '../path/path_data.js';
 import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
 import type {Filesystem} from './filesystem.js';
 

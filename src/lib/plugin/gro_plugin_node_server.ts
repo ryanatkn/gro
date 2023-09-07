@@ -27,7 +27,7 @@ export const create_plugin = ({
 	};
 
 	return {
-		name: 'gro-plugin-api-server',
+		name: 'gro_plugin_node_server',
 		setup: async ({dev, fs, filer}) => {
 			if (!dev) return;
 

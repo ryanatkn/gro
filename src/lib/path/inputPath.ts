@@ -11,7 +11,7 @@ import {
 	LIB_PATH,
 	LIB_DIRNAME,
 } from './paths.js';
-import {toPathData, type PathData, type PathStats} from './pathData.js';
+import {to_path_data, type PathData, type PathStats} from './path_data.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 /**
@@ -119,10 +119,10 @@ export const loadSourcePathDataByInputPath = async (
 			const stats = await fs.stat(possibleSourceId); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				if (!dirPathData) {
-					dirPathData = toPathData(possibleSourceId, stats);
+					dirPathData = to_path_data(possibleSourceId, stats);
 				}
 			} else {
-				filePathData = toPathData(possibleSourceId, stats);
+				filePathData = to_path_data(possibleSourceId, stats);
 				break;
 			}
 		}
@@ -150,9 +150,9 @@ export const loadSourceIdsByInputPath = async (
 	const source_ids_by_input_path = new Map<string, string[]>();
 	const inputDirectoriesWithNoFiles: string[] = [];
 	const existingSourceIds = new Set<string>();
-	for (const [inputPath, pathData] of source_idPathDataByInputPath) {
-		const {id} = pathData;
-		if (pathData.isDirectory) {
+	for (const [inputPath, path_data] of source_idPathDataByInputPath) {
+		const {id} = path_data;
+		if (path_data.isDirectory) {
 			const files = await findFiles(id); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const source_ids: string[] = [];

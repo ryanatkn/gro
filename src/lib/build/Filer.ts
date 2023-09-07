@@ -42,7 +42,7 @@ import {
 } from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import type {PathFilter} from '../fs/filter.js';
-import {isExternalModule} from '../path/module.js';
+import {is_external_module} from '../path/module.js';
 import {throttle} from '../util/throttle.js';
 import {render_env_shim_module} from '../util/sveltekit_shim_env.js';
 
@@ -579,7 +579,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 				if (!sourceFile) {
 					// Memory cache is cold.
-					if (isExternalModule(id)) {
+					if (is_external_module(id)) {
 						throw Error('TODO unexpected');
 					}
 					const newSourceFile = await createSourceFile(

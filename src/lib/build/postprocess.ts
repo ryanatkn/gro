@@ -4,13 +4,13 @@ import * as lexer from 'es-module-lexer';
 import {
 	paths,
 	JS_EXTENSION,
-	to_build_extension as to_build_extension,
+	to_build_extension,
 	TS_EXTENSION,
 	is_this_project_gro,
 	type BuildId,
 } from '../path/paths.js';
 import {
-	isExternalModule as is_external_module,
+	is_external_module,
 	MODULE_PATH_LIB_PREFIX,
 	MODULE_PATH_SRC_PREFIX,
 } from '../path/module.js';

@@ -102,20 +102,20 @@ Caveats
 
 */
 
-let cachedConfig: Promise<GroConfig> | undefined;
+let cached_config: Promise<GroConfig> | undefined;
 
 export const load_config = async (fs: Filesystem): Promise<GroConfig> => {
-	if (cachedConfig) return cachedConfig;
-	return (cachedConfig = _load_config(fs));
+	if (cached_config) return cached_config;
+	return (cached_config = _load_config(fs));
 };
 
 const _load_config = async (fs: Filesystem): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
 	const options: GroConfigCreatorOptions = {fs, log, config: null as any};
-	const defaultConfig = await create_config(createDefaultConfig, options, '');
-	console.log(`defaultConfig`, defaultConfig, defaultConfig.builds[0]);
-	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = defaultConfig;
+	const default_config = await create_config(createDefaultConfig, options, '');
+	console.log(`default_config`, default_config, default_config.builds[0]);
+	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = default_config;
 
 	const config_path = paths.config;
 	let config: GroConfig;
@@ -124,31 +124,31 @@ const _load_config = async (fs: Filesystem): Promise<GroConfig> => {
 		console.log('_load_config EXISTS');
 		const config_module = await import(config_path);
 		validate_config_module(config_module, config_path);
-		config = await create_config(config_module.default, options, config_path, defaultConfig);
+		config = await create_config(config_module.default, options, config_path, default_config);
 	} else {
 		console.log('_load_config DOESNT EXIST');
-		config = defaultConfig;
+		config = default_config;
 	}
 	console.log(`_load_config final config`, config, config.builds[0]);
 	return config;
 };
 
 export const create_config = async (
-	configOrCreator: GroConfigPartial | GroConfigCreator,
+	config_or_creator: GroConfigPartial | GroConfigCreator,
 	options: GroConfigCreatorOptions,
 	path: string,
-	baseConfig?: GroConfig,
+	base_config?: GroConfig,
 ): Promise<GroConfig> => {
-	const configPartial =
-		typeof configOrCreator === 'function' ? await configOrCreator(options) : configOrCreator;
+	const config_partial =
+		typeof config_or_creator === 'function' ? await config_or_creator(options) : config_or_creator;
 
-	const extendedConfig = baseConfig ? {...baseConfig, ...configPartial} : configPartial;
+	const extended_config = base_config ? {...base_config, ...config_partial} : config_partial;
 
-	const config = normalize_config(extendedConfig);
+	const config = normalize_config(extended_config);
 
-	const validateResult = await validate_config(options.fs, config);
-	if (!validateResult.ok) {
-		throw Error(`Invalid Gro config at '${path}': ${validateResult.reason}`);
+	const validate_result = await validate_config(options.fs, config);
+	if (!validate_result.ok) {
+		throw Error(`Invalid Gro config at '${path}': ${validate_result.reason}`);
 	}
 
 	return config;
@@ -172,8 +172,8 @@ export const validate_config = async (
 	fs: Filesystem,
 	config: GroConfig,
 ): Promise<Result<object, {reason: string}>> => {
-	const build_configsResult = await validate_build_configs(fs, config.builds);
-	if (!build_configsResult.ok) return build_configsResult;
+	const build_configs_result = await validate_build_configs(fs, config.builds);
+	if (!build_configs_result.ok) return build_configs_result;
 	return {ok: true};
 };
 

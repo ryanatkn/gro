@@ -1,7 +1,7 @@
 import chokidar from 'chokidar';
 import {statSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 
-import type {PathStats} from '../path/pathData.js';
+import type {PathStats} from '../path/path_data.js';
 import {toPathFilter, type PathFilter} from './filter.js';
 import {loadGitignoreFilter} from '../util/gitignore.js';
 import {SOURCE_DIR, SOURCE_DIRNAME, paths, source_id_to_base_path} from '../path/paths.js';

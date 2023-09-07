@@ -10,7 +10,7 @@ import {
 	loadSourceIdsByInputPath,
 	get_possible_source_ids,
 } from './inputPath.js';
-import type {PathStats} from './pathData.js';
+import type {PathStats} from './path_data.js';
 import {gro_paths, replace_root_dir, create_paths, paths} from './paths.js';
 import {fs} from '../fs/node.js';
 

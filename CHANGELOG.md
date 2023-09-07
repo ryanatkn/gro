@@ -228,7 +228,7 @@
 
 - **break**: change `src/gro.config.ts` to export a default value instead of a `config` property
   ([#348](https://github.com/feltjs/gro/pull/348))
-- **break**: change `plugin/gro-plugin-api-server.ts` to a no-op outside of dev mode
+- **break**: change `plugin/gro_plugin_node_server.ts` to a no-op outside of dev mode
   ([#347](https://github.com/feltjs/gro/pull/347))
 - fix `gro deploy` for unfetched branches
   ([#350](https://github.com/feltjs/gro/pull/350))

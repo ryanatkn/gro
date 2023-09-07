@@ -1,7 +1,7 @@
 import {join} from 'node:path';
 
 import {paths} from '../path/paths.js';
-import type {PathStats} from '../path/pathData.js';
+import type {PathStats} from '../path/path_data.js';
 
 // exists for browser compatibility
 export interface PathFilter {
