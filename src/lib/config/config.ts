@@ -6,13 +6,13 @@ import {toArray} from '@feltjs/util/array.js';
 
 import {paths} from '../path/paths.js';
 import {
-	normalizeBuildConfigs,
-	validateBuildConfigs,
+	normalize_build_configs,
+	validate_build_configs,
 	type BuildConfig,
 	type BuildConfigPartial,
-} from '../build/buildConfig.js';
+} from '../build/build_config.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/build_config_defaults.js';
 import type {EcmaScriptTarget} from '../build/helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import createDefaultConfig from './gro.config.default.js';
@@ -172,13 +172,13 @@ export const validate_config = async (
 	fs: Filesystem,
 	config: GroConfig,
 ): Promise<Result<object, {reason: string}>> => {
-	const build_configsResult = await validateBuildConfigs(fs, config.builds);
+	const build_configsResult = await validate_build_configs(fs, config.builds);
 	if (!build_configsResult.ok) return build_configsResult;
 	return {ok: true};
 };
 
 export const normalize_config = (config: GroConfigPartial): GroConfig => {
-	const build_configs = normalizeBuildConfigs(toArray(config.builds || null));
+	const build_configs = normalize_build_configs(toArray(config.builds || null));
 	return {
 		sourcemap: true,
 		plugin: () => null,

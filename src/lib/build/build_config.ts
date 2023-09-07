@@ -5,7 +5,7 @@ import type {Result} from '@feltjs/util/result.js';
 import type {Flavored} from '@feltjs/util/types.js';
 
 import {paths} from '../path/paths.js';
-import {validateInputFiles} from './helpers.js';
+import {validate_input_files} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 // See `../docs/config.md` for documentation.
@@ -24,11 +24,8 @@ export interface InputFilter {
 	(id: string): boolean;
 }
 
-export const toInputFiles = (input: BuildConfigInput[]): string[] =>
+export const to_input_files = (input: BuildConfigInput[]): string[] =>
 	input.filter((input) => typeof input === 'string') as string[];
-
-export const toInputFilters = (input: BuildConfigInput[]): InputFilter[] =>
-	input.filter((input) => typeof input !== 'string') as InputFilter[];
 
 export interface BuildConfigPartial {
 	name: BuildName;
@@ -36,7 +33,7 @@ export interface BuildConfigPartial {
 	types?: boolean;
 }
 
-export const normalizeBuildConfigs = (
+export const normalize_build_configs = (
 	partials: ReadonlyArray<BuildConfigPartial | null>,
 ): BuildConfig[] => {
 	// This array may be mutated inside this function, but the objects inside remain immutable.
@@ -44,20 +41,20 @@ export const normalizeBuildConfigs = (
 	const build_configs: BuildConfig[] = [];
 	for (const partial of partials) {
 		if (!partial) continue;
-		const buildConfig: BuildConfig = {
+		const build_config: BuildConfig = {
 			name: partial.name,
-			input: normalizeBuildConfigInput(partial.input),
+			input: normalize_build_config_input(partial.input),
 		};
-		build_configs.push(buildConfig);
+		build_configs.push(build_config);
 	}
 	return build_configs;
 };
 
-const normalizeBuildConfigInput = (input: BuildConfigPartial['input']): BuildConfig['input'] =>
+const normalize_build_config_input = (input: BuildConfigPartial['input']): BuildConfig['input'] =>
 	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
-export const validateBuildConfigs = async (
+export const validate_build_configs = async (
 	fs: Filesystem,
 	build_configs: BuildConfig[],
 ): Promise<Result<object, {reason: string}>> => {
@@ -68,30 +65,30 @@ export const validateBuildConfigs = async (
 		};
 	}
 	const names: Set<BuildName> = new Set();
-	for (const buildConfig of build_configs) {
-		if (!buildConfig?.name) {
+	for (const build_config of build_configs) {
+		if (!build_config?.name) {
 			return {
 				ok: false,
 				reason:
 					`The field 'gro.builds' in package.json has an item` +
-					` that does not match the BuildConfig interface: ${JSON.stringify(buildConfig)}`,
+					` that does not match the BuildConfig interface: ${JSON.stringify(build_config)}`,
 			};
 		}
-		if (names.has(buildConfig.name)) {
+		if (names.has(build_config.name)) {
 			return {
 				ok: false,
 				reason:
 					`The field 'gro.builds' in package.json cannot have items with duplicate names.` +
-					` The name ${printBuildConfig(buildConfig)} appears twice.`,
+					` The name ${print_build_config(build_config)} appears twice.`,
 			};
 		}
-		names.add(buildConfig.name);
-		const validatedInput = await validateInputFiles(fs, toInputFiles(buildConfig.input)); // eslint-disable-line no-await-in-loop
-		if (!validatedInput.ok) return validatedInput;
+		names.add(build_config.name);
+		const validated_input = await validate_input_files(fs, to_input_files(build_config.input)); // eslint-disable-line no-await-in-loop
+		if (!validated_input.ok) return validated_input;
 	}
 	return {ok: true};
 };
 
-export const printBuildConfig = (buildConfig: BuildConfig): string => blue(buildConfig.name);
-export const printBuildConfigLabel = (buildConfig: BuildConfig): string =>
-	`${gray('build:')}${printBuildConfig(buildConfig)}`;
+export const print_build_config = (build_config: BuildConfig): string => blue(build_config.name);
+export const print_build_config_label = (build_config: BuildConfig): string =>
+	`${gray('build:')}${print_build_config(build_config)}`;

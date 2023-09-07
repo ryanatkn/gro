@@ -6,7 +6,7 @@ import {TaskError, type Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
 import {is_this_project_gro} from './path/paths.js';
 import {to_raw_rest_args} from './task/args.js';
-import {GIT_DEPLOY_SOURCE_BRANCH} from './build/buildConfigDefaults.js';
+import {GIT_DEPLOY_SOURCE_BRANCH} from './build/build_config_defaults.js';
 import {load_package_json} from './util/package_json.js';
 import {find_cli, spawn_cli} from './util/cli.js';
 

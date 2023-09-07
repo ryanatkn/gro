@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 
 import {Filer} from './Filer.js';
 import {fs as memoryFs, type MemoryFs} from '../fs/memory.js';
-import type {BuildConfig} from './buildConfig.js';
+import type {BuildConfig} from './build_config.js';
 import {create_paths, JS_EXTENSION, replace_extension} from '../path/paths.js';
 import {gro_builder_default} from './gro_builder_default.js';
 
@@ -38,7 +38,7 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 		'utf8',
 	);
 	await fs.writeFile(dep2Id, 'export const a: number = 5;', 'utf8');
-	const buildConfig: BuildConfig = {
+	const build_config: BuildConfig = {
 		name: 'testBuildConfig',
 		input: [entryId],
 	};
@@ -47,7 +47,7 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 		paths,
 		build_dir,
 		builder: gro_builder_default(),
-		build_configs: [buildConfig],
+		build_configs: [build_config],
 		source_dirs: [paths.source],
 		watch: false,
 	});
@@ -65,7 +65,7 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	assert.ok(initError);
 
 	// snapshot test the entire sourceMeta
-	assert.equal(Array.from(filer.sourceMetaById.entries()), sourceMetaSnapshot);
+	assert.equal(Array.from(filer.source_meta_by_id.entries()), sourceMetaSnapshot);
 
 	assert.equal(Array.from(fs._files.keys()), filesKeysSnapshot);
 	assert.ok(fs._files.has(entryId));
@@ -222,11 +222,11 @@ test__Filer('multiple build configs', async ({fs}) => {
 	);
 	await fs.writeFile(dep2Id, 'export const a: number = 5;', 'utf8');
 	await fs.writeFile(dep3Id, 'export const b: number = 5;', 'utf8');
-	const buildConfig1: BuildConfig = {
+	const build_config1: BuildConfig = {
 		name: 'testBuildConfig',
 		input: [entry1Id],
 	};
-	const buildConfig2: BuildConfig = {
+	const build_config2: BuildConfig = {
 		name: 'testBuildConfig',
 		input: [entry2Id],
 	};
@@ -243,11 +243,11 @@ test__Filer('multiple build configs', async ({fs}) => {
 	// filer1 has the first build config
 	const filer1 = new Filer({
 		...filerOptions,
-		build_configs: [buildConfig1],
+		build_configs: [build_config1],
 	});
 	assert.ok(filer1);
 	await filer1.init();
-	assert.is(filer1.sourceMetaById.size, 3);
+	assert.is(filer1.source_meta_by_id.size, 3);
 	assert.is(fs._files.size, 22);
 	assert.ok(fs._files.has(entry1Id));
 	filer1.close();
@@ -255,11 +255,11 @@ test__Filer('multiple build configs', async ({fs}) => {
 	// filer2 has the second build config
 	const filer2 = new Filer({
 		...filerOptions,
-		build_configs: [buildConfig2],
+		build_configs: [build_config2],
 	});
 	assert.ok(filer2);
 	await filer2.init();
-	assert.is(filer2.sourceMetaById.size, 5);
+	assert.is(filer2.source_meta_by_id.size, 5);
 	assert.is(fs._files.size, 28);
 	assert.ok(fs._files.has(entry2Id));
 	filer2.close();
@@ -267,22 +267,22 @@ test__Filer('multiple build configs', async ({fs}) => {
 	// load filer1 again, and make sure it loads only the necessary source meta
 	const filer1B = new Filer({
 		...filerOptions,
-		build_configs: [buildConfig1],
+		build_configs: [build_config1],
 	});
 	assert.ok(filer1B);
 	await filer1B.init();
-	assert.is(filer1B.sourceMetaById.size, 5); // TODO should be `3` after changing it to lazy load
+	assert.is(filer1B.source_meta_by_id.size, 5); // TODO should be `3` after changing it to lazy load
 	assert.is(fs._files.size, 28);
 	filer1B.close();
 
 	// filer3 has both build configs
 	const filer3 = new Filer({
 		...filerOptions,
-		build_configs: [buildConfig1, buildConfig2],
+		build_configs: [build_config1, build_config2],
 	});
 	assert.ok(filer3);
 	await filer3.init();
-	assert.is(filer3.sourceMetaById.size, 5);
+	assert.is(filer3.source_meta_by_id.size, 5);
 	assert.is(fs._files.size, 28);
 	filer3.close();
 
@@ -290,22 +290,22 @@ test__Filer('multiple build configs', async ({fs}) => {
 	await fs.remove(dep3Id);
 	const filer1C = new Filer({
 		...filerOptions,
-		build_configs: [buildConfig1],
+		build_configs: [build_config1],
 	});
 	assert.ok(filer1C);
 	await filer1C.init();
-	assert.is(filer1C.sourceMetaById.size, 4);
+	assert.is(filer1C.source_meta_by_id.size, 4);
 	assert.is(fs._files.size, 26);
 	filer1C.close();
 
 	// load filer2 again with its still-deleted dependency
 	const filer2B = new Filer({
 		...filerOptions,
-		build_configs: [buildConfig2],
+		build_configs: [build_config2],
 	});
 	assert.ok(filer2B);
 	await filer2B.init();
-	assert.is(filer2B.sourceMetaById.size, 4);
+	assert.is(filer2B.source_meta_by_id.size, 4);
 	assert.is(fs._files.size, 26);
 	filer2B.close();
 
@@ -313,11 +313,11 @@ test__Filer('multiple build configs', async ({fs}) => {
 	await fs.writeFile(dep3Id, 'export const b: number = 5;', 'utf8');
 	const filer2C = new Filer({
 		...filerOptions,
-		build_configs: [buildConfig2],
+		build_configs: [build_config2],
 	});
 	assert.ok(filer2C);
 	await filer2C.init();
-	assert.is(filer2C.sourceMetaById.size, 5);
+	assert.is(filer2C.source_meta_by_id.size, 5);
 	assert.is(fs._files.size, 28);
 	filer2C.close();
 });

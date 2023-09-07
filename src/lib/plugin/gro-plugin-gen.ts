@@ -16,10 +16,10 @@ export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
-export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
+export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	let generating = false;
 	let regen = false;
-	let onFilerBuild: ((e: FilerEvents['build']) => void) | undefined;
+	let on_filer_build: ((e: FilerEvents['build']) => void) | undefined;
 	const queuedFiles: Set<string> = new Set();
 	const queueGen = (genFileName: string) => {
 		queuedFiles.add(genFileName);
@@ -70,27 +70,27 @@ export const createPlugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			onFilerBuild = async ({sourceFile, buildConfig}) => {
+			on_filer_build = async ({sourceFile, build_config}) => {
 				// TODO BLOCK how to handle this now? the loader traces deps for us with `parentPath`
-				// if (buildConfig.name !== 'system') return;
+				// if (build_config.name !== 'system') return;
 				if (isGenPath(sourceFile.id)) {
 					queueGen(source_id_to_base_path(sourceFile.id));
 				}
 				const dependentGenFileIds = filterDependents(
 					sourceFile,
-					buildConfig,
-					filer.findById as any, // cast because we can assume they're all `SourceFile`s
+					build_config,
+					filer.find_by_id as any, // cast because we can assume they're all `SourceFile`s
 					isGenPath,
 				);
 				for (const dependentGenFileId of dependentGenFileIds) {
 					queueGen(source_id_to_base_path(dependentGenFileId));
 				}
 			};
-			filer.on('build', onFilerBuild);
+			filer.on('build', on_filer_build);
 		},
 		teardown: async ({filer}) => {
-			if (onFilerBuild && filer) {
-				filer.off('build', onFilerBuild);
+			if (on_filer_build && filer) {
+				filer.off('build', on_filer_build);
 			}
 		},
 	};

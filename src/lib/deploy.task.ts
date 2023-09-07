@@ -9,7 +9,7 @@ import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
 import {cleanFs} from './fs/clean.js';
 import {to_raw_rest_args} from './task/args.js';
-import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/buildConfigDefaults.js';
+import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/build_config_defaults.js';
 
 // docs at ./docs/deploy.md
 

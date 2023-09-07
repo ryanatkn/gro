@@ -1,6 +1,6 @@
 import type {Logger} from '@feltjs/util/log.js';
 
-import type {BuildConfig, BuildName} from './buildConfig.js';
+import type {BuildConfig, BuildName} from './build_config.js';
 import type {EcmaScriptTarget} from './helpers.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -13,10 +13,10 @@ export interface Builder<TSource extends SourceFile = SourceFile> {
 	name: string;
 	build: (
 		source: TSource,
-		buildConfig: BuildConfig,
+		build_config: BuildConfig,
 		ctx: BuildContext,
 	) => BuildFile[] | Promise<BuildFile[]>; // TODO should this be forced async?
-	onRemove?: (source: TSource, buildConfig: BuildConfig, ctx: BuildContext) => Promise<void>;
+	on_remove?: (source: TSource, build_config: BuildConfig, ctx: BuildContext) => Promise<void>;
 	init?: (ctx: BuildContext) => Promise<void>;
 }
 
@@ -25,13 +25,13 @@ export interface BuildContext {
 	readonly fs: Filesystem;
 	readonly paths: Paths;
 	readonly build_configs: readonly BuildConfig[] | null;
-	readonly buildNames: Set<BuildName> | null;
-	readonly sourceMetaById: Map<string, SourceMeta>;
+	readonly build_names: Set<BuildName> | null;
+	readonly source_meta_by_id: Map<string, SourceMeta>;
 	readonly log: Logger;
 	readonly build_dir: string;
 	readonly dev: boolean;
 	readonly sourcemap: boolean;
 	readonly target: EcmaScriptTarget;
-	readonly buildingSourceFiles: Set<string>;
-	readonly findById: (id: string) => BaseFilerFile | undefined;
+	readonly building_source_files: Set<string>;
+	readonly find_by_id: (id: string) => BaseFilerFile | undefined;
 }

@@ -1,4 +1,4 @@
-import type {BuildConfig, BuildName} from './buildConfig.js';
+import type {BuildConfig, BuildName} from './build_config.js';
 import {to_build_extension, base_path_to_source_id, LIB_DIR, LIB_DIRNAME} from '../path/paths.js';
 import type {EcmaScriptTarget} from './helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';

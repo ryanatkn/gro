@@ -12,14 +12,14 @@ export const gro_builder_json = (options: Options = {}): JsonBuilder => {
 	const {optimize = true} = options;
 	return {
 		name: 'gro_builder_json',
-		build: (source, buildConfig, {build_dir, dev}) => {
+		build: (source, build_config, {build_dir, dev}) => {
 			const {filename} = source;
-			const outDir = to_build_out_path(dev, buildConfig.name, source.dirBasePath, build_dir);
+			const outDir = to_build_out_path(dev, build_config.name, source.dirBasePath, build_dir);
 			return [
 				{
 					type: 'build',
 					source_id: source.id,
-					buildConfig,
+					build_config,
 					dependencies: null,
 					id: `${outDir}${filename}${JS_EXTENSION}`,
 					filename,

@@ -39,7 +39,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 		return newEsbuildOptions;
 	};
 
-	const build: EsbuildBuilder['build'] = async (source, buildConfig, ctx) => {
+	const build: EsbuildBuilder['build'] = async (source, build_config, ctx) => {
 		const {build_dir, dev, target} = ctx;
 
 		const sourcemap = ctx.sourcemap && !source.virtual;
@@ -51,7 +51,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 			throw Error(`esbuild cannot handled file with extension ${source.extension}`);
 		}
 
-		const outDir = to_build_out_path(dev, buildConfig.name, source.dirBasePath, build_dir);
+		const outDir = to_build_out_path(dev, build_config.name, source.dirBasePath, build_dir);
 		const esbuildOptions = {
 			...getEsbuildOptions(target, dev, sourcemap),
 			sourcefile: source.id,
@@ -64,7 +64,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 			{
 				type: 'build',
 				source_id: source.id,
-				buildConfig,
+				build_config,
 				dependencies: null,
 				id: jsId,
 				filename: jsFilename,
@@ -84,7 +84,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 			buildFiles.push({
 				type: 'build',
 				source_id: source.id,
-				buildConfig,
+				build_config,
 				dependencies: null,
 				id: jsId + SOURCEMAP_EXTENSION,
 				filename: jsFilename + SOURCEMAP_EXTENSION,

@@ -6,7 +6,7 @@ import type {FilerDir} from './filerDir.js';
 import {reconstructBuildFiles, type BuildFile} from './buildFile.js';
 import type {BaseFilerFile} from './filerFile.js';
 import {toHash} from './helpers.js';
-import type {BuildConfig} from './buildConfig.js';
+import type {BuildConfig} from './build_config.js';
 import type {Encoding} from '../fs/encoding.js';
 import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
@@ -135,13 +135,13 @@ export function assertSourceFile(
 
 export const filterDependents = (
 	sourceFile: SourceFile,
-	buildConfig: BuildConfig,
+	build_config: BuildConfig,
 	findFileById: (id: string) => SourceFile | undefined,
 	filter?: IdFilter | undefined,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 ): Set<string> => {
-	const dependentsForConfig = sourceFile.dependents?.get(buildConfig);
+	const dependentsForConfig = sourceFile.dependents?.get(build_config);
 	if (!dependentsForConfig) return results;
 	for (const dependentId of dependentsForConfig.keys()) {
 		if (searched.has(dependentId)) continue;
@@ -150,7 +150,7 @@ export const filterDependents = (
 			results.add(dependentId);
 		}
 		const dependentSourceFile = findFileById(dependentId)!;
-		filterDependents(dependentSourceFile, buildConfig, findFileById, filter, results, searched);
+		filterDependents(dependentSourceFile, build_config, findFileById, filter, results, searched);
 	}
 	return results;
 };

@@ -5,7 +5,7 @@ import type {SourceMeta} from './sourceMeta.js';
 import type {BuildDependency} from './buildDependency.js';
 import {basename, dirname, extname} from 'node:path';
 import {loadContent} from './load.js';
-import type {BuildConfig} from './buildConfig.js';
+import type {BuildConfig} from './build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
@@ -23,7 +23,7 @@ export interface BaseBuildFile extends BaseFilerFile {
 	readonly id: BuildId;
 	readonly type: 'build';
 	readonly source_id: SourceId;
-	readonly buildConfig: BuildConfig;
+	readonly build_config: BuildConfig;
 	// This data structure de-dupes by build id, because we can throw away
 	// the information of duplicate imports to the same dependency within each build file.
 	// We may want to store more granular dependency info, including imported identifiers,
@@ -44,8 +44,8 @@ export const reconstructBuildFiles = async (
 			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 			const extension = extname(id);
 			const content = await loadContent(fs, encoding, id);
-			const buildConfig = build_configs.find((b) => b.name === buildName)!; // is a bit awkward, but probably not inefficient enough to change
-			if (!buildConfig) {
+			const build_config = build_configs.find((b) => b.name === buildName)!; // is a bit awkward, but probably not inefficient enough to change
+			if (!build_config) {
 				// TODO wait no this build needs to be preserved somehow,
 				// otherwise running the filer with different build configs fails to preserve
 
@@ -61,7 +61,7 @@ export const reconstructBuildFiles = async (
 					buildFile = {
 						type: 'build',
 						source_id: sourceMeta.data.source_id,
-						buildConfig,
+						build_config,
 						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 						id,
 						filename,
@@ -79,7 +79,7 @@ export const reconstructBuildFiles = async (
 					buildFile = {
 						type: 'build',
 						source_id: sourceMeta.data.source_id,
-						buildConfig,
+						build_config,
 						dependencies: dependencies && new Map(dependencies.map((d) => [d.build_id, d])),
 						id,
 						filename,
@@ -96,7 +96,7 @@ export const reconstructBuildFiles = async (
 				default:
 					throw new UnreachableError(encoding);
 			}
-			addBuildFile(buildFile, buildFiles, buildConfig);
+			addBuildFile(buildFile, buildFiles, build_config);
 		}),
 	);
 	return buildFiles;
@@ -105,12 +105,12 @@ export const reconstructBuildFiles = async (
 const addBuildFile = (
 	buildFile: BuildFile,
 	buildFiles: Map<BuildConfig, BuildFile[]>,
-	buildConfig: BuildConfig,
+	build_config: BuildConfig,
 ): void => {
-	let files = buildFiles.get(buildConfig);
+	let files = buildFiles.get(build_config);
 	if (files === undefined) {
 		files = [];
-		buildFiles.set(buildConfig, files);
+		buildFiles.set(build_config, files);
 	}
 	files.push(buildFile);
 };

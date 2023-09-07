@@ -1,6 +1,6 @@
 import type esbuild from 'esbuild';
 
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/buildConfigDefaults.js';
+import {DEFAULT_ECMA_SCRIPT_TARGET} from './build_config_defaults.js';
 import type {EcmaScriptTarget} from './helpers.js';
 
 // TODO remove all of this and the related code

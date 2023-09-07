@@ -1,7 +1,7 @@
 import {createHash} from 'crypto';
 import type {Result} from '@feltjs/util/result.js';
 
-import type {BuildConfigInput} from './buildConfig.js';
+import type {BuildConfigInput} from './build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {
 	type Paths,
@@ -52,7 +52,7 @@ export const addJsSourcemapFooter = (code: string, sourcemapPath: string): strin
 export const addCssSourcemapFooter = (code: string, sourcemapPath: string): string =>
 	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;
 
-export const validateInputFiles = async (
+export const validate_input_files = async (
 	fs: Filesystem,
 	files: string[],
 ): Promise<Result<object, {reason: string}>> => {

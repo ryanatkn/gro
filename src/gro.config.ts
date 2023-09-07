@@ -9,8 +9,8 @@ const config: GroConfigCreator = async () => {
 		sourcemap: true,
 		plugin: async () => [
 			// TODO BLOCK enable
-			// (await import('./lib/plugin/gro-plugin-sveltekit-frontend.js')).createPlugin(),
-			(await import('./lib/plugin/gro-plugin-gen.js')).createPlugin(),
+			// (await import('./lib/plugin/gro-plugin-sveltekit-frontend.js')).create_plugin(),
+			(await import('./lib/plugin/gro-plugin-gen.js')).create_plugin(),
 		],
 		adapt: async () =>
 			Promise.all([

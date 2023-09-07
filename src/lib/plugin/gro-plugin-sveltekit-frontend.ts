@@ -13,7 +13,7 @@ export interface TaskArgs extends Args {
 const name = '@feltjs/gro-plugin-sveltekit-frontend';
 
 // eslint-disable-next-line no-empty-pattern
-export const createPlugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
+export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	PluginContext<TaskArgs, object>
 > => {
 	let sveltekitProcess: SpawnedProcess | null = null;

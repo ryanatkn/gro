@@ -4,7 +4,7 @@ import {
 	hasApiServer,
 	API_SERVER_BUILD_CONFIG,
 	hasNodeLibrary,
-} from '../build/buildConfigDefaults.js';
+} from '../build/build_config_defaults.js';
 
 /**
  * This is the default config that's passed to `src/gro.config.ts`
@@ -24,11 +24,11 @@ const config: GroConfigCreator = async ({fs}) => {
 	const partial: GroConfigPartial = {
 		builds: [enableApiServer ? API_SERVER_BUILD_CONFIG : null],
 		plugin: async () => [
-			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).createPlugin() : null,
+			enableApiServer ? (await import('../plugin/gro-plugin-api-server.js')).create_plugin() : null,
 			enableSveltekitFrontend
-				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).createPlugin()
+				? (await import('../plugin/gro-plugin-sveltekit-frontend.js')).create_plugin()
 				: null,
-			(await import('../plugin/gro-plugin-gen.js')).createPlugin(),
+			(await import('../plugin/gro-plugin-gen.js')).create_plugin(),
 		],
 		adapt: async () => [
 			enableNodeLibrary

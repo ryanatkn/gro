@@ -5,7 +5,7 @@ import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths
 import {getFileContentHash} from './filerFile.js';
 import type {BuildContext} from './builder.js';
 import type {SourceFile} from './sourceFile.js';
-import type {BuildName} from './buildConfig.js';
+import type {BuildName} from './build_config.js';
 import {
 	serialize_build_dependency,
 	deserialize_build_dependency,
@@ -52,7 +52,7 @@ export const toSourceMetaDir = (build_dir: string, dev: boolean): string =>
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
 export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Promise<void> => {
-	const {fs, sourceMetaById, dev, build_dir, buildNames} = ctx;
+	const {fs, source_meta_by_id, dev, build_dir, build_names} = ctx;
 
 	// create the new meta, not mutating the old
 	const cacheId = toSourceMetaCacheId(file, build_dir, dev);
@@ -63,7 +63,7 @@ export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Pro
 			files.map(
 				(file): SourceMetaBuild => ({
 					id: file.id,
-					buildName: file.buildConfig.name,
+					buildName: file.build_config.name,
 					dependencies: file.dependencies && Array.from(file.dependencies.values()),
 					encoding: file.encoding,
 				}),
@@ -73,10 +73,10 @@ export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Pro
 	const sourceMeta: SourceMeta = {cacheId, data};
 
 	// preserve the builds that aren't in this build config set
-	const existingSourceMeta = sourceMetaById.get(file.id);
+	const existingSourceMeta = source_meta_by_id.get(file.id);
 	if (existingSourceMeta) {
 		for (const build of existingSourceMeta.data.builds) {
-			if (!buildNames!.has(build.buildName)) {
+			if (!build_names!.has(build.buildName)) {
 				data.builds.push(build);
 			}
 		}
@@ -86,7 +86,7 @@ export const updateSourceMeta = async (ctx: BuildContext, file: SourceFile): Pro
 		return deleteSourceMeta(ctx, file.id);
 	}
 
-	sourceMetaById.set(file.id, sourceMeta);
+	source_meta_by_id.set(file.id, sourceMeta);
 	// this.log.debug('outputting source meta', gray(cacheId));
 	await writeSourceMeta(fs, cacheId, data);
 };
@@ -98,12 +98,12 @@ const writeSourceMeta = throttle(
 );
 
 export const deleteSourceMeta = async (
-	{fs, sourceMetaById}: BuildContext,
+	{fs, source_meta_by_id}: BuildContext,
 	source_id: SourceId,
 ): Promise<void> => {
-	const meta = sourceMetaById.get(source_id);
+	const meta = source_meta_by_id.get(source_id);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache
-	sourceMetaById.delete(source_id);
+	source_meta_by_id.delete(source_id);
 	await fs.remove(meta.cacheId);
 };
 
@@ -113,7 +113,7 @@ const toSourceMetaCacheId = (file: SourceFile, build_dir: string, dev: boolean):
 // TODO optimize to load meta only for the build configs
 export const initSourceMeta = async ({
 	fs,
-	sourceMetaById,
+	source_meta_by_id,
 	build_dir,
 	dev,
 }: BuildContext): Promise<void> => {
@@ -124,7 +124,7 @@ export const initSourceMeta = async ({
 		Array.from(files.keys()).map(async (path) => {
 			const cacheId = `${sourceMetaDir}/${path}`;
 			const data = deserializeSourceMeta(JSON.parse(await fs.readFile(cacheId, 'utf8')));
-			sourceMetaById.set(data.source_id, {cacheId, data});
+			source_meta_by_id.set(data.source_id, {cacheId, data});
 		}),
 	);
 };
@@ -135,9 +135,9 @@ export const initSourceMeta = async ({
 // It might appear that we could use the already-loaded source files to do this check in memory,
 // but that doesn't work if the Filer is created with only a subset of the build configs.
 export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
-	const {fs, sourceMetaById, log} = ctx;
+	const {fs, source_meta_by_id, log} = ctx;
 	await Promise.all(
-		Array.from(sourceMetaById.keys()).map(async (source_id) => {
+		Array.from(source_meta_by_id.keys()).map(async (source_id) => {
 			if (!(await fs.exists(source_id))) {
 				log.debug('deleting unknown source meta', gray(source_id));
 				await deleteSourceMeta(ctx, source_id);

@@ -5,9 +5,9 @@ import type {Builder} from './builder.js';
 
 export const gro_builder_noop: Builder = {
 	name: 'gro_builder_noop',
-	build: (source, buildConfig, {build_dir, dev}) => {
+	build: (source, build_config, {build_dir, dev}) => {
 		const {filename, extension} = source;
-		const outDir = to_build_out_path(dev, buildConfig.name, source.dirBasePath, build_dir);
+		const outDir = to_build_out_path(dev, build_config.name, source.dirBasePath, build_dir);
 		const id = `${outDir}${filename}`;
 		switch (source.encoding) {
 			case 'utf8':
@@ -15,7 +15,7 @@ export const gro_builder_noop: Builder = {
 					{
 						type: 'build',
 						source_id: source.id,
-						buildConfig,
+						build_config,
 						dependencies: null,
 						id,
 						filename,
@@ -34,7 +34,7 @@ export const gro_builder_noop: Builder = {
 					{
 						type: 'build',
 						source_id: source.id,
-						buildConfig,
+						build_config,
 						dependencies: null,
 						id,
 						filename,
@@ -52,6 +52,6 @@ export const gro_builder_noop: Builder = {
 				throw new UnreachableError(source);
 		}
 	},
-	// onRemove: not implemented because it's a no-op
+	// on_remove: not implemented because it's a no-op
 	// init: not implemented because it's a no-op
 };
