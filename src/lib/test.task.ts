@@ -19,7 +19,6 @@ export const Args = z
 			.boolean({description: 'the uvu bail option, exit immediately on failure'})
 			.default(false),
 			// TODO BLOCK support ignore
-			// TODO BLOCK support custom patterns like before -- do we need to force ${SOURCE_DIR}**/*
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -39,10 +38,8 @@ export const task: Task<Args> = {
 		const timeToRunUvu = timings.start('run tests with uvu');
 
 		// uvu doesn't work with esm loaders and TypeScript files,
-		// so we use its `run` API directly instead of its CLI
+		// so we use its `parse` and `run` APIs directly instead of its CLI
 		const parsed = await parse(paths.source, patterns[0])
-		console.log(`parsed`, parsed);
-		// const suites = await collect(patterns);
 		await run(parsed.suites, {bail});
 
 		timeToRunUvu();
@@ -54,22 +51,4 @@ export const task: Task<Args> = {
 		// 	throw new TaskError('Tests failed.');
 		// }
 	},
-};
-
-interface UvuSuite {
-	name: string;
-	file: string; // absolute path
-}
-
-const collect = async (patterns: string[]): Promise<UvuSuite[]> => {
-	const suites: UvuSuite[] = [];
-
-	for (const pattern of patterns) {
-		const files = await glob(pattern, {filesOnly: true, absolute: true}); // eslint-disable-line no-await-in-loop
-		for (const file of files) {
-			suites.push({name: source_id_to_base_path(file), file});
-		}
-	}
-
-	return suites;
 };
