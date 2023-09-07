@@ -17,6 +17,8 @@ export const Args = z
 		bail: z
 			.boolean({description: 'the uvu bail option, exit immediately on failure'})
 			.default(false),
+			// TODO BLOCK support ignore
+			// TODO BLOCK support custom patterns like before -- do we need to force ${SOURCE_DIR}**/*
 	})
 	.strict();
 export type Args = z.infer<typeof Args>;
@@ -36,8 +38,7 @@ export const task: Task<Args> = {
 		const timeToRunUvu = timings.start('run tests with uvu');
 
 		// uvu doesn't work with esm loaders and TypeScript files,
-		// so this unfortunately duplicates some of its internals.
-
+		// so we use its `run` API directly instead of its CLI
 		const suites = await collect(patterns);
 		await run(suites, {bail});
 
