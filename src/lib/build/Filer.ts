@@ -34,7 +34,6 @@ import {
 	type SourceMeta,
 	delete_source_meta,
 	update_source_meta,
-	cleanSourceMeta,
 	initSourceMeta,
 } from './source_meta.js';
 import type {BuildDependency} from './build_dependency.js';
@@ -177,33 +176,26 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 		this.log.debug('init', gray(this.dev ? 'development' : 'production'));
 
-		// TODO BLOCK clean initSourceMeta before loading? (check against source files and vice-versa?)
 		await initSourceMeta(this);
-		// this.log.debug('inited cache');
+		// this.log.debug('inited and cleaned cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,
-		// including files to be served, source files, and build files.
+		// including source files and build files.
 		// Initializing the dirs must be done after `this.initSourceMeta`
 		// because it creates source files, which need `this.source_meta_by_id` to be populated.
-		console.log(`this.dirs`, this.dirs);
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.debug('inited files');
 
-		// Now that the source meta and source files are loaded into memory,
-		// check if any source files have been deleted since the last run.
-		await cleanSourceMeta(this);
-		// this.log.debug('cleaned');
-
 		// This initializes the builders. Should be done before the builds are initialized.
 		// TODO does this belong in `dir.init`? or parallel with .. what?
-		// what data is not yet ready? does this belong inside `initBuilds`?
+		// what data is not yet ready? does this belong inside `init_builds`?
 		if (this.builder.init) {
 			await this.builder.init(this);
 		}
 
 		// This performs the initial source file build, traces deps,
 		// and populates the `build_configs` property of all source files.
-		await this.initBuilds();
+		await this.init_builds();
 		// this.log.debug('inited builds:', Array.from(this.build_names).join(', '));
 
 		// TODO check if `src/` has any conflicting dirs like `src/externals`
@@ -216,7 +208,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// It traces the dependencies starting from each `build_config.input`,
 	// building each input source file and populating its `build_configs`,
 	// recursively until all dependencies have been handled.
-	private async initBuilds(): Promise<void> {
+	private async init_builds(): Promise<void> {
 		const promises: Array<Promise<void>> = [];
 
 		const filters: Array<(id: string) => boolean> = [];
@@ -305,7 +297,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		await update_source_meta(this, env_source_file);
 	}
 
-	// TODO BLOCK include only when imported, and keep in sync at runtime
+	// TODO include only when imported, and keep in sync at runtime
 	private async add_sveltekit_env_shim_files(build_config: BuildConfig): Promise<void> {
 		let config: Config | undefined; // TODO ideally this would be `ValidatedConfig` but SvelteKit doesn't expose its load config helper
 		try {
@@ -456,7 +448,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					const should_build = await this.update_source_file(id, filer_dir);
 					if (
 						should_build &&
-						// When initializing, building is deferred to `initBuilds`
+						// When initializing, building is deferred to `init_builds`
 						// so that deps are determined in the correct order.
 						change.type !== 'init'
 					) {

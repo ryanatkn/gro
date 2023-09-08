@@ -89,7 +89,7 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 
 const writeSourceMeta = throttle(
 	(fs: Filesystem, cacheId: string, data: SourceMetaData): Promise<void> =>
-		fs.writeFile(cacheId, JSON.stringify(serializeSourceMeta(data), null, 2)),
+		fs.writeFile(cacheId, JSON.stringify(serialize_source_meta(data), null, 2)),
 	(_, cacheId) => cacheId,
 );
 
@@ -119,12 +119,13 @@ export const initSourceMeta = async ({
 	await Promise.all(
 		Array.from(files.keys()).map(async (path) => {
 			const cacheId = `${source_metaDir}/${path}`;
-			const data = deserializeSourceMeta(JSON.parse(await fs.readFile(cacheId, 'utf8')));
+			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cacheId, 'utf8')));
 			source_meta_by_id.set(data.source_id, {cacheId, data});
 		}),
 	);
 };
 
+// TODO BLOCK merge with init source meta
 // Cached source meta may be stale if any source files were moved or deleted
 // since the last time the Filer ran.
 // We can simply delete any cached meta that doesn't map back to a source file.
@@ -143,16 +144,17 @@ export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
 };
 
 // these are optimizations to write less data to disk
-export const deserializeSourceMeta = ({
+export const deserialize_source_meta = ({
 	source_id,
 	content_hash,
 	builds,
 }: SerializedSourceMetaData): SourceMetaData => ({
 	source_id,
 	content_hash,
-	builds: builds.map((b) => deserializeSourceMetaBuild(b)),
+	builds: builds.map((b) => deserialize_source_meta_build(b)),
 });
-export const deserializeSourceMetaBuild = ({
+
+const deserialize_source_meta_build = ({
 	id,
 	build_name,
 	dependencies,
@@ -162,16 +164,17 @@ export const deserializeSourceMetaBuild = ({
 	dependencies: dependencies ? dependencies.map((d) => deserialize_build_dependency(d)) : null,
 });
 
-export const serializeSourceMeta = ({
+export const serialize_source_meta = ({
 	source_id,
 	content_hash,
 	builds,
 }: SourceMetaData): SerializedSourceMetaData => ({
 	source_id,
 	content_hash,
-	builds: builds.map((b) => serializeSourceMetaBuild(b)),
+	builds: builds.map((b) => serialize_source_meta_build(b)),
 });
-export const serializeSourceMetaBuild = ({
+
+const serialize_source_meta_build = ({
 	id,
 	build_name,
 	dependencies,
