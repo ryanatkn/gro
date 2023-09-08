@@ -70,7 +70,6 @@ export type BuildId = Flavored<string, 'BuildId'>;
 
 export const create_paths = (root_dir: string): Paths => {
 	const root = stripEnd(root_dir, '/') + '/';
-	console.log(`root_dir`, root_dir);
 	return {
 		root,
 		source: root + SOURCE_DIR,
@@ -200,6 +199,22 @@ export const to_source_extension = (build_id: BuildId): string => {
 	return build_id;
 };
 
+export const print_path = (path: string, p = paths, prefix = './'): string =>
+	gray(`${prefix}${to_root_path(path, p)}`);
+
+export const print_path_or_gro_path = (path: string, from_paths = paths): string => {
+	const inferred_paths = paths_from_id(path);
+	if (from_paths === gro_paths || inferred_paths === from_paths) {
+		return print_path(path, inferred_paths, '');
+	}
+	return gray(gro_dir_basename) + print_path(path, gro_paths, '');
+};
+
+export const replace_extension = (path: string, new_extension: string): string => {
+	const {length} = extname(path);
+	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
+};
+
 const gro_import_dir = join(fileURLToPath(import.meta.url), '../../../');
 console.log(`gro_import_dir`, gro_import_dir);
 const groDir = join(
@@ -220,19 +235,3 @@ console.log(`{.......................}`, {
 	gro_dir_basename,
 	is_this_project_gro,
 });
-
-export const print_path = (path: string, p = paths, prefix = './'): string =>
-	gray(`${prefix}${to_root_path(path, p)}`);
-
-export const print_path_or_gro_path = (path: string, from_paths = paths): string => {
-	const inferred_paths = paths_from_id(path);
-	if (from_paths === gro_paths || inferred_paths === from_paths) {
-		return print_path(path, inferred_paths, '');
-	}
-	return gray(gro_dir_basename) + print_path(path, gro_paths, '');
-};
-
-export const replace_extension = (path: string, new_extension: string): string => {
-	const {length} = extname(path);
-	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
-};
