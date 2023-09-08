@@ -12,7 +12,7 @@ import {load_modules} from './fs/modules.js';
 import {formatFile} from './format/formatFile.js';
 import {print_path} from './path/paths.js';
 import {load_config} from './config/config.js';
-import {buildSource} from './build/buildSource.js';
+import {build_source} from './build/build_source.js';
 import {log_error_reasons} from './task/log_task.js';
 
 export const Args = z
@@ -48,8 +48,8 @@ export const task: Task<Args> = {
 			const timing_to_load_config = timings.start('load config');
 			const config = await load_config(fs);
 			timing_to_load_config();
-			const timingToBuildSource = timings.start('buildSource');
-			await buildSource(fs, config, true, log);
+			const timingToBuildSource = timings.start('build_source');
+			await build_source(fs, config, true, log);
 			timingToBuildSource();
 		}
 

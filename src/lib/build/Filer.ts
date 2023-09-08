@@ -158,7 +158,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Creates objects to load a directory's content and sync filesystem changes in memory.
 		// The order of objects in the returned array is meaningless.
 		this.dirs = source_dirs.map((source_dir) =>
-			create_filer_dir(fs, source_dir, this.onDirChange, watch, filter),
+			create_filer_dir(fs, source_dir, this.on_dir_change, watch, filter),
 		);
 		log.debug(cyan('created Filer with build_configs'), Array.from(this.build_names).join(', '));
 	}
@@ -239,7 +239,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					throw Error('Missing input: check the build config and source files for the above input');
 				}
 				if (!file.build_configs.has(build_config)) {
-					promises.push(this.addSourceFileToBuild(file, build_config, true));
+					promises.push(this.add_source_file_to_build(file, build_config, true));
 				}
 			}
 
@@ -259,7 +259,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					if (filters[i](file.id)) {
 						const build_config = filterBuildConfigs[i];
 						if (!file.build_configs.has(build_config)) {
-							promises.push(this.addSourceFileToBuild(file, build_config, true));
+							promises.push(this.add_source_file_to_build(file, build_config, true));
 						}
 					}
 				}
@@ -291,7 +291,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		extension: string,
 		content: string,
 	): Promise<void> {
-		const envSourceFile = await create_source_file(
+		const env_source_file = await create_source_file(
 			id,
 			extension,
 			content,
@@ -300,10 +300,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			true,
 			this,
 		);
-		// TODO BLOCK proper order of these 3?
-		await this.init_source_file(envSourceFile);
-		await this.addSourceFileToBuild(envSourceFile, build_config, true);
-		await update_source_meta(this, envSourceFile);
+		await this.init_source_file(env_source_file);
+		await this.add_source_file_to_build(env_source_file, build_config, true);
+		await update_source_meta(this, env_source_file);
 	}
 
 	// TODO BLOCK include only when imported, and keep in sync at runtime
@@ -365,10 +364,10 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	// Adds a build config to a source file.
 	// The caller is expected to check to avoid duplicates.
-	private async addSourceFileToBuild(
+	private async add_source_file_to_build(
 		source_file: SourceFile,
 		build_config: BuildConfig,
-		isInput: boolean,
+		is_input: boolean,
 	): Promise<void> {
 		// this.log.debug(
 		// 	`adding source file to build ${print_build_config_label(build_config)} ${gray(source_file.id)}`,
@@ -381,7 +380,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Add the build config as an input if appropriate, initializing the set if needed.
 		// We need to determine `is_input_to_build_config` independently of the caller,
 		// because the caller may not
-		if (isInput) {
+		if (is_input) {
 			if (source_file.is_input_to_build_configs === null) {
 				// Cast to keep the `readonly` modifier outside of initialization.
 				(
@@ -443,7 +442,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 	}
 
-	private onDirChange: FilerDirChangeCallback = async (change, filer_dir) => {
+	private on_dir_change: FilerDirChangeCallback = async (change, filer_dir) => {
 		const id = join(filer_dir.dir, change.path);
 		// console.log(red(change.type), id); // TODO maybe make an even more verbose log level for this?
 		switch (change.type) {
@@ -522,13 +521,15 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		for (const build_config of this.build_configs) {
 			if (is_input_to_build_config(file.id, build_config.input)) {
 				(input_build_configs || (input_build_configs = new Set())).add(build_config);
-				(promises || (promises = [])).push(this.addSourceFileToBuild(file, build_config, true));
+				(promises || (promises = [])).push(this.add_source_file_to_build(file, build_config, true));
 			}
 		}
 		if (dependent_build_configs !== null) {
 			for (const build_config of dependent_build_configs) {
 				if (input_build_configs?.has(build_config)) continue;
-				(promises || (promises = [])).push(this.addSourceFileToBuild(file, build_config, false));
+				(promises || (promises = [])).push(
+					this.add_source_file_to_build(file, build_config, false),
+				);
 			}
 		}
 		if (promises !== null) await Promise.all(promises);
@@ -745,7 +746,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// then that could cause cascading externals builds as the dependency tree builds.
 					if (!added_source_file.build_configs.has(build_config)) {
 						(promises || (promises = [])).push(
-							this.addSourceFileToBuild(
+							this.add_source_file_to_build(
 								added_source_file as SourceFile,
 								build_config,
 								is_input_to_build_config(added_source_file.id, build_config.input),

@@ -10,7 +10,7 @@ import {
 	replace_extension,
 } from '../path/paths.js';
 import type {Builder} from './builder.js';
-import {addJsSourcemapFooter, type EcmaScriptTarget} from './helpers.js';
+import {add_js_sourcemap_footer, type EcmaScriptTarget} from './helpers.js';
 import type {BuildFile} from './build_file.js';
 import {postprocess} from './postprocess.js';
 import type {SourceFile} from './source_file.js';
@@ -68,7 +68,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 				dir: outDir,
 				extension: JS_EXTENSION,
 				content: output.map
-					? addJsSourcemapFooter(output.code, jsFilename + SOURCEMAP_EXTENSION)
+					? add_js_sourcemap_footer(output.code, jsFilename + SOURCEMAP_EXTENSION)
 					: output.code,
 				content_buffer: undefined,
 				content_hash: undefined,

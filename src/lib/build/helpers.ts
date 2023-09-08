@@ -15,7 +15,7 @@ import type {BuildDependency} from './build_dependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
-export const toHash = (buf: Buffer): string =>
+export const to_hash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
 export interface MapDependencyToSourceId {
@@ -42,15 +42,14 @@ export const map_dependency_to_source_d: MapDependencyToSourceId = async (
 	const source_id = build_id_to_source_id(dependency.build_id, build_dir, paths);
 	// TODO hacky -- see comments above
 	if ((await fs.exists(source_id)) || !source_id.endsWith(TS_EXTENSION)) return source_id;
-	const hackyOtherPossibleSourceId = replace_extension(source_id, JS_EXTENSION);
-	return (await fs.exists(hackyOtherPossibleSourceId)) ? hackyOtherPossibleSourceId : source_id;
+	const hacky_other_possible_source_id = replace_extension(source_id, JS_EXTENSION);
+	return (await fs.exists(hacky_other_possible_source_id))
+		? hacky_other_possible_source_id
+		: source_id;
 };
 
-export const addJsSourcemapFooter = (code: string, sourcemapPath: string): string =>
+export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): string =>
 	`${code}\n//# sourceMappingURL=${sourcemapPath}`;
-
-export const addCssSourcemapFooter = (code: string, sourcemapPath: string): string =>
-	`${code}\n/*# sourceMappingURL=${sourcemapPath} */`;
 
 export const validate_input_files = async (
 	fs: Filesystem,

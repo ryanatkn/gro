@@ -1,5 +1,5 @@
 import type {PathStats} from '../path/path_data.js';
-import {toHash} from './helpers.js';
+import {to_hash} from './helpers.js';
 import type {SourceFile} from './source_file.js';
 import type {BuildFile} from './build_file.js';
 import type {BuildId, SourceId} from '../path/paths.js';
@@ -30,4 +30,4 @@ export const get_file_content_buffer = (file: BaseFilerFile): Buffer =>
 export const get_file_content_hash = (file: BaseFilerFile): string =>
 	file.content_hash !== undefined
 		? file.content_hash
-		: (file.content_hash = toHash(get_file_content_buffer(file)));
+		: (file.content_hash = to_hash(get_file_content_buffer(file)));

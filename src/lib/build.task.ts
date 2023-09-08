@@ -6,7 +6,7 @@ import {spawn} from '@feltjs/util/process.js';
 import type {Task} from './task/task.js';
 import {load_config, type GroConfig} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
-import {buildSource} from './build/buildSource.js';
+import {build_source} from './build/build_source.js';
 import {Plugins} from './plugin/plugin.js';
 import {cleanFs} from './fs/clean.js';
 
@@ -80,8 +80,8 @@ export const task: Task<Args, TaskEvents> = {
 		// There may be no builds, e.g. for SvelteKit-only frontend projects,
 		// so just don't build in that case.
 		if (config.builds.length) {
-			const timingToBuildSource = timings.start('buildSource');
-			await buildSource(fs, config, false, log);
+			const timingToBuildSource = timings.start('build_source');
+			await build_source(fs, config, false, log);
 			timingToBuildSource();
 		}
 

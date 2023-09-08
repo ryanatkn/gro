@@ -5,7 +5,7 @@ import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../task/args.js';
 import {source_id_to_base_path} from '../path/paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
-import {filterDependents} from '../build/source_file.js';
+import {filter_dependents} from '../build/source_file.js';
 import {throttle} from '../util/throttle.js';
 
 const name = 'gro_plugin_gen';
@@ -76,7 +76,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 				if (isGenPath(source_file.id)) {
 					queueGen(source_id_to_base_path(source_file.id));
 				}
-				const dependentGenFileIds = filterDependents(
+				const dependentGenFileIds = filter_dependents(
 					source_file,
 					build_config,
 					filer.find_by_id as any, // cast because we can assume they're all `SourceFile`s

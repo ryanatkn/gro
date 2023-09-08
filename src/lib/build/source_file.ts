@@ -4,7 +4,7 @@ import {stripStart} from '@feltjs/util/string.js';
 import type {FilerDir} from './filer_dir.js';
 import {reconstruct_build_files, type BuildFile} from './build_file.js';
 import type {BaseFilerFile} from './filer_file.js';
-import {toHash} from './helpers.js';
+import {to_hash} from './helpers.js';
 import type {BuildConfig} from './build_config.js';
 import type {SourceMeta} from './source_meta.js';
 import type {BuildDependency} from './build_dependency.js';
@@ -41,7 +41,7 @@ export const create_source_file = async (
 	let dirty = false;
 	if (source_meta !== undefined) {
 		content_buffer = Buffer.from(content);
-		content_hash = toHash(content_buffer);
+		content_hash = to_hash(content_buffer);
 
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
@@ -74,35 +74,42 @@ export const create_source_file = async (
 	};
 };
 
-export function assert_source_file(
+export const assert_source_file: (
 	file: BaseFilerFile | undefined | null,
-): asserts file is SourceFile {
+) => asserts file is SourceFile = (file) => {
 	if (file == null) {
 		throw Error(`Expected a file but got ${file}`);
 	}
 	if (file.type !== 'source') {
 		throw Error(`Expected a source file, but type is ${file.type}: ${file.id}`);
 	}
-}
+};
 
-export const filterDependents = (
+export const filter_dependents = (
 	source_file: SourceFile,
 	build_config: BuildConfig,
-	findFileById: (id: string) => SourceFile | undefined,
+	find_file_by_id: (id: string) => SourceFile | undefined,
 	filter?: IdFilter | undefined,
 	results: Set<string> = new Set(),
 	searched: Set<string> = new Set(),
 ): Set<string> => {
-	const dependentsForConfig = source_file.dependents?.get(build_config);
-	if (!dependentsForConfig) return results;
-	for (const dependentId of dependentsForConfig.keys()) {
-		if (searched.has(dependentId)) continue;
-		searched.add(dependentId);
-		if (!filter || filter(dependentId)) {
-			results.add(dependentId);
+	const dependents_for_config = source_file.dependents?.get(build_config);
+	if (!dependents_for_config) return results;
+	for (const dependent_id of dependents_for_config.keys()) {
+		if (searched.has(dependent_id)) continue;
+		searched.add(dependent_id);
+		if (!filter || filter(dependent_id)) {
+			results.add(dependent_id);
 		}
-		const dependent_source_file = findFileById(dependentId)!;
-		filterDependents(dependent_source_file, build_config, findFileById, filter, results, searched);
+		const dependent_source_file = find_file_by_id(dependent_id)!;
+		filter_dependents(
+			dependent_source_file,
+			build_config,
+			find_file_by_id,
+			filter,
+			results,
+			searched,
+		);
 	}
 	return results;
 };
