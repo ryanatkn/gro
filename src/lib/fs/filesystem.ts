@@ -31,6 +31,7 @@ export interface FsFindFiles {
 		filter?: PathFilter,
 		// pass `null` to speed things up at the risk of infrequent misorderings (at least on Linux)
 		sort?: ((a: [any, any], b: [any, any]) => number) | null,
+		filesOnly?: boolean,
 	): Promise<Map<string, PathStats>>;
 }
 export interface FsReadFile {

@@ -142,7 +142,7 @@ export const invoke_task = async (
 				// and log everything out.
 				const gro_dir_input_path = replace_root_dir(input_path, gro_paths.root);
 				const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
-					fs.findFiles(id, (path) => is_task_path(path)),
+					fs.findFiles(id, (path) => is_task_path(path), undefined, true),
 				);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (gro_dir_find_modules_result.ok) {
@@ -180,7 +180,7 @@ export const invoke_task = async (
 			// but it has no matching files, we still want to search Gro's directory.
 			const gro_dir_input_path = replace_root_dir(input_path, gro_paths.root);
 			const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
-				fs.findFiles(id, (path) => is_task_path(path)),
+				fs.findFiles(id, (path) => is_task_path(path), undefined, true),
 			);
 			if (gro_dir_find_modules_result.ok) {
 				timings.merge(gro_dir_find_modules_result.timings);

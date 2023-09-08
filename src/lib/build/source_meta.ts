@@ -110,7 +110,7 @@ export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
 	if (!(await fs.exists(source_meta_dir))) return;
 	console.log(`source_meta_dir`, source_meta_dir);
-	const files = await fs.findFiles(source_meta_dir, undefined, null);
+	const files = await fs.findFiles(source_meta_dir, undefined, null, true);
 	console.log(`files`, files);
 	await Promise.all(
 		Array.from(files.keys()).map(async (cache_id) => {

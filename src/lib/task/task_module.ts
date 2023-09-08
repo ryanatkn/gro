@@ -40,7 +40,7 @@ export const find_task_modules = async (
 	find_modules(
 		fs,
 		input_paths,
-		(id) => fs.findFiles(id, (path) => is_task_path(path)),
+		(id) => fs.findFiles(id, (path) => is_task_path(path), undefined, true),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);
 

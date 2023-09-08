@@ -27,7 +27,7 @@ export const gen: Gen = async ({fs, origin_id}) => {
 
 	// TODO this is GitHub-specific
 	const root_link = `[${root_path}](/../..)`;
-	const docFiles = await fs.findFiles(origin_dir);
+	const docFiles = await fs.findFiles(origin_dir, undefined, undefined, true);
 	const docPaths: string[] = [];
 	for (const path of docFiles.keys()) {
 		if (path === output_file_name || !path.endsWith('.md')) {

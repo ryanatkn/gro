@@ -116,6 +116,6 @@ export const find_gen_modules = (
 	find_modules(
 		fs,
 		input_paths,
-		(id) => fs.findFiles(id, (path) => extensions.some((e) => path.includes(e))),
+		(id) => fs.findFiles(id, (path) => extensions.some((e) => path.includes(e)), undefined, true),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

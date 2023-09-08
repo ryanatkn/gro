@@ -100,7 +100,7 @@ test__find_modules('with and without extension', async () => {
 test__find_modules('directory', async () => {
 	const id = resolve('src/lib/fs/fixtures/');
 	const result = await find_modules(fs, [id], (id) =>
-		fs.findFiles(id, (path) => path.includes('.foo.')),
+		fs.findFiles(id, (path) => path.includes('.foo.'), undefined, true),
 	);
 	assert.ok(result.ok);
 	assert.equal(
