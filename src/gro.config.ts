@@ -15,7 +15,7 @@ const config: GroConfigCreator = async () => {
 		adapt: async () =>
 			Promise.all([
 				// TODO BLOCK enable
-				// (await import('./lib/adapt/gro-adapter-sveltekit-frontend.js')).createAdapter({
+				// (await import('./lib/adapt/gro_adapter_sveltekit_frontend.js')).createAdapter({
 				// 	hostTarget: 'github_pages',
 				// }),
 				(await import('./lib/adapt/gro_adapter_node_library.js')).createAdapter(),

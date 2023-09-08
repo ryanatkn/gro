@@ -11,7 +11,7 @@ import {
 	type SourceId,
 	replace_extension,
 } from '../path/paths.js';
-import type {BuildDependency} from './buildDependency.js';
+import type {BuildDependency} from './build_dependency.js';
 
 // Note that this uses md5 and therefore is not cryptographically secure.
 // It's fine for now, but some use cases may need security.
@@ -33,7 +33,7 @@ export interface MapDependencyToSourceId {
 // and 2) JS files may cause errors in rare cases,
 // like if the intended source file changes its extension.
 // (not a big deal, but points to a system design flaw)
-export const mapDependencyToSourceId: MapDependencyToSourceId = async (
+export const map_dependency_to_source_d: MapDependencyToSourceId = async (
 	dependency,
 	build_dir,
 	fs,
@@ -70,7 +70,7 @@ export const validate_input_files = async (
 	return {ok: true};
 };
 
-export const isInputToBuildConfig = (id: string, inputs: BuildConfigInput[]): boolean => {
+export const is_input_to_build_config = (id: string, inputs: BuildConfigInput[]): boolean => {
 	for (const input of inputs) {
 		if (typeof input === 'string' ? id === input : input(id)) {
 			return true;

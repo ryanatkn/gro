@@ -5,7 +5,7 @@ import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../task/args.js';
 import {source_id_to_base_path} from '../path/paths.js';
 import {findGenModules, isGenPath} from '../gen/genModule.js';
-import {filterDependents} from '../build/sourceFile.js';
+import {filterDependents} from '../build/source_file.js';
 import {throttle} from '../util/throttle.js';
 
 const name = 'gro_plugin_gen';
@@ -70,14 +70,14 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
-			on_filer_build = async ({sourceFile, build_config}) => {
+			on_filer_build = async ({source_file, build_config}) => {
 				// TODO BLOCK how to handle this now? the loader traces deps for us with `parentPath`
 				// if (build_config.name !== 'system') return;
-				if (isGenPath(sourceFile.id)) {
-					queueGen(source_id_to_base_path(sourceFile.id));
+				if (isGenPath(source_file.id)) {
+					queueGen(source_id_to_base_path(source_file.id));
 				}
 				const dependentGenFileIds = filterDependents(
-					sourceFile,
+					source_file,
 					build_config,
 					filer.find_by_id as any, // cast because we can assume they're all `SourceFile`s
 					isGenPath,

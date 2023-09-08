@@ -12,7 +12,6 @@ import {
 	type BuildConfigPartial,
 } from '../build/build_config.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
-import {DEFAULT_ECMA_SCRIPT_TARGET} from '../build/build_config_defaults.js';
 import type {EcmaScriptTarget} from '../build/helpers.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import createDefaultConfig from './gro.config.default.js';
@@ -185,6 +184,6 @@ export const normalize_config = (config: GroConfigPartial): GroConfig => {
 		adapt: () => null,
 		...omitUndefined(config),
 		builds: build_configs,
-		target: config.target || DEFAULT_ECMA_SCRIPT_TARGET,
+		target: config.target || 'esnext',
 	};
 };

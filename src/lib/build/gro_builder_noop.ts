@@ -5,7 +5,7 @@ export const gro_builder_noop: Builder = {
 	name: 'gro_builder_noop',
 	build: (source, build_config, {build_dir, dev}) => {
 		const {filename, extension} = source;
-		const outDir = to_build_out_path(dev, build_config.name, source.dirBasePath, build_dir);
+		const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 		const id = `${outDir}${filename}`;
 		return [
 			{

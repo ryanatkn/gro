@@ -5,18 +5,18 @@ import type {Filesystem} from '../fs/filesystem.js';
 import type {IdStatsFilter} from '../fs/filter.js';
 import {to_build_out_path, print_path} from '../path/paths.js';
 
-export const copyDist = async (
+export const copy_dist = async (
 	fs: Filesystem,
 	build_config: BuildConfig,
 	dev: boolean,
-	distOutDir: string,
+	dist_out_dir: string,
 	log: Logger,
 	filter?: IdStatsFilter,
 	rebase_path = '',
 ): Promise<void> => {
-	const buildOutDir = to_build_out_path(dev, build_config.name, rebase_path);
-	log.info(`copying ${print_path(buildOutDir)} to ${print_path(distOutDir)}`);
-	await fs.copy(buildOutDir, distOutDir, {
+	const build_out_dir = to_build_out_path(dev, build_config.name, rebase_path);
+	log.info(`copying ${print_path(build_out_dir)} to ${print_path(dist_out_dir)}`);
+	await fs.copy(build_out_dir, dist_out_dir, {
 		overwrite: false,
 		filter: async (id) => {
 			const stats = await fs.stat(id);
@@ -34,9 +34,9 @@ const NOJEKYLL_FILENAME = '.nojekyll';
 // breaking things like files and dirs prefixed with an underscore.
 // This adds a `.nojekyll` file to the root of the output
 // to tell GitHub Pages to treat the outputs as plain static files.
-export const ensureNojekyll = async (fs: Filesystem, dir: string): Promise<void> => {
-	const nojekyllPath = `${dir}/${NOJEKYLL_FILENAME}`;
-	if (!(await fs.exists(nojekyllPath))) {
-		await fs.writeFile(nojekyllPath, '', 'utf8');
+export const ensure_nojekyll = async (fs: Filesystem, dir: string): Promise<void> => {
+	const path = `${dir}/${NOJEKYLL_FILENAME}`;
+	if (!(await fs.exists(path))) {
+		await fs.writeFile(path, '', 'utf8');
 	}
 };

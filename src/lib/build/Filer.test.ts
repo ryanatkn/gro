@@ -64,8 +64,8 @@ test__Filer('basic build usage with no watch', async ({fs}) => {
 	}
 	assert.ok(initError);
 
-	// snapshot test the entire sourceMeta
-	assert.equal(Array.from(filer.source_meta_by_id.entries()), sourceMetaSnapshot);
+	// snapshot test the entire source_meta
+	assert.equal(Array.from(filer.source_meta_by_id.entries()), source_metaSnapshot);
 
 	assert.equal(Array.from(fs._files.keys()), filesKeysSnapshot);
 	assert.ok(fs._files.has(entryId));
@@ -96,7 +96,7 @@ const filesKeysSnapshot = [
 	'/c/dev_meta/entry.ts.json',
 ];
 
-const sourceMetaSnapshot = [
+const source_metaSnapshot = [
 	[
 		'/a/b/src/dep2.ts',
 		{

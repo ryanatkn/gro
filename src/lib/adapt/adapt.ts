@@ -37,21 +37,21 @@ export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<
 
 export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
-	const timingToCreateAdapters = timings.start('create adapters');
+	const timing_to_create_adapters = timings.start('create adapters');
 	const adapters: Array<Adapter<any, any>> = toArray(await config.adapt(ctx)).filter(
 		Boolean,
 	) as Array<Adapter<any, any>>;
-	timingToCreateAdapters();
+	timing_to_create_adapters();
 
 	if (adapters.length) {
-		const timingToRunAdapters = timings.start('adapt');
+		const timing_to_run_adapters = timings.start('adapt');
 		for (const adapter of adapters) {
 			if (!adapter.adapt) continue;
 			const timing = timings.start(`adapt:${adapter.name}`);
 			await adapter.adapt(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
-		timingToRunAdapters();
+		timing_to_run_adapters();
 	}
 
 	return adapters;

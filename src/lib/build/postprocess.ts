@@ -14,7 +14,7 @@ import {
 	MODULE_PATH_LIB_PREFIX,
 	MODULE_PATH_SRC_PREFIX,
 } from '../path/module.js';
-import type {BuildDependency} from './buildDependency.js';
+import type {BuildDependency} from './build_dependency.js';
 
 await lexer.init;
 

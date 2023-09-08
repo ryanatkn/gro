@@ -2,15 +2,13 @@ import {printSpawnResult, spawn} from '@feltjs/util/process.js';
 
 import type {Adapter} from './adapt.js';
 import {TaskError} from '../task/task.js';
-import type {PackageJson} from '../util/package_json.js';
+import {load_package_json} from '../util/package_json.js';
 import {print_command_args, serialize_args, to_forwarded_args} from '../task/args.js';
 import {find_cli, spawn_cli} from '../util/cli.js';
 
-const name = 'gro_adapter_node_library';
-
 export const createAdapter = (): Adapter => {
 	return {
-		name,
+		name: 'gro_adapter_node_library',
 		adapt: async ({fs, log, timings}) => {
 			if (!(await find_cli(fs, 'svelte-package'))) {
 				throw Error(`Failed to find svelte-package: install @sveltejs/package locally or globally`);
@@ -19,12 +17,7 @@ export const createAdapter = (): Adapter => {
 			log.info(print_command_args(serialized_args));
 			await spawn_cli(fs, 'svelte-package', serialized_args);
 
-			let pkg: PackageJson;
-			try {
-				pkg = JSON.parse(await fs.readFile('package.json', 'utf8'));
-			} catch (err) {
-				throw Error(`Adapter ${name} failed to load package.json: ${err}`);
-			}
+			const pkg = await load_package_json(fs);
 
 			// `npm link`
 			if (pkg.bin) {

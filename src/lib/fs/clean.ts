@@ -1,7 +1,7 @@
 import {EMPTY_ARRAY} from '@feltjs/util/array.js';
 import type {SystemLogger} from '@feltjs/util/log.js';
 
-import {toSourceMetaDir} from '../build/sourceMeta.js';
+import {toSourceMetaDir} from '../build/source_meta.js';
 import {
 	NODE_MODULES_DIRNAME,
 	paths,

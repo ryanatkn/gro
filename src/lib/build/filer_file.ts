@@ -1,7 +1,7 @@
 import type {PathStats} from '../path/path_data.js';
 import {toHash} from './helpers.js';
-import type {SourceFile} from './sourceFile.js';
-import type {BuildFile} from './buildFile.js';
+import type {SourceFile} from './source_file.js';
+import type {BuildFile} from './build_file.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
 // TODO rename this module? or move this code elsewhere?

@@ -1,7 +1,7 @@
 import {gro_builder_noop} from './gro_builder_noop.js';
 import type {BuildContext, Builder} from './builder.js';
 import type {BuildConfig} from './build_config.js';
-import type {SourceFile} from './sourceFile.js';
+import type {SourceFile} from './source_file.js';
 
 export interface GetBuilder {
 	(source: SourceFile, build_config: BuildConfig): Builder | null;

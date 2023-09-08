@@ -11,9 +11,9 @@ import {
 } from '../path/paths.js';
 import type {Builder} from './builder.js';
 import {addJsSourcemapFooter, type EcmaScriptTarget} from './helpers.js';
-import type {BuildFile} from './buildFile.js';
+import type {BuildFile} from './build_file.js';
 import {postprocess} from './postprocess.js';
-import type {SourceFile} from './sourceFile.js';
+import type {SourceFile} from './source_file.js';
 
 export interface Options {
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
@@ -48,7 +48,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 			throw Error(`esbuild cannot handled file with extension ${source.extension}`);
 		}
 
-		const outDir = to_build_out_path(dev, build_config.name, source.dirBasePath, build_dir);
+		const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 		const esbuildOptions = {
 			...getEsbuildOptions(target, dev, sourcemap),
 			sourcefile: source.id,
@@ -57,7 +57,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 		const jsFilename = replace_extension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
 
-		const buildFiles: BuildFile[] = [
+		const build_files: BuildFile[] = [
 			{
 				type: 'build',
 				source_id: source.id,
@@ -76,7 +76,7 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 			},
 		];
 		if (output.map) {
-			buildFiles.push({
+			build_files.push({
 				type: 'build',
 				source_id: source.id,
 				build_config,
@@ -93,15 +93,15 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 		}
 
 		await Promise.all(
-			buildFiles.map(async (buildFile) => {
-				const {content, extension, dir} = buildFile;
+			build_files.map(async (build_file) => {
+				const {content, extension, dir} = build_file;
 				if (typeof content !== 'string' || extension !== JS_EXTENSION) return;
 				const processed = postprocess(content, dir, source.dir, JS_EXTENSION);
-				(buildFile as Assignable<BuildFile, 'content'>).content = processed.content;
-				(buildFile as Assignable<BuildFile, 'dependencies'>).dependencies = processed.dependencies;
+				(build_file as Assignable<BuildFile, 'content'>).content = processed.content;
+				(build_file as Assignable<BuildFile, 'dependencies'>).dependencies = processed.dependencies;
 			}),
 		);
-		return buildFiles;
+		return build_files;
 	};
 
 	return {name: 'gro_builder_esbuild', build};

@@ -1,6 +1,6 @@
 import {JS_EXTENSION, to_build_out_path} from '../path/paths.js';
 import type {Builder} from './builder.js';
-import type {SourceFile} from './sourceFile.js';
+import type {SourceFile} from './source_file.js';
 
 export interface Options {
 	optimize?: boolean; // see `toJsonJsContent` below
@@ -14,7 +14,7 @@ export const gro_builder_json = (options: Options = {}): JsonBuilder => {
 		name: 'gro_builder_json',
 		build: (source, build_config, {build_dir, dev}) => {
 			const {filename} = source;
-			const outDir = to_build_out_path(dev, build_config.name, source.dirBasePath, build_dir);
+			const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
 			return [
 				{
 					type: 'build',

@@ -2,12 +2,12 @@ import type {Logger} from '@feltjs/util/log.js';
 
 import type {BuildConfig, BuildName} from './build_config.js';
 import type {EcmaScriptTarget} from './helpers.js';
-import type {SourceMeta} from './sourceMeta.js';
+import type {SourceMeta} from './source_meta.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BaseFilerFile} from './filer_file.js';
-import type {BuildFile} from './buildFile.js';
+import type {BuildFile} from './build_file.js';
 import type {Paths} from '../path/paths.js';
-import type {SourceFile} from './sourceFile.js';
+import type {SourceFile} from './source_file.js';
 
 export interface Builder<TSource extends SourceFile = SourceFile> {
 	name: string;
