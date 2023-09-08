@@ -13,14 +13,14 @@ import type {Builder} from './builder.js';
 import {addJsSourcemapFooter, type EcmaScriptTarget} from './helpers.js';
 import type {BuildFile} from './buildFile.js';
 import {postprocess} from './postprocess.js';
-import type {TextSourceFile} from './sourceFile.js';
+import type {SourceFile} from './sourceFile.js';
 
 export interface Options {
 	// TODO changes to this by consumers can break caching - how can the DX be improved?
 	create_esbuild_options?: CreateEsbuildOptions;
 }
 
-type EsbuildBuilder = Builder<TextSourceFile>;
+type EsbuildBuilder = Builder<SourceFile>;
 
 export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 	const {create_esbuild_options = default_create_esbuild_options} = options;

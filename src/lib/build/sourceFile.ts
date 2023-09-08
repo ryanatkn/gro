@@ -12,12 +12,7 @@ import type {BuildContext} from './builder.js';
 import type {IdFilter} from '../fs/filter.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
-export type SourceFile = TextSourceFile;
-
-export interface TextSourceFile extends BaseSourceFile {
-	content: string;
-}
-export interface BaseSourceFile extends BaseFilerFile {
+export interface SourceFile extends BaseFilerFile {
 	readonly id: SourceId;
 	readonly type: 'source';
 	readonly dirBasePath: string; // TODO is this the best design? if so should it also go on the `BaseFilerFile`? what about `base_path` too?

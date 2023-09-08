@@ -1,12 +1,12 @@
 import {JS_EXTENSION, to_build_out_path} from '../path/paths.js';
 import type {Builder} from './builder.js';
-import type {TextSourceFile} from './sourceFile.js';
+import type {SourceFile} from './sourceFile.js';
 
 export interface Options {
 	optimize?: boolean; // see `toJsonJsContent` below
 }
 
-type JsonBuilder = Builder<TextSourceFile>;
+type JsonBuilder = Builder<SourceFile>;
 
 export const gro_builder_json = (options: Options = {}): JsonBuilder => {
 	const {optimize = true} = options;

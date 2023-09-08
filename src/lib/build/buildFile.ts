@@ -6,11 +6,7 @@ import type {BuildConfig} from './build_config.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
-export type BuildFile = TextBuildFile;
-export interface TextBuildFile extends BaseBuildFile {
-	readonly content: string;
-}
-export interface BaseBuildFile extends BaseFilerFile {
+export interface BuildFile extends BaseFilerFile {
 	readonly id: BuildId;
 	readonly type: 'build';
 	readonly source_id: SourceId;
