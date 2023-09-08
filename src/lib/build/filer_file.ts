@@ -1,4 +1,3 @@
-import type {Filesystem} from '../fs/filesystem.js';
 import type {PathStats} from '../path/path_data.js';
 import {toHash} from './helpers.js';
 import type {SourceFile} from './sourceFile.js';
@@ -27,18 +26,6 @@ export const get_file_content_buffer = (file: BaseFilerFile): Buffer =>
 	file.content_buffer !== undefined
 		? file.content_buffer
 		: (file.content_buffer = Buffer.from(file.content));
-
-// PathStats are currently lazily loaded. Should they be?
-export const getFileStats = (
-	fs: Filesystem,
-	file: BaseFilerFile,
-): PathStats | Promise<PathStats> =>
-	file.stats !== undefined
-		? file.stats
-		: fs.stat(file.id).then((stats) => {
-				file.stats = stats;
-				return stats;
-		  });
 
 export const get_file_content_hash = (file: BaseFilerFile): string =>
 	file.content_hash !== undefined
