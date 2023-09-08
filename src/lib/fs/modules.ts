@@ -12,18 +12,6 @@ import type {PathStats, PathData} from '../path/path_data.js';
 import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
 import type {Filesystem} from './filesystem.js';
 
-/*
-
-The main functions here, `find_modules` and `load_modules`/`load_module`,
-cleanly separate finding from loading.
-This has significant performance consequences and is friendly to future changes.
-Currently the implementations only use the filesystem,
-but eventually we'll have an in-memory virtual filesystem for dev watch mode.
-
-TODO now that `Filer` is here, integrate it further
-
-*/
-
 export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
 	id: string;
 	mod: TModule;
