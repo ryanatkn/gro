@@ -11,7 +11,7 @@ export interface Options {
 	host_target?: HostTarget;
 }
 
-export const createAdapter = ({
+export const create_adapter = ({
 	build_name,
 	dir = `${DIST_DIRNAME}/${build_name}`,
 	host_target = 'static',

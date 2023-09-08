@@ -30,19 +30,20 @@ const config: GroConfigCreator = async ({fs}) => {
 			enable_sveltekit_frontend
 				? (await import('../plugin/gro_plugin_sveltekit_frontend.js')).create_plugin()
 				: null,
-			(await import('../plugin/gro_plugin_gen.js')).create_plugin(),
+			// TODO replace with an esbuild plugin, see the module for more
+			// (await import('../plugin/gro_plugin_gen.js')).create_plugin(),
 		],
 		adapt: async () => [
 			enable_node_library
-				? (await import('../adapt/gro_adapter_node_library.js')).createAdapter()
+				? (await import('../adapt/gro_adapter_node_library.js')).create_adapter()
 				: null,
 			enable_node_server
-				? (await import('../adapt/gro_adapter_generic_build.js')).createAdapter({
+				? (await import('../adapt/gro_adapter_generic_build.js')).create_adapter({
 						build_name: API_SERVER_BUILD_CONFIG.name,
 				  })
 				: null,
 			enable_sveltekit_frontend
-				? (await import('../adapt/gro_adapter_sveltekit_frontend.js')).createAdapter({
+				? (await import('../adapt/gro_adapter_sveltekit_frontend.js')).create_adapter({
 						host_target: enable_node_server ? 'node' : 'github_pages',
 				  })
 				: null,

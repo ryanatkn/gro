@@ -8,6 +8,7 @@ Gro's builtin plugins:
 - [`@feltjs/gro_plugin_node_server`](../plugin/gro_plugin_node_server.ts)
 - [`@feltjs/gro_plugin_sveltekit_frontend`](../plugin/gro_plugin_sveltekit_frontend.ts)
 - [`@feltjs/gro_plugin_gen`](../plugin/gro_plugin_gen.ts)
+  (currently disabled, will be replaced with an esbuild plugin)
 
 Also see [`config.plugin` in the config docs](config.md#plugin)
 and usage in [the default config](../config/gro.config.default.ts).

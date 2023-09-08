@@ -9,7 +9,7 @@ export interface Options {
 	host_target: HostTarget;
 }
 
-export const createAdapter = ({
+export const create_adapter = ({
 	dir = SVELTEKIT_BUILD_DIRNAME,
 	host_target = 'github_pages',
 }: Partial<Options> = {}): Adapter => {

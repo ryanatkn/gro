@@ -76,9 +76,9 @@ import type {GroConfigCreator} from '@feltjs/gro';
 const config: GroConfigCreator = async () => {
 	return {
 		adapt: async () => [
-			(await import('@feltjs/gro/gro_adapter_sveltekit_frontend.js')).createAdapter(),
-			(await import('@feltjs/gro/gro_adapter_node_library.js')).createAdapter(),
-			(await import('@feltjs/gro/groAdapterApiServer.js')).createAdapter(),
+			(await import('@feltjs/gro/gro_adapter_sveltekit_frontend.js')).create_adapter(),
+			(await import('@feltjs/gro/gro_adapter_node_library.js')).create_adapter(),
+			(await import('@feltjs/gro/groAdapterApiServer.js')).create_adapter(),
 		],
 
 		// this **does not work**, even though it's simpler!

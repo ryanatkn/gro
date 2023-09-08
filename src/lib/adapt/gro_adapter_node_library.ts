@@ -6,7 +6,7 @@ import {load_package_json} from '../util/package_json.js';
 import {print_command_args, serialize_args, to_forwarded_args} from '../task/args.js';
 import {find_cli, spawn_cli} from '../util/cli.js';
 
-export const createAdapter = (): Adapter => {
+export const create_adapter = (): Adapter => {
 	return {
 		name: 'gro_adapter_node_library',
 		adapt: async ({fs, log, timings}) => {
