@@ -10,7 +10,7 @@ import {
 	GEN_SCHEMA_IDENTIFIER_SUFFIX,
 	type GenModuleMeta,
 	GEN_SCHEMA_PATH_SUFFIX,
-} from './genModule.js';
+} from './gen_module.js';
 import {
 	type GenResults,
 	type GenModuleResult,
@@ -22,44 +22,44 @@ import {
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {print_path, source_id_to_base_path} from '../path/paths.js';
-import {genSchemas, toSchemasFromModules} from './genSchemas.js';
+import {gen_schemas, to_schemas_from_modules} from './gen_schemas.js';
 import {to_json_schema_resolver} from '../util/schema.js';
 
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
-export const runGen = async (
+export const run_gen = async (
 	fs: Filesystem,
-	genModules: GenModuleMeta[],
+	gen_modules: GenModuleMeta[],
 	log: Logger,
 	format_file?: (fs: Filesystem, id: string, content: string) => Promise<string>,
 ): Promise<GenResults> => {
 	let input_count = 0;
 	let output_count = 0;
 	const timings = new Timings();
-	const timingForTotal = timings.start('total');
-	const genSchemasOptions = toGenSchemasOptions(genModules);
-	const imports = toGenContextImports(genModules);
+	const timing_for_run_gen = timings.start('run_gen');
+	const gen_schemas_options = to_gen_schemas_options(gen_modules);
+	const imports = to_gen_context_imports(gen_modules);
 	const results = await Promise.all(
-		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
+		gen_modules.map(async (module_meta): Promise<GenModuleResult> => {
 			input_count++;
-			const {id} = moduleMeta;
-			const timingForModule = timings.start(id);
+			const {id} = module_meta;
+			const timing_for_module = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			const genCtx: GenContext = {fs, origin_id: id, log, imports};
-			let rawGenResult: RawGenResult;
+			const gen_ctx: GenContext = {fs, origin_id: id, log, imports};
+			let raw_gen_result: RawGenResult;
 			try {
-				switch (moduleMeta.type) {
+				switch (module_meta.type) {
 					case 'basic': {
-						rawGenResult = await moduleMeta.mod.gen(genCtx);
+						raw_gen_result = await module_meta.mod.gen(gen_ctx);
 						break;
 					}
 					case 'schema': {
-						rawGenResult = await genSchemas(moduleMeta.mod, genCtx, genSchemasOptions);
+						raw_gen_result = await gen_schemas(module_meta.mod, gen_ctx, gen_schemas_options);
 						break;
 					}
 					default: {
-						throw new UnreachableError(moduleMeta);
+						throw new UnreachableError(module_meta);
 					}
 				}
 			} catch (err) {
@@ -68,17 +68,17 @@ export const runGen = async (
 					id,
 					error: err,
 					reason: red(`Error generating ${print_path(id)}`),
-					elapsed: timingForModule(),
+					elapsed: timing_for_module(),
 				};
 			}
 
 			// Convert the module's return value to a normalized form.
-			const genResult = to_gen_result(id, rawGenResult);
+			const gen_result = to_gen_result(id, raw_gen_result);
 
 			// Format the files if needed.
 			const files = format_file
 				? await Promise.all(
-						genResult.files.map(async (file) => {
+						gen_result.files.map(async (file) => {
 							if (!file.format) return file;
 							try {
 								return {...file, content: await format_file(fs, file.id, file.content)};
@@ -91,14 +91,14 @@ export const runGen = async (
 							}
 						}),
 				  )
-				: genResult.files;
+				: gen_result.files;
 
 			output_count += files.length;
 			return {
 				ok: true,
 				id,
 				files,
-				elapsed: timingForModule(),
+				elapsed: timing_for_module(),
 			};
 		}),
 	);
@@ -108,14 +108,14 @@ export const runGen = async (
 		failures: results.filter((r) => !r.ok) as GenModuleResultFailure[],
 		input_count,
 		output_count,
-		elapsed: timingForTotal(),
+		elapsed: timing_for_run_gen(),
 	};
 };
 
-const toGenSchemasOptions = (
-	genModules: GenModuleMeta[],
+const to_gen_schemas_options = (
+	gen_modules: GenModuleMeta[],
 ): Partial<JsonSchemaToTypeScriptOptions> => {
-	const schemas = toSchemasFromModules(genModules);
+	const schemas = to_schemas_from_modules(gen_modules);
 	return {
 		$refOptions: {
 			resolve: {
@@ -130,12 +130,12 @@ const toGenSchemasOptions = (
 export const to_gen_import_path = (id: string): string =>
 	'$' + stripEnd(source_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);
 
-export const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
+export const to_gen_context_imports = (gen_modules: GenModuleMeta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};
-	for (const genModule of genModules) {
-		if (genModule.type === 'schema') {
-			const importPath = to_gen_import_path(genModule.id);
-			for (const identifier of Object.keys(genModule.mod)) {
+	for (const gen_module of gen_modules) {
+		if (gen_module.type === 'schema') {
+			const importPath = to_gen_import_path(gen_module.id);
+			for (const identifier of Object.keys(gen_module.mod)) {
 				const name = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
 				imports[name] = `import type {${name}} from '${importPath}';`;
 			}

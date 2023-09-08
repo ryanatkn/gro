@@ -3,8 +3,8 @@ import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
 import {Logger} from '@feltjs/util/log.js';
 
-import type {GenModuleMeta} from './genModule.js';
-import {runGen} from './runGen.js';
+import type {GenModuleMeta} from './gen_module.js';
+import {run_gen} from './run_gen.js';
 import {fs} from '../fs/node.js';
 
 const log = new Logger('test__gen'); // TODO test logger?
@@ -69,20 +69,20 @@ test__gen('basic behavior', async () => {
 			},
 		},
 	};
-	const genModulesByInputPath = [modA, modB, modC];
-	const genResults = await runGen(fs, genModulesByInputPath, log, async (_fs, id, content) =>
+	const gen_modulesByInputPath = [modA, modB, modC];
+	const gen_results = await run_gen(fs, gen_modulesByInputPath, log, async (_fs, id, content) =>
 		id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content,
 	);
-	assert.is(genResults.input_count, 3);
-	assert.is(genResults.output_count, 4);
-	assert.is(genResults.successes.length, 3);
-	assert.is(genResults.failures.length, 0);
-	assert.is(genResults.results.length, 3);
-	assert.is(genResults.results[0], genResults.successes[0]);
-	assert.is(genResults.results[1], genResults.successes[1]);
-	assert.is(genResults.results[2], genResults.successes[2]);
+	assert.is(gen_results.input_count, 3);
+	assert.is(gen_results.output_count, 4);
+	assert.is(gen_results.successes.length, 3);
+	assert.is(gen_results.failures.length, 0);
+	assert.is(gen_results.results.length, 3);
+	assert.is(gen_results.results[0], gen_results.successes[0]);
+	assert.is(gen_results.results[1], gen_results.successes[1]);
+	assert.is(gen_results.results[2], gen_results.successes[2]);
 
-	const resultA = genResults.results[0];
+	const resultA = gen_results.results[0];
 	assert.ok(resultA?.ok);
 	assert.ok(fileA);
 	assert.equal(resultA.files, [
@@ -94,7 +94,7 @@ test__gen('basic behavior', async () => {
 		},
 	]);
 
-	const resultB = genResults.results[1];
+	const resultB = gen_results.results[1];
 	assert.ok(resultB?.ok);
 	assert.ok(fileB);
 	assert.equal(resultB.files, [
@@ -105,7 +105,7 @@ test__gen('basic behavior', async () => {
 			format: true,
 		},
 	]);
-	const resultC = genResults.results[2];
+	const resultC = gen_results.results[2];
 	assert.ok(resultC?.ok);
 	assert.ok(fileC1);
 	assert.ok(fileC2);
@@ -157,23 +157,23 @@ test__gen('failing gen function', async () => {
 			},
 		},
 	};
-	const genModulesByInputPath: GenModuleMeta[] = [modA, modB];
-	const genResults = await runGen(fs, genModulesByInputPath, log);
-	assert.is(genResults.input_count, 2);
-	assert.is(genResults.output_count, 1);
-	assert.is(genResults.successes.length, 1);
-	assert.is(genResults.failures.length, 1);
-	assert.is(genResults.results.length, 2);
-	assert.is(genResults.results[0], genResults.failures[0]);
-	assert.is(genResults.results[1], genResults.successes[0]);
+	const gen_modulesByInputPath: GenModuleMeta[] = [modA, modB];
+	const gen_results = await run_gen(fs, gen_modulesByInputPath, log);
+	assert.is(gen_results.input_count, 2);
+	assert.is(gen_results.output_count, 1);
+	assert.is(gen_results.successes.length, 1);
+	assert.is(gen_results.failures.length, 1);
+	assert.is(gen_results.results.length, 2);
+	assert.is(gen_results.results[0], gen_results.failures[0]);
+	assert.is(gen_results.results[1], gen_results.successes[0]);
 
-	const resultA = genResults.results[0];
+	const resultA = gen_results.results[0];
 	assert.ok(resultA);
 	assert.ok(!resultA?.ok);
 	assert.ok(resultA.reason);
 	assert.ok(resultA.error);
 
-	const resultB = genResults.results[1];
+	const resultB = gen_results.results[1];
 	assert.ok(resultB?.ok);
 	assert.ok(fileB);
 	assert.equal(resultB.files, [

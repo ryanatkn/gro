@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
 import {normalize_type_imports} from './type_imports.js';
-import {fs} from '../../fs/node.js';
+import {fs} from '../fs/node.js';
 
 /* test__normalize_type_imports */
 const test__normalize_type_imports = suite('normalize_type_imports');

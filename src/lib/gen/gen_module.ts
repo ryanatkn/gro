@@ -29,15 +29,15 @@ export interface SchemaGenModule extends BasicGenModule {
 	[key: string]: unknown;
 }
 
-export const toGenModuleType = (filename: string): GenModuleType =>
+export const to_gen_module_type = (filename: string): GenModuleType =>
 	filename.includes(GEN_SCHEMA_FILE_PATTERN) ? 'schema' : 'basic';
 
-export const genModuleMeta: Record<GenModuleType, {pattern: string; text: string}> = {
+export const gen_module_meta: Record<GenModuleType, {pattern: string; text: string}> = {
 	basic: {pattern: GEN_FILE_PATTERN, text: GEN_FILE_PATTERN_TEXT},
 	schema: {pattern: GEN_SCHEMA_FILE_PATTERN, text: GEN_SCHEMA_FILE_PATTERN_TEXT},
 };
 
-export const validateGenModule = {
+export const validate_gen_module = {
 	basic: (mod: Record<string, any>): mod is BasicGenModule => typeof mod?.gen === 'function',
 	schema: (mod: Record<string, any>): mod is SchemaGenModule => !!mod,
 };
@@ -52,9 +52,9 @@ export interface SchemaGenModuleMeta extends ModuleMeta<GenModule> {
 	mod: SchemaGenModule;
 }
 
-export const loadGenModule = async (id: string): Promise<LoadModuleResult<GenModuleMeta>> => {
-	const type = toGenModuleType(id);
-	const result = await load_module(id, validateGenModule[type]);
+export const load_gen_module = async (id: string): Promise<LoadModuleResult<GenModuleMeta>> => {
+	const type = to_gen_module_type(id);
+	const result = await load_module(id, validate_gen_module[type]);
 	if (result.ok) {
 		(result.mod as GenModuleMeta).type = type;
 	}
@@ -64,23 +64,23 @@ export const loadGenModule = async (id: string): Promise<LoadModuleResult<GenMod
 export type CheckGenModuleResult =
 	| {
 			file: GenFile;
-			existingContent: string;
-			isNew: false;
-			hasChanged: boolean;
+			existing_content: string;
+			is_new: false;
+			has_changed: boolean;
 	  }
 	| {
 			file: GenFile;
-			existingContent: null;
-			isNew: true;
-			hasChanged: true;
+			existing_content: null;
+			is_new: true;
+			has_changed: true;
 	  };
 
 export const checkGenModules = async (
 	fs: Filesystem,
-	genResults: GenResults,
+	gen_results: GenResults,
 ): Promise<CheckGenModuleResult[]> => {
 	return Promise.all(
-		genResults.successes
+		gen_results.successes
 			.map((result) => result.files.map((file) => checkGenModule(fs, file)))
 			.flat(),
 	);
@@ -93,17 +93,17 @@ export const checkGenModule = async (
 	if (!(await fs.exists(file.id))) {
 		return {
 			file,
-			existingContent: null,
-			isNew: true,
-			hasChanged: true,
+			existing_content: null,
+			is_new: true,
+			has_changed: true,
 		};
 	}
-	const existingContent = await fs.readFile(file.id, 'utf8');
+	const existing_content = await fs.readFile(file.id, 'utf8');
 	return {
 		file,
-		existingContent,
-		isNew: false,
-		hasChanged: file.content !== existingContent,
+		existing_content,
+		is_new: false,
+		has_changed: file.content !== existing_content,
 	};
 };
 

@@ -5,8 +5,8 @@ import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {runGen} from './gen/runGen.js';
-import {loadGenModule, checkGenModules, find_gen_modules} from './gen/genModule.js';
+import {run_gen} from './gen/run_gen.js';
+import {load_gen_module, checkGenModules, find_gen_modules} from './gen/gen_module.js';
 import {resolve_raw_input_paths} from './path/input_path.js';
 import {load_modules} from './fs/modules.js';
 import {format_file} from './format/format_file.js';
@@ -67,7 +67,7 @@ export const task: Task<Args> = {
 		const load_modules_result = await load_modules(
 			find_modules_result.source_ids_by_input_path,
 			true,
-			loadGenModule,
+			load_gen_module,
 		);
 		if (!load_modules_result.ok) {
 			log_error_reasons(log, load_modules_result.reasons);
@@ -76,29 +76,29 @@ export const task: Task<Args> = {
 		timings.merge(load_modules_result.timings);
 
 		// run `gen` on each of the modules
-		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(fs, load_modules_result.modules, log, format_file);
+		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
+		const gen_results = await run_gen(fs, load_modules_result.modules, log, format_file);
 		stopTimingToGenerateCode();
 
-		const failCount = genResults.failures.length;
+		const failCount = gen_results.failures.length;
 		if (check) {
 			// check if any files changed, and if so, throw errors,
 			// but if there are gen failures, skip the check and defer to their errors
 			if (!failCount) {
 				log.info('checking generated files for changes');
 				const stopTimingToCheckResults = timings.start('check results for changes');
-				const checkGenModulesResults = await checkGenModules(fs, genResults);
+				const checkGenModulesResults = await checkGenModules(fs, gen_results);
 				stopTimingToCheckResults();
 
 				let hasUnexpectedChanges = false;
 				for (const result of checkGenModulesResults) {
-					if (!result.hasChanged) continue;
+					if (!result.has_changed) continue;
 					hasUnexpectedChanges = true;
 					log.error(
 						red(
 							`Generated file ${print_path(result.file.id)} via ${print_path(
 								result.file.origin_id,
-							)} ${result.isNew ? 'is new' : 'has changed'}.`,
+							)} ${result.is_new ? 'is new' : 'has changed'}.`,
 						),
 					);
 				}
@@ -115,7 +115,7 @@ export const task: Task<Args> = {
 			log.info('writing generated files to disk');
 			const stopTimingToOutputResults = timings.start('output results');
 			await Promise.all(
-				genResults.successes
+				gen_results.successes
 					.map((result) =>
 						result.files.map((file) => {
 							log.info(
@@ -133,7 +133,7 @@ export const task: Task<Args> = {
 		}
 
 		let logResult = '';
-		for (const result of genResults.results) {
+		for (const result of gen_results.results) {
 			logResult += `\n\t${result.ok ? green('✓') : red('🞩')}  ${
 				result.ok ? result.files.length : 0
 			} ${gray('in')} ${printMs(result.elapsed)} ${gray('←')} ${print_path(result.id)}`;
@@ -141,16 +141,16 @@ export const task: Task<Args> = {
 		log.info(logResult);
 		log.info(
 			green(
-				`generated ${genResults.output_count} file${plural(genResults.output_count)} from ${
-					genResults.successes.length
-				} input file${plural(genResults.successes.length)}`,
+				`generated ${gen_results.output_count} file${plural(gen_results.output_count)} from ${
+					gen_results.successes.length
+				} input file${plural(gen_results.successes.length)}`,
 			),
 		);
 		printTimings(timings, log);
 		log.info(`🕒 ${printMs(total_timing())}`);
 
 		if (failCount) {
-			for (const result of genResults.failures) {
+			for (const result of gen_results.failures) {
 				log.error(result.reason, '\n', printError(result.error));
 			}
 			throw new TaskError(`Failed to generate ${failCount} file${plural(failCount)}.`);

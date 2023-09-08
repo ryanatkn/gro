@@ -10,12 +10,12 @@ import {
 	GEN_SCHEMA_IDENTIFIER_SUFFIX,
 	type GenModuleMeta,
 	type SchemaGenModule,
-} from './genModule.js';
-import {normalize_type_imports} from './helpers/type_imports.js';
+} from './gen_module.js';
+import {normalize_type_imports} from './type_imports.js';
 import {infer_schema_types, is_json_schema, type JsonSchema} from '../util/schema.js';
 import {to_root_path} from '../path/paths.js';
 
-export const genSchemas = async (
+export const gen_schemas = async (
 	mod: SchemaGenModule,
 	ctx: GenContext,
 	options: Partial<JsonSchemaToTypeScriptOptions>,
@@ -41,15 +41,15 @@ const run_schema_gen = async (
 	const raw_imports: string[] = [];
 	const types: string[] = [];
 
-	for (const {identifier, schema: originalSchema} of toSchemaInfoFromModule(mod)) {
-		infer_schema_types(originalSchema, ctx); // process the schema, adding inferred data
+	for (const {identifier, schema: original_schema} of to_schema_info_from_module(mod)) {
+		infer_schema_types(original_schema, ctx); // process the schema, adding inferred data
 		// `json-schema-to-typescript` mutates the schema, so clone first
-		const schema = structuredClone(originalSchema);
+		const schema = structuredClone(original_schema);
 
 		// Compile the schema to TypeScript.
-		const finalIdentifier = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
+		const final_identifier = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX); // convenient to avoid name collisions
 		// eslint-disable-next-line no-await-in-loop
-		const result = await compile(schema, finalIdentifier, {
+		const result = await compile(schema, final_identifier, {
 			bannerComment: '',
 			format: false,
 			...options,
@@ -59,7 +59,7 @@ const run_schema_gen = async (
 		// Walk the original schema and add any imports with `tsImport`.
 		// We don't walk `schema` because we don't include the types of expanded schema references.
 		// TODO is this still true after the tsType/tsImport inference?
-		traverse(originalSchema, (key, v) => {
+		traverse(original_schema, (key, v) => {
 			if (key === 'tsImport') {
 				if (typeof v === 'string') {
 					raw_imports.push(v);
@@ -75,24 +75,24 @@ const run_schema_gen = async (
 	return {imports, types};
 };
 
-export const toSchemasFromModules = (genModules: GenModuleMeta[]): JsonSchema[] => {
+export const to_schemas_from_modules = (gen_modules: GenModuleMeta[]): JsonSchema[] => {
 	const schemas: JsonSchema[] = [];
-	for (const genModule of genModules) {
-		if (genModule.type !== 'schema') continue;
-		for (const schemaInfo of toSchemaInfoFromModule(genModule.mod)) {
-			schemas.push(schemaInfo.schema);
+	for (const gen_module of gen_modules) {
+		if (gen_module.type !== 'schema') continue;
+		for (const schema_info of to_schema_info_from_module(gen_module.mod)) {
+			schemas.push(schema_info.schema);
 		}
 	}
 	return schemas;
 };
 
-const toSchemaInfoFromModule = (
+const to_schema_info_from_module = (
 	mod: SchemaGenModule,
 ): Array<{identifier: string; schema: JsonSchema}> => {
-	const schemaInfo: Array<{identifier: string; schema: JsonSchema}> = [];
+	const schema_info: Array<{identifier: string; schema: JsonSchema}> = [];
 	for (const identifier in mod) {
 		const value = mod[identifier];
-		if (is_json_schema(value)) schemaInfo.push({identifier, schema: value});
+		if (is_json_schema(value)) schema_info.push({identifier, schema: value});
 	}
-	return schemaInfo;
+	return schema_info;
 };

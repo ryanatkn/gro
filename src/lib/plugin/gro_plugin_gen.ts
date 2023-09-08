@@ -4,7 +4,7 @@ import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../task/args.js';
 import {source_id_to_base_path} from '../path/paths.js';
-import {find_gen_modules, is_gen_path} from '../gen/genModule.js';
+import {find_gen_modules, is_gen_path} from '../gen/gen_module.js';
 import {filter_dependents} from '../build/source_file.js';
 import {throttle} from '../util/throttle.js';
 

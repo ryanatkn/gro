@@ -853,8 +853,8 @@ const sync_build_files_to_disk = async (
 					// log.debug(label, 'creating build file on disk', gray(file.id));
 					should_output_new_file = true;
 				} else {
-					const existingContent = await fs.readFile(file.id, 'utf8');
-					if (file.content !== existingContent) {
+					const existing_content = await fs.readFile(file.id, 'utf8');
+					if (file.content !== existing_content) {
 						log.debug(label, 'updating stale build file on disk', gray(file.id));
 						should_output_new_file = true;
 					} // ...else the build file on disk already matches what's in memory.
