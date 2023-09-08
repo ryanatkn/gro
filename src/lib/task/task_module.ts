@@ -44,7 +44,7 @@ export const find_task_modules = async (
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);
 
-// TODO BLOCK see others
+// TODO BLOCK see `why not loadTaskModules`
 export const loadTaskModules = async (
 	fs: Filesystem,
 	input_paths?: string[],

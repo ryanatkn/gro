@@ -38,10 +38,9 @@ export const load_module = async <T extends Record<string, any>>(
 	id: string,
 	validate?: (mod: Record<string, any>) => mod is T,
 ): Promise<LoadModuleResult<ModuleMeta<T>>> => {
-	console.log(`load_module`, id);
 	let mod;
 	try {
-		mod = await import(id); // TODO BLOCK is this right?
+		mod = await import(id);
 	} catch (err) {
 		return {ok: false, type: 'importFailed', id, error: err};
 	}
@@ -191,7 +190,7 @@ export const load_modules = async <
 						break;
 					}
 					case 'invalid': {
-						// TODO BLOCK try to make this a good error message for the task case
+						// TODO try to make this a good error message for the task case
 						reasons.push(
 							`Module ${print_path(id, paths_from_id(id))} failed validation '${
 								result.validation
