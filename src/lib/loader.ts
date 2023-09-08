@@ -115,36 +115,24 @@ export const resolve = async (
 		}
 	}
 
-	// the specifier `path` has now been mapped to its final form, so we can inspect it
+	// The specifier `path` has now been mapped to its final form, so we can inspect it.
 	const relative = path[0] === '.';
 	const absolute = path[0] === '/';
 	if (!relative && !absolute) {
-		// handle external specifiers imported by internal code
+		// Handle external specifiers imported by internal code.
 		return nextResolve(specifier, context);
 	}
 
-	if (path.endsWith('.js')) {
-		const js_path = relative ? join(parent_path, '../', path) : path;
-		// TODO this was supposedly unflagged for Node 20.6 but it's still undefined for me
-		// await import.meta.resolve(path);
-		if (existsSync(js_path)) {
-			path = js_path;
-		} else {
-			const ts_path = js_path.slice(0, -3) + '.ts';
-			if (existsSync(ts_path)) {
-				path = ts_path;
-			}
-		}
+	// TODO `import.meta.resolves` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
+	// await import.meta.resolve(path);
+	let js_path = relative ? join(parent_path, '../', path) : path;
+	if (!path.endsWith('.js')) js_path += '.js';
+	if (existsSync(js_path)) {
+		path = js_path;
 	} else {
-		// TODO BLOCK refactor with the above
-		const js_path = (relative ? join(parent_path, '../', path) : path) + '.js';
-		if (existsSync(js_path)) {
-			path = js_path;
-		} else {
-			const ts_path = js_path.slice(0, -3) + '.ts';
-			if (existsSync(ts_path)) {
-				path = ts_path;
-			}
+		const ts_path = js_path.slice(0, -3) + '.ts';
+		if (existsSync(ts_path)) {
+			path = ts_path;
 		}
 	}
 	// console.log(`final path`, path);

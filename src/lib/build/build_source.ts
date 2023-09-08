@@ -8,7 +8,6 @@ import {Filer} from './Filer.js';
 import {gro_builder_default} from './gro_builder_default.js';
 import type {GroConfig} from '../config/config.js';
 import type {Filesystem} from '../fs/filesystem.js';
-import {sveltekit_sync} from '../util/sveltekit_sync.js';
 
 export const build_source = async (
 	fs: Filesystem,
@@ -17,8 +16,6 @@ export const build_source = async (
 	log: Logger,
 ): Promise<void> => {
 	log.debug('building source', gray(dev ? 'development' : 'production'));
-
-	await sveltekit_sync(fs);
 
 	if (!config.builds.length) return;
 
