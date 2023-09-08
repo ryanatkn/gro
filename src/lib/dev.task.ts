@@ -41,6 +41,8 @@ export const task: Task<Args, TaskEvents> = {
 
 		const timings = new Timings();
 
+		// TODO BLOCK run gen
+
 		const timing_to_load_config = timings.start('load config');
 		const config = await load_config(fs);
 		timing_to_load_config();
