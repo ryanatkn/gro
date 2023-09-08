@@ -592,7 +592,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					return false;
 				} else {
 					// Memory cache is warm, but content have changed.
-					sourceFile.content = newSourceContent as string;
+					(sourceFile as Assignable<SourceFile, 'content'>).content = newSourceContent as string;
 					sourceFile.stats = undefined;
 					sourceFile.content_buffer = undefined;
 					sourceFile.content_hash = undefined;

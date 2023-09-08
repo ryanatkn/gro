@@ -16,7 +16,7 @@ export interface BaseFilerFile {
 	readonly filename: string;
 	readonly dir: string;
 	readonly extension: string;
-	content: string;
+	readonly content: string;
 	readonly type: string;
 	content_buffer: Buffer | undefined; // `undefined` and mutable for lazy loading
 	content_hash: string | undefined; // `undefined` and mutable for lazy loading
