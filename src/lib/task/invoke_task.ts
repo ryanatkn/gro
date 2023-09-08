@@ -49,7 +49,7 @@ export const invoke_task = async (
 ): Promise<void> => {
 	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
-	log.info('invoking', cyan(task_name));
+	log.info('invoking', task_name ? cyan(task_name) : 'with no task name');
 
 	// This is wasteful sometimes, but we're just going for correctness right now.
 	await sveltekit_sync(fs);
