@@ -109,14 +109,10 @@ export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
 	const {fs, source_meta_by_id, build_dir, dev} = ctx;
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
 	if (!(await fs.exists(source_meta_dir))) return;
-	console.log(`source_meta_dir`, source_meta_dir);
 	const files = await fs.findFiles(source_meta_dir, undefined, null, true);
-	console.log(`files`, files);
 	await Promise.all(
 		Array.from(files.keys()).map(async (cache_id) => {
-			console.log(`cache_id`, cache_id);
 			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cache_id, 'utf8')));
-			console.log(`data`, cache_id, data);
 			if (await fs.exists(data.source_id)) {
 				const source_content_hash = to_hash(await fs.readFile(data.source_id));
 				if (data.content_hash === source_content_hash) {
