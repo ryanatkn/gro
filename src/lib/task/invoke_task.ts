@@ -22,7 +22,6 @@ import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../util/package_json.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {log_available_tasks, log_error_reasons} from './log_task.js';
-import {sveltekit_sync} from '../util/sveltekit_sync.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -50,9 +49,6 @@ export const invoke_task = async (
 	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
 	log.info('invoking', task_name ? cyan(task_name) : 'with no task name');
-
-	// This is wasteful sometimes, but we're just going for correctness right now.
-	await sveltekit_sync(fs);
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args.version || args.v)) {
