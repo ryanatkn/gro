@@ -29,6 +29,8 @@ export const task: Task<Args> = {
 	run: async ({fs, log, args, invoke_task}) => {
 		const {typecheck, test, gen, format, lint} = args;
 
+		throw new TaskError('Failed to find gen modules.');
+
 		if (typecheck) {
 			await invoke_task('typecheck');
 		}

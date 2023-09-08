@@ -68,8 +68,8 @@ export const run_task = async (
 		return {
 			ok: false,
 			reason: red(
-				err instanceof TaskError
-					? err.message
+				err?.constructor?.name === 'TaskError'
+					? (err.message as string)
 					: `Unexpected error running task ${cyan(
 							task_meta.name,
 					  )}. If this is unexpected try running \`gro clean\`.`,

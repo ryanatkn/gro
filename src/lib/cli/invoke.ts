@@ -4,7 +4,6 @@ import {sveltekit_sync} from '../util/sveltekit_sync.js';
 
 import {invoke_task} from '../task/invoke_task.js';
 import {fs} from '../fs/node.js';
-import {TaskError} from '../task/task.js';
 import {to_task_args} from '../task/args.js';
 
 /*
@@ -19,7 +18,7 @@ and the rest of the args are forwarded to the task's `run` function.
 */
 
 // handle uncaught errors
-attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : null));
+attachProcessErrorHandlers((err) => (err?.constructor?.name === 'TaskError' ? 'TaskError' : null));
 
 // install sourcemaps for user tasks
 // TODO remove after changing to runtime compilation
