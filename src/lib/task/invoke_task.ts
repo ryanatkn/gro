@@ -80,7 +80,6 @@ export const invoke_task = async (
 			// The input path matches a file, so load and run it.
 
 			// Try to load the task module.
-			// TODO BLOCK why not loadTaskModules ? get good error messages too
 			console.log('LOADING', Array.from(find_modules_result.source_ids_by_input_path.entries()));
 			const load_modules_result = await load_modules(
 				find_modules_result.source_ids_by_input_path,
