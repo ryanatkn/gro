@@ -13,6 +13,7 @@ import {
 } from './build_dependency.js';
 import type {Filesystem} from '../fs/filesystem.js';
 import {throttle} from '../util/throttle.js';
+import {to_hash} from './helpers.js';
 
 export interface SourceMeta {
 	readonly cache_id: string; // path to the cached JSON file on disk
@@ -107,24 +108,23 @@ const to_source_meta_cache_id = (file: SourceFile, build_dir: string, dev: boole
 	`${to_source_meta_dir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
 
 export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
-	const {fs, source_meta_by_id, build_dir, dev, log} = ctx;
+	const {fs, source_meta_by_id, build_dir, dev} = ctx;
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
 	if (!(await fs.exists(source_meta_dir))) return;
 	const files = await fs.findFiles(source_meta_dir, undefined, null);
 	await Promise.all(
-		Array.from(files.keys()).map(async (path) => {
-			const cache_id = `${source_meta_dir}/${path}`;
+		Array.from(files.keys()).map(async (cache_id) => {
+			console.log(`cache_id`, cache_id);
 			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cache_id, 'utf8')));
-			source_meta_by_id.set(data.source_id, {cache_id, data});
-		}),
-	);
-
-	await Promise.all(
-		Array.from(source_meta_by_id.keys()).map(async (source_id) => {
-			if (!(await fs.exists(source_id))) {
-				log.debug('deleting unknown source meta', gray(source_id));
-				await delete_source_meta(ctx, source_id);
+			if (await fs.exists(data.source_id)) {
+				const source_content_hash = to_hash(await fs.readFile(data.source_id));
+				if (data.content_hash === source_content_hash) {
+					source_meta_by_id.set(data.source_id, {cache_id, data});
+					return;
+				}
 			}
+			// Either the source file no longer exists or its content hash changed.
+			await fs.remove(cache_id);
 		}),
 	);
 };

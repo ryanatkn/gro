@@ -474,6 +474,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// whether or not they apply for this id.
 					// It could be improved by tracking tracking dirs in the Filer
 					// and looking up the correct build configs.
+					console.log(`change.path`, change.path);
 					await Promise.all(
 						this.build_configs.map((build_config) =>
 							this.fs.remove(
