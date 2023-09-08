@@ -92,14 +92,14 @@ export const diff_dependencies = (
 	let removed_dependencies: BuildDependency[] | null = null;
 
 	// Aggregate all of the dependencies for each source file. The maps de-dupe by build id.
-	let newDependencies: Map<BuildId, BuildDependency> | null = null;
-	let oldDependencies: Map<BuildId, BuildDependency> | null = null;
+	let new_dependencies: Map<BuildId, BuildDependency> | null = null;
+	let old_dependencies: Map<BuildId, BuildDependency> | null = null;
 	for (const new_file of new_files) {
 		if (new_file.dependencies !== null) {
 			for (const dependency of new_file.dependencies.values()) {
-				if (newDependencies === null) newDependencies = new Map();
-				if (!newDependencies.has(dependency.build_id)) {
-					newDependencies.set(dependency.build_id, dependency);
+				if (new_dependencies === null) new_dependencies = new Map();
+				if (!new_dependencies.has(dependency.build_id)) {
+					new_dependencies.set(dependency.build_id, dependency);
 				}
 			}
 		}
@@ -108,9 +108,9 @@ export const diff_dependencies = (
 		for (const old_file of old_files) {
 			if (old_file.dependencies !== null) {
 				for (const dependency of old_file.dependencies.values()) {
-					if (oldDependencies === null) oldDependencies = new Map();
-					if (!oldDependencies.has(dependency.build_id)) {
-						oldDependencies.set(dependency.build_id, dependency);
+					if (old_dependencies === null) old_dependencies = new Map();
+					if (!old_dependencies.has(dependency.build_id)) {
+						old_dependencies.set(dependency.build_id, dependency);
 					}
 				}
 			}
@@ -118,19 +118,19 @@ export const diff_dependencies = (
 	}
 
 	// Figure out which dependencies were added and removed.
-	if (newDependencies !== null) {
-		for (const newDependency of newDependencies.values()) {
-			if (oldDependencies === null || !oldDependencies.has(newDependency.build_id)) {
+	if (new_dependencies !== null) {
+		for (const new_dependency of new_dependencies.values()) {
+			if (old_dependencies === null || !old_dependencies.has(new_dependency.build_id)) {
 				if (added_dependencies === null) added_dependencies = [];
-				added_dependencies.push(newDependency);
+				added_dependencies.push(new_dependency);
 			}
 		}
 	}
-	if (oldDependencies !== null) {
-		for (const oldDependency of oldDependencies.values()) {
-			if (newDependencies === null || !newDependencies.has(oldDependency.build_id)) {
+	if (old_dependencies !== null) {
+		for (const old_dependency of old_dependencies.values()) {
+			if (new_dependencies === null || !new_dependencies.has(old_dependency.build_id)) {
 				if (removed_dependencies === null) removed_dependencies = [];
-				removed_dependencies.push(oldDependency);
+				removed_dependencies.push(old_dependency);
 			}
 		}
 	}

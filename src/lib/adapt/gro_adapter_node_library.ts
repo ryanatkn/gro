@@ -23,9 +23,10 @@ export const createAdapter = (): Adapter => {
 			if (pkg.bin) {
 				const timing_to_npm_link = timings.start('npm link');
 				await Promise.all(
-					Object.values(pkg.bin).map(async (binPath) => {
-						const chmod_result = await spawn('chmod', ['+x', binPath]);
-						if (!chmod_result.ok) log.error(`CLI chmod failed with code ${chmod_result.code}`);
+					Object.values(pkg.bin).map(async (bin_path) => {
+						const chmod_result = await spawn('chmod', ['+x', bin_path]);
+						if (!chmod_result.ok)
+							log.error(`chmod on bin path ${bin_path} failed with code ${chmod_result.code}`);
 					}),
 				);
 				log.info(`linking`);

@@ -1,7 +1,7 @@
 import {EMPTY_ARRAY} from '@feltjs/util/array.js';
 import type {SystemLogger} from '@feltjs/util/log.js';
 
-import {toSourceMetaDir} from '../build/source_meta.js';
+import {to_source_meta_dir} from '../build/source_meta.js';
 import {
 	NODE_MODULES_DIRNAME,
 	paths,
@@ -37,13 +37,13 @@ export const cleanFs = async (
 		...(!build && buildDev
 			? [
 					removeDir(fs, to_build_out_dir(true), log),
-					removeDir(fs, toSourceMetaDir(paths.build, true), log),
+					removeDir(fs, to_source_meta_dir(paths.build, true), log),
 			  ]
 			: EMPTY_ARRAY),
 		...(!build && buildProd
 			? [
 					removeDir(fs, to_build_out_dir(false), log),
-					removeDir(fs, toSourceMetaDir(paths.build, false), log),
+					removeDir(fs, to_source_meta_dir(paths.build, false), log),
 			  ]
 			: EMPTY_ARRAY),
 		dist ? removeDir(fs, paths.dist, log) : null,

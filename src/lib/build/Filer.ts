@@ -34,7 +34,7 @@ import {
 	type SourceMeta,
 	delete_source_meta,
 	update_source_meta,
-	initSourceMeta,
+	init_source_meta,
 } from './source_meta.js';
 import type {BuildDependency} from './build_dependency.js';
 import type {PathFilter} from '../fs/filter.js';
@@ -176,12 +176,12 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 		this.log.debug('init', gray(this.dev ? 'development' : 'production'));
 
-		await initSourceMeta(this);
+		await init_source_meta(this);
 		// this.log.debug('inited and cleaned cache');
 
 		// This initializes all files in the filer's directories, loading them into memory,
 		// including source files and build files.
-		// Initializing the dirs must be done after `this.initSourceMeta`
+		// Initializing the dirs must be done after `this.init_source_meta`
 		// because it creates source files, which need `this.source_meta_by_id` to be populated.
 		await Promise.all(this.dirs.map((dir) => dir.init()));
 		// this.log.debug('inited files');

@@ -15,7 +15,7 @@ import type {Filesystem} from '../fs/filesystem.js';
 import {throttle} from '../util/throttle.js';
 
 export interface SourceMeta {
-	readonly cacheId: string; // path to the cached JSON file on disk
+	readonly cache_id: string; // path to the cached JSON file on disk
 	readonly data: SourceMetaData; // the plain JSON written to disk
 }
 export interface SourceMetaData {
@@ -43,7 +43,7 @@ export interface SerializedSourceMetaBuild {
 }
 
 const CACHED_SOURCE_INFO_DIR_SUFFIX = '_meta'; // so `/.gro/devMeta` is metadata for `/.gro/dev`
-export const toSourceMetaDir = (build_dir: string, dev: boolean): string =>
+export const to_source_meta_dir = (build_dir: string, dev: boolean): string =>
 	`${build_dir}${to_build_out_dirname(dev)}${CACHED_SOURCE_INFO_DIR_SUFFIX}`;
 
 // TODO as an optimization, this should be debounced per file,
@@ -52,7 +52,7 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 	const {fs, source_meta_by_id, dev, build_dir, build_names} = ctx;
 
 	// create the new meta, not mutating the old
-	const cacheId = toSourceMetaCacheId(file, build_dir, dev);
+	const cache_id = to_source_meta_cache_id(file, build_dir, dev);
 	const data: SourceMetaData = {
 		source_id: file.id,
 		content_hash: get_file_content_hash(file),
@@ -66,12 +66,12 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 			),
 		),
 	};
-	const source_meta: SourceMeta = {cacheId, data};
+	const source_meta: SourceMeta = {cache_id, data};
 
 	// preserve the builds that aren't in this build config set
-	const existingSourceMeta = source_meta_by_id.get(file.id);
-	if (existingSourceMeta) {
-		for (const build of existingSourceMeta.data.builds) {
+	const existing_source_meta = source_meta_by_id.get(file.id);
+	if (existing_source_meta) {
+		for (const build of existing_source_meta.data.builds) {
 			if (!build_names!.has(build.build_name)) {
 				data.builds.push(build);
 			}
@@ -83,14 +83,14 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 	}
 
 	source_meta_by_id.set(file.id, source_meta);
-	// this.log.debug('outputting source meta', gray(cacheId));
-	await writeSourceMeta(fs, cacheId, data);
+	// this.log.debug('outputting source meta', gray(cache_id));
+	await write_source_meta(fs, cache_id, data);
 };
 
-const writeSourceMeta = throttle(
-	(fs: Filesystem, cacheId: string, data: SourceMetaData): Promise<void> =>
-		fs.writeFile(cacheId, JSON.stringify(serialize_source_meta(data), null, 2)),
-	(_, cacheId) => cacheId,
+const write_source_meta = throttle(
+	(fs: Filesystem, cache_id: string, data: SourceMetaData): Promise<void> =>
+		fs.writeFile(cache_id, JSON.stringify(serialize_source_meta(data), null, 2)),
+	(_, cache_id) => cache_id,
 );
 
 export const delete_source_meta = async (
@@ -100,39 +100,25 @@ export const delete_source_meta = async (
 	const meta = source_meta_by_id.get(source_id);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache
 	source_meta_by_id.delete(source_id);
-	await fs.remove(meta.cacheId);
+	await fs.remove(meta.cache_id);
 };
 
-const toSourceMetaCacheId = (file: SourceFile, build_dir: string, dev: boolean): string =>
-	`${toSourceMetaDir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
+const to_source_meta_cache_id = (file: SourceFile, build_dir: string, dev: boolean): string =>
+	`${to_source_meta_dir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
 
-// TODO optimize to load meta only for the build configs
-export const initSourceMeta = async ({
-	fs,
-	source_meta_by_id,
-	build_dir,
-	dev,
-}: BuildContext): Promise<void> => {
-	const source_metaDir = toSourceMetaDir(build_dir, dev);
-	if (!(await fs.exists(source_metaDir))) return;
-	const files = await fs.findFiles(source_metaDir, undefined, null);
+export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
+	const {fs, source_meta_by_id, build_dir, dev, log} = ctx;
+	const source_meta_dir = to_source_meta_dir(build_dir, dev);
+	if (!(await fs.exists(source_meta_dir))) return;
+	const files = await fs.findFiles(source_meta_dir, undefined, null);
 	await Promise.all(
 		Array.from(files.keys()).map(async (path) => {
-			const cacheId = `${source_metaDir}/${path}`;
-			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cacheId, 'utf8')));
-			source_meta_by_id.set(data.source_id, {cacheId, data});
+			const cache_id = `${source_meta_dir}/${path}`;
+			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cache_id, 'utf8')));
+			source_meta_by_id.set(data.source_id, {cache_id, data});
 		}),
 	);
-};
 
-// TODO BLOCK merge with init source meta
-// Cached source meta may be stale if any source files were moved or deleted
-// since the last time the Filer ran.
-// We can simply delete any cached meta that doesn't map back to a source file.
-// It might appear that we could use the already-loaded source files to do this check in memory,
-// but that doesn't work if the Filer is created with only a subset of the build configs.
-export const cleanSourceMeta = async (ctx: BuildContext): Promise<void> => {
-	const {fs, source_meta_by_id, log} = ctx;
 	await Promise.all(
 		Array.from(source_meta_by_id.keys()).map(async (source_id) => {
 			if (!(await fs.exists(source_id))) {

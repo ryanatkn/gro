@@ -100,7 +100,7 @@ const source_metaSnapshot = [
 	[
 		'/a/b/src/dep2.ts',
 		{
-			cacheId: '/c/dev_meta/dep2.ts.json',
+			cache_id: '/c/dev_meta/dep2.ts.json',
 			data: {
 				source_id: '/a/b/src/dep2.ts',
 				content_hash: '8658aba51e656a918d4768bfbd6cdbf1',
@@ -122,7 +122,7 @@ const source_metaSnapshot = [
 	[
 		'/a/b/src/dep1.ts',
 		{
-			cacheId: '/c/dev_meta/dep1.ts.json',
+			cache_id: '/c/dev_meta/dep1.ts.json',
 			data: {
 				source_id: '/a/b/src/dep1.ts',
 				content_hash: '5f8c0c9016e8afd8b9575889a9e9226b',
@@ -152,7 +152,7 @@ const source_metaSnapshot = [
 	[
 		'/a/b/src/entry.ts',
 		{
-			cacheId: '/c/dev_meta/entry.ts.json',
+			cache_id: '/c/dev_meta/entry.ts.json',
 			data: {
 				source_id: '/a/b/src/entry.ts',
 				content_hash: '216225ec7cebcb5c2cf443df2050b2a0',
