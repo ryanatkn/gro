@@ -209,9 +209,11 @@ const groDir = join(
 console.log(`groDir`, groDir);
 export const gro_dir_basename = `${basename(groDir)}/`;
 export const paths = create_paths(`${process.cwd()}/`);
+console.log(`paths`, paths);
 export const is_this_project_gro = groDir === paths.root;
 console.log(`is_this_project_gro`, is_this_project_gro, groDir, paths.root);
 export const gro_paths = is_this_project_gro ? paths : create_paths(groDir);
+console.log(`gro_paths`, gro_paths);
 console.log(`{.......................}`, {
 	gro_import_dir,
 	groDir,
