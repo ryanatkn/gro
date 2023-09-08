@@ -8,6 +8,9 @@ import {find_gen_modules, is_gen_path} from '../gen/gen_module.js';
 import {filter_dependents} from '../build/source_file.js';
 import {throttle} from '../util/throttle.js';
 
+// TODO this became unused with https://github.com/grogarden/gro/pull/382
+// because we no longer have a normal system build - replace with an esbuild plugin
+
 const FLUSH_DEBOUNCE_DELAY = 500;
 
 export interface TaskArgs extends Args {
@@ -69,7 +72,8 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			// When a file builds, check it and its tree of dependents
 			// for any `.gen.` files that need to run.
 			on_filer_build = async ({source_file, build_config}) => {
-				// TODO BLOCK how to handle this now? the loader traces deps for us with `parentPath`
+				// TODO how to handle this now? the loader traces deps for us with `parentPath`,
+				// but we probably want to make this an esbuild plugin instead
 				// if (build_config.name !== 'system') return;
 				if (is_gen_path(source_file.id)) {
 					queue_gen(source_id_to_base_path(source_file.id));
