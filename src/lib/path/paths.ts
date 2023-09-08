@@ -215,6 +215,7 @@ export const replace_extension = (path: string, new_extension: string): string =
 	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
 };
 
+console.log(`import.meta.url`, import.meta.url);
 const gro_import_dir = join(fileURLToPath(import.meta.url), '../../../');
 console.log(`gro_import_dir`, gro_import_dir);
 const groDir = join(
