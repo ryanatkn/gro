@@ -1,5 +1,3 @@
-import {gray} from 'kleur/colors';
-
 import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths.js';
 import {get_file_content_hash} from './filer_file.js';
 import type {BuildContext} from './builder.js';
