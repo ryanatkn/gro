@@ -1,9 +1,9 @@
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import * as lexer from 'es-module-lexer';
 
-import {formatFile} from '../../format/formatFile.js';
+import {format_file} from '../../format/format_file.js';
 import type {Filesystem} from '../../fs/filesystem.js';
-import {toGenImportPath} from '../runGen.js';
+import {to_gen_import_path} from '../runGen.js';
 
 await lexer.init;
 
@@ -18,22 +18,22 @@ await lexer.init;
 // Prettier makes this less gnarly than it appears because
 // it gives good parse errors and makes formatting consistent.
 
-export const normalizeTypeImports = async (
+export const normalize_type_imports = async (
 	fs: Filesystem,
-	rawImports: string[],
+	raw_imports: string[],
 	fileId: string,
 ): Promise<string[]> => {
-	const imports = Array.from(new Set(rawImports));
-	const formattedImports = (await Promise.all(imports.map((i) => formatFile(fs, fileId, i)))).map(
+	const imports = Array.from(new Set(raw_imports));
+	const formatted_imports = (await Promise.all(imports.map((i) => format_file(fs, fileId, i)))).map(
 		(s) => s.trim(),
 	);
 
 	const imps = new Map<string, ParsedImport>();
-	const path = toGenImportPath(fileId);
+	const path = to_gen_import_path(fileId);
 
-	for (let i = 0; i < formattedImports.length; i++) {
-		const formattedImport = stripEnd(formattedImports[i].trim(), ';');
-		const [parsed] = lexer.parse(formattedImport);
+	for (let i = 0; i < formatted_imports.length; i++) {
+		const formatted_import = stripEnd(formatted_imports[i].trim(), ';');
+		const [parsed] = lexer.parse(formatted_import);
 		if (!parsed.length) {
 			throw Error(`No import found in tsImport: index ${i} in file ${fileId}: ${imports[i]}`);
 		}
@@ -57,7 +57,7 @@ export const normalizeTypeImports = async (
 			info = {path: n, raw: [], parsed: []};
 			imps.set(n, info);
 		}
-		info.raw.push(formattedImport);
+		info.raw.push(formatted_import);
 		info.parsed.push(p);
 	}
 
@@ -87,59 +87,63 @@ const toImportInfo = (imp: ParsedImport, fileId: string): ImportInfo => {
 	for (let i = 0; i < imp.raw.length; i++) {
 		const raw = imp.raw[i];
 		const parsed = imp.parsed[i];
-		let newDefaultValue = '';
-		const rawBeforePath = raw.substring(0, parsed.s - 1);
-		const openingSlashIndex = rawBeforePath.indexOf('{');
-		const closingSlashIndex =
-			openingSlashIndex === -1
+		let new_default_value = '';
+		const raw_before_path = raw.substring(0, parsed.s - 1);
+		const opening_slash_index = raw_before_path.indexOf('{');
+		const closing_slash_index =
+			opening_slash_index === -1
 				? -1
-				: rawBeforePath.substring(openingSlashIndex).indexOf('}') + openingSlashIndex;
-		const fromMatch = /\sfrom\s/u.test(
-			openingSlashIndex === -1 ? rawBeforePath : rawBeforePath.substring(closingSlashIndex + 1),
+				: raw_before_path.substring(opening_slash_index).indexOf('}') + opening_slash_index;
+		const from_match = /\sfrom\s/u.test(
+			opening_slash_index === -1
+				? raw_before_path
+				: raw_before_path.substring(closing_slash_index + 1),
 		);
-		const rawBeforeOpeningSlash =
-			openingSlashIndex === -1 ? rawBeforePath : rawBeforePath.substring(0, openingSlashIndex);
+		const raw_before_opening_slash =
+			opening_slash_index === -1
+				? raw_before_path
+				: raw_before_path.substring(0, opening_slash_index);
 		const toDefaultImport = (importStr: string): string =>
 			stripEnd(
-				rawBeforeOpeningSlash.substring(importStr.length).split(/\s/u).filter(Boolean)[0] || '',
+				raw_before_opening_slash.substring(importStr.length).split(/\s/u).filter(Boolean)[0] || '',
 				',',
 			);
-		if (fromMatch) {
+		if (from_match) {
 			if (raw.startsWith('import type ')) {
-				const defaultTypeImport = toDefaultImport('import type ');
-				if (defaultTypeImport && openingSlashIndex !== -1) {
+				const default_type_import = toDefaultImport('import type ');
+				if (default_type_import && opening_slash_index !== -1) {
 					throw Error(
 						'A type-only import can specify a default import or named bindings, but not both:' +
 							` ${fileId} -- ${raw}`,
 					);
 				}
-				if (defaultTypeImport) {
-					newDefaultValue = 'type ' + defaultTypeImport;
-				} else if (openingSlashIndex !== -1) {
-					const parsedTypes = raw.substring(openingSlashIndex + 1, closingSlashIndex);
-					values.push(...parsedTypes.split(',').map((s) => 'type ' + s.trim()));
+				if (default_type_import) {
+					new_default_value = 'type ' + default_type_import;
+				} else if (opening_slash_index !== -1) {
+					const parsed_types = raw.substring(opening_slash_index + 1, closing_slash_index);
+					values.push(...parsed_types.split(',').map((s) => 'type ' + s.trim()));
 				} else {
 					throw Error(`Malformed type-only import: ${fileId} -- ${raw}`);
 				}
 			} else {
-				newDefaultValue = toDefaultImport('import ');
-				if (openingSlashIndex !== -1) {
-					const parsedValues = raw.substring(openingSlashIndex + 1, closingSlashIndex);
-					values.push(...parsedValues.split(',').map((s) => s.trim()));
+				new_default_value = toDefaultImport('import ');
+				if (opening_slash_index !== -1) {
+					const parsed_values = raw.substring(opening_slash_index + 1, closing_slash_index);
+					values.push(...parsed_values.split(',').map((s) => s.trim()));
 				}
 			}
 		}
 		const currentEnd = raw.substring(parsed.e + 1);
-		if (newDefaultValue && default_value && newDefaultValue !== default_value) {
+		if (new_default_value && default_value && new_default_value !== default_value) {
 			// This is a limitation that ensures we can combine all imports to the same file.
 			// Can't think of reasons why you'd want two names for the same default import.
 			throw Error(
 				'Imported the same default value with two different names:' +
-					` ${fileId} -- ${newDefaultValue} and ${default_value}`,
+					` ${fileId} -- ${new_default_value} and ${default_value}`,
 			);
 		}
-		if (newDefaultValue) {
-			default_value = newDefaultValue;
+		if (new_default_value) {
+			default_value = new_default_value;
 		}
 		if (currentEnd.length > end.length) end = currentEnd;
 	}

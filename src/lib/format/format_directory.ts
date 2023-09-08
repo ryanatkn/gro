@@ -20,18 +20,18 @@ const DEFAULT_ROOT_PATHS = `${[
 
 // This formats a directory on the filesystem.
 // If the source directory is given, it also formats all of the root directory files.
-// This is separated from `./formatFile` to avoid importing all of the `prettier` code
+// This is separated from `./format_file` to avoid importing all of the `prettier` code
 // inside modules that import this one. (which has a nontrivial cost)
-export const formatDirectory = (
+export const format_directory = (
 	log: Logger,
 	directory: string,
 	check = false,
 	extensions = DEFAULT_EXTENSIONS,
 	root_paths = DEFAULT_ROOT_PATHS,
 ): Promise<SpawnResult> => {
-	const forwardedArgs = to_forwarded_args('prettier');
-	forwardedArgs[check ? 'check' : 'write'] = true;
-	const serialized_args = ['prettier', ...serialize_args(forwardedArgs)];
+	const forwarded_args = to_forwarded_args('prettier');
+	forwarded_args[check ? 'check' : 'write'] = true;
+	const serialized_args = ['prettier', ...serialize_args(forwarded_args)];
 	serialized_args.push(`${directory}**/*.{${extensions}}`);
 	if (directory === paths.source) {
 		serialized_args.push(`${paths.root}{${root_paths}}`);

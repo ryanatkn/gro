@@ -7,13 +7,13 @@ import {genModuleMeta, toGenModuleType} from './genModule.js';
 import type {SourceId} from '../path/paths.js';
 
 export type GenResult = {
-	originId: string;
+	origin_id: string;
 	files: GenFile[];
 };
 export interface GenFile {
 	id: string;
 	content: string;
-	originId: string;
+	origin_id: string;
 	format: boolean;
 }
 
@@ -22,7 +22,7 @@ export interface Gen {
 }
 export interface GenContext {
 	fs: Filesystem;
-	originId: string;
+	origin_id: string;
 	log: Logger;
 	imports: Record<string, string>;
 }
@@ -45,8 +45,8 @@ export type GenResults = {
 	results: GenModuleResult[];
 	successes: GenModuleResultSuccess[];
 	failures: GenModuleResultFailure[];
-	inputCount: number;
-	outputCount: number;
+	input_count: number;
+	output_count: number;
 	elapsed: number;
 };
 export type GenModuleResult = GenModuleResultSuccess | GenModuleResultFailure;
@@ -64,74 +64,74 @@ export type GenModuleResultFailure = {
 	elapsed: number;
 };
 
-export const toGenResult = (originId: SourceId, rawResult: RawGenResult): GenResult => {
+export const to_gen_result = (origin_id: SourceId, raw_result: RawGenResult): GenResult => {
 	return {
-		originId,
-		files: toGenFiles(originId, rawResult),
+		origin_id,
+		files: to_gen_files(origin_id, raw_result),
 	};
 };
 
-const toGenFiles = (originId: SourceId, rawResult: RawGenResult): GenFile[] => {
-	if (rawResult === null) {
+const to_gen_files = (origin_id: SourceId, raw_result: RawGenResult): GenFile[] => {
+	if (raw_result === null) {
 		return [];
-	} else if (typeof rawResult === 'string') {
-		return [toGenFile(originId, {content: rawResult})];
-	} else if (Array.isArray(rawResult)) {
-		const files = rawResult.flatMap((f) => toGenFiles(originId, f));
-		validateGenFiles(files);
+	} else if (typeof raw_result === 'string') {
+		return [to_gen_file(origin_id, {content: raw_result})];
+	} else if (Array.isArray(raw_result)) {
+		const files = raw_result.flatMap((f) => to_gen_files(origin_id, f));
+		validate_gen_files(files);
 		return files;
 	}
-	return [toGenFile(originId, rawResult)];
+	return [to_gen_file(origin_id, raw_result)];
 };
 
-const toGenFile = (originId: SourceId, rawGenFile: RawGenFile): GenFile => {
+const to_gen_file = (origin_id: SourceId, rawGenFile: RawGenFile): GenFile => {
 	const {content, filename, format = true} = rawGenFile;
-	const id = toOutputFileId(originId, filename);
-	return {id, content, originId, format};
+	const id = to_output_file_id(origin_id, filename);
+	return {id, content, origin_id, format};
 };
 
-const toOutputFileId = (originId: SourceId, rawFileName: string | undefined): string => {
-	if (rawFileName === '') {
+const to_output_file_id = (origin_id: SourceId, raw_file_name: string | undefined): string => {
+	if (raw_file_name === '') {
 		throw Error(`Output file name cannot be an empty string`);
 	}
-	const filename = rawFileName || toOutputFileName(basename(originId));
-	const dir = dirname(originId);
-	const outputFileId = join(dir, filename);
-	if (outputFileId === originId) {
+	const filename = raw_file_name || toOutputFileName(basename(origin_id));
+	const dir = dirname(origin_id);
+	const output_file_id = join(dir, filename);
+	if (output_file_id === origin_id) {
 		throw Error('Gen origin and output file ids cannot be the same');
 	}
-	return outputFileId;
+	return output_file_id;
 };
 
 export const toOutputFileName = (filename: string): string => {
 	const {pattern, text} = genModuleMeta[toGenModuleType(filename)];
 	const parts = filename.split('.');
-	const genPatternIndex = parts.indexOf(text);
-	if (genPatternIndex === -1) {
+	const gen_pattern_index = parts.indexOf(text);
+	if (gen_pattern_index === -1) {
 		throw Error(`Invalid gen file name - '${text}' not found in '${filename}'`);
 	}
-	if (genPatternIndex !== parts.lastIndexOf(text)) {
+	if (gen_pattern_index !== parts.lastIndexOf(text)) {
 		throw Error(`Invalid gen file name - multiple instances of '${text}' found in '${filename}'`);
 	}
-	if (genPatternIndex < parts.length - 3) {
+	if (gen_pattern_index < parts.length - 3) {
 		// This check is technically unneccessary,
 		// but ensures a consistent file naming convention.
 		throw Error(
 			`Invalid gen file name - only one additional extension is allowed to follow '${pattern}' in '${filename}'`,
 		);
 	}
-	const finalParts: string[] = [];
-	const hasDifferentExt = genPatternIndex === parts.length - 3;
-	const length = hasDifferentExt ? parts.length - 1 : parts.length;
+	const final_parts: string[] = [];
+	const has_different_ext = gen_pattern_index === parts.length - 3;
+	const length = has_different_ext ? parts.length - 1 : parts.length;
 	for (let i = 0; i < length; i++) {
-		if (i === genPatternIndex) continue; // skip the `.gen.` or `.schema.` pattern
+		if (i === gen_pattern_index) continue; // skip the `.gen.` or `.schema.` pattern
 		if (i === length - 1 && parts[i] === '') continue; // allow empty extension
-		finalParts.push(parts[i]);
+		final_parts.push(parts[i]);
 	}
-	return finalParts.join('.');
+	return final_parts.join('.');
 };
 
-const validateGenFiles = (files: GenFile[]) => {
+const validate_gen_files = (files: GenFile[]) => {
 	const ids = new Set();
 	for (const file of files) {
 		if (ids.has(file.id)) {

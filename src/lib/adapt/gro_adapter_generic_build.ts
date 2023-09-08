@@ -6,29 +6,29 @@ import {DIST_DIRNAME} from '../path/paths.js';
 import type {BuildName} from '../build/build_config.js';
 
 export interface Options {
-	buildName: BuildName;
-	dir?: string; // defaults to `dist/${buildName}`
-	hostTarget?: HostTarget;
+	build_name: BuildName;
+	dir?: string; // defaults to `dist/${build_name}`
+	host_target?: HostTarget;
 }
 
 export const createAdapter = ({
-	buildName,
-	dir = `${DIST_DIRNAME}/${buildName}`,
-	hostTarget = 'static',
+	build_name,
+	dir = `${DIST_DIRNAME}/${build_name}`,
+	host_target = 'static',
 }: Options): Adapter => {
-	const outputDir = stripEnd(dir, '/');
+	const output_dir = stripEnd(dir, '/');
 	return {
 		name: 'gro_adapter_generic_build',
 		adapt: async ({config, fs, dev, log}) => {
-			const build_config = config.builds.find((b) => b.name === buildName);
+			const build_config = config.builds.find((b) => b.name === build_name);
 			if (!build_config) {
-				throw Error(`Unknown build config: ${buildName}`);
+				throw Error(`Unknown build config: ${build_name}`);
 			}
 
-			await copy_dist(fs, build_config, dev, outputDir, log);
+			await copy_dist(fs, build_config, dev, output_dir, log);
 
-			if (hostTarget === 'github_pages') {
-				await ensure_nojekyll(fs, outputDir);
+			if (host_target === 'github_pages') {
+				await ensure_nojekyll(fs, output_dir);
 			}
 		},
 	};

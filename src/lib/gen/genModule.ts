@@ -6,14 +6,14 @@ import {
 	type FindModulesResult,
 } from '../fs/modules.js';
 import type {Gen, GenResults, GenFile} from './gen.js';
-import {get_possible_source_ids} from '../path/inputPath.js';
+import {get_possible_source_ids} from '../path/input_path.js';
 import {paths} from '../path/paths.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
 
-export const isGenPath = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
+export const is_gen_path = (path: string): boolean => path.includes(GEN_FILE_PATTERN);
 
 export const GEN_SCHEMA_FILE_PATTERN_TEXT = 'schema';
 export const GEN_SCHEMA_FILE_PATTERN = '.' + GEN_SCHEMA_FILE_PATTERN_TEXT + '.';
@@ -107,7 +107,7 @@ export const checkGenModule = async (
 	};
 };
 
-export const findGenModules = (
+export const find_gen_modules = (
 	fs: Filesystem,
 	input_paths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN],
@@ -117,5 +117,5 @@ export const findGenModules = (
 		fs,
 		input_paths,
 		(id) => fs.findFiles(id, (path) => extensions.some((e) => path.includes(e))),
-		(inputPath) => get_possible_source_ids(inputPath, extensions, root_dirs),
+		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

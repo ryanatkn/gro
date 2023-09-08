@@ -1,15 +1,15 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
-import {normalizeTypeImports} from './typeImports.js';
+import {normalize_type_imports} from './type_imports.js';
 import {fs} from '../../fs/node.js';
 
-/* test__normalizeTypeImports */
-const test__normalizeTypeImports = suite('normalizeTypeImports');
+/* test__normalize_type_imports */
+const test__normalize_type_imports = suite('normalize_type_imports');
 
-test__normalizeTypeImports('throws with multiple imports on the same line', async () => {
+test__normalize_type_imports('throws with multiple imports on the same line', async () => {
 	try {
-		await normalizeTypeImports(
+		await normalize_type_imports(
 			fs,
 			['import E3 from "./someTestExports.js"; import type E4 from "./someTestExports.js"'],
 			'virtualTestFile.ts',
@@ -22,11 +22,11 @@ test__normalizeTypeImports('throws with multiple imports on the same line', asyn
 	}
 });
 
-test__normalizeTypeImports('throws with both default and named type imports', async () => {
+test__normalize_type_imports('throws with both default and named type imports', async () => {
 	// This is disallowed by TypeScript:
 	// https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html
 	try {
-		await normalizeTypeImports(
+		await normalize_type_imports(
 			fs,
 			['import type E3, {E4} from "./someTestExports.js"'],
 			'virtualTestFile.ts',
@@ -39,9 +39,9 @@ test__normalizeTypeImports('throws with both default and named type imports', as
 	}
 });
 
-test__normalizeTypeImports('throws with malformed type imports', async () => {
+test__normalize_type_imports('throws with malformed type imports', async () => {
 	try {
-		await normalizeTypeImports(fs, ['import type "./someTestExports.js"'], 'virtualTestFile.ts');
+		await normalize_type_imports(fs, ['import type "./someTestExports.js"'], 'virtualTestFile.ts');
 		assert.unreachable('should fail');
 	} catch (err) {
 		if (err.message === 'should fail') {
@@ -50,9 +50,9 @@ test__normalizeTypeImports('throws with malformed type imports', async () => {
 	}
 });
 
-test__normalizeTypeImports('throws with malformed type imports', async () => {
+test__normalize_type_imports('throws with malformed type imports', async () => {
 	try {
-		await normalizeTypeImports(
+		await normalize_type_imports(
 			fs,
 			['import A from "./someTestExports.js"', 'import B from "./someTestExports.js"'],
 			'virtualTestFile.ts',
@@ -65,5 +65,5 @@ test__normalizeTypeImports('throws with malformed type imports', async () => {
 	}
 });
 
-test__normalizeTypeImports.run();
-/* test__normalizeTypeImports */
+test__normalize_type_imports.run();
+/* test__normalize_type_imports */

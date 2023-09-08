@@ -107,12 +107,12 @@ const source_metaSnapshot = [
 				builds: [
 					{
 						id: '/c/dev/testBuildConfig/dep2.js',
-						buildName: 'testBuildConfig',
+						build_name: 'testBuildConfig',
 						dependencies: null,
 					},
 					{
 						id: '/c/dev/testBuildConfig/dep2.js.map',
-						buildName: 'testBuildConfig',
+						build_name: 'testBuildConfig',
 						dependencies: null,
 					},
 				],
@@ -129,7 +129,7 @@ const source_metaSnapshot = [
 				builds: [
 					{
 						id: '/c/dev/testBuildConfig/dep1.js',
-						buildName: 'testBuildConfig',
+						build_name: 'testBuildConfig',
 						dependencies: [
 							{
 								specifier: './dep2.js',
@@ -142,7 +142,7 @@ const source_metaSnapshot = [
 					},
 					{
 						id: '/c/dev/testBuildConfig/dep1.js.map',
-						buildName: 'testBuildConfig',
+						build_name: 'testBuildConfig',
 						dependencies: null,
 					},
 				],
@@ -159,7 +159,7 @@ const source_metaSnapshot = [
 				builds: [
 					{
 						id: '/c/dev/testBuildConfig/entry.js',
-						buildName: 'testBuildConfig',
+						build_name: 'testBuildConfig',
 						dependencies: [
 							{
 								specifier: './dep1.js',
@@ -172,7 +172,7 @@ const source_metaSnapshot = [
 					},
 					{
 						id: '/c/dev/testBuildConfig/entry.js.map',
-						buildName: 'testBuildConfig',
+						build_name: 'testBuildConfig',
 						dependencies: null,
 					},
 				],

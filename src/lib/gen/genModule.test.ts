@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {join} from 'node:path';
 
-import {validateGenModule, findGenModules} from './genModule.js';
+import {validateGenModule, find_gen_modules} from './genModule.js';
 import {paths} from '../path/paths.js';
 import {fs} from '../fs/node.js';
 
@@ -35,14 +35,14 @@ test__validateGenModule('schema invalid module', () => {
 test__validateGenModule.run();
 /* test__validateGenModule */
 
-/* test__findGenModules */
-const test__findGenModules = suite('findGenModules');
+/* test__find_gen_modules */
+const test__find_gen_modules = suite('find_gen_modules');
 
-test__findGenModules('finds gen modules in a directory', async () => {
-	const findGenModulesResult = await findGenModules(fs, [join(paths.lib, 'docs/')]);
-	assert.ok(findGenModulesResult.ok);
-	assert.ok(findGenModulesResult.source_idPathDataByInputPath.size);
+test__find_gen_modules('finds gen modules in a directory', async () => {
+	const find_gen_modulesResult = await find_gen_modules(fs, [join(paths.lib, 'docs/')]);
+	assert.ok(find_gen_modulesResult.ok);
+	assert.ok(find_gen_modulesResult.source_id_path_data_by_input_path.size);
 });
 
-test__findGenModules.run();
-/* findGenModulesResult */
+test__find_gen_modules.run();
+/* find_gen_modulesResult */

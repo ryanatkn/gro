@@ -66,7 +66,7 @@ $ gro some/dir
 ```
 
 > To learn more about the Gro CLI path conventions,
-> see [the `input_paths` comments](../path/inputPath.ts)
+> see [the `input_paths` comments](../path/input_path.ts)
 
 ### run a task
 

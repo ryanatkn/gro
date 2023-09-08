@@ -21,19 +21,19 @@ export const createAdapter = (): Adapter => {
 
 			// `npm link`
 			if (pkg.bin) {
-				const timingToNpmLink = timings.start('npm link');
+				const timing_to_npm_link = timings.start('npm link');
 				await Promise.all(
 					Object.values(pkg.bin).map(async (binPath) => {
-						const chmodResult = await spawn('chmod', ['+x', binPath]);
-						if (!chmodResult.ok) log.error(`CLI chmod failed with code ${chmodResult.code}`);
+						const chmod_result = await spawn('chmod', ['+x', binPath]);
+						if (!chmod_result.ok) log.error(`CLI chmod failed with code ${chmod_result.code}`);
 					}),
 				);
 				log.info(`linking`);
-				const linkResult = await spawn('npm', ['link', '-f']);
-				if (!linkResult.ok) {
-					throw new TaskError(`Failed to link. ${printSpawnResult(linkResult)}`);
+				const link_result = await spawn('npm', ['link', '-f']);
+				if (!link_result.ok) {
+					throw new TaskError(`Failed to link. ${printSpawnResult(link_result)}`);
 				}
-				timingToNpmLink();
+				timing_to_npm_link();
 			}
 		},
 	};

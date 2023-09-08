@@ -8,7 +8,7 @@ import {
 	type FindModulesFailure,
 } from '../fs/modules.js';
 import {to_task_name, is_task_path, TASK_FILE_SUFFIX, type Task} from './task.js';
-import {get_possible_source_ids} from '../path/inputPath.js';
+import {get_possible_source_ids} from '../path/input_path.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
 export interface TaskModule {
@@ -41,7 +41,7 @@ export const find_task_modules = async (
 		fs,
 		input_paths,
 		(id) => fs.findFiles(id, (path) => is_task_path(path)),
-		(inputPath) => get_possible_source_ids(inputPath, extensions, root_dirs),
+		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);
 
 // TODO BLOCK see others

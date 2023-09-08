@@ -214,9 +214,9 @@
       "default": "./dist/fs/filesystem.js",
       "types": "./dist/fs/filesystem.d.ts"
     },
-    "./fs/inputPath.js": {
-      "default": "./dist/fs/inputPath.js",
-      "types": "./dist/fs/inputPath.d.ts"
+    "./fs/input_path.js": {
+      "default": "./dist/fs/input_path.js",
+      "types": "./dist/fs/input_path.d.ts"
     },
     "./fs/modules.js": {
       "default": "./dist/fs/modules.js",
@@ -234,13 +234,13 @@
       "default": "./dist/gen/helpers/ts.js",
       "types": "./dist/gen/helpers/ts.d.ts"
     },
-    "./gen/helpers/typeImports.js": {
-      "default": "./dist/gen/helpers/typeImports.js",
-      "types": "./dist/gen/helpers/typeImports.d.ts"
+    "./gen/helpers/type_imports.js": {
+      "default": "./dist/gen/helpers/type_imports.js",
+      "types": "./dist/gen/helpers/type_imports.d.ts"
     },
-    "./path/inputPath.js": {
-      "default": "./dist/path/inputPath.js",
-      "types": "./dist/path/inputPath.d.ts"
+    "./path/input_path.js": {
+      "default": "./dist/path/input_path.js",
+      "types": "./dist/path/input_path.d.ts"
     },
     "./path/path_data.js": {
       "default": "./dist/path/path_data.js",

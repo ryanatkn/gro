@@ -10,24 +10,22 @@ export interface TaskArgs extends Args {
 	watch?: boolean;
 }
 
-const name = 'gro_plugin_sveltekit_frontend';
-
 // eslint-disable-next-line no-empty-pattern
 export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 	PluginContext<TaskArgs, object>
 > => {
-	let sveltekitProcess: SpawnedProcess | null = null;
+	let sveltekit_process: SpawnedProcess | null = null;
 	return {
-		name,
+		name: 'gro_plugin_sveltekit_frontend',
 		setup: async ({dev, args, log}) => {
 			if (dev) {
 				if (args.watch) {
 					const serialized_args = ['vite', 'dev', ...serialize_args(to_forwarded_args('vite'))];
 					log.info(print_command_args(serialized_args));
-					sveltekitProcess = spawnProcess('npx', serialized_args);
+					sveltekit_process = spawnProcess('npx', serialized_args);
 				} else {
 					log.debug(
-						`${name} is loaded but will not output anything` +
+						`the SvelteKit frontend plugin is loaded but will not output anything` +
 							' because `dev` is true and `watch` is false',
 					);
 				}
@@ -38,9 +36,9 @@ export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
 			}
 		},
 		teardown: async () => {
-			if (sveltekitProcess) {
-				sveltekitProcess.child.kill();
-				await sveltekitProcess.closed;
+			if (sveltekit_process) {
+				sveltekit_process.child.kill();
+				await sveltekit_process.closed;
 			}
 		},
 	};

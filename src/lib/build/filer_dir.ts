@@ -1,6 +1,6 @@
 import {noop} from '@feltjs/util/function.js';
 
-import {watchNodeFs, type WatchNodeFs} from '../fs/watchNodeFs.js';
+import {watch_node_fs, type WatchNodeFs} from '../fs/watch_node_fs.js';
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from '../fs/filter.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -34,7 +34,7 @@ export const create_filer_dir = (
 
 	if (watch) {
 		// TODO abstract this from the Node filesystem
-		watcher = watchNodeFs({
+		watcher = watch_node_fs({
 			dir,
 			on_change: (change) => on_change(change, filer_dir),
 			filter,

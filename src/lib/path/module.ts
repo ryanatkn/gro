@@ -10,5 +10,5 @@ const INTERNAL_MODULE_MATCHER = new RegExp(
 	'u',
 );
 
-export const is_external_module = (moduleName: string): boolean =>
-	!INTERNAL_MODULE_MATCHER.test(moduleName);
+export const is_external_module = (module_name: string): boolean =>
+	!INTERNAL_MODULE_MATCHER.test(module_name);

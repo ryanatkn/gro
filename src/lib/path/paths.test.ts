@@ -95,7 +95,7 @@ test__base_path_to_source_id.run();
 const test__to_build_base_path = suite('to_build_base_path');
 
 test__to_build_base_path('basic behavior', () => {
-	assert.is(to_build_base_path(resolve('.gro/dev/buildName/foo/bar/baz.js')), 'foo/bar/baz.js');
+	assert.is(to_build_base_path(resolve('.gro/dev/build_name/foo/bar/baz.js')), 'foo/bar/baz.js');
 });
 
 test__to_build_base_path.run();

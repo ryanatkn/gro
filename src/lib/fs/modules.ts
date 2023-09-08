@@ -4,7 +4,10 @@ import {UnreachableError} from '@feltjs/util/error.js';
 import type {Result} from '@feltjs/util/result.js';
 import {printError} from '@feltjs/util/print.js';
 
-import {loadSourcePathDataByInputPath, loadSourceIdsByInputPath} from '../path/inputPath.js';
+import {
+	load_source_path_data_by_input_path,
+	load_source_ids_by_input_path,
+} from '../path/input_path.js';
 import type {PathStats, PathData} from '../path/path_data.js';
 import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
 import type {Filesystem} from './filesystem.js';
@@ -51,23 +54,23 @@ export const load_module = async <T extends Record<string, any>>(
 export type FindModulesResult = Result<
 	{
 		source_ids_by_input_path: Map<string, string[]>;
-		source_idPathDataByInputPath: Map<string, PathData>;
+		source_id_path_data_by_input_path: Map<string, PathData>;
 		timings: Timings<FindModulesTimings>;
 	},
 	FindModulesFailure
 >;
 export type FindModulesFailure =
 	| {
-			type: 'unmappedInputPaths';
-			source_idPathDataByInputPath: Map<string, PathData>;
-			unmappedInputPaths: string[];
+			type: 'unmapped_input_paths';
+			source_id_path_data_by_input_path: Map<string, PathData>;
+			unmapped_input_paths: string[];
 			reasons: string[];
 	  }
 	| {
-			type: 'inputDirectoriesWithNoFiles';
+			type: 'input_directories_with_no_files';
 			source_ids_by_input_path: Map<string, string[]>;
-			source_idPathDataByInputPath: Map<string, PathData>;
-			inputDirectoriesWithNoFiles: string[];
+			source_id_path_data_by_input_path: Map<string, PathData>;
+			input_directories_with_no_files: string[];
 			reasons: string[];
 	  };
 type FindModulesTimings = 'map input paths' | 'find files';
@@ -90,37 +93,34 @@ type LoadModulesTimings = 'load modules';
 
 /*
 
-Finds modules from input paths. (see `src/lib/path/inputPath.ts` for more)
+Finds modules from input paths. (see `src/lib/path/input_path.ts` for more)
 
 */
 export const find_modules = async (
 	fs: Filesystem,
 	input_paths: string[],
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
-	get_possible_source_ids?: (inputPath: string) => string[],
+	get_possible_source_ids?: (input_path: string) => string[],
 ): Promise<FindModulesResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
 	const timingToMapInputPaths = timings.start('map input paths');
-	const {source_idPathDataByInputPath, unmappedInputPaths} = await loadSourcePathDataByInputPath(
-		fs,
-		input_paths,
-		get_possible_source_ids,
-	);
+	const {source_id_path_data_by_input_path, unmapped_input_paths} =
+		await load_source_path_data_by_input_path(fs, input_paths, get_possible_source_ids);
 	timingToMapInputPaths();
 
 	// Error if any input path could not be mapped.
-	if (unmappedInputPaths.length) {
+	if (unmapped_input_paths.length) {
 		return {
 			ok: false,
-			type: 'unmappedInputPaths',
-			source_idPathDataByInputPath,
-			unmappedInputPaths,
-			reasons: unmappedInputPaths.map((inputPath) =>
+			type: 'unmapped_input_paths',
+			source_id_path_data_by_input_path,
+			unmapped_input_paths,
+			reasons: unmapped_input_paths.map((input_path) =>
 				red(
 					`Input path ${print_path_or_gro_path(
-						inputPath,
-						paths_from_id(inputPath),
+						input_path,
+						paths_from_id(input_path),
 					)} cannot be mapped to a file or directory.`,
 				),
 			),
@@ -129,30 +129,28 @@ export const find_modules = async (
 
 	// Find all of the files for any directories.
 	const timingToFindFiles = timings.start('find files');
-	const {source_ids_by_input_path, inputDirectoriesWithNoFiles} = await loadSourceIdsByInputPath(
-		source_idPathDataByInputPath,
-		(id) => findFiles(id),
-	);
+	const {source_ids_by_input_path, input_directories_with_no_files} =
+		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => findFiles(id));
 	timingToFindFiles();
 
 	// Error if any input path has no files. (means we have an empty directory)
-	return inputDirectoriesWithNoFiles.length
+	return input_directories_with_no_files.length
 		? {
 				ok: false,
-				type: 'inputDirectoriesWithNoFiles',
-				source_idPathDataByInputPath,
+				type: 'input_directories_with_no_files',
+				source_id_path_data_by_input_path,
 				source_ids_by_input_path,
-				inputDirectoriesWithNoFiles,
-				reasons: inputDirectoriesWithNoFiles.map((inputPath) =>
+				input_directories_with_no_files,
+				reasons: input_directories_with_no_files.map((input_path) =>
 					red(
 						`Input directory ${print_path_or_gro_path(
-							source_idPathDataByInputPath.get(inputPath)!.id,
-							paths_from_id(inputPath),
+							source_id_path_data_by_input_path.get(input_path)!.id,
+							paths_from_id(input_path),
 						)} contains no matching files.`,
 					),
 				),
 		  }
-		: {ok: true, source_ids_by_input_path, source_idPathDataByInputPath, timings};
+		: {ok: true, source_ids_by_input_path, source_id_path_data_by_input_path, timings};
 };
 
 /*
@@ -166,7 +164,7 @@ export const load_modules = async <
 	ModuleType extends Record<string, any>,
 	TModuleMeta extends ModuleMeta<ModuleType>,
 >(
-	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `inputPath`?
+	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
 	dev: boolean,
 	load_moduleById: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
@@ -175,7 +173,7 @@ export const load_modules = async <
 	const modules: TModuleMeta[] = [];
 	const load_moduleFailures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
-	for (const [inputPath, source_ids] of source_ids_by_input_path) {
+	for (const [input_path, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
 			const result = await load_moduleById(id, dev); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
@@ -186,8 +184,8 @@ export const load_modules = async <
 					case 'importFailed': {
 						reasons.push(
 							`Module import ${print_path(id, paths_from_id(id))} failed from input ${print_path(
-								inputPath,
-								paths_from_id(inputPath),
+								input_path,
+								paths_from_id(input_path),
 							)}: ${printError(result.error)}`,
 						);
 						break;

@@ -4,7 +4,7 @@ This document describes how to go from `gro build` to live websites and npm pack
 
 > this is for production builds; for development, see [dev.md](dev.md)
 
-For production, we use `gro build` to output builds to `.gro/prod/{buildName}`,
+For production, we use `gro build` to output builds to `.gro/prod/{build_name}`,
 which then get _adapted_ — to use terminology of SvelteKit — to their final form.
 Adapting can be as simple as copying the files to a different location,
 or it may involve bundling or other arbitrary operations.

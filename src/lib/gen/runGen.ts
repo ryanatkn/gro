@@ -17,7 +17,7 @@ import {
 	type GenContext,
 	type GenModuleResultSuccess,
 	type GenModuleResultFailure,
-	toGenResult,
+	to_gen_result,
 	type RawGenResult,
 } from './gen.js';
 import type {Filesystem} from '../fs/filesystem.js';
@@ -31,22 +31,22 @@ export const runGen = async (
 	fs: Filesystem,
 	genModules: GenModuleMeta[],
 	log: Logger,
-	formatFile?: (fs: Filesystem, id: string, content: string) => Promise<string>,
+	format_file?: (fs: Filesystem, id: string, content: string) => Promise<string>,
 ): Promise<GenResults> => {
-	let inputCount = 0;
-	let outputCount = 0;
+	let input_count = 0;
+	let output_count = 0;
 	const timings = new Timings();
 	const timingForTotal = timings.start('total');
 	const genSchemasOptions = toGenSchemasOptions(genModules);
 	const imports = toGenContextImports(genModules);
 	const results = await Promise.all(
 		genModules.map(async (moduleMeta): Promise<GenModuleResult> => {
-			inputCount++;
+			input_count++;
 			const {id} = moduleMeta;
 			const timingForModule = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			const genCtx: GenContext = {fs, originId: id, log, imports};
+			const genCtx: GenContext = {fs, origin_id: id, log, imports};
 			let rawGenResult: RawGenResult;
 			try {
 				switch (moduleMeta.type) {
@@ -73,15 +73,15 @@ export const runGen = async (
 			}
 
 			// Convert the module's return value to a normalized form.
-			const genResult = toGenResult(id, rawGenResult);
+			const genResult = to_gen_result(id, rawGenResult);
 
 			// Format the files if needed.
-			const files = formatFile
+			const files = format_file
 				? await Promise.all(
 						genResult.files.map(async (file) => {
 							if (!file.format) return file;
 							try {
-								return {...file, content: await formatFile(fs, file.id, file.content)};
+								return {...file, content: await format_file(fs, file.id, file.content)};
 							} catch (err) {
 								log.error(
 									red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),
@@ -93,7 +93,7 @@ export const runGen = async (
 				  )
 				: genResult.files;
 
-			outputCount += files.length;
+			output_count += files.length;
 			return {
 				ok: true,
 				id,
@@ -106,8 +106,8 @@ export const runGen = async (
 		results,
 		successes: results.filter((r) => r.ok) as GenModuleResultSuccess[],
 		failures: results.filter((r) => !r.ok) as GenModuleResultFailure[],
-		inputCount,
-		outputCount,
+		input_count,
+		output_count,
 		elapsed: timingForTotal(),
 	};
 };
@@ -127,14 +127,14 @@ const toGenSchemasOptions = (
 };
 
 // TODO configurable
-export const toGenImportPath = (id: string): string =>
+export const to_gen_import_path = (id: string): string =>
 	'$' + stripEnd(source_id_to_base_path(id), GEN_SCHEMA_PATH_SUFFIX);
 
 export const toGenContextImports = (genModules: GenModuleMeta[]): Record<string, string> => {
 	const imports: Record<string, string> = {};
 	for (const genModule of genModules) {
 		if (genModule.type === 'schema') {
-			const importPath = toGenImportPath(genModule.id);
+			const importPath = to_gen_import_path(genModule.id);
 			for (const identifier of Object.keys(genModule.mod)) {
 				const name = stripEnd(identifier, GEN_SCHEMA_IDENTIFIER_SUFFIX);
 				imports[name] = `import type {${name}} from '${importPath}';`;

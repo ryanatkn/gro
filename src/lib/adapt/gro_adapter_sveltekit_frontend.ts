@@ -6,19 +6,19 @@ import {SVELTEKIT_BUILD_DIRNAME} from '../path/paths.js';
 
 export interface Options {
 	dir: string;
-	hostTarget: HostTarget;
+	host_target: HostTarget;
 }
 
 export const createAdapter = ({
 	dir = SVELTEKIT_BUILD_DIRNAME,
-	hostTarget = 'github_pages',
+	host_target = 'github_pages',
 }: Partial<Options> = {}): Adapter => {
-	const outputDir = stripEnd(dir, '/');
+	const output_dir = stripEnd(dir, '/');
 	return {
 		name: 'gro_adapter_sveltekit_frontend',
 		adapt: async ({fs}) => {
-			if (hostTarget === 'github_pages') {
-				await Promise.all([ensure_nojekyll(fs, outputDir)]);
+			if (host_target === 'github_pages') {
+				await Promise.all([ensure_nojekyll(fs, output_dir)]);
 			}
 		},
 	};

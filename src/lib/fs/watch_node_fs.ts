@@ -2,13 +2,12 @@ import chokidar from 'chokidar';
 import {statSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
 
 import type {PathStats} from '../path/path_data.js';
-import {toPathFilter, type PathFilter} from './filter.js';
-import {loadGitignoreFilter} from '../util/gitignore.js';
+import type {PathFilter} from './filter.js';
 import {SOURCE_DIR, SOURCE_DIRNAME, paths, source_id_to_base_path} from '../path/paths.js';
 
 /*
 
-`watchNodeFs` is Gro's low level interface for watching changes on the Node filesystem.
+`watch_node_fs` is Gro's low level interface for watching changes on the Node filesystem.
 `Filer` is a high level interface that should be preferred when possible.
 
 */
@@ -37,8 +36,8 @@ export interface Options {
 const FILE_STATS = {isDirectory: () => false};
 const DIR_STATS = {isDirectory: () => true};
 
-export const watchNodeFs = (options: Options): WatchNodeFs => {
-	const {dir, on_change, filter = toDefaultFilter()} = options;
+export const watch_node_fs = (options: Options): WatchNodeFs => {
+	const {dir, on_change, filter} = options;
 	let watcher: chokidar.FSWatcher | undefined;
 
 	return {
@@ -75,8 +74,6 @@ export const watchNodeFs = (options: Options): WatchNodeFs => {
 		},
 	};
 };
-
-const toDefaultFilter = (): PathFilter => toPathFilter(loadGitignoreFilter());
 
 const toBasePath = (p: string): string => {
 	// TODO this is terrible, handles the `src/` case having different

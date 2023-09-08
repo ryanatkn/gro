@@ -22,8 +22,8 @@ export const task: Task<Args> = {
 			return;
 		}
 		const {_} = args;
-		const forwardedArgs = {_, 'max-warnings': 0, ...to_forwarded_args('eslint')};
-		const serialized_args = serialize_args(forwardedArgs);
+		const forwarded_args = {_, 'max-warnings': 0, ...to_forwarded_args('eslint')};
+		const serialized_args = serialize_args(forwarded_args);
 		log.info(print_command_args(['eslint'].concat(serialized_args)));
 		const eslintResult = await spawn_cli(fs, 'eslint', serialized_args);
 		if (!eslintResult?.ok) {

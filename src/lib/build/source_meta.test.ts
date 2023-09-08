@@ -18,7 +18,7 @@ test__serializeSourceMeta('serializes and deserializes source meta without chang
 		builds: [
 			{
 				id: 'a',
-				buildName: 'b',
+				build_name: 'b',
 				dependencies: [
 					{
 						specifier: 'a',
@@ -42,12 +42,12 @@ test__serializeSourceMeta('optimizes when serializing', () => {
 		builds: [
 			{
 				id: 'a',
-				buildName: 'b',
+				build_name: 'b',
 				dependencies: null,
 			},
 			{
 				id: 'a',
-				buildName: 'b',
+				build_name: 'b',
 				dependencies: [
 					{
 						specifier: 'a',
@@ -64,8 +64,8 @@ test__serializeSourceMeta('optimizes when serializing', () => {
 		source_id: 'a',
 		content_hash: 'b',
 		builds: [
-			{id: 'a', buildName: 'b'},
-			{id: 'a', buildName: 'b', dependencies: [{specifier: 'a'}]},
+			{id: 'a', build_name: 'b'},
+			{id: 'a', build_name: 'b', dependencies: [{specifier: 'a'}]},
 		],
 	};
 	assert.equal(serializeSourceMeta(data), serializedData);

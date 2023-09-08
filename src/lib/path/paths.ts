@@ -15,9 +15,9 @@ A `base_path` is the format used by `CheapWatch`.
 It's a bare relative path without a source or .gro directory,
 e.g. 'foo/bar.ts'.
 
-`CheapWatch` also uses an array of `pathParts`.
+`CheapWatch` also uses an array of `path_parts`.
 For path './foo/bar/baz.ts',
-the `pathParts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
+the `path_parts` are `['foo', 'foo/bar', 'foo/bar/baz.ts']`.
 
 */
 
@@ -68,9 +68,9 @@ export interface Paths {
 export type SourceId = Flavored<string, 'SourceId'>;
 export type BuildId = Flavored<string, 'BuildId'>;
 
-export const create_paths = (rootDir: string): Paths => {
-	const root = stripEnd(rootDir, '/') + '/';
-	console.log(`rootDir`, rootDir);
+export const create_paths = (root_dir: string): Paths => {
+	const root = stripEnd(root_dir, '/') + '/';
+	console.log(`root_dir`, root_dir);
 	return {
 		root,
 		source: root + SOURCE_DIR,
@@ -92,7 +92,7 @@ export const to_root_path = (id: string, p = paths): string => stripStart(id, p.
 export const source_id_to_base_path = (source_id: SourceId, p = paths): string =>
 	stripStart(source_id, p.source);
 
-// '/home/me/app/.gro/[prod|dev]/buildName/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
+// '/home/me/app/.gro/[prod|dev]/build_name/foo/bar/baz.js' → '/home/me/app/src/foo/bar/baz.ts'
 export const build_id_to_source_id = (
 	build_id: BuildId,
 	build_dir = paths.build,
@@ -116,10 +116,10 @@ export type BuildOutDirname = 'dev' | 'prod';
 
 export const to_build_out_path = (
 	dev: boolean,
-	buildName: BuildName,
+	build_name: BuildName,
 	base_path = '',
 	build_dir = paths.build,
-): string => `${to_build_out_dir(dev, build_dir)}/${buildName}/${base_path}`;
+): string => `${to_build_out_dir(dev, build_dir)}/${build_name}/${base_path}`;
 
 export const to_build_base_path = (build_id: BuildId, build_dir = paths.build): string => {
 	const root_path = stripStart(build_id, build_dir);
@@ -138,8 +138,8 @@ export const to_build_base_path = (build_id: BuildId, build_dir = paths.build): 
 };
 
 // Can be used to map a source id from e.g. the cwd to gro's.
-export const replace_root_dir = (id: string, rootDir: string, p = paths): string =>
-	join(rootDir, to_root_path(id, p));
+export const replace_root_dir = (id: string, root_dir: string, p = paths): string =>
+	join(root_dir, to_root_path(id, p));
 
 // TODO This function loses information,
 // and it's also hardcoded to Gro's default file types and output conventions.

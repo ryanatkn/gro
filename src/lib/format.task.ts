@@ -2,7 +2,7 @@ import {printSpawnResult} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {formatDirectory} from './format/formatDirectory.js';
+import {format_directory} from './format/format_directory.js';
 import {paths} from './path/paths.js';
 
 export const Args = z
@@ -20,7 +20,7 @@ export const task: Task<Args> = {
 	run: async ({args, log}) => {
 		const {check} = args;
 		// TODO forward prettier args
-		const formatResult = await formatDirectory(log, paths.source, check);
+		const formatResult = await format_directory(log, paths.source, check);
 		if (!formatResult.ok) {
 			throw new TaskError(
 				`Failed ${check ? 'formatting check' : 'to format'}. ${printSpawnResult(formatResult)}`,

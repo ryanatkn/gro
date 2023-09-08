@@ -6,10 +6,10 @@ import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
 import {runGen} from './gen/runGen.js';
-import {loadGenModule, checkGenModules, findGenModules} from './gen/genModule.js';
-import {resolveRawInputPaths} from './path/inputPath.js';
+import {loadGenModule, checkGenModules, find_gen_modules} from './gen/genModule.js';
+import {resolve_raw_input_paths} from './path/input_path.js';
 import {load_modules} from './fs/modules.js';
-import {formatFile} from './format/formatFile.js';
+import {format_file} from './format/format_file.js';
 import {print_path} from './path/paths.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
@@ -36,7 +36,7 @@ export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
 	run: async ({fs, log, args}): Promise<void> => {
-		const {_: rawInputPaths, check, rebuild} = args;
+		const {_: raw_input_paths, check, rebuild} = args;
 
 		const total_timing = createStopwatch();
 		const timings = new Timings();
@@ -54,10 +54,10 @@ export const task: Task<Args> = {
 		}
 
 		// resolve the input paths relative to src/lib/
-		const input_paths = resolveRawInputPaths(rawInputPaths);
+		const input_paths = resolve_raw_input_paths(raw_input_paths);
 
 		// load all of the gen modules
-		const find_modules_result = await findGenModules(fs, input_paths);
+		const find_modules_result = await find_gen_modules(fs, input_paths);
 		if (!find_modules_result.ok) {
 			log_error_reasons(log, find_modules_result.reasons);
 			throw new TaskError('Failed to find gen modules.');
@@ -77,7 +77,7 @@ export const task: Task<Args> = {
 
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `genResults.elapsed` - should it return `Timings` instead?
-		const genResults = await runGen(fs, load_modules_result.modules, log, formatFile);
+		const genResults = await runGen(fs, load_modules_result.modules, log, format_file);
 		stopTimingToGenerateCode();
 
 		const failCount = genResults.failures.length;
@@ -97,7 +97,7 @@ export const task: Task<Args> = {
 					log.error(
 						red(
 							`Generated file ${print_path(result.file.id)} via ${print_path(
-								result.file.originId,
+								result.file.origin_id,
 							)} ${result.isNew ? 'is new' : 'has changed'}.`,
 						),
 					);
@@ -118,7 +118,12 @@ export const task: Task<Args> = {
 				genResults.successes
 					.map((result) =>
 						result.files.map((file) => {
-							log.info('writing', print_path(file.id), 'generated from', print_path(file.originId));
+							log.info(
+								'writing',
+								print_path(file.id),
+								'generated from',
+								print_path(file.origin_id),
+							);
 							return fs.writeFile(file.id, file.content);
 						}),
 					)
@@ -136,7 +141,7 @@ export const task: Task<Args> = {
 		log.info(logResult);
 		log.info(
 			green(
-				`generated ${genResults.outputCount} file${plural(genResults.outputCount)} from ${
+				`generated ${genResults.output_count} file${plural(genResults.output_count)} from ${
 					genResults.successes.length
 				} input file${plural(genResults.successes.length)}`,
 			),

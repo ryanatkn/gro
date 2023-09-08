@@ -57,11 +57,11 @@ export class MemoryFs implements Filesystem {
 		this._files.set(id, node);
 	}
 	_add(node: FsNode): void {
-		const pathParts = toPathParts(node.id);
-		pathParts.unshift(ROOT); // TODO hacky
+		const path_parts = toPathParts(node.id);
+		path_parts.unshift(ROOT); // TODO hacky
 		// skip the last one, that's what's created above
-		for (let i = 0; i < pathParts.length - 1; i++) {
-			const pathPart = pathParts[i];
+		for (let i = 0; i < path_parts.length - 1; i++) {
+			const pathPart = path_parts[i];
 			const isDirectory = true;
 			const stats = new FsStats(isDirectory);
 			this._update(pathPart, {
@@ -212,11 +212,11 @@ export class MemoryFs implements Filesystem {
 		// cache the subdirs somehow (backlink to parent node? do we have stable references? we do ya?)
 
 		const found = new Map();
-		const baseDir = toFsId(dir);
-		const baseDirSlash = ensureEnd(baseDir, ROOT);
+		const base_dir = toFsId(dir);
+		const base_dirSlash = ensureEnd(base_dir, ROOT);
 		for (const file of this._files.values()) {
-			if (file.id === baseDir || !file.id.startsWith(baseDir)) continue;
-			const path = stripStart(file.id, baseDirSlash);
+			if (file.id === base_dir || !file.id.startsWith(base_dir)) continue;
+			const path = stripStart(file.id, base_dirSlash);
 			if (!filter || filter(path, file.stats)) {
 				found.set(path, file.stats);
 			}

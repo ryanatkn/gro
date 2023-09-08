@@ -1,7 +1,7 @@
 import {z} from 'zod';
 
 import {TaskError, type Task} from './task/task.js';
-import {findGenModules} from './gen/genModule.js';
+import {find_gen_modules} from './gen/genModule.js';
 import {log_error_reasons} from './task/log_task.js';
 
 export const Args = z
@@ -39,12 +39,12 @@ export const task: Task<Args> = {
 
 		if (gen) {
 			// Check for stale code generation if the project has any gen files.
-			const findGenModulesResult = await findGenModules(fs);
-			if (findGenModulesResult.ok) {
+			const find_gen_modulesResult = await find_gen_modules(fs);
+			if (find_gen_modulesResult.ok) {
 				log.info('checking that generated files have not changed');
 				await invoke_task('gen', {check: true, rebuild: false});
-			} else if (findGenModulesResult.type !== 'inputDirectoriesWithNoFiles') {
-				log_error_reasons(log, findGenModulesResult.reasons);
+			} else if (find_gen_modulesResult.type !== 'input_directories_with_no_files') {
+				log_error_reasons(log, find_gen_modulesResult.reasons);
 				throw new TaskError('Failed to find gen modules.');
 			}
 		}

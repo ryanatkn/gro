@@ -1,5 +1,5 @@
 import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
-import sourcemapSupport from 'source-map-support';
+import sourcemap_support from 'source-map-support';
 
 import {invoke_task} from '../task/invoke_task.js';
 import {fs} from '../fs/node.js';
@@ -22,7 +22,7 @@ attachProcessErrorHandlers((err) => (err instanceof TaskError ? 'TaskError' : nu
 
 // install sourcemaps for user tasks
 // TODO remove after changing to runtime compilation
-sourcemapSupport.install({handleUncaughtExceptions: false});
+sourcemap_support.install({handleUncaughtExceptions: false});
 
 const {task_name, args} = to_task_args();
 await invoke_task(fs, task_name, args);

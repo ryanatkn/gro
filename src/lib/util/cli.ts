@@ -33,6 +33,6 @@ export const spawn_cli = async (
 	const found = await find_cli(fs, name);
 	if (!found) return;
 	const command = found === 'local' ? 'npx' : name;
-	const finalArgs = found === 'local' ? [name].concat(args) : args;
-	return spawn(command, finalArgs, options);
+	const final_args = found === 'local' ? [name].concat(args) : args;
+	return spawn(command, final_args, options);
 };

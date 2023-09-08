@@ -6,7 +6,7 @@ import {printMs, printTimings} from '@feltjs/util/print.js';
 
 import {to_forwarded_args, type Args} from './args.js';
 import {run_task} from './run_task.js';
-import {resolveRawInputPath} from '../path/inputPath.js';
+import {resolveRawInputPath} from '../path/input_path.js';
 import {is_task_path} from './task.js';
 import {
 	paths,
@@ -29,7 +29,7 @@ import {log_available_tasks, log_error_reasons} from './log_task.js';
  * When a task is invoked,
  * Gro first searches for tasks in the current working directory.
  * and falls back to searching Gro's directory, if the two are different.
- * See `src/lib/path/inputPath.ts` for info about what "task_name" can refer to.
+ * See `src/lib/path/input_path.ts` for info about what "task_name" can refer to.
  * If it matches a directory, all of the tasks within it are logged,
  * both in the current working directory and Gro.
  *
@@ -61,17 +61,19 @@ export const invoke_task = async (
 	const timings = new Timings();
 
 	// Resolve the input path for the provided task name.
-	const inputPath = resolveRawInputPath(task_name || paths.lib);
-	console.log(`inputPath`, inputPath);
+	const input_path = resolveRawInputPath(task_name || paths.lib);
+	console.log(`input_path`, input_path);
 
-	// Find the task or directory specified by the `inputPath`.
+	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await find_task_modules(fs, [inputPath], undefined, [gro_paths.root]);
+	const find_modules_result = await find_task_modules(fs, [input_path], undefined, [
+		gro_paths.root,
+	]);
 	console.log(`find_modules_result`, find_modules_result);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
 		timings.merge(find_modules_result.timings);
-		const path_data = find_modules_result.source_idPathDataByInputPath.get(inputPath)!; // this is null safe because result is ok
+		const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
 		console.log(`path_data`, path_data);
 
 		if (!path_data.isDirectory) {
@@ -135,7 +137,7 @@ export const invoke_task = async (
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
-				const gro_dir_input_path = replace_root_dir(inputPath, gro_paths.root);
+				const gro_dir_input_path = replace_root_dir(input_path, gro_paths.root);
 				const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
 					fs.findFiles(id, (path) => is_task_path(path)),
 				);
@@ -143,7 +145,7 @@ export const invoke_task = async (
 				if (gro_dir_find_modules_result.ok) {
 					timings.merge(gro_dir_find_modules_result.timings);
 					const groPathData =
-						gro_dir_find_modules_result.source_idPathDataByInputPath.get(gro_dir_input_path)!;
+						gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
 					// First log the Gro matches.
 					await log_available_tasks(
 						log,
@@ -160,12 +162,12 @@ export const invoke_task = async (
 				);
 			}
 		}
-	} else if (find_modules_result.type === 'inputDirectoriesWithNoFiles') {
+	} else if (find_modules_result.type === 'input_directories_with_no_files') {
 		// The input path matched a directory, but it contains no matching files.
 		if (
 			is_this_project_gro ||
 			// this is null safe because of the failure type
-			is_gro_id(find_modules_result.source_idPathDataByInputPath.get(inputPath)!.id)
+			is_gro_id(find_modules_result.source_id_path_data_by_input_path.get(input_path)!.id)
 		) {
 			// If the directory is inside Gro, just log the errors.
 			log_error_reasons(log, find_modules_result.reasons);
@@ -173,14 +175,14 @@ export const invoke_task = async (
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
-			const gro_dir_input_path = replace_root_dir(inputPath, gro_paths.root);
+			const gro_dir_input_path = replace_root_dir(input_path, gro_paths.root);
 			const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
 				fs.findFiles(id, (path) => is_task_path(path)),
 			);
 			if (gro_dir_find_modules_result.ok) {
 				timings.merge(gro_dir_find_modules_result.timings);
 				const groPathData =
-					gro_dir_find_modules_result.source_idPathDataByInputPath.get(gro_dir_input_path)!;
+					gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
 				// Log the Gro matches.
 				await log_available_tasks(
 					log,
@@ -195,7 +197,7 @@ export const invoke_task = async (
 		}
 	} else {
 		// Some other find modules result failure happened, so log it out.
-		// (currently, just "unmappedInputPaths")
+		// (currently, just "unmapped_input_paths")
 		log_error_reasons(log, find_modules_result.reasons);
 		process.exit(1);
 	}

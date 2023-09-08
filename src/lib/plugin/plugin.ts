@@ -47,10 +47,10 @@ export class Plugins<TPluginContext extends PluginContext> {
 		ctx: TPluginContext,
 	): Promise<Plugins<TPluginContext>> {
 		const {timings} = ctx;
-		const timingToCreate = timings.start('plugins.create');
+		const timing_to_create = timings.start('plugins.create');
 		const instances: Plugin[] = toArray(await ctx.config.plugin(ctx)).filter(Boolean) as any;
 		const plugins = new Plugins(ctx, instances);
-		timingToCreate();
+		timing_to_create();
 		return plugins;
 	}
 
@@ -58,7 +58,7 @@ export class Plugins<TPluginContext extends PluginContext> {
 		const {ctx, instances} = this;
 		if (!this.instances.length) return;
 		const {timings, log} = ctx;
-		const timingToSetup = timings.start('plugins.setup');
+		const timing_to_setup = timings.start('plugins.setup');
 		for (const plugin of instances) {
 			if (!plugin.setup) continue;
 			log.debug('setup plugin', plugin.name);
@@ -66,14 +66,14 @@ export class Plugins<TPluginContext extends PluginContext> {
 			await plugin.setup(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
-		timingToSetup();
+		timing_to_setup();
 	}
 
 	async teardown(): Promise<void> {
 		const {ctx, instances} = this;
 		if (!this.instances.length) return;
 		const {timings, log} = ctx;
-		const timingToTeardown = timings.start('plugins.teardown');
+		const timing_to_teardown = timings.start('plugins.teardown');
 		for (const plugin of instances) {
 			if (!plugin.teardown) continue;
 			log.debug('teardown plugin', plugin.name);
@@ -81,6 +81,6 @@ export class Plugins<TPluginContext extends PluginContext> {
 			await plugin.teardown(ctx); // eslint-disable-line no-await-in-loop
 			timing();
 		}
-		timingToTeardown();
+		timing_to_teardown();
 	}
 }

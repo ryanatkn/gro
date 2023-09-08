@@ -2,259 +2,259 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {toGenResult} from './gen.js';
+import {to_gen_result} from './gen.js';
 
-const originId = resolve('src/foo.gen.ts');
+const origin_id = resolve('src/foo.gen.ts');
 
-/* test__toGenResult */
-const test__toGenResult = suite('toGenResult');
+/* test__to_gen_result */
+const test__to_gen_result = suite('to_gen_result');
 
-test__toGenResult('plain string', () => {
-	assert.equal(toGenResult(originId, '/**/'), {
-		originId,
-		files: [{id: resolve('src/foo.ts'), content: '/**/', originId, format: true}],
+test__to_gen_result('plain string', () => {
+	assert.equal(to_gen_result(origin_id, '/**/'), {
+		origin_id,
+		files: [{id: resolve('src/foo.ts'), content: '/**/', origin_id, format: true}],
 	});
 });
 
-test__toGenResult('object with a content string', () => {
-	assert.equal(toGenResult(originId, {content: '/**/'}), {
-		originId,
-		files: [{id: resolve('src/foo.ts'), content: '/**/', originId, format: true}],
+test__to_gen_result('object with a content string', () => {
+	assert.equal(to_gen_result(origin_id, {content: '/**/'}), {
+		origin_id,
+		files: [{id: resolve('src/foo.ts'), content: '/**/', origin_id, format: true}],
 	});
 });
 
-test__toGenResult('fail with an unresolved id', () => {
-	assert.throws(() => toGenResult('src/foo.ts', {content: '/**/'}));
+test__to_gen_result('fail with an unresolved id', () => {
+	assert.throws(() => to_gen_result('src/foo.ts', {content: '/**/'}));
 });
 
-test__toGenResult('fail with a build id', () => {
-	assert.throws(() => toGenResult(resolve('.gro/foo.js'), {content: '/**/'}));
+test__to_gen_result('fail with a build id', () => {
+	assert.throws(() => to_gen_result(resolve('.gro/foo.js'), {content: '/**/'}));
 });
 
-test__toGenResult('fail with an empty id', () => {
-	assert.throws(() => toGenResult('', {content: '/**/'}));
+test__to_gen_result('fail with an empty id', () => {
+	assert.throws(() => to_gen_result('', {content: '/**/'}));
 });
 
-test__toGenResult('custom file name', () => {
+test__to_gen_result('custom file name', () => {
 	assert.equal(
-		toGenResult(originId, {
+		to_gen_result(origin_id, {
 			filename: 'fooz.ts',
 			content: '/**/',
 		}),
 		{
-			originId,
-			files: [{id: resolve('src/fooz.ts'), content: '/**/', originId, format: true}],
+			origin_id,
+			files: [{id: resolve('src/fooz.ts'), content: '/**/', origin_id, format: true}],
 		},
 	);
 });
 
-test__toGenResult('custom file name that matches the default file name', () => {
+test__to_gen_result('custom file name that matches the default file name', () => {
 	assert.equal(
-		toGenResult(originId, {
+		to_gen_result(origin_id, {
 			filename: 'foo.ts',
 			content: '/**/',
 		}),
 		{
-			originId,
-			files: [{id: resolve('src/foo.ts'), content: '/**/', originId, format: true}],
+			origin_id,
+			files: [{id: resolve('src/foo.ts'), content: '/**/', origin_id, format: true}],
 		},
 	);
 });
 
-test__toGenResult('fail when custom file name explicitly matches the origin', () => {
+test__to_gen_result('fail when custom file name explicitly matches the origin', () => {
 	assert.throws(() => {
-		toGenResult(originId, {
+		to_gen_result(origin_id, {
 			filename: 'foo.gen.ts',
 			content: '/**/',
 		});
 	});
 });
 
-test__toGenResult('fail when file name implicitly matches the origin', () => {
+test__to_gen_result('fail when file name implicitly matches the origin', () => {
 	assert.throws(() => {
-		toGenResult(resolve('src/foo.ts'), {content: '/**/'});
+		to_gen_result(resolve('src/foo.ts'), {content: '/**/'});
 	});
 });
 
-test__toGenResult('fail with an empty file name', () => {
-	assert.throws(() => toGenResult(originId, {filename: '', content: '/**/'}));
+test__to_gen_result('fail with an empty file name', () => {
+	assert.throws(() => to_gen_result(origin_id, {filename: '', content: '/**/'}));
 });
 
-test__toGenResult('additional file name parts', () => {
-	assert.equal(toGenResult(resolve('src/foo.bar.gen.ts'), {content: '/**/'}), {
-		originId: resolve('src/foo.bar.gen.ts'),
+test__to_gen_result('additional file name parts', () => {
+	assert.equal(to_gen_result(resolve('src/foo.bar.gen.ts'), {content: '/**/'}), {
+		origin_id: resolve('src/foo.bar.gen.ts'),
 		files: [
 			{
 				id: resolve('src/foo.bar.ts'),
 				content: '/**/',
-				originId: resolve('src/foo.bar.gen.ts'),
+				origin_id: resolve('src/foo.bar.gen.ts'),
 				format: true,
 			},
 		],
 	});
 });
 
-test__toGenResult('js', () => {
+test__to_gen_result('js', () => {
 	assert.equal(
-		toGenResult(originId, {
+		to_gen_result(origin_id, {
 			filename: 'foo.js',
 			content: '/**/',
 		}),
 		{
-			originId,
-			files: [{id: resolve('src/foo.js'), content: '/**/', originId, format: true}],
+			origin_id,
+			files: [{id: resolve('src/foo.js'), content: '/**/', origin_id, format: true}],
 		},
 	);
 });
 
-test__toGenResult('implicit custom file extension', () => {
-	assert.equal(toGenResult(resolve('src/foo.gen.json.ts'), '[/**/]'), {
-		originId: resolve('src/foo.gen.json.ts'),
+test__to_gen_result('implicit custom file extension', () => {
+	assert.equal(to_gen_result(resolve('src/foo.gen.json.ts'), '[/**/]'), {
+		origin_id: resolve('src/foo.gen.json.ts'),
 		files: [
 			{
 				id: resolve('src/foo.json'),
 				content: '[/**/]',
-				originId: resolve('src/foo.gen.json.ts'),
+				origin_id: resolve('src/foo.gen.json.ts'),
 				format: true,
 			},
 		],
 	});
 });
 
-test__toGenResult('implicit empty file extension', () => {
-	assert.equal(toGenResult(resolve('src/foo.gen..ts'), '[/**/]'), {
-		originId: resolve('src/foo.gen..ts'),
+test__to_gen_result('implicit empty file extension', () => {
+	assert.equal(to_gen_result(resolve('src/foo.gen..ts'), '[/**/]'), {
+		origin_id: resolve('src/foo.gen..ts'),
 		files: [
 			{
 				id: resolve('src/foo'),
 				content: '[/**/]',
-				originId: resolve('src/foo.gen..ts'),
+				origin_id: resolve('src/foo.gen..ts'),
 				format: true,
 			},
 		],
 	});
 });
 
-test__toGenResult('implicit custom file extension with additional file name parts', () => {
-	assert.equal(toGenResult(resolve('src/foo.bar.gen.json.ts'), {content: '[/**/]'}), {
-		originId: resolve('src/foo.bar.gen.json.ts'),
+test__to_gen_result('implicit custom file extension with additional file name parts', () => {
+	assert.equal(to_gen_result(resolve('src/foo.bar.gen.json.ts'), {content: '[/**/]'}), {
+		origin_id: resolve('src/foo.bar.gen.json.ts'),
 		files: [
 			{
 				id: resolve('src/foo.bar.json'),
 				content: '[/**/]',
-				originId: resolve('src/foo.bar.gen.json.ts'),
+				origin_id: resolve('src/foo.bar.gen.json.ts'),
 				format: true,
 			},
 		],
 	});
 });
 
-test__toGenResult('implicit custom file extension with many dots in between', () => {
-	assert.equal(toGenResult(resolve('src/foo...gen.ts'), '[/**/]'), {
-		originId: resolve('src/foo...gen.ts'),
+test__to_gen_result('implicit custom file extension with many dots in between', () => {
+	assert.equal(to_gen_result(resolve('src/foo...gen.ts'), '[/**/]'), {
+		origin_id: resolve('src/foo...gen.ts'),
 		files: [
 			{
 				id: resolve('src/foo...ts'),
 				content: '[/**/]',
-				originId: resolve('src/foo...gen.ts'),
+				origin_id: resolve('src/foo...gen.ts'),
 				format: true,
 			},
 		],
 	});
 });
 
-test__toGenResult('fail with two parts following the .gen. pattern in the file name', () => {
+test__to_gen_result('fail with two parts following the .gen. pattern in the file name', () => {
 	// This just ensures consistent file names - maybe loosen the restriction?
 	// You can still implicitly name files like this,
 	// but you have to move ".bar" before ".gen".
-	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.json.ts'), '/**/'));
+	assert.throws(() => to_gen_result(resolve('src/foo.gen.bar.json.ts'), '/**/'));
 });
 
-test__toGenResult('fail implicit file extension ending with a dot', () => {
+test__to_gen_result('fail implicit file extension ending with a dot', () => {
 	// This just ensures consistent file names - maybe loosen the restriction?
 	// This one is more restrictive than the above,
 	// because to have a file ending with a dot
 	// you have to use an explicit file name.
-	assert.throws(() => toGenResult(resolve('src/foo.gen...ts'), '[/**/]'));
+	assert.throws(() => to_gen_result(resolve('src/foo.gen...ts'), '[/**/]'));
 });
 
-test__toGenResult('fail without a .gen. pattern in the file name', () => {
+test__to_gen_result('fail without a .gen. pattern in the file name', () => {
 	assert.throws(() => {
-		toGenResult(resolve('src/foo.ts'), '/**/');
+		to_gen_result(resolve('src/foo.ts'), '/**/');
 	});
 });
 
-test__toGenResult(
+test__to_gen_result(
 	'fail without a .gen. pattern in a file name that has multiple other patterns',
 	() => {
 		assert.throws(() => {
-			toGenResult(resolve('src/foo.bar.baz.ts'), '/**/');
+			to_gen_result(resolve('src/foo.bar.baz.ts'), '/**/');
 		});
 	},
 );
 
-test__toGenResult('fail with two .gen. patterns in the file name', () => {
-	assert.throws(() => toGenResult(resolve('src/lib/gen.gen.ts'), '/**/'));
-	assert.throws(() => toGenResult(resolve('src/foo.gen.gen.ts'), '/**/'));
-	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.ts'), '/**/'));
-	assert.throws(() => toGenResult(resolve('src/foo.gen.bar.gen.baz.ts'), '/**/'));
+test__to_gen_result('fail with two .gen. patterns in the file name', () => {
+	assert.throws(() => to_gen_result(resolve('src/lib/gen.gen.ts'), '/**/'));
+	assert.throws(() => to_gen_result(resolve('src/foo.gen.gen.ts'), '/**/'));
+	assert.throws(() => to_gen_result(resolve('src/foo.gen.bar.gen.ts'), '/**/'));
+	assert.throws(() => to_gen_result(resolve('src/foo.gen.bar.gen.baz.ts'), '/**/'));
 });
 
-test__toGenResult('explicit custom file extension', () => {
+test__to_gen_result('explicit custom file extension', () => {
 	assert.equal(
-		toGenResult(originId, {
+		to_gen_result(origin_id, {
 			filename: 'foo.json',
 			content: '[/**/]',
 		}),
 		{
-			originId,
-			files: [{id: resolve('src/foo.json'), content: '[/**/]', originId, format: true}],
+			origin_id,
+			files: [{id: resolve('src/foo.json'), content: '[/**/]', origin_id, format: true}],
 		},
 	);
 });
 
-test__toGenResult('explicit custom empty file extension', () => {
+test__to_gen_result('explicit custom empty file extension', () => {
 	assert.equal(
-		toGenResult(originId, {
+		to_gen_result(origin_id, {
 			filename: 'foo',
 			content: '[/**/]',
 		}),
 		{
-			originId,
-			files: [{id: resolve('src/foo'), content: '[/**/]', originId, format: true}],
+			origin_id,
+			files: [{id: resolve('src/foo'), content: '[/**/]', origin_id, format: true}],
 		},
 	);
 });
 
-test__toGenResult('explicit custom file extension ending with a dot', () => {
+test__to_gen_result('explicit custom file extension ending with a dot', () => {
 	assert.equal(
-		toGenResult(originId, {
+		to_gen_result(origin_id, {
 			filename: 'foo.',
 			content: '[/**/]',
 		}),
 		{
-			originId,
-			files: [{id: resolve('src/foo.'), content: '[/**/]', originId, format: true}],
+			origin_id,
+			files: [{id: resolve('src/foo.'), content: '[/**/]', origin_id, format: true}],
 		},
 	);
 });
 
-test__toGenResult('simple array of raw files', () => {
+test__to_gen_result('simple array of raw files', () => {
 	assert.equal(
-		toGenResult(originId, [{content: '/*1*/'}, {filename: 'foo2.ts', content: '/*2*/'}]),
+		to_gen_result(origin_id, [{content: '/*1*/'}, {filename: 'foo2.ts', content: '/*2*/'}]),
 		{
-			originId,
+			origin_id,
 			files: [
-				{id: resolve('src/foo.ts'), content: '/*1*/', originId, format: true},
-				{id: resolve('src/foo2.ts'), content: '/*2*/', originId, format: true},
+				{id: resolve('src/foo.ts'), content: '/*1*/', origin_id, format: true},
+				{id: resolve('src/foo2.ts'), content: '/*2*/', origin_id, format: true},
 			],
 		},
 	);
 });
 
-test__toGenResult('complex array of raw files', () => {
+test__to_gen_result('complex array of raw files', () => {
 	assert.equal(
-		toGenResult(originId, [
+		to_gen_result(origin_id, [
 			{content: '/*1*/'},
 			{filename: 'foo2.ts', content: '/*2*/'},
 			{filename: 'foo3.ts', content: '/*3*/'},
@@ -262,38 +262,38 @@ test__toGenResult('complex array of raw files', () => {
 			{filename: 'foo5.json', content: '[/*5*/]'},
 		]),
 		{
-			originId,
+			origin_id,
 			files: [
-				{id: resolve('src/foo.ts'), content: '/*1*/', originId, format: true},
-				{id: resolve('src/foo2.ts'), content: '/*2*/', originId, format: true},
-				{id: resolve('src/foo3.ts'), content: '/*3*/', originId, format: true},
-				{id: resolve('src/foo4.ts'), content: '/*4*/', originId, format: true},
-				{id: resolve('src/foo5.json'), content: '[/*5*/]', originId, format: true},
+				{id: resolve('src/foo.ts'), content: '/*1*/', origin_id, format: true},
+				{id: resolve('src/foo2.ts'), content: '/*2*/', origin_id, format: true},
+				{id: resolve('src/foo3.ts'), content: '/*3*/', origin_id, format: true},
+				{id: resolve('src/foo4.ts'), content: '/*4*/', origin_id, format: true},
+				{id: resolve('src/foo5.json'), content: '[/*5*/]', origin_id, format: true},
 			],
 		},
 	);
 });
 
-test__toGenResult('fail with duplicate names because of omissions', () => {
+test__to_gen_result('fail with duplicate names because of omissions', () => {
 	assert.throws(() => {
-		toGenResult(originId, [{content: '/*1*/'}, {content: '/*2*/'}]);
+		to_gen_result(origin_id, [{content: '/*1*/'}, {content: '/*2*/'}]);
 	});
 });
 
-test__toGenResult('fail with duplicate explicit names', () => {
+test__to_gen_result('fail with duplicate explicit names', () => {
 	assert.throws(() => {
-		toGenResult(originId, [
+		to_gen_result(origin_id, [
 			{filename: 'foo.ts', content: '/*1*/'},
 			{filename: 'foo.ts', content: '/*2*/'},
 		]);
 	});
 });
 
-test__toGenResult('fail with duplicate explicit and implicit names', () => {
+test__to_gen_result('fail with duplicate explicit and implicit names', () => {
 	assert.throws(() => {
-		toGenResult(originId, [{content: '/*1*/'}, {filename: 'foo.ts', content: '/*2*/'}]);
+		to_gen_result(origin_id, [{content: '/*1*/'}, {filename: 'foo.ts', content: '/*2*/'}]);
 	});
 });
 
-test__toGenResult.run();
-/* test__toGenResult */
+test__to_gen_result.run();
+/* test__to_gen_result */

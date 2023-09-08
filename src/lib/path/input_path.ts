@@ -33,10 +33,10 @@ import type {Filesystem} from '../fs/filesystem.js';
  *
  * In the future we may want to support globbing or regexps.
  */
-export const resolveRawInputPath = (rawInputPath: string, from_paths?: Paths): string => {
-	if (isAbsolute(rawInputPath)) return stripEnd(rawInputPath, '/');
+export const resolveRawInputPath = (raw_input_path: string, from_paths?: Paths): string => {
+	if (isAbsolute(raw_input_path)) return stripEnd(raw_input_path, '/');
 	// Allow prefix `./` and just remove it if it's there.
-	let base_path = stripEnd(stripStart(rawInputPath, './'), '/');
+	let base_path = stripEnd(stripStart(raw_input_path, './'), '/');
 	let paths = from_paths;
 	if (!paths) {
 		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
@@ -55,8 +55,8 @@ export const resolveRawInputPath = (rawInputPath: string, from_paths?: Paths): s
 	return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, paths);
 };
 
-export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
-	(rawInputPaths.length ? rawInputPaths : ['./']).map((p) => resolveRawInputPath(p));
+export const resolve_raw_input_paths = (raw_input_paths: string[]): string[] =>
+	(raw_input_paths.length ? raw_input_paths : ['./']).map((p) => resolveRawInputPath(p));
 
 /**
  * Gets a list of possible source ids for each input path with `extensions`,
@@ -65,31 +65,31 @@ export const resolveRawInputPaths = (rawInputPaths: string[]): string[] =>
  * It's the helper used in implementations of `get_possible_source_idsForInputPath` below.
  */
 export const get_possible_source_ids = (
-	inputPath: string,
+	input_path: string,
 	extensions: string[],
 	root_dirs?: string[],
 	paths?: Paths,
 ): string[] => {
-	const possibleSourceIds = [inputPath];
-	if (!inputPath.endsWith('/')) {
+	const possible_source_ids = [input_path];
+	if (!input_path.endsWith('/')) {
 		for (const extension of extensions) {
-			if (!inputPath.endsWith(extension)) {
-				possibleSourceIds.push(inputPath + extension);
+			if (!input_path.endsWith(extension)) {
+				possible_source_ids.push(input_path + extension);
 				// Support task directories, so `src/a/a.task.ts` works like `src/a.task.ts`.
-				possibleSourceIds.push(inputPath + '/' + basename(inputPath) + extension);
+				possible_source_ids.push(input_path + '/' + basename(input_path) + extension);
 			}
 		}
 	}
 	if (root_dirs?.length) {
-		const ids = possibleSourceIds.slice(); // make a copy or infinitely loop!
-		for (const rootDir of root_dirs) {
-			if (inputPath.startsWith(rootDir)) continue; // avoid duplicates
-			for (const possibleSourceId of ids) {
-				possibleSourceIds.push(replace_root_dir(possibleSourceId, rootDir, paths));
+		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
+		for (const root_dir of root_dirs) {
+			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
+			for (const possible_source_id of ids) {
+				possible_source_ids.push(replace_root_dir(possible_source_id, root_dir, paths));
 			}
 		}
 	}
-	return possibleSourceIds;
+	return possible_source_ids;
 };
 
 /**
@@ -98,41 +98,41 @@ export const get_possible_source_ids = (
  * and stopping at the first match.
  * Parameterized by `exists` and `stat` so it's fs-agnostic.
  */
-export const loadSourcePathDataByInputPath = async (
+export const load_source_path_data_by_input_path = async (
 	fs: Filesystem,
 	input_paths: string[],
-	get_possible_source_idsForInputPath?: (inputPath: string) => string[],
+	get_possible_source_idsForInputPath?: (input_path: string) => string[],
 ): Promise<{
-	source_idPathDataByInputPath: Map<string, PathData>;
-	unmappedInputPaths: string[];
+	source_id_path_data_by_input_path: Map<string, PathData>;
+	unmapped_input_paths: string[];
 }> => {
-	const source_idPathDataByInputPath = new Map<string, PathData>();
-	const unmappedInputPaths: string[] = [];
-	for (const inputPath of input_paths) {
-		let filePathData: PathData | null = null;
-		let dirPathData: PathData | null = null;
-		const possibleSourceIds = get_possible_source_idsForInputPath
-			? get_possible_source_idsForInputPath(inputPath)
-			: [inputPath];
-		for (const possibleSourceId of possibleSourceIds) {
-			if (!(await fs.exists(possibleSourceId))) continue; // eslint-disable-line no-await-in-loop
-			const stats = await fs.stat(possibleSourceId); // eslint-disable-line no-await-in-loop
+	const source_id_path_data_by_input_path = new Map<string, PathData>();
+	const unmapped_input_paths: string[] = [];
+	for (const input_path of input_paths) {
+		let file_path_data: PathData | null = null;
+		let dir_path_data: PathData | null = null;
+		const possible_source_ids = get_possible_source_idsForInputPath
+			? get_possible_source_idsForInputPath(input_path)
+			: [input_path];
+		for (const possible_source_id of possible_source_ids) {
+			if (!(await fs.exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
+			const stats = await fs.stat(possible_source_id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
-				if (!dirPathData) {
-					dirPathData = to_path_data(possibleSourceId, stats);
+				if (!dir_path_data) {
+					dir_path_data = to_path_data(possible_source_id, stats);
 				}
 			} else {
-				filePathData = to_path_data(possibleSourceId, stats);
+				file_path_data = to_path_data(possible_source_id, stats);
 				break;
 			}
 		}
-		if (filePathData || dirPathData) {
-			source_idPathDataByInputPath.set(inputPath, filePathData || dirPathData!); // the ! is needed because TypeScript inference fails
+		if (file_path_data || dir_path_data) {
+			source_id_path_data_by_input_path.set(input_path, file_path_data || dir_path_data!); // the ! is needed because TypeScript inference fails
 		} else {
-			unmappedInputPaths.push(inputPath);
+			unmapped_input_paths.push(input_path);
 		}
 	}
-	return {source_idPathDataByInputPath, unmappedInputPaths};
+	return {source_id_path_data_by_input_path, unmapped_input_paths};
 };
 
 /**
@@ -140,45 +140,45 @@ export const loadSourcePathDataByInputPath = async (
  * Parameterized by `findFiles` so it's fs-agnostic.
  * De-dupes source ids.
  */
-export const loadSourceIdsByInputPath = async (
-	source_idPathDataByInputPath: Map<string, PathData>,
+export const load_source_ids_by_input_path = async (
+	source_id_path_data_by_input_path: Map<string, PathData>,
 	findFiles: (id: string) => Promise<Map<string, PathStats>>,
 ): Promise<{
 	source_ids_by_input_path: Map<string, string[]>;
-	inputDirectoriesWithNoFiles: string[];
+	input_directories_with_no_files: string[];
 }> => {
 	const source_ids_by_input_path = new Map<string, string[]>();
-	const inputDirectoriesWithNoFiles: string[] = [];
-	const existingSourceIds = new Set<string>();
-	for (const [inputPath, path_data] of source_idPathDataByInputPath) {
+	const input_directories_with_no_files: string[] = [];
+	const existing_source_ids = new Set<string>();
+	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.isDirectory) {
 			const files = await findFiles(id); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const source_ids: string[] = [];
-				let hasFiles = false;
+				let has_files = false;
 				for (const path of files.keys()) {
-					hasFiles = true;
+					has_files = true;
 					const source_id = join(id, path);
-					if (!existingSourceIds.has(source_id)) {
-						existingSourceIds.add(source_id);
+					if (!existing_source_ids.has(source_id)) {
+						existing_source_ids.add(source_id);
 						source_ids.push(source_id);
 					}
 				}
 				if (source_ids.length) {
-					source_ids_by_input_path.set(inputPath, source_ids);
+					source_ids_by_input_path.set(input_path, source_ids);
 				}
-				if (!hasFiles) {
-					inputDirectoriesWithNoFiles.push(inputPath);
+				if (!has_files) {
+					input_directories_with_no_files.push(input_path);
 				}
 				// do callers ever need `inputDirectoriesWithDuplicateFiles`?
 			} else {
-				inputDirectoriesWithNoFiles.push(inputPath);
+				input_directories_with_no_files.push(input_path);
 			}
-		} else if (!existingSourceIds.has(id)) {
-			existingSourceIds.add(id);
-			source_ids_by_input_path.set(inputPath, [id]);
+		} else if (!existing_source_ids.has(id)) {
+			existing_source_ids.add(id);
+			source_ids_by_input_path.set(input_path, [id]);
 		}
 	}
-	return {source_ids_by_input_path, inputDirectoriesWithNoFiles};
+	return {source_ids_by_input_path, input_directories_with_no_files};
 };

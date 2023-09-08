@@ -7,7 +7,7 @@ import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
 import {fs} from './node.js';
-import {get_possible_source_ids} from '../path/inputPath.js';
+import {get_possible_source_ids} from '../path/input_path.js';
 
 /* test__load_module */
 const test__load_module = suite('load_module');
@@ -78,7 +78,7 @@ test__find_modules('with and without extension', async () => {
 		fs,
 		[path1, id2],
 		(id) => fs.findFiles(id),
-		(inputPath) => get_possible_source_ids(inputPath, ['.foo.ts']),
+		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	assert.ok(result.ok);
 	assert.equal(
@@ -89,7 +89,7 @@ test__find_modules('with and without extension', async () => {
 		]),
 	);
 	assert.equal(
-		result.source_idPathDataByInputPath,
+		result.source_id_path_data_by_input_path,
 		new Map([
 			[path1, {id: id1, isDirectory: false}],
 			[id2, {id: id2, isDirectory: false}],
@@ -107,10 +107,10 @@ test__find_modules('directory', async () => {
 		result.source_ids_by_input_path,
 		new Map([[id, [join(id, 'test1.foo.ts'), join(id, 'test2.foo.ts')]]]),
 	);
-	assert.equal(result.source_idPathDataByInputPath, new Map([[id, {id, isDirectory: true}]]));
+	assert.equal(result.source_id_path_data_by_input_path, new Map([[id, {id, isDirectory: true}]]));
 });
 
-test__find_modules('fail with unmappedInputPaths', async () => {
+test__find_modules('fail with unmapped_input_paths', async () => {
 	const result = await find_modules(
 		fs,
 		[
@@ -120,21 +120,21 @@ test__find_modules('fail with unmappedInputPaths', async () => {
 			resolve('src/lib/fs/fixtures/failme2'),
 		],
 		(id) => fs.findFiles(id),
-		(inputPath) => get_possible_source_ids(inputPath, ['.foo.ts']),
+		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
-	if (result.type === 'unmappedInputPaths') {
-		assert.equal(result.unmappedInputPaths, [
+	if (result.type === 'unmapped_input_paths') {
+		assert.equal(result.unmapped_input_paths, [
 			resolve('src/lib/fs/fixtures/failme1'),
 			resolve('src/lib/fs/fixtures/failme2'),
 		]);
 	} else {
-		throw Error('Expected to fail with unmappedInputPaths');
+		throw Error('Expected to fail with unmapped_input_paths');
 	}
 });
 
-test__find_modules('fail with inputDirectoriesWithNoFiles', async () => {
+test__find_modules('fail with input_directories_with_no_files', async () => {
 	const result = await find_modules(
 		fs,
 		[
@@ -147,13 +147,13 @@ test__find_modules('fail with inputDirectoriesWithNoFiles', async () => {
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
-	if (result.type === 'inputDirectoriesWithNoFiles') {
-		assert.equal(result.inputDirectoriesWithNoFiles, [
+	if (result.type === 'input_directories_with_no_files') {
+		assert.equal(result.input_directories_with_no_files, [
 			resolve('src/lib/fs/fixtures/bar1'),
 			resolve('src/lib/fs/fixtures/bar2'),
 		]);
 	} else {
-		throw Error('Expected to fail with inputDirectoriesWithNoFiles');
+		throw Error('Expected to fail with input_directories_with_no_files');
 	}
 });
 

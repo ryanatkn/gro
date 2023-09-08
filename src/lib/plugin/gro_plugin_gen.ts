@@ -4,11 +4,9 @@ import type {FilerEvents} from '../build/Filer.js';
 import type {Plugin, PluginContext} from './plugin.js';
 import type {Args} from '../task/args.js';
 import {source_id_to_base_path} from '../path/paths.js';
-import {findGenModules, isGenPath} from '../gen/genModule.js';
+import {find_gen_modules, is_gen_path} from '../gen/genModule.js';
 import {filter_dependents} from '../build/source_file.js';
 import {throttle} from '../util/throttle.js';
-
-const name = 'gro_plugin_gen';
 
 const FLUSH_DEBOUNCE_DELAY = 500;
 
@@ -20,12 +18,12 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	let generating = false;
 	let regen = false;
 	let on_filer_build: ((e: FilerEvents['build']) => void) | undefined;
-	const queuedFiles: Set<string> = new Set();
-	const queueGen = (genFileName: string) => {
-		queuedFiles.add(genFileName);
-		void flushGenQueue();
+	const queued_files: Set<string> = new Set();
+	const queue_gen = (gen_file_name: string) => {
+		queued_files.add(gen_file_name);
+		void flush_gen_queue();
 	};
-	const flushGenQueue = throttle(
+	const flush_gen_queue = throttle(
 		async () => {
 			// hacky way to avoid concurrent `gro gen` calls
 			if (generating) {
@@ -33,13 +31,13 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 				return;
 			}
 			generating = true;
-			const files = Array.from(queuedFiles);
-			queuedFiles.clear();
+			const files = Array.from(queued_files);
+			queued_files.clear();
 			await gen(files);
 			generating = false;
 			if (regen) {
 				regen = false;
-				void flushGenQueue();
+				void flush_gen_queue();
 			}
 		},
 		undefined,
@@ -47,7 +45,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	);
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
-		name,
+		name: 'gro_plugin_gen',
 		setup: async ({filer, args: {watch}, dev, log, fs}) => {
 			// For production builds, we assume `gen` is already fresh,
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
@@ -57,7 +55,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
-			const found = await findGenModules(fs);
+			const found = await find_gen_modules(fs);
 			if (found.ok && found.source_ids_by_input_path.size > 0) {
 				await gen();
 			}
@@ -73,17 +71,17 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			on_filer_build = async ({source_file, build_config}) => {
 				// TODO BLOCK how to handle this now? the loader traces deps for us with `parentPath`
 				// if (build_config.name !== 'system') return;
-				if (isGenPath(source_file.id)) {
-					queueGen(source_id_to_base_path(source_file.id));
+				if (is_gen_path(source_file.id)) {
+					queue_gen(source_id_to_base_path(source_file.id));
 				}
-				const dependentGenFileIds = filter_dependents(
+				const dependent_gen_file_ids = filter_dependents(
 					source_file,
 					build_config,
 					filer.find_by_id as any, // cast because we can assume they're all `SourceFile`s
-					isGenPath,
+					is_gen_path,
 				);
-				for (const dependentGenFileId of dependentGenFileIds) {
-					queueGen(source_id_to_base_path(dependentGenFileId));
+				for (const dependent_gen_file_id of dependent_gen_file_ids) {
+					queue_gen(source_id_to_base_path(dependent_gen_file_id));
 				}
 			};
 			filer.on('build', on_filer_build);

@@ -25,7 +25,7 @@ export interface SourceMetaData {
 }
 export interface SourceMetaBuild {
 	readonly id: string;
-	readonly buildName: BuildName;
+	readonly build_name: BuildName;
 	readonly dependencies: BuildDependency[] | null;
 }
 
@@ -38,7 +38,7 @@ export interface SerializedSourceMetaData {
 }
 export interface SerializedSourceMetaBuild {
 	readonly id: string;
-	readonly buildName: BuildName;
+	readonly build_name: BuildName;
 	dependencies?: SerializedBuildDependency[] | null; // `undefined` implies `null`
 }
 
@@ -60,7 +60,7 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 			files.map(
 				(file): SourceMetaBuild => ({
 					id: file.id,
-					buildName: file.build_config.name,
+					build_name: file.build_config.name,
 					dependencies: file.dependencies && Array.from(file.dependencies.values()),
 				}),
 			),
@@ -72,7 +72,7 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 	const existingSourceMeta = source_meta_by_id.get(file.id);
 	if (existingSourceMeta) {
 		for (const build of existingSourceMeta.data.builds) {
-			if (!build_names!.has(build.buildName)) {
+			if (!build_names!.has(build.build_name)) {
 				data.builds.push(build);
 			}
 		}
@@ -154,11 +154,11 @@ export const deserializeSourceMeta = ({
 });
 export const deserializeSourceMetaBuild = ({
 	id,
-	buildName,
+	build_name,
 	dependencies,
 }: SerializedSourceMetaBuild): SourceMetaBuild => ({
 	id,
-	buildName,
+	build_name,
 	dependencies: dependencies ? dependencies.map((d) => deserialize_build_dependency(d)) : null,
 });
 
@@ -173,10 +173,10 @@ export const serializeSourceMeta = ({
 });
 export const serializeSourceMetaBuild = ({
 	id,
-	buildName,
+	build_name,
 	dependencies,
 }: SourceMetaBuild): SerializedSourceMetaBuild => {
-	const serialized: SerializedSourceMetaBuild = {id, buildName};
+	const serialized: SerializedSourceMetaBuild = {id, build_name};
 	if (dependencies) {
 		serialized.dependencies = dependencies.map((d) => serialize_build_dependency(d));
 	}

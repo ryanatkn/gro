@@ -24,7 +24,7 @@ test__gen('basic behavior', async () => {
 		id: source_idA,
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.originId, source_idA);
+				assert.is(ctx.origin_id, source_idA);
 				if (fileA) throw Error('Already generated fileA');
 				fileA = {
 					filename: 'foo.ts',
@@ -39,7 +39,7 @@ test__gen('basic behavior', async () => {
 		id: join(source_idBC, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.originId, modB.id);
+				assert.is(ctx.origin_id, modB.id);
 				if (fileB) throw Error('Already generated fileB');
 				fileB = {
 					filename: 'outputB.ts',
@@ -54,7 +54,7 @@ test__gen('basic behavior', async () => {
 		id: join(source_idBC, 'modC.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.originId, modC.id);
+				assert.is(ctx.origin_id, modC.id);
 				if (fileC1) throw Error('Already generated fileC1');
 				if (fileC2) throw Error('Already generated fileC2');
 				fileC1 = {
@@ -73,8 +73,8 @@ test__gen('basic behavior', async () => {
 	const genResults = await runGen(fs, genModulesByInputPath, log, async (_fs, id, content) =>
 		id.endsWith('outputB.ts') ? `${content}/*FORMATTED*/` : content,
 	);
-	assert.is(genResults.inputCount, 3);
-	assert.is(genResults.outputCount, 4);
+	assert.is(genResults.input_count, 3);
+	assert.is(genResults.output_count, 4);
 	assert.is(genResults.successes.length, 3);
 	assert.is(genResults.failures.length, 0);
 	assert.is(genResults.results.length, 3);
@@ -89,7 +89,7 @@ test__gen('basic behavior', async () => {
 		{
 			content: fileA.content,
 			id: join(modA.id, '../', fileA.filename),
-			originId: modA.id,
+			origin_id: modA.id,
 			format: true,
 		},
 	]);
@@ -101,7 +101,7 @@ test__gen('basic behavior', async () => {
 		{
 			content: `${fileB.content}/*FORMATTED*/`,
 			id: join(modB.id, '../', fileB.filename),
-			originId: modB.id,
+			origin_id: modB.id,
 			format: true,
 		},
 	]);
@@ -113,13 +113,13 @@ test__gen('basic behavior', async () => {
 		{
 			content: fileC1.content,
 			id: join(modC.id, '../', fileC1.filename),
-			originId: modC.id,
+			origin_id: modC.id,
 			format: true,
 		},
 		{
 			content: fileC2.content,
 			id: join(modC.id, '../', fileC2.filename),
-			originId: modC.id,
+			origin_id: modC.id,
 			format: true,
 		},
 	]);
@@ -147,7 +147,7 @@ test__gen('failing gen function', async () => {
 		id: join(source_idB, 'modB.gen.ts'),
 		mod: {
 			gen: async (ctx) => {
-				assert.is(ctx.originId, modB.id);
+				assert.is(ctx.origin_id, modB.id);
 				if (fileB) throw Error('Already generated fileB');
 				fileB = {
 					filename: 'outputB.ts',
@@ -159,8 +159,8 @@ test__gen('failing gen function', async () => {
 	};
 	const genModulesByInputPath: GenModuleMeta[] = [modA, modB];
 	const genResults = await runGen(fs, genModulesByInputPath, log);
-	assert.is(genResults.inputCount, 2);
-	assert.is(genResults.outputCount, 1);
+	assert.is(genResults.input_count, 2);
+	assert.is(genResults.output_count, 1);
 	assert.is(genResults.successes.length, 1);
 	assert.is(genResults.failures.length, 1);
 	assert.is(genResults.results.length, 2);
@@ -180,7 +180,7 @@ test__gen('failing gen function', async () => {
 		{
 			content: fileB.content,
 			id: join(modB.id, '../', fileB.filename),
-			originId: modB.id,
+			origin_id: modB.id,
 			format: true,
 		},
 	]);
