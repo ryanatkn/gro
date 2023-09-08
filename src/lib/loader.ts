@@ -88,7 +88,7 @@ export const resolve = async (
 		return nextResolve(specifier, context);
 	}
 
-	console.log(`specifier`, specifier, parent_path);
+	// console.log(`specifier`, specifier, parent_path);
 
 	if (
 		specifier === '$env/static/public' ||
