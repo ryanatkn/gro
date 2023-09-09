@@ -1496,7 +1496,7 @@
 
 ## 0.1.1
 
-- add `fs/watch_node_fs.ts` for low level filesystem watching
+- add `fs/watch_dir.ts` for low level filesystem watching
 - expose `remove` and `ensure_dir` in `fs/node.ts`
 
 ## 0.1.0

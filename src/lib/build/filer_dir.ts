@@ -1,7 +1,7 @@
 import {noop} from '@feltjs/util/function.js';
 import fs from 'fs-extra';
 
-import {watch_node_fs, type WatchNodeFs} from '../fs/watch_node_fs.js';
+import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from '../fs/filter.js';
 import {find_files} from '../fs/find_files.js';
@@ -33,8 +33,7 @@ export const create_filer_dir = (
 	let watcher: WatchNodeFs | null = null;
 
 	if (watch) {
-		// TODO abstract this from the Node filesystem
-		watcher = watch_node_fs({
+		watcher = watch_dir({
 			dir,
 			on_change: (change) => on_change(change, filer_dir),
 			filter,

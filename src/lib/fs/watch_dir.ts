@@ -7,7 +7,7 @@ import {SOURCE_DIR, SOURCE_DIRNAME, paths, source_id_to_base_path} from '../path
 
 /*
 
-`watch_node_fs` is Gro's low level interface for watching changes on the Node filesystem.
+`watch_dir` is Gro's low level interface for watching changes on the Node filesystem.
 `Filer` is a high level interface that should be preferred when possible.
 
 */
@@ -36,7 +36,7 @@ export interface Options {
 const FILE_STATS = {isDirectory: () => false};
 const DIR_STATS = {isDirectory: () => true};
 
-export const watch_node_fs = (options: Options): WatchNodeFs => {
+export const watch_dir = (options: Options): WatchNodeFs => {
 	const {dir, on_change, filter} = options;
 	let watcher: chokidar.FSWatcher | undefined;
 
