@@ -33,30 +33,30 @@ import {to_path_data, type PathData, type PathStats} from './path_data.js';
  *
  * In the future we may want to support globbing or regexps.
  */
-export const resolveRawInputPath = (raw_input_path: string, from_paths?: Paths): string => {
+export const resolve_raw_input_path = (raw_input_path: string): string => {
 	if (isAbsolute(raw_input_path)) return stripEnd(raw_input_path, '/');
 	// Allow prefix `./` and just remove it if it's there.
 	let base_path = stripEnd(stripStart(raw_input_path, './'), '/');
-	let paths = from_paths;
-	if (!paths) {
-		// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-		if (base_path.startsWith(gro_dir_basename)) {
-			paths = gro_paths;
-			base_path = stripStart(base_path, gro_dir_basename);
-		} else if (base_path + '/' === gro_dir_basename) {
-			paths = gro_paths;
-			base_path = '';
-		}
+	console.log(`resolve_raw_input_path base_path 1`, base_path);
+	let paths;
+	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
+	if (base_path.startsWith(gro_dir_basename)) {
+		paths = gro_paths;
+		base_path = stripStart(base_path, gro_dir_basename);
+	} else if (base_path + '/' === gro_dir_basename) {
+		paths = gro_paths;
+		base_path = '';
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
 	if (base_path === LIB_PATH) base_path = '';
 	// Allow prefix `src/lib/` and just remove it if it's there.
 	base_path = stripStart(base_path, LIB_DIR);
+	console.log(`resolve_raw_input_path base_path 2`, base_path);
 	return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, paths);
 };
 
 export const resolve_raw_input_paths = (raw_input_paths: string[]): string[] =>
-	(raw_input_paths.length ? raw_input_paths : ['./']).map((p) => resolveRawInputPath(p));
+	(raw_input_paths.length ? raw_input_paths : ['./']).map((p) => resolve_raw_input_path(p));
 
 /**
  * Gets a list of possible source ids for each input path with `extensions`,

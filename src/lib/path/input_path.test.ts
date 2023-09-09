@@ -5,7 +5,7 @@ import {resolve, join} from 'node:path';
 import 'source-map-support/register.js';
 
 import {
-	resolveRawInputPath,
+	resolve_raw_input_path,
 	resolve_raw_input_paths,
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
@@ -13,58 +13,43 @@ import {
 import type {PathStats} from './path_data.js';
 import {gro_paths, replace_root_dir, create_paths, paths} from './paths.js';
 
-/* test__resolveRawInputPath */
-const test__resolveRawInputPath = suite('resolveRawInputPath');
+/* test__resolve_raw_input_path */
+const test__resolve_raw_input_path = suite('resolve_raw_input_path');
 
-test__resolveRawInputPath('basic behavior', () => {
+test__resolve_raw_input_path('basic behavior', () => {
 	const target = resolve('src/lib/foo/bar.ts');
-	assert.is(resolveRawInputPath('foo/bar.ts'), target);
-	assert.is(resolveRawInputPath('src/lib/foo/bar.ts'), target);
-	assert.is(resolveRawInputPath('./src/lib/foo/bar.ts'), target);
-	assert.is(resolveRawInputPath('./foo/bar.ts'), target); // questionable
-	assert.is(resolveRawInputPath(target), target);
-	assert.is.not(resolveRawInputPath('bar.ts'), target);
+	assert.is(resolve_raw_input_path('foo/bar.ts'), target);
+	assert.is(resolve_raw_input_path('src/lib/foo/bar.ts'), target);
+	assert.is(resolve_raw_input_path('./src/lib/foo/bar.ts'), target);
+	assert.is(resolve_raw_input_path('./foo/bar.ts'), target); // questionable
+	assert.is(resolve_raw_input_path(target), target);
+	assert.is.not(resolve_raw_input_path('bar.ts'), target);
 });
 
-test__resolveRawInputPath('source directory', () => {
+test__resolve_raw_input_path('source directory', () => {
 	const targetDir = resolve('src/lib') + '/'; // inferred as directory
-	assert.is(resolveRawInputPath('src/lib'), targetDir);
-	assert.is(resolveRawInputPath('src/lib/'), targetDir);
-	assert.is(resolveRawInputPath('./src/lib'), targetDir);
-	assert.is(resolveRawInputPath('./src/lib/'), targetDir);
-	assert.is(resolveRawInputPath('./srcTest'), targetDir + 'srcTest');
-	assert.is(resolveRawInputPath('srcTest'), targetDir + 'srcTest');
-	assert.is.not(resolveRawInputPath('.gro'), targetDir);
+	assert.is(resolve_raw_input_path('src/lib'), targetDir);
+	assert.is(resolve_raw_input_path('src/lib/'), targetDir);
+	assert.is(resolve_raw_input_path('./src/lib'), targetDir);
+	assert.is(resolve_raw_input_path('./src/lib/'), targetDir);
+	assert.is(resolve_raw_input_path('./srcTest'), targetDir + 'srcTest');
+	assert.is(resolve_raw_input_path('srcTest'), targetDir + 'srcTest');
+	assert.is.not(resolve_raw_input_path('.gro'), targetDir);
 });
 
-test__resolveRawInputPath('forced gro directory', () => {
-	const fakeDir = resolve('../fake') + '/';
-	const fakePaths = create_paths(fakeDir);
-	const groTarget = resolve('src/lib/foo/bar.ts');
-	assert.is(resolveRawInputPath('gro/foo/bar.ts'), groTarget);
-	assert.is(resolveRawInputPath('foo/bar.ts', fakePaths), join(fakeDir, 'src/lib/foo/bar.ts'));
-	assert.is(
-		resolveRawInputPath('gro/foo/bar.ts', fakePaths),
-		join(fakeDir, 'src/lib/gro/foo/bar.ts'),
-	);
-	assert.is(resolveRawInputPath('foo/bar.ts'), groTarget);
-	assert.is(resolveRawInputPath('foo/bar.ts', gro_paths), groTarget);
-	assert.is(resolveRawInputPath('gro'), resolve('src/lib') + '/');
-});
-
-test__resolveRawInputPath('directories', () => {
+test__resolve_raw_input_path('directories', () => {
 	const targetDir = resolve('src/lib/foo/bar');
-	assert.is(resolveRawInputPath('foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('foo/bar/'), targetDir);
-	assert.is(resolveRawInputPath('src/lib/foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('src/lib/foo/bar/'), targetDir);
-	assert.is(resolveRawInputPath('./src/lib/foo/bar'), targetDir);
-	assert.is(resolveRawInputPath('./src/lib/foo/bar/'), targetDir);
-	assert.is.not(resolveRawInputPath('bar'), targetDir);
+	assert.is(resolve_raw_input_path('foo/bar'), targetDir);
+	assert.is(resolve_raw_input_path('foo/bar/'), targetDir);
+	assert.is(resolve_raw_input_path('src/lib/foo/bar'), targetDir);
+	assert.is(resolve_raw_input_path('src/lib/foo/bar/'), targetDir);
+	assert.is(resolve_raw_input_path('./src/lib/foo/bar'), targetDir);
+	assert.is(resolve_raw_input_path('./src/lib/foo/bar/'), targetDir);
+	assert.is.not(resolve_raw_input_path('bar'), targetDir);
 });
 
-test__resolveRawInputPath.run();
-/* test__resolveRawInputPath */
+test__resolve_raw_input_path.run();
+/* test__resolve_raw_input_path */
 
 /* test__resolve_raw_input_paths */
 const test__resolve_raw_input_paths = suite('resolve_raw_input_paths');

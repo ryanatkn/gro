@@ -226,8 +226,8 @@ const gro_dir = join(
 		: '../',
 );
 console.log(`gro_dir`, gro_dir);
-export const gro_dir_basename = `${basename(gro_dir)}/`;
-export const paths = create_paths(`${process.cwd()}/`);
+export const gro_dir_basename = basename(gro_dir) + '/';
+export const paths = create_paths(process.cwd() + '/');
 console.log(`paths`, paths);
 export const is_this_project_gro = gro_dir === paths.root;
 console.log(`is_this_project_gro`, is_this_project_gro, gro_dir, paths.root);
