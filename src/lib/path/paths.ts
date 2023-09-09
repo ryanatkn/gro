@@ -216,23 +216,25 @@ export const replace_extension = (path: string, new_extension: string): string =
 };
 
 console.log(`import.meta.url`, import.meta.url);
-const gro_import_dir = join(fileURLToPath(import.meta.url), '../../../');
-console.log(`gro_import_dir`, gro_import_dir);
-const groDir = join(
-	gro_import_dir,
-	join(gro_import_dir, '../../').endsWith(BUILD_DIR) ? '../../../' : '../',
+const filename = fileURLToPath(import.meta.url);
+const gro_dir = join(
+	filename,
+	filename.includes('/gro/src/lib/')
+		? '../../../../'
+		: filename.includes('/gro/dist/')
+		? '../../../'
+		: '../',
 );
-console.log(`groDir`, groDir);
-export const gro_dir_basename = `${basename(groDir)}/`;
+console.log(`gro_dir`, gro_dir);
+export const gro_dir_basename = `${basename(gro_dir)}/`;
 export const paths = create_paths(`${process.cwd()}/`);
 console.log(`paths`, paths);
-export const is_this_project_gro = groDir === paths.root;
-console.log(`is_this_project_gro`, is_this_project_gro, groDir, paths.root);
-export const gro_paths = is_this_project_gro ? paths : create_paths(groDir);
+export const is_this_project_gro = gro_dir === paths.root;
+console.log(`is_this_project_gro`, is_this_project_gro, gro_dir, paths.root);
+export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
 console.log(`gro_paths`, gro_paths);
 console.log(`{.......................}`, {
-	gro_import_dir,
-	groDir,
+	gro_dir,
 	gro_dir_basename,
 	is_this_project_gro,
 });

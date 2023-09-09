@@ -68,8 +68,8 @@ export type LoadModulesResult<TModuleMeta extends ModuleMeta> = Result<
 		timings: Timings<LoadModulesTimings>;
 	},
 	{
-		type: 'load_moduleFailures';
-		load_moduleFailures: LoadModuleFailure[];
+		type: 'load_module_failures';
+		load_module_failures: LoadModuleFailure[];
 		reasons: string[];
 		// still return the modules and timings, deferring to the caller
 		modules: TModuleMeta[];
@@ -153,20 +153,20 @@ export const load_modules = async <
 >(
 	source_ids_by_input_path: Map<string, string[]>, // TODO maybe make this a flat array and remove `input_path`?
 	dev: boolean,
-	load_moduleById: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
+	load_module_by_id: (source_id: SourceId, dev: boolean) => Promise<LoadModuleResult<TModuleMeta>>,
 ): Promise<LoadModulesResult<TModuleMeta>> => {
 	const timings = new Timings<LoadModulesTimings>();
-	const timingToLoadModules = timings.start('load modules');
+	const timing_to_load_modules = timings.start('load modules');
 	const modules: TModuleMeta[] = [];
-	const load_moduleFailures: LoadModuleFailure[] = [];
+	const load_module_failures: LoadModuleFailure[] = [];
 	const reasons: string[] = [];
 	for (const [input_path, source_ids] of source_ids_by_input_path) {
 		for (const id of source_ids) {
-			const result = await load_moduleById(id, dev); // eslint-disable-line no-await-in-loop
+			const result = await load_module_by_id(id, dev); // eslint-disable-line no-await-in-loop
 			if (result.ok) {
 				modules.push(result.mod);
 			} else {
-				load_moduleFailures.push(result);
+				load_module_failures.push(result);
 				switch (result.type) {
 					case 'importFailed': {
 						reasons.push(
@@ -192,13 +192,13 @@ export const load_modules = async <
 			}
 		}
 	}
-	timingToLoadModules();
+	timing_to_load_modules();
 
-	return load_moduleFailures.length
+	return load_module_failures.length
 		? {
 				ok: false,
-				type: 'load_moduleFailures',
-				load_moduleFailures,
+				type: 'load_module_failures',
+				load_module_failures,
 				reasons,
 				modules,
 				timings,
