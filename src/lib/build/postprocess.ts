@@ -122,12 +122,12 @@ const to_build_dependency = (
 	let mapped_specifier: string;
 	if (external) {
 		mapped_specifier = to_relative_specifier(
-			to_sveltekit_app_specifier(to_build_extension(specifier)) ?? specifier,
+			hack_to_sveltekit_import_shims(to_build_extension(specifier)),
 			source_dir,
 			paths.source,
 		);
 		final_specifier = to_relative_specifier(
-			to_sveltekit_app_specifier(final_specifier) ?? specifier,
+			hack_to_sveltekit_import_shims(final_specifier),
 			source_dir,
 			paths.source,
 		);
@@ -189,3 +189,22 @@ const hack_to_build_extension_with_possibly_extensionless_specifier = (
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.
 const HACK_EXTENSIONLESS_EXTENSIONS = new Set([JS_EXTENSION, TS_EXTENSION]);
+
+// substitutes SvelteKit-specific paths for Gro's shimmed version
+const hack_to_sveltekit_import_shims = (specifier: string): string =>
+	to_sveltekit_app_specifier(specifier) ??
+	(sveltekit_env_shim_specifiers.has(specifier)
+		? sveltekit_env_shim_specifiers.get(specifier)!
+		: specifier);
+
+const to_sveltekit_shim_env_specifier = (filename: string) => '$lib/' + filename;
+
+const sveltekit_env_shim_specifiers = new Map([
+	['$env/static/public', to_sveltekit_shim_env_specifier('sveltekit_shim_env_static_public.js')],
+	['$env/static/private', to_sveltekit_shim_env_specifier('sveltekit_shim_env_static_private.js')],
+	['$env/dynamic/public', to_sveltekit_shim_env_specifier('sveltekit_shim_env_dynamic_public.js')],
+	[
+		'$env/dynamic/private',
+		to_sveltekit_shim_env_specifier('sveltekit_shim_env_dynamic_private.js'),
+	],
+]);
