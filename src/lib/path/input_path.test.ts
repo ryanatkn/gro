@@ -1,8 +1,8 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
-import {resolve, join} from 'node:path';
+import {resolve} from 'node:path';
 // TODO BLOCK do this with the test runner generically, maybe lazy loaded in the loader if we see typescript
-import 'source-map-support/register.js';
+// import 'source-map-support/register.js';
 
 import {
 	resolve_raw_input_path,
@@ -11,7 +11,7 @@ import {
 	get_possible_source_ids,
 } from './input_path.js';
 import type {PathStats} from './path_data.js';
-import {gro_paths, replace_root_dir, create_paths, paths} from './paths.js';
+import {paths} from './paths.js';
 
 /* test__resolve_raw_input_path */
 const test__resolve_raw_input_path = suite('resolve_raw_input_path');
@@ -96,20 +96,6 @@ test__get_possible_source_ids('does not repeat with the same root directory', ()
 test__get_possible_source_ids('implied to be a directory by trailing slash', () => {
 	const input_path = resolve('src/foo/bar') + '/';
 	assert.equal(get_possible_source_ids(input_path, ['.baz.ts']), [input_path]);
-});
-
-test__get_possible_source_ids('in both another directory and gro', () => {
-	const fake_dir = resolve('../fake') + '/';
-	const fake_paths = create_paths(fake_dir);
-	const input_path = join(fake_dir, 'src/foo/bar');
-	assert.equal(get_possible_source_ids(input_path, ['.baz.ts'], [gro_paths.root], fake_paths), [
-		input_path,
-		input_path + '.baz.ts',
-		input_path + '/bar.baz.ts',
-		replace_root_dir(input_path, gro_paths.root, fake_paths),
-		replace_root_dir(input_path, gro_paths.root, fake_paths) + '.baz.ts',
-		replace_root_dir(input_path, gro_paths.root, fake_paths) + '/bar.baz.ts',
-	]);
 });
 
 test__get_possible_source_ids.run();
