@@ -58,7 +58,6 @@ export const load = async (
 	context: LoadContext,
 	nextLoad: NextLoad,
 ): Promise<LoadReturn> => {
-	// console.log(`load ` + url);
 	const matched_env = env_matcher.exec(url);
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
@@ -69,8 +68,6 @@ export const load = async (
 			source: render_env_shim_module(DEV, mode, visibility, public_prefix, private_prefix, env_dir),
 		};
 	} else if (ts_matcher.test(url)) {
-		// const path = fileURLToPath(url);
-		// const dir = dirname(path) + '/';
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// TODO maybe do path mapping in an esbuild plugin here instead of the resolve hook?
 		const transformed = transformSync(loaded.source.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
@@ -79,11 +76,11 @@ export const load = async (
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// TODO maybe do path mapping in a Svelte preprocessor here instead of the resolve hook?
 		// TODO include `filename` and `outputFilename` and enable sourcemaps
+		// TODO cache by content hash
 		const transformed = compile(loaded.source.toString(), compiler_options); // eslint-disable-line @typescript-eslint/no-base-to-string
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	}
 
-	// console.log('LOAD DEFAULT', url);
 	return nextLoad(url, context);
 };
 
@@ -96,8 +93,6 @@ export const resolve = async (
 	if (!parent_path?.startsWith(dir) || parent_path.startsWith(dir + 'node_modules/')) {
 		return nextResolve(specifier, context);
 	}
-
-	// console.log(`specifier`, specifier, parent_path);
 
 	if (
 		specifier === '$env/static/public' ||
@@ -144,7 +139,6 @@ export const resolve = async (
 			path = ts_path;
 		}
 	}
-	// console.log(`final path`, path);
 
 	return {url: pathToFileURL(path).href, format: 'module', shortCircuit: true};
 };
