@@ -1,5 +1,5 @@
 import fs from 'fs-extra';
-import {existsSync} from 'node:fs';
+import {existsSync, readFileSync, rmSync} from 'node:fs';
 
 import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths.js';
 import {get_file_content_hash} from './filer_file.js';
@@ -113,20 +113,18 @@ export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
 	if (!existsSync(source_meta_dir)) return;
 	const files = await find_files(source_meta_dir, undefined, null, true);
-	await Promise.all(
-		Array.from(files.keys()).map(async (cache_id) => {
-			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cache_id, 'utf8')));
-			if (existsSync(data.source_id)) {
-				const source_content_hash = to_hash(await fs.readFile(data.source_id));
-				if (data.content_hash === source_content_hash) {
-					source_meta_by_id.set(data.source_id, {cache_id, data});
-					return;
-				}
+	for (const cache_id of files.keys()) {
+		const data = deserialize_source_meta(JSON.parse(readFileSync(cache_id, 'utf8')));
+		if (existsSync(data.source_id)) {
+			const source_content_hash = to_hash(readFileSync(data.source_id));
+			if (data.content_hash === source_content_hash) {
+				source_meta_by_id.set(data.source_id, {cache_id, data});
+				return;
 			}
-			// Either the source file no longer exists or its content hash changed.
-			await fs.remove(cache_id);
-		}),
-	);
+		}
+		// Either the source file no longer exists or its content hash changed.
+		rmSync(cache_id);
+	}
 };
 
 // these are optimizations to write less data to disk

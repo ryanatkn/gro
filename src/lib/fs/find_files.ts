@@ -1,5 +1,5 @@
 import glob from 'tiny-glob';
-import fsExtra from 'fs-extra';
+import {statSync} from 'node:fs';
 import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
@@ -18,7 +18,7 @@ export const find_files = async (
 	const paths: Map<string, PathStats> = new Map();
 	for (const g of globbed) {
 		const path = stripStart(g, final_dir + '/');
-		const stats = fsExtra.statSync(g);
+		const stats = statSync(g);
 		if (!filter || stats.isDirectory() || filter(path, stats)) {
 			paths.set(path, stats);
 		}

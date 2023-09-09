@@ -1,4 +1,4 @@
-import fs from 'fs-extra';
+import {readFileSync} from 'node:fs';
 
 import type {BaseFilerFile} from './filer_file.js';
 import type {SourceMeta} from './source_meta.js';
@@ -30,7 +30,7 @@ export const reconstruct_build_files = async (
 			const filename = basename(id);
 			const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems
 			const extension = extname(id);
-			const content = await fs.readFile(id, 'utf8');
+			const content = readFileSync(id, 'utf8');
 			const build_config = build_configs.find((b) => b.name === build_name)!; // is a bit awkward, but probably not inefficient enough to change
 			if (!build_config) {
 				// TODO wait no this build needs to be preserved somehow,

@@ -1,5 +1,4 @@
-import fs from 'fs-extra';
-import {existsSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 
 import {
 	type ModuleMeta,
@@ -78,13 +77,10 @@ export type CheckGenModuleResult =
 			has_changed: true;
 	  };
 
-export const checkGenModules = async (gen_results: GenResults): Promise<CheckGenModuleResult[]> => {
-	return Promise.all(
-		gen_results.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat(),
-	);
-};
+export const checkGenModules = (gen_results: GenResults): CheckGenModuleResult[] =>
+	gen_results.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat();
 
-export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResult> => {
+export const checkGenModule = (file: GenFile): CheckGenModuleResult => {
 	if (!existsSync(file.id)) {
 		return {
 			file,
@@ -93,7 +89,7 @@ export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResul
 			has_changed: true,
 		};
 	}
-	const existing_content = await fs.readFile(file.id, 'utf8');
+	const existing_content = readFileSync(file.id, 'utf8');
 	return {
 		file,
 		existing_content,

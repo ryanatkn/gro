@@ -9,7 +9,7 @@ import {printError} from '@feltjs/util/print.js';
 import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
 import fs from 'fs-extra';
-import {existsSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 
 import {create_filer_dir, type FilerDir, type FilerDirChangeCallback} from '../build/filer_dir.js';
 import {
@@ -556,7 +556,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				}
 
 				const extension = source_file ? source_file.extension : extname(id);
-				const new_source_content = await fs.readFile(id, 'utf8'); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
+				const new_source_content = readFileSync(id, 'utf8'); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
 
 				if (!source_file) {
 					// Memory cache is cold.
@@ -837,7 +837,7 @@ const sync_build_files_to_disk = async (changes: BuildFileChange[], log: Logger)
 					// log.debug(label, 'creating build file on disk', gray(file.id));
 					should_output_new_file = true;
 				} else {
-					const existing_content = await fs.readFile(file.id, 'utf8');
+					const existing_content = readFileSync(file.id, 'utf8');
 					if (file.content !== existing_content) {
 						log.debug(label, 'updating stale build file on disk', gray(file.id));
 						should_output_new_file = true;
