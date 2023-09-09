@@ -225,7 +225,7 @@ export const task: Task<Args> = {
 			// TODO there is be a better way but what is it
 			for (const path of readdirSync(WORKTREE_DIR)) {
 				if (path !== GIT_DIRNAME) {
-					rmSync(`${WORKTREE_DIR}/${path}`);
+					rmSync(`${WORKTREE_DIR}/${path}`, {recursive: true});
 				}
 			}
 			for (const path of readdirSync(dir)) {
@@ -242,8 +242,8 @@ export const task: Task<Args> = {
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
-		rmdirSync(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
-		rmdirSync(dir);
+		rmdirSync(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true});
+		rmdirSync(dir, {recursive: true});
 		renameSync(WORKTREE_DIR, dir);
 		await cleanGitWorktree();
 

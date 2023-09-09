@@ -57,6 +57,6 @@ export const clean_fs = (
 export const remove_dir = (path: string, log: SystemLogger): void => {
 	if (existsSync(path)) {
 		log.info('removing', print_path(path));
-		rmdirSync(path);
+		rmdirSync(path, {recursive: true});
 	}
 };

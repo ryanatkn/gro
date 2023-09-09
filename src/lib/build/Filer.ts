@@ -459,7 +459,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// It could be improved by tracking tracking dirs in the Filer
 					// and looking up the correct build configs.
 					for (const build_config of this.build_configs) {
-						rmdirSync(to_build_out_path(this.dev, build_config.name, change.path, this.build_dir));
+						rmdirSync(to_build_out_path(this.dev, build_config.name, change.path, this.build_dir), {
+							recursive: true,
+						});
 					}
 				} else {
 					this.destroy_source_id(id);
