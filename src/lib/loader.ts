@@ -66,7 +66,15 @@ export const load: LoadHook = async (url, context, nextLoad) => {
 		return {
 			format: 'module',
 			shortCircuit: true,
-			source: render_env_shim_module(DEV, mode, visibility, public_prefix, private_prefix, env_dir),
+			// TODO BLOCK how to get `dev`, because `DEV` is production for Gro!
+			source: render_env_shim_module(
+				true,
+				mode,
+				visibility,
+				public_prefix,
+				private_prefix,
+				env_dir,
+			),
 		};
 	} else if (ts_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
