@@ -27,25 +27,25 @@ test__resolve_raw_input_path('basic behavior', () => {
 });
 
 test__resolve_raw_input_path('source directory', () => {
-	const targetDir = resolve('src/lib') + '/'; // inferred as directory
-	assert.is(resolve_raw_input_path('src/lib'), targetDir);
-	assert.is(resolve_raw_input_path('src/lib/'), targetDir);
-	assert.is(resolve_raw_input_path('./src/lib'), targetDir);
-	assert.is(resolve_raw_input_path('./src/lib/'), targetDir);
-	assert.is(resolve_raw_input_path('./srcTest'), targetDir + 'srcTest');
-	assert.is(resolve_raw_input_path('srcTest'), targetDir + 'srcTest');
-	assert.is.not(resolve_raw_input_path('.gro'), targetDir);
+	const target_dir = resolve('src/lib') + '/'; // inferred as directory
+	assert.is(resolve_raw_input_path('src/lib'), target_dir);
+	assert.is(resolve_raw_input_path('src/lib/'), target_dir);
+	assert.is(resolve_raw_input_path('./src/lib'), target_dir);
+	assert.is(resolve_raw_input_path('./src/lib/'), target_dir);
+	assert.is(resolve_raw_input_path('./srcTest'), target_dir + 'srcTest');
+	assert.is(resolve_raw_input_path('srcTest'), target_dir + 'srcTest');
+	assert.is.not(resolve_raw_input_path('.gro'), target_dir);
 });
 
 test__resolve_raw_input_path('directories', () => {
-	const targetDir = resolve('src/lib/foo/bar');
-	assert.is(resolve_raw_input_path('foo/bar'), targetDir);
-	assert.is(resolve_raw_input_path('foo/bar/'), targetDir);
-	assert.is(resolve_raw_input_path('src/lib/foo/bar'), targetDir);
-	assert.is(resolve_raw_input_path('src/lib/foo/bar/'), targetDir);
-	assert.is(resolve_raw_input_path('./src/lib/foo/bar'), targetDir);
-	assert.is(resolve_raw_input_path('./src/lib/foo/bar/'), targetDir);
-	assert.is.not(resolve_raw_input_path('bar'), targetDir);
+	const target_dir = resolve('src/lib/foo/bar');
+	assert.is(resolve_raw_input_path('foo/bar'), target_dir);
+	assert.is(resolve_raw_input_path('foo/bar/'), target_dir);
+	assert.is(resolve_raw_input_path('src/lib/foo/bar'), target_dir);
+	assert.is(resolve_raw_input_path('src/lib/foo/bar/'), target_dir);
+	assert.is(resolve_raw_input_path('./src/lib/foo/bar'), target_dir);
+	assert.is(resolve_raw_input_path('./src/lib/foo/bar/'), target_dir);
+	assert.is.not(resolve_raw_input_path('bar'), target_dir);
 });
 
 test__resolve_raw_input_path.run();
@@ -99,16 +99,16 @@ test__get_possible_source_ids('implied to be a directory by trailing slash', () 
 });
 
 test__get_possible_source_ids('in both another directory and gro', () => {
-	const fakeDir = resolve('../fake') + '/';
-	const fakePaths = create_paths(fakeDir);
-	const input_path = join(fakeDir, 'src/foo/bar');
-	assert.equal(get_possible_source_ids(input_path, ['.baz.ts'], [gro_paths.root], fakePaths), [
+	const fake_dir = resolve('../fake') + '/';
+	const fake_paths = create_paths(fake_dir);
+	const input_path = join(fake_dir, 'src/foo/bar');
+	assert.equal(get_possible_source_ids(input_path, ['.baz.ts'], [gro_paths.root], fake_paths), [
 		input_path,
 		input_path + '.baz.ts',
 		input_path + '/bar.baz.ts',
-		replace_root_dir(input_path, gro_paths.root, fakePaths),
-		replace_root_dir(input_path, gro_paths.root, fakePaths) + '.baz.ts',
-		replace_root_dir(input_path, gro_paths.root, fakePaths) + '/bar.baz.ts',
+		replace_root_dir(input_path, gro_paths.root, fake_paths),
+		replace_root_dir(input_path, gro_paths.root, fake_paths) + '.baz.ts',
+		replace_root_dir(input_path, gro_paths.root, fake_paths) + '/bar.baz.ts',
 	]);
 });
 
@@ -117,7 +117,7 @@ test__get_possible_source_ids.run();
 
 /* test__load_source_ids_by_input_path */
 const test__load_source_ids_by_input_path = suite('load_source_ids_by_input_path', async () => {
-	const testFiles: Record<string, Map<string, PathStats>> = {
+	const test_files: Record<string, Map<string, PathStats>> = {
 		'fake/test1.bar.ts': new Map([['fake/test1.bar.ts', {isDirectory: () => false}]]),
 		'fake/test2.bar.ts': new Map([['fake/test2.bar.ts', {isDirectory: () => false}]]),
 		'fake/test3': new Map([
@@ -147,7 +147,7 @@ const test__load_source_ids_by_input_path = suite('load_source_ids_by_input_path
 			['fake', {id: 'fake', isDirectory: true}],
 			['fake/nomatches', {id: 'fake/nomatches', isDirectory: true}],
 		]),
-		async (id) => testFiles[id],
+		async (id) => test_files[id],
 	);
 	assert.equal(result, {
 		source_ids_by_input_path: new Map([
