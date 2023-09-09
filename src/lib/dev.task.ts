@@ -58,24 +58,28 @@ export const task: Task<Args, TaskEvents> = {
 			sourcemap: config.sourcemap,
 			watch,
 		});
+		console.log('CREATED FILER');
 		timing_to_create_filer();
 		events.emit('dev.create_filer', filer);
 
 		const dev_task_context: DevTaskContext = {...ctx, config, dev: true, filer, timings};
 		events.emit('dev.create_context', dev_task_context);
 
+		console.log('CREATING PLUGINS');
 		const plugins = await Plugins.create(dev_task_context);
 
-		await plugins.setup();
-
 		const timing_to_init_filer = timings.start('init filer');
+		console.log('INIT FILER');
 		await filer.init();
 		timing_to_init_filer();
+
+		console.log('SETTING UP PLUGINS');
+		await plugins.setup();
 
 		events.emit('dev.ready', dev_task_context);
 
 		if (!watch) {
-			await plugins.teardown();
+			await plugins.teardown(); // maybe detect process exit and teardown
 		}
 
 		printTimings(timings, log);

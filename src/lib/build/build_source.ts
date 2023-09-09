@@ -9,6 +9,7 @@ import {gro_builder_default} from './gro_builder_default.js';
 import type {GroConfig} from '../config/config.js';
 
 export const build_source = async (config: GroConfig, dev: boolean, log: Logger): Promise<void> => {
+	console.log('BUUUUUUUUUUUUUUUUUUUUUUUUILDING SOURCE');
 	log.debug('building source', gray(dev ? 'development' : 'production'));
 
 	if (!config.builds.length) return;
