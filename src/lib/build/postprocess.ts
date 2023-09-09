@@ -6,7 +6,6 @@ import {
 	JS_EXTENSION,
 	to_build_extension,
 	TS_EXTENSION,
-	is_this_project_gro,
 	type BuildId,
 } from '../path/paths.js';
 import {
@@ -15,6 +14,7 @@ import {
 	MODULE_PATH_SRC_PREFIX,
 } from '../path/module.js';
 import type {BuildDependency} from './build_dependency.js';
+import {to_sveltekit_app_specifier} from '../util/sveltekit_shim_app.js';
 
 await lexer.init;
 
@@ -122,12 +122,12 @@ const to_build_dependency = (
 	let mapped_specifier: string;
 	if (external) {
 		mapped_specifier = to_relative_specifier(
-			hack_to_sveltekit_import_shims(to_build_extension(specifier)),
+			to_sveltekit_app_specifier(to_build_extension(specifier)) ?? specifier,
 			source_dir,
 			paths.source,
 		);
 		final_specifier = to_relative_specifier(
-			hack_to_sveltekit_import_shims(final_specifier),
+			to_sveltekit_app_specifier(final_specifier) ?? specifier,
 			source_dir,
 			paths.source,
 		);
@@ -189,31 +189,3 @@ const hack_to_build_extension_with_possibly_extensionless_specifier = (
 
 // This hack is needed so we treat imports like `foo.task` as `foo.task.js`, not a `.task` file.
 const HACK_EXTENSIONLESS_EXTENSIONS = new Set([JS_EXTENSION, TS_EXTENSION]);
-
-// TODO substitutes SvelteKit-specific paths for Gro's mocked version for testing purposes.
-// should extract this so it's configurable. (this whole module is hacky and needs rethinking)
-const hack_to_sveltekit_import_shims = (specifier: string): string =>
-	sveltekit_stubbed_specifiers.has(specifier)
-		? sveltekit_stubbed_specifiers.get(specifier)!
-		: specifier;
-
-const to_sveltekit_shim_app_specifier = (filename: string) =>
-	(is_this_project_gro ? '../../util/' : '@feltjs/gro/util/') + filename;
-
-const to_sveltekit_shim_env_specifier = (filename: string) =>
-	(is_this_project_gro ? '../../util/' : '$lib/') + filename;
-
-const sveltekit_stubbed_specifiers = new Map([
-	['$app/environment', to_sveltekit_shim_app_specifier('sveltekit_shim_app_environment.js')],
-	['$app/forms', to_sveltekit_shim_app_specifier('sveltekit_shim_app_forms.js')],
-	['$app/navigation', to_sveltekit_shim_app_specifier('sveltekit_shim_app_navigation.js')],
-	['$app/paths', to_sveltekit_shim_app_specifier('sveltekit_shim_app_paths.js')],
-	['$app/stores', to_sveltekit_shim_app_specifier('sveltekit_shim_app_stores.js')],
-	['$env/static/public', to_sveltekit_shim_env_specifier('sveltekit_shim_env_static_public.js')],
-	['$env/static/private', to_sveltekit_shim_env_specifier('sveltekit_shim_env_static_private.js')],
-	['$env/dynamic/public', to_sveltekit_shim_env_specifier('sveltekit_shim_env_dynamic_public.js')],
-	[
-		'$env/dynamic/private',
-		to_sveltekit_shim_env_specifier('sveltekit_shim_env_dynamic_private.js'),
-	],
-]);

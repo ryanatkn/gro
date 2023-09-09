@@ -16,6 +16,7 @@ import {cwd} from 'node:process';
 import type {Config} from '@sveltejs/kit';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
+import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
 
 const dir = cwd() + '/';
 
@@ -106,6 +107,11 @@ export const resolve = async (
 		// The returned `url` is validated before `load` is called,
 		// so we need a slightly roundabout strategy to pass through the specifier for virtual files.
 		return {url: 'file:///' + dir + 'src/lib/' + specifier, format: 'module', shortCircuit: true};
+	}
+
+	const shimmed = to_sveltekit_app_specifier(specifier);
+	if (shimmed !== null) {
+		return nextResolve(shimmed, context);
 	}
 
 	let path = specifier;
