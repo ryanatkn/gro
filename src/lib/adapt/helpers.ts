@@ -1,6 +1,6 @@
 import type {Logger} from '@feltjs/util/log.js';
 import fs from 'fs-extra';
-import {existsSync, statSync} from 'node:fs';
+import {existsSync, statSync, writeFileSync} from 'node:fs';
 
 import type {BuildConfig} from '../build/build_config.js';
 import type {IdStatsFilter} from '../fs/filter.js';
@@ -37,6 +37,6 @@ const NOJEKYLL_FILENAME = '.nojekyll';
 export const ensure_nojekyll = async (dir: string): Promise<void> => {
 	const path = `${dir}/${NOJEKYLL_FILENAME}`;
 	if (!existsSync(path)) {
-		await fs.writeFile(path, '', 'utf8');
+		writeFileSync(path, '', 'utf8');
 	}
 };

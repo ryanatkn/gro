@@ -1,5 +1,4 @@
-import fs from 'fs-extra';
-import {existsSync, readFileSync, rmSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 
 import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths.js';
 import {get_file_content_hash} from './filer_file.js';
@@ -12,9 +11,9 @@ import {
 	type BuildDependency,
 	type SerializedBuildDependency,
 } from './build_dependency.js';
-import {throttle} from '../util/throttle.js';
 import {to_hash} from './helpers.js';
 import {find_files} from '../fs/find_files.js';
+import {dirname} from 'node:path';
 
 export interface SourceMeta {
 	readonly cache_id: string; // path to the cached JSON file on disk
@@ -50,7 +49,7 @@ export const to_source_meta_dir = (build_dir: string, dev: boolean): string =>
 
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
-export const update_source_meta = async (ctx: BuildContext, file: SourceFile): Promise<void> => {
+export const update_source_meta = (ctx: BuildContext, file: SourceFile): void => {
 	const {source_meta_by_id, dev, build_dir, build_names} = ctx;
 
 	// create the new meta, not mutating the old
@@ -86,23 +85,19 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 
 	source_meta_by_id.set(file.id, source_meta);
 	// this.log.debug('outputting source meta', gray(cache_id));
-	await write_source_meta(cache_id, data);
+	// await write_source_meta(cache_id, data);
+	mkdirSync(dirname(cache_id), {recursive: true});
+	writeFileSync(cache_id, JSON.stringify(serialize_source_meta(data), null, 2));
 };
 
-const write_source_meta = throttle(
-	(cache_id: string, data: SourceMetaData): Promise<void> =>
-		fs.writeFile(cache_id, JSON.stringify(serialize_source_meta(data), null, 2)),
-	(_, cache_id) => cache_id,
-);
-
-export const delete_source_meta = async (
+export const delete_source_meta = (
 	{source_meta_by_id}: BuildContext,
 	source_id: SourceId,
-): Promise<void> => {
+): void => {
 	const meta = source_meta_by_id.get(source_id);
 	if (meta === undefined) return; // silently do nothing, which is fine because it's a cache
 	source_meta_by_id.delete(source_id);
-	await fs.remove(meta.cache_id);
+	rmSync(meta.cache_id);
 };
 
 const to_source_meta_cache_id = (file: SourceFile, build_dir: string, dev: boolean): string =>

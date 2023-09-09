@@ -19,7 +19,7 @@ export const to_hash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, build_dir: string, paths: Paths): Promise<SourceId>;
+	(dependency: BuildDependency, build_dir: string, paths: Paths): SourceId;
 }
 
 // TODO this was changed from sync to async to support JS:
@@ -33,7 +33,7 @@ export interface MapDependencyToSourceId {
 // and 2) JS files may cause errors in rare cases,
 // like if the intended source file changes its extension.
 // (not a big deal, but points to a system design flaw)
-export const map_dependency_to_source_d: MapDependencyToSourceId = async (
+export const map_dependency_to_source_id: MapDependencyToSourceId = (
 	dependency,
 	build_dir,
 	paths,

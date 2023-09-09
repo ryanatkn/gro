@@ -1,4 +1,4 @@
-import {resolve, extname, join} from 'node:path';
+import {resolve, extname, join, dirname} from 'node:path';
 import {EventEmitter} from 'node:events';
 import type StrictEventEmitter from 'strict-event-emitter-types';
 import {omitUndefined} from '@feltjs/util/object.js';
@@ -9,12 +9,12 @@ import {printError} from '@feltjs/util/print.js';
 import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
 import fs from 'fs-extra';
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, rmdirSync, writeFileSync} from 'node:fs';
 
 import {create_filer_dir, type FilerDir, type FilerDirChangeCallback} from '../build/filer_dir.js';
 import {
 	is_input_to_build_config,
-	map_dependency_to_source_d,
+	map_dependency_to_source_id,
 	type EcmaScriptTarget,
 	type MapDependencyToSourceId,
 } from './helpers.js';
@@ -67,7 +67,7 @@ export interface Options {
 	build_configs: BuildConfig[];
 	build_dir: string;
 	source_dirs: string[];
-	map_dependency_to_source_d: MapDependencyToSourceId;
+	map_dependency_to_source_id: MapDependencyToSourceId;
 	sourcemap: boolean;
 	types: boolean;
 	target: EcmaScriptTarget;
@@ -87,7 +87,7 @@ export const initOptions = (opts: InitialOptions): Options => {
 	const build_dir = opts.build_dir || paths.build; // TODO assumes trailing slash
 	const source_dirs = validate_dirs(opts.source_dirs);
 	return {
-		map_dependency_to_source_d,
+		map_dependency_to_source_id,
 		sourcemap: true,
 		types: !dev,
 		target: 'esnext',
@@ -107,7 +107,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	private readonly files: Map<FilerFileId, FilerFile> = new Map();
 	private readonly dirs: FilerDir[];
 	private readonly builder: Builder;
-	private readonly map_dependency_to_source_d: MapDependencyToSourceId;
+	private readonly map_dependency_to_source_id: MapDependencyToSourceId;
 
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
 	// This pattern lets us pass around `this` filer
@@ -134,7 +134,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			build_configs,
 			build_dir,
 			source_dirs,
-			map_dependency_to_source_d,
+			map_dependency_to_source_id,
 			sourcemap,
 			target,
 			watch,
@@ -147,7 +147,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.build_configs = build_configs;
 		this.build_names = new Set(build_configs.map((b) => b.name));
 		this.build_dir = build_dir;
-		this.map_dependency_to_source_d = map_dependency_to_source_d;
+		this.map_dependency_to_source_id = map_dependency_to_source_id;
 		this.sourcemap = sourcemap;
 		this.target = target;
 		this.log = log;
@@ -427,7 +427,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 
 		if (should_update_source_meta) {
-			await update_source_meta(this, source_file);
+			update_source_meta(this, source_file);
 		}
 	}
 
@@ -471,14 +471,9 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// whether or not they apply for this id.
 					// It could be improved by tracking tracking dirs in the Filer
 					// and looking up the correct build configs.
-					console.log(`change.path`, change.path);
-					await Promise.all(
-						this.build_configs.map((build_config) =>
-							fs.remove(
-								to_build_out_path(this.dev, build_config.name, change.path, this.build_dir),
-							),
-						),
-					);
+					for (const build_config of this.build_configs) {
+						rmdirSync(to_build_out_path(this.dev, build_config.name, change.path, this.build_dir));
+					}
 				} else {
 					await this.destroy_source_id(id);
 				}
@@ -713,8 +708,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			for (const added_dependency of added_dependencies) {
 				// we create no source file for externals
 				if (added_dependency.external) continue;
-				// eslint-disable-next-line no-await-in-loop
-				const added_source_id = await this.map_dependency_to_source_d(
+				const added_source_id = this.map_dependency_to_source_id(
 					added_dependency,
 					this.build_dir,
 					this.paths,
@@ -750,8 +744,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		if (removed_dependencies !== null) {
 			for (const removed_dependency of removed_dependencies) {
-				// eslint-disable-next-line no-await-in-loop
-				const removed_source_id = await this.map_dependency_to_source_d(
+				const removed_source_id = this.map_dependency_to_source_id(
 					removed_dependency,
 					this.build_dir,
 					this.paths,
@@ -821,7 +814,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// TODO instead of batching like this here, make that concern internal to the source_meta
 		// passing `false` above to avoid writing `source_meta` to disk for each build -
 		// batch delete it now:
-		await delete_source_meta(this, source_file.id);
+		delete_source_meta(this, source_file.id);
 	}
 }
 
@@ -858,7 +851,8 @@ const sync_build_files_to_disk = async (changes: BuildFileChange[], log: Logger)
 				throw new UnreachableError(change);
 			}
 			if (should_output_new_file) {
-				await fs.writeFile(file.id, file.content);
+				mkdirSync(dirname(file.id), {recursive: true});
+				writeFileSync(file.id, file.content);
 			}
 		}),
 	);

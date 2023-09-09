@@ -3,7 +3,6 @@ import {printMs, printError, printTimings} from '@feltjs/util/print.js';
 import {plural} from '@feltjs/util/string.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
-import fs from 'fs-extra';
 
 import {TaskError, type Task} from './task/task.js';
 import {run_gen} from './gen/run_gen.js';
@@ -15,6 +14,8 @@ import {print_path} from './path/paths.js';
 import {load_config} from './config/config.js';
 import {build_source} from './build/build_source.js';
 import {log_error_reasons} from './task/log_task.js';
+import {mkdirSync, writeFileSync} from 'node:fs';
+import {dirname} from 'node:path';
 
 export const Args = z
 	.object({
@@ -88,7 +89,7 @@ export const task: Task<Args> = {
 			if (!failCount) {
 				log.info('checking generated files for changes');
 				const stopTimingToCheckResults = timings.start('check results for changes');
-				const checkGenModulesResults = await checkGenModules(gen_results);
+				const checkGenModulesResults = checkGenModules(gen_results);
 				stopTimingToCheckResults();
 
 				let hasUnexpectedChanges = false;
@@ -115,21 +116,13 @@ export const task: Task<Args> = {
 			// write generated files to disk
 			log.info('writing generated files to disk');
 			const stopTimingToOutputResults = timings.start('output results');
-			await Promise.all(
-				gen_results.successes
-					.map((result) =>
-						result.files.map((file) => {
-							log.info(
-								'writing',
-								print_path(file.id),
-								'generated from',
-								print_path(file.origin_id),
-							);
-							return fs.writeFile(file.id, file.content);
-						}),
-					)
-					.flat(),
-			);
+			for (const result of gen_results.successes) {
+				for (const file of result.files) {
+					log.info('writing', print_path(file.id), 'generated from', print_path(file.origin_id));
+					mkdirSync(dirname(file.id), {recursive: true});
+					writeFileSync(file.id, file.content);
+				}
+			}
 			stopTimingToOutputResults();
 		}
 
