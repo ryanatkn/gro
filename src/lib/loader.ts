@@ -78,6 +78,7 @@ export const load = async (
 	} else if (svelte_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// TODO maybe do path mapping in a Svelte preprocessor here instead of the resolve hook?
+		// TODO include `filename` and `outputFilename` and enable sourcemaps
 		const transformed = compile(loaded.source.toString(), compiler_options); // eslint-disable-line @typescript-eslint/no-base-to-string
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	}
