@@ -3,7 +3,6 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
 import {run_task} from './run_task.js';
-import {fs} from '../fs/node.js';
 
 /* test__run_task */
 const test__run_task = suite('run_task');
@@ -11,7 +10,6 @@ const test__run_task = suite('run_task');
 test__run_task('passes args and returns output', async () => {
 	const args = {a: 1, _: []};
 	const result = await run_task(
-		fs,
 		{
 			name: 'testTask',
 			id: 'foo/testTask',
@@ -34,7 +32,6 @@ test__run_task('invokes a sub task', async () => {
 	let invoked_task_name;
 	let invoked_args;
 	const result = await run_task(
-		fs,
 		{
 			name: 'testTask',
 			id: 'foo/testTask',
@@ -49,7 +46,7 @@ test__run_task('invokes a sub task', async () => {
 		},
 		args,
 		new EventEmitter(),
-		async (_fs, invokingTaskName, invokingArgs) => {
+		async (invokingTaskName, invokingArgs) => {
 			invoked_task_name = invokingTaskName;
 			invoked_args = invokingArgs;
 		},
@@ -63,7 +60,6 @@ test__run_task('invokes a sub task', async () => {
 test__run_task('failing task', async () => {
 	let err;
 	const result = await run_task(
-		fs,
 		{
 			name: 'testTask',
 			id: 'foo/testTask',

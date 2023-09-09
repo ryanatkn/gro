@@ -3,6 +3,7 @@ import {printMs, printError, printTimings} from '@feltjs/util/print.js';
 import {plural} from '@feltjs/util/string.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
+import fs from 'fs-extra';
 
 import {TaskError, type Task} from './task/task.js';
 import {run_gen} from './gen/run_gen.js';
@@ -35,7 +36,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
-	run: async ({fs, log, args}): Promise<void> => {
+	run: async ({log, args}): Promise<void> => {
 		const {_: raw_input_paths, check, rebuild} = args;
 
 		const total_timing = createStopwatch();
@@ -46,10 +47,10 @@ export const task: Task<Args> = {
 		// but running `gro gen` from dev/build tasks will not want to rebuild.
 		if (rebuild) {
 			const timing_to_load_config = timings.start('load config');
-			const config = await load_config(fs);
+			const config = await load_config();
 			timing_to_load_config();
 			const timingToBuildSource = timings.start('build_source');
-			await build_source(fs, config, true, log);
+			await build_source(config, true, log);
 			timingToBuildSource();
 		}
 
@@ -57,7 +58,7 @@ export const task: Task<Args> = {
 		const input_paths = resolve_raw_input_paths(raw_input_paths);
 
 		// load all of the gen modules
-		const find_modules_result = await find_gen_modules(fs, input_paths);
+		const find_modules_result = await find_gen_modules(input_paths);
 		if (!find_modules_result.ok) {
 			log_error_reasons(log, find_modules_result.reasons);
 			throw new TaskError('Failed to find gen modules.');
@@ -77,7 +78,7 @@ export const task: Task<Args> = {
 
 		// run `gen` on each of the modules
 		const stopTimingToGenerateCode = timings.start('generate code'); // TODO this ignores `gen_results.elapsed` - should it return `Timings` instead?
-		const gen_results = await run_gen(fs, load_modules_result.modules, log, format_file);
+		const gen_results = await run_gen(load_modules_result.modules, log, format_file);
 		stopTimingToGenerateCode();
 
 		const failCount = gen_results.failures.length;
@@ -87,7 +88,7 @@ export const task: Task<Args> = {
 			if (!failCount) {
 				log.info('checking generated files for changes');
 				const stopTimingToCheckResults = timings.start('check results for changes');
-				const checkGenModulesResults = await checkGenModules(fs, gen_results);
+				const checkGenModulesResults = await checkGenModules(gen_results);
 				stopTimingToCheckResults();
 
 				let hasUnexpectedChanges = false;

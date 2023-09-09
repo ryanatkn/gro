@@ -1,7 +1,7 @@
 import {join} from 'node:path';
 import type {Json} from '@feltjs/util/json.js';
+import fs from 'fs-extra';
 
-import type {Filesystem} from '../fs/filesystem.js';
 import {paths, gro_paths, is_this_project_gro} from '../path/paths.js';
 
 // This is a single entrypoint for getting the `package.json` of both the current project and Gro.
@@ -21,20 +21,14 @@ export interface GroPackageJson extends PackageJson {} // eslint-disable-line @t
 let package_json: Promise<PackageJson> | undefined;
 let gro_package_json: Promise<GroPackageJson> | undefined;
 
-export const load_package_json = async (
-	fs: Filesystem,
-	force_refresh = false,
-): Promise<PackageJson> => {
-	if (is_this_project_gro) return load_gro_package_json(fs, force_refresh);
+export const load_package_json = async (force_refresh = false): Promise<PackageJson> => {
+	if (is_this_project_gro) return load_gro_package_json(force_refresh);
 	if (!package_json || force_refresh) {
 		package_json = fs.readFile(join(paths.root, 'package.json'), 'utf8').then((f) => JSON.parse(f));
 	}
 	return package_json;
 };
-export const load_gro_package_json = async (
-	fs: Filesystem,
-	force_refresh = false,
-): Promise<GroPackageJson> => {
+export const load_gro_package_json = async (force_refresh = false): Promise<GroPackageJson> => {
 	if (!gro_package_json || force_refresh) {
 		gro_package_json = fs
 			.readFile(join(gro_paths.root, 'package.json'), 'utf8')

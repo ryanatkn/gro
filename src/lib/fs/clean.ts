@@ -1,5 +1,6 @@
 import {EMPTY_ARRAY} from '@feltjs/util/array.js';
 import type {SystemLogger} from '@feltjs/util/log.js';
+import fs from 'fs-extra';
 
 import {to_source_meta_dir} from '../build/source_meta.js';
 import {
@@ -11,10 +12,8 @@ import {
 	SVELTEKIT_VITE_CACHE_PATH,
 	print_path,
 } from '../path/paths.js';
-import type {Filesystem} from './filesystem.js';
 
 export const cleanFs = async (
-	fs: Filesystem,
 	{
 		build = false,
 		buildDev = false,
@@ -33,31 +32,31 @@ export const cleanFs = async (
 	log: SystemLogger,
 ): Promise<any[]> =>
 	Promise.all([
-		build ? removeDir(fs, paths.build, log) : null,
+		build ? removeDir(paths.build, log) : null,
 		...(!build && buildDev
 			? [
-					removeDir(fs, to_build_out_dir(true), log),
-					removeDir(fs, to_source_meta_dir(paths.build, true), log),
+					removeDir(to_build_out_dir(true), log),
+					removeDir(to_source_meta_dir(paths.build, true), log),
 			  ]
 			: EMPTY_ARRAY),
 		...(!build && buildProd
 			? [
-					removeDir(fs, to_build_out_dir(false), log),
-					removeDir(fs, to_source_meta_dir(paths.build, false), log),
+					removeDir(to_build_out_dir(false), log),
+					removeDir(to_source_meta_dir(paths.build, false), log),
 			  ]
 			: EMPTY_ARRAY),
-		dist ? removeDir(fs, paths.dist, log) : null,
+		dist ? removeDir(paths.dist, log) : null,
 		...(sveltekit
 			? [
-					removeDir(fs, SVELTEKIT_DEV_DIRNAME, log),
-					removeDir(fs, SVELTEKIT_BUILD_DIRNAME, log),
-					removeDir(fs, SVELTEKIT_VITE_CACHE_PATH, log),
+					removeDir(SVELTEKIT_DEV_DIRNAME, log),
+					removeDir(SVELTEKIT_BUILD_DIRNAME, log),
+					removeDir(SVELTEKIT_VITE_CACHE_PATH, log),
 			  ]
 			: EMPTY_ARRAY),
-		nodemodules ? removeDir(fs, NODE_MODULES_DIRNAME, log) : null,
+		nodemodules ? removeDir(NODE_MODULES_DIRNAME, log) : null,
 	]);
 
-export const removeDir = async (fs: Filesystem, path: string, log: SystemLogger): Promise<void> => {
+export const removeDir = async (path: string, log: SystemLogger): Promise<void> => {
 	if (await fs.exists(path)) {
 		log.info('removing', print_path(path));
 		await fs.remove(path);

@@ -46,7 +46,6 @@ export const task: Task<Args, TaskEvents> = {
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
-			fs,
 			log,
 			events,
 			args: {clean, install, preserve},
@@ -61,14 +60,14 @@ export const task: Task<Args, TaskEvents> = {
 		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
 		// This is used by `gro publish` and `gro deploy` because they call `cleanFs` themselves.
 		if (clean) {
-			await cleanFs(fs, {buildProd: true, dist: true}, log);
+			await cleanFs({buildProd: true, dist: true}, log);
 		}
 
 		// TODO delete prod builds (what about config/system tho?)
 
 		const timing_to_load_config = timings.start('load config');
 		console.log('LOADING CONFIG');
-		const config = await load_config(fs);
+		const config = await load_config();
 		console.log('LOADED CONFIG');
 		timing_to_load_config();
 		events.emit('build.create_config', config);
@@ -81,7 +80,7 @@ export const task: Task<Args, TaskEvents> = {
 		// so just don't build in that case.
 		if (config.builds.length) {
 			const timingToBuildSource = timings.start('build_source');
-			await build_source(fs, config, false, log);
+			await build_source(config, false, log);
 			timingToBuildSource();
 		}
 
@@ -102,7 +101,7 @@ export const task: Task<Args, TaskEvents> = {
 		// Dynamic variable imports can be used to avoid this problem completely.
 		// For more see the SvelteKit docs - https://kit.svelte.dev/docs/modules#$env-dynamic-private
 		if (!preserve) {
-			await cleanFs(fs, {buildProd: true}, log);
+			await cleanFs({buildProd: true}, log);
 		}
 
 		printTimings(timings, log);

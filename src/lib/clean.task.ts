@@ -36,11 +36,11 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'remove temporary dev and build files, and optionally prune git branches',
 	Args,
-	run: async ({fs, log, args}): Promise<void> => {
+	run: async ({log, args}): Promise<void> => {
 		const {build, dist, sveltekit, nodemodules, git} = args;
 
 		// TODO document with mdsvex
-		await cleanFs(fs, {build, dist, sveltekit, nodemodules}, log);
+		await cleanFs({build, dist, sveltekit, nodemodules}, log);
 
 		// lop off unwanted git branches
 		if (git) {

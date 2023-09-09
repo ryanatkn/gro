@@ -3,11 +3,10 @@ import fsExtra from 'fs-extra';
 import {sortMap, compareSimpleMapEntries} from '@feltjs/util/map.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 
-import type {Filesystem, FsWriteFile} from './filesystem.js';
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from './filter.js';
 
-const findFiles = async (
+export const find_files = async (
 	dir: string,
 	filter?: PathFilter,
 	// pass `null` to speed things up at the risk of rare misorderings
@@ -25,18 +24,4 @@ const findFiles = async (
 		}
 	}
 	return sort ? sortMap(paths, sort) : paths;
-};
-
-export const fs: Filesystem = {
-	stat: fsExtra.stat,
-	exists: fsExtra.pathExists,
-	readFile: fsExtra.readFile,
-	writeFile: fsExtra.outputFile as FsWriteFile, // TODO incompatible encodings: is this an actual problem? or is `fs-extra` mistyped? test with `null`
-	remove: fsExtra.remove,
-	move: fsExtra.move,
-	copy: fsExtra.copy,
-	readDir: fsExtra.readdir,
-	emptyDir: fsExtra.emptyDir,
-	ensureDir: fsExtra.ensureDir,
-	findFiles,
 };

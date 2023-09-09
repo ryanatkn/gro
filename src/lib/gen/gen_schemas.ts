@@ -70,7 +70,7 @@ const run_schema_gen = async (
 		});
 	}
 
-	const imports = await normalize_type_imports(ctx.fs, raw_imports, ctx.origin_id);
+	const imports = await normalize_type_imports(raw_imports, ctx.origin_id);
 
 	return {imports, types};
 };

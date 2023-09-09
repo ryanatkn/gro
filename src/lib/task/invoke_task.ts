@@ -20,9 +20,9 @@ import {
 import {find_modules, load_modules} from '../fs/modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../util/package_json.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import {log_available_tasks, log_error_reasons} from './log_task.js';
 import {stripStart} from '@feltjs/util/string.js';
+import {find_files} from '../fs/find_files.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.
@@ -42,7 +42,6 @@ import {stripStart} from '@feltjs/util/string.js';
  * The comments describe each condition.
  */
 export const invoke_task = async (
-	fs: Filesystem,
 	task_name: string,
 	args: Args,
 	events = new EventEmitter(),
@@ -53,7 +52,7 @@ export const invoke_task = async (
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args.version || args.v)) {
-		const gro_package_json = await load_gro_package_json(fs);
+		const gro_package_json = await load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version as string)}`);
 		return;
 	}
@@ -67,9 +66,7 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await find_task_modules(fs, [input_path], undefined, [
-		gro_paths.root,
-	]);
+	const find_modules_result = await find_task_modules([input_path], undefined, [gro_paths.root]);
 	console.log(`find_modules_result`, find_modules_result);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
@@ -98,7 +95,6 @@ export const invoke_task = async (
 				const timingToRunTask = timings.start('run task');
 				console.log(`to_forwarded_args`, to_forwarded_args(`gro ${task.name}`));
 				const result = await run_task(
-					fs,
 					task,
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},
 					events,
@@ -139,8 +135,8 @@ export const invoke_task = async (
 				// and log everything out.
 				const gro_dir_input_path = to_gro_input_path(input_path);
 				console.log(`gro_dir_input_path`, gro_dir_input_path);
-				const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
-					fs.findFiles(id, (path) => is_task_path(path), undefined, true),
+				const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
+					find_files(id, (path) => is_task_path(path), undefined, true),
 				);
 				console.log(`gro_dir_find_modules_result`, gro_dir_find_modules_result);
 				// Ignore any errors - the directory may not exist or have any files!
@@ -179,8 +175,8 @@ export const invoke_task = async (
 			// but it has no matching files, we still want to search Gro's directory.
 			// TODO BLOCK duplicated with the above, need to handle the `else` condition returning `gro_dir_find_modules_result`
 			const gro_dir_input_path = to_gro_input_path(input_path);
-			const gro_dir_find_modules_result = await find_modules(fs, [gro_dir_input_path], (id) =>
-				fs.findFiles(id, (path) => is_task_path(path), undefined, true),
+			const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
+				find_files(id, (path) => is_task_path(path), undefined, true),
 			);
 			if (gro_dir_find_modules_result.ok) {
 				timings.merge(gro_dir_find_modules_result.timings);

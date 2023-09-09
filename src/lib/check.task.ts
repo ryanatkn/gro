@@ -26,7 +26,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'check that everything is ready to commit',
 	Args,
-	run: async ({fs, log, args, invoke_task}) => {
+	run: async ({log, args, invoke_task}) => {
 		const {typecheck, test, gen, format, lint} = args;
 
 		if (typecheck) {
@@ -39,7 +39,7 @@ export const task: Task<Args> = {
 
 		if (gen) {
 			// Check for stale code generation if the project has any gen files.
-			const find_gen_modules_result = await find_gen_modules(fs);
+			const find_gen_modules_result = await find_gen_modules();
 			if (find_gen_modules_result.ok) {
 				log.info('checking that generated files have not changed');
 				await invoke_task('gen', {check: true, rebuild: false});

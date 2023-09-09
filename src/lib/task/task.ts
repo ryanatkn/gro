@@ -4,7 +4,6 @@ import type {Logger} from '@feltjs/util/log.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import type {z} from 'zod';
 
-import type {Filesystem} from '../fs/filesystem.js';
 import type {Args} from '../task/args.js';
 import {LIB_DIRNAME} from '../path/paths.js';
 
@@ -19,7 +18,6 @@ export interface Task<
 }
 
 export interface TaskContext<TArgs = object, TEvents = object> {
-	fs: Filesystem;
 	log: Logger;
 	args: TArgs;
 	events: StrictEventEmitter<EventEmitter, TEvents>;
@@ -27,7 +25,6 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 		task_name: string,
 		args?: object,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
-		fs?: Filesystem,
 	) => Promise<void>;
 }
 

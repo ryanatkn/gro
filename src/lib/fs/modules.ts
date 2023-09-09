@@ -10,7 +10,6 @@ import {
 } from '../path/input_path.js';
 import type {PathStats, PathData} from '../path/path_data.js';
 import {paths_from_id, print_path, print_path_or_gro_path, type SourceId} from '../path/paths.js';
-import type {Filesystem} from './filesystem.js';
 
 export interface ModuleMeta<TModule extends Record<string, any> = Record<string, any>> {
 	id: string;
@@ -84,16 +83,15 @@ Finds modules from input paths. (see `src/lib/path/input_path.ts` for more)
 
 */
 export const find_modules = async (
-	fs: Filesystem,
 	input_paths: string[],
-	findFiles: (id: string) => Promise<Map<string, PathStats>>,
+	find_files: (id: string) => Promise<Map<string, PathStats>>,
 	get_possible_source_ids?: (input_path: string) => string[],
 ): Promise<FindModulesResult> => {
 	// Check which extension variation works - if it's a directory, prefer others first!
 	const timings = new Timings<FindModulesTimings>();
 	const timingToMapInputPaths = timings.start('map input paths');
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
-		await load_source_path_data_by_input_path(fs, input_paths, get_possible_source_ids);
+		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
 	timingToMapInputPaths();
 
 	// Error if any input path could not be mapped.
@@ -117,7 +115,7 @@ export const find_modules = async (
 	// Find all of the files for any directories.
 	const timingToFindFiles = timings.start('find files');
 	const {source_ids_by_input_path, input_directories_with_no_files} =
-		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => findFiles(id));
+		await load_source_ids_by_input_path(source_id_path_data_by_input_path, (id) => find_files(id));
 	timingToFindFiles();
 
 	// Error if any input path has no files. (means we have an empty directory)

@@ -9,15 +9,15 @@ import {find_cli, spawn_cli} from '../util/cli.js';
 export const create_adapter = (): Adapter => {
 	return {
 		name: 'gro_adapter_node_library',
-		adapt: async ({fs, log, timings}) => {
-			if (!(await find_cli(fs, 'svelte-package'))) {
+		adapt: async ({log, timings}) => {
+			if (!(await find_cli('svelte-package'))) {
 				throw Error(`Failed to find svelte-package: install @sveltejs/package locally or globally`);
 			}
 			const serialized_args = serialize_args(to_forwarded_args('svelte-package'));
 			log.info(print_command_args(serialized_args));
-			await spawn_cli(fs, 'svelte-package', serialized_args);
+			await spawn_cli('svelte-package', serialized_args);
 
-			const pkg = await load_package_json(fs);
+			const pkg = await load_package_json();
 
 			// `npm link`
 			if (pkg.bin) {

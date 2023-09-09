@@ -2,7 +2,6 @@ import type {Logger} from '@feltjs/util/log.js';
 import {join, basename, dirname} from 'node:path';
 import {z} from 'zod';
 
-import type {Filesystem} from '../fs/filesystem.js';
 import {gen_module_meta, to_gen_module_type} from './gen_module.js';
 import type {SourceId} from '../path/paths.js';
 
@@ -21,7 +20,6 @@ export interface Gen {
 	(ctx: GenContext): RawGenResult | Promise<RawGenResult>;
 }
 export interface GenContext {
-	fs: Filesystem;
 	origin_id: string;
 	log: Logger;
 	imports: Record<string, string>;

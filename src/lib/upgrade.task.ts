@@ -18,10 +18,10 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'upgrade deps',
 	Args,
-	run: async ({fs, args, log}): Promise<void> => {
+	run: async ({args, log}): Promise<void> => {
 		const {_, dry} = args;
 
-		const pkg = await load_package_json(fs);
+		const pkg = await load_package_json();
 
 		const deps = toDeps(pkg).filter((d) => !_.includes(d.key));
 

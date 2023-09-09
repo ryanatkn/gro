@@ -1,8 +1,8 @@
 import {createHash} from 'crypto';
 import type {Result} from '@feltjs/util/result.js';
+import fs from 'fs-extra';
 
 import type {BuildConfigInput} from './build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import {
 	type Paths,
 	build_id_to_source_id,
@@ -19,7 +19,7 @@ export const to_hash = (buf: Buffer): string =>
 	createHash('md5').update(buf).digest().toString('hex');
 
 export interface MapDependencyToSourceId {
-	(dependency: BuildDependency, build_dir: string, fs: Filesystem, paths: Paths): Promise<SourceId>;
+	(dependency: BuildDependency, build_dir: string, paths: Paths): Promise<SourceId>;
 }
 
 // TODO this was changed from sync to async to support JS:
@@ -36,7 +36,6 @@ export interface MapDependencyToSourceId {
 export const map_dependency_to_source_d: MapDependencyToSourceId = async (
 	dependency,
 	build_dir,
-	fs,
 	paths,
 ) => {
 	const source_id = build_id_to_source_id(dependency.build_id, build_dir, paths);
@@ -52,7 +51,6 @@ export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): st
 	`${code}\n//# sourceMappingURL=${sourcemapPath}`;
 
 export const validate_input_files = async (
-	fs: Filesystem,
 	files: string[],
 ): Promise<Result<object, {reason: string}>> => {
 	const results = await Promise.all(

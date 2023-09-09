@@ -2,7 +2,6 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import * as lexer from 'es-module-lexer';
 
 import {format_file} from '../format/format_file.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import {to_gen_import_path} from './run_gen.js';
 
 await lexer.init;
@@ -19,14 +18,13 @@ await lexer.init;
 // it gives good parse errors and makes formatting consistent.
 
 export const normalize_type_imports = async (
-	fs: Filesystem,
 	raw_imports: string[],
 	file_id: string,
 ): Promise<string[]> => {
 	const imports = Array.from(new Set(raw_imports));
-	const formatted_imports = (
-		await Promise.all(imports.map((i) => format_file(fs, file_id, i)))
-	).map((s) => s.trim());
+	const formatted_imports = (await Promise.all(imports.map((i) => format_file(file_id, i)))).map(
+		(s) => s.trim(),
+	);
 
 	const imps = new Map<string, ParsedImport>();
 	const path = to_gen_import_path(file_id);

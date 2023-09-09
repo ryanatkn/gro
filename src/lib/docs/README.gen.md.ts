@@ -4,6 +4,7 @@ import {stripStart} from '@feltjs/util/string.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../path/paths.js';
+import {find_files} from '../fs/find_files.js';
 
 // This renders a simple index of a possibly nested directory of files.
 
@@ -11,7 +12,7 @@ import {paths, base_path_to_source_id} from '../path/paths.js';
 // TODO show nested structure, not a flat list
 // TODO work with file types beyond markdown
 
-export const gen: Gen = async ({fs, origin_id}) => {
+export const gen: Gen = async ({origin_id}) => {
 	// TODO need to get this from project config or something
 	const root_path = toPathSegments(paths.root).at(-1);
 
@@ -27,7 +28,7 @@ export const gen: Gen = async ({fs, origin_id}) => {
 
 	// TODO this is GitHub-specific
 	const root_link = `[${root_path}](/../..)`;
-	const docFiles = await fs.findFiles(origin_dir, undefined, undefined, true);
+	const docFiles = await find_files(origin_dir, undefined, undefined, true);
 	const docPaths: string[] = [];
 	for (const path of docFiles.keys()) {
 		if (path === output_file_name || !path.endsWith('.md')) {

@@ -20,7 +20,6 @@ import {
 	to_gen_result,
 	type RawGenResult,
 } from './gen.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import {print_path, source_id_to_base_path} from '../path/paths.js';
 import {gen_schemas, to_schemas_from_modules} from './gen_schemas.js';
 import {to_json_schema_resolver} from '../util/schema.js';
@@ -28,10 +27,9 @@ import {to_json_schema_resolver} from '../util/schema.js';
 export const GEN_NO_PROD_MESSAGE = 'gen runs only during development';
 
 export const run_gen = async (
-	fs: Filesystem,
 	gen_modules: GenModuleMeta[],
 	log: Logger,
-	format_file?: (fs: Filesystem, id: string, content: string) => Promise<string>,
+	format_file?: (id: string, content: string) => Promise<string>,
 ): Promise<GenResults> => {
 	let input_count = 0;
 	let output_count = 0;
@@ -46,7 +44,7 @@ export const run_gen = async (
 			const timing_for_module = timings.start(id);
 
 			// Perform code generation by calling `gen` on the module.
-			const gen_ctx: GenContext = {fs, origin_id: id, log, imports};
+			const gen_ctx: GenContext = {origin_id: id, log, imports};
 			let raw_gen_result: RawGenResult;
 			try {
 				switch (module_meta.type) {
@@ -81,7 +79,7 @@ export const run_gen = async (
 						gen_result.files.map(async (file) => {
 							if (!file.format) return file;
 							try {
-								return {...file, content: await format_file(fs, file.id, file.content)};
+								return {...file, content: await format_file(file.id, file.content)};
 							} catch (err) {
 								log.error(
 									red(`Error formatting ${print_path(file.id)} via ${print_path(id)}`),

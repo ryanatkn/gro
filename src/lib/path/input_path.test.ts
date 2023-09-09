@@ -7,13 +7,11 @@ import 'source-map-support/register.js';
 import {
 	resolveRawInputPath,
 	resolve_raw_input_paths,
-	load_source_path_data_by_input_path,
 	load_source_ids_by_input_path,
 	get_possible_source_ids,
 } from './input_path.js';
 import type {PathStats} from './path_data.js';
 import {gro_paths, replace_root_dir, create_paths, paths} from './paths.js';
-import {fs} from '../fs/node.js';
 
 /* test__resolveRawInputPath */
 const test__resolveRawInputPath = suite('resolveRawInputPath');
@@ -131,44 +129,6 @@ test__get_possible_source_ids('in both another directory and gro', () => {
 
 test__get_possible_source_ids.run();
 /* test__get_possible_source_ids */
-
-/* test__load_source_path_data_by_input_path */
-const test__load_source_path_data_by_input_path = suite('load_source_path_data_by_input_path');
-
-test__load_source_path_data_by_input_path(
-	'loads source path data and handles missing paths',
-	async () => {
-		const result = await load_source_path_data_by_input_path(
-			{
-				...fs,
-				exists: async (path) =>
-					path !== 'fake/test3.bar.ts' &&
-					path !== 'fake/test4.bar.ts' &&
-					path !== 'fake/test4/test4.bar.ts' &&
-					!path.startsWith('fake/missing'),
-				stat: async (path) =>
-					({
-						isDirectory: () =>
-							path === 'fake/test2' || path === 'fake/test3' || path === 'fake/test4',
-					}) as any,
-			},
-			['fake/test1.bar.ts', 'fake/test2', 'fake/test3', 'fake/test4', 'fake/missing'],
-			(input_path) => get_possible_source_ids(input_path, ['.bar.ts']),
-		);
-		assert.equal(result, {
-			source_id_path_data_by_input_path: new Map([
-				['fake/test1.bar.ts', {id: 'fake/test1.bar.ts', isDirectory: false}],
-				['fake/test2', {id: 'fake/test2.bar.ts', isDirectory: false}],
-				['fake/test3', {id: 'fake/test3/test3.bar.ts', isDirectory: false}],
-				['fake/test4', {id: 'fake/test4', isDirectory: true}],
-			]),
-			unmapped_input_paths: ['fake/missing'],
-		});
-	},
-);
-
-test__load_source_path_data_by_input_path.run();
-/* test__load_source_path_data_by_input_path */
 
 /* test__load_source_ids_by_input_path */
 const test__load_source_ids_by_input_path = suite('load_source_ids_by_input_path', async () => {

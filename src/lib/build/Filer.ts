@@ -8,8 +8,8 @@ import {gray, red, cyan} from 'kleur/colors';
 import {printError} from '@feltjs/util/print.js';
 import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
+import fs from 'fs-extra';
 
-import type {Filesystem} from '../fs/filesystem.js';
 import {create_filer_dir, type FilerDir, type FilerDirChangeCallback} from '../build/filer_dir.js';
 import {
 	is_input_to_build_config,
@@ -60,7 +60,6 @@ export interface FilerEvents {
 }
 
 export interface Options {
-	fs: Filesystem;
 	paths: Paths;
 	dev: boolean;
 	builder: Builder;
@@ -76,7 +75,7 @@ export interface Options {
 	cleanOutputDirs: boolean;
 	log: Logger;
 }
-export type RequiredOptions = 'fs' | 'builder' | 'build_configs' | 'source_dirs';
+export type RequiredOptions = 'builder' | 'build_configs' | 'source_dirs';
 export type InitialOptions = PartialExcept<Options, RequiredOptions>;
 export const initOptions = (opts: InitialOptions): Options => {
 	const paths = opts.paths ?? defaultPaths;
@@ -112,7 +111,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// These public `BuildContext` properties are available to e.g. builders, helpers, postprocessors.
 	// This pattern lets us pass around `this` filer
 	// without constantly destructuring and handling long argument lists.
-	readonly fs: Filesystem; // TODO I don't like the idea of the filer being associated with a single fs host like this - parameterize instead of putting it on `BuildContext`, probably
 	readonly paths: Paths;
 	readonly build_configs: readonly BuildConfig[];
 	readonly build_names: Set<BuildName>;
@@ -129,7 +127,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	constructor(opts: InitialOptions) {
 		super();
 		const {
-			fs,
 			paths,
 			dev,
 			builder,
@@ -143,7 +140,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			filter,
 			log,
 		} = initOptions(opts);
-		this.fs = fs;
 		this.paths = paths;
 		this.dev = dev;
 		this.builder = builder;
@@ -157,7 +153,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		// Creates objects to load a directory's content and sync filesystem changes in memory.
 		// The order of objects in the returned array is meaningless.
 		this.dirs = source_dirs.map((source_dir) =>
-			create_filer_dir(fs, source_dir, this.on_dir_change, watch, filter),
+			create_filer_dir(source_dir, this.on_dir_change, watch, filter),
 		);
 		log.debug(cyan('created Filer with build_configs'), Array.from(this.build_names).join(', '));
 	}
@@ -477,7 +473,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					console.log(`change.path`, change.path);
 					await Promise.all(
 						this.build_configs.map((build_config) =>
-							this.fs.remove(
+							fs.remove(
 								to_build_out_path(this.dev, build_config.name, change.path, this.build_dir),
 							),
 						),
@@ -559,7 +555,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				}
 
 				const extension = source_file ? source_file.extension : extname(id);
-				const new_source_content = await this.fs.readFile(id, 'utf8'); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
+				const new_source_content = await fs.readFile(id, 'utf8'); // TODO problem with this is loading stuff not part of the build (for serving, could lazy load)
 
 				if (!source_file) {
 					// Memory cache is cold.
@@ -662,7 +658,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		source_file.build_files.set(build_config, new_build_files);
 		sync_build_files_to_memory_cache(this.files, changes);
 		await Promise.all([
-			sync_build_files_to_disk(this.fs, changes, this.log),
+			sync_build_files_to_disk(changes, this.log),
 			this.update_dependencies(source_file, new_build_files, old_build_files, build_config),
 		]);
 	}
@@ -720,7 +716,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				const added_source_id = await this.map_dependency_to_source_d(
 					added_dependency,
 					this.build_dir,
-					this.fs,
 					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
@@ -758,7 +753,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 				const removed_source_id = await this.map_dependency_to_source_d(
 					removed_dependency,
 					this.build_dir,
-					this.fs,
 					this.paths,
 				);
 				// ignore dependencies on self - happens with common externals
@@ -830,11 +824,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	}
 }
 
-const sync_build_files_to_disk = async (
-	fs: Filesystem,
-	changes: BuildFileChange[],
-	log: Logger,
-): Promise<void> => {
+const sync_build_files_to_disk = async (changes: BuildFileChange[], log: Logger): Promise<void> => {
 	const build_config = changes[0]?.file?.build_config;
 	const label = build_config ? print_build_config_label(build_config) : '';
 	await Promise.all(

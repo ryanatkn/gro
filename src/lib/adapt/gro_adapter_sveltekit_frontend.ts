@@ -16,9 +16,9 @@ export const create_adapter = ({
 	const output_dir = stripEnd(dir, '/');
 	return {
 		name: 'gro_adapter_sveltekit_frontend',
-		adapt: async ({fs}) => {
+		adapt: async () => {
 			if (host_target === 'github_pages') {
-				await Promise.all([ensure_nojekyll(fs, output_dir)]);
+				await Promise.all([ensure_nojekyll(output_dir)]);
 			}
 		},
 	};

@@ -1,12 +1,11 @@
 import type {Logger} from '@feltjs/util/log.js';
+import fs from 'fs-extra';
 
 import type {BuildConfig} from '../build/build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import type {IdStatsFilter} from '../fs/filter.js';
 import {to_build_out_path, print_path} from '../path/paths.js';
 
 export const copy_dist = async (
-	fs: Filesystem,
 	build_config: BuildConfig,
 	dev: boolean,
 	dist_out_dir: string,
@@ -34,7 +33,7 @@ const NOJEKYLL_FILENAME = '.nojekyll';
 // breaking things like files and dirs prefixed with an underscore.
 // This adds a `.nojekyll` file to the root of the output
 // to tell GitHub Pages to treat the outputs as plain static files.
-export const ensure_nojekyll = async (fs: Filesystem, dir: string): Promise<void> => {
+export const ensure_nojekyll = async (dir: string): Promise<void> => {
 	const path = `${dir}/${NOJEKYLL_FILENAME}`;
 	if (!(await fs.exists(path))) {
 		await fs.writeFile(path, '', 'utf8');

@@ -19,16 +19,16 @@ export const create_adapter = ({
 	const output_dir = stripEnd(dir, '/');
 	return {
 		name: 'gro_adapter_generic_build',
-		adapt: async ({config, fs, dev, log}) => {
+		adapt: async ({config, dev, log}) => {
 			const build_config = config.builds.find((b) => b.name === build_name);
 			if (!build_config) {
 				throw Error(`Unknown build config: ${build_name}`);
 			}
 
-			await copy_dist(fs, build_config, dev, output_dir, log);
+			await copy_dist(build_config, dev, output_dir, log);
 
 			if (host_target === 'github_pages') {
-				await ensure_nojekyll(fs, output_dir);
+				await ensure_nojekyll(output_dir);
 			}
 		},
 	};

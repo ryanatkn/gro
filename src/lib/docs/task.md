@@ -152,7 +152,6 @@ export interface Task<
 }
 
 export interface TaskContext<TArgs = object, TEvents = object> {
-	fs: Filesystem;
 	dev: boolean;
 	log: Logger;
 	args: TArgs;
@@ -161,7 +160,6 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 		task_name: string,
 		args?: object,
 		events?: StrictEventEmitter<EventEmitter, TEvents>,
-		fs?: Filesystem,
 	) => Promise<void>;
 }
 ```

@@ -18,8 +18,8 @@ import {log_error_reasons} from '../task/log_task.js';
 // TODO needs some cleanup and better APIs - paths are confusing and verbose!
 // TODO add backlinks to every document that links to this one
 
-export const gen: Gen = async ({fs, origin_id, log}) => {
-	const result = await loadTaskModules(fs);
+export const gen: Gen = async ({origin_id, log}) => {
+	const result = await loadTaskModules();
 	if (!result.ok) {
 		log_error_reasons(log, result.reasons);
 		throw new Error(result.type);

@@ -36,7 +36,7 @@ export const task: Task<Args, TaskEvents> = {
 	summary: 'start SvelteKit and other dev plugins',
 	Args,
 	run: async (ctx) => {
-		const {fs, log, args, events} = ctx;
+		const {log, args, events} = ctx;
 		const {watch} = args;
 
 		const timings = new Timings();
@@ -44,13 +44,12 @@ export const task: Task<Args, TaskEvents> = {
 		// TODO BLOCK run gen
 
 		const timing_to_load_config = timings.start('load config');
-		const config = await load_config(fs);
+		const config = await load_config();
 		timing_to_load_config();
 		events.emit('dev.create_config', config);
 
 		const timing_to_create_filer = timings.start('create filer');
 		const filer = new Filer({
-			fs,
 			dev: true,
 			builder: gro_builder_default(),
 			source_dirs: [paths.source],

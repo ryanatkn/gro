@@ -6,8 +6,8 @@ import {find_modules, load_modules, load_module} from './modules.js';
 import * as modTest1 from './fixtures/test1.foo.js';
 import * as modTestBaz1 from './fixtures/baz1/test1.baz.js';
 import * as modTestBaz2 from './fixtures/baz2/test2.baz.js';
-import {fs} from './node.js';
 import {get_possible_source_ids} from '../path/input_path.js';
+import {find_files} from './find_files.js';
 
 /* test__load_module */
 const test__load_module = suite('load_module');
@@ -75,9 +75,8 @@ test__find_modules('with and without extension', async () => {
 	const id1 = resolve('src/lib/fs/fixtures/test1.foo.ts');
 	const id2 = resolve('src/lib/fs/fixtures/test2.foo.ts');
 	const result = await find_modules(
-		fs,
 		[path1, id2],
-		(id) => fs.findFiles(id),
+		(id) => find_files(id),
 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	assert.ok(result.ok);
@@ -99,8 +98,8 @@ test__find_modules('with and without extension', async () => {
 
 test__find_modules('directory', async () => {
 	const id = resolve('src/lib/fs/fixtures/');
-	const result = await find_modules(fs, [id], (id) =>
-		fs.findFiles(id, (path) => path.includes('.foo.'), undefined, true),
+	const result = await find_modules([id], (id) =>
+		find_files(id, (path) => path.includes('.foo.'), undefined, true),
 	);
 	assert.ok(result.ok);
 	assert.equal(
@@ -112,14 +111,13 @@ test__find_modules('directory', async () => {
 
 test__find_modules('fail with unmapped_input_paths', async () => {
 	const result = await find_modules(
-		fs,
 		[
 			resolve('src/lib/fs/fixtures/bar1'),
 			resolve('src/lib/fs/fixtures/failme1'),
 			resolve('src/lib/fs/fixtures/bar2'),
 			resolve('src/lib/fs/fixtures/failme2'),
 		],
-		(id) => fs.findFiles(id),
+		(id) => find_files(id),
 		(input_path) => get_possible_source_ids(input_path, ['.foo.ts']),
 	);
 	assert.ok(!result.ok);
@@ -136,14 +134,13 @@ test__find_modules('fail with unmapped_input_paths', async () => {
 
 test__find_modules('fail with input_directories_with_no_files', async () => {
 	const result = await find_modules(
-		fs,
 		[
 			resolve('src/lib/fs/fixtures/baz1'),
 			resolve('src/lib/fs/fixtures/bar1'),
 			resolve('src/lib/fs/fixtures/bar2'),
 			resolve('src/lib/fs/fixtures/baz2'),
 		],
-		(id) => fs.findFiles(id, (path) => !path.includes('.bar.')),
+		(id) => find_files(id, (path) => !path.includes('.bar.')),
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
@@ -163,7 +160,7 @@ test__find_modules.run();
 /* test__load_modules */
 const test__load_modules = suite('load_modules');
 
-test__load_modules('fail with load_moduleFailures', async () => {
+test__load_modules('fail with load_module_failures', async () => {
 	const pathBar1 = resolve('src/lib/fs/fixtures/bar1');
 	const pathBar2 = resolve('src/lib/fs/fixtures/bar2');
 	const pathBaz1 = resolve('src/lib/fs/fixtures/baz1');
@@ -194,11 +191,11 @@ test__load_modules('fail with load_moduleFailures', async () => {
 	);
 	assert.ok(!result.ok);
 	assert.ok(result.reasons.length);
-	if (result.type !== 'load_moduleFailures') {
-		throw Error('Expected to fail with load_moduleFailures');
+	if (result.type !== 'load_module_failures') {
+		throw Error('Expected to fail with load_module_failures');
 	}
-	assert.is(result.load_moduleFailures.length, 2);
-	const [failure1, failure2] = result.load_moduleFailures;
+	assert.is(result.load_module_failures.length, 2);
+	const [failure1, failure2] = result.load_module_failures;
 	if (failure1.type !== 'invalid') {
 		throw Error('Expected to fail with invalid');
 	}

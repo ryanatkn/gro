@@ -8,8 +8,8 @@ const test__is_task_path = suite('is_task_path');
 
 test__is_task_path('basic behavior', () => {
 	assert.ok(is_task_path('foo.task.ts'));
+	assert.ok(is_task_path('foo.task.js'));
 	assert.ok(!is_task_path('foo.ts'));
-	assert.ok(!is_task_path('foo.task.js'));
 	assert.ok(is_task_path('bar/baz/foo.task.ts'));
 	assert.ok(!is_task_path('bar/baz/foo.ts'));
 });

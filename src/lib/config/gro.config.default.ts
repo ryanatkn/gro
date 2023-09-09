@@ -15,11 +15,11 @@ import {
  * - if `src/lib`, assumes a Node library
  * - if `src/lib/server/server.ts`, assumes a Node API server
  */
-const config: GroConfigCreator = async ({fs}) => {
+const config: GroConfigCreator = async () => {
 	const [enable_node_library, enable_node_server, enable_sveltekit_frontend] = await Promise.all([
-		has_node_library(fs),
-		has_node_server(fs),
-		has_sveltekit_frontend(fs),
+		has_node_library(),
+		has_node_server(),
+		has_sveltekit_frontend(),
 	]);
 	const partial: GroConfigPartial = {
 		builds: [enable_node_server ? API_SERVER_BUILD_CONFIG : null],

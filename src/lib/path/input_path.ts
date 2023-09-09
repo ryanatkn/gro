@@ -1,5 +1,6 @@
 import {join, isAbsolute, basename} from 'node:path';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
+import fs from 'fs-extra';
 
 import {
 	base_path_to_source_id,
@@ -12,7 +13,6 @@ import {
 	LIB_DIRNAME,
 } from './paths.js';
 import {to_path_data, type PathData, type PathStats} from './path_data.js';
-import type {Filesystem} from '../fs/filesystem.js';
 
 /**
  * Raw input paths are paths that users provide to Gro to reference files
@@ -99,7 +99,6 @@ export const get_possible_source_ids = (
  * Parameterized by `exists` and `stat` so it's fs-agnostic.
  */
 export const load_source_path_data_by_input_path = async (
-	fs: Filesystem,
 	input_paths: string[],
 	get_possible_source_idsForInputPath?: (input_path: string) => string[],
 ): Promise<{
@@ -137,12 +136,12 @@ export const load_source_path_data_by_input_path = async (
 
 /**
  * Finds all of the matching files for the given input paths.
- * Parameterized by `findFiles` so it's fs-agnostic.
+ * Parameterized by `find_files` so it's fs-agnostic.
  * De-dupes source ids.
  */
 export const load_source_ids_by_input_path = async (
 	source_id_path_data_by_input_path: Map<string, PathData>,
-	findFiles: (id: string) => Promise<Map<string, PathStats>>,
+	find_files: (id: string) => Promise<Map<string, PathStats>>,
 ): Promise<{
 	source_ids_by_input_path: Map<string, string[]>;
 	input_directories_with_no_files: string[];
@@ -153,7 +152,7 @@ export const load_source_ids_by_input_path = async (
 	for (const [input_path, path_data] of source_id_path_data_by_input_path) {
 		const {id} = path_data;
 		if (path_data.isDirectory) {
-			const files = await findFiles(id); // eslint-disable-line no-await-in-loop
+			const files = await find_files(id); // eslint-disable-line no-await-in-loop
 			if (files.size) {
 				const source_ids: string[] = [];
 				let has_files = false;

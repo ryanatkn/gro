@@ -92,7 +92,7 @@ const config: GroConfigCreator = async () => {
 			return dev
 				? {
 						name: 'my-adapter',
-						adapt: ({fs}) => {
+						adapt: () => {
 							fs.remove(/**/);
 							fs.copy(/**/);
 						},

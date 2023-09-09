@@ -1,3 +1,5 @@
+import fs from 'fs-extra';
+
 import {
 	type ModuleMeta,
 	load_module,
@@ -8,7 +10,7 @@ import {
 import type {Gen, GenResults, GenFile} from './gen.js';
 import {get_possible_source_ids} from '../path/input_path.js';
 import {paths} from '../path/paths.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import {find_files} from '../fs/find_files.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';
@@ -75,21 +77,13 @@ export type CheckGenModuleResult =
 			has_changed: true;
 	  };
 
-export const checkGenModules = async (
-	fs: Filesystem,
-	gen_results: GenResults,
-): Promise<CheckGenModuleResult[]> => {
+export const checkGenModules = async (gen_results: GenResults): Promise<CheckGenModuleResult[]> => {
 	return Promise.all(
-		gen_results.successes
-			.map((result) => result.files.map((file) => checkGenModule(fs, file)))
-			.flat(),
+		gen_results.successes.map((result) => result.files.map((file) => checkGenModule(file))).flat(),
 	);
 };
 
-export const checkGenModule = async (
-	fs: Filesystem,
-	file: GenFile,
-): Promise<CheckGenModuleResult> => {
+export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResult> => {
 	if (!(await fs.exists(file.id))) {
 		return {
 			file,
@@ -108,14 +102,12 @@ export const checkGenModule = async (
 };
 
 export const find_gen_modules = (
-	fs: Filesystem,
 	input_paths: string[] = [paths.source],
 	extensions: string[] = [GEN_FILE_PATTERN, GEN_SCHEMA_FILE_PATTERN],
 	root_dirs: string[] = [],
 ): Promise<FindModulesResult> =>
 	find_modules(
-		fs,
 		input_paths,
-		(id) => fs.findFiles(id, (path) => extensions.some((e) => path.includes(e)), undefined, true),
+		(id) => find_files(id, (path) => extensions.some((e) => path.includes(e)), undefined, true),
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);

@@ -11,12 +11,12 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'typecheck the project without emitting any files',
 	Args,
-	run: async ({fs, log}): Promise<void> => {
-		if (await find_cli(fs, 'svelte-check')) {
+	run: async ({log}): Promise<void> => {
+		if (await find_cli('svelte-check')) {
 			// svelte-check
 			const serialized = serialize_args(to_forwarded_args('svelte-check'));
 			log.info(print_command_args(['svelte-check'].concat(serialized)));
-			const svelteCheckResult = await spawn_cli(fs, 'svelte-check', serialized);
+			const svelteCheckResult = await spawn_cli('svelte-check', serialized);
 			if (!svelteCheckResult?.ok) {
 				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
 			}
@@ -26,7 +26,7 @@ export const task: Task<Args> = {
 			if (!forwarded.noEmit) forwarded.noEmit = true;
 			const serialized = serialize_args(forwarded);
 			log.info(print_command_args(['tsc'].concat(serialized)));
-			const svelteCheckResult = await spawn_cli(fs, 'tsc', serialized);
+			const svelteCheckResult = await spawn_cli('tsc', serialized);
 			if (!svelteCheckResult?.ok) {
 				throw new TaskError(`Failed to typecheck. ${printSpawnResult(svelteCheckResult!)}`);
 			}

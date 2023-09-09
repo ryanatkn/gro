@@ -3,6 +3,7 @@ import {omitUndefined} from '@feltjs/util/object.js';
 import type {Result} from '@feltjs/util/result.js';
 import type {Assignable} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
+import fs from 'fs-extra';
 
 import {paths} from '../path/paths.js';
 import {
@@ -13,7 +14,6 @@ import {
 } from '../build/build_config.js';
 import type {ToConfigAdapters} from '../adapt/adapt.js';
 import type {EcmaScriptTarget} from '../build/helpers.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import createDefaultConfig from './gro.config.default.js';
 import type {ToConfigPlugins} from '../plugin/plugin.js';
 
@@ -61,7 +61,6 @@ export interface GroConfigCreator {
 }
 export interface GroConfigCreatorOptions {
 	// env: NodeJS.ProcessEnv; // TODO?
-	readonly fs: Filesystem;
 	readonly log: Logger;
 	readonly config: GroConfig; // default config is available for user config code
 }
@@ -103,15 +102,15 @@ Caveats
 
 let cached_config: Promise<GroConfig> | undefined;
 
-export const load_config = async (fs: Filesystem): Promise<GroConfig> => {
+export const load_config = async (): Promise<GroConfig> => {
 	if (cached_config) return cached_config;
-	return (cached_config = _load_config(fs));
+	return (cached_config = _load_config());
 };
 
-const _load_config = async (fs: Filesystem): Promise<GroConfig> => {
+const _load_config = async (): Promise<GroConfig> => {
 	const log = new SystemLogger(printLogLabel('config'));
 
-	const options: GroConfigCreatorOptions = {fs, log, config: null as any};
+	const options: GroConfigCreatorOptions = {log, config: null as any};
 	const default_config = await create_config(createDefaultConfig, options, '');
 	console.log(`default_config`, default_config, default_config.builds[0]);
 	(options as Assignable<GroConfigCreatorOptions, 'config'>).config = default_config;
@@ -145,7 +144,7 @@ export const create_config = async (
 
 	const config = normalize_config(extended_config);
 
-	const validate_result = await validate_config(options.fs, config);
+	const validate_result = await validate_config(config);
 	if (!validate_result.ok) {
 		throw Error(`Invalid Gro config at '${path}': ${validate_result.reason}`);
 	}
@@ -168,10 +167,9 @@ export const validate_config_module: (
 };
 
 export const validate_config = async (
-	fs: Filesystem,
 	config: GroConfig,
 ): Promise<Result<object, {reason: string}>> => {
-	const build_configs_result = await validate_build_configs(fs, config.builds);
+	const build_configs_result = await validate_build_configs(config.builds);
 	if (!build_configs_result.ok) return build_configs_result;
 	return {ok: true};
 };

@@ -1,5 +1,6 @@
 import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
+import fs from 'fs-extra';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/build_config_defaults.js';
@@ -28,7 +29,7 @@ export const create_plugin = ({
 
 	return {
 		name: 'gro_plugin_node_server',
-		setup: async ({dev, fs, filer}) => {
+		setup: async ({dev, filer}) => {
 			if (!dev) return;
 
 			// When `src/lib/server/server.ts` or any of its dependencies change, restart the API server.

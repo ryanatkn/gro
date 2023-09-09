@@ -2,7 +2,6 @@ import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
 import {sveltekit_sync} from '../util/sveltekit_sync.js';
 
 import {invoke_task} from '../task/invoke_task.js';
-import {fs} from '../fs/node.js';
 import {to_task_args} from '../task/args.js';
 
 /*
@@ -20,7 +19,7 @@ and the rest of the args are forwarded to the task's `run` function.
 attachProcessErrorHandlers((err) => (err?.constructor?.name === 'TaskError' ? 'TaskError' : null));
 
 // This is often wasteful but we're just going for correctness right now.
-await sveltekit_sync(fs);
+await sveltekit_sync();
 
 const {task_name, args} = to_task_args();
-await invoke_task(fs, task_name, args);
+await invoke_task(task_name, args);

@@ -1,9 +1,10 @@
 import {noop} from '@feltjs/util/function.js';
+import fs from 'fs-extra';
 
 import {watch_node_fs, type WatchNodeFs} from '../fs/watch_node_fs.js';
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from '../fs/filter.js';
-import type {Filesystem} from '../fs/filesystem.js';
+import {find_files} from '../fs/find_files.js';
 
 // Filer dirs are watched, built, and written to disk.
 export interface FilerDir {
@@ -23,7 +24,6 @@ export type FilerDirChangeType = 'init' | 'create' | 'update' | 'delete';
 export type FilerDirChangeCallback = (change: FilerDirChange, filer_dir: FilerDir) => Promise<void>;
 
 export const create_filer_dir = (
-	fs: Filesystem,
 	dir: string,
 	on_change: FilerDirChangeCallback,
 	watch: boolean,
@@ -47,7 +47,7 @@ export const create_filer_dir = (
 	const init = async () => {
 		await fs.ensureDir(dir);
 		if (watcher) await watcher.init();
-		const stats_by_source_path = await fs.findFiles(dir, filter);
+		const stats_by_source_path = await find_files(dir, filter);
 		await Promise.all(
 			Array.from(stats_by_source_path.entries()).map(([path, stats]) =>
 				on_change({type: 'init', path, stats}, filer_dir),

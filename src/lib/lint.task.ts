@@ -16,8 +16,8 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'run eslint on the source files',
 	Args,
-	run: async ({fs, log, args}): Promise<void> => {
-		if (!(await find_cli(fs, 'eslint'))) {
+	run: async ({log, args}): Promise<void> => {
+		if (!(await find_cli('eslint'))) {
 			log.info('ESLint is not installed; skipping linting');
 			return;
 		}
@@ -25,7 +25,7 @@ export const task: Task<Args> = {
 		const forwarded_args = {_, 'max-warnings': 0, ...to_forwarded_args('eslint')};
 		const serialized_args = serialize_args(forwarded_args);
 		log.info(print_command_args(['eslint'].concat(serialized_args)));
-		const eslintResult = await spawn_cli(fs, 'eslint', serialized_args);
+		const eslintResult = await spawn_cli('eslint', serialized_args);
 		if (!eslintResult?.ok) {
 			throw new TaskError(`ESLint found some problems. ${printSpawnResult(eslintResult!)}`);
 		}

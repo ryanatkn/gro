@@ -1,9 +1,10 @@
+import fs from 'fs-extra';
+
 import type {BaseFilerFile} from './filer_file.js';
 import type {SourceMeta} from './source_meta.js';
 import type {BuildDependency} from './build_dependency.js';
 import {basename, dirname, extname} from 'node:path';
 import type {BuildConfig} from './build_config.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
 export interface BuildFile extends BaseFilerFile {
@@ -19,7 +20,6 @@ export interface BuildFile extends BaseFilerFile {
 }
 
 export const reconstruct_build_files = async (
-	fs: Filesystem,
 	source_meta: SourceMeta,
 	build_configs: readonly BuildConfig[],
 ): Promise<Map<BuildConfig, BuildFile[]>> => {

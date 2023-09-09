@@ -1,3 +1,5 @@
+import fs from 'fs-extra';
+
 import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths.js';
 import {get_file_content_hash} from './filer_file.js';
 import type {BuildContext} from './builder.js';
@@ -9,9 +11,9 @@ import {
 	type BuildDependency,
 	type SerializedBuildDependency,
 } from './build_dependency.js';
-import type {Filesystem} from '../fs/filesystem.js';
 import {throttle} from '../util/throttle.js';
 import {to_hash} from './helpers.js';
+import {find_files} from '../fs/find_files.js';
 
 export interface SourceMeta {
 	readonly cache_id: string; // path to the cached JSON file on disk
@@ -48,7 +50,7 @@ export const to_source_meta_dir = (build_dir: string, dev: boolean): string =>
 // TODO as an optimization, this should be debounced per file,
 // because we're writing per build config.
 export const update_source_meta = async (ctx: BuildContext, file: SourceFile): Promise<void> => {
-	const {fs, source_meta_by_id, dev, build_dir, build_names} = ctx;
+	const {source_meta_by_id, dev, build_dir, build_names} = ctx;
 
 	// create the new meta, not mutating the old
 	const cache_id = to_source_meta_cache_id(file, build_dir, dev);
@@ -83,17 +85,17 @@ export const update_source_meta = async (ctx: BuildContext, file: SourceFile): P
 
 	source_meta_by_id.set(file.id, source_meta);
 	// this.log.debug('outputting source meta', gray(cache_id));
-	await write_source_meta(fs, cache_id, data);
+	await write_source_meta(cache_id, data);
 };
 
 const write_source_meta = throttle(
-	(fs: Filesystem, cache_id: string, data: SourceMetaData): Promise<void> =>
+	(cache_id: string, data: SourceMetaData): Promise<void> =>
 		fs.writeFile(cache_id, JSON.stringify(serialize_source_meta(data), null, 2)),
 	(_, cache_id) => cache_id,
 );
 
 export const delete_source_meta = async (
-	{fs, source_meta_by_id}: BuildContext,
+	{source_meta_by_id}: BuildContext,
 	source_id: SourceId,
 ): Promise<void> => {
 	const meta = source_meta_by_id.get(source_id);
@@ -106,10 +108,10 @@ const to_source_meta_cache_id = (file: SourceFile, build_dir: string, dev: boole
 	`${to_source_meta_dir(build_dir, dev)}/${file.dir_base_path}${file.filename}${JSON_EXTENSION}`;
 
 export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
-	const {fs, source_meta_by_id, build_dir, dev} = ctx;
+	const {source_meta_by_id, build_dir, dev} = ctx;
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
 	if (!(await fs.exists(source_meta_dir))) return;
-	const files = await fs.findFiles(source_meta_dir, undefined, null, true);
+	const files = await find_files(source_meta_dir, undefined, null, true);
 	await Promise.all(
 		Array.from(files.keys()).map(async (cache_id) => {
 			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cache_id, 'utf8')));

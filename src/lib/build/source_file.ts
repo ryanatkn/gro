@@ -33,7 +33,7 @@ export const create_source_file = async (
 	filer_dir: FilerDir,
 	source_meta: SourceMeta | undefined,
 	virtual: boolean,
-	{fs, build_configs}: BuildContext,
+	{build_configs}: BuildContext,
 ): Promise<SourceFile> => {
 	let content_buffer: Buffer | undefined;
 	let content_hash: string | undefined;
@@ -46,7 +46,7 @@ export const create_source_file = async (
 		// TODO not sure if `dirty` flag is the best solution here,
 		// or if it should be more widely used?
 		dirty = content_hash !== source_meta.data.content_hash;
-		reconstructed_build_files = await reconstruct_build_files(fs, source_meta, build_configs!);
+		reconstructed_build_files = await reconstruct_build_files(source_meta, build_configs!);
 	}
 	const filename = basename(id);
 	const dir = dirname(id) + '/'; // TODO the slash is currently needed because paths.source_id and the rest have a trailing slash, but this may cause other problems

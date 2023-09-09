@@ -7,14 +7,8 @@ import {paths} from '../path/paths.js';
 import {Filer} from './Filer.js';
 import {gro_builder_default} from './gro_builder_default.js';
 import type {GroConfig} from '../config/config.js';
-import type {Filesystem} from '../fs/filesystem.js';
 
-export const build_source = async (
-	fs: Filesystem,
-	config: GroConfig,
-	dev: boolean,
-	log: Logger,
-): Promise<void> => {
+export const build_source = async (config: GroConfig, dev: boolean, log: Logger): Promise<void> => {
 	log.debug('building source', gray(dev ? 'development' : 'production'));
 
 	if (!config.builds.length) return;
@@ -25,7 +19,6 @@ export const build_source = async (
 	log.debug('building files');
 	const timing_to_create_filer = timings.start('create filer');
 	const filer = new Filer({
-		fs,
 		dev,
 		builder: gro_builder_default(),
 		source_dirs: [paths.source],

@@ -49,7 +49,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
 	return {
 		name: 'gro_plugin_gen',
-		setup: async ({filer, args: {watch}, dev, log, fs}) => {
+		setup: async ({filer, args: {watch}, dev, log}) => {
 			// For production builds, we assume `gen` is already fresh,
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
@@ -58,7 +58,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			// Some parts of the build may have already happened,
 			// making us miss `build` events for gen dependencies,
 			// so we run `gen` here even if it's usually wasteful.
-			const found = await find_gen_modules(fs);
+			const found = await find_gen_modules();
 			if (found.ok && found.source_ids_by_input_path.size > 0) {
 				await gen();
 			}

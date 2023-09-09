@@ -4,6 +4,7 @@ import {printError} from '@feltjs/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
+import fs from 'fs-extra';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
@@ -66,7 +67,7 @@ export type Args = z.infer<typeof Args>;
 export const task: Task<Args> = {
 	summary: 'deploy to a branch',
 	Args,
-	run: async ({fs, args, log, invoke_task}): Promise<void> => {
+	run: async ({args, log, invoke_task}): Promise<void> => {
 		const {source, target, origin, dir, dry, clean: cleanAndExit, force, dangerous, reset} = args;
 
 		if (!force && target !== GIT_DEPLOY_TARGET_BRANCH) {
@@ -180,7 +181,7 @@ export const task: Task<Args> = {
 		await cleanGitWorktree();
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
-		await cleanFs(fs, {build: true, dist: true}, log);
+		await cleanFs({build: true, dist: true}, log);
 
 		if (cleanAndExit) {
 			log.info(green('all clean'));
@@ -223,12 +224,12 @@ export const task: Task<Args> = {
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
 			await Promise.all(
-				(await fs.readDir(WORKTREE_DIR)).map((path) =>
+				(await fs.readdir(WORKTREE_DIR)).map((path) =>
 					path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`),
 				),
 			);
 			await Promise.all(
-				(await fs.readDir(dir)).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
+				(await fs.readdir(dir)).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
 			);
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
