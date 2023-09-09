@@ -41,8 +41,7 @@ and defers composition to the user in regular TypeScript modules.
 
 The task runner's purpose is to provide an ergonomic interface
 between the CLI, build tools, and app code.
-It tries to dissolve walls that typically separate these domains
-while deferring to your code and facilitating buildtime development processes.
+As a developer, it's nice to be able to reuse TypeScript modules in every context.
 
 ## usage
 
@@ -60,7 +59,7 @@ $ gro
 ### show tasks in a directory
 
 ```bash
-# Logs all `*.task.ts` files in `src/some/dir` and `gro/src/some/dir`.
+# Logs all `*.task.ts` files in `src/lib/some/dir` and `gro/src/lib/some/dir`.
 # If no tasks are found, it displays an error.
 $ gro some/dir
 ```
@@ -71,12 +70,12 @@ $ gro some/dir
 ### run a task
 
 ```bash
-# This runs `src/some/file.task.ts`,
-# or if it doesn't exist, `gro/src/some/file.task.ts`.
+# This runs `src/lib/some/file.task.ts`,
+# or if it doesn't exist, `gro/src/lib/some/file.task.ts`.
 # If neither exists, it displays an error.
 $ gro some/file arg1 arg2 --arg3 example
 
-# This runs `gro/src/some/file.task.ts` directly
+# This runs `gro/src/lib/some/file.task.ts` directly
 # without checking the current working directory,
 # and displays an error if it doesn't exist.
 $ gro gro/some/file
@@ -85,7 +84,7 @@ $ gro gro/some/file
 ### define a task
 
 ```ts
-// src/some/file.task.ts
+// src/lib/some/file.task.ts
 import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
@@ -99,7 +98,7 @@ export const task: Task = {
 The minimum:
 
 ```ts
-// src/some/minimal.task.ts
+// src/lib/some/minimal.task.ts
 export const task = {
 	run: () => console.log('a minimal example'),
 };
@@ -108,7 +107,7 @@ export const task = {
 Minimum with [`Args`](#task-args):
 
 ```ts
-// src/some/withargs.task.ts
+// src/lib/some/withargs.task.ts
 import type {Task} from '@feltjs/gro';
 import {z} from 'zod';
 
@@ -129,8 +128,8 @@ export const task: Task = {
 
 ### task directories
 
-As a convenience, Gro interprets `src/some/taskname/taskname.task.ts`
-the same as `src/some/taskname.task.ts`,
+As a convenience, Gro interprets `src/lib/some/taskname/taskname.task.ts`
+the same as `src/lib/some/taskname.task.ts`,
 so instead of running `gro some/taskname/taskname` you simply run `gro some/taskname`.
 This is useful because tasks may have associated files (see the args docs below),
 and putting them into a directory together can help make projects easier to navigate.
@@ -186,12 +185,12 @@ gro some/file
 ```
 
 ```ts
-// src/some/file.task.ts
+// src/lib/some/file.task.ts
 import type {Task} from '@feltjs/gro';
 
 export const task: Task = {
 	run: async ({args, invoke_task}) => {
-		// runs `src/some/file.task.ts`, automatically forwarding `args`
+		// runs `src/lib/some/file.task.ts`, automatically forwarding `args`
 		await invoke_task('some/file');
 		// as documented above, the following is similar but lacks nice features:
 		// await (await import('./some/file.task.js')).run(ctx);
@@ -319,7 +318,7 @@ It uses Node's builtin `EventEmitter` with types provided by the types-only depe
 Here's how a task can emit and listen to events:
 
 ```ts
-// src/some/mytask.task.ts
+// src/lib/some/mytask.task.ts
 import type {Task} from '@feltjs/gro';
 
 import {type TaskEvents as OtherTaskEvents} from '../task/othertask.task.ts';
@@ -346,8 +345,6 @@ export const task: Task<Args, TaskEvents> = {
 If a task encounters an error, normally it should throw rather than exiting the process.
 This defers control to the caller, like your own parent tasks.
 
-> TODO add support for `FatalError`
-
 Often, errors that tasks encounter do not need a stack trace,
 and we don't want the added noise to be logged.
 To suppress logging the stack trace for an error,
@@ -365,10 +362,6 @@ export const task: Task = {
 };
 ```
 
-## future improvements
-
-- [ ] consider a pattern for declaring and validating CLI args
-
 ## why?
 
 Gro usage on the command line (`gro <taskOrDirectory> [...flags]`)
@@ -377,18 +370,19 @@ What makes Gro different?
 
 - The `*.task.ts` file name convention signals to Gro that your application
   contains task modules that conform to some interface.
-  This allows them to be discoverable,
-  so running `gro` displays them all without any config,
-  and it puts generic handles on them,
-  enabling various verbs (e.g. "run") and
-  structured metadata (e.g. "summary").
+  This allows them to be discoverable by convention,
+  so running `gro` displays them all without any config, and it puts generic handles on them,
+  enabling various verbs (e.g. `run`) and structured metadata (e.g. `summary`).
 - Tasks aren't just a script, they can be inspected, composed, and manipulated in code.
   Task modules do not have any side effects when imported,
   while Node scripts just execute when imported -
   their primary purpose is to cause side effects.
+  This is useful in many cases - for example `gro taskname --help`
+  inspects the args schema and other metadata to print help to the console,
+  and `gro` prints the `summary` property of each task it finds.
 - Module resolution differs:
   - When a task name is given to Gro,
-    it first searches the current working directory and
+    it first searches `src/lib/` in the current working directory and
     falls back to searching the Gro directory.
     This allows your code to use Gro's builtin tasks or override them by covention.
     Gro reserves no special behavior for its own commands -
@@ -397,8 +391,8 @@ What makes Gro different?
   - When a directory is given to Gro,
     it prints all of the tasks found inside it,
     both relative to the current working directory and Gro's directory.
-    So when you run `gro src` or simply `gro`,
-    it'll print all tasks available both in your project and Gro.
+    So when you run `gro` by itself,
+    it prints all tasks available both in your project and Gro.
   - The trailing `.task.ts` in the file path provided to `gro` is optional,
     so for example, `gro foo/bar` is the same as `gro foo/bar.task.ts`.
 

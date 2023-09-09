@@ -128,10 +128,10 @@ with some magic but not too much:
 
 ```bash
 gro # print all available tasks with the pattern `*.task.ts`
-gro some/dir # list all tasks inside `src/some/dir`
-gro some/file # run `src/some/file.task.ts`
+gro some/dir # list all tasks inside `src/lib/some/dir`
+gro some/file # run `src/lib/some/file.task.ts`
 gro some/file.task.ts # same as above
-gro test # run `src/test.task.ts` if it exists, falling back to Gro's builtin
+gro test # run `src/lib/test.task.ts` if it exists, falling back to Gro's builtin
 gro test --help # print info about the "test" task; works for every task
 ```
 
