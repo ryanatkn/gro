@@ -4,8 +4,7 @@ import {printError} from '@feltjs/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
-import fs from 'fs-extra';
-import {copyFileSync, existsSync} from 'node:fs';
+import {copyFileSync, existsSync, readdirSync, renameSync, rmdirSync, rmSync} from 'node:fs';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
@@ -224,14 +223,14 @@ export const task: Task<Args> = {
 			// We're doing this rather than copying the directory
 			// because we need to preserve the existing worktree directory, or git breaks.
 			// TODO there is be a better way but what is it
-			await Promise.all(
-				(await fs.readdir(WORKTREE_DIR)).map((path) =>
-					path === GIT_DIRNAME ? null : fs.remove(`${WORKTREE_DIR}/${path}`),
-				),
-			);
-			await Promise.all(
-				(await fs.readdir(dir)).map((path) => fs.move(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`)),
-			);
+			for (const path of readdirSync(WORKTREE_DIR)) {
+				if (path !== GIT_DIRNAME) {
+					rmSync(`${WORKTREE_DIR}/${path}`, {recursive: true});
+				}
+			}
+			for (const path of readdirSync(dir)) {
+				renameSync(`${dir}/${path}`, `${WORKTREE_DIR}/${path}`);
+			}
 			// commit the changes
 			await spawn('git', ['add', '.', '-f'], GIT_ARGS);
 			await spawn('git', ['commit', '-m', 'deployment'], GIT_ARGS);
@@ -243,8 +242,9 @@ export const task: Task<Args> = {
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
-		await fs.remove(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
-		await fs.move(WORKTREE_DIR, dir, {overwrite: true});
+		rmdirSync(`${WORKTREE_DIR}/${GIT_DIRNAME}`);
+		rmdirSync(dir);
+		renameSync(WORKTREE_DIR, dir);
 		await cleanGitWorktree();
 
 		log.info(green('deployed')); // TODO log a different message if "Everything up-to-date"

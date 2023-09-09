@@ -233,7 +233,6 @@ Gro builds on
 [esbuild](https://github.com/evanw/esbuild) ∙
 [uvu](https://github.com/lukeed/uvu) ∙
 [mri](https://github.com/lukeed/mri) ∙
-[fs-extra](https://github.com/jprichardson/node-fs-extra) ∙
 [chokidar](https://github.com/paulmillr/chokidar) ∙
 [zod](https://github.com/colinhacks/zod) ∙
 [@feltjs/util](https://github.com/feltjs/util) ∙

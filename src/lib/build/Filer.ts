@@ -427,8 +427,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 			case 'create':
 			case 'update': {
 				if (change.stats.isDirectory()) {
-					// We could ensure the directory, but it's usually wasted work,
-					// and `fs-extra` takes care of adding missing directories when writing to disk.
+					// We could ensure the directory, but it's usually wasted work.
 				} else {
 					const should_build = await this.update_source_file(id, filer_dir);
 					if (
