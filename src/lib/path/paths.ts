@@ -105,6 +105,16 @@ export const build_id_to_source_id = (
 export const base_path_to_source_id = (base_path: string, p = paths): SourceId =>
 	p.source + base_path;
 
+// 'foo/bar/baz.ts' → '/home/me/app/src/lib/foo/bar/baz.ts'
+// 'foo/bar/baz.ts' → '/home/me/app/dist/foo/bar/baz.ts'
+export const lib_path_to_import_id = (base_path: string, p = paths): SourceId => {
+	if (p.root === gro_paths.root) {
+		return p.root + 'dist/' + base_path;
+	} else {
+		return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, p);
+	}
+};
+
 export const to_build_out_dir = (dev: boolean, build_dir = paths.build): string =>
 	stripEnd(build_dir, '/') + '/' + to_build_out_dirname(dev);
 export const to_build_out_dirname = (dev: boolean): BuildOutDirname =>

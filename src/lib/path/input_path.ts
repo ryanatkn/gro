@@ -3,14 +3,14 @@ import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import {existsSync, statSync} from 'node:fs';
 
 import {
-	base_path_to_source_id,
+	lib_path_to_import_id,
 	replace_root_dir,
 	gro_dir_basename,
 	gro_paths,
 	type Paths,
 	LIB_DIR,
 	LIB_PATH,
-	LIB_DIRNAME,
+	is_this_project_gro,
 } from './paths.js';
 import {to_path_data, type PathData, type PathStats} from './path_data.js';
 
@@ -37,22 +37,21 @@ export const resolve_raw_input_path = (raw_input_path: string): string => {
 	if (isAbsolute(raw_input_path)) return stripEnd(raw_input_path, '/');
 	// Allow prefix `./` and just remove it if it's there.
 	let base_path = stripEnd(stripStart(raw_input_path, './'), '/');
+	// To run Gro's base tasks, we resolve from dist/ instead of src/.
 	console.log(`resolve_raw_input_path base_path 1`, base_path);
+	console.log(`is_this_project_gro`, is_this_project_gro);
 	let paths;
 	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
-	if (base_path.startsWith(gro_dir_basename)) {
+	if (is_this_project_gro || (base_path + '/').startsWith(gro_dir_basename)) {
 		paths = gro_paths;
-		base_path = stripStart(base_path, gro_dir_basename);
-	} else if (base_path + '/' === gro_dir_basename) {
-		paths = gro_paths;
-		base_path = '';
+		base_path = stripEnd(stripStart(base_path + '/', gro_dir_basename), '/');
 	}
 	// Handle `src/lib` by itself without conflicting with `src/libFoo` names.
 	if (base_path === LIB_PATH) base_path = '';
 	// Allow prefix `src/lib/` and just remove it if it's there.
 	base_path = stripStart(base_path, LIB_DIR);
 	console.log(`resolve_raw_input_path base_path 2`, base_path);
-	return base_path_to_source_id(LIB_DIRNAME + '/' + base_path, paths);
+	return lib_path_to_import_id(base_path, paths);
 };
 
 export const resolve_raw_input_paths = (raw_input_paths: string[]): string[] =>
@@ -89,6 +88,7 @@ export const get_possible_source_ids = (
 			}
 		}
 	}
+	console.log(`possible_source_ids`, input_path, extensions, root_dirs, paths, possible_source_ids);
 	return possible_source_ids;
 };
 
