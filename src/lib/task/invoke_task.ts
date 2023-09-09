@@ -1,6 +1,6 @@
 import {cyan, red, gray} from 'kleur/colors';
 import {EventEmitter} from 'node:events';
-import {SystemLogger, printLogLabel} from '@feltjs/util/log.js';
+import {Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
 
@@ -127,22 +127,12 @@ export const invoke_task = async (
 				// and it doesn't contain the matching files.
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
-				const gro_dir_input_path = to_gro_input_path(input_path);
-				const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
-					find_files(id, (path) => is_task_path(path), undefined, true),
-				);
 				// Ignore any errors - the directory may not exist or have any files!
-				if (gro_dir_find_modules_result.ok) {
-					timings.merge(gro_dir_find_modules_result.timings);
-					const gro_path_data =
-						gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
-					// First log the Gro matches.
-					await log_available_tasks(
-						log,
-						print_path_or_gro_path(gro_path_data.id),
-						gro_dir_find_modules_result.source_ids_by_input_path,
-					);
-				}
+				const gro_dir_find_modules_result = await to_gro_dir_find_modules_result(
+					input_path,
+					timings,
+					log,
+				);
 				// Then log the current working directory matches.
 				await log_available_tasks(
 					log,
@@ -165,22 +155,12 @@ export const invoke_task = async (
 		} else {
 			// If there's a matching directory in the current working directory,
 			// but it has no matching files, we still want to search Gro's directory.
-			// TODO BLOCK duplicated with the above, need to handle the `else` condition returning `gro_dir_find_modules_result`
-			const gro_dir_input_path = to_gro_input_path(input_path);
-			const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
-				find_files(id, (path) => is_task_path(path), undefined, true),
+			const gro_dir_find_modules_result = await to_gro_dir_find_modules_result(
+				input_path,
+				timings,
+				log,
 			);
-			if (gro_dir_find_modules_result.ok) {
-				timings.merge(gro_dir_find_modules_result.timings);
-				const gro_path_data =
-					gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
-				// Log the Gro matches.
-				await log_available_tasks(
-					log,
-					print_path_or_gro_path(gro_path_data.id),
-					gro_dir_find_modules_result.source_ids_by_input_path,
-				);
-			} else {
+			if (!gro_dir_find_modules_result.ok) {
 				// Log the original errors, not the Gro-specific ones.
 				log_error_reasons(log, find_modules_result.reasons);
 				process.exit(1);
@@ -195,4 +175,27 @@ export const invoke_task = async (
 
 	printTimings(timings, log);
 	log.info(`🕒 ${printMs(total_timing())}`);
+};
+
+const to_gro_dir_find_modules_result = async (
+	input_path: string,
+	timings: Timings,
+	log: Logger,
+) => {
+	const gro_dir_input_path = to_gro_input_path(input_path);
+	const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
+		find_files(id, (path) => is_task_path(path), undefined, true),
+	);
+	if (gro_dir_find_modules_result.ok) {
+		timings.merge(gro_dir_find_modules_result.timings);
+		const gro_path_data =
+			gro_dir_find_modules_result.source_id_path_data_by_input_path.get(gro_dir_input_path)!;
+		// Log the Gro matches.
+		await log_available_tasks(
+			log,
+			print_path_or_gro_path(gro_path_data.id),
+			gro_dir_find_modules_result.source_ids_by_input_path,
+		);
+	}
+	return gro_dir_find_modules_result;
 };
