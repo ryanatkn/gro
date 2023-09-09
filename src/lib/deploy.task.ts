@@ -225,7 +225,7 @@ export const task: Task<Args> = {
 			// TODO there is be a better way but what is it
 			for (const path of readdirSync(WORKTREE_DIR)) {
 				if (path !== GIT_DIRNAME) {
-					rmSync(`${WORKTREE_DIR}/${path}`, {recursive: true});
+					rmSync(`${WORKTREE_DIR}/${path}`);
 				}
 			}
 			for (const path of readdirSync(dir)) {
