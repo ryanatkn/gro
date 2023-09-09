@@ -14,6 +14,7 @@ import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
 import {cwd} from 'node:process';
 import type {Config} from '@sveltejs/kit';
+import type {LoadHook, ResolveHook} from 'node:module';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
@@ -57,11 +58,7 @@ const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
 const svelte_matcher = /\.(svelte)$/u;
 
-export const load = async (
-	url: string,
-	context: LoadContext,
-	nextLoad: NextLoad,
-): Promise<LoadReturn> => {
+export const load: LoadHook = async (url, context, nextLoad) => {
 	const matched_env = env_matcher.exec(url);
 	if (matched_env) {
 		const mode: 'static' | 'dynamic' = matched_env[1] as any;
@@ -74,25 +71,21 @@ export const load = async (
 	} else if (ts_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// TODO maybe do path mapping in an esbuild plugin here instead of the resolve hook?
-		const transformed = transformSync(loaded.source.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const transformed = transformSync(loaded.source!.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
 		return {format: 'module', shortCircuit: true, source: transformed.code};
 	} else if (svelte_matcher.test(url)) {
 		const loaded = await nextLoad(url, {...context, format: 'module'});
 		// TODO maybe do path mapping in a Svelte preprocessor here instead of the resolve hook?
 		// TODO include `filename` and `outputFilename` and enable sourcemaps
 		// TODO cache by content hash
-		const transformed = compile(loaded.source.toString(), compiler_options); // eslint-disable-line @typescript-eslint/no-base-to-string
+		const transformed = compile(loaded.source!.toString(), compiler_options); // eslint-disable-line @typescript-eslint/no-base-to-string
 		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	}
 
 	return nextLoad(url, context);
 };
 
-export const resolve = async (
-	specifier: string,
-	context: ResolveContext,
-	nextResolve: NextResolve,
-): Promise<ResolveReturn> => {
+export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	const parent_path = context.parentURL && fileURLToPath(context.parentURL);
 	if (!parent_path?.startsWith(dir) || parent_path.startsWith(dir + 'node_modules/')) {
 		return nextResolve(specifier, context);
@@ -151,49 +144,3 @@ export const resolve = async (
 
 	return {url: pathToFileURL(path).href, format: 'module', shortCircuit: true};
 };
-
-interface ResolveContext {
-	/**
-	 * Is `undefined` for the entry module.
-	 */
-	parentURL?: string;
-	conditions: string[];
-	importAssertions: object;
-}
-interface NextResolve {
-	(specifier: string, context: ResolveContext): ResolveReturn | Promise<ResolveReturn>;
-}
-interface ResolveReturn {
-	url: string;
-	format?: ModuleFormat | null;
-	importAssertions?: object;
-	shortCircuit?: boolean;
-}
-
-interface LoadContext {
-	format?: ModuleFormat;
-	conditions: string[];
-	importAssertions: object;
-}
-interface NextLoad {
-	(specifier: string, context: LoadContext): Promise<LoadReturn>;
-}
-interface LoadReturn {
-	source: string | ArrayBuffer | TypedArray;
-	format: ModuleFormat;
-	shortCircuit?: boolean;
-}
-
-type ModuleFormat = 'builtin' | 'commonjs' | 'json' | 'module' | 'wasm';
-type TypedArray =
-	| Int8Array
-	| Uint8Array
-	| Uint8ClampedArray
-	| Int16Array
-	| Uint16Array
-	| Int32Array
-	| Uint32Array
-	| Float32Array
-	| Float64Array
-	| BigInt64Array
-	| BigUint64Array;
