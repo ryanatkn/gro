@@ -1,5 +1,5 @@
 import type {SystemLogger} from '@feltjs/util/log.js';
-import {existsSync, rmdirSync} from 'node:fs';
+import {existsSync, rmSync} from 'node:fs';
 
 import {to_source_meta_dir} from '../build/source_meta.js';
 import {
@@ -57,6 +57,6 @@ export const clean_fs = (
 export const remove_dir = (path: string, log: SystemLogger): void => {
 	if (existsSync(path)) {
 		log.info('removing', print_path(path));
-		rmdirSync(path, {recursive: true});
+		rmSync(path, {recursive: true});
 	}
 };

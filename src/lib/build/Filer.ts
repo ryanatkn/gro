@@ -8,7 +8,7 @@ import {gray, red, cyan} from 'kleur/colors';
 import {printError} from '@feltjs/util/print.js';
 import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
-import {existsSync, mkdirSync, readFileSync, rmdirSync, rmSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 
 import {create_filer_dir, type FilerDir, type FilerDirChangeCallback} from '../build/filer_dir.js';
 import {
@@ -459,7 +459,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 					// It could be improved by tracking tracking dirs in the Filer
 					// and looking up the correct build configs.
 					for (const build_config of this.build_configs) {
-						rmdirSync(to_build_out_path(this.dev, build_config.name, change.path, this.build_dir), {
+						rmSync(to_build_out_path(this.dev, build_config.name, change.path, this.build_dir), {
 							recursive: true,
 						});
 					}

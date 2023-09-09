@@ -4,7 +4,7 @@ import {printError} from '@feltjs/util/print.js';
 import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
-import {copyFileSync, existsSync, readdirSync, renameSync, rmdirSync, rmSync} from 'node:fs';
+import {copyFileSync, existsSync, readdirSync, renameSync, rmSync} from 'node:fs';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
@@ -242,8 +242,8 @@ export const task: Task<Args> = {
 		}
 
 		// Clean up and efficiently reconstruct dist/ for users
-		rmdirSync(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true});
-		rmdirSync(dir, {recursive: true});
+		rmSync(`${WORKTREE_DIR}/${GIT_DIRNAME}`, {recursive: true});
+		rmSync(dir, {recursive: true});
 		renameSync(WORKTREE_DIR, dir);
 		await cleanGitWorktree();
 
