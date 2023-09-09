@@ -7,7 +7,6 @@ import {
 	replace_root_dir,
 	gro_dir_basename,
 	gro_paths,
-	type Paths,
 	LIB_DIR,
 	LIB_PATH,
 	is_this_project_gro,
@@ -67,7 +66,6 @@ export const get_possible_source_ids = (
 	extensions: string[],
 	root_dirs?: string[],
 ): string[] => {
-	console.log(`possible_source_ids`, input_path, extensions, root_dirs, paths);
 	const possible_source_ids = [input_path];
 	if (!input_path.endsWith('/')) {
 		for (const extension of extensions) {
@@ -82,15 +80,9 @@ export const get_possible_source_ids = (
 		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
-			console.log(`root_dir`, root_dir);
 			const is_gro_dist = root_dir === gro_dist_dir; // TODO hacky to handle Gro importing its JS tasks from dist/
 			for (const possible_source_id of ids) {
 				if (is_gro_dist && !possible_source_id.endsWith(JS_EXTENSION)) continue;
-				console.log(`possible_source_id`, possible_source_id);
-				console.log(
-					`replace_root_dir(possible_source_id, root_dir, paths)`,
-					replace_root_dir(possible_source_id, root_dir, paths),
-				);
 				// TODO hacky to handle Gro importing its JS tasks from dist/
 				possible_source_ids.push(
 					is_gro_dist
@@ -100,7 +92,6 @@ export const get_possible_source_ids = (
 			}
 		}
 	}
-	console.log(`possible_source_ids`, possible_source_ids);
 	return possible_source_ids;
 };
 

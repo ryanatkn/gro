@@ -125,7 +125,7 @@ const to_max_length = <T>(items: T[], toString: (item: T) => string) =>
 
 // The following Zod helpers only need to support single-depth schemas for CLI args,
 // but there's generic recursion to handle things like `ZodOptional` and `ZodDefault`.
-const to_type_name = (def: ZodTypeDef): ZodFirstPartyTypeKind => (def as any).type_name;
+const to_type_name = (def: ZodTypeDef): ZodFirstPartyTypeKind => (def as any).typeName;
 const to_args_schema_type = ({_def}: ZodTypeAny): ArgSchema['type'] => {
 	const t = to_type_name(_def);
 	switch (t) {

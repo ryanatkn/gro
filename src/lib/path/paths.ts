@@ -226,7 +226,6 @@ export const replace_extension = (path: string, new_extension: string): string =
 	return (length === 0 ? path : path.substring(0, path.length - length)) + new_extension;
 };
 
-console.log(`import.meta.url`, import.meta.url);
 const filename = fileURLToPath(import.meta.url);
 const gro_dir = join(
 	filename,
@@ -236,24 +235,14 @@ const gro_dir = join(
 		? '../../../'
 		: '../',
 );
-console.log(`gro_dir`, gro_dir);
 export const gro_dir_basename = basename(gro_dir) + '/';
 export const paths = create_paths(process.cwd() + '/');
-console.log(`paths`, paths);
 export const is_this_project_gro = gro_dir === paths.root;
-console.log(`is_this_project_gro`, is_this_project_gro, gro_dir, paths.root);
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
 export const gro_dist_dir = gro_paths.root + 'dist/'; // this is the SvelteKit output dir, whereas `gro_paths.dist` is Gro's build output directory that will be removed
-console.log(`gro_paths`, gro_paths);
-console.log(`{.......................}`, {
-	gro_dir,
-	gro_dir_basename,
-	is_this_project_gro,
-});
 
-// TODO BLOCK might not need this any more using `gro_dist_dir` above
+// TODO BLOCK hacky, `gro_dist_dir`
 export const to_gro_input_path = (input_path: string): string => {
-	console.log(`to_gro_input_path input_path paths.lib`, input_path, paths.lib);
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
 	return gro_dist_dir + base_path;
 };

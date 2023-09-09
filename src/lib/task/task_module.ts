@@ -33,16 +33,6 @@ export const validate_task_module = (mod: Record<string, any>): mod is TaskModul
 export const load_task_module = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
-	console.log(
-		`to_task_name(source_id_to_base_path(id, paths_from_id(id)))`,
-		to_task_name(source_id_to_base_path(id, paths_from_id(id))),
-		id,
-	);
-	console.log(`paths_from_id(id)`, paths_from_id(id).root);
-	console.log(
-		`source_id_to_base_path(id, paths_from_id(id))`,
-		source_id_to_base_path(id, paths_from_id(id)),
-	);
 	return {
 		...result,
 		mod: {

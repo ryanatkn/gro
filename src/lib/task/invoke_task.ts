@@ -61,23 +61,19 @@ export const invoke_task = async (
 
 	// Resolve the input path for the provided task name.
 	const input_path = resolve_raw_input_path(task_name || paths.lib);
-	console.log(`resolve_raw_input_path returned input_path`, input_path);
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
 	const find_modules_result = await find_task_modules([input_path], undefined, [gro_dist_dir]);
-	console.log(`find_modules_result`, find_modules_result);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
 		timings.merge(find_modules_result.timings);
 		const path_data = find_modules_result.source_id_path_data_by_input_path.get(input_path)!; // this is null safe because result is ok
-		console.log(`path_data`, path_data);
 
 		if (!path_data.isDirectory) {
 			// The input path matches a file, so load and run it.
 
 			// Try to load the task module.
-			console.log('LOADING', Array.from(find_modules_result.source_ids_by_input_path.entries()));
 			const load_modules_result = await load_modules(
 				find_modules_result.source_ids_by_input_path,
 				true,
@@ -92,7 +88,6 @@ export const invoke_task = async (
 					`→ ${cyan(task.name)} ${(task.mod.task.summary && gray(task.mod.task.summary)) || ''}`,
 				);
 				const timingToRunTask = timings.start('run task');
-				console.log(`to_forwarded_args`, to_forwarded_args(`gro ${task.name}`));
 				const result = await run_task(
 					task,
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},
@@ -133,11 +128,9 @@ export const invoke_task = async (
 				// Find all of the possible matches in the Gro directory as well,
 				// and log everything out.
 				const gro_dir_input_path = to_gro_input_path(input_path);
-				console.log(`gro_dir_input_path`, gro_dir_input_path);
 				const gro_dir_find_modules_result = await find_modules([gro_dir_input_path], (id) =>
 					find_files(id, (path) => is_task_path(path), undefined, true),
 				);
-				console.log(`gro_dir_find_modules_result`, gro_dir_find_modules_result);
 				// Ignore any errors - the directory may not exist or have any files!
 				if (gro_dir_find_modules_result.ok) {
 					timings.merge(gro_dir_find_modules_result.timings);

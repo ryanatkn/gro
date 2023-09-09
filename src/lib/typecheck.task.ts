@@ -9,7 +9,7 @@ export const Args = z.object({}).strict();
 export type Args = z.infer<typeof Args>;
 
 export const task: Task<Args> = {
-	summary: 'typecheck the project without emitting any files',
+	summary: 'run tsc on the project without emitting any files',
 	Args,
 	run: async ({log}): Promise<void> => {
 		if (find_cli('svelte-check')) {
