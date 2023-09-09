@@ -31,12 +31,17 @@ export interface TaskContext<TArgs = object, TEvents = object> {
 	) => Promise<void>;
 }
 
-export const TASK_FILE_SUFFIX = '.task.ts';
+export const TASK_FILE_SUFFIX_TS = '.task.ts';
+export const TASK_FILE_SUFFIX_JS = '.task.js';
 
-export const is_task_path = (path: string): boolean => path.endsWith(TASK_FILE_SUFFIX);
+export const is_task_path = (path: string): boolean =>
+	path.endsWith(TASK_FILE_SUFFIX_TS) || path.endsWith(TASK_FILE_SUFFIX_JS);
 
 export const to_task_name = (base_path: string): string => {
-	const stripped = stripStart(stripEnd(base_path, TASK_FILE_SUFFIX), LIB_DIRNAME + '/');
+	const stripped = stripStart(
+		stripEnd(stripEnd(base_path, TASK_FILE_SUFFIX_TS), TASK_FILE_SUFFIX_JS),
+		LIB_DIRNAME + '/',
+	);
 	if (stripped === base_path) return base_path;
 	// Handle task directories, so `a/a.task` outputs `a` instead of `a/a`.
 	const s = stripped.split('/');

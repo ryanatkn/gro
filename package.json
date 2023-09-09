@@ -32,17 +32,14 @@
   "keywords": [
     "web",
     "tools",
+    "task runner",
     "tasks",
-    "bundlers",
     "codegen",
     "svelte",
     "typescript"
   ],
   "files": [
-    "dist",
-    "src",
-    "changelog.md",
-    "tsconfig.json"
+    "dist"
   ],
   "dependencies": {
     "@feltjs/util": "^0.9.1",

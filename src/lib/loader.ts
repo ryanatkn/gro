@@ -88,7 +88,7 @@ export const resolve = async (
 		return nextResolve(specifier, context);
 	}
 
-	console.log(`specifier`, specifier, parent_path);
+	// console.log(`specifier`, specifier, parent_path);
 
 	if (
 		specifier === '$env/static/public' ||
@@ -135,7 +135,7 @@ export const resolve = async (
 			path = ts_path;
 		}
 	}
-	console.log(`final path`, path);
+	// console.log(`final path`, path);
 
 	return {url: pathToFileURL(path).href, format: 'module', shortCircuit: true};
 };

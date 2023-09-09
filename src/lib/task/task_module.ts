@@ -7,7 +7,13 @@ import {
 	type LoadModuleResult,
 	type FindModulesFailure,
 } from '../fs/modules.js';
-import {to_task_name, is_task_path, TASK_FILE_SUFFIX, type Task} from './task.js';
+import {
+	to_task_name,
+	is_task_path,
+	TASK_FILE_SUFFIX_TS,
+	type Task,
+	TASK_FILE_SUFFIX_JS,
+} from './task.js';
 import {get_possible_source_ids} from '../path/input_path.js';
 import type {Filesystem} from '../fs/filesystem.js';
 
@@ -34,7 +40,7 @@ export const load_task_module = async (id: string): Promise<LoadModuleResult<Tas
 export const find_task_modules = async (
 	fs: Filesystem,
 	input_paths: string[] = [paths.lib],
-	extensions: string[] = [TASK_FILE_SUFFIX],
+	extensions: string[] = [TASK_FILE_SUFFIX_TS, TASK_FILE_SUFFIX_JS],
 	root_dirs?: string[],
 ): Promise<ReturnType<typeof find_modules>> =>
 	find_modules(
