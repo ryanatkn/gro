@@ -30,19 +30,9 @@ export const gro_builder_simple = (options: Options = {}): Required<Builder> => 
 		return builder.build(source, build_config, ctx);
 	};
 
-	const on_remove: Builder['on_remove'] = async (
-		source: SourceFile,
-		build_config: BuildConfig,
-		ctx: BuildContext,
-	) => {
-		const builder = to_builder(source, build_config) || gro_builder_noop;
-		if (builder.on_remove === undefined) return;
-		await builder.on_remove(source, build_config, ctx);
-	};
-
 	const init: Builder['init'] = async (ctx: BuildContext) => {
 		await Promise.all(to_builders().map((builder) => builder.init?.(ctx)));
 	};
 
-	return {name: 'gro_builder_simple', build, on_remove, init};
+	return {name: 'gro_builder_simple', build, init};
 };

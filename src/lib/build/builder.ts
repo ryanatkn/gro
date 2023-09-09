@@ -15,7 +15,6 @@ export interface Builder<TSource extends SourceFile = SourceFile> {
 		build_config: BuildConfig,
 		ctx: BuildContext,
 	) => BuildFile[] | Promise<BuildFile[]>; // TODO should this be forced async?
-	on_remove?: (source: TSource, build_config: BuildConfig, ctx: BuildContext) => Promise<void>;
 	init?: (ctx: BuildContext) => Promise<void>;
 }
 

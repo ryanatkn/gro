@@ -24,6 +24,5 @@ export const gro_builder_noop: Builder = {
 			},
 		];
 	},
-	// on_remove: not implemented because it's a no-op
 	// init: not implemented because it's a no-op
 };

@@ -414,17 +414,6 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		source_file.dependencies.delete(build_config);
 		source_file.dependents.delete(build_config);
-		const {on_remove} = this.builder;
-		if (on_remove) {
-			try {
-				await on_remove(source_file, build_config, this);
-			} catch (err) {
-				this.log.error(
-					`${print_build_config_label(build_config)} error while removing source file from builder`,
-					printError(err),
-				);
-			}
-		}
 
 		if (should_update_source_meta) {
 			update_source_meta(this, source_file);
