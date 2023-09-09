@@ -1,5 +1,5 @@
 import chokidar from 'chokidar';
-import {statSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
+import {statSync} from 'node:fs';
 
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from './filter.js';

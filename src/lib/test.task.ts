@@ -29,7 +29,7 @@ export const task: Task<Args> = {
 	run: async ({log, args}): Promise<void> => {
 		const {_: patterns, bail, cwd, ignore} = args;
 
-		if (!(await find_cli('uvu'))) {
+		if (!find_cli('uvu')) {
 			log.warn(yellow('uvu is not installed, skipping tests'));
 			return;
 		}

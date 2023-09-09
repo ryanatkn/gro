@@ -12,7 +12,7 @@ export const task: Task<Args> = {
 	summary: 'typecheck the project without emitting any files',
 	Args,
 	run: async ({log}): Promise<void> => {
-		if (await find_cli('svelte-check')) {
+		if (find_cli('svelte-check')) {
 			// svelte-check
 			const serialized = serialize_args(to_forwarded_args('svelte-check'));
 			log.info(print_command_args(['svelte-check'].concat(serialized)));

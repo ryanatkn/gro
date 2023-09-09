@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {existsSync, realpathSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
+import {existsSync, realpathSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawn} from '@feltjs/util/process.js';

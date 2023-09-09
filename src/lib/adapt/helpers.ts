@@ -1,6 +1,6 @@
 import type {Logger} from '@feltjs/util/log.js';
 import fs from 'fs-extra';
-import {existsSync} from 'node:fs';
+import {existsSync, statSync} from 'node:fs';
 
 import type {BuildConfig} from '../build/build_config.js';
 import type {IdStatsFilter} from '../fs/filter.js';
@@ -19,7 +19,7 @@ export const copy_dist = async (
 	await fs.copy(build_out_dir, dist_out_dir, {
 		overwrite: false,
 		filter: async (id) => {
-			const stats = await fs.stat(id);
+			const stats = statSync(id);
 			if (filter && !filter(id, stats)) return false;
 			return true;
 		},

@@ -1,7 +1,6 @@
 import {join, isAbsolute, basename} from 'node:path';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
-import fs from 'fs-extra';
-import {existsSync} from 'node:fs';
+import {existsSync, statSync} from 'node:fs';
 
 import {
 	base_path_to_source_id,
@@ -99,13 +98,13 @@ export const get_possible_source_ids = (
  * and stopping at the first match.
  * Parameterized by `exists` and `stat` so it's fs-agnostic.
  */
-export const load_source_path_data_by_input_path = async (
+export const load_source_path_data_by_input_path = (
 	input_paths: string[],
 	get_possible_source_idsForInputPath?: (input_path: string) => string[],
-): Promise<{
+): {
 	source_id_path_data_by_input_path: Map<string, PathData>;
 	unmapped_input_paths: string[];
-}> => {
+} => {
 	const source_id_path_data_by_input_path = new Map<string, PathData>();
 	const unmapped_input_paths: string[] = [];
 	for (const input_path of input_paths) {
@@ -115,8 +114,8 @@ export const load_source_path_data_by_input_path = async (
 			? get_possible_source_idsForInputPath(input_path)
 			: [input_path];
 		for (const possible_source_id of possible_source_ids) {
-			if (!existsSync(possible_source_id)) continue; // eslint-disable-line no-await-in-loop
-			const stats = await fs.stat(possible_source_id); // eslint-disable-line no-await-in-loop
+			if (!existsSync(possible_source_id)) continue;
+			const stats = statSync(possible_source_id);
 			if (stats.isDirectory()) {
 				if (!dir_path_data) {
 					dir_path_data = to_path_data(possible_source_id, stats);

@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import {readFileSync, existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
+import {readFileSync, existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 
 export const load_env = (

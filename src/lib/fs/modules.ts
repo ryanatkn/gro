@@ -91,7 +91,7 @@ export const find_modules = async (
 	const timings = new Timings<FindModulesTimings>();
 	const timingToMapInputPaths = timings.start('map input paths');
 	const {source_id_path_data_by_input_path, unmapped_input_paths} =
-		await load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
+		load_source_path_data_by_input_path(input_paths, get_possible_source_ids);
 	timingToMapInputPaths();
 
 	// Error if any input path could not be mapped.

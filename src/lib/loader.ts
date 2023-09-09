@@ -10,7 +10,7 @@ import {transformSync, type TransformOptions} from 'esbuild';
 import {compile} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
-import {existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no-restricted-imports
+import {existsSync} from 'node:fs';
 import {DEV} from 'esm-env';
 import {cwd} from 'node:process';
 import type {Config} from '@sveltejs/kit';
