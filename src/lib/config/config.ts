@@ -3,7 +3,7 @@ import {omitUndefined} from '@feltjs/util/object.js';
 import type {Result} from '@feltjs/util/result.js';
 import type {Assignable} from '@feltjs/util/types.js';
 import {toArray} from '@feltjs/util/array.js';
-import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import {paths} from '../path/paths.js';
 import {
@@ -118,7 +118,7 @@ const _load_config = async (): Promise<GroConfig> => {
 	const config_path = paths.config;
 	let config: GroConfig;
 	console.log(`_load_config configSourceId`, config_path);
-	if (await fs.exists(config_path)) {
+	if (existsSync(config_path)) {
 		console.log('_load_config EXISTS');
 		const config_module = await import(config_path);
 		validate_config_module(config_module, config_path);

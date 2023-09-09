@@ -1,6 +1,6 @@
 import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
-import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {API_SERVER_BUILD_BASE_PATH, API_SERVER_BUILD_NAME} from '../build/build_config_defaults.js';
@@ -35,7 +35,7 @@ export const create_plugin = ({
 			// When `src/lib/server/server.ts` or any of its dependencies change, restart the API server.
 			const server_build_path = `${to_build_out_dir(dev)}/${build_name}/${base_build_path}`;
 
-			if (!(await fs.exists(server_build_path))) {
+			if (!existsSync(server_build_path)) {
 				throw Error(`API server failed to start due to missing file: ${server_build_path}`);
 			}
 

@@ -9,6 +9,7 @@ import {printError} from '@feltjs/util/print.js';
 import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
 import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import {create_filer_dir, type FilerDir, type FilerDirChangeCallback} from '../build/filer_dir.js';
 import {
@@ -832,7 +833,7 @@ const sync_build_files_to_disk = async (changes: BuildFileChange[], log: Logger)
 			const {file} = change;
 			let should_output_new_file = false;
 			if (change.type === 'added') {
-				if (!(await fs.exists(file.id))) {
+				if (!existsSync(file.id)) {
 					// log.debug(label, 'creating build file on disk', gray(file.id));
 					should_output_new_file = true;
 				} else {

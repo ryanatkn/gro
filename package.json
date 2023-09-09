@@ -93,24 +93,7 @@
       "vite.config.js"
     ],
     "rules": {
-      "no-console": 1,
-      "@typescript-eslint/no-restricted-imports": [
-        1,
-        {
-          "paths": [
-            {
-              "name": "fs",
-              "message": "Please use 'fs-extra' instead, or a local `fs` argument if available.",
-              "allowTypeImports": true
-            },
-            {
-              "name": "node:fs",
-              "message": "Please use 'fs-extra' instead, or a local `fs` argument if available.",
-              "allowTypeImports": true
-            }
-          ]
-        }
-      ]
+      "no-console": 1
     }
   },
   "prettier": {

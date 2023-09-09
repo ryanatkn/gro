@@ -1,6 +1,6 @@
 import {createHash} from 'crypto';
 import type {Result} from '@feltjs/util/result.js';
-import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import type {BuildConfigInput} from './build_config.js';
 import {
@@ -40,11 +40,9 @@ export const map_dependency_to_source_d: MapDependencyToSourceId = async (
 ) => {
 	const source_id = build_id_to_source_id(dependency.build_id, build_dir, paths);
 	// TODO hacky -- see comments above
-	if ((await fs.exists(source_id)) || !source_id.endsWith(TS_EXTENSION)) return source_id;
+	if (existsSync(source_id) || !source_id.endsWith(TS_EXTENSION)) return source_id;
 	const hacky_other_possible_source_id = replace_extension(source_id, JS_EXTENSION);
-	return (await fs.exists(hacky_other_possible_source_id))
-		? hacky_other_possible_source_id
-		: source_id;
+	return existsSync(hacky_other_possible_source_id) ? hacky_other_possible_source_id : source_id;
 };
 
 export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): string =>
@@ -55,7 +53,7 @@ export const validate_input_files = async (
 ): Promise<Result<object, {reason: string}>> => {
 	const results = await Promise.all(
 		files.map(async (input): Promise<null | {ok: false; reason: string}> => {
-			if (!(await fs.exists(input))) {
+			if (!existsSync(input)) {
 				return {ok: false, reason: `Input file does not exist: ${input}`};
 			}
 			return null;

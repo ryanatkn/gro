@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import {JSON_EXTENSION, to_build_out_dirname, type SourceId} from '../path/paths.js';
 import {get_file_content_hash} from './filer_file.js';
@@ -110,12 +111,12 @@ const to_source_meta_cache_id = (file: SourceFile, build_dir: string, dev: boole
 export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
 	const {source_meta_by_id, build_dir, dev} = ctx;
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
-	if (!(await fs.exists(source_meta_dir))) return;
+	if (!existsSync(source_meta_dir)) return;
 	const files = await find_files(source_meta_dir, undefined, null, true);
 	await Promise.all(
 		Array.from(files.keys()).map(async (cache_id) => {
 			const data = deserialize_source_meta(JSON.parse(await fs.readFile(cache_id, 'utf8')));
-			if (await fs.exists(data.source_id)) {
+			if (existsSync(data.source_id)) {
 				const source_content_hash = to_hash(await fs.readFile(data.source_id));
 				if (data.content_hash === source_content_hash) {
 					source_meta_by_id.set(data.source_id, {cache_id, data});

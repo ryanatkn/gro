@@ -1,6 +1,7 @@
 import {EMPTY_ARRAY} from '@feltjs/util/array.js';
 import type {SystemLogger} from '@feltjs/util/log.js';
 import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import {to_source_meta_dir} from '../build/source_meta.js';
 import {
@@ -57,7 +58,7 @@ export const cleanFs = async (
 	]);
 
 export const removeDir = async (path: string, log: SystemLogger): Promise<void> => {
-	if (await fs.exists(path)) {
+	if (existsSync(path)) {
 		log.info('removing', print_path(path));
 		await fs.remove(path);
 	}

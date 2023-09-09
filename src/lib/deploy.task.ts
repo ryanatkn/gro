@@ -5,6 +5,7 @@ import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
 import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
@@ -193,7 +194,7 @@ export const task: Task<Args> = {
 			await invoke_task('build', to_raw_rest_args());
 
 			// Make sure the expected dir exists after building.
-			if (!(await fs.exists(dir))) {
+			if (!existsSync(dir)) {
 				log.error(red('directory to deploy does not exist after building:'), dir);
 				return;
 			}

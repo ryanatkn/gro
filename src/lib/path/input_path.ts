@@ -1,6 +1,7 @@
 import {join, isAbsolute, basename} from 'node:path';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import {
 	base_path_to_source_id,
@@ -114,7 +115,7 @@ export const load_source_path_data_by_input_path = async (
 			? get_possible_source_idsForInputPath(input_path)
 			: [input_path];
 		for (const possible_source_id of possible_source_ids) {
-			if (!(await fs.exists(possible_source_id))) continue; // eslint-disable-line no-await-in-loop
+			if (!existsSync(possible_source_id)) continue; // eslint-disable-line no-await-in-loop
 			const stats = await fs.stat(possible_source_id); // eslint-disable-line no-await-in-loop
 			if (stats.isDirectory()) {
 				if (!dir_path_data) {

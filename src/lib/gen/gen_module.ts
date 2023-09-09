@@ -1,4 +1,5 @@
 import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import {
 	type ModuleMeta,
@@ -84,7 +85,7 @@ export const checkGenModules = async (gen_results: GenResults): Promise<CheckGen
 };
 
 export const checkGenModule = async (file: GenFile): Promise<CheckGenModuleResult> => {
-	if (!(await fs.exists(file.id))) {
+	if (!existsSync(file.id)) {
 		return {
 			file,
 			existing_content: null,

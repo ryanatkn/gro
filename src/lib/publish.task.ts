@@ -1,7 +1,7 @@
 import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 import {green, cyan} from 'kleur/colors';
-import fs from 'fs-extra';
+import {existsSync} from 'node:fs';
 
 import {TaskError, type Task} from './task/task.js';
 import {cleanFs} from './fs/clean.js';
@@ -43,7 +43,7 @@ export const task: Task<Args> = {
 			log.info(green('dry run!'));
 		}
 
-		const changelogExists = await fs.exists(changelog);
+		const changelogExists = existsSync(changelog);
 		let version!: string;
 
 		// Ensure Changesets is installed:
@@ -107,7 +107,7 @@ export const task: Task<Args> = {
 			);
 		}
 
-		if (!changelogExists && (await fs.exists(changelog))) {
+		if (!changelogExists && existsSync(changelog)) {
 			await spawn('git', ['add', changelog]);
 		}
 		await spawn('git', ['commit', '-a', '-m', `publish v${version}`]);
