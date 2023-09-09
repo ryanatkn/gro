@@ -7,7 +7,6 @@
 
 - [what](#what)
 - [usage](#usage)
-- [future improvements](#future-improvements)
 - [why?](#why)
 
 ## what
