@@ -1,7 +1,8 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve, join} from 'node:path';
-import 'source-map-support/register.js'; // TODO do this generically (how to pass to uvu as CLI arg?)
+// TODO BLOCK do this with the test runner generically, maybe lazy loaded in the loader if we see typescript
+import 'source-map-support/register.js';
 
 import {
 	resolveRawInputPath,

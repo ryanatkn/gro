@@ -1,5 +1,4 @@
 import {attachProcessErrorHandlers} from '@feltjs/util/process.js';
-import sourcemap_support from 'source-map-support';
 import {sveltekit_sync} from '../util/sveltekit_sync.js';
 
 import {invoke_task} from '../task/invoke_task.js';
@@ -19,10 +18,6 @@ and the rest of the args are forwarded to the task's `run` function.
 
 // handle uncaught errors
 attachProcessErrorHandlers((err) => (err?.constructor?.name === 'TaskError' ? 'TaskError' : null));
-
-// install sourcemaps for user tasks
-// TODO remove after changing to runtime compilation
-sourcemap_support.install({handleUncaughtExceptions: false});
 
 // This is often wasteful but we're just going for correctness right now.
 await sveltekit_sync(fs);
