@@ -379,7 +379,8 @@ What makes Gro different?
   This is useful in many cases - for example `gro taskname --help`
   inspects the args schema and other metadata to print help to the console,
   and `gro` prints the `summary` property of each task it finds.
-  There's lots more to explore here, especially related to task composition and improved DX.
+  There's lots more to explore here, like task composition
+  and improved DX with new capabilities.
 - Module resolution differs:
   - When a task name is given to Gro,
     it first searches `src/lib/` in the current working directory and
