@@ -108,7 +108,8 @@ export const init_source_meta = async (ctx: BuildContext): Promise<void> => {
 	const source_meta_dir = to_source_meta_dir(build_dir, dev);
 	if (!existsSync(source_meta_dir)) return;
 	const files = await find_files(source_meta_dir, undefined, null, true);
-	for (const cache_id of files.keys()) {
+	for (const filename of files.keys()) {
+		const cache_id = source_meta_dir + '/' + filename;
 		const data = deserialize_source_meta(JSON.parse(readFileSync(cache_id, 'utf8')));
 		if (existsSync(data.source_id)) {
 			const source_content_hash = to_hash(readFileSync(data.source_id));
