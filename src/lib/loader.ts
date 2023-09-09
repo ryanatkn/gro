@@ -13,6 +13,7 @@ import {existsSync} from 'node:fs'; // eslint-disable-line @typescript-eslint/no
 import {DEV} from 'esm-env';
 import {cwd} from 'node:process';
 import type {Config} from '@sveltejs/kit';
+import {compile} from 'svelte/compiler';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 
@@ -31,6 +32,7 @@ const alias = config?.kit?.alias;
 const public_prefix = config?.kit?.env?.publicPrefix;
 const private_prefix = config?.kit?.env?.privatePrefix;
 const env_dir = config?.kit?.env?.dir;
+const compiler_options = config?.compilerOptions;
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
@@ -49,6 +51,7 @@ const transformOptions: TransformOptions = {
 
 const env_matcher = /src\/lib\/\$env\/(static|dynamic)\/(public|private)$/u;
 const ts_matcher = /\.(ts|tsx|mts|cts)$/u;
+const svelte_matcher = /\.(svelte)$/u;
 
 export const load = async (
 	url: string,
@@ -72,6 +75,11 @@ export const load = async (
 		// TODO maybe do path mapping in an esbuild plugin here instead of the resolve hook?
 		const transformed = transformSync(loaded.source.toString(), transformOptions); // eslint-disable-line @typescript-eslint/no-base-to-string
 		return {format: 'module', shortCircuit: true, source: transformed.code};
+	} else if (svelte_matcher.test(url)) {
+		const loaded = await nextLoad(url, {...context, format: 'module'});
+		// TODO maybe do path mapping in a Svelte preprocessor here instead of the resolve hook?
+		const transformed = compile(loaded.source.toString(), compiler_options); // eslint-disable-line @typescript-eslint/no-base-to-string
+		return {format: 'module', shortCircuit: true, source: transformed.js.code};
 	}
 
 	// console.log('LOAD DEFAULT', url);
