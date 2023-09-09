@@ -4,7 +4,7 @@ import {green, cyan} from 'kleur/colors';
 import {existsSync} from 'node:fs';
 
 import {TaskError, type Task} from './task/task.js';
-import {cleanFs} from './fs/clean.js';
+import {clean_fs} from './fs/clean.js';
 import {is_this_project_gro} from './path/paths.js';
 import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH} from './build/build_config_defaults.js';
@@ -47,7 +47,7 @@ export const task: Task<Args> = {
 		let version!: string;
 
 		// Ensure Changesets is installed:
-		if (!(await find_cli('changeset'))) {
+		if (!find_cli('changeset')) {
 			log.error('changeset command not found: install @changesets/cli locally or globally');
 			return;
 		}
@@ -58,7 +58,7 @@ export const task: Task<Args> = {
 		await spawn('git', ['pull', 'origin', branch]);
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
-		await cleanFs({build: true, dist: true}, log);
+		clean_fs({build: true, dist: true}, log);
 		if (is_this_project_gro) {
 			const buildResult = await spawn('npm', ['run', 'build']);
 			if (!buildResult.ok) throw Error('Failed to build Gro');
@@ -74,7 +74,7 @@ export const task: Task<Args> = {
 		if (dry) {
 			log.info('dry run, skipping changeset version');
 		} else {
-			const pkgBefore = await load_package_json();
+			const pkgBefore = load_package_json();
 			if (typeof pkgBefore.version !== 'string') {
 				throw new TaskError('failed to find package.json version');
 			}
@@ -84,7 +84,7 @@ export const task: Task<Args> = {
 				throw Error('npm version failed: no commits were made: see the error above');
 			}
 
-			const pkgAfter = await load_package_json(true);
+			const pkgAfter = load_package_json(true);
 			version = pkgAfter.version as string;
 			if (pkgBefore.version === version) {
 				throw new TaskError('changeset version failed: are there any changes?');

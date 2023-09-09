@@ -10,8 +10,7 @@ export const to_path_data = (id: string, stats: PathStats): PathData => {
 	};
 };
 
-// This is a browser-compatible subset of `fs.Stats`.
-// TODO the `size` ? should we always support it?
+// subset of `fs.Stats`
 export interface PathStats {
 	size?: number;
 	isDirectory: () => boolean; // TODO maybe cache as `isDirectory`?

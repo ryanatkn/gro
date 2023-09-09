@@ -2,7 +2,7 @@ import {spawn} from '@feltjs/util/process.js';
 import {z} from 'zod';
 
 import type {Task} from './task/task.js';
-import {cleanFs} from './fs/clean.js';
+import {clean_fs} from './fs/clean.js';
 
 // TODO customize
 const ORIGIN = 'origin';
@@ -40,7 +40,7 @@ export const task: Task<Args> = {
 		const {build, dist, sveltekit, nodemodules, git} = args;
 
 		// TODO document with mdsvex
-		await cleanFs({build, dist, sveltekit, nodemodules}, log);
+		clean_fs({build, dist, sveltekit, nodemodules}, log);
 
 		// lop off unwanted git branches
 		if (git) {

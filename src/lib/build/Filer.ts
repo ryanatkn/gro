@@ -8,8 +8,7 @@ import {gray, red, cyan} from 'kleur/colors';
 import {printError} from '@feltjs/util/print.js';
 import type {Assignable, PartialExcept} from '@feltjs/util/types.js';
 import type {Config} from '@sveltejs/kit';
-import fs from 'fs-extra';
-import {existsSync, mkdirSync, readFileSync, rmdirSync, writeFileSync} from 'node:fs';
+import {existsSync, mkdirSync, readFileSync, rmdirSync, rmSync, writeFileSync} from 'node:fs';
 
 import {create_filer_dir, type FilerDir, type FilerDirChangeCallback} from '../build/filer_dir.js';
 import {
@@ -835,7 +834,7 @@ const sync_build_files_to_disk = async (changes: BuildFileChange[], log: Logger)
 				}
 			} else if (change.type === 'removed') {
 				log.debug(label, 'deleting build file on disk', gray(file.id));
-				return fs.remove(file.id);
+				rmSync(file.id);
 			} else {
 				throw new UnreachableError(change);
 			}

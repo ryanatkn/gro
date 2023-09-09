@@ -17,7 +17,7 @@ export const create_adapter = (): Adapter => {
 			log.info(print_command_args(serialized_args));
 			await spawn_cli('svelte-package', serialized_args);
 
-			const pkg = await load_package_json();
+			const pkg = load_package_json();
 
 			// `npm link`
 			if (pkg.bin) {

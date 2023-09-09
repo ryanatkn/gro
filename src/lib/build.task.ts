@@ -8,7 +8,7 @@ import {load_config, type GroConfig} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {build_source} from './build/build_source.js';
 import {Plugins} from './plugin/plugin.js';
-import {cleanFs} from './fs/clean.js';
+import {clean_fs} from './fs/clean.js';
 
 export interface TaskEvents {
 	'build.create_config': (config: GroConfig) => void;
@@ -58,9 +58,9 @@ export const task: Task<Args, TaskEvents> = {
 		}
 
 		// Clean in the default case, but not if the caller passes a `false` `clean` arg,
-		// This is used by `gro publish` and `gro deploy` because they call `cleanFs` themselves.
+		// This is used by `gro publish` and `gro deploy` because they call `clean_fs` themselves.
 		if (clean) {
-			await cleanFs({buildProd: true, dist: true}, log);
+			clean_fs({buildProd: true, dist: true}, log);
 		}
 
 		// TODO delete prod builds (what about config/system tho?)
@@ -101,7 +101,7 @@ export const task: Task<Args, TaskEvents> = {
 		// Dynamic variable imports can be used to avoid this problem completely.
 		// For more see the SvelteKit docs - https://kit.svelte.dev/docs/modules#$env-dynamic-private
 		if (!preserve) {
-			await cleanFs({buildProd: true}, log);
+			clean_fs({buildProd: true}, log);
 		}
 
 		printTimings(timings, log);

@@ -25,10 +25,10 @@ export const create_adapter = ({
 				throw Error(`Unknown build config: ${build_name}`);
 			}
 
-			await copy_dist(build_config, dev, output_dir, log);
+			copy_dist(build_config, dev, output_dir, log);
 
 			if (host_target === 'github_pages') {
-				await ensure_nojekyll(output_dir);
+				ensure_nojekyll(output_dir);
 			}
 		},
 	};

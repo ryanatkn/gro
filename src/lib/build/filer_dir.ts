@@ -1,10 +1,10 @@
 import {noop} from '@feltjs/util/function.js';
-import fs from 'fs-extra';
 
 import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
 import type {PathStats} from '../path/path_data.js';
 import type {PathFilter} from '../fs/filter.js';
 import {find_files} from '../fs/find_files.js';
+import {mkdirSync} from 'node:fs';
 
 // Filer dirs are watched, built, and written to disk.
 export interface FilerDir {
@@ -44,7 +44,7 @@ export const create_filer_dir = (
 	}
 
 	const init = async () => {
-		await fs.ensureDir(dir);
+		mkdirSync(dir, {recursive: true});
 		if (watcher) await watcher.init();
 		const stats_by_source_path = await find_files(dir, filter);
 		await Promise.all(

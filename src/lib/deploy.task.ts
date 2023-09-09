@@ -5,11 +5,11 @@ import {green, red} from 'kleur/colors';
 import {z} from 'zod';
 import {execSync} from 'node:child_process';
 import fs from 'fs-extra';
-import {existsSync} from 'node:fs';
+import {copyFileSync, existsSync} from 'node:fs';
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
-import {cleanFs} from './fs/clean.js';
+import {clean_fs} from './fs/clean.js';
 import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/build_config_defaults.js';
 
@@ -182,7 +182,7 @@ export const task: Task<Args> = {
 		await cleanGitWorktree();
 
 		// Rebuild everything -- TODO maybe optimize and only clean `buildProd`
-		await cleanFs({build: true, dist: true}, log);
+		clean_fs({build: true, dist: true}, log);
 
 		if (cleanAndExit) {
 			log.info(green('all clean'));
@@ -200,7 +200,7 @@ export const task: Task<Args> = {
 			}
 
 			// Update the initial file.
-			await fs.copy(INITIAL_FILE, join(dir, INITIAL_FILE));
+			copyFileSync(INITIAL_FILE, join(dir, INITIAL_FILE));
 		} catch (err) {
 			log.error(red('build failed'), 'but', green('no changes were made to git'), printError(err));
 			if (dry) {
