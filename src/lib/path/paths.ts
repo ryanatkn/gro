@@ -105,6 +105,7 @@ export const build_id_to_source_id = (
 export const base_path_to_source_id = (base_path: string, p = paths): SourceId =>
 	p.source + base_path;
 
+// To run Gro's tasks from its own project, we resolve from dist/ instead of src/.
 // 'foo/bar/baz.ts' → '/home/me/app/src/lib/foo/bar/baz.ts'
 // 'foo/bar/baz.ts' → '/home/me/app/dist/foo/bar/baz.ts'
 export const lib_path_to_import_id = (base_path: string, p = paths): SourceId => {
@@ -249,3 +250,10 @@ console.log(`{.......................}`, {
 	gro_dir_basename,
 	is_this_project_gro,
 });
+
+// TODO BLOCK might not need this any more using `gro_dist_dir` above
+export const to_gro_input_path = (input_path: string): string => {
+	console.log(`to_gro_input_path input_path paths.lib`, input_path, paths.lib);
+	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
+	return gro_dist_dir + base_path;
+};

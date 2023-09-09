@@ -11,6 +11,9 @@ import {
 	LIB_DIR,
 	LIB_PATH,
 	is_this_project_gro,
+	gro_dist_dir,
+	JS_EXTENSION,
+	paths,
 } from './paths.js';
 import {to_path_data, type PathData, type PathStats} from './path_data.js';
 
@@ -37,9 +40,6 @@ export const resolve_raw_input_path = (raw_input_path: string): string => {
 	if (isAbsolute(raw_input_path)) return stripEnd(raw_input_path, '/');
 	// Allow prefix `./` and just remove it if it's there.
 	let base_path = stripEnd(stripStart(raw_input_path, './'), '/');
-	// To run Gro's base tasks, we resolve from dist/ instead of src/.
-	console.log(`resolve_raw_input_path base_path 1`, base_path);
-	console.log(`is_this_project_gro`, is_this_project_gro);
 	let paths;
 	// If it's prefixed with `gro/` or exactly `gro`, use the Gro paths.
 	if (is_this_project_gro || (base_path + '/').startsWith(gro_dir_basename)) {
@@ -50,7 +50,6 @@ export const resolve_raw_input_path = (raw_input_path: string): string => {
 	if (base_path === LIB_PATH) base_path = '';
 	// Allow prefix `src/lib/` and just remove it if it's there.
 	base_path = stripStart(base_path, LIB_DIR);
-	console.log(`resolve_raw_input_path base_path 2`, base_path);
 	return lib_path_to_import_id(base_path, paths);
 };
 
@@ -61,14 +60,14 @@ export const resolve_raw_input_paths = (raw_input_paths: string[]): string[] =>
  * Gets a list of possible source ids for each input path with `extensions`,
  * duplicating each under `root_dirs`.
  * This is first used to fall back to the Gro dir to search for tasks.
- * It's the helper used in implementations of `get_possible_source_idsForInputPath` below.
+ * It's the helper used in implementations of `get_possible_source_ids_for_input_path` below.
  */
 export const get_possible_source_ids = (
 	input_path: string,
 	extensions: string[],
 	root_dirs?: string[],
-	paths?: Paths,
 ): string[] => {
+	console.log(`possible_source_ids`, input_path, extensions, root_dirs, paths);
 	const possible_source_ids = [input_path];
 	if (!input_path.endsWith('/')) {
 		for (const extension of extensions) {
@@ -83,12 +82,25 @@ export const get_possible_source_ids = (
 		const ids = possible_source_ids.slice(); // make a copy or infinitely loop!
 		for (const root_dir of root_dirs) {
 			if (input_path.startsWith(root_dir)) continue; // avoid duplicates
+			console.log(`root_dir`, root_dir);
+			const is_gro_dist = root_dir === gro_dist_dir; // TODO hacky to handle Gro importing its JS tasks from dist/
 			for (const possible_source_id of ids) {
-				possible_source_ids.push(replace_root_dir(possible_source_id, root_dir, paths));
+				if (is_gro_dist && !possible_source_id.endsWith(JS_EXTENSION)) continue;
+				console.log(`possible_source_id`, possible_source_id);
+				console.log(
+					`replace_root_dir(possible_source_id, root_dir, paths)`,
+					replace_root_dir(possible_source_id, root_dir, paths),
+				);
+				// TODO hacky to handle Gro importing its JS tasks from dist/
+				possible_source_ids.push(
+					is_gro_dist
+						? gro_dist_dir + stripStart(possible_source_id, paths.lib)
+						: replace_root_dir(possible_source_id, root_dir, paths),
+				);
 			}
 		}
 	}
-	console.log(`possible_source_ids`, input_path, extensions, root_dirs, paths, possible_source_ids);
+	console.log(`possible_source_ids`, possible_source_ids);
 	return possible_source_ids;
 };
 
@@ -100,7 +112,7 @@ export const get_possible_source_ids = (
  */
 export const load_source_path_data_by_input_path = (
 	input_paths: string[],
-	get_possible_source_idsForInputPath?: (input_path: string) => string[],
+	get_possible_source_ids_for_input_path?: (input_path: string) => string[],
 ): {
 	source_id_path_data_by_input_path: Map<string, PathData>;
 	unmapped_input_paths: string[];
@@ -110,8 +122,8 @@ export const load_source_path_data_by_input_path = (
 	for (const input_path of input_paths) {
 		let file_path_data: PathData | null = null;
 		let dir_path_data: PathData | null = null;
-		const possible_source_ids = get_possible_source_idsForInputPath
-			? get_possible_source_idsForInputPath(input_path)
+		const possible_source_ids = get_possible_source_ids_for_input_path
+			? get_possible_source_ids_for_input_path(input_path)
 			: [input_path];
 		for (const possible_source_id of possible_source_ids) {
 			if (!existsSync(possible_source_id)) continue;

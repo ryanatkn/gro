@@ -2,7 +2,7 @@ import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
 
-import {validate_task_module, load_task_module, loadTaskModules} from './task_module.js';
+import {validate_task_module, load_task_module, load_task_modules} from './task_module.js';
 import * as actualTestTaskModule from '../test.task.js';
 import * as testTaskModule from './fixtures/testTaskModule.taskFixture.js';
 import * as testInvalidTaskModule from './fixtures/testInvalidTaskModule.js';
@@ -61,15 +61,18 @@ test__loadTaskModule('failing module', async () => {
 test__loadTaskModule.run();
 /* test__loadTaskModule */
 
-/* test__loadTaskModules */
-const test__loadTaskModules = suite('loadTaskModules');
+/* test__load_task_modules */
+const test__load_task_modules = suite('load_task_modules');
 
-test__loadTaskModules('basic behavior', async () => {
-	const result = await loadTaskModules([resolve('src/lib/test'), resolve('src/lib/test.task.ts')]);
+test__load_task_modules('basic behavior', async () => {
+	const result = await load_task_modules([
+		resolve('src/lib/test'),
+		resolve('src/lib/test.task.ts'),
+	]);
 	assert.ok(result.ok);
 	assert.is(result.modules.length, 1);
 	assert.is(result.modules[0].mod, actualTestTaskModule);
 });
 
-test__loadTaskModules.run();
-/* test__loadTaskModules */
+test__load_task_modules.run();
+/* test__load_task_modules */

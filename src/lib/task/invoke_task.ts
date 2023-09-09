@@ -10,18 +10,17 @@ import {resolve_raw_input_path} from '../path/input_path.js';
 import {is_task_path} from './task.js';
 import {
 	paths,
-	gro_paths,
 	is_gro_id,
 	is_this_project_gro,
 	print_path,
 	print_path_or_gro_path,
 	gro_dist_dir,
+	to_gro_input_path,
 } from '../path/paths.js';
 import {find_modules, load_modules} from '../fs/modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../util/package_json.js';
 import {log_available_tasks, log_error_reasons} from './log_task.js';
-import {stripStart} from '@feltjs/util/string.js';
 import {find_files} from '../fs/find_files.js';
 
 /**
@@ -52,7 +51,7 @@ export const invoke_task = async (
 
 	// Check if the caller just wants to see the version.
 	if (!task_name && (args.version || args.v)) {
-		const gro_package_json = await load_gro_package_json();
+		const gro_package_json = load_gro_package_json();
 		log.info(`${gray('v')}${cyan(gro_package_json.version as string)}`);
 		return;
 	}
@@ -66,7 +65,7 @@ export const invoke_task = async (
 
 	// Find the task or directory specified by the `input_path`.
 	// Fall back to searching the Gro directory as well.
-	const find_modules_result = await find_task_modules([input_path], undefined, [gro_paths.root]);
+	const find_modules_result = await find_task_modules([input_path], undefined, [gro_dist_dir]);
 	console.log(`find_modules_result`, find_modules_result);
 	if (find_modules_result.ok) {
 		// Found a match either in the current working directory or Gro's directory.
@@ -203,11 +202,4 @@ export const invoke_task = async (
 
 	printTimings(timings, log);
 	log.info(`🕒 ${printMs(total_timing())}`);
-};
-
-// TODO hacky
-const to_gro_input_path = (input_path: string): string => {
-	console.log(`to_gro_input_path input_path paths.lib`, input_path, paths.lib);
-	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
-	return gro_dist_dir + base_path;
 };

@@ -63,7 +63,7 @@ export const find_task_modules = async (
 		(input_path) => get_possible_source_ids(input_path, extensions, root_dirs),
 	);
 
-export const loadTaskModules = async (
+export const load_task_modules = async (
 	input_paths?: string[],
 	extensions?: string[],
 	root_dirs?: string[],

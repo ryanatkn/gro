@@ -4,7 +4,7 @@ import {stripStart} from '@feltjs/util/string.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../path/paths.js';
-import {loadTaskModules} from '../task/task_module.js';
+import {load_task_modules} from '../task/task_module.js';
 import {log_error_reasons} from '../task/log_task.js';
 
 // This is the first simple implementation of Gro's automated docs.
@@ -19,7 +19,7 @@ import {log_error_reasons} from '../task/log_task.js';
 // TODO add backlinks to every document that links to this one
 
 export const gen: Gen = async ({origin_id, log}) => {
-	const result = await loadTaskModules();
+	const result = await load_task_modules();
 	if (!result.ok) {
 		log_error_reasons(log, result.reasons);
 		throw new Error(result.type);
