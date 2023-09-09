@@ -53,9 +53,9 @@ const normalize_build_config_input = (input: BuildConfigPartial['input']): Build
 	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
 
 // TODO replace this with JSON schema validation (or most of it at least)
-export const validate_build_configs = async (
+export const validate_build_configs = (
 	build_configs: BuildConfig[],
-): Promise<Result<object, {reason: string}>> => {
+): Result<object, {reason: string}> => {
 	if (!Array.isArray(build_configs)) {
 		return {
 			ok: false,
@@ -81,7 +81,7 @@ export const validate_build_configs = async (
 			};
 		}
 		names.add(build_config.name);
-		const validated_input = await validate_input_files(to_input_files(build_config.input)); // eslint-disable-line no-await-in-loop
+		const validated_input = validate_input_files(to_input_files(build_config.input)); // eslint-disable-line no-await-in-loop
 		if (!validated_input.ok) return validated_input;
 	}
 	return {ok: true};

@@ -96,59 +96,49 @@ test__normalize_build_configs.run();
 const test__validate_build_configs = suite('validate_build_configs');
 
 test__validate_build_configs('basic behavior', async () => {
-	assert.ok((await validate_build_configs(normalize_build_configs([]))).ok);
-	assert.ok((await validate_build_configs(normalize_build_configs([{name: 'node', input}]))).ok);
+	assert.ok(validate_build_configs(normalize_build_configs([])).ok);
+	assert.ok(validate_build_configs(normalize_build_configs([{name: 'node', input}])).ok);
 	assert.ok(
-		(
-			await validate_build_configs(
-				normalize_build_configs([
-					{name: 'node', input},
-					{name: 'node2', input},
-				]),
-			)
+		validate_build_configs(
+			normalize_build_configs([
+				{name: 'node', input},
+				{name: 'node2', input},
+			]),
 		).ok,
 	);
 	assert.ok(
-		(
-			await validate_build_configs(
-				normalize_build_configs([
-					{name: 'node', input},
-					{name: 'node2', input},
-				]),
-			)
+		validate_build_configs(
+			normalize_build_configs([
+				{name: 'node', input},
+				{name: 'node2', input},
+			]),
 		).ok,
 	);
 });
 
 test__validate_build_configs('fails with input path that does not exist', async () => {
 	assert.ok(
-		!(
-			await validate_build_configs(
-				normalize_build_configs([{name: 'node', input: 'noSuchFile.ts'}]),
-			)
-		).ok,
+		!validate_build_configs(normalize_build_configs([{name: 'node', input: 'noSuchFile.ts'}])).ok,
 	);
 });
 
 test__validate_build_configs('fails with undefined', async () => {
-	assert.ok(!(await validate_build_configs(undefined as any)).ok);
-	assert.ok(!(await validate_build_configs({name: 'node', input} as any)).ok);
+	assert.ok(!validate_build_configs(undefined as any).ok);
+	assert.ok(!validate_build_configs({name: 'node', input} as any).ok);
 });
 
 test__validate_build_configs('fails with an invalid name', async () => {
-	assert.ok(!(await validate_build_configs(normalize_build_configs([{input} as any]))).ok);
-	assert.ok(!(await validate_build_configs(normalize_build_configs([{name: '', input}]))).ok);
+	assert.ok(!validate_build_configs(normalize_build_configs([{input} as any])).ok);
+	assert.ok(!validate_build_configs(normalize_build_configs([{name: '', input}])).ok);
 });
 
 test__validate_build_configs('fails with duplicate names', async () => {
 	assert.ok(
-		!(
-			await validate_build_configs(
-				normalize_build_configs([
-					{name: 'node', input},
-					{name: 'node', input},
-				]),
-			)
+		!validate_build_configs(
+			normalize_build_configs([
+				{name: 'node', input},
+				{name: 'node', input},
+			]),
 		).ok,
 	);
 });

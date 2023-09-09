@@ -48,17 +48,13 @@ export const map_dependency_to_source_id: MapDependencyToSourceId = (
 export const add_js_sourcemap_footer = (code: string, sourcemapPath: string): string =>
 	`${code}\n//# sourceMappingURL=${sourcemapPath}`;
 
-export const validate_input_files = async (
-	files: string[],
-): Promise<Result<object, {reason: string}>> => {
-	const results = await Promise.all(
-		files.map(async (input): Promise<null | {ok: false; reason: string}> => {
-			if (!existsSync(input)) {
-				return {ok: false, reason: `Input file does not exist: ${input}`};
-			}
-			return null;
-		}),
-	);
+export const validate_input_files = (files: string[]): Result<object, {reason: string}> => {
+	const results = files.map((input): null | {ok: false; reason: string} => {
+		if (!existsSync(input)) {
+			return {ok: false, reason: `Input file does not exist: ${input}`};
+		}
+		return null;
+	});
 	for (const result of results) {
 		if (result) return result;
 	}

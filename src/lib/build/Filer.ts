@@ -290,7 +290,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		);
 		await this.init_source_file(env_source_file);
 		await this.add_source_file_to_build(env_source_file, build_config, true);
-		await update_source_meta(this, env_source_file);
+		update_source_meta(this, env_source_file);
 	}
 
 	// TODO include only when imported, and keep in sync at runtime
@@ -627,7 +627,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 		// Update the source file with the new build files.
 		await this.update_build_files(source_file, build_files, build_config);
-		await update_source_meta(this, source_file);
+		update_source_meta(this, source_file);
 	}
 
 	// Updates the build files in the memory cache and writes to disk.
@@ -640,10 +640,8 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		const changes = diff_build_files(new_build_files, old_build_files);
 		source_file.build_files.set(build_config, new_build_files);
 		sync_build_files_to_memory_cache(this.files, changes);
-		await Promise.all([
-			sync_build_files_to_disk(changes, this.log),
-			this.update_dependencies(source_file, new_build_files, old_build_files, build_config),
-		]);
+		sync_build_files_to_disk(changes, this.log);
+		await this.update_dependencies(source_file, new_build_files, old_build_files, build_config);
 	}
 
 	// This is like `update_build_files` except
@@ -805,44 +803,42 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	}
 }
 
-const sync_build_files_to_disk = async (changes: BuildFileChange[], log: Logger): Promise<void> => {
+const sync_build_files_to_disk = (changes: BuildFileChange[], log: Logger): void => {
 	const build_config = changes[0]?.file?.build_config;
 	const label = build_config ? print_build_config_label(build_config) : '';
-	await Promise.all(
-		changes.map(async (change) => {
-			const {file} = change;
-			let should_output_new_file = false;
-			if (change.type === 'added') {
-				if (!existsSync(file.id)) {
-					// log.debug(label, 'creating build file on disk', gray(file.id));
-					should_output_new_file = true;
-				} else {
-					const existing_content = readFileSync(file.id, 'utf8');
-					if (file.content !== existing_content) {
-						log.debug(label, 'updating stale build file on disk', gray(file.id));
-						should_output_new_file = true;
-					} // ...else the build file on disk already matches what's in memory.
-					// This can happen if the source file changed but this particular build file did not.
-					// Loading the usually-stale content into memory to check before writing is inefficient,
-					// but it avoids unnecessary writing to disk and misleadingly updated file stats.
-				}
-			} else if (change.type === 'updated') {
-				if (file.content !== change.old_file.content) {
-					log.debug(label, 'updating build file on disk', gray(file.id));
-					should_output_new_file = true;
-				}
-			} else if (change.type === 'removed') {
-				log.debug(label, 'deleting build file on disk', gray(file.id));
-				rmSync(file.id);
+	for (const change of changes) {
+		const {file} = change;
+		let should_output_new_file = false;
+		if (change.type === 'added') {
+			if (!existsSync(file.id)) {
+				// log.debug(label, 'creating build file on disk', gray(file.id));
+				should_output_new_file = true;
 			} else {
-				throw new UnreachableError(change);
+				const existing_content = readFileSync(file.id, 'utf8');
+				if (file.content !== existing_content) {
+					log.debug(label, 'updating stale build file on disk', gray(file.id));
+					should_output_new_file = true;
+				} // ...else the build file on disk already matches what's in memory.
+				// This can happen if the source file changed but this particular build file did not.
+				// Loading the usually-stale content into memory to check before writing is inefficient,
+				// but it avoids unnecessary writing to disk and misleadingly updated file stats.
 			}
-			if (should_output_new_file) {
-				mkdirSync(dirname(file.id), {recursive: true});
-				writeFileSync(file.id, file.content);
+		} else if (change.type === 'updated') {
+			if (file.content !== change.old_file.content) {
+				log.debug(label, 'updating build file on disk', gray(file.id));
+				should_output_new_file = true;
 			}
-		}),
-	);
+		} else if (change.type === 'removed') {
+			log.debug(label, 'deleting build file on disk', gray(file.id));
+			rmSync(file.id);
+		} else {
+			throw new UnreachableError(change);
+		}
+		if (should_output_new_file) {
+			mkdirSync(dirname(file.id), {recursive: true});
+			writeFileSync(file.id, file.content);
+		}
+	}
 };
 
 const sync_build_files_to_memory_cache = (
