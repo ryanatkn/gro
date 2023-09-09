@@ -1,8 +1,6 @@
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 import {resolve} from 'node:path';
-// TODO BLOCK do this with the test runner generically, maybe lazy loaded in the loader if we see typescript
-// import 'source-map-support/register.js';
 
 import {
 	resolve_raw_input_path,

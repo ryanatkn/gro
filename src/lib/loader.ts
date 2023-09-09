@@ -36,7 +36,7 @@ const compiler_options = config?.compilerOptions;
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',
-	sourcemap: false, // TODO add support - runtime lookup to `source-map-support`?
+	sourcemap: false, // TODO BLOCK add support - runtime lookup to `source-map-support`?
 	format: 'esm',
 	loader: 'ts',
 	charset: 'utf8',
