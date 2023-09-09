@@ -392,16 +392,16 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 
 	// Removes a build config from a source file.
 	// The caller is expected to check to avoid duplicates.
-	private async remove_source_file_from_build(
+	private remove_source_file_from_build(
 		source_file: SourceFile,
 		build_config: BuildConfig,
 		should_update_source_meta = true,
-	): Promise<void> {
+	): void {
 		this.log.debug(
 			`${print_build_config_label(build_config)} removing source file ${gray(source_file.id)}`,
 		);
 
-		await this.update_build_files(source_file, [], build_config);
+		this.update_build_files(source_file, [], build_config);
 
 		const deleted = source_file.build_configs.delete(build_config);
 		if (!deleted) {
@@ -462,7 +462,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 						rmdirSync(to_build_out_path(this.dev, build_config.name, change.path, this.build_dir));
 					}
 				} else {
-					await this.destroy_source_id(id);
+					this.destroy_source_id(id);
 				}
 				break;
 			}
@@ -626,22 +626,22 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		this.building_source_files.delete(source_file.id);
 
 		// Update the source file with the new build files.
-		await this.update_build_files(source_file, build_files, build_config);
+		this.update_build_files(source_file, build_files, build_config);
 		update_source_meta(this, source_file);
 	}
 
 	// Updates the build files in the memory cache and writes to disk.
-	private async update_build_files(
+	private update_build_files(
 		source_file: SourceFile,
 		new_build_files: BuildFile[],
 		build_config: BuildConfig,
-	): Promise<void> {
+	): void {
 		const old_build_files = source_file.build_files.get(build_config) || null;
 		const changes = diff_build_files(new_build_files, old_build_files);
 		source_file.build_files.set(build_config, new_build_files);
 		sync_build_files_to_memory_cache(this.files, changes);
 		sync_build_files_to_disk(changes, this.log);
-		await this.update_dependencies(source_file, new_build_files, old_build_files, build_config);
+		this.update_dependencies(source_file, new_build_files, old_build_files, build_config);
 	}
 
 	// This is like `update_build_files` except
@@ -659,7 +659,7 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 		}
 		const changes = diff_build_files(build_files, null);
 		sync_build_files_to_memory_cache(this.files, changes);
-		await this.update_dependencies(source_file, build_files, null, build_config);
+		this.update_dependencies(source_file, build_files, null, build_config);
 	}
 
 	// After building the source file, we need to handle any dependency changes for each build file.
@@ -675,12 +675,12 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 	// and it has 0 dependents after the build file is removed,
 	// they're removed for this build,
 	// meaning the memory cache is updated and the files are deleted from disk for the build config.
-	private async update_dependencies(
+	private update_dependencies(
 		source_file: SourceFile,
 		new_build_files: readonly BuildFile[],
 		old_build_files: readonly BuildFile[] | null,
 		build_config: BuildConfig,
-	): Promise<void> {
+	): void {
 		if (new_build_files === old_build_files) return;
 
 		const {added_dependencies, removed_dependencies} =
@@ -774,28 +774,23 @@ export class Filer extends (EventEmitter as {new (): FilerEmitter}) implements B
 						dependents_map.size === 0 &&
 						!removed_source_file.is_input_to_build_configs?.has(build_config)
 					) {
-						(promises || (promises = [])).push(
-							this.remove_source_file_from_build(removed_source_file, build_config),
-						);
+						this.remove_source_file_from_build(removed_source_file, build_config);
 					}
 				}
 			}
 		}
-		if (promises !== null) await Promise.all(promises); // TODO parallelize with syncing to disk below (in `update_build_files()`)?
 	}
 
-	private async destroy_source_id(id: SourceId): Promise<void> {
+	private destroy_source_id(id: SourceId): void {
 		const source_file = this.files.get(id);
 		assert_source_file(source_file);
 		this.log.debug('destroying file', gray(id));
 		this.files.delete(id);
-		await Promise.all(
-			this.build_configs.map((b) =>
-				source_file.build_configs.has(b)
-					? this.remove_source_file_from_build(source_file, b, false)
-					: null,
-			),
-		);
+		for (const b of this.build_configs) {
+			if (source_file.build_configs.has(b)) {
+				this.remove_source_file_from_build(source_file, b, false);
+			}
+		}
 		// TODO instead of batching like this here, make that concern internal to the source_meta
 		// passing `false` above to avoid writing `source_meta` to disk for each build -
 		// batch delete it now:

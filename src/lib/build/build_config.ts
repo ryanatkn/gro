@@ -81,7 +81,7 @@ export const validate_build_configs = (
 			};
 		}
 		names.add(build_config.name);
-		const validated_input = validate_input_files(to_input_files(build_config.input)); // eslint-disable-line no-await-in-loop
+		const validated_input = validate_input_files(to_input_files(build_config.input));
 		if (!validated_input.ok) return validated_input;
 	}
 	return {ok: true};
