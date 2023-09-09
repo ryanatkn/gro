@@ -232,6 +232,7 @@ console.log(`paths`, paths);
 export const is_this_project_gro = gro_dir === paths.root;
 console.log(`is_this_project_gro`, is_this_project_gro, gro_dir, paths.root);
 export const gro_paths = is_this_project_gro ? paths : create_paths(gro_dir);
+export const gro_dist_dir = gro_paths.root + 'dist/'; // this is the SvelteKit output dir, whereas `gro_paths.dist` is Gro's build output directory that will be removed
 console.log(`gro_paths`, gro_paths);
 console.log(`{.......................}`, {
 	gro_dir,

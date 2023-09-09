@@ -1,4 +1,6 @@
-import {source_id_to_base_path, paths, paths_from_id} from '../path/paths.js';
+import {stripStart} from '@feltjs/util/string.js';
+
+import {source_id_to_base_path, paths, paths_from_id, gro_dist_dir} from '../path/paths.js';
 import {
 	load_module,
 	load_modules,
@@ -31,9 +33,22 @@ export const validate_task_module = (mod: Record<string, any>): mod is TaskModul
 export const load_task_module = async (id: string): Promise<LoadModuleResult<TaskModuleMeta>> => {
 	const result = await load_module(id, validate_task_module);
 	if (!result.ok) return result;
+	console.log(
+		`to_task_name(source_id_to_base_path(id, paths_from_id(id)))`,
+		to_task_name(source_id_to_base_path(id, paths_from_id(id))),
+		id,
+	);
+	console.log(`paths_from_id(id)`, paths_from_id(id).root);
+	console.log(
+		`source_id_to_base_path(id, paths_from_id(id))`,
+		source_id_to_base_path(id, paths_from_id(id)),
+	);
 	return {
 		...result,
-		mod: {...result.mod, name: to_task_name(source_id_to_base_path(id, paths_from_id(id)))},
+		mod: {
+			...result.mod,
+			name: to_task_name(stripStart(source_id_to_base_path(id, paths_from_id(id)), gro_dist_dir)), // TODO hacky, handles the gro/dist/ ids not just source ids anymore
+		},
 	};
 };
 

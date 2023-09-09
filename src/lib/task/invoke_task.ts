@@ -15,6 +15,7 @@ import {
 	is_this_project_gro,
 	print_path,
 	print_path_or_gro_path,
+	gro_dist_dir,
 } from '../path/paths.js';
 import {find_modules, load_modules} from '../fs/modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
@@ -212,5 +213,5 @@ export const invoke_task = async (
 const to_gro_input_path = (input_path: string): string => {
 	console.log(`to_gro_input_path input_path paths.lib`, input_path, paths.lib);
 	const base_path = input_path === paths.lib.slice(0, -1) ? '' : stripStart(input_path, paths.lib);
-	return gro_paths.root + 'dist/' + base_path;
+	return gro_dist_dir + base_path;
 };
