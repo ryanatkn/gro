@@ -55,6 +55,7 @@ export const task: Task<Args, TaskEvents> = {
 			outdir: '.gro/dev/server/',
 			format: 'esm',
 			platform: 'node',
+			packages: 'external',
 			bundle: true,
 			target: config.target,
 		});
