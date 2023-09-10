@@ -1,6 +1,7 @@
 import {printTimings} from '@feltjs/util/print.js';
 import {Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
+import * as esbuild from 'esbuild';
 
 import type {Task} from './task/task.js';
 import {Filer} from './build/Filer.js';
@@ -49,26 +50,34 @@ export const task: Task<Args, TaskEvents> = {
 		timing_to_load_config();
 		events.emit('dev.create_config', config);
 
-		const timing_to_create_filer = timings.start('create filer');
-		const filer = new Filer({
-			dev: true,
-			builder: gro_builder_default(),
-			source_dirs: [paths.source],
-			build_configs: config.builds,
-			target: config.target,
-			sourcemap: config.sourcemap,
-			watch,
+		const timing_to_create_esbuild_context = timings.start('create filer');
+		const build = await esbuild.context({
+			entryPoints: [paths.source],
+			outfile: '.gro/dev/server.js',
+			platform: 'node',
+			bundle: true,
 		});
-		filer.on('build', ({source_file, build_config}) => {
-			console.log(`source_file.id`, source_file.id);
-			if (source_file.id.endsWith('/gro/do/close.json')) {
-				console.log('CLOSE', source_file);
-				console.log(`build_config`, build_config);
-			}
-		});
+		await build.watch();
+		log.info('watching');
+		// const filer = new Filer({
+		// 	dev: true,
+		// 	builder: gro_builder_default(),
+		// 	source_dirs: [paths.source],
+		// 	build_configs: config.builds,
+		// 	target: config.target,
+		// 	sourcemap: config.sourcemap,
+		// 	watch,
+		// });
+		// filer.on('build', ({source_file, build_config}) => {
+		// 	console.log(`source_file.id`, source_file.id);
+		// 	if (source_file.id.endsWith('/gro/do/close.json')) {
+		// 		console.log('CLOSE', source_file);
+		// 		console.log(`build_config`, build_config);
+		// 	}
+		// });
 		console.log('CREATED FILER');
-		timing_to_create_filer();
-		events.emit('dev.create_filer', filer);
+		timing_to_create_esbuild_context();
+		// events.emit('dev.create_filer', filer);
 
 		const dev_task_context: DevTaskContext = {...ctx, config, dev: true, filer, timings};
 		events.emit('dev.create_context', dev_task_context);
@@ -76,10 +85,10 @@ export const task: Task<Args, TaskEvents> = {
 		console.log('CREATING PLUGINS');
 		const plugins = await Plugins.create(dev_task_context);
 
-		const timing_to_init_filer = timings.start('init filer');
-		console.log('INIT FILER');
-		await filer.init();
-		timing_to_init_filer();
+		// const timing_to_init_filer = timings.start('init filer');
+		// console.log('INIT FILER');
+		// await filer.init();
+		// timing_to_init_filer();
 
 		console.log('SETTING UP PLUGINS');
 		await plugins.setup();
