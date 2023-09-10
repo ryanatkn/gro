@@ -50,8 +50,8 @@ export const task: Task<Args, TaskEvents> = {
 
 		const timing_to_create_esbuild_context = timings.start('create filer');
 		const build = await create_esbuild_context({
-			entryPoints: [paths.source],
-			outfile: '.gro/dev/server.js',
+			entryPoints: config.builds[0].input as any, // TODO BLOCK move to plugin
+			outdir: '.gro/dev/server/',
 			platform: 'node',
 			bundle: true,
 			target: config.target,
@@ -63,6 +63,7 @@ export const task: Task<Args, TaskEvents> = {
 		// 		console.log(`build_config`, build_config);
 		// 	}
 		// });
+		await build.rebuild();
 		await build.watch();
 		log.info('watching');
 		console.log('CREATED FILER');
