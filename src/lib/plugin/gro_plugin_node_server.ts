@@ -37,9 +37,9 @@ export const create_plugin = ({
 			console.log(`build_config`, build_config);
 
 			const SERVER_OUTDIR = '.gro/dev/' + build_name;
-			const SERVER_OUTFILE = SERVER_OUTDIR + '/server.js';
+			const SERVER_OUTFILE = SERVER_OUTDIR + '/server/server.js';
 
-			const timing_to_create_esbuild_context = timings.start('create filer');
+			const timing_to_create_esbuild_context = timings.start('create esbuild context');
 			build_ctx = await create_esbuild_context({
 				entryPoints: build_config.input, // TODO BLOCK could map filters to files before calling this
 				outdir: '.gro/dev/server/',
@@ -75,6 +75,7 @@ export const create_plugin = ({
 			}
 
 			server_process = spawnRestartableProcess('node', [SERVER_OUTFILE]);
+			console.log(`spawned`, server_process);
 		},
 		teardown: async ({dev}) => {
 			if (!dev) return;
