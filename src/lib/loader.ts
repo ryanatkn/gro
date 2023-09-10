@@ -139,7 +139,7 @@ export const resolve: ResolveHook = async (specifier, context, nextResolve) => {
 	// TODO `import.meta.resolves` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
 	// await import.meta.resolve(path);
 	let js_path = relative ? join(parent_path, '../', path) : path;
-	if (!path.endsWith('.js')) js_path += '.js';
+	if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too
 	if (existsSync(js_path)) {
 		path = js_path;
 	} else {

@@ -41,7 +41,7 @@ It includes:
   - see the [Gro config docs](/src/lib/docs/config.md) and
     [the default config](https://github.com/feltjs/gro/blob/main/src/lib/config/gro.config.default.ts)
   - [configurable plugins](/src/lib/docs/plugin.md) and [adapters](/src/lib/docs/adapt.md)
-    to support SvelteKit, auto-restarting API servers, and other external build processes -
+    to support SvelteKit, auto-restarting Node servers, and other external build processes -
     ideally would use SvelteKit/Vite instead
   - example usage in a starter project:
     [`@feltjs/felt-template`](https://github.com/feltjs/felt-template)

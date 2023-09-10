@@ -5,7 +5,7 @@ to one or more output artifacts.
 It's designed for a variety of needs:
 
 - support multiple use cases in one source project
-  like SvelteKit apps, Node libraries, and API servers
+  like SvelteKit apps, Node libraries, and Node servers
 - support multiple build targets like legacy/modern ES versions and mobile/desktop frontends
 - support multiple packages created from one source project to be published separately
 - support dev and prod builds that coexist on the filesystem
@@ -18,7 +18,7 @@ and tries to do the right thing.
 
 > The [default config](/src/lib/config/gro.config.default.ts)
 > detects three types of projects that can coexist:
-> SvelteKit frontends, Node libraries published with SvelteKit, and Node API servers.
+> SvelteKit frontends, Node libraries published with SvelteKit, and Node servers.
 
 See [`src/lib/config/config.ts`](/src/lib/config/config.ts) for the config types and implementation.
 

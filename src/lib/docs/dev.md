@@ -5,7 +5,7 @@ with helpful tools. It supports:
 
 - frontends with SvelteKit and [Vite](https://github.com/vitejs/vite)
 - Node libraries
-- Node API servers
+- Node servers
 
 ## usage
 

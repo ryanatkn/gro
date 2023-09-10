@@ -13,7 +13,7 @@ import {
  *
  * - if `src/routes` and `src/app.html`, assumes a SvelteKit frontend
  * - if `src/lib`, assumes a Node library
- * - if `src/lib/server/server.ts`, assumes a Node API server
+ * - if `src/lib/server/server.ts`, assumes a Node  server
  */
 const config: GroConfigCreator = async () => {
 	const [enable_node_library, enable_node_server, enable_sveltekit_frontend] = await Promise.all([

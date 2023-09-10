@@ -728,10 +728,10 @@
 
 - **break**: remove `gro start` task
   ([#223](https://github.com/feltjs/gro/pull/223))
-- add `Plugin`s and `config.plugin` to support SvelteKit and API servers
+- add `Plugin`s and `config.plugin` to support SvelteKit and Node servers
   ([#223](https://github.com/feltjs/gro/pull/223),
   [#224](https://github.com/feltjs/gro/pull/224))
-- implement API server config and adapter
+- implement Node server config and adapter
   ([#223](https://github.com/feltjs/gro/pull/223))
 - implement library adapter
   ([#226](https://github.com/feltjs/gro/pull/226),
@@ -989,12 +989,12 @@
 
 ## 0.18.1
 
-- fix `gro start` task to work with SvelteKit and the API server if detected
+- fix `gro start` task to work with SvelteKit and the Node server if detected
   ([#169](https://github.com/feltjs/gro/pull/169))
 
 ## 0.18.0
 
-- **break**: change the interface of `gro dev` and `gro build` to support the API server
+- **break**: change the interface of `gro dev` and `gro build` to support the Node server
   ([#168](https://github.com/feltjs/gro/pull/168))
 
 ## 0.17.1
@@ -1070,7 +1070,7 @@
 
 - **break**: require Node >=14.16.0
   ([#150](https://github.com/feltjs/gro/pull/150))
-- fix false positive API server detection in default config
+- fix false positive Node server detection in default config
   ([#151](https://github.com/feltjs/gro/pull/151))
 - add `get_mime_types` and `get_extensions` returning iterators to `src/lib/fs/mime.ts`
   ([#149](https://github.com/feltjs/gro/pull/149))
@@ -1079,20 +1079,20 @@
 
 ## 0.12.1
 
-- fix swapped API server ports
+- fix swapped Node server ports
   ([#148](https://github.com/feltjs/gro/pull/148))
 
 ## 0.12.0
 
 - **break**: output builds to `dist/` mirroring the source tree as much as possible
   ([#147](https://github.com/feltjs/gro/pull/147))
-- **break**: rename some things around the API server
+- **break**: rename some things around the Node server
   ([#147](https://github.com/feltjs/gro/pull/147))
 - add `gro start` as an alias for `npm start`
   ([#147](https://github.com/feltjs/gro/pull/147))
-- integrate the default Gro API server with SvelteKit and Gro's build task
+- integrate the default Gro Node server with SvelteKit and Gro's build task
   ([#145](https://github.com/feltjs/gro/pull/145))
-- add task `gro server` to support the default API server use case in SvelteKit
+- add task `gro server` to support the default Node server use case in SvelteKit
   ([#145](https://github.com/feltjs/gro/pull/145))
 - remove the `gro dist` task; it's now part of `gro build`
   ([#146](https://github.com/feltjs/gro/pull/146))
