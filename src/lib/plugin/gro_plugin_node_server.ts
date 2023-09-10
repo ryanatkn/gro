@@ -5,6 +5,7 @@ import {cwd} from 'node:process';
 import {yellow, red} from 'kleur/colors';
 import {extname, join, relative} from 'node:path';
 import type {Logger} from '@feltjs/util/log.js';
+import {stripEnd} from '@feltjs/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {
@@ -136,8 +137,19 @@ export const create_plugin = ({
 							const namespace = 'external_worker';
 
 							build.onResolve({filter: matcher}, async (args) => {
-								let mapped = relative(join(args.path, '../'), args.importer);
+								console.log(red(`args.path, args.importer`), args.path, args.importer);
+								let mapped = relative(join(args.importer, '../'), args.path);
 								if (mapped[0] !== '.') mapped = './' + mapped;
+								if (!mapped.endsWith('.js')) {
+									const ext = extname(mapped);
+									if (ext === '.ts') {
+										// TODO support other extensions, can't be generic because of false positives for imports to `.worker`, `.task`, etc
+										mapped = stripEnd(mapped, ext) + '.js';
+									} else {
+										mapped += '.js';
+									}
+								}
+
 								console.log(red(`mapped`), yellow(mapped));
 								console.log(
 									red(`[external_worker] building external worker path`),
