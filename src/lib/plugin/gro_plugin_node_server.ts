@@ -39,6 +39,7 @@ export const create_plugin = ({
 	return {
 		name: 'gro_plugin_node_server',
 		setup: async ({dev, timings, config, log}) => {
+			console.log(`[gro_plugin_node_server] dev`, dev); // TODO BLOCK
 			const watch = dev;
 
 			const sveltekit_config = await load_sveltekit_config(dir);
@@ -67,16 +68,16 @@ export const create_plugin = ({
 					build.onResolve({filter: matcher}, async (args) => {
 						// console.log(`[sveltekit_shim_alias] args`, args);
 						const {path: specifier, ...rest} = args;
-						console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
+						// console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
 						let path = dir + 'src/' + specifier.slice(1);
 						const ext = extname(path);
 						if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
 						if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
-						console.log(yellow(`path`), path);
+						// console.log(yellow(`path`), path);
 						if (path === specifier) return {path};
 						const resolved = await build.resolve(path, rest);
-						console.log(yellow(`[sveltekit_shim_alias] resolved path\n`), path, '->\n', resolved);
+						// console.log(yellow(`[sveltekit_shim_alias] resolved path\n`), path, '->\n', resolved);
 						// if (resolved.external) {
 						// TODO BLOCK figure this out
 						// return {...resolved, path: './password_worker.js'};
@@ -103,7 +104,7 @@ export const create_plugin = ({
 						return {
 							loader: 'ts',
 							contents: render_env_shim_module(
-								false, // TODO BLOCK
+								dev,
 								mode,
 								visibility,
 								public_prefix,
