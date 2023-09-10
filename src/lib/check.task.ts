@@ -42,7 +42,7 @@ export const task: Task<Args> = {
 			const find_gen_modules_result = await find_gen_modules();
 			if (find_gen_modules_result.ok) {
 				log.info('checking that generated files have not changed');
-				await invoke_task('gen', {check: true, rebuild: false});
+				await invoke_task('gen', {check: true});
 			} else if (find_gen_modules_result.type !== 'input_directories_with_no_files') {
 				log_error_reasons(log, find_gen_modules_result.reasons);
 				throw new TaskError('Failed to find gen modules.');

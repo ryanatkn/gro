@@ -11,8 +11,6 @@ import {resolve_raw_input_paths} from './path/input_path.js';
 import {load_modules} from './fs/modules.js';
 import {format_file} from './format/format_file.js';
 import {print_path} from './path/paths.js';
-import {load_config} from './config/config.js';
-import {build_source} from './build/build_source.js';
 import {log_error_reasons} from './task/log_task.js';
 import {mkdirSync, writeFileSync} from 'node:fs';
 import {dirname} from 'node:path';
@@ -22,11 +20,6 @@ export const Args = z
 		_: z.array(z.string(), {description: 'paths to generate'}).default([]),
 		check: z
 			.boolean({description: 'exit with a nonzero code if any files need to be generated'})
-			.default(false),
-		rebuild: z.boolean({description: 'read this instead of no-rebuild'}).optional().default(true),
-		'no-rebuild': z
-			.boolean({description: 'opt out of rebuilding the code for efficiency'})
-			.optional()
 			.default(false),
 	})
 	.strict();
@@ -38,22 +31,10 @@ export const task: Task<Args> = {
 	summary: 'run code generation scripts',
 	Args,
 	run: async ({log, args}): Promise<void> => {
-		const {_: raw_input_paths, check, rebuild} = args;
+		const {_: raw_input_paths, check} = args;
 
 		const total_timing = createStopwatch();
 		const timings = new Timings();
-
-		// TODO hacky -- running `gro gen` from the command line
-		// currently causes it to rebuild by default,
-		// but running `gro gen` from dev/build tasks will not want to rebuild.
-		if (rebuild) {
-			const timing_to_load_config = timings.start('load config');
-			const config = await load_config();
-			timing_to_load_config();
-			const timingToBuildSource = timings.start('build_source');
-			await build_source(config, true, log);
-			timingToBuildSource();
-		}
 
 		// resolve the input paths relative to src/lib/
 		const input_paths = resolve_raw_input_paths(raw_input_paths);

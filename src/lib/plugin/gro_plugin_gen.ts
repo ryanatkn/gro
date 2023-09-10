@@ -46,7 +46,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 		undefined,
 		FLUSH_DEBOUNCE_DELAY,
 	);
-	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
+	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', ...files]);
 
 	return {
 		name: 'gro_plugin_gen',

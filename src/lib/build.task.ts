@@ -48,6 +48,8 @@ export const task: Task<Args> = {
 
 		const timings = new Timings(); // TODO belongs in ctx
 
+		// TODO BLOCK gen like in dev?
+
 		if (install) {
 			await spawn('npm', ['i'], {env: {...process.env, NODE_ENV: 'development'}});
 		}
