@@ -89,6 +89,7 @@ export const create_plugin = ({
 								const mode = matches![1] as 'static' | 'dynamic';
 								const visibility = matches![2] as 'public' | 'private';
 								return {
+									loader: 'ts',
 									contents: render_env_shim_module(
 										true, // TODO BLOCK
 										mode,
@@ -97,7 +98,6 @@ export const create_plugin = ({
 										private_prefix,
 										env_dir,
 									),
-									loader: 'ts',
 								};
 							});
 						},
