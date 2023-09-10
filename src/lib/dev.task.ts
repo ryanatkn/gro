@@ -1,18 +1,16 @@
 import {printTimings} from '@feltjs/util/print.js';
 import {Timings} from '@feltjs/util/timings.js';
 import {z} from 'zod';
-import * as esbuild from 'esbuild';
+import {type BuildContext, context as create_esbuild_context} from 'esbuild';
 
 import type {Task} from './task/task.js';
-import {Filer} from './build/Filer.js';
-import {gro_builder_default} from './build/gro_builder_default.js';
 import {paths} from './path/paths.js';
 import {load_config, type GroConfig} from './config/config.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
 
 export interface TaskEvents {
 	'dev.create_config': (config: GroConfig) => void;
-	'dev.create_filer': (filer: Filer) => void;
+	'dev.create_build': (build: BuildContext) => void;
 	'dev.create_context': (ctx: DevTaskContext) => void;
 	'dev.ready': (ctx: DevTaskContext) => void;
 }
@@ -51,7 +49,7 @@ export const task: Task<Args, TaskEvents> = {
 		events.emit('dev.create_config', config);
 
 		const timing_to_create_esbuild_context = timings.start('create filer');
-		const build = await esbuild.context({
+		const build = await create_esbuild_context({
 			entryPoints: [paths.source],
 			outfile: '.gro/dev/server.js',
 			platform: 'node',
@@ -79,7 +77,7 @@ export const task: Task<Args, TaskEvents> = {
 		timing_to_create_esbuild_context();
 		// events.emit('dev.create_filer', filer);
 
-		const dev_task_context: DevTaskContext = {...ctx, config, dev: true, filer, timings};
+		const dev_task_context: DevTaskContext = {...ctx, config, dev: true, build, timings};
 		events.emit('dev.create_context', dev_task_context);
 
 		console.log('CREATING PLUGINS');

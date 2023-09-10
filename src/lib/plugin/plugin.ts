@@ -1,9 +1,9 @@
 import {toArray} from '@feltjs/util/array.js';
 import type {Timings} from '@feltjs/util/timings.js';
+import type {BuildContext} from 'esbuild';
 
 import type {TaskContext} from '../task/task.js';
 import type {GroConfig} from '../config/config.js';
-import type {Filer} from '../build/Filer.js';
 
 /*
 
@@ -30,9 +30,9 @@ export interface PluginContext<TArgs = any, TEvents = any> extends TaskContext<T
 	config: GroConfig;
 	dev: boolean;
 	/**
-	 * `filer` is `null` for production builds, but it's not clear if that's good design.
+	 * `build` is `null` for production builds, but it's not clear if that's good design.
 	 */
-	filer: Filer | null;
+	build: BuildContext | null;
 	timings: Timings;
 }
 
