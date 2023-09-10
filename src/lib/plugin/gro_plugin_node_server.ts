@@ -1,4 +1,3 @@
-import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
 import {existsSync} from 'node:fs';
 import {type BuildContext, context as create_esbuild_context} from 'esbuild';
@@ -11,6 +10,7 @@ import {
 import {paths, to_build_out_dir} from '../path/paths.js';
 import type {BuildName} from '../build/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
+import {printTimings} from '@feltjs/util/print.js';
 
 // TODO import from felt instead
 
@@ -22,7 +22,7 @@ export interface Options {
 export const create_plugin = ({
 	build_name = NODE_SERVER_BUILD_NAME,
 	base_build_path = NODE_SERVER_BUILD_BASE_PATH,
-}: Partial<Options> = EMPTY_OBJECT): Plugin<PluginContext<object>> => {
+}: Partial<Options> = {}): Plugin<PluginContext<object>> => {
 	let build_ctx: BuildContext;
 	let watcher: WatchNodeFs;
 	let server_process: RestartableProcess | null = null;
@@ -48,6 +48,14 @@ export const create_plugin = ({
 				packages: 'external',
 				bundle: true,
 				target: config.target,
+				plugins: [
+					{
+						name: 'sveltekit_shim_env',
+						setup: () => {
+							console.log(`setup env plugin`);
+						},
+					},
+				],
 			});
 			timing_to_create_esbuild_context();
 			// build.on('build', ({source_file, build_config}) => {

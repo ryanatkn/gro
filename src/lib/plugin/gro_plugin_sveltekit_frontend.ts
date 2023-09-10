@@ -1,5 +1,4 @@
 import {spawn, spawnProcess, type SpawnedProcess} from '@feltjs/util/process.js';
-import {EMPTY_OBJECT} from '@feltjs/util/object.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {print_command_args, serialize_args, to_forwarded_args, type Args} from '../task/args.js';
@@ -11,9 +10,7 @@ export interface TaskArgs extends Args {
 }
 
 // eslint-disable-next-line no-empty-pattern
-export const create_plugin = ({}: Partial<Options> = EMPTY_OBJECT): Plugin<
-	PluginContext<TaskArgs, object>
-> => {
+export const create_plugin = ({}: Partial<Options> = {}): Plugin<PluginContext<TaskArgs>> => {
 	let sveltekit_process: SpawnedProcess | null = null;
 	return {
 		name: 'gro_plugin_sveltekit_frontend',
