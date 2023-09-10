@@ -1,9 +1,10 @@
 import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
-import {yellow, red} from 'kleur/colors'; // TODO BLOCK remove
-import {extname} from 'node:path';
+import {yellow, red} from 'kleur/colors';
+import {extname, join, relative} from 'node:path';
+import type {Logger} from '@feltjs/util/log.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {
@@ -36,7 +37,7 @@ export const create_plugin = ({
 
 	return {
 		name: 'gro_plugin_node_server',
-		setup: async ({dev, timings, config}) => {
+		setup: async ({dev, timings, config, log}) => {
 			const watch = dev;
 
 			const sveltekit_config = await load_sveltekit_config(dir);
@@ -133,8 +134,16 @@ export const create_plugin = ({
 							// TODO BLOCK construct matcher with $lib and each `config.alias`
 							const matcher = /_worker/u; // TODO BLOCK maybe `.worker.(js|ts)`?
 							const namespace = 'external_worker';
+
 							build.onResolve({filter: matcher}, async (args) => {
-								console.log(red(`[external_worker] path`), args);
+								let mapped = relative(join(args.path, '../'), args.importer);
+								if (mapped[0] !== '.') mapped = './' + mapped;
+								console.log(red(`mapped`), yellow(mapped));
+								console.log(
+									red(`[external_worker] building external worker path`),
+									args.path,
+									args.importer,
+								);
 								// return null;
 								// return args;
 								// const {path, ...rest} = args;
@@ -160,10 +169,10 @@ export const create_plugin = ({
 										create_sveltekit_shim_env_plugin(),
 									],
 								});
-								console.log(`build_result.outputFiles[0]`, build_result);
+								print_build_result(log, build_result);
 								// console.log(`resolved`, resolved);
 								// console.log(red(`ignoring rest`), path, rest);
-								return {path: './password_worker.js', external: true};
+								return {path: mapped, external: true};
 								// const {path, ...rest} = args;
 								// const resolved = await build.resolve(path, rest);
 								// return {path: resolved.path, external: true};
@@ -193,7 +202,8 @@ export const create_plugin = ({
 					dir: paths.lib,
 					on_change: async (change) => {
 						console.log(`change`, change);
-						// await build_ctx.rebuild(); // TODO BLOCK
+						const result = await build_ctx.rebuild(); // TODO BLOCK
+						print_build_result(log, result);
 						// server_process?.restart();
 					},
 				});
@@ -225,4 +235,13 @@ export const create_plugin = ({
 			}
 		},
 	};
+};
+
+const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {
+	for (const error of build_result.errors) {
+		log.error(red('esbuild error'), error);
+	}
+	for (const warning of build_result.warnings) {
+		log.warn(yellow('esbuild warning'), warning);
+	}
 };
