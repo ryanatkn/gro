@@ -1,9 +1,10 @@
 import type {Logger} from '@feltjs/util/log.js';
-import {cpSync, existsSync, statSync, writeFileSync} from 'node:fs';
+import {cpSync, existsSync, mkdirSync, statSync, writeFileSync} from 'node:fs';
 
 import type {BuildConfig} from '../build/build_config.js';
 import type {IdStatsFilter} from '../fs/filter.js';
 import {to_build_out_path, print_path} from '../path/paths.js';
+import {dirname} from 'node:path';
 
 export const copy_dist = (
 	build_config: BuildConfig,
@@ -37,6 +38,7 @@ const NOJEKYLL_FILENAME = '.nojekyll';
 export const ensure_nojekyll = (dir: string): void => {
 	const path = `${dir}/${NOJEKYLL_FILENAME}`;
 	if (!existsSync(path)) {
+		mkdirSync(dir, {recursive: true});
 		writeFileSync(path, '', 'utf8');
 	}
 };
