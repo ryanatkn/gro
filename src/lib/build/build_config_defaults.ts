@@ -8,14 +8,14 @@ export const GIT_DEPLOY_TARGET_BRANCH = 'deploy'; // deploy TO this branch
 
 export const has_node_library = (): boolean => existsSync(LIB_DIR);
 
-export const API_SERVER_SOURCE_BASE_PATH = LIB_DIRNAME + '/server/server.ts';
-export const API_SERVER_BUILD_BASE_PATH = to_build_extension(API_SERVER_SOURCE_BASE_PATH); // 'lib/server/server.js'
-export const API_SERVER_SOURCE_ID = base_path_to_source_id(API_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/lib/server/server.ts'
-export const has_node_server = (): boolean => existsSync(API_SERVER_SOURCE_ID);
-export const API_SERVER_BUILD_NAME: BuildName = 'server';
-export const API_SERVER_BUILD_CONFIG: BuildConfig = {
-	name: API_SERVER_BUILD_NAME,
-	input: [API_SERVER_SOURCE_BASE_PATH],
+export const NODE_SERVER_SOURCE_BASE_PATH = LIB_DIRNAME + '/server/server.ts';
+export const NODE_SERVER_BUILD_BASE_PATH = to_build_extension(NODE_SERVER_SOURCE_BASE_PATH); // 'lib/server/server.js'
+export const NODE_SERVER_SOURCE_ID = base_path_to_source_id(NODE_SERVER_SOURCE_BASE_PATH); // '/home/to/your/src/lib/server/server.ts'
+export const has_node_server = (): boolean => existsSync(NODE_SERVER_SOURCE_ID);
+export const NODE_SERVER_BUILD_NAME: BuildName = 'server';
+export const NODE_SERVER_BUILD_CONFIG: BuildConfig = {
+	name: NODE_SERVER_BUILD_NAME,
+	input: [NODE_SERVER_SOURCE_BASE_PATH],
 };
 
 const SVELTEKIT_FRONTEND_PATHS = ['src/app.html', 'src/routes'];

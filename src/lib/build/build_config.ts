@@ -17,14 +17,7 @@ export interface BuildConfig {
 }
 
 // `string` inputs must be a relative or absolute path to a source file
-export type BuildConfigInput = string | InputFilter;
-
-export interface InputFilter {
-	(id: string): boolean;
-}
-
-export const to_input_files = (input: BuildConfigInput[]): string[] =>
-	input.filter((input) => typeof input === 'string') as string[];
+export type BuildConfigInput = Flavored<string, 'BuildConfigInput'>;
 
 export interface BuildConfigPartial {
 	name: BuildName;
@@ -81,7 +74,7 @@ export const validate_build_configs = (
 			};
 		}
 		names.add(build_config.name);
-		const validated_input = validate_input_files(to_input_files(build_config.input));
+		const validated_input = validate_input_files(build_config.input);
 		if (!validated_input.ok) return validated_input;
 	}
 	return {ok: true};

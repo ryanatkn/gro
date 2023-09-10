@@ -90,12 +90,12 @@ Read more about `plugin` and the `Plugin` in
 [plugin.md](plugin.md), [dev.md](dev.md#plugin), and [build.md](build.md#plugin).
 
 ```ts
-export interface ToConfigPlugins<TArgs = any, TEvents = any> {
+export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginContext> {
 	(
-		ctx: PluginContext<TArgs, TEvents>,
+		ctx: TPluginContext,
 	):
-		| (Plugin<TArgs, TEvents> | null | (Plugin<TArgs, TEvents> | null)[])
-		| Promise<Plugin<TArgs, TEvents> | null | (Plugin<TArgs, TEvents> | null)[]>;
+		| (Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>)
+		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
 }
 ```
 
@@ -105,11 +105,11 @@ The `adapt` property is a function that returns any number of `Adapter` instance
 Read more about `adapt` and the `Adapter` in [adapt.md](adapt.md) and [build.md](build.md#adapt).
 
 ```ts
-export interface ToConfigAdapters<TArgs = any, TEvents = any> {
+export interface ToConfigAdapters<TArgs = any> {
 	(
-		ctx: AdapterContext<TArgs, TEvents>,
+		ctx: AdapterContext<TArgs>,
 	):
-		| (Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[])
-		| Promise<Adapter<TArgs, TEvents> | null | (Adapter<TArgs, TEvents> | null)[]>;
+		| (Adapter<TArgs> | null | Array<Adapter<TArgs> | null>)
+		| Promise<Adapter<TArgs> | null | Array<Adapter<TArgs> | null>>;
 }
 ```

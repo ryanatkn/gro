@@ -2,7 +2,7 @@ import type {GroConfigCreator, GroConfigPartial} from './config.js';
 import {
 	has_sveltekit_frontend,
 	has_node_server,
-	API_SERVER_BUILD_CONFIG,
+	NODE_SERVER_BUILD_CONFIG,
 	has_node_library,
 } from '../build/build_config_defaults.js';
 
@@ -22,7 +22,7 @@ const config: GroConfigCreator = async () => {
 		has_sveltekit_frontend(),
 	]);
 	const partial: GroConfigPartial = {
-		builds: [enable_node_server ? API_SERVER_BUILD_CONFIG : null],
+		builds: [enable_node_server ? NODE_SERVER_BUILD_CONFIG : null],
 		plugin: async () => [
 			enable_node_server
 				? (await import('../plugin/gro_plugin_node_server.js')).create_plugin()
@@ -39,7 +39,7 @@ const config: GroConfigCreator = async () => {
 				: null,
 			enable_node_server
 				? (await import('../adapt/gro_adapter_generic_build.js')).create_adapter({
-						build_name: API_SERVER_BUILD_CONFIG.name,
+						build_name: NODE_SERVER_BUILD_CONFIG.name,
 				  })
 				: null,
 			enable_sveltekit_frontend

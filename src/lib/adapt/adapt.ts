@@ -16,20 +16,20 @@ The goal is to remove all of this from Gro: see https://github.com/feltjs/gro/is
 
 */
 
-export interface Adapter<TArgs = any, TEvents = any> {
+export interface Adapter<TArgs = any> {
 	name: string;
-	adapt: (ctx: AdapterContext<TArgs, TEvents>) => void | Promise<void>;
+	adapt: (ctx: AdapterContext<TArgs>) => void | Promise<void>;
 }
 
-export interface ToConfigAdapters<TArgs = any, TEvents = any> {
+export interface ToConfigAdapters<TArgs = any> {
 	(
-		ctx: AdapterContext<TArgs, TEvents>,
+		ctx: AdapterContext<TArgs>,
 	):
-		| (Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>)
-		| Promise<Adapter<TArgs, TEvents> | null | Array<Adapter<TArgs, TEvents> | null>>;
+		| (Adapter<TArgs> | null | Array<Adapter<TArgs> | null>)
+		| Promise<Adapter<TArgs> | null | Array<Adapter<TArgs> | null>>;
 }
 
-export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
+export interface AdapterContext<TArgs = any> extends TaskContext<TArgs> {
 	config: GroConfig;
 	dev: boolean;
 	timings: Timings;
@@ -38,9 +38,9 @@ export interface AdapterContext<TArgs = any, TEvents = any> extends TaskContext<
 export const adapt = async (ctx: AdapterContext): Promise<readonly Adapter[]> => {
 	const {config, timings} = ctx;
 	const timing_to_create_adapters = timings.start('create adapters');
-	const adapters: Array<Adapter<any, any>> = toArray(await config.adapt(ctx)).filter(
-		Boolean,
-	) as Array<Adapter<any, any>>;
+	const adapters: Array<Adapter<any>> = toArray(await config.adapt(ctx)).filter(Boolean) as Array<
+		Adapter<any>
+	>;
 	timing_to_create_adapters();
 
 	if (adapters.length) {

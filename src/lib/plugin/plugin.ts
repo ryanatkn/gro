@@ -1,6 +1,5 @@
 import {toArray} from '@feltjs/util/array.js';
 import type {Timings} from '@feltjs/util/timings.js';
-import type {BuildContext} from 'esbuild';
 
 import type {TaskContext} from '../task/task.js';
 import type {GroConfig} from '../config/config.js';
@@ -26,13 +25,9 @@ export interface ToConfigPlugins<TPluginContext extends PluginContext = PluginCo
 		| Promise<Plugin<TPluginContext> | null | Array<Plugin<TPluginContext> | null>>;
 }
 
-export interface PluginContext<TArgs = any, TEvents = any> extends TaskContext<TArgs, TEvents> {
+export interface PluginContext<TArgs = any> extends TaskContext<TArgs> {
 	config: GroConfig;
 	dev: boolean;
-	/**
-	 * `build` is `null` for production builds, but it's not clear if that's good design.
-	 */
-	build: BuildContext | null;
 	timings: Timings;
 }
 

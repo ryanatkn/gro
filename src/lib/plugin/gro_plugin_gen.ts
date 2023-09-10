@@ -47,9 +47,10 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 		FLUSH_DEBOUNCE_DELAY,
 	);
 	const gen = (files: string[] = []) => spawn('npx', ['gro', 'gen', '--no-rebuild', ...files]);
+
 	return {
 		name: 'gro_plugin_gen',
-		setup: async ({filer, args: {watch}, dev, log}) => {
+		setup: async ({args: {watch}, dev, log}) => {
 			// For production builds, we assume `gen` is already fresh,
 			// which should be checked by CI via `gro check` which calls `gro gen --check`.
 			if (!dev) return;
@@ -64,6 +65,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			}
 
 			// Do we need to just generate everything once and exit?
+			// TODO BLOCK could we have an esbuild context here? problem is watching the right files
 			if (!filer || !watch) {
 				log.info('generating and exiting early');
 				return;

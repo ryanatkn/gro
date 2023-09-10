@@ -10,10 +10,6 @@ import {build_source} from './build/build_source.js';
 import {Plugins} from './plugin/plugin.js';
 import {clean_fs} from './fs/clean.js';
 
-export interface TaskEvents {
-	'build.create_config': (config: GroConfig) => void;
-}
-
 export const Args = z
 	.object({
 		clean: z.boolean({description: 'read this instead of no-clean'}).optional().default(true),
@@ -41,13 +37,12 @@ export const Args = z
 	.strict();
 export type Args = z.infer<typeof Args>;
 
-export const task: Task<Args, TaskEvents> = {
+export const task: Task<Args> = {
 	summary: 'build the project',
 	Args,
 	run: async (ctx): Promise<void> => {
 		const {
 			log,
-			events,
 			args: {clean, install, preserve},
 		} = ctx;
 
@@ -68,9 +63,8 @@ export const task: Task<Args, TaskEvents> = {
 		const timing_to_load_config = timings.start('load config');
 		const config = await load_config();
 		timing_to_load_config();
-		events.emit('build.create_config', config);
 
-		const plugins = await Plugins.create({...ctx, config, dev: false, filer: null, timings});
+		const plugins = await Plugins.create({...ctx, config, dev: false, timings});
 
 		// Build everything with esbuild and Gro's `Filer` first.
 		// These production artifacts are then available to all adapters.

@@ -1,5 +1,3 @@
-import type StrictEventEmitter from 'strict-event-emitter-types';
-import type {EventEmitter} from 'node:events';
 import type {Logger} from '@feltjs/util/log.js';
 import {stripEnd, stripStart} from '@feltjs/util/string.js';
 import type {z} from 'zod';
@@ -9,23 +7,18 @@ import {LIB_DIRNAME} from '../path/paths.js';
 
 export interface Task<
 	TArgs = Args, // same as `z.infer<typeof Args>`
-	TEvents = object,
 	TArgsSchema extends z.ZodType<any, z.ZodTypeDef, any> = z.ZodType<any, z.ZodTypeDef, any>,
 > {
-	run: (ctx: TaskContext<TArgs, TEvents>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
+	run: (ctx: TaskContext<TArgs>) => Promise<unknown>; // TODO return value (make generic, forward it..how?)
 	summary?: string;
 	Args?: TArgsSchema;
 }
 
-export interface TaskContext<TArgs = object, TEvents = object> {
+export interface TaskContext<TArgs = object> {
 	log: Logger;
 	args: TArgs;
-	events: StrictEventEmitter<EventEmitter, TEvents>;
-	invoke_task: (
-		task_name: string,
-		args?: object,
-		events?: StrictEventEmitter<EventEmitter, TEvents>,
-	) => Promise<void>;
+	// TODO BLOCK should this have `config` on it? probably? would be able to remove loading in tasks
+	invoke_task: (task_name: string, args?: object) => Promise<void>;
 }
 
 export const TASK_FILE_SUFFIX_TS = '.task.ts';

@@ -11,7 +11,6 @@ import {compile} from 'svelte/compiler';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
 import {existsSync} from 'node:fs';
-import {DEV} from 'esm-env';
 import {cwd} from 'node:process';
 import type {Config} from '@sveltejs/kit';
 import type {LoadHook, ResolveHook} from 'node:module';
