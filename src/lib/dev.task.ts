@@ -41,7 +41,8 @@ export const task: Task<Args, TaskEvents> = {
 
 		const timings = new Timings();
 
-		await invoke_task('gen');
+		// TODO BLOCK
+		// await invoke_task('gen');
 
 		const timing_to_load_config = timings.start('load config');
 		const config = await load_config();
@@ -57,6 +58,9 @@ export const task: Task<Args, TaskEvents> = {
 			target: config.target,
 			sourcemap: config.sourcemap,
 			watch,
+		});
+		filer.on('build', (...args) => {
+			console.log(`build filer args`, args);
 		});
 		console.log('CREATED FILER');
 		timing_to_create_filer();
