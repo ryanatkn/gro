@@ -1,4 +1,4 @@
-import esbuild from 'esbuild';
+import {type TransformOptions, transformSync} from 'esbuild';
 import type {Assignable} from '@feltjs/util/types.js';
 
 import {to_default_esbuild_options} from './gro_builder_esbuild_utils.js';
@@ -25,12 +25,12 @@ type EsbuildBuilder = Builder<SourceFile>;
 export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 	const {create_esbuild_options = default_create_esbuild_options} = options;
 
-	const esbuildOptionsCache: Map<string, esbuild.TransformOptions> = new Map();
+	const esbuildOptionsCache: Map<string, TransformOptions> = new Map();
 	const getEsbuildOptions = (
 		target: EcmaScriptTarget,
 		dev: boolean,
 		sourcemap: boolean,
-	): esbuild.TransformOptions => {
+	): TransformOptions => {
 		const key = sourcemap + target;
 		const existingEsbuildOptions = esbuildOptionsCache.get(key);
 		if (existingEsbuildOptions !== undefined) return existingEsbuildOptions;
@@ -49,11 +49,11 @@ export const gro_builder_esbuild = (options: Options = {}): EsbuildBuilder => {
 		}
 
 		const outDir = to_build_out_path(dev, build_config.name, source.dir_base_path, build_dir);
-		const esbuildOptions = {
+		const esbuildOptions: TransformOptions = {
 			...getEsbuildOptions(target, dev, sourcemap),
 			sourcefile: source.id,
 		};
-		const output = await esbuild.transform(source.content, esbuildOptions);
+		const output = transformSync(source.content, esbuildOptions);
 		const jsFilename = replace_extension(source.filename, JS_EXTENSION);
 		const jsId = `${outDir}${jsFilename}`;
 
@@ -111,7 +111,7 @@ type CreateEsbuildOptions = (
 	dev: boolean,
 	target: EcmaScriptTarget,
 	sourcemap: boolean,
-) => esbuild.TransformOptions;
+) => TransformOptions;
 
 const default_create_esbuild_options: CreateEsbuildOptions = (dev, target, sourcemap) =>
 	to_default_esbuild_options(dev, target, sourcemap);

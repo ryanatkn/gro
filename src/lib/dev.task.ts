@@ -7,6 +7,7 @@ import type {Task} from './task/task.js';
 import {paths} from './path/paths.js';
 import {load_config, type GroConfig} from './config/config.js';
 import {Plugins, type PluginContext} from './plugin/plugin.js';
+import {watch_dir} from './fs/watch_dir.js';
 
 export interface TaskEvents {
 	'dev.create_config': (config: GroConfig) => void;
@@ -52,6 +53,7 @@ export const task: Task<Args, TaskEvents> = {
 		const build = await create_esbuild_context({
 			entryPoints: config.builds[0].input as any, // TODO BLOCK move to plugin
 			outdir: '.gro/dev/server/',
+			format: 'esm',
 			platform: 'node',
 			bundle: true,
 			target: config.target,
@@ -64,7 +66,13 @@ export const task: Task<Args, TaskEvents> = {
 		// 	}
 		// });
 		await build.rebuild();
-		await build.watch();
+		// TODO BLOCK can we watch dependencies of all of the files through esbuild?
+		watch_dir({
+			dir: paths.lib,
+			on_change: (change) => {
+				console.log(`change`, change);
+			},
+		});
 		log.info('watching');
 		console.log('CREATED FILER');
 		timing_to_create_esbuild_context();

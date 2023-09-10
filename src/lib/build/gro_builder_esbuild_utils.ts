@@ -1,10 +1,10 @@
-import type esbuild from 'esbuild';
+import type {TransformOptions} from 'esbuild';
 
 import type {EcmaScriptTarget} from './helpers.js';
 
 // TODO remove all of this and the related code
 
-export interface EsbuildTransformOptions extends esbuild.TransformOptions {
+export interface EsbuildTransformOptions extends TransformOptions {
 	target: EcmaScriptTarget;
 }
 
