@@ -38,6 +38,7 @@ export const task: Task<Args> = {
 		const config = await load_config();
 		timing_to_load_config();
 
+		// TODO BLOCK the server plugin infers `watch` based on `dev` here, should be explicitly a prop
 		const dev_task_context: DevTaskContext = {...ctx, config, dev: true, timings};
 
 		console.log('CREATING PLUGINS');

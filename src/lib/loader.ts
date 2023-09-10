@@ -12,28 +12,20 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {join} from 'node:path';
 import {existsSync} from 'node:fs';
 import {cwd} from 'node:process';
-import type {Config} from '@sveltejs/kit';
 import type {LoadHook, ResolveHook} from 'node:module';
 
 import {render_env_shim_module} from './util/sveltekit_shim_env.js';
 import {to_sveltekit_app_specifier} from './util/sveltekit_shim_app.js';
+import {load_sveltekit_config} from './util/sveltekit_config.js';
 
 const dir = cwd() + '/';
 
-const load_sveltekit_config = async (): Promise<Config | null> => {
-	try {
-		return (await import(dir + 'svelte.config.js')).default;
-	} catch (err) {
-		return null;
-	}
-};
-
-const config = await load_sveltekit_config(); // was lazy-loaded, but can't be imported during `resolve`, fails silently
-const alias = config?.kit?.alias;
-const public_prefix = config?.kit?.env?.publicPrefix;
-const private_prefix = config?.kit?.env?.privatePrefix;
-const env_dir = config?.kit?.env?.dir;
-const compiler_options = config?.compilerOptions;
+const sveltekit_config = await load_sveltekit_config(dir); // was lazy-loaded, but can't be imported during `resolve`, fails silently
+const alias = sveltekit_config?.kit?.alias;
+const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
+const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
+const env_dir = sveltekit_config?.kit?.env?.dir;
+const compiler_options = sveltekit_config?.compilerOptions;
 
 const transformOptions: TransformOptions = {
 	target: 'esnext',

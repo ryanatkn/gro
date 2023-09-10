@@ -1,8 +1,9 @@
 import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/process.js';
-import {existsSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {type BuildContext, context as create_esbuild_context} from 'esbuild';
 import {cwd} from 'node:process';
 import {yellow, red} from 'kleur/colors'; // TODO BLOCK remove
+import {extname} from 'node:path';
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {
@@ -13,7 +14,7 @@ import {paths} from '../path/paths.js';
 import type {BuildName} from '../build/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
 import {render_env_shim_module} from '../util/sveltekit_shim_env.js';
-import {extname} from 'node:path';
+import {load_sveltekit_config} from '../util/sveltekit_config.js';
 
 const dir = cwd() + '/';
 
@@ -36,7 +37,14 @@ export const create_plugin = ({
 	return {
 		name: 'gro_plugin_node_server',
 		setup: async ({dev, timings, config}) => {
-			if (!dev) return;
+			const watch = dev;
+
+			const sveltekit_config = await load_sveltekit_config(dir);
+			const alias = sveltekit_config?.kit?.alias;
+			const public_prefix = sveltekit_config?.kit?.env?.publicPrefix;
+			const private_prefix = sveltekit_config?.kit?.env?.privatePrefix;
+			const env_dir = sveltekit_config?.kit?.env?.dir;
+			const compiler_options = sveltekit_config?.compilerOptions;
 
 			const build_config = config.builds.find((c) => c.name === build_name);
 			if (!build_config) throw Error('could not find build config ' + build_name);
@@ -72,6 +80,8 @@ export const create_plugin = ({
 								const ext = extname(path);
 								if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
 								if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
+								console.log(yellow(`path`), path);
+								if (path === specifier) return {path};
 								const resolved = await build.resolve(path, rest);
 								console.log(
 									yellow(`[sveltekit_shim_alias] resolved path\n`),
@@ -79,11 +89,12 @@ export const create_plugin = ({
 									'->\n',
 									resolved,
 								);
-								if (resolved.external) {
-									return {...resolved, path: './password_worker.js'};
-								} else {
-									return resolved;
-								}
+								// if (resolved.external) {
+								// TODO BLOCK figure this out
+								// return {...resolved, path: './password_worker.js'};
+								// } else {
+								return resolved;
+								// }
 								// return {path};
 								// }
 							});
@@ -121,8 +132,8 @@ export const create_plugin = ({
 						name: 'external_worker',
 						setup: (build) => {
 							// TODO BLOCK construct matcher with $lib and each `config.alias`
-							const matcher = /_worker(|\.js|\.ts)/u; // TODO BLOCK maybe `.worker.(js|ts)`?
-							// const namespace = 'external_worker';
+							const matcher = /_worker/u; // TODO BLOCK maybe `.worker.(js|ts)`?
+							const namespace = 'external_worker';
 							build.onResolve({filter: matcher}, (args) => {
 								console.log(red(`[external_worker] path`), args);
 								// return null;
@@ -136,14 +147,18 @@ export const create_plugin = ({
 								// });
 								// console.log(`resolved`, resolved);
 								// console.log(red(`ignoring rest`), path, rest);
-								return {path: args.path, external: true};
+								return {path: args.path, namespace};
 								// const {path, ...rest} = args;
 								// const resolved = await build.resolve(path, rest);
 								// return {path: resolved.path, external: true};
 							});
-							// build.onLoad({filter: matcher, namespace}, (args) => {
-							// 	return {}
-							// })
+							build.onLoad({filter: /.*/u, namespace}, (args) => {
+								console.log(red(`args`), args);
+								return {
+									loader: 'ts',
+									contents: readFileSync('src/lib/server/password_worker.ts', 'utf8'),
+								};
+							});
 						},
 					},
 				],
@@ -157,14 +172,16 @@ export const create_plugin = ({
 			// 	}
 			// });
 			// TODO BLOCK can we watch dependencies of all of the files through esbuild?
-			watcher = watch_dir({
-				dir: paths.lib,
-				on_change: async (change) => {
-					console.log(`change`, change);
-					// await build_ctx.rebuild(); // TODO BLOCK
-					// server_process?.restart();
-				},
-			});
+			if (watch) {
+				watcher = watch_dir({
+					dir: paths.lib,
+					on_change: async (change) => {
+						console.log(`change`, change);
+						// await build_ctx.rebuild(); // TODO BLOCK
+						// server_process?.restart();
+					},
+				});
+			}
 
 			console.log('INITIAL REBUILD');
 			await build_ctx.rebuild();
@@ -182,6 +199,9 @@ export const create_plugin = ({
 			if (server_process) {
 				await server_process.kill();
 				server_process = null;
+			}
+			if (watcher) {
+				await watcher.close();
 			}
 			if (build_ctx) {
 				console.log('TEARING DOWN');

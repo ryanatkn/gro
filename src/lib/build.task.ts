@@ -4,9 +4,8 @@ import {z} from 'zod';
 import {spawn} from '@feltjs/util/process.js';
 
 import type {Task} from './task/task.js';
-import {load_config, type GroConfig} from './config/config.js';
+import {load_config} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
-import {build_source} from './build/build_source.js';
 import {Plugins} from './plugin/plugin.js';
 import {clean_fs} from './fs/clean.js';
 
@@ -67,16 +66,6 @@ export const task: Task<Args> = {
 		timing_to_load_config();
 
 		const plugins = await Plugins.create({...ctx, config, dev: false, timings});
-
-		// Build everything with esbuild and Gro's `Filer` first.
-		// These production artifacts are then available to all adapters.
-		// There may be no builds, e.g. for SvelteKit-only frontend projects,
-		// so just don't build in that case.
-		if (config.builds.length) {
-			const timingToBuildSource = timings.start('build_source');
-			await build_source(config, false, log);
-			timingToBuildSource();
-		}
 
 		await plugins.setup();
 		await plugins.teardown();
