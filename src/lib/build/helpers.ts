@@ -1,6 +1,7 @@
 import {createHash} from 'crypto';
 import type {Result} from '@feltjs/util/result.js';
 import {existsSync} from 'node:fs';
+import type {Flavored} from '@feltjs/util/types.js';
 
 import type {BuildConfigInput} from './build_config.js';
 import {
@@ -70,13 +71,4 @@ export const is_input_to_build_config = (id: string, inputs: BuildConfigInput[])
 	return false;
 };
 
-export type EcmaScriptTarget =
-	| 'es3'
-	| 'es5'
-	| 'es2015'
-	| 'es2016'
-	| 'es2017'
-	| 'es2018'
-	| 'es2019'
-	| 'es2020'
-	| 'esnext';
+export type EcmaScriptTarget = Flavored<string, 'EcmaScriptTarget'>;

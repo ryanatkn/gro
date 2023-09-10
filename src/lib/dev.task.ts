@@ -54,25 +54,17 @@ export const task: Task<Args, TaskEvents> = {
 			outfile: '.gro/dev/server.js',
 			platform: 'node',
 			bundle: true,
+			target: config.target,
 		});
-		await build.watch();
-		log.info('watching');
-		// const filer = new Filer({
-		// 	dev: true,
-		// 	builder: gro_builder_default(),
-		// 	source_dirs: [paths.source],
-		// 	build_configs: config.builds,
-		// 	target: config.target,
-		// 	sourcemap: config.sourcemap,
-		// 	watch,
-		// });
-		// filer.on('build', ({source_file, build_config}) => {
+		// build.on('build', ({source_file, build_config}) => {
 		// 	console.log(`source_file.id`, source_file.id);
 		// 	if (source_file.id.endsWith('/gro/do/close.json')) {
 		// 		console.log('CLOSE', source_file);
 		// 		console.log(`build_config`, build_config);
 		// 	}
 		// });
+		await build.watch();
+		log.info('watching');
 		console.log('CREATED FILER');
 		timing_to_create_esbuild_context();
 		// events.emit('dev.create_filer', filer);
