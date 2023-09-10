@@ -134,23 +134,22 @@ export const create_plugin = ({
 						setup: (build) => {
 							// TODO BLOCK construct matcher with $lib and each `config.alias`
 							const matcher = /\.worker(|\.js|\.ts)$/u;
-							const namespace = 'external_worker';
 
 							build.onResolve({filter: matcher}, async (args) => {
 								console.log(red(`args.path, args.importer`), args.path, args.importer);
-								let mapped = relative(join(args.importer, '../'), args.path);
-								if (mapped[0] !== '.') mapped = './' + mapped;
-								if (!mapped.endsWith('.js')) {
-									const ext = extname(mapped);
+								let path = relative(join(args.importer, '../'), args.path);
+								console.log(`path`, path);
+								if (path[0] !== '.') path = './' + path;
+								if (!path.endsWith('.js')) {
+									const ext = extname(path);
 									if (ext === '.ts') {
-										// TODO support other extensions, can't be generic because of false positives for imports to `.worker`, `.task`, etc
-										mapped = stripEnd(mapped, ext) + '.js';
-									} else {
-										mapped += '.js';
+										path = stripEnd(path, ext) + '.js';
+									} else if (ext !== '.js') {
+										path += '.js';
 									}
 								}
 
-								console.log(red(`mapped`), yellow(mapped));
+								console.log(red(`path`), yellow(path));
 								console.log(
 									red(`[external_worker] building external worker path`),
 									args.path,
@@ -184,7 +183,7 @@ export const create_plugin = ({
 								print_build_result(log, build_result);
 								// console.log(`resolved`, resolved);
 								// console.log(red(`ignoring rest`), path, rest);
-								return {path: mapped, external: true};
+								return {path, external: true};
 								// const {path, ...rest} = args;
 								// const resolved = await build.resolve(path, rest);
 								// return {path: resolved.path, external: true};
