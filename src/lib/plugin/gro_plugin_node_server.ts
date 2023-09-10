@@ -2,7 +2,7 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import {existsSync} from 'node:fs';
 import {type BuildContext, context as create_esbuild_context} from 'esbuild';
 import {cwd} from 'node:process';
-import {red} from 'kleur/colors'; // TODO BLOCK remove
+import {yellow, red} from 'kleur/colors'; // TODO BLOCK remove
 
 import type {Plugin, PluginContext} from './plugin.js';
 import {
@@ -49,12 +49,13 @@ export const create_plugin = ({
 			build_ctx = await create_esbuild_context({
 				entryPoints: build_config.input, // TODO BLOCK could map filters to files before calling this
 				outdir,
+				outbase: paths.lib, // TODO configure
 				format: 'esm',
 				platform: 'node',
 				packages: 'external',
 				bundle: true,
 				target: config.target,
-				external: ['*/password_worker.ts'], // TODO BLOCK only internal project should files get marked, not transitive deps
+				// external: ['*/password_worker.ts'], // TODO BLOCK only internal project should files get marked, not transitive deps
 				plugins: [
 					// TODO BLOCK extract and refactor with the existing helpers for the loader+postprocess
 					{
@@ -65,18 +66,24 @@ export const create_plugin = ({
 							build.onResolve({filter: matcher}, async (args) => {
 								// console.log(`[sveltekit_shim_alias] args`, args);
 								const {path: specifier, ...rest} = args;
-								console.log(`[sveltekit_shim_alias] enter path`, specifier);
+								console.log(yellow(`[sveltekit_shim_alias] enter path`), specifier);
 
 								let path = dir + 'src/' + specifier.slice(1);
 								const ext = extname(path);
-								if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO tricky because of files with `.(schema|task)` etc
-								console.log(`[sveltekit_shim_alias] final path`, path);
+								if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO BLOCK tricky because of files with `.(schema|task)` etc
 								if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
-								// if (path.endsWith('_worker.ts')) {
-								// 	return {path, external: true}; // TODO BLOCK hacky, fix plugin usage
-								// } else {
 								const resolved = await build.resolve(path, rest);
-								return resolved;
+								console.log(
+									yellow(`[sveltekit_shim_alias] resolved path\n`),
+									path,
+									'->\n',
+									resolved,
+								);
+								if (resolved.external) {
+									return {...resolved, path: './password_worker.js'};
+								} else {
+									return resolved;
+								}
 								// return {path};
 								// }
 							});
@@ -110,22 +117,35 @@ export const create_plugin = ({
 							});
 						},
 					},
-					// {
-					// 	name: 'external_worker',
-					// 	setup: (build) => {
-					// 		// TODO BLOCK construct matcher with $lib and each `config.alias`
-					// 		const matcher = /_worker(|\.js|\.ts)/u; // TODO BLOCK maybe `.worker.(js|ts)`?
-					// 		build.onResolve({filter: matcher}, async (args) => {
-					// 			console.log(red(`[external_worker] path`), args);
-					// 			// return null;
-					// 			// return args;
-					// 			return {path: args.path, external: true};
-					// 			// const {path, ...rest} = args;
-					// 			// const resolved = await build.resolve(path, rest);
-					// 			// return {path: resolved.path, external: true};
-					// 		});
-					// 	},
-					// },
+					{
+						name: 'external_worker',
+						setup: (build) => {
+							// TODO BLOCK construct matcher with $lib and each `config.alias`
+							const matcher = /_worker(|\.js|\.ts)/u; // TODO BLOCK maybe `.worker.(js|ts)`?
+							// const namespace = 'external_worker';
+							build.onResolve({filter: matcher}, (args) => {
+								console.log(red(`[external_worker] path`), args);
+								// return null;
+								// return args;
+								// const {path, ...rest} = args;
+								// const resolved = await build.resolve(path, {
+								// 	namespace: 'external_worker',
+								// 	importer: args.importer,
+								// 	resolveDir: args.resolveDir,
+								// 	kind: args.kind,
+								// });
+								// console.log(`resolved`, resolved);
+								// console.log(red(`ignoring rest`), path, rest);
+								return {path: args.path, external: true};
+								// const {path, ...rest} = args;
+								// const resolved = await build.resolve(path, rest);
+								// return {path: resolved.path, external: true};
+							});
+							// build.onLoad({filter: matcher, namespace}, (args) => {
+							// 	return {}
+							// })
+						},
+					},
 				],
 			});
 			timing_to_create_esbuild_context();
