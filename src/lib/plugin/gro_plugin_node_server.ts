@@ -29,6 +29,9 @@ export const create_plugin = ({
 	let watcher: WatchNodeFs;
 	let server_process: RestartableProcess | null = null;
 
+	const outdir = dir + '.gro/dev/' + build_name;
+	const server_outfile = outdir + '/' + base_build_path;
+
 	return {
 		name: 'gro_plugin_node_server',
 		setup: async ({dev, timings, config}) => {
@@ -38,13 +41,10 @@ export const create_plugin = ({
 			if (!build_config) throw Error('could not find build config ' + build_name);
 			console.log(`build_config`, build_config);
 
-			const SERVER_OUTDIR = '.gro/dev/' + build_name;
-			const SERVER_OUTFILE = SERVER_OUTDIR + '/server/server.js';
-
 			const timing_to_create_esbuild_context = timings.start('create esbuild context');
 			build_ctx = await create_esbuild_context({
 				entryPoints: build_config.input, // TODO BLOCK could map filters to files before calling this
-				outdir: '.gro/dev/server/',
+				outdir,
 				format: 'esm',
 				platform: 'node',
 				packages: 'external',
@@ -56,17 +56,20 @@ export const create_plugin = ({
 						name: 'sveltekit_shim_alias',
 						setup: (build) => {
 							const namespace = 'sveltekit_shim_alias_ns';
+							// TODO BLOCK construct matcher with $lib and each `config.alias`
 							const matcher = /^\$lib\//u;
 							build.onResolve({filter: matcher}, (args) => {
-								console.log(`[sveltekit_shim_alias] args`, args);
-								const {path, importer} = args;
+								// console.log(`[sveltekit_shim_alias] args`, args);
+								const {importer} = args;
+								let {path} = args;
+								console.log(`[sveltekit_shim_alias] enter path`, path);
 
-								if (!path.startsWith('$lib/')) return;
-								let mapped = dir + 'src/' + path.slice(1);
-								const ext = extname(mapped);
-								if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') mapped += '.ts'; // TODO tricky because of files with `.(schema|task)` etc
-								console.log(`[sveltekit_shim_alias] mapped`, mapped);
-								return {path: mapped};
+								path = dir + 'src/' + path.slice(1);
+								const ext = extname(path);
+								if (ext !== '.ts' && ext !== '.js' && ext !== '.svelte') path += '.ts'; // TODO tricky because of files with `.(schema|task)` etc
+								console.log(`[sveltekit_shim_alias] final path`, path);
+								if (!existsSync(path)) throw Error('not found: ' + path); // TODO BLOCK remove
+								return {path};
 							});
 						},
 					},
@@ -122,11 +125,11 @@ export const create_plugin = ({
 			console.log('INITIAL REBUILD');
 			await build_ctx.rebuild();
 
-			if (!existsSync(SERVER_OUTFILE)) {
-				throw Error(`Node server failed to start due to missing file: ${SERVER_OUTFILE}`);
+			if (!existsSync(server_outfile)) {
+				throw Error(`Node server failed to start due to missing file: ${server_outfile}`);
 			}
 
-			server_process = spawnRestartableProcess('node', [SERVER_OUTFILE]);
+			server_process = spawnRestartableProcess('node', [server_outfile]);
 			console.log(`spawned`, server_process);
 		},
 		teardown: async ({dev}) => {
