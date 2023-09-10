@@ -45,6 +45,7 @@ export const task: Task<Args> = {
 
 		console.log('SETTING UP PLUGINS');
 		await plugins.setup();
+		console.log('PLUGINS DONE SETTING UP');
 
 		if (!watch) {
 			await plugins.teardown(); // maybe detect process exit and teardown
