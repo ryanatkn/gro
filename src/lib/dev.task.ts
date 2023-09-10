@@ -59,8 +59,12 @@ export const task: Task<Args, TaskEvents> = {
 			sourcemap: config.sourcemap,
 			watch,
 		});
-		filer.on('build', (...args) => {
-			console.log(`build filer args`, args);
+		filer.on('build', ({source_file, build_config}) => {
+			console.log(`source_file.id`, source_file.id);
+			if (source_file.id.endsWith('/gro/do/close.json')) {
+				console.log('CLOSE', source_file);
+				console.log(`build_config`, build_config);
+			}
 		});
 		console.log('CREATED FILER');
 		timing_to_create_filer();
