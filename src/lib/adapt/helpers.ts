@@ -4,7 +4,6 @@ import {cpSync, existsSync, mkdirSync, statSync, writeFileSync} from 'node:fs';
 import type {BuildConfig} from '../build/build_config.js';
 import type {IdStatsFilter} from '../fs/filter.js';
 import {to_build_out_path, print_path} from '../path/paths.js';
-import {dirname} from 'node:path';
 
 export const copy_dist = (
 	build_config: BuildConfig,
