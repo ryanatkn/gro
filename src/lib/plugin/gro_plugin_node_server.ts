@@ -132,7 +132,7 @@ export const create_plugin = ({
 						name: 'external_worker',
 						setup: (build) => {
 							// TODO BLOCK construct matcher with $lib and each `config.alias`
-							const matcher = /_worker/u; // TODO BLOCK maybe `.worker.(js|ts)`?
+							const matcher = /\.worker(|\.js|\.ts)$/u;
 							const namespace = 'external_worker';
 
 							build.onResolve({filter: matcher}, async (args) => {
