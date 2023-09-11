@@ -114,7 +114,7 @@ test__parse_specifier('parses a relative ts specifier 2 deeper', async () => {
 
 test__parse_specifier('parses a relative ts specifier 2 shallower', async () => {
 	assert.equal(await parse_specifier('../../test_ts.ts', dir + 'importer.ts'), {
-		final_path: './test_ts.js',
+		final_path: '../../test_ts.js',
 		source_path: join(dir, '../../test_ts.ts'),
 		mapped_path: join(dir, '../../test_ts.js'),
 		namespace: 'sveltekit_local_imports_ts',
@@ -141,7 +141,7 @@ test__parse_specifier('parses a ts specifier with a relative importer 2 deeper',
 
 test__parse_specifier('parses a ts specifier with a relative importer 2 shallower', async () => {
 	assert.equal(await parse_specifier('../../test_ts.ts', dir + 'importer.ts'), {
-		final_path: './test_ts.js',
+		final_path: '../../test_ts.js',
 		source_path: join(dir, '../../test_ts.ts'),
 		mapped_path: join(dir, '../../test_ts.js'),
 		namespace: 'sveltekit_local_imports_ts',
