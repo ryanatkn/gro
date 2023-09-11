@@ -62,7 +62,7 @@ export const create_plugin = ({
 			console.log(`config.target`, config.target);
 
 			// TODO BLOCK hoist/refactor
-			const create_sveltekit_shim_alias_plugin = (): esbuild.Plugin => ({
+			const esbuild_plugin_sveltekit_shim_alias = (): esbuild.Plugin => ({
 				name: 'sveltekit_shim_alias',
 				setup: (build) => {
 					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
@@ -114,7 +114,7 @@ export const create_plugin = ({
 					// TODO BLOCK extract and refactor with the existing helpers for the loader+postprocess
 					esbuild_plugin_sveltekit_shim_app(),
 					esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
-					create_sveltekit_shim_alias_plugin(),
+					esbuild_plugin_sveltekit_shim_alias(),
 					{
 						name: 'external_worker',
 						setup: (build) => {
@@ -156,7 +156,7 @@ export const create_plugin = ({
 									plugins: [
 										esbuild_plugin_sveltekit_shim_app(),
 										esbuild_plugin_sveltekit_shim_env(dev, public_prefix, private_prefix, env_dir),
-										create_sveltekit_shim_alias_plugin(),
+										esbuild_plugin_sveltekit_shim_alias(),
 									],
 								});
 								print_build_result(log, build_result);
