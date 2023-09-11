@@ -5,7 +5,7 @@ import {printValue} from '@feltjs/util/print.js';
 import {ZodFirstPartyTypeKind, type ZodObjectDef, type ZodTypeAny, type ZodTypeDef} from 'zod';
 
 import type {ArgSchema} from './args.js';
-import {load_modules} from '../fs/modules.js';
+import {load_modules} from '../util/modules.js';
 import {load_task_module, type TaskModuleMeta} from './task_module.js';
 
 export const log_available_tasks = async (

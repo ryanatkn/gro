@@ -43,9 +43,9 @@ export const normalize_build_configs = (
 };
 
 const normalize_build_config_input = (input: BuildConfigPartial['input']): BuildConfig['input'] =>
-	toArray(input as any[]).map((v) => (typeof v === 'string' ? resolve(paths.source, v) : v));
+	toArray(input).map((v) => resolve(paths.source, v));
 
-// TODO replace this with JSON schema validation (or most of it at least)
+// TODO make a zod schema and parse
 export const validate_build_configs = (
 	build_configs: BuildConfig[],
 ): Result<object, {reason: string}> => {

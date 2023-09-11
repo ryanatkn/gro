@@ -25,7 +25,6 @@ test__normalize_build_configs('normalizes a plain config', () => {
 
 test__normalize_build_configs('normalizes inputs', () => {
 	const input_path = join(paths.source, 'foo');
-	const filter = () => true;
 	const build_config = normalize_build_configs([
 		{name: 'config', input: FAKE_CONFIG_INPUT_RAW},
 		{name: 'system', input: '.'},
@@ -33,8 +32,6 @@ test__normalize_build_configs('normalizes inputs', () => {
 		{name: 'node3', input},
 		{name: 'node4', input: 'foo'},
 		{name: 'node5', input: input_path},
-		{name: 'node6', input: filter},
-		{name: 'node7', input: [input_path, filter]},
 	]);
 	assert.equal(build_config, [
 		{name: 'config', input: FAKE_CONFIG_INPUT_NORMALIZED},
@@ -43,8 +40,6 @@ test__normalize_build_configs('normalizes inputs', () => {
 		{name: 'node3', input},
 		{name: 'node4', input: [input_path]},
 		{name: 'node5', input: [input_path]},
-		{name: 'node6', input: [filter]},
-		{name: 'node7', input: [input_path, filter]},
 	]);
 });
 

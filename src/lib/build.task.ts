@@ -7,7 +7,7 @@ import type {Task} from './task/task.js';
 import {load_config} from './config/config.js';
 import {adapt} from './adapt/adapt.js';
 import {Plugins} from './plugin/plugin.js';
-import {clean_fs} from './fs/clean.js';
+import {clean_fs} from './util/clean.js';
 
 export const Args = z
 	.object({

@@ -64,7 +64,7 @@ export const validate_input_files = (files: string[]): Result<object, {reason: s
 
 export const is_input_to_build_config = (id: string, inputs: BuildConfigInput[]): boolean => {
 	for (const input of inputs) {
-		if (typeof input === 'string' ? id === input : input(id)) {
+		if (id === input) {
 			return true;
 		}
 	}

@@ -8,7 +8,7 @@ import {copyFileSync, existsSync, readdirSync, renameSync, rmSync} from 'node:fs
 
 import type {Task} from './task/task.js';
 import {GIT_DIRNAME, paths, print_path, SVELTEKIT_BUILD_DIRNAME} from './path/paths.js';
-import {clean_fs} from './fs/clean.js';
+import {clean_fs} from './util/clean.js';
 import {to_raw_rest_args} from './task/args.js';
 import {GIT_DEPLOY_SOURCE_BRANCH, GIT_DEPLOY_TARGET_BRANCH} from './build/build_config_defaults.js';
 

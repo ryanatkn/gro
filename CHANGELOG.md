@@ -652,7 +652,7 @@
   ([#243](https://github.com/feltjs/gro/pull/243))
 - **break**: rename builders and builder util
   ([#244](https://github.com/feltjs/gro/pull/244))
-- **break**: merge `fs/path_filter.ts` and `fs/file.ts` into `fs/filter.ts`,
+- **break**: merge `util/path_filter.ts` and `util/file.ts` into `util/filter.ts`,
   rename `Id_Filter` from `File_Filter`, and add `Id_Stats_Filter`
   ([#246](https://github.com/feltjs/gro/pull/246))
 - support JSON imports
@@ -970,7 +970,7 @@
   - rename `pathExists` to `exists`
   - remove `readJson`
 - add abstract class `Fs` and implement `Memory_Fs`
-  to complement the `fs-extra` implementation at `src/lib/fs/node.ts`
+  to complement the `fs-extra` implementation at `src/lib/util/node.ts`
   ([#173](https://github.com/feltjs/gro/pull/173))
 
 ## 0.19.0
@@ -979,7 +979,7 @@
   thread it everywhere from `src/lib/cli/invoke.ts` and tests
   ([#171](https://github.com/feltjs/gro/pull/171))
 - **break**: replace `src/lib/util/gitignore.ts` helper `is_gitignored`
-  with `src/lib/fs/path_filter.ts` helper `to_path_filter`
+  with `src/lib/util/path_filter.ts` helper `to_path_filter`
   ([#172](https://github.com/feltjs/gro/pull/172))
 
 ## 0.18.2
@@ -1046,14 +1046,14 @@
   - default to the `deploy` branch instead of `gh-pages`
 - **break**: rename `to_env_string` and `to_env_number` from `stringFromEnv` and `numberFromEnv`
   ([#158](https://github.com/feltjs/gro/pull/158))
-- add helper `read_dir` to `src/lib/fs/node.ts`
+- add helper `read_dir` to `src/lib/util/node.ts`
   ([#159](https://github.com/feltjs/gro/pull/159))
 
 ## 0.14.0
 
-- **break**: rename `src/lib/fs/node.ts` from `src/lib/fs/nodeFs.ts`
+- **break**: rename `src/lib/util/node.ts` from `src/lib/util/nodeFs.ts`
   ([#154](https://github.com/feltjs/gro/pull/154))
-- **break**: rename `src/lib/fs/clean.ts` from `src/lib/util/clean.ts`
+- **break**: rename `src/lib/util/clean.ts` from `src/lib/util/clean.ts`
   ([#155](https://github.com/feltjs/gro/pull/155))
 - **break**: rename `to_array` from `ensureArray`
   ([#117](https://github.com/feltjs/gro/pull/117))
@@ -1072,7 +1072,7 @@
   ([#150](https://github.com/feltjs/gro/pull/150))
 - fix false positive Node server detection in default config
   ([#151](https://github.com/feltjs/gro/pull/151))
-- add `get_mime_types` and `get_extensions` returning iterators to `src/lib/fs/mime.ts`
+- add `get_mime_types` and `get_extensions` returning iterators to `src/lib/util/mime.ts`
   ([#149](https://github.com/feltjs/gro/pull/149))
 - improve default asset paths to use registered mime types
   ([#149](https://github.com/feltjs/gro/pull/149))
@@ -1496,8 +1496,8 @@
 
 ## 0.1.1
 
-- add `fs/watch_dir.ts` for low level filesystem watching
-- expose `remove` and `ensure_dir` in `fs/node.ts`
+- add `util/watch_dir.ts` for low level filesystem watching
+- expose `remove` and `ensure_dir` in `util/node.ts`
 
 ## 0.1.0
 

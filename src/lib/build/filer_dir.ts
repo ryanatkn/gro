@@ -1,9 +1,9 @@
 import {noop} from '@feltjs/util/function.js';
 
-import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
+import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import type {PathStats} from '../path/path_data.js';
-import type {PathFilter} from '../fs/filter.js';
-import {find_files} from '../fs/find_files.js';
+import type {PathFilter} from '../util/filter.js';
+import {find_files} from '../util/find_files.js';
 import {mkdirSync} from 'node:fs';
 
 // Filer dirs are watched, built, and written to disk.

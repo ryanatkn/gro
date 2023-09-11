@@ -304,41 +304,6 @@ then `--a` and `--b` will be forwarded to `taskname2`.
 Forwarded args to Gro tasks override direct args, including args to `invoke_task`,
 so `gro taskname --a 1 -- gro taskname --a 2` will invoke `taskname` with `{a: 2}`.
 
-### task events
-
-The `Task` interface's second generic parameter is `TEvents`
-to type the `events` property of the `TaskContext`.
-It uses Node's builtin `EventEmitter` with types provided by the types-only dependency
-[`strict-event-emitter-types`](https://github.com/bterlson/strict-event-emitter-types/).
-
-> Task events are designed as an escape hatch for cross-task communication.
-> Use wisely! Using events like this can make code more difficult to comprehend.
-
-Here's how a task can emit and listen to events:
-
-```ts
-// src/lib/some/mytask.task.ts
-import type {Task} from '@feltjs/gro';
-
-import {type TaskEvents as OtherTaskEvents} from '../task/othertask.task.ts';
-
-export interface TaskEvents extends OtherTaskEvents {
-	'mytask.data': (count: number, thing: string) => void;
-}
-
-export const task: Task<Args, TaskEvents> = {
-	run: async ({events}) => {
-		// `events` has type `StrictEventEmitter<EventEmitter, TaskEvents>`
-		// see: https://github.com/bterlson/strict-event-emitter-types/
-		events.emit('mytask.data', 2, 'params');
-
-		// This is typed because we extended `TaskEvents` by another `othertask`'s events.
-		// Other listeners and providers can be upstream or downstream of this task.
-		events.once('othertask.eventname', (some: string, things: boolean, rock: object) => {});
-	},
-};
-```
-
 ### throwing errors
 
 If a task encounters an error, normally it should throw rather than exiting the process.

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {spawn} from '@feltjs/util/process.js';
 
 import type {FilerEvents} from '../build/Filer.js';
@@ -65,7 +66,7 @@ export const create_plugin = (): Plugin<PluginContext<TaskArgs, object>> => {
 			}
 
 			// Do we need to just generate everything once and exit?
-			// TODO BLOCK could we have an esbuild context here? problem is watching the right files
+			// TODO could we have an esbuild context here? problem is watching the right files, maybe a plugin that tracks deps
 			if (!filer || !watch) {
 				log.info('generating and exiting early');
 				return;

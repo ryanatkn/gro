@@ -2,7 +2,7 @@ import type {Logger} from '@feltjs/util/log.js';
 import {cpSync, existsSync, mkdirSync, statSync, writeFileSync} from 'node:fs';
 
 import type {BuildConfig} from '../build/build_config.js';
-import type {IdStatsFilter} from '../fs/filter.js';
+import type {IdStatsFilter} from '../util/filter.js';
 import {to_build_out_path, print_path} from '../path/paths.js';
 
 export const copy_dist = (

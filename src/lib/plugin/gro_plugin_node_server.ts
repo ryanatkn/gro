@@ -2,9 +2,8 @@ import {spawnRestartableProcess, type RestartableProcess} from '@feltjs/util/pro
 import {existsSync, readFileSync} from 'node:fs';
 import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
-import {yellow, red, blue, green, cyan} from 'kleur/colors';
-import {dirname, extname, join, relative} from 'node:path';
-import {stripEnd} from '@feltjs/util/string.js';
+import {yellow, red, blue, green} from 'kleur/colors';
+import {dirname, join} from 'node:path';
 import {escapeRegexp} from '@feltjs/util/regexp.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
@@ -12,13 +11,13 @@ import {
 	NODE_SERVER_BUILD_BASE_PATH,
 	NODE_SERVER_BUILD_NAME,
 } from '../build/build_config_defaults.js';
-import {paths, replace_extension} from '../path/paths.js';
+import {paths} from '../path/paths.js';
 import type {BuildName} from '../build/build_config.js';
-import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
+import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
-import {print_build_result} from '../util/esbuild.js';
+import {parse_specifier, print_build_result} from '../util/esbuild.js';
 
 export interface Options {
 	dir?: string;
@@ -101,37 +100,10 @@ export const create_plugin = ({
 							};
 						}
 
-						// map the path relative to the `importer`, and add the correct extension
-						let mapped_path;
-						let source_path;
-						let namespace;
-						const ext = extname(path);
-						const is_js = ext === '.js';
-						const is_ts = ext === '.ts';
-						const js_path = is_js ? path : is_ts ? replace_extension(path, '.js') : path + '.js';
-						if (existsSync(js_path)) {
-							namespace = 'sveltekit_local_imports_js';
-							mapped_path = js_path;
-							source_path = js_path;
-						} else {
-							// assume `.ts`, so other plugins like for `.svelte` and `.json` need to be added earlier
-							namespace = 'sveltekit_local_imports_ts';
-							source_path = is_ts ? path : is_js ? replace_extension(path, '.ts') : path + '.ts';
-							mapped_path = replace_extension(source_path, '.js');
-						}
+						const parsed = await parse_specifier(path, importer);
+						console.log(blue('[sveltekit_imports] EXIT'), parsed);
+						const {final_path, namespace, source_path} = parsed;
 
-						const importer_absolute =
-							importer[0] === '.' ? join(dirname(mapped_path), importer) : importer;
-						let final_path = relative(dirname(importer_absolute), mapped_path);
-						if (final_path[0] !== '.') final_path = './' + final_path;
-						console.log(`final_path2`, cyan(final_path));
-
-						console.log(`mapped`, yellow(mapped_path));
-						console.log(blue('[sveltekit_imports] EXIT'), {
-							path: final_path,
-							namespace,
-							pluginData: {source_path},
-						});
 						// const resolved = await build.resolve(final_path, rest);
 						// console.log(`resolved`, resolved);
 						return {path: final_path, namespace, pluginData: {source_path}};

@@ -4,7 +4,7 @@ import {stripStart} from '@feltjs/util/string.js';
 
 import {type Gen, toOutputFileName} from '../gen/gen.js';
 import {paths, base_path_to_source_id} from '../path/paths.js';
-import {find_files} from '../fs/find_files.js';
+import {find_files} from '../util/find_files.js';
 
 // This renders a simple index of a possibly nested directory of files.
 

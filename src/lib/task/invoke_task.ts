@@ -17,11 +17,11 @@ import {
 	gro_dist_dir,
 	to_gro_input_path,
 } from '../path/paths.js';
-import {find_modules, load_modules} from '../fs/modules.js';
+import {find_modules, load_modules} from '../util/modules.js';
 import {find_task_modules, load_task_module} from './task_module.js';
 import {load_gro_package_json} from '../util/package_json.js';
 import {log_available_tasks, log_error_reasons} from './log_task.js';
-import {find_files} from '../fs/find_files.js';
+import {find_files} from '../util/find_files.js';
 
 /**
  * Invokes Gro tasks by name using the filesystem as the source.

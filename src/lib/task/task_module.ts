@@ -8,7 +8,7 @@ import {
 	type ModuleMeta,
 	type LoadModuleResult,
 	type FindModulesFailure,
-} from '../fs/modules.js';
+} from '../util/modules.js';
 import {
 	to_task_name,
 	is_task_path,
@@ -17,7 +17,7 @@ import {
 	TASK_FILE_SUFFIX_JS,
 } from './task.js';
 import {get_possible_source_ids} from '../path/input_path.js';
-import {find_files} from '../fs/find_files.js';
+import {find_files} from '../util/find_files.js';
 
 export interface TaskModule {
 	task: Task;

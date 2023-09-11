@@ -48,13 +48,11 @@
     "@types/source-map-support": "^0.5.6",
     "chokidar": "^3.5.3",
     "es-module-lexer": "^1.3.0",
-    "esm-env": "^1.0.0",
     "kleur": "^4.1.5",
     "mri": "^1.2.0",
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
     "source-map-support": "^0.5.21",
-    "strict-event-emitter-types": "^2.0.0",
     "tiny-glob": "^0.2.9",
     "tslib": "^2.6.0",
     "zod": "^3.22.2"
@@ -149,10 +147,6 @@
       "default": "./dist/gen.task.js",
       "types": "./dist/gen.task.d.ts"
     },
-    "./help.task.js": {
-      "default": "./dist/help.task.js",
-      "types": "./dist/help.task.d.ts"
-    },
     "./lint.task.js": {
       "default": "./dist/lint.task.js",
       "types": "./dist/lint.task.d.ts"
@@ -177,6 +171,26 @@
       "default": "./dist/upgrade.task.js",
       "types": "./dist/upgrade.task.d.ts"
     },
+    "./adapt/adapt.js": {
+      "default": "./dist/adapt/adapt.js",
+      "types": "./dist/adapt/adapt.d.ts"
+    },
+    "./adapt/gro_adapter_generic_build.js": {
+      "default": "./dist/adapt/gro_adapter_generic_build.js",
+      "types": "./dist/adapt/gro_adapter_generic_build.d.ts"
+    },
+    "./adapt/gro_adapter_node_library.js": {
+      "default": "./dist/adapt/gro_adapter_node_library.js",
+      "types": "./dist/adapt/gro_adapter_node_library.d.ts"
+    },
+    "./adapt/gro_adapter_sveltekit_frontend.js": {
+      "default": "./dist/adapt/gro_adapter_sveltekit_frontend.js",
+      "types": "./dist/adapt/gro_adapter_sveltekit_frontend.d.ts"
+    },
+    "./adapt/helpers.js": {
+      "default": "./dist/adapt/helpers.js",
+      "types": "./dist/adapt/helpers.d.ts"
+    },
     "./cli/gro.js": {
       "default": "./dist/cli/gro.js",
       "types": "./dist/cli/gro.d.ts"
@@ -185,33 +199,37 @@
       "default": "./dist/cli/invoke.js",
       "types": "./dist/cli/invoke.d.ts"
     },
+    "./config/config.js": {
+      "default": "./dist/config/config.js",
+      "types": "./dist/config/config.d.ts"
+    },
     "./config/gro.config.default.js": {
       "default": "./dist/config/gro.config.default.js",
       "types": "./dist/config/gro.config.default.d.ts"
     },
-    "./fs/filesystem.js": {
-      "default": "./dist/fs/filesystem.js",
-      "types": "./dist/fs/filesystem.d.ts"
+    "./format/format_directory.js": {
+      "default": "./dist/format/format_directory.js",
+      "types": "./dist/format/format_directory.d.ts"
     },
-    "./fs/input_path.js": {
-      "default": "./dist/fs/input_path.js",
-      "types": "./dist/fs/input_path.d.ts"
-    },
-    "./fs/modules.js": {
-      "default": "./dist/fs/modules.js",
-      "types": "./dist/fs/modules.d.ts"
+    "./format/format_file.js": {
+      "default": "./dist/format/format_file.js",
+      "types": "./dist/format/format_file.d.ts"
     },
     "./gen/gen_module.js": {
       "default": "./dist/gen/gen_module.js",
       "types": "./dist/gen/gen_module.d.ts"
     },
+    "./gen/gen_schemas.js": {
+      "default": "./dist/gen/gen_schemas.js",
+      "types": "./dist/gen/gen_schemas.d.ts"
+    },
+    "./gen/gen.js": {
+      "default": "./dist/gen/gen.js",
+      "types": "./dist/gen/gen.d.ts"
+    },
     "./gen/run_gen.js": {
       "default": "./dist/gen/run_gen.js",
       "types": "./dist/gen/run_gen.d.ts"
-    },
-    "./gen/helpers/ts.js": {
-      "default": "./dist/gen/helpers/ts.js",
-      "types": "./dist/gen/helpers/ts.d.ts"
     },
     "./gen/type_imports.js": {
       "default": "./dist/gen/type_imports.js",
@@ -220,6 +238,10 @@
     "./path/input_path.js": {
       "default": "./dist/path/input_path.js",
       "types": "./dist/path/input_path.d.ts"
+    },
+    "./path/module.js": {
+      "default": "./dist/path/module.js",
+      "types": "./dist/path/module.d.ts"
     },
     "./path/path_data.js": {
       "default": "./dist/path/path_data.js",
@@ -241,6 +263,38 @@
       "default": "./dist/plugin/plugin.js",
       "types": "./dist/plugin/plugin.d.ts"
     },
+    "./task/args.js": {
+      "default": "./dist/task/args.js",
+      "types": "./dist/task/args.d.ts"
+    },
+    "./task/invoke_task.js": {
+      "default": "./dist/task/invoke_task.js",
+      "types": "./dist/task/invoke_task.d.ts"
+    },
+    "./task/log_task.js": {
+      "default": "./dist/task/log_task.js",
+      "types": "./dist/task/log_task.d.ts"
+    },
+    "./task/run_task.js": {
+      "default": "./dist/task/run_task.js",
+      "types": "./dist/task/run_task.d.ts"
+    },
+    "./task/task_module.js": {
+      "default": "./dist/task/task_module.js",
+      "types": "./dist/task/task_module.d.ts"
+    },
+    "./task/task.js": {
+      "default": "./dist/task/task.js",
+      "types": "./dist/task/task.d.ts"
+    },
+    "./util/clean.js": {
+      "default": "./dist/util/clean.js",
+      "types": "./dist/util/clean.d.ts"
+    },
+    "./util/cli.js": {
+      "default": "./dist/util/cli.js",
+      "types": "./dist/util/cli.d.ts"
+    },
     "./util/env.js": {
       "default": "./dist/util/env.js",
       "types": "./dist/util/env.d.ts"
@@ -256,6 +310,26 @@
     "./util/esbuild.js": {
       "default": "./dist/util/esbuild.js",
       "types": "./dist/util/esbuild.d.ts"
+    },
+    "./util/exists.js": {
+      "default": "./dist/util/exists.js",
+      "types": "./dist/util/exists.d.ts"
+    },
+    "./util/filter.js": {
+      "default": "./dist/util/filter.js",
+      "types": "./dist/util/filter.d.ts"
+    },
+    "./util/find_files.js": {
+      "default": "./dist/util/find_files.js",
+      "types": "./dist/util/find_files.d.ts"
+    },
+    "./util/modules.js": {
+      "default": "./dist/util/modules.js",
+      "types": "./dist/util/modules.d.ts"
+    },
+    "./util/package_json.js": {
+      "default": "./dist/util/package_json.js",
+      "types": "./dist/util/package_json.d.ts"
     },
     "./util/schema.js": {
       "default": "./dist/util/schema.js",
@@ -296,6 +370,10 @@
     "./util/sveltekit_sync.js": {
       "default": "./dist/util/sveltekit_sync.js",
       "types": "./dist/util/sveltekit_sync.d.ts"
+    },
+    "./util/watch_dir.js": {
+      "default": "./dist/util/watch_dir.js",
+      "types": "./dist/util/watch_dir.d.ts"
     }
   }
 }

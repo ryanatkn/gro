@@ -9,7 +9,7 @@ import type {BuildConfig} from './build_config.js';
 import type {SourceMeta} from './source_meta.js';
 import type {BuildDependency} from './build_dependency.js';
 import type {BuildContext} from './builder.js';
-import type {IdFilter} from '../fs/filter.js';
+import type {IdFilter} from '../util/filter.js';
 import type {BuildId, SourceId} from '../path/paths.js';
 
 export interface SourceFile extends BaseFilerFile {

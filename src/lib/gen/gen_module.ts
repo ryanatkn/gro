@@ -6,11 +6,11 @@ import {
 	type LoadModuleResult,
 	find_modules,
 	type FindModulesResult,
-} from '../fs/modules.js';
+} from '../util/modules.js';
 import type {Gen, GenResults, GenFile} from './gen.js';
 import {get_possible_source_ids} from '../path/input_path.js';
 import {paths} from '../path/paths.js';
-import {find_files} from '../fs/find_files.js';
+import {find_files} from '../util/find_files.js';
 
 export const GEN_FILE_PATTERN_TEXT = 'gen';
 export const GEN_FILE_PATTERN = '.' + GEN_FILE_PATTERN_TEXT + '.';

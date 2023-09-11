@@ -12,7 +12,7 @@ import {
 	type SerializedBuildDependency,
 } from './build_dependency.js';
 import {to_hash} from './helpers.js';
-import {find_files} from '../fs/find_files.js';
+import {find_files} from '../util/find_files.js';
 import {dirname} from 'node:path';
 
 export interface SourceMeta {

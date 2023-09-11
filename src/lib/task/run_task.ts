@@ -1,4 +1,3 @@
-import type {EventEmitter} from 'node:events';
 import {cyan, red} from 'kleur/colors';
 import {printLogLabel, SystemLogger} from '@feltjs/util/log.js';
 
@@ -22,7 +21,6 @@ export type RunTaskResult =
 export const run_task = async (
 	task_meta: TaskModuleMeta,
 	unparsed_args: Args,
-	events: EventEmitter,
 	invoke_task: typeof base_invoke_task,
 ): Promise<RunTaskResult> => {
 	const {task} = task_meta.mod;
@@ -52,10 +50,9 @@ export const run_task = async (
 	try {
 		output = await task.run({
 			args,
-			events,
 			log,
-			invoke_task: (invoked_task_name, invoked_args = {}, invoked_events = events) =>
-				invoke_task(invoked_task_name, invoked_args as Args, invoked_events), // TODO typecast
+			invoke_task: (invoked_task_name, invoked_args = {}) =>
+				invoke_task(invoked_task_name, invoked_args as Args), // TODO typecast
 		});
 	} catch (err) {
 		return {
