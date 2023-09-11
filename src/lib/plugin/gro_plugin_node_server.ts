@@ -68,11 +68,15 @@ export const create_plugin = ({
 					// TODO BLOCK construct matcher with $lib and each `config.alias` as well as paths that start with `.` or `/` I think?
 					const aliases: Record<string, string> = {$lib: 'src/lib', ...alias};
 					const alias_prefixes = Object.keys(aliases).map((a) => escapeRegexp(a));
-					console.log(blue('[sveltekit_shim_alias]'), `alias_prefixes`, alias_prefixes);
 					const matcher = new RegExp('^(' + alias_prefixes.join('|') + ')', 'u');
-					console.log(blue('[sveltekit_shim_alias]'), `matcher`, matcher);
 					build.onResolve({filter: matcher}, async (args) => {
 						// console.log(blue('[sveltekit_shim_alias]'), `[sveltekit_shim_alias] args`, args);
+						console.log(
+							blue('[sveltekit_shim_alias] path, importer'),
+							args.path,
+							'\n',
+							args.importer,
+						);
 						const {path: specifier, ...rest} = args;
 						const matches = matcher.exec(specifier)!;
 						console.log(blue('[sveltekit_shim_alias]'), `matcher.exec(specifier)`, matches);
