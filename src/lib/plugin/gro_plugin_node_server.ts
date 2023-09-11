@@ -113,12 +113,22 @@ export const create_plugin = ({
 						}
 
 						console.log(
-							blue('[sveltekit_shim_alias] RESOLVING path'),
-							green('22'),
+							blue('[sveltekit_shim_alias] ABSOLUTE path'),
+							green('22a'),
 							yellow(path),
 							specifier,
 						);
 						if (path === specifier) return {path};
+						const absolute_path = path; // TODO BLOCK refactor
+						path = relative(dirname(args.importer), absolute_path);
+						if (path[0] !== '.') path = './' + path;
+						console.log(
+							blue('[sveltekit_shim_alias] RELATIVE path'),
+							green('22b'),
+							yellow(path),
+							args.importer,
+						);
+
 						const resolved = await build.resolve(path, rest);
 						console.log(
 							blue('[sveltekit_shim_alias] RESOLVED path'),
@@ -192,6 +202,7 @@ export const create_plugin = ({
 						// server_process?.restart();
 					},
 				});
+				// await watcher.init();
 				console.log(`WATCHING paths.lib`, paths.lib);
 			}
 
