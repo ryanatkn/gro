@@ -4,7 +4,6 @@ import * as esbuild from 'esbuild';
 import {cwd} from 'node:process';
 import {yellow, red} from 'kleur/colors';
 import {extname, join, relative} from 'node:path';
-import type {Logger} from '@feltjs/util/log.js';
 import {stripEnd} from '@feltjs/util/string.js';
 
 import type {Plugin, PluginContext} from './plugin.js';
@@ -15,9 +14,10 @@ import {
 import {paths} from '../path/paths.js';
 import type {BuildName} from '../build/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
-import {render_env_shim_module} from '../util/sveltekit_shim_env.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
-import {to_sveltekit_app_specifier} from '../util/sveltekit_shim_app.js';
+import {create_sveltekit_shim_app_plugin} from '../util/sveltekit_shim_app_plugin.js';
+import {create_sveltekit_shim_env_plugin} from '../util/sveltekit_shim_env_plugin.js';
+import {print_build_result} from '../util/esbuild.js';
 
 const dir = cwd() + '/';
 
@@ -225,62 +225,3 @@ export const create_plugin = ({
 		},
 	};
 };
-
-const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {
-	for (const error of build_result.errors) {
-		log.error(red('esbuild error'), error);
-	}
-	for (const warning of build_result.warnings) {
-		log.warn(yellow('esbuild warning'), warning);
-	}
-};
-
-// TODO BLOCK extract these
-const create_sveltekit_shim_app_plugin = (): esbuild.Plugin => ({
-	name: 'sveltekit_shim_app',
-	setup: (build) => {
-		build.onResolve(
-			{filter: /^\$app\/(environment|forms|navigation|paths|stores)$/u},
-			({path, ...rest}) => {
-				const mapped = to_sveltekit_app_specifier(path);
-				if (!mapped) throw Error('Failed to map path to SvelteKit app shim: ' + path);
-				return build.resolve(mapped, rest);
-			},
-		);
-	},
-});
-
-const create_sveltekit_shim_env_plugin = (
-	dev: boolean,
-	public_prefix: string | undefined,
-	private_prefix: string | undefined,
-	env_dir: string | undefined,
-	env_files?: string[],
-	ambient_env?: Record<string, string | undefined>,
-): esbuild.Plugin => ({
-	name: 'sveltekit_shim_env',
-	setup: (build) => {
-		const namespace = 'sveltekit_shim_env';
-		const matcher = /^\$env\/(static|dynamic)\/(public|private)$/u;
-		build.onResolve({filter: matcher}, ({path}) => ({path, namespace}));
-		build.onLoad({filter: /.*/u, namespace}, (args) => {
-			const {path} = args;
-			const matches = matcher.exec(path);
-			const mode = matches![1] as 'static' | 'dynamic';
-			const visibility = matches![2] as 'public' | 'private';
-			return {
-				loader: 'ts',
-				contents: render_env_shim_module(
-					dev,
-					mode,
-					visibility,
-					public_prefix,
-					private_prefix,
-					env_dir,
-					env_files,
-					ambient_env,
-				),
-			};
-		});
-	},
-});
