@@ -1,4 +1,3 @@
-import {EventEmitter} from 'node:events';
 import {suite} from 'uvu';
 import * as assert from 'uvu/assert';
 
@@ -20,7 +19,6 @@ test__run_task('passes args and returns output', async () => {
 			},
 		},
 		args,
-		new EventEmitter(),
 		() => Promise.resolve(),
 	);
 	assert.ok(result.ok);
@@ -45,7 +43,6 @@ test__run_task('invokes a sub task', async () => {
 			},
 		},
 		args,
-		new EventEmitter(),
 		async (invokingTaskName, invokingArgs) => {
 			invoked_task_name = invokingTaskName;
 			invoked_args = invokingArgs;
@@ -73,7 +70,6 @@ test__run_task('failing task', async () => {
 			},
 		},
 		{_: []},
-		new EventEmitter(),
 		async () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
 	);
 	assert.ok(!result.ok);

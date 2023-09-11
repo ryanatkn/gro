@@ -26,12 +26,12 @@ export const task: Task<Args> = {
 	summary: 'start SvelteKit and other dev plugins',
 	Args,
 	run: async (ctx) => {
-		const {log, args, invoke_task} = ctx;
+		const {log, args} = ctx;
 		const {watch} = args;
 
 		const timings = new Timings();
 
-		// TODO BLOCK
+		// TODO BLOCK enable this
 		// await invoke_task('gen');
 
 		const timing_to_load_config = timings.start('load config');

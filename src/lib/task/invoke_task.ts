@@ -1,5 +1,4 @@
 import {cyan, red, gray} from 'kleur/colors';
-import {EventEmitter} from 'node:events';
 import {Logger, SystemLogger, printLogLabel} from '@feltjs/util/log.js';
 import {createStopwatch, Timings} from '@feltjs/util/timings.js';
 import {printMs, printTimings} from '@feltjs/util/print.js';
@@ -40,11 +39,7 @@ import {find_files} from '../util/find_files.js';
  * there are some subtle differences in the complex logical branches.
  * The comments describe each condition.
  */
-export const invoke_task = async (
-	task_name: string,
-	args: Args,
-	events = new EventEmitter(),
-): Promise<void> => {
+export const invoke_task = async (task_name: string, args: Args): Promise<void> => {
 	const log = new SystemLogger(printLogLabel(task_name || 'gro'));
 	SystemLogger.level = 'debug'; // TODO BLOCK remove this
 	log.info('invoking', task_name ? cyan(task_name) : 'gro');
@@ -91,7 +86,6 @@ export const invoke_task = async (
 				const result = await run_task(
 					task,
 					{...args, ...to_forwarded_args(`gro ${task.name}`)},
-					events,
 					invoke_task,
 				);
 				timingToRunTask();
