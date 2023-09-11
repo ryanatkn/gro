@@ -2,7 +2,7 @@ import * as esbuild from 'esbuild';
 import {yellow, red} from 'kleur/colors';
 import type {Logger} from '@feltjs/util/log.js';
 
-import {parse_specifier, print_build_result} from './esbuild.js';
+import {parse_specifier, print_build_result} from './esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from './esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_sveltekit_shim_env} from './esbuild_plugin_sveltekit_shim_env.js';
 import {esbuild_plugin_sveltekit_shim_app} from './esbuild_plugin_sveltekit_shim_app.js';

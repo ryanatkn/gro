@@ -15,7 +15,7 @@ import {watch_dir, type WatchNodeFs} from '../util/watch_dir.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
 import {esbuild_plugin_sveltekit_shim_app} from '../util/esbuild_plugin_sveltekit_shim_app.js';
 import {esbuild_plugin_sveltekit_shim_env} from '../util/esbuild_plugin_sveltekit_shim_env.js';
-import {print_build_result} from '../util/esbuild.js';
+import {print_build_result} from '../util/esbuild_helpers.js';
 import {esbuild_plugin_sveltekit_shim_alias} from '../util/esbuild_plugin_sveltekit_shim_alias.js';
 import {esbuild_plugin_external_worker} from '../util/esbuild_plugin_external_worker.js';
 import {esbuild_plugin_sveltekit_local_imports} from '../util/esbuild_plugin_sveltekit_local_imports.js';

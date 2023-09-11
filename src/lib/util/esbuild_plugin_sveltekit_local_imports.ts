@@ -2,7 +2,7 @@ import type * as esbuild from 'esbuild';
 import {yellow, red, blue, green} from 'kleur/colors';
 import {readFileSync} from 'node:fs';
 
-import {parse_specifier} from './esbuild.js';
+import {parse_specifier} from './esbuild_helpers.js';
 
 export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 	name: 'sveltekit_local_imports',
