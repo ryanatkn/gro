@@ -72,7 +72,7 @@ export const create_plugin = ({
 					build.onResolve({filter: matcher}, async (args) => {
 						console.log(
 							blue('[sveltekit_shim_alias] path, importer'),
-							args.path,
+							yellow(args.path),
 							'\n',
 							args.importer,
 						);
@@ -110,7 +110,7 @@ export const create_plugin = ({
 							}
 						}
 
-						console.log(blue('[sveltekit_shim_alias]'), yellow(`path`), path);
+						console.log(blue('[sveltekit_shim_alias] final path'), yellow(path));
 						if (path === specifier) return {path};
 						const resolved = await build.resolve(path, rest);
 						console.log(blue('[sveltekit_shim_alias] resolved'), resolved);
@@ -141,54 +141,18 @@ export const create_plugin = ({
 					{
 						name: 'external_worker',
 						setup: (build) => {
-							// TODO BLOCK construct matcher with $lib and each `config.alias`
-							const matcher = /\.worker(|\.js|\.ts)$/u;
-
-							build.onResolve({filter: matcher}, async (args) => {
+							build.onResolve({filter: /\.worker(|\.js|\.ts)$/u}, async (args) => {
 								console.log(
 									red('[external_worker] ENTER'),
 									red(`args.path, args.importer\n`),
-									args.path,
+									yellow(args.path),
 									'\n',
 									args.importer,
 								);
-								// let path = args.path[0] === '.' ? join(args.importer, '../', args.path) : args.path;
-								// console.log(red('[external_worker]'), `path`, path);
-								// if (path[0] !== '.' && path[0] !== '/') path = './' + path;
-								// if (!path.endsWith('.js')) {
-								// 	const ext = extname(path);
-								// 	if (ext === '.ts') {
-								// 		path = stripEnd(path, ext) + '.js';
-								// 	} else if (ext !== '.js') {
-								// 		path += '.js';
-								// 	}
-								// }
 
 								let path = args.path;
 
 								// TODO BLOCK probably a helper that returns {id, specifier} (entryPoint and final path)
-
-								// TODO BLOCK copypasta from loader
-								// The specifier `path` has now been mapped to its final form, so we can inspect it.
-								const path_is_relative = path[0] === '.';
-								const path_is_absolute = path[0] === '/';
-								if (!path_is_relative && !path_is_absolute) {
-									// Handle external specifiers imported by internal code.
-									throw new Error('TODO'); // TODO BLOCK
-								}
-
-								// TODO `import.meta.resolves` was supposedly unflagged for Node 20.6 but I'm still seeing it as undefined
-								// await import.meta.resolve(path);
-								let js_path = path_is_relative ? join(args.importer, '../', path) : path;
-								if (!path.endsWith('.js')) js_path += '.js'; // TODO BLOCK handle `.ts` imports too, and svelte, and ignore `.(schema|task.` etc, same helpers as esbuild plugin for server
-								if (existsSync(js_path)) {
-									path = js_path;
-								} else {
-									const ts_path = js_path.slice(0, -3) + '.ts';
-									if (existsSync(ts_path)) {
-										path = ts_path;
-									}
-								}
 
 								console.log(red('[external_worker] FINAL path'), yellow(path));
 
