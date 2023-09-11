@@ -7,7 +7,7 @@ import {replace_extension} from '../path/paths.js';
 import {exists} from './exists.js';
 
 export interface ParsedSpecifier {
-	final_path: string;
+	specifier: string;
 	source_path: string;
 	namespace: string;
 }
@@ -54,10 +54,10 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 		mapped_path = replace_extension(source_path, '.js');
 	}
 
-	let final_path = relative(dirname(importer_absolute), mapped_path);
-	if (final_path[0] !== '.') final_path = './' + final_path;
+	let specifier = relative(dirname(importer_absolute), mapped_path);
+	if (specifier[0] !== '.') specifier = './' + specifier;
 
-	return {final_path, source_path, namespace};
+	return {specifier, source_path, namespace};
 };
 
 export const print_build_result = (log: Logger, build_result: esbuild.BuildResult): void => {

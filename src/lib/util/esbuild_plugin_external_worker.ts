@@ -43,7 +43,7 @@ export const esbuild_plugin_external_worker = ({
 			const parsed = await parse_specifier(path, importer);
 			console.log(`parsed`, parsed);
 			console.log(`rest:`, rest);
-			const {final_path, source_path, namespace} = parsed;
+			const {specifier, source_path, namespace} = parsed;
 
 			// TODO BLOCK make sure this isn't called more than once if 2 files import it (probably need to cache)
 			const build_result = await esbuild.build({
@@ -65,7 +65,7 @@ export const esbuild_plugin_external_worker = ({
 			});
 			print_build_result(log, build_result);
 
-			return {path: final_path, external: true, namespace};
+			return {path: specifier, external: true, namespace};
 		});
 	},
 });

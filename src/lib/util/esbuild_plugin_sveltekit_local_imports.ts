@@ -26,11 +26,11 @@ export const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 
 			const parsed = await parse_specifier(path, importer);
 			console.log(blue('[sveltekit_imports] EXIT'), parsed);
-			const {final_path, source_path, namespace} = parsed;
+			const {specifier, source_path, namespace} = parsed;
 
-			// const resolved = await build.resolve(final_path, rest);
+			// const resolved = await build.resolve(specifier, rest);
 			// console.log(`resolved`, resolved);
-			return {path: final_path, namespace, pluginData: {source_path}};
+			return {path: specifier, namespace, pluginData: {source_path}};
 		});
 		// TODO BLOCK can we remove this?
 		build.onLoad(
