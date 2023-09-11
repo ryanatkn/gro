@@ -12,6 +12,5 @@ export const to_path_data = (id: string, stats: PathStats): PathData => {
 
 // subset of `fs.Stats`
 export interface PathStats {
-	size?: number;
 	isDirectory: () => boolean; // TODO maybe cache as `isDirectory`?
 }
