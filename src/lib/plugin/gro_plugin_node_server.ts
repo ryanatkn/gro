@@ -148,6 +148,7 @@ export const create_plugin = ({
 							namespace,
 							pluginData: {source_path},
 						});
+						return build.resolve();
 						return {path: final_path, namespace, pluginData: {source_path}};
 					});
 					// TODO BLOCK can we remove this?
