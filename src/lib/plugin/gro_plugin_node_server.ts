@@ -84,7 +84,7 @@ export const create_plugin = ({
 			const esbuild_plugin_sveltekit_local_imports = (): esbuild.Plugin => ({
 				name: 'sveltekit_local_imports',
 				setup: (build) => {
-					build.onResolve({filter: /^(\/|.)/u}, async ({path, ...rest}) => {
+					build.onResolve({filter: /^(\/|\.)/u}, async ({path, ...rest}) => {
 						const {importer} = rest;
 						console.log(
 							blue('[sveltekit_imports] ENTER path, importer'),
@@ -136,26 +136,19 @@ export const create_plugin = ({
 							}
 						}
 
-						let mapped_to_importer;
-						if (importer[0] === '.') {
-							console.log(`>>>>>>>>>>`, {
-								mapped,
-								importer,
-								source_path,
-							});
-							mapped_to_importer = join(dirname(mapped), importer);
-							console.log(`mapped_to_importer1`, cyan(mapped_to_importer));
-						} else {
-							mapped_to_importer = relative(dirname(importer), mapped);
-							console.log(`mapped_to_importer2`, cyan(mapped_to_importer));
-						}
+						const importer_absolute =
+							importer[0] === '.' ? join(dirname(mapped), importer) : importer;
+						let final_path = relative(dirname(importer_absolute), mapped);
+						if (final_path[0] !== '.') final_path = './' + final_path;
+						console.log(`final_path2`, cyan(final_path));
+
 						console.log(`mapped`, yellow(mapped));
 						console.log(blue('[sveltekit_imports] EXIT'), {
-							path: mapped_to_importer,
+							path: final_path,
 							namespace,
 							pluginData: {source_path},
 						});
-						return {path: mapped_to_importer, namespace, pluginData: {source_path}};
+						return {path: final_path, namespace, pluginData: {source_path}};
 					});
 					// TODO BLOCK can we remove this?
 					build.onLoad(
