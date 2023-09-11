@@ -24,10 +24,6 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 		throw Error('parse_specifier failed, either path or importer must be absolute');
 	}
 
-	let mapped_path;
-	let source_path;
-	let namespace;
-
 	const path_absolute = path_is_relative ? join(dirname(importer), path) : path;
 	const importer_absolute = importer_is_relative ? join(dirname(path), importer) : importer;
 
@@ -39,6 +35,10 @@ export const parse_specifier = async (path: string, importer: string): Promise<P
 		: is_ts
 		? replace_extension(path_absolute, '.js')
 		: path_absolute + '.js';
+
+	let mapped_path;
+	let source_path;
+	let namespace;
 	if (await exists(js_path)) {
 		// a `.js` version exists on the filesystem, so use it
 		namespace = 'sveltekit_local_imports_js';
