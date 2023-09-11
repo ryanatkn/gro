@@ -17,6 +17,7 @@ import type {BuildName} from '../build/build_config.js';
 import {watch_dir, type WatchNodeFs} from '../fs/watch_dir.js';
 import {render_env_shim_module} from '../util/sveltekit_shim_env.js';
 import {load_sveltekit_config} from '../util/sveltekit_config.js';
+import {to_sveltekit_app_specifier} from '../util/sveltekit_shim_app.js';
 
 const dir = cwd() + '/';
 
@@ -90,32 +91,6 @@ export const create_plugin = ({
 				},
 			});
 
-			const create_sveltekit_shim_env_plugin = (): esbuild.Plugin => ({
-				name: 'sveltekit_shim_env',
-				setup: (build) => {
-					const namespace = 'sveltekit_shim_env';
-					const matcher = /^\$env\/(static|dynamic)\/(public|private)$/u;
-					build.onResolve({filter: matcher}, ({path}) => ({path, namespace}));
-					build.onLoad({filter: /.*/u, namespace}, (args) => {
-						const {path} = args;
-						const matches = matcher.exec(path);
-						const mode = matches![1] as 'static' | 'dynamic';
-						const visibility = matches![2] as 'public' | 'private';
-						return {
-							loader: 'ts',
-							contents: render_env_shim_module(
-								dev,
-								mode,
-								visibility,
-								public_prefix,
-								private_prefix,
-								env_dir,
-							),
-						};
-					});
-				},
-			});
-
 			build_ctx = await esbuild.context({
 				entryPoints: build_config.input, // TODO BLOCK could map filters to files before calling this
 				outdir,
@@ -128,8 +103,9 @@ export const create_plugin = ({
 				// external: ['*/password_worker.ts'], // TODO BLOCK only internal project should files get marked, not transitive deps
 				plugins: [
 					// TODO BLOCK extract and refactor with the existing helpers for the loader+postprocess
+					create_sveltekit_shim_app_plugin(),
+					create_sveltekit_shim_env_plugin(dev, public_prefix, private_prefix, env_dir),
 					create_sveltekit_shim_alias_plugin(),
-					create_sveltekit_shim_env_plugin(),
 					{
 						name: 'external_worker',
 						setup: (build) => {
@@ -177,8 +153,9 @@ export const create_plugin = ({
 									bundle: true,
 									target: config.target,
 									plugins: [
+										create_sveltekit_shim_app_plugin(),
+										create_sveltekit_shim_env_plugin(dev, public_prefix, private_prefix, env_dir),
 										create_sveltekit_shim_alias_plugin(),
-										create_sveltekit_shim_env_plugin(),
 									],
 								});
 								print_build_result(log, build_result);
@@ -219,6 +196,7 @@ export const create_plugin = ({
 						// server_process?.restart();
 					},
 				});
+				console.log(`WATCHING paths.lib`, paths.lib);
 			}
 
 			console.log('INITIAL REBUILD');
@@ -231,8 +209,8 @@ export const create_plugin = ({
 			server_process = spawnRestartableProcess('node', [server_outfile]);
 			console.log(`spawned`, server_process);
 		},
-		teardown: async ({dev}) => {
-			if (!dev) return;
+		teardown: async () => {
+			console.log('TEARING DOWN');
 
 			if (server_process) {
 				await server_process.kill();
@@ -242,7 +220,6 @@ export const create_plugin = ({
 				await watcher.close();
 			}
 			if (build_ctx) {
-				console.log('TEARING DOWN');
 				await build_ctx.dispose();
 			}
 		},
@@ -257,3 +234,49 @@ const print_build_result = (log: Logger, build_result: esbuild.BuildResult): voi
 		log.warn(yellow('esbuild warning'), warning);
 	}
 };
+
+// TODO BLOCK extract these
+const create_sveltekit_shim_app_plugin = (): esbuild.Plugin => ({
+	name: 'sveltekit_shim_app',
+	setup: (build) => {
+		build.onResolve(
+			{filter: /^\$app\/(environment|forms|navigation|paths|stores)$/u},
+			({path, ...rest}) => build.resolve(to_sveltekit_app_specifier(path)!, rest),
+		);
+	},
+});
+
+const create_sveltekit_shim_env_plugin = (
+	dev: boolean,
+	public_prefix: string | undefined,
+	private_prefix: string | undefined,
+	env_dir: string | undefined,
+	env_files?: string[],
+	ambient_env?: Record<string, string | undefined>,
+): esbuild.Plugin => ({
+	name: 'sveltekit_shim_env',
+	setup: (build) => {
+		const namespace = 'sveltekit_shim_env';
+		const matcher = /^\$env\/(static|dynamic)\/(public|private)$/u;
+		build.onResolve({filter: matcher}, ({path}) => ({path, namespace}));
+		build.onLoad({filter: /.*/u, namespace}, (args) => {
+			const {path} = args;
+			const matches = matcher.exec(path);
+			const mode = matches![1] as 'static' | 'dynamic';
+			const visibility = matches![2] as 'public' | 'private';
+			return {
+				loader: 'ts',
+				contents: render_env_shim_module(
+					dev,
+					mode,
+					visibility,
+					public_prefix,
+					private_prefix,
+					env_dir,
+					env_files,
+					ambient_env,
+				),
+			};
+		});
+	},
+});
